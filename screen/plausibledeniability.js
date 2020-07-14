@@ -8,7 +8,7 @@ import { AppStorage } from '../class';
 const BlueApp: AppStorage = require('../BlueApp');
 const prompt = require('../blue_modules/prompt');
 const EV = require('../blue_modules/events');
-const loc = require('../loc');
+import loc from '../loc';;
 
 const styles = StyleSheet.create({
   root: {

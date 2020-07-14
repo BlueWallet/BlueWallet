@@ -6,7 +6,7 @@ import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import { SafeBlueArea, BlueNavigationStyle, BlueTabs } from '../../BlueComponents';
-const loc = require('../../loc');
+import loc from '../../loc';
 const BlueApp = require('../../BlueApp');
 
 const ENTROPY_LIMIT = 256;

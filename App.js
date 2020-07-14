@@ -15,6 +15,7 @@ import QuickActions from 'react-native-quick-actions';
 import * as Sentry from '@sentry/react-native';
 import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
+import loc from './loc';
 const A = require('./blue_modules/analytics');
 
 if (process.env.NODE_ENV !== 'development') {
@@ -25,7 +26,6 @@ if (process.env.NODE_ENV !== 'development') {
 
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
-const loc = require('./loc');
 const BlueApp = require('./BlueApp');
 const EV = require('./blue_modules/events');
 

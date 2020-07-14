@@ -18,7 +18,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const EV = require('../blue_modules/events');
 const A = require('../blue_modules/analytics');
 const BlueApp: AppStorage = require('../BlueApp');
-const loc = require('../loc');
+import loc from '../loc';;
 const bip38 = require('../blue_modules/bip38');
 const wif = require('wif');
 const prompt = require('../blue_modules/prompt');

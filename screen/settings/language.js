@@ -4,7 +4,7 @@ import { BlueLoading, BlueText, SafeBlueArea, BlueListItem, BlueCard, BlueNaviga
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
 import { AvailableLanguages } from '../../loc/languages';
-const loc = require('../../loc');
+import loc from '../../loc';
 
 const styles = StyleSheet.create({
   flex: {

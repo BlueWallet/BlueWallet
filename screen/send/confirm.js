@@ -17,7 +17,7 @@ import {
   SegwitP2SHWallet,
   SegwitBech32Wallet,
 } from '../../class';
-const loc = require('../../loc');
+import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 const EV = require('../../blue_modules/events');
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -95,7 +95,7 @@ export default class Confirm extends Component {
               SegwitBech32Wallet.type,
             ].includes(this.state.fromWallet.type)
           ) {
-            amount = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
+            amount = formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
           }
 
           this.props.navigation.navigate('Success', {
@@ -164,7 +164,7 @@ export default class Confirm extends Component {
           <View style={styles.cardContainer}>
             <BlueCard>
               <Text style={styles.cardText}>
-                {loc.send.create.fee}: {loc.formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
+                {loc.send.create.fee}: {formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
                 {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
               </Text>
               <BlueSpacing40 />

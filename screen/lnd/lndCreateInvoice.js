@@ -26,10 +26,10 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
+import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
 const currency = require('../../blue_modules/currency');
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
-const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   createButton: {
@@ -301,7 +301,7 @@ export default class LNDCreateInvoice extends Component {
             amount = currency.satoshiToBTC(amount);
             break;
           case BitcoinUnit.LOCAL_CURRENCY:
-            amount = loc.formatBalancePlain(amount, BitcoinUnit.LOCAL_CURRENCY);
+            amount = formatBalancePlain(amount, BitcoinUnit.LOCAL_CURRENCY);
             BlueBitcoinAmount.setCachedSatoshis(amount, sats);
             break;
         }
@@ -386,7 +386,7 @@ export default class LNDCreateInvoice extends Component {
           >
             <Text style={styles.walletNameText}>{this.state.fromWallet.getLabel()}</Text>
             <Text style={styles.walletNameBalance}>
-              {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
+              {formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
             </Text>
             <Text style={styles.walletNameSats}>{BitcoinUnit.SATS}</Text>
           </TouchableOpacity>

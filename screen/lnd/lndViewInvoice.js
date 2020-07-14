@@ -15,9 +15,9 @@ import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
+import loc from '../../loc';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
 const EV = require('../../blue_modules/events');
 const { width, height } = Dimensions.get('window');
 

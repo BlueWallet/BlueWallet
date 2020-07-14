@@ -13,9 +13,9 @@ import {
 import QRCode from 'react-native-qrcode-svg';
 import Privacy from '../../Privacy';
 import { ScrollView } from 'react-native-gesture-handler';
+import loc from '../../loc';
 const { height, width } = Dimensions.get('window');
 const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   root: {

@@ -27,10 +27,10 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
-const loc = require('../../loc');
 const currency = require('../../blue_modules/currency');
 
 const styles = StyleSheet.create({
@@ -334,7 +334,7 @@ export default class ScanLndInvoice extends React.Component {
           >
             <Text style={styles.walletWrapLabel}>{this.state.fromWallet.getLabel()}</Text>
             <Text style={styles.walletWrapBalance}>
-              {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
+              {formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
             </Text>
             <Text style={styles.walletWrapSats}>{BitcoinUnit.SATS}</Text>
           </TouchableOpacity>

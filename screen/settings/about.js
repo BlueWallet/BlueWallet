@@ -13,9 +13,9 @@ import {
 } from '../../BlueComponents';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
+import loc from '../../loc';
 /** @type {AppStorage} */
 const { width, height } = Dimensions.get('window');
-const loc = require('../../loc/');
 
 const styles = StyleSheet.create({
   root: {

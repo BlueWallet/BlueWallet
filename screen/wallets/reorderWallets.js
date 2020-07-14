@@ -7,10 +7,10 @@ import PropTypes from 'prop-types';
 import { PlaceholderWallet, LightningCustodianWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/wallet-gradient';
+import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 const EV = require('../../blue_modules/events');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const loc = require('../../loc/');
 
 const styles = StyleSheet.create({
   loading: {
@@ -137,14 +137,14 @@ export default class ReorderWallets extends Component {
             {item.getLabel()}
           </Text>
           <Text numberOfLines={1} adjustsFontSizeToFit style={styles.balance}>
-            {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+            {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
           </Text>
           <Text style={styles.transparentText} />
           <Text numberOfLines={1} style={styles.latestTxLabel}>
             {loc.wallets.list.latest_transaction}
           </Text>
           <Text numberOfLines={1} style={styles.latestTxValue}>
-            {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
+            {transactionTimeToReadable(item.getLatestTransactionTime())}
           </Text>
         </LinearGradient>
       </View>

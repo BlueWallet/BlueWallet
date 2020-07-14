@@ -62,8 +62,8 @@ import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
+import loc from './loc';
 const BlueApp = require('./BlueApp');
-const loc = require('./loc');
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const defaultScreenOptions =

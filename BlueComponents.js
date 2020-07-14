@@ -36,7 +36,7 @@ import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/netw
 import Biometric from './class/biometrics';
 import { encodeUR } from 'bc-ur/dist';
 import QRCode from 'react-native-qrcode-svg';
-const loc = require('./loc/');
+import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
 /** @type {AppStorage} */
 const BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
@@ -175,7 +175,7 @@ export class BlueWalletNavigationHeader extends Component {
   }
 
   handleCopyPress = _item => {
-    Clipboard.setString(loc.formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit()).toString());
+    Clipboard.setString(formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit()).toString());
   };
 
   componentDidMount() {
@@ -319,7 +319,7 @@ export class BlueWalletNavigationHeader extends Component {
                 color: '#fff',
               }}
             >
-              {loc.formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit(), true).toString()}
+              {formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit(), true).toString()}
             </Text>
           )}
         </TouchableOpacity>
@@ -862,9 +862,7 @@ export class BlueUseAllFundsButton extends Component {
             <BlueButtonLink
               onPress={this.props.onUseAllPressed}
               style={{ marginLeft: 8, paddingRight: 0, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
-              title={`${loc.formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} ${
-                BitcoinUnit.BTC
-              }`}
+              title={`${formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} ${BitcoinUnit.BTC}`}
             />
           ) : (
             <Text
@@ -879,7 +877,7 @@ export class BlueUseAllFundsButton extends Component {
                 paddingBottom: 12,
               }}
             >
-              {loc.formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} {BitcoinUnit.BTC}
+              {formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} {BitcoinUnit.BTC}
             </Text>
           )}
         </View>
@@ -1420,8 +1418,6 @@ export class NewWalletPanel extends Component {
 export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, timeElapsed }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
 
-  const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
-
   const txMemo = () => {
     if (BlueApp.tx_metadata[item.hash] && BlueApp.tx_metadata[item.hash].memo) {
       return BlueApp.tx_metadata[item.hash].memo;
@@ -1439,16 +1435,16 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
       const invoiceExpiration = item.timestamp + item.expire_time;
 
       if (invoiceExpiration > now) {
-        return loc.formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
+        return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
       } else if (invoiceExpiration < now) {
         if (item.ispaid) {
-          return loc.formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
+          return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
         } else {
           return loc.lnd.expired;
         }
       }
     } else {
-      return loc.formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
+      return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
     }
   };
 
@@ -1585,7 +1581,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     <View style={{ marginHorizontal: 4 }}>
       <BlueListItem
         leftAvatar={avatar()}
-        title={transactionTimeToReadable}
+        title={transactionTimeToReadable(item.received)}
         titleNumberOfLines={subtitleNumberOfLines}
         subtitle={subtitle()}
         subtitleProps={{ numberOfLines: subtitleNumberOfLines }}
@@ -1628,16 +1624,16 @@ export class BlueListTransactionItem extends Component {
       const invoiceExpiration = item.timestamp + item.expire_time;
 
       if (invoiceExpiration > now) {
-        return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
+        return formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
       } else if (invoiceExpiration < now) {
         if (item.ispaid) {
-          return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
+          return formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
         } else {
           return loc.lnd.expired;
         }
       }
     } else {
-      return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
+      return formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
     }
   };
 
@@ -1773,7 +1769,7 @@ export class BlueListTransactionItem extends Component {
     return (
       <BlueListItem
         avatar={this.avatar()}
-        title={loc.transactionTimeToReadable(this.props.item.received)}
+        title={transactionTimeToReadable(this.props.item.received)}
         subtitle={this.subtitle()}
         onPress={this.onPress}
         hideChevron
@@ -1948,7 +1944,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
                   color: BlueApp.settings.inverseForegroundColor,
                 }}
               >
-                {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+                {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
               </Text>
             )}
             <Text style={{ backgroundColor: 'transparent' }} />
@@ -1971,7 +1967,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
                 color: BlueApp.settings.inverseForegroundColor,
               }}
             >
-              {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
+              {transactionTimeToReadable(item.getLatestTransactionTime())}
             </Text>
           </LinearGradient>
         </TouchableWithoutFeedback>
@@ -2307,7 +2303,7 @@ export class BlueBitcoinAmount extends Component {
     }
     console.log('so, in sats its', sats);
 
-    const newInputValue = loc.formatBalancePlain(sats, newUnit, false);
+    const newInputValue = formatBalancePlain(sats, newUnit, false);
     console.log('and in', newUnit, 'its', newInputValue);
 
     if (newUnit === BitcoinUnit.LOCAL_CURRENCY && previousUnit === BitcoinUnit.SATS) {
@@ -2356,7 +2352,7 @@ export class BlueBitcoinAmount extends Component {
 
   render() {
     const amount = this.props.amount || 0;
-    let secondaryDisplayCurrency = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
+    let secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
 
     // if main display is sat or btc - secondary display is fiat
     // if main display is fiat - secondary dislay is btc
@@ -2364,10 +2360,10 @@ export class BlueBitcoinAmount extends Component {
     switch (this.state.unit) {
       case BitcoinUnit.BTC:
         sat = new BigNumber(amount).multipliedBy(100000000).toString();
-        secondaryDisplayCurrency = loc.formatBalanceWithoutSuffix(sat, BitcoinUnit.LOCAL_CURRENCY, false);
+        secondaryDisplayCurrency = formatBalanceWithoutSuffix(sat, BitcoinUnit.LOCAL_CURRENCY, false);
         break;
       case BitcoinUnit.SATS:
-        secondaryDisplayCurrency = loc.formatBalanceWithoutSuffix(amount.toString(), BitcoinUnit.LOCAL_CURRENCY, false);
+        secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount.toString(), BitcoinUnit.LOCAL_CURRENCY, false);
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
         secondaryDisplayCurrency = currency.fiatToBTC(parseFloat(amount));
@@ -2485,7 +2481,7 @@ export class BlueBitcoinAmount extends Component {
             <View style={{ alignItems: 'center', marginBottom: 22 }}>
               <Text style={{ fontSize: 16, color: '#9BA0A9', fontWeight: '600' }}>
                 {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX
-                  ? loc.removeTrailingZeros(secondaryDisplayCurrency)
+                  ? removeTrailingZeros(secondaryDisplayCurrency)
                   : secondaryDisplayCurrency}
                 {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX ? ` ${BitcoinUnit.BTC}` : null}
               </Text>

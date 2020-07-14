@@ -7,9 +7,9 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/wallet-gradient';
 import { useRoute } from '@react-navigation/native';
+import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   root: {
@@ -116,7 +116,7 @@ const SelectWallet = ({ navigation }) => {
               <BluePrivateBalance />
             ) : (
               <Text numberOfLines={1} adjustsFontSizeToFit style={styles.balance}>
-                {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+                {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
               </Text>
             )}
             <Text style={styles.transparentText} />
@@ -124,7 +124,7 @@ const SelectWallet = ({ navigation }) => {
               {loc.wallets.list.latest_transaction}
             </Text>
             <Text numberOfLines={1} style={styles.latestTxValue}>
-              {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
+              {transactionTimeToReadable(item.getLatestTransactionTime())}
             </Text>
           </LinearGradient>
         </View>

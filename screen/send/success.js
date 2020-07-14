@@ -6,7 +6,7 @@ import { Text } from 'react-native-elements';
 import { BlueButton, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
-const loc = require('../../loc');
+import loc from '../../loc';
 
 const styles = StyleSheet.create({
   root: {

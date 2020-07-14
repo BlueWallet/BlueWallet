@@ -7,9 +7,9 @@ import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNav
 import PropTypes from 'prop-types';
 import { Button } from 'react-native-elements';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import loc from '../../loc';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   root: {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { BlueNavigationStyle, BlueLoading, SafeBlueArea, BlueListItem } from '../../BlueComponents';
 import { useNavigation } from '@react-navigation/native';
-const loc = require('../../loc');
+import loc from '../../loc';
 
 const styles = StyleSheet.create({
   root: {

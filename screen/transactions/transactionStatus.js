@@ -18,9 +18,9 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import Handoff from 'react-native-handoff';
 import HandoffSettings from '../../class/handoff';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
 
 const buttonStatus = Object.freeze({
   possible: 1,
@@ -263,7 +263,7 @@ export default class TransactionsStatus extends Component {
           <BlueCard>
             <View style={styles.center}>
               <Text style={styles.value}>
-                {loc.formatBalanceWithoutSuffix(this.state.tx.value, this.state.wallet.preferredBalanceUnit, true)}{' '}
+                {formatBalanceWithoutSuffix(this.state.tx.value, this.state.wallet.preferredBalanceUnit, true)}{' '}
                 {this.state.wallet.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
                   <Text style={styles.valueUnit}>{this.state.wallet.preferredBalanceUnit}</Text>
                 )}
@@ -316,7 +316,7 @@ export default class TransactionsStatus extends Component {
               <View style={styles.fee}>
                 <BlueText style={styles.feeText}>
                   {loc.send.create.fee.toLowerCase()}{' '}
-                  {loc.formatBalanceWithoutSuffix(this.state.tx.fee, this.state.wallet.preferredBalanceUnit, true)}{' '}
+                  {formatBalanceWithoutSuffix(this.state.tx.fee, this.state.wallet.preferredBalanceUnit, true)}{' '}
                   {this.state.wallet.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && this.state.wallet.preferredBalanceUnit}
                 </BlueText>
               </View>

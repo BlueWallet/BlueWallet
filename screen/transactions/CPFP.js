@@ -17,10 +17,10 @@ import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import { Text } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import loc from '../../loc';
 /** @type {AppStorage} */
 const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
-const loc = require('../../loc');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 

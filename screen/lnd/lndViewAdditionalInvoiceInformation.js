@@ -12,9 +12,9 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import QRCode from 'react-native-qrcode-svg';
+import loc from '../../loc';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   loading: {

@@ -1,13 +1,15 @@
 import Localization from 'react-localization';
 import AsyncStorage from '@react-native-community/async-storage';
-import { AppStorage } from '../class';
-import { BitcoinUnit } from '../models/bitcoinUnits';
+import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import * as RNLocalize from 'react-native-localize';
+import BigNumber from 'bignumber.js';
+
+import { AppStorage } from '../class';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages } from './languages';
-const dayjs = require('dayjs');
 const currency = require('../blue_modules/currency');
-const BigNumber = require('bignumber.js');
+
 dayjs.extend(relativeTime);
 
 // first-time loading sequence
@@ -146,7 +148,7 @@ const strings = new Localization({
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
 
-strings.transactionTimeToReadable = time => {
+export const transactionTimeToReadable = time => {
   if (time === 0) {
     return strings._.never;
   }
@@ -160,7 +162,7 @@ strings.transactionTimeToReadable = time => {
   return ret;
 };
 
-strings.removeTrailingZeros = value => {
+export const removeTrailingZeros = value => {
   value = value.toString();
 
   if (value.indexOf('.') === -1) {
@@ -179,13 +181,13 @@ strings.removeTrailingZeros = value => {
  * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
  * @returns {string}
  */
-function formatBalance(balance, toUnit, withFormatting = false) {
+export function formatBalance(balance, toUnit, withFormatting = false) {
   if (toUnit === undefined) {
     return balance + ' ' + BitcoinUnit.BTC;
   }
   if (toUnit === BitcoinUnit.BTC) {
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-    return strings.removeTrailingZeros(value) + ' ' + BitcoinUnit.BTC;
+    return removeTrailingZeros(value) + ' ' + BitcoinUnit.BTC;
   } else if (toUnit === BitcoinUnit.SATS) {
     return (
       (balance < 0 ? '-' : '') +
@@ -205,14 +207,14 @@ function formatBalance(balance, toUnit, withFormatting = false) {
  * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
  * @returns {string}
  */
-function formatBalanceWithoutSuffix(balance = 0, toUnit, withFormatting = false) {
+export function formatBalanceWithoutSuffix(balance = 0, toUnit, withFormatting = false) {
   if (toUnit === undefined) {
     return balance;
   }
   if (balance !== 0) {
     if (toUnit === BitcoinUnit.BTC) {
       const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-      return strings.removeTrailingZeros(value);
+      return removeTrailingZeros(value);
     } else if (toUnit === BitcoinUnit.SATS) {
       return (balance < 0 ? '-' : '') + (withFormatting ? new Intl.NumberFormat().format(balance).replace(/[^0-9]/g, ' ') : balance);
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
@@ -230,12 +232,12 @@ function formatBalanceWithoutSuffix(balance = 0, toUnit, withFormatting = false)
  * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
  * @returns {string}
  */
-function formatBalancePlain(balance = 0, toUnit, withFormatting = false) {
+export function formatBalancePlain(balance = 0, toUnit, withFormatting = false) {
   const newInputValue = formatBalanceWithoutSuffix(balance, toUnit, withFormatting);
   return _leaveNumbersAndDots(newInputValue);
 }
 
-function _leaveNumbersAndDots(newInputValue) {
+export function _leaveNumbersAndDots(newInputValue) {
   newInputValue = newInputValue.replace(/[^\d.,-]/g, ''); // filtering, leaving only numbers, dots & commas
   if (newInputValue.endsWith('.00') || newInputValue.endsWith(',00')) newInputValue = newInputValue.substring(0, newInputValue.length - 3);
 
@@ -248,8 +250,4 @@ function _leaveNumbersAndDots(newInputValue) {
   return newInputValue;
 }
 
-module.exports = strings;
-module.exports.formatBalanceWithoutSuffix = formatBalanceWithoutSuffix;
-module.exports.formatBalance = formatBalance;
-module.exports.formatBalancePlain = formatBalancePlain;
-module.exports._leaveNumbersAndDots = _leaveNumbersAndDots;
+export default strings;
