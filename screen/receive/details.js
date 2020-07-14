@@ -167,7 +167,7 @@ const ReceiveDetails = () => {
               <TextInput
                 onChangeText={setCustomLabel}
                 placeholderTextColor="#81868e"
-                placeholder={loc.receive.details.label}
+                placeholder={loc.receive.details_label}
                 value={customLabel || ''}
                 numberOfLines={1}
                 style={styles.customAmountText}
@@ -175,7 +175,7 @@ const ReceiveDetails = () => {
             </View>
             <BlueSpacing20 />
             <View>
-              <BlueButton title={loc.receive.details.create} onPress={createCustomAmountAddress} />
+              <BlueButton title={loc.receive.details_create} onPress={createCustomAmountAddress} />
               <BlueSpacing20 />
               <BlueButtonLink title="Reset" onPress={clearCustomAmount} />
             </View>
@@ -245,7 +245,7 @@ const ReceiveDetails = () => {
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>
-          <BlueButtonLink title={loc.receive.details.setAmount} onPress={showCustomAmountModal} />
+          <BlueButtonLink title={loc.receive.details_setAmount} onPress={showCustomAmountModal} />
           <View>
             <BlueButton
               icon={{
@@ -254,7 +254,7 @@ const ReceiveDetails = () => {
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={handleShareButtonPressed}
-              title={loc.receive.details.share}
+              title={loc.receive.details_share}
             />
           </View>
         </View>

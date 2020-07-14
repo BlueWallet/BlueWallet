@@ -72,7 +72,7 @@ export default class ReorderWallets extends Component {
       true,
       route.params && route.params.customCloseButtonFunction ? route.params.customCloseButtonFunction : undefined,
     ),
-    headerTitle: loc.wallets.reorder.title,
+    headerTitle: loc.wallets.reorder_title,
     headerLeft: null,
     gestureEnabled: false,
   });
@@ -141,7 +141,7 @@ export default class ReorderWallets extends Component {
           </Text>
           <Text style={styles.transparentText} />
           <Text numberOfLines={1} style={styles.latestTxLabel}>
-            {loc.wallets.list.latest_transaction}
+            {loc.wallets.list_latest_transaction}
           </Text>
           <Text numberOfLines={1} style={styles.latestTxValue}>
             {transactionTimeToReadable(item.getLatestTransactionTime())}

@@ -37,50 +37,40 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Copier dans le presse-papiers.",
-      "setAmount": "Revevoir avec montant",
-      "share": "partager",
-      "title": "Partager cette adresse avec le destinataire"
-    },
+    "details_copiedToClipboard": "Copier dans le presse-papiers.",
+    "details_setAmount": "Revevoir avec montant",
+    "details_share": "partager",
+    "details_title": "Partager cette adresse avec le destinataire",
     "header": "Recevoir"
   },
   "send": {
-    "confirm": {
-      "header": "Confirmer",
-      "sendNow": "Envoyer maintenant"
-    },
-    "create": {
-      "amount": "Montant",
-      "error": "Erreur creating transaction. Invalid address or send amount?",
-      "fee": "Frais",
-      "go_back": "Retour",
-      "not_enough_fee": "Frais insufisants. Veuillez augmenter les frais",
-      "satoshi_per_byte": "Satoshi par byte",
-      "title": "créer une transaction",
-      "to": "À",
-      "tx_size": "Taille de la Transaction (TX size)"
-    },
-    "details": {
-      "address": "adresse",
-      "address_field_is_not_valid": "Champ adresse invalide",
-      "amount_field_is_not_valid": "Champ montant invalide",
-      "amount_placeholder": "montant à envoyer (en BTC)",
-      "cancel": "Annuler",
-      "create": "Créer",
-      "fee_field_is_not_valid": "Champ frais invalide",
-      "fee_placeholder": "plus frais de transaction (en BTC)",
-      "note_placeholder": "note (optionnelle)",
-      "remaining_balance": "Balance restante",
-      "scan": "Scanner",
-      "send": "Envoyer",
-      "title": "créer une transaction",
-      "total_exceeds_balance": "Le montant à envoyer excède le montant disponible."
-    },
+    "confirm_header": "Confirmer",
+    "confirm_sendNow": "Envoyer maintenant",
+    "create_amount": "Montant",
+    "create_error": "Erreur creating transaction. Invalid address or send amount?",
+    "create_fee": "Frais",
+    "create_go_back": "Retour",
+    "create_not_enough_fee": "Frais insufisants. Veuillez augmenter les frais",
+    "create_satoshi_per_byte": "Satoshi par byte",
+    "create_title": "créer une transaction",
+    "create_to": "À",
+    "create_tx_size": "Taille de la Transaction (TX size)",
+    "details_address": "adresse",
+    "details_address_field_is_not_valid": "Champ adresse invalide",
+    "details_amount_field_is_not_valid": "Champ montant invalide",
+    "details_amount_placeholder": "montant à envoyer (en BTC)",
+    "details_cancel": "Annuler",
+    "details_create": "Créer",
+    "details_fee_field_is_not_valid": "Champ frais invalide",
+    "details_fee_placeholder": "plus frais de transaction (en BTC)",
+    "details_note_placeholder": "note (optionnelle)",
+    "details_remaining_balance": "Balance restante",
+    "details_scan": "Scanner",
+    "details_send": "Envoyer",
+    "details_title": "créer une transaction",
+    "details_total_exceeds_balance": "Le montant à envoyer excède le montant disponible.",
     "header": "Envoyer",
-    "success": {
-      "done": "Terminé"
-    }
+    "success_done": "Terminé"
   },
   "settings": {
     "about": "À propos",
@@ -101,92 +91,72 @@
     "storage_not_encrypted": "Stockage: non chiffré"
   },
   "transactions": {
-    "details": {
-      "copy": "Copier",
-      "from": "De",
-      "show_in_block_explorer": "Afficher dans le \"block explorer\"",
-      "to": "À",
-      "transaction_details": "Détails de la transaction"
-    },
-    "list": {
-      "description": "Une liste des transactions entrentes et sortantes de vos portefeuilles"
-    }
+    "details_copy": "Copier",
+    "details_from": "De",
+    "details_show_in_block_explorer": "Afficher dans le \"block explorer\"",
+    "details_to": "À",
+    "details_transaction_details": "Détails de la transaction",
+    "list_description": "Une liste des transactions entrentes et sortantes de vos portefeuilles"
   },
   "wallets": {
-    "add": {
-      "coming_soon": "Bientôt",
-      "create": "Créer",
-      "description": "Vous pouvez soit scanner et importer un paper wallet (au format WIF - Wallet Import Format), ou créer un nouveau portefeuille. Compatible avec Segwit par defaut.",
-      "import_wallet": "Importer un portefeuille",
-      "imported": "Importé",
-      "label_new_lightning": "Nouveau Lightning",
-      "label_new_segwit": "Nouveau SegWit",
-      "or": "ou",
-      "scan": "Scanner",
-      "title": "ajouter un portefeuille",
-      "wallet_name": "nom du portefeuille"
-    },
+    "add_coming_soon": "Bientôt",
+    "add_create": "Créer",
+    "add_description": "Vous pouvez soit scanner et importer un paper wallet (au format WIF - Wallet Import Format), ou créer un nouveau portefeuille. Compatible avec Segwit par defaut.",
+    "add_import_wallet": "Importer un portefeuille",
+    "add_imported": "Importé",
+    "add_label_new_lightning": "Nouveau Lightning",
+    "add_label_new_segwit": "Nouveau SegWit",
+    "add_or": "ou",
+    "add_scan": "Scanner",
+    "add_title": "ajouter un portefeuille",
+    "add_wallet_name": "nom du portefeuille",
     "createBitcoinWallet": "In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?",
-    "details": {
-      "address": "Adresse",
-      "are_you_sure": "Êtes vous sur?",
-      "buy_bitcoin": "Acheter du Bitcoin",
-      "delete": "Supprimer",
-      "delete_this_wallet": "Supprimer ce portefeuille",
-      "export_backup": "Exporter / sauvegarder",
-      "label": "Libelé",
-      "no_cancel": "Non, annuler",
-      "save": "Sauvegarder",
-      "show_xpub": "Afficher XPUB du portefeuille",
-      "title": "Portefeuille",
-      "yes_delete": "Oui, supprimer"
-    },
-    "export": {
-      "title": "export du portefeuille"
-    },
-    "import": {
-      "do_import": "Importer",
-      "error": "Échec de l'import. Merci, de vérifier que les données saisies sont valides.",
-      "imported": "Importé",
-      "scan_qr": "ou scaner un QR code",
-      "success": "Succès",
-      "title": "importer"
-    },
-    "list": {
-      "add": "Ajouter un portefeuille",
-      "create_a_button": "Ajouter maintenant",
-      "create_a_wallet": "Ajouter un portefeuille",
-      "create_a_wallet1": "C'est gratuit et vous pouvez en créer",
-      "create_a_wallet2": "autant que vous souhaitez",
-      "empty_txs1": "Vos transactions apparaîtront ici,",
-      "empty_txs2": "Aucune pour le moment",
-      "header": "Un portefeuille represente une paire de clées (publique/privée) et une adresse que vous pouvez partager pour recevoir des transactions.",
-      "latest_transaction": "dernière transaction",
-      "tap_here_to_buy": "Cliquez ici pour acheter du Bitcoin",
-      "title": "portefeuilles"
-    },
-    "reorder": {
-      "title": "Trier vos portefeuilles"
-    },
-    "scanQrWif": {
-      "bad_password": "Mauvais mot de passe",
-      "bad_wif": "Mauvais WIF",
-      "cancel": "Annuler",
-      "decoding": "Déchiffrage",
-      "go_back": "Retour",
-      "imported_legacy": "Legacy Importé",
-      "imported_segwit": "SegWit Importé",
-      "imported_watchonly": "Monitoring Importé",
-      "imported_wif": "WIF Importé",
-      "input_password": "Saisir mot de passe",
-      "password_explain": "Ceci est une clée privée chiffrée avec BIP38",
-      "wallet_already_exists": "Ce portefeuille existe déjà",
-      "with_address": " avec adresse "
-    },
+    "details_address": "Adresse",
+    "details_are_you_sure": "Êtes vous sur?",
+    "details_buy_bitcoin": "Acheter du Bitcoin",
+    "details_delete": "Supprimer",
+    "details_delete_this_wallet": "Supprimer ce portefeuille",
+    "details_export_backup": "Exporter / sauvegarder",
+    "details_label": "Libelé",
+    "details_no_cancel": "Non, annuler",
+    "details_save": "Sauvegarder",
+    "details_show_xpub": "Afficher XPUB du portefeuille",
+    "details_title": "Portefeuille",
+    "details_yes_delete": "Oui, supprimer",
+    "export_title": "export du portefeuille",
+    "import_do_import": "Importer",
+    "import_error": "Échec de l'import. Merci, de vérifier que les données saisies sont valides.",
+    "import_imported": "Importé",
+    "import_scan_qr": "ou scaner un QR code",
+    "import_success": "Succès",
+    "import_title": "importer",
+    "list_add": "Ajouter un portefeuille",
+    "list_create_a_button": "Ajouter maintenant",
+    "list_create_a_wallet": "Ajouter un portefeuille",
+    "list_create_a_wallet1": "C'est gratuit et vous pouvez en créer",
+    "list_create_a_wallet2": "autant que vous souhaitez",
+    "list_empty_txs1": "Vos transactions apparaîtront ici,",
+    "list_empty_txs2": "Aucune pour le moment",
+    "list_header": "Un portefeuille represente une paire de clées (publique/privée) et une adresse que vous pouvez partager pour recevoir des transactions.",
+    "list_latest_transaction": "dernière transaction",
+    "list_tap_here_to_buy": "Cliquez ici pour acheter du Bitcoin",
+    "list_title": "portefeuilles",
+    "reorder_title": "Trier vos portefeuilles",
+    "scanQrWif_bad_password": "Mauvais mot de passe",
+    "scanQrWif_bad_wif": "Mauvais WIF",
+    "scanQrWif_cancel": "Annuler",
+    "scanQrWif_decoding": "Déchiffrage",
+    "scanQrWif_go_back": "Retour",
+    "scanQrWif_imported_legacy": "Legacy Importé",
+    "scanQrWif_imported_segwit": "SegWit Importé",
+    "scanQrWif_imported_watchonly": "Monitoring Importé",
+    "scanQrWif_imported_wif": "WIF Importé",
+    "scanQrWif_input_password": "Saisir mot de passe",
+    "scanQrWif_password_explain": "Ceci est une clée privée chiffrée avec BIP38",
+    "scanQrWif_wallet_already_exists": "Ce portefeuille existe déjà",
+    "scanQrWif_with_address": " avec adresse ",
     "select_wallet": "Choix du portefeuille",
-    "xpub": {
-      "copiedToClipboard": "Copié dans le presse-papiers.",
-      "title": "XPUB portefeuille"
-    }
+    "xpub_copiedToClipboard": "Copié dans le presse-papiers.",
+    "xpub_title": "XPUB portefeuille"
   }
 }

@@ -15,23 +15,17 @@
     "ok": "OK, I wrote this down!"
   },
   "send": {
-    "details": {
-      "create": "Create"
-    }
+    "details_create": "Create"
   },
   "settings": {
     "enable_advanced_mode": "Enable advanced mode",
     "plausible_deniability": "Plausible deniability..."
   },
   "wallets": {
-    "import": {
-      "scan_qr": "or scan QR code instead?",
-      "success": "Success"
-    },
-    "list": {
-      "empty_txs1": "Your transactions will appear here,",
-      "empty_txs2": "none at the moment",
-      "tap_here_to_buy": "Tap here to buy Bitcoin"
-    }
+    "import_scan_qr": "or scan QR code instead?",
+    "import_success": "Success",
+    "list_empty_txs1": "Your transactions will appear here,",
+    "list_empty_txs2": "none at the moment",
+    "list_tap_here_to_buy": "Tap here to buy Bitcoin"
   }
 }

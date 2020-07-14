@@ -194,7 +194,7 @@ export default class App extends React.Component {
             <View style={styles.modelContentButtonLayout}>
               <BlueButton
                 noMinWidth
-                title={loc.send.details.cancel}
+                title={loc.send.details_cancel}
                 onPress={() => this.setState({ isClipboardContentModalVisible: false })}
               />
               <View style={styles.space} />

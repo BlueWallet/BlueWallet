@@ -370,7 +370,7 @@ export default class WalletTransactions extends Component {
           {this.state.wallet.type === LightningCustodianWallet.type && this.renderMarketplaceButton()}
           {this.state.wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && this.renderLappBrowserButton()}
         </View>
-        <Text style={styles.listHeaderText}>{loc.transactions.list.title}</Text>
+        <Text style={styles.listHeaderText}>{loc.transactions.list_title}</Text>
       </View>
     );
   };
@@ -500,7 +500,7 @@ export default class WalletTransactions extends Component {
         }
         style={styles.marketplaceButton2}
       >
-        <Text style={styles.marketpalceText1}>{loc.wallets.list.tap_here_to_buy}</Text>
+        <Text style={styles.marketpalceText1}>{loc.wallets.list_tap_here_to_buy}</Text>
       </TouchableOpacity>
     );
   };
@@ -604,7 +604,7 @@ export default class WalletTransactions extends Component {
   sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      const options = [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'];
+      const options = [loc.send.details_cancel, 'Choose Photo', 'Scan QR Code'];
       if (!isClipboardEmpty) {
         options.push('Copy from Clipboard');
       }
@@ -624,7 +624,7 @@ export default class WalletTransactions extends Component {
     } else if (Platform.OS === 'android') {
       const buttons = [
         {
-          text: loc.send.details.cancel,
+          text: loc.send.details_cancel,
           onPress: () => {},
           style: 'cancel',
         },
@@ -716,9 +716,9 @@ export default class WalletTransactions extends Component {
             ListEmptyComponent={
               <ScrollView style={styles.flex} contentContainerStyle={styles.scrollViewContent}>
                 <Text numberOfLines={0} style={styles.emptyTxs}>
-                  {(this.isLightning() && loc.wallets.list.empty_txs1_lightning) || loc.wallets.list.empty_txs1}
+                  {(this.isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list.empty_txs1}
                 </Text>
-                {this.isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list.empty_txs2_lightning}</Text>}
+                {this.isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
 
                 {!this.isLightning() && (
                   <TouchableOpacity
@@ -729,7 +729,7 @@ export default class WalletTransactions extends Component {
                     }
                     style={styles.buyBitcoin}
                   >
-                    <Text style={styles.buyBitcoinText}>{loc.wallets.list.tap_here_to_buy}</Text>
+                    <Text style={styles.buyBitcoinText}>{loc.wallets.list_tap_here_to_buy}</Text>
                   </TouchableOpacity>
                 )}
               </ScrollView>
@@ -801,7 +801,7 @@ export default class WalletTransactions extends Component {
                                 style: 'default',
                               },
 
-                              { text: loc.send.details.cancel, onPress: () => {}, style: 'cancel' },
+                              { text: loc.send.details_cancel, onPress: () => {}, style: 'cancel' },
                             ],
                             { cancelable: false },
                           );

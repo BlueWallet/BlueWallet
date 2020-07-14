@@ -168,14 +168,14 @@ export default class WalletsAdd extends Component {
 
     let entropyTitle;
     if (!this.state.entropy) {
-      entropyTitle = loc.wallets.add.entropy_provide;
+      entropyTitle = loc.wallets.add_entropy_provide;
     } else if (this.state.entropy.length < 32) {
-      entropyTitle = loc.formatString(loc.wallets.add.entropy_remain, {
+      entropyTitle = loc.formatString(loc.wallets.add_entropy_remain, {
         gen: this.state.entropy.length,
         rem: 32 - this.state.entropy.length,
       });
     } else {
-      entropyTitle = loc.formatString(loc.wallets.add.entropy_generated, {
+      entropyTitle = loc.formatString(loc.wallets.add_entropy_generated, {
         gen: this.state.entropy.length,
       });
     }
@@ -185,7 +185,7 @@ export default class WalletsAdd extends Component {
         <StatusBar barStyle="light-content" />
         <ScrollView>
           <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
-            <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
+            <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
             <View style={styles.label}>
               <TextInput
                 testID="WalletNameInput"
@@ -200,7 +200,7 @@ export default class WalletsAdd extends Component {
                 underlineColorAndroid="transparent"
               />
             </View>
-            <BlueFormLabel>{loc.wallets.add.wallet_type}</BlueFormLabel>
+            <BlueFormLabel>{loc.wallets.add_wallet_type}</BlueFormLabel>
 
             <View style={styles.buttons}>
               <BitcoinButton
@@ -216,7 +216,7 @@ export default class WalletsAdd extends Component {
                 style={styles.button}
               />
               <View style={styles.or}>
-                <BlueTextCentered style={styles.orCenter}>{loc.wallets.add.or}</BlueTextCentered>
+                <BlueTextCentered style={styles.orCenter}>{loc.wallets.add_or}</BlueTextCentered>
               </View>
               <LightningButton
                 active={this.state.activeLightning}
@@ -312,7 +312,7 @@ export default class WalletsAdd extends Component {
                 {!this.state.isLoading ? (
                   <BlueButton
                     testID="Create"
-                    title={loc.wallets.add.create}
+                    title={loc.wallets.add_create}
                     disabled={this.state.activeBitcoin === undefined}
                     onPress={() => {
                       this.setState({ isLoading: true }, async () => {
@@ -321,7 +321,7 @@ export default class WalletsAdd extends Component {
                         if (this.state.activeLightning) {
                           this.createLightningWallet = async () => {
                             w = new LightningCustodianWallet();
-                            w.setLabel(this.state.label || loc.wallets.details.title);
+                            w.setLabel(this.state.label || loc.wallets.details_title);
 
                             try {
                               const lndhub =
@@ -360,17 +360,17 @@ export default class WalletsAdd extends Component {
                         } else if (this.state.selectedIndex === 2) {
                           // zero index radio - HD segwit
                           w = new HDSegwitP2SHWallet();
-                          w.setLabel(this.state.label || loc.wallets.details.title);
+                          w.setLabel(this.state.label || loc.wallets.details_title);
                         } else if (this.state.selectedIndex === 1) {
                           // btc was selected
                           // index 1 radio - segwit single address
                           w = new SegwitP2SHWallet();
-                          w.setLabel(this.state.label || loc.wallets.details.title);
+                          w.setLabel(this.state.label || loc.wallets.details_title);
                         } else {
                           // btc was selected
                           // index 2 radio - hd bip84
                           w = new HDSegwitBech32Wallet();
-                          w.setLabel(this.state.label || loc.wallets.details.title);
+                          w.setLabel(this.state.label || loc.wallets.details_title);
                         }
                         if (this.state.activeBitcoin) {
                           if (this.state.entropy) {
@@ -408,7 +408,7 @@ export default class WalletsAdd extends Component {
               <BlueButtonLink
                 testID="ImportWallet"
                 style={styles.import}
-                title={loc.wallets.add.import_wallet}
+                title={loc.wallets.add_import_wallet}
                 onPress={() => {
                   this.props.navigation.navigate('ImportWallet');
                 }}
@@ -432,7 +432,7 @@ export default class WalletsAdd extends Component {
 
 WalletsAdd.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
-  title: loc.wallets.add.title,
+  title: loc.wallets.add_title,
   headerLeft: null,
 });
 
