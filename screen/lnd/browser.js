@@ -15,6 +15,7 @@ import { WebView } from 'react-native-webview';
 import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
+const notifications = require('../../blue_modules/notifications');
 
 let processedInvoices = {};
 let lastTimeTriedToPay = 0;
@@ -392,6 +393,11 @@ export default class Browser extends Component {
                     // event; note how data is passed in 'detail', not 'data'
                     const jsonstr = JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id });
                     this.webview.injectJavaScript("document.dispatchEvent( new CustomEvent('message', { detail: '" + jsonstr + "' }) );");
+
+                    // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
+                    const decoded = await fromWallet.decodeInvoice(payreq);
+                    await notifications.tryToObtainPermissions();
+                    notifications.majorTomToGroundControl([], [decoded.payment_hash]);
                   },
                 },
               ],

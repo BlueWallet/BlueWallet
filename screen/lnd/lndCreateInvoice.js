@@ -32,6 +32,7 @@ const currency = require('../../blue_modules/currency');
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
 const loc = require('../../loc');
+const notifications = require('../../blue_modules/notifications');
 
 const styles = StyleSheet.create({
   createButton: {
@@ -221,6 +222,13 @@ export default class LNDCreateInvoice extends Component {
         const invoiceRequest = await this.state.fromWallet.addInvoice(amount, this.state.description);
         EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+
+        // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
+        /** @type LightningCustodianWallet */
+        const fromWallet = this.state.fromWallet;
+        const decoded = await fromWallet.decodeInvoice(invoiceRequest);
+        await notifications.tryToObtainPermissions();
+        notifications.majorTomToGroundControl([], [decoded.payment_hash]);
 
         // send to lnurl-withdraw callback url if that exists
         if (this.state.lnurlParams) {
