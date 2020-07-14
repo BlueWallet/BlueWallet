@@ -74,10 +74,10 @@
     "title": "Your wallet is created..."
   },
   "receive": {
-    "detailsReset": "Reset",
     "detailsCopiedToClipboard": "Copied to clipboard.",
     "detailsCreate": "Create",
     "detailsLabel": "Description",
+    "detailsReset": "Reset",
     "detailsSetAmount": "Receive with amount",
     "detailsShare": "share",
     "detailsTitle": "Share this address with payer",
@@ -85,6 +85,11 @@
     "scan_lnurl": "Scan to receive"
   },
   "send": {
+    "broadcastButton": "BROADCAST",
+    "broadcastError": "error",
+    "broadcastNone": "Input transaction hash",
+    "broadcastPending": "pending",
+    "broadcastSuccess": "success",
     "confirm": {
       "header": "Confirm",
       "sendNow": "Send now"
