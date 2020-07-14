@@ -173,10 +173,10 @@ const majorTomToGroundControl = async function (addresses, hashes) {
 // this module loads (app launches)
 if (Platform.OS === 'android') {
   configureNotifications();
+} else {
+  // every launch should clear badges:
+  PushNotificationIOS.setApplicationIconBadgeNumber(0);
 }
-
-// every launch should clear badges:
-PushNotificationIOS.setApplicationIconBadgeNumber(0);
 
 module.exports.tryToObtainPermissions = tryToObtainPermissions;
 module.exports.majorTomToGroundControl = majorTomToGroundControl;
