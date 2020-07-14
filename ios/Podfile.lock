@@ -374,9 +374,9 @@ PODS:
     - React
   - RNWatch (0.5.0):
     - React
-  - Sentry (5.1.6):
-    - Sentry/Core (= 5.1.6)
-  - Sentry/Core (5.1.6)
+  - Sentry (5.1.9):
+    - Sentry/Core (= 5.1.9)
+  - Sentry/Core (5.1.9)
   - swift_qrcodejs (1.1.2)
   - ToolTipMenu (5.2.0):
     - React
@@ -688,7 +688,7 @@ SPEC CHECKSUMS:
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: 4de37878bbf071847e438b089c01d4ad8d4eddae
-  Sentry: e5796ec31a481474d2f94553213278470f9e302d
+  Sentry: 81f7f2bd3cb041137ea7efcde3aa5ad0d5a67632
   swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
   ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e
   Yoga: 3ebccbdd559724312790e7742142d062476b698e
