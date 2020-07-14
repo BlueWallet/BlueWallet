@@ -47,14 +47,12 @@
     "title": "Vaša peňaženka je vytvorená..."
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Skopírované do schránky.",
-      "create": "Vytvoriť",
-      "label": "Popis",
-      "setAmount": "Prijať čiastku...",
-      "share": "zdieľať",
-      "title": "Zdieľajte túto adresu s odosielateľom"
-    },
+    "detailsCopiedToClipboard": "Skopírované do schránky.",
+    "detailsCreate": "Vytvoriť",
+    "detailsLabel": "Popis",
+    "detailsSetAmount": "Prijať čiastku...",
+    "detailsShare": "zdieľať",
+    "detailsTitle": "Zdieľajte túto adresu s odosielateľom",
     "header": "Prijať"
   },
   "send": {

@@ -30,11 +30,9 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Зкопіювано",
-      "share": "Відправити",
-      "title": "Покажіть цю адресу платникові"
-    },
+    "detailsCopiedToClipboard": "Зкопіювано",
+    "detailsShare": "Відправити",
+    "detailsTitle": "Покажіть цю адресу платникові",
     "header": "Отримати"
   },
   "send": {

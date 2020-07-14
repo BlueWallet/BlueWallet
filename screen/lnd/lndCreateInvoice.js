@@ -441,7 +441,7 @@ export default class LNDCreateInvoice extends Component {
               <View style={styles.fiat}>
                 <TextInput
                   onChangeText={text => this.setState({ description: text })}
-                  placeholder={loc.receive.details.label}
+                  placeholder={loc.receive.detailsLabel}
                   value={this.state.description}
                   numberOfLines={1}
                   placeholderTextColor="#81868e"

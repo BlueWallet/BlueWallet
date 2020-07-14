@@ -32,14 +32,12 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Disalin ke clipboard.",
-      "create": "Buat",
-      "label": "Deskripsi",
-      "setAmount": "Terima sejumlah",
-      "share": "bagikan",
-      "title": "Bagikan alamat ini ke pengirim"
-    },
+    "detailsCopiedToClipboard": "Disalin ke clipboard.",
+    "detailsCreate": "Buat",
+    "detailsLabel": "Deskripsi",
+    "detailsSetAmount": "Terima sejumlah",
+    "detailsShare": "bagikan",
+    "detailsTitle": "Bagikan alamat ini ke pengirim",
     "header": "Terima"
   },
   "send": {

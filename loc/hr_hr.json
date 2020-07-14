@@ -38,14 +38,12 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Kopirano u međuspremnik.",
-      "create": "Stvori",
-      "label": "Opis",
-      "setAmount": "Odredi iznos za primiti",
-      "share": "podijeli",
-      "title": "Pokaži ovu adresu platitelju"
-    },
+    "detailsCopiedToClipboard": "Kopirano u međuspremnik.",
+    "detailsCreate": "Stvori",
+    "detailsLabel": "Opis",
+    "detailsSetAmount": "Odredi iznos za primiti",
+    "detailsShare": "podijeli",
+    "detailsTitle": "Pokaži ovu adresu platitelju",
     "header": "Primi"
   },
   "send": {

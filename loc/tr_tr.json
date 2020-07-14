@@ -38,14 +38,12 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Panoya kopyalandı.",
-      "create": "Oluştur",
-      "label": "Açıklama",
-      "setAmount": "Miktar ile al",
-      "share": "paylaş",
-      "title": "Bu adresi ödeyenle paylaş"
-    },
+    "detailsCopiedToClipboard": "Panoya kopyalandı.",
+    "detailsCreate": "Oluştur",
+    "detailsLabel": "Açıklama",
+    "detailsSetAmount": "Miktar ile al",
+    "detailsShare": "paylaş",
+    "detailsTitle": "Bu adresi ödeyenle paylaş",
     "header": "Al"
   },
   "send": {

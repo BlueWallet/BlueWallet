@@ -35,13 +35,11 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Zkopírováno do schránky.",
-      "label": "Popis",
-      "setAmount": "Přijmout částku...",
-      "share": "sdílet",
-      "title": "Sdílejte tuto adresu s plátcem"
-    },
+    "detailsCopiedToClipboard": "Zkopírováno do schránky.",
+    "detailsLabel": "Popis",
+    "detailsSetAmount": "Přijmout částku...",
+    "detailsShare": "sdílet",
+    "detailsTitle": "Sdílejte tuto adresu s plátcem",
     "header": "Přijmout"
   },
   "send": {

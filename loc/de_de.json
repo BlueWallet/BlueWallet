@@ -48,14 +48,12 @@
     "title": "Ihr Wallet wird erstellt..."
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "In die Zwischenablage kopiert.",
-      "create": "Erstelle",
-      "label": "Beschreibung",
-      "setAmount": "Zu erhaltender Betrag",
-      "share": "Teilen",
-      "title": "Teile diese Adresse mit dem Zahlenden"
-    },
+    "detailsCopiedToClipboard": "In die Zwischenablage kopiert.",
+    "detailsCreate": "Erstelle",
+    "detailsLabel": "Beschreibung",
+    "detailsSetAmount": "Zu erhaltender Betrag",
+    "detailsShare": "Teilen",
+    "detailsTitle": "Teile diese Adresse mit dem Zahlenden",
     "header": "Erhalten",
     "scan_lnurl": "Scannen, zum Erhalten"
   },

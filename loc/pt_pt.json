@@ -48,14 +48,12 @@
     "title": "A sua wallet foi criada..."
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "copiado para clipboard",
-      "create": "Criar",
-      "label": "Descrição",
-      "setAmount": "Quantia a receber",
-      "share": "partilhar",
-      "title": "Partilhar este endereço com o pagador"
-    },
+    "detailsCopiedToClipboard": "copiado para clipboard",
+    "detailsCreate": "Criar",
+    "detailsLabel": "Descrição",
+    "detailsSetAmount": "Quantia a receber",
+    "detailsShare": "partilhar",
+    "detailsTitle": "Partilhar este endereço com o pagador",
     "header": "receber",
     "scan_lnurl": "Receber lendo QR"
   },

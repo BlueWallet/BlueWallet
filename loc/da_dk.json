@@ -35,13 +35,11 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Kopieret til udklipsholder.",
-      "label": "Beskrivelse",
-      "setAmount": "Modtag med beløb",
-      "share": "del",
-      "title": "Del denne adresse med betaleren"
-    },
+    "detailsCopiedToClipboard": "Kopieret til udklipsholder.",
+    "detailsLabel": "Beskrivelse",
+    "detailsSetAmount": "Modtag med beløb",
+    "detailsShare": "del",
+    "detailsTitle": "Del denne adresse med betaleren",
     "header": "Modtag"
   },
   "send": {

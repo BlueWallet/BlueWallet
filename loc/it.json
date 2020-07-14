@@ -39,14 +39,12 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Copiato negli appunti.",
-      "create": "Crea",
-      "label": "Descrizione",
-      "setAmount": "Ricevi con importo",
-      "share": "Condividi",
-      "title": "Condividi questo indirizzo con l'acquirente"
-    },
+    "detailsCopiedToClipboard": "Copiato negli appunti.",
+    "detailsCreate": "Crea",
+    "detailsLabel": "Descrizione",
+    "detailsSetAmount": "Ricevi con importo",
+    "detailsShare": "Condividi",
+    "detailsTitle": "Condividi questo indirizzo con l'acquirente",
     "header": "Ricevi"
   },
   "send": {

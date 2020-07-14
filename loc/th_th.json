@@ -39,14 +39,12 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "ก๊อปปี้ไปที่คลิปบอร์ดแล้ว.",
-      "create": "สร้าง",
-      "label": "คำอธิบาย",
-      "setAmount": "รับด้วยจำนวน",
-      "share": "แชร์",
-      "title": "แชร์แอดเดรสนี้กับผู้จ่าย"
-    },
+    "detailsCopiedToClipboard": "ก๊อปปี้ไปที่คลิปบอร์ดแล้ว.",
+    "detailsCreate": "สร้าง",
+    "detailsLabel": "คำอธิบาย",
+    "detailsSetAmount": "รับด้วยจำนวน",
+    "detailsShare": "แชร์",
+    "detailsTitle": "แชร์แอดเดรสนี้กับผู้จ่าย",
     "header": "รับ"
   },
   "send": {

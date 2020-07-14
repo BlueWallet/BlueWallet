@@ -39,14 +39,12 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Αντιγράφηκε στο clipboard.",
-      "create": "Δημιούργησε",
-      "label": "Περιγραφή",
-      "setAmount": "Λάβε με ποσό",
-      "share": "Δώσε",
-      "title": "Δώσε αυτήν τη διεύθυνση στον πληρωτή"
-    },
+    "detailsCopiedToClipboard": "Αντιγράφηκε στο clipboard.",
+    "detailsCreate": "Δημιούργησε",
+    "detailsLabel": "Περιγραφή",
+    "detailsSetAmount": "Λάβε με ποσό",
+    "detailsShare": "Δώσε",
+    "detailsTitle": "Δώσε αυτήν τη διεύθυνση στον πληρωτή",
     "header": "Λήψη"
   },
   "send": {

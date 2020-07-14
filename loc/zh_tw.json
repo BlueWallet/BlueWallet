@@ -38,14 +38,12 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "複製到貼上板.",
-      "create": "建立",
-      "label": "描述",
-      "setAmount": "收款金額",
-      "share": "分享",
-      "title": "分享這個地址給付款人"
-    },
+    "detailsCopiedToClipboard": "複製到貼上板.",
+    "detailsCreate": "建立",
+    "detailsLabel": "描述",
+    "detailsSetAmount": "收款金額",
+    "detailsShare": "分享",
+    "detailsTitle": "分享這個地址給付款人",
     "header": "收款"
   },
   "send": {

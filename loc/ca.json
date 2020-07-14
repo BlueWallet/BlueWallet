@@ -49,14 +49,12 @@
     "title": "El teu moneder ha estat creat..."
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Copiat al porta-retalls.",
-      "create": "Crear",
-      "label": "Descripció",
-      "setAmount": "Rebre quantitat",
-      "share": "Compartir",
-      "title": "Compartir aquesta adreça amb el pagador"
-    },
+    "detailsCopiedToClipboard": "Copiat al porta-retalls.",
+    "detailsCreate": "Crear",
+    "detailsLabel": "Descripció",
+    "detailsSetAmount": "Rebre quantitat",
+    "detailsShare": "Compartir",
+    "detailsTitle": "Compartir aquesta adreça amb el pagador",
     "header": "Rebre",
     "scan_lnurl": "Escanejar per rebre"
   },

@@ -49,14 +49,12 @@
     "title": "Din plånbok har skapats..."
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Kopierad till urklipp.",
-      "create": "Skapa",
-      "label": "Beskrivning",
-      "setAmount": "Ta emot med belopp",
-      "share": "dela",
-      "title": "Dela den här adressen med betalaren"
-    },
+    "detailsCopiedToClipboard": "Kopierad till urklipp.",
+    "detailsCreate": "Skapa",
+    "detailsLabel": "Beskrivning",
+    "detailsSetAmount": "Ta emot med belopp",
+    "detailsShare": "dela",
+    "detailsTitle": "Dela den här adressen med betalaren",
     "header": "Ta emot"
   },
   "send": {

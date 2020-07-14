@@ -39,14 +39,12 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Kopioitu leikepöydälle.",
-      "create": "Luo",
-      "label": "Selite",
-      "setAmount": "Vastaanotettava summa",
-      "share": "jaa",
-      "title": "Jaa tämä osoite maksajalle"
-    },
+    "detailsCopiedToClipboard": "Kopioitu leikepöydälle.",
+    "detailsCreate": "Luo",
+    "detailsLabel": "Selite",
+    "detailsSetAmount": "Vastaanotettava summa",
+    "detailsShare": "jaa",
+    "detailsTitle": "Jaa tämä osoite maksajalle",
     "header": "Vastaanota"
   },
   "send": {

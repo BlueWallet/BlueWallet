@@ -39,14 +39,12 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Kopiert til utklippstavlen.",
-      "create": "Lag",
-      "label": "Beskrivelse",
-      "setAmount": "Motta med beløp",
-      "share": "dele",
-      "title": "Del denne adressen med betaleren"
-    },
+    "detailsCopiedToClipboard": "Kopiert til utklippstavlen.",
+    "detailsCreate": "Lag",
+    "detailsLabel": "Beskrivelse",
+    "detailsSetAmount": "Motta med beløp",
+    "detailsShare": "dele",
+    "detailsTitle": "Del denne adressen med betaleren",
     "header": "Motta"
   },
   "send": {

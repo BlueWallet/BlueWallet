@@ -49,14 +49,12 @@
     "title": "A tárcád elkészült..."
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Vágólapra másolva.",
-      "create": "Létrehoz",
-      "label": "Leírás",
-      "setAmount": "Fogadandó összeg",
-      "share": "megosztás",
-      "title": "Cím megosztása a fizető féllel"
-    },
+    "detailsCopiedToClipboard": "Vágólapra másolva.",
+    "detailsCreate": "Létrehoz",
+    "detailsLabel": "Leírás",
+    "detailsSetAmount": "Fogadandó összeg",
+    "detailsShare": "megosztás",
+    "detailsTitle": "Cím megosztása a fizető féllel",
     "header": "Fogadás"
   },
   "send": {

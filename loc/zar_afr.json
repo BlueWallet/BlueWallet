@@ -39,14 +39,12 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Gekopieer na klipbord.",
-      "create": "Skep",
-      "label": "Beskrywing",
-      "setAmount": "Bedrag ontvang",
-      "share": "deel",
-      "title": "Deel adres met krediteur"
-    },
+    "detailsCopiedToClipboard": "Gekopieer na klipbord.",
+    "detailsCreate": "Skep",
+    "detailsLabel": "Beskrywing",
+    "detailsSetAmount": "Bedrag ontvang",
+    "detailsShare": "deel",
+    "detailsTitle": "Deel adres met krediteur",
     "header": "Ontvang"
   },
   "send": {

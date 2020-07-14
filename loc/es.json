@@ -32,11 +32,9 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Copiado a portapapeles.",
-      "share": "Compartir",
-      "title": "Comparte esta dirección con el pagador"
-    },
+    "detailsCopiedToClipboard": "Copiado a portapapeles.",
+    "detailsShare": "Compartir",
+    "detailsTitle": "Comparte esta dirección con el pagador",
     "header": "Recibir"
   },
   "send": {

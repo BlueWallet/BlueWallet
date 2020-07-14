@@ -97,7 +97,7 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
                   message: this.state.walletInfo.uris[0],
                 });
               }}
-              title={loc.receive.details.share}
+              title={loc.receive.detailsShare}
             />
           </View>
         </View>

@@ -74,14 +74,13 @@
     "title": "Your wallet is created..."
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Copied to clipboard.",
-      "create": "Create",
-      "label": "Description",
-      "setAmount": "Receive with amount",
-      "share": "share",
-      "title": "Share this address with payer"
-    },
+    "detailsReset": "Reset",
+    "detailsCopiedToClipboard": "Copied to clipboard.",
+    "detailsCreate": "Create",
+    "detailsLabel": "Description",
+    "detailsSetAmount": "Receive with amount",
+    "detailsShare": "share",
+    "detailsTitle": "Share this address with payer",
     "header": "Receive",
     "scan_lnurl": "Scan to receive"
   },

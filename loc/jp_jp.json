@@ -49,14 +49,12 @@
     "title": "ウォレットを作成しています..."
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "クリップボードにコピーしました。",
-      "create": "作成",
-      "label": "概要",
-      "setAmount": "入金額",
-      "share": "共有",
-      "title": "このアドレスを支払者と共有"
-    },
+    "detailsCopiedToClipboard": "クリップボードにコピーしました。",
+    "detailsCreate": "作成",
+    "detailsLabel": "概要",
+    "detailsSetAmount": "入金額",
+    "detailsShare": "共有",
+    "detailsTitle": "このアドレスを支払者と共有",
     "header": "入金"
   },
   "send": {

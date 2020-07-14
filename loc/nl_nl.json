@@ -37,13 +37,11 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Gekopieerd naar het klembord.",
-      "label": "Omschrijving",
-      "setAmount": "Ontvang met bedrag",
-      "share": "delen",
-      "title": "Deel dit adres met betaler"
-    },
+    "detailsCopiedToClipboard": "Gekopieerd naar het klembord.",
+    "detailsLabel": "Omschrijving",
+    "detailsSetAmount": "Ontvang met bedrag",
+    "detailsShare": "delen",
+    "detailsTitle": "Deel dit adres met betaler",
     "header": "Ontvang"
   },
   "send": {

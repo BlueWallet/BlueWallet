@@ -39,14 +39,12 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Ikhutshelwe kwi-clipboard",
-      "create": "Yenza",
-      "label": "Inkcazo",
-      "setAmount": "Fumana ngexabiso",
-      "share": "yabelana",
-      "title": "Wabelane ngale dilesi nomhlawuli"
-    },
+    "detailsCopiedToClipboard": "Ikhutshelwe kwi-clipboard",
+    "detailsCreate": "Yenza",
+    "detailsLabel": "Inkcazo",
+    "detailsSetAmount": "Fumana ngexabiso",
+    "detailsShare": "yabelana",
+    "detailsTitle": "Wabelane ngale dilesi nomhlawuli",
     "header": "Fumana"
   },
   "send": {

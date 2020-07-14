@@ -39,13 +39,11 @@
     "title": "Sua carteira foi criada..."
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Copiado para a área de trabalho",
-      "label": "Descrição",
-      "setAmount": "Valor a receber",
-      "share": "Compartilhar",
-      "title": "Envie este endereço para o pagador"
-    },
+    "detailsCopiedToClipboard": "Copiado para a área de trabalho",
+    "detailsLabel": "Descrição",
+    "detailsSetAmount": "Valor a receber",
+    "detailsShare": "Compartilhar",
+    "detailsTitle": "Envie este endereço para o pagador",
     "header": "Receber",
     "scan_lnurl": "Receber lendo QR"
   },

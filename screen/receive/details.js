@@ -12,6 +12,10 @@ import {
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import Share from 'react-native-share';
+import Handoff from 'react-native-handoff';
+import Modal from 'react-native-modal';
+
 import {
   BlueLoading,
   SafeBlueArea,
@@ -26,12 +30,9 @@ import {
   BlueAlertWalletExportReminder,
 } from '../../BlueComponents';
 import Privacy from '../../Privacy';
-import Share from 'react-native-share';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
-import Modal from 'react-native-modal';
 import HandoffSettings from '../../class/handoff';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import Handoff from 'react-native-handoff';
 import loc from '../../loc';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
@@ -167,7 +168,7 @@ const ReceiveDetails = () => {
               <TextInput
                 onChangeText={setCustomLabel}
                 placeholderTextColor="#81868e"
-                placeholder={loc.receive.details.label}
+                placeholder={loc.receive.detailsLabel}
                 value={customLabel || ''}
                 numberOfLines={1}
                 style={styles.customAmountText}
@@ -175,9 +176,9 @@ const ReceiveDetails = () => {
             </View>
             <BlueSpacing20 />
             <View>
-              <BlueButton title={loc.receive.details.create} onPress={createCustomAmountAddress} />
+              <BlueButton title={loc.receive.detailsCreate} onPress={createCustomAmountAddress} />
               <BlueSpacing20 />
-              <BlueButtonLink title="Reset" onPress={clearCustomAmount} />
+              <BlueButtonLink title={loc.receive.detailsReset} onPress={clearCustomAmount} />
             </View>
             <BlueSpacing20 />
           </View>
@@ -245,7 +246,7 @@ const ReceiveDetails = () => {
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>
-          <BlueButtonLink title={loc.receive.details.setAmount} onPress={showCustomAmountModal} />
+          <BlueButtonLink title={loc.receive.detailsSetAmount} onPress={showCustomAmountModal} />
           <View>
             <BlueButton
               icon={{
@@ -254,7 +255,7 @@ const ReceiveDetails = () => {
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={handleShareButtonPressed}
-              title={loc.receive.details.share}
+              title={loc.receive.detailsShare}
             />
           </View>
         </View>

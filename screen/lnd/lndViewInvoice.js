@@ -328,7 +328,7 @@ export default class LNDViewInvoice extends Component {
               onPress={() => {
                 Share.open({ message: `lightning://${invoice.payment_request}` }).catch(error => console.log(error));
               }}
-              title={loc.receive.details.share}
+              title={loc.receive.detailsShare}
             />
             <BlueSpacing20 />
             <BlueButton

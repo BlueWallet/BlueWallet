@@ -43,14 +43,12 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Скопировано",
-      "create": "Создать",
-      "label": "Описание",
-      "setAmount": "Получить сумму",
-      "share": "Отправить",
-      "title": "Покажи этот адрес плательщику"
-    },
+    "detailsCopiedToClipboard": "Скопировано",
+    "detailsCreate": "Создать",
+    "detailsLabel": "Описание",
+    "detailsSetAmount": "Получить сумму",
+    "detailsShare": "Отправить",
+    "detailsTitle": "Покажи этот адрес плательщику",
     "header": "Получить"
   },
   "send": {

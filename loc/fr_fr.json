@@ -37,12 +37,10 @@
     "ok": "OK, I wrote this down!"
   },
   "receive": {
-    "details": {
-      "copiedToClipboard": "Copier dans le presse-papiers.",
-      "setAmount": "Revevoir avec montant",
-      "share": "partager",
-      "title": "Partager cette adresse avec le destinataire"
-    },
+    "detailsCopiedToClipboard": "Copier dans le presse-papiers.",
+    "detailsSetAmount": "Revevoir avec montant",
+    "detailsShare": "partager",
+    "detailsTitle": "Partager cette adresse avec le destinataire",
     "header": "Recevoir"
   },
   "send": {
