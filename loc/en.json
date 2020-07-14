@@ -7,6 +7,15 @@
     "ok": "OK",
     "storage_is_encrypted": "Your storage is encrypted. Password is required to decrypt it"
   },
+  "azteco": {
+    "codeIs": "Your voucher code is",
+    "errorBeforeRefeem": "Before redeeming you must first add a Bitcoin wallet.",
+    "errorSomething": "Something went wrong. Is this voucher still valid?",
+    "redeem": "Redeem to wallet",
+    "redeemButton": "Redeem",
+    "success": "Success",
+    "title": "Redeem Azte.co voucher"
+  },
   "buyBitcoin": {
     "copied": "Copied to Clipboard!",
     "header": "Buy Bitcoin",
