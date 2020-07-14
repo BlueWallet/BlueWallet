@@ -112,7 +112,7 @@ export default class CPFP extends Component {
         } else {
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
           this.setState({ isLoading: false });
-          alert('Broadcast failed');
+          alert(loc.errors.broadcast);
         }
       } catch (error) {
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });

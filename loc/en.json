@@ -27,6 +27,7 @@
     "undo": "Undo"
   },
   "errors": {
+    "broadcast": "Broadcast failed",
     "network": "Network error"
   },
   "lnd": {
