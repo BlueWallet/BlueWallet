@@ -33,7 +33,6 @@ export class AppStorage {
   static HODL_HODL_API_KEY = 'HODL_HODL_API_KEY';
   static HODL_HODL_SIGNATURE_KEY = 'HODL_HODL_SIGNATURE_KEY';
   static HODL_HODL_CONTRACTS = 'HODL_HODL_CONTRACTS';
-  static PUSH_TOKEN = 'PUSH_TOKEN';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
@@ -576,20 +575,6 @@ export class AppStorage {
   async setHodlHodlApiKey(key, sigKey) {
     if (sigKey) await this.setItem(AppStorage.HODL_HODL_SIGNATURE_KEY, sigKey);
     return this.setItem(AppStorage.HODL_HODL_API_KEY, key);
-  }
-
-  async setPushToken(token) {
-    token = JSON.stringify(token);
-    return this.setItem(AppStorage.PUSH_TOKEN, token);
-  }
-
-  async getPushToken() {
-    try {
-      let token = await this.getItem(AppStorage.PUSH_TOKEN);
-      token = JSON.parse(token);
-      return token;
-    } catch (_) {}
-    return false;
   }
 
   async isAdancedModeEnabled() {

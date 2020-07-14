@@ -2,7 +2,7 @@ import * as Watch from 'react-native-watch-connectivity';
 import { InteractionManager } from 'react-native';
 import { Chain } from './models/bitcoinUnits';
 const loc = require('./loc');
-// const notifications = require('./blue_modules/notifications');
+const notifications = require('./blue_modules/notifications');
 
 export default class WatchConnectivity {
   isAppInstalled = false;
@@ -54,9 +54,9 @@ export default class WatchConnectivity {
         const invoiceRequest = await wallet.addInvoice(amount, description);
 
         // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
-        // const decoded = await wallet.decodeInvoice(invoiceRequest);
-        // await notifications.tryToObtainPermissions();
-        // notifications.majorTomToGroundControl([], [decoded.payment_hash]);
+        const decoded = await wallet.decodeInvoice(invoiceRequest);
+        await notifications.tryToObtainPermissions();
+        notifications.majorTomToGroundControl([], [decoded.payment_hash]);
         return invoiceRequest;
       } catch (error) {
         return error;

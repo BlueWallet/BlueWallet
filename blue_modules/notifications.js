@@ -1,10 +1,24 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import { Alert, Platform } from 'react-native';
-import { AppStorage } from '../class';
 import Frisbee from 'frisbee';
+import AsyncStorage from '@react-native-community/async-storage';
 const PushNotification = require('react-native-push-notification');
-const BlueApp: AppStorage = require('../BlueApp');
+const PUSH_TOKEN = 'PUSH_TOKEN';
 let alreadyConfigured = false;
+
+async function _setPushToken(token) {
+  token = JSON.stringify(token);
+  return AsyncStorage.setItem(PUSH_TOKEN, token);
+}
+
+async function _getPushToken() {
+  try {
+    let token = await AsyncStorage.getItem(PUSH_TOKEN);
+    token = JSON.parse(token);
+    return token;
+  } catch (_) {}
+  return false;
+}
 
 /**
  * Calls `configure`, which tries to obtain push token, save it, and registers all associated with
@@ -19,7 +33,7 @@ const configureNotifications = async function () {
       onRegister: async function (token) {
         console.log('TOKEN:', token);
         alreadyConfigured = true;
-        await BlueApp.setPushToken(token);
+        await _setPushToken(token);
         resolve(true);
       },
 
@@ -80,10 +94,10 @@ const configureNotifications = async function () {
  */
 const tryToObtainPermissions = async function () {
   if (Platform.OS !== 'ios') {
-    return !!(await BlueApp.getPushToken());
+    return !!(await _getPushToken());
   }
 
-  if (await BlueApp.getPushToken()) {
+  if (await _getPushToken()) {
     // we already have a token, no sense asking again, just configure pushes to register callbacks and we are done
     if (!alreadyConfigured) configureNotifications(); // no await so it executes in background while we return TRUE and use token
     return true;
@@ -133,7 +147,7 @@ function _getHeaders() {
  */
 const majorTomToGroundControl = async function (addresses, hashes) {
   if (!Array.isArray(addresses) || !Array.isArray(hashes)) throw new Error('no addresses or hashes provided');
-  const pushToken = await BlueApp.getPushToken();
+  const pushToken = await _getPushToken();
   if (!pushToken || !pushToken.token || !pushToken.os) return;
 
   const baseURI = 'https://groundcontrol-dev.herokuapp.com/';
