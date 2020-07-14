@@ -93,7 +93,7 @@ export default class Success extends Component {
           </View>
           {this.state.fee > 0 && (
             <Text style={styles.feeText}>
-              {loc.send.create.fee}: {this.state.fee} {BitcoinUnit.BTC}
+              {loc.send.createFee}: {this.state.fee} {BitcoinUnit.BTC}
             </Text>
           )}
           {this.state.fee <= 0 && (

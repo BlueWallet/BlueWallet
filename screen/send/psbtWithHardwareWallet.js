@@ -309,7 +309,7 @@ export default class PsbtWithHardwareWallet extends Component {
     return (
       <View style={styles.rootPadding}>
         <BlueCard style={styles.hexWrap}>
-          <BlueText style={styles.hexLabel}>{loc.send.create.this_is_hex}</BlueText>
+          <BlueText style={styles.hexLabel}>{loc.send.createThis_is_hex}</BlueText>
           <TextInput style={styles.hexInput} height={112} multiline editable value={this.state.txhex} />
 
           <TouchableOpacity style={styles.hexTouch} onPress={() => Clipboard.setString(this.state.txhex)}>

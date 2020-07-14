@@ -315,7 +315,7 @@ export default class TransactionsStatus extends Component {
             {'fee' in this.state.tx && (
               <View style={styles.fee}>
                 <BlueText style={styles.feeText}>
-                  {loc.send.create.fee.toLowerCase()}{' '}
+                  {loc.send.createFee.toLowerCase()}{' '}
                   {formatBalanceWithoutSuffix(this.state.tx.fee, this.state.wallet.preferredBalanceUnit, true)}{' '}
                   {this.state.wallet.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && this.state.wallet.preferredBalanceUnit}
                 </BlueText>
@@ -412,7 +412,7 @@ export default class TransactionsStatus extends Component {
               style={styles.details}
               onPress={() => this.props.navigation.navigate('TransactionDetails', { hash: this.state.tx.hash })}
             >
-              <Text style={styles.detailsText}>{loc.send.create.details.toLowerCase()}</Text>
+              <Text style={styles.detailsText}>{loc.send.createDetails.toLowerCase()}</Text>
               <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
             </TouchableOpacity>
           </View>

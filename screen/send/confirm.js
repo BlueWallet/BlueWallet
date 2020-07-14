@@ -132,7 +132,7 @@ export default class Confirm extends Component {
             : currency.satoshiToLocalCurrency(this.state.fromWallet.getBalance() - this.state.feeSatoshi)}
         </Text>
         <BlueCard>
-          <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
+          <Text style={styles.transactionDetailsTitle}>{loc.send.createTo}</Text>
           <Text style={styles.transactionDetailsSubtitle}>{item.address}</Text>
         </BlueCard>
         {this.state.recipients.length > 1 && (
@@ -164,7 +164,7 @@ export default class Confirm extends Component {
           <View style={styles.cardContainer}>
             <BlueCard>
               <Text style={styles.cardText}>
-                {loc.send.create.fee}: {formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
+                {loc.send.createFee}: {formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
                 {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
               </Text>
               <BlueSpacing40 />

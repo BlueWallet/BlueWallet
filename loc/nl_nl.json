@@ -49,18 +49,16 @@
       "header": "Bevestig",
       "sendNow": "Nu verzenden"
     },
-    "create": {
-      "amount": "Bedrag",
-      "broadcast": "Uitzenden",
-      "error": "Fout bij het maken van transactie. Ongeldig adres of bedrag?",
-      "fee": "Vergoeding",
-      "go_back": "Ga terug",
-      "not_enough_fee": "Niet genoeg vergoeding. Verhoog de vergoeding",
-      "this_is_hex": "Dit is de transactie-hex, ondertekend en klaar om op het netwerk te worden uitgezonden.",
-      "title": "transactie aanmaken",
-      "to": "Naar",
-      "tx_size": "TX grootte"
-    },
+    "createAmount": "Bedrag",
+    "createBroadcast": "Uitzenden",
+    "createError": "Fout bij het maken van transactie. Ongeldig adres of bedrag?",
+    "createFee": "Vergoeding",
+    "createGo_back": "Ga terug",
+    "createNot_enough_fee": "Niet genoeg vergoeding. Verhoog de vergoeding",
+    "createThis_is_hex": "Dit is de transactie-hex, ondertekend en klaar om op het netwerk te worden uitgezonden.",
+    "createTitle": "transactie aanmaken",
+    "createTo": "Naar",
+    "createTx_size": "TX grootte",
     "details": {
       "address": "adres",
       "address_field_is_not_valid": "Adresveld is niet geldig",

@@ -48,17 +48,15 @@
       "header": "Confirmer",
       "sendNow": "Envoyer maintenant"
     },
-    "create": {
-      "amount": "Montant",
-      "error": "Erreur creating transaction. Invalid address or send amount?",
-      "fee": "Frais",
-      "go_back": "Retour",
-      "not_enough_fee": "Frais insufisants. Veuillez augmenter les frais",
-      "satoshi_per_byte": "Satoshi par byte",
-      "title": "créer une transaction",
-      "to": "À",
-      "tx_size": "Taille de la Transaction (TX size)"
-    },
+    "createAmount": "Montant",
+    "createError": "Erreur creating transaction. Invalid address or send amount?",
+    "createFee": "Frais",
+    "createGo_back": "Retour",
+    "createNot_enough_fee": "Frais insufisants. Veuillez augmenter les frais",
+    "createSatoshi_per_byte": "Satoshi par byte",
+    "createTitle": "créer une transaction",
+    "createTo": "À",
+    "createTx_size": "Taille de la Transaction (TX size)",
     "details": {
       "address": "adresse",
       "address_field_is_not_valid": "Champ adresse invalide",

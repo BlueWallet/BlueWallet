@@ -204,7 +204,7 @@ export default class TransactionsDetails extends Component {
 
             {'fee' in this.state.tx && (
               <>
-                <BlueText style={styles.rowCaption}>{loc.send.create.fee}</BlueText>
+                <BlueText style={styles.rowCaption}>{loc.send.createFee}</BlueText>
                 <BlueText style={styles.rowValue}>{this.state.tx.fee + ' sats'}</BlueText>
               </>
             )}

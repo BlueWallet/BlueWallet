@@ -214,7 +214,7 @@ export default class CPFP extends Component {
     return (
       <View style={styles.root}>
         <BlueCard style={styles.center}>
-          <BlueText style={styles.hex}>{loc.send.create.this_is_hex}</BlueText>
+          <BlueText style={styles.hex}>{loc.send.createThis_is_hex}</BlueText>
           <TextInput style={styles.hexInput} height={112} multiline editable value={this.state.txhex} />
 
           <TouchableOpacity style={styles.action} onPress={() => Clipboard.setString(this.state.txhex)}>
