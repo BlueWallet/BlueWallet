@@ -54,7 +54,7 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
     try {
       await fromWallet.fetchInfo();
     } catch (_) {
-      alert('Network error');
+      alert(loc.errors.network);
       return;
     }
     this.setState({ walletInfo: fromWallet.info_raw, addressText: fromWallet.info_raw.uris[0] });

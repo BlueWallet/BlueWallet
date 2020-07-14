@@ -17,11 +17,19 @@
     "title": "Entropy",
     "undo": "Undo"
   },
+  "errors": {
+    "network": "Network error"
+  },
   "lnd": {
     "choose_source_wallet": "Choose a source wallet",
+    "errorInvoiceExpired": "Invoice expired",
     "exchange": "Exchange",
     "expired": "Expired",
+    "expiredLow": "expired",
+    "expiresIn": "Expires: {time}",
+    "payButton": "Pay",
     "placeholder": "Invoice",
+    "potentialFee": "Potential fee: {fee}",
     "refill": "Refill",
     "refill_lnd_balance": "Refill Lightning wallet balance",
     "sameWalletAsInvoiceError": "You can not pay an invoice with the same wallet used to create it.",
@@ -34,6 +42,7 @@
     "has_been_paid": "This invoice has been paid for",
     "open_direct_channel": "Open direct channel with this node:",
     "please_pay": "Please pay",
+    "preimage": "Preimage",
     "sats": "sats",
     "wasnt_paid_and_expired": "This invoice was not paid for and has expired"
   },

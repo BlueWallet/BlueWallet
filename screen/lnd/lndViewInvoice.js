@@ -213,7 +213,7 @@ export default class LNDViewInvoice extends Component {
         return (
           <SafeBlueArea style={styles.root}>
             <View style={styles.center}>
-              <BlueText>Preimage:</BlueText>
+              <BlueText>{loc.lndViewInvoice.preimage}:</BlueText>
               <BlueSpacing20 />
               <QRCode
                 value={invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? invoice.payment_preimage : 'none'}
