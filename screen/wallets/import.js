@@ -64,7 +64,7 @@ const WalletsImport = () => {
       WalletImport.processImportText(importText, additionalProperties);
       navigation.dangerouslyGetParent().pop();
     } catch (error) {
-      alert(loc.wallets.import.error);
+      alert(loc.wallets.importError);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
     }
   };
@@ -94,7 +94,7 @@ const WalletsImport = () => {
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <StatusBar barStyle="light-content" />
 
-      <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
+      <BlueFormLabel>{loc.wallets.importExplanation}</BlueFormLabel>
       <BlueSpacing20 />
       <BlueFormMultiInput
         testID="MnemonicInput"
@@ -109,14 +109,14 @@ const WalletsImport = () => {
         <BlueButton
           testID="DoImport"
           disabled={importText.trim().length === 0}
-          title={loc.wallets.import.do_import}
+          title={loc.wallets.importDo_import}
           buttonStyle={{
             width: width / 1.5,
           }}
           onPress={importButtonPressed}
         />
         <BlueSpacing20 />
-        <BlueButtonLink title={loc.wallets.import.scan_qr} onPress={importScan} />
+        <BlueButtonLink title={loc.wallets.importScan_qr} onPress={importScan} />
       </View>
       {Platform.select({
         ios: (
@@ -150,6 +150,6 @@ const WalletsImport = () => {
 
 WalletsImport.navigationOptions = {
   ...BlueNavigationStyle(),
-  title: loc.wallets.import.title,
+  title: loc.wallets.importTitle,
 };
 export default WalletsImport;

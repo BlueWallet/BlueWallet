@@ -28,7 +28,7 @@ const BlueApp = require('../../BlueApp');
 export default class Confirm extends Component {
   static navigationOptions = () => ({
     ...BlueNavigationStyle(null, false),
-    title: loc.send.confirm.header,
+    title: loc.send.confirmHeader,
   });
 
   constructor(props) {
@@ -171,7 +171,7 @@ export default class Confirm extends Component {
               {this.state.isLoading ? (
                 <ActivityIndicator />
               ) : (
-                <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm.sendNow} />
+                <BlueButton onPress={() => this.broadcast()} title={loc.send.confirmSendNow} />
               )}
 
               <TouchableOpacity
@@ -195,7 +195,7 @@ export default class Confirm extends Component {
                   });
                 }}
               >
-                <Text style={styles.txText}>{loc.transactions.details.transaction_details}</Text>
+                <Text style={styles.txText}>{loc.transactions.detailsTransaction_details}</Text>
               </TouchableOpacity>
             </BlueCard>
           </View>

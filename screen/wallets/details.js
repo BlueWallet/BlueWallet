@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
 export default class WalletDetails extends Component {
   static navigationOptions = ({ navigation, route }) => ({
     ...BlueNavigationStyle(),
-    title: loc.wallets.details.title,
+    title: loc.wallets.detailsTitle,
     headerRight: () => (
       <TouchableOpacity
         disabled={route.params.isLoading === true}
@@ -115,7 +115,7 @@ export default class WalletDetails extends Component {
           }
         }}
       >
-        <Text style={styles.saveText}>{loc.wallets.details.save}</Text>
+        <Text style={styles.saveText}>{loc.wallets.detailsSave}</Text>
       </TouchableOpacity>
     ),
   });
@@ -242,17 +242,17 @@ export default class WalletDetails extends Component {
                   ) {
                     return (
                       <>
-                        <Text style={styles.textLabel1}>{loc.wallets.details.address.toLowerCase()}</Text>
+                        <Text style={styles.textLabel1}>{loc.wallets.detailsAddress.toLowerCase()}</Text>
                         <Text style={styles.textValue}>{this.state.wallet.getAddress()}</Text>
                       </>
                     );
                   }
                 })()}
-                <Text style={styles.textLabel2}>{loc.wallets.add.wallet_name.toLowerCase()}</Text>
+                <Text style={styles.textLabel2}>{loc.wallets.addWallet_name.toLowerCase()}</Text>
 
                 <View style={styles.input}>
                   <TextInput
-                    placeholder={loc.send.details.note_placeholder}
+                    placeholder={loc.send.detailsNote_placeholder}
                     value={this.state.walletName}
                     onChangeText={text => {
                       this.setState({ walletName: text });
@@ -271,16 +271,16 @@ export default class WalletDetails extends Component {
                   />
                 </View>
                 <BlueSpacing20 />
-                <Text style={styles.textLabel1}>{loc.wallets.details.type.toLowerCase()}</Text>
+                <Text style={styles.textLabel1}>{loc.wallets.detailsType.toLowerCase()}</Text>
                 <Text style={styles.textValue}>{this.state.wallet.typeReadable}</Text>
                 {this.state.wallet.type === LightningCustodianWallet.type && (
                   <>
-                    <Text style={styles.textLabel1}>{loc.wallets.details.connected_to.toLowerCase()}</Text>
+                    <Text style={styles.textLabel1}>{loc.wallets.detailsConnected_to.toLowerCase()}</Text>
                     <BlueText>{this.state.wallet.getBaseURI()}</BlueText>
                   </>
                 )}
                 <>
-                  <Text style={styles.textLabel2}>{loc.transactions.list.title.toLowerCase()}</Text>
+                  <Text style={styles.textLabel2}>{loc.transactions.listTitle.toLowerCase()}</Text>
                   <View style={styles.hardware}>
                     <BlueText>display in wallets list</BlueText>
                     <Switch
@@ -293,16 +293,16 @@ export default class WalletDetails extends Component {
                   <BlueSpacing20 />
                   {this.state.wallet.type === WatchOnlyWallet.type && this.state.wallet.getSecret().startsWith('zpub') && (
                     <>
-                      <Text style={styles.textLabel2}>{loc.wallets.details.advanced.toLowerCase()}</Text>
+                      <Text style={styles.textLabel2}>{loc.wallets.detailsAdvanced.toLowerCase()}</Text>
                       <View style={styles.hardware}>
-                        <BlueText>{loc.wallets.details.use_with_hardware_wallet}</BlueText>
+                        <BlueText>{loc.wallets.detailsUse_with_hardware_wallet}</BlueText>
                         <Switch
                           value={this.state.useWithHardwareWallet}
                           onValueChange={value => this.onUseWithHardwareWalletSwitch(value)}
                         />
                       </View>
                       <>
-                        <Text style={styles.textLabel1}>{loc.wallets.details.master_fingerprint.toLowerCase()}</Text>
+                        <Text style={styles.textLabel1}>{loc.wallets.detailsMaster_fingerprint.toLowerCase()}</Text>
                         <Text style={styles.textValue}>{this.state.wallet.getMasterFingerprintHex()}</Text>
                       </>
                       <BlueSpacing20 />
@@ -315,7 +315,7 @@ export default class WalletDetails extends Component {
                         wallet: this.state.wallet,
                       })
                     }
-                    title={loc.wallets.details.export_backup}
+                    title={loc.wallets.detailsExport_backup}
                   />
 
                   <BlueSpacing20 />
@@ -331,7 +331,7 @@ export default class WalletDetails extends Component {
                             secret: this.state.wallet.getSecret(),
                           })
                         }
-                        title={loc.wallets.details.show_xpub}
+                        title={loc.wallets.detailsShow_xpub}
                       />
 
                       <BlueSpacing20 />
@@ -350,11 +350,11 @@ export default class WalletDetails extends Component {
                     onPress={() => {
                       ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
                       Alert.alert(
-                        loc.wallets.details.delete + ' ' + loc.wallets.details.title,
-                        loc.wallets.details.are_you_sure,
+                        loc.wallets.detailsDelete + ' ' + loc.wallets.details.title,
+                        loc.wallets.detailsAre_you_sure,
                         [
                           {
-                            text: loc.wallets.details.yes_delete,
+                            text: loc.wallets.detailsYes_delete,
                             onPress: async () => {
                               const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
 
@@ -379,13 +379,13 @@ export default class WalletDetails extends Component {
                             },
                             style: 'destructive',
                           },
-                          { text: loc.wallets.details.no_cancel, onPress: () => {}, style: 'cancel' },
+                          { text: loc.wallets.detailsNo_cancel, onPress: () => {}, style: 'cancel' },
                         ],
                         { cancelable: false },
                       );
                     }}
                   >
-                    <Text style={styles.delete}>{loc.wallets.details.delete}</Text>
+                    <Text style={styles.delete}>{loc.wallets.detailsDelete}</Text>
                   </TouchableOpacity>
                 </View>
               </BlueCard>

@@ -223,7 +223,7 @@ export default class CPFP extends Component {
           <TouchableOpacity style={styles.action} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}>
             <Text style={styles.actionText}>Verify on coinb.in</Text>
           </TouchableOpacity>
-          <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm.sendNow} />
+          <BlueButton onPress={() => this.broadcast()} title={loc.send.confirmSendNow} />
         </BlueCard>
       </View>
     );
@@ -241,7 +241,7 @@ export default class CPFP extends Component {
             onPress={() => {
               this.props.navigation.popToTop();
             }}
-            title={loc.send.success.done}
+            title={loc.send.successDone}
           />
         </BlueCard>
       </SafeBlueArea>

@@ -121,7 +121,7 @@ const SelectWallet = ({ navigation }) => {
             )}
             <Text style={styles.transparentText} />
             <Text numberOfLines={1} style={styles.latestTxLabel}>
-              {loc.wallets.list.latest_transaction}
+              {loc.wallets.listLatest_transaction}
             </Text>
             <Text numberOfLines={1} style={styles.latestTxValue}>
               {transactionTimeToReadable(item.getLatestTransactionTime())}

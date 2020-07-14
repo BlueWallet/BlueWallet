@@ -110,7 +110,7 @@ export default class Success extends Component {
             onPress={() => {
               this.props.navigation.dangerouslyGetParent().pop();
             }}
-            title={loc.send.success.done}
+            title={loc.send.successDone}
           />
         </BlueCard>
       </SafeBlueArea>
