@@ -2122,7 +2122,7 @@ export class BlueReplaceFeeSuggestions extends Component {
 
   state = {
     selectedFeeType: NetworkTransactionFeeType.FAST,
-    customFeeValue: 0,
+    customFeeValue: '1',
   };
 
   async componentDidMount() {
@@ -2149,12 +2149,12 @@ export class BlueReplaceFeeSuggestions extends Component {
     } else if (selectedFeeType === NetworkTransactionFeeType.SLOW) {
       this.setState({ selectedFeeType }, () => this.props.onFeeSelected(this.state.networkFees.slowFee));
     } else if (selectedFeeType === NetworkTransactionFeeType.CUSTOM) {
-      this.props.onFeeSelected(this.state.customFeeValue);
+      this.props.onFeeSelected(Number(this.state.customFeeValue));
     }
   };
 
   onCustomFeeTextChange = customFee => {
-    const customFeeValue = +customFee.replace(/[^0-9]/g, '');
+    const customFeeValue = customFee.replace(/[^0-9]/g, '');
     this.setState({ customFeeValue, selectedFeeType: NetworkTransactionFeeType.CUSTOM }, () => {
       this.onFeeSelected(NetworkTransactionFeeType.CUSTOM);
     });
@@ -2241,7 +2241,7 @@ export class BlueReplaceFeeSuggestions extends Component {
                 paddingRight: 5,
                 marginRight: 10,
               }}
-              onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue.toString())}
+              onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue)}
               defaultValue={`${this.props.transactionMinimum}`}
               placeholder="Custom sat/b"
               inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
