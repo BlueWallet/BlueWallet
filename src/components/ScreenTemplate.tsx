@@ -65,7 +65,11 @@ export class ScreenTemplate extends React.PureComponent<Props> {
           {children}
         </Container>
         {!!footer && (
-          <KeyboardAvoidingView behavior={Platform.OS == 'ios' ? 'padding' : undefined} style={styles.footer}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS == 'ios' ? 'padding' : undefined}
+            style={styles.footer}
+            keyboardVerticalOffset={20}
+          >
             {footer}
           </KeyboardAvoidingView>
         )}

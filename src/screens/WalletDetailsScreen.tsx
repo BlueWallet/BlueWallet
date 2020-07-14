@@ -4,16 +4,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { connect } from 'react-redux';
 
-import {
-  Button,
-  FlatButton,
-  Header,
-  ScreenTemplate,
-  WalletCard,
-  GenericInputItem,
-  ButtonType,
-  Text,
-} from 'app/components';
+import { Button, FlatButton, Header, ScreenTemplate, WalletCard, ButtonType, Text } from 'app/components';
 import { Wallet, Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
 import { BlueApp } from 'app/legacy';
 import { updateWallet, UpdateWalletAction } from 'app/state/wallets/actions';
@@ -74,6 +65,16 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
     BlueApp.saveToDisk();
   };
 
+  editAmount = () => {
+    this.props.navigation.navigate(Route.EditText, {
+      title: i18n.wallets.details.nameEdit,
+      label: i18n.wallets.details.nameLabel,
+      onSave: this.setLabel,
+      value: this.state.label,
+      validate: this.validationError,
+    });
+  };
+
   render() {
     const { wallet } = this.props.route.params;
     const isWatchOnly = wallet.type === WatchOnlyWallet.type;
@@ -102,13 +103,12 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
           <WalletCard wallet={wallet} containerStyle={styles.walletContainerInner} />
         </View>
         <View style={styles.nameInputContainer}>
-          <GenericInputItem
-            title={i18n.wallets.details.nameEdit}
-            label={i18n.wallets.details.nameLabel}
-            value={label}
-            onSave={this.setLabel}
-            validate={this.validationError}
-          />
+          <View style={styles.labelInput}>
+            <Text style={styles.typeLabel}>{i18n.wallets.details.nameLabel}</Text>
+            <Text style={styles.label} onPress={this.editAmount}>
+              {label}
+            </Text>
+          </View>
         </View>
         <View style={styles.typeContainer}>
           <Text style={styles.typeLabel}>{i18n.wallets.details.typeLabel}</Text>
@@ -149,6 +149,13 @@ const styles = StyleSheet.create({
     color: palette.textGrey,
     ...typography.overline,
   },
+  labelInput: {
+    width: '100%',
+    borderBottomColor: palette.border,
+    borderBottomWidth: 1,
+    marginBottom: 20,
+  },
+  label: { ...typography.caption, color: palette.textBlack, marginTop: 6, marginBottom: 4 },
   typeValue: {
     marginTop: 4,
     ...typography.caption,

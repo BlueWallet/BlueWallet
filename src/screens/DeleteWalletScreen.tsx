@@ -15,7 +15,7 @@ const i18n = require('../../loc');
 
 interface Props {
   navigation: CompositeNavigationProp<
-    StackNavigationProp<MainTabNavigatorParams, Route.ContactList>,
+    StackNavigationProp<MainTabNavigatorParams, Route.Dashboard>,
     StackNavigationProp<RootStackParams, Route.DeleteWallet>
   >;
   route: RouteProp<RootStackParams, Route.DeleteWallet>;

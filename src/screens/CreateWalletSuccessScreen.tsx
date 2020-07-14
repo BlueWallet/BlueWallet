@@ -1,21 +1,25 @@
+import { CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button, Header, ScreenTemplate, Text, Chip } from 'app/components';
-import { MainCardStackNavigatorParams, Route } from 'app/consts';
+import { MainCardStackNavigatorParams, Route, MainTabNavigatorParams } from 'app/consts';
 import { palette, typography } from 'app/styles';
 
 const i18n = require('../../loc');
 
 interface Props {
-  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.CreateWallet>;
+  navigation: CompositeNavigationProp<
+    StackNavigationProp<MainTabNavigatorParams, Route.Dashboard>,
+    StackNavigationProp<MainCardStackNavigatorParams, Route.CreateWallet>
+  >;
   secret: string[];
 }
 
 export class CreateWalletSuccessScreen extends React.PureComponent<Props> {
   navigateBack = () => {
-    this.props.navigation.popToTop();
+    this.props.navigation.navigate(Route.Dashboard);
   };
 
   render() {
