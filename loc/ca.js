@@ -136,7 +136,6 @@ module.exports = {
       amount_field_is_not_valid: 'Quantitat invalida',
       fee_field_is_not_valid: 'Comissió invalida',
       address_field_is_not_valid: 'Adreça invalida',
-      receiver_placeholder: "L'adreça del beneficiari",
       amount_placeholder: 'quantitat a enviar (en BTC)',
       fee_placeholder: 'més la comissió per la transacció (en BTC)',
       note_placeholder: 'comentari (útil per tu)',
@@ -184,7 +183,6 @@ module.exports = {
     copied: 'Adreça copiada!',
   },
   settings: {
-    tabBarLabel: 'Configuració',
     header: 'Configuració',
     plausible_deniability: 'Negació plausible...',
     storage_not_encrypted: 'Informació: NO xifrada (es recomana xifrar-la)',

@@ -136,7 +136,6 @@ module.exports = {
       amount_field_is_not_valid: 'Введенная сумма неверна',
       fee_field_is_not_valid: 'Введенная комиссия неверна',
       address_field_is_not_valid: 'Введенный адрес неверный',
-      receiver_placeholder: 'Адрес получателя',
       amount_placeholder: 'сколько отправить (в BTC)',
       fee_placeholder: 'плюс комиссия за перевод (в BTC)',
       note_placeholder: 'примечание платежа',
@@ -183,7 +182,6 @@ module.exports = {
     scan_lnurl: 'Scan to receive',
   },
   settings: {
-    tabBarLabel: 'Настройки',
     header: 'Настройки',
     plausible_deniability: 'Правдоподобная имитация...',
     storage_not_encrypted: 'Хранилище: не зашифровано',

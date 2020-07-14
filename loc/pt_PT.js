@@ -136,7 +136,6 @@ module.exports = {
       amount_field_is_not_valid: 'Campo de quantia não é válido',
       fee_field_is_not_valid: 'Campo de taxa não é válido',
       address_field_is_not_valid: 'Campo de endereço não é válido',
-      receiver_placeholder: 'endereço de envio aqui',
       amount_placeholder: 'quantia a enviar (em BTC)',
       fee_placeholder: 'mais a taxa de transacção (em BTC)',
       create_tx_error: 'Houve um erro na criação da transacção. Por favor verifique que o endereço é válido.',
@@ -183,7 +182,6 @@ module.exports = {
     scan_lnurl: 'Receber lendo QR',
   },
   settings: {
-    tabBarLabel: 'Definições',
     header: 'definições',
     plausible_deniability: 'Negação plausível...',
     storage_not_encrypted: 'Armazenamento: não encriptado',

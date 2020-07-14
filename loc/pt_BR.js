@@ -13,7 +13,6 @@ module.exports = {
     createBitcoinWallet: 'Antes de criar a carteira Lightning é preciso criar uma carteira Bitcoin, tudo bem?',
 
     list: {
-      tabBarLabel: 'Carteiras',
       app_name: 'BlueWallet',
       title: 'carteiras',
       header: 'Uma carteira representa um par composto de uma chave privada secreta e um endereço de depósito que você pode compartilhar.',
@@ -138,7 +137,6 @@ module.exports = {
       amount_field_is_not_valid: 'Campo de quantia não é válido',
       fee_field_is_not_valid: 'Campo de taxa não é válido',
       address_field_is_not_valid: 'Campo de endereço não é válido',
-      receiver_placeholder: 'endereço de envio aqui',
       amount_placeholder: 'quantia a enviar (em BTC)',
       fee_placeholder: 'mais a taxa de transacção (em BTC)',
       create_tx_error: 'Erro na criação da transação, por favor confira se o endereço é válido.',
@@ -185,7 +183,6 @@ module.exports = {
     copied: 'Copiado!',
   },
   settings: {
-    tabBarLabel: 'preferências',
     header: 'definições',
     plausible_deniability: 'Negação plausível...',
     storage_not_encrypted: 'Arquivos: não criptografados',

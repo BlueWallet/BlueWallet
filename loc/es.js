@@ -136,7 +136,6 @@ module.exports = {
       amount_field_is_not_valid: 'La cantidad no es válida',
       fee_field_is_not_valid: 'La tasa no es válida',
       address_field_is_not_valid: 'La dirección no es válida',
-      receiver_placeholder: 'La dirección de recipiente',
       amount_placeholder: 'cantidad para enviar (in BTC)',
       fee_placeholder: 'más tasa de transaccion (in BTC)',
       note_placeholder: 'comentario (para ti mismo)',
@@ -183,7 +182,6 @@ module.exports = {
     copied: 'Copied to Clipboard!',
   },
   settings: {
-    tabBarLabel: 'Ajustes',
     header: 'Ajustes',
     plausible_deniability: 'Negación plausible...',
     storage_not_encrypted: 'Almacenamiento: no esta cifrado',
