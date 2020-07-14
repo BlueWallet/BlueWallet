@@ -43,10 +43,8 @@
     "header": "Modtag"
   },
   "send": {
-    "confirm": {
-      "header": "Bekræft",
-      "sendNow": "Send nu"
-    },
+    "confirmHeader": "Bekræft",
+    "confirmSendNow": "Send nu",
     "createAmount": "Beløb",
     "createBroadcast": "Transmitter",
     "createDetails": "Detaljer",
@@ -59,24 +57,20 @@
     "createTitle": "opret transaktion",
     "createTo": "Til",
     "createTx_size": "TX størrelse",
-    "details": {
-      "address": "adresse",
-      "address_field_is_not_valid": "Adresse felt er ikke gyldigt",
-      "amount_field_is_not_valid": "Beløbsfeltet er ikke gyldigt",
-      "amount_placeholder": "beløb der skal sendes (i BTC)",
-      "cancel": "Annuller",
-      "create": "Opret",
-      "create_tx_error": "Der skete en fejl ved oprettelse af transaktionen. Check om addressen er gyldig.",
-      "fee_field_is_not_valid": "Gebyr feltet er ikke gyldigt",
-      "fee_placeholder": "plus transaktionsgebyr (i BTC)",
-      "note_placeholder": "Notat til eget brug",
-      "remaining_balance": "Resterende saldo",
-      "title": "opret transaktion",
-      "total_exceeds_balance": "Beløbet du prøver at sende er større end din kontosaldo."
-    },
-    "success": {
-      "done": "Udført"
-    }
+    "detailsAddress": "adresse",
+    "detailsAddress_field_is_not_valid": "Adresse felt er ikke gyldigt",
+    "detailsAmount_field_is_not_valid": "Beløbsfeltet er ikke gyldigt",
+    "detailsAmount_placeholder": "beløb der skal sendes (i BTC)",
+    "detailsCancel": "Annuller",
+    "detailsCreate": "Opret",
+    "detailsCreate_tx_error": "Der skete en fejl ved oprettelse af transaktionen. Check om addressen er gyldig.",
+    "detailsFee_field_is_not_valid": "Gebyr feltet er ikke gyldigt",
+    "detailsFee_placeholder": "plus transaktionsgebyr (i BTC)",
+    "detailsNote_placeholder": "Notat til eget brug",
+    "detailsRemaining_balance": "Resterende saldo",
+    "detailsTitle": "opret transaktion",
+    "detailsTotal_exceeds_balance": "Beløbet du prøver at sende er større end din kontosaldo.",
+    "successDone": "Udført"
   },
   "settings": {
     "about": "Andet",
@@ -97,94 +91,74 @@
     "storage_not_encrypted": "Lager: ikke krypteret"
   },
   "transactions": {
-    "details": {
-      "copy": "Kopier",
-      "from": "Fra",
-      "show_in_block_explorer": "Vis i block-explorer",
-      "title": "Transaktion",
-      "to": "Til",
-      "transaction_details": "Transaktions detaljer"
-    },
-    "list": {
-      "description": "En liste af indgåeende og udgående transaktioner i dine wallets",
-      "tabBarLabel": "Transaktioner",
-      "title": "transaktioner"
-    }
+    "detailsCopy": "Kopier",
+    "detailsFrom": "Fra",
+    "detailsShow_in_block_explorer": "Vis i block-explorer",
+    "detailsTitle": "Transaktion",
+    "detailsTo": "Til",
+    "detailsTransaction_details": "Transaktions detaljer",
+    "listDescription": "En liste af indgåeende og udgående transaktioner i dine wallets",
+    "listTabBarLabel": "Transaktioner",
+    "listTitle": "transaktioner"
   },
   "wallets": {
-    "add": {
-      "coming_soon": "Kommer snart",
-      "create": "Opret",
-      "description": "Du kan enten scanne en backup papir wallet (i et WIF - Wallet Import Format), eller oprette en ny wallet. Segwit wallets er understøttet som standard.",
-      "import_wallet": "Importer wallet",
-      "imported": "Importeret",
-      "label_new_lightning": "Ny Lightning",
-      "label_new_segwit": "Ny SegWit",
-      "or": "eller",
-      "title": "Tilføj wallet",
-      "wallet_name": "wallet navn"
-    },
+    "addComing_soon": "Kommer snart",
+    "addCreate": "Opret",
+    "addDescription": "Du kan enten scanne en backup papir wallet (i et WIF - Wallet Import Format), eller oprette en ny wallet. Segwit wallets er understøttet som standard.",
+    "addImport_wallet": "Importer wallet",
+    "addImported": "Importeret",
+    "addLabel_new_lightning": "Ny Lightning",
+    "addLabel_new_segwit": "Ny SegWit",
+    "addOr": "eller",
+    "addTitle": "Tilføj wallet",
+    "addWallet_name": "wallet navn",
     "createBitcoinWallet": "In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?",
-    "details": {
-      "address": "Adresse",
-      "are_you_sure": "Er du sikker?",
-      "buy_bitcoin": "Køb Bitcoin",
-      "delete": "Slet",
-      "delete_this_wallet": "Slet denne wallet",
-      "description": "bskrivelse",
-      "export_backup": "Eksporter / backup",
-      "label": "Etiket",
-      "no_cancel": "Nej, annuller",
-      "save": "Gem",
-      "show_xpub": "Vis wallet XPUB",
-      "yes_delete": "Ja, slet"
-    },
-    "export": {
-      "title": "wallet eksport"
-    },
-    "import": {
-      "do_import": "Importer",
-      "error": "Importen lykkedes ikke. Er det en gyldig nøgle?",
-      "explanation": "Indtast din huskeregel, private nøgle, WIF, eller hvad du end har. BlueWallet vil forsøge at gætte det rigtige format og importere din wallet",
-      "imported": "Importeret",
-      "scan_qr": "eller scan QR kode istedet?",
-      "success": "Succes",
-      "title": "importer"
-    },
-    "list": {
-      "add": "Tilføj Wallet",
-      "create_a_button": "Tilføj nu",
-      "create_a_wallet": "Tilføj en tegnebog",
-      "create_a_wallet1": "Det er helt gratis og du kan oprette",
-      "create_a_wallet2": "lige så mange du vil",
-      "empty_txs1": "Dine transaktioner vil blive vist her,",
-      "empty_txs2": "ingen endnu",
-      "header": "En wallet består af par af hemmelige (private nøgler) og en adressesom du kan dele med andre for at modtage coins.",
-      "latest_transaction": "seneste transaktion",
-      "tap_here_to_buy": "Tryk her for at købe Bitcoin"
-    },
+    "detailsAddress": "Adresse",
+    "detailsAre_you_sure": "Er du sikker?",
+    "detailsBuy_bitcoin": "Køb Bitcoin",
+    "detailsDelete": "Slet",
+    "detailsDelete_this_wallet": "Slet denne wallet",
+    "detailsDescription": "bskrivelse",
+    "detailsExport_backup": "Eksporter / backup",
+    "detailsLabel": "Etiket",
+    "detailsNo_cancel": "Nej, annuller",
+    "detailsSave": "Gem",
+    "detailsShow_xpub": "Vis wallet XPUB",
+    "detailsYes_delete": "Ja, slet",
+    "exportTitle": "wallet eksport",
+    "importDo_import": "Importer",
+    "importError": "Importen lykkedes ikke. Er det en gyldig nøgle?",
+    "importExplanation": "Indtast din huskeregel, private nøgle, WIF, eller hvad du end har. BlueWallet vil forsøge at gætte det rigtige format og importere din wallet",
+    "importImported": "Importeret",
+    "importScan_qr": "eller scan QR kode istedet?",
+    "importSuccess": "Succes",
+    "importTitle": "importer",
+    "listAdd": "Tilføj Wallet",
+    "listCreate_a_button": "Tilføj nu",
+    "listCreate_a_wallet": "Tilføj en tegnebog",
+    "listCreate_a_wallet1": "Det er helt gratis og du kan oprette",
+    "listCreate_a_wallet2": "lige så mange du vil",
+    "listEmpty_txs1": "Dine transaktioner vil blive vist her,",
+    "listEmpty_txs2": "ingen endnu",
+    "listHeader": "En wallet består af par af hemmelige (private nøgler) og en adressesom du kan dele med andre for at modtage coins.",
+    "listLatest_transaction": "seneste transaktion",
+    "listTap_here_to_buy": "Tryk her for at købe Bitcoin",
     "options": "valgmuligheder",
-    "reorder": {
-      "title": "Ændre rækkefølgen af wallets"
-    },
-    "scanQrWif": {
-      "bad_password": "Forkert adgangkode",
-      "bad_wif": "Forkert WIF",
-      "cancel": "Annuller",
-      "decoding": "Afkoder",
-      "go_back": "Tilbage",
-      "imported_legacy": "Importeret Legacy",
-      "imported_segwit": "Importeret SegWit",
-      "imported_watchonly": "Importeret Watch-only",
-      "imported_wif": "Importeret WIF ",
-      "input_password": "Indtast adgangskode",
-      "password_explain": "Dette er en BIP38 krypteret privat nøgle",
-      "wallet_already_exists": "En sådan wallet eksisterer allerede",
-      "with_address": " med adresse "
-    },
+    "reorderTitle": "Ændre rækkefølgen af wallets",
+    "scanQrWifBad_password": "Forkert adgangkode",
+    "scanQrWifBad_wif": "Forkert WIF",
+    "scanQrWifCancel": "Annuller",
+    "scanQrWifDecoding": "Afkoder",
+    "scanQrWifGo_back": "Tilbage",
+    "scanQrWifImported_legacy": "Importeret Legacy",
+    "scanQrWifImported_segwit": "Importeret SegWit",
+    "scanQrWifImported_watchonly": "Importeret Watch-only",
+    "scanQrWifImported_wif": "Importeret WIF ",
+    "scanQrWifInput_password": "Indtast adgangskode",
+    "scanQrWifPassword_explain": "Dette er en BIP38 krypteret privat nøgle",
+    "scanQrWifWallet_already_exists": "En sådan wallet eksisterer allerede",
+    "scanQrWifWith_address": " med adresse ",
     "select_wallet": "Vælg wallet",
-    "xpub": {
-      "copiedToClipboard": "Kopieret til udklipsholder."
-    }
+    "xpubCopiedToClipboard": "Kopieret til udklipsholder."
   }
 }
