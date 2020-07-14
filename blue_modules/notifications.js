@@ -109,16 +109,16 @@ const tryToObtainPermissions = async function () {
       '',
       [
         {
-          text: 'Yeah why not',
-          onPress: async () => {
-            resolve(await configureNotifications());
+          text: 'Ask me later',
+          onPress: () => {
+            resolve(false);
           },
           style: 'default',
         },
         {
-          text: 'Ask me later',
-          onPress: () => {
-            resolve(false);
+          text: 'Yeah why not',
+          onPress: async () => {
+            resolve(await configureNotifications());
           },
           style: 'default',
         },
