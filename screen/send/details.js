@@ -974,6 +974,7 @@ export default class SendDetails extends Component {
             Keyboard.dismiss();
             const recipient = this.state.addresses[this.state.recipientsScrollIndex];
             recipient.amount = BitcoinUnit.MAX;
+            recipient.amountSats = BitcoinUnit.MAX;
             this.setState({
               addresses: [recipient],
               units: [BitcoinUnit.BTC],
