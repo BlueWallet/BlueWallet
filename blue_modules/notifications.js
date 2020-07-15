@@ -1,8 +1,9 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import { Alert, Platform } from 'react-native';
+import { Alert } from 'react-native';
 import Frisbee from 'frisbee';
 import AsyncStorage from '@react-native-community/async-storage';
 const PushNotification = require('react-native-push-notification');
+const constants = require('./constants');
 const PUSH_TOKEN = 'PUSH_TOKEN';
 let alreadyConfigured = false;
 
@@ -42,6 +43,7 @@ const configureNotifications = async function () {
         console.log('NOTIFICATION:', notification);
 
         // process the notification
+        PushNotification.setApplicationIconBadgeNumber(0); // always reset badges to zero
 
         // (required) Called when a remote is received or opened, or local notification is opened
         notification.finish(PushNotificationIOS.FetchResult.NoData);
@@ -86,17 +88,14 @@ const configureNotifications = async function () {
 
 /**
  * Should be called when user is most interested in receiving push notifications.
- * On iOS (if we dont have a token) it will show alert asking whether
+ * If we dont have a token it will show alert asking whether
  * user wants to receive notifications, and if yes - will configure push notifications.
- * On Android does nothing as push permissions are acquiered when app is installed.
+ * FYI, on Android permissions are acquired when app is installed, so basically we dont need to ask,
+ * we can just call `configure`. On iOS its different, and calling `configure` triggers system's dialog box.
  *
  * @returns {Promise<boolean>} TRUE if permissions were obtained, FALSE otherwise
  */
 const tryToObtainPermissions = async function () {
-  if (Platform.OS !== 'ios') {
-    return !!(await _getPushToken());
-  }
-
   if (await _getPushToken()) {
     // we already have a token, no sense asking again, just configure pushes to register callbacks and we are done
     if (!alreadyConfigured) configureNotifications(); // no await so it executes in background while we return TRUE and use token
@@ -150,10 +149,9 @@ const majorTomToGroundControl = async function (addresses, hashes) {
   const pushToken = await _getPushToken();
   if (!pushToken || !pushToken.token || !pushToken.os) return;
 
-  const baseURI = 'https://groundcontrol-dev.herokuapp.com/';
-  const api = new Frisbee({ baseURI: baseURI });
+  const api = new Frisbee({ baseURI: constants.groundControlUri });
 
-  const response = await api.post(
+  return await api.post(
     '/majorTomToGroundControl',
     Object.assign({}, _getHeaders(), {
       body: {
@@ -164,16 +162,15 @@ const majorTomToGroundControl = async function (addresses, hashes) {
       },
     }),
   );
-
-  console.warn(response);
-  return response;
 };
 
-// on Android permissions are acquired when app is installed, so it is safe to setup push notifications as soon as
-// this module loads (app launches)
-if (Platform.OS === 'android') {
-  configureNotifications();
-}
+// on app launch (load module):
+(async () => {
+  if (!(await _getPushToken())) return;
+  // if we previously had token that means we already acquired permission from the user and it is safe to call
+  // `configure` to register callbacks etc
+  await configureNotifications();
+})();
 
 // every launch should clear badges:
 PushNotification.setApplicationIconBadgeNumber(0);
