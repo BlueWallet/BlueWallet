@@ -17,6 +17,7 @@ import {
 import Clipboard from '@react-native-community/clipboard';
 import {
   BlueButton,
+  SecondButton,
   BlueText,
   SafeBlueArea,
   BlueCard,
@@ -34,6 +35,7 @@ import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
 import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
 import { Psbt } from 'bitcoinjs-lib';
+import { BlueCurrentTheme } from '../../components/themes';
 const loc = require('../../loc');
 const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -45,6 +47,7 @@ const { height, width } = Dimensions.get('window');
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -86,15 +89,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   hexLabel: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: '500',
   },
   hexInput: {
-    borderColor: '#ebebeb',
-    backgroundColor: '#d2f8d6',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     borderRadius: 4,
     marginTop: 20,
-    color: '#37c0a1',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: '500',
     fontSize: 14,
     paddingHorizontal: 16,
@@ -105,7 +108,7 @@ const styles = StyleSheet.create({
     marginVertical: 24,
   },
   hexText: {
-    color: '#9aa0aa',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontSize: 15,
     fontWeight: '500',
     alignSelf: 'center',
@@ -117,11 +120,6 @@ const styles = StyleSheet.create({
 });
 
 export default class PsbtWithHardwareWallet extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(null, false),
-    title: loc.send.header,
-  });
-
   cameraRef = null;
 
   _onReadUniformResource = ur => {
@@ -319,7 +317,7 @@ export default class PsbtWithHardwareWallet extends Component {
             <Text style={styles.hexText}>Verify on coinb.in</Text>
           </TouchableOpacity>
           <BlueSpacing20 />
-          <BlueButton onPress={this.broadcast} title={loc.send.confirm.sendNow} />
+          <SecondButton onPress={this.broadcast} title={loc.send.confirm.sendNow} />
         </BlueCard>
       </View>
     );
@@ -394,36 +392,36 @@ export default class PsbtWithHardwareWallet extends Component {
           <View style={styles.container}>
             <BlueCard>
               <BlueText testID="TextHelperForPSBT">
-                This is partially signed bitcoin transaction (PSBT). Please finish signing it with your hardware wallet.
+                This is a partially signed bitcoin transaction (PSBT). Please finish signing it with your hardware wallet.
               </BlueText>
               <BlueSpacing20 />
               <DynamicQRCode value={this.state.psbt.toHex()} capacity={200} />
               <BlueSpacing20 />
-              <BlueButton
+              <SecondButton
                 icon={{
                   name: 'qrcode',
                   type: 'font-awesome',
-                  color: BlueApp.settings.buttonTextColor,
+                  color: BlueCurrentTheme.colors.buttonTextColor,
                 }}
                 onPress={() => this.setState({ renderScanner: true, animatedQRCodeData: [] })}
                 title="Scan Signed Transaction"
               />
               <BlueSpacing20 />
-              <BlueButton
+              <SecondButton
                 icon={{
                   name: 'file-import',
                   type: 'material-community',
-                  color: BlueApp.settings.buttonTextColor,
+                  color: BlueCurrentTheme.colors.buttonTextColor,
                 }}
                 onPress={this.openSignedTransaction}
                 title="Open Signed Transaction"
               />
               <BlueSpacing20 />
-              <BlueButton
+              <SecondButton
                 icon={{
                   name: 'share-alternative',
                   type: 'entypo',
-                  color: BlueApp.settings.buttonTextColor,
+                  color: BlueCurrentTheme.colors.buttonTextColor,
                 }}
                 onPress={this.exportPSBT}
                 title="Export to file"
@@ -453,3 +451,8 @@ PsbtWithHardwareWallet.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+PsbtWithHardwareWallet.navigationOptions = () => ({
+  ...BlueNavigationStyle(null, false),
+  title: loc.send.header,
+});

@@ -4,8 +4,9 @@ import { View, TextInput, StyleSheet } from 'react-native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
-import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
-import PropTypes from 'prop-types';
+import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../../BlueComponents';
+import { BlueCurrentTheme } from '../../components/themes';
+
 const loc = require('../../loc');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -15,7 +16,7 @@ const styles = StyleSheet.create({
   },
   status: {
     textAlign: 'center',
-    color: '#9AA0AA',
+    color: BlueCurrentTheme.colors.feeText,
     marginBottom: 4,
   },
   connectWrap: {
@@ -33,13 +34,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   containerConnected: {
-    backgroundColor: '#D2F8D6',
+    backgroundColor: BlueCurrentTheme.colors.feeLabel,
   },
   containerDisconnected: {
     backgroundColor: '#F8D2D2',
   },
   textConnected: {
-    color: '#37C0A1',
+    color: BlueCurrentTheme.colors.feeValue,
     fontWeight: 'bold',
   },
   textDisconnected: {
@@ -48,19 +49,19 @@ const styles = StyleSheet.create({
   },
   hostname: {
     textAlign: 'center',
-    color: '#0C2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   explain: {
-    color: '#9AA0AA',
+    color: BlueCurrentTheme.colors.feeText,
     marginBottom: -24,
   },
   inputWrap: {
     flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1,
     borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     alignItems: 'center',
@@ -76,11 +77,6 @@ const styles = StyleSheet.create({
 });
 
 export default class ElectrumSettings extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(),
-    title: loc.settings.electrum_settings,
-  });
-
   constructor(props) {
     super(props);
     this.state = {
@@ -223,9 +219,7 @@ export default class ElectrumSettings extends Component {
   }
 }
 
-ElectrumSettings.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
-};
+ElectrumSettings.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
+  title: loc.settings.electrum_settings,
+});

@@ -27,6 +27,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
+import { BlueCurrentTheme } from '../../components/themes';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
@@ -58,18 +59,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   walletWrapLabel: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 14,
   },
   walletWrapBalance: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 4,
     marginRight: 4,
   },
   walletWrapSats: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 11,
     fontWeight: '600',
     textAlignVertical: 'bottom',
@@ -77,6 +78,7 @@ const styles = StyleSheet.create({
   },
   root: {
     flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   scroll: {
     flex: 1,
@@ -106,12 +108,6 @@ const styles = StyleSheet.create({
 });
 
 export default class ScanLndInvoice extends React.Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: loc.send.header,
-    headerLeft: null,
-  });
-
   state = {
     isLoading: false,
     isAmountInitiallyEmpty: false,
@@ -465,3 +461,9 @@ ScanLndInvoice.propTypes = {
     }),
   }),
 };
+
+ScanLndInvoice.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: loc.send.header,
+  headerLeft: null,
+});

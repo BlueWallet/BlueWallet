@@ -62,8 +62,7 @@ import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
-const BlueApp = require('./BlueApp');
-const loc = require('./loc');
+import { BlueNavigationStyle } from './BlueComponents';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const defaultScreenOptions =
@@ -103,15 +102,9 @@ const WalletsRoot = () => (
       name="Settings"
       component={Settings}
       options={{
-        headerStyle: {
-          backgroundColor: '#FFFFFF',
-          borderBottomWidth: 0,
-          elevation: 0,
-          shadowColor: 'transparent',
-        },
-        title: '',
-        headerBackTitleVisible: false,
-        headerTintColor: '#0c2550',
+        ...BlueNavigationStyle(),
+
+        headerTitle: '',
       }}
     />
     <WalletsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
@@ -140,18 +133,8 @@ const WalletsRoot = () => (
       component={LNDViewAdditionalInvoiceInformation}
       options={LNDViewAdditionalInvoiceInformation.navigationOptions}
     />
-    <WalletsStack.Screen
-      name="Broadcast"
-      component={Broadcast}
-      options={{
-        title: 'Broadcast',
-        headerStyle: {
-          backgroundColor: '#FFFFFF',
-          borderBottomWidth: 0,
-        },
-        headerTintColor: '#0c2550',
-      }}
-    />
+    <WalletsStack.Screen name="HodlHodlViewOffer" component={HodlHodlViewOffer} options={HodlHodlViewOffer.navigationOptions} />
+    <WalletsStack.Screen name="Broadcast" component={Broadcast} options={Broadcast.navigationOptions} />
   </WalletsStack.Navigator>
 );
 
@@ -189,16 +172,7 @@ const SendDetailsRoot = () => (
       }}
     />
     <SendDetailsStack.Screen name="Success" component={Success} options={Success.navigationOptions} />
-    <SendDetailsStack.Screen
-      name="SelectWallet"
-      component={SelectWallet}
-      options={{
-        headerTitle: loc.wallets.select_wallet,
-        headerRight: null,
-        headerBackTitleVisible: false,
-        headerTintColor: BlueApp.settings.foregroundColor,
-      }}
-    />
+    <SendDetailsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
   </SendDetailsStack.Navigator>
 );
 
@@ -206,16 +180,7 @@ const LNDCreateInvoiceStack = createStackNavigator();
 const LNDCreateInvoiceRoot = () => (
   <LNDCreateInvoiceStack.Navigator screenOptions={defaultStackScreenOptions}>
     <LNDCreateInvoiceStack.Screen name="LNDCreateInvoice" component={LNDCreateInvoice} options={LNDCreateInvoice.navigationOptions} />
-    <LNDCreateInvoiceStack.Screen
-      name="SelectWallet"
-      component={SelectWallet}
-      options={{
-        headerTitle: loc.wallets.select_wallet,
-        headerRight: null,
-        headerBackTitleVisible: false,
-        headerTintColor: BlueApp.settings.foregroundColor,
-      }}
-    />
+    <LNDCreateInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
     <LNDCreateInvoiceStack.Screen
       name="LNDViewInvoice"
       component={LNDViewInvoice}
@@ -231,32 +196,12 @@ const LNDCreateInvoiceRoot = () => (
   </LNDCreateInvoiceStack.Navigator>
 );
 
-const HodlHodlStack = createStackNavigator();
-const HodlHodlRoot = () => (
-  <HodlHodlStack.Navigator>
-    <HodlHodlStack.Screen name="HodlHodl" component={HodlHodl} options={HodlHodl.navigationOptions} />
-    <HodlHodlStack.Screen name="HodlHodlViewOffer" component={HodlHodlViewOffer} options={HodlHodlViewOffer.navigationOptions} />
-    <HodlHodlStack.Screen name="HodlHodlLogin" component={HodlHodlLogin} options={HodlHodlLogin.navigationOptions} />
-    <HodlHodlStack.Screen name="HodlHodlMyContracts" component={HodlHodlMyContracts} options={HodlHodlMyContracts.navigationOptions} />
-    <HodlHodlStack.Screen name="HodlHodlWebview" component={HodlHodlWebview} options={HodlHodlWebview.navigationOptions} />
-  </HodlHodlStack.Navigator>
-);
-
 // LightningScanInvoiceStackNavigator === ScanLndInvoiceStack
 const ScanLndInvoiceStack = createStackNavigator();
 const ScanLndInvoiceRoot = () => (
   <ScanLndInvoiceStack.Navigator screenOptions={defaultStackScreenOptions}>
     <ScanLndInvoiceStack.Screen name="ScanLndInvoice" component={ScanLndInvoice} options={ScanLndInvoice.navigationOptions} />
-    <ScanLndInvoiceStack.Screen
-      name="SelectWallet"
-      component={SelectWallet}
-      options={{
-        headerTitle: loc.wallets.select_wallet,
-        headerRight: null,
-        headerBackTitleVisible: false,
-        headerTintColor: BlueApp.settings.foregroundColor,
-      }}
-    />
+    <ScanLndInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
     <ScanLndInvoiceStack.Screen name="Success" component={Success} options={Success.navigationOptions} />
   </ScanLndInvoiceStack.Navigator>
 );
@@ -290,6 +235,13 @@ const UnlockWithScreenRoot = () => (
   </UnlockWithScreenStack.Navigator>
 );
 
+const HodlHodlLoginStack = createStackNavigator();
+const HodlHodlLoginRoot = () => (
+  <HodlHodlLoginStack.Navigator name="HodlHodlLoginRoot" screenOptions={defaultStackScreenOptions}>
+    <HodlHodlLoginStack.Screen name="HodlHodlLogin" component={HodlHodlLogin} options={HodlHodlLogin.navigationOptions} />
+  </HodlHodlLoginStack.Navigator>
+);
+
 const RootStack = createStackNavigator();
 const Navigation = () => (
   <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
@@ -306,7 +258,9 @@ const Navigation = () => (
     <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemRoot} options={{ headerShown: false }} />
-    <RootStack.Screen name="HodlHodlRoot" component={HodlHodlRoot} options={{ headerShown: false }} />
+    <RootStack.Screen name="HodlHodlLoginRoot" component={HodlHodlLoginRoot} options={{ headerShown: false }} />
+    <RootStack.Screen name="HodlHodlMyContracts" component={HodlHodlMyContracts} options={HodlHodlMyContracts.navigationOptions} />
+    <RootStack.Screen name="HodlHodlWebview" component={HodlHodlWebview} options={HodlHodlWebview.navigationOptions} />
     <RootStack.Screen
       name="ScanQRCodeRoot"
       component={ScanQRCodeRoot}

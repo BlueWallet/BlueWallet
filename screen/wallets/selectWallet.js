@@ -1,83 +1,20 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList, StyleSheet, StatusBar } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
+import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance, BlueNavigationStyle } from '../../BlueComponents';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/wallet-gradient';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useTheme } from '@react-navigation/native';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignContent: 'center',
-    paddingTop: 20,
-  },
-  itemRoot: {
-    backgroundColor: 'transparent',
-    padding: 10,
-    marginVertical: 17,
-  },
-  gradient: {
-    padding: 15,
-    borderRadius: 10,
-    minHeight: 164,
-    elevation: 5,
-  },
-  image: {
-    width: 99,
-    height: 94,
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-  },
-  transparentText: {
-    backgroundColor: 'transparent',
-  },
-  label: {
-    backgroundColor: 'transparent',
-    fontSize: 19,
-    color: '#fff',
-  },
-  balance: {
-    backgroundColor: 'transparent',
-    fontWeight: 'bold',
-    fontSize: 36,
-    color: '#fff',
-  },
-  latestTxLabel: {
-    backgroundColor: 'transparent',
-    fontSize: 13,
-    color: '#fff',
-  },
-  latestTxValue: {
-    backgroundColor: 'transparent',
-    fontWeight: 'bold',
-    fontSize: 16,
-    color: '#fff',
-  },
-  noWallets: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 20,
-  },
-  center: {
-    textAlign: 'center',
-  },
-});
-
 const SelectWallet = ({ navigation }) => {
   const { chainType, onWalletSelect, availableWallets } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
+  const { colors } = useTheme();
   let data = chainType
     ? BlueApp.getWallets().filter(item => item.chain === chainType && item.allowSend())
     : BlueApp.getWallets().filter(item => item.allowSend()) || [];
@@ -86,6 +23,70 @@ const SelectWallet = ({ navigation }) => {
     // availableWallets if provided, overrides chainType argument and `allowSend()` check
     data = availableWallets;
   }
+  const styles = StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    loading: {
+      flex: 1,
+      justifyContent: 'center',
+      alignContent: 'center',
+      paddingTop: 20,
+    },
+    itemRoot: {
+      backgroundColor: 'transparent',
+      padding: 10,
+      marginVertical: 17,
+    },
+    gradient: {
+      padding: 15,
+      borderRadius: 10,
+      minHeight: 164,
+      elevation: 5,
+    },
+    image: {
+      width: 99,
+      height: 94,
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+    },
+    transparentText: {
+      backgroundColor: 'transparent',
+    },
+    label: {
+      backgroundColor: 'transparent',
+      fontSize: 19,
+      color: '#fff',
+    },
+    balance: {
+      backgroundColor: 'transparent',
+      fontWeight: 'bold',
+      fontSize: 36,
+      color: '#fff',
+    },
+    latestTxLabel: {
+      backgroundColor: 'transparent',
+      fontSize: 13,
+      color: '#fff',
+    },
+    latestTxValue: {
+      backgroundColor: 'transparent',
+      fontWeight: 'bold',
+      fontSize: 16,
+      color: '#fff',
+    },
+    noWallets: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingTop: 20,
+    },
+    center: {
+      textAlign: 'center',
+    },
+  });
 
   useEffect(() => {
     setIsLoading(false);
@@ -135,13 +136,14 @@ const SelectWallet = ({ navigation }) => {
   if (isLoading) {
     return (
       <View style={styles.loading}>
+        <StatusBar barStyle="light-content" />
         <ActivityIndicator />
       </View>
     );
   } else if (data.length <= 0) {
     return (
       <SafeBlueArea style={styles.root}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle="light-content" />
         <View style={styles.noWallets}>
           <BlueText style={styles.center}>There are currently no Bitcoin wallets available.</BlueText>
           <BlueSpacing20 />
@@ -152,7 +154,7 @@ const SelectWallet = ({ navigation }) => {
   } else {
     return (
       <SafeBlueArea style={styles.root}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle="default" />
         <FlatList extraData={data} data={data} renderItem={renderItem} keyExtractor={(_item, index) => `${index}`} />
       </SafeBlueArea>
     );
@@ -160,9 +162,10 @@ const SelectWallet = ({ navigation }) => {
 };
 
 SelectWallet.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true, () => navigation.goBack(null)),
-  title: loc.wallets.select_wallet,
+  ...BlueNavigationStyle(navigation, true),
   headerRight: null,
+  headerTitle: loc.wallets.select_wallet,
+  headerBackTitleVisible: false,
 });
 
 export default SelectWallet;

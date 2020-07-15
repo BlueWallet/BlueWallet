@@ -3,11 +3,10 @@ import PropTypes from 'prop-types';
 import BN from 'bignumber.js';
 import { Dimensions, View, ScrollView, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useNavigation, useRoute } from '@react-navigation/native';
-
-import { SafeBlueArea, BlueNavigationStyle, BlueTabs } from '../../BlueComponents';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { BlueCurrentTheme } from '../../components/themes';
+import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueTabs } from '../../BlueComponents';
 const loc = require('../../loc');
-const BlueApp = require('../../BlueApp');
 
 const ENTROPY_LIMIT = 256;
 
@@ -133,7 +132,7 @@ const Dice = ({ push, sides }) => {
   };
 
   return (
-    <ScrollView style={styles.diceScroll} contentContainerStyle={styles.diceContainer}>
+    <ScrollView contentContainerStyle={styles.diceContainer}>
       {[...Array(sides)].map((_, i) => (
         <TouchableOpacity key={i} onPress={() => push(getEntropy(i, sides))}>
           <View style={styles.diceRoot}>
@@ -141,7 +140,7 @@ const Dice = ({ push, sides }) => {
               <Icon style={styles.diceIcon} name={diceIcon(i + 1)} size={70} color="grey" type="font-awesome-5" />
             ) : (
               <View style={styles.dice}>
-                <Text>{i + 1}</Text>
+                <Text style={styles.diceText}>{i + 1}</Text>
               </View>
             )}
           </View>
@@ -162,7 +161,7 @@ const Buttons = ({ pop, save }) => (
       <View style={styles.buttonsBody}>
         <View style={styles.buttonsRow}>
           <View style={styles.buttonsIcon}>
-            <Icon name="undo" size={16} type="font-awesome" color={BlueApp.settings.buttonAlternativeTextColor} />
+            <Icon name="undo" size={16} type="font-awesome" color={BlueCurrentTheme.colors.buttonAlternativeTextColor} />
           </View>
           <Text style={styles.buttonsLabel}>{loc.entropy.undo}</Text>
         </View>
@@ -172,7 +171,7 @@ const Buttons = ({ pop, save }) => (
       <View style={styles.buttonsBody}>
         <View style={styles.buttonsRow}>
           <View style={styles.buttonsIcon}>
-            <Icon name="arrow-down" size={16} type="font-awesome" color={BlueApp.settings.buttonAlternativeTextColor} />
+            <Icon name="arrow-down" size={16} type="font-awesome" color={BlueCurrentTheme.colors.buttonAlternativeTextColor} />
           </View>
           <Text style={[styles.buttonsLabel, styles.buttonsLabelRight]}>{loc.entropy.save}</Text>
         </View>
@@ -192,6 +191,7 @@ const Entropy = () => {
   const navigation = useNavigation();
   const [tab, setTab] = useState(1);
   const [show, setShow] = useState(false);
+  const { colors } = useTheme();
 
   const push = v => v && dispatch({ type: 'push', value: v.value, bits: v.bits });
   const pop = () => dispatch({ type: 'pop' });
@@ -207,6 +207,7 @@ const Entropy = () => {
 
   return (
     <SafeBlueArea>
+      <BlueSpacing20 />
       <TouchableOpacity onPress={() => setShow(!show)}>
         <View style={styles.entropy}>
           <Text style={styles.entropyText}>{show ? hex : `${bits} of 256 bits`}</Text>
@@ -218,25 +219,13 @@ const Entropy = () => {
         onSwitch={setTab}
         tabs={[
           ({ active }) => (
-            <Icon
-              name="toll"
-              type="material"
-              color={active ? BlueApp.settings.buttonAlternativeTextColor : BlueApp.settings.buttonBackgroundColor}
-            />
+            <Icon name="toll" type="material" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />
           ),
           ({ active }) => (
-            <Icon
-              name="dice"
-              type="font-awesome-5"
-              color={active ? BlueApp.settings.buttonAlternativeTextColor : BlueApp.settings.buttonBackgroundColor}
-            />
+            <Icon name="dice" type="font-awesome-5" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />
           ),
           ({ active }) => (
-            <Icon
-              name="dice-d20"
-              type="font-awesome-5"
-              color={active ? BlueApp.settings.buttonAlternativeTextColor : BlueApp.settings.buttonBackgroundColor}
-            />
+            <Icon name="dice-d20" type="font-awesome-5" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />
           ),
         ]}
       />
@@ -267,7 +256,7 @@ const styles = StyleSheet.create({
     padding: 5,
     marginLeft: 10,
     marginRight: 10,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     borderRadius: 9,
     minHeight: 49,
     paddingHorizontal: 8,
@@ -278,13 +267,13 @@ const styles = StyleSheet.create({
   entropyText: {
     fontSize: 15,
     fontFamily: 'Courier',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   coinRoot: {
     flex: 1,
     justifyContent: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    backgroundColor: 'white',
   },
   coinBody: {
     flex: 0.33,
@@ -293,7 +282,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderWidth: 1,
     borderRadius: 5,
-    borderColor: 'grey',
+    borderColor: BlueCurrentTheme.colors.lightButton,
     margin: 10,
     padding: 10,
   },
@@ -302,9 +291,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 75,
-  },
-  diceScroll: {
-    backgroundColor: 'white',
   },
   diceContainer: {
     alignItems: 'flex-start',
@@ -321,10 +307,13 @@ const styles = StyleSheet.create({
     margin: 3,
     borderWidth: 1,
     borderRadius: 5,
-    borderColor: 'grey',
     justifyContent: 'center',
     alignItems: 'center',
     aspectRatio: 1,
+    borderColor: BlueCurrentTheme.colors.buttonBackgroundColor,
+  },
+  diceText: {
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   diceIcon: {
     margin: 3,
@@ -346,7 +335,7 @@ const styles = StyleSheet.create({
   buttonsBody: {
     flex: 1,
     minWidth: 130,
-    backgroundColor: BlueApp.settings.buttonBackgroundColor,
+    backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
   },
   buttonsRow: {
     flex: 1,
@@ -364,7 +353,7 @@ const styles = StyleSheet.create({
     marginBottom: -11,
   },
   buttonsLabel: {
-    color: BlueApp.settings.buttonAlternativeTextColor,
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontWeight: '500',
     left: 5,
     backgroundColor: 'transparent',

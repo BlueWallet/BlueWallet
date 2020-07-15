@@ -60,14 +60,14 @@
     ]
   },
   "dependencies": {
-    "@babel/preset-env": "7.10.2",
+    "@babel/preset-env": "7.10.3",
     "@react-native-community/async-storage": "1.11.0",
     "@react-native-community/blur": "3.6.0",
     "@react-native-community/clipboard": "1.2.2",
     "@react-native-community/masked-view": "0.1.10",
     "@react-native-community/slider": "3.0.0",
-    "@react-navigation/native": "5.5.1",
-    "@react-navigation/stack": "5.5.1",
+    "@react-navigation/native": "5.6.1",
+    "@react-navigation/stack": "5.6.2",
     "@remobile/react-native-qrcode-local-image": "git+https://github.com/BlueWallet/react-native-qrcode-local-image.git",
     "@sentry/react-native": "1.4.5",
     "amplitude-js": "5.11.0",

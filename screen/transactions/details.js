@@ -5,7 +5,6 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueHeaderDefaultSub,
   BlueLoading,
   BlueSpacing20,
   BlueCopyToClipboardButton,
@@ -14,6 +13,7 @@ import {
 import HandoffSettings from '../../class/handoff';
 import Handoff from 'react-native-handoff';
 import PropTypes from 'prop-types';
+import { BlueCurrentTheme } from '../../components/themes';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -36,6 +36,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     marginBottom: 4,
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   rowValue: {
     marginBottom: 26,
@@ -44,6 +45,7 @@ const styles = StyleSheet.create({
   txId: {
     fontSize: 16,
     fontWeight: '500',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   txHash: {
     marginBottom: 8,
@@ -51,16 +53,29 @@ const styles = StyleSheet.create({
   },
   txLink: {
     marginBottom: 26,
-    color: '#2f5fb3',
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
   },
   save: {
     marginHorizontal: 16,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  saveText: {
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
+  },
   memoTextInput: {
-    fontSize: 24,
-    color: '#2f5fb3',
+    flexDirection: 'row',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
+    minHeight: 44,
+    height: 44,
+    alignItems: 'center',
+    marginVertical: 8,
+    borderRadius: 4,
+    paddingHorizontal: 8,
   },
 });
 
@@ -79,16 +94,6 @@ function arrDiff(a1, a2) {
 }
 
 export default class TransactionsDetails extends Component {
-  static navigationOptions = ({ navigation, route }) => ({
-    ...BlueNavigationStyle(),
-    title: '',
-    headerRight: () => (
-      <TouchableOpacity disabled={route.params.isLoading === true} style={styles.save} onPress={route.params.handleOnSaveButtonTapped}>
-        <Text style={styles.saveText}>{loc.wallets.details.save}</Text>
-      </TouchableOpacity>
-    ),
-  });
-
   constructor(props) {
     super(props);
     const hash = props.route.params.hash;
@@ -160,7 +165,6 @@ export default class TransactionsDetails extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-        <StatusBar barStyle="dark-content" />
         {this.state.isHandOffUseEnabled && (
           <Handoff
             title={`Bitcoin Transaction ${this.state.tx.hash}`}
@@ -168,7 +172,7 @@ export default class TransactionsDetails extends Component {
             url={`https://blockstream.info/tx/${this.state.tx.hash}`}
           />
         )}
-        <BlueHeaderDefaultSub leftText={loc.transactions.details.title} rightComponent={null} />
+        <StatusBar barStyle="default" />
         <ScrollView style={styles.scroll}>
           <BlueCard>
             <View>
@@ -276,3 +280,17 @@ TransactionsDetails.propTypes = {
     setParams: PropTypes.func,
   }),
 };
+
+TransactionsDetails.navigationOptions = ({ navigation, route }) => ({
+  ...BlueNavigationStyle(),
+  title: loc.transactions.details.title,
+  headerStyle: {
+    ...BlueNavigationStyle().headerStyle,
+    backgroundColor: BlueCurrentTheme.colors.customHeader,
+  },
+  headerRight: () => (
+    <TouchableOpacity disabled={route.params.isLoading === true} style={styles.save} onPress={route.params.handleOnSaveButtonTapped}>
+      <Text style={styles.saveText}>{loc.wallets.details.save}</Text>
+    </TouchableOpacity>
+  ),
+});
