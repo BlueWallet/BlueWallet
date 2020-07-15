@@ -19,7 +19,6 @@ import {
   BlueNavigationStyle,
   BlueSpacing10,
   BlueSpacing20,
-  SafeBlueArea,
 } from '../../BlueComponents';
 import { AppStorage } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
@@ -59,13 +58,13 @@ export default class HodlHodlMyContracts extends Component {
   render() {
     if (this.state.isLoading) return <BlueLoading />;
     return (
-      <SafeBlueArea>
+      <View style={styles.root}>
         <FlatList
           scrollEnabled={false}
           keyExtractor={(item, index) => {
             return item.id;
           }}
-          ListEmptyComponent={() => <Text style={styles.emptyComponentText}>You dont have any contracts in progress</Text>}
+          ListEmptyComponent={() => <Text style={styles.emptyComponentText}>You don't have any contracts in progress</Text>}
           style={styles.flatList}
           ItemSeparatorComponent={() => <View style={styles.itemSeparatorComponent} />}
           data={this.state.contracts}
@@ -99,7 +98,7 @@ export default class HodlHodlMyContracts extends Component {
           )}
         />
         {this.renderContract()}
-      </SafeBlueArea>
+      </View>
     );
   }
 
@@ -341,12 +340,16 @@ export default class HodlHodlMyContracts extends Component {
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
+  },
   bottomModal: {
     justifyContent: 'flex-end',
     margin: 0,
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.modal,
     padding: 22,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
@@ -358,7 +361,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statusGreenWrapper: {
-    backgroundColor: '#d2f8d5',
+    backgroundColor: BlueCurrentTheme.colors.feeLabel,
     borderRadius: 20,
     height: 28,
     justifyContent: 'center',
@@ -369,10 +372,10 @@ const styles = StyleSheet.create({
   },
   statusGreenText: {
     fontSize: 12,
-    color: '#37bfa0',
+    color: BlueCurrentTheme.colors.feeValue,
   },
   statusGrayWrapper: {
-    backgroundColor: '#ebebeb',
+    backgroundColor: BlueCurrentTheme.colors.lightBorder,
     borderRadius: 20,
     height: 28,
     justifyContent: 'center',
@@ -383,10 +386,10 @@ const styles = StyleSheet.create({
   },
   statusGrayText: {
     fontSize: 12,
-    color: 'gray',
+    color: '#9AA0AA',
   },
   statusGrayWrapper2: {
-    backgroundColor: '#f8f8f8',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     borderRadius: 5,
     minHeight: 28,
     maxHeight: 56,
@@ -397,27 +400,28 @@ const styles = StyleSheet.create({
   },
   statusGrayText2: {
     fontSize: 12,
-    color: 'gray',
+    color: '#9AA0AA',
   },
   btcText: {
     fontWeight: 'bold',
     fontSize: 18,
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   subheaderText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.feeText,
   },
-  emptyComponentText: { textAlign: 'center', color: '#9AA0AA', paddingHorizontal: 16 },
+  loading: { backgroundColor: BlueCurrentTheme.colors.elevated },
+  emptyComponentText: { textAlign: 'center', color: '#9AA0AA', paddingHorizontal: 16, backgroundColor: BlueCurrentTheme.colors.elevated },
   itemSeparatorComponent: { height: 0.5, width: '100%', backgroundColor: '#C8C8C8' },
   flexDirectionRow: { flexDirection: 'row' },
   flexDirectionColumn: { flexDirection: 'column' },
-  volumeBreakdownText: { fontSize: 18, color: '#0c2550' },
-  contractStatusText: { fontSize: 14, color: 'gray', fontWeight: 'normal' },
+  volumeBreakdownText: { fontSize: 18, color: BlueCurrentTheme.colors.foregroundColor },
+  contractStatusText: { fontSize: 13, color: 'gray', fontWeight: 'normal' },
   cancelContractText: { color: '#d0021b', fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' },
-  openChatText: { color: '#1b02d0', fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' },
-  flatList: { paddingTop: 30 },
+  openChatText: { color: BlueCurrentTheme.colors.foregroundColor, fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' },
+  flatList: { paddingTop: 30, backgroundColor: BlueCurrentTheme.colors.elevated },
   roleText: { fontSize: 14, color: 'gray', padding: 5 },
 });
 
@@ -425,7 +429,7 @@ HodlHodlMyContracts.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
   title: 'My contracts',
   headerStyle: {
-    backgroundColor: BlueCurrentTheme.colors.customHeader,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   headerRight: null,
 });
