@@ -75,8 +75,8 @@
   "settings": {
     "about": "Andet",
     "currency": "Valuta",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "Krypter lager",
+    "general_adv_mode": "Enable advanced mode",
     "header": "indstillinger",
     "language": "Sprog",
     "lightning_settings": "Lightning settings",

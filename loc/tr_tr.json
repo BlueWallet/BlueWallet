@@ -83,8 +83,8 @@
   "settings": {
     "about": "Hakkında",
     "currency": "Para Birimi",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "Depolamayı şifrele",
+    "general_adv_mode": "Enable advanced mode",
     "header": "ayarlar",
     "language": "Dil",
     "lightning_settings": "Lightning Ayarları",

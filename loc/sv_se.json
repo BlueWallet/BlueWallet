@@ -92,8 +92,8 @@
   "settings": {
     "about": "Om",
     "currency": "Valuta",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "Kryptera lagring",
+    "general_adv_mode": "Enable advanced mode",
     "header": "inställningar",
     "language": "Språk",
     "lightning_settings": "Lightning Network",

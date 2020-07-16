@@ -83,8 +83,8 @@
   "settings": {
     "about": "Tietoa",
     "currency": "Valuutta",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "Salaa tallennustila",
+    "general_adv_mode": "Enable advanced mode",
     "header": "asetukset",
     "language": "Kieli",
     "lightning_settings": "Lightning asetukset",

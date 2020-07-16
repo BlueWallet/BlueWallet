@@ -66,8 +66,8 @@
   "settings": {
     "about": "Про програму",
     "currency": "Валюта",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "Зашифрувати сховище",
+    "general_adv_mode": "Enable advanced mode",
     "header": "Налаштування",
     "language": "Мова",
     "lightning_settings": "Lightning settings",

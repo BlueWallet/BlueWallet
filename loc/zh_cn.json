@@ -83,8 +83,8 @@
   "settings": {
     "about": "关于",
     "currency": "货币",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "加密存储",
+    "general_adv_mode": "Enable advanced mode",
     "header": "设置",
     "language": "语言",
     "lightning_settings": "闪电网络设置",

@@ -84,8 +84,8 @@
   "settings": {
     "about": "Σχετικά",
     "currency": "Νόμισμα",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "Κρυπτογράφησε το αρχείο",
+    "general_adv_mode": "Enable advanced mode",
     "header": "ρυθμίσεις",
     "language": "Γλώσσα",
     "lightning_settings": "Ρυθμίσεις Lightning",

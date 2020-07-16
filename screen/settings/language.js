@@ -45,7 +45,7 @@ const Language = () => {
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.flex}>
       <FlatList style={styles.flex} keyExtractor={(_item, index) => `${index}`} data={AvailableLanguages} renderItem={renderItem} />
       <BlueCard>
-        <BlueTextHooks>When selecting a new language, restarting BlueWallet may be required for the change to take effect.</BlueTextHooks>
+        <BlueTextHooks>{loc.settings.language_restart}</BlueTextHooks>
       </BlueCard>
     </SafeBlueArea>
   );

@@ -71,7 +71,7 @@ const Currency = () => {
           }}
         />
         <BlueCard>
-          <BlueTextHooks>Prices are obtained from CoinDesk</BlueTextHooks>
+          <BlueTextHooks>{loc.settings.currency_source}</BlueTextHooks>
         </BlueCard>
       </SafeBlueArea>
     );

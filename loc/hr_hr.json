@@ -83,8 +83,8 @@
   "settings": {
     "about": "Informacije",
     "currency": "Valuta",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "Kriptiraj spremnik",
+    "general_adv_mode": "Enable advanced mode",
     "header": "Postavke",
     "language": "Jezik",
     "lightning_settings": "Lightning postavke",

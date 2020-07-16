@@ -75,8 +75,8 @@
   "settings": {
     "about": "À propos",
     "currency": "Devise",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "Chiffrer le stockage",
+    "general_adv_mode": "Enable advanced mode",
     "header": "réglages",
     "language": "Langue",
     "lightning_settings": "Lightning settings",

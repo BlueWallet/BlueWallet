@@ -83,8 +83,8 @@
   "settings": {
     "about": "關於",
     "currency": "貨幣",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "加密儲存",
+    "general_adv_mode": "Enable advanced mode",
     "header": "設定",
     "language": "語言",
     "lightning_settings": "閃電網路設定",

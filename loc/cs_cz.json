@@ -78,8 +78,8 @@
   "settings": {
     "about": "O BlueWallet",
     "currency": "Měna",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "Zašifrovat úložiště",
+    "general_adv_mode": "Enable advanced mode",
     "header": "nastavení",
     "language": "Jazyk",
     "lightning_settings": "Lightning settings",

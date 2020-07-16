@@ -75,8 +75,8 @@
   "settings": {
     "about": "Tentang",
     "currency": "Mata Uang",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "Enkripsi penyimpanan",
+    "general_adv_mode": "Enable advanced mode",
     "header": "setting",
     "language": "Bahasa",
     "lightning_settings": "Pengaturan Lightning",

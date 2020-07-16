@@ -78,8 +78,8 @@
   "settings": {
     "about": "Over",
     "currency": "Valuta",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "Versleutel opslag",
+    "general_adv_mode": "Enable advanced mode",
     "header": "instellingen",
     "language": "Taal",
     "lightning_settings": "Lightning instellingen",

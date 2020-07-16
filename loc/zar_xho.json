@@ -83,8 +83,8 @@
   "settings": {
     "about": "Malunga",
     "currency": "Lwemali",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "Kubhala u kubhala",
+    "general_adv_mode": "Enable advanced mode",
     "header": "Izicwangciso",
     "language": "Ulwimi",
     "lightning_settings": "Izixhobo zokukhanyisa",

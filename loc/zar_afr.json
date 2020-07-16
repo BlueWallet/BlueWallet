@@ -82,8 +82,8 @@
   "settings": {
     "about": "info",
     "currency": "Geldeenheid",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "Enkripteer Berging",
+    "general_adv_mode": "Enable advanced mode",
     "header": "instellings",
     "language": "Taal",
     "lightning_settings": "Lightning Instellings",

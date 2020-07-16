@@ -83,8 +83,8 @@
   "settings": {
     "about": "Sobre",
     "currency": "Moeda",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "Criptografar",
+    "general_adv_mode": "Enable advanced mode",
     "header": "definições",
     "language": "Idioma",
     "lightning_settings": "Preferências Lightning",

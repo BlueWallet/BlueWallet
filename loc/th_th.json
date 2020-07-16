@@ -84,8 +84,8 @@
   "settings": {
     "about": "เกี่ยวกับ",
     "currency": "เงินตรา",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "เข้ารหัสที่เก็บข้อมูล",
+    "general_adv_mode": "Enable advanced mode",
     "header": "ตั้งค่า",
     "language": "ภาษา",
     "lightning_settings": "การตั้งค่าไลท์นิง",

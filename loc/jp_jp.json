@@ -94,8 +94,8 @@
   "settings": {
     "about": "BlueWallet について",
     "currency": "通貨",
-    "enable_advanced_mode": "Enable advanced mode",
     "encrypt_storage": "ウォレットの暗号化",
+    "general_adv_mode": "Enable advanced mode",
     "header": "設定",
     "language": "言語",
     "lightning_settings": "Lightning 設定",
