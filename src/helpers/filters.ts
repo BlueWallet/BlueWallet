@@ -36,7 +36,13 @@ const filterByFromDate = (transactions: Transaction[], fromDate: number) => {
     if (!transaction.time) {
       return;
     }
-    return parseInt(moment(fromDate).format('x')) <= transaction.time * 1000;
+    return (
+      parseInt(
+        moment(fromDate)
+          .startOf('day')
+          .format('X'),
+      ) <= transaction.time
+    );
   });
 };
 
@@ -45,7 +51,13 @@ const filterByToDate = (transactions: Transaction[], toDate: number) => {
     if (!transaction.time) {
       return;
     }
-    return parseInt(moment(toDate).format('x')) > transaction.time * 1000;
+    return (
+      parseInt(
+        moment(toDate)
+          .endOf('day')
+          .format('X'),
+      ) >= transaction.time
+    );
   });
 };
 
