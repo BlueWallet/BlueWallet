@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { useRef } from 'react';
 import { WebView } from 'react-native-webview';
 import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
-import PropTypes from 'prop-types';
+import { useRoute, useNavigation } from '@react-navigation/native';
 
 const url = 'https://accounts.hodlhodl.com/accounts/request_access?attributes=api_key,api_signature_key';
 
@@ -15,61 +15,44 @@ const INJECTED_JAVASCRIPT = `(function() {
     
 })();`;
 
-export default class HodlHodlLogin extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: 'Login',
-    headerLeft: null,
-  });
+const HodlHodlLogin = () => {
+  const webView = useRef();
+  const { cb } = useRoute().params;
+  const navigation = useNavigation();
 
-  constructor(props) {
-    super(props);
+  return (
+    <SafeBlueArea>
+      <WebView
+        injectedJavaScript={INJECTED_JAVASCRIPT}
+        ref={webView}
+        source={{ uri: url }}
+        onMessage={e => {
+          // this is a handler which receives messages sent from within the browser
 
-    this.state = {
-      url: url,
-    };
-  }
+          if (lastTimeIvebeenHere && +new Date() - lastTimeIvebeenHere < 5000) return;
+          lastTimeIvebeenHere = +new Date();
+          // page can post messages several times, and that can confuse our react navigation, so we have protection
+          // against that
 
-  render() {
-    return (
-      <SafeBlueArea>
-        <WebView
-          injectedJavaScript={INJECTED_JAVASCRIPT}
-          ref={ref => (this.webview = ref)}
-          source={{ uri: this.state.url }}
-          onMessage={e => {
-            // this is a handler which receives messages sent from within the browser
+          let json = false;
+          try {
+            json = JSON.parse(e.nativeEvent.data);
+          } catch (_) {}
 
-            if (lastTimeIvebeenHere && +new Date() - lastTimeIvebeenHere < 5000) return;
-            lastTimeIvebeenHere = +new Date();
-            // page can post messages several times, and that can confuse our react navigation, so we have protection
-            // against that
-
-            let json = false;
-            try {
-              json = JSON.parse(e.nativeEvent.data);
-            } catch (_) {}
-
-            if (json && json.allowed && json.data && json.data.api_key) {
-              this.props.route.params.cb(json.data.api_key, json.data.api_signature_key);
-              this.props.navigation.pop();
-            }
-          }}
-        />
-      </SafeBlueArea>
-    );
-  }
-}
-
-HodlHodlLogin.propTypes = {
-  route: PropTypes.shape({
-    params: PropTypes.shape({
-      cb: PropTypes.func.isRequired,
-    }),
-  }),
-  navigation: PropTypes.shape({
-    getParam: PropTypes.func,
-    navigate: PropTypes.func,
-    pop: PropTypes.func,
-  }),
+          if (json && json.allowed && json.data && json.data.api_key) {
+            cb(json.data.api_key, json.data.api_signature_key);
+            navigation.dangerouslyGetParent().pop();
+          }
+        }}
+      />
+    </SafeBlueArea>
+  );
 };
+
+HodlHodlLogin.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: 'Login',
+  headerLeft: null,
+});
+
+export default HodlHodlLogin;

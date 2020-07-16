@@ -16,11 +16,6 @@ const styles = StyleSheet.create({
 });
 
 export default class RBFBumpFee extends CPFP {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(null, false),
-    title: 'Bump fee (RBF)',
-  });
-
   async componentDidMount() {
     console.log('transactions/RBFBumpFee - componentDidMount');
     this.setState({
@@ -125,3 +120,8 @@ RBFBumpFee.propTypes = {
     }),
   }),
 };
+
+RBFBumpFee.navigationOptions = () => ({
+  ...BlueNavigationStyle(null, false),
+  title: 'Bump fee (RBF)',
+});

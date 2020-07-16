@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import { PlaceholderWallet, LightningCustodianWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/wallet-gradient';
+import { BlueCurrentTheme } from '../../components/themes';
 const EV = require('../../blue_modules/events');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
@@ -19,6 +20,7 @@ const styles = StyleSheet.create({
   },
   root: {
     flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   itemRoot: {
     backgroundColor: 'transparent',
@@ -66,17 +68,6 @@ const styles = StyleSheet.create({
 });
 
 export default class ReorderWallets extends Component {
-  static navigationOptions = ({ navigation, route }) => ({
-    ...BlueNavigationStyle(
-      navigation,
-      true,
-      route.params && route.params.customCloseButtonFunction ? route.params.customCloseButtonFunction : undefined,
-    ),
-    headerTitle: loc.wallets.reorder.title,
-    headerLeft: null,
-    gestureEnabled: false,
-  });
-
   constructor(props) {
     super(props);
     this.state = {
@@ -196,3 +187,14 @@ ReorderWallets.propTypes = {
     goBack: PropTypes.func,
   }),
 };
+
+ReorderWallets.navigationOptions = ({ navigation, route }) => ({
+  ...BlueNavigationStyle(
+    navigation,
+    true,
+    route.params && route.params.customCloseButtonFunction ? route.params.customCloseButtonFunction : undefined,
+  ),
+  headerTitle: loc.wallets.reorder.title,
+  headerLeft: null,
+  gestureEnabled: false,
+});

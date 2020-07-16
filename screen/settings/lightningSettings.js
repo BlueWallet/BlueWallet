@@ -1,14 +1,22 @@
 /* global alert */
-import React, { Component } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, TextInput, Linking, StyleSheet } from 'react-native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
-import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
-import PropTypes from 'prop-types';
+import {
+  BlueSpacing20,
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueNavigationStyle,
+  BlueLoadingHook,
+  BlueTextHooks,
+} from '../../BlueComponents';
 import { Button } from 'react-native-elements';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { useTheme } from '@react-navigation/native';
+import { BlueCurrentTheme } from '../../components/themes';
+
 const loc = require('../../loc');
 
 const styles = StyleSheet.create({
@@ -17,11 +25,11 @@ const styles = StyleSheet.create({
   },
   uri: {
     flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1,
     borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     alignItems: 'center',
@@ -39,94 +47,80 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class LightningSettings extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(),
-    title: loc.settings.lightning_settings,
-  });
+const LightningSettings = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [URI, setURI] = useState();
+  const { colors } = useTheme();
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      isLoading: true,
-    };
-  }
+  useEffect(() => {
+    AsyncStorage.getItem(AppStorage.LNDHUB)
+      .then(setURI)
+      .then(() => setIsLoading(false))
+      .catch(() => setIsLoading(false));
+  }, []);
 
-  async componentDidMount() {
-    const URI = await AsyncStorage.getItem(AppStorage.LNDHUB);
-
-    this.setState({
-      isLoading: false,
-      URI,
-    });
-  }
-
-  save = () => {
-    this.setState({ isLoading: true }, async () => {
-      this.state.URI = this.state.URI ? this.state.URI : '';
-      try {
-        if (this.state.URI) {
-          await LightningCustodianWallet.isValidNodeAddress(this.state.URI);
-          // validating only if its not empty. empty means use default
-        }
-        await AsyncStorage.setItem(AppStorage.LNDHUB, this.state.URI);
-        alert('Your changes have been saved successfully');
-      } catch (error) {
-        alert('Not a valid LndHub URI');
-        console.log(error);
+  const save = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      if (URI) {
+        await LightningCustodianWallet.isValidNodeAddress(URI);
+        // validating only if its not empty. empty means use default
       }
-      this.setState({ isLoading: false });
-    });
-  };
+      await AsyncStorage.setItem(AppStorage.LNDHUB, URI);
+      alert('Your changes have been saved successfully');
+    } catch (error) {
+      alert('Not a valid LndHub URI');
+      console.log(error);
+    }
+    setIsLoading(false);
+  }, [URI]);
 
-  render() {
-    return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-        <BlueCard>
-          <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
-        </BlueCard>
+  return (
+    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+      <BlueCard>
+        <BlueTextHooks>{loc.settings.lightning_settings_explain}</BlueTextHooks>
+      </BlueCard>
 
-        <Button
-          icon={{
-            name: 'github',
-            type: 'font-awesome',
-            color: BlueApp.settings.buttonTextColor,
-            backgroundColor: '#FFFFFF',
-          }}
-          onPress={() => {
-            Linking.openURL('https://github.com/BlueWallet/LndHub');
-          }}
-          titleStyle={{ color: BlueApp.settings.buttonAlternativeTextColor }}
-          title="github.com/BlueWallet/LndHub"
-          color={BlueApp.settings.buttonTextColor}
-          buttonStyle={styles.buttonStyle}
-        />
+      <Button
+        icon={{
+          name: 'github',
+          type: 'font-awesome',
+          color: colors.foregroundColor,
+        }}
+        onPress={() => {
+          Linking.openURL('https://github.com/BlueWallet/LndHub');
+        }}
+        titleStyle={{ color: colors.buttonAlternativeTextColor }}
+        title="github.com/BlueWallet/LndHub"
+        color={colors.buttonTextColor}
+        buttonStyle={styles.buttonStyle}
+      />
 
-        <BlueCard>
-          <View style={styles.uri}>
-            <TextInput
-              placeholder={LightningCustodianWallet.defaultBaseUri}
-              value={this.state.URI}
-              onChangeText={text => this.setState({ URI: text })}
-              numberOfLines={1}
-              style={styles.uriText}
-              placeholderTextColor="#81868e"
-              editable={!this.state.isLoading}
-              underlineColorAndroid="transparent"
-            />
-          </View>
+      <BlueCard>
+        <View style={styles.uri}>
+          <TextInput
+            placeholder={LightningCustodianWallet.defaultBaseUri}
+            value={URI}
+            onChangeText={setURI}
+            numberOfLines={1}
+            style={styles.uriText}
+            placeholderTextColor="#81868e"
+            editable={!isLoading}
+            textContentType="URL"
+            autoCapitalize="none"
+            underlineColorAndroid="transparent"
+          />
+        </View>
 
-          <BlueSpacing20 />
-          {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
-        </BlueCard>
-      </SafeBlueArea>
-    );
-  }
-}
-
-LightningSettings.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
+        <BlueSpacing20 />
+        {isLoading ? <BlueLoadingHook /> : <BlueButton onPress={save} title={loc.settings.save} />}
+      </BlueCard>
+    </SafeBlueArea>
+  );
 };
+
+LightningSettings.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
+  title: loc.settings.lightning_settings,
+});
+export default LightningSettings;

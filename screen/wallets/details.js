@@ -16,7 +16,7 @@ import {
   StyleSheet,
   StatusBar,
 } from 'react-native';
-import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText } from '../../BlueComponents';
+import { SecondButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { HDLegacyBreadwalletWallet } from '../../class/wallets/hd-legacy-breadwallet-wallet';
@@ -26,6 +26,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, LegacyWallet, SegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 import { ScrollView } from 'react-native-gesture-handler';
+import { BlueCurrentTheme } from '../../components/themes';
 const EV = require('../../blue_modules/events');
 const prompt = require('../../blue_modules/prompt');
 /** @type {AppStorage} */
@@ -45,36 +46,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saveText: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.outputValue,
   },
   address: {
     alignItems: 'center',
     flex: 1,
   },
   textLabel1: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.feeText,
     fontWeight: '500',
     fontSize: 14,
     marginVertical: 12,
   },
   textLabel2: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.feeText,
     fontWeight: '500',
     fontSize: 14,
     marginVertical: 16,
   },
   textValue: {
-    color: '#81868e',
+    color: BlueCurrentTheme.colors.outputValue,
     fontWeight: '500',
     fontSize: 14,
   },
   input: {
     flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1,
     borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     alignItems: 'center',
@@ -102,24 +103,6 @@ const styles = StyleSheet.create({
 });
 
 export default class WalletDetails extends Component {
-  static navigationOptions = ({ navigation, route }) => ({
-    ...BlueNavigationStyle(),
-    title: loc.wallets.details.title,
-    headerRight: () => (
-      <TouchableOpacity
-        disabled={route.params.isLoading === true}
-        style={styles.save}
-        onPress={() => {
-          if (route.params.saveAction) {
-            route.params.saveAction();
-          }
-        }}
-      >
-        <Text style={styles.saveText}>{loc.wallets.details.save}</Text>
-      </TouchableOpacity>
-    ),
-  });
-
   constructor(props) {
     super(props);
 
@@ -200,7 +183,7 @@ export default class WalletDetails extends Component {
   renderMarketplaceButton = () => {
     return Platform.select({
       android: (
-        <BlueButton
+        <SecondButton
           onPress={() =>
             this.props.navigation.navigate('Marketplace', {
               fromWallet: this.state.wallet,
@@ -210,7 +193,7 @@ export default class WalletDetails extends Component {
         />
       ),
       ios: (
-        <BlueButton
+        <SecondButton
           onPress={async () => {
             Linking.openURL('https://bluewallet.io/marketplace-btc/');
           }}
@@ -230,7 +213,7 @@ export default class WalletDetails extends Component {
     }
     return (
       <SafeBlueArea style={styles.root}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle="default" />
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <KeyboardAvoidingView behavior="position">
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -309,7 +292,7 @@ export default class WalletDetails extends Component {
                     </>
                   )}
 
-                  <BlueButton
+                  <SecondButton
                     onPress={() =>
                       this.props.navigation.navigate('WalletExport', {
                         wallet: this.state.wallet,
@@ -325,7 +308,7 @@ export default class WalletDetails extends Component {
                     this.state.wallet.type === HDSegwitBech32Wallet.type ||
                     this.state.wallet.type === HDSegwitP2SHWallet.type) && (
                     <>
-                      <BlueButton
+                      <SecondButton
                         onPress={() =>
                           this.props.navigation.navigate('WalletXpub', {
                             secret: this.state.wallet.getSecret(),
@@ -341,7 +324,7 @@ export default class WalletDetails extends Component {
                   {this.state.wallet.type !== LightningCustodianWallet.type && (
                     <>
                       <BlueSpacing20 />
-                      <BlueButton onPress={() => this.props.navigation.navigate('Broadcast')} title="Broadcast transaction" />
+                      <SecondButton onPress={() => this.props.navigation.navigate('Broadcast')} title="Broadcast transaction" />
                     </>
                   )}
                   <BlueSpacing20 />
@@ -396,6 +379,24 @@ export default class WalletDetails extends Component {
     );
   }
 }
+
+WalletDetails.navigationOptions = ({ navigation, route }) => ({
+  ...BlueNavigationStyle(),
+  title: loc.wallets.details.title,
+  headerRight: () => (
+    <TouchableOpacity
+      disabled={route.params.isLoading === true}
+      style={styles.save}
+      onPress={() => {
+        if (route.params.saveAction) {
+          route.params.saveAction();
+        }
+      }}
+    >
+      <Text style={styles.saveText}>{loc.wallets.details.save}</Text>
+    </TouchableOpacity>
+  ),
+});
 
 WalletDetails.propTypes = {
   navigation: PropTypes.shape({

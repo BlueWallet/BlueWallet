@@ -5,12 +5,6 @@ import { BlueLoading, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 
 export default class Marketplace extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: 'Marketplace',
-    headerLeft: null,
-  });
-
   webview = React.createRef();
 
   constructor(props) {
@@ -80,3 +74,9 @@ Marketplace.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+Marketplace.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: 'Marketplace',
+  headerLeft: null,
+});

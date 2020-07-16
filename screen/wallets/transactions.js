@@ -36,6 +36,7 @@ import Modal from 'react-native-modal';
 import * as NavigationService from '../../NavigationService';
 import HandoffSettings from '../../class/handoff';
 import Handoff from 'react-native-handoff';
+import { BlueCurrentTheme } from '../../components/themes';
 import ActionSheet from '../ActionSheet';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
     height: 200,
   },
   advancedTransactionOptionsModalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
     padding: 22,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
@@ -98,10 +99,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontWeight: 'bold',
     fontSize: 24,
-    color: BlueApp.settings.foregroundColor,
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   marketplaceButton1: {
-    backgroundColor: '#f2f2f2',
+    backgroundColor: BlueCurrentTheme.colors.lightButton,
     borderRadius: 9,
     minHeight: 49,
     flex: 1,
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
   },
   marketplaceButton2: {
     marginLeft: 5,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: BlueCurrentTheme.colors.lightButton,
     borderRadius: 9,
     minHeight: 49,
     flex: 1,
@@ -122,16 +123,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   marketpalceText1: {
-    color: '#062453',
+    color: BlueCurrentTheme.colors.cta2,
     fontSize: 18,
   },
   marketpalceText2: {
-    color: '#062453',
+    color: BlueCurrentTheme.colors.cta2,
     fontSize: 18,
     marginHorizontal: 8,
   },
   list: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.background,
     flex: 1,
   },
   emptyTxs: {
@@ -173,34 +174,6 @@ const styles = StyleSheet.create({
 });
 
 export default class WalletTransactions extends Component {
-  static navigationOptions = ({ navigation, route }) => {
-    return {
-      headerRight: () => (
-        <TouchableOpacity
-          disabled={route.params.isLoading === true}
-          style={styles.walletDetails}
-          onPress={() =>
-            navigation.navigate('WalletDetails', {
-              wallet: route.params.wallet,
-            })
-          }
-        >
-          <Icon name="kebab-horizontal" type="octicon" size={22} color="#FFFFFF" />
-        </TouchableOpacity>
-      ),
-      headerTitle: () => null,
-      headerStyle: {
-        backgroundColor: WalletGradient.headerColorFor(route.params.wallet.type),
-        borderBottomWidth: 0,
-        elevation: 0,
-        // shadowRadius: 0,
-        shadowOffset: { height: 0, width: 0 },
-      },
-      headerTintColor: '#FFFFFF',
-      headerBackTitleVisible: false,
-    };
-  };
-
   walletBalanceText = null;
 
   constructor(props) {
@@ -832,4 +805,32 @@ WalletTransactions.propTypes = {
     name: PropTypes.string,
     params: PropTypes.object,
   }),
+};
+
+WalletTransactions.navigationOptions = ({ navigation, route }) => {
+  return {
+    headerRight: () => (
+      <TouchableOpacity
+        disabled={route.params.isLoading === true}
+        style={styles.walletDetails}
+        onPress={() =>
+          navigation.navigate('WalletDetails', {
+            wallet: route.params.wallet,
+          })
+        }
+      >
+        <Icon name="kebab-horizontal" type="octicon" size={22} color="#FFFFFF" />
+      </TouchableOpacity>
+    ),
+    headerTitle: () => null,
+    headerStyle: {
+      backgroundColor: WalletGradient.headerColorFor(route.params.wallet.type),
+      borderBottomWidth: 0,
+      elevation: 0,
+      // shadowRadius: 0,
+      shadowOffset: { height: 0, width: 0 },
+    },
+    headerTintColor: '#FFFFFF',
+    headerBackTitleVisible: false,
+  };
 };
