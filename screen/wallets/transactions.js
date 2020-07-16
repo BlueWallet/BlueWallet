@@ -716,7 +716,7 @@ export default class WalletTransactions extends Component {
             ListEmptyComponent={
               <ScrollView style={styles.flex} contentContainerStyle={styles.scrollViewContent}>
                 <Text numberOfLines={0} style={styles.emptyTxs}>
-                  {(this.isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list.empty_txs1}
+                  {(this.isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
                 </Text>
                 {this.isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
 

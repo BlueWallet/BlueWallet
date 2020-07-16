@@ -143,10 +143,10 @@ export default class SendCreate extends Component {
               <TextInput testID="TxhexInput" style={styles.cardTx} height={72} multiline editable value={this.state.tx} />
 
               <TouchableOpacity style={styles.actionTouch} onPress={() => Clipboard.setString(this.state.tx)}>
-                <Text style={styles.actionText}>Copy and broadcast later</Text>
+                <Text style={styles.actionText}>{loc.send.create_copy}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.actionTouch} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.tx)}>
-                <Text style={styles.actionText}>Verify on coinb.in</Text>
+                <Text style={styles.actionText}>{loc.send.create_verify}</Text>
               </TouchableOpacity>
             </BlueCard>
             <BlueCard>
