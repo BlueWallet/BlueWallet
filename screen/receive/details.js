@@ -11,19 +11,19 @@ import {
   ScrollView,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
-  BlueLoading,
-  SafeBlueArea,
+  BlueLoadingHook,
   BlueCopyTextToClipboard,
   BlueButton,
-  BlueButtonLink,
-  BlueNavigationStyle,
+  SecondButton,
+  BlueButtonLinkHook,
   is,
   BlueBitcoinAmount,
   BlueText,
   BlueSpacing20,
   BlueAlertWalletExportReminder,
+  BlueNavigationStyle,
 } from '../../BlueComponents';
 import Privacy from '../../Privacy';
 import Share from 'react-native-share';
@@ -32,6 +32,7 @@ import Modal from 'react-native-modal';
 import HandoffSettings from '../../class/handoff';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import Handoff from 'react-native-handoff';
+import { BlueCurrentTheme } from '../../components/themes';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -49,6 +50,89 @@ const ReceiveDetails = () => {
   const [isCustom, setIsCustom] = useState(false);
   const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
   const { navigate, goBack } = useNavigation();
+  const { colors } = useTheme();
+  const styles = StyleSheet.create({
+    modalContent: {
+      backgroundColor: BlueCurrentTheme.colors.modal,
+      padding: 22,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderTopLeftRadius: 16,
+      borderTopRightRadius: 16,
+      borderTopColor: colors.foregroundColor,
+      borderWidth: colors.borderWidth,
+      minHeight: 350,
+      height: 350,
+    },
+    bottomModal: {
+      justifyContent: 'flex-end',
+      margin: 0,
+    },
+    customAmount: {
+      flexDirection: 'row',
+      borderColor: BlueCurrentTheme.colors.formBorder,
+      borderBottomColor: BlueCurrentTheme.colors.formBorder,
+      borderWidth: 1.0,
+      borderBottomWidth: 0.5,
+      backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
+      minHeight: 44,
+      height: 44,
+      marginHorizontal: 20,
+      alignItems: 'center',
+      marginVertical: 8,
+      borderRadius: 4,
+    },
+    customAmountText: {
+      flex: 1,
+      marginHorizontal: 8,
+      color: BlueCurrentTheme.colors.foregroundColor,
+      minHeight: 33,
+    },
+    root: {
+      flex: 1,
+      backgroundColor: BlueCurrentTheme.colors.elevated,
+    },
+    scroll: {
+      justifyContent: 'space-between',
+    },
+    scrollBody: {
+      marginTop: 32,
+      alignItems: 'center',
+      paddingHorizontal: 16,
+    },
+    amount: {
+      color: BlueCurrentTheme.colors.foregroundColor,
+      fontWeight: '600',
+      fontSize: 36,
+      textAlign: 'center',
+      paddingBottom: 24,
+    },
+    label: {
+      color: BlueCurrentTheme.colors.foregroundColor,
+      fontWeight: '600',
+      textAlign: 'center',
+      paddingBottom: 24,
+    },
+    loading: {
+      alignItems: 'center',
+      width: 300,
+      height: 300,
+      backgroundColor: BlueCurrentTheme.colors.elevated,
+    },
+    share: {
+      alignItems: 'center',
+      alignContent: 'flex-end',
+      marginBottom: 24,
+    },
+    modalButton: {
+      backgroundColor: BlueCurrentTheme.colors.modalButton,
+      paddingVertical: 14,
+      paddingHorizontal: 70,
+      maxWidth: '80%',
+      borderRadius: 50,
+      fontWeight: '700',
+    },
+  });
 
   const renderReceiveDetails = useCallback(async () => {
     console.log('receive/details - componentDidMount');
@@ -144,14 +228,6 @@ const ReceiveDetails = () => {
     setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { amount, label: customLabel }));
   };
 
-  const clearCustomAmount = () => {
-    setIsCustom(false);
-    setIsCustomModalVisible(false);
-    setCustomAmount('');
-    setCustomLabel('');
-    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address));
-  };
-
   const renderCustomAmountModal = () => {
     return (
       <Modal isVisible={isCustomModalVisible} style={styles.bottomModal} onBackdropPress={dismissCustomAmountModal}>
@@ -175,9 +251,8 @@ const ReceiveDetails = () => {
             </View>
             <BlueSpacing20 />
             <View>
-              <BlueButton title={loc.receive.details.create} onPress={createCustomAmountAddress} />
+              <BlueButton style={styles.modalButton} title={loc.receive.details.create} onPress={createCustomAmountAddress} />
               <BlueSpacing20 />
-              <BlueButtonLink title="Reset" onPress={clearCustomAmount} />
             </View>
             <BlueSpacing20 />
           </View>
@@ -206,7 +281,7 @@ const ReceiveDetails = () => {
   };
 
   return (
-    <SafeBlueArea style={styles.root}>
+    <View style={styles.root}>
       <StatusBar barStyle="light-content" />
       {isHandOffUseEnabled && address !== undefined && (
         <Handoff
@@ -215,7 +290,7 @@ const ReceiveDetails = () => {
           url={`https://blockstream.info/address/${address}`}
         />
       )}
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
+      <ScrollView style={styles.root} contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
         <View style={styles.scrollBody}>
           {isCustom && (
             <>
@@ -229,7 +304,7 @@ const ReceiveDetails = () => {
           )}
           {bip21encoded === undefined ? (
             <View style={styles.loading}>
-              <BlueLoading />
+              <BlueLoadingHook />
             </View>
           ) : (
             <QRCode
@@ -237,30 +312,23 @@ const ReceiveDetails = () => {
               logo={require('../../img/qr-code.png')}
               size={(is.ipad() && 300) || 300}
               logoSize={90}
-              color={BlueApp.settings.foregroundColor}
-              logoBackgroundColor={BlueApp.settings.brandingColor}
+              color={colors.foregroundColor}
+              logoBackgroundColor={colors.brandingColor}
+              backgroundColor={colors.background}
               ecl="H"
             />
           )}
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>
-          <BlueButtonLink title={loc.receive.details.setAmount} onPress={showCustomAmountModal} />
+          <BlueButtonLinkHook title={loc.receive.details.setAmount} onPress={showCustomAmountModal} />
           <View>
-            <BlueButton
-              icon={{
-                name: 'share-alternative',
-                type: 'entypo',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              onPress={handleShareButtonPressed}
-              title={loc.receive.details.share}
-            />
+            <SecondButton onPress={handleShareButtonPressed} title={loc.receive.details.share} />
           </View>
         </View>
-        {renderCustomAmountModal()}
       </ScrollView>
-    </SafeBlueArea>
+      {renderCustomAmountModal()}
+    </View>
   );
 };
 
@@ -271,75 +339,3 @@ ReceiveDetails.navigationOptions = ({ navigation }) => ({
 });
 
 export default ReceiveDetails;
-
-const styles = StyleSheet.create({
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    padding: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 350,
-    height: 350,
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
-  customAmount: {
-    flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
-    borderWidth: 1.0,
-    borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
-    minHeight: 44,
-    height: 44,
-    marginHorizontal: 20,
-    alignItems: 'center',
-    marginVertical: 8,
-    borderRadius: 4,
-  },
-  customAmountText: {
-    flex: 1,
-    marginHorizontal: 8,
-    color: '#81868e',
-    minHeight: 33,
-  },
-  root: {
-    flex: 1,
-  },
-  scroll: {
-    justifyContent: 'space-between',
-  },
-  scrollBody: {
-    marginTop: 32,
-    alignItems: 'center',
-    paddingHorizontal: 16,
-  },
-  amount: {
-    color: '#0c2550',
-    fontWeight: '600',
-    fontSize: 36,
-    textAlign: 'center',
-    paddingBottom: 24,
-  },
-  label: {
-    color: '#0c2550',
-    fontWeight: '600',
-    textAlign: 'center',
-    paddingBottom: 24,
-  },
-  loading: {
-    alignItems: 'center',
-    width: 300,
-    height: 300,
-  },
-  share: {
-    alignItems: 'center',
-    alignContent: 'flex-end',
-    marginBottom: 24,
-  },
-});

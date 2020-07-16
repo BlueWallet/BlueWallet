@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { View, Dimensions, StyleSheet, BackHandler, StatusBar } from 'react-native';
 import {
   SafeBlueArea,
@@ -14,27 +14,27 @@ import QRCode from 'react-native-qrcode-svg';
 import Privacy from '../../Privacy';
 import { ScrollView } from 'react-native-gesture-handler';
 const { height, width } = Dimensions.get('window');
-const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  scrollViewContent: {
-    flexGrow: 1,
-  },
-});
 
 const PleaseBackupLNDHub = () => {
   const { wallet } = useRoute().params;
   const navigation = useNavigation();
+  const { colors } = useTheme();
   const [qrCodeHeight, setQrCodeHeight] = useState(height > width ? width - 40 : width / 2);
-
   const handleBackButton = useCallback(() => {
     navigation.dangerouslyGetParent().pop();
     return true;
   }, [navigation]);
+  const styles = StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: colors.elevated,
+    },
+    scrollViewContent: {
+      flexGrow: 1,
+      backgroundColor: colors.elevated,
+    },
+  });
 
   useEffect(() => {
     Privacy.enableBlur();
@@ -52,7 +52,7 @@ const PleaseBackupLNDHub = () => {
 
   return (
     <SafeBlueArea style={styles.root}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="default" />
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent} onLayout={onLayout}>
         <BlueCard>
           <View>
@@ -67,8 +67,9 @@ const PleaseBackupLNDHub = () => {
             logo={require('../../img/qr-code.png')}
             logoSize={90}
             size={qrCodeHeight}
-            color={BlueApp.settings.foregroundColor}
-            logoBackgroundColor={BlueApp.settings.brandingColor}
+            color={colors.foregroundColor}
+            logoBackgroundColor={colors.brandingColor}
+            backgroundColor={colors.background}
             ecl="H"
           />
 

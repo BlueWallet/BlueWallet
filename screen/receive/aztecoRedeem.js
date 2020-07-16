@@ -51,11 +51,6 @@ const styles = StyleSheet.create({
 });
 
 export default class AztecoRedeem extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueCreateTxNavigationStyle(navigation),
-    title: 'Redeem Azte.co voucher',
-  });
-
   state = { isLoading: true };
 
   constructor(props) {
@@ -156,7 +151,7 @@ export default class AztecoRedeem extends Component {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View>
-          <StatusBar barStyle="light-content" />
+          <StatusBar barStyle="default" />
           <View style={styles.root}>
             <Text>Your voucher code is</Text>
             <BlueText style={styles.code}>
@@ -187,3 +182,8 @@ AztecoRedeem.propTypes = {
     }),
   }),
 };
+
+AztecoRedeem.navigationOptions = ({ navigation }) => ({
+  ...BlueCreateTxNavigationStyle(navigation),
+  title: 'Redeem Azte.co voucher',
+});

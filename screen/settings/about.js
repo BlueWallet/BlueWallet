@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Linking, Dimensions, Image, View, Text, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 import {
   BlueTextCentered,
-  BlueLoading,
   BlueSpacing20,
   BlueButton,
   SafeBlueArea,
   BlueCard,
+  BlueListItemHooks,
   BlueNavigationStyle,
-  BlueListItem,
+  BlueLoadingHook,
 } from '../../BlueComponents';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
@@ -17,46 +17,46 @@ import Rate, { AndroidMarket } from 'react-native-rate';
 const { width, height } = Dimensions.get('window');
 const loc = require('../../loc/');
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  center: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 54,
-  },
-  logo: {
-    width: 102,
-    height: 124,
-  },
-  textFree: {
-    maxWidth: 260,
-    marginVertical: 24,
-    color: '#9AA0AA',
-    fontSize: 15,
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  textBackup: {
-    maxWidth: 260,
-    marginBottom: 40,
-    color: '#0C2550',
-    fontSize: 15,
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  buildWith: {
-    backgroundColor: '#f9f9f9',
-    padding: 16,
-    paddingTop: 0,
-    borderRadius: 8,
-  },
-});
-
 const About = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { navigate } = useNavigation();
+  const { colors } = useTheme();
+  const styles = StyleSheet.create({
+    root: {
+      flex: 1,
+    },
+    center: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: 54,
+    },
+    logo: {
+      width: 102,
+      height: 124,
+    },
+    textFree: {
+      maxWidth: 260,
+      marginVertical: 24,
+      color: '#9AA0AA',
+      fontSize: 15,
+      textAlign: 'center',
+      fontWeight: '500',
+    },
+    textBackup: {
+      maxWidth: 260,
+      marginBottom: 40,
+      color: colors.foregroundColor,
+      fontSize: 15,
+      textAlign: 'center',
+      fontWeight: '500',
+    },
+    buildWith: {
+      backgroundColor: colors.inputBackgroundColor,
+      padding: 16,
+      paddingTop: 0,
+      borderRadius: 8,
+    },
+  });
 
   useEffect(() => {
     setIsLoading(false);
@@ -103,7 +103,7 @@ const About = () => {
   };
 
   return isLoading ? (
-    <BlueLoading />
+    <BlueLoadingHook />
   ) : (
     <SafeBlueArea style={styles.root}>
       <ScrollView testID="AboutScrollView">
@@ -115,7 +115,7 @@ const About = () => {
             <BlueButton onPress={handleOnRatePress} title="Leave us a review ⭐🙏" />
           </View>
         </BlueCard>
-        <BlueListItem
+        <BlueListItemHooks
           leftIcon={{
             name: 'twitter',
             type: 'font-awesome',
@@ -124,7 +124,7 @@ const About = () => {
           onPress={handleOnTwitterPress}
           title="Follow us on Twitter"
         />
-        <BlueListItem
+        <BlueListItemHooks
           leftIcon={{
             name: 'telegram',
             type: 'font-awesome',
@@ -133,11 +133,11 @@ const About = () => {
           onPress={handleOnTelegramPress}
           title="Telegram chat"
         />
-        <BlueListItem
+        <BlueListItemHooks
           leftIcon={{
             name: 'github',
             type: 'font-awesome',
-            color: 'black',
+            color: colors.foregroundColor,
           }}
           onPress={handleOnGithubPress}
           title="GitHub"
@@ -154,7 +154,7 @@ const About = () => {
             <BlueTextCentered>Electrum server</BlueTextCentered>
           </View>
         </BlueCard>
-        <BlueListItem
+        <BlueListItemHooks
           leftIcon={{
             name: 'book',
             type: 'font-awesome',
@@ -164,17 +164,17 @@ const About = () => {
           onPress={handleOnReleaseNotesPress}
           title="Release notes"
         />
-        <BlueListItem
+        <BlueListItemHooks
           leftIcon={{
             name: 'law',
             type: 'octicon',
-            color: 'black',
+            color: colors.foregroundColor,
           }}
           chevron
           onPress={handleOnLicensingPress}
           title="MIT License"
         />
-        <BlueListItem
+        <BlueListItemHooks
           leftIcon={{
             name: 'flask',
             type: 'font-awesome',
@@ -204,6 +204,6 @@ const About = () => {
 
 About.navigationOptions = () => ({
   ...BlueNavigationStyle(),
-  title: loc.settings.about,
+  headerTitle: loc.settings.about,
 });
 export default About;

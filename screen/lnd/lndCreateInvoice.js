@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   Text,
   StyleSheet,
+  Image,
 } from 'react-native';
 import {
   BlueNavigationStyle,
@@ -26,6 +27,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
+import { BlueCurrentTheme } from '../../components/themes';
 const currency = require('../../blue_modules/currency');
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
@@ -37,14 +39,13 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     minHeight: 45,
     alignContent: 'center',
-    backgroundColor: '#FFFFFF',
   },
   scanRoot: {
     height: 36,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#9AA0AA',
+    backgroundColor: BlueCurrentTheme.colors.scanLabel,
     borderRadius: 4,
     paddingVertical: 4,
     paddingHorizontal: 8,
@@ -52,7 +53,7 @@ const styles = StyleSheet.create({
   },
   scanClick: {
     marginLeft: 4,
-    color: BlueApp.settings.inverseForegroundColor,
+    color: BlueCurrentTheme.colors.inverseForegroundColor,
   },
   walletRoot: {
     marginBottom: 16,
@@ -78,18 +79,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   walletNameText: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 14,
   },
   walletNameBalance: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 8,
     marginRight: 4,
   },
   walletNameSats: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 11,
     fontWeight: '600',
     textAlignVertical: 'bottom',
@@ -102,19 +103,19 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   amount: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   fiat: {
     flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1.0,
     borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     marginHorizontal: 20,
@@ -131,11 +132,6 @@ const styles = StyleSheet.create({
 });
 
 export default class LNDCreateInvoice extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: loc.receive.header,
-  });
-
   constructor(props) {
     super(props);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
@@ -356,7 +352,7 @@ export default class LNDCreateInvoice extends Component {
         }}
         style={styles.scanRoot}
       >
-        <Icon name="qrcode" size={22} type="font-awesome" color={BlueApp.settings.inverseForegroundColor} />
+        <Image style={{}} source={require('../../img/scan-white.png')} />
         <Text style={styles.scanClick}>{loc.send.details.scan}</Text>
       </TouchableOpacity>
     );
@@ -478,3 +474,8 @@ LNDCreateInvoice.propTypes = {
     }),
   }),
 };
+LNDCreateInvoice.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  headerTitle: loc.receive.header,
+  headerLeft: null,
+});

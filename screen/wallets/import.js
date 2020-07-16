@@ -13,21 +13,10 @@ import {
 } from '../../BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import WalletImport from '../../class/wallet-import';
 const loc = require('../../loc');
 const { width } = Dimensions.get('window');
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    paddingTop: 40,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-  },
-});
 
 const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
@@ -35,6 +24,19 @@ const WalletsImport = () => {
   const label = (route.params && route.params.label) || '';
   const [importText, setImportText] = useState(label);
   const navigation = useNavigation();
+  const { colors } = useTheme();
+  const styles = StyleSheet.create({
+    root: {
+      flex: 1,
+      paddingTop: 40,
+      backgroundColor: colors.elevated,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      backgroundColor: colors.elevated,
+    },
+  });
 
   useEffect(() => {
     Privacy.enableBlur();
@@ -92,8 +94,8 @@ const WalletsImport = () => {
 
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-      <StatusBar barStyle="light-content" />
-
+      <StatusBar barStyle="default" />
+      <BlueSpacing20 />
       <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
       <BlueSpacing20 />
       <BlueFormMultiInput
@@ -148,8 +150,8 @@ const WalletsImport = () => {
   );
 };
 
-WalletsImport.navigationOptions = {
+WalletsImport.navigationOptions = ({ navigation, route }) => ({
   ...BlueNavigationStyle(),
   title: loc.wallets.import.title,
-};
+});
 export default WalletsImport;
