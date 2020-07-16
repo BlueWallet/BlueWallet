@@ -138,6 +138,11 @@
     "details_wallet_before_tx": "Before creating a transaction, you must first add a Bitcoin wallet.",
     "details_wallet_selection": "Wallet Selection",
     "header": "Send",
+    "psbt_clipboard": "Copy to Clipboard",
+    "psbt_this_is_psbt": "This is a partially signed bitcoin transaction (PSBT). Please finish signing it with your hardware wallet.",
+    "psbt_tx_export": "Export to file",
+    "psbt_tx_open": "Open Signed Transaction",
+    "psbt_tx_scan": "Scan Signed Transaction",
     "success_done": "Done",
     "txSaved": "This transaction has been saved in {filePath}"
   },
