@@ -237,28 +237,28 @@ export default class TransactionsDetails extends Component {
 
             {'received' in this.state.tx && (
               <>
-                <BlueText style={styles.rowCaption}>Received</BlueText>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_received}</BlueText>
                 <BlueText style={styles.rowValue}>{dayjs(this.state.tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
               </>
             )}
 
             {'block_height' in this.state.tx && this.state.tx.block_height > 0 && (
               <>
-                <BlueText style={styles.rowCaption}>Block Height</BlueText>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_block}</BlueText>
                 <BlueText style={styles.rowValue}>{this.state.tx.block_height}</BlueText>
               </>
             )}
 
             {'inputs' in this.state.tx && (
               <>
-                <BlueText style={styles.rowCaption}>Inputs</BlueText>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_inputs}</BlueText>
                 <BlueText style={styles.rowValue}>{this.state.tx.inputs.length}</BlueText>
               </>
             )}
 
             {'outputs' in this.state.tx && this.state.tx.outputs.length > 0 && (
               <>
-                <BlueText style={styles.rowCaption}>Outputs</BlueText>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_outputs}</BlueText>
                 <BlueText style={styles.rowValue}>{this.state.tx.outputs.length}</BlueText>
               </>
             )}

@@ -30,6 +30,7 @@
   },
   "errors": {
     "broadcast": "Broadcast failed",
+    "error": "Error",
     "network": "Network error"
   },
   "lnd": {
@@ -210,8 +211,19 @@
     "storage_not_encrypted": "Storage: not encrypted"
   },
   "transactions": {
+    "cancel_explain": "We will replace this transaction with the one that pays you and has higher fees. This effectively cancels transaction. This is called RBF - Replace By Fee.",
+    "cancel_no": "This transaction is not replaceable",
+    "cancel_title": "Cancel this transaction (RBF)",
+    "cpfp_create": "Create",
+    "cpfp_exp": "We will create another transaction that spends your unconfirmed transaction. The total fee will be higher than the original transaction fee, so it should be mined faster. This is called CPFP - Child Pays For Parent.",
+    "cpfp_no_bump": "This transaction is not bumpable",
+    "cpfp_title": "Bump fee (CPFP)",
+    "details_block": "Block Height",
     "details_copy": "Copy",
     "details_from": "Input",
+    "details_inputs": "Inputs",
+    "details_outputs": "Outputs",
+    "details_received": "Received",
     "details_show_in_block_explorer": "View in block explorer",
     "details_title": "Transaction",
     "details_to": "Output",
@@ -219,7 +231,11 @@
     "list_conf": "conf",
     "list_description": "A list of ingoing or outgoing transactions of your wallets",
     "list_tabBarLabel": "Transactions",
-    "list_title": "transactions"
+    "list_title": "transactions",
+    "rbf_explain": "We will replace this transaction with the one with a higher fee, so it should be mined faster. This is called RBF - Replace By Fee.",
+    "rbf_title": "Bump fee (RBF)",
+    "status_bump": "Bump Fee",
+    "status_cancel": "Cancel Transaction"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",

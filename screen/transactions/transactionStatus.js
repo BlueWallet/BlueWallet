@@ -344,7 +344,7 @@ export default class TransactionsStatus extends Component {
                           wallet: this.state.wallet,
                         })
                       }
-                      title="Bump Fee"
+                      title={loc.transactions.status_bump}
                     />
                     <BlueSpacing20 />
                   </>
@@ -370,7 +370,7 @@ export default class TransactionsStatus extends Component {
                           wallet: this.state.wallet,
                         })
                       }
-                      title="Bump Fee"
+                      title={loc.transactions.status_bump}
                     />
                   </>
                 );
@@ -396,7 +396,7 @@ export default class TransactionsStatus extends Component {
                         }
                         style={styles.cancelText}
                       >
-                        Cancel Transaction
+                        {loc.transactions.status_cancel}
                       </Text>
                     </TouchableOpacity>
                   </>
