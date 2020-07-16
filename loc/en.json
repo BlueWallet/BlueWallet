@@ -143,6 +143,8 @@
     "psbt_tx_export": "Export to file",
     "psbt_tx_open": "Open Signed Transaction",
     "psbt_tx_scan": "Scan Signed Transaction",
+    "qr_error_no_qrcode": "The selected image does not contain a QR Code.",
+    "qr_error_no_wallet": "The selected file does not contain a wallet that can be imported.",
     "success_done": "Done",
     "txSaved": "This transaction has been saved in {filePath}"
   },

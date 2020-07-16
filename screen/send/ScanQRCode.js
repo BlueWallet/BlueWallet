@@ -7,6 +7,7 @@ import ImagePicker from 'react-native-image-picker';
 import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
+import loc from '../../loc';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
 
@@ -109,7 +110,7 @@ const ScanQRCode = () => {
       }
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
-        alert('The selected file does not contain a wallet that can be imported.');
+        alert(loc.send.qr_error_no_wallet);
       }
       setIsLoading(false);
     }
@@ -132,7 +133,7 @@ const ScanQRCode = () => {
               if (!error) {
                 onBarCodeRead({ data: result });
               } else {
-                alert('The selected image does not contain a QR Code.');
+                alert(loc.send.qr_error_no_qrcode);
               }
             });
           }
