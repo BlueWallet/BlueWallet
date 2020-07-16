@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Password errata, riprova",
+    "cancel": "Annulla",
     "continue": "Continua",
     "enter_password": "Inserisci password",
     "never": "mai",
@@ -65,7 +66,6 @@
     "details_address_field_is_not_valid": "Indirizzo non valido",
     "details_amount_field_is_not_valid": "Importo non valido",
     "details_amount_placeholder": "Importo da inviare (in BTC)",
-    "details_cancel": "Annulla",
     "details_create": "Crea",
     "details_create_tx_error": "Si è verificato un errore nella creazione della transazione. Assicurati che l'indirizzo sia valido",
     "details_fee_field_is_not_valid": "Commissione non valida",

@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Iphasiwedi engalunganga, zama kwakhona",
+    "cancel": "Rhoxisa",
     "continue": "Qhubeka",
     "enter_password": "Faka inombolo yokuvula",
     "never": "Ungalingi",
@@ -66,7 +67,6 @@
     "details_address_field_is_not_valid": "Intsimi yeedilesi ayivumelekanga",
     "details_amount_field_is_not_valid": "intsimi yexabiso ayivumelekanga",
     "details_amount_placeholder": "inani lokuthumela (nge BTC)",
-    "details_cancel": "Rhoxisa",
     "details_create": "Yenza",
     "details_create_tx_error": "Kukho impazamo yokudala ukuthengiselana. Nceda, qinisekisa ukuba idilesi iyasebenza.",
     "details_fee_field_is_not_valid": "Intsimi yentlawulo ayivumelekanga ",

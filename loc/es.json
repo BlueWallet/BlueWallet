@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Contraseña incorrecta. Intente nuevamente.",
+    "cancel": "Cancelar",
     "continue": "Continua",
     "enter_password": "Inserte contraseña",
     "never": "nunca",
@@ -55,7 +56,6 @@
     "details_address_field_is_not_valid": "La dirección no es válida",
     "details_amount_field_is_not_valid": "La cantidad no es válida",
     "details_amount_placeholder": "cantidad para enviar (in BTC)",
-    "details_cancel": "Cancelar",
     "details_create": "Crear",
     "details_create_tx_error": "Se ha producido un error al crear la transacción. Por favor, asegúrese de que la dirección es válida.",
     "details_fee_field_is_not_valid": "La tasa no es válida",

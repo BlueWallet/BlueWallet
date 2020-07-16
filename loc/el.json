@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Λάθος κωδικός, δοκίμασε ξανά",
+    "cancel": "Ακύρωση",
     "continue": "Συνέχισε",
     "enter_password": "Εισήγαγε κωδικό",
     "never": "ποτέ",
@@ -67,7 +68,6 @@
     "details_address_field_is_not_valid": "Η διεύθυνση δεν είναι σωστή",
     "details_amount_field_is_not_valid": "Το ποσό δεν είναι σωστό",
     "details_amount_placeholder": "ποσό πληρωμής (σε BTC)",
-    "details_cancel": "Ακύρωση",
     "details_create": "Δημιούργησε",
     "details_create_tx_error": "Σφάλμα στην δημιουργία της συναλλαγής. Σιγουρευτείτε ότι η διεύθυνση είναι σωστή.",
     "details_fee_field_is_not_valid": "Τα έξοδα συναλλαγής δεν είναι σωστά",

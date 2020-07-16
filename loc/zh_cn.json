@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "密码无效，请重试",
+    "cancel": "取消",
     "continue": "继续",
     "enter_password": "输入密码",
     "never": "不",
@@ -66,7 +67,6 @@
     "details_address_field_is_not_valid": "地址内容无效",
     "details_amount_field_is_not_valid": "金额格式无效",
     "details_amount_placeholder": "发送金额(in BTC)",
-    "details_cancel": "取消",
     "details_create": "创建",
     "details_create_tx_error": "创建交易失败. 请确认地址格式正确.",
     "details_fee_field_is_not_valid": "费用格式无效",

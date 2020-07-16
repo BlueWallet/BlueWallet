@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Felaktigt lösenord, försök igen",
+    "cancel": "Avbryt",
     "continue": "Fortsätt",
     "enter_password": "Ange lösenord",
     "never": "aldrig",
@@ -75,7 +76,6 @@
     "details_address_field_is_not_valid": "Angiven adress är inte giltig",
     "details_amount_field_is_not_valid": "Angivet belopp är inte giltigt",
     "details_amount_placeholder": "belopp att skicka (i BTC)",
-    "details_cancel": "Avbryt",
     "details_create": "Skapa",
     "details_create_tx_error": "Något gick fel när transaktionen skulle skapas. Kontrollera att adressen är giltig.",
     "details_fee_field_is_not_valid": "Angiven avgift är inte giltig",

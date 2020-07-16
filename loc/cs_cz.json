@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Špatné heslo, prosím zkuste to znovu",
+    "cancel": "Zrušit",
     "enter_password": "Zadejte heslo",
     "never": "nikdy",
     "ok": "OK",
@@ -61,7 +62,6 @@
     "details_address_field_is_not_valid": "Adresa není správně vyplněna",
     "details_amount_field_is_not_valid": "Čáskta není správně vyplněna",
     "details_amount_placeholder": "částka k odeslání (v BTC)",
-    "details_cancel": "Zrušit",
     "details_create": "Vytvořit",
     "details_create_tx_error": "Nastala chyba při vytváření transakce. Prosím ujistěte se, že adresa je platná.",
     "details_fee_field_is_not_valid": "Poplatek není správně vyplněn",

@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "รหัสผ่านไม่ถูกต้อง กรุณาใส่รหัสผ่านอีกครั้ง",
+    "cancel": "ยกเลิก",
     "continue": "ต่อไป",
     "enter_password": "กรุณาใส่รหัสผ่าน",
     "never": "ไม่เคย",
@@ -67,7 +68,6 @@
     "details_address_field_is_not_valid": "แอดเดรสไม่ถูกต้อง",
     "details_amount_field_is_not_valid": "จำนวนเงินไม่ถูกต้อง",
     "details_amount_placeholder": "จำนวนเงินที่ส่ง (หน่วย BTC)",
-    "details_cancel": "ยกเลิก",
     "details_create": "สร้าง",
     "details_create_tx_error": "ไม่สามารถสร้างธุรกรรมได้. กรุณาตรวจสอบแอดเดรสให้ถูกต้อง.",
     "details_fee_field_is_not_valid": "ค่าธรรมเนียมไม่ถูกต้อง",

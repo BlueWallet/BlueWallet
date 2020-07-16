@@ -203,11 +203,7 @@ export default class App extends React.Component {
               You have a {this.state.clipboardContentModalAddressType} on your clipboard. Would you like to use it for a transaction?
             </BlueTextCentered>
             <View style={styles.modelContentButtonLayout}>
-              <SecondButton
-                noMinWidth
-                title={loc.send.details_cancel}
-                onPress={() => this.setState({ isClipboardContentModalVisible: false })}
-              />
+              <SecondButton noMinWidth title={loc._.cancel} onPress={() => this.setState({ isClipboardContentModalVisible: false })} />
               <View style={styles.space} />
               <BlueButton
                 noMinWidth

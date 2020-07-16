@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Contrasenya incorrecta. Torna-ho a provar.",
+    "cancel": "Cancel·lar",
     "continue": "Continuar",
     "enter_password": "Introduïu la contrasenya",
     "never": "mai",
@@ -78,7 +79,6 @@
     "details_address_field_is_not_valid": "Adreça invalida",
     "details_amount_field_is_not_valid": "Quantitat invalida",
     "details_amount_placeholder": "quantitat a enviar (en BTC)",
-    "details_cancel": "Cancel·lar",
     "details_create": "Crear",
     "details_create_tx_error": "S'ha produït un error en crear la transacció. Si us plau, asseguris que l'adreça es valida.",
     "details_fee_field_is_not_valid": "Comissió invalida",

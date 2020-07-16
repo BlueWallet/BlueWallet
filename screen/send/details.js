@@ -585,7 +585,7 @@ export default class SendDetails extends Component {
             },
             style: 'default',
           },
-          { text: loc.send.details_cancel, onPress: () => {}, style: 'cancel' },
+          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
         ],
         { cancelable: false },
       );
@@ -607,7 +607,7 @@ export default class SendDetails extends Component {
             },
             style: 'default',
           },
-          { text: loc.send.details_cancel, onPress: () => {}, style: 'cancel' },
+          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
         ],
         { cancelable: false },
       );
@@ -983,7 +983,7 @@ export default class SendDetails extends Component {
           },
           style: 'default',
         },
-        { text: loc.send.details_cancel, onPress: () => {}, style: 'cancel' },
+        { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
       ],
       { cancelable: false },
     );

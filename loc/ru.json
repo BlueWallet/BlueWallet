@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Неверный пароль, попробуй еще раз",
+    "cancel": "Отмена",
     "continue": "Продолжить",
     "enter_password": "Введи пароль",
     "never": "Никогда",
@@ -81,7 +82,6 @@
     "details_adv_import": "Импортировать транзакцию",
     "details_amount_field_is_not_valid": "Введенная сумма неверна",
     "details_amount_placeholder": "сколько отправить (в BTC)",
-    "details_cancel": "Отмена",
     "details_create": "Создать",
     "details_create_tx_error": "Ошибка при создании транзакции. Пожалуйста, проверь правильность адреса.",
     "details_error_decode": "Ошибка: Нельзя декодировать Bitcoin адрес",

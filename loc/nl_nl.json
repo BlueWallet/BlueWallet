@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Verkeerd wachtwoord, probeer opnieuw",
+    "cancel": "Annuleren",
     "enter_password": "Voer wachtwoord in",
     "never": "nooit",
     "ok": "OK",
@@ -61,7 +62,6 @@
     "details_address_field_is_not_valid": "Adresveld is niet geldig",
     "details_amount_field_is_not_valid": "Bedrag veld is niet geldig",
     "details_amount_placeholder": "te verzenden bedrag (in BTC)",
-    "details_cancel": "Annuleren",
     "details_create": "Aanmaken",
     "details_create_tx_error": "Er is een fout opgetreden bij het maken van de transactie. Zorg ervoor dat het adres geldig is.",
     "details_fee_field_is_not_valid": "Tarief is niet geldig",

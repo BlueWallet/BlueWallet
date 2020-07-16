@@ -103,7 +103,7 @@ const EncryptStorage = () => {
           'Are you sure you want to decrypt your storage? This will allow your wallets to be accessed without a password.',
           [
             {
-              text: loc.send.details_cancel,
+              text: loc._.cancel,
               style: 'cancel',
               onPress: () => setIsLoading(false),
             },

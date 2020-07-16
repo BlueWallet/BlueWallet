@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Hibás jelszó, próbáld újra",
+    "cancel": "Megszakít",
     "continue": "Folytat",
     "enter_password": "Írd be a jelszót",
     "never": "soha",
@@ -75,7 +76,6 @@
     "details_address_field_is_not_valid": "Érvénytelen cím",
     "details_amount_field_is_not_valid": "Érvénytelen összeg",
     "details_amount_placeholder": "küldendő összeg (BTC)",
-    "details_cancel": "Megszakít",
     "details_create": "Létrehoz",
     "details_create_tx_error": "Hiba történt a tranzakció létrehozásakor. Ellenőrizd a megadott cím érvényességét.",
     "details_fee_field_is_not_valid": "Èrvénytelen tranzakciós díj",

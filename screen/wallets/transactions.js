@@ -577,7 +577,7 @@ export default class WalletTransactions extends Component {
   sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      const options = [loc.send.details_cancel, 'Choose Photo', 'Scan QR Code'];
+      const options = [loc._.cancel, 'Choose Photo', 'Scan QR Code'];
       if (!isClipboardEmpty) {
         options.push('Copy from Clipboard');
       }
@@ -597,7 +597,7 @@ export default class WalletTransactions extends Component {
     } else if (Platform.OS === 'android') {
       const buttons = [
         {
-          text: loc.send.details_cancel,
+          text: loc._.cancel,
           onPress: () => {},
           style: 'cancel',
         },
@@ -774,7 +774,7 @@ export default class WalletTransactions extends Component {
                                 style: 'default',
                               },
 
-                              { text: loc.send.details_cancel, onPress: () => {}, style: 'cancel' },
+                              { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
                             ],
                             { cancelable: false },
                           );

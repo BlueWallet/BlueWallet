@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Mauvais mot de passe, ré-essayer",
+    "cancel": "Annuler",
     "enter_password": "Saisir mot de passe",
     "never": "jamais",
     "ok": "OK",
@@ -59,7 +60,6 @@
     "details_address_field_is_not_valid": "Champ adresse invalide",
     "details_amount_field_is_not_valid": "Champ montant invalide",
     "details_amount_placeholder": "montant à envoyer (en BTC)",
-    "details_cancel": "Annuler",
     "details_create": "Créer",
     "details_fee_field_is_not_valid": "Champ frais invalide",
     "details_fee_placeholder": "plus frais de transaction (en BTC)",

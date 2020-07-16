@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Väärä salasana, yritä uudelleen",
+    "cancel": "Peruuta",
     "continue": "Jatka",
     "enter_password": "Anna salasana",
     "never": "ei koskaan",
@@ -66,7 +67,6 @@
     "details_address_field_is_not_valid": "Osoite ei kelpaa",
     "details_amount_field_is_not_valid": "Määrä ei kelpaa",
     "details_amount_placeholder": "lähetettävä summa (BTC)",
-    "details_cancel": "Peruuta",
     "details_create": "Luo",
     "details_create_tx_error": "Virhe siirron luonnissa. Varmista, että osoite on oikein.",
     "details_fee_field_is_not_valid": "Siirtokulu ei kelpaa",

@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Kriva lozinka, pokušaj ponovo",
+    "cancel": "Otkaži",
     "continue": "Nastavi",
     "enter_password": "Unesi lozinku",
     "never": "nikad",
@@ -66,7 +67,6 @@
     "details_address_field_is_not_valid": "Polje adrese nije ispravno",
     "details_amount_field_is_not_valid": "Iznos nije ispravan",
     "details_amount_placeholder": "iznos za slanje (u BTC)",
-    "details_cancel": "Otkaži",
     "details_create": "Stvori",
     "details_create_tx_error": "Pogreška prilikom stvaranja transakcije. Molimo provijeri da je adresa ispravna.",
     "details_fee_field_is_not_valid": "Ovo polje nije ispravno",

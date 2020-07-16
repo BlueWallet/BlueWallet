@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Wrong password, please try again.",
+    "cancel": "Cancel",
     "continue": "Continue",
     "enter_password": "Enter password",
     "never": "never",
@@ -119,7 +120,6 @@
     "details_adv_import": "Import Transaction",
     "details_amount_field_is_not_valid": "Amount field is not valid",
     "details_amount_placeholder": "amount to send (in BTC)",
-    "details_cancel": "Cancel",
     "details_create": "Create Invoice",
     "details_create_tx_error": "There was an error creating the transaction. Please, make sure the address is valid.",
     "details_error_decode": "Error: Unable to decode Bitcoin address",

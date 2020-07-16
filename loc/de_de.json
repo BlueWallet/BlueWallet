@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Fasches Passwort, nächster Versuch",
+    "cancel": "Abbrechen",
     "continue": "Weiter",
     "enter_password": "Gib das Passwort ein",
     "never": "nie",
@@ -75,7 +76,6 @@
     "details_address_field_is_not_valid": "Adresseingabe ist nicht korrekt",
     "details_amount_field_is_not_valid": "Betrageingabe ist nicht korrekt",
     "details_amount_placeholder": "Betrag (in BTC)",
-    "details_cancel": "Abbrechen",
     "details_create": "Erstellen",
     "details_create_tx_error": "Fehler beim Erstellen der Transaktion. Bitte stelle sicher, dass die Adresse korrekt ist.",
     "details_fee_field_is_not_valid": "Gebühreingabe ist nicht korrekt",

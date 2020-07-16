@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Forkert adgangskode, prøv igen",
+    "cancel": "Annuller",
     "enter_password": "Indtast adgangskode",
     "never": "aldrig",
     "ok": "OK",
@@ -61,7 +62,6 @@
     "details_address_field_is_not_valid": "Adresse felt er ikke gyldigt",
     "details_amount_field_is_not_valid": "Beløbsfeltet er ikke gyldigt",
     "details_amount_placeholder": "beløb der skal sendes (i BTC)",
-    "details_cancel": "Annuller",
     "details_create": "Opret",
     "details_create_tx_error": "Der skete en fejl ved oprettelse af transaktionen. Check om addressen er gyldig.",
     "details_fee_field_is_not_valid": "Gebyr feltet er ikke gyldigt",

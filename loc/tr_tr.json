@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Hatalı şifre, tekrar deneyin",
+    "cancel": "Vazgeç",
     "continue": "Devam et",
     "enter_password": "Şifre gir",
     "never": "asla",
@@ -66,7 +67,6 @@
     "details_address_field_is_not_valid": "Adres alanı geçerli değil",
     "details_amount_field_is_not_valid": "Miktar alanı geçerli değil",
     "details_amount_placeholder": "gönderilecek miktar (BTC cinsinden)",
-    "details_cancel": "Vazgeç",
     "details_create": "Oluştur",
     "details_create_tx_error": "İşlem oluşturulurken bir hata oluştu. Lütfen adresin geçerli olduğundan emin olun.",
     "details_fee_field_is_not_valid": "Ücret alanı geçerli değil",
