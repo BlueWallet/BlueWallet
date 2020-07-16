@@ -24,30 +24,10 @@ import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../Blu
 import Privacy from '../../Privacy';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueCurrentTheme } from '../../components/themes';
 const currency = require('../../blue_modules/currency');
 
 export default class SendCreate extends Component {
-  static navigationOptions = ({ navigation, route }) => {
-    let headerRight;
-    if (route.params.exportTXN) {
-      headerRight = () => (
-        <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
-          <Icon size={22} name="share-alternative" type="entypo" color={BlueApp.settings.foregroundColor} />
-        </TouchableOpacity>
-      );
-    } else {
-      headerRight = null;
-    }
-
-    return {
-      ...BlueNavigationStyle,
-      title: loc.send.create_details,
-      headerRight,
-    };
-  };
-
   constructor(props) {
     super(props);
     console.log('send/create constructor');
@@ -184,13 +164,13 @@ export default class SendCreate extends Component {
 
 const styles = StyleSheet.create({
   transactionDetailsTitle: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.feeText,
     fontWeight: '500',
     fontSize: 17,
     marginBottom: 2,
   },
   transactionDetailsSubtitle: {
-    color: '#9aa0aa',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: '500',
     fontSize: 15,
     marginBottom: 20,
@@ -202,20 +182,21 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   separator: {
-    backgroundColor: BlueApp.settings.inputBorderColor,
+    backgroundColor: BlueCurrentTheme.colors.inputBorderColor,
     height: 0.5,
     marginVertical: 16,
   },
   root: {
     flex: 1,
     paddingTop: 19,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   card: {
     alignItems: 'center',
     flex: 1,
   },
   cardText: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: '500',
   },
   cardTx: {
@@ -251,4 +232,23 @@ SendCreate.propTypes = {
   route: PropTypes.shape({
     params: PropTypes.object,
   }),
+};
+
+SendCreate.navigationOptions = ({ navigation, route }) => {
+  let headerRight;
+  if (route.params.exportTXN) {
+    headerRight = () => (
+      <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
+        <Icon size={22} name="share-alternative" type="entypo" color={BlueCurrentTheme.colors.foregroundColor} />
+      </TouchableOpacity>
+    );
+  } else {
+    headerRight = null;
+  }
+
+  return {
+    ...BlueNavigationStyle,
+    title: loc.send.create.details,
+    headerRight,
+  };
 };

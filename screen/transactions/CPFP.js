@@ -79,11 +79,6 @@ const styles = StyleSheet.create({
 });
 
 export default class CPFP extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(null, false),
-    title: 'Bump fee (CPFP)',
-  });
-
   constructor(props) {
     super(props);
     let txid;
@@ -276,3 +271,7 @@ CPFP.propTypes = {
     }),
   }),
 };
+CPFP.navigationOptions = () => ({
+  ...BlueNavigationStyle(null, false),
+  title: 'Bump fee (CPFP)',
+});

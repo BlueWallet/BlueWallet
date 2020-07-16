@@ -25,6 +25,7 @@ import Modal from 'react-native-modal';
 import { Icon } from 'react-native-elements';
 import { AppStorage } from '../../class';
 import * as NavigationService from '../../NavigationService';
+import { BlueCurrentTheme } from '../../components/themes';
 
 const BlueApp: AppStorage = require('../../BlueApp');
 const A = require('../../blue_modules/analytics');
@@ -38,11 +39,6 @@ export default class HodlHodl extends Component {
   constructor(props) {
     super(props);
 
-    props.navigation.setParams({
-      handleLoginPress: this.handleLoginPress,
-      displayLoginButton: true,
-      handleMyContractsPress: this.handleMyContractsPress,
-    });
     this.state = {
       HodlApi: false,
       isLoading: true,
@@ -72,7 +68,7 @@ export default class HodlHodl extends Component {
       this.setState({ HodlApi, hodlApiKey });
       this.props.navigation.setParams({ displayLoginButton });
     };
-    NavigationService.navigate('HodlHodlRoot', { params: { cb: handleLoginCallback }, screen: 'HodlHodlLogin' });
+    NavigationService.navigate('HodlHodlLoginRoot', { params: { cb: handleLoginCallback }, screen: 'HodlHodlLogin' });
   };
 
   handleMyContractsPress = () => {
@@ -185,7 +181,11 @@ export default class HodlHodl extends Component {
 
     const HodlApi = new HodlHodlApi(hodlApiKey);
     this.setState({ HodlApi, hodlApiKey });
-    this.props.navigation.setParams({ displayLoginButton });
+    this.props.navigation.setParams({
+      handleLoginPress: this.handleLoginPress,
+      displayLoginButton: displayLoginButton,
+      handleMyContractsPress: this.handleMyContractsPress,
+    });
 
     try {
       await this.fetchMyCountry();
@@ -204,16 +204,14 @@ export default class HodlHodl extends Component {
     this.fetchListOfMethods();
   }
 
-  _onPress(item) {
+  _onPress = item => {
     const offers = this.state.offers.filter(value => value.id === item.id);
     if (offers && offers[0]) {
-      NavigationService.navigate('HodlHodlViewOffer', {
-        offerToDisplay: offers[0],
-      });
+      this.props.navigation.navigate('HodlHodlViewOffer', { offerToDisplay: offers[0] });
     } else {
       Linking.openURL('https://hodlhodl.com/offers/' + item.id);
     }
-  }
+  };
 
   _onCountryPress(item) {
     this.setState(
@@ -716,7 +714,13 @@ export default class HodlHodl extends Component {
 
           <View style={styles.grayTextContainerContainer}>
             <View style={styles.grayTextContainer}>
-              <Icon name="place" type="material" size={20} color="#0c2550" containerStyle={styles.paddingLeft10} />
+              <Icon
+                name="place"
+                type="material"
+                size={20}
+                color={BlueCurrentTheme.colors.foregroundColor}
+                containerStyle={styles.paddingLeft10}
+              />
               {this.state.isLoading ? (
                 <ActivityIndicator />
               ) : (
@@ -732,7 +736,13 @@ export default class HodlHodl extends Component {
               >
                 <Text style={styles.blueText}>Filters</Text>
 
-                <Icon name="filter-list" type="material" size={24} color="#2f5fb3" containerStyle={styles.paddingLeft10} />
+                <Icon
+                  name="filter-list"
+                  type="material"
+                  size={24}
+                  color={BlueCurrentTheme.colors.foregroundColor}
+                  containerStyle={styles.paddingLeft10}
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -815,7 +825,7 @@ export default class HodlHodl extends Component {
   render() {
     return (
       <SafeBlueArea>
-        <StatusBar barStyle="light-content" />
+        <StatusBar barStyle="default" />
         <SectionList
           refreshControl={<RefreshControl onRefresh={this._onRefreshOffers} refreshing={this.state.showShowFlatListRefreshControl} />}
           renderItem={this.renderItem}
@@ -848,7 +858,11 @@ HodlHodl.propTypes = {
 HodlHodl.navigationOptions = ({ navigation, route }) => ({
   ...BlueNavigationStyle(navigation, true),
   title: '',
-  headerLeft: () => {
+  headerStyle: {
+    ...BlueNavigationStyle(navigation, true).headerStyle,
+    backgroundColor: BlueCurrentTheme.colors.customHeader,
+  },
+  headerRight: () => {
     return route.params.displayLoginButton ? (
       <BlueButtonLink title="Login" onPress={route.params.handleLoginPress} style={styles.marginHorizontal20} />
     ) : (
@@ -864,7 +878,7 @@ const styles = StyleSheet.create({
     color: '#9AA0AA',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',
@@ -875,7 +889,7 @@ const styles = StyleSheet.create({
     height: 400,
   },
   modalContentShort: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',
@@ -892,14 +906,14 @@ const styles = StyleSheet.create({
   Title: {
     fontWeight: 'bold',
     fontSize: 30,
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   BottomLine: {
     fontSize: 10,
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   grayDropdownTextContainer: {
-    backgroundColor: '#EEF0F4',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     borderRadius: 20,
     height: 35,
     top: 3,
@@ -911,7 +925,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   grayTextContainerContainer: {
-    backgroundColor: '#EEF0F4',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     borderRadius: 20,
     height: 44,
     justifyContent: 'center',
@@ -925,7 +939,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   blueText: {
-    color: '#2f5fb3',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontSize: 15,
     fontWeight: '600',
   },
@@ -939,17 +953,17 @@ const styles = StyleSheet.create({
   locationText: {
     top: 0,
     left: 5,
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontSize: 20,
     fontWeight: '500',
   },
   nicknameText: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontSize: 18,
     fontWeight: '600',
   },
   blueTextContainer: {
-    backgroundColor: '#CCDDF9',
+    backgroundColor: BlueCurrentTheme.colors.mainColor,
     borderRadius: 20,
     width: 110,
     flex: 1,
@@ -963,11 +977,11 @@ const styles = StyleSheet.create({
   },
   searchInputContainer: {
     flexDirection: 'row',
-    borderColor: '#EEF0F4',
-    borderBottomColor: '#EEF0F4',
+    borderColor: BlueCurrentTheme.colors.inputBackgroundColor,
+    borderBottomColor: BlueCurrentTheme.colors.inputBackgroundColor,
     borderWidth: 1.0,
     borderBottomWidth: 0.5,
-    backgroundColor: '#EEF0F4',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 48,
     height: 48,
     marginHorizontal: 20,
@@ -997,40 +1011,44 @@ const styles = StyleSheet.create({
   itemPrice: { fontWeight: '600', fontSize: 14, color: '#9AA0AA' },
   minmax: { color: '#9AA0AA', fontSize: 12, paddingLeft: 10 },
   noOffersWrapper: { height: '100%', justifyContent: 'center' },
-  noOffersText: { textAlign: 'center', color: '#9AA0AA', paddingHorizontal: 16 },
+  noOffersText: { textAlign: 'center', color: BlueCurrentTheme.colors.feeText, paddingHorizontal: 16 },
   modalFlatList: { width: '100%' },
-  itemSeparator: { height: 0.5, width: '100%', backgroundColor: '#C8C8C8' },
-  itemNameWrapper: { backgroundColor: 'white', flex: 1, flexDirection: 'row', paddingTop: 20, paddingBottom: 20 },
-  itemNameBold: { fontSize: 20, color: '#0c2550', fontWeight: 'bold' },
-  itemNameNormal: { fontSize: 20, color: '#0c2550', fontWeight: 'normal' },
-  whiteBackground: { backgroundColor: 'white' },
-  filterCurrencyText: { fontSize: 16, color: '#9AA0AA' },
-  filteCurrencyTextWrapper: { color: '#9AA0AA', right: 0, position: 'absolute' },
-  currencyNativeName: { fontSize: 20, color: '#0c2550' },
+  itemSeparator: { height: 0.5, width: '100%', backgroundColor: BlueCurrentTheme.colors.lightBorder },
+  itemNameWrapper: { backgroundColor: BlueCurrentTheme.colors.elevated, flex: 1, flexDirection: 'row', paddingTop: 20, paddingBottom: 20 },
+  itemNameBold: { fontSize: 20, color: BlueCurrentTheme.colors.foregroundColor, fontWeight: 'bold' },
+  itemNameNormal: { fontSize: 20, color: BlueCurrentTheme.colors.foregroundColor, fontWeight: 'normal' },
+  whiteBackground: { backgroundColor: BlueCurrentTheme.colors.background },
+  filterCurrencyText: { fontSize: 16, color: BlueCurrentTheme.colors.foregroundColor },
+  filteCurrencyTextWrapper: { color: BlueCurrentTheme.colors.foregroundColor, right: 0, position: 'absolute' },
+  currencyNativeName: { fontSize: 20, color: BlueCurrentTheme.colors.foregroundColor },
   currencyWrapper: { paddingLeft: 10, flex: 1, flexDirection: 'row' },
-  methodNameText: { fontSize: 16, color: '#9AA0AA' },
+  methodNameText: { fontSize: 16, color: BlueCurrentTheme.colors.foregroundColor },
   searchTextInput: { fontSize: 17, flex: 1, marginHorizontal: 8, minHeight: 33, paddingLeft: 6, paddingRight: 6, color: '#81868e' },
   iconWithOffset: { left: -10 },
   paddingLeft10: { paddingLeft: 10 },
-  countryNativeNameBold: { fontSize: 20, color: '#0c2550', fontWeight: 'bold' },
-  countryNativeNameNormal: { fontSize: 20, color: '#0c2550', fontWeight: 'normal' },
+  countryNativeNameBold: { fontSize: 20, color: BlueCurrentTheme.colors.foregroundColor, fontWeight: 'bold' },
+  countryNativeNameNormal: { fontSize: 20, color: BlueCurrentTheme.colors.foregroundColor, fontWeight: 'normal' },
   curSearchInput: { flex: 1, marginHorizontal: 8, minHeight: 33, paddingLeft: 6, paddingRight: 6, color: '#81868e' },
   mthdSearchInput: { flex: 1, marginHorizontal: 8, minHeight: 33, paddingLeft: 6, paddingRight: 6, color: '#81868e' },
   currencyTextBold: {
     fontSize: 20,
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: 'bold',
   },
   currencyTextNormal: {
     fontSize: 20,
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: 'normal',
+  },
+  currencyText: {
+    fontSize: 20,
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   noPaddingLeftOrRight: { paddingLeft: 0, paddingRight: 0 },
   flexRow: { flexDirection: 'row' },
   traderRatingText2: { color: '#9AA0AA' },
   itemPriceWrapper: {
-    backgroundColor: '#EEF0F4',
+    backgroundColor: BlueCurrentTheme.colors.lightButton,
     borderRadius: 20,
     paddingLeft: 8,
     paddingRight: 8,
@@ -1043,8 +1061,8 @@ const styles = StyleSheet.create({
   offersSectionList: { marginTop: 24, flex: 1 },
   marginHorizontal20: { marginHorizontal: 20 },
   avatarImage: { width: 40, height: 40, borderRadius: 40 },
-  avatarWrapper: { backgroundColor: 'white', flex: 1, flexDirection: 'row' },
-  avatarWrapperWrapper: { backgroundColor: 'white', paddingTop: 16, paddingBottom: 16 },
-  headerWrapper: { marginHorizontal: 20, marginBottom: 8 },
+  avatarWrapper: { backgroundColor: BlueCurrentTheme.colors.background, flex: 1, flexDirection: 'row' },
+  avatarWrapperWrapper: { backgroundColor: BlueCurrentTheme.colors.background, paddingTop: 16, paddingBottom: 16 },
+  headerWrapper: { backgroundColor: BlueCurrentTheme.colors.background, marginHorizontal: 20, marginBottom: 8 },
   verifiedIcon: { marginTop: 5, marginRight: 5 },
 });

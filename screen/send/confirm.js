@@ -18,19 +18,13 @@ import {
   SegwitBech32Wallet,
 } from '../../class';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
+import { BlueCurrentTheme } from '../../components/themes';
 const EV = require('../../blue_modules/events');
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
 
 export default class Confirm extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(null, false),
-    title: loc.send.confirm_header,
-  });
-
   constructor(props) {
     super(props);
 
@@ -207,19 +201,19 @@ export default class Confirm extends Component {
 
 const styles = StyleSheet.create({
   transactionDetailsTitle: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: '500',
     fontSize: 17,
     marginBottom: 2,
   },
   transactionDetailsSubtitle: {
-    color: '#9aa0aa',
+    color: BlueCurrentTheme.colors.feeText,
     fontWeight: '500',
     fontSize: 15,
     marginBottom: 20,
   },
   transactionAmountFiat: {
-    color: '#9aa0aa',
+    color: BlueCurrentTheme.colors.feeText,
     fontWeight: '500',
     fontSize: 15,
     marginVertical: 20,
@@ -230,12 +224,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   valueValue: {
-    color: '#0f5cc0',
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 36,
     fontWeight: '600',
   },
   valueUnit: {
-    color: '#0f5cc0',
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 16,
     marginHorizontal: 4,
     paddingBottom: 6,
@@ -248,19 +242,18 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   separator: {
-    backgroundColor: BlueApp.settings.inputBorderColor,
     height: 0.5,
     margin: 16,
   },
   root: {
     flex: 1,
     paddingTop: 19,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   rootWrap: {
     marginTop: 16,
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
   },
   flat: {
     maxHeight: '55%',
@@ -270,7 +263,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: 16,
     paddingBottom: 16,
-    backgroundColor: '#FFFFFF',
   },
   cardText: {
     color: '#37c0a1',
@@ -284,7 +276,7 @@ const styles = StyleSheet.create({
     marginVertical: 24,
   },
   txText: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonTextColor,
     fontSize: 15,
     fontWeight: '500',
     alignSelf: 'center',
@@ -301,3 +293,8 @@ Confirm.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+Confirm.navigationOptions = () => ({
+  ...BlueNavigationStyle(null, false),
+  title: loc.send.confirm_header,
+});

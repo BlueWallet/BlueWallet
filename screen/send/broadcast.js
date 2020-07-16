@@ -14,7 +14,9 @@ import {
   BlueFormLabel,
   BlueTextCentered,
   BlueBigCheckmark,
+  BlueNavigationStyle,
 } from '../../BlueComponents';
+import { BlueCurrentTheme } from '../../components/themes';
 import BlueElectrum from '../../blue_modules/BlueElectrum';
 const bitcoin = require('bitcoinjs-lib');
 
@@ -25,7 +27,7 @@ const BROADCAST_RESULT = Object.freeze({
   error: 'error',
 });
 
-export default function Broadcast() {
+const Broadcast = () => {
   const [tx, setTx] = useState('');
   const [txHex, setTxHex] = useState('');
   const [broadcastResult, setBroadcastResult] = useState(BROADCAST_RESULT.none);
@@ -104,7 +106,13 @@ export default function Broadcast() {
       </KeyboardAvoidingView>
     </SafeBlueArea>
   );
-}
+};
+
+export default Broadcast;
+Broadcast.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
+  title: loc.send.create_broadcast,
+});
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -125,7 +133,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   link: {
-    color: 'blue',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   mainCard: {
     padding: 0,
@@ -152,7 +160,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#d2f8d6',
     borderRadius: 4,
     marginTop: 20,
-    color: '#37c0a1',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: '500',
     fontSize: 14,
     paddingHorizontal: 16,

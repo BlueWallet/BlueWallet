@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
+import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import { SafeBlueArea, BlueCard, BlueNavigationStyle, BlueListItemHooks, BlueTextHooks } from '../../BlueComponents';
 import OnAppLaunch from '../../class/on-app-launch';
 import { useNavigation } from '@react-navigation/native';
 const BlueApp = require('../../BlueApp');
@@ -56,7 +56,7 @@ const DefaultView = () => {
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.flex}>
       <View>
-        <BlueListItem
+        <BlueListItemHooks
           title="View All Wallets"
           Component={TouchableWithoutFeedback}
           switch={{
@@ -66,10 +66,10 @@ const DefaultView = () => {
           }}
         />
         <BlueCard>
-          <BlueText>When disabled, BlueWallet will immediately open the selected wallet at launch.</BlueText>
+          <BlueTextHooks>When disabled, BlueWallet will immediately open the selected wallet at launch.</BlueTextHooks>
         </BlueCard>
         {!viewAllWalletsEnabled && (
-          <BlueListItem title="Default into" component={TouchableOpacity} onPress={selectWallet} rightTitle={defaultWalletLabel} chevron />
+          <BlueListItemHooks title="Default into" onPress={selectWallet} rightTitle={defaultWalletLabel} chevron />
         )}
       </View>
     </SafeBlueArea>

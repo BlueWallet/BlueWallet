@@ -13,17 +13,18 @@ import {
 import PropTypes from 'prop-types';
 import QRCode from 'react-native-qrcode-svg';
 import loc from '../../loc';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueCurrentTheme } from '../../components/themes';
 
 const styles = StyleSheet.create({
   loading: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   root: {
     flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   wrapper: {
     flex: 1,
@@ -42,11 +43,6 @@ const styles = StyleSheet.create({
 });
 
 export default class LNDViewAdditionalInvoiceInformation extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(),
-    title: 'Additional Information',
-  });
-
   state = { walletInfo: undefined };
 
   async componentDidMount() {
@@ -78,8 +74,9 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
               logo={require('../../img/qr-code.png')}
               size={300}
               logoSize={90}
-              color={BlueApp.settings.foregroundColor}
-              logoBackgroundColor={BlueApp.settings.brandingColor}
+              color={BlueCurrentTheme.colors.foregroundColor}
+              logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
+              backgroundColor={BlueCurrentTheme.colors.background}
             />
             <BlueSpacing20 />
             <BlueText>{loc.lndViewInvoice.open_direct_channel}</BlueText>
@@ -90,7 +87,7 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
               icon={{
                 name: 'share-alternative',
                 type: 'entypo',
-                color: BlueApp.settings.buttonTextColor,
+                color: BlueCurrentTheme.colors.buttonTextColor,
               }}
               onPress={async () => {
                 Share.share({
@@ -111,3 +108,8 @@ LNDViewAdditionalInvoiceInformation.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+LNDViewAdditionalInvoiceInformation.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(),
+  title: 'Additional Information',
+});
