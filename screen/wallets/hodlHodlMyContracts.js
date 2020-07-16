@@ -12,14 +12,7 @@ import {
   TouchableHighlight,
   View,
 } from 'react-native';
-import {
-  BlueButton,
-  BlueCopyTextToClipboard,
-  BlueLoading,
-  BlueNavigationStyle,
-  BlueSpacing10,
-  BlueSpacing20,
-} from '../../BlueComponents';
+import { BlueButton, BlueCopyTextToClipboard, BlueLoading, BlueNavigationStyle, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
 import { AppStorage } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import Modal from 'react-native-modal';

@@ -25,6 +25,7 @@ const { width, height } = Dimensions.get('window');
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   center: {
     flex: 1,
