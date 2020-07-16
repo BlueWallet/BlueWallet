@@ -78,6 +78,8 @@ PODS:
   - OpenSSL-Universal (1.0.2.19):
     - OpenSSL-Universal/Static (= 1.0.2.19)
   - OpenSSL-Universal/Static (1.0.2.19)
+  - PasscodeAuth (1.0.0):
+    - React
   - RCTRequired (0.62.2)
   - RCTTypeSafety (0.62.2):
     - FBLazyVector (= 0.62.2)
@@ -372,9 +374,9 @@ PODS:
     - React
   - RNWatch (0.5.0):
     - React
-  - Sentry (5.1.6):
-    - Sentry/Core (= 5.1.6)
-  - Sentry/Core (5.1.6)
+  - Sentry (5.1.9):
+    - Sentry/Core (= 5.1.9)
+  - Sentry/Core (5.1.9)
   - swift_qrcodejs (1.1.2)
   - ToolTipMenu (5.2.0):
     - React
@@ -411,6 +413,7 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - lottie-ios (from `../node_modules/lottie-ios`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
+  - PasscodeAuth (from `../node_modules/react-native-passcode-auth`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
   - React (from `../node_modules/react-native/`)
@@ -503,6 +506,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/lottie-ios"
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
+  PasscodeAuth:
+    :path: "../node_modules/react-native-passcode-auth"
   RCTRequired:
     :path: "../node_modules/react-native/Libraries/RCTRequired"
   RCTTypeSafety:
@@ -631,6 +636,7 @@ SPEC CHECKSUMS:
   lottie-ios: 48fac6be217c76937e36e340e2d09cf7b10b7f5f
   lottie-react-native: a664f59f1f298c2696dd0ae07b15cbdfc433cb02
   OpenSSL-Universal: 8b48cc0d10c1b2923617dfe5c178aa9ed2689355
+  PasscodeAuth: 1cc99b13d8e4de4716d7e2b4069af2f1a9de30b2
   RCTRequired: cec6a34b3ac8a9915c37e7e4ad3aa74726ce4035
   RCTTypeSafety: 93006131180074cffa227a1075802c89a49dd4ce
   React: 29a8b1a02bd764fb7644ef04019270849b9a7ac3
@@ -682,7 +688,7 @@ SPEC CHECKSUMS:
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: 4de37878bbf071847e438b089c01d4ad8d4eddae
-  Sentry: e5796ec31a481474d2f94553213278470f9e302d
+  Sentry: 81f7f2bd3cb041137ea7efcde3aa5ad0d5a67632
   swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
   ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e
   Yoga: 3ebccbdd559724312790e7742142d062476b698e
