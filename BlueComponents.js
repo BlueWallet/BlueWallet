@@ -1089,7 +1089,7 @@ export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
 export class BlueLoading extends Component {
   render() {
     return (
-      <View style={{ flex: 1, paddingTop: 200, backgroundColor: BlueCurrentTheme.colors.background }} {...this.props}>
+      <View style={{ flex: 1, paddingTop: 200 }} {...this.props}>
         <ActivityIndicator />
       </View>
     );
@@ -1097,9 +1097,8 @@ export class BlueLoading extends Component {
 }
 
 export const BlueLoadingHook = () => {
-  const { colors } = useTheme();
   return (
-    <View style={{ flex: 1, paddingTop: 200, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, paddingTop: 200 }}>
       <ActivityIndicator />
     </View>
   );
