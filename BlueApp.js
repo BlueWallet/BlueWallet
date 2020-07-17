@@ -76,6 +76,9 @@ async function startAndDecrypt(retry) {
       // We want to return false to let the UnlockWith screen that it is NOT ok to proceed.
       return false;
     }
+  } else {
+    // Return true because there was no wallet data in keychain. Proceed.
+    return true;
   }
 }
 
