@@ -14,12 +14,6 @@ const styles = StyleSheet.create({
 });
 
 export default class BuyBitcoin extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: '',
-    headerLeft: null,
-  });
-
   constructor(props) {
     super(props);
     const wallet = props.route.params.wallet;
@@ -97,7 +91,7 @@ export default class BuyBitcoin extends Component {
 
     return (
       <SafeBlueArea style={styles.root}>
-        <StatusBar barStyle="light-content" />
+        <StatusBar barStyle="default" />
         <WebView
           source={{
             uri,
@@ -117,3 +111,9 @@ BuyBitcoin.propTypes = {
     }),
   }),
 };
+
+BuyBitcoin.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: '',
+  headerLeft: null,
+});

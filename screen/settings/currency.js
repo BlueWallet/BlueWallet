@@ -1,28 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { FlatList, TouchableOpacity, ActivityIndicator, View, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle, BlueListItem, BlueText, BlueCard } from '../../BlueComponents';
+import { SafeBlueArea, BlueListItemHooks, BlueTextHooks, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
 import { FiatUnit } from '../../models/fiatUnit';
+import { useTheme } from '@react-navigation/native';
 const loc = require('../../loc');
 const currency = require('../../blue_modules/currency');
 
 const data = Object.values(FiatUnit);
 
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  activity: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
-
 const Currency = () => {
   const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState(null);
+  const { colors } = useTheme();
+  const styles = StyleSheet.create({
+    flex: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    activity: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+    },
+  });
 
   useEffect(() => {
     const fetchCurrency = async () => {
@@ -49,7 +52,7 @@ const Currency = () => {
           extraData={data}
           renderItem={({ item }) => {
             return (
-              <BlueListItem
+              <BlueListItemHooks
                 disabled={isSavingNewPreferredCurrency}
                 title={`${item.endPointKey} (${item.symbol})`}
                 {...(selectedCurrency.endPointKey === item.endPointKey
@@ -68,7 +71,7 @@ const Currency = () => {
           }}
         />
         <BlueCard>
-          <BlueText>Prices are obtained from CoinDesk</BlueText>
+          <BlueTextHooks>Prices are obtained from CoinDesk</BlueTextHooks>
         </BlueCard>
       </SafeBlueArea>
     );

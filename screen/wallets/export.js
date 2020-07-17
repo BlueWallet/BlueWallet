@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
+import { BlueCurrentTheme } from '../../components/themes';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -18,6 +19,7 @@ const styles = StyleSheet.create({
   },
   root: {
     flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   scrollViewContent: {
     alignItems: 'center',
@@ -27,24 +29,18 @@ const styles = StyleSheet.create({
   type: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   secret: {
     alignItems: 'center',
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#0C2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     lineHeight: 24,
   },
 });
 
 export default class WalletExport extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: loc.wallets.export.title,
-    headerLeft: null,
-  });
-
   constructor(props) {
     super(props);
     const wallet = props.route.params.wallet;
@@ -118,8 +114,9 @@ export default class WalletExport extends Component {
             logo={require('../../img/qr-code.png')}
             size={this.state.qrCodeHeight}
             logoSize={70}
-            color={BlueApp.settings.foregroundColor}
-            logoBackgroundColor={BlueApp.settings.brandingColor}
+            color={BlueCurrentTheme.colors.foregroundColor}
+            logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
+            backgroundColor={BlueCurrentTheme.colors.background}
             ecl="H"
           />
 
@@ -147,3 +144,8 @@ WalletExport.propTypes = {
     }),
   }),
 };
+WalletExport.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: loc.wallets.export.title,
+  headerLeft: null,
+});

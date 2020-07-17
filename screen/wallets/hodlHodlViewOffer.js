@@ -7,16 +7,12 @@ import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import { Icon } from 'react-native-elements';
 import { AppStorage } from '../../class';
 import * as NavigationService from '../../NavigationService';
+import { BlueCurrentTheme } from '../../components/themes';
 
 const BlueApp: AppStorage = require('../../BlueApp');
 const prompt = require('../../blue_modules/prompt');
 
 export default class HodlHodlViewOffer extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(),
-    title: '',
-  });
-
   constructor(props) {
     super(props);
 
@@ -75,7 +71,7 @@ export default class HodlHodlViewOffer extends Component {
       const HodlApi = new HodlHodlApi(hodlApiKey);
       this.setState({ HodlApi, hodlApiKey });
     };
-    NavigationService.navigate('HodlHodlRoot', { params: { cb: handleLoginCallback }, screen: 'HodlHodlLogin' });
+    NavigationService.navigate('HodlHodl', { params: { cb: handleLoginCallback }, screen: 'HodlHodlLogin' });
   };
 
   async _onAcceptOfferPress(offer) {
@@ -269,19 +265,19 @@ HodlHodlViewOffer.propTypes = {
 
 const styles = StyleSheet.create({
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.background,
     padding: 22,
   },
   Title: {
     fontWeight: '600',
     fontSize: 24,
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   circleWhite: {
     position: 'absolute',
     bottom: 0,
     right: 3,
-    backgroundColor: 'white',
+    backgroundColor: BlueCurrentTheme.colors.background,
     width: 13,
     height: 13,
     borderRadius: 6,
@@ -296,7 +292,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   grayTextContainerContainer: {
-    backgroundColor: '#EEF0F4',
+    backgroundColor: BlueCurrentTheme.colors.lightButton,
     borderRadius: 20,
     height: 30,
     justifyContent: 'center',
@@ -306,7 +302,7 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   greenTextContainerContainer: {
-    backgroundColor: '#d2f8d5',
+    backgroundColor: BlueCurrentTheme.colors.feeLabel,
     borderRadius: 20,
     height: 30,
     justifyContent: 'center',
@@ -323,7 +319,7 @@ const styles = StyleSheet.create({
   },
   priceText: {
     top: 0,
-    color: '#37bfa0',
+    color: BlueCurrentTheme.colors.feeValue,
     fontSize: 14,
     fontWeight: '500',
   },
@@ -338,7 +334,7 @@ const styles = StyleSheet.create({
     lineHeight: 23,
   },
   nicknameText: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -349,20 +345,35 @@ const styles = StyleSheet.create({
   locationText: {
     color: '#9BA0A9',
   },
-  horizontalScrollIemHeader: { fontSize: 12, color: '#9AA0AA' },
-  horizontalScrollItemBody: { fontSize: 14, fontWeight: 'bold', color: '#0c2550' },
+  horizontalScrollIemHeader: { color: BlueCurrentTheme.colors.feeText },
+  horizontalScrollItemBody: { fontSize: 14, fontWeight: 'bold', color: BlueCurrentTheme.colors.foregroundColor },
   horizontalScrollWrapper: { flexDirection: 'column', paddingTop: 20, paddingBottom: 20, paddingRight: 40 },
   flexDirRow: { flexDirection: 'row' },
   iconWithPadding: { paddingLeft: 16 },
   _hr: {
     borderWidth: 0,
     borderBottomWidth: 1,
-    borderColor: '#ebebeb',
+    borderColor: BlueCurrentTheme.colors.lightBorder,
   },
   avatarImg: { width: 60, height: 60, borderRadius: 60 },
-  avatarWrapper: { backgroundColor: 'white', flex: 1, flexDirection: 'column', alignItems: 'center', marginTop: 32 },
+  avatarWrapper: {
+    backgroundColor: BlueCurrentTheme.colors.background,
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: 32,
+  },
   verifiedIcon: { marginTop: 3, marginRight: 5 },
   traderWrapper: { alignItems: 'center', marginTop: 8 },
   acceptOfferButtonWrapper: { width: '70%', alignItems: 'center' },
   acceptOfferButtonWrapperWrapper: { marginTop: 24, alignItems: 'center' },
+});
+
+HodlHodlViewOffer.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
+  title: '',
+  headerStyle: {
+    ...BlueNavigationStyle().headerStyle,
+    backgroundColor: BlueCurrentTheme.colors.customHeader,
+  },
 });

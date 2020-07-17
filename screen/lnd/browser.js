@@ -287,12 +287,6 @@ const styles = StyleSheet.create({
 });
 
 export default class Browser extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: 'Lapp Browser',
-    headerLeft: null,
-  });
-
   constructor(props) {
     super(props);
     if (!props.route.params.fromSecret) throw new Error('Invalid param');
@@ -435,7 +429,7 @@ export default class Browser extends Component {
     return (
       <SafeBlueArea>
         <View style={styles.safeRoot}>
-          <StatusBar barStyle="light-content" />
+          <StatusBar barStyle="default" />
           <TouchableOpacity
             disabled={!this.state.canGoBack}
             onPress={() => {
@@ -516,3 +510,9 @@ Browser.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+Browser.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: 'Lapp Browser',
+  headerLeft: null,
+});
