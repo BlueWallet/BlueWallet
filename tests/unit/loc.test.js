@@ -83,7 +83,7 @@ describe('Localization', () => {
     240000,
   );
 
-  it('has all keys in all locales', async () => {
+  it.skip('has all keys in all locales', async () => {
     const en = require('../../loc/en');
     let issues = 0;
     for (const key1 of Object.keys(en)) {
