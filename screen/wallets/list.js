@@ -586,6 +586,9 @@ const styles = StyleSheet.create({
     paddingLeft: 32,
     paddingVertical: 10,
   },
+  listHeaderBack: {
+    backgroundColor: BlueCurrentTheme.colors.background,
+  },
   listHeaderText: {
     paddingLeft: 16,
     fontWeight: 'bold',
