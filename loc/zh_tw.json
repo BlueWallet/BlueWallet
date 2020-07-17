@@ -112,7 +112,6 @@
   },
   "wallets": {
     "add_bitcoin": "比特幣",
-    "add_coming_soon": "即將來臨",
     "add_create": "建立",
     "add_description": "你可以掃描你的紙質備份錢包 (WIF格式), 或者建立一個新錢包. 預設支援隔離見證錢包",
     "add_import_wallet": "匯入錢包",

@@ -104,7 +104,6 @@
     "list_title": "transakce"
   },
   "wallets": {
-    "add_coming_soon": "Již brzy",
     "add_create": "Vytvořit",
     "add_description": "Můžete naskenovat zálohovoanou papírovou peněženku (WIF - Wallet Import Format), nevo vytvořit novou peněženku. Segwit peněženky jsou podporovány standardně.",
     "add_import_wallet": "Importovat peněženku",

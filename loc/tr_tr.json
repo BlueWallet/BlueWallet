@@ -111,7 +111,6 @@
     "list_title": "işlemler"
   },
   "wallets": {
-    "add_coming_soon": "Yakında",
     "add_create": "Oluştur",
     "add_description": "Kağıt cüzdan (WIF - Wallet Import Format olarak) tarayarak içeri yükleyebilirsiniz veya cüzdan oluşturabilirsiniz. Segwit cüzdanlar standard olarak desteklenir.",
     "add_import_wallet": "Cüzdan İçeri Yükle",

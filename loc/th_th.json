@@ -112,7 +112,6 @@
   },
   "wallets": {
     "add_bitcoin": "บิตคอยน์",
-    "add_coming_soon": "เร็วๆนี้",
     "add_create": "สร้าง",
     "add_description": "คุณสามรถสแกนกระเป๋าสตางค์กระดาษ(ในรูปแบบ WIF - Wallet Import Format), หรือสร้างกระเป๋าสตางค์ใหม่. กระเป๋าสตางค์ใหม่จะใช้ Segwit โดยอัตโนมัติ.",
     "add_import_wallet": "นำเข้ากระเป๋าสตางค์",

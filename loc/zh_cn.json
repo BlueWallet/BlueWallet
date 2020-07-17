@@ -112,7 +112,6 @@
   },
   "wallets": {
     "add_bitcoin": "比特币",
-    "add_coming_soon": "即将来临",
     "add_create": "创建",
     "add_description": "你可以扫描你的纸质备份钱包 (WIF格式), 或者创建一个新钱包. 默认支持隔离见证钱包",
     "add_import_wallet": "导入钱包",

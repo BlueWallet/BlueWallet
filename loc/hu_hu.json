@@ -118,7 +118,6 @@
     "list_title": "tranzakciók"
   },
   "wallets": {
-    "add_coming_soon": "Hamarosan",
     "add_create": "Létrehoz",
     "add_description": "Beszkennelhetsz egy már meglévő tárcát (WIF formátumban - Wallet Import Format) vagy készíthetsz egy új tárcát. A Segwit tárcák alapból támogatottak.",
     "add_import_wallet": "Tárca importálása",

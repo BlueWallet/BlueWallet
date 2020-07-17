@@ -289,15 +289,13 @@ export default class WalletsAdd extends Component {
                     <BlueSpacing20 />
                     <Text style={styles.advancedText}>{loc.settings.advanced_options}</Text>
                     <BlueSpacing20 />
-                    <BlueText>Connect to your LNDHub</BlueText>
+                    <BlueText>{loc.wallets.add_lndhub}</BlueText>
                     <View style={styles.lndUri}>
                       <TextInput
                         value={this.state.walletBaseURI}
-                        onChangeText={text => {
-                          this.setState({ walletBaseURI: text });
-                        }}
+                        onChangeText={text => this.setState({ walletBaseURI: text })}
                         onSubmitEditing={Keyboard.dismiss}
-                        placeholder="your node address"
+                        placeholder={loc.wallets.add_lndhub_placeholder}
                         clearButtonMode="while-editing"
                         autoCapitalize="none"
                         placeholderTextColor="#81868e"
@@ -338,7 +336,7 @@ export default class WalletsAdd extends Component {
                                 w.setBaseURI(lndhub);
                                 w.init();
                               } else {
-                                throw new Error('The provided node address is not valid LNDHub node.');
+                                throw new Error(loc.wallets.add_lndhub_error);
                               }
                             }
 

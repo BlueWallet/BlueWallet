@@ -105,7 +105,6 @@
     "list_title": "transacties"
   },
   "wallets": {
-    "add_coming_soon": "Komt binnenkort",
     "add_create": "Aanmaken",
     "add_description": "U kunt een back-up papieren portemonnee scannen (in WIF - Wallet Import Format) of een nieuwe portemonnee maken. Segwit-wallets worden standaard ondersteund.",
     "add_import_wallet": "Portemonnee importeren",

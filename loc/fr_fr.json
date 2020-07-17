@@ -99,7 +99,6 @@
     "list_description": "Une liste des transactions entrentes et sortantes de vos portefeuilles"
   },
   "wallets": {
-    "add_coming_soon": "Bientôt",
     "add_create": "Créer",
     "add_description": "Vous pouvez soit scanner et importer un paper wallet (au format WIF - Wallet Import Format), ou créer un nouveau portefeuille. Compatible avec Segwit par defaut.",
     "add_import_wallet": "Importer un portefeuille",

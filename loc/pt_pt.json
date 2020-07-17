@@ -121,7 +121,6 @@
     "list_title": "transacções"
   },
   "wallets": {
-    "add_coming_soon": "Brevemente",
     "add_create": "Adicionar",
     "add_description": "Pode fazer um scan de um backup de uma wallet em papel (em WIF - Wallet Import Format), ou criar uma nova wallet. Segwit suportado por defeito.",
     "add_import_wallet": "Importar wallet",

@@ -110,7 +110,6 @@
     "list_title": "ngeniswa"
   },
   "wallets": {
-    "add_coming_soon": "Kuza ngokukhawuleza",
     "add_create": "Yakha",
     "add_description": "Unokukhangela ingxowa yephepha yokugcinwa kwephepha ( kwi-WIF – indlela lokungenisa ingxowa), okanye wenze ingxowa entsha. Ingxowa yeSegwit exhaswa yi-default.",
     "add_import_wallet": "Ukungenisa ingxowa",

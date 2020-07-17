@@ -125,7 +125,6 @@
     "list_title": "transaccions"
   },
   "wallets": {
-    "add_coming_soon": "Pròximament",
     "add_create": "Crear",
     "add_description": "Pots escanejar moneders de paper (en format WIF) o crear un nou moneder. Els moneders SegWit són compatibles per defecte.",
     "add_import_wallet": "Importar moneder",

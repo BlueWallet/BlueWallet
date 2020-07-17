@@ -133,7 +133,7 @@ export default class WalletDetails extends Component {
       }
       await BlueApp.saveToDisk();
       EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-      alert('Wallet updated.');
+      alert(loc.wallets.details_wallet_updated);
       this.props.navigation.goBack(null);
     });
   }
@@ -141,8 +141,8 @@ export default class WalletDetails extends Component {
   async presentWalletHasBalanceAlert() {
     ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
     const walletBalanceConfirmation = await prompt(
-      'Wallet Balance',
-      `This wallet has a balance. Before proceeding, please be aware that you will not be able to recover the funds without this wallet's seed phrase. In order to avoid accidental removal this wallet, please enter your wallet's balance of ${this.state.wallet.getBalance()} satoshis.`,
+      loc.wallets.details_del_wb,
+      loc.formatString(loc.wallets.details_del_wb_q, { balance: this.state.wallet.getBalance() }),
       true,
       'plain-text',
     );
@@ -159,7 +159,7 @@ export default class WalletDetails extends Component {
     } else {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       this.setState({ isLoading: false }, async () => {
-        alert("The provided balance amount does not match this wallet's balance. Please, try again");
+        alert(loc.wallets.details_del_wb_err);
       });
     }
   }
@@ -189,7 +189,7 @@ export default class WalletDetails extends Component {
               fromWallet: this.state.wallet,
             })
           }
-          title="Marketplace"
+          title={loc.wallets.details_marketplace}
         />
       ),
       ios: (
@@ -197,7 +197,7 @@ export default class WalletDetails extends Component {
           onPress={async () => {
             Linking.openURL('https://bluewallet.io/marketplace-btc/');
           }}
-          title="Marketplace"
+          title={loc.wallets.details_marketplace}
         />
       ),
     });
@@ -211,6 +211,7 @@ export default class WalletDetails extends Component {
         </View>
       );
     }
+
     return (
       <SafeBlueArea style={styles.root}>
         <StatusBar barStyle="default" />
@@ -265,7 +266,7 @@ export default class WalletDetails extends Component {
                 <>
                   <Text style={styles.textLabel2}>{loc.transactions.list_title.toLowerCase()}</Text>
                   <View style={styles.hardware}>
-                    <BlueText>display in wallets list</BlueText>
+                    <BlueText>{loc.wallets.details_display}</BlueText>
                     <Switch
                       value={!this.state.wallet.getHideTransactionsInWalletsList()}
                       onValueChange={this.onHideTransactionsInWalletsListSwitch}
@@ -324,7 +325,7 @@ export default class WalletDetails extends Component {
                   {this.state.wallet.type !== LightningCustodianWallet.type && (
                     <>
                       <BlueSpacing20 />
-                      <SecondButton onPress={() => this.props.navigation.navigate('Broadcast')} title="Broadcast transaction" />
+                      <SecondButton onPress={() => this.props.navigation.navigate('Broadcast')} title={loc.settings.network_broadcast} />
                     </>
                   )}
                   <BlueSpacing20 />
@@ -333,7 +334,7 @@ export default class WalletDetails extends Component {
                     onPress={() => {
                       ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
                       Alert.alert(
-                        loc.wallets.details_delete + ' ' + loc.wallets.details.title,
+                        loc.wallets.details_delete_wallet,
                         loc.wallets.details_are_you_sure,
                         [
                           {

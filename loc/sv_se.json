@@ -118,7 +118,6 @@
     "list_title": "transaktioner"
   },
   "wallets": {
-    "add_coming_soon": "Kommer snart",
     "add_create": "Skapa",
     "add_description": "Du kan antingen skanna in en backup (i WIF - Wallet Import Format) eller skapa en ny plånbok. Segwit-plånböcker stöds som standard.",
     "add_import_wallet": "Importera plånbok",

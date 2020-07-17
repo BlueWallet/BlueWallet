@@ -110,7 +110,6 @@
     "list_title": "transaksies"
   },
   "wallets": {
-    "add_coming_soon": "In die toekoms",
     "add_create": "Skep",
     "add_description": "U kan ‘n beursie invoer (in WIF - Wallet Import Format), of ‘n nuwe beursie skep. Beursies ondersteun Segwit as standaard.",
     "add_import_wallet": "Beursie Invoer",

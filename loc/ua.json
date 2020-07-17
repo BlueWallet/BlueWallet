@@ -93,7 +93,6 @@
     "list_title": "Мої транзакції"
   },
   "wallets": {
-    "add_coming_soon": "Буде скоро",
     "add_create": "Створити",
     "add_description": "Ви можете відсканувати QR код (у форматі WIF - Wallet Import Format), або створити новий гаманець. Segwit підтримується за умовчанням.",
     "add_import_wallet": "імпортувати гаманець",

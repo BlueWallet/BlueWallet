@@ -110,7 +110,6 @@
     "list_title": "Transações"
   },
   "wallets": {
-    "add_coming_soon": "Em breve",
     "add_create": "Criar",
     "add_description": "Você pode ler o backup de uma carteira (em WIF - Wallet Import Format) ou criar uma nova. O padrão é criar uma carteira SegWit.",
     "add_import_wallet": "Importar carteira",

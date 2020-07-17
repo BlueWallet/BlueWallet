@@ -101,7 +101,6 @@
     "list_title": "transaksi"
   },
   "wallets": {
-    "add_coming_soon": "Akan datang",
     "add_create": "Buat",
     "add_description": "Kamu bisa membuat dompet atau memindai paper wallet dalam WIF (Wallet Import Format). Bluewallet mendukung dompet Segwit.",
     "add_import_wallet": "Impor dompet",

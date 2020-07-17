@@ -111,7 +111,6 @@
     "list_title": "transakcije"
   },
   "wallets": {
-    "add_coming_soon": "Dolazi uskoro",
     "add_create": "Stvori",
     "add_description": "Možete ili skenirati bekap papirnati volet (u WIF - Wallet Import Format), ili stvoriti novi volet. Segwit je podržan.",
     "add_import_wallet": "Unesi vanjski volet",

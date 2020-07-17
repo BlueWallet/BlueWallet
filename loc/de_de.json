@@ -123,7 +123,6 @@
     "list_title": "Transaktionen"
   },
   "wallets": {
-    "add_coming_soon": "Demnächst verfügbar",
     "add_create": "Erstellen",
     "add_description": "Du kannst entweder ein Backup einer Paper-Wallet einscannen (im WIF - Wallet Import Format) oder eine neue Wallet erstellen. SegWit Wallets werden standardmäßig unterstützt.",
     "add_import_wallet": "Wallet importieren",

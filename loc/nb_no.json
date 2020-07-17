@@ -108,7 +108,6 @@
     "list_title": "transaksjoner"
   },
   "wallets": {
-    "add_coming_soon": "Kommer snart",
     "add_create": "Lag",
     "add_description": "Du kan enten skanne en backup papirlommebok (i WIF - Wallet Import Format), eller opprett en ny lommebok. Segwit lommebøker støttes som standard.",
     "add_import_wallet": "Importer lommeboken",

@@ -122,7 +122,6 @@
     "list_title": "取引"
   },
   "wallets": {
-    "add_coming_soon": "準備中",
     "add_create": "作成",
     "add_description": "ペーパーウォレット(WIF 形式- Wallet Import Format)をスキャンするかウォレットを新規作成できます。既定で Segwit ウォレットが作成されます。",
     "add_import_wallet": "ウォレットをインポート",

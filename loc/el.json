@@ -111,7 +111,6 @@
     "list_title": "συναλλαγές"
   },
   "wallets": {
-    "add_coming_soon": "Σύντομα",
     "add_create": "Δημιούργησε",
     "add_description": "Μπορείς να σκανάρεις ένα χάρτινο πορτοφόλι (σε WIF - Wallet Import Format), ή να δημιουργήσεις ένα νέο πορτοφόλι. Υποστηρίζουμε πορτοφόλια τύπου Segwit.",
     "add_import_wallet": "Εισήγαγε πορτοφόλι",

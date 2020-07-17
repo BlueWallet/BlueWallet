@@ -102,7 +102,6 @@
     "list_title": "transaktioner"
   },
   "wallets": {
-    "add_coming_soon": "Kommer snart",
     "add_create": "Opret",
     "add_description": "Du kan enten scanne en backup papir wallet (i et WIF - Wallet Import Format), eller oprette en ny wallet. Segwit wallets er understøttet som standard.",
     "add_import_wallet": "Importer wallet",

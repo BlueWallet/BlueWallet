@@ -108,7 +108,6 @@
     "list_title": "Transazioni"
   },
   "wallets": {
-    "add_coming_soon": "In arrivo",
     "add_create": "Crea",
     "add_description": "Puoi scansionare il Backup di un Paper-Wallet (in WIF - Wallet Import Format), o creare un nuovo portafoglio. I portafogli Segwit sono supportati di default.",
     "add_import_wallet": "Importa Portafoglio",

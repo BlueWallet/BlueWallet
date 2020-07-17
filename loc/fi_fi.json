@@ -108,7 +108,6 @@
     "list_title": "siirrot"
   },
   "wallets": {
-    "add_coming_soon": "Tulossa",
     "add_create": "Luo",
     "add_description": "Voit joko skannata paperisen lompakon (WIF - Wallet Import Format), tai luoda uuden. Segwit lompakkoja tuetaan oletuksena.",
     "add_import_wallet": "Tuo lompakko",

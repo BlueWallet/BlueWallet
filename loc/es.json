@@ -98,7 +98,6 @@
     "list_title": "transacciónes"
   },
   "wallets": {
-    "add_coming_soon": "Viene pronto",
     "add_create": "Crear",
     "add_description": "Puedes escanear la billetera de papel (en WIF - Formato de importación de billeteras) o crear una nueva billetera. Las billeteras SegWit estan compatibles por defecto.",
     "add_import_wallet": "Importar billetera",
