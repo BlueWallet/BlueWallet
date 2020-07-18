@@ -37,6 +37,7 @@ import { BlueCurrentTheme } from '../../components/themes';
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 const currency = require('../../blue_modules/currency');
+const notifications = require('../../blue_modules/notifications');
 
 const ReceiveDetails = () => {
   const { secret } = useRoute().params;
@@ -151,7 +152,6 @@ const ReceiveDetails = () => {
         } else {
           BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
         }
-        setAddress(address);
       } else if (wallet.chain === Chain.OFFCHAIN) {
         try {
           await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
@@ -166,8 +166,12 @@ const ReceiveDetails = () => {
         }
       }
       setAddress(address);
+      await notifications.tryToObtainPermissions();
+      notifications.majorTomToGroundControl([address], []);
     } else if (wallet.getAddress) {
       setAddress(wallet.getAddress());
+      await notifications.tryToObtainPermissions();
+      notifications.majorTomToGroundControl([wallet.getAddress()], []);
     }
     InteractionManager.runAfterInteractions(async () => {
       const bip21encoded = DeeplinkSchemaMatch.bip21encode(address);

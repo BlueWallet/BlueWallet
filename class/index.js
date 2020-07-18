@@ -1,6 +1,5 @@
 export * from './wallets/abstract-wallet';
 export * from './app-storage';
-export * from './constants';
 export * from './wallets/legacy-wallet';
 export * from './wallets/segwit-bech32-wallet';
 export * from './wallets/segwit-p2sh-wallet';
