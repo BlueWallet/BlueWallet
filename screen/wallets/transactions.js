@@ -366,7 +366,7 @@ export default class WalletTransactions extends Component {
               onPress={a => {
                 const wallets = [...BlueApp.getWallets().filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
                 if (wallets.length === 0) {
-                  alert('In order to proceed, please create a Bitcoin wallet to refill with.');
+                  alert(loc.lnd.refill_create);
                 } else {
                   this.setState({ isManageFundsModalVisible: false });
                   this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN });
@@ -384,7 +384,7 @@ export default class WalletTransactions extends Component {
                   }),
                 );
               }}
-              title="Refill with External Wallet"
+              title={loc.lnd.refill_external}
             />
 
             <BlueListItem
@@ -397,7 +397,7 @@ export default class WalletTransactions extends Component {
                   });
                 });
               }}
-              title="Refill with bank card"
+              title={loc.lnd.refill_card}
             />
 
             <BlueListItem
@@ -562,7 +562,7 @@ export default class WalletTransactions extends Component {
             if (!error) {
               this.onBarCodeRead({ data: result });
             } else {
-              alert('The selected image does not contain a QR Code.');
+              alert(loc.send.qr_error_no_qrcode);
             }
           });
         }
@@ -577,9 +577,9 @@ export default class WalletTransactions extends Component {
   sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, 'Choose Photo', 'Scan QR Code'];
+      const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
       if (!isClipboardEmpty) {
-        options.push('Copy from Clipboard');
+        options.push(loc.wallets.list_long_clipboard);
       }
       ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
         if (buttonIndex === 1) {
@@ -602,11 +602,11 @@ export default class WalletTransactions extends Component {
           style: 'cancel',
         },
         {
-          text: 'Choose Photo',
+          text: loc.wallets.list_long_choose,
           onPress: this.choosePhoto,
         },
         {
-          text: 'Scan QR Code',
+          text: loc.wallets.list_long_scan,
           onPress: () =>
             this.props.navigation.navigate('ScanQRCode', {
               launchedBy: this.props.route.name,
@@ -617,7 +617,7 @@ export default class WalletTransactions extends Component {
       ];
       if (!isClipboardEmpty) {
         buttons.push({
-          text: 'Copy From Clipboard',
+          text: loc.wallets.list_long_clipboard,
           onPress: this.copyFromClipbard,
         });
       }
@@ -758,8 +758,8 @@ export default class WalletTransactions extends Component {
                           this.navigateToSendScreen();
                         } else {
                           Alert.alert(
-                            'Wallet',
-                            'This wallet is not being used in conjunction with a hardwarde wallet. Would you like to enable hardware wallet use?',
+                            loc.wallets.details_title,
+                            loc.transactions.enable_hw,
                             [
                               {
                                 text: loc._.ok,

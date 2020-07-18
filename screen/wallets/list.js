@@ -171,7 +171,7 @@ export default class WalletsList extends Component {
       if (wallet.type === PlaceholderWallet.type) {
         Alert.alert(
           loc.wallets.add_details,
-          'There was a problem importing this wallet.',
+          loc.wallets.list_import_problem,
           [
             {
               text: loc.wallets.details_delete,
@@ -182,7 +182,7 @@ export default class WalletsList extends Component {
               style: 'destructive',
             },
             {
-              text: 'Try Again',
+              text: loc.wallets.list_tryagain,
               onPress: () => {
                 this.props.navigation.navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: wallet.getSecret() } });
                 WalletImport.removePlaceholderWallet();
@@ -440,7 +440,7 @@ export default class WalletsList extends Component {
             if (!error) {
               this.onBarScanned(result);
             } else {
-              alert('The selected image does not contain a QR Code.');
+              alert(loc.send.qr_error_no_qrcode);
             }
           });
         }
@@ -455,9 +455,9 @@ export default class WalletsList extends Component {
   sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, 'Choose Photo', 'Scan QR Code'];
+      const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
       if (!isClipboardEmpty) {
-        options.push('Copy from Clipboard');
+        options.push(loc.wallets.list_long_clipboard);
       }
       ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
         if (buttonIndex === 1) {
@@ -483,11 +483,11 @@ export default class WalletsList extends Component {
           style: 'cancel',
         },
         {
-          text: 'Choose Photo',
+          text: loc.wallets.list_long_choose,
           onPress: this.choosePhoto,
         },
         {
-          text: 'Scan QR Code',
+          text: loc.wallets.list_long_scan,
           onPress: () =>
             this.props.navigation.navigate('ScanQRCodeRoot', {
               screen: 'ScanQRCode',
@@ -501,7 +501,7 @@ export default class WalletsList extends Component {
       ];
       if (!isClipboardEmpty) {
         buttons.push({
-          text: 'Copy From Clipboard',
+          text: loc.wallets.list_long_clipboard,
           onPress: this.copyFromClipbard,
         });
       }
