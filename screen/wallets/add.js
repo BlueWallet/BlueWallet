@@ -261,11 +261,7 @@ const WalletsAdd = () => {
     setSelectedWalletType(Chain.OFFCHAIN);
   };
 
-  return isLoading ? (
-    <View style={styles.loading}>
-      <ActivityIndicator />
-    </View>
-  ) : (
+  return (
     <ScrollView style={styles.root}>
       <StatusBar barStyle="default" />
       <BlueSpacing20 />
