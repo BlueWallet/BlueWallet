@@ -37,6 +37,9 @@ class DeeplinkSchemaMatch {
       return;
     }
 
+    // if schema contains ://, decoders fail.
+    event.url = event.url.replace('://', ':');
+
     if (event.url.toLowerCase().startsWith('bluewallet:bitcoin:') || event.url.toLowerCase().startsWith('bluewallet:lightning:')) {
       event.url = event.url.substring(11);
     }
