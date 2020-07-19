@@ -1,3 +1,13 @@
+v5.5.1
+======
+
+* ADD: Dark Mode
+* FIX: #1309 Sharing doesnt include text
+* FIX: import mnemonic w/typo, 'try again' does nothing (closes #1286)
+* ADD: support importing watch-only in bitcoincore format [fingerprint/derivation]xpub (wallet descriptors)
+* REF: dont store txhex in transactions list
+* REF: wrap save storage in try-catch
+
 v5.5.0
 ======
 
@@ -50,15 +60,3 @@ v5.4.1
 * FIX: extend pull to close gesture area to full modal height
 * FIX: Don't allow navigating backwards on backup screens
 * FIX: round fiat currencies
-
-v5.4.0
-======
-
-* FIX: Set the first launch flag (issue with disappearing wallets)
-* ADD: Catalan translation
-* ADD: Slovak translation
-* ADD: custom success animation to onchain transactions
-* FIX: improved startup time
-* FIX: Seed index number
-* FIX: scan button style for RU language
-* REF: Navigation updated

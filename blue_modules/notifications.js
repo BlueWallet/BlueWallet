@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 const PushNotification = require('react-native-push-notification');
 const constants = require('./constants');
 const PUSH_TOKEN = 'PUSH_TOKEN';
+const loc = require('../loc');
 let alreadyConfigured = false;
 
 async function _setPushToken(token) {
@@ -108,14 +109,14 @@ const tryToObtainPermissions = async function () {
       '',
       [
         {
-          text: 'Ask me later',
+          text: 'Ask Me Later',
           onPress: () => {
             resolve(false);
           },
-          style: 'default',
+          style: 'cancel',
         },
         {
-          text: 'Yeah why not',
+          text: loc._.ok,
           onPress: async () => {
             resolve(await configureNotifications());
           },
