@@ -38,7 +38,7 @@ import { encodeUR } from 'bc-ur/dist';
 import QRCode from 'react-native-qrcode-svg';
 import { useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
-const loc = require('./loc/');
+import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
 /** @type {AppStorage} */
 const BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
@@ -150,7 +150,7 @@ export class BitcoinButton extends Component {
           }}
         >
           <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
-            <Text style={{ color: BlueCurrentTheme.colors.hdborderColor, fontWeight: 'bold' }}>{loc.wallets.add.bitcoin}</Text>
+            <Text style={{ color: BlueCurrentTheme.colors.hdborderColor, fontWeight: 'bold' }}>{loc.wallets.add_bitcoin}</Text>
           </View>
           <Image
             style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
@@ -183,7 +183,7 @@ export class LightningButton extends Component {
           }}
         >
           <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
-            <Text style={{ color: BlueCurrentTheme.colors.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.add.lightning}</Text>
+            <Text style={{ color: BlueCurrentTheme.colors.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.add_lightning}</Text>
           </View>
           <Image
             style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
@@ -215,7 +215,7 @@ export class BlueWalletNavigationHeader extends Component {
   }
 
   handleCopyPress = _item => {
-    Clipboard.setString(loc.formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit()).toString());
+    Clipboard.setString(formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit()).toString());
   };
 
   componentDidMount() {
@@ -248,7 +248,7 @@ export class BlueWalletNavigationHeader extends Component {
   };
 
   handleToolTipSelection = item => {
-    if (item === loc.transactions.details.copy || item.id === loc.transactions.details.copy) {
+    if (item === loc.transactions.details_copy || item.id === loc.transactions.details.copy) {
       this.handleCopyPress();
     } else if (item === 'balancePrivacy' || item.id === 'balancePrivacy') {
       this.handleBalanceVisibility();
@@ -260,13 +260,13 @@ export class BlueWalletNavigationHeader extends Component {
       // NOT WORKING ATM.
       // ios: [
       //   { text: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance', onPress: this.handleBalanceVisibility },
-      //   { text: loc.transactions.details.copy, onPress: this.handleCopyPress },
+      //   { text: loc.transactions.details_copy, onPress: this.handleCopyPress },
       // ],
       android: this.state.wallet.hideBalance
         ? [{ id: 'balancePrivacy', label: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance' }]
         : [
             { id: 'balancePrivacy', label: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance' },
-            { id: loc.transactions.details.copy, label: loc.transactions.details.copy },
+            { id: loc.transactions.details_copy, label: loc.transactions.details.copy },
           ],
     });
   }
@@ -334,7 +334,7 @@ export class BlueWalletNavigationHeader extends Component {
                 ? [{ text: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance', onPress: this.handleBalanceVisibility }]
                 : [
                     { text: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance', onPress: this.handleBalanceVisibility },
-                    { text: loc.transactions.details.copy, onPress: this.handleCopyPress },
+                    { text: loc.transactions.details_copy, onPress: this.handleCopyPress },
                   ]
             }
           />
@@ -359,7 +359,7 @@ export class BlueWalletNavigationHeader extends Component {
                 color: '#fff',
               }}
             >
-              {loc.formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit(), true).toString()}
+              {formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit(), true).toString()}
             </Text>
           )}
         </TouchableOpacity>
@@ -544,7 +544,7 @@ export const BluePrivateBalance = () => {
 export const BlueCopyToClipboardButton = ({ stringToCopy, displayText = false }) => {
   return (
     <TouchableOpacity {...this.props} onPress={() => Clipboard.setString(stringToCopy)}>
-      <Text style={{ fontSize: 13, fontWeight: '400', color: '#68bbe1' }}>{displayText || loc.transactions.details.copy}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '400', color: '#68bbe1' }}>{displayText || loc.transactions.details_copy}</Text>
     </TouchableOpacity>
   );
 };
@@ -577,7 +577,7 @@ export class BlueCopyTextToClipboard extends Component {
   copyToClipboard = () => {
     this.setState({ hasTappedText: true }, () => {
       Clipboard.setString(this.props.text);
-      this.setState({ address: loc.wallets.xpub.copiedToClipboard }, () => {
+      this.setState({ address: loc.wallets.xpub_copiedToClipboard }, () => {
         setTimeout(() => {
           this.setState({ hasTappedText: false, address: this.props.text });
         }, 1000);
@@ -992,9 +992,7 @@ export class BlueUseAllFundsButton extends Component {
             <BlueButtonLink
               onPress={this.props.onUseAllPressed}
               style={{ marginLeft: 8, paddingRight: 0, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
-              title={`${loc.formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} ${
-                BitcoinUnit.BTC
-              }`}
+              title={`${formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} ${BitcoinUnit.BTC}`}
             />
           ) : (
             <Text
@@ -1009,7 +1007,7 @@ export class BlueUseAllFundsButton extends Component {
                 paddingBottom: 12,
               }}
             >
-              {loc.formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} {BitcoinUnit.BTC}
+              {formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} {BitcoinUnit.BTC}
             </Text>
           )}
         </View>
@@ -1417,7 +1415,7 @@ export class BlueScanButton extends Component {
                 backgroundColor: 'transparent',
               }}
             >
-              {loc.send.details.scan}
+              {loc.send.details_scan}
             </Text>
           </View>
         </View>
@@ -1537,7 +1535,7 @@ export class NewWalletPanel extends Component {
               marginBottom: 4,
             }}
           >
-            {loc.wallets.list.create_a_wallet}
+            {loc.wallets.list_create_a_wallet}
           </Text>
           <Text
             style={{
@@ -1545,7 +1543,7 @@ export class NewWalletPanel extends Component {
               color: BlueCurrentTheme.colors.alternativeTextColor,
             }}
           >
-            {loc.wallets.list.create_a_wallet1}
+            {loc.wallets.list_create_a_wallet1}
           </Text>
           <Text
             style={{
@@ -1554,10 +1552,10 @@ export class NewWalletPanel extends Component {
               color: BlueCurrentTheme.colors.alternativeTextColor,
             }}
           >
-            {loc.wallets.list.create_a_wallet2}
+            {loc.wallets.list_create_a_wallet2}
           </Text>
           <View style={{ marginTop: 12, backgroundColor: '#007AFF', paddingHorizontal: 32, paddingVertical: 12, borderRadius: 8 }}>
-            <Text style={{ color: BlueCurrentTheme.colors.brandingColor, fontWeight: '500' }}>{loc.wallets.list.create_a_button}</Text>
+            <Text style={{ color: BlueCurrentTheme.colors.brandingColor, fontWeight: '500' }}>{loc.wallets.list_create_a_button}</Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -1567,8 +1565,6 @@ export class NewWalletPanel extends Component {
 
 export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, timeElapsed }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
-
-  const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
 
   const txMemo = () => {
     if (BlueApp.tx_metadata[item.hash] && BlueApp.tx_metadata[item.hash].memo) {
@@ -1587,16 +1583,16 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
       const invoiceExpiration = item.timestamp + item.expire_time;
 
       if (invoiceExpiration > now) {
-        return loc.formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
+        return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
       } else if (invoiceExpiration < now) {
         if (item.ispaid) {
-          return loc.formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
+          return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
         } else {
           return loc.lnd.expired;
         }
       }
     } else {
-      return loc.formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
+      return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
     }
   };
 
@@ -1699,7 +1695,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   };
 
   const subtitle = () => {
-    return (item.confirmations < 7 ? loc.transactions.list.conf + ': ' + item.confirmations + ' ' : '') + txMemo() + (item.memo || '');
+    return (item.confirmations < 7 ? loc.transactions.list_conf + ': ' + item.confirmations + ' ' : '') + txMemo() + (item.memo || '');
   };
 
   const onPress = () => {
@@ -1733,7 +1729,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     <View style={{ marginHorizontal: 4 }}>
       <BlueListItem
         leftAvatar={avatar()}
-        title={transactionTimeToReadable}
+        title={transactionTimeToReadable(item.received)}
         titleNumberOfLines={subtitleNumberOfLines}
         subtitle={subtitle()}
         subtitleProps={{ numberOfLines: subtitleNumberOfLines }}
@@ -1776,16 +1772,16 @@ export class BlueListTransactionItem extends Component {
       const invoiceExpiration = item.timestamp + item.expire_time;
 
       if (invoiceExpiration > now) {
-        return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
+        return formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
       } else if (invoiceExpiration < now) {
         if (item.ispaid) {
-          return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
+          return formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
         } else {
           return loc.lnd.expired;
         }
       }
     } else {
-      return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
+      return formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
     }
   };
 
@@ -1888,7 +1884,7 @@ export class BlueListTransactionItem extends Component {
 
   subtitle = () => {
     return (
-      (this.props.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + this.props.item.confirmations + ' ' : '') +
+      (this.props.item.confirmations < 7 ? loc.transactions.list_conf + ': ' + this.props.item.confirmations + ' ' : '') +
       this.txMemo() +
       (this.props.item.memo || '')
     );
@@ -1921,7 +1917,7 @@ export class BlueListTransactionItem extends Component {
     return (
       <BlueListItem
         avatar={this.avatar()}
-        title={loc.transactionTimeToReadable(this.props.item.received)}
+        title={transactionTimeToReadable(this.props.item.received)}
         subtitle={this.subtitle()}
         onPress={this.onPress}
         hideChevron
@@ -2096,7 +2092,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
                   color: BlueCurrentTheme.colors.inverseForegroundColor,
                 }}
               >
-                {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+                {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
               </Text>
             )}
             <Text style={{ backgroundColor: 'transparent' }} />
@@ -2108,7 +2104,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
                 color: BlueCurrentTheme.colors.inverseForegroundColor,
               }}
             >
-              {loc.wallets.list.latest_transaction}
+              {loc.wallets.list_latest_transaction}
             </Text>
             <Text
               numberOfLines={1}
@@ -2119,7 +2115,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
                 color: BlueCurrentTheme.colors.inverseForegroundColor,
               }}
             >
-              {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
+              {transactionTimeToReadable(item.getLatestTransactionTime())}
             </Text>
           </LinearGradient>
         </TouchableWithoutFeedback>
@@ -2190,7 +2186,7 @@ export class BlueAddressInput extends Component {
   static defaultProps = {
     isLoading: false,
     address: '',
-    placeholder: loc.send.details.address,
+    placeholder: loc.send.details_address,
   };
 
   render() {
@@ -2250,7 +2246,7 @@ export class BlueAddressInput extends Component {
           }}
         >
           <Image style={{}} source={require('./img/scan-white.png')} />
-          <Text style={{ marginLeft: 4, color: BlueCurrentTheme.colors.inverseForegroundColor }}>{loc.send.details.scan}</Text>
+          <Text style={{ marginLeft: 4, color: BlueCurrentTheme.colors.inverseForegroundColor }}>{loc.send.details_scan}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -2455,7 +2451,7 @@ export class BlueBitcoinAmount extends Component {
     }
     console.log('so, in sats its', sats);
 
-    const newInputValue = loc.formatBalancePlain(sats, newUnit, false);
+    const newInputValue = formatBalancePlain(sats, newUnit, false);
     console.log('and in', newUnit, 'its', newInputValue);
 
     if (newUnit === BitcoinUnit.LOCAL_CURRENCY && previousUnit === BitcoinUnit.SATS) {
@@ -2504,7 +2500,7 @@ export class BlueBitcoinAmount extends Component {
 
   render() {
     const amount = this.props.amount || 0;
-    let secondaryDisplayCurrency = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
+    let secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
 
     // if main display is sat or btc - secondary display is fiat
     // if main display is fiat - secondary dislay is btc
@@ -2512,10 +2508,10 @@ export class BlueBitcoinAmount extends Component {
     switch (this.state.unit) {
       case BitcoinUnit.BTC:
         sat = new BigNumber(amount).multipliedBy(100000000).toString();
-        secondaryDisplayCurrency = loc.formatBalanceWithoutSuffix(sat, BitcoinUnit.LOCAL_CURRENCY, false);
+        secondaryDisplayCurrency = formatBalanceWithoutSuffix(sat, BitcoinUnit.LOCAL_CURRENCY, false);
         break;
       case BitcoinUnit.SATS:
-        secondaryDisplayCurrency = loc.formatBalanceWithoutSuffix(amount.toString(), BitcoinUnit.LOCAL_CURRENCY, false);
+        secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount.toString(), BitcoinUnit.LOCAL_CURRENCY, false);
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
         secondaryDisplayCurrency = currency.fiatToBTC(parseFloat(amount));
@@ -2639,7 +2635,7 @@ export class BlueBitcoinAmount extends Component {
             <View style={{ alignItems: 'center', marginBottom: 22 }}>
               <Text style={{ fontSize: 16, color: '#9BA0A9', fontWeight: '600' }}>
                 {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX
-                  ? loc.removeTrailingZeros(secondaryDisplayCurrency)
+                  ? removeTrailingZeros(secondaryDisplayCurrency)
                   : secondaryDisplayCurrency}
                 {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX ? ` ${BitcoinUnit.BTC}` : null}
               </Text>

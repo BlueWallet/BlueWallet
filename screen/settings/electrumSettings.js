@@ -6,8 +6,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
 import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
-
-const loc = require('../../loc');
+import loc from '../../loc';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const styles = StyleSheet.create({
@@ -132,14 +131,14 @@ export default class ElectrumSettings extends Component {
           await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, '');
           await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, '');
           await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, '');
-          alert('Your changes have been saved successfully. Restart may be required for changes to take effect.');
+          alert(loc.settings.electrum_saved);
         } else if (!(await BlueElectrum.testConnection(host, port, sslPort))) {
-          alert("Can't connect to provided Electrum server");
+          alert(loc.settings.electrum_error_connect);
         } else {
           await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, host);
           await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, port);
           await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, sslPort);
-          alert('Your changes have been saved successfully. Restart may be required for changes to take effect.');
+          alert(loc.settings.electrum_saved);
         }
       } catch (error) {
         alert(error);
@@ -153,11 +152,11 @@ export default class ElectrumSettings extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
         <ScrollView>
           <BlueCard>
-            <BlueText style={styles.status}>Status</BlueText>
+            <BlueText style={styles.status}>{loc.settings.electrum_status}</BlueText>
             <View style={styles.connectWrap}>
               <View style={[styles.container, this.state.config.status === 1 ? styles.containerConnected : styles.containerDisconnected]}>
                 <BlueText style={this.state.config.status === 1 ? styles.textConnected : styles.textDisconnected}>
-                  {(this.state.config.status === 1 && 'Connected') || 'Not Connected'}
+                  {this.state.config.status === 1 ? loc.settings.electrum_connected : loc.settings.electrum_connected_not}
                 </BlueText>
               </View>
             </View>
@@ -173,7 +172,7 @@ export default class ElectrumSettings extends Component {
           <BlueCard>
             <View style={styles.inputWrap}>
               <TextInput
-                placeholder="host, for example 111.222.333.444"
+                placeholder={loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' })}
                 value={this.state.host}
                 onChangeText={text => this.setState({ host: text })}
                 numberOfLines={1}
@@ -186,7 +185,7 @@ export default class ElectrumSettings extends Component {
             <BlueSpacing20 />
             <View style={styles.inputWrap}>
               <TextInput
-                placeholder="TCP port, usually 50001"
+                placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
                 value={this.state.port}
                 onChangeText={text => this.setState({ port: text })}
                 numberOfLines={1}
@@ -199,7 +198,7 @@ export default class ElectrumSettings extends Component {
             <BlueSpacing20 />
             <View style={styles.inputWrap}>
               <TextInput
-                placeholder="SSL port, usually 50002"
+                placeholder={loc.formatString(loc.settings.electrum_port_ssl, { example: '50002' })}
                 value={this.state.sslPort}
                 onChangeText={text => this.setState({ sslPort: text })}
                 numberOfLines={1}

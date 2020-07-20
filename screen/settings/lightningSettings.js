@@ -1,6 +1,9 @@
 /* global alert */
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, TextInput, Linking, StyleSheet } from 'react-native';
+import { Button } from 'react-native-elements';
+import { useTheme } from '@react-navigation/native';
+
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import {
@@ -12,12 +15,9 @@ import {
   BlueLoadingHook,
   BlueTextHooks,
 } from '../../BlueComponents';
-import { Button } from 'react-native-elements';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import { useTheme } from '@react-navigation/native';
+import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-
-const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   root: {
@@ -67,9 +67,9 @@ const LightningSettings = () => {
         // validating only if its not empty. empty means use default
       }
       await AsyncStorage.setItem(AppStorage.LNDHUB, URI);
-      alert('Your changes have been saved successfully');
+      alert(loc.settings.lightning_saved);
     } catch (error) {
-      alert('Not a valid LndHub URI');
+      alert(loc.settings.lightning_error_lndhub_uri);
       console.log(error);
     }
     setIsLoading(false);
@@ -87,9 +87,7 @@ const LightningSettings = () => {
           type: 'font-awesome',
           color: colors.foregroundColor,
         }}
-        onPress={() => {
-          Linking.openURL('https://github.com/BlueWallet/LndHub');
-        }}
+        onPress={() => Linking.openURL('https://github.com/BlueWallet/LndHub')}
         titleStyle={{ color: colors.buttonAlternativeTextColor }}
         title="github.com/BlueWallet/LndHub"
         color={colors.buttonTextColor}

@@ -1,12 +1,13 @@
 /* global alert */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Keyboard, Text, TouchableOpacity, StatusBar, TouchableWithoutFeedback, View, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { BlueButton, BlueCreateTxNavigationStyle, BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
-import PropTypes from 'prop-types';
+
+import loc from '../../loc';
 import { AppStorage, PlaceholderWallet } from '../../class';
 import Azteco from '../../class/azteco';
-
 const EV = require('../../blue_modules/events');
 const BlueApp: AppStorage = require('../../BlueApp');
 
@@ -62,7 +63,7 @@ export default class AztecoRedeem extends Component {
     const wallets = BlueApp.getWallets().filter(wallet => wallet.type !== PlaceholderWallet.type);
 
     if (wallets.length === 0) {
-      alert('Before redeeming you must first add a Bitcoin wallet.');
+      alert(loc.azteco.errorBeforeRefeem);
       return props.navigation.goBack(null);
     } else {
       if (wallets.length > 0) {
@@ -95,13 +96,13 @@ export default class AztecoRedeem extends Component {
     const address = await this.state.toWallet.getAddressAsync();
     const result = await Azteco.redeem([this.state.c1, this.state.c2, this.state.c3, this.state.c4], address);
     if (!result) {
-      alert('Something went wrong. Is this voucher still valid?');
+      alert(loc.azteco.errorSomething);
       this.setState({ isLoading: false });
     } else {
       this.props.navigation.pop();
       // remote because we want to refetch from server tx list and balance
       setTimeout(() => EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED), 4000);
-      alert('Success');
+      alert(loc.azteco.success);
     }
   };
 
@@ -119,7 +120,7 @@ export default class AztecoRedeem extends Component {
               })
             }
           >
-            <Text style={styles.selectText}>Redeem to wallet</Text>
+            <Text style={styles.selectText}>{loc.azteco.redeem}</Text>
             <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
@@ -153,12 +154,12 @@ export default class AztecoRedeem extends Component {
         <View>
           <StatusBar barStyle="default" />
           <View style={styles.root}>
-            <Text>Your voucher code is</Text>
+            <Text>{loc.azteco.codeIs}</Text>
             <BlueText style={styles.code}>
               {this.state.c1}-{this.state.c2}-{this.state.c3}-{this.state.c4}
             </BlueText>
             {this.renderWalletSelectionButton()}
-            <BlueButton onPress={this.redeem} title="Redeem" />
+            <BlueButton onPress={this.redeem} title={loc.azteco.redeemButton} />
             <BlueSpacing />
           </View>
         </View>
@@ -185,5 +186,5 @@ AztecoRedeem.propTypes = {
 
 AztecoRedeem.navigationOptions = ({ navigation }) => ({
   ...BlueCreateTxNavigationStyle(navigation),
-  title: 'Redeem Azte.co voucher',
+  title: loc.azteco.title,
 });

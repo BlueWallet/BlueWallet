@@ -1,5 +1,6 @@
 import QuickActions from 'react-native-quick-actions';
 import { Platform } from 'react-native';
+import { formatBalance } from '../loc';
 
 export default class DeviceQuickActions {
   static shared = new DeviceQuickActions();
@@ -20,7 +21,6 @@ export default class DeviceQuickActions {
     QuickActions.isSupported((error, _supported) => {
       if (error === null) {
         const shortcutItems = [];
-        const loc = require('../loc');
         for (const wallet of DeviceQuickActions.shared.wallets) {
           shortcutItems.push({
             type: 'Wallets', // Required
@@ -28,7 +28,7 @@ export default class DeviceQuickActions {
             subtitle:
               wallet.hideBalance || wallet.getBalance() <= 0
                 ? ''
-                : loc.formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true),
+                : formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true),
             userInfo: {
               url: `bluewallet://wallet/${wallet.getID()}`, // Provide any custom data like deep linking URL
             },

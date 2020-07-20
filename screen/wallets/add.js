@@ -31,10 +31,10 @@ import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCu
 import { BlueCurrentTheme } from '../../components/themes';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
+import loc from '../../loc';
 const EV = require('../../blue_modules/events');
 const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
-const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   loading: {
@@ -172,14 +172,14 @@ export default class WalletsAdd extends Component {
 
     let entropyTitle;
     if (!this.state.entropy) {
-      entropyTitle = loc.wallets.add.entropy_provide;
+      entropyTitle = loc.wallets.add_entropy_provide;
     } else if (this.state.entropy.length < 32) {
-      entropyTitle = loc.formatString(loc.wallets.add.entropy_remain, {
+      entropyTitle = loc.formatString(loc.wallets.add_entropy_remain, {
         gen: this.state.entropy.length,
         rem: 32 - this.state.entropy.length,
       });
     } else {
-      entropyTitle = loc.formatString(loc.wallets.add.entropy_generated, {
+      entropyTitle = loc.formatString(loc.wallets.add_entropy_generated, {
         gen: this.state.entropy.length,
       });
     }
@@ -189,7 +189,7 @@ export default class WalletsAdd extends Component {
         <StatusBar barStyle="default" />
         <BlueSpacing20 />
         <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
-          <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
+          <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
           <View style={styles.label}>
             <TextInput
               testID="WalletNameInput"
@@ -204,7 +204,7 @@ export default class WalletsAdd extends Component {
               underlineColorAndroid="transparent"
             />
           </View>
-          <BlueFormLabel>{loc.wallets.add.wallet_type}</BlueFormLabel>
+          <BlueFormLabel>{loc.wallets.add_wallet_type}</BlueFormLabel>
 
           <View style={styles.buttons}>
             <BitcoinButton
@@ -220,7 +220,7 @@ export default class WalletsAdd extends Component {
               style={styles.button}
             />
             <View style={styles.or}>
-              <BlueTextCentered style={styles.orCenter}>{loc.wallets.add.or}</BlueTextCentered>
+              <BlueTextCentered style={styles.orCenter}>{loc.wallets.add_or}</BlueTextCentered>
             </View>
             <LightningButton
               active={this.state.activeLightning}
@@ -289,15 +289,13 @@ export default class WalletsAdd extends Component {
                     <BlueSpacing20 />
                     <Text style={styles.advancedText}>{loc.settings.advanced_options}</Text>
                     <BlueSpacing20 />
-                    <BlueText>Connect to your LNDHub</BlueText>
+                    <BlueText>{loc.wallets.add_lndhub}</BlueText>
                     <View style={styles.lndUri}>
                       <TextInput
                         value={this.state.walletBaseURI}
-                        onChangeText={text => {
-                          this.setState({ walletBaseURI: text });
-                        }}
+                        onChangeText={text => this.setState({ walletBaseURI: text })}
                         onSubmitEditing={Keyboard.dismiss}
-                        placeholder="your node address"
+                        placeholder={loc.wallets.add_lndhub_placeholder}
                         clearButtonMode="while-editing"
                         autoCapitalize="none"
                         placeholderTextColor="#81868e"
@@ -316,7 +314,7 @@ export default class WalletsAdd extends Component {
               {!this.state.isLoading ? (
                 <BlueButton
                   testID="Create"
-                  title={loc.wallets.add.create}
+                  title={loc.wallets.add_create}
                   disabled={this.state.activeBitcoin === undefined}
                   onPress={() => {
                     this.setState({ isLoading: true }, async () => {
@@ -325,7 +323,7 @@ export default class WalletsAdd extends Component {
                       if (this.state.activeLightning) {
                         this.createLightningWallet = async () => {
                           w = new LightningCustodianWallet();
-                          w.setLabel(this.state.label || loc.wallets.details.title);
+                          w.setLabel(this.state.label || loc.wallets.details_title);
 
                           try {
                             const lndhub =
@@ -338,9 +336,10 @@ export default class WalletsAdd extends Component {
                                 w.setBaseURI(lndhub);
                                 w.init();
                               } else {
-                                throw new Error('The provided node address is not valid LNDHub node.');
+                                throw new Error(loc.wallets.add_lndhub_error);
                               }
                             }
+
                             await w.createAccount();
                             await w.authorize();
                           } catch (Err) {
@@ -364,17 +363,17 @@ export default class WalletsAdd extends Component {
                       } else if (this.state.selectedIndex === 2) {
                         // zero index radio - HD segwit
                         w = new HDSegwitP2SHWallet();
-                        w.setLabel(this.state.label || loc.wallets.details.title);
+                        w.setLabel(this.state.label || loc.wallets.details_title);
                       } else if (this.state.selectedIndex === 1) {
                         // btc was selected
                         // index 1 radio - segwit single address
                         w = new SegwitP2SHWallet();
-                        w.setLabel(this.state.label || loc.wallets.details.title);
+                        w.setLabel(this.state.label || loc.wallets.details_title);
                       } else {
                         // btc was selected
                         // index 2 radio - hd bip84
                         w = new HDSegwitBech32Wallet();
-                        w.setLabel(this.state.label || loc.wallets.details.title);
+                        w.setLabel(this.state.label || loc.wallets.details_title);
                       }
                       if (this.state.activeBitcoin) {
                         if (this.state.entropy) {
@@ -412,7 +411,7 @@ export default class WalletsAdd extends Component {
             <BlueButtonLink
               testID="ImportWallet"
               style={styles.import}
-              title={loc.wallets.add.import_wallet}
+              title={loc.wallets.add_import_wallet}
               onPress={() => {
                 this.props.navigation.navigate('ImportWallet');
               }}
@@ -435,7 +434,7 @@ export default class WalletsAdd extends Component {
 
 WalletsAdd.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
-  title: loc.wallets.add.title,
+  title: loc.wallets.add_title,
   headerLeft: null,
 });
 
