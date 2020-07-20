@@ -13,9 +13,9 @@ import {
 } from '../../BlueComponents';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
-/** @type {AppStorage} */
+import loc from '../../loc';
+
 const { width, height } = Dimensions.get('window');
-const loc = require('../../loc/');
 
 const About = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -110,9 +110,9 @@ const About = () => {
         <BlueCard>
           <View style={styles.center}>
             <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
-            <Text style={styles.textFree}>BlueWallet is a free and open source project. Crafted by Bitcoin users.</Text>
-            <Text style={styles.textBackup}>Always backup your keys!</Text>
-            <BlueButton onPress={handleOnRatePress} title="Leave us a review ⭐🙏" />
+            <Text style={styles.textFree}>{loc.settings.about_free}</Text>
+            <Text style={styles.textBackup}>{loc.settings.about_backup}</Text>
+            <BlueButton onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />
           </View>
         </BlueCard>
         <BlueListItemHooks
@@ -122,7 +122,7 @@ const About = () => {
             color: '#1da1f2',
           }}
           onPress={handleOnTwitterPress}
-          title="Follow us on Twitter"
+          title={loc.settings.about_sm_twitter}
         />
         <BlueListItemHooks
           leftIcon={{
@@ -131,7 +131,7 @@ const About = () => {
             color: '#0088cc',
           }}
           onPress={handleOnTelegramPress}
-          title="Telegram chat"
+          title={loc.settings.about_sm_telegram}
         />
         <BlueListItemHooks
           leftIcon={{
@@ -140,13 +140,13 @@ const About = () => {
             color: colors.foregroundColor,
           }}
           onPress={handleOnGithubPress}
-          title="GitHub"
+          title={loc.settings.about_sm_github}
         />
         <BlueCard>
           <View style={styles.buildWith}>
             <BlueSpacing20 />
 
-            <BlueTextCentered>Built with the awesome 👍</BlueTextCentered>
+            <BlueTextCentered>{loc.settings.about_awesome} 👍</BlueTextCentered>
             <BlueSpacing20 />
             <BlueTextCentered>React Native</BlueTextCentered>
             <BlueTextCentered>bitcoinjs-lib</BlueTextCentered>
@@ -162,7 +162,7 @@ const About = () => {
           }}
           chevron
           onPress={handleOnReleaseNotesPress}
-          title="Release notes"
+          title={loc.settings.about_release_notes}
         />
         <BlueListItemHooks
           leftIcon={{
@@ -182,8 +182,8 @@ const About = () => {
           }}
           chevron
           onPress={handleOnSelfTestPress}
-          title="Run self test"
           testID="RunSelfTestButton"
+          title={loc.settings.about_selftest}
         />
         <BlueSpacing20 />
         <BlueSpacing20 />

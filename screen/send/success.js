@@ -6,8 +6,8 @@ import { Text } from 'react-native-elements';
 import { BlueButton, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
+import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   root: {
@@ -90,7 +90,7 @@ export default class Success extends Component {
           </View>
           {this.state.fee > 0 && (
             <Text style={styles.feeText}>
-              {loc.send.create.fee}: {this.state.fee} {BitcoinUnit.BTC}
+              {loc.send.create_fee}: {this.state.fee} {BitcoinUnit.BTC}
             </Text>
           )}
           {this.state.fee <= 0 && (
@@ -122,12 +122,7 @@ export default class Success extends Component {
           />
         </View>
         <BlueCard>
-          <BlueButton
-            onPress={() => {
-              this.props.navigation.dangerouslyGetParent().pop();
-            }}
-            title={loc.send.success.done}
-          />
+          <BlueButton onPress={() => this.props.navigation.dangerouslyGetParent().pop()} title={loc.send.success_done} />
         </BlueCard>
       </SafeBlueArea>
     );

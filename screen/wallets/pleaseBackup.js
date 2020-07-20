@@ -3,8 +3,7 @@ import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, Sta
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueButton } from '../../BlueComponents';
 import Privacy from '../../Privacy';
-
-const loc = require('../../loc');
+import loc from '../../loc';
 
 const PleaseBackup = () => {
   const [isLoading, setIsLoading] = useState(true);

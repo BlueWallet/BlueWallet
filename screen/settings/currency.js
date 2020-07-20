@@ -4,8 +4,8 @@ import { SafeBlueArea, BlueListItemHooks, BlueTextHooks, BlueCard, BlueNavigatio
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
 import { FiatUnit } from '../../models/fiatUnit';
+import loc from '../../loc';
 import { useTheme } from '@react-navigation/native';
-const loc = require('../../loc');
 const currency = require('../../blue_modules/currency');
 
 const data = Object.values(FiatUnit);
@@ -71,7 +71,7 @@ const Currency = () => {
           }}
         />
         <BlueCard>
-          <BlueTextHooks>Prices are obtained from CoinDesk</BlueTextHooks>
+          <BlueTextHooks>{loc.settings.currency_source}</BlueTextHooks>
         </BlueCard>
       </SafeBlueArea>
     );

@@ -8,6 +8,7 @@ import { Icon } from 'react-native-elements';
 import { AppStorage } from '../../class';
 import * as NavigationService from '../../NavigationService';
 import { BlueCurrentTheme } from '../../components/themes';
+import loc from '../../loc';
 
 const BlueApp: AppStorage = require('../../BlueApp');
 const prompt = require('../../blue_modules/prompt');
@@ -19,9 +20,14 @@ export default class HodlHodlViewOffer extends Component {
     const offerToDisplay = props.route.params.offerToDisplay;
 
     const horizontalScrollData = [];
-    horizontalScrollData.push({ id: 'window', body: offerToDisplay.payment_window_minutes + ' min' });
     horizontalScrollData.push({
-      id: 'min / max',
+      id: 'window',
+      header: loc.hodl.offer_window,
+      body: offerToDisplay.payment_window_minutes + ' ' + loc.hodl.offer_minutes,
+    });
+    horizontalScrollData.push({
+      id: 'minmax',
+      header: loc.hodl.offer_minmax,
       body:
         offerToDisplay.min_amount.replace('.00', '') +
         ' - ' +
@@ -43,7 +49,7 @@ export default class HodlHodlViewOffer extends Component {
       });
     }
 
-    horizontalScrollData.push({ id: 'confirmations', body: offerToDisplay.confirmations });
+    horizontalScrollData.push({ id: 'confirmations', header: loc.hodl.offer_confirmations, body: offerToDisplay.confirmations });
 
     this.state = {
       hodlApi: false,
@@ -84,7 +90,7 @@ export default class HodlHodlViewOffer extends Component {
     if (!myself.encrypted_seed || myself.encrypted_seed.length < 10) {
       const buttons = [
         {
-          text: 'Yes',
+          text: loc._.yes,
           onPress: async a => {
             const sigKey = await BlueApp.getHodlHodlSignatureKey();
             if (!sigKey) {
@@ -98,11 +104,11 @@ export default class HodlHodlViewOffer extends Component {
           },
         },
         {
-          text: 'Cancel',
+          text: loc._.cancel,
           onPress: async a => {},
         },
       ];
-      Alert.alert('HodlHodl', `Looks like you didn't finish setting up account on HodlHodl, would you like to finish setup now?`, buttons, {
+      Alert.alert('HodlHodl', loc.hodl.offer_account_finish, buttons, {
         cancelable: true,
       });
       return;
@@ -117,7 +123,12 @@ export default class HodlHodlViewOffer extends Component {
 
     let fiatValue;
     try {
-      fiatValue = await prompt('How much ' + offer.currency_code + ' do you want to buy?', 'For example 100', true, 'numeric');
+      fiatValue = await prompt(
+        loc.formatString(loc.hodl.offer_promt_fiat, { currency: offer.currency_code }),
+        loc.hodl.offer_promt_fiat_e,
+        true,
+        'numeric',
+      );
     } catch (_) {
       return;
     }
@@ -146,7 +157,7 @@ export default class HodlHodlViewOffer extends Component {
         },
       });
     }
-    Alert.alert('Choose payment method', ``, buttons, { cancelable: true });
+    Alert.alert(loc.hodl.offer_choosemethod, ``, buttons, { cancelable: true });
   }
 
   _renderHorizontalScrollItem(item) {
@@ -221,12 +232,13 @@ export default class HodlHodlViewOffer extends Component {
                   </View>
                   <Text style={styles.traderRatingText}>
                     {this.state.offerToDisplay.trader.trades_count > 0
-                      ? Math.round(this.state.offerToDisplay.trader.rating * 100) +
-                        '%' +
-                        ' / ' +
-                        this.state.offerToDisplay.trader.trades_count +
-                        ' trades'
-                      : 'No rating'}
+                      ? loc.formatString(loc.hodl.item_rating, {
+                          rating:
+                            Math.round(this.state.offerToDisplay.trader.rating * 100) +
+                            '% / ' +
+                            this.state.offerToDisplay.trader.trades_count,
+                        })
+                      : loc.hodl.item_rating_no}
                   </Text>
                 </View>
               </View>
@@ -237,7 +249,7 @@ export default class HodlHodlViewOffer extends Component {
                   <View style={styles.acceptOfferButtonWrapper}>
                     <BlueSpacing10 />
                     <BlueButton
-                      title="Accept offer"
+                      title={loc.hodl.offer_accept}
                       onPress={async () => {
                         await this._onAcceptOfferPress(this.state.offerToDisplay);
                       }}
