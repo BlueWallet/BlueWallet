@@ -19,7 +19,6 @@ import Clipboard from '@react-native-community/clipboard';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-const loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
 const WalletsImport = () => {
@@ -70,7 +69,7 @@ const WalletsImport = () => {
       WalletImport.processImportText(importText, additionalProperties);
       navigation.dangerouslyGetParent().pop();
     } catch (error) {
-      alert(loc.wallets.import.error);
+      alert(loc.wallets.import_error);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
     }
   };
@@ -163,7 +162,7 @@ const WalletsImport = () => {
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <StatusBar barStyle="default" />
       <BlueSpacing20 />
-      <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
+      <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
       <BlueSpacing20 />
       <BlueFormMultiInput
         testID="MnemonicInput"
@@ -178,14 +177,14 @@ const WalletsImport = () => {
         <BlueButton
           testID="DoImport"
           disabled={importText.trim().length === 0}
-          title={loc.wallets.import.do_import}
+          title={loc.wallets.import_do_import}
           buttonStyle={{
             width: width / 1.5,
           }}
           onPress={importButtonPressed}
         />
         <BlueSpacing20 />
-        <BlueButtonLink title={loc.wallets.import.scan_qr} onPress={importScan} />
+        <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
       </View>
       {Platform.select({
         ios: (
@@ -219,6 +218,6 @@ const WalletsImport = () => {
 
 WalletsImport.navigationOptions = ({ navigation, route }) => ({
   ...BlueNavigationStyle(),
-  title: loc.wallets.import.title,
+  title: loc.wallets.import_title,
 });
 export default WalletsImport;

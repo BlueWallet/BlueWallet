@@ -1,6 +1,7 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import Frisbee from 'frisbee';
+import { isEmulatorSync } from 'react-native-device-info';
 import AsyncStorage from '@react-native-community/async-storage';
 const PushNotification = require('react-native-push-notification');
 const constants = require('./constants');
@@ -97,6 +98,10 @@ const configureNotifications = async function () {
  * @returns {Promise<boolean>} TRUE if permissions were obtained, FALSE otherwise
  */
 const tryToObtainPermissions = async function () {
+  if (isEmulatorSync && Platform.OS === 'ios') {
+    console.log('Running inside iOS emulator. Exiting Push Notification configuration...');
+    return false;
+  }
   if (await _getPushToken()) {
     // we already have a token, no sense asking again, just configure pushes to register callbacks and we are done
     if (!alreadyConfigured) configureNotifications(); // no await so it executes in background while we return TRUE and use token

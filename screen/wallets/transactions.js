@@ -37,9 +37,9 @@ import HandoffSettings from '../../class/handoff';
 import Handoff from 'react-native-handoff';
 import { BlueCurrentTheme } from '../../components/themes';
 import ActionSheet from '../ActionSheet';
+import loc from '../../loc';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
 const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
@@ -342,7 +342,7 @@ export default class WalletTransactions extends Component {
           {this.state.wallet.type === LightningCustodianWallet.type && this.renderMarketplaceButton()}
           {this.state.wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && this.renderLappBrowserButton()}
         </View>
-        <Text style={styles.listHeaderText}>{loc.transactions.list.title}</Text>
+        <Text style={styles.listHeaderText}>{loc.transactions.list_title}</Text>
       </View>
     );
   };
@@ -365,7 +365,7 @@ export default class WalletTransactions extends Component {
               onPress={a => {
                 const wallets = [...BlueApp.getWallets().filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
                 if (wallets.length === 0) {
-                  alert('In order to proceed, please create a Bitcoin wallet to refill with.');
+                  alert(loc.lnd.refill_create);
                 } else {
                   this.setState({ isManageFundsModalVisible: false });
                   this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN });
@@ -383,7 +383,7 @@ export default class WalletTransactions extends Component {
                   }),
                 );
               }}
-              title="Refill with External Wallet"
+              title={loc.lnd.refill_external}
             />
 
             <BlueListItem
@@ -396,7 +396,7 @@ export default class WalletTransactions extends Component {
                   });
                 });
               }}
-              title="Refill with bank card"
+              title={loc.lnd.refill_card}
             />
 
             <BlueListItem
@@ -472,7 +472,7 @@ export default class WalletTransactions extends Component {
         }
         style={styles.marketplaceButton2}
       >
-        <Text style={styles.marketpalceText1}>{loc.wallets.list.tap_here_to_buy}</Text>
+        <Text style={styles.marketpalceText1}>{loc.wallets.list_tap_here_to_buy}</Text>
       </TouchableOpacity>
     );
   };
@@ -561,7 +561,7 @@ export default class WalletTransactions extends Component {
             if (!error) {
               this.onBarCodeRead({ data: result });
             } else {
-              alert('The selected image does not contain a QR Code.');
+              alert(loc.send.qr_error_no_qrcode);
             }
           });
         }
@@ -599,9 +599,9 @@ export default class WalletTransactions extends Component {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
       let copyFromClipboardIndex;
-      const options = [loc.send.details.cancel, 'Take Photo', 'Choose Photo'];
+      const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
       if (!isClipboardEmpty) {
-        options.push('Copy from Clipboard');
+        options.push(loc.wallets.list_long_clipboard);
         copyFromClipboardIndex = options.length - 1;
       }
       ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
@@ -616,16 +616,16 @@ export default class WalletTransactions extends Component {
     } else if (Platform.OS === 'android') {
       const buttons = [
         {
-          text: loc.send.details.cancel,
+          text: loc._.cancel,
           onPress: () => {},
           style: 'cancel',
         },
         {
-          text: 'Choose Photo',
+          text: loc.wallets.list_long_choose,
           onPress: this.choosePhoto,
         },
         {
-          text: 'Scan QR Code',
+          text: loc.wallets.list_long_scan,
           onPress: () =>
             this.props.navigation.navigate('ScanQRCode', {
               launchedBy: this.props.route.name,
@@ -636,7 +636,7 @@ export default class WalletTransactions extends Component {
       ];
       if (!isClipboardEmpty) {
         buttons.push({
-          text: 'Copy From Clipboard',
+          text: loc.wallets.list_long_clipboard,
           onPress: this.copyFromClipbard,
         });
       }
@@ -708,9 +708,9 @@ export default class WalletTransactions extends Component {
             ListEmptyComponent={
               <ScrollView style={styles.flex} contentContainerStyle={styles.scrollViewContent}>
                 <Text numberOfLines={0} style={styles.emptyTxs}>
-                  {(this.isLightning() && loc.wallets.list.empty_txs1_lightning) || loc.wallets.list.empty_txs1}
+                  {(this.isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
                 </Text>
-                {this.isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list.empty_txs2_lightning}</Text>}
+                {this.isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
 
                 {!this.isLightning() && (
                   <TouchableOpacity
@@ -721,7 +721,7 @@ export default class WalletTransactions extends Component {
                     }
                     style={styles.buyBitcoin}
                   >
-                    <Text style={styles.buyBitcoinText}>{loc.wallets.list.tap_here_to_buy}</Text>
+                    <Text style={styles.buyBitcoinText}>{loc.wallets.list_tap_here_to_buy}</Text>
                   </TouchableOpacity>
                 )}
               </ScrollView>
@@ -776,8 +776,8 @@ export default class WalletTransactions extends Component {
                           this.navigateToSendScreen();
                         } else {
                           Alert.alert(
-                            'Wallet',
-                            'This wallet is not being used in conjunction with a hardwarde wallet. Would you like to enable hardware wallet use?',
+                            loc.wallets.details_title,
+                            loc.transactions.enable_hw,
                             [
                               {
                                 text: loc._.ok,
@@ -792,7 +792,7 @@ export default class WalletTransactions extends Component {
                                 style: 'default',
                               },
 
-                              { text: loc.send.details.cancel, onPress: () => {}, style: 'cancel' },
+                              { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
                             ],
                             { cancelable: false },
                           );
