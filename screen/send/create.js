@@ -64,11 +64,11 @@ export default class SendCreate extends Component {
         });
     } else if (Platform.OS === 'android') {
       const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-        title: 'BlueWallet Storage Access Permission',
-        message: 'BlueWallet needs your permission to access your storage to save this transaction.',
-        buttonNeutral: 'Ask Me Later',
-        buttonNegative: 'Cancel',
-        buttonPositive: 'OK',
+        title: loc.send.permission_storage_title,
+        message: loc.send.permission_storage_message,
+        buttonNeutral: loc.send.permission_storage_later,
+        buttonNegative: loc._.cancel,
+        buttonPositive: loc._.ok,
       });
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {

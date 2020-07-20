@@ -154,10 +154,10 @@ const ScanQRCode = () => {
         <RNCamera
           captureAudio={false}
           androidCameraPermissionOptions={{
-            title: 'Permission to use camera',
-            message: 'We need your permission to use your camera',
-            buttonPositive: 'OK',
-            buttonNegative: 'Cancel',
+            title: loc.send.permission_camera_title,
+            message: loc.send.permission_camera_message,
+            buttonPositive: loc._.ok,
+            buttonNegative: loc._.cancel,
           }}
           style={styles.rnCamera}
           onBarCodeRead={onBarCodeRead}
