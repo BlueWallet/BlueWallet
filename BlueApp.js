@@ -3,14 +3,17 @@
  */
 import { AppStorage } from './class';
 import DeviceQuickActions from './class/quick-actions';
+import Biometric from './class/biometrics';
+import { Platform } from 'react-native';
 import loc from './loc';
 const prompt = require('./blue_modules/prompt');
 const EV = require('./blue_modules/events');
 const currency = require('./blue_modules/currency');
 const BlueElectrum = require('./blue_modules/BlueElectrum'); // eslint-disable-line no-unused-vars
-
 /** @type {AppStorage} */
 const BlueApp = new AppStorage();
+// If attempt reaches 10, a wipe keychain option will be provided to the user.
+let unlockAttempt = 0;
 
 async function startAndDecrypt(retry) {
   console.log('startAndDecrypt');
@@ -58,11 +61,24 @@ async function startAndDecrypt(retry) {
     if (hadToRefresh && noErr) {
       await BlueApp.saveToDisk(); // caching
     } */
+    // We want to return true to let the UnlockWith screen that its ok to proceed.
+    return true;
   }
 
   if (!success && password) {
     // we had password and yet could not load/decrypt
-    return startAndDecrypt(true);
+    unlockAttempt++;
+    if (unlockAttempt < 10 || Platform.OS !== 'ios') {
+      return startAndDecrypt(true);
+    } else {
+      unlockAttempt = 0;
+      Biometric.showKeychainWipeAlert();
+      // We want to return false to let the UnlockWith screen that it is NOT ok to proceed.
+      return false;
+    }
+  } else {
+    // Return true because there was no wallet data in keychain. Proceed.
+    return true;
   }
 }
 

@@ -126,6 +126,7 @@
     "react-native-localize": "  1.4.0",
     "react-native-modal": "11.5.6",
     "react-native-obscure": "1.2.1",
+    "react-native-passcode-auth": "git+https://github.com/BlueWallet/react-native-passcode-auth.git#a2ff977ba92b36f8d0a5567f59c05cc608e8bd12",
     "react-native-popup-menu-android": "1.0.3",
     "react-native-privacy-snapshot": "git+https://github.com/BlueWallet/react-native-privacy-snapshot.git",
     "react-native-prompt-android": "git+https://github.com/BlueWallet/react-native-prompt-android.git#2073b07f64bf5dc95807f64d79f37bdb111e6951",
