@@ -76,13 +76,20 @@
   },
   "lnd": {
     "choose_source_wallet": "Выбери с какого кошелька",
+    "errorInvoiceExpired": "Инвойс просрочен",
+    "exchange": "Обмен",
     "expired": "Истекший",
+    "expiredLow": "истекший",
+    "expiresIn": "Истекает: {time}",
+    "payButton": "Оплатить",
+    "placeholder": "Инвойс",
+    "potentialFee": "Примерная комиссия: {fee}",
     "refill": "Пополнить",
     "refill_card": "Пополнить с помощью банковской картой",
     "refill_create": "Чтобы продолжить, пожалуйста, создайте биткойн-кошелек для пополнения.",
     "refill_external": "Пополнить с помощью внешнего кошелька",
     "refill_lnd_balance": "Пополнить баланс Lightning кошелька",
-    "sameWalletAsInvoiceError": "Ты не можешь оплатить счет тем же кошельком, который ты использовал для его создания.",
+    "sameWalletAsInvoiceError": "Ты не можешь оплатить Инвойс тем же кошельком, который ты использовал для его создания.",
     "title": "Мои средства",
     "withdraw": "Вывести"
   },
@@ -113,9 +120,15 @@
     "details_setAmount": "Получить сумму",
     "details_share": "Отправить",
     "details_title": "Покажи этот адрес плательщику",
-    "header": "Получить"
+    "header": "Получить",
+    "scan_lnurl": "Сканировать для получения"
   },
   "send": {
+    "broadcastButton": "ОТПРАВИТЬ",
+    "broadcastError": "ошибка",
+    "broadcastNone": "Хэш входящей транзакции",
+    "broadcastPending": "в процессе",
+    "broadcastSuccess": "успех",
     "confirm_header": "Подтвердить",
     "confirm_sendNow": "Отправить",
     "create_amount": "Сколько",
@@ -174,7 +187,8 @@
     "psbt_tx_scan": "Сканировать Подписаную Транзакцию",
     "qr_error_no_qrcode": "Выбранная картинка не содержит QR Code.",
     "qr_error_no_wallet": "Выбранный файл не содержит кошелька который можно было бы импортировать.",
-    "success_done": "Готово"
+    "success_done": "Готово",
+    "txSaved": "Транзакция сохранена в {filePath}"
   },
   "settings": {
     "about": "О программе",
@@ -266,6 +280,7 @@
     "status_cancel": "Отменить транзакцию"
   },
   "wallets": {
+    "add_bitcoin": "Bitcoin",
     "add_create": "Создать",
     "add_description": "Ты можешь отсканировать QR код (в формате WIF - Wallet Import Format) или создать новый кошелек. Segwit поддерживается по умолчанию.",
     "add_entropy_generated": "{gen} байтов сгенерированной энтории",
@@ -275,6 +290,7 @@
     "add_imported": "Кошелек импортирован",
     "add_label_new_lightning": "Новый Lightning",
     "add_label_new_segwit": "Новый SegWit",
+    "add_lightning": "Lightning",
     "add_lndhub": "Подключиться к своему LNDHub",
     "add_lndhub_error": "Не верный адрес LNDHub.",
     "add_lndhub_placeholder": "Адрес хоста",
@@ -285,8 +301,10 @@
     "add_wallet_type": "Тип кошелька",
     "createBitcoinWallet": "Чтобы воспользоватья кошельком Lightning, нужно сначала пополнить его с помощью кошелька Bitcoin. Продолжить?",
     "details_address": "Адрес",
+    "details_advanced": "Расширенные настройки",
     "details_are_you_sure": "Точно удалить?",
     "details_buy_bitcoin": "Купить Bitcoin",
+    "details_connected_to": "Подключено к",
     "details_del_wb": "Баланс кошелька",
     "details_del_wb_err": "Указанная сумма баланса не соответствует балансу этого кошелька. Пожалуйста, попробуйте еще раз",
     "details_del_wb_q": "На этом кошельке есть средства. Прежде чем продолжить, имейте в виду, что вы не сможете вернуть средства без seed фразы этого кошелька. Чтобы избежать случайного удаления этого кошелька, введите баланс {balance} сатоши в вашем кошельке.",
@@ -304,6 +322,7 @@
     "details_show_xpub": "Показать XPUB",
     "details_title": "Информация о кошельке",
     "details_type": "Тип",
+    "details_use_with_hardware_wallet": "Использовать с аппаратным кошельком",
     "details_wallet_updated": "Кошелек сохранён",
     "details_yes_delete": "Да, удалить",
     "export_title": "Экспорт Кошелька",
@@ -320,7 +339,9 @@
     "list_create_a_wallet1": "Это бесплатно и ты можешь создать",
     "list_create_a_wallet2": "неограниченное количество",
     "list_empty_txs1": "Список транзакций пока пуст",
+    "list_empty_txs1_lightning": "Lightning кошелек отлично подходит для ежедневных транзакций. Комиссия несправедливо мала, а скорость невероятно высока.",
     "list_empty_txs2": " ",
+    "list_empty_txs2_lightning": "\nДля начала использования нажми \"Мои средства\" и пополни баланс.",
     "list_header": "Кошелек - это секретный (приватный) ключ и соответствующий ему адрес на который можно получать Bitcoin",
     "list_import_problem": "Ошибка при импорте кошелька",
     "list_latest_transaction": "Последняя транзакция",
