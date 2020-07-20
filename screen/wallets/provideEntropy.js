@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import BN from 'bignumber.js';
 import { Dimensions, View, ScrollView, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
+
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from '../../components/themes';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueTabs } from '../../BlueComponents';
-const loc = require('../../loc');
+import loc from '../../loc';
 
 const ENTROPY_LIMIT = 256;
 

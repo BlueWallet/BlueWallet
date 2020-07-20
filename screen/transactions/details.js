@@ -13,10 +13,10 @@ import {
 import HandoffSettings from '../../class/handoff';
 import Handoff from 'react-native-handoff';
 import PropTypes from 'prop-types';
+import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
 const dayjs = require('dayjs');
 
 const styles = StyleSheet.create({
@@ -177,7 +177,7 @@ export default class TransactionsDetails extends Component {
           <BlueCard>
             <View>
               <TextInput
-                placeholder={loc.send.details.note_placeholder}
+                placeholder={loc.send.details_note_placeholder}
                 value={this.state.memo}
                 placeholderTextColor="#81868e"
                 style={styles.memoTextInput}
@@ -189,7 +189,7 @@ export default class TransactionsDetails extends Component {
             {'from' in this.state && (
               <>
                 <View style={styles.rowHeader}>
-                  <BlueText style={styles.rowCaption}>{loc.transactions.details.from}</BlueText>
+                  <BlueText style={styles.rowCaption}>{loc.transactions.details_from}</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.from.filter(onlyUnique).join(', ')} />
                 </View>
                 <BlueText style={styles.rowValue}>{this.state.from.filter(onlyUnique).join(', ')}</BlueText>
@@ -199,7 +199,7 @@ export default class TransactionsDetails extends Component {
             {'to' in this.state && (
               <>
                 <View style={styles.rowHeader}>
-                  <BlueText style={styles.rowCaption}>{loc.transactions.details.to}</BlueText>
+                  <BlueText style={styles.rowCaption}>{loc.transactions.details_to}</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.to.filter(onlyUnique).join(', ')} />
                 </View>
                 <BlueText style={styles.rowValue}>{arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}</BlueText>
@@ -208,7 +208,7 @@ export default class TransactionsDetails extends Component {
 
             {'fee' in this.state.tx && (
               <>
-                <BlueText style={styles.rowCaption}>{loc.send.create.fee}</BlueText>
+                <BlueText style={styles.rowCaption}>{loc.send.create_fee}</BlueText>
                 <BlueText style={styles.rowValue}>{this.state.tx.fee + ' sats'}</BlueText>
               </>
             )}
@@ -230,35 +230,35 @@ export default class TransactionsDetails extends Component {
                     });
                   }}
                 >
-                  <BlueText style={styles.txLink}>{loc.transactions.details.show_in_block_explorer}</BlueText>
+                  <BlueText style={styles.txLink}>{loc.transactions.details_show_in_block_explorer}</BlueText>
                 </TouchableOpacity>
               </>
             )}
 
             {'received' in this.state.tx && (
               <>
-                <BlueText style={styles.rowCaption}>Received</BlueText>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_received}</BlueText>
                 <BlueText style={styles.rowValue}>{dayjs(this.state.tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
               </>
             )}
 
             {'block_height' in this.state.tx && this.state.tx.block_height > 0 && (
               <>
-                <BlueText style={styles.rowCaption}>Block Height</BlueText>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_block}</BlueText>
                 <BlueText style={styles.rowValue}>{this.state.tx.block_height}</BlueText>
               </>
             )}
 
             {'inputs' in this.state.tx && (
               <>
-                <BlueText style={styles.rowCaption}>Inputs</BlueText>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_inputs}</BlueText>
                 <BlueText style={styles.rowValue}>{this.state.tx.inputs.length}</BlueText>
               </>
             )}
 
             {'outputs' in this.state.tx && this.state.tx.outputs.length > 0 && (
               <>
-                <BlueText style={styles.rowCaption}>Outputs</BlueText>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_outputs}</BlueText>
                 <BlueText style={styles.rowValue}>{this.state.tx.outputs.length}</BlueText>
               </>
             )}
@@ -283,14 +283,14 @@ TransactionsDetails.propTypes = {
 
 TransactionsDetails.navigationOptions = ({ navigation, route }) => ({
   ...BlueNavigationStyle(),
-  title: loc.transactions.details.title,
+  title: loc.transactions.details_title,
   headerStyle: {
     ...BlueNavigationStyle().headerStyle,
     backgroundColor: BlueCurrentTheme.colors.customHeader,
   },
   headerRight: () => (
     <TouchableOpacity disabled={route.params.isLoading === true} style={styles.save} onPress={route.params.handleOnSaveButtonTapped}>
-      <Text style={styles.saveText}>{loc.wallets.details.save}</Text>
+      <Text style={styles.saveText}>{loc.wallets.details_save}</Text>
     </TouchableOpacity>
   ),
 });

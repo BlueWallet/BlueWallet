@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, Linking, StyleSheet, View, KeyboardAvoidingView, Platform, Text, TextInput } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
+import loc from '../../loc';
 import { HDSegwitBech32Wallet } from '../../class';
 import {
   SafeBlueArea,
@@ -51,6 +53,24 @@ const Broadcast = () => {
     }
   };
 
+  let status;
+  switch (broadcastResult) {
+    case BROADCAST_RESULT.none:
+      status = loc.send.broadcastNone;
+      break;
+    case BROADCAST_RESULT.pending:
+      status = loc.send.broadcastPending;
+      break;
+    case BROADCAST_RESULT.success:
+      status = loc.send.broadcastSuccess;
+      break;
+    case BROADCAST_RESULT.error:
+      status = loc.send.broadcastError;
+      break;
+    default:
+      status = broadcastResult;
+  }
+
   return (
     <SafeBlueArea style={styles.blueArea}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null} keyboardShouldPersistTaps="handled">
@@ -58,7 +78,7 @@ const Broadcast = () => {
           {BROADCAST_RESULT.success !== broadcastResult && (
             <BlueCard style={styles.mainCard}>
               <View style={styles.topFormRow}>
-                <BlueFormLabel>{broadcastResult}</BlueFormLabel>
+                <BlueFormLabel>{status}</BlueFormLabel>
                 {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
               </View>
               <TextInput
@@ -74,7 +94,11 @@ const Broadcast = () => {
               />
 
               <BlueSpacing10 />
-              <BlueButton title="Send" onPress={handleBroadcast} disabled={broadcastResult === BROADCAST_RESULT.pending} />
+              <BlueButton
+                title={loc.send.broadcastButton}
+                onPress={handleBroadcast}
+                disabled={broadcastResult === BROADCAST_RESULT.pending}
+              />
             </BlueCard>
           )}
           {BROADCAST_RESULT.success === broadcastResult && <SuccessScreen tx={tx} />}
@@ -87,7 +111,7 @@ const Broadcast = () => {
 export default Broadcast;
 Broadcast.navigationOptions = () => ({
   ...BlueNavigationStyle(),
-  title: 'Broadcast',
+  title: loc.send.create_broadcast,
 });
 
 const styles = StyleSheet.create({

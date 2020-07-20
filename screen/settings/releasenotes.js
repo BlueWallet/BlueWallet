@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueCard, BlueNavigationStyle, BlueLoadingHook, BlueTextHooks } from '../../BlueComponents';
+import { SafeBlueArea, BlueCard, BlueNavigationStyle, BlueTextHooks } from '../../BlueComponents';
 import { useTheme } from '@react-navigation/native';
-/** @type {AppStorage} */
+import loc from '../../loc';
 
 const ReleaseNotes = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const notes = require('../../release-notes');
   const { colors } = useTheme();
   const styles = StyleSheet.create({
@@ -15,13 +14,7 @@ const ReleaseNotes = () => {
     },
   });
 
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
-
-  return isLoading ? (
-    <BlueLoadingHook />
-  ) : (
+  return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <ScrollView>
         <BlueCard>
@@ -34,7 +27,7 @@ const ReleaseNotes = () => {
 
 ReleaseNotes.navigationOptions = () => ({
   ...BlueNavigationStyle(),
-  title: 'Release notes',
+  title: loc.settings.about_release_notes,
 });
 
 export default ReleaseNotes;

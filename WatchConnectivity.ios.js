@@ -1,7 +1,7 @@
 import * as Watch from 'react-native-watch-connectivity';
 import { InteractionManager } from 'react-native';
 import { Chain } from './models/bitcoinUnits';
-const loc = require('./loc');
+import loc, { formatBalance, transactionTimeToReadable } from './loc';
 const notifications = require('./blue_modules/notifications');
 
 export default class WatchConnectivity {
@@ -135,30 +135,30 @@ export default class WatchConnectivity {
               const invoiceExpiration = transaction.timestamp + transaction.expire_time;
 
               if (invoiceExpiration > now) {
-                amount = loc.formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
+                amount = formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
               } else if (invoiceExpiration < now) {
                 if (transaction.ispaid) {
-                  amount = loc.formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
+                  amount = formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
                 } else {
                   amount = loc.lnd.expired;
                 }
               } else {
-                amount = loc.formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
+                amount = formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
               }
             } else {
-              amount = loc.formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
+              amount = formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
             }
             if (WatchConnectivity.shared.tx_metadata[transaction.hash] && WatchConnectivity.shared.tx_metadata[transaction.hash].memo) {
               memo = WatchConnectivity.shared.tx_metadata[transaction.hash].memo;
             } else if (transaction.memo) {
               memo = transaction.memo;
             }
-            const watchTX = { type, amount, memo, time: loc.transactionTimeToReadable(transaction.received) };
+            const watchTX = { type, amount, memo, time: transactionTimeToReadable(transaction.received) };
             watchTransactions.push(watchTX);
           }
           wallets.push({
             label: wallet.getLabel(),
-            balance: loc.formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true),
+            balance: formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true),
             type: wallet.type,
             preferredBalanceUnit: wallet.getPreferredBalanceUnit(),
             receiveAddress: receiveAddress,
