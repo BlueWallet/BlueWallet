@@ -182,7 +182,7 @@ export const BitcoinButton = props => {
         }}
       >
         <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
-          <Text style={{ color: colors.hdborderColor, fontWeight: 'bold' }}>{loc.wallets.add.bitcoin}</Text>
+          <Text style={{ color: colors.hdborderColor, fontWeight: 'bold' }}>{loc.wallets.add_bitcoin}</Text>
         </View>
         <Image
           style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
@@ -210,7 +210,7 @@ export const LightningButton = props => {
         }}
       >
         <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
-          <Text style={{ color: colors.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.add.lightning}</Text>
+          <Text style={{ color: colors.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.add_lightning}</Text>
         </View>
         <Image
           style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
@@ -422,7 +422,7 @@ export class BlueWalletNavigationHeader extends Component {
   }
 }
 
-export const BlueButtonLinkHook = (props) => {
+export const BlueButtonLinkHook = props => {
   const { colors } = useTheme();
   return (
     <TouchableOpacity
@@ -1985,7 +1985,6 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
         onPress={() => {
           onPressedOut();
           onPress(index);
-          onPressedOut();
         }}
       />
     );

@@ -128,7 +128,7 @@ const WalletsAdd = () => {
   const [selectedWalletType, setSelectedWalletType] = useState(false);
   const { navigate, goBack } = useNavigation();
   const [entropy, setEntropy] = useState();
-  const [entropyButtonText, setEntropyButtonText] = useState(loc.wallets.add.entropy_provide);
+  const [entropyButtonText, setEntropyButtonText] = useState(loc.wallets.add_entropy_provide);
 
   useEffect(() => {
     AsyncStorage.getItem(AppStorage.LNDHUB)
@@ -141,14 +141,14 @@ const WalletsAdd = () => {
   const entropyGenerated = newEntropy => {
     let entropyTitle;
     if (!newEntropy) {
-      entropyTitle = loc.wallets.add.entropy_provide;
+      entropyTitle = loc.wallets.add_entropy_provide;
     } else if (newEntropy.length < 32) {
-      entropyTitle = loc.formatString(loc.wallets.add.entropy_remain, {
+      entropyTitle = loc.formatString(loc.wallets.add_entropy_remain, {
         gen: newEntropy.length,
         rem: 32 - newEntropy.length,
       });
     } else {
-      entropyTitle = loc.formatString(loc.wallets.add.entropy_generated, {
+      entropyTitle = loc.formatString(loc.wallets.add_entropy_generated, {
         gen: newEntropy.length,
       });
     }
@@ -266,7 +266,7 @@ const WalletsAdd = () => {
       <StatusBar barStyle="default" />
       <BlueSpacing20 />
       <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
-        <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
+        <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
         <View style={styles.label}>
           <TextInput
             testID="WalletNameInput"
@@ -279,7 +279,7 @@ const WalletsAdd = () => {
             underlineColorAndroid="transparent"
           />
         </View>
-        <BlueFormLabel>{loc.wallets.add.wallet_type}</BlueFormLabel>
+        <BlueFormLabel>{loc.wallets.add_wallet_type}</BlueFormLabel>
 
         <View style={styles.buttons}>
           <BitcoinButton
@@ -289,7 +289,7 @@ const WalletsAdd = () => {
             style={styles.button}
           />
           <View style={styles.or}>
-            <BlueTextCenteredHooks style={styles.orCenter}>{loc.wallets.add.or}</BlueTextCenteredHooks>
+            <BlueTextCenteredHooks style={styles.orCenter}>{loc.wallets.add_or}</BlueTextCenteredHooks>
           </View>
           <LightningButton active={selectedWalletType === Chain.OFFCHAIN} onPress={handleOnLightningButtonPressed} style={styles.button} />
         </View>
@@ -365,18 +365,22 @@ const WalletsAdd = () => {
           })()}
           <View style={styles.createButton}>
             {!isLoading ? (
-              <BlueButtonHook testID="Create" title={loc.wallets.add.create} disabled={!selectedWalletType} onPress={createWallet} />
+              <BlueButtonHook testID="Create" title={loc.wallets.add_create} disabled={!selectedWalletType} onPress={createWallet} />
             ) : (
               <ActivityIndicator />
             )}
           </View>
-          <BlueButtonLinkHook
-            testID="ImportWallet"
-            style={styles.import}
-            title={loc.wallets.add.import_wallet}
-            onPress={navigateToImportWallet}
-          />
-          {isAdvancedOptionsEnabled && <BlueButtonLinkHook style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />}
+          {!isLoading && (
+            <BlueButtonLinkHook
+              testID="ImportWallet"
+              style={styles.import}
+              title={loc.wallets.add_import_wallet}
+              onPress={navigateToImportWallet}
+            />
+          )}
+          {isAdvancedOptionsEnabled && !isLoading && (
+            <BlueButtonLinkHook style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />
+          )}
         </View>
       </KeyboardAvoidingView>
     </ScrollView>
@@ -385,7 +389,7 @@ const WalletsAdd = () => {
 
 WalletsAdd.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
-  headerTitle: loc.wallets.add.title,
+  headerTitle: loc.wallets.add_title,
   headerLeft: null,
 });
 
