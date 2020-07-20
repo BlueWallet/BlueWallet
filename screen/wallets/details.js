@@ -216,7 +216,7 @@ export default class WalletDetails extends Component {
       <SafeBlueArea style={styles.root}>
         <StatusBar barStyle="default" />
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <KeyboardAvoidingView behavior="position">
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
               <BlueCard style={styles.address}>
                 {(() => {
