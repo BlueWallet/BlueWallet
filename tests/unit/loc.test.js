@@ -3,7 +3,6 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { FiatUnit } from '../../models/fiatUnit';
 import { _leaveNumbersAndDots, formatBalanceWithoutSuffix, formatBalancePlain, formatBalance } from '../../loc';
 const assert = require('assert');
-const fs = require('fs');
 const currency = require('../../blue_modules/currency');
 
 describe('Localization', () => {
