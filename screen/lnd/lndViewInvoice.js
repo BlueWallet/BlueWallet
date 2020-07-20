@@ -193,7 +193,11 @@ export default class LNDViewInvoice extends Component {
 
   render() {
     if (this.state.isLoading) {
-      return <BlueLoading />;
+      return (
+        <View style={styles.root}>
+          <BlueLoading />
+        </View>
+        );
     }
 
     const { invoice } = this.state;
