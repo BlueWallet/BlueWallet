@@ -96,8 +96,11 @@ export default class UnlockWith extends Component {
 
   unlockWithKey = () => {
     this.setState({ isAuthenticating: true }, async () => {
-      await BlueApp.startAndDecrypt();
-      this.successfullyAuthenticated();
+      if (await BlueApp.startAndDecrypt()) {
+        this.successfullyAuthenticated();
+      } else {
+        this.setState({ isAuthenticating: false });
+      }
     });
   };
 
