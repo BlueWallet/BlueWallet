@@ -18,9 +18,19 @@ export const EditTextScreen = (props: Props) => {
   const { label, header, onSave, title } = params;
   const keyboardType = params.keyboardType || 'default';
   const validate = params.validate || null;
+  const validateOnSave = params.validateOnSave || null;
   const [value, setValue] = useState(params.value || '');
+  const [error, setError] = useState('');
 
   const handlePressOnSaveButton = () => {
+    if (validateOnSave) {
+      try {
+        validateOnSave(value);
+      } catch (err) {
+        setError(i18n.send.details.address_field_is_not_valid);
+        return;
+      }
+    }
     onSave(value);
     props.navigation.pop();
   };
@@ -43,7 +53,7 @@ export const EditTextScreen = (props: Props) => {
           value={value}
           setValue={setValue}
           autoFocus={true}
-          error={!!validate && validate(value)}
+          error={error || (value && !!validate && validate(value)) || ''}
           keyboardType={keyboardType as KeyboardType}
         />
       </View>

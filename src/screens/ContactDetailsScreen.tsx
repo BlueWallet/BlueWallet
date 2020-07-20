@@ -15,6 +15,7 @@ import {
 } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
 import { Contact, Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
+import { checkAddress } from 'app/helpers/DataProcessing';
 import { UpdateContactAction, updateContact } from 'app/state/contacts/actions';
 
 const i18n = require('../../loc');
@@ -51,6 +52,10 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
   setAddress = (address: string) => {
     this.setState({ address });
     this.saveChanges({ address });
+  };
+
+  validateAddress = (address: string) => {
+    checkAddress(address);
   };
 
   saveChanges = (changes: Partial<Contact>) => {
@@ -114,6 +119,7 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
             title={i18n.contactDetails.editAddress}
             label={i18n.contactDetails.addressLabel}
             value={address}
+            validateOnSave={this.validateAddress}
             onSave={this.setAddress}
           />
           <CopyButton textToCopy={address} containerStyle={styles.copyButtonContainer} />

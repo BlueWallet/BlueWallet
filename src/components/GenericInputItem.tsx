@@ -10,6 +10,7 @@ interface Props {
   title: string;
   value?: string;
   validate?: (value: string) => string | undefined;
+  validateOnSave?: (value: string) => void;
   onSave?: (value: string) => void;
 }
 
@@ -27,6 +28,7 @@ export const GenericInputItem = (props: Props) => {
       label,
       value,
       validate: props.validate,
+      validateOnSave: props.validateOnSave,
       onSave: handleValueSave,
     });
   };
