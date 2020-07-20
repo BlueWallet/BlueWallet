@@ -1,5 +1,8 @@
 /* global alert */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import Modal from 'react-native-modal';
+import { Icon } from 'react-native-elements';
 import {
   ActivityIndicator,
   FlatList,
@@ -19,13 +22,11 @@ import {
   StatusBar,
 } from 'react-native';
 import { BlueButtonLink, BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
-import Modal from 'react-native-modal';
-import { Icon } from 'react-native-elements';
 import { AppStorage } from '../../class';
 import * as NavigationService from '../../NavigationService';
 import { BlueCurrentTheme } from '../../components/themes';
+import loc from '../../loc';
 
 const BlueApp: AppStorage = require('../../BlueApp');
 const A = require('../../blue_modules/analytics');
@@ -320,11 +321,11 @@ export default class HodlHodl extends Component {
   }
 
   getNativeCountryName() {
-    if (this.state.country === this.state.myCountryCode) return 'Near me';
+    if (this.state.country === this.state.myCountryCode) return loc.hodl.filter_country_near;
     for (const c of this.state.countries) {
       if (c.code === this.state.country) return c.native_name;
     }
-    return 'Global offers';
+    return loc.hodl.filter_country_global;
   }
 
   renderChooseSideModal = () => {
@@ -344,8 +345,8 @@ export default class HodlHodl extends Component {
               style={styles.modalFlatList}
               ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
               data={[
-                { code: HodlHodlApi.FILTERS_SIDE_VALUE_SELL, name: "I'm buying bitcoin" },
-                { code: HodlHodlApi.FILTERS_SIDE_VALUE_BUY, name: "I'm selling bitcoin" },
+                { code: HodlHodlApi.FILTERS_SIDE_VALUE_SELL, name: loc.hodl.filter_iambuying },
+                { code: HodlHodlApi.FILTERS_SIDE_VALUE_BUY, name: loc.hodl.filter_iamselling },
               ]}
               keyExtractor={(item, index) => item.code}
               renderItem={({ item, index, separators }) => (
@@ -392,8 +393,8 @@ export default class HodlHodl extends Component {
               style={styles.modalFlatList}
               ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
               data={[
-                { code: 'currency', native_name: 'Currency' },
-                { code: 'method', native_name: 'Payment method' },
+                { code: 'currency', native_name: loc.hodl.filter_currency },
+                { code: 'method', native_name: loc.hodl.filter_method },
               ]}
               keyExtractor={(item, index) => item.code}
               renderItem={({ item, index, separators }) => (
@@ -413,13 +414,15 @@ export default class HodlHodl extends Component {
                           {item.code === 'currency' && (
                             <Text style={styles.filterCurrencyText}>
                               {' '}
-                              {this.state.currency ? this.state.currency + '   ❯' : 'Detail   ❯'}{' '}
+                              {this.state.currency ? this.state.currency : loc.hodl.filter_detail}
+                              {'   ❯'}
                             </Text>
                           )}
                           {item.code === 'method' && (
                             <Text style={styles.methodNameText}>
                               {' '}
-                              {this.state.method ? this.getMethodName(this.state.method) + '   ❯' : 'Detail   ❯'}
+                              {this.state.method ? this.getMethodName(this.state.method) : loc.hodl.filter_detail}
+                              {'   ❯'}
                             </Text>
                           )}
                         </View>
@@ -449,7 +452,7 @@ export default class HodlHodl extends Component {
     countries2render.push({
       code: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL,
       name: 'Global offers',
-      native_name: 'Global offers',
+      native_name: loc.hodl.filter_country_global,
     });
 
     // lastly, we include other countries
@@ -485,7 +488,7 @@ export default class HodlHodl extends Component {
             <View style={styles.searchInputContainer}>
               <TextInput
                 onChangeText={text => this.setState({ countrySearchInput: text })}
-                placeholder="Search.."
+                placeholder={loc.hodl.filter_search + '..'}
                 placeholderTextColor="#9AA0AA"
                 value={this.state.countrySearchInput || ''}
                 numberOfLines={1}
@@ -528,7 +531,7 @@ export default class HodlHodl extends Component {
     // first, option to choose any currency
     currencies2render.push({
       code: CURRENCY_CODE_ANY,
-      name: 'Any',
+      name: loc.hodl.filter_any,
     });
 
     // lastly, we include other countries
@@ -561,7 +564,7 @@ export default class HodlHodl extends Component {
             <View style={styles.searchInputContainer}>
               <TextInput
                 onChangeText={text => this.setState({ currencySearchInput: text })}
-                placeholder="Search.."
+                placeholder={loc.hodl.filter_search + '..'}
                 placeholderTextColor="#9AA0AA"
                 value={this.state.currencySearchInput || ''}
                 numberOfLines={1}
@@ -604,7 +607,7 @@ export default class HodlHodl extends Component {
     // first, option to choose any currency
     methods2render.push({
       id: METHOD_ANY,
-      name: 'Any',
+      name: loc.hodl.filter_any,
     });
 
     // lastly, we include other countries
@@ -637,7 +640,7 @@ export default class HodlHodl extends Component {
             <View style={styles.searchInputContainer}>
               <TextInput
                 onChangeText={text => this.setState({ methodSearchInput: text })}
-                placeholder="Search.."
+                placeholder={loc.hodl.filter_search + '..'}
                 placeholderTextColor="#9AA0AA"
                 value={this.state.methodSearchInput || ''}
                 numberOfLines={1}
@@ -707,7 +710,9 @@ export default class HodlHodl extends Component {
                 this.setState({ isChooseSideModalVisible: true });
               }}
             >
-              <Text style={styles.grayDropdownText}>{this.state.side === HodlHodlApi.FILTERS_SIDE_VALUE_SELL ? 'Buying' : 'Selling'}</Text>
+              <Text style={styles.grayDropdownText}>
+                {this.state.side === HodlHodlApi.FILTERS_SIDE_VALUE_SELL ? loc.hodl.filter_buying : loc.hodl.filter_selling}
+              </Text>
               <Icon name="expand-more" type="material" size={22} color="#9AA0AA" containerStyle={styles.noPaddingLeftOrRight} />
             </TouchableOpacity>
           </View>
@@ -734,7 +739,7 @@ export default class HodlHodl extends Component {
                   this.setState({ isFiltersModalVisible: true });
                 }}
               >
-                <Text style={styles.blueText}>Filters</Text>
+                <Text style={styles.blueText}>{loc.hodl.filter_filters}</Text>
 
                 <Icon
                   name="filter-list"
@@ -787,8 +792,10 @@ export default class HodlHodl extends Component {
                 </View>
                 <Text style={styles.traderRatingText2}>
                   {item.trader.trades_count > 0
-                    ? Math.round(item.trader.rating * 100) + '% / ' + item.trader.trades_count + ' trades'
-                    : 'No rating'}
+                    ? loc.formatString(loc.hodl.item_rating, {
+                        rating: Math.round(item.trader.rating * 100) + '% / ' + item.trader.trades_count,
+                      })
+                    : loc.hodl.item_rating_no}
                 </Text>
               </View>
             </View>
@@ -801,7 +808,7 @@ export default class HodlHodl extends Component {
               </View>
 
               <Text style={styles.minmax}>
-                Min/Max: {item.min_amount.replace('.00', '')} - {item.max_amount.replace('.00', '')} {item.currency_code}
+                {loc.hodl.item_minmax}: {item.min_amount.replace('.00', '')} - {item.max_amount.replace('.00', '')} {item.currency_code}
               </Text>
             </View>
           </View>
@@ -817,7 +824,7 @@ export default class HodlHodl extends Component {
   renderSectionFooter = () => {
     return this.state.offers.length <= 0 ? (
       <View style={styles.noOffersWrapper}>
-        <Text style={styles.noOffersText}>No offers. Try to change "Near me" to Global offers!</Text>
+        <Text style={styles.noOffersText}>{loc.hodl.item_nooffers}</Text>
       </View>
     ) : undefined;
   };
@@ -864,9 +871,9 @@ HodlHodl.navigationOptions = ({ navigation, route }) => ({
   },
   headerRight: () => {
     return route.params.displayLoginButton ? (
-      <BlueButtonLink title="Login" onPress={route.params.handleLoginPress} style={styles.marginHorizontal20} />
+      <BlueButtonLink title={loc.hodl.login} onPress={route.params.handleLoginPress} style={styles.marginHorizontal20} />
     ) : (
-      <BlueButtonLink title="My contracts" onPress={route.params.handleMyContractsPress} style={styles.marginHorizontal20} />
+      <BlueButtonLink title={loc.hodl.mycont} onPress={route.params.handleMyContractsPress} style={styles.marginHorizontal20} />
     );
   },
 });

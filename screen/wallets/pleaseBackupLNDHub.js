@@ -13,8 +13,8 @@ import {
 import QRCode from 'react-native-qrcode-svg';
 import Privacy from '../../Privacy';
 import { ScrollView } from 'react-native-gesture-handler';
+import loc from '../../loc';
 const { height, width } = Dimensions.get('window');
-const loc = require('../../loc');
 
 const PleaseBackupLNDHub = () => {
   const { wallet } = useRoute().params;
@@ -56,9 +56,7 @@ const PleaseBackupLNDHub = () => {
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent} onLayout={onLayout}>
         <BlueCard>
           <View>
-            <BlueTextCentered>
-              Please take a moment to save this LNDHub authentication. It's your backup you can use to restore the wallet on other device.
-            </BlueTextCentered>
+            <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>
           </View>
           <BlueSpacing20 />
 
@@ -76,7 +74,7 @@ const PleaseBackupLNDHub = () => {
           <BlueSpacing20 />
           <BlueCopyTextToClipboard text={wallet.secret} />
           <BlueSpacing20 />
-          <BlueButton onPress={() => navigation.dangerouslyGetParent().pop()} title="OK, I have saved it." />
+          <BlueButton onPress={() => navigation.dangerouslyGetParent().pop()} title={loc.pleasebackup.ok_lnd} />
         </BlueCard>
       </ScrollView>
     </SafeBlueArea>

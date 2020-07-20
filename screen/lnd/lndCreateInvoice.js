@@ -27,11 +27,11 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
+import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 const currency = require('../../blue_modules/currency');
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
-const loc = require('../../loc');
 const notifications = require('../../blue_modules/notifications');
 
 const styles = StyleSheet.create({
@@ -305,7 +305,7 @@ export default class LNDCreateInvoice extends Component {
             amount = currency.satoshiToBTC(amount);
             break;
           case BitcoinUnit.LOCAL_CURRENCY:
-            amount = loc.formatBalancePlain(amount, BitcoinUnit.LOCAL_CURRENCY);
+            amount = formatBalancePlain(amount, BitcoinUnit.LOCAL_CURRENCY);
             BlueBitcoinAmount.setCachedSatoshis(amount, sats);
             break;
         }
@@ -338,7 +338,7 @@ export default class LNDCreateInvoice extends Component {
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (
-          <BlueButton disabled={!(this.state.amount > 0)} onPress={() => this.createInvoice()} title={loc.send.details.create} />
+          <BlueButton disabled={!(this.state.amount > 0)} onPress={() => this.createInvoice()} title={loc.send.details_create} />
         )}
       </View>
     );
@@ -361,7 +361,7 @@ export default class LNDCreateInvoice extends Component {
         style={styles.scanRoot}
       >
         <Image style={{}} source={require('../../img/scan-white.png')} />
-        <Text style={styles.scanClick}>{loc.send.details.scan}</Text>
+        <Text style={styles.scanClick}>{loc.send.details_scan}</Text>
       </TouchableOpacity>
     );
   };
@@ -390,7 +390,7 @@ export default class LNDCreateInvoice extends Component {
           >
             <Text style={styles.walletNameText}>{this.state.fromWallet.getLabel()}</Text>
             <Text style={styles.walletNameBalance}>
-              {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
+              {formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
             </Text>
             <Text style={styles.walletNameSats}>{BitcoinUnit.SATS}</Text>
           </TouchableOpacity>
@@ -445,7 +445,7 @@ export default class LNDCreateInvoice extends Component {
               <View style={styles.fiat}>
                 <TextInput
                   onChangeText={text => this.setState({ description: text })}
-                  placeholder={loc.receive.details.label}
+                  placeholder={loc.receive.details_label}
                   value={this.state.description}
                   numberOfLines={1}
                   placeholderTextColor="#81868e"

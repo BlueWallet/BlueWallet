@@ -27,11 +27,10 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-/** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
-const loc = require('../../loc');
 const currency = require('../../blue_modules/currency');
 
 const styles = StyleSheet.create({
@@ -173,7 +172,7 @@ export default class ScanLndInvoice extends React.Component {
 
         let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
         if (+new Date() > expiresIn) {
-          expiresIn = 'expired';
+          expiresIn = loc.lnd.expiredLow;
         } else {
           expiresIn = Math.round((expiresIn - +new Date()) / (60 * 1000)) + ' min';
         }
@@ -257,7 +256,7 @@ export default class ScanLndInvoice extends React.Component {
         if (+new Date() > expiresIn) {
           this.setState({ isLoading: false });
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-          return alert('Invoice expired');
+          return alert(loc.lnd.errorInvoiceExpired);
         }
 
         const currentUserInvoices = fromWallet.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
@@ -330,7 +329,7 @@ export default class ScanLndInvoice extends React.Component {
           >
             <Text style={styles.walletWrapLabel}>{this.state.fromWallet.getLabel()}</Text>
             <Text style={styles.walletWrapBalance}>
-              {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
+              {formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
             </Text>
             <Text style={styles.walletWrapSats}>{BitcoinUnit.SATS}</Text>
           </TouchableOpacity>
@@ -359,6 +358,7 @@ export default class ScanLndInvoice extends React.Component {
     if (!this.state.fromWallet) {
       return <BlueLoading />;
     }
+
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
         <StatusBar barStyle="light-content" />
@@ -370,9 +370,7 @@ export default class ScanLndInvoice extends React.Component {
                   pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
                   isLoading={this.state.isLoading}
                   amount={this.state.amount}
-                  onAmountUnitChange={unit => {
-                    this.setState({ unit });
-                  }}
+                  onAmountUnitChange={unit => this.setState({ unit })}
                   onChangeText={text => {
                     this.setState({ amount: text });
 
@@ -413,9 +411,9 @@ export default class ScanLndInvoice extends React.Component {
                 </View>
                 {this.state.expiresIn !== undefined && (
                   <View>
-                    <Text style={styles.expiresIn}>Expires: {this.state.expiresIn}</Text>
+                    <Text style={styles.expiresIn}>{loc.formatString(loc.lnd.expiresIn, { time: this.state.expiresIn })}</Text>
                     {this.state.decoded && this.state.decoded.num_satoshis > 0 && (
-                      <Text style={styles.expiresIn}>Potential fee: {this.getFees()}</Text>
+                      <Text style={styles.expiresIn}>{loc.formatString(loc.lnd.potentialFee, { fee: this.getFees() })}</Text>
                     )}
                   </View>
                 )}
@@ -425,13 +423,7 @@ export default class ScanLndInvoice extends React.Component {
                       <ActivityIndicator />
                     </View>
                   ) : (
-                    <BlueButton
-                      title="Pay"
-                      onPress={() => {
-                        this.pay();
-                      }}
-                      disabled={this.shouldDisablePayButton()}
-                    />
+                    <BlueButton title={loc.lnd.payButton} onPress={() => this.pay()} disabled={this.shouldDisablePayButton()} />
                   )}
                 </BlueCard>
               </BlueCard>

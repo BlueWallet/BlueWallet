@@ -16,9 +16,8 @@ import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
-/** @type {AppStorage} */
+import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-const loc = require('../../loc');
 const EV = require('../../blue_modules/events');
 const { width, height } = Dimensions.get('window');
 
@@ -208,7 +207,7 @@ export default class LNDViewInvoice extends Component {
           <SafeBlueArea style={styles.root}>
             <StatusBar barStyle="default" />
             <View style={styles.center}>
-              <BlueText>Preimage:</BlueText>
+              <BlueText>{loc.lndViewInvoice.preimage}:</BlueText>
               <BlueSpacing20 />
               <QRCode
                 value={invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? invoice.payment_preimage : 'none'}
@@ -255,7 +254,7 @@ export default class LNDViewInvoice extends Component {
             <View style={styles.detailsRoot}>
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
                 <TouchableOpacity style={styles.detailsTouch} onPress={() => this.setState({ showPreimageQr: true })}>
-                  <Text style={styles.detailsText}>{loc.send.create.details}</Text>
+                  <Text style={styles.detailsText}>{loc.send.create_details.details}</Text>
                   <Icon name="angle-right" size={18} type="font-awesome" color={BlueCurrentTheme.colors.alternativeTextColor} />
                 </TouchableOpacity>
               ) : (
@@ -322,7 +321,7 @@ export default class LNDViewInvoice extends Component {
               onPress={() => {
                 Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
               }}
-              title={loc.receive.details.share}
+              title={loc.receive.details_share}
             />
             <BlueSpacing20 />
             <BlueButton

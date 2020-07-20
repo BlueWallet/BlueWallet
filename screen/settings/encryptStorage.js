@@ -1,6 +1,8 @@
 /* global alert */
 import React, { useEffect, useState, useCallback } from 'react';
 import { ScrollView, Alert, Platform, TouchableOpacity, TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import { useNavigation, StackActions } from '@react-navigation/native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import {
   BlueLoadingHook,
   SafeBlueArea,
@@ -12,13 +14,11 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import { AppStorage } from '../../class';
-import { useNavigation, StackActions } from '@react-navigation/native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
+import loc from '../../loc';
 import { colors } from 'react-native-elements';
 const BlueApp: AppStorage = require('../../BlueApp');
 const prompt = require('../../blue_modules/prompt');
-const loc = require('../../loc');
 
 const EncryptStorage = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -99,11 +99,11 @@ const EncryptStorage = () => {
         }
       } else {
         Alert.alert(
-          'Decrypt Storage',
-          'Are you sure you want to decrypt your storage? This will allow your wallets to be accessed without a password.',
+          loc.settings.encrypt_decrypt,
+          loc.settings.encrypt_decrypt_q,
           [
             {
-              text: loc.send.details.cancel,
+              text: loc._.cancel,
               style: 'cancel',
               onPress: () => setIsLoading(false),
             },
@@ -151,31 +151,28 @@ const EncryptStorage = () => {
           <>
             <BlueHeaderDefaultSubHooks leftText="biometrics" rightComponent={null} />
             <BlueListItemHooks
-              title={`Use ${biometrics.biometricsType}`}
+              title={loc.formatString(loc.settings.encrypt_use, { type: biometrics.biometricsType })}
               Component={TouchableWithoutFeedback}
               switch={{ value: biometrics.isBiometricsEnabled, onValueChange: onUseBiometricSwitch }}
             />
             <BlueCard>
-              <BlueTextHooks>
-                {biometrics.biometricsType} will be used to confirm your identity prior to making a transaction, unlocking, exporting or
-                deleting a wallet. {biometrics.biometricsType} will not be used to unlock an encrypted storage.
-              </BlueTextHooks>
+              <BlueTextHooks>{loc.formatString(loc.settings.encrypt_use_expl, { type: biometrics.biometricsType })}</BlueTextHooks>
             </BlueCard>
             <BlueSpacing20 />
           </>
         )}
-        <BlueHeaderDefaultSubHooks leftText="storage" rightComponent={null} />
+        <BlueHeaderDefaultSubHooks leftText={loc.settings.encrypt_tstorage} rightComponent={null} />
         <BlueListItemHooks
           testID="EncyptedAndPasswordProtected"
           hideChevron
-          title="Encrypted and Password protected"
+          title={loc.settings.encrypt_enc_and_pass}
           Component={TouchableWithoutFeedback}
           switch={{ onValueChange: onEncryptStorageSwitch, value: storageIsEncrypted }}
         />
         {Platform.OS === 'ios' && (
           <BlueListItemHooks
             hideChevron
-            title="Delete if BlueWallet is uninstalled"
+            title={loc.settings.encrypt_del_uninstall}
             Component={TouchableWithoutFeedback}
             switch={{
               onValueChange: onDeleteWalletsAfterUninstallSwitch,
@@ -200,5 +197,5 @@ const EncryptStorage = () => {
 export default EncryptStorage;
 EncryptStorage.navigationOptions = () => ({
   ...BlueNavigationStyle(),
-  headerTitle: 'Security',
+  headerTitle: loc.settings.encrypt_title,
 });
