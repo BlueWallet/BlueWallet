@@ -29,6 +29,7 @@ const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
 const BlueApp = require('./BlueApp');
 const EV = require('./blue_modules/events');
+const notifications = require('./blue_modules/notifications'); // eslint-disable-line no-unused-vars
 
 export default class App extends React.Component {
   state = {
