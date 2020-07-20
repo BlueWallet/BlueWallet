@@ -5,10 +5,10 @@ import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigati
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { AppStorage } from '../class';
+import loc from '../loc';
 const BlueApp: AppStorage = require('../BlueApp');
 const prompt = require('../blue_modules/prompt');
 const EV = require('../blue_modules/events');
-const loc = require('../loc');
 
 const styles = StyleSheet.create({
   root: {
@@ -17,7 +17,6 @@ const styles = StyleSheet.create({
 });
 
 export default class PlausibleDeniability extends Component {
-
   constructor(props) {
     super(props);
     this.state = {

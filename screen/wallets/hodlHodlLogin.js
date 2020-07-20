@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { WebView } from 'react-native-webview';
 import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import loc from '../../loc';
 
 const url = 'https://accounts.hodlhodl.com/accounts/request_access?attributes=api_key,api_signature_key';
 
@@ -10,9 +11,9 @@ let lastTimeIvebeenHere = 0;
 const INJECTED_JAVASCRIPT = `(function() {
 
  window.postMessage = function (data) {
-   window.ReactNativeWebView && window.ReactNativeWebView.postMessage(data);    
+   window.ReactNativeWebView && window.ReactNativeWebView.postMessage(data);
  }
-    
+
 })();`;
 
 const HodlHodlLogin = () => {
@@ -51,7 +52,7 @@ const HodlHodlLogin = () => {
 
 HodlHodlLogin.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
-  title: 'Login',
+  title: loc.hodl.login,
   headerLeft: null,
 });
 

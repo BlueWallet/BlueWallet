@@ -35,8 +35,8 @@ import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
 import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
 import { Psbt } from 'bitcoinjs-lib';
+import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-const loc = require('../../loc');
 const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */
@@ -259,7 +259,7 @@ export default class PsbtWithHardwareWallet extends Component {
         } else {
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
           this.setState({ isLoading: false });
-          alert('Broadcast failed');
+          alert(loc.errors.broadcast);
         }
       } catch (error) {
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -275,10 +275,10 @@ export default class PsbtWithHardwareWallet extends Component {
         <RNCamera
           captureAudio={false}
           androidCameraPermissionOptions={{
-            title: 'Permission to use camera',
-            message: 'We need your permission to use your camera',
-            buttonPositive: 'OK',
-            buttonNegative: 'Cancel',
+            title: loc.send.permission_camera_title,
+            message: loc.send.permission_camera_message,
+            buttonPositive: loc._.ok,
+            buttonNegative: loc._.cancel,
           }}
           ref={ref => (this.cameraRef = ref)}
           style={styles.rootCamera}
@@ -297,7 +297,7 @@ export default class PsbtWithHardwareWallet extends Component {
       <SafeBlueArea style={styles.root}>
         <BlueBigCheckmark style={styles.blueBigCheckmark} />
         <BlueCard>
-          <BlueButton onPress={() => this.props.navigation.dangerouslyGetParent().pop()} title={loc.send.success.done} />
+          <BlueButton onPress={() => this.props.navigation.dangerouslyGetParent().pop()} title={loc.send.success_done} />
         </BlueCard>
       </SafeBlueArea>
     );
@@ -307,17 +307,17 @@ export default class PsbtWithHardwareWallet extends Component {
     return (
       <View style={styles.rootPadding}>
         <BlueCard style={styles.hexWrap}>
-          <BlueText style={styles.hexLabel}>{loc.send.create.this_is_hex}</BlueText>
+          <BlueText style={styles.hexLabel}>{loc.send.create_this_is_hex}</BlueText>
           <TextInput style={styles.hexInput} height={112} multiline editable value={this.state.txhex} />
 
           <TouchableOpacity style={styles.hexTouch} onPress={() => Clipboard.setString(this.state.txhex)}>
-            <Text style={styles.hexText}>Copy and broadcast later</Text>
+            <Text style={styles.hexText}>{loc.send.create_copy}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.hexTouch} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}>
-            <Text style={styles.hexText}>Verify on coinb.in</Text>
+            <Text style={styles.hexText}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
           <BlueSpacing20 />
-          <SecondButton onPress={this.broadcast} title={loc.send.confirm.sendNow} />
+          <SecondButton onPress={this.broadcast} title={loc.send.confirm_sendNow} />
         </BlueCard>
       </View>
     );
@@ -336,18 +336,18 @@ export default class PsbtWithHardwareWallet extends Component {
         });
     } else if (Platform.OS === 'android') {
       const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-        title: 'BlueWallet Storage Access Permission',
-        message: 'BlueWallet needs your permission to access your storage to save this transaction.',
-        buttonNeutral: 'Ask Me Later',
-        buttonNegative: 'Cancel',
-        buttonPositive: 'OK',
+        title: loc.send.permission_storage_title,
+        message: loc.send.permission_storage_message,
+        buttonNeutral: loc.send.permission_storage_later,
+        buttonNegative: loc._.cancel,
+        buttonPositive: loc._.ok,
       });
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.ExternalCachesDirectoryPath + `/${this.fileName}`;
         await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64());
-        alert(`This transaction has been saved in ${filePath}`);
+        alert(loc.formatString(loc.send.txSaved, { filePath }));
       } else {
         console.log('Storage Permission: Denied');
       }
@@ -368,7 +368,7 @@ export default class PsbtWithHardwareWallet extends Component {
       }
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
-        alert('The selected file does not contain a signed transaction that can be imported.');
+        alert(loc.send.details_no_signed_tx);
       }
     }
   };
@@ -391,9 +391,7 @@ export default class PsbtWithHardwareWallet extends Component {
         <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
           <View style={styles.container}>
             <BlueCard>
-              <BlueText testID="TextHelperForPSBT">
-                This is a partially signed bitcoin transaction (PSBT). Please finish signing it with your hardware wallet.
-              </BlueText>
+              <BlueText testID="TextHelperForPSBT">{loc.send.psbt_this_is_psbt}</BlueText>
               <BlueSpacing20 />
               <DynamicQRCode value={this.state.psbt.toHex()} capacity={200} />
               <BlueSpacing20 />
@@ -404,7 +402,7 @@ export default class PsbtWithHardwareWallet extends Component {
                   color: BlueCurrentTheme.colors.buttonTextColor,
                 }}
                 onPress={() => this.setState({ renderScanner: true, animatedQRCodeData: [] })}
-                title="Scan Signed Transaction"
+                title={loc.send.psbt_tx_scan}
               />
               <BlueSpacing20 />
               <SecondButton
@@ -414,7 +412,7 @@ export default class PsbtWithHardwareWallet extends Component {
                   color: BlueCurrentTheme.colors.buttonTextColor,
                 }}
                 onPress={this.openSignedTransaction}
-                title="Open Signed Transaction"
+                title={loc.send.psbt_tx_open}
               />
               <BlueSpacing20 />
               <SecondButton
@@ -424,13 +422,13 @@ export default class PsbtWithHardwareWallet extends Component {
                   color: BlueCurrentTheme.colors.buttonTextColor,
                 }}
                 onPress={this.exportPSBT}
-                title="Export to file"
+                title={loc.send.psbt_tx_export}
               />
               <BlueSpacing20 />
               <View style={styles.copyToClipboard}>
                 <BlueCopyToClipboardButton
                   stringToCopy={this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64()}
-                  displayText="Copy to Clipboard"
+                  displayText={loc.send.psbt_clipboard}
                 />
               </View>
             </BlueCard>

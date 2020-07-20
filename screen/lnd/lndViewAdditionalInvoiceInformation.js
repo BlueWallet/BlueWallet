@@ -12,9 +12,8 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import QRCode from 'react-native-qrcode-svg';
-/** @type {AppStorage} */
+import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   loading: {
@@ -51,7 +50,7 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
     try {
       await fromWallet.fetchInfo();
     } catch (_) {
-      alert('Network error');
+      alert(loc.errors.network);
       return;
     }
     this.setState({ walletInfo: fromWallet.info_raw, addressText: fromWallet.info_raw.uris[0] });
@@ -95,7 +94,7 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
                   message: this.state.walletInfo.uris[0],
                 });
               }}
-              title={loc.receive.details.share}
+              title={loc.receive.details_share}
             />
           </View>
         </View>

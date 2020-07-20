@@ -32,10 +32,10 @@ import Modal from 'react-native-modal';
 import HandoffSettings from '../../class/handoff';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import Handoff from 'react-native-handoff';
+import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
 const currency = require('../../blue_modules/currency');
 const notifications = require('../../blue_modules/notifications');
 
@@ -247,7 +247,7 @@ const ReceiveDetails = () => {
               <TextInput
                 onChangeText={setCustomLabel}
                 placeholderTextColor="#81868e"
-                placeholder={loc.receive.details.label}
+                placeholder={loc.receive.details_label}
                 value={customLabel || ''}
                 numberOfLines={1}
                 style={styles.customAmountText}
@@ -255,7 +255,7 @@ const ReceiveDetails = () => {
             </View>
             <BlueSpacing20 />
             <View>
-              <BlueButton style={styles.modalButton} title={loc.receive.details.create} onPress={createCustomAmountAddress} />
+              <BlueButton style={styles.modalButton} title={loc.receive.details_create} onPress={createCustomAmountAddress} />
               <BlueSpacing20 />
             </View>
             <BlueSpacing20 />
@@ -325,9 +325,9 @@ const ReceiveDetails = () => {
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>
-          <BlueButtonLinkHook title={loc.receive.details.setAmount} onPress={showCustomAmountModal} />
+          <BlueButtonLinkHook title={loc.receive.details_setAmount} onPress={showCustomAmountModal} />
           <View>
-            <SecondButton onPress={handleShareButtonPressed} title={loc.receive.details.share} />
+            <SecondButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </View>
         </View>
       </ScrollView>

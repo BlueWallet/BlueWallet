@@ -7,9 +7,9 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/wallet-gradient';
 import { useRoute, useTheme } from '@react-navigation/native';
+import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
 
 const SelectWallet = ({ navigation }) => {
   const { chainType, onWalletSelect, availableWallets } = useRoute().params;
@@ -117,15 +117,15 @@ const SelectWallet = ({ navigation }) => {
               <BluePrivateBalance />
             ) : (
               <Text numberOfLines={1} adjustsFontSizeToFit style={styles.balance}>
-                {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+                {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
               </Text>
             )}
             <Text style={styles.transparentText} />
             <Text numberOfLines={1} style={styles.latestTxLabel}>
-              {loc.wallets.list.latest_transaction}
+              {loc.wallets.list_latest_transaction}
             </Text>
             <Text numberOfLines={1} style={styles.latestTxValue}>
-              {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
+              {transactionTimeToReadable(item.getLatestTransactionTime())}
             </Text>
           </LinearGradient>
         </View>
@@ -145,9 +145,9 @@ const SelectWallet = ({ navigation }) => {
       <SafeBlueArea style={styles.root}>
         <StatusBar barStyle="light-content" />
         <View style={styles.noWallets}>
-          <BlueText style={styles.center}>There are currently no Bitcoin wallets available.</BlueText>
+          <BlueText style={styles.center}>{loc.wallets.select_no_bitcoin}</BlueText>
           <BlueSpacing20 />
-          <BlueText style={styles.center}>A Bitcoin wallet is required to refill Lightning wallets. Please, create or import one.</BlueText>
+          <BlueText style={styles.center}>{loc.wallets.select_no_bitcoin_exp}</BlueText>
         </View>
       </SafeBlueArea>
     );

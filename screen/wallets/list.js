@@ -23,11 +23,11 @@ import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
 import * as NavigationService from '../../NavigationService';
+import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 const EV = require('../../blue_modules/events');
 const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
-const loc = require('../../loc');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
@@ -170,11 +170,11 @@ export default class WalletsList extends Component {
     if (wallet) {
       if (wallet.type === PlaceholderWallet.type) {
         Alert.alert(
-          loc.wallets.add.details,
-          'There was a problem importing this wallet.',
+          loc.wallets.add_details,
+          loc.wallets.list_import_problem,
           [
             {
-              text: loc.wallets.details.delete,
+              text: loc.wallets.details_delete,
               onPress: () => {
                 WalletImport.removePlaceholderWallet();
                 EV(EV.enum.WALLETS_COUNT_CHANGED);
@@ -182,7 +182,7 @@ export default class WalletsList extends Component {
               style: 'destructive',
             },
             {
-              text: 'Try Again',
+              text: loc.wallets.list_tryagain,
               onPress: () => {
                 this.props.navigation.navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: wallet.getSecret() } });
                 WalletImport.removePlaceholderWallet();
@@ -279,7 +279,7 @@ export default class WalletsList extends Component {
   renderListHeaderComponent = () => {
     return (
       <View style={styles.listHeaderBack}>
-        <Text style={styles.listHeaderText}>{loc.transactions.list.title}</Text>
+        <Text style={styles.listHeaderText}>{loc.transactions.list_title}</Text>
       </View>
     );
   };
@@ -311,7 +311,7 @@ export default class WalletsList extends Component {
         >
           <View style={styles.ltTextWrap}>
             <Text style={styles.ltTextBig}>Local Trader</Text>
-            <Text style={styles.ltTextSmall}>A p2p exchange</Text>
+            <Text style={styles.ltTextSmall}>{loc.hodl.p2p}</Text>
           </View>
           <View style={styles.ltButtonWrap}>
             <Text style={styles.ltButton}>New</Text>
@@ -355,7 +355,7 @@ export default class WalletsList extends Component {
       case WalletsListSections.CAROUSEL:
         return (
           <BlueHeaderDefaultMain
-            leftText={loc.wallets.list.title}
+            leftText={loc.wallets.list_title}
             onNewWalletPress={
               !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)
                 ? () => this.props.navigation.navigate('AddWalletRoot')
@@ -376,8 +376,8 @@ export default class WalletsList extends Component {
         if (this.state.dataSource.length === 0 && !this.state.isLoading) {
           return (
             <View style={styles.footerRoot}>
-              <Text style={styles.footerEmpty}>{loc.wallets.list.empty_txs1}</Text>
-              <Text style={styles.footerStart}>{loc.wallets.list.empty_txs2}</Text>
+              <Text style={styles.footerEmpty}>{loc.wallets.list_empty_txs1}</Text>
+              <Text style={styles.footerStart}>{loc.wallets.list_empty_txs2}</Text>
             </View>
           );
         } else {
@@ -440,7 +440,7 @@ export default class WalletsList extends Component {
             if (!error) {
               this.onBarScanned(result);
             } else {
-              alert('The selected image does not contain a QR Code.');
+              alert(loc.send.qr_error_no_qrcode);
             }
           });
         }
@@ -455,9 +455,9 @@ export default class WalletsList extends Component {
   sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      const options = [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'];
+      const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
       if (!isClipboardEmpty) {
-        options.push('Copy from Clipboard');
+        options.push(loc.wallets.list_long_clipboard);
       }
       ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
         if (buttonIndex === 1) {
@@ -478,16 +478,16 @@ export default class WalletsList extends Component {
     } else if (Platform.OS === 'android') {
       const buttons = [
         {
-          text: loc.send.details.cancel,
+          text: loc._.cancel,
           onPress: () => {},
           style: 'cancel',
         },
         {
-          text: 'Choose Photo',
+          text: loc.wallets.list_long_choose,
           onPress: this.choosePhoto,
         },
         {
-          text: 'Scan QR Code',
+          text: loc.wallets.list_long_scan,
           onPress: () =>
             this.props.navigation.navigate('ScanQRCodeRoot', {
               screen: 'ScanQRCode',
@@ -501,7 +501,7 @@ export default class WalletsList extends Component {
       ];
       if (!isClipboardEmpty) {
         buttons.push({
-          text: 'Copy From Clipboard',
+          text: loc.wallets.list_long_clipboard,
           onPress: this.copyFromClipbard,
         });
       }

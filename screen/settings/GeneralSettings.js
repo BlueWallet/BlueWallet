@@ -4,8 +4,8 @@ import { BlueLoading, BlueTextHooks, BlueSpacing20, BlueListItemHooks, BlueNavig
 import { AppStorage } from '../../class';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import HandoffSettings from '../../class/handoff';
+import loc from '../../loc';
 const BlueApp: AppStorage = require('../../BlueApp');
-const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   root: {
@@ -58,35 +58,35 @@ const GeneralSettings = () => {
     <ScrollView style={stylesWithThemeHook.scroll}>
       {BlueApp.getWallets().length > 1 && (
         <>
-          <BlueListItemHooks component={TouchableOpacity} onPress={() => navigate('DefaultView')} title="On Launch" chevron />
+          <BlueListItemHooks
+            component={TouchableOpacity}
+            onPress={() => navigate('DefaultView')}
+            title={loc.settings.default_title}
+            chevron
+          />
         </>
       )}
       {Platform.OS === 'ios' ? (
         <>
           <BlueListItemHooks
             hideChevron
-            title="Continuity"
+            title={loc.settings.general_continuity}
             Component={TouchableWithoutFeedback}
             switch={{ onValueChange: onHandOffEnabledSwitch, value: isHandoffUseEnabled }}
           />
           <BlueCard>
-            <BlueTextHooks>
-              When enabled, you will be able to view selected wallets, and transactions, using your other Apple iCloud connected devices.
-            </BlueTextHooks>
+            <BlueTextHooks>{loc.settings.general_continuity_e}</BlueTextHooks>
           </BlueCard>
           <BlueSpacing20 />
         </>
       ) : null}
       <BlueListItemHooks
         Component={TouchableWithoutFeedback}
-        title={loc.settings.enable_advanced_mode}
+        title={loc.settings.general_adv_mode}
         switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeEnabled }}
       />
       <BlueCard>
-        <BlueTextHooks>
-          When enabled, you will see advanced options such as different wallet types, the ability to specify the LNDHub instance you wish to
-          connect to and custom entropy during wallet creation.
-        </BlueTextHooks>
+        <BlueTextHooks>{loc.settings.general_adv_mode_e}</BlueTextHooks>
       </BlueCard>
       <BlueSpacing20 />
     </ScrollView>
@@ -95,7 +95,7 @@ const GeneralSettings = () => {
 
 GeneralSettings.navigationOptions = () => ({
   ...BlueNavigationStyle(),
-  title: 'General',
+  title: loc.settings.general,
 });
 
 export default GeneralSettings;
