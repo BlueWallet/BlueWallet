@@ -422,7 +422,7 @@ export class BlueWalletNavigationHeader extends Component {
   }
 }
 
-export const BlueButtonLinkHook = ({ title, onPress }) => {
+export const BlueButtonLinkHook = (props) => {
   const { colors } = useTheme();
   return (
     <TouchableOpacity
@@ -432,9 +432,10 @@ export const BlueButtonLinkHook = ({ title, onPress }) => {
         height: 60,
         justifyContent: 'center',
       }}
-      onPress={onPress}
+      onPress={props.onPress}
+      {...props}
     >
-      <Text style={{ color: colors.foregroundColor, textAlign: 'center', fontSize: 16 }}>{title}</Text>
+      <Text style={{ color: colors.foregroundColor, textAlign: 'center', fontSize: 16 }}>{props.title}</Text>
     </TouchableOpacity>
   );
 };
