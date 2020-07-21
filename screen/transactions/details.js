@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 4,
     paddingHorizontal: 8,
+    color: '#81868e',
   },
 });
 
