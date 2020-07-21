@@ -10,6 +10,15 @@
     "storage_is_encrypted": "Твоё хранилище зашифровано. Введи пароль для расшифровки",
     "yes": "Да"
   },
+  "azteco": {
+    "codeIs": "Your voucher code is",
+    "errorBeforeRefeem": "Before redeeming you must first add a Bitcoin wallet.",
+    "errorSomething": "Something went wrong. Is this voucher still valid?",
+    "redeem": "Redeem to wallet",
+    "redeemButton": "Redeem",
+    "success": "Success",
+    "title": "Redeem Azte.co voucher"
+  },
   "buyBitcoin": {
     "copied": "Скопировано",
     "header": "Купить Bitcoin",
@@ -92,6 +101,16 @@
     "sameWalletAsInvoiceError": "Ты не можешь оплатить Инвойс тем же кошельком, который ты использовал для его создания.",
     "title": "Мои средства",
     "withdraw": "Вывести"
+  },
+  "lndViewInvoice": {
+    "additional_info": "Additional Information",
+    "for": "For:",
+    "has_been_paid": "This invoice has been paid for",
+    "open_direct_channel": "Open direct channel with this node:",
+    "please_pay": "Please pay",
+    "preimage": "Preimage",
+    "sats": "sats",
+    "wasnt_paid_and_expired": "This invoice was not paid for and has expired"
   },
   "plausibledeniability": {
     "create_fake_storage": "Создать фальшивое хранилище",
@@ -317,6 +336,7 @@
     "details_export_backup": "Экспорт / резервная копия",
     "details_label": "Метка",
     "details_marketplace": "Marketplace",
+    "details_master_fingerprint": "Master fingerprint",
     "details_no_cancel": "Нет, отмена",
     "details_save": "Сохранить",
     "details_show_xpub": "Показать XPUB",
@@ -334,13 +354,14 @@
     "import_success": "Успех",
     "import_title": "Импорт",
     "list_add": "Добавить Кошелек",
+    "list_app_name": "BlueWallet",
     "list_create_a_button": "добавить сейчас",
     "list_create_a_wallet": "добавить кошелек",
     "list_create_a_wallet1": "Это бесплатно и ты можешь создать",
     "list_create_a_wallet2": "неограниченное количество",
     "list_empty_txs1": "Список транзакций пока пуст",
     "list_empty_txs1_lightning": "Lightning кошелек отлично подходит для ежедневных транзакций. Комиссия несправедливо мала, а скорость невероятно высока.",
-    "list_empty_txs2": " ",
+    "list_empty_txs2": "Start with your wallet",
     "list_empty_txs2_lightning": "\nДля начала использования нажми \"Мои средства\" и пополни баланс.",
     "list_header": "Кошелек - это секретный (приватный) ключ и соответствующий ему адрес на который можно получать Bitcoin",
     "list_import_problem": "Ошибка при импорте кошелька",
