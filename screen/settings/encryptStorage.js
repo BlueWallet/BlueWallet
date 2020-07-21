@@ -143,9 +143,7 @@ const EncryptStorage = () => {
         isBiometricsEnabled.isBiometricsEnabled = value;
         await Biometric.setBiometricUseEnabled(value);
         setBiometrics(isBiometricsEnabled);
-        if (value) {
-          setIsShakeToLockedCapable(value || storageIsEncrypted);
-        }
+        setIsShakeToLockedCapable(value === true || storageIsEncrypted);
       }
     },
     [biometrics.biometricsType, biometrics.isBiometricsEnabled, biometrics.isDeviceBiometricCapable, storageIsEncrypted],
