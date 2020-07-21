@@ -51,6 +51,9 @@ export default class UnlockWith extends Component {
   state = { biometricType: false, isStorageEncrypted: false, isAuthenticating: false, appearance: Appearance.getColorScheme() };
 
   async componentDidMount() {
+    BlueApp.cachedPassword = undefined;
+    BlueApp.wallets = [];
+    BlueApp.tx_metadata = [];
     Appearance.addChangeListener(this.appearanceChanged);
     let biometricType = false;
     if (await Biometric.isBiometricUseCapableAndEnabled()) {

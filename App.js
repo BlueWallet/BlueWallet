@@ -116,6 +116,7 @@ export default class App extends React.Component {
     Linking.removeEventListener('url', this.handleOpenURL);
     AppState.removeEventListener('change', this._handleAppStateChange);
     Appearance.removeChangeListener(this.appearanceChanged);
+    NavigationService.removeShakeToLockListener();
   }
 
   _handleAppStateChange = async nextAppState => {

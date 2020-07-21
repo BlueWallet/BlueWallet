@@ -1,17 +1,44 @@
 import React from 'react';
 import { ScrollView, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
-import { BlueListItemHooks, BlueHeaderDefaultSubHooks } from '../../BlueComponents';
-import { useNavigation } from '@react-navigation/native';
+import { BlueListItemHooks, BlueNavigationStyle, BlueHeaderDefaultSubHooks } from '../../BlueComponents';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import loc from '../../loc';
+import { Icon } from 'react-native-elements';
+import * as NavigationService from '../../NavigationService';
+import Biometric from '../../class/biometrics';
+const BlueApp = require('../../BlueApp');
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
+  lockScreenButton: {
+    marginHorizontal: 16,
+  },
 });
 
 const Settings = () => {
-  const { navigate } = useNavigation();
+  const { navigate, setOptions } = useNavigation();
+
+  useFocusEffect(() => {
+    Biometric.isBiometricUseCapableAndEnabled().then(isBiometricsEnabled => {
+      BlueApp.storageIsEncrypted().then(isStorageEncrypted => {
+        if (isStorageEncrypted || isBiometricsEnabled) {
+          setOptions({
+            headerRight: () => (
+              <TouchableOpacity style={styles.lockScreenButton} onPress={() => NavigationService.lockScreen(true)}>
+                <Icon name="lock" type="font-awesome5" />
+              </TouchableOpacity>
+            ),
+          });
+        } else {
+          setOptions({
+            headerRight: null,
+          });
+        }
+      });
+    });
+  });
 
   return (
     <ScrollView style={styles.root}>
@@ -40,3 +67,7 @@ const Settings = () => {
 };
 
 export default Settings;
+Settings.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
+  headerTitle: '',
+});

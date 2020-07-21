@@ -62,7 +62,6 @@ import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
-import { BlueNavigationStyle } from './BlueComponents';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const defaultScreenOptions =
@@ -98,15 +97,7 @@ const WalletsRoot = () => (
     <WalletsStack.Screen name="CPFP" component={CPFP} options={CPFP.navigationOptions} />
     <WalletsStack.Screen name="RBFBumpFee" component={RBFBumpFee} options={RBFBumpFee.navigationOptions} />
     <WalletsStack.Screen name="RBFCancel" component={RBFCancel} options={RBFCancel.navigationOptions} />
-    <WalletsStack.Screen
-      name="Settings"
-      component={Settings}
-      options={{
-        ...BlueNavigationStyle(),
-
-        headerTitle: '',
-      }}
-    />
+    <WalletsStack.Screen name="Settings" component={Settings} options={Settings.navigationOptions} />
     <WalletsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
     <WalletsStack.Screen name="Currency" component={Currency} options={Currency.navigationOptions} />
     <WalletsStack.Screen name="About" component={About} options={About.navigationOptions} />
