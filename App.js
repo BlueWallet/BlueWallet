@@ -57,6 +57,7 @@ export default class App extends React.Component {
     AppState.addEventListener('change', this._handleAppStateChange);
     DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
     QuickActions.popInitialAction().then(this.popInitialAction);
+    NavigationService.addShakeToLockListener();
     this._handleAppStateChange(undefined);
   };
 
