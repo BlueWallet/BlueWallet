@@ -42,7 +42,7 @@ node --version && npm --version
 git clone https://github.com/BlueWallet/BlueWallet.git
 cd BlueWallet
 npm install
-``` 
+```
 
 Please make sure that your console is running the most stable versions of npm and node (even-numbered versions).
 
@@ -74,9 +74,9 @@ cd ..
 npm start ios
 ```
 
-In another terminal window within the BlueWallet folder
+In another terminal window within the BlueWallet folder:
 ```
-react-native run-ios
+npx react-native run-ios
 ```
 
 
