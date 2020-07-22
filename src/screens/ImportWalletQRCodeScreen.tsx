@@ -15,7 +15,7 @@ import { RNCamera } from 'react-native-camera';
 import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
-import { Wallet, Route, RootStackParams, MainTabNavigatorParams, MainCardStackNavigatorParams } from 'app/consts';
+import { Wallet, Route, RootStackParams, MainTabNavigatorParams } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { sleep } from 'app/helpers/helpers';
 import { loadWallets, WalletsActionType } from 'app/state/wallets/actions';
@@ -30,16 +30,10 @@ import {
   HDSegwitP2SHWallet,
 } from '../../class';
 
-const wif = require('wif');
-
 const BlueApp = require('../../BlueApp');
 const i18n = require('../../loc');
 
 const { width } = Dimensions.get('window');
-
-const SCAN_CODE_AFTER_MS = 2 * 1000; // in miliseconds
-
-const now = (): number => new Date().getTime();
 
 interface BarCodeScanEvent {
   data: string;
@@ -62,7 +56,6 @@ interface State {
 
 class ImportWalletQRCodeScreen extends React.Component<Props, State> {
   cameraRef = React.createRef<RNCamera>();
-  lastTimeIveBeenHere = now();
 
   state = {
     isLoading: false,
@@ -117,18 +110,8 @@ class ImportWalletQRCodeScreen extends React.Component<Props, State> {
     this.setState({ isLoading: true });
   };
 
-    if (watchOnly.setSecret(watchAddr) && watchOnly.valid()) {
-      watchOnly.setLabel(loc.wallets.scanQrWif.imported_watchonly);
-      BlueApp.wallets.push(watchOnly);
-      Alert.alert(
-        loc.wallets.scanQrWif.imported_watchonly + loc.wallets.scanQrWif.with_address + watchOnly.getAddress(),
-      );
-      await watchOnly.fetchBalance();
-      await watchOnly.fetchTransactions();
-      await BlueApp.saveToDisk();
-      this.props.navigation.popToTop();
-      setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
-      this.setState({ isLoading: false });
+  importMnemonic = async (text: string) => {
+    if (this.state.isLoading) {
       return;
     }
     this.setState({ isLoading: true }, async () => {
@@ -219,102 +202,38 @@ class ImportWalletQRCodeScreen extends React.Component<Props, State> {
             return this.saveWallet(hd4);
           }
         }
-      }
-      await hd.fetchTransactions();
-      if (hd.getTransactions().length !== 0) {
-        await hd.fetchBalance();
-        hd.setLabel(loc.wallets.import.imported + ' ' + hd.typeReadable);
-        BlueApp.wallets.push(hd);
-        await BlueApp.saveToDisk();
-        Alert.alert(loc.wallets.import.success);
-        this.props.navigation.popToTop();
-        setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
-        this.setState({ isLoading: false });
-        return;
-      }
-    }
-    // nope
 
-    // is it HD mnemonic?
-    hd = new HDSegwitP2SHWallet();
-    hd.setSecret(event.data);
-    if (hd.validateMnemonic()) {
-      for (const w of BlueApp.wallets) {
-        if (w.getSecret() === hd.getSecret()) {
-          // lookig for duplicates
-          this.setState({ isLoading: false });
-          return Alert.alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
+        // not valid? maybe its a watch-only address?
+
+        const watchOnly = new WatchOnlyWallet();
+        watchOnly.setSecret(text);
+        if (watchOnly.valid()) {
+          await watchOnly.fetchTransactions();
+          await watchOnly.fetchBalance();
+          return this.saveWallet(watchOnly);
         }
+
+        // nope?
+
+        // TODO: try a raw private key
+      } catch (err) {
+        return this.showErrorMessageScreen();
       }
-      this.setState({ isLoading: true });
-      hd.setLabel(loc.wallets.import.imported + ' ' + hd.typeReadable);
-      BlueApp.wallets.push(hd);
-      await hd.fetchBalance();
-      await hd.fetchTransactions();
-      await BlueApp.saveToDisk();
-      Alert.alert(loc.wallets.import.success);
-      this.props.navigation.popToTop();
-      setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
-      this.setState({ isLoading: false });
-      return;
-    }
-    // nope
-
-    const newWallet = new SegwitP2SHWallet();
-    newWallet.setSecret(event.data);
-    const newLegacyWallet = new LegacyWallet();
-    newLegacyWallet.setSecret(event.data);
-
-    if (newWallet.getAddress() === false && newLegacyWallet.getAddress() === false) {
-      Alert.alert(loc.wallets.scanQrWif.bad_wif);
-      this.setState({ isLoading: false });
-      return;
-    }
-
-    if (newWallet.getAddress() === false && newLegacyWallet.getAddress() !== false) {
-      // case - WIF is valid, just has uncompressed pubkey
-      newLegacyWallet.setLabel(loc.wallets.scanQrWif.imported_legacy);
-      BlueApp.wallets.push(newLegacyWallet);
-      Alert.alert(
-        loc.wallets.scanQrWif.imported_wif +
-          event.data +
-          loc.wallets.scanQrWif.with_address +
-          newLegacyWallet.getAddress(),
-      );
-      await newLegacyWallet.fetchBalance();
-      await newLegacyWallet.fetchTransactions();
-      await BlueApp.saveToDisk();
-      this.props.navigation.popToTop();
-      setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
-      return;
-    }
-
-    this.setState({ isLoading: true });
-    await newLegacyWallet.fetchBalance();
-    console.log('newLegacyWallet == ', newLegacyWallet.getBalance());
-
-    if (newLegacyWallet.getBalance()) {
-      newLegacyWallet.setLabel(loc.wallets.scanQrWif.imported_legacy);
-      BlueApp.wallets.push(newLegacyWallet);
-      Alert.alert(
-        loc.wallets.scanQrWif.imported_wif +
-          event.data +
-          loc.wallets.scanQrWif.with_address +
-          newLegacyWallet.getAddress(),
-      );
-      await newLegacyWallet.fetchTransactions();
-    } else {
-      await newWallet.fetchBalance();
-      await newWallet.fetchTransactions();
-      newWallet.setLabel(loc.wallets.scanQrWif.imported_segwit);
-      BlueApp.wallets.push(newWallet);
-      Alert.alert(
-        loc.wallets.scanQrWif.imported_wif + event.data + loc.wallets.scanQrWif.with_address + newWallet.getAddress(),
-      );
-    }
-    await BlueApp.saveToDisk();
-    this.props.navigation.popToTop();
-    setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
+      return this.showErrorMessageScreen();
+    });
+    // ReactNativeHapticFeedback.trigger('notificationError', {
+    //   ignoreAndroidSystemSettings: false,
+    // });
+    // Plan:
+    // 0. check if its HDSegwitBech32Wallet (BIP84)
+    // 1. check if its HDSegwitP2SHWallet (BIP49)
+    // 2. check if its HDLegacyP2PKHWallet (BIP44)
+    // 3. check if its HDLegacyBreadwalletWallet (no BIP, just "m/0")
+    // 4. check if its Segwit WIF (P2SH)
+    // 5. check if its Legacy WIF
+    // 6. check if its address (watch-only wallet)
+    // 7. check if its private key (segwit address P2SH) TODO
+    // 7. check if its private key (legacy address) TODO
   };
 
   navigateBack = () => this.props.navigation.goBack();
