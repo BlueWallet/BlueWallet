@@ -23,8 +23,9 @@ let wasConnectedAtLeastOnce = false;
 async function connectMain() {
   const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
   const tcp = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
-  const usingPeer = !!host && !!tcp ? { host, tcp } : await getRandomHardcodedPeer();
-
+  // const usingPeer = !!host && !!tcp ? { host, tcp } : await getRandomHardcodedPeer();
+  // hardocoded for testing purpose
+  const usingPeer = { host: 'testnet.bitcoinvault.global', tcp: '50001' };
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
     mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, 'tcp');
