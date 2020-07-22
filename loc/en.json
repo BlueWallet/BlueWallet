@@ -270,6 +270,9 @@
     "storage_encrypted": "Storage: encrypted",
     "storage_not_encrypted": "Storage: not encrypted"
   },
+  "test1": {
+    "test2": "test3"
+  },
   "transactions": {
     "cancel_explain": "We will replace this transaction with the one that pays you and has higher fees. This effectively cancels transaction. This is called RBF - Replace By Fee.",
     "cancel_no": "This transaction is not replaceable",
