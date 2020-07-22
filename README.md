@@ -102,6 +102,17 @@ MIT
 
 Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/projects/1), try to start or submit a PR, any doubts we will try to guide you. Contributors have a private telegram group, request access by email bluewallet@bluewallet.io
 
+## Translations
+
+We accepts translations via [Transifex](https://www.transifex.com/bluewallet/bluewallet/)
+
+To participate you need to:
+1. Sign up to Transifex
+2. Find BlueWallet project
+3. Send join request
+4. After we accept your request you will be able to start translating! That's it!
+
+Transifex automatically creates Pull Request when language reaches 100% translation. We also trigger this by hand before each release, so don't worry if you can't translate everything, every word counts.
 
 ## RESPONSIBLE DISCLOSURE
 
