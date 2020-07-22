@@ -18,8 +18,13 @@ export const TransactionItem = ({ item, onPress }: { item: Transaction; onPress:
           {item.walletLabel === CONST.allWallets ? i18n.transactions.details.noLabel : item.walletLabel}
         </Text>
         {!!item.note && <Text style={typography.caption}>{item.note}</Text>}
-        <Text style={styles.label}>{confirmations()}</Text>
         <Text style={styles.label}>{moment(item.received).format('LT')}</Text>
+        <Text style={styles.label}>{confirmations()}</Text>
+        {!!item.status && (
+          <View style={styles.statusContainer}>
+            <Text style={typography.status}>{item.status}</Text>
+          </View>
+        )}
       </View>
       <View style={styles.rightColumn}>
         <Text style={[typography.headline5, { color: item.value < 0 ? palette.textRed : palette.textBlack }]}>
@@ -38,6 +43,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginVertical: 8,
+  },
+  statusContainer: {
+    borderRadius: 3,
+    backgroundColor: palette.secondary,
+    alignSelf: 'baseline',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginVertical: 5,
   },
   label: {
     ...typography.caption,

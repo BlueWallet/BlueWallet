@@ -60,7 +60,7 @@ export const loadWallets = (walletIndex?: number) => async (
     const allWallets = BlueApp.getWallets();
     const wallets: Wallet[] =
       allWallets.length > 1
-        ? [{ label: 'All wallets', balance: allWalletsBalance, preferredBalanceUnit: 'BTCV' }, ...allWallets]
+        ? [{ label: 'All wallets', balance: allWalletsBalance, preferredBalanceUnit: 'BTCV', type: '' }, ...allWallets]
         : allWallets;
     wallets.forEach(wallet => {
       if (!isAllWallets(wallet)) {

@@ -42,10 +42,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: { ...typography.headline4, textAlign: 'center' },
-  mnemonicPhraseContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    paddingHorizontal: 12,
-  },
 });

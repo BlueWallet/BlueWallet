@@ -2,6 +2,7 @@ import * as bip39 from 'bip39';
 import b58 from 'bs58check';
 import { NativeModules } from 'react-native';
 
+import config from '../config';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 
 const HDNode = require('bip32');
@@ -207,7 +208,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       throw new Error('Not enough balance. Try sending smaller amount');
     }
 
-    const psbt = new bitcoin.Psbt();
+    const psbt = new bitcoin.Psbt({ network: config.network });
 
     let c = 0;
     const keypairs = {};
@@ -218,7 +219,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       let keyPair;
       if (!skipSigning) {
         // skiping signing related stuff
-        keyPair = bitcoin.ECPair.fromWIF(this._getWifForAddress(input.address));
+        keyPair = bitcoin.ECPair.fromWIF(this._getWifForAddress(input.address), config.network);
         keypairs[c] = keyPair;
       }
       values[c] = input.value;
@@ -233,7 +234,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       // this is not correct fingerprint, as we dont know real fingerprint - we got zpub with 84/0, but fingerpting
       // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
       const path = this._getDerivationPathByAddress(input.address);
-      const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
+      const p2wpkh = bitcoin.payments.p2wpkh({ pubkey, network: config.network });
       psbt.addInput({
         hash: input.txid,
         index: input.vout,
@@ -308,8 +309,8 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    * @returns {Transaction}
    */
   combinePsbt(base64one, base64two) {
-    const final1 = bitcoin.Psbt.fromBase64(base64one);
-    const final2 = bitcoin.Psbt.fromBase64(base64two);
+    const final1 = bitcoin.Psbt.fromBase64(base64one, { network: config.network });
+    const final2 = bitcoin.Psbt.fromBase64(base64two, { network: config.network });
     final1.combine(final2);
     return final1.finalizeAllInputs().extractTransaction();
   }
@@ -323,6 +324,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   static _nodeToBech32SegwitAddress(hdNode) {
     return bitcoin.payments.p2wpkh({
       pubkey: hdNode.publicKey,
+      network: config.network,
     }).address;
   }
 

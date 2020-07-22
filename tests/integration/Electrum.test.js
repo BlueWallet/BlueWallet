@@ -1,3 +1,5 @@
+import config from '../../config';
+
 /* global it, describe, afterAll, beforeAll, jasmine */
 const assert = require('assert');
 const bitcoin = require('bitcoinjs-lib');
@@ -50,7 +52,7 @@ describe('Electrum', () => {
       }
 
       let addr4elect = 'royale1q3c4dwjwr4k9f40tdy373zy4mmuwd52p95ell7u';
-      let script = bitcoin.address.toOutputScript(addr4elect);
+      let script = bitcoin.address.toOutputScript(addr4elect, config.network);
       let hash = bitcoin.crypto.sha256(script);
       let reversedHash = Buffer.from(hash.reverse());
       const start = +new Date();
@@ -60,7 +62,7 @@ describe('Electrum', () => {
       assert.ok(balance.confirmed > 0);
 
       addr4elect = 'YRMrqNUKAfA2bQ7RmSz1hLYCeGAtci8NkT';
-      script = bitcoin.address.toOutputScript(addr4elect);
+      script = bitcoin.address.toOutputScript(addr4elect, config.network);
       hash = bitcoin.crypto.sha256(script);
       reversedHash = Buffer.from(hash.reverse());
       balance = await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex'));

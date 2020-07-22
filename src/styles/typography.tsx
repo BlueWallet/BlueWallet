@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 import { fonts } from './fonts';
+import { palette } from './palette';
 
 export const typography = StyleSheet.create({
   headline1: {
@@ -80,6 +81,11 @@ export const typography = StyleSheet.create({
     fontFamily: fonts.ubuntu.bold,
     fontSize: 14,
     letterSpacing: 0,
+  },
+  status: {
+    fontFamily: fonts.ubuntu.medium,
+    fontSize: 11,
+    color: palette.white,
   },
   caption: {
     fontFamily: fonts.ubuntu.light,

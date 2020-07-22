@@ -1,3 +1,4 @@
+import { Dayjs } from 'dayjs';
 import React from 'react';
 import { KeyboardType, StyleProp, ViewStyle } from 'react-native';
 import { ButtonProps } from 'react-native-elements';
@@ -10,6 +11,8 @@ export const CONST = {
   allWallets: 'All wallets',
   receive: 'receive',
   send: 'send',
+  webGeneratorUrl: 'www.keygenerator.bitcoinvault.global',
+  mnemonicWordsAmount: 12,
 };
 
 export enum FlowType {
@@ -20,6 +23,14 @@ export enum FlowType {
 export enum Route {
   PasswordNavigator = 'PasswordNavigator',
   Dashboard = 'Dashboard',
+  AuthenticatorList = 'AuthenticatorList',
+  EnterPIN = 'EnterPIN',
+  ExportAuthenticator = 'ExportAuthenticator',
+  ImportAuthenticator = 'ImportAuthenticator',
+  CreateWalletSuccess = 'CreateWalletSuccess',
+  DeleteEntity = 'DeleteEntity',
+  CreateAuthenticatorSuccess = 'CreateAuthenticatorSuccess',
+  CreateAuthenticator = 'CreateAuthenticator',
   WalletDetails = 'WalletDetails',
   ContactList = 'ContactList',
   ContactDetails = 'ContactDetails',
@@ -57,6 +68,7 @@ export enum Route {
   AdvancedOptions = 'AdvancedOptions',
   UnlockTransaction = 'UnlockTransaction',
   FilterTransactions = 'FilterTransactions',
+  IntegrateKey = 'IntegrateKey',
 }
 
 export interface Wallet {
@@ -129,6 +141,7 @@ export type NavigationProp<T, R> = StackNavigationProp<T, R>;
 
 export type MainTabNavigatorParams = {
   [Route.Dashboard]: undefined;
+  [Route.AuthenticatorList]: undefined;
   [Route.ContactList]: undefined;
   [Route.Settings]: undefined;
 };
@@ -221,4 +234,25 @@ export type MainCardStackNavigatorParams = {
     pin: string;
   };
   [Route.FilterTransactions]: { onFilterPress: ({}) => void };
+  [Route.CreateAuthenticator]: undefined;
+  [Route.EnterPIN]: { id: string };
+  [Route.CreateAuthenticatorSuccess]: { id: string };
+  [Route.DeleteEntity]: { onConfirm: () => void; name: string; subtitle: string; title: string };
+  [Route.ExportAuthenticator]: { id: string };
+  [Route.ImportAuthenticator]: undefined;
+  [Route.CreateWalletSuccess]: { secret: string };
+  [Route.IntegrateKey]: { onFilterPress: ({}) => void };
 };
+export type DateType = Date | Dayjs;
+export interface Authenticator {
+  privateKey: Buffer | null;
+  publicKey: string;
+  entropy: string;
+  name: string;
+  id: string;
+  QRCode: string;
+  init: ({ entropy, mnemonic }: { entropy?: string; mnemonic?: string }) => void;
+  pin: string;
+  secret: string;
+  createdAt: Dayjs;
+}

@@ -12,6 +12,7 @@ const i18n = require('../../loc');
 enum ImageVariant {
   Dashboard = 'dashboardNoWallet',
   ContactList = 'addressBookNoContacts',
+  Authenticators = 'noAuthenticators',
 }
 interface Props {
   variant: ImageVariant;
@@ -41,15 +42,54 @@ export class ListEmptyState extends PureComponent<Props> {
     </>
   );
 
+  renderAuthenticatorsDescription = () => (
+    <>
+      <Text style={styles.description}>
+        {i18n.authenticators.list.noAuthenticatorsDesc1}
+        <StyledText onPress={this.props.onPress} title={` ${i18n._.here} `} />
+        {i18n.authenticators.list.noAuthenticatorsDesc2}
+      </Text>
+    </>
+  );
+
+  renderTitle() {
+    const { variant } = this.props;
+
+    switch (variant) {
+      case ImageVariant.Dashboard:
+        return i18n.wallets.dashboard.noWallets;
+      case ImageVariant.ContactList:
+        return i18n.contactList.noContacts;
+      case ImageVariant.Authenticators:
+        return i18n.authenticators.list.noAuthenticators;
+
+      default:
+        throw new Error(`Unsupported variant: ${variant}`);
+    }
+  }
+
+  renderDescription() {
+    const { variant } = this.props;
+
+    switch (variant) {
+      case ImageVariant.Dashboard:
+        return this.renderDashboardDescription();
+      case ImageVariant.ContactList:
+        return this.renderAddressBookDescription();
+      case ImageVariant.Authenticators:
+        return this.renderAuthenticatorsDescription();
+      default:
+        throw new Error(`Unsupported variant: ${variant}`);
+    }
+  }
+
   render() {
     const { variant } = this.props;
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>
-          {variant == ImageVariant.Dashboard ? i18n.wallets.dashboard.noWallets : i18n.contactList.noContacts}
-        </Text>
+        <Text style={styles.title}>{this.renderTitle()}</Text>
         <Image source={images[variant]} style={styles.image} resizeMode="contain" />
-        {variant == ImageVariant.Dashboard ? this.renderDashboardDescription() : this.renderAddressBookDescription()}
+        {this.renderDescription()}
       </View>
     );
   }

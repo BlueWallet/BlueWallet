@@ -25,6 +25,14 @@ import {
   CurrentPinScreen,
   ConfirmPinScreen,
   FilterTransactionsScreen,
+  CreateAuthenticatorScreen,
+  EnterPINScreen,
+  CreateAuthenticatorSuccessScreen,
+  DeleteEntityScreen,
+  ExportAuthenticatorScreen,
+  ImportAuthenticatorScreen,
+  CreateWalletSuccessScreen,
+  IntegrateKeyScreen,
 } from 'app/screens';
 
 const Stack = createStackNavigator<MainCardStackNavigatorParams>();
@@ -53,5 +61,13 @@ export const MainCardStackNavigator = () => (
     <Stack.Screen name={Route.CurrentPin} component={CurrentPinScreen} />
     <Stack.Screen name={Route.ConfirmPin} component={ConfirmPinScreen} />
     <Stack.Screen name={Route.FilterTransactions} component={FilterTransactionsScreen} />
+    <Stack.Screen name={Route.CreateAuthenticator} component={CreateAuthenticatorScreen} />
+    <Stack.Screen name={Route.EnterPIN} component={EnterPINScreen} />
+    <Stack.Screen name={Route.CreateAuthenticatorSuccess} component={CreateAuthenticatorSuccessScreen} />
+    <Stack.Screen name={Route.DeleteEntity} component={DeleteEntityScreen} />
+    <Stack.Screen name={Route.ExportAuthenticator} component={ExportAuthenticatorScreen} />
+    <Stack.Screen name={Route.ImportAuthenticator} component={ImportAuthenticatorScreen} />
+    <Stack.Screen name={Route.CreateWalletSuccess} component={CreateWalletSuccessScreen} />
+    <Stack.Screen name={Route.IntegrateKey} component={IntegrateKeyScreen} />
   </Stack.Navigator>
 );

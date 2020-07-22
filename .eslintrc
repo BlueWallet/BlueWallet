@@ -1,6 +1,7 @@
 {
   "env": {
     "jest": true,
+    "node": true,
     "react-native/react-native": true
   },
   "extends": [
@@ -19,14 +20,26 @@
       "jsx": true
     }
   },
-  "plugins": ["@typescript-eslint", "react", "react-native", "react-hooks", "import", "prettier"],
+  "plugins": [
+    "@typescript-eslint",
+    "react",
+    "react-native",
+    "react-hooks",
+    "import",
+    "prettier"
+  ],
   "settings": {
     "react": {
       "version": "detect"
     },
     "import/resolver": {
       "node": {
-        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+        "extensions": [
+          ".js",
+          ".jsx",
+          ".ts",
+          ".tsx"
+        ]
       }
     }
   },
@@ -46,9 +59,21 @@
     "no-async-promise-executor": "warn",
     "no-case-declarations": "off",
     "no-prototype-builtins": "off",
-    "no-empty": ["error", { "allowEmptyCatch": true }],
+    "no-empty": [
+      "error",
+      {
+        "allowEmptyCatch": true
+      }
+    ],
     "no-undef": "warn",
-    "no-shadow": ["warn", { "allow": ["done"] }],
+    "no-shadow": [
+      "warn",
+      {
+        "allow": [
+          "done"
+        ]
+      }
+    ],
     "no-console": "warn",
     "no-redeclare": "warn",
     "no-var": "warn",
@@ -71,8 +96,17 @@
       "error",
       {
         "groups": [
-          ["builtin", "external"],
-          ["internal", "parent", "sibling", "index", "unknown"]
+          [
+            "builtin",
+            "external"
+          ],
+          [
+            "internal",
+            "parent",
+            "sibling",
+            "index",
+            "unknown"
+          ]
         ],
         "pathGroups": [
           {
@@ -81,8 +115,12 @@
             "position": "before"
           }
         ],
-        "pathGroupsExcludedImportTypes": ["builtin"],
-        "alphabetize": { "order": "asc" },
+        "pathGroupsExcludedImportTypes": [
+          "builtin"
+        ],
+        "alphabetize": {
+          "order": "asc"
+        },
         "newlines-between": "always"
       }
     ]

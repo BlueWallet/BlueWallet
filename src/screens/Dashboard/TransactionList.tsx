@@ -44,7 +44,7 @@ export class TransactionList extends Component<Props, State> {
 
     const dataToGroup = fileteredTransactions
       .map((transaction: Transaction) => {
-        const note = props.transactionNotes[transaction.hash];
+        const note = props.transactionNotes[transaction.txid];
         return {
           ...transaction,
           day: moment(transaction.received).format('ll'),

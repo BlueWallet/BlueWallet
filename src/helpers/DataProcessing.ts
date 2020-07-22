@@ -1,3 +1,5 @@
+import config from '../../config';
+
 const bitcoin = require('bitcoinjs-lib');
 
 export const processAddressData = (data: string, stateAmount?: any) => {
@@ -24,4 +26,4 @@ export const processAddressData = (data: string, stateAmount?: any) => {
   return newAddresses;
 };
 
-export const checkAddress = (address: string) => bitcoin.address.toOutputScript(address);
+export const checkAddress = (address: string) => bitcoin.address.toOutputScript(address, config.network);

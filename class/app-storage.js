@@ -10,6 +10,9 @@ import {
   SegwitP2SHWallet,
   SegwitBech32Wallet,
   HDSegwitBech32Wallet,
+  HDSegwitP2SHArWallet,
+  HDSegwitP2SHAirWallet,
+  Authenticator,
 } from './';
 import DeviceQuickActions from './quickActions';
 
@@ -28,6 +31,7 @@ export class AppStorage {
   constructor() {
     /** {Array.<AbstractWallet>} */
     this.wallets = [];
+    this.authenticators = [];
     this.tx_metadata = {};
     this.cachedPassword = false;
     this.settings = {
@@ -178,6 +182,7 @@ export class AppStorage {
   async loadFromDisk(password) {
     try {
       let data = await this.getItem('data');
+
       if (password) {
         data = this.decryptData(data, password);
         if (data) {
@@ -187,6 +192,9 @@ export class AppStorage {
       }
       if (data !== null) {
         data = JSON.parse(data);
+        const { authenticators } = data;
+        this.authenticators = authenticators?.map(a => Authenticator.fromJson(a));
+
         if (!data.wallets) return false;
         const wallets = data.wallets;
         for (const key of wallets) {
@@ -213,10 +221,15 @@ export class AppStorage {
             case HDSegwitBech32Wallet.type:
               unserializedWallet = HDSegwitBech32Wallet.fromJson(key);
               break;
+            case HDSegwitP2SHArWallet.type:
+              unserializedWallet = HDSegwitP2SHArWallet.fromJson(key);
+              break;
+            case HDSegwitP2SHAirWallet.type:
+              unserializedWallet = HDSegwitP2SHAirWallet.fromJson(key);
+              break;
             case LegacyWallet.type:
             default:
               unserializedWallet = LegacyWallet.fromJson(key);
-              break;
           }
           // done
           if (!this.wallets.some(wallet => wallet.getSecret() === unserializedWallet.secret)) {
@@ -265,6 +278,20 @@ export class AppStorage {
     this.wallets = tempWallets;
   }
 
+  addAuthenticator(a) {
+    this.authenticators = [...(this.authenticators || []), a];
+  }
+
+  stringifyArray(data) {
+    const arr = [];
+    for (const key of data) {
+      if (typeof key === 'boolean') continue;
+      if (key.prepareForSerialization) key.prepareForSerialization();
+      arr.push(JSON.stringify({ ...key, type: key.type }));
+    }
+    return arr;
+  }
+
   /**
    * Serializes and saves to storage object data.
    * If cached password is saved - finds the correct bucket
@@ -273,15 +300,12 @@ export class AppStorage {
    * @returns {Promise} Result of storage save
    */
   async saveToDisk() {
-    const walletsToSave = [];
-    for (const key of this.wallets) {
-      if (typeof key === 'boolean') continue;
-      if (key.prepareForSerialization) key.prepareForSerialization();
-      walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
-    }
+    const walletsToSave = this.stringifyArray(this.wallets);
+    const authenticatorsToSave = this.stringifyArray(this.authenticators);
 
     let data = {
       wallets: walletsToSave,
+      authenticators: authenticatorsToSave,
       tx_metadata: this.tx_metadata,
     };
 
@@ -375,7 +399,24 @@ export class AppStorage {
       }
     }
   }
+  getAuthenticators() {
+    return this.authenticators || [];
+  }
 
+  removeAuthenticatorById(id) {
+    let authenticator = null;
+    this.authenticators = this.authenticators.filter(a => {
+      if (a.id === id) {
+        authenticator = a;
+        return false;
+      }
+      return true;
+    });
+    if (authenticator === null) {
+      throw new Error(`Couldn't find authenticator with id: ${id}`);
+    }
+    return authenticator;
+  }
   /**
    *
    * @returns {Array.<AbstractWallet>}

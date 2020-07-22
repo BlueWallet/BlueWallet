@@ -1,5 +1,6 @@
 import { NativeModules } from 'react-native';
 
+import config from '../config';
 import { AbstractWallet } from './abstract-wallet';
 
 const { RNRandomBytes } = NativeModules;
@@ -56,6 +57,7 @@ export class LegacyWallet extends AbstractWallet {
             rng(length) {
               return buf;
             },
+            network: config.network,
           }).toWIF();
           resolve();
         });
@@ -69,6 +71,7 @@ export class LegacyWallet extends AbstractWallet {
             const b = Buffer.from(bytes, 'base64');
             return b;
           },
+          network: config.network,
         }).toWIF();
         resolve();
       });
@@ -79,9 +82,10 @@ export class LegacyWallet extends AbstractWallet {
     if (this._address) return this._address;
     let address;
     try {
-      const keyPair = bitcoin.ECPair.fromWIF(this.secret);
+      const keyPair = bitcoin.ECPair.fromWIF(this.secret, config.network);
       address = bitcoin.payments.p2pkh({
         pubkey: keyPair.publicKey,
+        network: config.network,
       }).address;
     } catch (err) {
       return false;
@@ -205,7 +209,7 @@ export class LegacyWallet extends AbstractWallet {
 
   isAddressValid(address) {
     try {
-      bitcoin.address.toOutputScript(address);
+      bitcoin.address.toOutputScript(address, config.network);
       return true;
     } catch (e) {
       return false;

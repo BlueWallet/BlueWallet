@@ -39,10 +39,6 @@ interface State {
 }
 
 class DashboardScreen extends Component<Props, State> {
-  static navigationOptions = () => ({
-    // must be dynamic, as function as language switch stops to work
-    tabBarLabel: i18n.tabNavigator.dashboard,
-  });
   state: State = {
     query: '',
     filters: {

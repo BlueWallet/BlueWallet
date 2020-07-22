@@ -3,7 +3,7 @@ import React from 'react';
 
 import { BottomTabBarComponent } from 'app/components';
 import { Route, MainTabNavigatorParams } from 'app/consts';
-import { ContactListScreen, DashboardScreen, SettingsScreen } from 'app/screens';
+import { ContactListScreen, DashboardScreen, SettingsScreen, AuthenticatorListScreen } from 'app/screens';
 
 const i18n = require('../../loc');
 
@@ -22,6 +22,13 @@ export const MainTabNavigator = () => {
         component={DashboardScreen}
         options={() => ({
           tabBarLabel: i18n.tabNavigator.dashboard,
+        })}
+      />
+      <Tab.Screen
+        name={Route.AuthenticatorList}
+        component={AuthenticatorListScreen}
+        options={() => ({
+          tabBarLabel: i18n.tabNavigator.authenticators,
         })}
       />
       <Tab.Screen

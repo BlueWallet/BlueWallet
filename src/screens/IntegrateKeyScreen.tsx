@@ -1,0 +1,74 @@
+import React from 'react';
+import { StyleSheet, TouchableOpacity, Linking } from 'react-native';
+
+import { ScreenTemplate, Text, Header, Button } from 'app/components';
+import { Route, CONST } from 'app/consts';
+import { palette, typography } from 'app/styles';
+
+const i18n = require('../../loc');
+
+type Props = any;
+
+export class IntegrateKeyScreen extends React.PureComponent<Props> {
+  scanKey = () => {
+    const {
+      navigation,
+      route: {
+        params: { onBarCodeScan },
+      },
+    } = this.props;
+
+    return navigation.navigate(Route.ScanQrCode, {
+      onBarCodeScan,
+    });
+  };
+
+  render() {
+    const {
+      navigation,
+      route: {
+        params: { title, description, onBackArrow },
+      },
+    } = this.props;
+
+    return (
+      <ScreenTemplate
+        footer={<Button onPress={this.scanKey} title={i18n.wallets.publicKey.scan} />}
+        header={<Header navigation={navigation} onBackArrow={onBackArrow} isBackArrow title={i18n.wallets.add.title} />}
+      >
+        <Text style={styles.subtitle}>{title}</Text>
+        <Text style={styles.description}>{description}</Text>
+        <TouchableOpacity
+          style={styles.webGeneratorUrlWrapper}
+          onPress={() => Linking.openURL(`https://${CONST.webGeneratorUrl}`)}
+        >
+          <Text style={styles.webGeneratorUrl}>{CONST.webGeneratorUrl}</Text>
+        </TouchableOpacity>
+      </ScreenTemplate>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  subtitle: {
+    marginTop: 12,
+    marginBottom: 18,
+    ...typography.headline4,
+    textAlign: 'center',
+  },
+  description: {
+    marginBottom: 52,
+    color: palette.textGrey,
+    ...typography.caption,
+    textAlign: 'center',
+  },
+  webGeneratorUrl: {
+    ...typography.headline5,
+    textAlign: 'center',
+  },
+  webGeneratorUrlWrapper: {
+    paddingBottom: 7,
+    borderBottomWidth: 1,
+    borderBottomColor: palette.border,
+  },
+});

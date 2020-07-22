@@ -67,3 +67,4 @@ ios/Pods/
 android/app/google-services.json
 
 .history
+.vscode

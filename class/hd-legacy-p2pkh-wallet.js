@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
 import * as bip39 from 'bip39';
 
+import config from '../config';
 import signer from '../models/signer';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 
@@ -26,7 +27,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
     }
     const mnemonic = this.secret;
     this.seed = await bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.bip32.fromSeed(this.seed);
+    const root = bitcoin.bip32.fromSeed(this.seed, config.network);
 
     const path = "m/44'/440'/0'";
     const child = root.derivePath(path).neutered();
@@ -62,10 +63,11 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
   }
 
   async generateAddresses() {
-    const node = bitcoin.bip32.fromBase58(await this.getXpub());
+    const node = bitcoin.bip32.fromBase58(await this.getXpub(), config.network);
     for (let index = 0; index < this.num_addresses; index++) {
       const address = bitcoin.payments.p2pkh({
         pubkey: node.derive(0).derive(index).publicKey,
+        network: config.network,
       }).address;
       this._address.push(address);
       this._address_to_wif_cache[address] = await this._getWIFByIndex(index);

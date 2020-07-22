@@ -124,9 +124,9 @@ class TransactionDetailsScreen extends Component<Props, State> {
       transaction: { txid },
     } = this.props.route.params;
     if (!this.state.note) {
-      this.props.createTransactionNote(this.state.hash, note);
+      this.props.createTransactionNote(txid, note);
     } else {
-      this.props.updateTransactionNote(this.state.hash, note);
+      this.props.updateTransactionNote(txid, note);
     }
 
     this.setState({

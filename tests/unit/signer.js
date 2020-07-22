@@ -2,6 +2,8 @@
 const assert = require('assert');
 const bitcoinjs = require('bitcoinjs-lib');
 
+const config = require('../../config');
+
 describe('unit - signer', function() {
   describe('createSegwitTransaction()', function() {
     it('should return valid tx hex for segwit transactions', function(done) {
@@ -65,8 +67,14 @@ describe('unit - signer', function() {
       );
       // now, testing change addess, destination address, amounts & fees...
       const tx = bitcoinjs.Transaction.fromHex(txhex);
-      assert.equal(bitcoinjs.address.fromOutputScript(tx.outs[0].script), 'YQgWXHY2QduhjqMkJHywzDfhx1ntumM5Ht');
-      assert.equal(bitcoinjs.address.fromOutputScript(tx.outs[1].script), 'RPuRPTc9o6DMLsESyhDSkPoinH4JX1RG26');
+      assert.equal(
+        bitcoinjs.address.fromOutputScript(tx.outs[0].script, config.network),
+        'YQgWXHY2QduhjqMkJHywzDfhx1ntumM5Ht',
+      );
+      assert.equal(
+        bitcoinjs.address.fromOutputScript(tx.outs[1].script, config.network),
+        'RPuRPTc9o6DMLsESyhDSkPoinH4JX1RG26',
+      );
       assert.equal(tx.outs[0].value, 90000); // 0.0009 because we deducted fee 0.0001
       assert.equal(tx.outs[1].value, 9900000); // 0.099 because 0.1 - 0.001
       done();
@@ -94,15 +102,27 @@ describe('unit - signer', function() {
       const oldTx = bitcoinjs.Transaction.fromHex(txhex);
       const newTx = bitcoinjs.Transaction.fromHex(newhex);
       // just checking old tx...
-      assert.equal(bitcoinjs.address.fromOutputScript(oldTx.outs[0].script), 'YQgWXHY2QduhjqMkJHywzDfhx1ntumM5Ht'); // old DESTINATION address
-      assert.equal(bitcoinjs.address.fromOutputScript(oldTx.outs[1].script), 'RPuRPTc9o6DMLsESyhDSkPoinH4JX1RG26'); // old CHANGE address
+      assert.equal(
+        bitcoinjs.address.fromOutputScript(oldTx.outs[0].script, config.network),
+        'YQgWXHY2QduhjqMkJHywzDfhx1ntumM5Ht',
+      ); // old DESTINATION address
+      assert.equal(
+        bitcoinjs.address.fromOutputScript(oldTx.outs[1].script, config.network),
+        'RPuRPTc9o6DMLsESyhDSkPoinH4JX1RG26',
+      ); // old CHANGE address
       assert.equal(oldTx.outs[0].value, 90000); // 0.0009 because we deducted fee 0.0001
       assert.equal(oldTx.outs[1].value, 9900000); // 0.099 because 0.1 - 0.001
       // finaly, new tx checks...
       assert.equal(oldTx.outs[0].value, newTx.outs[0].value); // DESTINATION output amount remains unchanged
       assert.equal(oldTx.outs[1].value - newTx.outs[1].value, 0.0001 * 100000000); // CHANGE output decreased on the amount of fee delta
-      assert.equal(bitcoinjs.address.fromOutputScript(newTx.outs[0].script), 'RNAFqLmCjZunuhnNpmgF6nTs8KzQddnZDm'); // new DESTINATION address
-      assert.equal(bitcoinjs.address.fromOutputScript(newTx.outs[1].script), 'RPuRPTc9o6DMLsESyhDSkPoinH4JX1RG26'); // CHANGE address remains
+      assert.equal(
+        bitcoinjs.address.fromOutputScript(newTx.outs[0].script, config.network),
+        'RNAFqLmCjZunuhnNpmgF6nTs8KzQddnZDm',
+      ); // new DESTINATION address
+      assert.equal(
+        bitcoinjs.address.fromOutputScript(newTx.outs[1].script, config.network),
+        'RPuRPTc9o6DMLsESyhDSkPoinH4JX1RG26',
+      ); // CHANGE address remains
       assert.equal(oldTx.ins[0].sequence + 1, newTx.ins[0].sequence);
     });
 

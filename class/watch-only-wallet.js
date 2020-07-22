@@ -1,3 +1,4 @@
+import config from '../config';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
@@ -46,7 +47,7 @@ export class WatchOnlyWallet extends LegacyWallet {
     if (this.secret.startsWith('xpub') || this.secret.startsWith('ypub') || this.secret.startsWith('zpub')) return true; // xpubs unsupported due to path mixing
 
     try {
-      bitcoin.address.toOutputScript(this.secret);
+      bitcoin.address.toOutputScript(this.secret, config.network);
       return true;
     } catch (e) {
       console.warn(e.message);
