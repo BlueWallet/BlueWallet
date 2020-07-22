@@ -269,13 +269,13 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.4.0):
+  - react-native-camera (3.33.0):
     - React
-    - react-native-camera/RCT (= 3.4.0)
-    - react-native-camera/RN (= 3.4.0)
-  - react-native-camera/RCT (3.4.0):
+    - react-native-camera/RCT (= 3.33.0)
+    - react-native-camera/RN (= 3.33.0)
+  - react-native-camera/RCT (3.33.0):
     - React
-  - react-native-camera/RN (3.4.0):
+  - react-native-camera/RN (3.33.0):
     - React
   - react-native-haptic-feedback (1.7.1):
     - React
@@ -661,7 +661,7 @@ SPEC CHECKSUMS:
   React-jsinspector: fa0ecc501688c3c4c34f28834a76302233e29dc0
   react-native-biometrics: 9d3306e5d29c3bc4e6a3c912d759a94e76a2f683
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: f4f2144140ae1e808cad97cc7caf013767c11f1b
+  react-native-camera: 55e1afb6d585314ca96ea5504e6b1ba7583c1d21
   react-native-haptic-feedback: 22c9dc85fd8059f83bf9edd9212ac4bd4ae6074d
   react-native-image-picker: 7a85cf7b0a53845f03ae52fb4592a2748ded069b
   react-native-randombytes: 3638d24759d67c68f6ccba60c52a7a8a8faa6a23
@@ -714,4 +714,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 10567d1e173aae9ab5e898db3c41267100a01a22
 
-COCOAPODS: 1.9.2
+COCOAPODS: 1.9.3
