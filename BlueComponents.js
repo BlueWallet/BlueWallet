@@ -2312,23 +2312,23 @@ export class BlueReplaceFeeSuggestions extends Component {
         {networkFees &&
           [
             {
-              label: 'Fast',
+              label: loc.send.fee_fast,
+              time: loc.send.fee_10m,
               type: NetworkTransactionFeeType.FAST,
-              time: '10m',
               rate: networkFees.fastestFee,
               active: selectedFeeType === NetworkTransactionFeeType.FAST,
             },
             {
-              label: 'Medium',
+              label: loc.send.fee_medium,
+              time: loc.send.fee_3h,
               type: NetworkTransactionFeeType.MEDIUM,
-              time: '3h',
               rate: networkFees.mediumFee,
               active: selectedFeeType === NetworkTransactionFeeType.MEDIUM,
             },
             {
-              label: 'Slow',
+              label: loc.send.fee_slow,
+              time: loc.send.fee_1d,
               type: NetworkTransactionFeeType.SLOW,
-              time: '1d',
               rate: networkFees.slowFee,
               active: selectedFeeType === NetworkTransactionFeeType.SLOW,
             },
@@ -2338,17 +2338,24 @@ export class BlueReplaceFeeSuggestions extends Component {
               onPress={() => this.onFeeSelected(type)}
               style={[
                 { paddingHorizontal: 16, paddingVertical: 8, marginBottom: 10 },
-                active && { borderRadius: 8, backgroundColor: BlueApp.settings.incomingBackgroundColor },
+                active && { borderRadius: 8, backgroundColor: BlueCurrentTheme.colors.incomingBackgroundColor },
               ]}
             >
               <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontSize: 22, color: BlueApp.settings.successColor, fontWeight: '600' }}>{label}</Text>
-                <View style={{ backgroundColor: BlueApp.settings.successColor, borderRadius: 5, paddingHorizontal: 6, paddingVertical: 3 }}>
-                  <Text style={{ color: 'white' }}>~{time}</Text>
+                <Text style={{ fontSize: 22, color: BlueCurrentTheme.colors.successColor, fontWeight: '600' }}>{label}</Text>
+                <View
+                  style={{
+                    backgroundColor: BlueCurrentTheme.colors.successColor,
+                    borderRadius: 5,
+                    paddingHorizontal: 6,
+                    paddingVertical: 3,
+                  }}
+                >
+                  <Text style={{ color: BlueCurrentTheme.colors.background }}>~{time}</Text>
                 </View>
               </View>
               <View style={{ justifyContent: 'flex-end', flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ color: BlueApp.settings.successColor }}>{rate} sat/byte</Text>
+                <Text style={{ color: BlueCurrentTheme.colors.successColor }}>{rate} sat/byte</Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -2358,12 +2365,12 @@ export class BlueReplaceFeeSuggestions extends Component {
             { paddingHorizontal: 16, paddingVertical: 8, marginBottom: 10 },
             selectedFeeType === NetworkTransactionFeeType.CUSTOM && {
               borderRadius: 8,
-              backgroundColor: BlueApp.settings.incomingBackgroundColor,
+              backgroundColor: BlueCurrentTheme.colors.incomingBackgroundColor,
             },
           ]}
         >
           <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontSize: 22, color: BlueApp.settings.successColor, fontWeight: '600' }}>Custom</Text>
+            <Text style={{ fontSize: 22, color: BlueCurrentTheme.colors.successColor, fontWeight: '600' }}>Custom</Text>
           </View>
           <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
             <TextInput
@@ -2373,28 +2380,30 @@ export class BlueReplaceFeeSuggestions extends Component {
               ref={ref => (this.customTextInput = ref)}
               maxLength={9}
               style={{
-                borderColor: '#d2d2d2',
-                borderBottomColor: '#d2d2d2',
-                borderWidth: 1.0,
+                backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
+                borderBottomColor: BlueCurrentTheme.colors.formBorder,
                 borderBottomWidth: 0.5,
+                borderColor: BlueCurrentTheme.colors.formBorder,
                 borderRadius: 4,
-                minHeight: 33,
+                borderWidth: 1.0,
+                color: '#81868e',
                 flex: 1,
-                backgroundColor: '#f5f5f5',
-                textAlign: 'right',
-                paddingRight: 5,
                 marginRight: 10,
+                minHeight: 33,
+                paddingRight: 5,
+                textAlign: 'right',
               }}
               onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue)}
               defaultValue={`${this.props.transactionMinimum}`}
-              placeholder="Custom sat/b"
+              placeholder={loc.send.fee_satbyte}
+              placeholderTextColor="#81868e"
               inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
             />
-            <Text style={{ color: BlueApp.settings.successColor }}>sat/byte</Text>
+            <Text style={{ color: BlueCurrentTheme.colors.successColor }}>sat/byte</Text>
           </View>
         </TouchableOpacity>
         <BlueText style={{ color: BlueCurrentTheme.colors.alternativeTextColor }}>
-          The total fee rate (satoshi per byte) you want to pay should be higher than {this.props.transactionMinimum} sat/byte
+          {loc.formatString(loc.send.fee_replace_min, { min: this.props.transactionMinimum })}
         </BlueText>
       </View>
     );

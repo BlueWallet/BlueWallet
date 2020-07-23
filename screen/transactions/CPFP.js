@@ -16,6 +16,7 @@ import {
   BlueNavigationStyle,
   BlueBigCheckmark,
 } from '../../BlueComponents';
+import { BlueCurrentTheme } from '../../components/themes';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
 const EV = require('../../blue_modules/events');
@@ -37,7 +38,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   hex: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontWeight: '500',
   },
   hexInput: {

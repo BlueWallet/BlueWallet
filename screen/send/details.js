@@ -67,8 +67,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF', // backgroundColor: BlueCurrentTheme.colors.modal,
-    padding: 24,
+    backgroundColor: BlueCurrentTheme.colors.modal,
+    padding: 22,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderTopColor: BlueCurrentTheme.colors.borderTopColor,
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   },
   feeModalItemActive: {
     borderRadius: 8,
-    backgroundColor: BlueApp.settings.incomingBackgroundColor,
+    backgroundColor: BlueCurrentTheme.colors.feeLabel,
   },
   feeModalRow: {
     justifyContent: 'space-between',
@@ -104,20 +104,20 @@ const styles = StyleSheet.create({
   },
   feeModalLabel: {
     fontSize: 22,
-    color: BlueApp.settings.successColor,
+    color: BlueCurrentTheme.colors.successColor,
     fontWeight: '600',
   },
   feeModalTime: {
-    backgroundColor: BlueApp.settings.successColor,
+    backgroundColor: BlueCurrentTheme.colors.successColor,
     borderRadius: 5,
     paddingHorizontal: 6,
     paddingVertical: 3,
   },
   feeModalTimeText: {
-    color: 'white',
+    color: BlueCurrentTheme.colors.background,
   },
   feeModalValue: {
-    color: BlueApp.settings.successColor,
+    color: BlueCurrentTheme.colors.successColor,
   },
   feeModalCustom: {
     height: 60,
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   feeModalCustomText: {
-    color: BlueApp.settings.buttonAlternativeTextColor,
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 15,
     fontWeight: '600',
   },
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   feeRow: {
-    backgroundColor: BlueApp.settings.incomingBackgroundColor, // BlueCurrentTheme.colors.feeLabel
+    backgroundColor: BlueCurrentTheme.colors.feeLabel,
     minWidth: 40,
     height: 25,
     borderRadius: 4,
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   feeValue: {
-    color: BlueApp.settings.successColor, // BlueCurrentTheme.colors.feeValue
+    color: BlueCurrentTheme.colors.feeValue,
   },
 });
 
@@ -680,22 +680,22 @@ export default class SendDetails extends Component {
     const { feePrecalc, fee, networkTransactionFees: nf } = this.state;
     const options = [
       {
-        label: 'Fast',
-        time: '10m',
+        label: loc.send.fee_fast,
+        time: loc.send.fee_10m,
         fee: feePrecalc.fastestFee,
         rate: nf.fastestFee,
         active: Number(fee) === nf.fastestFee,
       },
       {
-        label: 'Medium',
-        time: '3h',
+        label: loc.send.fee_medium,
+        time: loc.send.fee_3h,
         fee: feePrecalc.mediumFee,
         rate: nf.mediumFee,
         active: Number(fee) === nf.mediumFee,
       },
       {
-        label: 'Slow',
-        time: '1d',
+        label: loc.send.fee_slow,
+        time: loc.send.fee_1d,
         fee: feePrecalc.slowFee,
         rate: nf.slowFee,
         active: Number(fee) === nf.slowFee,
@@ -736,18 +736,18 @@ export default class SendDetails extends Component {
             <TouchableOpacity
               style={styles.feeModalCustom}
               onPress={async () => {
-                let error = 'in sat/byte';
+                let error = loc.send.fee_satbyte;
                 while (true) {
                   let fee;
 
                   try {
-                    fee = await prompt('Fee', error, true, 'numeric');
+                    fee = await prompt(loc.send.create_fee, error, true, 'numeric');
                   } catch (_) {
                     return;
                   }
 
                   if (!/^\d+$/.test(fee)) {
-                    error = loc.send.details.fee_field_is_not_valid;
+                    error = loc.send.details_fee_field_is_not_valid;
                     continue;
                   }
 
@@ -758,7 +758,7 @@ export default class SendDetails extends Component {
                 }
               }}
             >
-              <Text style={styles.feeModalCustomText}>Custom</Text>
+              <Text style={styles.feeModalCustomText}>{loc.send.fee_custom}</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
