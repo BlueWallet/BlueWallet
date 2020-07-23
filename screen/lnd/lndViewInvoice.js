@@ -197,7 +197,7 @@ export default class LNDViewInvoice extends Component {
         <View style={styles.root}>
           <BlueLoading />
         </View>
-        );
+      );
     }
 
     const { invoice } = this.state;
@@ -258,7 +258,7 @@ export default class LNDViewInvoice extends Component {
             <View style={styles.detailsRoot}>
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
                 <TouchableOpacity style={styles.detailsTouch} onPress={() => this.setState({ showPreimageQr: true })}>
-                  <Text style={styles.detailsText}>{loc.send.create_details.details}</Text>
+                  <Text style={styles.detailsText}>{loc.send.create_details}</Text>
                   <Icon name="angle-right" size={18} type="font-awesome" color={BlueCurrentTheme.colors.alternativeTextColor} />
                 </TouchableOpacity>
               ) : (
