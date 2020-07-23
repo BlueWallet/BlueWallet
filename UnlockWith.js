@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet, Appearance, StatusBar } from 'react-native';
+import { View, Image, TouchableOpacity, StyleSheet, Appearance, StatusBar, ActivityIndicator } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as NavigationService from './NavigationService';
 import { StackActions } from '@react-navigation/native';
+import PropTypes from 'prop-types';
+
 const EV = require('./blue_modules/events');
 /** @type {AppStorage} */
 
@@ -58,9 +60,11 @@ export default class UnlockWith extends Component {
     }
     const isStorageEncrypted = await BlueApp.storageIsEncrypted();
     this.setState({ biometricType, isStorageEncrypted }, async () => {
-      if (!biometricType || isStorageEncrypted) {
-        this.unlockWithKey();
-      } else if (typeof biometricType === 'string') this.unlockWithBiometrics();
+      if (this.props.route.params.unlockOnComponentMount) {
+        if (!biometricType || isStorageEncrypted) {
+          this.unlockWithKey();
+        } else if (typeof biometricType === 'string') this.unlockWithBiometrics();
+      }
     });
   }
 
@@ -104,12 +108,44 @@ export default class UnlockWith extends Component {
     });
   };
 
+  renderUnlockOptions = () => {
+    if (this.state.isAuthenticating) {
+      return <ActivityIndicator />;
+    } else {
+      const color = this.state.appearance === 'dark' ? '#FFFFFF' : '#000000';
+      if (
+        (this.state.biometricType === Biometric.TouchID || this.state.biometricType === Biometric.Biometrics) &&
+        !this.state.isStorageEncrypted
+      ) {
+        return (
+          <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
+            <Icon name="fingerprint" size={64} type="font-awesome5" color={color} />
+          </TouchableOpacity>
+        );
+      } else if (this.state.biometricType === Biometric.FaceID && !this.state.isStorageEncrypted) {
+        return (
+          <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
+            <Image
+              source={this.state.appearance === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')}
+              style={styles.icon}
+            />
+          </TouchableOpacity>
+        );
+      } else if (this.state.isStorageEncrypted) {
+        return (
+          <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithKey}>
+            <Icon name="lock" size={64} type="font-awesome5" color={color} />
+          </TouchableOpacity>
+        );
+      }
+    }
+  };
+
   render() {
     if (!this.state.biometricType && !this.state.isStorageEncrypted) {
       return <View />;
     }
 
-    const color = this.state.appearance === 'dark' ? '#FFFFFF' : '#000000';
     return (
       <SafeAreaView style={styles.root}>
         <StatusBar barStyle="default" />
@@ -118,36 +154,18 @@ export default class UnlockWith extends Component {
             <Image source={require('./img/qr-code.png')} style={styles.qrCodeImage} />
           </View>
           <View style={styles.biometric}>
-            <View style={styles.biometricRow}>
-              {(this.state.biometricType === Biometric.TouchID || this.state.biometricType === Biometric.Biometrics) &&
-                !this.state.isStorageEncrypted && (
-                  <>
-                    <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
-                      <Icon name="fingerprint" size={64} type="font-awesome5" color={color} />
-                    </TouchableOpacity>
-                  </>
-                )}
-              {this.state.biometricType === Biometric.FaceID && !this.state.isStorageEncrypted && (
-                <>
-                  <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
-                    <Image
-                      source={this.state.appearance === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')}
-                      style={styles.icon}
-                    />
-                  </TouchableOpacity>
-                </>
-              )}
-              {this.state.isStorageEncrypted && (
-                <>
-                  <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithKey}>
-                    <Icon name="lock" size={64} type="font-awesome5" color={color} />
-                  </TouchableOpacity>
-                </>
-              )}
-            </View>
+            <View style={styles.biometricRow}>{this.renderUnlockOptions()}</View>
           </View>
         </View>
       </SafeAreaView>
     );
   }
 }
+
+UnlockWith.propTypes = {
+  route: PropTypes.shape({
+    params: PropTypes.shape({
+      unlockOnComponentMount: PropTypes.bool,
+    }),
+  }),
+};
