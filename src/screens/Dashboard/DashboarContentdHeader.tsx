@@ -11,11 +11,11 @@ interface Props {
   balance: number;
   unit: string;
   label: string;
-  type: string;
+  type?: string;
   onSendPress?: () => void;
   onReceivePress?: () => void;
   onSelectPress: () => void;
-  onReceveryPress: () => void;
+  onReceveryPress?: () => void;
 }
 
 export const DashboarContentdHeader = ({

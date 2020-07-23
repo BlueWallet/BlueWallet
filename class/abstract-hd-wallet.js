@@ -150,7 +150,7 @@ export class AbstractHDWallet extends LegacyWallet {
     }
   }
 
-  async fetchUtxo() {
+  async fetchUtxos() {
     try {
       this.utxo = [];
       const utxos = await BlueElectrum.multiGetUtxoByAddress(this.getAddress());

@@ -4,18 +4,17 @@ import React, { Component } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Alert, AsyncStorage } from 'react-native';
 
 import { images, icons } from 'app/assets';
-import { Header, ScreenTemplate, Button, InputItem, StyledText, Image } from 'app/components';
-import { MainCardStackNavigatorParams, Route, RootStackParams } from 'app/consts';
+import { Header, ScreenTemplate, Button, InputItem, StyledText, Image, RadioGroup, RadioButton } from 'app/components';
+import { CONST, MainCardStackNavigatorParams, Route, RootStackParams, Utxo, Wallet } from 'app/consts';
 import { processAddressData } from 'app/helpers/DataProcessing';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../BlueApp';
-import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
-import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, WatchOnlyWallet } from '../../class';
+import { HDSegwitBech32Wallet, HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet, WatchOnlyWallet } from '../../class';
 import config from '../../config';
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
+import { btcToSatoshi, satoshiToBtc } from '../../utils/bitcoin';
 import { DashboarContentdHeader } from './Dashboard/DashboarContentdHeader';
 
 const BigNumber = require('bignumber.js');
@@ -35,72 +34,47 @@ interface Props {
 interface State {
   isLoading: boolean;
   amount: number;
-  wallets: any;
-  showSendMax: boolean;
-  isFeeSelectionModalVisible: boolean;
-  isAdvancedTransactionOptionsVisible: boolean;
-  recipientsScrollIndex: number;
-  fromAddress: string;
-  fromWallet: any;
-  fromSecret: string;
-  addresses: any;
+  wallet: any;
+  transaction: BitcoinTransaction;
   memo: string;
-  networkTransactionFees: any;
   fee: number;
-  feeSliderValue: number;
-  bip70TransactionExpiration: null;
-  renderWalletSelectionButtonHidden: boolean;
+  vaultTxType: number;
 }
 
 export class SendCoinsScreen extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
     const { route } = props;
-    let { fromAddress, fromSecret, fromWallet } = route.params;
-    const { toAddress } = route.params;
+    const { toAddress, fromWallet } = route.params;
+
     const wallets = BlueApp.getWallets();
 
-    const addresses = toAddress ? [{ address: toAddress }] : [];
-    if (wallets.length === 0) {
-      Alert.alert('Before creating a transaction, you must first add a Bitcoin wallet.');
-      props.navigation.goBack();
-    } else {
-      if (!fromWallet && wallets.length > 0) {
-        fromWallet = wallets[0];
-        fromAddress = fromWallet.getAddress();
-        fromSecret = fromWallet.getSecret();
-      }
-      this.state = {
-        isLoading: false,
-        amount: 0,
-        wallets,
-        showSendMax: false,
-        isFeeSelectionModalVisible: false,
-        isAdvancedTransactionOptionsVisible: false,
-        recipientsScrollIndex: 0,
-        fromAddress,
-        fromWallet,
-        fromSecret,
-        addresses,
-        memo: '',
-        networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
-        fee: 1,
-        feeSliderValue: 1,
-        bip70TransactionExpiration: null,
-        renderWalletSelectionButtonHidden: false,
-      };
-    }
+    this.state = {
+      isLoading: false,
+      amount: 0,
+      wallet: fromWallet || wallets[0],
+      transaction: new BitcoinTransaction(toAddress),
+      memo: '',
+      fee: 1,
+      vaultTxType: bitcoin.payments.VaultTxType.Alert,
+    };
   }
 
   async componentDidMount() {
-    const { toAddress } = this.props.route.params;
-    const addresses = toAddress ? [{ address: toAddress }] : [new BitcoinTransaction()];
-    this.setState({
-      addresses,
-      isLoading: false,
-    });
+    await this.loadTransactionsFees();
+  }
 
+  loadTransactionsFees = async () => {
+    try {
+      const recommendedFees = await NetworkTransactionFees.recommendedFees();
+      if (recommendedFees && recommendedFees.hasOwnProperty('fastestFee')) {
+        await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
+        this.setState({
+          fee: Number(recommendedFees.fastestFee),
+        });
+        return;
+      }
+    } catch (_) {}
     try {
       const cachedNetworkTransactionFees = JSON.parse(
         (await AsyncStorage.getItem(NetworkTransactionFee.StorageKey)) as string,
@@ -108,92 +82,25 @@ export class SendCoinsScreen extends Component<Props, State> {
 
       if (cachedNetworkTransactionFees && cachedNetworkTransactionFees.hasOwnProperty('halfHourFee')) {
         this.setState({
-          fee: cachedNetworkTransactionFees.fastestFee,
-          networkTransactionFees: cachedNetworkTransactionFees,
-          feeSliderValue: cachedNetworkTransactionFees.fastestFee,
+          fee: Number(cachedNetworkTransactionFees.fastestFee),
         });
       }
     } catch (_) {}
+  };
 
-    try {
-      const recommendedFees = await NetworkTransactionFees.recommendedFees();
-      if (recommendedFees && recommendedFees.hasOwnProperty('fastestFee')) {
-        await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
-        this.setState({
-          fee: recommendedFees.fastestFee,
-          networkTransactionFees: recommendedFees,
-          feeSliderValue: recommendedFees.fastestFee,
-        });
-      } else {
-        this.setState({ isLoading: false });
-      }
-    } catch (_e) {}
-  }
-
-  chooseItemFromModal = async (index: number) => {
+  chooseItemFromModal = (index: number) => {
     const wallets = BlueApp.getWallets();
 
     const wallet = wallets[index];
-    const changeWallet = () => {
-      this.setState({
-        fromAddress: wallet.getAddress(),
-        fromSecret: wallet.getSecret(),
-        fromWallet: wallet,
-      });
-    };
-    if (this.state.addresses.length > 1 && !wallet.allowBatchSend()) {
-      Alert.alert(
-        'Wallet Selection',
-        `The selected wallet does not support sending Bitcoin to multiple recipients. Are you sure to want to select this wallet?`,
-        [
-          {
-            text: i18n._.ok,
-            onPress: async () => {
-              const firstTransaction =
-                this.state.addresses.find((element: any) => {
-                  const feeSatoshi = new BigNumber(element.amount).multipliedBy(100000000);
-                  return element.address.length > 0 && feeSatoshi > 0;
-                }) || this.state.addresses[0];
-              this.setState({ addresses: [firstTransaction], recipientsScrollIndex: 0 }, () => changeWallet());
-            },
-            style: 'default',
-          },
-          { text: i18n.send.details.cancel, onPress: () => {}, style: 'cancel' },
-        ],
-        { cancelable: false },
-      );
-    } else if (
-      this.state.addresses.some((element: any) => element.amount === BitcoinUnit.MAX) &&
-      !wallet.allowSendMax()
-    ) {
-      Alert.alert(
-        'Wallet Selection',
-        `The selected wallet does not support automatic maximum balance calculation. Are you sure to want to select this wallet?`,
-        [
-          {
-            text: i18n._.ok,
-            onPress: async () => {
-              const firstTransaction =
-                this.state.addresses.find((element: any) => {
-                  return element.amount === BitcoinUnit.MAX;
-                }) || this.state.addresses[0];
-              firstTransaction.amount = 0;
-              this.setState({ addresses: [firstTransaction], recipientsScrollIndex: 0 }, () => changeWallet());
-            },
-            style: 'default',
-          },
-          { text: i18n.send.details.cancel, style: 'cancel' },
-        ],
-        { cancelable: false },
-      );
-    } else {
-      changeWallet();
-    }
+    this.setState({
+      wallet,
+    });
   };
 
   showModal = () => {
-    const { wallets, fromWallet } = this.state;
-    const selectedIndex = wallets.findIndex((wallet: any) => wallet.label === fromWallet.label);
+    const wallets = BlueApp.getWallets();
+    const { wallet } = this.state;
+    const selectedIndex = wallets.findIndex((w: Wallet) => w.label === wallet.label);
     this.props.navigation.navigate(Route.ActionSheet, {
       wallets,
       selectedIndex,
@@ -201,8 +108,8 @@ export class SendCoinsScreen extends Component<Props, State> {
     });
   };
 
-  saveTransactionFee = (fee: number) => {
-    this.setState({ fee });
+  saveTransactionFee = (fee: string) => {
+    this.setState({ fee: Number(fee) });
   };
 
   renderSetTransactionFeeHeader = () => (
@@ -217,57 +124,32 @@ export class SendCoinsScreen extends Component<Props, State> {
       title: i18n.send.create.fee,
       label: i18n.send.create.amount,
       onSave: this.saveTransactionFee,
-      value: this.state.amount,
+      value: this.state.amount?.toString(),
       header: this.renderSetTransactionFeeHeader(),
     });
   };
 
+  getUnspentUtxos = (utxos: Utxo[]) => utxos.filter((u: Utxo) => u.spent_height === 0);
+
   createHDBech32Transaction = async () => {
     /** @type {HDSegwitBech32Wallet} */
-    const wallet = this.state.fromWallet;
-    await wallet.fetchUtxo();
-    const firstTransaction = this.state.addresses[0];
+    const { transaction, wallet } = this.state;
+    await wallet.fetchUtxos();
     const changeAddress = await wallet.getAddressForTransaction();
-    const satoshis = new BigNumber(firstTransaction.amount).multipliedBy(100000000).toNumber();
     const requestedSatPerByte: string | number = +this.state.fee.toString().replace(/\D/g, '');
 
-    let targets: any[] = [];
-    for (const transaction of this.state.addresses) {
-      const amount =
-        transaction.amount === BitcoinUnit.MAX
-          ? BitcoinUnit.MAX
-          : new BigNumber(transaction.amount).multipliedBy(100000000).toNumber();
-      if (amount > 0.0 || amount === BitcoinUnit.MAX) {
-        targets.push({ address: transaction.address, value: amount });
-        console.warn('createHDbech: ' + transaction.address, amount);
-      }
+    const targets: any[] = [];
+    const amount = satoshiToBtc(transaction.amount).toNumber();
+    if (amount > 0.0) {
+      targets.push({ address: transaction.address, value: amount });
     }
 
-    if (firstTransaction.amount === BitcoinUnit.MAX) {
-      targets = [{ address: firstTransaction.address, amount: BitcoinUnit.MAX }];
-    }
-
-    const { tx, fee, psbt } = await wallet.createTransaction(
-      wallet.getUtxo(),
+    const { tx, fee } = await wallet.createTransaction(
+      this.getUnspentUtxos(wallet.getUtxos()),
       targets,
       requestedSatPerByte,
       changeAddress,
     );
-
-    if (wallet.type === WatchOnlyWallet.type) {
-      // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
-      // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
-      // user whether he wants to broadcast it
-
-      this.setState({ isLoading: false }, () =>
-        this.props.navigation.navigate('PsbtWithHardwareWallet', {
-          memo: this.state.memo,
-          fromWallet: wallet,
-          psbt,
-        }),
-      );
-      return;
-    }
 
     BlueApp.tx_metadata = BlueApp.tx_metadata || {};
     BlueApp.tx_metadata[tx.getId()] = {
@@ -277,7 +159,7 @@ export class SendCoinsScreen extends Component<Props, State> {
     await BlueApp.saveToDisk();
     this.setState({ isLoading: false }, () =>
       this.props.navigation.navigate(Route.SendCoinsConfirm, {
-        fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
+        fee: btcToSatoshi(fee).toNumber(),
         memo: this.state.memo,
         fromWallet: wallet,
         tx: tx.toHex(),
@@ -293,7 +175,7 @@ export class SendCoinsScreen extends Component<Props, State> {
     let availableBalance;
     try {
       availableBalance = new BigNumber(balance);
-      availableBalance = availableBalance.div(100000000); // sat2btc
+      availableBalance = availableBalance.div(CONST.satoshiInBtc); // sat2btc
       availableBalance = availableBalance.minus(amount);
       availableBalance = availableBalance.minus(fee);
       availableBalance = availableBalance.toString(10);
@@ -304,215 +186,233 @@ export class SendCoinsScreen extends Component<Props, State> {
     return (availableBalance === 'NaN' && balance) || availableBalance;
   }
 
-  calculateFee(utxos: any, txhex: any, utxoIsInSatoshis: any) {
-    const index = {};
-    let c = 1;
-    index[0] = 0;
-    for (const utxo of utxos) {
-      if (!utxoIsInSatoshis) {
-        utxo.value = new BigNumber(utxo.value).multipliedBy(100000000).toNumber();
-      }
-      index[c] = utxo.value + index[c - 1];
-      c++;
+  validateTransaction = (): string | null => {
+    const { fee: requestedSatPerByte, transaction, wallet } = this.state;
+
+    if (!transaction.amount || transaction.amount <= 0) {
+      return i18n.send.details.amount_field_is_not_valid;
     }
-
-    const tx = bitcoin.Transaction.fromHex(txhex);
-    const totalInput = index[tx.ins.length];
-    // ^^^ dumb way to calculate total input. we assume that signer uses utxos sequentially
-    // so total input == sum of yongest used inputs (and num of used inputs is `tx.ins.length`)
-    // TODO: good candidate to refactor and move to appropriate class. some day
-
-    let totalOutput = 0;
-    for (const o of tx.outs) {
-      totalOutput += o.value * 1;
+    if (!requestedSatPerByte || requestedSatPerByte < 1) {
+      return i18n.send.details.fee_field_is_not_valid;
     }
-
-    return new BigNumber(totalInput - totalOutput).dividedBy(100000000).toNumber();
-  }
-
-  confirmTransaction = async () => {
-    this.setState({ isLoading: true });
-    let error: boolean | string = false;
-    const requestedSatPerByte: any = this.state.fee.toString().replace(/\D/g, '');
-    for (const [index, transaction] of this.state.addresses.entries()) {
-      if (!transaction.amount || transaction.amount < 0 || parseFloat(transaction.amount) === 0) {
-        error = i18n.send.details.amount_field_is_not_valid;
-      } else if (!this.state.fee || !requestedSatPerByte || parseFloat(requestedSatPerByte) < 1) {
-        error = i18n.send.details.fee_field_is_not_valid;
-      } else if (!transaction.address) {
-        error = i18n.send.details.address_field_is_not_valid;
-      } else if (this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), transaction.amount, 0) < 0) {
-        // first sanity check is that sending amount is not bigger than available balance
-        error = i18n.send.details.total_exceeds_balance;
-      } else if (BitcoinBIP70TransactionDecode.isExpired(this.state.bip70TransactionExpiration)) {
-        error = 'Transaction has expired.';
-      } else if (transaction.address) {
-        const address = transaction.address.trim().toLowerCase();
-        if (address.startsWith('lnb') || address.startsWith('lightning:lnb')) {
-          error =
-            'This address appears to be for a Lightning invoice. Please, go to your Lightning wallet in order to make a payment for this invoice.';
-        }
-      }
-
-      if (!error) {
-        try {
-          bitcoin.address.toOutputScript(transaction.address, config.network);
-        } catch (err) {
-          error = i18n.send.details.address_field_is_not_valid;
-        }
-      }
-      if (error) {
-        this.setState({ isLoading: false, recipientsScrollIndex: index });
-        Alert.alert(error.toString());
-
-        break;
+    if (!transaction.address) {
+      return i18n.send.details.address_field_is_not_valid;
+    }
+    if (this.recalculateAvailableBalance(wallet.getBalance(), transaction.amount, 0) < 0) {
+      // first sanity check is that sending amount is not bigger than available balance
+      return i18n.send.details.total_exceeds_balance;
+    }
+    if (transaction.address) {
+      const address = transaction.address.trim().toLowerCase();
+      if (address.startsWith('lnb') || address.startsWith('lightning:lnb')) {
+        return i18n.send.transaction.lightningError;
       }
     }
 
-    if (error) {
-      return;
+    try {
+      bitcoin.address.toOutputScript(transaction.address, config.network);
+    } catch (_) {
+      return i18n.send.details.address_field_is_not_valid;
     }
 
-    if (
-      this.state.fromWallet.type === HDSegwitBech32Wallet.type ||
-      this.state.fromWallet.type === WatchOnlyWallet.type
-    ) {
-      // new send is supported by BIP84 or watchonly with HW wallet support (it uses BIP84 under the hood anyway)
-      try {
-        await this.createHDBech32Transaction();
-      } catch (Err) {
-        this.setState({ isLoading: false }, () => {
-          Alert.alert(Err.message);
-          // ReactNativeHapticFeedback.trigger('notificationError', {
-          //   ignoreAndroidSystemSettings: false,
-          // });
-        });
-      }
-      return;
-    }
+    return null;
+  };
 
-    // legacy send below
+  getActualSatoshi = (tx: string, feeSatoshi: any) => feeSatoshi.dividedBy(Math.round(tx.length / 2)).toNumber();
 
-    this.setState({ isLoading: true }, async () => {
-      let utxo: any;
-      let actualSatoshiPerByte: any;
-      let tx: any, txid: any;
-      let tries = 1;
-      let fee = 0.000001; // initial fee guess
-      const firstTransaction = this.state.addresses[0];
-      try {
-        await this.state.fromWallet.fetchUtxo();
-        utxo = this.state.fromWallet.utxo;
-        do {
-          console.log('try #', tries, 'fee=', fee);
-          if (this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), firstTransaction.amount, fee) < 0) {
-            // we could not add any fee. user is trying to send all he's got. that wont work
-            // throw new Error(loc.send.details.total_exceeds_balance);
-          }
+  increaseFee = ({
+    feeSatoshi,
+    requestedSatPerByte,
+    actualSatoshiPerByte,
+  }: {
+    feeSatoshi: any;
+    requestedSatPerByte: number;
+    actualSatoshiPerByte: any;
+  }) =>
+    feeSatoshi
+      .multipliedBy(requestedSatPerByte / actualSatoshiPerByte)
+      .plus(10)
+      .dividedBy(CONST.satoshiInBtc)
+      .toNumber();
 
-          const startTime = Date.now();
-          tx = this.state.fromWallet.createTx(
-            utxo,
-            firstTransaction.amount,
-            fee,
-            firstTransaction.address,
-            this.state.memo,
-          );
-          const endTime = Date.now();
-          console.log('create tx ', (endTime - startTime) / 1000, 'sec');
+  isFeeEnough = ({
+    actualSatoshiPerByte,
+    requestedSatPerByte,
+  }: {
+    actualSatoshiPerByte: number;
+    requestedSatPerByte: number;
+  }) => !(Math.round(actualSatoshiPerByte) !== requestedSatPerByte || Math.floor(actualSatoshiPerByte) < 1);
 
-          const txDecoded = bitcoin.Transaction.fromHex(tx);
-          txid = txDecoded.getId();
-          console.log('txid', txid);
-          console.log('txhex', tx);
+  navigateToConfirm = ({
+    fee,
+    tx,
+    actualSatoshiPerByte,
+  }: {
+    fee: number;
+    tx: string;
+    actualSatoshiPerByte: number;
+  }) => {
+    const { transaction, wallet, memo } = this.state;
 
-          const feeSatoshi = new BigNumber(fee).multipliedBy(100000000);
-          actualSatoshiPerByte = feeSatoshi.dividedBy(Math.round(tx.length / 2));
-          actualSatoshiPerByte = actualSatoshiPerByte.toNumber();
-          console.log({ satoshiPerByte: actualSatoshiPerByte });
-
-          if (Math.round(actualSatoshiPerByte) !== requestedSatPerByte * 1 || Math.floor(actualSatoshiPerByte) < 1) {
-            console.log('fee is not correct, retrying');
-            fee = feeSatoshi
-              .multipliedBy(requestedSatPerByte / actualSatoshiPerByte)
-              .plus(10)
-              .dividedBy(100000000)
-              .toNumber();
-          } else {
-            break;
-          }
-        } while (tries++ < 5);
-
-        BlueApp.tx_metadata = BlueApp.tx_metadata || {};
-        BlueApp.tx_metadata[txid] = {
-          txhex: tx,
-          memo: this.state.memo,
-        };
-        await BlueApp.saveToDisk();
-      } catch (err) {
-        Alert.alert(err.toString());
-        this.setState({ isLoading: false });
-        return;
-      }
-
-      this.setState({ isLoading: false }, () =>
-        this.props.navigation.navigate(Route.SendCoinsConfirm, {
-          recipients: [firstTransaction],
-          // HD wallet's utxo is in sats, classic segwit wallet utxos are in btc
-          fee: this.calculateFee(
-            utxo,
-            tx,
-            this.state.fromWallet.type === HDSegwitP2SHWallet.type ||
-              this.state.fromWallet.type === HDLegacyP2PKHWallet.type,
-          ),
-          memo: this.state.memo,
-          fromWallet: this.state.fromWallet,
-          tx,
-          satoshiPerByte: actualSatoshiPerByte.toFixed(2),
-        }),
-      );
+    this.props.navigation.navigate(Route.SendCoinsConfirm, {
+      recipients: [transaction],
+      // HD wallet's utxo is in sats, classic segwit wallet utxos are in btc
+      fee,
+      memo,
+      fromWallet: wallet,
+      tx,
+      satoshiPerByte: actualSatoshiPerByte.toFixed(2),
     });
   };
 
-  setAddress = async (item: any, index: number, text: string) => {
-    this.processAddressData(text.trim());
+  createStandardTransaction = async (createTx: Function) => {
+    const { fee: requestedSatPerByte, transaction, memo, wallet } = this.state;
+    await wallet.fetchUtxos();
+    const utxos = wallet.getUtxos();
+    const utxosUnspent = this.getUnspentUtxos(utxos);
+    let fee = 0.000001; // initial fee guess
+    let actualSatoshiPerByte: any;
+    let tx = '';
+    const MAX_TRIES = 5;
+
+    for (let tries = 0; tries < MAX_TRIES; tries++) {
+      tx = await createTx(utxosUnspent, transaction.amount, fee, transaction.address);
+
+      const feeSatoshi = btcToSatoshi(fee);
+
+      actualSatoshiPerByte = this.getActualSatoshi(tx, feeSatoshi);
+
+      if (this.isFeeEnough({ requestedSatPerByte, actualSatoshiPerByte })) {
+        break;
+      }
+
+      fee = this.increaseFee({ feeSatoshi, requestedSatPerByte, actualSatoshiPerByte });
+    }
+
+    const txDecoded = bitcoin.Transaction.fromHex(tx);
+    const txid = txDecoded.getId();
+
+    BlueApp.tx_metadata = BlueApp.tx_metadata || {};
+    BlueApp.tx_metadata[txid] = {
+      txhex: tx,
+      memo,
+    };
+    await BlueApp.saveToDisk();
+    this.setState({ isLoading: false }, () => this.navigateToConfirm({ fee, tx, actualSatoshiPerByte }));
+  };
+
+  navigateToScanInstantPrivateKey = (onBarCodeScan: Function) => {
+    const { navigation } = this.props;
+    navigation.navigate(Route.IntegrateKey, {
+      onBarCodeScan,
+      title: i18n.send.transaction.scanInstantKeyTitle,
+      description: i18n.send.transaction.scanInstantKeyDesc,
+      withLink: false,
+      headerTitle: i18n.wallets.dashboard.send,
+    });
+  };
+
+  createTransactionByWallet = async (wallet: any) => {
+    const { type } = wallet;
+    switch (type) {
+      case HDSegwitP2SHArWallet.type:
+        return this.createStandardTransaction((utxos: Utxo[], amount: number, fee: number, address: string) =>
+          wallet.createTx({
+            utxos,
+            amount,
+            fee,
+            address,
+            vaultTxType: bitcoin.payments.VaultTxType.Alert,
+          }),
+        );
+      case HDSegwitP2SHAirWallet.type:
+        const { vaultTxType } = this.state;
+        if (vaultTxType === bitcoin.payments.VaultTxType.Alert) {
+          return this.createStandardTransaction((utxos: Utxo[], amount: number, fee: number, address: string) =>
+            wallet.createTx({
+              utxos,
+              amount,
+              fee,
+              address,
+              vaultTxType,
+            }),
+          );
+        }
+        if (vaultTxType === bitcoin.payments.VaultTxType.Instant) {
+          this.setState({ isLoading: false });
+          return this.navigateToScanInstantPrivateKey(async (instantPrivateKey: string) => {
+            try {
+              await this.createStandardTransaction((utxos: Utxo[], amount: number, fee: number, address: string) =>
+                wallet.createTx({
+                  utxos,
+                  amount,
+                  fee,
+                  address,
+                  vaultTxType,
+                  privateKeys: [instantPrivateKey],
+                }),
+              );
+            } catch (error) {
+              Alert.alert(error.message);
+            }
+          });
+        }
+
+      case WatchOnlyWallet.type:
+        throw new Error(i18n.send.transaction.watchOnlyError);
+      case HDSegwitBech32Wallet.type:
+        return this.createHDBech32Transaction();
+      default:
+        return this.createStandardTransaction((utxos: Utxo[], amount: number, fee: number, address: string) =>
+          wallet.createTx(utxos, amount, fee, address),
+        );
+    }
+  };
+
+  confirmTransaction = async () => {
+    this.setState({ isLoading: true });
+    const { wallet } = this.state;
+    const error = this.validateTransaction();
+
+    if (error) {
+      this.setState({ isLoading: false });
+      Alert.alert(error);
+      return;
+    }
+    try {
+      await this.createTransactionByWallet(wallet);
+    } catch (err) {
+      Alert.alert(err.message);
+      this.setState({ isLoading: false });
+    }
   };
 
   renderAmountInput = () => {
-    const rows = [];
-    for (const [index, item] of this.state.addresses.entries()) {
-      rows.push(
-        <InputItem
-          label={i18n.transactions.details.amount}
-          suffix="BTCV"
-          keyboardType="numeric"
-          value={item.amount ? item.amount.toString().replace(',', '.') : null}
-          setValue={text => {
-            item.amount = text;
-            const transactions = this.state.addresses;
-            transactions[index] = item;
-            this.setState({ addresses: transactions });
-          }}
-        />,
-      );
-    }
-    return rows;
+    const { transaction } = this.state;
+    return (
+      <InputItem
+        label={i18n.transactions.details.amount}
+        suffix="BTCV"
+        keyboardType="numeric"
+        setValue={text => {
+          const amount = Number(text.replace(',', '.'));
+          this.setState({ transaction: { ...transaction, amount: !Number.isNaN(amount) ? amount : undefined } });
+        }}
+      />
+    );
   };
 
   renderAddressInput = () => {
-    const rows = [];
-    for (const [index, item] of this.state.addresses.entries()) {
-      rows.push(
-        <InputItem
-          multiline
-          label={i18n.contactDetails.addressLabel}
-          style={styles.addressInput}
-          value={this.state.addresses[index].address}
-          setValue={text => this.setAddress(item, index, text)}
-        />,
-      );
-    }
-    return rows;
+    const { transaction } = this.state;
+    return (
+      <InputItem
+        multiline
+        label={i18n.contactDetails.addressLabel}
+        style={styles.addressInput}
+        value={transaction.address}
+        setValue={text => this.processAddressData(text.trim())}
+      />
+    );
   };
 
   /**
@@ -521,15 +421,52 @@ export class SendCoinsScreen extends Component<Props, State> {
    * @param data {String} Can be address or `bitcoin:xxxxxxx` uri scheme, or invalid garbage
    */
   processAddressData = (data: string) => {
-    const newAddresses = processAddressData(data, this.state.addresses[0].amount);
+    const { transaction } = this.state;
+
+    const newTransaction = processAddressData(data, transaction.amount);
     this.setState({
-      addresses: [newAddresses],
+      transaction: newTransaction,
     });
-    return newAddresses;
+    return newTransaction;
+  };
+
+  shouldShowVaultTransaction = () => {
+    const { wallet } = this.state;
+    return wallet.type === HDSegwitP2SHAirWallet.type;
+  };
+
+  onVaultTranscationSelect = (index: number, vaultTxType: number) => {
+    this.setState({ vaultTxType });
+  };
+
+  renderVaultTransactions = () => {
+    return (
+      <View>
+        <Text style={styles.radioButtonsTitle}>{i18n.send.transaction.type}</Text>
+        <RadioGroup
+          color={palette.secondary}
+          onSelect={this.onVaultTranscationSelect}
+          selectedIndex={this.state.vaultTxType}
+        >
+          <RadioButton style={styles.radioButton} value={bitcoin.payments.VaultTxType.Alert}>
+            <View style={styles.radioButtonContent}>
+              <Text style={styles.radioButtonTitle}>{i18n.send.transaction.alert}</Text>
+              <Text style={styles.radioButtonSubtitle}>{i18n.send.transaction.alertDesc}</Text>
+            </View>
+          </RadioButton>
+          <RadioButton style={styles.radioButton} value={bitcoin.payments.VaultTxType.Instant}>
+            <View style={styles.radioButtonContent}>
+              <Text style={styles.radioButtonTitle}>{i18n.send.transaction.instant}</Text>
+              <Text style={styles.radioButtonSubtitle}>{i18n.send.transaction.instantDesc}</Text>
+            </View>
+          </RadioButton>
+        </RadioGroup>
+      </View>
+    );
   };
 
   render() {
-    const { fromWallet, fee, isLoading } = this.state;
+    const { wallet, fee, isLoading } = this.state;
     return (
       <ScreenTemplate
         footer={
@@ -544,9 +481,9 @@ export class SendCoinsScreen extends Component<Props, State> {
       >
         <DashboarContentdHeader
           onSelectPress={this.showModal}
-          balance={fromWallet.balance}
-          label={fromWallet.label}
-          unit={fromWallet.preferredBalanceUnit}
+          balance={wallet.balance}
+          label={wallet.label}
+          unit={wallet.preferredBalanceUnit}
         />
         <View style={styles.inputsContainer}>
           {this.renderAmountInput()}
@@ -565,7 +502,7 @@ export class SendCoinsScreen extends Component<Props, State> {
                 })
               }
             >
-              <Image style={styles.icon} source={images.ContactList} />
+              <Image style={styles.icon} source={images.addressBook} />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.qrCodeIcon}
@@ -580,6 +517,8 @@ export class SendCoinsScreen extends Component<Props, State> {
           </View>
 
           <InputItem label={i18n.send.details.note} setValue={memo => this.setState({ memo })} />
+
+          {this.shouldShowVaultTransaction() && this.renderVaultTransactions()}
         </View>
       </ScreenTemplate>
     );
@@ -617,5 +556,26 @@ const styles = StyleSheet.create({
   },
   addressInput: {
     paddingEnd: 100,
+  },
+  radioButton: {
+    paddingStart: 0,
+    paddingVertical: 8,
+  },
+  radioButtonContent: {
+    paddingStart: 10,
+    top: -3,
+  },
+  radioButtonTitle: {
+    ...typography.caption,
+    marginBottom: 2,
+  },
+  radioButtonSubtitle: {
+    ...typography.overline,
+    color: palette.textGrey,
+  },
+  radioButtonsTitle: {
+    ...typography.overline,
+    color: palette.textGrey,
+    marginBottom: 16,
   },
 });

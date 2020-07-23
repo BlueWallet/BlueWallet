@@ -127,8 +127,8 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.ok(hd.validateMnemonic());
 
     await hd.fetchBalance();
-    await hd.fetchUtxo();
-    const utxo = hd.getUtxo();
+    await hd.fetchUtxos();
+    const utxo = hd.getUtxos();
     assert.strictEqual(utxo.length, 4);
     assert.ok(utxo[0].txId);
     assert.ok(utxo[0].vout === 0 || utxo[0].vout === 1);
@@ -246,12 +246,12 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     }
     assert.strictEqual(txFound, 4);
 
-    await hd.fetchUtxo();
+    await hd.fetchUtxos();
     const changeAddress = await hd.getChangeAddressAsync();
     assert.ok(changeAddress && changeAddress.startsWith('bc1'));
 
     const { tx, inputs, outputs, fee } = hd.createTransaction(
-      hd.getUtxo(),
+      hd.getUtxos(),
       [{ address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 51000 }],
       13,
       changeAddress,

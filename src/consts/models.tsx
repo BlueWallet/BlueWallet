@@ -13,6 +13,7 @@ export const CONST = {
   send: 'send',
   webGeneratorUrl: 'www.keygenerator.bitcoinvault.global',
   mnemonicWordsAmount: 12,
+  satoshiInBtc: 100000000,
 };
 
 export enum FlowType {
@@ -136,6 +137,18 @@ export interface Filters {
   transactionType?: string;
 }
 
+export interface Utxo {
+  address: string;
+  height: number;
+  spent_height: number;
+  tx_hash: string;
+  tx_pos: number;
+  txid: string;
+  value: number;
+  vout: number;
+  wif: string;
+}
+
 // @ts-ignore
 export type NavigationProp<T, R> = StackNavigationProp<T, R>;
 
@@ -241,7 +254,13 @@ export type MainCardStackNavigatorParams = {
   [Route.ExportAuthenticator]: { id: string };
   [Route.ImportAuthenticator]: undefined;
   [Route.CreateWalletSuccess]: { secret: string };
-  [Route.IntegrateKey]: { onFilterPress: ({}) => void };
+  [Route.IntegrateKey]: {
+    onBarCodeScan: Function;
+    title: string;
+    description: string;
+    withLink?: boolean;
+    headerTitle: string;
+  };
 };
 export type DateType = Date | Dayjs;
 export interface Authenticator {

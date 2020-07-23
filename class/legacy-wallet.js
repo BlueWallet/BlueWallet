@@ -117,7 +117,7 @@ export class LegacyWallet extends AbstractWallet {
    *
    * @return {Promise.<void>}
    */
-  async fetchUtxo() {
+  async fetchUtxos() {
     try {
       this.utxo = [];
       const utxos = await BlueElectrum.multiGetUtxoByAddress([this.getAddress()]);

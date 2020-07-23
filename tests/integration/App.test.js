@@ -67,7 +67,7 @@ it('Wallet can fetch UTXO', async () => {
   const w = new LegacyWallet();
   w._address = 'YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba';
   assert.strictEqual(w.getAddress(), 'YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba');
-  await w.fetchUtxo();
+  await w.fetchUtxos();
   assert.ok(w.utxo.length > 0, 'unexpected empty UTXO');
 });
 

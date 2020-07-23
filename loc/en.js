@@ -276,6 +276,19 @@ module.exports = {
   },
   send: {
     header: 'Send coins',
+    transaction: {
+      instant: 'Instant',
+      instantDesc: 'This method allows you to send immediate transfers. Use with extreme caution.',
+      alert: 'Alert',
+      alertDesc:
+        'This transaction waits 144 blocks or ca. 24 hours to be confirmed. Within this time you can recover your coins.',
+      type: 'Transaction type',
+      scanInstantKeyTitle: 'Scan Instant Key',
+      scanInstantKeyDesc: 'Scan the Instant Key QR code to start the transaction.',
+      lightningError:
+        'This address appears to be for a Lightning invoice. Please, go to your Lightning wallet in order to make a payment for this invoice.',
+      watchOnlyError: 'Watch only wallets cannot send transactions',
+    },
     success: {
       title: 'Success',
       description: 'Hooray! You have successfully finished the transaction.',

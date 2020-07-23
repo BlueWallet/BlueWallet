@@ -27,23 +27,25 @@ export class IntegrateKeyScreen extends React.PureComponent<Props> {
     const {
       navigation,
       route: {
-        params: { title, description, onBackArrow },
+        params: { title, description, onBackArrow, withLink = true, headerTitle },
       },
     } = this.props;
 
     return (
       <ScreenTemplate
         footer={<Button onPress={this.scanKey} title={i18n.wallets.publicKey.scan} />}
-        header={<Header navigation={navigation} onBackArrow={onBackArrow} isBackArrow title={i18n.wallets.add.title} />}
+        header={<Header navigation={navigation} onBackArrow={onBackArrow} isBackArrow title={headerTitle} />}
       >
         <Text style={styles.subtitle}>{title}</Text>
         <Text style={styles.description}>{description}</Text>
-        <TouchableOpacity
-          style={styles.webGeneratorUrlWrapper}
-          onPress={() => Linking.openURL(`https://${CONST.webGeneratorUrl}`)}
-        >
-          <Text style={styles.webGeneratorUrl}>{CONST.webGeneratorUrl}</Text>
-        </TouchableOpacity>
+        {withLink && (
+          <TouchableOpacity
+            style={styles.webGeneratorUrlWrapper}
+            onPress={() => Linking.openURL(`https://${CONST.webGeneratorUrl}`)}
+          >
+            <Text style={styles.webGeneratorUrl}>{CONST.webGeneratorUrl}</Text>
+          </TouchableOpacity>
+        )}
       </ScreenTemplate>
     );
   }

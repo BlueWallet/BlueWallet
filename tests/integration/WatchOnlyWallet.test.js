@@ -103,7 +103,7 @@ describe('Watch only wallet', () => {
         vout: 0,
       },
     ];
-    // hardcoding utxo so we wont have to call w.fetchUtxo() and w.getUtxo()
+    // hardcoding utxo so we wont have to call w.fetchUtxos() and w.getUtxos()
 
     const { psbt } = await w.createTransaction(
       utxos,

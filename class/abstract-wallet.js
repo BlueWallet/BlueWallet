@@ -136,7 +136,7 @@ export class AbstractWallet {
     return new Promise(resolve => resolve(this.getAddress()));
   }
 
-  getUtxo() {
+  getUtxos() {
     return this.utxo;
   }
 }

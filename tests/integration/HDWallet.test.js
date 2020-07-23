@@ -146,7 +146,7 @@ it('HD (BIP49) can create TX', async () => {
   hd.setSecret(process.env.HD_MNEMONIC_BIP49);
   assert.ok(hd.validateMnemonic());
 
-  await hd.fetchUtxo();
+  await hd.fetchUtxos();
   await hd.getChangeAddressAsync(); // to refresh internal pointer to next free address
   await hd.getAddressAsync(); // to refresh internal pointer to next free address
   let txhex = hd.createTx(hd.utxo, 0.000014, 0.000001, 'RKBm1Wz1tPBefb92d3hEXYMZqZTsxEcPJe');
@@ -215,7 +215,7 @@ it('HD (BIP49) can create TX', async () => {
 xit('Segwit HD (BIP49) can fetch UTXO', async function() {
   const hd = new HDSegwitP2SHWallet();
   hd._address = ['YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba', 'YRMrqNUKAfA2bQ7RmSz1hLYCeGAtci8NkT']; // hacking internals
-  await hd.fetchUtxo();
+  await hd.fetchUtxos();
   assert.ok(hd.utxo.length >= 12);
   assert.ok(typeof hd.utxo[0].confirmations === 'number');
   assert.ok(hd.utxo[0].txid);
@@ -244,7 +244,7 @@ it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', 
   took > 15 && console.warn('took', took, "sec to fetch huge HD wallet's balance");
   assert.strictEqual(hd.getBalance(), 51432);
 
-  await hd.fetchUtxo();
+  await hd.fetchUtxos();
   assert.ok(hd.utxo.length > 0);
   assert.ok(hd.utxo[0].txid);
   assert.ok(hd.utxo[0].vout === 0);
@@ -339,7 +339,7 @@ it('Legacy HD (BIP44) can create TX', async () => {
   hd.setSecret(process.env.HD_MNEMONIC);
   assert.ok(hd.validateMnemonic());
 
-  await hd.fetchUtxo();
+  await hd.fetchUtxos();
   await hd.getChangeAddressAsync(); // to refresh internal pointer to next free address
   await hd.getAddressAsync(); // to refresh internal pointer to next free address
   let txhex = hd.createTx(hd.utxo, 0.0008, 0.000005, 'RA4DhjMkk67nBYbNhPh8q3Zh3mDeGZzCdX');
@@ -372,7 +372,7 @@ it('Legacy HD (BIP44) can create TX', async () => {
 xit('Legacy HD (BIP44) can fetch UTXO', async function() {
   const hd = new HDLegacyP2PKHWallet();
   hd._address = ['YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba', 'YRMrqNUKAfA2bQ7RmSz1hLYCeGAtci8NkT']; // hacking internals
-  await hd.fetchUtxo();
+  await hd.fetchUtxos();
   assert.ok(hd.utxo.length >= 12);
   assert.ok(typeof hd.utxo[0].confirmations === 'number');
   assert.ok(hd.utxo[0].txid);

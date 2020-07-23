@@ -120,13 +120,13 @@ export class WatchOnlyWallet extends LegacyWallet {
     }
   }
 
-  async fetchUtxo() {
-    if (this._hdWalletInstance) return this._hdWalletInstance.fetchUtxo();
+  async fetchUtxos() {
+    if (this._hdWalletInstance) return this._hdWalletInstance.fetchUtxos();
     throw new Error('Not initialized');
   }
 
-  getUtxo() {
-    if (this._hdWalletInstance) return this._hdWalletInstance.getUtxo();
+  getUtxos() {
+    if (this._hdWalletInstance) return this._hdWalletInstance.getUtxos();
     throw new Error('Not initialized');
   }
 
