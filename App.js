@@ -57,7 +57,6 @@ export default class App extends React.Component {
     AppState.addEventListener('change', this._handleAppStateChange);
     DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
     QuickActions.popInitialAction().then(this.popInitialAction);
-    NavigationService.addShakeToLockListener();
     this._handleAppStateChange(undefined);
   };
 
@@ -117,7 +116,6 @@ export default class App extends React.Component {
     Linking.removeEventListener('url', this.handleOpenURL);
     AppState.removeEventListener('change', this._handleAppStateChange);
     Appearance.removeChangeListener(this.appearanceChanged);
-    NavigationService.removeShakeToLockListener();
   }
 
   _handleAppStateChange = async nextAppState => {

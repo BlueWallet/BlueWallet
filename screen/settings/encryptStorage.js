@@ -25,8 +25,6 @@ const EncryptStorage = () => {
   const [deleteWalletsAfterUninstall, setDeleteWalletsAfterUninstall] = useState(false);
   const [biometrics, setBiometrics] = useState({ isDeviceBiometricCapable: false, isBiometricsEnabled: false, biometricsType: '' });
   const [storageIsEncrypted, setStorageIsEncrypted] = useState(false);
-  const [isShakeToLockEnabled, setIsShakeToLockEnabled] = useState(false);
-  const [isShakeToLockedCapable, setIsShakeToLockedCapable] = useState(false);
   const { navigate, dispatch } = useNavigation();
   const styles = StyleSheet.create({
     root: {
@@ -41,13 +39,10 @@ const EncryptStorage = () => {
     const biometricsType = (await Biometric.biometricType()) || 'biometrics';
     const deleteWalletsAfterUninstall = await BlueApp.isDeleteWalletAfterUninstallEnabled();
     const isStorageEncrypted = await BlueApp.storageIsEncrypted();
-    const isShakeToLockEnabled = await BlueApp.isShakeToLockEnabled();
-    setIsShakeToLockedCapable(isStorageEncrypted || isBiometricsEnabled);
     setBiometrics(biometrics);
     setStorageIsEncrypted(isStorageEncrypted);
     setDeleteWalletsAfterUninstall(deleteWalletsAfterUninstall);
     setBiometrics({ isBiometricsEnabled, isDeviceBiometricCapable, biometricsType });
-    setIsShakeToLockEnabled(isShakeToLockEnabled);
     setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -79,11 +74,6 @@ const EncryptStorage = () => {
     setDeleteWalletsAfterUninstall(value);
   }, []);
 
-  const onShakeToLockSwitch = useCallback(async value => {
-    await BlueApp.setShakeToLockEnabled(value);
-    setIsShakeToLockEnabled(value);
-  }, []);
-
   const onEncryptStorageSwitch = useCallback(
     async value => {
       setIsLoading(true);
@@ -102,9 +92,7 @@ const EncryptStorage = () => {
         if (p1 === p2) {
           await BlueApp.encryptStorage(p1);
           setIsLoading(false);
-          const storageIsEncrypted = await BlueApp.storageIsEncrypted();
-          setIsShakeToLockedCapable((await Biometric.isBiometricUseCapableAndEnabled()) || storageIsEncrypted);
-          setIsShakeToLockedCapable(true);
+          setStorageIsEncrypted(true);
         } else {
           setIsLoading(false);
           alert(loc.settings.passwords_do_not_match);
@@ -143,10 +131,9 @@ const EncryptStorage = () => {
         isBiometricsEnabled.isBiometricsEnabled = value;
         await Biometric.setBiometricUseEnabled(value);
         setBiometrics(isBiometricsEnabled);
-        setIsShakeToLockedCapable(value === true || storageIsEncrypted);
       }
     },
-    [biometrics.biometricsType, biometrics.isBiometricsEnabled, biometrics.isDeviceBiometricCapable, storageIsEncrypted],
+    [biometrics],
   );
 
   const navigateToPlausibleDeniability = () => {
@@ -200,14 +187,6 @@ const EncryptStorage = () => {
             chevron
             testID="PlausibleDeniabilityButton"
             Component={TouchableOpacity}
-          />
-        )}
-        {isShakeToLockedCapable && (
-          <BlueListItemHooks
-            hideChevron
-            title="Shake Device to Lock"
-            Component={TouchableWithoutFeedback}
-            switch={{ onValueChange: onShakeToLockSwitch, value: isShakeToLockEnabled }}
           />
         )}
       </ScrollView>

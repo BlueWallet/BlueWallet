@@ -33,7 +33,6 @@ export class AppStorage {
   static HODL_HODL_API_KEY = 'HODL_HODL_API_KEY';
   static HODL_HODL_SIGNATURE_KEY = 'HODL_HODL_SIGNATURE_KEY';
   static HODL_HODL_CONTRACTS = 'HODL_HODL_CONTRACTS';
-  static SHAKE_TO_LOCK_ENABLED = 'shakeToLockEnabled';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
@@ -86,17 +85,6 @@ export class AppStorage {
     let data;
     try {
       data = await this.getItem(AppStorage.FLAG_ENCRYPTED);
-    } catch (error) {
-      return false;
-    }
-
-    return !!data;
-  }
-
-  async isShakeToLockEnabled() {
-    let data;
-    try {
-      data = await this.getItem(AppStorage.SHAKE_TO_LOCK_ENABLED);
     } catch (error) {
       return false;
     }
@@ -161,16 +149,6 @@ export class AppStorage {
       deleteWalletsAfterUninstall = true;
     }
     return !!deleteWalletsAfterUninstall;
-  }
-
-  async setShakeToLockEnabled(value) {
-    await this.setItem(AppStorage.SHAKE_TO_LOCK_ENABLED, value ? '1' : '');
-    const NavigationService = require('../NavigationService')
-    if (value) {
-      NavigationService.addShakeToLockListener();
-    } else {
-      NavigationService.removeShakeToLockListener();
-    }
   }
 
   async encryptStorage(password) {
