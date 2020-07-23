@@ -224,7 +224,7 @@ const ReceiveDetails = () => {
         if (wallet) {
           if (!wallet.getUserHasSavedExport()) {
             BlueAlertWalletExportReminder({
-              onSuccess: obtainWalletAddress,
+              onSuccess: () => obtainWalletAddress(),
               onFailure: () => {
                 goBack();
                 navigate('WalletExport', {
@@ -274,6 +274,7 @@ const ReceiveDetails = () => {
         break;
     }
     setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { amount, label: customLabel }));
+    setShowAddress(true);
   };
 
   const renderCustomAmountModal = () => {
@@ -338,8 +339,7 @@ const ReceiveDetails = () => {
           url={`https://blockstream.info/address/${address}`}
         />
       )}
-      {showAddress && renderReceiveDetails()}
-      {!showAddress && <BlueLoadingHook />}
+      {showAddress ? renderReceiveDetails() : <BlueLoadingHook />}
     </View>
   );
 };
