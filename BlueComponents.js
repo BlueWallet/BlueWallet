@@ -2370,7 +2370,7 @@ export class BlueReplaceFeeSuggestions extends Component {
           ]}
         >
           <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontSize: 22, color: BlueCurrentTheme.colors.successColor, fontWeight: '600' }}>Custom</Text>
+            <Text style={{ fontSize: 22, color: BlueCurrentTheme.colors.successColor, fontWeight: '600' }}>{loc.send.fee_custom}</Text>
           </View>
           <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
             <TextInput
