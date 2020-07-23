@@ -205,18 +205,22 @@ const ReceiveDetails = () => {
           BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
         }
       }
-      setAddress(address);
+      setAddressBIP21Encoded(address);
       await notifications.tryToObtainPermissions();
       notifications.majorTomToGroundControl([address], []);
     } else if (wallet.getAddress) {
-      setAddress(wallet.getAddress());
+      setAddressBIP21Encoded(wallet.getAddress());
       await notifications.tryToObtainPermissions();
       notifications.majorTomToGroundControl([wallet.getAddress()], []);
     }
+  }, [wallet]);
+
+  const setAddressBIP21Encoded = address => {
     const bip21encoded = DeeplinkSchemaMatch.bip21encode(address);
+    setAddress(address);
     setBip21encoded(bip21encoded);
     setShowAddress(true);
-  }, [wallet]);
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -224,7 +228,7 @@ const ReceiveDetails = () => {
         if (wallet) {
           if (!wallet.getUserHasSavedExport()) {
             BlueAlertWalletExportReminder({
-              onSuccess: () => obtainWalletAddress(),
+              onSuccess: obtainWalletAddress,
               onFailure: () => {
                 goBack();
                 navigate('WalletExport', {

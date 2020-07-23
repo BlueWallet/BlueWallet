@@ -19,7 +19,7 @@ async function startAndDecrypt(retry) {
   console.log('startAndDecrypt');
   if (BlueApp.getWallets().length > 0) {
     console.log('App already has some wallets, so we are in already started state, exiting startAndDecrypt');
-    return;
+    return true;
   }
   let password = false;
   if (await BlueApp.storageIsEncrypted()) {
