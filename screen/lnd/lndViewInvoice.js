@@ -197,7 +197,7 @@ export default class LNDViewInvoice extends Component {
         <View style={styles.root}>
           <BlueLoading />
         </View>
-      );
+        );
     }
 
     const { invoice } = this.state;

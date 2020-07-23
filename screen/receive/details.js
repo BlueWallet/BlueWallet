@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   InteractionManager,
@@ -11,7 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
   BlueLoadingHook,
   BlueCopyTextToClipboard,
@@ -50,7 +50,6 @@ const ReceiveDetails = () => {
   const [bip21encoded, setBip21encoded] = useState();
   const [isCustom, setIsCustom] = useState(false);
   const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
-  const [showAddress, setShowAddress] = useState(false);
   const { navigate, goBack } = useNavigation();
   const { colors } = useTheme();
   const styles = StyleSheet.create({
@@ -136,46 +135,7 @@ const ReceiveDetails = () => {
     },
   });
 
-  const renderReceiveDetails = () => {
-    return (
-      <ScrollView style={styles.root} contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
-        <View style={styles.scrollBody}>
-          {isCustom && (
-            <>
-              <BlueText style={styles.amount} numberOfLines={1}>
-                {getDisplayAmount()}
-              </BlueText>
-              <BlueText style={styles.label} numberOfLines={1}>
-                {customLabel}
-              </BlueText>
-            </>
-          )}
-          <QRCode
-            value={bip21encoded}
-            logo={require('../../img/qr-code.png')}
-            size={(is.ipad() && 300) || 300}
-            logoSize={90}
-            color={colors.foregroundColor}
-            logoBackgroundColor={colors.brandingColor}
-            backgroundColor={colors.background}
-            ecl="H"
-          />
-          <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
-        </View>
-        <View style={styles.share}>
-          <BlueButtonLinkHook title={loc.receive.details_setAmount} onPress={showCustomAmountModal} />
-          <View>
-            <SecondButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
-          </View>
-        </View>
-        {renderCustomAmountModal()}
-      </ScrollView>
-    );
-  };
-
-  const obtainWalletAddress = useCallback(async () => {
-    HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
-    Privacy.enableBlur();
+  const renderReceiveDetails = useCallback(async () => {
     console.log('receive/details - componentDidMount');
     wallet.setUserHasSavedExport(true);
     await BlueApp.saveToDisk();
@@ -213,36 +173,32 @@ const ReceiveDetails = () => {
       await notifications.tryToObtainPermissions();
       notifications.majorTomToGroundControl([wallet.getAddress()], []);
     }
-    const bip21encoded = DeeplinkSchemaMatch.bip21encode(address);
-    setBip21encoded(bip21encoded);
-    setShowAddress(true);
+    InteractionManager.runAfterInteractions(async () => {
+      const bip21encoded = DeeplinkSchemaMatch.bip21encode(address);
+      setBip21encoded(bip21encoded);
+    });
   }, [wallet]);
 
-  useFocusEffect(
-    useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(async () => {
-        if (wallet) {
-          if (!wallet.getUserHasSavedExport()) {
-            BlueAlertWalletExportReminder({
-              onSuccess: obtainWalletAddress,
-              onFailure: () => {
-                goBack();
-                navigate('WalletExport', {
-                  wallet: wallet,
-                });
-              },
+  useEffect(() => {
+    if (wallet) {
+      if (!wallet.getUserHasSavedExport()) {
+        BlueAlertWalletExportReminder({
+          onSuccess: renderReceiveDetails,
+          onFailure: () => {
+            goBack();
+            navigate('WalletExport', {
+              wallet: wallet,
             });
-          } else {
-            obtainWalletAddress();
-          }
-        }
-      });
-      return () => {
-        task.cancel();
-        Privacy.disableBlur();
-      };
-    }, [goBack, navigate, obtainWalletAddress, wallet]),
-  );
+          },
+        });
+      } else {
+        renderReceiveDetails();
+      }
+    }
+    HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
+    Privacy.enableBlur();
+    return () => Privacy.disableBlur();
+  }, [goBack, navigate, renderReceiveDetails, secret, wallet]);
 
   const dismissCustomAmountModal = () => {
     Keyboard.dismiss();
@@ -331,15 +287,51 @@ const ReceiveDetails = () => {
   return (
     <View style={styles.root}>
       <StatusBar barStyle="light-content" />
-      {isHandOffUseEnabled && address !== undefined && showAddress && (
+      {isHandOffUseEnabled && address !== undefined && (
         <Handoff
           title={`Bitcoin Transaction ${address}`}
           type="io.bluewallet.bluewallet"
           url={`https://blockstream.info/address/${address}`}
         />
       )}
-      {showAddress && renderReceiveDetails()}
-      {!showAddress && <BlueLoadingHook />}
+      <ScrollView style={styles.root} contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
+        <View style={styles.scrollBody}>
+          {isCustom && (
+            <>
+              <BlueText style={styles.amount} numberOfLines={1}>
+                {getDisplayAmount()}
+              </BlueText>
+              <BlueText style={styles.label} numberOfLines={1}>
+                {customLabel}
+              </BlueText>
+            </>
+          )}
+          {bip21encoded === undefined ? (
+            <View style={styles.loading}>
+              <BlueLoadingHook />
+            </View>
+          ) : (
+            <QRCode
+              value={bip21encoded}
+              logo={require('../../img/qr-code.png')}
+              size={(is.ipad() && 300) || 300}
+              logoSize={90}
+              color={colors.foregroundColor}
+              logoBackgroundColor={colors.brandingColor}
+              backgroundColor={colors.background}
+              ecl="H"
+            />
+          )}
+          <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
+        </View>
+        <View style={styles.share}>
+          <BlueButtonLinkHook title={loc.receive.details_setAmount} onPress={showCustomAmountModal} />
+          <View>
+            <SecondButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+          </View>
+        </View>
+      </ScrollView>
+      {renderCustomAmountModal()}
     </View>
   );
 };
