@@ -32,10 +32,11 @@ import WalletGradient from './class/wallet-gradient';
 import ToolTip from 'react-native-tooltip';
 import { BlurView } from '@react-native-community/blur';
 import showPopupMenu from 'react-native-popup-menu-android';
-import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
+import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
 import { encodeUR } from 'bc-ur/dist';
 import QRCode from 'react-native-qrcode-svg';
+import AsyncStorage from '@react-native-community/async-storage';
 import { useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
@@ -433,14 +434,11 @@ export class BlueButtonLink extends Component {
 
 export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure }) => {
   Alert.alert(
-    'Wallet',
-    `Have you saved your wallet's backup phrase? This backup phrase is required to access your funds in case you lose this device. Without the backup phrase, your funds will be permanently lost.`,
+    loc.wallets.details_title,
+    loc.pleasebackup.ask,
     [
-      { text: 'Yes, I have', onPress: onSuccess, style: 'cancel' },
-      {
-        text: 'No, I have not',
-        onPress: onFailure,
-      },
+      { text: loc.pleasebackup.ask_yes, onPress: onSuccess, style: 'cancel' },
+      { text: loc.pleasebackup.ask_no, onPress: onFailure },
     ],
     { cancelable: false },
   );
@@ -986,7 +984,7 @@ export class BlueUseAllFundsButton extends Component {
               paddingBottom: 12,
             }}
           >
-            Total:
+            {loc.send.input_total}
           </Text>
           {this.props.wallet.allowSendMax() && this.props.wallet.getBalance() > 0 ? (
             <BlueButtonLink
@@ -1014,7 +1012,7 @@ export class BlueUseAllFundsButton extends Component {
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
           <BlueButtonLink
             style={{ paddingRight: 8, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
-            title="Done"
+            title={loc.send.input_done}
             onPress={() => Keyboard.dismiss()}
           />
         </View>
@@ -1044,7 +1042,7 @@ export class BlueDismissKeyboardInputAccessory extends Component {
             alignItems: 'center',
           }}
         >
-          <BlueButtonLink title="Done" onPress={() => Keyboard.dismiss()} />
+          <BlueButtonLink title={loc.send.input_done} onPress={() => Keyboard.dismiss()} />
         </View>
       </InputAccessoryView>
     );
@@ -1070,9 +1068,9 @@ export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
           maxHeight: 44,
         }}
       >
-        <BlueButtonLink title="Clear" onPress={this.props.onClearTapped} />
-        <BlueButtonLink title="Paste" onPress={this.onPasteTapped} />
-        <BlueButtonLink title="Done" onPress={() => Keyboard.dismiss()} />
+        <BlueButtonLink title={loc.send.input_clear} onPress={this.props.onClearTapped} />
+        <BlueButtonLink title={loc.send.input_paste} onPress={this.onPasteTapped} />
+        <BlueButtonLink title={loc.send.input_done} onPress={() => Keyboard.dismiss()} />
       </View>
     );
 
@@ -1328,8 +1326,6 @@ export class BlueTransactionOutgoingIcon extends Component {
     );
   }
 }
-
-//
 
 export class BlueReceiveButtonIcon extends Component {
   render() {
@@ -2019,7 +2015,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
                   color: BlueCurrentTheme.colors.inverseForegroundColor,
                 }}
               >
-                An error was encountered when attempting to import this wallet.
+                {loc.wallets.list_import_error}
               </Text>
             ) : (
               <ActivityIndicator style={{ marginTop: 40 }} />
@@ -2803,7 +2799,7 @@ export class DynamicQRCode extends Component {
         <BlueSpacing20 />
         <View>
           <Text style={animatedQRCodeStyle.text}>
-            {this.state.index + 1} of {this.state.total}
+            {loc.formatString(loc._.of, { number: this.state.index + 1, total: this.state.total })}
           </Text>
         </View>
         <BlueSpacing20 />
@@ -2812,25 +2808,25 @@ export class DynamicQRCode extends Component {
             style={[animatedQRCodeStyle.button, { width: '25%', alignItems: 'flex-start' }]}
             onPress={this.moveToPreviousFragment}
           >
-            <Text style={animatedQRCodeStyle.text}>Previous</Text>
+            <Text style={animatedQRCodeStyle.text}>{loc.send.dynamic_prev}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[animatedQRCodeStyle.button, { width: '50%' }]}
             onPress={this.state.intervalHandler ? this.stopAutoMove : this.startAutoMove}
           >
-            <Text style={animatedQRCodeStyle.text}>{this.state.intervalHandler ? 'Stop' : 'Start'}</Text>
+            <Text style={animatedQRCodeStyle.text}>{this.state.intervalHandler ? loc.send.dynamic_stop : loc.send.dynamic_start}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[animatedQRCodeStyle.button, { width: '25%', alignItems: 'flex-end' }]}
             onPress={this.moveToNextFragment}
           >
-            <Text style={animatedQRCodeStyle.text}>Next</Text>
+            <Text style={animatedQRCodeStyle.text}>{loc.send.dynamic_next}</Text>
           </TouchableOpacity>
         </View>
       </View>
     ) : (
       <View>
-        <Text>Initialing</Text>
+        <Text>{loc.send.dynamic_init}</Text>
       </View>
     );
   }

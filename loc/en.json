@@ -126,6 +126,9 @@
     "title": "Plausible Deniability"
   },
   "pleasebackup": {
+    "ask": "Have you saved your wallet's backup phrase? This backup phrase is required to access your funds in case you lose this device. Without the backup phrase, your funds will be permanently lost.",
+    "ask_no": "No, I have not",
+    "ask_yes": "Yes, I have",
     "ok": "OK, I wrote this down!",
     "ok_lnd": "OK, I have saved it.",
     "text": "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device.",
@@ -193,7 +196,16 @@
     "details_total_exceeds_balance": "The sending amount exceeds the available balance.",
     "details_wallet_before_tx": "Before creating a transaction, you must first add a Bitcoin wallet.",
     "details_wallet_selection": "Wallet Selection",
+    "dynamic_init": "Initialing",
+    "dynamic_next": "Next",
+    "dynamic_prev": "Previous",
+    "dynamic_start": "Start",
+    "dynamic_stop": "Stop",
     "header": "Send",
+    "input_clear": "Clear",
+    "input_done": "Done",
+    "input_paste": "Paste",
+    "input_total": "Total:",
     "permission_camera_message": "We need your permission to use your camera",
     "permission_camera_title": "Permission to use camera",
     "permission_storage_later": "Ask Me Later",
@@ -269,9 +281,6 @@
     "save": "Save",
     "storage_encrypted": "Storage: encrypted",
     "storage_not_encrypted": "Storage: not encrypted"
-  },
-  "test1": {
-    "test2": "test3"
   },
   "transactions": {
     "cancel_explain": "We will replace this transaction with the one that pays you and has higher fees. This effectively cancels transaction. This is called RBF - Replace By Fee.",
@@ -367,6 +376,7 @@
     "list_empty_txs2": "Start with your wallet",
     "list_empty_txs2_lightning": "\nTo start using it tap on \"manage funds\" and topup your balance.",
     "list_header": "A wallet represents a pair of a secret (private key) and an addressyou can share to receive coins.",
+    "list_import_error": "An error was encountered when attempting to import this wallet.",
     "list_import_problem": "There was a problem importing this wallet",
     "list_latest_transaction": "latest transaction",
     "list_long_choose": "Choose Photo",
