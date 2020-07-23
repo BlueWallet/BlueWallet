@@ -39,6 +39,8 @@ import QRCode from 'react-native-qrcode-svg';
 import { useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
+import AsyncStorage from '@react-native-community/async-storage';
+import Lnurl from './class/lnurl';
 /** @type {AppStorage} */
 const BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
@@ -1698,7 +1700,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     return (item.confirmations < 7 ? loc.transactions.list_conf + ': ' + item.confirmations + ' ' : '') + txMemo() + (item.memo || '');
   };
 
-  const onPress = () => {
+  const onPress = async () => {
     if (item.hash) {
       NavigationService.navigate('TransactionStatus', { hash: item.hash });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
@@ -1710,6 +1712,25 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
         }
       });
       if (lightningWallet.length === 1) {
+        // is it a successful lnurl-pay?
+        const LN = new Lnurl(false, AsyncStorage);
+        let paymentHash = item.payment_hash;
+        if (typeof paymentHash === 'object') {
+          paymentHash = Buffer.from(paymentHash.data).toString('hex');
+        }
+        const loaded = await LN.loadSuccessfulPayment(paymentHash);
+        if (loaded) {
+          NavigationService.navigate('ScanLndInvoiceRoot', {
+            screen: 'LnurlPaySuccess',
+            params: {
+              paymentHash: paymentHash,
+              justPaid: false,
+              fromWalletID: lightningWallet[0].getID(),
+            },
+          });
+          return;
+        }
+
         NavigationService.navigate('LNDViewInvoice', {
           invoice: item,
           fromWallet: lightningWallet[0],

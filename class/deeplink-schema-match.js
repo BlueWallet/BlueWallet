@@ -96,6 +96,9 @@ class DeeplinkSchemaMatch {
         },
       ]);
     } else if (DeeplinkSchemaMatch.isLnUrl(event.url)) {
+      // at this point we can not tell if it is lnurl-pay or lnurl-withdraw since it needs additional async call
+      // to the server, which is undesirable here, so LNDCreateInvoice screen will handle it for us and will
+      // redirect user to LnurlPay screen if necessary
       completionHandler([
         'LNDCreateInvoiceRoot',
         {
