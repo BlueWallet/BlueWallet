@@ -48,6 +48,7 @@ export default class App extends React.Component {
   appearanceChanged = () => {
     const appearance = Appearance.getColorScheme();
     if (appearance) {
+      BlueCurrentTheme.updateColorScheme();
       this.setState({ theme: appearance });
     }
   };

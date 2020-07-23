@@ -99,7 +99,13 @@ export const BlueDarkTheme = {
   },
 };
 
-export class BlueCurrentTheme {}
-BlueCurrentTheme.colors = Appearance.getColorScheme() === 'dark' ? BlueDarkTheme.colors : BlueDefaultTheme.colors;
-BlueCurrentTheme.closeImage = Appearance.getColorScheme() === 'dark' ? BlueDarkTheme.closeImage : BlueDefaultTheme.closeImage;
-BlueCurrentTheme.scanImage = Appearance.getColorScheme() === 'dark' ? BlueDarkTheme.scanImage : BlueDefaultTheme.scanImage;
+export class BlueCurrentTheme {
+  static updateColorScheme() {
+    const isColorSchemeDark = Appearance.getColorScheme() === 'dark';
+    BlueCurrentTheme.colors = isColorSchemeDark ? BlueDarkTheme.colors : BlueDefaultTheme.colors;
+    BlueCurrentTheme.closeImage = isColorSchemeDark ? BlueDarkTheme.closeImage : BlueDefaultTheme.closeImage;
+    BlueCurrentTheme.scanImage = isColorSchemeDark === 'dark' ? BlueDarkTheme.scanImage : BlueDefaultTheme.scanImage;
+  }
+}
+
+BlueCurrentTheme.updateColorScheme();
