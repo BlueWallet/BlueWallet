@@ -12,29 +12,17 @@ import {
   TouchableHighlight,
   View,
 } from 'react-native';
-import {
-  BlueButton,
-  BlueCopyTextToClipboard,
-  BlueLoading,
-  BlueNavigationStyle,
-  BlueSpacing10,
-  BlueSpacing20,
-  SafeBlueArea,
-} from '../../BlueComponents';
+import { BlueButton, BlueCopyTextToClipboard, BlueLoading, BlueNavigationStyle, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
 import { AppStorage } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import Modal from 'react-native-modal';
 import * as NavigationService from '../../NavigationService';
+import { BlueCurrentTheme } from '../../components/themes';
+import loc from '../../loc';
 
 const BlueApp: AppStorage = require('../../BlueApp');
 
 export default class HodlHodlMyContracts extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: 'My contracts',
-    headerLeft: null,
-  });
-
   constructor(props) {
     super(props);
 
@@ -64,13 +52,13 @@ export default class HodlHodlMyContracts extends Component {
   render() {
     if (this.state.isLoading) return <BlueLoading />;
     return (
-      <SafeBlueArea>
+      <View style={styles.root}>
         <FlatList
           scrollEnabled={false}
           keyExtractor={(item, index) => {
             return item.id;
           }}
-          ListEmptyComponent={() => <Text style={styles.emptyComponentText}>You dont have any contracts in progress</Text>}
+          ListEmptyComponent={() => <Text style={styles.emptyComponentText}>{loc.hodl.cont_no}</Text>}
           style={styles.flatList}
           ItemSeparatorComponent={() => <View style={styles.itemSeparatorComponent} />}
           data={this.state.contracts}
@@ -92,7 +80,7 @@ export default class HodlHodlMyContracts extends Component {
                     <Text style={styles.volumeBreakdownText}>
                       {contract.volume_breakdown.goes_to_buyer} {contract.asset_code}
                     </Text>
-                    <Text style={styles.roleText}>{contract.your_role === 'buyer' ? 'buying' : 'selling'}</Text>
+                    <Text style={styles.roleText}>{contract.your_role === 'buyer' ? loc.hodl.cont_buying : loc.hodl.cont_selling}</Text>
                   </View>
 
                   <View>
@@ -104,7 +92,7 @@ export default class HodlHodlMyContracts extends Component {
           )}
         />
         {this.renderContract()}
-      </SafeBlueArea>
+      </View>
     );
   }
 
@@ -138,14 +126,11 @@ export default class HodlHodlMyContracts extends Component {
           contract.escrow.confirmations >= contract.confirmations && +contract.escrow.amount_deposited >= +contract.volume;
         // technically, we could fetch balance of escrow address ourselved and verify, but we are relying on api here
 
-        contract.statusText = 'Waiting for seller to deposit bitcoins to escrow...';
-        if (contract.isDepositedEnought && contract.status !== 'paid')
-          contract.statusText = 'Bitcoins are in escrow! Please pay seller\nvia agreed payment method';
-        if (contract.status === 'paid') contract.statusText = 'Waiting for seller to release coins from escrow';
-        if (contract.status === 'in_progress' && contract.your_role === 'buyer')
-          contract.statusText = 'Coins are in escrow, please pay seller';
-
-        if (contract.status === 'completed') contract.statusText = 'All done!';
+        contract.statusText = loc.hodl.cont_st_waiting;
+        if (contract.isDepositedEnought && contract.status !== 'paid') contract.statusText = loc.hodl.cont_st_paid_enought;
+        if (contract.status === 'paid') contract.statusText = loc.hodl.cont_st_paid_waiting;
+        if (contract.status === 'in_progress' && contract.your_role === 'buyer') contract.statusText = loc.hodl.cont_st_in_progress_buyer;
+        if (contract.status === 'completed') contract.statusText = loc.hodl.cont_st_completed;
       }
 
       contracts.push(contract);
@@ -192,7 +177,7 @@ export default class HodlHodlMyContracts extends Component {
               </View>
             </View>
 
-            <Text style={styles.subheaderText}>To</Text>
+            <Text style={styles.subheaderText}>{loc.hodl.cont_address_to}</Text>
             <View style={styles.modalContentCentered}>
               <View style={styles.statusGrayWrapper2}>
                 <Text
@@ -205,7 +190,7 @@ export default class HodlHodlMyContracts extends Component {
             </View>
             <BlueSpacing10 />
 
-            <Text style={styles.subheaderText}>Escrow</Text>
+            <Text style={styles.subheaderText}>{loc.hodl.cont_address_escrow}</Text>
             <View style={styles.modalContentCentered}>
               <View style={styles.statusGrayWrapper2}>
                 <Text
@@ -220,7 +205,7 @@ export default class HodlHodlMyContracts extends Component {
 
             {this.isAllowedToMarkContractAsPaid() ? (
               <View>
-                <Text style={styles.subheaderText}>How to pay</Text>
+                <Text style={styles.subheaderText}>{loc.hodl.cont_how}</Text>
                 <View style={styles.modalContentCentered}>
                   <View style={styles.statusGrayWrapper2}>
                     <BlueCopyTextToClipboard text={this.state.contractToDisplay.payment_method_instruction.details} />
@@ -235,7 +220,7 @@ export default class HodlHodlMyContracts extends Component {
 
             {this.isAllowedToMarkContractAsPaid() ? (
               <View>
-                <BlueButton title="Mark contract as Paid" onPress={() => this._onMarkContractAsPaid()} />
+                <BlueButton title={loc.hodl.cont_paid} onPress={() => this._onMarkContractAsPaid()} />
                 <BlueSpacing20 />
               </View>
             ) : (
@@ -246,12 +231,12 @@ export default class HodlHodlMyContracts extends Component {
 
             {this.state.contractToDisplay.can_be_canceled && (
               <Text onPress={() => this._onCancelContract()} style={styles.cancelContractText}>
-                Cancel contract
+                {loc.hodl.cont_cancel}
               </Text>
             )}
 
             <Text onPress={() => this._onOpenContractOnWebsite()} style={styles.openChatText}>
-              Open chat with counterparty
+              {loc.hodl.cont_chat}
             </Text>
           </View>
         </KeyboardAvoidingView>
@@ -266,11 +251,11 @@ export default class HodlHodlMyContracts extends Component {
     if (!this.state.contractToDisplay) return;
 
     Alert.alert(
-      'Are you sure you want to mark this contract as paid?',
-      `Do this only if you sent funds to the seller via agreed payment method`,
+      loc.hodl.cont_paid_q,
+      loc.hodl.cont_paid_e,
       [
         {
-          text: 'Yes',
+          text: loc._.yes,
           onPress: async () => {
             const hodlApi = this.state.hodlApi;
             try {
@@ -284,7 +269,7 @@ export default class HodlHodlMyContracts extends Component {
           style: 'default',
         },
         {
-          text: 'Cancel',
+          text: loc._.cancel,
           onPress: () => {},
           style: 'cancel',
         },
@@ -313,11 +298,11 @@ export default class HodlHodlMyContracts extends Component {
     if (!this.state.contractToDisplay) return;
 
     Alert.alert(
-      'Are you sure you want to cancel this contract?',
-      ``,
+      loc.hodl.cont_cancel_q,
+      '',
       [
         {
-          text: 'Yes, cancel contract',
+          text: loc.hodl.cont_cancel_y,
           onPress: async () => {
             const hodlApi = this.state.hodlApi;
             try {
@@ -331,7 +316,7 @@ export default class HodlHodlMyContracts extends Component {
           style: 'default',
         },
         {
-          text: 'No',
+          text: loc._.cancel,
           onPress: () => {},
           style: 'cancel',
         },
@@ -346,12 +331,16 @@ export default class HodlHodlMyContracts extends Component {
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
+  },
   bottomModal: {
     justifyContent: 'flex-end',
     margin: 0,
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.modal,
     padding: 22,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
@@ -363,7 +352,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statusGreenWrapper: {
-    backgroundColor: '#d2f8d5',
+    backgroundColor: BlueCurrentTheme.colors.feeLabel,
     borderRadius: 20,
     height: 28,
     justifyContent: 'center',
@@ -374,10 +363,10 @@ const styles = StyleSheet.create({
   },
   statusGreenText: {
     fontSize: 12,
-    color: '#37bfa0',
+    color: BlueCurrentTheme.colors.feeValue,
   },
   statusGrayWrapper: {
-    backgroundColor: '#ebebeb',
+    backgroundColor: BlueCurrentTheme.colors.lightBorder,
     borderRadius: 20,
     height: 28,
     justifyContent: 'center',
@@ -388,10 +377,10 @@ const styles = StyleSheet.create({
   },
   statusGrayText: {
     fontSize: 12,
-    color: 'gray',
+    color: '#9AA0AA',
   },
   statusGrayWrapper2: {
-    backgroundColor: '#f8f8f8',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     borderRadius: 5,
     minHeight: 28,
     maxHeight: 56,
@@ -402,26 +391,36 @@ const styles = StyleSheet.create({
   },
   statusGrayText2: {
     fontSize: 12,
-    color: 'gray',
+    color: '#9AA0AA',
   },
   btcText: {
     fontWeight: 'bold',
     fontSize: 18,
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   subheaderText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.feeText,
   },
-  emptyComponentText: { textAlign: 'center', color: '#9AA0AA', paddingHorizontal: 16 },
+  loading: { backgroundColor: BlueCurrentTheme.colors.elevated },
+  emptyComponentText: { textAlign: 'center', color: '#9AA0AA', paddingHorizontal: 16, backgroundColor: BlueCurrentTheme.colors.elevated },
   itemSeparatorComponent: { height: 0.5, width: '100%', backgroundColor: '#C8C8C8' },
   flexDirectionRow: { flexDirection: 'row' },
   flexDirectionColumn: { flexDirection: 'column' },
-  volumeBreakdownText: { fontSize: 18, color: '#0c2550' },
-  contractStatusText: { fontSize: 14, color: 'gray', fontWeight: 'normal' },
+  volumeBreakdownText: { fontSize: 18, color: BlueCurrentTheme.colors.foregroundColor },
+  contractStatusText: { fontSize: 13, color: 'gray', fontWeight: 'normal' },
   cancelContractText: { color: '#d0021b', fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' },
-  openChatText: { color: '#1b02d0', fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' },
-  flatList: { paddingTop: 30 },
+  openChatText: { color: BlueCurrentTheme.colors.foregroundColor, fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' },
+  flatList: { paddingTop: 30, backgroundColor: BlueCurrentTheme.colors.elevated },
   roleText: { fontSize: 14, color: 'gray', padding: 5 },
+});
+
+HodlHodlMyContracts.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: loc.hodl.cont_title,
+  headerStyle: {
+    backgroundColor: BlueCurrentTheme.colors.elevated,
+  },
+  headerRight: null,
 });

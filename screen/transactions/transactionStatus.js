@@ -18,9 +18,10 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import Handoff from 'react-native-handoff';
 import HandoffSettings from '../../class/handoff';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import { BlueCurrentTheme } from '../../components/themes';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
 
 const buttonStatus = Object.freeze({
   possible: 1,
@@ -40,12 +41,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   value: {
-    color: '#2f5fb3',
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 36,
     fontWeight: '600',
   },
   valueUnit: {
-    color: '#2f5fb3',
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -58,7 +59,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   iconRoot: {
-    backgroundColor: '#ccddf9',
+    backgroundColor: BlueCurrentTheme.colors.success,
     width: 120,
     height: 120,
     borderRadius: 60,
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
   },
   confirmations: {
     borderRadius: 11,
-    backgroundColor: '#eef0f4',
+    backgroundColor: BlueCurrentTheme.colors.lightButton,
     width: 109,
     height: 21,
     alignSelf: 'center',
@@ -132,11 +133,6 @@ const styles = StyleSheet.create({
 });
 
 export default class TransactionsStatus extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(),
-    title: '',
-  });
-
   constructor(props) {
     super(props);
     const hash = props.route.params.hash;
@@ -251,7 +247,6 @@ export default class TransactionsStatus extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-        <StatusBar barStyle="dark-content" />
         {this.state.isHandOffUseEnabled && (
           <Handoff
             title={`Bitcoin Transaction ${this.state.tx.hash}`}
@@ -259,11 +254,12 @@ export default class TransactionsStatus extends Component {
             url={`https://blockstream.info/tx/${this.state.tx.hash}`}
           />
         )}
+        <StatusBar barStyle="default" />
         <View style={styles.container}>
           <BlueCard>
             <View style={styles.center}>
               <Text style={styles.value}>
-                {loc.formatBalanceWithoutSuffix(this.state.tx.value, this.state.wallet.preferredBalanceUnit, true)}{' '}
+                {formatBalanceWithoutSuffix(this.state.tx.value, this.state.wallet.preferredBalanceUnit, true)}{' '}
                 {this.state.wallet.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
                   <Text style={styles.valueUnit}>{this.state.wallet.preferredBalanceUnit}</Text>
                 )}
@@ -285,7 +281,7 @@ export default class TransactionsStatus extends Component {
 
             <View style={styles.iconRoot}>
               <View>
-                <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
+                <Icon name="check" size={50} type="font-awesome" color={BlueCurrentTheme.colors.successCheck} />
               </View>
               <View style={[styles.iconWrap, styles.margin]}>
                 {(() => {
@@ -315,8 +311,8 @@ export default class TransactionsStatus extends Component {
             {'fee' in this.state.tx && (
               <View style={styles.fee}>
                 <BlueText style={styles.feeText}>
-                  {loc.send.create.fee.toLowerCase()}{' '}
-                  {loc.formatBalanceWithoutSuffix(this.state.tx.fee, this.state.wallet.preferredBalanceUnit, true)}{' '}
+                  {loc.send.create_fee.toLowerCase()}{' '}
+                  {formatBalanceWithoutSuffix(this.state.tx.fee, this.state.wallet.preferredBalanceUnit, true)}{' '}
                   {this.state.wallet.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && this.state.wallet.preferredBalanceUnit}
                 </BlueText>
               </View>
@@ -348,7 +344,7 @@ export default class TransactionsStatus extends Component {
                           wallet: this.state.wallet,
                         })
                       }
-                      title="Bump Fee"
+                      title={loc.transactions.status_bump}
                     />
                     <BlueSpacing20 />
                   </>
@@ -374,7 +370,7 @@ export default class TransactionsStatus extends Component {
                           wallet: this.state.wallet,
                         })
                       }
-                      title="Bump Fee"
+                      title={loc.transactions.status_bump}
                     />
                   </>
                 );
@@ -400,7 +396,7 @@ export default class TransactionsStatus extends Component {
                         }
                         style={styles.cancelText}
                       >
-                        Cancel Transaction
+                        {loc.transactions.status_cancel}
                       </Text>
                     </TouchableOpacity>
                   </>
@@ -412,7 +408,7 @@ export default class TransactionsStatus extends Component {
               style={styles.details}
               onPress={() => this.props.navigation.navigate('TransactionDetails', { hash: this.state.tx.hash })}
             >
-              <Text style={styles.detailsText}>{loc.send.create.details.toLowerCase()}</Text>
+              <Text style={styles.detailsText}>{loc.send.create_details.toLowerCase()}</Text>
               <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
             </TouchableOpacity>
           </View>
@@ -436,3 +432,12 @@ TransactionsStatus.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+TransactionsStatus.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
+  title: '',
+  headerStyle: {
+    ...BlueNavigationStyle().headerStyle,
+    backgroundColor: BlueCurrentTheme.colors.customHeader,
+  },
+});

@@ -6,12 +6,14 @@ import { Text } from 'react-native-elements';
 import { BlueButton, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
-const loc = require('../../loc');
+import loc from '../../loc';
+import { BlueCurrentTheme } from '../../components/themes';
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
     paddingTop: 19,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   amout: {
     alignItems: 'center',
@@ -24,12 +26,12 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   amountValue: {
-    color: '#0f5cc0',
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 36,
     fontWeight: '600',
   },
   amountUnit: {
-    color: '#0f5cc0',
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 16,
     marginHorizontal: 4,
     paddingBottom: 6,
@@ -61,11 +63,6 @@ const styles = StyleSheet.create({
 });
 
 export default class Success extends Component {
-  static navigationOptions = {
-    headerShown: false,
-    gesturesEnabled: false,
-  };
-
   constructor(props) {
     super(props);
     console.log('send/success constructor');
@@ -93,7 +90,7 @@ export default class Success extends Component {
           </View>
           {this.state.fee > 0 && (
             <Text style={styles.feeText}>
-              {loc.send.create.fee}: {this.state.fee} {BitcoinUnit.BTC}
+              {loc.send.create_fee}: {this.state.fee} {BitcoinUnit.BTC}
             </Text>
           )}
           {this.state.fee <= 0 && (
@@ -103,15 +100,29 @@ export default class Success extends Component {
           )}
         </BlueCard>
         <View style={styles.ready}>
-          <LottieView style={styles.lottie} source={require('../../img/bluenice.json')} autoPlay loop={false} />
+          <LottieView
+            style={styles.lottie}
+            source={require('../../img/bluenice.json')}
+            autoPlay
+            loop={false}
+            colorFilters={[
+              {
+                keypath: 'spark',
+                color: BlueCurrentTheme.colors.success,
+              },
+              {
+                keypath: 'circle',
+                color: BlueCurrentTheme.colors.success,
+              },
+              {
+                keypath: 'Oval',
+                color: BlueCurrentTheme.colors.successCheck,
+              },
+            ]}
+          />
         </View>
         <BlueCard>
-          <BlueButton
-            onPress={() => {
-              this.props.navigation.dangerouslyGetParent().pop();
-            }}
-            title={loc.send.success.done}
-          />
+          <BlueButton onPress={() => this.props.navigation.dangerouslyGetParent().pop()} title={loc.send.success_done} />
         </BlueCard>
       </SafeBlueArea>
     );
@@ -133,4 +144,9 @@ Success.propTypes = {
   route: PropTypes.shape({
     params: PropTypes.object,
   }),
+};
+
+Success.navigationOptions = {
+  headerShown: false,
+  gesturesEnabled: false,
 };

@@ -15,6 +15,7 @@ import { WebView } from 'react-native-webview';
 import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
+const notifications = require('../../blue_modules/notifications');
 
 let processedInvoices = {};
 let lastTimeTriedToPay = 0;
@@ -287,12 +288,6 @@ const styles = StyleSheet.create({
 });
 
 export default class Browser extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: 'Lapp Browser',
-    headerLeft: null,
-  });
-
   constructor(props) {
     super(props);
     if (!props.route.params.fromSecret) throw new Error('Invalid param');
@@ -398,6 +393,11 @@ export default class Browser extends Component {
                     // event; note how data is passed in 'detail', not 'data'
                     const jsonstr = JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id });
                     this.webview.injectJavaScript("document.dispatchEvent( new CustomEvent('message', { detail: '" + jsonstr + "' }) );");
+
+                    // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
+                    const decoded = await fromWallet.decodeInvoice(payreq);
+                    await notifications.tryToObtainPermissions();
+                    notifications.majorTomToGroundControl([], [decoded.payment_hash]);
                   },
                 },
               ],
@@ -435,7 +435,7 @@ export default class Browser extends Component {
     return (
       <SafeBlueArea>
         <View style={styles.safeRoot}>
-          <StatusBar barStyle="light-content" />
+          <StatusBar barStyle="default" />
           <TouchableOpacity
             disabled={!this.state.canGoBack}
             onPress={() => {
@@ -516,3 +516,9 @@ Browser.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+Browser.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: 'Lapp Browser',
+  headerLeft: null,
+});

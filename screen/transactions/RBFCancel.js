@@ -5,6 +5,7 @@ import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../.
 import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
+import loc from '../../loc';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 
@@ -16,11 +17,6 @@ const styles = StyleSheet.create({
 });
 
 export default class RBFCancel extends CPFP {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(null, false),
-    title: 'Cancel this transaction (RBF)',
-  });
-
   async componentDidMount() {
     console.log('transactions/RBFCancel - componentDidMount');
     this.setState({
@@ -64,7 +60,7 @@ export default class RBFCancel extends CPFP {
         this.setState({ isLoading: false });
       } catch (_) {
         this.setState({ isLoading: false });
-        alert('Failed: ' + _.message);
+        alert(loc.errors.error + ': ' + _.message);
       }
     }
   }
@@ -107,14 +103,12 @@ export default class RBFCancel extends CPFP {
           <BlueSpacing20 />
           <BlueSpacing20 />
 
-          <BlueText h4>This transaction is not replaceable</BlueText>
+          <BlueText h4>loc.transactions.cancel_no</BlueText>
         </SafeBlueArea>
       );
     }
 
-    return this.renderStage1(
-      'We will replace this transaction with the one that pays you and has higher fees. This effectively cancels transaction. This is called RBF - Replace By Fee.',
-    );
+    return this.renderStage1(loc.transactions.cancel_explain);
   }
 }
 
@@ -130,3 +124,8 @@ RBFCancel.propTypes = {
     }),
   }),
 };
+
+RBFCancel.navigationOptions = () => ({
+  ...BlueNavigationStyle(null, false),
+  title: loc.transactions.cancel_title,
+});
