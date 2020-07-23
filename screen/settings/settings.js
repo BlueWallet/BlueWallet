@@ -1,7 +1,7 @@
-import React from 'react';
-import { ScrollView, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import React, { useCallback } from 'react';
+import { ScrollView, TouchableOpacity, StyleSheet, StatusBar, InteractionManager } from 'react-native';
 import { BlueListItemHooks, BlueNavigationStyle, BlueHeaderDefaultSubHooks } from '../../BlueComponents';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import { Icon } from 'react-native-elements';
 import * as NavigationService from '../../NavigationService';
@@ -19,26 +19,33 @@ const styles = StyleSheet.create({
 
 const Settings = () => {
   const { navigate, setOptions } = useNavigation();
+  const { colors } = useTheme();
 
-  useFocusEffect(() => {
-    Biometric.isBiometricUseCapableAndEnabled().then(isBiometricsEnabled => {
-      BlueApp.storageIsEncrypted().then(isStorageEncrypted => {
-        if (isStorageEncrypted || isBiometricsEnabled) {
-          setOptions({
-            headerRight: () => (
-              <TouchableOpacity style={styles.lockScreenButton} onPress={() => NavigationService.lockScreen(true)}>
-                <Icon name="lock" type="font-awesome5" />
-              </TouchableOpacity>
-            ),
+  useFocusEffect(
+    useCallback(() => {
+      const task = InteractionManager.runAfterInteractions(() => {
+        Biometric.isBiometricUseCapableAndEnabled().then(isBiometricsEnabled => {
+          BlueApp.storageIsEncrypted().then(isStorageEncrypted => {
+            if (isStorageEncrypted || isBiometricsEnabled) {
+              setOptions({
+                headerRight: () => (
+                  <TouchableOpacity style={styles.lockScreenButton} onPress={() => NavigationService.lockScreen()}>
+                    <Icon name="lock" type="font-awesome5" color={colors.foregroundColor} />
+                  </TouchableOpacity>
+                ),
+              });
+            } else {
+              setOptions({
+                headerRight: null,
+              });
+            }
           });
-        } else {
-          setOptions({
-            headerRight: null,
-          });
-        }
+        });
       });
-    });
-  });
+
+      return () => task.cancel();
+    }, [colors.foregroundColor, setOptions]),
+  );
 
   return (
     <ScrollView style={styles.root}>

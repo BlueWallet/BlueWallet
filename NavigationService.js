@@ -13,7 +13,7 @@ export function navigate(name, params) {
 export function dispatch(params) {
   navigationRef.current?.dispatch(params);
 }
-export async function lockScreen(force = false) {
+export async function lockScreen() {
   const isBiometricUseCapableAndEnabled = Biometric.isBiometricUseCapableAndEnabled();
   const isStorageEncrypted = await BlueApp.storageIsEncrypted();
 
@@ -21,7 +21,7 @@ export async function lockScreen(force = false) {
     dispatch(
       CommonActions.reset({
         index: 0,
-        routes: [{ name: 'UnlockWithScreenRoot' }],
+        routes: [{ name: 'UnlockWithScreenRoot', params: { unlockOnComponentMount: false } }],
       }),
     );
   }

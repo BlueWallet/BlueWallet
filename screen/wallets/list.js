@@ -22,7 +22,6 @@ import { AppStorage, PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
-import * as NavigationService from '../../NavigationService';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 const EV = require('../../blue_modules/events');
@@ -669,7 +668,7 @@ WalletsList.propTypes = {
   }),
 };
 
-WalletsList.navigationOptions = ({ navigation, route }) => {
+WalletsList.navigationOptions = ({ navigation }) => {
   return {
     ...BlueNavigationStyle(navigation, true),
     title: '',
@@ -681,7 +680,13 @@ WalletsList.navigationOptions = ({ navigation, route }) => {
       shadowOffset: { height: 0, width: 0 },
     },
     headerRight: () => (
-      <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
+      <TouchableOpacity
+        testID="SettingsButton"
+        style={styles.headerTouch}
+        onPress={() => {
+          navigation.navigate('Settings');
+        }}
+      >
         <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueCurrentTheme.colors.foregroundColor} />
       </TouchableOpacity>
     ),
