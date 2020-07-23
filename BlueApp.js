@@ -77,6 +77,7 @@ async function startAndDecrypt(retry) {
       return false;
     }
   } else {
+    unlockAttempt = 0;
     // Return true because there was no wallet data in keychain. Proceed.
     return true;
   }

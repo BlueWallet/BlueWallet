@@ -3,10 +3,10 @@ import Biometrics from 'react-native-biometrics';
 import { Platform, Alert } from 'react-native';
 import PasscodeAuth from 'react-native-passcode-auth';
 import * as NavigationService from '../NavigationService';
-import { StackActions } from '@react-navigation/native';
+import { StackActions, CommonActions } from '@react-navigation/native';
 import RNSecureKeyStore from 'react-native-secure-key-store';
+import loc from '../loc';
 const BlueApp = require('../BlueApp');
-const loc = require('../loc');
 
 export default class Biometric {
   static STORAGEKEY = 'Biometrics';
@@ -69,6 +69,7 @@ export default class Biometric {
   static async clearKeychain() {
     await RNSecureKeyStore.remove('data');
     await RNSecureKeyStore.remove('data_encrypted');
+    await RNSecureKeyStore.remove(Biometric.STORAGEKEY);
     await BlueApp.setResetOnAppUninstallTo(true);
     NavigationService.dispatch(StackActions.replace('WalletsRoot'));
   }
@@ -84,7 +85,7 @@ export default class Biometric {
             'Storage',
             `All your wallets will be removed and your storage will be decrypted. Are you sure you want to proceed?`,
             [
-              { text: loc.send.details.cancel, style: 'cancel' },
+              { text: loc._.cancel, style: 'cancel' },
               {
                 text: loc._.ok,
                 onPress: () => Biometric.clearKeychain(),
@@ -108,7 +109,10 @@ export default class Biometric {
         'Storage',
         `You have attempted to enter your password 10 times. Would you like to reset your storage? This will remove all wallets and decrypt your storage.`,
         [
-          { text: loc.send.details.cancel, onPress: () => {}, style: 'cancel' },
+          { text: loc._.cancel, onPress: () => {
+            NavigationService.dispatch(CommonActions.setParams({index: 0, routes: [
+              { name: 'UnlockWithScreenRoot' }, { params: { unlockOnComponentMount: false }}]}));
+          }, style: 'cancel' },
           {
             text: loc._.ok,
             onPress: () => Biometric.requestDevicePasscode(),
