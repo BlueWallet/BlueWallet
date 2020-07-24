@@ -21,7 +21,8 @@ import PropTypes from 'prop-types';
 import { AppStorage, PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
-import ImagePicker from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
+import * as Permissions from 'expo-permissions';
 import * as NavigationService from '../../NavigationService';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
@@ -426,26 +427,29 @@ export default class WalletsList extends Component {
     this.redrawScreen();
   };
 
-  choosePhoto = () => {
-    ImagePicker.launchImageLibrary(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+  choosePhoto = async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    if (status !== 'granted') {
+      alert('Sorry, we need camera roll permissions to import an image.');
+    } else {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Photo,
+        allowsEditing: false,
+        quality: 1,
+      });
+      if (!result.cancelled) {
+        if (result.uri) {
+          const uri = Platform.OS === 'ios' ? result.uri.toString().replace('file://', '') : result.path.toString();
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
-              this.onBarScanned(result);
+              this.onBarCodeRead({ data: result });
             } else {
               alert(loc.send.qr_error_no_qrcode);
             }
           });
         }
-      },
-    );
+      }
+    }
   };
 
   copyFromClipbard = async () => {

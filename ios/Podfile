@@ -1,6 +1,7 @@
 platform :ios, '10.0'
 workspace 'BlueWallet'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+require_relative '../node_modules/react-native-unimodules/cocoapods.rb'
 
 def add_flipper_pods!(versions = {})
   versions['Flipper'] ||= '~> 0.37.0'
@@ -46,6 +47,7 @@ def flipper_post_install(installer)
 end
 
 target 'BlueWallet' do
+  use_unimodules!
   # Pods for RnDiffApp
   pod 'FBLazyVector', :path => "../node_modules/react-native/Libraries/FBLazyVector"
   pod 'FBReactNativeSpec', :path => "../node_modules/react-native/Libraries/FBReactNativeSpec"
