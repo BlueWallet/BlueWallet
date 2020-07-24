@@ -1,6 +1,3 @@
-/**
- * @exports {AppStorage}
- */
 import { AppStorage } from './class';
 import DeviceQuickActions from './class/quick-actions';
 import Biometric from './class/biometrics';
@@ -10,8 +7,7 @@ const prompt = require('./blue_modules/prompt');
 const EV = require('./blue_modules/events');
 const currency = require('./blue_modules/currency');
 const BlueElectrum = require('./blue_modules/BlueElectrum'); // eslint-disable-line no-unused-vars
-/** @type {AppStorage} */
-const BlueApp = new AppStorage();
+const BlueApp: AppStorage = new AppStorage();
 // If attempt reaches 10, a wipe keychain option will be provided to the user.
 let unlockAttempt = 0;
 
@@ -19,7 +15,7 @@ async function startAndDecrypt(retry) {
   console.log('startAndDecrypt');
   if (BlueApp.getWallets().length > 0) {
     console.log('App already has some wallets, so we are in already started state, exiting startAndDecrypt');
-    return;
+    return true;
   }
   let password = false;
   if (await BlueApp.storageIsEncrypted()) {

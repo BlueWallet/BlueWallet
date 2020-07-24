@@ -42,7 +42,7 @@ node --version && npm --version
 git clone https://github.com/BlueWallet/BlueWallet.git
 cd BlueWallet
 npm install
-``` 
+```
 
 Please make sure that your console is running the most stable versions of npm and node (even-numbered versions).
 
@@ -68,15 +68,13 @@ The above command will build the app and install it. Once you launch the app it 
 * To run on iOS:
 
 ```
-cd ios
-pod install
-cd ..
-npm start ios
+npx podinstall
+npm start
 ```
 
-In another terminal window within the BlueWallet folder
+In another terminal window within the BlueWallet folder:
 ```
-react-native run-ios
+npx react-native run-ios
 ```
 
 
@@ -102,6 +100,17 @@ MIT
 
 Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/projects/1), try to start or submit a PR, any doubts we will try to guide you. Contributors have a private telegram group, request access by email bluewallet@bluewallet.io
 
+## Translations
+
+We accepts translations via [Transifex](https://www.transifex.com/bluewallet/bluewallet/)
+
+To participate you need to:
+1. Sign up to Transifex
+2. Find BlueWallet project
+3. Send join request
+4. After we accept your request you will be able to start translating! That's it!
+
+Transifex automatically creates Pull Request when language reaches 100% translation. We also trigger this by hand before each release, so don't worry if you can't translate everything, every word counts.
 
 ## RESPONSIBLE DISCLOSURE
 
