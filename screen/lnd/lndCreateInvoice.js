@@ -29,6 +29,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import Lnurl from '../../class/lnurl';
 const currency = require('../../blue_modules/currency');
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
@@ -290,7 +291,20 @@ export default class LNDCreateInvoice extends Component {
           throw new Error('Reply from server: ' + reply.reason);
         }
 
-        if (reply.tag !== 'withdrawRequest') {
+        if (reply.tag === Lnurl.TAG_PAY_REQUEST) {
+          // we are here by mistake. user wants to SEND to lnurl-pay, but he is on a screen that creates
+          // invoices (including through lnurl-withdraw)
+          this.props.navigation.navigate('ScanLndInvoiceRoot', {
+            screen: 'LnurlPay',
+            params: {
+              lnurl: data,
+              fromWalletID: this.state.fromWallet.getID(),
+            },
+          });
+          return;
+        }
+
+        if (reply.tag !== Lnurl.TAG_WITHDRAW_REQUEST) {
           throw new Error('Unsupported lnurl');
         }
 
