@@ -231,7 +231,7 @@ const LoadingScreenRoot = () => (
 const UnlockWithScreenStack = createStackNavigator();
 const UnlockWithScreenRoot = () => (
   <UnlockWithScreenStack.Navigator name="UnlockWithScreenRoot" screenOptions={{ headerShown: false }}>
-    <UnlockWithScreenStack.Screen name="UnlockWithScreen" component={UnlockWith} />
+    <UnlockWithScreenStack.Screen name="UnlockWithScreen" component={UnlockWith} initialParams={{ unlockOnComponentMount: true }} />
   </UnlockWithScreenStack.Navigator>
 );
 
