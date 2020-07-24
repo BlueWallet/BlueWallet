@@ -68,10 +68,8 @@ The above command will build the app and install it. Once you launch the app it 
 * To run on iOS:
 
 ```
-cd ios
-pod install
-cd ..
-npm start ios
+npx podinstall
+npm start
 ```
 
 In another terminal window within the BlueWallet folder:
