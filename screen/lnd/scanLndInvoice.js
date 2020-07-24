@@ -23,6 +23,7 @@ import {
   BlueLoading,
 } from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import Lnurl from '../../class/lnurl';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -213,7 +214,18 @@ export default class ScanLndInvoice extends React.Component {
   };
 
   processInvoice = data => {
+    if (Lnurl.isLnurl(data)) return this.processLnurlPay(data);
     this.props.navigation.setParams({ uri: data });
+  };
+
+  processLnurlPay = data => {
+    this.props.navigation.navigate('ScanLndInvoiceRoot', {
+      screen: 'LnurlPay',
+      params: {
+        lnurl: data,
+        fromWalletID: this.state.fromWallet.getID(),
+      },
+    });
   };
 
   async pay() {
@@ -286,7 +298,7 @@ export default class ScanLndInvoice extends React.Component {
   }
 
   processTextForInvoice = text => {
-    if (text.toLowerCase().startsWith('lnb') || text.toLowerCase().startsWith('lightning:lnb')) {
+    if (text.toLowerCase().startsWith('lnb') || text.toLowerCase().startsWith('lightning:lnb') || Lnurl.isLnurl(text)) {
       this.processInvoice(text);
     } else {
       this.setState({ decoded: undefined, expiresIn: undefined, destination: text });

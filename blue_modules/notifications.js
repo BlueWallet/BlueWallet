@@ -3,10 +3,10 @@ import { Alert, Platform } from 'react-native';
 import Frisbee from 'frisbee';
 import { isEmulatorSync } from 'react-native-device-info';
 import AsyncStorage from '@react-native-community/async-storage';
+import loc from '../loc';
 const PushNotification = require('react-native-push-notification');
 const constants = require('./constants');
 const PUSH_TOKEN = 'PUSH_TOKEN';
-const loc = require('../loc');
 let alreadyConfigured = false;
 
 async function _setPushToken(token) {

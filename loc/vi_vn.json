@@ -11,9 +11,6 @@
     "help2": "New storage will be fully functional, and you can store some minimum amounts there so it looks more believable.",
     "password_should_not_match": "Password for fake storage should not match password for your main storage"
   },
-  "pleasebackup": {
-    "ok": "OK, I wrote this down!"
-  },
   "send": {
     "details_create": "Create"
   },
