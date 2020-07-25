@@ -426,7 +426,9 @@ export default class SendDetails extends Component {
           memo = parsedBitcoinUri.options.label || memo;
         }
       }
-    } catch (_) {}
+    } catch (error) {
+      console.log(error);
+    }
     return { address, amount, memo };
   }
 

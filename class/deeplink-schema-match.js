@@ -13,8 +13,6 @@ class DeeplinkSchemaMatch {
     if (typeof schemaString !== 'string' || schemaString.length <= 0) return false;
     const lowercaseString = schemaString.trim().toLowerCase();
     return (
-      lowercaseString.startsWith('bitcoin:') ||
-      lowercaseString.startsWith('lightning:') ||
       lowercaseString.startsWith('blue:') ||
       lowercaseString.startsWith('bluewallet:') ||
       lowercaseString.startsWith('lapp:')
@@ -72,26 +70,6 @@ class DeeplinkSchemaMatch {
           onWalletSelect: (wallet, { navigation }) => {
             navigation.pop(); // close select wallet screen
             navigation.navigate(...DeeplinkSchemaMatch.isBothBitcoinAndLightningOnWalletSelect(wallet, isBothBitcoinAndLightning));
-          },
-        },
-      ]);
-    } else if (DeeplinkSchemaMatch.isBitcoinAddress(event.url)) {
-      completionHandler([
-        'SendDetailsRoot',
-        {
-          screen: 'SendDetails',
-          params: {
-            uri: event.url,
-          },
-        },
-      ]);
-    } else if (DeeplinkSchemaMatch.isLightningInvoice(event.url)) {
-      completionHandler([
-        'ScanLndInvoiceRoot',
-        {
-          screen: 'ScanLndInvoice',
-          params: {
-            uri: event.url,
           },
         },
       ]);

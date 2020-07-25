@@ -30,6 +30,52 @@ const lightningModalString = 'Lightning Invoice';
 const BlueApp = require('./BlueApp');
 const EV = require('./blue_modules/events');
 const notifications = require('./blue_modules/notifications'); // eslint-disable-line no-unused-vars
+const linking = {
+  prefixes: ['bitcoin:', 'bitcoin://', 'lightning:', 'lightning://'],
+  config: {
+    screens: {
+      SendDetailsRoot: {},
+    },
+  },
+  getStateFromPath: (path, options) => {
+    path = path.replace('//', '');
+    if (DeeplinkSchemaMatch.isBitcoinAddress(path)) {
+      return {
+        routes: [
+          {
+            name: 'SendDetailsRoot',
+            state: {
+              index: 0,
+              routes: [
+                {
+                  name: 'SendDetails',
+                  params: { uri: 'bitcoin:' + path },
+                },
+              ],
+            },
+          },
+        ],
+      };
+    } else if (DeeplinkSchemaMatch.isLightningInvoice(path)) {
+      return {
+        routes: [
+          {
+            name: 'ScanLndInvoiceRoot',
+            state: {
+              index: 0,
+              routes: [
+                {
+                  name: 'ScanLndInvoice',
+                  params: { uri: path },
+                },
+              ],
+            },
+          },
+        ],
+      };
+    }
+  },
+};
 
 export default class App extends React.Component {
   state = {
@@ -228,7 +274,7 @@ export default class App extends React.Component {
     return (
       <SafeAreaProvider>
         <View style={styles.root}>
-          <NavigationContainer ref={navigationRef} theme={this.state.theme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+          <NavigationContainer linking={linking} ref={navigationRef} theme={this.state.theme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
             <Navigation />
           </NavigationContainer>
           {this.renderClipboardContentModal()}
