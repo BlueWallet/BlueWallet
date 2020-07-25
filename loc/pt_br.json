@@ -71,14 +71,14 @@
   "settings": {
     "about": "Sobre",
     "currency": "Moeda",
-    "general_adv_mode": "Enable advanced mode",
+    "general_adv_mode": "Ativar modo avançado",
     "header": "definições",
     "language": "Idioma",
     "lightning_settings": "Preferências Lightning",
     "lightning_settings_explain": "Para se conectar ao seu próprio ponto LND, você precisa instalar a aplicação LndHub e copiar sua URL para cá. Deixe em branco para usar a LndHub padrão fornecida pela BlueWallet (lndhub.io). Carteiras criadas após mudanças nestas preferências ficarão ligadas à instância LndHub que estiver especificada.",
     "password": "Senha",
     "password_explain": "Definir a senha para descriptografar os arquivos",
-    "passwords_do_not_match": "Senhas não coincidem",
+    "passwords_do_not_match": "Senhas não conferem",
     "plausible_deniability": "Negação plausível...",
     "retype_password": "Inserir senha novamente",
     "save": "Salvar"
