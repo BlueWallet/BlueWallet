@@ -8,6 +8,15 @@
     "ok": "OK",
     "storage_is_encrypted": "Os arquivos estão criptografados, uma senha é necessária para descriptografá-los"
     "yes": "Sim"
+     },
+  "azteco": {
+    "codeIs": "Seu código voucher é",
+    "errorBeforeRefeem": "Antes de resgatar, você deve primeiro adicionar uma carteira Bitcoin.",
+    "errorSomething": "Algo deu errado. Este voucher ainda tem validade?",
+    "redeem": "Resgatar para carteira",
+    "redeemButton": "Resgatar",
+    "success": "Sucesso",
+    "title": "Resgatar voucher Azte.co"
   },
   "lnd": {
     "errorInvoiceExpired": "Cobrança expirada",
