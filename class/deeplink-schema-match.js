@@ -13,6 +13,8 @@ class DeeplinkSchemaMatch {
     if (typeof schemaString !== 'string' || schemaString.length <= 0) return false;
     const lowercaseString = schemaString.trim().toLowerCase();
     return (
+      lowercaseString.startsWith('bitcoin:') ||
+      lowercaseString.startsWith('lightning:') ||
       lowercaseString.startsWith('blue:') ||
       lowercaseString.startsWith('bluewallet:') ||
       lowercaseString.startsWith('lapp:')
@@ -73,6 +75,34 @@ class DeeplinkSchemaMatch {
           },
         },
       ]);
+    } else if (DeeplinkSchemaMatch.isBitcoinAddress(event.url)) {
+      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        // Running app, ignore completionHandler because we are using NavigationContainer's linking
+      } else {
+        completionHandler([
+          'SendDetailsRoot',
+          {
+            screen: 'SendDetails',
+            params: {
+              uri: event.url,
+            },
+          },
+        ]);
+      }
+    } else if (DeeplinkSchemaMatch.isLightningInvoice(event.url)) {
+      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        // Running app, ignore completionHandler because we are using NavigationContainer's linking
+      } else {
+        completionHandler([
+          'ScanLndInvoiceRoot',
+          {
+            screen: 'ScanLndInvoice',
+            params: {
+              uri: event.url,
+            },
+          },
+        ]);
+      }
     } else if (DeeplinkSchemaMatch.isLnUrl(event.url)) {
       // at this point we can not tell if it is lnurl-pay or lnurl-withdraw since it needs additional async call
       // to the server, which is undesirable here, so LNDCreateInvoice screen will handle it for us and will
