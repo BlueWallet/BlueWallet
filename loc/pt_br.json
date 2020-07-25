@@ -1,14 +1,22 @@
 {
   "_": {
-    "bad_password": "Senha errada, tente outra vez",
+    "bad_password": "Senha errada, tente novamente",
     "cancel": "Cancelar",
-    "enter_password": "Inserir senha",
+    "enter_password": "Insira a senha",
     "never": "nunca",
+    "of": "{number} de {total}",
     "ok": "OK",
-    "storage_is_encrypted": "Os arquivos estão criptografados, uma senha é necessária"
+    "storage_is_encrypted": "Os arquivos estão criptografados, uma senha é necessária para descriptografá-los"
+    "yes": "Sim"
   },
   "lnd": {
-    "expired": "Vencido",
+    "errorInvoiceExpired": "Cobrança expirada",
+    "exchange": "Trocar",
+    "expired": "Expirada",
+    "expiredLow": "expirada",
+    "expiresIn": "Expira: {time}",
+    "payButton": "Pagar",
+    "placeholder": "Cobrança",
     "refill": "Recarregar",
     "refill_lnd_balance": "Recarregar a carteira Lightning",
     "sameWalletAsInvoiceError": "Você não pode pagar uma fatura com a mesma carteira que a criou.",
@@ -21,7 +29,7 @@
     "help": "Em algumas circunstâncias, você pode ser forçado a revelar uma senha. Para manter seus bitcoins seguros, A BlueWallet pode criar uma senha alternativa. Sob pressão, você pode revelar essa senha ao invés da senha principal. Quando inserida na BlueWallet, esta abrirá uma interface falsa, que parecerá legítima a um terceiro, enquanto suas carteiras originais continuarão à salvo em segredo.",
     "help2": "Essa nova interface é completamente funcional e você pode inclusive manter nele um valor minímo para que pareça mais real.",
     "password_should_not_match": "A senha para a interface falsa não deve coincidir com a principal",
-    "passwords_do_not_match": "Senhas não coincidem, tente novamente",
+    "passwords_do_not_match": "Senhas não conferem, tente novamente",
     "retype_password": "Inserir senha novamente",
     "success": "Sucesso",
     "title": "Negação plausível"
@@ -55,7 +63,7 @@
     "details_create": "Criar",
     "details_fee_field_is_not_valid": "Campo de taxa não é válido",
     "details_note_placeholder": "Nota pessoal",
-    "details_scan": "Scanear",
+    "details_scan": "Ler",
     "details_total_exceeds_balance": "Valor total excede o saldo disponível",
     "header": "Enviar",
     "success_done": "Enviado"
@@ -112,7 +120,7 @@
     "list_create_a_button": "Criar agora",
     "list_create_a_wallet": "Criar uma carteira",
     "list_create_a_wallet1": "é grátis e você pode criar",
-    "list_create_a_wallet2": "quantas você quiser",
+    "list_create_a_wallet2": "quantas desejar",
     "list_empty_txs1": "Suas transações aparecerão aqui,",
     "list_empty_txs1_lightning": "A carteira Lightning faz transações super rápidas (coisa de segundos) e tem taxas ridiculamente baratas, ideal para transações diárias e de baixo valor.",
     "list_empty_txs2": "nenhuma no momento",
