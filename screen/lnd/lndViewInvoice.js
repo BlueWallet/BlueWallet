@@ -323,7 +323,7 @@ export default class LNDViewInvoice extends Component {
 
             <SecondButton
               onPress={() => {
-                Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
+                Share.open({ message: `lightning://${invoice.payment_request}` }).catch(error => console.log(error));
               }}
               title={loc.receive.details_share}
             />

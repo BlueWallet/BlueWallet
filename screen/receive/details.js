@@ -315,7 +315,8 @@ const ReceiveDetails = () => {
   };
 
   const handleShareButtonPressed = () => {
-    Share.open({ message: bip21encoded }).catch(error => console.log(error));
+    const message = bip21encoded.replace('bitcoin:', 'bitcoin://');
+    Share.open({ message }).catch(error => console.log(error));
   };
 
   /**
