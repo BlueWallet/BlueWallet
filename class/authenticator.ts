@@ -1,8 +1,11 @@
+import { ECPair, VaultTxType, address } from 'bitcoinjs-lib';
 import dayjs, { Dayjs } from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import { Authenticator as IAuthenticator } from 'app/consts';
 
+import config from '../config';
+import signer from '../models/signer';
 import { generatePrivateKey, privateKeyToPublicKey, bytesToMnemonic, mnemonicToEntropy } from '../utils/crypto';
 
 const i18n = require('../loc');
@@ -10,11 +13,24 @@ const i18n = require('../loc');
 const ENCODING = 'hex';
 const PIN_LENGTH = 4;
 
+interface Recipient {
+  address: string;
+  value: number;
+}
+
+interface FinalizedPSBT {
+  txHex: string;
+  vaultTxType: VaultTxType;
+  recipients: Recipient[];
+  fee: number;
+}
+
 export class Authenticator implements IAuthenticator {
   privateKey: Buffer | null;
   publicKey: string;
   entropy: string;
   secret: string;
+  keyPair: ECPair.ECPairInterface | null;
   readonly id: string;
   createdAt: Dayjs;
 
@@ -24,6 +40,7 @@ export class Authenticator implements IAuthenticator {
     this.entropy = '';
     this.publicKey = '';
     this.secret = '';
+    this.keyPair = null;
     this.createdAt = dayjs();
   }
 
@@ -38,6 +55,13 @@ export class Authenticator implements IAuthenticator {
 
     authenticator.createdAt = dayjs(createdAt);
     authenticator.privateKey = parsedPrivateKey;
+    try {
+      authenticator.keyPair = ECPair.fromPrivateKey(parsedPrivateKey, {
+        network: config.network,
+      });
+    } catch (_) {
+      throw new Error(i18n.wallets.errors.invalidPrivateKey);
+    }
 
     return authenticator;
   }
@@ -61,9 +85,41 @@ export class Authenticator implements IAuthenticator {
       this.entropy = _entropy;
       this.secret = mnemonic || bytesToMnemonic(buffer);
       this.publicKey = privateKeyToPublicKey(this.privateKey);
+      this.keyPair = ECPair.fromPrivateKey(this.privateKey, {
+        network: config.network,
+      });
     } catch (_) {
       throw new Error(i18n.wallets.errors.invalidPrivateKey);
     }
+  }
+
+  async signAndFinalizePSBT(encodedPSBT: string): Promise<FinalizedPSBT> {
+    let tx, fee;
+    let vaultTxType = VaultTxType.Recovery;
+    try {
+      ({ tx, fee } = signer.signAndFinalizePSBT(encodedPSBT, [this.keyPair], vaultTxType));
+    } catch (_) {
+      try {
+        vaultTxType = VaultTxType.Instant;
+        ({ tx, fee } = signer.signAndFinalizePSBT(encodedPSBT, [this.keyPair], vaultTxType));
+      } catch (e) {
+        throw new Error(`Unable to sign tx with authenticator: ${e.message}`);
+      }
+    }
+
+    const recipients = tx.outs.map(output => {
+      return {
+        address: address.fromOutputScript(output.script, config.network),
+        value: output.value,
+      };
+    });
+
+    return {
+      txHex: tx.toHex(),
+      vaultTxType,
+      recipients,
+      fee,
+    };
   }
 
   get pin() {
