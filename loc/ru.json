@@ -10,6 +10,15 @@
     "storage_is_encrypted": "Твоё хранилище зашифровано. Введи пароль для расшифровки",
     "yes": "Да"
   },
+  "azteco": {
+    "codeIs": "Код вашего ваучера",
+    "errorBeforeRefeem": "Перед активацией нужно сделать Bitcoin кошелёк.",
+    "errorSomething": "Что-то пошло не так. Этот ваучер еще активен?",
+    "redeem": "Активировать в кошелёк",
+    "redeemButton": "Активировать",
+    "success": "Успех",
+    "title": "Активировать ваучер Azte.co"
+  },
   "entropy": {
     "save": "Сохранить",
     "title": "Энтропия",
@@ -85,6 +94,16 @@
     "refill_lnd_balance": "Пополнить баланс Lightning кошелька",
     "sameWalletAsInvoiceError": "Ты не можешь оплатить Инвойс тем же кошельком, который ты использовал для его создания.",
     "title": "Мои средства"
+  },
+  "lndViewInvoice": {
+    "additional_info": "Дополнительная информация",
+    "for": "Для:",
+    "has_been_paid": "Этот инвойс оплачен",
+    "open_direct_channel": "Открыть канал с этой нодой:",
+    "please_pay": "Пожалуйста оплатите",
+    "preimage": "Предпросмотр",
+    "sats": "sats",
+    "wasnt_paid_and_expired": "Этот инвойс не оплачен и просрочен"
   },
   "plausibledeniability": {
     "create_fake_storage": "Создать фальшивое хранилище",
@@ -292,6 +311,7 @@
     "details_display": "показывать в списке кошельков",
     "details_export_backup": "Экспорт / резервная копия",
     "details_marketplace": "Marketplace",
+    "details_master_fingerprint": "Master fingerprint",
     "details_no_cancel": "Нет, отмена",
     "details_save": "Сохранить",
     "details_show_xpub": "Показать XPUB",
@@ -314,7 +334,7 @@
     "list_create_a_wallet2": "неограниченное количество",
     "list_empty_txs1": "Список транзакций пока пуст",
     "list_empty_txs1_lightning": "Lightning кошелек отлично подходит для ежедневных транзакций. Комиссия несправедливо мала, а скорость невероятно высока.",
-    "list_empty_txs2": " ",
+    "list_empty_txs2": "Пока транзакций нет ",
     "list_empty_txs2_lightning": "\nДля начала использования нажми \"Мои средства\" и пополни баланс.",
     "list_header": "Кошелек - это секретный (приватный) ключ и соответствующий ему адрес на который можно получать Bitcoin",
     "list_import_error": "При импорте этого кошелька возникла ошибка.",
