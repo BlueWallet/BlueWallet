@@ -1,9 +1,10 @@
-/* global it, describe */
+/* global it, describe, jest */
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { FiatUnit } from '../../models/fiatUnit';
 import { _leaveNumbersAndDots, formatBalanceWithoutSuffix, formatBalancePlain, formatBalance } from '../../loc';
 const assert = require('assert');
 const currency = require('../../blue_modules/currency');
+jest.useFakeTimers();
 
 describe('Localization', () => {
   it('internal formatter', () => {
@@ -16,17 +17,17 @@ describe('Localization', () => {
     currency._setExchangeRate('BTC_RUB', 660180.143);
     currency._setPreferredFiatCurrency(FiatUnit.RUB);
     let newInputValue = formatBalanceWithoutSuffix(152, BitcoinUnit.LOCAL_CURRENCY, false);
-    assert.strictEqual(newInputValue, 'RUB 1.00');
+    assert.ok(newInputValue === 'RUB 1.00' || newInputValue === '1,00 ₽', 'Unexpected: ' + newInputValue);
     newInputValue = formatBalancePlain(152, BitcoinUnit.LOCAL_CURRENCY, false);
     assert.strictEqual(newInputValue, '1');
 
     newInputValue = formatBalanceWithoutSuffix(1515, BitcoinUnit.LOCAL_CURRENCY, false);
-    assert.strictEqual(newInputValue, 'RUB 10.00');
+    assert.ok(newInputValue === 'RUB 10.00' || newInputValue === '10,00 ₽', 'Unexpected: ' + newInputValue);
     newInputValue = formatBalancePlain(1515, BitcoinUnit.LOCAL_CURRENCY, false);
     assert.strictEqual(newInputValue, '10');
 
     newInputValue = formatBalanceWithoutSuffix(16793829, BitcoinUnit.LOCAL_CURRENCY, false);
-    assert.strictEqual(newInputValue, 'RUB 110,869.52');
+    assert.ok(newInputValue === 'RUB 110,869.52' || newInputValue === '110 869,52 ₽', 'Unexpected: ' + newInputValue);
     newInputValue = formatBalancePlain(16793829, BitcoinUnit.LOCAL_CURRENCY, false);
     assert.strictEqual(newInputValue, '110869.52');
 
