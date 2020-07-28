@@ -22,6 +22,7 @@ const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
+const notifications = require('../../blue_modules/notifications');
 
 const styles = StyleSheet.create({
   root: {
@@ -118,6 +119,7 @@ export default class CPFP extends Component {
 
   onSuccessBroadcast() {
     BlueApp.tx_metadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
+    notifications.majorTomToGroundControl([], [], [this.state.newTxid]);
   }
 
   async componentDidMount() {
