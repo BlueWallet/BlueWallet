@@ -273,6 +273,10 @@ export default class WalletDetails extends Component {
                     />
                   </View>
                 </>
+                <>
+                  <Text style={styles.textLabel2}>{loc.transactions.transactions_count.toLowerCase()}</Text>
+                  <BlueText>{this.state.wallet.getTransactions().length}</BlueText>
+                </>
                 <View>
                   <BlueSpacing20 />
                   {this.state.wallet.type === WatchOnlyWallet.type && this.state.wallet.getSecret().startsWith('zpub') && (
