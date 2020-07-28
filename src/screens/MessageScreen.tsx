@@ -21,8 +21,8 @@ export const MessageScreen = (props: Props) => {
       const asynchrousTask = async () => {
         await asyncTask();
       };
-
-      asynchrousTask();
+      // hack for creating message screen immediately
+      setTimeout(() => asynchrousTask(), 0);
     }
 
     return () => {

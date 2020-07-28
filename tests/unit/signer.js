@@ -336,7 +336,6 @@ describe('unit - signer', function() {
     });
 
     it('should not finalize Instant and Recovery txs on AIR with 1 signature', () => {
-      const privateKey = Buffer.from('79d6d5075b87e759c955d413bff5065f0156b275ece1e500e37bf36f6a186543', 'hex');
       // Signed with one signature
       const encodedPsbt =
         'cHNidP8BAHwCAAAAAmv6sXdIrFOW5fBzxXIxWXbxte4H8zHUirswgDXeI+lgAAAAAAD/////UFLc6Ktri7w6lx/OaUygIQJKa3gGqTSe+ztmddzCt98AAAAAAP////8BwFsaJggAAAAXqRSKFKqZerbgpJGOZ3dFMKukDjPnVIcAAAAAAAEBIADPFBMEAAAAF6kUnngShumtX0yV068HkvVJ2urlB/eHIgICH/Ds4O/WQj5CfY/ciYRFeCWqZ0j6kaJN8yF/ofDjlNNHMEQCIHMeO6GRfUxFbC58tjIWKW6hyhKCMeXWkH50royamWaSAiBtt0R6mmf1CluPyZAercvrKav8MdiN8FuuCBBGfqwK1QEBBCIAIGA1ZYA+WFdhN67w8SH0LDDNbHGoVmJYF+Tc29AdO9lFAQVxY1FnY1JnU2hoIQIf8Ozg79ZCPkJ9j9yJhEV4JapnSPqRok3zIX+h8OOU0yEC7OwQCsuJ8wSSha4B5/A/tGnmtU1EsPPIJAsZWOiTy4whAmNFGlLz065pGJaeHFzpNHQxhVeEge+BMDNq0XJrph3bU64AAQEgAM8UEwQAAAAXqRSeeBKG6a1fTJXTrweS9Una6uUH94ciAgIf8Ozg79ZCPkJ9j9yJhEV4JapnSPqRok3zIX+h8OOU00cwRAIgHLqA+XkWe8qYboVhRIpeudNChx8qqS6vAy/lL9UzXcECIHoRnppsu4lPWKUL/ZwDx5xBcsA22ZWqeMGo1gIgBkCXAQEEIgAgYDVlgD5YV2E3rvDxIfQsMM1scahWYlgX5Nzb0B072UUBBXFjUWdjUmdTaGghAh/w7ODv1kI+Qn2P3ImERXglqmdI+pGiTfMhf6Hw45TTIQLs7BAKy4nzBJKFrgHn8D+0aea1TUSw88gkCxlY6JPLjCECY0UaUvPTrmkYlp4cXOk0dDGFV4SB74EwM2rRcmumHdtTrgABABYAFKSa1hvZyhS5D4xq9qde45XuyZWtAA==';

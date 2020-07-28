@@ -9,9 +9,6 @@ import { Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { palette, typography } from 'app/styles';
 
-import { HDSegwitBech32Wallet } from '../../class';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
-
 const Bignumber = require('bignumber.js');
 
 const BlueElectrum = require('../../BlueElectrum');
@@ -59,6 +56,7 @@ export class SendCoinsConfirmScreen extends Component<Props> {
         await BlueElectrum.waitTillConnected();
 
         const result = await this.state.fromWallet.broadcastTx(this.state.tx);
+
         if (result && result.code) {
           if (result.code === 1) {
             const message = result.message.split('\n');
@@ -66,19 +64,6 @@ export class SendCoinsConfirmScreen extends Component<Props> {
           }
         } else {
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
-          let amount = 0;
-          const recipients = this.state.recipients;
-          if (recipients[0].amount === BitcoinUnit.MAX) {
-            amount = this.state.fromWallets.getBalance() - this.state.feeSatoshi;
-          } else {
-            for (const recipient of recipients) {
-              amount += recipient.amount ? +recipient.amount : recipient.value;
-            }
-          }
-
-          if (this.state.fromWallet.type === HDSegwitBech32Wallet.type) {
-            amount = i18n.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
-          }
 
           CreateMessage({
             title: i18n.send.success.title,
@@ -155,7 +140,7 @@ export class SendCoinsConfirmScreen extends Component<Props> {
             <Text style={typography.caption}>{`${i18n.send.details.fee}  `}</Text>
             <View style={styles.feeBox}>
               <Text style={styles.fee}>
-                {fee} {i18n.send.details.feeUnit}
+                {fee} {i18n._.satoshi}
               </Text>
             </View>
           </View>

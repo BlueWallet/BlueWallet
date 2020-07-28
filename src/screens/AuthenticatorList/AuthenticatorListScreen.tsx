@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { FlatList, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { FlatList, StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
 import { NavigationInjectedProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import { icons, images } from 'app/assets';
 import { Header, Image, ListEmptyState, ScreenTemplate } from 'app/components';
-import { Route, Authenticator } from 'app/consts';
+import { Route, Authenticator, FinalizedPSBT, CONST } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { ApplicationState } from 'app/state';
 import { selectors, actions } from 'app/state/authenticators';
@@ -13,6 +13,9 @@ import { palette, typography } from 'app/styles';
 
 import { formatDate } from '../../../utils/date';
 
+const BigNumber = require('bignumber.js');
+
+const BlueElectrum = require('../../../BlueElectrum');
 const i18n = require('../../../loc');
 
 interface MapStateProps {
@@ -22,6 +25,7 @@ interface MapStateProps {
 
 interface ActionProps {
   loadAuthenticators: Function;
+  signTransaction: Function;
   deleteAuthenticator: Function;
 }
 
@@ -57,6 +61,45 @@ class AuthenticatorListScreen extends Component<Props> {
     });
   };
 
+  getActualSatoshiPerByte = (tx: string, feeSatoshi: number) =>
+    new BigNumber(feeSatoshi).dividedBy(Math.round(tx.length / 2)).toNumber();
+
+  signTransaction = () => {
+    const { navigation, signTransaction } = this.props;
+    navigation.navigate(Route.ScanQrCode, {
+      onBarCodeScan: (psbt: string) => {
+        navigation.goBack();
+        try {
+          signTransaction(psbt, {
+            onSuccess: ({
+              finalizedPsbt: { recipients, txHex, fee },
+              authenticator,
+            }: {
+              finalizedPsbt: FinalizedPSBT;
+              authenticator: Authenticator;
+            }) => {
+              navigation.navigate(Route.SendCoinsConfirm, {
+                fee,
+                // pretending that we are sending from real wallet
+                fromWallet: {
+                  label: authenticator.name,
+                  preferredBalanceUnit: CONST.preferredBalanceUnit,
+                  broadcastTx: BlueElectrum.broadcastV2,
+                },
+                tx: txHex,
+                recipients,
+                satoshiPerByte: this.getActualSatoshiPerByte(txHex, fee),
+              });
+            },
+            onFailure: Alert.alert,
+          });
+        } catch (_) {
+          Alert.alert(i18n.wallets.errors.invalidQrCode);
+        }
+      },
+    });
+  };
+
   renderItem = ({ item }: { item: Authenticator }) => {
     const { navigation } = this.props;
 
@@ -69,7 +112,7 @@ class AuthenticatorListScreen extends Component<Props> {
       >
         <View style={styles.authenticatorTopWrapper}>
           <Text style={styles.name}>{item.name}</Text>
-          <TouchableOpacity onPress={() => this.onDeletePress(item)}>
+          <TouchableOpacity style={styles.deleteWrapper} onPress={() => this.onDeletePress(item)}>
             <Text style={styles.delete}>{i18n._.delete}</Text>
           </TouchableOpacity>
         </View>
@@ -89,10 +132,10 @@ class AuthenticatorListScreen extends Component<Props> {
         <Text style={styles.buttonDescription}>{i18n.wallets.walletModal.btcv}</Text>
         <Image source={images.coin} style={styles.coinIcon} />
       </View>
-      <View style={styles.scanContainer}>
+      <TouchableOpacity onPress={this.signTransaction} style={styles.scanContainer}>
         <Image source={icons.scan} style={styles.scan} />
         <Text style={styles.scanText}>{i18n.authenticators.list.scan}</Text>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 
@@ -151,6 +194,7 @@ const mapStateToProps = (state: ApplicationState): MapStateProps => ({
 const mapDispatchToProps: ActionProps = {
   loadAuthenticators: actions.loadAuthenticators,
   deleteAuthenticator: actions.deleteAuthenticator,
+  signTransaction: actions.signTransaction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AuthenticatorListScreen);
@@ -222,5 +266,11 @@ const styles = StyleSheet.create({
   headerContainer: {
     marginBottom: 26,
     marginTop: 20,
+  },
+  deleteWrapper: {
+    position: 'absolute',
+    padding: 15,
+    top: -15,
+    right: -15,
   },
 });

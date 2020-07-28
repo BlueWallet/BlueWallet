@@ -350,7 +350,6 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    */
   async broadcastTx(txhex) {
     const broadcast = await BlueElectrum.broadcastV2(txhex);
-    console.log({ broadcast });
     if (broadcast.indexOf('successfully') !== -1) return true;
     return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
   }

@@ -15,7 +15,6 @@ export const images = {
   settingsInactive: require('./images/settingsInactive.png'),
   success: require('./images/bvWalletIconSuccess.png'),
   dashboardNoWallet: require('./images/bvWalletIconNoCards.png'),
-  noAuthenticators: require('./images/noAuthenticators.png'),
   addressBookNoContacts: require('./images/addressBookNoContacts.png'),
   addressBookNotFound: require('./images/bvAppIconsSearchx2.png'),
   backArrow: require('./images/navigationBarBackArrow.png'),
@@ -38,6 +37,7 @@ export const images = {
   bigPlus: require('./images/bigPlus.png'),
   cancelSmall: require('./images/cancelSmall.png'),
   portraitLogo: require('./images/portraitLogo.png'),
+  noAuthenticators: require('./images/shield3x.png'),
 };
 
 export const icons = {

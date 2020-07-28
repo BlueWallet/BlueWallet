@@ -1,3 +1,4 @@
+import { VaultTxType } from 'bitcoinjs-lib';
 import { Dayjs } from 'dayjs';
 import React from 'react';
 import { KeyboardType, StyleProp, ViewStyle } from 'react-native';
@@ -14,6 +15,7 @@ export const CONST = {
   webGeneratorUrl: 'www.keygenerator.bitcoinvault.global',
   mnemonicWordsAmount: 12,
   satoshiInBtc: 100000000,
+  preferredBalanceUnit: 'BTCV',
   alertBlocks: 144,
   confirmationsBlocks: 6,
 };
@@ -172,6 +174,18 @@ export interface Utxo {
   wif: string;
 }
 
+export interface Recipient {
+  address: string;
+  value: number;
+}
+
+export interface FinalizedPSBT {
+  txHex: string;
+  vaultTxType: VaultTxType;
+  recipients: Recipient[];
+  fee: number;
+}
+
 // @ts-ignore
 export type NavigationProp<T, R> = StackNavigationProp<T, R>;
 
@@ -230,6 +244,7 @@ export type MainCardStackNavigatorParams = {
   [Route.MainCardStackNavigator]: undefined;
   [Route.CreateWallet]: undefined;
   [Route.ImportWallet]: undefined;
+
   [Route.WalletDetails]: { wallet: Wallet };
   [Route.CreateContact]: undefined;
   [Route.ContactDetails]: { contact: Contact };
@@ -282,6 +297,7 @@ export type MainCardStackNavigatorParams = {
   [Route.FilterTransactions]: { onFilterPress: ({}) => void };
   [Route.CreateAuthenticator]: undefined;
   [Route.EnterPIN]: { id: string };
+  [Route.AuthenticatorList]: undefined;
   [Route.CreateAuthenticatorSuccess]: { id: string };
   [Route.DeleteEntity]: { onConfirm: () => void; name: string; subtitle: string; title: string };
   [Route.ExportAuthenticator]: { id: string };

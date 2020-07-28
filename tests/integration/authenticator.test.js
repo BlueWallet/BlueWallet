@@ -3,8 +3,6 @@ import { Authenticator } from '../../class';
 const assert = require('assert');
 const bitcoinjs = require('bitcoinjs-lib');
 
-const config = require('../../config');
-
 describe('authenticator', () => {
   describe('signAndFinalizePSBT()', () => {
     const arAuthenticator = new Authenticator();
@@ -13,11 +11,17 @@ describe('authenticator', () => {
 
     beforeAll(() => {
       const arPrivateKey = Buffer.from('79d6d5075b87e759c955d413bff5065f0156b275ece1e500e37bf36f6a186543', 'hex');
-      arAuthenticator.keyPair = bitcoinjs.ECPair.fromPrivateKey(arPrivateKey, { network: config.network });
+      arAuthenticator.keyPair = bitcoinjs.ECPair.fromPrivateKey(arPrivateKey, {
+        network: bitcoinjs.alt_networks.bitcoinvaultTestnet,
+      });
       const airPrivateKey = Buffer.from('0cc52b3faa941f13d3ea4b2fea29a2259b58ffca1ddf3069ab2d21d7f793a960', 'hex');
-      airAuthenticator.keyPair = bitcoinjs.ECPair.fromPrivateKey(airPrivateKey, { network: config.network });
+      airAuthenticator.keyPair = bitcoinjs.ECPair.fromPrivateKey(airPrivateKey, {
+        network: bitcoinjs.alt_networks.bitcoinvaultTestnet,
+      });
       const foreignPrivateKey = Buffer.from('915dc1ac477d1fe606cd4deeba7b297669d374354f6f866f021633b340a2acdb', 'hex');
-      foreignAuthenticator.keyPair = bitcoinjs.ECPair.fromPrivateKey(foreignPrivateKey, { network: config.network });
+      foreignAuthenticator.keyPair = bitcoinjs.ECPair.fromPrivateKey(foreignPrivateKey, {
+        network: bitcoinjs.alt_networks.bitcoinvaultTestnet,
+      });
     });
 
     it('should finalize Recovery tx on AR', async function() {

@@ -2,7 +2,7 @@ import { ECPair, VaultTxType, address } from 'bitcoinjs-lib';
 import dayjs, { Dayjs } from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Authenticator as IAuthenticator } from 'app/consts';
+import { Authenticator as IAuthenticator, FinalizedPSBT } from 'app/consts';
 
 import config from '../config';
 import signer from '../models/signer';
@@ -12,18 +12,6 @@ const i18n = require('../loc');
 
 const ENCODING = 'hex';
 const PIN_LENGTH = 4;
-
-interface Recipient {
-  address: string;
-  value: number;
-}
-
-interface FinalizedPSBT {
-  txHex: string;
-  vaultTxType: VaultTxType;
-  recipients: Recipient[];
-  fee: number;
-}
 
 export class Authenticator implements IAuthenticator {
   privateKey: Buffer | null;

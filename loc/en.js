@@ -17,6 +17,7 @@ module.exports = {
     delete: 'Delete',
     created: 'Created',
     invalid: 'Invalid',
+    satoshi: 'Sat',
   },
   tabNavigator: {
     dashboard: 'Dashboard',
@@ -74,6 +75,9 @@ module.exports = {
     description: 'Confirm Transaction Password in order to proceed the transaction.',
   },
   authenticators: {
+    sign: {
+      error: `None of the authenticators were able to sign the transaction`,
+    },
     import: {
       title: 'Import authenticator',
       success: 'Your authenticator has been successfully imported. You can now return to Authenticators.',
@@ -240,6 +244,7 @@ module.exports = {
       invalidPrivateKey: 'Invalid private key',
       invalidPublicKey: 'Invalid public key',
       invalidMnemonic: 'Invalid mnemonic',
+      invalidQrCode: 'Invalid QR code',
       invalidSign: `Couldn't sign transaction`,
     },
   },
