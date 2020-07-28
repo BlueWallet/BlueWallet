@@ -207,11 +207,11 @@ const ReceiveDetails = () => {
       }
       setAddressBIP21Encoded(address);
       await notifications.tryToObtainPermissions();
-      notifications.majorTomToGroundControl([address], []);
+      notifications.majorTomToGroundControl([address], [], []);
     } else if (wallet.getAddress) {
       setAddressBIP21Encoded(wallet.getAddress());
       await notifications.tryToObtainPermissions();
-      notifications.majorTomToGroundControl([wallet.getAddress()], []);
+      notifications.majorTomToGroundControl([wallet.getAddress()], [], []);
     }
   }, [wallet]);
 

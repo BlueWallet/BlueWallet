@@ -148,10 +148,12 @@ function _getHeaders() {
  *
  * @param addresses {string[]}
  * @param hashes {string[]}
+ * @param txids {string[]}
  * @returns {Promise<object>} Response object from API rest call
  */
-const majorTomToGroundControl = async function (addresses, hashes) {
-  if (!Array.isArray(addresses) || !Array.isArray(hashes)) throw new Error('no addresses or hashes provided');
+const majorTomToGroundControl = async function (addresses, hashes, txids) {
+  if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids))
+    throw new Error('no addresses or hashes or txids provided');
   const pushToken = await _getPushToken();
   if (!pushToken || !pushToken.token || !pushToken.os) return;
 
@@ -163,6 +165,7 @@ const majorTomToGroundControl = async function (addresses, hashes) {
       body: {
         addresses,
         hashes,
+        txids,
         token: pushToken.token,
         os: pushToken.os,
       },

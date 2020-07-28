@@ -397,7 +397,7 @@ export default class Browser extends Component {
                     // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
                     const decoded = await fromWallet.decodeInvoice(payreq);
                     await notifications.tryToObtainPermissions();
-                    notifications.majorTomToGroundControl([], [decoded.payment_hash]);
+                    notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
                   },
                 },
               ],
