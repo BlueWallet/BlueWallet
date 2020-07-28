@@ -4,7 +4,7 @@ import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
-import { Header, Chip, ScreenTemplate } from 'app/components';
+import { Header, Mnemonic, ScreenTemplate } from 'app/components';
 import { RootStackParams, Route } from 'app/consts';
 import { typography } from 'app/styles';
 
@@ -27,11 +27,7 @@ export const ExportWalletScreen = ({ route, navigation }: Props) => {
       <View style={styles.qrCodeContainer}>
         {secret && <QRCode quietZone={10} value={secret} size={140} ecl={'H'} />}
       </View>
-      <View style={styles.mnemonicPhraseContainer}>
-        {secret.split(' ').map((singleSecret, index) => (
-          <Chip key={index.toString()} label={`${index + 1}. ${singleSecret}`} />
-        ))}
-      </View>
+      <Mnemonic mnemonic={secret} />
     </ScreenTemplate>
   );
 };

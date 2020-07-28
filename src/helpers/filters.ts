@@ -76,8 +76,8 @@ const fileterByToAmount = (transactions: Transaction[], toAmount: number) => {
   );
 };
 
-export const filterBySearch = (transactions: Transaction[], search: string) => {
-  return transactions.filter(transaction => {
+export const filterBySearch = (search: string, transactions: Transaction[]) =>
+  transactions.filter(transaction => {
     const inputs: string[] = [];
     const outputs: string[] = [];
     transaction.inputs.filter(input => {
@@ -95,9 +95,11 @@ export const filterBySearch = (transactions: Transaction[], search: string) => {
         .includes(search)
     );
   });
-};
 
-export const filterTransaction = (transactions: Transaction[], filters: any) => {
+export const filterTransaction = (filters: any, transactions: Transaction[]) => {
+  if (!filters.isFilteringOn) {
+    return transactions;
+  }
   const filteredByType = filterByTransactionType(transactions, filters.transactionType);
   const filteredbyAddress = filters.address
     ? filterByAddress(filteredByType, filters.transactionType, filters.address)

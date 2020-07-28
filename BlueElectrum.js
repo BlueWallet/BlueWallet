@@ -142,6 +142,7 @@ module.exports.getTransactionsByAddress = async function(address) {
   const hash = bitcoin.crypto.sha256(script);
   const reversedHash = Buffer.from(reverse(hash));
   const history = await mainClient.blockchainScripthash_getHistory(reversedHash.toString('hex'));
+
   return history;
 };
 
@@ -197,6 +198,7 @@ module.exports.multiGetTransactionsFullByTxid = async function(txid_list) {
   const txfull = await this.multiGetTransactionByTxid(txid_list);
   for (const txid in txfull) {
     const full = txfull[txid];
+
     for (const input of full.vin) {
       if (!input.txid) continue;
       // now we need to fetch previous TX where this VIN became an output, so we can see its amount

@@ -27,3 +27,5 @@ export { PinInput } from './PinInput';
 export { PinInputView } from './PinInputView';
 export { PinView } from './PinView';
 export { Mnemonic } from './Mnemonic';
+export { CheckBox } from './CheckBox';
+export { Label } from './Label';

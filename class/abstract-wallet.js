@@ -24,7 +24,6 @@ export class AbstractWallet {
     this.balance = 0; // SAT
     this.unconfirmed_balance = 0; // SAT
     this.transactions = [];
-    this.unconfirmed_transactions = [];
     this._address = false;
     this.utxo = [];
     this._lastTxFetch = 0;
@@ -42,7 +41,7 @@ export class AbstractWallet {
   }
 
   getTransactions() {
-    return this.unconfirmed_transactions.concat(this.transactions);
+    return this.transactions;
   }
 
   /**

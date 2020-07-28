@@ -14,6 +14,8 @@ export const CONST = {
   webGeneratorUrl: 'www.keygenerator.bitcoinvault.global',
   mnemonicWordsAmount: 12,
   satoshiInBtc: 100000000,
+  alertBlocks: 144,
+  confirmationsBlocks: 6,
 };
 
 export enum FlowType {
@@ -24,7 +26,10 @@ export enum FlowType {
 export enum Route {
   PasswordNavigator = 'PasswordNavigator',
   Dashboard = 'Dashboard',
+  RecoverySend = 'RecoverySend',
+  RecoverySeed = 'RecoverySeed',
   AuthenticatorList = 'AuthenticatorList',
+  RecoveryTransactionList = 'RecoveryTransactionList',
   EnterPIN = 'EnterPIN',
   ExportAuthenticator = 'ExportAuthenticator',
   ImportAuthenticator = 'ImportAuthenticator',
@@ -92,7 +97,6 @@ export interface Wallet {
   type: string;
   typeReadable: string;
   unconfirmed_balance: number;
-  unconfirmed_transactions: Transaction[];
   utxo: any[];
   _xpub: string;
   getID: () => string;
@@ -107,6 +111,14 @@ export interface Contact {
   address: string;
 }
 
+export enum TxType {
+  NONVAULT = 'NONVAULT',
+  ALERT_PENDING = 'ALERT_PENDING',
+  ALERT_CONFIRMED = 'ALERT_CONFIRMED',
+  ALERT_RECOVERED = 'ALERT_RECOVERED',
+  RECOVERY = 'RECOVERY',
+  INSTANT = 'INSTANT',
+}
 export interface Transaction {
   hash: string;
   txid: string;
@@ -115,6 +127,7 @@ export interface Transaction {
   received: string; // date string, same value as 'time' field but human readable
   walletLabel: string;
   confirmations: number;
+  tx_type: TxType;
   inputs: any[];
   outputs: any[];
   note?: string;
@@ -135,6 +148,16 @@ export interface Filters {
   fromAmount?: number;
   toAmount?: number;
   transactionType?: string;
+}
+
+export interface TransactionInput {
+  addresses: string[];
+  txid: string;
+  vout: number;
+  value: number;
+  scriptSig: { asm: string; hex: string };
+  sequence: number;
+  txinwitness: string[];
 }
 
 export interface Utxo {
@@ -203,6 +226,7 @@ export type PasswordNavigatorParams = {
 };
 
 export type MainCardStackNavigatorParams = {
+  [Route.Dashboard]: { activeWallet?: Wallet };
   [Route.MainCardStackNavigator]: undefined;
   [Route.CreateWallet]: undefined;
   [Route.ImportWallet]: undefined;
@@ -227,6 +251,15 @@ export type MainCardStackNavigatorParams = {
     tx: any;
     satoshiPerByte: any;
     fromWallet: Wallet;
+  };
+  [Route.RecoveryTransactionList]: { wallet: Wallet };
+  [Route.RecoverySend]: { transactions: Transaction[]; wallet: any };
+  [Route.RecoverySeed]: {
+    onSubmit: Function;
+    subtitle: string;
+    description: string;
+    buttonText: string;
+    onBackArrow?: () => void;
   };
   [Route.ScanQrCode]: { onBarCodeScan: (code: string) => void };
   [Route.ChooseContactList]: {

@@ -132,7 +132,7 @@ export class InputItem extends PureComponent<Props, State> {
 
 const styles = StyleSheet.create({
   container: {
-    minHeight: 70,
+    marginVertical: 15,
   },
   label: {
     position: 'absolute',

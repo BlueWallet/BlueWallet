@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { icons, images } from 'app/assets';
 import { Image } from 'app/components';
+import { HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet } from 'app/legacy';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../../loc');
@@ -14,9 +15,11 @@ interface Props {
   type?: string;
   onSendPress?: () => void;
   onReceivePress?: () => void;
-  onSelectPress: () => void;
+  onSelectPress?: () => void;
   onReceveryPress?: () => void;
 }
+
+const shouldRenderRecover = (type: string) => [HDSegwitP2SHArWallet.type, HDSegwitP2SHAirWallet.type].includes(type);
 
 export const DashboarContentdHeader = ({
   balance,
@@ -32,7 +35,7 @@ export const DashboarContentdHeader = ({
     <View style={styles.header}>
       <TouchableOpacity style={styles.chooseWalletButton} onPress={onSelectPress}>
         <Text style={styles.chooseWalletButtonText}>{i18n.formatBalance(Number(balance), unit, true)}</Text>
-        <Image source={icons.iconDropdown} style={styles.icon} />
+        {onSelectPress && <Image source={icons.iconDropdown} style={styles.icon} />}
       </TouchableOpacity>
       <View style={styles.descriptionContainer}>
         <Text style={styles.buttonDescription}>{label}</Text>
@@ -48,7 +51,7 @@ export const DashboarContentdHeader = ({
             <Image source={images.yellowPlus} style={styles.circleButtonImage} />
             <Text style={styles.circleButtonText}>{i18n.wallets.dashboard.receive}</Text>
           </TouchableOpacity>
-          {type === 'HDsegwitP2SHar' && (
+          {!!type && shouldRenderRecover(type) && (
             <TouchableOpacity style={styles.circleButton} onPress={onReceveryPress}>
               <Image source={images.recover} style={styles.circleButtonImage} />
               <Text style={styles.circleButtonText}>{i18n.wallets.dashboard.recover}</Text>

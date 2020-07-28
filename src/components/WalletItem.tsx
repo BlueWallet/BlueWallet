@@ -14,19 +14,19 @@ export interface WalletItemProps {
   name: string;
   value: number;
   title: string;
-  key: number;
-  onPress: (key: number) => void;
+  index: number;
+  onPress: (index: number) => void;
   variant?: GradientVariant;
   selected?: boolean;
   unit?: string;
 }
 
 export const WalletItem = (props: WalletItemProps) => {
-  const { name, value, title, selected, onPress, key, variant, unit } = props;
-  const onWalletPress = () => onPress(key);
+  const { name, value, title, selected, index, onPress, variant, unit } = props;
+  const onWalletPress = () => onPress(index);
 
   return (
-    <TouchableOpacity key={key} style={styles.container} onPress={onWalletPress}>
+    <TouchableOpacity style={styles.container} onPress={onWalletPress}>
       <View>
         <Avatar variant={variant} title={title} />
         {selected && <Image style={styles.image} source={images.successBadge} />}

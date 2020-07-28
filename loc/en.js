@@ -240,9 +240,16 @@ module.exports = {
       invalidPrivateKey: 'Invalid private key',
       invalidPublicKey: 'Invalid public key',
       invalidMnemonic: 'Invalid mnemonic',
+      invalidSign: `Couldn't sign transaction`,
     },
   },
   transactions: {
+    label: {
+      pending: 'pending',
+      recovered: 'recovered',
+      done: 'done',
+      cancelled: 'cancelled',
+    },
     list: {
       conf: 'Confirmations',
     },
@@ -255,6 +262,7 @@ module.exports = {
       verify: 'Verify on coinb.in',
       amount: 'Amount',
       fee: 'Fee',
+      transactioFee: 'Transaction fee',
       txSize: 'TX size',
       satoshiPerByte: 'Satoshi per byte',
       from: 'From',
@@ -276,6 +284,16 @@ module.exports = {
   },
   send: {
     header: 'Send coins',
+    recovery: {
+      recover: 'Recover',
+      useWalletAddress: 'Use address of this wallet',
+      confirmSeed: 'Confirm with Recovery Seed',
+      confirmSeedDesc: 'Please enter your Recovery Seed in order to proceed.',
+      confirmFirstSeed: 'Confirm with first Recovery Seed',
+      confirmFirstSeedDesc: 'Please enter your first Recovery Seed in order to proceed.',
+      confirmSecondSeed: 'Confirm with second Recovery Seed',
+      confirmSecondSeedDesc: 'Please enter your second Recovery Seed in order to proceed.',
+    },
     transaction: {
       instant: 'Instant',
       instantDesc: 'This method allows you to send immediate transfers. Use with extreme caution.',

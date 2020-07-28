@@ -1,11 +1,14 @@
 import * as bip39 from 'bip39';
-import { crypto } from 'bitcoinjs-lib';
 import * as ecurve from 'ecurve';
 import { pbkdf2 } from 'pbkdf2';
 
+import config from '../config';
 import { bytesToBits, bitsToBytes } from './buffer';
 
 const bigi = require('bigi');
+const { ECPair } = require('bitcoinjs-lib');
+
+import { crypto } from 'bitcoinjs-lib';
 
 const i18n = require('../loc');
 
@@ -16,6 +19,8 @@ interface GeneratePrivateKey {
   keylen?: number;
   digest?: string;
 }
+
+const ENCODING = 'hex';
 
 export const generatePrivateKey = ({
   password,
@@ -83,4 +88,40 @@ export const mnemonicToEntropy = (mnemonic: string) => {
   const SALT_LENGHT = 4;
   const bits128 = mnemonicToBits(mnemonic).slice(SALT_LENGHT);
   return bitsToBytes(bits128);
+};
+
+export const privateKeyToKeyPair = (privateKey: string) =>
+  ECPair.fromPrivateKey(Buffer.from(privateKey, ENCODING), {
+    network: config.network,
+  });
+
+// convert mnemonic generated in https://keygenerator.cloudbestenv.com/
+export const mnemonicToKeyPair = async (mnemonic: string) => {
+  const SALT_LENGHT = 4;
+  const WORDS_LENGTH = 12;
+
+  const words = mnemonic.split(' ');
+
+  const wordsLength = words.length;
+
+  if (wordsLength !== WORDS_LENGTH) {
+    throw new Error(
+      i18n.formatString(i18n.wallets.errors.invalidMnemonicWordsNumber, {
+        receivedWordsNumber: wordsLength,
+        expectedWordsNumber: WORDS_LENGTH,
+      }),
+    );
+  }
+
+  const bits128 = mnemonicToBits(mnemonic).slice(SALT_LENGHT);
+
+  const generatedBytes = bitsToBytes(bits128);
+  const privateKey = await generatePrivateKey({
+    salt: generatedBytes,
+    password: generatedBytes,
+  });
+
+  return ECPair.fromPrivateKey(privateKey, {
+    network: config.network,
+  });
 };

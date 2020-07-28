@@ -1,11 +1,8 @@
 import * as bip39 from 'bip39';
-import { pbkdf2 } from 'pbkdf2';
-import { promisify } from 'util';
 
 import config from '../config';
 import signer from '../models/signer';
-import { bitsToBytes } from '../utils/buffer';
-import { mnemonicToBits } from '../utils/crypto';
+import { mnemonicToKeyPair } from '../utils/crypto';
 import { AbstractHDSegwitP2SHWallet } from './abstract-hd-segwit-p2sh-wallet';
 
 const { payments, ECPair } = require('bitcoinjs-lib');
@@ -92,34 +89,6 @@ export class AbstractHDSegwitP2SHVaultWallet extends AbstractHDSegwitP2SHWallet 
     return address;
   }
 
-  // convert mnemonic generated in https://keygenerator.cloudbestenv.com/
-  static async mnemonicToKeyPair(mnemonic) {
-    const SALT_LENGHT = 4;
-    const WORDS_LENGTH = 12;
-
-    const words = mnemonic.split(' ');
-
-    const wordsLength = words.length;
-
-    if (wordsLength !== WORDS_LENGTH) {
-      throw new Error(
-        i18n.formatString(i18n.wallets.errors.invalidMnemonicWordsNumber, {
-          receivedWordsNumber: wordsLength,
-          expectedWordsNumber: WORDS_LENGTH,
-        }),
-      );
-    }
-
-    const bits128 = mnemonicToBits(mnemonic).slice(SALT_LENGHT);
-
-    const generatedBytes = bitsToBytes(bits128);
-    const privateKey = await promisify(pbkdf2)(generatedBytes, generatedBytes, 100000, 32, 'sha256');
-
-    return ECPair.fromPrivateKey(privateKey, {
-      network: config.network,
-    });
-  }
-
   async createTx({
     utxos,
     amount,
@@ -135,9 +104,7 @@ export class AbstractHDSegwitP2SHVaultWallet extends AbstractHDSegwitP2SHWallet 
       utxo.wif = this._getWifForAddress(utxo.address);
     }
 
-    const keyPairsFromMnemonics = await Promise.all(
-      mnemonics.map(m => AbstractHDSegwitP2SHVaultWallet.mnemonicToKeyPair(m)),
-    );
+    const keyPairsFromMnemonics = await Promise.all(mnemonics.map(m => mnemonicToKeyPair(m)));
 
     let keyPairsFromPrivateKeys = [];
     try {

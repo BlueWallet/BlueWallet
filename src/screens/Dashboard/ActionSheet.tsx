@@ -18,15 +18,17 @@ interface Props {
 export const ActionSheet = (props: Props) => {
   const renderWalletItems = () => {
     const { wallets, selectedIndex, onPress } = props.route.params;
+
     return wallets.map((wallet: Wallet, index: number) => (
       <WalletItem
+        key={`${wallet.secret}${wallet.label}`}
         variant={wallet.label === 'All wallets' ? GradientView.Variant.Secondary : GradientView.Variant.Primary}
         value={wallet.balance}
         unit="BTCV"
         name={wallet.label === 'All wallets' ? i18n.wallets.dashboard.allWallets : wallet.label}
         title={wallet.label === 'All wallets' ? 'AW' : wallet.label[0]}
         selected={index == selectedIndex}
-        key={index}
+        index={index}
         onPress={() => {
           props.navigation.goBack();
           onPress(index);
