@@ -1,10 +1,10 @@
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { StyleSheet, View, Alert } from 'react-native';
-import { NavigationInjectedProps, NavigationScreenProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import { ScreenTemplate, Text, InputItem, Header, Button, FlatButton, RadioGroup, RadioButton } from 'app/components';
-import { Route, Wallet } from 'app/consts';
+import { Route, Wallet, MainCardStackNavigatorParams } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import {
   HDSegwitBech32Wallet,
@@ -21,11 +21,11 @@ import { palette, typography } from 'app/styles';
 
 const i18n = require('../../loc');
 
-interface Props extends NavigationInjectedProps {
-  appSettings: AppSettingsState;
+interface Props {
+  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.CreateWallet>;
   loadWallets: () => Promise<WalletsActionType>;
+  appSettings: AppSettingsState;
 }
-
 interface State {
   label: string;
   isLoading: boolean;
@@ -38,10 +38,6 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     isLoading: false,
     selectedIndex: 0,
   };
-
-  static navigationOptions = (props: NavigationScreenProps) => ({
-    header: <Header navigation={props.navigation} isBackArrow title={i18n.wallets.add.title} />,
-  });
 
   onSelect = (selectedIndex: number) =>
     this.setState({
@@ -297,6 +293,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
             />
           </>
         }
+        header={<Header navigation={this.props.navigation} isBackArrow title={i18n.wallets.add.title} />}
       >
         <Text style={styles.subtitle}>{i18n.wallets.add.subtitle}</Text>
         <Text style={styles.description}>{i18n.wallets.add.description}</Text>

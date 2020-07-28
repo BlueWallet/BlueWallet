@@ -309,6 +309,7 @@ export type MainCardStackNavigatorParams = {
     description: string;
     withLink?: boolean;
     headerTitle: string;
+    onBackArrow?: () => void;
   };
 };
 export type DateType = Date | Dayjs;
