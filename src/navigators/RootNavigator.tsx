@@ -4,7 +4,6 @@ import React from 'react';
 import { Route, RootStackParams } from 'app/consts';
 import {
   ActionSheet,
-  ImportWalletQRCodeScreen,
   ExportWalletScreen,
   ExportWalletXpubScreen,
   DeleteWalletScreen,
@@ -23,7 +22,6 @@ const Stack = createStackNavigator<RootStackParams>();
 export const RootNavigator = () => (
   <Stack.Navigator initialRouteName={Route.MainCardStackNavigator} headerMode="none">
     <Stack.Screen name={Route.MainCardStackNavigator} component={MainCardStackNavigator} />
-    <Stack.Screen name={Route.ImportWalletQRCode} component={ImportWalletQRCodeScreen} />
     <Stack.Screen name={Route.ActionSheet} component={ActionSheet} options={modalOptions} />
     <Stack.Screen name={Route.UnlockTransaction} component={UnlockTransaction} />
     <Stack.Screen name={Route.PasswordNavigator} component={PasswordNavigator} />

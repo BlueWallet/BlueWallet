@@ -23,7 +23,6 @@ export { SendCoinsScreen } from './SendCoinsScreen';
 export { SendCoinsConfirmScreen } from './SendCoinsConfirmScreen';
 export { SendTransactionDetailsScreen } from './SendTransactionDetailsScreen';
 export { default as ScanQrCodeScreen } from './ScanQrCodeScreen';
-export { default as ImportWalletQRCodeScreen } from './ImportWalletQRCodeScreen';
 export { CreatePinScreen } from './PinFlow/CreatePinScreen';
 export { ConfirmPinScreen } from './PinFlow/ConfirmPinScreen';
 export { CurrentPinScreen } from './PinFlow/CurrentPinScreen';
@@ -45,3 +44,4 @@ export { default as CreateWalletSuccessScreen } from './CreateWalletSuccessScree
 export { default as RecoveryTransactionListScreen } from './RecoveryTransactionList';
 export { default as RecoverySendScreen } from './RecoverySend';
 export { default as RecoverySeedScreen } from './RecoverySeed';
+export { ImportWalletChooseTypeScreen } from './ImportWalletChooseTypeScreen';

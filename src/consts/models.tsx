@@ -50,7 +50,6 @@ export enum Route {
   CreateWallet = 'CreateWallet',
   ImportWallet = 'ImportWallet',
   ExportWallet = 'ExportWallet',
-  ImportWalletQRCode = 'ImportWalletQRCode',
   DeleteWallet = 'DeleteWallet',
   ExportWalletXpub = 'ExportWalletXub',
   TransactionDetails = 'TransactionDetails',
@@ -77,6 +76,7 @@ export enum Route {
   UnlockTransaction = 'UnlockTransaction',
   FilterTransactions = 'FilterTransactions',
   IntegrateKey = 'IntegrateKey',
+  ImportWalletChooseType = 'ImportWalletChooseType',
 }
 
 export interface Wallet {
@@ -91,10 +91,10 @@ export interface Wallet {
   getLatestTransactionTime: () => void;
   getLabel: () => string;
   setLabel: (label: string) => void;
-  getAddress: () => string;
+  getAddress: () => any;
   getSecret: () => string;
   getXpub: () => Promise<string>;
-  address: string;
+  address?: string;
   secret: string;
   type: string;
   typeReadable: string;
@@ -103,8 +103,9 @@ export interface Wallet {
   _xpub: string;
   getID: () => string;
   weOwnAddress: (clipboard: string) => void;
-  isInvoiceGeneratedByWallet: (clipboard: string) => void;
+  isInvoiceGeneratedByWallet?: (clipboard: string) => void;
   getPreferredBalanceUnit: () => string;
+  setMnemonic: (mnemonic: string) => void;
 }
 
 export interface Contact {
@@ -198,7 +199,6 @@ export type MainTabNavigatorParams = {
 
 export type RootStackParams = {
   [Route.MainCardStackNavigator]: undefined;
-  [Route.ImportWalletQRCode]: undefined;
   [Route.ActionSheet]: { wallets: Wallet[]; selectedIndex: number; onPress: (index: number) => void };
   [Route.UnlockTransaction]: { onSuccess: () => void };
   [Route.PasswordNavigator]: undefined;
@@ -243,8 +243,7 @@ export type MainCardStackNavigatorParams = {
   [Route.Dashboard]: { activeWallet?: Wallet };
   [Route.MainCardStackNavigator]: undefined;
   [Route.CreateWallet]: undefined;
-  [Route.ImportWallet]: undefined;
-
+  [Route.ImportWallet]: { walletType: string };
   [Route.WalletDetails]: { wallet: Wallet };
   [Route.CreateContact]: undefined;
   [Route.ContactDetails]: { contact: Contact };
@@ -304,13 +303,14 @@ export type MainCardStackNavigatorParams = {
   [Route.ImportAuthenticator]: undefined;
   [Route.CreateWalletSuccess]: { secret: string };
   [Route.IntegrateKey]: {
-    onBarCodeScan: Function;
+    onBarCodeScan: (text: string) => void;
     title: string;
     description: string;
     withLink?: boolean;
-    headerTitle: string;
+    headerTitle?: string;
     onBackArrow?: () => void;
   };
+  [Route.ImportWalletChooseType]: undefined;
 };
 export type DateType = Date | Dayjs;
 export interface Authenticator {

@@ -36,6 +36,7 @@ import {
   RecoveryTransactionListScreen,
   RecoverySendScreen,
   RecoverySeedScreen,
+  ImportWalletChooseTypeScreen,
 } from 'app/screens';
 
 const Stack = createStackNavigator<MainCardStackNavigatorParams>();
@@ -75,5 +76,6 @@ export const MainCardStackNavigator = () => (
     <Stack.Screen name={Route.RecoveryTransactionList} component={RecoveryTransactionListScreen} />
     <Stack.Screen name={Route.RecoverySend} component={RecoverySendScreen} />
     <Stack.Screen name={Route.RecoverySeed} component={RecoverySeedScreen} />
+    <Stack.Screen name={Route.ImportWalletChooseType} component={ImportWalletChooseTypeScreen} />
   </Stack.Navigator>
 );

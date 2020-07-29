@@ -1,3 +1,4 @@
+import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { StyleSheet, View, Alert } from 'react-native';
@@ -23,8 +24,9 @@ const i18n = require('../../loc');
 
 interface Props {
   navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.CreateWallet>;
-  loadWallets: () => Promise<WalletsActionType>;
+  route: RouteProp<MainCardStackNavigatorParams, Route.CreateWallet>;
   appSettings: AppSettingsState;
+  loadWallets: () => Promise<WalletsActionType>;
 }
 interface State {
   label: string;
@@ -46,7 +48,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
 
   setLabel = (label: string) => this.setState({ label });
 
-  navigateToImportWallet = () => this.props.navigation.navigate(Route.ImportWallet);
+  navigateToImportWallet = () => this.props.navigation.navigate(Route.ImportWalletChooseType);
 
   getWalletClassByIndex = (index: number) => {
     switch (index) {
@@ -165,7 +167,6 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
 
   setupWallet = () => {
     const { selectedIndex, label } = this.state;
-
     if (selectedIndex === 0) {
       return this.navigateToIntegrateRecoveryPublicKey(label, this.createARWallet);
     }
