@@ -215,6 +215,14 @@ export class WatchOnlyWallet extends LegacyWallet {
     this.use_with_hardware_wallet = !!enabled;
   }
 
+  /**
+   * @inheritDoc
+   */
+  getAllExternalAddresses() {
+    if (this._hdWalletInstance) return this._hdWalletInstance.getAllExternalAddresses();
+    return super.getAllExternalAddresses();
+  }
+
   isXpubValid() {
     let xpub;
 
