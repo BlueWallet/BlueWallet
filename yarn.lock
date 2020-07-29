@@ -1462,11 +1462,6 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
-"@types/bigi@*", "@types/bigi@^1.4.2":
-  version "1.4.2"
-  resolved "https://npm.registry.megatherium.solutions/@types%2fbigi/-/bigi-1.4.2.tgz#8dda60612e689e5769047568d0ce8b8fa83db953"
-  integrity sha512-St8Vm0x1ApYlU9yNaFx3jBis5JVU6oR/5Xtgvn8+N8Ts8f3ze6kOvAAg0aNkbGMGhhG6PrP0nMOgDI9NMFETkA==
-
 "@types/bip21@^1.1.30":
   version "1.1.30"
   resolved "https://registry.yarnpkg.com/@types/bip21/-/bip21-1.1.30.tgz#a507cb2fa03bd3b0521e6d2672f86f77fecf0a93"
@@ -1476,14 +1471,6 @@
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
   integrity sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==
-
-"@types/ecurve@^1.0.0":
-  version "1.0.0"
-  resolved "https://npm.registry.megatherium.solutions/@types%2fecurve/-/ecurve-1.0.0.tgz#0d1fce022d8bab2bc4bab28c5d781b64210018c4"
-  integrity sha1-DR/OAi2LqyvEurKMXXgbZCEAGMQ=
-  dependencies:
-    "@types/bigi" "*"
-    "@types/node" "*"
 
 "@types/eslint-visitor-keys@^1.0.0":
   version "1.0.0"
@@ -2378,11 +2365,6 @@ big-integer@^1.6.44:
   version "1.6.48"
   resolved "https://registry.yarnpkg.com/big-integer/-/big-integer-1.6.48.tgz#8fd88bd1632cba4a1c8c3e3d7159f08bb95b4b9e"
   integrity sha512-j51egjPa7/i+RdiRuJbPdJ2FIUYYPhvYLjzoYbcMMm62ooO6F94fETG4MTs46zPAF9Brs04OajboA/qTGuz78w==
-
-bigi@^1.1.0:
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/bigi/-/bigi-1.4.2.tgz#9c665a95f88b8b08fc05cfd731f561859d725825"
-  integrity sha1-nGZalfiLiwj8Bc/XMfVhhZ1yWCU=
 
 bignumber.js@9.0.0:
   version "9.0.0"
@@ -3574,14 +3556,6 @@ ecc-jsbn@~0.1.1:
   dependencies:
     jsbn "~0.1.0"
     safer-buffer "^2.1.0"
-
-ecurve@1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/ecurve/-/ecurve-1.0.6.tgz#dfdabbb7149f8d8b78816be5a7d5b83fcf6de797"
-  integrity sha512-/BzEjNfiSuB7jIWKcS/z8FK9jNjmEWvUV2YZ4RLSmcDtP7Lq0m6FvDuSnJpBlDpGRpfRQeTLGLBI8H+kEv0r+w==
-  dependencies:
-    bigi "^1.1.0"
-    safe-buffer "^5.0.1"
 
 ee-first@1.1.1:
   version "1.1.1"

@@ -1,11 +1,9 @@
 import * as bip39 from 'bip39';
-import * as ecurve from 'ecurve';
 import { pbkdf2 } from 'pbkdf2';
 
 import config from '../config';
 import { bytesToBits, bitsToBytes } from './buffer';
 
-const bigi = require('bigi');
 const { ECPair } = require('bitcoinjs-lib');
 
 import { crypto } from 'bitcoinjs-lib';
@@ -37,13 +35,6 @@ export const generatePrivateKey = ({
       resolve(derivedKey);
     });
   });
-
-export const privateKeyToPublicKey = (privateKey: Buffer) =>
-  ecurve
-    .getCurveByName('secp256k1')
-    .G.multiply(bigi.fromBuffer(privateKey))
-    .getEncoded(false)
-    .toString('hex');
 
 const create132BitKeyWithSha256 = (bytes: Buffer, random128bits: string) => {
   const SALT_LENGHT = 4;
