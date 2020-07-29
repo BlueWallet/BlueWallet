@@ -6,7 +6,7 @@ import { Authenticator as IAuthenticator, FinalizedPSBT } from 'app/consts';
 
 import config from '../config';
 import signer from '../models/signer';
-import { generatePrivateKey, privateKeyToPublicKey, bytesToMnemonic, mnemonicToEntropy } from '../utils/crypto';
+import { generatePrivateKey, bytesToMnemonic, mnemonicToEntropy } from '../utils/crypto';
 
 const i18n = require('../loc');
 
@@ -72,10 +72,10 @@ export class Authenticator implements IAuthenticator {
       });
       this.entropy = _entropy;
       this.secret = mnemonic || bytesToMnemonic(buffer);
-      this.publicKey = privateKeyToPublicKey(this.privateKey);
       this.keyPair = ECPair.fromPrivateKey(this.privateKey, {
         network: config.network,
       });
+      this.publicKey = this.keyPair.publicKey.toString(ENCODING);
     } catch (_) {
       throw new Error(i18n.wallets.errors.invalidPrivateKey);
     }
