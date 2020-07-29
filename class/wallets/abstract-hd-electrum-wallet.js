@@ -992,4 +992,17 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const txs = await BlueElectrum.getTransactionsByAddress(this._getExternalAddressByIndex(0));
     return txs.length > 0;
   }
+
+  /**
+   * @inheritDoc
+   */
+  getAllExternalAddresses() {
+    const ret = [];
+
+    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+      ret.push(this._getExternalAddressByIndex(c));
+    }
+
+    return ret;
+  }
 }

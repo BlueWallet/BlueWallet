@@ -220,6 +220,16 @@ export class AbstractWallet {
   }
 
   /**
+   * Returns _all_ external addresses in hierarchy (for HD wallets) or just address for single-address wallets
+   * _Not_ internal ones, as this method is supposed to be used for subscription of external notifications.
+   *
+   * @returns string[] Addresses
+   */
+  getAllExternalAddresses() {
+    return [];
+  }
+
+  /*
    * Converts zpub to xpub
    *
    * @param {String} zpub

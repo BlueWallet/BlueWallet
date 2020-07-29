@@ -8,6 +8,7 @@ describe('Segwit P2SH wallet', () => {
     const wallet = new SegwitP2SHWallet();
     wallet.setSecret('Ky1vhqYGCiCbPd8nmbUeGfwLdXB1h5aGwxHwpXrzYRfY5cTZPDo4');
     assert.strictEqual(wallet.getAddress(), '3CKN8HTCews4rYJYsyub5hjAVm5g5VFdQJ');
+    assert.deepStrictEqual(wallet.getAllExternalAddresses(), ['3CKN8HTCews4rYJYsyub5hjAVm5g5VFdQJ']);
     assert.strictEqual(await wallet.getChangeAddressAsync(), wallet.getAddress());
 
     const utxos = [
