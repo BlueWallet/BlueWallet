@@ -122,20 +122,6 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   }
 
   /**
-   * Converts ypub to xpub
-   * @param {String} ypub - wallet ypub
-   * @returns {*}
-   */
-  static _ypubToXpub(ypub) {
-    let data = b58.decode(ypub);
-    if (data.readUInt32BE() !== 0x049d7cb2) throw new Error('Not a valid ypub extended key!');
-    data = data.slice(4);
-    data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
-
-    return b58.encode(data);
-  }
-
-  /**
    * Creates Segwit P2SH Bitcoin address
    * @param hdNode
    * @returns {String}
