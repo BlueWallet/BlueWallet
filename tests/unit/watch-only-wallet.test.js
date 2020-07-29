@@ -29,7 +29,24 @@ describe('Watch only wallet', () => {
       assert.strictEqual(w.isHd(), true);
       assert.strictEqual(w.getMasterFingerprint(), false);
       assert.strictEqual(w.getMasterFingerprintHex(), '00000000');
+      assert.ok(w.isXpubValid(), w.secret);
     }
+  });
+
+  it('can validate xpub', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps');
+    assert.ok(w.isXpubValid());
+    w.setSecret('ypub6XRzrn3HB1tjhhvrHbk1vnXCecZEdXohGzCk3GXwwbDoJ3VBzZ34jNGWbC6WrS7idXrYjjXEzcPDX5VqnHEnuNf5VAXgLfSaytMkJ2rwVqy');
+    assert.ok(w.isXpubValid());
+    w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    assert.ok(w.isXpubValid());
+    w.setSecret('xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6D');
+    assert.ok(!w.isXpubValid());
+    w.setSecret('ypub6XRzrn3HB1tjhhvrHbk1vnXCecZEdXohGzCk3GXwwbDoJ3VBzZ34jNGWbC6WrS7idXr');
+    assert.ok(!w.isXpubValid());
+    w.setSecret('ypub6XRzrn3HB1tjhhvrHbk1vnXCecZEdXohGzCk3GXwwbDoJ3VBzZ34jNGWbC6WrS7idXr');
+    assert.ok(!w.isXpubValid());
   });
 
   it('can create PSBT base64 without signature for HW wallet', async () => {

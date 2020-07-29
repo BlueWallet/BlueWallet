@@ -3,6 +3,7 @@ import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 const bitcoin = require('bitcoinjs-lib');
+const HDNode = require('bip32');
 
 export class WatchOnlyWallet extends LegacyWallet {
   static type = 'watchOnly';
@@ -41,7 +42,7 @@ export class WatchOnlyWallet extends LegacyWallet {
   }
 
   valid() {
-    if (this.secret.startsWith('xpub') || this.secret.startsWith('ypub') || this.secret.startsWith('zpub')) return true;
+    if (this.secret.startsWith('xpub') || this.secret.startsWith('ypub') || this.secret.startsWith('zpub')) return this.isXpubValid();
 
     try {
       bitcoin.address.toOutputScript(this.getAddress());
@@ -212,5 +213,25 @@ export class WatchOnlyWallet extends LegacyWallet {
 
   setUseWithHardwareWalletEnabled(enabled) {
     this.use_with_hardware_wallet = !!enabled;
+  }
+
+  isXpubValid() {
+    let xpub;
+
+    try {
+      if (this.secret.startsWith('zpub')) {
+        xpub = this.constructor._zpubToXpub(this.secret);
+      } else if (this.secret.startsWith('ypub')) {
+        xpub = this.constructor._ypubToXpub(this.secret);
+      } else {
+        xpub = this.secret;
+      }
+
+      const hdNode = HDNode.fromBase58(xpub);
+      hdNode.derive(0);
+      return true;
+    } catch (_) {}
+
+    return false;
   }
 }
