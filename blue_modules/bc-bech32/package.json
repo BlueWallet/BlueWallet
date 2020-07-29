@@ -1,5 +1,6 @@
 {
   "name": "bc-bech32",
+  "type": "module",
   "version": "1.0.0",
   "description": "this library is for implementing [BlockChain Commons bc-32](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-0004-bc32.md)",
   "main": "dist/index.js",
