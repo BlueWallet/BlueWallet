@@ -23,6 +23,9 @@ it('Legacy HD (BIP44) works', async () => {
   assert.strictEqual(hd._getInternalWIFByIndex(0), 'L4ojevRtK81A8Kof3qyLS2M7HvsVDbUDENNhJqU4vf79w9yGnQLb');
   assert.strictEqual(hd._getExternalWIFByIndex(0), 'Kz6kLhdyDfSbKuVH25XVqBRztjmFe8X22Xe1hnFzEv79gJNMkTAH');
 
+  assert.ok(hd.getAllExternalAddresses().includes('186FBQmCV5W1xY7ywaWtTZPAQNciVN8Por'));
+  assert.ok(!hd.getAllExternalAddresses().includes('1J9zoJz5LsAJ361SQHYnLTWg46Tc2AXUCj')); // not internal
+
   assert.strictEqual(
     hd._getPubkeyByAddress(hd._getExternalAddressByIndex(0)).toString('hex'),
     '0316e84a2556f30a199541633f5dda6787710ccab26771b7084f4c9e1104f47667',

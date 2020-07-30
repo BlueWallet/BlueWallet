@@ -15,18 +15,19 @@ import {
   HDSegwitElectrumSeedP2WPKHWallet,
 } from '.';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import loc from '../loc';
 const EV = require('../blue_modules/events');
 const A = require('../blue_modules/analytics');
 const BlueApp: AppStorage = require('../BlueApp');
-import loc from '../loc';;
 const bip38 = require('../blue_modules/bip38');
 const wif = require('wif');
 const prompt = require('../blue_modules/prompt');
+const notifications = require('../blue_modules/notifications');
 
 export default class WalletImport {
   /**
    *
-   * @param w
+   * @param w {AbstractWallet}
    * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
    * @returns {Promise<void>}
    * @private
@@ -52,6 +53,7 @@ export default class WalletImport {
         await BlueApp.saveToDisk();
         A(A.ENUM.CREATED_WALLET);
         alert(loc.wallets.import_success);
+        notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
       }
       EV(EV.enum.WALLETS_COUNT_CHANGED);
     } catch (e) {

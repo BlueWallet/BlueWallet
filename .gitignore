@@ -62,4 +62,6 @@ release-notes.txt
 ios/Pods/
 
 artifacts/
+
+# Editors
 .vscode/

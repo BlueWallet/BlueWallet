@@ -56,7 +56,7 @@ export default class WatchConnectivity {
         // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
         const decoded = await wallet.decodeInvoice(invoiceRequest);
         await notifications.tryToObtainPermissions();
-        notifications.majorTomToGroundControl([], [decoded.payment_hash]);
+        notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
         return invoiceRequest;
       } catch (error) {
         return error;

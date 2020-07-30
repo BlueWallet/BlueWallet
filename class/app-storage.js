@@ -229,6 +229,9 @@ export class AppStorage {
             case WatchOnlyWallet.type:
               unserializedWallet = WatchOnlyWallet.fromJson(key);
               unserializedWallet.init();
+              if (unserializedWallet.isHd() && !unserializedWallet.isXpubValid()) {
+                continue;
+              }
               break;
             case HDLegacyP2PKHWallet.type:
               unserializedWallet = HDLegacyP2PKHWallet.fromJson(key);

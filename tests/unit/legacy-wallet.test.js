@@ -8,6 +8,7 @@ describe('Legacy wallet', () => {
     const l = new LegacyWallet();
     l.setSecret('L4ccWrPMmFDZw4kzAKFqJNxgHANjdy6b7YKNXMwB4xac4FLF3Tov');
     assert.strictEqual(l.getAddress(), '14YZ6iymQtBVQJk6gKnLCk49UScJK7SH4M');
+    assert.deepStrictEqual(l.getAllExternalAddresses(), ['14YZ6iymQtBVQJk6gKnLCk49UScJK7SH4M']);
     assert.strictEqual(await l.getChangeAddressAsync(), l.getAddress());
 
     const utxos = [

@@ -23,6 +23,8 @@ const EV = require('../../blue_modules/events');
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
+const bitcoin = require('bitcoinjs-lib');
+const notifications = require('../../blue_modules/notifications');
 
 export default class Confirm extends Component {
   constructor(props) {
@@ -65,6 +67,8 @@ export default class Confirm extends Component {
         if (!result) {
           throw new Error(loc.errors.broadcast);
         } else {
+          const txid = bitcoin.Transaction.fromHex(this.state.tx).getId();
+          notifications.majorTomToGroundControl([], [], [txid]);
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           let amount = 0;
           const recipients = this.state.recipients;
