@@ -30,8 +30,8 @@ import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 const EV = require('../../blue_modules/events');
 const prompt = require('../../blue_modules/prompt');
-/** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
+const notifications = require('../../blue_modules/notifications');
 
 const styles = StyleSheet.create({
   root: {
@@ -149,6 +149,7 @@ export default class WalletDetails extends Component {
     if (Number(walletBalanceConfirmation) === this.state.wallet.getBalance()) {
       this.props.navigation.setParams({ isLoading: true });
       this.setState({ isLoading: true }, async () => {
+        notifications.unsubscribe(this.state.wallet.getAllExternalAddresses(), [], []);
         BlueApp.deleteWallet(this.state.wallet);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
         await BlueApp.saveToDisk();
@@ -356,6 +357,7 @@ export default class WalletDetails extends Component {
                               } else {
                                 this.props.navigation.setParams({ isLoading: true });
                                 this.setState({ isLoading: true }, async () => {
+                                  notifications.unsubscribe(this.state.wallet.getAllExternalAddresses(), [], []);
                                   BlueApp.deleteWallet(this.state.wallet);
                                   ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
                                   await BlueApp.saveToDisk();
