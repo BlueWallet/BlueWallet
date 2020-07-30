@@ -104,24 +104,22 @@ class AuthenticatorListScreen extends Component<Props> {
     const { navigation } = this.props;
 
     return (
-      <TouchableOpacity
-        style={styles.authenticatorWrapper}
-        onPress={() => {
-          navigation.navigate(Route.ExportAuthenticator, { id: item.id });
-        }}
-      >
-        <View style={styles.authenticatorTopWrapper}>
+      <View style={styles.authenticatorWrapper}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate(Route.ExportAuthenticator, { id: item.id });
+          }}
+          style={styles.authenticatorLeftColumn}
+        >
           <Text style={styles.name}>{item.name}</Text>
-          <TouchableOpacity style={styles.deleteWrapper} onPress={() => this.onDeletePress(item)}>
-            <Text style={styles.delete}>{i18n._.delete}</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.authenticatorBottomWrapper}>
           <Text style={styles.date}>
             {i18n._.created} {formatDate(item.createdAt)}
           </Text>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.authenticatorRightColumn} onPress={() => this.onDeletePress(item)}>
+          <Text style={styles.delete}>{i18n._.delete}</Text>
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -210,21 +208,28 @@ const styles = StyleSheet.create({
   },
   authenticatorWrapper: {
     paddingVertical: 8,
-  },
-  authenticatorTopWrapper: {
-    justifyContent: 'space-between',
     display: 'flex',
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
-  authenticatorBottomWrapper: {
-    marginTop: 4,
+  authenticatorLeftColumn: {
+    flexGrow: 6,
+  },
+  authenticatorRightColumn: {
+    padding: 15,
+    top: -15,
+    right: -15,
+    flexGrow: 2,
   },
   name: {
     ...typography.headline5,
   },
   delete: {
+    right: 15,
     ...typography.headline6,
     color: palette.textRed,
+    textAlign: 'right',
   },
   date: {
     color: palette.textGrey,
@@ -266,11 +271,5 @@ const styles = StyleSheet.create({
   headerContainer: {
     marginBottom: 26,
     marginTop: 20,
-  },
-  deleteWrapper: {
-    position: 'absolute',
-    padding: 15,
-    top: -15,
-    right: -15,
   },
 });
