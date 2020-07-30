@@ -173,6 +173,36 @@ const majorTomToGroundControl = async function (addresses, hashes, txids) {
   );
 };
 
+/**
+ * The opposite of `majorTomToGroundControl` call.
+ *
+ * @param addresses {string[]}
+ * @param hashes {string[]}
+ * @param txids {string[]}
+ * @returns {Promise<object>} Response object from API rest call
+ */
+const unsubscribe = async function (addresses, hashes, txids) {
+  if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids))
+    throw new Error('no addresses or hashes or txids provided');
+  const pushToken = await _getPushToken();
+  if (!pushToken || !pushToken.token || !pushToken.os) return;
+
+  const api = new Frisbee({ baseURI: constants.groundControlUri });
+
+  return await api.post(
+    '/unsubscribe',
+    Object.assign({}, _getHeaders(), {
+      body: {
+        addresses,
+        hashes,
+        txids,
+        token: pushToken.token,
+        os: pushToken.os,
+      },
+    }),
+  );
+};
+
 // on app launch (load module):
 (async () => {
   if (!(await _getPushToken())) return;
@@ -186,3 +216,4 @@ PushNotification.setApplicationIconBadgeNumber(0);
 
 module.exports.tryToObtainPermissions = tryToObtainPermissions;
 module.exports.majorTomToGroundControl = majorTomToGroundControl;
+module.exports.unsubscribe = unsubscribe;
