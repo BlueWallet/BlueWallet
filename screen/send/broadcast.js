@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, Linking, StyleSheet, View, KeyboardAvoidingView, Platform, Text, TextInput } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-
 import loc from '../../loc';
 import { HDSegwitBech32Wallet } from '../../class';
 import {
@@ -19,6 +18,7 @@ import {
 import { BlueCurrentTheme } from '../../components/themes';
 import BlueElectrum from '../../blue_modules/BlueElectrum';
 const bitcoin = require('bitcoinjs-lib');
+const notifications = require('../../blue_modules/notifications');
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hash',
@@ -44,6 +44,7 @@ const Broadcast = () => {
         const txid = tx.getId();
         setTx(txid);
         setBroadcastResult(BROADCAST_RESULT.success);
+        notifications.majorTomToGroundControl([], [], [txid]);
       } else {
         setBroadcastResult(BROADCAST_RESULT.error);
       }

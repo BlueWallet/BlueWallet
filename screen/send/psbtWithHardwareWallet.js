@@ -42,6 +42,7 @@ const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const bitcoin = require('bitcoinjs-lib');
+const notifications = require('../../blue_modules/notifications');
 const { height, width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -251,9 +252,10 @@ export default class PsbtWithHardwareWallet extends Component {
         if (result) {
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           this.setState({ success: true, isLoading: false });
+          const txDecoded = bitcoin.Transaction.fromHex(this.state.txhex);
+          const txid = txDecoded.getId();
+          notifications.majorTomToGroundControl([], [], [txid]);
           if (this.state.memo) {
-            const txDecoded = bitcoin.Transaction.fromHex(this.state.txhex);
-            const txid = txDecoded.getId();
             BlueApp.tx_metadata[txid] = { memo: this.state.memo };
           }
         } else {

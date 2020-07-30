@@ -966,7 +966,7 @@ export default class SendDetails extends Component {
     ReactNativeHapticFeedback.trigger('notificationWarning');
     Alert.alert(
       loc.send.details_adv_full,
-      loc.send.details_adv_full_sure + ' ' + this.state.addresses.length > 1 ? loc.send.details_adv_full_remove : '',
+      loc.send.details_adv_full_sure + ' ' + (this.state.addresses.length > 1 ? loc.send.details_adv_full_remove : ''),
       [
         {
           text: loc._.ok,
