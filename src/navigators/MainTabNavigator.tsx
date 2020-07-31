@@ -21,7 +21,7 @@ export const MainTabNavigator = () => {
         name={Route.Dashboard}
         component={DashboardScreen}
         options={() => ({
-          tabBarLabel: i18n.tabNavigator.dashboard,
+          tabBarLabel: i18n.tabNavigator.wallets,
         })}
       />
       <Tab.Screen

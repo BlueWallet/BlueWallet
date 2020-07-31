@@ -69,33 +69,29 @@ class AuthenticatorListScreen extends Component<Props> {
     navigation.navigate(Route.ScanQrCode, {
       onBarCodeScan: (psbt: string) => {
         navigation.goBack();
-        try {
-          signTransaction(psbt, {
-            onSuccess: ({
-              finalizedPsbt: { recipients, txHex, fee },
-              authenticator,
-            }: {
-              finalizedPsbt: FinalizedPSBT;
-              authenticator: Authenticator;
-            }) => {
-              navigation.navigate(Route.SendCoinsConfirm, {
-                fee,
-                // pretending that we are sending from real wallet
-                fromWallet: {
-                  label: authenticator.name,
-                  preferredBalanceUnit: CONST.preferredBalanceUnit,
-                  broadcastTx: BlueElectrum.broadcastV2,
-                },
-                tx: txHex,
-                recipients,
-                satoshiPerByte: this.getActualSatoshiPerByte(txHex, fee),
-              });
-            },
-            onFailure: Alert.alert,
-          });
-        } catch (_) {
-          Alert.alert(i18n.wallets.errors.invalidQrCode);
-        }
+        signTransaction(psbt, {
+          onSuccess: ({
+            finalizedPsbt: { recipients, tx, fee },
+            authenticator,
+          }: {
+            finalizedPsbt: FinalizedPSBT;
+            authenticator: Authenticator;
+          }) => {
+            navigation.navigate(Route.SendCoinsConfirm, {
+              fee,
+              // pretending that we are sending from real wallet
+              fromWallet: {
+                label: authenticator.name,
+                preferredBalanceUnit: CONST.preferredBalanceUnit,
+                broadcastTx: BlueElectrum.broadcastV2,
+              },
+              txDecoded: tx,
+              recipients,
+              satoshiPerByte: this.getActualSatoshiPerByte(tx.toHex(), fee),
+            });
+          },
+          onFailure: Alert.alert,
+        });
       },
     });
   };

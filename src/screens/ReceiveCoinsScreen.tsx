@@ -6,14 +6,13 @@ import { View, StyleSheet, Text, InteractionManager } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import Share from 'react-native-share';
 
-import { Header, ScreenTemplate, Button } from 'app/components';
+import { Header, ScreenTemplate, Button, WalletDropdown } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
 import { Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../BlueApp';
 import { Chain } from '../../models/bitcoinUnits';
-import { DashboarContentdHeader } from './Dashboard/DashboarContentdHeader';
 
 const i18n = require('../../loc');
 
@@ -176,7 +175,7 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
         }
         header={<Header navigation={this.props.navigation} isBackArrow title={i18n.receive.header} />}
       >
-        <DashboarContentdHeader
+        <WalletDropdown
           onSelectPress={this.showModal}
           balance={wallet.balance}
           label={wallet.label}

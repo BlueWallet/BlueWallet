@@ -1,3 +1,6 @@
+import * as bitcoin from 'bitcoinjs-lib';
+
+import config from '../config';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 
 const createHash = require('create-hash');
@@ -22,7 +25,10 @@ export class AbstractWallet {
     this.label = '';
     this.secret = ''; // private key or recovery phrase
     this.balance = 0; // SAT
+    this.confirmed_balance = 0; // SAT
     this.unconfirmed_balance = 0; // SAT
+    this.incoming_balance = 0; // SAT
+    this.outgoing_balance = 0; // SAT
     this.transactions = [];
     this._address = false;
     this.utxo = [];
@@ -54,6 +60,24 @@ export class AbstractWallet {
 
   getXpub() {
     return this._address;
+  }
+
+  isAddressMine(address) {
+    if (!this._address) {
+      return false;
+    }
+    for (let i = 0; i < this._address.length; i++) {
+      if (address === this._address[i]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  isOutputScriptMine(script) {
+    const address = bitcoin.address.fromOutputScript(script, config.network);
+
+    return this.isAddressMine(address);
   }
 
   /**
@@ -124,8 +148,6 @@ export class AbstractWallet {
   getLatestTransactionTime() {
     return 0;
   }
-
-  // createTx () { throw Error('not implemented') }
 
   getAddress() {
     throw Error('not implemented');

@@ -6,16 +6,22 @@ import React, { Component } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
 
 import { images, icons } from 'app/assets';
-import { Header, ScreenTemplate, Button, InputItem, Image } from 'app/components';
-import { CONST, MainCardStackNavigatorParams, Route, RootStackParams, TransactionInput } from 'app/consts';
+import { Header, ScreenTemplate, Button, InputItem, Image, WalletDropdown } from 'app/components';
+import {
+  CONST,
+  Transaction as ITransaction,
+  MainCardStackNavigatorParams,
+  Route,
+  RootStackParams,
+  TransactionInput,
+} from 'app/consts';
 import { loadTransactionsFees } from 'app/helpers/fees';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../../BlueApp';
 import { HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet } from '../../../class';
 import config from '../../../config';
-import { btcToSatoshi } from '../../../utils/bitcoin';
-import { DashboarContentdHeader } from '../Dashboard/DashboarContentdHeader';
+import { btcToSatoshi, satoshiToBtc } from '../../../utils/bitcoin';
 
 const i18n = require('../../../loc');
 
@@ -115,6 +121,11 @@ export class RecoverySendScreen extends Component<Props, State> {
     );
   };
 
+  getTransactionsPendingAmount = () => {
+    const { transactions } = this.props.route.params;
+    return transactions.reduce((sum: number, t: ITransaction) => sum + t.value, 0);
+  };
+
   getUtxos = () => {
     const { transactions } = this.props.route.params;
 
@@ -132,24 +143,31 @@ export class RecoverySendScreen extends Component<Props, State> {
 
   navigateToConfirm = ({
     fee,
-    tx,
+    txDecoded,
     actualSatoshiPerByte,
     amount,
+    amountWithFee,
   }: {
     fee: number;
     amount: number;
-    tx: string;
+    txDecoded: Transaction;
     actualSatoshiPerByte: number;
+    amountWithFee: number;
   }) => {
     const { memo, address } = this.state;
     const { wallet } = this.props.route.params;
+
+    const pendingAmount = this.getTransactionsPendingAmount();
+
+    const pendingAmountDecrease = amountWithFee - satoshiToBtc(-pendingAmount).toNumber();
 
     this.props.navigation.navigate(Route.SendCoinsConfirm, {
       recipients: [{ amount, address }],
       fee,
       memo,
       fromWallet: wallet,
-      tx,
+      txDecoded,
+      pendingAmountDecrease,
       satoshiPerByte: actualSatoshiPerByte.toFixed(2),
     });
   };
@@ -202,7 +220,7 @@ export class RecoverySendScreen extends Component<Props, State> {
         memo,
       };
       await BlueApp.saveToDisk();
-      this.navigateToConfirm({ amount: amountWithoutFee, fee, tx, actualSatoshiPerByte });
+      this.navigateToConfirm({ amountWithFee: amount, amount: amountWithoutFee, fee, txDecoded, actualSatoshiPerByte });
     } catch (_) {
       Alert.alert(i18n.wallets.errors.invalidSign);
     }
@@ -318,7 +336,7 @@ export class RecoverySendScreen extends Component<Props, State> {
         }
         header={<Header navigation={this.props.navigation} isBackArrow title={i18n.send.recovery.recover} />}
       >
-        <DashboarContentdHeader balance={wallet.balance} label={wallet.label} unit={wallet.preferredBalanceUnit} />
+        <WalletDropdown balance={wallet.balance} label={wallet.label} unit={wallet.preferredBalanceUnit} />
         <View style={styles.inputsContainer}>
           {this.renderFeeInput()}
 

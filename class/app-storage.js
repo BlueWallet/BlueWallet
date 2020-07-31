@@ -478,6 +478,10 @@ export class AppStorage {
     return finalBalance;
   }
 
+  getIncomingBalance() {
+    return this.wallets.reduce((sum, wallet) => sum + wallet.incoming_balance, 0);
+  }
+
   /**
    * Simple async sleeper function
    *

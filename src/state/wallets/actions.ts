@@ -57,10 +57,21 @@ export const loadWallets = (walletIndex?: number) => async (
     await BlueApp.fetchWalletTransactions(walletIndex);
     await BlueApp.saveToDisk();
     const allWalletsBalance = BlueApp.getBalance();
+    const allWalletsIncomingBalance = BlueApp.getIncomingBalance();
+
     const allWallets = BlueApp.getWallets();
     const wallets: Wallet[] =
       allWallets.length > 1
-        ? [{ label: 'All wallets', balance: allWalletsBalance, preferredBalanceUnit: 'BTCV', type: '' }, ...allWallets]
+        ? [
+            {
+              label: 'All wallets',
+              balance: allWalletsBalance,
+              incoming_balance: allWalletsIncomingBalance,
+              preferredBalanceUnit: 'BTCV',
+              type: '',
+            },
+            ...allWallets,
+          ]
         : allWallets;
     wallets.forEach(wallet => {
       if (!isAllWallets(wallet)) {

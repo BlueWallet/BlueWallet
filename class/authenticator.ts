@@ -103,7 +103,7 @@ export class Authenticator implements IAuthenticator {
     });
 
     return {
-      txHex: tx.toHex(),
+      tx,
       vaultTxType,
       recipients,
       fee,

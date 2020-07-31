@@ -12,21 +12,24 @@ interface Props {
 }
 
 export const Label = ({ type, children }: Props) => (
-  <View style={{ ...styles.labelWrapper, ...styles[type] }}>
-    <Text style={styles.label}>{children}</Text>
+  <View style={styles.labelWrapper}>
+    <Text style={[styles.label, styles[type]]}>{children}</Text>
   </View>
 );
 
 const styles = StyleSheet.create({
   labelWrapper: {
-    borderRadius: 2,
-    maxWidth: 75,
+    display: 'flex',
   },
   label: {
     ...typography.status,
     paddingVertical: 2,
+    paddingHorizontal: 8,
+    borderRadius: 2,
     textAlign: 'center',
+    alignSelf: 'flex-start',
     textTransform: 'uppercase',
+    overflow: 'hidden',
   },
   warning: {
     backgroundColor: palette.textSecondary,

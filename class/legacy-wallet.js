@@ -94,6 +94,9 @@ export class LegacyWallet extends AbstractWallet {
       const balance = await BlueElectrum.getBalanceByAddress(this.getAddress());
       this.balance = balance.confirmed + balance.unconfirmed;
       this.unconfirmed_balance = balance.unconfirmed;
+      this.confirmed_balance = balance.balance;
+      this.incoming_balance = balance.incoming_balance;
+      this.outgoing_balance = balance.outgoing_balance;
       this._lastBalanceFetch = +new Date();
     } catch (err) {
       console.warn(err.message);

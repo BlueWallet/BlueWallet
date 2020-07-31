@@ -24,6 +24,7 @@ export const palette = {
   white: 'rgb(255, 255, 255)',
   searchBar: 'rgba(255, 255, 255, 0.2)',
   modalTransparent: 'rgba(0,0,0,0.5)',
+  lightRed: 'rgb(231, 111, 111)',
 };
 
 export const gradients = {

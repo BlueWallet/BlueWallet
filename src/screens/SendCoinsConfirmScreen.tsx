@@ -1,7 +1,8 @@
 import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { Transaction } from 'bitcoinjs-lib';
 import React, { Component } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, Dimensions } from 'react-native';
 
 import { images } from 'app/assets';
 import { Header, ScreenTemplate, Button, StyledText, Image, Text } from 'app/components';
@@ -9,7 +10,7 @@ import { Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { palette, typography } from 'app/styles';
 
-const Bignumber = require('bignumber.js');
+import { satoshiToBtc, btcToSatoshi, roundBtcToSatoshis } from '../../utils/bitcoin';
 
 const BlueElectrum = require('../../BlueElectrum');
 const currency = require('../../currency');
@@ -33,29 +34,55 @@ interface Props {
 }
 
 export class SendCoinsConfirmScreen extends Component<Props> {
-  constructor(props: Props) {
-    super(props);
-    const { fee, memo, recipients, tx, satoshiPerByte, fromWallet } = props.route.params;
-    this.state = {
-      isLoading: false,
-      fee,
-      feeSatoshi: new Bignumber(fee).multipliedBy(100000000).toNumber(),
-      memo,
-      recipients,
-      size: Math.round(tx.length / 2),
-      tx,
-      satoshiPerByte,
-      fromWallet,
+  getAmountByTx = (txDecoded: Transaction): { my: number; foreign: number } => {
+    const { fromWallet } = this.props.route.params;
+    return txDecoded.outs.reduce(
+      (amount: { my: number; foreign: number }, out: { value: number; script: Uint8Array }) => {
+        if (fromWallet.isOutputScriptMine(out.script)) {
+          return {
+            ...amount,
+            my: out.value + amount.my,
+          };
+        }
+        return {
+          ...amount,
+          foreign: out.value + amount.foreign,
+        };
+      },
+      { my: 0, foreign: 0 },
+    );
+  };
+
+  getNewBalances = () => {
+    const { fee, txDecoded, fromWallet, isAlert, pendingAmountDecrease } = this.props.route.params;
+    const balance = fromWallet.balance;
+    const incomingBalance = fromWallet.incoming_balance;
+    const amount = this.getAmountByTx(txDecoded);
+
+    if (isAlert) {
+      return {
+        availableBalance: satoshiToBtc(balance - amount.my - amount.foreign) - fee,
+        pendingBalance: satoshiToBtc(incomingBalance + amount.my) - fee,
+      };
+    }
+
+    const decreasePending = pendingAmountDecrease ? roundBtcToSatoshis(pendingAmountDecrease) : 0;
+
+    return {
+      availableBalance: satoshiToBtc(balance + amount.my - amount.foreign) - fee,
+      pendingBalance: satoshiToBtc(incomingBalance).toNumber() - decreasePending,
     };
-  }
+  };
 
   broadcast = () => {
+    const { txDecoded, fromWallet } = this.props.route.params;
+
     this.setState({ isLoading: true }, async () => {
       try {
         await BlueElectrum.ping();
         await BlueElectrum.waitTillConnected();
 
-        const result = await this.state.fromWallet.broadcastTx(this.state.tx);
+        const result = await fromWallet.broadcastTx(txDecoded.toHex());
 
         if (result && result.code) {
           if (result.code === 1) {
@@ -89,7 +116,10 @@ export class SendCoinsConfirmScreen extends Component<Props> {
   };
 
   goToDetails = () => {
-    const { fee, recipients, tx, satoshiPerByte } = this.props.route.params;
+    const { fee, recipients, txDecoded, satoshiPerByte, fromWallet } = this.props.route.params;
+
+    const tx = txDecoded.toHex();
+    const feeSatoshi = btcToSatoshi(fee).toNumber();
 
     this.props.navigation.navigate(Route.SendTransactionDetails, {
       fee,
@@ -97,8 +127,8 @@ export class SendCoinsConfirmScreen extends Component<Props> {
       size: Math.round(tx.length / 2),
       tx,
       satoshiPerByte,
-      wallet: this.state.fromWallet,
-      feeSatoshi: this.state.feeSatoshi,
+      wallet: fromWallet,
+      feeSatoshi,
     });
   };
 
@@ -108,12 +138,42 @@ export class SendCoinsConfirmScreen extends Component<Props> {
     });
   };
 
+  shouldRenderNewBalances = () => {
+    const { fromWallet } = this.props.route.params;
+    return !!(fromWallet.balance !== undefined && fromWallet.incoming_balance !== undefined);
+  };
+
+  renderNewBalances = () => {
+    const {
+      route: { params },
+    } = this.props;
+    const { fromWallet } = params;
+
+    const { availableBalance, pendingBalance } = this.getNewBalances();
+    return (
+      <View style={styles.balancesContainer}>
+        <View style={styles.balanceWrapper}>
+          <Text style={styles.balanceText}>
+            {roundBtcToSatoshis(availableBalance)} {fromWallet.preferredBalanceUnit}
+          </Text>
+          <Text style={styles.buttonDescription}>{i18n.send.confirm.availableBalance}</Text>
+        </View>
+        <View style={styles.balanceWrapper}>
+          <Text style={styles.pendingBalanceText}>
+            {roundBtcToSatoshis(pendingBalance)} {fromWallet.preferredBalanceUnit}
+          </Text>
+          <Text style={styles.buttonDescription}>{i18n.send.confirm.pendingBalance}</Text>
+        </View>
+      </View>
+    );
+  };
+
   render() {
     const {
       navigation,
       route: { params },
     } = this.props;
-    const { fromWallet, recipients, fee } = params;
+    const { fromWallet, recipients, satoshiPerByte } = params;
 
     const item = recipients[0];
 
@@ -134,16 +194,17 @@ export class SendCoinsConfirmScreen extends Component<Props> {
               <Image source={images.coin} style={styles.coinIcon} />
             </View>
           </View>
-          <Text style={[styles.buttonDescription, { alignSelf: 'center' }]}>{i18n.send.details.to}</Text>
+          <Text style={[styles.buttonDescription, styles.to]}>{i18n.send.details.to}</Text>
           <Text style={styles.address}>{item.address}</Text>
           <View style={styles.feeBoxContainer}>
             <Text style={typography.caption}>{`${i18n.send.details.fee}  `}</Text>
             <View style={styles.feeBox}>
               <Text style={styles.fee}>
-                {fee} {i18n._.satoshi}
+                {satoshiPerByte} {i18n.send.details.feeUnit}
               </Text>
             </View>
           </View>
+          {this.shouldRenderNewBalances() && this.renderNewBalances()}
         </View>
       </ScreenTemplate>
     );
@@ -151,6 +212,32 @@ export class SendCoinsConfirmScreen extends Component<Props> {
 }
 
 const styles = StyleSheet.create({
+  to: {
+    alignSelf: 'center',
+    paddingVertical: 16,
+  },
+  balanceWrapper: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: '3%',
+  },
+  balancesContainer: {
+    width: Dimensions.get('window').width,
+    alignSelf: 'center',
+    paddingVertical: '4%',
+    marginTop: 20,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: palette.lightGrey,
+  },
+  balanceText: {
+    ...typography.headline4,
+  },
+  pendingBalanceText: {
+    ...typography.headline4,
+    color: palette.lightRed,
+  },
   footer: {
     height: 100,
     justifyContent: 'space-between',
@@ -159,8 +246,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingVertical: '20%',
-    justifyContent: 'space-evenly',
+    justifyContent: 'flex-start',
   },
   buttonContainer: {
     width: '100%',
@@ -179,12 +265,10 @@ const styles = StyleSheet.create({
   },
   fee: {
     ...typography.headline9,
-    color: palette.white,
+    color: palette.textSecondary,
   },
   feeBox: {
-    backgroundColor: palette.textSecondary,
     borderRadius: 4,
-    padding: 10,
   },
   feeBoxContainer: {
     flexDirection: 'row',

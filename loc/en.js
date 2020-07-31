@@ -21,7 +21,7 @@ module.exports = {
     next: 'Next',
   },
   tabNavigator: {
-    dashboard: 'Dashboard',
+    wallets: 'Wallets',
     settings: 'Settings',
     addressBook: 'Address book',
     authenticators: 'Authenticators',
@@ -118,6 +118,7 @@ module.exports = {
   },
   wallets: {
     dashboard: {
+      availableBalance: 'Available balance',
       title: 'Wallets',
       allWallets: 'All wallets',
       noWallets: 'No wallets',
@@ -167,6 +168,7 @@ module.exports = {
     wallet: {
       none: 'None',
       latest: 'Latest transaction',
+      pendingBalance: 'Pending balance',
     },
     add: {
       failed: 'Failed to create wallet',
@@ -350,6 +352,8 @@ module.exports = {
     },
     confirm: {
       sendNow: 'Send now',
+      availableBalance: 'Available balance after transaction',
+      pendingBalance: 'Pending balance after transaction',
     },
     create: {
       amount: 'Amount',

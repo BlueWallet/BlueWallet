@@ -233,7 +233,7 @@ module.exports.multiGetTransactionsFullByTxid = async function(txid_list) {
 module.exports.multiGetBalanceByAddress = async function(addresses, batchsize) {
   batchsize = batchsize || 100;
   if (!mainClient) throw new Error('Electrum client is not connected');
-  const ret = { balance: 0, unconfirmed_balance: 0, addresses: {} };
+  const ret = { balance: 0, unconfirmed_balance: 0, incoming_balance: 0, outgoing_balance: 0, addresses: {} };
 
   const chunks = splitIntoChunks(addresses, batchsize);
   for (const chunk of chunks) {
@@ -251,6 +251,8 @@ module.exports.multiGetBalanceByAddress = async function(addresses, batchsize) {
     const balances = await mainClient.blockchainScripthash_getBalanceBatch(scripthashes);
 
     for (const bal of balances) {
+      ret.incoming_balance += +bal.result.alert_incoming;
+      ret.outgoing_balance += +bal.result.alert_outgoing;
       ret.balance += +bal.result.confirmed;
       ret.unconfirmed_balance += +bal.result.unconfirmed;
       ret.addresses[scripthash2addr[bal.param]] = bal.result;
@@ -287,7 +289,7 @@ module.exports.multiGetUtxoByAddress = async function(addresses, batchsize) {
         utxo.address = scripthash2addr[utxos.param];
         utxo.txid = utxo.tx_hash;
         utxo.vout = utxo.tx_pos;
-        utxo.spent_height = utxo.spent_height;
+        utxo.spend_tx_num = utxo.spend_tx_num;
         res.push(utxo);
       }
     }

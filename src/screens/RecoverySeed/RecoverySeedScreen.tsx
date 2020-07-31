@@ -85,7 +85,6 @@ class RecoverySeedScreen extends Component<Props, State> {
     const { onSubmit } = this.props.route.params;
 
     try {
-      this.setState({ isLoading: true });
       const keyPair = await mnemonicToKeyPair(mnemonic.join(' '));
       this.setState({ isLoading: false });
 

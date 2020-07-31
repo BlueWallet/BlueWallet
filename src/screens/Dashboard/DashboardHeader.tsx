@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { icons, images } from 'app/assets';
+import { icons } from 'app/assets';
 import { GradientView, Image } from 'app/components';
 import { HEADER_HEIGHT } from 'app/components/Header';
 import { getStatusBarHeight, palette, typography } from 'app/styles';

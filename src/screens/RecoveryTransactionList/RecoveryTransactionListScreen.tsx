@@ -5,7 +5,7 @@ import { StyleSheet, Text, View, TouchableOpacity, SectionList, SectionListData 
 import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
-import { Header, Image, TransactionItem, Button, CheckBox } from 'app/components';
+import { Header, Image, TransactionItem, Button, CheckBox, WalletDropdown } from 'app/components';
 import { MainCardStackNavigatorParams, Route, RootStackParams, Transaction, Wallet } from 'app/consts';
 import { getGroupedTransactions } from 'app/helpers/transactions';
 import { HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet } from 'app/legacy';
@@ -15,7 +15,6 @@ import { TransactionsState } from 'app/state/transactions/reducer';
 import { palette, typography } from 'app/styles';
 
 import BlueApp from '../../../BlueApp';
-import { DashboarContentdHeader } from '../Dashboard/DashboarContentdHeader';
 
 const i18n = require('../../../loc');
 
@@ -153,7 +152,7 @@ export class RecoveryTransactionListScreen extends PureComponent<Props, State> {
       <View>
         <Header title={i18n.send.recovery.recover} isBackArrow navigation={navigation} />
         <View style={styles.container}>
-          <DashboarContentdHeader
+          <WalletDropdown
             onSelectPress={this.showModal}
             balance={wallet.balance}
             label={wallet.label}

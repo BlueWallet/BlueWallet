@@ -1,10 +1,21 @@
 import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import * as bitcoin from 'bitcoinjs-lib';
 import React, { Component } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
 
 import { images, icons } from 'app/assets';
-import { Header, ScreenTemplate, Button, InputItem, StyledText, Image, RadioGroup, RadioButton } from 'app/components';
+import {
+  Header,
+  ScreenTemplate,
+  Button,
+  InputItem,
+  StyledText,
+  Image,
+  RadioGroup,
+  RadioButton,
+  WalletDropdown,
+} from 'app/components';
 import { CONST, MainCardStackNavigatorParams, Route, RootStackParams, Utxo, Wallet } from 'app/consts';
 import { processAddressData } from 'app/helpers/DataProcessing';
 import { loadTransactionsFees } from 'app/helpers/fees';
@@ -15,10 +26,8 @@ import { HDSegwitBech32Wallet, HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet, Watc
 import config from '../../config';
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import { btcToSatoshi, satoshiToBtc } from '../../utils/bitcoin';
-import { DashboarContentdHeader } from './Dashboard/DashboarContentdHeader';
 
 const BigNumber = require('bignumber.js');
-const bitcoin = require('bitcoinjs-lib');
 
 const i18n = require('../../loc');
 
@@ -108,7 +117,7 @@ export class SendCoinsScreen extends Component<Props, State> {
     });
   };
 
-  getUnspentUtxos = (utxos: Utxo[]) => utxos.filter((u: Utxo) => u.spent_height === 0);
+  getUnspentUtxos = (utxos: Utxo[]) => utxos.filter((u: Utxo) => u.spend_tx_num === 0);
 
   createHDBech32Transaction = async () => {
     /** @type {HDSegwitBech32Wallet} */
@@ -141,7 +150,7 @@ export class SendCoinsScreen extends Component<Props, State> {
         fee: btcToSatoshi(fee).toNumber(),
         memo: this.state.memo,
         fromWallet: wallet,
-        tx: tx.toHex(),
+        txDecoded: tx,
         recipients: targets,
         satoshiPerByte: requestedSatPerByte,
       }),
@@ -222,13 +231,26 @@ export class SendCoinsScreen extends Component<Props, State> {
     requestedSatPerByte: number;
   }) => !(Math.round(actualSatoshiPerByte) !== requestedSatPerByte || Math.floor(actualSatoshiPerByte) < 1);
 
+  isAlert = (wallet: Wallet) => {
+    const { type } = wallet;
+    const { vaultTxType } = this.state;
+    switch (type) {
+      case HDSegwitP2SHArWallet.type:
+        return true;
+      case HDSegwitP2SHAirWallet.type:
+        return vaultTxType === bitcoin.payments.VaultTxType.Alert;
+      default:
+        return false;
+    }
+  };
+
   navigateToConfirm = ({
     fee,
-    tx,
+    txDecoded,
     actualSatoshiPerByte,
   }: {
     fee: number;
-    tx: string;
+    txDecoded: bitcoin.Transaction;
     actualSatoshiPerByte: number;
   }) => {
     const { transaction, wallet, memo } = this.state;
@@ -237,9 +259,10 @@ export class SendCoinsScreen extends Component<Props, State> {
       recipients: [transaction],
       // HD wallet's utxo is in sats, classic segwit wallet utxos are in btc
       fee,
+      txDecoded,
+      isAlert: this.isAlert(wallet),
       memo,
       fromWallet: wallet,
-      tx,
       satoshiPerByte: actualSatoshiPerByte.toFixed(2),
     });
   };
@@ -277,11 +300,12 @@ export class SendCoinsScreen extends Component<Props, State> {
       txhex: tx,
       memo,
     };
+
     await BlueApp.saveToDisk();
-    this.setState({ isLoading: false }, () => this.navigateToConfirm({ fee, tx, actualSatoshiPerByte }));
+    this.setState({ isLoading: false }, () => this.navigateToConfirm({ fee, txDecoded, actualSatoshiPerByte }));
   };
 
-  navigateToScanInstantPrivateKey = (onBarCodeScan: Function) => {
+  navigateToScanInstantPrivateKey = (onBarCodeScan: (privateKey: string) => void) => {
     const { navigation } = this.props;
     navigation.navigate(Route.IntegrateKey, {
       onBarCodeScan,
@@ -459,7 +483,7 @@ export class SendCoinsScreen extends Component<Props, State> {
         }
         header={<Header navigation={this.props.navigation} isBackArrow title={i18n.send.header} />}
       >
-        <DashboarContentdHeader
+        <WalletDropdown
           onSelectPress={this.showModal}
           balance={wallet.balance}
           label={wallet.label}

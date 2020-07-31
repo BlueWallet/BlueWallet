@@ -1,4 +1,4 @@
-import { VaultTxType } from 'bitcoinjs-lib';
+import { VaultTxType, Transaction as BtcTransaction } from 'bitcoinjs-lib';
 import { Dayjs } from 'dayjs';
 import React from 'react';
 import { KeyboardType, StyleProp, ViewStyle } from 'react-native';
@@ -99,12 +99,17 @@ export interface Wallet {
   type: string;
   typeReadable: string;
   unconfirmed_balance: number;
+  confirmed_balance: number;
+  outgoing_balance: number;
+  incoming_balance: number;
   utxo: any[];
   _xpub: string;
   getID: () => string;
   weOwnAddress: (clipboard: string) => void;
   isInvoiceGeneratedByWallet?: (clipboard: string) => void;
   getPreferredBalanceUnit: () => string;
+  isOutputScriptMine: (script: Uint8Array) => boolean;
+  broadcastTx: (txHex: string) => { code: number; message: string };
   setMnemonic: (mnemonic: string) => void;
 }
 
@@ -119,8 +124,8 @@ export enum TxType {
   ALERT_PENDING = 'ALERT_PENDING',
   ALERT_CONFIRMED = 'ALERT_CONFIRMED',
   ALERT_RECOVERED = 'ALERT_RECOVERED',
-  RECOVERY = 'RECOVERY',
   INSTANT = 'INSTANT',
+  RECOVERY = 'RECOVERY',
 }
 export interface Transaction {
   hash: string;
@@ -166,7 +171,7 @@ export interface TransactionInput {
 export interface Utxo {
   address: string;
   height: number;
-  spent_height: number;
+  spend_tx_num: number;
   tx_hash: string;
   tx_pos: number;
   txid: string;
@@ -181,7 +186,7 @@ export interface Recipient {
 }
 
 export interface FinalizedPSBT {
-  txHex: string;
+  tx: BtcTransaction;
   vaultTxType: VaultTxType;
   recipients: Recipient[];
   fee: number;
@@ -231,6 +236,8 @@ export type RootStackParams = {
     tx: any;
     satoshiPerByte: any;
     wallet: Wallet;
+    size: number;
+    feeSatoshi: number;
   };
 };
 
@@ -262,9 +269,11 @@ export type MainCardStackNavigatorParams = {
     memo: string;
     recipients: any;
     size?: number;
-    tx: any;
+    txDecoded: BtcTransaction;
+    isAlert?: boolean;
     satoshiPerByte: any;
     fromWallet: Wallet;
+    pendingAmountDecrease?: number;
   };
   [Route.RecoveryTransactionList]: { wallet: Wallet };
   [Route.RecoverySend]: { transactions: Transaction[]; wallet: any };
