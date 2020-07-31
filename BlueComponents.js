@@ -37,6 +37,7 @@ import Biometric from './class/biometrics';
 import { encodeUR } from 'bc-ur/dist';
 import QRCode from 'react-native-qrcode-svg';
 import { useTheme } from '@react-navigation/native';
+import { SharedElement } from 'react-navigation-shared-element';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -1861,24 +1862,19 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
       </Animated.View>
     );
   } else {
+    console.warn('eee')
     return (
-      <Animated.View
-        style={{ paddingRight: 10, marginVertical: 17, transform: [{ scale: scaleValue }] }}
-        shadowOpacity={40 / 100}
-        shadowOffset={{ width: 0, height: 0 }}
-        shadowRadius={5}
-      >
+   
         <TouchableWithoutFeedback
           testID={item.getLabel()}
           onPressIn={onPressedIn}
           onPressOut={onPressedOut}
           onLongPress={handleLongPress}
           onPress={() => {
-            onPressedOut();
             onPress(index);
-            onPressedOut();
           }}
         >
+          <SharedElement id={item.getID()}>
           <LinearGradient
             shadowColor={BlueCurrentTheme.colors.shadowColor}
             colors={WalletGradient.gradientsFor(item.type)}
@@ -1950,8 +1946,8 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
               {transactionTimeToReadable(item.getLatestTransactionTime())}
             </Text>
           </LinearGradient>
+          </SharedElement>
         </TouchableWithoutFeedback>
-      </Animated.View>
     );
   }
 };

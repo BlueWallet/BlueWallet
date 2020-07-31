@@ -39,6 +39,7 @@ import Handoff from 'react-native-handoff';
 import { BlueCurrentTheme } from '../../components/themes';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
+import { SharedElement } from 'react-navigation-shared-element';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
@@ -641,8 +642,9 @@ export default class WalletTransactions extends Component {
             url={`https://blockpath.com/search/addr?q=${this.state.wallet.getXpub()}`}
           />
         )}
-        <BlueWalletNavigationHeader
-          wallet={this.state.wallet}
+                <SharedElement id={this.state.wallet.getID()}>
+                <BlueWalletNavigationHeader
+          wallet={this.props.route.params.wallet}
           onWalletUnitChange={wallet =>
             InteractionManager.runAfterInteractions(async () => {
               this.setState({ wallet, itemPriceUnit: wallet.getPreferredBalanceUnit() }, () =>
@@ -668,6 +670,8 @@ export default class WalletTransactions extends Component {
             }
           }}
         />
+                </SharedElement>
+
         <View style={styles.list}>
           <FlatList
             ListHeaderComponent={this.renderListHeaderComponent}
@@ -836,3 +840,4 @@ WalletTransactions.navigationOptions = ({ navigation, route }) => {
     headerBackTitleVisible: false,
   };
 };
+

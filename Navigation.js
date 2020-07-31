@@ -1,6 +1,7 @@
 // import { createAppContainer } from '@react-navigation/native';
 import React from 'react';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
+import { createSharedElementStackNavigator } from 'react-navigation-shared-element';
 import { Platform, Dimensions } from 'react-native';
 
 import Settings from './screen/settings/settings';
@@ -88,11 +89,19 @@ const defaultStackScreenOptions =
       }
     : undefined;
 
-const WalletsStack = createStackNavigator();
+const WalletsStack = createSharedElementStackNavigator();
 const WalletsRoot = () => (
   <WalletsStack.Navigator>
     <WalletsStack.Screen name="WalletsList" component={WalletsList} options={WalletsList.navigationOptions} />
-    <WalletsStack.Screen name="WalletTransactions" component={WalletTransactions} options={WalletTransactions.navigationOptions} />
+    <WalletsStack.Screen
+      name="WalletTransactions"
+      component={WalletTransactions}
+      options={WalletTransactions.navigationOptions}
+      sharedElements={(route, otherRoute, showing) => {
+        const { wallet } = route.params;
+        return [{ id: wallet.getID(), animation: 'fade' }];
+      }}
+    />
     <WalletsStack.Screen name="WalletDetails" component={WalletDetails} options={WalletDetails.navigationOptions} />
     <WalletsStack.Screen name="TransactionDetails" component={TransactionDetails} options={TransactionDetails.navigationOptions} />
     <WalletsStack.Screen name="TransactionStatus" component={TransactionStatus} options={TransactionStatus.navigationOptions} />
@@ -248,7 +257,7 @@ const HodlHodlLoginRoot = () => (
   </HodlHodlLoginStack.Navigator>
 );
 
-const RootStack = createStackNavigator();
+const RootStack = createSharedElementStackNavigator();
 const Navigation = () => (
   <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
     {/* stacks */}
@@ -258,7 +267,7 @@ const Navigation = () => (
       component={UnlockWithScreenRoot}
       options={{ headerShown: false, animationEnabled: false }}
     />
-    <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false, animationEnabled: false }} />
+    <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={{ headerShown: false, gestureEnabled: false }} />
     <RootStack.Screen name="SendDetailsRoot" component={SendDetailsRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={{ headerShown: false }} />

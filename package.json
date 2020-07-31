@@ -19,7 +19,9 @@
     "flow-bin": "^0.125.1",
     "jest": "^24.9.0",
     "jetifier": "^1.6.3",
-    "react-test-renderer": "16.11.0"
+    "react-test-renderer": "16.11.0",
+    "react-navigation": "^4.3.7",
+    "react-navigation-stack": "^2.3.11"
   },
   "engines": {
     "node": ">=10.16.0",
@@ -139,6 +141,7 @@
     "react-native-screens": "2.8.0",
     "react-native-secure-key-store": "git+https://github.com/BlueWallet/react-native-secure-key-store.git#4ba25dedb3d5ae15c22fd0ea0555116055630966",
     "react-native-share": "3.5.0",
+    "react-native-shared-element": "^0.7.0",
     "react-native-snap-carousel": "3.9.1",
     "react-native-sortable-list": "0.0.24",
     "react-native-svg": "12.1.0",
@@ -147,6 +150,7 @@
     "react-native-vector-icons": "6.6.0",
     "react-native-watch-connectivity": "0.5.0",
     "react-native-webview": "9.0.2",
+    "react-navigation-shared-element": "^3.0.0",
     "react-test-render": "1.1.2",
     "readable-stream": "3.6.0",
     "rn-nodeify": "10.2.0",
