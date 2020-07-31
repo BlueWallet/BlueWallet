@@ -46,7 +46,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
       selectedIndex,
     });
 
-  setLabel = (label: string) => this.setState({ label });
+  setLabel = (label: string) => this.setState({ label: label.trim() });
 
   navigateToImportWallet = () => this.props.navigation.navigate(Route.ImportWalletChooseType);
 
@@ -203,7 +203,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     if (this.state.isLoading) {
       return;
     }
-    if (walletLabels.includes(this.state.label)) {
+    if (walletLabels.includes(this.state.label.trim())) {
       return i18n.wallets.importWallet.walletInUseValidationError;
     }
   }

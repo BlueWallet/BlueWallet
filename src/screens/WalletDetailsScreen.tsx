@@ -38,9 +38,10 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
   }
 
   validationError = (value: string): string | undefined => {
+    const trimmedValue = value.trim();
     const walletLabels = BlueApp.getWallets().map((wallet: Wallet) => wallet.label) || [];
     const allOtherWalletLabels = walletLabels.filter((label: string) => label !== this.state.label);
-    if (allOtherWalletLabels.includes(value)) {
+    if (allOtherWalletLabels.includes(trimmedValue)) {
       return i18n.wallets.importWallet.walletInUseValidationError;
     }
   };
@@ -57,10 +58,11 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
     });
 
   setLabel = (label: string) => {
+    const trimmedlabel = label.trim();
     const { wallet } = this.props.route.params;
     this.props.navigation.setParams({ wallet });
-    this.setState({ label });
-    wallet.setLabel(label);
+    this.setState({ label: trimmedlabel });
+    wallet.setLabel(trimmedlabel);
     this.props.updateWallet(wallet);
     BlueApp.saveToDisk();
   };
