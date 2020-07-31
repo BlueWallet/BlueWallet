@@ -33,6 +33,14 @@ export class IntegrateKeyScreen extends React.PureComponent<Props> {
     });
   };
 
+  componentDidMount() {
+    if (this.props.route.params.onBackArrow) {
+      this.props.navigation?.setOptions({
+        gestureEnabled: false,
+      });
+    }
+  }
+
   render() {
     const {
       navigation,

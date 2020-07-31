@@ -192,9 +192,6 @@ export interface FinalizedPSBT {
   fee: number;
 }
 
-// @ts-ignore
-export type NavigationProp<T, R> = StackNavigationProp<T, R>;
-
 export type MainTabNavigatorParams = {
   [Route.Dashboard]: undefined;
   [Route.AuthenticatorList]: undefined;

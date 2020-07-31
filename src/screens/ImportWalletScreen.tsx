@@ -130,6 +130,7 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
             asyncTask: () => this.saveARWallet(wallet, key),
           });
         },
+        headerTitle: i18n.wallets.importWallet.header,
         title: i18n.wallets.importWallet.scanWalletAddress,
         description: i18n.wallets.importWallet.scanWalletAddressDescription,
         withLink: false,
@@ -139,23 +140,28 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
     }
   };
 
+  addInstantPublicKey = (wallet: HDSegwitP2SHAirWallet) => {
+    this.props.navigation.navigate(Route.IntegrateKey, {
+      onBarCodeScan: instantPublicKey => {
+        try {
+          wallet.addPublicKey(instantPublicKey);
+          this.addRecoveryKey(wallet);
+        } catch (_) {
+          this.showErrorMessageScreen();
+        }
+      },
+      headerTitle: i18n.wallets.importWallet.header,
+      title: i18n.wallets.importWallet.scanWalletAddress,
+      description: i18n.wallets.importWallet.scanWalletAddressDescription,
+      withLink: false,
+    });
+  };
+
   createAIRWallet = (mnemonic: string) => {
     try {
       const wallet = new HDSegwitP2SHAirWallet();
       wallet.setMnemonic(mnemonic);
-      this.props.navigation.navigate(Route.IntegrateKey, {
-        onBarCodeScan: instantPublicKey => {
-          try {
-            wallet.addPublicKey(instantPublicKey);
-            this.addRecoveryKey(wallet);
-          } catch (_) {
-            this.showErrorMessageScreen();
-          }
-        },
-        title: i18n.wallets.importWallet.scanWalletAddress,
-        description: i18n.wallets.importWallet.scanWalletAddressDescription,
-        withLink: false,
-      });
+      this.addInstantPublicKey(wallet);
     } catch (_) {
       this.showErrorMessageScreen();
     }
@@ -227,8 +233,13 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
         });
       },
       withLink: false,
+      headerTitle: i18n.wallets.importWallet.header,
       title: i18n.wallets.importWallet.scanPublicKey,
       description: i18n.wallets.importWallet.scanPublicKeyDescription,
+      onBackArrow: () => {
+        wallet.clearPublickKeys();
+        this.addInstantPublicKey(wallet);
+      },
     });
   };
 
