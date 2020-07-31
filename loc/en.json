@@ -30,6 +30,7 @@
     "network": "Network error"
   },
   "hodl": {
+    "are_you_sure_you_want_to_logout": "Are you sure you want to logout from HodlHodl?",
     "cont_address_escrow": "Escrow",
     "cont_address_to": "To",
     "cont_buying": "buying",
