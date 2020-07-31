@@ -29,6 +29,12 @@ const Settings = () => {
       />
       <BlueListItemHooks title={loc.settings.network} component={TouchableOpacity} onPress={() => navigate('NetworkSettings')} chevron />
       <BlueListItemHooks
+        title={loc.settings.notifications}
+        component={TouchableOpacity}
+        onPress={() => navigate('NotificationSettings')}
+        chevron
+      />
+      <BlueListItemHooks
         title={loc.settings.about}
         component={TouchableOpacity}
         onPress={() => navigate('About')}
