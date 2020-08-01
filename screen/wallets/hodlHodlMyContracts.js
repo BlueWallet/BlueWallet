@@ -10,9 +10,18 @@ import {
   StyleSheet,
   Text,
   TouchableHighlight,
+  TouchableOpacity,
   View,
 } from 'react-native';
-import { BlueButton, BlueCopyTextToClipboard, BlueLoading, BlueNavigationStyle, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
+import {
+  BlueButton,
+  BlueCopyTextToClipboard,
+  BlueLoading,
+  BlueNavigationStyle,
+  BlueSpacing10,
+  BlueSpacing20,
+  BlueTextHooks,
+} from '../../BlueComponents';
 import { AppStorage } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import Modal from 'react-native-modal';
@@ -414,6 +423,9 @@ const styles = StyleSheet.create({
   openChatText: { color: BlueCurrentTheme.colors.foregroundColor, fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' },
   flatList: { paddingTop: 30, backgroundColor: BlueCurrentTheme.colors.elevated },
   roleText: { fontSize: 14, color: 'gray', padding: 5 },
+  marginRight: {
+    marginRight: 20,
+  },
 });
 
 HodlHodlMyContracts.navigationOptions = ({ navigation }) => ({
@@ -422,5 +434,29 @@ HodlHodlMyContracts.navigationOptions = ({ navigation }) => ({
   headerStyle: {
     backgroundColor: BlueCurrentTheme.colors.elevated,
   },
-  headerRight: null,
+  headerRight: () => (
+    <TouchableOpacity
+      style={styles.marginRight}
+      onPress={() => {
+        Alert.alert(
+          loc.hodl.are_you_sure_you_want_to_logout,
+          '',
+          [
+            {
+              text: loc._.ok,
+              onPress: () => {
+                BlueApp.setHodlHodlApiKey('', '<empty>');
+                navigation.navigate('WalletsList');
+              },
+              style: 'default',
+            },
+            { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+          ],
+          { cancelable: false },
+        );
+      }}
+    >
+      <BlueTextHooks>logout</BlueTextHooks>
+    </TouchableOpacity>
+  ),
 });

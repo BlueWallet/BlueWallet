@@ -645,7 +645,9 @@ export default class WalletTransactions extends Component {
           wallet={this.state.wallet}
           onWalletUnitChange={wallet =>
             InteractionManager.runAfterInteractions(async () => {
-              this.setState({ wallet }, () => InteractionManager.runAfterInteractions(() => BlueApp.saveToDisk()));
+              this.setState({ wallet, itemPriceUnit: wallet.getPreferredBalanceUnit() }, () =>
+                InteractionManager.runAfterInteractions(() => BlueApp.saveToDisk()),
+              );
             })
           }
           onManageFundsPressed={() => {

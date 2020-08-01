@@ -40,6 +40,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
+import AsyncStorage from '@react-native-community/async-storage';
+import Lnurl from './class/lnurl';
 /** @type {AppStorage} */
 const BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
@@ -434,14 +436,11 @@ export class BlueButtonLink extends Component {
 
 export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure }) => {
   Alert.alert(
-    'Wallet',
-    `Have you saved your wallet's backup phrase? This backup phrase is required to access your funds in case you lose this device. Without the backup phrase, your funds will be permanently lost.`,
+    loc.wallets.details_title,
+    loc.pleasebackup.ask,
     [
-      { text: 'Yes, I have', onPress: onSuccess, style: 'cancel' },
-      {
-        text: 'No, I have not',
-        onPress: onFailure,
-      },
+      { text: loc.pleasebackup.ask_yes, onPress: onSuccess, style: 'cancel' },
+      { text: loc.pleasebackup.ask_no, onPress: onFailure },
     ],
     { cancelable: false },
   );
@@ -987,7 +986,7 @@ export class BlueUseAllFundsButton extends Component {
               paddingBottom: 12,
             }}
           >
-            Total:
+            {loc.send.input_total}
           </Text>
           {this.props.wallet.allowSendMax() && this.props.wallet.getBalance() > 0 ? (
             <BlueButtonLink
@@ -1015,7 +1014,7 @@ export class BlueUseAllFundsButton extends Component {
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
           <BlueButtonLink
             style={{ paddingRight: 8, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
-            title="Done"
+            title={loc.send.input_done}
             onPress={() => Keyboard.dismiss()}
           />
         </View>
@@ -1045,7 +1044,7 @@ export class BlueDismissKeyboardInputAccessory extends Component {
             alignItems: 'center',
           }}
         >
-          <BlueButtonLink title="Done" onPress={() => Keyboard.dismiss()} />
+          <BlueButtonLink title={loc.send.input_done} onPress={() => Keyboard.dismiss()} />
         </View>
       </InputAccessoryView>
     );
@@ -1071,9 +1070,9 @@ export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
           maxHeight: 44,
         }}
       >
-        <BlueButtonLink title="Clear" onPress={this.props.onClearTapped} />
-        <BlueButtonLink title="Paste" onPress={this.onPasteTapped} />
-        <BlueButtonLink title="Done" onPress={() => Keyboard.dismiss()} />
+        <BlueButtonLink title={loc.send.input_clear} onPress={this.props.onClearTapped} />
+        <BlueButtonLink title={loc.send.input_paste} onPress={this.onPasteTapped} />
+        <BlueButtonLink title={loc.send.input_done} onPress={() => Keyboard.dismiss()} />
       </View>
     );
 
@@ -1329,8 +1328,6 @@ export class BlueTransactionOutgoingIcon extends Component {
     );
   }
 }
-
-//
 
 export class BlueReceiveButtonIcon extends Component {
   render() {
@@ -1699,7 +1696,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     return (item.confirmations < 7 ? loc.transactions.list_conf + ': ' + item.confirmations + ' ' : '') + txMemo() + (item.memo || '');
   };
 
-  const onPress = () => {
+  const onPress = async () => {
     if (item.hash) {
       NavigationService.navigate('TransactionStatus', { hash: item.hash });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
@@ -1711,6 +1708,25 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
         }
       });
       if (lightningWallet.length === 1) {
+        // is it a successful lnurl-pay?
+        const LN = new Lnurl(false, AsyncStorage);
+        let paymentHash = item.payment_hash;
+        if (typeof paymentHash === 'object') {
+          paymentHash = Buffer.from(paymentHash.data).toString('hex');
+        }
+        const loaded = await LN.loadSuccessfulPayment(paymentHash);
+        if (loaded) {
+          NavigationService.navigate('ScanLndInvoiceRoot', {
+            screen: 'LnurlPaySuccess',
+            params: {
+              paymentHash: paymentHash,
+              justPaid: false,
+              fromWalletID: lightningWallet[0].getID(),
+            },
+          });
+          return;
+        }
+
         NavigationService.navigate('LNDViewInvoice', {
           invoice: item,
           fromWallet: lightningWallet[0],
@@ -1744,190 +1760,6 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     </View>
   );
 });
-
-export class BlueListTransactionItem extends Component {
-  static propTypes = {
-    item: PropTypes.shape().isRequired,
-    itemPriceUnit: PropTypes.string,
-  };
-
-  static defaultProps = {
-    itemPriceUnit: BitcoinUnit.BTC,
-  };
-
-  txMemo = () => {
-    if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash].memo) {
-      return BlueApp.tx_metadata[this.props.item.hash].memo;
-    }
-    return '';
-  };
-
-  rowTitle = () => {
-    const item = this.props.item;
-    if (item.type === 'user_invoice' || item.type === 'payment_request') {
-      if (isNaN(item.value)) {
-        item.value = '0';
-      }
-      const currentDate = new Date();
-      const now = (currentDate.getTime() / 1000) | 0;
-      const invoiceExpiration = item.timestamp + item.expire_time;
-
-      if (invoiceExpiration > now) {
-        return formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
-      } else if (invoiceExpiration < now) {
-        if (item.ispaid) {
-          return formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
-        } else {
-          return loc.lnd.expired;
-        }
-      }
-    } else {
-      return formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
-    }
-  };
-
-  rowTitleStyle = () => {
-    const item = this.props.item;
-    let color = '#37c0a1';
-
-    if (item.type === 'user_invoice' || item.type === 'payment_request') {
-      const currentDate = new Date();
-      const now = (currentDate.getTime() / 1000) | 0;
-      const invoiceExpiration = item.timestamp + item.expire_time;
-
-      if (invoiceExpiration > now) {
-        color = '#37c0a1';
-      } else if (invoiceExpiration < now) {
-        if (item.ispaid) {
-          color = '#37c0a1';
-        } else {
-          color = '#9AA0AA';
-        }
-      }
-    } else if (item.value / 100000000 < 0) {
-      color = BlueCurrentTheme.colors.foregroundColor;
-    }
-
-    return {
-      fontWeight: '600',
-      fontSize: 14,
-      color: color,
-    };
-  };
-
-  avatar = () => {
-    // is it lightning refill tx?
-    if (this.props.item.category === 'receive' && this.props.item.confirmations < 3) {
-      return (
-        <View style={{ width: 25 }}>
-          <BlueTransactionPendingIcon />
-        </View>
-      );
-    }
-
-    if (this.props.item.type && this.props.item.type === 'bitcoind_tx') {
-      return (
-        <View style={{ width: 25 }}>
-          <BlueTransactionOnchainIcon />
-        </View>
-      );
-    }
-    if (this.props.item.type === 'paid_invoice') {
-      // is it lightning offchain payment?
-      return (
-        <View style={{ width: 25 }}>
-          <BlueTransactionOffchainIcon />
-        </View>
-      );
-    }
-
-    if (this.props.item.type === 'user_invoice' || this.props.item.type === 'payment_request') {
-      if (!this.props.item.ispaid) {
-        const currentDate = new Date();
-        const now = (currentDate.getTime() / 1000) | 0;
-        const invoiceExpiration = this.props.item.timestamp + this.props.item.expire_time;
-        if (invoiceExpiration < now) {
-          return (
-            <View style={{ width: 25 }}>
-              <BlueTransactionExpiredIcon />
-            </View>
-          );
-        }
-      } else {
-        return (
-          <View style={{ width: 25 }}>
-            <BlueTransactionOffchainIncomingIcon />
-          </View>
-        );
-      }
-    }
-
-    if (!this.props.item.confirmations) {
-      return (
-        <View style={{ width: 25 }}>
-          <BlueTransactionPendingIcon />
-        </View>
-      );
-    } else if (this.props.item.value < 0) {
-      return (
-        <View style={{ width: 25 }}>
-          <BlueTransactionOutgoingIcon />
-        </View>
-      );
-    } else {
-      return (
-        <View style={{ width: 25 }}>
-          <BlueTransactionIncomingIcon />
-        </View>
-      );
-    }
-  };
-
-  subtitle = () => {
-    return (
-      (this.props.item.confirmations < 7 ? loc.transactions.list_conf + ': ' + this.props.item.confirmations + ' ' : '') +
-      this.txMemo() +
-      (this.props.item.memo || '')
-    );
-  };
-
-  onPress = () => {
-    if (this.props.item.hash) {
-      NavigationService.navigate('TransactionStatus', { hash: this.props.item.hash });
-    } else if (
-      this.props.item.type === 'user_invoice' ||
-      this.props.item.type === 'payment_request' ||
-      this.props.item.type === 'paid_invoice'
-    ) {
-      const lightningWallet = BlueApp.getWallets().filter(wallet => {
-        if (typeof wallet === 'object') {
-          if ('secret' in wallet) {
-            return wallet.getSecret() === this.props.item.fromWallet;
-          }
-        }
-      });
-      NavigationService.navigate('LNDViewInvoice', {
-        invoice: this.props.item,
-        fromWallet: lightningWallet[0],
-        isModal: false,
-      });
-    }
-  };
-
-  render() {
-    return (
-      <BlueListItem
-        avatar={this.avatar()}
-        title={transactionTimeToReadable(this.props.item.received)}
-        subtitle={this.subtitle()}
-        onPress={this.onPress}
-        hideChevron
-        rightTitle={this.rowTitle()}
-        rightTitleStyle={this.rowTitleStyle()}
-      />
-    );
-  }
-}
 
 const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
   const scaleValue = new Animated.Value(1.0);
@@ -2020,7 +1852,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
                   color: BlueCurrentTheme.colors.inverseForegroundColor,
                 }}
               >
-                An error was encountered when attempting to import this wallet.
+                {loc.wallets.list_import_error}
               </Text>
             ) : (
               <ActivityIndicator style={{ marginTop: 40 }} />
@@ -2828,7 +2660,7 @@ export class DynamicQRCode extends Component {
         <BlueSpacing20 />
         <View>
           <Text style={animatedQRCodeStyle.text}>
-            {this.state.index + 1} of {this.state.total}
+            {loc.formatString(loc._.of, { number: this.state.index + 1, total: this.state.total })}
           </Text>
         </View>
         <BlueSpacing20 />
@@ -2837,25 +2669,25 @@ export class DynamicQRCode extends Component {
             style={[animatedQRCodeStyle.button, { width: '25%', alignItems: 'flex-start' }]}
             onPress={this.moveToPreviousFragment}
           >
-            <Text style={animatedQRCodeStyle.text}>Previous</Text>
+            <Text style={animatedQRCodeStyle.text}>{loc.send.dynamic_prev}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[animatedQRCodeStyle.button, { width: '50%' }]}
             onPress={this.state.intervalHandler ? this.stopAutoMove : this.startAutoMove}
           >
-            <Text style={animatedQRCodeStyle.text}>{this.state.intervalHandler ? 'Stop' : 'Start'}</Text>
+            <Text style={animatedQRCodeStyle.text}>{this.state.intervalHandler ? loc.send.dynamic_stop : loc.send.dynamic_start}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[animatedQRCodeStyle.button, { width: '25%', alignItems: 'flex-end' }]}
             onPress={this.moveToNextFragment}
           >
-            <Text style={animatedQRCodeStyle.text}>Next</Text>
+            <Text style={animatedQRCodeStyle.text}>{loc.send.dynamic_next}</Text>
           </TouchableOpacity>
         </View>
       </View>
     ) : (
       <View>
-        <Text>Initialing</Text>
+        <Text>{loc.send.dynamic_init}</Text>
       </View>
     );
   }

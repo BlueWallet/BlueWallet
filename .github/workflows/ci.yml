@@ -91,8 +91,9 @@ jobs:
         api-level: 29
         target: google_apis
         avd-name: Pixel_API_29_AOSP
-        script: npm run e2e:release-test || npm run e2e:release-test
+        script: npm run e2e:release-test || npm run e2e:release-test || npm run e2e:release-test
       env:
+        TRAVIS: 1
         HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
         HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
 

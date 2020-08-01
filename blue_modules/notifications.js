@@ -3,11 +3,13 @@ import { Alert, Platform } from 'react-native';
 import Frisbee from 'frisbee';
 import { isEmulatorSync } from 'react-native-device-info';
 import AsyncStorage from '@react-native-community/async-storage';
+import loc from '../loc';
 const PushNotification = require('react-native-push-notification');
 const constants = require('./constants');
 const PUSH_TOKEN = 'PUSH_TOKEN';
-const loc = require('../loc');
+const GROUNDCONTROL_BASE_URI = 'GROUNDCONTROL_BASE_URI';
 let alreadyConfigured = false;
+let baseURI = constants.groundControlUri;
 
 async function _setPushToken(token) {
   token = JSON.stringify(token);
@@ -142,20 +144,26 @@ function _getHeaders() {
   };
 }
 
+async function _sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 /**
  * Submits onchain bitcoin addresses and ln invoice preimage hashes to GroundControl server, so later we could
  * be notified if they were paid
  *
  * @param addresses {string[]}
  * @param hashes {string[]}
+ * @param txids {string[]}
  * @returns {Promise<object>} Response object from API rest call
  */
-const majorTomToGroundControl = async function (addresses, hashes) {
-  if (!Array.isArray(addresses) || !Array.isArray(hashes)) throw new Error('no addresses or hashes provided');
+const majorTomToGroundControl = async function (addresses, hashes, txids) {
+  if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids))
+    throw new Error('no addresses or hashes or txids provided');
   const pushToken = await _getPushToken();
   if (!pushToken || !pushToken.token || !pushToken.os) return;
 
-  const api = new Frisbee({ baseURI: constants.groundControlUri });
+  const api = new Frisbee({ baseURI });
 
   return await api.post(
     '/majorTomToGroundControl',
@@ -163,6 +171,7 @@ const majorTomToGroundControl = async function (addresses, hashes) {
       body: {
         addresses,
         hashes,
+        txids,
         token: pushToken.token,
         os: pushToken.os,
       },
@@ -170,16 +179,94 @@ const majorTomToGroundControl = async function (addresses, hashes) {
   );
 };
 
+/**
+ * The opposite of `majorTomToGroundControl` call.
+ *
+ * @param addresses {string[]}
+ * @param hashes {string[]}
+ * @param txids {string[]}
+ * @returns {Promise<object>} Response object from API rest call
+ */
+const unsubscribe = async function (addresses, hashes, txids) {
+  if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids))
+    throw new Error('no addresses or hashes or txids provided');
+  const pushToken = await _getPushToken();
+  if (!pushToken || !pushToken.token || !pushToken.os) return;
+
+  const api = new Frisbee({ baseURI });
+
+  return await api.post(
+    '/unsubscribe',
+    Object.assign({}, _getHeaders(), {
+      body: {
+        addresses,
+        hashes,
+        txids,
+        token: pushToken.token,
+        os: pushToken.os,
+      },
+    }),
+  );
+};
+
+const isNotificationsEnabled = async function () {
+  return !!(await _getPushToken());
+};
+
+const getDefaultUri = function () {
+  return constants.groundControlUri;
+};
+
+const saveUri = async function (uri) {
+  baseURI = uri || constants.groundControlUri; // settign the url to use currently. if not set - use default
+  return AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, uri);
+};
+
+const getSavedUri = async function () {
+  return AsyncStorage.getItem(GROUNDCONTROL_BASE_URI);
+};
+
+const isGroundControlUriValid = async function (uri) {
+  const apiCall = new Frisbee({
+    baseURI: uri,
+  });
+  let response;
+  try {
+    response = await Promise.race([apiCall.get('/ping', _getHeaders()), _sleep(2000)]);
+  } catch (_) {}
+
+  if (!response || !response.body) return false; // either sleep expired or apiCall threw an exception
+
+  const json = response.body;
+  if (json.description) return true;
+
+  return false;
+};
+
 // on app launch (load module):
 (async () => {
+  // first, fetching to see if app uses custom GroundControl server, not the default one
+  try {
+    const baseUriStored = await AsyncStorage.getItem(GROUNDCONTROL_BASE_URI);
+    if (baseUriStored) {
+      baseURI = baseUriStored;
+    }
+  } catch (_) {}
+
+  // every launch should clear badges:
+  PushNotification.setApplicationIconBadgeNumber(0);
+
   if (!(await _getPushToken())) return;
   // if we previously had token that means we already acquired permission from the user and it is safe to call
   // `configure` to register callbacks etc
   await configureNotifications();
 })();
 
-// every launch should clear badges:
-PushNotification.setApplicationIconBadgeNumber(0);
-
 module.exports.tryToObtainPermissions = tryToObtainPermissions;
 module.exports.majorTomToGroundControl = majorTomToGroundControl;
+module.exports.unsubscribe = unsubscribe;
+module.exports.isNotificationsEnabled = isNotificationsEnabled;
+module.exports.getDefaultUri = getDefaultUri;
+module.exports.saveUri = saveUri;
+module.exports.isGroundControlUriValid = isGroundControlUriValid;
+module.exports.getSavedUri = getSavedUri;
