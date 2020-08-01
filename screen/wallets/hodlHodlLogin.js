@@ -24,6 +24,7 @@ const HodlHodlLogin = () => {
   return (
     <SafeBlueArea>
       <WebView
+        incognito
         injectedJavaScript={INJECTED_JAVASCRIPT}
         ref={webView}
         source={{ uri: url }}
