@@ -40,7 +40,6 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
-import AsyncStorage from '@react-native-community/async-storage';
 import Lnurl from './class/lnurl';
 /** @type {AppStorage} */
 const BlueApp = require('./BlueApp');
