@@ -98,7 +98,7 @@ const WalletsRoot = () => (
       name="WalletTransactions"
       component={WalletTransactions}
       options={WalletTransactions.navigationOptions}
-      sharedElements={(route, otherRoute, showing) => {
+      sharedElements={ route => {
         const { wallet } = route.params;
         return [{ id: wallet.getID(), animation: 'fade' }];
       }}
@@ -259,7 +259,7 @@ const HodlHodlLoginRoot = () => (
   </HodlHodlLoginStack.Navigator>
 );
 
-const RootStack = createSharedElementStackNavigator();
+const RootStack = createStackNavigator();
 const Navigation = () => (
   <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
     {/* stacks */}
@@ -269,7 +269,7 @@ const Navigation = () => (
       component={UnlockWithScreenRoot}
       options={{ headerShown: false, animationEnabled: false }}
     />
-    <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false }} />
+    <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false, animationEnabled: false }} />
     <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={{ headerShown: false, gestureEnabled: false }} />
     <RootStack.Screen name="SendDetailsRoot" component={SendDetailsRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={{ headerShown: false }} />

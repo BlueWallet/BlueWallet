@@ -307,7 +307,7 @@ export class BlueWalletNavigationHeader extends Component {
         style={{ padding: 15, minHeight: 140, justifyContent: 'center' }}
       >
         <Image
-          source={
+          defaultSource={
             (LightningCustodianWallet.type === this.state.wallet.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')
           }
           style={{
@@ -1862,9 +1862,13 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
       </Animated.View>
     );
   } else {
-    console.warn('eee')
     return (
-   
+      <Animated.View
+        style={{ paddingRight: 10, marginVertical: 17, transform: [{ scale: scaleValue }] }}
+        shadowOpacity={40 / 100}
+        shadowOffset={{ width: 0, height: 0 }}
+        shadowRadius={5}
+      >
         <TouchableWithoutFeedback
           testID={item.getLabel()}
           onPressIn={onPressedIn}
@@ -1875,79 +1879,82 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
           }}
         >
           <SharedElement id={item.getID()}>
-          <LinearGradient
-            shadowColor={BlueCurrentTheme.colors.shadowColor}
-            colors={WalletGradient.gradientsFor(item.type)}
-            style={{
-              padding: 15,
-              borderRadius: 10,
-              minHeight: 164,
-              elevation: 5,
-            }}
-          >
-            <Image
-              source={(LightningCustodianWallet.type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')}
+            <LinearGradient
+              shadowColor={BlueCurrentTheme.colors.shadowColor}
+              colors={WalletGradient.gradientsFor(item.type)}
               style={{
-                width: 99,
-                height: 94,
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-              }}
-            />
-
-            <Text style={{ backgroundColor: 'transparent' }} />
-            <Text
-              numberOfLines={1}
-              style={{
-                backgroundColor: 'transparent',
-                fontSize: 19,
-                color: BlueCurrentTheme.colors.inverseForegroundColor,
+                padding: 15,
+                borderRadius: 10,
+                minHeight: 164,
+                elevation: 5,
               }}
             >
-              {item.getLabel()}
-            </Text>
-            {item.hideBalance ? (
-              <BluePrivateBalance />
-            ) : (
+              <Image
+                defaultSource={
+                  (LightningCustodianWallet.type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')
+                }
+                style={{
+                  width: 99,
+                  height: 94,
+                  position: 'absolute',
+                  bottom: 0,
+                  right: 0,
+                }}
+              />
+
+              <Text style={{ backgroundColor: 'transparent' }} />
               <Text
                 numberOfLines={1}
-                adjustsFontSizeToFit
                 style={{
                   backgroundColor: 'transparent',
-                  fontWeight: 'bold',
-                  fontSize: 36,
+                  fontSize: 19,
                   color: BlueCurrentTheme.colors.inverseForegroundColor,
                 }}
               >
-                {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+                {item.getLabel()}
               </Text>
-            )}
-            <Text style={{ backgroundColor: 'transparent' }} />
-            <Text
-              numberOfLines={1}
-              style={{
-                backgroundColor: 'transparent',
-                fontSize: 13,
-                color: BlueCurrentTheme.colors.inverseForegroundColor,
-              }}
-            >
-              {loc.wallets.list_latest_transaction}
-            </Text>
-            <Text
-              numberOfLines={1}
-              style={{
-                backgroundColor: 'transparent',
-                fontWeight: 'bold',
-                fontSize: 16,
-                color: BlueCurrentTheme.colors.inverseForegroundColor,
-              }}
-            >
-              {transactionTimeToReadable(item.getLatestTransactionTime())}
-            </Text>
-          </LinearGradient>
+              {item.hideBalance ? (
+                <BluePrivateBalance />
+              ) : (
+                <Text
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  style={{
+                    backgroundColor: 'transparent',
+                    fontWeight: 'bold',
+                    fontSize: 36,
+                    color: BlueCurrentTheme.colors.inverseForegroundColor,
+                  }}
+                >
+                  {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+                </Text>
+              )}
+              <Text style={{ backgroundColor: 'transparent' }} />
+              <Text
+                numberOfLines={1}
+                style={{
+                  backgroundColor: 'transparent',
+                  fontSize: 13,
+                  color: BlueCurrentTheme.colors.inverseForegroundColor,
+                }}
+              >
+                {loc.wallets.list_latest_transaction}
+              </Text>
+              <Text
+                numberOfLines={1}
+                style={{
+                  backgroundColor: 'transparent',
+                  fontWeight: 'bold',
+                  fontSize: 16,
+                  color: BlueCurrentTheme.colors.inverseForegroundColor,
+                }}
+              >
+                {transactionTimeToReadable(item.getLatestTransactionTime())}
+              </Text>
+            </LinearGradient>
           </SharedElement>
         </TouchableWithoutFeedback>
+      </Animated.View>
     );
   }
 };

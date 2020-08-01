@@ -642,35 +642,36 @@ export default class WalletTransactions extends Component {
             url={`https://blockpath.com/search/addr?q=${this.state.wallet.getXpub()}`}
           />
         )}
-                <SharedElement id={this.state.wallet.getID()}>
-                <BlueWalletNavigationHeader
-          wallet={this.props.route.params.wallet}
-          onWalletUnitChange={wallet =>
-            InteractionManager.runAfterInteractions(async () => {
-              this.setState({ wallet, itemPriceUnit: wallet.getPreferredBalanceUnit() }, () =>
-                InteractionManager.runAfterInteractions(() => BlueApp.saveToDisk()),
-              );
-            })
-          }
-          onManageFundsPressed={() => {
-            if (this.state.wallet.getUserHasSavedExport()) {
-              this.setState({ isManageFundsModalVisible: true });
-            } else {
-              BlueAlertWalletExportReminder({
-                onSuccess: async () => {
-                  this.state.wallet.setUserHasSavedExport(true);
-                  await BlueApp.saveToDisk();
-                  this.setState({ isManageFundsModalVisible: true });
-                },
-                onFailure: () =>
-                  this.props.navigation.navigate('WalletExport', {
-                    wallet: this.state.wallet,
-                  }),
-              });
+        
+        <SharedElement id={this.state.wallet.getID()}>
+          <BlueWalletNavigationHeader
+            wallet={this.props.route.params.wallet}
+            onWalletUnitChange={wallet =>
+              InteractionManager.runAfterInteractions(async () => {
+                this.setState({ wallet, itemPriceUnit: wallet.getPreferredBalanceUnit() }, () =>
+                  InteractionManager.runAfterInteractions(() => BlueApp.saveToDisk()),
+                );
+              })
             }
-          }}
-        />
-                </SharedElement>
+            onManageFundsPressed={() => {
+              if (this.state.wallet.getUserHasSavedExport()) {
+                this.setState({ isManageFundsModalVisible: true });
+              } else {
+                BlueAlertWalletExportReminder({
+                  onSuccess: async () => {
+                    this.state.wallet.setUserHasSavedExport(true);
+                    await BlueApp.saveToDisk();
+                    this.setState({ isManageFundsModalVisible: true });
+                  },
+                  onFailure: () =>
+                    this.props.navigation.navigate('WalletExport', {
+                      wallet: this.state.wallet,
+                    }),
+                });
+              }
+            }}
+          />
+        </SharedElement>
 
         <View style={styles.list}>
           <FlatList
@@ -840,4 +841,3 @@ WalletTransactions.navigationOptions = ({ navigation, route }) => {
     headerBackTitleVisible: false,
   };
 };
-
