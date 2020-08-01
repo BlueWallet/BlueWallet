@@ -1,29 +1,37 @@
 import React, { Component } from 'react';
-import { Dimensions, ActivityIndicator, View } from 'react-native';
+import { Dimensions, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle, BlueCopyTextToClipboard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
+import loc from '../../loc';
+import { BlueCurrentTheme } from '../../components/themes';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
 const { height, width } = Dimensions.get('window');
 
-export default class WalletXpub extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: loc.wallets.xpub.title,
-    headerLeft: null,
-  });
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    paddingTop: 20,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
+  },
+  container: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+  },
+});
 
+export default class WalletXpub extends Component {
   constructor(props) {
     super(props);
 
-    let secret = props.navigation.state.params.secret;
+    const secret = props.route.params.secret;
     let wallet;
 
-    for (let w of BlueApp.getWallets()) {
+    for (const w of BlueApp.getWallets()) {
       if (w.getSecret() === secret) {
         // found our wallet
         wallet = w;
@@ -66,15 +74,16 @@ export default class WalletXpub extends Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={styles.root}>
           <ActivityIndicator />
         </View>
       );
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-        <View style={{ alignItems: 'center', flex: 1, justifyContent: 'center' }} onLayout={this.onLayout}>
+      <SafeBlueArea style={styles.root}>
+        <StatusBar barStyle="light-content" />
+        <View style={styles.container} onLayout={this.onLayout}>
           <View>
             <BlueText>{this.state.wallet.typeReadable}</BlueText>
           </View>
@@ -85,9 +94,10 @@ export default class WalletXpub extends Component {
             logo={require('../../img/qr-code.png')}
             size={this.state.qrCodeHeight}
             logoSize={90}
-            color={BlueApp.settings.foregroundColor}
-            logoBackgroundColor={BlueApp.settings.brandingColor}
-            ecl={'H'}
+            color={BlueCurrentTheme.colors.foregroundColor}
+            logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
+            backgroundColor={BlueCurrentTheme.colors.background}
+            ecl="H"
           />
 
           <BlueSpacing20 />
@@ -100,12 +110,19 @@ export default class WalletXpub extends Component {
 
 WalletXpub.propTypes = {
   navigation: PropTypes.shape({
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        secret: PropTypes.string,
-      }),
-    }),
     navigate: PropTypes.func,
     goBack: PropTypes.func,
   }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.shape({
+      secret: PropTypes.string,
+    }),
+  }),
 };
+
+WalletXpub.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: loc.wallets.xpub_title,
+  headerLeft: null,
+});

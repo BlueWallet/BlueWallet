@@ -1,31 +1,43 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, TouchableOpacity } from 'react-native';
-import { BlueNavigationStyle, BlueLoading, SafeBlueArea, BlueListItem } from '../../BlueComponents';
-import { useNavigation } from 'react-navigation-hooks';
-const loc = require('../../loc');
+import React from 'react';
+import { ScrollView, StyleSheet } from 'react-native';
+import { SafeBlueArea, BlueListItemHooks, BlueNavigationStyle } from '../../BlueComponents';
+import { useNavigation, useTheme } from '@react-navigation/native';
+import loc from '../../loc';
 
 const NetworkSettings = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const { navigate } = useNavigation();
+  const { colors } = useTheme();
+  const styles = StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+  });
 
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
+  const navigateToElectrumSettings = () => {
+    navigate('ElectrumSettings');
+  };
 
-  return isLoading ? (
-    <BlueLoading />
-  ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+  const navigateToLightningSettings = () => {
+    navigate('LightningSettings');
+  };
+
+  const navigateToBroadcast = () => {
+    navigate('Broadcast');
+  };
+
+  return (
+    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <ScrollView>
-        <BlueListItem title={'Electrum server'} component={TouchableOpacity} onPress={() => navigate('ElectrumSettings')} />
-        <BlueListItem title={loc.settings.lightning_settings} component={TouchableOpacity} onPress={() => navigate('LightningSettings')} />
-        <BlueListItem title="Broadcast transaction" component={TouchableOpacity} onPress={() => navigate('Broadcast')} />
+        <BlueListItemHooks title={loc.settings.network_electrum} onPress={navigateToElectrumSettings} chevron />
+        <BlueListItemHooks title={loc.settings.lightning_settings} onPress={navigateToLightningSettings} chevron />
+        <BlueListItemHooks title={loc.settings.network_broadcast} onPress={navigateToBroadcast} chevron />
       </ScrollView>
     </SafeBlueArea>
   );
 };
-NetworkSettings.navigationOptions = {
+NetworkSettings.navigationOptions = () => ({
   ...BlueNavigationStyle(),
-  title: 'Network',
-};
+  title: loc.settings.network,
+});
 export default NetworkSettings;

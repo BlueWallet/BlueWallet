@@ -1,26 +1,49 @@
 import React, { Component } from 'react';
-import { Dimensions, ScrollView, ActivityIndicator, View } from 'react-native';
+import { Dimensions, ScrollView, ActivityIndicator, StatusBar, View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
+import loc from '../../loc';
+import { BlueCurrentTheme } from '../../components/themes';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
 const { height, width } = Dimensions.get('window');
 
-export default class WalletExport extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: loc.wallets.export.title,
-    headerLeft: null,
-  });
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  root: {
+    flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
+  },
+  scrollViewContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 1,
+  },
+  type: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: BlueCurrentTheme.colors.foregroundColor,
+  },
+  secret: {
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: BlueCurrentTheme.colors.foregroundColor,
+    lineHeight: 24,
+  },
+});
 
+export default class WalletExport extends Component {
   constructor(props) {
     super(props);
-    let wallet = props.navigation.state.params.wallet;
+    const wallet = props.route.params.wallet;
     this.state = {
       isLoading: true,
       qrCodeHeight: height > width ? width - 40 : width / 2,
@@ -61,17 +84,18 @@ export default class WalletExport extends Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }} onLayout={this.onLayout}>
+        <View style={styles.loading} onLayout={this.onLayout}>
           <ActivityIndicator />
         </View>
       );
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }} onLayout={this.onLayout}>
+      <SafeBlueArea style={styles.root}>
+        <StatusBar barStyle="light-content" />
+        <ScrollView contentContainerStyle={styles.scrollViewContent} onLayout={this.onLayout}>
           <View>
-            <BlueText style={{ fontSize: 17, fontWeight: '700', color: '#0c2550' }}>{this.state.wallet.typeReadable}</BlueText>
+            <BlueText style={styles.type}>{this.state.wallet.typeReadable}</BlueText>
           </View>
 
           {(() => {
@@ -90,18 +114,17 @@ export default class WalletExport extends Component {
             logo={require('../../img/qr-code.png')}
             size={this.state.qrCodeHeight}
             logoSize={70}
-            color={BlueApp.settings.foregroundColor}
-            logoBackgroundColor={BlueApp.settings.brandingColor}
-            ecl={'H'}
+            color={BlueCurrentTheme.colors.foregroundColor}
+            logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
+            backgroundColor={BlueCurrentTheme.colors.background}
+            ecl="H"
           />
 
           <BlueSpacing20 />
           {this.state.wallet.type === LightningCustodianWallet.type || this.state.wallet.type === WatchOnlyWallet.type ? (
             <BlueCopyTextToClipboard text={this.state.wallet.getSecret()} />
           ) : (
-            <BlueText style={{ alignItems: 'center', paddingHorizontal: 16, fontSize: 16, color: '#0C2550', lineHeight: 24 }}>
-              {this.state.wallet.getSecret()}
-            </BlueText>
+            <BlueText style={styles.secret}>{this.state.wallet.getSecret()}</BlueText>
           )}
         </ScrollView>
       </SafeBlueArea>
@@ -111,12 +134,18 @@ export default class WalletExport extends Component {
 
 WalletExport.propTypes = {
   navigation: PropTypes.shape({
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        wallet: PropTypes.object.isRequired,
-      }),
-    }),
     navigate: PropTypes.func,
     goBack: PropTypes.func,
   }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.shape({
+      wallet: PropTypes.object.isRequired,
+    }),
+  }),
 };
+WalletExport.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: loc.wallets.export_title,
+  headerLeft: null,
+});

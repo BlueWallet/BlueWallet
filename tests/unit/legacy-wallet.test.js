@@ -5,12 +5,13 @@ const assert = require('assert');
 
 describe('Legacy wallet', () => {
   it('can create transaction', async () => {
-    let l = new LegacyWallet();
+    const l = new LegacyWallet();
     l.setSecret('L4ccWrPMmFDZw4kzAKFqJNxgHANjdy6b7YKNXMwB4xac4FLF3Tov');
     assert.strictEqual(l.getAddress(), '14YZ6iymQtBVQJk6gKnLCk49UScJK7SH4M');
+    assert.deepStrictEqual(l.getAllExternalAddresses(), ['14YZ6iymQtBVQJk6gKnLCk49UScJK7SH4M']);
     assert.strictEqual(await l.getChangeAddressAsync(), l.getAddress());
 
-    let utxos = [
+    const utxos = [
       {
         txid: 'cc44e933a094296d9fe424ad7306f16916253a3d154d52e4f1a757c18242cec4',
         vout: 0,
@@ -25,7 +26,7 @@ describe('Legacy wallet', () => {
     let tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
     assert.strictEqual(
       txNew.tx.toHex(),
-      '0200000001c4ce4282c157a7f1e4524d153d3a251669f10673ad24e49f6d2994a033e944cc000000006a47304402200faed160757433bcd4d9fe5f55eb92420406e8f3099a7e12ef720c77313c8c7e022044bc9e1abca6a81a8ad5c749f5ec4694301589172b83b1803bc134eda0487dbc01210337c09b3cb889801638078fd4e6998218b28c92d338ea2602720a88847aedceb3ffffffff02905f0100000000001976a914aa381cd428a4e91327fd4434aa0a08ff131f1a5a88ac2f260000000000001976a91426e01119d265aa980390c49eece923976c218f1588ac00000000',
+      '0200000001c4ce4282c157a7f1e4524d153d3a251669f10673ad24e49f6d2994a033e944cc000000006b48304502210091e58bd2021f2eeea8d39d7f7b053c9ccc52a747b60f1c3584ba33285e2d150602205b2d35a2536cbe157015e8c54a26f5fc350cc7c72b5ca80b9e548917993f652201210337c09b3cb889801638078fd4e6998218b28c92d338ea2602720a88847aedceb3ffffffff02905f0100000000001976a914aa381cd428a4e91327fd4434aa0a08ff131f1a5a88ac2e260000000000001976a91426e01119d265aa980390c49eece923976c218f1588ac00000000',
     );
     assert.strictEqual(tx.ins.length, 1);
     assert.strictEqual(tx.outs.length, 2);
@@ -38,5 +39,34 @@ describe('Legacy wallet', () => {
     assert.strictEqual(tx.ins.length, 1);
     assert.strictEqual(tx.outs.length, 1);
     assert.strictEqual('1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB', bitcoin.address.fromOutputScript(tx.outs[0].script)); // to address
+  });
+
+  it("throws error if you can 't create wallet from this entropy", async () => {
+    const l = new LegacyWallet();
+    const zeroes = [...Array(32)].map(() => 0);
+    await assert.rejects(async () => await l.generateFromEntropy(Buffer.from(zeroes)), {
+      name: 'TypeError',
+      message: 'Private key not in range [1, n)',
+    });
+  });
+
+  it('can consume user generated entropy', async () => {
+    const l = new LegacyWallet();
+    const values = [...Array(32)].map(() => 1);
+    await l.generateFromEntropy(Buffer.from(values));
+    assert.strictEqual(l.getSecret(), 'KwFfNUhSDaASSAwtG7ssQM1uVX8RgX5GHWnnLfhfiQDigjioWXHH');
+  });
+
+  it('can fullfill user generated entropy if less than 32 bytes provided', async () => {
+    const l = new LegacyWallet();
+    const values = [...Array(16)].map(() => 1);
+    await l.generateFromEntropy(Buffer.from(values));
+    assert.strictEqual(l.getSecret().startsWith('KwFfNUhSDaASSAwtG7ssQM'), true);
+    assert.strictEqual(l.getSecret().endsWith('GHWnnLfhfiQDigjioWXHH'), false);
+    const keyPair = bitcoin.ECPair.fromWIF(l.getSecret());
+    assert.strictEqual(keyPair.privateKey.toString('hex').startsWith('01010101'), true);
+    assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('01010101'), false);
+    assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('00000000'), false);
+    assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('ffffffff'), false);
   });
 });

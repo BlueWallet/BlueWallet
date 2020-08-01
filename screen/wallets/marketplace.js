@@ -5,18 +5,12 @@ import { BlueLoading, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 
 export default class Marketplace extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: 'Marketplace',
-    headerLeft: null,
-  });
-
   webview = React.createRef();
 
   constructor(props) {
     super(props);
-    if (!props.navigation.getParam('fromWallet')) throw new Error('Invalid param');
-    let fromWallet = props.navigation.getParam('fromWallet');
+    if (!props.route.params.fromWallet) throw new Error('Invalid param');
+    const fromWallet = props.route.params.fromWallet;
 
     this.state = {
       url: '',
@@ -73,8 +67,16 @@ export default class Marketplace extends Component {
 
 Marketplace.propTypes = {
   navigation: PropTypes.shape({
-    getParam: PropTypes.func,
     navigate: PropTypes.func,
     goBack: PropTypes.func,
   }),
+  route: PropTypes.shape({
+    params: PropTypes.object,
+  }),
 };
+
+Marketplace.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: 'Marketplace',
+  headerLeft: null,
+});

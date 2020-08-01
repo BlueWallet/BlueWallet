@@ -1,17 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { FlatList, TouchableOpacity, ActivityIndicator, View } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle, BlueListItem, BlueText, BlueCard } from '../../BlueComponents';
+import { FlatList, TouchableOpacity, ActivityIndicator, View, StyleSheet } from 'react-native';
+import { SafeBlueArea, BlueListItemHooks, BlueTextHooks, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
 import { FiatUnit } from '../../models/fiatUnit';
-let loc = require('../../loc');
-let currency = require('../../currency');
+import loc from '../../loc';
+import { useTheme } from '@react-navigation/native';
+const currency = require('../../blue_modules/currency');
 
 const data = Object.values(FiatUnit);
 
 const Currency = () => {
   const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState(null);
+  const { colors } = useTheme();
+  const styles = StyleSheet.create({
+    flex: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    activity: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+    },
+  });
 
   useEffect(() => {
     const fetchCurrency = async () => {
@@ -30,19 +44,19 @@ const Currency = () => {
 
   if (selectedCurrency !== null && selectedCurrency !== undefined) {
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.flex}>
         <FlatList
-          style={{ flex: 1 }}
+          style={styles.flex}
           keyExtractor={(_item, index) => `${index}`}
           data={data}
           extraData={data}
           renderItem={({ item }) => {
             return (
-              <BlueListItem
+              <BlueListItemHooks
                 disabled={isSavingNewPreferredCurrency}
                 title={`${item.endPointKey} (${item.symbol})`}
                 {...(selectedCurrency.endPointKey === item.endPointKey
-                  ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
+                  ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
                   : { hideChevron: true })}
                 Component={TouchableOpacity}
                 onPress={async () => {
@@ -57,13 +71,13 @@ const Currency = () => {
           }}
         />
         <BlueCard>
-          <BlueText>Prices are obtained from CoinDesk</BlueText>
+          <BlueTextHooks>{loc.settings.currency_source}</BlueTextHooks>
         </BlueCard>
       </SafeBlueArea>
     );
   }
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <View style={styles.activity}>
       <ActivityIndicator />
     </View>
   );

@@ -1,12 +1,15 @@
 import Localization from 'react-localization';
 import AsyncStorage from '@react-native-community/async-storage';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import * as RNLocalize from 'react-native-localize';
+import BigNumber from 'bignumber.js';
+
 import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import relativeTime from 'dayjs/plugin/relativeTime';
-const dayjs = require('dayjs');
-const currency = require('../currency');
-const BigNumber = require('bignumber.js');
-let strings;
+import { AvailableLanguages } from './languages';
+const currency = require('../blue_modules/currency');
+
 dayjs.extend(relativeTime);
 
 // first-time loading sequence
@@ -89,6 +92,9 @@ dayjs.extend(relativeTime);
       case 'vi_vn':
         require('dayjs/locale/vi');
         break;
+      case 'ca':
+        require('dayjs/locale/ca');
+        break;
       default:
         localeForDayJSAvailable = false;
         break;
@@ -96,42 +102,53 @@ dayjs.extend(relativeTime);
     if (localeForDayJSAvailable) {
       dayjs.locale(lang.split('_')[0]);
     }
+  } else {
+    const locales = RNLocalize.getLocales();
+    if (Object.keys(AvailableLanguages).some(language => language === locales[0])) {
+      strings.saveLanguage(locales[0].languageCode);
+      strings.setLanguage(locales[0].languageCode);
+    } else {
+      strings.saveLanguage('en');
+      strings.setLanguage('en');
+    }
   }
 })();
 
-strings = new Localization({
-  en: require('./en.js'),
-  ru: require('./ru.js'),
-  pt_br: require('./pt_BR.js'),
-  pt_pt: require('./pt_PT.js'),
-  es: require('./es.js'),
-  it: require('./it.js'),
-  el: require('./el.js'),
-  ua: require('./ua.js'),
-  jp_jp: require('./jp_JP.js'),
-  de_de: require('./de_DE.js'),
-  da_dk: require('./da_DK.js'),
-  cs_cz: require('./cs_CZ.js'),
-  th_th: require('./th_TH.js'),
-  nl_nl: require('./nl_NL.js'),
-  fi_fi: require('./fi_FI.js'),
-  fr_fr: require('./fr_FR.js'),
-  hr_hr: require('./hr_HR.js'),
-  hu_hu: require('./hu_HU.js'),
-  id_id: require('./id_ID.js'),
-  zh_cn: require('./zh_cn.js'),
-  zh_tw: require('./zh_tw.js'),
-  sv_se: require('./sv_SE.js'),
-  nb_no: require('./nb_NO.js'),
-  tr_tr: require('./tr_TR.js'),
-  vi_vn: require('./vi_VN.js'),
-  zar_xho: require('./ZAR_Xho.js'),
-  zar_afr: require('./ZAR_Afr.js'),
+const strings = new Localization({
+  en: require('./en.json'),
+  ru: require('./ru.json'),
+  pt_br: require('./pt_br.json'),
+  pt_pt: require('./pt_pt.json'),
+  es: require('./es.json'),
+  it: require('./it.json'),
+  el: require('./el.json'),
+  ua: require('./ua.json'),
+  ca: require('./ca.json'),
+  jp_jp: require('./jp_jp.json'),
+  de_de: require('./de_de.json'),
+  da_dk: require('./da_dk.json'),
+  cs_cz: require('./cs_cz.json'),
+  sk_sk: require('./sk_sk.json'),
+  th_th: require('./th_th.json'),
+  nl_nl: require('./nl_nl.json'),
+  fi_fi: require('./fi_fi.json'),
+  fr_fr: require('./fr_fr.json'),
+  hr_hr: require('./hr_hr.json'),
+  hu_hu: require('./hu_hu.json'),
+  id_id: require('./id_id.json'),
+  zh_cn: require('./zh_cn.json'),
+  zh_tw: require('./zh_tw.json'),
+  sv_se: require('./sv_se.json'),
+  nb_no: require('./nb_no.json'),
+  tr_tr: require('./tr_tr.json'),
+  vi_vn: require('./vi_vn.json'),
+  zar_xho: require('./zar_xho.json'),
+  zar_afr: require('./zar_afr.json'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
 
-strings.transactionTimeToReadable = time => {
+export const transactionTimeToReadable = time => {
   if (time === 0) {
     return strings._.never;
   }
@@ -145,7 +162,7 @@ strings.transactionTimeToReadable = time => {
   return ret;
 };
 
-function removeTrailingZeros(value) {
+export const removeTrailingZeros = value => {
   value = value.toString();
 
   if (value.indexOf('.') === -1) {
@@ -155,15 +172,16 @@ function removeTrailingZeros(value) {
     value = value.substr(0, value.length - 1);
   }
   return value;
-}
+};
 
 /**
  *
- * @param balance {Number} Float amount of bitcoins
+ * @param balance {number} Satoshis
  * @param toUnit {String} Value from models/bitcoinUnits.js
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
  * @returns {string}
  */
-strings.formatBalance = (balance, toUnit, withFormatting = false) => {
+export function formatBalance(balance, toUnit, withFormatting = false) {
   if (toUnit === undefined) {
     return balance + ' ' + BitcoinUnit.BTC;
   }
@@ -180,15 +198,16 @@ strings.formatBalance = (balance, toUnit, withFormatting = false) => {
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
     return currency.satoshiToLocalCurrency(balance);
   }
-};
+}
 
 /**
  *
  * @param balance {Integer} Satoshis
- * @param toUnit {String} Value from models/bitcoinUnits.js
+ * @param toUnit {String} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
  * @returns {string}
  */
-strings.formatBalanceWithoutSuffix = (balance = 0, toUnit, withFormatting = false) => {
+export function formatBalanceWithoutSuffix(balance = 0, toUnit, withFormatting = false) {
   if (toUnit === undefined) {
     return balance;
   }
@@ -203,6 +222,32 @@ strings.formatBalanceWithoutSuffix = (balance = 0, toUnit, withFormatting = fals
     }
   }
   return balance.toString();
-};
+}
 
-module.exports = strings;
+/**
+ * Should be used when we need a simple string to be put in text input, for example
+ *
+ * @param  balance {integer} Satoshis
+ * @param toUnit {String} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
+ * @returns {string}
+ */
+export function formatBalancePlain(balance = 0, toUnit, withFormatting = false) {
+  const newInputValue = formatBalanceWithoutSuffix(balance, toUnit, withFormatting);
+  return _leaveNumbersAndDots(newInputValue);
+}
+
+export function _leaveNumbersAndDots(newInputValue) {
+  newInputValue = newInputValue.replace(/[^\d.,-]/g, ''); // filtering, leaving only numbers, dots & commas
+  if (newInputValue.endsWith('.00') || newInputValue.endsWith(',00')) newInputValue = newInputValue.substring(0, newInputValue.length - 3);
+
+  if (newInputValue[newInputValue.length - 3] === ',') {
+    // this is a fractional value, lets replace comma to dot so it represents actual fractional value for normal people
+    newInputValue = newInputValue.substring(0, newInputValue.length - 3) + '.' + newInputValue.substring(newInputValue.length - 2);
+  }
+  newInputValue = newInputValue.replace(/,/gi, '');
+
+  return newInputValue;
+}
+
+export default strings;

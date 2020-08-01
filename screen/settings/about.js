@@ -1,25 +1,62 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Linking, Dimensions, Image, View, Text } from 'react-native';
-import { useNavigation } from 'react-navigation-hooks';
+import { ScrollView, Linking, Dimensions, Image, View, Text, StyleSheet } from 'react-native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 import {
   BlueTextCentered,
-  BlueLoading,
   BlueSpacing20,
   BlueButton,
   SafeBlueArea,
   BlueCard,
+  BlueListItemHooks,
   BlueNavigationStyle,
-  BlueListItem,
+  BlueLoadingHook,
 } from '../../BlueComponents';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
-/** @type {AppStorage} */
+import loc from '../../loc';
+
 const { width, height } = Dimensions.get('window');
-const loc = require('../../loc/');
 
 const About = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { navigate } = useNavigation();
+  const { colors } = useTheme();
+  const styles = StyleSheet.create({
+    root: {
+      flex: 1,
+    },
+    center: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: 54,
+    },
+    logo: {
+      width: 102,
+      height: 124,
+    },
+    textFree: {
+      maxWidth: 260,
+      marginVertical: 24,
+      color: '#9AA0AA',
+      fontSize: 15,
+      textAlign: 'center',
+      fontWeight: '500',
+    },
+    textBackup: {
+      maxWidth: 260,
+      marginBottom: 40,
+      color: colors.foregroundColor,
+      fontSize: 15,
+      textAlign: 'center',
+      fontWeight: '500',
+    },
+    buildWith: {
+      backgroundColor: colors.inputBackgroundColor,
+      padding: 16,
+      paddingTop: 0,
+      borderRadius: 8,
+    },
+  });
 
   useEffect(() => {
     setIsLoading(false);
@@ -66,60 +103,50 @@ const About = () => {
   };
 
   return isLoading ? (
-    <BlueLoading />
+    <BlueLoadingHook />
   ) : (
-    <SafeBlueArea style={{ flex: 1 }}>
+    <SafeBlueArea style={styles.root}>
       <ScrollView testID="AboutScrollView">
         <BlueCard>
-          <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 54 }}>
-            <Image
-              source={require('../../img/bluebeast.png')}
-              style={{
-                width: 102,
-                height: 124,
-              }}
-            />
-            <Text style={{ maxWidth: 260, marginVertical: 24, color: '#9AA0AA', fontSize: 15, textAlign: 'center', fontWeight: '500' }}>
-              BlueWallet is a free and open source project. Crafted by Bitcoin users.
-            </Text>
-            <Text style={{ maxWidth: 260, marginBottom: 40, color: '#0C2550', fontSize: 15, textAlign: 'center', fontWeight: '500' }}>
-              Always backup your keys!
-            </Text>
-            <BlueButton onPress={handleOnRatePress} title="help with a review ⭐🙏" />
+          <View style={styles.center}>
+            <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
+            <Text style={styles.textFree}>{loc.settings.about_free}</Text>
+            <Text style={styles.textBackup}>{loc.settings.about_backup}</Text>
+            <BlueButton onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />
           </View>
         </BlueCard>
-        <BlueListItem
+        <BlueListItemHooks
           leftIcon={{
             name: 'twitter',
             type: 'font-awesome',
             color: '#1da1f2',
           }}
           onPress={handleOnTwitterPress}
-          title="Follow us on Twitter"
+          title={loc.settings.about_sm_twitter}
         />
-        <BlueListItem
+        <BlueListItemHooks
           leftIcon={{
             name: 'telegram',
             type: 'font-awesome',
             color: '#0088cc',
           }}
           onPress={handleOnTelegramPress}
-          title="Telegram chat"
+          title={loc.settings.about_sm_telegram}
         />
-        <BlueListItem
+        <BlueListItemHooks
           leftIcon={{
             name: 'github',
             type: 'font-awesome',
-            color: 'black',
+            color: colors.foregroundColor,
           }}
           onPress={handleOnGithubPress}
-          title="GitHub"
+          title={loc.settings.about_sm_github}
         />
         <BlueCard>
-          <View style={{ backgroundColor: '#f9f9f9', padding: 16, paddingTop: 0, borderRadius: 8 }}>
+          <View style={styles.buildWith}>
             <BlueSpacing20 />
 
-            <BlueTextCentered>Built with the awesome 👍</BlueTextCentered>
+            <BlueTextCentered>{loc.settings.about_awesome} 👍</BlueTextCentered>
             <BlueSpacing20 />
             <BlueTextCentered>React Native</BlueTextCentered>
             <BlueTextCentered>bitcoinjs-lib</BlueTextCentered>
@@ -127,7 +154,7 @@ const About = () => {
             <BlueTextCentered>Electrum server</BlueTextCentered>
           </View>
         </BlueCard>
-        <BlueListItem
+        <BlueListItemHooks
           leftIcon={{
             name: 'book',
             type: 'font-awesome',
@@ -135,19 +162,19 @@ const About = () => {
           }}
           chevron
           onPress={handleOnReleaseNotesPress}
-          title="Release notes"
+          title={loc.settings.about_release_notes}
         />
-        <BlueListItem
+        <BlueListItemHooks
           leftIcon={{
             name: 'law',
             type: 'octicon',
-            color: 'black',
+            color: colors.foregroundColor,
           }}
           chevron
           onPress={handleOnLicensingPress}
           title="MIT License"
         />
-        <BlueListItem
+        <BlueListItemHooks
           leftIcon={{
             name: 'flask',
             type: 'font-awesome',
@@ -155,8 +182,8 @@ const About = () => {
           }}
           chevron
           onPress={handleOnSelfTestPress}
-          title="Run self test"
           testID="RunSelfTestButton"
+          title={loc.settings.about_selftest}
         />
         <BlueSpacing20 />
         <BlueSpacing20 />
@@ -177,6 +204,6 @@ const About = () => {
 
 About.navigationOptions = () => ({
   ...BlueNavigationStyle(),
-  title: loc.settings.about,
+  headerTitle: loc.settings.about,
 });
 export default About;

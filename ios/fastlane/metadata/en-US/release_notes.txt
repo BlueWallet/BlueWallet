@@ -1,51 +1,62 @@
-v5.3.6
+v5.5.1
 ======
 
-* ADD: Electrum seed recovery for Segwit as well (not just legacy)
-* ADD: support for  deeplinks (closes #892)
-* FIX: Electrum seed recovery bug
+* ADD: Dark Mode
+* FIX: #1309 Sharing doesnt include text
+* FIX: import mnemonic w/typo, 'try again' does nothing (closes #1286)
+* ADD: support importing watch-only in bitcoincore format [fingerprint/derivation]xpub (wallet descriptors)
+* REF: dont store txhex in transactions list
+* REF: wrap save storage in try-catch
 
-v5.3.5
+v5.5.0
 ======
 
-* ADD: support for Electrum Seed format, legacy BIP32 (closes #954)
-* ADD: refill lightning wallet with bank card
-* ADD: Local Trader CTA to main view
-* ADD: broadcast txhex screen
-* ADD: Broadcast on Network options
-* FIX: Hide toolbar when keyboard is dismissed
-* FIX: capitalized deeplink (closes #1005)
-* FIX: Import toolbar touch
-* FIX: pass local fiat currency to buy-bitcoin widget
-* REF: send functionality for all wallet types. All wallet types can now sendMAX
-* REF: Move the sell fiat button to the list header
-* REF: Move onchain marketplace to wallet details
-* REF: Cleaner wallet panel at blank state
+* FIX: provide entropy for D20
+* REF: speeded up transactions list
 
-
-v5.3.2
+v5.4.4
 ======
 
-* ADD: Handoff Receive Address
-* FIX: BIP38 import support (password-protected private key from paper wallet)
-* FIX: iOS widget not working
-* FIX: negative confirmation num for electrum personal server
-* FIX: Keyboard avoiding
-* FIX: allow LocalTrader for watch-only HD wallets
+* ADD: support for Cobo Vault hardware wallet (animated QR codes)
+* ADD: Provide entropy via dice rolls or coin flip
+* ADD: Option to exclude some wallet's transactions #248 (#1220)
+* ADD: Detect language and currency setting on first run
+* ADD: Launch screen dark mode
+* FIX: cant send onchain when scanning QR with address & amount
+* FIX: errors when fetching huge transactions from electrum server
+* FIX: lnurl withdrawal when currency is set to fiat (closes #1290)
+* FIX: local trader: when user is not logged in, clicking 'accept offer' should not just throw alert, but open login screen
+* FIX: local trader: before accepting offer, refetch it and use fresh id and version so there are no 'outdated' errors
+* FIX: local trader: when 'I am selling', sort order should be reversed
+* REF: Replace FaceID image
+* REF: optimize png images size
+* REF: speeded up legacy HD wallets (BIP44)
 
-v5.3.0
+v5.4.3
 ======
 
-* ADD: Open clipboard modal if address is detected at launch
-* ADD: Copy from clipboard on actionsheet
-* ADD: support for Electrum Personal Server and Electrs (disable protocol batching)
-* ADD: avatars in HodlHodl offers list
-* ADD: Long Press on Send. More optins to come
-* FIX: Remove quick actions if storage is encrypted (improves plausible deniability)
-* FIX: allow copy to clipboard on watch-only wallets
-* FIX: electrum connection status now updates realtime
-* FIX: import single-address bech32 wallet from WIF (closes #911)
-* FIX: duplicate input detected error (closes #912)
-* FIX: Error in back button - Marketplace #922
-* FIX: Don't display clipboard modal if content is from a lightning wallet
-* REF: some love to the about section
+* ADD: Login to Local Trader with HodlHodl
+* ADD: See full listing screen
+* ADD: See your contracts/offers
+* ADD: Accept offer (buy Bitcoin)
+* ADD: You can now modify on-chain transaction note to self
+* ADD: ILS Fiat
+* REF: improved electrum server connectivity
+* FIX: deeplinking for cold boot
+* FIX: lnurl withdrawal when default unit is not sat (closes #1234)
+* FIX: StatusBar wasn't visible when modals opened
+* FIX: Euro symbol for iOS Today extension
+* FIX: Change Withdraw to Exchange
+* DEL: support for BIP70
+
+v5.4.1
+======
+
+* ADD: fiat input for receive & send
+* ADD: Fee details to lighting invoice
+* FIX: Watch-only Wallets we're not being synced to Watch app
+* FIX: following onchain+offchain invoice
+* FIX: Reorder wallets not working
+* FIX: extend pull to close gesture area to full modal height
+* FIX: Don't allow navigating backwards on backup screens
+* FIX: round fiat currencies

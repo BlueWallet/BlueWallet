@@ -1,21 +1,22 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueSpacing20 } from '../BlueComponents';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { AppStorage } from '../class';
-let BlueApp: AppStorage = require('../BlueApp');
-let prompt = require('../prompt');
-let EV = require('../events');
-let loc = require('../loc');
+import loc from '../loc';
+const BlueApp: AppStorage = require('../BlueApp');
+const prompt = require('../blue_modules/prompt');
+const EV = require('../blue_modules/events');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});
 
 export default class PlausibleDeniability extends Component {
-  static navigationOptions = {
-    ...BlueNavigationStyle(),
-    title: loc.plausibledeniability.title,
-  };
-
   constructor(props) {
     super(props);
     this.state = {
@@ -35,7 +36,7 @@ export default class PlausibleDeniability extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
         <BlueCard>
           <ScrollView maxHeight={450}>
             <BlueText>{loc.plausibledeniability.help}</BlueText>
@@ -50,7 +51,7 @@ export default class PlausibleDeniability extends Component {
               testID="CreateFakeStorageButton"
               title={loc.plausibledeniability.create_fake_storage}
               onPress={async () => {
-                let p1 = await prompt(loc.plausibledeniability.create_password, loc.plausibledeniability.create_password_explanation);
+                const p1 = await prompt(loc.plausibledeniability.create_password, loc.plausibledeniability.create_password_explanation);
                 const isPasswordInUse = p1 === BlueApp.cachedPassword || (await BlueApp.isPasswordInUse(p1));
                 if (isPasswordInUse) {
                   ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -59,7 +60,7 @@ export default class PlausibleDeniability extends Component {
                 if (!p1) {
                   return;
                 }
-                let p2 = await prompt(loc.plausibledeniability.retype_password);
+                const p2 = await prompt(loc.plausibledeniability.retype_password);
                 if (p1 !== p2) {
                   ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
                   return alert(loc.plausibledeniability.passwords_do_not_match);
@@ -70,7 +71,7 @@ export default class PlausibleDeniability extends Component {
                 EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
                 ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
                 alert(loc.plausibledeniability.success);
-                this.props.navigation.navigate('Wallets');
+                this.props.navigation.popToTop();
               }}
             />
           </ScrollView>
@@ -83,6 +84,11 @@ export default class PlausibleDeniability extends Component {
 PlausibleDeniability.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    goBack: PropTypes.func,
+    popToTop: PropTypes.func,
   }),
 };
+
+PlausibleDeniability.navigationOptions = ({ navigation, route }) => ({
+  ...BlueNavigationStyle(),
+  title: loc.plausibledeniability.title,
+});

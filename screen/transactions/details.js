@@ -1,10 +1,10 @@
+/* global alert */
 import React, { Component } from 'react';
-import { View, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet } from 'react-native';
 import {
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueHeaderDefaultSub,
   BlueLoading,
   BlueSpacing20,
   BlueCopyToClipboardButton,
@@ -13,18 +13,80 @@ import {
 import HandoffSettings from '../../class/handoff';
 import Handoff from 'react-native-handoff';
 import PropTypes from 'prop-types';
+import loc from '../../loc';
+import { BlueCurrentTheme } from '../../components/themes';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
 const dayjs = require('dayjs');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  scroll: {
+    flex: 1,
+  },
+  rowHeader: {
+    flex: 1,
+    flexDirection: 'row',
+    marginBottom: 4,
+    justifyContent: 'space-between',
+  },
+  rowCaption: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 4,
+    color: BlueCurrentTheme.colors.foregroundColor,
+  },
+  rowValue: {
+    marginBottom: 26,
+    color: 'grey',
+  },
+  txId: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: BlueCurrentTheme.colors.foregroundColor,
+  },
+  txHash: {
+    marginBottom: 8,
+    color: 'grey',
+  },
+  txLink: {
+    marginBottom: 26,
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
+  },
+  save: {
+    marginHorizontal: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  saveText: {
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
+  },
+  memoTextInput: {
+    flexDirection: 'row',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
+    minHeight: 44,
+    height: 44,
+    alignItems: 'center',
+    marginVertical: 8,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    color: '#81868e',
+  },
+});
 
 function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;
 }
 
 function arrDiff(a1, a2) {
-  let ret = [];
-  for (let v of a2) {
+  const ret = [];
+  for (const v of a2) {
     if (a1.indexOf(v) === -1) {
       ret.push(v);
     }
@@ -33,23 +95,19 @@ function arrDiff(a1, a2) {
 }
 
 export default class TransactionsDetails extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(),
-  });
-
   constructor(props) {
     super(props);
-    let hash = props.navigation.state.params.hash;
+    const hash = props.route.params.hash;
     let foundTx = {};
     let from = [];
     let to = [];
-    for (let tx of BlueApp.getTransactions()) {
+    for (const tx of BlueApp.getTransactions()) {
       if (tx.hash === hash) {
         foundTx = tx;
-        for (let input of foundTx.inputs) {
+        for (const input of foundTx.inputs) {
           from = from.concat(input.addresses);
         }
-        for (let output of foundTx.outputs) {
+        for (const output of foundTx.outputs) {
           if (output.addresses) to = to.concat(output.addresses);
           if (output.scriptPubKey && output.scriptPubKey.addresses) to = to.concat(output.scriptPubKey.addresses);
         }
@@ -57,12 +115,18 @@ export default class TransactionsDetails extends Component {
     }
 
     let wallet = false;
-    for (let w of BlueApp.getWallets()) {
-      for (let t of w.getTransactions()) {
+    for (const w of BlueApp.getWallets()) {
+      for (const t of w.getTransactions()) {
         if (t.hash === hash) {
           console.log('tx', hash, 'belongs to', w.getLabel());
           wallet = w;
         }
+      }
+    }
+    let memo = '';
+    if (BlueApp.tx_metadata[foundTx.hash]) {
+      if (BlueApp.tx_metadata[foundTx.hash].memo) {
+        memo = BlueApp.tx_metadata[foundTx.hash].memo;
       }
     }
     this.state = {
@@ -72,7 +136,9 @@ export default class TransactionsDetails extends Component {
       to,
       wallet,
       isHandOffUseEnabled: false,
+      memo,
     };
+    props.navigation.setParams({ handleOnSaveButtonTapped: this.handleOnSaveButtonTapped });
   }
 
   async componentDidMount() {
@@ -84,13 +150,22 @@ export default class TransactionsDetails extends Component {
     });
   }
 
+  handleOnSaveButtonTapped = () => {
+    BlueApp.tx_metadata[this.state.tx.hash] = { memo: this.state.memo };
+    BlueApp.saveToDisk().then(_success => alert('Transaction note has been successfully saved.'));
+  };
+
+  handleOnMemoChangeText = value => {
+    this.setState({ memo: value });
+  };
+
   render() {
-    if (this.state.isLoading || !this.state.hasOwnProperty('tx')) {
+    if (this.state.isLoading || !('tx' in this.state)) {
       return <BlueLoading />;
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
         {this.state.isHandOffUseEnabled && (
           <Handoff
             title={`Bitcoin Transaction ${this.state.tx.hash}`}
@@ -98,58 +173,54 @@ export default class TransactionsDetails extends Component {
             url={`https://blockstream.info/tx/${this.state.tx.hash}`}
           />
         )}
-        <BlueHeaderDefaultSub leftText={loc.transactions.details.title} rightComponent={null} />
-        <ScrollView style={{ flex: 1 }}>
+        <StatusBar barStyle="default" />
+        <ScrollView style={styles.scroll}>
           <BlueCard>
-            {(() => {
-              if (BlueApp.tx_metadata[this.state.tx.hash]) {
-                if (BlueApp.tx_metadata[this.state.tx.hash]['memo']) {
-                  return (
-                    <View>
-                      <BlueText h4>{BlueApp.tx_metadata[this.state.tx.hash]['memo']}</BlueText>
-                      <BlueSpacing20 />
-                    </View>
-                  );
-                }
-              }
-            })()}
+            <View>
+              <TextInput
+                placeholder={loc.send.details_note_placeholder}
+                value={this.state.memo}
+                placeholderTextColor="#81868e"
+                style={styles.memoTextInput}
+                onChangeText={this.handleOnMemoChangeText}
+              />
+              <BlueSpacing20 />
+            </View>
 
-            {this.state.hasOwnProperty('from') && (
-              <React.Fragment>
-                <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
-                  <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.from}</BlueText>
+            {'from' in this.state && (
+              <>
+                <View style={styles.rowHeader}>
+                  <BlueText style={styles.rowCaption}>{loc.transactions.details_from}</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.from.filter(onlyUnique).join(', ')} />
                 </View>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.from.filter(onlyUnique).join(', ')}</BlueText>
-              </React.Fragment>
+                <BlueText style={styles.rowValue}>{this.state.from.filter(onlyUnique).join(', ')}</BlueText>
+              </>
             )}
 
-            {this.state.hasOwnProperty('to') && (
-              <React.Fragment>
-                <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
-                  <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.to}</BlueText>
+            {'to' in this.state && (
+              <>
+                <View style={styles.rowHeader}>
+                  <BlueText style={styles.rowCaption}>{loc.transactions.details_to}</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.to.filter(onlyUnique).join(', ')} />
                 </View>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>
-                  {arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}
-                </BlueText>
-              </React.Fragment>
+                <BlueText style={styles.rowValue}>{arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}</BlueText>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('fee') && (
-              <React.Fragment>
-                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.send.create.fee}</BlueText>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.fee + ' sats'}</BlueText>
-              </React.Fragment>
+            {'fee' in this.state.tx && (
+              <>
+                <BlueText style={styles.rowCaption}>{loc.send.create_fee}</BlueText>
+                <BlueText style={styles.rowValue}>{this.state.tx.fee + ' sats'}</BlueText>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('hash') && (
-              <React.Fragment>
-                <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
-                  <BlueText style={{ fontSize: 16, fontWeight: '500' }}>Txid</BlueText>
+            {'hash' in this.state.tx && (
+              <>
+                <View style={styles.rowHeader}>
+                  <BlueText style={styles.txId}>Txid</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.tx.hash} />
                 </View>
-                <BlueText style={{ marginBottom: 8, color: 'grey' }}>{this.state.tx.hash}</BlueText>
+                <BlueText style={styles.txHash}>{this.state.tx.hash}</BlueText>
                 <TouchableOpacity
                   onPress={() => {
                     const url = `https://blockstream.info/tx/${this.state.tx.hash}`;
@@ -160,37 +231,37 @@ export default class TransactionsDetails extends Component {
                     });
                   }}
                 >
-                  <BlueText style={{ marginBottom: 26, color: '#2f5fb3' }}>{loc.transactions.details.show_in_block_explorer}</BlueText>
+                  <BlueText style={styles.txLink}>{loc.transactions.details_show_in_block_explorer}</BlueText>
                 </TouchableOpacity>
-              </React.Fragment>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('received') && (
-              <React.Fragment>
-                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Received</BlueText>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{dayjs(this.state.tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
-              </React.Fragment>
+            {'received' in this.state.tx && (
+              <>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_received}</BlueText>
+                <BlueText style={styles.rowValue}>{dayjs(this.state.tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('block_height') && this.state.tx.block_height > 0 && (
-              <React.Fragment>
-                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Block Height</BlueText>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.block_height}</BlueText>
-              </React.Fragment>
+            {'block_height' in this.state.tx && this.state.tx.block_height > 0 && (
+              <>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_block}</BlueText>
+                <BlueText style={styles.rowValue}>{this.state.tx.block_height}</BlueText>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('inputs') && (
-              <React.Fragment>
-                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Inputs</BlueText>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.inputs.length}</BlueText>
-              </React.Fragment>
+            {'inputs' in this.state.tx && (
+              <>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_inputs}</BlueText>
+                <BlueText style={styles.rowValue}>{this.state.tx.inputs.length}</BlueText>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('outputs') && this.state.tx.outputs.length > 0 && (
-              <React.Fragment>
-                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Outputs</BlueText>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.outputs.length}</BlueText>
-              </React.Fragment>
+            {'outputs' in this.state.tx && this.state.tx.outputs.length > 0 && (
+              <>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_outputs}</BlueText>
+                <BlueText style={styles.rowValue}>{this.state.tx.outputs.length}</BlueText>
+              </>
             )}
           </BlueCard>
         </ScrollView>
@@ -200,13 +271,27 @@ export default class TransactionsDetails extends Component {
 }
 
 TransactionsDetails.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    navigate: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        hash: PropTypes.string,
-      }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.shape({
+      hash: PropTypes.string,
     }),
   }),
+  navigation: PropTypes.shape({
+    setParams: PropTypes.func,
+  }),
 };
+
+TransactionsDetails.navigationOptions = ({ navigation, route }) => ({
+  ...BlueNavigationStyle(),
+  title: loc.transactions.details_title,
+  headerStyle: {
+    ...BlueNavigationStyle().headerStyle,
+    backgroundColor: BlueCurrentTheme.colors.customHeader,
+  },
+  headerRight: () => (
+    <TouchableOpacity disabled={route.params.isLoading === true} style={styles.save} onPress={route.params.handleOnSaveButtonTapped}>
+      <Text style={styles.saveText}>{loc.wallets.details_save}</Text>
+    </TouchableOpacity>
+  ),
+});

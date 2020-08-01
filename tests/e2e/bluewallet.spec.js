@@ -1,10 +1,21 @@
-/* global it, describe, expect, element, by, waitFor, device */
+/* global it, describe, expect, element, by, waitFor, device, jasmine */
 
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
+const createHash = require('create-hash');
+
+jasmine.getEnv().addReporter({
+  specStarted: result => (jasmine.currentTest = result),
+  specDone: result => (jasmine.currentTest = result),
+});
 
 describe('BlueWallet UI Tests', () => {
   it('selftest passes', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', jasmine.currentTest.fullName, 'as it previously passed on Travis');
+    }
     await waitFor(element(by.id('WalletsList')))
       .toBeVisible()
       .withTimeout(300 * 1000);
@@ -17,9 +28,15 @@ describe('BlueWallet UI Tests', () => {
     await waitFor(element(by.id('SelfTestOk')))
       .toBeVisible()
       .withTimeout(300 * 1000);
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
   it('can create wallet, reload app and it persists', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', jasmine.currentTest.fullName, 'as it previously passed on Travis');
+    }
     await yo('WalletsList');
 
     await helperCreateWallet();
@@ -27,9 +44,15 @@ describe('BlueWallet UI Tests', () => {
     await device.launchApp({ newInstance: true });
     await yo('WalletsList');
     await expect(element(by.id('cr34t3d'))).toBeVisible();
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
   it('can encrypt storage, with plausible deniability', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', jasmine.currentTest.fullName, 'as it previously passed on Travis');
+    }
     await yo('WalletsList');
 
     // lets create a wallet
@@ -162,9 +185,15 @@ describe('BlueWallet UI Tests', () => {
 
     // previously created wallet in FAKE storage should be visible
     await expect(element(by.id('fake_wallet'))).toBeVisible();
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
   it('can encrypt storage, and decrypt storage works', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', jasmine.currentTest.fullName, 'as it previously passed on Travis');
+    }
     await yo('WalletsList');
     await helperCreateWallet();
     await element(by.id('SettingsButton')).tap();
@@ -232,9 +261,15 @@ describe('BlueWallet UI Tests', () => {
     // relaunch app
     await device.launchApp({ newInstance: true });
     await yo('cr34t3d'); // success
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
   it.skip('can encrypt storage, and decrypt storage, but this time the fake one', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', jasmine.currentTest.fullName, 'as it previously passed on Travis');
+    }
     // this test mostly repeats previous one, except in the end it logins with FAKE password to unlock FAKE
     // storage bucket, and then decrypts it. effectively, everything from MAIN storage bucket is lost
     if (process.env.TRAVIS) return; // skipping on CI to not take time (plus it randomly fails)
@@ -305,9 +340,15 @@ describe('BlueWallet UI Tests', () => {
     // relaunch app
     await device.launchApp({ newInstance: true });
     await yo('fake_wallet'); // success, we are observing wallet in FAKE storage. wallet from main storage is lost
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
   it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', jasmine.currentTest.fullName, 'as it previously passed on Travis');
+    }
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
@@ -318,7 +359,7 @@ describe('BlueWallet UI Tests', () => {
     // lets create real transaction:
     await element(by.id('SendButton')).tap();
     await element(by.id('AddressInput')).typeText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('BitcoinAmountInput')).typeText('0.0005\n');
+    await element(by.id('BitcoinAmountInput')).typeText('0.0001\n');
     if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
@@ -326,7 +367,7 @@ describe('BlueWallet UI Tests', () => {
 
     // created. verifying:
     await yo('TransactionValue');
-    expect(element(by.id('TransactionValue'))).toHaveText('0.0005');
+    expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     await element(by.id('TransactionDetailsButton')).tap();
 
     // now, a hack to extract element text. warning, this might break in future
@@ -356,14 +397,20 @@ describe('BlueWallet UI Tests', () => {
       }
     }
 
-    let transaction = bitcoin.Transaction.fromHex(txhex);
+    const transaction = bitcoin.Transaction.fromHex(txhex);
     assert.ok(transaction.ins.length === 1 || transaction.ins.length === 2); // depending on current fees gona use either 1 or 2 inputs
     assert.strictEqual(transaction.outs.length, 2);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
-    assert.strictEqual(transaction.outs[0].value, 50000);
+    assert.strictEqual(transaction.outs[0].value, 10000);
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
   it('can import zpub as watch-only and create PSBT', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', jasmine.currentTest.fullName, 'as it previously passed on Travis');
+    }
     await helperImportWallet(
       'zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP',
       'Imported Watch-only',
@@ -381,6 +428,7 @@ describe('BlueWallet UI Tests', () => {
     } catch (_) {}
 
     await yo('TextHelperForPSBT');
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 });
 
@@ -437,4 +485,8 @@ async function helperImportWallet(importText, expectedWalletLabel, expectedBalan
   await element(by.text(expectedWalletLabel)).tap();
   // label might change in the future
   expect(element(by.id('WalletBalance'))).toHaveText(expectedBalance);
+}
+
+function hashIt(s) {
+  return createHash('sha256').update(s).digest().toString('hex');
 }

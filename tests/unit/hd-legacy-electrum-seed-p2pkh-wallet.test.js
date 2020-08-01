@@ -1,10 +1,10 @@
 /* global describe, it */
 import { HDLegacyElectrumSeedP2PKHWallet } from '../../class';
-let assert = require('assert');
+const assert = require('assert');
 
 describe('HDLegacyElectrumSeedP2PKHWallet', () => {
-  it('can import mnemonics and generate addresses and WIFs', async function() {
-    let hd = new HDLegacyElectrumSeedP2PKHWallet();
+  it('can import mnemonics and generate addresses and WIFs', async function () {
+    const hd = new HDLegacyElectrumSeedP2PKHWallet();
     hd.setSecret('receive happy  wash prosper update    pet neck acid try profit proud hungry  ');
     assert.ok(hd.validateMnemonic());
     assert.strictEqual(
@@ -14,6 +14,7 @@ describe('HDLegacyElectrumSeedP2PKHWallet', () => {
 
     let address = hd._getExternalAddressByIndex(0);
     assert.strictEqual(address, '1Ca9ZVshGdKiiMEMNTG1bYqbifYMZMwV8');
+    assert.ok(hd.getAllExternalAddresses().includes('1Ca9ZVshGdKiiMEMNTG1bYqbifYMZMwV8'));
 
     address = hd._getInternalAddressByIndex(0);
     assert.strictEqual(address, '1JygAvTQS9haAYgRfPSdHgmXd3syjB8Fnp');

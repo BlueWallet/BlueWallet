@@ -1,10 +1,10 @@
 /* global it, jasmine, afterAll, beforeAll */
 import { HDSegwitP2SHWallet } from '../../class';
 const bitcoin = require('bitcoinjs-lib');
-let assert = require('assert');
+const assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-let BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
+const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
 
 afterAll(() => {
@@ -23,8 +23,8 @@ beforeAll(async () => {
   }
 });
 
-it('HD (BIP49) can work with a gap', async function() {
-  let hd = new HDSegwitP2SHWallet();
+it('HD (BIP49) can work with a gap', async function () {
+  const hd = new HDSegwitP2SHWallet();
   hd._xpub = 'ypub6XRzrn3HB1tjhhvrHbk1vnXCecZEdXohGzCk3GXwwbDoJ3VBzZ34jNGWbC6WrS7idXrYjjXEzcPDX5VqnHEnuNf5VAXgLfSaytMkJ2rwVqy'; // has gap
   await hd.fetchBalance();
 
@@ -39,8 +39,8 @@ it('HD (BIP49) can work with a gap', async function() {
   assert.ok(hd.getTransactions().length >= 3);
 });
 
-it('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagging behind', async function() {
-  let hd = new HDSegwitP2SHWallet();
+it('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagging behind', async function () {
+  const hd = new HDSegwitP2SHWallet();
   hd._xpub = 'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ';
   hd.next_free_change_address_index = 40;
   hd.next_free_address_index = 50;
@@ -54,7 +54,7 @@ it('HD (BIP49) can create TX', async () => {
     console.error('process.env.HD_MNEMONIC_BIP49 not set, skipped');
     return;
   }
-  let hd = new HDSegwitP2SHWallet();
+  const hd = new HDSegwitP2SHWallet();
   hd.setSecret(process.env.HD_MNEMONIC_BIP49);
   assert.ok(hd.validateMnemonic());
 
@@ -76,14 +76,14 @@ it('HD (BIP49) can create TX', async () => {
   let tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
   assert.strictEqual(
     txNew.tx.toHex(),
-    '0200000000010187c9acd9d5714845343b18abaa26cb83299be2487c22da9c0e270f241b4d9cfe0000000017160014a239b6a0cbc7aadc2e77643de36306a6167fad150000008002f40100000000000017a914a3a65daca3064280ae072b9d6773c027b30abace87bb6200000000000017a9140acff2c37ed45110baece4bb9d4dcc0c6309dbbd87024830450221008506675a240c6a49fc5daf0332e44245991a1dfa4c8742d56e81687097e5b98b0220042e4bd3f69a842c7ac4013c2fd01151b098cc9bf889d53959475d6c8b47a32101210202ac3bd159e54dc31e65842ad5f9a10b4eb024e83864a319b27de65ee08b2a3900000000',
+    '0200000000010187c9acd9d5714845343b18abaa26cb83299be2487c22da9c0e270f241b4d9cfe0000000017160014a239b6a0cbc7aadc2e77643de36306a6167fad150000008002f40100000000000017a914a3a65daca3064280ae072b9d6773c027b30abace87ba6200000000000017a9140acff2c37ed45110baece4bb9d4dcc0c6309dbbd8702483045022100a14eb345f26933b29ba2a68075994ecf10f16286611c1d34ccd5850d977c25620220050e80c62ba64d99101253d94f756791f881bdb92100885fbe5ea3e29964573001210202ac3bd159e54dc31e65842ad5f9a10b4eb024e83864a319b27de65ee08b2a3900000000',
   );
   assert.strictEqual(tx.ins.length, 1);
   assert.strictEqual(tx.outs.length, 2);
   assert.strictEqual(tx.outs[0].value, 500);
-  assert.strictEqual(tx.outs[1].value, 25275);
+  assert.strictEqual(tx.outs[1].value, 25274);
   let toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
-  let changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
+  const changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
   assert.strictEqual(hd._getInternalAddressByIndex(hd.next_free_change_address_index), changeAddress);
 
@@ -147,18 +147,18 @@ it('HD (BIP49) can create TX', async () => {
   assert.ok(tx.outs[0].value > 77000);
 });
 
-it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', async function() {
+it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', async function () {
   if (!process.env.HD_MNEMONIC_BIP49_MANY_TX) {
     console.error('process.env.HD_MNEMONIC_BIP49_MANY_TX not set, skipped');
     return;
   }
 
-  let hd = new HDSegwitP2SHWallet();
+  const hd = new HDSegwitP2SHWallet();
   hd.setSecret(process.env.HD_MNEMONIC_BIP49_MANY_TX);
   assert.ok(hd.validateMnemonic());
-  let start = +new Date();
+  const start = +new Date();
   await hd.fetchBalance();
-  let end = +new Date();
+  const end = +new Date();
   const took = (end - start) / 1000;
   took > 15 && console.warn('took', took, "sec to fetch huge HD wallet's balance");
   assert.strictEqual(hd.getBalance(), 51432);

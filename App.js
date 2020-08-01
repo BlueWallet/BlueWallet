@@ -1,18 +1,23 @@
+import 'react-native-gesture-handler'; // should be on top
 import React from 'react';
-import { Linking, DeviceEventEmitter, AppState, Clipboard, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import { Linking, Appearance, DeviceEventEmitter, AppState, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 import Modal from 'react-native-modal';
-import { NavigationActions } from 'react-navigation';
-import MainBottomTabs from './MainBottomTabs';
-import NavigationService from './NavigationService';
-import { BlueTextCentered, BlueButton } from './BlueComponents';
+import { NavigationContainer, CommonActions } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Navigation from './Navigation';
+import { navigationRef } from './NavigationService';
+import * as NavigationService from './NavigationService';
+import { BlueTextCentered, BlueButton, SecondButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Chain } from './models/bitcoinUnits';
 import QuickActions from 'react-native-quick-actions';
 import * as Sentry from '@sentry/react-native';
-import OnAppLaunch from './class/onAppLaunch';
+import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
-import BitcoinBIP70TransactionDecode from './bip70/bip70';
-const A = require('./analytics');
+import loc from './loc';
+import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/themes';
+const A = require('./blue_modules/analytics');
 
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
@@ -22,36 +27,47 @@ if (process.env.NODE_ENV !== 'development') {
 
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
-const loc = require('./loc');
 const BlueApp = require('./BlueApp');
+const EV = require('./blue_modules/events');
+const notifications = require('./blue_modules/notifications'); // eslint-disable-line no-unused-vars
 
 export default class App extends React.Component {
-  navigator = null;
-
   state = {
     appState: AppState.currentState,
     isClipboardContentModalVisible: false,
     clipboardContentModalAddressType: bitcoinModalString,
     clipboardContent: '',
+    theme: Appearance.getColorScheme(),
   };
 
   componentDidMount() {
+    EV(EV.enum.WALLETS_INITIALIZED, this.addListeners);
+    Appearance.addChangeListener(this.appearanceChanged);
+  }
+
+  appearanceChanged = () => {
+    const appearance = Appearance.getColorScheme();
+    if (appearance) {
+      BlueCurrentTheme.updateColorScheme();
+      this.setState({ theme: appearance });
+    }
+  };
+
+  addListeners = () => {
     Linking.addEventListener('url', this.handleOpenURL);
     AppState.addEventListener('change', this._handleAppStateChange);
-    QuickActions.popInitialAction().then(this.popInitialAction);
     DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
+    QuickActions.popInitialAction().then(this.popInitialAction);
     this._handleAppStateChange(undefined);
-  }
+  };
 
   popInitialAction = async data => {
     if (data) {
-      // eslint-disable-next-line no-unused-expressions
-      this.navigator.dismiss;
       const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
-      this.navigator.dispatch(
-        NavigationActions.navigate({
+      NavigationService.dispatch(
+        CommonActions.navigate({
+          name: 'WalletTransactions',
           key: `WalletTransactions-${wallet.getID()}`,
-          routeName: 'WalletTransactions',
           params: {
             wallet,
           },
@@ -66,14 +82,12 @@ export default class App extends React.Component {
       } else {
         const isViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
         if (!isViewAllWalletsEnabled) {
-          // eslint-disable-next-line no-unused-expressions
-          this.navigator.dismiss;
           const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
           const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === selectedDefaultWallet.getID());
           if (wallet) {
-            this.navigator.dispatch(
-              NavigationActions.navigate({
-                routeName: 'WalletTransactions',
+            NavigationService.dispatch(
+              CommonActions.navigate({
+                name: 'WalletTransactions',
                 key: `WalletTransactions-${wallet.getID()}`,
                 params: {
                   wallet,
@@ -88,11 +102,9 @@ export default class App extends React.Component {
 
   walletQuickActions = data => {
     const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
-    // eslint-disable-next-line no-unused-expressions
-    this.navigator.dismiss;
-    this.navigator.dispatch(
-      NavigationActions.navigate({
-        routeName: 'WalletTransactions',
+    NavigationService.dispatch(
+      CommonActions.navigate({
+        name: 'WalletTransactions',
         key: `WalletTransactions-${wallet.getID()}`,
         params: {
           wallet,
@@ -104,6 +116,7 @@ export default class App extends React.Component {
   componentWillUnmount() {
     Linking.removeEventListener('url', this.handleOpenURL);
     AppState.removeEventListener('change', this._handleAppStateChange);
+    Appearance.removeChangeListener(this.appearanceChanged);
   }
 
   _handleAppStateChange = async nextAppState => {
@@ -113,13 +126,13 @@ export default class App extends React.Component {
         const clipboard = await Clipboard.getString();
         const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet => {
           if (wallet.chain === Chain.ONCHAIN) {
-            return wallet.weOwnAddress(clipboard);
+            // checking address validity is faster than unwrapping hierarchy only to compare it to garbage
+            return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
           } else {
             return wallet.isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
           }
         });
-        const isBitcoinAddress =
-          DeeplinkSchemaMatch.isBitcoinAddress(clipboard) || BitcoinBIP70TransactionDecode.matchesPaymentURL(clipboard);
+        const isBitcoinAddress = DeeplinkSchemaMatch.isBitcoinAddress(clipboard);
         const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(clipboard);
         const isLNURL = DeeplinkSchemaMatch.isLnUrl(clipboard);
         const isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(clipboard);
@@ -148,10 +161,10 @@ export default class App extends React.Component {
   isBothBitcoinAndLightningWalletSelect = wallet => {
     const clipboardContent = this.state.clipboardContent;
     if (wallet.chain === Chain.ONCHAIN) {
-      this.navigator &&
-        this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'SendDetails',
+      this.navigation &&
+        NavigationService.dispatch(
+          CommonActions.navigate({
+            name: 'SendDetails',
             params: {
               uri: clipboardContent.bitcoin,
               fromWallet: wallet,
@@ -159,10 +172,10 @@ export default class App extends React.Component {
           }),
         );
     } else if (wallet.chain === Chain.OFFCHAIN) {
-      this.navigator &&
-        this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'ScanLndInvoice',
+      this.navigation &&
+        NavigationService.dispatch(
+          CommonActions.navigate({
+            name: 'ScanLndInvoice',
             params: {
               uri: clipboardContent.lndInvoice,
               fromSecret: wallet.getSecret(),
@@ -173,7 +186,7 @@ export default class App extends React.Component {
   };
 
   handleOpenURL = event => {
-    DeeplinkSchemaMatch.navigationRouteFor(event, value => this.navigator && this.navigator.dispatch(NavigationActions.navigate(value)));
+    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value));
   };
 
   renderClipboardContentModal = () => {
@@ -192,12 +205,8 @@ export default class App extends React.Component {
               You have a {this.state.clipboardContentModalAddressType} on your clipboard. Would you like to use it for a transaction?
             </BlueTextCentered>
             <View style={styles.modelContentButtonLayout}>
-              <BlueButton
-                noMinWidth
-                title={loc.send.details.cancel}
-                onPress={() => this.setState({ isClipboardContentModalVisible: false })}
-              />
-              <View style={{ marginHorizontal: 8 }} />
+              <SecondButton noMinWidth title={loc._.cancel} onPress={() => this.setState({ isClipboardContentModalVisible: false })} />
+              <View style={styles.space} />
               <BlueButton
                 noMinWidth
                 title="OK"
@@ -217,22 +226,27 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <View style={{ flex: 1 }}>
-        <MainBottomTabs
-          ref={nav => {
-            this.navigator = nav;
-            NavigationService.setTopLevelNavigator(nav);
-          }}
-        />
-        {this.renderClipboardContentModal()}
-      </View>
+      <SafeAreaProvider>
+        <View style={styles.root}>
+          <NavigationContainer ref={navigationRef} theme={this.state.theme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+            <Navigation />
+          </NavigationContainer>
+          {this.renderClipboardContentModal()}
+        </View>
+      </SafeAreaProvider>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  space: {
+    marginHorizontal: 8,
+  },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',

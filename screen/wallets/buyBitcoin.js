@@ -1,22 +1,22 @@
 import React, { Component } from 'react';
+import { StyleSheet, StatusBar } from 'react-native';
 import { BlueNavigationStyle, BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
 import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
-const currency = require('../../currency');
-let BlueApp: AppStorage = require('../../BlueApp');
-let loc = require('../../loc');
+const currency = require('../../blue_modules/currency');
+const BlueApp: AppStorage = require('../../BlueApp');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});
 
 export default class BuyBitcoin extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: loc.buyBitcoin.header,
-    headerLeft: null,
-  });
-
   constructor(props) {
     super(props);
-    let wallet = props.navigation.state.params.wallet;
+    const wallet = props.route.params.wallet;
     if (!wallet) console.warn('wallet was not passed to buyBitcoin');
 
     this.state = {
@@ -33,7 +33,7 @@ export default class BuyBitcoin extends Component {
     preferredCurrency = preferredCurrency.endPointKey;
 
     /**  @type {AbstractHDWallet|WatchOnlyWallet|LightningCustodianWallet}   */
-    let wallet = this.state.wallet;
+    const wallet = this.state.wallet;
 
     let address = '';
 
@@ -77,7 +77,7 @@ export default class BuyBitcoin extends Component {
       return <BlueLoading />;
     }
 
-    const { safelloStateToken } = this.props.navigation.state.params;
+    const { safelloStateToken } = this.props.route.params;
 
     let uri = 'https://bluewallet.io/buy-bitcoin-redirect.html?address=' + this.state.address;
 
@@ -90,7 +90,8 @@ export default class BuyBitcoin extends Component {
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1 }}>
+      <SafeBlueArea style={styles.root}>
+        <StatusBar barStyle="default" />
         <WebView
           source={{
             uri,
@@ -102,13 +103,17 @@ export default class BuyBitcoin extends Component {
 }
 
 BuyBitcoin.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        wallet: PropTypes.object.isRequired,
-        safelloStateToken: PropTypes.string,
-      }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.shape({
+      wallet: PropTypes.object.isRequired,
+      safelloStateToken: PropTypes.string,
     }),
   }),
 };
+
+BuyBitcoin.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: '',
+  headerLeft: null,
+});

@@ -1,19 +1,25 @@
 import React, { Component } from 'react';
-import { ScrollView, View } from 'react-native';
-import { BlueLoading, BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../BlueComponents';
+import { ScrollView, View, StyleSheet } from 'react-native';
+import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueLoadingHook } from '../BlueComponents';
 import PropTypes from 'prop-types';
 import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../class';
+import { BlueCurrentTheme } from '../components/themes';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
-let encryption = require('../encryption');
-let BlueElectrum = require('../BlueElectrum');
+const encryption = require('../blue_modules/encryption');
+const BlueElectrum = require('../blue_modules/BlueElectrum');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.background,
+  },
+  center: {
+    alignItems: 'center',
+  },
+});
 
 export default class Selftest extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(),
-    title: 'Self test',
-  });
-
   constructor(props) {
     super(props);
     this.state = {
@@ -27,8 +33,8 @@ export default class Selftest extends Component {
 
     try {
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-        let uniqs = {};
-        let w = new SegwitP2SHWallet();
+        const uniqs = {};
+        const w = new SegwitP2SHWallet();
         for (let c = 0; c < 1000; c++) {
           await w.generate();
           if (uniqs[w.getSecret()]) {
@@ -45,12 +51,12 @@ export default class Selftest extends Component {
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
         await BlueElectrum.ping();
         await BlueElectrum.waitTillConnected();
-        let addr4elect = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
-        let electrumBalance = await BlueElectrum.getBalanceByAddress(addr4elect);
+        const addr4elect = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
+        const electrumBalance = await BlueElectrum.getBalanceByAddress(addr4elect);
         if (electrumBalance.confirmed !== 51432)
           throw new Error('BlueElectrum getBalanceByAddress failure, got ' + JSON.stringify(electrumBalance));
 
-        let electrumTxs = await BlueElectrum.getTransactionsByAddress(addr4elect);
+        const electrumTxs = await BlueElectrum.getTransactionsByAddress(addr4elect);
         if (electrumTxs.length !== 1) throw new Error('BlueElectrum getTransactionsByAddress failure, got ' + JSON.stringify(electrumTxs));
       } else {
         // skipping RN-specific test'
@@ -72,10 +78,10 @@ export default class Selftest extends Component {
       ];
 
       let txNew = l.createTransaction(utxos, [{ value: 90000, address: '1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB' }], 1, l.getAddress());
-      let txBitcoin = bitcoin.Transaction.fromHex(txNew.tx.toHex());
+      const txBitcoin = bitcoin.Transaction.fromHex(txNew.tx.toHex());
       assertStrictEqual(
         txNew.tx.toHex(),
-        '0200000001c4ce4282c157a7f1e4524d153d3a251669f10673ad24e49f6d2994a033e944cc000000006a47304402200faed160757433bcd4d9fe5f55eb92420406e8f3099a7e12ef720c77313c8c7e022044bc9e1abca6a81a8ad5c749f5ec4694301589172b83b1803bc134eda0487dbc01210337c09b3cb889801638078fd4e6998218b28c92d338ea2602720a88847aedceb3ffffffff02905f0100000000001976a914aa381cd428a4e91327fd4434aa0a08ff131f1a5a88ac2f260000000000001976a91426e01119d265aa980390c49eece923976c218f1588ac00000000',
+        '0200000001c4ce4282c157a7f1e4524d153d3a251669f10673ad24e49f6d2994a033e944cc000000006b48304502210091e58bd2021f2eeea8d39d7f7b053c9ccc52a747b60f1c3584ba33285e2d150602205b2d35a2536cbe157015e8c54a26f5fc350cc7c72b5ca80b9e548917993f652201210337c09b3cb889801638078fd4e6998218b28c92d338ea2602720a88847aedceb3ffffffff02905f0100000000001976a914aa381cd428a4e91327fd4434aa0a08ff131f1a5a88ac2e260000000000001976a91426e01119d265aa980390c49eece923976c218f1588ac00000000',
       );
       assertStrictEqual(txBitcoin.ins.length, 1);
       assertStrictEqual(txBitcoin.outs.length, 2);
@@ -92,7 +98,7 @@ export default class Selftest extends Component {
 
       //
 
-      let wallet = new SegwitP2SHWallet();
+      const wallet = new SegwitP2SHWallet();
       wallet.setSecret('Ky1vhqYGCiCbPd8nmbUeGfwLdXB1h5aGwxHwpXrzYRfY5cTZPDo4');
       assertStrictEqual(wallet.getAddress(), '3CKN8HTCews4rYJYsyub5hjAVm5g5VFdQJ');
 
@@ -105,10 +111,10 @@ export default class Selftest extends Component {
       ];
 
       txNew = wallet.createTransaction(utxos, [{ value: 90000, address: '1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB' }], 1, wallet.getAddress());
-      let tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
+      const tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
       assertStrictEqual(
         txNew.tx.toHex(),
-        '020000000001010c86eb9013616e38b4752e56e5683e864cb34fcd7fe790bdc006b60c08446ba50000000017160014139dc70d73097f9d775f8a3280ba3e3435515641ffffffff02905f0100000000001976a914aa381cd428a4e91327fd4434aa0a08ff131f1a5a88ac6f3303000000000017a914749118baa93fb4b88c28909c8bf0a8202a0484f487024730440220086b55a771f37daadbe64fe557a32fd68ee92995445af0b0a5b9343db67505e1022064c9a9778a19a0276761af69b8917d19ed4b791c785dd8cb4aae327f2a6b526f012103a5de146762f84055db3202c1316cd9008f16047f4f408c1482fdb108217eda0800000000',
+        '020000000001010c86eb9013616e38b4752e56e5683e864cb34fcd7fe790bdc006b60c08446ba50000000017160014139dc70d73097f9d775f8a3280ba3e3435515641ffffffff02905f0100000000001976a914aa381cd428a4e91327fd4434aa0a08ff131f1a5a88ac6e3303000000000017a914749118baa93fb4b88c28909c8bf0a8202a0484f4870247304402205f0bcb0d9968b3c410e2a3699369bf4149bb56ade18b63356b45285a34d64600022043ac1271f3900ea1000a66b9a9d9ceb3e6e4a4ef45c4da0f55b691ad4b64fcb1012103a5de146762f84055db3202c1316cd9008f16047f4f408c1482fdb108217eda0800000000',
       );
       assertStrictEqual(tx.ins.length, 1);
       assertStrictEqual(tx.outs.length, 2);
@@ -118,8 +124,8 @@ export default class Selftest extends Component {
       //
 
       const data2encrypt = 'really long data string';
-      let crypted = encryption.encrypt(data2encrypt, 'password');
-      let decrypted = encryption.decrypt(crypted, 'password');
+      const crypted = encryption.encrypt(data2encrypt, 'password');
+      const decrypted = encryption.decrypt(crypted, 'password');
 
       if (decrypted !== data2encrypt) {
         throw new Error('encryption lib is not ok');
@@ -127,15 +133,15 @@ export default class Selftest extends Component {
 
       //
 
-      let bip39 = require('bip39');
-      let mnemonic =
+      const bip39 = require('bip39');
+      const mnemonic =
         'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
-      let seed = bip39.mnemonicToSeed(mnemonic);
-      let root = bitcoin.bip32.fromSeed(seed);
+      const seed = bip39.mnemonicToSeed(mnemonic);
+      const root = bitcoin.bip32.fromSeed(seed);
 
-      let path = "m/49'/0'/0'/0/0";
-      let child = root.derivePath(path);
-      let address = bitcoin.payments.p2sh({
+      const path = "m/49'/0'/0'/0/0";
+      const child = root.derivePath(path);
+      const address = bitcoin.payments.p2sh({
         redeem: bitcoin.payments.p2wpkh({
           pubkey: child.publicKey,
           network: bitcoin.networks.bitcoin,
@@ -149,11 +155,11 @@ export default class Selftest extends Component {
 
       //
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-        let hd = new HDSegwitP2SHWallet();
-        let hashmap = {};
+        const hd = new HDSegwitP2SHWallet();
+        const hashmap = {};
         for (let c = 0; c < 1000; c++) {
           await hd.generate();
-          let secret = hd.getSecret();
+          const secret = hd.getSecret();
           if (hashmap[secret]) {
             throw new Error('Duplicate secret generated!');
           }
@@ -163,7 +169,7 @@ export default class Selftest extends Component {
           }
         }
 
-        let hd2 = new HDSegwitP2SHWallet();
+        const hd2 = new HDSegwitP2SHWallet();
         hd2.setSecret(hd.getSecret());
         if (!hd2.validateMnemonic()) {
           throw new Error('mnemonic phrase validation not ok');
@@ -171,7 +177,7 @@ export default class Selftest extends Component {
 
         //
 
-        let hd4 = new HDSegwitBech32Wallet();
+        const hd4 = new HDSegwitBech32Wallet();
         hd4._xpub = 'zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP';
         await hd4.fetchBalance();
         if (hd4.getBalance() !== 200000) throw new Error('Could not fetch HD Bech32 balance');
@@ -204,11 +210,11 @@ export default class Selftest extends Component {
 
   render() {
     if (this.state.isLoading) {
-      return <BlueLoading />;
+      return <BlueLoadingHook />;
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
         <BlueCard>
           <ScrollView>
             <BlueSpacing20 />
@@ -216,7 +222,7 @@ export default class Selftest extends Component {
             {(() => {
               if (this.state.isOk) {
                 return (
-                  <View style={{ alignItems: 'center' }}>
+                  <View style={styles.center}>
                     <BlueText testID="SelfTestOk" h4>
                       OK
                     </BlueText>
@@ -224,7 +230,7 @@ export default class Selftest extends Component {
                 );
               } else {
                 return (
-                  <View style={{ alignItems: 'center' }}>
+                  <View style={styles.center}>
                     <BlueText h4 numberOfLines={0}>
                       {this.state.errorMessage}
                     </BlueText>
@@ -252,3 +258,8 @@ Selftest.propTypes = {
     goBack: PropTypes.func,
   }),
 };
+
+Selftest.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
+  title: 'Self test',
+});

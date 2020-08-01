@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, View, TouchableWithoutFeedback } from 'react-native';
-import { SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
-import OnAppLaunch from '../../class/onAppLaunch';
-import { useNavigation } from 'react-navigation-hooks';
+import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { SafeBlueArea, BlueCard, BlueNavigationStyle, BlueListItemHooks, BlueTextHooks } from '../../BlueComponents';
+import OnAppLaunch from '../../class/on-app-launch';
+import loc from '../../loc';
 const BlueApp = require('../../BlueApp');
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+});
 
 const DefaultView = () => {
   const [defaultWalletLabel, setDefaultWalletLabel] = useState('');
@@ -48,10 +55,10 @@ const DefaultView = () => {
   };
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.flex}>
       <View>
-        <BlueListItem
-          title="View All Wallets"
+        <BlueListItemHooks
+          title={loc.settings.default_wallets}
           Component={TouchableWithoutFeedback}
           switch={{
             onValueChange: onViewAllWalletsSwitchValueChanged,
@@ -60,10 +67,10 @@ const DefaultView = () => {
           }}
         />
         <BlueCard>
-          <BlueText>When disabled, BlueWallet will immediately open the selected wallet at launch.</BlueText>
+          <BlueTextHooks>{loc.settings.default_desc}</BlueTextHooks>
         </BlueCard>
         {!viewAllWalletsEnabled && (
-          <BlueListItem title="Default into" component={TouchableOpacity} onPress={selectWallet} rightTitle={defaultWalletLabel} chevron />
+          <BlueListItemHooks title={loc.settings.default_info} onPress={selectWallet} rightTitle={defaultWalletLabel} chevron />
         )}
       </View>
     </SafeBlueArea>
@@ -72,7 +79,7 @@ const DefaultView = () => {
 
 DefaultView.navigationOptions = () => ({
   ...BlueNavigationStyle(),
-  title: 'On Launch',
+  title: loc.settings.default_title,
 });
 
 export default DefaultView;
