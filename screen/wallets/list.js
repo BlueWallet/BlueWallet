@@ -459,15 +459,26 @@ export default class WalletsList extends Component {
     this.onBarScanned(await Clipboard.getString());
   };
 
+  handleScanTag = () => {
+    NFC.shared.onParsedText = value => this.onBarCodeRead(value);
+    NFC.readNFCData();
+  }
+
   sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
+    let buttonIndexScanTag;
+    let buttonIndexClipboard;
     if (Platform.OS === 'ios') {
+      // eslint-disable-next-line prefer-const
       let options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
-      if (await NFC.isSupported()) {
-        options.push('Scan a Tag');
-      }
+
       if (!isClipboardEmpty) {
+        buttonIndexClipboard = options.length;
         options.push(loc.wallets.list_long_clipboard);
+      }
+      if (await NFC.isSupported()) {
+        buttonIndexScanTag = options.length;
+        options.push('Scan a Tag');
       }
       ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
         if (buttonIndex === 1) {
@@ -481,8 +492,10 @@ export default class WalletsList extends Component {
               showFileImportButton: false,
             },
           });
-        } else if (buttonIndex === 3) {
+        } else if (buttonIndex === buttonIndexClipboard) {
           this.copyFromClipbard();
+        } else if (buttonIndex === buttonIndexScanTag) {
+          this.handleScanTag();
         }
       });
     } else if (Platform.OS === 'android') {

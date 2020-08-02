@@ -26,7 +26,6 @@ export default class NFC {
   }
 
   static async isSupported() {
-    return true;
     if (Platform.OS === 'android') {
       // const isEnabled = await NfcManager.isEnabled();
       // const isSupported = await NfcManager.isSupported();
