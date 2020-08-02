@@ -14,6 +14,14 @@ jest.mock('react-native-secure-key-store', () => {
   };
 });
 
+jest.mock('@react-native-community/push-notification-ios', () => {
+  return {};
+});
+
+jest.mock('react-native-device-info', () => {
+  return {};
+});
+
 jest.mock('react-native-quick-actions', () => {
   return {
     clearShortcutItems: jest.fn(),

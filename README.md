@@ -20,7 +20,7 @@ Community: [telegram group](https://t.me/bluewallet)
 * Lightning Network supported
 * SegWit-first. Replace-By-Fee support
 * Encryption. Plausible deniability
-* And many more [features...](https://bluewallet.io/features.html)
+* And many more [features...](https://bluewallet.io/features)
 
 
 <img src="https://i.imgur.com/hHYJnMj.png" width="100%">
@@ -42,7 +42,7 @@ node --version && npm --version
 git clone https://github.com/BlueWallet/BlueWallet.git
 cd BlueWallet
 npm install
-``` 
+```
 
 Please make sure that your console is running the most stable versions of npm and node (even-numbered versions).
 
@@ -53,7 +53,8 @@ You will now need to either connect an Android device to your computer or run an
 1. Download and run Android Studio
 2. Click on "Open an existing Android Studio Project"
 3. Open `build.gradle` file under `BlueWallet/android/` folder
-4. Android Studio will take some time to set things up. Once everything is set up, go to `Tools` -> `AVD Manager`
+4. Android Studio will take some time to set things up. Once everything is set up, go to `Tools` -> `AVD Manager`.
+    * 📝 This option [may take some time to appear in the menu](https://stackoverflow.com/questions/47173708/why-avd-manager-options-are-not-showing-in-android-studio) if you're opening the project in a freshly-installed version of Android Studio.
 5. Click on "Create Virtual Device..." and go through the steps to create a virtual device
 6. Launch your newly created virtual device by clicking the `Play` button under `Actions` column
 
@@ -68,15 +69,13 @@ The above command will build the app and install it. Once you launch the app it 
 * To run on iOS:
 
 ```
-cd ios
-pod install
-cd ..
-npm start ios
+npx podinstall
+npm start
 ```
 
-In another terminal window within the BlueWallet folder
+In another terminal window within the BlueWallet folder:
 ```
-react-native run-ios
+npx react-native run-ios
 ```
 
 
@@ -102,6 +101,17 @@ MIT
 
 Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/projects/1), try to start or submit a PR, any doubts we will try to guide you. Contributors have a private telegram group, request access by email bluewallet@bluewallet.io
 
+## Translations
+
+We accepts translations via [Transifex](https://www.transifex.com/bluewallet/bluewallet/)
+
+To participate you need to:
+1. Sign up to Transifex
+2. Find BlueWallet project
+3. Send join request
+4. After we accept your request you will be able to start translating! That's it!
+
+Transifex automatically creates Pull Request when language reaches 100% translation. We also trigger this by hand before each release, so don't worry if you can't translate everything, every word counts.
 
 ## RESPONSIBLE DISCLOSURE
 

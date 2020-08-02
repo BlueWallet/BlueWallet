@@ -1,4 +1,5 @@
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import b58 from 'bs58check';
 const createHash = require('create-hash');
 
 export class AbstractWallet {
@@ -142,6 +143,18 @@ export class AbstractWallet {
 
     if (this.secret.startsWith('BC1')) this.secret = this.secret.toLowerCase();
 
+    // [fingerprint/derivation]zpub
+    const re = /\[([^\]]+)\](.*)/;
+    const m = this.secret.match(re);
+    if (m && m.length === 3) {
+      let hexFingerprint = m[1].split('/')[0];
+      if (hexFingerprint.length === 8) {
+        hexFingerprint = Buffer.from(hexFingerprint, 'hex').reverse().toString('hex');
+        this.masterFingerprint = parseInt(hexFingerprint, 16);
+      }
+      this.secret = m[2];
+    }
+
     try {
       const parsedSecret = JSON.parse(this.secret);
       if (parsedSecret && parsedSecret.keystore && parsedSecret.keystore.xpub) {
@@ -204,5 +217,43 @@ export class AbstractWallet {
 
   async wasEverUsed() {
     throw new Error('Not implemented');
+  }
+
+  /**
+   * Returns _all_ external addresses in hierarchy (for HD wallets) or just address for single-address wallets
+   * _Not_ internal ones, as this method is supposed to be used for subscription of external notifications.
+   *
+   * @returns string[] Addresses
+   */
+  getAllExternalAddresses() {
+    return [];
+  }
+
+  /*
+   * Converts zpub to xpub
+   *
+   * @param {String} zpub
+   * @returns {String} xpub
+   */
+  static _zpubToXpub(zpub) {
+    let data = b58.decode(zpub);
+    data = data.slice(4);
+    data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
+
+    return b58.encode(data);
+  }
+
+  /**
+   * Converts ypub to xpub
+   * @param {String} ypub - wallet ypub
+   * @returns {*}
+   */
+  static _ypubToXpub(ypub) {
+    let data = b58.decode(ypub);
+    if (data.readUInt32BE() !== 0x049d7cb2) throw new Error('Not a valid ypub extended key!');
+    data = data.slice(4);
+    data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
+
+    return b58.encode(data);
   }
 }

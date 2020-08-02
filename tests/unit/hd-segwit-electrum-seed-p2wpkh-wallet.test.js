@@ -14,6 +14,7 @@ describe('HDSegwitElectrumSeedP2WPKHWallet', () => {
 
     let address = hd._getExternalAddressByIndex(0);
     assert.strictEqual(address, 'bc1q2yv6rhtw9ycqeq2rkch65sucf66ytwsd3csawr');
+    assert.ok(hd.getAllExternalAddresses().includes('bc1q2yv6rhtw9ycqeq2rkch65sucf66ytwsd3csawr'));
 
     address = hd._getInternalAddressByIndex(0);
     assert.strictEqual(address, 'bc1qvdu80q26ghe66zq8tf5y09qr29vay4cg65mvuk');

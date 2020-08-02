@@ -8,6 +8,7 @@ import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native'
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import NFC from '../../class/nfc';
+import loc from '../../loc';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
 
@@ -130,7 +131,7 @@ const ScanQRCode = () => {
       }
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
-        alert('The selected file does not contain a wallet that can be imported.');
+        alert(loc.send.qr_error_no_wallet);
       }
       setIsLoading(false);
     }
@@ -153,7 +154,7 @@ const ScanQRCode = () => {
               if (!error) {
                 onBarCodeRead({ data: result });
               } else {
-                alert('The selected image does not contain a QR Code.');
+                alert(loc.send.qr_error_no_qrcode);
               }
             });
           }
@@ -174,10 +175,10 @@ const ScanQRCode = () => {
         <RNCamera
           captureAudio={false}
           androidCameraPermissionOptions={{
-            title: 'Permission to use camera',
-            message: 'We need your permission to use your camera',
-            buttonPositive: 'OK',
-            buttonNegative: 'Cancel',
+            title: loc.send.permission_camera_title,
+            message: loc.send.permission_camera_message,
+            buttonPositive: loc._.ok,
+            buttonNegative: loc._.cancel,
           }}
           style={styles.rnCamera}
           onBarCodeRead={onBarCodeRead}

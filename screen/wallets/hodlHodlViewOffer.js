@@ -7,25 +7,27 @@ import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import { Icon } from 'react-native-elements';
 import { AppStorage } from '../../class';
 import * as NavigationService from '../../NavigationService';
+import { BlueCurrentTheme } from '../../components/themes';
+import loc from '../../loc';
 
 const BlueApp: AppStorage = require('../../BlueApp');
 const prompt = require('../../blue_modules/prompt');
 
 export default class HodlHodlViewOffer extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(),
-    title: '',
-  });
-
   constructor(props) {
     super(props);
 
     const offerToDisplay = props.route.params.offerToDisplay;
 
     const horizontalScrollData = [];
-    horizontalScrollData.push({ id: 'window', body: offerToDisplay.payment_window_minutes + ' min' });
     horizontalScrollData.push({
-      id: 'min / max',
+      id: 'window',
+      header: loc.hodl.offer_window,
+      body: offerToDisplay.payment_window_minutes + ' ' + loc.hodl.offer_minutes,
+    });
+    horizontalScrollData.push({
+      id: 'minmax',
+      header: loc.hodl.offer_minmax,
       body:
         offerToDisplay.min_amount.replace('.00', '') +
         ' - ' +
@@ -47,7 +49,7 @@ export default class HodlHodlViewOffer extends Component {
       });
     }
 
-    horizontalScrollData.push({ id: 'confirmations', body: offerToDisplay.confirmations });
+    horizontalScrollData.push({ id: 'confirmations', header: loc.hodl.offer_confirmations, body: offerToDisplay.confirmations });
 
     this.state = {
       hodlApi: false,
@@ -75,7 +77,7 @@ export default class HodlHodlViewOffer extends Component {
       const HodlApi = new HodlHodlApi(hodlApiKey);
       this.setState({ HodlApi, hodlApiKey });
     };
-    NavigationService.navigate('HodlHodlRoot', { params: { cb: handleLoginCallback }, screen: 'HodlHodlLogin' });
+    NavigationService.navigate('HodlHodl', { params: { cb: handleLoginCallback }, screen: 'HodlHodlLogin' });
   };
 
   async _onAcceptOfferPress(offer) {
@@ -88,7 +90,7 @@ export default class HodlHodlViewOffer extends Component {
     if (!myself.encrypted_seed || myself.encrypted_seed.length < 10) {
       const buttons = [
         {
-          text: 'Yes',
+          text: loc._.yes,
           onPress: async a => {
             const sigKey = await BlueApp.getHodlHodlSignatureKey();
             if (!sigKey) {
@@ -102,11 +104,11 @@ export default class HodlHodlViewOffer extends Component {
           },
         },
         {
-          text: 'Cancel',
+          text: loc._.cancel,
           onPress: async a => {},
         },
       ];
-      Alert.alert('HodlHodl', `Looks like you didn't finish setting up account on HodlHodl, would you like to finish setup now?`, buttons, {
+      Alert.alert('HodlHodl', loc.hodl.offer_account_finish, buttons, {
         cancelable: true,
       });
       return;
@@ -121,7 +123,12 @@ export default class HodlHodlViewOffer extends Component {
 
     let fiatValue;
     try {
-      fiatValue = await prompt('How much ' + offer.currency_code + ' do you want to buy?', 'For example 100', true, 'numeric');
+      fiatValue = await prompt(
+        loc.formatString(loc.hodl.offer_promt_fiat, { currency: offer.currency_code }),
+        loc.hodl.offer_promt_fiat_e,
+        true,
+        'numeric',
+      );
     } catch (_) {
       return;
     }
@@ -150,7 +157,7 @@ export default class HodlHodlViewOffer extends Component {
         },
       });
     }
-    Alert.alert('Choose payment method', ``, buttons, { cancelable: true });
+    Alert.alert(loc.hodl.offer_choosemethod, ``, buttons, { cancelable: true });
   }
 
   _renderHorizontalScrollItem(item) {
@@ -225,12 +232,13 @@ export default class HodlHodlViewOffer extends Component {
                   </View>
                   <Text style={styles.traderRatingText}>
                     {this.state.offerToDisplay.trader.trades_count > 0
-                      ? Math.round(this.state.offerToDisplay.trader.rating * 100) +
-                        '%' +
-                        ' / ' +
-                        this.state.offerToDisplay.trader.trades_count +
-                        ' trades'
-                      : 'No rating'}
+                      ? loc.formatString(loc.hodl.item_rating, {
+                          rating:
+                            Math.round(this.state.offerToDisplay.trader.rating * 100) +
+                            '% / ' +
+                            this.state.offerToDisplay.trader.trades_count,
+                        })
+                      : loc.hodl.item_rating_no}
                   </Text>
                 </View>
               </View>
@@ -241,7 +249,7 @@ export default class HodlHodlViewOffer extends Component {
                   <View style={styles.acceptOfferButtonWrapper}>
                     <BlueSpacing10 />
                     <BlueButton
-                      title="Accept offer"
+                      title={loc.hodl.offer_accept}
                       onPress={async () => {
                         await this._onAcceptOfferPress(this.state.offerToDisplay);
                       }}
@@ -269,19 +277,19 @@ HodlHodlViewOffer.propTypes = {
 
 const styles = StyleSheet.create({
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.background,
     padding: 22,
   },
   Title: {
     fontWeight: '600',
     fontSize: 24,
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   circleWhite: {
     position: 'absolute',
     bottom: 0,
     right: 3,
-    backgroundColor: 'white',
+    backgroundColor: BlueCurrentTheme.colors.background,
     width: 13,
     height: 13,
     borderRadius: 6,
@@ -296,7 +304,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   grayTextContainerContainer: {
-    backgroundColor: '#EEF0F4',
+    backgroundColor: BlueCurrentTheme.colors.lightButton,
     borderRadius: 20,
     height: 30,
     justifyContent: 'center',
@@ -306,7 +314,7 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   greenTextContainerContainer: {
-    backgroundColor: '#d2f8d5',
+    backgroundColor: BlueCurrentTheme.colors.feeLabel,
     borderRadius: 20,
     height: 30,
     justifyContent: 'center',
@@ -323,7 +331,7 @@ const styles = StyleSheet.create({
   },
   priceText: {
     top: 0,
-    color: '#37bfa0',
+    color: BlueCurrentTheme.colors.feeValue,
     fontSize: 14,
     fontWeight: '500',
   },
@@ -338,7 +346,7 @@ const styles = StyleSheet.create({
     lineHeight: 23,
   },
   nicknameText: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -349,20 +357,35 @@ const styles = StyleSheet.create({
   locationText: {
     color: '#9BA0A9',
   },
-  horizontalScrollIemHeader: { fontSize: 12, color: '#9AA0AA' },
-  horizontalScrollItemBody: { fontSize: 14, fontWeight: 'bold', color: '#0c2550' },
+  horizontalScrollIemHeader: { color: BlueCurrentTheme.colors.feeText },
+  horizontalScrollItemBody: { fontSize: 14, fontWeight: 'bold', color: BlueCurrentTheme.colors.foregroundColor },
   horizontalScrollWrapper: { flexDirection: 'column', paddingTop: 20, paddingBottom: 20, paddingRight: 40 },
   flexDirRow: { flexDirection: 'row' },
   iconWithPadding: { paddingLeft: 16 },
   _hr: {
     borderWidth: 0,
     borderBottomWidth: 1,
-    borderColor: '#ebebeb',
+    borderColor: BlueCurrentTheme.colors.lightBorder,
   },
   avatarImg: { width: 60, height: 60, borderRadius: 60 },
-  avatarWrapper: { backgroundColor: 'white', flex: 1, flexDirection: 'column', alignItems: 'center', marginTop: 32 },
+  avatarWrapper: {
+    backgroundColor: BlueCurrentTheme.colors.background,
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: 32,
+  },
   verifiedIcon: { marginTop: 3, marginRight: 5 },
   traderWrapper: { alignItems: 'center', marginTop: 8 },
   acceptOfferButtonWrapper: { width: '70%', alignItems: 'center' },
   acceptOfferButtonWrapperWrapper: { marginTop: 24, alignItems: 'center' },
+});
+
+HodlHodlViewOffer.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
+  title: '',
+  headerStyle: {
+    ...BlueNavigationStyle().headerStyle,
+    backgroundColor: BlueCurrentTheme.colors.customHeader,
+  },
 });

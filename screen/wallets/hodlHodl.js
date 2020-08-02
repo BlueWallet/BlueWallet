@@ -1,5 +1,8 @@
 /* global alert */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import Modal from 'react-native-modal';
+import { Icon } from 'react-native-elements';
 import {
   ActivityIndicator,
   FlatList,
@@ -19,12 +22,11 @@ import {
   StatusBar,
 } from 'react-native';
 import { BlueButtonLink, BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
-import Modal from 'react-native-modal';
-import { Icon } from 'react-native-elements';
 import { AppStorage } from '../../class';
 import * as NavigationService from '../../NavigationService';
+import { BlueCurrentTheme } from '../../components/themes';
+import loc from '../../loc';
 
 const BlueApp: AppStorage = require('../../BlueApp');
 const A = require('../../blue_modules/analytics');
@@ -38,11 +40,6 @@ export default class HodlHodl extends Component {
   constructor(props) {
     super(props);
 
-    props.navigation.setParams({
-      handleLoginPress: this.handleLoginPress,
-      displayLoginButton: true,
-      handleMyContractsPress: this.handleMyContractsPress,
-    });
     this.state = {
       HodlApi: false,
       isLoading: true,
@@ -72,7 +69,7 @@ export default class HodlHodl extends Component {
       this.setState({ HodlApi, hodlApiKey });
       this.props.navigation.setParams({ displayLoginButton });
     };
-    NavigationService.navigate('HodlHodlRoot', { params: { cb: handleLoginCallback }, screen: 'HodlHodlLogin' });
+    NavigationService.navigate('HodlHodlLoginRoot', { params: { cb: handleLoginCallback }, screen: 'HodlHodlLogin' });
   };
 
   handleMyContractsPress = () => {
@@ -185,7 +182,11 @@ export default class HodlHodl extends Component {
 
     const HodlApi = new HodlHodlApi(hodlApiKey);
     this.setState({ HodlApi, hodlApiKey });
-    this.props.navigation.setParams({ displayLoginButton });
+    this.props.navigation.setParams({
+      handleLoginPress: this.handleLoginPress,
+      displayLoginButton: displayLoginButton,
+      handleMyContractsPress: this.handleMyContractsPress,
+    });
 
     try {
       await this.fetchMyCountry();
@@ -204,16 +205,14 @@ export default class HodlHodl extends Component {
     this.fetchListOfMethods();
   }
 
-  _onPress(item) {
+  _onPress = item => {
     const offers = this.state.offers.filter(value => value.id === item.id);
     if (offers && offers[0]) {
-      NavigationService.navigate('HodlHodlViewOffer', {
-        offerToDisplay: offers[0],
-      });
+      this.props.navigation.navigate('HodlHodlViewOffer', { offerToDisplay: offers[0] });
     } else {
       Linking.openURL('https://hodlhodl.com/offers/' + item.id);
     }
-  }
+  };
 
   _onCountryPress(item) {
     this.setState(
@@ -322,11 +321,11 @@ export default class HodlHodl extends Component {
   }
 
   getNativeCountryName() {
-    if (this.state.country === this.state.myCountryCode) return 'Near me';
+    if (this.state.country === this.state.myCountryCode) return loc.hodl.filter_country_near;
     for (const c of this.state.countries) {
       if (c.code === this.state.country) return c.native_name;
     }
-    return 'Global offers';
+    return loc.hodl.filter_country_global;
   }
 
   renderChooseSideModal = () => {
@@ -346,8 +345,8 @@ export default class HodlHodl extends Component {
               style={styles.modalFlatList}
               ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
               data={[
-                { code: HodlHodlApi.FILTERS_SIDE_VALUE_SELL, name: "I'm buying bitcoin" },
-                { code: HodlHodlApi.FILTERS_SIDE_VALUE_BUY, name: "I'm selling bitcoin" },
+                { code: HodlHodlApi.FILTERS_SIDE_VALUE_SELL, name: loc.hodl.filter_iambuying },
+                { code: HodlHodlApi.FILTERS_SIDE_VALUE_BUY, name: loc.hodl.filter_iamselling },
               ]}
               keyExtractor={(item, index) => item.code}
               renderItem={({ item, index, separators }) => (
@@ -394,8 +393,8 @@ export default class HodlHodl extends Component {
               style={styles.modalFlatList}
               ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
               data={[
-                { code: 'currency', native_name: 'Currency' },
-                { code: 'method', native_name: 'Payment method' },
+                { code: 'currency', native_name: loc.hodl.filter_currency },
+                { code: 'method', native_name: loc.hodl.filter_method },
               ]}
               keyExtractor={(item, index) => item.code}
               renderItem={({ item, index, separators }) => (
@@ -415,13 +414,15 @@ export default class HodlHodl extends Component {
                           {item.code === 'currency' && (
                             <Text style={styles.filterCurrencyText}>
                               {' '}
-                              {this.state.currency ? this.state.currency + '   ❯' : 'Detail   ❯'}{' '}
+                              {this.state.currency ? this.state.currency : loc.hodl.filter_detail}
+                              {'   ❯'}
                             </Text>
                           )}
                           {item.code === 'method' && (
                             <Text style={styles.methodNameText}>
                               {' '}
-                              {this.state.method ? this.getMethodName(this.state.method) + '   ❯' : 'Detail   ❯'}
+                              {this.state.method ? this.getMethodName(this.state.method) : loc.hodl.filter_detail}
+                              {'   ❯'}
                             </Text>
                           )}
                         </View>
@@ -451,7 +452,7 @@ export default class HodlHodl extends Component {
     countries2render.push({
       code: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL,
       name: 'Global offers',
-      native_name: 'Global offers',
+      native_name: loc.hodl.filter_country_global,
     });
 
     // lastly, we include other countries
@@ -487,7 +488,7 @@ export default class HodlHodl extends Component {
             <View style={styles.searchInputContainer}>
               <TextInput
                 onChangeText={text => this.setState({ countrySearchInput: text })}
-                placeholder="Search.."
+                placeholder={loc.hodl.filter_search + '..'}
                 placeholderTextColor="#9AA0AA"
                 value={this.state.countrySearchInput || ''}
                 numberOfLines={1}
@@ -530,7 +531,7 @@ export default class HodlHodl extends Component {
     // first, option to choose any currency
     currencies2render.push({
       code: CURRENCY_CODE_ANY,
-      name: 'Any',
+      name: loc.hodl.filter_any,
     });
 
     // lastly, we include other countries
@@ -563,7 +564,7 @@ export default class HodlHodl extends Component {
             <View style={styles.searchInputContainer}>
               <TextInput
                 onChangeText={text => this.setState({ currencySearchInput: text })}
-                placeholder="Search.."
+                placeholder={loc.hodl.filter_search + '..'}
                 placeholderTextColor="#9AA0AA"
                 value={this.state.currencySearchInput || ''}
                 numberOfLines={1}
@@ -606,7 +607,7 @@ export default class HodlHodl extends Component {
     // first, option to choose any currency
     methods2render.push({
       id: METHOD_ANY,
-      name: 'Any',
+      name: loc.hodl.filter_any,
     });
 
     // lastly, we include other countries
@@ -639,7 +640,7 @@ export default class HodlHodl extends Component {
             <View style={styles.searchInputContainer}>
               <TextInput
                 onChangeText={text => this.setState({ methodSearchInput: text })}
-                placeholder="Search.."
+                placeholder={loc.hodl.filter_search + '..'}
                 placeholderTextColor="#9AA0AA"
                 value={this.state.methodSearchInput || ''}
                 numberOfLines={1}
@@ -709,14 +710,22 @@ export default class HodlHodl extends Component {
                 this.setState({ isChooseSideModalVisible: true });
               }}
             >
-              <Text style={styles.grayDropdownText}>{this.state.side === HodlHodlApi.FILTERS_SIDE_VALUE_SELL ? 'Buying' : 'Selling'}</Text>
+              <Text style={styles.grayDropdownText}>
+                {this.state.side === HodlHodlApi.FILTERS_SIDE_VALUE_SELL ? loc.hodl.filter_buying : loc.hodl.filter_selling}
+              </Text>
               <Icon name="expand-more" type="material" size={22} color="#9AA0AA" containerStyle={styles.noPaddingLeftOrRight} />
             </TouchableOpacity>
           </View>
 
           <View style={styles.grayTextContainerContainer}>
             <View style={styles.grayTextContainer}>
-              <Icon name="place" type="material" size={20} color="#0c2550" containerStyle={styles.paddingLeft10} />
+              <Icon
+                name="place"
+                type="material"
+                size={20}
+                color={BlueCurrentTheme.colors.foregroundColor}
+                containerStyle={styles.paddingLeft10}
+              />
               {this.state.isLoading ? (
                 <ActivityIndicator />
               ) : (
@@ -730,9 +739,15 @@ export default class HodlHodl extends Component {
                   this.setState({ isFiltersModalVisible: true });
                 }}
               >
-                <Text style={styles.blueText}>Filters</Text>
+                <Text style={styles.blueText}>{loc.hodl.filter_filters}</Text>
 
-                <Icon name="filter-list" type="material" size={24} color="#2f5fb3" containerStyle={styles.paddingLeft10} />
+                <Icon
+                  name="filter-list"
+                  type="material"
+                  size={24}
+                  color={BlueCurrentTheme.colors.foregroundColor}
+                  containerStyle={styles.paddingLeft10}
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -777,8 +792,10 @@ export default class HodlHodl extends Component {
                 </View>
                 <Text style={styles.traderRatingText2}>
                   {item.trader.trades_count > 0
-                    ? Math.round(item.trader.rating * 100) + '% / ' + item.trader.trades_count + ' trades'
-                    : 'No rating'}
+                    ? loc.formatString(loc.hodl.item_rating, {
+                        rating: Math.round(item.trader.rating * 100) + '% / ' + item.trader.trades_count,
+                      })
+                    : loc.hodl.item_rating_no}
                 </Text>
               </View>
             </View>
@@ -791,7 +808,7 @@ export default class HodlHodl extends Component {
               </View>
 
               <Text style={styles.minmax}>
-                Min/Max: {item.min_amount.replace('.00', '')} - {item.max_amount.replace('.00', '')} {item.currency_code}
+                {loc.hodl.item_minmax}: {item.min_amount.replace('.00', '')} - {item.max_amount.replace('.00', '')} {item.currency_code}
               </Text>
             </View>
           </View>
@@ -807,7 +824,7 @@ export default class HodlHodl extends Component {
   renderSectionFooter = () => {
     return this.state.offers.length <= 0 ? (
       <View style={styles.noOffersWrapper}>
-        <Text style={styles.noOffersText}>No offers. Try to change "Near me" to Global offers!</Text>
+        <Text style={styles.noOffersText}>{loc.hodl.item_nooffers}</Text>
       </View>
     ) : undefined;
   };
@@ -815,7 +832,7 @@ export default class HodlHodl extends Component {
   render() {
     return (
       <SafeBlueArea>
-        <StatusBar barStyle="light-content" />
+        <StatusBar barStyle="default" />
         <SectionList
           refreshControl={<RefreshControl onRefresh={this._onRefreshOffers} refreshing={this.state.showShowFlatListRefreshControl} />}
           renderItem={this.renderItem}
@@ -848,11 +865,15 @@ HodlHodl.propTypes = {
 HodlHodl.navigationOptions = ({ navigation, route }) => ({
   ...BlueNavigationStyle(navigation, true),
   title: '',
-  headerLeft: () => {
+  headerStyle: {
+    ...BlueNavigationStyle(navigation, true).headerStyle,
+    backgroundColor: BlueCurrentTheme.colors.customHeader,
+  },
+  headerRight: () => {
     return route.params.displayLoginButton ? (
-      <BlueButtonLink title="Login" onPress={route.params.handleLoginPress} style={styles.marginHorizontal20} />
+      <BlueButtonLink title={loc.hodl.login} onPress={route.params.handleLoginPress} style={styles.marginHorizontal20} />
     ) : (
-      <BlueButtonLink title="My contracts" onPress={route.params.handleMyContractsPress} style={styles.marginHorizontal20} />
+      <BlueButtonLink title={loc.hodl.mycont} onPress={route.params.handleMyContractsPress} style={styles.marginHorizontal20} />
     );
   },
 });
@@ -864,7 +885,7 @@ const styles = StyleSheet.create({
     color: '#9AA0AA',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',
@@ -875,7 +896,7 @@ const styles = StyleSheet.create({
     height: 400,
   },
   modalContentShort: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',
@@ -892,14 +913,14 @@ const styles = StyleSheet.create({
   Title: {
     fontWeight: 'bold',
     fontSize: 30,
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   BottomLine: {
     fontSize: 10,
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   grayDropdownTextContainer: {
-    backgroundColor: '#EEF0F4',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     borderRadius: 20,
     height: 35,
     top: 3,
@@ -911,7 +932,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   grayTextContainerContainer: {
-    backgroundColor: '#EEF0F4',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     borderRadius: 20,
     height: 44,
     justifyContent: 'center',
@@ -925,7 +946,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   blueText: {
-    color: '#2f5fb3',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontSize: 15,
     fontWeight: '600',
   },
@@ -939,17 +960,17 @@ const styles = StyleSheet.create({
   locationText: {
     top: 0,
     left: 5,
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontSize: 20,
     fontWeight: '500',
   },
   nicknameText: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontSize: 18,
     fontWeight: '600',
   },
   blueTextContainer: {
-    backgroundColor: '#CCDDF9',
+    backgroundColor: BlueCurrentTheme.colors.mainColor,
     borderRadius: 20,
     width: 110,
     flex: 1,
@@ -963,11 +984,11 @@ const styles = StyleSheet.create({
   },
   searchInputContainer: {
     flexDirection: 'row',
-    borderColor: '#EEF0F4',
-    borderBottomColor: '#EEF0F4',
+    borderColor: BlueCurrentTheme.colors.inputBackgroundColor,
+    borderBottomColor: BlueCurrentTheme.colors.inputBackgroundColor,
     borderWidth: 1.0,
     borderBottomWidth: 0.5,
-    backgroundColor: '#EEF0F4',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 48,
     height: 48,
     marginHorizontal: 20,
@@ -997,40 +1018,44 @@ const styles = StyleSheet.create({
   itemPrice: { fontWeight: '600', fontSize: 14, color: '#9AA0AA' },
   minmax: { color: '#9AA0AA', fontSize: 12, paddingLeft: 10 },
   noOffersWrapper: { height: '100%', justifyContent: 'center' },
-  noOffersText: { textAlign: 'center', color: '#9AA0AA', paddingHorizontal: 16 },
+  noOffersText: { textAlign: 'center', color: BlueCurrentTheme.colors.feeText, paddingHorizontal: 16 },
   modalFlatList: { width: '100%' },
-  itemSeparator: { height: 0.5, width: '100%', backgroundColor: '#C8C8C8' },
-  itemNameWrapper: { backgroundColor: 'white', flex: 1, flexDirection: 'row', paddingTop: 20, paddingBottom: 20 },
-  itemNameBold: { fontSize: 20, color: '#0c2550', fontWeight: 'bold' },
-  itemNameNormal: { fontSize: 20, color: '#0c2550', fontWeight: 'normal' },
-  whiteBackground: { backgroundColor: 'white' },
-  filterCurrencyText: { fontSize: 16, color: '#9AA0AA' },
-  filteCurrencyTextWrapper: { color: '#9AA0AA', right: 0, position: 'absolute' },
-  currencyNativeName: { fontSize: 20, color: '#0c2550' },
+  itemSeparator: { height: 0.5, width: '100%', backgroundColor: BlueCurrentTheme.colors.lightBorder },
+  itemNameWrapper: { backgroundColor: BlueCurrentTheme.colors.elevated, flex: 1, flexDirection: 'row', paddingTop: 20, paddingBottom: 20 },
+  itemNameBold: { fontSize: 20, color: BlueCurrentTheme.colors.foregroundColor, fontWeight: 'bold' },
+  itemNameNormal: { fontSize: 20, color: BlueCurrentTheme.colors.foregroundColor, fontWeight: 'normal' },
+  whiteBackground: { backgroundColor: BlueCurrentTheme.colors.background },
+  filterCurrencyText: { fontSize: 16, color: BlueCurrentTheme.colors.foregroundColor },
+  filteCurrencyTextWrapper: { color: BlueCurrentTheme.colors.foregroundColor, right: 0, position: 'absolute' },
+  currencyNativeName: { fontSize: 20, color: BlueCurrentTheme.colors.foregroundColor },
   currencyWrapper: { paddingLeft: 10, flex: 1, flexDirection: 'row' },
-  methodNameText: { fontSize: 16, color: '#9AA0AA' },
+  methodNameText: { fontSize: 16, color: BlueCurrentTheme.colors.foregroundColor },
   searchTextInput: { fontSize: 17, flex: 1, marginHorizontal: 8, minHeight: 33, paddingLeft: 6, paddingRight: 6, color: '#81868e' },
   iconWithOffset: { left: -10 },
   paddingLeft10: { paddingLeft: 10 },
-  countryNativeNameBold: { fontSize: 20, color: '#0c2550', fontWeight: 'bold' },
-  countryNativeNameNormal: { fontSize: 20, color: '#0c2550', fontWeight: 'normal' },
+  countryNativeNameBold: { fontSize: 20, color: BlueCurrentTheme.colors.foregroundColor, fontWeight: 'bold' },
+  countryNativeNameNormal: { fontSize: 20, color: BlueCurrentTheme.colors.foregroundColor, fontWeight: 'normal' },
   curSearchInput: { flex: 1, marginHorizontal: 8, minHeight: 33, paddingLeft: 6, paddingRight: 6, color: '#81868e' },
   mthdSearchInput: { flex: 1, marginHorizontal: 8, minHeight: 33, paddingLeft: 6, paddingRight: 6, color: '#81868e' },
   currencyTextBold: {
     fontSize: 20,
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: 'bold',
   },
   currencyTextNormal: {
     fontSize: 20,
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: 'normal',
+  },
+  currencyText: {
+    fontSize: 20,
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   noPaddingLeftOrRight: { paddingLeft: 0, paddingRight: 0 },
   flexRow: { flexDirection: 'row' },
   traderRatingText2: { color: '#9AA0AA' },
   itemPriceWrapper: {
-    backgroundColor: '#EEF0F4',
+    backgroundColor: BlueCurrentTheme.colors.lightButton,
     borderRadius: 20,
     paddingLeft: 8,
     paddingRight: 8,
@@ -1043,8 +1068,8 @@ const styles = StyleSheet.create({
   offersSectionList: { marginTop: 24, flex: 1 },
   marginHorizontal20: { marginHorizontal: 20 },
   avatarImage: { width: 40, height: 40, borderRadius: 40 },
-  avatarWrapper: { backgroundColor: 'white', flex: 1, flexDirection: 'row' },
-  avatarWrapperWrapper: { backgroundColor: 'white', paddingTop: 16, paddingBottom: 16 },
-  headerWrapper: { marginHorizontal: 20, marginBottom: 8 },
+  avatarWrapper: { backgroundColor: BlueCurrentTheme.colors.background, flex: 1, flexDirection: 'row' },
+  avatarWrapperWrapper: { backgroundColor: BlueCurrentTheme.colors.background, paddingTop: 16, paddingBottom: 16 },
+  headerWrapper: { backgroundColor: BlueCurrentTheme.colors.background, marginHorizontal: 20, marginBottom: 8 },
   verifiedIcon: { marginTop: 5, marginRight: 5 },
 });

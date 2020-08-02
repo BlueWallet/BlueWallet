@@ -5,6 +5,7 @@ import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../.
 import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
+import loc from '../../loc';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 
@@ -16,11 +17,6 @@ const styles = StyleSheet.create({
 });
 
 export default class RBFBumpFee extends CPFP {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(null, false),
-    title: 'Bump fee (RBF)',
-  });
-
   async componentDidMount() {
     console.log('transactions/RBFBumpFee - componentDidMount');
     this.setState({
@@ -58,7 +54,7 @@ export default class RBFBumpFee extends CPFP {
         this.setState({ isLoading: false });
       } catch (_) {
         this.setState({ isLoading: false });
-        alert('Failed: ' + _.message);
+        alert(loc.errors.error + ': ' + _.message);
       }
     }
   }
@@ -96,18 +92,14 @@ export default class RBFBumpFee extends CPFP {
           <BlueSpacing20 />
           <BlueSpacing20 />
 
-          <BlueText h4>This transaction is not bumpable</BlueText>
+          <BlueText h4>{loc.transactions.cpfp_no_bump}</BlueText>
         </SafeBlueArea>
       );
     }
 
     return (
       <SafeBlueArea style={styles.root}>
-        <ScrollView>
-          {this.renderStage1(
-            'We will replace this transaction with the one with a higher fee, so it should be mined faster. This is called RBF - Replace By Fee.',
-          )}
-        </ScrollView>
+        <ScrollView>{this.renderStage1(loc.transactions.rbf_explain)}</ScrollView>
       </SafeBlueArea>
     );
   }
@@ -125,3 +117,8 @@ RBFBumpFee.propTypes = {
     }),
   }),
 };
+
+RBFBumpFee.navigationOptions = () => ({
+  ...BlueNavigationStyle(null, false),
+  title: loc.transactions.rbf_title,
+});
