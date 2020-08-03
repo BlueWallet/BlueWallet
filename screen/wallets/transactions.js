@@ -599,7 +599,7 @@ export default class WalletTransactions extends Component {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
       let copyFromClipboardIndex;
-      const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
+      const options = [loc._.cancel, 'Take Photo', loc.wallets.list_long_choose];
       if (!isClipboardEmpty) {
         options.push(loc.wallets.list_long_clipboard);
         copyFromClipboardIndex = options.length - 1;
