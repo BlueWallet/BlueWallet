@@ -11,7 +11,6 @@ import {
   KeyboardAvoidingView,
   Linking,
   Platform,
-  RefreshControl,
   SectionList,
   StyleSheet,
   Text,
@@ -834,7 +833,8 @@ export default class HodlHodl extends Component {
       <SafeBlueArea>
         <StatusBar barStyle="default" />
         <SectionList
-          refreshControl={<RefreshControl onRefresh={this._onRefreshOffers} refreshing={this.state.showShowFlatListRefreshControl} />}
+          onRefresh={this._onRefreshOffers}
+          refreshing={this.state.showShowFlatListRefreshControl}
           renderItem={this.renderItem}
           keyExtractor={this.sectionListKeyExtractor}
           renderSectionHeader={this.renderHeader}

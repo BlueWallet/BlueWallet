@@ -8,7 +8,6 @@ import {
   StyleSheet,
   InteractionManager,
   Clipboard,
-  RefreshControl,
   SectionList,
   Alert,
   Platform,
@@ -519,7 +518,8 @@ export default class WalletsList extends Component {
         <StatusBar barStyle="default" />
         <View style={styles.walletsListWrapper}>
           <SectionList
-            refreshControl={<RefreshControl onRefresh={this.refreshTransactions} refreshing={!this.state.isFlatListRefreshControlHidden} />}
+            onRefresh={this.refreshTransactions}
+            refreshing={!this.state.isFlatListRefreshControlHidden}
             renderItem={this.renderSectionItem}
             keyExtractor={this.sectionListKeyExtractor}
             renderSectionHeader={this.renderSectionHeader}
