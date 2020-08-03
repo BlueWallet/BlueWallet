@@ -4,14 +4,14 @@ import { CONST, Transaction } from 'app/consts';
 
 const i18n = require('../../loc');
 
-const filterByTransactionType = (transactions: Transaction[], type: string) => {
+const filterByTransactionType = (transactions: Transaction[], type: string): Transaction[] => {
   if (type === CONST.send) {
     return transactions.filter(transaction => Number(transaction.value) < 0);
   }
   return transactions.filter(transaction => Number(transaction.value) > 0);
 };
 
-const filterByAddress = (transactions: Transaction[], type: string, address: string) => {
+const filterByAddress = (transactions: Transaction[], type: string, address: string): Transaction[] => {
   if (type === CONST.send) {
     return transactions.filter(transaction => {
       const inputs: string[] = [];
@@ -31,7 +31,7 @@ const filterByAddress = (transactions: Transaction[], type: string, address: str
   }
 };
 
-const filterByFromDate = (transactions: Transaction[], fromDate: number) => {
+const filterByFromDate = (transactions: Transaction[], fromDate: number): Transaction[] => {
   return transactions.filter(transaction => {
     if (!transaction.time) {
       return;
@@ -46,7 +46,7 @@ const filterByFromDate = (transactions: Transaction[], fromDate: number) => {
   });
 };
 
-const filterByToDate = (transactions: Transaction[], toDate: number) => {
+const filterByToDate = (transactions: Transaction[], toDate: number): Transaction[] => {
   return transactions.filter(transaction => {
     if (!transaction.time) {
       return;
@@ -61,7 +61,7 @@ const filterByToDate = (transactions: Transaction[], toDate: number) => {
   });
 };
 
-const fileterByFromAmount = (transactions: Transaction[], fromAmount: number) => {
+const fileterByFromAmount = (transactions: Transaction[], fromAmount: number): Transaction[] => {
   return transactions.filter(transaction => {
     return (
       i18n.formatBalanceWithoutSuffix(Number(transaction.value), transaction.walletPreferredBalanceUnit) >= fromAmount
@@ -69,14 +69,14 @@ const fileterByFromAmount = (transactions: Transaction[], fromAmount: number) =>
   });
 };
 
-const fileterByToAmount = (transactions: Transaction[], toAmount: number) => {
+const fileterByToAmount = (transactions: Transaction[], toAmount: number): Transaction[] => {
   return transactions.filter(
     transaction =>
       i18n.formatBalanceWithoutSuffix(Number(transaction.value), transaction.walletPreferredBalanceUnit) <= toAmount,
   );
 };
 
-export const filterBySearch = (search: string, transactions: Transaction[]) =>
+export const filterBySearch = (search: string, transactions: Transaction[]): Transaction[] =>
   transactions.filter(transaction => {
     const inputs: string[] = [];
     const outputs: string[] = [];
@@ -96,7 +96,11 @@ export const filterBySearch = (search: string, transactions: Transaction[]) =>
     );
   });
 
-export const filterTransaction = (filters: any, transactions: Transaction[]) => {
+export const filterByStatus = (transactions: Transaction[], status: string): Transaction[] => {
+  return transactions.filter(transaction => transaction.tx_type === status);
+};
+
+export const filterTransaction = (filters: any, transactions: Transaction[]): Transaction[] => {
   if (!filters.isFilteringOn) {
     return transactions;
   }
@@ -114,5 +118,7 @@ export const filterTransaction = (filters: any, transactions: Transaction[]) => 
   const fileteredByToAmount = filters.toAmount
     ? fileterByToAmount(fileteredByFromAmount, filters.toAmount)
     : fileteredByFromAmount;
-  return fileteredByToAmount;
+  return filters.transactionStatus
+    ? filterByStatus(fileteredByToAmount, filters.transactionStatus)
+    : fileteredByToAmount;
 };

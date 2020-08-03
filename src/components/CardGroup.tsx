@@ -35,11 +35,12 @@ export interface Card {
 }
 
 interface Props {
+  label: string;
   cards: Card[];
   onCardPressAction: (title: string) => void;
 }
 
-export const CardGroup = ({ cards, onCardPressAction }: Props) => {
+export const CardGroup = ({ label, cards, onCardPressAction }: Props) => {
   const [choosenCard, setChoosenCard] = useState('');
 
   useEffect(() => {
@@ -55,15 +56,16 @@ export const CardGroup = ({ cards, onCardPressAction }: Props) => {
 
   const isChoosen = (title: string) => choosenCard === title;
 
-  const renderHeaders = () => {
-    return (
+  const renderHeaders = () => (
+    <View style={styles.cardsContainer}>
+      <Text style={styles.headerLabel}>{label}</Text>
       <RowTemplate
         items={cards.map((card, index) => (
           <CardHeader key={index} title={card.title} isChoosen={isChoosen(card.title)} onCardPress={onCardPress} />
         ))}
       />
-    );
-  };
+    </View>
+  );
 
   const renderCardContent = () => {
     return cards.filter(card => isChoosen(card.title))[0]?.content;
@@ -86,7 +88,18 @@ const styles = StyleSheet.create({
     paddingBottom: 6.5,
     borderBottomWidth: 1,
   },
+  cardsContainer: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    maxWidth: 250,
+    alignSelf: 'center',
+  },
   headersContainer: {
     marginBottom: 20,
+  },
+  headerLabel: {
+    color: palette.textGrey,
+    ...typography.subtitle4,
+    marginBottom: 10,
   },
 });

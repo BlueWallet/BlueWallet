@@ -481,6 +481,14 @@ module.exports = {
     fromAmount: 'From amount',
     fromDate: 'From date',
     clearFilters: 'Clear filters',
+    transactionType: 'Transaction type',
+    transactionStatus: 'Transaction status',
+    status: {
+      pending: 'Pending',
+      recovered: 'Recovered',
+      done: 'Done',
+      cancelled: 'Cancelled',
+    },
   },
   calendar: {
     monthNames: {
