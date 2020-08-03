@@ -58,7 +58,6 @@ export class SendCoinsConfirmScreen extends Component<Props> {
     const balance = fromWallet.balance;
     const incomingBalance = fromWallet.incoming_balance;
     const amount = this.getAmountByTx(txDecoded);
-
     if (isAlert) {
       return {
         availableBalance: satoshiToBtc(balance - amount.my - amount.foreign) - fee,
@@ -66,11 +65,17 @@ export class SendCoinsConfirmScreen extends Component<Props> {
       };
     }
 
-    const decreasePending = pendingAmountDecrease ? roundBtcToSatoshis(pendingAmountDecrease) : 0;
+    if (pendingAmountDecrease !== undefined) {
+      const decreasePending = roundBtcToSatoshis(pendingAmountDecrease);
+      return {
+        availableBalance: satoshiToBtc(balance + amount.my),
+        pendingBalance: satoshiToBtc(incomingBalance).toNumber() - decreasePending,
+      };
+    }
 
     return {
-      availableBalance: satoshiToBtc(balance + amount.my - amount.foreign) - fee,
-      pendingBalance: satoshiToBtc(incomingBalance).toNumber() - decreasePending,
+      availableBalance: satoshiToBtc(balance - amount.foreign) - fee,
+      pendingBalance: satoshiToBtc(incomingBalance).toNumber(),
     };
   };
 

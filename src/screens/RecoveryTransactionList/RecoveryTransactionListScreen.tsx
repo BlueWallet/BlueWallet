@@ -202,6 +202,7 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
     paddingTop: 24,
+    backgroundColor: palette.white,
   },
   noTransactionsContainer: {
     alignItems: 'center',
