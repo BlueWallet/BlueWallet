@@ -365,10 +365,10 @@ PODS:
     - React
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.4.5):
+  - RNSentry (1.6.1):
     - React
-    - Sentry (~> 5.1.4)
-  - RNShare (3.5.0):
+    - Sentry (~> 5.1.8)
+  - RNShare (3.7.0):
     - React
   - RNSVG (12.1.0):
     - React
@@ -376,9 +376,9 @@ PODS:
     - React
   - RNWatch (0.5.0):
     - React
-  - Sentry (5.1.9):
-    - Sentry/Core (= 5.1.9)
-  - Sentry/Core (5.1.9)
+  - Sentry (5.1.10):
+    - Sentry/Core (= 5.1.10)
+  - Sentry/Core (5.1.10)
   - swift_qrcodejs (1.1.2)
   - ToolTipMenu (5.2.0):
     - React
@@ -689,12 +689,12 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 22c5ecf474428766c6b148f96f2ff6155cd7225e
   RNScreens: 62211832af51e0aebcf6e8c36bcf7dd65592f244
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: 0a70359ddacbfb9b1cbbb0971e54065b9f70ac57
-  RNShare: 9e0ab1939761051b074c8eb5e7d746f4d5a8ee0e
+  RNSentry: 57824da1293d03966605d682d5868b11aa1b6e5a
+  RNShare: a1d5064df7a0ebe778d001869b3f0a124bf0a491
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: 4de37878bbf071847e438b089c01d4ad8d4eddae
-  Sentry: 81f7f2bd3cb041137ea7efcde3aa5ad0d5a67632
+  Sentry: 8715e88b813bde9ad37aead365d5b04ac7302153
   swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
   ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e
   Yoga: 3ebccbdd559724312790e7742142d062476b698e

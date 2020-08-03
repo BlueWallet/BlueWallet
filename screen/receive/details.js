@@ -90,6 +90,7 @@ const ReceiveDetails = () => {
       color: BlueCurrentTheme.colors.foregroundColor,
       minHeight: 33,
     },
+    qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
     root: {
       flex: 1,
       backgroundColor: BlueCurrentTheme.colors.elevated,
@@ -150,16 +151,18 @@ const ReceiveDetails = () => {
               </BlueText>
             </>
           )}
-          <QRCode
-            value={bip21encoded}
-            logo={require('../../img/qr-code.png')}
-            size={(is.ipad() && 300) || 300}
-            logoSize={90}
-            color={colors.foregroundColor}
-            logoBackgroundColor={colors.brandingColor}
-            backgroundColor={colors.background}
-            ecl="H"
-          />
+          <View style={styles.qrCodeContainer}>
+            <QRCode
+              value={bip21encoded}
+              logo={require('../../img/qr-code.png')}
+              size={(is.ipad() && 300) || 300}
+              logoSize={90}
+              color="#000000"
+              logoBackgroundColor={colors.brandingColor}
+              backgroundColor="#FFFFFF"
+              ecl="H"
+            />
+          </View>
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>

@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
   valueRoot: {
     flex: 2,
     flexDirection: 'column',
@@ -108,6 +109,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 16,
+    borderWidth: 6,
+    borderRadius: 8,
+    borderColor: '#FFFFFF',
   },
   additionalInfo: {
     backgroundColor: BlueCurrentTheme.colors.brandingColor,
@@ -213,15 +217,17 @@ export default class LNDViewInvoice extends Component {
             <View style={styles.center}>
               <BlueText>{loc.lndViewInvoice.preimage}:</BlueText>
               <BlueSpacing20 />
-              <QRCode
-                value={invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? invoice.payment_preimage : 'none'}
-                logo={require('../../img/qr-code.png')}
-                size={this.state.qrCodeHeight}
-                logoSize={90}
-                color={BlueCurrentTheme.colors.foregroundColor}
-                backgroundColor={BlueCurrentTheme.colors.background}
-                logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
-              />
+              <View style={styles.qrCodeContainer}>
+                <QRCode
+                  value={invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? invoice.payment_preimage : 'none'}
+                  logo={require('../../img/qr-code.png')}
+                  size={this.state.qrCodeHeight}
+                  logoSize={90}
+                  color="#000000"
+                  logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
+                  backgroundColor="#FFFFFF"
+                />
+              </View>
               <BlueSpacing20 />
               <BlueCopyTextToClipboard
                 text={invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? invoice.payment_preimage : 'none'}
@@ -304,9 +310,9 @@ export default class LNDViewInvoice extends Component {
                 logo={require('../../img/qr-code.png')}
                 size={this.state.qrCodeHeight}
                 logoSize={90}
-                color={BlueCurrentTheme.colors.foregroundColor}
+                color="#000000"
                 logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
-                backgroundColor={BlueCurrentTheme.colors.background}
+                backgroundColor="#FFFFFF"
               />
             </View>
 

@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexGrow: 1,
   },
+  activeQrcode: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
   type: {
     fontSize: 17,
     fontWeight: '700',
@@ -108,18 +109,18 @@ export default class WalletExport extends Component {
             }
           })()}
           <BlueSpacing20 />
-
-          <QRCode
-            value={this.state.wallet.getSecret()}
-            logo={require('../../img/qr-code.png')}
-            size={this.state.qrCodeHeight}
-            logoSize={70}
-            color={BlueCurrentTheme.colors.foregroundColor}
-            logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
-            backgroundColor={BlueCurrentTheme.colors.background}
-            ecl="H"
-          />
-
+          <View style={styles.activeQrcode}>
+            <QRCode
+              value={this.state.wallet.getSecret()}
+              logo={require('../../img/qr-code.png')}
+              size={this.state.qrCodeHeight}
+              logoSize={70}
+              color="#000000"
+              logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
+              backgroundColor="#FFFFFF"
+              ecl="H"
+            />
+          </View>
           <BlueSpacing20 />
           {this.state.wallet.type === LightningCustodianWallet.type || this.state.wallet.type === WatchOnlyWallet.type ? (
             <BlueCopyTextToClipboard text={this.state.wallet.getSecret()} />
