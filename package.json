@@ -1,6 +1,6 @@
 {
   "name": "bluewallet",
-  "version": "5.5.2",
+  "version": "5.5.3",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.9.6",
@@ -139,7 +139,7 @@
     "react-native-safe-area-context": "2.0.3",
     "react-native-screens": "2.8.0",
     "react-native-secure-key-store": "git+https://github.com/BlueWallet/react-native-secure-key-store.git#4ba25dedb3d5ae15c22fd0ea0555116055630966",
-    "react-native-share": "3.5.0",
+    "react-native-share": "3.7.0",
     "react-native-snap-carousel": "3.9.1",
     "react-native-sortable-list": "0.0.24",
     "react-native-svg": "12.1.0",
