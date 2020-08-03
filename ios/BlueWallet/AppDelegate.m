@@ -13,24 +13,47 @@
 #import "RNQuickActionManager.h"
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
-#import <UserNotifications/UNUserNotificationCenter.h>
+#if !TARGET_OS_MACCATALYST
+#if DEBUG
+#import <FlipperKit/FlipperClient.h>
+#import <FlipperKitLayoutPlugin/FlipperKitLayoutPlugin.h>
+#import <FlipperKitUserDefaultsPlugin/FKUserDefaultsPlugin.h>
+#import <FlipperKitNetworkPlugin/FlipperKitNetworkPlugin.h>
+#import <SKIOSNetworkPlugin/SKIOSNetworkAdapter.h>
+#import <FlipperKitReactPlugin/FlipperKitReactPlugin.h>
+
+static void InitializeFlipper(UIApplication *application) {
+  FlipperClient *client = [FlipperClient sharedClient];
+  SKDescriptorMapper *layoutDescriptorMapper = [[SKDescriptorMapper alloc] initWithDefaults];
+  [client addPlugin:[[FlipperKitLayoutPlugin alloc] initWithRootNode:application withDescriptorMapper:layoutDescriptorMapper]];
+  [client addPlugin:[[FKUserDefaultsPlugin alloc] initWithSuiteName:nil]];
+  [client addPlugin:[FlipperKitReactPlugin new]];
+  [client addPlugin:[[FlipperKitNetworkPlugin alloc] initWithNetworkAdapter:[SKIOSNetworkAdapter new]]];
+  [client start];
+}
+#endif
+#endif
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  
+#if DEBUG
+  #if !TARGET_OS_MACCATALYST
+  InitializeFlipper(application);
+#endif
+#endif
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                    moduleName:@"BlueWallet"
                                             initialProperties:nil];
-  
+
   if (@available(iOS 13.0, *)) {
     rootView.backgroundColor = [UIColor systemBackgroundColor];
   } else {
     rootView.backgroundColor = [UIColor clearColor];
   }
-  
+
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   UIViewController *rootViewController = [UIViewController new];
   rootViewController.view = rootView;
@@ -56,7 +79,6 @@
 #endif
 }
 
-
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
   return [RCTLinkingManager application:app openURL:url options:options];
 }
@@ -68,13 +90,6 @@
 - (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL succeeded)) completionHandler {
   [RNQuickActionManager onQuickActionPress:shortcutItem completionHandler:completionHandler];
 }
-
-
-
-
-
-
-
 
 //Called when a notification is delivered to a foreground app.
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
@@ -116,10 +131,6 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 {
  [RNCPushNotificationIOS didReceiveLocalNotification:notification];
 }
-
-
-
-
 
 @end
 
