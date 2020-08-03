@@ -736,12 +736,6 @@ export class BlueFormInput extends Component {
 }
 
 export class BlueFormMultiInput extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selection: { start: 0, end: 0 },
-    };
-  }
 
   render() {
     return (

@@ -168,7 +168,6 @@ const WalletsImport = () => {
       <BlueFormMultiInput
         testID="MnemonicInput"
         value={importText}
-        contextMenuHidden
         onChangeText={setImportText}
         inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
       />
