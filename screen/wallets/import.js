@@ -18,6 +18,7 @@ import WalletImport from '../../class/wallet-import';
 import Clipboard from '@react-native-community/clipboard';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
+import loc from '../../loc';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const { width } = Dimensions.get('window');
 
@@ -140,7 +141,7 @@ const WalletsImport = () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     let copyFromClipboardIndex;
     if (Platform.OS === 'ios') {
-      const options = [loc.send.details.cancel, 'Take Photo', 'Choose Photo'];
+      const options = [loc._.cancel, 'Take Photo', 'Choose Photo'];
       if (!isClipboardEmpty) {
         options.push('Copy from Clipboard');
         copyFromClipboardIndex = options.length - 1;
