@@ -295,6 +295,7 @@ module.exports = {
       inputs: 'Inputs',
       ouputs: 'Outputs',
       sendCoins: 'Send coins',
+      timePending: 'Time pending',
     },
   },
   send: {

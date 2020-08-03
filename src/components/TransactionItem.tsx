@@ -52,7 +52,9 @@ export const TransactionItem = ({ item, onPress }: { item: Transaction; onPress:
         </Text>
       </View>
       {!!item.note && <Text style={typography.caption}>{item.note}</Text>}
-      <Text style={styles.label}>{moment(item.received).format('LT')}</Text>
+      <Text style={styles.label}>
+        {item.time ? moment(item.received).format('LT') : i18n.transactions.details.timePending}
+      </Text>
       {renderCofirmations(item.tx_type, item.confirmations)}
       {renderLabel(item.tx_type)}
     </View>
