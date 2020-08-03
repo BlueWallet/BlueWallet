@@ -30,6 +30,7 @@
     "network": "Ошибка сети"
   },
   "hodl": {
+    "are_you_sure_you_want_to_logout": "Вы уверены, что хотите выйти из HodlHodl?",
     "cont_address_escrow": "Эскроу",
     "cont_address_to": "На",
     "cont_buying": "покупка",
@@ -256,7 +257,12 @@
     "passwords_do_not_match": "Пароли не совпадают",
     "plausible_deniability": "Правдоподобная имитация...",
     "retype_password": "Набери пароль повторно",
-    "save": "Сохранить"
+    "notifications": "Уведомления",
+    "save": "Сохранить",
+    "saved": "Сохранено",
+    "not_a_valid_uri": "Неверный URI",
+    "push_notifications": "Push-уведомления",
+    "groundcontrol_explanation": "GroundControl - это бесплатный сервер push-уведомлений с открытым исходным кодом для биткойн-кошельков. Вы можете установить свой собственный сервер GroundControl и указать здесь его URL, чтобы не полагаться на инфраструктуру BlueWallet. Оставьте пустым, чтобы использовать по умолчанию"
   },
   "transactions": {
     "cancel_explain": "Мы заменим эту транзакцию другой, которая платит вам и имеет более высокую комиссию. Это отменит предыдущую транзакцию. Это называется RBF - Replace By Fee.",
