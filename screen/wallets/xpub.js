@@ -22,6 +22,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
+  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
 });
 
 export default class WalletXpub extends Component {
@@ -88,17 +89,18 @@ export default class WalletXpub extends Component {
             <BlueText>{this.state.wallet.typeReadable}</BlueText>
           </View>
           <BlueSpacing20 />
-
-          <QRCode
-            value={this.state.xpub}
-            logo={require('../../img/qr-code.png')}
-            size={this.state.qrCodeHeight}
-            logoSize={90}
-            color={BlueCurrentTheme.colors.foregroundColor}
-            logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
-            backgroundColor={BlueCurrentTheme.colors.background}
-            ecl="H"
-          />
+          <View style={styles.qrCodeContainer}>
+            <QRCode
+              value={this.state.xpub}
+              logo={require('../../img/qr-code.png')}
+              size={this.state.qrCodeHeight}
+              logoSize={90}
+              color="#000000"
+              logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
+              backgroundColor="#FFFFFF"
+              ecl="H"
+            />
+          </View>
 
           <BlueSpacing20 />
           <BlueCopyTextToClipboard text={this.state.xpubText} />

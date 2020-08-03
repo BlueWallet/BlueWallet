@@ -36,6 +36,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
+    borderWidth: 6,
+    borderRadius: 8,
+    borderColor: '#FFFFFF',
   },
   share: {
     marginBottom: 25,
@@ -74,9 +77,9 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
               logo={require('../../img/qr-code.png')}
               size={300}
               logoSize={90}
-              color={BlueCurrentTheme.colors.foregroundColor}
+              color="#000000"
               logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
-              backgroundColor={BlueCurrentTheme.colors.background}
+              backgroundColor="#FFFFFF"
             />
             <BlueSpacing20 />
             <BlueText>{loc.lndViewInvoice.open_direct_channel}</BlueText>

@@ -2626,9 +2626,9 @@ export class DynamicQRCode extends Component {
           <QRCode
             value={currentFragment.toUpperCase()}
             size={this.state.qrCodeHeight}
-            color={BlueCurrentTheme.colors.foregroundColor}
+            color="#000000"
             logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
-            backgroundColor={BlueCurrentTheme.colors.background}
+            backgroundColor="#FFFFFF"
             ecl="L"
           />
         </View>
@@ -2677,6 +2677,9 @@ const animatedQRCodeStyle = StyleSheet.create({
   qrcodeContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 6,
+    borderRadius: 8,
+    borderColor: '#FFFFFF',
   },
   controller: {
     width: '90%',
