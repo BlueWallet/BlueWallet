@@ -100,7 +100,7 @@ const configureNotifications = async function () {
  * @returns {Promise<boolean>} TRUE if permissions were obtained, FALSE otherwise
  */
 const tryToObtainPermissions = async function () {
-  if (isEmulatorSync && Platform.OS === 'ios') {
+  if (isEmulatorSync() && Platform.OS === 'ios') {
     console.log('Running inside iOS emulator. Exiting Push Notification configuration...');
     return false;
   }
