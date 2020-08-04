@@ -265,6 +265,12 @@ module.exports = {
       done: 'done',
       cancelled: 'cancelled',
     },
+    transactionTypeLabel: {
+      alert: 'Alert',
+      recovery: 'Recovery',
+      instant: 'Instant',
+      nonvault: 'Standard',
+    },
     list: {
       conf: 'Confirmations',
     },
@@ -274,6 +280,7 @@ module.exports = {
       transactionHex: 'Transaction hex',
       transactionHexDescription: 'This is transaction hex, signed and ready to be broadcast to the network',
       copyAndBoriadcast: 'Copy and broadcast later',
+      transactionType: 'Transaction type',
       verify: 'Verify on coinb.in',
       amount: 'Amount',
       fee: 'Fee',
@@ -284,6 +291,7 @@ module.exports = {
       to: 'To',
       bytes: 'bytes',
       copy: 'Copy',
+      walletType: 'Wallet type',
       noLabel: 'No label',
       details: 'Details',
       transactionId: 'Transaction ID',

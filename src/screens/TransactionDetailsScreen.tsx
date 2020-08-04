@@ -5,10 +5,11 @@ import React, { Component } from 'react';
 import { View, StyleSheet, Text, Linking, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux';
 
-import { images } from 'app/assets';
-import { Image, Header, StyledText, Chip, ScreenTemplate } from 'app/components';
+import { images, icons } from 'app/assets';
+import { Image, Header, StyledText, Chip, ScreenTemplate, TranscationLabelStatus } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
-import { Route, MainCardStackNavigatorParamList, RootStackParamList } from 'app/consts';
+import { Route, MainCardStackNavigatorParamList, RootStackParamList, TxType } from 'app/consts';
+import { getWalletTypeByLabel, getConfirmationsText } from 'app/helpers/helpers';
 import { ApplicationState } from 'app/state';
 import {
   createTransactionNote,
@@ -140,6 +141,14 @@ class TransactionDetailsScreen extends Component<Props, State> {
     return (
       <View style={styles.headerContainer}>
         <Image source={transaction.value < 0 ? images.bigMinus : images.bigPlus} style={styles.image} />
+        <View style={styles.walletIconContainer}>
+          <Image
+            source={transaction.value > 0 ? icons.arrowRight : icons.arrowLeft}
+            style={styles.arrowIcon}
+            resizeMode="contain"
+          />
+          <Image source={icons.wallet} style={styles.walletIcon} resizeMode="contain" />
+        </View>
         <Text style={styles.walletLabel}>{transaction.walletLabel}</Text>
         <Text style={[styles.value, { color: transaction.value < 0 ? palette.textRed : palette.textBlack }]}>
           {`${valuePreffix}${i18n.formatBalanceWithoutSuffix(
@@ -147,12 +156,17 @@ class TransactionDetailsScreen extends Component<Props, State> {
             transaction.walletPreferredBalanceUnit,
           )} ${transaction.walletPreferredBalanceUnit}`}
         </Text>
-        <Chip
-          label={`${transaction.confirmations < 7 ? transaction.confirmations : '6'} ${
-            i18n.transactions.details.confirmations
-          }`}
-          textStyle={typography.overline}
-        />
+        <TranscationLabelStatus type={transaction.tx_type} />
+
+        {transaction.tx_type !== TxType.ALERT_RECOVERED && (
+          <Chip
+            containerStyle={styles.chipContainer}
+            label={`${getConfirmationsText(transaction.tx_type, transaction.confirmations)} ${
+              i18n.transactions.details.confirmations
+            }`}
+            textStyle={typography.overline}
+          />
+        )}
       </View>
     );
   };
@@ -168,6 +182,23 @@ class TransactionDetailsScreen extends Component<Props, State> {
     });
   };
 
+  getTransactionTypeLabel = (txType: TxType) => {
+    switch (txType) {
+      case TxType.ALERT_PENDING:
+      case TxType.ALERT_RECOVERED:
+      case TxType.ALERT_CONFIRMED:
+        return i18n.transactions.transactionTypeLabel.alert;
+      case TxType.RECOVERY:
+        return i18n.transactions.transactionTypeLabel.recovery;
+      case TxType.INSTANT:
+        return i18n.transactions.transactionTypeLabel.instant;
+      case TxType.NONVAULT:
+        return i18n.transactions.transactionTypeLabel.nonvault;
+      default:
+        return '';
+    }
+  };
+
   render() {
     const { transaction } = this.props.route.params;
     const fromValue = this.state.from.filter(onlyUnique).join(', ');
@@ -179,7 +210,6 @@ class TransactionDetailsScreen extends Component<Props, State> {
         }
       >
         {this.renderHeader()}
-
         {this.state.note ? (
           <TouchableOpacity style={styles.noteContainer} onPress={this.editNote}>
             <Text style={styles.contentRowTitle}>{i18n.transactions.details.note}</Text>
@@ -190,6 +220,10 @@ class TransactionDetailsScreen extends Component<Props, State> {
             <StyledText title={i18n.transactions.details.addNote} onPress={this.editNote} />
           </View>
         )}
+        <View style={styles.contentRowContainer}>
+          <Text style={styles.contentRowTitle}>{i18n.transactions.details.walletType}</Text>
+          <Text style={styles.contentRowBody}>{getWalletTypeByLabel(transaction.walletLabel)}</Text>
+        </View>
         <View style={styles.contentRowContainer}>
           <View style={styles.row}>
             <Text style={styles.contentRowTitle}>{i18n.transactions.details.from}</Text>
@@ -222,6 +256,10 @@ class TransactionDetailsScreen extends Component<Props, State> {
               });
             }}
           />
+        </View>
+        <View style={styles.contentRowContainer}>
+          <Text style={styles.contentRowTitle}>{i18n.transactions.details.transactionType}</Text>
+          <Text style={styles.contentRowBody}>{this.getTransactionTypeLabel(transaction.tx_type)}</Text>
         </View>
         <View style={styles.contentRowContainer}>
           <Text style={styles.contentRowTitle}>{i18n.transactions.details.inputs}</Text>
@@ -268,6 +306,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     paddingBottom: 2,
     marginBottom: 13,
+  },
+  chipContainer: { marginTop: 10, marginBottom: 12 },
+  walletIconContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  arrowIcon: {
+    width: 24,
+    height: 24,
+  },
+  walletIcon: {
+    width: 14,
+    height: 14,
   },
   contentRowContainer: { marginVertical: 14 },
   contentRowTitle: { ...typography.overline, color: palette.textGrey },

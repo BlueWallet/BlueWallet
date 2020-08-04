@@ -1,19 +1,16 @@
-/* eslint-disable react-native/no-unused-styles */
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, StyleProp, TextProps } from 'react-native';
 
-import { palette, typography } from 'app/styles';
-
-type LabelType = 'warning' | 'success' | 'error' | 'neutral';
+import { typography, palette } from 'app/styles';
 
 interface Props {
-  type: LabelType;
-  children: React.ReactNode;
+  labelStyle: StyleProp<TextProps>;
+  children: string;
 }
 
-export const Label = ({ type, children }: Props) => (
+export const Label = ({ children, labelStyle }: Props) => (
   <View style={styles.labelWrapper}>
-    <Text style={[styles.label, styles[type]]}>{children}</Text>
+    <Text style={[styles.label, labelStyle]}>{children}</Text>
   </View>
 );
 
@@ -23,6 +20,7 @@ const styles = StyleSheet.create({
   },
   label: {
     ...typography.status,
+    backgroundColor: palette.mediumGrey,
     paddingVertical: 2,
     paddingHorizontal: 8,
     borderRadius: 2,
@@ -30,17 +28,5 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     textTransform: 'uppercase',
     overflow: 'hidden',
-  },
-  warning: {
-    backgroundColor: palette.textSecondary,
-  },
-  success: {
-    backgroundColor: palette.green,
-  },
-  error: {
-    backgroundColor: palette.textRed,
-  },
-  neutral: {
-    backgroundColor: palette.mediumGrey,
   },
 });

@@ -3,43 +3,21 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { icons } from 'app/assets';
-import { Label, Image } from 'app/components';
+import { TranscationLabelStatus, Image } from 'app/components';
 import { CONST, Transaction, TxType } from 'app/consts';
+import { getConfirmationsText } from 'app/helpers/helpers';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../loc');
-
-const renderLabel = (txType: TxType) => {
-  switch (txType) {
-    case TxType.ALERT_PENDING:
-      return <Label type="warning">{i18n.transactions.label.pending}</Label>;
-    case TxType.ALERT_RECOVERED:
-      return <Label type="neutral">{i18n.transactions.label.cancelled}</Label>;
-    case TxType.ALERT_CONFIRMED:
-      return <Label type="success">{i18n.transactions.label.done}</Label>;
-    case TxType.RECOVERY:
-      return <Label type="error">{i18n.transactions.label.recovered}</Label>;
-    default:
-      return null;
-  }
-};
 
 const renderArrowIcon = (value: number) => (
   <Image source={value > 0 ? icons.arrowRight : icons.arrowLeft} style={styles.arrow} resizeMode="contain" />
 );
 
-const renderCofirmations = (txType: TxType, confirmations: number) => {
-  if (txType === TxType.ALERT_RECOVERED) {
-    return null;
-  }
-
-  const maxConfirmations = [TxType.ALERT_PENDING, TxType.ALERT_CONFIRMED].includes(txType)
-    ? CONST.alertBlocks
-    : CONST.confirmationsBlocks;
-  const confs = confirmations > maxConfirmations ? maxConfirmations : confirmations;
-
-  return <Text style={styles.label}>{`${i18n.transactions.list.conf}: ${confs}/${maxConfirmations}`}</Text>;
-};
+const renderCofirmations = (txType: TxType, confirmations: number) =>
+  txType !== TxType.ALERT_RECOVERED && (
+    <Text style={styles.label}>{`${i18n.transactions.list.conf}: ${getConfirmationsText(txType, confirmations)}`}</Text>
+  );
 
 export const TransactionItem = ({ item, onPress }: { item: Transaction; onPress: (item: any) => void }) => (
   <TouchableOpacity style={styles.container} onPress={() => onPress(item)}>
@@ -56,7 +34,7 @@ export const TransactionItem = ({ item, onPress }: { item: Transaction; onPress:
         {item.time ? moment(item.received).format('LT') : i18n.transactions.details.timePending}
       </Text>
       {renderCofirmations(item.tx_type, item.confirmations)}
-      {renderLabel(item.tx_type)}
+      <TranscationLabelStatus type={item.tx_type} />
     </View>
     <View style={styles.rightColumn}>
       <Text style={[typography.headline5, { color: item.value < 0 ? palette.textRed : palette.textBlack }]}>

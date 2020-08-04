@@ -29,5 +29,6 @@ export { PinView } from './PinView';
 export { Mnemonic } from './Mnemonic';
 export { CheckBox } from './CheckBox';
 export { Label } from './Label';
+export { TranscationLabelStatus } from './TranscationLabelStatus';
 export { Dropdown } from './Dropdown';
 export { WalletDropdown } from './WalletDropdown';
