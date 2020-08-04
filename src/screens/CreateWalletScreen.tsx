@@ -190,7 +190,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
       await this.generateWallet(wallet);
     } catch (error) {
       this.setState({ isLoading: false });
-      Alert.alert(i18n.walllets.add.failed);
+      Alert.alert(i18n.wallets.add.failed);
     }
   };
 
