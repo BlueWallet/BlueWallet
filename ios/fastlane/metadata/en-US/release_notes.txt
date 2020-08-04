@@ -1,3 +1,11 @@
+v5.5.3
+======
+
+* FIX: notifications
+* FIX: Inverted QR codes
+* FIX: translations
+* FIX: Wallet rename
+
 v5.5.2
 ======
 
