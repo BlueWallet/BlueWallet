@@ -736,7 +736,6 @@ export class BlueFormInput extends Component {
 }
 
 export class BlueFormMultiInput extends Component {
-
   render() {
     return (
       <TextInput

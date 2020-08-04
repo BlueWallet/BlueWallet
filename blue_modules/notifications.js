@@ -1,7 +1,6 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import { Alert, Platform } from 'react-native';
+import { Alert } from 'react-native';
 import Frisbee from 'frisbee';
-import { isEmulatorSync } from 'react-native-device-info';
 import AsyncStorage from '@react-native-community/async-storage';
 import loc from '../loc';
 const PushNotification = require('react-native-push-notification');

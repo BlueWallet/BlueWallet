@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useEffect, useState, useCallback } from 'react';
-import { ScrollView, Alert, Platform, TouchableOpacity, TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import { ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { useNavigation, StackActions } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import {
@@ -17,6 +17,7 @@ import { AppStorage } from '../../class';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { colors } from 'react-native-elements';
+import { getSystemName } from 'react-native-device-info';
 const BlueApp: AppStorage = require('../../BlueApp');
 const prompt = require('../../blue_modules/prompt');
 
@@ -39,6 +40,7 @@ const EncryptStorage = () => {
     const biometricsType = (await Biometric.biometricType()) || 'biometrics';
     const deleteWalletsAfterUninstall = await BlueApp.isDeleteWalletAfterUninstallEnabled();
     const isStorageEncrypted = await BlueApp.storageIsEncrypted();
+
     setBiometrics(biometrics);
     setStorageIsEncrypted(isStorageEncrypted);
     setDeleteWalletsAfterUninstall(deleteWalletsAfterUninstall);
@@ -169,7 +171,7 @@ const EncryptStorage = () => {
           Component={TouchableWithoutFeedback}
           switch={{ onValueChange: onEncryptStorageSwitch, value: storageIsEncrypted }}
         />
-        {Platform.OS === 'ios' && (
+        {getSystemName() === 'iOS' && (
           <BlueListItemHooks
             hideChevron
             title={loc.settings.encrypt_del_uninstall}
