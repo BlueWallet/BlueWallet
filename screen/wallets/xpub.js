@@ -1,15 +1,14 @@
-import React, { Component } from 'react';
-import { Dimensions, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { InteractionManager, useWindowDimensions, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle, BlueCopyTextToClipboard } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const { height, width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   root: {
@@ -25,102 +24,78 @@ const styles = StyleSheet.create({
   qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
 });
 
-export default class WalletXpub extends Component {
-  constructor(props) {
-    super(props);
+const WalletXpub = () => {
+  const { secret } = useRoute().params;
+  const [isLoading, setIsLoading] = useState(true);
+  const [xPub, setXPub] = useState();
+  const [xPubText, setXPubText] = useState();
+  const [wallet, setWallet] = useState();
+  const { goBack } = useNavigation();
+  const { colors } = useTheme();
+  const { width, height } = useWindowDimensions();
+  const stylesHook = { ...styles, root: { ...styles.root, backgroundColor: colors.elevated } };
 
-    const secret = props.route.params.secret;
-    let wallet;
+  useFocusEffect(
+    useCallback(() => {
+      Privacy.enableBlur();
+      const task = InteractionManager.runAfterInteractions(async () => {
+        for (const w of BlueApp.getWallets()) {
+          if (w.getSecret() === secret) {
+            // found our wallet
+            setWallet(w);
+          }
+        }
 
-    for (const w of BlueApp.getWallets()) {
-      if (w.getSecret() === secret) {
-        // found our wallet
-        wallet = w;
-      }
-    }
+        if (wallet) {
+          const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
 
-    this.state = {
-      isLoading: true,
-      wallet,
-      xpub: wallet.getXpub(),
-      xpubText: wallet.getXpub(),
-      qrCodeHeight: height > width ? width - 40 : width / 2,
-    };
-  }
+          if (isBiometricsEnabled) {
+            if (!(await Biometric.unlockWithBiometrics())) {
+              return goBack();
+            }
+          }
+          setXPub(wallet.getXpub());
+          setXPubText(wallet.getXpub());
+          setIsLoading(false);
+        }
+      });
+      return () => {
+        task.cancel();
+        Privacy.disableBlur();
+      };
+    }, [goBack, secret, wallet]),
+  );
 
-  async componentDidMount() {
-    Privacy.enableBlur();
-    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-
-    if (isBiometricsEnabled) {
-      if (!(await Biometric.unlockWithBiometrics())) {
-        return this.props.navigation.goBack();
-      }
-    }
-
-    this.setState({
-      isLoading: false,
-    });
-  }
-
-  async componentWillUnmount() {
-    Privacy.disableBlur();
-  }
-
-  onLayout = () => {
-    const { height } = Dimensions.get('window');
-    this.setState({ qrCodeHeight: height > width ? width - 40 : width / 2 });
-  };
-
-  render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={styles.root}>
-          <ActivityIndicator />
+  return isLoading ? (
+    <View style={stylesHook.root}>
+      <ActivityIndicator />
+    </View>
+  ) : (
+    <SafeBlueArea style={stylesHook.root}>
+      <StatusBar barStyle="light-content" />
+      <View style={styles.container}>
+        <View>
+          <BlueText>{wallet.typeReadable}</BlueText>
         </View>
-      );
-    }
-
-    return (
-      <SafeBlueArea style={styles.root}>
-        <StatusBar barStyle="light-content" />
-        <View style={styles.container} onLayout={this.onLayout}>
-          <View>
-            <BlueText>{this.state.wallet.typeReadable}</BlueText>
-          </View>
-          <BlueSpacing20 />
-          <View style={styles.qrCodeContainer}>
-            <QRCode
-              value={this.state.xpub}
-              logo={require('../../img/qr-code.png')}
-              size={this.state.qrCodeHeight}
-              logoSize={90}
-              color="#000000"
-              logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
-              backgroundColor="#FFFFFF"
-              ecl="H"
-            />
-          </View>
-
-          <BlueSpacing20 />
-          <BlueCopyTextToClipboard text={this.state.xpubText} />
+        <BlueSpacing20 />
+        <View style={styles.qrCodeContainer}>
+          <QRCode
+            value={xPub}
+            logo={require('../../img/qr-code.png')}
+            size={height > width ? width - 40 : width / 2}
+            logoSize={90}
+            color="#000000"
+            logoBackgroundColor={colors.brandingColor}
+            backgroundColor="#FFFFFF"
+            ecl="H"
+          />
         </View>
-      </SafeBlueArea>
-    );
-  }
-}
 
-WalletXpub.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
-  route: PropTypes.shape({
-    name: PropTypes.string,
-    params: PropTypes.shape({
-      secret: PropTypes.string,
-    }),
-  }),
+        <BlueSpacing20 />
+        <BlueCopyTextToClipboard text={xPubText} />
+      </View>
+    </SafeBlueArea>
+  );
 };
 
 WalletXpub.navigationOptions = ({ navigation }) => ({
@@ -128,3 +103,5 @@ WalletXpub.navigationOptions = ({ navigation }) => ({
   title: loc.wallets.xpub_title,
   headerLeft: null,
 });
+
+export default WalletXpub;
