@@ -1,5 +1,5 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import { Alert, Platform } from 'react-native';
+import { Alert } from 'react-native';
 import Frisbee from 'frisbee';
 import AsyncStorage from '@react-native-community/async-storage';
 import loc from '../loc';
