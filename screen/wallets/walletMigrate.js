@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import RNFS from 'react-native-fs';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import DefaultPreference from 'react-native-default-preference';
-import { Platform } from 'react-native';
+import { getSystemName } from 'react-native-device-info';
 
 export default class WalletMigrate {
   static expoDataDirectory = RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage';
@@ -14,7 +14,7 @@ export default class WalletMigrate {
 
   // 0: Let's start!
   async start() {
-    if (Platform.OS === 'ios') {
+    if (getSystemName() === 'iOS') {
       const isNotFirstLaunch = await DefaultPreference.get('RnSksIsAppInstalled');
       if (!isNotFirstLaunch) {
         try {
