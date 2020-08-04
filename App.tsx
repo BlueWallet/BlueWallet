@@ -13,11 +13,13 @@ import { UnlockScreen } from 'app/screens';
 import { SecureStorageService, AppStateManager, navigationRef } from 'app/services';
 import { persistor, store } from 'app/state/store';
 
+import config from './config';
+
 YellowBox.ignoreWarnings(['VirtualizedLists should never be nested inside', `\`-[RCTRootView cancelTouches]\``]);
 
-if (process.env.NODE_ENV !== 'development') {
+if (!__DEV__) {
   Sentry.init({
-    dsn: 'https://23377936131848ca8003448a893cb622@sentry.io/1295736',
+    dsn: config.sentryDsn,
   });
 }
 
