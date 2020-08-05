@@ -5,7 +5,6 @@ import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle, BlueCopyTex
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
 import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
@@ -14,7 +13,6 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     paddingTop: 20,
-    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   container: {
     alignItems: 'center',
