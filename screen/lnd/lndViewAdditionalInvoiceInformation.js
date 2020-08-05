@@ -18,7 +18,7 @@ import { BlueCurrentTheme } from '../../components/themes';
 const styles = StyleSheet.create({
   loading: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: BlueCurrentTheme.colors.elevated,
   },
@@ -28,14 +28,13 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   qrcode: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    marginHorizontal: 16,
     borderWidth: 6,
     borderRadius: 8,
     borderColor: '#FFFFFF',
@@ -54,6 +53,7 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
       await fromWallet.fetchInfo();
     } catch (_) {
       alert(loc.errors.network);
+      this.props.navigation.goBack();
       return;
     }
     this.setState({ walletInfo: fromWallet.info_raw, addressText: fromWallet.info_raw.uris[0] });
@@ -81,10 +81,10 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
               logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
               backgroundColor="#FFFFFF"
             />
-            <BlueSpacing20 />
-            <BlueText>{loc.lndViewInvoice.open_direct_channel}</BlueText>
-            <BlueCopyTextToClipboard text={this.state.walletInfo.uris[0]} />
           </View>
+          <BlueSpacing20 />
+          <BlueText>{loc.lndViewInvoice.open_direct_channel}</BlueText>
+          <BlueCopyTextToClipboard text={this.state.walletInfo.uris[0]} />
           <View style={styles.share}>
             <BlueButton
               icon={{
@@ -110,9 +110,12 @@ LNDViewAdditionalInvoiceInformation.propTypes = {
   route: PropTypes.shape({
     params: PropTypes.object,
   }),
+  navigation: PropTypes.shape({
+    goBack: PropTypes.func,
+  }),
 };
 
-LNDViewAdditionalInvoiceInformation.navigationOptions = ({ navigation }) => ({
+LNDViewAdditionalInvoiceInformation.navigationOptions = () => ({
   ...BlueNavigationStyle(),
   title: 'Additional Information',
 });
