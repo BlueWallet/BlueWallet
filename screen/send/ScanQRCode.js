@@ -8,6 +8,7 @@ import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native'
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import loc from '../../loc';
+import { BlueLoadingHook } from '../../BlueComponents';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
 
@@ -94,8 +95,8 @@ const ScanQRCode = () => {
   };
 
   const showFilePicker = async () => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const res = await DocumentPicker.pick();
       const file = await RNFS.readFile(res.uri);
       const fileParsed = JSON.parse(file);
@@ -114,7 +115,6 @@ const ScanQRCode = () => {
       }
       setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const showImagePicker = () => {
@@ -134,10 +134,12 @@ const ScanQRCode = () => {
                 onBarCodeRead({ data: result });
               } else {
                 alert(loc.send.qr_error_no_qrcode);
+                setIsLoading(false);
               }
             });
+          } else {
+            setIsLoading(false);
           }
-          setIsLoading(false);
         },
       );
     }
@@ -147,7 +149,11 @@ const ScanQRCode = () => {
     navigation.navigate(launchedBy);
   };
 
-  return (
+  return isLoading ? (
+    <View style={styles.root}>
+      <BlueLoadingHook />
+    </View>
+  ) : (
     <View style={styles.root}>
       <StatusBar hidden />
       {!isLoading && isFocused && (
