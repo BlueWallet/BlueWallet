@@ -101,7 +101,7 @@ export default class AztecoRedeem extends Component {
     } else {
       this.props.navigation.pop();
       // remote because we want to refetch from server tx list and balance
-      setTimeout(() => EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED), 4000);
+      setTimeout(() => EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED), 3000);
       alert(loc.azteco.success);
     }
   };

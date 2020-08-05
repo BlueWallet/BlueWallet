@@ -33,6 +33,8 @@ const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
 
+let lastSnappedTo = 0;
+
 export default class WalletsList extends Component {
   walletsCarousel = React.createRef();
 
@@ -101,14 +103,15 @@ export default class WalletsList extends Component {
         InteractionManager.runAfterInteractions(async () => {
           let noErr = true;
           try {
-            await BlueElectrum.ping();
+            // await BlueElectrum.ping();
             await BlueElectrum.waitTillConnected();
             const balanceStart = +new Date();
-            await BlueApp.fetchWalletBalances(this.walletsCarousel.current.currentIndex || 0);
+            console.warn('refreshing for wallet', lastSnappedTo);
+            await BlueApp.fetchWalletBalances(lastSnappedTo || 0);
             const balanceEnd = +new Date();
             console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
             const start = +new Date();
-            await BlueApp.fetchWalletTransactions(this.walletsCarousel.current.currentIndex || 0);
+            await BlueApp.fetchWalletTransactions(lastSnappedTo || 0);
             const end = +new Date();
             console.log('fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
@@ -130,6 +133,7 @@ export default class WalletsList extends Component {
     // placing event subscription here so it gets exclusively re-subscribed more often. otherwise we would
     // have to unsubscribe on unmount and resubscribe again on mount.
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactions.bind(this), true);
+    console.warn('screen/wallets/list resubscribed to REMOTE_TRANSACTIONS_COUNT_CHANGED');
 
     if (BlueApp.getBalance() !== 0) {
       A(A.ENUM.GOT_NONZERO_BALANCE);
@@ -209,6 +213,7 @@ export default class WalletsList extends Component {
 
   onSnapToItem = index => {
     console.log('onSnapToItem', index);
+    lastSnappedTo = index;
     if (index < BlueApp.getWallets().length) {
       // not the last
     }

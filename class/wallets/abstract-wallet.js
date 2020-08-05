@@ -119,6 +119,10 @@ export class AbstractWallet {
     throw Error('not implemented');
   }
 
+  weOwnTransaction(txid) {
+    throw Error('not implemented');
+  }
+
   /**
    * Returns delta of unconfirmed balance. For example, if theres no
    * unconfirmed balance its 0

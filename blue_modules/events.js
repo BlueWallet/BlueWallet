@@ -7,7 +7,7 @@ function EV(eventName, arg, isExclusive) {
 
   if (typeof arg !== 'function') {
     // then its an argument
-    console.log('got event', eventName, '...');
+    console.warn('got event', eventName, '...');
     for (const cc of EV.callbacks[eventName]) {
       console.log('dispatching event', eventName);
       cc(arg);
@@ -40,6 +40,8 @@ EV.enum = {
 
   // when called, the deep linking listeners are set
   WALLETS_INITIALIZED: 'WALLETS_INITIALIZED',
+
+  PROCESS_PUSH_NOTIFICATIONS: 'PROCESS_PUSH_NOTIFICATIONS',
 };
 
 module.exports = EV;

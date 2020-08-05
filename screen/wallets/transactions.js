@@ -39,7 +39,6 @@ import Handoff from 'react-native-handoff';
 import { BlueCurrentTheme } from '../../components/themes';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
-/** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -181,6 +180,7 @@ export default class WalletTransactions extends Component {
 
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this), true);
+    console.warn('screen/wallets/transactions subscribed to REMOTE_TRANSACTIONS_COUNT_CHANGED');
     const wallet = props.route.params.wallet;
     this.props.navigation.setParams({ wallet: wallet, isLoading: true });
     this.state = {
@@ -210,11 +210,12 @@ export default class WalletTransactions extends Component {
   /**
    * Forcefully fetches TXs and balance for wallet
    */
-  refreshTransactionsFunction() {
+  refreshTransactionsFunction(delay) {
+    delay = delay || 4000;
     const that = this;
     setTimeout(function () {
       that.refreshTransactions();
-    }, 4000); // giving a chance to remote server to propagate
+    }, delay); // giving a chance to remote server to propagate
   }
 
   /**
@@ -272,7 +273,7 @@ export default class WalletTransactions extends Component {
         let noErr = true;
         let smthChanged = false;
         try {
-          await BlueElectrum.ping();
+          // await BlueElectrum.ping();
           await BlueElectrum.waitTillConnected();
           /** @type {LegacyWallet} */
           const wallet = this.state.wallet;
