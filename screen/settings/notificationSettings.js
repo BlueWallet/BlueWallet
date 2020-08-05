@@ -9,6 +9,7 @@ import {
   BlueNavigationStyle,
   BlueCard,
   BlueButton,
+  BlueCopyToClipboardButton,
 } from '../../BlueComponents';
 import { useTheme } from '@react-navigation/native';
 import loc from '../../loc';
@@ -19,6 +20,8 @@ const notifications = require('../../blue_modules/notifications');
 const NotificationSettings = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNotificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [isShowTokenInfo, setShowTokenInfo] = useState(0);
+  const [tokenInfo, setTokenInfo] = useState('<empty>');
   const [URI, setURI] = useState();
 
   const { colors } = useTheme();
@@ -27,10 +30,16 @@ const NotificationSettings = () => {
     setNotificationsEnabled(value); // so the slider is not 'jumpy'
     if (value) {
       // user is ENABLING notifications
-      await notifications.tryToObtainPermissions();
+      if (await notifications.getPushToken()) {
+        // we already have a token, so we just need to reenable ALL level on groundcontrol:
+        await notifications.setLevels(true);
+      } else {
+        // ok, we dont have a token. we need to try to obtain permissions, configure callbacks and save token locally:
+        await notifications.tryToObtainPermissions();
+      }
     } else {
       // user is DISABLING notifications
-      // NOP for now, since we should basically send to GroundControl that we want to disable everything
+      await notifications.setLevels(false);
     }
 
     setNotificationsEnabled(await notifications.isNotificationsEnabled());
@@ -40,6 +49,7 @@ const NotificationSettings = () => {
     (async () => {
       setNotificationsEnabled(await notifications.isNotificationsEnabled());
       setURI(await notifications.getSavedUri());
+      setTokenInfo(JSON.stringify(await notifications.getPushToken()) + ' ' + JSON.stringify(await notifications.checkPermissions()));
       setIsLoading(false);
     })();
   }, []);
@@ -125,8 +135,18 @@ const NotificationSettings = () => {
         </View>
 
         <BlueSpacing20 />
-        <BlueTextHooks style={styles.centered}>♪ Ground Control to Major Tom ♪</BlueTextHooks>
-        <BlueTextHooks style={styles.centered}>♪ Commencing countdown, engines on ♪</BlueTextHooks>
+        <BlueTextHooks style={styles.centered} onPress={() => setShowTokenInfo(isShowTokenInfo + 1)}>
+          ♪ Ground Control to Major Tom ♪
+        </BlueTextHooks>
+        <BlueTextHooks style={styles.centered} onPress={() => setShowTokenInfo(isShowTokenInfo + 1)}>
+          ♪ Commencing countdown, engines on ♪
+        </BlueTextHooks>
+
+        {isShowTokenInfo >= 9 && (
+          <View>
+            <BlueCopyToClipboardButton stringToCopy={tokenInfo} displayText={tokenInfo} />
+          </View>
+        )}
 
         <BlueSpacing20 />
         <BlueButton onPress={save} title={loc.settings.save} />
