@@ -18,19 +18,23 @@ export class AbstractHDSegwitP2SHVaultWallet extends AbstractHDSegwitP2SHWallet 
 
   constructor(pubKeysHex = []) {
     super();
+    let pubKeys;
     try {
-      this.pubKeys = [
-        ...(this.pubKeys || []),
-        ...pubKeysHex.map(
-          p =>
-            ECPair.fromPublicKey(Buffer.from(p, BUFFER_ENCODING), {
-              network: config.network,
-            }).publicKey,
-        ),
-      ];
+      pubKeys = pubKeysHex.map(
+        p =>
+          ECPair.fromPublicKey(Buffer.from(p, BUFFER_ENCODING), {
+            network: config.network,
+          }).publicKey,
+      );
     } catch (_) {
       throw new Error(i18n.wallets.errors.invalidPublicKey);
     }
+
+    if (this.hasAlreadyPubKeys(pubKeys)) {
+      throw new Error(i18n.wallets.errors.duplicatedPublicKey);
+    }
+
+    this.pubKeys = [...(this.pubKeys || []), ...pubKeys];
   }
 
   static fromJson(json) {
@@ -59,15 +63,28 @@ export class AbstractHDSegwitP2SHVaultWallet extends AbstractHDSegwitP2SHWallet 
       .replace(/\s+/g, ' ');
   }
 
+  hasAlreadyPubKeys = publicKeys => {
+    if (!this.pubKeys) {
+      return false;
+    }
+    const newPubKeysHex = publicKeys.map(p => p.toString(BUFFER_ENCODING));
+    const pubKeysHex = this.pubKeys.map(p => p.toString(BUFFER_ENCODING));
+    return pubKeysHex.some(p => newPubKeysHex.includes(p));
+  };
+
   addPublicKey(publicKeyHex) {
+    let publicKey;
     try {
-      const publicKey = ECPair.fromPublicKey(Buffer.from(publicKeyHex, BUFFER_ENCODING), {
+      publicKey = ECPair.fromPublicKey(Buffer.from(publicKeyHex, BUFFER_ENCODING), {
         network: config.network,
       }).publicKey;
-      this.pubKeys = [...this.pubKeys, publicKey];
     } catch (error) {
       throw new Error(i18n.wallets.errors.invalidPublicKey);
     }
+    if (this.hasAlreadyPubKeys([publicKey])) {
+      throw new Error(i18n.wallets.errors.duplicatedPublicKey);
+    }
+    this.pubKeys = [...this.pubKeys, publicKey];
   }
 
   clearPublickKeys() {

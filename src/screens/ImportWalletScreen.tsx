@@ -122,7 +122,7 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
       const wallet = new HDSegwitP2SHArWallet();
       wallet.setMnemonic(mnemonic);
       this.props.navigation.navigate(Route.IntegrateKey, {
-        onBarCodeScan: key => {
+        onBarCodeScan: (key: string) => {
           CreateMessage({
             title: i18n.message.creatingWallet,
             description: i18n.message.creatingWalletDescription,
@@ -142,7 +142,7 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
 
   addInstantPublicKey = (wallet: HDSegwitP2SHAirWallet) => {
     this.props.navigation.navigate(Route.IntegrateKey, {
-      onBarCodeScan: instantPublicKey => {
+      onBarCodeScan: (instantPublicKey: string) => {
         try {
           wallet.addPublicKey(instantPublicKey);
           this.addRecoveryKey(wallet);

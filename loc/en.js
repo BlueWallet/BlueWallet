@@ -270,6 +270,7 @@ module.exports = {
       invalidMnemonic: 'Invalid mnemonic',
       invalidQrCode: 'Invalid QR code',
       invalidSign: `Couldn't sign transaction`,
+      duplicatedPublicKey: 'The public key has already been added',
     },
   },
   transactions: {

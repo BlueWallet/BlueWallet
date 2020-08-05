@@ -80,8 +80,8 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     }
   };
 
-  showAlert = (onPress: Function) => {
-    Alert.alert('Error', i18n.wallets.add.publicKeyError, [
+  showAlert = (onPress: Function, error?: string) => {
+    Alert.alert('Error', error || i18n.wallets.add.publicKeyError, [
       {
         text: 'OK',
         onPress: () => onPress(),
@@ -117,16 +117,16 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
 
   createAIRWalletAddInstantPublicKey = (wallet: any, label: string) => (instantPublicKey: string) => {
     const { navigation } = this.props;
-    const onError = () =>
+    const onError = (error: string) =>
       this.showAlert(() => {
         this.navigateToIntegrateInstantPublicKey(wallet, label);
-      });
+      }, error);
     try {
       wallet.addPublicKey(instantPublicKey);
       navigation.goBack();
       this.createVaultWalletMessage(wallet, onError);
-    } catch (_) {
-      onError();
+    } catch (e) {
+      onError(e.message);
     }
   };
 
@@ -160,8 +160,11 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
       wallet.addPublicKey(recoveryPublicKey);
       wallet.setLabel(label);
       this.navigateToIntegrateInstantPublicKey(wallet, label);
-    } catch (_) {
-      this.showAlert(() => this.navigateToIntegrateRecoveryPublicKey(label, this.createAIRWalletAddRecoveryPublicKey));
+    } catch (e) {
+      this.showAlert(
+        () => this.navigateToIntegrateRecoveryPublicKey(label, this.createAIRWalletAddRecoveryPublicKey),
+        e.message,
+      );
     }
   };
 
