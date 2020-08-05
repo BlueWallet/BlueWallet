@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { StatusBar, StyleSheet, Text, View } from 'react-native';
+import { StatusBar, StyleSheet, Text, View, Keyboard } from 'react-native';
 
 import { images } from 'app/assets';
 import { Image, PinView, PinInputView } from 'app/components';
@@ -27,6 +27,7 @@ export class UnlockScreen extends PureComponent<Props, State> {
   };
 
   async componentDidMount() {
+    Keyboard.dismiss();
     await BlueApp.startAndDecrypt();
     if (this.props.isBiometricEnabledByUser) {
       await this.unlockWithBiometrics();
