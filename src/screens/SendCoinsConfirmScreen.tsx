@@ -1,6 +1,7 @@
 import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Transaction } from 'bitcoinjs-lib';
+import { round } from 'lodash';
 import React, { Component } from 'react';
 import { View, StyleSheet, Alert, Dimensions } from 'react-native';
 
@@ -205,7 +206,7 @@ export class SendCoinsConfirmScreen extends Component<Props> {
             <Text style={typography.caption}>{`${i18n.send.details.fee}  `}</Text>
             <View style={styles.feeBox}>
               <Text style={styles.fee}>
-                {satoshiPerByte} {i18n.send.details.feeUnit}
+                {round(satoshiPerByte, 2)} {i18n.send.details.feeUnit}
               </Text>
             </View>
           </View>

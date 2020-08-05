@@ -63,4 +63,6 @@ export const icons = {
   arrowLeft: require('./images/arrowLeft.png'),
   arrowRight: require('./images/arrowRight.png'),
   wallet: require('./images/wallet.png'),
+  pair: require('./images/pair3x.png'),
+  export: require('./images/export3x.png'),
 };

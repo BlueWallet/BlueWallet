@@ -129,7 +129,7 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
     return amount ? `${address}?amount=${amount}` : address;
   }
 
-  share = async () => {
+  share = () => {
     const message = this.message;
     if (this.qrCodeSVG === undefined) {
       Share.open({
@@ -148,7 +148,7 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
     }
   };
 
-  chooseItemFromModal = async (index: number) => {
+  chooseItemFromModal = (index: number) => {
     const wallets = BlueApp.getWallets();
 
     const wallet = wallets[index];

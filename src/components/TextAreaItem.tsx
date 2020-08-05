@@ -8,6 +8,8 @@ interface Props {
   placeholder?: string;
   onChangeText?: (text: string) => void;
   error?: string;
+  value?: string;
+  editable?: boolean;
 }
 
 interface State {
@@ -22,7 +24,7 @@ export class TextAreaItem extends PureComponent<Props, State> {
   onBlur = () => this.setState({ isActive: false });
 
   render() {
-    const { style, placeholder, onChangeText, error } = this.props;
+    const { style, placeholder, onChangeText, error, value, editable } = this.props;
     const { isActive } = this.state;
     return (
       <>
@@ -32,6 +34,8 @@ export class TextAreaItem extends PureComponent<Props, State> {
           placeholderTextColor={palette.textGrey}
           numberOfLines={100}
           selectionColor={palette.textSecondary}
+          value={value}
+          editable={editable}
           multiline={true}
           onFocus={this.onFocus}
           onBlur={this.onBlur}

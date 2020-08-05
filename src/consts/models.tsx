@@ -34,7 +34,9 @@ export enum Route {
   RecoveryTransactionList = 'RecoveryTransactionList',
   EnterPIN = 'EnterPIN',
   ExportAuthenticator = 'ExportAuthenticator',
+  PairAuthenticator = 'PairAuthenticator',
   ImportAuthenticator = 'ImportAuthenticator',
+  OptionsAuthenticator = 'OptionsAuthenticator',
   CreateWalletSuccess = 'CreateWalletSuccess',
   DeleteEntity = 'DeleteEntity',
   CreateAuthenticatorSuccess = 'CreateAuthenticatorSuccess',
@@ -302,11 +304,13 @@ export type MainCardStackNavigatorParams = {
   [Route.FilterTransactions]: { onFilterPress: ({}) => void };
   [Route.CreateAuthenticator]: undefined;
   [Route.EnterPIN]: { id: string };
+  [Route.PairAuthenticator]: { id: string };
   [Route.AuthenticatorList]: undefined;
   [Route.CreateAuthenticatorSuccess]: { id: string };
   [Route.DeleteEntity]: { onConfirm: () => void; name: string; subtitle: string; title: string };
   [Route.ExportAuthenticator]: { id: string };
   [Route.ImportAuthenticator]: undefined;
+  [Route.OptionsAuthenticator]: { id: string };
   [Route.CreateWalletSuccess]: { secret: string };
   [Route.IntegrateKey]: {
     onBarCodeScan: (text: string) => void;
@@ -330,4 +334,5 @@ export interface Authenticator {
   pin: string;
   secret: string;
   createdAt: Dayjs;
+  exportPublicKey: string;
 }

@@ -79,6 +79,20 @@ module.exports = {
     sign: {
       error: `None of the authenticators were able to sign the transaction`,
     },
+    options: {
+      title: 'Authenticator options',
+      export: 'Export authenticator',
+      pair: 'Pair authenticator',
+      sectionTitle: 'General',
+      delete: 'Delete authenticator',
+    },
+    pair: {
+      title: 'Pair authenticator',
+      pin: 'PIN',
+      publicKey: 'Public Key',
+      descPin: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.',
+      descPublicKey: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.',
+    },
     import: {
       title: 'Import authenticator',
       success: 'Your authenticator has been successfully imported. You can now return to Authenticators.',

@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import { FlatList, StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert, FlatList } from 'react-native';
 import { NavigationInjectedProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import { icons, images } from 'app/assets';
 import { Header, Image, ListEmptyState, ScreenTemplate } from 'app/components';
 import { Route, Authenticator, FinalizedPSBT, CONST } from 'app/consts';
-import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { ApplicationState } from 'app/state';
 import { selectors, actions } from 'app/state/authenticators';
 import { palette, typography } from 'app/styles';
@@ -26,7 +25,6 @@ interface MapStateProps {
 interface ActionProps {
   loadAuthenticators: Function;
   signTransaction: Function;
-  deleteAuthenticator: Function;
 }
 
 type Props = NavigationInjectedProps & MapStateProps & ActionProps;
@@ -36,30 +34,6 @@ class AuthenticatorListScreen extends Component<Props> {
     const { loadAuthenticators } = this.props;
     loadAuthenticators();
   }
-
-  onDeletePress = (authenticator: Authenticator) => {
-    const { deleteAuthenticator, navigation } = this.props;
-    navigation.navigate(Route.DeleteEntity, {
-      name: authenticator.name,
-      title: i18n.authenticators.delete.title,
-      subtitle: i18n.authenticators.delete.subtitle,
-      onConfirm: () => {
-        deleteAuthenticator(authenticator.id, {
-          onSuccess: () => {
-            CreateMessage({
-              title: i18n.message.success,
-              description: i18n.authenticators.delete.success,
-              type: MessageType.success,
-              buttonProps: {
-                title: i18n.message.returnToAuthenticators,
-                onPress: () => navigation.navigate(Route.AuthenticatorList),
-              },
-            });
-          },
-        });
-      },
-    });
-  };
 
   getActualSatoshiPerByte = (tx: string, feeSatoshi: number) =>
     new BigNumber(feeSatoshi).dividedBy(Math.round(tx.length / 2)).toNumber();
@@ -96,28 +70,25 @@ class AuthenticatorListScreen extends Component<Props> {
     });
   };
 
-  renderItem = ({ item }: { item: Authenticator }) => {
+  navigateToOptions = (id: string) => {
     const { navigation } = this.props;
 
-    return (
-      <View style={styles.authenticatorWrapper}>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate(Route.ExportAuthenticator, { id: item.id });
-          }}
-          style={styles.authenticatorLeftColumn}
-        >
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.date}>
-            {i18n._.created} {formatDate(item.createdAt)}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.authenticatorRightColumn} onPress={() => this.onDeletePress(item)}>
-          <Text style={styles.delete}>{i18n._.delete}</Text>
-        </TouchableOpacity>
-      </View>
-    );
+    navigation.navigate(Route.OptionsAuthenticator, { id });
   };
+
+  renderItem = ({ item }: { item: Authenticator }) => (
+    <TouchableOpacity style={styles.authenticatorWrapper} onPress={() => this.navigateToOptions(item.id)}>
+      <View style={styles.authenticatorLeftColumn}>
+        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.date}>
+          {i18n._.created} {formatDate(item.createdAt)}
+        </Text>
+      </View>
+      <View>
+        <Image source={images.backArrow} style={styles.backArrow} />
+      </View>
+    </TouchableOpacity>
+  );
 
   renderHeader = () => (
     <View style={styles.headerContainer}>
@@ -145,13 +116,17 @@ class AuthenticatorListScreen extends Component<Props> {
     return !!authenticators.length;
   };
 
-  render() {
-    const { navigation, authenticators, loadAuthenticators, isLoading } = this.props;
+  getAuthenticatorsList = () => {
+    const { authenticators } = this.props;
+    return authenticators.sort((a, b) => b.createdAt.valueOf() - a.createdAt.valueOf());
+  };
 
-    const sortedAuthenticators = authenticators.sort((a, b) => b.createdAt.valueOf() - a.createdAt.valueOf());
+  render() {
+    const { navigation, loadAuthenticators, isLoading } = this.props;
 
     return (
       <ScreenTemplate
+        noScroll={true}
         header={
           <Header
             navigation={navigation}
@@ -166,9 +141,9 @@ class AuthenticatorListScreen extends Component<Props> {
             {this.renderHeader()}
             <FlatList
               refreshing={isLoading}
-              onRefresh={() => loadAuthenticators()}
               style={styles.list}
-              data={sortedAuthenticators}
+              data={this.getAuthenticatorsList()}
+              onRefresh={() => loadAuthenticators()}
               renderItem={this.renderItem}
             />
           </View>
@@ -187,7 +162,6 @@ const mapStateToProps = (state: ApplicationState): MapStateProps => ({
 
 const mapDispatchToProps: ActionProps = {
   loadAuthenticators: actions.loadAuthenticators,
-  deleteAuthenticator: actions.deleteAuthenticator,
   signTransaction: actions.signTransaction,
 };
 
@@ -203,6 +177,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   authenticatorWrapper: {
+    backgroundColor: palette.white,
     paddingVertical: 8,
     display: 'flex',
     flexDirection: 'row',
@@ -212,20 +187,8 @@ const styles = StyleSheet.create({
   authenticatorLeftColumn: {
     flexGrow: 6,
   },
-  authenticatorRightColumn: {
-    padding: 15,
-    top: -15,
-    right: -15,
-    flexGrow: 2,
-  },
   name: {
     ...typography.headline5,
-  },
-  delete: {
-    right: 15,
-    ...typography.headline6,
-    color: palette.textRed,
-    textAlign: 'right',
   },
   date: {
     color: palette.textGrey,
@@ -267,5 +230,10 @@ const styles = StyleSheet.create({
   headerContainer: {
     marginBottom: 26,
     marginTop: 20,
+  },
+  backArrow: {
+    width: 8,
+    height: 13,
+    transform: [{ rotate: '180deg' }],
   },
 });
