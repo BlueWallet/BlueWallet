@@ -34,6 +34,7 @@ const PleaseBackupLNDHub = () => {
       flexGrow: 1,
       backgroundColor: colors.elevated,
     },
+    qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
   });
 
   useEffect(() => {
@@ -59,18 +60,18 @@ const PleaseBackupLNDHub = () => {
             <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>
           </View>
           <BlueSpacing20 />
-
-          <QRCode
-            value={wallet.secret}
-            logo={require('../../img/qr-code.png')}
-            logoSize={90}
-            size={qrCodeHeight}
-            color={colors.foregroundColor}
-            logoBackgroundColor={colors.brandingColor}
-            backgroundColor={colors.background}
-            ecl="H"
-          />
-
+          <View style={styles.qrCodeContainer}>
+            <QRCode
+              value={wallet.secret}
+              logo={require('../../img/qr-code.png')}
+              logoSize={90}
+              size={qrCodeHeight}
+              color="#000000"
+              logoBackgroundColor={colors.brandingColor}
+              backgroundColor="#FFFFFF"
+              ecl="H"
+            />
+          </View>
           <BlueSpacing20 />
           <BlueCopyTextToClipboard text={wallet.secret} />
           <BlueSpacing20 />

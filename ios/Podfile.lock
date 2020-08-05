@@ -249,13 +249,13 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.30.0):
+  - react-native-camera (3.31.1):
     - React
-    - react-native-camera/RCT (= 3.30.0)
-    - react-native-camera/RN (= 3.30.0)
-  - react-native-camera/RCT (3.30.0):
+    - react-native-camera/RCT (= 3.31.1)
+    - react-native-camera/RN (= 3.31.1)
+  - react-native-camera/RCT (3.31.1):
     - React
-  - react-native-camera/RN (3.30.0):
+  - react-native-camera/RN (3.31.1):
     - React
   - react-native-document-picker (3.2.0):
     - React
@@ -368,7 +368,7 @@ PODS:
   - RNSentry (1.6.1):
     - React
     - Sentry (~> 5.1.8)
-  - RNShare (3.5.0):
+  - RNShare (3.7.0):
     - React
   - RNSVG (12.1.0):
     - React
@@ -654,7 +654,7 @@ SPEC CHECKSUMS:
   react-native-biometrics: c892904948a32295b128f633bcc11eda020645c5
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: f57b28a587a81c50085b77f3fdc71818089ab45d
+  react-native-camera: c673127fd3bf9f9ac4ea6e65fce8160e8e0ae1d1
   react-native-document-picker: e3516aff0dcf65ee0785d9bcf190eb10e2261154
   react-native-image-picker: 668e72d0277dc8c12ae90e835507c1eddd2e4f85
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
@@ -690,7 +690,7 @@ SPEC CHECKSUMS:
   RNScreens: 62211832af51e0aebcf6e8c36bcf7dd65592f244
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: 57824da1293d03966605d682d5868b11aa1b6e5a
-  RNShare: 9e0ab1939761051b074c8eb5e7d746f4d5a8ee0e
+  RNShare: a1d5064df7a0ebe778d001869b3f0a124bf0a491
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: 4de37878bbf071847e438b089c01d4ad8d4eddae
