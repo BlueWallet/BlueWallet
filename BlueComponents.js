@@ -2195,6 +2195,7 @@ export class BlueReplaceFeeSuggestions extends Component {
                   minHeight: 33,
                   maxWidth: 100,
                   minWidth: 44,
+                  color: '#81868e',
                   backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
                   textAlign: 'right',
                 }}
