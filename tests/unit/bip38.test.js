@@ -20,11 +20,11 @@ it('bip38 decodes', async () => {
 });
 
 it('bip38 decodes slow', async () => {
-  if (process.env.USER === 'burn' || process.env.USER === 'igor' || process.env.USER === 'overtorment') {
-    // run only on circleCI
+  if (!(process.env.CI || process.env.TRAVIS)) {
+    // run only on CI
     return;
   }
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
   const bip38 = require('../../blue_modules/bip38');
   const wif = require('wif');
 

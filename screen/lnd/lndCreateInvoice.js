@@ -229,7 +229,7 @@ export default class LNDCreateInvoice extends Component {
         const fromWallet = this.state.fromWallet;
         const decoded = await fromWallet.decodeInvoice(invoiceRequest);
         await notifications.tryToObtainPermissions();
-        notifications.majorTomToGroundControl([], [decoded.payment_hash]);
+        notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
 
         // send to lnurl-withdraw callback url if that exists
         if (this.state.lnurlParams) {

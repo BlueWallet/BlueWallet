@@ -16,6 +16,7 @@ import LightningSettings from './screen/settings/lightningSettings';
 import ElectrumSettings from './screen/settings/electrumSettings';
 import GeneralSettings from './screen/settings/GeneralSettings';
 import NetworkSettings from './screen/settings/NetworkSettings';
+import NotificationSettings from './screen/settings/notificationSettings';
 import DefaultView from './screen/settings/defaultView';
 
 import WalletsList from './screen/wallets/list';
@@ -120,6 +121,7 @@ const WalletsRoot = () => (
     <WalletsStack.Screen name="EncryptStorage" component={EncryptStorage} options={EncryptStorage.navigationOptions} />
     <WalletsStack.Screen name="GeneralSettings" component={GeneralSettings} options={GeneralSettings.navigationOptions} />
     <WalletsStack.Screen name="NetworkSettings" component={NetworkSettings} options={NetworkSettings.navigationOptions} />
+    <WalletsStack.Screen name="NotificationSettings" component={NotificationSettings} options={NotificationSettings.navigationOptions} />
     <WalletsStack.Screen name="PlausibleDeniability" component={PlausibleDeniability} options={PlausibleDeniability.navigationOptions} />
     <WalletsStack.Screen name="LightningSettings" component={LightningSettings} options={LightningSettings.navigationOptions} />
     <WalletsStack.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions} />

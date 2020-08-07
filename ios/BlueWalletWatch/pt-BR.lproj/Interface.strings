@@ -1,0 +1,93 @@
+
+/* Class = "WKInterfaceButton"; title = "Amount"; ObjectID = "0Hm-hv-Yi3"; */
+"0Hm-hv-Yi3.title" = "Amount";
+
+/* Class = "WKInterfaceButton"; title = "8"; ObjectID = "3FQ-tZ-9kd"; */
+"3FQ-tZ-9kd.title" = "8";
+
+/* Class = "WKInterfaceButton"; title = "Create"; ObjectID = "6eh-lx-UEe"; */
+"6eh-lx-UEe.title" = "Create";
+
+/* Class = "WKInterfaceButton"; title = "Create Invoice"; ObjectID = "7bc-tt-Pab"; */
+"7bc-tt-Pab.title" = "Create Invoice";
+
+/* Class = "WKInterfaceButton"; title = "5"; ObjectID = "AA6-Gq-qRe"; */
+"AA6-Gq-qRe.title" = "5";
+
+/* Class = "WKInterfaceLabel"; text = "memo"; ObjectID = "AJ8-p9-ID7"; */
+"AJ8-p9-ID7.text" = "memo";
+
+/* Class = "WKInterfaceController"; title = "BlueWallet"; ObjectID = "AgC-eL-Hgc"; */
+"AgC-eL-Hgc.title" = "BlueWallet";
+
+/* Class = "WKInterfaceLabel"; text = "Time"; ObjectID = "GqE-KB-TRD"; */
+"GqE-KB-TRD.text" = "Time";
+
+/* Class = "WKInterfaceLabel"; text = "No wallets available. Please, add one by opening BlueWallet on your iPhone."; ObjectID = "I2I-8t-hp3"; */
+"I2I-8t-hp3.text" = "No wallets available. Please, add one by opening BlueWallet on your iPhone.";
+
+/* Class = "WKInterfaceLabel"; text = "Alert Label"; ObjectID = "IdU-wH-bcW"; */
+"IdU-wH-bcW.text" = "Alert Label";
+
+/* Class = "WKInterfaceButton"; title = "9"; ObjectID = "NJM-uR-nyO"; */
+"NJM-uR-nyO.title" = "9";
+
+/* Class = "WKInterfaceButton"; title = "6"; ObjectID = "Nt9-we-M9f"; */
+"Nt9-we-M9f.title" = "6";
+
+/* Class = "WKInterfaceLabel"; text = "Wallet"; ObjectID = "PQi-JV-aYW"; */
+"PQi-JV-aYW.text" = "Wallet";
+
+/* Class = "WKInterfaceLabel"; text = "Balance"; ObjectID = "QYx-3e-6zf"; */
+"QYx-3e-6zf.text" = "Balance";
+
+/* Class = "WKInterfaceMenuItem"; title = "Customize"; ObjectID = "RHB-IJ-Utd"; */
+"RHB-IJ-Utd.title" = "Customize";
+
+/* Class = "WKInterfaceButton"; title = "0"; ObjectID = "S1H-Id-l6g"; */
+"S1H-Id-l6g.title" = "0";
+
+/* Class = "WKInterfaceButton"; title = "3"; ObjectID = "TKO-lc-aYf"; */
+"TKO-lc-aYf.title" = "3";
+
+/* Class = "WKInterfaceLabel"; text = "Balance"; ObjectID = "WTr-jJ-w7L"; */
+"WTr-jJ-w7L.text" = "Balance";
+
+/* Class = "WKInterfaceButton"; title = "2"; ObjectID = "aUI-EE-NVw"; */
+"aUI-EE-NVw.title" = "2";
+
+/* Class = "WKInterfaceButton"; title = "Receive"; ObjectID = "bPO-h8-ccD"; */
+"bPO-h8-ccD.title" = "Receive";
+
+/* Class = "WKInterfaceButton"; title = "Description"; ObjectID = "fcI-6Z-moQ"; */
+"fcI-6Z-moQ.title" = "Description";
+
+/* Class = "WKInterfaceButton"; title = "."; ObjectID = "g6Z-9t-ahQ"; */
+"g6Z-9t-ahQ.title" = ".";
+
+/* Class = "WKInterfaceButton"; title = "1"; ObjectID = "ghD-Jq-ubw"; */
+"ghD-Jq-ubw.title" = "1";
+
+/* Class = "WKInterfaceLabel"; text = "Loading wallets..."; ObjectID = "hCG-Eg-bck"; */
+"hCG-Eg-bck.text" = "Loading wallets...";
+
+/* Class = "WKInterfaceButton"; title = "4"; ObjectID = "kH2-N1-Hbe"; */
+"kH2-N1-Hbe.title" = "4";
+
+/* Class = "WKInterfaceLabel"; text = "Creating Invoice..."; ObjectID = "n5f-iL-ib7"; */
+"n5f-iL-ib7.text" = "Creating Invoice...";
+
+/* Class = "WKInterfaceButton"; title = "7"; ObjectID = "ohU-B0-mvg"; */
+"ohU-B0-mvg.title" = "7";
+
+/* Class = "WKInterfaceLabel"; text = "No Transactions"; ObjectID = "pi4-Bk-Jiq"; */
+"pi4-Bk-Jiq.text" = "No Transactions";
+
+/* Class = "WKInterfaceButton"; title = "<"; ObjectID = "q8Q-tK-nzd"; */
+"q8Q-tK-nzd.title" = "<";
+
+/* Class = "WKInterfaceLabel"; text = "Wallet"; ObjectID = "qpj-I1-cWt"; */
+"qpj-I1-cWt.text" = "Wallet";
+
+/* Class = "WKInterfaceLabel"; text = "Amount"; ObjectID = "sAS-LI-RY7"; */
+"sAS-LI-RY7.text" = "Amount";
