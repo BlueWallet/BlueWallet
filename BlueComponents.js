@@ -92,43 +92,6 @@ export class BlueButton extends Component {
   }
 }
 
-export const BlueButtonHook = props => {
-  const { colors } = useTheme();
-  let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.mainColor;
-  let fontColor = colors.buttonTextColor;
-  if (props.disabled === true) {
-    backgroundColor = colors.buttonDisabledBackgroundColor;
-    fontColor = colors.buttonDisabledTextColor;
-  }
-  let buttonWidth = props.width ? props.width : width / 1.5;
-  if ('noMinWidth' in props) {
-    buttonWidth = 0;
-  }
-  return (
-    <TouchableOpacity
-      style={{
-        flex: 1,
-        borderWidth: 0.7,
-        borderColor: 'transparent',
-        backgroundColor: backgroundColor,
-        minHeight: 45,
-        height: 45,
-        maxHeight: 45,
-        borderRadius: 25,
-        minWidth: buttonWidth,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-      {...props}
-    >
-      <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-        {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
-        {props.title && <Text style={{ marginHorizontal: 8, fontSize: 16, color: fontColor }}>{props.title}</Text>}
-      </View>
-    </TouchableOpacity>
-  );
-};
-
 export class SecondButton extends Component {
   render() {
     let backgroundColor = this.props.backgroundColor ? this.props.backgroundColor : BlueCurrentTheme.colors.buttonBlueBackgroundColor;
@@ -167,61 +130,72 @@ export class SecondButton extends Component {
   }
 }
 
-export const BitcoinButton = props => {
-  const { colors } = useTheme();
-  return (
-    <TouchableOpacity testID={props.testID} onPress={props.onPress}>
-      <View
-        style={{
-          borderColor: colors.hdborderColor,
-          borderWidth: 1,
-          borderRadius: 5,
-          backgroundColor: (props.active && colors.hdbackgroundColor) || colors.brandingColor,
-          minWidth: props.style.width,
-          minHeight: props.style.height,
-          height: props.style.height,
-          flex: 1,
+export class BitcoinButton extends Component {
+  render() {
+    return (
+      <TouchableOpacity
+        testID={this.props.testID}
+        onPress={() => {
+          if (this.props.onPress) this.props.onPress();
         }}
       >
-        <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
-          <Text style={{ color: colors.hdborderColor, fontWeight: 'bold' }}>{loc.wallets.add_bitcoin}</Text>
+        <View
+          style={{
+            borderColor: BlueCurrentTheme.colors.hdborderColor,
+            borderWidth: 1,
+            borderRadius: 5,
+            backgroundColor: (this.props.active && BlueCurrentTheme.colors.hdbackgroundColor) || BlueCurrentTheme.colors.brandingColor,
+            minWidth: this.props.style.width,
+            minHeight: this.props.style.height,
+            height: this.props.style.height,
+            flex: 1,
+          }}
+        >
+          <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
+            <Text style={{ color: BlueCurrentTheme.colors.hdborderColor, fontWeight: 'bold' }}>{loc.wallets.add_bitcoin}</Text>
+          </View>
+          <Image
+            style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
+            source={require('./img/addWallet/bitcoin.png')}
+          />
         </View>
-        <Image
-          style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
-          source={require('./img/addWallet/bitcoin.png')}
-        />
-      </View>
-    </TouchableOpacity>
-  );
-};
+      </TouchableOpacity>
+    );
+  }
+}
 
-export const LightningButton = props => {
-  const { colors } = useTheme();
-  return (
-    <TouchableOpacity onPress={props.onPress}>
-      <View
-        style={{
-          borderColor: colors.lnborderColor,
-          borderWidth: 1,
-          borderRadius: 5,
-          backgroundColor: (props.active && colors.lnbackgroundColor) || colors.brandingColor,
-          minWidth: props.style.width,
-          minHeight: props.style.height,
-          height: props.style.height,
-          flex: 1,
+export class LightningButton extends Component {
+  render() {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          if (this.props.onPress) this.props.onPress();
         }}
       >
-        <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
-          <Text style={{ color: colors.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.add_lightning}</Text>
+        <View
+          style={{
+            borderColor: BlueCurrentTheme.colors.lnborderColor,
+            borderWidth: 1,
+            borderRadius: 5,
+            backgroundColor: (this.props.active && BlueCurrentTheme.colors.lnbackgroundColor) || BlueCurrentTheme.colors.brandingColor,
+            minWidth: this.props.style.width,
+            minHeight: this.props.style.height,
+            height: this.props.style.height,
+            flex: 1,
+          }}
+        >
+          <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
+            <Text style={{ color: BlueCurrentTheme.colors.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.add_lightning}</Text>
+          </View>
+          <Image
+            style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
+            source={require('./img/addWallet/lightning.png')}
+          />
         </View>
-        <Image
-          style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
-          source={require('./img/addWallet/lightning.png')}
-        />
-      </View>
-    </TouchableOpacity>
-  );
-};
+      </TouchableOpacity>
+    );
+  }
+}
 
 export class BlueWalletNavigationHeader extends Component {
   static propTypes = {
@@ -424,7 +398,7 @@ export class BlueWalletNavigationHeader extends Component {
   }
 }
 
-export const BlueButtonLinkHook = props => {
+export const BlueButtonLinkHook = ({ title, onPress }) => {
   const { colors } = useTheme();
   return (
     <TouchableOpacity
@@ -434,10 +408,9 @@ export const BlueButtonLinkHook = props => {
         height: 60,
         justifyContent: 'center',
       }}
-      onPress={props.onPress}
-      {...props}
+      onPress={onPress}
     >
-      <Text style={{ color: colors.foregroundColor, textAlign: 'center', fontSize: 16 }}>{props.title}</Text>
+      <Text style={{ color: colors.foregroundColor, textAlign: 'center', fontSize: 16 }}>{title}</Text>
     </TouchableOpacity>
   );
 };
@@ -683,11 +656,6 @@ export class BlueTextCentered extends Component {
   }
 }
 
-export const BlueTextCenteredHooks = props => {
-  const { colors } = useTheme();
-  return <Text {...props} style={{ color: colors.foregroundColor, textAlign: 'center' }} />;
-};
-
 export const BlueListItem = React.memo(props => (
   <ListItem
     testID={props.testID}
@@ -738,11 +706,11 @@ export const BlueListItemHooks = props => {
   );
 };
 
-export const BlueFormLabel = props => {
-  const { colors } = useTheme();
-
-  return <Text {...props} style={{ color: colors.foregroundColor, fontWeight: '400', marginLeft: 20 }} />;
-};
+export class BlueFormLabel extends Component {
+  render() {
+    return <Text {...this.props} style={{ color: BlueCurrentTheme.colors.foregroundColor, fontWeight: '400', marginLeft: 20 }} />;
+  }
+}
 
 export class BlueFormInput extends Component {
   render() {
@@ -1817,6 +1785,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
         onPress={() => {
           onPressedOut();
           onPress(index);
+          onPressedOut();
         }}
       />
     );
