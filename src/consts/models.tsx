@@ -251,7 +251,7 @@ export type MainCardStackNavigatorParams = {
   [Route.CreateWallet]: undefined;
   [Route.ImportWallet]: { walletType: string };
   [Route.WalletDetails]: { wallet: Wallet };
-  [Route.CreateContact]: undefined;
+  [Route.CreateContact]: { address?: string };
   [Route.ContactDetails]: { contact: Contact };
   [Route.ContactQRCode]: { contact: Contact };
   [Route.TransactionDetails]: { transaction: Transaction };

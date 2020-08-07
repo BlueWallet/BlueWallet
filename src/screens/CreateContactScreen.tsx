@@ -1,4 +1,4 @@
-import { CompositeNavigationProp } from '@react-navigation/native';
+import { CompositeNavigationProp, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -20,6 +20,7 @@ interface Props {
     StackNavigationProp<MainTabNavigatorParams, Route.ContactList>,
     StackNavigationProp<MainCardStackNavigatorParams, Route.CreateContact>
   >;
+  route: RouteProp<MainCardStackNavigatorParams, Route.CreateContact>;
   createContact: (contact: Contact) => CreateContactAction;
 }
 
@@ -35,6 +36,15 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
     address: '',
     error: '',
   };
+
+  static getDerivedStateFromProps(props: Props, state: State) {
+    if (props.route.params.address && !state.address) {
+      return {
+        address: props.route.params.address,
+      };
+    }
+    return null;
+  }
 
   get canCreateContact(): boolean {
     return !!this.state.address && !!this.state.name;

@@ -318,6 +318,7 @@ module.exports = {
       inputs: 'Inputs',
       ouputs: 'Outputs',
       sendCoins: 'Send coins',
+      addToAddressBook: 'Add to Address book',
       timePending: 'Time pending',
     },
   },

@@ -109,15 +109,8 @@ class TransactionDetailsScreen extends Component<Props, State> {
     });
   }
 
-  sendCoins = () => {
-    const { wallet } = this.state;
-
-    this.props.navigation.navigate(Route.SendCoins, {
-      fromAddress: wallet.getAddress(),
-      fromSecret: wallet.getSecret(),
-      fromWallet: wallet,
-      toAddress: this.state.from.filter(onlyUnique).join(', '),
-    });
+  addToAddressBook = (address: string) => {
+    this.props.navigation.navigate(Route.CreateContact, { address });
   };
 
   updateNote = (note: string) => {
@@ -206,7 +199,13 @@ class TransactionDetailsScreen extends Component<Props, State> {
     return (
       <ScreenTemplate
         header={
-          <Header navigation={this.props.navigation} isBackArrow title={moment.unix(transaction.time).format('lll')} />
+          <Header
+            navigation={this.props.navigation}
+            isBackArrow
+            title={
+              transaction.time ? moment.unix(transaction.time).format('lll') : i18n.transactions.details.timePending
+            }
+          />
         }
       >
         {this.renderHeader()}
@@ -230,7 +229,12 @@ class TransactionDetailsScreen extends Component<Props, State> {
             <CopyButton textToCopy={fromValue.split(',')[0]} />
           </View>
           <Text style={styles.contentRowBody}>{fromValue}</Text>
-          <StyledText title={i18n.transactions.details.sendCoins} onPress={this.sendCoins} />
+          <StyledText
+            title={i18n.transactions.details.addToAddressBook}
+            onPress={() => {
+              this.addToAddressBook(fromValue);
+            }}
+          />
         </View>
         <View style={styles.contentRowContainer}>
           <View style={styles.row}>
