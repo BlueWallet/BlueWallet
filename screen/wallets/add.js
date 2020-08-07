@@ -1,8 +1,9 @@
 /* global alert */
-import React, { useState, useEffect } from 'react';
+import React, { Component } from 'react';
 import {
   Text,
   ScrollView,
+  LayoutAnimation,
   ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
@@ -14,35 +15,40 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import {
-  BlueTextCenteredHooks,
-  BlueTextHooks,
-  BlueListItemHooks,
+  BlueTextCentered,
+  BlueText,
+  BlueListItem,
   LightningButton,
   BitcoinButton,
   BlueFormLabel,
-  BlueButtonHook,
+  BlueButton,
   BlueNavigationStyle,
-  BlueButtonLinkHook,
+  BlueButtonLink,
   BlueSpacing20,
 } from '../../BlueComponents';
+import PropTypes from 'prop-types';
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCustodianWallet, AppStorage } from '../../class';
+import { BlueCurrentTheme } from '../../components/themes';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
-import { useTheme, useNavigation } from '@react-navigation/native';
-import { Chain } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 const EV = require('../../blue_modules/events');
 const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
+
 const styles = StyleSheet.create({
   loading: {
     flex: 1,
     paddingTop: 20,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   label: {
     flexDirection: 'row',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1,
     borderBottomWidth: 0.5,
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     marginHorizontal: 20,
@@ -80,12 +86,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   advancedText: {
+    color: BlueCurrentTheme.colors.feeText,
     fontWeight: '500',
   },
   lndUri: {
     flexDirection: 'row',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1,
     borderBottomWidth: 0.5,
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     alignItems: 'center',
@@ -103,305 +113,334 @@ const styles = StyleSheet.create({
   },
   noPadding: {
     paddingHorizontal: 0,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
+  },
+  root: {
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
 });
 
-const WalletsAdd = () => {
-  const { colors } = useTheme();
+export default class WalletsAdd extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoading: true,
+      walletBaseURI: '',
+      selectedIndex: 0,
+    };
+  }
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [walletBaseURI, setWalletBaseURI] = useState();
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [label, setLabel] = useState('');
-  const [isAdvancedOptionsEnabled, setIsAdvancedOptionsEnabled] = useState(false);
-  const [selectedWalletType, setSelectedWalletType] = useState(false);
-  const { navigate, goBack } = useNavigation();
-  const [entropy, setEntropy] = useState();
-  const [entropyButtonText, setEntropyButtonText] = useState(loc.wallets.add_entropy_provide);
-  const stylesHook = {
-    advancedText: {
-      color: colors.feeText,
-    },
-    label: {
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
-    noPadding: {
-      backgroundColor: colors.elevated,
-    },
-    root: {
-      backgroundColor: colors.elevated,
-    },
-    lndUri: {
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
+  async componentDidMount() {
+    let walletBaseURI = await AsyncStorage.getItem(AppStorage.LNDHUB);
+    const isAdvancedOptionsEnabled = await BlueApp.isAdancedModeEnabled();
+    walletBaseURI = walletBaseURI || '';
+    this.setState({
+      isLoading: false,
+      activeBitcoin: undefined,
+      label: '',
+      isAdvancedOptionsEnabled,
+      walletBaseURI,
+    });
+  }
+
+  setLabel(text) {
+    this.setState({
+      label: text,
+    }); /* also, a hack to make screen update new typed text */
+  }
+
+  onSelect(index) {
+    this.setState({
+      selectedIndex: index,
+    });
+  }
+
+  showAdvancedOptions = () => {
+    Keyboard.dismiss();
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+    this.setState({ isAdvancedOptionsEnabled: true });
   };
 
-  useEffect(() => {
-    AsyncStorage.getItem(AppStorage.LNDHUB)
-      .then(setWalletBaseURI)
-      .catch(() => setWalletBaseURI(''));
-    BlueApp.isAdancedModeEnabled()
-      .then(setIsAdvancedOptionsEnabled)
-      .finally(() => setIsLoading(false));
-  }, [isAdvancedOptionsEnabled]);
+  render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.loading}>
+          <ActivityIndicator />
+        </View>
+      );
+    }
 
-  const entropyGenerated = newEntropy => {
     let entropyTitle;
-    if (!newEntropy) {
+    if (!this.state.entropy) {
       entropyTitle = loc.wallets.add_entropy_provide;
-    } else if (newEntropy.length < 32) {
+    } else if (this.state.entropy.length < 32) {
       entropyTitle = loc.formatString(loc.wallets.add_entropy_remain, {
-        gen: newEntropy.length,
-        rem: 32 - newEntropy.length,
+        gen: this.state.entropy.length,
+        rem: 32 - this.state.entropy.length,
       });
     } else {
       entropyTitle = loc.formatString(loc.wallets.add_entropy_generated, {
-        gen: newEntropy.length,
+        gen: this.state.entropy.length,
       });
     }
-    setEntropy(newEntropy);
-    setEntropyButtonText(entropyTitle);
-  };
 
-  const createWallet = async () => {
-    setIsLoading(true);
-
-    let w;
-
-    if (selectedWalletType === Chain.OFFCHAIN) {
-      createLightningWallet(w);
-    } else if (selectedWalletType === Chain.ONCHAIN) {
-      if (selectedIndex === 2) {
-        // zero index radio - HD segwit
-        w = new HDSegwitP2SHWallet();
-        w.setLabel(label || loc.wallets.details.title);
-      } else if (selectedIndex === 1) {
-        // btc was selected
-        // index 1 radio - segwit single address
-        w = new SegwitP2SHWallet();
-        w.setLabel(label || loc.wallets.details.title);
-      } else {
-        // btc was selected
-        // index 2 radio - hd bip84
-        w = new HDSegwitBech32Wallet();
-        w.setLabel(label || loc.wallets.details.title);
-      }
-      if (selectedWalletType === Chain.ONCHAIN) {
-        if (entropy) {
-          try {
-            await w.generateFromEntropy(entropy);
-          } catch (e) {
-            console.log(e.toString());
-            alert(e.toString());
-            goBack();
-            return;
-          }
-        } else {
-          await w.generate();
-        }
-        BlueApp.wallets.push(w);
-        await BlueApp.saveToDisk();
-        EV(EV.enum.WALLETS_COUNT_CHANGED);
-        A(A.ENUM.CREATED_WALLET);
-        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-        if (w.type === HDSegwitP2SHWallet.type || w.type === HDSegwitBech32Wallet.type) {
-          navigate('PleaseBackup', {
-            secret: w.getSecret(),
-          });
-        } else {
-          goBack();
-        }
-      }
-    }
-  };
-
-  const createLightningWallet = async wallet => {
-    wallet = new LightningCustodianWallet();
-    wallet.setLabel(label || loc.wallets.details.title);
-
-    try {
-      const lndhub = walletBaseURI && walletBaseURI.trim().length > 0 ? walletBaseURI : LightningCustodianWallet.defaultBaseUri;
-      if (lndhub) {
-        const isValidNodeAddress = await LightningCustodianWallet.isValidNodeAddress(lndhub);
-        if (isValidNodeAddress) {
-          wallet.setBaseURI(lndhub);
-          wallet.init();
-        } else {
-          throw new Error('The provided node address is not valid LNDHub node.');
-        }
-      }
-      await wallet.createAccount();
-      await wallet.authorize();
-    } catch (Err) {
-      setIsLoading(false);
-      console.warn('lnd create failure', Err);
-      return alert(Err);
-      // giving app, not adding anything
-    }
-    A(A.ENUM.CREATED_LIGHTNING_WALLET);
-    await wallet.generate();
-    BlueApp.wallets.push(wallet);
-    await BlueApp.saveToDisk();
-    EV(EV.enum.WALLETS_COUNT_CHANGED);
-    A(A.ENUM.CREATED_WALLET);
-    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-    navigate('PleaseBackupLNDHub', {
-      wallet,
-    });
-  };
-
-  const navigateToEntropy = () => {
-    navigate('ProvideEntropy', { onGenerated: entropyGenerated });
-  };
-
-  const navigateToImportWallet = () => {
-    navigate('ImportWallet');
-  };
-
-  const handleOnBitcoinButtonPressed = () => {
-    Keyboard.dismiss();
-    setSelectedWalletType(Chain.ONCHAIN);
-  };
-
-  const handleOnLightningButtonPressed = () => {
-    Keyboard.dismiss();
-    setSelectedWalletType(Chain.OFFCHAIN);
-  };
-
-  return (
-    <ScrollView style={stylesHook.root}>
-      <StatusBar barStyle="default" />
-      <BlueSpacing20 />
-      <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
-        <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
-        <View style={[styles.label, stylesHook.label]}>
-          <TextInput
-            testID="WalletNameInput"
-            value={label}
-            placeholderTextColor="#81868e"
-            placeholder="my first wallet"
-            onChangeText={setLabel}
-            style={styles.textInputCommon}
-            editable={!isLoading}
-            underlineColorAndroid="transparent"
-          />
-        </View>
-        <BlueFormLabel>{loc.wallets.add_wallet_type}</BlueFormLabel>
-
-        <View style={styles.buttons}>
-          <BitcoinButton
-            testID="ActivateBitcoinButton"
-            active={selectedWalletType === Chain.ONCHAIN}
-            onPress={handleOnBitcoinButtonPressed}
-            style={styles.button}
-          />
-          <View style={styles.or}>
-            <BlueTextCenteredHooks style={styles.orCenter}>{loc.wallets.add_or}</BlueTextCenteredHooks>
+    return (
+      <ScrollView style={styles.root}>
+        <StatusBar barStyle="default" />
+        <BlueSpacing20 />
+        <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
+          <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
+          <View style={styles.label}>
+            <TextInput
+              testID="WalletNameInput"
+              value={this.state.label}
+              placeholderTextColor="#81868e"
+              placeholder="my first wallet"
+              onChangeText={text => {
+                this.setLabel(text);
+              }}
+              style={styles.textInputCommon}
+              editable={!this.state.isLoading}
+              underlineColorAndroid="transparent"
+            />
           </View>
-          <LightningButton active={selectedWalletType === Chain.OFFCHAIN} onPress={handleOnLightningButtonPressed} style={styles.button} />
-        </View>
+          <BlueFormLabel>{loc.wallets.add_wallet_type}</BlueFormLabel>
 
-        <View style={styles.advanced}>
-          {(() => {
-            if (selectedWalletType === Chain.ONCHAIN && isAdvancedOptionsEnabled) {
-              return (
-                <View>
-                  <BlueSpacing20 />
-                  <Text style={[styles.advancedText, stylesHook.advancedText]}>{loc.settings.advanced_options}</Text>
-                  <BlueListItemHooks
-                    containerStyle={[styles.noPadding, stylesHook.noPadding]}
-                    bottomDivider={false}
-                    onPress={() => setSelectedIndex(0)}
-                    title={HDSegwitBech32Wallet.typeReadable}
-                    {...(selectedIndex === 0
-                      ? {
-                          rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
-                        }
-                      : { hideChevron: true })}
-                  />
-                  <BlueListItemHooks
-                    containerStyle={[styles.noPadding, stylesHook.noPadding]}
-                    bottomDivider={false}
-                    onPress={() => setSelectedIndex(1)}
-                    title={SegwitP2SHWallet.typeReadable}
-                    {...(selectedIndex === 1
-                      ? {
-                          rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
-                        }
-                      : { hideChevron: true })}
-                  />
-                  <BlueListItemHooks
-                    containerStyle={[styles.noPadding, stylesHook.noPadding]}
-                    bottomDivider={false}
-                    onPress={() => setSelectedIndex(2)}
-                    title={HDSegwitP2SHWallet.typeReadable}
-                    {...(selectedIndex === 2
-                      ? {
-                          rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
-                        }
-                      : { hideChevron: true })}
-                  />
-                </View>
-              );
-            } else if (selectedWalletType === Chain.OFFCHAIN && isAdvancedOptionsEnabled) {
-              return (
-                <>
-                  <BlueSpacing20 />
-                  <Text style={styles.advancedText}>{loc.settings.advanced_options}</Text>
-                  <BlueSpacing20 />
-                  <BlueTextHooks>Connect to your LNDHub</BlueTextHooks>
-                  <View style={[styles.lndUri, stylesHook.lndUri]}>
-                    <TextInput
-                      value={walletBaseURI}
-                      onChangeText={setWalletBaseURI}
-                      onSubmitEditing={Keyboard.dismiss}
-                      placeholder="your node address"
-                      clearButtonMode="while-editing"
-                      autoCapitalize="none"
-                      textContentType="URL"
-                      autoCorrect={false}
-                      placeholderTextColor="#81868e"
-                      style={styles.textInputCommon}
-                      editable={!isLoading}
-                      underlineColorAndroid="transparent"
+          <View style={styles.buttons}>
+            <BitcoinButton
+              testID="ActivateBitcoinButton"
+              active={this.state.activeBitcoin}
+              onPress={() => {
+                Keyboard.dismiss();
+                this.setState({
+                  activeBitcoin: true,
+                  activeLightning: false,
+                });
+              }}
+              style={styles.button}
+            />
+            <View style={styles.or}>
+              <BlueTextCentered style={styles.orCenter}>{loc.wallets.add_or}</BlueTextCentered>
+            </View>
+            <LightningButton
+              active={this.state.activeLightning}
+              onPress={() => {
+                Keyboard.dismiss();
+                this.setState({
+                  activeBitcoin: false,
+                  activeLightning: true,
+                });
+              }}
+              style={styles.button}
+            />
+          </View>
+
+          <View style={styles.advanced}>
+            {(() => {
+              if (this.state.activeBitcoin && this.state.isAdvancedOptionsEnabled) {
+                return (
+                  <View>
+                    <BlueSpacing20 />
+                    <Text style={styles.advancedText}>{loc.settings.advanced_options}</Text>
+                    <BlueListItem
+                      containerStyle={styles.noPadding}
+                      bottomDivider={false}
+                      onPress={() => {
+                        this.onSelect(0, HDSegwitBech32Wallet.type);
+                      }}
+                      title={HDSegwitBech32Wallet.typeReadable}
+                      {...(this.state.selectedIndex === 0
+                        ? {
+                            rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
+                          }
+                        : { hideChevron: true })}
+                    />
+                    <BlueListItem
+                      containerStyle={styles.noPadding}
+                      bottomDivider={false}
+                      onPress={() => {
+                        this.onSelect(1, SegwitP2SHWallet.type);
+                      }}
+                      title={SegwitP2SHWallet.typeReadable}
+                      {...(this.state.selectedIndex === 1
+                        ? {
+                            rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
+                          }
+                        : { hideChevron: true })}
+                    />
+                    <BlueListItem
+                      containerStyle={styles.noPadding}
+                      bottomDivider={false}
+                      onPress={() => {
+                        this.onSelect(2, HDSegwitP2SHWallet.typeReadable.type);
+                      }}
+                      title={HDSegwitP2SHWallet.typeReadable}
+                      {...(this.state.selectedIndex === 2
+                        ? {
+                            rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
+                          }
+                        : { hideChevron: true })}
                     />
                   </View>
-                </>
-              );
-            }
-          })()}
-          <View style={styles.createButton}>
-            {!isLoading ? (
-              <BlueButtonHook testID="Create" title={loc.wallets.add_create} disabled={!selectedWalletType} onPress={createWallet} />
-            ) : (
-              <ActivityIndicator />
-            )}
-          </View>
-          {!isLoading && (
-            <BlueButtonLinkHook
+                );
+              } else if (this.state.activeLightning && this.state.isAdvancedOptionsEnabled) {
+                return (
+                  <>
+                    <BlueSpacing20 />
+                    <Text style={styles.advancedText}>{loc.settings.advanced_options}</Text>
+                    <BlueSpacing20 />
+                    <BlueText>{loc.wallets.add_lndhub}</BlueText>
+                    <View style={styles.lndUri}>
+                      <TextInput
+                        value={this.state.walletBaseURI}
+                        onChangeText={text => this.setState({ walletBaseURI: text })}
+                        onSubmitEditing={Keyboard.dismiss}
+                        placeholder={loc.wallets.add_lndhub_placeholder}
+                        clearButtonMode="while-editing"
+                        autoCapitalize="none"
+                        placeholderTextColor="#81868e"
+                        style={styles.textInputCommon}
+                        editable={!this.state.isLoading}
+                        underlineColorAndroid="transparent"
+                      />
+                    </View>
+                  </>
+                );
+              } else if (this.state.activeBitcoin === undefined && this.state.isAdvancedOptionsEnabled) {
+                return <View />;
+              }
+            })()}
+            <View style={styles.createButton}>
+              {!this.state.isLoading ? (
+                <BlueButton
+                  testID="Create"
+                  title={loc.wallets.add_create}
+                  disabled={this.state.activeBitcoin === undefined}
+                  onPress={() => {
+                    this.setState({ isLoading: true }, async () => {
+                      let w;
+
+                      if (this.state.activeLightning) {
+                        this.createLightningWallet = async () => {
+                          w = new LightningCustodianWallet();
+                          w.setLabel(this.state.label || loc.wallets.details_title);
+
+                          try {
+                            const lndhub =
+                              this.state.walletBaseURI.trim().length > 0
+                                ? this.state.walletBaseURI
+                                : LightningCustodianWallet.defaultBaseUri;
+                            if (lndhub) {
+                              const isValidNodeAddress = await LightningCustodianWallet.isValidNodeAddress(lndhub);
+                              if (isValidNodeAddress) {
+                                w.setBaseURI(lndhub);
+                                w.init();
+                              } else {
+                                throw new Error(loc.wallets.add_lndhub_error);
+                              }
+                            }
+
+                            await w.createAccount();
+                            await w.authorize();
+                          } catch (Err) {
+                            this.setState({ isLoading: false });
+                            console.warn('lnd create failure', Err);
+                            return alert(Err);
+                            // giving app, not adding anything
+                          }
+                          A(A.ENUM.CREATED_LIGHTNING_WALLET);
+                          await w.generate();
+                          BlueApp.wallets.push(w);
+                          await BlueApp.saveToDisk();
+                          EV(EV.enum.WALLETS_COUNT_CHANGED);
+                          A(A.ENUM.CREATED_WALLET);
+                          ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+                          this.props.navigation.navigate('PleaseBackupLNDHub', {
+                            wallet: w,
+                          });
+                        };
+                        this.createLightningWallet();
+                      } else if (this.state.selectedIndex === 2) {
+                        // zero index radio - HD segwit
+                        w = new HDSegwitP2SHWallet();
+                        w.setLabel(this.state.label || loc.wallets.details_title);
+                      } else if (this.state.selectedIndex === 1) {
+                        // btc was selected
+                        // index 1 radio - segwit single address
+                        w = new SegwitP2SHWallet();
+                        w.setLabel(this.state.label || loc.wallets.details_title);
+                      } else {
+                        // btc was selected
+                        // index 2 radio - hd bip84
+                        w = new HDSegwitBech32Wallet();
+                        w.setLabel(this.state.label || loc.wallets.details_title);
+                      }
+                      if (this.state.activeBitcoin) {
+                        if (this.state.entropy) {
+                          try {
+                            await w.generateFromEntropy(this.state.entropy);
+                          } catch (e) {
+                            console.log(e.toString());
+                            alert(e.toString());
+                            this.props.navigation.goBack();
+                            return;
+                          }
+                        } else {
+                          await w.generate();
+                        }
+                        BlueApp.wallets.push(w);
+                        await BlueApp.saveToDisk();
+                        EV(EV.enum.WALLETS_COUNT_CHANGED);
+                        A(A.ENUM.CREATED_WALLET);
+                        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+                        if (w.type === HDSegwitP2SHWallet.type || w.type === HDSegwitBech32Wallet.type) {
+                          this.props.navigation.navigate('PleaseBackup', {
+                            secret: w.getSecret(),
+                          });
+                        } else {
+                          this.props.navigation.goBack();
+                        }
+                      }
+                    });
+                  }}
+                />
+              ) : (
+                <ActivityIndicator />
+              )}
+            </View>
+            <BlueButtonLink
               testID="ImportWallet"
               style={styles.import}
               title={loc.wallets.add_import_wallet}
-              onPress={navigateToImportWallet}
+              onPress={() => {
+                this.props.navigation.navigate('ImportWallet');
+              }}
             />
-          )}
-          {isAdvancedOptionsEnabled && !isLoading && (
-            <BlueButtonLinkHook style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />
-          )}
-        </View>
-      </KeyboardAvoidingView>
-    </ScrollView>
-  );
-};
+            {this.state.isAdvancedOptionsEnabled && (
+              <BlueButtonLink
+                style={styles.import}
+                title={entropyTitle}
+                onPress={() => {
+                  this.props.navigation.navigate('ProvideEntropy', { onGenerated: entropy => this.setState({ entropy }) });
+                }}
+              />
+            )}
+          </View>
+        </KeyboardAvoidingView>
+      </ScrollView>
+    );
+  }
+}
 
 WalletsAdd.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
-  headerTitle: loc.wallets.add_title,
+  title: loc.wallets.add_title,
   headerLeft: null,
 });
 
-export default WalletsAdd;
+WalletsAdd.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func,
+    goBack: PropTypes.func,
+  }),
+};
