@@ -34,92 +34,81 @@ import loc from '../../loc';
 const EV = require('../../blue_modules/events');
 const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  label: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    minHeight: 44,
+    height: 44,
+    marginHorizontal: 20,
+    alignItems: 'center',
+    marginVertical: 16,
+    borderRadius: 4,
+  },
+  textInputCommon: {
+    flex: 1,
+    marginHorizontal: 8,
+    color: '#81868e',
+  },
+  buttons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 10,
+    marginHorizontal: 20,
+    borderWidth: 0,
+    minHeight: 100,
+  },
+  button: {
+    width: '45%',
+    height: 88,
+  },
+  or: {
+    borderWidth: 0,
+    justifyContent: 'center',
+    marginHorizontal: 8,
+    alignSelf: 'center',
+  },
+  orCenter: {
+    color: '#0c2550',
+  },
+  advanced: {
+    marginHorizontal: 20,
+  },
+  advancedText: {
+    fontWeight: '500',
+  },
+  lndUri: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    minHeight: 44,
+    height: 44,
+    alignItems: 'center',
+    marginVertical: 16,
+    borderRadius: 4,
+  },
+  createButton: {
+    alignItems: 'center',
+    flex: 1,
+    marginTop: 32,
+  },
+  import: {
+    marginBottom: 0,
+    marginTop: 24,
+  },
+  noPadding: {
+    paddingHorizontal: 0,
+  },
+});
 
 const WalletsAdd = () => {
   const { colors } = useTheme();
-  const styles = StyleSheet.create({
-    loading: {
-      flex: 1,
-      paddingTop: 20,
-      backgroundColor: colors.elevated,
-    },
-    label: {
-      flexDirection: 'row',
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      borderWidth: 1,
-      borderBottomWidth: 0.5,
-      backgroundColor: colors.inputBackgroundColor,
-      minHeight: 44,
-      height: 44,
-      marginHorizontal: 20,
-      alignItems: 'center',
-      marginVertical: 16,
-      borderRadius: 4,
-    },
-    textInputCommon: {
-      flex: 1,
-      marginHorizontal: 8,
-      color: '#81868e',
-    },
-    buttons: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingTop: 10,
-      marginHorizontal: 20,
-      borderWidth: 0,
-      minHeight: 100,
-    },
-    button: {
-      width: '45%',
-      height: 88,
-    },
-    or: {
-      borderWidth: 0,
-      justifyContent: 'center',
-      marginHorizontal: 8,
-      alignSelf: 'center',
-    },
-    orCenter: {
-      color: '#0c2550',
-    },
-    advanced: {
-      marginHorizontal: 20,
-    },
-    advancedText: {
-      color: colors.feeText,
-      fontWeight: '500',
-    },
-    lndUri: {
-      flexDirection: 'row',
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      borderWidth: 1,
-      borderBottomWidth: 0.5,
-      backgroundColor: colors.inputBackgroundColor,
-      minHeight: 44,
-      height: 44,
-      alignItems: 'center',
-      marginVertical: 16,
-      borderRadius: 4,
-    },
-    createButton: {
-      alignItems: 'center',
-      flex: 1,
-      marginTop: 32,
-    },
-    import: {
-      marginBottom: 0,
-      marginTop: 24,
-    },
-    noPadding: {
-      paddingHorizontal: 0,
-      backgroundColor: colors.elevated,
-    },
-    root: {
-      backgroundColor: colors.elevated,
-    },
-  });
+
   const [isLoading, setIsLoading] = useState(true);
   const [walletBaseURI, setWalletBaseURI] = useState();
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -129,13 +118,35 @@ const WalletsAdd = () => {
   const { navigate, goBack } = useNavigation();
   const [entropy, setEntropy] = useState();
   const [entropyButtonText, setEntropyButtonText] = useState(loc.wallets.add_entropy_provide);
+  const stylesHook = {
+    advancedText: {
+      color: colors.feeText,
+    },
+    label: {
+      borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
+      backgroundColor: colors.inputBackgroundColor,
+    },
+    noPadding: {
+      backgroundColor: colors.elevated,
+    },
+    root: {
+      backgroundColor: colors.elevated,
+    },
+    lndUri: {
+      borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
+      backgroundColor: colors.inputBackgroundColor,
+    },
+  };
 
   useEffect(() => {
     AsyncStorage.getItem(AppStorage.LNDHUB)
       .then(setWalletBaseURI)
       .catch(() => setWalletBaseURI(''));
-    BlueApp.isAdancedModeEnabled().then(setIsAdvancedOptionsEnabled);
-    setIsLoading(false);
+    BlueApp.isAdancedModeEnabled()
+      .then(setIsAdvancedOptionsEnabled)
+      .finally(() => setIsLoading(false));
   }, [isAdvancedOptionsEnabled]);
 
   const entropyGenerated = newEntropy => {
@@ -262,12 +273,12 @@ const WalletsAdd = () => {
   };
 
   return (
-    <ScrollView style={styles.root}>
+    <ScrollView style={stylesHook.root}>
       <StatusBar barStyle="default" />
       <BlueSpacing20 />
       <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
         <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
-        <View style={styles.label}>
+        <View style={[styles.label, stylesHook.label]}>
           <TextInput
             testID="WalletNameInput"
             value={label}
@@ -300,9 +311,9 @@ const WalletsAdd = () => {
               return (
                 <View>
                   <BlueSpacing20 />
-                  <Text style={styles.advancedText}>{loc.settings.advanced_options}</Text>
+                  <Text style={[styles.advancedText, stylesHook.advancedText]}>{loc.settings.advanced_options}</Text>
                   <BlueListItemHooks
-                    containerStyle={styles.noPadding}
+                    containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(0)}
                     title={HDSegwitBech32Wallet.typeReadable}
@@ -313,7 +324,7 @@ const WalletsAdd = () => {
                       : { hideChevron: true })}
                   />
                   <BlueListItemHooks
-                    containerStyle={styles.noPadding}
+                    containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(1)}
                     title={SegwitP2SHWallet.typeReadable}
@@ -324,7 +335,7 @@ const WalletsAdd = () => {
                       : { hideChevron: true })}
                   />
                   <BlueListItemHooks
-                    containerStyle={styles.noPadding}
+                    containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(2)}
                     title={HDSegwitP2SHWallet.typeReadable}
@@ -343,7 +354,7 @@ const WalletsAdd = () => {
                   <Text style={styles.advancedText}>{loc.settings.advanced_options}</Text>
                   <BlueSpacing20 />
                   <BlueTextHooks>Connect to your LNDHub</BlueTextHooks>
-                  <View style={styles.lndUri}>
+                  <View style={[styles.lndUri, stylesHook.lndUri]}>
                     <TextInput
                       value={walletBaseURI}
                       onChangeText={setWalletBaseURI}
