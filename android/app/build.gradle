@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 apply plugin: 'io.fabric'
 apply plugin: 'com.google.gms.google-services'
 crashlytics {

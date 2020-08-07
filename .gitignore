@@ -68,3 +68,4 @@ android/app/google-services.json
 
 .history
 .vscode
+.env

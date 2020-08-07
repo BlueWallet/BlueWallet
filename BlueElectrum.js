@@ -1,15 +1,10 @@
-import AsyncStorage from '@react-native-community/async-storage';
-
-import { AppStorage } from './class';
 import config from './config';
 
-//import { AppStorage } from './class/app-storage';
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
 const reverse = require('buffer-reverse');
 const ElectrumClient = require('electrum-client');
 
-const storageKey = 'ELECTRUM_PEERS';
 export const defaultPeer = { host: '188.166.204.85', tcp: '50001' };
 const hardcodedPeers = [
   { host: '188.166.204.85', tcp: '50001' },
@@ -21,11 +16,7 @@ let mainConnected = false;
 let wasConnectedAtLeastOnce = false;
 
 async function connectMain() {
-  const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
-  const tcp = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
-  // const usingPeer = !!host && !!tcp ? { host, tcp } : await getRandomHardcodedPeer();
-  // hardocoded for testing purpose
-  const usingPeer = { host: 'testnet.bitcoinvault.global', tcp: '50001' };
+  const usingPeer = { host: config.host, tcp: config.port };
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
     mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, 'tcp');
@@ -34,10 +25,7 @@ async function connectMain() {
       mainConnected = false;
     };
     await mainClient.connect();
-    if (host !== usingPeer.host || tcp !== usingPeer.tcp) {
-      await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, usingPeer.host);
-      await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, usingPeer.tcp);
-    }
+
     const ver = await mainClient.server_version('2.7.11', '1.4');
     if (ver && ver[0]) {
       console.log('connected to ', ver);
@@ -60,52 +48,6 @@ async function connectMain() {
 }
 
 connectMain();
-
-/**
- * Returns random hardcoded electrum server guaranteed to work
- * at the time of writing.
- *
- * @returns {Promise<{tcp, host}|*>}
- */
-async function getRandomHardcodedPeer() {
-  return hardcodedPeers[(hardcodedPeers.length * Math.random()) | 0];
-}
-
-//async function getSavedPeer() {
-//let host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
-//let port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
-//return { host, tcp: port };
-//}
-
-/**
- * Returns random electrum server out of list of servers
- * previous electrum server told us. Nearly half of them is
- * usually offline.
- * Not used for now.
- *
- * @returns {Promise<{tcp: number, host: string}>}
- */
-// eslint-disable-next-line
-async function getRandomDynamicPeer() {
-  try {
-    let peers = JSON.parse(await AsyncStorage.getItem(storageKey));
-    peers = peers.sort(() => Math.random() - 0.5); // shuffle
-    for (const peer of peers) {
-      const ret = {};
-      ret.host = peer[1];
-      for (const item of peer[2]) {
-        if (item.startsWith('t')) {
-          ret.tcp = item.replace('t', '');
-        }
-      }
-      if (ret.host && ret.tcp) return ret;
-    }
-
-    return defaultPeer; // failed to find random client, using default
-  } catch (_) {
-    return defaultPeer; // smth went wrong, using default
-  }
-}
 
 /**
  *

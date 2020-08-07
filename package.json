@@ -42,6 +42,7 @@
     "lint-staged": "^10.1.1",
     "metro-react-native-babel-preset": "^0.56.0",
     "prettier": "^1.19.1",
+    "react-native-config-node": "^0.0.3",
     "redux-devtools-extension": "^2.13.8",
     "rn-nodeify": "github:tradle/rn-nodeify"
   },
@@ -53,14 +54,12 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack; npm run releasenotes2json; npx jetify",
-    "test": "echo",
-    "testOriginal": "yarn jest",
-    "jest": "node node_modules/jest/bin/jest.js utils/tests tests/integration/*",
+    "test": "yarn jest",
+    "unit": "echo",
+    "jest": "node node_modules/jest/bin/jest.js tests/*",
     "install_local": "cd src && yarn install",
     "lint": "eslint '**/*.{js,ts,tsx}'",
     "lint:fix": "yarn lint --fix",
-    "unit": "echo",
-    "unitOriginal": "./node_modules/.bin/mocha tests/unit/*",
     "typescript:check": "tsc --noEmit",
     "prettier:fix": "prettier --write '**/*.{js,ts,tsx}'",
     "precommit": "yarn lint-staged",
@@ -113,7 +112,6 @@
     "intl": "1.2.5",
     "lodash": "^4.17.19",
     "lottie-react-native": "3.1.1",
-    "mocha": "5.2.0",
     "moment": "^2.24.0",
     "node-libs-react-native": "1.0.3",
     "path-browserify": "1.0.0",
@@ -127,6 +125,7 @@
     "react-native-biometrics": "2.1.4",
     "react-native-calendars": "^1.265.0",
     "react-native-camera": "^3.33.0",
+    "react-native-config": "^1.3.3",
     "react-native-confirmation-code-field": "5.1.0",
     "react-native-default-preference": "1.4.1",
     "react-native-device-info": "5.5.6",
@@ -213,7 +212,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
-      "pre-push": "yarn unit && yarn test"
+      "pre-push": "yarn test"
     }
   }
 }

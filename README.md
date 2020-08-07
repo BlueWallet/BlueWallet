@@ -23,6 +23,10 @@ GoogleService-Info.plist into directory /ios/
 For android:
 google-services.json into directory /android/app/
 
+* Create .env file:
+
+Create .env file in root directory. Check the .env.example file for a template
+
 * To run on Android:
 
 ```

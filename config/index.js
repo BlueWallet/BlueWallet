@@ -1,6 +1,12 @@
+import Config from 'react-native-config';
+
 const bitcoin = require('bitcoinjs-lib');
 
-module.exports = {
-  sentryDsn: 'https://dc67fd6d5c2949f2a6853e60eb69d899@o429172.ingest.sentry.io/5375289',
-  network: bitcoin.alt_networks.bitcoinvaultTestnet,
+const { SENTRY_DSN, HOST, PORT, BTCV_NETWORK } = Config;
+
+export default {
+  sentryDsn: SENTRY_DSN || '',
+  host: HOST || '188.166.204.85',
+  port: PORT || '50001',
+  network: bitcoin.alt_networks[BTCV_NETWORK || 'bitcoinvault'],
 };

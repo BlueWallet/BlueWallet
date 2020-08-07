@@ -1,15 +1,19 @@
 /* global it, describe, jasmine, afterAll, beforeAll */
-
 const assert = require('assert');
+
+// i18n is not loaded properly in crypto.ts if this is imported later
+// eslint-disable-next-line import/order
+const { mnemonicToKeyPair } = require('../crypto');
 
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 
 global.net = require('net');
 
+// needed by Electrum client. For RN it is proviced in shim.js
 // eslint-disable-next-line import/order
 const BlueElectrum = require('../../BlueElectrum');
 
-// needed by Electrum client. For RN it is proviced in shim.js
+const i18n = require('../../loc');
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
@@ -22,8 +26,6 @@ beforeAll(async () => {
   // while app starts up, but for tests we need to wait for it
   await BlueElectrum.waitTillConnected();
 });
-const i18n = require('../../loc');
-const { mnemonicToKeyPair } = require('../crypto');
 
 describe('Utils crypto', () => {
   describe('mnemonicToKeyPair', () => {
