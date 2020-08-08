@@ -216,7 +216,7 @@ PODS:
     - React
   - react-native-randombytes (3.5.3):
     - React
-  - react-native-safe-area-context (3.1.1):
+  - react-native-safe-area-context (3.1.4):
     - React
   - react-native-slider (3.0.3):
     - React
@@ -311,7 +311,7 @@ PODS:
     - React
   - RNQuickAction (0.3.13):
     - React
-  - RNRate (1.2.1):
+  - RNRate (1.2.4):
     - React
   - RNReactNativeHapticFeedback (1.10.0):
     - React
@@ -575,7 +575,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: e3516aff0dcf65ee0785d9bcf190eb10e2261154
   react-native-image-picker: 21dfd898395b663680e987496f6c3431eea49fdb
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
-  react-native-safe-area-context: 4c3249e4840225c61fcd215b136af0a737bccb79
+  react-native-safe-area-context: 0ed9288ed4409beabb0817b54efc047286fc84da
   react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
   react-native-webview: 838be111a7805977e5fc4fa6b66ae293f6c17384
@@ -602,7 +602,7 @@ SPEC CHECKSUMS:
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNLocalize: fc27ee5878ce5a3af73873fb2d8e866e0d1e6d84
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
-  RNRate: a747cbaa6040d72994861864c988037fe0696548
+  RNRate: 2b31dad120cd1b78e33c6034808561c386a3dddf
   RNReactNativeHapticFeedback: 22c5ecf474428766c6b148f96f2ff6155cd7225e
   RNScreens: b748efec66e095134c7166ca333b628cd7e6f3e2
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
