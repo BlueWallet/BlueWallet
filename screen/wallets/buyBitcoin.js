@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, StatusBar, Linking } from 'react-native';
+import { StyleSheet, StatusBar } from 'react-native';
 import { BlueNavigationStyle, BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
@@ -65,19 +65,11 @@ export default class BuyBitcoin extends Component {
       }
     }
 
-    const { safelloStateToken } = this.props.route.params;
-
-    let uri = 'https://bluewallet.io/buy-bitcoin-redirect.html?address=' + address;
-
-    if (safelloStateToken) {
-      uri += '&safelloStateToken=' + safelloStateToken;
-    }
-
-    if (this.state.preferredCurrency) {
-      uri += '&currency=' + preferredCurrency;
-    }
-
-    Linking.openURL(uri).finally(() => this.props.navigation.goBack(null));
+    this.setState({
+      isLoading: false,
+      address,
+      preferredCurrency,
+    });
   }
 
   render() {
@@ -85,12 +77,24 @@ export default class BuyBitcoin extends Component {
       return <BlueLoading />;
     }
 
+    const { safelloStateToken } = this.props.route.params;
+
+    let uri = 'https://bluewallet.io/buy-bitcoin-redirect.html?address=' + this.state.address;
+
+    if (safelloStateToken) {
+      uri += '&safelloStateToken=' + safelloStateToken;
+    }
+
+    if (this.state.preferredCurrency) {
+      uri += '&currency=' + this.state.preferredCurrency;
+    }
+
     return (
       <SafeBlueArea style={styles.root}>
         <StatusBar barStyle="default" />
         <WebView
           source={{
-            uro: this.state.uri,
+            uri,
           }}
         />
       </SafeBlueArea>
@@ -105,9 +109,6 @@ BuyBitcoin.propTypes = {
       wallet: PropTypes.object.isRequired,
       safelloStateToken: PropTypes.string,
     }),
-  }),
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
   }),
 };
 
