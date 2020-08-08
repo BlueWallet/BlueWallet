@@ -349,6 +349,10 @@ export default class WalletTransactions extends Component {
     );
   };
 
+  handleOnRefillCardPress = () => {
+    this.setState({ isManageFundsModalVisible: false }, () => BuyBitcoinRouter.navigate(this.state.wallet));
+  };
+
   renderManageFundsModal = () => {
     return (
       <Modal
@@ -388,16 +392,7 @@ export default class WalletTransactions extends Component {
               title={loc.lnd.refill_external}
             />
 
-            <BlueListItem
-              hideChevron
-              component={TouchableOpacity}
-              onPress={a => {
-                this.setState({ isManageFundsModalVisible: false }, async () => {
-                  BuyBitcoinRouter.navigate(this.state.wallet);
-                });
-              }}
-              title={loc.lnd.refill_card}
-            />
+            <BlueListItem hideChevron component={TouchableOpacity} onPress={this.handleOnRefillCardPress} title={loc.lnd.refill_card} />
 
             <BlueListItem
               title={loc.lnd.exchange}
