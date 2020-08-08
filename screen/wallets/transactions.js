@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   InteractionManager,
   FlatList,
+  Dimensions,
   ScrollView,
   RefreshControl,
   TouchableOpacity,
@@ -44,6 +45,7 @@ const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
+const windowHeight = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
   flex: {
@@ -351,6 +353,7 @@ export default class WalletTransactions extends Component {
   renderManageFundsModal = () => {
     return (
       <Modal
+        deviceHeight={windowHeight}
         isVisible={this.state.isManageFundsModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {

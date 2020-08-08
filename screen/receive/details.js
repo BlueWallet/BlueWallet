@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   StyleSheet,
+  useWindowDimensions,
   ScrollView,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
@@ -53,6 +54,7 @@ const ReceiveDetails = () => {
   const [showAddress, setShowAddress] = useState(false);
   const { navigate, goBack } = useNavigation();
   const { colors } = useTheme();
+  const windowHeight = useWindowDimensions().height;
   const styles = StyleSheet.create({
     modalContent: {
       backgroundColor: BlueCurrentTheme.colors.modal,
@@ -286,7 +288,12 @@ const ReceiveDetails = () => {
 
   const renderCustomAmountModal = () => {
     return (
-      <Modal isVisible={isCustomModalVisible} style={styles.bottomModal} onBackdropPress={dismissCustomAmountModal}>
+      <Modal
+        deviceHeight={windowHeight}
+        isVisible={isCustomModalVisible}
+        style={styles.bottomModal}
+        onBackdropPress={dismissCustomAmountModal}
+      >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <BlueBitcoinAmount
