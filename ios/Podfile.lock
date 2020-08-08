@@ -349,7 +349,7 @@ PODS:
     - React
   - RNFS (2.16.6):
     - React
-  - RNGestureHandler (1.6.1):
+  - RNGestureHandler (1.7.0):
     - React
   - RNHandoff (0.0.3):
     - React
@@ -681,7 +681,7 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
   RNDeviceInfo: ab2ab4ca9e7f2bc4f35d62ab6ce2b66f2cbf1e7a
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
-  RNGestureHandler: 8f09cd560f8d533eb36da5a6c5a843af9f056b38
+  RNGestureHandler: b6b359bb800ae399a9c8b27032bdbf7c18f08a08
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNLocalize: fc27ee5878ce5a3af73873fb2d8e866e0d1e6d84
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
