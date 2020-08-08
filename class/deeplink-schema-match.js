@@ -4,6 +4,7 @@ import RNFS from 'react-native-fs';
 import url from 'url';
 import { Chain } from '../models/bitcoinUnits';
 import Azteco from './azteco';
+import BuyBitcoinRouter from './buy-bitcoin-router';
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
 const BlueApp: AppStorage = require('../BlueApp');
@@ -119,12 +120,12 @@ class DeeplinkSchemaMatch {
       }
 
       completionHandler([
-        'BuyBitcoin',
-        {
+        BuyBitcoinRouter.navigate(wallet, {
           uri: event.url,
           safelloStateToken,
           wallet,
-        },
+        })
+        
       ]);
     } else if (Azteco.isRedeemUrl(event.url)) {
       completionHandler([
