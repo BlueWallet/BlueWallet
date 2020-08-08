@@ -178,17 +178,17 @@ const WalletsAdd = () => {
       if (selectedIndex === 2) {
         // zero index radio - HD segwit
         w = new HDSegwitP2SHWallet();
-        w.setLabel(label || loc.wallets.details.title);
+        w.setLabel(label || loc.wallets.details_title);
       } else if (selectedIndex === 1) {
         // btc was selected
         // index 1 radio - segwit single address
         w = new SegwitP2SHWallet();
-        w.setLabel(label || loc.wallets.details.title);
+        w.setLabel(label || loc.wallets.details_title);
       } else {
         // btc was selected
         // index 2 radio - hd bip84
         w = new HDSegwitBech32Wallet();
-        w.setLabel(label || loc.wallets.details.title);
+        w.setLabel(label || loc.wallets.details_title);
       }
       if (selectedWalletType === Chain.ONCHAIN) {
         if (entropy) {
@@ -221,7 +221,7 @@ const WalletsAdd = () => {
 
   const createLightningWallet = async wallet => {
     wallet = new LightningCustodianWallet();
-    wallet.setLabel(label || loc.wallets.details.title);
+    wallet.setLabel(label || loc.wallets.details_title);
 
     try {
       const lndhub = walletBaseURI && walletBaseURI.trim().length > 0 ? walletBaseURI : LightningCustodianWallet.defaultBaseUri;
