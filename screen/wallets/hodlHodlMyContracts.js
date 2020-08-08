@@ -8,6 +8,7 @@ import {
   Linking,
   Platform,
   StyleSheet,
+  Dimensions,
   Text,
   TouchableHighlight,
   TouchableOpacity,
@@ -165,6 +166,7 @@ export default class HodlHodlMyContracts extends Component {
 
     return (
       <Modal
+        deviceHeight={Dimensions.get('window').height}
         isVisible={this.state.isRenderContractVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {

@@ -619,6 +619,7 @@ export default class SendDetails extends Component {
   renderFeeSelectionModal = () => {
     return (
       <Modal
+        deviceHeight={Dimensions.get('window').height}
         isVisible={this.state.isFeeSelectionModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
@@ -726,6 +727,7 @@ export default class SendDetails extends Component {
     const isSendMaxUsed = this.state.addresses.some(element => element.amount === BitcoinUnit.MAX);
     return (
       <Modal
+        deviceHeight={Dimensions.get('window').height}
         isVisible={this.state.isAdvancedTransactionOptionsVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {

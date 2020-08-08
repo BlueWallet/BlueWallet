@@ -11,6 +11,7 @@ import {
   InteractionManager,
   FlatList,
   ScrollView,
+  Dimensions,
   TouchableOpacity,
   StatusBar,
   Linking,
@@ -355,6 +356,7 @@ export default class WalletTransactions extends Component {
   renderManageFundsModal = () => {
     return (
       <Modal
+        deviceHeight={Dimensions.get('window').height}
         isVisible={this.state.isManageFundsModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {

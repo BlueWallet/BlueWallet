@@ -18,6 +18,7 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   View,
+  Dimensions,
   StatusBar,
 } from 'react-native';
 import { BlueButtonLink, BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
@@ -330,6 +331,7 @@ export default class HodlHodl extends Component {
   renderChooseSideModal = () => {
     return (
       <Modal
+        deviceHeight={Dimensions.get('window').height}
         isVisible={this.state.isChooseSideModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
@@ -369,6 +371,7 @@ export default class HodlHodl extends Component {
   renderFiltersModal = () => {
     return (
       <Modal
+        deviceHeight={Dimensions.get('window').height}
         isVisible={this.state.isFiltersModalVisible}
         style={styles.bottomModal}
         onModalHide={() => {
@@ -475,6 +478,7 @@ export default class HodlHodl extends Component {
 
     return (
       <Modal
+        deviceHeight={Dimensions.get('window').height}
         isVisible={this.state.isChooseCountryModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
@@ -551,6 +555,7 @@ export default class HodlHodl extends Component {
 
     return (
       <Modal
+        deviceHeight={Dimensions.get('window').height}
         isVisible={this.state.isChooseCurrencyVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
@@ -627,6 +632,7 @@ export default class HodlHodl extends Component {
 
     return (
       <Modal
+        deviceHeight={Dimensions.get('window').height}
         isVisible={this.state.isChooseMethodVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
