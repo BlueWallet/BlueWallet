@@ -1,6 +1,16 @@
 import 'react-native-gesture-handler'; // should be on top
 import React from 'react';
-import { Linking, Appearance, DeviceEventEmitter, AppState, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import {
+  Linking,
+  Dimensions,
+  Appearance,
+  DeviceEventEmitter,
+  AppState,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  View,
+} from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import Modal from 'react-native-modal';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
@@ -195,6 +205,7 @@ export default class App extends React.Component {
         onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false })}
         isVisible={this.state.isClipboardContentModalVisible}
         style={styles.bottomModal}
+        deviceHeight={Dimensions.get('window').height}
         onBackdropPress={() => {
           this.setState({ isClipboardContentModalVisible: false });
         }}
