@@ -120,12 +120,15 @@ class DeeplinkSchemaMatch {
       }
 
       completionHandler([
-        BuyBitcoinRouter.navigate(wallet, {
-          uri: event.url,
-          safelloStateToken,
+        BuyBitcoinRouter.navigate(
           wallet,
-        })
-        
+          {
+            uri: event.url,
+            safelloStateToken,
+            wallet,
+          },
+          true,
+        ),
       ]);
     } else if (Azteco.isRedeemUrl(event.url)) {
       completionHandler([
