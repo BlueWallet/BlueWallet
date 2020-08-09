@@ -361,6 +361,7 @@
     "select_no_bitcoin_exp": "A Bitcoin wallet is required to refill Lightning wallets. Please, create or import one.",
     "select_wallet": "Select Wallet",
     "xpub_copiedToClipboard": "Copied to clipboard.",
-    "xpub_title": "wallet XPUB"
+    "xpub_title": "wallet XPUB",
+    "export_all_less_than_four_error": "The maximum allowed of wallets for exporting is four."
   }
 }

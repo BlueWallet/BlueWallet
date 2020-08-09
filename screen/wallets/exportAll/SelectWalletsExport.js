@@ -100,9 +100,15 @@ const SelectWalletsExport = () => {
 
   useEffect(() => {
     setIsLoading(false);
+    const disabled = selectedWallets.length < 1 || selectedWallets.length > 4;
+    const opacity = { opacity: disabled ? 0.5 : 1.0 };
     setOptions({
       headerRight: () => (
-        <TouchableOpacity style={styles.marginRight} onPress={() => navigate('SelectWalletsExportQRCode', { selectedWallets })}>
+        <TouchableOpacity
+          disabled={disabled}
+          style={[styles.marginRight, opacity]}
+          onPress={() => navigate('SelectWalletsExportQRCode', { selectedWallets })}
+        >
           <BlueTextHooks>{loc._.continue}</BlueTextHooks>
         </TouchableOpacity>
       ),
