@@ -331,8 +331,9 @@ module.exports.multiGetHistoryByAddress = async function (addresses, batchsize) 
     }
 
     for (const history of results) {
-      ret[scripthash2addr[history.param]] = history.result;
-      if (history.result[0]) txhashHeightCache[history.result[0].tx_hash] = history.result[0].height; // cache tx height
+      if (history.error) console.warn('multiGetHistoryByAddress():', history.error);
+      ret[scripthash2addr[history.param]] = history.result || [];
+      if (history.result && history.result[0]) txhashHeightCache[history.result[0].tx_hash] = history.result[0].height; // cache tx height
       for (const hist of ret[scripthash2addr[history.param]]) {
         hist.address = scripthash2addr[history.param];
       }
