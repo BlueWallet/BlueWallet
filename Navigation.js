@@ -66,6 +66,7 @@ import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
 import { BlueNavigationStyle } from './BlueComponents';
+import SelectWalletsExport from './screen/wallets/exportAll/SelectWalletsExport';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const defaultScreenOptions =
@@ -287,6 +288,7 @@ const Navigation = () => (
     <RootStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions} />
     <RootStack.Screen name="LappBrowser" component={LappBrowser} options={LappBrowser.navigationOptions} />
     <RootStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions} />
+    <RootStack.Screen name="SelectWalletsExport" component={SelectWalletsExport} options={SelectWalletsExport.navigationOptions} />
   </RootStack.Navigator>
 );
 

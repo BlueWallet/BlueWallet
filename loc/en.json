@@ -354,6 +354,7 @@
     "list_title": "wallets",
     "list_tryagain": "Try Again",
     "reorder_title": "Reorder Wallets",
+    "export_all_title": "Export Wallets",
     "select_no_bitcoin": "There are currently no Bitcoin wallets available.",
     "select_no_bitcoin_exp": "A Bitcoin wallet is required to refill Lightning wallets. Please, create or import one.",
     "select_wallet": "Select Wallet",
