@@ -127,7 +127,7 @@ const SelectWalletsExport = () => {
             if (selectedWallets.length < 4) {
               setSelectedWallets([...selectedWallets, item]);
             } else {
-                alert(loc.wallets.export_all_maximum_error);
+              alert(loc.wallets.export_all_maximum_error);
             }
           }
         }}
@@ -195,7 +195,7 @@ const SelectWalletsExport = () => {
 };
 
 SelectWalletsExport.navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(),
+  ...BlueNavigationStyle(),
   headerTitle: loc.wallets.export_all_title,
   headerBackTitleVisible: false,
   headerLeft: null,
