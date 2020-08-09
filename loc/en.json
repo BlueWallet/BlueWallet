@@ -362,6 +362,6 @@
     "select_wallet": "Select Wallet",
     "xpub_copiedToClipboard": "Copied to clipboard.",
     "xpub_title": "wallet XPUB",
-    "export_all_less_than_four_error": "The maximum allowed of wallets for exporting is four."
+    "export_all_maximum_error": "The maximum allowed of wallets for exporting is four."
   }
 }

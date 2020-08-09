@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+/* global alert */
 import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, TouchableOpacity, Image, Text, FlatList, StyleSheet, StatusBar } from 'react-native';
 import {
@@ -125,6 +126,8 @@ const SelectWalletsExport = () => {
           } else {
             if (selectedWallets.length < 4) {
               setSelectedWallets([...selectedWallets, item]);
+            } else {
+                alert(loc.wallets.export_all_maximum_error);
             }
           }
         }}
@@ -192,6 +195,7 @@ const SelectWalletsExport = () => {
 };
 
 SelectWalletsExport.navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(),
   headerTitle: loc.wallets.export_all_title,
   headerBackTitleVisible: false,
   headerLeft: null,
