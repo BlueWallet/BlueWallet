@@ -129,8 +129,9 @@ const SelectWalletsExportQRCode = () => {
 };
 
 SelectWalletsExportQRCode.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+  ...BlueNavigationStyle(navigation, true,  () => navigation.dangerouslyGetParent().pop()),
   headerTitle: loc.wallets.export_all_title,
+  
 });
 
 export default SelectWalletsExportQRCode;
