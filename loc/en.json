@@ -203,6 +203,7 @@
   },
   "settings": {
     "about": "About",
+    "tools": "Tools",
     "about_awesome": "Built with the awesome",
     "about_backup": "Always backup your keys!",
     "about_free": "BlueWallet is a free and open source project. Crafted by Bitcoin users.",
@@ -349,6 +350,7 @@
     "list_latest_transaction": "latest transaction",
     "list_long_choose": "Choose Photo",
     "list_long_clipboard": "Copy from Clipboard",
+    "copy_to_clipboard": "Copy to Clipboard",
     "list_long_scan": "Scan QR Code",
     "list_tap_here_to_buy": "Buy Bitcoin",
     "list_title": "wallets",

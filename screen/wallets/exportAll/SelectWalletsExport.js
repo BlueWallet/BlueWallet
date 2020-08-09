@@ -14,7 +14,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet } from '../../../class/wallets/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../../class/wallet-gradient';
-import { useTheme } from '@react-navigation/native';
+import { useTheme, useNavigation } from '@react-navigation/native';
 import loc, { formatBalance, transactionTimeToReadable } from '../../../loc';
 /** @type {AppStorage} */
 const BlueApp = require('../../../BlueApp');
@@ -90,7 +90,8 @@ const SelectWalletsExport = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { colors } = useTheme();
   const data = BlueApp.getWallets() || [];
-  const [selectedWallets, setSelectedWallets] = useState(data);
+  const [selectedWallets, setSelectedWallets] = useState(data.slice(0, 4));
+  const { navigate, setOptions } = useNavigation();
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.background,
@@ -99,18 +100,26 @@ const SelectWalletsExport = () => {
 
   useEffect(() => {
     setIsLoading(false);
-  }, []);
+    setOptions({
+      headerRight: () => (
+        <TouchableOpacity style={styles.marginRight} onPress={() => navigate('SelectWalletsExportQRCode', { selectedWallets })}>
+          <BlueTextHooks>{loc._.continue}</BlueTextHooks>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigate, selectedWallets, setOptions]);
 
   const renderItem = ({ item }) => {
     return (
       <BlueListItemHooks
         onPress={() => {
           ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
-          //   onWalletSelect(item, { navigation });
           if (selectedWallets.includes(item)) {
             setSelectedWallets(selectedWallets.filter(wallet => wallet !== item));
           } else {
-            setSelectedWallets([...selectedWallets, item]);
+            if (selectedWallets.length < 4) {
+              setSelectedWallets([...selectedWallets, item]);
+            }
           }
         }}
         checkmark={selectedWallets.includes(item)}
@@ -163,8 +172,6 @@ const SelectWalletsExport = () => {
         <StatusBar barStyle="light-content" />
         <View style={styles.noWallets}>
           <BlueText style={styles.center}>{loc.wallets.select_no_bitcoin}</BlueText>
-          <BlueSpacing20 />
-          <BlueText style={styles.center}>{loc.wallets.select_no_bitcoin_exp}</BlueText>
         </View>
       </SafeBlueArea>
     );
@@ -179,14 +186,9 @@ const SelectWalletsExport = () => {
 };
 
 SelectWalletsExport.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
   headerTitle: loc.wallets.export_all_title,
   headerBackTitleVisible: false,
-  headerRight: () => (
-    <TouchableOpacity style={styles.marginRight} onPress={() => {}}>
-      <BlueTextHooks>{loc._.continue}</BlueTextHooks>
-    </TouchableOpacity>
-  ),
+  headerLeft: null,
 });
 
 export default SelectWalletsExport;

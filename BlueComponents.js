@@ -597,6 +597,55 @@ export class BlueCopyTextToClipboard extends Component {
   }
 }
 
+export class BlueCopyLongTextToClipboard extends Component {
+  static propTypes = {
+    text: PropTypes.string,
+  };
+
+  static defaultProps = {
+    text: '',
+  };
+
+  constructor(props) {
+    super(props);
+    if (Platform.OS === 'android') {
+      UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+    this.state = { hasTappedText: false, address: loc.wallets.copy_to_clipboard };
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    if (state.hasTappedText) {
+      return { hasTappedText: state.hasTappedText, address: state.address };
+    } else {
+      return { hasTappedText: state.hasTappedText, address: loc.wallets.copy_to_clipboard };
+    }
+  }
+
+  copyToClipboard = () => {
+    this.setState({ hasTappedText: true }, () => {
+      Clipboard.setString(this.props.text);
+      this.setState({ address: loc.wallets.xpub_copiedToClipboard }, () => {
+        setTimeout(() => {
+          this.setState({ hasTappedText: false, address: this.props.text });
+        }, 1000);
+      });
+    });
+  };
+
+  render() {
+    return (
+      <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+        <TouchableOpacity onPress={this.copyToClipboard} disabled={this.state.hasTappedText}>
+          <Animated.Text style={styleCopyTextToClipboard.address} numberOfLines={0}>
+            {this.state.address}
+          </Animated.Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+}
+
 const styleCopyTextToClipboard = StyleSheet.create({
   address: {
     marginVertical: 32,

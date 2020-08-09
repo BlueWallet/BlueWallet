@@ -4,7 +4,7 @@ import { SafeBlueArea, BlueListItemHooks, BlueNavigationStyle } from '../../Blue
 import { useNavigation, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 
-const NetworkSettings = () => {
+const ToolSettings = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const styles = StyleSheet.create({
@@ -14,25 +14,26 @@ const NetworkSettings = () => {
     },
   });
 
-  const navigateToElectrumSettings = () => {
-    navigate('ElectrumSettings');
+  const navigateToExportWallets = () => {
+    navigate('ExportWalletsRoot');
   };
 
-  const navigateToLightningSettings = () => {
-    navigate('LightningSettings');
+  const navigateToBroadcast = () => {
+    navigate('Broadcast');
   };
 
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <ScrollView>
-        <BlueListItemHooks title={loc.settings.network_electrum} onPress={navigateToElectrumSettings} chevron />
-        <BlueListItemHooks title={loc.settings.lightning_settings} onPress={navigateToLightningSettings} chevron />
+        <BlueListItemHooks title={loc.settings.network_broadcast} onPress={navigateToBroadcast} chevron />
+        <BlueListItemHooks title={loc.wallets.export_all_title} onPress={navigateToExportWallets} />
       </ScrollView>
     </SafeBlueArea>
   );
 };
-NetworkSettings.navigationOptions = () => ({
+
+ToolSettings.navigationOptions = () => ({
   ...BlueNavigationStyle(),
-  title: loc.settings.network,
+  title: loc.settings.tools,
 });
-export default NetworkSettings;
+export default ToolSettings;

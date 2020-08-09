@@ -35,6 +35,13 @@ const Settings = () => {
         chevron
       />
       <BlueListItemHooks
+        title={loc.settings.tools}
+        component={TouchableOpacity}
+        onPress={() => navigate('ToolSettings')}
+        testID="ToolsButton"
+        chevron
+      />
+      <BlueListItemHooks
         title={loc.settings.about}
         component={TouchableOpacity}
         onPress={() => navigate('About')}

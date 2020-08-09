@@ -67,6 +67,8 @@ import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
 import { BlueNavigationStyle } from './BlueComponents';
 import SelectWalletsExport from './screen/wallets/exportAll/SelectWalletsExport';
+import SelectWalletsExportQRCode from './screen/wallets/exportAll/SelectWalletsExportQRCode';
+import ToolSettings from './screen/settings/tools';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const defaultScreenOptions =
@@ -126,6 +128,8 @@ const WalletsRoot = () => (
     <WalletsStack.Screen name="PlausibleDeniability" component={PlausibleDeniability} options={PlausibleDeniability.navigationOptions} />
     <WalletsStack.Screen name="LightningSettings" component={LightningSettings} options={LightningSettings.navigationOptions} />
     <WalletsStack.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions} />
+    <WalletsStack.Screen name="ToolSettings" component={ToolSettings} options={ToolSettings.navigationOptions} />
+
     <WalletsStack.Screen
       name="LNDViewInvoice"
       component={LNDViewInvoice}
@@ -251,6 +255,18 @@ const HodlHodlLoginRoot = () => (
   </HodlHodlLoginStack.Navigator>
 );
 
+const ExportWalletsStack = createStackNavigator();
+const ExportWalletsRoot = () => (
+  <ExportWalletsStack.Navigator name="ExportWalletsRoot" screenOptions={defaultStackScreenOptions}>
+    <ExportWalletsStack.Screen name="SelectWalletsExport" component={SelectWalletsExport} options={SelectWalletsExport.navigationOptions} />
+    <ExportWalletsStack.Screen
+      name="SelectWalletsExportQRCode"
+      component={SelectWalletsExportQRCode}
+      options={SelectWalletsExportQRCode.navigationOptions}
+    />
+  </ExportWalletsStack.Navigator>
+);
+
 const RootStack = createStackNavigator();
 const Navigation = () => (
   <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
@@ -288,7 +304,7 @@ const Navigation = () => (
     <RootStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions} />
     <RootStack.Screen name="LappBrowser" component={LappBrowser} options={LappBrowser.navigationOptions} />
     <RootStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions} />
-    <RootStack.Screen name="SelectWalletsExport" component={SelectWalletsExport} options={SelectWalletsExport.navigationOptions} />
+    <RootStack.Screen name="ExportWalletsRoot" component={ExportWalletsRoot} options={{ headerShown: false }} />
   </RootStack.Navigator>
 );
 
