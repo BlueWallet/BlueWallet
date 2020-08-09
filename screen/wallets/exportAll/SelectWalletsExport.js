@@ -2,15 +2,7 @@
 /* global alert */
 import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, TouchableOpacity, Image, Text, FlatList, StyleSheet, StatusBar } from 'react-native';
-import {
-  SafeBlueArea,
-  BlueText,
-  BlueSpacing20,
-  BluePrivateBalance,
-  BlueNavigationStyle,
-  BlueListItemHooks,
-  BlueTextHooks,
-} from '../../../BlueComponents';
+import { SafeBlueArea, BlueText, BluePrivateBalance, BlueNavigationStyle, BlueListItemHooks, BlueTextHooks } from '../../../BlueComponents';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet } from '../../../class/wallets/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';

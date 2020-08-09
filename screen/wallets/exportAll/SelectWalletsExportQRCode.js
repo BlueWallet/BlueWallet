@@ -2,7 +2,7 @@
 import React, { useState, useCallback } from 'react';
 import { useWindowDimensions, InteractionManager, ScrollView, ActivityIndicator, StatusBar, View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueCopyLongTextToClipboard } from '../../../BlueComponents';
+import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueCopyLongTextToClipboard } from '../../../BlueComponents';
 import Privacy from '../../../Privacy';
 import Biometric from '../../../class/biometrics';
 import loc from '../../../loc';
