@@ -48,6 +48,7 @@ export default class HodlHodl extends Component {
       isFiltersModalVisible: false,
       isChooseCurrencyVisible: false,
       isChooseMethodVisible: false,
+      showShowFlatListRefreshControl: false,
       currency: false, // means no currency filtering is enabled by default
       method: false, // means no payment method filtering is enabled by default
       side: HodlHodlApi.FILTERS_SIDE_VALUE_SELL, // means 'show me sell offers as Im buying'
