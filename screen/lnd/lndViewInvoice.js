@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { View, Text, Dimensions, ScrollView, BackHandler, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Dimensions, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet } from 'react-native';
 import Share from 'react-native-share';
 import {
   BlueLoading,
   BlueText,
   SafeBlueArea,
   BlueButton,
+  SecondButton,
   BlueCopyTextToClipboard,
   BlueNavigationStyle,
   BlueSpacing20,
@@ -15,21 +16,22 @@ import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
+import loc from '../../loc';
+import { BlueCurrentTheme } from '../../components/themes';
 const EV = require('../../blue_modules/events');
 const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.background,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
   valueRoot: {
     flex: 2,
     flexDirection: 'column',
@@ -41,12 +43,12 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   valueText: {
-    color: '#0f5cc0',
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 32,
     fontWeight: '600',
   },
   valueSats: {
-    color: '#0f5cc0',
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 16,
     marginHorizontal: 4,
     paddingBottom: 3,
@@ -69,6 +71,7 @@ const styles = StyleSheet.create({
   paidMark: {
     marginTop: -100,
     marginBottom: 16,
+    backgroundColor: BlueCurrentTheme.colors.success,
   },
   detailsRoot: {
     flex: 1,
@@ -81,12 +84,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   detailsText: {
-    color: '#9aa0aa',
+    color: BlueCurrentTheme.colors.alternativeTextColor,
     fontSize: 14,
     marginRight: 8,
   },
   expired: {
-    backgroundColor: '#ccddf9',
+    backgroundColor: BlueCurrentTheme.colors.success,
     width: 120,
     height: 120,
     borderRadius: 60,
@@ -105,23 +108,17 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
+    marginHorizontal: 16,
+    borderWidth: 6,
+    borderRadius: 8,
+    borderColor: '#FFFFFF',
   },
   additionalInfo: {
-    backgroundColor: BlueApp.settings.brandingColor,
+    backgroundColor: BlueCurrentTheme.colors.brandingColor,
   },
 });
 
 export default class LNDViewInvoice extends Component {
-  static navigationOptions = ({ navigation, route }) =>
-    route.params.isModal === true
-      ? {
-          ...BlueNavigationStyle(navigation, true, () => navigation.dangerouslyGetParent().pop()),
-          title: 'Lightning Invoice',
-          headerLeft: null,
-        }
-      : { ...BlueNavigationStyle(), title: 'Lightning Invoice' };
-
   constructor(props) {
     super(props);
     const invoice = props.route.params.invoice;
@@ -139,6 +136,7 @@ export default class LNDViewInvoice extends Component {
   }
 
   componentDidMount() {
+    console.log('LNDViewInvoice - componentDidMount');
     this.fetchInvoiceInterval = setInterval(async () => {
       if (this.state.isFetchingInvoices) {
         try {
@@ -200,7 +198,11 @@ export default class LNDViewInvoice extends Component {
 
   render() {
     if (this.state.isLoading) {
-      return <BlueLoading />;
+      return (
+        <View style={styles.root}>
+          <BlueLoading />
+        </View>
+      );
     }
 
     const { invoice } = this.state;
@@ -212,17 +214,21 @@ export default class LNDViewInvoice extends Component {
       if (this.state.showPreimageQr) {
         return (
           <SafeBlueArea style={styles.root}>
+            <StatusBar barStyle="default" />
             <View style={styles.center}>
-              <BlueText>Preimage:</BlueText>
+              <BlueText>{loc.lndViewInvoice.preimage}:</BlueText>
               <BlueSpacing20 />
-              <QRCode
-                value={invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? invoice.payment_preimage : 'none'}
-                logo={require('../../img/qr-code.png')}
-                size={this.state.qrCodeHeight}
-                logoSize={90}
-                color={BlueApp.settings.foregroundColor}
-                logoBackgroundColor={BlueApp.settings.brandingColor}
-              />
+              <View style={styles.qrCodeContainer}>
+                <QRCode
+                  value={invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? invoice.payment_preimage : 'none'}
+                  logo={require('../../img/qr-code.png')}
+                  size={this.state.qrCodeHeight}
+                  logoSize={90}
+                  color="#000000"
+                  logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
+                  backgroundColor="#FFFFFF"
+                />
+              </View>
               <BlueSpacing20 />
               <BlueCopyTextToClipboard
                 text={invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? invoice.payment_preimage : 'none'}
@@ -235,6 +241,7 @@ export default class LNDViewInvoice extends Component {
       if (invoice.ispaid || invoice.type === 'paid_invoice') {
         return (
           <SafeBlueArea style={styles.root}>
+            <StatusBar barStyle="default" />
             <View style={styles.valueRoot}>
               {invoice.type === 'paid_invoice' && invoice.value && (
                 <View style={styles.valueAmount}>
@@ -258,8 +265,8 @@ export default class LNDViewInvoice extends Component {
             <View style={styles.detailsRoot}>
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
                 <TouchableOpacity style={styles.detailsTouch} onPress={() => this.setState({ showPreimageQr: true })}>
-                  <Text style={styles.detailsText}>{loc.send.create.details}</Text>
-                  <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
+                  <Text style={styles.detailsText}>{loc.send.create_details}</Text>
+                  <Icon name="angle-right" size={18} type="font-awesome" color={BlueCurrentTheme.colors.alternativeTextColor} />
                 </TouchableOpacity>
               ) : (
                 <View />
@@ -271,9 +278,10 @@ export default class LNDViewInvoice extends Component {
       if (invoiceExpiration < now && !invoice.ispaid) {
         return (
           <SafeBlueArea style={styles.root}>
+            <StatusBar barStyle="default" />
             <View style={styles.center}>
               <View style={styles.expired}>
-                <Icon name="times" size={50} type="font-awesome" color="#0f5cc0" />
+                <Icon name="times" size={50} type="font-awesome" color={BlueCurrentTheme.colors.successCheck} />
               </View>
               <BlueText>{loc.lndViewInvoice.wasnt_paid_and_expired}</BlueText>
             </View>
@@ -294,6 +302,7 @@ export default class LNDViewInvoice extends Component {
     // Invoice has not expired, nor has it been paid for.
     return (
       <SafeBlueArea>
+        <StatusBar barStyle="default" />
         <ScrollView>
           <View style={styles.activeRoot} onLayout={this.onLayout}>
             <View style={styles.activeQrcode}>
@@ -302,8 +311,9 @@ export default class LNDViewInvoice extends Component {
                 logo={require('../../img/qr-code.png')}
                 size={this.state.qrCodeHeight}
                 logoSize={90}
-                color={BlueApp.settings.foregroundColor}
-                logoBackgroundColor={BlueApp.settings.brandingColor}
+                color="#000000"
+                logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
+                backgroundColor="#FFFFFF"
               />
             </View>
 
@@ -318,17 +328,11 @@ export default class LNDViewInvoice extends Component {
             )}
             <BlueCopyTextToClipboard text={this.state.invoice.payment_request} />
 
-            <BlueButton
-              icon={{
-                name: 'share-alternative',
-                type: 'entypo',
-                size: 10,
-                color: BlueApp.settings.buttonTextColor,
-              }}
+            <SecondButton
               onPress={() => {
-                Share.open({ message: `lightning://${invoice.payment_request}` }).catch(error => console.log(error));
+                Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
               }}
-              title={loc.receive.details.share}
+              title={loc.receive.details_share}
             />
             <BlueSpacing20 />
             <BlueButton
@@ -354,3 +358,21 @@ LNDViewInvoice.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+LNDViewInvoice.navigationOptions = ({ navigation, route }) =>
+  route.params.isModal === true
+    ? {
+        ...BlueNavigationStyle(navigation, true, () => navigation.dangerouslyGetParent().pop()),
+        title: 'Lightning Invoice',
+        headerLeft: null,
+        headerStyle: {
+          backgroundColor: BlueCurrentTheme.colors.customHeader,
+        },
+      }
+    : {
+        ...BlueNavigationStyle(),
+        title: 'Lightning Invoice',
+        headerStyle: {
+          backgroundColor: BlueCurrentTheme.colors.customHeader,
+        },
+      };

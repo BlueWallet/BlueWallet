@@ -7,6 +7,8 @@ import ImagePicker from 'react-native-image-picker';
 import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
+import loc from '../../loc';
+import { BlueLoadingHook } from '../../BlueComponents';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
 
@@ -93,8 +95,8 @@ const ScanQRCode = () => {
   };
 
   const showFilePicker = async () => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const res = await DocumentPicker.pick();
       const file = await RNFS.readFile(res.uri);
       const fileParsed = JSON.parse(file);
@@ -109,11 +111,10 @@ const ScanQRCode = () => {
       }
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
-        alert('The selected file does not contain a wallet that can be imported.');
+        alert(loc.send.qr_error_no_wallet);
       }
       setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const showImagePicker = () => {
@@ -132,11 +133,13 @@ const ScanQRCode = () => {
               if (!error) {
                 onBarCodeRead({ data: result });
               } else {
-                alert('The selected image does not contain a QR Code.');
+                alert(loc.send.qr_error_no_qrcode);
+                setIsLoading(false);
               }
             });
+          } else {
+            setIsLoading(false);
           }
-          setIsLoading(false);
         },
       );
     }
@@ -146,17 +149,21 @@ const ScanQRCode = () => {
     navigation.navigate(launchedBy);
   };
 
-  return (
+  return isLoading ? (
+    <View style={styles.root}>
+      <BlueLoadingHook />
+    </View>
+  ) : (
     <View style={styles.root}>
       <StatusBar hidden />
-      {!isLoading && isFocused && (
+      {isFocused && (
         <RNCamera
           captureAudio={false}
           androidCameraPermissionOptions={{
-            title: 'Permission to use camera',
-            message: 'We need your permission to use your camera',
-            buttonPositive: 'OK',
-            buttonNegative: 'Cancel',
+            title: loc.send.permission_camera_title,
+            message: loc.send.permission_camera_message,
+            buttonPositive: loc._.ok,
+            buttonNegative: loc._.cancel,
           }}
           style={styles.rnCamera}
           onBarCodeRead={onBarCodeRead}

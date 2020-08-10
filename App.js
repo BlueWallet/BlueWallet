@@ -1,20 +1,32 @@
 import 'react-native-gesture-handler'; // should be on top
 import React from 'react';
-import { Linking, Appearance, DeviceEventEmitter, AppState, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import {
+  Linking,
+  Dimensions,
+  Appearance,
+  DeviceEventEmitter,
+  AppState,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  View,
+} from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import Modal from 'react-native-modal';
-import { NavigationContainer, CommonActions, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './Navigation';
 import { navigationRef } from './NavigationService';
 import * as NavigationService from './NavigationService';
-import { BlueTextCentered, BlueButton } from './BlueComponents';
+import { BlueTextCentered, BlueButton, SecondButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Chain } from './models/bitcoinUnits';
 import QuickActions from 'react-native-quick-actions';
 import * as Sentry from '@sentry/react-native';
 import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
+import loc from './loc';
+import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/themes';
 const A = require('./blue_modules/analytics');
 
 if (process.env.NODE_ENV !== 'development') {
@@ -25,9 +37,9 @@ if (process.env.NODE_ENV !== 'development') {
 
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
-const loc = require('./loc');
 const BlueApp = require('./BlueApp');
 const EV = require('./blue_modules/events');
+const notifications = require('./blue_modules/notifications'); // eslint-disable-line no-unused-vars
 
 export default class App extends React.Component {
   state = {
@@ -35,17 +47,28 @@ export default class App extends React.Component {
     isClipboardContentModalVisible: false,
     clipboardContentModalAddressType: bitcoinModalString,
     clipboardContent: '',
+    theme: Appearance.getColorScheme(),
   };
 
   componentDidMount() {
     EV(EV.enum.WALLETS_INITIALIZED, this.addListeners);
+    Appearance.addChangeListener(this.appearanceChanged);
   }
+
+  appearanceChanged = () => {
+    const appearance = Appearance.getColorScheme();
+    if (appearance) {
+      BlueCurrentTheme.updateColorScheme();
+      this.setState({ theme: appearance });
+    }
+  };
 
   addListeners = () => {
     Linking.addEventListener('url', this.handleOpenURL);
     AppState.addEventListener('change', this._handleAppStateChange);
     DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
     QuickActions.popInitialAction().then(this.popInitialAction);
+    EV(EV.enum.PROCESS_PUSH_NOTIFICATIONS, this._processPushNotifications.bind(this), true);
     this._handleAppStateChange(undefined);
   };
 
@@ -104,12 +127,70 @@ export default class App extends React.Component {
   componentWillUnmount() {
     Linking.removeEventListener('url', this.handleOpenURL);
     AppState.removeEventListener('change', this._handleAppStateChange);
+    Appearance.removeChangeListener(this.appearanceChanged);
+  }
+
+  /**
+   * Processes push notifications stored in AsyncStorage. Might navigate to some screen.
+   *
+   * @returns {Promise<boolean>} returns TRUE if notification was processed _and acted_ upon, i.e. navigation happened
+   * @private
+   */
+  async _processPushNotifications() {
+    notifications.setApplicationIconBadgeNumber(0);
+    await new Promise(resolve => setTimeout(resolve, 200));
+    // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
+    const notifications2process = await notifications.getStoredNotifications();
+    for (const payload of notifications2process) {
+      const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
+      if (!wasTapped) continue;
+
+      console.log('processing push notification:', payload);
+      let wallet;
+      switch (+payload.type) {
+        case 2:
+        case 3:
+          wallet = BlueApp.getWallets().find(w => w.weOwnAddress(payload.address));
+          break;
+        case 1:
+        case 4:
+          wallet = BlueApp.getWallets().find(w => w.weOwnTransaction(payload.txid || payload.hash));
+          break;
+      }
+
+      if (wallet) {
+        NavigationService.dispatch(
+          CommonActions.navigate({
+            name: 'WalletTransactions',
+            key: `WalletTransactions-${wallet.getID()}`,
+            params: {
+              wallet,
+            },
+          }),
+        );
+        setTimeout(() => EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, 1 /* ms */), 500);
+        // no delay (1ms) as we dont need to wait for transaction propagation. 500ms is a delay to wait for the navigation
+        await notifications.clearStoredNotifications();
+        return true;
+      } else {
+        console.log('could not find wallet while processing push notification tap, NOP');
+      }
+    }
+
+    // TODO: if we are here - we did not act upon any push, so we need to iterate over _not tapped_ pushes
+    // and refetch appropriate wallet and redraw screen
+
+    await notifications.clearStoredNotifications();
+    return false;
   }
 
   _handleAppStateChange = async nextAppState => {
     if (BlueApp.getWallets().length > 0) {
       if ((this.state.appState.match(/background/) && nextAppState) === 'active' || nextAppState === undefined) {
         setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
+
+        const processed = await this._processPushNotifications();
+        if (processed) return;
         const clipboard = await Clipboard.getString();
         const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet => {
           if (wallet.chain === Chain.ONCHAIN) {
@@ -182,6 +263,7 @@ export default class App extends React.Component {
         onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false })}
         isVisible={this.state.isClipboardContentModalVisible}
         style={styles.bottomModal}
+        deviceHeight={Dimensions.get('window').height}
         onBackdropPress={() => {
           this.setState({ isClipboardContentModalVisible: false });
         }}
@@ -192,11 +274,7 @@ export default class App extends React.Component {
               You have a {this.state.clipboardContentModalAddressType} on your clipboard. Would you like to use it for a transaction?
             </BlueTextCentered>
             <View style={styles.modelContentButtonLayout}>
-              <BlueButton
-                noMinWidth
-                title={loc.send.details.cancel}
-                onPress={() => this.setState({ isClipboardContentModalVisible: false })}
-              />
+              <SecondButton noMinWidth title={loc._.cancel} onPress={() => this.setState({ isClipboardContentModalVisible: false })} />
               <View style={styles.space} />
               <BlueButton
                 noMinWidth
@@ -219,7 +297,7 @@ export default class App extends React.Component {
     return (
       <SafeAreaProvider>
         <View style={styles.root}>
-          <NavigationContainer ref={navigationRef} theme={Appearance.getColorScheme() === 'dark' ? { ...DarkTheme } : DefaultTheme} tr>
+          <NavigationContainer ref={navigationRef} theme={this.state.theme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
             <Navigation />
           </NavigationContainer>
           {this.renderClipboardContentModal()}
@@ -237,7 +315,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',

@@ -1,5 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import {
   TextInput,
   FlatList,
@@ -15,38 +16,18 @@ import {
   PermissionsAndroid,
 } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
-import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
-import PropTypes from 'prop-types';
-import Privacy from '../../Privacy';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
+
+import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
+import Privacy from '../../Privacy';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+import loc from '../../loc';
+import { BlueCurrentTheme } from '../../components/themes';
 const currency = require('../../blue_modules/currency');
 
 export default class SendCreate extends Component {
-  static navigationOptions = ({ navigation, route }) => {
-    let headerRight;
-    if (route.params.exportTXN) {
-      headerRight = () => (
-        <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
-          <Icon size={22} name="share-alternative" type="entypo" color={BlueApp.settings.foregroundColor} />
-        </TouchableOpacity>
-      );
-    } else {
-      headerRight = null;
-    }
-
-    return {
-      ...BlueNavigationStyle,
-      title: loc.send.create.details,
-      headerRight,
-    };
-  };
-
   constructor(props) {
     super(props);
     console.log('send/create constructor');
@@ -83,18 +64,18 @@ export default class SendCreate extends Component {
         });
     } else if (Platform.OS === 'android') {
       const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-        title: 'BlueWallet Storage Access Permission',
-        message: 'BlueWallet needs your permission to access your storage to save this transaction.',
-        buttonNeutral: 'Ask Me Later',
-        buttonNegative: 'Cancel',
-        buttonPositive: 'OK',
+        title: loc.send.permission_storage_title,
+        message: loc.send.permission_storage_message,
+        buttonNeutral: loc.send.permission_storage_later,
+        buttonNegative: loc._.cancel,
+        buttonPositive: loc._.ok,
       });
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.ExternalCachesDirectoryPath + `/${this.fileName}`;
         await RNFS.writeFile(filePath, this.state.tx);
-        alert(`This transaction has been saved in ${filePath}`);
+        alert(loc.formatString(loc.send.txSaved, { filePath }));
       } else {
         console.log('Storage Permission: Denied');
       }
@@ -109,9 +90,9 @@ export default class SendCreate extends Component {
     return (
       <>
         <View>
-          <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
+          <Text style={styles.transactionDetailsTitle}>{loc.send.create_to}</Text>
           <Text style={styles.transactionDetailsSubtitle}>{item.address}</Text>
-          <Text style={styles.transactionDetailsTitle}>{loc.send.create.amount}</Text>
+          <Text style={styles.transactionDetailsTitle}>{loc.send.create_amount}</Text>
           <Text style={styles.transactionDetailsSubtitle}>
             {item.value === BitcoinUnit.MAX || !item.value
               ? currency.satoshiToBTC(this.state.wallet.getBalance()) - this.state.fee
@@ -120,7 +101,7 @@ export default class SendCreate extends Component {
           </Text>
           {this.state.recipients.length > 1 && (
             <BlueText style={styles.itemOf}>
-              {index + 1} of {this.state.recipients.length}
+              {loc.formatString(loc._.of, { number: index + 1, total: this.state.recipients.length })}
             </BlueText>
           )}
         </View>
@@ -138,14 +119,14 @@ export default class SendCreate extends Component {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <ScrollView>
             <BlueCard style={styles.card}>
-              <BlueText style={styles.cardText}>{loc.send.create.this_is_hex}</BlueText>
+              <BlueText style={styles.cardText}>{loc.send.create_this_is_hex}</BlueText>
               <TextInput testID="TxhexInput" style={styles.cardTx} height={72} multiline editable value={this.state.tx} />
 
               <TouchableOpacity style={styles.actionTouch} onPress={() => Clipboard.setString(this.state.tx)}>
-                <Text style={styles.actionText}>Copy and broadcast later</Text>
+                <Text style={styles.actionText}>{loc.send.create_copy}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.actionTouch} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.tx)}>
-                <Text style={styles.actionText}>Verify on coinb.in</Text>
+                <Text style={styles.actionText}>{loc.send.create_verify}</Text>
               </TouchableOpacity>
             </BlueCard>
             <BlueCard>
@@ -157,19 +138,19 @@ export default class SendCreate extends Component {
                 keyExtractor={(_item, index) => `${index}`}
                 ItemSeparatorComponent={this.renderSeparator}
               />
-              <Text style={styles.transactionDetailsTitle}>{loc.send.create.fee}</Text>
+              <Text style={styles.transactionDetailsTitle}>{loc.send.create_fee}</Text>
               <Text style={styles.transactionDetailsSubtitle}>
                 {this.state.fee} {BitcoinUnit.BTC}
               </Text>
 
-              <Text style={styles.transactionDetailsTitle}>{loc.send.create.tx_size}</Text>
+              <Text style={styles.transactionDetailsTitle}>{loc.send.create_tx_size}</Text>
               <Text style={styles.transactionDetailsSubtitle}>{this.state.size} bytes</Text>
 
-              <Text style={styles.transactionDetailsTitle}>{loc.send.create.satoshi_per_byte}</Text>
+              <Text style={styles.transactionDetailsTitle}>{loc.send.create_satoshi_per_byte}</Text>
               <Text style={styles.transactionDetailsSubtitle}>{this.state.satoshiPerByte} Sat/B</Text>
               {this.state.memo.length > 0 && (
                 <>
-                  <Text style={styles.transactionDetailsTitle}>{loc.send.create.memo}</Text>
+                  <Text style={styles.transactionDetailsTitle}>{loc.send.create_memo}</Text>
                   <Text style={styles.transactionDetailsSubtitle}>{this.state.memo}</Text>
                 </>
               )}
@@ -183,13 +164,13 @@ export default class SendCreate extends Component {
 
 const styles = StyleSheet.create({
   transactionDetailsTitle: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.feeText,
     fontWeight: '500',
     fontSize: 17,
     marginBottom: 2,
   },
   transactionDetailsSubtitle: {
-    color: '#9aa0aa',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: '500',
     fontSize: 15,
     marginBottom: 20,
@@ -201,20 +182,21 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   separator: {
-    backgroundColor: BlueApp.settings.inputBorderColor,
+    backgroundColor: BlueCurrentTheme.colors.inputBorderColor,
     height: 0.5,
     marginVertical: 16,
   },
   root: {
     flex: 1,
     paddingTop: 19,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   card: {
     alignItems: 'center',
     flex: 1,
   },
   cardText: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: '500',
   },
   cardTx: {
@@ -250,4 +232,23 @@ SendCreate.propTypes = {
   route: PropTypes.shape({
     params: PropTypes.object,
   }),
+};
+
+SendCreate.navigationOptions = ({ navigation, route }) => {
+  let headerRight;
+  if (route.params.exportTXN) {
+    headerRight = () => (
+      <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
+        <Icon size={22} name="share-alternative" type="entypo" color={BlueCurrentTheme.colors.foregroundColor} />
+      </TouchableOpacity>
+    );
+  } else {
+    headerRight = null;
+  }
+
+  return {
+    ...BlueNavigationStyle,
+    title: loc.send.create.details,
+    headerRight,
+  };
 };

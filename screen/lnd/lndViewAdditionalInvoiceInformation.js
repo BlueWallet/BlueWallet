@@ -12,29 +12,32 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import QRCode from 'react-native-qrcode-svg';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
+import loc from '../../loc';
+import { BlueCurrentTheme } from '../../components/themes';
 
 const styles = StyleSheet.create({
   loading: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   root: {
     flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   wrapper: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   qrcode: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    marginHorizontal: 16,
+    borderWidth: 6,
+    borderRadius: 8,
+    borderColor: '#FFFFFF',
   },
   share: {
     marginBottom: 25,
@@ -42,11 +45,6 @@ const styles = StyleSheet.create({
 });
 
 export default class LNDViewAdditionalInvoiceInformation extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(),
-    title: 'Additional Information',
-  });
-
   state = { walletInfo: undefined };
 
   async componentDidMount() {
@@ -54,7 +52,8 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
     try {
       await fromWallet.fetchInfo();
     } catch (_) {
-      alert('Network error');
+      alert(loc.errors.network);
+      this.props.navigation.goBack();
       return;
     }
     this.setState({ walletInfo: fromWallet.info_raw, addressText: fromWallet.info_raw.uris[0] });
@@ -78,26 +77,27 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
               logo={require('../../img/qr-code.png')}
               size={300}
               logoSize={90}
-              color={BlueApp.settings.foregroundColor}
-              logoBackgroundColor={BlueApp.settings.brandingColor}
+              color="#000000"
+              logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
+              backgroundColor="#FFFFFF"
             />
-            <BlueSpacing20 />
-            <BlueText>{loc.lndViewInvoice.open_direct_channel}</BlueText>
-            <BlueCopyTextToClipboard text={this.state.walletInfo.uris[0]} />
           </View>
+          <BlueSpacing20 />
+          <BlueText>{loc.lndViewInvoice.open_direct_channel}</BlueText>
+          <BlueCopyTextToClipboard text={this.state.walletInfo.uris[0]} />
           <View style={styles.share}>
             <BlueButton
               icon={{
                 name: 'share-alternative',
                 type: 'entypo',
-                color: BlueApp.settings.buttonTextColor,
+                color: BlueCurrentTheme.colors.buttonTextColor,
               }}
               onPress={async () => {
                 Share.share({
                   message: this.state.walletInfo.uris[0],
                 });
               }}
-              title={loc.receive.details.share}
+              title={loc.receive.details_share}
             />
           </View>
         </View>
@@ -110,4 +110,12 @@ LNDViewAdditionalInvoiceInformation.propTypes = {
   route: PropTypes.shape({
     params: PropTypes.object,
   }),
+  navigation: PropTypes.shape({
+    goBack: PropTypes.func,
+  }),
 };
+
+LNDViewAdditionalInvoiceInformation.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
+  title: 'Additional Information',
+});

@@ -43,6 +43,13 @@ describe('Watch only wallet', () => {
     assert.strictEqual(w.getTransactions().length, 2);
   });
 
+  it.skip('can fetch tx from huge wallet', async () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('1NDyJtNTjmwk5xPNhjgAMu4HDHigtobu1s'); // binance wallet
+    await w.fetchTransactions();
+    assert.ok(w.getTransactions().length === 0, w.getTransactions().length); // not yet kek but at least we dont crash
+  });
+
   it('can fetch TXs with values', async () => {
     const w = new WatchOnlyWallet();
     for (const sec of [

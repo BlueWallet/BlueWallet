@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import { BlueNavigationStyle, BlueLoading, SafeBlueArea, BlueHeaderDefaultSub, BlueListItem } from '../../BlueComponents';
+import React from 'react';
+import { ScrollView, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import { BlueListItemHooks, BlueHeaderDefaultSubHooks } from '../../BlueComponents';
 import { useNavigation } from '@react-navigation/native';
-const loc = require('../../loc');
+import loc from '../../loc';
 
 const styles = StyleSheet.create({
   root: {
@@ -11,42 +11,38 @@ const styles = StyleSheet.create({
 });
 
 const Settings = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const { navigate } = useNavigation();
 
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
-
-  return isLoading ? (
-    <BlueLoading />
-  ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-      <ScrollView>
-        <BlueHeaderDefaultSub leftText={loc.settings.header} rightComponent={null} />
-        <BlueListItem title="General" component={TouchableOpacity} onPress={() => navigate('GeneralSettings')} chevron />
-        <BlueListItem title={loc.settings.currency} component={TouchableOpacity} onPress={() => navigate('Currency')} chevron />
-        <BlueListItem title={loc.settings.language} component={TouchableOpacity} onPress={() => navigate('Language')} chevron />
-        <BlueListItem
-          title="Security"
-          onPress={() => navigate('EncryptStorage')}
-          component={TouchableOpacity}
-          testID="SecurityButton"
-          chevron
-        />
-        <BlueListItem title="Network" component={TouchableOpacity} onPress={() => navigate('NetworkSettings')} chevron />
-        <BlueListItem
-          title={loc.settings.about}
-          component={TouchableOpacity}
-          onPress={() => navigate('About')}
-          testID="AboutButton"
-          chevron
-        />
-      </ScrollView>
-    </SafeBlueArea>
+  return (
+    <ScrollView style={styles.root}>
+      <StatusBar barStyle="default" />
+      <BlueHeaderDefaultSubHooks leftText={loc.settings.header} rightComponent={null} />
+      <BlueListItemHooks title={loc.settings.general} component={TouchableOpacity} onPress={() => navigate('GeneralSettings')} chevron />
+      <BlueListItemHooks title={loc.settings.currency} component={TouchableOpacity} onPress={() => navigate('Currency')} chevron />
+      <BlueListItemHooks title={loc.settings.language} component={TouchableOpacity} onPress={() => navigate('Language')} chevron />
+      <BlueListItemHooks
+        title={loc.settings.encrypt_title}
+        onPress={() => navigate('EncryptStorage')}
+        component={TouchableOpacity}
+        testID="SecurityButton"
+        chevron
+      />
+      <BlueListItemHooks title={loc.settings.network} component={TouchableOpacity} onPress={() => navigate('NetworkSettings')} chevron />
+      <BlueListItemHooks
+        title={loc.settings.notifications}
+        component={TouchableOpacity}
+        onPress={() => navigate('NotificationSettings')}
+        chevron
+      />
+      <BlueListItemHooks
+        title={loc.settings.about}
+        component={TouchableOpacity}
+        onPress={() => navigate('About')}
+        testID="AboutButton"
+        chevron
+      />
+    </ScrollView>
   );
 };
-Settings.navigationOptions = {
-  ...BlueNavigationStyle,
-};
+
 export default Settings;

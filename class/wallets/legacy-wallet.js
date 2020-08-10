@@ -83,6 +83,13 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   /**
+   * @inheritDoc
+   */
+  getAllExternalAddresses() {
+    return [this.getAddress()];
+  }
+
+  /**
    * Fetches balance of the Wallet via API.
    * Returns VOID. Get the actual balance via getter.
    *
@@ -376,6 +383,14 @@ export class LegacyWallet extends AbstractWallet {
 
   weOwnAddress(address) {
     return this.getAddress() === address || this._address === address;
+  }
+
+  weOwnTransaction(txid) {
+    for (const tx of this.getTransactions()) {
+      if (tx && tx.txid && tx.txid === txid) return true;
+    }
+
+    return false;
   }
 
   allowSendMax() {

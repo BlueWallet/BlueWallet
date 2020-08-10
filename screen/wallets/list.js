@@ -12,28 +12,19 @@ import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
 import * as NavigationService from '../../NavigationService';
+import loc from '../../loc';
+import { BlueCurrentTheme } from '../../components/themes';
 const EV = require('../../blue_modules/events');
 const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
-const loc = require('../../loc');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
 
-export default class WalletsList extends Component {
-  static navigationOptions = ({ navigation, route }) => {
-    return {
-      ...BlueNavigationStyle(navigation, true),
-      title: '',
-      headerRight: () => (
-        <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
-          <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
-        </TouchableOpacity>
-      ),
-    };
-  };
+let lastSnappedTo = 0;
 
+export default class WalletsList extends Component {
   walletsCarousel = React.createRef();
 
   constructor(props) {
@@ -101,14 +92,14 @@ export default class WalletsList extends Component {
         InteractionManager.runAfterInteractions(async () => {
           let noErr = true;
           try {
-            await BlueElectrum.ping();
+            // await BlueElectrum.ping();
             await BlueElectrum.waitTillConnected();
             const balanceStart = +new Date();
-            await BlueApp.fetchWalletBalances(this.walletsCarousel.current.currentIndex || 0);
+            await BlueApp.fetchWalletBalances(lastSnappedTo || 0);
             const balanceEnd = +new Date();
             console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
             const start = +new Date();
-            await BlueApp.fetchWalletTransactions(this.walletsCarousel.current.currentIndex || 0);
+            await BlueApp.fetchWalletTransactions(lastSnappedTo || 0);
             const end = +new Date();
             console.log('fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
@@ -170,11 +161,11 @@ export default class WalletsList extends Component {
     if (wallet) {
       if (wallet.type === PlaceholderWallet.type) {
         Alert.alert(
-          loc.wallets.add.details,
-          'There was a problem importing this wallet.',
+          loc.wallets.add_details,
+          loc.wallets.list_import_problem,
           [
             {
-              text: loc.wallets.details.delete,
+              text: loc.wallets.details_delete,
               onPress: () => {
                 WalletImport.removePlaceholderWallet();
                 EV(EV.enum.WALLETS_COUNT_CHANGED);
@@ -182,7 +173,7 @@ export default class WalletsList extends Component {
               style: 'destructive',
             },
             {
-              text: 'Try Again',
+              text: loc.wallets.list_tryagain,
               onPress: () => {
                 this.props.navigation.navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: wallet.getSecret() } });
                 WalletImport.removePlaceholderWallet();
@@ -209,6 +200,7 @@ export default class WalletsList extends Component {
 
   onSnapToItem = index => {
     console.log('onSnapToItem', index);
+    lastSnappedTo = index;
     if (index < BlueApp.getWallets().length) {
       // not the last
     }
@@ -278,8 +270,8 @@ export default class WalletsList extends Component {
 
   renderListHeaderComponent = () => {
     return (
-      <View style={styles.listHeader}>
-        <Text style={styles.listHeaderText}>{loc.transactions.list.title}</Text>
+      <View style={styles.listHeaderBack}>
+        <Text style={styles.listHeaderText}>{loc.transactions.list_title}</Text>
       </View>
     );
   };
@@ -305,13 +297,13 @@ export default class WalletsList extends Component {
       return (
         <TouchableOpacity
           onPress={() => {
-            this.props.navigation.navigate('HodlHodlRoot', { params: { wallet: this.state.wallet }, screen: 'HodlHodl' });
+            this.props.navigation.navigate('HodlHodl', { params: { wallet: this.state.wallet }, screen: 'HodlHodl' });
           }}
           style={styles.ltRoot}
         >
           <View style={styles.ltTextWrap}>
             <Text style={styles.ltTextBig}>Local Trader</Text>
-            <Text style={styles.ltTextSmall}>A p2p exchange</Text>
+            <Text style={styles.ltTextSmall}>{loc.hodl.p2p}</Text>
           </View>
           <View style={styles.ltButtonWrap}>
             <Text style={styles.ltButton}>New</Text>
@@ -355,7 +347,7 @@ export default class WalletsList extends Component {
       case WalletsListSections.CAROUSEL:
         return (
           <BlueHeaderDefaultMain
-            leftText={loc.wallets.list.title}
+            leftText={loc.wallets.list_title}
             onNewWalletPress={
               !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)
                 ? () => this.props.navigation.navigate('AddWalletRoot')
@@ -376,8 +368,8 @@ export default class WalletsList extends Component {
         if (this.state.dataSource.length === 0 && !this.state.isLoading) {
           return (
             <View style={styles.footerRoot}>
-              <Text style={styles.footerEmpty}>{loc.wallets.list.empty_txs1}</Text>
-              <Text style={styles.footerStart}>{loc.wallets.list.empty_txs2}</Text>
+              <Text style={styles.footerEmpty}>{loc.wallets.list_empty_txs1}</Text>
+              <Text style={styles.footerStart}>{loc.wallets.list_empty_txs2}</Text>
             </View>
           );
         } else {
@@ -440,7 +432,7 @@ export default class WalletsList extends Component {
             if (!error) {
               this.onBarScanned(result);
             } else {
-              alert('The selected image does not contain a QR Code.');
+              alert(loc.send.qr_error_no_qrcode);
             }
           });
         }
@@ -455,9 +447,9 @@ export default class WalletsList extends Component {
   sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      const options = [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'];
+      const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
       if (!isClipboardEmpty) {
-        options.push('Copy from Clipboard');
+        options.push(loc.wallets.list_long_clipboard);
       }
       ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
         if (buttonIndex === 1) {
@@ -478,16 +470,16 @@ export default class WalletsList extends Component {
     } else if (Platform.OS === 'android') {
       const buttons = [
         {
-          text: loc.send.details.cancel,
+          text: loc._.cancel,
           onPress: () => {},
           style: 'cancel',
         },
         {
-          text: 'Choose Photo',
+          text: loc.wallets.list_long_choose,
           onPress: this.choosePhoto,
         },
         {
-          text: 'Scan QR Code',
+          text: loc.wallets.list_long_scan,
           onPress: () =>
             this.props.navigation.navigate('ScanQRCodeRoot', {
               screen: 'ScanQRCode',
@@ -501,7 +493,7 @@ export default class WalletsList extends Component {
       ];
       if (!isClipboardEmpty) {
         buttons.push({
-          text: 'Copy From Clipboard',
+          text: loc.wallets.list_long_clipboard,
           onPress: this.copyFromClipbard,
         });
       }
@@ -516,7 +508,7 @@ export default class WalletsList extends Component {
   render() {
     return (
       <View style={styles.root}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle="default" />
         <View style={styles.walletsListWrapper}>
           <SectionList
             onRefresh={this.refreshTransactions}
@@ -551,12 +543,12 @@ const styles = StyleSheet.create({
     right: 0,
   },
   wrapper: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.brandingColor,
     flex: 1,
   },
   walletsListWrapper: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.brandingColor,
   },
   headerStyle: {
     ...Platform.select({
@@ -580,12 +572,15 @@ const styles = StyleSheet.create({
     paddingLeft: 32,
     paddingVertical: 10,
   },
+  listHeaderBack: {
+    backgroundColor: BlueCurrentTheme.colors.background,
+  },
   listHeaderText: {
     paddingLeft: 16,
     fontWeight: 'bold',
     fontSize: 24,
     marginVertical: 8,
-    color: BlueApp.settings.foregroundColor,
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   ltRoot: {
     flexDirection: 'row',
@@ -593,7 +588,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 16,
     marginVertical: 16,
-    backgroundColor: '#eef0f4',
+    backgroundColor: BlueCurrentTheme.colors.ballOutgoingExpired,
     padding: 16,
     borderRadius: 6,
   },
@@ -603,12 +598,12 @@ const styles = StyleSheet.create({
   ltTextBig: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#0C2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   ltTextSmall: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#9AA0AA',
+    color: BlueCurrentTheme.colors.alternativeTextColor,
   },
   ltButtonWrap: {
     flexDirection: 'column',
@@ -665,4 +660,23 @@ WalletsList.propTypes = {
     name: PropTypes.string,
     params: PropTypes.object,
   }),
+};
+
+WalletsList.navigationOptions = ({ navigation, route }) => {
+  return {
+    ...BlueNavigationStyle(navigation, true),
+    title: '',
+    headerStyle: {
+      backgroundColor: BlueCurrentTheme.colors.customHeader,
+      borderBottomWidth: 0,
+      elevation: 0,
+      shadowOpacity: 0,
+      shadowOffset: { height: 0, width: 0 },
+    },
+    headerRight: () => (
+      <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
+        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueCurrentTheme.colors.foregroundColor} />
+      </TouchableOpacity>
+    ),
+  };
 };

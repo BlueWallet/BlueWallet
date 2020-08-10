@@ -17,20 +17,16 @@ import {
   SegwitP2SHWallet,
   SegwitBech32Wallet,
 } from '../../class';
-const loc = require('../../loc');
+import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
+import { BlueCurrentTheme } from '../../components/themes';
 const EV = require('../../blue_modules/events');
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+const bitcoin = require('bitcoinjs-lib');
+const notifications = require('../../blue_modules/notifications');
 
 export default class Confirm extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(null, false),
-    title: loc.send.confirm.header,
-  });
-
   constructor(props) {
     super(props);
 
@@ -69,8 +65,10 @@ export default class Confirm extends Component {
 
         const result = await this.state.fromWallet.broadcastTx(this.state.tx);
         if (!result) {
-          throw new Error(`Broadcast failed`);
+          throw new Error(loc.errors.broadcast);
         } else {
+          const txid = bitcoin.Transaction.fromHex(this.state.tx).getId();
+          notifications.majorTomToGroundControl([], [], [txid]);
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           let amount = 0;
           const recipients = this.state.recipients;
@@ -95,7 +93,7 @@ export default class Confirm extends Component {
               SegwitBech32Wallet.type,
             ].includes(this.state.fromWallet.type)
           ) {
-            amount = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
+            amount = formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
           }
 
           this.props.navigation.navigate('Success', {
@@ -132,12 +130,12 @@ export default class Confirm extends Component {
             : currency.satoshiToLocalCurrency(this.state.fromWallet.getBalance() - this.state.feeSatoshi)}
         </Text>
         <BlueCard>
-          <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
+          <Text style={styles.transactionDetailsTitle}>{loc.send.create_to}</Text>
           <Text style={styles.transactionDetailsSubtitle}>{item.address}</Text>
         </BlueCard>
         {this.state.recipients.length > 1 && (
           <BlueText style={styles.valueOf}>
-            {index + 1} of {this.state.recipients.length}
+            {loc.formatString(loc._.of, { number: index + 1, total: this.state.recipients.length })}
           </BlueText>
         )}
       </>
@@ -164,14 +162,14 @@ export default class Confirm extends Component {
           <View style={styles.cardContainer}>
             <BlueCard>
               <Text style={styles.cardText}>
-                {loc.send.create.fee}: {loc.formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
+                {loc.send.create_fee}: {formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
                 {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
               </Text>
               <BlueSpacing40 />
               {this.state.isLoading ? (
                 <ActivityIndicator />
               ) : (
-                <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm.sendNow} />
+                <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm_sendNow} />
               )}
 
               <TouchableOpacity
@@ -195,7 +193,7 @@ export default class Confirm extends Component {
                   });
                 }}
               >
-                <Text style={styles.txText}>{loc.transactions.details.transaction_details}</Text>
+                <Text style={styles.txText}>{loc.transactions.details_transaction_details}</Text>
               </TouchableOpacity>
             </BlueCard>
           </View>
@@ -207,19 +205,19 @@ export default class Confirm extends Component {
 
 const styles = StyleSheet.create({
   transactionDetailsTitle: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: '500',
     fontSize: 17,
     marginBottom: 2,
   },
   transactionDetailsSubtitle: {
-    color: '#9aa0aa',
+    color: BlueCurrentTheme.colors.feeText,
     fontWeight: '500',
     fontSize: 15,
     marginBottom: 20,
   },
   transactionAmountFiat: {
-    color: '#9aa0aa',
+    color: BlueCurrentTheme.colors.feeText,
     fontWeight: '500',
     fontSize: 15,
     marginVertical: 20,
@@ -230,12 +228,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   valueValue: {
-    color: '#0f5cc0',
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 36,
     fontWeight: '600',
   },
   valueUnit: {
-    color: '#0f5cc0',
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 16,
     marginHorizontal: 4,
     paddingBottom: 6,
@@ -248,19 +246,18 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   separator: {
-    backgroundColor: BlueApp.settings.inputBorderColor,
     height: 0.5,
     margin: 16,
   },
   root: {
     flex: 1,
     paddingTop: 19,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   rootWrap: {
     marginTop: 16,
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
   },
   flat: {
     maxHeight: '55%',
@@ -270,7 +267,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: 16,
     paddingBottom: 16,
-    backgroundColor: '#FFFFFF',
   },
   cardText: {
     color: '#37c0a1',
@@ -284,7 +280,7 @@ const styles = StyleSheet.create({
     marginVertical: 24,
   },
   txText: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonTextColor,
     fontSize: 15,
     fontWeight: '500',
     alignSelf: 'center',
@@ -301,3 +297,8 @@ Confirm.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+Confirm.navigationOptions = () => ({
+  ...BlueNavigationStyle(null, false),
+  title: loc.send.confirm_header,
+});

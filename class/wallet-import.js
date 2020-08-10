@@ -15,18 +15,19 @@ import {
   HDSegwitElectrumSeedP2WPKHWallet,
 } from '.';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import loc from '../loc';
 const EV = require('../blue_modules/events');
 const A = require('../blue_modules/analytics');
 const BlueApp: AppStorage = require('../BlueApp');
-const loc = require('../loc');
 const bip38 = require('../blue_modules/bip38');
 const wif = require('wif');
 const prompt = require('../blue_modules/prompt');
+const notifications = require('../blue_modules/notifications');
 
 export default class WalletImport {
   /**
    *
-   * @param w
+   * @param w {AbstractWallet}
    * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
    * @returns {Promise<void>}
    * @private
@@ -40,7 +41,7 @@ export default class WalletImport {
       } else {
         const emptyWalletLabel = new LegacyWallet().getLabel();
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-        if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import.imported + ' ' + w.typeReadable);
+        if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
         w.setUserHasSavedExport(true);
         if (additionalProperties) {
           for (const [key, value] of Object.entries(additionalProperties)) {
@@ -51,7 +52,8 @@ export default class WalletImport {
         BlueApp.wallets.push(w);
         await BlueApp.saveToDisk();
         A(A.ENUM.CREATED_WALLET);
-        alert(loc.wallets.import.success);
+        alert(loc.wallets.import_success);
+        notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
       }
       EV(EV.enum.WALLETS_COUNT_CHANGED);
     } catch (e) {
@@ -298,6 +300,6 @@ export default class WalletImport {
     WalletImport.addPlaceholderWallet(importText, true);
     ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
     EV(EV.enum.WALLETS_COUNT_CHANGED);
-    alert(loc.wallets.import.error);
+    alert(loc.wallets.import_error);
   }
 }

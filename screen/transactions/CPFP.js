@@ -1,7 +1,10 @@
 /* global alert */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, ScrollView, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
+import { Text } from 'react-native-elements';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import {
   BlueSpacing20,
   BlueReplaceFeeSuggestions,
@@ -13,16 +16,13 @@ import {
   BlueNavigationStyle,
   BlueBigCheckmark,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
-import { Text } from 'react-native-elements';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-/** @type {AppStorage} */
+import loc from '../../loc';
 const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
-const loc = require('../../loc');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
+const notifications = require('../../blue_modules/notifications');
 
 const styles = StyleSheet.create({
   root: {
@@ -79,11 +79,6 @@ const styles = StyleSheet.create({
 });
 
 export default class CPFP extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(null, false),
-    title: 'Bump fee (CPFP)',
-  });
-
   constructor(props) {
     super(props);
     let txid;
@@ -112,7 +107,7 @@ export default class CPFP extends Component {
         } else {
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
           this.setState({ isLoading: false });
-          alert('Broadcast failed');
+          alert(loc.errors.broadcast);
         }
       } catch (error) {
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -124,6 +119,7 @@ export default class CPFP extends Component {
 
   onSuccessBroadcast() {
     BlueApp.tx_metadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
+    notifications.majorTomToGroundControl([], [], [this.state.newTxid]);
   }
 
   async componentDidMount() {
@@ -163,7 +159,7 @@ export default class CPFP extends Component {
         this.setState({ isLoading: false });
       } catch (_) {
         this.setState({ isLoading: false });
-        alert('Failed: ' + _.message);
+        alert(loc.errors.error + ': ' + _.message);
       }
     }
   }
@@ -194,18 +190,14 @@ export default class CPFP extends Component {
           <BlueSpacing20 />
           <BlueSpacing20 />
 
-          <BlueText h4>This transaction is not bumpable</BlueText>
+          <BlueText h4>{loc.transactions.cpfp_no_bump}</BlueText>
         </SafeBlueArea>
       );
     }
 
     return (
       <SafeBlueArea style={styles.explain}>
-        <ScrollView>
-          {this.renderStage1(
-            'We will create another transaction that spends your unconfirmed transaction. The total fee will be higher than the original transaction fee, so it should be mined faster. This is called CPFP - Child Pays For Parent.',
-          )}
-        </ScrollView>
+        <ScrollView>{this.renderStage1(loc.transactions.cpfp_exp)}</ScrollView>
       </SafeBlueArea>
     );
   }
@@ -214,16 +206,16 @@ export default class CPFP extends Component {
     return (
       <View style={styles.root}>
         <BlueCard style={styles.center}>
-          <BlueText style={styles.hex}>{loc.send.create.this_is_hex}</BlueText>
+          <BlueText style={styles.hex}>{loc.send.create_this_is_hex}</BlueText>
           <TextInput style={styles.hexInput} height={112} multiline editable value={this.state.txhex} />
 
           <TouchableOpacity style={styles.action} onPress={() => Clipboard.setString(this.state.txhex)}>
-            <Text style={styles.actionText}>Copy and broadcast later</Text>
+            <Text style={styles.actionText}>{loc.send.create_copy}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.action} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}>
-            <Text style={styles.actionText}>Verify on coinb.in</Text>
+            <Text style={styles.actionText}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
-          <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm.sendNow} />
+          <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm_sendNow} />
         </BlueCard>
       </View>
     );
@@ -237,12 +229,7 @@ export default class CPFP extends Component {
         </BlueCard>
         <BlueBigCheckmark style={styles.blueBigCheckmark} />
         <BlueCard>
-          <BlueButton
-            onPress={() => {
-              this.props.navigation.popToTop();
-            }}
-            title={loc.send.success.done}
-          />
+          <BlueButton onPress={() => this.props.navigation.popToTop()} title={loc.send.success_done} />
         </BlueCard>
       </SafeBlueArea>
     );
@@ -255,9 +242,16 @@ export default class CPFP extends Component {
         <BlueCard style={styles.center}>
           <BlueText>{text}</BlueText>
           <BlueSpacing20 />
-          <BlueReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
+          <BlueReplaceFeeSuggestions
+            onFeeSelected={fee => this.setState({ newFeeRate: fee })}
+            transactionMinimum={this.state.feeRate + 1}
+          />
           <BlueSpacing />
-          <BlueButton disabled={this.state.newFeeRate <= this.state.feeRate} onPress={() => this.createTransaction()} title="Create" />
+          <BlueButton
+            disabled={this.state.newFeeRate <= this.state.feeRate}
+            onPress={() => this.createTransaction()}
+            title={loc.transactions.cpfp_create}
+          />
         </BlueCard>
       </SafeBlueArea>
     );
@@ -276,3 +270,7 @@ CPFP.propTypes = {
     }),
   }),
 };
+CPFP.navigationOptions = () => ({
+  ...BlueNavigationStyle(null, false),
+  title: loc.transactions.cpfp_title,
+});

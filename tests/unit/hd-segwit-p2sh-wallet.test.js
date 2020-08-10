@@ -10,6 +10,9 @@ it('can create a Segwit HD (BIP49)', async function () {
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', hd._getExternalAddressByIndex(0));
   assert.strictEqual('35p5LwCAE7mH2css7onyQ1VuS1jgWtQ4U3', hd._getExternalAddressByIndex(1));
   assert.strictEqual('32yn5CdevZQLk3ckuZuA8fEKBco8mEkLei', hd._getInternalAddressByIndex(0));
+  assert.ok(hd.getAllExternalAddresses().includes('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK'));
+  assert.ok(hd.getAllExternalAddresses().includes('35p5LwCAE7mH2css7onyQ1VuS1jgWtQ4U3'));
+  assert.ok(!hd.getAllExternalAddresses().includes('32yn5CdevZQLk3ckuZuA8fEKBco8mEkLei')); // not internal
   assert.strictEqual(true, hd.validateMnemonic());
 
   assert.strictEqual(
@@ -55,6 +58,9 @@ it('Segwit HD (BIP49) can generate addressess only via ypub', function () {
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', hd._getExternalAddressByIndex(0));
   assert.strictEqual('35p5LwCAE7mH2css7onyQ1VuS1jgWtQ4U3', hd._getExternalAddressByIndex(1));
   assert.strictEqual('32yn5CdevZQLk3ckuZuA8fEKBco8mEkLei', hd._getInternalAddressByIndex(0));
+  assert.ok(hd.getAllExternalAddresses().includes('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK'));
+  assert.ok(hd.getAllExternalAddresses().includes('35p5LwCAE7mH2css7onyQ1VuS1jgWtQ4U3'));
+  assert.ok(!hd.getAllExternalAddresses().includes('32yn5CdevZQLk3ckuZuA8fEKBco8mEkLei')); // not internal
 });
 
 it('can generate Segwit HD (BIP49)', async () => {
@@ -107,6 +113,9 @@ it('Legacy HD (BIP44) can generate addressess based on xpub', async function () 
   assert.strictEqual(hd._getInternalAddressByIndex(0), '1KZjqYHm7a1DjhjcdcjfQvYfF2h6PqatjX');
   assert.strictEqual(hd._getExternalAddressByIndex(1), '1QDCFcpnrZ4yrAQxmbvSgeUC9iZZ8ehcR5');
   assert.strictEqual(hd._getInternalAddressByIndex(1), '13CW9WWBsWpDUvLtbFqYziWBWTYUoQb4nU');
+  assert.ok(hd.getAllExternalAddresses().includes('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG'));
+  assert.ok(hd.getAllExternalAddresses().includes('1QDCFcpnrZ4yrAQxmbvSgeUC9iZZ8ehcR5'));
+  assert.ok(!hd.getAllExternalAddresses().includes('1KZjqYHm7a1DjhjcdcjfQvYfF2h6PqatjX')); // not internal
 });
 
 it('can consume user generated entropy', async () => {

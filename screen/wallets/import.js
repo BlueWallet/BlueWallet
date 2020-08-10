@@ -10,31 +10,36 @@ import {
   SafeBlueArea,
   BlueSpacing20,
   BlueNavigationStyle,
+  BlueLoadingHook,
 } from '../../BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import WalletImport from '../../class/wallet-import';
-const loc = require('../../loc');
+import loc from '../../loc';
+import { getSystemName } from 'react-native-device-info';
 const { width } = Dimensions.get('window');
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    paddingTop: 40,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-  },
-});
 
 const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
   const route = useRoute();
   const label = (route.params && route.params.label) || '';
   const [importText, setImportText] = useState(label);
+  const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
+  const { colors } = useTheme();
+  const styles = StyleSheet.create({
+    root: {
+      flex: 1,
+      paddingTop: 40,
+      backgroundColor: colors.elevated,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      backgroundColor: colors.elevated,
+    },
+  });
 
   useEffect(() => {
     Privacy.enableBlur();
@@ -60,12 +65,14 @@ const WalletsImport = () => {
    * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
    */
   const importMnemonic = (importText, additionalProperties) => {
+    setIsLoading(true);
     try {
       WalletImport.processImportText(importText, additionalProperties);
       navigation.dangerouslyGetParent().pop();
     } catch (error) {
-      alert(loc.wallets.import.error);
+      alert(loc.wallets.import_error);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      setIsLoading(false);
     }
   };
 
@@ -92,31 +99,38 @@ const WalletsImport = () => {
 
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-      <StatusBar barStyle="light-content" />
-
-      <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
+      <StatusBar barStyle="default" />
+      <BlueSpacing20 />
+      <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
       <BlueSpacing20 />
       <BlueFormMultiInput
         testID="MnemonicInput"
         value={importText}
-        contextMenuHidden
+        contextMenuHidden={getSystemName() !== 'Mac OS X'}
+        editable={!isLoading}
         onChangeText={setImportText}
         inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
       />
 
       <BlueSpacing20 />
       <View style={styles.center}>
-        <BlueButton
-          testID="DoImport"
-          disabled={importText.trim().length === 0}
-          title={loc.wallets.import.do_import}
-          buttonStyle={{
-            width: width / 1.5,
-          }}
-          onPress={importButtonPressed}
-        />
-        <BlueSpacing20 />
-        <BlueButtonLink title={loc.wallets.import.scan_qr} onPress={importScan} />
+        {!isLoading ? (
+          <>
+            <BlueButton
+              testID="DoImport"
+              disabled={importText.trim().length === 0}
+              title={loc.wallets.import_do_import}
+              buttonStyle={{
+                width: width / 1.5,
+              }}
+              onPress={importButtonPressed}
+            />
+            <BlueSpacing20 />
+            <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
+          </>
+        ) : (
+          <BlueLoadingHook />
+        )}
       </View>
       {Platform.select({
         ios: (
@@ -148,8 +162,8 @@ const WalletsImport = () => {
   );
 };
 
-WalletsImport.navigationOptions = {
+WalletsImport.navigationOptions = ({ navigation, route }) => ({
   ...BlueNavigationStyle(),
-  title: loc.wallets.import.title,
-};
+  title: loc.wallets.import_title,
+});
 export default WalletsImport;

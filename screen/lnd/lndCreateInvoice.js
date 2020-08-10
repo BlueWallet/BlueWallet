@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   Text,
   StyleSheet,
+  Image,
 } from 'react-native';
 import {
   BlueNavigationStyle,
@@ -26,10 +27,13 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
+import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
+import { BlueCurrentTheme } from '../../components/themes';
+import Lnurl from '../../class/lnurl';
 const currency = require('../../blue_modules/currency');
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
-const loc = require('../../loc');
+const notifications = require('../../blue_modules/notifications');
 
 const styles = StyleSheet.create({
   createButton: {
@@ -37,14 +41,13 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     minHeight: 45,
     alignContent: 'center',
-    backgroundColor: '#FFFFFF',
   },
   scanRoot: {
     height: 36,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#9AA0AA',
+    backgroundColor: BlueCurrentTheme.colors.scanLabel,
     borderRadius: 4,
     paddingVertical: 4,
     paddingHorizontal: 8,
@@ -52,7 +55,7 @@ const styles = StyleSheet.create({
   },
   scanClick: {
     marginLeft: 4,
-    color: BlueApp.settings.inverseForegroundColor,
+    color: BlueCurrentTheme.colors.inverseForegroundColor,
   },
   walletRoot: {
     marginBottom: 16,
@@ -78,18 +81,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   walletNameText: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 14,
   },
   walletNameBalance: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 8,
     marginRight: 4,
   },
   walletNameSats: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 11,
     fontWeight: '600',
     textAlignVertical: 'bottom',
@@ -102,19 +105,19 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   amount: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   fiat: {
     flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1.0,
     borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     marginHorizontal: 20,
@@ -131,11 +134,6 @@ const styles = StyleSheet.create({
 });
 
 export default class LNDCreateInvoice extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: loc.receive.header,
-  });
-
   constructor(props) {
     super(props);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
@@ -226,6 +224,13 @@ export default class LNDCreateInvoice extends Component {
         EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
 
+        // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
+        /** @type LightningCustodianWallet */
+        const fromWallet = this.state.fromWallet;
+        const decoded = await fromWallet.decodeInvoice(invoiceRequest);
+        await notifications.tryToObtainPermissions();
+        notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
+
         // send to lnurl-withdraw callback url if that exists
         if (this.state.lnurlParams) {
           const { callback, k1 } = this.state.lnurlParams;
@@ -240,7 +245,13 @@ export default class LNDCreateInvoice extends Component {
             throw new Error('Reply from server: ' + reply.reason);
           }
         }
-        await BlueApp.saveToDisk();
+
+        setTimeout(async () => {
+          // wallet object doesnt have this fresh invoice in its internals, so we refetch it and only then save
+          await fromWallet.fetchUserInvoices(1);
+          await BlueApp.saveToDisk();
+        }, 1000);
+
         this.props.navigation.navigate('LNDViewInvoice', {
           invoice: invoiceRequest,
           fromWallet: this.state.fromWallet,
@@ -286,7 +297,20 @@ export default class LNDCreateInvoice extends Component {
           throw new Error('Reply from server: ' + reply.reason);
         }
 
-        if (reply.tag !== 'withdrawRequest') {
+        if (reply.tag === Lnurl.TAG_PAY_REQUEST) {
+          // we are here by mistake. user wants to SEND to lnurl-pay, but he is on a screen that creates
+          // invoices (including through lnurl-withdraw)
+          this.props.navigation.navigate('ScanLndInvoiceRoot', {
+            screen: 'LnurlPay',
+            params: {
+              lnurl: data,
+              fromWalletID: this.state.fromWallet.getID(),
+            },
+          });
+          return;
+        }
+
+        if (reply.tag !== Lnurl.TAG_WITHDRAW_REQUEST) {
           throw new Error('Unsupported lnurl');
         }
 
@@ -301,7 +325,7 @@ export default class LNDCreateInvoice extends Component {
             amount = currency.satoshiToBTC(amount);
             break;
           case BitcoinUnit.LOCAL_CURRENCY:
-            amount = loc.formatBalancePlain(amount, BitcoinUnit.LOCAL_CURRENCY);
+            amount = formatBalancePlain(amount, BitcoinUnit.LOCAL_CURRENCY);
             BlueBitcoinAmount.setCachedSatoshis(amount, sats);
             break;
         }
@@ -334,7 +358,7 @@ export default class LNDCreateInvoice extends Component {
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (
-          <BlueButton disabled={!(this.state.amount > 0)} onPress={() => this.createInvoice()} title={loc.send.details.create} />
+          <BlueButton disabled={!(this.state.amount > 0)} onPress={() => this.createInvoice()} title={loc.send.details_create} />
         )}
       </View>
     );
@@ -356,8 +380,8 @@ export default class LNDCreateInvoice extends Component {
         }}
         style={styles.scanRoot}
       >
-        <Icon name="qrcode" size={22} type="font-awesome" color={BlueApp.settings.inverseForegroundColor} />
-        <Text style={styles.scanClick}>{loc.send.details.scan}</Text>
+        <Image style={{}} source={require('../../img/scan-white.png')} />
+        <Text style={styles.scanClick}>{loc.send.details_scan}</Text>
       </TouchableOpacity>
     );
   };
@@ -386,7 +410,7 @@ export default class LNDCreateInvoice extends Component {
           >
             <Text style={styles.walletNameText}>{this.state.fromWallet.getLabel()}</Text>
             <Text style={styles.walletNameBalance}>
-              {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
+              {formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
             </Text>
             <Text style={styles.walletNameSats}>{BitcoinUnit.SATS}</Text>
           </TouchableOpacity>
@@ -441,7 +465,7 @@ export default class LNDCreateInvoice extends Component {
               <View style={styles.fiat}>
                 <TextInput
                   onChangeText={text => this.setState({ description: text })}
-                  placeholder={loc.receive.details.label}
+                  placeholder={loc.receive.details_label}
                   value={this.state.description}
                   numberOfLines={1}
                   placeholderTextColor="#81868e"
@@ -478,3 +502,8 @@ LNDCreateInvoice.propTypes = {
     }),
   }),
 };
+LNDCreateInvoice.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  headerTitle: loc.receive.header,
+  headerLeft: null,
+});

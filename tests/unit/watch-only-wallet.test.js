@@ -13,6 +13,10 @@ describe('Watch only wallet', () => {
     ]) {
       w.setSecret(secret);
       assert.ok(w.valid());
+      assert.deepStrictEqual(
+        w.getAllExternalAddresses().map(elem => elem.toUpperCase()),
+        [secret.toUpperCase()],
+      );
       assert.strictEqual(w.isHd(), false);
     }
 
@@ -29,7 +33,24 @@ describe('Watch only wallet', () => {
       assert.strictEqual(w.isHd(), true);
       assert.strictEqual(w.getMasterFingerprint(), false);
       assert.strictEqual(w.getMasterFingerprintHex(), '00000000');
+      assert.ok(w.isXpubValid(), w.secret);
     }
+  });
+
+  it('can validate xpub', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps');
+    assert.ok(w.isXpubValid());
+    w.setSecret('ypub6XRzrn3HB1tjhhvrHbk1vnXCecZEdXohGzCk3GXwwbDoJ3VBzZ34jNGWbC6WrS7idXrYjjXEzcPDX5VqnHEnuNf5VAXgLfSaytMkJ2rwVqy');
+    assert.ok(w.isXpubValid());
+    w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    assert.ok(w.isXpubValid());
+    w.setSecret('xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6D');
+    assert.ok(!w.isXpubValid());
+    w.setSecret('ypub6XRzrn3HB1tjhhvrHbk1vnXCecZEdXohGzCk3GXwwbDoJ3VBzZ34jNGWbC6WrS7idXr');
+    assert.ok(!w.isXpubValid());
+    w.setSecret('ypub6XRzrn3HB1tjhhvrHbk1vnXCecZEdXohGzCk3GXwwbDoJ3VBzZ34jNGWbC6WrS7idXr');
+    assert.ok(!w.isXpubValid());
   });
 
   it('can create PSBT base64 without signature for HW wallet', async () => {
@@ -156,6 +177,7 @@ describe('Watch only wallet', () => {
     w.setSecret('ypub6Y9u3QCRC1HkZv3stNxcQVwmw7vC7KX5Ldz38En5P88RQbesP2oy16hNyQocVCfYRQPxdHcd3pmu9AFhLv7NdChWmw5iNLryZ2U6EEHdnfo');
     w.init();
     assert.ok((await w._getExternalAddressByIndex(0)).startsWith('3'));
+    assert.ok(w.getAllExternalAddresses().includes(await w._getExternalAddressByIndex(0)));
   });
 
   it('xpub watch-only can generate addresses', async () => {
@@ -163,5 +185,6 @@ describe('Watch only wallet', () => {
     w.setSecret('xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps');
     w.init();
     assert.ok((await w._getExternalAddressByIndex(0)).startsWith('1'));
+    assert.ok(w.getAllExternalAddresses().includes(await w._getExternalAddressByIndex(0)));
   });
 });
