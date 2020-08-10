@@ -136,6 +136,7 @@ export default class LNDViewInvoice extends Component {
   }
 
   componentDidMount() {
+    console.log('LNDViewInvoice - componentDidMount');
     this.fetchInvoiceInterval = setInterval(async () => {
       if (this.state.isFetchingInvoices) {
         try {

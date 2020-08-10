@@ -9,9 +9,9 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  Dimensions,
   Linking,
   Platform,
-  RefreshControl,
   SectionList,
   StyleSheet,
   Text,
@@ -35,6 +35,7 @@ const CURRENCY_CODE_ANY = '_any';
 const METHOD_ANY = '_any';
 
 const HodlHodlListSections = { OFFERS: 'OFFERS' };
+const windowHeight = Dimensions.get('window').height;
 
 export default class HodlHodl extends Component {
   constructor(props) {
@@ -49,6 +50,7 @@ export default class HodlHodl extends Component {
       isFiltersModalVisible: false,
       isChooseCurrencyVisible: false,
       isChooseMethodVisible: false,
+      showShowFlatListRefreshControl: false,
       currency: false, // means no currency filtering is enabled by default
       method: false, // means no payment method filtering is enabled by default
       side: HodlHodlApi.FILTERS_SIDE_VALUE_SELL, // means 'show me sell offers as Im buying'
@@ -333,6 +335,7 @@ export default class HodlHodl extends Component {
       <Modal
         isVisible={this.state.isChooseSideModalVisible}
         style={styles.bottomModal}
+        deviceHeight={windowHeight}
         onBackdropPress={() => {
           Keyboard.dismiss();
           this.setState({ isChooseSideModalVisible: false });
@@ -372,6 +375,7 @@ export default class HodlHodl extends Component {
       <Modal
         isVisible={this.state.isFiltersModalVisible}
         style={styles.bottomModal}
+        deviceHeight={windowHeight}
         onModalHide={() => {
           if (this.state.openNextModal) {
             const openNextModal = this.state.openNextModal;
@@ -476,6 +480,7 @@ export default class HodlHodl extends Component {
 
     return (
       <Modal
+        deviceHeight={windowHeight}
         isVisible={this.state.isChooseCountryModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
@@ -554,6 +559,7 @@ export default class HodlHodl extends Component {
       <Modal
         isVisible={this.state.isChooseCurrencyVisible}
         style={styles.bottomModal}
+        deviceHeight={windowHeight}
         onBackdropPress={() => {
           Keyboard.dismiss();
           this.setState({ isChooseCurrencyVisible: false });
@@ -630,6 +636,7 @@ export default class HodlHodl extends Component {
       <Modal
         isVisible={this.state.isChooseMethodVisible}
         style={styles.bottomModal}
+        deviceHeight={windowHeight}
         onBackdropPress={() => {
           Keyboard.dismiss();
           this.setState({ isChooseMethodVisible: false });
@@ -834,7 +841,8 @@ export default class HodlHodl extends Component {
       <SafeBlueArea>
         <StatusBar barStyle="default" />
         <SectionList
-          refreshControl={<RefreshControl onRefresh={this._onRefreshOffers} refreshing={this.state.showShowFlatListRefreshControl} />}
+          onRefresh={this._onRefreshOffers}
+          refreshing={this.state.showShowFlatListRefreshControl}
           renderItem={this.renderItem}
           keyExtractor={this.sectionListKeyExtractor}
           renderSectionHeader={this.renderHeader}
