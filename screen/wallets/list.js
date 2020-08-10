@@ -531,7 +531,6 @@ export default class WalletsList extends Component {
             onRefresh={this.refreshTransactions}
             refreshing={!this.state.isFlatListRefreshControlHidden}
             renderItem={this.renderSectionItem}
-            refreshing={!this.state.isFlatListRefreshControlHidden}
             keyExtractor={this.sectionListKeyExtractor}
             renderSectionHeader={this.renderSectionHeader}
             initialNumToRender={20}
