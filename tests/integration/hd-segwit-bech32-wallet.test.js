@@ -39,6 +39,10 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd._getInternalAddressByIndex(0), 'bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy');
     assert.strictEqual(hd._getInternalAddressByIndex(1), 'bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r');
 
+    assert.ok(hd.weOwnAddress('bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p'));
+    assert.ok(hd.weOwnAddress('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'));
+    assert.ok(!hd.weOwnAddress('1HjsSTnrwWzzEV2oi4r5MsAYENkTkrCtwL'));
+
     assert.strictEqual(hd.timeToRefreshBalance(), true);
     assert.ok(hd._lastTxFetch === 0);
     assert.ok(hd._lastBalanceFetch === 0);
@@ -64,6 +68,10 @@ describe('Bech32 Segwit HD (BIP84)', () => {
       assert.ok(tx.received);
       assert.ok(tx.confirmations > 1);
     }
+
+    assert.ok(hd.weOwnTransaction('5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df'));
+    assert.ok(hd.weOwnTransaction('ad00a92409d8982a1d7f877056dbed0c4337d2ebab70b30463e2802279fb936d'));
+    assert.ok(!hd.weOwnTransaction('825c12f277d1f84911ac15ad1f41a3de28e9d906868a930b0a7bca61b17c8881'));
 
     // now fetch UTXO
     await hd.fetchUtxo();

@@ -33,6 +33,8 @@ const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
 
+let lastSnappedTo = 0;
+
 export default class WalletsList extends Component {
   walletsCarousel = React.createRef();
 
@@ -101,14 +103,14 @@ export default class WalletsList extends Component {
         InteractionManager.runAfterInteractions(async () => {
           let noErr = true;
           try {
-            await BlueElectrum.ping();
+            // await BlueElectrum.ping();
             await BlueElectrum.waitTillConnected();
             const balanceStart = +new Date();
-            await BlueApp.fetchWalletBalances(this.walletsCarousel.current.currentIndex || 0);
+            await BlueApp.fetchWalletBalances(lastSnappedTo || 0);
             const balanceEnd = +new Date();
             console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
             const start = +new Date();
-            await BlueApp.fetchWalletTransactions(this.walletsCarousel.current.currentIndex || 0);
+            await BlueApp.fetchWalletTransactions(lastSnappedTo || 0);
             const end = +new Date();
             console.log('fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
@@ -209,6 +211,7 @@ export default class WalletsList extends Component {
 
   onSnapToItem = index => {
     console.log('onSnapToItem', index);
+    lastSnappedTo = index;
     if (index < BlueApp.getWallets().length) {
       // not the last
     }
