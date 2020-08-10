@@ -70,9 +70,8 @@ export default class WalletImport {
         alert(e);
       }
       console.log(e);
-      WalletImport.removePlaceholderWallet();
-      EV(EV.enum.WALLETS_COUNT_CHANGED);
     }
+    WalletImport.removePlaceholderWallet();
   }
 
   static removePlaceholderWallet() {
@@ -80,10 +79,11 @@ export default class WalletImport {
     if (placeholderWalletIndex > -1) {
       BlueApp.wallets.splice(placeholderWalletIndex, 1);
     }
+    EV(EV.enum.WALLETS_COUNT_CHANGED);
   }
 
   static addPlaceholderWallet(importText, isFailure = false) {
-  if (WalletImport.shared.queue.length === 0) {
+    if (WalletImport.shared.queue.length === 0) {
       const wallet = new PlaceholderWallet();
       wallet.setSecret(importText);
       wallet.setIsFailure(isFailure);
@@ -107,7 +107,7 @@ export default class WalletImport {
     if (WalletImport.isCurrentlyImportingWallet() && WalletImport.shared.queue.length === 0) {
       return;
     }
-    const placeholderWallet = WalletImport.addPlaceholderWallet(importText);
+    WalletImport.addPlaceholderWallet(importText);
     // Plan:
     // -2. check if BIP38 encrypted
     // -1. check lightning custodian
@@ -148,9 +148,9 @@ export default class WalletImport {
           WalletImport.shared.queue = JSON.parse(decrypted);
           WalletImport.shared.queue.forEach(async wallet => {
             if (wallet.type === LightningCustodianWallet.type) {
-              await WalletImport.processImportText(wallet.secret + '@' + wallet.baseURI, {...wallet});
+              await WalletImport.processImportText(wallet.secret + '@' + wallet.baseURI, { ...wallet });
             } else {
-              await WalletImport.processImportText(wallet.secret, {...wallet});
+              await WalletImport.processImportText(wallet.secret, { ...wallet });
             }
           });
         } else {
@@ -325,7 +325,7 @@ export default class WalletImport {
 
       // TODO: try a raw private key
     } catch (Err) {
-      EV(EV.enum.WALLETS_COUNT_CHANGED);
+      WalletImport.removePlaceholderWallet();
       console.warn(Err);
     }
     if (WalletImport.shared.queue.length === 0) {
@@ -334,7 +334,7 @@ export default class WalletImport {
       EV(EV.enum.WALLETS_COUNT_CHANGED);
       alert(loc.wallets.import_error);
     }
-    WalletImport.shared.queue = WalletImport.shared.queue.filter(wallet => wallet.secret !== importText)
+    WalletImport.shared.queue = WalletImport.shared.queue.filter(wallet => wallet.secret !== importText);
   }
 }
 
