@@ -12,7 +12,6 @@ import {
   Dimensions,
   Linking,
   Platform,
-  RefreshControl,
   SectionList,
   StyleSheet,
   Text,
@@ -51,6 +50,7 @@ export default class HodlHodl extends Component {
       isFiltersModalVisible: false,
       isChooseCurrencyVisible: false,
       isChooseMethodVisible: false,
+      showShowFlatListRefreshControl: false,
       currency: false, // means no currency filtering is enabled by default
       method: false, // means no payment method filtering is enabled by default
       side: HodlHodlApi.FILTERS_SIDE_VALUE_SELL, // means 'show me sell offers as Im buying'
@@ -841,7 +841,8 @@ export default class HodlHodl extends Component {
       <SafeBlueArea>
         <StatusBar barStyle="default" />
         <SectionList
-          refreshControl={<RefreshControl onRefresh={this._onRefreshOffers} refreshing={this.state.showShowFlatListRefreshControl} />}
+          onRefresh={this._onRefreshOffers}
+          refreshing={this.state.showShowFlatListRefreshControl}
           renderItem={this.renderItem}
           keyExtractor={this.sectionListKeyExtractor}
           renderSectionHeader={this.renderHeader}
