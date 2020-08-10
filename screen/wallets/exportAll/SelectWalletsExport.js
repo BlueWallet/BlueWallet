@@ -182,10 +182,9 @@ const SelectWalletsExport = () => {
 };
 
 SelectWalletsExport.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(),
+  ...BlueNavigationStyle(navigation, true, undefined, true),
   headerTitle: loc.wallets.export_all_title,
   headerBackTitleVisible: false,
-  headerLeft: null,
 });
 
 export default SelectWalletsExport;

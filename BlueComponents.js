@@ -445,25 +445,47 @@ export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure 
   );
 };
 
-export const BlueNavigationStyle = (navigation, withNavigationCloseButton = false, customCloseButtonFunction = undefined) => {
+export const BlueNavigationStyle = (
+  navigation,
+  withNavigationCloseButton = false,
+  customCloseButtonFunction = undefined,
+  withNavigationCloseButtonPositionLeft = false,
+) => {
   let headerRight;
+  let headerLeft;
   const { colors, closeImage } = useTheme();
   if (withNavigationCloseButton) {
-    headerRight = () => (
-      <TouchableOpacity
-        style={{ width: 40, height: 40, padding: 14 }}
-        onPress={
-          customCloseButtonFunction === undefined
-            ? () => {
-                Keyboard.dismiss();
-                navigation.goBack(null);
-              }
-            : customCloseButtonFunction
-        }
-      >
-        <Image style={{ alignSelf: 'center' }} source={closeImage} />
-      </TouchableOpacity>
-    );
+    withNavigationCloseButtonPositionLeft
+      ? (headerLeft = () => (
+          <TouchableOpacity
+            style={{ width: 40, height: 40, padding: 14 }}
+            onPress={
+              customCloseButtonFunction === undefined
+                ? () => {
+                    Keyboard.dismiss();
+                    navigation.goBack(null);
+                  }
+                : customCloseButtonFunction
+            }
+          >
+            <Image style={{ alignSelf: 'center' }} source={closeImage} />
+          </TouchableOpacity>
+        ))
+      : (headerRight = () => (
+          <TouchableOpacity
+            style={{ width: 40, height: 40, padding: 14 }}
+            onPress={
+              customCloseButtonFunction === undefined
+                ? () => {
+                    Keyboard.dismiss();
+                    navigation.goBack(null);
+                  }
+                : customCloseButtonFunction
+            }
+          >
+            <Image style={{ alignSelf: 'center' }} source={closeImage} />
+          </TouchableOpacity>
+        ));
   } else {
     headerRight = null;
   }
@@ -479,6 +501,7 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
       fontWeight: '600',
       color: colors.foregroundColor,
     },
+    headerLeft,
     headerRight,
     headerBackTitleVisible: false,
     headerTintColor: colors.foregroundColor,
