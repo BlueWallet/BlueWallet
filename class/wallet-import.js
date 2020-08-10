@@ -23,8 +23,10 @@ const bip38 = require('../blue_modules/bip38');
 const wif = require('wif');
 const prompt = require('../blue_modules/prompt');
 const notifications = require('../blue_modules/notifications');
+const encryption = require('../blue_modules/encryption');
 
 export default class WalletImport {
+  queue = [];
   /**
    *
    * @param w {AbstractWallet}
@@ -36,8 +38,10 @@ export default class WalletImport {
     try {
       const wallet = BlueApp.getWallets().some(wallet => wallet.getSecret() === w.secret && wallet.type !== PlaceholderWallet.type);
       if (wallet) {
-        alert('This wallet has been previously imported.');
-        WalletImport.removePlaceholderWallet();
+        if (WalletImport.shared.queue.length === 0) {
+          alert('This wallet has been previously imported.');
+          WalletImport.removePlaceholderWallet();
+        }
       } else {
         const emptyWalletLabel = new LegacyWallet().getLabel();
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
@@ -45,19 +49,26 @@ export default class WalletImport {
         w.setUserHasSavedExport(true);
         if (additionalProperties) {
           for (const [key, value] of Object.entries(additionalProperties)) {
-            w[key] = value;
+            if (key !== 'secret') {
+              w[key] = value;
+            }
           }
         }
         WalletImport.removePlaceholderWallet();
         BlueApp.wallets.push(w);
         await BlueApp.saveToDisk();
         A(A.ENUM.CREATED_WALLET);
-        alert(loc.wallets.import_success);
+        WalletImport.shared.queue = WalletImport.shared.queue.filter(wallet => wallet.secret !== w.getSecret());
+        if (WalletImport.shared.queue.length === 0) {
+          alert(loc.wallets.import_success);
+        }
         notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
       }
       EV(EV.enum.WALLETS_COUNT_CHANGED);
     } catch (e) {
-      alert(e);
+      if (WalletImport.shared.queue.length === 0) {
+        alert(e);
+      }
       console.log(e);
       WalletImport.removePlaceholderWallet();
       EV(EV.enum.WALLETS_COUNT_CHANGED);
@@ -72,12 +83,14 @@ export default class WalletImport {
   }
 
   static addPlaceholderWallet(importText, isFailure = false) {
-    const wallet = new PlaceholderWallet();
-    wallet.setSecret(importText);
-    wallet.setIsFailure(isFailure);
-    BlueApp.wallets.push(wallet);
-    EV(EV.enum.WALLETS_COUNT_CHANGED);
-    return wallet;
+  if (WalletImport.shared.queue.length === 0) {
+      const wallet = new PlaceholderWallet();
+      wallet.setSecret(importText);
+      wallet.setIsFailure(isFailure);
+      BlueApp.wallets.push(wallet);
+      EV(EV.enum.WALLETS_COUNT_CHANGED);
+      return wallet;
+    }
   }
 
   static isCurrentlyImportingWallet() {
@@ -91,7 +104,7 @@ export default class WalletImport {
    * @returns {Promise<void>}
    */
   static async processImportText(importText, additionalProperties) {
-    if (WalletImport.isCurrentlyImportingWallet()) {
+    if (WalletImport.isCurrentlyImportingWallet() && WalletImport.shared.queue.length === 0) {
       return;
     }
     const placeholderWallet = WalletImport.addPlaceholderWallet(importText);
@@ -123,6 +136,26 @@ export default class WalletImport {
         if (decryptedKey) {
           importText = wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed);
         }
+      } else if (importText.startsWith('bluewallet:import?data=')) {
+        const data = importText.split('bluewallet:import?data=')[1];
+        let password = false;
+        do {
+          password = await prompt('Import Wallets', 'Enter password to decrypt');
+        } while (!password);
+
+        const decrypted = await encryption.decrypt(data, password);
+        if (decrypted) {
+          WalletImport.shared.queue = JSON.parse(decrypted);
+          WalletImport.shared.queue.forEach(async wallet => {
+            if (wallet.type === LightningCustodianWallet.type) {
+              await WalletImport.processImportText(wallet.secret + '@' + wallet.baseURI, {...wallet});
+            } else {
+              await WalletImport.processImportText(wallet.secret, {...wallet});
+            }
+          });
+        } else {
+          WalletImport.shared.queue = [];
+        }
       }
 
       // is it lightning custodian?
@@ -142,7 +175,7 @@ export default class WalletImport {
         await lnd.fetchUserInvoices();
         await lnd.fetchPendingTransactions();
         await lnd.fetchBalance();
-        return WalletImport._saveWallet(lnd);
+        return WalletImport._saveWallet(lnd, additionalProperties);
       }
 
       // trying other wallet types
@@ -173,16 +206,16 @@ export default class WalletImport {
         if (legacyWallet.getBalance() > 0) {
           // yep, its legacy we're importing
           await legacyWallet.fetchTransactions();
-          return WalletImport._saveWallet(legacyWallet);
+          return WalletImport._saveWallet(legacyWallet, additionalProperties);
         } else if (segwitBech32Wallet.getBalance() > 0) {
           // yep, its single-address bech32 wallet
           await segwitBech32Wallet.fetchTransactions();
-          return WalletImport._saveWallet(segwitBech32Wallet);
+          return WalletImport._saveWallet(segwitBech32Wallet, additionalProperties);
         } else {
           // by default, we import wif as Segwit P2SH
           await segwitWallet.fetchBalance();
           await segwitWallet.fetchTransactions();
-          return WalletImport._saveWallet(segwitWallet);
+          return WalletImport._saveWallet(segwitWallet, additionalProperties);
         }
       }
 
@@ -193,7 +226,7 @@ export default class WalletImport {
       if (legacyWallet.getAddress()) {
         await legacyWallet.fetchBalance();
         await legacyWallet.fetchTransactions();
-        return WalletImport._saveWallet(legacyWallet);
+        return WalletImport._saveWallet(legacyWallet, additionalProperties);
       }
 
       // if we're here - nope, its not a valid WIF
@@ -204,7 +237,7 @@ export default class WalletImport {
         await hd1.fetchBalance();
         if (hd1.getBalance() > 0) {
           // await hd1.fetchTransactions(); // experiment: dont fetch tx now. it will import faster. user can refresh his wallet later
-          return WalletImport._saveWallet(hd1);
+          return WalletImport._saveWallet(hd1, additionalProperties);
         }
       }
 
@@ -213,7 +246,7 @@ export default class WalletImport {
         hdElectrumSeedLegacy.setSecret(importText);
         if (await hdElectrumSeedLegacy.wasEverUsed()) {
           // not fetching txs or balances, fuck it, yolo, life is too short
-          return WalletImport._saveWallet(hdElectrumSeedLegacy);
+          return WalletImport._saveWallet(hdElectrumSeedLegacy, additionalProperties);
         }
       } catch (_) {}
 
@@ -222,7 +255,7 @@ export default class WalletImport {
         hdElectrumSeedLegacy.setSecret(importText);
         if (await hdElectrumSeedLegacy.wasEverUsed()) {
           // not fetching txs or balances, fuck it, yolo, life is too short
-          return WalletImport._saveWallet(hdElectrumSeedLegacy);
+          return WalletImport._saveWallet(hdElectrumSeedLegacy, additionalProperties);
         }
       } catch (_) {}
 
@@ -232,7 +265,7 @@ export default class WalletImport {
         await hd2.fetchBalance();
         if (hd2.getBalance() > 0) {
           // await hd2.fetchTransactions(); // experiment: dont fetch tx now. it will import faster. user can refresh his wallet later
-          return WalletImport._saveWallet(hd2);
+          return WalletImport._saveWallet(hd2, additionalProperties);
         }
       }
 
@@ -242,7 +275,7 @@ export default class WalletImport {
         await hd3.fetchBalance();
         if (hd3.getBalance() > 0) {
           // await hd3.fetchTransactions(); // experiment: dont fetch tx now. it will import faster. user can refresh his wallet later
-          return WalletImport._saveWallet(hd3);
+          return WalletImport._saveWallet(hd3, additionalProperties);
         }
       }
 
@@ -251,31 +284,31 @@ export default class WalletImport {
       if (hd1.validateMnemonic()) {
         await hd1.fetchTransactions();
         if (hd1.getTransactions().length !== 0) {
-          return WalletImport._saveWallet(hd1);
+          return WalletImport._saveWallet(hd1, additionalProperties);
         }
       }
       if (hd2.validateMnemonic()) {
         await hd2.fetchTransactions();
         if (hd2.getTransactions().length !== 0) {
-          return WalletImport._saveWallet(hd2);
+          return WalletImport._saveWallet(hd2, additionalProperties);
         }
       }
       if (hd3.validateMnemonic()) {
         await hd3.fetchTransactions();
         if (hd3.getTransactions().length !== 0) {
-          return WalletImport._saveWallet(hd3);
+          return WalletImport._saveWallet(hd3, additionalProperties);
         }
       }
       if (hd4.validateMnemonic()) {
         await hd4.fetchTransactions();
         if (hd4.getTransactions().length !== 0) {
-          return WalletImport._saveWallet(hd4);
+          return WalletImport._saveWallet(hd4, additionalProperties);
         }
       }
 
       // is it even valid? if yes we will import as:
       if (hd4.validateMnemonic()) {
-        return WalletImport._saveWallet(hd4);
+        return WalletImport._saveWallet(hd4, additionalProperties);
       }
 
       // not valid? maybe its a watch-only address?
@@ -292,14 +325,17 @@ export default class WalletImport {
 
       // TODO: try a raw private key
     } catch (Err) {
-      WalletImport.removePlaceholderWallet(placeholderWallet);
       EV(EV.enum.WALLETS_COUNT_CHANGED);
       console.warn(Err);
     }
-    WalletImport.removePlaceholderWallet();
-    WalletImport.addPlaceholderWallet(importText, true);
-    ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-    EV(EV.enum.WALLETS_COUNT_CHANGED);
-    alert(loc.wallets.import_error);
+    if (WalletImport.shared.queue.length === 0) {
+      WalletImport.addPlaceholderWallet(importText, true);
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      EV(EV.enum.WALLETS_COUNT_CHANGED);
+      alert(loc.wallets.import_error);
+    }
+    WalletImport.shared.queue = WalletImport.shared.queue.filter(wallet => wallet.secret !== importText)
   }
 }
+
+WalletImport.shared = new WalletImport();

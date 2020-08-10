@@ -40,8 +40,7 @@ class DeeplinkSchemaMatch {
     if (event.url.toLowerCase().startsWith('bluewallet:bitcoin:') || event.url.toLowerCase().startsWith('bluewallet:lightning:')) {
       event.url = event.url.substring(11);
     } else if (event.url.toLowerCase().startsWith('bluewallet:import?data=')) {
-      completionHandler([
-        'AddWalletRoot', { screen: 'ImportWallet', params: { label:  event.url }} ]);
+      completionHandler(['AddWalletRoot', { screen: 'ImportWallet', params: { label: event.url } }]);
     }
 
     if (DeeplinkSchemaMatch.isPossiblyPSBTFile(event.url)) {
