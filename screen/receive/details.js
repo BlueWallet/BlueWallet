@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   StyleSheet,
+  useWindowDimensions,
   ScrollView,
   useWindowDimensions,
 } from 'react-native';

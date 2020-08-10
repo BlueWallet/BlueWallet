@@ -622,6 +622,7 @@ export default class SendDetails extends Component {
         deviceHeight={Dimensions.get('window').height}
         isVisible={this.state.isFeeSelectionModalVisible}
         style={styles.bottomModal}
+        deviceHeight={Dimensions.get('window').height}
         onBackdropPress={() => {
           if (this.state.fee < 1 || this.state.feeSliderValue < 1) {
             this.setState({ fee: Number(1), feeSliderValue: Number(1) });
@@ -729,6 +730,7 @@ export default class SendDetails extends Component {
       <Modal
         deviceHeight={Dimensions.get('window').height}
         isVisible={this.state.isAdvancedTransactionOptionsVisible}
+        deviceHeight={Dimensions.get('window').height}
         style={styles.bottomModal}
         onBackdropPress={() => {
           Keyboard.dismiss();

@@ -49,7 +49,14 @@ const NotificationSettings = () => {
     (async () => {
       setNotificationsEnabled(await notifications.isNotificationsEnabled());
       setURI(await notifications.getSavedUri());
-      setTokenInfo(JSON.stringify(await notifications.getPushToken()) + ' ' + JSON.stringify(await notifications.checkPermissions()));
+      setTokenInfo(
+        'token: ' +
+          JSON.stringify(await notifications.getPushToken()) +
+          ' permissions: ' +
+          JSON.stringify(await notifications.checkPermissions()) +
+          ' stored notifications: ' +
+          JSON.stringify(await notifications.getStoredNotifications()),
+      );
       setIsLoading(false);
     })();
   }, []);
