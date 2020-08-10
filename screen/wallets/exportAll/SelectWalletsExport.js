@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-/* global alert */
 import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, TouchableOpacity, Image, Text, FlatList, StyleSheet, StatusBar } from 'react-native';
 import { SafeBlueArea, BlueText, BluePrivateBalance, BlueNavigationStyle, BlueListItemHooks, BlueTextHooks } from '../../../BlueComponents';
@@ -93,7 +92,7 @@ const SelectWalletsExport = () => {
 
   useEffect(() => {
     setIsLoading(false);
-    const disabled = selectedWallets.length < 1 || selectedWallets.length > 4;
+    const disabled = selectedWallets.length < 1;
     const opacity = { opacity: disabled ? 0.5 : 1.0 };
     setOptions({
       headerRight: () => (
@@ -116,11 +115,7 @@ const SelectWalletsExport = () => {
           if (selectedWallets.includes(item)) {
             setSelectedWallets(selectedWallets.filter(wallet => wallet !== item));
           } else {
-            if (selectedWallets.length < 4) {
-              setSelectedWallets([...selectedWallets, item]);
-            } else {
-              alert(loc.wallets.export_all_maximum_error);
-            }
+            setSelectedWallets([...selectedWallets, item]);
           }
         }}
         checkmark={selectedWallets.includes(item)}

@@ -255,6 +255,7 @@
     "network_electrum": "Electrum server",
     "password": "Password",
     "password_explain": "Create the password you will use to decrypt the storage",
+    "password_explain_export": "Create the password you will use to import the selected wallets.",
     "passwords_do_not_match": "Passwords do not match",
     "plausible_deniability": "Plausible deniability",
     "retype_password": "Re-type password",
@@ -361,6 +362,7 @@
     "select_no_bitcoin_exp": "A Bitcoin wallet is required to refill Lightning wallets. Please, create or import one.",
     "select_wallet": "Select Wallet",
     "xpub_copiedToClipboard": "Copied to clipboard.",
+    "export_wallets_qrcode_error": "The number of wallets selected for export can't be displayed with a QRCode. However, it can be copied to your clipboard or shared to your preferred destination.",
     "xpub_title": "wallet XPUB",
     "export_all_maximum_error": "The maximum allowed of wallets for exporting is four."
   }

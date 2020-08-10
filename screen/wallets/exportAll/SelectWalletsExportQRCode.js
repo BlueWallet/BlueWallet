@@ -2,12 +2,24 @@
 import React, { useState, useCallback } from 'react';
 import { useWindowDimensions, InteractionManager, ScrollView, ActivityIndicator, StatusBar, View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueCopyLongTextToClipboard } from '../../../BlueComponents';
+import {
+  BlueSpacing20,
+  SafeBlueArea,
+  BlueNavigationStyle,
+  BlueCopyLongTextToClipboard,
+  SecondButton,
+  BlueTextHooks,
+  BlueCard,
+} from '../../../BlueComponents';
 import Privacy from '../../../Privacy';
 import Biometric from '../../../class/biometrics';
 import loc from '../../../loc';
 import { useTheme, useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { LightningCustodianWallet } from '../../../class';
+import Share from 'react-native-share';
+const encryption = require('../../../blue_modules/encryption');
+const prompt = require('../../../blue_modules/prompt');
+
 /** @type {AppStorage} */
 const BlueApp = require('../../../BlueApp');
 
@@ -40,6 +52,7 @@ const styles = StyleSheet.create({
 const SelectWalletsExportQRCode = () => {
   const { selectedWallets } = useRoute().params;
   const [qrData, setQRData] = useState();
+  const [showQRCode, setShowQRCode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
   const { colors } = useTheme();
@@ -53,6 +66,32 @@ const SelectWalletsExportQRCode = () => {
     },
     type: { color: colors.foregroundColor },
     secret: { color: colors.foregroundColor },
+  };
+
+  const showPasswordAlertAndEncrypt = async data => {
+    let p1 = await prompt(loc.settings.password, loc.settings.password_explain_export).catch(() => {
+      p1 = undefined;
+    });
+    if (!p1) {
+      return goBack();
+    }
+    const p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
+      return goBack();
+    });
+    if (p1 === p2) {
+      const encrypted = encryption.encrypt(JSON.stringify(data), p1);
+
+      setQRData(`bluewallet:import?data=${encrypted}`);
+      setShowQRCode(true);
+      setIsLoading(false);
+    } else {
+      alert(loc.settings.passwords_do_not_match);
+      goBack();
+    }
+  };
+
+  const handleShareButtonPressed = () => {
+    Share.open({ message: qrData }).catch(error => console.log(error));
   };
 
   useFocusEffect(
@@ -84,19 +123,19 @@ const SelectWalletsExportQRCode = () => {
             walletsForExport.push(walletForImport);
           }
         });
-        setQRData(JSON.stringify({ application: 'BlueWallet', data: walletsForExport }));
-        setIsLoading(false);
+
+        showPasswordAlertAndEncrypt(walletsForExport);
       });
       return () => {
         task.cancel();
         Privacy.disableBlur();
       };
-    }, [goBack, selectedWallets]),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
   );
 
-  const onError = error => {
-    alert(error);
-    goBack();
+  const onError = () => {
+    setShowQRCode(false);
   };
 
   return isLoading ? (
@@ -108,21 +147,30 @@ const SelectWalletsExportQRCode = () => {
       <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <BlueSpacing20 />
-        <View style={styles.activeQrcode}>
-          <QRCode
-            value={qrData}
-            logo={require('../../../img/qr-code.png')}
-            size={height > width ? width - 40 : width / 2}
-            logoSize={70}
-            color="#000000"
-            logoBackgroundColor={colors.brandingColor}
-            backgroundColor="#FFFFFF"
-            ecl="H"
-            onError={onError}
-          />
-        </View>
+        {showQRCode ? (
+          <View style={styles.activeQrcode}>
+            <QRCode
+              value={qrData}
+              logo={require('../../../img/qr-code.png')}
+              size={height > width ? width - 40 : width / 2}
+              logoSize={70}
+              color="#000000"
+              logoBackgroundColor={colors.brandingColor}
+              backgroundColor="#FFFFFF"
+              ecl="H"
+              onError={onError}
+            />
+          </View>
+        ) : (
+          <BlueCard>
+            <BlueTextHooks>{loc.wallets.export_wallets_qrcode_error}</BlueTextHooks>
+          </BlueCard>
+        )}
         <BlueSpacing20 />
         <BlueCopyLongTextToClipboard text={qrData} />
+        <View>
+          <SecondButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+        </View>
       </ScrollView>
     </SafeBlueArea>
   );
