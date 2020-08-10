@@ -163,12 +163,14 @@ const styles = StyleSheet.create({
   },
   floatButtons: {
     flexDirection: 'row',
-    alignSelf: 'center',
     backgroundColor: 'transparent',
     position: 'absolute',
+    alignSelf: 'center',
     bottom: 30,
     borderRadius: 30,
-    minHeight: 48,
+    width: '60%',
+    flex: 1,
+    height: '7%',
     overflow: 'hidden',
   },
 });

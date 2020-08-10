@@ -675,13 +675,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   scanButton: {
-    flexDirection: 'row',
     alignSelf: 'center',
     backgroundColor: 'transparent',
     position: 'absolute',
+    width: '40%',
     bottom: 30,
     borderRadius: 30,
-    minHeight: 48,
+    height: '7%',
     overflow: 'hidden',
   },
   listHeader: {
