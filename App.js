@@ -68,6 +68,7 @@ export default class App extends React.Component {
     AppState.addEventListener('change', this._handleAppStateChange);
     DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
     QuickActions.popInitialAction().then(this.popInitialAction);
+    EV(EV.enum.PROCESS_PUSH_NOTIFICATIONS, this._processPushNotifications.bind(this), true);
     this._handleAppStateChange(undefined);
   };
 
@@ -129,10 +130,67 @@ export default class App extends React.Component {
     Appearance.removeChangeListener(this.appearanceChanged);
   }
 
+  /**
+   * Processes push notifications stored in AsyncStorage. Might navigate to some screen.
+   *
+   * @returns {Promise<boolean>} returns TRUE if notification was processed _and acted_ upon, i.e. navigation happened
+   * @private
+   */
+  async _processPushNotifications() {
+    notifications.setApplicationIconBadgeNumber(0);
+    await new Promise(resolve => setTimeout(resolve, 200));
+    // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
+    const notifications2process = await notifications.getStoredNotifications();
+    for (const payload of notifications2process) {
+      const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
+      if (!wasTapped) continue;
+
+      console.log('processing push notification:', payload);
+      let wallet;
+      switch (+payload.type) {
+        case 2:
+        case 3:
+          wallet = BlueApp.getWallets().find(w => w.weOwnAddress(payload.address));
+          break;
+        case 1:
+        case 4:
+          wallet = BlueApp.getWallets().find(w => w.weOwnTransaction(payload.txid || payload.hash));
+          break;
+      }
+
+      if (wallet) {
+        NavigationService.dispatch(
+          CommonActions.navigate({
+            name: 'WalletTransactions',
+            key: `WalletTransactions-${wallet.getID()}`,
+            params: {
+              wallet,
+            },
+          }),
+        );
+        setTimeout(() => EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, 1 /* ms */), 500);
+        // no delay (1ms) as we dont need to wait for transaction propagation. 500ms is a delay to wait for the navigation
+        await notifications.clearStoredNotifications();
+        return true;
+      } else {
+        console.log('could not find wallet while processing push notification tap, NOP');
+      }
+    }
+
+    // TODO: if we are here - we did not act upon any push, so we need to iterate over _not tapped_ pushes
+    // and refetch appropriate wallet and redraw screen
+
+    await notifications.clearStoredNotifications();
+    return false;
+  }
+
   _handleAppStateChange = async nextAppState => {
     if (BlueApp.getWallets().length > 0) {
       if ((this.state.appState.match(/background/) && nextAppState) === 'active' || nextAppState === undefined) {
         setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
+
+        const processed = await this._processPushNotifications();
+        if (processed) return;
         const clipboard = await Clipboard.getString();
         const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet => {
           if (wallet.chain === Chain.ONCHAIN) {

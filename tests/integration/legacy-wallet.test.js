@@ -66,24 +66,14 @@ describe('LegacyWallet', function () {
       assert.ok(tx.received);
       assert.ok(tx.confirmations > 1);
     }
-  });
 
-  it('can fetch TXs when addresses for vout are missing', async () => {
-    // Transaction with missing address output https://www.blockchain.com/btc/tx/d45818ae11a584357f7b74da26012d2becf4ef064db015a45bdfcd9cb438929d
-    const w = new LegacyWallet();
-    w._address = '1PVfrmbn1vSMoFZB2Ga7nDuXLFDyJZHrHK';
-    await w.fetchTransactions();
-
-    assert.ok(w.getTransactions().length > 0);
-    for (const tx of w.getTransactions()) {
-      assert.ok(tx.hash);
-      assert.ok(tx.value);
-      assert.ok(tx.received);
-      assert.ok(tx.confirmations > 1);
-    }
+    assert.ok(w.weOwnTransaction('4924f3a29acdee007ebcf6084d2c9e1752c4eb7f26f7d1a06ef808780bf5fe6d'));
+    assert.ok(w.weOwnTransaction('d0432027a86119c63a0be8fa453275c2333b59067f1e559389cd3e0e377c8b96'));
+    assert.ok(!w.weOwnTransaction('825c12f277d1f84911ac15ad1f41a3de28e9d906868a930b0a7bca61b17c8881'));
   });
 
   it.each([
+    // Transaction with missing address output https://www.blockchain.com/btc/tx/d45818ae11a584357f7b74da26012d2becf4ef064db015a45bdfcd9cb438929d
     ['addresses for vout missing', '1PVfrmbn1vSMoFZB2Ga7nDuXLFDyJZHrHK'],
     // ['txdatas were coming back null from BlueElectrum because of high batchsize', '34xp4vRoCGJym3xR7yCVPFHoCNxv4Twseo'],
     // skipped because its slow and flaky if being run in pack with other electrum tests. uncomment and run single
@@ -192,5 +182,8 @@ describe('SegwitBech32Wallet', function () {
     assert.ok(tx0.inputs.length === 1);
     assert.ok(tx0.outputs);
     assert.ok(tx0.outputs.length === 3);
+
+    assert.ok(w.weOwnTransaction('49944e90fe917952e36b1967cdbc1139e60c89b4800b91258bf2345a77a8b888'));
+    assert.ok(!w.weOwnTransaction('825c12f277d1f84911ac15ad1f41a3de28e9d906868a930b0a7bca61b17c8881'));
   });
 });
