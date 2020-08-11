@@ -27,6 +27,7 @@ import {
 import Clipboard from '@react-native-community/clipboard';
 import ActionSheet from './screen/ActionSheet';
 import LinearGradient from 'react-native-linear-gradient';
+import ActionSheet from './screen/ActionSheet';
 import { LightningCustodianWallet, PlaceholderWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import { BitcoinUnit } from './models/bitcoinUnits';
@@ -34,9 +35,11 @@ import * as NavigationService from './NavigationService';
 import WalletGradient from './class/wallet-gradient';
 import ToolTip from 'react-native-tooltip';
 import { BlurView } from '@react-native-community/blur';
+import ImagePicker from 'react-native-image-picker';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
+import { getSystemName } from 'react-native-device-info';
 import { encodeUR } from 'bc-ur/dist';
 import ImagePicker from 'react-native-image-picker';
 import QRCode from 'react-native-qrcode-svg';
@@ -50,6 +53,7 @@ const BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 const BigNumber = require('bignumber.js');
+const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const currency = require('./blue_modules/currency');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 let isIpad;
@@ -2025,7 +2029,7 @@ export class WalletsCarousel extends Component {
     );
   }
 }
-
+const isDesktop = getSystemName() === 'Mac OS X';
 export class BlueAddressInput extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,
@@ -2056,7 +2060,7 @@ export class BlueAddressInput extends Component {
             if (!error) {
               this.props.onBarScanned(result);
             } else {
-              alert('The selected image does not contain a QR Code.');
+              alert(loc.send.qr_error_no_qrcode);
             }
           });
         }
@@ -2078,7 +2082,7 @@ export class BlueAddressInput extends Component {
             if (!error) {
               this.props.onBarScanned(result);
             } else {
-              alert('The selected image does not contain a QR Code.');
+              alert(loc.send.qr_error_no_qrcode);
             }
           });
         }
@@ -2094,7 +2098,7 @@ export class BlueAddressInput extends Component {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     let copyFromClipboardIndex;
     if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, 'Take Photo', loc.wallets.list_long_choose];
+      const options = [loc._.cancel, loc.wallets.list_long_choose, isDesktop ? loc.wallets.take_photo : loc.wallets.list_long_scan];
       if (!isClipboardEmpty) {
         options.push(loc.wallets.list_long_clipboard);
         copyFromClipboardIndex = options.length - 1;
@@ -2102,9 +2106,9 @@ export class BlueAddressInput extends Component {
 
       ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
         if (buttonIndex === 1) {
-          this.takePhoto();
-        } else if (buttonIndex === 2) {
           this.choosePhoto();
+        } else if (buttonIndex === 2) {
+          this.takePhoto();
         } else if (buttonIndex === copyFromClipboardIndex) {
           this.copyFromClipbard();
         }
@@ -2148,7 +2152,17 @@ export class BlueAddressInput extends Component {
           disabled={this.props.isLoading}
           onPress={() => {
             Keyboard.dismiss();
-            this.showActionSheet();
+            if (isDesktop) {
+              this.showActionSheet();
+            } else {
+              NavigationService.navigate('ScanQRCodeRoot', {
+                screen: 'ScanQRCode',
+                params: {
+                  launchedBy: this.props.launchedBy,
+                  onBarScanned: this.props.onBarScanned,
+                },
+              });
+            }
           }}
           style={{
             height: 36,

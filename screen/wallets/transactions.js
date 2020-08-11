@@ -600,7 +600,14 @@ export default class WalletTransactions extends Component {
         if (buttonIndex === 1) {
           this.takePhoto();
         } else if (buttonIndex === 2) {
-          this.choosePhoto();
+          this.props.navigation.navigate('ScanQRCodeRoot', {
+            screen: 'ScanQRCode',
+            params: {
+              launchedBy: this.props.route.name,
+              onBarScanned: this.onBarScanned,
+              showFileImportButton: false,
+            },
+          });
         } else if (buttonIndex === copyFromClipboardIndex) {
           this.copyFromClipbard();
         }
@@ -619,10 +626,13 @@ export default class WalletTransactions extends Component {
         {
           text: loc.wallets.list_long_scan,
           onPress: () =>
-            this.props.navigation.navigate('ScanQRCode', {
-              launchedBy: this.props.route.name,
-              onBarScanned: this.onBarCodeRead,
-              showFileImportButton: false,
+            this.props.navigation.navigate('ScanQRCodeRoot', {
+              screen: 'ScanQRCode',
+              params: {
+                launchedBy: this.props.route.name,
+                onBarScanned: this.onBarScanned,
+                showFileImportButton: false,
+              },
             }),
         },
       ];
