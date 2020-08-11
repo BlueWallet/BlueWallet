@@ -326,7 +326,7 @@ PODS:
     - React
   - RNSVG (12.1.0):
     - React
-  - RNVectorIcons (7.0.0):
+  - RNVectorIcons (6.6.0):
     - React
   - RNWatch (0.5.0):
     - React
@@ -609,13 +609,13 @@ SPEC CHECKSUMS:
   RNSentry: ae1e005e4f2655775475445a9c49c1d343e8e3a7
   RNShare: a1d5064df7a0ebe778d001869b3f0a124bf0a491
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
-  RNVectorIcons: da6fe858f5a65d7bbc3379540a889b0b12aa5976
+  RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: 4de37878bbf071847e438b089c01d4ad8d4eddae
   Sentry: 8715e88b813bde9ad37aead365d5b04ac7302153
   swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
   ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e
   Yoga: 7740b94929bbacbddda59bf115b5317e9a161598
 
-PODFILE CHECKSUM: 8b7d4989006419c5290f8cd063e4234b8fa1246c
+PODFILE CHECKSUM: b7a57cdadb71fcb2683189b65ad92fc2b21afdd8
 
 COCOAPODS: 1.9.3
