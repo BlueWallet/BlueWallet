@@ -30,6 +30,13 @@ jest.mock('react-native-quick-actions', () => {
   };
 });
 
+jest.mock('react-native-image-picker', () => {
+  return {
+    launchCamera: jest.fn(),
+    launchImageLibrary: jest.fn(),
+  };
+});
+
 jest.mock('react-native-default-preference', () => {
   return {
     setName: jest.fn(),
