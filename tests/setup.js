@@ -19,7 +19,9 @@ jest.mock('@react-native-community/push-notification-ios', () => {
 });
 
 jest.mock('react-native-device-info', () => {
-  return {};
+  return {
+    getSystemName: jest.fn(),
+  };
 });
 
 jest.mock('react-native-quick-actions', () => {
