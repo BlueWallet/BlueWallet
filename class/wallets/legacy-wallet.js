@@ -385,6 +385,14 @@ export class LegacyWallet extends AbstractWallet {
     return this.getAddress() === address || this._address === address;
   }
 
+  weOwnTransaction(txid) {
+    for (const tx of this.getTransactions()) {
+      if (tx && tx.txid && tx.txid === txid) return true;
+    }
+
+    return false;
+  }
+
   allowSendMax() {
     return true;
   }
