@@ -27,7 +27,6 @@ import {
 import Clipboard from '@react-native-community/clipboard';
 import ActionSheet from './screen/ActionSheet';
 import LinearGradient from 'react-native-linear-gradient';
-import ActionSheet from './screen/ActionSheet';
 import { LightningCustodianWallet, PlaceholderWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import { BitcoinUnit } from './models/bitcoinUnits';
@@ -41,7 +40,6 @@ import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/netw
 import Biometric from './class/biometrics';
 import { getSystemName } from 'react-native-device-info';
 import { encodeUR } from 'bc-ur/dist';
-import ImagePicker from 'react-native-image-picker';
 import QRCode from 'react-native-qrcode-svg';
 import { useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
@@ -55,7 +53,6 @@ const aspectRatio = height / width;
 const BigNumber = require('bignumber.js');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const currency = require('./blue_modules/currency');
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 let isIpad;
 if (aspectRatio > 1.6) {
   isIpad = false;
