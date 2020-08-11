@@ -10,8 +10,8 @@ import {
   ActivityIndicator,
   InteractionManager,
   FlatList,
+  Dimensions,
   ScrollView,
-  RefreshControl,
   TouchableOpacity,
   StatusBar,
   Linking,
@@ -39,11 +39,11 @@ import Handoff from 'react-native-handoff';
 import { BlueCurrentTheme } from '../../components/themes';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
-/** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
+const windowHeight = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
   flex: {
@@ -210,11 +210,12 @@ export default class WalletTransactions extends Component {
   /**
    * Forcefully fetches TXs and balance for wallet
    */
-  refreshTransactionsFunction() {
+  refreshTransactionsFunction(delay) {
+    delay = delay || 4000;
     const that = this;
     setTimeout(function () {
       that.refreshTransactions();
-    }, 4000); // giving a chance to remote server to propagate
+    }, delay); // giving a chance to remote server to propagate
   }
 
   /**
@@ -272,7 +273,7 @@ export default class WalletTransactions extends Component {
         let noErr = true;
         let smthChanged = false;
         try {
-          await BlueElectrum.ping();
+          // await BlueElectrum.ping();
           await BlueElectrum.waitTillConnected();
           /** @type {LegacyWallet} */
           const wallet = this.state.wallet;
@@ -351,6 +352,7 @@ export default class WalletTransactions extends Component {
   renderManageFundsModal = () => {
     return (
       <Modal
+        deviceHeight={windowHeight}
         isVisible={this.state.isManageFundsModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
@@ -709,9 +711,8 @@ export default class WalletTransactions extends Component {
                 )}
               </ScrollView>
             }
-            refreshControl={
-              <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.showShowFlatListRefreshControl} />
-            }
+            onRefresh={() => this.refreshTransactions()}
+            refreshing={this.state.showShowFlatListRefreshControl}
             data={this.state.dataSource}
             extraData={this.state.timeElapsed}
             keyExtractor={this._keyExtractor}
