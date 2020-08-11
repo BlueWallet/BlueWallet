@@ -1,4 +1,5 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
+/* global alert */
 import React, { Component, useState } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
@@ -24,6 +25,7 @@ import {
 } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
+import ActionSheet from './screen/ActionSheet';
 import { LightningCustodianWallet, PlaceholderWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import { BitcoinUnit } from './models/bitcoinUnits';
@@ -31,9 +33,11 @@ import * as NavigationService from './NavigationService';
 import WalletGradient from './class/wallet-gradient';
 import ToolTip from 'react-native-tooltip';
 import { BlurView } from '@react-native-community/blur';
+import ImagePicker from 'react-native-image-picker';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
+import { getSystemName } from 'react-native-device-info';
 import { encodeUR } from 'bc-ur/dist';
 import QRCode from 'react-native-qrcode-svg';
 import { useTheme } from '@react-navigation/native';
@@ -46,6 +50,7 @@ const BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 const BigNumber = require('bignumber.js');
+const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const currency = require('./blue_modules/currency');
 let isIpad;
 if (aspectRatio > 1.6) {
@@ -2035,7 +2040,7 @@ export class WalletsCarousel extends Component {
     );
   }
 }
-
+const isDesktop = getSystemName() === 'Mac OS X';
 export class BlueAddressInput extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,
@@ -2050,6 +2055,76 @@ export class BlueAddressInput extends Component {
     isLoading: false,
     address: '',
     placeholder: loc.send.details_address,
+  };
+
+  choosePhoto = () => {
+    ImagePicker.launchImageLibrary(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
+      },
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              this.props.onBarScanned(result);
+            } else {
+              alert(loc.send.qr_error_no_qrcode);
+            }
+          });
+        }
+      },
+    );
+  };
+
+  takePhoto = () => {
+    ImagePicker.launchCamera(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
+      },
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              this.props.onBarScanned(result);
+            } else {
+              alert(loc.send.qr_error_no_qrcode);
+            }
+          });
+        }
+      },
+    );
+  };
+
+  copyFromClipbard = async () => {
+    this.props.onBarScanned(await Clipboard.getString());
+  };
+
+  showActionSheet = async () => {
+    const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
+    let copyFromClipboardIndex;
+    if (Platform.OS === 'ios') {
+      const options = [loc._.cancel, loc.wallets.list_long_choose, isDesktop ? loc.wallets.take_photo : loc.wallets.list_long_scan];
+      if (!isClipboardEmpty) {
+        options.push(loc.wallets.list_long_clipboard);
+        copyFromClipboardIndex = options.length - 1;
+      }
+
+      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
+        if (buttonIndex === 1) {
+          this.choosePhoto();
+        } else if (buttonIndex === 2) {
+          this.takePhoto();
+        } else if (buttonIndex === copyFromClipboardIndex) {
+          this.copyFromClipbard();
+        }
+      });
+    }
   };
 
   render() {
@@ -2087,14 +2162,18 @@ export class BlueAddressInput extends Component {
         <TouchableOpacity
           disabled={this.props.isLoading}
           onPress={() => {
-            NavigationService.navigate('ScanQRCodeRoot', {
-              screen: 'ScanQRCode',
-              params: {
-                launchedBy: this.props.launchedBy,
-                onBarScanned: this.props.onBarScanned,
-              },
-            });
             Keyboard.dismiss();
+            if (isDesktop) {
+              this.showActionSheet();
+            } else {
+              NavigationService.navigate('ScanQRCodeRoot', {
+                screen: 'ScanQRCode',
+                params: {
+                  launchedBy: this.props.launchedBy,
+                  onBarScanned: this.props.onBarScanned,
+                },
+              });
+            }
           }}
           style={{
             height: 36,

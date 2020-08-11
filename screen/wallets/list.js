@@ -24,6 +24,7 @@ import ImagePicker from 'react-native-image-picker';
 import * as NavigationService from '../../NavigationService';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import { getSystemName } from 'react-native-device-info';
 const EV = require('../../blue_modules/events');
 const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
@@ -33,7 +34,7 @@ const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
 
 let lastSnappedTo = 0;
-
+const isDesktop = getSystemName() === 'Mac OS X';
 export default class WalletsList extends Component {
   walletsCarousel = React.createRef();
 
@@ -394,7 +395,7 @@ export default class WalletsList extends Component {
     if (BlueApp.getWallets().length > 0 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
       return (
         <View style={styles.scanButton}>
-          <BlueScanButton onPress={this.onScanButtonPressed} onLongPress={this.sendButtonLongPress} />
+          <BlueScanButton onPress={this.onScanButtonPressed} onLongPress={isDesktop ? undefined : this.sendButtonLongPress} />
         </View>
       );
     } else {
@@ -407,14 +408,18 @@ export default class WalletsList extends Component {
   };
 
   onScanButtonPressed = () => {
-    this.props.navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        launchedBy: this.props.route.name,
-        onBarScanned: this.onBarScanned,
-        showFileImportButton: false,
-      },
-    });
+    if (isDesktop) {
+      this.sendButtonLongPress();
+    } else {
+      this.props.navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          launchedBy: this.props.route.name,
+          onBarScanned: this.onBarScanned,
+          showFileImportButton: false,
+        },
+      });
+    }
   };
 
   onBarScanned = value => {
@@ -450,6 +455,28 @@ export default class WalletsList extends Component {
     );
   };
 
+  takePhoto = () => {
+    ImagePicker.launchCamera(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
+      },
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              this.onBarScanned(result);
+            } else {
+              alert(loc.send.qr_error_no_qrcode);
+            }
+          });
+        }
+      },
+    );
+  };
+
   copyFromClipbard = async () => {
     this.onBarScanned(await Clipboard.getString());
   };
@@ -457,7 +484,7 @@ export default class WalletsList extends Component {
   sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
+      const options = [loc._.cancel, loc.wallets.list_long_choose, isDesktop ? loc.wallets.take_photo : loc.wallets.list_long_scan];
       if (!isClipboardEmpty) {
         options.push(loc.wallets.list_long_clipboard);
       }
@@ -465,14 +492,18 @@ export default class WalletsList extends Component {
         if (buttonIndex === 1) {
           this.choosePhoto();
         } else if (buttonIndex === 2) {
-          this.props.navigation.navigate('ScanQRCodeRoot', {
-            screen: 'ScanQRCode',
-            params: {
-              launchedBy: this.props.route.name,
-              onBarScanned: this.onBarScanned,
-              showFileImportButton: false,
-            },
-          });
+          if (isDesktop) {
+            this.takePhoto();
+          } else {
+            this.props.navigation.navigate('ScanQRCodeRoot', {
+              screen: 'ScanQRCode',
+              params: {
+                launchedBy: this.props.route.name,
+                onBarScanned: this.onBarScanned,
+                showFileImportButton: false,
+              },
+            });
+          }
         } else if (buttonIndex === 3) {
           this.copyFromClipbard();
         }
