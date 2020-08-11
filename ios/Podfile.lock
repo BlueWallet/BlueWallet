@@ -380,9 +380,9 @@ PODS:
     - React
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.0.9):
+  - RNSentry (1.7.1):
     - React
-    - Sentry (~> 4.4.0)
+    - Sentry (~> 5.2.0)
   - RNShare (2.0.0):
     - React
   - RNSVG (9.5.1):
@@ -397,9 +397,9 @@ PODS:
   - SDWebImageWebPCoder (0.4.1):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.5)
-  - Sentry (4.4.3):
-    - Sentry/Core (= 4.4.3)
-  - Sentry/Core (4.4.3)
+  - Sentry (5.2.0):
+    - Sentry/Core (= 5.2.0)
+  - Sentry/Core (5.2.0)
   - TcpSockets (4.0.0):
     - React
   - ToolTipMenu (5.2.1):
@@ -708,14 +708,14 @@ SPEC CHECKSUMS:
   RNReanimated: b5ccb50650ba06f6e749c7c329a1bc3ae0c88b43
   RNScreens: c526239bbe0e957b988dacc8d75ac94ec9cb19da
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: 2803ba8c8129dcf26b79e9b4d8c80168be6e4390
+  RNSentry: 2bae4ffee2e66376ef42cb845a494c3bde17bc56
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
   RNSVG: 0eb087cfb5d7937be93c45b163b26352a647e681
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: a14e378448e187cc12f307f61d41fe8a65400e86
   SDWebImage: cf6922231e95550934da2ada0f20f2becf2ceba9
   SDWebImageWebPCoder: 36f8f47bd9879a8aea6044765c1351120fd8e3a8
-  Sentry: 14bdd673870e8cf64932b149fad5bbbf39a9b390
+  Sentry: 6e04bc3e11bf771ca79140a112de64dcfbc7d8cb
   TcpSockets: 4ef55305239923b343ed0a378b1fac188b1373b0
   ToolTipMenu: 8ac61aded0fbc4acfe7e84a7d0c9479d15a9a382
   Yoga: f2a7cd4280bfe2cca5a7aed98ba0eb3d1310f18b
