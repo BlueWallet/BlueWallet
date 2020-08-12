@@ -25,11 +25,11 @@ export const BlueGlobalMessage = () => {
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     container: {
-      backgroundColor: colors.feeLabel,
+      backgroundColor: colors.warning,
       transform: [{ translateY: translateYRef.current }],
     },
     message: {
-      color: colors.feeValue,
+      color: colors.warningText,
     },
   });
 
@@ -38,7 +38,7 @@ export const BlueGlobalMessage = () => {
       Animated.timing(translateYRef.current, {
         duration: 300,
         easing: Easing.ease,
-        toValue: 100,
+        toValue: 40,
         useNativeDriver: true,
       }).start();
     } else {
@@ -73,8 +73,6 @@ const styles = StyleSheet.create({
     zIndex: 2,
     right: 0,
     left: 0,
-    shadowOpacity: 0.5,
-    shadowOffset: { height: 0, width: 0 },
   },
   content: {
     alignItems: 'center',
