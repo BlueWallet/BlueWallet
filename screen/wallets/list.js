@@ -682,7 +682,7 @@ const styles = StyleSheet.create({
     maxWidth: 200,
     bottom: 30,
     borderRadius: 30,
-    height: '6,8%',
+    height: '6.3%',
     minHeight: 44,
     overflow: 'hidden',
   },
