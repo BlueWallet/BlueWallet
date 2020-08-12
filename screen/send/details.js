@@ -426,7 +426,7 @@ export default class SendDetails extends Component {
         if ('label' in parsedBitcoinUri.options) {
           memo = parsedBitcoinUri.options.label || memo;
         }
-        if (parsedBitcoinUri.options.hasOwnProperty('pj')) {
+        if (Object.prototype.hasOwnProperty.call(parsedBitcoinUri, 'pj')) {
           payjoinUrl = parsedBitcoinUri.options.pj;
         }
       }

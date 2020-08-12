@@ -35,9 +35,9 @@ export default class Confirm extends Component {
     this.state = {
       isLoading: false,
       isPayjoinEnabled: false,
-      payjoinUrl: props.navigation.getParam('payjoinUrl'),
-      psbt: props.navigation.getParam('psbt'),
-      fee: props.route.params.fee,
+      payjoinUrl: props.route.params?.payjoinUrl,
+      psbt: props.route.params?.psbt,
+      fee: props.route.params?.fee,
       feeSatoshi: new Bignumber(props.route.params.fee).multipliedBy(100000000).toNumber(),
       memo: props.route.params.memo,
       recipients: props.route.params.recipients,
@@ -58,8 +58,9 @@ export default class Confirm extends Component {
   send() {
     this.setState({ isLoading: true }, async () => {
       try {
+        const txids2watch = [];
         if (!this.state.isPayjoinEnabled) {
-          this.broadcast(this.state.tx);
+          await this.broadcast(this.state.tx);
         } else {
           const wallet = new PayjoinTransaction(this.state.psbt, txHex => this.broadcast(txHex), this.state.fromWallet);
           const payjoinClient = new PayjoinClient({
@@ -67,8 +68,16 @@ export default class Confirm extends Component {
             payjoinUrl: this.state.payjoinUrl,
           });
           await payjoinClient.run();
+          const payjoinPsbt = wallet.getPayjoinPsbt();
+          if (payjoinPsbt) {
+            const tx = payjoinPsbt.extractTransaction();
+            txids2watch.push(tx.getId());
+          }
         }
 
+        const txid = bitcoin.Transaction.fromHex(this.state.tx).getId();
+        txids2watch.push(txid);
+        notifications.majorTomToGroundControl([], [], txids2watch);
         EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
         let amount = 0;
         const recipients = this.state.recipients;
@@ -93,7 +102,7 @@ export default class Confirm extends Component {
             SegwitBech32Wallet.type,
           ].includes(this.state.fromWallet.type)
         ) {
-          amount = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
+          amount = formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
         }
 
         this.props.navigation.navigate('Success', {
@@ -125,7 +134,7 @@ export default class Confirm extends Component {
 
     let result = await this.state.fromWallet.broadcastTx(tx);
     if (!result) {
-      throw new Error(`Broadcast failed`);
+      throw new Error(loc.errors.broadcast);
     }
 
     return result;
@@ -187,23 +196,12 @@ export default class Confirm extends Component {
               </Text>
               <BlueSpacing40 />
               {!!this.state.payjoinUrl && (
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    marginHorizontal: 20,
-                    marginBottom: 10,
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Text style={{ color: '#81868e', fontSize: 14 }}>Payjoin</Text>
-                  <Switch
-                    value={this.state.isPayjoinEnabled}
-                    onValueChange={value => this.setState({ isPayjoinEnabled: value })}
-                  />
-                </View>)
-              }
-              {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm.sendNow} />}
+                <View style={styles.payjoinWrapper}>
+                  <Text style={styles.payjoinText}>Payjoin</Text>
+                  <Switch value={this.state.isPayjoinEnabled} onValueChange={isPayjoinEnabled => this.setState({ isPayjoinEnabled })} />
+                </View>
+              )}
+              {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm_sendNow} />}
 
               <TouchableOpacity
                 testID="TransactionDetailsButton"
@@ -318,11 +316,20 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     alignSelf: 'center',
   },
+  payjoinWrapper: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginBottom: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  payjoinText: { color: '#81868e', fontSize: 14 },
 });
 
 Confirm.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
+    dismiss: PropTypes.func,
     navigate: PropTypes.func,
     dangerouslyGetParent: PropTypes.func,
   }),

@@ -5,12 +5,13 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
 // Implements IPayjoinClientWallet
-// https://github.com/Kukks/payjoin-client-js/blob/715f76da6ef8ffd03b6654c329655fdc3c8aa6c3/ts_src/wallet.ts
+// https://github.com/bitcoinjs/payjoin-client/blob/master/ts_src/wallet.ts
 export default class PayjoinTransaction {
   constructor(psbt, broadcast, wallet) {
     this._psbt = psbt;
     this._broadcast = broadcast;
     this._wallet = wallet;
+    this._payjoinPsbt = false;
   }
 
   async getPsbt() {
@@ -29,6 +30,15 @@ export default class PayjoinTransaction {
     return unfinalized;
   }
 
+  /**
+   * Doesnt conform to spec but needed for user-facing wallet software to find out txid of payjoined transaction
+   *
+   * @returns {boolean|Psbt}
+   */
+  getPayjoinPsbt() {
+    return this._payjoinPsbt;
+  }
+
   async signPsbt(payjoinPsbt) {
     // Do this without relying on private methods
     payjoinPsbt.data.inputs.forEach((input, index) => {
@@ -40,7 +50,8 @@ export default class PayjoinTransaction {
       } catch (e) {}
     });
 
-    return payjoinPsbt;
+    this._payjoinPsbt = payjoinPsbt;
+    return this._payjoinPsbt;
   }
 
   async broadcastTx(txHex) {
