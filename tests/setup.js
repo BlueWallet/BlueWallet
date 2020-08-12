@@ -19,7 +19,9 @@ jest.mock('@react-native-community/push-notification-ios', () => {
 });
 
 jest.mock('react-native-device-info', () => {
-  return {};
+  return {
+    getSystemName: jest.fn(),
+  };
 });
 
 jest.mock('react-native-quick-actions', () => {
@@ -27,6 +29,13 @@ jest.mock('react-native-quick-actions', () => {
     clearShortcutItems: jest.fn(),
     setQuickActions: jest.fn(),
     isSupported: jest.fn(),
+  };
+});
+
+jest.mock('react-native-image-picker', () => {
+  return {
+    launchCamera: jest.fn(),
+    launchImageLibrary: jest.fn(),
   };
 });
 
