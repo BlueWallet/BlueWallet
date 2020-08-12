@@ -100,7 +100,7 @@
     "frisbee": "3.1.4",
     "lottie-ios": "3.1.8",
     "lottie-react-native": "3.5.0",
-    "metro-react-native-babel-preset": "0.59.0",
+    "metro-react-native-babel-preset": "0.61.0",
     "path-browserify": "1.0.1",
     "pbkdf2": "3.1.1",
     "prettier": "2.0.5",
