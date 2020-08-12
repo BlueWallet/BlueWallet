@@ -291,6 +291,9 @@
     "status_bump": "Bump Fee",
     "status_cancel": "Cancel Transaction"
   },
+  "global_message": {
+    "importing_wallet": "Importing Wallet..."
+  },
   "wallets": {
     "add_bitcoin": "Bitcoin",
     "add_create": "Create",

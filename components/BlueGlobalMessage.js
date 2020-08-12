@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef } from 'react';
 import { BlueGlobalMessageContext } from './BlueGlobalMessageContext';
 import { Text, Animated, Easing, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useTheme } from '@react-navigation/native';
-
+import loc from '../loc';
 
 /*
 
@@ -62,6 +62,9 @@ export const BlueGlobalMessage = () => {
 };
 
 export default BlueGlobalMessage;
+BlueGlobalMessage.Messages = {
+  IMPORTING_WALLET: loc.global_message.importing_wallet,
+};
 
 const styles = StyleSheet.create({
   container: {

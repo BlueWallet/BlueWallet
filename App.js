@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler'; // should be on top
-import React from 'react';
+import React, { useEffect, useContext, useCallback } from 'react';
 import {
   Linking,
   Dimensions,
@@ -27,7 +27,7 @@ import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/themes';
-import { BlueGlobalMessageProvider } from './components/BlueGlobalMessageContext';
+import { BlueGlobalMessageProvider, BlueGlobalMessageContext } from './components/BlueGlobalMessageContext';
 import BlueGlobalMessage from './components/BlueGlobalMessage';
 const A = require('./blue_modules/analytics');
 
@@ -299,18 +299,40 @@ export default class App extends React.Component {
     return (
       <SafeAreaProvider>
         <BlueGlobalMessageProvider>
-          <View style={styles.root}>
-            <NavigationContainer ref={navigationRef} theme={this.state.theme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-              <BlueGlobalMessage />
+          <NavigationContainer ref={navigationRef} theme={this.state.theme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+            <BlueGlobalMessageContainer style={styles.root}>
               <Navigation />
-            </NavigationContainer>
-            {this.renderClipboardContentModal()}
-          </View>
+            </BlueGlobalMessageContainer>
+          </NavigationContainer>
+          {this.renderClipboardContentModal()}
         </BlueGlobalMessageProvider>
       </SafeAreaProvider>
     );
   }
 }
+
+// eslint-disable-next-line react/prop-types
+const BlueGlobalMessageContainer = ({ children }) => {
+  const { show } = useContext(BlueGlobalMessageContext);
+
+  const showGlobalMessage = useCallback(
+    event => {
+      show({ message: event });
+    },
+    [show],
+  );
+
+  useEffect(() => {
+    EV(EV.enum.GLOBAL_MESSAGES_IMPORTING_WALLET, () => showGlobalMessage(loc.global_message.importing_wallet));
+  }, [showGlobalMessage]);
+
+  return (
+    <View style={styles.root}>
+      {children}
+      <BlueGlobalMessage />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   root: {

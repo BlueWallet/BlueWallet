@@ -95,6 +95,8 @@ export default class WalletImport {
       return;
     }
     const placeholderWallet = WalletImport.addPlaceholderWallet(importText);
+
+    // EV(EV.enum.GLOBAL_MESSAGES_IMPORTING_WALLET);
     // Plan:
     // -2. check if BIP38 encrypted
     // -1. check lightning custodian
