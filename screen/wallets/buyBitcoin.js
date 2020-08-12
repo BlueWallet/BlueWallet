@@ -43,6 +43,7 @@ export default class BuyBitcoin extends Component {
       // plain watchonly - just get the address
       address = wallet.getAddress();
     } else {
+      // otherwise, lets call widely-used getAddressAsync()
       try {
         address = await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(2000)]);
       } catch (_) {}
@@ -58,8 +59,6 @@ export default class BuyBitcoin extends Component {
         }
       }
     }
-
-    // otherwise, lets call widely-used getAddressAsync()
 
     const { safelloStateToken } = this.props.route.params;
 
