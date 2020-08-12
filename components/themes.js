@@ -54,6 +54,8 @@ export const BlueDefaultTheme = {
     mainColor: '#CFDCF6',
     success: '#ccddf9',
     successCheck: '#0f5cc0',
+    warning: '#007AFF',
+    warningText: '#ffffff',
   },
 };
 
@@ -96,6 +98,8 @@ export const BlueDarkTheme = {
     buttonBlueBackgroundColor: '#202020',
     scanLabel: 'rgba(255,255,255,.2)',
     labelText: '#ffffff',
+    warning: '#8EFFE5',
+    warningText: '#000000',
   },
 };
 

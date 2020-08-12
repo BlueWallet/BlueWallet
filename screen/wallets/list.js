@@ -22,6 +22,7 @@ import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
 import * as NavigationService from '../../NavigationService';
+import { BlueGlobalMessageContext } from '../../components/BlueGlobalMessageContext';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import { getSystemName } from 'react-native-device-info';
@@ -703,7 +704,8 @@ WalletsList.propTypes = {
   }),
 };
 
-WalletsList.navigationOptions = ({ navigation, route }) => {
+WalletsList.contextType = BlueGlobalMessageContext;
+WalletsList.navigationOptions = ({ navigation }) => {
   return {
     ...BlueNavigationStyle(navigation, true),
     title: '',

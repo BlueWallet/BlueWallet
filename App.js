@@ -27,6 +27,8 @@ import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/themes';
+import { BlueGlobalMessageProvider } from './components/BlueGlobalMessageContext';
+import BlueGlobalMessage from './components/BlueGlobalMessage';
 const A = require('./blue_modules/analytics');
 
 if (process.env.NODE_ENV !== 'development') {
@@ -296,12 +298,15 @@ export default class App extends React.Component {
   render() {
     return (
       <SafeAreaProvider>
-        <View style={styles.root}>
-          <NavigationContainer ref={navigationRef} theme={this.state.theme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-            <Navigation />
-          </NavigationContainer>
-          {this.renderClipboardContentModal()}
-        </View>
+        <BlueGlobalMessageProvider>
+          <View style={styles.root}>
+            <NavigationContainer ref={navigationRef} theme={this.state.theme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+              <BlueGlobalMessage />
+              <Navigation />
+            </NavigationContainer>
+            {this.renderClipboardContentModal()}
+          </View>
+        </BlueGlobalMessageProvider>
       </SafeAreaProvider>
     );
   }
