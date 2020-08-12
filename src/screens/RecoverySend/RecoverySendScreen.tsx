@@ -236,26 +236,28 @@ export class RecoverySendScreen extends Component<Props, State> {
     });
   };
 
-  navigateToProvideFirstRecoverySeedForAIR = () => {
+  navigateToProvideFirstRecoverySeedForAIR = (mnemonic?: Array<string>) => {
     const { navigation } = this.props;
     const { wallet, transactions } = this.props.route.params;
-
     navigation.navigate(Route.RecoverySeed, {
-      onSubmit: (firstKeyPair: ECPair.ECPairInterface) => this.navigateToProvideSecondRecoverySeedForAIR(firstKeyPair),
+      onSubmit: (firstKeyPair: ECPair.ECPairInterface, receivedMnemonic: Array<string>) =>
+        this.navigateToProvideSecondRecoverySeedForAIR(firstKeyPair, receivedMnemonic),
       buttonText: i18n.send.recovery.recover,
       onBackArrow: () => navigation.navigate(Route.RecoverySend, { wallet, transactions }),
       subtitle: i18n.send.recovery.confirmFirstSeed,
       description: i18n.send.recovery.confirmFirstSeedDesc,
+      mnemonic,
     });
   };
 
-  navigateToProvideSecondRecoverySeedForAIR = (firstKeyPair: ECPair.ECPairInterface) => {
+  navigateToProvideSecondRecoverySeedForAIR = (firstKeyPair: ECPair.ECPairInterface, mnemonic: Array<string>) => {
     const { navigation } = this.props;
+    navigation.goBack();
 
     navigation.navigate(Route.RecoverySeed, {
       onSubmit: (secondKeyPair: ECPair.ECPairInterface) =>
         this.createRecoveryTransaction([firstKeyPair, secondKeyPair]),
-      onBackArrow: () => this.navigateToProvideFirstRecoverySeedForAIR(),
+      onBackArrow: () => this.navigateToProvideFirstRecoverySeedForAIR(mnemonic),
       buttonText: i18n.send.recovery.recover,
       subtitle: i18n.send.recovery.confirmSecondSeed,
       description: i18n.send.recovery.confirmSecondSeedDesc,

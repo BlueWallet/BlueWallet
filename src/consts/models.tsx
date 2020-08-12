@@ -1,4 +1,4 @@
-import { VaultTxType, Transaction as BtcTransaction } from 'bitcoinjs-lib';
+import { VaultTxType, Transaction as BtcTransaction, ECPair } from 'bitcoinjs-lib';
 import { Dayjs } from 'dayjs';
 import React from 'react';
 import { KeyboardType, StyleProp, ViewStyle } from 'react-native';
@@ -282,6 +282,7 @@ export type MainCardStackNavigatorParams = {
     description: string;
     buttonText: string;
     onBackArrow?: () => void;
+    mnemonic?: Array<string>;
   };
   [Route.ScanQrCode]: { onBarCodeScan: (code: string) => void };
   [Route.ChooseContactList]: {
