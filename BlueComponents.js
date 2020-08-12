@@ -1367,7 +1367,7 @@ export class BlueTransactionOutgoingIcon extends Component {
   }
 }
 
-const sendReceiveScanButtonFontSize = PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
+const sendReceiveScanButtonFontSize = PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22 ? 22 :  PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 export class BlueReceiveButtonIcon extends Component {
   render() {
     return (

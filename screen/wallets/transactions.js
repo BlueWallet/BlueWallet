@@ -169,8 +169,10 @@ const styles = StyleSheet.create({
     bottom: 30,
     borderRadius: 30,
     width: '60%',
+    maxWidth: 400,
     flex: 1,
-    height: '7%',
+    height: '6,8%',
+    minHeight: 44,
     overflow: 'hidden',
   },
 });
