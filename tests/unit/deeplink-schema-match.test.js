@@ -151,6 +151,19 @@ describe('unit - DeepLinkSchemaMatch', function () {
           },
         ],
       },
+      {
+        argument: {
+          url: 'bluewallet:?safello-state-token=TEST',
+        },
+        expected: [
+          'BuyBitcoin',
+          {
+            safelloStateToken: 'TEST',
+            uri: 'bluewallet:?safello-state-token=TEST',
+            wallet: undefined,
+          },
+        ],
+      },
     ];
 
     const asyncNavigationRouteFor = async function (event) {

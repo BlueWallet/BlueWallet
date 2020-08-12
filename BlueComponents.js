@@ -1,4 +1,5 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
+/* global alert */
 import React, { Component, useState } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
@@ -24,6 +25,7 @@ import {
 } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
+import ActionSheet from './screen/ActionSheet';
 import { LightningCustodianWallet, PlaceholderWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import { BitcoinUnit } from './models/bitcoinUnits';
@@ -31,9 +33,11 @@ import * as NavigationService from './NavigationService';
 import WalletGradient from './class/wallet-gradient';
 import ToolTip from 'react-native-tooltip';
 import { BlurView } from '@react-native-community/blur';
+import ImagePicker from 'react-native-image-picker';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
+import { getSystemName } from 'react-native-device-info';
 import { encodeUR } from 'bc-ur/dist';
 import QRCode from 'react-native-qrcode-svg';
 import { useTheme } from '@react-navigation/native';
@@ -46,6 +50,7 @@ const BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 const BigNumber = require('bignumber.js');
+const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const currency = require('./blue_modules/currency');
 let isIpad;
 if (aspectRatio > 1.6) {
@@ -92,6 +97,43 @@ export class BlueButton extends Component {
   }
 }
 
+export const BlueButtonHook = props => {
+  const { colors } = useTheme();
+  let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.mainColor;
+  let fontColor = colors.buttonTextColor;
+  if (props.disabled === true) {
+    backgroundColor = colors.buttonDisabledBackgroundColor;
+    fontColor = colors.buttonDisabledTextColor;
+  }
+  let buttonWidth = props.width ? props.width : width / 1.5;
+  if ('noMinWidth' in props) {
+    buttonWidth = 0;
+  }
+  return (
+    <TouchableOpacity
+      style={{
+        flex: 1,
+        borderWidth: 0.7,
+        borderColor: 'transparent',
+        backgroundColor: backgroundColor,
+        minHeight: 45,
+        height: 45,
+        maxHeight: 45,
+        borderRadius: 25,
+        minWidth: buttonWidth,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+      {...props}
+    >
+      <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+        {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
+        {props.title && <Text style={{ marginHorizontal: 8, fontSize: 16, color: fontColor }}>{props.title}</Text>}
+      </View>
+    </TouchableOpacity>
+  );
+};
+
 export class SecondButton extends Component {
   render() {
     let backgroundColor = this.props.backgroundColor ? this.props.backgroundColor : BlueCurrentTheme.colors.buttonBlueBackgroundColor;
@@ -130,72 +172,61 @@ export class SecondButton extends Component {
   }
 }
 
-export class BitcoinButton extends Component {
-  render() {
-    return (
-      <TouchableOpacity
-        testID={this.props.testID}
-        onPress={() => {
-          if (this.props.onPress) this.props.onPress();
+export const BitcoinButton = props => {
+  const { colors } = useTheme();
+  return (
+    <TouchableOpacity testID={props.testID} onPress={props.onPress}>
+      <View
+        style={{
+          borderColor: colors.hdborderColor,
+          borderWidth: 1,
+          borderRadius: 5,
+          backgroundColor: (props.active && colors.hdbackgroundColor) || colors.brandingColor,
+          minWidth: props.style.width,
+          minHeight: props.style.height,
+          height: props.style.height,
+          flex: 1,
         }}
       >
-        <View
-          style={{
-            borderColor: BlueCurrentTheme.colors.hdborderColor,
-            borderWidth: 1,
-            borderRadius: 5,
-            backgroundColor: (this.props.active && BlueCurrentTheme.colors.hdbackgroundColor) || BlueCurrentTheme.colors.brandingColor,
-            minWidth: this.props.style.width,
-            minHeight: this.props.style.height,
-            height: this.props.style.height,
-            flex: 1,
-          }}
-        >
-          <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
-            <Text style={{ color: BlueCurrentTheme.colors.hdborderColor, fontWeight: 'bold' }}>{loc.wallets.add_bitcoin}</Text>
-          </View>
-          <Image
-            style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
-            source={require('./img/addWallet/bitcoin.png')}
-          />
+        <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
+          <Text style={{ color: colors.hdborderColor, fontWeight: 'bold' }}>{loc.wallets.add_bitcoin}</Text>
         </View>
-      </TouchableOpacity>
-    );
-  }
-}
+        <Image
+          style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
+          source={require('./img/addWallet/bitcoin.png')}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+};
 
-export class LightningButton extends Component {
-  render() {
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          if (this.props.onPress) this.props.onPress();
+export const LightningButton = props => {
+  const { colors } = useTheme();
+  return (
+    <TouchableOpacity onPress={props.onPress}>
+      <View
+        style={{
+          borderColor: colors.lnborderColor,
+          borderWidth: 1,
+          borderRadius: 5,
+          backgroundColor: (props.active && colors.lnbackgroundColor) || colors.brandingColor,
+          minWidth: props.style.width,
+          minHeight: props.style.height,
+          height: props.style.height,
+          flex: 1,
         }}
       >
-        <View
-          style={{
-            borderColor: BlueCurrentTheme.colors.lnborderColor,
-            borderWidth: 1,
-            borderRadius: 5,
-            backgroundColor: (this.props.active && BlueCurrentTheme.colors.lnbackgroundColor) || BlueCurrentTheme.colors.brandingColor,
-            minWidth: this.props.style.width,
-            minHeight: this.props.style.height,
-            height: this.props.style.height,
-            flex: 1,
-          }}
-        >
-          <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
-            <Text style={{ color: BlueCurrentTheme.colors.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.add_lightning}</Text>
-          </View>
-          <Image
-            style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
-            source={require('./img/addWallet/lightning.png')}
-          />
+        <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
+          <Text style={{ color: colors.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.add_lightning}</Text>
         </View>
-      </TouchableOpacity>
-    );
-  }
-}
+        <Image
+          style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
+          source={require('./img/addWallet/lightning.png')}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 export class BlueWalletNavigationHeader extends Component {
   static propTypes = {
@@ -398,7 +429,7 @@ export class BlueWalletNavigationHeader extends Component {
   }
 }
 
-export const BlueButtonLinkHook = ({ title, onPress }) => {
+export const BlueButtonLinkHook = props => {
   const { colors } = useTheme();
   return (
     <TouchableOpacity
@@ -408,9 +439,10 @@ export const BlueButtonLinkHook = ({ title, onPress }) => {
         height: 60,
         justifyContent: 'center',
       }}
-      onPress={onPress}
+      onPress={props.onPress}
+      {...props}
     >
-      <Text style={{ color: colors.foregroundColor, textAlign: 'center', fontSize: 16 }}>{title}</Text>
+      <Text style={{ color: colors.foregroundColor, textAlign: 'center', fontSize: 16 }}>{props.title}</Text>
     </TouchableOpacity>
   );
 };
@@ -656,6 +688,11 @@ export class BlueTextCentered extends Component {
   }
 }
 
+export const BlueTextCenteredHooks = props => {
+  const { colors } = useTheme();
+  return <Text {...props} style={{ color: colors.foregroundColor, textAlign: 'center' }} />;
+};
+
 export const BlueListItem = React.memo(props => (
   <ListItem
     testID={props.testID}
@@ -706,11 +743,11 @@ export const BlueListItemHooks = props => {
   );
 };
 
-export class BlueFormLabel extends Component {
-  render() {
-    return <Text {...this.props} style={{ color: BlueCurrentTheme.colors.foregroundColor, fontWeight: '400', marginLeft: 20 }} />;
-  }
-}
+export const BlueFormLabel = props => {
+  const { colors } = useTheme();
+
+  return <Text {...props} style={{ color: colors.foregroundColor, fontWeight: '400', marginLeft: 20 }} />;
+};
 
 export class BlueFormInput extends Component {
   render() {
@@ -1785,7 +1822,6 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
         onPress={() => {
           onPressedOut();
           onPress(index);
-          onPressedOut();
         }}
       />
     );
@@ -2004,7 +2040,7 @@ export class WalletsCarousel extends Component {
     );
   }
 }
-
+const isDesktop = getSystemName() === 'Mac OS X';
 export class BlueAddressInput extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,
@@ -2019,6 +2055,76 @@ export class BlueAddressInput extends Component {
     isLoading: false,
     address: '',
     placeholder: loc.send.details_address,
+  };
+
+  choosePhoto = () => {
+    ImagePicker.launchImageLibrary(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
+      },
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              this.props.onBarScanned(result);
+            } else {
+              alert(loc.send.qr_error_no_qrcode);
+            }
+          });
+        }
+      },
+    );
+  };
+
+  takePhoto = () => {
+    ImagePicker.launchCamera(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
+      },
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              this.props.onBarScanned(result);
+            } else {
+              alert(loc.send.qr_error_no_qrcode);
+            }
+          });
+        }
+      },
+    );
+  };
+
+  copyFromClipbard = async () => {
+    this.props.onBarScanned(await Clipboard.getString());
+  };
+
+  showActionSheet = async () => {
+    const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
+    let copyFromClipboardIndex;
+    if (Platform.OS === 'ios') {
+      const options = [loc._.cancel, loc.wallets.list_long_choose, isDesktop ? loc.wallets.take_photo : loc.wallets.list_long_scan];
+      if (!isClipboardEmpty) {
+        options.push(loc.wallets.list_long_clipboard);
+        copyFromClipboardIndex = options.length - 1;
+      }
+
+      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
+        if (buttonIndex === 1) {
+          this.choosePhoto();
+        } else if (buttonIndex === 2) {
+          this.takePhoto();
+        } else if (buttonIndex === copyFromClipboardIndex) {
+          this.copyFromClipbard();
+        }
+      });
+    }
   };
 
   render() {
@@ -2056,14 +2162,18 @@ export class BlueAddressInput extends Component {
         <TouchableOpacity
           disabled={this.props.isLoading}
           onPress={() => {
-            NavigationService.navigate('ScanQRCodeRoot', {
-              screen: 'ScanQRCode',
-              params: {
-                launchedBy: this.props.launchedBy,
-                onBarScanned: this.props.onBarScanned,
-              },
-            });
             Keyboard.dismiss();
+            if (isDesktop) {
+              this.showActionSheet();
+            } else {
+              NavigationService.navigate('ScanQRCodeRoot', {
+                screen: 'ScanQRCode',
+                params: {
+                  launchedBy: this.props.launchedBy,
+                  onBarScanned: this.props.onBarScanned,
+                },
+              });
+            }
           }}
           style={{
             height: 36,
@@ -2195,6 +2305,7 @@ export class BlueReplaceFeeSuggestions extends Component {
                   minHeight: 33,
                   maxWidth: 100,
                   minWidth: 44,
+                  color: '#81868e',
                   backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
                   textAlign: 'right',
                 }}
@@ -2626,9 +2737,9 @@ export class DynamicQRCode extends Component {
           <QRCode
             value={currentFragment.toUpperCase()}
             size={this.state.qrCodeHeight}
-            color={BlueCurrentTheme.colors.foregroundColor}
+            color="#000000"
             logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
-            backgroundColor={BlueCurrentTheme.colors.background}
+            backgroundColor="#FFFFFF"
             ecl="L"
           />
         </View>
@@ -2677,6 +2788,9 @@ const animatedQRCodeStyle = StyleSheet.create({
   qrcodeContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 6,
+    borderRadius: 8,
+    borderColor: '#FFFFFF',
   },
   controller: {
     width: '90%',

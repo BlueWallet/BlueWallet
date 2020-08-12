@@ -242,7 +242,10 @@ export default class CPFP extends Component {
         <BlueCard style={styles.center}>
           <BlueText>{text}</BlueText>
           <BlueSpacing20 />
-          <BlueReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
+          <BlueReplaceFeeSuggestions
+            onFeeSelected={fee => this.setState({ newFeeRate: fee })}
+            transactionMinimum={this.state.feeRate + 1}
+          />
           <BlueSpacing />
           <BlueButton
             disabled={this.state.newFeeRate <= this.state.feeRate}

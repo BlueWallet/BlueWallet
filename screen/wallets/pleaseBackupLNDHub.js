@@ -1,26 +1,24 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { View, Dimensions, StyleSheet, BackHandler, StatusBar } from 'react-native';
+import { View, useWindowDimensions, StyleSheet, BackHandler, StatusBar } from 'react-native';
 import {
   SafeBlueArea,
   BlueNavigationStyle,
   BlueSpacing20,
   BlueCopyTextToClipboard,
   BlueButton,
-  BlueCard,
   BlueTextCentered,
 } from '../../BlueComponents';
 import QRCode from 'react-native-qrcode-svg';
 import Privacy from '../../Privacy';
 import { ScrollView } from 'react-native-gesture-handler';
 import loc from '../../loc';
-const { height, width } = Dimensions.get('window');
 
 const PleaseBackupLNDHub = () => {
   const { wallet } = useRoute().params;
   const navigation = useNavigation();
   const { colors } = useTheme();
-  const [qrCodeHeight, setQrCodeHeight] = useState(height > width ? width - 40 : width / 2);
+  const { height, width } = useWindowDimensions();
   const handleBackButton = useCallback(() => {
     navigation.dangerouslyGetParent().pop();
     return true;
@@ -33,7 +31,12 @@ const PleaseBackupLNDHub = () => {
     scrollViewContent: {
       flexGrow: 1,
       backgroundColor: colors.elevated,
+      justifyContent: 'center',
+
+      alignItems: 'center',
+      padding: 20,
     },
+    qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
   });
 
   useEffect(() => {
@@ -45,37 +48,30 @@ const PleaseBackupLNDHub = () => {
     };
   }, [handleBackButton]);
 
-  const onLayout = () => {
-    const { height } = Dimensions.get('window');
-    setQrCodeHeight(height > width ? width - 40 : width / 2);
-  };
-
   return (
     <SafeBlueArea style={styles.root}>
       <StatusBar barStyle="default" />
-      <ScrollView centerContent contentContainerStyle={styles.scrollViewContent} onLayout={onLayout}>
-        <BlueCard>
-          <View>
-            <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>
-          </View>
-          <BlueSpacing20 />
-
+      <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
+        <View>
+          <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>
+        </View>
+        <BlueSpacing20 />
+        <View style={styles.qrCodeContainer}>
           <QRCode
             value={wallet.secret}
             logo={require('../../img/qr-code.png')}
             logoSize={90}
-            size={qrCodeHeight}
-            color={colors.foregroundColor}
+            size={height > width ? width - 40 : width / 2}
+            color="#000000"
             logoBackgroundColor={colors.brandingColor}
-            backgroundColor={colors.background}
+            backgroundColor="#FFFFFF"
             ecl="H"
           />
-
-          <BlueSpacing20 />
-          <BlueCopyTextToClipboard text={wallet.secret} />
-          <BlueSpacing20 />
-          <BlueButton onPress={() => navigation.dangerouslyGetParent().pop()} title={loc.pleasebackup.ok_lnd} />
-        </BlueCard>
+        </View>
+        <BlueSpacing20 />
+        <BlueCopyTextToClipboard text={wallet.secret} />
+        <BlueSpacing20 />
+        <BlueButton onPress={() => navigation.dangerouslyGetParent().pop()} title={loc.pleasebackup.ok_lnd} />
       </ScrollView>
     </SafeBlueArea>
   );
