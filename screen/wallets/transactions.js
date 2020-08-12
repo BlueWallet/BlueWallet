@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     width: '60%',
     maxWidth: 400,
     flex: 1,
-    height: '6,8%',
+    height: '6.3%',
     minHeight: 44,
     overflow: 'hidden',
   },
