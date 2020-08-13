@@ -95,12 +95,13 @@ class RecoverySeedScreen extends Component<Props, State> {
       {
         isLoading: true,
       },
-      async () => {
+      () => {
         setTimeout(async () => {
           try {
             const keyPair = await mnemonicToKeyPair(mnemonic.join(' '));
-            onSubmit(keyPair, mnemonic);
-            this.setState({ isLoading: false });
+            this.setState({ isLoading: false }, () => {
+              onSubmit(keyPair, mnemonic);
+            });
           } catch (e) {
             this.setState({ isLoading: false });
             Alert.alert(e.message);
