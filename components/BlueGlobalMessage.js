@@ -20,7 +20,7 @@ Functional Component Example:
 Credit: https://selleo.com/blog/simple-toast-in-react-native-using-context-api-and-hooks
 */
 export const BlueGlobalMessage = () => {
-  const { container, hide } = useContext(BlueGlobalMessageContext);
+  const { container, hide, dismissable } = useContext(BlueGlobalMessageContext);
   const translateYRef = useRef(new Animated.Value(-100));
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
@@ -53,7 +53,7 @@ export const BlueGlobalMessage = () => {
 
   return (
     <Animated.View style={[styles.container, stylesHook.container]}>
-      <TouchableOpacity onPress={hide} style={styles.content}>
+      <TouchableOpacity disabled={!dismissable} onPress={dismissable ? hide : undefined} style={styles.content}>
         <Text style={[styles.message, stylesHook.message]}> {container.message}</Text>
         <ActivityIndicator />
       </TouchableOpacity>
@@ -64,6 +64,7 @@ export const BlueGlobalMessage = () => {
 export default BlueGlobalMessage;
 BlueGlobalMessage.Messages = {
   IMPORTING_WALLET: loc.global_message.importing_wallet,
+  ERROR_IMPORTING_WALLET: loc.global_message.list_import_error,
 };
 
 const styles = StyleSheet.create({

@@ -38,6 +38,7 @@ export default class WalletImport {
       if (wallet) {
         alert('This wallet has been previously imported.');
         WalletImport.removePlaceholderWallet();
+        EV(EV.enum.GLOBAL_MESSAGES_HIDE);
       } else {
         const emptyWalletLabel = new LegacyWallet().getLabel();
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
@@ -54,6 +55,7 @@ export default class WalletImport {
         A(A.ENUM.CREATED_WALLET);
         alert(loc.wallets.import_success);
         notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
+        EV(EV.enum.GLOBAL_MESSAGES_HIDE);
       }
       EV(EV.enum.WALLETS_COUNT_CHANGED);
     } catch (e) {
@@ -61,6 +63,7 @@ export default class WalletImport {
       console.log(e);
       WalletImport.removePlaceholderWallet();
       EV(EV.enum.WALLETS_COUNT_CHANGED);
+      EV(EV.enum.GLOBAL_MESSAGES_HIDE);
     }
   }
 
@@ -94,9 +97,8 @@ export default class WalletImport {
     if (WalletImport.isCurrentlyImportingWallet()) {
       return;
     }
-    const placeholderWallet = WalletImport.addPlaceholderWallet(importText);
 
-    // EV(EV.enum.GLOBAL_MESSAGES_IMPORTING_WALLET);
+    EV(EV.enum.GLOBAL_MESSAGES_IMPORTING_WALLET);
     // Plan:
     // -2. check if BIP38 encrypted
     // -1. check lightning custodian
@@ -294,14 +296,14 @@ export default class WalletImport {
 
       // TODO: try a raw private key
     } catch (Err) {
-      WalletImport.removePlaceholderWallet(placeholderWallet);
       EV(EV.enum.WALLETS_COUNT_CHANGED);
+      EV(EV.enum.GLOBAL_MESSAGES_HIDE);
       console.warn(Err);
     }
-    WalletImport.removePlaceholderWallet();
     WalletImport.addPlaceholderWallet(importText, true);
     ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
     EV(EV.enum.WALLETS_COUNT_CHANGED);
+    EV(EV.enum.GLOBAL_MESSAGES_HIDE);
     alert(loc.wallets.import_error);
   }
 }

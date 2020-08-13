@@ -313,18 +313,19 @@ export default class App extends React.Component {
 
 // eslint-disable-next-line react/prop-types
 const BlueGlobalMessageContainer = ({ children }) => {
-  const { show } = useContext(BlueGlobalMessageContext);
+  const { show, hide } = useContext(BlueGlobalMessageContext);
 
   const showGlobalMessage = useCallback(
-    event => {
-      show({ message: event });
+    (event, dismissable) => {
+      show({ message: event, dismissable });
     },
     [show],
   );
 
   useEffect(() => {
-    EV(EV.enum.GLOBAL_MESSAGES_IMPORTING_WALLET, () => showGlobalMessage(loc.global_message.importing_wallet));
-  }, [showGlobalMessage]);
+    EV(EV.enum.GLOBAL_MESSAGES_IMPORTING_WALLET, () => showGlobalMessage(loc.global_message.importing_wallet, false));
+    EV(EV.enum.GLOBAL_MESSAGES_HIDE, () => setTimeout(hide, 1500));
+  }, [hide, showGlobalMessage]);
 
   return (
     <View style={styles.root}>

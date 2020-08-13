@@ -4,6 +4,7 @@ const initialMessage = {
   message: '',
   type: null,
   visible: false,
+  dismissable: true,
 };
 
 export const BlueGlobalMessageContext = createContext({});
@@ -18,12 +19,16 @@ export const BlueGlobalMessageProvider = ({ children }) => {
   }, []);
 
   const hide = useCallback(() => {
-    setContainer({ ...container, visible: false });
+    setContainer({ ...container, visible: false, dismissable: true });
   }, [container]);
 
   useEffect(() => {
     if (container.visible) {
-      timeout.current = setTimeout(hide, 1500);
+      if (container.dismissable) {
+        timeout.current = setTimeout(hide, 1500);
+      } else {
+        clearTimeout(timeout.current);
+      }
       return () => {
         if (timeout.current) {
           clearTimeout(timeout.current);
