@@ -132,7 +132,7 @@ export default class Confirm extends Component {
       }
     }
 
-    let result = await this.state.fromWallet.broadcastTx(tx);
+    const result = await this.state.fromWallet.broadcastTx(tx);
     if (!result) {
       throw new Error(loc.errors.broadcast);
     }
