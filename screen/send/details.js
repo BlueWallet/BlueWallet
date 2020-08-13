@@ -342,10 +342,10 @@ export default class SendDetails extends Component {
     if (this.props.route.params.uri) {
       const uri = this.props.route.params.uri;
       try {
-        const { address, amount, memo } = this.decodeBitcoinUri(uri);
+        const { address, amount, memo, payjoinUrl } = this.decodeBitcoinUri(uri);
         addresses.push(new BitcoinTransaction(address, amount, currency.btcToSatoshi(amount)));
         initialMemo = memo;
-        this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC });
+        this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC, payjoinUrl });
       } catch (error) {
         console.log(error);
         alert(loc.send.details_error_decode);
@@ -382,8 +382,8 @@ export default class SendDetails extends Component {
 
         if (this.props.route.params.uri) {
           try {
-            const { address, amount, memo } = this.decodeBitcoinUri(this.props.route.params.uri);
-            this.setState({ address, amount, memo, isLoading: false });
+            const { address, amount, memo, payjoinUrl } = this.decodeBitcoinUri(this.props.route.params.uri);
+            this.setState({ address, amount, memo, isLoading: false, payjoinUrl });
           } catch (error) {
             console.log(error);
             this.setState({ isLoading: false });
@@ -426,7 +426,7 @@ export default class SendDetails extends Component {
         if ('label' in parsedBitcoinUri.options) {
           memo = parsedBitcoinUri.options.label || memo;
         }
-        if (Object.prototype.hasOwnProperty.call(parsedBitcoinUri, 'pj')) {
+        if (Object.prototype.hasOwnProperty.call(parsedBitcoinUri.options, 'pj')) {
           payjoinUrl = parsedBitcoinUri.options.pj;
         }
       }
@@ -945,7 +945,7 @@ export default class SendDetails extends Component {
             onChangeText={async text => {
               text = text.trim();
               const transactions = this.state.addresses;
-              const { address, amount, memo } = this.decodeBitcoinUri(text);
+              const { address, amount, memo, payjoinUrl } = this.decodeBitcoinUri(text);
               item.address = address || text;
               item.amount = amount || item.amount;
               transactions[index] = item;
@@ -953,6 +953,7 @@ export default class SendDetails extends Component {
                 addresses: transactions,
                 memo: memo || this.state.memo,
                 isLoading: false,
+                payjoinUrl,
               });
             }}
             onBarScanned={this.processAddressData}

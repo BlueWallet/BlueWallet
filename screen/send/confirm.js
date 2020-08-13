@@ -35,7 +35,7 @@ export default class Confirm extends Component {
     this.state = {
       isLoading: false,
       isPayjoinEnabled: false,
-      payjoinUrl: props.route.params?.payjoinUrl,
+      payjoinUrl: props.route.params.fromWallet.allowPayJoin() ? props.route.params?.payjoinUrl : false,
       psbt: props.route.params?.psbt,
       fee: props.route.params?.fee,
       feeSatoshi: new Bignumber(props.route.params.fee).multipliedBy(100000000).toNumber(),
