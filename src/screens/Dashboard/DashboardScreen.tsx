@@ -82,7 +82,7 @@ class DashboardScreen extends Component<Props, State> {
     const { lastSnappedTo } = this.state;
 
     const { wallets } = this.props;
-    return isAllWallets(wallets[lastSnappedTo]) ? wallets[1] : wallets[lastSnappedTo];
+    return isAllWallets(wallets[lastSnappedTo] || wallets[0]) ? wallets[1] : wallets[lastSnappedTo];
   };
 
   sendCoins = () => {
