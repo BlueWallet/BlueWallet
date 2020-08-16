@@ -146,7 +146,11 @@ const ScanQRCode = () => {
   };
 
   const dismiss = () => {
-    navigation.navigate(launchedBy);
+    if (launchedBy) {
+      navigation.navigate(launchedBy);
+    } else {
+      navigation.goBack();
+    }
   };
 
   return isLoading ? (
