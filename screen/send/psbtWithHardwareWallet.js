@@ -6,14 +6,14 @@ import {
   ScrollView,
   View,
   Dimensions,
-  Image,
   TextInput,
   Linking,
   Platform,
-  Text,
   PermissionsAndroid,
+  Text,
   StyleSheet,
 } from 'react-native';
+import ImagePicker from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
 import {
   BlueButton,
@@ -29,8 +29,8 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Share from 'react-native-share';
+import { getSystemName } from 'react-native-device-info';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { RNCamera } from 'react-native-camera';
 import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
 import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
@@ -43,8 +43,9 @@ const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const BlueApp = require('../../BlueApp');
 const bitcoin = require('bitcoinjs-lib');
 const notifications = require('../../blue_modules/notifications');
+const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const { height, width } = Dimensions.get('window');
-
+const isDesktop = getSystemName() === 'Mac OS X';
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -131,7 +132,6 @@ export default class PsbtWithHardwareWallet extends Component {
         const currentTotal = animatedQRCodeData[0].total;
         if (total !== currentTotal) {
           alert('invalid animated QRCode');
-          this.setState({ renderScanner: false });
         }
       }
       if (!animatedQRCodeData.find(i => i.index === index)) {
@@ -148,17 +148,10 @@ export default class PsbtWithHardwareWallet extends Component {
           }),
           () => {
             if (this.state.animatedQRCodeData.length === total) {
-              this.setState(
-                {
-                  renderScanner: false,
-                },
-                () => {
-                  const payload = decodeUR(this.state.animatedQRCodeData.map(i => i.data));
-                  const psbtB64 = Buffer.from(payload, 'hex').toString('base64');
-                  const psbt = Psbt.fromBase64(psbtB64);
-                  this.setState({ txhex: psbt.extractTransaction().toHex() });
-                },
-              );
+              const payload = decodeUR(this.state.animatedQRCodeData.map(i => i.data));
+              const psbtB64 = Buffer.from(payload, 'hex').toString('base64');
+              const psbt = Psbt.fromBase64(psbtB64);
+              this.setState({ txhex: psbt.extractTransaction().toHex() });
             }
           },
         );
@@ -176,31 +169,26 @@ export default class PsbtWithHardwareWallet extends Component {
   };
 
   onBarCodeRead = ret => {
-    if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
     if (ret.data.toUpperCase().startsWith('UR')) {
       return this._onReadUniformResource(ret.data);
     }
     if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
-      this.setState({ renderScanner: false, txhex: ret.data });
+      this.setState({ txhex: ret.data });
       return;
     }
-
-    this.setState({ renderScanner: false }, () => {
-      try {
-        const Tx = this._combinePSBT(ret.data);
-        this.setState({ txhex: Tx.toHex() });
-      } catch (Err) {
-        alert(Err);
-      }
-    });
+    try {
+      const Tx = this._combinePSBT(ret.data);
+      this.setState({ txhex: Tx.toHex() });
+    } catch (Err) {
+      alert(Err);
+    }
   };
 
   constructor(props) {
     super(props);
     this.state = {
       isLoading: false,
-      renderScanner: false,
       qrCodeHeight: height > width ? width - 40 : width / 3,
       memo: props.route.params.memo,
       psbt: props.route.params.psbt,
@@ -271,29 +259,6 @@ export default class PsbtWithHardwareWallet extends Component {
     });
   };
 
-  _renderScanner() {
-    return (
-      <SafeBlueArea style={styles.root}>
-        <RNCamera
-          captureAudio={false}
-          androidCameraPermissionOptions={{
-            title: loc.send.permission_camera_title,
-            message: loc.send.permission_camera_message,
-            buttonPositive: loc._.ok,
-            buttonNegative: loc._.cancel,
-          }}
-          ref={ref => (this.cameraRef = ref)}
-          style={styles.rootCamera}
-          onBarCodeRead={this.onBarCodeRead}
-          barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
-        />
-        <TouchableOpacity style={styles.closeCamera} onPress={() => this.setState({ renderScanner: false })}>
-          <Image style={styles.closeCameraImage} source={require('../../img/close-white.png')} />
-        </TouchableOpacity>
-      </SafeBlueArea>
-    );
-  }
-
   _renderSuccess() {
     return (
       <SafeBlueArea style={styles.root}>
@@ -347,9 +312,9 @@ export default class PsbtWithHardwareWallet extends Component {
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('Storage Permission: Granted');
-        const filePath = RNFS.ExternalCachesDirectoryPath + `/${this.fileName}`;
+        const filePath = RNFS.DownloadDirectoryPath + `/${this.fileName}`;
         await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64());
-        alert(loc.formatString(loc.send.txSaved, { filePath }));
+        alert(loc.formatString(loc.send.txSaved, { filePath: this.fileName }));
       } else {
         console.log('Storage Permission: Denied');
       }
@@ -375,6 +340,38 @@ export default class PsbtWithHardwareWallet extends Component {
     }
   };
 
+  openScanner = () => {
+    if (isDesktop) {
+      ImagePicker.launchCamera(
+        {
+          title: null,
+          mediaType: 'photo',
+          takePhotoButtonTitle: null,
+        },
+        response => {
+          if (response.uri) {
+            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+            LocalQRCode.decode(uri, (error, result) => {
+              if (!error) {
+                this.onBarScanned(result);
+              } else {
+                alert(loc.send.qr_error_no_qrcode);
+              }
+            });
+          }
+        },
+      );
+    } else {
+      this.props.navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          launchedBy: this.props.route.name,
+          onBarScanned: this.onBarScanned,
+        },
+      });
+    }
+  };
+
   render() {
     if (this.state.isLoading) {
       return (
@@ -385,7 +382,6 @@ export default class PsbtWithHardwareWallet extends Component {
     }
 
     if (this.state.success) return this._renderSuccess();
-    if (this.state.renderScanner) return this._renderScanner();
     if (this.state.txhex) return this._renderBroadcastHex();
 
     return (
@@ -403,7 +399,7 @@ export default class PsbtWithHardwareWallet extends Component {
                   type: 'font-awesome',
                   color: BlueCurrentTheme.colors.buttonTextColor,
                 }}
-                onPress={() => this.setState({ renderScanner: true, animatedQRCodeData: [] })}
+                onPress={this.openScanner}
                 title={loc.send.psbt_tx_scan}
               />
               <BlueSpacing20 />
@@ -449,6 +445,7 @@ PsbtWithHardwareWallet.propTypes = {
   }),
   route: PropTypes.shape({
     params: PropTypes.object,
+    name: PropTypes.string,
   }),
 };
 
