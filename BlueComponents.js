@@ -1358,7 +1358,10 @@ export class BlueTransactionOutgoingIcon extends Component {
   }
 }
 
-const sendReceiveScanButtonFontSize = PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22 ? 22 :  PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
+const sendReceiveScanButtonFontSize =
+  PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
+    ? 22
+    : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 export class BlueReceiveButtonIcon extends Component {
   render() {
     return (
@@ -2018,9 +2021,10 @@ export class WalletsCarousel extends Component {
           itemWidth={itemWidth}
           inactiveSlideScale={1}
           inactiveSlideOpacity={0.7}
+          activeSlideAlignment="start"
           initialNumToRender={4}
           onLayout={this.onLayout}
-          contentContainerCustomStyle={{ left: -20 }}
+          contentContainerCustomStyle={{ left: 20 }}
         />
       </>
     );
