@@ -2032,9 +2032,10 @@ export class WalletsCarousel extends Component {
           itemWidth={itemWidth}
           inactiveSlideScale={1}
           inactiveSlideOpacity={0.7}
+          activeSlideAlignment="start"
           initialNumToRender={4}
           onLayout={this.onLayout}
-          contentContainerCustomStyle={{ left: -20 }}
+          contentContainerCustomStyle={{ left: 20 }}
         />
       </>
     );
