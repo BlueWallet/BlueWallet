@@ -168,13 +168,13 @@ export default class PsbtWithHardwareWallet extends Component {
     );
   };
 
-  onBarCodeRead = ret => {
+  onBarScanned = ret => {
     if (ret.data.toUpperCase().startsWith('UR')) {
       return this._onReadUniformResource(ret.data);
     }
     if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
-      this.setState({ txhex: ret.data });
+      this.setState({ txhex: ret.data }, () => this.props.navigation.dangerouslyGetParent().pop());
       return;
     }
     try {
@@ -328,7 +328,7 @@ export default class PsbtWithHardwareWallet extends Component {
       });
       const file = await RNFS.readFile(res.uri);
       if (file) {
-        this.setState({ isSecondPSBTAlreadyBase64: true }, () => this.onBarCodeRead({ data: file }));
+        this.setState({ isSecondPSBTAlreadyBase64: true }, () => this.onBarScanned({ data: file }));
       } else {
         this.setState({ isSecondPSBTAlreadyBase64: false });
         throw new Error();
@@ -365,7 +365,6 @@ export default class PsbtWithHardwareWallet extends Component {
       this.props.navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
-          launchedBy: this.props.route.name,
           onBarScanned: this.onBarScanned,
         },
       });
