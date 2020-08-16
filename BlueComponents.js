@@ -574,7 +574,7 @@ export const BluePrivateBalance = () => {
 
 export const BlueCopyToClipboardButton = ({ stringToCopy, displayText = false }) => {
   return (
-    <TouchableOpacity {...this.props} onPress={() => Clipboard.setString(stringToCopy)}>
+    <TouchableOpacity onPress={() => Clipboard.setString(stringToCopy)}>
       <Text style={{ fontSize: 13, fontWeight: '400', color: '#68bbe1' }}>{displayText || loc.transactions.details_copy}</Text>
     </TouchableOpacity>
   );
@@ -2733,7 +2733,7 @@ export class DynamicQRCode extends Component {
     return currentFragment ? (
       <View style={animatedQRCodeStyle.container}>
         <BlueSpacing20 />
-        <View style={[animatedQRCodeStyle.qrcodeContainer, { height: this.state.qrCodeHeight }]}>
+        <View style={animatedQRCodeStyle.qrcodeContainer}>
           <QRCode
             value={currentFragment.toUpperCase()}
             size={this.state.qrCodeHeight}
@@ -2791,6 +2791,7 @@ const animatedQRCodeStyle = StyleSheet.create({
     borderWidth: 6,
     borderRadius: 8,
     borderColor: '#FFFFFF',
+    margin: 6,
   },
   controller: {
     width: '90%',
