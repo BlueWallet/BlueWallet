@@ -333,7 +333,6 @@ export default class HodlHodl extends Component {
   renderChooseSideModal = () => {
     return (
       <Modal
-        deviceHeight={Dimensions.get('window').height}
         isVisible={this.state.isChooseSideModalVisible}
         style={styles.bottomModal}
         deviceHeight={windowHeight}
@@ -374,7 +373,6 @@ export default class HodlHodl extends Component {
   renderFiltersModal = () => {
     return (
       <Modal
-        deviceHeight={Dimensions.get('window').height}
         isVisible={this.state.isFiltersModalVisible}
         style={styles.bottomModal}
         deviceHeight={windowHeight}
@@ -559,7 +557,6 @@ export default class HodlHodl extends Component {
 
     return (
       <Modal
-        deviceHeight={Dimensions.get('window').height}
         isVisible={this.state.isChooseCurrencyVisible}
         style={styles.bottomModal}
         deviceHeight={windowHeight}
@@ -637,7 +634,6 @@ export default class HodlHodl extends Component {
 
     return (
       <Modal
-        deviceHeight={Dimensions.get('window').height}
         isVisible={this.state.isChooseMethodVisible}
         style={styles.bottomModal}
         deviceHeight={windowHeight}
