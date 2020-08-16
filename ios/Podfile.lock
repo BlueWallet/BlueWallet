@@ -210,7 +210,7 @@ PODS:
     - React
   - react-native-camera/RN (3.31.0):
     - React
-  - react-native-document-picker (3.2.0):
+  - react-native-document-picker (3.5.4):
     - React
   - react-native-image-picker (2.3.2):
     - React
@@ -572,7 +572,7 @@ SPEC CHECKSUMS:
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: 679479bfe0f59103aca704e8dc39b0cedf5e2f65
-  react-native-document-picker: e3516aff0dcf65ee0785d9bcf190eb10e2261154
+  react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-image-picker: 21dfd898395b663680e987496f6c3431eea49fdb
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-safe-area-context: 0ed9288ed4409beabb0817b54efc047286fc84da
