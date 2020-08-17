@@ -83,6 +83,10 @@ class WatchDataSource: NSObject, WCSessionDelegate {
     WatchDataSource.shared.processWalletsData(walletsInfo: applicationContext)
   }
   
+  func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+    WatchDataSource.shared.processWalletsData(walletsInfo: applicationContext)
+  }
+  
   func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
     if activationState == .activated {
       if let existingData = keychain.getData(Wallet.identifier), let walletData = ((try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(existingData) as? [Wallet]) as [Wallet]??) {
