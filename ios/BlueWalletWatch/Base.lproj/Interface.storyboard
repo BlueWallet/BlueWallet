@@ -54,10 +54,10 @@
             </objects>
             <point key="canvasLocation" x="220" y="345"/>
         </scene>
-        <!--WalletDetailsInterfaceController-->
+        <!--Transactions-->
         <scene sceneID="KqX-Cy-IJm">
             <objects>
-                <controller identifier="WalletDetailsInterfaceController" id="XWa-4i-Abg" customClass="WalletDetailsInterfaceController" customModule="BlueWalletWatch_Extension">
+                <controller identifier="WalletDetailsInterfaceController" title="Transactions" id="XWa-4i-Abg" customClass="WalletDetailsInterfaceController" customModule="BlueWalletWatch_Extension">
                     <items>
                         <group width="1" height="66.5" alignment="left" backgroundImage="walletHD" radius="8" id="275-K7-Qhe" customClass="WalletInformation" customModule="BlueWalletWatch_Extension">
                             <items>
@@ -167,10 +167,10 @@
             </objects>
             <point key="canvasLocation" x="468" y="643"/>
         </scene>
-        <!--ReceiveInterfaceController-->
+        <!--Receive-->
         <scene sceneID="tQ7-Qr-5i4">
             <objects>
-                <controller identifier="ReceiveInterfaceController" fullBounds="YES" id="egq-Yw-qK5" customClass="ReceiveInterfaceController" customModule="BlueWalletWatch_Extension">
+                <controller identifier="ReceiveInterfaceController" title="Receive" fullBounds="YES" id="egq-Yw-qK5" customClass="ReceiveInterfaceController" customModule="BlueWalletWatch_Extension">
                     <items>
                         <imageView height="0.90000000000000002" alignment="left" id="Dnb-sM-wdN"/>
                         <group width="1" alignment="center" verticalAlignment="center" hidden="YES" layout="vertical" id="0If-FP-smM">
@@ -197,6 +197,21 @@
                 </controller>
             </objects>
             <point key="canvasLocation" x="716" y="345"/>
+        </scene>
+        <!--ViewQRCodefaceController-->
+        <scene sceneID="jZ8-sK-IyQ">
+            <objects>
+                <controller identifier="ViewQRCodefaceController" fullBounds="YES" id="ON9-Qg-65y" customClass="ViewQRCodefaceController" customModule="BlueWalletWatch_Extension">
+                    <items>
+                        <imageView height="0.90000000000000002" alignment="left" id="cp4-B3-gV6"/>
+                    </items>
+                    <edgeInsets key="margins" left="4" right="4" top="4" bottom="4"/>
+                    <connections>
+                        <outlet property="imageInterface" destination="cp4-B3-gV6" id="aOC-cT-eKL"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="715" y="66"/>
         </scene>
         <!--SpecifyInterfaceController-->
         <scene sceneID="erR-Ld-VGW">
