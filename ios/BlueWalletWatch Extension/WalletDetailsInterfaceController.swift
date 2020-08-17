@@ -8,7 +8,7 @@
 
 import WatchKit
 import Foundation
-
+import WatchConnectivity
 
 class WalletDetailsInterfaceController: WKInterfaceController {
   
@@ -43,6 +43,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     transactionsTable.setHidden(wallet?.transactions.isEmpty ?? true)
     noTransactionsLabel.setHidden(!(wallet?.transactions.isEmpty ?? false))
     receiveButton.setHidden(wallet?.receiveAddress.isEmpty ?? true)
+    createInvoiceButton.setEnabled(WCSession.default.isReachable)
   }
   
   @IBAction func receiveMenuItemTapped() {
@@ -66,7 +67,9 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   }
   
   @IBAction func createInvoiceTapped() {
-    pushController(withName: ReceiveInterfaceController.identifier, context: (wallet?.identifier, "createInvoice"))
+    if (WCSession.default.isReachable) {
+      pushController(withName: ReceiveInterfaceController.identifier, context: (wallet?.identifier, "createInvoice"))
+    }
   }
   
   override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {
