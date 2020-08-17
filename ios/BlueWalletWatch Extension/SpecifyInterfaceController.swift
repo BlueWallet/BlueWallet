@@ -7,6 +7,7 @@
 //
 
 import WatchKit
+import WatchConnectivity
 import Foundation
 
 class SpecifyInterfaceController: WKInterfaceController {
@@ -57,7 +58,12 @@ class SpecifyInterfaceController: WKInterfaceController {
         self?.specifiedQRContent.amount = amountDouble
         self?.amountButton.setTitle("\(title) \(keyPadType)")
         
-        let isShouldCreateButtonBeEnabled = amountDouble > 0 && !title.isEmpty
+        var isShouldCreateButtonBeEnabled = amountDouble > 0 && !title.isEmpty
+        
+        if (wallet.type == "lightningCustodianWallet" && !WCSession.default.isReachable) {
+          isShouldCreateButtonBeEnabled = false
+        }
+        
         self?.createButton.setEnabled(isShouldCreateButtonBeEnabled)
         self?.createButton.setAlpha(isShouldCreateButtonBeEnabled ? 1.0 : 0.5)
         }

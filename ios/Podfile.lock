@@ -5,8 +5,6 @@ PODS:
   - CocoaAsyncSocket (7.6.4)
   - CocoaLibEvent (1.0.0)
   - DoubleConversion (1.1.6)
-  - EFQRCode (5.1.0):
-    - swift_qrcodejs (~> 1.1.1)
   - FBLazyVector (0.62.2)
   - FBReactNativeSpec (0.62.2):
     - Folly (= 2018.10.22.00)
@@ -379,7 +377,6 @@ PODS:
   - Sentry (5.1.10):
     - Sentry/Core (= 5.1.10)
   - Sentry/Core (5.1.10)
-  - swift_qrcodejs (1.1.2)
   - ToolTipMenu (5.2.0):
     - React
   - Yoga (1.14.0)
@@ -389,7 +386,6 @@ PODS:
 DEPENDENCIES:
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
-  - EFQRCode (= 5.1.0)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/Libraries/FBReactNativeSpec`)
   - Flipper (~> 0.37.0)
@@ -479,7 +475,6 @@ SPEC REPOS:
     - boost-for-react-native
     - CocoaAsyncSocket
     - CocoaLibEvent
-    - EFQRCode
     - Flipper
     - Flipper-DoubleConversion
     - Flipper-Folly
@@ -489,7 +484,6 @@ SPEC REPOS:
     - FlipperKit
     - OpenSSL-Universal
     - Sentry
-    - swift_qrcodejs
     - YogaKit
 
 EXTERNAL SOURCES:
@@ -626,7 +620,6 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 694058e7c0ed05a9e217d1b3c7ded962f4180845
   CocoaLibEvent: 2fab71b8bd46dd33ddb959f7928ec5909f838e3f
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
-  EFQRCode: 07ee69f29196329e974b9bffa5381240cc09ea4c
   FBLazyVector: 4aab18c93cd9546e4bfed752b4084585eca8b245
   FBReactNativeSpec: 5465d51ccfeecb7faa12f9ae0024f2044ce4044e
   Flipper: 1670db365568191bd123a0c905b834e77ba9e3d3
@@ -695,11 +688,10 @@ SPEC CHECKSUMS:
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: 4de37878bbf071847e438b089c01d4ad8d4eddae
   Sentry: 8715e88b813bde9ad37aead365d5b04ac7302153
-  swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
   ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e
   Yoga: 3ebccbdd559724312790e7742142d062476b698e
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 18e8ad54db4d73fb4dd63a9b2354d9addd35333f
+PODFILE CHECKSUM: e9c5efd531ca5ac67a4b743a179eeefb322cf387
 
 COCOAPODS: 1.9.3
