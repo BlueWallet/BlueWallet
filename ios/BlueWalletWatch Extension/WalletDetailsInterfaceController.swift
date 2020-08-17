@@ -36,6 +36,23 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
     createInvoiceButton.setHidden(wallet.type != "lightningCustodianWallet")
     processWalletsTable()
+    addMenuItems()
+  }
+  
+  func addMenuItems() {
+    guard let wallet = wallet else {
+       return
+    }
+    if wallet.type != "lightningCustodianWallet" && !(wallet.xpub ?? "").isEmpty {
+      addMenuItem(with: .share, title: "View XPub", action: #selector(viewXPubMenuItemTapped))
+    }
+  }
+  
+  @objc func viewXPubMenuItemTapped() {
+    guard let xpub = wallet?.xpub else {
+      return
+    }
+    presentController(withName: ViewQRCodefaceController.identifier, context: xpub)
   }
   
   override func willActivate() {
