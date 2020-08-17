@@ -38,7 +38,7 @@ describe('Utils crypto', () => {
       const { privateKey } = keyPair;
 
       assert.strictEqual(
-        'fd7166e4be04e93bf1dae5a18eac77caf241e4db24aa82f3d544ae7b6161fd71',
+        'ed9cfd005178d6ef80f0474b63a036d618266bd1fb8a7a744d52427dff458885',
         privateKey.toString('hex'),
       );
     });
