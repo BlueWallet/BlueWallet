@@ -5,21 +5,22 @@ import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 
 import { icons } from 'app/assets';
 import { Header, InputItem, ScreenTemplate, Button } from 'app/components';
-import { CONST, UnlockTransactionParamList, Route } from 'app/consts';
+import { CONST, RootStackParams, Route } from 'app/consts';
 import { SecureStorageService } from 'app/services';
 import { palette, typography } from 'app/styles';
 
 const i18n = require('../../loc');
 
 type Props = {
-  navigation: StackNavigationProp<UnlockTransactionParamList, Route.UnlockTransaction>;
-  route: RouteProp<UnlockTransactionParamList, Route.UnlockTransaction>;
+  navigation: StackNavigationProp<RootStackParams, Route.UnlockTransaction>;
+  route: RouteProp<RootStackParams, Route.UnlockTransaction>;
 };
 
 interface State {
   password: string;
   error: string;
   isVisible: boolean;
+  isLoading: boolean;
 }
 
 export class UnlockTransaction extends PureComponent<Props, State> {
@@ -27,20 +28,29 @@ export class UnlockTransaction extends PureComponent<Props, State> {
     password: '',
     error: '',
     isVisible: false,
+    isLoading: false,
   };
 
   inputRef: any = React.createRef();
 
-  onConfirm = async () => {
+  onConfirm = () => {
     const { onSuccess } = this.props.route.params;
-    if (await SecureStorageService.checkSecuredPassword('transactionPassword', this.state.password)) {
-      onSuccess();
-    } else {
-      this.setState({
-        password: '',
-        error: i18n.onboarding.passwordDoesNotMatch,
-      });
-    }
+    this.setState(
+      {
+        isLoading: true,
+      },
+      async () => {
+        if (await SecureStorageService.checkSecuredPassword('transactionPassword', this.state.password)) {
+          onSuccess();
+        } else {
+          this.setState({
+            isLoading: false,
+            password: '',
+            error: i18n.onboarding.passwordDoesNotMatch,
+          });
+        }
+      },
+    );
   };
 
   changeVisability = () => {
@@ -52,15 +62,16 @@ export class UnlockTransaction extends PureComponent<Props, State> {
   updatePassword = (password: string) => this.setState({ password });
 
   render() {
-    const { error, password, isVisible } = this.state;
+    const { error, password, isVisible, isLoading } = this.state;
     return (
       <ScreenTemplate
         keyboardShouldPersistTaps="always"
         footer={
           <Button
             title={i18n._.confirm}
+            loading={isLoading}
             onPress={this.onConfirm}
-            disabled={password.length < CONST.transactionMinPasswordLength}
+            disabled={isLoading || password.length < CONST.transactionMinPasswordLength}
           />
         }
         header={<Header navigation={this.props.navigation} title={i18n.unlockTransaction.headerText} isBackArrow />}
