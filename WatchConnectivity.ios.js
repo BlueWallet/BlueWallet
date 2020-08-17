@@ -163,7 +163,7 @@ export default class WatchConnectivity {
             preferredBalanceUnit: wallet.getPreferredBalanceUnit(),
             receiveAddress: receiveAddress,
             transactions: watchTransactions,
-            xpub: wallet.getXpub(),
+            xpub: wallet.getXpub() ? wallet.getXpub() : wallet.getSecret(),
           });
         }
         Watch.updateApplicationContext({ wallets, randomID: Math.floor(Math.random() * 11) });
