@@ -27,6 +27,9 @@ module.exports = {
     authenticators: 'Authenticators',
   },
   message: {
+    wrongMnemonic: 'Wrong mnemonic',
+    wrongMnemonicDesc:
+      'Your mnemonic does not match any supported wallet. You are trying to import an invalid mnemonic or wallet that has never been used',
     somethingWentWrong: 'Something went wrong',
     somethingWentWrongWhileCreatingWallet:
       'Something went wrong while we were creating your wallet. Please return to Dashboard and try again.',
@@ -34,6 +37,11 @@ module.exports = {
     successfullWalletImport: 'Your wallet has been successfully imported. You can now return to Dashboard.',
     successfullWalletDelete: 'Your wallet has been successfully deleted. You can now return to Dashboard.',
     returnToDashboard: 'Return to Dashboard',
+    returnToWalletChoose: 'Return to the wallet type selection',
+    returnToWalletImport: 'Return to wallet import',
+    generateAddressesError: 'Couldn`t generate addresses',
+    noTransactions: 'No transactions found on the wallet',
+    noTransactionsDesc: 'You are probably trying to import a wallet that has never been used',
     returnToAuthenticators: 'Return to Authenticators',
     creatingWallet: 'Creating your wallet',
     creatingWalletDescription: 'Please be patient while we create your wallet. It may take a while.',

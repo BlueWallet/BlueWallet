@@ -246,7 +246,7 @@ export type PasswordNavigatorParams = {
 };
 
 export type MainCardStackNavigatorParams = {
-  [Route.Dashboard]: { activeWallet?: Wallet };
+  [Route.Dashboard]: { activeWallet?: Wallet } | undefined;
   [Route.MainCardStackNavigator]: undefined;
   [Route.CreateWallet]: undefined;
   [Route.ImportWallet]: { walletType: string };

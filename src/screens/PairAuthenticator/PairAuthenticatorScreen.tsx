@@ -19,7 +19,7 @@ interface MapStateProps {
 }
 
 interface Props extends MapStateProps {
-  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.EnterPIN>;
+  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.PairAuthenticator>;
   route: RouteProp<MainCardStackNavigatorParams, Route.PairAuthenticator>;
 }
 

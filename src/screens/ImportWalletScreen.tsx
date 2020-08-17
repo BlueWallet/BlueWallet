@@ -1,12 +1,12 @@
-import { CompositeNavigationProp, RouteProp } from '@react-navigation/native';
+import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { PureComponent } from 'react';
-import { View, StyleSheet, Text, Keyboard } from 'react-native';
+import { View, StyleSheet, Text, Keyboard, Alert } from 'react-native';
 import { connect } from 'react-redux';
 
 import { Header, TextAreaItem, FlatButton, ScreenTemplate, InputItem } from 'app/components';
 import { Button } from 'app/components/Button';
-import { Route, Wallet, MainCardStackNavigatorParams, MainTabNavigatorParams } from 'app/consts';
+import { Route, Wallet, MainCardStackNavigatorParams } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { isWalletLableInUse } from 'app/helpers/helpers';
 import { loadWallets, WalletsActionType } from 'app/state/wallets/actions';
@@ -27,10 +27,7 @@ import {
 const i18n = require('../../loc');
 
 interface Props {
-  navigation: CompositeNavigationProp<
-    StackNavigationProp<MainTabNavigatorParams, Route.Dashboard>,
-    StackNavigationProp<MainCardStackNavigatorParams, Route.ImportWallet>
-  >;
+  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.ImportWallet>;
   route: RouteProp<MainCardStackNavigatorParams, Route.ImportWallet>;
   loadWallets: () => Promise<WalletsActionType>;
 }
@@ -48,14 +45,24 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
     validationError: '',
   };
 
-  showErrorMessageScreen = () =>
+  showErrorMessageScreen = ({
+    title = i18n.message.somethingWentWrong,
+    description = i18n.message.somethingWentWrongWhileCreatingWallet,
+    onPress = () => this.props.navigation.navigate(Route.ImportWalletChooseType),
+    buttonTitle = i18n.message.returnToWalletChoose,
+  }: {
+    title?: string;
+    description?: string;
+    onPress?: () => void;
+    buttonTitle?: string;
+  }) =>
     CreateMessage({
-      title: i18n.message.somethingWentWrong,
-      description: i18n.message.somethingWentWrongWhileCreatingWallet,
+      title,
+      description,
       type: MessageType.error,
       buttonProps: {
-        title: i18n.message.returnToDashboard,
-        onPress: () => this.props.navigation.navigate(Route.ImportWalletChooseType),
+        title: buttonTitle,
+        onPress,
       },
     });
 
@@ -70,14 +77,9 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
       },
     });
 
-  onImportButtonPress = async () => {
+  onImportButtonPress = () => {
     Keyboard.dismiss();
-    CreateMessage({
-      title: i18n.message.creatingWallet,
-      description: i18n.message.creatingWalletDescription,
-      type: MessageType.processingState,
-      asyncTask: () => this.importMnemonic(this.state.text),
-    });
+    this.importMnemonic(this.state.text);
   };
 
   onChangeText = (mnemonic: string) => {
@@ -94,20 +96,18 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
 
   onScanQrCodeButtonPress = () => {
     return this.props.navigation.navigate(Route.ScanQrCode, {
-      onBarCodeScan: (mnemonic: string) => {
-        CreateMessage({
-          title: i18n.message.creatingWallet,
-          description: i18n.message.creatingWalletDescription,
-          type: MessageType.processingState,
-          asyncTask: () => this.importMnemonic(mnemonic),
-        });
-      },
+      onBarCodeScan: (mnemonic: string) => this.importMnemonic(mnemonic),
     });
   };
 
   saveWallet = async (newWallet: any) => {
     if (BlueApp.getWallets().some((wallet: Wallet) => wallet.getSecret() === newWallet.secret)) {
-      this.setState({ validationError: i18n.wallets.importWallet.walletInUseValidationError });
+      this.showErrorMessageScreen({
+        title: i18n.wallets.importWallet.walletInUseValidationError,
+        description: i18n.wallets.importWallet.walletInUseValidationError,
+        onPress: () => this.navigateToImportWallet(),
+        buttonTitle: i18n.message.returnToWalletImport,
+      });
     } else {
       newWallet.setLabel(this.state.label || i18n.wallets.import.imported + ' ' + newWallet.typeReadable);
       BlueApp.wallets.push(newWallet);
@@ -117,27 +117,51 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
     }
   };
 
+  showAlert = (error: string) => {
+    Alert.alert('Error', error, [
+      {
+        text: 'OK',
+      },
+    ]);
+  };
+
+  createWalletMessage = (asyncTask: () => void) => {
+    CreateMessage({
+      title: i18n.message.creatingWallet,
+      description: i18n.message.creatingWalletDescription,
+      type: MessageType.processingState,
+      asyncTask,
+    });
+  };
+
   createARWallet = (mnemonic: string) => {
     try {
       const wallet = new HDSegwitP2SHArWallet();
       wallet.setMnemonic(mnemonic);
       this.props.navigation.navigate(Route.IntegrateKey, {
         onBarCodeScan: (key: string) => {
-          CreateMessage({
-            title: i18n.message.creatingWallet,
-            description: i18n.message.creatingWalletDescription,
-            type: MessageType.processingState,
-            asyncTask: () => this.saveARWallet(wallet, key),
-          });
+          try {
+            wallet.addPublicKey(key);
+            this.createWalletMessage(() => {
+              this.saveVaultWallet(wallet);
+            });
+          } catch (e) {
+            this.showAlert(e.message);
+          }
         },
         headerTitle: i18n.wallets.importWallet.header,
         title: i18n.wallets.importWallet.scanWalletAddress,
         description: i18n.wallets.importWallet.scanWalletAddressDescription,
         withLink: false,
       });
-    } catch (_) {
-      this.showErrorMessageScreen();
+    } catch (e) {
+      this.showAlert(e.message);
     }
+  };
+
+  navigateToImportWallet = () => {
+    const { navigation, route } = this.props;
+    navigation.navigate(Route.ImportWallet, { walletType: route.params.walletType });
   };
 
   addInstantPublicKey = (wallet: HDSegwitP2SHAirWallet) => {
@@ -146,14 +170,17 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
         try {
           wallet.addPublicKey(instantPublicKey);
           this.addRecoveryKey(wallet);
-        } catch (_) {
-          this.showErrorMessageScreen();
+        } catch (e) {
+          this.showAlert(e.message);
         }
       },
       headerTitle: i18n.wallets.importWallet.header,
       title: i18n.wallets.importWallet.scanWalletAddress,
       description: i18n.wallets.importWallet.scanWalletAddressDescription,
       withLink: false,
+      onBackArrow: () => {
+        this.navigateToImportWallet();
+      },
     });
   };
 
@@ -162,75 +189,54 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
       const wallet = new HDSegwitP2SHAirWallet();
       wallet.setMnemonic(mnemonic);
       this.addInstantPublicKey(wallet);
-    } catch (_) {
-      this.showErrorMessageScreen();
+    } catch (e) {
+      this.showAlert(e.message);
     }
   };
 
-  saveARWallet = async (wallet: HDSegwitP2SHArWallet, pubKeyHex: string) => {
+  saveVaultWallet = async (wallet: HDSegwitP2SHArWallet | HDSegwitP2SHAirWallet) => {
     try {
-      wallet.addPublicKey(pubKeyHex);
       await wallet.generateAddresses();
       await wallet.fetchBalance();
       await wallet.fetchTransactions();
       if (wallet.getBalance() > 0 || wallet.getTransactions().length !== 0) {
         this.saveWallet(wallet);
       } else {
-        this.showErrorMessageScreen();
+        this.showErrorMessageScreen({
+          title: i18n.message.noTransactions,
+          description: i18n.message.noTransactionsDesc,
+        });
       }
     } catch (error) {
-      this.showErrorMessageScreen();
+      this.showErrorMessageScreen({
+        title: i18n.message.generateAddressesError,
+        description: error.message,
+      });
     }
   };
 
-  saveAIRWallet = async (wallet: HDSegwitP2SHAirWallet, recoveryPublicKey: string) => {
-    try {
-      wallet.addPublicKey(recoveryPublicKey);
-      await wallet.generateAddresses();
-      await wallet.fetchBalance();
-      await wallet.fetchTransactions();
-      if (wallet.getBalance() > 0 || wallet.getTransactions().length !== 0) {
-        this.saveWallet(wallet);
-      } else {
-        this.showErrorMessageScreen();
-      }
-    } catch (error) {
-      this.showErrorMessageScreen();
-    }
-  };
-
-  renderSubtitle = () => {
-    const { walletType } = this.props?.route.params;
-    if (walletType === HDSegwitP2SHArWallet.type || walletType === HDSegwitP2SHAirWallet.type) {
-      return (
-        <>
-          <View style={styles.arSubtitleContainer}>
-            <Text style={styles.subtitle}>{i18n.wallets.importWallet.importARDescription1}</Text>
-            <Text style={styles.subtitle}>{i18n._.or}</Text>
-            <Text style={styles.subtitle}>{i18n.wallets.importWallet.importARDescription2}</Text>
-          </View>
-          <InputItem
-            error={this.state.validationError}
-            setValue={this.onLabelChange}
-            label={i18n.wallets.add.inputLabel}
-          />
-        </>
-      );
-    }
-    return <Text style={styles.subtitle}>{i18n.wallets.importWallet.subtitle}</Text>;
-  };
+  renderSubtitle = () => (
+    <>
+      <View style={styles.arSubtitleContainer}>
+        <Text style={styles.subtitle}>{i18n.wallets.importWallet.importARDescription1}</Text>
+        <Text style={styles.subtitle}>{i18n._.or}</Text>
+        <Text style={styles.subtitle}>{i18n.wallets.importWallet.importARDescription2}</Text>
+      </View>
+      <InputItem error={this.state.validationError} setValue={this.onLabelChange} label={i18n.wallets.add.inputLabel} />
+    </>
+  );
 
   addRecoveryKey = (wallet: HDSegwitP2SHAirWallet) => {
     this.props.navigation.navigate(Route.IntegrateKey, {
       onBarCodeScan: (recoveryPublicKey: string) => {
-        CreateMessage({
-          title: i18n.message.creatingWallet,
-          description: i18n.message.creatingWalletDescription,
-          type: MessageType.processingState,
-          asyncTask: () => {
-            this.saveAIRWallet(wallet, recoveryPublicKey);
-          },
-        });
+        try {
+          wallet.addPublicKey(recoveryPublicKey);
+          this.createWalletMessage(() => {
+            this.saveVaultWallet(wallet);
+          });
+        } catch (error) {
+          this.showAlert(error.message);
+        }
       },
       withLink: false,
       headerTitle: i18n.wallets.importWallet.header,
@@ -243,16 +249,7 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
     });
   };
 
-  importMnemonic = async (mnemonic: string) => {
-    const trimmedMemonic = mnemonic.trim();
-
-    if (this.props?.route.params.walletType === HDSegwitP2SHArWallet.type) {
-      return this.createARWallet(trimmedMemonic);
-    }
-    if (this.props?.route.params.walletType === HDSegwitP2SHAirWallet.type) {
-      return this.createAIRWallet(trimmedMemonic);
-    }
-
+  importLegacyWallet = async (trimmedMemonic: string) => {
     try {
       // trying other wallet types
       const segwitWallet = new SegwitP2SHWallet();
@@ -352,10 +349,10 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
       // nope?
 
       // TODO: try a raw private key
-    } catch (Err) {
-      this.showErrorMessageScreen();
+    } catch (e) {
+      this.showErrorMessageScreen({ description: e.message });
     }
-    this.showErrorMessageScreen();
+    this.showErrorMessageScreen({ title: i18n.message.wrongMnemonic, description: i18n.message.wrongMnemonicDesc });
     // ReactNativeHapticFeedback.trigger('notificationError', {
     //   ignoreAndroidSystemSettings: false,
     // });
@@ -369,6 +366,20 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
     // 6. check if its address (watch-only wallet)
     // 7. check if its private key (segwit address P2SH) TODO
     // 7. check if its private key (legacy address) TODO
+  };
+
+  importMnemonic = (mnemonic: string) => {
+    const trimmedMemonic = mnemonic.trim();
+
+    if (this.props?.route.params.walletType === HDSegwitP2SHArWallet.type) {
+      return this.createARWallet(trimmedMemonic);
+    }
+    if (this.props?.route.params.walletType === HDSegwitP2SHAirWallet.type) {
+      return this.createAIRWallet(trimmedMemonic);
+    }
+    this.createWalletMessage(() => {
+      this.importLegacyWallet(trimmedMemonic);
+    });
   };
   render() {
     const { validationError, text } = this.state;

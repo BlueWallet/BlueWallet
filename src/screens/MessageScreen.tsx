@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: ifIphoneX(54, 20),
   },
-  title: { ...typography.headline4, marginTop: '30%' },
+  title: { ...typography.headline4, marginTop: '30%', textAlign: 'center' },
   image: {
     height: 172,
     width: '100%',
