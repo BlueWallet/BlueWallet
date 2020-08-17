@@ -22,7 +22,7 @@ const ENCODING = 'hex';
 export const generatePrivateKey = ({
   password,
   salt,
-  iterations = 100000,
+  iterations = 512,
   keylen = 32,
   digest = 'sha256',
 }: GeneratePrivateKey): Promise<Buffer> =>
