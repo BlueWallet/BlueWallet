@@ -336,7 +336,7 @@ PODS:
     - React
   - rn-fetch-blob (0.12.0):
     - React-Core
-  - RNCAsyncStorage (1.9.0):
+  - RNCAsyncStorage (1.12.0):
     - React
   - RNCClipboard (1.2.2):
     - React
@@ -690,7 +690,7 @@ SPEC CHECKSUMS:
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
-  RNCAsyncStorage: 453cd7c335ec9ba3b877e27d02238956b76f3268
+  RNCAsyncStorage: 2a692bcb9b69b76a2f1a95f33db057129700af64
   RNCClipboard: 8148e21ac347c51fd6cd4b683389094c216bb543
   RNCMaskedView: 5a8ec07677aa885546a0d98da336457e2bea557f
   RNDefaultPreference: 628cb35719f2fe4111c000ccfa7e186400bbc47e
