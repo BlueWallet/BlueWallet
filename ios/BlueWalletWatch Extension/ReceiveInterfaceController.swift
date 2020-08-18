@@ -49,9 +49,9 @@ class ReceiveInterfaceController: WKInterfaceController {
               self?.imageInterface.setImage(image)
               WCSession.default.sendMessage(["message": "fetchTransactions"], replyHandler: nil, errorHandler: nil)
             } else {
-              self?.pop()
               self?.presentAlert(withTitle: "Error", message: "Unable to create invoice. Please, make sure your iPhone is paired and nearby.", preferredStyle: .alert, actions: [WKAlertAction(title: "OK", style: .default, handler: { [weak self] in
                 self?.dismiss()
+                self?.pop()
                 })])
             }
           }
