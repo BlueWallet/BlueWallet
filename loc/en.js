@@ -171,6 +171,8 @@ module.exports = {
       scanWalletAddressDescription: 'Scan the Public Address QR code to start the integration with GoldWallet.',
       scanPublicKey: 'Scan Public Key',
       scanPublicKeyDescription: "Please scan your wallet's Public Addres QR code to integrate with the GoldWallet.",
+      unsupportedElectrumVaultMnemonic:
+        'This seed is from Electrum Vault and is currently not supported. Will be supported in the near future.',
     },
     exportWallet: {
       title: 'Mnemonic phrase',

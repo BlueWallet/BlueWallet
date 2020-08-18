@@ -20,6 +20,15 @@ export const CONST = {
   confirmationsBlocks: 6,
 };
 
+export const ELECTRUM_VAULT_SEED_PREFIXES = {
+  SEED_PREFIX: '01', // Standard wallet
+  SEED_PREFIX_SW: '100', // Segwit wallet
+  SEED_PREFIX_2FA: '101', // Two - factor authentication
+  SEED_PREFIX_2FA_SW: '102', // Two-factor auth, using segwit
+};
+
+export const ELECTRUM_VAULT_SEED_KEY = 'Seed version';
+
 export enum FlowType {
   password = 'password',
   newPin = 'newPin',

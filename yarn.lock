@@ -1497,6 +1497,11 @@
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
   integrity sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==
 
+"@types/crypto-js@^3.1.47":
+  version "3.1.47"
+  resolved "https://npm.registry.megatherium.solutions/@types%2fcrypto-js/-/crypto-js-3.1.47.tgz#36e549dd3f1322742a3a738e7c113ebe48221860"
+  integrity sha512-eI6gvpcGHLk3dAuHYnRCAjX+41gMv1nz/VP55wAe5HtmAKDOoPSfr3f6vkMc08ov1S0NsjvUBxDtHHxqQY1LGA==
+
 "@types/ecurve@^1.0.0":
   version "1.0.0"
   resolved "https://npm.registry.megatherium.solutions/@types%2fecurve/-/ecurve-1.0.0.tgz#0d1fce022d8bab2bc4bab28c5d781b64210018c4"

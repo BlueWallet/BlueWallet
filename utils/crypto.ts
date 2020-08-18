@@ -1,10 +1,13 @@
 import bigi from 'bigi';
 import * as bip39 from 'bip39';
 import { crypto, ECPair } from 'bitcoinjs-lib';
+import CryptoJS from 'crypto-js';
+import hmacSHA512 from 'crypto-js/hmac-sha512';
 import * as ecurve from 'ecurve';
 import { pbkdf2 } from 'pbkdf2';
 
 import config from '../config';
+import { ELECTRUM_VAULT_SEED_PREFIXES, ELECTRUM_VAULT_SEED_KEY } from '../src/consts';
 import { bytesToBits, bitsToBytes } from './buffer';
 
 const i18n = require('../loc');
@@ -121,4 +124,10 @@ export const mnemonicToKeyPair = async (mnemonic: string) => {
   return ECPair.fromPrivateKey(privateKey, {
     network: config.network,
   });
+};
+
+export const isElectrumVaultMnemonic = (mnemonic: string) => {
+  const hmac = hmacSHA512(mnemonic, ELECTRUM_VAULT_SEED_KEY);
+  const hex = hmac.toString(CryptoJS.enc.Hex);
+  return Object.values(ELECTRUM_VAULT_SEED_PREFIXES).some(prefix => hex.startsWith(prefix));
 };

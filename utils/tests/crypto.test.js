@@ -3,7 +3,7 @@ const assert = require('assert');
 
 // i18n is not loaded properly in crypto.ts if this is imported later
 // eslint-disable-next-line import/order
-const { mnemonicToKeyPair } = require('../crypto');
+const { mnemonicToKeyPair, isElectrumVaultMnemonic } = require('../crypto');
 
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 
@@ -71,6 +71,36 @@ describe('Utils crypto', () => {
           }),
         );
       }
+    });
+  });
+
+  describe('isElectrumVaultMnemonic', () => {
+    it('should return true for standard electrum vault mnemonic', () => {
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+      const mnemonic = 'cram swing cover prefer miss modify ritual silly deliver chunk behind inform able';
+
+      const res = isElectrumVaultMnemonic(mnemonic);
+
+      expect(res).toBe(true);
+    });
+
+    it('should return true for segwit electrum vault mnemonic', () => {
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+      const mnemonic = 'grant oval resource roast virtual wine chef inmate attack flip fresh reduce';
+
+      const res = isElectrumVaultMnemonic(mnemonic);
+
+      expect(res).toBe(true);
+    });
+
+    it('should return false for none electrum vault mnemonic', () => {
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+      const mnemonic =
+        'always motion fault engage bag amused monitor olympic salon obey fold practice leave doctor sunny glide resource worry urban burst park culture prize master';
+
+      const res = isElectrumVaultMnemonic(mnemonic);
+
+      expect(res).toBe(false);
     });
   });
 });

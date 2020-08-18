@@ -90,6 +90,7 @@
     "@react-navigation/stack": "^5.6.1",
     "@remobile/react-native-qrcode-local-image": "git+https://github.com/BlueWallet/react-native-qrcode-local-image.git",
     "@sentry/react-native": "^1.7.1",
+    "@types/crypto-js": "^3.1.47",
     "@types/react-native-calendars": "^1.20.7",
     "amplitude-js": "5.7.0",
     "bech32": "1.1.3",
