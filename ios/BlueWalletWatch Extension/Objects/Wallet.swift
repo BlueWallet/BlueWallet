@@ -8,6 +8,10 @@
 
 import Foundation
 
+enum InterfaceMode {
+  case Address, QRCode
+}
+
 class Wallet: NSObject, NSCoding {
   static let identifier: String = "Wallet"
 
