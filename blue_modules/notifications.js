@@ -140,8 +140,8 @@ const tryToObtainPermissions = async function () {
 
   return new Promise(function (resolve) {
     Alert.alert(
+      loc.settings.notifications,
       'Would you like to receive notifications when you get incoming payments?',
-      '',
       [
         {
           text: 'Ask Me Later',
