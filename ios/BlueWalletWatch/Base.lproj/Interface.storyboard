@@ -203,7 +203,7 @@
         <!--ViewQRCodefaceController-->
         <scene sceneID="jZ8-sK-IyQ">
             <objects>
-                <controller identifier="ViewQRCodefaceController" fullBounds="YES" id="ON9-Qg-65y" customClass="ViewQRCodefaceController" customModule="BlueWalletWatch_Extension">
+                <controller identifier="ViewQRCodefaceController" fullBounds="YES" fullScreen="YES" id="ON9-Qg-65y" customClass="ViewQRCodefaceController" customModule="BlueWalletWatch_Extension">
                     <items>
                         <imageView height="0.90000000000000002" alignment="left" image="textfor" id="cp4-B3-gV6"/>
                         <label width="1" height="1" alignment="center" verticalAlignment="center" hidden="YES" text="Label" numberOfLines="0" minimumScaleFactor="0.5" id="JMO-XZ-1si"/>
