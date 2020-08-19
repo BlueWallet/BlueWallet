@@ -173,7 +173,7 @@
                 <controller identifier="ReceiveInterfaceController" title="Receive" fullBounds="YES" id="egq-Yw-qK5" customClass="ReceiveInterfaceController" customModule="BlueWalletWatch_Extension">
                     <items>
                         <imageView height="0.90000000000000002" alignment="left" id="Dnb-sM-wdN"/>
-                        <label alignment="center" verticalAlignment="center" hidden="YES" text="Label" numberOfLines="0" id="c3W-8T-srG"/>
+                        <label width="1" height="1" alignment="center" verticalAlignment="center" hidden="YES" text="Label" numberOfLines="0" minimumScaleFactor="0.5" id="c3W-8T-srG"/>
                         <group width="1" alignment="center" verticalAlignment="center" hidden="YES" layout="vertical" id="0If-FP-smM">
                             <items>
                                 <imageView width="60" height="60" alignment="center" image="loadingIndicator" contentMode="scaleAspectFit" id="nQb-s6-ySB"/>
@@ -206,7 +206,7 @@
                 <controller identifier="ViewQRCodefaceController" fullBounds="YES" id="ON9-Qg-65y" customClass="ViewQRCodefaceController" customModule="BlueWalletWatch_Extension">
                     <items>
                         <imageView height="0.90000000000000002" alignment="left" image="textfor" id="cp4-B3-gV6"/>
-                        <label alignment="center" verticalAlignment="center" hidden="YES" text="Label" numberOfLines="0" minimumScaleFactor="0.90000000000000002" id="JMO-XZ-1si"/>
+                        <label width="1" height="1" alignment="center" verticalAlignment="center" hidden="YES" text="Label" numberOfLines="0" minimumScaleFactor="0.5" id="JMO-XZ-1si"/>
                         <table alignment="left" id="2TT-ef-7YA"/>
                     </items>
                     <edgeInsets key="margins" left="4" right="4" top="4" bottom="4"/>
