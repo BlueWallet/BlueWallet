@@ -14,7 +14,6 @@ import { palette, typography } from 'app/styles';
 import { satoshiToBtc, btcToSatoshi, roundBtcToSatoshis } from '../../utils/bitcoin';
 
 const BlueElectrum = require('../../BlueElectrum');
-const currency = require('../../currency');
 const EV = require('../../events');
 const i18n = require('../../loc');
 
@@ -192,7 +191,7 @@ export class SendCoinsConfirmScreen extends Component<Props> {
           <View>
             <View style={styles.chooseWalletButton}>
               <Text style={typography.headline4}>
-                {item.amount || currency.satoshiToBTC(item.value)} {fromWallet.preferredBalanceUnit}
+                {item.amount || satoshiToBtc(item.value).toString()} {fromWallet.preferredBalanceUnit}
               </Text>
             </View>
             <View style={styles.descriptionContainer}>

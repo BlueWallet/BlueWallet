@@ -8,8 +8,8 @@ import { RootStackParams, Route } from 'app/consts';
 import { typography, palette } from 'app/styles';
 
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { satoshiToBtc } from '../../utils/bitcoin';
 
-const currency = require('../../currency');
 const i18n = require('../../loc');
 
 interface Props {
@@ -27,14 +27,10 @@ export class SendTransactionDetailsScreen extends PureComponent<Props> {
       fee,
       tx,
       satoshiPerByte,
-      wallet,
       recipients: [recipient],
     } = params;
     const txSize = Math.round(tx.length / 2);
-    const amount =
-      recipient.amount === BitcoinUnit.MAX
-        ? currency.satoshiToBTC(wallet.getBalance()) - fee
-        : recipient.amount || currency.satoshiToBTC(recipient.value);
+    const amount = recipient.amount || satoshiToBtc(recipient.value).toString();
 
     return (
       <ScreenTemplate

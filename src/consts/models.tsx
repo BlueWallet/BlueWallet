@@ -98,7 +98,7 @@ export interface Wallet {
   chain: string;
   num_addresses: number;
   transactions: Transaction[];
-  getBalance: () => void;
+  getBalance: () => number;
   getLatestTransactionTime: () => void;
   getLabel: () => string;
   setLabel: (label: string) => void;

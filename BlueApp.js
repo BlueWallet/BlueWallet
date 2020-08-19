@@ -4,7 +4,6 @@
 import { AppStorage } from './class';
 import DeviceQuickActions from './class/quickActions';
 
-const currency = require('./currency');
 const EV = require('./events');
 const loc = require('./loc');
 const prompt = require('./prompt');
@@ -67,7 +66,6 @@ async function startAndDecrypt(retry) {
 }
 
 BlueApp.startAndDecrypt = startAndDecrypt;
-currency.startUpdater();
 
 module.exports = BlueApp;
 export default BlueApp;
