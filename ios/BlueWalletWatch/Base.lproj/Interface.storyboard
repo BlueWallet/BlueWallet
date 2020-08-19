@@ -173,6 +173,7 @@
                 <controller identifier="ReceiveInterfaceController" title="Receive" fullBounds="YES" id="egq-Yw-qK5" customClass="ReceiveInterfaceController" customModule="BlueWalletWatch_Extension">
                     <items>
                         <imageView height="0.90000000000000002" alignment="left" id="Dnb-sM-wdN"/>
+                        <label alignment="center" verticalAlignment="center" hidden="YES" text="Label" numberOfLines="0" id="c3W-8T-srG"/>
                         <group width="1" alignment="center" verticalAlignment="center" hidden="YES" layout="vertical" id="0If-FP-smM">
                             <items>
                                 <imageView width="60" height="60" alignment="center" image="loadingIndicator" contentMode="scaleAspectFit" id="nQb-s6-ySB"/>
@@ -191,6 +192,7 @@
                     </menu>
                     <edgeInsets key="margins" left="4" right="4" top="4" bottom="4"/>
                     <connections>
+                        <outlet property="addressLabel" destination="c3W-8T-srG" id="fOe-1I-II2"/>
                         <outlet property="imageInterface" destination="Dnb-sM-wdN" id="z1e-zC-anB"/>
                         <outlet property="loadingIndicator" destination="0If-FP-smM" id="Wtf-mm-8Ke"/>
                     </connections>
@@ -203,10 +205,13 @@
             <objects>
                 <controller identifier="ViewQRCodefaceController" fullBounds="YES" id="ON9-Qg-65y" customClass="ViewQRCodefaceController" customModule="BlueWalletWatch_Extension">
                     <items>
-                        <imageView height="0.90000000000000002" alignment="left" id="cp4-B3-gV6"/>
+                        <imageView height="0.90000000000000002" alignment="left" image="textfor" id="cp4-B3-gV6"/>
+                        <label alignment="center" verticalAlignment="center" hidden="YES" text="Label" numberOfLines="0" minimumScaleFactor="0.90000000000000002" id="JMO-XZ-1si"/>
+                        <table alignment="left" id="2TT-ef-7YA"/>
                     </items>
                     <edgeInsets key="margins" left="4" right="4" top="4" bottom="4"/>
                     <connections>
+                        <outlet property="addressLabel" destination="JMO-XZ-1si" id="yEj-Ha-tXA"/>
                         <outlet property="imageInterface" destination="cp4-B3-gV6" id="aOC-cT-eKL"/>
                     </connections>
                 </controller>
@@ -362,6 +367,7 @@
     <resources>
         <image name="loadingIndicator" width="108" height="108"/>
         <image name="pendingConfirmation" width="12" height="12"/>
+        <image name="textfor" width="128" height="128"/>
         <image name="walletHD" width="249" height="100.5"/>
     </resources>
 </document>

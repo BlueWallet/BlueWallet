@@ -14,11 +14,14 @@ import EFQRCode
 class ReceiveInterfaceController: WKInterfaceController {
   
   static let identifier = "ReceiveInterfaceController"
-  @IBOutlet weak var imageInterface: WKInterfaceImage!
   private var wallet: Wallet?
   private var isRenderingQRCode: Bool?
   private var receiveMethod: String = "receive"
+  private var interfaceMode: InterfaceMode = .Address
+  @IBOutlet weak var addressLabel: WKInterfaceLabel!
   @IBOutlet weak var loadingIndicator: WKInterfaceGroup!
+  @IBOutlet weak var imageInterface: WKInterfaceImage!
+  
   
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
@@ -47,6 +50,9 @@ class ReceiveInterfaceController: WKInterfaceController {
               self?.imageInterface.setHidden(false)
               self?.imageInterface.setImage(nil)
               self?.imageInterface.setImage(image)
+              self?.addressLabel.setText(invoice)
+              self?.interfaceMode = .QRCode
+              self?.toggleViewButtonPressed()
               WCSession.default.sendMessage(["message": "fetchTransactions"], replyHandler: nil, errorHandler: nil)
             } else {
               self?.presentAlert(withTitle: "Error", message: "Unable to create invoice. Please, make sure your iPhone is paired and nearby.", preferredStyle: .alert, actions: [WKAlertAction(title: "OK", style: .default, handler: { [weak self] in
@@ -81,6 +87,9 @@ class ReceiveInterfaceController: WKInterfaceController {
           self?.imageInterface.setImage(nil)
           self?.imageInterface.setImage(image)
           self?.imageInterface.setHidden(false)
+          self?.addressLabel.setText(receiveAddress)
+          self?.interfaceMode = .QRCode
+            self?.toggleViewButtonPressed()
           self?.loadingIndicator.setHidden(true)
           self?.isRenderingQRCode = false
         }
@@ -94,6 +103,17 @@ class ReceiveInterfaceController: WKInterfaceController {
     
     let image = UIImage(cgImage: cgImage)
     imageInterface.setImage(image)
+    
+    if #available(watchOSApplicationExtension 6.0, *) {
+         if let image = UIImage(systemName: "textformat.subscript") {
+           addMenuItem(with: image, title: "Address", action:#selector(toggleViewButtonPressed))
+         } else {
+           addMenuItem(with: .shuffle, title: "Address", action: #selector(toggleViewButtonPressed))
+         }
+       } else {
+         addMenuItem(with: .shuffle, title: "Address", action: #selector(toggleViewButtonPressed))
+       }
+    addressLabel.setText(wallet.receiveAddress)
   }
   
   override func didAppear() {
@@ -117,4 +137,36 @@ class ReceiveInterfaceController: WKInterfaceController {
     presentController(withName: SpecifyInterfaceController.identifier, context: wallet?.identifier)
   }
   
+  
+  @IBAction @objc func toggleViewButtonPressed() {
+    clearAllMenuItems()
+    switch interfaceMode {
+    case .Address:
+      addressLabel.setHidden(false)
+      imageInterface.setHidden(true)
+      if #available(watchOSApplicationExtension 6.0, *) {
+        if let image = UIImage(systemName: "qrcode") {
+          addMenuItem(with: image, title: "QR Code", action:#selector(toggleViewButtonPressed))
+        } else {
+          addMenuItem(with: .shuffle, title: "QR Code", action: #selector(toggleViewButtonPressed))
+        }
+      } else {
+        addMenuItem(with: .shuffle, title: "QR Code", action: #selector(toggleViewButtonPressed))
+        
+      }
+    case .QRCode:
+      addressLabel.setHidden(true)
+      imageInterface.setHidden(false)
+      if #available(watchOSApplicationExtension 6.0, *) {
+        if let image = UIImage(systemName: "textformat.subscript") {
+          addMenuItem(with: image, title: "Address", action:#selector(toggleViewButtonPressed))
+        } else {
+          addMenuItem(with: .shuffle, title: "Address", action: #selector(toggleViewButtonPressed))
+        }
+      } else {
+        addMenuItem(with: .shuffle, title: "Address", action: #selector(toggleViewButtonPressed))
+      }
+    }
+    interfaceMode = interfaceMode == .QRCode ? .Address : .QRCode
+  }
 }
