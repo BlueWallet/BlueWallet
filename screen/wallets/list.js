@@ -280,9 +280,15 @@ export default class WalletsList extends Component {
   _keyExtractor = (_item, index) => index.toString();
 
   renderListHeaderComponent = () => {
+    const style = { opacity: this.state.isFlatListRefreshControlHidden ? 1.0 : 0.5 };
     return (
       <View style={styles.listHeaderBack}>
         <Text style={styles.listHeaderText}>{loc.transactions.list_title}</Text>
+        {isDesktop && (
+          <TouchableOpacity style={style} onPress={this.refreshTransactions} disabled={this.state.isLoading}>
+            <Icon name="refresh" type="font-awesome" color={BlueCurrentTheme.colors.feeText} />
+          </TouchableOpacity>
+        )}
       </View>
     );
   };
@@ -615,9 +621,12 @@ const styles = StyleSheet.create({
   },
   listHeaderBack: {
     backgroundColor: BlueCurrentTheme.colors.background,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginHorizontal: 16,
   },
   listHeaderText: {
-    paddingLeft: 16,
     fontWeight: 'bold',
     fontSize: 24,
     marginVertical: 8,
