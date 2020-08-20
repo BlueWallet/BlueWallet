@@ -63,7 +63,8 @@
     "typescript:check": "tsc --noEmit",
     "prettier:fix": "prettier --write '**/*.{js,ts,tsx}'",
     "precommit": "yarn lint-staged",
-    "shake": "adb shell input keyevent 82"
+    "shake": "adb shell input keyevent 82",
+    "translate:check-missing": "node --experimental-modules -r @std/esm scripts/checkTranslation.mjs"
   },
   "jest": {
     "preset": "react-native",
@@ -90,6 +91,7 @@
     "@react-navigation/stack": "^5.6.1",
     "@remobile/react-native-qrcode-local-image": "git+https://github.com/BlueWallet/react-native-qrcode-local-image.git",
     "@sentry/react-native": "^1.7.1",
+    "@std/esm": "^0.26.0",
     "@types/crypto-js": "^3.1.47",
     "@types/react-native-calendars": "^1.20.7",
     "amplitude-js": "5.7.0",
@@ -212,7 +214,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged",
+      "pre-commit": "yarn translate:check-missing && lint-staged",
       "pre-push": "yarn test"
     }
   }
