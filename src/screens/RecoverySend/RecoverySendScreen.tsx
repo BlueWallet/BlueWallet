@@ -169,6 +169,9 @@ export class RecoverySendScreen extends Component<Props, State> {
       txDecoded,
       pendingAmountDecrease,
       satoshiPerByte: actualSatoshiPerByte.toFixed(2),
+      headerTitle: i18n.send.recovery.recover,
+      buttonTitle: i18n.send.confirm.cancelNow,
+      successMsgDesc: i18n.message.cancelTxSuccess,
     });
   };
 

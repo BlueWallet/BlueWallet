@@ -35,7 +35,7 @@ class CreateAuthenticatorSuccessScreen extends Component<Props> {
         footer={<Button onPress={this.navigate} title={i18n.wallets.addSuccess.okButton} />}
         header={<Header navigation={navigation} isBackArrow={false} title={i18n.authenticators.add.title} />}
       >
-        <Text style={styles.subtitle}>{i18n.wallets.addSuccess.subtitle}</Text>
+        <Text style={styles.subtitle}>{i18n.authenticators.add.successTitle}</Text>
         <Text style={styles.description}>{i18n.authenticators.add.successDescription}</Text>
         {authenticator && <Mnemonic mnemonic={authenticator.secret} />}
       </ScreenTemplate>

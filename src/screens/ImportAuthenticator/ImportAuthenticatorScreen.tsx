@@ -91,7 +91,7 @@ class ImportAuthenticatorScreen extends Component<Props, State> {
     createAuthenticator(data, {
       onSuccess: () => {
         CreateMessage({
-          title: i18n.message.success,
+          title: i18n.message.hooray,
           description: i18n.authenticators.import.success,
           type: MessageType.success,
           buttonProps: {

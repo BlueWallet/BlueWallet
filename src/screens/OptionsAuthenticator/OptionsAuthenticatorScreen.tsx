@@ -44,7 +44,7 @@ class OptionsAuthenticatorScreen extends Component<Props> {
           deleteAuthenticator(authenticator.id, {
             onSuccess: () => {
               CreateMessage({
-                title: i18n.message.success,
+                title: i18n.message.allDone,
                 description: i18n.authenticators.delete.success,
                 type: MessageType.success,
                 buttonProps: {

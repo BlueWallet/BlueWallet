@@ -255,15 +255,17 @@ export class SendCoinsScreen extends Component<Props, State> {
   }) => {
     const { transaction, wallet, memo } = this.state;
 
+    const isAlert = this.isAlert(wallet);
     this.props.navigation.navigate(Route.SendCoinsConfirm, {
       recipients: [transaction],
       // HD wallet's utxo is in sats, classic segwit wallet utxos are in btc
       fee,
       txDecoded,
-      isAlert: this.isAlert(wallet),
+      isAlert,
       memo,
       fromWallet: wallet,
       satoshiPerByte: actualSatoshiPerByte.toFixed(2),
+      ...(!isAlert && { successMsgDesc: i18n.send.transaction.fastSuccess }),
     });
   };
 

@@ -53,7 +53,9 @@ export const DashboarContentdHeader = ({
         <Text style={styles.chooseWalletButtonText}>{label}</Text>
         {typeReadable && (
           <View style={styles.typeReadableContainer}>
-            <Text style={styles.buttonDescription}>{typeReadable}</Text>
+            <Text style={styles.buttonDescription}>
+              {typeReadable} {i18n.wallets.dashboard.wallet}
+            </Text>
             <Image source={images.coin} style={styles.coinIcon} />
           </View>
         )}

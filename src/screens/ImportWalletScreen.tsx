@@ -69,7 +69,7 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
 
   showSuccessImportMessageScreen = () =>
     CreateMessage({
-      title: i18n.message.success,
+      title: i18n.message.hooray,
       description: i18n.message.successfullWalletImport,
       type: MessageType.success,
       buttonProps: {
@@ -151,8 +151,8 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
           }
         },
         headerTitle: i18n.wallets.importWallet.header,
-        title: i18n.wallets.importWallet.scanWalletAddress,
-        description: i18n.wallets.importWallet.scanWalletAddressDescription,
+        title: i18n.wallets.importWallet.scanCancelPubKey,
+        description: i18n.wallets.importWallet.scanPublicKeyDescription,
         withLink: false,
       });
     } catch (e) {
@@ -176,8 +176,8 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
         }
       },
       headerTitle: i18n.wallets.importWallet.header,
-      title: i18n.wallets.importWallet.scanWalletAddress,
-      description: i18n.wallets.importWallet.scanWalletAddressDescription,
+      title: i18n.wallets.importWallet.scanFastPubKey,
+      description: i18n.wallets.importWallet.scanPublicKeyDescription,
       withLink: false,
       onBackArrow: () => {
         this.navigateToImportWallet();
@@ -241,7 +241,7 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
       },
       withLink: false,
       headerTitle: i18n.wallets.importWallet.header,
-      title: i18n.wallets.importWallet.scanPublicKey,
+      title: i18n.wallets.importWallet.scanCancelPubKey,
       description: i18n.wallets.importWallet.scanPublicKeyDescription,
       onBackArrow: () => {
         wallet.clearPublickKeys();

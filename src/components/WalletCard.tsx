@@ -46,9 +46,9 @@ export class WalletCard extends React.Component<Props> {
               {i18n.formatBalance(Number(wallet.balance), wallet.preferredBalanceUnit, true)}
             </Text>
             <View>
-              <Text style={styles.latestTransactionTitle}>{i18n.wallets.details.latestTransaction}</Text>
+              <Text style={styles.latestTransactionTitle}>{i18n.wallets.add.walletType}</Text>
               <Text style={styles.latestTransaction}>
-                {i18n.transactionTimeToReadable(wallet.getLatestTransactionTime())}
+                {wallet.typeReadable} {i18n.wallets.dashboard.wallet}
               </Text>
             </View>
           </View>

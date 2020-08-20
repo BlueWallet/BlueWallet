@@ -146,12 +146,13 @@ export class RecoveryTransactionListScreen extends PureComponent<Props, State> {
   render() {
     const { navigation, route, transactions } = this.props;
     const { wallet } = route.params;
-
     const areAllTransactionsSelected = this.areAllTransactionsSelected();
+    const toggleAll = this.toggleAllTransactions(areAllTransactionsSelected);
+
     return (
-      <View>
+      <View style={styles.container}>
         <Header title={i18n.send.recovery.recover} isBackArrow navigation={navigation} />
-        <View style={styles.container}>
+        <View style={styles.contentContainer}>
           <WalletDropdown
             onSelectPress={this.showModal}
             balance={wallet.balance}
@@ -159,11 +160,8 @@ export class RecoveryTransactionListScreen extends PureComponent<Props, State> {
             unit={wallet.preferredBalanceUnit}
           />
           {!this.isEmptyList() && (
-            <TouchableOpacity
-              style={styles.toggleAllWrapper}
-              onPress={this.toggleAllTransactions(areAllTransactionsSelected)}
-            >
-              <Text style={styles.toggleAllText}>{areAllTransactionsSelected ? '-' : '+'}</Text>
+            <TouchableOpacity onPress={toggleAll} style={styles.toggleAllWrapper}>
+              <CheckBox onPress={toggleAll} right checked={areAllTransactionsSelected} />
             </TouchableOpacity>
           )}
           <View style={styles.listViewWrapper}>
@@ -199,9 +197,12 @@ const styles = StyleSheet.create({
     ...typography.body,
   },
   listViewWrapper: { height: '60%', paddingBottom: 20 },
-  container: {
+  contentContainer: {
     paddingHorizontal: 20,
     paddingTop: 24,
+  },
+  container: {
+    height: '100%',
     backgroundColor: palette.white,
   },
   noTransactionsContainer: {
@@ -213,8 +214,10 @@ const styles = StyleSheet.create({
     color: palette.textGrey,
   },
   toggleAllWrapper: {
-    width: 30,
-    marginTop: -20,
+    width: 50,
+    height: 50,
+    marginTop: -40,
+    right: -9,
     display: 'flex',
     alignSelf: 'flex-end',
     justifyContent: 'center',

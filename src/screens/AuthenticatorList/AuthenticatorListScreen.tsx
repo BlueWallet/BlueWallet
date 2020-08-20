@@ -1,3 +1,4 @@
+import * as bitcoin from 'bitcoinjs-lib';
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert, FlatList } from 'react-native';
 import { NavigationInjectedProps } from 'react-navigation';
@@ -45,12 +46,16 @@ class AuthenticatorListScreen extends Component<Props> {
         navigation.goBack();
         signTransaction(psbt, {
           onSuccess: ({
-            finalizedPsbt: { recipients, tx, fee },
+            finalizedPsbt: { recipients, tx, fee, vaultTxType },
             authenticator,
           }: {
             finalizedPsbt: FinalizedPSBT;
             authenticator: Authenticator;
           }) => {
+            const successMsgDesc =
+              vaultTxType === bitcoin.payments.VaultTxType.Recovery
+                ? i18n.message.cancelTxSuccess
+                : i18n.send.transaction.fastSuccess;
             navigation.navigate(Route.SendCoinsConfirm, {
               fee,
               // pretending that we are sending from real wallet
@@ -61,6 +66,7 @@ class AuthenticatorListScreen extends Component<Props> {
               },
               txDecoded: tx,
               recipients,
+              successMsgDesc,
               satoshiPerByte: this.getActualSatoshiPerByte(tx.toHex(), fee),
             });
           },

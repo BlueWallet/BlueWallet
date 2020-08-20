@@ -61,6 +61,7 @@ export class IntegrateKeyScreen extends React.PureComponent<Props> {
             style={styles.webGeneratorUrlWrapper}
             onPress={() => Linking.openURL(`https://${CONST.webGeneratorUrl}`)}
           >
+            <Text style={[styles.webGeneratorUrl, styles.spaceBottom]}>{i18n.wallets.publicKey.webKeyGenerator}</Text>
             <Text style={styles.webGeneratorUrl}>{CONST.webGeneratorUrl}</Text>
           </TouchableOpacity>
         )}
@@ -75,6 +76,9 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     ...typography.headline4,
     textAlign: 'center',
+  },
+  spaceBottom: {
+    marginBottom: 20,
   },
   description: {
     marginBottom: 52,

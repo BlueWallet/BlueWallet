@@ -180,13 +180,12 @@ class TransactionDetailsScreen extends Component<Props, State> {
       case TxType.ALERT_PENDING:
       case TxType.ALERT_RECOVERED:
       case TxType.ALERT_CONFIRMED:
-        return i18n.transactions.transactionTypeLabel.alert;
+        return i18n.transactions.transactionTypeLabel.standard;
       case TxType.RECOVERY:
-        return i18n.transactions.transactionTypeLabel.recovery;
+        return i18n.transactions.transactionTypeLabel.canceled;
       case TxType.INSTANT:
-        return i18n.transactions.transactionTypeLabel.instant;
       case TxType.NONVAULT:
-        return i18n.transactions.transactionTypeLabel.nonvault;
+        return i18n.transactions.transactionTypeLabel.fast;
       default:
         return '';
     }

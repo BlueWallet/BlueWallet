@@ -17,9 +17,13 @@ const BlueElectrum = require('../../BlueElectrum');
 const EV = require('../../events');
 const i18n = require('../../loc');
 
-const ScreenFooter = (onSendPress: () => void, onDetailsPress: () => void) => (
+const ScreenFooter = (onSendPress: () => void, onDetailsPress: () => void, buttonTitle: string) => (
   <View style={styles.footer}>
-    <Button title={i18n.send.confirm.sendNow} containerStyle={styles.buttonContainer} onPress={onSendPress} />
+    <Button
+      title={buttonTitle || i18n.send.confirm.sendNow}
+      containerStyle={styles.buttonContainer}
+      onPress={onSendPress}
+    />
     <StyledText title={i18n.transactions.details.transactionDetails} onPress={onDetailsPress} />
   </View>
 );
@@ -80,7 +84,7 @@ export class SendCoinsConfirmScreen extends Component<Props> {
   };
 
   broadcast = () => {
-    const { txDecoded, fromWallet } = this.props.route.params;
+    const { txDecoded, fromWallet, successMsgDesc } = this.props.route.params;
 
     this.setState({ isLoading: true }, async () => {
       try {
@@ -98,8 +102,8 @@ export class SendCoinsConfirmScreen extends Component<Props> {
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
 
           CreateMessage({
-            title: i18n.send.success.title,
-            description: i18n.send.success.description,
+            title: i18n.message.hooray,
+            description: successMsgDesc || i18n.send.success.description,
             type: MessageType.success,
             buttonProps: {
               title: i18n.message.returnToDashboard,
@@ -178,20 +182,21 @@ export class SendCoinsConfirmScreen extends Component<Props> {
       navigation,
       route: { params },
     } = this.props;
-    const { fromWallet, recipients, satoshiPerByte } = params;
+    const { fromWallet, recipients, satoshiPerByte, headerTitle, buttonTitle } = params;
 
     const item = recipients[0];
 
     return (
       <ScreenTemplate
-        footer={ScreenFooter(this.goToUnlockScreen, this.goToDetails)}
-        header={<Header navigation={navigation} isBackArrow title={i18n.send.header} />}
+        footer={ScreenFooter(this.goToUnlockScreen, this.goToDetails, buttonTitle)}
+        header={<Header navigation={navigation} isBackArrow title={headerTitle || i18n.send.header} />}
       >
         <View style={styles.container}>
           <View>
             <View style={styles.chooseWalletButton}>
               <Text style={typography.headline4}>
-                {item.amount || satoshiToBtc(item.value).toString()} {fromWallet.preferredBalanceUnit}
+                {roundBtcToSatoshis(item.amount) || satoshiToBtc(item.value).toString()}{' '}
+                {fromWallet.preferredBalanceUnit}
               </Text>
             </View>
             <View style={styles.descriptionContainer}>
