@@ -45,7 +45,8 @@ class WatchDataSource: NSObject, WCSessionDelegate {
           transactionsProcessed.append(transaction)
         }
         let receiveAddress = entry["receiveAddress"] as? String ?? ""
-        let wallet = Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit, receiveAddress: receiveAddress, transactions: transactionsProcessed, identifier: index)
+        let xpub = entry["xpub"] as? String ?? ""
+        let wallet = Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit, receiveAddress: receiveAddress, transactions: transactionsProcessed, identifier: index, xpub: xpub)
         wallets.append(wallet)
       }
       
@@ -78,11 +79,11 @@ class WatchDataSource: NSObject, WCSessionDelegate {
     }
   }
   
-  func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+  func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
     WatchDataSource.shared.processWalletsData(walletsInfo: applicationContext)
   }
   
-  func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
+  func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
     WatchDataSource.shared.processWalletsData(walletsInfo: applicationContext)
   }
   

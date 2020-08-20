@@ -4,8 +4,6 @@ PODS:
     - React
   - CocoaAsyncSocket (7.6.4)
   - DoubleConversion (1.1.6)
-  - EFQRCode (5.1.0):
-    - swift_qrcodejs (~> 1.1.1)
   - FBLazyVector (0.63.2)
   - FBReactNativeSpec (0.63.2):
     - Folly (= 2020.01.13.00)
@@ -333,7 +331,6 @@ PODS:
   - Sentry (5.1.10):
     - Sentry/Core (= 5.1.10)
   - Sentry/Core (5.1.10)
-  - swift_qrcodejs (1.1.2)
   - ToolTipMenu (5.2.0):
     - React
   - Yoga (1.14.0)
@@ -341,7 +338,6 @@ PODS:
 DEPENDENCIES:
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
-  - EFQRCode (= 5.1.0)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/Libraries/FBReactNativeSpec`)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
@@ -411,9 +407,7 @@ SPEC REPOS:
   trunk:
     - boost-for-react-native
     - CocoaAsyncSocket
-    - EFQRCode
     - Sentry
-    - swift_qrcodejs
 
 EXTERNAL SOURCES:
   BVLinearGradient:
@@ -550,7 +544,6 @@ SPEC CHECKSUMS:
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   CocoaAsyncSocket: 694058e7c0ed05a9e217d1b3c7ded962f4180845
   DoubleConversion: cde416483dac037923206447da6e1454df403714
-  EFQRCode: 07ee69f29196329e974b9bffa5381240cc09ea4c
   FBLazyVector: 3ef4a7f62e7db01092f9d517d2ebc0d0677c4a37
   FBReactNativeSpec: dc7fa9088f0f2a998503a352b0554d69a4391c5a
   Folly: b73c3869541e86821df3c387eb0af5f65addfab4
@@ -612,10 +605,9 @@ SPEC CHECKSUMS:
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: 4de37878bbf071847e438b089c01d4ad8d4eddae
   Sentry: 8715e88b813bde9ad37aead365d5b04ac7302153
-  swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
   ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e
   Yoga: 7740b94929bbacbddda59bf115b5317e9a161598
 
-PODFILE CHECKSUM: b7a57cdadb71fcb2683189b65ad92fc2b21afdd8
+PODFILE CHECKSUM: 83f21229ce0f0586918f9c6fe2a330ca85417a49
 
 COCOAPODS: 1.9.3

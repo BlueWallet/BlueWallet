@@ -789,6 +789,7 @@ export class BlueFormMultiInput extends Component {
           borderRadius: 4,
           backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
           color: BlueCurrentTheme.colors.foregroundColor,
+          textAlignVertical: 'top',
         }}
         autoCorrect={false}
         autoCapitalize="none"
