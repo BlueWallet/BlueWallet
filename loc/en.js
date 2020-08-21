@@ -101,9 +101,9 @@ module.exports = {
       title: 'Pair authenticator',
       pin: 'PIN',
       publicKey: 'Public Key',
-      descPin: 'Use below PIN on your desktop application to confirm pair authenticator.',
+      descPin: 'Use this PIN to confirm authenticator pairing on your desktop application.',
       descPublicKey:
-        'You can use below public key to import your authenticator in the desktop application during the wallet creation process with the gold wallet option.',
+        'You can use this Public Key to import your authenticator in the desktop application during the wallet creation process with the GoldWallet option.',
     },
     import: {
       title: 'Import authenticator',

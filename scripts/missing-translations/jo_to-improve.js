@@ -481,8 +481,8 @@ const jo = {
       title: 'TRANSLATION NEEDED | ENG: Pair authenticator',
       pin: 'TRANSLATION NEEDED | ENG: PIN',
       publicKey: 'TRANSLATION NEEDED | ENG: Public Key',
-      descPin: 'TRANSLATION NEEDED | ENG: Use below PIN on your desktop application to confirm pair authenticator.',
-      descPublicKey: 'TRANSLATION NEEDED | ENG: You can use below public key to import your authenticator in the desktop application during the wallet creation process with the gold wallet option.',
+      descPin: 'TRANSLATION NEEDED | ENG: Use this PIN to confirm authenticator pairing on your desktop application.',
+      descPublicKey: 'TRANSLATION NEEDED | ENG: You can use this Public Key to import your authenticator in the desktop application during the wallet creation process with the GoldWallet option.',
     },
     import: {
       title: 'TRANSLATION NEEDED | ENG: Import authenticator',
