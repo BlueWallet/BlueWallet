@@ -19,12 +19,16 @@ interface Props {
   transactions: Transaction[];
   transactionNotes: Record<string, string>;
   headerHeight: number;
+  ListHeaderComponent: React.ReactElement;
+  refreshing: boolean;
+  onRefresh: () => void;
+  reference: React.Ref<SectionList>;
 }
 
 export class TransactionList extends PureComponent<Props> {
   renderSectionTitle = ({ section }: { section: SectionListData<Transaction> }) => {
     return (
-      <View style={{ marginTop: 30, marginBottom: 10 }}>
+      <View style={styles.sectionTitle}>
         <Text style={{ ...typography.caption, color: palette.textGrey }}>{section.title}</Text>
       </View>
     );
@@ -54,24 +58,56 @@ export class TransactionList extends PureComponent<Props> {
     );
   };
 
-  render() {
-    const { headerHeight, search, transactions } = this.props;
+  renderItem = ({ item: transaction }: { item: Transaction }) => {
     return (
-      <View style={{ padding: 20 }}>
-        <SectionList
-          ListFooterComponent={search ? <View style={{ height: transactions.length ? headerHeight / 2 : 0 }} /> : null}
-          sections={this.getSectionData()}
-          keyExtractor={(item, index) => `${item.txid}-${index}`}
-          renderItem={item => <TransactionItem item={item.item} onPress={this.onTransactionItemPress} />}
-          renderSectionHeader={this.renderSectionTitle}
-          ListEmptyComponent={this.renderListEmpty}
-        />
+      <View style={styles.itemWrapper}>
+        <TransactionItem item={transaction} onPress={this.onTransactionItemPress} />
       </View>
+    );
+  };
+
+  render() {
+    const {
+      headerHeight,
+      search,
+      transactions,
+      ListHeaderComponent,
+      refreshing,
+      onRefresh,
+      reference,
+      filters,
+    } = this.props;
+    return (
+      <SectionList
+        ref={reference}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        style={[styles.section, filters.isFilteringOn && styles.spaceBottom]}
+        stickySectionHeadersEnabled={false}
+        ListHeaderComponent={ListHeaderComponent}
+        ListFooterComponent={search ? <View style={{ height: transactions.length ? headerHeight / 2 : 0 }} /> : null}
+        sections={this.getSectionData()}
+        keyExtractor={(item, index) => `${item.txid}-${index}`}
+        renderItem={this.renderItem}
+        renderSectionHeader={this.renderSectionTitle}
+        ListEmptyComponent={this.renderListEmpty}
+      />
     );
   }
 }
 
 const styles = StyleSheet.create({
+  sectionTitle: { marginTop: 30, marginBottom: 10, paddingHorizontal: 20 },
+  itemWrapper: {
+    paddingHorizontal: 20,
+  },
+  spaceBottom: {
+    marginBottom: 140,
+  },
+  section: {
+    marginBottom: 120,
+    marginTop: -24,
+  },
   noTransactionsContainer: {
     alignItems: 'center',
   },

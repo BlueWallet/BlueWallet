@@ -230,8 +230,4 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginRight: -10,
   },
-  toggleAllText: {
-    ...typography.headline2,
-    color: palette.textSecondary,
-  },
 });

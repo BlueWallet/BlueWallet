@@ -7,7 +7,7 @@ import { Wallet } from 'app/consts';
 
 interface Props {
   data: any;
-  keyExtractor: string;
+  keyExtractor: (item: Wallet, index: number) => string;
   onSnapToItem: (index: number) => void;
 }
 
