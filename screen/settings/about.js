@@ -11,7 +11,7 @@ import {
   BlueNavigationStyle,
   BlueLoadingHook,
 } from '../../BlueComponents';
-import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
+import { getApplicationName, getVersion, getBundleId, getBuildNumber, getSystemName } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import loc from '../../loc';
 
@@ -195,6 +195,7 @@ const About = () => {
         <BlueTextCentered>
           w, h = {width}, {height}
         </BlueTextCentered>
+        <BlueTextCentered>{getSystemName()}</BlueTextCentered>
         <BlueSpacing20 />
         <BlueSpacing20 />
       </ScrollView>
