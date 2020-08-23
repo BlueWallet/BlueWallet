@@ -5,8 +5,6 @@ PODS:
   - CocoaAsyncSocket (7.6.4)
   - CocoaLibEvent (1.0.0)
   - DoubleConversion (1.1.6)
-  - EFQRCode (5.1.0):
-    - swift_qrcodejs (~> 1.1.1)
   - FBLazyVector (0.62.2)
   - FBReactNativeSpec (0.62.2):
     - Folly (= 2018.10.22.00)
@@ -249,15 +247,15 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.31.1):
+  - react-native-camera (3.35.0):
     - React
-    - react-native-camera/RCT (= 3.31.1)
-    - react-native-camera/RN (= 3.31.1)
-  - react-native-camera/RCT (3.31.1):
+    - react-native-camera/RCT (= 3.35.0)
+    - react-native-camera/RN (= 3.35.0)
+  - react-native-camera/RCT (3.35.0):
     - React
-  - react-native-camera/RN (3.31.1):
+  - react-native-camera/RN (3.35.0):
     - React
-  - react-native-document-picker (3.2.0):
+  - react-native-document-picker (3.5.4):
     - React
   - react-native-image-picker (2.3.3):
     - React
@@ -341,7 +339,7 @@ PODS:
     - React
   - RNCMaskedView (0.1.10):
     - React
-  - RNCPushNotificationIOS (1.3.0):
+  - RNCPushNotificationIOS (1.4.0):
     - React
   - RNDefaultPreference (1.4.3):
     - React
@@ -365,7 +363,7 @@ PODS:
     - React
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.6.1):
+  - RNSentry (1.6.3):
     - React
     - Sentry (~> 5.1.8)
   - RNShare (3.7.0):
@@ -379,7 +377,6 @@ PODS:
   - Sentry (5.1.10):
     - Sentry/Core (= 5.1.10)
   - Sentry/Core (5.1.10)
-  - swift_qrcodejs (1.1.2)
   - ToolTipMenu (5.2.0):
     - React
   - Yoga (1.14.0)
@@ -389,7 +386,6 @@ PODS:
 DEPENDENCIES:
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
-  - EFQRCode (= 5.1.0)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/Libraries/FBReactNativeSpec`)
   - Flipper (~> 0.37.0)
@@ -479,7 +475,6 @@ SPEC REPOS:
     - boost-for-react-native
     - CocoaAsyncSocket
     - CocoaLibEvent
-    - EFQRCode
     - Flipper
     - Flipper-DoubleConversion
     - Flipper-Folly
@@ -489,7 +484,6 @@ SPEC REPOS:
     - FlipperKit
     - OpenSSL-Universal
     - Sentry
-    - swift_qrcodejs
     - YogaKit
 
 EXTERNAL SOURCES:
@@ -626,7 +620,6 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 694058e7c0ed05a9e217d1b3c7ded962f4180845
   CocoaLibEvent: 2fab71b8bd46dd33ddb959f7928ec5909f838e3f
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
-  EFQRCode: 07ee69f29196329e974b9bffa5381240cc09ea4c
   FBLazyVector: 4aab18c93cd9546e4bfed752b4084585eca8b245
   FBReactNativeSpec: 5465d51ccfeecb7faa12f9ae0024f2044ce4044e
   Flipper: 1670db365568191bd123a0c905b834e77ba9e3d3
@@ -654,8 +647,8 @@ SPEC CHECKSUMS:
   react-native-biometrics: c892904948a32295b128f633bcc11eda020645c5
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: c673127fd3bf9f9ac4ea6e65fce8160e8e0ae1d1
-  react-native-document-picker: e3516aff0dcf65ee0785d9bcf190eb10e2261154
+  react-native-camera: 9dd96065b956306de03ef2a2efc3583019f95941
+  react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-image-picker: a6c3d644751a388b0fc8b56822ff7cbd398a3008
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-safe-area-context: 0ed9288ed4409beabb0817b54efc047286fc84da
@@ -677,7 +670,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: db711e29e5e0500d9bd21aa0c2e397efa45302b1
   RNCClipboard: 5f3218dcdc28405aa2ae72b78e388f150b826dd3
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
-  RNCPushNotificationIOS: 23c5b5fdae79f105c63236de5ca306a70c00c444
+  RNCPushNotificationIOS: f4a1a20fe1d70bbb1fab6abf86ffec2996012b12
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
   RNDeviceInfo: ab2ab4ca9e7f2bc4f35d62ab6ce2b66f2cbf1e7a
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
@@ -689,17 +682,16 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 22c5ecf474428766c6b148f96f2ff6155cd7225e
   RNScreens: b748efec66e095134c7166ca333b628cd7e6f3e2
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: 57824da1293d03966605d682d5868b11aa1b6e5a
+  RNSentry: ae1e005e4f2655775475445a9c49c1d343e8e3a7
   RNShare: a1d5064df7a0ebe778d001869b3f0a124bf0a491
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: 4de37878bbf071847e438b089c01d4ad8d4eddae
   Sentry: 8715e88b813bde9ad37aead365d5b04ac7302153
-  swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
   ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e
   Yoga: 3ebccbdd559724312790e7742142d062476b698e
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 18e8ad54db4d73fb4dd63a9b2354d9addd35333f
+PODFILE CHECKSUM: e9c5efd531ca5ac67a4b743a179eeefb322cf387
 
 COCOAPODS: 1.9.3
