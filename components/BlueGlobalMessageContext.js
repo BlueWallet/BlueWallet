@@ -4,6 +4,7 @@ export const BlueGlobalMessageType = {
   ERROR: 'ERROR',
   SUCCESS: 'SUCCESS',
   WARNING: 'WARNING',
+  INFO: 'INFO',
   LOADING: 'LOADING',
 };
 
@@ -32,7 +33,7 @@ export const BlueGlobalMessageProvider = ({ children }) => {
   useEffect(() => {
     if (container.visible) {
       if (container.dismissable) {
-        timeout.current = setTimeout(hide, 1500);
+        timeout.current = setTimeout(hide, 3000);
       } else {
         clearTimeout(timeout.current);
       }

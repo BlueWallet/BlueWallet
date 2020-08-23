@@ -331,6 +331,9 @@ const BlueGlobalMessageContainer = ({ children }) => {
     EV(EV.enum.GLOBAL_MESSAGES_ERROR_WALLET_ALREADY_IMPORTED, () =>
       showGlobalMessage(loc.wallets.wallet_already_imported, true, BlueGlobalMessageType.WARNING),
     );
+    EV(EV.enum.GLOBAL_MESSAGES_IMPORT_WALLET_SUCCESS, () =>
+      showGlobalMessage(loc.wallets.import_success, true, BlueGlobalMessageType.SUCCESS),
+    );
     EV(EV.enum.GLOBAL_MESSAGES_ERROR_WALLET_IMPORT, () => showGlobalMessage(loc.wallets.import_error, false, BlueGlobalMessageType.ERROR));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

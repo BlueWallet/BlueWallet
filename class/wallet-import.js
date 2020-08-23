@@ -47,16 +47,15 @@ export default class WalletImport {
       BlueApp.wallets.push(w);
       await BlueApp.saveToDisk();
       A(A.ENUM.CREATED_WALLET);
-      alert(loc.wallets.import_success);
       notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
-      EV(EV.enum.GLOBAL_MESSAGES_HIDE);
+      EV(EV.enum.GLOBAL_MESSAGES_IMPORT_WALLET_SUCCESS);
       EV(EV.enum.WALLETS_COUNT_CHANGED);
     } catch (e) {
       alert(e);
       console.log(e);
       WalletImport.removePlaceholderWallet(w.getSecret());
       EV(EV.enum.WALLETS_COUNT_CHANGED);
-      EV(EV.enum.GLOBAL_MESSAGES_HIDE);
+      EV(EV.enum.GLOBAL_MESSAGES_ERROR_WALLET_IMPORT);
     }
   }
 

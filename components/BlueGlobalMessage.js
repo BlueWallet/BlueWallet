@@ -2,8 +2,6 @@ import React, { useContext, useEffect, useRef } from 'react';
 import { BlueGlobalMessageContext, BlueGlobalMessageType } from './BlueGlobalMessageContext';
 import { Text, Animated, Easing, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useTheme } from '@react-navigation/native';
-import loc from '../loc';
-
 /*
 
 How to use: 
@@ -25,11 +23,28 @@ export const BlueGlobalMessage = () => {
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     container: {
-      backgroundColor: colors.warning,
+      backgroundColor: (() => {
+        switch (container.type) {
+          case BlueGlobalMessageType.ERROR:
+            return colors.failedColor;
+          case BlueGlobalMessageType.SUCCESS:
+            return colors.feeLabel;
+          default:
+            return colors.warning;
+        }
+      })(),
       transform: [{ translateY: translateYRef.current }],
     },
     message: {
-      color: colors.warningText,
+      color: (() => {
+        switch (container.type) {
+          case BlueGlobalMessageType.SUCCESS:
+            return colors.feeValue;
+          default:
+            return colors.warningText;
+        }
+      })(),
+      textAlign: 'center',
     },
   });
 
@@ -62,12 +77,6 @@ export const BlueGlobalMessage = () => {
 };
 
 export default BlueGlobalMessage;
-BlueGlobalMessage.Messages = {
-  IMPORTING_WALLET: loc.global_message.importing_wallet,
-  ERROR_IMPORTING_WALLET: loc.global_message.list_import_error,
-  GLOBAL_MESSAGES_ERROR_WALLET_ALREADY_IMPORTED: loc.wallets.wallet_already_imported,
-  GLOBAL_MESSAGES_ERROR_WALLET_IMPORT: loc.wallets.import_error,
-};
 
 const styles = StyleSheet.create({
   container: {
