@@ -304,5 +304,6 @@ export default class WalletImport {
     WalletImport.addPlaceholderWallet(importText, true);
     ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
     EV(EV.enum.GLOBAL_MESSAGES_ERROR_WALLET_IMPORT);
+    EV(EV.enum.WALLETS_COUNT_CHANGED);
   }
 }
