@@ -325,7 +325,7 @@ const BlueGlobalMessageContainer = ({ children }) => {
 
   useEffect(() => {
     EV(EV.enum.GLOBAL_MESSAGES_IMPORTING_WALLET, () =>
-      showGlobalMessage(loc.global_message.importing_wallet, false, BlueGlobalMessageType.LOADING),
+      showGlobalMessage(loc.wallets.importing_wallet, false, BlueGlobalMessageType.LOADING),
     );
     EV(EV.enum.GLOBAL_MESSAGES_HIDE, () => setTimeout(hide, 1500));
     EV(EV.enum.GLOBAL_MESSAGES_ERROR_WALLET_ALREADY_IMPORTED, () =>

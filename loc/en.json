@@ -291,9 +291,6 @@
     "status_bump": "Bump Fee",
     "status_cancel": "Cancel Transaction"
   },
-  "global_message": {
-    "importing_wallet": "Importing Wallet..."
-  },
   "wallets": {
     "add_bitcoin": "Bitcoin",
     "add_create": "Create",
@@ -339,6 +336,7 @@
     "import_scan_qr": "Scan or import a file",
     "import_success": "Your wallet has been successfully imported.",
     "import_title": "import",
+    "importing_wallet": "Importing Wallet...",
     "list_create_a_button": "Add now",
     "list_create_a_wallet": "Add a wallet",
     "list_create_a_wallet1": "It's free and you can create",
