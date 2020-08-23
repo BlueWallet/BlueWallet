@@ -304,7 +304,6 @@ export default class WalletImport {
     }
     WalletImport.addPlaceholderWallet(importText, true);
     ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-    EV(EV.enum.GLOBAL_MESSAGES_HIDE);
-    alert(loc.wallets.import_error);
+    EV(EV.enum.GLOBAL_MESSAGES_ERROR_WALLET_IMPORT);
   }
 }
