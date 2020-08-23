@@ -151,11 +151,8 @@ const SelectWalletsExportQRCode = () => {
           <View style={styles.activeQrcode}>
             <QRCode
               value={qrData}
-              logo={require('../../../img/qr-code.png')}
               size={height > width ? width - 40 : width / 2}
-              logoSize={70}
               color="#000000"
-              logoBackgroundColor={colors.brandingColor}
               backgroundColor="#FFFFFF"
               ecl="H"
               onError={onError}
