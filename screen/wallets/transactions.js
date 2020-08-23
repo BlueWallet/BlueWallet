@@ -163,12 +163,16 @@ const styles = StyleSheet.create({
   },
   floatButtons: {
     flexDirection: 'row',
-    alignSelf: 'center',
     backgroundColor: 'transparent',
     position: 'absolute',
+    alignSelf: 'center',
     bottom: 30,
     borderRadius: 30,
-    minHeight: 48,
+    width: '60%',
+    maxWidth: 400,
+    flex: 1,
+    height: '6.3%',
+    minHeight: 44,
     overflow: 'hidden',
   },
 });
@@ -587,10 +591,13 @@ export default class WalletTransactions extends Component {
         if (buttonIndex === 1) {
           this.choosePhoto();
         } else if (buttonIndex === 2) {
-          this.props.navigation.navigate('ScanQRCode', {
-            launchedBy: this.props.route.name,
-            onBarScanned: this.onBarCodeRead,
-            showFileImportButton: false,
+          this.props.navigation.navigate('ScanQRCodeRoot', {
+            screen: 'ScanQRCode',
+            params: {
+              launchedBy: this.props.route.name,
+              onBarScanned: this.onBarScanned,
+              showFileImportButton: false,
+            },
           });
         } else if (buttonIndex === 3) {
           this.copyFromClipbard();
@@ -610,10 +617,13 @@ export default class WalletTransactions extends Component {
         {
           text: loc.wallets.list_long_scan,
           onPress: () =>
-            this.props.navigation.navigate('ScanQRCode', {
-              launchedBy: this.props.route.name,
-              onBarScanned: this.onBarCodeRead,
-              showFileImportButton: false,
+            this.props.navigation.navigate('ScanQRCodeRoot', {
+              screen: 'ScanQRCode',
+              params: {
+                launchedBy: this.props.route.name,
+                onBarScanned: this.onBarScanned,
+                showFileImportButton: false,
+              },
             }),
         },
       ];

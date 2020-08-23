@@ -131,7 +131,9 @@ export default class Confirm extends Component {
         </Text>
         <BlueCard>
           <Text style={styles.transactionDetailsTitle}>{loc.send.create_to}</Text>
-          <Text style={styles.transactionDetailsSubtitle}>{item.address}</Text>
+          <Text testID="TransactionAddress" style={styles.transactionDetailsSubtitle}>
+            {item.address}
+          </Text>
         </BlueCard>
         {this.state.recipients.length > 1 && (
           <BlueText style={styles.valueOf}>

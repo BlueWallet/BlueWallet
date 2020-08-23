@@ -199,7 +199,7 @@
     "qr_error_no_qrcode": "The selected image does not contain a QR Code.",
     "qr_error_no_wallet": "The selected file does not contain a wallet that can be imported.",
     "success_done": "Done",
-    "txSaved": "This transaction has been saved in {filePath}"
+    "txSaved": "The transaction file ({filePath}) has been saved in your Downloads folder ."
   },
   "settings": {
     "about": "About",
@@ -350,6 +350,7 @@
     "list_long_choose": "Choose Photo",
     "list_long_clipboard": "Copy from Clipboard",
     "list_long_scan": "Scan QR Code",
+    "take_photo": "Take Photo",
     "list_tap_here_to_buy": "Buy Bitcoin",
     "list_title": "wallets",
     "list_tryagain": "Try Again",

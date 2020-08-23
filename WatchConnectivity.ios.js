@@ -25,22 +25,18 @@ export default class WatchConnectivity {
             }
           }
         });
-        Watch.subscribeToMessages(async (err, message, reply) => {
-          if (!err) {
-            if (message.request === 'createInvoice') {
-              const createInvoiceRequest = await this.handleLightningInvoiceCreateRequest(
-                message.walletIndex,
-                message.amount,
-                message.description,
-              );
-              reply({ invoicePaymentRequest: createInvoiceRequest });
-            } else if (message.message === 'sendApplicationContext') {
-              await WatchConnectivity.shared.sendWalletsToWatch();
-            } else if (message.message === 'fetchTransactions') {
-              await WatchConnectivity.shared.fetchTransactionsFunction();
-            }
-          } else {
-            reply(err);
+        Watch.subscribeToMessages(async (message, reply) => {
+          if (message.request === 'createInvoice') {
+            const createInvoiceRequest = await this.handleLightningInvoiceCreateRequest(
+              message.walletIndex,
+              message.amount,
+              message.description,
+            );
+            reply({ invoicePaymentRequest: createInvoiceRequest });
+          } else if (message.message === 'sendApplicationContext') {
+            await WatchConnectivity.shared.sendWalletsToWatch();
+          } else if (message.message === 'fetchTransactions') {
+            await WatchConnectivity.shared.fetchTransactionsFunction();
           }
         });
       }
@@ -163,6 +159,7 @@ export default class WatchConnectivity {
             preferredBalanceUnit: wallet.getPreferredBalanceUnit(),
             receiveAddress: receiveAddress,
             transactions: watchTransactions,
+            xpub: wallet.getXpub() ? wallet.getXpub() : wallet.getSecret(),
           });
         }
         Watch.updateApplicationContext({ wallets, randomID: Math.floor(Math.random() * 11) });
