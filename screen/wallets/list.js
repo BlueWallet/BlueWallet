@@ -22,7 +22,6 @@ import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
 import * as NavigationService from '../../NavigationService';
-import { BlueGlobalMessageContext } from '../../components/BlueGlobalMessageContext';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import { getSystemName } from 'react-native-device-info';
@@ -179,7 +178,7 @@ export default class WalletsList extends Component {
             {
               text: loc.wallets.details_delete,
               onPress: () => {
-                WalletImport.removePlaceholderWallet();
+                WalletImport.removePlaceholderWallet(wallet.getSecret());
                 EV(EV.enum.WALLETS_COUNT_CHANGED);
               },
               style: 'destructive',
@@ -188,7 +187,6 @@ export default class WalletsList extends Component {
               text: loc.wallets.list_tryagain,
               onPress: () => {
                 this.props.navigation.navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: wallet.getSecret() } });
-                WalletImport.removePlaceholderWallet();
                 EV(EV.enum.WALLETS_COUNT_CHANGED);
               },
               style: 'default',
@@ -204,9 +202,7 @@ export default class WalletsList extends Component {
       }
     } else {
       // if its out of index - this must be last card with incentive to create wallet
-      if (!BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
-        this.props.navigation.navigate('AddWalletRoot');
-      }
+      this.props.navigation.navigate('AddWalletRoot');
     }
   };
 
@@ -360,11 +356,7 @@ export default class WalletsList extends Component {
         return (
           <BlueHeaderDefaultMain
             leftText={loc.wallets.list_title}
-            onNewWalletPress={
-              !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)
-                ? () => this.props.navigation.navigate('AddWalletRoot')
-                : null
-            }
+            onNewWalletPress={() => this.props.navigation.navigate('AddWalletRoot')}
           />
         );
       case WalletsListSections.TRANSACTIONS:
@@ -706,7 +698,6 @@ WalletsList.propTypes = {
   }),
 };
 
-WalletsList.contextType = BlueGlobalMessageContext;
 WalletsList.navigationOptions = ({ navigation }) => {
   return {
     ...BlueNavigationStyle(navigation, true),

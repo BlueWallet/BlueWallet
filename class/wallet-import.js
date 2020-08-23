@@ -34,57 +34,57 @@ export default class WalletImport {
    */
   static async _saveWallet(w, additionalProperties) {
     try {
-      const wallet = BlueApp.getWallets().some(wallet => wallet.getSecret() === w.secret && wallet.type !== PlaceholderWallet.type);
-      if (wallet) {
-        alert('This wallet has been previously imported.');
-        WalletImport.removePlaceholderWallet();
-        EV(EV.enum.GLOBAL_MESSAGES_HIDE);
-      } else {
-        const emptyWalletLabel = new LegacyWallet().getLabel();
-        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-        if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
-        w.setUserHasSavedExport(true);
-        if (additionalProperties) {
-          for (const [key, value] of Object.entries(additionalProperties)) {
-            w[key] = value;
-          }
+      const emptyWalletLabel = new LegacyWallet().getLabel();
+      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
+      w.setUserHasSavedExport(true);
+      if (additionalProperties) {
+        for (const [key, value] of Object.entries(additionalProperties)) {
+          w[key] = value;
         }
-        WalletImport.removePlaceholderWallet();
-        BlueApp.wallets.push(w);
-        await BlueApp.saveToDisk();
-        A(A.ENUM.CREATED_WALLET);
-        alert(loc.wallets.import_success);
-        notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
-        EV(EV.enum.GLOBAL_MESSAGES_HIDE);
       }
+      WalletImport.removePlaceholderWallet(w.getSecret());
+      BlueApp.wallets.push(w);
+      await BlueApp.saveToDisk();
+      A(A.ENUM.CREATED_WALLET);
+      alert(loc.wallets.import_success);
+      notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
+      EV(EV.enum.GLOBAL_MESSAGES_HIDE);
       EV(EV.enum.WALLETS_COUNT_CHANGED);
     } catch (e) {
       alert(e);
       console.log(e);
-      WalletImport.removePlaceholderWallet();
+      WalletImport.removePlaceholderWallet(w.getSecret());
       EV(EV.enum.WALLETS_COUNT_CHANGED);
       EV(EV.enum.GLOBAL_MESSAGES_HIDE);
     }
   }
 
-  static removePlaceholderWallet() {
-    const placeholderWalletIndex = BlueApp.wallets.findIndex(wallet => wallet.type === PlaceholderWallet.type);
+  static removePlaceholderWallet(importText) {
+    const placeholderWalletIndex = BlueApp.wallets.findIndex(
+      wallet => wallet.type === PlaceholderWallet.type && wallet.getSecret() === importText,
+    );
     if (placeholderWalletIndex > -1) {
       BlueApp.wallets.splice(placeholderWalletIndex, 1);
     }
   }
 
   static addPlaceholderWallet(importText, isFailure = false) {
-    const wallet = new PlaceholderWallet();
-    wallet.setSecret(importText);
-    wallet.setIsFailure(isFailure);
-    BlueApp.wallets.push(wallet);
-    EV(EV.enum.WALLETS_COUNT_CHANGED);
-    return wallet;
+    const walletExists = BlueApp.wallets.some(wallet => wallet.getSecret() === importText);
+    if (walletExists) {
+      return walletExists;
+    } else {
+      const wallet = new PlaceholderWallet();
+      wallet.setSecret(importText);
+      wallet.setIsFailure(isFailure);
+      BlueApp.wallets.push(wallet);
+      EV(EV.enum.WALLETS_COUNT_CHANGED);
+      return wallet;
+    }
   }
 
-  static isCurrentlyImportingWallet() {
-    return BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type);
+  static isWalletAlreadyImported(importText) {
+    return BlueApp.wallets.some(wallet => wallet.getSecret() === importText)
   }
 
   /**
@@ -94,9 +94,12 @@ export default class WalletImport {
    * @returns {Promise<void>}
    */
   static async processImportText(importText, additionalProperties) {
-    if (WalletImport.isCurrentlyImportingWallet()) {
+    WalletImport.removePlaceholderWallet(importText);
+    if (WalletImport.isWalletAlreadyImported(importText)) {
+      EV(EV.enum.GLOBAL_MESSAGES_ERROR_WALLET_ALREADY_IMPORTED);
       return;
     }
+
 
     EV(EV.enum.GLOBAL_MESSAGES_IMPORTING_WALLET);
     // Plan:
@@ -296,13 +299,11 @@ export default class WalletImport {
 
       // TODO: try a raw private key
     } catch (Err) {
-      EV(EV.enum.WALLETS_COUNT_CHANGED);
       EV(EV.enum.GLOBAL_MESSAGES_HIDE);
       console.warn(Err);
     }
     WalletImport.addPlaceholderWallet(importText, true);
     ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-    EV(EV.enum.WALLETS_COUNT_CHANGED);
     EV(EV.enum.GLOBAL_MESSAGES_HIDE);
     alert(loc.wallets.import_error);
   }

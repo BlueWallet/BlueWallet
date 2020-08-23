@@ -65,6 +65,7 @@ export default BlueGlobalMessage;
 BlueGlobalMessage.Messages = {
   IMPORTING_WALLET: loc.global_message.importing_wallet,
   ERROR_IMPORTING_WALLET: loc.global_message.list_import_error,
+  GLOBAL_MESSAGES_ERROR_WALLET_ALREADY_IMPORTED: loc.wallets.wallet_already_imported,
 };
 
 const styles = StyleSheet.create({

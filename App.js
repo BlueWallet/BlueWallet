@@ -316,15 +316,17 @@ const BlueGlobalMessageContainer = ({ children }) => {
   const { show, hide } = useContext(BlueGlobalMessageContext);
 
   const showGlobalMessage = useCallback(
-    (event, dismissable) => {
+    (event, dismissable = true) => {
+      hide();
       show({ message: event, dismissable });
     },
-    [show],
+    [hide, show],
   );
 
   useEffect(() => {
     EV(EV.enum.GLOBAL_MESSAGES_IMPORTING_WALLET, () => showGlobalMessage(loc.global_message.importing_wallet, false));
     EV(EV.enum.GLOBAL_MESSAGES_HIDE, () => setTimeout(hide, 1500));
+    EV(EV.enum.GLOBAL_MESSAGES_ERROR_WALLET_ALREADY_IMPORTED, () => showGlobalMessage(loc.wallets.wallet_already_imported));
   }, [hide, showGlobalMessage]);
 
   return (

@@ -335,6 +335,7 @@
     "import_error": "Failed to import. Please, make sure that the provided data is valid.",
     "import_explanation": "Write here your mnemonic, private key, WIF, or anything you've got. BlueWallet will do its best to guess the correct format and import your wallet",
     "import_imported": "Imported",
+    "wallet_already_imported": "This wallet has been previously imported.",
     "import_scan_qr": "Scan or import a file",
     "import_success": "Your wallet has been successfully imported.",
     "import_title": "import",
