@@ -27,7 +27,7 @@ import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/themes';
-import { BlueGlobalMessageProvider, BlueGlobalMessageContext } from './components/BlueGlobalMessageContext';
+import { BlueGlobalMessageProvider, BlueGlobalMessageContext, BlueGlobalMessageType } from './components/BlueGlobalMessageContext';
 import BlueGlobalMessage from './components/BlueGlobalMessage';
 const A = require('./blue_modules/analytics');
 
@@ -316,18 +316,22 @@ const BlueGlobalMessageContainer = ({ children }) => {
   const { show, hide } = useContext(BlueGlobalMessageContext);
 
   const showGlobalMessage = useCallback(
-    (event, dismissable = true) => {
+    (event, dismissable = true, type = BlueGlobalMessageType.LOADING) => {
       hide();
-      show({ message: event, dismissable });
+      show({ message: event, dismissable, type });
     },
     [hide, show],
   );
 
   useEffect(() => {
-    EV(EV.enum.GLOBAL_MESSAGES_IMPORTING_WALLET, () => showGlobalMessage(loc.global_message.importing_wallet, false));
+    EV(EV.enum.GLOBAL_MESSAGES_IMPORTING_WALLET, () =>
+      showGlobalMessage(loc.global_message.importing_wallet, false, BlueGlobalMessageType.LOADING),
+    );
     EV(EV.enum.GLOBAL_MESSAGES_HIDE, () => setTimeout(hide, 1500));
-    EV(EV.enum.GLOBAL_MESSAGES_ERROR_WALLET_ALREADY_IMPORTED, () => showGlobalMessage(loc.wallets.wallet_already_imported));
-    EV(EV.enum.GLOBAL_MESSAGES_ERROR_WALLET_IMPORT, () => showGlobalMessage(loc.wallets.import_error), false);
+    EV(EV.enum.GLOBAL_MESSAGES_ERROR_WALLET_ALREADY_IMPORTED, () =>
+      showGlobalMessage(loc.wallets.wallet_already_imported, true, BlueGlobalMessageType.WARNING),
+    );
+    EV(EV.enum.GLOBAL_MESSAGES_ERROR_WALLET_IMPORT, () => showGlobalMessage(loc.wallets.import_error, false, BlueGlobalMessageType.ERROR));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

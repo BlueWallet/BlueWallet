@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { BlueGlobalMessageContext } from './BlueGlobalMessageContext';
+import { BlueGlobalMessageContext, BlueGlobalMessageType } from './BlueGlobalMessageContext';
 import { Text, Animated, Easing, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import loc from '../loc';
@@ -55,7 +55,7 @@ export const BlueGlobalMessage = () => {
     <Animated.View style={[styles.container, stylesHook.container]}>
       <TouchableOpacity disabled={!dismissable} onPress={dismissable ? hide : undefined} style={styles.content}>
         <Text style={[styles.message, stylesHook.message]}> {container.message}</Text>
-        <ActivityIndicator />
+        {container.type === BlueGlobalMessageType.LOADING && <ActivityIndicator />}
       </TouchableOpacity>
     </Animated.View>
   );

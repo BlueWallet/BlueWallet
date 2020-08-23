@@ -1,10 +1,17 @@
 import React, { createContext, useState, useEffect, useRef, useCallback } from 'react';
 
+export const BlueGlobalMessageType = {
+  ERROR: 'ERROR',
+  SUCCESS: 'SUCCESS',
+  WARNING: 'WARNING',
+  LOADING: 'LOADING',
+};
+
 const initialMessage = {
   message: '',
-  type: null,
   visible: false,
   dismissable: true,
+  type: BlueGlobalMessageType.LOADING,
 };
 
 export const BlueGlobalMessageContext = createContext({});
