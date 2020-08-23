@@ -25,6 +25,7 @@ import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const { width } = Dimensions.get('window');
+const isDesktop = getSystemName() === 'Mac OS X';
 
 const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
@@ -93,7 +94,18 @@ const WalletsImport = () => {
   };
 
   const importScan = () => {
-    showActionSheet();
+    if (isDesktop) {
+      showActionSheet();
+    } else {
+      navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          launchedBy: route.name,
+          onBarScanned: onBarScanned,
+          showFileImportButton: true,
+        },
+      });
+    }
   };
 
   const choosePhoto = () => {
