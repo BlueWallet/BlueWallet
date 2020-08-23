@@ -21,8 +21,11 @@ import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
 import loc from '../../loc';
 import { getSystemName } from 'react-native-device-info';
+import RNFS from 'react-native-fs';
+import DocumentPicker from 'react-native-document-picker';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const { width } = Dimensions.get('window');
+const isDesktop = getSystemName() === 'Mac OS X';
 
 const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
@@ -91,7 +94,18 @@ const WalletsImport = () => {
   };
 
   const importScan = () => {
-    showActionSheet();
+    if (isDesktop) {
+      showActionSheet();
+    } else {
+      navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          launchedBy: route.name,
+          onBarScanned: onBarScanned,
+          showFileImportButton: true,
+        },
+      });
+    }
   };
 
   const choosePhoto = () => {
@@ -108,7 +122,7 @@ const WalletsImport = () => {
             if (!error) {
               onBarScanned(result);
             } else {
-              alert('The selected image does not contain a QR Code.');
+              alert(loc.send.qr_error_no_qrcode);
             }
           });
         }
@@ -130,7 +144,7 @@ const WalletsImport = () => {
             if (!error) {
               onBarScanned(result);
             } else {
-              alert('The selected image does not contain a QR Code.');
+              alert(loc.send.qr_error_no_qrcode);
             }
           });
         }
@@ -140,6 +154,25 @@ const WalletsImport = () => {
 
   const copyFromClipbard = async () => {
     onBarScanned(await Clipboard.getString());
+  };
+
+  const handleImportFileButtonPressed = async () => {
+    try {
+      const res = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      });
+
+      const file = await RNFS.readFile(res.uri);
+      if (file) {
+        onBarScanned(file);
+      } else {
+        throw new Error();
+      }
+    } catch (err) {
+      if (!DocumentPicker.isCancel(err)) {
+        alert(loc.wallets.import_error);
+      }
+    }
   };
 
   const showActionSheet = async () => {
@@ -152,6 +185,9 @@ const WalletsImport = () => {
         copyFromClipboardIndex = options.length - 1;
       }
 
+      options.push(loc.wallets.import_file);
+      const impoortFileButtonIndex = options.length - 1;
+
       ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
         if (buttonIndex === 1) {
           takePhoto();
@@ -159,6 +195,8 @@ const WalletsImport = () => {
           choosePhoto();
         } else if (buttonIndex === copyFromClipboardIndex) {
           copyFromClipbard();
+        } else if (impoortFileButtonIndex) {
+          handleImportFileButtonPressed();
         }
       });
     }
@@ -229,7 +267,7 @@ const WalletsImport = () => {
   );
 };
 
-WalletsImport.navigationOptions = ({ navigation, route }) => ({
+WalletsImport.navigationOptions = () => ({
   ...BlueNavigationStyle(),
   title: loc.wallets.import_title,
 });
