@@ -22,6 +22,7 @@ import {
   Platform,
   FlatList,
   TextInput,
+  PixelRatio,
 } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
@@ -867,6 +868,7 @@ export class BlueFormMultiInput extends Component {
           borderRadius: 4,
           backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
           color: BlueCurrentTheme.colors.foregroundColor,
+          textAlignVertical: 'top',
         }}
         autoCorrect={false}
         autoCapitalize="none"
@@ -1437,33 +1439,31 @@ export class BlueTransactionOutgoingIcon extends Component {
   }
 }
 
+const sendReceiveScanButtonFontSize = PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22 ? 22 :  PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 export class BlueReceiveButtonIcon extends Component {
   render() {
     return (
-      <TouchableOpacity {...this.props}>
+      <TouchableOpacity {...this.props} style={{ flex: 0.5 }}>
         <View
           style={{
             flex: 1,
-            minWidth: 130,
             backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
           }}
         >
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <View
               style={{
-                minWidth: 30,
-                minHeight: 30,
                 left: 5,
                 backgroundColor: 'transparent',
                 transform: [{ rotate: '-45deg' }],
                 alignItems: 'center',
-                marginBottom: -11,
+                marginRight: 8,
               }}
             >
               <Icon
                 {...this.props}
                 name="arrow-down"
-                size={16}
+                size={sendReceiveScanButtonFontSize}
                 type="font-awesome"
                 color={BlueCurrentTheme.colors.buttonAlternativeTextColor}
               />
@@ -1471,8 +1471,8 @@ export class BlueReceiveButtonIcon extends Component {
             <Text
               style={{
                 color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
-                fontSize: (isIpad && 10) || 16,
                 fontWeight: '500',
+                fontSize: sendReceiveScanButtonFontSize,
                 left: 5,
                 backgroundColor: 'transparent',
               }}
@@ -1489,14 +1489,12 @@ export class BlueReceiveButtonIcon extends Component {
 export class BlueScanButton extends Component {
   render() {
     return (
-      <TouchableOpacity {...this.props}>
+      <TouchableOpacity {...this.props} style={{ flex: 1 }}>
         <View
           style={{
             flex: 1,
             minWidth: 130,
             backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
-            paddingRight: 20,
-            paddingLeft: 20,
           }}
         >
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
@@ -1510,12 +1508,12 @@ export class BlueScanButton extends Component {
                 marginLeft: -8,
               }}
             >
-              <Image style={{}} source={BlueCurrentTheme.scanImage} />
+              <Image resizeMode="stretch" source={BlueCurrentTheme.scanImage} />
             </View>
             <Text
               style={{
                 color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
-                fontSize: (isIpad && 10) || 16,
+                fontSize: sendReceiveScanButtonFontSize,
                 fontWeight: '600',
                 left: 5,
                 backgroundColor: 'transparent',
@@ -1533,11 +1531,10 @@ export class BlueScanButton extends Component {
 export class BlueSendButtonIcon extends Component {
   render() {
     return (
-      <TouchableOpacity {...this.props} testID="SendButton">
+      <TouchableOpacity {...this.props} testID="SendButton" style={{ flex: 0.5 }}>
         <View
           style={{
             flex: 1,
-            minWidth: 130,
             backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
             alignItems: 'center',
           }}
@@ -1545,18 +1542,16 @@ export class BlueSendButtonIcon extends Component {
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
             <View
               style={{
-                minWidth: 30,
-                minHeight: 30,
                 left: 5,
                 backgroundColor: 'transparent',
                 transform: [{ rotate: '225deg' }],
-                marginBottom: 11,
+                marginRight: 8,
               }}
             >
               <Icon
                 {...this.props}
                 name="arrow-down"
-                size={16}
+                size={sendReceiveScanButtonFontSize}
                 type="font-awesome"
                 color={BlueCurrentTheme.colors.buttonAlternativeTextColor}
               />
@@ -1564,7 +1559,7 @@ export class BlueSendButtonIcon extends Component {
             <Text
               style={{
                 color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
-                fontSize: (isIpad && 10) || 16,
+                fontSize: sendReceiveScanButtonFontSize,
                 fontWeight: '500',
                 backgroundColor: 'transparent',
               }}
@@ -2104,9 +2099,10 @@ export class WalletsCarousel extends Component {
           itemWidth={itemWidth}
           inactiveSlideScale={1}
           inactiveSlideOpacity={0.7}
+          activeSlideAlignment="start"
           initialNumToRender={4}
           onLayout={this.onLayout}
-          contentContainerCustomStyle={{ left: -20 }}
+          contentContainerCustomStyle={{ left: 20 }}
         />
       </>
     );

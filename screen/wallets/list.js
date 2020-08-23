@@ -676,13 +676,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   scanButton: {
-    flexDirection: 'row',
     alignSelf: 'center',
     backgroundColor: 'transparent',
     position: 'absolute',
+    width: '34%',
+    maxWidth: 200,
     bottom: 30,
     borderRadius: 30,
-    minHeight: 48,
+    height: '6.3%',
+    minHeight: 44,
     overflow: 'hidden',
   },
   listHeader: {

@@ -8,7 +8,7 @@
 
 import WatchKit
 import Foundation
-
+import WatchConnectivity
 
 class WalletDetailsInterfaceController: WKInterfaceController {
   
@@ -36,6 +36,23 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
     createInvoiceButton.setHidden(wallet.type != "lightningCustodianWallet")
     processWalletsTable()
+    addMenuItems()
+  }
+  
+  func addMenuItems() {
+    guard let wallet = wallet else {
+       return
+    }
+    if wallet.type != "lightningCustodianWallet" && !(wallet.xpub ?? "").isEmpty {
+      addMenuItem(with: .share, title: "View XPub", action: #selector(viewXPubMenuItemTapped))
+    }
+  }
+  
+  @objc func viewXPubMenuItemTapped() {
+    guard let xpub = wallet?.xpub else {
+      return
+    }
+    presentController(withName: ViewQRCodefaceController.identifier, context: xpub)
   }
   
   override func willActivate() {
@@ -43,6 +60,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     transactionsTable.setHidden(wallet?.transactions.isEmpty ?? true)
     noTransactionsLabel.setHidden(!(wallet?.transactions.isEmpty ?? false))
     receiveButton.setHidden(wallet?.receiveAddress.isEmpty ?? true)
+    createInvoiceButton.setEnabled(WCSession.default.isReachable)
   }
   
   @IBAction func receiveMenuItemTapped() {
@@ -66,7 +84,9 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   }
   
   @IBAction func createInvoiceTapped() {
-    pushController(withName: ReceiveInterfaceController.identifier, context: (wallet?.identifier, "createInvoice"))
+    if (WCSession.default.isReachable) {
+      pushController(withName: ReceiveInterfaceController.identifier, context: (wallet?.identifier, "createInvoice"))
+    }
   }
   
   override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {

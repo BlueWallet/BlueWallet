@@ -1,3 +1,20 @@
+v5.5.4
+======
+
+* ADD: handling push notification open
+* ADD: View Wallet xPub (Apple Watch)
+* ADD: COP Fiat
+* FIX: Invoice were not being sent (Apple Watch)
+* FIX: Disable some Watch app elements when app is not reachable
+* FIX: Show loading indicator when processing file or qrcode image
+* FIX: Button size for large devices
+* FIX: better handling of electrum disconnect
+* FIX: disable push notifications in settings
+* FIX: Font-Color in Bump-Fee Input Field "Custom" is not adapted for dark mode
+* FIX: QRCode border in LND Backup screen
+* FIX: Animated QRCode border. Change save path to Downloads folder
+* FIX: sk_SK language updates
+
 v5.5.3
 ======
 
@@ -55,20 +72,3 @@ v5.4.4
 * REF: Replace FaceID image
 * REF: optimize png images size
 * REF: speeded up legacy HD wallets (BIP44)
-
-v5.4.3
-======
-
-* ADD: Login to Local Trader with HodlHodl
-* ADD: See full listing screen
-* ADD: See your contracts/offers
-* ADD: Accept offer (buy Bitcoin)
-* ADD: You can now modify on-chain transaction note to self
-* ADD: ILS Fiat
-* REF: improved electrum server connectivity
-* FIX: deeplinking for cold boot
-* FIX: lnurl withdrawal when default unit is not sat (closes #1234)
-* FIX: StatusBar wasn't visible when modals opened
-* FIX: Euro symbol for iOS Today extension
-* FIX: Change Withdraw to Exchange
-* DEL: support for BIP70

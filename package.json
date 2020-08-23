@@ -1,6 +1,6 @@
 {
   "name": "bluewallet",
-  "version": "5.5.4",
+  "version": "5.5.5",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.9.6",
@@ -86,10 +86,10 @@
     "buffer-reverse": "1.0.1",
     "coinselect": "3.1.12",
     "crypto-js": "3.1.9-1",
-    "dayjs": "1.8.28",
+    "dayjs": "1.8.30",
     "detox": "16.9.2",
     "ecurve": "1.0.6",
-    "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#cc018effafd2256272f348953500c4d27cef0d2f",
+    "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#09453000a63b8b15b37e58f80c47c7120dc8d89d",
     "electrum-mnemonic": "2.0.0",
     "eslint-config-prettier": "6.11.0",
     "eslint-config-standard": "14.1.1",
