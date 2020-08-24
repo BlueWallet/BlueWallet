@@ -15,6 +15,7 @@ import * as NavigationService from '../../NavigationService';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import { getSystemName } from 'react-native-device-info';
+import { HodlHodlApi } from '../../class/hodl-hodl-api';
 const EV = require('../../blue_modules/events');
 const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
@@ -35,6 +36,7 @@ export default class WalletsList extends Component {
       wallets: BlueApp.getWallets().concat(false),
       timeElpased: 0,
       dataSource: [],
+      renderLocalTrader: false,
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, () => this.redrawScreen(true));
 
@@ -64,6 +66,11 @@ export default class WalletsList extends Component {
       } catch (error) {
         console.log(error);
       }
+
+      const hodlhodlAPI = new HodlHodlApi();
+      hodlhodlAPI.getMyCountryCode().then(value => {
+        this.setState({ renderLocalTrader: value !== 'US' });
+      });
     });
 
     this.interval = setInterval(() => {
@@ -299,7 +306,11 @@ export default class WalletsList extends Component {
   };
 
   renderLocalTrader = () => {
-    if (BlueApp.getWallets().length > 0 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (
+      this.state.renderLocalTrader &&
+      BlueApp.getWallets().length > 0 &&
+      !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)
+    ) {
       return (
         <TouchableOpacity
           onPress={() => {

@@ -122,6 +122,10 @@ export default class HodlHodl extends Component {
 
   async fetchMyCountry() {
     const myCountryCode = await this.state.HodlApi.getMyCountryCode();
+    if (myCountryCode === 'US') {
+      alert('This service is not available in the USA.');
+      this.props.navigation.goBack();
+    }
     this.setState({
       myCountryCode,
       country: myCountryCode, // we start with orders from current country
@@ -135,6 +139,8 @@ export default class HodlHodl extends Component {
    **/
   async fetchListOfCountries() {
     const countries = await this.state.HodlApi.getCountries();
+
+    console.warn(countries);
     this.setState({ countries });
   }
 
@@ -867,6 +873,7 @@ HodlHodl.propTypes = {
     addListener: PropTypes.func,
     navigate: PropTypes.func,
     setParams: PropTypes.func,
+    goBack: PropTypes.func,
   }),
 };
 
