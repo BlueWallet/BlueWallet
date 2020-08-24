@@ -1,3 +1,8 @@
+v5.5.5
+======
+
+* FIX: scan Cobo vault signed transaction QR
+
 v5.5.4
 ======
 
@@ -54,21 +59,3 @@ v5.5.0
 
 * FIX: provide entropy for D20
 * REF: speeded up transactions list
-
-v5.4.4
-======
-
-* ADD: support for Cobo Vault hardware wallet (animated QR codes)
-* ADD: Provide entropy via dice rolls or coin flip
-* ADD: Option to exclude some wallet's transactions #248 (#1220)
-* ADD: Detect language and currency setting on first run
-* ADD: Launch screen dark mode
-* FIX: cant send onchain when scanning QR with address & amount
-* FIX: errors when fetching huge transactions from electrum server
-* FIX: lnurl withdrawal when currency is set to fiat (closes #1290)
-* FIX: local trader: when user is not logged in, clicking 'accept offer' should not just throw alert, but open login screen
-* FIX: local trader: before accepting offer, refetch it and use fresh id and version so there are no 'outdated' errors
-* FIX: local trader: when 'I am selling', sort order should be reversed
-* REF: Replace FaceID image
-* REF: optimize png images size
-* REF: speeded up legacy HD wallets (BIP44)
