@@ -69,8 +69,10 @@ export default class WalletImport {
   }
 
   static addPlaceholderWallet(importText, isFailure = false) {
-    const walletExists = BlueApp.wallets.some(wallet => wallet.getSecret() === importText);
+    const walletExists = BlueApp.wallets.find(wallet => wallet.getSecret() === importText && wallet.type === PlaceholderWallet.type);
     if (walletExists) {
+      walletExists.setIsFailure(isFailure);
+      EV(EV.enum.WALLETS_COUNT_CHANGED);
       return walletExists;
     } else {
       const wallet = new PlaceholderWallet();
@@ -99,8 +101,8 @@ export default class WalletImport {
       return;
     }
 
-
     EV(EV.enum.GLOBAL_MESSAGES_IMPORTING_WALLET);
+    WalletImport.addPlaceholderWallet(importText);
     // Plan:
     // -2. check if BIP38 encrypted
     // -1. check lightning custodian
