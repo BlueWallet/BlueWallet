@@ -1,10 +1,10 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardType } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 import { Header, InputItem, Button, ScreenTemplate } from 'app/components';
-import { RootStackParams, Route } from 'app/consts';
+import { defaultKeyboardType, RootStackParams, Route } from 'app/consts';
 
 const i18n = require('../../loc');
 
@@ -16,7 +16,7 @@ interface Props {
 export const EditTextScreen = (props: Props) => {
   const { params } = props.route;
   const { label, header, onSave, title } = params;
-  const keyboardType = params.keyboardType || 'default';
+  const keyboardType = params.keyboardType || defaultKeyboardType;
   const validate = params.validate || null;
   const validateOnSave = params.validateOnSave || null;
   const [value, setValue] = useState(params.value || '');
@@ -54,7 +54,7 @@ export const EditTextScreen = (props: Props) => {
           setValue={setValue}
           autoFocus={true}
           error={error || (value && !!validate && validate(value)) || ''}
-          keyboardType={keyboardType as KeyboardType}
+          keyboardType={keyboardType}
         />
       </View>
     </ScreenTemplate>

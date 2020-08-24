@@ -4,8 +4,5 @@
   "description": "",
   "main": "index.js",
   "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "react-native-elements": "^1.2.7"
-  }
+  "license": "ISC"
 }

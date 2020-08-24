@@ -3,6 +3,7 @@ import { Keyboard, StyleSheet, TextInput, TouchableOpacity, View } from 'react-n
 
 import { icons, images } from 'app/assets';
 import { FlatButton } from 'app/components/FlatButton';
+import { defaultKeyboardType } from 'app/consts';
 import { palette, typography } from 'app/styles';
 
 import { Image } from './Image';
@@ -53,6 +54,7 @@ export class SearchBar extends React.PureComponent<Props, State> {
             onBlur={this.blur}
             placeholderTextColor={palette.textWhiteMuted}
             placeholder={i18n.contactList.search}
+            keyboardType={defaultKeyboardType}
             autoCapitalize="none"
           />
           {!!this.props.query && (

@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Button, Header, ScreenTemplate, Text, Mnemonic } from 'app/components';
 import { MainCardStackNavigatorParams, Route, MainTabNavigatorParams } from 'app/consts';
+import { preventScreenshots, allowScreenshots } from 'app/services/ScreenshotsService';
 import { palette, typography } from 'app/styles';
 
 const i18n = require('../../loc');
@@ -19,6 +20,14 @@ interface Props {
 }
 
 export class CreateWalletSuccessScreen extends React.PureComponent<Props> {
+  componentDidMount() {
+    preventScreenshots();
+  }
+
+  componentWillUnmount() {
+    allowScreenshots();
+  }
+
   navigateBack = () => {
     this.props.navigation.navigate(Route.Dashboard);
   };

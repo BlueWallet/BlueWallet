@@ -1,8 +1,7 @@
 import { groupBy, orderBy, map, compose } from 'lodash/fp';
 
 import { Transaction } from 'app/consts';
-
-import { formatDate } from '../../utils/date';
+import { formatDate } from 'app/utils/date';
 
 // @ts-ignore
 const mapNoCap = map.convert({ cap: false });

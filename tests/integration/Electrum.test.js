@@ -8,7 +8,7 @@ global.net = require('net');
 
 const BlueElectrum = require('../../BlueElectrum');
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
+jest.setTimeout(150000);
 
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate

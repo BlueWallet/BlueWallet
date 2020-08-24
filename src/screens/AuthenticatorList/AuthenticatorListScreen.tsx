@@ -10,8 +10,7 @@ import { Route, Authenticator, FinalizedPSBT, CONST } from 'app/consts';
 import { ApplicationState } from 'app/state';
 import { selectors, actions } from 'app/state/authenticators';
 import { palette, typography } from 'app/styles';
-
-import { formatDate } from '../../../utils/date';
+import { formatDate } from 'app/utils/date';
 
 const BigNumber = require('bignumber.js');
 

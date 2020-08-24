@@ -1,11 +1,12 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { Header, Mnemonic, ScreenTemplate } from 'app/components';
 import { RootStackParams, Route } from 'app/consts';
+import { preventScreenshots, allowScreenshots } from 'app/services/ScreenshotsService';
 import { typography } from 'app/styles';
 
 const i18n = require('../../loc');
@@ -18,6 +19,14 @@ interface Props {
 export const ExportWalletScreen = ({ route, navigation }: Props) => {
   const { wallet } = route.params;
   const secret = wallet.getSecret();
+
+  useEffect(() => {
+    preventScreenshots();
+
+    return () => {
+      allowScreenshots();
+    };
+  }, []);
 
   return (
     <ScreenTemplate

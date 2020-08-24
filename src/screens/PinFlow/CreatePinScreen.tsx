@@ -101,7 +101,12 @@ export class CreatePinScreen extends PureComponent<Props, State> {
           <Text style={styles.pinDescription}>{i18n.onboarding.createPinDescription}</Text>
         </View>
         <View style={styles.pinContainer}>
-          <PinInput value={pin} onTextChange={this.updatePin} ref={this.pinInputRef} />
+          <PinInput
+            value={pin}
+            onTextChange={this.updatePin}
+            ref={this.pinInputRef}
+            navigation={this.props.navigation}
+          />
         </View>
       </ScreenTemplate>
     );

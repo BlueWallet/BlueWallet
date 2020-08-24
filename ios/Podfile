@@ -59,4 +59,5 @@ target 'GoldWallet' do
     pod 'react-native-restart', :path => '../node_modules/react-native-restart'
     pod 'RNFBAnalytics', :path => '../node_modules/@react-native-firebase/analytics'
 
+
 end

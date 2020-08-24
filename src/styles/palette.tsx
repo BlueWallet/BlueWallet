@@ -17,6 +17,7 @@ export const palette = {
   background: '#fff',
   backgroundDarker: 'rgb(234, 234, 234)',
   border: 'rgb(204, 204, 204)',
+  borderGrey: '#cccccc',
   error: 'rgb(244, 94, 89)',
   shadow: 'rgba(0, 0, 0, 0.12)',
   shadowLight: 'rgba(0, 0, 0, 0.08)',

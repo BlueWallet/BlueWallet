@@ -22,7 +22,6 @@ interface Props {
     StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
     StackNavigationProp<MainCardStackNavigatorParams, Route.ConfirmPin>
   >;
-
   route: RouteProp<MainCardStackNavigatorParams, Route.ConfirmPin>;
 }
 
@@ -94,7 +93,7 @@ export class ConfirmPinScreen extends PureComponent<Props, State> {
           <Text style={styles.pinDescription}>{i18n.onboarding.createPinDescription}</Text>
         </View>
         <View style={styles.pinContainer}>
-          <PinInput value={this.state.pin} onTextChange={this.updatePin} />
+          <PinInput value={this.state.pin} onTextChange={this.updatePin} navigation={this.props.navigation} />
           <Text style={styles.errorText}>{error}</Text>
         </View>
       </ScreenTemplate>

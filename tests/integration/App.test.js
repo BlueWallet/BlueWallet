@@ -51,7 +51,7 @@ it('SegwitP2SHWallet can generate segwit P2SH address from WIF', async () => {
 });
 
 it('Wallet can fetch balance', async () => {
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
+  jest.setTimeout(30000);
   const w = new LegacyWallet();
   w._address = 'YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba'; // hack internals
   assert.ok(w.getBalance() === 0);
@@ -63,7 +63,7 @@ it('Wallet can fetch balance', async () => {
 });
 
 it('Wallet can fetch UTXO', async () => {
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
+  jest.setTimeout(30000);
   const w = new LegacyWallet();
   w._address = 'YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba';
   assert.strictEqual(w.getAddress(), 'YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba');

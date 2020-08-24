@@ -1,7 +1,7 @@
 import { VaultTxType, Transaction as BtcTransaction } from 'bitcoinjs-lib';
 import { Dayjs } from 'dayjs';
 import React from 'react';
-import { KeyboardType, StyleProp, ViewStyle } from 'react-native';
+import { KeyboardType, StyleProp, ViewStyle, Platform } from 'react-native';
 import { ButtonProps } from 'react-native-elements';
 
 import { FastImageSource } from 'app/components';
@@ -18,8 +18,19 @@ export const CONST = {
   preferredBalanceUnit: 'BTCV',
   alertBlocks: 144,
   confirmationsBlocks: 6,
+  android: 'android',
+  ios: 'ios',
 };
 
+export const defaultKeyboardType = Platform.select({ android: 'visible-password', ios: 'default' }) as KeyboardType;
+
+export interface SocketOptions {
+  host: string;
+  port: number;
+  rejectUnauthorized: boolean;
+}
+
+export type SocketCallback = (address: string) => void;
 export const ELECTRUM_VAULT_SEED_PREFIXES = {
   SEED_PREFIX: '01', // Standard wallet
   SEED_PREFIX_SW: '100', // Segwit wallet
@@ -86,6 +97,7 @@ export enum Route {
   AdvancedOptions = 'AdvancedOptions',
   UnlockTransaction = 'UnlockTransaction',
   FilterTransactions = 'FilterTransactions',
+  TimeCounter = 'TimeCounter',
   IntegrateKey = 'IntegrateKey',
   ImportWalletChooseType = 'ImportWalletChooseType',
 }
@@ -315,6 +327,10 @@ export type MainCardStackNavigatorParams = {
     pin: string;
   };
   [Route.FilterTransactions]: { onFilterPress: ({}) => void };
+  [Route.TimeCounter]: {
+    onTryAgain: () => void;
+    timestamp: number;
+  };
   [Route.CreateAuthenticator]: undefined;
   [Route.EnterPIN]: { id: string };
   [Route.PairAuthenticator]: { id: string };

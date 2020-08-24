@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { StyleSheet, TextInput as BaseTextInput, StyleProp, ViewStyle, Text } from 'react-native';
 
+import { defaultKeyboardType } from 'app/consts';
 import { palette, typography } from 'app/styles';
 
 interface Props {
@@ -33,6 +34,8 @@ export class TextAreaItem extends PureComponent<Props, State> {
           placeholder={placeholder}
           placeholderTextColor={palette.textGrey}
           numberOfLines={100}
+          autoCorrect={false}
+          keyboardType={defaultKeyboardType}
           selectionColor={palette.textSecondary}
           value={value}
           editable={editable}

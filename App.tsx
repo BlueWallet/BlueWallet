@@ -11,6 +11,7 @@ import { i18n } from 'app/locale';
 import { RootNavigator } from 'app/navigators';
 import { UnlockScreen } from 'app/screens';
 import { SecureStorageService, AppStateManager, navigationRef } from 'app/services';
+import { checkDeviceSecurity } from 'app/services/DeviceSecurityService';
 import { persistor, store } from 'app/state/store';
 
 import config from './config';
@@ -39,9 +40,12 @@ export default class App extends React.PureComponent<State> {
     if (isPinSet) {
       this.setState({ isPinSet });
     }
+    if (!__DEV__) {
+      checkDeviceSecurity();
+    }
   }
 
-  handleAppComesToForeground = async () => {
+  lockScreen = () => {
     this.setState({
       successfullyAuthenticated: false,
     });
@@ -68,7 +72,7 @@ export default class App extends React.PureComponent<State> {
     return (
       <I18nextProvider i18n={i18n}>
         <Provider store={store}>
-          <AppStateManager handleAppComesToForeground={this.handleAppComesToForeground} />
+          <AppStateManager handleAppComesToBackground={this.lockScreen} />
           <PersistGate loading={null} persistor={persistor}>
             <View style={styles.wrapper}>
               <NavigationContainer ref={navigationRef as any}>

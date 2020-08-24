@@ -22,7 +22,7 @@ beforeAll(async () => {
 
 describe('HDSegwitBech32Transaction', () => {
   it('can decode & check sequence', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+    jest.setTimeout(30000);
     let T = new HDSegwitBech32Transaction(null, '99a385c93ccca11c10a61517c7a61c35c3c4b81c3e02a8deadc277d4b66eb47a');
     assert.strictEqual(await T.getMaxUsedSequence(), 0xfffffffd);
     assert.strictEqual(await T.isSequenceReplaceable(), true);
@@ -37,7 +37,7 @@ describe('HDSegwitBech32Transaction', () => {
   });
 
   it('can tell if its our transaction', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+    jest.setTimeout(30000);
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
@@ -62,7 +62,7 @@ describe('HDSegwitBech32Transaction', () => {
   });
 
   it('can tell tx info', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+    jest.setTimeout(30000);
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
@@ -106,7 +106,7 @@ describe('HDSegwitBech32Transaction', () => {
   });
 
   it('can do RBF - cancel tx', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+    jest.setTimeout(30000);
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
@@ -141,7 +141,7 @@ describe('HDSegwitBech32Transaction', () => {
   });
 
   it('can do RBF - bumpfees tx', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+    jest.setTimeout(30000);
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
@@ -180,7 +180,7 @@ describe('HDSegwitBech32Transaction', () => {
   });
 
   it('can do CPFP - bump fees', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+    jest.setTimeout(30000);
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;

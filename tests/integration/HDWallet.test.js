@@ -10,7 +10,7 @@ global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, b
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 const BlueElectrum = require('../../BlueElectrum');
 // so it connects ASAP
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
+jest.setTimeout(300000);
 
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate
@@ -69,7 +69,7 @@ it('can create a Segwit HD (BIP49)', async function() {
 });
 
 xit('HD (BIP49) can work with a gap', async function() {
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
+  jest.setTimeout(300000);
   const hd = new HDSegwitP2SHWallet();
   hd._xpub =
     'ypub6XRzrn3HB1tjhhvrHbk1vnXCecZEdXohGzCk3GXwwbDoJ3VBzZ34jNGWbC6WrS7idXrYjjXEzcPDX5VqnHEnuNf5VAXgLfSaytMkJ2rwVqy'; // has gap
@@ -87,7 +87,7 @@ xit('HD (BIP49) can work with a gap', async function() {
 });
 
 it.skip('Segwit HD (BIP49) can batch fetch many txs', async function() {
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
+  jest.setTimeout(300000);
   const hd = new HDSegwitP2SHWallet();
   hd._xpub =
     'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ';
@@ -97,7 +97,7 @@ it.skip('Segwit HD (BIP49) can batch fetch many txs', async function() {
 });
 
 it.skip('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagging behind', async function() {
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
+  jest.setTimeout(300000);
   const hd = new HDSegwitP2SHWallet();
   hd._xpub =
     'ypub6Wj9dHZAtSM3DQB6kG37aK5i1yJbBoM2d1W57aMkyLx4cNyGqWYpGvL194zA4HSxWpQyoPrsXE2PP4pNUqu5cvvHUK2ZpfUeHFmuK4THAD3';

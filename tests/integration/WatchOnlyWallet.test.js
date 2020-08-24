@@ -27,7 +27,7 @@ describe('Watch only wallet', () => {
   });
 
   it('can fetch tx', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
+    jest.setTimeout(150000);
     const w = new WatchOnlyWallet();
 
     w.setSecret('RAvAthYyPGVEUMWRHBwod63XSKYcx6aF28');

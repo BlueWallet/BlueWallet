@@ -21,7 +21,8 @@ beforeAll(async () => {
 
 describe('Bech32 Segwit HD (BIP84)', () => {
   it('can create', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+    jest.setTimeout(30000);
+
     const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
     const hd = new HDSegwitBech32Wallet();
     await hd.setSecret(mnemonic);
@@ -52,11 +53,12 @@ describe('Bech32 Segwit HD (BIP84)', () => {
   });
 
   it('can fetch balance', async function() {
+    jest.setTimeout(90000);
+
     if (!process.env.HD_MNEMONIC) {
       console.error('process.env.HD_MNEMONIC not set, skipped');
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
     let hd = new HDSegwitBech32Wallet();
     hd.setSecret(process.env.HD_MNEMONIC);
     assert.ok(hd.validateMnemonic());
@@ -89,11 +91,11 @@ describe('Bech32 Segwit HD (BIP84)', () => {
   });
 
   it('can fetch transactions', async function() {
+    jest.setTimeout(90000);
     if (!process.env.HD_MNEMONIC) {
       console.error('process.env.HD_MNEMONIC not set, skipped');
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(process.env.HD_MNEMONIC);
     assert.ok(hd.validateMnemonic());
@@ -117,11 +119,11 @@ describe('Bech32 Segwit HD (BIP84)', () => {
   });
 
   it('can fetch UTXO', async () => {
+    jest.setTimeout(90000);
     if (!process.env.HD_MNEMONIC) {
       console.error('process.env.HD_MNEMONIC not set, skipped');
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(process.env.HD_MNEMONIC);
     assert.ok(hd.validateMnemonic());
@@ -149,7 +151,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
   });
 
   it('can generate', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
+    jest.setTimeout(60000);
     const hd = new HDSegwitBech32Wallet();
     const hashmap = {};
     for (let c = 0; c < 10; c++) {
@@ -168,11 +170,11 @@ describe('Bech32 Segwit HD (BIP84)', () => {
   });
 
   it('can work with fauty zpub', async () => {
+    jest.setTimeout(90000);
     if (!process.env.FAULTY_ZPUB) {
       console.error('process.env.FAULTY_ZPUB not set, skipped');
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
     const hd = new HDSegwitBech32Wallet();
     hd._xpub = process.env.FAULTY_ZPUB;
 
@@ -183,11 +185,11 @@ describe('Bech32 Segwit HD (BIP84)', () => {
   });
 
   it('can fetchBalance, fetchTransactions, fetchUtxo and create transactions', async () => {
+    jest.setTimeout(90000);
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(process.env.HD_MNEMONIC_BIP84);
     assert.ok(hd.validateMnemonic());
