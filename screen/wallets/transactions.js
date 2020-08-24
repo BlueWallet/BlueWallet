@@ -39,7 +39,6 @@ import Handoff from 'react-native-handoff';
 import { BlueCurrentTheme } from '../../components/themes';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
-import BuyBitcoinRouter from '../../class/buy-bitcoin-router';
 import { getSystemName } from 'react-native-device-info';
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
@@ -368,10 +367,6 @@ export default class WalletTransactions extends Component {
     );
   };
 
-  handleOnRefillCardPress = () => {
-    this.setState({ isManageFundsModalVisible: false }, () => BuyBitcoinRouter.navigate(this.state.wallet));
-  };
-
   renderManageFundsModal = () => {
     return (
       <Modal
@@ -412,7 +407,18 @@ export default class WalletTransactions extends Component {
               title={loc.lnd.refill_external}
             />
 
-            <BlueListItem hideChevron component={TouchableOpacity} onPress={this.handleOnRefillCardPress} title={loc.lnd.refill_card} />
+            <BlueListItem
+              hideChevron
+              component={TouchableOpacity}
+              onPress={a => {
+                this.setState({ isManageFundsModalVisible: false }, async () => {
+                  this.props.navigation.navigate('BuyBitcoin', {
+                    wallet: this.state.wallet,
+                  });
+                });
+              }}
+              title={loc.lnd.refill_card}
+            />
 
             <BlueListItem
               title={loc.lnd.exchange}
@@ -479,7 +485,14 @@ export default class WalletTransactions extends Component {
 
   renderSellFiat = () => {
     return (
-      <TouchableOpacity onPress={() => BuyBitcoinRouter.navigate(this.state.wallet)} style={styles.marketplaceButton2}>
+      <TouchableOpacity
+        onPress={() =>
+          this.props.navigation.navigate('BuyBitcoin', {
+            wallet: this.state.wallet,
+          })
+        }
+        style={styles.marketplaceButton2}
+      >
         <Text style={styles.marketpalceText1}>{loc.wallets.list_tap_here_to_buy}</Text>
       </TouchableOpacity>
     );
@@ -733,7 +746,14 @@ export default class WalletTransactions extends Component {
                 {this.isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
 
                 {!this.isLightning() && (
-                  <TouchableOpacity onPress={() => BuyBitcoinRouter.navigate(this.state.wallet)} style={styles.buyBitcoin}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.props.navigation.navigate('BuyBitcoin', {
+                        wallet: this.state.wallet,
+                      })
+                    }
+                    style={styles.buyBitcoin}
+                  >
                     <Text style={styles.buyBitcoinText}>{loc.wallets.list_tap_here_to_buy}</Text>
                   </TouchableOpacity>
                 )}

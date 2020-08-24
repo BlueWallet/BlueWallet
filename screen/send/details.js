@@ -698,7 +698,6 @@ export default class SendDetails extends Component {
               memo: this.state.memo,
               fromWallet: this.state.fromWallet,
               psbt: file,
-              isFirstPSBTAlreadyBase64: true,
             });
             this.setState({ isLoading: false });
             return;

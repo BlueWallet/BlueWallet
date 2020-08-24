@@ -34,7 +34,6 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
 import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
-import { Psbt } from 'bitcoinjs-lib';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 const EV = require('../../blue_modules/events');
@@ -150,8 +149,8 @@ export default class PsbtWithHardwareWallet extends Component {
             if (this.state.animatedQRCodeData.length === total) {
               const payload = decodeUR(this.state.animatedQRCodeData.map(i => i.data));
               const psbtB64 = Buffer.from(payload, 'hex').toString('base64');
-              const psbt = Psbt.fromBase64(psbtB64);
-              this.setState({ txhex: psbt.extractTransaction().toHex() });
+              const Tx = this._combinePSBT(psbtB64);
+              this.setState({ txhex: Tx.toHex() });
             }
           },
         );
@@ -162,14 +161,13 @@ export default class PsbtWithHardwareWallet extends Component {
   };
 
   _combinePSBT = receivedPSBT => {
-    return this.state.fromWallet.combinePsbt(
-      this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),
-      receivedPSBT,
-    );
+    return this.state.fromWallet.combinePsbt(this.state.psbt, receivedPSBT);
   };
 
   onBarScanned = ret => {
+    if (ret && !ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
+      this.props.navigation.dangerouslyGetParent().pop();
       return this._onReadUniformResource(ret.data);
     }
     if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
@@ -193,7 +191,6 @@ export default class PsbtWithHardwareWallet extends Component {
       memo: props.route.params.memo,
       psbt: props.route.params.psbt,
       fromWallet: props.route.params.fromWallet,
-      isFirstPSBTAlreadyBase64: props.route.params.isFirstPSBTAlreadyBase64,
       isSecondPSBTAlreadyBase64: false,
       deepLinkPSBT: undefined,
       txhex: props.route.params.txhex || undefined,
@@ -207,10 +204,7 @@ export default class PsbtWithHardwareWallet extends Component {
     const txhex = nextProps.route.params.txhex;
     if (deepLinkPSBT) {
       try {
-        const Tx = prevState.fromWallet.combinePsbt(
-          prevState.isFirstPSBTAlreadyBase64 ? prevState.psbt : prevState.psbt.toBase64(),
-          deepLinkPSBT,
-        );
+        const Tx = prevState.fromWallet.combinePsbt(prevState.psbt, deepLinkPSBT);
         return {
           ...prevState,
           txhex: Tx.toHex(),
@@ -293,7 +287,7 @@ export default class PsbtWithHardwareWallet extends Component {
   exportPSBT = async () => {
     if (Platform.OS === 'ios') {
       const filePath = RNFS.TemporaryDirectoryPath + `/${this.fileName}`;
-      await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64());
+      await RNFS.writeFile(filePath, typeof this.state.psbt === 'string' ? this.state.psbt : this.state.psbt.toBase64());
       Share.open({
         url: 'file://' + filePath,
       })
@@ -313,7 +307,7 @@ export default class PsbtWithHardwareWallet extends Component {
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.DownloadDirectoryPath + `/${this.fileName}`;
-        await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64());
+        await RNFS.writeFile(filePath, typeof this.state.psbt === 'string' ? this.state.psbt : this.state.psbt.toBase64());
         alert(loc.formatString(loc.send.txSaved, { filePath: this.fileName }));
       } else {
         console.log('Storage Permission: Denied');
@@ -424,7 +418,7 @@ export default class PsbtWithHardwareWallet extends Component {
               <BlueSpacing20 />
               <View style={styles.copyToClipboard}>
                 <BlueCopyToClipboardButton
-                  stringToCopy={this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64()}
+                  stringToCopy={typeof this.state.psbt === 'string' ? this.state.psbt : this.state.psbt.toBase64()}
                   displayText={loc.send.psbt_clipboard}
                 />
               </View>

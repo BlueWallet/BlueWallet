@@ -199,7 +199,7 @@
     "qr_error_no_qrcode": "Выбранная картинка не содержит QR Code.",
     "qr_error_no_wallet": "Выбранный файл не содержит кошелька который можно было бы импортировать.",
     "success_done": "Готово",
-    "txSaved": "Транзакция сохранена в {filePath}"
+    "txSaved": "Файл с транзакцией ({filePath}) сохранён в папке Загрузки."
   },
   "settings": {
     "about": "О программе",
@@ -350,6 +350,7 @@
     "list_long_choose": "Выбрать фото",
     "list_long_clipboard": "Вставить из буфера обмена",
     "list_long_scan": "Сканировать QR-код",
+    "take_photo": "Сфотографировать",
     "list_tap_here_to_buy": "Купить Bitcoin",
     "list_title": "Кошельки",
     "list_tryagain": "Попробовать еще раз",
