@@ -942,15 +942,24 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * Combines 2 PSBTs into final transaction from which you can
    * get HEX and broadcast
    *
-   * @param base64one {string}
-   * @param base64two {string}
+   * @param base64one {string|Psbt}
+   * @param base64two {string|Psbt}
    * @returns {Transaction}
    */
   combinePsbt(base64one, base64two) {
-    const final1 = bitcoin.Psbt.fromBase64(base64one);
-    const final2 = bitcoin.Psbt.fromBase64(base64two);
+    const final1 = typeof base64one === 'string' ? bitcoin.Psbt.fromBase64(base64one) : base64one;
+    const final2 = typeof base64two === 'string' ? bitcoin.Psbt.fromBase64(base64two) : base64two;
     final1.combine(final2);
-    return final1.finalizeAllInputs().extractTransaction();
+
+    let extractedTransaction;
+    try {
+      extractedTransaction = final1.finalizeAllInputs().extractTransaction();
+    } catch (_) {
+      // probably already finalized
+      extractedTransaction = final1.extractTransaction();
+    }
+
+    return extractedTransaction;
   }
 
   /**
