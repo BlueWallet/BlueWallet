@@ -2,14 +2,6 @@ import mockAsyncStorage from '@react-native-community/async-storage/jest/async-s
 
 global.net = require('net');
 
-jest.mock('react-native-watch-connectivity', () => {
-  return {
-    getIsWatchAppInstalled: jest.fn(),
-    subscribeToMessages: jest.fn(),
-    updateApplicationContext: jest.fn(),
-  };
-});
-
 jest.mock('react-native-quick-actions', () => {
   return {
     clearShortcutItems: jest.fn(),

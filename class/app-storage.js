@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 
-import WatchConnectivity from '../WatchConnectivity';
 import {
   HDSegwitP2SHWallet,
   HDLegacyP2PKHWallet,
@@ -233,13 +232,6 @@ export class AppStorage {
             this.tx_metadata = data.tx_metadata;
           }
         }
-        WatchConnectivity.shared.wallets = this.wallets;
-        WatchConnectivity.shared.tx_metadata = this.tx_metadata;
-        WatchConnectivity.shared.fetchTransactionsFunction = async () => {
-          await this.fetchWalletTransactions();
-          await this.saveToDisk();
-        };
-        await WatchConnectivity.shared.sendWalletsToWatch(this.wallets);
         DeviceQuickActions.setWallets(this.wallets);
         DeviceQuickActions.setQuickActions();
         return true;
@@ -326,9 +318,6 @@ export class AppStorage {
     } else {
       await this.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
-    WatchConnectivity.shared.wallets = this.wallets;
-    WatchConnectivity.shared.tx_metadata = this.tx_metadata;
-    WatchConnectivity.shared.sendWalletsToWatch();
     DeviceQuickActions.setWallets(this.wallets);
     DeviceQuickActions.setQuickActions();
     return this.setItem('data', JSON.stringify(data));

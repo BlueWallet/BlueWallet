@@ -395,8 +395,6 @@ PODS:
     - React
   - RNVectorIcons (6.6.0):
     - React
-  - RNWatch (0.4.1):
-    - React
   - SDWebImage (5.8.4):
     - SDWebImage/Core (= 5.8.4)
   - SDWebImage/Core (5.8.4)
@@ -478,7 +476,6 @@ DEPENDENCIES:
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
-  - RNWatch (from `../node_modules/react-native-watch-connectivity`)
   - ToolTipMenu (from `../node_modules/react-native-tooltip`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -634,8 +631,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
-  RNWatch:
-    :path: "../node_modules/react-native-watch-connectivity"
   ToolTipMenu:
     :path: "../node_modules/react-native-tooltip"
   Yoga:
@@ -723,7 +718,6 @@ SPEC CHECKSUMS:
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
   RNSVG: 0eb087cfb5d7937be93c45b163b26352a647e681
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
-  RNWatch: a14e378448e187cc12f307f61d41fe8a65400e86
   SDWebImage: cf6922231e95550934da2ada0f20f2becf2ceba9
   SDWebImageWebPCoder: 36f8f47bd9879a8aea6044765c1351120fd8e3a8
   Sentry: 6e04bc3e11bf771ca79140a112de64dcfbc7d8cb
