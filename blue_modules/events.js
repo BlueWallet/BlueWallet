@@ -40,6 +40,8 @@ EV.enum = {
 
   // when called, the deep linking listeners are set
   WALLETS_INITIALIZED: 'WALLETS_INITIALIZED',
+
+  PROCESS_PUSH_NOTIFICATIONS: 'PROCESS_PUSH_NOTIFICATIONS',
 };
 
 module.exports = EV;

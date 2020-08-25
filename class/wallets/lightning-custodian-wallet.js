@@ -666,6 +666,14 @@ export class LightningCustodianWallet extends LegacyWallet {
 
     return (this.decoded_invoice_raw = json);
   }
+
+  weOwnTransaction(txid) {
+    for (const tx of this.getTransactions()) {
+      if (tx && tx.payment_hash && tx.payment_hash === txid) return true;
+    }
+
+    return false;
+  }
 }
 
 /*

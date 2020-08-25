@@ -30,6 +30,7 @@
     "network": "Ошибка сети"
   },
   "hodl": {
+    "are_you_sure_you_want_to_logout": "Вы уверены, что хотите выйти из HodlHodl?",
     "cont_address_escrow": "Эскроу",
     "cont_address_to": "На",
     "cont_buying": "покупка",
@@ -198,7 +199,7 @@
     "qr_error_no_qrcode": "Выбранная картинка не содержит QR Code.",
     "qr_error_no_wallet": "Выбранный файл не содержит кошелька который можно было бы импортировать.",
     "success_done": "Готово",
-    "txSaved": "Транзакция сохранена в {filePath}"
+    "txSaved": "Файл с транзакцией ({filePath}) сохранён в папке Загрузки."
   },
   "settings": {
     "about": "О программе",
@@ -256,7 +257,12 @@
     "passwords_do_not_match": "Пароли не совпадают",
     "plausible_deniability": "Правдоподобная имитация...",
     "retype_password": "Набери пароль повторно",
-    "save": "Сохранить"
+    "notifications": "Уведомления",
+    "save": "Сохранить",
+    "saved": "Сохранено",
+    "not_a_valid_uri": "Неверный URI",
+    "push_notifications": "Push-уведомления",
+    "groundcontrol_explanation": "GroundControl - это бесплатный сервер push-уведомлений с открытым исходным кодом для биткойн-кошельков. Вы можете установить свой собственный сервер GroundControl и указать здесь его URL, чтобы не полагаться на инфраструктуру BlueWallet. Оставьте пустым, чтобы использовать по умолчанию"
   },
   "transactions": {
     "cancel_explain": "Мы заменим эту транзакцию другой, которая платит вам и имеет более высокую комиссию. Это отменит предыдущую транзакцию. Это называется RBF - Replace By Fee.",
@@ -344,6 +350,7 @@
     "list_long_choose": "Выбрать фото",
     "list_long_clipboard": "Вставить из буфера обмена",
     "list_long_scan": "Сканировать QR-код",
+    "take_photo": "Сфотографировать",
     "list_tap_here_to_buy": "Купить Bitcoin",
     "list_title": "Кошельки",
     "list_tryagain": "Попробовать еще раз",

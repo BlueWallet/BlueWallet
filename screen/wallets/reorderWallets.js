@@ -1,14 +1,13 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, ActivityIndicator, Image, Text, StyleSheet, StatusBar, ScrollView } from 'react-native';
 import { SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
-import PropTypes from 'prop-types';
 import { PlaceholderWallet, LightningCustodianWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
+import { useNavigation, useTheme } from '@react-navigation/native';
 const EV = require('../../blue_modules/events');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
@@ -20,7 +19,6 @@ const styles = StyleSheet.create({
   },
   root: {
     flex: 1,
-    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   itemRoot: {
     backgroundColor: 'transparent',
@@ -67,47 +65,55 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class ReorderWallets extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isLoading: true,
-      data: [],
-      hasMovedARow: false,
-      scrollEnabled: true,
-    };
-  }
+const ReorderWallets = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState([]);
+  const [hasMovedARow, setHasMovedARow] = useState(false);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
+  const sortableList = useRef();
+  const { setParams, goBack } = useNavigation();
+  const { colors } = useTheme();
+  const stylesHook = {
+    root: {
+      backgroundColor: colors.elevated,
+    },
+    loading: {
+      backgroundColor: colors.elevated,
+    },
+  };
 
-  sortableList = React.createRef();
-
-  componentDidMount() {
-    this.props.navigation.setParams({
-      customCloseButtonFunction: async () => {
-        if (this.sortableList.current.state.data.length === this.state.data.length && this.state.hasMovedARow) {
-          const newWalletsOrderArray = [];
-          this.sortableList.current.state.order.forEach(element => {
-            newWalletsOrderArray.push(this.state.data[element]);
-          });
-          BlueApp.wallets = newWalletsOrderArray;
-          await BlueApp.saveToDisk();
-          setTimeout(function () {
-            EV(EV.enum.WALLETS_COUNT_CHANGED);
-          }, 500); // adds some animaton
-          this.props.navigation.goBack();
-        } else {
-          this.props.navigation.goBack();
-        }
+  useEffect(() => {
+    setParams(
+      {
+        customCloseButtonFunction: async () => {
+          if (sortableList.current.state.data.length === data.length && hasMovedARow) {
+            const newWalletsOrderArray = [];
+            sortableList.current.state.order.forEach(element => {
+              newWalletsOrderArray.push(data[element]);
+            });
+            BlueApp.wallets = newWalletsOrderArray;
+            await BlueApp.saveToDisk();
+            setTimeout(function () {
+              EV(EV.enum.WALLETS_COUNT_CHANGED);
+            }, 500); // adds some animaton
+            goBack();
+          } else {
+            goBack();
+          }
+        },
       },
-    });
+      [],
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [goBack, hasMovedARow, setParams]);
 
-    const wallets = BlueApp.getWallets().filter(wallet => wallet.type !== PlaceholderWallet.type);
-    this.setState({
-      data: wallets,
-      isLoading: false,
-    });
-  }
+  useEffect(() => {
+    const loadWallets = BlueApp.getWallets().filter(wallet => wallet.type !== PlaceholderWallet.type);
+    setData(loadWallets);
+    setIsLoading(false);
+  }, []);
 
-  _renderItem = (item, _active) => {
+  const renderItem = (item, _active) => {
     if (!item.data) {
       return;
     }
@@ -142,50 +148,42 @@ export default class ReorderWallets extends Component {
     );
   };
 
-  render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={styles.loading}>
-          <ActivityIndicator />
-        </View>
-      );
-    }
+  const onChangeOrder = () => {
+    ReactNativeHapticFeedback.trigger('impactMedium', { ignoreAndroidSystemSettings: false });
+    setHasMovedARow(true);
+  };
 
-    return (
-      <SafeBlueArea>
-        <StatusBar barStyle="light-content" />
-        <ScrollView scrollEnabled={this.state.scrollEnabled}>
-          <SortableList
-            ref={this.sortableList}
-            style={styles.root}
-            data={this.state.data}
-            renderRow={this._renderItem}
-            scrollEnabled={false}
-            onChangeOrder={() => {
-              ReactNativeHapticFeedback.trigger('impactMedium', { ignoreAndroidSystemSettings: false });
-              this.setState({ hasMovedARow: true });
-            }}
-            onActivateRow={() => {
-              ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
-              this.setState({ scrollEnabled: false });
-            }}
-            onReleaseRow={() => {
-              ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
-              this.setState({ scrollEnabled: true });
-            }}
-          />
-        </ScrollView>
-      </SafeBlueArea>
-    );
-  }
-}
+  const onActivateRow = () => {
+    ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
+    setScrollEnabled(false);
+  };
 
-ReorderWallets.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    setParams: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
+  const onReleaseRow = () => {
+    ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
+    setScrollEnabled(true);
+  };
+
+  return isLoading ? (
+    <View style={[styles.loading, stylesHook.loading]}>
+      <ActivityIndicator />
+    </View>
+  ) : (
+    <SafeBlueArea>
+      <StatusBar barStyle="light-content" />
+      <ScrollView scrollEnabled={scrollEnabled}>
+        <SortableList
+          ref={sortableList}
+          style={[styles.root, stylesHook.root]}
+          data={data}
+          renderRow={renderItem}
+          scrollEnabled={false}
+          onChangeOrder={onChangeOrder}
+          onActivateRow={onActivateRow}
+          onReleaseRow={onReleaseRow}
+        />
+      </ScrollView>
+    </SafeBlueArea>
+  );
 };
 
 ReorderWallets.navigationOptions = ({ navigation, route }) => ({
@@ -198,3 +196,5 @@ ReorderWallets.navigationOptions = ({ navigation, route }) => ({
   headerLeft: null,
   gestureEnabled: false,
 });
+
+export default ReorderWallets;

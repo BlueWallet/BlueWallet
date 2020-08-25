@@ -19,7 +19,7 @@
     "title": "Resgatar voucher Azte.co"
   },
   "lnd": {
-    "errorInvoiceExpired": "Cobrança expirada",
+    "errorInvoiceExpired": "Boleto vencido",
     "exchange": "Trocar",
     "expired": "Expirada",
     "expiredLow": "expirada",
@@ -27,8 +27,8 @@
     "payButton": "Pagar",
     "placeholder": "Cobrança",
     "refill": "Recarregar",
-    "refill_lnd_balance": "Recarregar a carteira Lightning",
-    "sameWalletAsInvoiceError": "Você não pode pagar uma fatura com a mesma carteira que a criou.",
+    "refill_lnd_balance": "Recarregar a carteira Relâmpago",
+    "sameWalletAsInvoiceError": "Você não pode pagar um boleto com a mesma carteira que o criou.",
     "title": "administrar fundos"
   },
   "plausibledeniability": {
@@ -83,7 +83,7 @@
     "general_adv_mode": "Ativar modo avançado",
     "header": "definições",
     "language": "Idioma",
-    "lightning_settings": "Preferências Lightning",
+    "lightning_settings": "Preferências Relâmpago",
     "lightning_settings_explain": "Para se conectar ao seu próprio ponto LND, você precisa instalar a aplicação LndHub e copiar sua URL para cá. Deixe em branco para usar a LndHub padrão fornecida pela BlueWallet (lndhub.io). Carteiras criadas após mudanças nestas preferências ficarão ligadas à instância LndHub que estiver especificada.",
     "password": "Senha",
     "password_explain": "Definir a senha para descriptografar os arquivos",
@@ -131,7 +131,7 @@
     "list_create_a_wallet1": "é grátis e você pode criar",
     "list_create_a_wallet2": "quantas desejar",
     "list_empty_txs1": "Suas transações aparecerão aqui,",
-    "list_empty_txs1_lightning": "A carteira Lightning faz transações super rápidas (coisa de segundos) e tem taxas ridiculamente baratas, ideal para transações diárias e de baixo valor.",
+    "list_empty_txs1_lightning": "A carteira Relâmpago faz transações super rápidas (coisa de segundos) e tem taxas ridiculamente baratas, ideal para transações diárias e de baixo valor.",
     "list_empty_txs2": "nenhuma no momento",
     "list_empty_txs2_lightning": "\nPara começar a usar clique em \"administrar fundos\" e recarregue o seu saldo.",
     "list_latest_transaction": "última transação",

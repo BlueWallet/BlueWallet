@@ -8,6 +8,7 @@ import {
   Linking,
   Platform,
   StyleSheet,
+  Dimensions,
   Text,
   TouchableHighlight,
   TouchableOpacity,
@@ -30,6 +31,7 @@ import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
 
 const BlueApp: AppStorage = require('../../BlueApp');
+const windowHeight = Dimensions.get('window').height;
 
 export default class HodlHodlMyContracts extends Component {
   constructor(props) {
@@ -167,6 +169,7 @@ export default class HodlHodlMyContracts extends Component {
       <Modal
         isVisible={this.state.isRenderContractVisible}
         style={styles.bottomModal}
+        deviceHeight={windowHeight}
         onBackdropPress={() => {
           Keyboard.dismiss();
           this.setState({ isRenderContractVisible: false });

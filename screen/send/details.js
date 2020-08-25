@@ -707,6 +707,7 @@ export default class SendDetails extends Component {
         isVisible={this.state.isFeeSelectionModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => this.setState({ isFeeSelectionModalVisible: false })}
+        deviceHeight={Dimensions.get('window').height}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
@@ -784,7 +785,6 @@ export default class SendDetails extends Component {
               memo: this.state.memo,
               fromWallet: this.state.fromWallet,
               psbt: file,
-              isFirstPSBTAlreadyBase64: true,
             });
             this.setState({ isLoading: false });
             return;
@@ -814,6 +814,7 @@ export default class SendDetails extends Component {
     return (
       <Modal
         isVisible={this.state.isAdvancedTransactionOptionsVisible}
+        deviceHeight={Dimensions.get('window').height}
         style={styles.bottomModal}
         onBackdropPress={() => {
           Keyboard.dismiss();

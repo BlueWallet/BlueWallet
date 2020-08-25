@@ -10,17 +10,17 @@ import {
   ActivityIndicator,
   InteractionManager,
   FlatList,
+  Dimensions,
   ScrollView,
-  RefreshControl,
   TouchableOpacity,
   StatusBar,
   Linking,
   KeyboardAvoidingView,
   Alert,
-  Clipboard,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import ImagePicker from 'react-native-image-picker';
+import Clipboard from '@react-native-community/clipboard';
 import {
   BlueSendButtonIcon,
   BlueListItem,
@@ -39,11 +39,13 @@ import Handoff from 'react-native-handoff';
 import { BlueCurrentTheme } from '../../components/themes';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
-/** @type {AppStorage} */
+import { getSystemName } from 'react-native-device-info';
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
+const windowHeight = Dimensions.get('window').height;
+const isDesktop = getSystemName() === 'Mac OS X';
 
 const styles = StyleSheet.create({
   flex: {
@@ -92,9 +94,13 @@ const styles = StyleSheet.create({
     margin: 16,
     justifyContent: 'space-evenly',
   },
-  listHeaderText: {
+  listHeaderTextRow: {
     flex: 1,
-    marginLeft: 16,
+    marginHorizontal: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  listHeaderText: {
     marginTop: 8,
     marginBottom: 8,
     fontWeight: 'bold',
@@ -163,12 +169,16 @@ const styles = StyleSheet.create({
   },
   floatButtons: {
     flexDirection: 'row',
-    alignSelf: 'center',
     backgroundColor: 'transparent',
     position: 'absolute',
+    alignSelf: 'center',
     bottom: 30,
     borderRadius: 30,
-    minHeight: 48,
+    width: '60%',
+    maxWidth: 400,
+    flex: 1,
+    height: '6.3%',
+    minHeight: 44,
     overflow: 'hidden',
   },
 });
@@ -210,11 +220,12 @@ export default class WalletTransactions extends Component {
   /**
    * Forcefully fetches TXs and balance for wallet
    */
-  refreshTransactionsFunction() {
+  refreshTransactionsFunction(delay) {
+    delay = delay || 4000;
     const that = this;
     setTimeout(function () {
       that.refreshTransactions();
-    }, 4000); // giving a chance to remote server to propagate
+    }, delay); // giving a chance to remote server to propagate
   }
 
   /**
@@ -272,7 +283,7 @@ export default class WalletTransactions extends Component {
         let noErr = true;
         let smthChanged = false;
         try {
-          await BlueElectrum.ping();
+          // await BlueElectrum.ping();
           await BlueElectrum.waitTillConnected();
           /** @type {LegacyWallet} */
           const wallet = this.state.wallet;
@@ -320,6 +331,7 @@ export default class WalletTransactions extends Component {
   };
 
   renderListHeaderComponent = () => {
+    const style = { opacity: this.state.isLoading ? 0.5 : 1.0 };
     return (
       <View style={styles.flex}>
         <View style={styles.listHeader}>
@@ -343,7 +355,14 @@ export default class WalletTransactions extends Component {
           {this.state.wallet.type === LightningCustodianWallet.type && this.renderMarketplaceButton()}
           {this.state.wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && this.renderLappBrowserButton()}
         </View>
-        <Text style={styles.listHeaderText}>{loc.transactions.list_title}</Text>
+        <View style={styles.listHeaderTextRow}>
+          <Text style={styles.listHeaderText}>{loc.transactions.list_title}</Text>
+          {isDesktop && (
+            <TouchableOpacity style={style} onPress={() => this.refreshTransactions()} disabled={this.state.isLoading}>
+              <Icon name="refresh" type="font-awesome" color={BlueCurrentTheme.colors.feeText} />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     );
   };
@@ -351,6 +370,7 @@ export default class WalletTransactions extends Component {
   renderManageFundsModal = () => {
     return (
       <Modal
+        deviceHeight={windowHeight}
         isVisible={this.state.isManageFundsModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
@@ -585,10 +605,13 @@ export default class WalletTransactions extends Component {
         if (buttonIndex === 1) {
           this.choosePhoto();
         } else if (buttonIndex === 2) {
-          this.props.navigation.navigate('ScanQRCode', {
-            launchedBy: this.props.route.name,
-            onBarScanned: this.onBarCodeRead,
-            showFileImportButton: false,
+          this.props.navigation.navigate('ScanQRCodeRoot', {
+            screen: 'ScanQRCode',
+            params: {
+              launchedBy: this.props.route.name,
+              onBarScanned: this.onBarScanned,
+              showFileImportButton: false,
+            },
           });
         } else if (buttonIndex === 3) {
           this.copyFromClipbard();
@@ -608,10 +631,13 @@ export default class WalletTransactions extends Component {
         {
           text: loc.wallets.list_long_scan,
           onPress: () =>
-            this.props.navigation.navigate('ScanQRCode', {
-              launchedBy: this.props.route.name,
-              onBarScanned: this.onBarCodeRead,
-              showFileImportButton: false,
+            this.props.navigation.navigate('ScanQRCodeRoot', {
+              screen: 'ScanQRCode',
+              params: {
+                launchedBy: this.props.route.name,
+                onBarScanned: this.onBarScanned,
+                showFileImportButton: false,
+              },
             }),
         },
       ];
@@ -709,9 +735,8 @@ export default class WalletTransactions extends Component {
                 )}
               </ScrollView>
             }
-            refreshControl={
-              <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.showShowFlatListRefreshControl} />
-            }
+            onRefresh={() => this.refreshTransactions()}
+            refreshing={this.state.showShowFlatListRefreshControl}
             data={this.state.dataSource}
             extraData={this.state.timeElapsed}
             keyExtractor={this._keyExtractor}

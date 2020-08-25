@@ -294,6 +294,7 @@ describe('LightningCustodianWallet', () => {
 
     let invoices = await lNew.getUserInvoices();
     let invoice = await lNew.addInvoice(1, 'test memo');
+    const decoded = lNew.decodeInvoice(invoice);
     let invoices2 = await lNew.getUserInvoices();
     assert.strictEqual(invoices2.length, invoices.length + 1);
     assert.ok(invoices2[0].ispaid === false);
@@ -321,6 +322,9 @@ describe('LightningCustodianWallet', () => {
 
     invoices2 = await lNew.getUserInvoices();
     assert.ok(invoices2[0].ispaid);
+
+    assert.ok(lNew.weOwnTransaction(decoded.payment_hash));
+    assert.ok(!lNew.weOwnTransaction('d45818ae11a584357f7b74da26012d2becf4ef064db015a45bdfcd9cb438929d'));
 
     await lOld.fetchBalance();
     await lNew.fetchBalance();

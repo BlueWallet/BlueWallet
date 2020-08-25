@@ -245,7 +245,13 @@ export default class LNDCreateInvoice extends Component {
             throw new Error('Reply from server: ' + reply.reason);
           }
         }
-        await BlueApp.saveToDisk();
+
+        setTimeout(async () => {
+          // wallet object doesnt have this fresh invoice in its internals, so we refetch it and only then save
+          await fromWallet.fetchUserInvoices(1);
+          await BlueApp.saveToDisk();
+        }, 1000);
+
         this.props.navigation.navigate('LNDViewInvoice', {
           invoice: invoiceRequest,
           fromWallet: this.state.fromWallet,

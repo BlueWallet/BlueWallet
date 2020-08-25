@@ -10,12 +10,14 @@ import {
   SafeBlueArea,
   BlueSpacing20,
   BlueNavigationStyle,
+  BlueLoadingHook,
 } from '../../BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import WalletImport from '../../class/wallet-import';
 import loc from '../../loc';
+import { getSystemName } from 'react-native-device-info';
 const { width } = Dimensions.get('window');
 
 const WalletsImport = () => {
@@ -23,6 +25,7 @@ const WalletsImport = () => {
   const route = useRoute();
   const label = (route.params && route.params.label) || '';
   const [importText, setImportText] = useState(label);
+  const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
   const { colors } = useTheme();
   const styles = StyleSheet.create({
@@ -62,12 +65,14 @@ const WalletsImport = () => {
    * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
    */
   const importMnemonic = (importText, additionalProperties) => {
+    setIsLoading(true);
     try {
       WalletImport.processImportText(importText, additionalProperties);
       navigation.dangerouslyGetParent().pop();
     } catch (error) {
       alert(loc.wallets.import_error);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      setIsLoading(false);
     }
   };
 
@@ -101,24 +106,31 @@ const WalletsImport = () => {
       <BlueFormMultiInput
         testID="MnemonicInput"
         value={importText}
-        contextMenuHidden
+        contextMenuHidden={getSystemName() !== 'Mac OS X'}
+        editable={!isLoading}
         onChangeText={setImportText}
         inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
       />
 
       <BlueSpacing20 />
       <View style={styles.center}>
-        <BlueButton
-          testID="DoImport"
-          disabled={importText.trim().length === 0}
-          title={loc.wallets.import_do_import}
-          buttonStyle={{
-            width: width / 1.5,
-          }}
-          onPress={importButtonPressed}
-        />
-        <BlueSpacing20 />
-        <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
+        {!isLoading ? (
+          <>
+            <BlueButton
+              testID="DoImport"
+              disabled={importText.trim().length === 0}
+              title={loc.wallets.import_do_import}
+              buttonStyle={{
+                width: width / 1.5,
+              }}
+              onPress={importButtonPressed}
+            />
+            <BlueSpacing20 />
+            <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
+          </>
+        ) : (
+          <BlueLoadingHook />
+        )}
       </View>
       {Platform.select({
         ios: (
