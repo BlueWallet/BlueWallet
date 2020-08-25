@@ -1,3 +1,11 @@
+v5.5.6
+======
+
+* ADD: Camera Permission authorization view
+* FIX: recieve button for watch-only wallets
+* FIX: could not scan animated QR signed psbt
+* FIX: updated 'fi_FI' language.
+
 v5.5.5
 ======
 
