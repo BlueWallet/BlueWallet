@@ -151,6 +151,7 @@ export default class PsbtWithHardwareWallet extends Component {
               const psbtB64 = Buffer.from(payload, 'hex').toString('base64');
               const Tx = this._combinePSBT(psbtB64);
               this.setState({ txhex: Tx.toHex() });
+              this.props.navigation.dangerouslyGetParent().pop();
             }
           },
         );
@@ -167,7 +168,6 @@ export default class PsbtWithHardwareWallet extends Component {
   onBarScanned = ret => {
     if (ret && !ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
-      this.props.navigation.dangerouslyGetParent().pop();
       return this._onReadUniformResource(ret.data);
     }
     if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
