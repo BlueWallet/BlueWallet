@@ -84,23 +84,25 @@ class UnlockScreen extends PureComponent<Props, State> {
 
   updatePin = (pin: string) => {
     const { setFailedAttempts, setFailedAttemptStep } = this.props;
-    this.setState({ pin: this.state.pin + pin }, async () => {
-      if (this.state.pin.length === CONST.pinCodeLength) {
-        const setPin = await SecureStorageService.getSecuredValue('pin');
-        if (setPin === this.state.pin) {
-          setFailedAttempts(0);
-          setFailedAttemptStep(0);
-          this.props.onSuccessfullyAuthenticated && this.props.onSuccessfullyAuthenticated();
-        } else {
-          const increasedFailedAttemptStep = this.props.timeCounter.failedAttemptStep + 1;
-          const failedTimesError = this.handleFailedAttempt(increasedFailedAttemptStep);
-          this.setState({
-            error: i18n.onboarding.pinDoesNotMatch + failedTimesError,
-            pin: '',
-          });
+    if (this.state.pin.length < CONST.pinCodeLength) {
+      this.setState({ pin: this.state.pin + pin }, async () => {
+        if (this.state.pin.length === CONST.pinCodeLength) {
+          const storedPin = await SecureStorageService.getSecuredValue('pin');
+          if (storedPin === this.state.pin) {
+            setFailedAttempts(0);
+            setFailedAttemptStep(0);
+            this.props.onSuccessfullyAuthenticated && this.props.onSuccessfullyAuthenticated();
+          } else {
+            const increasedFailedAttemptStep = this.props.timeCounter.failedAttemptStep + 1;
+            const failedTimesError = this.handleFailedAttempt(increasedFailedAttemptStep);
+            this.setState({
+              error: i18n.onboarding.pinDoesNotMatch + failedTimesError,
+              pin: '',
+            });
+          }
         }
-      }
-    });
+      });
+    }
   };
 
   onClearPress = () => {
