@@ -5,9 +5,9 @@ const bitcoin = require('bitcoinjs-lib');
 const reverse = require('buffer-reverse');
 const ElectrumClient = require('electrum-client');
 
-export const defaultPeer = { host: '188.166.204.85', tcp: '50001' };
+export const defaultPeer = { host: 'e1.electrumx.bitcoinvault.global', tcp: '50001' };
 const hardcodedPeers = [
-  { host: '188.166.204.85', tcp: '50001' },
+  { host: 'e1.electrumx.bitcoinvault.global', tcp: '50001' },
   { host: '157.245.20.66', tcp: '50001' },
 ];
 
