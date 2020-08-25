@@ -19,14 +19,14 @@ import Clipboard from '@react-native-community/clipboard';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
-
 import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import Privacy from '../../Privacy';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import { getSystemName } from 'react-native-device-info';
 const currency = require('../../blue_modules/currency');
-
+const isDesktop = getSystemName() === 'Mac OS X';
 export default class SendCreate extends Component {
   constructor(props) {
     super(props);
@@ -52,7 +52,17 @@ export default class SendCreate extends Component {
 
   exportTXN = async () => {
     const fileName = `${Date.now()}.txn`;
-    if (Platform.OS === 'ios') {
+
+    if (isDesktop) {
+      try {
+        console.log('Storage Permission: Granted');
+        const filePath = RNFS.DocumentDirectoryPath + `/${this.fileName}`;
+        await RNFS.writeFile(filePath, typeof this.state.psbt === 'string' ? this.state.psbt : this.state.psbt.toBase64());
+        Linking.openURL(RNFS.DocumentDirectoryPath);
+      } catch (error) {
+        alert(error.message);
+      }
+    } else if (Platform.OS === 'ios') {
       const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
       await RNFS.writeFile(filePath, this.state.tx);
       Share.open({
