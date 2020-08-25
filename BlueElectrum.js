@@ -16,10 +16,10 @@ let mainConnected = false;
 let wasConnectedAtLeastOnce = false;
 
 async function connectMain() {
-  const usingPeer = { host: config.host, tcp: config.port };
+  const usingPeer = { host: config.host, tcp: config.port, protocol: config.protocol };
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
-    mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, 'tcp');
+    mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, usingPeer.protocol);
     mainClient.onError = function(e) {
       console.log('ElectrumClient error: ' + e);
       mainConnected = false;

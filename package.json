@@ -38,7 +38,7 @@
     "flow-bin": "^0.102.0",
     "husky": "^4.2.3",
     "jail-monkey": "^2.3.2",
-    "jest": "^24.9.0",
+    "jest": "^25.0.0",
     "jetifier": "^1.6.3",
     "lint-staged": "^10.1.1",
     "metro-react-native-babel-preset": "^0.56.0",
