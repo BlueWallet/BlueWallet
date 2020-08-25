@@ -7831,11 +7831,6 @@ react-native-qrcode-svg@^6.0.6:
     prop-types "^15.5.10"
     qrcode "^1.3.2"
 
-react-native-quick-actions@0.3.12:
-  version "0.3.12"
-  resolved "https://registry.yarnpkg.com/react-native-quick-actions/-/react-native-quick-actions-0.3.12.tgz#3d24bff7dededb1ecc5702946b46c93476291722"
-  integrity sha512-jQkzbA6L1/+FIqvHnPenHUe2IrBihh48KOMTOa0QbOaxWzsejSB8kkWpSQOjYxjGu7k+3DVgosQ8wGJTB/l4JA==
-
 react-native-randombytes@3.5.3, react-native-randombytes@^3.5.1:
   version "3.5.3"
   resolved "https://registry.yarnpkg.com/react-native-randombytes/-/react-native-randombytes-3.5.3.tgz#b3bdcd11473cce106551a586244b98855e443cd1"

@@ -151,7 +151,6 @@
     "react-native-privacy-snapshot": "git+https://github.com/BlueWallet/react-native-privacy-snapshot.git",
     "react-native-prompt-android": "git+https://github.com/marcosrdz/react-native-prompt-android.git",
     "react-native-qrcode-svg": "^6.0.6",
-    "react-native-quick-actions": "0.3.12",
     "react-native-randombytes": "3.5.3",
     "react-native-rate": "1.1.7",
     "react-native-reanimated": "^1.9.0",

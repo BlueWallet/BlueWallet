@@ -10,7 +10,6 @@
 #import <React/RCTLinkingManager.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
-#import "RNQuickActionManager.h"
 #import <Firebase.h>
 #import "RNSplashScreen.h"
 
@@ -48,8 +47,5 @@
   return NO;
 }
 
-- (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL succeeded)) completionHandler {
-  [RNQuickActionManager onQuickActionPress:shortcutItem completionHandler:completionHandler];
-}
 
 @end

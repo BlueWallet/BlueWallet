@@ -14,7 +14,6 @@ import {
   HDSegwitP2SHAirWallet,
   Authenticator,
 } from './';
-import DeviceQuickActions from './quickActions';
 
 const encryption = require('../encryption');
 
@@ -140,8 +139,6 @@ export class AppStorage {
     this.cachedPassword = password;
     await this.setItem('data', data);
     await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
-    DeviceQuickActions.clearShortcutItems();
-    DeviceQuickActions.removeAllWallets();
   }
 
   /**
@@ -240,8 +237,6 @@ export class AppStorage {
           await this.saveToDisk();
         };
         await WatchConnectivity.shared.sendWalletsToWatch(this.wallets);
-        DeviceQuickActions.setWallets(this.wallets);
-        DeviceQuickActions.setQuickActions();
         return true;
       } else {
         return false; // failed loading data or loading/decryptin data
@@ -329,8 +324,6 @@ export class AppStorage {
     WatchConnectivity.shared.wallets = this.wallets;
     WatchConnectivity.shared.tx_metadata = this.tx_metadata;
     WatchConnectivity.shared.sendWalletsToWatch();
-    DeviceQuickActions.setWallets(this.wallets);
-    DeviceQuickActions.setQuickActions();
     return this.setItem('data', JSON.stringify(data));
   }
 
