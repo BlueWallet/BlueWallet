@@ -13,9 +13,6 @@ export interface ApplicationState {
   transactions: TransactionsState;
   appSettings: AppSettingsState;
   wallets: WalletsState;
-  authenticators: AuthenticatorsState;
-  timeCounter: TimeCounterState;
-  authenticators: AuthenticatorsState;
   timeCounter: TimeCounterState;
   authenticators: AuthenticatorsState;
 }
@@ -25,9 +22,6 @@ export const rootReducer = combineReducers({
   transactions: transactionsReducer,
   appSettings: appSettingsReducer,
   wallets: walletsReducer,
-  authenticators: authenticatorsReducer,
-  timeCounter: timeCounterReducer,
-  authenticators: authenticatorsReducer,
   timeCounter: timeCounterReducer,
   authenticators: authenticatorsReducer,
 });

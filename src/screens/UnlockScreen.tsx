@@ -1,20 +1,14 @@
 import dayjs from 'dayjs';
 import React, { PureComponent } from 'react';
-import { StatusBar, StyleSheet, Text, View } from 'react-native';
+import { StatusBar, StyleSheet, Text, View, Keyboard } from 'react-native';
 import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
 import { Image, PinView, PinInputView } from 'app/components';
+import { CONST, Route, finalAttempt } from 'app/consts';
 import { BiometricService, SecureStorageService, NavigationService } from 'app/services';
 import { ApplicationState } from 'app/state';
-import {
-  setTimeCounter,
-  SetTimeCounterAction,
-  setFailedAttempts,
-  SetFailedAttemptsAction,
-  setFailedAttemptStep,
-  SetFailedAttemptStepAction,
-} from 'app/state/timeCounter/actions';
+import * as actions from 'app/state/timeCounter/actions';
 import { TimeCounterState } from 'app/state/timeCounter/reducer';
 import { getStatusBarHeight, palette, typography } from 'app/styles';
 
@@ -24,9 +18,9 @@ const i18n = require('../../loc');
 interface Props {
   onSuccessfullyAuthenticated?: () => void;
   isBiometricEnabledByUser: boolean;
-  setTimeCounter: (timestamp: number) => SetTimeCounterAction;
-  setFailedAttempts: (attempt: number) => SetFailedAttemptsAction;
-  setFailedAttemptStep: (failedAttempt: number) => SetFailedAttemptStepAction;
+  setTimeCounter: (timestamp: number) => actions.SetTimeCounterAction;
+  setFailedAttempts: (attempt: number) => actions.SetFailedAttemptsAction;
+  setFailedAttemptStep: (failedAttempt: number) => actions.SetFailedAttemptStepAction;
   timeCounter: TimeCounterState;
 }
 
@@ -151,9 +145,9 @@ const mapStateToProps = (state: ApplicationState) => ({
 });
 
 const mapDispatchToProps = {
-  setTimeCounter,
-  setFailedAttempts,
-  setFailedAttemptStep,
+  setTimeCounter: actions.setTimeCounter,
+  setFailedAttempts: actions.setFailedAttempts,
+  setFailedAttemptStep: actions.setFailedAttemptStep,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(UnlockScreen);

@@ -44,7 +44,7 @@ export class PinInput extends PureComponent<Props> {
         ref={this.codeFieldRef}
         autoFocus
         value={this.props.value}
-        cellCount={CONST.pinCodeLength as number}
+        cellCount={CONST.pinCodeLength}
         onChangeText={text => this.props.onTextChange(text.replace(/\D/g, ''))}
         rootStyle={styles.container}
         keyboardType="number-pad"

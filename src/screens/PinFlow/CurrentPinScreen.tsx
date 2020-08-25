@@ -5,18 +5,11 @@ import { View, Text, StyleSheet } from 'react-native';
 import { connect } from 'react-redux';
 
 import { Header, PinInput, ScreenTemplate } from 'app/components';
-import { Route, CONST, FlowType, MainCardStackNavigatorParams, firstAttempt, finalAttempt } from 'app/consts';
+import { Route, CONST, FlowType, MainCardStackNavigatorParams, finalAttempt } from 'app/consts';
 import { noop } from 'app/helpers/helpers';
 import { SecureStorageService } from 'app/services';
 import { ApplicationState } from 'app/state';
-import {
-  setTimeCounter,
-  SetTimeCounterAction,
-  setFailedAttempts,
-  SetFailedAttemptsAction,
-  setFailedAttemptStep,
-  SetFailedAttemptStepAction,
-} from 'app/state/timeCounter/actions';
+import * as actions from 'app/state/timeCounter/actions';
 import { TimeCounterState } from 'app/state/timeCounter/reducer';
 import { palette, typography } from 'app/styles';
 
@@ -27,9 +20,9 @@ interface Props {
   appSettings: {
     isPinSet: boolean;
   };
-  setTimeCounter: (timestamp: number) => SetTimeCounterAction;
-  setFailedAttempts: (attempt: number) => SetFailedAttemptsAction;
-  setFailedAttemptStep: (failedAttempt: number) => SetFailedAttemptStepAction;
+  setTimeCounter: (timestamp: number) => actions.SetTimeCounterAction;
+  setFailedAttempts: (attempt: number) => actions.SetFailedAttemptsAction;
+  setFailedAttemptStep: (failedAttempt: number) => actions.SetFailedAttemptStepAction;
   timeCounter: TimeCounterState;
 }
 
@@ -146,9 +139,9 @@ const mapStateToProps = (state: ApplicationState) => ({
 });
 
 const mapDispatchToProps = {
-  setTimeCounter,
-  setFailedAttempts,
-  setFailedAttemptStep,
+  setTimeCounter: actions.setTimeCounter,
+  setFailedAttempts: actions.setFailedAttempts,
+  setFailedAttemptStep: actions.setFailedAttemptStep,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CurrentPinScreen);
