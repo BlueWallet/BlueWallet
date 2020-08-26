@@ -8550,11 +8550,6 @@ react-native-vector-icons@6.6.0:
     prop-types "^15.6.2"
     yargs "^13.2.2"
 
-react-native-watch-connectivity@0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/react-native-watch-connectivity/-/react-native-watch-connectivity-0.4.1.tgz#d0f8b605ceb8da09c14ffe0070e0985665929ec0"
-  integrity sha512-fMx3hRXinxAoC64YUL+UkXuwlgYeYp3ECKMucxFgRtouzfCC3RGD+wewY7vxgOrcjkKXusIbCdbU4gS2Lojhqw==
-
 react-native@0.61.5:
   version "0.61.5"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.61.5.tgz#6e21acb56cbd75a3baeb1f70201a66f42600bba8"
