@@ -16,7 +16,7 @@ import { CONST, Route, MainCardStackNavigatorParams, TxType, Filters } from 'app
 import { processAddressData } from 'app/helpers/DataProcessing';
 import { AppStateManager } from 'app/services';
 import { ApplicationState } from 'app/state';
-import { UpdateFiltersAction, updateFilters } from 'app/state/filters/actions';
+import * as actions from 'app/state/filters/actions';
 import { palette, typography } from 'app/styles';
 
 const i18n = require('../../loc');
@@ -30,71 +30,30 @@ interface Props {
   navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.FilterTransactions>;
   route: RouteProp<MainCardStackNavigatorParams, Route.FilterTransactions>;
   filters: Filters;
-  updateFilters: (filters: Filters) => UpdateFiltersAction;
+  activateFilters: () => actions.ActivateFiltersAction;
+  updateAddress: (value: string) => actions.UpdateAddressAction;
+  updateDateKey: (value: number) => actions.UpdateDateKeyAction;
+  updateFromDate: (value: string) => actions.UpdateFromDateAction;
+  updateToDate: (value: string) => actions.UpdateToDateAction;
+  updateFromAmount: (value: string) => actions.UpdateFromAmountAction;
+  updateToAmount: (value: string) => actions.UpdateToAmountAction;
+  updateTransactionType: (value: string) => actions.UpdateTransactionTypeAction;
+  updateTransactionStatus: (value: string) => actions.UpdateTransactionStatusAction;
 }
 
 interface State {
-  derived: boolean;
-  address: string;
-  dateKey: number;
   isCalendarVisible: boolean;
-  fromDate: string;
-  toDate: string;
-  fromAmount: string;
-  toAmount: string;
-  transactionType: string;
-  transactionStatus: string;
 }
 
 const transactionStatusList = [TxType.RECOVERY, TxType.ALERT_PENDING, TxType.ALERT_CONFIRMED, TxType.ALERT_RECOVERED];
 
 class FilterTransactionsScreen extends PureComponent<Props, State> {
   state = {
-    derived: false,
-    address: '',
-    dateKey: 0,
     isCalendarVisible: false,
-    fromDate: '',
-    toDate: '',
-    fromAmount: '',
-    toAmount: '',
-    transactionType: CONST.receive,
-    transactionStatus: '',
   };
 
-  static getDerivedStateFromProps(props: Props, state: State) {
-    if (!state.derived) {
-      return {
-        ...props.filters,
-        derived: true,
-      };
-    }
-    return null;
-  }
-
   onFilterButtonPress = () => {
-    const {
-      address,
-      dateKey,
-      isCalendarVisible,
-      fromDate,
-      toDate,
-      fromAmount,
-      toAmount,
-      transactionType,
-      transactionStatus,
-    } = this.state;
-    this.props.updateFilters({
-      address,
-      dateKey,
-      isCalendarVisible,
-      fromDate,
-      toDate,
-      fromAmount,
-      toAmount,
-      transactionType,
-      transactionStatus,
-    });
+    this.props.activateFilters();
     this.props.route.params?.onFilterPress();
     this.props.navigation.goBack();
   };
@@ -105,27 +64,23 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
     });
     switch (this.props.filters.dateKey) {
       case Index.From:
-        return this.setState({
-          fromDate: date.dateString,
-        });
+        return this.props.updateFromDate(date.dateString);
       case Index.To:
-        return this.setState({
-          toDate: date.dateString,
-        });
+        return this.props.updateToDate(date.dateString);
     }
   };
 
   showCalendar = (index: number) => {
     this.setState({
       isCalendarVisible: true,
-      dateKey: index,
     });
+    this.props.updateDateKey(index);
   };
 
   closeCalendar = () => this.setState({ isCalendarVisible: false });
 
   renderCommonCardContent = () => {
-    const { fromDate, toDate, fromAmount, toAmount } = this.state;
+    const { fromDate, toDate, fromAmount, toAmount } = this.props.filters;
 
     return (
       <>
@@ -147,7 +102,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
                   style={styles.buttonOverlay}
                 />
                 {!!fromDate && (
-                  <TouchableOpacity style={styles.clearButton} onPress={() => this.setState({ fromDate: '' })}>
+                  <TouchableOpacity style={styles.clearButton} onPress={() => this.props.updateFromDate('')}>
                     <Image source={images.closeInverted} style={styles.clearImage} />
                   </TouchableOpacity>
                 )}
@@ -156,7 +111,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
                 <InputItem label={i18n.filterTransactions.toDate} value={toDate} editable={false} />
                 <TouchableOpacity onPress={() => this.showCalendar(Index.To)} style={styles.buttonOverlay} />
                 {!!toDate && (
-                  <TouchableOpacity style={styles.clearButton} onPress={() => this.setState({ toDate: '' })}>
+                  <TouchableOpacity style={styles.clearButton} onPress={() => this.props.updateToDate('')}>
                     <Image source={images.closeInverted} style={styles.clearImage} />
                   </TouchableOpacity>
                 )}
@@ -170,7 +125,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
               <InputItem
                 key={Index.From}
                 value={fromAmount}
-                setValue={text => this.setState({ fromAmount: text.replace(',', '.') })}
+                setValue={text => this.props.updateFromAmount(text.replace(',', '.'))}
                 label={i18n.filterTransactions.fromAmount}
                 suffix="BTCV"
                 keyboardType="numeric"
@@ -178,7 +133,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
               <InputItem
                 key={Index.To}
                 value={toAmount}
-                setValue={text => this.setState({ toAmount: text.replace(',', '.') })}
+                setValue={text => this.props.updateToAmount(text.replace(',', '.'))}
                 label={i18n.filterTransactions.toAmount}
                 suffix="BTCV"
                 keyboardType="numeric"
@@ -192,9 +147,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
 
   onContactPress = (data: string) => {
     const addressData = processAddressData(data);
-    this.setState({
-      address: addressData.address,
-    });
+    this.setAddress(addressData.address);
   };
 
   navigateToChooseContactList = (title: string) =>
@@ -218,12 +171,10 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
     }
   };
 
-  isStatusAtive = (status: string) => this.state.transactionStatus === status;
+  isStatusAtive = (status: string) => this.props.filters.transactionStatus === status;
 
   setAddress = (address: string) => {
-    this.setState({
-      address,
-    });
+    this.props.updateAddress(address);
   };
 
   renderCardContent = (label: string) => (
@@ -233,11 +184,13 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {transactionStatusList.map((status, index) => (
             <TouchableOpacity
-              onPress={() => this.setState({ transactionStatus: this.isStatusAtive(status) ? '' : status })}
+              onPress={() => this.props.updateTransactionStatus(this.isStatusAtive(status) ? '' : status)}
               key={index}
               style={[
                 styles.statusContainer,
-                { borderBottomColor: this.state.transactionStatus === status ? palette.secondary : palette.grey },
+                {
+                  borderBottomColor: this.props.filters.transactionStatus === status ? palette.secondary : palette.grey,
+                },
               ]}
             >
               <Text style={styles.filterText}>{this.returnStatusCopy(status)}</Text>
@@ -246,7 +199,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
         </ScrollView>
       </View>
       <View style={styles.spacing20}>
-        <InputItem label={label} value={this.state.address} editable={false} onChangeText={this.setAddress} />
+        <InputItem label={label} value={this.props.filters.address} editable={false} onChangeText={this.setAddress} />
         <Image style={styles.image} source={images.nextBlackArrow} />
         <TouchableOpacity onPress={() => this.navigateToChooseContactList(label)} style={styles.buttonOverlay} />
       </View>
@@ -270,7 +223,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
         />
 
         <CardGroup
-          onCardPressAction={title => this.setState({ transactionType: title })}
+          onCardPressAction={title => this.props.updateTransactionType(title)}
           label={i18n.filterTransactions.transactionType}
           cards={[
             { title: CONST.receive, content: this.renderCardContent(i18n.filterTransactions.from) },
@@ -287,7 +240,15 @@ const mapStateToProps = (state: ApplicationState) => ({
 });
 
 const mapDispatchToProps = {
-  updateFilters,
+  activateFilters: actions.activateFilters,
+  updateAddress: actions.updateAddress,
+  updateDateKey: actions.updateDateKey,
+  updateFromDate: actions.updateFromDate,
+  updateToDate: actions.updateToDate,
+  updateFromAmount: actions.updateFromAmount,
+  updateToAmount: actions.updateToAmount,
+  updateTransactionType: actions.updateTransactionType,
+  updateTransactionStatus: actions.updateTransactionStatus,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(FilterTransactionsScreen);

@@ -126,25 +126,20 @@ class DashboardScreen extends Component<Props, State> {
 
   setQuery = (query: string) => this.setState({ query });
 
-  scrollToTransactionList = () => {
-    // hack, there is no scrollTo method available on SectionList, https://github.com/facebook/react-native/issues/13151
+  scrollTo = (offset: number) => {
     // @ts-ignore
     this.transactionListRef.current?._wrapperListRef._listRef.scrollToOffset({
-      offset: this.state.contentdHeaderHeight + 24,
+      offset,
     });
   };
 
-  onFilterPress = () => {
-    this.scrollToTransactionList();
+  scrollToTransactionList = () => {
+    this.scrollTo(this.state.contentdHeaderHeight + 24);
   };
 
   resetFilters = () => {
     this.props.clearFilters();
-    this.transactionListRef.current?.scrollRef.current?.scrollTo({
-      x: 0,
-      y: 1,
-      animated: true,
-    });
+    this.scrollTo(0);
   };
 
   hasWallets = () => {
@@ -160,7 +155,7 @@ class DashboardScreen extends Component<Props, State> {
         <DashboardHeader
           onFilterPress={() => {
             this.props.navigation.navigate(Route.FilterTransactions, {
-              onFilterPress: this.onFilterPress,
+              onFilterPress: this.scrollToTransactionList,
             });
           }}
           onAddPress={() => {
@@ -223,7 +218,7 @@ class DashboardScreen extends Component<Props, State> {
   };
 
   renderContent = () => {
-    const { query, filters } = this.state;
+    const { query } = this.state;
     const { transactions, allTransactions } = this.props;
     const activeWallet = this.getActiveWallet();
 
@@ -235,7 +230,6 @@ class DashboardScreen extends Component<Props, State> {
           onRefresh={this.refreshTransactions}
           ListHeaderComponent={<>{this.renderWallets()}</>}
           search={query}
-          filters={filters}
           transactions={isAllWallets(activeWallet) ? allTransactions : transactions[activeWallet.secret] || []}
           transactionNotes={this.props.transactionNotes}
           label={activeWallet.label}
@@ -252,9 +246,7 @@ class DashboardScreen extends Component<Props, State> {
   };
 
   render() {
-    const { lastSnappedTo, query } = this.state;
-    const { wallets, isInitialized, transactions, allTransactions } = this.props;
-    const activeWallet = wallets[lastSnappedTo] || wallets[0];
+    const { isInitialized } = this.props;
 
     if (!isInitialized) {
       return (
