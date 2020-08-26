@@ -188,6 +188,7 @@
     "input_total": "Total:",
     "permission_camera_message": "Potrebujeme povolenie na použitie kamery",
     "permission_camera_title": "Povolenie na použitie kamery",
+    "open_settings": "Open Settings",
     "permission_storage_later": "Požiadať neskôr",
     "permission_storage_message": "BlueWallet potrebuje Vaše povolenie na prístup k úložisku, aby sa mohla uložiť transakcia.",
     "permission_storage_title": "BlueWallet povolenie na prístup k úložisku",
@@ -199,7 +200,7 @@
     "qr_error_no_qrcode": "Vybraný obrázok neobsahuje QR kód.",
     "qr_error_no_wallet": "Vybraný súbor neobsahuje peňaženku, ktorá by mohla byť importovaná.",
     "success_done": "Hotovo",
-    "txSaved": "Transakcia bola uložená do {filePath}"
+    "txSaved": "The transaction file ({filePath}) has been saved in your Downloads folder ."
   },
   "settings": {
     "about": "O BlueWallet",
@@ -350,6 +351,7 @@
     "list_long_choose": "Vyberte fotku",
     "list_long_clipboard": "Skopírovať zo schránky",
     "list_long_scan": "Skenovať QR kód",
+    "take_photo": "Take Photo",
     "list_tap_here_to_buy": "Kliknite sem pre nákup Bitcoinov",
     "list_title": "peňaženky",
     "list_tryagain": "Skúste znovu",
