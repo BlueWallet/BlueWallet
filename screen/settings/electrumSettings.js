@@ -179,6 +179,7 @@ export default class ElectrumSettings extends Component {
                 style={styles.inputText}
                 editable={!this.state.isLoading}
                 placeholderTextColor="#81868e"
+                autoCorrect={false}
                 underlineColorAndroid="transparent"
               />
             </View>
@@ -193,6 +194,7 @@ export default class ElectrumSettings extends Component {
                 editable={!this.state.isLoading}
                 placeholderTextColor="#81868e"
                 underlineColorAndroid="transparent"
+                autoCorrect={false}
               />
             </View>
             <BlueSpacing20 />
@@ -204,6 +206,7 @@ export default class ElectrumSettings extends Component {
                 numberOfLines={1}
                 style={styles.inputText}
                 editable={!this.state.isLoading}
+                autoCorrect={false}
                 placeholderTextColor="#81868e"
                 underlineColorAndroid="transparent"
               />
