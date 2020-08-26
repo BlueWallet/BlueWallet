@@ -188,6 +188,7 @@
     "input_total": "ยอดรวม:",
     "permission_camera_message": "ต้องการคำอนุญาตในการใช้กล้อง",
     "permission_camera_title": "อนุญาตในการใช้กล้อง",
+    "open_settings": "Open Settings",
     "permission_storage_later": "ถามฉันภายหลัง",
     "permission_storage_message": "BlueWallet needs your permission to access your storage to save this transaction.",
     "permission_storage_title": "BlueWallet Storage Access Permission",
@@ -199,7 +200,7 @@
     "qr_error_no_qrcode": "รูปภาพที่เลือกไม่มีคิวอาร์โค้ด",
     "qr_error_no_wallet": "ไฟล์ที่เลือกไว้ไม่มีคิวอาร์โค้ด",
     "success_done": "สำเร็จ",
-    "txSaved": "ธุรกรรมนี้ได้บันทึกใน {filePath}"
+    "txSaved": "The transaction file ({filePath}) has been saved in your Downloads folder ."
   },
   "settings": {
     "about": "เกี่ยวกับ",
@@ -350,6 +351,7 @@
     "list_long_choose": "เลือกรูปภาพ",
     "list_long_clipboard": "คัดลอกจากคลิปบอร์ด",
     "list_long_scan": "สแกนคิวอาร์โค้ด",
+    "take_photo": "Take Photo",
     "list_tap_here_to_buy": "กดที่นี่เพื่อซื้อบิตคอยน์",
     "list_title": "กระเป๋าสตางค์",
     "list_tryagain": "พยายามอีกครั้ง",
