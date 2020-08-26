@@ -188,6 +188,7 @@
     "input_total": "Total:",
     "permission_camera_message": "We need your permission to use your camera",
     "permission_camera_title": "Permission to use camera",
+    "open_settings": "Open Settings",
     "permission_storage_later": "Ask Me Later",
     "permission_storage_message": "BlueWallet needs your permission to access your storage to save this transaction.",
     "permission_storage_title": "BlueWallet Storage Access Permission",
@@ -199,7 +200,7 @@
     "qr_error_no_qrcode": "The selected image does not contain a QR Code.",
     "qr_error_no_wallet": "The selected file does not contain a wallet that can be imported.",
     "success_done": "Done",
-    "txSaved": "This transaction has been saved in {filePath}"
+    "txSaved": "The transaction file ({filePath}) has been saved in your Downloads folder ."
   },
   "settings": {
     "about": "Sobre",
@@ -350,6 +351,7 @@
     "list_long_choose": "Choose Photo",
     "list_long_clipboard": "Copy from Clipboard",
     "list_long_scan": "Scan QR Code",
+    "take_photo": "Take Photo",
     "list_tap_here_to_buy": "Adquirir Bitcoin",
     "list_title": "carteiras",
     "list_tryagain": "Tente novamente",
