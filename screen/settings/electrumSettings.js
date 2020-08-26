@@ -174,7 +174,7 @@ export default class ElectrumSettings extends Component {
               <TextInput
                 placeholder={loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' })}
                 value={this.state.host}
-                onChangeText={text => this.setState({ host: text })}
+                onChangeText={text => this.setState({ host: text.trim() })}
                 numberOfLines={1}
                 style={styles.inputText}
                 editable={!this.state.isLoading}
@@ -187,7 +187,7 @@ export default class ElectrumSettings extends Component {
               <TextInput
                 placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
                 value={this.state.port}
-                onChangeText={text => this.setState({ port: text })}
+                onChangeText={text => this.setState({ port: text.trim() })}
                 numberOfLines={1}
                 style={styles.inputText}
                 editable={!this.state.isLoading}
@@ -200,7 +200,7 @@ export default class ElectrumSettings extends Component {
               <TextInput
                 placeholder={loc.formatString(loc.settings.electrum_port_ssl, { example: '50002' })}
                 value={this.state.sslPort}
-                onChangeText={text => this.setState({ sslPort: text })}
+                onChangeText={text => this.setState({ sslPort: text.trim() })}
                 numberOfLines={1}
                 style={styles.inputText}
                 editable={!this.state.isLoading}
