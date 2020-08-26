@@ -110,6 +110,7 @@ const LightningSettings = () => {
             editable={!isLoading}
             textContentType="URL"
             autoCapitalize="none"
+            autoCorrect={false}
             underlineColorAndroid="transparent"
           />
         </View>
