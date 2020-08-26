@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 
 import { Header, ScreenTemplate, Button, Mnemonic } from 'app/components';
 import { Route, Authenticator, MainCardStackNavigatorParams } from 'app/consts';
+import { preventScreenshots, allowScreenshots } from 'app/services/ScreenshotsService';
 import { ApplicationState } from 'app/state';
 import { selectors } from 'app/state/authenticators';
 import { AuthenticatorsState } from 'app/state/authenticators/reducer';
@@ -22,6 +23,14 @@ interface Props extends MapStateProps {
   route: RouteProp<MainCardStackNavigatorParams, Route.CreateAuthenticatorSuccess>;
 }
 class CreateAuthenticatorSuccessScreen extends Component<Props> {
+  componentDidMount() {
+    preventScreenshots();
+  }
+
+  componentWillUnmount() {
+    allowScreenshots();
+  }
+
   navigate = () => {
     const { navigation } = this.props;
     navigation.navigate(Route.AuthenticatorList);
@@ -30,6 +39,9 @@ class CreateAuthenticatorSuccessScreen extends Component<Props> {
   render() {
     const { authenticator, navigation } = this.props;
 
+    if (!authenticator) {
+      return null;
+    }
     return (
       <ScreenTemplate
         footer={<Button onPress={this.navigate} title={i18n.wallets.addSuccess.okButton} />}
@@ -37,7 +49,7 @@ class CreateAuthenticatorSuccessScreen extends Component<Props> {
       >
         <Text style={styles.subtitle}>{i18n.authenticators.add.successTitle}</Text>
         <Text style={styles.description}>{i18n.authenticators.add.successDescription}</Text>
-        {authenticator && <Mnemonic mnemonic={authenticator.secret} />}
+        <Mnemonic mnemonic={authenticator.secret} />
       </ScreenTemplate>
     );
   }

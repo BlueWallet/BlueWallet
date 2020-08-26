@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 
 import { Header, ScreenTemplate, Mnemonic } from 'app/components';
 import { Authenticator, MainCardStackNavigatorParams, Route } from 'app/consts';
+import { preventScreenshots, allowScreenshots } from 'app/services/ScreenshotsService';
 import { ApplicationState } from 'app/state';
 import { selectors } from 'app/state/authenticators';
 import { AuthenticatorsState } from 'app/state/authenticators/reducer';
@@ -24,16 +25,27 @@ interface Props extends MapStateProps {
 }
 
 class ExportAuthenticatorScreen extends Component<Props> {
+  componentDidMount() {
+    preventScreenshots();
+  }
+
+  componentWillUnmount() {
+    allowScreenshots();
+  }
+
   render() {
     const { authenticator, navigation } = this.props;
+    if (!authenticator) {
+      return null;
+    }
 
     return (
       <ScreenTemplate header={<Header navigation={navigation} isBackArrow title={i18n.authenticators.export.title} />}>
         <Text style={styles.subtitle}>{i18n.wallets.exportWallet.title}</Text>
         <View style={styles.qrCodeContainer}>
-          {authenticator && <QRCode quietZone={10} value={authenticator.QRCode} size={140} ecl={'H'} />}
+          <QRCode quietZone={10} value={authenticator.QRCode} size={140} ecl={'H'} />
         </View>
-        {authenticator && <Mnemonic mnemonic={authenticator.secret} />}
+        <Mnemonic mnemonic={authenticator.secret} />
       </ScreenTemplate>
     );
   }
