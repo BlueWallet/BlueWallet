@@ -30,14 +30,12 @@ interface Props {
 }
 interface State {
   label: string;
-  isLoading: boolean;
   selectedIndex: number;
 }
 
 export class CreateWalletScreen extends React.PureComponent<Props, State> {
   state: State = {
     label: '',
-    isLoading: false,
     selectedIndex: 0,
   };
 
@@ -66,15 +64,14 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     }
   };
 
-  createARWallet = (label: string) => (publicKey: string) => {
+  createARWallet = () => (publicKey: string) => {
     const { navigation } = this.props;
 
-    const onError = () => this.showAlert(() => this.navigateToIntegrateRecoveryPublicKey(label, this.createARWallet));
+    const onError = () => this.showAlert(() => this.navigateToIntegrateRecoveryPublicKey(this.createARWallet));
     try {
       const wallet = new HDSegwitP2SHArWallet([publicKey]);
-      wallet.setLabel(label || i18n.wallets.details.title);
       navigation.goBack();
-      this.createVaultWalletMessage(wallet, onError);
+      this.createWalletMessage(wallet, onError);
     } catch (_) {
       onError();
     }
@@ -90,7 +87,9 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
   };
 
   generateWallet = async (wallet: any) => {
+    const { label } = this.state;
     const { navigation } = this.props;
+    wallet.setLabel(label || i18n.wallets.details.title);
     await wallet.generate();
     BlueApp.wallets.push(wallet);
     await BlueApp.saveToDisk();
@@ -100,7 +99,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     });
   };
 
-  createVaultWalletMessage = (wallet: any, onError: Function) => {
+  createWalletMessage = (wallet: any, onError: Function) => {
     CreateMessage({
       title: i18n.message.creatingWallet,
       description: i18n.message.creatingWalletDescription,
@@ -115,39 +114,39 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     });
   };
 
-  createAIRWalletAddInstantPublicKey = (wallet: any, label: string) => (instantPublicKey: string) => {
+  createAIRWalletAddInstantPublicKey = (wallet: any) => (instantPublicKey: string) => {
     const { navigation } = this.props;
     const onError = (error: string) =>
       this.showAlert(() => {
-        this.navigateToIntegrateInstantPublicKey(wallet, label);
+        this.navigateToIntegrateInstantPublicKey(wallet);
       }, error);
     try {
       wallet.addPublicKey(instantPublicKey);
       navigation.goBack();
-      this.createVaultWalletMessage(wallet, onError);
+      this.createWalletMessage(wallet, onError);
     } catch (e) {
       onError(e.message);
     }
   };
 
-  navigateToIntegrateInstantPublicKey = (wallet: any, label: string) => {
+  navigateToIntegrateInstantPublicKey = (wallet: any) => {
     const { navigation } = this.props;
     navigation.navigate(Route.IntegrateKey, {
-      onBarCodeScan: this.createAIRWalletAddInstantPublicKey(wallet, label),
+      onBarCodeScan: this.createAIRWalletAddInstantPublicKey(wallet),
       title: i18n.wallets.publicKey.instantSubtitle,
       headerTitle: i18n.wallets.add.title,
       description: i18n.wallets.publicKey.instantDescription,
       onBackArrow: () => {
         wallet.clearPublickKeys();
-        this.navigateToIntegrateRecoveryPublicKey(label, this.createAIRWalletAddRecoveryPublicKey);
+        this.navigateToIntegrateRecoveryPublicKey(this.createAIRWalletAddRecoveryPublicKey);
       },
     });
   };
 
-  navigateToIntegrateRecoveryPublicKey = (label: string, create: Function) => {
+  navigateToIntegrateRecoveryPublicKey = (create: Function) => {
     const { navigation } = this.props;
     navigation.navigate(Route.IntegrateKey, {
-      onBarCodeScan: create(label),
+      onBarCodeScan: create(),
       headerTitle: i18n.wallets.add.title,
       title: i18n.wallets.publicKey.recoverySubtitle,
       description: i18n.wallets.publicKey.recoveryDescription,
@@ -157,47 +156,42 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     });
   };
 
-  createAIRWalletAddRecoveryPublicKey = (label: string) => (recoveryPublicKey: string) => {
+  createAIRWalletAddRecoveryPublicKey = () => (recoveryPublicKey: string) => {
     try {
       const wallet = new HDSegwitP2SHAirWallet();
       wallet.addPublicKey(recoveryPublicKey);
-      wallet.setLabel(label);
-      this.navigateToIntegrateInstantPublicKey(wallet, label);
+      this.navigateToIntegrateInstantPublicKey(wallet);
     } catch (e) {
       this.showAlert(
-        () => this.navigateToIntegrateRecoveryPublicKey(label, this.createAIRWalletAddRecoveryPublicKey),
+        () => this.navigateToIntegrateRecoveryPublicKey(this.createAIRWalletAddRecoveryPublicKey),
         e.message,
       );
     }
   };
 
   setupWallet = () => {
-    const { selectedIndex, label } = this.state;
+    const { selectedIndex } = this.state;
     if (selectedIndex === 0) {
-      return this.navigateToIntegrateRecoveryPublicKey(label, this.createARWallet);
+      return this.navigateToIntegrateRecoveryPublicKey(this.createARWallet);
     }
     if (selectedIndex === 1) {
-      return this.navigateToIntegrateRecoveryPublicKey(label, this.createAIRWalletAddRecoveryPublicKey);
+      return this.navigateToIntegrateRecoveryPublicKey(this.createAIRWalletAddRecoveryPublicKey);
     }
     this.createWallet();
   };
 
   createWallet = async () => {
-    const { selectedIndex, label, isLoading } = this.state;
-    if (isLoading) return;
-    this.setState({ isLoading: true });
+    const { navigation } = this.props;
+    const { selectedIndex } = this.state;
     const WalletClass = this.getWalletClassByIndex(selectedIndex);
 
-    try {
-      const wallet = new WalletClass();
+    const wallet = new WalletClass();
 
-      wallet.setLabel(label || i18n.wallets.details.title);
-
-      await this.generateWallet(wallet);
-    } catch (error) {
-      this.setState({ isLoading: false });
-      Alert.alert(i18n.wallets.add.failed);
-    }
+    const onError = () =>
+      this.showAlert(() => {
+        navigation.navigate(Route.CreateWallet);
+      }, i18n.wallets.add.failed);
+    this.createWalletMessage(wallet, onError);
   };
 
   get canCreateWallet(): boolean {
@@ -206,9 +200,6 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
 
   get validationError(): string | undefined {
     const walletLabels = BlueApp.getWallets().map((wallet: Wallet) => wallet.label) || [];
-    if (this.state.isLoading) {
-      return;
-    }
     if (walletLabels.includes(this.state.label.trim())) {
       return i18n.wallets.importWallet.walletInUseValidationError;
     }
@@ -284,12 +275,8 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
       <ScreenTemplate
         footer={
           <>
-            {this.state.isLoading && (
-              <Text style={styles.isLoadingDescription}>{i18n.message.creatingWalletDescription}</Text>
-            )}
             <Button
               disabled={!this.canCreateWallet}
-              loading={this.state.isLoading}
               onPress={this.setupWallet}
               title={i18n.wallets.add.addWalletButton}
             />
@@ -333,14 +320,6 @@ const styles = StyleSheet.create({
     color: palette.textGrey,
     ...typography.caption,
     textAlign: 'center',
-  },
-  isLoadingDescription: {
-    ...typography.caption,
-    color: palette.textGrey,
-    textAlign: 'center',
-    lineHeight: 19,
-    flexGrow: 1,
-    marginVertical: 10,
   },
   advancedOptionsLabel: {
     color: palette.textGrey,
