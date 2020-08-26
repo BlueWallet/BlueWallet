@@ -5,9 +5,9 @@ const bitcoin = require('bitcoinjs-lib');
 const reverse = require('buffer-reverse');
 const ElectrumClient = require('electrum-client');
 
-export const defaultPeer = { host: '188.166.204.85', tcp: '50001' };
+export const defaultPeer = { host: 'e1.electrumx.bitcoinvault.global', tcp: '50001' };
 const hardcodedPeers = [
-  { host: '188.166.204.85', tcp: '50001' },
+  { host: 'e1.electrumx.bitcoinvault.global', tcp: '50001' },
   { host: '157.245.20.66', tcp: '50001' },
 ];
 
@@ -16,10 +16,10 @@ let mainConnected = false;
 let wasConnectedAtLeastOnce = false;
 
 async function connectMain() {
-  const usingPeer = { host: config.host, tcp: config.port };
+  const usingPeer = { host: config.host, tcp: config.port, protocol: config.protocol };
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
-    mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, 'tcp');
+    mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, usingPeer.protocol);
     mainClient.onError = function(e) {
       console.log('ElectrumClient error: ' + e);
       mainConnected = false;

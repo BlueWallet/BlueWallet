@@ -13,7 +13,6 @@ import {
   HDSegwitP2SHAirWallet,
   Authenticator,
 } from './';
-import DeviceQuickActions from './quickActions';
 
 const encryption = require('../encryption');
 
@@ -139,8 +138,6 @@ export class AppStorage {
     this.cachedPassword = password;
     await this.setItem('data', data);
     await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
-    DeviceQuickActions.clearShortcutItems();
-    DeviceQuickActions.removeAllWallets();
   }
 
   /**
@@ -232,8 +229,6 @@ export class AppStorage {
             this.tx_metadata = data.tx_metadata;
           }
         }
-        DeviceQuickActions.setWallets(this.wallets);
-        DeviceQuickActions.setQuickActions();
         return true;
       } else {
         return false; // failed loading data or loading/decryptin data
@@ -318,8 +313,7 @@ export class AppStorage {
     } else {
       await this.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
-    DeviceQuickActions.setWallets(this.wallets);
-    DeviceQuickActions.setQuickActions();
+
     return this.setItem('data', JSON.stringify(data));
   }
 

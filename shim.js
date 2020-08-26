@@ -1,7 +1,7 @@
 import { Socket, connect } from 'app/network/socket';
 
 global.net = { Socket };
-global.tls = connect;
+global.tls = { connect };
 
 if (typeof __dirname === 'undefined') global.__dirname = '/';
 if (typeof __filename === 'undefined') global.__filename = '';

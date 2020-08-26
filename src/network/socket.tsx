@@ -16,6 +16,13 @@ export function connect(config: SocketOptions, callback: SocketCallback) {
     callback,
   );
 
+  // required functions not supported by react-native-tcp-socket
+  // @ts-ignore
+  client.setEncoding = () => {};
+  // @ts-ignore
+  client.setKeepAlive = () => {};
+  // @ts-ignore
+  client.setNoDelay = () => {};
   return client;
 }
 
