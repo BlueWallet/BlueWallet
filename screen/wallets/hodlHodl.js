@@ -139,10 +139,11 @@ export default class HodlHodl extends Component {
             );
           }
         },
-        _error =>
+        _error => {
           resolve(
             this.setState({ myCountryCode: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL, cuntry: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL }),
-          ),
+          );
+        },
         { enableHighAccuracy: false, timeout: 20000, maximumAge: 1000 },
       );
     });
@@ -155,8 +156,6 @@ export default class HodlHodl extends Component {
    **/
   async fetchListOfCountries() {
     const countries = await this.state.HodlApi.getCountries();
-
-    console.warn(countries);
     this.setState({ countries });
   }
 
