@@ -97,8 +97,9 @@ export class TransactionList extends PureComponent<Props> {
 }
 
 const styles = StyleSheet.create({
-  sectionTitle: { marginTop: 30, marginBottom: 10, paddingHorizontal: 20 },
+  sectionTitle: { marginTop: 15, marginBottom: 10, paddingHorizontal: 20 },
   itemWrapper: {
+    marginBottom: 15,
     paddingHorizontal: 20,
   },
   spaceBottom: {
@@ -115,5 +116,6 @@ const styles = StyleSheet.create({
   noTransactionsLabel: {
     ...typography.caption,
     color: palette.textGrey,
+    marginBottom: 20,
   },
 });

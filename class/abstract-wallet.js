@@ -66,6 +66,9 @@ export class AbstractWallet {
     if (!this._address) {
       return false;
     }
+    if (typeof this._address === 'string') {
+      return this._address === address;
+    }
     for (let i = 0; i < this._address.length; i++) {
       if (address === this._address[i]) {
         return true;

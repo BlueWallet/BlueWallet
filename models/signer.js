@@ -6,29 +6,32 @@
  * https://github.com/Overtorment/Cashier-BTC
  *
  **/
-import config from '../config';
+import * as bitcoinjs from 'bitcoinjs-lib';
 
-const bitcoinjs = require('bitcoinjs-lib');
+import config from '../config';
+import { btcToSatoshi } from '../utils/bitcoin';
+import { getUtxosWithMinimumRest, getUtxosFromMaxToMin, getUtxosFromMinToMax } from './utils';
+
+const i18n = require('../loc');
 
 const _p2wpkh = bitcoinjs.payments.p2wpkh;
 const _p2sh = bitcoinjs.payments.p2sh;
 const _p2wsh = bitcoinjs.payments.p2wsh;
 
-const toSatoshi = num => parseInt((num * 100000000).toFixed(0));
-
 exports.createHDTransaction = function(utxos, toAddress, amount, fixedFee, changeAddress) {
-  const feeInSatoshis = parseInt((fixedFee * 100000000).toFixed(0));
-  const amountToOutputSatoshi = parseInt(((amount - fixedFee) * 100000000).toFixed(0)); // how much payee should get
+  const feeInSatoshis = btcToSatoshi(fixedFee, 0);
+  const amountToOutputSatoshi = btcToSatoshi(amount - fixedFee, 0); // how much payee should get
   const txb = new bitcoinjs.TransactionBuilder(config.network);
   txb.setVersion(1);
   let unspentAmountSatoshi = 0;
   const ourOutputs = {};
   let outputNum = 0;
-  for (const unspent of utxos) {
-    if (unspent.confirmations < 1) {
-      // using only confirmed outputs
-      continue;
-    }
+  const unspentUtxos = getUtxosFromMinToMax(utxos, btcToSatoshi(amount, 0));
+
+  if (unspentUtxos === null) {
+    throw new Error(i18n.transactions.errors.notEnoughBalance);
+  }
+  for (const unspent of unspentUtxos) {
     txb.addInput(unspent.txid, unspent.vout);
     ourOutputs[outputNum] = ourOutputs[outputNum] || {};
     ourOutputs[outputNum].keyPair = bitcoinjs.ECPair.fromWIF(unspent.wif, config.network);
@@ -38,9 +41,6 @@ exports.createHDTransaction = function(utxos, toAddress, amount, fixedFee, chang
       break;
     }
     outputNum++;
-  }
-  if (unspentAmountSatoshi < amountToOutputSatoshi + feeInSatoshis) {
-    throw new Error('Not enough balance. Please, try sending a smaller amount.');
   }
 
   // adding outputs
@@ -70,19 +70,22 @@ exports.createHDTransaction = function(utxos, toAddress, amount, fixedFee, chang
 };
 
 exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee, changeAddress) {
-  const feeInSatoshis = parseInt((fixedFee * 100000000).toFixed(0));
-  const amountToOutputSatoshi = parseInt(((amount - fixedFee) * 100000000).toFixed(0)); // how much payee should get
+  const feeInSatoshis = btcToSatoshi(fixedFee, 0);
+  const amountToOutputSatoshi = btcToSatoshi(amount - fixedFee, 0); // how much payee should get
   const psbt = new bitcoinjs.Psbt({ network: config.network });
   psbt.setVersion(1);
   let unspentAmountSatoshi = 0;
   const ourOutputs = [];
   let outputNum = 0;
-  for (const unspent of utxos) {
-    if (unspent.confirmations < 1) {
-      // using only confirmed outputs
-      continue;
-    }
+
+  const unspentUtxos = getUtxosFromMinToMax(utxos, btcToSatoshi(amount, 0));
+
+  if (unspentUtxos === null) {
+    throw new Error(i18n.transactions.errors.notEnoughBalance);
+  }
+  for (const unspent of unspentUtxos) {
     const keyPair = bitcoinjs.ECPair.fromWIF(unspent.wif, config.network);
+
     const p2wpkh = _p2wpkh({
       pubkey: keyPair.publicKey,
     });
@@ -103,15 +106,12 @@ exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee,
     ourOutputs[outputNum].redeemScript = p2wpkh.output;
     ourOutputs[outputNum].amount = unspent.value;
     unspentAmountSatoshi += unspent.value;
+
     if (unspentAmountSatoshi >= amountToOutputSatoshi + feeInSatoshis) {
       // found enough inputs to satisfy payee and pay fees
       break;
     }
     outputNum++;
-  }
-
-  if (unspentAmountSatoshi < amountToOutputSatoshi + feeInSatoshis) {
-    throw new Error('Not enough balance. Please, try sending a smaller amount.');
   }
 
   // adding outputs
@@ -153,18 +153,28 @@ exports.createHDSegwitVaultTransaction = function({
   keyPairs,
   paymentMethod,
 }) {
-  const feeInSatoshis = parseInt((fixedFee * 100000000).toFixed(0));
-  const amountToOutputSatoshi = parseInt(((amount - fixedFee) * 100000000).toFixed(0)); // how much payee should get
+  const feeInSatoshis = btcToSatoshi(fixedFee, 0);
+  const amountToOutputSatoshi = btcToSatoshi(amount - fixedFee, 0); // how much payee should get
   const psbt = new bitcoinjs.Psbt({ network: config.network });
   psbt.setVersion(1);
   let unspentAmountSatoshi = 0;
   const inputKeyPairs = [];
 
-  for (const unspent of utxos) {
-    if (unspent.confirmations < 1) {
-      // using only confirmed outputs
-      continue;
-    }
+  let unspentUtxos;
+
+  const amountSatoshis = btcToSatoshi(amount, 0);
+
+  if (vaultTxType === bitcoinjs.payments.VaultTxType.Alert) {
+    unspentUtxos = getUtxosWithMinimumRest(utxos, amountSatoshis);
+  } else {
+    unspentUtxos = getUtxosFromMaxToMin(utxos, amountSatoshis);
+  }
+
+  if (unspentUtxos === null) {
+    throw new Error(i18n.transactions.errors.notEnoughBalance);
+  }
+
+  for (const unspent of unspentUtxos) {
     const keyPair = bitcoinjs.ECPair.fromWIF(unspent.wif, config.network);
 
     const p2Vault = paymentMethod({
@@ -201,10 +211,6 @@ exports.createHDSegwitVaultTransaction = function({
     }
   }
 
-  if (unspentAmountSatoshi < amountToOutputSatoshi + feeInSatoshis) {
-    throw new Error('Not enough balance. Please, try sending a smaller amount.');
-  }
-
   // adding outputs
 
   psbt.addOutput({
@@ -213,13 +219,14 @@ exports.createHDSegwitVaultTransaction = function({
   });
 
   if (amountToOutputSatoshi + feeInSatoshis < unspentAmountSatoshi) {
+    const restValue = unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis;
     // sending less than we have, so the rest should go back
-    if (unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis > 3 * feeInSatoshis) {
+    if (restValue > 3 * feeInSatoshis) {
       // to prevent @dust error change transferred amount should be at least 3xfee.
       // if not - we just dont send change and it wil add to fee
       psbt.addOutput({
         address: changeAddress,
-        value: unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis,
+        value: restValue,
       });
     }
   }
@@ -234,11 +241,13 @@ exports.createHDSegwitVaultTransaction = function({
 
 exports.createSegwitTransaction = function(utxos, toAddress, amount, fixedFee, WIF, changeAddress, sequence) {
   changeAddress = changeAddress || exports.WIF2segwitAddress(WIF);
+
   if (sequence === undefined) {
     sequence = bitcoinjs.Transaction.DEFAULT_SEQUENCE;
   }
 
-  const feeInSatoshis = parseInt((fixedFee * 100000000).toFixed(0));
+  const feeInSatoshis = btcToSatoshi(fixedFee, 0);
+
   const keyPair = bitcoinjs.ECPair.fromWIF(WIF, config.network);
   const p2wpkh = _p2wpkh({
     pubkey: keyPair.publicKey,
@@ -251,44 +260,49 @@ exports.createSegwitTransaction = function(utxos, toAddress, amount, fixedFee, W
 
   const psbt = new bitcoinjs.Psbt({ network: config.network });
   psbt.setVersion(1);
+  const unspentUtxos = getUtxosFromMinToMax(utxos, btcToSatoshi(amount, 0));
+
+  if (unspentUtxos === null) {
+    throw new Error(i18n.transactions.errors.notEnoughBalance);
+  }
+  console.log('unspentUtxos', unspentUtxos);
+
   let unspentAmount = 0;
-  for (const unspent of utxos) {
-    if (unspent.confirmations < 2) {
-      // using only confirmed outputs
-      continue;
-    }
-    const satoshis = parseInt((unspent.value * 100000000).toFixed(0));
+  for (const unspent of unspentUtxos) {
     psbt.addInput({
       hash: unspent.txid,
       index: unspent.vout,
       sequence,
       witnessUtxo: {
         script: p2sh.output,
-        value: satoshis,
+        value: unspent.value,
       },
       redeemScript: p2wpkh.output,
     });
-    unspentAmount += satoshis;
+    unspentAmount += unspent.value;
   }
-  const amountToOutput = parseInt(((amount - fixedFee) * 100000000).toFixed(0));
+  const amountToOutput = btcToSatoshi(amount - fixedFee, 0);
+
   psbt.addOutput({
     address: toAddress,
     value: amountToOutput,
   });
+
   if (amountToOutput + feeInSatoshis < unspentAmount) {
     // sending less than we have, so the rest should go back
 
-    if (unspentAmount - amountToOutput - feeInSatoshis > 3 * feeInSatoshis) {
+    const restValue = unspentAmount - amountToOutput - feeInSatoshis;
+    if (restValue > 3 * feeInSatoshis) {
       // to prevent @dust error change transferred amount should be at least 3xfee.
       // if not - we just dont send change and it wil add to fee
       psbt.addOutput({
         address: changeAddress,
-        value: unspentAmount - amountToOutput - feeInSatoshis,
+        value: restValue,
       });
     }
   }
 
-  for (let c = 0; c < utxos.length; c++) {
+  for (let c = 0; c < unspentUtxos.length; c++) {
     psbt.signInput(c, keyPair);
   }
   const tx = psbt.finalizeAllInputs().extractTransaction();
@@ -351,7 +365,7 @@ exports.createRBFSegwitTransaction = function(txhex, addressReplaceMap, feeDelta
       });
     } else {
       // CHANGE address, so we deduct increased fee from here
-      const feeDeltaInSatoshi = parseInt((feeDelta * 100000000).toFixed(0));
+      const feeDeltaInSatoshi = btcToSatoshi(feeDelta, 0);
       psbt.addOutput({
         address: outAddress,
         value: o.value - feeDeltaInSatoshi,
@@ -411,19 +425,21 @@ exports.WIF2segwitAddress = function(WIF) {
 };
 
 exports.createTransaction = function(utxos, toAddress, _amount, _fixedFee, WIF, fromAddress) {
-  const fixedFee = toSatoshi(_fixedFee);
-  const amountToOutput = toSatoshi(_amount - _fixedFee);
+  const fixedFee = btcToSatoshi(_fixedFee, 0);
+  const amountToOutput = btcToSatoshi(_amount - _fixedFee, 0);
   const pk = bitcoinjs.ECPair.fromWIF(WIF, config.network); // eslint-disable-line new-cap
   const txb = new bitcoinjs.TransactionBuilder(config.network);
   txb.setVersion(1);
   let unspentAmount = 0;
-  for (const unspent of utxos) {
-    if (unspent.confirmations < 2) {
-      // using only confirmed outputs
-      continue;
-    }
+  const unspentUtxos = getUtxosFromMinToMax(utxos, btcToSatoshi(_amount, 0));
+
+  if (unspentUtxos === null) {
+    throw new Error(i18n.transactions.errors.notEnoughBalance);
+  }
+
+  for (const unspent of unspentUtxos) {
     txb.addInput(unspent.txid, unspent.vout);
-    unspentAmount += toSatoshi(unspent.value);
+    unspentAmount += unspent.value;
   }
   txb.addOutput(toAddress, amountToOutput);
 

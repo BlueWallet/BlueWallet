@@ -269,6 +269,9 @@ const id = {
       addToAddressBook: 'TRANSLATION NEEDED | ENG: Add to Address book',
       timePending: 'TRANSLATION NEEDED | ENG: Time pending',
     },
+    errors: {
+      notEnoughBalance: 'TRANSLATION NEEDED | ENG: Not enough balance. Please, try sending a smaller amount.',
+    },
     label: {
       pending: 'TRANSLATION NEEDED | ENG: pending',
       annulled: 'TRANSLATION NEEDED | ENG: annulled',

@@ -1,5 +1,6 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import * as bip39 from 'bip39';
 import React, { PureComponent } from 'react';
 import { View, StyleSheet, Text, Keyboard, Alert } from 'react-native';
 import { connect } from 'react-redux';
@@ -372,8 +373,8 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
   importMnemonic = (mnemonic: string) => {
     const trimmedMnemonic = mnemonic.trim().replace(/ +/g, ' ');
 
-    if (isElectrumVaultMnemonic(trimmedMnemonic)) {
-      this.showAlert(i18n.wallets.importWallet.unsupportedElectrumVaultMnemonic);
+    if (isElectrumVaultMnemonic(trimmedMnemonic) && !bip39.validateMnemonic(trimmedMnemonic)) {
+      this.showErrorMessageScreen({ description: i18n.wallets.importWallet.unsupportedElectrumVaultMnemonic });
       return;
     }
 

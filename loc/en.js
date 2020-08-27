@@ -299,6 +299,9 @@ module.exports = {
     },
   },
   transactions: {
+    errors: {
+      notEnoughBalance: 'Not enough balance. Please, try sending a smaller amount.',
+    },
     label: {
       pending: 'pending',
       annulled: 'annulled',

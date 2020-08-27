@@ -1,12 +1,13 @@
 import * as bip39 from 'bip39';
+import * as bitcoin from 'bitcoinjs-lib';
 import b58 from 'bs58check';
 import { NativeModules } from 'react-native';
 
 import config from '../config';
+import { satoshiToBtc } from '../utils/bitcoin';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 
 const HDNode = require('bip32');
-const bitcoin = require('bitcoinjs-lib');
 const coinSelectAccumulative = require('coinselect/accumulative');
 const coinSelectSplit = require('coinselect/split');
 
@@ -91,8 +92,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     if (!this.seed) {
       this.seed = await bip39.mnemonicToSeed(this.secret);
     }
-
-    const root = HDNode.fromSeed(this.seed);
+    const root = HDNode.fromSeed(this.seed, config.network);
     const path = this._getPath(`/0/${index}`);
     const child = root.derivePath(path);
     return child.toWIF();
@@ -147,7 +147,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     // first, getting xpub
     const mnemonic = this.secret;
     this.seed = await bip39.mnemonicToSeed(mnemonic);
-    const root = HDNode.fromSeed(this.seed);
+    const root = HDNode.fromSeed(this.seed, config.network);
 
     const path = this._getPath();
     const child = root.derivePath(path).neutered();
@@ -201,6 +201,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       // we want to send MAX
       algo = coinSelectSplit;
     }
+
     const { inputs, outputs, fee } = algo(utxos, targets, feeRate);
 
     // .inputs and .outputs will be undefined if no solution was found
@@ -209,7 +210,6 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     }
 
     const psbt = new bitcoin.Psbt({ network: config.network });
-
     let c = 0;
     const keypairs = {};
     const values = {};
@@ -219,6 +219,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       let keyPair;
       if (!skipSigning) {
         // skiping signing related stuff
+
         keyPair = bitcoin.ECPair.fromWIF(this._getWifForAddress(input.address), config.network);
         keypairs[c] = keyPair;
       }
@@ -297,6 +298,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     if (!skipSigning) {
       tx = psbt.finalizeAllInputs().extractTransaction();
     }
+
     return { tx, inputs, outputs, fee, psbt };
   }
 
