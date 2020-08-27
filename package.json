@@ -64,6 +64,7 @@
     "@react-native-community/async-storage": "1.11.0",
     "@react-native-community/blur": "3.6.0",
     "@react-native-community/clipboard": "1.2.3",
+    "@react-native-community/geolocation": "2.0.2",
     "@react-native-community/masked-view": "0.1.10",
     "@react-native-community/push-notification-ios": "git+https://github.com/BlueWallet/push-notification-ios.git#e61224ae1a9427d73bb04f96cee514a1d21f646c",
     "@react-native-community/slider": "3.0.3",
