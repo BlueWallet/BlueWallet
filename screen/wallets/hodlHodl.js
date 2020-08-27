@@ -25,6 +25,7 @@ import { BlueButtonLink, BlueNavigationStyle, SafeBlueArea } from '../../BlueCom
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import { AppStorage } from '../../class';
 import * as NavigationService from '../../NavigationService';
+import Geolocation from '@react-native-community/geolocation';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
 
@@ -36,7 +37,7 @@ const METHOD_ANY = '_any';
 
 const HodlHodlListSections = { OFFERS: 'OFFERS' };
 const windowHeight = Dimensions.get('window').height;
-
+Geolocation.setRNConfiguration({ authorizationLevel: 'whenInUse' });
 export default class HodlHodl extends Component {
   constructor(props) {
     super(props);
@@ -121,10 +122,29 @@ export default class HodlHodl extends Component {
   }
 
   async fetchMyCountry() {
-    const myCountryCode = await this.state.HodlApi.getMyCountryCode();
-    this.setState({
-      myCountryCode,
-      country: myCountryCode, // we start with orders from current country
+    return new Promise(resolve => {
+      Geolocation.getCurrentPosition(
+        async _position => {
+          const myCountryCode = await this.state.HodlApi.getMyCountryCode();
+          if (myCountryCode === 'US') {
+            alert('This service is currently not available in your country.');
+            this.props.navigation.goBack();
+          } else {
+            this.setState(
+              {
+                myCountryCode,
+                country: myCountryCode, // we start with orders from current country
+              },
+              resolve(),
+            );
+          }
+        },
+        _error =>
+          resolve(
+            this.setState({ myCountryCode: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL, cuntry: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL }),
+          ),
+        { enableHighAccuracy: false, timeout: 20000, maximumAge: 1000 },
+      );
     });
   }
 
@@ -323,7 +343,8 @@ export default class HodlHodl extends Component {
   }
 
   getNativeCountryName() {
-    if (this.state.country === this.state.myCountryCode) return loc.hodl.filter_country_near;
+    if (this.state.country === this.state.myCountryCode && this.state.country !== HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL)
+      return loc.hodl.filter_country_near;
     for (const c of this.state.countries) {
       if (c.code === this.state.country) return c.native_name;
     }
@@ -867,6 +888,7 @@ HodlHodl.propTypes = {
     addListener: PropTypes.func,
     navigate: PropTypes.func,
     setParams: PropTypes.func,
+    goBack: PropTypes.func,
   }),
 };
 
