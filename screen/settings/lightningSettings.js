@@ -59,6 +59,10 @@ const LightningSettings = () => {
       .catch(() => setIsLoading(false));
   }, []);
 
+  const setLndhubURI = value => {
+    setURI(value.trim());
+  };
+
   const save = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -99,13 +103,14 @@ const LightningSettings = () => {
           <TextInput
             placeholder={LightningCustodianWallet.defaultBaseUri}
             value={URI}
-            onChangeText={setURI}
+            onChangeText={setLndhubURI}
             numberOfLines={1}
             style={styles.uriText}
             placeholderTextColor="#81868e"
             editable={!isLoading}
             textContentType="URL"
             autoCapitalize="none"
+            autoCorrect={false}
             underlineColorAndroid="transparent"
           />
         </View>

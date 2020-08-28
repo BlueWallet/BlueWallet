@@ -1374,7 +1374,7 @@ const sendReceiveScanButtonFontSize =
 export class BlueReceiveButtonIcon extends Component {
   render() {
     return (
-      <TouchableOpacity {...this.props} style={{ flex: 0.5 }}>
+      <TouchableOpacity {...this.props} style={{ flex: 1 }}>
         <View
           style={{
             flex: 1,
@@ -1462,7 +1462,7 @@ export class BlueScanButton extends Component {
 export class BlueSendButtonIcon extends Component {
   render() {
     return (
-      <TouchableOpacity {...this.props} testID="SendButton" style={{ flex: 0.5 }}>
+      <TouchableOpacity {...this.props} testID="SendButton" style={{ flex: 1 }}>
         <View
           style={{
             flex: 1,
