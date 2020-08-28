@@ -13,11 +13,19 @@ module.exports = {
     confirm: 'Konfirmasi',
     copy: 'Salin',
     copied: 'Disalin!',
+    or: 'atau',
+    delete: 'Hapus',
+    created: 'Dibuat pada',
+    invalid: 'Tidak Valid',
+    satoshi: 'Satoshi',
+    next: 'Berikutnya',
   },
   tabNavigator: {
     dashboard: 'Dasbor',
     settings: 'Pengaturan',
     addressBook: 'Buku alamat',
+    wallets: 'Dompet',
+    authenticators: 'Authenticator',
   },
   message: {
     somethingWentWrong: 'Terjadi kesalahan',
@@ -30,6 +38,24 @@ module.exports = {
     creatingWallet: 'Membuat dompet Anda',
     creatingWalletDescription:
       'Mohon kesabaran Anda sementara kami membuat dompet Anda. Ini mungkin membutuhkan waktu.',
+    allDone: 'Semua selesai!',
+    hooray: 'Hore!',
+    cancelTxSuccess: 'Anda berhasil membatalkan transaksi.\n Koin Anda akan tiba.',
+    wrongMnemonic: 'Mnemonik salah',
+    wrongMnemonicDesc:
+      'Mnemonik tidak sesuai dengan dompet apa pun yang didukung. Anda mencoba mengimpor mnemonik yang tidak valid atau dompet belum pernah digunakan',
+    returnToWalletChoose: 'Kembali ke pemilihan tipe dompet',
+    returnToWalletImport: 'Kembali ke impor dompet',
+    generateAddressesError: 'Tidak bisa membuat alamat',
+    noTransactions: 'Transaksi tidak ditemukan di dompet',
+    noTransactionsDesc: 'Anda mungkin mencoba mengimpor dompet yang belum pernah digunakan',
+    returnToAuthenticators: 'Kembali ke authenticator',
+    creatingAuthenticator: 'authenticator Anda sedang dibuat',
+    creatingAuthenticatorDescription:
+      'Harap bersabar selagi kami membuat authenticator Anda.\n' + ' Mungkin perlu waktu.',
+    importingAuthenticator: 'Mengimpor authenticator Anda',
+    importingAuthenticatorDescription:
+      'Harap bersabar selagi kami mengimpor authenticator Anda.\n' + ' Mungkin perlu waktu.',
   },
   onboarding: {
     onboarding: 'Onboarding',
@@ -48,10 +74,17 @@ module.exports = {
     changePin: 'Ubah PIN',
     currentPin: 'PIN Sekarang',
     pinDoesNotMatch: 'PIN tidak cocok. Mohon masukkan PIN yang valid.',
-    successDescription: 'Hore!\nPIN Anda telah berhasil dibuat.',
-    successDescriptionChangedPin: 'Hore!\nPIN Anda telah berhasil dirubah.',
+    successDescription: 'Hore!\n PIN Anda telah berhasil dibuat.',
+    successDescriptionChangedPin: 'Hore!\n PIN Anda telah berhasil dirubah.',
     successButton: 'Pergi ke Dasbor',
     successButtonChangedPin: 'Kembali ke Pengaturan',
+    failedTimes: 'Percobaan gagal',
+    failedTimesErrorInfo: 'Setelah tiga percobaan yang gagal, Anda akan diblokir masuk selama',
+    goBack: 'Kembali',
+    minutes: 'menit.',
+    numberOfAttemptsExceeded: 'Jumlah percobaan terlampaui',
+    seconds: 'detik',
+    tryAgain: 'Coba lagi setelah',
   },
   unlock: {
     title: 'Buka Kunci',
@@ -74,6 +107,9 @@ module.exports = {
       send: 'Kirim koin',
       receive: 'Terima koin',
       noTransactions: 'Tidak ada transaksi untuk ditampilkan.',
+      availableBalance: 'Saldo tersedia',
+      wallet: 'dompet',
+      recover: 'Batal',
     },
     walletModal: { btcv: 'BTCV', wallets: 'Dompet' },
     importWallet: {
@@ -85,6 +121,17 @@ module.exports = {
       import: 'Impor',
       scanQrCode: 'atau pindai kode QR',
       walletInUseValidationError: 'Dompet sudah digunakan. Masukkan dompet yang valid.',
+      chooseTypeDescription: 'Pilih jenis dompet yang ingin Anda impor.',
+      importARDescription1: 'Masukkan frasa benih (seed)',
+      importARDescription2: 'pindai kode QR dompet yang ingin Anda impor',
+      scanWalletAddress: 'Pindai alamat dompet',
+      scanWalletAddressDescription: 'Pindai kode QR Alamat Publik untuk memulai integrasi dengan GoldWallet.',
+      scanFastPubKey: 'Pindai kode QR Kunci Cepat',
+      scanCancelPubKey: 'Pindai kode QR Kunci Pembatalan',
+      scanPublicKeyDescription:
+        'Buka dokumen PDF pertama yang Anda buat saat Anda membuat dompet yang ingin diimpor, lalu gunakan aplikasi ini untuk memindai kode QR Kunci Publik.',
+      unsupportedElectrumVaultMnemonic:
+        'Benih ini berasal dari Electrum Vault dan belum didukung. Akan didukung di masa yang akan datang.',
     },
     exportWallet: { title: 'Frasa mnemonik', header: 'Ekspor dompet' },
     exportWalletXpub: { header: 'Dompet XPUB' },
@@ -96,7 +143,11 @@ module.exports = {
       no: 'Tidak',
       yes: 'Ya',
     },
-    wallet: { none: 'Tidak ada', latest: 'Transaksi terakhir' },
+    wallet: {
+      none: 'Tidak ada',
+      latest: 'Transaksi terakhir',
+      pendingBalance: 'Saldo tertunda',
+    },
     add: {
       title: 'Tambah dompet baru',
       subtitle: 'Namai dompet Anda',
@@ -109,6 +160,19 @@ module.exports = {
       singleAddress: 'Satu alamat',
       segwidAddress:
         'Alamat ini mengandung sebuah pohon dari alamat segwit native, yang dihasilkan oleh sebuah benih tunggal 24-kata',
+      failed: 'Gagal membuat dompet',
+      walletType: 'Tipe dompet',
+      ar: 'Membuat transaksi Standar dan Pembatalan.',
+      air: 'Membuat transaksi Standar, Pembatalan, dan Cepat.',
+      legacyTitle: 'Legasi',
+      legacyHDP2SHTitle: 'HD P2SH Legasi',
+      legacyP2SHTitle: 'P2SH Legasi',
+      legacyHDSegWitTitle: 'HD Segwit Legasi',
+      legacy: 'Membuat tipe transaksi default.',
+      legacyHDP2SH: 'Berisi pohon alamat P2SH yang dibuat dari satu benih 24 kata',
+      LegacyP2SH: 'Berisi satu alamat P2SH',
+      LegacyHDSegWit: 'Berisi pohon alamat segwit asal, dibuat satu benih 24 kata',
+      publicKeyError: 'Kunci publik yang disediakan tidak valid',
     },
     addSuccess: {
       title: 'Tambah dompet baru',
@@ -153,6 +217,26 @@ module.exports = {
       imported_legacy: 'Legacy diimpor',
       imported_watchonly: 'Watch-only diimpor',
     },
+    publicKey: {
+      recoverySubtitle: 'Tambahkan Kunci Pembatalan',
+      webKeyGenerator: 'Pembuat Kunci Web:',
+      recoveryDescription:
+        'Buka Pembuat Kunci web di perangkat terpisah, lalu gunakan aplikasi ini untuk memindai kode QR Kunci Publik. Mohon untuk mengekspor kunci Anda sebagai PDF!',
+      instantSubtitle: 'Tambahkan Kunci Cepat',
+      instantDescription:
+        'Buka Pembuat Kunci web di perangkat terpisah, lalu gunakan aplikasi ini untuk memindai kode QR Kunci Publik. Mohon untuk mengekspor kunci Anda sebagai PDF!',
+      scan: 'Pindai',
+    },
+    errors: {
+      invalidMnemonicWordsNumber: '{receivedWordsNumber} kata yang diberikan mengharapkan {expectedWordsNumber}',
+      noIndexForWord: 'Tidak bisa menemukan indeks untuk kata: {word}',
+      invalidPrivateKey: 'Kunci privat tidak valid',
+      invalidPublicKey: 'Kunci publik tidak valid',
+      invalidMnemonic: 'Mnemonik tidak valid',
+      invalidQrCode: 'Kode QR tidak valid',
+      invalidSign: 'Tidak bisa menandatangani transaksi',
+      duplicatedPublicKey: 'Kunci publik sudah ditambahkan',
+    },
   },
   transactions: {
     list: { conf: 'Konfirmasi' },
@@ -182,7 +266,19 @@ module.exports = {
       inputs: 'Input',
       ouputs: 'Output',
       sendCoins: 'Kirim koin',
+      transactionType: 'Tipe transaksi',
+      transactioFee: 'Biaya transaksi',
+      walletType: 'Tipe dompet',
+      addToAddressBook: 'Tambahkan ke buku Alamat',
+      timePending: 'Waktu tertunda',
     },
+    label: {
+      pending: 'tertunda',
+      annulled: 'dianulir',
+      done: 'selesai',
+      canceled: 'dibatalkan',
+    },
+    transactionTypeLabel: { standard: 'Standar', canceled: 'Dibatalkan', fast: 'Cepat' },
   },
   send: {
     header: 'Kirim koin',
@@ -214,13 +310,50 @@ module.exports = {
       remaining_balance: 'Sisa saldo',
       total_exceeds_balance: 'Jumlah pengiriman melebihi sisa saldo.',
     },
-    confirm: { sendNow: 'Kirim sekarang' },
+    confirm: {
+      sendNow: 'Kirim sekarang',
+      cancelNow: 'Batalkan sekarang',
+      availableBalance: 'Saldo tersedia setelah transaksi',
+      pendingBalance: 'Saldo tertunda setelah transaksi',
+    },
     create: {
       amount: 'Jumlah',
       fee: 'Biaya',
       setTransactionFee: 'Atur biaya transaksi',
       headerText:
         'Jika ada sejumlah besar transaksi tertunda di jaringan (>1500), biaya lebih tinggi akan membuat transaksi Anda diproses lebih cepat. Nilai biasanya adalah 1-500 sat/b',
+    },
+    recovery: {
+      recover: 'Batal',
+      useWalletAddress: 'Gunakan alamat dompet ini',
+      confirmSeed: 'Konfirmasi dengan Frasa Benih Pembatalan',
+      confirmSeedDesc:
+        'Buka dokumen PDF yang Anda buat saat membuat dompet, lalu tuliskan frasa benih Kunci Privat dengan urutan yang sama.',
+      confirmFirstSeed: 'Konfirmasi dengan Frasa Benih Pembatalan',
+      confirmFirstSeedDesc:
+        'Buka dokumen PDF pertama yang Anda buat saat membuat dompet, lalu tuliskan frasa benih Kunci Privat dengan urutan yang sama.',
+      confirmSecondSeed: 'Konfirmasi dengan Frasa Benih Cepat',
+      confirmSecondSeedDesc:
+        'Buka dokumen PDF kedua yang Anda buat saat membuat dompet, lalu tuliskan frasa benih Kunci Privat dengan urutan yang sama.',
+    },
+    transaction: {
+      instant: 'Cepat',
+      instantDesc: 'Transaksi ini akan segera dikonfirmasi. Gunakan dengan hati-hati.',
+      fastSuccess: 'Anda berhasil membuat transaksi cepat.',
+      alert: 'Standar',
+      alertDesc:
+        'Transaksi ini perlu 144 blok atau sekitar 24 jam untuk dikonfirmasi. Anda dapat membatalkannya selama waktu ini.',
+      type: 'Tipe transaksi',
+      scanInstantKeyTitle: 'Pindai Kunci Cepat',
+      scanInstantKeyDesc:
+        'Buka dokumen PDF yang Anda buat saat membuat dompet, lalu pindai kode QR Kunci Privat untuk mengirim transaksi.',
+      lightningError:
+        'Alamat ini tampaknya merupakan faktur Lightning. Buka dompet Lightning Anda untuk melakukan pembayaran untuk faktur ini.',
+      watchOnlyError: 'Dompet lihat saja tidak dapat mengirim transaksi',
+    },
+    error: {
+      title: 'Kesalahan',
+      description: 'Sebelum melakukan transaksi, Anda harus menambahkan dompet Bitcoin Vault terlebih dahulu.',
     },
   },
   receive: {
@@ -273,7 +406,7 @@ module.exports = {
     title: 'Konfigurasikan opsi lanjutan',
     description:
       'Mengaktifkan opsi Lanjutan akan memungkinkan Anda untuk memilih dari jenis dompet yang tercantum di bawah ini:\n' +
-      'P2SH, HD P2SH, HD segwit.',
+      ' P2SH, HD P2SH, HD segwit.',
   },
   selectLanguage: {
     header: 'Bahasa',
@@ -288,19 +421,19 @@ module.exports = {
     search: 'Cari',
     screenTitle: 'Buku alamat',
     noContacts: 'Tidak ada kontak',
-    noContactsDesc1: 'Tidak ada kontak untuk ditampilkan. \nKlik',
+    noContactsDesc1: 'Tidak ada kontak untuk ditampilkan. \n Klik',
     noContactsDesc2: 'untuk menambahkan kontak pertama Anda.',
     noResults: 'Tidak ada hasil untuk',
   },
   contactCreate: {
     screenTitle: 'Tambah kontak baru',
     subtitle: 'Kontak baru',
-    description: 'Masukkan nama dan alamat\nuntuk kontak baru Anda.',
+    description: 'Masukkan nama dan alamat\n untuk kontak baru Anda.',
     nameLabel: 'Nama',
     addressLabel: 'Alamat',
     buttonLabel: 'Tambah kontak baru',
     successTitle: 'Berhasil',
-    successDescription: 'Hore! Anda telah berhasil\nmenambahkan kontak.',
+    successDescription: 'Hore! Anda telah berhasil\n menambahkan kontak.',
     successButton: 'Kembali ke Buku alamat',
   },
   contactDetails: {
@@ -317,11 +450,11 @@ module.exports = {
     title: 'Hapus kontak Anda',
     header: 'Hapus kontak',
     description1: 'Anda yakin ingin menghapus',
-    description2: '?\nAnda tidak dapat mengurungkannya.',
+    description2: '?\n Anda tidak dapat mengurungkannya.',
     no: 'Tidak',
     yes: 'Ya',
     success: 'Berhasil',
-    successDescription: 'Kontak Anda berhasil dihapus.\n' + 'Anda sekarang dapat kembali ke Buku alamat.',
+    successDescription: 'Kontak Anda berhasil dihapus.\n' + ' Anda sekarang dapat kembali ke Buku alamat.',
     successButton: 'Kembali ke Buku alamat',
   },
   scanQrCode: {
@@ -334,7 +467,7 @@ module.exports = {
     header: 'filter transaksi',
     receive: 'terima',
     send: 'kirim',
-    filter: 'filter ',
+    filter: 'filter',
     to: 'ke',
     toAmount: 'ke jumlah',
     toDate: 'ke tanggal',
@@ -342,5 +475,84 @@ module.exports = {
     fromAmount: 'monto mínimo',
     fromDate: 'dari tanggal',
     clearFilters: 'bersihkan filter',
+    received: 'Diterima',
+    sent: 'DIkirim',
+    transactionType: 'Tipe transaksi',
+    transactionStatus: 'Status transaksi',
+    status: {
+      pending: 'Tertunda',
+      annulled: 'Dianulir',
+      done: 'Selesai',
+      canceled: 'Dibatalkan',
+    },
+  },
+  authenticators: {
+    sign: {
+      error: 'Tidak ada authenticator yang dapat menandatangani transaksi',
+    },
+    options: {
+      title: 'Opsi authenticator',
+      export: 'Ekspor authenticator',
+      pair: 'Sandingkan authenticator',
+      sectionTitle: 'Umum',
+      delete: 'Hapus authenticator',
+    },
+    pair: {
+      title: 'Sandingkan authenticator',
+      pin: 'PIN',
+      publicKey: 'Kunci Publik',
+      descPin: 'Gunakan PIN ini untuk mengonfirmasi penyandingan authenticator di aplikasi desktop.',
+      descPublicKey:
+        'Anda dapat menggunakan Kunci Publik ini untuk mengimpor authenticator di aplikasi desktop saat proses pembuatan dompet dengan opsi GoldWallet.',
+    },
+    import: {
+      title: 'Impor authenticator',
+      success: 'Anda berhasil mengimpor authenticator. Authenticator kini siap digunakan.',
+      subtitle: 'Impor authenticator Anda',
+      desc1: 'Tuliskan frasa benih atau pindai kode QR authenticator yang ingin Anda impor.',
+      desc2: 'pindai kode QR dengan mengklik tombol “atau pindai kode QR” di bawah',
+      textAreaPlaceholder: 'Frasa benih',
+    },
+    export: { title: 'Ekspor authenticator' },
+    delete: {
+      title: 'Hapus authenticator',
+      subtitle: 'Hapus authenticator Anda',
+      success: 'Authenticator Anda berhasil dihapus. Anda selalu dapat membuat yang baru.',
+    },
+    list: {
+      noAuthenticatorsDesc1: 'Ketuk',
+      noAuthenticatorsDesc2: 'untuk menambahkan authenticator pertama Anda.',
+      noAuthenticators: 'Belum ada Authenticator',
+      scan: 'Pindai',
+      title: 'Authenticator Bitcoin Vault',
+    },
+    add: {
+      successTitle: 'Authenticator Anda siap!',
+      title: 'Tambahkan authenticator baru',
+      subtitle: 'Sandingkan authenticator',
+      successDescription:
+        'Tuliskan frasa benih ini di suatu tempat yang aman. Untuk berjaga-jaga seandainya Anda perlu memulihkan pengautentikasi. Ingat bahwa pengautentikasi diperlukan untuk mengonfirmasi transaksi Cepat dan Batalkan.',
+      description:
+        'Buka aplikasi desktop Electrum Vault lalu buat dompet baru. Ikuti langkah-langkah di layar hingga muncul kode QR. Gunakan aplikasi ini untuk memindainya untuk lanjut.',
+      subdescription: 'Anda juga dapat mengimpor authenticator dengan memilih opsi di bawah.',
+    },
+    enterPIN: {
+      subtitle: 'Masukkan PIN',
+      description: 'Masukkan PIN ini ke dalam aplikasi desktop Electrum Vault untuk menyelesaikan proses penyandingan.',
+    },
+  },
+  timeCounter: {
+    title: 'Aplikasi diblokir',
+    description:
+      'Aplikasi Anda telah diblokir karena percobaan masuk yang tidak berhasil. Tunggu selama waktu yang dibutuhkan untuk mencoba lagi.',
+    tryAgain: 'Coba lagi',
+    closeTheApp: 'Tutup aplikasi',
+  },
+  security: {
+    jailBrokenPhone:
+      'Perangkat Anda tampak sudah di-jailbreak. Ini dapat menyebabkan masalah keamanan, kerusakan, atau masalah lainnya. Kami tidak menyarankan penggunaan GoldWallet di perangkat yang sudah di-jailbreak.',
+    rootedPhone:
+      'Perangkat Anda tampaknya sudah di-root. Ini dapat menyebabkan masalah keamanan, kerusakan, atau masalah lainnya. Kami tidak menyarankan penggunaan GoldWallet di perangkat yang sudah di-root.',
+    title: 'Masalah keamanan',
   },
 };
