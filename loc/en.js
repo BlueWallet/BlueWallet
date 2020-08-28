@@ -240,7 +240,7 @@ module.exports = {
         'Go to the web Key Generator on a separate device and use this app to scan the Public Key QR code. Remember to export your keys as a PDF!',
       instantSubtitle: 'Add Fast Key',
       instantDescription:
-        'Go to the web Key Generator on a separate device and use this app to scan the Public Key QR code. Remember to export your keys as a PDF!',
+        'Go to the web Key Generator on a separate device again, refresh the page and use this app to scan the new Public Key QR code. Remember to export your keys as a PDF!',
       scan: 'Scan',
     },
     addSuccess: {

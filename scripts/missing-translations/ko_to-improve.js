@@ -219,7 +219,7 @@ const ko = {
       webKeyGenerator: 'TRANSLATION NEEDED | ENG: Web Key Generator:',
       recoveryDescription: 'TRANSLATION NEEDED | ENG: Go to the web Key Generator on a separate device and use this app to scan the Public Key QR code. Remember to export your keys as a PDF!',
       instantSubtitle: 'TRANSLATION NEEDED | ENG: Add Fast Key',
-      instantDescription: 'TRANSLATION NEEDED | ENG: Go to the web Key Generator on a separate device and use this app to scan the Public Key QR code. Remember to export your keys as a PDF!',
+      instantDescription: 'TRANSLATION NEEDED | ENG: Go to the web Key Generator on a separate device again, refresh the page and use this app to scan the new Public Key QR code.',
       scan: 'TRANSLATION NEEDED | ENG: Scan',
     },
     errors: {
