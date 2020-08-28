@@ -222,7 +222,7 @@ module.exports.getTransactionsFullByAddress = async function (address) {
  * @returns {Promise<{balance: number, unconfirmed_balance: number, addresses: object}>}
  */
 module.exports.multiGetBalanceByAddress = async function (addresses, batchsize) {
-  batchsize = batchsize || 100;
+  batchsize = batchsize || 200;
   if (!mainClient) throw new Error('Electrum client is not connected');
   const ret = { balance: 0, unconfirmed_balance: 0, addresses: {} };
 
@@ -251,6 +251,7 @@ module.exports.multiGetBalanceByAddress = async function (addresses, batchsize) 
     }
 
     for (const bal of balances) {
+      if (bal.error) console.warn('multiGetBalanceByAddress():', bal.error);
       ret.balance += +bal.result.confirmed;
       ret.unconfirmed_balance += +bal.result.unconfirmed;
       ret.addresses[scripthash2addr[bal.param]] = bal.result;
