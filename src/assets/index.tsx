@@ -24,7 +24,7 @@ export const images = {
   errorState: require('./images/errorState.png'),
   yellowMinus: require('./images/yellowMinus.png'),
   yellowPlus: require('./images/yellowPlus.png'),
-  recover: require('./images/recover.png'),
+  cancel: require('./images/cancel3x.png'),
   coin: require('./images/coin.png'),
   noTransactions: require('./images/bvWalletIconNoTransactions.png'),
   coinLogoInCircle: require('./images/coinLogoInCircle.png'),

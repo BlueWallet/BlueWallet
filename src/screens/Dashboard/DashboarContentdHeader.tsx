@@ -16,7 +16,7 @@ interface Props {
   onSendPress?: () => void;
   onReceivePress?: () => void;
   onSelectPress?: () => void;
-  onReceveryPress?: () => void;
+  onRecoveryPress?: () => void;
   incomingBalance?: number;
   typeReadable?: string;
 }
@@ -32,7 +32,7 @@ export const DashboarContentdHeader = ({
   onSendPress,
   onReceivePress,
   onSelectPress,
-  onReceveryPress,
+  onRecoveryPress,
   typeReadable,
 }: Props) => {
   return (
@@ -71,8 +71,8 @@ export const DashboarContentdHeader = ({
             <Text style={styles.circleButtonText}>{i18n.wallets.dashboard.receive}</Text>
           </TouchableOpacity>
           {!!type && shouldRenderRecover(type) && (
-            <TouchableOpacity style={styles.circleButton} onPress={onReceveryPress}>
-              <Image source={images.recover} style={styles.circleButtonImage} />
+            <TouchableOpacity style={styles.circleButton} onPress={onRecoveryPress}>
+              <Image source={images.cancel} style={styles.circleButtonImage} />
               <Text style={styles.circleButtonText}>{i18n.wallets.dashboard.recover}</Text>
             </TouchableOpacity>
           )}

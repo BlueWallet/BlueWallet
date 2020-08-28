@@ -207,7 +207,7 @@ class DashboardScreen extends Component<Props, State> {
           unit={activeWallet.preferredBalanceUnit}
           onReceivePress={this.receiveCoins}
           onSendPress={this.sendCoins}
-          onReceveryPress={this.recoverCoins}
+          onRecoveryPress={this.recoverCoins}
         />
         {isAllWallets(activeWallet) ? (
           <WalletsCarousel
