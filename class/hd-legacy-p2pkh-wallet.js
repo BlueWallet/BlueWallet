@@ -55,7 +55,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
       this.seed = await bip39.mnemonicToSeed(this.secret);
     }
 
-    const root = HDNode.fromSeed(this.seed);
+    const root = HDNode.fromSeed(this.seed, config.network);
     const path = `m/44'/440'/0'/0/${index}`;
     const child = root.derivePath(path);
 

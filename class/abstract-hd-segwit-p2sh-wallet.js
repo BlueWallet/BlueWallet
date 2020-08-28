@@ -111,7 +111,7 @@ export class AbstractHDSegwitP2SHWallet extends AbstractHDWallet {
     // first, getting xpub
     const mnemonic = this.secret;
     this.seed = await bip39.mnemonicToSeed(mnemonic);
-    const root = HDNode.fromSeed(this.seed);
+    const root = HDNode.fromSeed(this.seed, config.network);
     const path = this._getPath();
     const child = root.derivePath(path).neutered();
     const xpub = child.toBase58();
