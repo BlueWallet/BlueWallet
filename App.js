@@ -15,7 +15,6 @@ import Clipboard from '@react-native-community/clipboard';
 import Modal from 'react-native-modal';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Navigation from './Navigation';
 import { navigationRef } from './NavigationService';
 import * as NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton, SecondButton } from './BlueComponents';
@@ -27,6 +26,7 @@ import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/themes';
+import InitRoot from './Navigation';
 const A = require('./blue_modules/analytics');
 
 if (process.env.NODE_ENV !== 'development') {
@@ -298,7 +298,7 @@ export default class App extends React.Component {
       <SafeAreaProvider>
         <View style={styles.root}>
           <NavigationContainer ref={navigationRef} theme={this.state.theme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-            <Navigation />
+            <InitRoot />
           </NavigationContainer>
           {this.renderClipboardContentModal()}
         </View>
