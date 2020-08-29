@@ -33,7 +33,7 @@ export const BlueGlobalMessageProvider = ({ children }) => {
   useEffect(() => {
     if (container.visible) {
       if (container.dismissable) {
-        timeout.current = setTimeout(hide, 3000);
+        timeout.current = setTimeout(hide, 4000);
       } else {
         clearTimeout(timeout.current);
       }

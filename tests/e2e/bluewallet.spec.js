@@ -504,8 +504,8 @@ async function helperImportWallet(importText, expectedWalletLabel, expectedBalan
     await element(by.id('DoImport')).tap();
   } catch (_) {}
   if (process.env.TRAVIS) await sleep(60000);
-  await sup('OK', 3 * 61000); // waiting for wallet import
-  await element(by.text('OK')).tap();
+  await sup('BlueGlobalMessageSUCCESS.', 3 * 61000); // waiting for wallet import
+  await element(by.id('BlueGlobalMessageSUCCESS.')).toBeVisible();
   // ok, wallet imported
 
   // lets go inside wallet

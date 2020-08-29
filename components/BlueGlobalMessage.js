@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef } from 'react';
 import { BlueGlobalMessageContext, BlueGlobalMessageType } from './BlueGlobalMessageContext';
 import { Text, Animated, Easing, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useTheme } from '@react-navigation/native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 /*
 
 How to use: 
@@ -63,11 +64,30 @@ export const BlueGlobalMessage = () => {
         toValue: -100,
         useNativeDriver: true,
       }).start();
+      switch (container.type) {
+        case BlueGlobalMessageType.ERROR:
+          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+          break;
+        case BlueGlobalMessageType.SUCCESS:
+          ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+          break;
+        case BlueGlobalMessageType.WARNING:
+          ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
+          break;
+        case BlueGlobalMessageType.INFO:
+          ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
+          break;
+        default:
+          break;
+      }
     }
   }, [container]);
 
   return (
-    <Animated.View style={[styles.container, stylesHook.container]}>
+    <Animated.View
+      style={[styles.container, stylesHook.container]}
+      testID={container.visible ? `BlueGlobalMessage${container.type}` : undefined}
+    >
       <TouchableOpacity disabled={!dismissable} onPress={dismissable ? hide : undefined} style={styles.content}>
         <Text style={[styles.message, stylesHook.message]}> {container.message}</Text>
         {container.type === BlueGlobalMessageType.LOADING && <ActivityIndicator />}
