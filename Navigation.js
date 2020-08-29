@@ -1,7 +1,8 @@
 // import { createAppContainer } from '@react-navigation/native';
 import React from 'react';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
-import { Platform, Dimensions } from 'react-native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { Platform, useWindowDimensions, Dimensions } from 'react-native';
 
 import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
@@ -66,13 +67,12 @@ import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
 import { BlueNavigationStyle } from './BlueComponents';
+import DrawerList from './screen/wallets/drawerList';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
 const defaultScreenOptions =
   Platform.OS === 'ios'
     ? ({ route, navigation }) => ({
         gestureEnabled: true,
-        gestureResponseDistance: { vertical: SCREEN_HEIGHT, horizontal: 50 },
         cardOverlayEnabled: true,
         cardStyle: { backgroundColor: '#FFFFFF' },
         headerStatusBarHeight: navigation.dangerouslyGetState().routes.indexOf(route) > 0 ? 10 : undefined,
@@ -250,6 +250,23 @@ const HodlHodlLoginRoot = () => (
   </HodlHodlLoginStack.Navigator>
 );
 
+const Drawer = createDrawerNavigator();
+function DrawerRoot() {
+  const dimensions = useWindowDimensions();
+  const isLargeScreen = dimensions.width >= Dimensions.get('screen').width / 3;
+  return (
+    <Drawer.Navigator
+      openByDefault
+      drawerStyle={isLargeScreen ? null : { drawerLabel: 'BlueWallet', width: '0%' }}
+      drawerType={isLargeScreen ? 'permanent' : null}
+      drawerContent={props => <DrawerList {...props} />}
+      overlayColor="transparent"
+    >
+      <RootStack.Screen name="Navigation" component={Navigation} options={{ headerShown: false, gestureEnabled: false }} />
+    </Drawer.Navigator>
+  );
+}
+
 const RootStack = createStackNavigator();
 const Navigation = () => (
   <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
@@ -275,7 +292,6 @@ const Navigation = () => (
       options={{
         ...TransitionPresets.ModalTransition,
         headerShown: false,
-        gestureResponseDistance: { vertical: SCREEN_HEIGHT, horizontal: 50 },
       }}
     />
     {/* screens */}
@@ -290,4 +306,4 @@ const Navigation = () => (
   </RootStack.Navigator>
 );
 
-export default Navigation;
+export default DrawerRoot;

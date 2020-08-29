@@ -15,7 +15,7 @@ import Clipboard from '@react-native-community/clipboard';
 import Modal from 'react-native-modal';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Navigation from './Navigation';
+import DrawerRoot from './Navigation';
 import { navigationRef } from './NavigationService';
 import * as NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton, SecondButton } from './BlueComponents';
@@ -298,7 +298,7 @@ export default class App extends React.Component {
       <SafeAreaProvider>
         <View style={styles.root}>
           <NavigationContainer ref={navigationRef} theme={this.state.theme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-            <Navigation />
+            <DrawerRoot />
           </NavigationContainer>
           {this.renderClipboardContentModal()}
         </View>

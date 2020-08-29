@@ -11,6 +11,7 @@ import {
   SectionList,
   Alert,
   Platform,
+  Dimensions,
 } from 'react-native';
 import { BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem, BlueNavigationStyle } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
@@ -46,6 +47,7 @@ export default class WalletsList extends Component {
       wallets: BlueApp.getWallets().concat(false),
       timeElpased: 0,
       dataSource: [],
+      isLargeScreen: Dimensions.get('window').width >= Dimensions.get('screen').width / 3,
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, () => this.redrawScreen(true));
 
@@ -81,7 +83,6 @@ export default class WalletsList extends Component {
       this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
     }, 60000);
     this.redrawScreen();
-
     this._unsubscribe = this.props.navigation.addListener('focus', this.onNavigationEventFocus);
   }
 
@@ -349,7 +350,7 @@ export default class WalletsList extends Component {
   renderSectionItem = item => {
     switch (item.section.key) {
       case WalletsListSections.CAROUSEL:
-        return this.renderWalletsCarousel();
+        return this.state.isLargeScreen ? null : this.renderWalletsCarousel();
       case WalletsListSections.LOCALTRADER:
         return this.renderLocalTrader();
       case WalletsListSections.TRANSACTIONS:
@@ -362,7 +363,7 @@ export default class WalletsList extends Component {
   renderSectionHeader = ({ section }) => {
     switch (section.key) {
       case WalletsListSections.CAROUSEL:
-        return (
+        return this.state.isLargeScreen ? null : (
           <BlueHeaderDefaultMain
             leftText={loc.wallets.list_title}
             onNewWalletPress={
@@ -552,9 +553,13 @@ export default class WalletsList extends Component {
     }
   };
 
+  onLayout = e => {
+    this.setState({ isLargeScreen: Dimensions.get('window').width >= Dimensions.get('screen').width / 3 });
+  };
+
   render() {
     return (
-      <View style={styles.root}>
+      <View style={styles.root} onLayout={this.onLayout}>
         <StatusBar barStyle="default" />
         <View style={styles.walletsListWrapper}>
           <SectionList

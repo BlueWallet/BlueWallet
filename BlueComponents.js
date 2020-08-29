@@ -2022,7 +2022,6 @@ export class WalletsCarousel extends Component {
           </View>
         )}
         <Carousel
-          {...this.props}
           ref={this.walletsCarousel}
           renderItem={this._renderItem}
           sliderWidth={sliderWidth}
@@ -2033,7 +2032,8 @@ export class WalletsCarousel extends Component {
           activeSlideAlignment="start"
           initialNumToRender={4}
           onLayout={this.onLayout}
-          contentContainerCustomStyle={{ left: 20 }}
+          contentContainerCustomStyle={{ marginHorizontal: 16 }}
+          {...this.props}
         />
       </>
     );
