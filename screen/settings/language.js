@@ -5,14 +5,15 @@ import { Icon } from 'react-native-elements';
 import { AvailableLanguages } from '../../loc/languages';
 import loc from '../../loc';
 
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+});
+
 const Language = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [language, setLanguage] = useState(loc.getLanguage());
-  const styles = StyleSheet.create({
-    flex: {
-      flex: 1,
-    },
-  });
 
   useEffect(() => {
     setIsLoading(false);
