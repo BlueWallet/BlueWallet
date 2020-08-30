@@ -1,6 +1,17 @@
 /* global alert */
 import React, { Component } from 'react';
-import { StatusBar, View, TouchableOpacity, Text, StyleSheet, InteractionManager, SectionList, Alert, Platform } from 'react-native';
+import {
+  StatusBar,
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  InteractionManager,
+  SectionList,
+  Alert,
+  Platform,
+  Dimensions,
+} from 'react-native';
 import { BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem, BlueNavigationStyle } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -14,7 +25,7 @@ import ImagePicker from 'react-native-image-picker';
 import * as NavigationService from '../../NavigationService';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-import { getSystemName } from 'react-native-device-info';
+import { getSystemName, isTablet } from 'react-native-device-info';
 const EV = require('../../blue_modules/events');
 const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
@@ -35,6 +46,7 @@ export default class WalletsList extends Component {
       wallets: BlueApp.getWallets().concat(false),
       timeElpased: 0,
       dataSource: [],
+      isLargeScreen: Platform.OS === 'android' ? isTablet() : Dimensions.get('window').width >= Dimensions.get('screen').width / 3,
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, () => this.redrawScreen(true));
 
@@ -49,28 +61,9 @@ export default class WalletsList extends Component {
     // all balances and all transactions here:
     this.redrawScreen();
 
-    InteractionManager.runAfterInteractions(async () => {
-      try {
-        await BlueElectrum.waitTillConnected();
-        const balanceStart = +new Date();
-        await BlueApp.fetchWalletBalances();
-        const balanceEnd = +new Date();
-        console.log('fetch all wallet balances took', (balanceEnd - balanceStart) / 1000, 'sec');
-        const start = +new Date();
-        await BlueApp.fetchWalletTransactions();
-        const end = +new Date();
-        console.log('fetch all wallet txs took', (end - start) / 1000, 'sec');
-        await BlueApp.saveToDisk();
-      } catch (error) {
-        console.log(error);
-      }
-    });
-
     this.interval = setInterval(() => {
       this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
     }, 60000);
-    this.redrawScreen();
-
     this._unsubscribe = this.props.navigation.addListener('focus', this.onNavigationEventFocus);
   }
 
@@ -120,7 +113,7 @@ export default class WalletsList extends Component {
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet.
     // placing event subscription here so it gets exclusively re-subscribed more often. otherwise we would
     // have to unsubscribe on unmount and resubscribe again on mount.
-    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactions.bind(this), true);
+    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactions, true);
 
     if (BlueApp.getBalance() !== 0) {
       A(A.ENUM.GOT_NONZERO_BALANCE);
@@ -133,6 +126,7 @@ export default class WalletsList extends Component {
       scrollToEnd = wallets.length > this.state.wallets.length;
     }
 
+    BlueApp.getTransactions(null, 10);
     this.setState(
       {
         isLoading: false,
@@ -142,7 +136,8 @@ export default class WalletsList extends Component {
       },
       () => {
         if (scrollToEnd) {
-          this.walletsCarousel.current.snapToItem(this.state.wallets.length - 2);
+          // eslint-disable-next-line no-unused-expressions
+          this.walletsCarousel.current?.snapToItem(this.state.wallets.length - 2);
         }
       },
     );
@@ -331,6 +326,7 @@ export default class WalletsList extends Component {
         onSnapToItem={this.onSnapToItem}
         ref={this.walletsCarousel}
         testID="WalletsList"
+        sliderWidth={Dimensions.get('window').width}
       />
     );
   };
@@ -338,7 +334,7 @@ export default class WalletsList extends Component {
   renderSectionItem = item => {
     switch (item.section.key) {
       case WalletsListSections.CAROUSEL:
-        return this.renderWalletsCarousel();
+        return this.state.isLargeScreen ? null : this.renderWalletsCarousel();
       case WalletsListSections.LOCALTRADER:
         return this.renderLocalTrader();
       case WalletsListSections.TRANSACTIONS:
@@ -351,7 +347,7 @@ export default class WalletsList extends Component {
   renderSectionHeader = ({ section }) => {
     switch (section.key) {
       case WalletsListSections.CAROUSEL:
-        return (
+        return this.state.isLargeScreen ? null : (
           <BlueHeaderDefaultMain
             leftText={loc.wallets.list_title}
             onNewWalletPress={
@@ -543,9 +539,15 @@ export default class WalletsList extends Component {
     }
   };
 
+  onLayout = e => {
+    this.setState({
+      isLargeScreen: Platform.OS === 'android' ? isTablet() : Dimensions.get('window').width >= Dimensions.get('screen').width / 3,
+    });
+  };
+
   render() {
     return (
-      <View style={styles.root}>
+      <View style={styles.root} onLayout={this.onLayout}>
         <StatusBar barStyle="default" />
         <View style={styles.walletsListWrapper}>
           <SectionList
