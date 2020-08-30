@@ -21,6 +21,9 @@ PODS:
     - boost-for-react-native
     - DoubleConversion
     - glog
+  - GCDWebServer (3.5.4):
+    - GCDWebServer/Core (= 3.5.4)
+  - GCDWebServer/Core (3.5.4)
   - glog (0.3.5)
   - lottie-ios (3.1.8)
   - lottie-react-native (3.5.0):
@@ -287,6 +290,9 @@ PODS:
     - React-jsi (= 0.63.2)
   - ReactNativePrivacySnapshot (1.0.0):
     - React
+  - RealmJS (6.0.5):
+    - GCDWebServer
+    - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
   - RNCAsyncStorage (1.11.0):
@@ -382,6 +388,7 @@ DEPENDENCIES:
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativePrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
+  - RealmJS (from `../node_modules/realm`)
   - "RemobileReactNativeQrcodeLocalImage (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-community/clipboard`)"
@@ -410,6 +417,7 @@ SPEC REPOS:
   trunk:
     - boost-for-react-native
     - CocoaAsyncSocket
+    - GCDWebServer
     - Sentry
 
 EXTERNAL SOURCES:
@@ -497,6 +505,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativePrivacySnapshot:
     :path: "../node_modules/react-native-privacy-snapshot"
+  RealmJS:
+    :path: "../node_modules/realm"
   RemobileReactNativeQrcodeLocalImage:
     :path: "../node_modules/@remobile/react-native-qrcode-local-image"
   RNCAsyncStorage:
@@ -552,6 +562,7 @@ SPEC CHECKSUMS:
   FBLazyVector: 3ef4a7f62e7db01092f9d517d2ebc0d0677c4a37
   FBReactNativeSpec: dc7fa9088f0f2a998503a352b0554d69a4391c5a
   Folly: b73c3869541e86821df3c387eb0af5f65addfab4
+  GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
   glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
   lottie-ios: 48fac6be217c76937e36e340e2d09cf7b10b7f5f
   lottie-react-native: 1fb4ce21d6ad37dab8343eaff8719df76035bd93
@@ -589,6 +600,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 4d2e726957f4087449739b595f107c0d4b6c2d2d
   ReactCommon: a0a1edbebcac5e91338371b72ffc66aa822792ce
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
+  RealmJS: 5cfdf06f15475d3c17f2d7f2b16b66392bf70fa2
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: db711e29e5e0500d9bd21aa0c2e397efa45302b1
   RNCClipboard: 5f3218dcdc28405aa2ae72b78e388f150b826dd3
@@ -616,4 +628,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 19aa4f3419964cbf89816bb8183505265d6e9fa9
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.10.0.beta.2

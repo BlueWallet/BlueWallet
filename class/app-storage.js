@@ -204,13 +204,19 @@ export class AppStorage {
     return createHash('sha256').update(s).digest().toString('hex');
   }
 
+  /**
+   * Returns instace of the Realm database, which is encrypted either by cached user's password OR default password.
+   * Database file is deterministically derived from encryption key.
+   *
+   * @returns {Promise<Realm>}
+   */
   async getRealm() {
     const password = this.hashIt(this.cachedPassword || 'fyegjitkyf[eqjnc.lf');
     const buf = Buffer.from(this.hashIt(password) + this.hashIt(password), 'hex');
     const encryptionKey = Int8Array.from(buf);
     const path = this.hashIt(this.hashIt(password)) + '-wallets.realm';
 
-    const Schemas = [
+    const schema = [
       {
         name: 'Wallet',
         primaryKey: 'walletid',
@@ -222,8 +228,7 @@ export class AppStorage {
       },
     ];
     return Realm.open({
-      deleteRealmIfMigrationNeeded: true,
-      schema: Schemas,
+      schema,
       path,
       encryptionKey,
     });
@@ -237,7 +242,6 @@ export class AppStorage {
    * @returns {Promise.<boolean>}
    */
   async loadFromDisk(password) {
-    console.warn('loadFromDisk()');
     try {
       let data = await this.getItem('data');
       if (password) {
@@ -397,7 +401,6 @@ export class AppStorage {
         console.warn(error.message);
       }
     }
-    console.warn('found for', walletToInflate.getID(), ' length = ', filteredWallets.length);
   }
 
   offloadWalletToRealm(realm, wallet) {
@@ -431,21 +434,15 @@ export class AppStorage {
    * @returns {Promise} Result of storage save
    */
   async saveToDisk() {
-    console.warn('1');
-    const start = +new Date();
     const walletsToSave = [];
     const realm = await this.getRealm();
     for (const key of this.wallets) {
       if (typeof key === 'boolean' || key.type === PlaceholderWallet.type) continue;
-      console.warn('2');
       if (key.prepareForSerialization) key.prepareForSerialization();
-      var keyCloned = Object.assign({}, key);
-      console.warn('3');
+      const keyCloned = Object.assign({}, key); // stripped-down version of a wallet to save to secure keystore
       if (key._hdWalletInstance) keyCloned._hdWalletInstance = Object.assign({}, key._hdWalletInstance);
-
-      console.warn('4');
-      console.warn('offloading ', key.label);
       this.offloadWalletToRealm(realm, key);
+      // stripping down:
       if (key._txs_by_external_index) {
         keyCloned._txs_by_external_index = {};
         keyCloned._txs_by_internal_index = {};
@@ -454,7 +451,6 @@ export class AppStorage {
         keyCloned._hdWalletInstance._txs_by_external_index = {};
         keyCloned._hdWalletInstance._txs_by_internal_index = {};
       }
-      console.warn('5');
       walletsToSave.push(JSON.stringify({ ...keyCloned, type: keyCloned.type }));
     }
     realm.close();
@@ -462,8 +458,6 @@ export class AppStorage {
       wallets: walletsToSave,
       tx_metadata: this.tx_metadata,
     };
-
-    console.warn('6;');
 
     if (this.cachedPassword) {
       // should find the correct bucket, encrypt and then save
@@ -473,12 +467,11 @@ export class AppStorage {
       let num = 0;
       for (const bucket of buckets) {
         let decrypted;
-        // if we had `usedBucketNum` during loadFromDisk(), no point to decode each bucket to make sure its the one we
-        // need, we just find bucket with the same index
+        // if we had `usedBucketNum` during loadFromDisk(), no point to try to decode each bucket to find the one we
+        // need, we just to find bucket with the same index
         if (usedBucketNum !== false) {
           if (num === usedBucketNum) {
             decrypted = true;
-            console.warn('found our bucket:', num);
           }
           num++;
         } else {
@@ -493,14 +486,7 @@ export class AppStorage {
         } else {
           // decrypted ok, this is our bucket
           // we serialize our object's data, encrypt it, and add it to buckets
-
-          const startStringify = +new Date();
-          const stringified = JSON.stringify(data);
-          console.log('stringify took', (+new Date() - startStringify) / 1000, 'sec, length=', stringified.length / 1024 / 1024, 'mb');
-
-          const encryptionStart = +new Date();
-          newData.push(encryption.encrypt(stringified, this.cachedPassword));
-          console.log('encrypting bucket took', (+new Date() - encryptionStart) / 1000, 'sec');
+          newData.push(encryption.encrypt(JSON.stringify(data), this.cachedPassword));
           await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
         }
       }
@@ -514,10 +500,7 @@ export class AppStorage {
     DeviceQuickActions.setWallets(this.wallets);
     DeviceQuickActions.setQuickActions();
     try {
-      await this.setItem('data', JSON.stringify(data));
-      const end = +new Date();
-      console.log('saveToDisk() took', (end - start) / 1000, 'sec');
-      return;
+      return await this.setItem('data', JSON.stringify(data));
     } catch (error) {
       alert(error.message);
     }

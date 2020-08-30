@@ -21,22 +21,17 @@ dayjs.extend(relativeTime);
     strings.setLanguage(lang);
     let localeForDayJSAvailable = true;
     switch (lang) {
+      case 'ca':
+        require('dayjs/locale/ca');
+        break;
+      case 'da_dk':
+        require('dayjs/locale/da');
+        break;
+      case 'de_de':
+        require('dayjs/locale/de');
+        break;
       case 'el':
         require('dayjs/locale/el');
-        break;
-      case 'it':
-        require('dayjs/locale/it');
-        break;
-      case 'zh_cn':
-        lang = 'zh-cn';
-        require('dayjs/locale/zh-cn');
-        break;
-      case 'zh_tw':
-        lang = 'zh-tw';
-        require('dayjs/locale/zh-tw');
-        break;
-      case 'ru':
-        require('dayjs/locale/ru');
         break;
       case 'es':
         require('dayjs/locale/es');
@@ -47,29 +42,8 @@ dayjs.extend(relativeTime);
       case 'fr_fr':
         require('dayjs/locale/fr');
         break;
-      case 'pt_br':
-        lang = 'pt-br';
-        require('dayjs/locale/pt-br');
-        break;
-      case 'pt_pt':
-        lang = 'pt';
-        require('dayjs/locale/pt');
-        break;
-      case 'jp_jp':
-        lang = 'ja';
-        require('dayjs/locale/ja');
-        break;
-      case 'de_de':
-        require('dayjs/locale/de');
-        break;
-      case 'th_th':
-        require('dayjs/locale/th');
-        break;
-      case 'da_dk':
-        require('dayjs/locale/da');
-        break;
-      case 'nl_nl':
-        require('dayjs/locale/nl');
+      case 'he':
+        require('dayjs/locale/he');
         break;
       case 'hr_hr':
         require('dayjs/locale/hr');
@@ -80,11 +54,35 @@ dayjs.extend(relativeTime);
       case 'id_id':
         require('dayjs/locale/id');
         break;
-      case 'sv_se':
-        require('dayjs/locale/sv');
+      case 'it':
+        require('dayjs/locale/it');
+        break;
+      case 'jp_jp':
+        lang = 'ja';
+        require('dayjs/locale/ja');
         break;
       case 'nb_no':
         require('dayjs/locale/nb');
+        break;
+      case 'nl_nl':
+        require('dayjs/locale/nl');
+        break;
+      case 'pt_br':
+        lang = 'pt-br';
+        require('dayjs/locale/pt-br');
+        break;
+      case 'pt_pt':
+        lang = 'pt';
+        require('dayjs/locale/pt');
+        break;
+      case 'ru':
+        require('dayjs/locale/ru');
+        break;
+      case 'sv_se':
+        require('dayjs/locale/sv');
+        break;
+      case 'th_th':
+        require('dayjs/locale/th');
         break;
       case 'tr_tr':
         require('dayjs/locale/tr');
@@ -92,8 +90,13 @@ dayjs.extend(relativeTime);
       case 'vi_vn':
         require('dayjs/locale/vi');
         break;
-      case 'ca':
-        require('dayjs/locale/ca');
+      case 'zh_cn':
+        lang = 'zh-cn';
+        require('dayjs/locale/zh-cn');
+        break;
+      case 'zh_tw':
+        lang = 'zh-tw';
+        require('dayjs/locale/zh-tw');
         break;
       default:
         localeForDayJSAvailable = false;
@@ -115,35 +118,36 @@ dayjs.extend(relativeTime);
 })();
 
 const strings = new Localization({
-  en: require('./en.json'),
-  ru: require('./ru.json'),
-  pt_br: require('./pt_br.json'),
-  pt_pt: require('./pt_pt.json'),
-  es: require('./es.json'),
-  it: require('./it.json'),
-  el: require('./el.json'),
-  ua: require('./ua.json'),
   ca: require('./ca.json'),
-  jp_jp: require('./jp_jp.json'),
-  de_de: require('./de_de.json'),
-  da_dk: require('./da_dk.json'),
   cs_cz: require('./cs_cz.json'),
-  sk_sk: require('./sk_sk.json'),
-  th_th: require('./th_th.json'),
-  nl_nl: require('./nl_nl.json'),
+  da_dk: require('./da_dk.json'),
+  de_de: require('./de_de.json'),
+  el: require('./el.json'),
+  en: require('./en.json'),
+  es: require('./es.json'),
   fi_fi: require('./fi_fi.json'),
   fr_fr: require('./fr_fr.json'),
+  he: require('./he.json'),
   hr_hr: require('./hr_hr.json'),
   hu_hu: require('./hu_hu.json'),
   id_id: require('./id_id.json'),
+  it: require('./it.json'),
+  jp_jp: require('./jp_jp.json'),
+  nb_no: require('./nb_no.json'),
+  nl_nl: require('./nl_nl.json'),
+  pt_br: require('./pt_br.json'),
+  pt_pt: require('./pt_pt.json'),
+  ru: require('./ru.json'),
+  sk_sk: require('./sk_sk.json'),
+  sv_se: require('./sv_se.json'),
+  th_th: require('./th_th.json'),
+  tr_tr: require('./tr_tr.json'),
+  ua: require('./ua.json'),
+  vi_vn: require('./vi_vn.json'),
+  zar_afr: require('./zar_afr.json'),
+  zar_xho: require('./zar_xho.json'),
   zh_cn: require('./zh_cn.json'),
   zh_tw: require('./zh_tw.json'),
-  sv_se: require('./sv_se.json'),
-  nb_no: require('./nb_no.json'),
-  tr_tr: require('./tr_tr.json'),
-  vi_vn: require('./vi_vn.json'),
-  zar_xho: require('./zar_xho.json'),
-  zar_afr: require('./zar_afr.json'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
