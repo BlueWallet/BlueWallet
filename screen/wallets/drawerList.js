@@ -74,6 +74,7 @@ const DrawerList = props => {
   };
 
   useEffect(() => {
+    EV(EV.enum.WALLETS_COUNT_CHANGED, () => redrawScreen(true));
     console.log('wallets/list componentDidMount');
     // the idea is that upon wallet launch we will refresh
     // all balances and all transactions here:

@@ -68,6 +68,7 @@ import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
 import { BlueNavigationStyle } from './BlueComponents';
 import DrawerList from './screen/wallets/drawerList';
+import { isTablet } from 'react-native-device-info';
 
 const defaultScreenOptions =
   Platform.OS === 'ios'
@@ -254,7 +255,7 @@ const HodlHodlLoginRoot = () => (
 const Drawer = createDrawerNavigator();
 function DrawerRoot() {
   const dimensions = useWindowDimensions();
-  const isLargeScreen = dimensions.width >= Dimensions.get('screen').width / 3;
+  const isLargeScreen = Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 3;
   const drawerStyle = { width: '0%' };
   return (
     <Drawer.Navigator

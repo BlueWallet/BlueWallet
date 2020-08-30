@@ -1,5 +1,11 @@
 package io.bluewallet.bluewallet;
 
+import android.content.pm.ActivityInfo;
+import android.os.Bundle;
+import android.os.PersistableBundle;
+
+import androidx.annotation.Nullable;
+
 import com.facebook.react.ReactActivity;
 
 public class MainActivity extends ReactActivity {
@@ -12,4 +18,12 @@ public class MainActivity extends ReactActivity {
     protected String getMainComponentName() {
         return "BlueWallet";
     }
+
+    @Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    if (getResources().getBoolean(R.bool.portrait_only)) {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
+}
 }

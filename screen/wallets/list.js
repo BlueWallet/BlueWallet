@@ -25,7 +25,7 @@ import ImagePicker from 'react-native-image-picker';
 import * as NavigationService from '../../NavigationService';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-import { getSystemName } from 'react-native-device-info';
+import { getSystemName, isTablet } from 'react-native-device-info';
 const EV = require('../../blue_modules/events');
 const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
@@ -47,7 +47,7 @@ export default class WalletsList extends Component {
       wallets: BlueApp.getWallets().concat(false),
       timeElpased: 0,
       dataSource: [],
-      isLargeScreen: Dimensions.get('window').width >= Dimensions.get('screen').width / 3,
+      isLargeScreen: Platform.OS === 'android' ? isTablet() : Dimensions.get('window').width >= Dimensions.get('screen').width / 3,
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, () => this.redrawScreen(true));
 
@@ -539,7 +539,9 @@ export default class WalletsList extends Component {
   };
 
   onLayout = e => {
-    this.setState({ isLargeScreen: Dimensions.get('window').width >= Dimensions.get('screen').width / 3 });
+    this.setState({
+      isLargeScreen: Platform.OS === 'android' ? isTablet() : Dimensions.get('window').width >= Dimensions.get('screen').width / 3,
+    });
   };
 
   render() {
