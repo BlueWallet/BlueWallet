@@ -586,8 +586,6 @@ export class AppStorage {
    * @return {Array}
    */
   getTransactions(index, limit = Infinity, includeWalletsWithHideTransactionsEnabled = false) {
-    console.warn(this.wallets)
-    console.warn(index)
     if (index || index === 0) {
       let txs = [];
       let c = 0;

@@ -62,27 +62,9 @@ export default class WalletsList extends Component {
     // all balances and all transactions here:
     this.redrawScreen();
 
-    InteractionManager.runAfterInteractions(async () => {
-      try {
-        await BlueElectrum.waitTillConnected();
-        const balanceStart = +new Date();
-        await BlueApp.fetchWalletBalances();
-        const balanceEnd = +new Date();
-        console.log('fetch all wallet balances took', (balanceEnd - balanceStart) / 1000, 'sec');
-        const start = +new Date();
-        await BlueApp.fetchWalletTransactions();
-        const end = +new Date();
-        console.log('fetch all wallet txs took', (end - start) / 1000, 'sec');
-        await BlueApp.saveToDisk();
-      } catch (error) {
-        console.log(error);
-      }
-    });
-
     this.interval = setInterval(() => {
       this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
     }, 60000);
-    this.redrawScreen();
     this._unsubscribe = this.props.navigation.addListener('focus', this.onNavigationEventFocus);
   }
 
@@ -144,6 +126,8 @@ export default class WalletsList extends Component {
     if (scrollToEnd) {
       scrollToEnd = wallets.length > this.state.wallets.length;
     }
+
+    BlueApp.getTransactions(null, 10);
     this.setState(
       {
         isLoading: false,

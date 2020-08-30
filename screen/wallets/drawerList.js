@@ -13,7 +13,6 @@ import { BlueCurrentTheme } from '../../components/themes';
 import { useTheme, useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 const EV = require('../../blue_modules/events');
-const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -27,6 +26,31 @@ const DrawerList = props => {
       backgroundColor: colors.brandingColor,
     },
   });
+  let lastSnappedTo = 0;
+
+  const refreshTransactions = () => {
+    InteractionManager.runAfterInteractions(async () => {
+      let noErr = true;
+      try {
+        // await BlueElectrum.ping();
+        await BlueElectrum.waitTillConnected();
+        const balanceStart = +new Date();
+        await BlueApp.fetchWalletBalances(lastSnappedTo || 0);
+        const balanceEnd = +new Date();
+        console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+        const start = +new Date();
+        await BlueApp.fetchWalletTransactions(lastSnappedTo || 0);
+        const end = +new Date();
+        console.log('fetch tx took', (end - start) / 1000, 'sec');
+      } catch (err) {
+        noErr = false;
+        console.warn(err);
+      }
+      if (noErr) await BlueApp.saveToDisk(); // caching
+
+      redrawScreen();
+    });
+  };
 
   const redrawScreen = (scrollToEnd = false) => {
     console.log('wallets/list redrawScreen()');
@@ -34,25 +58,19 @@ const DrawerList = props => {
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet.
     // placing event subscription here so it gets exclusively re-subscribed more often. otherwise we would
     // have to unsubscribe on unmount and resubscribe again on mount.
+    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, refreshTransactions, true);
 
     const newWallets = BlueApp.getWallets().concat(false);
     if (scrollToEnd) {
       scrollToEnd = newWallets.length > wallets.length;
     }
 
-    if (BlueApp.getBalance() !== 0) {
-      A(A.ENUM.GOT_NONZERO_BALANCE);
-    } else {
-      A(A.ENUM.GOT_ZERO_BALANCE);
-    }
-
     setWallets(newWallets);
-
+    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
     if (scrollToEnd) {
       // eslint-disable-next-line no-unused-expressions
-      walletsCarousel.current?.snapToItem(newWallets.length - 2);
+      walletsCarousel.current?.snapToItem(wallets.length - 2);
     }
-    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
   };
 
   useEffect(() => {
@@ -60,7 +78,6 @@ const DrawerList = props => {
     // the idea is that upon wallet launch we will refresh
     // all balances and all transactions here:
     redrawScreen();
-
     InteractionManager.runAfterInteractions(async () => {
       try {
         await BlueElectrum.waitTillConnected();
@@ -72,13 +89,12 @@ const DrawerList = props => {
         await BlueApp.fetchWalletTransactions();
         const end = +new Date();
         console.log('fetch all wallet txs took', (end - start) / 1000, 'sec');
+        redrawScreen();
         await BlueApp.saveToDisk();
       } catch (error) {
         console.log(error);
       }
     });
-
-    redrawScreen();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -88,10 +104,6 @@ const DrawerList = props => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
-
-  useEffect(() => {
-    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-  }, [wallets]);
 
   const handleClick = index => {
     console.log('click', index);
