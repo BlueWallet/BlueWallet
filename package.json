@@ -70,7 +70,7 @@
     "@react-navigation/native": "5.7.3",
     "@react-navigation/stack": "5.9.0",
     "@remobile/react-native-qrcode-local-image": "git+https://github.com/BlueWallet/react-native-qrcode-local-image.git",
-    "@sentry/react-native": "1.6.3",
+    "@sentry/react-native": "1.7.1",
     "amplitude-js": "5.11.0",
     "assert": "1.5.0",
     "bc-bech32": "file:blue_modules/bc-bech32",
