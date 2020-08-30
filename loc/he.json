@@ -1,6 +1,6 @@
 {
   "_": {
-    "bad_password": "סיסמה לא נכונה, תנסה שוב.",
+    "bad_password": "סיסמה שגויה, נסו שוב.",
     "cancel": "ביטול",
     "continue": "המשך",
     "enter_password": "הכנס סיסמה",
