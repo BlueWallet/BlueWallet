@@ -27,6 +27,7 @@ import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/themes';
+import InitRoot from './Navigation';
 const A = require('./blue_modules/analytics');
 
 if (process.env.NODE_ENV !== 'development') {
@@ -298,7 +299,7 @@ export default class App extends React.Component {
       <SafeAreaProvider>
         <View style={styles.root}>
           <NavigationContainer ref={navigationRef} theme={this.state.theme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-            <DrawerRoot />
+            <InitRoot />
           </NavigationContainer>
           {this.renderClipboardContentModal()}
         </View>

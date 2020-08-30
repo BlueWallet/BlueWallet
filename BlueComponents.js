@@ -897,6 +897,49 @@ export const BlueHeaderDefaultSubHooks = props => {
   );
 };
 
+export const BlueHeaderDefaultMainHooks = props => {
+  const { colors } = useTheme();
+  return (
+    <Header
+      {...props}
+      leftComponent={{
+        text: props.leftText,
+        style: {
+          fontWeight: 'bold',
+          fontSize: 34,
+          color: colors.foregroundColor,
+        },
+      }}
+      leftContainerStyle={{
+        minWidth: '70%',
+        height: 80,
+      }}
+      bottomDivider={false}
+      topDivider={false}
+      containerStyle={{
+        height: 44,
+        flexDirection: 'row',
+        backgroundColor: colors.elevatated,
+        borderTopColor: colors.elevatated,
+        borderBottomColor: colors.elevatated,
+        borderBottomWidth: 0,
+      }}
+      rightComponent={
+        props.onNewWalletPress && (
+          <TouchableOpacity
+            onPress={props.onNewWalletPress}
+            style={{
+              height: 100,
+            }}
+          >
+            <BluePlusIcon />
+          </TouchableOpacity>
+        )
+      }
+    />
+  );
+};
+
 export class BlueHeaderDefaultMain extends Component {
   render() {
     return (
@@ -923,6 +966,7 @@ export class BlueHeaderDefaultMain extends Component {
             backgroundColor: BlueCurrentTheme.colors.background,
             borderTopColor: BlueCurrentTheme.colors.background,
             borderBottomColor: BlueCurrentTheme.colors.background,
+            borderBottomWidth: 0,
           }}
           rightComponent={
             this.props.onNewWalletPress && (
@@ -2032,7 +2076,7 @@ export class WalletsCarousel extends Component {
           activeSlideAlignment="start"
           initialNumToRender={4}
           onLayout={this.onLayout}
-          contentContainerCustomStyle={{ marginHorizontal: 16 }}
+          contentContainerCustomStyle={{ left: 20 }}
           {...this.props}
         />
       </>

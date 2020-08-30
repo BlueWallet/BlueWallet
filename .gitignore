@@ -65,3 +65,6 @@ artifacts/
 
 # Editors
 .vscode/
+*.mx
+*.realm
+*.realm.lock

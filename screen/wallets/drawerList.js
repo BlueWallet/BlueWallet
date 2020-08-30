@@ -1,86 +1,32 @@
-/* global alert */
-import React, { Component, useRef, useState, useEffect } from 'react';
-import {
-  StatusBar,
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  InteractionManager,
-  Clipboard,
-  SectionList,
-  Alert,
-  Platform,
-  useWindowDimensions,
-} from 'react-native';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { StatusBar, View, TouchableOpacity, InteractionManager, StyleSheet, Alert, useWindowDimensions } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
-import { BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem, BlueNavigationStyle } from '../../BlueComponents';
+import { WalletsCarousel, BlueNavigationStyle, BlueHeaderDefaultMainHooks } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import { AppStorage, PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
-import ActionSheet from '../ActionSheet';
-import ImagePicker from 'react-native-image-picker';
 import * as NavigationService from '../../NavigationService';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-import { getSystemName } from 'react-native-device-info';
+import { useTheme, useFocusEffect } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 const EV = require('../../blue_modules/events');
 const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
-const WalletsListSections = { CAROUSEL: 'CAROUSEL' };
-
-const lastSnappedTo = 0;
-const isDesktop = getSystemName() === 'Mac OS X';
 const DrawerList = props => {
   const walletsCarousel = useRef();
   const [wallets, setWallets] = useState(BlueApp.getWallets().concat(false));
-  const [isFlatListRefreshControlHidden, setIsFlatListRefreshControlHidden] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
   const height = useWindowDimensions().height;
-  useEffect(() => {
-    EV(EV.enum.WALLETS_COUNT_CHANGED, () => redrawScreen(true));
-  }, []);
-
-  /**
-   * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet.
-   * Triggered manually by user on pull-to-refresh.
-   */
-  const refreshTransactions = () => {
-    this.setState(
-      {
-        isFlatListRefreshControlHidden: false,
-      },
-      () => {
-        InteractionManager.runAfterInteractions(async () => {
-          let noErr = true;
-          try {
-            // await BlueElectrum.ping();
-            await BlueElectrum.waitTillConnected();
-            const balanceStart = +new Date();
-            await BlueApp.fetchWalletBalances(lastSnappedTo || 0);
-            const balanceEnd = +new Date();
-            console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-            const start = +new Date();
-            await BlueApp.fetchWalletTransactions(lastSnappedTo || 0);
-            const end = +new Date();
-            console.log('fetch tx took', (end - start) / 1000, 'sec');
-          } catch (err) {
-            noErr = false;
-            console.warn(err);
-          }
-          if (noErr) await BlueApp.saveToDisk(); // caching
-
-          this.redrawScreen();
-        });
-      },
-    );
-  };
+  const { colors } = useTheme();
+  const stylesHook = StyleSheet.create({
+    root: {
+      backgroundColor: colors.brandingColor,
+    },
+  });
 
   const redrawScreen = (scrollToEnd = false) => {
     console.log('wallets/list redrawScreen()');
@@ -88,7 +34,11 @@ const DrawerList = props => {
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet.
     // placing event subscription here so it gets exclusively re-subscribed more often. otherwise we would
     // have to unsubscribe on unmount and resubscribe again on mount.
-    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, refreshTransactions, true);
+
+    const newWallets = BlueApp.getWallets().concat(false);
+    if (scrollToEnd) {
+      scrollToEnd = newWallets.length > wallets.length;
+    }
 
     if (BlueApp.getBalance() !== 0) {
       A(A.ENUM.GOT_NONZERO_BALANCE);
@@ -96,18 +46,52 @@ const DrawerList = props => {
       A(A.ENUM.GOT_ZERO_BALANCE);
     }
 
-    const newWallets = BlueApp.getWallets().concat(false);
-
-    setIsFlatListRefreshControlHidden(true);
     setWallets(newWallets);
+
+    if (scrollToEnd) {
+      // eslint-disable-next-line no-unused-expressions
+      walletsCarousel.current?.snapToItem(newWallets.length - 2);
+    }
+    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
   };
 
-  const txMemo = hash => {
-    if (BlueApp.tx_metadata[hash] && BlueApp.tx_metadata[hash].memo) {
-      return BlueApp.tx_metadata[hash].memo;
-    }
-    return '';
-  };
+  useEffect(() => {
+    console.log('wallets/list componentDidMount');
+    // the idea is that upon wallet launch we will refresh
+    // all balances and all transactions here:
+    redrawScreen();
+
+    InteractionManager.runAfterInteractions(async () => {
+      try {
+        await BlueElectrum.waitTillConnected();
+        const balanceStart = +new Date();
+        await BlueApp.fetchWalletBalances();
+        const balanceEnd = +new Date();
+        console.log('fetch all wallet balances took', (balanceEnd - balanceStart) / 1000, 'sec');
+        const start = +new Date();
+        await BlueApp.fetchWalletTransactions();
+        const end = +new Date();
+        console.log('fetch all wallet txs took', (end - start) / 1000, 'sec');
+        await BlueApp.saveToDisk();
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    redrawScreen();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      redrawScreen();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
+
+  useEffect(() => {
+    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+  }, [wallets]);
 
   const handleClick = index => {
     console.log('click', index);
@@ -152,27 +136,79 @@ const DrawerList = props => {
     }
   };
 
-  const _keyExtractor = (_item, index) => index.toString();
-
-  const renderListHeaderComponent = () => {
-    const style = { opacity: isFlatListRefreshControlHidden ? 1.0 : 0.5 };
-    return (
-      <View style={styles.listHeaderBack}>
-        <Text style={styles.listHeaderText}>{loc.transactions.list_title}</Text>
-        {isDesktop && (
-          <TouchableOpacity style={style} onPress={refreshTransactions} disabled={isLoading}>
-            <Icon name="refresh" type="font-awesome" color={BlueCurrentTheme.colors.feeText} />
-          </TouchableOpacity>
-        )}
-      </View>
-    );
-  };
-
   const handleLongPress = () => {
     if (BlueApp.getWallets().length > 1 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
       props.navigation.navigate('ReorderWallets');
     } else {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+    }
+  };
+
+  const onSnapToItem = index => {
+    console.log('onSnapToItem', index);
+    lastSnappedTo = index;
+    if (index < BlueApp.getWallets().length) {
+      // not the last
+    }
+
+    if (wallets[index].type === PlaceholderWallet.type) {
+      return;
+    }
+
+    // now, lets try to fetch balance and txs for this wallet in case it has changed
+    lazyRefreshWallet(index);
+  };
+
+  /**
+   * Decides whether wallet with such index shoud be refreshed,
+   * refreshes if yes and redraws the screen
+   * @param index {Integer} Index of the wallet.
+   * @return {Promise.<void>}
+   */
+  const lazyRefreshWallet = async index => {
+    /** @type {Array.<AbstractWallet>} wallets */
+    const wallets = BlueApp.getWallets();
+    if (!wallets[index]) {
+      return;
+    }
+
+    const oldBalance = wallets[index].getBalance();
+    let noErr = true;
+    let didRefresh = false;
+
+    try {
+      if (wallets && wallets[index] && wallets[index].type !== PlaceholderWallet.type && wallets[index].timeToRefreshBalance()) {
+        console.log('snapped to, and now its time to refresh wallet #', index);
+        await wallets[index].fetchBalance();
+        if (oldBalance !== wallets[index].getBalance() || wallets[index].getUnconfirmedBalance() !== 0) {
+          console.log('balance changed, thus txs too');
+          // balance changed, thus txs too
+          await wallets[index].fetchTransactions();
+          redrawScreen();
+          didRefresh = true;
+        } else if (wallets[index].timeToRefreshTransaction()) {
+          console.log(wallets[index].getLabel(), 'thinks its time to refresh TXs');
+          await wallets[index].fetchTransactions();
+          if (wallets[index].fetchPendingTransactions) {
+            await wallets[index].fetchPendingTransactions();
+          }
+          if (wallets[index].fetchUserInvoices) {
+            await wallets[index].fetchUserInvoices();
+            await wallets[index].fetchBalance(); // chances are, paid ln invoice was processed during `fetchUserInvoices()` call and altered user's balance, so its worth fetching balance again
+          }
+          redrawScreen();
+          didRefresh = true;
+        } else {
+          console.log('balance not changed');
+        }
+      }
+    } catch (Err) {
+      noErr = false;
+      console.warn(Err);
+    }
+
+    if (noErr && didRefresh) {
+      await BlueApp.saveToDisk(); // caching
     }
   };
 
@@ -183,152 +219,50 @@ const DrawerList = props => {
         data={wallets}
         onPress={handleClick}
         handleLongPress={handleLongPress}
-        // onSnapToItem={onSnapToItem}
+        onSnapToItem={onSnapToItem}
         ref={walletsCarousel}
         testID="WalletsList"
         vertical
         itemHeight={190}
         sliderHeight={height}
+        contentContainerCustomStyle={styles.contentContainerCustomStyle}
       />
     );
   };
 
   return (
-    <DrawerContentScrollView {...props}>
-      <StatusBar barStyle="default" />
-      <BlueHeaderDefaultMain
-        leftText={loc.wallets.list_title}
-        onNewWalletPress={
-          !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)
-            ? () => props.navigation.navigate('AddWalletRoot')
-            : null
-        }
-      />
-      {renderWalletsCarousel()}
+    <DrawerContentScrollView {...props} scrollEnabled={false}>
+      <View styles={[styles.root, stylesHook.root]}>
+        <StatusBar barStyle="default" />
+        <SafeAreaView style={styles.root}>
+          <BlueHeaderDefaultMainHooks
+            leftText={loc.wallets.list_title}
+            onNewWalletPress={
+              !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)
+                ? () => props.navigation.navigate('AddWalletRoot')
+                : null
+            }
+          />
+        </SafeAreaView>
+        {renderWalletsCarousel()}
+      </View>
     </DrawerContentScrollView>
   );
 };
 
 export default DrawerList;
 const styles = StyleSheet.create({
-  root: {},
-  scrollContent: {
-    top: 0,
-    left: 0,
-    bottom: 60,
-    right: 0,
+  contentContainerCustomStyle: {
+    paddingHorizontal: 20,
   },
-  wrapper: {
-    backgroundColor: BlueCurrentTheme.colors.brandingColor,
+  root: {
     flex: 1,
-  },
-  walletsListWrapper: {
-    flex: 1,
-    backgroundColor: BlueCurrentTheme.colors.brandingColor,
-  },
-  headerStyle: {
-    ...Platform.select({
-      ios: {
-        marginTop: 44,
-        height: 32,
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-      },
-      android: {
-        marginTop: 8,
-        height: 44,
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-      },
-    }),
   },
   headerTouch: {
     height: 48,
     paddingRight: 16,
     paddingLeft: 32,
     paddingVertical: 10,
-  },
-  listHeaderBack: {
-    backgroundColor: BlueCurrentTheme.colors.background,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginHorizontal: 16,
-  },
-  listHeaderText: {
-    fontWeight: 'bold',
-    fontSize: 24,
-    marginVertical: 8,
-    color: BlueCurrentTheme.colors.foregroundColor,
-  },
-  ltRoot: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    marginVertical: 16,
-    backgroundColor: BlueCurrentTheme.colors.ballOutgoingExpired,
-    padding: 16,
-    borderRadius: 6,
-  },
-  ltTextWrap: {
-    flexDirection: 'column',
-  },
-  ltTextBig: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: BlueCurrentTheme.colors.foregroundColor,
-  },
-  ltTextSmall: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: BlueCurrentTheme.colors.alternativeTextColor,
-  },
-  ltButtonWrap: {
-    flexDirection: 'column',
-    backgroundColor: '#007AFF',
-    borderRadius: 16,
-  },
-  ltButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    fontSize: 13,
-    color: '#fff',
-    fontWeight: '600',
-  },
-  footerRoot: {
-    top: 80,
-    height: 160,
-    marginBottom: 80,
-  },
-  footerEmpty: {
-    fontSize: 18,
-    color: '#9aa0aa',
-    textAlign: 'center',
-  },
-  footerStart: {
-    fontSize: 18,
-    color: '#9aa0aa',
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  scanButton: {
-    alignSelf: 'center',
-    backgroundColor: 'transparent',
-    position: 'absolute',
-    width: '34%',
-    maxWidth: 200,
-    bottom: 30,
-    borderRadius: 30,
-    height: '6.3%',
-    minHeight: 44,
-    overflow: 'hidden',
-  },
-  listHeader: {
-    backgroundColor: '#FFFFFF',
-  },
-  transaction: {
-    marginHorizontal: 4,
   },
 });
 
@@ -343,7 +277,7 @@ DrawerList.propTypes = {
   }),
 };
 
-DrawerList.navigationOptions = ({ navigation, route }) => {
+DrawerList.navigationOptions = ({ navigation }) => {
   return {
     ...BlueNavigationStyle(navigation, true),
     title: '',
