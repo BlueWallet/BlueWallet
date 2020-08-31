@@ -168,7 +168,10 @@ module.exports.getTransactionsByAddress = async function (address) {
   const hash = bitcoin.crypto.sha256(script);
   const reversedHash = Buffer.from(reverse(hash));
   const history = await mainClient.blockchainScripthash_getHistory(reversedHash.toString('hex'));
-  if (history.tx_hash) txhashHeightCache[history.tx_hash] = history.height; // cache tx height
+  for (const h of history || []) {
+    if (h.tx_hash) txhashHeightCache[h.tx_hash] = h.height; // cache tx height
+  }
+
   return history;
 };
 
@@ -334,7 +337,10 @@ module.exports.multiGetHistoryByAddress = async function (addresses, batchsize) 
     for (const history of results) {
       if (history.error) console.warn('multiGetHistoryByAddress():', history.error);
       ret[scripthash2addr[history.param]] = history.result || [];
-      if (history.result && history.result[0]) txhashHeightCache[history.result[0].tx_hash] = history.result[0].height; // cache tx height
+      for (const result of history.result || []) {
+        if (result.tx_hash) txhashHeightCache[result.tx_hash] = result.height; // cache tx height
+      }
+
       for (const hist of ret[scripthash2addr[history.param]]) {
         hist.address = scripthash2addr[history.param];
       }
