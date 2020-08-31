@@ -79,7 +79,6 @@ export enum Route {
   SendCoins = 'SendCoins',
   SendCoinsConfirm = 'SendCoinsConfirm',
   EditText = 'EditText',
-  ElectrumServer = 'ElectrumServer',
   AboutUs = 'AboutUs',
   SelectLanguage = 'SelectLanguage',
   ReleaseNotes = 'ReleaseNotes',
@@ -317,7 +316,6 @@ export type MainCardStackNavigatorParams = {
   [Route.SelectLanguage]: undefined;
   [Route.AboutUs]: undefined;
   [Route.AdvancedOptions]: undefined;
-  [Route.ElectrumServer]: undefined;
   [Route.CreatePin]: {
     flowType: string;
   };

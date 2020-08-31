@@ -26,8 +26,6 @@ export const SettingsScreen = (props: Props) => {
 
   const dispatch = useDispatch();
 
-  const navigateToElectrumServer = () => navigation.navigate(Route.ElectrumServer);
-
   const navigateToAboutUs = () => navigation.navigate(Route.AboutUs);
 
   const navigateToSelectLanguage = () => navigation.navigate(Route.SelectLanguage);
@@ -41,7 +39,6 @@ export const SettingsScreen = (props: Props) => {
   const renderGeneralSettings = () => (
     <>
       <ListItem onPress={navigateToSelectLanguage} title={i18n.settings.language} source={icons.languageIcon} />
-      <ListItem onPress={navigateToElectrumServer} title={i18n.settings.electrumServer} source={icons.dataUsageIcon} />
       <ListItem title={i18n.settings.advancedOptions} source={icons.buildIcon} onPress={onAdvancedOptionsChange} />
     </>
   );

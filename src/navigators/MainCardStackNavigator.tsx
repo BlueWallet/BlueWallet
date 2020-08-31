@@ -20,7 +20,6 @@ import {
   SelectLanguageScreen,
   AboutUsScreen,
   AdvancedOptionsScreen,
-  ElectrumServerScreen,
   CreatePinScreen,
   CurrentPinScreen,
   ConfirmPinScreen,
@@ -63,7 +62,6 @@ export const MainCardStackNavigator = () => (
     <Stack.Screen name={Route.SelectLanguage} component={SelectLanguageScreen} />
     <Stack.Screen name={Route.AboutUs} component={AboutUsScreen} />
     <Stack.Screen name={Route.AdvancedOptions} component={AdvancedOptionsScreen} />
-    <Stack.Screen name={Route.ElectrumServer} component={ElectrumServerScreen} />
     <Stack.Screen name={Route.CreatePin} component={CreatePinScreen} />
     <Stack.Screen name={Route.CurrentPin} component={CurrentPinScreen} />
     <Stack.Screen name={Route.ConfirmPin} component={ConfirmPinScreen} />
