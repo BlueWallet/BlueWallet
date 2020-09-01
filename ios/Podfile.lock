@@ -371,9 +371,9 @@ PODS:
     - React
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.6.3):
+  - RNSentry (1.7.1):
     - React
-    - Sentry (~> 5.1.8)
+    - Sentry (~> 5.2.0)
   - RNShare (3.7.0):
     - React
   - RNSVG (12.1.0):
@@ -382,9 +382,9 @@ PODS:
     - React
   - RNWatch (0.5.0):
     - React
-  - Sentry (5.1.10):
-    - Sentry/Core (= 5.1.10)
-  - Sentry/Core (5.1.10)
+  - Sentry (5.2.2):
+    - Sentry/Core (= 5.2.2)
+  - Sentry/Core (5.2.2)
   - ToolTipMenu (5.2.0):
     - React
   - Yoga (1.14.0)
@@ -700,12 +700,12 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 22c5ecf474428766c6b148f96f2ff6155cd7225e
   RNScreens: b748efec66e095134c7166ca333b628cd7e6f3e2
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: ae1e005e4f2655775475445a9c49c1d343e8e3a7
+  RNSentry: 2bae4ffee2e66376ef42cb845a494c3bde17bc56
   RNShare: a1d5064df7a0ebe778d001869b3f0a124bf0a491
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: 4de37878bbf071847e438b089c01d4ad8d4eddae
-  Sentry: 8715e88b813bde9ad37aead365d5b04ac7302153
+  Sentry: 8fa58a051237554f22507fb483b9a1de0171a2dc
   ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e
   Yoga: 3ebccbdd559724312790e7742142d062476b698e
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
