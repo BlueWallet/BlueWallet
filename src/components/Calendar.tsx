@@ -1,14 +1,9 @@
 import React from 'react';
 import { TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { LocaleConfig, Calendar as RNCalendar, DateObject } from 'react-native-calendars';
+import { Calendar as RNCalendar, DateObject } from 'react-native-calendars';
 import { Overlay } from 'react-native-elements';
 
 import { images } from 'app/assets';
-
-const i18n = require('../../loc');
-
-LocaleConfig.locales['en'] = i18n.getListOfMonthsAndWeekdays();
-LocaleConfig.defaultLocale = 'en';
 
 interface Props {
   isVisible: boolean;

@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import localeData from 'dayjs/plugin/localeData';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Localization from 'react-localization';
+import { LocaleConfig } from 'react-native-calendars';
 
 import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
@@ -46,7 +47,7 @@ dayjs.extend(localeData);
       case 'vi_vn':
         require('dayjs/locale/vi');
         break;
-      case 'ko_KR':
+      case 'ko_kr':
         lang = 'ko';
         require('dayjs/locale/ko');
         break;
@@ -57,6 +58,8 @@ dayjs.extend(localeData);
     if (localeForDayJSAvailable) {
       dayjs.locale(lang.split('_')[0]);
     }
+    LocaleConfig.locales[lang] = strings.getListOfMonthsAndWeekdays();
+    LocaleConfig.defaultLocale = lang;
   }
 })();
 
