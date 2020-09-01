@@ -794,18 +794,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return false;
   }
 
-  /**
-   *
-   * @param utxos {Array.<{vout: Number, value: Number, txId: String, address: String}>} List of spendable utxos
-   * @param targets {Array.<{value: Number, address: String}>} Where coins are going. If theres only 1 target and that target has no value - this will send MAX to that address (respecting fee rate)
-   * @param feeRate {Number} satoshi per byte
-   * @param changeAddress {String} Excessive coins will go back to that address
-   * @param sequence {Number} Used in RBF
-   * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
-   * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
-   * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
-   */
-  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
+  coinselect(utxos, targets, feeRate, changeAddress, sequence) {
     if (!changeAddress) throw new Error('No change address provided');
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
 
@@ -822,8 +811,24 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       throw new Error('Not enough balance. Try sending smaller amount');
     }
 
-    let psbt = new bitcoin.Psbt();
+    return { inputs, outputs, fee };
+  }
 
+  /**
+   *
+   * @param utxos {Array.<{vout: Number, value: Number, txId: String, address: String}>} List of spendable utxos
+   * @param targets {Array.<{value: Number, address: String}>} Where coins are going. If theres only 1 target and that target has no value - this will send MAX to that address (respecting fee rate)
+   * @param feeRate {Number} satoshi per byte
+   * @param changeAddress {String} Excessive coins will go back to that address
+   * @param sequence {Number} Used in RBF
+   * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
+   * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
+   * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
+   */
+  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress, sequence);
+
+    let psbt = new bitcoin.Psbt();
     let c = 0;
     const keypairs = {};
     const values = {};

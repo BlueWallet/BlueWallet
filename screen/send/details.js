@@ -484,6 +484,9 @@ export default class SendDetails extends Component {
     }
   }
 
+  /**
+   * Recalculating fee options by creating skeleton of future tx.
+   */
   reCalcTx = async (all = false) => {
     const wallet = this.state.fromWallet;
     const fees = this.state.networkTransactionFees;
@@ -531,7 +534,7 @@ export default class SendDetails extends Component {
       let flag = false;
       while (true) {
         try {
-          const { fee } = wallet.createTransaction(
+          const { fee } = wallet.coinselect(
             wallet.getUtxo(),
             targets,
             opt.fee,
