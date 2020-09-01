@@ -52,7 +52,7 @@ export class TransactionList extends PureComponent<Props> {
 
     return getGroupedTransactions(
       transactions,
-      map((tx: Transaction) => ({ ...tx, note: transactionNotes[tx.txid] })),
+      map((tx: Transaction) => ({ ...tx, note: transactionNotes[tx.hash] })),
       curry(filterBySearch)(search),
       curry(filterTransaction)(filters),
     );

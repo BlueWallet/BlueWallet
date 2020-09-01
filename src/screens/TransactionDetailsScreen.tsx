@@ -63,10 +63,10 @@ class TransactionDetailsScreen extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     const {
-      transaction: { txid, hash },
+      transaction: { hash },
     } = props.route.params;
 
-    const note = props.transactionNotes[txid] || '';
+    const note = props.transactionNotes[hash] || '';
 
     let foundTx = {};
     let from = [];
@@ -115,12 +115,12 @@ class TransactionDetailsScreen extends Component<Props, State> {
 
   updateNote = (note: string) => {
     const {
-      transaction: { txid },
+      transaction: { hash },
     } = this.props.route.params;
     if (!this.state.note) {
-      this.props.createTransactionNote(txid, note);
+      this.props.createTransactionNote(hash, note);
     } else {
-      this.props.updateTransactionNote(txid, note);
+      this.props.updateTransactionNote(hash, note);
     }
 
     this.setState({

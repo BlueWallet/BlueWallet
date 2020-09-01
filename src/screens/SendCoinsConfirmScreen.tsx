@@ -4,11 +4,13 @@ import { Transaction } from 'bitcoinjs-lib';
 import { round } from 'lodash';
 import React, { Component } from 'react';
 import { View, StyleSheet, Alert, Dimensions } from 'react-native';
+import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
 import { Header, ScreenTemplate, Button, StyledText, Image, Text } from 'app/components';
 import { Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
+import * as actions from 'app/state/transactions/actions';
 import { palette, typography } from 'app/styles';
 
 import { satoshiToBtc, btcToSatoshi, roundBtcToSatoshis } from '../../utils/bitcoin';
@@ -33,11 +35,11 @@ interface Props {
     StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
     StackNavigationProp<MainCardStackNavigatorParams, Route.SendCoinsConfirm>
   >;
-
+  createTransactionNote: (transactionID: string, note: string) => actions.CreateTransactionNoteAction;
   route: RouteProp<MainCardStackNavigatorParams, Route.SendCoinsConfirm>;
 }
 
-export class SendCoinsConfirmScreen extends Component<Props> {
+class SendCoinsConfirmScreen extends Component<Props> {
   getAmountByTx = (txDecoded: Transaction): { my: number; foreign: number } => {
     const { fromWallet } = this.props.route.params;
     return txDecoded.outs.reduce(
@@ -84,7 +86,12 @@ export class SendCoinsConfirmScreen extends Component<Props> {
   };
 
   broadcast = () => {
-    const { txDecoded, fromWallet, successMsgDesc } = this.props.route.params;
+    const {
+      createTransactionNote,
+      route: {
+        params: { txDecoded, fromWallet, successMsgDesc, memo },
+      },
+    } = this.props;
 
     this.setState({ isLoading: true }, async () => {
       try {
@@ -100,6 +107,11 @@ export class SendCoinsConfirmScreen extends Component<Props> {
           }
         } else {
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
+          const {
+            [result]: { hash },
+          } = await BlueElectrum.multiGetTransactionByTxid([result]);
+
+          createTransactionNote(hash, memo);
 
           CreateMessage({
             title: i18n.message.hooray,
@@ -220,6 +232,12 @@ export class SendCoinsConfirmScreen extends Component<Props> {
     );
   }
 }
+
+const mapDispatchToProps = {
+  createTransactionNote: actions.createTransactionNote,
+};
+
+export default connect(null, mapDispatchToProps)(SendCoinsConfirmScreen);
 
 const styles = StyleSheet.create({
   to: {
