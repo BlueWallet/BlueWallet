@@ -226,8 +226,8 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
           onCardPressAction={title => this.props.updateTransactionType(title)}
           label={i18n.filterTransactions.transactionType}
           cards={[
-            { title: i18n.filterTransactions.received, content: this.renderCardContent(i18n.filterTransactions.from) },
-            { title: i18n.filterTransactions.sent, content: this.renderCardContent(i18n.filterTransactions.to) },
+            { title: CONST.receive, content: this.renderCardContent(i18n.filterTransactions.from) },
+            { title: CONST.send, content: this.renderCardContent(i18n.filterTransactions.to) },
           ]}
         />
       </ScreenTemplate>

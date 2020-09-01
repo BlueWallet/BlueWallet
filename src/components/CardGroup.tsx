@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { CONST } from 'app/consts';
 import { palette, typography } from 'app/styles';
 
 import { RowTemplate } from './RowTemplate';
+
+const i18n = require('../../loc');
 
 interface CardHeaderProps {
   title: string;
@@ -24,7 +27,9 @@ export const CardHeader = (props: CardHeaderProps) => {
       onPress={onPress}
       style={[styles.headerContainer, { borderBottomColor: isChoosen ? palette.textSecondary : palette.textGrey }]}
     >
-      <Text style={styles.headerTitle}>{title}</Text>
+      <Text style={styles.headerTitle}>
+        {title === CONST.receive ? i18n.filterTransactions.received : i18n.filterTransactions.sent}
+      </Text>
     </TouchableOpacity>
   );
 };
