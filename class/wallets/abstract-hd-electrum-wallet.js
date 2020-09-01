@@ -794,9 +794,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return false;
   }
 
-  coinselect(utxos, targets, feeRate, changeAddress, sequence) {
+  coinselect(utxos, targets, feeRate, changeAddress) {
     if (!changeAddress) throw new Error('No change address provided');
-    sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
 
     let algo = coinSelectAccumulative;
     if (targets.length === 1 && targets[0] && !targets[0].value) {
@@ -826,8 +825,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
   createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
-    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress, sequence);
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
 
+    sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
     let psbt = new bitcoin.Psbt();
     let c = 0;
     const keypairs = {};

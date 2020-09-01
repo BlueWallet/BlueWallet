@@ -66,9 +66,8 @@ export class SegwitP2SHWallet extends LegacyWallet {
     return this._address;
   }
 
-  coinselect(utxos, targets, feeRate, changeAddress, sequence) {
+  coinselect(utxos, targets, feeRate, changeAddress) {
     if (!changeAddress) throw new Error('No change address provided');
-    sequence = sequence || 0xffffffff; // disable RBF by default
 
     let algo = coinSelectAccumulative;
     if (targets.length === 1 && targets[0] && !targets[0].value) {
@@ -98,7 +97,8 @@ export class SegwitP2SHWallet extends LegacyWallet {
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
   createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
-    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress, sequence);
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
+    sequence = sequence || 0xffffffff; // disable RBF by default
     const psbt = new bitcoin.Psbt();
     let c = 0;
     const values = {};

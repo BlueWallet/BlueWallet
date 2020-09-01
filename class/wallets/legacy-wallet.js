@@ -253,9 +253,8 @@ export class LegacyWallet extends AbstractWallet {
     return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
   }
 
-  coinselect(utxos, targets, feeRate, changeAddress, sequence) {
+  coinselect(utxos, targets, feeRate, changeAddress) {
     if (!changeAddress) throw new Error('No change address provided');
-    sequence = sequence || 0xffffffff; // disable RBF by default
 
     let algo = coinSelectAccumulative;
     if (targets.length === 1 && targets[0] && !targets[0].value) {
@@ -285,7 +284,8 @@ export class LegacyWallet extends AbstractWallet {
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
   createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
-    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress, sequence);
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
+    sequence = sequence || 0xffffffff; // disable RBF by default
     const psbt = new bitcoin.Psbt();
     let c = 0;
     const values = {};
