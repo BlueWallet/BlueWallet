@@ -260,6 +260,8 @@ PODS:
     - React
   - react-native-document-picker (3.5.4):
     - React
+  - react-native-geolocation (2.0.2):
+    - React
   - react-native-image-picker (2.3.3):
     - React
   - react-native-randombytes (3.5.3):
@@ -334,7 +336,7 @@ PODS:
     - ReactCommon/callinvoker (= 0.62.2)
   - ReactNativePrivacySnapshot (1.0.0):
     - React
-  - RealmJS (6.0.5):
+  - RealmJS (6.1.0):
     - GCDWebServer
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
@@ -434,6 +436,7 @@ DEPENDENCIES:
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
+  - "react-native-geolocation (from `../node_modules/@react-native-community/geolocation`)"
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -541,6 +544,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera"
   react-native-document-picker:
     :path: "../node_modules/react-native-document-picker"
+  react-native-geolocation:
+    :path: "../node_modules/@react-native-community/geolocation"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-randombytes:
@@ -660,6 +665,7 @@ SPEC CHECKSUMS:
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: 9dd96065b956306de03ef2a2efc3583019f95941
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
+  react-native-geolocation: cbd9d6bd06bac411eed2671810f454d4908484a8
   react-native-image-picker: a6c3d644751a388b0fc8b56822ff7cbd398a3008
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-safe-area-context: 0ed9288ed4409beabb0817b54efc047286fc84da
@@ -677,7 +683,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 4356114dbcba4ce66991096e51a66e61eda51256
   ReactCommon: ed4e11d27609d571e7eee8b65548efc191116eb3
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
-  RealmJS: 5cfdf06f15475d3c17f2d7f2b16b66392bf70fa2
+  RealmJS: c8645e0d65b676780f7e6c393d327527a2eb15e8
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: db711e29e5e0500d9bd21aa0c2e397efa45302b1
   RNCClipboard: 5f3218dcdc28405aa2ae72b78e388f150b826dd3

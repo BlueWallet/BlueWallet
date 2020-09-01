@@ -30,6 +30,9 @@ let wasConnectedAtLeastOnce = false;
 let serverName = false;
 let disableBatching = false;
 
+let latestBlockheight = false;
+let latestBlockheightTimestamp = false;
+
 const txhashHeightCache = {};
 
 async function connectMain() {
@@ -64,6 +67,11 @@ async function connectMain() {
       if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs')) {
         // TODO: once they release support for batching - disable batching only for lower versions
         disableBatching = true;
+      }
+      const header = await mainClient.blockchainHeaders_subscribe();
+      if (header && header.height) {
+        latestBlockheight = header.height;
+        latestBlockheightTimestamp = Math.floor(+new Date() / 1000);
       }
       // AsyncStorage.setItem(storageKey, JSON.stringify(peers));  TODO: refactor
     }
@@ -168,7 +176,10 @@ module.exports.getTransactionsByAddress = async function (address) {
   const hash = bitcoin.crypto.sha256(script);
   const reversedHash = Buffer.from(reverse(hash));
   const history = await mainClient.blockchainScripthash_getHistory(reversedHash.toString('hex'));
-  if (history.tx_hash) txhashHeightCache[history.tx_hash] = history.height; // cache tx height
+  for (const h of history || []) {
+    if (h.tx_hash) txhashHeightCache[h.tx_hash] = h.height; // cache tx height
+  }
+
   return history;
 };
 
@@ -334,7 +345,10 @@ module.exports.multiGetHistoryByAddress = async function (addresses, batchsize) 
     for (const history of results) {
       if (history.error) console.warn('multiGetHistoryByAddress():', history.error);
       ret[scripthash2addr[history.param]] = history.result || [];
-      if (history.result && history.result[0]) txhashHeightCache[history.result[0].tx_hash] = history.result[0].height; // cache tx height
+      for (const result of history.result || []) {
+        if (result.tx_hash) txhashHeightCache[result.tx_hash] = result.height; // cache tx height
+      }
+
       for (const hist of ret[scripthash2addr[history.param]]) {
         hist.address = scripthash2addr[history.param];
       }
@@ -472,9 +486,15 @@ module.exports.broadcastV2 = async function (hex) {
 };
 
 module.exports.estimateCurrentBlockheight = function () {
+  if (latestBlockheight) {
+    const timeDiff = Math.floor(+new Date() / 1000) - latestBlockheightTimestamp;
+    const extraBlocks = Math.floor(timeDiff / (9.93 * 60));
+    return latestBlockheight + extraBlocks;
+  }
+
   const baseTs = 1587570465609; // uS
   const baseHeight = 627179;
-  return Math.floor(baseHeight + (+new Date() - baseTs) / 1000 / 60 / 9.5);
+  return Math.floor(baseHeight + (+new Date() - baseTs) / 1000 / 60 / 9.93);
 };
 
 /**
@@ -483,9 +503,13 @@ module.exports.estimateCurrentBlockheight = function () {
  * @returns {number} Timestamp in seconds
  */
 module.exports.calculateBlockTime = function (height) {
+  if (latestBlockheight) {
+    return Math.floor(latestBlockheightTimestamp + (height - latestBlockheight) * 9.93 * 60);
+  }
+
   const baseTs = 1585837504; // sec
   const baseHeight = 624083;
-  return baseTs + (height - baseHeight) * 10 * 60;
+  return Math.floor(baseTs + (height - baseHeight) * 9.93 * 60);
 };
 
 /**
