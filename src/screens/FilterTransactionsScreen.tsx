@@ -223,11 +223,13 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
         />
 
         <CardGroup
-          onCardPressAction={title => this.props.updateTransactionType(title)}
+          onCardPressAction={title =>
+            this.props.updateTransactionType(title === i18n.filterTransactions.received ? CONST.receive : CONST.send)
+          }
           label={i18n.filterTransactions.transactionType}
           cards={[
-            { title: CONST.receive, content: this.renderCardContent(i18n.filterTransactions.from) },
-            { title: CONST.send, content: this.renderCardContent(i18n.filterTransactions.to) },
+            { title: i18n.filterTransactions.received, content: this.renderCardContent(i18n.filterTransactions.from) },
+            { title: i18n.filterTransactions.sent, content: this.renderCardContent(i18n.filterTransactions.to) },
           ]}
         />
       </ScreenTemplate>
