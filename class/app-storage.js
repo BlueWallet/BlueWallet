@@ -17,7 +17,11 @@ import {
 } from './';
 import WatchConnectivity from '../WatchConnectivity';
 import DeviceQuickActions from './quick-actions';
+import { AbstractHDElectrumWallet } from './wallets/abstract-hd-electrum-wallet';
 const encryption = require('../blue_modules/encryption');
+const Realm = require('realm');
+const createHash = require('create-hash');
+let usedBucketNum = false;
 
 export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
@@ -113,6 +117,7 @@ export class AppStorage {
   decryptData(data, password) {
     data = JSON.parse(data);
     let decrypted;
+    let num = 0;
     for (const value of data) {
       try {
         decrypted = encryption.decrypt(value, password);
@@ -121,8 +126,10 @@ export class AppStorage {
       }
 
       if (decrypted) {
+        usedBucketNum = num;
         return decrypted;
       }
+      num++;
     }
 
     return false;
@@ -175,6 +182,7 @@ export class AppStorage {
    * @returns {Promise.<boolean>} Success or failure
    */
   async createFakeStorage(fakePassword) {
+    usedBucketNum = false; // resetting currently used bucket so we wont overwrite it
     this.wallets = [];
     this.tx_metadata = {};
 
@@ -190,6 +198,40 @@ export class AppStorage {
     const bucketsString = JSON.stringify(buckets);
     await this.setItem('data', bucketsString);
     return (await this.getItem('data')) === bucketsString;
+  }
+
+  hashIt(s) {
+    return createHash('sha256').update(s).digest().toString('hex');
+  }
+
+  /**
+   * Returns instace of the Realm database, which is encrypted either by cached user's password OR default password.
+   * Database file is deterministically derived from encryption key.
+   *
+   * @returns {Promise<Realm>}
+   */
+  async getRealm() {
+    const password = this.hashIt(this.cachedPassword || 'fyegjitkyf[eqjnc.lf');
+    const buf = Buffer.from(this.hashIt(password) + this.hashIt(password), 'hex');
+    const encryptionKey = Int8Array.from(buf);
+    const path = this.hashIt(this.hashIt(password)) + '-wallets.realm';
+
+    const schema = [
+      {
+        name: 'Wallet',
+        primaryKey: 'walletid',
+        properties: {
+          walletid: { type: 'string', indexed: true },
+          _txs_by_external_index: 'string', // stringified json
+          _txs_by_internal_index: 'string', // stringified json
+        },
+      },
+    ];
+    return Realm.open({
+      schema,
+      path,
+      encryptionKey,
+    });
   }
 
   /**
@@ -210,6 +252,7 @@ export class AppStorage {
         }
       }
       if (data !== null) {
+        const realm = await this.getRealm();
         data = JSON.parse(data);
         if (!data.wallets) return false;
         const wallets = data.wallets;
@@ -279,12 +322,16 @@ export class AppStorage {
               unserializedWallet = LegacyWallet.fromJson(key);
               break;
           }
+
+          this.inflateWalletFromRealm(realm, unserializedWallet);
+
           // done
           if (!this.wallets.some(wallet => wallet.getSecret() === unserializedWallet.secret)) {
             this.wallets.push(unserializedWallet);
             this.tx_metadata = data.tx_metadata;
           }
         }
+        realm.close();
         WatchConnectivity.shared.wallets = this.wallets;
         WatchConnectivity.shared.tx_metadata = this.tx_metadata;
         WatchConnectivity.shared.fetchTransactionsFunction = async () => {
@@ -333,6 +380,52 @@ export class AppStorage {
     this.wallets = tempWallets;
   }
 
+  inflateWalletFromRealm(realm, walletToInflate) {
+    const wallets = realm.objects('Wallet');
+    const filteredWallets = wallets.filtered(`walletid = "${walletToInflate.getID()}" LIMIT(1)`);
+    for (const realmWalletData of filteredWallets) {
+      try {
+        if (realmWalletData._txs_by_external_index) {
+          const txsByExternalIndex = JSON.parse(realmWalletData._txs_by_external_index);
+          const txsByInternalIndex = JSON.parse(realmWalletData._txs_by_internal_index);
+
+          if (walletToInflate._hdWalletInstance) {
+            walletToInflate._hdWalletInstance._txs_by_external_index = txsByExternalIndex;
+            walletToInflate._hdWalletInstance._txs_by_internal_index = txsByInternalIndex;
+          } else {
+            walletToInflate._txs_by_external_index = txsByExternalIndex;
+            walletToInflate._txs_by_internal_index = txsByInternalIndex;
+          }
+        }
+      } catch (error) {
+        console.warn(error.message);
+      }
+    }
+  }
+
+  offloadWalletToRealm(realm, wallet) {
+    const id = wallet.getID();
+    console.log('offloading wallet id', id);
+    const walletToSave = wallet._hdWalletInstance ?? wallet;
+
+    if (walletToSave instanceof AbstractHDElectrumWallet) {
+      realm.write(() => {
+        const j1 = JSON.stringify(walletToSave._txs_by_external_index);
+        const j2 = JSON.stringify(walletToSave._txs_by_internal_index);
+        console.log('j1 = ', j1.length / 1024, 'kb; j2 = ', j2.length / 1024, 'kb');
+        realm.create(
+          'Wallet',
+          {
+            walletid: id,
+            _txs_by_external_index: j1,
+            _txs_by_internal_index: j2,
+          },
+          Realm.UpdateMode.Modified,
+        );
+      });
+    }
+  }
+
   /**
    * Serializes and saves to storage object data.
    * If cached password is saved - finds the correct bucket
@@ -342,11 +435,25 @@ export class AppStorage {
    */
   async saveToDisk() {
     const walletsToSave = [];
+    const realm = await this.getRealm();
     for (const key of this.wallets) {
       if (typeof key === 'boolean' || key.type === PlaceholderWallet.type) continue;
       if (key.prepareForSerialization) key.prepareForSerialization();
-      walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
+      const keyCloned = Object.assign({}, key); // stripped-down version of a wallet to save to secure keystore
+      if (key._hdWalletInstance) keyCloned._hdWalletInstance = Object.assign({}, key._hdWalletInstance);
+      this.offloadWalletToRealm(realm, key);
+      // stripping down:
+      if (key._txs_by_external_index) {
+        keyCloned._txs_by_external_index = {};
+        keyCloned._txs_by_internal_index = {};
+      }
+      if (key._hdWalletInstance) {
+        keyCloned._hdWalletInstance._txs_by_external_index = {};
+        keyCloned._hdWalletInstance._txs_by_internal_index = {};
+      }
+      walletsToSave.push(JSON.stringify({ ...keyCloned, type: keyCloned.type }));
     }
+    realm.close();
     let data = {
       wallets: walletsToSave,
       tx_metadata: this.tx_metadata,
@@ -357,8 +464,22 @@ export class AppStorage {
       let buckets = await this.getItem('data');
       buckets = JSON.parse(buckets);
       const newData = [];
+      let num = 0;
       for (const bucket of buckets) {
-        const decrypted = encryption.decrypt(bucket, this.cachedPassword);
+        let decrypted;
+        // if we had `usedBucketNum` during loadFromDisk(), no point to try to decode each bucket to find the one we
+        // need, we just to find bucket with the same index
+        if (usedBucketNum !== false) {
+          if (num === usedBucketNum) {
+            decrypted = true;
+          }
+          num++;
+        } else {
+          // we dont have `usedBucketNum` for whatever reason, so lets try to decrypt each bucket after bucket
+          // till we find the right one
+          decrypted = encryption.decrypt(bucket, this.cachedPassword);
+        }
+
         if (!decrypted) {
           // no luck decrypting, its not our bucket
           newData.push(bucket);
