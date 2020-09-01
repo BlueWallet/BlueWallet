@@ -299,6 +299,7 @@
     "add_entropy_provide": "Provide entropy via dice rolls",
     "add_entropy_remain": "{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.",
     "add_import_wallet": "Import wallet",
+    "import_file": "Import File",
     "add_lightning": "Lightning",
     "add_lndhub": "Connect to your LNDHub",
     "add_lndhub_error": "The provided node address is not valid LNDHub node.",
