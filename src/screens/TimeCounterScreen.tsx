@@ -9,6 +9,7 @@ import { TimeCounter } from 'app/components/TimeCounter';
 import { MainCardStackNavigatorParams, Route } from 'app/consts';
 import { useInterval } from 'app/helpers/useInterval';
 import { typography } from 'app/styles';
+import { isIos } from 'app/styles/helpers';
 
 const i18n = require('../../loc');
 
@@ -53,7 +54,9 @@ export const TimeCounterScreen = (props: Props) => {
       footer={
         <>
           <Button disabled={seconds !== 0} onPress={onTryAgainPress} title={i18n.timeCounter.tryAgain} />
-          <FlatButton containerStyle={styles.flatButton} onPress={exitApp} title={i18n.timeCounter.closeTheApp} />
+          {!isIos() && (
+            <FlatButton containerStyle={styles.flatButton} onPress={exitApp} title={i18n.timeCounter.closeTheApp} />
+          )}
         </>
       }
     >
