@@ -41,7 +41,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (const bal of Object.values(this._balances_by_internal_index)) {
       ret += bal.c;
     }
-    return ret + (this.getUnconfirmedBalance() < 0 ? this.getUnconfirmedBalance() : 0);
+    return ret + (this.getUnconfirmedBalance() > 0 ? this.getUnconfirmedBalance() : 0);
   }
 
   /**
