@@ -190,7 +190,7 @@ const DrawerList = props => {
     let didRefresh = false;
 
     try {
-      if (wallets && wallets[index] && wallets[index].type !== PlaceholderWallet.type && wallets[index].timeToRefreshBalance()) {
+      if (wallets[index] && wallets[index].type !== PlaceholderWallet.type && wallets[index].timeToRefreshBalance()) {
         console.log('snapped to, and now its time to refresh wallet #', index);
         await wallets[index].fetchBalance();
         if (oldBalance !== wallets[index].getBalance() || wallets[index].getUnconfirmedBalance() !== 0) {
@@ -266,7 +266,8 @@ const DrawerList = props => {
 export default DrawerList;
 const styles = StyleSheet.create({
   contentContainerCustomStyle: {
-    paddingHorizontal: 20,
+    paddingRight: 10,
+    paddingLeft: 20,
   },
   root: {
     flex: 1,

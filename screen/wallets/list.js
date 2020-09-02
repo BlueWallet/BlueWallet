@@ -40,12 +40,14 @@ export default class WalletsList extends Component {
 
   constructor(props) {
     super(props);
+    const width = Dimensions.get('window').width;
     this.state = {
       isLoading: true,
       isFlatListRefreshControlHidden: true,
       wallets: BlueApp.getWallets().concat(false),
       timeElpased: 0,
       dataSource: [],
+      itemWidth: width * 0.82 > 375 ? 375 : width * 0.82,
       isLargeScreen: Platform.OS === 'android' ? isTablet() : Dimensions.get('window').width >= Dimensions.get('screen').width / 3,
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, () => this.redrawScreen(true));
@@ -327,6 +329,7 @@ export default class WalletsList extends Component {
         ref={this.walletsCarousel}
         testID="WalletsList"
         sliderWidth={Dimensions.get('window').width}
+        itemWidth={this.state.itemWidth}
       />
     );
   };
@@ -540,8 +543,10 @@ export default class WalletsList extends Component {
   };
 
   onLayout = e => {
+    const width = Dimensions.get('window').width;
     this.setState({
-      isLargeScreen: Platform.OS === 'android' ? isTablet() : Dimensions.get('window').width >= Dimensions.get('screen').width / 3,
+      isLargeScreen: Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3,
+      itemWidth: width * 0.82 > 375 ? 375 : width * 0.82,
     });
   };
 

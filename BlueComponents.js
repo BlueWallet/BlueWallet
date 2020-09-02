@@ -1583,7 +1583,12 @@ export class ManageFundsBigButton extends Component {
 export class NewWalletPanel extends Component {
   render() {
     return (
-      <TouchableOpacity testID="CreateAWallet" {...this.props} onPress={this.props.onPress} style={{ marginVertical: 17 }}>
+      <TouchableOpacity
+        testID="CreateAWallet"
+        {...this.props}
+        onPress={this.props.onPress}
+        style={{ marginVertical: 17, paddingRight: 10 }}
+      >
         <View
           style={{
             paddingHorizontal: 24,
