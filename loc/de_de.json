@@ -299,6 +299,7 @@
     "add_entropy_provide": "Entropie selbst erzeugen",
     "add_entropy_remain": "{gen} Bytes an generierter Entropie. Die restlichen {rem} Bytes werden vom Zufallsgenerator des Systems ergänzt.",
     "add_import_wallet": "Wallet importieren",
+    "import_file": "Datei importieren",
     "add_lightning": "Lightning",
     "add_lndhub": "LNDHub Verbindung",
     "add_lndhub_error": "Die angegebene LNDHub Verbindung ist ungültig. ",
