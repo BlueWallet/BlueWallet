@@ -46,7 +46,6 @@ import { BlueCurrentTheme } from '../../components/themes';
 const bitcoin = require('bitcoinjs-lib');
 const currency = require('../../blue_modules/currency');
 const BigNumber = require('bignumber.js');
-const { width } = Dimensions.get('window');
 const BlueApp: AppStorage = require('../../BlueApp');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
@@ -262,6 +261,7 @@ export default class SendDetails extends Component {
         feeSliderValue: 1,
         amountUnit: fromWallet.preferredBalanceUnit, // default for whole screen
         renderWalletSelectionButtonHidden: false,
+        width: Dimensions.get('window').width - 320,
       };
     }
   }
@@ -473,7 +473,7 @@ export default class SendDetails extends Component {
         } else if (index === this.state.addresses.length - 1) {
           this.scrollView.scrollToEnd();
         } else {
-          const page = Math.round(width * (this.state.addresses.length - 2));
+          const page = Math.round(this.state.width * (this.state.addresses.length - 2));
           this.scrollView.scrollTo({ x: page, y: 0, animated: true });
         }
         this.setState({ isLoading: false, recipientsScrollIndex: index });
@@ -619,9 +619,10 @@ export default class SendDetails extends Component {
   renderFeeSelectionModal = () => {
     return (
       <Modal
+        deviceHeight={Dimensions.get('window').height}
+        deviceWidth={this.state.width + this.state.width / 2}
         isVisible={this.state.isFeeSelectionModalVisible}
         style={styles.bottomModal}
-        deviceHeight={Dimensions.get('window').height}
         onBackdropPress={() => {
           if (this.state.fee < 1 || this.state.feeSliderValue < 1) {
             this.setState({ fee: Number(1), feeSliderValue: Number(1) });
@@ -726,8 +727,9 @@ export default class SendDetails extends Component {
     const isSendMaxUsed = this.state.addresses.some(element => element.amount === BitcoinUnit.MAX);
     return (
       <Modal
-        isVisible={this.state.isAdvancedTransactionOptionsVisible}
         deviceHeight={Dimensions.get('window').height}
+        deviceWidth={this.state.width + this.state.width / 2}
+        isVisible={this.state.isAdvancedTransactionOptionsVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
           Keyboard.dismiss();
@@ -864,7 +866,7 @@ export default class SendDetails extends Component {
     Keyboard.dismiss();
     var offset = e.nativeEvent.contentOffset;
     if (offset) {
-      const page = Math.round(offset.x / width);
+      const page = Math.round(offset.x / this.state.width);
       if (this.state.recipientsScrollIndex !== page) {
         this.setState({ recipientsScrollIndex: page });
       }
@@ -875,7 +877,7 @@ export default class SendDetails extends Component {
     Keyboard.dismiss();
     var offset = this.scrollView.contentOffset;
     if (offset) {
-      const page = Math.round(offset.x / width);
+      const page = Math.round(offset.x / this.state.width);
       return page;
     }
     return 0;
@@ -883,9 +885,10 @@ export default class SendDetails extends Component {
 
   renderBitcoinTransactionInfoFields = () => {
     const rows = [];
+
     for (const [index, item] of this.state.addresses.entries()) {
       rows.push(
-        <View key={index} style={{ minWidth: width, maxWidth: width, width: width }}>
+        <View key={index} style={{ width: this.state.width }}>
           <BlueBitcoinAmount
             isLoading={this.state.isLoading}
             amount={item.amount ? item.amount.toString() : null}
@@ -979,7 +982,7 @@ export default class SendDetails extends Component {
             this.setState({
               addresses: [recipient],
               units: [BitcoinUnit.BTC],
-              recipientsScrollIndex: 0,
+              recipientsScrollIndex: 320,
               isAdvancedTransactionOptionsVisible: false,
             });
           },
@@ -989,6 +992,10 @@ export default class SendDetails extends Component {
       ],
       { cancelable: false },
     );
+  };
+
+  onLayout = e => {
+    this.setState({ width: e.nativeEvent.layout.width });
   };
 
   render() {
@@ -1001,7 +1008,7 @@ export default class SendDetails extends Component {
     }
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={styles.root}>
+        <View style={styles.root} onLayout={this.onLayout}>
           <StatusBar barStyle="light-content" />
           <View>
             <KeyboardAvoidingView behavior="position">

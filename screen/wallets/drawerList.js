@@ -53,7 +53,7 @@ const DrawerList = props => {
   };
 
   const redrawScreen = (scrollToEnd = false) => {
-    console.log('wallets/list redrawScreen()');
+    console.log('drawerList redrawScreen()');
 
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet.
     // placing event subscription here so it gets exclusively re-subscribed more often. otherwise we would
@@ -75,7 +75,7 @@ const DrawerList = props => {
 
   useEffect(() => {
     EV(EV.enum.WALLETS_COUNT_CHANGED, () => redrawScreen(true));
-    console.log('wallets/list componentDidMount');
+    console.log('drawerList useEffect');
     // the idea is that upon wallet launch we will refresh
     // all balances and all transactions here:
     redrawScreen();

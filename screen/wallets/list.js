@@ -49,7 +49,8 @@ export default class WalletsList extends Component {
       timeElpased: 0,
       dataSource: [],
       itemWidth: width * 0.82 > 375 ? 375 : width * 0.82,
-      isLargeScreen: Platform.OS === 'android' ? isTablet() : Dimensions.get('window').width >= Dimensions.get('screen').width / 3,
+      isLargeScreen:
+        Platform.OS === 'android' ? isTablet() : Dimensions.get('window').width >= Dimensions.get('screen').width / 3 && isTablet(),
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, () => this.redrawScreen(true));
 
@@ -129,7 +130,6 @@ export default class WalletsList extends Component {
       scrollToEnd = wallets.length > this.state.wallets.length;
     }
 
-    BlueApp.getTransactions(null, 10);
     this.setState(
       {
         isLoading: false,
@@ -541,10 +541,10 @@ export default class WalletsList extends Component {
     }
   };
 
-  onLayout = e => {
+  onLayout = _e => {
     const width = Dimensions.get('window').width;
     this.setState({
-      isLargeScreen: Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3,
+      isLargeScreen: Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3 && isTablet(),
       itemWidth: width * 0.82 > 375 ? 375 : width * 0.82,
     });
   };
