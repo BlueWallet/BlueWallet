@@ -1,6 +1,6 @@
-ארנק ביטקוין המאפשר לך לאחסן, לשלוח ביטקוין, לקבל ביטקוין ולקנות ביטקוין תוך שמירה על אבטחה ופשטות.
+A Bitcoin wallet that allows you to store, send Bitcoin, receive Bitcoin and buy Bitcoin with focus on security and simplicity.
 
-בארנק BlueWallet, המפתחות שלך נשלטים על ידך. ארנק ביטקוין שנוצר על ידי הקהילה למען הקהילה.
+On BlueWallet, a bitcoin wallet you own you private keys. A Bitcoin wallet made by Bitcoin users for the community.
 
 You can instantly transact with anyone in the world and transform the financial system right from your pocket.
 
@@ -8,12 +8,12 @@ Create for free unlimited number of bitcoin wallets or import your existing wall
 
 _____
 
-Here's what you get:
+Folgendes ist enthalten:
 
 
 1 - Security by design
 
-Open Source
+Free/Libre Open Source Software
 MIT licensed, you can build it and run it on your own! Made with ReactNative
 
 Plausible deniability
@@ -46,7 +46,7 @@ Watch-only wallets allow you to keep an eye on your cold storage without touchin
 Lightning Network
 Lightning wallet with zero-configuration. Unfairly cheap and fast transactions with the best Bitcoin user experience.
 
-Buy Bitcoin
+Bitcoin kaufen
 Enter in the open financial revolution with the ability to buy Bitcoin directly in your wallet.
 
 Local Trader
