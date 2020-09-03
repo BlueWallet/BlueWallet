@@ -3,7 +3,7 @@ Funzionalità
 * Open Source
 * Crittografia completa
 * Negabilita' plausibile
-Commissioni flessibili
+* Commissioni flessibili
 * Replace-By-Fee (RBF)
 * SegWit
 * Watch-only (Sentinel) wallets
