@@ -545,7 +545,7 @@ export default class SendDetails extends Component {
           feePrecalc[opt.key] = fee;
           break;
         } catch (e) {
-          if (e.message === 'Not enough balance. Try sending smaller amount' && !flag) {
+          if (e.message.includes('Not enough') && !flag) {
             flag = true;
             // if the outputs are too big, replace them with dust
             targets = targets.map(t => ({ ...t, value: 546 }));
