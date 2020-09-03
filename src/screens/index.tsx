@@ -29,7 +29,7 @@ export { CreateTransactionPassword } from './PinFlow/CreateTransactionPassword';
 export { ConfirmTransactionPassword } from './PinFlow/ConfirmTransactionPassword';
 export { UnlockTransaction } from './UnlockTransaction';
 export { default as UnlockScreen } from './UnlockScreen';
-export { FilterTransactionsScreen } from './FilterTransactionsScreen';
+export { default as FilterTransactionsScreen } from './FilterTransactionsScreen';
 export { EditTextScreen } from './EditTextScreen';
 export { TimeCounterScreen } from './TimeCounterScreen';
 export { IntegrateKeyScreen } from './IntegrateKeyScreen';

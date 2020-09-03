@@ -4,10 +4,11 @@ import { View, StyleSheet, ActivityIndicator, TouchableOpacity, SectionList } fr
 import { connect } from 'react-redux';
 
 import { ListEmptyState, WalletCard, ScreenTemplate, Header, SearchBar, StyledText } from 'app/components';
-import { Wallet, Route, Transaction, CONST, Filters } from 'app/consts';
+import { Wallet, Route, Transaction, CONST } from 'app/consts';
 import { isAllWallets } from 'app/helpers/helpers';
 import { SecureStorageService } from 'app/services';
 import { ApplicationState } from 'app/state';
+import { clearFilters, ClearFiltersAction } from 'app/state/filters/actions';
 import { selectors as transactionsSelectors } from 'app/state/transactions';
 import { loadTransactions, TransactionsActionType } from 'app/state/transactions/actions';
 import { loadWallets, WalletsActionType } from 'app/state/wallets/actions';
@@ -15,7 +16,7 @@ import { palette } from 'app/styles';
 
 import { DashboarContentdHeader } from './DashboarContentdHeader';
 import { DashboardHeader } from './DashboardHeader';
-import { TransactionList } from './TransactionList';
+import TransactionList from './TransactionList';
 import { WalletsCarousel } from './WalletsCarousel';
 
 const i18n = require('../../../loc');
@@ -29,11 +30,13 @@ interface Props {
   isInitialized: boolean;
   loadWallets: () => Promise<WalletsActionType>;
   loadTransactions: (walletAddress: string) => Promise<TransactionsActionType>;
+  clearFilters: () => ClearFiltersAction;
+  isFilteringOn?: boolean;
 }
 
 interface State {
   isFetching: boolean;
-  filters: Filters;
+
   query: string;
   contentdHeaderHeight: number;
   lastSnappedTo: number;
@@ -42,9 +45,6 @@ interface State {
 class DashboardScreen extends Component<Props, State> {
   state: State = {
     query: '',
-    filters: {
-      isFilteringOn: false,
-    },
     contentdHeaderHeight: 0,
     isFetching: false,
     lastSnappedTo: 0,
@@ -126,30 +126,21 @@ class DashboardScreen extends Component<Props, State> {
 
   setQuery = (query: string) => this.setState({ query });
 
-  scrollToTransactionList = () => {
+  scrollTo = (offset: number) => {
     // hack, there is no scrollTo method available on SectionList, https://github.com/facebook/react-native/issues/13151
     // @ts-ignore
     this.transactionListRef.current?._wrapperListRef._listRef.scrollToOffset({
-      offset: this.state.contentdHeaderHeight + 24,
+      offset,
     });
   };
 
-  onFilterPress = (filters: any) => {
-    this.setState({ filters: { ...filters, isFilteringOn: true } });
-    this.scrollToTransactionList();
+  scrollToTransactionList = () => {
+    this.scrollTo(this.state.contentdHeaderHeight + 24);
   };
 
   resetFilters = () => {
-    this.setState({
-      filters: {
-        isFilteringOn: false,
-      },
-    });
-    // check comment above
-    // @ts-ignore
-    this.transactionListRef.current?._wrapperListRef._listRef.scrollToOffset({
-      offset: 1,
-    });
+    this.props.clearFilters();
+    this.scrollTo(0);
   };
 
   hasWallets = () => {
@@ -165,7 +156,7 @@ class DashboardScreen extends Component<Props, State> {
         <DashboardHeader
           onFilterPress={() => {
             this.props.navigation.navigate(Route.FilterTransactions, {
-              onFilterPress: this.onFilterPress,
+              onFilterPress: this.scrollToTransactionList,
             });
           }}
           onAddPress={() => {
@@ -228,7 +219,7 @@ class DashboardScreen extends Component<Props, State> {
   };
 
   renderContent = () => {
-    const { query, filters } = this.state;
+    const { query } = this.state;
     const { transactions, allTransactions } = this.props;
     const activeWallet = this.getActiveWallet();
 
@@ -240,7 +231,6 @@ class DashboardScreen extends Component<Props, State> {
           onRefresh={this.refreshTransactions}
           ListHeaderComponent={<>{this.renderWallets()}</>}
           search={query}
-          filters={filters}
           transactions={isAllWallets(activeWallet) ? allTransactions : transactions[activeWallet.secret] || []}
           transactionNotes={this.props.transactionNotes}
           label={activeWallet.label}
@@ -257,7 +247,6 @@ class DashboardScreen extends Component<Props, State> {
   };
 
   render() {
-    const { filters } = this.state;
     const { isInitialized } = this.props;
 
     if (!isInitialized) {
@@ -272,7 +261,7 @@ class DashboardScreen extends Component<Props, State> {
         <ScreenTemplate noScroll contentContainer={styles.contentContainer} header={this.renderHeader()}>
           {this.renderContent()}
         </ScreenTemplate>
-        {!!filters.isFilteringOn && (
+        {!!this.props.isFilteringOn && (
           <View style={styles.clearFiltersButtonContainer}>
             <TouchableOpacity onPress={this.resetFilters} style={styles.clearFiltersButton}>
               <StyledText title={i18n.filterTransactions.clearFilters} />
@@ -290,11 +279,13 @@ const mapStateToProps = (state: ApplicationState) => ({
   transactions: transactionsSelectors.transactions(state),
   allTransactions: transactionsSelectors.allTransactions(state),
   transactionNotes: state.transactions.transactionNotes,
+  isFilteringOn: state.filters.isFilteringOn,
 });
 
 const mapDispatchToProps = {
   loadWallets,
   loadTransactions,
+  clearFilters,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(DashboardScreen);

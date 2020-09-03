@@ -1,6 +1,7 @@
 import { curry, map } from 'lodash/fp';
 import React, { PureComponent } from 'react';
 import { SectionList, SectionListData, StyleSheet, Text, View } from 'react-native';
+import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
 import { Image, TransactionItem } from 'app/components';
@@ -8,6 +9,7 @@ import { Route, Transaction, Filters } from 'app/consts';
 import { filterTransaction, filterBySearch } from 'app/helpers/filters';
 import { getGroupedTransactions } from 'app/helpers/transactions';
 import { NavigationService } from 'app/services';
+import { ApplicationState } from 'app/state';
 import { palette, typography } from 'app/styles';
 
 const i18n = require('../../../loc');
@@ -25,7 +27,7 @@ interface Props {
   reference: React.Ref<SectionList>;
 }
 
-export class TransactionList extends PureComponent<Props> {
+class TransactionList extends PureComponent<Props> {
   renderSectionTitle = ({ section }: { section: SectionListData<Transaction> }) => {
     return (
       <View style={styles.sectionTitle}>
@@ -49,7 +51,6 @@ export class TransactionList extends PureComponent<Props> {
 
   getSectionData = () => {
     const { search, transactions, filters, transactionNotes } = this.props;
-
     return getGroupedTransactions(
       transactions,
       map((tx: Transaction) => ({ ...tx, note: transactionNotes[tx.hash] })),
@@ -95,6 +96,12 @@ export class TransactionList extends PureComponent<Props> {
     );
   }
 }
+
+const mapStateToProps = (state: ApplicationState) => ({
+  filters: state.filters,
+});
+
+export default connect(mapStateToProps)(TransactionList);
 
 const styles = StyleSheet.create({
   sectionTitle: { marginTop: 15, marginBottom: 10, paddingHorizontal: 20 },

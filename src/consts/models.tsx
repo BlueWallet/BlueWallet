@@ -169,15 +169,16 @@ export interface AppSettings {
 }
 
 export interface Filters {
-  isFilteringOn: boolean;
+  isFilteringOn?: boolean;
+  address?: string;
   dateKey?: number;
   isCalendarVisible?: boolean;
-  address?: string;
   fromDate?: string;
   toDate?: string;
-  fromAmount?: number;
-  toAmount?: number;
+  fromAmount?: string;
+  toAmount?: string;
   transactionType?: string;
+  transactionStatus?: string;
 }
 
 export interface TransactionInput {
@@ -324,11 +325,11 @@ export type MainCardStackNavigatorParams = {
     flowType: string;
     pin: string;
   };
-  [Route.FilterTransactions]: { onFilterPress: ({}) => void };
   [Route.TimeCounter]: {
     onTryAgain: () => void;
     timestamp: number;
   };
+  [Route.FilterTransactions]: { onFilterPress: () => void };
   [Route.CreateAuthenticator]: undefined;
   [Route.EnterPIN]: { id: string };
   [Route.PairAuthenticator]: { id: string };
