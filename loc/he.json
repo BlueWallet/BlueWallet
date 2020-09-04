@@ -1,19 +1,19 @@
 {
   "_": {
-    "bad_password": "סיסמה לא נכונה, תנסה שוב.",
+    "bad_password": "סיסמה שגויה, נסו שוב.",
     "cancel": "ביטול",
     "continue": "המשך",
     "enter_password": "הכנס סיסמה",
     "never": "אף פעם",
     "of": "{number} של {total}",
     "ok": "אוקיי",
-    "storage_is_encrypted": "האחסון שלך מוצפן, נדרשת סיסמה כדי לפתוח אותו.",
+    "storage_is_encrypted": "האחסון שלך מוצפן, נדרשת סיסמה לפתיחה",
     "yes": "כן"
   },
   "azteco": {
     "codeIs": "הקוד שובר שלך הוא",
     "errorBeforeRefeem": "לפני המימוש עליך להוסיף ארנק ביטקוין.",
-    "errorSomething": "משהו השתבש. האם השובר שלך עדיין תקיף?",
+    "errorSomething": "משהו השתבש. האם השובר שלך עדיין תקף?",
     "redeem": "ממש לארנק",
     "redeemButton": "ממש",
     "success": "הצלחה",
@@ -32,7 +32,7 @@
   "hodl": {
     "are_you_sure_you_want_to_logout": "האם אתה בטוח שאתה רוצה להתנתק מHodlHodl?",
     "cont_address_escrow": "פקדון",
-    "cont_address_to": "ל",
+    "cont_address_to": "עבור",
     "cont_buying": "קונה",
     "cont_cancel": "ביטול חוזה",
     "cont_cancel_q": "האם אתה בטוח שאתה רוצה לבטל חוזה זה?",
