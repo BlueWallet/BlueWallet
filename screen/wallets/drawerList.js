@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { StatusBar, View, TouchableOpacity, InteractionManager, StyleSheet, Alert, useWindowDimensions } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { WalletsCarousel, BlueNavigationStyle, BlueHeaderDefaultMainHooks } from '../../BlueComponents';
@@ -10,7 +10,7 @@ import WalletImport from '../../class/wallet-import';
 import * as NavigationService from '../../NavigationService';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-import { useTheme, useFocusEffect } from '@react-navigation/native';
+import { useTheme, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 const EV = require('../../blue_modules/events');
 const BlueApp: AppStorage = require('../../BlueApp');
@@ -21,6 +21,7 @@ const DrawerList = props => {
   const [wallets, setWallets] = useState(BlueApp.getWallets().concat(false));
   const height = useWindowDimensions().height;
   const { colors } = useTheme();
+  const { selectedWallet } = useRoute().params || '';
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.brandingColor,
@@ -52,13 +53,13 @@ const DrawerList = props => {
     });
   };
 
+  useEffect(() => {
+    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+    console.log('drawerList wallets changed');
+  }, [wallets]);
+
   const redrawScreen = (scrollToEnd = false) => {
     console.log('drawerList redrawScreen()');
-
-    // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet.
-    // placing event subscription here so it gets exclusively re-subscribed more often. otherwise we would
-    // have to unsubscribe on unmount and resubscribe again on mount.
-    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, refreshTransactions, true);
 
     const newWallets = BlueApp.getWallets().concat(false);
     if (scrollToEnd) {
@@ -66,7 +67,6 @@ const DrawerList = props => {
     }
 
     setWallets(newWallets);
-    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
     if (scrollToEnd) {
       // eslint-disable-next-line no-unused-expressions
       walletsCarousel.current?.snapToItem(wallets.length - 2);
@@ -74,7 +74,13 @@ const DrawerList = props => {
   };
 
   useEffect(() => {
+    // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet.
+    // placing event subscription here so it gets exclusively re-subscribed more often. otherwise we would
+    // have to unsubscribe on unmount and resubscribe again on mount.
+    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, refreshTransactions, true);
+
     EV(EV.enum.WALLETS_COUNT_CHANGED, () => redrawScreen(true));
+
     console.log('drawerList useEffect');
     // the idea is that upon wallet launch we will refresh
     // all balances and all transactions here:
@@ -98,13 +104,6 @@ const DrawerList = props => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      redrawScreen();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []),
-  );
 
   const handleClick = index => {
     console.log('click', index);
@@ -239,6 +238,8 @@ const DrawerList = props => {
         itemHeight={190}
         sliderHeight={height}
         contentContainerCustomStyle={styles.contentContainerCustomStyle}
+        inactiveSlideOpacity={1.0}
+        selectedWallet={selectedWallet}
       />
     );
   };
