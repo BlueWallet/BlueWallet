@@ -48,7 +48,8 @@ export default class WalletsList extends Component {
       timeElpased: 0,
       dataSource: [],
       itemWidth: width * 0.82 > 375 ? 375 : width * 0.82,
-      isLargeScreen: Platform.OS === 'android' ? isTablet() : Dimensions.get('window').width >= Dimensions.get('screen').width / 3,
+      isLargeScreen:
+        Platform.OS === 'android' ? isTablet() : Dimensions.get('window').width >= Dimensions.get('screen').width / 3 && isTablet(),
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, () => this.redrawScreen(true));
 
@@ -112,11 +113,6 @@ export default class WalletsList extends Component {
   redrawScreen = (scrollToEnd = false) => {
     console.log('wallets/list redrawScreen()');
 
-    // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet.
-    // placing event subscription here so it gets exclusively re-subscribed more often. otherwise we would
-    // have to unsubscribe on unmount and resubscribe again on mount.
-    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactions, true);
-
     if (BlueApp.getBalance() !== 0) {
       A(A.ENUM.GOT_NONZERO_BALANCE);
     } else {
@@ -129,7 +125,6 @@ export default class WalletsList extends Component {
       scrollToEnd = wallets.length > this.state.wallets.length;
     }
 
-    BlueApp.getTransactions(null, 10);
     this.setState(
       {
         isLoading: false,
@@ -543,10 +538,10 @@ export default class WalletsList extends Component {
     }
   };
 
-  onLayout = e => {
+  onLayout = _e => {
     const width = Dimensions.get('window').width;
     this.setState({
-      isLargeScreen: Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3,
+      isLargeScreen: Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3 && isTablet(),
       itemWidth: width * 0.82 > 375 ? 375 : width * 0.82,
     });
   };

@@ -997,7 +997,7 @@ export default class SendDetails extends Component {
 
   onLayout = e => {
     this.setState({ width: e.nativeEvent.layout.width });
-  }
+  };
 
   render() {
     if (this.state.isLoading || typeof this.state.fromWallet === 'undefined') {

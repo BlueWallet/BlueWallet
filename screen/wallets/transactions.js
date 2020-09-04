@@ -187,6 +187,7 @@ const WalletTransactions = () => {
   const [pageSize, setPageSize] = useState(20);
   const { setParams, navigate } = useNavigation();
   const { colors } = useTheme();
+
   const windowHeight = useWindowDimensions().height;
   const windowWidth = useWindowDimensions().width;
   const stylesHook = StyleSheet.create({
@@ -238,6 +239,7 @@ const WalletTransactions = () => {
     HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
     return () => {
       clearInterval(interval);
+      navigate('DrawerRoot', { selectedWallet: '' });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -252,6 +254,7 @@ const WalletTransactions = () => {
     setItemPriceUnit(wallet.getPreferredBalanceUnit());
     setParams({ wallet, isLoading: false });
     setIsLoading(false);
+    navigate('DrawerRoot', { selectedWallet: wallet.getID() });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet]);
 

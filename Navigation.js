@@ -255,7 +255,7 @@ const HodlHodlLoginRoot = () => (
 const Drawer = createDrawerNavigator();
 function DrawerRoot() {
   const dimensions = useWindowDimensions();
-  const isLargeScreen = Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 3;
+  const isLargeScreen = Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 3 && isTablet();
   const drawerStyle = { width: '0%' };
   return (
     <Drawer.Navigator
@@ -295,7 +295,7 @@ const RootStack = createStackNavigator();
 const Navigation = () => (
   <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
     {/* stacks */}
-    <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false, animationEnabled: false }} />
+    <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={{ headerShown: false, gestureEnabled: false }} />
     <RootStack.Screen name="SendDetailsRoot" component={SendDetailsRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={{ headerShown: false }} />
