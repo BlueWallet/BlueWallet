@@ -65,3 +65,4 @@ artifacts/
 
 # Editors
 .vscode/
+/.vs
