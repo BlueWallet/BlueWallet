@@ -1,27 +1,15 @@
-import { Transaction } from 'app/consts';
-
 import { TransactionsAction, TransactionsActionType } from './actions';
 
 export interface TransactionsState {
-  transactions: Record<string, Transaction[]>;
   transactionNotes: Record<string, string>;
 }
 
 const initialState: TransactionsState = {
-  transactions: {},
   transactionNotes: {},
 };
 
 export const transactionsReducer = (state = initialState, action: TransactionsActionType): TransactionsState => {
   switch (action.type) {
-    case TransactionsAction.LoadTransactionsSuccess:
-      return {
-        ...state,
-        transactions: {
-          ...state.transactions,
-          [action.walletAddress]: action.transactions,
-        },
-      };
     case TransactionsAction.CreateTransactionNote:
       return {
         ...state,

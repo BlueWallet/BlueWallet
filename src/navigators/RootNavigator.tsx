@@ -6,7 +6,6 @@ import {
   ActionSheet,
   ExportWalletScreen,
   ExportWalletXpubScreen,
-  DeleteWalletScreen,
   DeleteContactScreen,
   SendTransactionDetailsScreen,
   MessageScreen,
@@ -29,7 +28,6 @@ export const RootNavigator = () => (
     <Stack.Screen name={Route.Message} component={MessageScreen} options={{}} />
     <Stack.Screen name={Route.ExportWallet} component={ExportWalletScreen} />
     <Stack.Screen name={Route.ExportWalletXpub} component={ExportWalletXpubScreen} />
-    <Stack.Screen name={Route.DeleteWallet} component={DeleteWalletScreen} />
     <Stack.Screen name={Route.DeleteContact} component={DeleteContactScreen} />
     <Stack.Screen name={Route.SendTransactionDetails} component={SendTransactionDetailsScreen} />
   </Stack.Navigator>

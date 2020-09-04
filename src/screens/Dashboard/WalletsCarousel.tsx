@@ -8,7 +8,7 @@ import { Wallet } from 'app/consts';
 interface Props {
   data: any;
   keyExtractor: (item: Wallet, index: number) => string;
-  onSnapToItem: (index: number) => void;
+  onSnapToItem?: (index: number) => void;
 }
 
 const SCREEN_WIDTH = Dimensions.get('window').width;

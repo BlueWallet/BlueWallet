@@ -5,9 +5,15 @@ import { StyleSheet, View } from 'react-native';
 import { connect } from 'react-redux';
 
 import { Button, FlatButton, Header, ScreenTemplate, WalletCard, ButtonType, Text } from 'app/components';
-import { Wallet, Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
+import { Wallet, Route, MainCardStackNavigatorParams, RootStackParams, ActionMeta } from 'app/consts';
+import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { BlueApp } from 'app/legacy';
-import { updateWallet, UpdateWalletAction } from 'app/state/wallets/actions';
+import {
+  updateWallet,
+  UpdateWalletAction,
+  deleteWallet as deleteWalletAction,
+  DeleteWalletAction,
+} from 'app/state/wallets/actions';
 import { palette, typography } from 'app/styles';
 
 import { WatchOnlyWallet } from '../../class';
@@ -20,7 +26,7 @@ interface Props {
     StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
     StackNavigationProp<MainCardStackNavigatorParams, Route.WalletDetails>
   >;
-
+  deleteWallet: (id: string, meta?: ActionMeta) => DeleteWalletAction;
   route: RouteProp<MainCardStackNavigatorParams, Route.WalletDetails>;
 }
 
@@ -50,7 +56,31 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
 
   navigateToWalletXpub = () => this.navigateWithWallet(Route.ExportWalletXpub);
 
-  navigateToDeleteWallet = () => this.navigateWithWallet(Route.DeleteWallet);
+  navigateToDeleteWallet = () => {
+    const { deleteWallet, navigation } = this.props;
+    const { wallet } = this.props.route.params;
+    navigation.navigate(Route.DeleteEntity, {
+      name: wallet.label,
+      title: i18n.wallets.deleteWallet.header,
+      subtitle: i18n.wallets.deleteWallet.title,
+
+      onConfirm: () => {
+        deleteWallet(wallet.id, {
+          onSuccess: () => {
+            CreateMessage({
+              title: i18n.message.success,
+              description: i18n.message.successfullWalletDelete,
+              type: MessageType.success,
+              buttonProps: {
+                title: i18n.message.returnToDashboard,
+                onPress: () => navigation.navigate(Route.Dashboard),
+              },
+            });
+          },
+        });
+      },
+    });
+  };
 
   navigateWithWallet = (route: Route) =>
     this.props.navigation.navigate(route as any, {
@@ -123,6 +153,7 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps = {
   updateWallet,
+  deleteWallet: deleteWalletAction,
 };
 
 export default connect(null, mapDispatchToProps)(WalletDetailsScreen);

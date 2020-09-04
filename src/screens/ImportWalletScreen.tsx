@@ -7,13 +7,13 @@ import { connect } from 'react-redux';
 
 import { Header, TextAreaItem, FlatButton, ScreenTemplate, InputItem } from 'app/components';
 import { Button } from 'app/components/Button';
-import { Route, Wallet, MainCardStackNavigatorParams } from 'app/consts';
+import { Route, Wallet, MainCardStackNavigatorParams, ActionMeta } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
-import { isWalletLableInUse } from 'app/helpers/helpers';
-import { loadWallets, WalletsActionType } from 'app/state/wallets/actions';
+import { ApplicationState } from 'app/state';
+import { selectors } from 'app/state/wallets';
+import { importWallet as importWalletAction, ImportWalletAction } from 'app/state/wallets/actions';
 import { typography, palette } from 'app/styles';
 
-import BlueApp from '../../BlueApp';
 import {
   SegwitP2SHWallet,
   LegacyWallet,
@@ -31,7 +31,8 @@ const i18n = require('../../loc');
 interface Props {
   navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.ImportWallet>;
   route: RouteProp<MainCardStackNavigatorParams, Route.ImportWallet>;
-  loadWallets: () => Promise<WalletsActionType>;
+  importWallet: (wallet: Wallet, meta?: ActionMeta) => ImportWalletAction;
+  wallets: Wallet[];
 }
 
 interface State {
@@ -89,7 +90,10 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
   };
 
   onLabelChange = (value: string) => {
-    const validationError = isWalletLableInUse(value) ? i18n.wallets.importWallet.walletInUseValidationError : '';
+    const { wallets } = this.props;
+    const validationError = wallets.some(w => w.label === value)
+      ? i18n.wallets.importWallet.walletInUseValidationError
+      : '';
     this.setState({
       label: value,
       validationError,
@@ -103,7 +107,8 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
   };
 
   saveWallet = async (newWallet: any) => {
-    if (BlueApp.getWallets().some((wallet: Wallet) => wallet.getSecret() === newWallet.secret)) {
+    const { importWallet, wallets } = this.props;
+    if (wallets.some(wallet => wallet.secret === newWallet.secret)) {
       this.showErrorMessageScreen({
         title: i18n.wallets.importWallet.walletInUseValidationError,
         description: i18n.wallets.importWallet.walletInUseValidationError,
@@ -111,11 +116,17 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
         buttonTitle: i18n.message.returnToWalletImport,
       });
     } else {
+      await newWallet.fetchUtxos();
       newWallet.setLabel(this.state.label || i18n.wallets.import.imported + ' ' + newWallet.typeReadable);
-      BlueApp.wallets.push(newWallet);
-      await BlueApp.saveToDisk();
-      this.props.loadWallets();
-      this.showSuccessImportMessageScreen();
+      importWallet(newWallet, {
+        onSuccess: () => {
+          this.showSuccessImportMessageScreen();
+        },
+        onFailure: (error: string) =>
+          this.showErrorMessageScreen({
+            description: error,
+          }),
+      });
     }
   };
 
@@ -199,9 +210,8 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
   saveVaultWallet = async (wallet: HDSegwitP2SHArWallet | HDSegwitP2SHAirWallet) => {
     try {
       await wallet.generateAddresses();
-      await wallet.fetchBalance();
       await wallet.fetchTransactions();
-      if (wallet.getBalance() > 0 || wallet.getTransactions().length !== 0) {
+      if (wallet.getTransactions().length !== 0) {
         this.saveWallet(wallet);
       } else {
         this.showErrorMessageScreen({
@@ -253,24 +263,12 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
 
   importLegacyWallet = async (trimmedMnemonic: string) => {
     try {
-      // trying other wallet types
       const segwitWallet = new SegwitP2SHWallet();
       segwitWallet.setSecret(trimmedMnemonic);
       if (segwitWallet.getAddress()) {
         // ok its a valid WIF
-
-        const legacyWallet = new LegacyWallet();
-        legacyWallet.setSecret(trimmedMnemonic);
-
-        await legacyWallet.fetchBalance();
-        if (legacyWallet.getBalance() > 0) {
-          // yep, its legacy we're importing
-          await legacyWallet.fetchTransactions();
-          return this.saveWallet(legacyWallet);
-        } else {
-          // by default, we import wif as Segwit P2SH
-          await segwitWallet.fetchBalance();
-          await segwitWallet.fetchTransactions();
+        await segwitWallet.fetchTransactions();
+        if (segwitWallet.getTransactions().length !== 0) {
           return this.saveWallet(segwitWallet);
         }
       }
@@ -280,75 +278,49 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
       const legacyWallet = new LegacyWallet();
       legacyWallet.setSecret(trimmedMnemonic);
       if (legacyWallet.getAddress()) {
-        await legacyWallet.fetchBalance();
         await legacyWallet.fetchTransactions();
-        return this.saveWallet(legacyWallet);
+        if (legacyWallet.getTransactions().length !== 0) {
+          return this.saveWallet(legacyWallet);
+        }
       }
 
       // if we're here - nope, its not a valid WIF
 
-      const hd2 = new HDSegwitP2SHWallet();
-      await hd2.setSecret(trimmedMnemonic);
-      if (hd2.validateMnemonic()) {
-        await hd2.fetchBalance();
-        if (hd2.getBalance() > 0) {
-          await hd2.fetchTransactions();
-          return this.saveWallet(hd2);
+      const hdSegwitP2SH = new HDSegwitP2SHWallet();
+      await hdSegwitP2SH.setSecret(trimmedMnemonic);
+      if (hdSegwitP2SH.validateMnemonic()) {
+        await hdSegwitP2SH.fetchTransactions();
+        if (hdSegwitP2SH.getTransactions().length !== 0) {
+          return this.saveWallet(hdSegwitP2SH);
         }
       }
 
-      const hd4 = new HDSegwitBech32Wallet();
-      await hd4.setSecret(trimmedMnemonic);
-      if (hd4.validateMnemonic()) {
-        await hd4.fetchBalance();
-        if (hd4.getBalance() > 0) {
-          await hd4.fetchTransactions();
-          return this.saveWallet(hd4);
+      const hdSegwitBech32 = new HDSegwitBech32Wallet();
+      await hdSegwitBech32.setSecret(trimmedMnemonic);
+      if (hdSegwitBech32.validateMnemonic()) {
+        await hdSegwitBech32.fetchTransactions();
+        if (hdSegwitBech32.getTransactions().length !== 0) {
+          return this.saveWallet(hdSegwitBech32);
         }
       }
 
-      const hd3 = new HDLegacyP2PKHWallet();
-      await hd3.setSecret(trimmedMnemonic);
-      if (hd3.validateMnemonic()) {
-        await hd3.fetchBalance();
-        if (hd3.getBalance() > 0) {
-          await hd3.fetchTransactions();
-          return this.saveWallet(hd3);
+      const hdLegactP2PKH = new HDLegacyP2PKHWallet();
+      await hdLegactP2PKH.setSecret(trimmedMnemonic);
+      if (hdLegactP2PKH.validateMnemonic()) {
+        await hdSegwitBech32.fetchTransactions();
+        if (hdSegwitBech32.getTransactions().length !== 0) {
+          return this.saveWallet(hdSegwitBech32);
         }
       }
-
-      // no balances? how about transactions count?
-
-      if (hd2.validateMnemonic()) {
-        await hd2.fetchTransactions();
-        if (hd2.getTransactions().length !== 0) {
-          return this.saveWallet(hd2);
-        }
-      }
-      if (hd3.validateMnemonic()) {
-        await hd3.fetchTransactions();
-        if (hd3.getTransactions().length !== 0) {
-          return this.saveWallet(hd3);
-        }
-      }
-      if (hd4.validateMnemonic()) {
-        await hd4.fetchTransactions();
-        if (hd4.getTransactions().length !== 0) {
-          return this.saveWallet(hd4);
-        }
-      }
-
-      // not valid? maybe its a watch-only address?
 
       const watchOnly = new WatchOnlyWallet();
       watchOnly.setSecret(trimmedMnemonic);
       if (watchOnly.valid()) {
         await watchOnly.fetchTransactions();
-        await watchOnly.fetchBalance();
-        return this.saveWallet(watchOnly);
+        if (watchOnly.getTransactions().length !== 0) {
+          return this.saveWallet(watchOnly);
+        }
       }
-
-      // nope?
 
       // TODO: try a raw private key
     } catch (e) {
@@ -425,11 +397,15 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
   }
 }
 
+const mapStateToProps = (state: ApplicationState) => ({
+  wallets: selectors.wallets(state),
+});
+
 const mapDispatchToProps = {
-  loadWallets,
+  importWallet: importWalletAction,
 };
 
-export default connect(null, mapDispatchToProps)(ImportWalletScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(ImportWalletScreen);
 
 const styles = StyleSheet.create({
   inputItemContainer: {

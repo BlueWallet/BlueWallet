@@ -1,28 +1,23 @@
-import { AnyAction } from 'redux';
-import { ThunkDispatch } from 'redux-thunk';
-
-import { Wallet, Transaction } from 'app/consts';
-import { isAllWallets } from 'app/helpers/helpers';
-import { BlueApp } from 'app/legacy';
-
-import { loadTransactionsSuccess } from '../transactions/actions';
-
-const BlueElectrum = require('../../../BlueElectrum');
+import { Wallet, ActionMeta } from 'app/consts';
 
 export enum WalletsAction {
   LoadWallets = 'LoadWallets',
-  LoadWalletsRequest = 'LoadWalletsRequest',
   LoadWalletsSuccess = 'LoadWalletsSuccess',
   LoadWalletsFailure = 'LoadWalletsFailure',
+  DeleteWallet = 'DeleteWallet',
+  DeleteWalletSuccess = 'DeleteWalletSuccess',
+  DeleteWalletFailure = 'DeleteWalletFailure',
+  CreateWallet = 'CreateWallet',
+  CreateWalletSuccess = 'CreateWalletSuccess',
+  CreateWalletFailure = 'CreateWalletFailure',
+  ImportWallet = 'ImportWallet',
+  ImportWalletSuccess = 'ImportWalletSuccess',
+  ImportWalletFailure = 'ImportWalletFailure',
   UpdateWallet = 'UpdateWallet',
 }
 
 export interface LoadWalletsAction {
   type: WalletsAction.LoadWallets;
-}
-
-export interface LoadWalletsRequestAction {
-  type: WalletsAction.LoadWalletsRequest;
 }
 
 export interface LoadWalletsSuccessAction {
@@ -35,76 +30,139 @@ export interface LoadWalletsFailureAction {
   error: Error;
 }
 
+export interface DeleteWalletAction {
+  type: WalletsAction.DeleteWallet;
+  payload: { id: string };
+  meta?: ActionMeta;
+}
+
+export interface DeleteWalletSuccessAction {
+  type: WalletsAction.DeleteWalletSuccess;
+  wallet: Wallet;
+}
+
+export interface DeleteWalletFailureAction {
+  type: WalletsAction.DeleteWalletFailure;
+  error: Error;
+}
+
+export interface CreateWalletAction {
+  type: WalletsAction.CreateWallet;
+  payload: { wallet: Wallet };
+  meta?: ActionMeta;
+}
+
+export interface CreateWalletSuccessAction {
+  type: WalletsAction.CreateWalletSuccess;
+  wallet: Wallet;
+}
+
+export interface CreateWalletFailureAction {
+  type: WalletsAction.CreateWalletFailure;
+  error: Error;
+}
+
+export interface ImportWalletAction {
+  type: WalletsAction.ImportWallet;
+  payload: { wallet: Wallet };
+  meta?: ActionMeta;
+}
+
+export interface ImportWalletSuccessAction {
+  type: WalletsAction.ImportWalletSuccess;
+  wallet: Wallet;
+}
+
+export interface ImportWalletFailureAction {
+  type: WalletsAction.ImportWalletFailure;
+  error: Error;
+}
+
 export interface UpdateWalletAction {
   type: WalletsAction.UpdateWallet;
   wallet: Wallet;
 }
 
 export type WalletsActionType =
-  | LoadWalletsRequestAction
   | LoadWalletsSuccessAction
   | LoadWalletsFailureAction
   | LoadWalletsAction
+  | DeleteWalletSuccessAction
+  | DeleteWalletFailureAction
+  | DeleteWalletAction
+  | CreateWalletSuccessAction
+  | CreateWalletFailureAction
+  | CreateWalletAction
+  | ImportWalletSuccessAction
+  | ImportWalletFailureAction
+  | ImportWalletAction
   | UpdateWalletAction;
 
-export const loadWallets = (walletIndex?: number) => async (
-  dispatch: ThunkDispatch<any, any, AnyAction>,
-): Promise<WalletsActionType> => {
-  dispatch(loadWalletsRequest());
-  try {
-    await BlueElectrum.waitTillConnected();
-    await BlueApp.fetchWalletBalances(walletIndex);
-    await BlueApp.fetchWalletTransactions(walletIndex);
-    await BlueApp.saveToDisk();
-    const allWalletsBalance = BlueApp.getBalance();
-    const allWalletsIncomingBalance = BlueApp.getIncomingBalance();
-
-    const allWallets = BlueApp.getWallets();
-    const wallets: Wallet[] =
-      allWallets.length > 1
-        ? [
-            {
-              label: 'All wallets',
-              balance: allWalletsBalance,
-              incoming_balance: allWalletsIncomingBalance,
-              preferredBalanceUnit: 'BTCV',
-              type: '',
-            },
-            ...allWallets,
-          ]
-        : allWallets;
-    wallets.forEach(wallet => {
-      if (!isAllWallets(wallet)) {
-        const walletBalanceUnit = wallet.getPreferredBalanceUnit();
-        const walletLabel = wallet.getLabel();
-
-        // mutating objects on purpose
-        const enhanceTransactions = (t: Transaction) => {
-          t.walletPreferredBalanceUnit = walletBalanceUnit;
-          t.walletLabel = walletLabel;
-        };
-        wallet.transactions.forEach(enhanceTransactions);
-        dispatch(loadTransactionsSuccess(wallet.secret, wallet.transactions));
-      }
-    });
-    return dispatch(loadWalletsSuccess(wallets));
-  } catch (e) {
-    console.log('fetch wallets error:', e);
-    return dispatch(loadWalletsFailure(e));
-  }
-};
-
-const loadWalletsRequest = (): LoadWalletsRequestAction => ({
-  type: WalletsAction.LoadWalletsRequest,
+export const loadWallets = (): LoadWalletsAction => ({
+  type: WalletsAction.LoadWallets,
 });
 
-const loadWalletsSuccess = (wallets: Wallet[]): LoadWalletsSuccessAction => ({
+export const loadWalletsSuccess = (wallets: Wallet[]): LoadWalletsSuccessAction => ({
   type: WalletsAction.LoadWalletsSuccess,
   wallets,
 });
 
-const loadWalletsFailure = (error: Error): LoadWalletsFailureAction => ({
+export const loadWalletsFailure = (error: Error): LoadWalletsFailureAction => ({
   type: WalletsAction.LoadWalletsFailure,
+  error,
+});
+
+export const deleteWallet = (id: string, meta?: ActionMeta): DeleteWalletAction => ({
+  type: WalletsAction.DeleteWallet,
+  payload: {
+    id,
+  },
+  meta,
+});
+
+export const deleteWalletSuccess = (wallet: Wallet): DeleteWalletSuccessAction => ({
+  type: WalletsAction.DeleteWalletSuccess,
+  wallet,
+});
+
+export const deleteWalletFailure = (error: Error): DeleteWalletFailureAction => ({
+  type: WalletsAction.DeleteWalletFailure,
+  error,
+});
+
+export const createWallet = (wallet: Wallet, meta?: ActionMeta): CreateWalletAction => ({
+  type: WalletsAction.CreateWallet,
+  payload: {
+    wallet,
+  },
+  meta,
+});
+
+export const createWalletSuccess = (wallet: Wallet): CreateWalletSuccessAction => ({
+  type: WalletsAction.CreateWalletSuccess,
+  wallet,
+});
+
+export const createWalletFailure = (error: Error): CreateWalletFailureAction => ({
+  type: WalletsAction.CreateWalletFailure,
+  error,
+});
+
+export const importWallet = (wallet: Wallet, meta?: ActionMeta): ImportWalletAction => ({
+  type: WalletsAction.ImportWallet,
+  payload: {
+    wallet,
+  },
+  meta,
+});
+
+export const importWalletSuccess = (wallet: Wallet): ImportWalletSuccessAction => ({
+  type: WalletsAction.ImportWalletSuccess,
+  wallet,
+});
+
+export const importWalletFailure = (error: Error): ImportWalletFailureAction => ({
+  type: WalletsAction.ImportWalletFailure,
   error,
 });
 

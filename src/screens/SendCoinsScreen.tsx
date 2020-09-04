@@ -122,7 +122,6 @@ export class SendCoinsScreen extends Component<Props, State> {
   createHDBech32Transaction = async () => {
     /** @type {HDSegwitBech32Wallet} */
     const { transaction, wallet } = this.state;
-    await wallet.fetchUtxos();
     const changeAddress = await wallet.getAddressForTransaction();
     const requestedSatPerByte: string | number = +this.state.fee.toString().replace(/\D/g, '');
 
@@ -273,7 +272,6 @@ export class SendCoinsScreen extends Component<Props, State> {
 
   createStandardTransaction = async (createTx: Function) => {
     const { fee: requestedSatPerByte, transaction, memo, wallet } = this.state;
-    await wallet.fetchUtxos();
     const utxos = wallet.getUtxos();
     const utxosUnspent = this.getUnspentUtxos(utxos);
 

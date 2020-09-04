@@ -9,7 +9,7 @@ import { images, icons } from 'app/assets';
 import { Image, Header, StyledText, Chip, ScreenTemplate, TranscationLabelStatus } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
 import { Route, MainCardStackNavigatorParamList, RootStackParamList, TxType } from 'app/consts';
-import { getWalletTypeByLabel, getConfirmationsText } from 'app/helpers/helpers';
+import { getConfirmationsText } from 'app/helpers/helpers';
 import { ApplicationState } from 'app/state';
 import {
   createTransactionNote,
@@ -220,7 +220,7 @@ class TransactionDetailsScreen extends Component<Props, State> {
         )}
         <View style={styles.contentRowContainer}>
           <Text style={styles.contentRowTitle}>{i18n.transactions.details.walletType}</Text>
-          <Text style={styles.contentRowBody}>{getWalletTypeByLabel(transaction.walletLabel)}</Text>
+          <Text style={styles.contentRowBody}>{transaction.walletTypeReadable}</Text>
         </View>
         <View style={styles.contentRowContainer}>
           <View style={styles.row}>

@@ -265,7 +265,6 @@ exports.createSegwitTransaction = function(utxos, toAddress, amount, fixedFee, W
   if (unspentUtxos === null) {
     throw new Error(i18n.transactions.errors.notEnoughBalance);
   }
-  console.log('unspentUtxos', unspentUtxos);
 
   let unspentAmount = 0;
   for (const unspent of unspentUtxos) {

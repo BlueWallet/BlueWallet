@@ -343,16 +343,4 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
 
     return b58.encode(data);
   }
-
-  /**
-   * Broadcast txhex. Can throw an exception if failed
-   *
-   * @param {String} txhex
-   * @returns {Promise<boolean>}
-   */
-  async broadcastTx(txhex) {
-    const broadcast = await BlueElectrum.broadcastV2(txhex);
-    if (broadcast.indexOf('successfully') !== -1) return true;
-    return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
-  }
 }

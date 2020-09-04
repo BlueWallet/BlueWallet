@@ -6,7 +6,6 @@ export { default as CreateWalletScreen } from './CreateWalletScreen';
 export { default as WalletDetailsScreen } from './WalletDetailsScreen';
 export { default as ImportWalletScreen } from './ImportWalletScreen';
 export { ExportWalletScreen } from './ExportWalletScreen';
-export { default as DeleteWalletScreen } from './DeleteWalletScreen';
 export { ExportWalletXpubScreen } from './ExportWalletXpubScreen';
 export { SettingsScreen } from './Settings/SettingsScreen';
 export { default as CreateContactScreen } from './CreateContactScreen';

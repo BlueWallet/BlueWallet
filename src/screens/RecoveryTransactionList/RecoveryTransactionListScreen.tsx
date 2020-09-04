@@ -10,8 +10,8 @@ import { MainCardStackNavigatorParams, Route, RootStackParams, Transaction, Wall
 import { getGroupedTransactions } from 'app/helpers/transactions';
 import { HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet } from 'app/legacy';
 import { ApplicationState } from 'app/state';
-import { selectors } from 'app/state/transactions';
-import { TransactionsState } from 'app/state/transactions/reducer';
+import { selectors } from 'app/state/wallets';
+import { WalletsState } from 'app/state/wallets/reducer';
 import { palette, typography } from 'app/styles';
 
 import BlueApp from '../../../BlueApp';
@@ -181,10 +181,10 @@ export class RecoveryTransactionListScreen extends PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: ApplicationState & TransactionsState, props: Props): MapStateProps => {
+const mapStateToProps = (state: ApplicationState & WalletsState, props: Props): MapStateProps => {
   const { wallet } = props.route.params;
   return {
-    transactions: selectors.getTransactionsToRecoverByWalletSecret(state, wallet.secret),
+    transactions: selectors.getTransactionsToRecoverByWalletId(state, wallet.id),
   };
 };
 

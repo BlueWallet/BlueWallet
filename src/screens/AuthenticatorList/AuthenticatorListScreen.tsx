@@ -61,7 +61,7 @@ class AuthenticatorListScreen extends Component<Props> {
               fromWallet: {
                 label: authenticator.name,
                 preferredBalanceUnit: CONST.preferredBalanceUnit,
-                broadcastTx: BlueElectrum.broadcastV2,
+                broadcastTx: BlueElectrum.broadcast,
               },
               txDecoded: tx,
               recipients,

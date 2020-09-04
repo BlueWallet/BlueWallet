@@ -359,11 +359,6 @@ module.exports.broadcast = async function(hex) {
   }
 };
 
-module.exports.broadcastV2 = async function(hex) {
-  if (!mainClient) throw new Error('Electrum client is not connected');
-  return mainClient.blockchainTransaction_broadcast(hex);
-};
-
 /**
  *
  * @param host
