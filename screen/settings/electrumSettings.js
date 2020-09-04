@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   serverListSelected: {
     fontSize: 11,
     color: '#0c2550',
-    marginRight: 5,    
+    marginRight: 5,
   },
   serverListSelectText: {
     fontSize: 11,
@@ -115,12 +115,12 @@ const styles = StyleSheet.create({
   serverListRemoveText: {
     fontSize: 11,
     color: '#ff0000',
-  }
+  },
 });
 
 export default class ElectrumSettings extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       isLoading: true,
       config: {},
@@ -156,9 +156,9 @@ export default class ElectrumSettings extends Component {
       inverval,
       isLoading: false,
     });
-  };
+  }
 
-  selectServer = async (selectedServer) => {
+  selectServer = async selectedServer => {
     const { host, tcp, ssl } = selectedServer;
     const { serverList } = this.state;
     console.log('[DEBUG] selectServer current serverList', serverList);
@@ -168,12 +168,12 @@ export default class ElectrumSettings extends Component {
       const canConnect = await BlueElectrum.testConnection(host, tcp, ssl);
 
       if (canConnect) {
-        serverList.forEach(function (server) {          
-          if (`${server.host}${server.tcp}${server.ssl}` === `${host}${tcp}${ssl}`) {            
-            server.selected = true;            
+        serverList.forEach(function (server) {
+          if (`${server.host}${server.tcp}${server.ssl}` === `${host}${tcp}${ssl}`) {
+            server.selected = true;
             console.log('[DEBUG] marked as selected', server);
           } else {
-            server.selected = false;          
+            server.selected = false;
             console.log('[DEBUG] marked as not selected', server);
           }          
         });
@@ -349,7 +349,7 @@ export default class ElectrumSettings extends Component {
                 <TextInput
                   placeholder={loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' })}
                   value={this.state.host}
-                  onChangeText={text => this.setState({ host: text.trim() })}
+                  onChangeText={text => this.setState({ host: text.toLowerCase().trim() })}
                   numberOfLines={1}
                   style={styles.inputText}
                   editable={!this.state.isLoading}
