@@ -88,7 +88,7 @@ export default class BuyBitcoin extends Component {
       <SafeBlueArea style={styles.root}>
         <StatusBar barStyle="default" />
         <WebView
-          originWhitelist={['swish://', 'bankid://']}
+          originWhitelist={['swish://', 'bankid://', 'http://', 'https://']}
           source={{
             uri: this.state.uri,
           }}

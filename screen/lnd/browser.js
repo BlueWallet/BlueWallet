@@ -322,7 +322,7 @@ export default class Browser extends Component {
   renderWebView = () => {
     return (
       <WebView
-        originWhitelist={['swish://', 'bankid://']}
+        originWhitelist={['swish://', 'bankid://', 'http://', 'https://']}
         onNavigationStateChange={this._onNavigationStateChange}
         ref={ref => (this.webview = ref)}
         source={{ uri: this.state.url }}
