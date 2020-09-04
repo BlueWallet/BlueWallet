@@ -50,3 +50,4 @@ Enter in the open financial revolution with the ability to buy Bitcoin directly 
 
 Local Trader
 A p2p Bitcoin Trading platform, that allows you to buy and sell bitcoin directly to other users without 3rd parties.
+

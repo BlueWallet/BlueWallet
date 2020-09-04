@@ -21,6 +21,9 @@ dayjs.extend(relativeTime);
     strings.setLanguage(lang);
     let localeForDayJSAvailable = true;
     switch (lang) {
+      case 'ar':
+        require('dayjs/locale/ar');
+        break;
       case 'ca':
         require('dayjs/locale/ca');
         break;
@@ -118,12 +121,12 @@ dayjs.extend(relativeTime);
 })();
 
 const strings = new Localization({
+  en: require('./en.json'),
   ca: require('./ca.json'),
   cs_cz: require('./cs_cz.json'),
   da_dk: require('./da_dk.json'),
   de_de: require('./de_de.json'),
   el: require('./el.json'),
-  en: require('./en.json'),
   es: require('./es.json'),
   fi_fi: require('./fi_fi.json'),
   fr_fr: require('./fr_fr.json'),
