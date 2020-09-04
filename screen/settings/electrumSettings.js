@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View, TextInput, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { View, TextInput, StyleSheet, Text, TouchableOpacity, Switch, LayoutAnimation } from 'react-native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -50,9 +50,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: BlueCurrentTheme.colors.foregroundColor,
   },
-  explain: {
-    color: BlueCurrentTheme.colors.feeText,
-    marginBottom: -24,
+  addServerTitle: {
+    flexDirection:'row', 
+    justifyContent: 'space-between',
+  },
+  settingText: {
+    color: BlueCurrentTheme.colors.feeText,    
   },
   inputWrap: {
     flexDirection: 'row',
@@ -76,6 +79,7 @@ const styles = StyleSheet.create({
   serverListTitle: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: -20,
   },
   serverListTitleText: {
     fontSize: 11,
@@ -128,6 +132,7 @@ export default class ElectrumSettings extends Component {
       host: '',
       port: '',
       sslPort: '',
+      isSslPort: true,
     };
   }
 
@@ -231,34 +236,48 @@ export default class ElectrumSettings extends Component {
     });
   }
 
+  onSslSwitch = () => {
+    return this.setState({
+      isSslPort: !this.state.isSslPort,
+      port: '',
+      sslPort: '',
+    });
+  }
+
   save = async () => {
     const { serverList } = this.state;
-    const host = this.state.host ? this.state.host : '';
-    const port = this.state.port ? this.state.port : '';
-    const sslPort = this.state.sslPort ? this.state.sslPort : '';
+    const { host, port, sslPort } = this.state;
     this.setState({ isLoading: true });
 
     try {
+      if (!host  || !port && !sslPort) {
+        alert('Please specify host and port');
+        this.setState({ isLoading: false });
+        return false;
+      }
+
+      if (this.serverExists(host, port, sslPort)) {
+        alert('Server already exists');
+        this.setState({ isLoading: false });
+        return false;
+      }
+
       if (!(await BlueElectrum.testConnection(host, port, sslPort))) {
         alert(loc.settings.electrum_error_connect);
-      } else {
-        if (this.serverExists(host, port, sslPort)) {
-          alert('Server already exists');
-          this.setState({ isLoading: false });
-          return false;
-        }
-
-        serverList.push({
-          host,
-          tcp: port,
-          ssl: sslPort,
-          selected: false
-        });
-
-        await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_LIST, JSON.stringify(serverList));
-        this.setState({ serverList, isLoading: false });
-        alert('Server saved to list');
+        this.setState({ isLoading: false });
+        return false;
       }
+
+      serverList.push({
+        host,
+        tcp: port,
+        ssl: sslPort,
+        selected: false
+      });
+
+      await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_LIST, JSON.stringify(serverList));
+      this.setState({ serverList, isLoading: false });
+      alert('Server saved to list');      
     } catch (error) {
       alert(error);
       this.setState({ isLoading: false });
@@ -276,30 +295,30 @@ export default class ElectrumSettings extends Component {
             titleStyle={styles.serverListItem}
             rightTitle={
               (server.selected) ? (
-                  (`${server.host}${server.tcp}${server.ssl}` === `${this.state.config.host}${this.state.config.port}`) ? (
-                    <View style={styles.serverListActions}>
-                      <Text style={styles.serverListSelected}>Connected</Text>
-                    </View>
-                  ) : (
-                    <View style={styles.serverListActions}>
-                      <Text style={styles.serverListSelected}>Restart to connect</Text>
-                    </View>
-                  )
-              ) : (
+                (`${server.host}${server.tcp}${server.ssl}` === `${this.state.config.host}${this.state.config.port}`) ? (
                   <View style={styles.serverListActions}>
-                    <TouchableOpacity
-                        style={styles.serverListSelect}
-                        onPress={() => this.selectServer(server)}
-                    >
-                      <Text style={styles.serverListSelectText}>Select</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.serverListRemove}
-                        onPress={() => this.removeServer(server)}
-                    >
-                      <Text style={styles.serverListRemoveText}>Remove</Text>
-                    </TouchableOpacity>
+                    <Text style={styles.serverListSelected}>Connected</Text>
                   </View>
+                ) : (
+                  <View style={styles.serverListActions}>
+                    <Text style={styles.serverListSelected}>Restart to connect</Text>
+                  </View>
+                )
+              ) : (
+                <View style={styles.serverListActions}>
+                  <TouchableOpacity
+                      style={styles.serverListSelect}
+                      onPress={() => this.selectServer(server)}
+                  >
+                    <Text style={styles.serverListSelectText}>Select</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                      style={styles.serverListRemove}
+                      onPress={() => this.removeServer(server)}
+                  >
+                    <Text style={styles.serverListRemoveText}>Remove</Text>
+                  </TouchableOpacity>
+                </View>
               )
             }
           />
@@ -328,7 +347,7 @@ export default class ElectrumSettings extends Component {
             <>
               <BlueCard>
                 <View style={styles.serverListTitle}>
-                  <BlueText style={styles.explain}>Custom electrum servers</BlueText>
+                  <BlueText style={styles.settingText}>Custom electrum servers</BlueText>
                   <TouchableOpacity
                     onPress={() => this.resetServers()}
                     style={styles.serverListRemove}
@@ -342,52 +361,69 @@ export default class ElectrumSettings extends Component {
             </>
           )}
           <BlueCard>
-              <BlueText style={styles.explain}>Add custom server</BlueText>
-          </BlueCard>
-          <BlueCard>
-              <View style={styles.inputWrap}>
-                <TextInput
-                  placeholder={loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' })}
-                  value={this.state.host}
-                  onChangeText={text => this.setState({ host: text.toLowerCase().trim() })}
-                  numberOfLines={1}
-                  style={styles.inputText}
-                  editable={!this.state.isLoading}
-                  placeholderTextColor="#81868e"
-                  autoCorrect={false}
-                  underlineColorAndroid="transparent"
+            <View style={styles.addServerTitle}>
+              <BlueText style={styles.settingText}>Add custom server</BlueText>
+              <View style={{flexDirection:'row', justifyContent: 'center'}}>
+                <Text style={styles.settingText}>Use SSL</Text>
+                <Switch
+                  onValueChange={() => this.onSslSwitch()}
+                  value={this.state.isSslPort || false}                  
                 />
               </View>
-              <BlueSpacing20 />
-              <View style={styles.inputWrap}>
-                <TextInput
-                  placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
-                  value={this.state.port}
-                  onChangeText={text => this.setState({ port: text.trim() })}
-                  numberOfLines={1}
-                  style={styles.inputText}
-                  editable={!this.state.isLoading}
-                  placeholderTextColor="#81868e"
-                  underlineColorAndroid="transparent"
-                  autoCorrect={false}
-                />
-              </View>
-              <BlueSpacing20 />
-              <View style={styles.inputWrap}>
-                <TextInput
-                  placeholder={loc.formatString(loc.settings.electrum_port_ssl, { example: '50002' })}
-                  value={this.state.sslPort}
-                  onChangeText={text => this.setState({ sslPort: text.trim() })}
-                  numberOfLines={1}
-                  style={styles.inputText}
-                  editable={!this.state.isLoading}
-                  autoCorrect={false}
-                  placeholderTextColor="#81868e"
-                  underlineColorAndroid="transparent"
-                />
-              </View>
-              <BlueSpacing20 />
-              {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
+            </View>
+            <BlueSpacing20 />
+            <View style={styles.inputWrap}>
+              <TextInput
+                placeholder={loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' })}
+                value={this.state.host}
+                onChangeText={text => this.setState({ host: text.toLowerCase().trim() })}
+                numberOfLines={1}
+                style={styles.inputText}
+                editable={!this.state.isLoading}
+                placeholderTextColor="#81868e"
+                autoCorrect={false}
+                underlineColorAndroid="transparent"
+              />
+            </View>
+            {!this.state.isSslPort ? (
+              <>
+                <BlueSpacing20 />
+                <View style={styles.inputWrap}>
+                  <TextInput
+                    placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
+                    value={this.state.port}
+                    onChangeText={text => this.setState({ port: text.trim() })}
+                    numberOfLines={1}
+                    style={styles.inputText}
+                    editable={!this.state.isLoading}
+                    placeholderTextColor="#81868e"
+                    underlineColorAndroid="transparent"
+                    autoCorrect={false}
+                    keyboardType={'numeric'}
+                  />
+                </View>
+              </>
+            ):(
+              <>
+                <BlueSpacing20 />
+                <View style={styles.inputWrap}>
+                  <TextInput
+                    placeholder={loc.formatString(loc.settings.electrum_port_ssl, { example: '50002' })}
+                    value={this.state.sslPort}
+                    onChangeText={text => this.setState({ sslPort: text.trim() })}
+                    numberOfLines={1}
+                    style={styles.inputText}
+                    editable={!this.state.isLoading}
+                    autoCorrect={false}
+                    placeholderTextColor="#81868e"
+                    underlineColorAndroid="transparent"
+                    keyboardType={'numeric'}
+                  />
+                </View>
+              </>
+            )}
+            <BlueSpacing20 />
+            {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
           </BlueCard>
         </ScrollView>
       </SafeBlueArea>

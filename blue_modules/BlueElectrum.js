@@ -541,9 +541,10 @@ module.exports.testConnection = async function (host, tcpPort, sslPort) {
     await client.connect();
     await client.server_version('2.7.11', '1.4');
     await client.server_ping();
-    client.close();
+    await client.close();
     return true;
-  } catch (_) {
+  } catch (error) {
+    await client.close();
     return false;
   }
 };
