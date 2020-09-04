@@ -18,6 +18,7 @@ import {
 import WatchConnectivity from '../WatchConnectivity';
 import DeviceQuickActions from './quick-actions';
 import { AbstractHDElectrumWallet } from './wallets/abstract-hd-electrum-wallet';
+import { Platform } from 'react-native';
 const encryption = require('../blue_modules/encryption');
 const Realm = require('realm');
 const createHash = require('create-hash');
@@ -77,11 +78,13 @@ export class AppStorage {
   }
 
   async setResetOnAppUninstallTo(value) {
-    await this.setItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL, value ? '1' : '');
-    try {
-      RNSecureKeyStore.setResetOnAppUninstallTo(value);
-    } catch (Error) {
-      console.warn(Error);
+    if (Platform.OS === 'ios') {
+      await this.setItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL, value ? '1' : '');
+      try {
+        RNSecureKeyStore.setResetOnAppUninstallTo(value);
+      } catch (Error) {
+        console.warn(Error);
+      }
     }
   }
 
