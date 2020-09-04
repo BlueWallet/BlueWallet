@@ -66,3 +66,4 @@ artifacts/
 # Editors
 .vscode/
 /.vs
+/.editorconfig
