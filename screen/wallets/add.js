@@ -205,7 +205,7 @@ const WalletsAdd = () => {
         }
         BlueApp.wallets.push(w);
         await BlueApp.saveToDisk();
-        EV(EV.enum.WALLETS_COUNT_CHANGED);
+        setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500); // heavy task; hopefully will be executed while user is staring at backup screen
         A(A.ENUM.CREATED_WALLET);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
         if (w.type === HDSegwitP2SHWallet.type || w.type === HDSegwitBech32Wallet.type) {

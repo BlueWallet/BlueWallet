@@ -126,6 +126,7 @@ export default class WalletsList extends Component {
     }
 
     const wallets = BlueApp.getWallets().concat(false);
+    const dataSource = BlueApp.getTransactions(null, 10);
     if (scrollToEnd) {
       scrollToEnd = wallets.length > this.state.wallets.length;
     }
@@ -134,8 +135,8 @@ export default class WalletsList extends Component {
       {
         isLoading: false,
         isFlatListRefreshControlHidden: true,
-        dataSource: BlueApp.getTransactions(null, 10),
-        wallets: BlueApp.getWallets().concat(false),
+        dataSource,
+        wallets,
       },
       () => {
         if (scrollToEnd) {
