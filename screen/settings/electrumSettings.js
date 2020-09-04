@@ -1,6 +1,10 @@
 /* global alert */
 import React, { Component } from 'react';
+<<<<<<< HEAD
 import { View, TextInput, StyleSheet, Text, TouchableOpacity, Switch } from 'react-native';
+=======
+import { View, TextInput, StyleSheet, Text, TouchableOpacity, Switch, LayoutAnimation } from 'react-native';
+>>>>>>> Fix Electrum test function, add validations and improve UX for add electrum server form
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
