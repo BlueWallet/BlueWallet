@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View, TextInput, StyleSheet, Text, TouchableOpacity, Switch, LayoutAnimation } from 'react-native';
+import { View, TextInput, StyleSheet, Text, TouchableOpacity, Switch } from 'react-native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
