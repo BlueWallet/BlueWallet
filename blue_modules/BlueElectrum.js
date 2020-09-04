@@ -99,11 +99,27 @@ async function getRandomHardcodedPeer() {
   return hardcodedPeers[(hardcodedPeers.length * Math.random()) | 0];
 }
 
+/**
+ * Returns preferred electrum server from list managed by user in Electrum settings * 
+ *
+ * @returns {Promise<{tcp, host}|*>}
+ */
 async function getSavedPeer() {
-  const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
-  const port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
-  const sslPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_SSL_PORT);
-  return { host, tcp: port, ssl: sslPort };
+  try {
+    const serverListData = await AsyncStorage.getItem(AppStorage.ELECTRUM_SERVER_LIST)
+    const serverList = JSON.parse(serverListData)
+
+    if (Array.isArray(serverList) && serverList.length > 0) {
+      const peer = serverList.find(server => {
+          return server.selected === true
+      })
+      return peer || false;
+    }
+    return false
+  } catch (error) {
+    console.log(error)
+    return false
+  }
 }
 
 /**
