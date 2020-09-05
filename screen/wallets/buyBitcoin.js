@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { StyleSheet, StatusBar, Linking } from 'react-native';
+import { StyleSheet, StatusBar } from 'react-native';
 import { BlueNavigationStyle, BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
-import { getSystemName } from 'react-native-device-info';
 import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 const currency = require('../../blue_modules/currency');
 const BlueApp: AppStorage = require('../../BlueApp');
@@ -23,19 +22,15 @@ export default class BuyBitcoin extends Component {
     this.state = {
       isLoading: true,
       wallet,
-      address: '',
       uri: '',
     };
   }
 
-  async componentDidMount() {
-    console.log('buyBitcoin - componentDidMount');
-
+  static async generateURL(wallet) {
     let preferredCurrency = await currency.getPreferredCurrency();
     preferredCurrency = preferredCurrency.endPointKey;
 
     /**  @type {AbstractHDWallet|WatchOnlyWallet|LightningCustodianWallet}   */
-    const wallet = this.state.wallet;
 
     let address = '';
 
@@ -60,23 +55,24 @@ export default class BuyBitcoin extends Component {
       }
     }
 
-    const { safelloStateToken } = this.props.route.params;
-
     let uri = 'https://bluewallet.io/buy-bitcoin-redirect.html?address=' + address;
-
-    if (safelloStateToken) {
-      uri += '&safelloStateToken=' + safelloStateToken;
-    }
 
     if (preferredCurrency) {
       uri += '&currency=' + preferredCurrency;
     }
+    return uri;
+  }
 
-    if (getSystemName() === 'Mac OS X') {
-      Linking.openURL(uri).finally(() => this.props.navigation.goBack(null));
-    } else {
-      this.setState({ uri, isLoading: false, address });
+  async componentDidMount() {
+    console.log('buyBitcoin - componentDidMount');
+
+    let uri = await BuyBitcoin.generateURL(this.state.wallet);
+
+    const { safelloStateToken } = this.props.route.params;
+    if (safelloStateToken) {
+      uri += '&safelloStateToken=' + safelloStateToken;
     }
+    this.setState({ uri, isLoading: false });
   }
 
   render() {
