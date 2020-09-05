@@ -385,7 +385,7 @@ export default class WalletTransactions extends Component {
             <BlueListItem
               hideChevron
               component={TouchableOpacity}
-              onPress={a => {
+              onPress={() => {
                 const wallets = [...BlueApp.getWallets().filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
                 if (wallets.length === 0) {
                   alert(loc.lnd.refill_create);
@@ -399,7 +399,7 @@ export default class WalletTransactions extends Component {
             <BlueListItem
               hideChevron
               component={TouchableOpacity}
-              onPress={a => {
+              onPress={() => {
                 this.setState({ isManageFundsModalVisible: false }, () =>
                   this.props.navigation.navigate('ReceiveDetails', {
                     secret: this.state.wallet.getSecret(),
@@ -412,7 +412,7 @@ export default class WalletTransactions extends Component {
             <BlueListItem
               hideChevron
               component={TouchableOpacity}
-              onPress={a => {
+              onPress={() => {
                 this.setState({ isManageFundsModalVisible: false }, this.navigateToBuyBitcoin);
               }}
               title={loc.lnd.refill_card}
@@ -422,7 +422,7 @@ export default class WalletTransactions extends Component {
               title={loc.lnd.exchange}
               hideChevron
               component={TouchableOpacity}
-              onPress={a => {
+              onPress={() => {
                 this.setState({ isManageFundsModalVisible: false });
                 Linking.openURL('https://zigzag.io/?utm_source=integration&utm_medium=bluewallet&utm_campaign=withdrawLink');
               }}
