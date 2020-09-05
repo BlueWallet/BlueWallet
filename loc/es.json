@@ -345,7 +345,7 @@
     "list_empty_txs1_lightning": "Usa carteras Lighting para tus transacciones diarias. Tienen tasas muy bajas y una velocidad de vértigo.",
     "list_empty_txs2": "Empieza con tu cartera",
     "list_empty_txs2_lightning": "\nPara comenzar a usarlo, toque \"manejar fondos\" y recargue su saldo.",
-    "list_header": "Una cartera representa un par de llaves (keys) una privada y una que puedes compartir para recibir fondos.",
+    "list_header": "Una cartera representa un par de llaves, una privada y una que puedes compartir para recibir fondos.",
     "list_import_error": "Error al intentar importar esta cartera.",
     "list_import_problem": "Ha ocurrido un problema al importar esta cartera",
     "list_latest_transaction": "última transacción",
