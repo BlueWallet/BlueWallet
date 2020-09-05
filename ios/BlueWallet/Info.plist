@@ -72,6 +72,11 @@
 	<false/>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.finance</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>bankid</string>
+		<string>swish</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>

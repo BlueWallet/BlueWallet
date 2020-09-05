@@ -1,1 +1,1 @@
-bitcoin,wallet,bitcoin wallet,blockchain,btc,cryptocurrency,buy bitcoin,samourai,electrum,ethereum
+ביטקוין,ארנק,ארנק ביטקוין,בלוקצ'יין,btc,בק,ביט,מטבע קריפטו,קריפטו,קניית ביטקוין,אלקטרום,איתריום
