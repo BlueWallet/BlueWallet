@@ -101,9 +101,6 @@ BuyBitcoin.propTypes = {
       safelloStateToken: PropTypes.string,
     }),
   }),
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-  }),
 };
 
 BuyBitcoin.navigationOptions = ({ navigation }) => ({
