@@ -29,6 +29,7 @@ import {
   BlueWalletNavigationHeader,
   BlueAlertWalletExportReminder,
 } from '../../BlueComponents';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 import WalletGradient from '../../class/wallet-gradient';
 import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
@@ -40,6 +41,7 @@ import { BlueCurrentTheme } from '../../components/themes';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { getSystemName } from 'react-native-device-info';
+import BuyBitcoin from './buyBitcoin';
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -411,11 +413,7 @@ export default class WalletTransactions extends Component {
               hideChevron
               component={TouchableOpacity}
               onPress={a => {
-                this.setState({ isManageFundsModalVisible: false }, async () => {
-                  this.props.navigation.navigate('BuyBitcoin', {
-                    wallet: this.state.wallet,
-                  });
-                });
+                this.setState({ isManageFundsModalVisible: false }, this.navigateToBuyBitcoin);
               }}
               title={loc.lnd.refill_card}
             />
@@ -485,14 +483,7 @@ export default class WalletTransactions extends Component {
 
   renderSellFiat = () => {
     return (
-      <TouchableOpacity
-        onPress={() =>
-          this.props.navigation.navigate('BuyBitcoin', {
-            wallet: this.state.wallet,
-          })
-        }
-        style={styles.marketplaceButton2}
-      >
+      <TouchableOpacity onPress={this.navigateToBuyBitcoin} style={styles.marketplaceButton2}>
         <Text style={styles.marketpalceText1}>{loc.wallets.list_tap_here_to_buy}</Text>
       </TouchableOpacity>
     );
@@ -655,6 +646,27 @@ export default class WalletTransactions extends Component {
     }
   };
 
+  navigateToBuyBitcoin = async () => {
+    const uri = await BuyBitcoin.generateURL(this.state.wallet);
+    if (getSystemName() === 'Mac OS X') {
+      InAppBrowser.isAvailable()
+        .then(_value => InAppBrowser.open(uri, { dismissButtonStyle: 'done' }))
+        .catch(_error => Linking.openURL(uri));
+    } else if (Platform.OS === 'ios') {
+      InAppBrowser.isAvailable()
+        .then(_value => InAppBrowser.open(uri, { dismissButtonStyle: 'done' }))
+        .catch(_error =>
+          this.props.navigation.navigate('BuyBitcoin', {
+            wallet: this.state.wallet,
+          }),
+        );
+    } else {
+      this.props.navigation.navigate('BuyBitcoin', {
+        wallet: this.state.wallet,
+      });
+    }
+  };
+
   render() {
     const { navigate } = this.props.navigation;
     return (
@@ -722,14 +734,7 @@ export default class WalletTransactions extends Component {
                 {this.isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
 
                 {!this.isLightning() && (
-                  <TouchableOpacity
-                    onPress={() =>
-                      this.props.navigation.navigate('BuyBitcoin', {
-                        wallet: this.state.wallet,
-                      })
-                    }
-                    style={styles.buyBitcoin}
-                  >
+                  <TouchableOpacity onPress={this.navigateToBuyBitcoin} style={styles.buyBitcoin}>
                     <Text style={styles.buyBitcoinText}>{loc.wallets.list_tap_here_to_buy}</Text>
                   </TouchableOpacity>
                 )}
