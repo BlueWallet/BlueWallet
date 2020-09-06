@@ -46,6 +46,7 @@ import { BlueCurrentTheme } from './components/themes';
 import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
 import AsyncStorage from '@react-native-community/async-storage';
 import Lnurl from './class/lnurl';
+import ScanQRCode from './screen/send/ScanQRCode';
 /** @type {AppStorage} */
 const BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
@@ -2095,6 +2096,8 @@ export class BlueAddressInput extends Component {
               alert(loc.send.qr_error_no_qrcode);
             }
           });
+        } else if (response.error) {
+          ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
         }
       },
     );
@@ -2105,7 +2108,7 @@ export class BlueAddressInput extends Component {
   };
 
   showActionSheet = async () => {
-    const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
+    const isClipboardEmpty = (await Clipboard.getString()).trim().length === 0;
     let copyFromClipboardIndex;
     if (Platform.OS === 'ios') {
       const options = [loc._.cancel, loc.wallets.list_long_choose, isDesktop ? loc.wallets.take_photo : loc.wallets.list_long_scan];
