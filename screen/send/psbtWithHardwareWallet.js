@@ -36,6 +36,7 @@ import DocumentPicker from 'react-native-document-picker';
 import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import ScanQRCode from './ScanQRCode';
 const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */
@@ -356,6 +357,8 @@ export default class PsbtWithHardwareWallet extends Component {
                 alert(loc.send.qr_error_no_qrcode);
               }
             });
+          } else if (response.error) {
+            ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
           }
         },
       );
