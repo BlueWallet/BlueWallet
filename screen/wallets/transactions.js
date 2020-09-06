@@ -238,13 +238,14 @@ const WalletTransactions = () => {
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, refreshTransactionsFunction, true);
     HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
     return () => {
-      clearInterval(interval);
       navigate('DrawerRoot', { selectedWallet: '' });
+      clearInterval(interval);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
+    navigate('DrawerRoot', { selectedWallet: wallet.getID() });
     setIsLoading(true);
     setDataSource([]);
     setDataSource(wallet.getTransactions(15));
@@ -254,7 +255,6 @@ const WalletTransactions = () => {
     setItemPriceUnit(wallet.getPreferredBalanceUnit());
     setParams({ wallet, isLoading: false });
     setIsLoading(false);
-    navigate('DrawerRoot', { selectedWallet: wallet.getID() });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet]);
 
