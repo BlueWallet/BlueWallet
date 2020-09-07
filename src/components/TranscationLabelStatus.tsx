@@ -17,7 +17,7 @@ const readableTransactionType = {
 };
 
 export const TranscationLabelStatus = ({ type }: { type: TxType }) =>
-  !!readableTransactionType[type] && <Label labelStyle={styles[type]}>{readableTransactionType[type]}</Label>;
+  readableTransactionType[type] ? <Label labelStyle={styles[type]}>{readableTransactionType[type]}</Label> : null;
 
 const styles = StyleSheet.create({
   ALERT_PENDING: {

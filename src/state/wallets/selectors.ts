@@ -3,6 +3,7 @@ import { createSelector } from 'reselect';
 
 import { TxType, Wallet } from 'app/consts';
 import { isAllWallets } from 'app/helpers/helpers';
+import { HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet } from 'app/legacy';
 import { ApplicationState } from 'app/state';
 
 import { WalletsState } from './reducer';
@@ -18,6 +19,10 @@ export const getById = createSelector(
 );
 
 export const getWalletsLabels = createSelector(wallets, walletsList => walletsList.map(w => w.label));
+
+export const walletsWithRecoveryTransaction = createSelector(wallets, walletsList =>
+  walletsList.filter(wallet => [HDSegwitP2SHArWallet.type, HDSegwitP2SHAirWallet.type].includes(wallet.type)),
+);
 
 export const allWallet = createSelector(wallets, walletsList => {
   const { incoming_balance, balance } = walletsList.reduce(

@@ -8,13 +8,10 @@ import { images } from 'app/assets';
 import { Header, Image, TransactionItem, Button, CheckBox, WalletDropdown } from 'app/components';
 import { MainCardStackNavigatorParams, Route, RootStackParams, Transaction, Wallet } from 'app/consts';
 import { getGroupedTransactions } from 'app/helpers/transactions';
-import { HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet } from 'app/legacy';
 import { ApplicationState } from 'app/state';
 import { selectors } from 'app/state/wallets';
 import { WalletsState } from 'app/state/wallets/reducer';
 import { palette, typography } from 'app/styles';
-
-import BlueApp from '../../../BlueApp';
 
 const i18n = require('../../../loc');
 
@@ -28,6 +25,7 @@ interface NavigationProps {
 }
 
 interface MapStateProps {
+  wallets: Wallet[];
   transactions: Transaction[];
 }
 interface State {
@@ -41,22 +39,17 @@ export class RecoveryTransactionListScreen extends PureComponent<Props, State> {
     selectedTransactions: [],
   };
 
-  canMakeRecoveryTransactions = (wallet: Wallet) =>
-    [HDSegwitP2SHArWallet.type, HDSegwitP2SHAirWallet.type].includes(wallet.type);
-
   showModal = () => {
-    const wallets = BlueApp.getWallets();
-    const { navigation, route } = this.props;
+    const { navigation, route, wallets } = this.props;
     const { wallet } = route.params;
-    const recoveryWallets = wallets.filter(this.canMakeRecoveryTransactions);
 
-    const selectedIndex = recoveryWallets.findIndex((w: Wallet) => w.label === wallet.label);
+    const selectedIndex = wallets.findIndex((w: Wallet) => w.id === wallet.id);
 
     navigation.navigate(Route.ActionSheet, {
-      wallets: recoveryWallets,
+      wallets,
       selectedIndex,
       onPress: (index: number) => {
-        const newWallet = recoveryWallets[index];
+        const newWallet = wallets[index];
         this.setState({ selectedTransactions: [] }, () => {
           navigation.setParams({ wallet: newWallet });
         });
@@ -184,6 +177,7 @@ export class RecoveryTransactionListScreen extends PureComponent<Props, State> {
 const mapStateToProps = (state: ApplicationState & WalletsState, props: Props): MapStateProps => {
   const { wallet } = props.route.params;
   return {
+    wallets: selectors.walletsWithRecoveryTransaction(state),
     transactions: selectors.getTransactionsToRecoverByWalletId(state, wallet.id),
   };
 };

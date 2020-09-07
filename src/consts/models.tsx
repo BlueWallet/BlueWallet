@@ -169,7 +169,7 @@ export interface Transaction {
   walletPreferredBalanceUnit: string;
 }
 
-export interface EnhancedTransactions extends Transaction {
+export interface EnhancedTransaction extends Transaction {
   walletPreferredBalanceUnit: string;
   walletId: string;
   walletLabel: string;
@@ -286,7 +286,7 @@ export type MainCardStackNavigatorParams = {
   [Route.CreateContact]: { address?: string };
   [Route.ContactDetails]: { contact: Contact };
   [Route.ContactQRCode]: { contact: Contact };
-  [Route.TransactionDetails]: { transaction: Transaction };
+  [Route.TransactionDetails]: { transaction: EnhancedTransaction };
   [Route.ReceiveCoins]: { secret?: string };
   [Route.SendCoins]: {
     fromSecret?: string;

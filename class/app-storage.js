@@ -269,17 +269,17 @@ export class AppStorage {
     this.wallets = [...this.wallets, w];
   }
 
-  updateWallet(w) {
+  updateWallet(walletUpdate) {
     let updatedWallet = null;
     this.wallets = this.wallets.map(wallet => {
-      if (wallet.id === w.id) {
-        updatedWallet = w;
-        return w;
+      if (wallet.id === walletUpdate.id) {
+        updatedWallet = walletUpdate;
+        return walletUpdate;
       }
       return wallet;
     });
     if (updatedWallet === null) {
-      throw new Error(`Couldn't update wallet: ${JSON.stringify(w)}`);
+      throw new Error(`Couldn't update wallet: ${JSON.stringify(walletUpdate)}`);
     }
     return updatedWallet;
   }
@@ -403,63 +403,6 @@ export class AppStorage {
    */
   getWallets() {
     return this.wallets;
-  }
-
-  /**
-   * Getter for all transactions in all wallets.
-   * But if index is provided - only for wallet with corresponding index
-   *
-   * @param index {Integer|null} Wallet index in this.wallets. Empty (or null) for all wallets.
-   * @param limit {Integer} How many txs return, starting from the earliest. Default: all of them.
-   * @return {Array}
-   */
-  getTransactions(index, limit = Infinity) {
-    if (index || index === 0) {
-      let txs = [];
-      let c = 0;
-      for (const wallet of this.wallets) {
-        if (c++ === index) {
-          txs = txs.concat(wallet.getTransactions());
-        }
-      }
-      return txs;
-    }
-
-    let txs = [];
-    for (const wallet of this.wallets) {
-      const walletTransactions = wallet.getTransactions();
-      for (const t of walletTransactions) {
-        t.walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
-      }
-      txs = txs.concat(walletTransactions);
-    }
-
-    for (const t of txs) {
-      t.sort_ts = +new Date(t.received);
-    }
-
-    return txs
-      .sort(function(a, b) {
-        return b.sort_ts - a.sort_ts;
-      })
-      .slice(0, limit);
-  }
-
-  /**
-   * Getter for a sum of all balances of all wallets
-   *
-   * @return {number}
-   */
-  getBalance() {
-    let finalBalance = 0;
-    for (const wal of this.wallets) {
-      finalBalance += wal.getBalance();
-    }
-    return finalBalance;
-  }
-
-  getIncomingBalance() {
-    return this.wallets.reduce((sum, wallet) => sum + wallet.incoming_balance, 0);
   }
 
   /**
