@@ -123,6 +123,7 @@
     "react-native-handoff": "git+https://github.com/marcosrdz/react-native-handoff.git",
     "react-native-haptic-feedback": "1.10.0",
     "react-native-image-picker": "git+https://github.com/BlueWallet/react-native-image-picker.git#da9bd7db9d0b7731b33000c3f07d45d569a21cd9",
+    "react-native-inappbrowser-reborn": "git+https://github.com/BlueWallet/react-native-inappbrowser.git#v3.4.0",
     "react-native-level-fs": "3.0.1",
     "react-native-linear-gradient": "2.5.6",
     "react-native-localize": "  1.4.0",
