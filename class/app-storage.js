@@ -269,6 +269,21 @@ export class AppStorage {
     this.wallets = [...this.wallets, w];
   }
 
+  updateWallet(w) {
+    let updatedWallet = null;
+    this.wallets = this.wallets.map(wallet => {
+      if (wallet.id === w.id) {
+        updatedWallet = w;
+        return w;
+      }
+      return wallet;
+    });
+    if (updatedWallet === null) {
+      throw new Error(`Couldn't update wallet: ${JSON.stringify(w)}`);
+    }
+    return updatedWallet;
+  }
+
   stringifyArray(data) {
     const arr = [];
     for (const key of data) {

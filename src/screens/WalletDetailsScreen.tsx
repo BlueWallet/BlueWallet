@@ -1,5 +1,6 @@
 import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { cloneDeep } from 'lodash';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { connect } from 'react-redux';
@@ -7,9 +8,10 @@ import { connect } from 'react-redux';
 import { Button, FlatButton, Header, ScreenTemplate, WalletCard, ButtonType, Text } from 'app/components';
 import { Wallet, Route, MainCardStackNavigatorParams, RootStackParams, ActionMeta } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
-import { BlueApp } from 'app/legacy';
+import { ApplicationState } from 'app/state';
+import { selectors, reducer } from 'app/state/wallets';
 import {
-  updateWallet,
+  updateWallet as updateWalletAction,
   UpdateWalletAction,
   deleteWallet as deleteWalletAction,
   DeleteWalletAction,
@@ -26,27 +28,20 @@ interface Props {
     StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
     StackNavigationProp<MainCardStackNavigatorParams, Route.WalletDetails>
   >;
+  wallet?: Wallet;
   deleteWallet: (id: string, meta?: ActionMeta) => DeleteWalletAction;
   route: RouteProp<MainCardStackNavigatorParams, Route.WalletDetails>;
+  walletsLabels: string[];
 }
 
-interface State {
-  label: string;
-}
-
-export class WalletDetailsScreen extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    const { wallet } = props.route.params;
-    this.state = {
-      label: wallet.getLabel(),
-    };
-  }
-
+export class WalletDetailsScreen extends React.PureComponent<Props> {
   validationError = (value: string): string | undefined => {
     const trimmedValue = value.trim();
-    const walletLabels = BlueApp.getWallets().map((wallet: Wallet) => wallet.label) || [];
-    const allOtherWalletLabels = walletLabels.filter((label: string) => label !== this.state.label);
+    const { walletsLabels, wallet } = this.props;
+    if (!wallet) {
+      return;
+    }
+    const allOtherWalletLabels = walletsLabels.filter((label: string) => label !== wallet.label);
     if (allOtherWalletLabels.includes(trimmedValue)) {
       return i18n.wallets.importWallet.walletInUseValidationError;
     }
@@ -57,13 +52,14 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
   navigateToWalletXpub = () => this.navigateWithWallet(Route.ExportWalletXpub);
 
   navigateToDeleteWallet = () => {
-    const { deleteWallet, navigation } = this.props;
-    const { wallet } = this.props.route.params;
+    const { deleteWallet, navigation, wallet } = this.props;
+    if (!wallet) {
+      return;
+    }
     navigation.navigate(Route.DeleteEntity, {
       name: wallet.label,
       title: i18n.wallets.deleteWallet.header,
       subtitle: i18n.wallets.deleteWallet.title,
-
       onConfirm: () => {
         deleteWallet(wallet.id, {
           onSuccess: () => {
@@ -82,35 +78,47 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
     });
   };
 
-  navigateWithWallet = (route: Route) =>
-    this.props.navigation.navigate(route as any, {
-      wallet: this.props.route.params.wallet,
+  navigateWithWallet = (route: Route.ExportWalletXpub | Route.ExportWallet) => {
+    const { navigation, wallet } = this.props;
+    if (!wallet) {
+      return;
+    }
+    navigation.navigate(route, {
+      wallet,
     });
+  };
 
   setLabel = (label: string) => {
     const trimmedlabel = label.trim();
-    const { wallet } = this.props.route.params;
-    this.props.navigation.setParams({ wallet });
-    this.setState({ label: trimmedlabel });
-    wallet.setLabel(trimmedlabel);
-    this.props.updateWallet(wallet);
-    BlueApp.saveToDisk();
+    const { wallet, updateWallet } = this.props;
+    if (!wallet) {
+      return;
+    }
+    const updatedWalelt = cloneDeep(wallet);
+    updatedWalelt.setLabel(trimmedlabel);
+    updateWallet(updatedWalelt);
   };
 
   editAmount = () => {
-    this.props.navigation.navigate(Route.EditText, {
+    const { wallet, navigation } = this.props;
+    if (!wallet) {
+      return;
+    }
+    navigation.navigate(Route.EditText, {
       title: i18n.wallets.details.nameEdit,
       label: i18n.wallets.details.nameLabel,
       onSave: this.setLabel,
-      value: this.state.label,
+      value: wallet.label,
       validate: this.validationError,
     });
   };
 
   render() {
-    const { wallet } = this.props.route.params;
+    const { wallet } = this.props;
+    if (!wallet) {
+      return null;
+    }
     const isWatchOnly = wallet.type === WatchOnlyWallet.type;
-    const { label } = this.state;
     return (
       <ScreenTemplate
         footer={
@@ -138,7 +146,7 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
           <View style={styles.labelInput}>
             <Text style={styles.typeLabel}>{i18n.wallets.details.nameLabel}</Text>
             <Text style={styles.label} onPress={this.editAmount}>
-              {label}
+              {wallet.label}
             </Text>
           </View>
         </View>
@@ -151,12 +159,20 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
   }
 }
 
+const mapStateToProps = (state: ApplicationState & reducer.WalletsState, props: Props) => {
+  const { id } = props.route.params;
+  return {
+    wallet: selectors.getById(state, id),
+    walletsLabels: selectors.getWalletsLabels(state),
+  };
+};
+
 const mapDispatchToProps = {
-  updateWallet,
+  updateWallet: updateWalletAction,
   deleteWallet: deleteWalletAction,
 };
 
-export default connect(null, mapDispatchToProps)(WalletDetailsScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(WalletDetailsScreen);
 
 const styles = StyleSheet.create({
   showWalletXPUBContainer: {

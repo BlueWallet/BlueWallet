@@ -37,7 +37,7 @@ export class WalletCard extends React.Component<Props> {
               {showEditButton && (
                 <StyledText
                   title={i18n.wallets.details.edit}
-                  onPress={() => NavigationService.navigate(Route.WalletDetails, { wallet })}
+                  onPress={() => NavigationService.navigate(Route.WalletDetails, { id: wallet.id })}
                 />
               )}
             </View>

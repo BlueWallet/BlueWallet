@@ -15,6 +15,9 @@ import {
   createWalletFailure,
   importWalletSuccess,
   importWalletFailure,
+  UpdateWalletAction,
+  updateWalletSuccess,
+  updateWalletFailure,
 } from './actions';
 
 const BlueElectrum = require('../../../BlueElectrum');
@@ -106,9 +109,22 @@ export function* importWalletSaga(action: ImportWalletAction | unknown) {
   }
 }
 
+export function* updateWalletSaga(action: UpdateWalletAction | unknown) {
+  const { wallet } = action as UpdateWalletAction;
+  try {
+    const updatedWallet = BlueApp.updateWallet(wallet);
+    yield BlueApp.saveToDisk();
+
+    yield put(updateWalletSuccess(updatedWallet));
+  } catch (e) {
+    yield put(updateWalletFailure(e.message));
+  }
+}
+
 export default [
   takeEvery(WalletsAction.DeleteWallet, deleteWalletSaga),
   takeEvery(WalletsAction.LoadWallets, loadWalletsSaga),
   takeEvery(WalletsAction.CreateWallet, createWalletSaga),
   takeEvery(WalletsAction.ImportWallet, importWalletSaga),
+  takeEvery(WalletsAction.UpdateWallet, updateWalletSaga),
 ];

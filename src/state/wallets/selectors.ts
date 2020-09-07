@@ -11,6 +11,12 @@ const local = (state: ApplicationState): WalletsState => state.wallets;
 
 export const wallets = createSelector(local, state => state.wallets);
 
+export const getById = createSelector(
+  wallets,
+  (_: WalletsState, id: string) => id,
+  (data, id) => data.find(w => w.id === id),
+);
+
 export const getWalletsLabels = createSelector(wallets, walletsList => walletsList.map(w => w.label));
 
 export const allWallet = createSelector(wallets, walletsList => {

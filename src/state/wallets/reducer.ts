@@ -61,10 +61,15 @@ export const walletsReducer = (state = initialState, action: WalletsActionType):
         isInitialized: true,
         error: action.error,
       };
-    case WalletsAction.UpdateWallet:
+    case WalletsAction.UpdateWalletSuccess:
       return {
         ...state,
-        wallets: state.wallets.map(wallet => (wallet !== action.wallet ? wallet : action.wallet)),
+        wallets: state.wallets.map(wallet => {
+          if (wallet.id === action.wallet.id) {
+            return cloneDeep(action.wallet);
+          }
+          return wallet;
+        }),
       };
     default:
       return state;
