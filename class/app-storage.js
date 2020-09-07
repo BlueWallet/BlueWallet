@@ -408,14 +408,12 @@ export class AppStorage {
 
   offloadWalletToRealm(realm, wallet) {
     const id = wallet.getID();
-    console.log('offloading wallet id', id);
     const walletToSave = wallet._hdWalletInstance ?? wallet;
 
     if (walletToSave instanceof AbstractHDElectrumWallet) {
       realm.write(() => {
         const j1 = JSON.stringify(walletToSave._txs_by_external_index);
         const j2 = JSON.stringify(walletToSave._txs_by_internal_index);
-        console.log('j1 = ', j1.length / 1024, 'kb; j2 = ', j2.length / 1024, 'kb');
         realm.create(
           'Wallet',
           {
