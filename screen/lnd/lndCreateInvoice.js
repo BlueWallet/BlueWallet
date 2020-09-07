@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 56,
     marginVertical: 16,
     minHeight: 45,
-    alignContent: 'center',
+    alignItems: 'center',
   },
   scanRoot: {
     height: 36,
@@ -205,7 +205,6 @@ export default class LNDCreateInvoice extends Component {
   async createInvoice() {
     this.setState({ isLoading: true }, async () => {
       try {
-        this.setState({ isLoading: false });
         let amount = this.state.amount;
         switch (this.state.unit) {
           case BitcoinUnit.SATS:

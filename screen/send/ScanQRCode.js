@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useState } from 'react';
-import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, Linking } from 'react-native';
+import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, Linking, Alert } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
@@ -9,8 +9,10 @@ import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import loc from '../../loc';
 import { BlueLoadingHook, BlueTextHooks, BlueButtonHook, BlueSpacing40 } from '../../BlueComponents';
+import { getSystemName } from 'react-native-device-info';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
+const isDesktop = getSystemName() === 'Mac OS X';
 
 const styles = StyleSheet.create({
   root: {
@@ -169,10 +171,6 @@ const ScanQRCode = () => {
     setCameraStatus(event.cameraStatus);
   };
 
-  const handleOpenSettingsTapped = () => {
-    Linking.openSettings();
-  };
-
   return isLoading ? (
     <View style={styles.root}>
       <BlueLoadingHook />
@@ -199,7 +197,7 @@ const ScanQRCode = () => {
         <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
           <BlueTextHooks>{loc.send.permission_camera_message}</BlueTextHooks>
           <BlueSpacing40 />
-          <BlueButtonHook title={loc.send.open_settings} onPress={handleOpenSettingsTapped} />
+          <BlueButtonHook title={loc.send.open_settings} onPress={ScanQRCode.openPrivacyDesktopSettings} />
         </View>
       )}
       <TouchableOpacity style={styles.closeTouch} onPress={dismiss}>
@@ -214,6 +212,34 @@ const ScanQRCode = () => {
         </TouchableOpacity>
       )}
     </View>
+  );
+};
+
+ScanQRCode.openPrivacyDesktopSettings = () => {
+  if (isDesktop) {
+    Linking.openURL('x-apple.systempreferences:com.apple.preference.security?Privacy_Camera');
+  } else {
+    Linking.openSettings();
+  }
+};
+
+ScanQRCode.presentCameraNotAuthorizedAlert = error => {
+  Alert.alert(
+    loc.errors.error,
+    error,
+    [
+      {
+        text: loc.send.open_settings,
+        onPress: ScanQRCode.openPrivacyDesktopSettings,
+        style: 'default',
+      },
+      {
+        text: loc._.ok,
+        onPress: () => {},
+        style: 'cancel',
+      },
+    ],
+    { cancelable: true },
   );
 };
 

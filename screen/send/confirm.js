@@ -53,7 +53,7 @@ export default class Confirm extends Component {
   broadcast() {
     this.setState({ isLoading: true }, async () => {
       try {
-        await BlueElectrum.ping();
+        // await BlueElectrum.ping();
         await BlueElectrum.waitTillConnected();
 
         if (this.isBiometricUseCapableAndEnabled) {
@@ -72,7 +72,7 @@ export default class Confirm extends Component {
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           let amount = 0;
           const recipients = this.state.recipients;
-          if (recipients[0].amount === BitcoinUnit.MAX || !recipients[0].amount) {
+          if (recipients[0].amount === BitcoinUnit.MAX || (!recipients[0].amount && !recipients[0].value)) {
             amount = this.state.fromWallet.getBalance() - this.state.feeSatoshi;
           } else {
             for (const recipient of recipients) {
