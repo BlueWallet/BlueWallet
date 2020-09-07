@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import { StyleSheet, StatusBar } from 'react-native';
+import { StyleSheet, StatusBar, Linking, Platform } from 'react-native';
 import { BlueNavigationStyle, BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
 import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
+import * as NavigationService from '../../NavigationService';
 const currency = require('../../blue_modules/currency');
 const BlueApp: AppStorage = require('../../BlueApp');
-
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -108,3 +109,19 @@ BuyBitcoin.navigationOptions = ({ navigation }) => ({
   title: '',
   headerLeft: null,
 });
+
+BuyBitcoin.navigate = async wallet => {
+  const uri = await BuyBitcoin.generateURL(wallet);
+  if (Platform.OS === 'ios') {
+    InAppBrowser.isAvailable()
+      .then(_value => InAppBrowser.open(uri, { dismissButtonStyle: 'done' }))
+      .catch(error => {
+        console.log(error);
+        Linking.openURL(uri);
+      });
+  } else {
+    NavigationService.navigate('BuyBitcoin', {
+      wallet,
+    });
+  }
+};
