@@ -11,6 +11,7 @@ import {
   InteractionManager,
   FlatList,
   Dimensions,
+  PixelRatio,
   ScrollView,
   TouchableOpacity,
   StatusBar,
@@ -21,14 +22,7 @@ import {
 import PropTypes from 'prop-types';
 import ImagePicker from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
-import {
-  BlueSendButtonIcon,
-  BlueListItem,
-  BlueReceiveButtonIcon,
-  BlueTransactionListItem,
-  BlueWalletNavigationHeader,
-  BlueAlertWalletExportReminder,
-} from '../../BlueComponents';
+import { BlueListItem, BlueTransactionListItem, BlueWalletNavigationHeader, BlueAlertWalletExportReminder } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
 import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
@@ -37,6 +31,7 @@ import * as NavigationService from '../../NavigationService';
 import HandoffSettings from '../../class/handoff';
 import Handoff from 'react-native-handoff';
 import { BlueCurrentTheme } from '../../components/themes';
+import { FContainer, FButton } from '../../components/FloatButtons';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { getSystemName } from 'react-native-device-info';
@@ -167,21 +162,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '600',
   },
-  floatButtons: {
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    position: 'absolute',
-    alignSelf: 'center',
-    bottom: 30,
-    borderRadius: 30,
-    width: '60%',
-    maxWidth: 400,
-    flex: 1,
-    height: '6.3%',
-    minHeight: 44,
-    overflow: 'hidden',
+  sendIcon: {
+    left: 5,
+    transform: [{ rotate: '225deg' }],
+    marginRight: 8,
+  },
+  receiveIcon: {
+    left: 5,
+    transform: [{ rotate: '-45deg' }],
+    marginRight: 8,
   },
 });
+
+const buttonFontSize =
+  PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
+    ? 22
+    : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
 export default class WalletTransactions extends Component {
   walletBalanceText = null;
@@ -594,6 +590,43 @@ export default class WalletTransactions extends Component {
     this.onBarCodeRead({ data: await Clipboard.getString() });
   };
 
+  sendButtonPress = () => {
+    const { navigate } = this.props.navigation;
+    const { wallet } = this.state;
+
+    if (wallet.chain === Chain.OFFCHAIN) {
+      navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params: { fromSecret: wallet.getSecret() } });
+    } else {
+      if (wallet.type === WatchOnlyWallet.type && wallet.isHd() && wallet.getSecret().startsWith('zpub')) {
+        if (wallet.useWithHardwareWalletEnabled()) {
+          this.navigateToSendScreen();
+        } else {
+          Alert.alert(
+            loc.wallets.details_title,
+            loc.transactions.enable_hw,
+            [
+              {
+                text: loc._.ok,
+                onPress: () => {
+                  wallet.setUseWithHardwareWalletEnabled(true);
+                  this.setState({ wallet }, async () => {
+                    await BlueApp.saveToDisk();
+                    this.navigateToSendScreen();
+                  });
+                },
+                style: 'default',
+              },
+              { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+            ],
+            { cancelable: false },
+          );
+        }
+      } else {
+        this.navigateToSendScreen();
+      }
+    }
+  };
+
   sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
@@ -745,77 +778,53 @@ export default class WalletTransactions extends Component {
           />
           {this.renderManageFundsModal()}
         </View>
-        <View style={styles.floatButtons}>
-          {(() => {
-            if (this.state.wallet.allowReceive()) {
-              return (
-                <BlueReceiveButtonIcon
-                  onPress={() => {
-                    if (this.state.wallet.chain === Chain.OFFCHAIN) {
-                      navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { fromWallet: this.state.wallet } });
-                    } else {
-                      navigate('ReceiveDetails', { secret: this.state.wallet.getSecret() });
-                    }
-                  }}
-                />
-              );
-            }
-          })()}
 
-          {(() => {
-            if (
-              this.state.wallet.allowSend() ||
-              (this.state.wallet.type === WatchOnlyWallet.type &&
-                this.state.wallet.isHd() &&
-                this.state.wallet.getSecret().startsWith('zpub'))
-            ) {
-              return (
-                <BlueSendButtonIcon
-                  onLongPress={this.sendButtonLongPress}
-                  onPress={() => {
-                    if (this.state.wallet.chain === Chain.OFFCHAIN) {
-                      navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params: { fromSecret: this.state.wallet.getSecret() } });
-                    } else {
-                      if (
-                        this.state.wallet.type === WatchOnlyWallet.type &&
-                        this.state.wallet.isHd() &&
-                        this.state.wallet.getSecret().startsWith('zpub')
-                      ) {
-                        if (this.state.wallet.useWithHardwareWalletEnabled()) {
-                          this.navigateToSendScreen();
-                        } else {
-                          Alert.alert(
-                            loc.wallets.details_title,
-                            loc.transactions.enable_hw,
-                            [
-                              {
-                                text: loc._.ok,
-                                onPress: () => {
-                                  const wallet = this.state.wallet;
-                                  wallet.setUseWithHardwareWalletEnabled(true);
-                                  this.setState({ wallet }, async () => {
-                                    await BlueApp.saveToDisk();
-                                    this.navigateToSendScreen();
-                                  });
-                                },
-                                style: 'default',
-                              },
+        <FContainer>
+          {this.state.wallet.allowReceive() && (
+            <FButton
+              onPress={() => {
+                if (this.state.wallet.chain === Chain.OFFCHAIN) {
+                  navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { fromWallet: this.state.wallet } });
+                } else {
+                  navigate('ReceiveDetails', { secret: this.state.wallet.getSecret() });
+                }
+              }}
+              icon={
+                <View style={styles.receiveIcon}>
+                  <Icon
+                    name="arrow-down"
+                    size={buttonFontSize}
+                    type="font-awesome"
+                    color={BlueCurrentTheme.colors.buttonAlternativeTextColor}
+                  />
+                </View>
+              }
+              text={loc.receive.header}
+            />
+          )}
 
-                              { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-                            ],
-                            { cancelable: false },
-                          );
-                        }
-                      } else {
-                        this.navigateToSendScreen();
-                      }
-                    }
-                  }}
-                />
-              );
-            }
-          })()}
-        </View>
+          {(this.state.wallet.allowSend() ||
+            (this.state.wallet.type === WatchOnlyWallet.type &&
+              this.state.wallet.isHd() &&
+              this.state.wallet.getSecret().startsWith('zpub'))) && (
+            <FButton
+              onLongPress={this.sendButtonLongPress}
+              onPress={this.sendButtonPress}
+              testID="SendButton"
+              icon={
+                <View style={styles.sendIcon}>
+                  <Icon
+                    name="arrow-down"
+                    size={buttonFontSize}
+                    type="font-awesome"
+                    color={BlueCurrentTheme.colors.buttonAlternativeTextColor}
+                  />
+                </View>
+              }
+              text={loc.send.header}
+            />
+          )}
+        </FContainer>
       </View>
     );
   }
