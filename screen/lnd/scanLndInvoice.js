@@ -44,6 +44,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  payButtonContainer: {
+    alignItems: 'center',
+  },
   walletSelectText: {
     color: '#9aa0aa',
     fontSize: 14,
@@ -435,7 +438,9 @@ export default class ScanLndInvoice extends React.Component {
                       <ActivityIndicator />
                     </View>
                   ) : (
-                    <BlueButton title={loc.lnd.payButton} onPress={() => this.pay()} disabled={this.shouldDisablePayButton()} />
+                    <View style={styles.payButtonContainer}>
+                      <BlueButton title={loc.lnd.payButton} onPress={() => this.pay()} disabled={this.shouldDisablePayButton()} />
+                    </View>
                   )}
                 </BlueCard>
               </BlueCard>

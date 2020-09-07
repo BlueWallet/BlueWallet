@@ -473,7 +473,7 @@ const WalletTransactions = () => {
         }}
         style={[styles.marketplaceButton2, stylesHook.marketplaceButton2]}
       >
-        <Text style={[styles.marketpalceText1, styles.marketpalceText1]}>LApp Browser</Text>
+        <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>LApp Browser</Text>
       </TouchableOpacity>
     );
   };
