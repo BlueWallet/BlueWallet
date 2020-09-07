@@ -290,7 +290,7 @@ export default class PsbtWithHardwareWallet extends Component {
       await RNFS.writeFile(filePath, typeof this.state.psbt === 'string' ? this.state.psbt : this.state.psbt.toBase64());
       Share.open({
         url: 'file://' + filePath,
-        saveToFiles: true,
+        saveToFiles: isDesktop,
       })
         .catch(error => {
           console.log(error);
