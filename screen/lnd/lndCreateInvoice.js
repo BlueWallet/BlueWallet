@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 56,
     marginVertical: 16,
     minHeight: 45,
-    alignContent: 'center',
+    alignItems: 'center',
   },
   scanRoot: {
     height: 36,

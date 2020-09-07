@@ -7,7 +7,6 @@ import {
   Text,
   StyleSheet,
   InteractionManager,
-  Clipboard,
   SectionList,
   Alert,
   Platform,
@@ -22,10 +21,12 @@ import { AppStorage, PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
+import Clipboard from '@react-native-community/clipboard';
 import * as NavigationService from '../../NavigationService';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import { getSystemName, isTablet } from 'react-native-device-info';
+import ScanQRCode from '../send/ScanQRCode';
 const EV = require('../../blue_modules/events');
 const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
@@ -463,6 +464,8 @@ export default class WalletsList extends Component {
               alert(loc.send.qr_error_no_qrcode);
             }
           });
+        } else if (response.error) {
+          ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
         }
       },
     );

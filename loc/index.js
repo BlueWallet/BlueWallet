@@ -81,6 +81,12 @@ dayjs.extend(relativeTime);
       case 'ru':
         require('dayjs/locale/ru');
         break;
+      case 'sk_sk':
+        require('dayjs/locale/sk');
+        break;
+      case 'sl_si':
+        require('dayjs/locale/sl');
+        break;
       case 'sv_se':
         require('dayjs/locale/sv');
         break;
@@ -142,6 +148,7 @@ const strings = new Localization({
   pt_pt: require('./pt_pt.json'),
   ru: require('./ru.json'),
   sk_sk: require('./sk_sk.json'),
+  sl_si: require('./sl_SI.json'),
   sv_se: require('./sv_se.json'),
   th_th: require('./th_th.json'),
   tr_tr: require('./tr_tr.json'),

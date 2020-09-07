@@ -25,7 +25,9 @@ import Privacy from '../../Privacy';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import { getSystemName } from 'react-native-device-info';
 const currency = require('../../blue_modules/currency');
+const isDesktop = getSystemName() === 'Mac OS X';
 
 export default class SendCreate extends Component {
   constructor(props) {
@@ -57,8 +59,12 @@ export default class SendCreate extends Component {
       await RNFS.writeFile(filePath, this.state.tx);
       Share.open({
         url: 'file://' + filePath,
+        saveToFiles: isDesktop,
       })
-        .catch(error => console.log(error))
+        .catch(error => {
+          console.log(error);
+          alert(error.message);
+        })
         .finally(() => {
           RNFS.unlink(filePath);
         });
