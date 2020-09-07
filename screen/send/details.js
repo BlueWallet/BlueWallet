@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   createButton: {
     marginHorizontal: 56,
     marginVertical: 16,
-    alignContent: 'center',
+    alignItems: 'center',
     minHeight: 44,
   },
   select: {
