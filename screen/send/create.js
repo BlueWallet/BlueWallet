@@ -57,8 +57,12 @@ export default class SendCreate extends Component {
       await RNFS.writeFile(filePath, this.state.tx);
       Share.open({
         url: 'file://' + filePath,
+        saveToFiles: true,
       })
-        .catch(error => console.log(error))
+        .catch(error => {
+          console.log(error);
+          alert(error.message);
+        })
         .finally(() => {
           RNFS.unlink(filePath);
         });
