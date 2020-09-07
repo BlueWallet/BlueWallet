@@ -2,7 +2,7 @@
 
 jest.mock('react-native-watch-connectivity', () => {
   return {
-    getIsWatchAppInstalled: jest.fn(),
+    getIsWatchAppInstalled: jest.fn(() => Promise.resolve(false)),
     subscribeToMessages: jest.fn(),
     updateApplicationContext: jest.fn(),
   };
