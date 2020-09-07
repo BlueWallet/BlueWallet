@@ -532,7 +532,7 @@ const WalletTransactions = () => {
   const renderItem = item => <BlueTransactionListItem item={item.item} itemPriceUnit={itemPriceUnit} timeElapsed={timeElapsed} />;
 
   const onBarCodeRead = ret => {
-    if (isLoading) {
+    if (!isLoading) {
       setIsLoading(true);
       const params = {
         fromSecret: wallet.getSecret(),
