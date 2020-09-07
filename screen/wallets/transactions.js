@@ -29,7 +29,6 @@ import {
   BlueWalletNavigationHeader,
   BlueAlertWalletExportReminder,
 } from '../../BlueComponents';
-import InAppBrowser from 'react-native-inappbrowser-reborn';
 import WalletGradient from '../../class/wallet-gradient';
 import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
@@ -646,25 +645,8 @@ export default class WalletTransactions extends Component {
     }
   };
 
-  navigateToBuyBitcoin = async () => {
-    const uri = await BuyBitcoin.generateURL(this.state.wallet);
-    if (getSystemName() === 'Mac OS X') {
-      InAppBrowser.isAvailable()
-        .then(_value => InAppBrowser.open(uri, { dismissButtonStyle: 'done' }))
-        .catch(_error => Linking.openURL(uri));
-    } else if (Platform.OS === 'ios') {
-      InAppBrowser.isAvailable()
-        .then(_value => InAppBrowser.open(uri, { dismissButtonStyle: 'done' }))
-        .catch(_error =>
-          this.props.navigation.navigate('BuyBitcoin', {
-            wallet: this.state.wallet,
-          }),
-        );
-    } else {
-      this.props.navigation.navigate('BuyBitcoin', {
-        wallet: this.state.wallet,
-      });
-    }
+  navigateToBuyBitcoin = () => {
+    BuyBitcoin.navigate(this.state.wallet);
   };
 
   render() {

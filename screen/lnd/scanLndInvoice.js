@@ -438,7 +438,7 @@ export default class ScanLndInvoice extends React.Component {
                       <ActivityIndicator />
                     </View>
                   ) : (
-                   <View style={styles.payButtonContainer}>
+                    <View style={styles.payButtonContainer}>
                       <BlueButton title={loc.lnd.payButton} onPress={() => this.pay()} disabled={this.shouldDisablePayButton()} />
                     </View>
                   )}
