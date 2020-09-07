@@ -24,9 +24,7 @@ import Privacy from '../../Privacy';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-import { getSystemName } from 'react-native-device-info';
 const currency = require('../../blue_modules/currency');
-const isDesktop = getSystemName() === 'Mac OS X';
 export default class SendCreate extends Component {
   constructor(props) {
     super(props);
@@ -53,22 +51,17 @@ export default class SendCreate extends Component {
   exportTXN = async () => {
     const fileName = `${Date.now()}.txn`;
 
-    if (isDesktop) {
-      try {
-        console.log('Storage Permission: Granted');
-        const filePath = RNFS.DocumentDirectoryPath + `/${this.fileName}`;
-        await RNFS.writeFile(filePath, typeof this.state.psbt === 'string' ? this.state.psbt : this.state.psbt.toBase64());
-        Linking.openURL(RNFS.DocumentDirectoryPath);
-      } catch (error) {
-        alert(error.message);
-      }
-    } else if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios') {
       const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
       await RNFS.writeFile(filePath, this.state.tx);
       Share.open({
         url: 'file://' + filePath,
+        saveToFiles: true,
       })
-        .catch(error => console.log(error))
+        .catch(error => {
+          console.log(error);
+          alert(error.message);
+        })
         .finally(() => {
           RNFS.unlink(filePath);
         });

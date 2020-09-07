@@ -285,22 +285,17 @@ export default class PsbtWithHardwareWallet extends Component {
   }
 
   exportPSBT = async () => {
-    if (isDesktop) {
-      try {
-        console.log('Storage Permission: Granted');
-        const filePath = RNFS.DocumentDirectoryPath + `/${this.fileName}`;
-        await RNFS.writeFile(filePath, typeof this.state.psbt === 'string' ? this.state.psbt : this.state.psbt.toBase64());
-        Linking.openURL(RNFS.DocumentDirectoryPath);
-      } catch (error) {
-        alert(error.message);
-      }
-    } else if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios') {
       const filePath = RNFS.TemporaryDirectoryPath + `/${this.fileName}`;
       await RNFS.writeFile(filePath, typeof this.state.psbt === 'string' ? this.state.psbt : this.state.psbt.toBase64());
       Share.open({
         url: 'file://' + filePath,
+        saveToFiles: true,
       })
-        .catch(error => console.log(error))
+        .catch(error => {
+          console.log(error);
+          alert(error.message);
+        })
         .finally(() => {
           RNFS.unlink(filePath);
         });
