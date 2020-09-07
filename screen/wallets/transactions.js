@@ -28,7 +28,6 @@ import {
   BlueAlertWalletExportReminder,
   BlueListItemHooks,
 } from '../../BlueComponents';
-import InAppBrowser from 'react-native-inappbrowser-reborn';
 import WalletGradient from '../../class/wallet-gradient';
 import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
@@ -380,7 +379,7 @@ const WalletTransactions = () => {
             <BlueListItemHooks
               hideChevron
               component={TouchableOpacity}
-              onPress={() => {
+              onPress={a => {
                 const wallets = [...BlueApp.getWallets().filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
                 if (wallets.length === 0) {
                   alert(loc.lnd.refill_create);
@@ -409,8 +408,10 @@ const WalletTransactions = () => {
               component={TouchableOpacity}
               onPress={a => {
                 setIsManageFundsModalVisible(false);
-                navigateToBuyBitcoin();
-               }}
+                navigate('BuyBitcoin', {
+                  wallet,
+                });
+              }}
               title={loc.lnd.refill_card}
             />
 
@@ -480,7 +481,11 @@ const WalletTransactions = () => {
   const renderSellFiat = () => {
     return (
       <TouchableOpacity
-        onPress={navigateToBuyBitcoin}
+        onPress={() =>
+          navigate('BuyBitcoin', {
+            wallet,
+          })
+        }
         style={[styles.marketplaceButton2, stylesHook.marketplaceButton2]}
       >
         <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_tap_here_to_buy}</Text>
@@ -629,27 +634,6 @@ const WalletTransactions = () => {
         title: '',
         message: '',
         buttons,
-      });
-    }
-  };
-
- const navigateToBuyBitcoin = async () => {
-    const uri = await BuyBitcoin.generateURL(this.state.wallet);
-    if (getSystemName() === 'Mac OS X') {
-      InAppBrowser.isAvailable()
-        .then(_value => InAppBrowser.open(uri, { dismissButtonStyle: 'done' }))
-        .catch(_error => Linking.openURL(uri));
-    } else if (Platform.OS === 'ios') {
-      InAppBrowser.isAvailable()
-        .then(_value => InAppBrowser.open(uri, { dismissButtonStyle: 'done' }))
-        .catch(_error =>
-          this.props.navigation.navigate('BuyBitcoin', {
-            wallet: this.state.wallet,
-          }),
-        );
-    } else {
-      this.props.navigation.navigate('BuyBitcoin', {
-        wallet: this.state.wallet,
       });
     }
   };
