@@ -274,11 +274,14 @@ const jo = {
       annulled: '無効化',
       done: '完了',
       canceled: 'キャンセル済み',
+      unblocked: 'TRANSLATION NEEDED | ENG: unblocked',
     },
     transactionTypeLabel: {
       standard: '標準',
       canceled: 'キャンセル済み',
       fast: 'クイック',
+      secure: 'TRANSLATION NEEDED | ENG: Secure',
+      secureFast: 'TRANSLATION NEEDED | ENG: Secure Fast',
     },
     errors: {
       notEnoughBalance: 'TRANSLATION NEEDED | ENG: Not enough balance. Please, try sending a smaller amount.',
@@ -478,6 +481,7 @@ const jo = {
       annulled: '無効化',
       done: '完了',
       canceled: 'キャンセル済み',
+      unblocked: 'TRANSLATION NEEDED | ENG: Unblocked',
     },
   },
   authenticators: {

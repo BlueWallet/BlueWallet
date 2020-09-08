@@ -274,11 +274,14 @@ const tr = {
       annulled: 'kaldırıldı',
       done: 'tamamlandı',
       canceled: 'İptal Edildi',
+      unblocked: 'TRANSLATION NEEDED | ENG: unblocked',
     },
     transactionTypeLabel: {
       standard: 'Standart',
       canceled: 'İptal Edildi',
       fast: 'Hızlı',
+      secure: 'TRANSLATION NEEDED | ENG: Secure',
+      secureFast: 'TRANSLATION NEEDED | ENG: Secure Fast',
     },
     errors: {
       notEnoughBalance: 'TRANSLATION NEEDED | ENG: Not enough balance. Please, try sending a smaller amount.',
@@ -478,6 +481,7 @@ const tr = {
       annulled: 'Kaldırıldı',
       done: 'Tamamlandı',
       canceled: 'İptal Edildi',
+      unblocked: 'TRANSLATION NEEDED | ENG: Unblocked',
     },
   },
   authenticators: {

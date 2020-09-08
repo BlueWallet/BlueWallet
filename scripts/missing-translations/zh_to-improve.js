@@ -274,11 +274,14 @@ const zh = {
       annulled: '无效',
       done: '完成',
       canceled: '已取消',
+      unblocked: 'TRANSLATION NEEDED | ENG: unblocked',
     },
     transactionTypeLabel: {
       standard: '标准',
       canceled: '已取消',
       fast: '快速',
+      secure: 'TRANSLATION NEEDED | ENG: Secure',
+      secureFast: 'TRANSLATION NEEDED | ENG: Secure Fast',
     },
     errors: {
       notEnoughBalance: 'TRANSLATION NEEDED | ENG: Not enough balance. Please, try sending a smaller amount.',
@@ -478,6 +481,7 @@ const zh = {
       annulled: '无效',
       done: '完成',
       canceled: '已取消',
+      unblocked: 'TRANSLATION NEEDED | ENG: Unblocked',
     },
   },
   authenticators: {

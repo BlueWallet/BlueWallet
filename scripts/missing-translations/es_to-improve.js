@@ -274,11 +274,14 @@ const es = {
       annulled: 'anulada',
       done: 'finalizada',
       canceled: 'cancelada',
+      unblocked: 'TRANSLATION NEEDED | ENG: unblocked',
     },
     transactionTypeLabel: {
       standard: 'Estándar',
       canceled: 'Cancelación',
       fast: 'Rápida',
+      secure: 'TRANSLATION NEEDED | ENG: Secure',
+      secureFast: 'TRANSLATION NEEDED | ENG: Secure Fast',
     },
     errors: {
       notEnoughBalance: 'TRANSLATION NEEDED | ENG: Not enough balance. Please, try sending a smaller amount.',
@@ -478,6 +481,7 @@ const es = {
       annulled: 'Anulada',
       done: 'Finalizada',
       canceled: 'Cancelada',
+      unblocked: 'TRANSLATION NEEDED | ENG: Unblocked',
     },
   },
   authenticators: {

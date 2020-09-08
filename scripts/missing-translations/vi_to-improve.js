@@ -274,11 +274,14 @@ const vi = {
       annulled: 'đã bãi bỏ',
       done: 'xong',
       canceled: 'Đã hủy',
+      unblocked: 'TRANSLATION NEEDED | ENG: unblocked',
     },
     transactionTypeLabel: {
       standard: 'Tiêu chuẩn',
       canceled: 'Đã hủy',
       fast: 'Nhanh',
+      secure: 'TRANSLATION NEEDED | ENG: Secure',
+      secureFast: 'TRANSLATION NEEDED | ENG: Secure Fast',
     },
     errors: {
       notEnoughBalance: 'TRANSLATION NEEDED | ENG: Not enough balance. Please, try sending a smaller amount.',
@@ -478,6 +481,7 @@ const vi = {
       annulled: 'Đã bãi bỏ',
       done: 'Xong',
       canceled: 'Đã hủy',
+      unblocked: 'TRANSLATION NEEDED | ENG: Unblocked',
     },
   },
   authenticators: {

@@ -274,11 +274,14 @@ const id = {
       annulled: 'dianulir',
       done: 'selesai',
       canceled: 'dibatalkan',
+      unblocked: 'TRANSLATION NEEDED | ENG: unblocked',
     },
     transactionTypeLabel: {
       standard: 'Standar',
       canceled: 'Dibatalkan',
       fast: 'Cepat',
+      secure: 'TRANSLATION NEEDED | ENG: Secure',
+      secureFast: 'TRANSLATION NEEDED | ENG: Secure Fast',
     },
     errors: {
       notEnoughBalance: 'TRANSLATION NEEDED | ENG: Not enough balance. Please, try sending a smaller amount.',
@@ -478,6 +481,7 @@ const id = {
       annulled: 'Dianulir',
       done: 'Selesai',
       canceled: 'Dibatalkan',
+      unblocked: 'TRANSLATION NEEDED | ENG: Unblocked',
     },
   },
   authenticators: {
