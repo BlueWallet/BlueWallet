@@ -161,7 +161,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
       case TxType.ALERT_PENDING:
         return i18n.filterTransactions.status.pending;
       case TxType.ALERT_RECOVERED:
-        return i18n.filterTransactions.status.annulled;
+        return i18n.filterTransactions.status.unblocked;
       case TxType.ALERT_CONFIRMED:
         return i18n.filterTransactions.status.done;
       case TxType.RECOVERY:

@@ -245,6 +245,17 @@ export class SendCoinsScreen extends Component<Props, State> {
     }
   };
 
+  isFastTx = (wallet: Wallet) => {
+    const { type } = wallet;
+    const { vaultTxType } = this.state;
+    switch (type) {
+      case HDSegwitP2SHAirWallet.type:
+        return vaultTxType === bitcoin.payments.VaultTxType.Instant;
+      default:
+        return false;
+    }
+  };
+
   navigateToConfirm = ({
     fee,
     txDecoded,
@@ -257,6 +268,8 @@ export class SendCoinsScreen extends Component<Props, State> {
     const { transaction, wallet, memo } = this.state;
 
     const isAlert = this.isAlert(wallet);
+    const isFastTx = this.isFastTx(wallet);
+
     this.props.navigation.navigate(Route.SendCoinsConfirm, {
       recipients: [transaction],
       // HD wallet's utxo is in sats, classic segwit wallet utxos are in btc
@@ -266,7 +279,7 @@ export class SendCoinsScreen extends Component<Props, State> {
       memo,
       fromWallet: wallet,
       satoshiPerByte: actualSatoshiPerByte.toFixed(2),
-      ...(!isAlert && { successMsgDesc: i18n.send.transaction.fastSuccess }),
+      ...(isFastTx && { successMsgDesc: i18n.send.transaction.fastSuccess }),
     });
   };
 

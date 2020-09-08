@@ -11,7 +11,7 @@ const i18n = require('../../loc');
 
 const readableTransactionType = {
   [TxType.ALERT_PENDING]: i18n.transactions.label.pending,
-  [TxType.ALERT_RECOVERED]: i18n.transactions.label.annulled,
+  [TxType.ALERT_RECOVERED]: i18n.transactions.label.unblocked,
   [TxType.ALERT_CONFIRMED]: i18n.transactions.label.done,
   [TxType.RECOVERY]: i18n.transactions.label.canceled,
 };

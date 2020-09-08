@@ -206,7 +206,7 @@ module.exports = {
     wallet: {
       none: 'None',
       latest: 'Latest transaction',
-      pendingBalance: 'Pending balance',
+      pendingBalance: 'Blocked balance',
     },
     add: {
       failed: 'Failed to create wallet',
@@ -221,12 +221,12 @@ module.exports = {
       multipleAddresses: 'It contains a tree of P2SH addresses generated from a single 24-word seed',
       singleAddress: 'It contains a single P2SH address',
       segwidAddress: 'It contains a tree of native segwit addresses, generated from a single 24-word seed',
-      ar: 'Makes Standard and Cancel transactions.',
-      air: 'Makes Standard, Cancel, and Fast transactions.',
-      legacyTitle: 'Legacy',
-      legacyHDP2SHTitle: 'Legacy HD P2SH',
-      legacyP2SHTitle: 'Legacy P2SH',
-      legacyHDSegWitTitle: 'Legacy HD SegWit',
+      ar: 'Makes Secure and Cancel transactions.',
+      air: 'Makes Secure, Cancel, and Secure Fast transactions.',
+      legacyTitle: 'Standard',
+      legacyHDP2SHTitle: 'Standard HD P2SH',
+      legacyP2SHTitle: 'Standard P2SH',
+      legacyHDSegWitTitle: 'Standard HD SegWit',
       legacy: 'Makes default types of transactions.',
       legacyHDP2SH: 'It contains a tree of P2SH addresses generated from a single 24-word seed',
       LegacyP2SH: 'It contains a single P2SH address',
@@ -304,14 +304,15 @@ module.exports = {
     },
     label: {
       pending: 'pending',
-      annulled: 'annulled',
+      unblocked: 'unblocked',
       done: 'done',
       canceled: 'canceled',
     },
     transactionTypeLabel: {
+      secure: 'Secure',
+      secureFast: 'Secure Fast',
       standard: 'Standard',
       canceled: 'Canceled',
-      fast: 'Fast',
     },
     list: {
       conf: 'Confirmations',
@@ -372,10 +373,10 @@ module.exports = {
         'Open the second PDF document you generated when you created your wallet and write down the Private Key seed phrase in the same order.',
     },
     transaction: {
-      instant: 'Fast',
+      instant: 'Secure Fast',
       instantDesc: 'This transaction will be confirmed immediately. Use with extreme caution.',
       fastSuccess: 'You have successfully made your fast transaction.',
-      alert: 'Standard',
+      alert: 'Secure',
       alertDesc:
         'This transaction needs 144 blocks or about 24 hours to be confirmed. You can cancel it within this time.',
       type: 'Transaction type',
@@ -422,7 +423,7 @@ module.exports = {
       sendNow: 'Send now',
       cancelNow: 'Cancel now',
       availableBalance: 'Available balance after transaction',
-      pendingBalance: 'Pending balance after transaction',
+      pendingBalance: 'Blocked balance after transaction',
     },
     create: {
       amount: 'Amount',
@@ -556,7 +557,7 @@ module.exports = {
     transactionStatus: 'Transaction status',
     status: {
       pending: 'Pending',
-      annulled: 'Annulled',
+      unblocked: 'Unblocked',
       done: 'Done',
       canceled: 'Canceled',
     },

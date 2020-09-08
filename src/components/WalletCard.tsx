@@ -45,9 +45,7 @@ export class WalletCard extends React.Component<Props> {
             </Text>
             <View>
               <Text style={styles.latestTransactionTitle}>{i18n.wallets.add.walletType}</Text>
-              <Text style={styles.latestTransaction}>
-                {wallet.typeReadable} {i18n.wallets.dashboard.wallet}
-              </Text>
+              <Text style={styles.latestTransaction}>{wallet.typeReadable}</Text>
             </View>
           </View>
         </>
