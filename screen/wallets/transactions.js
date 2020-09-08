@@ -482,8 +482,8 @@ const WalletTransactions = () => {
 
   const renderSellFiat = () => {
     return (
-      <TouchableOpacity onPress={navigateToBuyBitcoin} style={styles.marketplaceButton2}>
-        <Text style={styles.marketpalceText1}>{loc.wallets.list_tap_here_to_buy}</Text>
+      <TouchableOpacity onPress={navigateToBuyBitcoin} style={[styles.marketplaceButton2, stylesHook.marketplaceButton2]}>
+        <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_tap_here_to_buy}</Text>
       </TouchableOpacity>
     );
   };
