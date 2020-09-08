@@ -87,7 +87,7 @@
     "buffer-reverse": "1.0.1",
     "coinselect": "3.1.12",
     "crypto-js": "3.1.9-1",
-    "dayjs": "1.8.32",
+    "dayjs": "1.8.33",
     "detox": "16.9.2",
     "ecurve": "1.0.6",
     "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#99c75385f99e82b87fbfed2abfb2cccd322fe3e9",
