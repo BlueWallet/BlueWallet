@@ -12,7 +12,6 @@ import * as actions from 'app/state/timeCounter/actions';
 import { TimeCounterState } from 'app/state/timeCounter/reducer';
 import { getStatusBarHeight, palette, typography } from 'app/styles';
 
-const BlueApp = require('../../BlueApp');
 const i18n = require('../../loc');
 
 interface Props {
@@ -39,7 +38,6 @@ class UnlockScreen extends PureComponent<Props, State> {
 
   async componentDidMount() {
     Keyboard.dismiss();
-    await BlueApp.startAndDecrypt();
     if (this.props.isBiometricEnabledByUser) {
       await this.unlockWithBiometrics();
     }
