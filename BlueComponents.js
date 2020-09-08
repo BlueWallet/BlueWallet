@@ -1205,13 +1205,11 @@ const stylesBlueIcon = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
   },
   ballIncoming: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: BlueCurrentTheme.colors.ballReceive,
     transform: [{ rotate: '-45deg' }],
     justifyContent: 'center',
   },
@@ -1219,20 +1217,17 @@ const stylesBlueIcon = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: BlueCurrentTheme.colors.ballReceive,
   },
   ballReceive: {
     width: 30,
     height: 30,
     borderBottomLeftRadius: 15,
-    backgroundColor: BlueCurrentTheme.colors.ballReceive,
     transform: [{ rotate: '-45deg' }],
   },
   ballOutgoing: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: BlueCurrentTheme.colors.ballOutgoing,
     transform: [{ rotate: '225deg' }],
     justifyContent: 'center',
   },
@@ -1240,13 +1235,11 @@ const stylesBlueIcon = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: BlueCurrentTheme.colors.ballOutgoing,
   },
   ballOutgoingExpired: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: BlueCurrentTheme.colors.ballOutgoingExpired,
     justifyContent: 'center',
   },
   ballTransparrent: {
@@ -1262,205 +1255,239 @@ const stylesBlueIcon = StyleSheet.create({
     backgroundColor: 'gray',
   },
 });
-export class BluePlusIcon extends Component {
-  render() {
-    return (
-      <View {...this.props} style={stylesBlueIcon.container}>
-        <View style={stylesBlueIcon.box1}>
-          <View style={stylesBlueIcon.ball}>
-            <Ionicons
-              {...this.props}
-              name="ios-add"
-              size={26}
-              style={{
-                color: BlueCurrentTheme.colors.foregroundColor,
-                backgroundColor: 'transparent',
-                left: 8,
-                top: 1,
-              }}
-            />
-          </View>
-        </View>
-      </View>
-    );
-  }
-}
 
-export class BlueTransactionIncomingIcon extends Component {
-  render() {
-    return (
-      <View {...this.props}>
-        <View style={stylesBlueIcon.boxIncoming}>
-          <View style={stylesBlueIcon.ballIncoming}>
-            <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color={BlueCurrentTheme.colors.incomingForegroundColor} />
-          </View>
+export const BluePlusIcon = props => {
+  const { colors } = useTheme();
+  const stylesBlueIconHooks = StyleSheet.create({
+    ball: {
+      backgroundColor: colors.buttonBackgroundColor,
+    },
+  });
+  return (
+    <View {...props} style={stylesBlueIcon.container}>
+      <View style={stylesBlueIcon.box1}>
+        <View style={[stylesBlueIcon.ball, stylesBlueIconHooks.ball]}>
+          <Ionicons
+            {...props}
+            name="ios-add"
+            size={26}
+            style={{
+              color: colors.foregroundColor,
+              backgroundColor: 'transparent',
+              left: 8,
+              top: 1,
+            }}
+          />
         </View>
       </View>
-    );
-  }
-}
+    </View>
+  );
+};
 
-export class BlueTransactionPendingIcon extends Component {
-  render() {
-    return (
-      <View {...this.props}>
-        <View style={stylesBlueIcon.boxIncoming}>
-          <View style={stylesBlueIcon.ball}>
-            <Icon
-              {...this.props}
-              name="kebab-horizontal"
-              size={16}
-              type="octicon"
-              color={BlueCurrentTheme.colors.foregroundColor}
-              iconStyle={{ left: 0, top: 7 }}
-            />
-          </View>
+export const BlueTransactionIncomingIcon = props => {
+  const { colors } = useTheme();
+  const stylesBlueIconHooks = StyleSheet.create({
+    ballIncoming: {
+      backgroundColor: colors.ballReceive,
+    },
+  });
+  return (
+    <View {...props}>
+      <View style={stylesBlueIcon.boxIncoming}>
+        <View style={[stylesBlueIcon.ballIncoming, stylesBlueIconHooks.ballIncoming]}>
+          <Icon {...props} name="arrow-down" size={16} type="font-awesome" color={colors.incomingForegroundColor} />
         </View>
       </View>
-    );
-  }
-}
+    </View>
+  );
+};
 
-export class BlueTransactionExpiredIcon extends Component {
-  render() {
-    return (
-      <View {...this.props}>
-        <View style={stylesBlueIcon.boxIncoming}>
-          <View style={stylesBlueIcon.ballOutgoingExpired}>
-            <Icon {...this.props} name="clock" size={16} type="octicon" color="#9AA0AA" iconStyle={{ left: 0, top: 0 }} />
-          </View>
-        </View>
-      </View>
-    );
-  }
-}
+export const BlueTransactionPendingIcon = props => {
+  const { colors } = useTheme();
 
-export class BlueTransactionOnchainIcon extends Component {
-  render() {
-    return (
-      <View {...this.props}>
-        <View style={stylesBlueIcon.boxIncoming}>
-          <View style={stylesBlueIcon.ballIncoming}>
-            <Icon
-              {...this.props}
-              name="link"
-              size={16}
-              type="font-awesome"
-              color={BlueCurrentTheme.colors.incomingForegroundColor}
-              iconStyle={{ left: 0, top: 0, transform: [{ rotate: '-45deg' }] }}
-            />
-          </View>
+  const stylesBlueIconHooks = StyleSheet.create({
+    ball: {
+      backgroundColor: colors.buttonBackgroundColor,
+    },
+  });
+  return (
+    <View {...props}>
+      <View style={stylesBlueIcon.boxIncoming}>
+        <View style={[stylesBlueIcon.ball, stylesBlueIconHooks.ball]}>
+          <Icon
+            {...props}
+            name="kebab-horizontal"
+            size={16}
+            type="octicon"
+            color={colors.foregroundColor}
+            iconStyle={{ left: 0, top: 7 }}
+          />
         </View>
       </View>
-    );
-  }
-}
+    </View>
+  );
+};
 
-export class BlueTransactionOffchainIcon extends Component {
-  render() {
-    return (
-      <View {...this.props}>
-        <View style={stylesBlueIcon.boxIncoming}>
-          <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
-            <Icon
-              {...this.props}
-              name="bolt"
-              size={16}
-              type="font-awesome"
-              color={BlueCurrentTheme.colors.outgoingForegroundColor}
-              iconStyle={{ left: 0, marginTop: 6 }}
-            />
-          </View>
+export const BlueTransactionExpiredIcon = props => {
+  const { colors } = useTheme();
+  const stylesBlueIconHooks = StyleSheet.create({
+    ballOutgoingExpired: {
+      backgroundColor: colors.ballOutgoingExpired,
+    },
+  });
+  return (
+    <View {...props}>
+      <View style={stylesBlueIcon.boxIncoming}>
+        <View style={[stylesBlueIcon.ballOutgoingExpired, stylesBlueIconHooks.ballOutgoingExpired]}>
+          <Icon {...props} name="clock" size={16} type="octicon" color="#9AA0AA" iconStyle={{ left: 0, top: 0 }} />
         </View>
       </View>
-    );
-  }
-}
+    </View>
+  );
+};
 
-export class BlueTransactionOffchainIncomingIcon extends Component {
-  render() {
-    return (
-      <View {...this.props}>
-        <View style={stylesBlueIcon.boxIncoming}>
-          <View style={stylesBlueIcon.ballIncomingWithoutRotate}>
-            <Icon
-              {...this.props}
-              name="bolt"
-              size={16}
-              type="font-awesome"
-              color={BlueCurrentTheme.colors.incomingForegroundColor}
-              iconStyle={{ left: 0, marginTop: 6 }}
-            />
-          </View>
+export const BlueTransactionOnchainIcon = props => {
+  const { colors } = useTheme();
+  const stylesBlueIconHooks = StyleSheet.create({
+    ballIncoming: {
+      backgroundColor: colors.ballReceive,
+    },
+  });
+  return (
+    <View {...props}>
+      <View style={stylesBlueIcon.boxIncoming}>
+        <View style={[stylesBlueIcon.ballIncoming, stylesBlueIconHooks.ballIncoming]}>
+          <Icon
+            {...props}
+            name="link"
+            size={16}
+            type="font-awesome"
+            color={colors.incomingForegroundColor}
+            iconStyle={{ left: 0, top: 0, transform: [{ rotate: '-45deg' }] }}
+          />
         </View>
       </View>
-    );
-  }
-}
+    </View>
+  );
+};
 
-export class BlueTransactionOutgoingIcon extends Component {
-  render() {
-    return (
-      <View {...this.props}>
-        <View style={stylesBlueIcon.boxIncoming}>
-          <View style={stylesBlueIcon.ballOutgoing}>
-            <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color={BlueCurrentTheme.colors.outgoingForegroundColor} />
-          </View>
+export const BlueTransactionOffchainIcon = props => {
+  const { colors } = useTheme();
+  const stylesBlueIconHooks = StyleSheet.create({
+    ballOutgoingWithoutRotate: {
+      backgroundColor: colors.ballOutgoing,
+    },
+  });
+  return (
+    <View {...props}>
+      <View style={stylesBlueIcon.boxIncoming}>
+        <View style={[stylesBlueIcon.ballOutgoingWithoutRotate, stylesBlueIconHooks.ballOutgoingWithoutRotate]}>
+          <Icon
+            {...props}
+            name="bolt"
+            size={16}
+            type="font-awesome"
+            color={colors.outgoingForegroundColor}
+            iconStyle={{ left: 0, marginTop: 6 }}
+          />
         </View>
       </View>
-    );
-  }
-}
+    </View>
+  );
+};
+
+export const BlueTransactionOffchainIncomingIcon = props => {
+  const { colors } = useTheme();
+  const stylesBlueIconHooks = StyleSheet.create({
+    ballIncomingWithoutRotate: {
+      backgroundColor: colors.ballReceive,
+    },
+  });
+  return (
+    <View {...props}>
+      <View style={stylesBlueIcon.boxIncoming}>
+        <View style={[stylesBlueIcon.ballIncomingWithoutRotate, stylesBlueIconHooks.ballIncomingWithoutRotate]}>
+          <Icon
+            {...props}
+            name="bolt"
+            size={16}
+            type="font-awesome"
+            color={colors.incomingForegroundColor}
+            iconStyle={{ left: 0, marginTop: 6 }}
+          />
+        </View>
+      </View>
+    </View>
+  );
+};
+
+export const BlueTransactionOutgoingIcon = props => {
+  const { colors } = useTheme();
+  const stylesBlueIconHooks = StyleSheet.create({
+    ballOutgoing: {
+      backgroundColor: colors.ballOutgoing,
+    },
+  });
+  return (
+    <View {...props}>
+      <View style={stylesBlueIcon.boxIncoming}>
+        <View style={[stylesBlueIcon.ballOutgoing, stylesBlueIconHooks.ballOutgoing]}>
+          <Icon {...props} name="arrow-down" size={16} type="font-awesome" color={colors.outgoingForegroundColor} />
+        </View>
+      </View>
+    </View>
+  );
+};
 
 const sendReceiveScanButtonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
     ? 22
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
-export class BlueReceiveButtonIcon extends Component {
-  render() {
-    return (
-      <TouchableOpacity {...this.props} style={{ flex: 1 }}>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
-          }}
-        >
-          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-            <View
-              style={{
-                left: 5,
-                backgroundColor: 'transparent',
-                transform: [{ rotate: '-45deg' }],
-                alignItems: 'center',
-                marginRight: 8,
-              }}
-            >
-              <Icon
-                {...this.props}
-                name="arrow-down"
-                size={sendReceiveScanButtonFontSize}
-                type="font-awesome"
-                color={BlueCurrentTheme.colors.buttonAlternativeTextColor}
-              />
-            </View>
-            <Text
-              style={{
-                color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
-                fontWeight: '500',
-                fontSize: sendReceiveScanButtonFontSize,
-                left: 5,
-                backgroundColor: 'transparent',
-              }}
-            >
-              {loc.receive.header}
-            </Text>
+export const BlueReceiveButtonIcon = props => {
+  const { colors } = useTheme();
+
+  return (
+    <TouchableOpacity {...props} style={{ flex: 1 }}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.buttonBackgroundColor,
+        }}
+      >
+        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+          <View
+            style={{
+              left: 5,
+              backgroundColor: 'transparent',
+              transform: [{ rotate: '-45deg' }],
+              alignItems: 'center',
+              marginRight: 8,
+            }}
+          >
+            <Icon
+              {...props}
+              name="arrow-down"
+              size={sendReceiveScanButtonFontSize}
+              type="font-awesome"
+              color={colors.buttonAlternativeTextColor}
+            />
           </View>
+          <Text
+            style={{
+              color: colors.buttonAlternativeTextColor,
+              fontWeight: '500',
+              fontSize: sendReceiveScanButtonFontSize,
+              left: 5,
+              backgroundColor: 'transparent',
+            }}
+          >
+            {loc.receive.header}
+          </Text>
         </View>
-      </TouchableOpacity>
-    );
-  }
-}
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 export class BlueScanButton extends Component {
   render() {
@@ -1589,64 +1616,59 @@ export class ManageFundsBigButton extends Component {
   }
 }
 
-export class NewWalletPanel extends Component {
-  render() {
-    return (
-      <TouchableOpacity
-        testID="CreateAWallet"
-        {...this.props}
-        onPress={this.props.onPress}
-        style={{ marginVertical: 17, paddingRight: 10 }}
+export const NewWalletPanel = props => {
+  const { colors } = useTheme();
+  return (
+    <TouchableOpacity testID="CreateAWallet" {...props} onPress={props.onPress} style={{ marginVertical: 17, paddingRight: 10 }}>
+      <View
+        style={{
+          paddingHorizontal: 24,
+          paddingVertical: 16,
+          borderRadius: 10,
+          minHeight: Platform.OS === 'ios' ? 164 : 181,
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          backgroundColor: WalletGradient.createWallet,
+        }}
       >
-        <View
+        <Text
           style={{
-            paddingHorizontal: 24,
-            paddingVertical: 16,
-            borderRadius: 10,
-            minHeight: Platform.OS === 'ios' ? 164 : 181,
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            backgroundColor: WalletGradient.createWallet,
+            fontWeight: '600',
+            fontSize: 24,
+            color: colors.foregroundColor,
+            marginBottom: 4,
           }}
         >
-          <Text
-            style={{
-              fontWeight: '600',
-              fontSize: 24,
-              color: BlueCurrentTheme.colors.foregroundColor,
-              marginBottom: 4,
-            }}
-          >
-            {loc.wallets.list_create_a_wallet}
-          </Text>
-          <Text
-            style={{
-              fontSize: 13,
-              color: BlueCurrentTheme.colors.alternativeTextColor,
-            }}
-          >
-            {loc.wallets.list_create_a_wallet1}
-          </Text>
-          <Text
-            style={{
-              backgroundColor: 'transparent',
-              fontSize: 13,
-              color: BlueCurrentTheme.colors.alternativeTextColor,
-            }}
-          >
-            {loc.wallets.list_create_a_wallet2}
-          </Text>
-          <View style={{ marginTop: 12, backgroundColor: '#007AFF', paddingHorizontal: 32, paddingVertical: 12, borderRadius: 8 }}>
-            <Text style={{ color: BlueCurrentTheme.colors.brandingColor, fontWeight: '500' }}>{loc.wallets.list_create_a_button}</Text>
-          </View>
+          {loc.wallets.list_create_a_wallet}
+        </Text>
+        <Text
+          style={{
+            fontSize: 13,
+            color: colors.alternativeTextColor,
+          }}
+        >
+          {loc.wallets.list_create_a_wallet1}
+        </Text>
+        <Text
+          style={{
+            backgroundColor: 'transparent',
+            fontSize: 13,
+            color: colors.alternativeTextColor,
+          }}
+        >
+          {loc.wallets.list_create_a_wallet2}
+        </Text>
+        <View style={{ marginTop: 12, backgroundColor: '#007AFF', paddingHorizontal: 32, paddingVertical: 12, borderRadius: 8 }}>
+          <Text style={{ color: colors.brandingColor, fontWeight: '500' }}>{loc.wallets.list_create_a_button}</Text>
         </View>
-      </TouchableOpacity>
-    );
-  }
-}
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, timeElapsed }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
+  const { colors } = useTheme();
 
   const txMemo = () => {
     if (BlueApp.tx_metadata[item.hash] && BlueApp.tx_metadata[item.hash].memo) {
@@ -1679,7 +1701,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   };
 
   const rowTitleStyle = () => {
-    let color = BlueCurrentTheme.colors.successColor;
+    let color = colors.successColor;
 
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
       const currentDate = new Date();
@@ -1687,16 +1709,16 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
       const invoiceExpiration = item.timestamp + item.expire_time;
 
       if (invoiceExpiration > now) {
-        color = BlueCurrentTheme.colors.successColor;
+        color = colors.successColor;
       } else if (invoiceExpiration < now) {
         if (item.ispaid) {
-          color = BlueCurrentTheme.colors.successColor;
+          color = colors.successColor;
         } else {
           color = '#9AA0AA';
         }
       }
     } else if (item.value / 100000000 < 0) {
-      color = BlueCurrentTheme.colors.foregroundColor;
+      color = colors.foregroundColor;
     }
 
     return {
