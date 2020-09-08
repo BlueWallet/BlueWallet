@@ -244,8 +244,6 @@ PODS:
     - React-cxxreact (= 0.62.2)
     - React-jsi (= 0.62.2)
   - React-jsinspector (0.62.2)
-  - react-native-biometrics (2.0.0):
-    - React
   - react-native-blue-crypto (1.0.0):
     - React
   - react-native-blur (0.8.0):
@@ -259,6 +257,8 @@ PODS:
   - react-native-camera/RN (3.38.0):
     - React
   - react-native-document-picker (3.5.4):
+    - React
+  - react-native-fingerprint-scanner (6.0.0):
     - React
   - react-native-geolocation (2.0.2):
     - React
@@ -435,11 +435,11 @@ DEPENDENCIES:
   - React-jsi (from `../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
-  - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - react-native-blue-crypto (from `../node_modules/react-native-blue-crypto`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
+  - react-native-fingerprint-scanner (from `../node_modules/react-native-fingerprint-scanner`)
   - "react-native-geolocation (from `../node_modules/@react-native-community/geolocation`)"
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
@@ -540,8 +540,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsiexecutor"
   React-jsinspector:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
-  react-native-biometrics:
-    :path: "../node_modules/react-native-biometrics"
   react-native-blue-crypto:
     :path: "../node_modules/react-native-blue-crypto"
   react-native-blur:
@@ -550,6 +548,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera"
   react-native-document-picker:
     :path: "../node_modules/react-native-document-picker"
+  react-native-fingerprint-scanner:
+    :path: "../node_modules/react-native-fingerprint-scanner"
   react-native-geolocation:
     :path: "../node_modules/@react-native-community/geolocation"
   react-native-image-picker:
@@ -670,11 +670,11 @@ SPEC CHECKSUMS:
   React-jsi: b6dc94a6a12ff98e8877287a0b7620d365201161
   React-jsiexecutor: 1540d1c01bb493ae3124ed83351b1b6a155db7da
   React-jsinspector: 512e560d0e985d0e8c479a54a4e5c147a9c83493
-  react-native-biometrics: c892904948a32295b128f633bcc11eda020645c5
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: 9a0db39fc97a479fe472e86ce424545478133a2f
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
+  react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-geolocation: cbd9d6bd06bac411eed2671810f454d4908484a8
   react-native-image-picker: a6c3d644751a388b0fc8b56822ff7cbd398a3008
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
