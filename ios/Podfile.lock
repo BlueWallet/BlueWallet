@@ -250,13 +250,13 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.35.0):
+  - react-native-camera (3.38.0):
     - React
-    - react-native-camera/RCT (= 3.35.0)
-    - react-native-camera/RN (= 3.35.0)
-  - react-native-camera/RCT (3.35.0):
+    - react-native-camera/RCT (= 3.38.0)
+    - react-native-camera/RN (= 3.38.0)
+  - react-native-camera/RCT (3.38.0):
     - React
-  - react-native-camera/RN (3.35.0):
+  - react-native-camera/RN (3.38.0):
     - React
   - react-native-document-picker (3.5.4):
     - React
@@ -369,6 +369,8 @@ PODS:
     - React
   - RNReactNativeHapticFeedback (1.10.0):
     - React
+  - RNReanimated (1.13.0):
+    - React
   - RNScreens (2.10.1):
     - React
   - RNSecureKeyStore (1.0.0):
@@ -473,6 +475,7 @@ DEPENDENCIES:
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNRate (from `../node_modules/react-native-rate`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
+  - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSecureKeyStore (from `../node_modules/react-native-secure-key-store/ios`)
   - "RNSentry (from `../node_modules/@sentry/react-native`)"
@@ -615,6 +618,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-rate"
   RNReactNativeHapticFeedback:
     :path: "../node_modules/react-native-haptic-feedback"
+  RNReanimated:
+    :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   RNSecureKeyStore:
@@ -668,7 +673,7 @@ SPEC CHECKSUMS:
   react-native-biometrics: c892904948a32295b128f633bcc11eda020645c5
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: 9dd96065b956306de03ef2a2efc3583019f95941
+  react-native-camera: 9a0db39fc97a479fe472e86ce424545478133a2f
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-geolocation: cbd9d6bd06bac411eed2671810f454d4908484a8
   react-native-image-picker: a6c3d644751a388b0fc8b56822ff7cbd398a3008
@@ -704,6 +709,7 @@ SPEC CHECKSUMS:
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 2b31dad120cd1b78e33c6034808561c386a3dddf
   RNReactNativeHapticFeedback: 22c5ecf474428766c6b148f96f2ff6155cd7225e
+  RNReanimated: 89f5e0a04d1dd52fbf27e7e7030d8f80a646a3fc
   RNScreens: b748efec66e095134c7166ca333b628cd7e6f3e2
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: 2bae4ffee2e66376ef42cb845a494c3bde17bc56

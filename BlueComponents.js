@@ -898,6 +898,49 @@ export const BlueHeaderDefaultSubHooks = props => {
   );
 };
 
+export const BlueHeaderDefaultMainHooks = props => {
+  const { colors } = useTheme();
+  return (
+    <Header
+      {...props}
+      leftComponent={{
+        text: props.leftText,
+        style: {
+          fontWeight: 'bold',
+          fontSize: 34,
+          color: colors.foregroundColor,
+        },
+      }}
+      leftContainerStyle={{
+        minWidth: '70%',
+        height: 80,
+      }}
+      bottomDivider={false}
+      topDivider={false}
+      containerStyle={{
+        height: 44,
+        flexDirection: 'row',
+        backgroundColor: colors.elevatated,
+        borderTopColor: colors.elevatated,
+        borderBottomColor: colors.elevatated,
+        borderBottomWidth: 0,
+      }}
+      rightComponent={
+        props.onNewWalletPress && (
+          <TouchableOpacity
+            onPress={props.onNewWalletPress}
+            style={{
+              height: 100,
+            }}
+          >
+            <BluePlusIcon />
+          </TouchableOpacity>
+        )
+      }
+    />
+  );
+};
+
 export class BlueHeaderDefaultMain extends Component {
   render() {
     return (
@@ -924,6 +967,7 @@ export class BlueHeaderDefaultMain extends Component {
             backgroundColor: BlueCurrentTheme.colors.background,
             borderTopColor: BlueCurrentTheme.colors.background,
             borderBottomColor: BlueCurrentTheme.colors.background,
+            borderBottomWidth: 0,
           }}
           rightComponent={
             this.props.onNewWalletPress && (
@@ -1548,7 +1592,12 @@ export class ManageFundsBigButton extends Component {
 export class NewWalletPanel extends Component {
   render() {
     return (
-      <TouchableOpacity testID="CreateAWallet" {...this.props} onPress={this.props.onPress} style={{ marginVertical: 17 }}>
+      <TouchableOpacity
+        testID="CreateAWallet"
+        {...this.props}
+        onPress={this.props.onPress}
+        style={{ marginVertical: 17, paddingRight: 10 }}
+      >
         <View
           style={{
             paddingHorizontal: 24,
@@ -1796,7 +1845,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   );
 });
 
-const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
+const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedWallet }) => {
   const scaleValue = new Animated.Value(1.0);
 
   const onPressedIn = () => {
@@ -1896,9 +1945,14 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
       </Animated.View>
     );
   } else {
+    let opacity = 1.0;
+
+    if (isSelectedWallet === false) {
+      opacity = 0.5;
+    }
     return (
       <Animated.View
-        style={{ paddingRight: 10, marginVertical: 17, transform: [{ scale: scaleValue }] }}
+        style={{ paddingRight: 10, marginVertical: 17, transform: [{ scale: scaleValue }], opacity }}
         shadowOpacity={40 / 100}
         shadowOffset={{ width: 0, height: 0 }}
         shadowRadius={5}
@@ -2001,7 +2055,15 @@ export class WalletsCarousel extends Component {
   state = { isLoading: true };
 
   _renderItem = ({ item, index }) => {
-    return <WalletCarouselItem item={item} index={index} handleLongPress={this.props.handleLongPress} onPress={this.props.onPress} />;
+    return (
+      <WalletCarouselItem
+        isSelectedWallet={this.props.vertical && this.props.selectedWallet && item ? this.props.selectedWallet === item.getID() : undefined}
+        item={item}
+        index={index}
+        handleLongPress={this.props.handleLongPress}
+        onPress={this.props.onPress}
+      />
+    );
   };
 
   snapToItem = item => {
@@ -2023,7 +2085,6 @@ export class WalletsCarousel extends Component {
           </View>
         )}
         <Carousel
-          {...this.props}
           ref={this.walletsCarousel}
           renderItem={this._renderItem}
           sliderWidth={sliderWidth}
@@ -2032,9 +2093,10 @@ export class WalletsCarousel extends Component {
           inactiveSlideScale={1}
           inactiveSlideOpacity={0.7}
           activeSlideAlignment="start"
-          initialNumToRender={4}
+          initialNumToRender={10}
           onLayout={this.onLayout}
           contentContainerCustomStyle={{ left: 20 }}
+          {...this.props}
         />
       </>
     );

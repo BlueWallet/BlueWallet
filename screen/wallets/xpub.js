@@ -31,7 +31,7 @@ const WalletXpub = () => {
   const { goBack } = useNavigation();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
-  const stylesHook = { ...styles, root: { ...styles.root, backgroundColor: colors.elevated } };
+  const stylesHook = StyleSheet.create({ root: { backgroundColor: colors.elevated } });
 
   useFocusEffect(
     useCallback(() => {
@@ -65,11 +65,11 @@ const WalletXpub = () => {
   );
 
   return isLoading ? (
-    <View style={stylesHook.root}>
+    <View style={[styles.root, stylesHook.root]}>
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={stylesHook.root}>
+    <SafeBlueArea style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="light-content" />
       <View style={styles.container}>
         <View>
