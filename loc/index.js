@@ -128,6 +128,7 @@ dayjs.extend(relativeTime);
 
 const strings = new Localization({
   en: require('./en.json'),
+  ar: require('./ar.json'),
   ca: require('./ca.json'),
   cs_cz: require('./cs_cz.json'),
   da_dk: require('./da_dk.json'),

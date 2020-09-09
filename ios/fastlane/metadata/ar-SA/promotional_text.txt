@@ -1,10 +1,10 @@
-Features
+الميزات
 
-* Open Source
-* Full encryption
-* Plausible deniability
-* Flexible fees
-* Replace-By-Fee (RBF)
-* SegWit
-* Watch-only (Sentinel) wallets
-* Lightning network
+* المصدر المفتوح
+* التشفير الكامل
+* الإنكار المقبول
+* مرونة الرسوم
+* الاستبدال بالرسوم (RBF)
+* نظام SegWit (الشاهد المنفصل)
+* محافظ للتحقق من الرصيد (الرصد) فقط
+* شبكة Lightning
