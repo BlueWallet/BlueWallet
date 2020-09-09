@@ -22,7 +22,6 @@ import WalletImport from '../../class/wallet-import';
 import Clipboard from '@react-native-community/clipboard';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
-import Clipboard from '@react-native-community/clipboard';
 import * as NavigationService from '../../NavigationService';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';

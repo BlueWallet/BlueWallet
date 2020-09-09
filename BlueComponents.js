@@ -1268,8 +1268,7 @@ export const BluePlusIcon = props => {
             style={{
               color: colors.foregroundColor,
               backgroundColor: 'transparent',
-              left: 8,
-              top: 1,
+              alignSelf: 'center',
             }}
           />
         </View>

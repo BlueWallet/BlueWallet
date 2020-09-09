@@ -111,6 +111,7 @@
     "react": "16.13.1",
     "react-localization": "1.0.15",
     "react-native": "0.63.2",
+    "react-native-inappbrowser-reborn": "git+https://github.com/BlueWallet/react-native-inappbrowser.git#v3.4.0",
     "react-native-blue-crypto": "git+https://github.com/Overtorment/react-native-blue-crypto.git",
     "react-native-camera": "git+https://github.com/BlueWallet/react-native-camera.git#ddf126f888fffa96fde99f44ff7f10ef2d752dfa",
     "react-native-default-preference": "1.4.3",
