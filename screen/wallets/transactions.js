@@ -38,7 +38,7 @@ import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { getSystemName } from 'react-native-device-info';
 import { useRoute, useNavigation, useTheme } from '@react-navigation/native';
-
+import BuyBitcoin from './buyBitcoin';
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -238,14 +238,13 @@ const WalletTransactions = () => {
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, refreshTransactionsFunction, true);
     HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
     return () => {
-      navigate('DrawerRoot', { selectedWallet: '' });
       clearInterval(interval);
+      navigate('DrawerRoot', { selectedWallet: '' });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    navigate('DrawerRoot', { selectedWallet: wallet.getID() });
     setIsLoading(true);
     setDataSource([]);
     setDataSource(wallet.getTransactions(15));
@@ -255,6 +254,7 @@ const WalletTransactions = () => {
     setItemPriceUnit(wallet.getPreferredBalanceUnit());
     setParams({ wallet, isLoading: false });
     setIsLoading(false);
+    navigate('DrawerRoot', { selectedWallet: wallet.getID() });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet]);
 
@@ -379,7 +379,7 @@ const WalletTransactions = () => {
             <BlueListItemHooks
               hideChevron
               component={TouchableOpacity}
-              onPress={a => {
+              onPress={() => {
                 const wallets = [...BlueApp.getWallets().filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
                 if (wallets.length === 0) {
                   alert(loc.lnd.refill_create);
@@ -393,7 +393,7 @@ const WalletTransactions = () => {
             <BlueListItemHooks
               hideChevron
               component={TouchableOpacity}
-              onPress={a => {
+              onPress={() => {
                 setIsManageFundsModalVisible(false);
 
                 navigate('ReceiveDetails', {
@@ -406,11 +406,9 @@ const WalletTransactions = () => {
             <BlueListItemHooks
               hideChevron
               component={TouchableOpacity}
-              onPress={a => {
+              onPress={() => {
                 setIsManageFundsModalVisible(false);
-                navigate('BuyBitcoin', {
-                  wallet,
-                });
+                navigateToBuyBitcoin();
               }}
               title={loc.lnd.refill_card}
             />
@@ -419,7 +417,7 @@ const WalletTransactions = () => {
               title={loc.lnd.exchange}
               hideChevron
               component={TouchableOpacity}
-              onPress={a => {
+              onPress={() => {
                 setIsManageFundsModalVisible(false);
                 Linking.openURL('https://zigzag.io/?utm_source=integration&utm_medium=bluewallet&utm_campaign=withdrawLink');
               }}
@@ -428,6 +426,10 @@ const WalletTransactions = () => {
         </KeyboardAvoidingView>
       </Modal>
     );
+  };
+
+  const navigateToBuyBitcoin = () => {
+    BuyBitcoin.navigate(wallet);
   };
 
   const renderMarketplaceButton = () => {
@@ -480,14 +482,7 @@ const WalletTransactions = () => {
 
   const renderSellFiat = () => {
     return (
-      <TouchableOpacity
-        onPress={() =>
-          navigate('BuyBitcoin', {
-            wallet,
-          })
-        }
-        style={[styles.marketplaceButton2, stylesHook.marketplaceButton2]}
-      >
+      <TouchableOpacity onPress={navigateToBuyBitcoin} style={[styles.marketplaceButton2, stylesHook.marketplaceButton2]}>
         <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_tap_here_to_buy}</Text>
       </TouchableOpacity>
     );
@@ -700,14 +695,7 @@ const WalletTransactions = () => {
               {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
 
               {!isLightning() && (
-                <TouchableOpacity
-                  onPress={() =>
-                    navigate('BuyBitcoin', {
-                      wallet,
-                    })
-                  }
-                  style={styles.buyBitcoin}
-                >
+                <TouchableOpacity onPress={navigateToBuyBitcoin} style={styles.buyBitcoin}>
                   <Text style={styles.buyBitcoinText}>{loc.wallets.list_tap_here_to_buy}</Text>
                 </TouchableOpacity>
               )}

@@ -1,4 +1,3 @@
-// import { createAppContainer } from '@react-navigation/native';
 import React from 'react';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
