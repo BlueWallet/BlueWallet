@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import { StyleSheet, StatusBar, Linking } from 'react-native';
+import { StyleSheet, StatusBar, Linking, Platform } from 'react-native';
 import { BlueNavigationStyle, BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
-import { getSystemName } from 'react-native-device-info';
 import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
+import * as NavigationService from '../../NavigationService';
 const currency = require('../../blue_modules/currency');
 const BlueApp: AppStorage = require('../../BlueApp');
-
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -23,19 +23,15 @@ export default class BuyBitcoin extends Component {
     this.state = {
       isLoading: true,
       wallet,
-      address: '',
       uri: '',
     };
   }
 
-  async componentDidMount() {
-    console.log('buyBitcoin - componentDidMount');
-
+  static async generateURL(wallet) {
     let preferredCurrency = await currency.getPreferredCurrency();
     preferredCurrency = preferredCurrency.endPointKey;
 
     /**  @type {AbstractHDWallet|WatchOnlyWallet|LightningCustodianWallet}   */
-    const wallet = this.state.wallet;
 
     let address = '';
 
@@ -60,23 +56,24 @@ export default class BuyBitcoin extends Component {
       }
     }
 
-    const { safelloStateToken } = this.props.route.params;
-
     let uri = 'https://bluewallet.io/buy-bitcoin-redirect.html?address=' + address;
-
-    if (safelloStateToken) {
-      uri += '&safelloStateToken=' + safelloStateToken;
-    }
 
     if (preferredCurrency) {
       uri += '&currency=' + preferredCurrency;
     }
+    return uri;
+  }
 
-    if (getSystemName() === 'Mac OS X') {
-      Linking.openURL(uri).finally(() => this.props.navigation.goBack(null));
-    } else {
-      this.setState({ uri, isLoading: false, address });
+  async componentDidMount() {
+    console.log('buyBitcoin - componentDidMount');
+
+    let uri = await BuyBitcoin.generateURL(this.state.wallet);
+
+    const { safelloStateToken } = this.props.route.params;
+    if (safelloStateToken) {
+      uri += '&safelloStateToken=' + safelloStateToken;
     }
+    this.setState({ uri, isLoading: false });
   }
 
   render() {
@@ -105,9 +102,6 @@ BuyBitcoin.propTypes = {
       safelloStateToken: PropTypes.string,
     }),
   }),
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-  }),
 };
 
 BuyBitcoin.navigationOptions = ({ navigation }) => ({
@@ -115,3 +109,19 @@ BuyBitcoin.navigationOptions = ({ navigation }) => ({
   title: '',
   headerLeft: null,
 });
+
+BuyBitcoin.navigate = async wallet => {
+  const uri = await BuyBitcoin.generateURL(wallet);
+  if (Platform.OS === 'ios') {
+    InAppBrowser.isAvailable()
+      .then(_value => InAppBrowser.open(uri, { dismissButtonStyle: 'done' }))
+      .catch(error => {
+        console.log(error);
+        Linking.openURL(uri);
+      });
+  } else {
+    NavigationService.navigate('BuyBitcoin', {
+      wallet,
+    });
+  }
+};

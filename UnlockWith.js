@@ -81,7 +81,7 @@ export default class UnlockWith extends Component {
 
   successfullyAuthenticated = () => {
     EV(EV.enum.WALLETS_INITIALIZED);
-    NavigationService.dispatch(StackActions.replace('WalletsRoot'));
+    NavigationService.dispatch(StackActions.replace('DrawerRoot'));
   };
 
   unlockWithBiometrics = async () => {
