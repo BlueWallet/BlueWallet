@@ -15,12 +15,15 @@ export default class Biometric {
   static Biometrics = 'Biometrics';
 
   static async isDeviceBiometricCapable() {
-    const isDeviceBiometricCapable = await FingerprintScanner.isSensorAvailable();
-    if (isDeviceBiometricCapable) {
-      return true;
+    try {
+      const isDeviceBiometricCapable = await FingerprintScanner.isSensorAvailable();
+      if (isDeviceBiometricCapable) {
+        return true;
+      }
+    } catch {
+      Biometric.setBiometricUseEnabled(false);
+      return false;
     }
-    Biometric.setBiometricUseEnabled(false);
-    return false;
   }
 
   static async biometricType() {
@@ -46,7 +49,6 @@ export default class Biometric {
   static async isBiometricUseCapableAndEnabled() {
     const isBiometricUseEnabled = await Biometric.isBiometricUseEnabled();
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
-    console.warn(isBiometricUseEnabled && isDeviceBiometricCapable)
     return isBiometricUseEnabled && isDeviceBiometricCapable;
   }
 
