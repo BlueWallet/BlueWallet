@@ -1,3 +1,28 @@
+v5.5.7
+======
+
+* ADD: Split for large devices
+* ADD: Export file option
+* ADD: Slovenian & Hebrew language
+* ADD: KES, NGN, TWD Fiat
+* FIX: After broadcast, value of sent transaction is incorrect
+* FIX: transaction time when using ElectrumPersonalServer
+* FIX: some ElectrumPersonalServer txs stay unconfirmed
+* FIX: Fixed dark/light theme switch
+* FIX: updated languages pt_BR, pt_PT, es_ES, sl_SI, de_DE, fr_FR, cs_CZ, ja_JP, it, ru, he
+* FIX: create-ln-invoice - button is not blocked, which can lead to multiple invoices created
+* FIX: If user has approved notifications, send hash from watch
+* FIX: If Camera not authorized, show Alert.
+* FIX: Only show direct export
+* FIX: better handling of errors from HodlHodl
+* FIX: Safello buy-bitcoin flow
+* FIX: Request location authorization for HodlHodl
+* FIX: Settings|Network|Lightning Settings fails input for leading or trailing blank
+* FIX: show Import file option
+* FIX: Background had wrong color during loading phase
+* REF: speeded up large wallets (>3k txs)
+* REF: speedup onchain wallet creation
+
 v5.5.6
 ======
 
@@ -51,19 +76,3 @@ v5.5.2
 * FIX: missing text on sendMAX dialog box confirmation
 * FIX: Invoice creation darkmode
 * FIX: Font-Color in Input Field "transaction notes" is not adapted for dark mode
-
-v5.5.1
-======
-
-* ADD: Dark Mode
-* FIX: #1309 Sharing doesnt include text
-* FIX: import mnemonic w/typo, 'try again' does nothing (closes #1286)
-* ADD: support importing watch-only in bitcoincore format [fingerprint/derivation]xpub (wallet descriptors)
-* REF: dont store txhex in transactions list
-* REF: wrap save storage in try-catch
-
-v5.5.0
-======
-
-* FIX: provide entropy for D20
-* REF: speeded up transactions list
