@@ -794,25 +794,6 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return false;
   }
 
-  coinselect(utxos, targets, feeRate, changeAddress) {
-    if (!changeAddress) throw new Error('No change address provided');
-
-    let algo = coinSelectAccumulative;
-    if (targets.length === 1 && targets[0] && !targets[0].value) {
-      // we want to send MAX
-      algo = coinSelectSplit;
-    }
-
-    const { inputs, outputs, fee } = algo(utxos, targets, feeRate);
-
-    // .inputs and .outputs will be undefined if no solution was found
-    if (!inputs || !outputs) {
-      throw new Error('Not enough balance. Try sending smaller amount');
-    }
-
-    return { inputs, outputs, fee };
-  }
-
   /**
    *
    * @param utxos {Array.<{vout: Number, value: Number, txId: String, address: String}>} List of spendable utxos
