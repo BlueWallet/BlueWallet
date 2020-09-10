@@ -48,7 +48,6 @@ const currency = require('../../blue_modules/currency');
 const BlueApp: AppStorage = require('../../BlueApp');
 const prompt = require('../../blue_modules/prompt');
 
-const { width } = Dimensions.get('window');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 const styles = StyleSheet.create({

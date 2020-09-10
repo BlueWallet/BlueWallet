@@ -1,7 +1,5 @@
 import { LegacyWallet } from './legacy-wallet';
 const bitcoin = require('bitcoinjs-lib');
-const coinSelectAccumulative = require('coinselect/accumulative');
-const coinSelectSplit = require('coinselect/split');
 
 /**
  * Creates Segwit P2SH Bitcoin address
