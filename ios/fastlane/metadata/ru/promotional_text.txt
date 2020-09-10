@@ -1,10 +1,7 @@
-Features
+Особенности
 
-* Open Source
-* Full encryption
-* Plausible deniability
-* Flexible fees
-* Replace-By-Fee (RBF)
-* SegWit
-* Watch-only (Sentinel) wallets
+* Открытый исходный код
+* Все данные шифруются
+* Правдоподобное отрицание
+* Гибкие настройки комиссии
 * Lightning network

@@ -36,6 +36,7 @@ import DocumentPicker from 'react-native-document-picker';
 import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import ScanQRCode from './ScanQRCode';
 const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */
@@ -290,8 +291,12 @@ export default class PsbtWithHardwareWallet extends Component {
       await RNFS.writeFile(filePath, typeof this.state.psbt === 'string' ? this.state.psbt : this.state.psbt.toBase64());
       Share.open({
         url: 'file://' + filePath,
+        saveToFiles: isDesktop,
       })
-        .catch(error => console.log(error))
+        .catch(error => {
+          console.log(error);
+          alert(error.message);
+        })
         .finally(() => {
           RNFS.unlink(filePath);
         });
@@ -352,6 +357,8 @@ export default class PsbtWithHardwareWallet extends Component {
                 alert(loc.send.qr_error_no_qrcode);
               }
             });
+          } else if (response.error) {
+            ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
           }
         },
       );

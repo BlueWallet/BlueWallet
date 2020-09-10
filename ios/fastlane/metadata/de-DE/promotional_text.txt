@@ -1,0 +1,10 @@
+Eigenschaften
+
+* Quelloffene
+* Vollverschlüsselung
+* Glaubhafte Täuschung
+* Flexible Gebühren
+* Gebührenübernahme
+* SegWit
+* Wallets beobachten
+* Lightning Netzwerk

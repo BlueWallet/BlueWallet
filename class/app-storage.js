@@ -15,9 +15,10 @@ import {
   HDLegacyElectrumSeedP2PKHWallet,
   HDSegwitElectrumSeedP2WPKHWallet,
 } from './';
-import WatchConnectivity from '../WatchConnectivity';
 import DeviceQuickActions from './quick-actions';
 import { AbstractHDElectrumWallet } from './wallets/abstract-hd-electrum-wallet';
+import { Platform } from 'react-native';
+import WatchConnectivity from '../WatchConnectivity';
 const encryption = require('../blue_modules/encryption');
 const Realm = require('realm');
 const createHash = require('create-hash');
@@ -77,11 +78,13 @@ export class AppStorage {
   }
 
   async setResetOnAppUninstallTo(value) {
-    await this.setItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL, value ? '1' : '');
-    try {
-      RNSecureKeyStore.setResetOnAppUninstallTo(value);
-    } catch (Error) {
-      console.warn(Error);
+    if (Platform.OS === 'ios') {
+      await this.setItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL, value ? '1' : '');
+      try {
+        RNSecureKeyStore.setResetOnAppUninstallTo(value);
+      } catch (Error) {
+        console.warn(Error);
+      }
     }
   }
 
@@ -332,13 +335,7 @@ export class AppStorage {
           }
         }
         realm.close();
-        WatchConnectivity.shared.wallets = this.wallets;
-        WatchConnectivity.shared.tx_metadata = this.tx_metadata;
-        WatchConnectivity.shared.fetchTransactionsFunction = async () => {
-          await this.fetchWalletTransactions();
-          await this.saveToDisk();
-        };
-        await WatchConnectivity.shared.sendWalletsToWatch();
+        await WatchConnectivity.sendWalletsToWatch();
 
         const isStorageEncrypted = await this.storageIsEncrypted();
         if (isStorageEncrypted) {
@@ -405,14 +402,12 @@ export class AppStorage {
 
   offloadWalletToRealm(realm, wallet) {
     const id = wallet.getID();
-    console.log('offloading wallet id', id);
     const walletToSave = wallet._hdWalletInstance ?? wallet;
 
     if (walletToSave instanceof AbstractHDElectrumWallet) {
       realm.write(() => {
         const j1 = JSON.stringify(walletToSave._txs_by_external_index);
         const j2 = JSON.stringify(walletToSave._txs_by_internal_index);
-        console.log('j1 = ', j1.length / 1024, 'kb; j2 = ', j2.length / 1024, 'kb');
         realm.create(
           'Wallet',
           {
@@ -494,9 +489,7 @@ export class AppStorage {
     } else {
       await this.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
-    WatchConnectivity.shared.wallets = this.wallets;
-    WatchConnectivity.shared.tx_metadata = this.tx_metadata;
-    WatchConnectivity.shared.sendWalletsToWatch();
+    WatchConnectivity.sendWalletsToWatch();
     DeviceQuickActions.setWallets(this.wallets);
     DeviceQuickActions.setQuickActions();
     try {

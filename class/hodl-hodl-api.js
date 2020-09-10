@@ -226,7 +226,11 @@ export class HodlHodlApi {
   validationErrorsToReadable(errorz) {
     const ret = [];
     for (const er of Object.keys(errorz)) {
-      ret.push(errorz[er].join('; '));
+      if (Array.isArray(errorz[er])) {
+        ret.push(errorz[er].join('; '));
+      } else {
+        ret.push(errorz[er]);
+      }
     }
 
     return ret.join('\n');

@@ -404,10 +404,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // its faster to pre-build hashmap of owned addresses than to query `this.weOwnAddress()`, which in turn
     // iterates over all addresses in hierarchy
     const ownedAddressesHashmap = {};
-    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+    for (let c = 0; c < this.next_free_address_index + 1; c++) {
       ownedAddressesHashmap[this._getExternalAddressByIndex(c)] = true;
     }
-    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+    for (let c = 0; c < this.next_free_change_address_index + 1; c++) {
       ownedAddressesHashmap[this._getInternalAddressByIndex(c)] = true;
     }
     // hack: in case this code is called from LegacyWallet:
