@@ -230,7 +230,6 @@ const WalletTransactions = () => {
     txs = txs.sort(function (a, b) {
       return b.sort_ts - a.sort_ts;
     });
-    txs.join(txs.reverse());
     return txs.slice(0, limit);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   };
