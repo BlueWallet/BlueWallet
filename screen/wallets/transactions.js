@@ -363,11 +363,6 @@ const WalletTransactions = () => {
     );
   };
 
-
-  useEffect(() => {
-    console.warn(dataSource.length)
-  }, [dataSource])
-
   const renderManageFundsModal = () => {
     return (
       <Modal
