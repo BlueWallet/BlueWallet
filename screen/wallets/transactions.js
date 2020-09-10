@@ -230,6 +230,7 @@ const WalletTransactions = () => {
     txs = txs.sort(function (a, b) {
       return b.sort_ts - a.sort_ts;
     });
+    txs.join(txs.reverse());
     return txs.slice(0, limit);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   };
@@ -246,11 +247,10 @@ const WalletTransactions = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    setDataSource([]);
-    setDataSource(wallet.getTransactions(15));
     setLimit(15);
     setPageSize(20);
     setTimeElapsed(0);
+    setDataSource(wallet.getTransactions(15));
     setItemPriceUnit(wallet.getPreferredBalanceUnit());
     setParams({ wallet, isLoading: false });
     setIsLoading(false);
@@ -316,6 +316,7 @@ const WalletTransactions = () => {
       console.log('saving to disk');
       await BlueApp.saveToDisk(); // caching
       EV(EV.enum.TRANSACTIONS_COUNT_CHANGED); // let other components know they should redraw
+      setDataSource(getTransactions(limit));
     }
     setIsLoading(false);
   };
@@ -361,6 +362,11 @@ const WalletTransactions = () => {
       </View>
     );
   };
+
+
+  useEffect(() => {
+    console.warn(dataSource.length)
+  }, [dataSource])
 
   const renderManageFundsModal = () => {
     return (
