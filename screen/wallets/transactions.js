@@ -181,7 +181,7 @@ const WalletTransactions = () => {
   const { wallet } = useRoute().params;
   const name = useRoute().name;
   const [itemPriceUnit, setItemPriceUnit] = useState(wallet.getPreferredBalanceUnit());
-  const [dataSource, setDataSource] = useState([]);
+  const [dataSource, setDataSource] = useState(wallet.getTransactions(15));
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [limit, setLimit] = useState(15);
   const [pageSize, setPageSize] = useState(20);
@@ -246,11 +246,10 @@ const WalletTransactions = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    setDataSource([]);
-    setDataSource(wallet.getTransactions(15));
     setLimit(15);
     setPageSize(20);
     setTimeElapsed(0);
+    setDataSource(wallet.getTransactions(15));
     setItemPriceUnit(wallet.getPreferredBalanceUnit());
     setParams({ wallet, isLoading: false });
     setIsLoading(false);
@@ -316,6 +315,7 @@ const WalletTransactions = () => {
       console.log('saving to disk');
       await BlueApp.saveToDisk(); // caching
       EV(EV.enum.TRANSACTIONS_COUNT_CHANGED); // let other components know they should redraw
+      setDataSource(getTransactions(limit));
     }
     setIsLoading(false);
   };

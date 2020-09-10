@@ -216,7 +216,7 @@
     "currency": "Mena",
     "currency_source": "Prices are obtained from CoinDesk",
     "default_desc": "When disabled, BlueWallet will immediately open the selected wallet at launch.",
-    "default_info": "Default into",
+    "default_info": "Default info",
     "default_title": "On Launch",
     "default_wallets": "Zobraziť všetky peňaženky",
     "electrum_connected": "Connected",
