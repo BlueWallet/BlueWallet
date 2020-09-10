@@ -181,7 +181,7 @@ const WalletTransactions = () => {
   const { wallet } = useRoute().params;
   const name = useRoute().name;
   const [itemPriceUnit, setItemPriceUnit] = useState(wallet.getPreferredBalanceUnit());
-  const [dataSource, setDataSource] = useState([]);
+  const [dataSource, setDataSource] = useState(wallet.getTransactions(15));
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [limit, setLimit] = useState(15);
   const [pageSize, setPageSize] = useState(20);
