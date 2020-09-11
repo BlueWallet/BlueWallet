@@ -18,7 +18,6 @@ import {
 import { loadTransactionsFees } from 'app/helpers/fees';
 import { typography, palette } from 'app/styles';
 
-import BlueApp from '../../../BlueApp';
 import { HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet } from '../../../class';
 import config from '../../../config';
 import { btcToSatoshi, satoshiToBtc } from '../../../utils/bitcoin';
@@ -178,7 +177,7 @@ export class RecoverySendScreen extends Component<Props, State> {
   createRecoveryTransaction = async (keyPairs: any) => {
     try {
       const { wallet } = this.props.route.params;
-      const { fee: requestedSatPerByte, memo, address } = this.state;
+      const { fee: requestedSatPerByte, address } = this.state;
 
       let fee = 0.000001; // initial fee guess
       let actualSatoshiPerByte: any;
@@ -215,14 +214,7 @@ export class RecoverySendScreen extends Component<Props, State> {
       }
 
       const txDecoded = Transaction.fromHex(tx);
-      const txid = txDecoded.getId();
 
-      BlueApp.tx_metadata = BlueApp.tx_metadata || {};
-      BlueApp.tx_metadata[txid] = {
-        txhex: tx,
-        memo,
-      };
-      await BlueApp.saveToDisk();
       this.navigateToConfirm({ amountWithFee: amount, amount: amountWithoutFee, fee, txDecoded, actualSatoshiPerByte });
     } catch (_) {
       Alert.alert(i18n.wallets.errors.invalidSign);

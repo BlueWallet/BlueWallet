@@ -17,7 +17,7 @@ export { ReceiveCoinsScreen } from './ReceiveCoinsScreen';
 export { AboutUsScreen } from './Settings/AboutUsScreen';
 export { default as AdvancedOptionsScreen } from './Settings/AdvancedOptionsScreen';
 export { SelectLanguageScreen } from './Settings/SelectLanguageScreen';
-export { SendCoinsScreen } from './SendCoinsScreen';
+export { default as SendCoinsScreen } from './SendCoinsScreen';
 export { default as SendCoinsConfirmScreen } from './SendCoinsConfirmScreen';
 export { SendTransactionDetailsScreen } from './SendTransactionDetailsScreen';
 export { default as ScanQrCodeScreen } from './ScanQrCodeScreen';
