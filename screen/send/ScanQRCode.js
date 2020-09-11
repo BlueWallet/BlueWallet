@@ -1,16 +1,18 @@
 /* global alert */
 import React, { useState } from 'react';
-import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet } from 'react-native';
+import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, Linking, Alert } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
-import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import loc from '../../loc';
-import { BlueLoadingHook } from '../../BlueComponents';
+import { BlueLoadingHook, BlueTextHooks, BlueButtonHook, BlueSpacing40 } from '../../BlueComponents';
+import { getSystemName } from 'react-native-device-info';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
+const isDesktop = getSystemName() === 'Mac OS X';
 
 const styles = StyleSheet.create({
   root: {
@@ -53,6 +55,12 @@ const styles = StyleSheet.create({
     left: 96,
     bottom: 48,
   },
+  openSettingsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 const ScanQRCode = () => {
@@ -62,8 +70,14 @@ const ScanQRCode = () => {
   const showFileImportButton = route.params.showFileImportButton || false;
   const { launchedBy, onBarScanned } = route.params;
   const scannedCache = {};
+  const { colors } = useTheme();
   const isFocused = useIsFocused();
-
+  const [cameraStatus, setCameraStatus] = useState(RNCamera.Constants.CameraStatus.PENDING_AUTHORIZATION);
+  const stylesHook = StyleSheet.create({
+    openSettingsContainer: {
+      backgroundColor: colors.brandingColor,
+    },
+  });
   const HashIt = function (s) {
     return createHash('sha256').update(s).digest().toString('hex');
   };
@@ -146,7 +160,15 @@ const ScanQRCode = () => {
   };
 
   const dismiss = () => {
-    navigation.navigate(launchedBy);
+    if (launchedBy) {
+      navigation.navigate(launchedBy);
+    } else {
+      navigation.goBack();
+    }
+  };
+
+  const handleCameraStatusChange = event => {
+    setCameraStatus(event.cameraStatus);
   };
 
   return isLoading ? (
@@ -156,7 +178,7 @@ const ScanQRCode = () => {
   ) : (
     <View style={styles.root}>
       <StatusBar hidden />
-      {isFocused && (
+      {isFocused && cameraStatus !== RNCamera.Constants.CameraStatus.NOT_AUTHORIZED && (
         <RNCamera
           captureAudio={false}
           androidCameraPermissionOptions={{
@@ -168,7 +190,15 @@ const ScanQRCode = () => {
           style={styles.rnCamera}
           onBarCodeRead={onBarCodeRead}
           barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
+          onStatusChange={handleCameraStatusChange}
         />
+      )}
+      {cameraStatus === RNCamera.Constants.CameraStatus.NOT_AUTHORIZED && (
+        <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
+          <BlueTextHooks>{loc.send.permission_camera_message}</BlueTextHooks>
+          <BlueSpacing40 />
+          <BlueButtonHook title={loc.send.open_settings} onPress={ScanQRCode.openPrivacyDesktopSettings} />
+        </View>
       )}
       <TouchableOpacity style={styles.closeTouch} onPress={dismiss}>
         <Image style={styles.closeImage} source={require('../../img/close-white.png')} />
@@ -182,6 +212,34 @@ const ScanQRCode = () => {
         </TouchableOpacity>
       )}
     </View>
+  );
+};
+
+ScanQRCode.openPrivacyDesktopSettings = () => {
+  if (isDesktop) {
+    Linking.openURL('x-apple.systempreferences:com.apple.preference.security?Privacy_Camera');
+  } else {
+    Linking.openSettings();
+  }
+};
+
+ScanQRCode.presentCameraNotAuthorizedAlert = error => {
+  Alert.alert(
+    loc.errors.error,
+    error,
+    [
+      {
+        text: loc.send.open_settings,
+        onPress: ScanQRCode.openPrivacyDesktopSettings,
+        style: 'default',
+      },
+      {
+        text: loc._.ok,
+        onPress: () => {},
+        style: 'cancel',
+      },
+    ],
+    { cancelable: true },
   );
 };
 

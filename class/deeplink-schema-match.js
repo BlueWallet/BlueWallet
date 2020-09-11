@@ -207,7 +207,10 @@ class DeeplinkSchemaMatch {
   }
 
   static isPossiblyPSBTFile(filePath) {
-    return filePath.toLowerCase().startsWith('file:') && filePath.toLowerCase().endsWith('-signed.psbt');
+    return (
+      (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
+      filePath.toLowerCase().endsWith('-signed.psbt')
+    );
   }
 
   static isBothBitcoinAndLightningOnWalletSelect(wallet, uri) {

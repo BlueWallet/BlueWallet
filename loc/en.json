@@ -188,6 +188,7 @@
     "input_total": "Total:",
     "permission_camera_message": "We need your permission to use your camera",
     "permission_camera_title": "Permission to use camera",
+    "open_settings": "Open Settings",
     "permission_storage_later": "Ask Me Later",
     "permission_storage_message": "BlueWallet needs your permission to access your storage to save this transaction.",
     "permission_storage_title": "BlueWallet Storage Access Permission",
@@ -199,7 +200,7 @@
     "qr_error_no_qrcode": "The selected image does not contain a QR Code.",
     "qr_error_no_wallet": "The selected file does not contain a wallet that can be imported.",
     "success_done": "Done",
-    "txSaved": "This transaction has been saved in {filePath}"
+    "txSaved": "The transaction file ({filePath}) has been saved in your Downloads folder ."
   },
   "settings": {
     "about": "About",
@@ -216,7 +217,7 @@
     "currency": "Currency",
     "currency_source": "Prices are obtained from CoinDesk",
     "default_desc": "When disabled, BlueWallet will immediately open the selected wallet at launch.",
-    "default_info": "Default into",
+    "default_info": "Default info",
     "default_title": "On Launch",
     "default_wallets": "View All Wallets",
     "electrum_connected": "Connected",
@@ -298,6 +299,7 @@
     "add_entropy_provide": "Provide entropy via dice rolls",
     "add_entropy_remain": "{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.",
     "add_import_wallet": "Import wallet",
+    "import_file": "Import File",
     "add_lightning": "Lightning",
     "add_lndhub": "Connect to your LNDHub",
     "add_lndhub_error": "The provided node address is not valid LNDHub node.",
@@ -343,7 +345,7 @@
     "list_empty_txs1_lightning": "Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.",
     "list_empty_txs2": "Start with your wallet",
     "list_empty_txs2_lightning": "\nTo start using it tap on \"manage funds\" and topup your balance.",
-    "list_header": "A wallet represents a pair of a secret (private key) and an addressyou can share to receive coins.",
+    "list_header": "A wallet represents a pair of keys, one private and one you can share to receive coins.",
     "list_import_error": "An error was encountered when attempting to import this wallet.",
     "list_import_problem": "There was a problem importing this wallet",
     "list_latest_transaction": "latest transaction",

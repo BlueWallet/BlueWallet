@@ -1,3 +1,58 @@
+v5.5.7
+======
+
+* ADD: Split for large devices
+* ADD: Export file option
+* ADD: Slovenian & Hebrew language
+* ADD: KES, NGN, TWD Fiat
+* FIX: After broadcast, value of sent transaction is incorrect
+* FIX: transaction time when using ElectrumPersonalServer
+* FIX: some ElectrumPersonalServer txs stay unconfirmed
+* FIX: Fixed dark/light theme switch
+* FIX: updated languages pt_BR, pt_PT, es_ES, sl_SI, de_DE, fr_FR, cs_CZ, ja_JP, it, ru, he
+* FIX: create-ln-invoice - button is not blocked, which can lead to multiple invoices created
+* FIX: If user has approved notifications, send hash from watch
+* FIX: If Camera not authorized, show Alert.
+* FIX: Only show direct export
+* FIX: better handling of errors from HodlHodl
+* FIX: Safello buy-bitcoin flow
+* FIX: Request location authorization for HodlHodl
+* FIX: Settings|Network|Lightning Settings fails input for leading or trailing blank
+* FIX: show Import file option
+* FIX: Background had wrong color during loading phase
+* REF: speeded up large wallets (>3k txs)
+* REF: speedup onchain wallet creation
+
+v5.5.6
+======
+
+* ADD: Camera Permission authorization view
+* FIX: recieve button for watch-only wallets
+* FIX: could not scan animated QR signed psbt
+* FIX: updated 'fi_FI' language.
+
+v5.5.5
+======
+
+* FIX: scan Cobo vault signed transaction QR
+
+v5.5.4
+======
+
+* ADD: handling push notification open
+* ADD: View Wallet xPub (Apple Watch)
+* ADD: COP Fiat
+* FIX: Invoice were not being sent (Apple Watch)
+* FIX: Disable some Watch app elements when app is not reachable
+* FIX: Show loading indicator when processing file or qrcode image
+* FIX: Button size for large devices
+* FIX: better handling of electrum disconnect
+* FIX: disable push notifications in settings
+* FIX: Font-Color in Bump-Fee Input Field "Custom" is not adapted for dark mode
+* FIX: QRCode border in LND Backup screen
+* FIX: Animated QRCode border. Change save path to Downloads folder
+* FIX: sk_SK language updates
+
 v5.5.3
 ======
 
@@ -21,54 +76,3 @@ v5.5.2
 * FIX: missing text on sendMAX dialog box confirmation
 * FIX: Invoice creation darkmode
 * FIX: Font-Color in Input Field "transaction notes" is not adapted for dark mode
-
-v5.5.1
-======
-
-* ADD: Dark Mode
-* FIX: #1309 Sharing doesnt include text
-* FIX: import mnemonic w/typo, 'try again' does nothing (closes #1286)
-* ADD: support importing watch-only in bitcoincore format [fingerprint/derivation]xpub (wallet descriptors)
-* REF: dont store txhex in transactions list
-* REF: wrap save storage in try-catch
-
-v5.5.0
-======
-
-* FIX: provide entropy for D20
-* REF: speeded up transactions list
-
-v5.4.4
-======
-
-* ADD: support for Cobo Vault hardware wallet (animated QR codes)
-* ADD: Provide entropy via dice rolls or coin flip
-* ADD: Option to exclude some wallet's transactions #248 (#1220)
-* ADD: Detect language and currency setting on first run
-* ADD: Launch screen dark mode
-* FIX: cant send onchain when scanning QR with address & amount
-* FIX: errors when fetching huge transactions from electrum server
-* FIX: lnurl withdrawal when currency is set to fiat (closes #1290)
-* FIX: local trader: when user is not logged in, clicking 'accept offer' should not just throw alert, but open login screen
-* FIX: local trader: before accepting offer, refetch it and use fresh id and version so there are no 'outdated' errors
-* FIX: local trader: when 'I am selling', sort order should be reversed
-* REF: Replace FaceID image
-* REF: optimize png images size
-* REF: speeded up legacy HD wallets (BIP44)
-
-v5.4.3
-======
-
-* ADD: Login to Local Trader with HodlHodl
-* ADD: See full listing screen
-* ADD: See your contracts/offers
-* ADD: Accept offer (buy Bitcoin)
-* ADD: You can now modify on-chain transaction note to self
-* ADD: ILS Fiat
-* REF: improved electrum server connectivity
-* FIX: deeplinking for cold boot
-* FIX: lnurl withdrawal when default unit is not sat (closes #1234)
-* FIX: StatusBar wasn't visible when modals opened
-* FIX: Euro symbol for iOS Today extension
-* FIX: Change Withdraw to Exchange
-* DEL: support for BIP70
