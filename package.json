@@ -82,7 +82,7 @@
     "bip21": "2.0.3",
     "bip32": "2.0.5",
     "bip39": "2.6.0",
-    "bitcoinjs-lib": "git://github.com/bitcoinjs/bitcoinjs-lib.git#f87a20caa7828f6f8c29049c73efd369ff81c57b",
+    "bitcoinjs-lib": "5.2.0",
     "bolt11": "1.2.7",
     "buffer": "5.6.0",
     "buffer-reverse": "1.0.1",
