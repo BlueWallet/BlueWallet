@@ -25,7 +25,7 @@ import { BlueButtonLink, BlueNavigationStyle, SafeBlueArea } from '../../BlueCom
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import { AppStorage } from '../../class';
 import * as NavigationService from '../../NavigationService';
-import Geolocation from '@react-native-community/geolocation';
+import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
 
@@ -120,40 +120,44 @@ export default class HodlHodl extends Component {
     });
   }
 
+  locationPermissioGranted = async () => {
+    try {
+      const myCountryCode = await this.state.HodlApi.getMyCountryCode();
+      if (myCountryCode === 'US') {
+        alert('This service is currently not available in your country.');
+        this.props.navigation.goBack();
+      } else {
+        return this.setState({
+          myCountryCode,
+          country: myCountryCode, // we start with orders from current country
+        });
+      }
+    } catch {
+      return this.setState({ myCountryCode: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL, cuntry: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL });
+    }
+  };
+
   async fetchMyCountry() {
-    return new Promise(resolve => {
-      Geolocation.getCurrentPosition(
-        async _position => {
-          try {
-            const myCountryCode = await this.state.HodlApi.getMyCountryCode();
-            if (myCountryCode === 'US') {
-              alert('This service is currently not available in your country.');
-              this.props.navigation.goBack();
-            } else {
-              this.setState(
-                {
-                  myCountryCode,
-                  country: myCountryCode, // we start with orders from current country
-                },
-                resolve(),
-              );
-            }
-          } catch {
-            this.setState(
-              { myCountryCode: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL, cuntry: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL },
-              resolve(),
-            );
-          }
-        },
-        _error => {
-          this.setState(
-            { myCountryCode: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL, cuntry: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL },
-            resolve(),
-          );
-        },
-        { enableHighAccuracy: false, timeout: 20000, maximumAge: 1000 },
-      );
-    });
+    return request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE)
+      .then(async result => {
+        switch (result) {
+          case RESULTS.UNAVAILABLE:
+            console.log('This feature is not available (on this device / in this context)');
+            throw new Error();
+          case RESULTS.DENIED:
+            console.log('The permission has not been requested / is denied but requestable');
+            throw new Error();
+          case RESULTS.GRANTED:
+            console.log('The permission is granted');
+            return this.locationPermissioGranted();
+          case RESULTS.BLOCKED:
+            console.log('The permission is denied and not requestable anymore');
+            throw new Error();
+        }
+      })
+      .catch(_e => {
+        this.setState({ myCountryCode: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL, cuntry: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL });
+      });
   }
 
   /**
@@ -203,7 +207,6 @@ export default class HodlHodl extends Component {
   }
 
   async componentDidMount() {
-    Geolocation.setRNConfiguration({ authorizationLevel: 'whenInUse' });
     console.log('wallets/hodlHodl - componentDidMount');
     this._unsubscribeFocus = this.props.navigation.addListener('focus', this.onFocus);
     A(A.ENUM.NAVIGATED_TO_WALLETS_HODLHODL);

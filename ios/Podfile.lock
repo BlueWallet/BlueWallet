@@ -31,6 +31,8 @@ PODS:
     - React
   - PasscodeAuth (1.0.0):
     - React
+  - Permission-LocationWhenInUse (2.2.0):
+    - RNPermissions
   - RCTRequired (0.63.2)
   - RCTTypeSafety (0.63.2):
     - FBLazyVector (= 0.63.2)
@@ -213,8 +215,6 @@ PODS:
     - React
   - react-native-fingerprint-scanner (6.0.0):
     - React
-  - react-native-geolocation (2.0.2):
-    - React
   - react-native-image-picker (2.3.2):
     - React
   - react-native-randombytes (3.5.3):
@@ -317,6 +317,8 @@ PODS:
     - React
   - RNLocalize (1.4.0):
     - React
+  - RNPermissions (2.2.0):
+    - React
   - RNQuickAction (0.3.13):
     - React
   - RNRate (1.2.4):
@@ -357,6 +359,7 @@ DEPENDENCIES:
   - lottie-ios (from `../node_modules/lottie-ios`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - PasscodeAuth (from `../node_modules/react-native-passcode-auth`)
+  - Permission-LocationWhenInUse (from `../node_modules/react-native-permissions/ios/LocationWhenInUse.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
   - React (from `../node_modules/react-native/`)
@@ -374,7 +377,6 @@ DEPENDENCIES:
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-fingerprint-scanner (from `../node_modules/react-native-fingerprint-scanner`)
-  - "react-native-geolocation (from `../node_modules/@react-native-community/geolocation`)"
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -405,6 +407,7 @@ DEPENDENCIES:
   - RNHandoff (from `../node_modules/react-native-handoff`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNLocalize (from `../node_modules/react-native-localize`)
+  - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNRate (from `../node_modules/react-native-rate`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
@@ -445,6 +448,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/lottie-react-native"
   PasscodeAuth:
     :path: "../node_modules/react-native-passcode-auth"
+  Permission-LocationWhenInUse:
+    :path: "../node_modules/react-native-permissions/ios/LocationWhenInUse.podspec"
   RCTRequired:
     :path: "../node_modules/react-native/Libraries/RCTRequired"
   RCTTypeSafety:
@@ -475,8 +480,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-document-picker"
   react-native-fingerprint-scanner:
     :path: "../node_modules/react-native-fingerprint-scanner"
-  react-native-geolocation:
-    :path: "../node_modules/@react-native-community/geolocation"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-randombytes:
@@ -537,6 +540,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-inappbrowser-reborn"
   RNLocalize:
     :path: "../node_modules/react-native-localize"
+  RNPermissions:
+    :path: "../node_modules/react-native-permissions"
   RNQuickAction:
     :path: "../node_modules/react-native-quick-actions"
   RNRate:
@@ -577,6 +582,7 @@ SPEC CHECKSUMS:
   lottie-ios: 48fac6be217c76937e36e340e2d09cf7b10b7f5f
   lottie-react-native: 1fb4ce21d6ad37dab8343eaff8719df76035bd93
   PasscodeAuth: 1cc99b13d8e4de4716d7e2b4069af2f1a9de30b2
+  Permission-LocationWhenInUse: 26cc130874832c7079ad710c004c218d07e8f203
   RCTRequired: f13f25e7b12f925f1f6a6a8c69d929a03c0129fe
   RCTTypeSafety: 44982c5c8e43ff4141eb519a8ddc88059acd1f3a
   React: e1c65dd41cb9db13b99f24608e47dd595f28ca9a
@@ -592,7 +598,6 @@ SPEC CHECKSUMS:
   react-native-camera: 679479bfe0f59103aca704e8dc39b0cedf5e2f65
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
-  react-native-geolocation: cbd9d6bd06bac411eed2671810f454d4908484a8
   react-native-image-picker: 21dfd898395b663680e987496f6c3431eea49fdb
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-safe-area-context: 0ed9288ed4409beabb0817b54efc047286fc84da
@@ -623,6 +628,7 @@ SPEC CHECKSUMS:
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNInAppBrowser: 6097fbc6b09051b40a6a9ec22caf7af40b115ec0
   RNLocalize: fc27ee5878ce5a3af73873fb2d8e866e0d1e6d84
+  RNPermissions: e29e449d948ba1c04f3bb3bede5c662667543c49
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 2b31dad120cd1b78e33c6034808561c386a3dddf
   RNReactNativeHapticFeedback: 22c5ecf474428766c6b148f96f2ff6155cd7225e
@@ -638,6 +644,6 @@ SPEC CHECKSUMS:
   ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e
   Yoga: 7740b94929bbacbddda59bf115b5317e9a161598
 
-PODFILE CHECKSUM: 19aa4f3419964cbf89816bb8183505265d6e9fa9
+PODFILE CHECKSUM: c3385d0e823155370b5b7aaa80167d77e9e763f4
 
 COCOAPODS: 1.10.0.beta.2
