@@ -108,6 +108,8 @@
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your authorization is required in order to provide you local offers.</string>
+	<key>NSLocationUsageDescription</key>
+	<string>Your authorization is required in order to provide you local offers.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSMotionUsageDescription</key>
