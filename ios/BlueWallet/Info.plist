@@ -106,6 +106,8 @@
 	<string>In order to use FaceID please confirm your permission.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
+	<key>NSLocationUsageDescription</key>
+	<string>Your authorization is required in order to provide you local offers.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your authorization is required in order to provide you local offers.</string>
 	<key>NSMicrophoneUsageDescription</key>
