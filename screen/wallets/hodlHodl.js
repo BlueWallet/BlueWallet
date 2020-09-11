@@ -37,7 +37,6 @@ const METHOD_ANY = '_any';
 
 const HodlHodlListSections = { OFFERS: 'OFFERS' };
 const windowHeight = Dimensions.get('window').height;
-Geolocation.setRNConfiguration({ authorizationLevel: 'whenInUse' });
 export default class HodlHodl extends Component {
   constructor(props) {
     super(props);
@@ -125,24 +124,33 @@ export default class HodlHodl extends Component {
     return new Promise(resolve => {
       Geolocation.getCurrentPosition(
         async _position => {
-          const myCountryCode = await this.state.HodlApi.getMyCountryCode();
-          if (myCountryCode === 'US') {
-            alert('This service is currently not available in your country.');
-            this.props.navigation.goBack();
-          } else {
+          try {
+            const myCountryCode = await this.state.HodlApi.getMyCountryCode();
+            if (myCountryCode === 'US') {
+              alert('This service is currently not available in your country.');
+              this.props.navigation.goBack();
+            } else {
+              this.setState(
+                {
+                  myCountryCode,
+                  country: myCountryCode, // we start with orders from current country
+                },
+                resolve(),
+              );
+            }
+          } catch {
             this.setState(
-              {
-                myCountryCode,
-                country: myCountryCode, // we start with orders from current country
-              },
+              { myCountryCode: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL, cuntry: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL },
               resolve(),
             );
           }
         },
-        _error =>
-          resolve(
-            this.setState({ myCountryCode: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL, cuntry: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL }),
-          ),
+        _error => {
+          this.setState(
+            { myCountryCode: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL, cuntry: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL },
+            resolve(),
+          );
+        },
         { enableHighAccuracy: false, timeout: 20000, maximumAge: 1000 },
       );
     });
@@ -195,6 +203,7 @@ export default class HodlHodl extends Component {
   }
 
   async componentDidMount() {
+    Geolocation.setRNConfiguration({ authorizationLevel: 'whenInUse' });
     console.log('wallets/hodlHodl - componentDidMount');
     this._unsubscribeFocus = this.props.navigation.addListener('focus', this.onFocus);
     A(A.ENUM.NAVIGATED_TO_WALLETS_HODLHODL);
