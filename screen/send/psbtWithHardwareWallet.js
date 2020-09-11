@@ -152,7 +152,7 @@ export default class PsbtWithHardwareWallet extends Component {
               const psbtB64 = Buffer.from(payload, 'hex').toString('base64');
               const Tx = this._combinePSBT(psbtB64);
               this.setState({ txhex: Tx.toHex() });
-              this.props.navigation.dangerouslyGetParent().pop();
+              this.props.navigation.dismiss();
             }
           },
         );
@@ -167,13 +167,14 @@ export default class PsbtWithHardwareWallet extends Component {
   };
 
   onBarScanned = ret => {
+    console.warn(ret)
     if (ret && !ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       return this._onReadUniformResource(ret.data);
     }
     if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
-      this.setState({ txhex: ret.data }, () => this.props.navigation.dangerouslyGetParent().pop());
+      this.setState({ txhex: ret.data }, () => this.props.navigation.dismiss());
       return;
     }
     try {
@@ -442,6 +443,7 @@ PsbtWithHardwareWallet.propTypes = {
     goBack: PropTypes.func,
     navigate: PropTypes.func,
     dangerouslyGetParent: PropTypes.func,
+    dismiss: PropTypes.func,
   }),
   route: PropTypes.shape({
     params: PropTypes.object,
