@@ -246,7 +246,7 @@ const DrawerList = props => {
 
   const onNewWalletPress = () => {
     return !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)
-      ? () => props.navigation.navigate('AddWalletRoot')
+      ? props.navigation.navigate('AddWalletRoot')
       : null;
   };
 
