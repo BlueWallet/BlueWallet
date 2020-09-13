@@ -213,7 +213,6 @@ const WalletTransactions = () => {
       backgroundColor: colors.background,
     },
   });
-  const interval = setInterval(() => setTimeElapsed(prev => ({ timeElapsed: prev.timeElapsed + 1 })), 60000);
 
   /**
    * Simple wrapper for `wallet.getTransactions()`, where `wallet` is current wallet.
@@ -237,6 +236,7 @@ const WalletTransactions = () => {
   useEffect(() => {
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, refreshTransactionsFunction, true);
     HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
+    const interval = setInterval(() => setTimeElapsed(prev => prev + 1), 60000);
     return () => {
       clearInterval(interval);
       navigate('DrawerRoot', { selectedWallet: '' });
