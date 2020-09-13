@@ -9,7 +9,6 @@ import { PlaceholderWallet } from './wallets/placeholder-wallet';
 import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
 import { HDLegacyElectrumSeedP2PKHWallet } from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
 import { HDSegwitElectrumSeedP2WPKHWallet } from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
-import { BlueCurrentTheme } from '../components/themes';
 import { useTheme } from '@react-navigation/native';
 
 export default class WalletGradient {
