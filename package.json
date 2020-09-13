@@ -139,7 +139,7 @@
     "react-native-randombytes": "3.5.3",
     "react-native-rate": "1.2.4",
     "react-native-reanimated": "1.13.0",
-    "react-native-safe-area-context": "3.1.4",
+    "react-native-safe-area-context": "3.1.6",
     "react-native-screens": "2.10.1",
     "react-native-secure-key-store": "git+https://github.com/BlueWallet/react-native-secure-key-store.git#4ba25dedb3d5ae15c22fd0ea0555116055630966",
     "react-native-share": "3.7.0",
