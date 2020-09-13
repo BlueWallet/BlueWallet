@@ -269,7 +269,7 @@ function DrawerRoot() {
 
 const InitStack = createStackNavigator();
 const InitRoot = () => (
-  <InitStack.Navigator screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
+  <InitStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
     <InitStack.Screen name="LoadingScreenRoot" component={LoadingScreenRoot} options={{ headerShown: false, animationEnabled: false }} />
     <InitStack.Screen
       name="UnlockWithScreenRoot"
@@ -285,14 +285,14 @@ const InitRoot = () => (
         gestureResponseDistance: { vertical: Dimensions.get('window').height, horizontal: 50 },
       }}
     />
-    <InitStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions} />
     <InitStack.Screen name="DrawerRoot" component={DrawerRoot} options={{ headerShown: false, animationEnabled: false }} />
+    <InitStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions} />
   </InitStack.Navigator>
 );
 
 const RootStack = createStackNavigator();
 const Navigation = () => (
-  <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
+  <RootStack.Navigator screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
     {/* stacks */}
     <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={{ headerShown: false, gestureEnabled: false }} />

@@ -1628,7 +1628,7 @@ export const NewWalletPanel = props => {
           minHeight: Platform.OS === 'ios' ? 164 : 181,
           justifyContent: 'center',
           alignItems: 'flex-start',
-          backgroundColor: WalletGradient.createWallet,
+          backgroundColor: WalletGradient.createWallet(),
         }}
       >
         <Text
