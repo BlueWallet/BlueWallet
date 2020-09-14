@@ -65,6 +65,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
   createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
+    if (targets.length === 0) throw new Error('No destination provided');
     const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
     sequence = sequence || 0xffffffff; // disable RBF by default
     const psbt = new bitcoin.Psbt();

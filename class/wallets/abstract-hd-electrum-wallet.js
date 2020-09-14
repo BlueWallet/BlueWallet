@@ -804,6 +804,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
   createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
+    if (targets.length === 0) throw new Error('No destination provided');
     const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
 
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
