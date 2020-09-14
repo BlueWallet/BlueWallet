@@ -217,7 +217,7 @@
     "currency": "通貨",
     "currency_source": "Prices are obtained from CoinDesk",
     "default_desc": "When disabled, BlueWallet will immediately open the selected wallet at launch.",
-    "default_info": "Default into",
+    "default_info": "Default info",
     "default_title": "On Launch",
     "default_wallets": "View All Wallets",
     "electrum_connected": "Connected",

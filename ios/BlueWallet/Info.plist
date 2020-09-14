@@ -48,7 +48,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>5.5.7</string>
+	<string>5.5.8</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -72,6 +72,11 @@
 	<false/>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.finance</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>bankid</string>
+		<string>swish</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
@@ -102,6 +107,8 @@
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Your authorization is required in order to provide you local offers.</string>
+	<key>NSLocationUsageDescription</key>
 	<string>Your authorization is required in order to provide you local offers.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
