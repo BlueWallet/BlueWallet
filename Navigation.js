@@ -278,7 +278,6 @@ const InitRoot = () => (
     />
     <InitStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions} />
     <InitStack.Screen name="DrawerRoot" component={DrawerRoot} options={{ headerShown: false, animationEnabled: false }} />
-    <InitStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions} />
   </InitStack.Navigator>
 );
 

@@ -47,7 +47,7 @@ const WalletsList = () => {
   const [wallets, setWallets] = useState(BlueApp.getWallets().concat(false));
   const [itemWidth, setItemWidth] = useState(width * 0.82 > 375 ? 375 : width * 0.82);
   const [isLargeScreen, setIsLargeScreen] = useState(
-    Platform.OS === 'android' ? isTablet() : Dimensions.get('window').width >= Dimensions.get('screen').width / 3 && isTablet(),
+    Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3 && isTablet(),
   );
   const [dataSource, setDataSource] = useState([]);
 

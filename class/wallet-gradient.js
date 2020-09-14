@@ -22,6 +22,12 @@ export default class WalletGradient {
   static defaultGradients = ['#c65afb', '#9053fe'];
   static lightningCustodianWallet = ['#f1be07', '#f79056'];
 
+  static createWallet = () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { colors } = useTheme();
+    return colors.lightButton;
+  };
+
   static gradientsFor(type) {
     let gradient;
     switch (type) {
@@ -97,9 +103,3 @@ export default class WalletGradient {
     return gradient[0];
   }
 }
-
-WalletGradient.createWallet = () => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { colors } = useTheme();
-  return colors.lightButton;
-};
