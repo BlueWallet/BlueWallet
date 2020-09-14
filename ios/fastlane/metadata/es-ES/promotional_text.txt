@@ -1,10 +1,8 @@
-Características 
-
 * Código abierto
 * Todo los datos son cifrados
 * Negación plausible
 * Comisiones flexibles
 * Replace by Fee (RBF)
 * SegWit
-* Carteras de observación (Centinelas)
+* Carteras de observación
 * Lightning network

@@ -1,10 +1,7 @@
-Fonctionnalités
-
 * Open Source
 * Chiffrement complet
 * Possibilité de déni plausible
 * Frais flexibles
 * Remplacement des frais (RBF)
-* SegWit
-* Portefeuilles spectateurs (Sentinel)
+* Portefeuilles spectateurs
 * Réseau Lightning
