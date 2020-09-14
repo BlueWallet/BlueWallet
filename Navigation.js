@@ -276,15 +276,6 @@ const InitRoot = () => (
       component={UnlockWithScreenRoot}
       options={{ headerShown: false, animationEnabled: false }}
     />
-    <InitStack.Screen
-      name="ScanQRCodeRoot"
-      component={ScanQRCodeRoot}
-      options={{
-        ...TransitionPresets.ModalTransition,
-        headerShown: false,
-        gestureResponseDistance: { vertical: Dimensions.get('window').height, horizontal: 50 },
-      }}
-    />
     <InitStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions} />
     <InitStack.Screen name="DrawerRoot" component={DrawerRoot} options={{ headerShown: false, animationEnabled: false }} />
   </InitStack.Navigator>
@@ -312,6 +303,15 @@ const Navigation = () => (
     <RootStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />
     <RootStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions} />
     <RootStack.Screen name="LappBrowser" component={LappBrowser} options={LappBrowser.navigationOptions} />
+
+    <RootStack.Screen
+      name="ScanQRCodeRoot"
+      component={ScanQRCodeRoot}
+      options={{
+        ...TransitionPresets.ModalTransition,
+        headerShown: false,
+      }}
+    />
   </RootStack.Navigator>
 );
 
