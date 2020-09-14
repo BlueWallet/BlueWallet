@@ -335,7 +335,7 @@ export class AppStorage {
           }
         }
         realm.close();
-        await WatchConnectivity.sendWalletsToWatch();
+        WatchConnectivity.sendWalletsToWatch();
 
         const isStorageEncrypted = await this.storageIsEncrypted();
         if (isStorageEncrypted) {
