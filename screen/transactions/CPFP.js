@@ -16,6 +16,7 @@ import {
   BlueNavigationStyle,
   BlueBigCheckmark,
 } from '../../BlueComponents';
+import { BlueCurrentTheme } from '../../components/themes';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
 const EV = require('../../blue_modules/events');
@@ -38,7 +39,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   hex: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontWeight: '500',
   },
   hexInput: {
@@ -164,40 +165,21 @@ export default class CPFP extends Component {
     }
   }
 
-  render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={styles.root}>
-          <ActivityIndicator />
-        </View>
-      );
-    }
-
-    if (this.state.stage === 3) {
-      return this.renderStage3();
-    }
-
-    if (this.state.stage === 2) {
-      return this.renderStage2();
-    }
-
-    if (this.state.nonReplaceable) {
-      return (
-        <SafeBlueArea style={styles.root}>
-          <BlueSpacing20 />
-          <BlueSpacing20 />
-          <BlueSpacing20 />
-          <BlueSpacing20 />
-          <BlueSpacing20 />
-
-          <BlueText h4>{loc.transactions.cpfp_no_bump}</BlueText>
-        </SafeBlueArea>
-      );
-    }
-
+  renderStage1(text) {
     return (
-      <SafeBlueArea style={styles.explain}>
-        <ScrollView>{this.renderStage1(loc.transactions.cpfp_exp)}</ScrollView>
+      <SafeBlueArea style={styles.root}>
+        <BlueSpacing />
+        <BlueCard style={styles.center}>
+          <BlueText>{text}</BlueText>
+          <BlueSpacing20 />
+          <BlueReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
+          <BlueSpacing />
+          <BlueButton
+            disabled={this.state.newFeeRate <= this.state.feeRate}
+            onPress={() => this.createTransaction()}
+            title={loc.transactions.cpfp_create}
+          />
+        </BlueCard>
       </SafeBlueArea>
     );
   }
@@ -235,24 +217,40 @@ export default class CPFP extends Component {
     );
   }
 
-  renderStage1(text) {
-    return (
-      <SafeBlueArea style={styles.root}>
-        <BlueSpacing />
-        <BlueCard style={styles.center}>
-          <BlueText>{text}</BlueText>
+  render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.root}>
+          <ActivityIndicator />
+        </View>
+      );
+    }
+
+    if (this.state.stage === 3) {
+      return this.renderStage3();
+    }
+
+    if (this.state.stage === 2) {
+      return this.renderStage2();
+    }
+
+    if (this.state.nonReplaceable) {
+      return (
+        <SafeBlueArea style={styles.root}>
           <BlueSpacing20 />
-          <BlueReplaceFeeSuggestions
-            onFeeSelected={fee => this.setState({ newFeeRate: fee })}
-            transactionMinimum={this.state.feeRate + 1}
-          />
-          <BlueSpacing />
-          <BlueButton
-            disabled={this.state.newFeeRate <= this.state.feeRate}
-            onPress={() => this.createTransaction()}
-            title={loc.transactions.cpfp_create}
-          />
-        </BlueCard>
+          <BlueSpacing20 />
+          <BlueSpacing20 />
+          <BlueSpacing20 />
+          <BlueSpacing20 />
+
+          <BlueText h4>{loc.transactions.cpfp_no_bump}</BlueText>
+        </SafeBlueArea>
+      );
+    }
+
+    return (
+      <SafeBlueArea style={styles.explain}>
+        <ScrollView>{this.renderStage1(loc.transactions.cpfp_exp)}</ScrollView>
       </SafeBlueArea>
     );
   }

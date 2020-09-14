@@ -36,15 +36,15 @@ import ToolTip from 'react-native-tooltip';
 import { BlurView } from '@react-native-community/blur';
 import ImagePicker from 'react-native-image-picker';
 import showPopupMenu from 'react-native-popup-menu-android';
-import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
+import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
 import { getSystemName } from 'react-native-device-info';
 import { encodeUR } from 'bc-ur/dist';
 import QRCode from 'react-native-qrcode-svg';
+import AsyncStorage from '@react-native-community/async-storage';
 import { useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
-import AsyncStorage from '@react-native-community/async-storage';
 import Lnurl from './class/lnurl';
 import ScanQRCode from './screen/send/ScanQRCode';
 /** @type {AppStorage} */
@@ -2288,15 +2288,24 @@ export class BlueReplaceFeeSuggestions extends Component {
   };
 
   static defaultProps = {
-    onFeeSelected: undefined,
     transactionMinimum: 1,
   };
 
-  state = { networkFees: undefined, selectedFeeType: NetworkTransactionFeeType.FAST, customFeeValue: 0 };
+  state = {
+    selectedFeeType: NetworkTransactionFeeType.FAST,
+    customFeeValue: '1',
+  };
 
   async componentDidMount() {
+    try {
+      const cachedNetworkTransactionFees = JSON.parse(await AsyncStorage.getItem(NetworkTransactionFee.StorageKey));
+
+      if (cachedNetworkTransactionFees && 'fastestFee' in cachedNetworkTransactionFees) {
+        this.setState({ networkFees: cachedNetworkTransactionFees });
+      }
+    } catch (_) {}
     const networkFees = await NetworkTransactionFees.recommendedFees();
-    this.setState({ networkFees }, () => this.onFeeSelected(NetworkTransactionFeeType.FAST));
+    this.setState({ networkFees });
   }
 
   onFeeSelected = selectedFeeType => {
@@ -2311,103 +2320,117 @@ export class BlueReplaceFeeSuggestions extends Component {
     } else if (selectedFeeType === NetworkTransactionFeeType.SLOW) {
       this.setState({ selectedFeeType }, () => this.props.onFeeSelected(this.state.networkFees.slowFee));
     } else if (selectedFeeType === NetworkTransactionFeeType.CUSTOM) {
-      this.props.onFeeSelected(this.state.customFeeValue);
+      this.props.onFeeSelected(Number(this.state.customFeeValue));
     }
   };
 
   onCustomFeeTextChange = customFee => {
-    this.setState({ customFeeValue: Number(customFee), selectedFeeType: NetworkTransactionFeeType.CUSTOM }, () => {
+    const customFeeValue = customFee.replace(/[^0-9]/g, '');
+    this.setState({ customFeeValue, selectedFeeType: NetworkTransactionFeeType.CUSTOM }, () => {
       this.onFeeSelected(NetworkTransactionFeeType.CUSTOM);
     });
   };
 
   render() {
+    const { networkFees, selectedFeeType } = this.state;
+
     return (
       <View>
-        {this.state.networkFees && (
-          <>
-            <BlueText>Suggestions</BlueText>
-            <BlueListItem
-              onPress={() => this.onFeeSelected(NetworkTransactionFeeType.FAST)}
-              containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0, backgroundColor: BlueCurrentTheme.colors.transparent }}
-              bottomDivider={false}
-              title="Fast"
-              rightTitle={`${this.state.networkFees.fastestFee} sat/b`}
-              rightTitleStyle={{ fontSize: 13, color: BlueCurrentTheme.colors.alternativeTextColor }}
-              {...(this.state.selectedFeeType === NetworkTransactionFeeType.FAST
-                ? { rightIcon: <Icon name="check" type="octaicon" color={BlueCurrentTheme.colors.successCheck} /> }
-                : { hideChevron: true })}
-            />
-            <BlueListItem
-              onPress={() => this.onFeeSelected(NetworkTransactionFeeType.MEDIUM)}
-              containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0, backgroundColor: BlueCurrentTheme.colors.transparent }}
-              bottomDivider={false}
-              title="Medium"
-              rightTitle={`${this.state.networkFees.mediumFee} sat/b`}
-              rightTitleStyle={{ fontSize: 13, color: BlueCurrentTheme.colors.alternativeTextColor }}
-              {...(this.state.selectedFeeType === NetworkTransactionFeeType.MEDIUM
-                ? { rightIcon: <Icon name="check" type="octaicon" color={BlueCurrentTheme.colors.successCheck} /> }
-                : { hideChevron: true })}
-            />
-            <BlueListItem
-              onPress={() => this.onFeeSelected(NetworkTransactionFeeType.SLOW)}
-              containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0, backgroundColor: BlueCurrentTheme.colors.transparent }}
-              bottomDivider={false}
-              title="Slow"
-              rightTitle={`${this.state.networkFees.slowFee} sat/b`}
-              rightTitleStyle={{ fontSize: 13, color: BlueCurrentTheme.colors.alternativeTextColor }}
-              {...(this.state.selectedFeeType === NetworkTransactionFeeType.SLOW
-                ? { rightIcon: <Icon name="check" type="octaicon" color={BlueCurrentTheme.colors.successCheck} /> }
-                : { hideChevron: true })}
-            />
-          </>
-        )}
-        <TouchableOpacity onPress={() => this.customTextInput.focus()}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 0, alignItems: 'center' }}>
-            <Text style={{ color: BlueCurrentTheme.colors.foregroundColor, fontSize: 16, fontWeight: '500' }}>Custom</Text>
-            <View
-              style={{
-                flexDirection: 'row',
-                minHeight: 44,
-                height: 44,
-                minWidth: 48,
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-                marginVertical: 8,
-              }}
+        {networkFees &&
+          [
+            {
+              label: loc.send.fee_fast,
+              time: loc.send.fee_10m,
+              type: NetworkTransactionFeeType.FAST,
+              rate: networkFees.fastestFee,
+              active: selectedFeeType === NetworkTransactionFeeType.FAST,
+            },
+            {
+              label: loc.send.fee_medium,
+              time: loc.send.fee_3h,
+              type: NetworkTransactionFeeType.MEDIUM,
+              rate: networkFees.mediumFee,
+              active: selectedFeeType === NetworkTransactionFeeType.MEDIUM,
+            },
+            {
+              label: loc.send.fee_slow,
+              time: loc.send.fee_1d,
+              type: NetworkTransactionFeeType.SLOW,
+              rate: networkFees.slowFee,
+              active: selectedFeeType === NetworkTransactionFeeType.SLOW,
+            },
+          ].map(({ label, type, time, rate, active }, index) => (
+            <TouchableOpacity
+              key={label}
+              onPress={() => this.onFeeSelected(type)}
+              style={[
+                { paddingHorizontal: 16, paddingVertical: 8, marginBottom: 10 },
+                active && { borderRadius: 8, backgroundColor: BlueCurrentTheme.colors.incomingBackgroundColor },
+              ]}
             >
-              <TextInput
-                onChangeText={this.onCustomFeeTextChange}
-                keyboardType="numeric"
-                value={this.state.customFeeValue}
-                ref={ref => (this.customTextInput = ref)}
-                maxLength={9}
-                style={{
-                  borderColor: BlueCurrentTheme.colors.formBorder,
-                  borderBottomColor: BlueCurrentTheme.colors.formBorder,
-                  borderWidth: 1.0,
-                  borderBottomWidth: 0.5,
-                  borderRadius: 4,
-                  minHeight: 33,
-                  maxWidth: 100,
-                  minWidth: 44,
-                  color: '#81868e',
-                  backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
-                  textAlign: 'right',
-                }}
-                onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue)}
-                defaultValue={`${this.props.transactionMinimum}`}
-                placeholder="Custom sat/b"
-                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-              />
-              <Text style={{ color: BlueCurrentTheme.colors.alternativeTextColor, marginHorizontal: 8 }}>sat/b</Text>
-              {this.state.selectedFeeType === NetworkTransactionFeeType.CUSTOM && <Icon name="check" type="octaicon" color="#0070FF" />}
-            </View>
-            <BlueDismissKeyboardInputAccessory />
+              <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={{ fontSize: 22, color: BlueCurrentTheme.colors.successColor, fontWeight: '600' }}>{label}</Text>
+                <View
+                  style={{
+                    backgroundColor: BlueCurrentTheme.colors.successColor,
+                    borderRadius: 5,
+                    paddingHorizontal: 6,
+                    paddingVertical: 3,
+                  }}
+                >
+                  <Text style={{ color: BlueCurrentTheme.colors.background }}>~{time}</Text>
+                </View>
+              </View>
+              <View style={{ justifyContent: 'flex-end', flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={{ color: BlueCurrentTheme.colors.successColor }}>{rate} sat/byte</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        <TouchableOpacity
+          onPress={() => this.customTextInput.focus()}
+          style={[
+            { paddingHorizontal: 16, paddingVertical: 8, marginBottom: 10 },
+            selectedFeeType === NetworkTransactionFeeType.CUSTOM && {
+              borderRadius: 8,
+              backgroundColor: BlueCurrentTheme.colors.incomingBackgroundColor,
+            },
+          ]}
+        >
+          <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{ fontSize: 22, color: BlueCurrentTheme.colors.successColor, fontWeight: '600' }}>{loc.send.fee_custom}</Text>
+          </View>
+          <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
+            <TextInput
+              onChangeText={this.onCustomFeeTextChange}
+              keyboardType="numeric"
+              value={this.state.customFeeValue}
+              ref={ref => (this.customTextInput = ref)}
+              maxLength={9}
+              style={{
+                backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
+                borderBottomColor: BlueCurrentTheme.colors.formBorder,
+                borderBottomWidth: 0.5,
+                borderColor: BlueCurrentTheme.colors.formBorder,
+                borderRadius: 4,
+                borderWidth: 1.0,
+                color: '#81868e',
+                flex: 1,
+                marginRight: 10,
+                minHeight: 33,
+                paddingRight: 5,
+                textAlign: 'right',
+              }}
+              onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue)}
+              defaultValue={`${this.props.transactionMinimum}`}
+              placeholder={loc.send.fee_satbyte}
+              placeholderTextColor="#81868e"
+              inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+            />
+            <Text style={{ color: BlueCurrentTheme.colors.successColor }}>sat/byte</Text>
           </View>
         </TouchableOpacity>
         <BlueText style={{ color: BlueCurrentTheme.colors.alternativeTextColor }}>
-          The total fee rate (satoshi per byte) you want to pay should be higher than {this.props.transactionMinimum} sat/byte
+          {loc.formatString(loc.send.fee_replace_min, { min: this.props.transactionMinimum })}
         </BlueText>
       </View>
     );
