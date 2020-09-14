@@ -33,6 +33,7 @@ const SelectWallet = ({ navigation }) => {
       justifyContent: 'center',
       alignContent: 'center',
       paddingTop: 20,
+      backgroundColor: colors.background,
     },
     itemRoot: {
       backgroundColor: 'transparent',

@@ -217,7 +217,7 @@
     "currency": "מטבע",
     "currency_source": "מחירים מסופקים מCoinDesk",
     "default_desc": "When disabled, BlueWallet will immediately open the selected wallet at launch.",
-    "default_info": "Default into",
+    "default_info": "Default info",
     "default_title": "On Launch",
     "default_wallets": "הראה את כל הארנקים",
     "electrum_connected": "מחובר",

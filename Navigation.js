@@ -1,7 +1,7 @@
-// import { createAppContainer } from '@react-navigation/native';
 import React from 'react';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
-import { Platform, Dimensions } from 'react-native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { Platform, useWindowDimensions, Dimensions } from 'react-native';
 
 import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
@@ -66,17 +66,18 @@ import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
 import { BlueNavigationStyle } from './BlueComponents';
+import DrawerList from './screen/wallets/drawerList';
+import { isTablet } from 'react-native-device-info';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
 const defaultScreenOptions =
   Platform.OS === 'ios'
     ? ({ route, navigation }) => ({
         gestureEnabled: true,
-        gestureResponseDistance: { vertical: SCREEN_HEIGHT, horizontal: 50 },
         cardOverlayEnabled: true,
         cardStyle: { backgroundColor: '#FFFFFF' },
         headerStatusBarHeight: navigation.dangerouslyGetState().routes.indexOf(route) > 0 ? 10 : undefined,
         ...TransitionPresets.ModalPresentationIOS,
+        gestureResponseDistance: { vertical: Dimensions.get('window').height, horizontal: 50 },
       })
     : undefined;
 const defaultStackScreenOptions =
@@ -250,17 +251,50 @@ const HodlHodlLoginRoot = () => (
   </HodlHodlLoginStack.Navigator>
 );
 
-const RootStack = createStackNavigator();
-const Navigation = () => (
-  <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
-    {/* stacks */}
-    <RootStack.Screen name="LoadingScreenRoot" component={LoadingScreenRoot} options={{ headerShown: false, animationEnabled: false }} />
-    <RootStack.Screen
+const Drawer = createDrawerNavigator();
+function DrawerRoot() {
+  const dimensions = useWindowDimensions();
+  const isLargeScreen = Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 3 && isTablet();
+  const drawerStyle = { width: '0%' };
+  return (
+    <Drawer.Navigator
+      drawerStyle={isLargeScreen ? null : drawerStyle}
+      drawerType={isLargeScreen ? 'permanent' : null}
+      drawerContent={props => <DrawerList {...props} />}
+    >
+      <Drawer.Screen name="Navigation" component={Navigation} options={{ headerShown: false, gestureEnabled: false }} />
+    </Drawer.Navigator>
+  );
+}
+
+const InitStack = createStackNavigator();
+const InitRoot = () => (
+  <InitStack.Navigator screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
+    <InitStack.Screen name="LoadingScreenRoot" component={LoadingScreenRoot} options={{ headerShown: false, animationEnabled: false }} />
+    <InitStack.Screen
       name="UnlockWithScreenRoot"
       component={UnlockWithScreenRoot}
       options={{ headerShown: false, animationEnabled: false }}
     />
-    <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false, animationEnabled: false }} />
+    <InitStack.Screen
+      name="ScanQRCodeRoot"
+      component={ScanQRCodeRoot}
+      options={{
+        ...TransitionPresets.ModalTransition,
+        headerShown: false,
+        gestureResponseDistance: { vertical: Dimensions.get('window').height, horizontal: 50 },
+      }}
+    />
+    <InitStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions} />
+    <InitStack.Screen name="DrawerRoot" component={DrawerRoot} options={{ headerShown: false, animationEnabled: false }} />
+  </InitStack.Navigator>
+);
+
+const RootStack = createStackNavigator();
+const Navigation = () => (
+  <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
+    {/* stacks */}
+    <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={{ headerShown: false, gestureEnabled: false }} />
     <RootStack.Screen name="SendDetailsRoot" component={SendDetailsRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={{ headerShown: false }} />
@@ -269,15 +303,7 @@ const Navigation = () => (
     <RootStack.Screen name="HodlHodlLoginRoot" component={HodlHodlLoginRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="HodlHodlMyContracts" component={HodlHodlMyContracts} options={HodlHodlMyContracts.navigationOptions} />
     <RootStack.Screen name="HodlHodlWebview" component={HodlHodlWebview} options={HodlHodlWebview.navigationOptions} />
-    <RootStack.Screen
-      name="ScanQRCodeRoot"
-      component={ScanQRCodeRoot}
-      options={{
-        ...TransitionPresets.ModalTransition,
-        headerShown: false,
-        gestureResponseDistance: { vertical: SCREEN_HEIGHT, horizontal: 50 },
-      }}
-    />
+
     {/* screens */}
     <RootStack.Screen name="WalletExport" component={WalletExport} options={WalletExport.navigationOptions} />
     <RootStack.Screen name="WalletXpub" component={WalletXpub} options={WalletXpub.navigationOptions} />
@@ -286,8 +312,7 @@ const Navigation = () => (
     <RootStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />
     <RootStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions} />
     <RootStack.Screen name="LappBrowser" component={LappBrowser} options={LappBrowser.navigationOptions} />
-    <RootStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions} />
   </RootStack.Navigator>
 );
 
-export default Navigation;
+export default InitRoot;
