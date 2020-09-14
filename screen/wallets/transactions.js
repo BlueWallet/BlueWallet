@@ -488,8 +488,8 @@ const WalletTransactions = () => {
     );
   };
 
-  const onWalletSelect = async wallet => {
-    if (wallet) {
+  const onWalletSelect = async selectedWallet => {
+    if (selectedWallet) {
       navigate('WalletTransactions', {
         key: `WalletTransactions-${wallet.getID()}`,
       });
@@ -510,7 +510,7 @@ const WalletTransactions = () => {
         params: {
           memo: loc.lnd.refill_lnd_balance,
           address: toAddress,
-          fromWallet: wallet,
+          fromWallet: selectedWallet,
         },
       });
     }
