@@ -1,0 +1,10 @@
+Fő tulajdonságok
+
+* Nyílt forráskód
+* Teljes titkosítás
+* Feltételes elutasítás
+* Rugalmas tranzakciós díjjak
+* Tranzakciós Díj Pótlás (RBF)
+* SegWit
+* Tárca - csak megtekintésre (Sentinel)
+* Lightning hálózat
