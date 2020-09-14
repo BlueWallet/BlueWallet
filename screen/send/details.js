@@ -470,7 +470,7 @@ export default class SendDetails extends Component {
         this.setState({ isLoading: false, recipientsScrollIndex: index });
         alert(error);
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-        break;
+        return;
       }
     }
 
