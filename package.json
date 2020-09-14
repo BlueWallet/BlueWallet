@@ -1,6 +1,6 @@
 {
   "name": "bluewallet",
-  "version": "5.5.7",
+  "version": "5.5.9",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.10.4",
@@ -61,7 +61,7 @@
   },
   "dependencies": {
     "@babel/preset-env": "7.11.0",
-    "@react-native-community/async-storage": "1.11.0",
+    "@react-native-community/async-storage": "1.12.0",
     "@react-native-community/blur": "3.6.0",
     "@react-native-community/clipboard": "1.2.3",
     "@react-native-community/masked-view": "0.1.10",
@@ -139,7 +139,7 @@
     "react-native-randombytes": "3.5.3",
     "react-native-rate": "1.2.4",
     "react-native-reanimated": "1.13.0",
-    "react-native-safe-area-context": "3.1.4",
+    "react-native-safe-area-context": "3.1.6",
     "react-native-screens": "2.10.1",
     "react-native-secure-key-store": "git+https://github.com/BlueWallet/react-native-secure-key-store.git#4ba25dedb3d5ae15c22fd0ea0555116055630966",
     "react-native-share": "3.7.0",
