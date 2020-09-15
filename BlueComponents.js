@@ -523,7 +523,11 @@ export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuB
   let headerRight;
   if (withAdvancedOptionsMenuButton) {
     headerRight = () => (
-      <TouchableOpacity style={{ minWidth: 40, height: 40, justifyContent: 'center' }} onPress={advancedOptionsMenuButtonAction}>
+      <TouchableOpacity
+        style={{ minWidth: 40, height: 40, justifyContent: 'center' }}
+        onPress={advancedOptionsMenuButtonAction}
+        testID="advancedOptionsMenuButton"
+      >
         <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueCurrentTheme.colors.foregroundColor} />
       </TouchableOpacity>
     );
@@ -2694,6 +2698,7 @@ export class BlueBitcoinAmount extends Component {
           </View>
           {!this.props.disabled && (
             <TouchableOpacity
+              testID="changeAmountUnitButton"
               style={{ alignSelf: 'center', marginRight: 16, paddingLeft: 16, paddingVertical: 16 }}
               onPress={this.changeAmountUnit}
             >
