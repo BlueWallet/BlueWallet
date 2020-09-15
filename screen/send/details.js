@@ -739,6 +739,7 @@ export default class SendDetails extends Component {
               </TouchableOpacity>
             ))}
             <TouchableOpacity
+              testID="feeCustom"
               style={styles.feeModalCustom}
               onPress={async () => {
                 let error = loc.send.fee_satbyte;
@@ -1143,6 +1144,7 @@ export default class SendDetails extends Component {
                 />
               </View>
               <TouchableOpacity
+                testID="chooseFee"
                 onPress={() => this.setState({ isFeeSelectionModalVisible: true }, () => this.reCalcTx(true))}
                 disabled={this.state.isLoading}
                 style={styles.fee}
