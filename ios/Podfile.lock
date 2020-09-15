@@ -360,14 +360,14 @@ PODS:
     - React
     - SDWebImage (~> 5.8)
     - SDWebImageWebPCoder (~> 0.6.1)
-  - RNFBAnalytics (7.6.1):
+  - RNFBAnalytics (7.6.2):
     - Firebase/Analytics (~> 6.30.0)
     - React
     - RNFBApp
-  - RNFBApp (8.4.1):
+  - RNFBApp (8.4.2):
     - Firebase/CoreOnly (~> 6.30.0)
     - React
-  - RNFBCrashlytics (8.4.2):
+  - RNFBCrashlytics (8.4.4):
     - Firebase/Crashlytics (~> 6.30.0)
     - React
     - RNFBApp
@@ -696,9 +696,9 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 628cb35719f2fe4111c000ccfa7e186400bbc47e
   RNDeviceInfo: 722dc13c269b9dbf305aa4b790d36731602e99b7
   RNFastImage: e19ba191922e7dab9d932a4d59d62d76660aa222
-  RNFBAnalytics: ffd9149d1fe0ecee0f2571b234d53c25349b9899
-  RNFBApp: e4321cad5dd23b43b3b4f0ca060300b9f85cb7a4
-  RNFBCrashlytics: accacec7be2426085b715b93cdb7b0a1308eb8eb
+  RNFBAnalytics: 20564db4cfd317c304fe5a8e5d840f8c9d105aaa
+  RNFBApp: 373cce42559cc7a9a42afc876746e3946de3e32e
+  RNFBCrashlytics: 834057016b34fa49e3eef028a13e35f48840c78c
   RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
   RNGestureHandler: 7a5833d0f788dbd107fbb913e09aa0c1ff333c39
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa

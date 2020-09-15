@@ -11,7 +11,6 @@ const prompt = require('./prompt');
 const BlueApp = new AppStorage();
 
 async function startAndDecrypt(retry) {
-  console.log('startAndDecrypt');
   if (BlueApp.getWallets().length > 0) {
     console.log('App already has some wallets, so we are in already started state, exiting startAndDecrypt');
     return;
