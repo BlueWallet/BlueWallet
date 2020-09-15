@@ -759,7 +759,7 @@ export default class SendDetails extends Component {
 
                   if (fee < 1) fee = '1';
                   fee = Number(fee).toString(); // this will remove leading zeros if any
-                  this.setState({ fee, isFeeSelectionModalVisible: false });
+                  this.setState({ fee, isFeeSelectionModalVisible: false }, this.reCalcTx);
                   return;
                 }
               }}
