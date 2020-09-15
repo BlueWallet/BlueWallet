@@ -2292,7 +2292,6 @@ export class BlueReplaceFeeSuggestions extends Component {
   };
 
   state = {
-    selectedFeeType: NetworkTransactionFeeType.FAST,
     customFeeValue: '1',
   };
 
@@ -2301,11 +2300,11 @@ export class BlueReplaceFeeSuggestions extends Component {
       const cachedNetworkTransactionFees = JSON.parse(await AsyncStorage.getItem(NetworkTransactionFee.StorageKey));
 
       if (cachedNetworkTransactionFees && 'fastestFee' in cachedNetworkTransactionFees) {
-        this.setState({ networkFees: cachedNetworkTransactionFees });
+        this.setState({ networkFees: cachedNetworkTransactionFees }, () => this.onFeeSelected(NetworkTransactionFeeType.FAST));
       }
     } catch (_) {}
     const networkFees = await NetworkTransactionFees.recommendedFees();
-    this.setState({ networkFees });
+    this.setState({ networkFees }, () => this.onFeeSelected(NetworkTransactionFeeType.FAST));
   }
 
   onFeeSelected = selectedFeeType => {
