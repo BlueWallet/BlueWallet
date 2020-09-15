@@ -360,6 +360,14 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('SendButton')).tap();
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput')).typeText('0.0001\n');
+
+    // setting fee rate:
+    const feeRate = 2;
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).typeText(feeRate + '');
+    await element(by.text('OK')).tap();
+
     if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
@@ -402,6 +410,12 @@ describe('BlueWallet UI Tests', () => {
     assert.strictEqual(transaction.outs.length, 2);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
     assert.strictEqual(transaction.outs[0].value, 10000);
+
+    // checking fee rate:
+    const totalIns = 100000 + 5526; // we hardcode it since we know it in advance
+    const totalOuts = transaction.outs.map(el => el.value).reduce((a, b) => a + b, 0);
+    assert.strictEqual(Math.round((totalIns - totalOuts) / (txhex.length / 2)), feeRate);
+
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
