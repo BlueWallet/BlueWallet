@@ -1067,13 +1067,14 @@ export default class SendDetails extends Component {
           text: loc._.ok,
           onPress: async () => {
             Keyboard.dismiss();
+            console.warn('this.state.recipientsScrollIndex = ', this.state.recipientsScrollIndex);
             const recipient = this.state.addresses[this.state.recipientsScrollIndex];
             recipient.amount = BitcoinUnit.MAX;
             recipient.amountSats = BitcoinUnit.MAX;
             this.setState({
               addresses: [recipient],
               units: [BitcoinUnit.BTC],
-              recipientsScrollIndex: 320,
+              recipientsScrollIndex: 0,
               isAdvancedTransactionOptionsVisible: false,
             });
           },
