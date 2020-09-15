@@ -1,7 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, ScrollView, StyleSheet, KeyboardAvoidingView } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import { Text } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -167,20 +167,22 @@ export default class CPFP extends Component {
 
   renderStage1(text) {
     return (
-      <SafeBlueArea style={styles.root}>
-        <BlueSpacing />
-        <BlueCard style={styles.center}>
-          <BlueText>{text}</BlueText>
-          <BlueSpacing20 />
-          <BlueReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
+      <KeyboardAvoidingView behavior="position">
+        <SafeBlueArea style={styles.root}>
           <BlueSpacing />
-          <BlueButton
-            disabled={this.state.newFeeRate <= this.state.feeRate}
-            onPress={() => this.createTransaction()}
-            title={loc.transactions.cpfp_create}
-          />
-        </BlueCard>
-      </SafeBlueArea>
+          <BlueCard style={styles.center}>
+            <BlueText>{text}</BlueText>
+            <BlueSpacing20 />
+            <BlueReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
+            <BlueSpacing />
+            <BlueButton
+              disabled={this.state.newFeeRate <= this.state.feeRate}
+              onPress={() => this.createTransaction()}
+              title={loc.transactions.cpfp_create}
+            />
+          </BlueCard>
+        </SafeBlueArea>
+      </KeyboardAvoidingView>
     );
   }
 
