@@ -2421,7 +2421,7 @@ export class BlueReplaceFeeSuggestions extends Component {
                 marginRight: 10,
                 minHeight: 33,
                 paddingRight: 5,
-                textAlign: 'right',
+                paddingLeft: 5,
               }}
               onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue)}
               defaultValue={`${this.props.transactionMinimum}`}
