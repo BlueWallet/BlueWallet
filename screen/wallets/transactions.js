@@ -315,7 +315,7 @@ const WalletTransactions = () => {
       console.log('saving to disk');
       await BlueApp.saveToDisk(); // caching
       EV(EV.enum.TRANSACTIONS_COUNT_CHANGED); // let other components know they should redraw
-      setDataSource(getTransactions(limit));
+      setDataSource([...getTransactions(limit)]);
     }
     setIsLoading(false);
   };
@@ -702,7 +702,7 @@ const WalletTransactions = () => {
           onRefresh={refreshTransactions}
           refreshing={isLoading}
           data={dataSource}
-          extraData={timeElapsed}
+          extraData={[timeElapsed, dataSource]}
           keyExtractor={_keyExtractor}
           renderItem={renderItem}
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}

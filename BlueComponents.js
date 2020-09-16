@@ -523,7 +523,11 @@ export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuB
   let headerRight;
   if (withAdvancedOptionsMenuButton) {
     headerRight = () => (
-      <TouchableOpacity style={{ minWidth: 40, height: 40, justifyContent: 'center' }} onPress={advancedOptionsMenuButtonAction}>
+      <TouchableOpacity
+        style={{ minWidth: 40, height: 40, justifyContent: 'center' }}
+        onPress={advancedOptionsMenuButtonAction}
+        testID="advancedOptionsMenuButton"
+      >
         <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueCurrentTheme.colors.foregroundColor} />
       </TouchableOpacity>
     );
@@ -2417,7 +2421,7 @@ export class BlueReplaceFeeSuggestions extends Component {
                 marginRight: 10,
                 minHeight: 33,
                 paddingRight: 5,
-                textAlign: 'right',
+                paddingLeft: 5,
               }}
               onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue)}
               defaultValue={`${this.props.transactionMinimum}`}
@@ -2578,12 +2582,12 @@ export class BlueBitcoinAmount extends Component {
     return (
       <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          {!this.props.disabled && <View style={{ alignSelf: 'center', marginLeft: 16, padding: 15 }} />}
+          {!this.props.disabled && <View style={{ alignSelf: 'center', padding: amount === BitcoinUnit.MAX ? 0 : 15 }} />}
           <View style={{ flex: 1 }}>
             <View
               style={{ flexDirection: 'row', alignContent: 'space-between', justifyContent: 'center', paddingTop: 16, paddingBottom: 2 }}
             >
-              {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && (
+              {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
                 <Text
                   style={{
                     color: this.props.disabled
@@ -2666,7 +2670,7 @@ export class BlueBitcoinAmount extends Component {
                   fontSize: amount.length > 10 ? 20 : 36,
                 }}
               />
-              {this.state.unit !== BitcoinUnit.LOCAL_CURRENCY && (
+              {this.state.unit !== BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
                 <Text
                   style={{
                     color: this.props.disabled
@@ -2692,8 +2696,9 @@ export class BlueBitcoinAmount extends Component {
               </Text>
             </View>
           </View>
-          {!this.props.disabled && (
+          {!this.props.disabled && amount !== BitcoinUnit.MAX && (
             <TouchableOpacity
+              testID="changeAmountUnitButton"
               style={{ alignSelf: 'center', marginRight: 16, paddingLeft: 16, paddingVertical: 16 }}
               onPress={this.changeAmountUnit}
             >

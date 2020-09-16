@@ -838,6 +838,7 @@ export default class SendDetails extends Component {
           <View style={styles.advancedTransactionOptionsModalContent}>
             {this.state.fromWallet.allowSendMax() && (
               <BlueListItem
+                testID="sendMaxButton"
                 disabled={!(this.state.fromWallet.getBalance() > 0) || isSendMaxUsed}
                 title={loc.send.details_adv_full}
                 hideChevron
