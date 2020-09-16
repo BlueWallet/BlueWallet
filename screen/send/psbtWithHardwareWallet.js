@@ -173,7 +173,7 @@ export default class PsbtWithHardwareWallet extends Component {
     }
     if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
-      this.setState({ txhex: ret.data }, () => this.props.navigation.dangerouslyGetParent().pop());
+      this.setState({ txhex: ret.data });
       return;
     }
     try {
@@ -201,11 +201,20 @@ export default class PsbtWithHardwareWallet extends Component {
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
+    if (!prevState.psbt && !nextProps.route.params.txhex) {
+      alert('There is no transaction signing in progress');
+      return {
+        ...prevState,
+        isLoading: true,
+      };
+    }
+
     const deepLinkPSBT = nextProps.route.params.deepLinkPSBT;
     const txhex = nextProps.route.params.txhex;
     if (deepLinkPSBT) {
+      const psbt = bitcoin.Psbt.fromBase64(deepLinkPSBT);
       try {
-        const Tx = prevState.fromWallet.combinePsbt(prevState.psbt, deepLinkPSBT);
+        const Tx = prevState.fromWallet.combinePsbt(prevState.psbt, psbt);
         return {
           ...prevState,
           txhex: Tx.toHex(),

@@ -170,7 +170,7 @@
     "details_next": "Ďalej",
     "details_no_maximum": "The selected wallet does not support automatic maximum balance calculation. Are you sure to want to select this wallet?",
     "details_no_multiple": "The selected wallet does not support sending Bitcoin to multiple recipients. Are you sure to want to select this wallet?",
-    "details_no_signed_tx": "The selected file does not contain a signed transaction that can be imported.",
+    "details_no_signed_tx": "The selected file does not contain a transaction that can be imported.",
     "details_note_placeholder": "poznámka pre seba",
     "details_scan": "Skenovať",
     "details_total_exceeds_balance": "Čiastka, ktorú chcete poslať, presahuje dostupný zostatok.",
