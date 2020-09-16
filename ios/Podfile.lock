@@ -219,7 +219,7 @@ PODS:
     - React
   - react-native-randombytes (3.5.3):
     - React
-  - react-native-safe-area-context (3.1.4):
+  - react-native-safe-area-context (3.1.6):
     - React
   - react-native-slider (3.0.3):
     - React
@@ -295,7 +295,7 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - RNCAsyncStorage (1.11.0):
+  - RNCAsyncStorage (1.12.0):
     - React
   - RNCClipboard (1.2.3):
     - React
@@ -600,7 +600,7 @@ SPEC CHECKSUMS:
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-image-picker: 21dfd898395b663680e987496f6c3431eea49fdb
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
-  react-native-safe-area-context: 0ed9288ed4409beabb0817b54efc047286fc84da
+  react-native-safe-area-context: 1a1fdfdc6f9f5beb55b2f0d10d8cf029efd996f4
   react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
   react-native-webview: 162c2f2b14555cb524ac0e3b422a9b66ebceefee
@@ -617,7 +617,7 @@ SPEC CHECKSUMS:
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RealmJS: 8eb77f54c3a36f04bece7c38ad864ef7c40373bc
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  RNCAsyncStorage: db711e29e5e0500d9bd21aa0c2e397efa45302b1
+  RNCAsyncStorage: 3eea36d9460c5159b592f9ecbe5a77f8aca98006
   RNCClipboard: 5f3218dcdc28405aa2ae72b78e388f150b826dd3
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNCPushNotificationIOS: 23c5b5fdae79f105c63236de5ca306a70c00c444

@@ -39,6 +39,11 @@ dayjs.extend(relativeTime);
       case 'es':
         require('dayjs/locale/es');
         break;
+      case 'es_419':
+        // es-do it is the closesd one to es_419
+        lang = 'es-do';
+        require('dayjs/locale/es-do');
+        break;
       case 'fi_fi':
         require('dayjs/locale/fi');
         break;
@@ -135,6 +140,7 @@ const strings = new Localization({
   de_de: require('./de_de.json'),
   el: require('./el.json'),
   es: require('./es.json'),
+  es_419: require('./es_419.json'),
   fi_fi: require('./fi_fi.json'),
   fr_fr: require('./fr_fr.json'),
   he: require('./he.json'),
