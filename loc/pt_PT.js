@@ -544,14 +544,14 @@ module.exports = {
         'Introduzir este PIN na aplicação de ambiente de trabalho Electrum Vault para terminar o processo de emparelhamento.',
     },
   },
-  imeCounter: {
+  timeCounter: {
     title: 'Aplicação bloqueada',
     description:
       'A sua candidatura foi bloqueada devido às tentativas de login sem sucesso. Por favor, aguarde o tempo necessário para tentar novamente.',
     tryAgain: 'Tentar novamente',
     closeTheApp: 'Fechar a aplicação',
   },
-  ecurity: {
+  security: {
     jailBrokenPhone:
       'O seu dispositivo parece ter sido desbloqueado. Isto pode provocar problemas de segurança, colisões ou outros problemas. Não recomendamos a utilização da GoldWallet com um dispositivo desbloqueado.',
     rootedPhone:

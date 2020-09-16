@@ -511,13 +511,13 @@ module.exports = {
       description: '이 PIN을 Electrum Vault 데스크톱 응용 프로그램에 입력하여 페어링을 완료합니다.',
     },
   },
-  imeCounter: {
+  timeCounter: {
     title: '응용 프로그램이 차단됨',
     description: '로그인 시도가 실패하여 응용 프로그램이 차단되었습니다. 일정시간 후 다시 시도할 수 있습니다.',
     tryAgain: '다시 시도',
     closeTheApp: '응용 프로그램 닫기',
   },
-  ecurity: {
+  security: {
     jailBrokenPhone:
       '귀하의 장치가 탈옥된 것 같습니다. 이런 경우 보안 문제나 충돌, 기타 다양한 문제가 발생할 수 있습니다. 탈옥된 장치에서는 GoldWallet을 사용하지 않는 것이 좋습니다.',
     rootedPhone:
