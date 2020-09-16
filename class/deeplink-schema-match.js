@@ -41,7 +41,7 @@ class DeeplinkSchemaMatch {
       event.url = event.url.substring(11);
     }
 
-    if (DeeplinkSchemaMatch.isPossiblyPSBTFile(event.url)) {
+    if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(event.url)) {
       RNFS.readFile(event.url)
         .then(file => {
           if (file) {
@@ -203,13 +203,23 @@ class DeeplinkSchemaMatch {
   }
 
   static isTXNFile(filePath) {
-    return filePath.toLowerCase().startsWith('file:') && filePath.toLowerCase().endsWith('.txn');
+    return (
+      (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
+      filePath.toLowerCase().endsWith('.txn')
+    );
+  }
+
+  static isPossiblySignedPSBTFile(filePath) {
+    return (
+      (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
+      filePath.toLowerCase().endsWith('-signed.psbt')
+    );
   }
 
   static isPossiblyPSBTFile(filePath) {
     return (
       (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
-      filePath.toLowerCase().endsWith('-signed.psbt')
+      filePath.toLowerCase().endsWith('.psbt')
     );
   }
 
