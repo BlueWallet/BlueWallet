@@ -1,6 +1,6 @@
 /* global alert */
 import React from 'react';
-import { ActivityIndicator, View, StyleSheet } from 'react-native';
+import { ActivityIndicator, View, StyleSheet, ScrollView } from 'react-native';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
@@ -12,7 +12,7 @@ const BlueApp = require('../../BlueApp');
 const styles = StyleSheet.create({
   common: {
     flex: 1,
-    paddingTop: 20,
+    paddingTop: 16,
   },
 });
 
@@ -103,12 +103,16 @@ export default class RBFCancel extends CPFP {
           <BlueSpacing20 />
           <BlueSpacing20 />
 
-          <BlueText h4>loc.transactions.cancel_no</BlueText>
+          <BlueText h4>{loc.transactions.cancel_no}</BlueText>
         </SafeBlueArea>
       );
     }
 
-    return this.renderStage1(loc.transactions.cancel_explain);
+    return (
+      <SafeBlueArea style={styles.root}>
+        <ScrollView>{this.renderStage1(loc.transactions.cancel_explain)}</ScrollView>
+      </SafeBlueArea>
+    );
   }
 }
 
