@@ -40,9 +40,8 @@ class DeeplinkSchemaMatch {
     if (event.url.toLowerCase().startsWith('bluewallet:bitcoin:') || event.url.toLowerCase().startsWith('bluewallet:lightning:')) {
       event.url = event.url.substring(11);
     }
-
     if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(event.url)) {
-      RNFS.readFile(event.url)
+      RNFS.readFile(decodeURI(event.url))
         .then(file => {
           if (file) {
             completionHandler([
