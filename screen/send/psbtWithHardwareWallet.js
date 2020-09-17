@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
   rootPadding: {
     flex: 1,
     paddingTop: 20,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   closeCamera: {
     width: 40,
@@ -89,6 +90,7 @@ const styles = StyleSheet.create({
   hexWrap: {
     alignItems: 'center',
     flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   hexLabel: {
     color: BlueCurrentTheme.colors.foregroundColor,
