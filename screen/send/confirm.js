@@ -108,7 +108,7 @@ export default class Confirm extends Component {
         this.props.navigation.navigate('Success', {
           fee: Number(this.state.fee),
           amount,
-          dismissModal: () => this.props.navigation.dismiss(),
+          dismissModal: () => this.props.navigation.dangerouslyGetParent().pop(),
         });
 
         this.setState({ isLoading: false });

@@ -215,7 +215,12 @@ export default class TransactionsStatus extends Component {
     }
 
     const tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
-    if ((await tx.isOurTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0 && (await tx.isSequenceReplaceable())) {
+    if (
+      (await tx.isOurTransaction()) &&
+      (await tx.getRemoteConfirmationsNum()) === 0 &&
+      (await tx.isSequenceReplaceable()) &&
+      (await tx.canBumpTx())
+    ) {
       return this.setState({ isRBFBumpFeePossible: buttonStatus.possible });
     } else {
       return this.setState({ isRBFBumpFeePossible: buttonStatus.notPossible });

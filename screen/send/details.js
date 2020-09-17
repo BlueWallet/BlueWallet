@@ -332,7 +332,7 @@ export default class SendDetails extends Component {
     if (this.props.route.params.uri) {
       const uri = this.props.route.params.uri;
       try {
-        const { address, amount, memo, payjoinUrl } = this.decodeBitcoinUri(uri);
+        const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(uri);
         addresses.push(new BitcoinTransaction(address, amount, currency.btcToSatoshi(amount)));
         initialMemo = memo;
         this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC, payjoinUrl });
@@ -374,7 +374,7 @@ export default class SendDetails extends Component {
 
     if (this.props.route.params.uri) {
       try {
-        const { address, amount, memo, payjoinUrl } = this.decodeBitcoinUri(this.props.route.params.uri);
+        const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(this.props.route.params.uri);
         this.setState({ address, amount, memo, isLoading: false, payjoinUrl });
       } catch (error) {
         console.log(error);
@@ -400,31 +400,6 @@ export default class SendDetails extends Component {
   _keyboardDidHide = () => {
     this.setState({ renderWalletSelectionButtonHidden: false, isAmountToolbarVisibleForAndroid: false });
   };
-
-  decodeBitcoinUri(uri) {
-    let amount = '';
-    let parsedBitcoinUri = null;
-    let address = uri || '';
-    let memo = '';
-    let payjoinUrl = '';
-    try {
-      parsedBitcoinUri = DeeplinkSchemaMatch.bip21decode(uri);
-      address = 'address' in parsedBitcoinUri ? parsedBitcoinUri.address : address;
-      if ('options' in parsedBitcoinUri) {
-        if ('amount' in parsedBitcoinUri.options) {
-          amount = parsedBitcoinUri.options.amount.toString();
-          amount = parsedBitcoinUri.options.amount;
-        }
-        if ('label' in parsedBitcoinUri.options) {
-          memo = parsedBitcoinUri.options.label || memo;
-        }
-        if (Object.prototype.hasOwnProperty.call(parsedBitcoinUri.options, 'pj')) {
-          payjoinUrl = parsedBitcoinUri.options.pj;
-        }
-      }
-    } catch (_) {}
-    return { address, amount, memo, payjoinUrl };
-  }
 
   async createTransaction() {
     Keyboard.dismiss();
@@ -1040,7 +1015,7 @@ export default class SendDetails extends Component {
             onChangeText={async text => {
               text = text.trim();
               const transactions = this.state.addresses;
-              const { address, amount, memo, payjoinUrl } = this.decodeBitcoinUri(text);
+              const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text);
               item.address = address || text;
               item.amount = amount || item.amount;
               transactions[index] = item;
