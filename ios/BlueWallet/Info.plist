@@ -48,7 +48,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>5.6.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -107,8 +107,6 @@
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Your authorization is required in order to provide you local offers.</string>
-	<key>NSLocationUsageDescription</key>
 	<string>Your authorization is required in order to provide you local offers.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
