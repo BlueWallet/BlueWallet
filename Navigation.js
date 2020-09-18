@@ -251,6 +251,13 @@ const HodlHodlLoginRoot = () => (
   </HodlHodlLoginStack.Navigator>
 );
 
+const ReorderWalletsStack = createStackNavigator();
+const ReorderWalletsStackRoot = () => (
+  <ReorderWalletsStack.Navigator name="ReorderWalletsRoot" screenOptions={defaultStackScreenOptions}>
+    <ReorderWalletsStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions} />
+  </ReorderWalletsStack.Navigator>
+);
+
 const Drawer = createDrawerNavigator();
 function DrawerRoot() {
   const dimensions = useWindowDimensions();
@@ -276,7 +283,7 @@ const InitRoot = () => (
       component={UnlockWithScreenRoot}
       options={{ headerShown: false, animationEnabled: false }}
     />
-    <InitStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions} />
+    <InitStack.Screen name="ReorderWallets" component={ReorderWalletsStackRoot} options={{ headerShown: false }} />
     <InitStack.Screen name="DrawerRoot" component={DrawerRoot} options={{ headerShown: false, animationEnabled: false }} />
   </InitStack.Navigator>
 );

@@ -10,6 +10,7 @@ import RNFS from 'react-native-fs';
 import loc from '../../loc';
 import { BlueLoadingHook, BlueTextHooks, BlueButtonHook, BlueSpacing40 } from '../../BlueComponents';
 import { getSystemName } from 'react-native-device-info';
+const prompt = require('../../blue_modules/prompt');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
 const isDesktop = getSystemName() === 'Mac OS X';
@@ -61,6 +62,16 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     alignItems: 'center',
   },
+  backdoorButton: {
+    width: 40,
+    height: 40,
+    backgroundColor: 'rgba(0,0,0,0)',
+    justifyContent: 'center',
+    borderRadius: 0,
+    position: 'absolute',
+    left: 0,
+    bottom: 0,
+  },
 });
 
 const ScanQRCode = () => {
@@ -73,6 +84,7 @@ const ScanQRCode = () => {
   const { colors } = useTheme();
   const isFocused = useIsFocused();
   const [cameraStatus, setCameraStatus] = useState(RNCamera.Constants.CameraStatus.PENDING_AUTHORIZATION);
+  const [backdoorPressed, setBackdoorPressed] = useState(0);
   const stylesHook = StyleSheet.create({
     openSettingsContainer: {
       backgroundColor: colors.brandingColor,
@@ -206,6 +218,27 @@ const ScanQRCode = () => {
       <TouchableOpacity style={styles.imagePickerTouch} onPress={showImagePicker}>
         <Icon name="image" type="font-awesome" color="#ffffff" />
       </TouchableOpacity>
+      <TouchableOpacity
+        testID="ScanQrBackdoorButton"
+        style={styles.backdoorButton}
+        onPress={async () => {
+          // this is an invisible backdoor button on bottom left screen corner
+          // tapping it 10 times fires prompt dialog asking for a string thats gona be passed to onBarCodeRead.
+          // this allows to mock and test QR scanning in e2e tests
+          setBackdoorPressed(backdoorPressed + 1);
+          if (backdoorPressed < 10) return;
+          let data, userInput;
+          try {
+            userInput = await prompt('Provide QR code contents manually:', '', false, 'plain-text');
+            data = JSON.parse(userInput);
+            // this might be a json string (for convenience - in case there are "\n" in there)
+          } catch (_) {
+            data = userInput;
+          }
+
+          if (data) onBarCodeRead({ data });
+        }}
+      />
       {showFileImportButton && (
         <TouchableOpacity style={styles.filePickerTouch} onPress={showFilePicker}>
           <Icon name="file-import" type="material-community" color="#ffffff" />

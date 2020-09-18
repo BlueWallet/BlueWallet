@@ -315,7 +315,7 @@ const WalletTransactions = () => {
       console.log('saving to disk');
       await BlueApp.saveToDisk(); // caching
       EV(EV.enum.TRANSACTIONS_COUNT_CHANGED); // let other components know they should redraw
-      setDataSource(getTransactions(limit));
+      setDataSource([...getTransactions(limit)]);
     }
     setIsLoading(false);
   };
@@ -488,8 +488,8 @@ const WalletTransactions = () => {
     );
   };
 
-  const onWalletSelect = async wallet => {
-    if (wallet) {
+  const onWalletSelect = async selectedWallet => {
+    if (selectedWallet) {
       navigate('WalletTransactions', {
         key: `WalletTransactions-${wallet.getID()}`,
       });
@@ -510,7 +510,7 @@ const WalletTransactions = () => {
         params: {
           memo: loc.lnd.refill_lnd_balance,
           address: toAddress,
-          fromWallet: wallet,
+          fromWallet: selectedWallet,
         },
       });
     }
@@ -702,7 +702,7 @@ const WalletTransactions = () => {
           onRefresh={refreshTransactions}
           refreshing={isLoading}
           data={dataSource}
-          extraData={timeElapsed}
+          extraData={[timeElapsed, dataSource]}
           keyExtractor={_keyExtractor}
           renderItem={renderItem}
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}

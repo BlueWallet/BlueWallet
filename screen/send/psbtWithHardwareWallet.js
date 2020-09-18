@@ -279,7 +279,11 @@ export default class PsbtWithHardwareWallet extends Component {
             <Text style={styles.hexText}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
           <BlueSpacing20 />
-          <SecondButton onPress={this.broadcast} title={loc.send.confirm_sendNow} />
+          <SecondButton
+            onPress={this.broadcast}
+            title={loc.send.confirm_sendNow}
+            testID="PsbtWithHardwareWalletBroadcastTransactionButton"
+          />
         </BlueCard>
       </View>
     );
@@ -386,7 +390,7 @@ export default class PsbtWithHardwareWallet extends Component {
 
     return (
       <SafeBlueArea style={styles.root}>
-        <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
+        <ScrollView centerContent contentContainerStyle={styles.scrollViewContent} testID="PsbtWithHardwareScrollView">
           <View style={styles.container}>
             <BlueCard>
               <BlueText testID="TextHelperForPSBT">{loc.send.psbt_this_is_psbt}</BlueText>
@@ -394,6 +398,7 @@ export default class PsbtWithHardwareWallet extends Component {
               <DynamicQRCode value={this.state.psbt.toHex()} capacity={200} />
               <BlueSpacing20 />
               <SecondButton
+                testID="PsbtTxScanButton"
                 icon={{
                   name: 'qrcode',
                   type: 'font-awesome',

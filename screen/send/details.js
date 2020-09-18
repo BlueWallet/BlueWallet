@@ -470,7 +470,7 @@ export default class SendDetails extends Component {
         this.setState({ isLoading: false, recipientsScrollIndex: index });
         alert(error);
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-        break;
+        return;
       }
     }
 
@@ -739,6 +739,7 @@ export default class SendDetails extends Component {
               </TouchableOpacity>
             ))}
             <TouchableOpacity
+              testID="feeCustom"
               style={styles.feeModalCustom}
               onPress={async () => {
                 let error = loc.send.fee_satbyte;
@@ -758,7 +759,7 @@ export default class SendDetails extends Component {
 
                   if (fee < 1) fee = '1';
                   fee = Number(fee).toString(); // this will remove leading zeros if any
-                  this.setState({ fee, isFeeSelectionModalVisible: false });
+                  this.setState({ fee, isFeeSelectionModalVisible: false }, this.reCalcTx);
                   return;
                 }
               }}
@@ -830,6 +831,7 @@ export default class SendDetails extends Component {
           <View style={styles.advancedTransactionOptionsModalContent}>
             {this.state.fromWallet.allowSendMax() && (
               <BlueListItem
+                testID="sendMaxButton"
                 disabled={!(this.state.fromWallet.getBalance() > 0) || isSendMaxUsed}
                 title={loc.send.details_adv_full}
                 hideChevron
@@ -1073,7 +1075,7 @@ export default class SendDetails extends Component {
             this.setState({
               addresses: [recipient],
               units: [BitcoinUnit.BTC],
-              recipientsScrollIndex: 320,
+              recipientsScrollIndex: 0,
               isAdvancedTransactionOptionsVisible: false,
             });
           },
@@ -1143,6 +1145,7 @@ export default class SendDetails extends Component {
                 />
               </View>
               <TouchableOpacity
+                testID="chooseFee"
                 onPress={() => this.setState({ isFeeSelectionModalVisible: true }, () => this.reCalcTx(true))}
                 disabled={this.state.isLoading}
                 style={styles.fee}

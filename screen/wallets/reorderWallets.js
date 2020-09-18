@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, ActivityIndicator, Image, Text, StyleSheet, StatusBar, ScrollView } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
+import { BlueNavigationStyle } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
 import { PlaceholderWallet, LightningCustodianWallet } from '../../class';
@@ -168,12 +168,11 @@ const ReorderWallets = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea>
+    <View style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="light-content" />
       <ScrollView scrollEnabled={scrollEnabled}>
         <SortableList
           ref={sortableList}
-          style={[styles.root, stylesHook.root]}
           data={data}
           renderRow={renderItem}
           scrollEnabled={false}
@@ -182,7 +181,7 @@ const ReorderWallets = () => {
           onReleaseRow={onReleaseRow}
         />
       </ScrollView>
-    </SafeBlueArea>
+    </View>
   );
 };
 
