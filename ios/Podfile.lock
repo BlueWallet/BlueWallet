@@ -248,14 +248,14 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.38.0):
-    - React
-    - react-native-camera/RCT (= 3.38.0)
-    - react-native-camera/RN (= 3.38.0)
-  - react-native-camera/RCT (3.38.0):
-    - React
-  - react-native-camera/RN (3.38.0):
-    - React
+  - react-native-camera (3.39.1):
+    - React-Core
+    - react-native-camera/RCT (= 3.39.1)
+    - react-native-camera/RN (= 3.39.1)
+  - react-native-camera/RCT (3.39.1):
+    - React-Core
+  - react-native-camera/RN (3.39.1):
+    - React-Core
   - react-native-document-picker (3.5.4):
     - React
   - react-native-fingerprint-scanner (6.0.0):
@@ -266,8 +266,8 @@ PODS:
     - React
   - react-native-randombytes (3.5.3):
     - React
-  - react-native-safe-area-context (3.1.6):
-    - React
+  - react-native-safe-area-context (3.1.8):
+    - React-Core
   - react-native-slider (3.0.3):
     - React
   - react-native-tcp-socket (3.7.1):
@@ -347,12 +347,12 @@ PODS:
     - React
   - RNCMaskedView (0.1.10):
     - React
-  - RNCPushNotificationIOS (1.4.0):
+  - RNCPushNotificationIOS (1.5.0):
     - React
   - RNDefaultPreference (1.4.3):
     - React
-  - RNDeviceInfo (6.0.1):
-    - React
+  - RNDeviceInfo (6.0.3):
+    - React-Core
   - RNFS (2.16.6):
     - React
   - RNGestureHandler (1.7.0):
@@ -371,11 +371,11 @@ PODS:
     - React
   - RNReanimated (1.13.0):
     - React
-  - RNScreens (2.10.1):
+  - RNScreens (2.11.0):
     - React
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.7.1):
+  - RNSentry (1.8.0):
     - React
     - Sentry (~> 5.2.0)
   - RNShare (3.7.0):
@@ -672,13 +672,13 @@ SPEC CHECKSUMS:
   React-jsinspector: 512e560d0e985d0e8c479a54a4e5c147a9c83493
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: 9a0db39fc97a479fe472e86ce424545478133a2f
+  react-native-camera: fc1296181b2d393ea698164869070c96d8625129
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-geolocation: cbd9d6bd06bac411eed2671810f454d4908484a8
   react-native-image-picker: a6c3d644751a388b0fc8b56822ff7cbd398a3008
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
-  react-native-safe-area-context: 1a1fdfdc6f9f5beb55b2f0d10d8cf029efd996f4
+  react-native-safe-area-context: 01158a92c300895d79dee447e980672dc3fb85a6
   react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
   react-native-webview: 162c2f2b14555cb524ac0e3b422a9b66ebceefee
@@ -698,9 +698,9 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 3eea36d9460c5159b592f9ecbe5a77f8aca98006
   RNCClipboard: 5f3218dcdc28405aa2ae72b78e388f150b826dd3
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
-  RNCPushNotificationIOS: f4a1a20fe1d70bbb1fab6abf86ffec2996012b12
+  RNCPushNotificationIOS: 8025ff0b610d7b28d29ddc1b619cd55814362e4c
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
-  RNDeviceInfo: a0a4edaebb926d04db08640d64281b6615f5505d
+  RNDeviceInfo: 910ef2129aff229d8ebd1214bc5f0148017b51d1
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
   RNGestureHandler: b6b359bb800ae399a9c8b27032bdbf7c18f08a08
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
@@ -710,9 +710,9 @@ SPEC CHECKSUMS:
   RNRate: 2b31dad120cd1b78e33c6034808561c386a3dddf
   RNReactNativeHapticFeedback: 22c5ecf474428766c6b148f96f2ff6155cd7225e
   RNReanimated: 89f5e0a04d1dd52fbf27e7e7030d8f80a646a3fc
-  RNScreens: b748efec66e095134c7166ca333b628cd7e6f3e2
+  RNScreens: 0e91da98ab26d5d04c7b59a9b6bd694124caf88c
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: 2bae4ffee2e66376ef42cb845a494c3bde17bc56
+  RNSentry: 1e27aeee260eaa833d5c22a4401be47d7b15c4b0
   RNShare: a1d5064df7a0ebe778d001869b3f0a124bf0a491
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
