@@ -548,5 +548,6 @@ const es = {
     jailBrokenPhone: 'Su dispositivo parece estar liberado. Esto puede producir riesgos de seguridad, errores u otros problemas. No recomendamos usar GoldWallet con un dispositivo liberado.',
     rootedPhone: 'Su dispositivo parece estar enraizado. Esto puede riesgos de seguridad, errores u otros problemas. No recomendamos usar GoldWallet con un dispositivo enraizado.',
     title: 'Problema de seguridad',
+    noPinOrFingerprintSet: 'TRANSLATION NEEDED | ENG: Your device appears to not have pin or fingerprint setted. We do not recommend using GoldWallet with not secured device.',
   },
 }

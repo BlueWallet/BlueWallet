@@ -548,5 +548,6 @@ const jo = {
     jailBrokenPhone: '貴下の装置が脱獄されたようです。この場合セキュリティ問題や衝突、その他様々な問題が発生する恐れがあります。脱獄された装置ではGoldWalletを使用しないようお願いします。',
     rootedPhone: '貴下の装置がルーティングされたようです。この場合セキュリティ問題や衝突、その他様々な問題が発生する恐れがあります。ルーティングされた装置ではGoldWalletを使用しないようお願いします。\n',
     title: 'セキュリティ問題',
+    noPinOrFingerprintSet: 'TRANSLATION NEEDED | ENG: Your device appears to not have pin or fingerprint setted. We do not recommend using GoldWallet with not secured device.',
   },
 }

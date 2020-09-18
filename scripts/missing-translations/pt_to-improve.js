@@ -538,26 +538,16 @@ const pt = {
       description: 'Introduzir este PIN na aplicação de ambiente de trabalho Electrum Vault para terminar o processo de emparelhamento.',
     },
   },
-  imeCounter: {
+  timeCounter: {
     title: 'Aplicação bloqueada',
     description: 'A sua candidatura foi bloqueada devido às tentativas de login sem sucesso. Por favor, aguarde o tempo necessário para tentar novamente.',
     tryAgain: 'Tentar novamente',
     closeTheApp: 'Fechar a aplicação',
   },
-  ecurity: {
+  security: {
     jailBrokenPhone: 'O seu dispositivo parece ter sido desbloqueado. Isto pode provocar problemas de segurança, colisões ou outros problemas. Não recomendamos a utilização da GoldWallet com um dispositivo desbloqueado.',
     rootedPhone: 'O seu dispositivo parece ter sido ancorado. Isto pode provocar problemas de segurança, colisões ou outros problemas. Não recomendamos a utilização da GoldWallet com um dispositivo ancorado.',
     title: 'Problema de segurança',
-  },
-  timeCounter: {
-    title: 'TRANSLATION NEEDED | ENG: Application blocked',
-    description: 'TRANSLATION NEEDED | ENG: Your application has been blocked due to the unsuccessful login attempts. Please wait required time in order to try again.',
-    tryAgain: 'TRANSLATION NEEDED | ENG: Try again',
-    closeTheApp: 'TRANSLATION NEEDED | ENG: Close the application',
-  },
-  security: {
-    jailBrokenPhone: 'TRANSLATION NEEDED | ENG: Your device appears to be jailbroken. This may occurs security issues, crashes, or other problems. We do not recommend using GoldWallet with jailbroken device.',
-    rootedPhone: 'TRANSLATION NEEDED | ENG: Your device appears to be rooted. This may occurs security issues, crashes, or other problems. We do not recommend using GoldWallet with rooted device.',
-    title: 'TRANSLATION NEEDED | ENG: Security issue',
+    noPinOrFingerprintSet: 'TRANSLATION NEEDED | ENG: Your device appears to not have pin or fingerprint setted. We do not recommend using GoldWallet with not secured device.',
   },
 }

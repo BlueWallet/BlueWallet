@@ -548,5 +548,6 @@ const tr = {
     jailBrokenPhone: 'Cihazınızın yazılımını kırdırdığınız (jailbroken) görülüyor. Bu güvenlik sorunlarına, çökmelere veya diğer sorunlara yol açabilir. Yazılımı kırdırılmış (jailbroken) bir cihazda GoldWallet kullanmanızı önermiyoruz.',
     rootedPhone: 'Cihazınızın kök yazılımına erişiminiz olduğu (rooted) görülüyor. Bu güvenlik sorunlarına, çökmelere veya diğer sorunlara yol açabilir. Kök yazılımına erişilmiş (rooted) bir cihazda GoldWallet kullanmanızı önermiyoruz.',
     title: 'Güvenlik sorunu',
+    noPinOrFingerprintSet: 'TRANSLATION NEEDED | ENG: Your device appears to not have pin or fingerprint setted. We do not recommend using GoldWallet with not secured device.',
   },
 }
