@@ -3,8 +3,18 @@ v5.5.9
 
 * ADD: Arabic language
 * ADD: new choose fee workflow
+* FIX: broken LN -> manage funds -> refill
 * FIX: camera wont scan QR with airgapped HW wallet flow
-* FIX:  Refresh from notification #1723
+* FIX: Refresh from notification
+* FIX: transaction not updating on refresh
+* FIX: textAlign: right for custom fee in CPFP/RBF form
+* FIX: set default fee in CPFP/RBF fee-selection component
+* FIX: update recalculate fee on send screen with custom sat/byte fee rate
+* FIX: broken sendMAX if units are changed several times
+* FIX: validation allows user to create transaction even without valid address & amount
+* FIX: Only send wallets to watch app if installed
+* FIX: Send Max not working
+* FIX: Reorder screen is broken
 
 
 v5.5.8

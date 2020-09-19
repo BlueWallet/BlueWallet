@@ -1,5 +1,5 @@
 /* global alert */
-import Biometrics from 'react-native-biometrics';
+import FingerprintScanner from 'react-native-fingerprint-scanner';
 import { Platform, Alert } from 'react-native';
 import PasscodeAuth from 'react-native-passcode-auth';
 import * as NavigationService from '../NavigationService';
@@ -10,23 +10,26 @@ const BlueApp = require('../BlueApp');
 
 export default class Biometric {
   static STORAGEKEY = 'Biometrics';
-  static FaceID = Biometrics.FaceID;
-  static TouchID = Biometrics.TouchID;
-  static Biometrics = Biometrics.Biometrics;
+  static FaceID = 'Face ID';
+  static TouchID = 'Touch ID';
+  static Biometrics = 'Biometrics';
 
   static async isDeviceBiometricCapable() {
-    const isDeviceBiometricCapable = await Biometrics.isSensorAvailable();
-    if (isDeviceBiometricCapable.available) {
-      return true;
+    try {
+      const isDeviceBiometricCapable = await FingerprintScanner.isSensorAvailable();
+      if (isDeviceBiometricCapable) {
+        return true;
+      }
+    } catch {
+      Biometric.setBiometricUseEnabled(false);
+      return false;
     }
-    Biometric.setBiometricUseEnabled(false);
-    return false;
   }
 
   static async biometricType() {
     try {
-      const isSensorAvailable = await Biometrics.isSensorAvailable();
-      return isSensorAvailable.biometryType;
+      const isSensorAvailable = await FingerprintScanner.isSensorAvailable();
+      return isSensorAvailable;
     } catch (e) {
       console.log(e);
     }
@@ -57,8 +60,8 @@ export default class Biometric {
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
     if (isDeviceBiometricCapable) {
       try {
-        const isConfirmed = await Biometrics.simplePrompt({ promptMessage: 'Please confirm your identity.' });
-        return isConfirmed.success;
+        const isConfirmed = await FingerprintScanner.authenticate({ description: 'Please confirm your identity.', fallbackEnabled: true });
+        return isConfirmed;
       } catch (_e) {
         return false;
       }
@@ -109,10 +112,18 @@ export default class Biometric {
         'Storage',
         `You have attempted to enter your password 10 times. Would you like to reset your storage? This will remove all wallets and decrypt your storage.`,
         [
-          { text: loc._.cancel, onPress: () => {
-            NavigationService.dispatch(CommonActions.setParams({index: 0, routes: [
-              { name: 'UnlockWithScreenRoot' }, { params: { unlockOnComponentMount: false }}]}));
-          }, style: 'cancel' },
+          {
+            text: loc._.cancel,
+            onPress: () => {
+              NavigationService.dispatch(
+                CommonActions.setParams({
+                  index: 0,
+                  routes: [{ name: 'UnlockWithScreenRoot' }, { params: { unlockOnComponentMount: false } }],
+                }),
+              );
+            },
+            style: 'cancel',
+          },
           {
             text: loc._.ok,
             onPress: () => Biometric.requestDevicePasscode(),
