@@ -170,7 +170,7 @@
     "details_next": "Naprej",
     "details_no_maximum": "Izbrana denarnica ne podpira samodejnega izračuna največjega stanja. Ali ste prepričani, da želite izbrati to denarnico?",
     "details_no_multiple": "Izbrana denarnica ne podpira pošiljanja več prejemnikom. Ali ste prepričani, da želite izbrati to denarnico?",
-    "details_no_signed_tx": "Izbrana datoteka ne vsebuje podpisane transakcije, ki jo je mogoče uvoziti.",
+    "details_no_signed_tx": "Izbrana datoteka ne vsebuje transakcije, ki jo je mogoče uvoziti.",
     "details_note_placeholder": "lastna opomba",
     "details_scan": "Skeniraj",
     "details_total_exceeds_balance": "Znesek presega razpoložljivo stanje.",
