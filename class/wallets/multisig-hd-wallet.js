@@ -443,11 +443,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       const pubkey = _node0.derive(index).publicKey;
       pubkeys.push(pubkey);
 
-      /* console.warn({
-        masterFingerprint,
-        path,
-        pubkey,
-      }); */
       bip32Derivation.push({
         masterFingerprint,
         path,
@@ -461,11 +456,16 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       const p2sh = bitcoin.payments.p2ms({ m: this._m, pubkeys: MultisigHDWallet.sortBuffers(pubkeys) });
       outputData.redeemScript = p2sh.output;
     } else if (this.isWrappedSegwit()) {
-      // todo
+      const p2shP2wsh = bitcoin.payments.p2sh({
+        redeem: bitcoin.payments.p2wsh({
+          redeem: bitcoin.payments.p2ms({ m: this._m, pubkeys: MultisigHDWallet.sortBuffers(pubkeys) }),
+        }),
+      });
+      outputData.witnessScript = p2shP2wsh.redeem.redeem.output;
     } else if (this.isNativeSegwit()) {
-      // todo
+      // not needed by coldcard, apparently..?
     } else {
-      throw new Error('not implemented');
+      throw new Error('dont know how to add change output');
     }
 
     return outputData;
