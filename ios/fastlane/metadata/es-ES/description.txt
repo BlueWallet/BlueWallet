@@ -1,48 +1,53 @@
-Una Cartera de Bitcoin que te permite guardar, enviar Bitcoin, recibir Bitcoin y comprar Bitcoin, centrada en la seguridad y la simplicidad.
+Una cartera de Bitcoin que te permite guardar, mandar, recibir y comprar bitcoin centrada en la seguridad y la simplicidad.
 
-Con BlueWallet, una Cartera Bitcoin donde controlas las claves privadas. Una cartera Bitcoin creada por usuarios de Bitcoin para la comunidad.
+En BlueWallet tú controlas las llaves privadas. Una cartera de Bitcoin hecha por usuarios de Bitcoin para la comunidad.
 
-Puedes realizar transacciones con cualquier persona en el mundo y transformar el sistema financiero directamente desde su bolsillo.
+Realiza trámites al instante con cualquiera, sin importar dónde esté. Transforma el sistema financiero desde tu bolsillo.
 
-Puedes crear una cantidad ilimitada de carteras Bitcoin de forma gratuita o importar las carteras que ya tienes en su aplicación BlueWallet. ¡Es fácil y rápido!
+Crea todas las carteras de Bitcoin que quieras o importa una que ya tengas. Es rápido y sencillo.
 
----
+_____
 
-Lo que encontrarás:
+Ofrece todo esto:
 
-1 - Seguridad primero
 
-Código abierto/Open Source
-Con una licencia MIT, puedes construirla y ejecutarla tu mismo. Hecho en React Native.
+1 - Seguridad mediante diseño
 
-Negación Plausible
-Contraseña que descifra carteras falsas. Para casos especiales en los que se le puede solicitar que revele su contraseña, puede revelar la contraseña falsa. Mantenga su bitcoin seguro.
+Código abierto
+Licencia MIT, compila el código tú mismo! Hecha con ReactNative
 
-Cifrado Completo
-Construido sobre el cifrado multicapa de iOS, BlueWallet cifra todo con una contraseña adicional.
+Negación plausible
+Desbloquea carteras de bitcoin falsas si alguien te obliga a darles tu contraseña
 
-Cartera SegWit e HD
-Compatible con SegWit (ayuda a reducir las tarifas) y carteras HD activadas.
+Encriptación total
+Además de la encriptación multicapa de iOS, encriptamos todo con contraseñas adicionales
 
-2 - Centrado en tu experiencia
+Nodo completo
+Conecta a tu nodo de Bitcoin a través de Electrum
 
-Siempre en control
-Las claves privadas nunca dejan su teléfono, tu controla sus claves privadas.
+Almacenamiento frío
+Conecta tu cartera de hardware y guarda tus fondos en cold storage
 
-Tarifas flexibles
-A partir de 1 Satoshi. No pague de más por las transacciones.
+2 - Centrada en tu experiencia
 
-Reemplazo de tarifas (RBF)
-Acelere sus transacciones aumentando la tarifa (BIP125). También puedes cambiar la dirección del destinatario en transacciones no confirmadas.
+Control total
+Las llaves privadas nunca salen de tu dispositivo
+Tú controlas las llaves privadas
 
-Cartera Watch-only
-Mira tu almacenamiento en frío de Bitcoin sin tener que tocarlo.
+Comisiones flexibles
+Desde 1 Satoshi. Definido por ti, el usuario
+
+Replace by Fee
+(RBF) Acelera tus transacciones incrementando la comisión (BIP125)
+
+Carteras de observación
+Las carteras de observación te permiten vigilar tus bitcoin en cold storage sin tener que tocar el hardware.
 
 Lightning Network
-Cartera Lightning sin ajustes. Transacciones baratas y ultrarrápidas con la mejor experiencia de Bitcoin.
+Crea carteras Lighting con la mejor experiencia de usuario. Ofrecen comisiones muy bajas y transacciones super rápidas.
 
-Comprar Bitcoin
-Ahora puede comprar Bitcoin directamente sin dejar tu cartera y con las tuyos claves privadas.
+Compra bitcoin
+Únete a la revolución de la economía abierta con la opción de comprar bitcoin directamente desde tu cartera.
 
-Local Trader
-Plataforma de negociación Bitcoin p2p, que te permite comprar y vender bitcoin directamente a otros usuarios sin terceros.
+Compra-venta local
+Una plataforma P2P de compra-venta de bitcoin, que te permite comprar y vender directamente con otros usuarios sin pasar por terceros.

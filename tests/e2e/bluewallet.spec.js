@@ -358,8 +358,16 @@ describe('BlueWallet UI Tests', () => {
 
     // lets create real transaction:
     await element(by.id('SendButton')).tap();
-    await element(by.id('AddressInput')).typeText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput')).typeText('0.0001\n');
+
+    // setting fee rate:
+    const feeRate = 2;
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).typeText(feeRate + '');
+    await element(by.text('OK')).tap();
+
     if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
@@ -370,38 +378,67 @@ describe('BlueWallet UI Tests', () => {
     expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     await element(by.id('TransactionDetailsButton')).tap();
 
-    // now, a hack to extract element text. warning, this might break in future
-    // @see https://github.com/wix/detox/issues/445
+    let txhex = await extractTextFromElementById('TxhexInput');
 
-    let txhex = '';
-    try {
-      await expect(element(by.id('TxhexInput'))).toHaveText('_unfoundable_text');
-    } catch (error) {
-      if (device.getPlatform() === 'ios') {
-        const start = `accessibilityLabel was "`;
-        const end = '" on ';
-        const errorMessage = error.message.toString();
-        const [, restMessage] = errorMessage.split(start);
-        const [label] = restMessage.split(end);
-        txhex = label;
-      } else {
-        const start = 'Got:';
-        const end = '}"';
-        const errorMessage = error.message.toString();
-        const [, restMessage] = errorMessage.split(start);
-        const [label] = restMessage.split(end);
-        const value = label.split(',');
-        var combineText = value.find(i => i.includes('text=')).trim();
-        const [, elementText] = combineText.split('=');
-        txhex = elementText;
-      }
-    }
-
-    const transaction = bitcoin.Transaction.fromHex(txhex);
+    let transaction = bitcoin.Transaction.fromHex(txhex);
     assert.ok(transaction.ins.length === 1 || transaction.ins.length === 2); // depending on current fees gona use either 1 or 2 inputs
     assert.strictEqual(transaction.outs.length, 2);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
     assert.strictEqual(transaction.outs[0].value, 10000);
+
+    // checking fee rate:
+    const totalIns = 100000 + 5526; // we hardcode it since we know it in advance
+    const totalOuts = transaction.outs.map(el => el.value).reduce((a, b) => a + b, 0);
+    assert.strictEqual(Math.round((totalIns - totalOuts) / (txhex.length / 2)), feeRate);
+
+    if (device.getPlatform() === 'ios') {
+      console.warn('rest of the test is Android only, skipped');
+      return;
+    }
+
+    // now, testing units switching, and then creating tx with SATS:
+
+    await device.pressBack();
+    await device.pressBack();
+    await element(by.id('changeAmountUnitButton')).tap(); // switched to sats
+    assert.strictEqual(await extractTextFromElementById('BitcoinAmountInput'), '10000');
+    await element(by.id('changeAmountUnitButton')).tap(); // switched to FIAT
+    await element(by.id('changeAmountUnitButton')).tap(); // switched to BTC
+    assert.strictEqual(await extractTextFromElementById('BitcoinAmountInput'), '0.0001');
+    await element(by.id('changeAmountUnitButton')).tap(); // switched to sats
+    await element(by.id('BitcoinAmountInput')).replaceText('50000');
+
+    if (process.env.TRAVIS) await sleep(5000);
+    try {
+      await element(by.id('CreateTransactionButton')).tap();
+    } catch (_) {}
+    // created. verifying:
+    await yo('TransactionValue');
+    await element(by.id('TransactionDetailsButton')).tap();
+    txhex = await extractTextFromElementById('TxhexInput');
+    transaction = bitcoin.Transaction.fromHex(txhex);
+    assert.strictEqual(transaction.outs.length, 2);
+    assert.strictEqual(transaction.outs[0].value, 50000);
+
+    // now, testing sendMAX feature:
+
+    await device.pressBack();
+    await device.pressBack();
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('sendMaxButton')).tap();
+    await element(by.text('OK')).tap();
+    if (process.env.TRAVIS) await sleep(5000);
+    try {
+      await element(by.id('CreateTransactionButton')).tap();
+    } catch (_) {}
+    // created. verifying:
+    await yo('TransactionValue');
+    await element(by.id('TransactionDetailsButton')).tap();
+    txhex = await extractTextFromElementById('TxhexInput');
+    transaction = bitcoin.Transaction.fromHex(txhex);
+    assert.strictEqual(transaction.outs.length, 1, 'should be single output, no change');
+    assert.ok(transaction.outs[0].value > 100000);
+
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -420,7 +457,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('SendButton')).tap();
     await element(by.text('OK')).tap();
 
-    await element(by.id('AddressInput')).typeText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput')).typeText('0.0005\n');
     if (process.env.TRAVIS) await sleep(5000);
     try {
@@ -428,6 +465,26 @@ describe('BlueWallet UI Tests', () => {
     } catch (_) {}
 
     await yo('TextHelperForPSBT');
+
+    // now lets test scanning back QR with txhex. this should lead straight to broadcast dialog
+
+    await element(by.id('PsbtWithHardwareScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
+    await element(by.id('PsbtTxScanButton')).tap(); // opening camera
+
+    // tapping 10 times invisible button is a backdoor:
+    for (let c = 0; c <= 10; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+      await sleep(1000);
+    }
+
+    const randomTxHex =
+      '020000000001011628f58e8e81bfcfff1b106bb8968e342fb86f09aa810ed2939e43d5127c51040200000000000000000227e42d000000000017a914c679a827d57a9b8b539515dbafb4e573d2bcc6ca87df15cf02000000002200209705cdfcbc459a220e7f39ffe547a31335505c2357f452ae12a22b9ae36ea59d04004730440220626c5205a6f49d1dd1577c85c0af4c5fc70f41de61f891d71a5cf57af09110d4022045bcb1e7d4e93e1a9baf6ae1ad0b4087c9e9f73ec366e97576912377d9f6904301473044022044aea98e8983f09cb0639f08d34526bb7e3ed47d208b7bf714fb29a1b5f9535a02200baa510b94cf434775b4aa2184682f2fb33f15e5e76f79aa0885e7ee12bdc8f70169522102e67ce679d617d674d68eea95ecb166c67b4b5520105c4745adf37ce8a40b92dc21029ff54b8bf26dbddd7bd4336593d2ff17519d5374989f36a6f5f8239675ff79a421039000ee2853c6db4bd956e80b1ecfb8711bf3e0a9a8886d15450c29458b60473153ae00000000';
+    await element(by.type('android.widget.EditText')).replaceText(randomTxHex);
+    await element(by.text('OK')).tap();
+    await yo('PsbtWithHardwareWalletBroadcastTransactionButton');
+
+    // TODO: same but with real signed PSBT QR for this specific transaction
+
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -477,7 +534,7 @@ async function sup(text, timeout = 33000) {
 
 async function helperCreateWallet(walletName) {
   await element(by.id('CreateAWallet')).tap();
-  await element(by.id('WalletNameInput')).typeText(walletName || 'cr34t3d');
+  await element(by.id('WalletNameInput')).replaceText(walletName || 'cr34t3d');
   await yo('ActivateBitcoinButton');
   await element(by.id('ActivateBitcoinButton')).tap();
   await element(by.id('ActivateBitcoinButton')).tap();
@@ -499,7 +556,7 @@ async function helperImportWallet(importText, expectedWalletLabel, expectedBalan
   // going to Import Wallet screen and importing mnemonic
   await element(by.id('CreateAWallet')).tap();
   await element(by.id('ImportWallet')).tap();
-  await element(by.id('MnemonicInput')).typeText(importText);
+  await element(by.id('MnemonicInput')).replaceText(importText);
   try {
     await element(by.id('DoImport')).tap();
   } catch (_) {}
@@ -516,4 +573,35 @@ async function helperImportWallet(importText, expectedWalletLabel, expectedBalan
 
 function hashIt(s) {
   return createHash('sha256').update(s).digest().toString('hex');
+}
+
+/**
+ * a hack to extract element text. warning, this might break in future
+ * @see https://github.com/wix/detox/issues/445
+ *
+ * @returns {Promise<string>}
+ */
+async function extractTextFromElementById(id) {
+  try {
+    await expect(element(by.id(id))).toHaveText('_unfoundable_text');
+  } catch (error) {
+    if (device.getPlatform() === 'ios') {
+      const start = `accessibilityLabel was "`;
+      const end = '" on ';
+      const errorMessage = error.message.toString();
+      const [, restMessage] = errorMessage.split(start);
+      const [label] = restMessage.split(end);
+      return label;
+    } else {
+      const start = 'Got:';
+      const end = '}"';
+      const errorMessage = error.message.toString();
+      const [, restMessage] = errorMessage.split(start);
+      const [label] = restMessage.split(end);
+      const value = label.split(',');
+      var combineText = value.find(i => i.includes('text=')).trim();
+      const [, elementText] = combineText.split('=');
+      return elementText;
+    }
+  }
 }

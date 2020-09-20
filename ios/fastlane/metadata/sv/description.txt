@@ -1,6 +1,6 @@
 Store, send and receive bitcoin with the wallet focus on security and simplicity.
 
-On BlueWallet you own you private keys. A Bitcoin wallet focused on us the users.
+On BlueWallet you own your private keys. A Bitcoin wallet focused on us the users.
 
 You can instantly transact with anyone in the world and transform the financial system right from your pocket.
 

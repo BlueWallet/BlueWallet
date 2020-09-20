@@ -1,3 +1,48 @@
+v5.5.9
+=======
+
+* ADD: Arabic language
+* ADD: new choose fee workflow
+* FIX: broken LN -> manage funds -> refill
+* FIX: camera wont scan QR with airgapped HW wallet flow
+* FIX: Refresh from notification
+* FIX: transaction not updating on refresh
+* FIX: textAlign: right for custom fee in CPFP/RBF form
+* FIX: set default fee in CPFP/RBF fee-selection component
+* FIX: update recalculate fee on send screen with custom sat/byte fee rate
+* FIX: broken sendMAX if units are changed several times
+* FIX: validation allows user to create transaction even without valid address & amount
+* FIX: Only send wallets to watch app if installed
+* FIX: Send Max not working
+* FIX: Reorder screen is broken
+
+
+v5.5.8
+======
+
+* ADD: Split for large devices
+* ADD: Export file option
+* ADD: Arabic, Slovenian & Hebrew language
+* ADD: KES, NGN, TWD Fiat
+* FIX: After broadcast, value of sent transaction is incorrect
+* FIX: transaction time when using ElectrumPersonalServer
+* FIX: some ElectrumPersonalServer txs stay unconfirmed
+* FIX: Fixed dark/light theme switch
+* FIX: updated languages pt_BR, pt_PT, es_ES, sl_SI, de_DE, fr_FR, cs_CZ, ja_JP, it, ru, he
+* FIX: create-ln-invoice - button is not blocked, which can lead to multiple invoices created
+* FIX: If user has approved notifications, send hash from watch
+* FIX: If Camera not authorized, show Alert.
+* FIX: Only show direct export
+* FIX: better handling of errors from HodlHodl
+* FIX: Safello buy-bitcoin flow
+* FIX: Request location authorization for HodlHodl
+* FIX: Settings|Network|Lightning Settings fails input for leading or trailing blank
+* FIX: show Import file option
+* FIX: Background had wrong color during loading phase
+* REF: speeded up large wallets (>3k txs)
+* REF: speedup onchain wallet creation
+
+
 v5.5.7
 ======
 
@@ -52,27 +97,3 @@ v5.5.4
 * FIX: QRCode border in LND Backup screen
 * FIX: Animated QRCode border. Change save path to Downloads folder
 * FIX: sk_SK language updates
-
-v5.5.3
-======
-
-* FIX: notifications
-* FIX: Inverted QR codes
-* FIX: translations
-* FIX: Wallet rename
-
-v5.5.2
-======
-
-* ADD: push notifications
-* ADD: lnurl-pay support
-* ADD: HodlHodl logout button
-* ADD: Keychain clear if password is lost
-* ADD: screen/wallets/details transactions count
-* FIX: crashes after importing malformed xpub as watch-only
-* FIX: Restore Change unit on balance  tap
-* FIX: When doing max amount, some scenarios would return invalid amount due to missing value change.
-* FIX: Input field to rename wallet is covered when typing
-* FIX: missing text on sendMAX dialog box confirmation
-* FIX: Invoice creation darkmode
-* FIX: Font-Color in Input Field "transaction notes" is not adapted for dark mode

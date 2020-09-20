@@ -1,8 +1,8 @@
 /* global alert */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { ActivityIndicator, View, ScrollView, StyleSheet } from 'react-native';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 import loc from '../../loc';

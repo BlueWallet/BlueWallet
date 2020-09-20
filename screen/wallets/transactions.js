@@ -184,7 +184,7 @@ const WalletTransactions = () => {
   const { wallet } = useRoute().params;
   const name = useRoute().name;
   const [itemPriceUnit, setItemPriceUnit] = useState(wallet.getPreferredBalanceUnit());
-  const [dataSource, setDataSource] = useState([]);
+  const [dataSource, setDataSource] = useState(wallet.getTransactions(15));
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [limit, setLimit] = useState(15);
   const [pageSize, setPageSize] = useState(20);
@@ -216,7 +216,6 @@ const WalletTransactions = () => {
       backgroundColor: colors.background,
     },
   });
-  const interval = setInterval(() => setTimeElapsed(prev => ({ timeElapsed: prev.timeElapsed + 1 })), 60000);
 
   /**
    * Simple wrapper for `wallet.getTransactions()`, where `wallet` is current wallet.
@@ -240,6 +239,7 @@ const WalletTransactions = () => {
   useEffect(() => {
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, refreshTransactionsFunction, true);
     HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
+    const interval = setInterval(() => setTimeElapsed(prev => prev + 1), 60000);
     return () => {
       clearInterval(interval);
       navigate('DrawerRoot', { selectedWallet: '' });
@@ -249,11 +249,10 @@ const WalletTransactions = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    setDataSource([]);
-    setDataSource(wallet.getTransactions(15));
     setLimit(15);
     setPageSize(20);
     setTimeElapsed(0);
+    setDataSource(wallet.getTransactions(15));
     setItemPriceUnit(wallet.getPreferredBalanceUnit());
     setParams({ wallet, isLoading: false });
     setIsLoading(false);
@@ -319,6 +318,7 @@ const WalletTransactions = () => {
       console.log('saving to disk');
       await BlueApp.saveToDisk(); // caching
       EV(EV.enum.TRANSACTIONS_COUNT_CHANGED); // let other components know they should redraw
+      setDataSource([...getTransactions(limit)]);
     }
     setIsLoading(false);
   };
@@ -491,8 +491,8 @@ const WalletTransactions = () => {
     );
   };
 
-  const onWalletSelect = async wallet => {
-    if (wallet) {
+  const onWalletSelect = async selectedWallet => {
+    if (selectedWallet) {
       navigate('WalletTransactions', {
         key: `WalletTransactions-${wallet.getID()}`,
       });
@@ -513,7 +513,7 @@ const WalletTransactions = () => {
         params: {
           memo: loc.lnd.refill_lnd_balance,
           address: toAddress,
-          fromWallet: wallet,
+          fromWallet: selectedWallet,
         },
       });
     }
@@ -744,7 +744,7 @@ const WalletTransactions = () => {
           onRefresh={refreshTransactions}
           refreshing={isLoading}
           data={dataSource}
-          extraData={timeElapsed}
+          extraData={[timeElapsed, dataSource]}
           keyExtractor={_keyExtractor}
           renderItem={renderItem}
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}

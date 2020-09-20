@@ -6,8 +6,6 @@ import { AbstractHDWallet } from './abstract-hd-wallet';
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const HDNode = require('bip32');
-const coinSelectAccumulative = require('coinselect/accumulative');
-const coinSelectSplit = require('coinselect/split');
 const reverse = require('buffer-reverse');
 
 /**
@@ -806,24 +804,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
   createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
-    if (!changeAddress) throw new Error('No change address provided');
+    if (targets.length === 0) throw new Error('No destination provided');
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
+
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
-
-    let algo = coinSelectAccumulative;
-    if (targets.length === 1 && targets[0] && !targets[0].value) {
-      // we want to send MAX
-      algo = coinSelectSplit;
-    }
-
-    const { inputs, outputs, fee } = algo(utxos, targets, feeRate);
-
-    // .inputs and .outputs will be undefined if no solution was found
-    if (!inputs || !outputs) {
-      throw new Error('Not enough balance. Try sending smaller amount');
-    }
-
     let psbt = new bitcoin.Psbt();
-
     let c = 0;
     const keypairs = {};
     const values = {};
