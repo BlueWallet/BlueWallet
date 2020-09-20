@@ -2745,6 +2745,7 @@ const tabsStyles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   tabRoot: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     borderColor: 'white',
@@ -2753,7 +2754,7 @@ const tabsStyles = StyleSheet.create({
 });
 
 export const BlueTabs = ({ active, onSwitch, tabs }) => (
-  <View style={tabsStyles.root}>
+  <View style={[tabsStyles.root, isIpad && { marginBottom: 30 }]}>
     {tabs.map((Tab, i) => (
       <TouchableOpacity
         key={i}
@@ -2764,7 +2765,6 @@ export const BlueTabs = ({ active, onSwitch, tabs }) => (
             borderColor: BlueCurrentTheme.colors.buttonAlternativeTextColor,
             borderBottomWidth: 2,
           },
-          { width: width / tabs.length },
         ]}
       >
         <Tab active={active === i} />
