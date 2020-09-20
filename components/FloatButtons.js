@@ -5,7 +5,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio } from
 import { BlueCurrentTheme } from './themes';
 
 const BORDER_RADIUS = 30;
-const ICON_MARGIN = 5;
+const ICON_MARGIN = 7;
 
 const cStyles = StyleSheet.create({
   root: {
@@ -32,7 +32,7 @@ export const FContainer = ({ children }) => {
   const onLayout = event => {
     if (flag.current) return;
     const { width } = event.nativeEvent.layout;
-    const maxWidth = Dimensions.get('window').width - BORDER_RADIUS * 2 - 10;
+    const maxWidth = Dimensions.get('window').width - BORDER_RADIUS - 10;
     const len = React.Children.count(children);
     const newWidth = width * len > maxWidth ? Math.floor(maxWidth / len) : Math.ceil(width + ICON_MARGIN);
     setNewWidth(newWidth);
@@ -89,12 +89,12 @@ export const FButton = ({ text, icon, width, first, last, ...props }) => {
   if (width) {
     let totalWidth = width;
     if (first) {
-      style.paddingLeft = BORDER_RADIUS;
-      totalWidth += BORDER_RADIUS;
+      style.paddingLeft = BORDER_RADIUS / 2;
+      totalWidth += BORDER_RADIUS / 2;
     }
     if (last) {
-      style.paddingRight = BORDER_RADIUS;
-      totalWidth += BORDER_RADIUS;
+      style.paddingRight = BORDER_RADIUS / 2;
+      totalWidth += BORDER_RADIUS / 2;
     }
     style.width = totalWidth;
   }

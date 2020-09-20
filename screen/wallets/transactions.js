@@ -161,14 +161,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   sendIcon: {
-    left: 5,
     transform: [{ rotate: '225deg' }],
-    marginRight: 8,
   },
   receiveIcon: {
-    left: 5,
     transform: [{ rotate: '-45deg' }],
-    marginRight: 8,
   },
 });
 
