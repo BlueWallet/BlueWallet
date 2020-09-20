@@ -980,10 +980,6 @@ export default class SendDetails extends Component {
   };
 
   renderBitcoinTransactionInfoFields = ({ item, index }) => {
-    // const rows = [];
-
-    // for (const [index, item] of this.state.addresses.entries()) {
-    // rows.push(
     return (
       <View style={{ width: this.state.width }}>
         <BlueBitcoinAmount
@@ -1060,8 +1056,6 @@ export default class SendDetails extends Component {
         )}
       </View>
     );
-
-    //  return rows;
   };
 
   onUseAllPressed = () => {
