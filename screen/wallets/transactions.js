@@ -666,8 +666,6 @@ const WalletTransactions = () => {
       });
     }
   };
-  console.info('RECIEVE', wallet.allowReceive());
-
   console.info(
     'SEND',
     wallet.allowSend() || (wallet.type === WatchOnlyWallet.type && wallet.isHd() && wallet.getSecret().startsWith('zpub')),

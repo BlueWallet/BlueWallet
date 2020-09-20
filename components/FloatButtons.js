@@ -13,7 +13,6 @@ const cStyles = StyleSheet.create({
     alignSelf: 'center',
     height: '6.3%',
     minHeight: 44,
-    backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
   },
   rootPre: {
     bottom: -1000,
@@ -22,6 +21,7 @@ const cStyles = StyleSheet.create({
     bottom: 30,
     borderRadius: BORDER_RADIUS,
     flexDirection: 'row',
+    overflow: 'hidden',
   },
 });
 
@@ -70,6 +70,7 @@ const bStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+    backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
   },
   icon: {
     alignItems: 'center',
@@ -78,7 +79,7 @@ const bStyles = StyleSheet.create({
     color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: buttonFontSize,
     fontWeight: '600',
-    left: ICON_MARGIN,
+    marginLeft: ICON_MARGIN,
     backgroundColor: 'transparent',
   },
 });

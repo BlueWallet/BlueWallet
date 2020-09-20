@@ -328,13 +328,9 @@ const styles = StyleSheet.create({
     color: 'grey',
   },
   buttonsIcon: {
-    minWidth: 30,
-    minHeight: 30,
-    left: 5,
     backgroundColor: 'transparent',
     transform: [{ rotate: '-45deg' }],
     alignItems: 'center',
-    marginBottom: -11,
   },
 });
 
