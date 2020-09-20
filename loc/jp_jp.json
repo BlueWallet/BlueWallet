@@ -170,7 +170,7 @@
     "details_next": "次",
     "details_no_maximum": "選択したウォレットは、最大残高の自動計算に対応していません。このウォレットを選択してもよろしいですか？",
     "details_no_multiple": "選択したウォレットは、複数の受信者へのビットコインの送信をサポートしていません。このウォレットを選択してもよろしいですか？",
-    "details_no_signed_tx": "The selected file does not contain a signed transaction that can be imported.",
+    "details_no_signed_tx": "The selected file does not contain a transaction that can be imported.",
     "details_note_placeholder": "ラベル",
     "details_scan": "読取り",
     "details_total_exceeds_balance": "送金額が利用可能残額を超えています。",

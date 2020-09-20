@@ -120,7 +120,7 @@ export class WatchOnlyWallet extends LegacyWallet {
     throw new Error('Not initialized');
   }
 
-  async _getExternalAddressByIndex(index) {
+  _getExternalAddressByIndex(index) {
     if (this._hdWalletInstance) return this._hdWalletInstance._getExternalAddressByIndex(index);
     throw new Error('Not initialized');
   }
