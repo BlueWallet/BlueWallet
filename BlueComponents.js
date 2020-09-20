@@ -190,7 +190,7 @@ export const BitcoinButton = props => {
           flex: 1,
         }}
       >
-        <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
+        <View style={{ margin: 16 }}>
           <Text style={{ color: colors.hdborderColor, fontWeight: 'bold' }}>{loc.wallets.add_bitcoin}</Text>
         </View>
         <Image
@@ -218,7 +218,7 @@ export const LightningButton = props => {
           flex: 1,
         }}
       >
-        <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
+        <View style={{ margin: 16 }}>
           <Text style={{ color: colors.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.add_lightning}</Text>
         </View>
         <Image
@@ -752,7 +752,7 @@ export const BlueListItemHooks = props => {
 export const BlueFormLabel = props => {
   const { colors } = useTheme();
 
-  return <Text {...props} style={{ color: colors.foregroundColor, fontWeight: '400', marginLeft: 20 }} />;
+  return <Text {...props} style={{ color: colors.foregroundColor, fontWeight: '400', marginHorizontal: 20 }} />;
 };
 
 export class BlueFormInput extends Component {
