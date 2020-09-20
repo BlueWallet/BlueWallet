@@ -553,27 +553,33 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   async _fetchBalance() {
     // probing future addressess in hierarchy whether they have any transactions, in case
     // our 'next free addr' pointers are lagging behind
-    let tryAgain = false;
-    let txs = await BlueElectrum.getTransactionsByAddress(
-      this._getExternalAddressByIndex(this.next_free_address_index + this.gap_limit - 1),
-    );
-    if (txs.length > 0) {
-      // whoa, someone uses our wallet outside! better catch up
-      this.next_free_address_index += this.gap_limit;
-      tryAgain = true;
+    // for that we are gona batch fetch history for all addresses between last used and last used + gap_limit
+
+    const lagAddressesToFetch = [];
+    for (let c = this.next_free_address_index; c < this.next_free_address_index + this.gap_limit; c++) {
+      lagAddressesToFetch.push(this._getExternalAddressByIndex(c));
+    }
+    for (let c = this.next_free_change_address_index; c < this.next_free_change_address_index + this.gap_limit; c++) {
+      lagAddressesToFetch.push(this._getInternalAddressByIndex(c));
     }
 
-    txs = await BlueElectrum.getTransactionsByAddress(
-      this._getInternalAddressByIndex(this.next_free_change_address_index + this.gap_limit - 1),
-    );
-    if (txs.length > 0) {
-      this.next_free_change_address_index += this.gap_limit;
-      tryAgain = true;
+    const txs = await BlueElectrum.multiGetHistoryByAddress(lagAddressesToFetch); // <------ electrum call
+
+    for (let c = this.next_free_address_index; c < this.next_free_address_index + this.gap_limit; c++) {
+      const address = this._getExternalAddressByIndex(c);
+      if (txs[address] && Array.isArray(txs[address]) && txs[address].length > 0) {
+        // whoa, someone uses our wallet outside! better catch up
+        this.next_free_address_index = c + 1;
+      }
     }
 
-    // FIXME: refactor me ^^^ can be batched in single call. plus not just couple of addresses, but all between [ next_free .. (next_free + gap_limit) ]
-
-    if (tryAgain) return this._fetchBalance();
+    for (let c = this.next_free_change_address_index; c < this.next_free_change_address_index + this.gap_limit; c++) {
+      const address = this._getInternalAddressByIndex(c);
+      if (txs[address] && Array.isArray(txs[address]) && txs[address].length > 0) {
+        // whoa, someone uses our wallet outside! better catch up
+        this.next_free_change_address_index = c + 1;
+      }
+    }
 
     // next, business as usuall. fetch balances
 
