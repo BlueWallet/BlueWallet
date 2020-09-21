@@ -310,6 +310,7 @@ const WalletTransactions = () => {
       noErr = false;
       alert(err.message);
       setIsLoading(false);
+      setTimeElapsed(prev => prev + 1);
     }
     if (noErr && smthChanged) {
       console.log('saving to disk');
@@ -318,6 +319,7 @@ const WalletTransactions = () => {
       setDataSource([...getTransactions(limit)]);
     }
     setIsLoading(false);
+    setTimeElapsed(prev => prev + 1);
   };
 
   const _keyExtractor = (_item, index) => index.toString();
