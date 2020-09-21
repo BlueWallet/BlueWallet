@@ -70,6 +70,11 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return this._derivationPath;
   }
 
+  getCustomDerivationPathForCosigner(index) {
+    if (index === 0) throw new Error('cosigners indexation starts from 1');
+    return this._cosignersCustomPaths[index - 1] || this.getDerivationPath();
+  }
+
   getCosigner(index) {
     if (index === 0) throw new Error('cosigners indexation starts from 1');
     return this._cosigners[index - 1];
@@ -244,6 +249,30 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return xpub.toLowerCase().startsWith('xpub') || xpub.toLowerCase().startsWith('ypub') || xpub.toLowerCase().startsWith('zpub');
   }
 
+  /**
+   * Converts fingerprint that is stored as a deciman number to hex string (all caps)
+   *
+   * @param xfp {number} For example 64392470
+   * @returns {string} For example 168DD603
+   */
+  static ckccXfp2fingerprint(xfp) {
+    let masterFingerprintHex = Number(xfp).toString(16);
+    while (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
+
+    // poor man's little-endian conversion:
+    // ¯\_(ツ)_/¯
+    return (
+      masterFingerprintHex[6] +
+      masterFingerprintHex[7] +
+      masterFingerprintHex[4] +
+      masterFingerprintHex[5] +
+      masterFingerprintHex[2] +
+      masterFingerprintHex[3] +
+      masterFingerprintHex[0] +
+      masterFingerprintHex[1]
+    ).toUpperCase();
+  }
+
   setSecret(secret) {
     if (secret.startsWith('UR:BYTES')) {
       const decoded = decodeUR([secret]);
@@ -261,27 +290,60 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       return;
     }
 
-    // coldcard & cobo format:
+    // is it electrum json?
+    if (json && json.wallet_type) {
+      const mofn = json.wallet_type.split('of');
+      this.setM(parseInt(mofn[0].trim()));
+      const n = parseInt(mofn[1].trim());
+      for (let c = 1; c <= n; c++) {
+        const cosignerData = json['x' + c + '/'];
+        if (cosignerData) {
+          this.addCosigner(cosignerData.xpub, MultisigHDWallet.ckccXfp2fingerprint(cosignerData.ckcc_xfp), cosignerData.derivation);
+        }
+      }
+
+      if (this.getCosigner(1).startsWith('Zpub')) this.setNativeSegwit();
+      if (this.getCosigner(1).startsWith('Ypub')) this.setWrappedSegwit();
+      if (this.getCosigner(1).startsWith('xpub')) this.setLegacy();
+    }
+
+    // coldcard & cobo txt format:
+    let customPathForCurrentCosigner = false;
     for (const line of secret.split('\n')) {
-      if (line.startsWith('#')) continue;
       const [key, value] = line.split(':');
 
       switch (key) {
         case 'Name':
           this.setLabel('Multisig Vault ' + value.trim());
           break;
+
         case 'Policy':
           this.setM(parseInt(value.trim().split('of')[0].trim()));
           break;
+
         case 'Derivation':
           this.setDerivationPath(value.trim());
           break;
+
         case 'Format':
-          // nop
+          switch (value.trim()) {
+            case 'P2WSH':
+              this.setNativeSegwit();
+              break;
+            case 'P2WSH-P2SH':
+              this.setWrappedSegwit();
+              break;
+            case 'P2SH':
+              this.setLegacy();
+              break;
+          }
           break;
+
         default:
           if (key && value && MultisigHDWallet.isXpubString(value.trim())) {
-            this.addCosigner(value.trim(), key);
+            this.addCosigner(value.trim(), key, customPathForCurrentCosigner);
+          } else if (key.replace('#', '').trim() === 'derivation') {
+            customPathForCurrentCosigner = value.trim();
           }
           break;
       }
@@ -300,16 +362,10 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return false;
   }
 
-  /**
-   * @inheritDoc
-   */
   _getWifForAddress(address) {
-    // todo ?
+    throw new Error('Not applicable in multisig');
   }
 
-  /**
-   * @returns {Buffer|boolean} Either buffer with pubkey or false
-   */
   _getPubkeyByAddress(address) {
     throw new Error('Not applicable in multisig');
   }
