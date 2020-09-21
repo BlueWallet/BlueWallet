@@ -1858,7 +1858,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
         leftAvatar={avatar()}
         title={transactionTimeToReadable(item.received)}
         titleNumberOfLines={subtitleNumberOfLines}
-        subtitle={subtitle()}
+        subtitle={subtitle() || null}
         subtitleProps={{ numberOfLines: subtitleNumberOfLines }}
         onPress={onPress}
         onLongPress={onLongPress}
