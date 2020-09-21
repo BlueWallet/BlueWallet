@@ -34,7 +34,8 @@ export const FContainer = ({ children }) => {
     const { width } = event.nativeEvent.layout;
     const maxWidth = Dimensions.get('window').width - BORDER_RADIUS - 10;
     const len = React.Children.count(children);
-    const newWidth = width * len > maxWidth ? Math.floor(maxWidth / len) : Math.ceil(width + ICON_MARGIN);
+    let newWidth = width * len > maxWidth ? Math.floor(maxWidth / len) : Math.ceil(width + ICON_MARGIN);
+    if (len === 1 && newWidth < 90) newWidth = 90; // to add Paddings for lonely small button, like Scan on main screen
     setNewWidth(newWidth);
     flag.current = true;
   };
