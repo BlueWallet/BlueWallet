@@ -323,6 +323,31 @@ class DeeplinkSchemaMatch {
   static bip21encode() {
     return bip21.encode.apply(bip21, arguments);
   }
+
+  static decodeBitcoinUri(uri) {
+    let amount = '';
+    let parsedBitcoinUri = null;
+    let address = uri || '';
+    let memo = '';
+    let payjoinUrl = '';
+    try {
+      parsedBitcoinUri = DeeplinkSchemaMatch.bip21decode(uri);
+      address = 'address' in parsedBitcoinUri ? parsedBitcoinUri.address : address;
+      if ('options' in parsedBitcoinUri) {
+        if ('amount' in parsedBitcoinUri.options) {
+          amount = parsedBitcoinUri.options.amount.toString();
+          amount = parsedBitcoinUri.options.amount;
+        }
+        if ('label' in parsedBitcoinUri.options) {
+          memo = parsedBitcoinUri.options.label || memo;
+        }
+        if ('pj' in parsedBitcoinUri.options) {
+          payjoinUrl = parsedBitcoinUri.options.pj;
+        }
+      }
+    } catch (_) {}
+    return { address, amount, memo, payjoinUrl };
+  }
 }
 
 export default DeeplinkSchemaMatch;
