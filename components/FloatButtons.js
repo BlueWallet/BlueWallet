@@ -27,30 +27,32 @@ const cStyles = StyleSheet.create({
 
 export const FContainer = ({ children }) => {
   const [newWidth, setNewWidth] = useState();
-  const flag = useRef(false);
+  const layoutCalculated = useRef(false);
 
   const onLayout = event => {
-    if (flag.current) return;
+    if (layoutCalculated.current) return;
     const { width } = event.nativeEvent.layout;
     const maxWidth = Dimensions.get('window').width - BORDER_RADIUS - 10;
-    const len = React.Children.count(children);
+    const len = React.Children.toArray(children).filter(Boolean).length;
     let newWidth = width * len > maxWidth ? Math.floor(maxWidth / len) : Math.ceil(width + ICON_MARGIN);
     if (len === 1 && newWidth < 90) newWidth = 90; // to add Paddings for lonely small button, like Scan on main screen
     setNewWidth(newWidth);
-    flag.current = true;
+    layoutCalculated.current = true;
   };
 
   return (
     <View onLayout={onLayout} style={[cStyles.root, newWidth ? cStyles.rootPost : cStyles.rootPre]}>
       {newWidth
-        ? React.Children.map(children, (c, index) =>
-            React.cloneElement(c, {
-              width: newWidth,
-              key: index,
-              first: index === 0,
-              last: index === React.Children.count(children) - 1,
-            }),
-          )
+        ? React.Children.toArray(children)
+            .filter(Boolean)
+            .map((c, index, array) =>
+              React.cloneElement(c, {
+                width: newWidth,
+                key: index,
+                first: index === 0,
+                last: index === array.length - 1,
+              }),
+            )
         : children}
     </View>
   );
