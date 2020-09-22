@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Chain } from '../../models/bitcoinUnits';
 import {
   Text,
@@ -37,7 +37,7 @@ import Handoff from 'react-native-handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { getSystemName } from 'react-native-device-info';
-import { useRoute, useNavigation, useTheme } from '@react-navigation/native';
+import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
 import BuyBitcoin from './buyBitcoin';
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
@@ -230,7 +230,6 @@ const WalletTransactions = () => {
       return b.sort_ts - a.sort_ts;
     });
     return txs.slice(0, limit);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   };
 
   useEffect(() => {
@@ -256,6 +255,13 @@ const WalletTransactions = () => {
     navigate('DrawerRoot', { selectedWallet: wallet.getID() });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet]);
+
+  // if description of transaction has been changed we want to show new one
+  useFocusEffect(
+    useCallback(() => {
+      setTimeElapsed(prev => prev + 1);
+    }, []),
+  );
 
   /**
    * Forcefully fetches TXs and balance for wallet
