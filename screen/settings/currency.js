@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FlatList, TouchableOpacity, ActivityIndicator, View, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueListItemHooks, BlueTextHooks, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
+import { SafeBlueArea, BlueListItem, BlueTextHooks, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { Icon } from 'react-native-elements';
 import { FiatUnit } from '../../models/fiatUnit';
 import loc from '../../loc';
 import { useTheme } from '@react-navigation/native';
@@ -52,11 +51,11 @@ const Currency = () => {
           extraData={data}
           renderItem={({ item }) => {
             return (
-              <BlueListItemHooks
+              <BlueListItem
                 disabled={isSavingNewPreferredCurrency}
                 title={`${item.endPointKey} (${item.symbol})`}
                 {...(selectedCurrency.endPointKey === item.endPointKey
-                  ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
+                  ? { rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' } }
                   : { hideChevron: true })}
                 Component={TouchableOpacity}
                 onPress={async () => {
