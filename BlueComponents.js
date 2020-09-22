@@ -3,7 +3,7 @@
 import React, { Component, useState } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
-import { Icon, Input, Text, Header, ListItem } from 'react-native-elements';
+import { Icon, Input, Text, Header, ListItem, Avatar } from 'react-native-elements';
 import {
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -20,6 +20,7 @@ import {
   SafeAreaView,
   InputAccessoryView,
   Platform,
+  Switch,
   FlatList,
   TextInput,
   PixelRatio,
@@ -699,55 +700,51 @@ export const BlueTextCenteredHooks = props => {
   return <Text {...props} style={{ color: colors.foregroundColor, textAlign: 'center' }} />;
 };
 
-export const BlueListItem = React.memo(props => (
-  <ListItem
-    testID={props.testID}
-    bottomDivider
-    containerStyle={{
-      backgroundColor: 'transparent',
-      borderBottomColor: BlueCurrentTheme.colors.lightBorder,
-      paddingTop: 16,
-      paddingBottom: 16,
-    }}
-    titleStyle={{
-      color: props.disabled ? BlueCurrentTheme.colors.buttonDisabledTextColor : BlueCurrentTheme.colors.foregroundColor,
-      fontSize: 16,
-      fontWeight: '500',
-    }}
-    subtitleStyle={{ flexWrap: 'wrap', color: BlueCurrentTheme.colors.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
-    subtitleNumberOfLines={1}
-    titleNumberOfLines={0}
-    Component={TouchableOpacity}
-    {...props}
-  />
-));
-
-export const BlueListItemHooks = props => {
+export const BlueListItem = React.memo(props => {
   const { colors } = useTheme();
   return (
     <ListItem
-      testID={props.testID}
+      containerStyle={props.containerStyle ?? { backgroundColor: 'transparent' }}
+      Component={props.Component ?? TouchableOpacity}
       bottomDivider
-      containerStyle={{
-        backgroundColor: 'transparent',
-        borderBottomColor: colors.lightBorder,
-        paddingTop: 16,
-        paddingBottom: 16,
-      }}
-      titleStyle={{
-        color: props.disabled ? colors.buttonDisabledTextColor : colors.foregroundColor,
-        fontSize: 16,
-        fontWeight: '500',
-      }}
-      rightTitleStyle={{ flexWrap: 'wrap', color: colors.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
-      subtitleStyle={{ flexWrap: 'wrap', color: colors.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
-      subtitleNumberOfLines={1}
-      titleNumberOfLines={0}
-      Component={TouchableOpacity}
-      {...props}
-    />
+      testID={props.testID}
+      onPress={props.onPress}
+    >
+      {props.leftAvatar && <Avatar>{props.leftAvatar}</Avatar>}
+      {props.leftIcon && <Avatar icon={props.leftIcon} />}
+      <ListItem.Content>
+        <ListItem.Title
+          style={{
+            color: props.disabled ? colors.buttonDisabledTextColor : colors.foregroundColor,
+            fontSize: 16,
+            fontWeight: '500',
+          }}
+          numberOfLines={0}
+        >
+          {props.title}
+        </ListItem.Title>
+        {props.subtitle && (
+          <ListItem.Subtitle
+            numberOfLines={1}
+            style={{ flexWrap: 'wrap', color: colors.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
+          >
+            {props.subtitle}
+          </ListItem.Subtitle>
+        )}
+      </ListItem.Content>
+      <ListItem.Content right>
+        {props.rightTitle && (
+          <ListItem.Title style={props.rightTitleStyle} numberOfLines={0} right>
+            {props.rightTitle}
+          </ListItem.Title>
+        )}
+      </ListItem.Content>
+      {props.chevron && <ListItem.Chevron />}
+      {props.rightIcon && <Avatar icon={props.rightIcon} />}
+      {props.switch && <Switch {...props.switch} />}
+    </ListItem>
   );
-};
+});
 
 export const BlueFormLabel = props => {
   const { colors } = useTheme();
@@ -1866,6 +1863,12 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
         Component={TouchableOpacity}
         rightTitle={rowTitle()}
         rightTitleStyle={rowTitleStyle()}
+        containerStyle={{
+          backgroundColor: 'transparent',
+          borderBottomColor: colors.lightBorder,
+          paddingTop: 16,
+          paddingBottom: 16,
+        }}
       />
     </View>
   );

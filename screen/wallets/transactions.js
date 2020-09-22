@@ -26,7 +26,7 @@ import {
   BlueTransactionListItem,
   BlueWalletNavigationHeader,
   BlueAlertWalletExportReminder,
-  BlueListItemHooks,
+  BlueListItem,
 } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
 import { Icon } from 'react-native-elements';
@@ -376,7 +376,7 @@ const WalletTransactions = () => {
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.advancedTransactionOptionsModalContent, stylesHook.advancedTransactionOptionsModalContent]}>
-            <BlueListItemHooks
+            <BlueListItem
               hideChevron
               component={TouchableOpacity}
               onPress={() => {
@@ -390,7 +390,7 @@ const WalletTransactions = () => {
               }}
               title={loc.lnd.refill}
             />
-            <BlueListItemHooks
+            <BlueListItem
               hideChevron
               component={TouchableOpacity}
               onPress={() => {
@@ -403,7 +403,7 @@ const WalletTransactions = () => {
               title={loc.lnd.refill_external}
             />
 
-            <BlueListItemHooks
+            <BlueListItem
               hideChevron
               component={TouchableOpacity}
               onPress={() => {
@@ -413,7 +413,7 @@ const WalletTransactions = () => {
               title={loc.lnd.refill_card}
             />
 
-            <BlueListItemHooks
+            <BlueListItem
               title={loc.lnd.exchange}
               hideChevron
               component={TouchableOpacity}
