@@ -91,6 +91,7 @@ export function* signTransactionSaga(action: SignTransactionAction | unknown) {
         if (meta?.onSuccess) {
           meta.onSuccess({ authenticator, finalizedPsbt });
         }
+        return;
       } catch (_) {}
     }
     throw new Error(i18n.authenticators.sign.error);

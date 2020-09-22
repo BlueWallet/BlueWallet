@@ -12,7 +12,7 @@ export const CONST = {
   allWallets: 'All wallets',
   receive: 'receive',
   send: 'send',
-  webGeneratorUrl: 'keygenerator.cloudbestenv.com',
+  webGeneratorUrl: 'keygenerator.bitcoinvault.global',
   mnemonicWordsAmount: 12,
   satoshiInBtc: 100000000,
   preferredBalanceUnit: 'BTCV',
