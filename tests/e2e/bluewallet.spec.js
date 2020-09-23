@@ -496,14 +496,6 @@ describe('BlueWallet UI Tests', () => {
 
     await yo('TextHelperForPSBT');
 
-    if (process.env.GITHUB_ACTIONS) {
-      // weird, but further code fails on github actions but not on travis
-      // lets mute it for now
-      // FIXME
-      process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
-      return;
-    }
-
     // now lets test scanning back QR with txhex. this should lead straight to broadcast dialog
 
     await element(by.id('PsbtWithHardwareScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
