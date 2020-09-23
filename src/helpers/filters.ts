@@ -1,17 +1,19 @@
 import moment from 'moment';
 
-import { CONST, Transaction } from 'app/consts';
+import { CONST, Transaction, Filters } from 'app/consts';
+
+import { satoshiToBtc } from '../../utils/bitcoin';
 
 const i18n = require('../../loc');
 
-const filterByTransactionType = (transactions: Transaction[], type: string): Transaction[] => {
+const filterByTransactionType = (transactions: Transaction[], type?: string): Transaction[] => {
   if (type === CONST.send) {
     return transactions.filter(transaction => Number(transaction.value) < 0);
   }
   return transactions.filter(transaction => Number(transaction.value) > 0);
 };
 
-const filterByAddress = (transactions: Transaction[], type: string, address: string): Transaction[] => {
+const filterByAddress = (transactions: Transaction[], address: string, type?: string): Transaction[] => {
   if (type === CONST.send) {
     return transactions.filter(transaction => {
       const inputs: string[] = [];
@@ -31,7 +33,7 @@ const filterByAddress = (transactions: Transaction[], type: string, address: str
   }
 };
 
-const filterByFromDate = (transactions: Transaction[], fromDate: number): Transaction[] => {
+const filterByFromDate = (transactions: Transaction[], fromDate: string): Transaction[] => {
   return transactions.filter(transaction => {
     if (!transaction.time) {
       return;
@@ -46,7 +48,7 @@ const filterByFromDate = (transactions: Transaction[], fromDate: number): Transa
   });
 };
 
-const filterByToDate = (transactions: Transaction[], toDate: number): Transaction[] => {
+const filterByToDate = (transactions: Transaction[], toDate: string): Transaction[] => {
   return transactions.filter(transaction => {
     if (!transaction.received) {
       return;
@@ -66,19 +68,26 @@ const filterByToDate = (transactions: Transaction[], toDate: number): Transactio
   });
 };
 
-const fileterByFromAmount = (transactions: Transaction[], fromAmount: number): Transaction[] => {
+const fileterByFromAmount = (transactions: Transaction[], fromAmount: string): Transaction[] => {
   return transactions.filter(transaction => {
-    return (
-      i18n.formatBalanceWithoutSuffix(Number(transaction.value), transaction.walletPreferredBalanceUnit) >= fromAmount
-    );
+    const amount = Number(fromAmount);
+    if (Number.isNaN(amount)) {
+      return true;
+    }
+    const val = satoshiToBtc(transaction.value).toNumber();
+    return val >= amount;
   });
 };
 
-const fileterByToAmount = (transactions: Transaction[], toAmount: number): Transaction[] => {
-  return transactions.filter(
-    transaction =>
-      i18n.formatBalanceWithoutSuffix(Number(transaction.value), transaction.walletPreferredBalanceUnit) <= toAmount,
-  );
+const fileterByToAmount = (transactions: Transaction[], toAmount: string): Transaction[] => {
+  return transactions.filter(transaction => {
+    const amount = Number(toAmount);
+    if (Number.isNaN(amount)) {
+      return true;
+    }
+    const val = satoshiToBtc(transaction.value).toNumber();
+    return val <= amount;
+  });
 };
 
 export const filterBySearch = (search: string, transactions: Transaction[]): Transaction[] =>
@@ -105,13 +114,13 @@ export const filterByStatus = (transactions: Transaction[], status: string): Tra
   return transactions.filter(transaction => transaction.tx_type === status);
 };
 
-export const filterTransaction = (filters: any, transactions: Transaction[]): Transaction[] => {
+export const filterTransaction = (filters: Filters, transactions: Transaction[]): Transaction[] => {
   if (!filters.isFilteringOn) {
     return transactions;
   }
   const filteredByType = filterByTransactionType(transactions, filters.transactionType);
   const filteredbyAddress = filters.address
-    ? filterByAddress(filteredByType, filters.transactionType, filters.address)
+    ? filterByAddress(filteredByType, filters.address, filters.transactionType)
     : filteredByType;
   const filteredByFromDate = filters.fromDate
     ? filterByFromDate(filteredbyAddress, filters.fromDate)

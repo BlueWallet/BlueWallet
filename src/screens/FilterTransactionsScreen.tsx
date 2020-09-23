@@ -79,6 +79,14 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
 
   closeCalendar = () => this.setState({ isCalendarVisible: false });
 
+  validateAmount = (amount?: string) => {
+    const a = Number(amount);
+    if (Number.isNaN(a)) {
+      return i18n._.invalid;
+    }
+    return '';
+  };
+
   renderCommonCardContent = () => {
     const { fromDate, toDate, fromAmount, toAmount } = this.props.filters;
 
@@ -125,6 +133,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
               <InputItem
                 key={Index.From}
                 value={fromAmount}
+                error={this.validateAmount(fromAmount)}
                 setValue={text => this.props.updateFromAmount(text.replace(',', '.'))}
                 label={i18n.filterTransactions.fromAmount}
                 suffix="BTCV"
@@ -133,6 +142,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
               <InputItem
                 key={Index.To}
                 value={toAmount}
+                error={this.validateAmount(toAmount)}
                 setValue={text => this.props.updateToAmount(text.replace(',', '.'))}
                 label={i18n.filterTransactions.toAmount}
                 suffix="BTCV"
