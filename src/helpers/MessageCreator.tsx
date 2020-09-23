@@ -1,7 +1,9 @@
+import React from 'react';
 import { ButtonProps } from 'react-native-elements';
 
 import { images as appImages } from 'app/assets';
 import { Route } from 'app/consts';
+import { MessageScreen } from 'app/screens';
 import { NavigationService } from 'app/services';
 
 export enum MessageType {
@@ -24,12 +26,13 @@ interface Message {
   asyncTask?: () => void;
 }
 
+const processingImageStyle = {
+  height: 180,
+  width: 161,
+  marginVertical: 36,
+};
+
 export const CreateMessage = (message: Message) => {
-  const processingImageStyle = {
-    height: 180,
-    width: 161,
-    marginVertical: 36,
-  };
   return NavigationService.navigate(Route.Message, {
     title: message.title,
     description: message.description,
@@ -38,4 +41,23 @@ export const CreateMessage = (message: Message) => {
     buttonProps: message.buttonProps,
     asyncTask: message.asyncTask,
   });
+};
+
+export const RenderMessage = (message: Message) => {
+  return (
+    <MessageScreen
+      route={{
+        key: Route.Message,
+        name: Route.Message,
+        params: {
+          title: message.title,
+          description: message.description,
+          source: images[message.type],
+          imageStyle: message.type === MessageType.processingState ? processingImageStyle : null,
+          buttonProps: message.buttonProps,
+          asyncTask: message.asyncTask,
+        },
+      }}
+    />
+  );
 };
