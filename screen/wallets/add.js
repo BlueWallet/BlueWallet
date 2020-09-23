@@ -16,7 +16,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {
   BlueTextCenteredHooks,
   BlueTextHooks,
-  BlueListItemHooks,
+  BlueListItem,
   LightningButton,
   BitcoinButton,
   BlueFormLabel,
@@ -27,7 +27,6 @@ import {
 } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCustodianWallet, AppStorage } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { Icon } from 'react-native-elements';
 import { useTheme, useNavigation } from '@react-navigation/native';
 import { Chain } from '../../models/bitcoinUnits';
 import loc from '../../loc';
@@ -205,7 +204,7 @@ const WalletsAdd = () => {
         }
         BlueApp.wallets.push(w);
         await BlueApp.saveToDisk();
-        EV(EV.enum.WALLETS_COUNT_CHANGED);
+        setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500); // heavy task; hopefully will be executed while user is staring at backup screen
         A(A.ENUM.CREATED_WALLET);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
         if (w.type === HDSegwitP2SHWallet.type || w.type === HDSegwitBech32Wallet.type) {
@@ -312,36 +311,36 @@ const WalletsAdd = () => {
                 <View>
                   <BlueSpacing20 />
                   <Text style={[styles.advancedText, stylesHook.advancedText]}>{loc.settings.advanced_options}</Text>
-                  <BlueListItemHooks
+                  <BlueListItem
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(0)}
                     title={HDSegwitBech32Wallet.typeReadable}
                     {...(selectedIndex === 0
                       ? {
-                          rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
+                          rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' },
                         }
                       : { hideChevron: true })}
                   />
-                  <BlueListItemHooks
+                  <BlueListItem
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(1)}
                     title={SegwitP2SHWallet.typeReadable}
                     {...(selectedIndex === 1
                       ? {
-                          rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
+                          rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' },
                         }
                       : { hideChevron: true })}
                   />
-                  <BlueListItemHooks
+                  <BlueListItem
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(2)}
                     title={HDSegwitP2SHWallet.typeReadable}
                     {...(selectedIndex === 2
                       ? {
-                          rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
+                          rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' },
                         }
                       : { hideChevron: true })}
                   />
@@ -351,7 +350,7 @@ const WalletsAdd = () => {
               return (
                 <>
                   <BlueSpacing20 />
-                  <Text style={styles.advancedText}>{loc.settings.advanced_options}</Text>
+                  <Text style={[styles.advancedText, stylesHook.advancedText]}>{loc.settings.advanced_options}</Text>
                   <BlueSpacing20 />
                   <BlueTextHooks>Connect to your LNDHub</BlueTextHooks>
                   <View style={[styles.lndUri, stylesHook.lndUri]}>

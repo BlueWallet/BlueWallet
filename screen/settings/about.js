@@ -7,7 +7,7 @@ import {
   BlueButton,
   SafeBlueArea,
   BlueCard,
-  BlueListItemHooks,
+  BlueListItem,
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
@@ -106,7 +106,7 @@ const About = () => {
             <BlueButton onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />
           </View>
         </BlueCard>
-        <BlueListItemHooks
+        <BlueListItem
           leftIcon={{
             name: 'twitter',
             type: 'font-awesome',
@@ -115,7 +115,7 @@ const About = () => {
           onPress={handleOnTwitterPress}
           title={loc.settings.about_sm_twitter}
         />
-        <BlueListItemHooks
+        <BlueListItem
           leftIcon={{
             name: 'telegram',
             type: 'font-awesome',
@@ -124,7 +124,7 @@ const About = () => {
           onPress={handleOnTelegramPress}
           title={loc.settings.about_sm_telegram}
         />
-        <BlueListItemHooks
+        <BlueListItem
           leftIcon={{
             name: 'github',
             type: 'font-awesome',
@@ -145,7 +145,7 @@ const About = () => {
             <BlueTextCentered>Electrum server</BlueTextCentered>
           </View>
         </BlueCard>
-        <BlueListItemHooks
+        <BlueListItem
           leftIcon={{
             name: 'book',
             type: 'font-awesome',
@@ -155,7 +155,7 @@ const About = () => {
           onPress={handleOnReleaseNotesPress}
           title={loc.settings.about_release_notes}
         />
-        <BlueListItemHooks
+        <BlueListItem
           leftIcon={{
             name: 'law',
             type: 'octicon',
@@ -165,7 +165,7 @@ const About = () => {
           onPress={handleOnLicensingPress}
           title="MIT License"
         />
-        <BlueListItemHooks
+        <BlueListItem
           leftIcon={{
             name: 'flask',
             type: 'font-awesome',

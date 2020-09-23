@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueListItemHooks, BlueCard, BlueLoadingHook, BlueNavigationStyle, BlueTextHooks } from '../../BlueComponents';
-import { Icon } from 'react-native-elements';
+import { SafeBlueArea, BlueListItem, BlueCard, BlueLoadingHook, BlueNavigationStyle, BlueTextHooks } from '../../BlueComponents';
 import { AvailableLanguages } from '../../loc/languages';
 import loc from '../../loc';
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+});
 
 const Language = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [language, setLanguage] = useState(loc.getLanguage());
-  const styles = StyleSheet.create({
-    flex: {
-      flex: 1,
-    },
-  });
 
   useEffect(() => {
     setIsLoading(false);
@@ -21,7 +21,7 @@ const Language = () => {
   const renderItem = useCallback(
     ({ item }) => {
       return (
-        <BlueListItemHooks
+        <BlueListItem
           onPress={() => {
             console.log('setLanguage', item.value);
             loc.saveLanguage(item.value);
@@ -30,7 +30,7 @@ const Language = () => {
           title={item.label}
           {...(language === item.value
             ? {
-                rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
+                rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' },
               }
             : { hideChevron: true })}
         />

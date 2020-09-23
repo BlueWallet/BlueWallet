@@ -193,7 +193,7 @@ const ReceiveDetails = () => {
         if (!address) {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
-          address = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
+          address = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
         } else {
           BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
         }

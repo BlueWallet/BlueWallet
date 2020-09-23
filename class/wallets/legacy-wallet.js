@@ -253,20 +253,8 @@ export class LegacyWallet extends AbstractWallet {
     return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
   }
 
-  /**
-   *
-   * @param utxos {Array.<{vout: Number, value: Number, txId: String, address: String, txhex: String, }>} List of spendable utxos
-   * @param targets {Array.<{value: Number, address: String}>} Where coins are going. If theres only 1 target and that target has no value - this will send MAX to that address (respecting fee rate)
-   * @param feeRate {Number} satoshi per byte
-   * @param changeAddress {String} Excessive coins will go back to that address
-   * @param sequence {Number} Used in RBF
-   * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
-   * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
-   * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
-   */
-  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
+  coinselect(utxos, targets, feeRate, changeAddress) {
     if (!changeAddress) throw new Error('No change address provided');
-    sequence = sequence || 0xffffffff; // disable RBF by default
 
     let algo = coinSelectAccumulative;
     if (targets.length === 1 && targets[0] && !targets[0].value) {
@@ -281,8 +269,25 @@ export class LegacyWallet extends AbstractWallet {
       throw new Error('Not enough balance. Try sending smaller amount');
     }
 
-    const psbt = new bitcoin.Psbt();
+    return { inputs, outputs, fee };
+  }
 
+  /**
+   *
+   * @param utxos {Array.<{vout: Number, value: Number, txId: String, address: String, txhex: String, }>} List of spendable utxos
+   * @param targets {Array.<{value: Number, address: String}>} Where coins are going. If theres only 1 target and that target has no value - this will send MAX to that address (respecting fee rate)
+   * @param feeRate {Number} satoshi per byte
+   * @param changeAddress {String} Excessive coins will go back to that address
+   * @param sequence {Number} Used in RBF
+   * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
+   * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
+   * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
+   */
+  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
+    if (targets.length === 0) throw new Error('No destination provided');
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
+    sequence = sequence || 0xffffffff; // disable RBF by default
+    const psbt = new bitcoin.Psbt();
     let c = 0;
     const values = {};
     let keyPair;

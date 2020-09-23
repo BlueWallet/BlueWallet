@@ -40,9 +40,8 @@ class DeeplinkSchemaMatch {
     if (event.url.toLowerCase().startsWith('bluewallet:bitcoin:') || event.url.toLowerCase().startsWith('bluewallet:lightning:')) {
       event.url = event.url.substring(11);
     }
-
-    if (DeeplinkSchemaMatch.isPossiblyPSBTFile(event.url)) {
-      RNFS.readFile(event.url)
+    if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(event.url)) {
+      RNFS.readFile(decodeURI(event.url))
         .then(file => {
           if (file) {
             completionHandler([
@@ -203,13 +202,23 @@ class DeeplinkSchemaMatch {
   }
 
   static isTXNFile(filePath) {
-    return filePath.toLowerCase().startsWith('file:') && filePath.toLowerCase().endsWith('.txn');
+    return (
+      (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
+      filePath.toLowerCase().endsWith('.txn')
+    );
+  }
+
+  static isPossiblySignedPSBTFile(filePath) {
+    return (
+      (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
+      filePath.toLowerCase().endsWith('-signed.psbt')
+    );
   }
 
   static isPossiblyPSBTFile(filePath) {
     return (
       (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
-      filePath.toLowerCase().endsWith('-signed.psbt')
+      filePath.toLowerCase().endsWith('.psbt')
     );
   }
 
@@ -313,6 +322,31 @@ class DeeplinkSchemaMatch {
 
   static bip21encode() {
     return bip21.encode.apply(bip21, arguments);
+  }
+
+  static decodeBitcoinUri(uri) {
+    let amount = '';
+    let parsedBitcoinUri = null;
+    let address = uri || '';
+    let memo = '';
+    let payjoinUrl = '';
+    try {
+      parsedBitcoinUri = DeeplinkSchemaMatch.bip21decode(uri);
+      address = 'address' in parsedBitcoinUri ? parsedBitcoinUri.address : address;
+      if ('options' in parsedBitcoinUri) {
+        if ('amount' in parsedBitcoinUri.options) {
+          amount = parsedBitcoinUri.options.amount.toString();
+          amount = parsedBitcoinUri.options.amount;
+        }
+        if ('label' in parsedBitcoinUri.options) {
+          memo = parsedBitcoinUri.options.label || memo;
+        }
+        if ('pj' in parsedBitcoinUri.options) {
+          payjoinUrl = parsedBitcoinUri.options.pj;
+        }
+      }
+    } catch (_) {}
+    return { address, amount, memo, payjoinUrl };
   }
 }
 
