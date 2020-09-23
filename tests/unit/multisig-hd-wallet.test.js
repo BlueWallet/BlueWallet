@@ -645,6 +645,41 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.howManySignaturesCanWeMake(), 1);
   });
 
+  it('basic operations work for 2-of-3', async () => {
+    const path = "m/48'/0'/0'/2'";
+
+    const w = new MultisigHDWallet();
+    w.addCosigner(Zpub1, fp1cobo);
+    w.addCosigner(Zpub2, fp2coldcard);
+    w.addCosigner(
+      'accident olympic spawn spider cable track pluck fat code grab fine salt garment kidney crime old often worth member impulse brother smoke garden trash',
+    );
+    w.setDerivationPath(path);
+    w.setM(2);
+
+    assert.strictEqual(
+      w.convertXpubToMultisignatureXpub(
+        MultisigHDWallet.seedToXpub(
+          'accident olympic spawn spider cable track pluck fat code grab fine salt garment kidney crime old often worth member impulse brother smoke garden trash',
+          path,
+        ),
+      ),
+      'Zpub74k35j5DkSA6t6SFhPeHv8ENBHdNgAPALWodSWoWxsHo6vbAu2FUGq9QmUEvdEPzBoMswizfsAbTWQYU2ZnvCjdKsFje5TEfjLxuH8arBtp',
+    );
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qnpy7c7wz6tvmhdwgyk8ka4du3s9x6uhgjal305xdatmwfa538zxsys5l0t');
+    assert.strictEqual(w._getExternalAddressByIndex(1), 'bc1qvuum7egsw4r4utzart88pergghy9rp8m4j5m4s464lz6u39sn6usn89w7c');
+    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qatmvfj5nzh4z3njxeg8z86y592clqe7sfgvp5cpund47knnm6pxsswl2lr');
+    assert.strictEqual(w._getInternalAddressByIndex(1), 'bc1qpqa9c6nkqgcruegnh8wcsr0gzc4x9y90v9k0nxr6lww0gts430zqp7wm86');
+
+    assert.strictEqual(w.getM(), 2);
+    assert.strictEqual(w.getN(), 3);
+    assert.strictEqual(w.howManySignaturesCanWeMake(), 1);
+    assert.ok(!w.isWrappedSegwit());
+    assert.ok(w.isNativeSegwit());
+    assert.ok(!w.isLegacy());
+  });
+
   it('can coordinate tx creation', async () => {
     const path = "m/48'/0'/0'/2'";
 
