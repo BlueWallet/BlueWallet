@@ -2258,6 +2258,7 @@ export class BlueAddressInput extends Component {
           {...this.props}
         />
         <TouchableOpacity
+          testID="BlueAddressInputScanQrButton"
           disabled={this.props.isLoading}
           onPress={() => {
             Keyboard.dismiss();
