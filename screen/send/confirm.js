@@ -198,7 +198,11 @@ export default class Confirm extends Component {
               {!!this.state.payjoinUrl && (
                 <View style={styles.payjoinWrapper}>
                   <Text style={styles.payjoinText}>Payjoin</Text>
-                  <Switch value={this.state.isPayjoinEnabled} onValueChange={isPayjoinEnabled => this.setState({ isPayjoinEnabled })} />
+                  <Switch
+                    testID="PayjoinSwitch"
+                    value={this.state.isPayjoinEnabled}
+                    onValueChange={isPayjoinEnabled => this.setState({ isPayjoinEnabled })}
+                  />
                 </View>
               )}
               {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm_sendNow} />}

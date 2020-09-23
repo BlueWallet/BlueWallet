@@ -309,12 +309,14 @@ export default class SendDetails extends Component {
           units[this.state.recipientsScrollIndex] = BitcoinUnit.BTC; // also resetting current unit to BTC
           recipients[[this.state.recipientsScrollIndex]].address = address;
           recipients[[this.state.recipientsScrollIndex]].amount = options.amount;
+          recipients[[this.state.recipientsScrollIndex]].amountSats = new BigNumber(options.amount).multipliedBy(100000000).toNumber();
           this.setState({
             addresses: recipients,
             memo: options.label || options.message,
             isLoading: false,
             amountUnit: BitcoinUnit.BTC,
             units,
+            payjoinUrl: options.pj || '',
           });
         } else {
           this.setState({ isLoading: false });
