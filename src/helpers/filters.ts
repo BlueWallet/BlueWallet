@@ -48,7 +48,7 @@ const filterByFromDate = (transactions: Transaction[], fromDate: number): Transa
 
 const filterByToDate = (transactions: Transaction[], toDate: number): Transaction[] => {
   return transactions.filter(transaction => {
-    if (!transaction.time) {
+    if (!transaction.received) {
       return;
     }
     return (
@@ -56,7 +56,12 @@ const filterByToDate = (transactions: Transaction[], toDate: number): Transactio
         moment(toDate)
           .endOf('day')
           .format('X'),
-      ) >= transaction.time
+      ) >=
+      parseInt(
+        moment(transaction.received)
+          .endOf('day')
+          .format('X'),
+      )
     );
   });
 };
