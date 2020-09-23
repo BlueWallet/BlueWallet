@@ -1,7 +1,7 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
-import { Text, StyleSheet, View, ScrollView, Dimensions } from 'react-native';
+import { Text, StyleSheet, View, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 
 import { WalletItem, GradientView } from 'app/components';
 import { Wallet, RootStackParams, Route } from 'app/consts';
@@ -38,13 +38,21 @@ export const ActionSheet = (props: Props) => {
   };
 
   return (
-    <View style={styles.modal}>
-      <ScrollView style={styles.containerStyle} bounces={false}>
-        <View style={styles.breakLine} />
-        <Text style={styles.titleStyle}>{i18n.wallets.walletModal.wallets}</Text>
-        <View style={styles.walletContainer}>{renderWalletItems()}</View>
-      </ScrollView>
-    </View>
+    <TouchableOpacity
+      activeOpacity={1}
+      onPress={() => {
+        props.navigation.goBack();
+      }}
+      style={styles.modal}
+    >
+      <TouchableOpacity activeOpacity={1}>
+        <ScrollView style={styles.containerStyle} bounces={false} onStartShouldSetResponder={() => true}>
+          <View style={styles.breakLine} />
+          <Text style={styles.titleStyle}>{i18n.wallets.walletModal.wallets}</Text>
+          <View style={styles.walletContainer}>{renderWalletItems()}</View>
+        </ScrollView>
+      </TouchableOpacity>
+    </TouchableOpacity>
   );
 };
 
