@@ -816,6 +816,39 @@ export default class SendDetails extends Component {
     }
   };
 
+  handleAddRecipient = () => {
+    const { addresses } = this.state;
+    addresses.push(new BitcoinTransaction());
+    this.setState(
+      {
+        addresses,
+        isAdvancedTransactionOptionsVisible: false,
+      },
+      () => {
+        this.scrollView.scrollToEnd();
+        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
+        // after adding recipient it automatically scrolls to the last one
+        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
+      },
+    );
+  };
+
+  handleRemoveRecipient = () => {
+    const { addresses } = this.state;
+    addresses.splice(this.state.recipientsScrollIndex, 1);
+    this.setState(
+      {
+        addresses,
+        isAdvancedTransactionOptionsVisible: false,
+      },
+      () => {
+        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
+        // after deletion it automatically scrolls to the last one
+        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
+      },
+    );
+  };
+
   renderAdvancedTransactionOptionsModal = () => {
     const isSendMaxUsed = this.state.addresses.some(element => element.amount === BitcoinUnit.MAX);
     return (
@@ -865,43 +898,14 @@ export default class SendDetails extends Component {
                   title={loc.send.details_add_rec_add}
                   hideChevron
                   component={TouchableOpacity}
-                  onPress={() => {
-                    const addresses = this.state.addresses;
-                    addresses.push(new BitcoinTransaction());
-                    this.setState(
-                      {
-                        addresses,
-                        isAdvancedTransactionOptionsVisible: false,
-                      },
-                      () => {
-                        this.scrollView.scrollToEnd();
-                        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
-                        // after adding recipient it automatically scrolls to the last one
-                        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
-                      },
-                    );
-                  }}
+                  onPress={this.handleAddRecipient}
                 />
                 <BlueListItem
                   title={loc.send.details_add_rec_rem}
                   hideChevron
                   disabled={this.state.addresses.length < 2}
                   component={TouchableOpacity}
-                  onPress={() => {
-                    const addresses = this.state.addresses;
-                    addresses.splice(this.state.recipientsScrollIndex, 1);
-                    this.setState(
-                      {
-                        addresses,
-                        isAdvancedTransactionOptionsVisible: false,
-                      },
-                      () => {
-                        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
-                        // after deletion it automatically scrolls to the last one
-                        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
-                      },
-                    );
-                  }}
+                  onPress={this.handleRemoveRecipient}
                 />
               </>
             )}
