@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { Alert } from 'react-native';
 import TcpSocket from 'react-native-tcp-socket';
 
 import { SocketCallback, SocketOptions } from 'app/consts';
@@ -60,7 +59,6 @@ export class Socket {
       this.onData(data);
     });
     _socket.on('error', error => {
-      Alert.alert('Something went wrong');
       this.onError(error);
     });
     _socket.on('close', data => {
