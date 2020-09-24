@@ -1251,7 +1251,7 @@ export const BluePlusIcon = props => {
     <Avatar
       rounded
       containerStyle={[stylesBlueIcon.ball, stylesBlueIconHooks.ball]}
-      icon={{ name: 'add', size: 26, type: 'ionicons', color: colors.foregroundColor }}
+      icon={{ name: 'add', size: 22, type: 'ionicons', color: colors.foregroundColor }}
       {...props}
     />
   );
