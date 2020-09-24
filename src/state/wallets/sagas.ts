@@ -1,4 +1,4 @@
-import { takeEvery, put, all, call } from 'redux-saga/effects';
+import { takeEvery, takeLatest, put, all, call } from 'redux-saga/effects';
 
 import { BlueApp } from 'app/legacy';
 
@@ -123,7 +123,7 @@ export function* updateWalletSaga(action: UpdateWalletAction | unknown) {
 
 export default [
   takeEvery(WalletsAction.DeleteWallet, deleteWalletSaga),
-  takeEvery(WalletsAction.LoadWallets, loadWalletsSaga),
+  takeLatest(WalletsAction.LoadWallets, loadWalletsSaga),
   takeEvery(WalletsAction.CreateWallet, createWalletSaga),
   takeEvery(WalletsAction.ImportWallet, importWalletSaga),
   takeEvery(WalletsAction.UpdateWallet, updateWalletSaga),

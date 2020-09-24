@@ -126,7 +126,7 @@ class SendCoinsScreen extends Component<Props, State> {
     const requestedSatPerByte: string | number = +this.state.fee.toString().replace(/\D/g, '');
 
     const targets: any[] = [];
-    const amount = btcToSatoshi(transaction.amount).toNumber();
+    const amount = btcToSatoshi(this.toNumber(transaction.amount)).toNumber();
 
     if (amount > 0.0) {
       targets.push({ address: transaction.address, value: amount });
@@ -145,7 +145,7 @@ class SendCoinsScreen extends Component<Props, State> {
         memo: this.state.memo,
         fromWallet: wallet,
         txDecoded: tx,
-        recipients: [transaction],
+        recipients: [{ ...transaction, amount: this.toNumber(transaction.amount) }],
         satoshiPerByte: requestedSatPerByte,
       }),
     );
@@ -168,10 +168,14 @@ class SendCoinsScreen extends Component<Props, State> {
     return (availableBalance === 'NaN' && balance) || availableBalance;
   }
 
+  toNumber = (text?: string) => Number(text?.replace(',', '.'));
+
   validateTransaction = (): string | null => {
     const { fee: requestedSatPerByte, transaction, wallet } = this.state;
 
-    if (!transaction.amount || transaction.amount <= 0) {
+    const numAmount = this.toNumber(transaction.amount);
+
+    if (!numAmount || numAmount <= 0) {
       return i18n.send.details.amount_field_is_not_valid;
     }
     if (!requestedSatPerByte || requestedSatPerByte < 1) {
@@ -180,7 +184,7 @@ class SendCoinsScreen extends Component<Props, State> {
     if (!transaction.address) {
       return i18n.send.details.address_field_is_not_valid;
     }
-    if (this.recalculateAvailableBalance(wallet.getBalance(), transaction.amount, 0) < 0) {
+    if (this.recalculateAvailableBalance(wallet.getBalance(), numAmount, 0) < 0) {
       // first sanity check is that sending amount is not bigger than available balance
       return i18n.send.details.total_exceeds_balance;
     }
@@ -264,7 +268,7 @@ class SendCoinsScreen extends Component<Props, State> {
     const isFastTx = this.isFastTx(wallet);
 
     this.props.navigation.navigate(Route.SendCoinsConfirm, {
-      recipients: [transaction],
+      recipients: [{ ...transaction, amount: this.toNumber(transaction.amount) }],
       // HD wallet's utxo is in sats, classic segwit wallet utxos are in btc
       fee,
       txDecoded,
@@ -287,7 +291,7 @@ class SendCoinsScreen extends Component<Props, State> {
     const MAX_TRIES = 5;
 
     for (let tries = 0; tries < MAX_TRIES; tries++) {
-      tx = await createTx(utxosUnspent, transaction.amount, fee, transaction.address);
+      tx = await createTx(utxosUnspent, this.toNumber(transaction.amount), fee, transaction.address);
 
       const feeSatoshi = btcToSatoshi(fee);
 
@@ -398,9 +402,9 @@ class SendCoinsScreen extends Component<Props, State> {
         label={i18n.transactions.details.amount}
         suffix="BTCV"
         keyboardType="numeric"
+        value={transaction.amount}
         setValue={text => {
-          const amount = Number(text.replace(',', '.'));
-          this.setState({ transaction: { ...transaction, amount: !Number.isNaN(amount) ? amount : undefined } });
+          this.setState({ transaction: { ...transaction, amount: text } });
         }}
       />
     );
@@ -428,6 +432,7 @@ class SendCoinsScreen extends Component<Props, State> {
     const { transaction } = this.state;
 
     const newTransaction = processAddressData(data, transaction.amount);
+
     this.setState({
       transaction: newTransaction,
     });
