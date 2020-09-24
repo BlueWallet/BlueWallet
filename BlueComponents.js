@@ -947,21 +947,25 @@ export const BlueHeaderDefaultMain = props => {
     <Header
       leftComponent={{
         text: props.leftText,
-        h2: true,
         style: {
           fontWeight: 'bold',
           fontSize: 34,
           color: colors.foregroundColor,
+          paddingHorizontal: 4,
         },
       }}
       placement="left"
       containerStyle={{
         borderTopColor: colors.background,
         borderBottomColor: colors.background,
+        maxHeight: 44,
+        height: 44,
+        paddingTop: 0,
+        marginBottom: 8,
       }}
-      backgroundColor={colors.background}
       bottomDivider={false}
       topDivider={false}
+      backgroundColor={colors.background}
       rightComponent={<BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />}
     />
   );
