@@ -20,6 +20,8 @@ export const CONST = {
   confirmationsBlocks: 6,
   android: 'android',
   ios: 'ios',
+  transactionPassword: 'transactionPassword',
+  pin: 'pin',
 };
 
 export const defaultKeyboardType = Platform.select({ android: 'visible-password', ios: 'default' }) as KeyboardType;
@@ -90,13 +92,12 @@ export enum Route {
   CurrentPin = 'CurrentPin',
   CreatePin = 'CreatePin',
   ConfirmPin = 'ConfirmPin',
-  UnlockScreen = 'UnlockScreen',
   CreateTransactionPassword = 'CreateTransactionPassword',
   ConfirmTransactionPassword = 'ConfirmTransactionPassword',
   AdvancedOptions = 'AdvancedOptions',
   UnlockTransaction = 'UnlockTransaction',
   FilterTransactions = 'FilterTransactions',
-  TimeCounter = 'TimeCounter',
+  Unlock = 'Unlock',
   IntegrateKey = 'IntegrateKey',
   ImportWalletChooseType = 'ImportWalletChooseType',
 }
@@ -138,6 +139,11 @@ export interface Wallet {
   fetchUtxos: () => void;
   fetchTransactions: () => void;
   id: string;
+}
+
+export interface ActionMeta {
+  onSuccess?: Function;
+  onFailure?: Function;
 }
 
 export interface Contact {
@@ -273,6 +279,21 @@ export type RootStackParams = {
 };
 
 export type PasswordNavigatorParams = {
+  [Route.CreatePin]: {
+    flowType: string;
+  };
+  [Route.ConfirmPin]: {
+    flowType: string;
+    pin: string;
+  };
+  [Route.Message]: {
+    title: string;
+    source: FastImageSource;
+    description: string;
+    buttonProps?: ButtonProps;
+    imageStyle?: StyleProp<ViewStyle>;
+    asyncTask?: () => void;
+  };
   [Route.CreateTransactionPassword]: undefined;
   [Route.ConfirmTransactionPassword]: { setPassword: string };
 };
@@ -335,10 +356,6 @@ export type MainCardStackNavigatorParams = {
   [Route.ConfirmPin]: {
     flowType: string;
     pin: string;
-  };
-  [Route.TimeCounter]: {
-    onTryAgain: () => void;
-    timestamp: number;
   };
   [Route.FilterTransactions]: { onFilterPress: () => void };
   [Route.CreateAuthenticator]: undefined;

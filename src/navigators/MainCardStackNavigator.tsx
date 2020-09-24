@@ -24,7 +24,6 @@ import {
   CurrentPinScreen,
   ConfirmPinScreen,
   FilterTransactionsScreen,
-  TimeCounterScreen,
   CreateAuthenticatorScreen,
   EnterPINScreen,
   CreateAuthenticatorSuccessScreen,
@@ -63,10 +62,9 @@ export const MainCardStackNavigator = () => (
     <Stack.Screen name={Route.AboutUs} component={AboutUsScreen} />
     <Stack.Screen name={Route.AdvancedOptions} component={AdvancedOptionsScreen} />
     <Stack.Screen name={Route.CreatePin} component={CreatePinScreen} />
-    <Stack.Screen name={Route.CurrentPin} component={CurrentPinScreen} />
+    <Stack.Screen name={Route.CurrentPin} component={CurrentPinScreen} options={{ gestureEnabled: false }} />
     <Stack.Screen name={Route.ConfirmPin} component={ConfirmPinScreen} />
     <Stack.Screen name={Route.FilterTransactions} component={FilterTransactionsScreen} />
-    <Stack.Screen name={Route.TimeCounter} component={TimeCounterScreen} />
     <Stack.Screen name={Route.CreateAuthenticator} component={CreateAuthenticatorScreen} />
     <Stack.Screen name={Route.EnterPIN} component={EnterPINScreen} />
     <Stack.Screen name={Route.CreateAuthenticatorSuccess} component={CreateAuthenticatorSuccessScreen} />

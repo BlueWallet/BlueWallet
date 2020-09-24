@@ -3,7 +3,12 @@ import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 
 export default class SecureStorageService {
   async getSecuredValue(key: string): Promise<string> {
-    return await RNSecureKeyStore.get(key);
+    try {
+      const value = await RNSecureKeyStore.get(key);
+      return value;
+    } catch (_) {
+      return '';
+    }
   }
 
   async setSecuredValue(key: string, value: string, encode?: boolean): Promise<string> {

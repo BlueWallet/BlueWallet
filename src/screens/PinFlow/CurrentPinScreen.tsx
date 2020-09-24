@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { Header, PinInput, ScreenTemplate } from 'app/components';
 import { Route, CONST, FlowType, MainCardStackNavigatorParams, finalAttempt } from 'app/consts';
 import { noop } from 'app/helpers/helpers';
+import { TimeCounterScreen } from 'app/screens';
 import { SecureStorageService } from 'app/services';
 import { ApplicationState } from 'app/state';
 import * as actions from 'app/state/timeCounter/actions';
@@ -112,10 +113,7 @@ class CurrentPinScreen extends PureComponent<Props, State> {
   render() {
     const { error } = this.state;
     if (this.isTimeCounterVisible()) {
-      this.props.navigation.navigate(Route.TimeCounter, {
-        onTryAgain: this.onTryAgain,
-        timestamp: this.props.timeCounter.timestamp,
-      });
+      return <TimeCounterScreen onTryAgain={this.onTryAgain} timestamp={this.props.timeCounter.timestamp} />;
     }
     return (
       <ScreenTemplate

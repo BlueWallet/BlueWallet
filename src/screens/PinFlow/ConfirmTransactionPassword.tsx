@@ -2,12 +2,18 @@ import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { PureComponent } from 'react';
 import { Text, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { connect } from 'react-redux';
 
 import { icons } from 'app/assets';
 import { Header, InputItem, Image, ScreenTemplate, Button } from 'app/components';
 import { Route, CONST, PasswordNavigatorParams, MainTabNavigatorParams } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { SecureStorageService } from 'app/services';
+import {
+  createTxPassword as createTxPasswordAction,
+  setIsAuthenticated as setIsAuthenticatedAction,
+  SetIsAuthenticatedAction,
+} from 'app/state/authentication/actions';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../../loc');
@@ -17,7 +23,8 @@ interface Props {
     StackNavigationProp<MainTabNavigatorParams, Route.ContactList>,
     StackNavigationProp<PasswordNavigatorParams, Route.ConfirmTransactionPassword>
   >;
-
+  createTxPassword: Function;
+  setIsAuthenticated: (isAuthenticated: boolean) => SetIsAuthenticatedAction;
   route: RouteProp<PasswordNavigatorParams, Route.ConfirmTransactionPassword>;
 }
 
@@ -27,7 +34,7 @@ type State = {
   isVisible: boolean;
 };
 
-export class ConfirmTransactionPassword extends PureComponent<Props, State> {
+class ConfirmTransactionPasswordScreen extends PureComponent<Props, State> {
   state = {
     password: '',
     error: '',
@@ -35,9 +42,9 @@ export class ConfirmTransactionPassword extends PureComponent<Props, State> {
   };
 
   onSave = async () => {
+    const { createTxPassword, navigation } = this.props;
     const { setPassword } = this.props.route.params;
     if (setPassword === this.state.password) {
-      await SecureStorageService.setSecuredValue('transactionPassword', this.state.password, true);
       CreateMessage({
         title: i18n.contactCreate.successTitle,
         description: i18n.onboarding.successDescription,
@@ -45,7 +52,7 @@ export class ConfirmTransactionPassword extends PureComponent<Props, State> {
         buttonProps: {
           title: i18n.onboarding.successButton,
           onPress: () => {
-            this.props.navigation.navigate(Route.Dashboard);
+            createTxPassword(setPassword, { onSuccess: () => navigation.pop() });
           },
         },
       });
@@ -101,6 +108,13 @@ export class ConfirmTransactionPassword extends PureComponent<Props, State> {
     );
   }
 }
+
+const mapDispatchToProps = {
+  createTxPassword: createTxPasswordAction,
+  setIsAuthenticated: setIsAuthenticatedAction,
+};
+
+export default connect(null, mapDispatchToProps)(ConfirmTransactionPasswordScreen);
 
 const styles = StyleSheet.create({
   infoContainer: {

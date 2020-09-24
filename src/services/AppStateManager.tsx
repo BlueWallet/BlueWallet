@@ -10,13 +10,17 @@ interface State {
   appState: string;
 }
 
-export class AppStateManager extends PureComponent<Props, State> {
+export default class AppStateManager extends PureComponent<Props, State> {
   state = {
     appState: AppState.currentState,
   };
 
   componentDidMount() {
     AppState.addEventListener('change', this.handleAppStateChange);
+  }
+
+  componentWillUnmount() {
+    AppState.removeEventListener('change', this.handleAppStateChange);
   }
 
   handleAppStateChange = (nextAppState: string) => {

@@ -1,12 +1,9 @@
-import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import dayjs from 'dayjs';
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, BackHandler } from 'react-native';
 
 import { Button, ScreenTemplate, FlatButton } from 'app/components';
 import { TimeCounter } from 'app/components/TimeCounter';
-import { MainCardStackNavigatorParams, Route } from 'app/consts';
 import { useInterval } from 'app/helpers/useInterval';
 import { typography } from 'app/styles';
 import { isIos } from 'app/styles/helpers';
@@ -14,12 +11,16 @@ import { isIos } from 'app/styles/helpers';
 const i18n = require('../../loc');
 
 interface Props {
-  navigation: StackNavigationProp<MainCardStackNavigatorParams, any>;
-  route: RouteProp<MainCardStackNavigatorParams, Route.TimeCounter>;
+  timestamp: number;
+  onTryAgain: Function;
 }
 
 export const TimeCounterScreen = (props: Props) => {
-  const { timestamp, onTryAgain } = props.route.params;
+  const { timestamp: propTimestamp, onTryAgain: propOnTryAgain } = props;
+
+  const timestamp = propTimestamp;
+  const onTryAgain = propOnTryAgain;
+
   const currentTimestamp = dayjs().unix();
   const secondsToCount = (timestamp - currentTimestamp).toFixed(0);
   const [seconds, setSeconds] = useState(parseInt(secondsToCount));
@@ -46,7 +47,6 @@ export const TimeCounterScreen = (props: Props) => {
 
   const onTryAgainPress = () => {
     onTryAgain();
-    props.navigation.goBack();
   };
 
   return (

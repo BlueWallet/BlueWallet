@@ -2,11 +2,12 @@ import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { PureComponent } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { connect } from 'react-redux';
 
 import { Header, PinInput, ScreenTemplate } from 'app/components';
 import { Route, CONST, FlowType, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
-import { SecureStorageService } from 'app/services';
+import { createPin as createPinAction } from 'app/state/authentication/actions';
 import { palette, typography } from 'app/styles';
 
 const i18n = require('../../../loc');
@@ -22,10 +23,11 @@ interface Props {
     StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
     StackNavigationProp<MainCardStackNavigatorParams, Route.ConfirmPin>
   >;
+  createPin: Function;
   route: RouteProp<MainCardStackNavigatorParams, Route.ConfirmPin>;
 }
 
-export class ConfirmPinScreen extends PureComponent<Props, State> {
+class ConfirmPinScreen extends PureComponent<Props, State> {
   state = {
     pin: '',
     error: '',
@@ -39,26 +41,30 @@ export class ConfirmPinScreen extends PureComponent<Props, State> {
   }
 
   updatePin = (pin: string) => {
+    const { createPin } = this.props;
     this.setState({ pin }, async () => {
       if (this.state.pin.length === CONST.pinCodeLength) {
         const setPin = this.props.route.params.pin;
         if (setPin === this.state.pin) {
-          await SecureStorageService.setSecuredValue('pin', this.state.pin);
-          if (this.state.flowType === FlowType.newPin) {
-            CreateMessage({
-              title: i18n.contactCreate.successTitle,
-              description: i18n.onboarding.successDescriptionChangedPin,
-              type: MessageType.success,
-              buttonProps: {
-                title: i18n.onboarding.successButtonChangedPin,
-                onPress: () => {
-                  this.props.navigation.navigate(Route.MainCardStackNavigator);
-                },
-              },
-            });
-          } else {
-            this.props.navigation.navigate(Route.PasswordNavigator);
-          }
+          createPin(setPin, {
+            onSuccess: () => {
+              if (this.state.flowType === FlowType.newPin) {
+                CreateMessage({
+                  title: i18n.contactCreate.successTitle,
+                  description: i18n.onboarding.successDescriptionChangedPin,
+                  type: MessageType.success,
+                  buttonProps: {
+                    title: i18n.onboarding.successButtonChangedPin,
+                    onPress: () => {
+                      this.props.navigation.navigate(Route.MainCardStackNavigator);
+                    },
+                  },
+                });
+              } else {
+                this.props.navigation.navigate(Route.CreateTransactionPassword);
+              }
+            },
+          });
         } else {
           this.setState({
             error: i18n.onboarding.pinDoesNotMatch,
@@ -100,6 +106,12 @@ export class ConfirmPinScreen extends PureComponent<Props, State> {
     );
   }
 }
+
+const mapDispatchToProps = {
+  createPin: createPinAction,
+};
+
+export default connect(null, mapDispatchToProps)(ConfirmPinScreen);
 
 const styles = StyleSheet.create({
   pinContainer: {

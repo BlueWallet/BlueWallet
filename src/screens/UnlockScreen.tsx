@@ -5,22 +5,36 @@ import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
 import { Image, PinView, PinInputView } from 'app/components';
-import { CONST, Route, finalAttempt } from 'app/consts';
-import { BiometricService, SecureStorageService, NavigationService } from 'app/services';
+import { CONST, finalAttempt } from 'app/consts';
+import { TimeCounterScreen } from 'app/screens';
+import { BiometricService } from 'app/services';
 import { ApplicationState } from 'app/state';
-import * as actions from 'app/state/timeCounter/actions';
+import {
+  authenticate as authenticateAction,
+  setIsAuthenticated as setIsAuthenticatedAction,
+  SetIsAuthenticatedAction,
+} from 'app/state/authentication/actions';
+import {
+  setTimeCounter as setTimeCounterAction,
+  SetTimeCounterAction,
+  setFailedAttempts as setFailedAttemptsAction,
+  SetFailedAttemptsAction,
+  setFailedAttemptStep as setFailedAttemptStepAction,
+  SetFailedAttemptStepAction,
+} from 'app/state/timeCounter/actions';
 import { TimeCounterState } from 'app/state/timeCounter/reducer';
 import { getStatusBarHeight, palette, typography } from 'app/styles';
 
 const i18n = require('../../loc');
 
 interface Props {
-  onSuccessfullyAuthenticated?: () => void;
-  isBiometricEnabledByUser: boolean;
-  setTimeCounter: (timestamp: number) => actions.SetTimeCounterAction;
-  setFailedAttempts: (attempt: number) => actions.SetFailedAttemptsAction;
-  setFailedAttemptStep: (failedAttempt: number) => actions.SetFailedAttemptStepAction;
+  isBiometricsEnabled: boolean;
+  setTimeCounter: (timestamp: number) => SetTimeCounterAction;
+  setFailedAttempts: (attempt: number) => SetFailedAttemptsAction;
+  setFailedAttemptStep: (failedAttempt: number) => SetFailedAttemptStepAction;
   timeCounter: TimeCounterState;
+  authenticate: Function;
+  setIsAuthenticated: (isAuthenticated: boolean) => SetIsAuthenticatedAction;
 }
 
 interface State {
@@ -38,16 +52,20 @@ class UnlockScreen extends PureComponent<Props, State> {
 
   async componentDidMount() {
     Keyboard.dismiss();
-    if (this.props.isBiometricEnabledByUser) {
+    if (!this.isTimeCounterVisible()) {
       await this.unlockWithBiometrics();
     }
   }
 
   unlockWithBiometrics = async () => {
+    const { setIsAuthenticated, isBiometricsEnabled } = this.props;
+    if (!isBiometricsEnabled) {
+      return;
+    }
     if (!!BiometricService.biometryType) {
       const result = await BiometricService.unlockWithBiometrics();
       if (result) {
-        this.props.onSuccessfullyAuthenticated && this.props.onSuccessfullyAuthenticated();
+        setIsAuthenticated(true);
       }
     }
   };
@@ -81,23 +99,24 @@ class UnlockScreen extends PureComponent<Props, State> {
   };
 
   updatePin = (pin: string) => {
-    const { setFailedAttempts, setFailedAttemptStep } = this.props;
+    const { setFailedAttempts, setFailedAttemptStep, authenticate } = this.props;
     if (this.state.pin.length < CONST.pinCodeLength) {
       this.setState({ pin: this.state.pin + pin }, async () => {
         if (this.state.pin.length === CONST.pinCodeLength) {
-          const storedPin = await SecureStorageService.getSecuredValue('pin');
-          if (storedPin === this.state.pin) {
-            setFailedAttempts(0);
-            setFailedAttemptStep(0);
-            this.props.onSuccessfullyAuthenticated && this.props.onSuccessfullyAuthenticated();
-          } else {
-            const increasedFailedAttemptStep = this.props.timeCounter.failedAttemptStep + 1;
-            const failedTimesError = this.handleFailedAttempt(increasedFailedAttemptStep);
-            this.setState({
-              error: i18n.onboarding.pinDoesNotMatch + failedTimesError,
-              pin: '',
-            });
-          }
+          authenticate(this.state.pin, {
+            onSuccess: () => {
+              setFailedAttempts(0);
+              setFailedAttemptStep(0);
+            },
+            onFailure: () => {
+              const increasedFailedAttemptStep = this.props.timeCounter.failedAttemptStep + 1;
+              const failedTimesError = this.handleFailedAttempt(increasedFailedAttemptStep);
+              this.setState({
+                error: i18n.onboarding.pinDoesNotMatch + failedTimesError,
+                pin: '',
+              });
+            },
+          });
         }
       });
     }
@@ -120,12 +139,13 @@ class UnlockScreen extends PureComponent<Props, State> {
   render() {
     const { error, pin } = this.state;
     if (this.isTimeCounterVisible()) {
-      NavigationService.navigate(Route.TimeCounter, {
-        onTryAgain: this.onTryAgain,
-        timestamp: this.props.timeCounter.timestamp,
-      });
-      return null;
+      return (
+        <View style={styles.container}>
+          <TimeCounterScreen onTryAgain={this.onTryAgain} timestamp={this.props.timeCounter.timestamp} />
+        </View>
+      );
     }
+
     return (
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" />
@@ -142,12 +162,15 @@ class UnlockScreen extends PureComponent<Props, State> {
 
 const mapStateToProps = (state: ApplicationState) => ({
   timeCounter: state.timeCounter,
+  isBiometricsEnabled: state.appSettings.isBiometricsEnabled,
 });
 
 const mapDispatchToProps = {
-  setTimeCounter: actions.setTimeCounter,
-  setFailedAttempts: actions.setFailedAttempts,
-  setFailedAttemptStep: actions.setFailedAttemptStep,
+  setTimeCounter: setTimeCounterAction,
+  setFailedAttempts: setFailedAttemptsAction,
+  setFailedAttemptStep: setFailedAttemptStepAction,
+  authenticate: authenticateAction,
+  setIsAuthenticated: setIsAuthenticatedAction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(UnlockScreen);

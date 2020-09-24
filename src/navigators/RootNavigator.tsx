@@ -14,7 +14,6 @@ import {
 } from 'app/screens';
 
 import { MainCardStackNavigator } from './MainCardStackNavigator';
-import { PasswordNavigator } from './PasswordNavigator';
 
 const Stack = createStackNavigator<RootStackParams>();
 
@@ -23,7 +22,6 @@ export const RootNavigator = () => (
     <Stack.Screen name={Route.MainCardStackNavigator} component={MainCardStackNavigator} />
     <Stack.Screen name={Route.ActionSheet} component={ActionSheet} options={modalOptions} />
     <Stack.Screen name={Route.UnlockTransaction} component={UnlockTransaction} />
-    <Stack.Screen name={Route.PasswordNavigator} component={PasswordNavigator} />
     <Stack.Screen name={Route.EditText} component={EditTextScreen} />
     <Stack.Screen name={Route.Message} component={MessageScreen} options={{}} />
     <Stack.Screen name={Route.ExportWallet} component={ExportWalletScreen} />

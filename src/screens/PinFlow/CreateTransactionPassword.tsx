@@ -12,10 +12,6 @@ const i18n = require('../../../loc');
 
 interface Props {
   navigation: StackNavigationProp<PasswordNavigatorParams, Route.CreateTransactionPassword>;
-
-  appSettings: {
-    isPinSet: boolean;
-  };
 }
 
 interface State {
