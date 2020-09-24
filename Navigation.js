@@ -79,7 +79,11 @@ const defaultScreenOptions =
         ...TransitionPresets.ModalPresentationIOS,
         gestureResponseDistance: { vertical: Dimensions.get('window').height, horizontal: 50 },
       })
-    : undefined;
+    : {
+        gestureEnabled: true,
+        cardOverlayEnabled: true,
+        ...TransitionPresets.ScaleFromCenterAndroid,
+      };
 const defaultStackScreenOptions =
   Platform.OS === 'ios'
     ? {
@@ -88,11 +92,15 @@ const defaultStackScreenOptions =
         cardStyle: { backgroundColor: '#FFFFFF' },
         headerStatusBarHeight: 10,
       }
-    : undefined;
+    : {
+        gestureEnabled: true,
+        cardOverlayEnabled: true,
+        ...TransitionPresets.ScaleFromCenterAndroid,
+      };
 
 const WalletsStack = createStackNavigator();
 const WalletsRoot = () => (
-  <WalletsStack.Navigator>
+  <WalletsStack.Navigator screenOptions={defaultScreenOptions}>
     <WalletsStack.Screen name="WalletsList" component={WalletsList} options={WalletsList.navigationOptions} />
     <WalletsStack.Screen name="WalletTransactions" component={WalletTransactions} options={WalletTransactions.navigationOptions} />
     <WalletsStack.Screen name="WalletDetails" component={WalletDetails} options={WalletDetails.navigationOptions} />
@@ -315,7 +323,7 @@ const Navigation = () => (
       name="ScanQRCodeRoot"
       component={ScanQRCodeRoot}
       options={{
-        ...TransitionPresets.ModalTransition,
+        ...(Platform.OS === 'ios' ? TransitionPresets.ModalTransition : TransitionPresets.ScaleFromCenterAndroid),
         headerShown: false,
       }}
     />
