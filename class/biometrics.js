@@ -59,12 +59,12 @@ export default class Biometric {
   static async unlockWithBiometrics() {
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
     if (isDeviceBiometricCapable) {
-      try {
-        const isConfirmed = await FingerprintScanner.authenticate({ description: 'Please confirm your identity.', fallbackEnabled: true });
-        return isConfirmed;
-      } catch (_e) {
-        return false;
-      }
+      return new Promise(resolve => {
+        FingerprintScanner.authenticate({ description: 'Please confirm your identity.', fallbackEnabled: true })
+          .then(() => resolve(true))
+          .catch(() => resolve(false))
+          .finally(() => FingerprintScanner.release());
+      });
     }
     return false;
   }
