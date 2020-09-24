@@ -264,4 +264,6 @@ export class AbstractWallet {
 
     return b58.encode(data);
   }
+
+  prepareForSerialization() {}
 }

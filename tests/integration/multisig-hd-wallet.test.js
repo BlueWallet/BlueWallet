@@ -46,6 +46,6 @@ describe('multisig-hd-wallet', () => {
 
     await w.fetchBalance();
     await w.fetchTransactions();
-    assert.strictEqual(w.getTransactions().length, 1);
+    assert.strictEqual(w.getTransactions().length, 2);
   });
 });

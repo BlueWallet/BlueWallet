@@ -130,16 +130,28 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   _getExternalAddressByIndex(index) {
     if (!this._m) throw new Error('m is not set');
+    index = +index;
+    if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
     const pubkeys = [];
+    let cosignerIndex = 0;
     for (const cosigner of this._cosigners) {
-      let xpub = cosigner;
-      if (!MultisigHDWallet.isXpubString(cosigner)) {
-        xpub = MultisigHDWallet.seedToXpub(cosigner, this._derivationPath);
+      this._nodes0 = this._nodes0 || [];
+      let _node0;
+      if (!this._nodes0[cosignerIndex]) {
+        let xpub = cosigner;
+        if (!MultisigHDWallet.isXpubString(cosigner)) {
+          xpub = MultisigHDWallet.seedToXpub(cosigner, this._derivationPath);
+        }
+        const xpub1 = this.constructor._zpubToXpub(xpub);
+        const hdNode0 = HDNode.fromBase58(xpub1);
+        _node0 = hdNode0.derive(0);
+        this._nodes0[cosignerIndex] = _node0;
+      } else {
+        _node0 = this._nodes0[cosignerIndex];
       }
-      const xpub1 = this.constructor._zpubToXpub(xpub);
-      const hdNode0 = HDNode.fromBase58(xpub1);
-      const _node0 = hdNode0.derive(0);
+
       pubkeys.push(_node0.derive(index).publicKey);
+      cosignerIndex++;
     }
 
     if (this.isWrappedSegwit()) {
@@ -148,17 +160,20 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           redeem: bitcoin.payments.p2ms({ m: this._m, pubkeys: MultisigHDWallet.sortBuffers(pubkeys) }),
         }),
       });
-      return address;
+
+      return (this.external_addresses_cache[index] = address);
     } else if (this.isNativeSegwit()) {
       const { address } = bitcoin.payments.p2wsh({
         redeem: bitcoin.payments.p2ms({ m: this._m, pubkeys: MultisigHDWallet.sortBuffers(pubkeys) }),
       });
-      return address;
+
+      return (this.external_addresses_cache[index] = address);
     } else if (this.isLegacy()) {
       const { address } = bitcoin.payments.p2sh({
         redeem: bitcoin.payments.p2ms({ m: this._m, pubkeys: MultisigHDWallet.sortBuffers(pubkeys) }),
       });
-      return address;
+
+      return (this.external_addresses_cache[index] = address);
     } else {
       throw new Error('Dont know how to make address');
     }
@@ -166,16 +181,28 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   _getInternalAddressByIndex(index) {
     if (!this._m) throw new Error('m is not set');
+    index = +index;
+    if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
     const pubkeys = [];
+    let cosignerIndex = 0;
     for (const cosigner of this._cosigners) {
-      let xpub = cosigner;
-      if (!MultisigHDWallet.isXpubString(cosigner)) {
-        xpub = MultisigHDWallet.seedToXpub(cosigner, this._derivationPath);
+      this._nodes1 = this._nodes1 || [];
+      let _node1;
+
+      if (!this._nodes1[cosignerIndex]) {
+        let xpub = cosigner;
+        if (!MultisigHDWallet.isXpubString(cosigner)) {
+          xpub = MultisigHDWallet.seedToXpub(cosigner, this._derivationPath);
+        }
+        const xpub1 = this.constructor._zpubToXpub(xpub);
+        const hdNode1 = HDNode.fromBase58(xpub1);
+        _node1 = hdNode1.derive(1);
+      } else {
+        _node1 = this._nodes1[cosignerIndex];
       }
-      const xpub1 = this.constructor._zpubToXpub(xpub);
-      const hdNode0 = HDNode.fromBase58(xpub1);
-      const _node0 = hdNode0.derive(1);
-      pubkeys.push(_node0.derive(index).publicKey);
+
+      pubkeys.push(_node1.derive(index).publicKey);
+      cosignerIndex++;
     }
 
     if (this.isWrappedSegwit()) {
@@ -185,18 +212,19 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         }),
       });
 
-      return address;
+      return (this.internal_addresses_cache[index] = address);
     } else if (this.isNativeSegwit()) {
       const { address } = bitcoin.payments.p2wsh({
         redeem: bitcoin.payments.p2ms({ m: this._m, pubkeys: MultisigHDWallet.sortBuffers(pubkeys) }),
       });
 
-      return address;
+      return (this.internal_addresses_cache[index] = address);
     } else if (this.isLegacy()) {
       const { address } = bitcoin.payments.p2sh({
         redeem: bitcoin.payments.p2ms({ m: this._m, pubkeys: MultisigHDWallet.sortBuffers(pubkeys) }),
       });
-      return address;
+
+      return (this.internal_addresses_cache[index] = address);
     } else {
       throw new Error('Dont know how to make address');
     }
@@ -363,7 +391,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
       switch (key) {
         case 'Name':
-          this.setLabel('Multisig Vault ' + value.trim());
+          this.setLabel(value.trim());
           break;
 
         case 'Policy':
@@ -399,6 +427,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           break;
       }
     }
+
+    if (!this.getLabel()) this.setLabel('Multisig vault');
   }
 
   _getDerivationPathByAddressWithCustomPath(address, customPathPrefix) {
@@ -666,5 +696,11 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
    */
   static sortBuffers(bufArr) {
     return bufArr.sort(Buffer.compare);
+  }
+
+  prepareForSerialization() {
+    // deleting structures that cant be serialized
+    delete this._nodes0;
+    delete this._nodes1;
   }
 }

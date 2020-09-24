@@ -13,6 +13,7 @@ import {
   SegwitBech32Wallet,
   HDLegacyElectrumSeedP2PKHWallet,
   HDSegwitElectrumSeedP2WPKHWallet,
+  MultisigHDWallet,
 } from '.';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import loc from '../loc';
@@ -97,6 +98,7 @@ export default class WalletImport {
     const placeholderWallet = WalletImport.addPlaceholderWallet(importText);
     // Plan:
     // -2. check if BIP38 encrypted
+    // -1a. check if multisig
     // -1. check lightning custodian
     // 0. check if its HDSegwitBech32Wallet (BIP84)
     // 1. check if its HDSegwitP2SHWallet (BIP49)
@@ -123,6 +125,13 @@ export default class WalletImport {
         if (decryptedKey) {
           importText = wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed);
         }
+      }
+
+      // is it multisig?
+      const ms = new MultisigHDWallet();
+      ms.setSecret(importText);
+      if (ms.getN() > 0 && ms.getM() > 0) {
+        return WalletImport._saveWallet(ms);
       }
 
       // is it lightning custodian?

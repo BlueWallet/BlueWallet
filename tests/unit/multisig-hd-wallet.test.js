@@ -871,6 +871,7 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.isNativeSegwit(), w2.isNativeSegwit());
     assert.strictEqual(w.isWrappedSegwit(), w2.isWrappedSegwit());
     assert.strictEqual(w.isLegacy(), w2.isLegacy());
+    assert.strictEqual(w.getLabel(), w2.getLabel());
   });
 
   it('can import txt from Cobo and export it back', async () => {
@@ -918,6 +919,7 @@ describe('multisig-wallet (native segwit)', () => {
       assert.strictEqual(w.isNativeSegwit(), w2.isNativeSegwit());
       assert.strictEqual(w.isWrappedSegwit(), w2.isWrappedSegwit());
       assert.strictEqual(w.isLegacy(), w2.isLegacy());
+      assert.strictEqual(w.getLabel(), w2.getLabel());
     }
   });
 
@@ -1005,6 +1007,7 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getCustomDerivationPathForCosigner(1), w2.getCustomDerivationPathForCosigner(1));
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), w2.getCustomDerivationPathForCosigner(2));
     assert.strictEqual(w.howManySignaturesCanWeMake(), w2.howManySignaturesCanWeMake());
+    assert.strictEqual(w.getLabel(), w2.getLabel());
   });
 
   it('can import incomplete wallet from Coldcard', async () => {
