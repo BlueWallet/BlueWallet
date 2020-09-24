@@ -288,8 +288,8 @@ const styles = StyleSheet.create({
     borderColor: BlueCurrentTheme.colors.lightButton,
     margin: 10,
     padding: 10,
-    maxWidth: 200,
-    maxHeight: 200,
+    maxWidth: 100,
+    maxHeight: 100,
   },
   coinImage: {
     aspectRatio: 1,
@@ -306,8 +306,8 @@ const styles = StyleSheet.create({
   },
   diceRoot: {
     aspectRatio: 1,
-    maxWidth: 200,
-    maxHeight: 200,
+    maxWidth: 100,
+    maxHeight: 100,
   },
   dice: {
     margin: 3,
