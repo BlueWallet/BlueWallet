@@ -273,6 +273,55 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     ).toUpperCase();
   }
 
+  getSecret() {
+    let ret = '# BlueWallet Multisig setup file\n';
+    ret += '#\n';
+    ret += 'Name: ' + this.getLabel() + '\n';
+    ret += 'Policy: ' + this.getM() + ' of ' + this.getN() + '\n';
+
+    let hasCustomPaths = 0;
+    for (let index = 0; index < this.getN(); index++) {
+      if (this._cosignersCustomPaths[index]) hasCustomPaths++;
+    }
+
+    let printedGlobalDerivation = false;
+    if (hasCustomPaths !== this.getN()) {
+      printedGlobalDerivation = true;
+      ret += 'Derivation: ' + this.getDerivationPath() + '\n';
+    }
+
+    if (this.isNativeSegwit()) {
+      ret += 'Format: P2WSH\n';
+    } else if (this.isWrappedSegwit()) {
+      ret += 'Format: P2WSH-P2SH\n';
+    } else if (this.isLegacy()) {
+      ret += 'Format: P2SH\n';
+    } else {
+      ret += 'Format: unknown\n';
+    }
+    ret += '\n';
+
+    for (let index = 0; index < this.getN(); index++) {
+      if (
+        this._cosignersCustomPaths[index] &&
+        ((printedGlobalDerivation && this._cosignersCustomPaths[index] !== this.getDerivationPath()) || !printedGlobalDerivation)
+      ) {
+        ret += '# derivation: ' + this._cosignersCustomPaths[index] + '\n';
+        // if we printed global derivation and this cosigned _has_ derivation and its different from global - we print it ;
+        // or we print it if cosigner _has_ some derivation set and we did not print global
+      }
+      if (this.constructor.isXpubString(this._cosigners[index])) {
+        ret += this._cosignersFingerprints[index] + ': ' + this._cosigners[index] + '\n';
+      } else {
+        ret += 'seed: ' + this._cosigners[index] + '\n';
+      }
+
+      ret += '\n';
+    }
+
+    return ret;
+  }
+
   setSecret(secret) {
     if (secret.startsWith('UR:BYTES')) {
       const decoded = decodeUR([secret]);
@@ -344,6 +393,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
             this.addCosigner(value.trim(), key, customPathForCurrentCosigner);
           } else if (key.replace('#', '').trim() === 'derivation') {
             customPathForCurrentCosigner = value.trim();
+          } else if (key === 'seed') {
+            this.addCosigner(value.trim());
           }
           break;
       }

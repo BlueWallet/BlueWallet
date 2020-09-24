@@ -842,7 +842,38 @@ describe('multisig-wallet (native segwit)', () => {
     // psbtFromCobo.finalizeAllInputs().extractTransaction().toHex()
   });
 
-  it('can import txt from Cobo', async () => {
+  it('can export/import when one of cosigners is mnemonic seed', async () => {
+    const path = "m/48'/0'/0'/2'";
+
+    const w = new MultisigHDWallet();
+    w.addCosigner(Zpub1, fp1cobo);
+    w.addCosigner(mnemonicsColdcard, false, path);
+    w.setDerivationPath(path);
+    w.setM(2);
+
+    const w2 = new MultisigHDWallet();
+    w2.setSecret(w.getSecret());
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), w2._getExternalAddressByIndex(0));
+    assert.strictEqual(w._getExternalAddressByIndex(1), w2._getExternalAddressByIndex(1));
+    assert.strictEqual(w._getInternalAddressByIndex(0), w2._getInternalAddressByIndex(0));
+    assert.strictEqual(w._getInternalAddressByIndex(1), w2._getInternalAddressByIndex(1));
+    assert.strictEqual(w.getM(), w2.getM());
+    assert.strictEqual(w.getN(), w2.getN());
+    assert.strictEqual(w.getDerivationPath(), w2.getDerivationPath());
+    assert.strictEqual(w.getCosigner(1), w2.getCosigner(1));
+    assert.strictEqual(w.getCosigner(2), w2.getCosigner(2));
+    assert.strictEqual(w.getCosignerForFingerprint(fp1cobo), w2.getCosignerForFingerprint(fp1cobo));
+    assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), w2.getCosignerForFingerprint(fp2coldcard));
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(1), w2.getCustomDerivationPathForCosigner(1));
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), w2.getCustomDerivationPathForCosigner(2));
+    assert.strictEqual(w.howManySignaturesCanWeMake(), w2.howManySignaturesCanWeMake());
+    assert.strictEqual(w.isNativeSegwit(), w2.isNativeSegwit());
+    assert.strictEqual(w.isWrappedSegwit(), w2.isWrappedSegwit());
+    assert.strictEqual(w.isLegacy(), w2.isLegacy());
+  });
+
+  it('can import txt from Cobo and export it back', async () => {
     const path = "m/48'/0'/0'/2'";
 
     // can work with same secret win different formats: as TXT and as same TXT encoded in UR:
@@ -863,11 +894,34 @@ describe('multisig-wallet (native segwit)', () => {
       assert.strictEqual(w.getCosigner(2), Zpub2);
       assert.strictEqual(w.getCosignerForFingerprint(fp1cobo), Zpub1);
       assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), Zpub2);
+      assert.strictEqual(w.getCustomDerivationPathForCosigner(1), path); // default since custom was not provided
+      assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path); // default since custom was not provided
       assert.strictEqual(w.howManySignaturesCanWeMake(), 0);
+
+      const w2 = new MultisigHDWallet();
+      w2.setSecret(w.getSecret());
+
+      assert.strictEqual(w._getExternalAddressByIndex(0), w2._getExternalAddressByIndex(0));
+      assert.strictEqual(w._getExternalAddressByIndex(1), w2._getExternalAddressByIndex(1));
+      assert.strictEqual(w._getInternalAddressByIndex(0), w2._getInternalAddressByIndex(0));
+      assert.strictEqual(w._getInternalAddressByIndex(1), w2._getInternalAddressByIndex(1));
+      assert.strictEqual(w.getM(), w2.getM());
+      assert.strictEqual(w.getN(), w2.getN());
+      assert.strictEqual(w.getDerivationPath(), w2.getDerivationPath());
+      assert.strictEqual(w.getCosigner(1), w2.getCosigner(1));
+      assert.strictEqual(w.getCosigner(2), w2.getCosigner(2));
+      assert.strictEqual(w.getCosignerForFingerprint(fp1cobo), w2.getCosignerForFingerprint(fp1cobo));
+      assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), w2.getCosignerForFingerprint(fp2coldcard));
+      assert.strictEqual(w.getCustomDerivationPathForCosigner(1), w2.getCustomDerivationPathForCosigner(1)); // default since custom was not provided
+      assert.strictEqual(w.getCustomDerivationPathForCosigner(2), w2.getCustomDerivationPathForCosigner(2)); // default since custom was not provided
+      assert.strictEqual(w.howManySignaturesCanWeMake(), w2.howManySignaturesCanWeMake());
+      assert.strictEqual(w.isNativeSegwit(), w2.isNativeSegwit());
+      assert.strictEqual(w.isWrappedSegwit(), w2.isWrappedSegwit());
+      assert.strictEqual(w.isLegacy(), w2.isLegacy());
     }
   });
 
-  it('can import txt with custom paths per each cosigner', async () => {
+  it('can import txt with custom paths per each cosigner (and export it back)', async () => {
     const path = "m/48'/0'/0'/2'";
 
     const secret =
@@ -931,6 +985,26 @@ describe('multisig-wallet (native segwit)', () => {
 
     assert.strictEqual(psbt2.data.inputs[0].bip32Derivation[0].path, "m/47'/0'/0'/1'/0/0");
     assert.strictEqual(psbt2.data.inputs[0].bip32Derivation[1].path, "m/46'/0'/0'/1'/0/0");
+
+    // testing that custom paths survive export/import
+
+    const w2 = new MultisigHDWallet();
+    w2.setSecret(w.getSecret());
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), w2._getExternalAddressByIndex(0));
+    assert.strictEqual(w._getExternalAddressByIndex(1), w2._getExternalAddressByIndex(1));
+    assert.strictEqual(w._getInternalAddressByIndex(0), w2._getInternalAddressByIndex(0));
+    assert.strictEqual(w._getInternalAddressByIndex(1), w2._getInternalAddressByIndex(1));
+    assert.strictEqual(w.getM(), w2.getM());
+    assert.strictEqual(w.getN(), w2.getN());
+    assert.strictEqual(w.getDerivationPath(), w2.getDerivationPath());
+    assert.strictEqual(w.getCosigner(1), w2.getCosigner(1));
+    assert.strictEqual(w.getCosigner(2), w2.getCosigner(2));
+    assert.strictEqual(w.getCosignerForFingerprint(fp1cobo), w2.getCosignerForFingerprint(fp1cobo));
+    assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), w2.getCosignerForFingerprint(fp2coldcard));
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(1), w2.getCustomDerivationPathForCosigner(1));
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), w2.getCustomDerivationPathForCosigner(2));
+    assert.strictEqual(w.howManySignaturesCanWeMake(), w2.howManySignaturesCanWeMake());
   });
 
   it('can import incomplete wallet from Coldcard', async () => {
@@ -976,5 +1050,24 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w._getExternalAddressByIndex(1), 'bc1qvwd2d7r46j7u9qyxpedfhe5p075sxuhzd0n6napuvvhq2u5nrmqs9ex90q');
     assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qtah0p50d4qlftn049k7lldcwh7cs3zkjy9g8xegv63p308hsh9zsf5567q');
     assert.strictEqual(w._getInternalAddressByIndex(1), 'bc1qv84pedzkqz2p4sd2dxm9krs0tcfatqcn73nndycaky9qttczj9qq3az9ma');
+  });
+
+  it('cant import garbage', () => {
+    const w = new MultisigHDWallet();
+    w.setSecret('garbage');
+    assert.strictEqual(w.getM(), 0);
+    assert.strictEqual(w.getN(), 0);
+
+    w.setSecret(Zpub1);
+    assert.strictEqual(w.getM(), 0);
+    assert.strictEqual(w.getN(), 0);
+
+    w.setSecret(mnemonicsCobo);
+    assert.strictEqual(w.getM(), 0);
+    assert.strictEqual(w.getN(), 0);
+
+    w.setSecret(MultisigHDWallet.seedToXpub(mnemonicsColdcard, "m/48'/0'/0'/1'"));
+    assert.strictEqual(w.getM(), 0);
+    assert.strictEqual(w.getN(), 0);
   });
 });
