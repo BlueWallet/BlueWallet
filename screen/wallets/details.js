@@ -14,6 +14,7 @@ import {
   Linking,
   StyleSheet,
   StatusBar,
+  PermissionsAndroid,
 } from 'react-native';
 import { SecondButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText, BlueLoadingHook } from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
@@ -26,10 +27,14 @@ import { HDSegwitBech32Wallet, SegwitP2SHWallet, LegacyWallet, SegwitBech32Walle
 import { ScrollView } from 'react-native-gesture-handler';
 import loc from '../../loc';
 import { useTheme, useRoute, useNavigation } from '@react-navigation/native';
+import RNFS from 'react-native-fs';
+import Share from 'react-native-share';
+import { getSystemName } from 'react-native-device-info';
 const EV = require('../../blue_modules/events');
 const prompt = require('../../blue_modules/prompt');
 const BlueApp = require('../../BlueApp');
 const notifications = require('../../blue_modules/notifications');
+const isDesktop = getSystemName() === 'Mac OS X';
 
 const styles = StyleSheet.create({
   root: {
@@ -94,6 +99,7 @@ const styles = StyleSheet.create({
 const WalletDetails = () => {
   const { wallet } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
+  const [backdoorPressed, setBackdoorPressed] = useState(0);
   const [walletName, setWalletName] = useState(wallet.getLabel());
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
@@ -204,6 +210,65 @@ const WalletDetails = () => {
     });
   };
 
+  const exportInternals = async () => {
+    if (backdoorPressed < 10) return setBackdoorPressed(backdoorPressed + 1);
+    setBackdoorPressed(0);
+    if (wallet.type !== HDSegwitBech32Wallet.type) return;
+    const fileName = 'wallet-externals.json';
+    const contents = JSON.stringify(
+      {
+        _balances_by_external_index: wallet._balances_by_external_index,
+        _balances_by_internal_index: wallet._balances_by_internal_index,
+        _txs_by_external_index: wallet._txs_by_external_index,
+        _txs_by_internal_index: wallet._txs_by_internal_index,
+        _utxo: wallet._utxo,
+        next_free_address_index: wallet.next_free_address_index,
+        next_free_change_address_index: wallet.next_free_change_address_index,
+        internal_addresses_cache: wallet.internal_addresses_cache,
+        external_addresses_cache: wallet.external_addresses_cache,
+        _xpub: wallet._xpub,
+        gap_limit: wallet.gap_limit,
+        label: wallet.label,
+        _lastTxFetch: wallet._lastTxFetch,
+        _lastBalanceFetch: wallet._lastBalanceFetch,
+      },
+      null,
+      2,
+    );
+    if (Platform.OS === 'ios') {
+      const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
+      await RNFS.writeFile(filePath, contents);
+      Share.open({
+        url: 'file://' + filePath,
+        saveToFiles: isDesktop,
+      })
+        .catch(error => {
+          console.log(error);
+          alert(error.message);
+        })
+        .finally(() => {
+          RNFS.unlink(filePath);
+        });
+    } else if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
+        title: loc.send.permission_storage_title,
+        message: loc.send.permission_storage_message,
+        buttonNeutral: loc.send.permission_storage_later,
+        buttonNegative: loc._.cancel,
+        buttonPositive: loc._.ok,
+      });
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Storage Permission: Granted');
+        const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
+        await RNFS.writeFile(filePath, contents);
+        alert(loc.formatString(loc.send.txSaved, { filePath: fileName }));
+      } else {
+        console.log('Storage Permission: Denied');
+      }
+    }
+  };
+
   const navigateToBroadcast = () => {
     navigate('Broadcast');
   };
@@ -302,7 +367,9 @@ const WalletDetails = () => {
               </>
             )}
             <>
-              <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.transactions.list_title.toLowerCase()}</Text>
+              <Text onPress={exportInternals} style={[styles.textLabel2, stylesHook.textLabel2]}>
+                {loc.transactions.list_title.toLowerCase()}
+              </Text>
               <View style={styles.hardware}>
                 <BlueText>{loc.wallets.details_display}</BlueText>
                 <Switch value={hideTransactionsInWalletsList} onValueChange={setHideTransactionsInWalletsList} />

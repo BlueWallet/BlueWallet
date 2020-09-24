@@ -293,7 +293,7 @@
     "details_to": "Output",
     "details_transaction_details": "Transaction details",
     "enable_hw": "This wallet is not being used in conjunction with a hardwarde wallet. Would you like to enable hardware wallet use?",
-    "list_conf": "conf",
+    "list_conf": "conf: {number}",
     "list_title": "transactions",
     "rbf_explain": "We will replace this transaction with the one with a higher fee, so it should be mined faster. This is called RBF - Replace By Fee.",
     "rbf_title": "Bump fee (RBF)",

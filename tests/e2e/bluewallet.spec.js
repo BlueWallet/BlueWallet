@@ -396,15 +396,45 @@ describe('BlueWallet UI Tests', () => {
       return;
     }
 
+    // now, testing scanQR with bip21:
+
+    await device.pressBack();
+    await device.pressBack();
+    await element(by.id('BlueAddressInputScanQrButton')).tap();
+
+    // tapping 10 times invisible button is a backdoor:
+    for (let c = 0; c <= 10; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+      await sleep(1000);
+    }
+
+    const bip21 = 'bitcoin:bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.00015&pj=https://btc.donate.kukks.org/BTC/pj';
+    await element(by.type('android.widget.EditText')).replaceText(bip21);
+    await element(by.text('OK')).tap();
+
+    if (process.env.TRAVIS) await sleep(5000);
+    try {
+      await element(by.id('CreateTransactionButton')).tap();
+    } catch (_) {}
+    // created. verifying:
+    await yo('TransactionValue');
+    await yo('PayjoinSwitch');
+    await element(by.id('TransactionDetailsButton')).tap();
+    txhex = await extractTextFromElementById('TxhexInput');
+    console.log({ txhex });
+    transaction = bitcoin.Transaction.fromHex(txhex);
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    assert.strictEqual(transaction.outs[0].value, 15000);
+
     // now, testing units switching, and then creating tx with SATS:
 
     await device.pressBack();
     await device.pressBack();
     await element(by.id('changeAmountUnitButton')).tap(); // switched to sats
-    assert.strictEqual(await extractTextFromElementById('BitcoinAmountInput'), '10000');
+    assert.strictEqual(await extractTextFromElementById('BitcoinAmountInput'), '15000');
     await element(by.id('changeAmountUnitButton')).tap(); // switched to FIAT
     await element(by.id('changeAmountUnitButton')).tap(); // switched to BTC
-    assert.strictEqual(await extractTextFromElementById('BitcoinAmountInput'), '0.0001');
+    assert.strictEqual(await extractTextFromElementById('BitcoinAmountInput'), '0.00015');
     await element(by.id('changeAmountUnitButton')).tap(); // switched to sats
     await element(by.id('BitcoinAmountInput')).replaceText('50000');
 
