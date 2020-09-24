@@ -1,3 +1,12 @@
+v.5.6.0
+=======
+
+* FIX: some transactions displayed with 0 value
+* FIX: PSBT with HW wallets flow
+* FIX: rare crash on watch-only receive button
+* FIX: RBF cancel style
+* REF: updated languages sl_SI, de_DE, fi_FI, es_ES
+
 v5.5.9
 =======
 
@@ -80,20 +89,3 @@ v5.5.5
 ======
 
 * FIX: scan Cobo vault signed transaction QR
-
-v5.5.4
-======
-
-* ADD: handling push notification open
-* ADD: View Wallet xPub (Apple Watch)
-* ADD: COP Fiat
-* FIX: Invoice were not being sent (Apple Watch)
-* FIX: Disable some Watch app elements when app is not reachable
-* FIX: Show loading indicator when processing file or qrcode image
-* FIX: Button size for large devices
-* FIX: better handling of electrum disconnect
-* FIX: disable push notifications in settings
-* FIX: Font-Color in Bump-Fee Input Field "Custom" is not adapted for dark mode
-* FIX: QRCode border in LND Backup screen
-* FIX: Animated QRCode border. Change save path to Downloads folder
-* FIX: sk_SK language updates

@@ -293,7 +293,7 @@
     "details_to": "Izhod",
     "details_transaction_details": "Podrobnosti transakcije",
     "enable_hw": "Ta denarnica se ne uporablja skupaj s strojno denarnico. Ali želite omogočiti uporabo strojne denarnice?",
-    "list_conf": "potrd",
+    "list_conf": "potrd: {number}",
     "list_title": "transakcije",
     "rbf_explain": "To transakcijo bomo nadomestili z novo, ki plača višjo omrežnino, zato bi morala biti potrditev hitrejša. To se imenuje RBF - Replace By Fee.",
     "rbf_title": "Povečaj omrežnino (RBF)",

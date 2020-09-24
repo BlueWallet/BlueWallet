@@ -309,12 +309,14 @@ export default class SendDetails extends Component {
           units[this.state.recipientsScrollIndex] = BitcoinUnit.BTC; // also resetting current unit to BTC
           recipients[[this.state.recipientsScrollIndex]].address = address;
           recipients[[this.state.recipientsScrollIndex]].amount = options.amount;
+          recipients[[this.state.recipientsScrollIndex]].amountSats = new BigNumber(options.amount).multipliedBy(100000000).toNumber();
           this.setState({
             addresses: recipients,
             memo: options.label || options.message,
             isLoading: false,
             amountUnit: BitcoinUnit.BTC,
             units,
+            payjoinUrl: options.pj || '',
           });
         } else {
           this.setState({ isLoading: false });
@@ -332,10 +334,10 @@ export default class SendDetails extends Component {
     if (this.props.route.params.uri) {
       const uri = this.props.route.params.uri;
       try {
-        const { address, amount, memo } = this.decodeBitcoinUri(uri);
+        const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(uri);
         addresses.push(new BitcoinTransaction(address, amount, currency.btcToSatoshi(amount)));
         initialMemo = memo;
-        this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC });
+        this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC, payjoinUrl });
       } catch (error) {
         console.log(error);
         alert(loc.send.details_error_decode);
@@ -374,10 +376,11 @@ export default class SendDetails extends Component {
 
     if (this.props.route.params.uri) {
       try {
-        const { address, amount, memo } = this.decodeBitcoinUri(this.props.route.params.uri);
-        this.setState({ address, amount, memo });
+        const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(this.props.route.params.uri);
+        this.setState({ address, amount, memo, isLoading: false, payjoinUrl });
       } catch (error) {
         console.log(error);
+        this.setState({ isLoading: false });
         alert(loc.send.details_error_decode);
       }
     }
@@ -399,27 +402,6 @@ export default class SendDetails extends Component {
   _keyboardDidHide = () => {
     this.setState({ renderWalletSelectionButtonHidden: false, isAmountToolbarVisibleForAndroid: false });
   };
-
-  decodeBitcoinUri(uri) {
-    let amount = '';
-    let parsedBitcoinUri = null;
-    let address = uri || '';
-    let memo = '';
-    try {
-      parsedBitcoinUri = DeeplinkSchemaMatch.bip21decode(uri);
-      address = 'address' in parsedBitcoinUri ? parsedBitcoinUri.address : address;
-      if ('options' in parsedBitcoinUri) {
-        if ('amount' in parsedBitcoinUri.options) {
-          amount = parsedBitcoinUri.options.amount.toString();
-          amount = parsedBitcoinUri.options.amount;
-        }
-        if ('label' in parsedBitcoinUri.options) {
-          memo = parsedBitcoinUri.options.label || memo;
-        }
-      }
-    } catch (_) {}
-    return { address, amount, memo };
-  }
 
   async createTransaction() {
     Keyboard.dismiss();
@@ -619,6 +601,8 @@ export default class SendDetails extends Component {
       tx: tx.toHex(),
       recipients: targets,
       satoshiPerByte: requestedSatPerByte,
+      payjoinUrl: this.state.payjoinUrl,
+      psbt,
     });
     this.setState({ isLoading: false });
   }
@@ -834,6 +818,39 @@ export default class SendDetails extends Component {
     }
   };
 
+  handleAddRecipient = () => {
+    const { addresses } = this.state;
+    addresses.push(new BitcoinTransaction());
+    this.setState(
+      {
+        addresses,
+        isAdvancedTransactionOptionsVisible: false,
+      },
+      () => {
+        this.scrollView.scrollToEnd();
+        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
+        // after adding recipient it automatically scrolls to the last one
+        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
+      },
+    );
+  };
+
+  handleRemoveRecipient = () => {
+    const { addresses } = this.state;
+    addresses.splice(this.state.recipientsScrollIndex, 1);
+    this.setState(
+      {
+        addresses,
+        isAdvancedTransactionOptionsVisible: false,
+      },
+      () => {
+        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
+        // after deletion it automatically scrolls to the last one
+        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
+      },
+    );
+  };
+
   renderAdvancedTransactionOptionsModal = () => {
     const isSendMaxUsed = this.state.addresses.some(element => element.amount === BitcoinUnit.MAX);
     return (
@@ -883,43 +900,14 @@ export default class SendDetails extends Component {
                   title={loc.send.details_add_rec_add}
                   hideChevron
                   component={TouchableOpacity}
-                  onPress={() => {
-                    const addresses = this.state.addresses;
-                    addresses.push(new BitcoinTransaction());
-                    this.setState(
-                      {
-                        addresses,
-                        isAdvancedTransactionOptionsVisible: false,
-                      },
-                      () => {
-                        this.scrollView.scrollToEnd();
-                        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
-                        // after adding recipient it automatically scrolls to the last one
-                        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
-                      },
-                    );
-                  }}
+                  onPress={this.handleAddRecipient}
                 />
                 <BlueListItem
                   title={loc.send.details_add_rec_rem}
                   hideChevron
                   disabled={this.state.addresses.length < 2}
                   component={TouchableOpacity}
-                  onPress={() => {
-                    const addresses = this.state.addresses;
-                    addresses.splice(this.state.recipientsScrollIndex, 1);
-                    this.setState(
-                      {
-                        addresses,
-                        isAdvancedTransactionOptionsVisible: false,
-                      },
-                      () => {
-                        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
-                        // after deletion it automatically scrolls to the last one
-                        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
-                      },
-                    );
-                  }}
+                  onPress={this.handleRemoveRecipient}
                 />
               </>
             )}
@@ -1053,7 +1041,7 @@ export default class SendDetails extends Component {
             onChangeText={async text => {
               text = text.trim();
               const transactions = this.state.addresses;
-              const { address, amount, memo } = this.decodeBitcoinUri(text);
+              const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text);
               item.address = address || text;
               item.amount = amount || item.amount;
               transactions[index] = item;
@@ -1061,6 +1049,7 @@ export default class SendDetails extends Component {
                 addresses: transactions,
                 memo: memo || this.state.memo,
                 isLoading: false,
+                payjoinUrl,
               });
               this.reCalcTx();
             }}

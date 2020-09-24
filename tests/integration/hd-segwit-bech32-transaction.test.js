@@ -135,6 +135,7 @@ describe('HDSegwitBech32Transaction', () => {
     const tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
 
     assert.strictEqual(await tt.canCancelTx(), true);
+    assert.strictEqual(await tt.canBumpTx(), true);
 
     const { tx } = await tt.createRBFbumpFee(17);
 

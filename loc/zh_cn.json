@@ -12,7 +12,7 @@
   },
   "azteco": {
     "codeIs": "Your voucher code is",
-    "errorBeforeRefeem": "Before redeeming you must first add a Bitcoin wallet.",
+    "errorBeforeRefeem": "你需先添加一个Bitcoin钱包",
     "errorSomething": "Something went wrong. Is this voucher still valid?",
     "redeem": "Redeem to wallet",
     "redeemButton": "Redeem",
@@ -30,10 +30,10 @@
     "network": "网络错误"
   },
   "hodl": {
-    "are_you_sure_you_want_to_logout": "Are you sure you want to logout from HodlHodl?",
+    "are_you_sure_you_want_to_logout": "您确定要注销HodlHodl吗？",
     "cont_address_escrow": "Escrow",
     "cont_address_to": "To",
-    "cont_buying": "buying",
+    "cont_buying": "购买",
     "cont_cancel": "Cancel contract",
     "cont_cancel_q": "Are you sure you want to cancel this contract?",
     "cont_cancel_y": "Yes, cancel contract",
