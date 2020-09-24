@@ -5,7 +5,6 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import Localization from 'react-localization';
 import { LocaleConfig } from 'react-native-calendars';
 
-import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 
 const BigNumber = require('bignumber.js');
@@ -75,7 +74,7 @@ strings = new Localization({
   ko_kr: require('./ko_KR.js'),
 });
 
-strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
+strings.saveLanguage = lang => AsyncStorage.setItem('lang', lang);
 
 strings.transactionTimeToReadable = time => {
   if (time === 0) {

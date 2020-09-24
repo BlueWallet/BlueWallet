@@ -3,7 +3,6 @@ import 'react-native-gesture-handler';
 import 'intl';
 import 'intl/locale-data/jsonp/en';
 import './shim.js';
-
 import React from 'react';
 import { AppRegistry, StatusBar } from 'react-native';
 
