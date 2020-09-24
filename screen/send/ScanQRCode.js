@@ -65,12 +65,8 @@ const styles = StyleSheet.create({
   backdoorButton: {
     width: 40,
     height: 40,
-    backgroundColor: 'rgba(0,0,0,0)',
-    justifyContent: 'center',
-    borderRadius: 0,
+    backgroundColor: 'rgba(0,0,0,0.1)',
     position: 'absolute',
-    left: 0,
-    bottom: 0,
   },
 });
 
@@ -218,6 +214,11 @@ const ScanQRCode = () => {
       <TouchableOpacity style={styles.imagePickerTouch} onPress={showImagePicker}>
         <Icon name="image" type="font-awesome" color="#ffffff" />
       </TouchableOpacity>
+      {showFileImportButton && (
+        <TouchableOpacity style={styles.filePickerTouch} onPress={showFilePicker}>
+          <Icon name="file-import" type="material-community" color="#ffffff" />
+        </TouchableOpacity>
+      )}
       <TouchableOpacity
         testID="ScanQrBackdoorButton"
         style={styles.backdoorButton}
@@ -227,6 +228,7 @@ const ScanQRCode = () => {
           // this allows to mock and test QR scanning in e2e tests
           setBackdoorPressed(backdoorPressed + 1);
           if (backdoorPressed < 10) return;
+          setBackdoorPressed(0);
           let data, userInput;
           try {
             userInput = await prompt('Provide QR code contents manually:', '', false, 'plain-text');
@@ -239,11 +241,6 @@ const ScanQRCode = () => {
           if (data) onBarCodeRead({ data });
         }}
       />
-      {showFileImportButton && (
-        <TouchableOpacity style={styles.filePickerTouch} onPress={showFilePicker}>
-          <Icon name="file-import" type="material-community" color="#ffffff" />
-        </TouchableOpacity>
-      )}
     </View>
   );
 };

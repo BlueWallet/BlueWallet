@@ -28,4 +28,8 @@ export class HDSegwitBech32Wallet extends AbstractHDElectrumWallet {
   allowRBF() {
     return true;
   }
+
+  allowPayJoin() {
+    return true;
+  }
 }
