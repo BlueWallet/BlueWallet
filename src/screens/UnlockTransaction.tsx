@@ -40,7 +40,7 @@ export class UnlockTransaction extends PureComponent<Props, State> {
         isLoading: true,
       },
       async () => {
-        if (await SecureStorageService.checkSecuredPassword('transactionPassword', this.state.password)) {
+        if (await SecureStorageService.checkSecuredPassword(CONST.transactionPassword, this.state.password)) {
           onSuccess();
         } else {
           this.setState({
