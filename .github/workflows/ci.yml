@@ -89,7 +89,7 @@ jobs:
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 29
-        target: google_apis
+        target: default
         avd-name: Pixel_API_29_AOSP
         script: npm run e2e:release-test || npm run e2e:release-test || npm run e2e:release-test
       env:
