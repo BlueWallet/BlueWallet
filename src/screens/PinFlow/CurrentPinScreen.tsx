@@ -73,7 +73,7 @@ class CurrentPinScreen extends PureComponent<Props, State> {
     const { setFailedAttempts, setFailedAttemptStep } = this.props;
     this.setState({ pin }, async () => {
       if (this.state.pin.length === CONST.pinCodeLength) {
-        const setPin = await SecureStorageService.getSecuredValue('pin');
+        const setPin = await SecureStorageService.getSecuredValue(CONST.pin);
         if (setPin === this.state.pin) {
           setFailedAttempts(0);
           setFailedAttemptStep(0);
