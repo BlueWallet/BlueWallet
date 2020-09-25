@@ -1,5 +1,4 @@
 import { NavigationContainer } from '@react-navigation/native';
-import config from 'app/../config';
 import JailMonkey from 'jail-monkey';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -14,6 +13,8 @@ import { ApplicationState } from 'app/state';
 import { selectors } from 'app/state/authentication';
 import { checkCredentials as checkCredentialsAction } from 'app/state/authentication/actions';
 import { isAndroid, isIos } from 'app/styles';
+
+import config from '../../config';
 
 const i18n = require('../../loc');
 
