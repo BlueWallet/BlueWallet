@@ -571,4 +571,10 @@ module.exports = {
       'Your device appears to not have pin or fingerprint setted. We do not recommend using GoldWallet with not secured device.',
     title: 'Security issue',
   },
+  betaVersion: {
+    title: 'This is a beta version\nof the GoldWallet',
+    description:
+      'It is still undergoing final testing before its official release. The mobile app and all content found on it are provided on an “as is” and “as available” basis. The use of the software is done at the user’s own risk.',
+    button: 'I accept the risk',
+  },
 };

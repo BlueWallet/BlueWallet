@@ -1,4 +1,5 @@
 import { NavigationContainer } from '@react-navigation/native';
+import config from 'app/../config';
 import JailMonkey from 'jail-monkey';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -6,6 +7,7 @@ import { connect } from 'react-redux';
 import { RenderMessage, MessageType } from 'app/helpers/MessageCreator';
 import { RootNavigator, PasswordNavigator } from 'app/navigators';
 import { UnlockScreen } from 'app/screens';
+import { BetaVersionScreen } from 'app/screens/BetaVersionScreen';
 import { navigationRef } from 'app/services';
 import { checkDeviceSecurity } from 'app/services/DeviceSecurityService';
 import { ApplicationState } from 'app/state';
@@ -28,7 +30,15 @@ interface ActionsDisptach {
 
 type Props = MapStateToProps & ActionsDisptach;
 
-class Navigator extends React.Component<Props> {
+interface State {
+  isBetaVersionRiskAccepted: boolean;
+}
+
+class Navigator extends React.Component<Props, State> {
+  state = {
+    isBetaVersionRiskAccepted: false,
+  };
+
   async componentDidMount() {
     const { checkCredentials } = this.props;
     checkCredentials();
@@ -69,6 +79,10 @@ class Navigator extends React.Component<Props> {
     }
   };
 
+  handleAcceptBetaVersionRisk = () => {
+    this.setState({ isBetaVersionRiskAccepted: true });
+  };
+
   renderRoutes = () => {
     const { isLoading } = this.props;
     if (isLoading) {
@@ -77,6 +91,10 @@ class Navigator extends React.Component<Props> {
 
     if (!__DEV__ && JailMonkey.isJailBroken()) {
       return this.preventOpenAppWithRootedPhone();
+    }
+
+    if (!__DEV__ && config.isBeta && !this.state.isBetaVersionRiskAccepted) {
+      return <BetaVersionScreen onButtonPress={this.handleAcceptBetaVersionRisk} />;
     }
 
     if (this.shouldRenderOnBoarding()) {

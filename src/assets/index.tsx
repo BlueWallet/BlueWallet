@@ -33,6 +33,7 @@ export const images = {
   closeInverted: require('./images/closeInverted.png'),
   scanQRcrosshair: require('./images/scanQRcrosshair.png'),
   goldWalletLogoBlack: require('./images/bv017LogoGoldWalletRgbV3HorizontalBlack.png'),
+  goldWalletLogoBlackBeta: require('./images/bv017LogoGoldWalletRgbV3VerticalBlack.png'),
   bigMinus: require('./images/bigMinus.png'),
   bigPlus: require('./images/bigPlus.png'),
   cancelSmall: require('./images/cancelSmall.png'),
