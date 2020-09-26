@@ -66,7 +66,7 @@
     "@react-native-community/clipboard": "1.2.3",
     "@react-native-community/geolocation": "2.0.2",
     "@react-native-community/masked-view": "0.1.10",
-    "@react-native-community/push-notification-ios": "1.4.0",
+    "@react-native-community/push-notification-ios": "1.4.1",
     "@react-native-community/slider": "3.0.3",
     "@react-navigation/drawer": "5.9.1",
     "@react-navigation/native": "5.7.4",
