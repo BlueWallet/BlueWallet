@@ -84,7 +84,7 @@ export class CreatePinScreen extends PureComponent<Props, State> {
           <Header
             navigation={this.props.navigation}
             isBackArrow={this.props.route.params?.flowType === FlowType.newPin}
-            onBackArrow={() => this.props.navigation.navigate(Route.Settings)}
+            onBackArrow={() => this.props.navigation.popToTop()}
             title={
               this.props.route.params?.flowType === FlowType.newPin
                 ? i18n.onboarding.changePin
