@@ -589,7 +589,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       const p2wsh = bitcoin.payments.p2wsh({
         redeem: bitcoin.payments.p2ms({ m: this._m, pubkeys: MultisigHDWallet.sortBuffers(pubkeys) }),
       });
-      // outputData.witnessScript = p2wsh.redeem.output; // fixme
+      outputData.witnessScript = p2wsh.redeem.output;
     } else {
       throw new Error('dont know how to add change output');
     }
