@@ -84,4 +84,6 @@ export const getTransactionsToRecoverByWalletId = createSelector(getAlertPending
   txs.filter(tx => tx.value < 0 && tx.confirmations > 0),
 );
 
+export const hasWallets = createSelector(wallets, walletsList => walletsList.length > 0);
+
 export const isLoading = createSelector(local, state => state.isLoading);

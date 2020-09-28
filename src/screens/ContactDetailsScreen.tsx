@@ -16,7 +16,9 @@ import {
 import { CopyButton } from 'app/components/CopyButton';
 import { Contact, Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
 import { checkAddress } from 'app/helpers/DataProcessing';
+import { ApplicationState } from 'app/state';
 import { UpdateContactAction, updateContact } from 'app/state/contacts/actions';
+import { selectors as walletsSelectors } from 'app/state/wallets';
 
 const i18n = require('../../loc');
 
@@ -27,6 +29,7 @@ interface Props {
     StackNavigationProp<MainCardStackNavigatorParams, Route.ContactDetails>
   >;
   route: RouteProp<MainCardStackNavigatorParams, Route.ContactDetails>;
+  hasWallets: boolean;
 }
 
 interface State {
@@ -83,13 +86,18 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
 
   render() {
     const { name, address } = this.state;
+    const { hasWallets } = this.props;
     const { contact } = this.props.route.params;
 
     return (
       <ScreenTemplate
         footer={
           <>
-            <Button onPress={this.navigateToSendCoins} title={i18n.contactDetails.sendCoinsButton} />
+            <Button
+              disabled={!hasWallets}
+              onPress={this.navigateToSendCoins}
+              title={i18n.contactDetails.sendCoinsButton}
+            />
             <Button
               onPress={this.navigateToContactQRCode}
               title={i18n.contactDetails.showQRCodeButton}
@@ -129,11 +137,15 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
   }
 }
 
+const mapStateToProps = (state: ApplicationState) => ({
+  hasWallets: walletsSelectors.hasWallets(state),
+});
+
 const mapDispatchToProps = {
   updateContact,
 };
 
-export default connect(null, mapDispatchToProps)(ContactDetailsScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(ContactDetailsScreen);
 
 const styles = StyleSheet.create({
   showWalletXPUBContainer: {
