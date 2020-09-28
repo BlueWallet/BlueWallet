@@ -1,6 +1,10 @@
-import { random, range, sortBy, findIndex, cloneDeep, orderBy } from 'lodash';
+import { random, range, sortBy, findIndex, cloneDeep, orderBy, round } from 'lodash';
 
 import { Utxo } from 'app/consts';
+
+import { btcToSatoshi } from '../utils/bitcoin';
+
+const BlueElectrum = require('../BlueElectrum');
 
 interface Solution {
   utxos: Utxo[];
@@ -124,4 +128,26 @@ export const getUtxosWithMinimumRest = (utxos: Utxo[], amount: number): Utxo[] |
   const [bestSolution] = orderBy([...solutions, firstSolution], ['negativeAmount'], ['desc']);
 
   return bestSolution.utxos;
+};
+
+export const splitChange = async (value: number): Promise<number[]> => {
+  const dividers = [3, 2];
+  const dustValue: number = await BlueElectrum.getDustValue();
+
+  const dustValueSatoshis = btcToSatoshi(dustValue, 0);
+
+  if (dustValueSatoshis >= value) {
+    return [];
+  }
+
+  for (let i = 0; i < dividers.length; i++) {
+    const divider = dividers[i];
+    const dividedValue = round(value / divider, 0);
+
+    if (dividedValue > dustValueSatoshis) {
+      return range(divider).map(() => dividedValue);
+    }
+  }
+
+  return [value];
 };

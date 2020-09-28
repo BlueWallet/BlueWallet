@@ -1,6 +1,9 @@
 import * as bip39 from 'bip39';
+import { sortBy, compose, mapValues, map } from 'lodash/fp';
 
 import { LegacyWallet } from './legacy-wallet';
+
+const mapValuesNoCap = mapValues.convert({ cap: false });
 
 const BlueElectrum = require('../BlueElectrum');
 
@@ -54,6 +57,16 @@ export class AbstractHDWallet extends LegacyWallet {
     const seed = await bip39.mnemonicToSeed(this.secret);
 
     return seed.toString('hex');
+  }
+
+  getAddressesSortedByAmount() {
+    return compose(
+      map(({ addr }) => addr),
+      sortBy('total'),
+      mapValuesNoCap(function(value, key) {
+        return { addr: key, ...value };
+      }),
+    )(this._addr_balances);
   }
 
   getAddressForTransaction() {

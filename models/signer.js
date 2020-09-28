@@ -10,7 +10,7 @@ import * as bitcoinjs from 'bitcoinjs-lib';
 
 import config from '../config';
 import { btcToSatoshi } from '../utils/bitcoin';
-import { getUtxosWithMinimumRest, getUtxosFromMaxToMin, getUtxosFromMinToMax } from './utils';
+import { getUtxosWithMinimumRest, getUtxosFromMaxToMin, getUtxosFromMinToMax, splitChange } from './utils';
 
 const i18n = require('../loc');
 
@@ -142,12 +142,12 @@ exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee,
   return tx.toHex();
 };
 
-exports.createHDSegwitVaultTransaction = function({
+exports.createHDSegwitVaultTransaction = async function({
   utxos,
   address,
   amount,
   fixedFee,
-  changeAddress,
+  changeAddresses,
   pubKeys,
   vaultTxType,
   keyPairs,
@@ -163,8 +163,9 @@ exports.createHDSegwitVaultTransaction = function({
   let unspentUtxos;
 
   const amountSatoshis = btcToSatoshi(amount, 0);
+  const isAlert = vaultTxType === bitcoinjs.payments.VaultTxType.Alert;
 
-  if (vaultTxType === bitcoinjs.payments.VaultTxType.Alert) {
+  if (isAlert) {
     unspentUtxos = getUtxosWithMinimumRest(utxos, amountSatoshis);
   } else {
     unspentUtxos = getUtxosFromMaxToMin(utxos, amountSatoshis);
@@ -220,15 +221,15 @@ exports.createHDSegwitVaultTransaction = function({
 
   if (amountToOutputSatoshi + feeInSatoshis < unspentAmountSatoshi) {
     const restValue = unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis;
-    // sending less than we have, so the rest should go back
-    if (restValue > 3 * feeInSatoshis) {
-      // to prevent @dust error change transferred amount should be at least 3xfee.
-      // if not - we just dont send change and it wil add to fee
+
+    const changes = await splitChange(restValue);
+
+    changes.forEach((change, index) => {
       psbt.addOutput({
-        address: changeAddress,
-        value: restValue,
+        address: changeAddresses[index],
+        value: change,
       });
-    }
+    });
   }
 
   inputKeyPairs.forEach((keyPair, index) => {

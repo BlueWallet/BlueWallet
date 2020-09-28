@@ -351,6 +351,12 @@ module.exports.estimateFee = async function(numberOfBlocks) {
   );
 };
 
+module.exports.getDustValue = async () => {
+  const relayFee = await mainClient.blockchain_relayfee();
+  // magic numbers from electrum vault
+  return (183 * 3 * relayFee) / 1000;
+};
+
 module.exports.broadcast = async function(hex) {
   if (!mainClient) throw new Error('Electrum client is not connected');
   try {
