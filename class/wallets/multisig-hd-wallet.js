@@ -18,30 +18,33 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     this._cosignersFingerprints = []; // array of according fingerprints  (if any provided)
     this._cosignersCustomPaths = []; // array of according paths (if any provided)
     this._derivationPath = '';
+    this._isNativeSegwit = false;
+    this._isWrappedSegwit = false;
+    this._isLegacy = false;
   }
 
   isLegacy() {
-    return this._derivationPath === "m/45'" || this._derivationPath === "m/44'";
+    return this._isLegacy;
   }
 
   isNativeSegwit() {
-    return this._derivationPath === "m/48'/0'/0'/2'";
+    return this._isNativeSegwit;
   }
 
   isWrappedSegwit() {
-    return this._derivationPath === "m/48'/0'/0'/1'";
+    return this._isWrappedSegwit;
   }
 
   setWrappedSegwit() {
-    this._derivationPath = "m/48'/0'/0'/1'";
+    this._isWrappedSegwit = true;
   }
 
   setNativeSegwit() {
-    this._derivationPath = "m/48'/0'/0'/2'";
+    this._isNativeSegwit = true;
   }
 
   setLegacy() {
-    this._derivationPath = "m/45'";
+    this._isLegacy = true;
   }
 
   setM(m) {
@@ -64,6 +67,20 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   setDerivationPath(path) {
     this._derivationPath = path;
+    switch (this._derivationPath) {
+      case "m/48'/0'/0'/2'":
+        this._isNativeSegwit = true;
+        break;
+      case "m/48'/0'/0'/1'":
+        this._isWrappedSegwit = true;
+        break;
+      case "m/45'":
+        this._isLegacy = true;
+        break;
+      case "m/44'":
+        this._isLegacy = true;
+        break;
+    }
   }
 
   getDerivationPath() {

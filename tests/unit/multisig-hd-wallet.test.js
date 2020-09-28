@@ -937,8 +937,6 @@ describe('multisig-wallet (native segwit)', () => {
   });
 
   it('can import txt with custom paths per each cosigner (and export it back)', async () => {
-    const path = "m/48'/0'/0'/2'";
-
     const secret =
       '# CoboVault Multisig setup file (created on D37EAD88)\n' +
       '#\n' +
@@ -963,7 +961,7 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getN(), 2);
     assert.strictEqual(w.getCustomDerivationPathForCosigner(1), "m/47'/0'/0'/1'");
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), "m/46'/0'/0'/1'");
-    assert.strictEqual(w.getDerivationPath(), path);
+    assert.strictEqual(w.getDerivationPath(), '');
     assert.strictEqual(w.getCosigner(1), Zpub1);
     assert.strictEqual(w.getCosigner(2), Zpub2);
     assert.strictEqual(w.getCosignerForFingerprint(fp1cobo), Zpub1);
