@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useState } from 'react';
-import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, Linking, Alert } from 'react-native';
+import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, Linking, Alert, TextInput } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
@@ -10,7 +10,7 @@ import RNFS from 'react-native-fs';
 import loc from '../../loc';
 import { BlueLoadingHook, BlueTextHooks, BlueButtonHook, BlueSpacing40 } from '../../BlueComponents';
 import { getSystemName } from 'react-native-device-info';
-const prompt = require('../../blue_modules/prompt');
+import { BlueCurrentTheme } from '../../components/themes';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
 const isDesktop = getSystemName() === 'Mac OS X';
@@ -68,6 +68,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.1)',
     position: 'absolute',
   },
+  backdoorInputWrapper: { position: 'absolute', left: '5%', top: '0%', width: '90%', height: '70%', backgroundColor: 'white' },
+  backdoorInput: {
+    height: '50%',
+    marginTop: 5,
+    marginHorizontal: 20,
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
+    borderWidth: 1,
+    borderRadius: 4,
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
+    color: BlueCurrentTheme.colors.foregroundColor,
+    textAlignVertical: 'top',
+  },
 });
 
 const ScanQRCode = () => {
@@ -81,6 +94,8 @@ const ScanQRCode = () => {
   const isFocused = useIsFocused();
   const [cameraStatus, setCameraStatus] = useState(RNCamera.Constants.CameraStatus.PENDING_AUTHORIZATION);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
+  const [backdoorText, setBackdoorText] = useState('');
+  const [backdoorVisible, setBackdoorVisible] = useState(false);
   const stylesHook = StyleSheet.create({
     openSettingsContainer: {
       backgroundColor: colors.brandingColor,
@@ -219,6 +234,40 @@ const ScanQRCode = () => {
           <Icon name="file-import" type="material-community" color="#ffffff" />
         </TouchableOpacity>
       )}
+      {backdoorVisible && (
+        <View style={styles.backdoorInputWrapper}>
+          <BlueTextHooks>Provide QR code contents manually:</BlueTextHooks>
+          <TextInput
+            testID="scanQrBackdoorInput"
+            multiline
+            underlineColorAndroid="transparent"
+            style={styles.backdoorInput}
+            autoCorrect={false}
+            autoCapitalize="none"
+            spellCheck={false}
+            selectTextOnFocus={false}
+            keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
+            value={backdoorText}
+            onChangeText={setBackdoorText}
+          />
+          <BlueButtonHook
+            title="OK"
+            testID="scanQrBackdoorOkButton"
+            onPress={() => {
+              setBackdoorVisible(false);
+              let data;
+              try {
+                data = JSON.parse(backdoorText);
+                // this might be a json string (for convenience - in case there are "\n" in there)
+              } catch (_) {
+                data = backdoorText;
+              }
+
+              if (data) onBarCodeRead({ data });
+            }}
+          />
+        </View>
+      )}
       <TouchableOpacity
         testID="ScanQrBackdoorButton"
         style={styles.backdoorButton}
@@ -229,16 +278,7 @@ const ScanQRCode = () => {
           setBackdoorPressed(backdoorPressed + 1);
           if (backdoorPressed < 10) return;
           setBackdoorPressed(0);
-          let data, userInput;
-          try {
-            userInput = await prompt('Provide QR code contents manually:', '', false, 'plain-text');
-            data = JSON.parse(userInput);
-            // this might be a json string (for convenience - in case there are "\n" in there)
-          } catch (_) {
-            data = userInput;
-          }
-
-          if (data) onBarCodeRead({ data });
+          setBackdoorVisible(true);
         }}
       />
     </View>
