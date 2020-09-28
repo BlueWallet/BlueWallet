@@ -583,7 +583,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         }),
       });
       outputData.witnessScript = p2shP2wsh.redeem.redeem.output;
-      // outputData.redeemScript = p2shP2wsh.redeem.output; // fixme
+      outputData.redeemScript = p2shP2wsh.redeem.output;
     } else if (this.isNativeSegwit()) {
       // not needed by coldcard, apparently..?
       const p2wsh = bitcoin.payments.p2wsh({
