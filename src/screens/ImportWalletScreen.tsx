@@ -177,18 +177,18 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
     navigation.navigate(Route.ImportWallet, { walletType: route.params.walletType });
   };
 
-  addInstantPublicKey = (wallet: HDSegwitP2SHAirWallet) => {
+  addRecoveryPublicKey = (wallet: HDSegwitP2SHAirWallet) => {
     this.props.navigation.navigate(Route.IntegrateKey, {
-      onBarCodeScan: (instantPublicKey: string) => {
+      onBarCodeScan: (recoveryPublicKey: string) => {
         try {
-          wallet.addPublicKey(instantPublicKey);
-          this.addRecoveryKey(wallet);
+          wallet.addPublicKey(recoveryPublicKey);
+          this.addInstantPublicKey(wallet);
         } catch (e) {
           this.showAlert(e.message);
         }
       },
       headerTitle: i18n.wallets.importWallet.header,
-      title: i18n.wallets.importWallet.scanFastPubKey,
+      title: i18n.wallets.importWallet.scanCancelPubKey,
       description: i18n.wallets.importWallet.scanPublicKeyDescription,
       withLink: false,
       onBackArrow: () => {
@@ -201,7 +201,7 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
     try {
       const wallet = new HDSegwitP2SHAirWallet();
       wallet.setMnemonic(mnemonic);
-      this.addInstantPublicKey(wallet);
+      this.addRecoveryPublicKey(wallet);
     } catch (e) {
       this.showAlert(e.message);
     }
@@ -238,11 +238,11 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
     </>
   );
 
-  addRecoveryKey = (wallet: HDSegwitP2SHAirWallet) => {
+  addInstantPublicKey = (wallet: HDSegwitP2SHAirWallet) => {
     this.props.navigation.navigate(Route.IntegrateKey, {
-      onBarCodeScan: (recoveryPublicKey: string) => {
+      onBarCodeScan: (instantPublicKey: string) => {
         try {
-          wallet.addPublicKey(recoveryPublicKey);
+          wallet.addPublicKey(instantPublicKey);
           this.createWalletMessage(() => {
             this.saveVaultWallet(wallet);
           });
@@ -252,11 +252,11 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
       },
       withLink: false,
       headerTitle: i18n.wallets.importWallet.header,
-      title: i18n.wallets.importWallet.scanCancelPubKey,
+      title: i18n.wallets.importWallet.scanFastPubKey,
       description: i18n.wallets.importWallet.scanPublicKeyDescription,
       onBackArrow: () => {
         wallet.clearPublickKeys();
-        this.addInstantPublicKey(wallet);
+        this.addRecoveryPublicKey(wallet);
       },
     });
   };
