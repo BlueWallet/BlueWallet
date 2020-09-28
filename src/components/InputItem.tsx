@@ -81,6 +81,12 @@ export class InputItem extends PureComponent<Props, State> {
     }
   }
 
+  componentDidMount() {
+    if (!!this.props.value) {
+      this.animateFocus();
+    }
+  }
+
   onChangeText = (text: string) => {
     this.setState({ value: text });
     if (this.props.setValue) {
