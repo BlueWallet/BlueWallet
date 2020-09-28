@@ -576,6 +576,18 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(sorted[1].toString('hex'), '02ff12471208c14bd580709cb2358d98975247d8765f92bc25eab3b2763ed605f8');
   });
 
+  it('some validations work', () => {
+    assert.ok(MultisigHDWallet.isXpubValid(Zpub1));
+    assert.ok(!MultisigHDWallet.isXpubValid('invalid'));
+    assert.ok(!MultisigHDWallet.isXpubValid('xpubinvalid'));
+    assert.ok(!MultisigHDWallet.isXpubValid('ypubinvalid'));
+    assert.ok(!MultisigHDWallet.isXpubValid('Zpubinvalid'));
+
+    assert.ok(MultisigHDWallet.isPathValid("m/45'"));
+    assert.ok(MultisigHDWallet.isPathValid("m/48'/0'/0'/2'"));
+    assert.ok(!MultisigHDWallet.isPathValid('ROFLBOATS'));
+  });
+
   it('basic operations work', async () => {
     const path = "m/48'/0'/0'/2'";
 
@@ -608,6 +620,7 @@ describe('multisig-wallet (native segwit)', () => {
     assert.throws(() => w.addCosigner('xpubinvalid'));
     assert.throws(() => w.addCosigner('ypubinvalid'));
     assert.throws(() => w.addCosigner('Zpubinvalid'));
+    assert.throws(() => w.addCosigner(Zpub1, fp1cobo, 'ROFLBOATS')); // invalid path
 
     assert.strictEqual(w.getM(), 2);
     assert.strictEqual(w.getN(), 2);
@@ -1072,5 +1085,118 @@ describe('multisig-wallet (native segwit)', () => {
     w.setSecret(MultisigHDWallet.seedToXpub(mnemonicsColdcard, "m/48'/0'/0'/1'"));
     assert.strictEqual(w.getM(), 0);
     assert.strictEqual(w.getN(), 0);
+  });
+
+  it.skip('can import from caravan', () => {
+    const json = JSON.stringify({
+      name: 'My Multisig Wallet',
+      addressType: 'P2WSH',
+      network: 'mainnet',
+      client: {
+        type: 'public',
+      },
+      quorum: {
+        requiredSigners: 2,
+        totalSigners: 3,
+      },
+      extendedPublicKeys: [
+        {
+          name: 'Extended Public Key 1',
+          bip32Path: 'Unknown (make sure you have written this down previously!)',
+          xpub: 'xpub6EA866cxYyjQa2mupVnEP5mg1vU5fqkyUo97Sm6SN73KWbXAUQ78dBRTisYHJxj5cTyduxhG2Qxd6QNNjtHoHaGDR7aeUrJUvh9GfqvsRQQ',
+          method: 'text',
+        },
+        {
+          name: 'Extended Public Key 2',
+          bip32Path: 'Unknown (make sure you have written this down previously!)',
+          xpub: 'xpub6FCYVZAU7dofgor9fQaqyqqA9NqBAn83iQpoayuWrwBPfwiPgCXGCD7dvAG93M5MZs5VWVP7FErGA5UeiALqaPt7KV67fL9WX9bqXTyeWxb',
+          method: 'text',
+        },
+        {
+          name: 'Extended Public Key 3',
+          bip32Path: 'Unknown (make sure you have written this down previously!)',
+          xpub: 'xpub6EBRM9zwt7Wmkvte61c4fshZ7ZJDaZiaC27WxTkCq5hdNYPodJY4wayCvMNH4ysF944HaBoS4dVrcfhaHwowTn9TJ7EPWE8hJAZjv7gwtew',
+          method: 'text',
+        },
+      ],
+    });
+    let w = new MultisigHDWallet();
+    w.setSecret(json);
+
+    assert.strictEqual(w.getM(), 2);
+    assert.strictEqual(w.getN(), 3);
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qnpy7c7wz6tvmhdwgyk8ka4du3s9x6uhgjal305xdatmwfa538zxsys5l0t');
+    assert.strictEqual(w._getExternalAddressByIndex(1), 'bc1qvuum7egsw4r4utzart88pergghy9rp8m4j5m4s464lz6u39sn6usn89w7c');
+    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qatmvfj5nzh4z3njxeg8z86y592clqe7sfgvp5cpund47knnm6pxsswl2lr');
+    assert.strictEqual(w._getInternalAddressByIndex(1), 'bc1qpqa9c6nkqgcruegnh8wcsr0gzc4x9y90v9k0nxr6lww0gts430zqp7wm86');
+    assert.ok(!w.isWrappedSegwit());
+    assert.ok(w.isNativeSegwit());
+    assert.ok(!w.isLegacy());
+
+    // take 2
+
+    const json2 = JSON.stringify({
+      name: 'My Multisig Wallet',
+      addressType: 'P2WSH',
+      network: 'mainnet',
+      client: {
+        type: 'public',
+      },
+      quorum: {
+        requiredSigners: 2,
+        totalSigners: 2,
+      },
+      extendedPublicKeys: [
+        {
+          name: 'Extended Public Key 1',
+          bip32Path: 'Unknown (make sure you have written this down previously!)',
+          xpub: 'xpub6EA866cxYyjQa2mupVnEP5mg1vU5fqkyUo97Sm6SN73KWbXAUQ78dBRTisYHJxj5cTyduxhG2Qxd6QNNjtHoHaGDR7aeUrJUvh9GfqvsRQQ',
+          method: 'text',
+        },
+        {
+          name: 'Extended Public Key 2',
+          bip32Path: 'Unknown (make sure you have written this down previously!)',
+          xpub: 'xpub6FCYVZAU7dofgor9fQaqyqqA9NqBAn83iQpoayuWrwBPfwiPgCXGCD7dvAG93M5MZs5VWVP7FErGA5UeiALqaPt7KV67fL9WX9bqXTyeWxb',
+          method: 'text',
+        },
+      ],
+      startingAddressIndex: 0,
+    });
+
+    w = new MultisigHDWallet();
+    w.setSecret(json2);
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85');
+    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qtah0p50d4qlftn049k7lldcwh7cs3zkjy9g8xegv63p308hsh9zsf5567q');
+
+    assert.strictEqual(w.getM(), 2);
+    assert.strictEqual(w.getN(), 2);
+    // assert.strictEqual(w.getCosigner(1), Zpub1);
+    // assert.strictEqual(w.getCosigner(2), Zpub2);
+    assert.strictEqual(w.getFingerprint(1), fp1cobo);
+    assert.strictEqual(w.getFingerprint(2), fp2coldcard);
+    assert.strictEqual(w.howManySignaturesCanWeMake(), 0);
+    assert.ok(!w.isWrappedSegwit());
+    assert.ok(w.isNativeSegwit());
+    assert.ok(!w.isLegacy());
+  });
+
+  it.skip('can import from specter-desktop/fullynoded', () => {
+    // @see https://github.com/Fonta1n3/FullyNoded/blob/master/Docs/Wallets/Wallet-Export-Spec.md
+    const json = JSON.stringify({
+      label: 'Multisig',
+      blockheight: 649459,
+      descriptor:
+        'wsh(sortedmulti(2,[1104442d/48h/0h/0h/2h]xpub6ERaLLFZ3qu7X4cpiMAvSZ6UZVXJfxY5FoNvVJgai1V78DmeNHTcNVfu4cK2RmvTNXU4s1tFpGMPTwqoQ1RraE2o9iiNw2s2aHESpandSFY/0/*,[8cce63f8/48h/0h/0h/2h]xpub6FCSLcRY99737oUAnvXd1k2gSz9P4zi4gQJ8UChSPSCxCK7XS9kLzoLHKNBiR26d3ivT7w3oka9f4BepVLoQ875XzgejjbDo626R6NBUJDW/0/*,[bf27bd7b/48h/0h/0h/2h]xpub6FE9uTPh1RxPRAfFVaET75vdfdQzXKZrT7LxukkqY4KhwUm4haMSPCwERfPouG6da6uZTRCXettvYFDck7nbw6JdBztGr1VBLonWch7NpJo/0/*))#erxvm6x2',
+    });
+    const w = new MultisigHDWallet();
+    w.setSecret(json);
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1q338rmdygx0weah4pdrp9xyycxlv2t48276gk3gxmg6m7xdkkglsqgzm6mz');
+    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qcgn73pjlwtt6krs2u6as0kh2jp486fa0t93yyq4d7xxxc37rf24qg67ewq');
+    assert.strictEqual(w.getM(), 2);
+    assert.strictEqual(w.getN(), 3);
+    assert.ok(!w.isWrappedSegwit());
+    assert.ok(w.isNativeSegwit());
+    assert.ok(!w.isLegacy());
   });
 });
