@@ -5,6 +5,7 @@ import { StyleSheet, Text, View, BackHandler } from 'react-native';
 import { Button, ScreenTemplate, FlatButton } from 'app/components';
 import { TimeCounter } from 'app/components/TimeCounter';
 import { useInterval } from 'app/helpers/useInterval';
+import { AppStateManager } from 'app/services';
 import { typography } from 'app/styles';
 import { isIos } from 'app/styles/helpers';
 
@@ -20,10 +21,11 @@ export const TimeCounterScreen = (props: Props) => {
 
   const timestamp = propTimestamp;
   const onTryAgain = propOnTryAgain;
-
-  const currentTimestamp = dayjs().unix();
-  const secondsToCount = (timestamp - currentTimestamp).toFixed(0);
-  const [seconds, setSeconds] = useState(parseInt(secondsToCount));
+  const getLeftSeconds = () => {
+    const currentTimestamp = dayjs().unix();
+    return timestamp > currentTimestamp ? parseInt((timestamp - currentTimestamp).toFixed(0)) : 0;
+  };
+  const [seconds, setSeconds] = useState(getLeftSeconds());
 
   useInterval(
     () => {
@@ -49,6 +51,10 @@ export const TimeCounterScreen = (props: Props) => {
     onTryAgain();
   };
 
+  const setCurrentLeftSeconds = () => {
+    setSeconds(getLeftSeconds());
+  };
+
   return (
     <ScreenTemplate
       footer={
@@ -60,6 +66,7 @@ export const TimeCounterScreen = (props: Props) => {
         </>
       }
     >
+      <AppStateManager handleAppComesToForeground={setCurrentLeftSeconds} />
       <View style={styles.descriptionContainer}>
         <Text style={styles.title}>{i18n.timeCounter.title}</Text>
         <Text style={styles.description}>{i18n.timeCounter.description}</Text>
