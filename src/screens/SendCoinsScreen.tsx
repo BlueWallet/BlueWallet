@@ -16,6 +16,7 @@ import {
   RadioGroup,
   RadioButton,
   WalletDropdown,
+  Warning,
 } from 'app/components';
 import { CONST, MainCardStackNavigatorParams, Route, RootStackParams, Utxo, Wallet } from 'app/consts';
 import { processAddressData } from 'app/helpers/DataProcessing';
@@ -495,6 +496,7 @@ class SendCoinsScreen extends Component<Props, State> {
           unit={wallet.preferredBalanceUnit}
         />
         <View style={styles.inputsContainer}>
+          {this.isAlert(wallet) && <Warning />}
           {this.renderAmountInput()}
 
           <View style={styles.fee}>

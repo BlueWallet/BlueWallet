@@ -98,4 +98,16 @@ export const typography = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 0,
   },
+  warning: {
+    fontFamily: fonts.ubuntu.light,
+    fontSize: 12,
+    lineHeight: 14,
+    color: palette.white,
+  },
+  warningBold: {
+    fontFamily: fonts.ubuntu.bold,
+    fontSize: 12,
+    lineHeight: 14,
+    color: palette.white,
+  },
 });

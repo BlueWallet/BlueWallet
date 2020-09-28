@@ -355,6 +355,8 @@ const ko = {
       title: '오류',
       description: '거래를 생성하기 전에 먼저 Bitcoin Vault 지갑을 추가해야 합니다.',
     },
+    warning: 'TRANSLATION NEEDED | ENG: Warning: ',
+    warningGeneral: 'TRANSLATION NEEDED | ENG: Warning: Please be aware that in the process of using the Secure Transaction feature, a part of the funds left in your wallet might be blocked. This is a normal procedure linked to UTXO and the blockchain parameters of the Bitcoin Vault wallet. Your funds will be unblocked once the transaction is verified (after approximately 24 hrs) or canceled (within 24 hrs).',
   },
   receive: {
     header: '코인 받기',
