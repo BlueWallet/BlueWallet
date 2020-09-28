@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     borderBottomColor: palette.border,
     borderBottomWidth: 1,
     paddingTop: 6,
-    paddingBottom: 8,
+    paddingBottom: 6,
     ...typography.caption,
   },
   isSuffix: {

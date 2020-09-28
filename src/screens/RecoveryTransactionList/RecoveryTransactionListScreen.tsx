@@ -124,7 +124,9 @@ export class RecoveryTransactionListScreen extends PureComponent<Props, State> {
     const toggle = this.toggleTransaction(isChecked, transaction);
     return (
       <View style={styles.itemWrapper}>
-        <TransactionItem onPress={toggle} item={transaction} />
+        <View style={styles.transactionItemContainer}>
+          <TransactionItem onPress={toggle} item={transaction} />
+        </View>
         <CheckBox onPress={toggle} right checked={isChecked} />
       </View>
     );
@@ -223,5 +225,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginRight: -10,
+  },
+  transactionItemContainer: {
+    flexWrap: 'wrap',
+    flex: 1,
   },
 });

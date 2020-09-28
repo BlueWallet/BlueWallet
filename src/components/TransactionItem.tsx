@@ -25,7 +25,7 @@ export const TransactionItem = ({ item, onPress }: { item: Transaction; onPress:
       <View style={styles.walletLabelWrapper}>
         {renderArrowIcon(item.value)}
         <Image source={icons.wallet} style={styles.wallet} resizeMode="contain" />
-        <Text style={typography.headline5} numberOfLines={1}>
+        <Text style={styles.walletLabel}>
           {item.walletLabel === CONST.allWallets ? i18n.transactions.details.noLabel : item.walletLabel}
         </Text>
       </View>
@@ -71,6 +71,10 @@ const styles = StyleSheet.create({
   label: {
     ...typography.caption,
     color: palette.textGrey,
+  },
+  walletLabel: {
+    ...typography.headline5,
+    flexShrink: 1,
   },
   leftColumn: { justifyContent: 'flex-start', maxWidth: '75%' },
   rightColumn: { marginTop: 3, alignItems: 'flex-end' },
