@@ -38,7 +38,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { AppStorage, HDSegwitBech32Wallet, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
+import { AppStorage, HDSegwitBech32Wallet, LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import DocumentPicker from 'react-native-document-picker';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -583,6 +583,16 @@ export default class SendDetails extends Component {
         memo: this.state.memo,
         fromWallet: wallet,
         psbt,
+      });
+      this.setState({ isLoading: false });
+      return;
+    }
+
+    if (wallet.type === MultisigHDWallet.type) {
+      this.props.navigation.navigate('PsbtMultisig', {
+        memo: this.state.memo,
+        psbtBase64: psbt.toBase64(),
+        walletId: wallet.getID(),
       });
       this.setState({ isLoading: false });
       return;

@@ -2,6 +2,7 @@ import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import bip39 from 'bip39';
 import b58 from 'bs58check';
 import { decodeUR } from 'bc-ur';
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const coinSelectAccumulative = require('coinselect/accumulative');
 const coinSelectSplit = require('coinselect/split');
 const HDNode = require('bip32');
@@ -21,6 +22,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     this._isNativeSegwit = false;
     this._isWrappedSegwit = false;
     this._isLegacy = false;
+    this.gap_limit = 10;
   }
 
   isLegacy() {
@@ -420,7 +422,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           } else if (key.replace('#', '').trim() === 'derivation') {
             customPathForCurrentCosigner = value.trim();
           } else if (key === 'seed') {
-            this.addCosigner(value.trim());
+            this.addCosigner(value.trim(), false, customPathForCurrentCosigner);
           }
           break;
       }
@@ -442,7 +444,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   _getWifForAddress(address) {
-    throw new Error('Not applicable in multisig');
+    return false;
   }
 
   _getPubkeyByAddress(address) {
@@ -699,5 +701,27 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       return true;
     } catch (_) {}
     return false;
+  }
+
+  allowSend() {
+    return true;
+  }
+
+  async fetchUtxo() {
+    await super.fetchUtxo();
+    // now we need to fetch txhash for each input as required by PSBT
+    const txhexes = await BlueElectrum.multiGetTransactionByTxid(
+      this.getUtxo().map(x => x.txid),
+      50,
+      false,
+    );
+
+    const newUtxos = [];
+    for (const u of this.getUtxo()) {
+      if (txhexes[u.txid]) u.txhex = txhexes[u.txid];
+      newUtxos.push(u);
+    }
+
+    return newUtxos;
   }
 }

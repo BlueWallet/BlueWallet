@@ -53,6 +53,7 @@ import ScanQRCode from './screen/send/ScanQRCode';
 import SendCreate from './screen/send/create';
 import Confirm from './screen/send/confirm';
 import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
+import PsbtMultisig from './screen/send/psbtMultisig';
 import Success from './screen/send/success';
 import Broadcast from './screen/send/broadcast';
 
@@ -175,6 +176,7 @@ const SendDetailsRoot = () => (
       component={PsbtWithHardwareWallet}
       options={PsbtWithHardwareWallet.navigationOptions}
     />
+    <SendDetailsStack.Screen name="PsbtMultisig" component={PsbtMultisig} options={PsbtMultisig.navigationOptions} />
     <SendDetailsStack.Screen
       name="CreateTransaction"
       component={SendCreate}

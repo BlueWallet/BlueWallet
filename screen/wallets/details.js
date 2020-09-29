@@ -23,7 +23,7 @@ import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet'
 import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
-import { HDSegwitBech32Wallet, SegwitP2SHWallet, LegacyWallet, SegwitBech32Wallet, WatchOnlyWallet } from '../../class';
+import { HDSegwitBech32Wallet, SegwitP2SHWallet, LegacyWallet, SegwitBech32Wallet, WatchOnlyWallet, MultisigHDWallet } from '../../class';
 import { ScrollView } from 'react-native-gesture-handler';
 import loc from '../../loc';
 import { useTheme, useRoute, useNavigation } from '@react-navigation/native';
@@ -360,6 +360,35 @@ const WalletDetails = () => {
             <BlueSpacing20 />
             <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.details_type.toLowerCase()}</Text>
             <Text style={[styles.textValue, stylesHook.textValue]}>{wallet.typeReadable}</Text>
+
+            {wallet.type === MultisigHDWallet.type && (
+              <>
+                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>multisig</Text>
+                <BlueText>
+                  {wallet.getM()} of {wallet.getN()}{' '}
+                  {wallet.isNativeSegwit()
+                    ? 'native segwit (p2wsh)'
+                    : wallet.isWrappedSegwit()
+                    ? 'wrapped segwit (p2sh-p2wsh)'
+                    : 'legacy (p2sh)'}
+                </BlueText>
+              </>
+            )}
+
+            {wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && (
+              <>
+                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>how many signatures can bluewallet make</Text>
+                <BlueText>{wallet.howManySignaturesCanWeMake()}</BlueText>
+              </>
+            )}
+
+            {wallet.type === MultisigHDWallet.type && !!wallet.getDerivationPath() && (
+              <>
+                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>derivation path</Text>
+                <BlueText>{wallet.getDerivationPath()}</BlueText>
+              </>
+            )}
+
             {wallet.type === LightningCustodianWallet.type && (
               <>
                 <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.details_connected_to.toLowerCase()}</Text>

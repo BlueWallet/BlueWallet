@@ -796,6 +796,29 @@ describe('multisig-wallet (native segwit)', () => {
     );
   });
 
+  it('can export/import wallet with all seeds in place', () => {
+    const path = "m/48'/0'/0'/2'";
+
+    const w = new MultisigHDWallet();
+    w.addCosigner(mnemonicsCobo, false, path);
+    w.addCosigner(mnemonicsColdcard, false, path);
+    w.setDerivationPath(path);
+    w.setM(2);
+
+    const ww = new MultisigHDWallet();
+    ww.setSecret(w.getSecret());
+
+    assert.strictEqual(ww._getExternalAddressByIndex(0), 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85');
+    assert.strictEqual(ww._getInternalAddressByIndex(0), 'bc1qtah0p50d4qlftn049k7lldcwh7cs3zkjy9g8xegv63p308hsh9zsf5567q');
+
+    assert.strictEqual(ww.getM(), 2);
+    assert.strictEqual(ww.getN(), 2);
+    assert.strictEqual(ww.howManySignaturesCanWeMake(), 2);
+    assert.ok(!ww.isWrappedSegwit());
+    assert.ok(ww.isNativeSegwit());
+    assert.ok(!ww.isLegacy());
+  });
+
   it('can coordinate tx creation and cosign 1 of 2', async () => {
     const path = "m/48'/0'/0'/2'";
 
@@ -831,6 +854,7 @@ describe('multisig-wallet (native segwit)', () => {
       false,
     );
 
+    assert.strictEqual(psbt.data.inputs[0].partialSig.length, 1);
     assert.ok(!tx, 'tx should not be provided when PSBT is only partially signed');
     assert.strictEqual(
       psbt.toBase64(),
@@ -845,6 +869,8 @@ describe('multisig-wallet (native segwit)', () => {
 
     const psbtFromCobo = bitcoin.Psbt.fromHex(payload);
     psbt.combine(psbtFromCobo);
+    assert.strictEqual(psbt.data.inputs[0].partialSig.length, 2);
+
     const tx2 = psbt.finalizeAllInputs().extractTransaction();
     assert.strictEqual(
       tx2.toHex(),
