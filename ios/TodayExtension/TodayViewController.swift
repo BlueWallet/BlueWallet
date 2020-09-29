@@ -20,23 +20,28 @@ class TodayViewController: UIViewController, NCWidgetProviding {
   @IBOutlet weak var lastPrice: UILabel!
   @IBOutlet weak var lastPriceFromLabel: UILabel!
   private var lastPriceNumber: NSNumber?
-
+  
   
   override func viewDidLoad() {
     super.viewDidLoad()
-   
+    
     setLastPriceOutletsHidden(isHidden: true)
     if let lastStoredTodayStore = TodayData.getPriceRateAndLastUpdate() {
       processRateAndLastUpdate(todayStore: lastStoredTodayStore)
     } else {
       setLastPriceOutletsHidden(isHidden: true)
     }
+    
+    if #available(iOSApplicationExtension 13.0, *) {
+    } else{
+      self.lastPriceArrowImage.removeFromSuperview()
+    }
   }
   
   func setLastPriceOutletsHidden(isHidden: Bool) {
     lastPrice.isHidden = isHidden
     lastPriceFromLabel.isHidden = isHidden
-    lastPriceArrowImage.isHidden = isHidden
+    lastPriceArrowImage?.isHidden = isHidden
   }
   
   func processRateAndLastUpdate(todayStore: TodayDataStore) {
