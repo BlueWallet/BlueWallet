@@ -59,6 +59,7 @@ describe('PayjoinTransaction', () => {
     const payjoinClient = new PayjoinClient({
       wallet,
       payjoinRequester: payjoinRequesterMock,
+      paymentScript: bitcoin.address.toOutputScript("bc1qy0ydthpa35m37pvwl5tu76j0srcmcwtmaur3aw" )
     });
 
     await assert.rejects(payjoinClient.run());
@@ -106,6 +107,7 @@ describe('PayjoinTransaction', () => {
     const payjoinClient = new PayjoinClient({
       wallet,
       payjoinRequester: payjoinRequesterMock,
+      paymentScript: bitcoin.address.toOutputScript("bc1qy0ydthpa35m37pvwl5tu76j0srcmcwtmaur3aw" )
     });
 
     await payjoinClient.run();

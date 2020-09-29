@@ -318,6 +318,7 @@ export default class SendDetails extends Component {
             amountUnit: BitcoinUnit.BTC,
             units,
             payjoinUrl: options.pj || '',
+            payjoinOutputSubstitutionDisabled: options.pjos === "0"
           });
         } else {
           this.setState({ isLoading: false });
@@ -335,10 +336,10 @@ export default class SendDetails extends Component {
     if (this.props.route.params.uri) {
       const uri = this.props.route.params.uri;
       try {
-        const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(uri);
+        const { address, amount, memo, payjoinUrl, payjoinOutputSubstitutionDisabled } = DeeplinkSchemaMatch.decodeBitcoinUri(uri);
         addresses.push(new BitcoinTransaction(address, amount, currency.btcToSatoshi(amount)));
         initialMemo = memo;
-        this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC, payjoinUrl });
+        this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC, payjoinUrl,payjoinOutputSubstitutionDisabled });
       } catch (error) {
         console.log(error);
         alert(loc.send.details_error_decode);
@@ -377,8 +378,8 @@ export default class SendDetails extends Component {
 
     if (this.props.route.params.uri) {
       try {
-        const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(this.props.route.params.uri);
-        this.setState({ address, amount, memo, isLoading: false, payjoinUrl });
+        const { address, amount, memo, payjoinUrl, payjoinOutputSubstitutionDisabled } = DeeplinkSchemaMatch.decodeBitcoinUri(this.props.route.params.uri);
+        this.setState({ address, amount, memo, isLoading: false, payjoinUrl, payjoinOutputSubstitutionDisabled});
       } catch (error) {
         console.log(error);
         this.setState({ isLoading: false });
@@ -669,6 +670,7 @@ export default class SendDetails extends Component {
       recipients: targets,
       satoshiPerByte: requestedSatPerByte,
       payjoinUrl: this.state.payjoinUrl,
+      payjoinOutputSubstitutionDisabled: this.state.payjoinOutputSubstitutionDisabled,        
       psbt,
     });
     this.setState({ isLoading: false });
@@ -1200,7 +1202,7 @@ export default class SendDetails extends Component {
             onChangeText={async text => {
               text = text.trim();
               const transactions = this.state.addresses;
-              const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text);
+              const { address, amount, memo, payjoinUrl, payjoinOutputSubstitutionDisabled } = DeeplinkSchemaMatch.decodeBitcoinUri(text);
               item.address = address || text;
               item.amount = amount || item.amount;
               transactions[index] = item;
@@ -1209,6 +1211,7 @@ export default class SendDetails extends Component {
                 memo: memo || this.state.memo,
                 isLoading: false,
                 payjoinUrl,
+                payjoinOutputSubstitutionDisabled
               });
               this.reCalcTx();
             }}

@@ -36,6 +36,7 @@ export default class Confirm extends Component {
       isLoading: false,
       isPayjoinEnabled: false,
       payjoinUrl: props.route.params.fromWallet.allowPayJoin() ? props.route.params?.payjoinUrl : false,
+      payjoinOutputSubstitutionDisabled: props.route.params.fromWallet.allowPayJoin() ? props.route.params?.payjoinOutputSubstitutionDisabled : false,
       psbt: props.route.params?.psbt,
       fee: props.route.params?.fee,
       feeSatoshi: new Bignumber(props.route.params.fee).multipliedBy(100000000).toNumber(),
@@ -66,6 +67,11 @@ export default class Confirm extends Component {
           const payjoinClient = new PayjoinClient({
             wallet,
             payjoinUrl: this.state.payjoinUrl,
+            payjoinParameters: {
+              payjoinVersion: 1,
+              disableOutputSubstitution: this.state.payjoinOutputSubstitutionDisabled
+            },
+            paymentScript: bitcoin.address.toOutputScript(this.state.recipients[0].address)
           });
           await payjoinClient.run();
           const payjoinPsbt = wallet.getPayjoinPsbt();

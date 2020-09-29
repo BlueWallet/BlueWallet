@@ -237,6 +237,7 @@ describe('unit - DeepLinkSchemaMatch', function () {
         amount: 0.0001,
         memo: '',
         payjoinUrl: 'https://btc.donate.kukks.org/BTC/pj',
+        payjoinOutputSubstitutionDisabled: false
       },
     );
 
@@ -245,6 +246,7 @@ describe('unit - DeepLinkSchemaMatch', function () {
       amount: 20.3,
       memo: 'Foobar',
       payjoinUrl: '',
+      payjoinOutputSubstitutionDisabled: false
     });
   });
 

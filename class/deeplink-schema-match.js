@@ -330,6 +330,7 @@ class DeeplinkSchemaMatch {
     let address = uri || '';
     let memo = '';
     let payjoinUrl = '';
+    let payjoinOutputSubstitutionDisabled = false;
     try {
       parsedBitcoinUri = DeeplinkSchemaMatch.bip21decode(uri);
       address = 'address' in parsedBitcoinUri ? parsedBitcoinUri.address : address;
@@ -344,9 +345,12 @@ class DeeplinkSchemaMatch {
         if ('pj' in parsedBitcoinUri.options) {
           payjoinUrl = parsedBitcoinUri.options.pj;
         }
+        if ('pjos' in parsedBitcoinUri.options) {
+          payjoinOutputSubstitutionDisabled = parsedBitcoinUri.options.pjos === "0";
+        }
       }
     } catch (_) {}
-    return { address, amount, memo, payjoinUrl };
+    return { address, amount, memo, payjoinUrl, payjoinOutputSubstitutionDisabled };
   }
 }
 
