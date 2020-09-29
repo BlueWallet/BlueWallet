@@ -21,6 +21,7 @@ import {
 import { CONST, MainCardStackNavigatorParams, Route, RootStackParams, Utxo, Wallet } from 'app/consts';
 import { processAddressData } from 'app/helpers/DataProcessing';
 import { loadTransactionsFees } from 'app/helpers/fees';
+import { getEllipsisWalletName } from 'app/helpers/text';
 import { ApplicationState } from 'app/state';
 import { selectors } from 'app/state/wallets';
 import { typography, palette } from 'app/styles';
@@ -492,7 +493,7 @@ class SendCoinsScreen extends Component<Props, State> {
         <WalletDropdown
           onSelectPress={this.showModal}
           balance={wallet.balance}
-          label={wallet.label}
+          label={getEllipsisWalletName(wallet.label)}
           unit={wallet.preferredBalanceUnit}
         />
         <View style={styles.inputsContainer}>

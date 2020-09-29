@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 
 import { ScreenTemplate, Text, InputItem, Header, Button, FlatButton, RadioGroup, RadioButton } from 'app/components';
 import { Route, Wallet, MainCardStackNavigatorParams, ActionMeta } from 'app/consts';
+import { maxWalletNameLength } from 'app/consts/text';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import {
   HDSegwitBech32Wallet,
@@ -287,7 +288,12 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
       >
         <Text style={styles.subtitle}>{i18n.wallets.add.subtitle}</Text>
         <Text style={styles.description}>{i18n.wallets.add.description}</Text>
-        <InputItem error={this.validationError} setValue={this.setLabel} label={i18n.wallets.add.inputLabel} />
+        <InputItem
+          error={this.validationError}
+          setValue={this.setLabel}
+          label={i18n.wallets.add.inputLabel}
+          maxLength={maxWalletNameLength}
+        />
         {this.renderAdvancedSection()}
       </ScreenTemplate>
     );

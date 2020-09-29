@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { images } from 'app/assets';
 import { Image, Dropdown } from 'app/components';
+import { getEllipsisWalletName } from 'app/helpers/text';
 import { HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet } from 'app/legacy';
 import { typography, palette } from 'app/styles';
 
@@ -50,7 +51,7 @@ export const DashboarContentdHeader = ({
         </View>
       )}
       <View>
-        <Text style={styles.chooseWalletButtonText}>{label}</Text>
+        <Text style={styles.chooseWalletButtonText}>{getEllipsisWalletName(label)}</Text>
         {typeReadable && (
           <View style={styles.typeReadableContainer}>
             <Text style={styles.buttonDescription}>

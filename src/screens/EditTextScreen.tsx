@@ -15,7 +15,7 @@ interface Props {
 
 export const EditTextScreen = (props: Props) => {
   const { params } = props.route;
-  const { label, header, onSave, title } = params;
+  const { label, header, onSave, title, maxLength } = params;
   const keyboardType = params.keyboardType || defaultKeyboardType;
   const validate = params.validate || null;
   const validateOnSave = params.validateOnSave || null;
@@ -55,6 +55,7 @@ export const EditTextScreen = (props: Props) => {
           autoFocus={true}
           error={error || (value && !!validate && validate(value)) || ''}
           keyboardType={keyboardType}
+          maxLength={maxLength}
         />
       </View>
     </ScreenTemplate>

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 import { images } from 'app/assets';
+import { getEllipsisWalletName } from 'app/helpers/text';
 import { typography, palette } from 'app/styles';
 
 import { Avatar } from './Avatar';
@@ -33,7 +34,7 @@ export const WalletItem = (props: WalletItemProps) => {
       </View>
       <View style={styles.textContainer}>
         <Text style={typography.headline5}>{i18n.formatBalance(Number(value), unit, true)}</Text>
-        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.name}>{getEllipsisWalletName(name)}</Text>
       </View>
     </TouchableOpacity>
   );
