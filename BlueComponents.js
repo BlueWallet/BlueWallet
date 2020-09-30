@@ -12,6 +12,7 @@ import {
   View,
   KeyboardAvoidingView,
   UIManager,
+  PlatformColor,
   StyleSheet,
   Dimensions,
   Image,
@@ -60,6 +61,8 @@ if (aspectRatio > 1.6) {
 } else {
   isIpad = true;
 }
+// eslint-disable-next-line no-unused-expressions
+Platform.OS === 'android' ? (ActivityIndicator.defaultProps.color = PlatformColor('?attr/colorAccent')) : null;
 
 export class BlueButton extends Component {
   render() {
