@@ -817,6 +817,9 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(!ww.isWrappedSegwit());
     assert.ok(ww.isNativeSegwit());
     assert.ok(!ww.isLegacy());
+
+    assert.strictEqual(w.getID(), ww.getID());
+    assert.ok(w.getID() !== new MultisigHDWallet().getID());
   });
 
   it('can coordinate tx creation and cosign 1 of 2', async () => {

@@ -47,6 +47,7 @@ import { BlueCurrentTheme } from '../../components/themes';
 const currency = require('../../blue_modules/currency');
 const BlueApp: AppStorage = require('../../BlueApp');
 const prompt = require('../../blue_modules/prompt');
+const fs = require('../../blue_modules/fs');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -828,6 +829,21 @@ export default class SendDetails extends Component {
     }
   };
 
+  importTransactionMultisig = async () => {
+    try {
+      const base64 = await fs.openSignedTransaction();
+      const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
+      this.props.navigation.navigate('PsbtMultisig', {
+        memo: this.state.memo,
+        psbtBase64: psbt.toBase64(),
+        walletId: this.state.fromWallet.getID(),
+      });
+    } catch (error) {
+      alert('Problem with PSBT: ' + error.message);
+    }
+    this.setState({ isLoading: false, isAdvancedTransactionOptionsVisible: false });
+  };
+
   handleAddRecipient = () => {
     const { addresses } = this.state;
     addresses.push(new BitcoinTransaction());
@@ -903,6 +919,14 @@ export default class SendDetails extends Component {
                   onPress={this.importTransaction}
                 />
               )}
+            {this.state.fromWallet.type === MultisigHDWallet.type && (
+              <BlueListItem
+                title={loc.send.details_adv_import}
+                hideChevron
+                component={TouchableOpacity}
+                onPress={this.importTransactionMultisig}
+              />
+            )}
             {this.state.fromWallet.allowBatchSend() && (
               <>
                 <BlueListItem

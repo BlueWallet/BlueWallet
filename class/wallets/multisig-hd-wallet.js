@@ -7,6 +7,7 @@ const coinSelectAccumulative = require('coinselect/accumulative');
 const coinSelectSplit = require('coinselect/split');
 const HDNode = require('bip32');
 const bitcoin = require('bitcoinjs-lib');
+const createHash = require('create-hash');
 
 export class MultisigHDWallet extends AbstractHDElectrumWallet {
   static type = 'HDmultisig';
@@ -723,5 +724,15 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
 
     return newUtxos;
+  }
+
+  getID() {
+    const string2hash =
+      this._cosigners.sort().join(',') +
+      ';' +
+      this._cosignersFingerprints.sort().join(',') +
+      ';' +
+      this._cosignersCustomPaths.sort().join(',');
+    return createHash('sha256').update(string2hash).digest().toString('hex');
   }
 }

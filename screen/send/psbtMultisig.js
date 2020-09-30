@@ -8,10 +8,11 @@ import {
   BlueNavigationStyle,
   BlueSpacing20,
   BlueText,
-  DynamicQRCode,
   SafeBlueArea,
   SecondButton,
 } from '../../BlueComponents';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
+import { SquareButton } from '../../components/SquareButton';
 import PropTypes from 'prop-types';
 import { getSystemName } from 'react-native-device-info';
 import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
@@ -136,6 +137,7 @@ export default class PsbtMultisig extends Component {
                 flex: 1,
                 justifyContent: 'center',
                 paddingLeft: 15,
+                marginBottom: 30,
               }}
               onPress={() => {
                 this.setState({ isModalVisible: true });
@@ -270,6 +272,7 @@ export default class PsbtMultisig extends Component {
         screen: 'ScanQRCode',
         params: {
           onBarScanned: this.onBarScanned,
+          showFileImportButton: true,
         },
       });
     }
@@ -306,39 +309,9 @@ export default class PsbtMultisig extends Component {
           <View style={styles.modalContentShort}>
             <DynamicQRCode value={this.state.psbt.toHex()} capacity={666} />
             <BlueSpacing20 />
-            <SecondButton
-              backgroundColor="#EEF0F4"
-              testID="PsbtTxScanButton"
-              icon={{
-                name: 'qrcode',
-                type: 'font-awesome',
-                color: BlueCurrentTheme.colors.buttonTextColor,
-              }}
-              onPress={this.openScanner}
-              title={loc.send.psbt_tx_scan}
-            />
+            <SquareButton backgroundColor="#EEF0F4" onPress={this.openScanner} title="Scan or import file" />
             <BlueSpacing20 />
-            <SecondButton
-              backgroundColor="#EEF0F4"
-              icon={{
-                name: 'file-import',
-                type: 'material-community',
-                color: BlueCurrentTheme.colors.buttonTextColor,
-              }}
-              onPress={this.openSignedTransaction}
-              title={loc.send.psbt_tx_open}
-            />
-            <BlueSpacing20 />
-            <SecondButton
-              backgroundColor="#EEF0F4"
-              icon={{
-                name: 'share-alternative',
-                type: 'entypo',
-                color: BlueCurrentTheme.colors.buttonTextColor,
-              }}
-              onPress={this.exportPSBT}
-              title={loc.send.psbt_tx_export}
-            />
+            <SquareButton backgroundColor="#EEF0F4" onPress={this.exportPSBT} title="Share" />
             <BlueSpacing20 />
             <BlueButtonLink title="Cancel" onPress={() => this.setState({ isModalVisible: false })} />
           </View>
@@ -436,7 +409,8 @@ const styles = StyleSheet.create({
 
   modalContentShort: {
     backgroundColor: BlueCurrentTheme.colors.elevated,
-    alignItems: 'center',
+    marginLeft: 20,
+    marginRight: 20,
   },
 
   copyToClipboard: {

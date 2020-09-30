@@ -119,18 +119,14 @@ const ScanQRCode = () => {
   const showFilePicker = async () => {
     try {
       setIsLoading(true);
-      const res = await DocumentPicker.pick();
+      const res = await DocumentPicker.pick({
+        type:
+          Platform.OS === 'ios'
+            ? ['io.bluewallet.psbt', 'io.bluewallt.psbt.txn', DocumentPicker.types.plainText, '.json']
+            : [DocumentPicker.types.allFiles],
+      });
       const file = await RNFS.readFile(res.uri);
-      const fileParsed = JSON.parse(file);
-      if (fileParsed.keystore.xpub) {
-        let masterFingerprint;
-        if (fileParsed.keystore.ckcc_xfp) {
-          masterFingerprint = Number(fileParsed.keystore.ckcc_xfp);
-        }
-        onBarCodeRead({ data: fileParsed.keystore.xpub, additionalProperties: { masterFingerprint, label: fileParsed.keystore.label } });
-      } else {
-        throw new Error();
-      }
+      onBarCodeRead({ data: file });
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
         alert(loc.send.qr_error_no_wallet);

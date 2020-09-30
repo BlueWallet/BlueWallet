@@ -35,7 +35,9 @@ export default class WalletImport {
    */
   static async _saveWallet(w, additionalProperties) {
     try {
-      const wallet = BlueApp.getWallets().some(wallet => wallet.getSecret() === w.secret && wallet.type !== PlaceholderWallet.type);
+      const wallet = BlueApp.getWallets().some(
+        wallet => (wallet.getSecret() === w.secret || wallet.getID() === w.getID()) && wallet.type !== PlaceholderWallet.type,
+      );
       if (wallet) {
         alert('This wallet has been previously imported.');
         WalletImport.removePlaceholderWallet();
@@ -131,6 +133,7 @@ export default class WalletImport {
       const ms = new MultisigHDWallet();
       ms.setSecret(importText);
       if (ms.getN() > 0 && ms.getM() > 0) {
+        await ms.fetchBalance();
         return WalletImport._saveWallet(ms);
       }
 
