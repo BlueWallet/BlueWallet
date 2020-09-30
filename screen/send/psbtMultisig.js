@@ -93,7 +93,7 @@ const PsbtMultisig = () => {
             <Text style={styles.vaultKeyText}>{el.index + 1}</Text>
           </View>
           <View style={styles.vaultKeyTextWrapper}>
-            <Text style={styles.vaultKeyText}>Vault key {el.index + 1}</Text>
+            <Text style={styles.vaultKeyText}>{loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}</Text>
           </View>
         </View>
 
@@ -105,7 +105,7 @@ const PsbtMultisig = () => {
                 setIsModalVisible(true);
               }}
             >
-              <Text style={styles.provideSignatureButtonText}>Provide signature</Text>
+              <Text style={styles.provideSignatureButtonText}>{loc.multisig.provide_signature}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -118,7 +118,7 @@ const PsbtMultisig = () => {
       <View style={styles.flexDirectionRow}>
         <Icon size={58} name="check-circle" type="font-awesome" color="#37C0A1" />
         <View style={styles.vaultKeyTextSignedWrapper}>
-          <Text style={styles.vaultKeyTextSigned}>Vault key {el.index + 1}</Text>
+          <Text style={styles.vaultKeyTextSigned}>{loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}</Text>
         </View>
       </View>
     );
@@ -136,7 +136,7 @@ const PsbtMultisig = () => {
         setAnimatedQRCodeData(animatedQRCodeData);
       }
     } catch (Err) {
-      alert('invalid animated QRCode fragment, please try again');
+      alert(loc._.invalid_animated_qr_code_fragment);
     }
   };
 
@@ -154,7 +154,7 @@ const PsbtMultisig = () => {
       return _onReadUniformResource(ret.data);
     } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
-      alert('This looks like txhex, which is not supported');
+      // we dont support it in this flow
     } else {
       // psbt base64?
       _combinePSBT(ret.data);
@@ -170,14 +170,12 @@ const PsbtMultisig = () => {
       const tx = psbt.extractTransaction().toHex();
       const satoshiPerByte = Math.round(getFee() / (tx.length / 2));
       navigation.navigate('Confirm', {
-        fee: new BigNumber(getFee()).dividedBy(100000000).toNumber(), // fixme
+        fee: new BigNumber(getFee()).dividedBy(100000000).toNumber(),
         memo: memo,
         fromWallet: wallet,
         tx,
         recipients: targets,
         satoshiPerByte,
-        // payjoinUrl: this.state.payjoinUrl,
-        // psbt: this.state.psbt, // not really needed // fixme
       });
     } catch (error) {
       alert(error);
@@ -233,9 +231,9 @@ const PsbtMultisig = () => {
           <View style={styles.modalContentShort}>
             <DynamicQRCode value={psbt.toHex()} capacity={666} />
             <BlueSpacing20 />
-            <SquareButton backgroundColor="#EEF0F4" onPress={openScanner} title="Scan or import file" />
+            <SquareButton backgroundColor="#EEF0F4" onPress={openScanner} title={loc.multisig.scan_or_import_file} />
             <BlueSpacing20 />
-            <SquareButton backgroundColor="#EEF0F4" onPress={exportPSBT} title="Share" />
+            <SquareButton backgroundColor="#EEF0F4" onPress={exportPSBT} title={loc.multisig.share} />
             <BlueSpacing20 />
             <BlueButtonLink title="Cancel" onPress={() => setIsModalVisible(false)} />
           </View>
@@ -270,10 +268,12 @@ const PsbtMultisig = () => {
 
         <View style={styles.bottomWrapper}>
           <View style={styles.bottomFeesWrapper}>
-            <BlueText style={styles.feeFiatText}>Fee: {currency.satoshiToLocalCurrency(getFee())} - </BlueText>
-            <BlueText>{currency.satoshiToBTC(getFee())} BTC</BlueText>
+            <BlueText style={styles.feeFiatText}>
+              {loc.formatString(loc.multisig.fee, { number: currency.satoshiToLocalCurrency(getFee()) })} -{' '}
+            </BlueText>
+            <BlueText>{loc.formatString(loc.multisig.fee_btc, { number: currency.satoshiToBTC(getFee()) })}</BlueText>
           </View>
-          <BlueButton disabled={!isConfirmEnabled()} title="Confirm" onPress={onConfirm} />
+          <BlueButton disabled={!isConfirmEnabled()} title={loc.multisig.confirm} onPress={onConfirm} />
         </View>
       </ScrollView>
     </SafeBlueArea>
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
 
 PsbtMultisig.navigationOptions = () => ({
   ...BlueNavigationStyle(null, false),
-  title: loc.send.header,
+  title: loc.multisig.header,
 });
 
 export default PsbtMultisig;

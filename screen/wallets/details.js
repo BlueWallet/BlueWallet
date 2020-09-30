@@ -377,7 +377,7 @@ const WalletDetails = () => {
 
             {wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && (
               <>
-                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>how many signatures can bluewallet make</Text>
+                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.multisig.how_many_signatures_can_bluewallet_make}</Text>
                 <BlueText>{wallet.howManySignaturesCanWeMake()}</BlueText>
               </>
             )}

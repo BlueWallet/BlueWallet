@@ -8,7 +8,8 @@
     "of": "{number} of {total}",
     "ok": "OK",
     "storage_is_encrypted": "Your storage is encrypted. Password is required to decrypt it",
-    "yes": "Yes"
+    "yes": "Yes",
+    "invalid_animated_qr_code_fragment" : "Invalid animated QRCode fragment, please try again"
   },
   "azteco": {
     "codeIs": "Your voucher code is",
@@ -371,5 +372,16 @@
     "select_wallet": "Select Wallet",
     "xpub_copiedToClipboard": "Copied to clipboard.",
     "xpub_title": "wallet XPUB"
+  },
+  "multisig": {
+    "provide_signature": "Provide signature",
+    "vault_key": "Vault key {number}",
+    "fee": "Fee: {number}",
+    "fee_btc": "{number} BTC",
+    "confirm": "Confirm",
+    "header": "Send",
+    "share": "Share",
+    "how_many_signatures_can_bluewallet_make": "how many signatures can bluewallet make",
+    "scan_or_import_file": "Scan or import file"
   }
 }
