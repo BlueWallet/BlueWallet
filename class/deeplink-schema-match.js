@@ -133,6 +133,23 @@ class DeeplinkSchemaMatch {
           params: Azteco.getParamsFromUrl(event.url),
         },
       ]);
+    } else if (DeeplinkSchemaMatch.isElectrumWalletBackupFile(event.url)) {
+      RNFS.readFile(decodeURI(event.url))
+        .then(file => {
+          const fileParsed = JSON.parse(file);
+          if (fileParsed?.keystore?.seed) {
+            completionHandler([
+              'AddWalletRoot',
+              {
+                screen: 'ImportWallet',
+                params: {
+                  label: fileParsed?.keystore?.seed,
+                },
+              },
+            ]);
+          }
+        })
+        .catch(e => console.warn(e));
     } else {
       const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
       console.log('parsed', event.url, 'into', urlObject);
@@ -205,6 +222,13 @@ class DeeplinkSchemaMatch {
     return (
       (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
       filePath.toLowerCase().endsWith('.txn')
+    );
+  }
+
+  static isElectrumWalletBackupFile(filePath) {
+    return (
+      (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
+      filePath.toLowerCase().endsWith('.backup')
     );
   }
 

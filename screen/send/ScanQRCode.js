@@ -134,10 +134,14 @@ const ScanQRCode = () => {
   const showFilePicker = async () => {
     try {
       setIsLoading(true);
-      const res = await DocumentPicker.pick();
+      const res = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      });
       const file = await RNFS.readFile(res.uri);
       const fileParsed = JSON.parse(file);
-      if (fileParsed.keystore.xpub) {
+      if (fileParsed.keystore.seed) {
+        onBarCodeRead({ data: fileParsed.keystore.seed, additionalProperties: { label: file.name } });
+      } else if (fileParsed.keystore.xpub) {
         let masterFingerprint;
         if (fileParsed.keystore.ckcc_xfp) {
           masterFingerprint = Number(fileParsed.keystore.ckcc_xfp);

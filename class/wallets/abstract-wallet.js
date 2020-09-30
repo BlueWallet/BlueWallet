@@ -165,7 +165,10 @@ export class AbstractWallet {
 
     try {
       const parsedSecret = JSON.parse(this.secret);
-      if (parsedSecret && parsedSecret.keystore && parsedSecret.keystore.xpub) {
+      if (parsedSecret && parsedSecret.keystore && parsedSecret.keystore.secret) {
+        // It is an Electrum Wallet Backup
+        this.secret = parsedSecret.keystore.seed;
+      } else if (parsedSecret && parsedSecret.keystore && parsedSecret.keystore.xpub) {
         let masterFingerprint = false;
         if (parsedSecret.keystore.ckcc_xfp) {
           // It is a ColdCard Hardware Wallet
