@@ -1,4 +1,4 @@
-rootProject.name = 'GoldWallet'
+rootProject.name = 'GoldWallet testnet'
 apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
 include ':app'
 include ':@react-native-firebase_analytics'

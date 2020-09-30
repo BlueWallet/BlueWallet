@@ -23,4 +23,4 @@ const BlueAppComponent = () => {
   );
 };
 
-AppRegistry.registerComponent('GoldWallet', () => BlueAppComponent);
+AppRegistry.registerComponent('GoldWallet testnet', () => BlueAppComponent);

@@ -119,7 +119,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "io.goldwallet.wallet"
+        applicationId "io.goldwallet.wallet.testnet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 4
