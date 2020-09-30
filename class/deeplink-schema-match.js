@@ -137,13 +137,14 @@ class DeeplinkSchemaMatch {
       RNFS.readFile(decodeURI(event.url))
         .then(file => {
           const fileParsed = JSON.parse(file);
-          if (fileParsed?.keystore?.seed) {
+          const label = fileParsed?.keystore?.seed ?? fileParsed.keystore?.xpub;
+          if (label) {
             completionHandler([
               'AddWalletRoot',
               {
                 screen: 'ImportWallet',
                 params: {
-                  label: fileParsed?.keystore?.seed,
+                  label,
                 },
               },
             ]);

@@ -135,7 +135,10 @@ const ScanQRCode = () => {
     try {
       setIsLoading(true);
       const res = await DocumentPicker.pick({
-        type: [DocumentPicker.types.allFiles],
+        type:
+          Platform.OS === 'ios'
+            ? ['io.bluewallet.psbt', 'io.bluewallt.psbt.txn', 'io.bluewallet.electrumbackup']
+            : [DocumentPicker.types.allFiles],
       });
       const file = await RNFS.readFile(res.uri);
       const fileParsed = JSON.parse(file);
