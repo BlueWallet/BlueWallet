@@ -146,10 +146,10 @@ const ScanQRCode = () => {
         onBarCodeRead({ data: fileParsed.keystore.seed, additionalProperties: { label: file.name } });
       } else if (fileParsed.keystore.xpub) {
         let masterFingerprint;
-        if (fileParsed.keystore.ckcc_xfp) {
-          masterFingerprint = Number(fileParsed.keystore.ckcc_xfp);
+        if (fileParsed.keystore.ckcc_xfp || fileParsed.keystore.root_fingerprint) {
+          masterFingerprint = Number(fileParsed.keystore.ckcc_xfp || fileParsed.keystore.root_fingerprint);
         }
-        onBarCodeRead({ data: fileParsed.keystore.xpub, additionalProperties: { masterFingerprint, label: fileParsed.keystore.label } });
+        onBarCodeRead({ data: fileParsed.keystore.xpub, additionalProperties: { masterFingerprint, label: fileParsed.keystore.label || file.name } });
       } else {
         throw new Error();
       }
