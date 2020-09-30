@@ -16,7 +16,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.20.3",
-    "flow-bin": "^0.130.0",
+    "flow-bin": "^0.134.0",
     "jest": "^26.1.0",
     "jetifier": "^1.6.3",
     "react-test-renderer": "16.13.1"
@@ -111,7 +111,7 @@
     "prop-types": "15.7.2",
     "react": "16.13.1",
     "react-localization": "1.0.15",
-    "react-native": "0.63.2",
+    "react-native": "0.63.3",
     "react-native-blue-crypto": "git+https://github.com/Overtorment/react-native-blue-crypto.git",
     "react-native-camera": "3.38.0",
     "react-native-default-preference": "1.4.3",
