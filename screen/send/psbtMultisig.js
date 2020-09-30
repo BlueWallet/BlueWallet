@@ -7,11 +7,10 @@ import { SquareButton } from '../../components/SquareButton';
 import { getSystemName } from 'react-native-device-info';
 import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
 import loc from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
 import ScanQRCode from './ScanQRCode';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 const BlueApp = require('../../BlueApp');
 const bitcoin = require('bitcoinjs-lib');
@@ -28,6 +27,7 @@ const shortenAddress = addr => {
 const PsbtMultisig = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const { colors } = useTheme();
 
   const walletId = route.params.walletId;
   const psbtBase64 = route.params.psbtBase64;
@@ -36,7 +36,20 @@ const PsbtMultisig = () => {
   const [psbt, setPsbt] = useState(bitcoin.Psbt.fromBase64(psbtBase64));
   const [animatedQRCodeData, setAnimatedQRCodeData] = useState({});
   const [isModalVisible, setIsModalVisible] = useState(false);
-
+  const stylesHook = StyleSheet.create({
+    root: {
+      backgroundColor: colors.elevated,
+    },
+    textBtc: {
+      color: colors.foregroundColor,
+    },
+    textDestination: {
+      color: colors.foregroundColor,
+    },
+    modalContentShort: {
+      backgroundColor: colors.elevated,
+    },
+  });
   /** @type MultisigHDWallet */
   const wallet = BlueApp.getWallets().find(w => w.getID() === walletId);
   let destination = [];
@@ -226,9 +239,9 @@ const PsbtMultisig = () => {
 
   const renderDynamicQrCode = () => {
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeBlueArea style={[styles.root, stylesHook.root]}>
         <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
-          <View style={styles.modalContentShort}>
+          <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
             <DynamicQRCode value={psbt.toHex()} capacity={666} />
             <BlueSpacing20 />
             <SquareButton backgroundColor="#EEF0F4" onPress={openScanner} title={loc.multisig.scan_or_import_file} />
@@ -245,11 +258,11 @@ const PsbtMultisig = () => {
   if (isModalVisible) return renderDynamicQrCode();
 
   return (
-    <SafeBlueArea style={styles.root}>
+    <SafeBlueArea style={[styles.root, stylesHook.root]}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.container}>
           <View style={styles.containerText}>
-            <BlueText style={styles.textBtc}>{totalBtc}</BlueText>
+            <BlueText style={[styles.textBtc, stylesHook.textBtc]}>{totalBtc}</BlueText>
             <View style={styles.textBtcUnit}>
               <BlueText> BTC</BlueText>
             </View>
@@ -258,7 +271,7 @@ const PsbtMultisig = () => {
             <BlueText style={styles.textFiat}>{totalFiat}</BlueText>
           </View>
           <View style={styles.containerText}>
-            <BlueText style={styles.textDestination}>{destination}</BlueText>
+            <BlueText style={[styles.textDestination, stylesHook.textDestination]}>{destination}</BlueText>
           </View>
 
           <BlueCard>
@@ -283,7 +296,6 @@ const PsbtMultisig = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -305,11 +317,9 @@ const styles = StyleSheet.create({
   textBtc: {
     fontWeight: 'bold',
     fontSize: 30,
-    color: BlueCurrentTheme.colors.foregroundColor,
   },
   textDestination: {
     paddingTop: 10,
-    color: BlueCurrentTheme.colors.foregroundColor,
     paddingBottom: 40,
   },
   bottomModal: {
@@ -317,7 +327,6 @@ const styles = StyleSheet.create({
     margin: 0,
   },
   modalContentShort: {
-    backgroundColor: BlueCurrentTheme.colors.elevated,
     marginLeft: 20,
     marginRight: 20,
   },
