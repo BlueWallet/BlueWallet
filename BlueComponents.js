@@ -62,7 +62,7 @@ if (aspectRatio > 1.6) {
   isIpad = true;
 }
 // eslint-disable-next-line no-unused-expressions
-Platform.OS === 'android' ? (ActivityIndicator.defaultProps.color = PlatformColor('?attr/colorAccent')) : null;
+Platform.OS === 'android' ? (ActivityIndicator.defaultProps.color = PlatformColor('?attr/colorControlActivated')) : null;
 
 export class BlueButton extends Component {
   render() {
