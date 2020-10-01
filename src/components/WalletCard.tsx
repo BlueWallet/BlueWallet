@@ -3,7 +3,6 @@ import { Dimensions, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-
 
 import { images } from 'app/assets';
 import { Route, Wallet } from 'app/consts';
-import { getEllipsisWalletName } from 'app/helpers/text';
 import { NavigationService } from 'app/services';
 import { palette, typography } from 'app/styles';
 
@@ -37,7 +36,9 @@ export class WalletCard extends React.Component<Props> {
           <Image source={images.coinLogoInCircle} style={styles.iconInCircle} resizeMode="contain" />
           <View style={styles.cardContent}>
             <View style={styles.row}>
-              <Text style={styles.walletType}>{getEllipsisWalletName(wallet.getLabel())}</Text>
+              <Text numberOfLines={1} ellipsizeMode="tail" style={styles.walletType}>
+                {wallet.getLabel()}
+              </Text>
               {showEditButton && <StyledText title={i18n.wallets.details.edit} onPress={this.goToWalletDetails} />}
             </View>
 

@@ -10,7 +10,6 @@ import { images } from 'app/assets';
 import { Header, ScreenTemplate, Button, StyledText, Image, Text, Warning } from 'app/components';
 import { Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
-import { getEllipsisWalletName } from 'app/helpers/text';
 import * as actions from 'app/state/transactions/actions';
 import { palette, typography } from 'app/styles';
 
@@ -218,7 +217,9 @@ class SendCoinsConfirmScreen extends Component<Props> {
               </Text>
             </View>
             <View style={styles.descriptionContainer}>
-              <Text style={styles.buttonDescription}>{getEllipsisWalletName(fromWallet.label)}</Text>
+              <Text style={styles.buttonDescription} numberOfLines={1} ellipsizeMode="tail">
+                {fromWallet.label}
+              </Text>
               <Image source={images.coin} style={styles.coinIcon} />
             </View>
           </View>

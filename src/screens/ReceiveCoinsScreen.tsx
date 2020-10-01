@@ -9,7 +9,6 @@ import Share from 'react-native-share';
 import { Header, ScreenTemplate, Button, WalletDropdown } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
 import { Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
-import { getEllipsisWalletName } from 'app/helpers/text';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../BlueApp';
@@ -179,7 +178,7 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
         <WalletDropdown
           onSelectPress={this.showModal}
           balance={wallet.balance}
-          label={getEllipsisWalletName(wallet.label)}
+          label={wallet.label}
           unit={wallet.preferredBalanceUnit}
         />
         <View style={styles.qrcontainer}>

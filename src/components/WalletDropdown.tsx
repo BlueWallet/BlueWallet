@@ -3,7 +3,6 @@ import { Text, StyleSheet } from 'react-native';
 
 import { images } from 'app/assets';
 import { Image, Dropdown } from 'app/components';
-import { getEllipsisWalletName } from 'app/helpers/text';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../loc');
@@ -19,7 +18,9 @@ export const WalletDropdown = ({ balance, unit, label, onSelectPress }: Props) =
   <Dropdown
     label={
       <>
-        <Text style={styles.buttonDescription}>{getEllipsisWalletName(label)}</Text>
+        <Text style={styles.buttonDescription} numberOfLines={1} ellipsizeMode="tail">
+          {label}
+        </Text>
         <Image source={images.coin} style={styles.coinIcon} />
       </>
     }

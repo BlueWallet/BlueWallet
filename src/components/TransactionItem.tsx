@@ -6,7 +6,6 @@ import { icons } from 'app/assets';
 import { TranscationLabelStatus, Image } from 'app/components';
 import { CONST, Transaction, TxType } from 'app/consts';
 import { getConfirmationsText } from 'app/helpers/helpers';
-import { getEllipsisWalletName } from 'app/helpers/text';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../loc');
@@ -26,10 +25,8 @@ export const TransactionItem = ({ item, onPress }: { item: Transaction; onPress:
       <View style={styles.walletLabelWrapper}>
         {renderArrowIcon(item.value)}
         <Image source={icons.wallet} style={styles.wallet} resizeMode="contain" />
-        <Text style={styles.walletLabel}>
-          {item.walletLabel === CONST.allWallets
-            ? i18n.transactions.details.noLabel
-            : getEllipsisWalletName(item.walletLabel)}
+        <Text style={styles.walletLabel} numberOfLines={1} ellipsizeMode="tail">
+          {item.walletLabel === CONST.allWallets ? i18n.transactions.details.noLabel : item.walletLabel}
         </Text>
       </View>
       {!!item.note && <Text style={typography.caption}>{item.note}</Text>}
