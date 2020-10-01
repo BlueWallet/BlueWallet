@@ -436,7 +436,10 @@ const WalletDetails = () => {
 
               {wallet.type === MultisigHDWallet.type && (
                 <>
-                  <SecondButton onPress={navigateToMultisigCoordinationSetup} title={loc.multisig.export_coordination_setup.replace(/^\w/, c => c.toUpperCase())} />
+                  <SecondButton
+                    onPress={navigateToMultisigCoordinationSetup}
+                    title={loc.multisig.export_coordination_setup.replace(/^\w/, c => c.toUpperCase())}
+                  />
                 </>
               )}
 

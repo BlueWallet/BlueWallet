@@ -86,7 +86,7 @@ export class DynamicQRCode extends Component {
         <TouchableOpacity
           style={animatedQRCodeStyle.qrcodeContainer}
           onPress={() => {
-            this.setState({ hideControls: !this.state.hideControls });
+            this.setState(prevState => ({ hideControls: !prevState.hideControls }));
           }}
         >
           <QRCode
