@@ -137,7 +137,7 @@ export default class WalletsList extends Component {
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet.
     // placing event subscription here so it gets exclusively re-subscribed more often. otherwise we would
     // have to unsubscribe on unmount and resubscribe again on mount.
-    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactions.bind(this), true);
+    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactions, true);
 
     if (BlueApp.getBalance() !== 0) {
       A(A.ENUM.GOT_NONZERO_BALANCE);
