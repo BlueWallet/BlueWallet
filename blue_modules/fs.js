@@ -36,7 +36,7 @@ const writeFileAndExport = async function (filename, contents) {
       console.log('Storage Permission: Granted');
       const filePath = RNFS.DownloadDirectoryPath + `/${filename}`;
       await RNFS.writeFile(filePath, contents);
-      alert(loc.formatString(loc.send.txSaved, { filePath: filename }));
+      alert(loc.formatString(loc._.file_saved, { filePath: filename }));
     } else {
       console.log('Storage Permission: Denied');
     }

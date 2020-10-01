@@ -115,6 +115,10 @@ describe('multisig-wallet (p2sh)', () => {
     assert.ok(!tx, 'tx should not be provided when PSBT is only partially signed');
     assert.throws(() => psbt.finalizeAllInputs().extractTransaction());
 
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 0);
+    assert.ok(w.calculateFeeFromPsbt(psbt) < 3000);
+    assert.ok(w.calculateFeeFromPsbt(psbt) > 0);
+
     assert.strictEqual(
       psbt.toBase64(),
       'cHNidP8BAHUCAAAAAeze/Q5jJotU+uEMc2FdzH9A4DEN1ImGyQujTAt8IgpjAAAAAAAAAACAAhAnAAAAAAAAGXapFBkSnVPmMZuvGdugWb6tFm35Crj1iKy8VgEAAAAAABepFPI8FESPOvVVeCas7ULqnnFYnc5JhwAAAAAAAQD9cwECAAAAAAECEfjNx7ElW40+uVHbL8aWR2aq9ubRtC53fJClKXez6OUAAAAAAP////8AaW8YwJ2ITBACVIJfPKT0HKNfu16YjTUmy9z8swwzWwAAAAAA/////wKghgEAAAAAABepFLPYpQgalHfdXTVNTIp+/A5kaJ0Qh+g0DwAAAAAAFgAU7vEJEUm6Nlil3+nIqJJLOk8OG6oCRzBEAiBoVI1DaXMOkPM9QkNCC0DUx+8kC7rB2zM1TA4QjVA/JAIgYq3MHRl1a8s+yun+mIr3wxR7p99f9rJvShNQN2afzvABIQIR7fi1GKGsKNH5qVal3e3a6g30NfI4bn+4bw6f3oGN2gJHMEQCIDFA+O6DEVYvFesfBi876Y++QWFSYkka1WJdhUHOLkOGAiB3NDiR00ERKit1ZH1aH67A8KedrIBSJJ4i6zlZGku3DAEhAj8FwUXmExHrcl/eqYNP4gxOe7tjne+ORxN6JpYAH56dAAAAAAEER1IhAuKpQFZsreTHbjczMj+gmPaW2MpWjN/NE9t30TCFV6boIQMM4zcNTGSH1VK788aPJgBwsMhTJ20S4lg/3JkC8mJIjVKuIgYC4qlAVmyt5MduNzMyP6CY9pbYylaM380T23fRMIVXpugQFo3WAy0AAIAAAAAAAAAAACIGAwzjNw1MZIfVUrvzxo8mAHCwyFMnbRLiWD/cmQLyYkiNENN+rYgtAACAAAAAAAAAAAAAAAEAR1IhAoJkVao8TQcPGdH2rhAUNLNEoDTaWVlIZXZEEk77O3NoIQOJYtHCrnVaHKX4kVFrtjn9dVGJENMKTTOYLAY/aCS3rFKuIgICgmRVqjxNBw8Z0fauEBQ0s0SgNNpZWUhldkQSTvs7c2gQ036tiC0AAIABAAAAAwAAACICA4li0cKudVocpfiRUWu2Of11UYkQ0wpNM5gsBj9oJLesEBaN1gMtAACAAQAAAAMAAAAA',
@@ -202,6 +206,7 @@ describe('multisig-wallet (p2sh)', () => {
     );
     assert.ok(!tx, 'tx should not be provided when PSBT is only partially signed');
 
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 1);
     assert.strictEqual(
       psbt.toBase64(),
       'cHNidP8BAHUCAAAAAeze/Q5jJotU+uEMc2FdzH9A4DEN1ImGyQujTAt8IgpjAAAAAAAAAACAAhAnAAAAAAAAGXapFBkSnVPmMZuvGdugWb6tFm35Crj1iKy8VgEAAAAAABepFPI8FESPOvVVeCas7ULqnnFYnc5JhwAAAAAAAQD9cwECAAAAAAECEfjNx7ElW40+uVHbL8aWR2aq9ubRtC53fJClKXez6OUAAAAAAP////8AaW8YwJ2ITBACVIJfPKT0HKNfu16YjTUmy9z8swwzWwAAAAAA/////wKghgEAAAAAABepFLPYpQgalHfdXTVNTIp+/A5kaJ0Qh+g0DwAAAAAAFgAU7vEJEUm6Nlil3+nIqJJLOk8OG6oCRzBEAiBoVI1DaXMOkPM9QkNCC0DUx+8kC7rB2zM1TA4QjVA/JAIgYq3MHRl1a8s+yun+mIr3wxR7p99f9rJvShNQN2afzvABIQIR7fi1GKGsKNH5qVal3e3a6g30NfI4bn+4bw6f3oGN2gJHMEQCIDFA+O6DEVYvFesfBi876Y++QWFSYkka1WJdhUHOLkOGAiB3NDiR00ERKit1ZH1aH67A8KedrIBSJJ4i6zlZGku3DAEhAj8FwUXmExHrcl/eqYNP4gxOe7tjne+ORxN6JpYAH56dAAAAACICAuKpQFZsreTHbjczMj+gmPaW2MpWjN/NE9t30TCFV6boRzBEAiA7xMszlRAzEJDo++ZfweUQ1qQS+N7hCHnuZe9ifT11swIgFzcqL0y6iTN9OqIIfLLYA7aydcK3EgtCIpjPl+u//kQBAQRHUiEC4qlAVmyt5MduNzMyP6CY9pbYylaM380T23fRMIVXpughAwzjNw1MZIfVUrvzxo8mAHCwyFMnbRLiWD/cmQLyYkiNUq4iBgLiqUBWbK3kx243MzI/oJj2ltjKVozfzRPbd9EwhVem6BAWjdYDLQAAgAAAAAAAAAAAIgYDDOM3DUxkh9VSu/PGjyYAcLDIUydtEuJYP9yZAvJiSI0Q036tiC0AAIAAAAAAAAAAAAAAAQBHUiECgmRVqjxNBw8Z0fauEBQ0s0SgNNpZWUhldkQSTvs7c2ghA4li0cKudVocpfiRUWu2Of11UYkQ0wpNM5gsBj9oJLesUq4iAgKCZFWqPE0HDxnR9q4QFDSzRKA02llZSGV2RBJO+ztzaBDTfq2ILQAAgAEAAAADAAAAIgIDiWLRwq51Whyl+JFRa7Y5/XVRiRDTCk0zmCwGP2gkt6wQFo3WAy0AAIABAAAAAwAAAAA=',
@@ -277,6 +282,7 @@ describe('multisig-wallet (p2sh)', () => {
     assert.ok(psbt);
 
     assert.throws(() => psbt.finalizeAllInputs()); // throws as it is already finalized
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
 
     assert.strictEqual(
       psbt.toBase64(),
@@ -350,6 +356,10 @@ describe('multisig-wallet (wrapped segwit)', () => {
       false,
     );
     assert.ok(!tx, 'tx should not be provided when PSBT is only partially signed');
+
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 0);
+    assert.ok(w.calculateFeeFromPsbt(psbt) < 3000);
+    assert.ok(w.calculateFeeFromPsbt(psbt) > 0);
 
     assert.strictEqual(
       psbt.toBase64(),
@@ -432,6 +442,7 @@ describe('multisig-wallet (wrapped segwit)', () => {
       false,
     );
     assert.ok(!tx, 'tx should not be provided when PSBT is only partially signed');
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 1);
 
     assert.strictEqual(
       psbt.toBase64(),
@@ -736,10 +747,13 @@ describe('multisig-wallet (native segwit)', () => {
       'cHNidP8BAF4CAAAAAZbTXp+PF26DiVo/6VlaYkXfurKNarZ7N5L9XeIuH2tmAAAAAAAAAACAAeCFAQAAAAAAIgAgMIYr1x13sxRmbl/as01ik+y0/9u6VfvVMj39edmLZisAAAAAAAEA6gIAAAAAAQG2fkVQaaD0TJ30hJ7hFnsGwm+EeNrvqciu7fHaPX2Bhg8AAAAAAAAAgAKghgEAAAAAACIAIDCGK9cdd7MUZm5f2rNNYpPstP/bulX71TI9/XnZi2YrBLAFAAAAAAAWABRh43cCWC7PjIfB61AI8q+xesydPAJHMEQCIHcmi7DzBgtze2V8PJkBB75dtB/TEcxkq+q5bP9iEUb8AiB2biQJwGaQIOohYLNYA3/bF/SeWfr46cUKyUYBm+B55gEhA8PtFwNQM7LLDOA2lNQCw3owfw7qK5CbAnKBa/zqg3FPAAAAAAEBK6CGAQAAAAAAIgAgMIYr1x13sxRmbl/as01ik+y0/9u6VfvVMj39edmLZisBBUdSIQL3PcZ3OXAqrpAGpxAfeH8tGlIosSQDQjFhbP8RIOZRyyED1Ql1CX8NiH3x6Uj22iu8SEwewHmhRSyqJtbmfw+g11pSriIGAvc9xnc5cCqukAanEB94fy0aUiixJANCMWFs/xEg5lHLHNN+rYgwAACAAAAAgAAAAIACAACAAAAAAAAAAAAiBgPVCXUJfw2IffHpSPbaK7xITB7AeaFFLKom1uZ/D6DXWhwWjdYDMAAAgAAAAIAAAACAAgAAgAAAAAAAAAAAAAA=',
     );
 
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 0);
+
     const signedOnColdcard =
       'cHNidP8BAF4CAAAAAZbTXp+PF26DiVo/6VlaYkXfurKNarZ7N5L9XeIuH2tmAAAAAAAAAACAAeCFAQAAAAAAIgAgMIYr1x13sxRmbl/as01ik+y0/9u6VfvVMj39edmLZisAAAAAAAEA6gIAAAAAAQG2fkVQaaD0TJ30hJ7hFnsGwm+EeNrvqciu7fHaPX2Bhg8AAAAAAAAAgAKghgEAAAAAACIAIDCGK9cdd7MUZm5f2rNNYpPstP/bulX71TI9/XnZi2YrBLAFAAAAAAAWABRh43cCWC7PjIfB61AI8q+xesydPAJHMEQCIHcmi7DzBgtze2V8PJkBB75dtB/TEcxkq+q5bP9iEUb8AiB2biQJwGaQIOohYLNYA3/bF/SeWfr46cUKyUYBm+B55gEhA8PtFwNQM7LLDOA2lNQCw3owfw7qK5CbAnKBa/zqg3FPAAAAAAEBK6CGAQAAAAAAIgAgMIYr1x13sxRmbl/as01ik+y0/9u6VfvVMj39edmLZisiAgPVCXUJfw2IffHpSPbaK7xITB7AeaFFLKom1uZ/D6DXWkcwRAIgfydmSzg/YjlUZDjgfrZGPKOXv5z7do3r5L8YePt5srYCIAD0JWkLVVPeeMsLOUHngsTd01Dx8OezzEmzRGYg9I+2AQEDBAEAAAAiBgPVCXUJfw2IffHpSPbaK7xITB7AeaFFLKom1uZ/D6DXWhwWjdYDMAAAgAAAAIAAAACAAgAAgAAAAAAAAAAAIgYC9z3GdzlwKq6QBqcQH3h/LRpSKLEkA0IxYWz/ESDmUcsc036tiDAAAIAAAACAAAAAgAIAAIAAAAAAAAAAAAEFR1IhAvc9xnc5cCqukAanEB94fy0aUiixJANCMWFs/xEg5lHLIQPVCXUJfw2IffHpSPbaK7xITB7AeaFFLKom1uZ/D6DXWlKuAAA=';
     const psbtSignedOnColdcard = bitcoin.Psbt.fromBase64(signedOnColdcard);
     psbt.combine(psbtSignedOnColdcard); // should not throw
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 1);
 
     // signed on real Cobo device:
     const psbtFromCobo = bitcoin.Psbt.fromHex(
@@ -750,6 +764,7 @@ describe('multisig-wallet (native segwit)', () => {
     );
 
     psbt.combine(psbtFromCobo);
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
     const txhex = psbt.finalizeAllInputs().extractTransaction().toHex();
     assert.strictEqual(
       txhex,
@@ -776,6 +791,9 @@ describe('multisig-wallet (native segwit)', () => {
       false,
     );
 
+    assert.ok(w2.calculateFeeFromPsbt(psbt2) < 300);
+    assert.ok(w2.calculateFeeFromPsbt(psbt2) > 0);
+
     assert.strictEqual(psbt2.data.outputs[1].bip32Derivation[0].masterFingerprint.toString('hex').toUpperCase(), fp1cobo);
     assert.strictEqual(psbt2.data.outputs[1].bip32Derivation[1].masterFingerprint.toString('hex').toUpperCase(), fp2coldcard);
     assert.strictEqual(psbt2.data.outputs[1].bip32Derivation[0].path, "m/6'/7'/8'/2'" + '/1/3');
@@ -796,7 +814,7 @@ describe('multisig-wallet (native segwit)', () => {
     );
   });
 
-  it('can export/import wallet with all seeds in place', () => {
+  it('can export/import wallet with all seeds in place, and also export coordination setup', () => {
     const path = "m/48'/0'/0'/2'";
 
     const w = new MultisigHDWallet();
@@ -820,6 +838,21 @@ describe('multisig-wallet (native segwit)', () => {
 
     assert.strictEqual(w.getID(), ww.getID());
     assert.ok(w.getID() !== new MultisigHDWallet().getID());
+
+    // now, exporting coordination setup:
+
+    const w3 = new MultisigHDWallet();
+    w3.setSecret(ww.getXpub());
+    assert.strictEqual(w3._getExternalAddressByIndex(0), ww._getExternalAddressByIndex(0));
+    assert.strictEqual(w3._getInternalAddressByIndex(0), ww._getInternalAddressByIndex(0));
+    assert.strictEqual(w3.getM(), 2);
+    assert.strictEqual(w3.getN(), 2);
+    assert.strictEqual(w3.howManySignaturesCanWeMake(), 0);
+    assert.ok(!w3.isWrappedSegwit());
+    assert.ok(w3.isNativeSegwit());
+    assert.ok(!w3.isLegacy());
+    assert.ok(MultisigHDWallet.isXpubString(w3.getCosigner(1)) && MultisigHDWallet.isXpubValid(w3.getCosigner(1)));
+    assert.ok(MultisigHDWallet.isXpubString(w3.getCosigner(2)) && MultisigHDWallet.isXpubValid(w3.getCosigner(2)));
   });
 
   it('can coordinate tx creation and cosign 1 of 2', async () => {
@@ -857,6 +890,8 @@ describe('multisig-wallet (native segwit)', () => {
       false,
     );
 
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 1);
+
     assert.strictEqual(psbt.data.inputs[0].partialSig.length, 1);
     assert.ok(!tx, 'tx should not be provided when PSBT is only partially signed');
     assert.strictEqual(
@@ -873,6 +908,8 @@ describe('multisig-wallet (native segwit)', () => {
     const psbtFromCobo = bitcoin.Psbt.fromHex(payload);
     psbt.combine(psbtFromCobo);
     assert.strictEqual(psbt.data.inputs[0].partialSig.length, 2);
+
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
 
     const tx2 = psbt.finalizeAllInputs().extractTransaction();
     assert.strictEqual(
@@ -920,7 +957,12 @@ describe('multisig-wallet (native segwit)', () => {
     const path = "m/48'/0'/0'/2'";
 
     // can work with same secret win different formats: as TXT and as same TXT encoded in UR:
-    const secrets = [txtFileFormatMultisigNativeSegwit, Buffer.from(decodeUR([txtFileFormatMultisigNativeSegwit]), 'hex').toString()];
+    const secrets = [
+      txtFileFormatMultisigNativeSegwit,
+      Buffer.from(decodeUR([txtFileFormatMultisigNativeSegwit]), 'hex').toString(),
+      txtFileFormatMultisigNativeSegwit.toLowerCase(),
+      txtFileFormatMultisigNativeSegwit.toUpperCase(),
+    ];
 
     for (const secret of secrets) {
       const w = new MultisigHDWallet();

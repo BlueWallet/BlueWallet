@@ -87,31 +87,14 @@ const PsbtMultisig = () => {
   destination = shortenAddress(destination.join(', '));
   const totalBtc = new BigNumber(totalSat).dividedBy(100000000).toNumber();
   const totalFiat = currency.satoshiToLocalCurrency(totalSat);
-
   const fileName = `${Date.now()}.psbt`;
 
   const howManySignaturesWeHave = () => {
-    let sigsHave = 0;
-    for (const inp of psbt.data.inputs) {
-      sigsHave = Math.max(sigsHave, inp?.partialSig?.length || 0);
-      if (inp.finalScriptSig || inp.finalScriptWitness) sigsHave = wallet.getM(); // hacky
-    }
-
-    return sigsHave;
+    return wallet.calculateHowManySignaturesWeHaveFromPsbt(psbt);
   };
 
   const getFee = () => {
-    let goesIn = 0;
-    for (const inp of psbt.data.inputs) {
-      if (inp.witnessUtxo && inp.witnessUtxo.value) goesIn += inp.witnessUtxo.value;
-    }
-
-    let goesOut = 0;
-    for (const output of psbt.txOutputs) {
-      goesOut += output.value;
-    }
-
-    return goesIn - goesOut;
+    return wallet.calculateFeeFromPsbt(psbt);
   };
 
   const _renderItem = el => {
@@ -184,7 +167,7 @@ const PsbtMultisig = () => {
   };
 
   const onBarScanned = ret => {
-    if (ret && !ret.data) ret = { data: ret };
+    if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       return _onReadUniformResource(ret.data);
     } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {

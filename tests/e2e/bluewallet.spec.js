@@ -409,8 +409,8 @@ describe('BlueWallet UI Tests', () => {
     }
 
     const bip21 = 'bitcoin:bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.00015&pj=https://btc.donate.kukks.org/BTC/pj';
-    await element(by.type('android.widget.EditText')).replaceText(bip21);
-    await element(by.text('OK')).tap();
+    await element(by.id('scanQrBackdoorInput')).replaceText(bip21);
+    await element(by.id('scanQrBackdoorOkButton')).tap();
 
     if (process.env.TRAVIS) await sleep(5000);
     try {
@@ -421,7 +421,6 @@ describe('BlueWallet UI Tests', () => {
     await yo('PayjoinSwitch');
     await element(by.id('TransactionDetailsButton')).tap();
     txhex = await extractTextFromElementById('TxhexInput');
-    console.log({ txhex });
     transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
     assert.strictEqual(transaction.outs[0].value, 15000);
@@ -509,8 +508,8 @@ describe('BlueWallet UI Tests', () => {
 
     const randomTxHex =
       '020000000001011628f58e8e81bfcfff1b106bb8968e342fb86f09aa810ed2939e43d5127c51040200000000000000000227e42d000000000017a914c679a827d57a9b8b539515dbafb4e573d2bcc6ca87df15cf02000000002200209705cdfcbc459a220e7f39ffe547a31335505c2357f452ae12a22b9ae36ea59d04004730440220626c5205a6f49d1dd1577c85c0af4c5fc70f41de61f891d71a5cf57af09110d4022045bcb1e7d4e93e1a9baf6ae1ad0b4087c9e9f73ec366e97576912377d9f6904301473044022044aea98e8983f09cb0639f08d34526bb7e3ed47d208b7bf714fb29a1b5f9535a02200baa510b94cf434775b4aa2184682f2fb33f15e5e76f79aa0885e7ee12bdc8f70169522102e67ce679d617d674d68eea95ecb166c67b4b5520105c4745adf37ce8a40b92dc21029ff54b8bf26dbddd7bd4336593d2ff17519d5374989f36a6f5f8239675ff79a421039000ee2853c6db4bd956e80b1ecfb8711bf3e0a9a8886d15450c29458b60473153ae00000000';
-    await element(by.type('android.widget.EditText')).replaceText(randomTxHex);
-    await element(by.text('OK')).tap();
+    await element(by.id('scanQrBackdoorInput')).replaceText(randomTxHex);
+    await element(by.id('scanQrBackdoorOkButton')).tap();
     await yo('PsbtWithHardwareWalletBroadcastTransactionButton');
 
     // TODO: same but with real signed PSBT QR for this specific transaction

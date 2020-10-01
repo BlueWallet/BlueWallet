@@ -8,6 +8,7 @@ const coinSelectSplit = require('coinselect/split');
 const HDNode = require('bip32');
 const bitcoin = require('bitcoinjs-lib');
 const createHash = require('create-hash');
+const reverse = require('buffer-reverse');
 
 export class MultisigHDWallet extends AbstractHDElectrumWallet {
   static type = 'HDmultisig';
@@ -302,8 +303,14 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     ).toUpperCase();
   }
 
-  getSecret() {
+  getXpub() {
+    return this.getSecret(true);
+  }
+
+  getSecret(coordinationSetup = false) {
     let ret = '# BlueWallet Multisig setup file\n';
+    if (coordinationSetup) ret += '# this file contains only public keys and is safe to\n# distribute among cosigners\n';
+    if (!coordinationSetup) ret += '# this file may contain private information\n';
     ret += '#\n';
     ret += 'Name: ' + this.getLabel() + '\n';
     ret += 'Policy: ' + this.getM() + ' of ' + this.getN() + '\n';
@@ -342,7 +349,16 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       if (this.constructor.isXpubString(this._cosigners[index])) {
         ret += this._cosignersFingerprints[index] + ': ' + this._cosigners[index] + '\n';
       } else {
-        ret += 'seed: ' + this._cosigners[index] + '\n';
+        if (coordinationSetup) {
+          const xpub = this.convertXpubToMultisignatureXpub(
+            MultisigHDWallet.seedToXpub(this._cosigners[index], this._cosignersCustomPaths[index] || this._derivationPath),
+          );
+          const fingerprint = MultisigHDWallet.seedToFingerprint(this._cosigners[index]);
+          ret += fingerprint + ': ' + xpub + '\n';
+        } else {
+          ret += 'seed: ' + this._cosigners[index] + '\n';
+          ret += '# warning! sensitive information, do not disclose ^^^ \n';
+        }
       }
 
       ret += '\n';
@@ -352,7 +368,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   setSecret(secret) {
-    if (secret.startsWith('UR:BYTES')) {
+    if (secret.toUpperCase().startsWith('UR:BYTES')) {
       const decoded = decodeUR([secret]);
       const b = Buffer.from(decoded, 'hex');
       secret = b.toString();
@@ -734,5 +750,53 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       ';' +
       this._cosignersCustomPaths.sort().join(',');
     return createHash('sha256').update(string2hash).digest().toString('hex');
+  }
+
+  calculateFeeFromPsbt(psbt) {
+    let goesIn = 0;
+    const cacheUtxoAmounts = {};
+    for (const inp of psbt.data.inputs) {
+      if (inp.witnessUtxo && inp.witnessUtxo.value) {
+        // segwit input
+        goesIn += inp.witnessUtxo.value;
+      } else if (inp.nonWitnessUtxo) {
+        // non-segwit input
+        // lets parse this transaction and cache how much each input was worth
+        const inputTx = bitcoin.Transaction.fromHex(inp.nonWitnessUtxo);
+        let index = 0;
+        for (const out of inputTx.outs) {
+          // console.warn(inputTx.getId() + ':' + index, out.value);
+          cacheUtxoAmounts[inputTx.getId() + ':' + index] = out.value;
+          index++;
+        }
+      }
+    }
+
+    if (goesIn === 0) {
+      // means we failed to get amounts that go in previously, so lets use utxo amounts cache we've build
+      // from non-segwit inputs
+      for (const inp of psbt.txInputs) {
+        const cacheKey = reverse(inp.hash).toString('hex') + ':' + inp.index;
+        if (cacheUtxoAmounts[cacheKey]) goesIn += cacheUtxoAmounts[cacheKey];
+      }
+    }
+
+    let goesOut = 0;
+    for (const output of psbt.txOutputs) {
+      goesOut += output.value;
+    }
+
+    return goesIn - goesOut;
+  }
+
+  calculateHowManySignaturesWeHaveFromPsbt(psbt) {
+    let sigsHave = 0;
+    for (const inp of psbt.data.inputs) {
+      sigsHave = Math.max(sigsHave, inp.partialSig?.length || 0);
+      if (inp.finalScriptSig || inp.finalScriptWitness) sigsHave = this.getM(); // hacky, but it means we have enough
+      // He who knows that enough is enough will always have enough. Lao Tzu
+    }
+
+    return sigsHave;
   }
 }

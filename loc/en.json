@@ -9,7 +9,8 @@
     "ok": "OK",
     "storage_is_encrypted": "Your storage is encrypted. Password is required to decrypt it",
     "yes": "Yes",
-    "invalid_animated_qr_code_fragment" : "Invalid animated QRCode fragment, please try again"
+    "invalid_animated_qr_code_fragment" : "Invalid animated QRCode fragment, please try again",
+    "file_saved": "File ({filePath}) has been saved in your Downloads folder ."
   },
   "azteco": {
     "codeIs": "Your voucher code is",
@@ -382,6 +383,7 @@
     "header": "Send",
     "share": "Share",
     "how_many_signatures_can_bluewallet_make": "how many signatures can bluewallet make",
-    "scan_or_import_file": "Scan or import file"
+    "scan_or_import_file": "Scan or import file",
+    "export_coordination_setup": "export coordination setup"
   }
 }
