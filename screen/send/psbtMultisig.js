@@ -49,28 +49,6 @@ const PsbtMultisig = () => {
     modalContentShort: {
       backgroundColor: colors.elevated,
     },
-    textFiat: {
-      color: colors.alternativeTextColor,
-    },
-    provideSignatureButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    exportButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    provideSignatureButtonText: { 
-      color: colors.buttonTextColor, 
-    },
-    vaultKeyCircle: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    vaultKeyText: { 
-      color: colors.alternativeTextColor,
-    },
-    feeFiatText: { 
-      color: colors.alternativeTextColor,
-    },
-
   });
   /** @type MultisigHDWallet */
   const wallet = BlueApp.getWallets().find(w => w.getID() === walletId);
@@ -107,23 +85,23 @@ const PsbtMultisig = () => {
     return (
       <View>
         <View style={styles.itemUnsignedWrapper}>
-          <View style={[styles.vaultKeyCircle, stylesHook.vaultKeyCircle]}>
-            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>{el.index + 1}</Text>
+          <View style={styles.vaultKeyCircle}>
+            <Text style={styles.vaultKeyText}>{el.index + 1}</Text>
           </View>
           <View style={styles.vaultKeyTextWrapper}>
-            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>{loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}</Text>
+            <Text style={styles.vaultKeyText}>{loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}</Text>
           </View>
         </View>
 
         {renderProvideSignature && (
           <View>
             <TouchableOpacity
-              style={[styles.provideSignatureButton, stylesHook.provideSignatureButton]}
+              style={styles.provideSignatureButton}
               onPress={() => {
                 setIsModalVisible(true);
               }}
             >
-              <Text style={[styles.provideSignatureButtonText, stylesHook.provideSignatureButtonText]}>{loc.multisig.provide_signature}</Text>
+              <Text style={styles.provideSignatureButtonText}>{loc.multisig.provide_signature}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -249,9 +227,9 @@ const PsbtMultisig = () => {
           <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
             <DynamicQRCode value={psbt.toHex()} capacity={666} />
             <BlueSpacing20 />
-            <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={openScanner} title={loc.multisig.scan_or_import_file} />
+            <SquareButton backgroundColor="#EEF0F4" onPress={openScanner} title={loc.multisig.scan_or_import_file} />
             <BlueSpacing20 />
-            <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportPSBT} title={loc.multisig.share} />
+            <SquareButton backgroundColor="#EEF0F4" onPress={exportPSBT} title={loc.multisig.share} />
             <BlueSpacing20 />
             <BlueButtonLink title="Cancel" onPress={() => setIsModalVisible(false)} />
           </View>
@@ -273,7 +251,7 @@ const PsbtMultisig = () => {
             </View>
           </View>
           <View style={styles.containerText}>
-            <BlueText style={[styles.textFiat, stylesHook.textFiat]}>{totalFiat}</BlueText>
+            <BlueText style={styles.textFiat}>{totalFiat}</BlueText>
           </View>
           <View style={styles.containerText}>
             <BlueText style={[styles.textDestination, stylesHook.textDestination]}>{destination}</BlueText>
@@ -286,7 +264,7 @@ const PsbtMultisig = () => {
 
         <View style={styles.bottomWrapper}>
           <View style={styles.bottomFeesWrapper}>
-            <BlueText style={[styles.feeFiatText, stylesHook.feeFiatText]}>
+            <BlueText style={styles.feeFiatText}>
               {loc.formatString(loc.multisig.fee, { number: currency.satoshiToLocalCurrency(getFee()) })} -{' '}
             </BlueText>
             <BlueText>{loc.formatString(loc.multisig.fee_btc, { number: currency.satoshiToBTC(getFee()) })}</BlueText>
@@ -309,13 +287,13 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     justifyContent: 'center',
-    paddingTop: 24,
   },
   containerText: {
     flexDirection: 'row',
     justifyContent: 'center',
   },
   textFiat: {
+    color: 'gray',
     fontSize: 16,
     fontWeight: '500',
   },
@@ -339,37 +317,33 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  exportButton: {
-    height: 48,
-    borderRadius: 8,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-  },
   provideSignatureButton: {
-    marginTop: 24,
-    height: 48,
-    borderRadius: 8,
+    marginTop: 20,
+    backgroundColor: '#EEF0F4',
+    height: 60,
+    borderRadius: 10,
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 8,
+    paddingLeft: 15,
+    marginBottom: 30,
   },
-  provideSignatureButtonText: { fontWeight: '600', fontSize: 15 },
-  vaultKeyText: { fontSize: 18, fontWeight: 'bold' },
-  vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
+  provideSignatureButtonText: { color: '#0C2550', fontWeight: 'normal', fontSize: 18 },
+  vaultKeyText: { fontSize: 20, fontWeight: 'bold', color: '#9AA0AA' },
+  vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 15 },
   vaultKeyCircle: {
-    width: 42,
-    height: 42,
+    backgroundColor: '#EEF0F4',
+    width: 50,
+    height: 50,
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
   },
   itemUnsignedWrapper: { flexDirection: 'row', paddingTop: 10 },
-  vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold', color: '#37C0A1' },
+  vaultKeyTextSigned: { fontSize: 20, fontWeight: 'bold', color: '#37C0A1' },
   vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 15 },
   flexDirectionRow: { flexDirection: 'row' },
   textBtcUnit: { justifyContent: 'flex-end', bottom: 5 },
+  feeFiatText: { color: 'gray' },
   bottomFeesWrapper: { flexDirection: 'row', paddingBottom: 20 },
   bottomWrapper: { justifyContent: 'center', alignItems: 'center', paddingBottom: 20 },
 });
