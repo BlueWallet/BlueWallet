@@ -27,6 +27,7 @@ import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
 import ImportWallet from './screen/wallets/import';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
+import ExportMultisigCoordinationSetup from './screen/wallets/exportMultisigCoordinationSetup';
 import WalletXpub from './screen/wallets/xpub';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import HodlHodl from './screen/wallets/hodlHodl';
@@ -314,6 +315,11 @@ const Navigation = () => (
 
     {/* screens */}
     <RootStack.Screen name="WalletExport" component={WalletExport} options={WalletExport.navigationOptions} />
+    <RootStack.Screen
+      name="ExportMultisigCoordinationSetup"
+      component={ExportMultisigCoordinationSetup}
+      options={ExportMultisigCoordinationSetup.navigationOptions}
+    />
     <RootStack.Screen name="WalletXpub" component={WalletXpub} options={WalletXpub.navigationOptions} />
     <RootStack.Screen name="BuyBitcoin" component={BuyBitcoin} options={BuyBitcoin.navigationOptions} />
     <RootStack.Screen name="Marketplace" component={Marketplace} options={Marketplace.navigationOptions} />

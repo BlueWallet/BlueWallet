@@ -182,6 +182,11 @@ const WalletDetails = () => {
       wallet,
     });
   };
+  const navigateToMultisigCoordinationSetup = () => {
+    navigate('ExportMultisigCoordinationSetup', {
+      walletId: wallet.getID(),
+    });
+  };
   const navigateToXPub = () =>
     navigate('WalletXpub', {
       secret: wallet.getSecret(),
@@ -428,6 +433,12 @@ const WalletDetails = () => {
               <SecondButton onPress={navigateToWalletExport} title={loc.wallets.details_export_backup} />
 
               <BlueSpacing20 />
+
+              {wallet.type === MultisigHDWallet.type && (
+                <>
+                  <SecondButton onPress={navigateToMultisigCoordinationSetup} title={loc.multisig.export_coordination_setup.replace(/^\w/, c => c.toUpperCase())} />
+                </>
+              )}
 
               {(wallet.type === HDLegacyBreadwalletWallet.type ||
                 wallet.type === HDLegacyP2PKHWallet.type ||

@@ -302,8 +302,14 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     ).toUpperCase();
   }
 
-  getSecret() {
+  getXpub() {
+    return this.getSecret(true);
+  }
+
+  getSecret(coordinationSetup = false) {
     let ret = '# BlueWallet Multisig setup file\n';
+    if (coordinationSetup) ret += '# this file contains only public keys and is safe to\n# distribute among cosigners\n';
+    if (!coordinationSetup) ret += '# this file may contain private information\n';
     ret += '#\n';
     ret += 'Name: ' + this.getLabel() + '\n';
     ret += 'Policy: ' + this.getM() + ' of ' + this.getN() + '\n';
@@ -342,7 +348,16 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       if (this.constructor.isXpubString(this._cosigners[index])) {
         ret += this._cosignersFingerprints[index] + ': ' + this._cosigners[index] + '\n';
       } else {
-        ret += 'seed: ' + this._cosigners[index] + '\n';
+        if (coordinationSetup) {
+          const xpub = this.convertXpubToMultisignatureXpub(
+            MultisigHDWallet.seedToXpub(this._cosigners[index], this._cosignersCustomPaths[index] || this._derivationPath),
+          );
+          const fingerprint = MultisigHDWallet.seedToFingerprint(this._cosigners[index]);
+          ret += fingerprint + ': ' + xpub + '\n';
+        } else {
+          ret += 'seed: ' + this._cosigners[index] + '\n';
+          ret += '# warning! sensitive information, do not disclose ^^^ \n';
+        }
       }
 
       ret += '\n';
@@ -352,7 +367,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   setSecret(secret) {
-    if (secret.startsWith('UR:BYTES')) {
+    if (secret.toUpperCase().startsWith('UR:BYTES')) {
       const decoded = decodeUR([secret]);
       const b = Buffer.from(decoded, 'hex');
       secret = b.toString();

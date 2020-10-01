@@ -796,7 +796,7 @@ describe('multisig-wallet (native segwit)', () => {
     );
   });
 
-  it('can export/import wallet with all seeds in place', () => {
+  it('can export/import wallet with all seeds in place, and also export coordination setup', () => {
     const path = "m/48'/0'/0'/2'";
 
     const w = new MultisigHDWallet();
@@ -820,6 +820,21 @@ describe('multisig-wallet (native segwit)', () => {
 
     assert.strictEqual(w.getID(), ww.getID());
     assert.ok(w.getID() !== new MultisigHDWallet().getID());
+
+    // now, exporting coordination setup:
+
+    const w3 = new MultisigHDWallet();
+    w3.setSecret(ww.getXpub());
+    assert.strictEqual(w3._getExternalAddressByIndex(0), ww._getExternalAddressByIndex(0));
+    assert.strictEqual(w3._getInternalAddressByIndex(0), ww._getInternalAddressByIndex(0));
+    assert.strictEqual(w3.getM(), 2);
+    assert.strictEqual(w3.getN(), 2);
+    assert.strictEqual(w3.howManySignaturesCanWeMake(), 0);
+    assert.ok(!w3.isWrappedSegwit());
+    assert.ok(w3.isNativeSegwit());
+    assert.ok(!w3.isLegacy());
+    assert.ok(MultisigHDWallet.isXpubString(w3.getCosigner(1)) && MultisigHDWallet.isXpubValid(w3.getCosigner(1)));
+    assert.ok(MultisigHDWallet.isXpubString(w3.getCosigner(2)) && MultisigHDWallet.isXpubValid(w3.getCosigner(2)));
   });
 
   it('can coordinate tx creation and cosign 1 of 2', async () => {
@@ -920,7 +935,12 @@ describe('multisig-wallet (native segwit)', () => {
     const path = "m/48'/0'/0'/2'";
 
     // can work with same secret win different formats: as TXT and as same TXT encoded in UR:
-    const secrets = [txtFileFormatMultisigNativeSegwit, Buffer.from(decodeUR([txtFileFormatMultisigNativeSegwit]), 'hex').toString()];
+    const secrets = [
+      txtFileFormatMultisigNativeSegwit,
+      Buffer.from(decodeUR([txtFileFormatMultisigNativeSegwit]), 'hex').toString(),
+      txtFileFormatMultisigNativeSegwit.toLowerCase(),
+      txtFileFormatMultisigNativeSegwit.toUpperCase(),
+    ];
 
     for (const secret of secrets) {
       const w = new MultisigHDWallet();
