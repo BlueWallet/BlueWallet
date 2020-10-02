@@ -58,19 +58,18 @@ const PsbtMultisig = () => {
     exportButton: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
     },
-    provideSignatureButtonText: { 
-      color: colors.buttonTextColor, 
+    provideSignatureButtonText: {
+      color: colors.buttonTextColor,
     },
     vaultKeyCircle: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
     },
-    vaultKeyText: { 
+    vaultKeyText: {
       color: colors.alternativeTextColor,
     },
-    feeFiatText: { 
+    feeFiatText: {
       color: colors.alternativeTextColor,
     },
-
   });
   /** @type MultisigHDWallet */
   const wallet = BlueApp.getWallets().find(w => w.getID() === walletId);
@@ -111,7 +110,9 @@ const PsbtMultisig = () => {
             <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>{el.index + 1}</Text>
           </View>
           <View style={styles.vaultKeyTextWrapper}>
-            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>{loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}</Text>
+            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
+              {loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
+            </Text>
           </View>
         </View>
 
@@ -123,7 +124,9 @@ const PsbtMultisig = () => {
                 setIsModalVisible(true);
               }}
             >
-              <Text style={[styles.provideSignatureButtonText, stylesHook.provideSignatureButtonText]}>{loc.multisig.provide_signature}</Text>
+              <Text style={[styles.provideSignatureButtonText, stylesHook.provideSignatureButtonText]}>
+                {loc.multisig.provide_signature}
+              </Text>
             </TouchableOpacity>
           </View>
         )}
@@ -249,7 +252,11 @@ const PsbtMultisig = () => {
           <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
             <DynamicQRCode value={psbt.toHex()} capacity={666} />
             <BlueSpacing20 />
-            <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={openScanner} title={loc.multisig.scan_or_import_file} />
+            <SquareButton
+              style={[styles.exportButton, stylesHook.exportButton]}
+              onPress={openScanner}
+              title={loc.multisig.scan_or_import_file}
+            />
             <BlueSpacing20 />
             <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportPSBT} title={loc.multisig.share} />
             <BlueSpacing20 />

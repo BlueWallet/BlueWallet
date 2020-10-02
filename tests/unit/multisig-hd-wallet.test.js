@@ -930,8 +930,11 @@ describe('multisig-wallet (native segwit)', () => {
     w.setDerivationPath(path);
     w.setM(2);
 
+    assert.ok(w.getID());
+
     const w2 = new MultisigHDWallet();
     w2.setSecret(w.getSecret());
+    assert.strictEqual(w2.getID(), w.getID());
 
     assert.strictEqual(w._getExternalAddressByIndex(0), w2._getExternalAddressByIndex(0));
     assert.strictEqual(w._getExternalAddressByIndex(1), w2._getExternalAddressByIndex(1));
@@ -1135,6 +1138,31 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w._getExternalAddressByIndex(1), 'bc1qvwd2d7r46j7u9qyxpedfhe5p075sxuhzd0n6napuvvhq2u5nrmqs9ex90q');
     assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qtah0p50d4qlftn049k7lldcwh7cs3zkjy9g8xegv63p308hsh9zsf5567q');
     assert.strictEqual(w._getInternalAddressByIndex(1), 'bc1qv84pedzkqz2p4sd2dxm9krs0tcfatqcn73nndycaky9qttczj9qq3az9ma');
+  });
+
+  it.skip('can import electrum json file format with seeds', () => {
+    const w = new MultisigHDWallet();
+    w.setSecret(JSON.stringify(require('./fixtures/electrum-multisig-wallet-with-seed.json')));
+
+    assert.strictEqual(w.getM(), 2);
+    assert.strictEqual(w.getN(), 3);
+    assert.strictEqual(w.howManySignaturesCanWeMake(), 1);
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qkzg22vej70cqnrlsxcee9nfnstcr70jalvsmjn0c8rjf0klwyydsk8nggs');
+    assert.strictEqual(w._getExternalAddressByIndex(1), 'bc1q2mkhkvx9l7aqksvyf0dwd2x4yn8qx2w3sythjltdkjw70r8hsves2evfg6');
+    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qqj0zx85x3d2frn4nmdn32fgskq5c2qkvk9sukxp3xsdzuf234mds85w068');
+    assert.strictEqual(w._getInternalAddressByIndex(1), 'bc1qwpxkr4ac7fyp6y8uegfpqa6phyqex3vdf5mwwrfayrp8889adpgszge8m5');
+
+    assert.ok(w.isNativeSegwit());
+    assert.ok(!w.isWrappedSegwit());
+    assert.ok(!w.isLegacy());
+
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(1), "m/1'");
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), "m/1'");
+
+    assert.strictEqual(w.getFingerprint(1), '8aaa5d05'.toUpperCase());
+    assert.strictEqual(w.getFingerprint(2), 'ef748d2c'.toUpperCase());
+    assert.strictEqual(w.getFingerprint(3), 'fdb6c4d8'.toUpperCase());
   });
 
   it('cant import garbage', () => {

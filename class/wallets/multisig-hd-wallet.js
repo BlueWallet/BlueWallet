@@ -392,7 +392,13 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       for (let c = 1; c <= n; c++) {
         const cosignerData = json['x' + c + '/'];
         if (cosignerData) {
-          this.addCosigner(cosignerData.xpub, MultisigHDWallet.ckccXfp2fingerprint(cosignerData.ckcc_xfp), cosignerData.derivation);
+          const fingerprint = cosignerData.ckcc_xfp
+            ? MultisigHDWallet.ckccXfp2fingerprint(cosignerData.ckcc_xfp)
+            : cosignerData.root_fingerprint?.toUpperCase();
+          if (cosignerData.seed) {
+            // TODO: support electrum's bip32
+          }
+          this.addCosigner(cosignerData.xpub, fingerprint, cosignerData.derivation);
         }
       }
 
@@ -490,7 +496,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       const pubkey = _node0.derive(index).publicKey;
       pubkeys.push(pubkey);
 
-      // console.warn({masterFingerprint, path, pubkey});
       bip32Derivation.push({
         masterFingerprint,
         path,
@@ -743,12 +748,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   getID() {
-    const string2hash =
-      this._cosigners.sort().join(',') +
-      ';' +
-      this._cosignersFingerprints.sort().join(',') +
-      ';' +
-      this._cosignersCustomPaths.sort().join(',');
+    const string2hash = [...this._cosigners].sort().join(',') + ';' + [...this._cosignersFingerprints].sort().join(',');
     return createHash('sha256').update(string2hash).digest().toString('hex');
   }
 
@@ -765,7 +765,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         const inputTx = bitcoin.Transaction.fromHex(inp.nonWitnessUtxo);
         let index = 0;
         for (const out of inputTx.outs) {
-          // console.warn(inputTx.getId() + ':' + index, out.value);
           cacheUtxoAmounts[inputTx.getId() + ':' + index] = out.value;
           index++;
         }
