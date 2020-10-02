@@ -1,7 +1,6 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 /* global alert */
 import React, { Component, useState, useMemo, useCallback } from 'react';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 import { Icon, Input, Text, Header, ListItem, Avatar } from 'react-native-elements';
 import {
@@ -407,9 +406,9 @@ export class BlueWalletNavigationHeader extends Component {
                 marginBottom: 10,
                 backgroundColor: 'rgba(255,255,255,0.2)',
                 borderRadius: 9,
-                minWidth: 119,
                 minHeight: 39,
-                width: 119,
+                alignSelf: 'flex-start',
+                paddingHorizontal: 12,
                 height: 39,
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -942,51 +941,35 @@ export const BlueHeaderDefaultMainHooks = props => {
   );
 };
 
-export class BlueHeaderDefaultMain extends Component {
-  render() {
-    return (
-      <SafeAreaView style={{ paddingVertical: 8, paddingHorizontal: 4, backgroundColor: BlueCurrentTheme.colors.background }}>
-        <Header
-          {...this.props}
-          leftComponent={{
-            text: this.props.leftText,
-            style: {
-              fontWeight: 'bold',
-              fontSize: 34,
-              color: BlueCurrentTheme.colors.foregroundColor,
-            },
-          }}
-          leftContainerStyle={{
-            minWidth: '70%',
-            height: 80,
-          }}
-          bottomDivider={false}
-          topDivider={false}
-          containerStyle={{
-            height: 44,
-            flexDirection: 'row',
-            backgroundColor: BlueCurrentTheme.colors.background,
-            borderTopColor: BlueCurrentTheme.colors.background,
-            borderBottomColor: BlueCurrentTheme.colors.background,
-            borderBottomWidth: 0,
-          }}
-          rightComponent={
-            this.props.onNewWalletPress && (
-              <TouchableOpacity
-                onPress={this.props.onNewWalletPress}
-                style={{
-                  height: 100,
-                }}
-              >
-                <BluePlusIcon />
-              </TouchableOpacity>
-            )
-          }
-        />
-      </SafeAreaView>
-    );
-  }
-}
+export const BlueHeaderDefaultMain = props => {
+  const { colors } = useTheme();
+  return (
+    <Header
+      leftComponent={{
+        text: props.leftText,
+        style: {
+          fontWeight: 'bold',
+          fontSize: 34,
+          color: colors.foregroundColor,
+          paddingHorizontal: 4,
+        },
+      }}
+      placement="left"
+      containerStyle={{
+        borderTopColor: colors.background,
+        borderBottomColor: colors.background,
+        maxHeight: 44,
+        height: 44,
+        paddingTop: 0,
+        marginBottom: 8,
+      }}
+      bottomDivider={false}
+      topDivider={false}
+      backgroundColor={colors.background}
+      rightComponent={<BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />}
+    />
+  );
+};
 
 export class BlueSpacing extends Component {
   render() {
@@ -1265,23 +1248,12 @@ export const BluePlusIcon = props => {
     },
   });
   return (
-    <View {...props} style={stylesBlueIcon.container}>
-      <View style={stylesBlueIcon.box1}>
-        <View style={[stylesBlueIcon.ball, stylesBlueIconHooks.ball]}>
-          <Ionicons
-            {...props}
-            name="ios-add"
-            size={26}
-            style={{
-              color: colors.foregroundColor,
-              backgroundColor: 'transparent',
-              left: 8,
-              top: 1,
-            }}
-          />
-        </View>
-      </View>
-    </View>
+    <Avatar
+      rounded
+      containerStyle={[stylesBlueIcon.ball, stylesBlueIconHooks.ball]}
+      icon={{ name: 'add', size: 22, type: 'ionicons', color: colors.foregroundColor }}
+      {...props}
+    />
   );
 };
 
