@@ -69,7 +69,7 @@ The above command will build the app and install it. Once you launch the app it 
 * To run on iOS:
 
 ```
-npm run podinstall
+npx pod-install
 npm start
 ```
 
