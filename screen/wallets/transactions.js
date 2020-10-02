@@ -22,12 +22,7 @@ import {
 } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
-import {
-  BlueTransactionListItem,
-  BlueWalletNavigationHeader,
-  BlueAlertWalletExportReminder,
-  BlueListItem,
-} from '../../BlueComponents';
+import { BlueTransactionListItem, BlueWalletNavigationHeader, BlueAlertWalletExportReminder, BlueListItem } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
 import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';

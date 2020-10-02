@@ -5,6 +5,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio } from
 import { BlueCurrentTheme } from './themes';
 
 const BORDER_RADIUS = 30;
+const PADDINGS = 8;
 const ICON_MARGIN = 7;
 
 const cStyles = StyleSheet.create({
@@ -31,10 +32,11 @@ export const FContainer = ({ children }) => {
 
   const onLayout = event => {
     if (layoutCalculated.current) return;
+    const maxWidth = Dimensions.get('window').width - BORDER_RADIUS - 20;
     const { width } = event.nativeEvent.layout;
-    const maxWidth = Dimensions.get('window').width - BORDER_RADIUS - 10;
+    const withPaddings = Math.ceil(width + PADDINGS * 2);
     const len = React.Children.toArray(children).filter(Boolean).length;
-    let newWidth = width * len > maxWidth ? Math.floor(maxWidth / len) : Math.ceil(width + ICON_MARGIN);
+    let newWidth = withPaddings * len > maxWidth ? Math.floor(maxWidth / len) : withPaddings;
     if (len === 1 && newWidth < 90) newWidth = 90; // to add Paddings for lonely small button, like Scan on main screen
     setNewWidth(newWidth);
     layoutCalculated.current = true;
@@ -90,22 +92,19 @@ const bStyles = StyleSheet.create({
 export const FButton = ({ text, icon, width, first, last, ...props }) => {
   const style = {};
   if (width) {
-    let totalWidth = width;
-    if (first) {
-      style.paddingLeft = BORDER_RADIUS / 2;
-      totalWidth += BORDER_RADIUS / 2;
-    }
-    if (last) {
-      style.paddingRight = BORDER_RADIUS / 2;
-      totalWidth += BORDER_RADIUS / 2;
-    }
-    style.width = totalWidth;
+    const paddingLeft = first ? BORDER_RADIUS / 2 : PADDINGS;
+    const paddingRight = last ? BORDER_RADIUS / 2 : PADDINGS;
+    style.paddingRight = paddingRight;
+    style.paddingLeft = paddingLeft;
+    style.width = width + paddingRight + paddingLeft;
   }
 
   return (
     <TouchableOpacity style={[bStyles.root, style]} {...props}>
       <View style={bStyles.icon}>{icon}</View>
-      <Text style={bStyles.text}>{text}</Text>
+      <Text numberOfLines={1} style={bStyles.text}>
+        {text}
+      </Text>
     </TouchableOpacity>
   );
 };
