@@ -41,7 +41,10 @@ const PsbtMultisig = () => {
       backgroundColor: colors.elevated,
     },
     textBtc: {
-      color: colors.foregroundColor,
+      color: colors.buttonAlternativeTextColor,
+    },
+    textBtcUnitValue: {
+      color: colors.buttonAlternativeTextColor,
     },
     textDestination: {
       color: colors.foregroundColor,
@@ -70,6 +73,13 @@ const PsbtMultisig = () => {
     feeFiatText: {
       color: colors.alternativeTextColor,
     },
+    vaultKeyCircleSuccess: {
+      backgroundColor: colors.msSuccessBG,
+    },
+    vaultKeyTextSigned: { 
+      color: colors.msSuccessBG,
+    },
+
   });
   /** @type MultisigHDWallet */
   const wallet = BlueApp.getWallets().find(w => w.getID() === walletId);
@@ -137,9 +147,11 @@ const PsbtMultisig = () => {
   const _renderItemSigned = el => {
     return (
       <View style={styles.flexDirectionRow}>
-        <Icon size={58} name="check-circle" type="font-awesome" color="#37C0A1" />
+        <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
+          <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
+        </View>
         <View style={styles.vaultKeyTextSignedWrapper}>
-          <Text style={styles.vaultKeyTextSigned}>{loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}</Text>
+          <Text style={[styles.vaultKeyTextSigned, stylesHook.vaultKeyTextSigned]}>{loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}</Text>
         </View>
       </View>
     );
@@ -276,7 +288,7 @@ const PsbtMultisig = () => {
           <View style={styles.containerText}>
             <BlueText style={[styles.textBtc, stylesHook.textBtc]}>{totalBtc}</BlueText>
             <View style={styles.textBtcUnit}>
-              <BlueText> BTC</BlueText>
+              <BlueText style={[styles.textBtcUnitValue, stylesHook.textBtcUnitValue]}> BTC</BlueText>
             </View>
           </View>
           <View style={styles.containerText}>
@@ -286,9 +298,17 @@ const PsbtMultisig = () => {
             <BlueText style={[styles.textDestination, stylesHook.textDestination]}>{destination}</BlueText>
           </View>
 
-          <BlueCard>
-            <FlatList data={new Array(wallet.getM())} renderItem={_renderItem} keyExtractor={(_item, index) => `${index}`} />
-          </BlueCard>
+          <View style={styles.mstopcontainer}>
+            <View style={styles.mscontainer}>
+              <View style={styles.msleft}>
+              </View>
+            </View>
+            <View style={styles.msright}>
+              <BlueCard>
+                <FlatList data={new Array(wallet.getM())} renderItem={_renderItem} keyExtractor={(_item, index) => `${index}`} />
+              </BlueCard>
+            </View>
+          </View>
         </View>
 
         <View style={styles.bottomWrapper}>
@@ -308,6 +328,27 @@ const PsbtMultisig = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+  },
+  mscontainer: { 
+    flex: 10, 
+  },
+  msleft: {
+    width: 1,
+    height: '56%',
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    borderColor: '#c4c4c4',
+    marginLeft: 40,
+    position: 'absolute',
+    marginTop: 50,
+  },
+  mstopcontainer: { 
+    flex: 1, 
+    flexDirection: 'row',
+  },
+  msright: {
+   flex: 90, 
+   marginLeft: '-11%'
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -355,6 +396,7 @@ const styles = StyleSheet.create({
   },
   provideSignatureButton: {
     marginTop: 24,
+    marginLeft: 40,
     height: 48,
     borderRadius: 8,
     flex: 1,
@@ -372,11 +414,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  itemUnsignedWrapper: { flexDirection: 'row', paddingTop: 10 },
-  vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold', color: '#37C0A1' },
-  vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 15 },
+  vaultKeyCircleSuccess :{
+    width: 42,
+    height: 42,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  itemUnsignedWrapper: { flexDirection: 'row', paddingTop: 24 },
+  vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold' },
+  vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   flexDirectionRow: { flexDirection: 'row' },
-  textBtcUnit: { justifyContent: 'flex-end', bottom: 5 },
+  textBtcUnit: { justifyContent: 'flex-end', bottom: 8 },
   bottomFeesWrapper: { flexDirection: 'row', paddingBottom: 20 },
   bottomWrapper: { justifyContent: 'center', alignItems: 'center', paddingBottom: 20 },
 });
