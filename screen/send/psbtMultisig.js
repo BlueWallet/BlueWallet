@@ -11,6 +11,7 @@ import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
 import ScanQRCode from './ScanQRCode';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 const BlueApp = require('../../BlueApp');
 const bitcoin = require('bitcoinjs-lib');
@@ -41,6 +42,9 @@ const PsbtMultisig = () => {
       backgroundColor: colors.elevated,
     },
     textBtc: {
+      color: colors.buttonAlternativeTextColor,
+    },
+    textDestinationFirstFour: {
       color: colors.buttonAlternativeTextColor,
     },
     textBtcUnitValue: {
@@ -76,10 +80,9 @@ const PsbtMultisig = () => {
     vaultKeyCircleSuccess: {
       backgroundColor: colors.msSuccessBG,
     },
-    vaultKeyTextSigned: { 
+    vaultKeyTextSigned: {
       color: colors.msSuccessBG,
     },
-
   });
   /** @type MultisigHDWallet */
   const wallet = BlueApp.getWallets().find(w => w.getID() === walletId);
@@ -151,7 +154,9 @@ const PsbtMultisig = () => {
           <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
         </View>
         <View style={styles.vaultKeyTextSignedWrapper}>
-          <Text style={[styles.vaultKeyTextSigned, stylesHook.vaultKeyTextSigned]}>{loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}</Text>
+          <Text style={[styles.vaultKeyTextSigned, stylesHook.vaultKeyTextSigned]}>
+            {loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
+          </Text>
         </View>
       </View>
     );
@@ -279,6 +284,22 @@ const PsbtMultisig = () => {
     );
   };
 
+  const destinationAddress = () => {
+    const address = destination.replace(/\s/g, '');
+    const firstFour = address.substring(0, 5);
+    const lastFour = address.substring(address.length - 5, address.length);
+    const middle = address.split(firstFour)[1].split(lastFour)[0];
+    return (
+      <View style={styles.destionationTextContainer}>
+        <Text style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>{firstFour}</Text>
+        <View style={styles.textDestinationSpacingRight} />
+        <Text style={[styles.textDestinationFirstFour, stylesHook.textFiat]}>{middle}</Text>
+        <View style={styles.textDestinationSpacingLeft} />
+        <Text style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>{lastFour}</Text>
+      </View>
+    );
+  };
+
   if (isModalVisible) return renderDynamicQrCode();
 
   return (
@@ -288,20 +309,16 @@ const PsbtMultisig = () => {
           <View style={styles.containerText}>
             <BlueText style={[styles.textBtc, stylesHook.textBtc]}>{totalBtc}</BlueText>
             <View style={styles.textBtcUnit}>
-              <BlueText style={[styles.textBtcUnitValue, stylesHook.textBtcUnitValue]}> BTC</BlueText>
+              <BlueText style={[styles.textBtcUnitValue, stylesHook.textBtcUnitValue]}> {BitcoinUnit.BTC}</BlueText>
             </View>
           </View>
           <View style={styles.containerText}>
             <BlueText style={[styles.textFiat, stylesHook.textFiat]}>{totalFiat}</BlueText>
           </View>
-          <View style={styles.containerText}>
-            <BlueText style={[styles.textDestination, stylesHook.textDestination]}>{destination}</BlueText>
-          </View>
-
+          <View style={styles.containerText}>{destinationAddress()}</View>
           <View style={styles.mstopcontainer}>
             <View style={styles.mscontainer}>
-              <View style={styles.msleft}>
-              </View>
+              <View style={styles.msleft} />
             </View>
             <View style={styles.msright}>
               <BlueCard>
@@ -329,12 +346,12 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
-  mstopcontainer: { 
-    flex: 1, 
+  mstopcontainer: {
+    flex: 1,
     flexDirection: 'row',
   },
-  mscontainer: { 
-    flex: 10, 
+  mscontainer: {
+    flex: 10,
   },
   msleft: {
     width: 1,
@@ -347,8 +364,8 @@ const styles = StyleSheet.create({
     marginTop: 44,
   },
   msright: {
-   flex: 90, 
-   marginLeft: '-11%'
+    flex: 90,
+    marginLeft: '-11%',
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -363,6 +380,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
+  destionationTextContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 30,
+  },
   textFiat: {
     fontSize: 16,
     fontWeight: '500',
@@ -370,6 +392,9 @@ const styles = StyleSheet.create({
   textBtc: {
     fontWeight: 'bold',
     fontSize: 30,
+  },
+  textDestinationFirstFour: {
+    fontWeight: 'bold',
   },
   textDestination: {
     paddingTop: 10,
@@ -414,7 +439,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  vaultKeyCircleSuccess :{
+  vaultKeyCircleSuccess: {
     width: 42,
     height: 42,
     borderRadius: 25,
@@ -422,6 +447,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemUnsignedWrapper: { flexDirection: 'row', paddingTop: 16 },
+  textDestinationSpacingRight: { marginRight: 4 },
+  textDestinationSpacingLeft: { marginLeft: 4 },
   vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold' },
   vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },
