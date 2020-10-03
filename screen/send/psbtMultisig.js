@@ -329,22 +329,22 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
+  mstopcontainer: { 
+    flex: 1, 
+    flexDirection: 'row',
+  },
   mscontainer: { 
     flex: 10, 
   },
   msleft: {
     width: 1,
-    height: '56%',
+    height: '55%',
     borderStyle: 'dashed',
-    borderWidth: 1,
+    borderWidth: 0.8,
     borderColor: '#c4c4c4',
     marginLeft: 40,
     position: 'absolute',
-    marginTop: 50,
-  },
-  mstopcontainer: { 
-    flex: 1, 
-    flexDirection: 'row',
+    marginTop: 44,
   },
   msright: {
    flex: 90, 
@@ -421,10 +421,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  itemUnsignedWrapper: { flexDirection: 'row', paddingTop: 24 },
+  itemUnsignedWrapper: { flexDirection: 'row', paddingTop: 16 },
   vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold' },
   vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
-  flexDirectionRow: { flexDirection: 'row' },
+  flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },
   textBtcUnit: { justifyContent: 'flex-end', bottom: 8 },
   bottomFeesWrapper: { flexDirection: 'row', paddingBottom: 20 },
   bottomWrapper: { justifyContent: 'center', alignItems: 'center', paddingBottom: 20 },
