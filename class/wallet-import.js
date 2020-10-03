@@ -130,11 +130,15 @@ export default class WalletImport {
       }
 
       // is it multisig?
-      const ms = new MultisigHDWallet();
-      ms.setSecret(importText);
-      if (ms.getN() > 0 && ms.getM() > 0) {
-        await ms.fetchBalance();
-        return WalletImport._saveWallet(ms);
+      try {
+        const ms = new MultisigHDWallet();
+        ms.setSecret(importText);
+        if (ms.getN() > 0 && ms.getM() > 0) {
+          await ms.fetchBalance();
+          return WalletImport._saveWallet(ms);
+        }
+      } catch (e) {
+        console.log(e);
       }
 
       // is it lightning custodian?
