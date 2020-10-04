@@ -286,19 +286,34 @@ const PsbtMultisig = () => {
   };
 
   const destinationAddress = () => {
-    const address = destination.replace(/\s/g, '');
-    const firstFour = address.substring(0, 5);
-    const lastFour = address.substring(address.length - 5, address.length);
-    const middle = address.split(firstFour)[1].split(lastFour)[0];
-    return (
-      <View style={styles.destionationTextContainer}>
-        <Text style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>{firstFour}</Text>
-        <View style={styles.textDestinationSpacingRight} />
-        <Text style={[styles.textDestinationFirstFour, stylesHook.textFiat]}>{middle}</Text>
-        <View style={styles.textDestinationSpacingLeft} />
-        <Text style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>{lastFour}</Text>
-      </View>
-    );
+    // eslint-disable-next-line prefer-const
+    let destinationAddressView = [];
+    const destinations = Object.entries(destination.split(','));
+    for (const [index, address] of destinations) {
+      if (index > 1) {
+        destinationAddressView.push(
+          <View style={styles.destionationTextContainer} key={`end-${index}`}>
+            <Text style={[styles.textDestinationFirstFour, stylesHook.textFiat]}>and {destinations.length - 2} more...</Text>
+          </View>,
+        );
+        break;
+      } else {
+        const currentAddress = address.replace(/\s/g, '');
+        const firstFour = currentAddress.substring(0, 5);
+        const lastFour = currentAddress.substring(currentAddress.length - 5, currentAddress.length);
+        const middle = currentAddress.split(firstFour)[1].split(lastFour)[0];
+        destinationAddressView.push(
+          <View style={styles.destionationTextContainer} key={`${currentAddress}-${index}`}>
+            <Text style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>{firstFour}</Text>
+            <View style={styles.textDestinationSpacingRight} />
+            <Text style={[styles.textDestinationFirstFour, stylesHook.textFiat]}>{middle}</Text>
+            <View style={styles.textDestinationSpacingLeft} />
+            <Text style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>{lastFour}</Text>
+          </View>,
+        );
+      }
+    }
+    return destinationAddressView;
   };
 
   const header = (
@@ -312,7 +327,7 @@ const PsbtMultisig = () => {
       <View style={styles.containerText}>
         <BlueText style={[styles.textFiat, stylesHook.textFiat]}>{totalFiat}</BlueText>
       </View>
-      <View style={styles.containerText}>{destinationAddress()}</View>
+      <View>{destinationAddress()}</View>
     </View>
   );
   const footer = (
@@ -339,18 +354,17 @@ const PsbtMultisig = () => {
       <View style={styles.container}>
         <View style={styles.mstopcontainer}>
           <View style={styles.mscontainer}>
-            <View style={[styles.msleft, { height: flatListHeight - 155 }]} />
+            <View style={[styles.msleft, { height: flatListHeight - 200 }]} />
           </View>
           <View style={styles.msright}>
             <BlueCard>
               <FlatList
-                scrollEnabled={false}
                 data={data}
                 onLayout={onLayout}
                 renderItem={_renderItem}
                 keyExtractor={(_item, index) => `${index}`}
                 ListHeaderComponent={header}
-                stickyHeaderIndices={[0]}
+                scrollEnabled={false}
               />
             </BlueCard>
           </View>
@@ -378,7 +392,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.8,
     borderColor: '#c4c4c4',
     marginLeft: 40,
-    marginTop: 150,
+    marginTop: 185,
   },
   msright: {
     flex: 90,
@@ -400,12 +414,12 @@ const styles = StyleSheet.create({
   destionationTextContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 30,
-    marginVertical: 8,
+    marginBottom: 4,
   },
   textFiat: {
     fontSize: 16,
     fontWeight: '500',
+    marginBottom: 30,
   },
   textBtc: {
     fontWeight: 'bold',
@@ -472,7 +486,7 @@ const styles = StyleSheet.create({
   flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },
   textBtcUnit: { justifyContent: 'flex-end', bottom: 8 },
   bottomFeesWrapper: { flexDirection: 'row', paddingBottom: 20 },
-  bottomWrapper: { justifyContent: 'center', alignItems: 'center', paddingBottom: 20 },
+  bottomWrapper: { justifyContent: 'center', alignItems: 'center', paddingVertical: 20 },
 });
 
 PsbtMultisig.navigationOptions = () => ({
