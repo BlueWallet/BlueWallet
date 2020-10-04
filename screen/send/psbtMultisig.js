@@ -29,6 +29,7 @@ const PsbtMultisig = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { colors } = useTheme();
+  const [flatListHeight, setFlatListHeight] = useState(0);
 
   const walletId = route.params.walletId;
   const psbtBase64 = route.params.psbtBase64;
@@ -300,44 +301,62 @@ const PsbtMultisig = () => {
     );
   };
 
+  const header = (
+    <View style={stylesHook.root}>
+      <View style={styles.containerText}>
+        <BlueText style={[styles.textBtc, stylesHook.textBtc]}>{totalBtc}</BlueText>
+        <View style={styles.textBtcUnit}>
+          <BlueText style={[styles.textBtcUnitValue, stylesHook.textBtcUnitValue]}> {BitcoinUnit.BTC}</BlueText>
+        </View>
+      </View>
+      <View style={styles.containerText}>
+        <BlueText style={[styles.textFiat, stylesHook.textFiat]}>{totalFiat}</BlueText>
+      </View>
+      <View style={styles.containerText}>{destinationAddress()}</View>
+    </View>
+  );
+  const footer = (
+    <View style={styles.bottomWrapper}>
+      <View style={styles.bottomFeesWrapper}>
+        <BlueText style={[styles.feeFiatText, stylesHook.feeFiatText]}>
+          {loc.formatString(loc.multisig.fee, { number: currency.satoshiToLocalCurrency(getFee()) })} -{' '}
+        </BlueText>
+        <BlueText>{loc.formatString(loc.multisig.fee_btc, { number: currency.satoshiToBTC(getFee()) })}</BlueText>
+      </View>
+      <BlueButton disabled={!isConfirmEnabled()} title={loc.multisig.confirm} onPress={onConfirm} />
+    </View>
+  );
+
   if (isModalVisible) return renderDynamicQrCode();
 
+  const onLayout = e => {
+    setFlatListHeight(e.nativeEvent.layout.height);
+  };
+
+  const data = new Array(wallet.getM());
   return (
     <SafeBlueArea style={[styles.root, stylesHook.root]}>
-      <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
-        <View style={styles.container}>
-          <View style={styles.containerText}>
-            <BlueText style={[styles.textBtc, stylesHook.textBtc]}>{totalBtc}</BlueText>
-            <View style={styles.textBtcUnit}>
-              <BlueText style={[styles.textBtcUnitValue, stylesHook.textBtcUnitValue]}> {BitcoinUnit.BTC}</BlueText>
-            </View>
+      <View style={styles.container}>
+        <View style={styles.mstopcontainer}>
+          <View style={styles.mscontainer}>
+            <View style={[styles.msleft, { height: flatListHeight - 145 }]} />
           </View>
-          <View style={styles.containerText}>
-            <BlueText style={[styles.textFiat, stylesHook.textFiat]}>{totalFiat}</BlueText>
-          </View>
-          <View style={styles.containerText}>{destinationAddress()}</View>
-          <View style={styles.mstopcontainer}>
-            <View style={styles.mscontainer}>
-              <View style={styles.msleft} />
-            </View>
-            <View style={styles.msright}>
-              <BlueCard>
-                <FlatList data={new Array(wallet.getM())} renderItem={_renderItem} keyExtractor={(_item, index) => `${index}`} />
-              </BlueCard>
-            </View>
+          <View style={styles.msright}>
+            <BlueCard>
+              <FlatList
+                scrollEnabled={false}
+                data={data}
+                onLayout={onLayout}
+                renderItem={_renderItem}
+                keyExtractor={(_item, index) => `${index}`}
+                ListHeaderComponent={header}
+                stickyHeaderIndices={[0]}
+              />
+            </BlueCard>
           </View>
         </View>
-
-        <View style={styles.bottomWrapper}>
-          <View style={styles.bottomFeesWrapper}>
-            <BlueText style={[styles.feeFiatText, stylesHook.feeFiatText]}>
-              {loc.formatString(loc.multisig.fee, { number: currency.satoshiToLocalCurrency(getFee()) })} -{' '}
-            </BlueText>
-            <BlueText>{loc.formatString(loc.multisig.fee_btc, { number: currency.satoshiToBTC(getFee()) })}</BlueText>
-          </View>
-          <BlueButton disabled={!isConfirmEnabled()} title={loc.multisig.confirm} onPress={onConfirm} />
-        </View>
-      </ScrollView>
+        {footer}
+      </View>
     </SafeBlueArea>
   );
 };
@@ -355,13 +374,11 @@ const styles = StyleSheet.create({
   },
   msleft: {
     width: 1,
-    height: '55%',
     borderStyle: 'dashed',
     borderWidth: 0.8,
     borderColor: '#c4c4c4',
     marginLeft: 40,
-    position: 'absolute',
-    marginTop: 44,
+    marginTop: 145,
   },
   msright: {
     flex: 90,
@@ -373,8 +390,8 @@ const styles = StyleSheet.create({
   },
   container: {
     flexDirection: 'column',
-    justifyContent: 'center',
     paddingTop: 24,
+    flex: 1,
   },
   containerText: {
     flexDirection: 'row',
@@ -384,6 +401,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 30,
+    marginVertical: 8,
   },
   textFiat: {
     fontSize: 16,
