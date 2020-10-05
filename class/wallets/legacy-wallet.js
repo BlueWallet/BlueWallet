@@ -401,10 +401,4 @@ export class LegacyWallet extends AbstractWallet {
   allowSendMax() {
     return true;
   }
-
-  async getChangeAddressAsync() {
-    return new Promise(resolve => {
-      resolve(this.getAddress());
-    });
-  }
 }

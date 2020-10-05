@@ -44,6 +44,7 @@ import DocumentPicker from 'react-native-document-picker';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 const currency = require('../../blue_modules/currency');
 const BlueApp: AppStorage = require('../../BlueApp');
 const prompt = require('../../blue_modules/prompt');
@@ -361,10 +362,10 @@ export default class SendDetails extends Component {
       }
     } catch (_) {}
 
-    await this.reCalcTx();
+    this.reCalcTx();
 
     try {
-      const recommendedFees = await NetworkTransactionFees.recommendedFees();
+      const recommendedFees = await Promise.race([NetworkTransactionFees.recommendedFees(), BlueApp.sleep(2000)]);
       if (recommendedFees && 'fastestFee' in recommendedFees) {
         await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
         this.setState({
@@ -372,7 +373,7 @@ export default class SendDetails extends Component {
           networkTransactionFees: recommendedFees,
         });
       }
-    } catch (_) {}
+    } catch (_) {} // either sleep expired or recommendedFees threw an exception
 
     if (this.props.route.params.uri) {
       try {
@@ -385,9 +386,15 @@ export default class SendDetails extends Component {
       }
     }
 
-    await this.state.fromWallet.fetchUtxo();
+    try {
+      await Promise.race([this.state.fromWallet.fetchUtxo(), BlueApp.sleep(6000)]);
+    } catch (_) {
+      // either sleep expired or fetchUtxo threw an exception
+    }
+
     this.setState({ isLoading: false });
-    await this.reCalcTx();
+
+    this.reCalcTx();
   }
 
   componentWillUnmount() {
@@ -466,13 +473,63 @@ export default class SendDetails extends Component {
     }
   }
 
+  getChangeAddressFast() {
+    if (this.state.changeAddress) return this.state.changeAddress; // cache
+
+    /** @type {AbstractHDElectrumWallet|WatchOnlyWallet} */
+    const wallet = this.state.fromWallet;
+    let changeAddress;
+    if (WatchOnlyWallet.type === wallet.type && !wallet.isHd()) {
+      // plain watchonly - just get the address
+      changeAddress = wallet.getAddress();
+    } else if (WatchOnlyWallet.type === wallet.type || wallet instanceof AbstractHDElectrumWallet) {
+      changeAddress = wallet._getInternalAddressByIndex(wallet.getNextFreeChangeAddressIndex());
+    } else {
+      // legacy wallets
+      changeAddress = wallet.getAddress();
+    }
+
+    return changeAddress;
+  }
+
+  async getChangeAddressAsync() {
+    if (this.state.changeAddress) return this.state.changeAddress; // cache
+
+    /** @type {AbstractHDElectrumWallet|WatchOnlyWallet} */
+    const wallet = this.state.fromWallet;
+    let changeAddress;
+    if (WatchOnlyWallet.type === wallet.type && !wallet.isHd()) {
+      // plain watchonly - just get the address
+      changeAddress = wallet.getAddress();
+    } else {
+      // otherwise, lets call widely-used getChangeAddressAsync()
+      try {
+        changeAddress = await Promise.race([BlueApp.sleep(2000), wallet.getChangeAddressAsync()]);
+      } catch (_) {}
+
+      if (!changeAddress) {
+        // either sleep expired or getChangeAddressAsync threw an exception
+        if (wallet instanceof AbstractHDElectrumWallet) {
+          changeAddress = wallet._getInternalAddressByIndex(wallet.getNextFreeChangeAddressIndex());
+        } else {
+          // legacy wallets
+          changeAddress = wallet.getAddress();
+        }
+      }
+    }
+
+    if (changeAddress) this.setState({ changeAddress }); // cache
+
+    return changeAddress;
+  }
+
   /**
    * Recalculating fee options by creating skeleton of future tx.
    */
-  reCalcTx = async (all = false) => {
+  reCalcTx = (all = false) => {
     const wallet = this.state.fromWallet;
     const fees = this.state.networkTransactionFees;
-    const changeAddress = await wallet.getChangeAddressAsync();
+    const changeAddress = this.getChangeAddressFast();
     const requestedSatPerByte = Number(this.state.fee);
     const feePrecalc = { ...this.state.feePrecalc };
 
@@ -546,7 +603,7 @@ export default class SendDetails extends Component {
   async createPsbtTransaction() {
     /** @type {HDSegwitBech32Wallet} */
     const wallet = this.state.fromWallet;
-    const changeAddress = await wallet.getChangeAddressAsync();
+    const changeAddress = await this.getChangeAddressAsync();
     const requestedSatPerByte = Number(this.state.fee);
     console.log({ requestedSatPerByte, utxo: wallet.getUtxo() });
 
