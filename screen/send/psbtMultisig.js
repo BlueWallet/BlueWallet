@@ -181,10 +181,14 @@ const PsbtMultisig = () => {
 
   const _combinePSBT = receivedPSBTBase64 => {
     const receivedPSBT = bitcoin.Psbt.fromBase64(receivedPSBTBase64);
-    const newPsbt = psbt.combine(receivedPSBT);
-    navigation.dangerouslyGetParent().pop();
-    setPsbt(newPsbt);
-    setIsModalVisible(false);
+    try {
+      const newPsbt = psbt.combine(receivedPSBT);
+      navigation.dangerouslyGetParent().pop();
+      setPsbt(newPsbt);
+      setIsModalVisible(false);
+    } catch (error) {
+      alert(error);
+    }
   };
 
   const onBarScanned = ret => {

@@ -43,12 +43,29 @@ const writeFileAndExport = async function (filename, contents) {
   }
 };
 
+/**
+ * Opens & reads *.psbt files, and returns base64 psbt. FALSE if something went wrong (wont throw).
+ *
+ * @returns {Promise<string|boolean>} Base64 PSBT
+ */
 const openSignedTransaction = async function () {
   try {
     const res = await DocumentPicker.pick({
       type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallt.psbt.txn'] : [DocumentPicker.types.allFiles],
     });
-    return await RNFS.readFile(res.uri);
+    const base64 = await RNFS.readFile(res.uri, 'base64');
+
+    const stringData = Buffer.from(base64, 'base64').toString(); // decode from base64
+    if (stringData.startsWith('psbt')) {
+      // file was binary, but outer code expects base64 psbt, so we return base64 we got from rn-fs;
+      // most likely produced by Electrum-desktop
+      return base64;
+    } else {
+      // file was a text file, having base64 psbt in there. so we basically have double base64encoded string
+      // thats why we are returning string that was decoded once;
+      // most likely produced by Coldcard
+      return stringData;
+    }
   } catch (err) {
     if (!DocumentPicker.isCancel(err)) {
       alert(loc.send.details_no_signed_tx);
