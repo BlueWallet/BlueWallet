@@ -61,6 +61,7 @@ export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
   }
 
   _getWIFByIndex(internal, index) {
+    if (!this.secret) return false;
     const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, MNEMONIC_TO_SEED_OPTS));
     const path = `m/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
