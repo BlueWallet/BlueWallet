@@ -176,7 +176,7 @@
     "details_total_exceeds_balance": "Čiastka, ktorú chcete poslať, presahuje dostupný zostatok.",
     "details_wallet_before_tx": "Pred vytvorením transakcie potrebujete najprv pridať Bitcoinovú peňaženku.",
     "details_wallet_selection": "Výber peňaženky",
-    "dynamic_init": "Initialing",
+    "dynamic_init": "Initializing",
     "dynamic_next": "Next",
     "dynamic_prev": "Previous",
     "dynamic_start": "Start",
