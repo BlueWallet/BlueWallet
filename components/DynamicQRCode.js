@@ -81,7 +81,16 @@ export class DynamicQRCode extends Component {
 
   render() {
     const currentFragment = this.fragments[this.state.index];
-    return currentFragment ? (
+
+    if (!currentFragment) {
+      return (
+        <View>
+          <Text>{loc.send.dynamic_init}</Text>
+        </View>
+      );
+    }
+
+    return (
       <View style={animatedQRCodeStyle.container}>
         <TouchableOpacity
           style={animatedQRCodeStyle.qrcodeContainer}
@@ -130,10 +139,6 @@ export class DynamicQRCode extends Component {
             </View>
           </View>
         )}
-      </View>
-    ) : (
-      <View>
-        <Text>{loc.send.dynamic_init}</Text>
       </View>
     );
   }

@@ -842,7 +842,7 @@ export default class SendDetails extends Component {
         walletId: this.state.fromWallet.getID(),
       });
     } catch (error) {
-      alert('Problem with PSBT: ' + error.message);
+      alert(loc.send.problem_with_psbt + ': ' + error.message);
     }
     this.setState({ isLoading: false, isAdvancedTransactionOptionsVisible: false });
   };

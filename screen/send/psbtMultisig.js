@@ -278,7 +278,7 @@ const PsbtMultisig = () => {
             <BlueSpacing20 />
             <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportPSBT} title={loc.multisig.share} />
             <BlueSpacing20 />
-            <BlueButtonLink title="Cancel" onPress={() => setIsModalVisible(false)} />
+            <BlueButtonLink title={loc._.cancel} onPress={() => setIsModalVisible(false)} />
           </View>
         </ScrollView>
       </SafeBlueArea>
