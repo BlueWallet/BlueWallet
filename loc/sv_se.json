@@ -176,7 +176,7 @@
     "details_total_exceeds_balance": "Beloppet överstiger plånbokens tillgängliga belopp",
     "details_wallet_before_tx": "Before creating a transaction, you must first add a Bitcoin wallet.",
     "details_wallet_selection": "Wallet Selection",
-    "dynamic_init": "Initialing",
+    "dynamic_init": "Initializing",
     "dynamic_next": "Nästa",
     "dynamic_prev": "Föregående",
     "dynamic_start": "Starta",
