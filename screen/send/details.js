@@ -38,7 +38,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { AppStorage, HDSegwitBech32Wallet, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
+import { AppStorage, HDSegwitBech32Wallet, LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import DocumentPicker from 'react-native-document-picker';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -47,6 +47,7 @@ import { BlueCurrentTheme } from '../../components/themes';
 const currency = require('../../blue_modules/currency');
 const BlueApp: AppStorage = require('../../BlueApp');
 const prompt = require('../../blue_modules/prompt');
+const fs = require('../../blue_modules/fs');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -588,6 +589,16 @@ export default class SendDetails extends Component {
       return;
     }
 
+    if (wallet.type === MultisigHDWallet.type) {
+      this.props.navigation.navigate('PsbtMultisig', {
+        memo: this.state.memo,
+        psbtBase64: psbt.toBase64(),
+        walletId: wallet.getID(),
+      });
+      this.setState({ isLoading: false });
+      return;
+    }
+
     BlueApp.tx_metadata = BlueApp.tx_metadata || {};
     BlueApp.tx_metadata[tx.getId()] = {
       txhex: tx.toHex(),
@@ -772,7 +783,10 @@ export default class SendDetails extends Component {
 
     try {
       const res = await DocumentPicker.pick({
-        type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn'] : [DocumentPicker.types.allFiles],
+        type:
+          Platform.OS === 'ios'
+            ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', DocumentPicker.types.plainText, 'public.json']
+            : [DocumentPicker.types.allFiles],
       });
 
       if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(res.uri)) {
@@ -816,6 +830,21 @@ export default class SendDetails extends Component {
         alert(loc.send.details_no_signed_tx);
       }
     }
+  };
+
+  importTransactionMultisig = async () => {
+    try {
+      const base64 = await fs.openSignedTransaction();
+      const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
+      this.props.navigation.navigate('PsbtMultisig', {
+        memo: this.state.memo,
+        psbtBase64: psbt.toBase64(),
+        walletId: this.state.fromWallet.getID(),
+      });
+    } catch (error) {
+      alert(loc.send.problem_with_psbt + ': ' + error.message);
+    }
+    this.setState({ isLoading: false, isAdvancedTransactionOptionsVisible: false });
   };
 
   handleAddRecipient = () => {
@@ -893,6 +922,14 @@ export default class SendDetails extends Component {
                   onPress={this.importTransaction}
                 />
               )}
+            {this.state.fromWallet.type === MultisigHDWallet.type && (
+              <BlueListItem
+                title={loc.send.details_adv_import}
+                hideChevron
+                component={TouchableOpacity}
+                onPress={this.importTransactionMultisig}
+              />
+            )}
             {this.state.fromWallet.allowBatchSend() && (
               <>
                 <BlueListItem
