@@ -61,6 +61,7 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
   }
 
   _getWIFByIndex(internal, index) {
+    if (!this.secret) return false;
     const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, MNEMONIC_TO_SEED_OPTS));
     const path = `m/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
