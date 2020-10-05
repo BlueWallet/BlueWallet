@@ -18,7 +18,7 @@ const writeFileAndExport = async function (filename, contents) {
     })
       .catch(error => {
         console.log(error);
-        alert(error.message);
+        // alert(error.message);
       })
       .finally(() => {
         RNFS.unlink(filePath);

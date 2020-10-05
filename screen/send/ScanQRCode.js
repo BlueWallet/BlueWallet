@@ -133,21 +133,21 @@ const ScanQRCode = () => {
 
   const showFilePicker = async () => {
     try {
-      setIsLoading(true);
       const res = await DocumentPicker.pick({
         type:
           Platform.OS === 'ios'
-            ? ['io.bluewallet.psbt', 'io.bluewallt.psbt.txn', DocumentPicker.types.plainText, '.json']
+            ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', DocumentPicker.types.plainText, 'public.json']
             : [DocumentPicker.types.allFiles],
       });
+      setIsLoading(true);
       const file = await RNFS.readFile(res.uri);
       onBarCodeRead({ data: file });
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
         alert(loc.send.qr_error_no_wallet);
       }
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
 
   const showImagePicker = () => {
