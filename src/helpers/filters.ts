@@ -75,7 +75,7 @@ const fileterByFromAmount = (transactions: Transaction[], fromAmount: string): T
       return true;
     }
     const val = satoshiToBtc(transaction.value).toNumber();
-    return val >= amount;
+    return Math.abs(val) >= Math.abs(amount);
   });
 };
 
@@ -86,7 +86,7 @@ const fileterByToAmount = (transactions: Transaction[], toAmount: string): Trans
       return true;
     }
     const val = satoshiToBtc(transaction.value).toNumber();
-    return val <= amount;
+    return Math.abs(val) <= Math.abs(amount);
   });
 };
 
