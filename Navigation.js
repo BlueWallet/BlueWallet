@@ -27,6 +27,7 @@ import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
 import ImportWallet from './screen/wallets/import';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
+import ExportMultisigCoordinationSetup from './screen/wallets/exportMultisigCoordinationSetup';
 import WalletXpub from './screen/wallets/xpub';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import HodlHodl from './screen/wallets/hodlHodl';
@@ -53,6 +54,7 @@ import ScanQRCode from './screen/send/ScanQRCode';
 import SendCreate from './screen/send/create';
 import Confirm from './screen/send/confirm';
 import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
+import PsbtMultisig from './screen/send/psbtMultisig';
 import Success from './screen/send/success';
 import Broadcast from './screen/send/broadcast';
 
@@ -175,6 +177,7 @@ const SendDetailsRoot = () => (
       component={PsbtWithHardwareWallet}
       options={PsbtWithHardwareWallet.navigationOptions}
     />
+    <SendDetailsStack.Screen name="PsbtMultisig" component={PsbtMultisig} options={PsbtMultisig.navigationOptions} />
     <SendDetailsStack.Screen
       name="CreateTransaction"
       component={SendCreate}
@@ -312,6 +315,11 @@ const Navigation = () => (
 
     {/* screens */}
     <RootStack.Screen name="WalletExport" component={WalletExport} options={WalletExport.navigationOptions} />
+    <RootStack.Screen
+      name="ExportMultisigCoordinationSetup"
+      component={ExportMultisigCoordinationSetup}
+      options={ExportMultisigCoordinationSetup.navigationOptions}
+    />
     <RootStack.Screen name="WalletXpub" component={WalletXpub} options={WalletXpub.navigationOptions} />
     <RootStack.Screen name="BuyBitcoin" component={BuyBitcoin} options={BuyBitcoin.navigationOptions} />
     <RootStack.Screen name="Marketplace" component={Marketplace} options={Marketplace.navigationOptions} />

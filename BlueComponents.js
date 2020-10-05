@@ -28,7 +28,7 @@ import {
 import Clipboard from '@react-native-community/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
 import ActionSheet from './screen/ActionSheet';
-import { LightningCustodianWallet, PlaceholderWallet } from './class';
+import { LightningCustodianWallet, MultisigHDWallet, PlaceholderWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import * as NavigationService from './NavigationService';
@@ -342,9 +342,16 @@ export class BlueWalletNavigationHeader extends Component {
         style={{ padding: 15, minHeight: 140, justifyContent: 'center' }}
       >
         <Image
-          source={
-            (LightningCustodianWallet.type === this.state.wallet.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')
-          }
+          source={(() => {
+            switch (this.state.wallet.type) {
+              case LightningCustodianWallet.type:
+                return require('./img/lnd-shape.png');
+              case MultisigHDWallet.type:
+                return require('./img/vault-shape.png');
+              default:
+                return require('./img/btc-shape.png');
+            }
+          })()}
           style={{
             width: 99,
             height: 94,
@@ -1988,7 +1995,16 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
             }}
           >
             <Image
-              source={(LightningCustodianWallet.type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')}
+              source={(() => {
+                switch (item.type) {
+                  case LightningCustodianWallet.type:
+                    return require('./img/lnd-shape.png');
+                  case MultisigHDWallet.type:
+                    return require('./img/vault-shape.png');
+                  default:
+                    return require('./img/btc-shape.png');
+                }
+              })()}
               style={{
                 width: 99,
                 height: 94,
