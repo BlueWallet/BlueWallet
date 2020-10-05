@@ -5,7 +5,7 @@ import {
   BlueLoading,
   BlueTextHooks,
   BlueSpacing20,
-  BlueListItemHooks,
+  BlueListItem,
   BlueNavigationStyle,
   BlueCard,
   BlueButton,
@@ -101,7 +101,7 @@ const NotificationSettings = () => {
     <BlueLoading />
   ) : (
     <ScrollView style={stylesWithThemeHook.scroll}>
-      <BlueListItemHooks
+      <BlueListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.push_notifications}
         switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabled }}

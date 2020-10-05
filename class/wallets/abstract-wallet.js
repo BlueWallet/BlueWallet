@@ -115,6 +115,10 @@ export class AbstractWallet {
     return false;
   }
 
+  allowPayJoin() {
+    return false;
+  }
+
   weOwnAddress(address) {
     throw Error('not implemented');
   }
@@ -260,4 +264,6 @@ export class AbstractWallet {
 
     return b58.encode(data);
   }
+
+  prepareForSerialization() {}
 }

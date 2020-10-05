@@ -1,6 +1,7 @@
-/* global describe, it */
+/* global describe, it, jest */
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 const assert = require('assert');
+jest.useFakeTimers();
 
 describe('unit - DeepLinkSchemaMatch', function () {
   it('hasSchema', () => {
@@ -201,6 +202,11 @@ describe('unit - DeepLinkSchemaMatch', function () {
       },
     });
 
+    decoded = DeeplinkSchemaMatch.bip21decode(
+      'bitcoin:bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.0001&pj=https://btc.donate.kukks.org/BTC/pj',
+    );
+    assert.strictEqual(decoded.options.pj, 'https://btc.donate.kukks.org/BTC/pj');
+
     decoded = DeeplinkSchemaMatch.bip21decode('BITCOIN:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar');
     assert.deepStrictEqual(decoded, {
       address: '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH',
@@ -219,6 +225,27 @@ describe('unit - DeepLinkSchemaMatch', function () {
       label: 'Foobar',
     });
     assert.strictEqual(encoded, 'bitcoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar');
+  });
+
+  it('can decodeBitcoinUri', () => {
+    assert.deepStrictEqual(
+      DeeplinkSchemaMatch.decodeBitcoinUri(
+        'bitcoin:bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.0001&pj=https://btc.donate.kukks.org/BTC/pj',
+      ),
+      {
+        address: 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7',
+        amount: 0.0001,
+        memo: '',
+        payjoinUrl: 'https://btc.donate.kukks.org/BTC/pj',
+      },
+    );
+
+    assert.deepStrictEqual(DeeplinkSchemaMatch.decodeBitcoinUri('BITCOIN:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar'), {
+      address: '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH',
+      amount: 20.3,
+      memo: 'Foobar',
+      payjoinUrl: '',
+    });
   });
 
   it('recognizes files', () => {

@@ -14,6 +14,7 @@ import {
   LightningCustodianWallet,
   HDLegacyElectrumSeedP2PKHWallet,
   HDSegwitElectrumSeedP2WPKHWallet,
+  MultisigHDWallet,
 } from './';
 import DeviceQuickActions from './quick-actions';
 import { AbstractHDElectrumWallet } from './wallets/abstract-hd-electrum-wallet';
@@ -297,6 +298,9 @@ export class AppStorage {
             case HDSegwitElectrumSeedP2WPKHWallet.type:
               unserializedWallet = HDSegwitElectrumSeedP2WPKHWallet.fromJson(key);
               break;
+            case MultisigHDWallet.type:
+              unserializedWallet = MultisigHDWallet.fromJson(key);
+              break;
             case LightningCustodianWallet.type: {
               /** @type {LightningCustodianWallet} */
               unserializedWallet = LightningCustodianWallet.fromJson(key);
@@ -433,7 +437,7 @@ export class AppStorage {
     const realm = await this.getRealm();
     for (const key of this.wallets) {
       if (typeof key === 'boolean' || key.type === PlaceholderWallet.type) continue;
-      if (key.prepareForSerialization) key.prepareForSerialization();
+      key.prepareForSerialization();
       const keyCloned = Object.assign({}, key); // stripped-down version of a wallet to save to secure keystore
       if (key._hdWalletInstance) keyCloned._hdWalletInstance = Object.assign({}, key._hdWalletInstance);
       this.offloadWalletToRealm(realm, key);

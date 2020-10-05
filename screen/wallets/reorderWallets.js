@@ -3,7 +3,7 @@ import { View, ActivityIndicator, Image, Text, StyleSheet, StatusBar, ScrollView
 import { BlueNavigationStyle } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
-import { PlaceholderWallet, LightningCustodianWallet } from '../../class';
+import { PlaceholderWallet, LightningCustodianWallet, MultisigHDWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
@@ -123,9 +123,16 @@ const ReorderWallets = () => {
       <View shadowOpacity={40 / 100} shadowOffset={{ width: 0, height: 0 }} shadowRadius={5} style={styles.itemRoot}>
         <LinearGradient shadowColor="#000000" colors={WalletGradient.gradientsFor(item.type)} style={styles.gradient}>
           <Image
-            source={
-              (LightningCustodianWallet.type === item.type && require('../../img/lnd-shape.png')) || require('../../img/btc-shape.png')
-            }
+            source={(() => {
+              switch (item.type) {
+                case LightningCustodianWallet.type:
+                  return require('../../img/lnd-shape.png');
+                case MultisigHDWallet.type:
+                  return require('../../img/vault-shape.png');
+                default:
+                  return require('../../img/btc-shape.png');
+              }
+            })()}
             style={styles.image}
           />
 
