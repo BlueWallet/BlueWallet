@@ -933,6 +933,7 @@ export const BlueHeaderDefaultMainHooks = props => {
 
 export const BlueHeaderDefaultMain = props => {
   const { colors } = useTheme();
+  const { isDrawerList } = props;
   return (
     <Header
       leftComponent={{
@@ -946,8 +947,8 @@ export const BlueHeaderDefaultMain = props => {
       }}
       placement="left"
       containerStyle={{
-        borderTopColor: colors.background,
-        borderBottomColor: colors.background,
+        borderTopColor: isDrawerList ? colors.elevated : colors.background,
+        borderBottomColor: isDrawerList ? colors.elevated : colors.background,
         maxHeight: 44,
         height: 44,
         paddingTop: 0,
@@ -955,7 +956,7 @@ export const BlueHeaderDefaultMain = props => {
       }}
       bottomDivider={false}
       topDivider={false}
-      backgroundColor={colors.background}
+      backgroundColor={isDrawerList ? colors.elevated : colors.background}
       rightComponent={<BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />}
     />
   );
@@ -1178,7 +1179,6 @@ const stylesBlueIcon = StyleSheet.create({
   ball: {
     width: 30,
     height: 30,
-    alignItems: 'center',
     borderRadius: 15,
   },
   ballIncoming: {
