@@ -69,10 +69,7 @@ export class BlueButton extends Component {
       backgroundColor = BlueCurrentTheme.colors.buttonDisabledBackgroundColor;
       fontColor = BlueCurrentTheme.colors.buttonDisabledTextColor;
     }
-    let buttonWidth = this.props.width ? this.props.width : width / 1.5;
-    if ('noMinWidth' in this.props) {
-      buttonWidth = 0;
-    }
+
     return (
       <TouchableOpacity
         style={{
@@ -84,7 +81,6 @@ export class BlueButton extends Component {
           height: 45,
           maxHeight: 45,
           borderRadius: 25,
-          minWidth: buttonWidth,
           justifyContent: 'center',
           alignItems: 'center',
         }}
@@ -107,10 +103,6 @@ export const BlueButtonHook = props => {
     backgroundColor = colors.buttonDisabledBackgroundColor;
     fontColor = colors.buttonDisabledTextColor;
   }
-  let buttonWidth = props.width ? props.width : width / 1.5;
-  if ('noMinWidth' in props) {
-    buttonWidth = 0;
-  }
   return (
     <TouchableOpacity
       style={{
@@ -122,7 +114,6 @@ export const BlueButtonHook = props => {
         height: 45,
         maxHeight: 45,
         borderRadius: 25,
-        minWidth: buttonWidth,
         justifyContent: 'center',
         alignItems: 'center',
       }}
@@ -144,10 +135,10 @@ export class SecondButton extends Component {
       backgroundColor = BlueCurrentTheme.colors.buttonDisabledBackgroundColor;
       fontColor = BlueCurrentTheme.colors.buttonDisabledTextColor;
     }
-    let buttonWidth = this.props.width ? this.props.width : width / 1.5;
-    if ('noMinWidth' in this.props) {
-      buttonWidth = 0;
-    }
+    // let buttonWidth = this.props.width ? this.props.width : width / 1.5;
+    // if ('noMinWidth' in this.props) {
+    //   buttonWidth = 0;
+    // }
     return (
       <TouchableOpacity
         style={{
@@ -159,7 +150,6 @@ export class SecondButton extends Component {
           height: 45,
           maxHeight: 45,
           borderRadius: 25,
-          minWidth: buttonWidth,
           justifyContent: 'center',
           alignItems: 'center',
         }}
@@ -2089,7 +2079,8 @@ export class WalletsCarousel extends Component {
   };
 
   snapToItem = item => {
-    this.walletsCarousel.current.snapToItem(item);
+    // eslint-disable-next-line no-unused-expressions
+    this.walletsCarousel?.current?.snapToItem(item);
   };
 
   onLayout = () => {

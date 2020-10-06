@@ -125,9 +125,8 @@ const ReceiveDetails = () => {
       backgroundColor: BlueCurrentTheme.colors.elevated,
     },
     share: {
-      alignItems: 'center',
-      alignContent: 'flex-end',
       marginBottom: 24,
+      marginHorizontal: 16,
     },
     modalButton: {
       backgroundColor: BlueCurrentTheme.colors.modalButton,

@@ -66,9 +66,28 @@ export default class WalletsList extends Component {
     // all balances and all transactions here:
     this.redrawScreen();
 
+    InteractionManager.runAfterInteractions(async () => {
+      try {
+        await BlueElectrum.waitTillConnected();
+        const balanceStart = +new Date();
+        await BlueApp.fetchWalletBalances();
+        const balanceEnd = +new Date();
+        console.log('fetch all wallet balances took', (balanceEnd - balanceStart) / 1000, 'sec');
+        const start = +new Date();
+        await BlueApp.fetchWalletTransactions();
+        const end = +new Date();
+        console.log('fetch all wallet txs took', (end - start) / 1000, 'sec');
+        await BlueApp.saveToDisk();
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
     this.interval = setInterval(() => {
       this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
     }, 60000);
+    this.redrawScreen();
+
     this._unsubscribe = this.props.navigation.addListener('focus', this.onNavigationEventFocus);
   }
 
@@ -115,6 +134,11 @@ export default class WalletsList extends Component {
   redrawScreen = (scrollToEnd = false) => {
     console.log('wallets/list redrawScreen()');
 
+    // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet.
+    // placing event subscription here so it gets exclusively re-subscribed more often. otherwise we would
+    // have to unsubscribe on unmount and resubscribe again on mount.
+    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactions, true);
+
     if (BlueApp.getBalance() !== 0) {
       A(A.ENUM.GOT_NONZERO_BALANCE);
     } else {
@@ -135,9 +159,10 @@ export default class WalletsList extends Component {
         wallets,
       },
       () => {
+        this.props.navigation.navigate('DrawerRoot', { wallets: BlueApp.getWallets() });
         if (scrollToEnd) {
           // eslint-disable-next-line no-unused-expressions
-          this.walletsCarousel.current?.snapToItem(this.state.wallets.length - 2);
+          this.walletsCarousel?.current?.snapToItem(this.state.wallets.length - 2);
         }
       },
     );

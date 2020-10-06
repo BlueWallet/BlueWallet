@@ -264,11 +264,12 @@ function DrawerRoot() {
   const dimensions = useWindowDimensions();
   const isLargeScreen = Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 3 && isTablet();
   const drawerStyle = { width: '0%' };
+
   return (
     <Drawer.Navigator
       drawerStyle={isLargeScreen ? null : drawerStyle}
       drawerType={isLargeScreen ? 'permanent' : null}
-      drawerContent={props => <DrawerList {...props} />}
+      drawerContent={props => (isLargeScreen ? <DrawerList {...props} /> : null)}
     >
       <Drawer.Screen name="Navigation" component={Navigation} options={{ headerShown: false, gestureEnabled: false }} />
     </Drawer.Navigator>
