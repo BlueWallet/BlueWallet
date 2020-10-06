@@ -91,7 +91,7 @@
     "dayjs": "1.8.34",
     "detox": "17.5.6",
     "ecurve": "1.0.6",
-    "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#99c75385f99e82b87fbfed2abfb2cccd322fe3e9",
+    "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#f9a827e724a5a2e578fdfdb483f83793af55b030",
     "electrum-mnemonic": "2.0.0",
     "eslint-config-prettier": "6.11.0",
     "eslint-config-standard": "14.1.1",
