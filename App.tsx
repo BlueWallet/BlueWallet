@@ -21,7 +21,13 @@ if (!__DEV__) {
   });
 }
 
+const getNewKey = () => new Date().toISOString();
+
 export default class App extends React.PureComponent {
+  state = {
+    unlockKey: getNewKey(),
+  };
+
   lockScreen = () => {
     store.dispatch({
       type: AuthenticationAction.SetIsAuthenticated,
@@ -29,14 +35,23 @@ export default class App extends React.PureComponent {
     });
   };
 
+  setUnlockScreenKey = () => {
+    this.setState({
+      unlockKey: getNewKey(),
+    });
+  };
+
   render() {
     return (
       <I18nextProvider i18n={i18n}>
         <Provider store={store}>
-          <AppStateManager handleAppComesToBackground={this.lockScreen} />
+          <AppStateManager
+            handleAppComesToForeground={this.setUnlockScreenKey}
+            handleAppComesToBackground={this.lockScreen}
+          />
           <PersistGate loading={null} persistor={persistor}>
             <View style={styles.wrapper}>
-              <Navigator />
+              <Navigator unlockKey={this.state.unlockKey} />
             </View>
           </PersistGate>
         </Provider>

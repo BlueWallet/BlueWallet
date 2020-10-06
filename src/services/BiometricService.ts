@@ -23,7 +23,7 @@ export default class BiometricService {
     const biometricsResult = await ReactNativeBiometrics.isSensorAvailable();
     const { available, biometryType } = biometricsResult;
     if (!available) {
-      return;
+      this.biometryType = undefined;
     } else {
       this.biometryType = biometryType;
     }

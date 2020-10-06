@@ -29,7 +29,11 @@ interface ActionsDisptach {
   checkCredentials: Function;
 }
 
-type Props = MapStateToProps & ActionsDisptach;
+interface OwnProps {
+  unlockKey: string;
+}
+
+type Props = MapStateToProps & ActionsDisptach & OwnProps;
 
 interface State {
   isBetaVersionRiskAccepted: boolean;
@@ -85,7 +89,7 @@ class Navigator extends React.Component<Props, State> {
   };
 
   renderRoutes = () => {
-    const { isLoading } = this.props;
+    const { isLoading, unlockKey } = this.props;
     if (isLoading) {
       return null;
     }
@@ -105,7 +109,7 @@ class Navigator extends React.Component<Props, State> {
     return (
       <>
         <RootNavigator />
-        {this.shouldRenderUnlockScreen() && <UnlockScreen />}
+        {this.shouldRenderUnlockScreen() && <UnlockScreen key={unlockKey} />}
       </>
     );
   };
