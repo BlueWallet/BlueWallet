@@ -69,3 +69,5 @@ android/app/google-services.json
 .history
 .vscode
 .env
+config/beta/google-services.json
+config/prod/google-services.json

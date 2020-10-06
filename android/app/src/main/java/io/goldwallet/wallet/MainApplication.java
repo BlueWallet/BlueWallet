@@ -1,4 +1,4 @@
-package io.goldwallet.wallet.testnet;
+package io.goldwallet.wallet;
 
 import android.app.Application;
 

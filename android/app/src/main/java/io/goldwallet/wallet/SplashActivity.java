@@ -1,5 +1,5 @@
 
-package io.goldwallet.wallet.testnet;
+package io.goldwallet.wallet;
 
 import android.content.Intent;
 import android.os.Bundle;

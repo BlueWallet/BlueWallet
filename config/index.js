@@ -17,4 +17,6 @@ export default {
   protocol: PROTOCOL || 'tcp',
   electrumXProtocolVersion: ELECTRUM_X_PROTOCOL_VERSION || '2.0',
   isBeta,
+  applicationId: isBeta ? 'io.goldwallet.wallet.testnet' : 'io.goldwallet.wallet',
+  applcationName: isBeta ? 'Testnet Gold Wallet' : 'GoldWallet',
 };

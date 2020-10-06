@@ -81,7 +81,9 @@ import com.android.build.OutputFile
  */
 
 project.ext.react = [
-    entryFile: "index.js"
+    entryFile: "index.js",
+    devDisabledInStaging: true,
+    enableHermes: false
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
@@ -112,6 +114,7 @@ def useIntlJsc = false
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
+    flavorDimensions "default" 
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -119,7 +122,6 @@ android {
     }
 
     defaultConfig {
-        applicationId "io.goldwallet.wallet.testnet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 4
@@ -139,6 +141,18 @@ android {
         release {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+    productFlavors {
+        prod {
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId 'io.goldwallet.wallet'
+            targetSdkVersion rootProject.ext.targetSdkVersion
+        }
+        beta {
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId 'io.goldwallet.wallet.testnet'
+            targetSdkVersion rootProject.ext.targetSdkVersion
         }
     }
     // applicationVariants are e.g. debug, release
