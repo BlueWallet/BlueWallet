@@ -510,7 +510,7 @@ export default class WalletsList extends Component {
       }
       ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
         if (buttonIndex === 1) {
-          this.takePhoto();
+          this.choosePhoto();
         } else if (buttonIndex === 2) {
           if (isDesktop) {
             this.takePhoto();

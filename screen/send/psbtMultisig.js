@@ -574,8 +574,8 @@ const styles = StyleSheet.create({
   vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },
   textBtcUnit: { justifyContent: 'flex-end', bottom: 8 },
-  bottomFeesWrapper: { flexDirection: 'row', paddingBottom: 20 },
-  bottomWrapper: { justifyContent: 'center', alignItems: 'center', paddingVertical: 20 },
+  bottomFeesWrapper: { flexDirection: 'row', marginBottom: 20 },
+  bottomWrapper: { justifyContent: 'center', alignItems: 'center', marginVertical: 40 },
 });
 
 PsbtMultisig.navigationOptions = () => ({
