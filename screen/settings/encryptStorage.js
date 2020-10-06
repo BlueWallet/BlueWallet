@@ -8,7 +8,7 @@ import {
   SafeBlueArea,
   BlueSpacing20,
   BlueCard,
-  BlueListItemHooks,
+  BlueListItem,
   BlueHeaderDefaultSubHooks,
   BlueTextHooks,
   BlueNavigationStyle,
@@ -152,7 +152,7 @@ const EncryptStorage = () => {
         {biometrics.isDeviceBiometricCapable && (
           <>
             <BlueHeaderDefaultSubHooks leftText="biometrics" rightComponent={null} />
-            <BlueListItemHooks
+            <BlueListItem
               title={loc.formatString(loc.settings.encrypt_use, { type: biometrics.biometricsType })}
               Component={TouchableWithoutFeedback}
               switch={{ value: biometrics.isBiometricsEnabled, onValueChange: onUseBiometricSwitch }}
@@ -164,7 +164,7 @@ const EncryptStorage = () => {
           </>
         )}
         <BlueHeaderDefaultSubHooks leftText={loc.settings.encrypt_tstorage} rightComponent={null} />
-        <BlueListItemHooks
+        <BlueListItem
           testID="EncyptedAndPasswordProtected"
           hideChevron
           title={loc.settings.encrypt_enc_and_pass}
@@ -172,7 +172,7 @@ const EncryptStorage = () => {
           switch={{ onValueChange: onEncryptStorageSwitch, value: storageIsEncrypted }}
         />
         {getSystemName() === 'iOS' && (
-          <BlueListItemHooks
+          <BlueListItem
             hideChevron
             title={loc.settings.encrypt_del_uninstall}
             Component={TouchableWithoutFeedback}
@@ -183,7 +183,7 @@ const EncryptStorage = () => {
           />
         )}
         {storageIsEncrypted && (
-          <BlueListItemHooks
+          <BlueListItem
             onPress={navigateToPlausibleDeniability}
             title={loc.settings.plausible_deniability}
             chevron

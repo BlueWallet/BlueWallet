@@ -680,8 +680,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     addressess = [...new Set(addressess)]; // deduplicate just for any case
 
+    const fetchedUtxo = await BlueElectrum.multiGetUtxoByAddress(addressess);
     this._utxo = [];
-    for (const arr of Object.values(await BlueElectrum.multiGetUtxoByAddress(addressess))) {
+    for (const arr of Object.values(fetchedUtxo)) {
       this._utxo = this._utxo.concat(arr);
     }
 
@@ -718,15 +719,26 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return this._utxo;
   }
 
-  getDerivedUtxoFromOurTransaction() {
+  getDerivedUtxoFromOurTransaction(returnSpentUtxoAsWell = false) {
     const utxos = [];
+
+    // its faster to pre-build hashmap of owned addresses than to query `this.weOwnAddress()`, which in turn
+    // iterates over all addresses in hierarchy
+    const ownedAddressesHashmap = {};
+    for (let c = 0; c < this.next_free_address_index + 1; c++) {
+      ownedAddressesHashmap[this._getExternalAddressByIndex(c)] = true;
+    }
+    for (let c = 0; c < this.next_free_change_address_index + 1; c++) {
+      ownedAddressesHashmap[this._getInternalAddressByIndex(c)] = true;
+    }
+
     for (const tx of this.getTransactions()) {
       for (const output of tx.outputs) {
         let address = false;
         if (output.scriptPubKey && output.scriptPubKey.addresses && output.scriptPubKey.addresses[0]) {
           address = output.scriptPubKey.addresses[0];
         }
-        if (this.weOwnAddress(address)) {
+        if (ownedAddressesHashmap[address]) {
           const value = new BigNumber(output.value).multipliedBy(100000000).toNumber();
           utxos.push({
             txid: tx.txid,
@@ -736,12 +748,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
             value,
             amount: value,
             confirmations: tx.confirmations,
-            wif: this._getWifForAddress(address),
+            wif: false,
             height: BlueElectrum.estimateCurrentBlockheight() - tx.confirmations,
           });
         }
       }
     }
+
+    if (returnSpentUtxoAsWell) return utxos;
 
     // got all utxos we ever had. lets filter out the ones that are spent:
     const ret = [];
@@ -754,7 +768,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         }
       }
 
-      if (!spent) ret.push(utxo);
+      if (!spent) {
+        // filling WIFs only for legit unspent UTXO, as it is a slow operation
+        utxo.wif = this._getWifForAddress(utxo.address);
+        ret.push(utxo);
+      }
     }
 
     return ret;

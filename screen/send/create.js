@@ -253,8 +253,8 @@ SendCreate.navigationOptions = ({ navigation, route }) => {
   }
 
   return {
-    ...BlueNavigationStyle,
-    title: loc.send.create.details,
+    ...BlueNavigationStyle(),
+    title: loc.send.create_details,
     headerRight,
   };
 };

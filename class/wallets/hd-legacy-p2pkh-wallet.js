@@ -48,6 +48,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
    * @private
    */
   _getWIFByIndex(internal, index) {
+    if (!this.secret) return false;
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
 

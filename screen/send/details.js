@@ -38,15 +38,17 @@ import * as bitcoin from 'bitcoinjs-lib';
 
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { AppStorage, HDSegwitBech32Wallet, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
+import { AppStorage, HDSegwitBech32Wallet, LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import DocumentPicker from 'react-native-document-picker';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 const currency = require('../../blue_modules/currency');
 const BlueApp: AppStorage = require('../../BlueApp');
 const prompt = require('../../blue_modules/prompt');
+const fs = require('../../blue_modules/fs');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -131,7 +133,6 @@ const styles = StyleSheet.create({
   createButton: {
     marginHorizontal: 56,
     marginVertical: 16,
-    alignItems: 'center',
     minHeight: 44,
   },
   select: {
@@ -309,12 +310,14 @@ export default class SendDetails extends Component {
           units[this.state.recipientsScrollIndex] = BitcoinUnit.BTC; // also resetting current unit to BTC
           recipients[[this.state.recipientsScrollIndex]].address = address;
           recipients[[this.state.recipientsScrollIndex]].amount = options.amount;
+          recipients[[this.state.recipientsScrollIndex]].amountSats = new BigNumber(options.amount).multipliedBy(100000000).toNumber();
           this.setState({
             addresses: recipients,
             memo: options.label || options.message,
             isLoading: false,
             amountUnit: BitcoinUnit.BTC,
             units,
+            payjoinUrl: options.pj || '',
           });
         } else {
           this.setState({ isLoading: false });
@@ -332,10 +335,10 @@ export default class SendDetails extends Component {
     if (this.props.route.params.uri) {
       const uri = this.props.route.params.uri;
       try {
-        const { address, amount, memo } = this.decodeBitcoinUri(uri);
+        const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(uri);
         addresses.push(new BitcoinTransaction(address, amount, currency.btcToSatoshi(amount)));
         initialMemo = memo;
-        this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC });
+        this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC, payjoinUrl });
       } catch (error) {
         console.log(error);
         alert(loc.send.details_error_decode);
@@ -359,10 +362,10 @@ export default class SendDetails extends Component {
       }
     } catch (_) {}
 
-    await this.reCalcTx();
+    this.reCalcTx();
 
     try {
-      const recommendedFees = await NetworkTransactionFees.recommendedFees();
+      const recommendedFees = await Promise.race([NetworkTransactionFees.recommendedFees(), BlueApp.sleep(2000)]);
       if (recommendedFees && 'fastestFee' in recommendedFees) {
         await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
         this.setState({
@@ -370,21 +373,28 @@ export default class SendDetails extends Component {
           networkTransactionFees: recommendedFees,
         });
       }
-    } catch (_) {}
+    } catch (_) {} // either sleep expired or recommendedFees threw an exception
 
     if (this.props.route.params.uri) {
       try {
-        const { address, amount, memo } = this.decodeBitcoinUri(this.props.route.params.uri);
-        this.setState({ address, amount, memo });
+        const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(this.props.route.params.uri);
+        this.setState({ address, amount, memo, isLoading: false, payjoinUrl });
       } catch (error) {
         console.log(error);
+        this.setState({ isLoading: false });
         alert(loc.send.details_error_decode);
       }
     }
 
-    await this.state.fromWallet.fetchUtxo();
+    try {
+      await Promise.race([this.state.fromWallet.fetchUtxo(), BlueApp.sleep(6000)]);
+    } catch (_) {
+      // either sleep expired or fetchUtxo threw an exception
+    }
+
     this.setState({ isLoading: false });
-    await this.reCalcTx();
+
+    this.reCalcTx();
   }
 
   componentWillUnmount() {
@@ -399,27 +409,6 @@ export default class SendDetails extends Component {
   _keyboardDidHide = () => {
     this.setState({ renderWalletSelectionButtonHidden: false, isAmountToolbarVisibleForAndroid: false });
   };
-
-  decodeBitcoinUri(uri) {
-    let amount = '';
-    let parsedBitcoinUri = null;
-    let address = uri || '';
-    let memo = '';
-    try {
-      parsedBitcoinUri = DeeplinkSchemaMatch.bip21decode(uri);
-      address = 'address' in parsedBitcoinUri ? parsedBitcoinUri.address : address;
-      if ('options' in parsedBitcoinUri) {
-        if ('amount' in parsedBitcoinUri.options) {
-          amount = parsedBitcoinUri.options.amount.toString();
-          amount = parsedBitcoinUri.options.amount;
-        }
-        if ('label' in parsedBitcoinUri.options) {
-          memo = parsedBitcoinUri.options.label || memo;
-        }
-      }
-    } catch (_) {}
-    return { address, amount, memo };
-  }
 
   async createTransaction() {
     Keyboard.dismiss();
@@ -484,13 +473,63 @@ export default class SendDetails extends Component {
     }
   }
 
+  getChangeAddressFast() {
+    if (this.state.changeAddress) return this.state.changeAddress; // cache
+
+    /** @type {AbstractHDElectrumWallet|WatchOnlyWallet} */
+    const wallet = this.state.fromWallet;
+    let changeAddress;
+    if (WatchOnlyWallet.type === wallet.type && !wallet.isHd()) {
+      // plain watchonly - just get the address
+      changeAddress = wallet.getAddress();
+    } else if (WatchOnlyWallet.type === wallet.type || wallet instanceof AbstractHDElectrumWallet) {
+      changeAddress = wallet._getInternalAddressByIndex(wallet.getNextFreeChangeAddressIndex());
+    } else {
+      // legacy wallets
+      changeAddress = wallet.getAddress();
+    }
+
+    return changeAddress;
+  }
+
+  async getChangeAddressAsync() {
+    if (this.state.changeAddress) return this.state.changeAddress; // cache
+
+    /** @type {AbstractHDElectrumWallet|WatchOnlyWallet} */
+    const wallet = this.state.fromWallet;
+    let changeAddress;
+    if (WatchOnlyWallet.type === wallet.type && !wallet.isHd()) {
+      // plain watchonly - just get the address
+      changeAddress = wallet.getAddress();
+    } else {
+      // otherwise, lets call widely-used getChangeAddressAsync()
+      try {
+        changeAddress = await Promise.race([BlueApp.sleep(2000), wallet.getChangeAddressAsync()]);
+      } catch (_) {}
+
+      if (!changeAddress) {
+        // either sleep expired or getChangeAddressAsync threw an exception
+        if (wallet instanceof AbstractHDElectrumWallet) {
+          changeAddress = wallet._getInternalAddressByIndex(wallet.getNextFreeChangeAddressIndex());
+        } else {
+          // legacy wallets
+          changeAddress = wallet.getAddress();
+        }
+      }
+    }
+
+    if (changeAddress) this.setState({ changeAddress }); // cache
+
+    return changeAddress;
+  }
+
   /**
    * Recalculating fee options by creating skeleton of future tx.
    */
-  reCalcTx = async (all = false) => {
+  reCalcTx = (all = false) => {
     const wallet = this.state.fromWallet;
     const fees = this.state.networkTransactionFees;
-    const changeAddress = await wallet.getChangeAddressAsync();
+    const changeAddress = this.getChangeAddressFast();
     const requestedSatPerByte = Number(this.state.fee);
     const feePrecalc = { ...this.state.feePrecalc };
 
@@ -564,7 +603,7 @@ export default class SendDetails extends Component {
   async createPsbtTransaction() {
     /** @type {HDSegwitBech32Wallet} */
     const wallet = this.state.fromWallet;
-    const changeAddress = await wallet.getChangeAddressAsync();
+    const changeAddress = await this.getChangeAddressAsync();
     const requestedSatPerByte = Number(this.state.fee);
     console.log({ requestedSatPerByte, utxo: wallet.getUtxo() });
 
@@ -606,6 +645,16 @@ export default class SendDetails extends Component {
       return;
     }
 
+    if (wallet.type === MultisigHDWallet.type) {
+      this.props.navigation.navigate('PsbtMultisig', {
+        memo: this.state.memo,
+        psbtBase64: psbt.toBase64(),
+        walletId: wallet.getID(),
+      });
+      this.setState({ isLoading: false });
+      return;
+    }
+
     BlueApp.tx_metadata = BlueApp.tx_metadata || {};
     BlueApp.tx_metadata[tx.getId()] = {
       txhex: tx.toHex(),
@@ -619,6 +668,8 @@ export default class SendDetails extends Component {
       tx: tx.toHex(),
       recipients: targets,
       satoshiPerByte: requestedSatPerByte,
+      payjoinUrl: this.state.payjoinUrl,
+      psbt,
     });
     this.setState({ isLoading: false });
   }
@@ -788,7 +839,10 @@ export default class SendDetails extends Component {
 
     try {
       const res = await DocumentPicker.pick({
-        type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn'] : [DocumentPicker.types.allFiles],
+        type:
+          Platform.OS === 'ios'
+            ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', DocumentPicker.types.plainText, 'public.json']
+            : [DocumentPicker.types.allFiles],
       });
 
       if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(res.uri)) {
@@ -834,6 +888,54 @@ export default class SendDetails extends Component {
     }
   };
 
+  importTransactionMultisig = async () => {
+    try {
+      const base64 = await fs.openSignedTransaction();
+      const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
+      this.props.navigation.navigate('PsbtMultisig', {
+        memo: this.state.memo,
+        psbtBase64: psbt.toBase64(),
+        walletId: this.state.fromWallet.getID(),
+      });
+    } catch (error) {
+      alert(loc.send.problem_with_psbt + ': ' + error.message);
+    }
+    this.setState({ isLoading: false, isAdvancedTransactionOptionsVisible: false });
+  };
+
+  handleAddRecipient = () => {
+    const { addresses } = this.state;
+    addresses.push(new BitcoinTransaction());
+    this.setState(
+      {
+        addresses,
+        isAdvancedTransactionOptionsVisible: false,
+      },
+      () => {
+        this.scrollView.scrollToEnd();
+        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
+        // after adding recipient it automatically scrolls to the last one
+        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
+      },
+    );
+  };
+
+  handleRemoveRecipient = () => {
+    const { addresses } = this.state;
+    addresses.splice(this.state.recipientsScrollIndex, 1);
+    this.setState(
+      {
+        addresses,
+        isAdvancedTransactionOptionsVisible: false,
+      },
+      () => {
+        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
+        // after deletion it automatically scrolls to the last one
+        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
+      },
+    );
+  };
+
   renderAdvancedTransactionOptionsModal = () => {
     const isSendMaxUsed = this.state.addresses.some(element => element.amount === BitcoinUnit.MAX);
     return (
@@ -876,6 +978,14 @@ export default class SendDetails extends Component {
                   onPress={this.importTransaction}
                 />
               )}
+            {this.state.fromWallet.type === MultisigHDWallet.type && (
+              <BlueListItem
+                title={loc.send.details_adv_import}
+                hideChevron
+                component={TouchableOpacity}
+                onPress={this.importTransactionMultisig}
+              />
+            )}
             {this.state.fromWallet.allowBatchSend() && (
               <>
                 <BlueListItem
@@ -883,43 +993,14 @@ export default class SendDetails extends Component {
                   title={loc.send.details_add_rec_add}
                   hideChevron
                   component={TouchableOpacity}
-                  onPress={() => {
-                    const addresses = this.state.addresses;
-                    addresses.push(new BitcoinTransaction());
-                    this.setState(
-                      {
-                        addresses,
-                        isAdvancedTransactionOptionsVisible: false,
-                      },
-                      () => {
-                        this.scrollView.scrollToEnd();
-                        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
-                        // after adding recipient it automatically scrolls to the last one
-                        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
-                      },
-                    );
-                  }}
+                  onPress={this.handleAddRecipient}
                 />
                 <BlueListItem
                   title={loc.send.details_add_rec_rem}
                   hideChevron
                   disabled={this.state.addresses.length < 2}
                   component={TouchableOpacity}
-                  onPress={() => {
-                    const addresses = this.state.addresses;
-                    addresses.splice(this.state.recipientsScrollIndex, 1);
-                    this.setState(
-                      {
-                        addresses,
-                        isAdvancedTransactionOptionsVisible: false,
-                      },
-                      () => {
-                        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
-                        // after deletion it automatically scrolls to the last one
-                        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
-                      },
-                    );
-                  }}
+                  onPress={this.handleRemoveRecipient}
                 />
               </>
             )}
@@ -1053,7 +1134,7 @@ export default class SendDetails extends Component {
             onChangeText={async text => {
               text = text.trim();
               const transactions = this.state.addresses;
-              const { address, amount, memo } = this.decodeBitcoinUri(text);
+              const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text);
               item.address = address || text;
               item.amount = amount || item.amount;
               transactions[index] = item;
@@ -1061,6 +1142,7 @@ export default class SendDetails extends Component {
                 addresses: transactions,
                 memo: memo || this.state.memo,
                 isLoading: false,
+                payjoinUrl,
               });
               this.reCalcTx();
             }}

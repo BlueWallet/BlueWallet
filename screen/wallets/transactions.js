@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Chain } from '../../models/bitcoinUnits';
 import {
   Text,
@@ -26,7 +26,7 @@ import {
   BlueTransactionListItem,
   BlueWalletNavigationHeader,
   BlueAlertWalletExportReminder,
-  BlueListItemHooks,
+  BlueListItem,
 } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
 import { Icon } from 'react-native-elements';
@@ -37,7 +37,7 @@ import Handoff from 'react-native-handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { getSystemName } from 'react-native-device-info';
-import { useRoute, useNavigation, useTheme } from '@react-navigation/native';
+import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
 import BuyBitcoin from './buyBitcoin';
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
@@ -230,7 +230,6 @@ const WalletTransactions = () => {
       return b.sort_ts - a.sort_ts;
     });
     return txs.slice(0, limit);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   };
 
   useEffect(() => {
@@ -256,6 +255,13 @@ const WalletTransactions = () => {
     navigate('DrawerRoot', { selectedWallet: wallet.getID() });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet]);
+
+  // if description of transaction has been changed we want to show new one
+  useFocusEffect(
+    useCallback(() => {
+      setTimeElapsed(prev => prev + 1);
+    }, []),
+  );
 
   /**
    * Forcefully fetches TXs and balance for wallet
@@ -310,6 +316,7 @@ const WalletTransactions = () => {
       noErr = false;
       alert(err.message);
       setIsLoading(false);
+      setTimeElapsed(prev => prev + 1);
     }
     if (noErr && smthChanged) {
       console.log('saving to disk');
@@ -318,6 +325,7 @@ const WalletTransactions = () => {
       setDataSource([...getTransactions(limit)]);
     }
     setIsLoading(false);
+    setTimeElapsed(prev => prev + 1);
   };
 
   const _keyExtractor = (_item, index) => index.toString();
@@ -376,7 +384,7 @@ const WalletTransactions = () => {
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.advancedTransactionOptionsModalContent, stylesHook.advancedTransactionOptionsModalContent]}>
-            <BlueListItemHooks
+            <BlueListItem
               hideChevron
               component={TouchableOpacity}
               onPress={() => {
@@ -390,7 +398,7 @@ const WalletTransactions = () => {
               }}
               title={loc.lnd.refill}
             />
-            <BlueListItemHooks
+            <BlueListItem
               hideChevron
               component={TouchableOpacity}
               onPress={() => {
@@ -403,7 +411,7 @@ const WalletTransactions = () => {
               title={loc.lnd.refill_external}
             />
 
-            <BlueListItemHooks
+            <BlueListItem
               hideChevron
               component={TouchableOpacity}
               onPress={() => {
@@ -413,7 +421,7 @@ const WalletTransactions = () => {
               title={loc.lnd.refill_card}
             />
 
-            <BlueListItemHooks
+            <BlueListItem
               title={loc.lnd.exchange}
               hideChevron
               component={TouchableOpacity}
@@ -649,6 +657,7 @@ const WalletTransactions = () => {
           InteractionManager.runAfterInteractions(async () => {
             setItemPriceUnit(wallet.getPreferredBalanceUnit());
             BlueApp.saveToDisk();
+            navigate('DrawerRoot', { wallets: BlueApp.getWallets() });
           })
         }
         onManageFundsPressed={() => {
