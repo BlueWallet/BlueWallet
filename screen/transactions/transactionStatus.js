@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    flex: 1,
+    flex: 0.9,
     justifyContent: 'space-between',
   },
   center: {
@@ -107,8 +107,8 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   actions: {
-    alignSelf: 'center',
     justifyContent: 'center',
+    width: '70%',
   },
   cancel: {
     marginVertical: 16,
