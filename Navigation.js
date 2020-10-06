@@ -177,18 +177,8 @@ const SendDetailsRoot = () => (
       component={PsbtWithHardwareWallet}
       options={PsbtWithHardwareWallet.navigationOptions}
     />
+    <SendDetailsStack.Screen name="CreateTransaction" component={SendCreate} options={SendCreate.navigationOptions} />
     <SendDetailsStack.Screen name="PsbtMultisig" component={PsbtMultisig} options={PsbtMultisig.navigationOptions} />
-    <SendDetailsStack.Screen
-      name="CreateTransaction"
-      component={SendCreate}
-      options={{
-        headerStyle: {
-          backgroundColor: '#FFFFFF',
-          borderBottomWidth: 0,
-        },
-        headerTintColor: '#0c2550',
-      }}
-    />
     <SendDetailsStack.Screen name="Success" component={Success} options={Success.navigationOptions} />
     <SendDetailsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
   </SendDetailsStack.Navigator>
