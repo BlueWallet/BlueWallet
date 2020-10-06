@@ -64,7 +64,6 @@
 				<string>io.bluewallet.json</string>
 			</array>
 		</dict>
-		<dict/>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
