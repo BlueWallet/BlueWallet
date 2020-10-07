@@ -293,7 +293,7 @@
     "details_to": "Ulostulo",
     "details_transaction_details": "Siirtotapahtuman tiedot",
     "enable_hw": "Tätä lompakkoa ei ole käytetty yhdessä hardware-lompakon kanssa. Haluatko ottaa hardware-lompakon käyttöön?",
-    "list_conf": "conf",
+    "list_conf": "conf: {number}",
     "list_title": "siirtotapahtumat",
     "rbf_explain": "Korvaamme tämän siirtotapahtuman toisella jossa on korkeammat siirtokulut, joten se pitäisi olla louhittu nopeammin. Tätä kutsutaan RBF - Replace By Fee -  Korvattavissa korkeammilla kuluilla.",
     "rbf_title": "Nosta siirtokuluja (RBF)",

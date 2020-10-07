@@ -118,6 +118,11 @@ const WalletsList = () => {
   const redrawScreen = (scrollToEnd = false) => {
     console.log('wallets/list redrawScreen()');
 
+    // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet.
+    // placing event subscription here so it gets exclusively re-subscribed more often. otherwise we would
+    // have to unsubscribe on unmount and resubscribe again on mount.
+    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, refreshTransactions, true);
+
     if (BlueApp.getBalance() !== 0) {
       A(A.ENUM.GOT_NONZERO_BALANCE);
     } else {
@@ -134,6 +139,7 @@ const WalletsList = () => {
     setWallets(storedWallets);
     setIsLoading(false);
     if (scrollToEnd) {
+      navigate('DrawerRoot', { wallets: BlueApp.getWallets() });
       // eslint-disable-next-line no-unused-expressions
       walletsCarousel.current?.snapToItem(storedWallets.length - 2);
     }

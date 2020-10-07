@@ -60,12 +60,6 @@ const PleaseBackup = () => {
       flexWrap: 'wrap',
       marginTop: 14,
     },
-    ok: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexWrap: 'wrap',
-    },
   });
 
   const handleBackButton = useCallback(() => {
@@ -111,12 +105,8 @@ const PleaseBackup = () => {
 
           <View style={styles.secret}>{renderSecret()}</View>
 
-          <View style={styles.ok}>
-            <View style={styles.flex}>
-              <BlueSpacing20 />
-              <BlueButton testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
-            </View>
-          </View>
+          <BlueSpacing20 />
+          <BlueButton testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
         </View>
       </ScrollView>
     </SafeBlueArea>

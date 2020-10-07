@@ -655,6 +655,7 @@ const WalletTransactions = () => {
           InteractionManager.runAfterInteractions(async () => {
             setItemPriceUnit(wallet.getPreferredBalanceUnit());
             BlueApp.saveToDisk();
+            navigate('DrawerRoot', { wallets: BlueApp.getWallets() });
           })
         }
         onManageFundsPressed={() => {
