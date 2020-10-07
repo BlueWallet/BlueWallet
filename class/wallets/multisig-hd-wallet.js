@@ -392,9 +392,10 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       for (let c = 1; c <= n; c++) {
         const cosignerData = json['x' + c + '/'];
         if (cosignerData) {
-          const fingerprint = cosignerData.ckcc_xfp
-            ? MultisigHDWallet.ckccXfp2fingerprint(cosignerData.ckcc_xfp)
-            : cosignerData.root_fingerprint?.toUpperCase();
+          const fingerprint =
+            (cosignerData.ckcc_xfp
+              ? MultisigHDWallet.ckccXfp2fingerprint(cosignerData.ckcc_xfp)
+              : cosignerData.root_fingerprint?.toUpperCase()) || '00000000';
           if (cosignerData.seed) {
             // TODO: support electrum's bip32
           }
