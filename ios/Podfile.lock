@@ -294,8 +294,6 @@ PODS:
     - React
   - react-native-randombytes (3.5.3):
     - React
-  - react-native-restart (0.0.15):
-    - React
   - react-native-safe-area-context (3.1.7):
     - React
   - react-native-slider (2.0.0-rc.1):
@@ -436,7 +434,6 @@ DEPENDENCIES:
   - react-native-haptic-feedback (from `../node_modules/react-native-haptic-feedback`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
-  - react-native-restart (from `../node_modules/react-native-restart`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
@@ -549,8 +546,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
-  react-native-restart:
-    :path: "../node_modules/react-native-restart"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-slider:
@@ -672,7 +667,6 @@ SPEC CHECKSUMS:
   react-native-haptic-feedback: 22c9dc85fd8059f83bf9edd9212ac4bd4ae6074d
   react-native-image-picker: 7a85cf7b0a53845f03ae52fb4592a2748ded069b
   react-native-randombytes: 3638d24759d67c68f6ccba60c52a7a8a8faa6a23
-  react-native-restart: fff228304625f55de2ebd4de43938110f4c888ed
   react-native-safe-area-context: 955ecfce672683b495d9294d2f154a9ad1d9796b
   react-native-slider: 884693dd50f84745baa511ecdcde4c16f32182fb
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
@@ -717,6 +711,6 @@ SPEC CHECKSUMS:
   ToolTipMenu: 8ac61aded0fbc4acfe7e84a7d0c9479d15a9a382
   Yoga: f2a7cd4280bfe2cca5a7aed98ba0eb3d1310f18b
 
-PODFILE CHECKSUM: f0bca8d0d072be505bfc7de58aede2d13d71f541
+PODFILE CHECKSUM: 0f07396b84d5d188b8d7c483fdb806310adb3e84
 
 COCOAPODS: 1.9.3

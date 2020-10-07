@@ -10,7 +10,8 @@ import { BetaVersionScreen } from 'app/screens/BetaVersionScreen';
 import { navigationRef } from 'app/services';
 import { checkDeviceSecurity } from 'app/services/DeviceSecurityService';
 import { ApplicationState } from 'app/state';
-import { selectors } from 'app/state/authentication';
+import { selectors as appSettingsSelectors } from 'app/state/appSettings';
+import { selectors as authenticationSelectors } from 'app/state/authentication';
 import { checkCredentials as checkCredentialsAction } from 'app/state/authentication/actions';
 import { isAndroid, isIos } from 'app/styles';
 
@@ -23,6 +24,7 @@ interface MapStateToProps {
   isAuthenticated: boolean;
   isTxPasswordSet: boolean;
   isLoading: boolean;
+  language: string;
 }
 
 interface ActionsDisptach {
@@ -115,15 +117,20 @@ class Navigator extends React.Component<Props, State> {
   };
 
   render() {
-    return <NavigationContainer ref={navigationRef}>{this.renderRoutes()}</NavigationContainer>;
+    return (
+      <NavigationContainer key={this.props.language} ref={navigationRef}>
+        {this.renderRoutes()}
+      </NavigationContainer>
+    );
   }
 }
 
 const mapStateToProps = (state: ApplicationState): MapStateToProps => ({
-  isLoading: selectors.isLoading(state),
-  isPinSet: selectors.isPinSet(state),
-  isTxPasswordSet: selectors.isTxPasswordSet(state),
-  isAuthenticated: selectors.isAuthenticated(state),
+  isLoading: authenticationSelectors.isLoading(state),
+  isPinSet: authenticationSelectors.isPinSet(state),
+  isTxPasswordSet: authenticationSelectors.isTxPasswordSet(state),
+  isAuthenticated: authenticationSelectors.isAuthenticated(state),
+  language: appSettingsSelectors.language(state),
 });
 
 const mapDispatchToProps: ActionsDisptach = {

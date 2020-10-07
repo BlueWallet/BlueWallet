@@ -5,13 +5,14 @@ import { View, YellowBox, StyleSheet } from 'react-native';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
-import { i18n } from 'app/locale';
 import { Navigator } from 'app/navigators';
 import { AppStateManager } from 'app/services';
 import { AuthenticationAction } from 'app/state/authentication/actions';
 import { persistor, store } from 'app/state/store';
 
 import config from './config';
+
+const i18n = require('./loc');
 
 YellowBox.ignoreWarnings(['VirtualizedLists should never be nested inside', `\`-[RCTRootView cancelTouches]\``]);
 

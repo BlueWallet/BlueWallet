@@ -19,8 +19,12 @@ dayjs.extend(localeData);
   // For some reason using the AppStorage.LANG constant is not working. Hard coding string for now.
   // hardcoding for presentional purposes
   // let lang = await AsyncStorage.getItem('lang');
-  let lang = undefined;
+  const lang = (await AsyncStorage.getItem('lang')) || 'en';
 
+  init(lang);
+})();
+
+const init = lang => {
   if (lang) {
     strings.setLanguage(lang);
     let localeForDayJSAvailable = true;
@@ -53,6 +57,8 @@ dayjs.extend(localeData);
         lang = 'ko';
         require('dayjs/locale/ko');
         break;
+      case 'en':
+        break;
       default:
         localeForDayJSAvailable = false;
         break;
@@ -63,7 +69,7 @@ dayjs.extend(localeData);
     LocaleConfig.locales[lang] = strings.getListOfMonthsAndWeekdays();
     LocaleConfig.defaultLocale = lang;
   }
-})();
+};
 
 strings = new Localization({
   en: require('./en.js'),
@@ -77,7 +83,10 @@ strings = new Localization({
   ko_kr: require('./ko_KR.js'),
 });
 
-strings.saveLanguage = lang => AsyncStorage.setItem('lang', lang);
+strings.saveLanguage = async lang => {
+  await AsyncStorage.setItem('lang', lang);
+  init(lang);
+};
 
 strings.transactionTimeToReadable = time => {
   if (time === 0) {

@@ -56,7 +56,6 @@ target 'GoldWallet' do
     
     sharedPods    
     pod 'react-native-splash-screen', :path => '../node_modules/react-native-splash-screen'
-    pod 'react-native-restart', :path => '../node_modules/react-native-restart'
     pod 'RNFBAnalytics', :path => '../node_modules/@react-native-firebase/analytics'
 
 
