@@ -1,3 +1,15 @@
+v5.6.1
+======
+
+* ADD: payjoin support
+* FIX: rare crash on startup (electrum server malformed response)
+* FIX: rare freezes on send screen
+* FIX: bitcoin price widget content overlap
+* FIX: biometrics listener release for some devices
+* FIX: locales pt_BR, pt_PT, ru, sl_SI, ja_JP
+* FIX: add margin for RTL languages
+* FIX: Missing (NT) before $ sign
+
 v.5.6.0
 =======
 
@@ -76,16 +88,3 @@ v5.5.7
 * FIX: Background had wrong color during loading phase
 * REF: speeded up large wallets (>3k txs)
 * REF: speedup onchain wallet creation
-
-v5.5.6
-======
-
-* ADD: Camera Permission authorization view
-* FIX: recieve button for watch-only wallets
-* FIX: could not scan animated QR signed psbt
-* FIX: updated 'fi_FI' language.
-
-v5.5.5
-======
-
-* FIX: scan Cobo vault signed transaction QR
