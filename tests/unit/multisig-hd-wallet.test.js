@@ -597,6 +597,7 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(MultisigHDWallet.isPathValid("m/45'"));
     assert.ok(MultisigHDWallet.isPathValid("m/48'/0'/0'/2'"));
     assert.ok(!MultisigHDWallet.isPathValid('ROFLBOATS'));
+    assert.ok(!MultisigHDWallet.isPathValid(''));
   });
 
   it('basic operations work', async () => {
@@ -1184,7 +1185,7 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getN(), 0);
   });
 
-  it.skip('can import from caravan', () => {
+  it('can import from caravan', () => {
     const json = JSON.stringify({
       name: 'My Multisig Wallet',
       addressType: 'P2WSH',
@@ -1268,17 +1269,15 @@ describe('multisig-wallet (native segwit)', () => {
 
     assert.strictEqual(w.getM(), 2);
     assert.strictEqual(w.getN(), 2);
-    // assert.strictEqual(w.getCosigner(1), Zpub1);
-    // assert.strictEqual(w.getCosigner(2), Zpub2);
-    assert.strictEqual(w.getFingerprint(1), fp1cobo);
-    assert.strictEqual(w.getFingerprint(2), fp2coldcard);
+    assert.strictEqual(w.getFingerprint(1), '00000000'); // should be fp1cobo, but stupid caravan doesnt store fp
+    assert.strictEqual(w.getFingerprint(2), '00000000'); // should be fp2coldcard, but stupid caravan doesnt store fp
     assert.strictEqual(w.howManySignaturesCanWeMake(), 0);
     assert.ok(!w.isWrappedSegwit());
     assert.ok(w.isNativeSegwit());
     assert.ok(!w.isLegacy());
   });
 
-  it.skip('can import from specter-desktop/fullynoded', () => {
+  it('can import from specter-desktop/fullynoded', () => {
     // @see https://github.com/Fonta1n3/FullyNoded/blob/master/Docs/Wallets/Wallet-Export-Spec.md
     const json = JSON.stringify({
       label: 'Multisig',
@@ -1288,12 +1287,35 @@ describe('multisig-wallet (native segwit)', () => {
     });
     const w = new MultisigHDWallet();
     w.setSecret(json);
-    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1q338rmdygx0weah4pdrp9xyycxlv2t48276gk3gxmg6m7xdkkglsqgzm6mz');
-    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qcgn73pjlwtt6krs2u6as0kh2jp486fa0t93yyq4d7xxxc37rf24qg67ewq');
     assert.strictEqual(w.getM(), 2);
     assert.strictEqual(w.getN(), 3);
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1q338rmdygx0weah4pdrp9xyycxlv2t48276gk3gxmg6m7xdkkglsqgzm6mz');
+    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qcgn73pjlwtt6krs2u6as0kh2jp486fa0t93yyq4d7xxxc37rf24qg67ewq');
+    assert.strictEqual(w.getLabel(), 'Multisig');
     assert.ok(!w.isWrappedSegwit());
     assert.ok(w.isNativeSegwit());
     assert.ok(!w.isLegacy());
+
+    assert.strictEqual(w.getFingerprint(1), '2D440411');
+    assert.strictEqual(w.getFingerprint(2), 'F863CE8C');
+    assert.strictEqual(w.getFingerprint(3), '7BBD27BF');
+
+    assert.strictEqual(
+      w.getCosigner(1),
+      'xpub6ERaLLFZ3qu7X4cpiMAvSZ6UZVXJfxY5FoNvVJgai1V78DmeNHTcNVfu4cK2RmvTNXU4s1tFpGMPTwqoQ1RraE2o9iiNw2s2aHESpandSFY',
+    );
+    assert.strictEqual(
+      w.getCosigner(2),
+      'xpub6FCSLcRY99737oUAnvXd1k2gSz9P4zi4gQJ8UChSPSCxCK7XS9kLzoLHKNBiR26d3ivT7w3oka9f4BepVLoQ875XzgejjbDo626R6NBUJDW',
+    );
+    assert.strictEqual(
+      w.getCosigner(3),
+      'xpub6FE9uTPh1RxPRAfFVaET75vdfdQzXKZrT7LxukkqY4KhwUm4haMSPCwERfPouG6da6uZTRCXettvYFDck7nbw6JdBztGr1VBLonWch7NpJo',
+    );
+
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(1), "m/48'/0'/0'/2'");
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), "m/48'/0'/0'/2'");
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(3), "m/48'/0'/0'/2'");
+    assert.strictEqual(w.getDerivationPath(), '');
   });
 });

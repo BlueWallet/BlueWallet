@@ -452,6 +452,72 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       }
     }
 
+    // is it wallet descriptor?
+    // @see https://github.com/bitcoin/bitcoin/blob/master/doc/descriptors.md
+    // @see https://github.com/Fonta1n3/FullyNoded/blob/master/Docs/Wallets/Wallet-Export-Spec.md
+    if (secret.indexOf('sortedmulti(') !== -1 && json.descriptor) {
+      if (json.label) this.setLabel(json.label);
+      if (json.descriptor.startsWith('wsh(')) {
+        this.setNativeSegwit();
+      }
+      if (json.descriptor.startsWith('sh(')) {
+        this.setLegacy();
+      }
+      if (json.descriptor.startsWith('sh(wsh(')) {
+        this.setLegacy();
+      }
+
+      const s2 = json.descriptor.substr(json.descriptor.indexOf('sortedmulti(') + 12);
+      const s3 = s2.split(',');
+      const m = parseInt(s3[0]);
+      if (m) this.setM(m);
+
+      for (let c = 1; c < s3.length; c++) {
+        const re = /\[([^\]]+)\](.*)/;
+        const m = s3[c].match(re);
+        if (m && m.length === 3) {
+          let hexFingerprint = m[1].split('/')[0];
+          if (hexFingerprint.length === 8) {
+            hexFingerprint = Buffer.from(hexFingerprint, 'hex').reverse().toString('hex');
+          }
+
+          const path = 'm/' + m[1].split('/').slice(1).join('/').replace(/[h]/g, "'");
+          let xpub = m[2];
+          if (xpub.indexOf('/') !== -1) {
+            xpub = xpub.substr(0, xpub.indexOf('/'));
+          }
+
+          // console.warn('m[2] = ', m[2], {hexFingerprint, path, xpub});
+          this.addCosigner(xpub, hexFingerprint.toUpperCase(), path);
+        }
+      }
+    }
+
+    // is it caravan?
+    if (json && json.network === 'mainnet' && json.quorum) {
+      this.setM(+json.quorum.requiredSigners);
+      if (json.name) this.setLabel(json.name);
+
+      switch (json.addressType.toLowerCase()) {
+        case 'P2SH':
+          this.setLegacy();
+          break;
+        case 'P2SH-P2WSH':
+          this.setWrappedSegwit();
+          break;
+        default:
+        case 'P2WSH':
+          this.setNativeSegwit();
+          break;
+      }
+
+      for (const pk of json.extendedPublicKeys) {
+        const path = this.constructor.isPathValid(json.bip32Path) ? json.bip32Path : "m/1'";
+        // wtf, where caravan stores fingerprints..?
+        this.addCosigner(pk.xpub, '00000000', path);
+      }
+    }
+
     if (!this.getLabel()) this.setLabel('Multisig vault');
   }
 
