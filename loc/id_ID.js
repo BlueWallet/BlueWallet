@@ -51,11 +51,10 @@ module.exports = {
     noTransactionsDesc: 'Anda mungkin mencoba mengimpor dompet yang belum pernah digunakan',
     returnToAuthenticators: 'Kembali ke authenticator',
     creatingAuthenticator: 'authenticator Anda sedang dibuat',
-    creatingAuthenticatorDescription:
-      'Harap bersabar selagi kami membuat authenticator Anda.\n' + ' Mungkin perlu waktu.',
+    creatingAuthenticatorDescription: 'Harap bersabar selagi kami membuat authenticator Anda.\n Mungkin perlu waktu.',
     importingAuthenticator: 'Mengimpor authenticator Anda',
     importingAuthenticatorDescription:
-      'Harap bersabar selagi kami mengimpor authenticator Anda.\n' + ' Mungkin perlu waktu.',
+      'Harap bersabar selagi kami mengimpor authenticator Anda.\n Mungkin perlu waktu.',
   },
   onboarding: {
     onboarding: 'Onboarding',
@@ -111,7 +110,10 @@ module.exports = {
       wallet: 'dompet',
       recover: 'Batal',
     },
-    walletModal: { btcv: 'BTCV', wallets: 'Dompet' },
+    walletModal: {
+      btcv: 'BTCV',
+      wallets: 'Dompet',
+    },
     importWallet: {
       title: 'Impor dompet Anda',
       header: 'Impor dompet',
@@ -133,8 +135,13 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         'Benih ini berasal dari Electrum Vault dan belum didukung. Akan didukung di masa yang akan datang.',
     },
-    exportWallet: { title: 'Frasa mnemonik', header: 'Ekspor dompet' },
-    exportWalletXpub: { header: 'Dompet XPUB' },
+    exportWallet: {
+      title: 'Frasa mnemonik',
+      header: 'Ekspor dompet',
+    },
+    exportWalletXpub: {
+      header: 'Dompet XPUB',
+    },
     deleteWallet: {
       title: 'Hapus dompet Anda',
       header: 'Hapus dompet',
@@ -191,7 +198,9 @@ module.exports = {
       deleteWallet: 'Hapus dompet',
       nameEdit: 'Edit nama',
     },
-    export: { title: 'ekspor dompet' },
+    export: {
+      title: 'ekspor dompet',
+    },
     import: {
       title: 'impor',
       explanation:
@@ -239,7 +248,9 @@ module.exports = {
     },
   },
   transactions: {
-    list: { conf: 'Konfirmasi' },
+    list: {
+      conf: 'Konfirmasi',
+    },
     details: {
       title: 'Transaksi',
       detailTitle: 'Detail transaksi',
@@ -277,8 +288,18 @@ module.exports = {
       annulled: 'dianulir',
       done: 'selesai',
       canceled: 'dibatalkan',
+      unblocked: 'unblocked',
     },
-    transactionTypeLabel: { standard: 'Standar', canceled: 'Dibatalkan', fast: 'Cepat' },
+    transactionTypeLabel: {
+      standard: 'Standar',
+      canceled: 'Dibatalkan',
+      fast: 'Cepat',
+      secure: 'Aman',
+      secureFast: 'Aman Cepat',
+    },
+    errors: {
+      notEnoughBalance: 'Saldo tidak cukup. Mohon coba untuk mengirimkan jumlah yang lebih sedikit.',
+    },
   },
   send: {
     header: 'Kirim koin',
@@ -355,6 +376,9 @@ module.exports = {
       title: 'Kesalahan',
       description: 'Sebelum melakukan transaksi, Anda harus menambahkan dompet Bitcoin Vault terlebih dahulu.',
     },
+    warning: 'Peringatan: ',
+    warningGeneral:
+      'Peringatan: Mohon diingat bahwa dalam proses menggunakan fitur Transaksi Aman, sebagian dari saldo yang tersisa di saldo dompet Anda memilki kemungkinan untuk diblokir secara sementara. Hal ini merupakan bagian dari prosedur umum yang berkaitan dengan UTXO dan parameter blockchain dari dompet Bitcoin Vault. Saldo Anda akan kembali dibuka ketika transaksi Anda diverifikasi (kurang lebih setelah sekitar 24 jam) atau dibatalkan (dalam waktu 24 jam).',
   },
   receive: {
     header: 'Terima koin',
@@ -405,8 +429,7 @@ module.exports = {
   advancedOptions: {
     title: 'Konfigurasikan opsi lanjutan',
     description:
-      'Mengaktifkan opsi Lanjutan akan memungkinkan Anda untuk memilih dari jenis dompet yang tercantum di bawah ini:\n' +
-      ' P2SH, HD P2SH, HD segwit.',
+      'Mengaktifkan opsi Lanjutan akan memungkinkan Anda untuk memilih dari jenis dompet yang tercantum di bawah ini:\n P2SH, HD P2SH, HD segwit.',
   },
   selectLanguage: {
     header: 'Bahasa',
@@ -454,7 +477,7 @@ module.exports = {
     no: 'Tidak',
     yes: 'Ya',
     success: 'Berhasil',
-    successDescription: 'Kontak Anda berhasil dihapus.\n' + ' Anda sekarang dapat kembali ke Buku alamat.',
+    successDescription: 'Kontak Anda berhasil dihapus.\n Anda sekarang dapat kembali ke Buku alamat.',
     successButton: 'Kembali ke Buku alamat',
   },
   scanQrCode: {
@@ -484,6 +507,7 @@ module.exports = {
       annulled: 'Dianulir',
       done: 'Selesai',
       canceled: 'Dibatalkan',
+      unblocked: 'Unblocked',
     },
   },
   authenticators: {
@@ -513,7 +537,9 @@ module.exports = {
       desc2: 'pindai kode QR dengan mengklik tombol “atau pindai kode QR” di bawah',
       textAreaPlaceholder: 'Frasa benih',
     },
-    export: { title: 'Ekspor authenticator' },
+    export: {
+      title: 'Ekspor authenticator',
+    },
     delete: {
       title: 'Hapus authenticator',
       subtitle: 'Hapus authenticator Anda',
@@ -554,5 +580,13 @@ module.exports = {
     rootedPhone:
       'Perangkat Anda tampaknya sudah di-root. Ini dapat menyebabkan masalah keamanan, kerusakan, atau masalah lainnya. Kami tidak menyarankan penggunaan GoldWallet di perangkat yang sudah di-root.',
     title: 'Masalah keamanan',
+    noPinOrFingerprintSet:
+      'Nampaknya perangkat Anda tidak diamankan menggunakan PIN ataupun sidik jari. Kami tidak merekomendasikan untuk menggunakan GoldWallet di perangkat yang tidak diamankan.',
+  },
+  betaVersion: {
+    title: 'Versi ini merupakan GoldWallet versi beta',
+    description:
+      'Aplikasi masih akan menjalani pengujian akhir sebelum perilisan resmi. Aplikasi mobile dan semua yang konten yang Anda temukan didalamnya disediakan dalam basis "apa adanya" dan "ketika tersedia". Risiko penggunaan perangkat lunak ditanggung langsung oleh pengguna.',
+    button: 'Saya mengerti dan menerima risikonya',
   },
 };

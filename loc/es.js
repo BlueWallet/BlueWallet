@@ -52,8 +52,7 @@ module.exports = {
     creatingAuthenticator: 'Creando su autenticador',
     creatingAuthenticatorDescription: 'Tenga paciencia mientras se crea su autenticador.\n Puede tardar un poco.',
     importingAuthenticator: 'Importando tus autentificadores',
-    importingAuthenticatorDescription:
-      'Tenga paciencia mientras importamos su autenticador.\n' + ' Puede tardar un poco.',
+    importingAuthenticatorDescription: 'Tenga paciencia mientras importamos su autenticador.\n Puede tardar un poco.',
   },
   onboarding: {
     onboarding: 'Configuración inicial',
@@ -109,7 +108,10 @@ module.exports = {
       wallet: 'monedero',
       recover: 'Cancelar',
     },
-    walletModal: { btcv: 'BTCV', wallets: 'Monederos' },
+    walletModal: {
+      btcv: 'BTCV',
+      wallets: 'Monederos',
+    },
     importWallet: {
       title: 'Importe su monedero',
       header: 'Importar monedero',
@@ -132,8 +134,13 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         'Esta frase mnemotécnica es de Electrum Vault y actualmente no es compatible. Será compatible próximamente.',
     },
-    exportWallet: { title: 'Frase mnemotécnica', header: 'Exportar monedero' },
-    exportWalletXpub: { header: 'Monedero XPUB' },
+    exportWallet: {
+      title: 'Frase mnemotécnica',
+      header: 'Exportar monedero',
+    },
+    exportWalletXpub: {
+      header: 'Monedero XPUB',
+    },
     deleteWallet: {
       title: 'Elimine su monedero',
       header: 'Eliminar monedero',
@@ -191,7 +198,9 @@ module.exports = {
       deleteWallet: 'Eliminar monedero',
       nameEdit: 'Editar nombre',
     },
-    export: { title: 'exportar monedero' },
+    export: {
+      title: 'exportar monedero',
+    },
     import: {
       title: 'importar',
       explanation:
@@ -239,7 +248,9 @@ module.exports = {
     },
   },
   transactions: {
-    list: { conf: 'Confirmaciones' },
+    list: {
+      conf: 'Confirmaciones',
+    },
     details: {
       title: 'Transacción',
       detailTitle: 'Detalles de la transacción',
@@ -277,8 +288,18 @@ module.exports = {
       annulled: 'anulada',
       done: 'finalizada',
       canceled: 'cancelada',
+      unblocked: 'desbloqueado',
     },
-    transactionTypeLabel: { standard: 'Estándar', canceled: 'Cancelación', fast: 'Rápida' },
+    transactionTypeLabel: {
+      standard: 'Estándar',
+      canceled: 'Cancelación',
+      fast: 'Rápida',
+      secure: 'Seguro',
+      secureFast: 'Rápida y segura',
+    },
+    errors: {
+      notEnoughBalance: 'No hay saldo suficiente. Por favor, intente enviar una cantidad menor.',
+    },
   },
   send: {
     header: 'Enviar monedas',
@@ -355,6 +376,9 @@ module.exports = {
       title: 'Error',
       description: 'Antes de crear una transacción, primero debe agregar un monedero de Bitcoin Vault.',
     },
+    warning: 'Aviso: ',
+    warningGeneral:
+      'Aviso: Tenga en cuenta que en el proceso de utilizar la función de Transacción Segura, una parte de los fondos dejados en su monedero puede quedarse bloqueada. Es un procedimiento normal vinculado con UTXO y con los parámetros de la Blockchain del monedero de Bitcoin Vault. Sus fondos serán desbloqueados una vez la transacción se haya verificado (después de unas 24 horas) o cancelado (dentro de las 24 horas).',
   },
   receive: {
     header: 'Recibir monedas',
@@ -406,8 +430,7 @@ module.exports = {
   advancedOptions: {
     title: 'Configurar opciones avanzadas',
     description:
-      'Al activar las opciones avanzadas, podrá elegir entre los tipos de cartera enumerados a continuación: \n' +
-      ' P2SH, HD P2SH, HD segwit.',
+      'Al activar las opciones avanzadas, podrá elegir entre los tipos de cartera enumerados a continuación: \n P2SH, HD P2SH, HD segwit.',
   },
   selectLanguage: {
     header: 'Idioma',
@@ -457,7 +480,7 @@ module.exports = {
     yes: 'Sí',
     success: 'Completado',
     successDescription:
-      'Su contacto ha sido eliminado correctamente.\n' + ' Ahora puede volver a la libreta de direcciones.',
+      'Su contacto ha sido eliminado correctamente.\n Ahora puede volver a la libreta de direcciones.',
     successButton: 'Volver a la libreta de direcciones',
   },
   scanQrCode: {
@@ -487,6 +510,7 @@ module.exports = {
       annulled: 'Anulada',
       done: 'Finalizada',
       canceled: 'Cancelada',
+      unblocked: 'Desbloqueado',
     },
   },
   authenticators: {
@@ -516,7 +540,9 @@ module.exports = {
       desc2: 'escanee el código QR al hacer clic en "o escanee el código QR" debajo',
       textAreaPlaceholder: 'Frase mnemotécnica',
     },
-    export: { title: 'Exportar autenticador' },
+    export: {
+      title: 'Exportar autenticador',
+    },
     delete: {
       title: 'Eliminar autenticador',
       subtitle: 'Elimine su autenticador',
@@ -558,5 +584,13 @@ module.exports = {
     rootedPhone:
       'Su dispositivo parece estar enraizado. Esto puede riesgos de seguridad, errores u otros problemas. No recomendamos usar GoldWallet con un dispositivo enraizado.',
     title: 'Problema de seguridad',
+    noPinOrFingerprintSet:
+      'Parece que su dispositivo no tiene PIN o huella dactilar configurada. No recomendamos usar el Monedero de Oro en un dispositivo no asegurado.',
+  },
+  betaVersion: {
+    title: 'Es una versión beta de GoldWallet',
+    description:
+      'Aún está en fase de pruebas finales antes de su lanzamiento oficial. La aplicación móvil y todo el contenido que se encuentra en ella se proporciona "tal como está" y según "esté disponible". El uso del programa se realiza por cuenta y riesgo del usuario.',
+    button: 'Acepto el riesgo',
   },
 };

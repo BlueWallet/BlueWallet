@@ -29,18 +29,23 @@ const vi = {
   },
   message: {
     somethingWentWrong: 'Đã xảy ra lỗi',
-    somethingWentWrongWhileCreatingWallet: 'Đã xảy ra lỗi khi chúng tôi tạo ví cho quý khách. Vui lòng quay lại Bảng điều khiển và thử lại.',
+    somethingWentWrongWhileCreatingWallet:
+      'Đã xảy ra lỗi khi chúng tôi tạo ví cho quý khách. Vui lòng quay lại Bảng điều khiển và thử lại.',
     success: 'Thành công',
-    successfullWalletImport: 'Ví của quý khách đã được nhập thành công. Bây giờ quý khách có thể quay lại Bảng điều khiển.',
-    successfullWalletDelete: 'Ví của quý khách đã được xóa thành công. Bây giờ quý khách có thể quay lại Bảng điều khiển.',
+    successfullWalletImport:
+      'Ví của quý khách đã được nhập thành công. Bây giờ quý khách có thể quay lại Bảng điều khiển.',
+    successfullWalletDelete:
+      'Ví của quý khách đã được xóa thành công. Bây giờ quý khách có thể quay lại Bảng điều khiển.',
     returnToDashboard: 'Quay lại Bảng điều khiển',
     creatingWallet: 'Tạo ví của quý khách',
-    creatingWalletDescription: 'Vui lòng đợi trong khi chúng tôi tạo ví cho quý khách. Quá trình này có thể mất một thời gian.',
+    creatingWalletDescription:
+      'Vui lòng đợi trong khi chúng tôi tạo ví cho quý khách. Quá trình này có thể mất một thời gian.',
     allDone: 'Tất cả đã hoàn thành!',
     hooray: 'Xin chúc mừng!',
     cancelTxSuccess: 'Bạn đã hủy thành công giao dịch của mình.\n Tiền của bạn đang được chuyển đến.',
     wrongMnemonic: 'Cụm từ ghi nhớ sai',
-    wrongMnemonicDesc: 'Cụm từ ghi nhớ của bạn không khớp với bất kỳ ví nào được hỗ trợ. Bạn đang nhập một cụm từ ghi nhớ không hợp lệ hoặc ví chưa từng được sử dụng',
+    wrongMnemonicDesc:
+      'Cụm từ ghi nhớ của bạn không khớp với bất kỳ ví nào được hỗ trợ. Bạn đang nhập một cụm từ ghi nhớ không hợp lệ hoặc ví chưa từng được sử dụng',
     returnToWalletChoose: 'Quay lại lựa chọn loại ví',
     returnToWalletImport: 'Quay lại nhập ví',
     generateAddressesError: 'Không thể tạo địa chỉ',
@@ -48,9 +53,11 @@ const vi = {
     noTransactionsDesc: 'Có thể bạn đang nhập một ví chưa từng được sử dụng',
     returnToAuthenticators: 'Quay lại Trình xác thực',
     creatingAuthenticator: 'Tạo trình xác thực của bạn',
-    creatingAuthenticatorDescription: 'Vui lòng đợi trong khi chúng tôi tạo trình xác thực của bạn.\n Quá trình này có thể mất một thời gian.',
+    creatingAuthenticatorDescription:
+      'Vui lòng đợi trong khi chúng tôi tạo trình xác thực của bạn.\n Quá trình này có thể mất một thời gian.',
     importingAuthenticator: 'Nhập trình xác thực của bạn',
-    importingAuthenticatorDescription: 'Vui lòng đợi trong khi chúng tôi nhập trình xác thực của bạn.\n Quá trình này có thể mất một thời gian.',
+    importingAuthenticatorDescription:
+      'Vui lòng đợi trong khi chúng tôi nhập trình xác thực của bạn.\n Quá trình này có thể mất một thời gian.',
   },
   onboarding: {
     onboarding: 'Cài đặt',
@@ -58,12 +65,14 @@ const vi = {
     createPin: 'Tạo PIN',
     createNewPin: 'PIN mới',
     createPassword: 'Tạo mật khẩu cho giao dịch',
-    createPinDescription: 'Mã PIN của quý khách sẽ được sử dụng để đăng nhập vào ứng dụng. Quý khách có thể thay đổi nó trong phần Cài đặt.',
+    createPinDescription:
+      'Mã PIN của quý khách sẽ được sử dụng để đăng nhập vào ứng dụng. Quý khách có thể thay đổi nó trong phần Cài đặt.',
     confirmPin: 'Xác nhận PIN',
     confirmNewPin: 'Xác nhận PIN mới',
     confirmPassword: 'Xác nhận mật khẩu cho giao dịch',
     passwordDoesNotMatch: 'Mật khẩu không khớp. Xin vui lòng nhập mật khẩu có hiệu lực.',
-    createPasswordDescription: 'Mật khẩu cho giao dịch của quý khách sẽ được sử dụng để xác nhận tất cả các giao dịch. Quý khách không thể thay đổi nó. Mật khẩu giao dịch phải chứa ít nhất 8 ký tự chữ và số.',
+    createPasswordDescription:
+      'Mật khẩu cho giao dịch của quý khách sẽ được sử dụng để xác nhận tất cả các giao dịch. Quý khách không thể thay đổi nó. Mật khẩu giao dịch phải chứa ít nhất 8 ký tự chữ và số.',
     changePin: 'Thay đổi PIN',
     currentPin: 'PIN hiện tại',
     pinDoesNotMatch: 'PIN không khớp. Xin vui lòng nhập PIN có hiệu lực.',
@@ -111,7 +120,8 @@ const vi = {
     importWallet: {
       title: 'Nhập ví của quý khách',
       header: 'Nhập ví',
-      subtitle: 'Viết ra đây những thông tin cần ghi nhớ, khóa riêng tư, WIF hoặc bất cứ thông tin gì quý khách có được. GoldWallet tìm mọi cách để đoán đúng định dạng và nhập ví của quý khách.',
+      subtitle:
+        'Viết ra đây những thông tin cần ghi nhớ, khóa riêng tư, WIF hoặc bất cứ thông tin gì quý khách có được. GoldWallet tìm mọi cách để đoán đúng định dạng và nhập ví của quý khách.',
       placeholder: 'Thông tin ghi nhớ, khóa riêng tư, WIF',
       import: 'Nhập',
       scanQrCode: 'hoặc quét mã QR',
@@ -123,8 +133,10 @@ const vi = {
       scanWalletAddressDescription: 'Quét mã QR Địa chỉ Công khai để bắt đầu tích hợp với GoldWallet.',
       scanFastPubKey: 'Quét mã QR Khóa Nhanh',
       scanCancelPubKey: 'Quét mã QR Khóa Hủy',
-      scanPublicKeyDescription: 'Mở tài liệu PDF đầu tiên bạn đã tạo khi tạo ví bạn muốn nhập và sử dụng ứng dụng này để quét mã QR Khóa Công khai.',
-      unsupportedElectrumVaultMnemonic: 'Từ khóa hạt giống này là từ Electrum Vault và hiện không được hỗ trợ. Sẽ được hỗ trợ trong thời gian sắp tới.',
+      scanPublicKeyDescription:
+        'Mở tài liệu PDF đầu tiên bạn đã tạo khi tạo ví bạn muốn nhập và sử dụng ứng dụng này để quét mã QR Khóa Công khai.',
+      unsupportedElectrumVaultMnemonic:
+        'Từ khóa hạt giống này là từ Electrum Vault và hiện không được hỗ trợ. Sẽ được hỗ trợ trong thời gian sắp tới.',
     },
     exportWallet: {
       title: 'Cụm từ ghi nhớ',
@@ -174,7 +186,8 @@ const vi = {
     addSuccess: {
       title: 'Thêm ví mới',
       subtitle: 'Thành công',
-      description: 'Ví của quý khách đã được tạo. Vui lòng dành thời gian để viết cụm từ ghi nhớ này ra một tờ giấy. Đó là tờ sao lưu của quý khách. Quý khách có thể sử dụng nó để khôi phục ví trên các thiết bị khác.',
+      description:
+        'Ví của quý khách đã được tạo. Vui lòng dành thời gian để viết cụm từ ghi nhớ này ra một tờ giấy. Đó là tờ sao lưu của quý khách. Quý khách có thể sử dụng nó để khôi phục ví trên các thiết bị khác.',
       okButton: 'OK, tôi đã viết nó ra!',
     },
     details: {
@@ -192,7 +205,8 @@ const vi = {
     },
     import: {
       title: 'nhập',
-      explanation: 'Viết ra đây thông tin ghi nhớ, khóa riêng tư, WIF hoặc bất cứ thông tin gì quý khách có được. GoldWallet tìm mọi cách để đoán đúng định dạng và nhập ví của quý khách.',
+      explanation:
+        'Viết ra đây thông tin ghi nhớ, khóa riêng tư, WIF hoặc bất cứ thông tin gì quý khách có được. GoldWallet tìm mọi cách để đoán đúng định dạng và nhập ví của quý khách.',
       imported: 'Đã nhập',
       error: 'Không nhập được. Vui lòng đảm bảo rằng dữ liệu được cung cấp là hợp lệ.',
       success: 'Thành công',
@@ -217,9 +231,11 @@ const vi = {
     publicKey: {
       recoverySubtitle: 'Thêm Khóa Hủy',
       webKeyGenerator: 'Trình tạo Khóa Web:',
-      recoveryDescription: 'Truy cập Trình tạo Khóa web trên một thiết bị riêng biệt và sử dụng ứng dụng này để quét mã QR Khóa Công khai. Hãy nhớ xuất các khóa của bạn dưới dạng PDF!',
+      recoveryDescription:
+        'Truy cập Trình tạo Khóa web trên một thiết bị riêng biệt và sử dụng ứng dụng này để quét mã QR Khóa Công khai. Hãy nhớ xuất các khóa của bạn dưới dạng PDF!',
       instantSubtitle: 'Thêm Khóa Nhanh',
-      instantDescription: 'Truy cập Trình tạo Khóa web trên một thiết bị riêng biệt và sử dụng ứng dụng này để quét mã QR Khóa Công khai. Hãy nhớ xuất các khóa của bạn dưới dạng PDF!',
+      instantDescription:
+        'Truy cập Trình tạo Khóa web trên một thiết bị riêng biệt và sử dụng ứng dụng này để quét mã QR Khóa Công khai. Hãy nhớ xuất các khóa của bạn dưới dạng PDF!',
       scan: 'Quét',
     },
     errors: {
@@ -274,17 +290,17 @@ const vi = {
       annulled: 'đã bãi bỏ',
       done: 'xong',
       canceled: 'Đã hủy',
-      unblocked: 'TRANSLATION NEEDED | ENG: unblocked',
+      unblocked: 'bỏ chặn',
     },
     transactionTypeLabel: {
       standard: 'Tiêu chuẩn',
       canceled: 'Đã hủy',
       fast: 'Nhanh',
-      secure: 'TRANSLATION NEEDED | ENG: Secure',
-      secureFast: 'TRANSLATION NEEDED | ENG: Secure Fast',
+      secure: 'Bảo mật',
+      secureFast: 'Bảo mật nhanh chóng',
     },
     errors: {
-      notEnoughBalance: 'TRANSLATION NEEDED | ENG: Not enough balance. Please, try sending a smaller amount.',
+      notEnoughBalance: 'Không đủ số dư. Vui lòng, thử gửi một số tiền nhỏ hơn.',
     },
   },
   send: {
@@ -327,36 +343,43 @@ const vi = {
       amount: 'Số tiền',
       fee: 'Phí',
       setTransactionFee: 'Đặt phí giao dịch',
-      headerText: 'Khi đang có một lượng lớn giao dịch đang chờ xử lý trên mạng (>1500), việc đặt phí cao hơn sẽ giúp giao dịch của quý khách được xử lý nhanh hơn. Giá trị thông thường là 1-500 sat/b',
+      headerText:
+        'Khi đang có một lượng lớn giao dịch đang chờ xử lý trên mạng (>1500), việc đặt phí cao hơn sẽ giúp giao dịch của quý khách được xử lý nhanh hơn. Giá trị thông thường là 1-500 sat/b',
     },
     recovery: {
       recover: 'Hủy',
       useWalletAddress: 'Sử dụng địa chỉ của ví này',
       confirmSeed: 'Xác nhận bằng Cụm từ khóa Hạt giống Hủy',
-      confirmSeedDesc: 'Mở tài liệu PDF bạn đã tạo khi tạo ví của mình và ghi lại cụm từ khóa hạt giống Khóa Riêng tư theo đúng thứ tự.',
+      confirmSeedDesc:
+        'Mở tài liệu PDF bạn đã tạo khi tạo ví của mình và ghi lại cụm từ khóa hạt giống Khóa Riêng tư theo đúng thứ tự.',
       confirmFirstSeed: 'Xác nhận bằng Cụm từ khóa Hạt giống Hủy',
-      confirmFirstSeedDesc: 'Mở tài liệu PDF đầu tiên mà bạn đã tạo khi tạo ví của mình và ghi lại cụm từ khóa hạt giống Khóa Riêng tư theo đúng thứ tự.',
+      confirmFirstSeedDesc:
+        'Mở tài liệu PDF đầu tiên mà bạn đã tạo khi tạo ví của mình và ghi lại cụm từ khóa hạt giống Khóa Riêng tư theo đúng thứ tự.',
       confirmSecondSeed: 'Xác nhận bằng Cụm từ khóa Hạt giống Nhanh',
-      confirmSecondSeedDesc: 'Mở tài liệu PDF thứ hai mà bạn đã tạo khi tạo ví của mình và ghi lại cụm từ khóa hạt giống Khóa Riêng tư theo đúng thứ tự.',
+      confirmSecondSeedDesc:
+        'Mở tài liệu PDF thứ hai mà bạn đã tạo khi tạo ví của mình và ghi lại cụm từ khóa hạt giống Khóa Riêng tư theo đúng thứ tự.',
     },
     transaction: {
       instant: 'Nhanh',
       instantDesc: 'Giao dịch này sẽ được xác nhận ngay lập tức. Hãy sử dụng hết sức thận trọng.',
       fastSuccess: 'Bạn đã thực hiện thành công giao dịch nhanh của mình.',
       alert: 'Tiêu chuẩn',
-      alertDesc: 'Giao dịch này cần 144 khối hoặc khoảng 24 giờ để được xác nhận. Bạn có thể hủy giao dịch trong khoảng thời gian này.',
+      alertDesc:
+        'Giao dịch này cần 144 khối hoặc khoảng 24 giờ để được xác nhận. Bạn có thể hủy giao dịch trong khoảng thời gian này.',
       type: 'Loại giao dịch',
       scanInstantKeyTitle: 'Quét Khóa Nhanh',
       scanInstantKeyDesc: 'Mở tài liệu PDF bạn đã tạo khi tạo ví và quét mã QR Khóa Riêng tư để gửi giao dịch.',
-      lightningError: 'Địa chỉ này có vẻ như là dành cho hóa đơn Lightning. Vui lòng chuyển đến ví Lightning của bạn để thực hiện thanh toán cho hóa đơn này.',
+      lightningError:
+        'Địa chỉ này có vẻ như là dành cho hóa đơn Lightning. Vui lòng chuyển đến ví Lightning của bạn để thực hiện thanh toán cho hóa đơn này.',
       watchOnlyError: 'Ví chỉ xem không thể gửi giao dịch',
     },
     error: {
       title: 'Lỗi',
       description: 'Trước khi tạo giao dịch, bạn phải thêm ví Bitcoin Vault.',
     },
-    warning: 'TRANSLATION NEEDED | ENG: Warning: ',
-    warningGeneral: 'TRANSLATION NEEDED | ENG: Warning: Please be aware that in the process of using the Secure Transaction feature, a part of the funds left in your wallet might be blocked. This is a normal procedure linked to UTXO and the blockchain parameters of the Bitcoin Vault wallet. Your funds will be unblocked once the transaction is verified (after approximately 24 hrs) or canceled (within 24 hrs).',
+    warning: 'Cảnh báo: ',
+    warningGeneral:
+      'Cảnh báo: Xin lưu ý rằng trong quá trình sử dụng tính năng Giao dịch an toàn, một phần số tiền còn lại trong ví của bạn có thể bị chặn. Đây là một quy trình bình thường được liên kết với UTXO và các thông số blockchain của ví Bitcoin Vault. Tiền của bạn sẽ được bỏ chặn sau khi giao dịch được xác minh (sau khoảng 24 giờ) hoặc bị hủy (trong vòng 24 giờ).',
   },
   receive: {
     header: 'Nhận coin',
@@ -395,17 +418,20 @@ const vi = {
   electrumServer: {
     header: 'Máy chủ Electrum',
     title: 'Thay đổi máy chủ electrum',
-    description: 'Quý khách có thể thay đổi địa chỉ của máy chủ mà ứng dụng của quý khách kết nối. Địa chỉ mặc định được khuyên dùng.',
+    description:
+      'Quý khách có thể thay đổi địa chỉ của máy chủ mà ứng dụng của quý khách kết nối. Địa chỉ mặc định được khuyên dùng.',
     save: 'Lưu',
     useDefault: 'Sử dụng mặc định',
     host: 'host',
     port: 'cổng',
-    successfullSave: 'Những thay đổi của quý khách đã được lưu thành công. Có thể cần khởi động lại để thay đổi có hiệu lực.',
+    successfullSave:
+      'Những thay đổi của quý khách đã được lưu thành công. Có thể cần khởi động lại để thay đổi có hiệu lực.',
     connectionError: 'Không thể kết nối với máy chủ Electrum được cung cấp',
   },
   advancedOptions: {
     title: 'Cấu hình tùy chọn nâng cao',
-    description: 'Bật tùy chọn nâng cao sẽ cho phép quý khách chọn từ các loại ví được liệt kê bên dưới: P2SH, HD P2SH, HD segwit.',
+    description:
+      'Bật tùy chọn nâng cao sẽ cho phép quý khách chọn từ các loại ví được liệt kê bên dưới: P2SH, HD P2SH, HD segwit.',
   },
   selectLanguage: {
     header: 'Ngôn ngữ',
@@ -453,7 +479,8 @@ const vi = {
     no: 'Không',
     yes: 'Có',
     success: 'Thành công',
-    successDescription: 'Thông tin liên lạc của quý khách đã được xóa thành công.\n Bây giờ quý khách có thể quay lại Sổ địa chỉ.',
+    successDescription:
+      'Thông tin liên lạc của quý khách đã được xóa thành công.\n Bây giờ quý khách có thể quay lại Sổ địa chỉ.',
     successButton: 'Quay lại Sổ địa chỉ',
   },
   scanQrCode: {
@@ -483,7 +510,7 @@ const vi = {
       annulled: 'Đã bãi bỏ',
       done: 'Xong',
       canceled: 'Đã hủy',
-      unblocked: 'TRANSLATION NEEDED | ENG: Unblocked',
+      unblocked: 'Đã mở khóa',
     },
   },
   authenticators: {
@@ -502,7 +529,8 @@ const vi = {
       pin: 'Mã PIN',
       publicKey: 'Khóa Công khai',
       descPin: 'Sử dụng mã PIN này để xác nhận ghép nối trình xác thực trên ứng dụng cho máy tính để bàn của bạn.',
-      descPublicKey: 'Bạn có thể sử dụng Khóa Công khai này để nhập trình xác thực của mình vào ứng dụng cho máy tính để bàn trong quá trình tạo ví với tùy chọn GoldWallet .',
+      descPublicKey:
+        'Bạn có thể sử dụng Khóa Công khai này để nhập trình xác thực của mình vào ứng dụng cho máy tính để bàn trong quá trình tạo ví với tùy chọn GoldWallet .',
     },
     import: {
       title: 'Nhập trình xác thực',
@@ -531,8 +559,10 @@ const vi = {
       successTitle: 'Trình xác thực của bạn đã sẵn sàng!',
       title: 'Thêm trình xác thực mới',
       subtitle: 'Ghép nối trình xác thực',
-      successDescription: 'Ghi lại cụm từ khóa hạt giống này ở một nơi an toàn. Đó là bản sao lưu của bạn trong trường hợp bạn cần khôi phục trình xác thực của mình. Hãy nhớ rằng cần có trình xác thực để xác nhận các giao dịch Nhanh và Hủy.',
-      description: 'Mở ứng dụng Electrum Vault cho máy tính để bàn của bạn và tạo một ví mới. Làm theo các bước trên màn hình cho đến khi bạn thấy mã QR. Sử dụng ứng dụng này quét mã QR để tiếp tục.',
+      successDescription:
+        'Ghi lại cụm từ khóa hạt giống này ở một nơi an toàn. Đó là bản sao lưu của bạn trong trường hợp bạn cần khôi phục trình xác thực của mình. Hãy nhớ rằng cần có trình xác thực để xác nhận các giao dịch Nhanh và Hủy.',
+      description:
+        'Mở ứng dụng Electrum Vault cho máy tính để bàn của bạn và tạo một ví mới. Làm theo các bước trên màn hình cho đến khi bạn thấy mã QR. Sử dụng ứng dụng này quét mã QR để tiếp tục.',
       subdescription: 'Bạn cũng có thể nhập trình xác thực của mình bằng cách chọn tùy chọn bên dưới.',
     },
     enterPIN: {
@@ -542,19 +572,24 @@ const vi = {
   },
   timeCounter: {
     title: 'Ứng dụng bị chặn',
-    description: 'Ứng dụng của bạn đã bị chặn do nhiều lần đăng nhập không thành công. Vui lòng đợi hết thời gian quy định và thử lại.',
+    description:
+      'Ứng dụng của bạn đã bị chặn do nhiều lần đăng nhập không thành công. Vui lòng đợi hết thời gian quy định và thử lại.',
     tryAgain: 'Thử lại',
     closeTheApp: 'Đóng ứng dụng',
   },
   security: {
-    jailBrokenPhone: 'Thiết bị của bạn có vẻ đã bị bẻ khóa. Điều này có thể dẫn đến các vấn đề bảo mật, sự cố hoặc các vấn đề khác. Chúng tôi khuyên bạn không nên sử dụng GoldWallet với thiết vị đã bị bẻ khóa.',
-    rootedPhone: 'Thiết bị của bạn có vẻ đã bị giành quyền truy nhập gốc. Điều này có thể dẫn đến các vấn đề bảo mật, sự cố hoặc các vấn đề khác. Chúng tôi khuyên bạn không nên sử dụng GoldWallet với thiết bị đã bị giành quyền truy nhập gốc.',
+    jailBrokenPhone:
+      'Thiết bị của bạn có vẻ đã bị bẻ khóa. Điều này có thể dẫn đến các vấn đề bảo mật, sự cố hoặc các vấn đề khác. Chúng tôi khuyên bạn không nên sử dụng GoldWallet với thiết vị đã bị bẻ khóa.',
+    rootedPhone:
+      'Thiết bị của bạn có vẻ đã bị giành quyền truy nhập gốc. Điều này có thể dẫn đến các vấn đề bảo mật, sự cố hoặc các vấn đề khác. Chúng tôi khuyên bạn không nên sử dụng GoldWallet với thiết bị đã bị giành quyền truy nhập gốc.',
     title: 'Vấn đề bảo mật',
-    noPinOrFingerprintSet: 'TRANSLATION NEEDED | ENG: Your device appears to not have a PIN or fingerprint set. We do not recommend using GoldWallet with a not secured device.',
+    noPinOrFingerprintSet:
+      'Thiết bị của bạn dường như chưa được thiết lập mã pin hoặc vân tay. Chúng tôi không khuyến khích bạn sử dụng GoldWallet với thiết bị không được bảo mật.',
   },
   betaVersion: {
-    title: 'TRANSLATION NEEDED | ENG: This is a beta version\nof the GoldWallet',
-    description: 'TRANSLATION NEEDED | ENG: It is still undergoing final testing before its official release. The mobile app and all content found on it are provided on an “as is” and “as available” basis. The use of the software is done at the user’s own risk.',
-    button: 'TRANSLATION NEEDED | ENG: I accept the risk',
+    title: 'Đây là phiên bản beta\ncủa GoldWallet',
+    description:
+      'Nó vẫn đang trong quá trình thử nghiệm cuối cùng trước khi phát hành chính thức. Ứng dụng dành cho thiết bị di động và tất cả nội dung được tìm thấy được cung cấp trên cơ sở "nguyên trạng" và "sẵn có". Người dùng tự chịu rủi ro khi sử dụng phần mềm.',
+    button: 'Tôi chấp nhận rủi ro',
   },
-}
+};

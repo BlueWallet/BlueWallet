@@ -42,7 +42,7 @@ module.exports = {
       'Vui lòng đợi trong khi chúng tôi tạo ví cho quý khách. Quá trình này có thể mất một thời gian.',
     allDone: 'Tất cả đã hoàn thành!',
     hooray: 'Xin chúc mừng!',
-    cancelTxSuccess: 'Bạn đã hủy thành công giao dịch của mình.\n' + ' Tiền của bạn đang được chuyển đến.',
+    cancelTxSuccess: 'Bạn đã hủy thành công giao dịch của mình.\n Tiền của bạn đang được chuyển đến.',
     wrongMnemonic: 'Cụm từ ghi nhớ sai',
     wrongMnemonicDesc:
       'Cụm từ ghi nhớ của bạn không khớp với bất kỳ ví nào được hỗ trợ. Bạn đang nhập một cụm từ ghi nhớ không hợp lệ hoặc ví chưa từng được sử dụng',
@@ -54,10 +54,10 @@ module.exports = {
     returnToAuthenticators: 'Quay lại Trình xác thực',
     creatingAuthenticator: 'Tạo trình xác thực của bạn',
     creatingAuthenticatorDescription:
-      'Vui lòng đợi trong khi chúng tôi tạo trình xác thực của bạn.\n' + ' Quá trình này có thể mất một thời gian.',
+      'Vui lòng đợi trong khi chúng tôi tạo trình xác thực của bạn.\n Quá trình này có thể mất một thời gian.',
     importingAuthenticator: 'Nhập trình xác thực của bạn',
     importingAuthenticatorDescription:
-      'Vui lòng đợi trong khi chúng tôi nhập trình xác thực của bạn.\n' + ' Quá trình này có thể mất một thời gian.',
+      'Vui lòng đợi trong khi chúng tôi nhập trình xác thực của bạn.\n Quá trình này có thể mất một thời gian.',
   },
   onboarding: {
     onboarding: 'Cài đặt',
@@ -113,7 +113,10 @@ module.exports = {
       wallet: 'ví',
       recover: 'Hủy',
     },
-    walletModal: { btcv: 'BTCV', wallets: 'Ví' },
+    walletModal: {
+      btcv: 'BTCV',
+      wallets: 'Ví',
+    },
     importWallet: {
       title: 'Nhập ví của quý khách',
       header: 'Nhập ví',
@@ -135,8 +138,13 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         'Từ khóa hạt giống này là từ Electrum Vault và hiện không được hỗ trợ. Sẽ được hỗ trợ trong thời gian sắp tới.',
     },
-    exportWallet: { title: 'Cụm từ ghi nhớ', header: 'Xuất ví' },
-    exportWalletXpub: { header: 'Ví XPUB' },
+    exportWallet: {
+      title: 'Cụm từ ghi nhớ',
+      header: 'Xuất ví',
+    },
+    exportWalletXpub: {
+      header: 'Ví XPUB',
+    },
     deleteWallet: {
       title: 'Xóa ví của quý khách',
       header: 'Xóa ví',
@@ -192,7 +200,9 @@ module.exports = {
       deleteWallet: 'Xóa ví',
       nameEdit: 'Chỉnh sửa tên',
     },
-    export: { title: 'xuất ví' },
+    export: {
+      title: 'xuất ví',
+    },
     import: {
       title: 'nhập',
       explanation:
@@ -240,7 +250,9 @@ module.exports = {
     },
   },
   transactions: {
-    list: { conf: 'Xác nhận' },
+    list: {
+      conf: 'Xác nhận',
+    },
     details: {
       title: 'Giao dịch',
       detailTitle: 'Chi tiết giao dịch',
@@ -278,8 +290,18 @@ module.exports = {
       annulled: 'đã bãi bỏ',
       done: 'xong',
       canceled: 'Đã hủy',
+      unblocked: 'bỏ chặn',
     },
-    transactionTypeLabel: { standard: 'Tiêu chuẩn', canceled: 'Đã hủy', fast: 'Nhanh' },
+    transactionTypeLabel: {
+      standard: 'Tiêu chuẩn',
+      canceled: 'Đã hủy',
+      fast: 'Nhanh',
+      secure: 'Bảo mật',
+      secureFast: 'Bảo mật nhanh chóng',
+    },
+    errors: {
+      notEnoughBalance: 'Không đủ số dư. Vui lòng, thử gửi một số tiền nhỏ hơn.',
+    },
   },
   send: {
     header: 'Gửi coin',
@@ -355,6 +377,9 @@ module.exports = {
       title: 'Lỗi',
       description: 'Trước khi tạo giao dịch, bạn phải thêm ví Bitcoin Vault.',
     },
+    warning: 'Cảnh báo: ',
+    warningGeneral:
+      'Cảnh báo: Xin lưu ý rằng trong quá trình sử dụng tính năng Giao dịch an toàn, một phần số tiền còn lại trong ví của bạn có thể bị chặn. Đây là một quy trình bình thường được liên kết với UTXO và các thông số blockchain của ví Bitcoin Vault. Tiền của bạn sẽ được bỏ chặn sau khi giao dịch được xác minh (sau khoảng 24 giờ) hoặc bị hủy (trong vòng 24 giờ).',
   },
   receive: {
     header: 'Nhận coin',
@@ -455,7 +480,7 @@ module.exports = {
     yes: 'Có',
     success: 'Thành công',
     successDescription:
-      'Thông tin liên lạc của quý khách đã được xóa thành công.\n' + ' Bây giờ quý khách có thể quay lại Sổ địa chỉ.',
+      'Thông tin liên lạc của quý khách đã được xóa thành công.\n Bây giờ quý khách có thể quay lại Sổ địa chỉ.',
     successButton: 'Quay lại Sổ địa chỉ',
   },
   scanQrCode: {
@@ -485,10 +510,13 @@ module.exports = {
       annulled: 'Đã bãi bỏ',
       done: 'Xong',
       canceled: 'Đã hủy',
+      unblocked: 'Đã mở khóa',
     },
   },
   authenticators: {
-    sign: { error: 'Không trình xác thực nào có thể ký giao dịch' },
+    sign: {
+      error: 'Không trình xác thực nào có thể ký giao dịch',
+    },
     options: {
       title: 'Các tùy chọn trình xác thực',
       export: 'Xuất trình xác thực',
@@ -512,7 +540,9 @@ module.exports = {
       desc2: 'quét mã QR bằng cách nhấp vào “hoặc quét mã QR” bên dưới',
       textAreaPlaceholder: 'Cụm từ khóa hạt giống',
     },
-    export: { title: 'Xuất trình xác thực' },
+    export: {
+      title: 'Xuất trình xác thực',
+    },
     delete: {
       title: 'Xóa trình xác thực',
       subtitle: 'Xóa trình xác thực của bạn',
@@ -553,5 +583,13 @@ module.exports = {
     rootedPhone:
       'Thiết bị của bạn có vẻ đã bị giành quyền truy nhập gốc. Điều này có thể dẫn đến các vấn đề bảo mật, sự cố hoặc các vấn đề khác. Chúng tôi khuyên bạn không nên sử dụng GoldWallet với thiết bị đã bị giành quyền truy nhập gốc.',
     title: 'Vấn đề bảo mật',
+    noPinOrFingerprintSet:
+      'Thiết bị của bạn dường như chưa được thiết lập mã pin hoặc vân tay. Chúng tôi không khuyến khích bạn sử dụng GoldWallet với thiết bị không được bảo mật.',
+  },
+  betaVersion: {
+    title: 'Đây là phiên bản beta\ncủa GoldWallet',
+    description:
+      'Nó vẫn đang trong quá trình thử nghiệm cuối cùng trước khi phát hành chính thức. Ứng dụng dành cho thiết bị di động và tất cả nội dung được tìm thấy được cung cấp trên cơ sở "nguyên trạng" và "sẵn có". Người dùng tự chịu rủi ro khi sử dụng phần mềm.',
+    button: 'Tôi chấp nhận rủi ro',
   },
 };

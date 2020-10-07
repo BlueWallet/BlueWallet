@@ -86,7 +86,11 @@ module.exports = {
     confirmButton: '确认指纹以继续。',
     enter: '输入PIN',
   },
-  unlockTransaction: { headerText: '确认交易', title: '确认交易密码', description: '确认交易密码以便进行交易。' },
+  unlockTransaction: {
+    headerText: '确认交易',
+    title: '确认交易密码',
+    description: '确认交易密码以便进行交易。',
+  },
   wallets: {
     dashboard: {
       title: '钱包',
@@ -101,7 +105,10 @@ module.exports = {
       wallet: '钱包',
       recover: '取消',
     },
-    walletModal: { btcv: '比特币Vault', wallets: '钱包' },
+    walletModal: {
+      btcv: '比特币Vault',
+      wallets: '钱包',
+    },
     importWallet: {
       title: '导入您的钱包',
       header: '导入钱包',
@@ -120,8 +127,13 @@ module.exports = {
       scanPublicKeyDescription: '打开创建想要导入的钱包时生成的首个 PDF 文件，并使用该应用程序扫描公钥 QR 码。',
       unsupportedElectrumVaultMnemonic: '该种子来自 Electrum Vault，目前不受支持。不久将获得支持。',
     },
-    exportWallet: { title: '助记词', header: '退出钱包' },
-    exportWalletXpub: { header: '钱包扩展公钥 (XPUB)' },
+    exportWallet: {
+      title: '助记词',
+      header: '退出钱包',
+    },
+    exportWalletXpub: {
+      header: '钱包扩展公钥 (XPUB)',
+    },
     deleteWallet: {
       title: '删除您的钱包',
       header: '删除钱包',
@@ -130,7 +142,11 @@ module.exports = {
       no: '否',
       yes: '是',
     },
-    wallet: { none: '取消', latest: '最新交易', pendingBalance: '待定余额' },
+    wallet: {
+      none: '取消',
+      latest: '最新交易',
+      pendingBalance: '待定余额',
+    },
     add: {
       title: '添加新的钱包',
       subtitle: '命名您的钱包',
@@ -173,7 +189,9 @@ module.exports = {
       deleteWallet: '删除钱包',
       nameEdit: '编辑名称',
     },
-    export: { title: '钱包导出' },
+    export: {
+      title: '钱包导出',
+    },
     import: {
       title: '导入',
       explanation: '请在此处写下您的助记词、私钥、WIF等。GoldWallet会尽力猜测正确的格式并导入您的钱包',
@@ -218,7 +236,9 @@ module.exports = {
     },
   },
   transactions: {
-    list: { conf: '确认' },
+    list: {
+      conf: '确认',
+    },
     details: {
       title: '交易',
       detailTitle: '交易详情',
@@ -251,8 +271,23 @@ module.exports = {
       addToAddressBook: '添加至地址簿',
       timePending: '待定时间',
     },
-    label: { pending: '待定', annulled: '无效', done: '完成', canceled: '已取消' },
-    transactionTypeLabel: { standard: '标准', canceled: '已取消', fast: '快速' },
+    label: {
+      pending: '待定',
+      annulled: '无效',
+      done: '完成',
+      canceled: '已取消',
+      unblocked: '未锁定',
+    },
+    transactionTypeLabel: {
+      standard: '标准',
+      canceled: '已取消',
+      fast: '快速',
+      secure: '安全',
+      secureFast: '快速安全',
+    },
+    errors: {
+      notEnoughBalance: '余额不足，请尝试发送较小的金额。',
+    },
   },
   send: {
     header: '汇出币',
@@ -318,11 +353,21 @@ module.exports = {
       lightningError: '该地址似乎用于 Lighting 发票。请转到 Lighting 钱包，支付该发票。',
       watchOnlyError: '监视钱包不能发送交易',
     },
-    error: { title: '错误', description: '创建交易之前，必须首先添加 Bitcoin Vault 钱包。' },
+    error: {
+      title: '错误',
+      description: '创建交易之前，必须首先添加 Bitcoin Vault 钱包。',
+    },
+    warning: '警告: ',
+    warningGeneral:
+      '警告：请注意，在使用安全交易功能的过程中，您钱包中剩余的部分资金可能会被冻结。 这是与UTXO和比特币 Vault钱包的区块链参数的常规过程。 当交易通过验证（大约24小时后）或交易被取消（24小时内）后，资金冻结将被解除。',
   },
   receive: {
     header: '接收币',
-    details: { amount: '金额', share: '分享', receiveWithAmount: '接收金额' },
+    details: {
+      amount: '金额',
+      share: '分享',
+      receiveWithAmount: '接收金额',
+    },
   },
   settings: {
     language: '语言',
@@ -436,10 +481,18 @@ module.exports = {
     sent: '已发送',
     transactionType: '交易类型',
     transactionStatus: '交易状态',
-    status: { pending: '待定', annulled: '无效', done: '完成', canceled: '已取消' },
+    status: {
+      pending: '待定',
+      annulled: '无效',
+      done: '完成',
+      canceled: '已取消',
+      unblocked: '未锁定',
+    },
   },
   authenticators: {
-    sign: { error: '验证器都不能进行交易签名' },
+    sign: {
+      error: '验证器都不能进行交易签名',
+    },
     options: {
       title: '验证器选项',
       export: '导出验证器',
@@ -462,7 +515,9 @@ module.exports = {
       desc2: '通过点击下面的“或扫描 QR 码”扫描 RQ 码',
       textAreaPlaceholder: '助记词',
     },
-    export: { title: '导出验证器' },
+    export: {
+      title: '导出验证器',
+    },
     delete: {
       title: '删除验证器',
       subtitle: '删除您的验证器',
@@ -502,5 +557,12 @@ module.exports = {
     rootedPhone:
       '您的设备似乎取得了 root 权限。这可能会出现安全问题、死机或其它问题。我们不建议在取得 root 权限的设备上使用 GoldWallet。',
     title: '安全问题',
+    noPinOrFingerprintSet: '您的设备未设置PIN 密码或指纹登录。 不建议在不安全的设备上使用GoldWallet。',
+  },
+  betaVersion: {
+    title: '这是GoldWallet钱包的测试版',
+    description:
+      '在正式发布之前，GoldWallet仍在接受最终测试。 该移动应用程序及程序上所有内容均基于“按原样 ”和“可使用”呈现。 使用该程序的风险由用户自行承担。',
+    button: '我同意承担风险',
   },
 };

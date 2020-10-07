@@ -51,10 +51,10 @@ module.exports = {
     returnToAuthenticators: 'Kimlik Doğrulayıcılara Geri Dön',
     creatingAuthenticator: 'Kimlik doğrulayıcınız oluşturuluyor',
     creatingAuthenticatorDescription:
-      'Lütfen biz kimlik doğrulayıcınızı oluştururken bekleyin.\n' + ' Biraz zaman alabilir.',
+      'Lütfen biz kimlik doğrulayıcınızı oluştururken bekleyin.\n Biraz zaman alabilir.',
     importingAuthenticator: 'Kimlik doğrulayıcınız içeri aktarılıyor',
     importingAuthenticatorDescription:
-      'Lütfen biz kimlik doğrulayıcınızı içeri aktarırken bekleyin.\n' + ' Biraz zaman alabilir.',
+      'Lütfen biz kimlik doğrulayıcınızı içeri aktarırken bekleyin.\n Biraz zaman alabilir.',
   },
   onboarding: {
     onboarding: 'Katılım',
@@ -110,7 +110,10 @@ module.exports = {
       wallet: 'cüzdan',
       recover: 'İptal Et',
     },
-    walletModal: { btcv: 'BTCV', wallets: 'Cüzdanlar' },
+    walletModal: {
+      btcv: 'BTCV',
+      wallets: 'Cüzdanlar',
+    },
     importWallet: {
       title: 'Cüzdanınızı içeri aktarın',
       header: 'Cüzdanı içeri aktar',
@@ -132,8 +135,13 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         'Bu kök Electrum Vault’tandır ve şu anda desteklenmemektedir. Yakın gelecekte desteklenecektir.',
     },
-    exportWallet: { title: 'Özel ipucu ifadesi', header: 'Cüzdanı dışarı aktar' },
-    exportWalletXpub: { header: 'Cüzdanın XPUB’ı' },
+    exportWallet: {
+      title: 'Özel ipucu ifadesi',
+      header: 'Cüzdanı dışarı aktar',
+    },
+    exportWalletXpub: {
+      header: 'Cüzdanın XPUB’ı',
+    },
     deleteWallet: {
       title: 'Cüzdanınızı silin',
       header: 'Cüzdanı sil',
@@ -189,7 +197,9 @@ module.exports = {
       deleteWallet: 'Cüzdanı sil',
       nameEdit: 'Adı düzenle',
     },
-    export: { title: 'Cüzdanı dışarı aktarma' },
+    export: {
+      title: 'Cüzdanı dışarı aktarma',
+    },
     import: {
       title: 'İçeri aktar',
       explanation:
@@ -237,7 +247,9 @@ module.exports = {
     },
   },
   transactions: {
-    list: { conf: 'Onaylar' },
+    list: {
+      conf: 'Onaylar',
+    },
     details: {
       title: 'İşlem',
       detailTitle: 'İşlem ayrıntıları',
@@ -275,8 +287,18 @@ module.exports = {
       annulled: 'kaldırıldı',
       done: 'tamamlandı',
       canceled: 'İptal Edildi',
+      unblocked: 'bloke kalktı',
     },
-    transactionTypeLabel: { standard: 'Standart', canceled: 'İptal Edildi', fast: 'Hızlı' },
+    transactionTypeLabel: {
+      standard: 'Standart',
+      canceled: 'İptal Edildi',
+      fast: 'Hızlı',
+      secure: 'Güvenli',
+      secureFast: 'Güvenli Hızlı',
+    },
+    errors: {
+      notEnoughBalance: 'daha küçük bir tutar göndermek.',
+    },
   },
   send: {
     header: 'Coin gönder',
@@ -353,6 +375,9 @@ module.exports = {
       title: 'Hata',
       description: 'Bir işlem oluşturmadan önce ilk olarak bir Bitcoin Vault Cüzdanı eklemelisiniz',
     },
+    warning: 'Uyarı:',
+    warningGeneral:
+      'Uyarı: Lütfen Güvenli İşlem özelliğini kullanma sırasında cüzdanınızda kalan fonların bir kısmının bloke edilebileceğini dikkate alın. Bu UTXO ve Bitcoin Vault cüzdanının bitcoin parametreleriyle ile ilişkili normal bir prosedürdür. Fonlarınızın blokesi işlem tamamlandıktan sonra (yaklaşık 24 saat sonra) veya iptal edildikten sonra (24 saat içinde) kaldırılacaktır.',
   },
   receive: {
     header: 'Coin al',
@@ -403,8 +428,7 @@ module.exports = {
   advancedOptions: {
     title: 'Gelişmiş seçenekleri yapılandır',
     description:
-      'Gelişmiş seçenekleri yapılandırmak aşağıda yer alan farklı cüzdan türleri arasından seçim yapmanıza imkan verir: \n' +
-      ' P2SH, HD P2SH, HD segwit.',
+      'Gelişmiş seçenekleri yapılandırmak aşağıda yer alan farklı cüzdan türleri arasından seçim yapmanıza imkan verir: \n P2SH, HD P2SH, HD segwit.',
   },
   selectLanguage: {
     header: 'Dil',
@@ -483,10 +507,13 @@ module.exports = {
       annulled: 'Kaldırıldı',
       done: 'Tamamlandı',
       canceled: 'İptal Edildi',
+      unblocked: 'Bloke kalktı',
     },
   },
   authenticators: {
-    sign: { error: 'Kimlik doğrulayıcılardan hiçbiri işlemi imzalayamadı' },
+    sign: {
+      error: 'Kimlik doğrulayıcılardan hiçbiri işlemi imzalayamadı',
+    },
     options: {
       title: 'Kimlik doğrulayıcı seçenekleri',
       export: 'Kimlik doğrulayıcıyı dışarı aktar',
@@ -510,7 +537,9 @@ module.exports = {
       desc2: 'Aşağıdaki “veya QR kodunu tarat”a tıklayarak QR kodunu taratın',
       textAreaPlaceholder: 'Çekirdek ifade',
     },
-    export: { title: 'Kimlik doğrulayıcıyı dışarı aktar' },
+    export: {
+      title: 'Kimlik doğrulayıcıyı dışarı aktar',
+    },
     delete: {
       title: 'Kimlik doğrulayıcıyı sil',
       subtitle: 'Kimlik doğrulayıcınzı silin',
@@ -551,5 +580,13 @@ module.exports = {
     rootedPhone:
       'Cihazınızın kök yazılımına erişiminiz olduğu (rooted) görülüyor. Bu güvenlik sorunlarına, çökmelere veya diğer sorunlara yol açabilir. Kök yazılımına erişilmiş (rooted) bir cihazda GoldWallet kullanmanızı önermiyoruz.',
     title: 'Güvenlik sorunu',
+    noPinOrFingerprintSet:
+      'Cihazınızda pin veya parmak için belirlenmemiş görünüyor. Güvenli olmayan bir cihazda GoldWallet kullanmanızı önermiyoruz.',
+  },
+  betaVersion: {
+    title: "Bu GoldWallet'in beta sürümüdür",
+    description:
+      'Hala resmi olarak piyasaya sürülme öncesinde nihai test aşamasındadır. Mobil uygulaması ve tüm içeriği "olduğu gibi" ve "kullanılabildiği gibi" esasına göre sunulur. Yazılımın kullanımına ait riskler kullanıcıya aittir.',
+    button: 'Riski kabul ediyorum',
   },
 };

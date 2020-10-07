@@ -107,7 +107,10 @@ module.exports = {
       wallet: '지갑',
       recover: '취소',
     },
-    walletModal: { btcv: 'BTCV', wallets: '지갑' },
+    walletModal: {
+      btcv: 'BTCV',
+      wallets: '지갑',
+    },
     importWallet: {
       title: '귀하의 지갑 가져오기',
       header: '지갑 가져오기',
@@ -129,8 +132,13 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         '이 시드는 Electrum Vault에서 가져 왔으며 현재 지원되지 않습니다. 곧 지원될 예정입니다.',
     },
-    exportWallet: { title: '니모닉 문구', header: '지갑 내보내기' },
-    exportWalletXpub: { header: '지갑 XPUB' },
+    exportWallet: {
+      title: '니모닉 문구',
+      header: '지갑 내보내기',
+    },
+    exportWalletXpub: {
+      header: '지갑 XPUB',
+    },
     deleteWallet: {
       title: '귀하의 지갑 삭제하기',
       header: '지갑 삭제하기',
@@ -139,7 +147,11 @@ module.exports = {
       no: '아니요',
       yes: '예',
     },
-    wallet: { none: '없음', latest: '마지막 트랜잭션', pendingBalance: '미결제 잔액' },
+    wallet: {
+      none: '없음',
+      latest: '마지막 트랜잭션',
+      pendingBalance: '미결제 잔액',
+    },
     add: {
       title: '새 지갑 추가',
       subtitle: '지갑 이름 짓기',
@@ -183,7 +195,9 @@ module.exports = {
       deleteWallet: '지갑 삭제하기',
       nameEdit: '이름 수정하기',
     },
-    export: { title: '지갑 내보내기' },
+    export: {
+      title: '지갑 내보내기',
+    },
     import: {
       title: '가져오기',
       explanation:
@@ -231,7 +245,9 @@ module.exports = {
     },
   },
   transactions: {
-    list: { conf: '확인' },
+    list: {
+      conf: '확인',
+    },
     details: {
       title: '트랜잭션',
       detailTitle: '트랜잭션 상세 내역',
@@ -264,8 +280,23 @@ module.exports = {
       addToAddressBook: '주소록에 추가',
       timePending: '보류 시간',
     },
-    label: { pending: '보류 중', annulled: '무효화', done: '완료', canceled: '취소됨' },
-    transactionTypeLabel: { standard: '표준', canceled: '취소됨', fast: '빠른' },
+    label: {
+      pending: '보류 중',
+      annulled: '무효화',
+      done: '완료',
+      canceled: '취소됨',
+      unblocked: '차단해제됨',
+    },
+    transactionTypeLabel: {
+      standard: '표준',
+      canceled: '취소됨',
+      fast: '빠른',
+      secure: '안전한',
+      secureFast: '안전하고 빠른',
+    },
+    errors: {
+      notEnoughBalance: '잔액 부족. 적은 금액으로 시도해보세요.',
+    },
   },
   send: {
     header: '코인 보내기',
@@ -339,10 +370,17 @@ module.exports = {
       title: '오류',
       description: '거래를 생성하기 전에 먼저 Bitcoin Vault 지갑을 추가해야 합니다.',
     },
+    warning: '경고: ',
+    warningGeneral:
+      '경고: 안전한 거래 기능 사용 과정에서 귀하의 지갑의 일부 자금이 차단될 수 있습니다. 이것은 UTXO와 비트코인 볼트 지갑 블록체인 범위에 관련된 일반적인 과정입니다. 거래가 검증되거나 (약 24시간 후) 취소되면 (24시간 이내) 자금의 차단이 해제됩니다.',
   },
   receive: {
     header: '코인 받기',
-    details: { amount: '금액', share: '공유', receiveWithAmount: '금액으로 받기' },
+    details: {
+      amount: '금액',
+      share: '공유',
+      receiveWithAmount: '금액으로 받기',
+    },
   },
   settings: {
     language: '언어',
@@ -456,10 +494,18 @@ module.exports = {
     sent: '보냄',
     transactionType: '거래 유형',
     transactionStatus: '거래 상태',
-    status: { pending: '보류 중', annulled: '무효화', done: '완료', canceled: '취소됨' },
+    status: {
+      pending: '보류 중',
+      annulled: '무효화',
+      done: '완료',
+      canceled: '취소됨',
+      unblocked: '차단해제됨',
+    },
   },
   authenticators: {
-    sign: { error: '인증기 중 누구도 거래에 서명할 수 없습니다.' },
+    sign: {
+      error: '인증기 중 누구도 거래에 서명할 수 없습니다.',
+    },
     options: {
       title: '인증기 옵션',
       export: '인증기 내보내기',
@@ -483,7 +529,9 @@ module.exports = {
       desc2: '아래 "또는 QR 코드 스캔"을 클릭하여 QR 코드 스캔',
       textAreaPlaceholder: '시드 문구',
     },
-    export: { title: '인증기 내보내기' },
+    export: {
+      title: '인증기 내보내기',
+    },
     delete: {
       title: '인증기 삭제',
       subtitle: '인증기 삭제',
@@ -523,5 +571,13 @@ module.exports = {
     rootedPhone:
       '귀하의 장치가 루팅된 것 같습니다. 이런 경우 보안 문제나 충돌, 기타 다양한 문제가 발생할 수 있습니다. 루팅된 장치에서는 GoldWallet을 사용하지 않는 것이 좋습니다.',
     title: '보안 문제',
+    noPinOrFingerprintSet:
+      '기기에 암호나 지문이 등록되어 있지 않습니다. 안전하지 않은 기기로의 GoldWallet 사용을 권장하지 않습니다.',
+  },
+  betaVersion: {
+    title: '이것은 GoldWallet의 베타버전입니다',
+    description:
+      '아직 공식 출시 전 최종 테스트 중에 있습니다. 이곳에 보여지는 모든 컨텐츠와 모바일 앱은 "그대로"와 "사용가능" 기반에 제공되어 있습니다. 소프트웨어 사용은 사용자의 위험 감수하에 이루어집니다.',
+    button: '위험을 감수하겠습니다',
   },
 };

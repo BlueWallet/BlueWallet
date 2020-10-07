@@ -52,10 +52,10 @@ module.exports = {
     returnToAuthenticators: 'Voltar aos Autenticadores',
     creatingAuthenticator: 'A criar o seu autenticador',
     creatingAuthenticatorDescription:
-      'Por favor, seja paciente enquanto criamos o seu autenticador.\n' + ' Pode demorar um pouco.',
+      'Por favor, seja paciente enquanto criamos o seu autenticador.\n Pode demorar um pouco.',
     importingAuthenticator: 'A importar o seu autenticador',
     importingAuthenticatorDescription:
-      'Por favor, seja paciente enquanto importamos o seu autenticador.\n' + ' Pode demorar um pouco.',
+      'Por favor, seja paciente enquanto importamos o seu autenticador.\n Pode demorar um pouco.',
   },
   onboarding: {
     onboarding: 'Definir credenciais',
@@ -111,7 +111,10 @@ module.exports = {
       wallet: 'carteira',
       recover: 'Cancelar',
     },
-    walletModal: { btcv: 'BTCV', wallets: 'Carteiras' },
+    walletModal: {
+      btcv: 'BTCV',
+      wallets: 'Carteiras',
+    },
     importWallet: {
       title: 'Importar a sua carteira',
       header: 'Importar carteira',
@@ -133,8 +136,13 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         'Esta semente é da Electrum Vault e não é atualmente suportada. Será suportada num futuro próximo.',
     },
-    exportWallet: { title: 'Frase da mnemónica', header: 'Exportar carteira' },
-    exportWalletXpub: { header: 'Carteira XPUB' },
+    exportWallet: {
+      title: 'Frase da mnemónica',
+      header: 'Exportar carteira',
+    },
+    exportWalletXpub: {
+      header: 'Carteira XPUB',
+    },
     deleteWallet: {
       title: 'Excluir a sua carteira',
       header: 'Excluir carteira',
@@ -192,7 +200,9 @@ module.exports = {
       deleteWallet: 'Excluir carteira',
       nameEdit: 'Editar nome',
     },
-    export: { title: 'exportar carteira' },
+    export: {
+      title: 'exportar carteira',
+    },
     import: {
       title: 'Importar',
       explanation:
@@ -240,7 +250,9 @@ module.exports = {
     },
   },
   transactions: {
-    list: { conf: 'Confirmações' },
+    list: {
+      conf: 'Confirmações',
+    },
     details: {
       title: 'Transacção',
       detailTitle: 'Detalhes da transacção',
@@ -278,8 +290,18 @@ module.exports = {
       annulled: 'anulado',
       done: 'feito',
       canceled: 'cancelado',
+      unblocked: 'desbloqueado',
     },
-    transactionTypeLabel: { standard: 'Padrão', canceled: 'Cancelado', fast: 'Rápido' },
+    transactionTypeLabel: {
+      standard: 'Padrão',
+      canceled: 'Cancelado',
+      fast: 'Rápido',
+      secure: 'Seguro',
+      secureFast: 'Segurança Rápida',
+    },
+    errors: {
+      notEnoughBalance: 'Não há saldo suficiente. Por favor, tente enviar uma quantia menor.',
+    },
   },
   send: {
     header: 'Enviar moedas',
@@ -356,6 +378,9 @@ module.exports = {
       title: 'Erro',
       description: 'Antes de efetuar uma transação, deve primeiro inserir uma carteira Bitcoin Vault.',
     },
+    warning: 'Aviso: ',
+    warningGeneral:
+      'Aviso: Esteja ciente de que no processo de uso do recurso Transação segura, uma parte dos fundos deixados na sua carteira pode ser bloqueada. Este é um procedimento normal vinculado ao UTXO e aos parâmetros de blockchain da carteira Bitcoin Vault. Os seus fundos serão desbloqueados assim que a transação for verificada (após aproximadamente 24 horas) ou cancelada (dentro de 24 horas). ',
   },
   receive: {
     header: 'Receber moedas',
@@ -407,8 +432,7 @@ module.exports = {
   advancedOptions: {
     title: 'Configurar opções avançadas',
     description:
-      'A activação das Opções Avançadas permitirá escolher entre os tipos de carteira listados abaixo: \n' +
-      ' P2SH, HD P2SH, HD segwit.',
+      'A activação das Opções Avançadas permitirá escolher entre os tipos de carteira listados abaixo: \n P2SH, HD P2SH, HD segwit.',
   },
   selectLanguage: {
     header: 'Idioma',
@@ -457,7 +481,7 @@ module.exports = {
     no: 'Não',
     yes: 'Sim',
     success: 'Sucesso',
-    successDescription: 'O seu contacto foi excluído com sucesso.\n' + ' Pode voltar à Lista de endereços.',
+    successDescription: 'O seu contacto foi excluído com sucesso.\n Pode voltar à Lista de endereços.',
     successButton: 'Voltar à Lista de endereços',
   },
   scanQrCode: {
@@ -487,10 +511,13 @@ module.exports = {
       annulled: 'Anulado',
       done: 'Feito',
       canceled: 'Cancelado',
+      unblocked: 'desbloqueado',
     },
   },
   authenticators: {
-    sign: { error: 'Nenhum dos autenticadores pôde assinafr a transação' },
+    sign: {
+      error: 'Nenhum dos autenticadores pôde assinafr a transação',
+    },
     options: {
       title: 'Opções do autenticador',
       export: 'Exportar autenticador',
@@ -515,7 +542,9 @@ module.exports = {
       desc2: 'leia o código QR ao clicar em "ou ler código QR" abaixo da',
       textAreaPlaceholder: 'Frase semente',
     },
-    export: { title: 'Exportar autenticador' },
+    export: {
+      title: 'Exportar autenticador',
+    },
     delete: {
       title: 'Apagar autenticador',
       subtitle: 'Apagar o seu autenticador',
@@ -557,5 +586,13 @@ module.exports = {
     rootedPhone:
       'O seu dispositivo parece ter sido ancorado. Isto pode provocar problemas de segurança, colisões ou outros problemas. Não recomendamos a utilização da GoldWallet com um dispositivo ancorado.',
     title: 'Problema de segurança',
+    noPinOrFingerprintSet:
+      'O seu dispositivo parece não ter um PIN ou impressão digital configurada. Não recomendamos o uso do GoldWallet com um dispositivo não seguro.',
+  },
+  betaVersion: {
+    title: 'Esta é uma versão beta\nda carteira de ouro',
+    description:
+      'Ainda está em fase de testes finais antes de seu lançamento oficial. O aplicativo móvel e todo o conteúdo encontrado nele são fornecidos ""como estão"" e ""conforme disponível"". O uso do software é feito por conta e risco do usuário.',
+    button: 'Eu aceito o risco',
   },
 };

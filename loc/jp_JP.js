@@ -68,9 +68,7 @@ module.exports = {
     confirmPassword: '取引パスワードの確認',
     passwordDoesNotMatch: 'パスワードが一致しません。有効なパスワードを入力してください。',
     createPasswordDescription:
-      'すべての取引を確認するため、取引パスワードが利用されます。\n' +
-      '設定されたパスワードの変更は不可能です。\n' +
-      '取引のパスワードは最小8桁以上の英文字と数字で構成しなければなりません。',
+      'すべての取引を確認するため、取引パスワードが利用されます。\n設定されたパスワードの変更は不可能です。\n取引のパスワードは最小8桁以上の英文字と数字で構成しなければなりません。',
     changePin: 'PINコードの変更',
     currentPin: '現在のPINコード',
     pinDoesNotMatch: 'パスワードが一致しません。有効なパスワードを入力してください。',
@@ -111,13 +109,15 @@ module.exports = {
       wallet: 'ウォレット',
       recover: 'キャンセル',
     },
-    walletModal: { btcv: 'BTCV', wallets: 'ウォレット' },
+    walletModal: {
+      btcv: 'BTCV',
+      wallets: 'ウォレット',
+    },
     importWallet: {
       title: 'ご使用のウォレットをインポートする',
       header: 'ウォレットのインポートする',
       subtitle:
-        'ここにユーザーのニーモニックフレーズ、秘密鍵、WIF、または他の情報を入力してください。\n' +
-        'GoldWalletでは、最善を尽くして、正しいフォーマットを推測し、ウォレットをインポートします。',
+        'ここにユーザーのニーモニックフレーズ、秘密鍵、WIF、または他の情報を入力してください。\nGoldWalletでは、最善を尽くして、正しいフォーマットを推測し、ウォレットをインポートします。',
       placeholder: 'ニーモニックフレーズ、秘密鍵、WIF',
       import: '登録する',
       scanQrCode: '又はQRコードをスキャンする',
@@ -134,8 +134,13 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         'これはElectrum Vaultのシードです。このシードは現在サポートされていません。後にサポートされる予定です。',
     },
-    exportWallet: { title: 'ニーモニックのフレーズ', header: 'ウォレットの共有' },
-    exportWalletXpub: { header: 'ウォレットXPUB' },
+    exportWallet: {
+      title: 'ニーモニックのフレーズ',
+      header: 'ウォレットの共有',
+    },
+    exportWalletXpub: {
+      header: 'ウォレットXPUB',
+    },
     deleteWallet: {
       title: 'ご使用のウォレットを削除する',
       header: 'ウォレットの削除',
@@ -144,7 +149,11 @@ module.exports = {
       no: 'いいえ',
       yes: 'はい',
     },
-    wallet: { none: 'なし', latest: '最新の取引', pendingBalance: '保留中の残高' },
+    wallet: {
+      none: 'なし',
+      latest: '最新の取引',
+      pendingBalance: '保留中の残高',
+    },
     add: {
       title: '新しいウォレットの追加',
       subtitle: 'ウォレットに名前を付ける',
@@ -188,7 +197,9 @@ module.exports = {
       deleteWallet: 'ウォレットの削除',
       nameEdit: '名前の変更',
     },
-    export: { title: 'ウォレットのエクスポート' },
+    export: {
+      title: 'ウォレットのエクスポート',
+    },
     import: {
       title: 'インポート',
       explanation:
@@ -236,7 +247,9 @@ module.exports = {
     },
   },
   transactions: {
-    list: { conf: '確認' },
+    list: {
+      conf: '確認',
+    },
     details: {
       title: '取引',
       detailTitle: '取引詳細',
@@ -274,8 +287,18 @@ module.exports = {
       annulled: '無効化',
       done: '完了',
       canceled: 'キャンセル済み',
+      unblocked: 'ブロック解除',
     },
-    transactionTypeLabel: { standard: '標準', canceled: 'キャンセル済み', fast: 'クイック' },
+    transactionTypeLabel: {
+      standard: '標準',
+      canceled: 'キャンセル済み',
+      fast: 'クイック',
+      secure: '安全な',
+      secureFast: '安全で早い',
+    },
+    errors: {
+      notEnoughBalance: '残高不足。少ない金額で試してください。',
+    },
   },
   send: {
     header: 'コインを送金する',
@@ -351,10 +374,17 @@ module.exports = {
       title: 'エラー',
       description: '取引を生成する前にビットコインボルトウォレットを追加しなければなりません。',
     },
+    warning: '警告: ',
+    warningGeneral:
+      '警告: 安全な取引機能の使用過程でお客様のウォレットの一部の資金がブロックされる可能性があります。これはUTXOやビットコインボルト・ウォレットのブロックチェーン範囲に関する一般的なプロセスです。取引が検証 されるか(約24時間後) キャンセルになると (24時間以内) 資金のブロックが解除されます。',
   },
   receive: {
     header: 'コインの受け取り',
-    details: { amount: '金額', share: '共有', receiveWithAmount: '金額で受け取る ' },
+    details: {
+      amount: '金額',
+      share: '共有',
+      receiveWithAmount: '金額で受け取る ',
+    },
   },
   settings: {
     language: '言語',
@@ -473,10 +503,13 @@ module.exports = {
       annulled: '無効化',
       done: '完了',
       canceled: 'キャンセル済み',
+      unblocked: 'ブロック解除',
     },
   },
   authenticators: {
-    sign: { error: '認証システムは誰でも取引に署名出来ません。' },
+    sign: {
+      error: '認証システムは誰でも取引に署名出来ません。',
+    },
     options: {
       title: '認証システムのオプション',
       export: '認証システムを共有する',
@@ -500,7 +533,9 @@ module.exports = {
       desc2: '下記“又はQRコードのスキャン"をクリックし、QRコードをスキャンする',
       textAreaPlaceholder: 'シードフレーズ',
     },
-    export: { title: '認証システムを共有する' },
+    export: {
+      title: '認証システムを共有する',
+    },
     delete: {
       title: '認証システムの削除',
       subtitle: '認証システムの削除',
@@ -540,5 +575,13 @@ module.exports = {
     rootedPhone:
       '貴下の装置がルーティングされたようです。この場合セキュリティ問題や衝突、その他様々な問題が発生する恐れがあります。ルーティングされた装置ではGoldWalletを使用しないようお願いします。\n',
     title: 'セキュリティ問題',
+    noPinOrFingerprintSet:
+      'デバイスにパスワード又は指紋が登録されていません。安全ではないデバイスでのGoldWallet使用はお勧めできません。',
+  },
+  betaVersion: {
+    title: 'これはGoldWallletのベータバージョンです',
+    description:
+      'まだ正式なリリース以前に最終テストを行っています。こちらに見せられる全てのコンテンツやモバイルアプリは"そのまま"と"使用可能"に基盤し提供されています。ソフトウェアの使用はユーザーのリスクを認識した上で行われます。',
+    button: '私はリスクを認識しています',
   },
 };
