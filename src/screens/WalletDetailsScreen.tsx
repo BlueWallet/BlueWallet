@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 
 import { Button, FlatButton, Header, ScreenTemplate, WalletCard, ButtonType, Text } from 'app/components';
 import { Wallet, Route, MainCardStackNavigatorParams, RootStackParams, ActionMeta } from 'app/consts';
+import { maxWalletNameLength } from 'app/consts/text';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { ApplicationState } from 'app/state';
 import { selectors, reducer } from 'app/state/wallets';
@@ -110,6 +111,7 @@ export class WalletDetailsScreen extends React.PureComponent<Props> {
       onSave: this.setLabel,
       value: wallet.label,
       validate: this.validationError,
+      maxLength: maxWalletNameLength,
     });
   };
 

@@ -33,7 +33,9 @@ export const WalletItem = (props: WalletItemProps) => {
       </View>
       <View style={styles.textContainer}>
         <Text style={typography.headline5}>{i18n.formatBalance(Number(value), unit, true)}</Text>
-        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+          {name}
+        </Text>
       </View>
     </TouchableOpacity>
   );

@@ -50,7 +50,9 @@ export const DashboarContentdHeader = ({
         </View>
       )}
       <View>
-        <Text style={styles.chooseWalletButtonText}>{label}</Text>
+        <Text style={styles.chooseWalletButtonText} numberOfLines={1} ellipsizeMode="tail">
+          {label}
+        </Text>
         {typeReadable && (
           <View style={styles.typeReadableContainer}>
             <Text style={styles.buttonDescription}>

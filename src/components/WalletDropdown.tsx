@@ -18,7 +18,9 @@ export const WalletDropdown = ({ balance, unit, label, onSelectPress }: Props) =
   <Dropdown
     label={
       <>
-        <Text style={styles.buttonDescription}>{label}</Text>
+        <Text style={styles.buttonDescription} numberOfLines={1} ellipsizeMode="tail">
+          {label}
+        </Text>
         <Image source={images.coin} style={styles.coinIcon} />
       </>
     }

@@ -25,7 +25,7 @@ export const TransactionItem = ({ item, onPress }: { item: Transaction; onPress:
       <View style={styles.walletLabelWrapper}>
         {renderArrowIcon(item.value)}
         <Image source={icons.wallet} style={styles.wallet} resizeMode="contain" />
-        <Text style={styles.walletLabel}>
+        <Text style={styles.walletLabel} numberOfLines={1} ellipsizeMode="tail">
           {item.walletLabel === CONST.allWallets ? i18n.transactions.details.noLabel : item.walletLabel}
         </Text>
       </View>

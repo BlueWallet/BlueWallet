@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { Header, TextAreaItem, FlatButton, ScreenTemplate, InputItem } from 'app/components';
 import { Button } from 'app/components/Button';
 import { Route, Wallet, MainCardStackNavigatorParams, ActionMeta } from 'app/consts';
+import { maxWalletNameLength } from 'app/consts/text';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { ApplicationState } from 'app/state';
 import { selectors } from 'app/state/wallets';
@@ -234,7 +235,12 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
         <Text style={styles.subtitle}>{i18n._.or}</Text>
         <Text style={styles.subtitle}>{i18n.wallets.importWallet.importARDescription2}</Text>
       </View>
-      <InputItem error={this.state.validationError} setValue={this.onLabelChange} label={i18n.wallets.add.inputLabel} />
+      <InputItem
+        error={this.state.validationError}
+        setValue={this.onLabelChange}
+        label={i18n.wallets.add.inputLabel}
+        maxLength={maxWalletNameLength}
+      />
     </>
   );
 

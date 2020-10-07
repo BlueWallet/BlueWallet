@@ -12,6 +12,7 @@ interface Props {
   validate?: (value: string) => string | undefined;
   validateOnSave?: (value: string) => void;
   onSave?: (value: string) => void;
+  maxLength?: number;
 }
 
 export const GenericInputItem = (props: Props) => {
@@ -23,13 +24,15 @@ export const GenericInputItem = (props: Props) => {
     value && props.onSave && props.onSave(newValue);
   };
   const onFocus = () => {
+    const { maxLength, validate, validateOnSave } = props;
     NavigationService.navigate(Route.EditText, {
       title,
       label,
       value,
-      validate: props.validate,
-      validateOnSave: props.validateOnSave,
+      validate,
+      validateOnSave,
       onSave: handleValueSave,
+      maxLength,
     });
   };
   return <InputItem focused value={value} onFocus={onFocus} label={label} />;

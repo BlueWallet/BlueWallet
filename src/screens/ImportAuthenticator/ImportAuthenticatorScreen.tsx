@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 
 import { Header, ScreenTemplate, TextAreaItem, FlatButton, Button, InputItem } from 'app/components';
 import { Route, CONST, MainCardStackNavigatorParams } from 'app/consts';
+import { maxWalletNameLength } from 'app/consts/text';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { actions } from 'app/state/authenticators';
 import { palette, typography } from 'app/styles';
@@ -162,6 +163,7 @@ class ImportAuthenticatorScreen extends Component<Props, State> {
             error={nameError}
             setValue={this.onFieldChange('name', this.validateName)}
             label={i18n.wallets.add.inputLabel}
+            maxLength={maxWalletNameLength}
           />
           <TextAreaItem
             error={mnemonicError}
