@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { StatusBar, View, TouchableOpacity, StyleSheet, Alert, useWindowDimensions } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
-import { WalletsCarousel, BlueNavigationStyle, BlueHeaderDefaultMainHooks } from '../../BlueComponents';
+import { WalletsCarousel, BlueNavigationStyle, BlueHeaderDefaultMain } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
@@ -103,13 +103,14 @@ const DrawerList = props => {
       <View styles={[styles.root, stylesHook.root]}>
         <StatusBar barStyle="default" />
         <SafeAreaView style={styles.root}>
-          <BlueHeaderDefaultMainHooks
+          <BlueHeaderDefaultMain
             leftText={loc.wallets.list_title}
             onNewWalletPress={
               !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)
                 ? () => props.navigation.navigate('AddWalletRoot')
                 : null
             }
+            isDrawerList
           />
         </SafeAreaView>
         {renderWalletsCarousel()}
