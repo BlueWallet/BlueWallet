@@ -571,7 +571,7 @@ module.exports = {
     rootedPhone:
       'Your device appears to be rooted. This may occurs security issues, crashes, or other problems. We do not recommend using GoldWallet with rooted device.',
     noPinOrFingerprintSet:
-      'Your device appears to not have pin or fingerprint setted. We do not recommend using GoldWallet with not secured device.',
+      'Your device appears to not have a PIN or fingerprint set. We do not recommend using GoldWallet with a not secured device.',
     title: 'Security issue',
   },
   betaVersion: {

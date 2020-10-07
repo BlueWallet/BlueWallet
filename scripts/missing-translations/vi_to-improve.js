@@ -550,7 +550,7 @@ const vi = {
     jailBrokenPhone: 'Thiết bị của bạn có vẻ đã bị bẻ khóa. Điều này có thể dẫn đến các vấn đề bảo mật, sự cố hoặc các vấn đề khác. Chúng tôi khuyên bạn không nên sử dụng GoldWallet với thiết vị đã bị bẻ khóa.',
     rootedPhone: 'Thiết bị của bạn có vẻ đã bị giành quyền truy nhập gốc. Điều này có thể dẫn đến các vấn đề bảo mật, sự cố hoặc các vấn đề khác. Chúng tôi khuyên bạn không nên sử dụng GoldWallet với thiết bị đã bị giành quyền truy nhập gốc.',
     title: 'Vấn đề bảo mật',
-    noPinOrFingerprintSet: 'TRANSLATION NEEDED | ENG: Your device appears to not have pin or fingerprint setted. We do not recommend using GoldWallet with not secured device.',
+    noPinOrFingerprintSet: 'TRANSLATION NEEDED | ENG: Your device appears to not have a PIN or fingerprint set. We do not recommend using GoldWallet with a not secured device.',
   },
   betaVersion: {
     title: 'TRANSLATION NEEDED | ENG: This is a beta version\nof the GoldWallet',

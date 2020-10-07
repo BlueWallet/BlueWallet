@@ -550,7 +550,7 @@ const pt = {
     jailBrokenPhone: 'O seu dispositivo parece ter sido desbloqueado. Isto pode provocar problemas de segurança, colisões ou outros problemas. Não recomendamos a utilização da GoldWallet com um dispositivo desbloqueado.',
     rootedPhone: 'O seu dispositivo parece ter sido ancorado. Isto pode provocar problemas de segurança, colisões ou outros problemas. Não recomendamos a utilização da GoldWallet com um dispositivo ancorado.',
     title: 'Problema de segurança',
-    noPinOrFingerprintSet: 'TRANSLATION NEEDED | ENG: Your device appears to not have pin or fingerprint setted. We do not recommend using GoldWallet with not secured device.',
+    noPinOrFingerprintSet: 'TRANSLATION NEEDED | ENG: Your device appears to not have a PIN or fingerprint set. We do not recommend using GoldWallet with a not secured device.',
   },
   betaVersion: {
     title: 'TRANSLATION NEEDED | ENG: This is a beta version\nof the GoldWallet',
