@@ -1,3 +1,5 @@
+import { CONST } from 'app/consts';
+
 import { AppSettingsAction, AppSettingsActionType } from './actions';
 
 export interface AppSettingsState {
@@ -9,7 +11,7 @@ export interface AppSettingsState {
 const initialState: AppSettingsState = {
   isBiometricsEnabled: false,
   isAdvancedOptionsEnabled: false,
-  language: 'en',
+  language: CONST.defaultLanguage,
 };
 
 export const appSettingsReducer = (state = initialState, action: AppSettingsActionType): AppSettingsState => {

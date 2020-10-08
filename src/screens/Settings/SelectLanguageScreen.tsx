@@ -43,18 +43,18 @@ const LanguageItem = ({ selectedLanguage, selectedLanguageValue, onLanguageSelec
 
 export const SelectLanguageScreen = (props: SelectLanguageScreenProps) => {
   const language = useSelector(selectors.language);
-
   const dispatch = useDispatch();
+
   const availableLanguages: Language[] = [
     { label: 'English (EN)', value: 'en' },
-    { label: '中文 (ZH)', value: 'zh_cn' },
+    { label: '中文 (ZH)', value: 'zh' },
     { label: 'Español (ES)', value: 'es' },
-    { label: 'Indonesian (ID)', value: 'id_id' },
+    { label: 'Indonesian (ID)', value: 'id' },
     { label: '日本語 (JP)', value: 'ja' },
-    { label: '한국어 (KO)', value: 'ko_kr' },
-    { label: 'Português (PT)', value: 'pt_pt' },
-    { label: 'Tiếng (Việt)', value: 'vi_vn' },
-    { label: 'Türkçe (TR)', value: 'tr_tr' },
+    { label: '한국어 (KO)', value: 'ko' },
+    { label: 'Português (PT)', value: 'pt' },
+    { label: 'Tiếng (Việt)', value: 'vi' },
+    { label: 'Türkçe (TR)', value: 'tr' },
   ];
 
   const onLanguageSelect = (value: string) => {

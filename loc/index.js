@@ -4,8 +4,10 @@ import localeData from 'dayjs/plugin/localeData';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Localization from 'react-localization';
 import { LocaleConfig } from 'react-native-calendars';
+import * as RNLocalize from 'react-native-localize';
 
 import { BitcoinUnit } from '../models/bitcoinUnits';
+import { CONST } from '../src/consts';
 
 const BigNumber = require('bignumber.js');
 
@@ -19,53 +21,49 @@ dayjs.extend(localeData);
   // For some reason using the AppStorage.LANG constant is not working. Hard coding string for now.
   // hardcoding for presentional purposes
   // let lang = await AsyncStorage.getItem('lang');
-  const lang = (await AsyncStorage.getItem('lang')) || 'en';
-
-  init(lang);
+  const lang =
+    (await AsyncStorage.getItem('lang')) || RNLocalize.getLocales()[0]?.languageCode || CONST.defaultLanguage;
+  await strings.saveLanguage(lang);
 })();
 
-const init = lang => {
+const init = async lang => {
   if (lang) {
     strings.setLanguage(lang);
     let localeForDayJSAvailable = true;
     switch (lang) {
-      case 'zh_cn':
-        lang = 'zh-cn';
+      case 'zh':
         require('dayjs/locale/zh-cn');
         break;
       case 'es':
         require('dayjs/locale/es');
         break;
-      case 'pt_pt':
-        lang = 'pt';
+      case 'pt':
         require('dayjs/locale/pt');
         break;
       case 'ja':
-        lang = 'ja';
         require('dayjs/locale/ja');
         break;
-      case 'id_id':
+      case 'id':
         require('dayjs/locale/id');
         break;
-      case 'tr_tr':
+      case 'tr':
         require('dayjs/locale/tr');
         break;
-      case 'vi_vn':
+      case 'vi':
         require('dayjs/locale/vi');
         break;
-      case 'ko_kr':
-        lang = 'ko';
+      case 'ko':
         require('dayjs/locale/ko');
         break;
-      case 'en':
-        break;
       default:
+        lang = CONST.defaultLanguage;
         localeForDayJSAvailable = false;
         break;
     }
     if (localeForDayJSAvailable) {
       dayjs.locale(lang.split('_')[0]);
     }
+    await AsyncStorage.setItem('lang', lang);
     LocaleConfig.locales[lang] = strings.getListOfMonthsAndWeekdays();
     LocaleConfig.defaultLocale = lang;
   }
@@ -73,19 +71,18 @@ const init = lang => {
 
 strings = new Localization({
   en: require('./en.js'),
-  pt_pt: require('./pt_PT.js'),
+  pt: require('./pt_PT.js'),
   es: require('./es.js'),
   ja: require('./jp_JP.js'),
-  id_id: require('./id_ID.js'),
-  zh_cn: require('./zh_cn.js'),
-  tr_tr: require('./tr_TR.js'),
-  vi_vn: require('./vi_VN.js'),
-  ko_kr: require('./ko_KR.js'),
+  id: require('./id_ID.js'),
+  zh: require('./zh_cn.js'),
+  tr: require('./tr_TR.js'),
+  vi: require('./vi_VN.js'),
+  kr: require('./ko_KR.js'),
 });
 
 strings.saveLanguage = async lang => {
-  await AsyncStorage.setItem('lang', lang);
-  init(lang);
+  await init(lang);
 };
 
 strings.transactionTimeToReadable = time => {

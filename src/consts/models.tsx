@@ -22,6 +22,7 @@ export const CONST = {
   ios: 'ios',
   transactionPassword: 'transactionPassword',
   pin: 'pin',
+  defaultLanguage: 'en',
 };
 
 export const defaultKeyboardType = Platform.select({ android: 'visible-password', ios: 'default' }) as KeyboardType;

@@ -9,4 +9,10 @@ jest.mock('react-native-default-preference', () => {
   };
 });
 
+jest.mock('react-native-localize', () => {
+  return {
+    getLocales: jest.fn(),
+  };
+});
+
 jest.mock('@react-native-community/async-storage', () => mockAsyncStorage);
