@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio } from 'react-native';
-
-import { BlueCurrentTheme } from './themes';
+import { useTheme } from '@react-navigation/native';
 
 const BORDER_RADIUS = 30;
 const PADDINGS = 8;
@@ -75,13 +74,11 @@ const bStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
   },
   icon: {
     alignItems: 'center',
   },
   text: {
-    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: buttonFontSize,
     fontWeight: '600',
     marginLeft: ICON_MARGIN,
@@ -90,7 +87,17 @@ const bStyles = StyleSheet.create({
 });
 
 export const FButton = ({ text, icon, width, first, last, ...props }) => {
+  const { colors } = useTheme();
+  const bStylesHook = StyleSheet.create({
+    root: {
+      backgroundColor: colors.buttonBackgroundColor,
+    },
+    text: {
+      color: colors.buttonAlternativeTextColor,
+    },
+  });
   const style = {};
+
   if (width) {
     const paddingLeft = first ? BORDER_RADIUS / 2 : PADDINGS;
     const paddingRight = last ? BORDER_RADIUS / 2 : PADDINGS;
@@ -100,9 +107,9 @@ export const FButton = ({ text, icon, width, first, last, ...props }) => {
   }
 
   return (
-    <TouchableOpacity style={[bStyles.root, style]} {...props}>
+    <TouchableOpacity style={[bStyles.root, bStylesHook.root, style]} {...props}>
       <View style={bStyles.icon}>{icon}</View>
-      <Text numberOfLines={1} style={bStyles.text}>
+      <Text numberOfLines={1} style={[bStyles.text, bStylesHook.text]}>
         {text}
       </Text>
     </TouchableOpacity>
