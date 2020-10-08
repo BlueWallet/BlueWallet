@@ -147,7 +147,7 @@
     "react-native-safe-area-context": "3.1.6",
     "react-native-screens": "2.11.0",
     "react-native-secure-key-store": "git+https://github.com/BlueWallet/react-native-secure-key-store.git#4ba25dedb3d5ae15c22fd0ea0555116055630966",
-    "react-native-share": "3.7.0",
+    "react-native-share": "3.8.0",
     "react-native-snap-carousel": "3.9.1",
     "react-native-sortable-list": "0.0.24",
     "react-native-svg": "12.1.0",
