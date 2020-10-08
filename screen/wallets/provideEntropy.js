@@ -1,11 +1,12 @@
 import React, { useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import BN from 'bignumber.js';
-import { View, ScrollView, Text, Image, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
+import { Dimensions, PixelRatio, View, ScrollView, Text, Image, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from '../../components/themes';
+import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueTabs } from '../../BlueComponents';
 import loc from '../../loc';
 
@@ -158,29 +159,32 @@ Dice.propTypes = {
   push: PropTypes.func.isRequired,
 };
 
+const buttonFontSize =
+  PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
+    ? 22
+    : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
+
 const Buttons = ({ pop, save }) => (
-  <View style={styles.buttonsRoot}>
-    <TouchableOpacity onPress={pop}>
-      <View style={styles.buttonsBody}>
-        <View style={styles.buttonsRow}>
-          <View style={styles.buttonsIcon}>
-            <Icon name="undo" size={16} type="font-awesome" color={BlueCurrentTheme.colors.buttonAlternativeTextColor} />
-          </View>
-          <Text style={styles.buttonsLabel}>{loc.entropy.undo}</Text>
+  <FContainer>
+    <FButton
+      onPress={pop}
+      icon={
+        <View style={styles.buttonsIcon}>
+          <Icon name="undo" size={buttonFontSize} type="font-awesome" color={BlueCurrentTheme.colors.buttonAlternativeTextColor} />
         </View>
-      </View>
-    </TouchableOpacity>
-    <TouchableOpacity onPress={save}>
-      <View style={styles.buttonsBody}>
-        <View style={styles.buttonsRow}>
-          <View style={styles.buttonsIcon}>
-            <Icon name="arrow-down" size={16} type="font-awesome" color={BlueCurrentTheme.colors.buttonAlternativeTextColor} />
-          </View>
-          <Text style={[styles.buttonsLabel, styles.buttonsLabelRight]}>{loc.entropy.save}</Text>
+      }
+      text={loc.entropy.undo}
+    />
+    <FButton
+      onPress={save}
+      icon={
+        <View style={styles.buttonsIcon}>
+          <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={BlueCurrentTheme.colors.buttonAlternativeTextColor} />
         </View>
-      </View>
-    </TouchableOpacity>
-  </View>
+      }
+      text={loc.entropy.save}
+    />
+  </FContainer>
 );
 
 Buttons.propTypes = {
@@ -328,45 +332,10 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     color: 'grey',
   },
-  buttonsRoot: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    backgroundColor: 'transparent',
-    position: 'absolute',
-    bottom: 30,
-    borderRadius: 30,
-    minHeight: 48,
-    overflow: 'hidden',
-  },
-  buttonsBody: {
-    flex: 1,
-    minWidth: 130,
-    backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
-  },
-  buttonsRow: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   buttonsIcon: {
-    minWidth: 30,
-    minHeight: 30,
-    left: 5,
     backgroundColor: 'transparent',
     transform: [{ rotate: '-45deg' }],
     alignItems: 'center',
-    marginBottom: -11,
-  },
-  buttonsLabel: {
-    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
-    fontWeight: '500',
-    left: 5,
-    backgroundColor: 'transparent',
-    paddingRight: 20,
-  },
-  buttonsLabelRight: {
-    paddingRight: 20,
   },
 });
 

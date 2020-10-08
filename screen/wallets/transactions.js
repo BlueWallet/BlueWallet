@@ -17,17 +17,12 @@ import {
   Alert,
   InteractionManager,
   useWindowDimensions,
+  PixelRatio,
+  Dimensions,
 } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
-import {
-  BlueSendButtonIcon,
-  BlueReceiveButtonIcon,
-  BlueTransactionListItem,
-  BlueWalletNavigationHeader,
-  BlueAlertWalletExportReminder,
-  BlueListItem,
-} from '../../BlueComponents';
+import { BlueTransactionListItem, BlueWalletNavigationHeader, BlueAlertWalletExportReminder, BlueListItem } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
 import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
@@ -36,6 +31,8 @@ import HandoffSettings from '../../class/handoff';
 import Handoff from 'react-native-handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
+import { BlueCurrentTheme } from '../../components/themes';
+import { FContainer, FButton } from '../../components/FloatButtons';
 import { getSystemName } from 'react-native-device-info';
 import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
 import BuyBitcoin from './buyBitcoin';
@@ -158,21 +155,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '600',
   },
-  floatButtons: {
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    position: 'absolute',
-    alignSelf: 'center',
-    bottom: 30,
-    borderRadius: 30,
-    width: '60%',
-    maxWidth: 400,
-    flex: 1,
-    height: '6.3%',
-    minHeight: 44,
-    overflow: 'hidden',
+  sendIcon: {
+    transform: [{ rotate: '225deg' }],
+  },
+  receiveIcon: {
+    transform: [{ rotate: '-45deg' }],
   },
 });
+
+const buttonFontSize =
+  PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
+    ? 22
+    : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
 const WalletTransactions = () => {
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
@@ -578,6 +572,39 @@ const WalletTransactions = () => {
     onBarCodeRead({ data: await Clipboard.getString() });
   };
 
+  const sendButtonPress = () => {
+    if (wallet.chain === Chain.OFFCHAIN) {
+      navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params: { fromSecret: wallet.getSecret() } });
+    } else {
+      if (wallet.type === WatchOnlyWallet.type && wallet.isHd() && wallet.getSecret().startsWith('zpub')) {
+        if (wallet.useWithHardwareWalletEnabled()) {
+          navigateToSendScreen();
+        } else {
+          Alert.alert(
+            loc.wallets.details_title,
+            loc.transactions.enable_hw,
+            [
+              {
+                text: loc._.ok,
+                onPress: async () => {
+                  wallet.setUseWithHardwareWalletEnabled(true);
+                  await BlueApp.saveToDisk();
+                  navigateToSendScreen();
+                },
+                style: 'default',
+              },
+
+              { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+            ],
+            { cancelable: false },
+          );
+        }
+      } else {
+        navigateToSendScreen();
+      }
+    }
+  };
+
   const sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
@@ -718,65 +745,49 @@ const WalletTransactions = () => {
         />
         {renderManageFundsModal()}
       </View>
-      <View style={styles.floatButtons}>
-        {(() => {
-          if (wallet.allowReceive()) {
-            return (
-              <BlueReceiveButtonIcon
-                onPress={() => {
-                  if (wallet.chain === Chain.OFFCHAIN) {
-                    navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { fromWallet: wallet } });
-                  } else {
-                    navigate('ReceiveDetails', { secret: wallet.getSecret() });
-                  }
-                }}
-              />
-            );
-          }
-        })()}
 
-        {(() => {
-          if (wallet.allowSend() || (wallet.type === WatchOnlyWallet.type && wallet.isHd() && wallet.getSecret().startsWith('zpub'))) {
-            return (
-              <BlueSendButtonIcon
-                onLongPress={sendButtonLongPress}
-                onPress={() => {
-                  if (wallet.chain === Chain.OFFCHAIN) {
-                    navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params: { fromSecret: wallet.getSecret() } });
-                  } else {
-                    if (wallet.type === WatchOnlyWallet.type && wallet.isHd() && wallet.getSecret().startsWith('zpub')) {
-                      if (wallet.useWithHardwareWalletEnabled()) {
-                        navigateToSendScreen();
-                      } else {
-                        Alert.alert(
-                          loc.wallets.details_title,
-                          loc.transactions.enable_hw,
-                          [
-                            {
-                              text: loc._.ok,
-                              onPress: async () => {
-                                wallet.setUseWithHardwareWalletEnabled(true);
-                                await BlueApp.saveToDisk();
-                                navigateToSendScreen();
-                              },
-                              style: 'default',
-                            },
-
-                            { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-                          ],
-                          { cancelable: false },
-                        );
-                      }
-                    } else {
-                      navigateToSendScreen();
-                    }
-                  }
-                }}
-              />
-            );
-          }
-        })()}
-      </View>
+      <FContainer>
+        {wallet.allowReceive() && (
+          <FButton
+            text={loc.receive.header}
+            onPress={() => {
+              if (wallet.chain === Chain.OFFCHAIN) {
+                navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { fromWallet: wallet } });
+              } else {
+                navigate('ReceiveDetails', { secret: wallet.getSecret() });
+              }
+            }}
+            icon={
+              <View style={styles.receiveIcon}>
+                <Icon
+                  name="arrow-down"
+                  size={buttonFontSize}
+                  type="font-awesome"
+                  color={BlueCurrentTheme.colors.buttonAlternativeTextColor}
+                />
+              </View>
+            }
+          />
+        )}
+        {(wallet.allowSend() || (wallet.type === WatchOnlyWallet.type && wallet.isHd() && wallet.getSecret().startsWith('zpub'))) && (
+          <FButton
+            onLongPress={sendButtonLongPress}
+            onPress={sendButtonPress}
+            text={loc.send.header}
+            testID="SendButton"
+            icon={
+              <View style={styles.sendIcon}>
+                <Icon
+                  name="arrow-down"
+                  size={buttonFontSize}
+                  type="font-awesome"
+                  color={BlueCurrentTheme.colors.buttonAlternativeTextColor}
+                />
+              </View>
+            }
+          />
+        )}
+      </FContainer>
     </View>
   );
 };
