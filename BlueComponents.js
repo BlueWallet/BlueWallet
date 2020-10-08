@@ -906,51 +906,9 @@ export const BlueHeaderDefaultSubHooks = props => {
   );
 };
 
-export const BlueHeaderDefaultMainHooks = props => {
-  const { colors } = useTheme();
-  return (
-    <Header
-      {...props}
-      leftComponent={{
-        text: props.leftText,
-        style: {
-          fontWeight: 'bold',
-          fontSize: 34,
-          color: colors.foregroundColor,
-        },
-      }}
-      leftContainerStyle={{
-        minWidth: '70%',
-        height: 80,
-      }}
-      bottomDivider={false}
-      topDivider={false}
-      containerStyle={{
-        height: 44,
-        flexDirection: 'row',
-        backgroundColor: colors.elevatated,
-        borderTopColor: colors.elevatated,
-        borderBottomColor: colors.elevatated,
-        borderBottomWidth: 0,
-      }}
-      rightComponent={
-        props.onNewWalletPress && (
-          <TouchableOpacity
-            onPress={props.onNewWalletPress}
-            style={{
-              height: 100,
-            }}
-          >
-            <BluePlusIcon />
-          </TouchableOpacity>
-        )
-      }
-    />
-  );
-};
-
 export const BlueHeaderDefaultMain = props => {
   const { colors } = useTheme();
+  const { isDrawerList } = props;
   return (
     <Header
       leftComponent={{
@@ -964,8 +922,8 @@ export const BlueHeaderDefaultMain = props => {
       }}
       placement="left"
       containerStyle={{
-        borderTopColor: colors.background,
-        borderBottomColor: colors.background,
+        borderTopColor: isDrawerList ? colors.elevated : colors.background,
+        borderBottomColor: isDrawerList ? colors.elevated : colors.background,
         maxHeight: 44,
         height: 44,
         paddingTop: 0,
@@ -973,7 +931,7 @@ export const BlueHeaderDefaultMain = props => {
       }}
       bottomDivider={false}
       topDivider={false}
-      backgroundColor={colors.background}
+      backgroundColor={isDrawerList ? colors.elevated : colors.background}
       rightComponent={<BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />}
     />
   );

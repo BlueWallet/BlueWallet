@@ -297,22 +297,26 @@ const PsbtMultisig = () => {
       if (index > 1) {
         destinationAddressView.push(
           <View style={styles.destionationTextContainer} key={`end-${index}`}>
-            <Text style={[styles.textDestinationFirstFour, stylesHook.textFiat]}>and {destinations.length - 2} more...</Text>
+            <Text numberOfLines={0} style={[styles.textDestinationFirstFour, stylesHook.textFiat]}>
+              and {destinations.length - 2} more...
+            </Text>
           </View>,
         );
         break;
       } else {
-        const currentAddress = address.replace(/\s/g, '');
+        const currentAddress = address;
         const firstFour = currentAddress.substring(0, 5);
         const lastFour = currentAddress.substring(currentAddress.length - 5, currentAddress.length);
         const middle = currentAddress.split(firstFour)[1].split(lastFour)[0];
         destinationAddressView.push(
           <View style={styles.destionationTextContainer} key={`${currentAddress}-${index}`}>
-            <Text style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>{firstFour}</Text>
-            <View style={styles.textDestinationSpacingRight} />
-            <Text style={[styles.textDestinationFirstFour, stylesHook.textFiat]}>{middle}</Text>
-            <View style={styles.textDestinationSpacingLeft} />
-            <Text style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>{lastFour}</Text>
+            <Text numberOfLines={2} style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>
+              {firstFour}
+              <Text> </Text>
+              <Text style={[styles.textDestination, stylesHook.textFiat]}>{middle}</Text>
+              <Text> </Text>
+              <Text style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>{lastFour}</Text>
+            </Text>
           </View>,
         );
       }
@@ -417,8 +421,10 @@ const styles = StyleSheet.create({
   },
   destionationTextContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
     marginBottom: 4,
+    paddingHorizontal: 60,
+    fontSize: 14,
+    justifyContent: 'center',
   },
   textFiat: {
     fontSize: 16,
@@ -430,11 +436,13 @@ const styles = StyleSheet.create({
     fontSize: 30,
   },
   textDestinationFirstFour: {
-    fontWeight: 'bold',
+    fontSize: 14,
   },
   textDestination: {
     paddingTop: 10,
     paddingBottom: 40,
+    fontSize: 14,
+    flexWrap: 'wrap',
   },
   bottomModal: {
     justifyContent: 'flex-end',
