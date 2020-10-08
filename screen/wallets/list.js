@@ -9,10 +9,11 @@ import {
   SectionList,
   Alert,
   Platform,
+  Image,
   Dimensions,
   useWindowDimensions,
 } from 'react-native';
-import { BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem, BlueNavigationStyle } from '../../BlueComponents';
+import { WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem, BlueNavigationStyle } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -24,6 +25,7 @@ import Clipboard from '@react-native-community/clipboard';
 import * as NavigationService from '../../NavigationService';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import { FContainer, FButton } from '../../components/FloatButtons';
 import { getSystemName, isTablet } from 'react-native-device-info';
 import ScanQRCode from '../send/ScanQRCode';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -40,7 +42,7 @@ const isDesktop = getSystemName() === 'Mac OS X';
 const WalletsList = () => {
   const walletsCarousel = useRef();
   const { width } = useWindowDimensions();
-  const { colors } = useTheme();
+  const { colors, scanImage } = useTheme();
   const { navigate } = useNavigation();
   const routeName = useRoute().name;
   const [isLoading, setIsLoading] = useState(true);
@@ -377,9 +379,14 @@ const WalletsList = () => {
   const renderScanButton = () => {
     if (BlueApp.getWallets().length > 0 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
       return (
-        <View style={styles.scanButton}>
-          <BlueScanButton onPress={onScanButtonPressed} onLongPress={isDesktop ? undefined : sendButtonLongPress} />
-        </View>
+        <FContainer>
+          <FButton
+            onPress={onScanButtonPressed}
+            onLongPress={isDesktop ? undefined : sendButtonLongPress}
+            icon={<Image resizeMode="stretch" source={scanImage} />}
+            text={loc.send.details_scan}
+          />
+        </FContainer>
       );
     } else {
       return null;
@@ -655,18 +662,6 @@ const styles = StyleSheet.create({
     color: '#9aa0aa',
     textAlign: 'center',
     fontWeight: '600',
-  },
-  scanButton: {
-    alignSelf: 'center',
-    backgroundColor: 'transparent',
-    position: 'absolute',
-    width: '34%',
-    maxWidth: 200,
-    bottom: 30,
-    borderRadius: 30,
-    height: '6.3%',
-    minHeight: 44,
-    overflow: 'hidden',
   },
   listHeader: {
     backgroundColor: '#FFFFFF',
