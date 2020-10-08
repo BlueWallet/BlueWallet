@@ -865,4 +865,33 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
     return sigsHave;
   }
+
+  /**
+   * Tries to signs passed psbt object (by reference). If there are enough signatures - tries to finalize psbt
+   * and returns Transaction (ready to extract hex)
+   *
+   * @param psbt {Psbt}
+   * @returns {{ tx: Transaction }}
+   */
+  cosignPsbt(psbt) {
+    for (let cc = 0; cc < psbt.inputCount; cc++) {
+      for (const cosigner of this._cosigners) {
+        if (!MultisigHDWallet.isXpubString(cosigner)) {
+          // ok this is a mnemonic, lets try to sign
+          const seed = bip39.mnemonicToSeed(cosigner);
+          const hdRoot = bitcoin.bip32.fromSeed(seed);
+          try {
+            psbt.signInputHD(cc, hdRoot);
+          } catch (_) {} // protects agains duplicate cosignings
+        }
+      }
+    }
+
+    let tx = false;
+    if (this.calculateHowManySignaturesWeHaveFromPsbt(psbt) >= this.getM()) {
+      tx = psbt.finalizeAllInputs().extractTransaction();
+    }
+
+    return { tx };
+  }
 }

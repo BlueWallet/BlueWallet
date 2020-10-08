@@ -9,6 +9,7 @@
     "ok": "OK",
     "storage_is_encrypted": "Your storage is encrypted. Password is required to decrypt it",
     "yes": "Yes",
+    "no": "No",
     "invalid_animated_qr_code_fragment" : "Invalid animated QRCode fragment, please try again",
     "file_saved": "File ({filePath}) has been saved in your Downloads folder ."
   },
@@ -385,6 +386,8 @@
     "share": "Share",
     "how_many_signatures_can_bluewallet_make": "how many signatures can bluewallet make",
     "scan_or_import_file": "Scan or import file",
-    "export_coordination_setup": "export coordination setup"
+    "export_coordination_setup": "export coordination setup",
+    "cosign_this_transaction": "Co-sign this transaction?",
+    "co_sign_transaction": "Co-sign transaction"
   }
 }
