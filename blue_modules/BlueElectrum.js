@@ -521,15 +521,27 @@ module.exports.calculateBlockTime = function (height) {
  */
 module.exports.testConnection = async function (host, tcpPort, sslPort) {
   const client = new ElectrumClient(sslPort || tcpPort, host, sslPort ? 'tls' : 'tcp');
+  client.onError = () => {}; // mute
+  let timeoutId = false;
   try {
-    await client.connect();
+    const rez = await Promise.race([
+      new Promise(resolve => {
+        timeoutId = setTimeout(() => resolve('timeout'), 3000);
+      }),
+      client.connect(),
+    ]);
+    if (rez === 'timeout') return false;
+
     await client.server_version('2.7.11', '1.4');
     await client.server_ping();
-    client.close();
     return true;
   } catch (_) {
-    return false;
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+    client.close();
   }
+
+  return false;
 };
 
 module.exports.forceDisconnect = () => {

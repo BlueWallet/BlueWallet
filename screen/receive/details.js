@@ -125,9 +125,8 @@ const ReceiveDetails = () => {
       backgroundColor: BlueCurrentTheme.colors.elevated,
     },
     share: {
-      alignItems: 'center',
-      alignContent: 'flex-end',
       marginBottom: 24,
+      marginHorizontal: 16,
     },
     modalButton: {
       backgroundColor: BlueCurrentTheme.colors.modalButton,
@@ -193,7 +192,7 @@ const ReceiveDetails = () => {
         if (!address) {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
-          address = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
+          address = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
         } else {
           BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
         }

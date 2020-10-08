@@ -38,15 +38,17 @@ import * as bitcoin from 'bitcoinjs-lib';
 
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { AppStorage, HDSegwitBech32Wallet, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
+import { AppStorage, HDSegwitBech32Wallet, LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import DocumentPicker from 'react-native-document-picker';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 const currency = require('../../blue_modules/currency');
 const BlueApp: AppStorage = require('../../BlueApp');
 const prompt = require('../../blue_modules/prompt');
+const fs = require('../../blue_modules/fs');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -131,7 +133,6 @@ const styles = StyleSheet.create({
   createButton: {
     marginHorizontal: 56,
     marginVertical: 16,
-    alignItems: 'center',
     minHeight: 44,
   },
   select: {
@@ -309,12 +310,14 @@ export default class SendDetails extends Component {
           units[this.state.recipientsScrollIndex] = BitcoinUnit.BTC; // also resetting current unit to BTC
           recipients[[this.state.recipientsScrollIndex]].address = address;
           recipients[[this.state.recipientsScrollIndex]].amount = options.amount;
+          recipients[[this.state.recipientsScrollIndex]].amountSats = new BigNumber(options.amount).multipliedBy(100000000).toNumber();
           this.setState({
             addresses: recipients,
             memo: options.label || options.message,
             isLoading: false,
             amountUnit: BitcoinUnit.BTC,
             units,
+            payjoinUrl: options.pj || '',
           });
         } else {
           this.setState({ isLoading: false });
@@ -332,10 +335,10 @@ export default class SendDetails extends Component {
     if (this.props.route.params.uri) {
       const uri = this.props.route.params.uri;
       try {
-        const { address, amount, memo } = this.decodeBitcoinUri(uri);
+        const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(uri);
         addresses.push(new BitcoinTransaction(address, amount, currency.btcToSatoshi(amount)));
         initialMemo = memo;
-        this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC });
+        this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC, payjoinUrl });
       } catch (error) {
         console.log(error);
         alert(loc.send.details_error_decode);
@@ -359,10 +362,10 @@ export default class SendDetails extends Component {
       }
     } catch (_) {}
 
-    await this.reCalcTx();
+    this.reCalcTx();
 
     try {
-      const recommendedFees = await NetworkTransactionFees.recommendedFees();
+      const recommendedFees = await Promise.race([NetworkTransactionFees.recommendedFees(), BlueApp.sleep(2000)]);
       if (recommendedFees && 'fastestFee' in recommendedFees) {
         await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
         this.setState({
@@ -370,21 +373,28 @@ export default class SendDetails extends Component {
           networkTransactionFees: recommendedFees,
         });
       }
-    } catch (_) {}
+    } catch (_) {} // either sleep expired or recommendedFees threw an exception
 
     if (this.props.route.params.uri) {
       try {
-        const { address, amount, memo } = this.decodeBitcoinUri(this.props.route.params.uri);
-        this.setState({ address, amount, memo });
+        const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(this.props.route.params.uri);
+        this.setState({ address, amount, memo, isLoading: false, payjoinUrl });
       } catch (error) {
         console.log(error);
+        this.setState({ isLoading: false });
         alert(loc.send.details_error_decode);
       }
     }
 
-    await this.state.fromWallet.fetchUtxo();
+    try {
+      await Promise.race([this.state.fromWallet.fetchUtxo(), BlueApp.sleep(6000)]);
+    } catch (_) {
+      // either sleep expired or fetchUtxo threw an exception
+    }
+
     this.setState({ isLoading: false });
-    await this.reCalcTx();
+
+    this.reCalcTx();
   }
 
   componentWillUnmount() {
@@ -399,27 +409,6 @@ export default class SendDetails extends Component {
   _keyboardDidHide = () => {
     this.setState({ renderWalletSelectionButtonHidden: false, isAmountToolbarVisibleForAndroid: false });
   };
-
-  decodeBitcoinUri(uri) {
-    let amount = '';
-    let parsedBitcoinUri = null;
-    let address = uri || '';
-    let memo = '';
-    try {
-      parsedBitcoinUri = DeeplinkSchemaMatch.bip21decode(uri);
-      address = 'address' in parsedBitcoinUri ? parsedBitcoinUri.address : address;
-      if ('options' in parsedBitcoinUri) {
-        if ('amount' in parsedBitcoinUri.options) {
-          amount = parsedBitcoinUri.options.amount.toString();
-          amount = parsedBitcoinUri.options.amount;
-        }
-        if ('label' in parsedBitcoinUri.options) {
-          memo = parsedBitcoinUri.options.label || memo;
-        }
-      }
-    } catch (_) {}
-    return { address, amount, memo };
-  }
 
   async createTransaction() {
     Keyboard.dismiss();
@@ -484,13 +473,63 @@ export default class SendDetails extends Component {
     }
   }
 
+  getChangeAddressFast() {
+    if (this.state.changeAddress) return this.state.changeAddress; // cache
+
+    /** @type {AbstractHDElectrumWallet|WatchOnlyWallet} */
+    const wallet = this.state.fromWallet;
+    let changeAddress;
+    if (WatchOnlyWallet.type === wallet.type && !wallet.isHd()) {
+      // plain watchonly - just get the address
+      changeAddress = wallet.getAddress();
+    } else if (WatchOnlyWallet.type === wallet.type || wallet instanceof AbstractHDElectrumWallet) {
+      changeAddress = wallet._getInternalAddressByIndex(wallet.getNextFreeChangeAddressIndex());
+    } else {
+      // legacy wallets
+      changeAddress = wallet.getAddress();
+    }
+
+    return changeAddress;
+  }
+
+  async getChangeAddressAsync() {
+    if (this.state.changeAddress) return this.state.changeAddress; // cache
+
+    /** @type {AbstractHDElectrumWallet|WatchOnlyWallet} */
+    const wallet = this.state.fromWallet;
+    let changeAddress;
+    if (WatchOnlyWallet.type === wallet.type && !wallet.isHd()) {
+      // plain watchonly - just get the address
+      changeAddress = wallet.getAddress();
+    } else {
+      // otherwise, lets call widely-used getChangeAddressAsync()
+      try {
+        changeAddress = await Promise.race([BlueApp.sleep(2000), wallet.getChangeAddressAsync()]);
+      } catch (_) {}
+
+      if (!changeAddress) {
+        // either sleep expired or getChangeAddressAsync threw an exception
+        if (wallet instanceof AbstractHDElectrumWallet) {
+          changeAddress = wallet._getInternalAddressByIndex(wallet.getNextFreeChangeAddressIndex());
+        } else {
+          // legacy wallets
+          changeAddress = wallet.getAddress();
+        }
+      }
+    }
+
+    if (changeAddress) this.setState({ changeAddress }); // cache
+
+    return changeAddress;
+  }
+
   /**
    * Recalculating fee options by creating skeleton of future tx.
    */
-  reCalcTx = async (all = false) => {
+  reCalcTx = (all = false) => {
     const wallet = this.state.fromWallet;
     const fees = this.state.networkTransactionFees;
-    const changeAddress = await wallet.getChangeAddressAsync();
+    const changeAddress = this.getChangeAddressFast();
     const requestedSatPerByte = Number(this.state.fee);
     const feePrecalc = { ...this.state.feePrecalc };
 
@@ -564,7 +603,7 @@ export default class SendDetails extends Component {
   async createPsbtTransaction() {
     /** @type {HDSegwitBech32Wallet} */
     const wallet = this.state.fromWallet;
-    const changeAddress = await wallet.getChangeAddressAsync();
+    const changeAddress = await this.getChangeAddressAsync();
     const requestedSatPerByte = Number(this.state.fee);
     console.log({ requestedSatPerByte, utxo: wallet.getUtxo() });
 
@@ -606,6 +645,16 @@ export default class SendDetails extends Component {
       return;
     }
 
+    if (wallet.type === MultisigHDWallet.type) {
+      this.props.navigation.navigate('PsbtMultisig', {
+        memo: this.state.memo,
+        psbtBase64: psbt.toBase64(),
+        walletId: wallet.getID(),
+      });
+      this.setState({ isLoading: false });
+      return;
+    }
+
     BlueApp.tx_metadata = BlueApp.tx_metadata || {};
     BlueApp.tx_metadata[tx.getId()] = {
       txhex: tx.toHex(),
@@ -619,6 +668,8 @@ export default class SendDetails extends Component {
       tx: tx.toHex(),
       recipients: targets,
       satoshiPerByte: requestedSatPerByte,
+      payjoinUrl: this.state.payjoinUrl,
+      psbt,
     });
     this.setState({ isLoading: false });
   }
@@ -772,32 +823,54 @@ export default class SendDetails extends Component {
     );
   };
 
+  /**
+   * watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
+   * so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
+   * user whether he wants to broadcast it.
+   * alternatively, user can export psbt file, sign it externally and then import it
+   *
+   * @returns {Promise<void>}
+   */
   importTransaction = async () => {
+    if (this.state.fromWallet.type !== WatchOnlyWallet.type) {
+      alert('Error: importing transaction in non-watchonly wallet (this should never happen)');
+      return;
+    }
+
     try {
       const res = await DocumentPicker.pick({
-        type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn'] : [DocumentPicker.types.allFiles],
+        type:
+          Platform.OS === 'ios'
+            ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', DocumentPicker.types.plainText, 'public.json']
+            : [DocumentPicker.types.allFiles],
       });
-      if (DeeplinkSchemaMatch.isPossiblyPSBTFile(res.uri)) {
+
+      if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(res.uri)) {
+        // we assume that transaction is already signed, so all we have to do is get txhex and pass it to next screen
+        // so user can broadcast:
         const file = await RNFS.readFile(res.uri, 'ascii');
-        const bufferDecoded = Buffer.from(file, 'ascii').toString('base64');
-        if (bufferDecoded) {
-          if (this.state.fromWallet.type === WatchOnlyWallet.type) {
-            // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
-            // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
-            // user whether he wants to broadcast it.
-            // alternatively, user can export psbt file, sign it externally and then import it
-            this.props.navigation.navigate('PsbtWithHardwareWallet', {
-              memo: this.state.memo,
-              fromWallet: this.state.fromWallet,
-              psbt: file,
-            });
-            this.setState({ isLoading: false });
-            return;
-          }
-        } else {
-          throw new Error();
-        }
+        const psbt = bitcoin.Psbt.fromBase64(file);
+        const txhex = psbt.extractTransaction().toHex();
+
+        this.props.navigation.navigate('PsbtWithHardwareWallet', {
+          memo: this.state.memo,
+          fromWallet: this.state.fromWallet,
+          txhex,
+        });
+        this.setState({ isLoading: false, isAdvancedTransactionOptionsVisible: false });
+      } else if (DeeplinkSchemaMatch.isPossiblyPSBTFile(res.uri)) {
+        // looks like transaction is UNsigned, so we construct PSBT object and pass to next screen
+        // so user can do smth with it:
+        const file = await RNFS.readFile(res.uri, 'ascii');
+        const psbt = bitcoin.Psbt.fromBase64(file);
+        this.props.navigation.navigate('PsbtWithHardwareWallet', {
+          memo: this.state.memo,
+          fromWallet: this.state.fromWallet,
+          psbt,
+        });
+        this.setState({ isLoading: false, isAdvancedTransactionOptionsVisible: false });
       } else if (DeeplinkSchemaMatch.isTXNFile(res.uri)) {
+        // plain text file with txhex ready to broadcast
         const file = await RNFS.readFile(res.uri, 'ascii');
         this.props.navigation.navigate('PsbtWithHardwareWallet', {
           memo: this.state.memo,
@@ -805,13 +878,120 @@ export default class SendDetails extends Component {
           txhex: file,
         });
         this.setState({ isLoading: false, isAdvancedTransactionOptionsVisible: false });
-        return;
+      } else {
+        alert('Unrecognized file format');
       }
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
         alert(loc.send.details_no_signed_tx);
       }
     }
+  };
+
+  askCosignThisTransaction = async () => {
+    return new Promise(resolve => {
+      Alert.alert(
+        loc.multisig.cosign_this_transaction,
+        '',
+        [
+          {
+            text: loc._.no,
+            style: 'cancel',
+            onPress: () => resolve(false),
+          },
+          {
+            text: loc._.yes,
+            onPress: () => resolve(true),
+          },
+        ],
+        { cancelable: false },
+      );
+    });
+  };
+
+  _importTransactionMultisig = async base64arg => {
+    try {
+      /** @type MultisigHDWallet */
+      const fromWallet = this.state.fromWallet;
+      const base64 = base64arg || (await fs.openSignedTransaction());
+      if (!base64) return;
+      const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
+
+      if (fromWallet.howManySignaturesCanWeMake() > 0 && (await this.askCosignThisTransaction())) {
+        fromWallet.cosignPsbt(psbt);
+      }
+
+      this.props.navigation.navigate('PsbtMultisig', {
+        memo: this.state.memo,
+        psbtBase64: psbt.toBase64(),
+        walletId: fromWallet.getID(),
+      });
+    } catch (error) {
+      alert(loc.send.problem_with_psbt + ': ' + error.message);
+    }
+    this.setState({ isLoading: false, isAdvancedTransactionOptionsVisible: false });
+  };
+
+  importTransactionMultisig = async () => {
+    return this._importTransactionMultisig();
+  };
+
+  onBarScanned = ret => {
+    this.props.navigation.dangerouslyGetParent().pop();
+    if (!ret.data) ret = { data: ret };
+    if (ret.data.toUpperCase().startsWith('UR')) {
+      alert('BC-UR not decoded. This should never happen');
+    } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+      // this looks like NOT base64, so maybe its transaction's hex
+      // we dont support it in this flow
+    } else {
+      // psbt base64?
+      return this._importTransactionMultisig(ret.data);
+    }
+  };
+
+  importTransactionMultisigScanQr = async () => {
+    this.setState({ isAdvancedTransactionOptionsVisible: false });
+    this.props.navigation.navigate('ScanQRCodeRoot', {
+      screen: 'ScanQRCode',
+      params: {
+        onBarScanned: this.onBarScanned,
+        showFileImportButton: true,
+      },
+    });
+  };
+
+  handleAddRecipient = () => {
+    const { addresses } = this.state;
+    addresses.push(new BitcoinTransaction());
+    this.setState(
+      {
+        addresses,
+        isAdvancedTransactionOptionsVisible: false,
+      },
+      () => {
+        this.scrollView.scrollToEnd();
+        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
+        // after adding recipient it automatically scrolls to the last one
+        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
+      },
+    );
+  };
+
+  handleRemoveRecipient = () => {
+    const { addresses } = this.state;
+    addresses.splice(this.state.recipientsScrollIndex, 1);
+    this.setState(
+      {
+        addresses,
+        isAdvancedTransactionOptionsVisible: false,
+      },
+      () => {
+        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
+        // after deletion it automatically scrolls to the last one
+        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
+      },
+    );
   };
 
   renderAdvancedTransactionOptionsModal = () => {
@@ -856,6 +1036,22 @@ export default class SendDetails extends Component {
                   onPress={this.importTransaction}
                 />
               )}
+            {this.state.fromWallet.type === MultisigHDWallet.type && (
+              <BlueListItem
+                title={loc.send.details_adv_import}
+                hideChevron
+                component={TouchableOpacity}
+                onPress={this.importTransactionMultisig}
+              />
+            )}
+            {this.state.fromWallet.type === MultisigHDWallet.type && this.state.fromWallet.howManySignaturesCanWeMake() > 0 && (
+              <BlueListItem
+                title={loc.multisig.co_sign_transaction}
+                hideChevron
+                component={TouchableOpacity}
+                onPress={this.importTransactionMultisigScanQr}
+              />
+            )}
             {this.state.fromWallet.allowBatchSend() && (
               <>
                 <BlueListItem
@@ -863,43 +1059,14 @@ export default class SendDetails extends Component {
                   title={loc.send.details_add_rec_add}
                   hideChevron
                   component={TouchableOpacity}
-                  onPress={() => {
-                    const addresses = this.state.addresses;
-                    addresses.push(new BitcoinTransaction());
-                    this.setState(
-                      {
-                        addresses,
-                        isAdvancedTransactionOptionsVisible: false,
-                      },
-                      () => {
-                        this.scrollView.scrollToEnd();
-                        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
-                        // after adding recipient it automatically scrolls to the last one
-                        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
-                      },
-                    );
-                  }}
+                  onPress={this.handleAddRecipient}
                 />
                 <BlueListItem
                   title={loc.send.details_add_rec_rem}
                   hideChevron
                   disabled={this.state.addresses.length < 2}
                   component={TouchableOpacity}
-                  onPress={() => {
-                    const addresses = this.state.addresses;
-                    addresses.splice(this.state.recipientsScrollIndex, 1);
-                    this.setState(
-                      {
-                        addresses,
-                        isAdvancedTransactionOptionsVisible: false,
-                      },
-                      () => {
-                        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
-                        // after deletion it automatically scrolls to the last one
-                        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
-                      },
-                    );
-                  }}
+                  onPress={this.handleRemoveRecipient}
                 />
               </>
             )}
@@ -1033,7 +1200,7 @@ export default class SendDetails extends Component {
             onChangeText={async text => {
               text = text.trim();
               const transactions = this.state.addresses;
-              const { address, amount, memo } = this.decodeBitcoinUri(text);
+              const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text);
               item.address = address || text;
               item.amount = amount || item.amount;
               transactions[index] = item;
@@ -1041,6 +1208,7 @@ export default class SendDetails extends Component {
                 addresses: transactions,
                 memo: memo || this.state.memo,
                 isLoading: false,
+                payjoinUrl,
               });
               this.reCalcTx();
             }}
@@ -1185,6 +1353,7 @@ SendDetails.propTypes = {
     goBack: PropTypes.func,
     navigate: PropTypes.func,
     setParams: PropTypes.func,
+    dangerouslyGetParent: PropTypes.func,
   }),
   route: PropTypes.shape({
     name: PropTypes.string,

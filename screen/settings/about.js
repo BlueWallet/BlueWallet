@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, Linking, Dimensions, Image, View, Text, StyleSheet } from 'react-native';
+import React from 'react';
+import { ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import {
   BlueTextCentered,
@@ -7,20 +7,17 @@ import {
   BlueButton,
   SafeBlueArea,
   BlueCard,
-  BlueListItemHooks,
+  BlueListItem,
   BlueNavigationStyle,
-  BlueLoadingHook,
 } from '../../BlueComponents';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import loc from '../../loc';
 
-const { width, height } = Dimensions.get('window');
-
 const About = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const { navigate } = useNavigation();
   const { colors } = useTheme();
+  const { width, height } = useWindowDimensions();
   const styles = StyleSheet.create({
     root: {
       flex: 1,
@@ -57,10 +54,6 @@ const About = () => {
       borderRadius: 8,
     },
   });
-
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
 
   const handleOnReleaseNotesPress = () => {
     navigate('ReleaseNotes');
@@ -102,9 +95,7 @@ const About = () => {
     });
   };
 
-  return isLoading ? (
-    <BlueLoadingHook />
-  ) : (
+  return (
     <SafeBlueArea style={styles.root}>
       <ScrollView testID="AboutScrollView">
         <BlueCard>
@@ -115,7 +106,7 @@ const About = () => {
             <BlueButton onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />
           </View>
         </BlueCard>
-        <BlueListItemHooks
+        <BlueListItem
           leftIcon={{
             name: 'twitter',
             type: 'font-awesome',
@@ -124,7 +115,7 @@ const About = () => {
           onPress={handleOnTwitterPress}
           title={loc.settings.about_sm_twitter}
         />
-        <BlueListItemHooks
+        <BlueListItem
           leftIcon={{
             name: 'telegram',
             type: 'font-awesome',
@@ -133,7 +124,7 @@ const About = () => {
           onPress={handleOnTelegramPress}
           title={loc.settings.about_sm_telegram}
         />
-        <BlueListItemHooks
+        <BlueListItem
           leftIcon={{
             name: 'github',
             type: 'font-awesome',
@@ -154,7 +145,7 @@ const About = () => {
             <BlueTextCentered>Electrum server</BlueTextCentered>
           </View>
         </BlueCard>
-        <BlueListItemHooks
+        <BlueListItem
           leftIcon={{
             name: 'book',
             type: 'font-awesome',
@@ -164,7 +155,7 @@ const About = () => {
           onPress={handleOnReleaseNotesPress}
           title={loc.settings.about_release_notes}
         />
-        <BlueListItemHooks
+        <BlueListItem
           leftIcon={{
             name: 'law',
             type: 'octicon',
@@ -174,7 +165,7 @@ const About = () => {
           onPress={handleOnLicensingPress}
           title="MIT License"
         />
-        <BlueListItemHooks
+        <BlueListItem
           leftIcon={{
             name: 'flask',
             type: 'font-awesome',

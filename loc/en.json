@@ -8,7 +8,10 @@
     "of": "{number} of {total}",
     "ok": "OK",
     "storage_is_encrypted": "Your storage is encrypted. Password is required to decrypt it",
-    "yes": "Yes"
+    "yes": "Yes",
+    "no": "No",
+    "invalid_animated_qr_code_fragment" : "Invalid animated QRCode fragment, please try again",
+    "file_saved": "File ({filePath}) has been saved in your Downloads folder ."
   },
   "azteco": {
     "codeIs": "Your voucher code is",
@@ -170,13 +173,13 @@
     "details_next": "Next",
     "details_no_maximum": "The selected wallet does not support automatic maximum balance calculation. Are you sure to want to select this wallet?",
     "details_no_multiple": "The selected wallet does not support sending Bitcoin to multiple recipients. Are you sure to want to select this wallet?",
-    "details_no_signed_tx": "The selected file does not contain a signed transaction that can be imported.",
+    "details_no_signed_tx": "The selected file does not contain a transaction that can be imported.",
     "details_note_placeholder": "note to self",
     "details_scan": "Scan",
     "details_total_exceeds_balance": "The sending amount exceeds the available balance.",
     "details_wallet_before_tx": "Before creating a transaction, you must first add a Bitcoin wallet.",
     "details_wallet_selection": "Wallet Selection",
-    "dynamic_init": "Initialing",
+    "dynamic_init": "Initializing",
     "dynamic_next": "Next",
     "dynamic_prev": "Previous",
     "dynamic_start": "Start",
@@ -209,7 +212,8 @@
     "qr_error_no_qrcode": "The selected image does not contain a QR Code.",
     "qr_error_no_wallet": "The selected file does not contain a wallet that can be imported.",
     "success_done": "Done",
-    "txSaved": "The transaction file ({filePath}) has been saved in your Downloads folder ."
+    "txSaved": "The transaction file ({filePath}) has been saved in your Downloads folder .",
+    "problem_with_psbt": "Problem with PSBT"
   },
   "settings": {
     "about": "About",
@@ -293,7 +297,7 @@
     "details_to": "Output",
     "details_transaction_details": "Transaction details",
     "enable_hw": "This wallet is not being used in conjunction with a hardwarde wallet. Would you like to enable hardware wallet use?",
-    "list_conf": "conf",
+    "list_conf": "conf: {number}",
     "list_title": "transactions",
     "rbf_explain": "We will replace this transaction with the one with a higher fee, so it should be mined faster. This is called RBF - Replace By Fee.",
     "rbf_title": "Bump fee (RBF)",
@@ -371,5 +375,19 @@
     "select_wallet": "Select Wallet",
     "xpub_copiedToClipboard": "Copied to clipboard.",
     "xpub_title": "wallet XPUB"
+  },
+  "multisig": {
+    "provide_signature": "Provide signature",
+    "vault_key": "Vault key {number}",
+    "fee": "Fee: {number}",
+    "fee_btc": "{number} BTC",
+    "confirm": "Confirm",
+    "header": "Send",
+    "share": "Share",
+    "how_many_signatures_can_bluewallet_make": "how many signatures can bluewallet make",
+    "scan_or_import_file": "Scan or import file",
+    "export_coordination_setup": "export coordination setup",
+    "cosign_this_transaction": "Co-sign this transaction?",
+    "co_sign_transaction": "Co-sign transaction"
   }
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Platform, TouchableWithoutFeedback, TouchableOpacity, StyleSheet } from 'react-native';
-import { BlueLoading, BlueTextHooks, BlueSpacing20, BlueListItemHooks, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
+import { BlueLoading, BlueTextHooks, BlueSpacing20, BlueListItem, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
 import { AppStorage } from '../../class';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import HandoffSettings from '../../class/handoff';
@@ -58,17 +58,12 @@ const GeneralSettings = () => {
     <ScrollView style={stylesWithThemeHook.scroll}>
       {BlueApp.getWallets().length > 1 && (
         <>
-          <BlueListItemHooks
-            component={TouchableOpacity}
-            onPress={() => navigate('DefaultView')}
-            title={loc.settings.default_title}
-            chevron
-          />
+          <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title={loc.settings.default_title} chevron />
         </>
       )}
       {Platform.OS === 'ios' ? (
         <>
-          <BlueListItemHooks
+          <BlueListItem
             hideChevron
             title={loc.settings.general_continuity}
             Component={TouchableWithoutFeedback}
@@ -80,7 +75,7 @@ const GeneralSettings = () => {
           <BlueSpacing20 />
         </>
       ) : null}
-      <BlueListItemHooks
+      <BlueListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.general_adv_mode}
         switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeEnabled }}

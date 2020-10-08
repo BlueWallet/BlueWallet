@@ -8,7 +8,9 @@
     "of": "{number} od {total}",
     "ok": "OK",
     "storage_is_encrypted": "Shramba je šifrirana. Za dešifriranje je potrebno geslo",
-    "yes": "Da"
+    "yes": "Da",
+    "invalid_animated_qr_code_fragment" : "Neveljaven del animirane QR kode, prosimo poskusite ponovno",
+    "file_saved": "Datoteka ({filePath}) je bila shranjena v mapo Prenosi."
   },
   "azteco": {
     "codeIs": "Koda vašega bona je",
@@ -170,7 +172,7 @@
     "details_next": "Naprej",
     "details_no_maximum": "Izbrana denarnica ne podpira samodejnega izračuna največjega stanja. Ali ste prepričani, da želite izbrati to denarnico?",
     "details_no_multiple": "Izbrana denarnica ne podpira pošiljanja več prejemnikom. Ali ste prepričani, da želite izbrati to denarnico?",
-    "details_no_signed_tx": "Izbrana datoteka ne vsebuje podpisane transakcije, ki jo je mogoče uvoziti.",
+    "details_no_signed_tx": "Izbrana datoteka ne vsebuje transakcije, ki jo je mogoče uvoziti.",
     "details_note_placeholder": "lastna opomba",
     "details_scan": "Skeniraj",
     "details_total_exceeds_balance": "Znesek presega razpoložljivo stanje.",
@@ -209,7 +211,8 @@
     "qr_error_no_qrcode": "Izbrana slika ne vsebuje QR kode.",
     "qr_error_no_wallet": "Izbrana datoteka ne vsebuje denarnice, ki jo je mogoče uvoziti.",
     "success_done": "Končano",
-    "txSaved": "Transakcijska datoteka ({filePath}) je bila shranjena v mapo Prenosi."
+    "txSaved": "Transakcijska datoteka ({filePath}) je bila shranjena v mapo Prenosi.",
+    "problem_with_psbt": "Težava s PSBT"
   },
   "settings": {
     "about": "O aplikaciji",
@@ -293,7 +296,7 @@
     "details_to": "Izhod",
     "details_transaction_details": "Podrobnosti transakcije",
     "enable_hw": "Ta denarnica se ne uporablja skupaj s strojno denarnico. Ali želite omogočiti uporabo strojne denarnice?",
-    "list_conf": "potrd",
+    "list_conf": "potrd: {number}",
     "list_title": "transakcije",
     "rbf_explain": "To transakcijo bomo nadomestili z novo, ki plača višjo omrežnino, zato bi morala biti potrditev hitrejša. To se imenuje RBF - Replace By Fee.",
     "rbf_title": "Povečaj omrežnino (RBF)",
@@ -371,5 +374,17 @@
     "select_wallet": "Izberite Denarnico",
     "xpub_copiedToClipboard": "Kopirano v odložišče.",
     "xpub_title": "XPUB denarnice"
+  },
+  "multisig": {
+    "provide_signature": "Vnesite podpis",
+    "vault_key": "Ključ trezorja {number}",
+    "fee": "Omrežnina: {number}",
+    "fee_btc": "{number} BTC",
+    "confirm": "Potrditev",
+    "header": "Pošlji",
+    "share": "Deli",
+    "how_many_signatures_can_bluewallet_make": "koliko podpisov lahko naredi bluewallet",
+    "scan_or_import_file": "Skenirajte ali uvozite datoteko",
+    "export_coordination_setup": "izvoz koordinacijskih nastavitev"
   }
 }

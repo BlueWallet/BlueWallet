@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useEffect, useState } from 'react';
-import { Platform, Dimensions, View, Keyboard, StatusBar, StyleSheet } from 'react-native';
+import { Platform, View, Keyboard, StatusBar, StyleSheet } from 'react-native';
 import {
   BlueFormMultiInput,
   BlueButtonLink,
@@ -25,7 +25,6 @@ import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
 import ScanQRCode from '../send/ScanQRCode';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-const { width } = Dimensions.get('window');
 const isDesktop = getSystemName() === 'Mac OS X';
 
 const WalletsImport = () => {
@@ -44,7 +43,7 @@ const WalletsImport = () => {
     },
     center: {
       flex: 1,
-      alignItems: 'center',
+      marginHorizontal: 16,
       backgroundColor: colors.elevated,
     },
   });
@@ -90,6 +89,7 @@ const WalletsImport = () => {
    * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
    */
   const onBarScanned = (value, additionalProperties) => {
+    if (value && value.data) value = value.data + ''; // no objects here, only strings
     setImportText(value);
     importMnemonic(value, additionalProperties);
   };
@@ -228,9 +228,6 @@ const WalletsImport = () => {
               testID="DoImport"
               disabled={importText.trim().length === 0}
               title={loc.wallets.import_do_import}
-              buttonStyle={{
-                width: width / 1.5,
-              }}
               onPress={importButtonPressed}
             />
             <BlueSpacing20 />
