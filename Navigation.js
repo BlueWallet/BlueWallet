@@ -27,6 +27,7 @@ import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
 import ImportWallet from './screen/wallets/import';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
+import ExportMultisigCoordinationSetup from './screen/wallets/exportMultisigCoordinationSetup';
 import WalletXpub from './screen/wallets/xpub';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import HodlHodl from './screen/wallets/hodlHodl';
@@ -53,6 +54,7 @@ import ScanQRCode from './screen/send/ScanQRCode';
 import SendCreate from './screen/send/create';
 import Confirm from './screen/send/confirm';
 import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
+import PsbtMultisig from './screen/send/psbtMultisig';
 import Success from './screen/send/success';
 import Broadcast from './screen/send/broadcast';
 
@@ -175,17 +177,8 @@ const SendDetailsRoot = () => (
       component={PsbtWithHardwareWallet}
       options={PsbtWithHardwareWallet.navigationOptions}
     />
-    <SendDetailsStack.Screen
-      name="CreateTransaction"
-      component={SendCreate}
-      options={{
-        headerStyle: {
-          backgroundColor: '#FFFFFF',
-          borderBottomWidth: 0,
-        },
-        headerTintColor: '#0c2550',
-      }}
-    />
+    <SendDetailsStack.Screen name="CreateTransaction" component={SendCreate} options={SendCreate.navigationOptions} />
+    <SendDetailsStack.Screen name="PsbtMultisig" component={PsbtMultisig} options={PsbtMultisig.navigationOptions} />
     <SendDetailsStack.Screen name="Success" component={Success} options={Success.navigationOptions} />
     <SendDetailsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
   </SendDetailsStack.Navigator>
@@ -271,11 +264,12 @@ function DrawerRoot() {
   const dimensions = useWindowDimensions();
   const isLargeScreen = Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 3 && isTablet();
   const drawerStyle = { width: '0%' };
+
   return (
     <Drawer.Navigator
       drawerStyle={isLargeScreen ? null : drawerStyle}
       drawerType={isLargeScreen ? 'permanent' : null}
-      drawerContent={props => <DrawerList {...props} />}
+      drawerContent={props => (isLargeScreen ? <DrawerList {...props} /> : null)}
     >
       <Drawer.Screen name="Navigation" component={Navigation} options={{ headerShown: false, gestureEnabled: false }} />
     </Drawer.Navigator>
@@ -312,6 +306,11 @@ const Navigation = () => (
 
     {/* screens */}
     <RootStack.Screen name="WalletExport" component={WalletExport} options={WalletExport.navigationOptions} />
+    <RootStack.Screen
+      name="ExportMultisigCoordinationSetup"
+      component={ExportMultisigCoordinationSetup}
+      options={ExportMultisigCoordinationSetup.navigationOptions}
+    />
     <RootStack.Screen name="WalletXpub" component={WalletXpub} options={WalletXpub.navigationOptions} />
     <RootStack.Screen name="BuyBitcoin" component={BuyBitcoin} options={BuyBitcoin.navigationOptions} />
     <RootStack.Screen name="Marketplace" component={Marketplace} options={Marketplace.navigationOptions} />

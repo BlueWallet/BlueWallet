@@ -26,6 +26,10 @@ export class AbstractHDWallet extends LegacyWallet {
     return this.next_free_address_index;
   }
 
+  getNextFreeChangeAddressIndex() {
+    return this.next_free_change_address_index;
+  }
+
   prepareForSerialization() {
     // deleting structures that cant be serialized
     delete this._node0;
@@ -93,7 +97,7 @@ export class AbstractHDWallet extends LegacyWallet {
     if (!freeAddress) {
       // could not find in cycle above, give up
       freeAddress = this._getExternalAddressByIndex(this.next_free_address_index + c); // we didnt check this one, maybe its free
-      this.next_free_address_index += c + 1; // now points to the one _after_
+      this.next_free_address_index += c; // now points to this one
     }
     this._address = freeAddress;
     return freeAddress;
@@ -130,8 +134,8 @@ export class AbstractHDWallet extends LegacyWallet {
 
     if (!freeAddress) {
       // could not find in cycle above, give up
-      freeAddress = this._getExternalAddressByIndex(this.next_free_address_index + c); // we didnt check this one, maybe its free
-      this.next_free_address_index += c + 1; // now points to the one _after_
+      freeAddress = this._getInternalAddressByIndex(this.next_free_change_address_index + c); // we didnt check this one, maybe its free
+      this.next_free_change_address_index += c; // now points to this one
     }
     this._address = freeAddress;
     return freeAddress;

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, Linking, Dimensions, Image, View, Text, StyleSheet } from 'react-native';
+import React from 'react';
+import { ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import {
   BlueTextCentered,
@@ -9,18 +9,15 @@ import {
   BlueCard,
   BlueListItem,
   BlueNavigationStyle,
-  BlueLoadingHook,
 } from '../../BlueComponents';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import loc from '../../loc';
 
-const { width, height } = Dimensions.get('window');
-
 const About = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const { navigate } = useNavigation();
   const { colors } = useTheme();
+  const { width, height } = useWindowDimensions();
   const styles = StyleSheet.create({
     root: {
       flex: 1,
@@ -57,10 +54,6 @@ const About = () => {
       borderRadius: 8,
     },
   });
-
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
 
   const handleOnReleaseNotesPress = () => {
     navigate('ReleaseNotes');
@@ -102,9 +95,7 @@ const About = () => {
     });
   };
 
-  return isLoading ? (
-    <BlueLoadingHook />
-  ) : (
+  return (
     <SafeBlueArea style={styles.root}>
       <ScrollView testID="AboutScrollView">
         <BlueCard>

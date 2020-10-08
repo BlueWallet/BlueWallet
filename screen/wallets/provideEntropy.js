@@ -1,7 +1,7 @@
 import React, { useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import BN from 'bignumber.js';
-import { Dimensions, PixelRatio, View, ScrollView, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { Dimensions, PixelRatio, View, ScrollView, Text, Image, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -116,6 +116,8 @@ Coin.propTypes = {
 };
 
 const Dice = ({ push, sides }) => {
+  const { width } = useWindowDimensions();
+  const diceWidth = width / 4;
   const diceIcon = i => {
     switch (i) {
       case 1:
@@ -137,7 +139,7 @@ const Dice = ({ push, sides }) => {
     <ScrollView contentContainerStyle={styles.diceContainer}>
       {[...Array(sides)].map((_, i) => (
         <TouchableOpacity key={i} onPress={() => push(getEntropy(i, sides))}>
-          <View style={styles.diceRoot}>
+          <View style={[styles.diceRoot, { width: diceWidth }]}>
             {sides === 6 ? (
               <Icon style={styles.diceIcon} name={diceIcon(i + 1)} size={70} color="grey" type="font-awesome-5" />
             ) : (
@@ -290,6 +292,8 @@ const styles = StyleSheet.create({
     borderColor: BlueCurrentTheme.colors.lightButton,
     margin: 10,
     padding: 10,
+    maxWidth: 100,
+    maxHeight: 100,
   },
   coinImage: {
     aspectRatio: 1,
@@ -305,8 +309,9 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   diceRoot: {
-    width: Dimensions.get('window').width / 4,
     aspectRatio: 1,
+    maxWidth: 100,
+    maxHeight: 100,
   },
   dice: {
     margin: 3,

@@ -71,6 +71,7 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
    * @private
    */
   _getWIFByIndex(internal, index) {
+    if (!this.secret) return false;
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
     const root = bitcoinjs.bip32.fromSeed(seed);

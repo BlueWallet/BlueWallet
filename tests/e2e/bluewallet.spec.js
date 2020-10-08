@@ -14,7 +14,7 @@ describe('BlueWallet UI Tests', () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', jasmine.currentTest.fullName, 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
     await waitFor(element(by.id('WalletsList')))
       .toBeVisible()
@@ -35,7 +35,7 @@ describe('BlueWallet UI Tests', () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', jasmine.currentTest.fullName, 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
     await yo('WalletsList');
 
@@ -51,7 +51,7 @@ describe('BlueWallet UI Tests', () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', jasmine.currentTest.fullName, 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
     await yo('WalletsList');
 
@@ -192,7 +192,7 @@ describe('BlueWallet UI Tests', () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', jasmine.currentTest.fullName, 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
     await yo('WalletsList');
     await helperCreateWallet();
@@ -268,7 +268,7 @@ describe('BlueWallet UI Tests', () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', jasmine.currentTest.fullName, 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
     // this test mostly repeats previous one, except in the end it logins with FAKE password to unlock FAKE
     // storage bucket, and then decrypts it. effectively, everything from MAIN storage bucket is lost
@@ -347,7 +347,7 @@ describe('BlueWallet UI Tests', () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', jasmine.currentTest.fullName, 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
@@ -475,7 +475,7 @@ describe('BlueWallet UI Tests', () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', jasmine.currentTest.fullName, 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
     await helperImportWallet(
       'zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP',
@@ -521,7 +521,7 @@ describe('BlueWallet UI Tests', () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', jasmine.currentTest.fullName, 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');

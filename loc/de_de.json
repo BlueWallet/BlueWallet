@@ -293,7 +293,7 @@
     "details_to": "Ausgehend",
     "details_transaction_details": "Transaktionsdetails",
     "enable_hw": "Dieses Wallet nutzt keine Hardware-Wallet. Möchtest Du die Verwendung einer Hardware-Wallet aktivieren?",
-    "list_conf": "Konf",
+    "list_conf": "Bestätigungen: {number}",
     "list_title": "Transaktionen",
     "rbf_explain": "BlueWallet ersetzt diese Transaktion zur Verringerung der Transaktionszeit durch eine mit höherer Gebühr. (RBF - Replace By Fee)",
     "rbf_title": "TRX-Gebühr erhöhen (RBF)",

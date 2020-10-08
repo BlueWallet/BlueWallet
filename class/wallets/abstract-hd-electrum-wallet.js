@@ -680,8 +680,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     addressess = [...new Set(addressess)]; // deduplicate just for any case
 
+    const fetchedUtxo = await BlueElectrum.multiGetUtxoByAddress(addressess);
     this._utxo = [];
-    for (const arr of Object.values(await BlueElectrum.multiGetUtxoByAddress(addressess))) {
+    for (const arr of Object.values(fetchedUtxo)) {
       this._utxo = this._utxo.concat(arr);
     }
 
@@ -739,8 +740,6 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         }
         if (ownedAddressesHashmap[address]) {
           const value = new BigNumber(output.value).multipliedBy(100000000).toNumber();
-          const wif = returnSpentUtxoAsWell ? false : this._getWifForAddress(address);
-          // ^^^ faster, as we probably dont need WIFs for spent UTXO
           utxos.push({
             txid: tx.txid,
             txId: tx.txid,
@@ -749,7 +748,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
             value,
             amount: value,
             confirmations: tx.confirmations,
-            wif,
+            wif: false,
             height: BlueElectrum.estimateCurrentBlockheight() - tx.confirmations,
           });
         }
@@ -769,7 +768,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         }
       }
 
-      if (!spent) ret.push(utxo);
+      if (!spent) {
+        // filling WIFs only for legit unspent UTXO, as it is a slow operation
+        utxo.wif = this._getWifForAddress(utxo.address);
+        ret.push(utxo);
+      }
     }
 
     return ret;
