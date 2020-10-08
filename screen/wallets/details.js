@@ -154,27 +154,29 @@ const WalletDetails = () => {
 
   const presentWalletHasBalanceAlert = useCallback(async () => {
     ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
-    const walletBalanceConfirmation = await prompt(
-      loc.wallets.details_del_wb,
-      loc.formatString(loc.wallets.details_del_wb_q, { balance: wallet.getBalance() }),
-      true,
-      'plain-text',
-    );
-    if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
-      setParams({ isLoading: true });
-      setIsLoading(true);
-      notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
-      BlueApp.deleteWallet(wallet);
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-      await BlueApp.saveToDisk();
-      EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-      EV(EV.enum.WALLETS_COUNT_CHANGED);
-      popToTop();
-    } else {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-      setIsLoading(false);
-      alert(loc.wallets.details_del_wb_err);
-    }
+    try {
+      const walletBalanceConfirmation = await prompt(
+        loc.wallets.details_del_wb,
+        loc.formatString(loc.wallets.details_del_wb_q, { balance: wallet.getBalance() }),
+        true,
+        'plain-text',
+      );
+      if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
+        setParams({ isLoading: true });
+        setIsLoading(true);
+        notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
+        BlueApp.deleteWallet(wallet);
+        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+        await BlueApp.saveToDisk();
+        EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+        EV(EV.enum.WALLETS_COUNT_CHANGED);
+        popToTop();
+      } else {
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        setIsLoading(false);
+        alert(loc.wallets.details_del_wb_err);
+      }
+    } catch (_) {}
   }, [popToTop, setParams, wallet]);
 
   const navigateToWalletExport = () => {
