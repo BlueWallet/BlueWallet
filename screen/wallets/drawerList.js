@@ -107,15 +107,7 @@ const DrawerList = props => {
       <View styles={[styles.root, stylesHook.root]}>
         <StatusBar barStyle="default" />
         <SafeAreaView style={styles.root}>
-          <BlueHeaderDefaultMain
-            leftText={loc.wallets.list_title}
-            onNewWalletPress={
-              !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)
-                ? () => props.navigation.navigate('AddWalletRoot')
-                : null
-            }
-            isDrawerList
-          />
+          <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
         </SafeAreaView>
         {renderWalletsCarousel()}
       </View>
