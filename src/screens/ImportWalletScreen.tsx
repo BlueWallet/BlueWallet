@@ -117,7 +117,6 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
         buttonTitle: i18n.message.returnToWalletImport,
       });
     } else {
-      await newWallet.fetchUtxos();
       newWallet.setLabel(this.state.label || i18n.wallets.import.imported + ' ' + newWallet.typeReadable);
       importWallet(newWallet, {
         onSuccess: () => {

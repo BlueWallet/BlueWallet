@@ -134,7 +134,7 @@ class SendCoinsScreen extends Component<Props, State> {
     }
 
     const { tx, fee } = await wallet.createTransaction(
-      this.getUnspentUtxos(wallet.getUtxos()),
+      this.getUnspentUtxos(await wallet.fetchUtxos()),
       targets,
       requestedSatPerByte,
       changeAddress,
@@ -283,7 +283,7 @@ class SendCoinsScreen extends Component<Props, State> {
 
   createStandardTransaction = async (createTx: Function) => {
     const { fee: requestedSatPerByte, transaction, wallet } = this.state;
-    const utxos = wallet.getUtxos();
+    const utxos = await wallet.fetchUtxos();
     const utxosUnspent = this.getUnspentUtxos(utxos);
 
     let fee = 0.000001; // initial fee guess

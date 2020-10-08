@@ -113,6 +113,7 @@ export class LegacyWallet extends AbstractWallet {
       this.utxo = [];
       const utxos = await BlueElectrum.multiGetUtxoByAddress([this.getAddress()]);
       this.utxo = utxos;
+      return this.utxo;
     } catch (err) {
       console.warn(err.message);
     }

@@ -29,21 +29,18 @@ const pt = {
   },
   message: {
     somethingWentWrong: 'Alguma coisa correu mal',
-    somethingWentWrongWhileCreatingWallet:
-      'Alguma coisa correu mal enquanto criava a sua carteira. Volte ao Painel e tente novamente.',
+    somethingWentWrongWhileCreatingWallet: 'Alguma coisa correu mal enquanto criava a sua carteira. Volte ao Painel e tente novamente.',
     success: 'Sucesso',
     successfullWalletImport: 'A importação da sua carteira foi realizada com sucesso. Pode voltar ao Painel.',
     successfullWalletDelete: 'A sua carteira foi excluída com sucesso. Pode voltar ao Painel.',
     returnToDashboard: 'Voltar ao Painel',
     creatingWallet: 'Criação da sua carteira',
-    creatingWalletDescription:
-      'Estamos a criar a sua carteira. Este procedimento pode demorar um pouco. Agradecemos a sua compreensão.',
+    creatingWalletDescription: 'Estamos a criar a sua carteira. Este procedimento pode demorar um pouco. Agradecemos a sua compreensão.',
     allDone: 'Tudo feito!',
     hooray: 'Viva!',
     cancelTxSuccess: 'Cancelou a sua transação com sucesso.\n As suas moedas estão a caminho',
     wrongMnemonic: 'Mnemónica errada',
-    wrongMnemonicDesc:
-      'A sua mnemónica não corresponde a nenhuma carteira suportada. Está a tentar importar uma mnemónica inválida ou uma carteira que nunca foi utilizada',
+    wrongMnemonicDesc: 'A sua mnemónica não corresponde a nenhuma carteira suportada. Está a tentar importar uma mnemónica inválida ou uma carteira que nunca foi utilizada',
     returnToWalletChoose: 'Voltar à seleção do tipo de carteira',
     returnToWalletImport: 'Voltar à importação da carteira',
     generateAddressesError: 'Não foi possível gerar endereços',
@@ -51,11 +48,9 @@ const pt = {
     noTransactionsDesc: 'Provavelmente, está a tentar importar uma carteira que nunca foi utilizada',
     returnToAuthenticators: 'Voltar aos Autenticadores',
     creatingAuthenticator: 'A criar o seu autenticador',
-    creatingAuthenticatorDescription:
-      'Por favor, seja paciente enquanto criamos o seu autenticador.\n Pode demorar um pouco.',
+    creatingAuthenticatorDescription: 'Por favor, seja paciente enquanto criamos o seu autenticador.\n Pode demorar um pouco.',
     importingAuthenticator: 'A importar o seu autenticador',
-    importingAuthenticatorDescription:
-      'Por favor, seja paciente enquanto importamos o seu autenticador.\n Pode demorar um pouco.',
+    importingAuthenticatorDescription: 'Por favor, seja paciente enquanto importamos o seu autenticador.\n Pode demorar um pouco.',
   },
   onboarding: {
     onboarding: 'Definir credenciais',
@@ -63,14 +58,12 @@ const pt = {
     createPin: 'Definir PIN',
     createNewPin: 'Novo PIN',
     createPassword: 'Criar palavra-passe de transacção',
-    createPinDescription:
-      'O seu PIN será utilizado para iniciar sessão na aplicação. Poderá alterá-lo posteriormente no menu Definições.',
+    createPinDescription: 'O seu PIN será utilizado para iniciar sessão na aplicação. Poderá alterá-lo posteriormente no menu Definições.',
     confirmPin: 'Confirmar PIN',
     confirmNewPin: 'Confirmar novo PIN',
     confirmPassword: 'Confirmar palavra-passe de transacção',
     passwordDoesNotMatch: 'As palavras-passe não correspondem. Por favor, introduza uma palavra-passe válida.',
-    createPasswordDescription:
-      'A palavra-passe de transacção será utilizada para verificar todas as suas transacções. Informamos de que esta palavra-passe não pode ser alterada. A palavra-passe de transacção deve conter pelo menos 8 caracteres alfanuméricos.',
+    createPasswordDescription: 'A palavra-passe de transacção será utilizada para verificar todas as suas transacções. Informamos de que esta palavra-passe não pode ser alterada. A palavra-passe de transacção deve conter pelo menos 8 caracteres alfanuméricos.',
     changePin: 'Alterar PIN',
     currentPin: 'PIN actual',
     pinDoesNotMatch: 'O PIN introduzido não corresponde. Por favor, introduza um PIN válido',
@@ -88,7 +81,7 @@ const pt = {
   },
   unlock: {
     title: 'Desbloquear',
-    touchID: 'Touch ID para "Gold Wallet"',
+    touchID: 'Touch ID para \"Gold Wallet\"',
     confirmButton: 'Introduza a sua impressão digital para continuar.',
     enter: 'Introduza o PIN',
   },
@@ -118,8 +111,7 @@ const pt = {
     importWallet: {
       title: 'Importar a sua carteira',
       header: 'Importar carteira',
-      subtitle:
-        'Anote aqui a sua mnemónica, chave privada, WIF ou o que tiver. GoldWallet fará o melhor para descobrir o formato correto e importar a sua carteira',
+      subtitle: 'Anote aqui a sua mnemónica, chave privada, WIF ou o que tiver. GoldWallet fará o melhor para descobrir o formato correto e importar a sua carteira',
       placeholder: 'Mnemónica, chave privada, WIF',
       import: 'Importar',
       scanQrCode: 'ou analisar o código de QR',
@@ -131,10 +123,8 @@ const pt = {
       scanWalletAddressDescription: 'Leia o código QR do Endereço Público para iniciar a integração com a GoldWallet.',
       scanFastPubKey: 'Leia o código QR da Chave Rápida',
       scanCancelPubKey: 'Leia o código QR da Chave Cancelar',
-      scanPublicKeyDescription:
-        'Abra o primeiro documento PDF que gerou quando criou a carteira que pretende importar e utilize esta aplicação para ler o código QR da Chave Pública.',
-      unsupportedElectrumVaultMnemonic:
-        'Esta semente é da Electrum Vault e não é atualmente suportada. Será suportada num futuro próximo.',
+      scanPublicKeyDescription: 'Abra o primeiro documento PDF que gerou quando criou a carteira que pretende importar e utilize esta aplicação para ler o código QR da Chave Pública.',
+      unsupportedElectrumVaultMnemonic: 'Esta semente é da Electrum Vault e não é atualmente suportada. Será suportada num futuro próximo.',
     },
     exportWallet: {
       title: 'Frase da mnemónica',
@@ -166,8 +156,7 @@ const pt = {
       advancedOptions: 'Opções avançadas',
       multipleAddresses: 'Múltiplos endereços',
       singleAddress: 'Um endereço',
-      segwidAddress:
-        'Contém uma árvore de endereços de segmento nativos, gerados a partir de uma única semente de 24 palavras',
+      segwidAddress: 'Contém uma árvore de endereços de segmento nativos, gerados a partir de uma única semente de 24 palavras',
       failed: 'Falhou ao criar carteira',
       walletType: 'Tipo de carteira',
       ar: 'Faz transações Padrão e de Cancelamento.',
@@ -179,15 +168,13 @@ const pt = {
       legacy: 'Faz tipos padrão de transações.',
       legacyHDP2SH: 'Contém uma árvore de endereços P2SH gerados a partir de uma única semente de 24 palavras',
       LegacyP2SH: 'Contém um único endereço P2SH',
-      LegacyHDSegWit:
-        'Contém uma árvore de endereços segwit nativos, gerados a partir de uma única semente de 24 palavras',
+      LegacyHDSegWit: 'Contém uma árvore de endereços segwit nativos, gerados a partir de uma única semente de 24 palavras',
       publicKeyError: 'Chave pública apresentada é inválida',
     },
     addSuccess: {
       title: 'Adicionar nova carteira',
       subtitle: 'Sucesso',
-      description:
-        'A sua carteira foi criada. Tire um momento para anotar esta frase da mnemónica num papel. É a sua cópia de segurança. Pode usá-la para repor a carteira noutros dispositivos.',
+      description: 'A sua carteira foi criada. Tire um momento para anotar esta frase da mnemónica num papel. É a sua cópia de segurança. Pode usá-la para repor a carteira noutros dispositivos.',
       okButton: 'OK, anotei-a!',
     },
     details: {
@@ -205,8 +192,7 @@ const pt = {
     },
     import: {
       title: 'Importar',
-      explanation:
-        'Anote aqui a sua mnemónica, chave privada, WIF ou o que tiver. GoldWallet fará o melhor para descobrir o formato correto e importar a sua carteira',
+      explanation: 'Anote aqui a sua mnemónica, chave privada, WIF ou o que tiver. GoldWallet fará o melhor para descobrir o formato correto e importar a sua carteira',
       imported: 'Importada',
       error: 'Falha na importação. Garanta que os dados fornecidos são válidos.',
       success: 'Sucesso',
@@ -231,11 +217,9 @@ const pt = {
     publicKey: {
       recoverySubtitle: 'Adicionar Chave de Cancelamento',
       webKeyGenerator: 'Gerador de Chaves da Web:',
-      recoveryDescription:
-        'Vá ao Gerador de Chaves da Web num dispositivo separado e utilize esta aplicação para ler o código QR da Chave Pública. Lembre-se de exportar as suas chaves como um PDF!',
+      recoveryDescription: 'Vá ao Gerador de Chaves da Web num dispositivo separado e utilize esta aplicação para ler o código QR da Chave Pública. Lembre-se de exportar as suas chaves como um PDF!',
       instantSubtitle: 'Adicionar Chave Rápida',
-      instantDescription:
-        'Vá ao Gerador de Chaves da Web num dispositivo separado e utilize esta aplicação para ler o código QR da Chave Pública. Lembre-se de exportar as suas chaves como um PDF!',
+      instantDescription: 'Vá ao Gerador de Chaves da Web num dispositivo separado e utilize esta aplicação para ler o código QR da Chave Pública. Lembre-se de exportar as suas chaves como um PDF!',
       scan: 'Ler',
     },
     errors: {
@@ -343,35 +327,28 @@ const pt = {
       amount: 'Montante',
       fee: 'Taxa',
       setTransactionFee: 'Configurar uma taxa de transacção',
-      headerText:
-        'Quando existe um grande número de transacções pendentes na rede (>1500), a taxa mais alta irá resultar no processamento mais rápido da sua transacção. Os valores normais são 1-500 sat/b',
+      headerText: 'Quando existe um grande número de transacções pendentes na rede (>1500), a taxa mais alta irá resultar no processamento mais rápido da sua transacção. Os valores normais são 1-500 sat/b',
     },
     recovery: {
       recover: 'Cancelar',
       useWalletAddress: 'Usar endereço desta carteira',
       confirmSeed: 'Confirmar com Frase de Semente de Cancelamento',
-      confirmSeedDesc:
-        'Abra o documento PDF que gerou quando criou a sua carteira e escreva a frase de Chave Privada na mesma ordem.',
+      confirmSeedDesc: 'Abra o documento PDF que gerou quando criou a sua carteira e escreva a frase de Chave Privada na mesma ordem.',
       confirmFirstSeed: 'Confirmar com Frase de Semente de Cancelamento',
-      confirmFirstSeedDesc:
-        'Abra o primeiro documento PDF que gerou quando criou a sua carteira e escreva a frase de Chave Privada na mesma ordem.',
+      confirmFirstSeedDesc: 'Abra o primeiro documento PDF que gerou quando criou a sua carteira e escreva a frase de Chave Privada na mesma ordem.',
       confirmSecondSeed: 'Confirmar com Frase de Semente Rápida',
-      confirmSecondSeedDesc:
-        'Abra o segundo documento PDF que gerou quando criou a sua carteira e escreva a frase de Chave Privada na mesma ordem.',
+      confirmSecondSeedDesc: 'Abra o segundo documento PDF que gerou quando criou a sua carteira e escreva a frase de Chave Privada na mesma ordem.',
     },
     transaction: {
       instant: 'Rápido',
       instantDesc: 'Esta transação será confirmada imediatamente. Usar com extremo cuidado.',
       fastSuccess: 'Fez a sua transação rápida com sucesso.',
       alert: 'Padrão',
-      alertDesc:
-        'Esta transação precisa de 144 blocos ou cerca de 24 horas para ser confirmada. Pode cancelar dentro deste tempo.',
+      alertDesc: 'Esta transação precisa de 144 blocos ou cerca de 24 horas para ser confirmada. Pode cancelar dentro deste tempo.',
       type: 'Tipo de transação',
       scanInstantKeyTitle: 'Ler a Chave Rápida',
-      scanInstantKeyDesc:
-        'Abra o documento PDF que gerou quando criou a sua carteira e leia o código QR para enviar transação.',
-      lightningError:
-        'Este endereço parece ser para uma fatura Relâmpago. Por favor, vá à sua carteira Relâmpago de forma a fazer o pagamento desta fatura.',
+      scanInstantKeyDesc: 'Abra o documento PDF que gerou quando criou a sua carteira e leia o código QR para enviar transação.',
+      lightningError: 'Este endereço parece ser para uma fatura Relâmpago. Por favor, vá à sua carteira Relâmpago de forma a fazer o pagamento desta fatura.',
       watchOnlyError: 'Carteiras apenas de observação não podem enviar transações',
     },
     error: {
@@ -379,8 +356,7 @@ const pt = {
       description: 'Antes de efetuar uma transação, deve primeiro inserir uma carteira Bitcoin Vault.',
     },
     warning: 'Aviso: ',
-    warningGeneral:
-      'Aviso: Esteja ciente de que no processo de uso do recurso Transação segura, uma parte dos fundos deixados na sua carteira pode ser bloqueada. Este é um procedimento normal vinculado ao UTXO e aos parâmetros de blockchain da carteira Bitcoin Vault. Os seus fundos serão desbloqueados assim que a transação for verificada (após aproximadamente 24 horas) ou cancelada (dentro de 24 horas). ',
+    warningGeneral: 'Aviso: Esteja ciente de que no processo de uso do recurso Transação segura, uma parte dos fundos deixados na sua carteira pode ser bloqueada. Este é um procedimento normal vinculado ao UTXO e aos parâmetros de blockchain da carteira Bitcoin Vault. Os seus fundos serão desbloqueados assim que a transação for verificada (após aproximadamente 24 horas) ou cancelada (dentro de 24 horas). ',
   },
   receive: {
     header: 'Receber moedas',
@@ -419,25 +395,21 @@ const pt = {
   electrumServer: {
     header: 'Servidor Electrum',
     title: 'Alterar o Servidor Electrum',
-    description:
-      'Poderá alterar o endereço do servidor ao qual é efectuada a ligação. O endereço padrão é recomendado.',
+    description: 'Poderá alterar o endereço do servidor ao qual é efectuada a ligação. O endereço padrão é recomendado.',
     save: 'Guardar',
     useDefault: 'Usar predefinição',
     host: 'anfitrião',
     port: 'porta',
-    successfullSave:
-      'As suas alterações foram guardadas com sucesso. A reinicialização pode ser exigida para que as alterações tenham efeito.',
+    successfullSave: 'As suas alterações foram guardadas com sucesso. A reinicialização pode ser exigida para que as alterações tenham efeito.',
     connectionError: 'Não está a ser possível efectuar a ligação ao servidor Electrum fornecido',
   },
   advancedOptions: {
     title: 'Configurar opções avançadas',
-    description:
-      'A activação das Opções Avançadas permitirá escolher entre os tipos de carteira listados abaixo: \n P2SH, HD P2SH, HD segwit.',
+    description: 'A activação das Opções Avançadas permitirá escolher entre os tipos de carteira listados abaixo: \n P2SH, HD P2SH, HD segwit.',
   },
   selectLanguage: {
     header: 'Idioma',
-    restartInfo:
-      'Quando um novo idioma é seleccionado, o reinício da aplicação GoldWallet pode ser exigido para esta alteração ter efeito',
+    restartInfo: 'Quando um novo idioma é seleccionado, o reinício da aplicação GoldWallet pode ser exigido para esta alteração ter efeito',
     confirmation: 'Confirmação',
     confirm: 'Confirmar',
     alertDescription: 'Seleccionar o idioma e reiniciar a aplicação?',
@@ -529,17 +501,15 @@ const pt = {
       title: 'Emparelhar autenticador',
       pin: 'PIN',
       publicKey: 'Chave Pública',
-      descPin:
-        'Utilize este PIN para confirmar o emparelhamento do autenticador na sua aplicação de ambiente de trabalho.',
-      descPublicKey:
-        'Pode utilizar esta Chave Pública para importar o seu autenticador na aplicação de ambiente de trabalho durante o processo de criação da carteira com a opção GoldWallet.',
+      descPin: 'Utilize este PIN para confirmar o emparelhamento do autenticador na sua aplicação de ambiente de trabalho.',
+      descPublicKey: 'Pode utilizar esta Chave Pública para importar o seu autenticador na aplicação de ambiente de trabalho durante o processo de criação da carteira com a opção GoldWallet.',
     },
     import: {
       title: 'Importar autenticador',
       success: 'Importou o seu autenticador com sucesso Está agora pronto a ser utilizado.',
       subtitle: 'Importar o seu autenticador',
       desc1: 'Escreva a frase semente ou leia o código QR do autenticador que pretende importar.',
-      desc2: 'leia o código QR ao clicar em "ou ler código QR" abaixo da',
+      desc2: 'leia o código QR ao clicar em \"ou ler código QR\" abaixo da',
       textAreaPlaceholder: 'Frase semente',
     },
     export: {
@@ -561,38 +531,30 @@ const pt = {
       successTitle: 'O seu autenticador está pronto!',
       title: 'Adicionar novo autenticador',
       subtitle: 'Emparelhar autenticador',
-      successDescription:
-        'Escreva esta frase semente num lugar seguro. É a sua segurança no caso de precisar de restaurar o seu autenticador. Lembre-se de que o autenticador é necessário para confirmar transações Rápidas e de Cancelamento.',
-      description:
-        'Abra a sua aplicação de ambiente de trabalho Electrum Vault e crie uma nova carteira. Siga os passos no ecrã até ver um código QR. Utilize esta aplicação para a ler e prosseguir.',
+      successDescription: 'Escreva esta frase semente num lugar seguro. É a sua segurança no caso de precisar de restaurar o seu autenticador. Lembre-se de que o autenticador é necessário para confirmar transações Rápidas e de Cancelamento.',
+      description: 'Abra a sua aplicação de ambiente de trabalho Electrum Vault e crie uma nova carteira. Siga os passos no ecrã até ver um código QR. Utilize esta aplicação para a ler e prosseguir.',
       subdescription: 'Também pode importar o seu autenticador ao escolher a opção abaixo.',
     },
     enterPIN: {
       subtitle: 'Introduzir PIN',
-      description:
-        'Introduzir este PIN na aplicação de ambiente de trabalho Electrum Vault para terminar o processo de emparelhamento.',
+      description: 'Introduzir este PIN na aplicação de ambiente de trabalho Electrum Vault para terminar o processo de emparelhamento.',
     },
   },
   timeCounter: {
     title: 'Aplicação bloqueada',
-    description:
-      'A sua candidatura foi bloqueada devido às tentativas de login sem sucesso. Por favor, aguarde o tempo necessário para tentar novamente.',
+    description: 'A sua candidatura foi bloqueada devido às tentativas de login sem sucesso. Por favor, aguarde o tempo necessário para tentar novamente.',
     tryAgain: 'Tentar novamente',
     closeTheApp: 'Fechar a aplicação',
   },
   security: {
-    jailBrokenPhone:
-      'O seu dispositivo parece ter sido desbloqueado. Isto pode provocar problemas de segurança, colisões ou outros problemas. Não recomendamos a utilização da GoldWallet com um dispositivo desbloqueado.',
-    rootedPhone:
-      'O seu dispositivo parece ter sido ancorado. Isto pode provocar problemas de segurança, colisões ou outros problemas. Não recomendamos a utilização da GoldWallet com um dispositivo ancorado.',
+    jailBrokenPhone: 'O seu dispositivo parece ter sido desbloqueado. Isto pode provocar problemas de segurança, colisões ou outros problemas. Não recomendamos a utilização da GoldWallet com um dispositivo desbloqueado.',
+    rootedPhone: 'O seu dispositivo parece ter sido ancorado. Isto pode provocar problemas de segurança, colisões ou outros problemas. Não recomendamos a utilização da GoldWallet com um dispositivo ancorado.',
     title: 'Problema de segurança',
-    noPinOrFingerprintSet:
-      'O seu dispositivo parece não ter um PIN ou impressão digital configurada. Não recomendamos o uso do GoldWallet com um dispositivo não seguro.',
+    noPinOrFingerprintSet: 'O seu dispositivo parece não ter um PIN ou impressão digital configurada. Não recomendamos o uso do GoldWallet com um dispositivo não seguro.',
   },
   betaVersion: {
     title: 'Esta é uma versão beta\nda carteira de ouro',
-    description:
-      'Ainda está em fase de testes finais antes de seu lançamento oficial. O aplicativo móvel e todo o conteúdo encontrado nele são fornecidos ""como estão"" e ""conforme disponível"". O uso do software é feito por conta e risco do usuário.',
+    description: 'Ainda está em fase de testes finais antes de seu lançamento oficial. O aplicativo móvel e todo o conteúdo encontrado nele são fornecidos \"\"como estão\"\" e \"\"conforme disponível\"\". O uso do software é feito por conta e risco do usuário.',
     button: 'Eu aceito o risco',
   },
-};
+}

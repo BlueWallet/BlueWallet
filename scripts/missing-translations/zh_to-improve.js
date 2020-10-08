@@ -63,8 +63,7 @@ const zh = {
     confirmNewPin: '确认新的PIN',
     confirmPassword: '确认交易密码',
     passwordDoesNotMatch: '密码不匹配，请输入有效的密码。',
-    createPasswordDescription:
-      '您的交易密码将用于验证所有交易。\n您之后将无法更改。\n交易密码必须包含至少8位字母数字字符。',
+    createPasswordDescription: '您的交易密码将用于验证所有交易。\n您之后将无法更改。\n交易密码必须包含至少8位字母数字字符。',
     changePin: '更改PIN',
     currentPin: '现用PIN',
     pinDoesNotMatch: 'PIN不匹配。请输入有效的PIN。',
@@ -175,8 +174,7 @@ const zh = {
     addSuccess: {
       title: '添加新的钱包',
       subtitle: '操作成功',
-      description:
-        '您的钱包已创建。请花费一点时间在纸上写下这个助记词。这是您的备份。您可以在其它设备上使用备份来恢复钱包。',
+      description: '您的钱包已创建。请花费一点时间在纸上写下这个助记词。这是您的备份。您可以在其它设备上使用备份来恢复钱包。',
       okButton: '好的，我写完了！',
     },
     details: {
@@ -358,8 +356,7 @@ const zh = {
       description: '创建交易之前，必须首先添加 Bitcoin Vault 钱包。',
     },
     warning: '警告: ',
-    warningGeneral:
-      '警告：请注意，在使用安全交易功能的过程中，您钱包中剩余的部分资金可能会被冻结。 这是与UTXO和比特币 Vault钱包的区块链参数的常规过程。 当交易通过验证（大约24小时后）或交易被取消（24小时内）后，资金冻结将被解除。',
+    warningGeneral: '警告：请注意，在使用安全交易功能的过程中，您钱包中剩余的部分资金可能会被冻结。 这是与UTXO和比特币 Vault钱包的区块链参数的常规过程。 当交易通过验证（大约24小时后）或交易被取消（24小时内）后，资金冻结将被解除。',
   },
   receive: {
     header: '接收币',
@@ -534,10 +531,8 @@ const zh = {
       successTitle: '您的验证器已就绪！',
       title: '添加新验证器',
       subtitle: '配对验证器',
-      successDescription:
-        '在安全地方写下该助记词。如需还原验证器，则为备份。记住，确认“快速与取消”交易需要使用验证器。',
-      description:
-        '打开 Electrum Vault 桌面应用程序，并新建钱包。执行屏幕上的步骤，直至看到 QR 码。用该应用程序进行扫描，以继续。',
+      successDescription: '在安全地方写下该助记词。如需还原验证器，则为备份。记住，确认“快速与取消”交易需要使用验证器。',
+      description: '打开 Electrum Vault 桌面应用程序，并新建钱包。执行屏幕上的步骤，直至看到 QR 码。用该应用程序进行扫描，以继续。',
       subdescription: '您还可以通过选择以下选项导入验证器。',
     },
     enterPIN: {
@@ -552,17 +547,14 @@ const zh = {
     closeTheApp: '关闭应用程序',
   },
   security: {
-    jailBrokenPhone:
-      '您的设备似乎越狱了。这可能会出现安全问题、死机或其它问题。我们不建议在已越狱的设备上使用 GoldWallet。',
-    rootedPhone:
-      '您的设备似乎取得了 root 权限。这可能会出现安全问题、死机或其它问题。我们不建议在取得 root 权限的设备上使用 GoldWallet。',
+    jailBrokenPhone: '您的设备似乎越狱了。这可能会出现安全问题、死机或其它问题。我们不建议在已越狱的设备上使用 GoldWallet。',
+    rootedPhone: '您的设备似乎取得了 root 权限。这可能会出现安全问题、死机或其它问题。我们不建议在取得 root 权限的设备上使用 GoldWallet。',
     title: '安全问题',
     noPinOrFingerprintSet: '您的设备未设置PIN 密码或指纹登录。 不建议在不安全的设备上使用GoldWallet。',
   },
   betaVersion: {
     title: '这是GoldWallet钱包的测试版',
-    description:
-      '在正式发布之前，GoldWallet仍在接受最终测试。 该移动应用程序及程序上所有内容均基于“按原样 ”和“可使用”呈现。 使用该程序的风险由用户自行承担。',
+    description: '在正式发布之前，GoldWallet仍在接受最终测试。 该移动应用程序及程序上所有内容均基于“按原样 ”和“可使用”呈现。 使用该程序的风险由用户自行承担。',
     button: '我同意承担风险',
   },
-};
+}
