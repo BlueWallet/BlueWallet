@@ -200,7 +200,6 @@ ReorderWallets.navigationOptions = ({ navigation, route }) => ({
   ),
   headerTitle: loc.wallets.reorder_title,
   headerLeft: null,
-  gestureEnabled: false,
 });
 
 export default ReorderWallets;
