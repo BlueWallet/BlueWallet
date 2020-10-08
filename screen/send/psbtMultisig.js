@@ -5,7 +5,6 @@ import { BlueButton, BlueButtonLink, BlueCard, BlueNavigationStyle, BlueSpacing2
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
 import { getSystemName } from 'react-native-device-info';
-import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
 import loc from '../../loc';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
@@ -36,7 +35,6 @@ const PsbtMultisig = () => {
   const memo = route.params.memo;
 
   const [psbt, setPsbt] = useState(bitcoin.Psbt.fromBase64(psbtBase64));
-  const [animatedQRCodeData, setAnimatedQRCodeData] = useState({});
   const [isModalVisible, setIsModalVisible] = useState(false);
   const stylesHook = StyleSheet.create({
     root: {
@@ -163,22 +161,6 @@ const PsbtMultisig = () => {
     );
   };
 
-  const _onReadUniformResource = ur => {
-    try {
-      const [index, total] = extractSingleWorkload(ur);
-      animatedQRCodeData[index + 'of' + total] = ur;
-      if (Object.values(animatedQRCodeData).length === total) {
-        const payload = decodeUR(Object.values(animatedQRCodeData));
-        const psbtB64 = Buffer.from(payload, 'hex').toString('base64');
-        _combinePSBT(psbtB64);
-      } else {
-        setAnimatedQRCodeData(animatedQRCodeData);
-      }
-    } catch (Err) {
-      alert(loc._.invalid_animated_qr_code_fragment);
-    }
-  };
-
   const _combinePSBT = receivedPSBTBase64 => {
     const receivedPSBT = bitcoin.Psbt.fromBase64(receivedPSBTBase64);
     try {
@@ -194,7 +176,7 @@ const PsbtMultisig = () => {
   const onBarScanned = ret => {
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
-      return _onReadUniformResource(ret.data);
+      alert('BC-UR not decoded. This should never happen');
     } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
       // we dont support it in this flow

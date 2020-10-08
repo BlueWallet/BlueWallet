@@ -922,6 +922,75 @@ describe('multisig-wallet (native segwit)', () => {
     // psbtFromCobo.finalizeAllInputs().extractTransaction().toHex()
   });
 
+  it('can cosign PSBT that was created somewhere else (1 sig)', async () => {
+    const path = "m/48'/0'/0'/2'";
+    const walletWithNoKeys = new MultisigHDWallet();
+    walletWithNoKeys.addCosigner(Zpub1, fp1cobo);
+    walletWithNoKeys.addCosigner(Zpub2, fp2coldcard);
+    walletWithNoKeys.setDerivationPath(path);
+    walletWithNoKeys.setM(2);
+
+    const utxos = [
+      {
+        height: 666,
+        value: 100000,
+        address: 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85',
+        txId: '666b1f2ee25dfd92377bb66a8db2badf45625a59e93f5a89836e178f9f5ed396',
+        vout: 0,
+        txid: '666b1f2ee25dfd92377bb66a8db2badf45625a59e93f5a89836e178f9f5ed396',
+        amount: 100000,
+        wif: false,
+        confirmations: 0,
+        txhex:
+          '02000000000101b67e455069a0f44c9df4849ee1167b06c26f8478daefa9c8aeedf1da3d7d81860f000000000000008002a08601000000000022002030862bd71d77b314666e5fdab34d6293ecb4ffdbba55fbd5323dfd79d98b662b04b005000000000016001461e37702582ecf8c87c1eb5008f2afb17acc9d3c02473044022077268bb0f3060b737b657c3c990107be5db41fd311cc64abeab96cff621146fc0220766e2409c0669020ea2160b358037fdb17f49e59faf8e9c50ac946019be079e6012103c3ed17035033b2cb0ce03694d402c37a307f0eea2b909b0272816bfcea83714f00000000',
+      },
+    ];
+
+    const { psbt } = walletWithNoKeys.createTransaction(
+      utxos,
+      [{ address: 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85' }], // sendMax
+      1,
+      walletWithNoKeys._getInternalAddressByIndex(0), // there should be no change in this tx
+      false,
+      false,
+    );
+    assert.strictEqual(
+      psbt.toBase64(),
+      'cHNidP8BAF4CAAAAAZbTXp+PF26DiVo/6VlaYkXfurKNarZ7N5L9XeIuH2tmAAAAAAAAAACAAeCFAQAAAAAAIgAgMIYr1x13sxRmbl/as01ik+y0/9u6VfvVMj39edmLZisAAAAAAAEA6gIAAAAAAQG2fkVQaaD0TJ30hJ7hFnsGwm+EeNrvqciu7fHaPX2Bhg8AAAAAAAAAgAKghgEAAAAAACIAIDCGK9cdd7MUZm5f2rNNYpPstP/bulX71TI9/XnZi2YrBLAFAAAAAAAWABRh43cCWC7PjIfB61AI8q+xesydPAJHMEQCIHcmi7DzBgtze2V8PJkBB75dtB/TEcxkq+q5bP9iEUb8AiB2biQJwGaQIOohYLNYA3/bF/SeWfr46cUKyUYBm+B55gEhA8PtFwNQM7LLDOA2lNQCw3owfw7qK5CbAnKBa/zqg3FPAAAAAAEBK6CGAQAAAAAAIgAgMIYr1x13sxRmbl/as01ik+y0/9u6VfvVMj39edmLZisBBUdSIQL3PcZ3OXAqrpAGpxAfeH8tGlIosSQDQjFhbP8RIOZRyyED1Ql1CX8NiH3x6Uj22iu8SEwewHmhRSyqJtbmfw+g11pSriIGAvc9xnc5cCqukAanEB94fy0aUiixJANCMWFs/xEg5lHLHNN+rYgwAACAAAAAgAAAAIACAACAAAAAAAAAAAAiBgPVCXUJfw2IffHpSPbaK7xITB7AeaFFLKom1uZ/D6DXWhwWjdYDMAAAgAAAAIAAAACAAgAAgAAAAAAAAAAAAAA=',
+    );
+
+    assert.throws(() => psbt.finalizeAllInputs()); // as it is not fully signed yet
+    walletWithNoKeys.cosignPsbt(psbt); // should do nothing, we have no keys
+    assert.strictEqual(walletWithNoKeys.calculateHowManySignaturesWeHaveFromPsbt(psbt), 0);
+
+    const walletWithFirstKey = new MultisigHDWallet();
+    walletWithFirstKey.addCosigner(Zpub1, fp1cobo);
+    walletWithFirstKey.addCosigner(mnemonicsColdcard, false, path);
+    walletWithFirstKey.setDerivationPath(path);
+    walletWithFirstKey.setM(2);
+
+    walletWithFirstKey.cosignPsbt(psbt); // <-------------------------------------------------------------------------
+
+    assert.strictEqual(walletWithFirstKey.calculateHowManySignaturesWeHaveFromPsbt(psbt), 1);
+    assert.throws(() => psbt.finalizeAllInputs()); // as it is not fully signed yet
+
+    walletWithFirstKey.cosignPsbt(psbt); // should do nothing, we already cosigned with this key
+    assert.strictEqual(walletWithFirstKey.calculateHowManySignaturesWeHaveFromPsbt(psbt), 1); // didnt change
+
+    const walletWithSecondKey = new MultisigHDWallet();
+    walletWithSecondKey.addCosigner(mnemonicsCobo);
+    walletWithSecondKey.addCosigner(Zpub2, fp2coldcard);
+    walletWithSecondKey.setDerivationPath(path);
+    walletWithSecondKey.setM(2);
+
+    const { tx } = walletWithSecondKey.cosignPsbt(psbt); // <---------------------------------------------------------
+
+    assert.strictEqual(walletWithFirstKey.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
+    assert.ok(tx);
+    assert.throws(() => psbt.finalizeAllInputs()); // as it is already finalized
+    assert.ok(tx.toHex());
+  });
+
   it('can export/import when one of cosigners is mnemonic seed', async () => {
     const path = "m/48'/0'/0'/2'";
 
@@ -986,6 +1055,7 @@ describe('multisig-wallet (native segwit)', () => {
       assert.strictEqual(w.getCustomDerivationPathForCosigner(1), path); // default since custom was not provided
       assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path); // default since custom was not provided
       assert.strictEqual(w.howManySignaturesCanWeMake(), 0);
+      assert.strictEqual(w.getLabel(), 'CV_33B5B91A_2-2');
 
       const w2 = new MultisigHDWallet();
       w2.setSecret(w.getSecret());

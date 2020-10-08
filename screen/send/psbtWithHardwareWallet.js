@@ -33,7 +33,6 @@ import { getSystemName } from 'react-native-device-info';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
-import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import ScanQRCode from './ScanQRCode';
@@ -126,44 +125,6 @@ const styles = StyleSheet.create({
 export default class PsbtWithHardwareWallet extends Component {
   cameraRef = null;
 
-  _onReadUniformResource = ur => {
-    try {
-      const [index, total] = extractSingleWorkload(ur);
-      const { animatedQRCodeData } = this.state;
-      if (animatedQRCodeData.length > 0) {
-        const currentTotal = animatedQRCodeData[0].total;
-        if (total !== currentTotal) {
-          alert('invalid animated QRCode');
-        }
-      }
-      if (!animatedQRCodeData.find(i => i.index === index)) {
-        this.setState(
-          state => ({
-            animatedQRCodeData: [
-              ...state.animatedQRCodeData,
-              {
-                index,
-                total,
-                data: ur,
-              },
-            ],
-          }),
-          () => {
-            if (this.state.animatedQRCodeData.length === total) {
-              const payload = decodeUR(this.state.animatedQRCodeData.map(i => i.data));
-              const psbtB64 = Buffer.from(payload, 'hex').toString('base64');
-              const Tx = this._combinePSBT(psbtB64);
-              this.setState({ txhex: Tx.toHex() });
-              this.props.navigation.dangerouslyGetParent().pop();
-            }
-          },
-        );
-      }
-    } catch (Err) {
-      alert('invalid animated QRCode fragment, please try again');
-    }
-  };
-
   _combinePSBT = receivedPSBT => {
     return this.state.fromWallet.combinePsbt(this.state.psbt, receivedPSBT);
   };
@@ -171,7 +132,7 @@ export default class PsbtWithHardwareWallet extends Component {
   onBarScanned = ret => {
     if (ret && !ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
-      return this._onReadUniformResource(ret.data);
+      alert('BC-UR not decoded. This should never happen');
     }
     if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex

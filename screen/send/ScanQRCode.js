@@ -9,6 +9,7 @@ import loc from '../../loc';
 import { BlueLoadingHook, BlueTextHooks, BlueButtonHook, BlueSpacing40 } from '../../BlueComponents';
 import { getSystemName } from 'react-native-device-info';
 import { BlueCurrentTheme } from '../../components/themes';
+import { decodeUR, extractSingleWorkload } from 'bc-ur';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
 const isDesktop = getSystemName() === 'Mac OS X';
@@ -95,6 +96,7 @@ const ScanQRCode = () => {
   const [backdoorPressed, setBackdoorPressed] = useState(0);
   const [backdoorText, setBackdoorText] = useState('');
   const [backdoorVisible, setBackdoorVisible] = useState(false);
+  const [animatedQRCodeData, setAnimatedQRCodeData] = useState({});
   const stylesHook = StyleSheet.create({
     openSettingsContainer: {
       backgroundColor: colors.brandingColor,
@@ -104,6 +106,34 @@ const ScanQRCode = () => {
     return createHash('sha256').update(s).digest().toString('hex');
   };
 
+  const _onReadUniformResource = ur => {
+    try {
+      const [index, total] = extractSingleWorkload(ur);
+      animatedQRCodeData[index + 'of' + total] = ur;
+      if (Object.values(animatedQRCodeData).length === total) {
+        const payload = decodeUR(Object.values(animatedQRCodeData));
+        // lets look inside that data
+        let data = false;
+        if (Buffer.from(payload, 'hex').toString().startsWith('psbt')) {
+          // its a psbt, and whoever requested it expects it encoded in base64
+          data = Buffer.from(payload, 'hex').toString('base64');
+        } else {
+          // its something else. probably plain text is expected
+          data = Buffer.from(payload, 'hex').toString();
+        }
+        if (launchedBy) {
+          navigation.navigate(launchedBy);
+        }
+        onBarScanned({ data });
+      } else {
+        setAnimatedQRCodeData(animatedQRCodeData);
+      }
+    } catch (error) {
+      console.warn(error);
+      alert(loc._.invalid_animated_qr_code_fragment);
+    }
+  };
+
   const onBarCodeRead = ret => {
     const h = HashIt(ret.data);
     if (scannedCache[h]) {
@@ -111,6 +141,10 @@ const ScanQRCode = () => {
       return;
     }
     scannedCache[h] = +new Date();
+
+    if (ret.data.toUpperCase().startsWith('UR')) {
+      return _onReadUniformResource(ret.data);
+    }
 
     if (!isLoading) {
       setIsLoading(true);
