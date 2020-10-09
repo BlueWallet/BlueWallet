@@ -388,6 +388,6 @@
     "scan_or_import_file": "Scan or import file",
     "export_coordination_setup": "export coordination setup",
     "cosign_this_transaction": "Co-sign this transaction?",
-    "co_sign_transaction": "Co-sign transaction"
+    "co_sign_transaction": "Co-sign QR-airgapped transaction"
   }
 }
