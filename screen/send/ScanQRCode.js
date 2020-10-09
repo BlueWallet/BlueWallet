@@ -14,6 +14,8 @@ const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
 const isDesktop = getSystemName() === 'Mac OS X';
 const fs = require('../../blue_modules/fs');
+const Base43 = require('../../blue_modules/base43');
+const bitcoin = require('bitcoinjs-lib');
 
 const styles = StyleSheet.create({
   root: {
@@ -145,6 +147,18 @@ const ScanQRCode = () => {
     if (ret.data.toUpperCase().startsWith('UR')) {
       return _onReadUniformResource(ret.data);
     }
+
+    // is it base43? stupid electrum desktop
+    try {
+      const hex = Base43.decode(ret.data);
+      bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
+
+      if (launchedBy) {
+        navigation.navigate(launchedBy);
+      }
+      onBarScanned({ data: Buffer.from(hex, 'hex').toString('base64') });
+      return;
+    } catch (_) {}
 
     if (!isLoading) {
       setIsLoading(true);
