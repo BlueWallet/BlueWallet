@@ -6,6 +6,7 @@ import { isAllWallets } from 'app/helpers/helpers';
 import { HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet } from 'app/legacy';
 import { ApplicationState } from 'app/state';
 
+import { selectors as electrumXSelectors } from '../electrumX';
 import { WalletsState } from './reducer';
 
 const local = (state: ApplicationState): WalletsState => state.wallets;
@@ -49,19 +50,23 @@ export const allWallets = createSelector(wallets, allWallet, (walletsList, aw) =
   return walletsList;
 });
 
-export const transactions = createSelector(wallets, walletsList =>
+export const transactions = createSelector(wallets, electrumXSelectors.blockHeight, (walletsList, blockHeight) =>
   flatten(
     walletsList.filter(negate(isAllWallets)).map(wallet => {
       const walletBalanceUnit = wallet.getPreferredBalanceUnit();
       const walletLabel = wallet.getLabel();
       const id = wallet.id;
-      return wallet.transactions.map(transaction => ({
-        ...transaction,
-        walletPreferredBalanceUnit: walletBalanceUnit,
-        walletId: id,
-        walletLabel,
-        walletTypeReadable: wallet.typeReadable,
-      }));
+      return wallet.transactions.map(transaction => {
+        const { height } = transaction;
+        return {
+          ...transaction,
+          confirmations: height > 0 ? blockHeight - height : 0,
+          walletPreferredBalanceUnit: walletBalanceUnit,
+          walletId: id,
+          walletLabel,
+          walletTypeReadable: wallet.typeReadable,
+        };
+      });
     }),
   ),
 );
@@ -81,7 +86,7 @@ export const getAlertPendingTransactions = createSelector(getTranasctionsByWalle
 );
 
 export const getTransactionsToRecoverByWalletId = createSelector(getAlertPendingTransactions, txs =>
-  txs.filter(tx => tx.value < 0 && tx.confirmations > 0),
+  txs.filter(tx => tx.value < 0 && tx.time),
 );
 
 export const hasWallets = createSelector(wallets, walletsList => walletsList.length > 0);

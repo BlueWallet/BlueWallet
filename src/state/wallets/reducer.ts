@@ -55,6 +55,7 @@ export const walletsReducer = (state = initialState, action: WalletsActionType):
     case WalletsAction.LoadWalletsFailure:
     case WalletsAction.CreateWalletFailure:
     case WalletsAction.ImportWalletFailure:
+    case WalletsAction.RefreshWalletFailure:
       return {
         ...state,
         isLoading: false,
@@ -62,6 +63,7 @@ export const walletsReducer = (state = initialState, action: WalletsActionType):
         error: action.error,
       };
     case WalletsAction.UpdateWalletSuccess:
+    case WalletsAction.RefreshWalletSuccess:
       return {
         ...state,
         wallets: state.wallets.map(wallet => {

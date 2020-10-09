@@ -1,3 +1,6 @@
+import { difference } from 'lodash';
+import { compose, map, mapValues, values, flatten, uniq } from 'lodash/fp';
+
 import config from './config';
 
 const BigNumber = require('bignumber.js');
@@ -48,6 +51,18 @@ async function connectMain() {
     setTimeout(connectMain, 500);
   }
 }
+
+module.exports.getBlockchainHeaders = function() {
+  return mainClient.blockchainHeaders_subscribe();
+};
+
+module.exports.subscribe = function(event, handler) {
+  return mainClient.subscribe.on(event, handler);
+};
+
+module.exports.unsubscribe = function(event) {
+  return mainClient.subscribe.off(event);
+};
 
 connectMain();
 
@@ -100,72 +115,48 @@ module.exports.ping = async function() {
   return true;
 };
 
-module.exports.multiGetTransactionsFullByAddress = async function(addresses) {
-  const addrTxMap = await this.multiGetHistoryByAddress(addresses);
-  const txList = [];
-  const ret = [];
-  for (const addr in addrTxMap) {
-    for (const tx of addrTxMap[addr]) {
-      txList.push(tx.tx_hash);
-    }
+module.exports.multiGetTransactionsFullByTxid = async function(txIds) {
+  const txs = await this.multiGetTransactionByTxid(uniq(txIds));
+
+  const inputsTxIds = difference(
+    compose(
+      uniq,
+      flatten,
+      map(tx => tx.vin.map(vin => vin.txid)),
+    )(txs),
+    txIds,
+  );
+
+  let inputsTxs = {};
+  if (inputsTxIds.length > 0) {
+    inputsTxs = await this.multiGetTransactionByTxid(inputsTxIds);
   }
-  const txfull = await this.multiGetTransactionByTxid(txList);
-  for (const txid in txfull) {
-    const full = txfull[txid];
-    for (const input of full.vin) {
-      if (!input.txid) continue;
-      // now we need to fetch previous TX where this VIN became an output, so we can see its amount
-      const prevTxForVin = await mainClient.blockchainTransaction_get(input.txid, true);
-      if (prevTxForVin && prevTxForVin.vout && prevTxForVin.vout[input.vout]) {
-        input.value = prevTxForVin.vout[input.vout].value;
-        // also, we extract destination address from prev output:
-        if (prevTxForVin.vout[input.vout].scriptPubKey && prevTxForVin.vout[input.vout].scriptPubKey.addresses) {
-          input.addresses = prevTxForVin.vout[input.vout].scriptPubKey.addresses;
-        }
-      }
-    }
-    for (const output of full.vout) {
-      if (output.scriptPubKey && output.scriptPubKey.addresses) output.addresses = output.scriptPubKey.addresses;
-    }
-    full.inputs = full.vin;
-    full.outputs = full.vout;
-    delete full.vin;
-    delete full.vout;
-    delete full.hex;
-    ret.push(full);
-  }
-  return ret;
+
+  const allTxs = { ...txs, ...inputsTxs };
+
+  return compose(
+    values,
+    mapValues(tx => {
+      const inputs = tx.vin
+        .filter(input => input.txid)
+        .map(input => {
+          const prevOutputOfInput = allTxs[input.txid].vout[input.vout];
+          return { ...input, value: prevOutputOfInput.value, addresses: prevOutputOfInput.scriptPubKey.addresses };
+        });
+
+      const outputs = tx.vout.map(output => ({ ...output, addresses: output.scriptPubKey.addresses }));
+
+      return { ...tx, outputs, inputs };
+    }),
+  )(txs);
 };
 
-module.exports.multiGetTransactionsFullByTxid = async function(txid_list) {
-  const ret = [];
-  const txfull = await this.multiGetTransactionByTxid(txid_list);
-  for (const txid in txfull) {
-    const full = txfull[txid];
+module.exports.subscribeToSriptHashes = scriptHashes => {
+  return Promise.all(scriptHashes.map(scriptHash => mainClient.blockchainScripthash_subscribe(scriptHash)));
+};
 
-    for (const input of full.vin) {
-      if (!input.txid) continue;
-      // now we need to fetch previous TX where this VIN became an output, so we can see its amount
-      const prevTxForVin = await mainClient.blockchainTransaction_get(input.txid, true);
-      if (prevTxForVin && prevTxForVin.vout && prevTxForVin.vout[input.vout]) {
-        input.value = prevTxForVin.vout[input.vout].value;
-        // also, we extract destination address from prev output:
-        if (prevTxForVin.vout[input.vout].scriptPubKey && prevTxForVin.vout[input.vout].scriptPubKey.addresses) {
-          input.addresses = prevTxForVin.vout[input.vout].scriptPubKey.addresses;
-        }
-      }
-    }
-    for (const output of full.vout) {
-      if (output.scriptPubKey && output.scriptPubKey.addresses) output.addresses = output.scriptPubKey.addresses;
-    }
-    full.inputs = full.vin;
-    full.outputs = full.vout;
-    delete full.vin;
-    delete full.vout;
-    delete full.hex;
-    ret.push(full);
-  }
-  return ret;
+module.exports.unsubscribeFromSriptHashes = scriptHashes => {
+  return Promise.all(scriptHashes.map(scriptHash => mainClient.blockchainScripthash_unsubscribe(scriptHash)));
 };
 
 /**

@@ -79,6 +79,21 @@ export class AbstractWallet {
     return false;
   }
 
+  isAnyOfAddressesMine(addresses) {
+    if (!this._address) {
+      return false;
+    }
+    if (typeof this._address === 'string') {
+      return addresses.includes(this._address);
+    }
+    for (let i = 0; i < this._address.length; i++) {
+      if (addresses.includes(this._address[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   isOutputScriptMine(script) {
     const address = bitcoin.address.fromOutputScript(script, config.network);
 

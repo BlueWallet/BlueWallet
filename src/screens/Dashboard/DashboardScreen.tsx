@@ -8,7 +8,7 @@ import { Wallet, Route, EnhancedTransaction, CONST } from 'app/consts';
 import { isAllWallets } from 'app/helpers/helpers';
 import { ApplicationState } from 'app/state';
 import { clearFilters, ClearFiltersAction } from 'app/state/filters/actions';
-import * as transactionsSelectors from 'app/state/transactions/selectors';
+import * as transactionsNotesSelectors from 'app/state/transactionsNotes/selectors';
 import { loadWallets, LoadWalletsAction } from 'app/state/wallets/actions';
 import * as walletsSelectors from 'app/state/wallets/selectors';
 import { palette } from 'app/styles';
@@ -266,7 +266,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   isLoading: walletsSelectors.isLoading(state),
   isInitialized: state.wallets.isInitialized,
   allTransactions: walletsSelectors.transactions(state),
-  transactionNotes: transactionsSelectors.transactionNotes(state),
+  transactionNotes: transactionsNotesSelectors.transactionNotes(state),
   isFilteringOn: state.filters.isFilteringOn,
 });
 

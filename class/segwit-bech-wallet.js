@@ -1,4 +1,5 @@
 import config from '../config';
+import { addressToScriptHash } from '../utils/bitcoin';
 import { LegacyWallet } from './legacy-wallet';
 
 const bitcoin = require('bitcoinjs-lib');
@@ -6,6 +7,13 @@ const bitcoin = require('bitcoinjs-lib');
 export class SegwitBech32Wallet extends LegacyWallet {
   static type = 'segwitBech32';
   static typeReadable = 'P2 WPKH';
+
+  getScriptHashes() {
+    if (this._scriptHashes) {
+      return this._scriptHashes;
+    }
+    this._scriptHashes = [addressToScriptHash(this._address)];
+  }
 
   getAddress() {
     if (this._address) return this._address;

@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js';
 import * as bip39 from 'bip39';
+import { cloneDeep } from 'lodash';
 
 import config from '../config';
 import signer from '../models/signer';
@@ -81,11 +82,12 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
   }
 
   createTx(utxos, amount, fee, address) {
-    for (const utxo of utxos) {
+    const newUtxos = cloneDeep(utxos);
+    for (const utxo of newUtxos) {
       utxo.wif = this._getWifForAddress(utxo.address);
     }
 
     const amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
-    return signer.createHDTransaction(utxos, address, amountPlusFee, fee, this.getAddressForTransaction());
+    return signer.createHDTransaction(newUtxos, address, amountPlusFee, fee, this.getAddressForTransaction());
   }
 }

@@ -1,8 +1,11 @@
+import * as bitcoin from 'bitcoinjs-lib';
 import { round } from 'lodash';
 
+import config from '../config';
 import { CONST } from '../src/consts';
 
 const BigNumber = require('bignumber.js');
+const reverse = require('buffer-reverse');
 
 export const btcToSatoshi = (btc: number, precision: number | null = null) => {
   const satoshis = new BigNumber(btc).multipliedBy(CONST.satoshiInBtc);
@@ -16,3 +19,10 @@ export const btcToSatoshi = (btc: number, precision: number | null = null) => {
 export const satoshiToBtc = (satoshi: number) => new BigNumber(satoshi).dividedBy(CONST.satoshiInBtc);
 
 export const roundBtcToSatoshis = (btc: number) => round(btc, Math.log10(CONST.satoshiInBtc));
+
+export const addressToScriptHash = (address: string) => {
+  const script = bitcoin.address.toOutputScript(address, config.network);
+  const hash = bitcoin.crypto.sha256(script);
+  const scriptHash = Buffer.from(reverse(hash)).toString('hex');
+  return scriptHash;
+};

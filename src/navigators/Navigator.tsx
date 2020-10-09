@@ -9,13 +9,15 @@ import { RenderMessage, MessageType } from 'app/helpers/MessageCreator';
 import { RootNavigator, PasswordNavigator } from 'app/navigators';
 import { UnlockScreen } from 'app/screens';
 import { BetaVersionScreen } from 'app/screens/BetaVersionScreen';
-import { navigationRef } from 'app/services';
+import { navigationRef, AppStateManager } from 'app/services';
 import { checkDeviceSecurity } from 'app/services/DeviceSecurityService';
 import { ApplicationState } from 'app/state';
 import { selectors as appSettingsSelectors } from 'app/state/appSettings';
 import { updateSelectedLanguage as updateSelectedLanguageAction } from 'app/state/appSettings/actions';
 import { selectors as authenticationSelectors } from 'app/state/authentication';
 import { checkCredentials as checkCredentialsAction } from 'app/state/authentication/actions';
+import { startListeners, StartListenersAction } from 'app/state/electrumX/actions';
+import { LoadWalletsAction, loadWallets as loadWalletsAction } from 'app/state/wallets/actions';
 import { isAndroid, isIos } from 'app/styles';
 
 import config from '../../config';
@@ -32,6 +34,8 @@ interface MapStateToProps {
 
 interface ActionsDisptach {
   checkCredentials: Function;
+  startElectrumXListeners: () => StartListenersAction;
+  loadWallets: () => LoadWalletsAction;
   updateSelectedLanguage: Function;
 }
 
@@ -50,9 +54,10 @@ class Navigator extends React.Component<Props, State> {
     isBetaVersionRiskAccepted: false,
   };
 
-  async componentDidMount() {
-    const { checkCredentials } = this.props;
+  componentDidMount() {
+    const { checkCredentials, startElectrumXListeners } = this.props;
     checkCredentials();
+    startElectrumXListeners();
     this.initLanguage();
 
     if (!__DEV__) {
@@ -104,6 +109,11 @@ class Navigator extends React.Component<Props, State> {
     this.setState({ isBetaVersionRiskAccepted: true });
   };
 
+  refreshWallets = () => {
+    const { loadWallets } = this.props;
+    loadWallets();
+  };
+
   renderRoutes = () => {
     const { isLoading, unlockKey } = this.props;
     if (isLoading) {
@@ -132,9 +142,12 @@ class Navigator extends React.Component<Props, State> {
 
   render() {
     return (
-      <NavigationContainer key={this.props.language} ref={navigationRef}>
-        {this.renderRoutes()}
-      </NavigationContainer>
+      <>
+        <AppStateManager handleAppComesToForeground={this.refreshWallets} />
+        <NavigationContainer key={this.props.language} ref={navigationRef}>
+          {this.renderRoutes()}
+        </NavigationContainer>
+      </>
     );
   }
 }
@@ -149,6 +162,8 @@ const mapStateToProps = (state: ApplicationState): MapStateToProps => ({
 
 const mapDispatchToProps: ActionsDisptach = {
   checkCredentials: checkCredentialsAction,
+  startElectrumXListeners: startListeners,
+  loadWallets: loadWalletsAction,
   updateSelectedLanguage: updateSelectedLanguageAction,
 };
 

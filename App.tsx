@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/react-native';
 import React from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { View, YellowBox, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
@@ -13,8 +13,6 @@ import { persistor, store } from 'app/state/store';
 import config from './config';
 
 const i18n = require('./loc');
-
-YellowBox.ignoreWarnings(['VirtualizedLists should never be nested inside', `\`-[RCTRootView cancelTouches]\``]);
 
 if (!__DEV__) {
   Sentry.init({

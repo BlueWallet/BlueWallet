@@ -8,14 +8,14 @@ import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
 import { Header, ScreenTemplate, Button, StyledText, Image, Text, Warning } from 'app/components';
-import { Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
+import { Route, MainCardStackNavigatorParams, RootStackParams, ActionMeta } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
-import * as actions from 'app/state/transactions/actions';
+import * as txNotesActions from 'app/state/transactionsNotes/actions';
+import * as walletsActions from 'app/state/wallets/actions';
 import { palette, typography } from 'app/styles';
 
 import { satoshiToBtc, btcToSatoshi, roundBtcToSatoshis } from '../../utils/bitcoin';
 
-const BlueElectrum = require('../../BlueElectrum');
 const i18n = require('../../loc');
 
 const ScreenFooter = (onSendPress: () => void, onDetailsPress: () => void, buttonTitle?: string) => (
@@ -34,7 +34,11 @@ interface Props {
     StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
     StackNavigationProp<MainCardStackNavigatorParams, Route.SendCoinsConfirm>
   >;
-  createTransactionNote: (transactionID: string, note: string) => actions.CreateTransactionNoteAction;
+  createTransactionNote: (txid: string, note: string) => txNotesActions.CreateTransactionNoteAction;
+  sendTransaction: (
+    { txDecoded }: { txDecoded: Transaction },
+    meta?: ActionMeta,
+  ) => walletsActions.SendTransactionAction;
   route: RouteProp<MainCardStackNavigatorParams, Route.SendCoinsConfirm>;
 }
 
@@ -65,7 +69,7 @@ class SendCoinsConfirmScreen extends Component<Props> {
     const amount = this.getAmountByTx(txDecoded);
     if (isAlert) {
       return {
-        availableBalance: satoshiToBtc(balance - amount.my - amount.foreign) - fee,
+        availableBalance: satoshiToBtc(balance - amount.my - amount.foreign).toNumber() - fee,
         pendingBalance: satoshiToBtc(incomingBalance + amount.my) - fee,
       };
     }
@@ -84,28 +88,24 @@ class SendCoinsConfirmScreen extends Component<Props> {
     };
   };
 
+  navgitateToMainCard = () => this.props.navigation.navigate(Route.MainCardStackNavigator);
+
   broadcast = () => {
     const {
       createTransactionNote,
+      sendTransaction,
       route: {
-        params: { txDecoded, fromWallet, successMsgDesc, memo },
+        params: { txDecoded, successMsgDesc, memo },
       },
+      navigation,
     } = this.props;
 
-    this.setState({ isLoading: true }, async () => {
-      try {
-        await BlueElectrum.ping();
-        await BlueElectrum.waitTillConnected();
-
-        const result = await fromWallet.broadcastTx(txDecoded.toHex());
-
-        if (typeof result === 'string') {
+    sendTransaction(
+      { txDecoded },
+      {
+        onSuccess: (txid: string) => {
           if (memo) {
-            const {
-              [result]: { hash },
-            } = await BlueElectrum.multiGetTransactionByTxid([result]);
-
-            createTransactionNote(hash, memo);
+            createTransactionNote(txid, memo);
           }
 
           CreateMessage({
@@ -114,30 +114,20 @@ class SendCoinsConfirmScreen extends Component<Props> {
             type: MessageType.success,
             buttonProps: {
               title: i18n.message.returnToDashboard,
-              onPress: () => this.props.navigation.navigate(Route.MainCardStackNavigator),
+              onPress: this.navgitateToMainCard,
             },
           });
-          this.setState({ isLoading: false });
-          return;
-        }
-
-        if (result && result?.code) {
-          if (result.code === 1) {
-            const message = result.message.split('\n');
-            throw new Error(`${message[0]}: ${message[2]}`);
-          }
-          return;
-        }
-      } catch (error) {
-        this.setState({ isLoading: false });
-        Alert.alert('ERROR', error.message, [
-          {
-            text: 'OK',
-            onPress: () => this.props.navigation.goBack(),
-          },
-        ]);
-      }
-    });
+        },
+        onFailure: (error: string) => {
+          Alert.alert('ERROR', error, [
+            {
+              text: 'OK',
+              onPress: () => navigation.goBack(),
+            },
+          ]);
+        },
+      },
+    );
   };
 
   goToDetails = () => {
@@ -241,7 +231,8 @@ class SendCoinsConfirmScreen extends Component<Props> {
 }
 
 const mapDispatchToProps = {
-  createTransactionNote: actions.createTransactionNote,
+  createTransactionNote: txNotesActions.createTransactionNote,
+  sendTransaction: walletsActions.sendTransaction,
 };
 
 export default connect(null, mapDispatchToProps)(SendCoinsConfirmScreen);

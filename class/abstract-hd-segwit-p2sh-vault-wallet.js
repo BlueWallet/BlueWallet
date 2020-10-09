@@ -1,4 +1,5 @@
 import * as bip39 from 'bip39';
+import { cloneDeep } from 'lodash';
 
 import config from '../config';
 import signer from '../models/signer';
@@ -117,7 +118,8 @@ export class AbstractHDSegwitP2SHVaultWallet extends AbstractHDSegwitP2SHWallet 
     vaultTxType,
     paymentMethod,
   }) {
-    for (const utxo of utxos) {
+    const newUtxos = cloneDeep(utxos);
+    for (const utxo of newUtxos) {
       utxo.wif = this._getWifForAddress(utxo.address);
     }
 
@@ -134,10 +136,10 @@ export class AbstractHDSegwitP2SHVaultWallet extends AbstractHDSegwitP2SHWallet 
       throw new Error(i18n.wallets.errors.invalidPrivateKey);
     }
 
-    const amountPlusFee = this.calculateTotalAmount({ utxos, amount, fee });
+    const amountPlusFee = this.calculateTotalAmount({ utxos: newUtxos, amount, fee });
 
     return signer.createHDSegwitVaultTransaction({
-      utxos,
+      utxos: newUtxos,
       address,
       amount: amountPlusFee,
       fixedFee: fee,

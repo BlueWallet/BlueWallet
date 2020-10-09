@@ -1,3 +1,5 @@
+import { Transaction } from 'bitcoinjs-lib';
+
 import { Wallet, ActionMeta } from 'app/consts';
 
 export enum WalletsAction {
@@ -16,6 +18,12 @@ export enum WalletsAction {
   UpdateWallet = 'UpdateWallet',
   UpdateWalletSuccess = 'UpdateWalletSuccess',
   UpdateWalletFailure = 'UpdateWalletFailure',
+  SendTransaction = 'SendTransaction',
+  SendTransactionSuccess = 'SendTransactionSuccess',
+  SendTransactionFailure = 'SendTransactionFailure',
+  RefreshWallet = 'RefreshWallet',
+  RefreshWalletSuccess = 'RefreshWalletSuccess',
+  RefreshWalletFailure = 'SendTransactionFailure',
 }
 
 export interface LoadWalletsAction {
@@ -95,6 +103,38 @@ export interface UpdateWalletFailureAction {
   error: Error;
 }
 
+export interface SendTransactionAction {
+  type: WalletsAction.SendTransaction;
+  payload: {
+    txDecoded: Transaction;
+  };
+  meta?: ActionMeta;
+}
+
+export interface SendTransactionSuccessAction {
+  type: WalletsAction.SendTransactionSuccess;
+}
+
+export interface SendTransactionFailureAction {
+  type: WalletsAction.SendTransactionFailure;
+  error: Error;
+}
+
+export interface RefreshWalletAction {
+  type: WalletsAction.RefreshWallet;
+  id: string;
+}
+
+export interface RefreshWalletSuccessAction {
+  type: WalletsAction.RefreshWalletSuccess;
+  wallet: Wallet;
+}
+
+export interface RefreshWalletFailureAction {
+  type: WalletsAction.RefreshWalletFailure;
+  error: Error;
+}
+
 export type WalletsActionType =
   | LoadWalletsSuccessAction
   | LoadWalletsFailureAction
@@ -110,7 +150,13 @@ export type WalletsActionType =
   | ImportWalletAction
   | UpdateWalletAction
   | UpdateWalletFailureAction
-  | UpdateWalletSuccessAction;
+  | UpdateWalletSuccessAction
+  | SendTransactionAction
+  | SendTransactionFailureAction
+  | SendTransactionSuccessAction
+  | RefreshWalletAction
+  | RefreshWalletSuccessAction
+  | RefreshWalletFailureAction;
 
 export const loadWallets = (): LoadWalletsAction => ({
   type: WalletsAction.LoadWallets,
@@ -192,5 +238,38 @@ export const updateWalletSuccess = (wallet: Wallet): UpdateWalletSuccessAction =
 
 export const updateWalletFailure = (error: Error): UpdateWalletFailureAction => ({
   type: WalletsAction.UpdateWalletFailure,
+  error,
+});
+
+export const sendTransaction = (
+  payload: { txDecoded: Transaction; memo?: string },
+  meta?: ActionMeta,
+): SendTransactionAction => ({
+  type: WalletsAction.SendTransaction,
+  payload,
+  meta,
+});
+
+export const sendTransactionSuccess = (): SendTransactionSuccessAction => ({
+  type: WalletsAction.SendTransactionSuccess,
+});
+
+export const sendTransactionFailure = (error: Error): SendTransactionFailureAction => ({
+  type: WalletsAction.SendTransactionFailure,
+  error,
+});
+
+export const refreshWallet = (id: string): RefreshWalletAction => ({
+  type: WalletsAction.RefreshWallet,
+  id,
+});
+
+export const refreshWalletSuccess = (wallet: Wallet): RefreshWalletSuccessAction => ({
+  type: WalletsAction.RefreshWalletSuccess,
+  wallet,
+});
+
+export const refreshWalletFailure = (error: Error): RefreshWalletFailureAction => ({
+  type: WalletsAction.RefreshWalletFailure,
   error,
 });

@@ -89,7 +89,6 @@ export function* createTxPasswordSaga(action: CreateTxPasswordAction | unknown) 
   const { meta, payload } = action as CreateTxPasswordAction;
   try {
     yield call(SecureStorageService.setSecuredValue, CONST.transactionPassword, payload.txPassword, true);
-
     yield put(createTxPasswordSuccess());
     if (meta?.onSuccess) {
       meta.onSuccess();

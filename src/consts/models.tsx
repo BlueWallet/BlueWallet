@@ -139,7 +139,9 @@ export interface Wallet {
   fetchBalance: () => void;
   fetchUtxos: () => void;
   fetchTransactions: () => void;
+  isAnyOfAddressesMine: (addresses: string[]) => boolean;
   id: string;
+  getScriptHashes: () => string[];
 }
 
 export interface ActionMeta {
@@ -173,6 +175,7 @@ export interface Transaction {
   inputs: any[];
   outputs: any[];
   note?: string;
+  height: number;
   walletPreferredBalanceUnit: string;
 }
 

@@ -1,4 +1,5 @@
 import config from '../config';
+import { addressToScriptHash } from '../utils/bitcoin';
 import { LegacyWallet } from './legacy-wallet';
 
 const BigNumber = require('bignumber.js');
@@ -53,6 +54,13 @@ export class SegwitP2SHWallet extends LegacyWallet {
     return ret;
   }
 
+  getScriptHashes() {
+    if (this._scriptHashes) {
+      return this._scriptHashes;
+    }
+    this._scriptHashes = [addressToScriptHash(this._address)];
+  }
+
   getAddress() {
     if (this._address) return this._address;
     let address;
@@ -60,7 +68,6 @@ export class SegwitP2SHWallet extends LegacyWallet {
       const keyPair = bitcoin.ECPair.fromWIF(this.secret, config.network);
       const pubKey = keyPair.publicKey;
       if (!keyPair.compressed) {
-        console.warn('only compressed public keys are good for segwit');
         return false;
       }
       address = pubkeyToP2shSegwitAddress(pubKey);

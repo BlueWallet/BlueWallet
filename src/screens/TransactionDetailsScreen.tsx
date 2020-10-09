@@ -12,13 +12,13 @@ import { CopyButton } from 'app/components/CopyButton';
 import { Route, MainCardStackNavigatorParams, RootStackParams, TxType } from 'app/consts';
 import { getConfirmationsText } from 'app/helpers/helpers';
 import { ApplicationState } from 'app/state';
-import { selectors, reducer } from 'app/state/transactions';
+import { selectors, reducer } from 'app/state/transactionsNotes';
 import {
   createTransactionNote,
   updateTransactionNote,
   CreateTransactionNoteAction,
   UpdateTransactionNoteAction,
-} from 'app/state/transactions/actions';
+} from 'app/state/transactionsNotes/actions';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../loc');
@@ -213,7 +213,7 @@ class TransactionDetailsScreen extends Component<Props> {
   }
 }
 
-const mapStateToProps = (state: ApplicationState & reducer.TransactionsState, props: Props) => {
+const mapStateToProps = (state: ApplicationState & reducer.TransactionsNotesState, props: Props) => {
   const {
     transaction: { hash },
   } = props.route.params;

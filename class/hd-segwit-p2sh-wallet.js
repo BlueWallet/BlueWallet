@@ -1,3 +1,5 @@
+import { cloneDeep } from 'lodash';
+
 import config from '../config';
 import signer from '../models/signer';
 import { AbstractHDSegwitP2SHWallet } from './abstract-hd-segwit-p2sh-wallet';
@@ -25,12 +27,13 @@ export class HDSegwitP2SHWallet extends AbstractHDSegwitP2SHWallet {
    * @returns {string}
    */
   createTx(utxos, amount, fee, address) {
-    for (const utxo of utxos) {
+    const newUtxos = cloneDeep(utxos);
+    for (const utxo of newUtxos) {
       utxo.wif = this._getWifForAddress(utxo.address);
     }
 
-    const amountPlusFee = this.calculateTotalAmount({ utxos, amount, fee });
+    const amountPlusFee = this.calculateTotalAmount({ newUtxos, amount, fee });
 
-    return signer.createHDSegwitTransaction(utxos, address, amountPlusFee, fee, this.getAddressForTransaction());
+    return signer.createHDSegwitTransaction(newUtxos, address, amountPlusFee, fee, this.getAddressForTransaction());
   }
 }
