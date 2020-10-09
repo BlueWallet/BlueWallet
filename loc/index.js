@@ -78,7 +78,7 @@ strings = new Localization({
   zh: require('./zh_cn.js'),
   tr: require('./tr_TR.js'),
   vi: require('./vi_VN.js'),
-  kr: require('./ko_KR.js'),
+  ko: require('./ko_KR.js'),
 });
 
 strings.saveLanguage = async lang => {
