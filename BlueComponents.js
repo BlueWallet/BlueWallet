@@ -69,7 +69,7 @@ export const BlueButton = props => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
 
-  let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.mainColor;
+  let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.mainColor || BlueCurrentTheme.colors.mainColor;
   let fontColor = colors.buttonTextColor;
   if (props.disabled === true) {
     backgroundColor = colors.buttonDisabledBackgroundColor;
@@ -746,9 +746,15 @@ export const BlueListItem = React.memo(props => {
           </ListItem.Title>
         )}
       </ListItem.Content>
-      {props.chevron && <ListItem.Chevron />}
-      {props.rightIcon && <Avatar icon={props.rightIcon} />}
-      {props.switch && <Switch {...props.switch} />}
+      {props.isLoading ? (
+        <ActivityIndicator />
+      ) : (
+        <>
+          {props.chevron && <ListItem.Chevron />}
+          {props.rightIcon && <Avatar icon={props.rightIcon} />}
+          {props.switch && <Switch {...props.switch} />}
+        </>
+      )}
     </ListItem>
   );
 });

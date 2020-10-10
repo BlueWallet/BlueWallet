@@ -70,6 +70,7 @@ import UnlockWith from './UnlockWith';
 import { BlueNavigationStyle } from './BlueComponents';
 import DrawerList from './screen/wallets/drawerList';
 import { isTablet } from 'react-native-device-info';
+import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 
 const defaultScreenOptions =
   Platform.OS === 'ios'
@@ -136,6 +137,7 @@ const WalletsRoot = () => (
     <WalletsStack.Screen name="PlausibleDeniability" component={PlausibleDeniability} options={PlausibleDeniability.navigationOptions} />
     <WalletsStack.Screen name="LightningSettings" component={LightningSettings} options={LightningSettings.navigationOptions} />
     <WalletsStack.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions} />
+    <WalletsStack.Screen name="SettingsPrivacy" component={SettingsPrivacy} options={SettingsPrivacy.navigationOptions} />
     <WalletsStack.Screen
       name="LNDViewInvoice"
       component={LNDViewInvoice}
