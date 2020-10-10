@@ -17,7 +17,6 @@ const SettingsPrivacy = () => {
   }, []);
 
   const onValueChange = value => {
-    AppStateChange.setReadClipboardAllowedAskedTrue();
     AppStateChange.setReadClipboardAllowed(value);
     setIsReadClipboardAllowed(value);
   };
