@@ -20,7 +20,7 @@ function AppStateChange() {
     }
   };
 
-  AppStateChange.setReadClipboardAllowed = async value => {
+  AppStateChange.setReadClipboardAllowed = value => {
     setIsClipboardAccessAllowed(JSON.stringify(value));
   };
 

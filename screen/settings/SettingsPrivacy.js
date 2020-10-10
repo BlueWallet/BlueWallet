@@ -38,27 +38,18 @@ const SettingsPrivacy = () => {
     setIsLoading(false);
   };
 
-  const stylesWithThemeHook = {
+  const stylesWithThemeHook = StyleSheet.create({
     root: {
-      ...styles.root,
       backgroundColor: colors.background,
     },
-    scroll: {
-      ...styles.scroll,
-      backgroundColor: colors.background,
-    },
-    scrollBody: {
-      ...styles.scrollBody,
-      backgroundColor: colors.background,
-    },
-  };
+  });
 
   const openApplicationSettings = () => {
     Linking.openSettings();
   };
 
   return (
-    <ScrollView style={stylesWithThemeHook.scroll}>
+    <ScrollView style={[styles.root, stylesWithThemeHook.root]}>
       <BlueListItem
         hideChevron
         title={loc.settings.privacy_read_clipboard}
@@ -85,7 +76,7 @@ const SettingsPrivacy = () => {
         </>
       )}
       <BlueSpacing20 />
-      <BlueListItem title={loc.settings.privacy_additional_permissions} chevron onPress={openApplicationSettings} />
+      <BlueListItem title={loc.settings.privacy_system_settings} chevron onPress={openApplicationSettings} />
       <BlueSpacing20 />
     </ScrollView>
   );
