@@ -1,12 +1,12 @@
 import { useAsyncStorage } from '@react-native-community/async-storage';
 import Clipboard from '@react-native-community/clipboard';
 
-function AppStateChange() {
-  AppStateChange.STORAGE_KEY = 'AppStateChangeClipboardAllowed';
-  const isClipboardAccessAllowed = useAsyncStorage(AppStateChange.STORAGE_KEY).getItem;
-  const setIsClipboardAccessAllowed = useAsyncStorage(AppStateChange.STORAGE_KEY).setItem;
+function BlueClipboard() {
+  BlueClipboard.STORAGE_KEY = 'ClipboardReadAllowed';
+  const isClipboardAccessAllowed = useAsyncStorage(BlueClipboard.STORAGE_KEY).getItem;
+  const setIsClipboardAccessAllowed = useAsyncStorage(BlueClipboard.STORAGE_KEY).setItem;
 
-  AppStateChange.isReadClipboardAllowed = async () => {
+  BlueClipboard.isReadClipboardAllowed = async () => {
     try {
       const clipboardAccessAllowed = await isClipboardAccessAllowed();
       if (clipboardAccessAllowed === null) {
@@ -20,12 +20,12 @@ function AppStateChange() {
     }
   };
 
-  AppStateChange.setReadClipboardAllowed = value => {
+  BlueClipboard.setReadClipboardAllowed = value => {
     setIsClipboardAccessAllowed(JSON.stringify(value));
   };
 
-  AppStateChange.getClipboardContent = async () => {
-    const isAllowed = await AppStateChange.isReadClipboardAllowed();
+  BlueClipboard.getClipboardContent = async () => {
+    const isAllowed = await BlueClipboard.isReadClipboardAllowed();
     if (isAllowed) {
       return Clipboard.getString();
     } else {
@@ -34,5 +34,5 @@ function AppStateChange() {
   };
 }
 
-AppStateChange.default = new AppStateChange();
-export default AppStateChange;
+BlueClipboard.default = new BlueClipboard();
+export default BlueClipboard;

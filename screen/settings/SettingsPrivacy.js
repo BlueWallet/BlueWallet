@@ -3,7 +3,7 @@ import { ScrollView, TouchableWithoutFeedback, StyleSheet, Linking } from 'react
 import { BlueTextHooks, BlueSpacing20, BlueListItem, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
 import { useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import AppStateChange from '../../blue_modules/appStateChange';
+import BlueClipboard from '../../blue_modules/BlueClipboard';
 import DeviceQuickActions from '../../class/quick-actions';
 const BlueApp = require('../../BlueApp');
 
@@ -18,7 +18,7 @@ const SettingsPrivacy = () => {
   useEffect(() => {
     (async () => {
       try {
-        setIsReadClipboardAllowed(await AppStateChange.isReadClipboardAllowed());
+        setIsReadClipboardAllowed(await BlueClipboard.isReadClipboardAllowed());
         setStorageIsEncrypted(await BlueApp.storageIsEncrypted());
         setIsQuickActionsEnabled(await DeviceQuickActions.getEnabled());
       } catch (e) {
@@ -31,7 +31,7 @@ const SettingsPrivacy = () => {
   const onValueChange = async value => {
     setIsLoading(sections.CLIPBOARDREAD);
     try {
-      await AppStateChange.setReadClipboardAllowed(value);
+      await BlueClipboard.setReadClipboardAllowed(value);
       setIsReadClipboardAllowed(value);
     } catch (e) {
       console.log(e);
