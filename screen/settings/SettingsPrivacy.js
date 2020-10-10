@@ -3,7 +3,7 @@ import { ScrollView, TouchableWithoutFeedback, StyleSheet, Linking } from 'react
 import { BlueTextHooks, BlueSpacing20, BlueListItem, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
 import { useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import BlueClipboard from '../../blue_modules/BlueClipboard';
+import BlueClipboard from '../../blue_modules/clipboard';
 import DeviceQuickActions from '../../class/quick-actions';
 const BlueApp = require('../../BlueApp');
 
@@ -67,7 +67,6 @@ const SettingsPrivacy = () => {
         title={loc.settings.privacy_read_clipboard}
         Component={TouchableWithoutFeedback}
         switch={{ onValueChange, value: isReadClipboardAllowed, disabled: isLoading === sections.ALL }}
-        isLoading={isLoading === sections.CLIPBOARDREAD}
       />
       <BlueCard>
         <BlueTextHooks>{loc.settings.privacy_clipboard_explanation}</BlueTextHooks>
@@ -80,7 +79,6 @@ const SettingsPrivacy = () => {
             title={loc.settings.privacy_quickactions}
             Component={TouchableWithoutFeedback}
             switch={{ onValueChange: onQuickActionsValueChange, value: isQuickActionsEnabled, disabled: isLoading === sections.ALL }}
-            isLoading={isLoading === sections.QUICKACTION}
           />
           <BlueCard>
             <BlueTextHooks>{loc.settings.privacy_quickactions_explanation}</BlueTextHooks>

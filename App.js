@@ -26,7 +26,7 @@ import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/themes';
 import InitRoot from './Navigation';
-import BlueClipboard from './blue_modules/BlueClipboard';
+import BlueClipboard from './blue_modules/clipboard';
 const A = require('./blue_modules/analytics');
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
