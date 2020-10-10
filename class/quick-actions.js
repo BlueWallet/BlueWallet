@@ -9,7 +9,7 @@ export default class DeviceQuickActions {
   wallets;
 
   static setEnabled(enabled = true) {
-    AsyncStorage.setItem(DeviceQuickActions.STORAGE_KEY, JSON.stringify(enabled)).then(() => {
+    return AsyncStorage.setItem(DeviceQuickActions.STORAGE_KEY, JSON.stringify(enabled)).then(() => {
       if (!enabled) {
         DeviceQuickActions.clearShortcutItems();
       } else {

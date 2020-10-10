@@ -17,24 +17,36 @@ const SettingsPrivacy = () => {
 
   useEffect(() => {
     (async () => {
-      setIsReadClipboardAllowed(await AppStateChange.isReadClipboardAllowed());
-      setStorageIsEncrypted(await BlueApp.storageIsEncrypted());
-      setIsQuickActionsEnabled(await DeviceQuickActions.getEnabled());
+      try {
+        setIsReadClipboardAllowed(await AppStateChange.isReadClipboardAllowed());
+        setStorageIsEncrypted(await BlueApp.storageIsEncrypted());
+        setIsQuickActionsEnabled(await DeviceQuickActions.getEnabled());
+      } catch (e) {
+        console.log(e);
+      }
       setIsLoading(false);
     })();
   }, []);
 
-  const onValueChange = value => {
+  const onValueChange = async value => {
     setIsLoading(sections.CLIPBOARDREAD);
-    AppStateChange.setReadClipboardAllowed(value);
-    setIsReadClipboardAllowed(value);
+    try {
+      await AppStateChange.setReadClipboardAllowed(value);
+      setIsReadClipboardAllowed(value);
+    } catch (e) {
+      console.log(e);
+    }
     setIsLoading(false);
   };
 
-  const onQuickActionsValueChange = value => {
+  const onQuickActionsValueChange = async value => {
     setIsLoading(sections.QUICKACTION);
-    DeviceQuickActions.setEnabled(value);
-    setIsQuickActionsEnabled(value);
+    try {
+      await DeviceQuickActions.setEnabled(value);
+      setIsQuickActionsEnabled(value);
+    } catch (e) {
+      console.log(e);
+    }
     setIsLoading(false);
   };
 
