@@ -11,7 +11,6 @@ import {
   Platform,
   View,
 } from 'react-native';
-import Clipboard from '@react-native-community/clipboard';
 import Modal from 'react-native-modal';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -27,8 +26,8 @@ import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/themes';
 import InitRoot from './Navigation';
+import BlueClipboard from './blue_modules/clipboard';
 const A = require('./blue_modules/analytics');
-
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
     dsn: 'https://23377936131848ca8003448a893cb622@sentry.io/1295736',
@@ -188,10 +187,9 @@ export default class App extends React.Component {
     if (BlueApp.getWallets().length > 0) {
       if ((this.state.appState.match(/background/) && nextAppState) === 'active' || nextAppState === undefined) {
         setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
-
         const processed = await this._processPushNotifications();
         if (processed) return;
-        const clipboard = await Clipboard.getString();
+        const clipboard = await BlueClipboard.getClipboardContent();
         const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet => {
           if (wallet.chain === Chain.ONCHAIN) {
             // checking address validity is faster than unwrapping hierarchy only to compare it to garbage
@@ -278,10 +276,10 @@ export default class App extends React.Component {
               <View style={styles.space} />
               <BlueButton
                 noMinWidth
-                title="OK"
+                title={loc._.ok}
                 onPress={() => {
                   this.setState({ isClipboardContentModalVisible: false }, async () => {
-                    const clipboard = await Clipboard.getString();
+                    const clipboard = await BlueClipboard.getClipboardContent();
                     setTimeout(() => this.handleOpenURL({ url: clipboard }), 100);
                   });
                 }}
