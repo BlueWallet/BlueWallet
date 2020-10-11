@@ -84,7 +84,7 @@ const showFilePickerAndReadFile = async function () {
     const res = await DocumentPicker.pick({
       type:
         Platform.OS === 'ios'
-          ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', DocumentPicker.types.plainText, 'public.json']
+          ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', 'io.bluewallet.backup', DocumentPicker.types.plainText, 'public.json']
           : [DocumentPicker.types.allFiles],
     });
 
