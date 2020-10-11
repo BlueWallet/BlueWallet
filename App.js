@@ -1,15 +1,15 @@
 import 'react-native-gesture-handler'; // should be on top
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Linking,
-  Dimensions,
-  Appearance,
   DeviceEventEmitter,
   AppState,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   View,
+  useColorScheme,
+  useWindowDimensions,
 } from 'react-native';
 import Modal from 'react-native-modal';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
@@ -40,38 +40,44 @@ const BlueApp = require('./BlueApp');
 const EV = require('./blue_modules/events');
 const notifications = require('./blue_modules/notifications'); // eslint-disable-line no-unused-vars
 
-export default class App extends React.Component {
-  state = {
-    appState: AppState.currentState,
-    isClipboardContentModalVisible: false,
-    clipboardContentModalAddressType: bitcoinModalString,
-    clipboardContent: '',
-    theme: Appearance.getColorScheme(),
-  };
+const App = () => {
+  const appState = useRef(AppState.currentState);
+  const [isClipboardContentModalVisible, setIsClipboardContentModalVisible] = useState(false);
+  const [clipboardContentModalAddressType, setClipboardContentModalAddressType] = useState(bitcoinModalString);
+  const [clipboardContent, setClipboardContent] = useState('');
+  const colorScheme = useColorScheme();
+  const { height } = useWindowDimensions();
+  const stylesHook = StyleSheet.create({
+    modalContent: {
+      backgroundColor: colorScheme === 'dark' ? BlueDarkTheme.colors.elevated : BlueDefaultTheme.colors.elevated,
+    },
+  });
 
-  componentDidMount() {
-    EV(EV.enum.WALLETS_INITIALIZED, this.addListeners);
-    Appearance.addChangeListener(this.appearanceChanged);
-  }
+  useEffect(() => {
+    EV(EV.enum.WALLETS_INITIALIZED, addListeners);
+    return () => {
+      Linking.removeEventListener('url', handleOpenURL);
+      AppState.removeEventListener('change', handleAppStateChange);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  appearanceChanged = () => {
-    const appearance = Appearance.getColorScheme();
-    if (appearance) {
+  useEffect(() => {
+    if (colorScheme) {
       BlueCurrentTheme.updateColorScheme();
-      this.setState({ theme: appearance });
     }
+  }, [colorScheme]);
+
+  const addListeners = () => {
+    Linking.addEventListener('url', handleOpenURL);
+    AppState.addEventListener('change', handleAppStateChange);
+    DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
+    QuickActions.popInitialAction().then(popInitialAction);
+    EV(EV.enum.PROCESS_PUSH_NOTIFICATIONS, processPushNotifications, true);
+    handleAppStateChange(undefined);
   };
 
-  addListeners = () => {
-    Linking.addEventListener('url', this.handleOpenURL);
-    AppState.addEventListener('change', this._handleAppStateChange);
-    DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
-    QuickActions.popInitialAction().then(this.popInitialAction);
-    EV(EV.enum.PROCESS_PUSH_NOTIFICATIONS, this._processPushNotifications.bind(this), true);
-    this._handleAppStateChange(undefined);
-  };
-
-  popInitialAction = async data => {
+  const popInitialAction = async data => {
     if (data) {
       const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
       NavigationService.dispatch(
@@ -87,7 +93,7 @@ export default class App extends React.Component {
       const url = await Linking.getInitialURL();
       if (url) {
         if (DeeplinkSchemaMatch.hasSchema(url)) {
-          this.handleOpenURL({ url });
+          handleOpenURL({ url });
         }
       } else {
         const isViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
@@ -110,7 +116,7 @@ export default class App extends React.Component {
     }
   };
 
-  walletQuickActions = data => {
+  const walletQuickActions = data => {
     const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
     NavigationService.dispatch(
       CommonActions.navigate({
@@ -123,19 +129,13 @@ export default class App extends React.Component {
     );
   };
 
-  componentWillUnmount() {
-    Linking.removeEventListener('url', this.handleOpenURL);
-    AppState.removeEventListener('change', this._handleAppStateChange);
-    Appearance.removeChangeListener(this.appearanceChanged);
-  }
-
   /**
    * Processes push notifications stored in AsyncStorage. Might navigate to some screen.
    *
    * @returns {Promise<boolean>} returns TRUE if notification was processed _and acted_ upon, i.e. navigation happened
    * @private
    */
-  async _processPushNotifications() {
+  const processPushNotifications = async () => {
     notifications.setApplicationIconBadgeNumber(0);
     await new Promise(resolve => setTimeout(resolve, 200));
     // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
@@ -181,13 +181,13 @@ export default class App extends React.Component {
 
     await notifications.clearStoredNotifications();
     return false;
-  }
+  };
 
-  _handleAppStateChange = async nextAppState => {
+  const handleAppStateChange = async nextAppState => {
     if (BlueApp.getWallets().length > 0) {
-      if ((this.state.appState.match(/background/) && nextAppState) === 'active' || nextAppState === undefined) {
+      if ((appState.current.match(/background/) && nextAppState) === 'active' || nextAppState === undefined) {
         setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
-        const processed = await this._processPushNotifications();
+        const processed = await processPushNotifications();
         if (processed) return;
         const clipboard = await BlueClipboard.getClipboardContent();
         const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet => {
@@ -204,84 +204,58 @@ export default class App extends React.Component {
         const isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(clipboard);
         if (
           !isAddressFromStoredWallet &&
-          this.state.clipboardContent !== clipboard &&
+          clipboardContent !== clipboard &&
           (isBitcoinAddress || isLightningInvoice || isLNURL || isBothBitcoinAndLightning)
         ) {
           if (isBitcoinAddress) {
-            this.setState({ clipboardContentModalAddressType: bitcoinModalString });
+            setClipboardContentModalAddressType(bitcoinModalString);
           } else if (isLightningInvoice || isLNURL) {
-            this.setState({ clipboardContentModalAddressType: lightningModalString });
+            setClipboardContentModalAddressType(lightningModalString);
           } else if (isBothBitcoinAndLightning) {
-            this.setState({ clipboardContentModalAddressType: bitcoinModalString });
+            setClipboardContentModalAddressType(bitcoinModalString);
           }
-          this.setState({ isClipboardContentModalVisible: true });
+          setIsClipboardContentModalVisible(true);
         }
-        this.setState({ clipboardContent: clipboard });
+        setClipboardContent(clipboard);
       }
       if (nextAppState) {
-        this.setState({ appState: nextAppState });
+        appState.current = nextAppState;
       }
     }
   };
 
-  isBothBitcoinAndLightningWalletSelect = wallet => {
-    const clipboardContent = this.state.clipboardContent;
-    if (wallet.chain === Chain.ONCHAIN) {
-      this.navigation &&
-        NavigationService.dispatch(
-          CommonActions.navigate({
-            name: 'SendDetails',
-            params: {
-              uri: clipboardContent.bitcoin,
-              fromWallet: wallet,
-            },
-          }),
-        );
-    } else if (wallet.chain === Chain.OFFCHAIN) {
-      this.navigation &&
-        NavigationService.dispatch(
-          CommonActions.navigate({
-            name: 'ScanLndInvoice',
-            params: {
-              uri: clipboardContent.lndInvoice,
-              fromSecret: wallet.getSecret(),
-            },
-          }),
-        );
-    }
-  };
-
-  handleOpenURL = event => {
+  const handleOpenURL = event => {
     DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value));
   };
 
-  renderClipboardContentModal = () => {
+  const hideClipboardContentModal = () => {
+    setIsClipboardContentModalVisible(false);
+  };
+
+  const renderClipboardContentModal = () => {
     return (
       <Modal
         onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false })}
-        isVisible={this.state.isClipboardContentModalVisible}
+        isVisible={isClipboardContentModalVisible}
         style={styles.bottomModal}
-        deviceHeight={Dimensions.get('window').height}
-        onBackdropPress={() => {
-          this.setState({ isClipboardContentModalVisible: false });
-        }}
+        deviceHeight={height}
+        onBackdropPress={hideClipboardContentModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCentered>
-              You have a {this.state.clipboardContentModalAddressType} on your clipboard. Would you like to use it for a transaction?
+              You have a {clipboardContentModalAddressType} on your clipboard. Would you like to use it for a transaction?
             </BlueTextCentered>
             <View style={styles.modelContentButtonLayout}>
-              <SecondButton noMinWidth title={loc._.cancel} onPress={() => this.setState({ isClipboardContentModalVisible: false })} />
+              <SecondButton noMinWidth title={loc._.cancel} onPress={hideClipboardContentModal} />
               <View style={styles.space} />
               <BlueButton
                 noMinWidth
                 title={loc._.ok}
-                onPress={() => {
-                  this.setState({ isClipboardContentModalVisible: false }, async () => {
-                    const clipboard = await BlueClipboard.getClipboardContent();
-                    setTimeout(() => this.handleOpenURL({ url: clipboard }), 100);
-                  });
+                onPress={async () => {
+                  setIsClipboardContentModalVisible(false);
+                  const clipboard = await BlueClipboard.getClipboardContent();
+                  setTimeout(() => handleOpenURL({ url: clipboard }), 100);
                 }}
               />
             </View>
@@ -290,20 +264,17 @@ export default class App extends React.Component {
       </Modal>
     );
   };
-
-  render() {
-    return (
-      <SafeAreaProvider>
-        <View style={styles.root}>
-          <NavigationContainer ref={navigationRef} theme={this.state.theme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-            <InitRoot />
-          </NavigationContainer>
-          {this.renderClipboardContentModal()}
-        </View>
-      </SafeAreaProvider>
-    );
-  }
-}
+  return (
+    <SafeAreaProvider>
+      <View style={styles.root}>
+        <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+          <InitRoot />
+        </NavigationContainer>
+        {renderClipboardContentModal()}
+      </View>
+    </SafeAreaProvider>
+  );
+};
 
 const styles = StyleSheet.create({
   root: {
@@ -313,7 +284,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   modalContent: {
-    backgroundColor: BlueCurrentTheme.colors.elevated,
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',
@@ -334,3 +304,5 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
 });
+
+export default App;

@@ -13,7 +13,7 @@ import {
   Dimensions,
   useWindowDimensions,
 } from 'react-native';
-import { WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem, BlueNavigationStyle } from '../../BlueComponents';
+import { WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -22,9 +22,7 @@ import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
-import * as NavigationService from '../../NavigationService';
 import loc from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { getSystemName, isTablet } from 'react-native-device-info';
 import ScanQRCode from '../send/ScanQRCode';
@@ -43,7 +41,7 @@ const WalletsList = () => {
   const walletsCarousel = useRef();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
-  const { navigate } = useNavigation();
+  const { navigate, setOptions } = useNavigation();
   const routeName = useRoute().name;
   const [isLoading, setIsLoading] = useState(true);
   const [wallets, setWallets] = useState(BlueApp.getWallets().concat(false));
@@ -89,6 +87,29 @@ const WalletsList = () => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
+
+  useEffect(() => {
+    setOptions({
+      title: '',
+      headerStyle: {
+        backgroundColor: colors.customHeader,
+        borderBottomWidth: 0,
+        elevation: 0,
+        shadowOpacity: 0,
+        shadowOffset: { height: 0, width: 0 },
+      },
+      headerRight: () => (
+        <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
+          <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
+        </TouchableOpacity>
+      ),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colors]);
+
+  const navigateToSettings = () => {
+    navigate('Settings');
+  };
 
   /**
    * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet.
@@ -670,22 +691,3 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
 });
-
-WalletsList.navigationOptions = ({ navigation, route }) => {
-  return {
-    ...BlueNavigationStyle(navigation, true),
-    title: '',
-    headerStyle: {
-      backgroundColor: BlueCurrentTheme.colors.customHeader,
-      borderBottomWidth: 0,
-      elevation: 0,
-      shadowOpacity: 0,
-      shadowOffset: { height: 0, width: 0 },
-    },
-    headerRight: () => (
-      <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
-        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueCurrentTheme.colors.foregroundColor} />
-      </TouchableOpacity>
-    ),
-  };
-};
