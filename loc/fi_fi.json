@@ -8,7 +8,12 @@
     "of": "{number} / {total}",
     "ok": "OK",
     "storage_is_encrypted": "Tallennustilasi on salattu. Sen purkamiseksi vaaditaan salasana",
-    "yes": "Kyllä"
+    "allow": "Salli",
+    "dont_allow": "Älä salli",
+    "yes": "Kyllä",
+    "no": "Ei",
+    "invalid_animated_qr_code_fragment" : "Virheellinen animoitu QRCode-fragmentti, yritä uudelleen",
+    "file_saved": "Tiedosto ({filePath}) on tallennettu Lataukset-kansioon."
   },
   "azteco": {
     "codeIs": "Kuponkikoodisi on",
@@ -176,7 +181,7 @@
     "details_total_exceeds_balance": "Lähetettävä summa ylittää katteen",
     "details_wallet_before_tx": "Ennen siirtotapahtuman luomista, sinun on ensin lisättävä Bitcoin-lompakko.",
     "details_wallet_selection": "Lompakon Valinta",
-    "dynamic_init": "Alustetaan",
+    "dynamic_init": "Alustaa",
     "dynamic_next": "Seuraava",
     "dynamic_prev": "Edellinen",
     "dynamic_start": "Aloita",
@@ -209,7 +214,8 @@
     "qr_error_no_qrcode": "Valittu kuva ei sisällä QR-koodia.",
     "qr_error_no_wallet": "Valittu tiedosto ei sisällä tuotavaa lompakkoa.",
     "success_done": "Valmis",
-    "txSaved": "Siirtotapahtumatiedosto ({filePath}) on tallennettu Lataukset-kansioon."
+    "txSaved": "Siirtotapahtumatiedosto ({filePath}) on tallennettu Lataukset-kansioon.",
+    "problem_with_psbt": "Ongelma PSBT:n kanssa"
   },
   "settings": {
     "about": "Tietoa",
@@ -269,6 +275,13 @@
     "password_explain": "Luo salasana, jota käytät tallennustilan salauksen purkamiseen",
     "passwords_do_not_match": "Salasanat eivät täsmää",
     "plausible_deniability": "Uskottava kiistettävyys",
+    "privacy": "Yksityisyys",
+    "privacy_read_clipboard": "Lue Leikepöytä",
+    "privacy_read_clipboard_alert": "BlueWallet näyttää pikakuvakkeet leikepöydältä löytyvän laskun tai osoitteen käsittelemiseksi.",
+    "privacy_system_settings": "Järjestelmäasetukset",
+    "privacy_quickactions": "Lompakon Pikanäppäimet",
+    "privacy_quickactions_explanation": "Kosketa ja pidä Aloitusnäytön BlueWallet-sovelluskuvaketta nähdäksesi nopeasti lompakon saldon.",
+    "privacy_clipboard_explanation": "Toimita pikakuvakkeet, jos leikepöydältä löytyy osoite tai lasku.",
     "push_notifications": "Push-ilmoitukset",
     "retype_password": "Salasana uudelleen",
     "save": "Tallenna",
@@ -371,5 +384,19 @@
     "select_wallet": "Valitse Lompakko",
     "xpub_copiedToClipboard": "Kopioitu leikepöydälle.",
     "xpub_title": "lompakon XPUB"
+  },
+  "multisig": {
+    "provide_signature": "Toimita allekirjoitus",
+    "vault_key": "Holvi avain {number}",
+    "fee": "Siirtokulu: {number}",
+    "fee_btc": "{number} BTC",
+    "confirm": "Vahvista",
+    "header": "Lähetä",
+    "share": "Jaa",
+    "how_many_signatures_can_bluewallet_make": "kuinka monta allekirjoitusta bluewallet voi tehdä",
+    "scan_or_import_file": "Skannaa tai tuo tiedosto",
+    "export_coordination_setup": "vie koordinoinnin asetukset",
+    "cosign_this_transaction": "Allekirjoitetaanko tämä siirtotapahtuma?",
+    "co_sign_transaction": "Allekirjoita QR-airgapped siirtotapahtuma"
   }
 }
