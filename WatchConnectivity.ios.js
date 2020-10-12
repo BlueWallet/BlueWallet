@@ -45,7 +45,7 @@ const WatchConnectivity = () => {
 
   getIsWatchAppInstalled().then(installed => {
     if (installed) {
-      watchEvents.addListener('message', handleMessages);
+      watchEvents.on('message', handleMessages);
     }
   });
 };
@@ -60,6 +60,7 @@ WatchConnectivity.sendWalletsToWatch = () => {
       return;
     } else if (allWallets.length === 0) {
       console.log('Wallets array is set. No Wallets set to sync with Watch app. Exiting...');
+      updateApplicationContext({ wallets: [], randomID: Math.floor(Math.random() * 11) });
       return;
     }
 
@@ -160,5 +161,5 @@ WatchConnectivity.sendWalletsToWatch = () => {
     });
   });
 };
+WatchConnectivity.default = new WatchConnectivity();
 export default WatchConnectivity;
-WatchConnectivity();
