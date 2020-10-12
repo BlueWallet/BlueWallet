@@ -6,7 +6,14 @@ import { takeLatest, put, take, call, select } from 'redux-saga/effects';
 import { Wallet } from 'app/consts';
 
 import { actions as walletsActions, selectors as walletsSelectors } from '../wallets';
-import { setBlockHeight, ElectrumXAction, scriptHashChanged, setSubscribedScriptHashes } from './actions';
+import {
+  setBlockHeight,
+  fetchBlockHeightFailure,
+  fetchBlockHeightSuccess,
+  ElectrumXAction,
+  scriptHashChanged,
+  setSubscribedScriptHashes,
+} from './actions';
 import { subscribedScriptHashes } from './selectors';
 
 const BlueElectrum = require('../../../BlueElectrum');
@@ -26,16 +33,21 @@ function emitBlockchainHeaders() {
 }
 
 export function* listenBlockchainHeadersSaga() {
-  yield BlueElectrum.waitTillConnected();
-
-  const { height: blockHeight } = yield BlueElectrum.getBlockchainHeaders();
-  yield put(setBlockHeight(blockHeight));
-
   const chan = yield call(emitBlockchainHeaders);
 
   while (true) {
     const { height } = yield take(chan);
     yield put(setBlockHeight(height));
+  }
+}
+
+export function* fetchBlockchainHeadersSaga() {
+  try {
+    yield BlueElectrum.waitTillConnected();
+    const { height: blockHeight } = yield BlueElectrum.getBlockchainHeaders();
+    yield put(fetchBlockHeightSuccess(blockHeight));
+  } catch (err) {
+    yield put(fetchBlockHeightFailure(err.message));
   }
 }
 
@@ -99,4 +111,5 @@ export default [
   ),
   takeLatest(ElectrumXAction.StartListeners, listenScriptHashesSaga),
   takeLatest(ElectrumXAction.StartListeners, listenBlockchainHeadersSaga),
+  takeLatest(ElectrumXAction.FetchBlockHeight, fetchBlockchainHeadersSaga),
 ];

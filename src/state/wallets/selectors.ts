@@ -1,4 +1,4 @@
-import { flatten, negate } from 'lodash';
+import { flatten, negate, max } from 'lodash';
 import { createSelector } from 'reselect';
 
 import { TxType, Wallet } from 'app/consts';
@@ -58,9 +58,10 @@ export const transactions = createSelector(wallets, electrumXSelectors.blockHeig
       const id = wallet.id;
       return wallet.transactions.map(transaction => {
         const { height } = transaction;
+        const confirmations = height > 0 ? blockHeight - height : 0;
         return {
           ...transaction,
-          confirmations: height > 0 ? blockHeight - height : 0,
+          confirmations: max([confirmations, 0]),
           walletPreferredBalanceUnit: walletBalanceUnit,
           walletId: id,
           walletLabel,

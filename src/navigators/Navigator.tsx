@@ -16,7 +16,12 @@ import { selectors as appSettingsSelectors } from 'app/state/appSettings';
 import { updateSelectedLanguage as updateSelectedLanguageAction } from 'app/state/appSettings/actions';
 import { selectors as authenticationSelectors } from 'app/state/authentication';
 import { checkCredentials as checkCredentialsAction } from 'app/state/authentication/actions';
-import { startListeners, StartListenersAction } from 'app/state/electrumX/actions';
+import {
+  startListeners,
+  StartListenersAction,
+  fetchBlockHeight as fetchBlockHeightAction,
+  FetchBlockHeightAction,
+} from 'app/state/electrumX/actions';
 import { LoadWalletsAction, loadWallets as loadWalletsAction } from 'app/state/wallets/actions';
 import { isAndroid, isIos } from 'app/styles';
 
@@ -36,6 +41,7 @@ interface ActionsDisptach {
   checkCredentials: Function;
   startElectrumXListeners: () => StartListenersAction;
   loadWallets: () => LoadWalletsAction;
+  fetchBlockHeight: () => FetchBlockHeightAction;
   updateSelectedLanguage: Function;
 }
 
@@ -55,9 +61,10 @@ class Navigator extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    const { checkCredentials, startElectrumXListeners } = this.props;
+    const { checkCredentials, startElectrumXListeners, fetchBlockHeight } = this.props;
     checkCredentials();
     startElectrumXListeners();
+    fetchBlockHeight();
     this.initLanguage();
 
     if (!__DEV__) {
@@ -109,9 +116,10 @@ class Navigator extends React.Component<Props, State> {
     this.setState({ isBetaVersionRiskAccepted: true });
   };
 
-  refreshWallets = () => {
-    const { loadWallets } = this.props;
+  refresh = () => {
+    const { loadWallets, fetchBlockHeight } = this.props;
     loadWallets();
+    fetchBlockHeight();
   };
 
   renderRoutes = () => {
@@ -143,7 +151,7 @@ class Navigator extends React.Component<Props, State> {
   render() {
     return (
       <>
-        <AppStateManager handleAppComesToForeground={this.refreshWallets} />
+        <AppStateManager handleAppComesToForeground={this.refresh} />
         <NavigationContainer key={this.props.language} ref={navigationRef}>
           {this.renderRoutes()}
         </NavigationContainer>
@@ -165,6 +173,7 @@ const mapDispatchToProps: ActionsDisptach = {
   startElectrumXListeners: startListeners,
   loadWallets: loadWalletsAction,
   updateSelectedLanguage: updateSelectedLanguageAction,
+  fetchBlockHeight: fetchBlockHeightAction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Navigator);

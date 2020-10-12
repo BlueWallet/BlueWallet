@@ -260,6 +260,11 @@ export class LegacyWallet extends AbstractWallet {
         if (!tx.confirmations) tx.confirmations = 0;
         transactions.push(tx);
       }
+      this.transactions = this.transactions.filter(t => {
+        const duplicatedTx = transactions.find(trans => trans.txid === t.txid);
+        return !!!duplicatedTx;
+      });
+
       this.transactions = [...this.transactions, ...transactions];
     } catch (err) {
       console.warn(err.message);
