@@ -4,7 +4,7 @@ import { Chain } from './models/bitcoinUnits';
 import loc, { formatBalance, transactionTimeToReadable } from './loc';
 const notifications = require('./blue_modules/notifications');
 
-const WatchConnectivity = () => {
+function WatchConnectivity() {
   const handleMessages = (message, reply) => {
     const BlueApp = require('./BlueApp');
     if (message.request === 'createInvoice') {
@@ -161,5 +161,6 @@ WatchConnectivity.sendWalletsToWatch = () => {
     });
   });
 };
+
 WatchConnectivity.default = new WatchConnectivity();
 export default WatchConnectivity;
