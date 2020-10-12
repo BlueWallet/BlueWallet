@@ -336,7 +336,7 @@
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>backup</string>
+					<string>io.bluewallet.backup</string>
 				</array>
 			</dict>
 		</dict>
