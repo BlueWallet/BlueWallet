@@ -7,6 +7,7 @@ import React from 'react';
 import { AppRegistry, StatusBar } from 'react-native';
 
 import App from './App';
+import config from './config';
 
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging
@@ -23,4 +24,4 @@ const BlueAppComponent = () => {
   );
 };
 
-AppRegistry.registerComponent('GoldWallet', () => BlueAppComponent);
+AppRegistry.registerComponent(config.applcationName, () => BlueAppComponent);

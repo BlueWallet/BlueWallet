@@ -81,7 +81,9 @@ import com.android.build.OutputFile
  */
 
 project.ext.react = [
-    entryFile: "index.js"
+    entryFile: "index.js",
+    devDisabledInStaging: true,
+    enableHermes: false
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
@@ -112,6 +114,7 @@ def useIntlJsc = false
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
+    flavorDimensions "default" 
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -119,7 +122,8 @@ android {
     }
 
     defaultConfig {
-        applicationId "io.goldwallet.wallet"
+        applicationId project.env.get("APP_ID")
+        resValue "string", "build_config_package", "io.goldwallet.wallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 4
@@ -141,6 +145,18 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+    productFlavors {
+        prod {
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId 'io.goldwallet.wallet'
+            targetSdkVersion rootProject.ext.targetSdkVersion
+        }
+        beta {
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId 'io.goldwallet.wallet.testnet'
+            targetSdkVersion rootProject.ext.targetSdkVersion
+        }
+    }
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
@@ -158,6 +174,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation project(':react-native-config')
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation project(path: ":@react-native-firebase_analytics")
     // JSC from node_modules
