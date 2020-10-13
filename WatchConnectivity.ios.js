@@ -48,7 +48,7 @@ function WatchConnectivity() {
       watchEvents.on('message', handleMessages);
     }
   });
-};
+}
 
 WatchConnectivity.sendWalletsToWatch = () => {
   getIsWatchAppInstalled().then(installed => {

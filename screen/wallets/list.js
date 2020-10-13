@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   StatusBar,
   View,
@@ -27,7 +27,7 @@ import { FContainer, FButton } from '../../components/FloatButtons';
 import { getSystemName, isTablet } from 'react-native-device-info';
 import ScanQRCode from '../send/ScanQRCode';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
-const EV = require('../../blue_modules/events');
+import { BlueStorageContext } from '../../blue_modules/BlueStorage';
 const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -39,17 +39,17 @@ const isDesktop = getSystemName() === 'Mac OS X';
 
 const WalletsList = () => {
   const walletsCarousel = useRef();
+  const { wallets, getTransactions } = useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
   const routeName = useRoute().name;
   const [isLoading, setIsLoading] = useState(true);
-  const [wallets, setWallets] = useState(BlueApp.getWallets().concat(false));
   const [itemWidth, setItemWidth] = useState(width * 0.82 > 375 ? 375 : width * 0.82);
   const [isLargeScreen, setIsLargeScreen] = useState(
     Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3 && isTablet(),
   );
-  const [dataSource, setDataSource] = useState([]);
+  const dataSource = getTransactions(null, 10);
 
   const stylesHook = StyleSheet.create({
     walletsListWrapper: {
@@ -72,14 +72,6 @@ const WalletsList = () => {
       color: colors.alternativeTextColor,
     },
   });
-
-  useEffect(() => {
-    EV(EV.enum.WALLETS_COUNT_CHANGED, () => redrawScreen(true));
-    // here, when we receive TRANSACTIONS_COUNT_CHANGED we do not query
-    // remote server, we just redraw the screen
-    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, redrawScreen);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -144,7 +136,7 @@ const WalletsList = () => {
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet.
     // placing event subscription here so it gets exclusively re-subscribed more often. otherwise we would
     // have to unsubscribe on unmount and resubscribe again on mount.
-    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, refreshTransactions, true);
+    //  EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, refreshTransactions, true);
 
     if (BlueApp.getBalance() !== 0) {
       A(A.ENUM.GOT_NONZERO_BALANCE);
@@ -152,25 +144,24 @@ const WalletsList = () => {
       A(A.ENUM.GOT_ZERO_BALANCE);
     }
 
-    const storedWallets = BlueApp.getWallets().concat(false);
-    const storedDataSource = BlueApp.getTransactions(null, 10);
+    // const storedWallets = BlueApp.getWallets().concat(false);
+    // const storedDataSource = BlueApp.getTransactions(null, 10);
     if (scrollToEnd) {
-      scrollToEnd = storedWallets.length > wallets.length;
+      // scrollToEnd = storedWallets.length > wallets.length;
     }
 
-    setDataSource(storedDataSource);
-    setWallets(storedWallets);
+    // setWallets(storedWallets);
     setIsLoading(false);
     if (scrollToEnd) {
-      navigate('DrawerRoot', { wallets: BlueApp.getWallets() });
+      // navigate('DrawerRoot', { wallets: BlueApp.getWallets() });
       // eslint-disable-next-line no-unused-expressions
-      walletsCarousel.current?.snapToItem(storedWallets.length - 2);
+      // walletsCarousel.current?.snapToItem(storedWallets.length - 2);
     }
   };
 
   const handleClick = index => {
     console.log('click', index);
-    const wallet = BlueApp.wallets[index];
+    const wallet = wallets[index];
     if (wallet) {
       if (wallet.type === PlaceholderWallet.type) {
         Alert.alert(
@@ -181,7 +172,7 @@ const WalletsList = () => {
               text: loc.wallets.details_delete,
               onPress: () => {
                 WalletImport.removePlaceholderWallet();
-                EV(EV.enum.WALLETS_COUNT_CHANGED);
+                //        EV(EV.enum.WALLETS_COUNT_CHANGED);
               },
               style: 'destructive',
             },
@@ -190,7 +181,7 @@ const WalletsList = () => {
               onPress: () => {
                 navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: wallet.getSecret() } });
                 WalletImport.removePlaceholderWallet();
-                EV(EV.enum.WALLETS_COUNT_CHANGED);
+                //     EV(EV.enum.WALLETS_COUNT_CHANGED);
               },
               style: 'default',
             },
@@ -199,13 +190,13 @@ const WalletsList = () => {
         );
       } else {
         navigate('WalletTransactions', {
-          wallet,
+          walletID: wallet.getID(),
           key: `WalletTransactions-${wallet.getID()}`,
         });
       }
     } else {
       // if its out of index - this must be last card with incentive to create wallet
-      if (!BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
+      if (!wallets.some(wallet => wallet.type === PlaceholderWallet.type)) {
         navigate('AddWalletRoot');
       }
     }
@@ -214,11 +205,10 @@ const WalletsList = () => {
   const onSnapToItem = index => {
     console.log('onSnapToItem', index);
     lastSnappedTo = index;
-    if (index < BlueApp.getWallets().length) {
+    if (index < wallets.length) {
       // not the last
     }
-
-    if (wallets[index].type === PlaceholderWallet.type) {
+    if (wallets[index]?.type === PlaceholderWallet.type) {
       return;
     }
 
@@ -234,7 +224,6 @@ const WalletsList = () => {
    */
   const lazyRefreshWallet = async index => {
     /** @type {Array.<AbstractWallet>} wallets */
-    const wallets = BlueApp.getWallets();
     if (!wallets[index]) {
       return;
     }
@@ -294,7 +283,7 @@ const WalletsList = () => {
   };
 
   const handleLongPress = () => {
-    if (BlueApp.getWallets().length > 1 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (wallets.length > 1 && !wallets.some(wallet => wallet.type === PlaceholderWallet.type)) {
       navigate('ReorderWallets');
     } else {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -310,7 +299,7 @@ const WalletsList = () => {
   };
 
   const renderLocalTrader = () => {
-    if (BlueApp.getWallets().length > 0 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (wallets.length > 0 && !wallets.some(wallet => wallet.type === PlaceholderWallet.type)) {
       return (
         <TouchableOpacity
           onPress={() => {
@@ -336,7 +325,7 @@ const WalletsList = () => {
     return (
       <WalletsCarousel
         removeClippedSubviews={false}
-        data={wallets}
+        data={wallets.concat(false)}
         onPress={handleClick}
         handleLongPress={handleLongPress}
         onSnapToItem={onSnapToItem}
@@ -367,9 +356,7 @@ const WalletsList = () => {
         return isLargeScreen ? null : (
           <BlueHeaderDefaultMain
             leftText={loc.wallets.list_title}
-            onNewWalletPress={
-              !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type) ? () => navigate('AddWalletRoot') : null
-            }
+            onNewWalletPress={!wallets.some(wallet => wallet.type === PlaceholderWallet.type) ? () => navigate('AddWalletRoot') : null}
           />
         );
       case WalletsListSections.TRANSACTIONS:
@@ -398,7 +385,7 @@ const WalletsList = () => {
   };
 
   const renderScanButton = () => {
-    if (BlueApp.getWallets().length > 0 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (wallets.length > 0 && !wallets.some(wallet => wallet.type === PlaceholderWallet.type)) {
       return (
         <FContainer>
           <FButton

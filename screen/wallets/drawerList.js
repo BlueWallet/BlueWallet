@@ -1,24 +1,23 @@
-import React, { useRef } from 'react';
+import React, { useContext, useRef } from 'react';
 import { StatusBar, View, TouchableOpacity, StyleSheet, Alert, useWindowDimensions } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { WalletsCarousel, BlueNavigationStyle, BlueHeaderDefaultMain } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
-import { AppStorage, PlaceholderWallet } from '../../class';
+import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
 import * as NavigationService from '../../NavigationService';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import { useTheme, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-const EV = require('../../blue_modules/events');
-const BlueApp: AppStorage = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/BlueStorage';
 
 const DrawerList = props => {
   console.log('drawerList rendering...');
   const walletsCarousel = useRef();
-  const wallets = useRoute().params?.wallets || BlueApp.getWallets() || [];
+  const { wallets } = useContext(BlueStorageContext);
   const height = useWindowDimensions().height;
   const { colors } = useTheme();
   const { selectedWallet } = useRoute().params || '';
@@ -30,7 +29,7 @@ const DrawerList = props => {
 
   const handleClick = index => {
     console.log('click', index);
-    const wallet = BlueApp.wallets[index];
+    const wallet = wallets[index];
     if (wallet) {
       if (wallet.type === PlaceholderWallet.type) {
         Alert.alert(
@@ -41,7 +40,6 @@ const DrawerList = props => {
               text: loc.wallets.details_delete,
               onPress: () => {
                 WalletImport.removePlaceholderWallet();
-                EV(EV.enum.WALLETS_COUNT_CHANGED);
               },
               style: 'destructive',
             },
@@ -50,7 +48,6 @@ const DrawerList = props => {
               onPress: () => {
                 props.navigation.navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: wallet.getSecret() } });
                 WalletImport.removePlaceholderWallet();
-                EV(EV.enum.WALLETS_COUNT_CHANGED);
               },
               style: 'default',
             },
@@ -59,20 +56,20 @@ const DrawerList = props => {
         );
       } else {
         props.navigation.navigate('WalletTransactions', {
-          wallet: wallet,
+          walletID: wallet.getID(),
           key: `WalletTransactions-${wallet.getID()}`,
         });
       }
     } else {
       // if its out of index - this must be last card with incentive to create wallet
-      if (!BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
+      if (!wallets.some(wallet => wallet.type === PlaceholderWallet.type)) {
         props.navigation.navigate('Navigation', { screen: 'AddWalletRoot' });
       }
     }
   };
 
   const handleLongPress = () => {
-    if (BlueApp.getWallets().length > 1 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (wallets.length > 1 && !wallets.some(wallet => wallet.type === PlaceholderWallet.type)) {
       props.navigation.navigate('ReorderWallets');
     } else {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -99,7 +96,7 @@ const DrawerList = props => {
   };
 
   const onNewWalletPress = () => {
-    return !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type) ? props.navigation.navigate('AddWalletRoot') : null;
+    return !wallets.some(wallet => wallet.type === PlaceholderWallet.type) ? props.navigation.navigate('AddWalletRoot') : null;
   };
 
   return (

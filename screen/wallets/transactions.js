@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { Chain } from '../../models/bitcoinUnits';
 import {
   Text,
@@ -36,150 +36,29 @@ import { FContainer, FButton } from '../../components/FloatButtons';
 import { getSystemName } from 'react-native-device-info';
 import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
 import BuyBitcoin from './buyBitcoin';
-const BlueApp = require('../../BlueApp');
-const EV = require('../../blue_modules/events');
+import { BlueStorageContext } from '../../blue_modules/BlueStorage';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const isDesktop = getSystemName() === 'Mac OS X';
-
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  scrollViewContent: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 40,
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    padding: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 200,
-    height: 200,
-  },
-  advancedTransactionOptionsModalContent: {
-    padding: 22,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 130,
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
-  walletDetails: {
-    marginHorizontal: 16,
-    minWidth: 150,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  activityIndicator: {
-    marginVertical: 20,
-  },
-  listHeader: {
-    flexDirection: 'row',
-    margin: 16,
-    justifyContent: 'space-evenly',
-  },
-  listHeaderTextRow: {
-    flex: 1,
-    marginHorizontal: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  listHeaderText: {
-    marginTop: 8,
-    marginBottom: 8,
-    fontWeight: 'bold',
-    fontSize: 24,
-  },
-  marketplaceButton1: {
-    borderRadius: 9,
-    minHeight: 49,
-    flex: 1,
-    paddingHorizontal: 8,
-    justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  marketplaceButton2: {
-    marginLeft: 5,
-    borderRadius: 9,
-    minHeight: 49,
-    flex: 1,
-    paddingHorizontal: 8,
-    justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  marketpalceText1: {
-    fontSize: 18,
-  },
-  marketpalceText2: {
-    fontSize: 18,
-    marginHorizontal: 8,
-  },
-  list: {
-    flex: 1,
-  },
-  emptyTxs: {
-    fontSize: 18,
-    color: '#9aa0aa',
-    textAlign: 'center',
-    marginVertical: 16,
-  },
-  emptyTxsLightning: {
-    fontSize: 18,
-    color: '#9aa0aa',
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  buyBitcoin: {
-    backgroundColor: '#007AFF',
-    minWidth: 260,
-    borderRadius: 8,
-    alignSelf: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 32,
-  },
-  buyBitcoinText: {
-    fontSize: 15,
-    color: '#fff',
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  sendIcon: {
-    transform: [{ rotate: '225deg' }],
-  },
-  receiveIcon: {
-    transform: [{ rotate: '-45deg' }],
-  },
-});
-
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
     ? 22
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
 const WalletTransactions = () => {
+  const { wallets, saveToDisk, setSelectedWallet } = useContext(BlueStorageContext);
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isManageFundsModalVisible, setIsManageFundsModalVisible] = useState(false);
-  const { wallet } = useRoute().params;
+  const { walletID } = useRoute().params;
+  const wallet = wallets.find(w => w.getID() === walletID);
   const name = useRoute().name;
   const [itemPriceUnit, setItemPriceUnit] = useState(wallet.getPreferredBalanceUnit());
   const [dataSource, setDataSource] = useState(wallet.getTransactions(15));
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [limit, setLimit] = useState(15);
   const [pageSize, setPageSize] = useState(20);
-  const { setParams, navigate } = useNavigation();
+  const { setParams, setOptions, navigate } = useNavigation();
   const { colors } = useTheme();
 
   const windowHeight = useWindowDimensions().height;
@@ -215,7 +94,7 @@ const WalletTransactions = () => {
    * @param limit {Integer} How many txs return, starting from the earliest. Default: all of them.
    * @returns {Array}
    */
-  const getTransactions = (limit = Infinity) => {
+  const getTransactionsSliced = (limit = Infinity) => {
     let txs = wallet.getTransactions();
     for (const tx of txs) {
       tx.sort_ts = +new Date(tx.received);
@@ -227,12 +106,11 @@ const WalletTransactions = () => {
   };
 
   useEffect(() => {
-    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, refreshTransactionsFunction, true);
     HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
     const interval = setInterval(() => setTimeElapsed(prev => prev + 1), 60000);
     return () => {
       clearInterval(interval);
-      navigate('DrawerRoot', { selectedWallet: '' });
+      setSelectedWallet('');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -246,7 +124,16 @@ const WalletTransactions = () => {
     setItemPriceUnit(wallet.getPreferredBalanceUnit());
     setParams({ wallet, isLoading: false });
     setIsLoading(false);
-    navigate('DrawerRoot', { selectedWallet: wallet.getID() });
+    setSelectedWallet(wallet.getID());
+    setOptions({
+      headerStyle: {
+        backgroundColor: WalletGradient.headerColorFor(wallet.type),
+        borderBottomWidth: 0,
+        elevation: 0,
+        // shadowRadius: 0,
+        shadowOffset: { height: 0, width: 0 },
+      },
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet]);
 
@@ -256,16 +143,6 @@ const WalletTransactions = () => {
       setTimeElapsed(prev => prev + 1);
     }, []),
   );
-
-  /**
-   * Forcefully fetches TXs and balance for wallet
-   */
-  const refreshTransactionsFunction = delay => {
-    delay = delay || 4000;
-    setTimeout(function () {
-      refreshTransactions();
-    }, delay); // giving a chance to remote server to propagate
-  };
 
   const isLightning = () => {
     const w = wallet;
@@ -314,9 +191,8 @@ const WalletTransactions = () => {
     }
     if (noErr && smthChanged) {
       console.log('saving to disk');
-      await BlueApp.saveToDisk(); // caching
-      EV(EV.enum.TRANSACTIONS_COUNT_CHANGED); // let other components know they should redraw
-      setDataSource([...getTransactions(limit)]);
+      await saveToDisk(); // caching
+      setDataSource([...getTransactionsSliced(limit)]);
     }
     setIsLoading(false);
     setTimeElapsed(prev => prev + 1);
@@ -326,7 +202,7 @@ const WalletTransactions = () => {
 
   const renderListFooterComponent = () => {
     // if not all txs rendered - display indicator
-    return (getTransactions(Infinity).length > limit && <ActivityIndicator style={styles.activityIndicator} />) || <View />;
+    return (getTransactionsSliced(Infinity).length > limit && <ActivityIndicator style={styles.activityIndicator} />) || <View />;
   };
 
   const renderListHeaderComponent = () => {
@@ -382,8 +258,8 @@ const WalletTransactions = () => {
               hideChevron
               component={TouchableOpacity}
               onPress={() => {
-                const wallets = [...BlueApp.getWallets().filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
-                if (wallets.length === 0) {
+                const availableWallets = [...wallets.filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
+                if (availableWallets.length === 0) {
                   alert(loc.lnd.refill_create);
                 } else {
                   setIsManageFundsModalVisible(false);
@@ -588,7 +464,7 @@ const WalletTransactions = () => {
                 text: loc._.ok,
                 onPress: async () => {
                   wallet.setUseWithHardwareWalletEnabled(true);
-                  await BlueApp.saveToDisk();
+                  await saveToDisk();
                   navigateToSendScreen();
                 },
                 style: 'default',
@@ -681,8 +557,7 @@ const WalletTransactions = () => {
         onWalletUnitChange={wallet =>
           InteractionManager.runAfterInteractions(async () => {
             setItemPriceUnit(wallet.getPreferredBalanceUnit());
-            BlueApp.saveToDisk();
-            navigate('DrawerRoot', { wallets: BlueApp.getWallets() });
+            saveToDisk();
           })
         }
         onManageFundsPressed={() => {
@@ -692,7 +567,7 @@ const WalletTransactions = () => {
             BlueAlertWalletExportReminder({
               onSuccess: async () => {
                 wallet.setUserHasSavedExport(true);
-                await BlueApp.saveToDisk();
+                await saveToDisk();
                 setIsManageFundsModalVisible(true);
               },
               onFailure: () =>
@@ -711,12 +586,12 @@ const WalletTransactions = () => {
             // pagination in works. in this block we will add more txs to flatlist
             // so as user scrolls closer to bottom it will render mode transactions
 
-            if (getTransactions(Infinity).length < limit) {
+            if (getTransactionsSliced(Infinity).length < limit) {
               // all list rendered. nop
               return;
             }
 
-            setDataSource(getTransactions(limit + pageSize));
+            setDataSource(getTransactionsSliced(limit + pageSize));
             setLimit(prev => prev + pageSize);
             setPageSize(prev => prev * 2);
           }}
@@ -802,7 +677,7 @@ WalletTransactions.navigationOptions = ({ navigation, route }) => {
         style={styles.walletDetails}
         onPress={() =>
           navigation.navigate('WalletDetails', {
-            wallet: route.params.wallet,
+            walletID: route.params.wallet.getID(),
           })
         }
       >
@@ -810,14 +685,128 @@ WalletTransactions.navigationOptions = ({ navigation, route }) => {
       </TouchableOpacity>
     ),
     headerTitle: () => null,
-    headerStyle: {
-      backgroundColor: WalletGradient.headerColorFor(route.params.wallet.type),
-      borderBottomWidth: 0,
-      elevation: 0,
-      // shadowRadius: 0,
-      shadowOffset: { height: 0, width: 0 },
-    },
     headerTintColor: '#FFFFFF',
     headerBackTitleVisible: false,
   };
 };
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 40,
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 200,
+    height: 200,
+  },
+  advancedTransactionOptionsModalContent: {
+    padding: 22,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 130,
+  },
+  bottomModal: {
+    justifyContent: 'flex-end',
+    margin: 0,
+  },
+  walletDetails: {
+    marginHorizontal: 16,
+    minWidth: 150,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  activityIndicator: {
+    marginVertical: 20,
+  },
+  listHeader: {
+    flexDirection: 'row',
+    margin: 16,
+    justifyContent: 'space-evenly',
+  },
+  listHeaderTextRow: {
+    flex: 1,
+    marginHorizontal: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  listHeaderText: {
+    marginTop: 8,
+    marginBottom: 8,
+    fontWeight: 'bold',
+    fontSize: 24,
+  },
+  marketplaceButton1: {
+    borderRadius: 9,
+    minHeight: 49,
+    flex: 1,
+    paddingHorizontal: 8,
+    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  marketplaceButton2: {
+    marginLeft: 5,
+    borderRadius: 9,
+    minHeight: 49,
+    flex: 1,
+    paddingHorizontal: 8,
+    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  marketpalceText1: {
+    fontSize: 18,
+  },
+  marketpalceText2: {
+    fontSize: 18,
+    marginHorizontal: 8,
+  },
+  list: {
+    flex: 1,
+  },
+  emptyTxs: {
+    fontSize: 18,
+    color: '#9aa0aa',
+    textAlign: 'center',
+    marginVertical: 16,
+  },
+  emptyTxsLightning: {
+    fontSize: 18,
+    color: '#9aa0aa',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  buyBitcoin: {
+    backgroundColor: '#007AFF',
+    minWidth: 260,
+    borderRadius: 8,
+    alignSelf: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+  },
+  buyBitcoinText: {
+    fontSize: 15,
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  sendIcon: {
+    transform: [{ rotate: '225deg' }],
+  },
+  receiveIcon: {
+    transform: [{ rotate: '-45deg' }],
+  },
+});

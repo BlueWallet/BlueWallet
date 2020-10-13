@@ -27,16 +27,16 @@ import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/themes';
 import InitRoot from './Navigation';
 import BlueClipboard from './blue_modules/clipboard';
+import { BlueStorageProvider } from './blue_modules/BlueStorage';
+const BlueApp = require('./BlueApp');
 const A = require('./blue_modules/analytics');
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
     dsn: 'https://23377936131848ca8003448a893cb622@sentry.io/1295736',
   });
 }
-
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
-const BlueApp = require('./BlueApp');
 const EV = require('./blue_modules/events');
 const notifications = require('./blue_modules/notifications'); // eslint-disable-line no-unused-vars
 
@@ -265,14 +265,16 @@ const App = () => {
     );
   };
   return (
-    <SafeAreaProvider>
-      <View style={styles.root}>
-        <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-          <InitRoot />
-        </NavigationContainer>
-        {renderClipboardContentModal()}
-      </View>
-    </SafeAreaProvider>
+    <BlueStorageProvider>
+      <SafeAreaProvider>
+        <View style={styles.root}>
+          <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+            <InitRoot />
+          </NavigationContainer>
+          {renderClipboardContentModal()}
+        </View>
+      </SafeAreaProvider>
+    </BlueStorageProvider>
   );
 };
 

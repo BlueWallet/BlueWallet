@@ -582,7 +582,7 @@ export class AppStorage {
    * @param includeWalletsWithHideTransactionsEnabled {Boolean} Wallets' _hideTransactionsInWalletsList property determines wether the user wants this wallet's txs hidden from the main list view.
    * @return {Array}
    */
-  getTransactions(index, limit = Infinity, includeWalletsWithHideTransactionsEnabled = false) {
+  getTransactions = (index, limit = Infinity, includeWalletsWithHideTransactionsEnabled = false) => {
     if (index || index === 0) {
       let txs = [];
       let c = 0;
