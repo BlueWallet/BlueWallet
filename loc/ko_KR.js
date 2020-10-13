@@ -90,8 +90,8 @@ module.exports = {
   },
   unlockTransaction: {
     headerText: '트랜잭션 승인',
-    title: '트래잭션 비밀번호 승인',
-    description: '트랜잭션 비밀번호 확인하여 트랜잭션 진행하기',
+    title: '거래 승인',
+    description: '거래 비밀번호를 입력하여 진행합니다',
   },
   wallets: {
     dashboard: {
@@ -180,9 +180,8 @@ module.exports = {
     },
     addSuccess: {
       title: '새 지갑 추가',
-      subtitle: '성공',
-      description:
-        '새 지갑을 만들었습니다. 백업을 위해 이 연상 기호 문구를 종이에 적어두십시오. 이 문구를 사용하여 다른 장치에서 지갑을 복원할 수 있습니다.',
+      subtitle: '지갑이 준비됐습니다!\n새 지갑을 만들었습니다!',
+      description: '백업을 위해 이 시드 문구를 안전한 곳에 적어 두세요. 이 문구는 지갑 복원이 필요할 때 사용 됩니다.',
       okButton: '예, 적어두었습니다!',
     },
     details: {
@@ -291,8 +290,8 @@ module.exports = {
       standard: '표준',
       canceled: '취소됨',
       fast: '빠른',
-      secure: '안전한',
-      secureFast: '안전하고 빠른',
+      secure: '보안 거래',
+      secureFast: '보안 고속 거래',
     },
     errors: {
       notEnoughBalance: '잔액 부족. 적은 금액으로 시도해보세요.',
