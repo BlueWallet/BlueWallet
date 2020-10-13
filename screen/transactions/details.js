@@ -138,11 +138,11 @@ export default class TransactionsDetails extends Component {
       isHandOffUseEnabled: false,
       memo,
     };
-    props.navigation.setParams({ handleOnSaveButtonTapped: this.handleOnSaveButtonTapped });
   }
 
   async componentDidMount() {
     console.log('transactions/details - componentDidMount');
+    this.props.navigation.setParams({ handleOnSaveButtonTapped: this.handleOnSaveButtonTapped });
     const isHandOffUseEnabled = await HandoffSettings.isHandoffUseEnabled();
     this.setState({
       isLoading: false,
