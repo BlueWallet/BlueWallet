@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react-native';
+import { Integrations } from '@sentry/tracing';
 import React from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { View, StyleSheet } from 'react-native';
@@ -17,6 +18,7 @@ const i18n = require('./loc');
 if (!__DEV__) {
   Sentry.init({
     dsn: config.sentryDsn,
+    integrations: [new Integrations.BrowserTracing()],
   });
 }
 
