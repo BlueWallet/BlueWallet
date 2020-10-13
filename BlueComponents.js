@@ -1684,6 +1684,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
       fontWeight: '600',
       textAlign: 'right',
       width: 96,
+      marginRight: -16,
     };
   }, [item, colors.foregroundColor, colors.successColor]);
 
