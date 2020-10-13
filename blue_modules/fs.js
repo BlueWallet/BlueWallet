@@ -91,12 +91,12 @@ const showFilePickerAndReadFile = async function () {
     let file = false;
     if (res.uri.toLowerCase().endsWith('.psbt')) {
       // this is either binary file from ElectrumDesktop OR string file with base64 string in there
-      file = await _readPsbtFileIntoBase64(res.fileCopyUri);
+      file = await _readPsbtFileIntoBase64(decodeURI(res.uri));
     } else {
-      file = await RNFS.readFile(res.fileCopyUri);
+      file = await RNFS.readFile(decodeURI(res.uri));
     }
 
-    return { data: file, uri: res.fileCopyUri };
+    return { data: file, uri: decodeURI(res.uri) };
   } catch (err) {
     if (!DocumentPicker.isCancel(err)) {
       return { data: false, uri: false };
