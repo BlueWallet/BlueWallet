@@ -10,17 +10,16 @@ import WalletImport from '../../class/wallet-import';
 import * as NavigationService from '../../NavigationService';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-import { useTheme, useRoute } from '@react-navigation/native';
+import { useTheme } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlueStorageContext } from '../../blue_modules/BlueStorage';
 
 const DrawerList = props => {
   console.log('drawerList rendering...');
   const walletsCarousel = useRef();
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets, selectedWallet } = useContext(BlueStorageContext);
   const height = useWindowDimensions().height;
   const { colors } = useTheme();
-  const { selectedWallet } = useRoute().params || '';
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.brandingColor,
