@@ -1,6 +1,7 @@
 /* global alert */
 import * as bitcoin from 'bitcoinjs-lib';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import {getEndpointUrl} from "payjoin-client";
 
 const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
@@ -76,4 +77,38 @@ export default class PayjoinTransaction {
       }
     });
   }
+}
+
+export function getEndpointUrlFunc(url, params){
+  function setParam(url, key, value) {
+    // adds or changes a ? or & parameter for a url string
+    // returns the changed string.
+    const split = url.split('?');
+    const qsValue = `${key}=${encodeURIComponent(value)}`;
+    if (split.length > 1) {
+      split[1] = removeParam(decodeURIComponent(split[1]), key);
+      split[1] += `${split[1].length === 0 ? '' : '&'}${qsValue}`;
+    } else {
+      split.push(qsValue);
+    }
+
+    return `${split[0]}?${split[1]}`;
+  }
+
+  function removeParam(queryString, key){
+    const matchedKeyIndex = queryString.indexOf(`${key}=`);
+    if (matchedKeyIndex !== -1) {
+      const endIndex = queryString.indexOf('&', matchedKeyIndex);
+      if (endIndex === -1) {
+        return queryString.substr(0, matchedKeyIndex);
+      } else {
+        return `${queryString.substr(0, matchedKeyIndex)}${queryString.substr(
+            endIndex,
+        )}`;
+      }
+    }
+    return queryString;
+  }
+
+  return getEndpointUrl(url, params, setParam)
 }

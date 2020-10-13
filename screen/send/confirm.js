@@ -2,8 +2,8 @@
 import React, { Component } from 'react';
 import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
 import { Text } from 'react-native-elements';
-import { PayjoinClient } from 'payjoin-client';
-import PayjoinTransaction from '../../class/payjoin-transaction';
+import {getEndpointUrl, PayjoinClient} from 'payjoin-client';
+import PayjoinTransaction, {getEndpointUrlFunc} from '../../class/payjoin-transaction';
 import { BlueButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing40, BlueNavigationStyle } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
@@ -55,6 +55,7 @@ export default class Confirm extends Component {
     if (!this.state.recipients || !this.state.recipients.length) alert('Internal error: recipients list empty (this should never happen)');
     this.isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
   }
+ 
 
   send() {
     this.setState({ isLoading: true }, async () => {
@@ -71,7 +72,8 @@ export default class Confirm extends Component {
               payjoinVersion: 1,
               disableOutputSubstitution: this.state.payjoinOutputSubstitutionDisabled
             },
-            paymentScript: bitcoin.address.toOutputScript(this.state.recipients[0].address)
+            paymentScript: bitcoin.address.toOutputScript(this.state.recipients[0].address),
+            getEndpointUrl: getEndpointUrlFunc
           });
           await payjoinClient.run();
           const payjoinPsbt = wallet.getPayjoinPsbt();

@@ -1,6 +1,6 @@
 /* global it, describe, jest */
 import { HDSegwitBech32Wallet } from '../../class';
-import PayjoinTransaction from '../../class/payjoin-transaction';
+import PayjoinTransaction, {getEndpointUrlFunc} from '../../class/payjoin-transaction';
 import { PayjoinClient } from 'payjoin-client';
 const bitcoin = require('bitcoinjs-lib');
 jest.useFakeTimers();
@@ -59,7 +59,8 @@ describe('PayjoinTransaction', () => {
     const payjoinClient = new PayjoinClient({
       wallet,
       payjoinRequester: payjoinRequesterMock,
-      paymentScript: bitcoin.address.toOutputScript("bc1qy0ydthpa35m37pvwl5tu76j0srcmcwtmaur3aw" )
+      paymentScript: bitcoin.address.toOutputScript("bc1qy0ydthpa35m37pvwl5tu76j0srcmcwtmaur3aw" ),
+      getEndpointUrl: getEndpointUrlFunc
     });
 
     await assert.rejects(payjoinClient.run());
@@ -107,7 +108,8 @@ describe('PayjoinTransaction', () => {
     const payjoinClient = new PayjoinClient({
       wallet,
       payjoinRequester: payjoinRequesterMock,
-      paymentScript: bitcoin.address.toOutputScript("bc1qy0ydthpa35m37pvwl5tu76j0srcmcwtmaur3aw" )
+      paymentScript: bitcoin.address.toOutputScript("bc1qy0ydthpa35m37pvwl5tu76j0srcmcwtmaur3aw" ),
+      getEndpointUrl: getEndpointUrlFunc
     });
 
     await payjoinClient.run();
