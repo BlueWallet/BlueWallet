@@ -434,6 +434,8 @@ const zh = {
     successTitle: '操作成功',
     successDescription: '太好了！您已成功添加新联系人。',
     successButton: '返回地址簿',
+    nameMissingAlphanumericCharacterError: 'TRANSLATION NEEDED | ENG: Name is missing alphanumeric character.',
+    nameCannotContainSpecialCharactersError: 'TRANSLATION NEEDED | ENG: Name cannot contain special characters.',
   },
   contactDetails: {
     nameLabel: '姓名',

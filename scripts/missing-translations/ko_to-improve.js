@@ -434,6 +434,8 @@ const ko = {
     successTitle: '성공',
     successDescription: '만세! 새 연락처 추가에 성공했습니다.',
     successButton: '주소록으로 돌아가기',
+    nameMissingAlphanumericCharacterError: 'TRANSLATION NEEDED | ENG: Name is missing alphanumeric character.',
+    nameCannotContainSpecialCharactersError: 'TRANSLATION NEEDED | ENG: Name cannot contain special characters.',
   },
   contactDetails: {
     nameLabel: '이름',

@@ -434,6 +434,8 @@ const pt = {
     successTitle: 'Sucesso',
     successDescription: 'Parabéns! Adicionou o seu contacto\n com sucesso.',
     successButton: 'Voltar à Lista de endereços',
+    nameMissingAlphanumericCharacterError: 'TRANSLATION NEEDED | ENG: Name is missing alphanumeric character.',
+    nameCannotContainSpecialCharactersError: 'TRANSLATION NEEDED | ENG: Name cannot contain special characters.',
   },
   contactDetails: {
     nameLabel: 'Nome',

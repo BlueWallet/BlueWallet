@@ -434,6 +434,8 @@ const tr = {
     successTitle: 'Başarılı',
     successDescription: 'Oley! Başarılı bir şekilde\n yeni kişi eklediniz.',
     successButton: 'Adres defterine geri dön',
+    nameMissingAlphanumericCharacterError: 'TRANSLATION NEEDED | ENG: Name is missing alphanumeric character.',
+    nameCannotContainSpecialCharactersError: 'TRANSLATION NEEDED | ENG: Name cannot contain special characters.',
   },
   contactDetails: {
     nameLabel: 'Ad',

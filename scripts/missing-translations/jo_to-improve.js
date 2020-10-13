@@ -434,6 +434,8 @@ const jo = {
     successTitle: '成功',
     successDescription: '万歳！新しい連絡先追加に成功しました。',
     successButton: 'アドレス帳に戻る',
+    nameMissingAlphanumericCharacterError: 'TRANSLATION NEEDED | ENG: Name is missing alphanumeric character.',
+    nameCannotContainSpecialCharactersError: 'TRANSLATION NEEDED | ENG: Name cannot contain special characters.',
   },
   contactDetails: {
     nameLabel: '名前',

@@ -514,6 +514,8 @@ module.exports = {
     successTitle: 'Success',
     successDescription: 'Hooray! You have successfully\nadded your contact.',
     successButton: 'Return to Address book',
+    nameMissingAlphanumericCharacterError: 'Name is missing alphanumeric character.',
+    nameCannotContainSpecialCharactersError: 'Name cannot contain special characters.',
   },
   contactDetails: {
     nameLabel: 'Name',

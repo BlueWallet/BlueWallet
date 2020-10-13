@@ -24,17 +24,26 @@ interface Props {
   createContact: (contact: Contact) => CreateContactAction;
 }
 
-interface State {
-  name: string;
-  address: string;
+interface Input {
+  value: string;
   error: string;
+}
+
+interface State {
+  name: Input;
+  address: Input;
 }
 
 export class CreateContactScreen extends React.PureComponent<Props, State> {
   state: State = {
-    name: '',
-    address: '',
-    error: '',
+    name: {
+      value: '',
+      error: '',
+    },
+    address: {
+      value: '',
+      error: '',
+    },
   };
 
   static getDerivedStateFromProps(props: Props, state: State) {
@@ -50,37 +59,60 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
     return !!this.state.address && !!this.state.name;
   }
 
-  setName = (name: string) => this.setState({ name });
+  setName = (value: string) => this.setState({ name: { value, error: '' } });
 
-  setAddress = (address: string) => this.setState({ address, error: '' });
+  setAddress = (value: string) => this.setState({ address: { value, error: '' } });
 
   onBarCodeScan = (address: string) => {
     this.setAddress(address.split('?')[0].replace('bitcoin:', ''));
   };
 
   createContact = () => {
-    try {
-      this.validateAddress();
-      if (this.state.error) return;
-      this.props.createContact({
-        id: uuidv4(),
-        name: this.state.name.trim(),
-        address: this.state.address.trim(),
-      });
-      this.showSuccessImportMessageScreen();
+    const { name, address } = this.state;
+    const nameError = this.validateName();
+    const addressError = this.validateAddress();
+
+    if (addressError || nameError) {
       this.setState({
-        name: '',
-        address: '',
+        name: { value: name.value, error: nameError },
+        address: { value: address.value, error: addressError },
       });
-    } catch (_) {
-      this.setState({
-        error: i18n.send.details.address_field_is_not_valid,
-      });
+      return;
     }
+    this.props.createContact({
+      id: uuidv4(),
+      name: name.value.trim(),
+      address: address.value.trim(),
+    });
+    this.setState(
+      {
+        name: { value: '', error: '' },
+        address: { value: '', error: '' },
+      },
+      this.showSuccessImportMessageScreen,
+    );
   };
 
   validateAddress = () => {
-    checkAddress(this.state.address);
+    let error = '';
+    try {
+      checkAddress(this.state.address.value);
+    } catch (_) {
+      error = i18n.send.details.address_field_is_not_valid;
+    }
+    return error;
+  };
+
+  validateName = () => {
+    const { name } = this.state;
+    let error = '';
+    if (name.value.match(/[!@#$%^&*()\[\]\\\/,.?":{}|<>]/g)?.length) {
+      error = i18n.contactCreate.nameCannotContainSpecialCharactersError;
+    }
+    if (!name.value.match(/\w/)?.length) {
+      error = i18n.contactCreate.nameMissingAlphanumericCharacterError;
+    }
+    return error;
   };
 
   onScanQrCodePress = () => {
@@ -103,7 +135,7 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
     });
 
   render() {
-    const { address } = this.state;
+    const { address, name } = this.state;
     return (
       <ScreenTemplate
         footer={
@@ -117,12 +149,12 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
       >
         <Text style={styles.subtitle}>{i18n.contactCreate.subtitle}</Text>
         <Text style={styles.description}>{i18n.contactCreate.description}</Text>
-        <InputItem setValue={this.setName} label={i18n.contactCreate.nameLabel} />
+        <InputItem setValue={this.setName} label={i18n.contactCreate.nameLabel} error={name.error} />
         <View>
           <InputItem
-            error={this.state.error}
-            focused={!!address}
-            value={address}
+            error={address.error}
+            focused={!!address.value}
+            value={address.value}
             multiline
             setValue={this.setAddress}
             label={i18n.contactCreate.addressLabel}

@@ -434,6 +434,8 @@ const vi = {
     successTitle: 'Thành công',
     successDescription: 'Xin chúc mừng! Quý khách đã thêm thông tin\n liên lạc thành công.',
     successButton: 'Quay lại Sổ địa chỉ',
+    nameMissingAlphanumericCharacterError: 'TRANSLATION NEEDED | ENG: Name is missing alphanumeric character.',
+    nameCannotContainSpecialCharactersError: 'TRANSLATION NEEDED | ENG: Name cannot contain special characters.',
   },
   contactDetails: {
     nameLabel: 'Tên',

@@ -434,6 +434,8 @@ const id = {
     successTitle: 'Berhasil',
     successDescription: 'Hore! Anda telah berhasil\n menambahkan kontak.',
     successButton: 'Kembali ke Buku alamat',
+    nameMissingAlphanumericCharacterError: 'TRANSLATION NEEDED | ENG: Name is missing alphanumeric character.',
+    nameCannotContainSpecialCharactersError: 'TRANSLATION NEEDED | ENG: Name cannot contain special characters.',
   },
   contactDetails: {
     nameLabel: 'Nama',
