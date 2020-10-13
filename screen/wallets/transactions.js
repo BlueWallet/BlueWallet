@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useEffect, useState, useCallback, useContext } from 'react';
+import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
 import { Chain } from '../../models/bitcoinUnits';
 import {
   Text,
@@ -51,7 +51,7 @@ const WalletTransactions = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isManageFundsModalVisible, setIsManageFundsModalVisible] = useState(false);
   const { walletID } = useRoute().params;
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = useRef(wallets.find(w => w.getID() === walletID)).current;
   const name = useRoute().name;
   const [itemPriceUnit, setItemPriceUnit] = useState(wallet.getPreferredBalanceUnit());
   const [dataSource, setDataSource] = useState(wallet.getTransactions(15));
@@ -116,24 +116,26 @@ const WalletTransactions = () => {
   }, []);
 
   useEffect(() => {
-    setIsLoading(true);
-    setLimit(15);
-    setPageSize(20);
-    setTimeElapsed(0);
-    setDataSource(wallet.getTransactions(15));
-    setItemPriceUnit(wallet.getPreferredBalanceUnit());
-    setParams({ wallet, isLoading: false });
-    setIsLoading(false);
-    setSelectedWallet(wallet.getID());
-    setOptions({
-      headerStyle: {
-        backgroundColor: WalletGradient.headerColorFor(wallet.type),
-        borderBottomWidth: 0,
-        elevation: 0,
-        // shadowRadius: 0,
-        shadowOffset: { height: 0, width: 0 },
-      },
-    });
+    if (wallet) {
+      setIsLoading(true);
+      setLimit(15);
+      setPageSize(20);
+      setTimeElapsed(0);
+      setDataSource(wallet.getTransactions(15));
+      setItemPriceUnit(wallet.getPreferredBalanceUnit());
+      setParams({ wallet, isLoading: false });
+      setIsLoading(false);
+      setSelectedWallet(wallet.getID());
+      setOptions({
+        headerStyle: {
+          backgroundColor: WalletGradient.headerColorFor(wallet.type),
+          borderBottomWidth: 0,
+          elevation: 0,
+          // shadowRadius: 0,
+          shadowOffset: { height: 0, width: 0 },
+        },
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet]);
 

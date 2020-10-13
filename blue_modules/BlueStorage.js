@@ -17,9 +17,10 @@ export const BlueStorageProvider = ({ children }) => {
   }, []);
 
   const getTransactions = BlueApp.getTransactions;
+  const deleteWallet = BlueApp.deleteWallet;
 
   return (
-    <BlueStorageContext.Provider value={{ wallets, saveToDisk, getTransactions, selectedWallet, setSelectedWallet }}>
+    <BlueStorageContext.Provider value={{ wallets, saveToDisk, getTransactions, selectedWallet, setSelectedWallet, deleteWallet }}>
       {children}
     </BlueStorageContext.Provider>
   );

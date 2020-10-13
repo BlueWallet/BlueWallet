@@ -365,7 +365,7 @@ export class AppStorage {
    *
    * @param wallet {AbstractWallet}
    */
-  deleteWallet(wallet) {
+  deleteWallet = wallet => {
     const secret = wallet.getSecret();
     const tempWallets = [];
 

@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useEffect, useState, useCallback, useContext } from 'react';
+import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
 import {
   View,
   Text,
@@ -32,7 +32,6 @@ import Share from 'react-native-share';
 import { getSystemName } from 'react-native-device-info';
 import { BlueStorageContext } from '../../blue_modules/BlueStorage';
 const prompt = require('../../blue_modules/prompt');
-const BlueApp = require('../../BlueApp');
 const notifications = require('../../blue_modules/notifications');
 const isDesktop = getSystemName() === 'Mac OS X';
 
@@ -97,11 +96,11 @@ const styles = StyleSheet.create({
 });
 
 const WalletDetails = () => {
-  const { saveToDisk, wallets } = useContext(BlueStorageContext);
+  const { saveToDisk, wallets, deleteWallet } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = useRef(wallets.find(w => w.getID() === walletID)).current;
   const [walletName, setWalletName] = useState(wallet.getLabel());
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
@@ -170,7 +169,7 @@ const WalletDetails = () => {
       if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
         setIsLoading(true);
         notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
-        BlueApp.deleteWallet(wallet);
+        deleteWallet(wallet);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
         await saveToDisk();
         popToTop();
@@ -312,7 +311,7 @@ const WalletDetails = () => {
             } else {
               setIsLoading(true);
               notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
-              BlueApp.deleteWallet(wallet);
+              deleteWallet(wallet);
               ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
               await saveToDisk();
               popToTop();

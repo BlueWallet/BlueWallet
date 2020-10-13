@@ -153,7 +153,6 @@ const WalletsList = () => {
     // setWallets(storedWallets);
     setIsLoading(false);
     if (scrollToEnd) {
-      // navigate('DrawerRoot', { wallets: BlueApp.getWallets() });
       // eslint-disable-next-line no-unused-expressions
       // walletsCarousel.current?.snapToItem(storedWallets.length - 2);
     }
@@ -189,9 +188,10 @@ const WalletsList = () => {
           { cancelable: false },
         );
       } else {
+        const walletID = wallet.getID();
         navigate('WalletTransactions', {
-          walletID: wallet.getID(),
-          key: `WalletTransactions-${wallet.getID()}`,
+          walletID,
+          key: `WalletTransactions-${walletID}`,
         });
       }
     } else {
