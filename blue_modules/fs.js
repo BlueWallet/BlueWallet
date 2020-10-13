@@ -98,9 +98,7 @@ const showFilePickerAndReadFile = async function () {
 
     return { data: file, uri: decodeURI(res.uri) };
   } catch (err) {
-    if (!DocumentPicker.isCancel(err)) {
-      return { data: false, uri: false };
-    }
+    return { data: false, uri: false };
   }
 };
 
