@@ -688,6 +688,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   transaction: {
-    marginHorizontal: 4,
+    marginHorizontal: 0,
   },
 });
