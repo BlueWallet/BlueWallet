@@ -1,18 +1,17 @@
 /* global alert */
 import React, { useState } from 'react';
-import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, Linking, Alert, TextInput } from 'react-native';
+import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
+import { decodeUR, extractSingleWorkload } from 'bc-ur';
 import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import { BlueLoadingHook, BlueTextHooks, BlueButtonHook, BlueSpacing40 } from '../../BlueComponents';
-import { getSystemName } from 'react-native-device-info';
 import { BlueCurrentTheme } from '../../components/themes';
-import { decodeUR, extractSingleWorkload } from 'bc-ur';
+import { openPrivacyDesktopSettings } from '../../class/camera';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
-const isDesktop = getSystemName() === 'Mac OS X';
 const fs = require('../../blue_modules/fs');
 const Base43 = require('../../blue_modules/base43');
 const bitcoin = require('bitcoinjs-lib');
@@ -251,7 +250,7 @@ const ScanQRCode = () => {
         <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
           <BlueTextHooks>{loc.send.permission_camera_message}</BlueTextHooks>
           <BlueSpacing40 />
-          <BlueButtonHook title={loc.send.open_settings} onPress={ScanQRCode.openPrivacyDesktopSettings} />
+          <BlueButtonHook title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
         </View>
       )}
       <TouchableOpacity style={styles.closeTouch} onPress={dismiss}>
@@ -313,34 +312,6 @@ const ScanQRCode = () => {
         }}
       />
     </View>
-  );
-};
-
-ScanQRCode.openPrivacyDesktopSettings = () => {
-  if (isDesktop) {
-    Linking.openURL('x-apple.systempreferences:com.apple.preference.security?Privacy_Camera');
-  } else {
-    Linking.openSettings();
-  }
-};
-
-ScanQRCode.presentCameraNotAuthorizedAlert = error => {
-  Alert.alert(
-    loc.errors.error,
-    error,
-    [
-      {
-        text: loc.send.open_settings,
-        onPress: ScanQRCode.openPrivacyDesktopSettings,
-        style: 'default',
-      },
-      {
-        text: loc._.ok,
-        onPress: () => {},
-        style: 'cancel',
-      },
-    ],
-    { cancelable: true },
   );
 };
 
