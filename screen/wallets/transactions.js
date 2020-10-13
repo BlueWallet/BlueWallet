@@ -84,7 +84,6 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   listHeader: {
-    flexDirection: 'row',
     marginLeft: 16,
     marginRight: 16,
     marginVertical: 16,
