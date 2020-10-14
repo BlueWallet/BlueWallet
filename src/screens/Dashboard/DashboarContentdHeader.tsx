@@ -37,18 +37,20 @@ export const DashboarContentdHeader = ({
 }: Props) => {
   return (
     <View style={styles.header}>
-      <Dropdown
-        title={i18n.formatBalance(Number(balance), unit, true)}
-        label={<Text style={styles.buttonDescription}>{i18n.wallets.dashboard.availableBalance}</Text>}
-        onSelectPress={onSelectPress}
-      />
-      {incomingBalance !== undefined && (
-        <View style={styles.pendingBalanceWrapper}>
-          <Text style={styles.pendingBalanceText}>{i18n.formatBalance(Number(incomingBalance), unit, true)}</Text>
+      <TouchableOpacity onPress={onSelectPress}>
+        <Dropdown
+          title={i18n.formatBalance(Number(balance), unit, true)}
+          label={<Text style={styles.buttonDescription}>{i18n.wallets.dashboard.availableBalance}</Text>}
+          onSelectPress={onSelectPress}
+        />
+        {incomingBalance !== undefined && (
+          <View style={styles.pendingBalanceWrapper}>
+            <Text style={styles.pendingBalanceText}>{i18n.formatBalance(Number(incomingBalance), unit, true)}</Text>
 
-          <Text style={styles.buttonDescription}>{i18n.wallets.wallet.pendingBalance}</Text>
-        </View>
-      )}
+            <Text style={styles.buttonDescription}>{i18n.wallets.wallet.pendingBalance}</Text>
+          </View>
+        )}
+      </TouchableOpacity>
       <View>
         <Text style={styles.chooseWalletButtonText} numberOfLines={1} ellipsizeMode="tail">
           {label}
