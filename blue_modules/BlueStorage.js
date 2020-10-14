@@ -17,6 +17,11 @@ export const BlueStorageProvider = ({ children }) => {
     setWallets(BlueApp.getWallets());
   }, []);
 
+  const setWalletsWithNewOrder = wallets => {
+    BlueApp.wallets = wallets;
+    saveToDisk();
+  };
+
   const refreshAllWalletTransactions = async lastSnappedTo => {
     let noErr = true;
     try {
@@ -57,6 +62,7 @@ export const BlueStorageProvider = ({ children }) => {
     <BlueStorageContext.Provider
       value={{
         wallets,
+        setWalletsWithNewOrder,
         txMetadata,
         saveToDisk,
         getTransactions,
