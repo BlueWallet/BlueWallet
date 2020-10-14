@@ -35,16 +35,10 @@ const filterByAddress = (transactions: Transaction[], address: string, type?: st
 
 const filterByFromDate = (transactions: Transaction[], fromDate: string): Transaction[] => {
   return transactions.filter(transaction => {
-    if (!transaction.time) {
+    if (!transaction.received) {
       return;
     }
-    return (
-      parseInt(
-        moment(fromDate)
-          .startOf('day')
-          .format('X'),
-      ) <= transaction.time
-    );
+    return moment(fromDate).isSameOrBefore(transaction.received, 'day');
   });
 };
 
@@ -53,18 +47,7 @@ const filterByToDate = (transactions: Transaction[], toDate: string): Transactio
     if (!transaction.received) {
       return;
     }
-    return (
-      parseInt(
-        moment(toDate)
-          .endOf('day')
-          .format('X'),
-      ) >=
-      parseInt(
-        moment(transaction.received)
-          .endOf('day')
-          .format('X'),
-      )
-    );
+    return moment(toDate).isSameOrAfter(transaction.received, 'day');
   });
 };
 
