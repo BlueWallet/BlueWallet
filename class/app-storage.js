@@ -619,7 +619,7 @@ export class AppStorage {
    *
    * @return {number}
    */
-  getBalance = ()  => {
+  getBalance = () => {
     let finalBalance = 0;
     for (const wal of this.wallets) {
       finalBalance += wal.getBalance();
@@ -627,12 +627,12 @@ export class AppStorage {
     return finalBalance;
   }
 
-  async getHodlHodlApiKey() {
+  getHodlHodlApiKey = async () => {
     try {
       return await this.getItem(AppStorage.HODL_HODL_API_KEY);
     } catch (_) {}
     return false;
-  }
+  };
 
   async getHodlHodlSignatureKey() {
     try {
@@ -667,10 +667,10 @@ export class AppStorage {
     return this.setItem(AppStorage.HODL_HODL_CONTRACTS, JSON.stringify(json));
   }
 
-  async setHodlHodlApiKey(key, sigKey) {
+  setHodlHodlApiKey = async (key, sigKey) => {
     if (sigKey) await this.setItem(AppStorage.HODL_HODL_SIGNATURE_KEY, sigKey);
     return this.setItem(AppStorage.HODL_HODL_API_KEY, key);
-  }
+  };
 
   isAdancedModeEnabled = async () => {
     try {
@@ -679,7 +679,7 @@ export class AppStorage {
     return false;
   }
 
-  async setIsAdancedModeEnabled(value) {
+  setIsAdancedModeEnabled = async (value) => {
     await this.setItem(AppStorage.ADVANCED_MODE_ENABLED, value ? '1' : '');
   }
 

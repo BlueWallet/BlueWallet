@@ -51,7 +51,8 @@ export const BlueStorageProvider = ({ children }) => {
   const storageIsEncrypted = BlueApp.storageIsEncrypted;
   const startAndDecrypt = BlueApp.startAndDecrypt;
   const sleep = BlueApp.sleep;
-
+  const setHodlHodlApiKey = BlueApp.setHodlHodlApiKey;
+  const getHodlHodlApiKey = BlueApp.getHodlHodlApiKey;
   return (
     <BlueStorageContext.Provider
       value={{
@@ -72,6 +73,8 @@ export const BlueStorageProvider = ({ children }) => {
         setWalletsInitialized,
         refreshAllWalletTransactions,
         sleep,
+        setHodlHodlApiKey,
+        getHodlHodlApiKey,
       }}
     >
       {children}
