@@ -190,6 +190,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         const xpub = this._getXpubFromCosigner(cosigner);
         const hdNode = HDNode.fromBase58(xpub);
         _node = hdNode.derive(nodeIndex);
+        this._nodes[nodeIndex][cosignerIndex] = _node;
       } else {
         _node = this._nodes[nodeIndex][cosignerIndex];
       }
@@ -487,7 +488,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
             xpub = xpub.substr(0, xpub.indexOf('/'));
           }
 
-          // console.warn('m[2] = ', m[2], {hexFingerprint, path, xpub});
           this.addCosigner(xpub, hexFingerprint.toUpperCase(), path);
         }
       }
