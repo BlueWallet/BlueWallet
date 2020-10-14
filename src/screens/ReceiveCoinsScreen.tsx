@@ -171,7 +171,11 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
     return (
       <ScreenTemplate
         footer={
-          <Button title={i18n.receive.details.share} onPress={this.share} containerStyle={styles.buttonContainer} />
+          <Button
+            title={i18n.receive.details.shareWalletAddress}
+            onPress={this.share}
+            containerStyle={styles.buttonContainer}
+          />
         }
         header={<Header navigation={this.props.navigation} isBackArrow title={i18n.receive.header} />}
       >
