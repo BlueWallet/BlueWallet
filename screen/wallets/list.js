@@ -25,7 +25,7 @@ import Clipboard from '@react-native-community/clipboard';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { getSystemName, isTablet } from 'react-native-device-info';
-import ScanQRCode from '../send/ScanQRCode';
+import { presentCameraNotAuthorizedAlert } from '../../class/camera';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 const EV = require('../../blue_modules/events');
 const A = require('../../blue_modules/analytics');
@@ -480,7 +480,7 @@ const WalletsList = () => {
             }
           });
         } else if (response.error) {
-          ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
+          presentCameraNotAuthorizedAlert(response.error);
         }
       },
     );

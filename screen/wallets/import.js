@@ -23,7 +23,7 @@ import loc from '../../loc';
 import { getSystemName } from 'react-native-device-info';
 import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
-import ScanQRCode from '../send/ScanQRCode';
+import { presentCameraNotAuthorizedAlert } from '../../class/camera';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const isDesktop = getSystemName() === 'Mac OS X';
 
@@ -149,7 +149,7 @@ const WalletsImport = () => {
             }
           });
         } else if (response.error) {
-          ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
+          presentCameraNotAuthorizedAlert(response.error);
         }
       },
     );
