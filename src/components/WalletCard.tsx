@@ -39,7 +39,7 @@ export class WalletCard extends React.Component<Props> {
               <Text numberOfLines={1} ellipsizeMode="tail" style={styles.walletType}>
                 {wallet.getLabel()}
               </Text>
-              {showEditButton && <StyledText title={i18n.wallets.details.edit} onPress={this.goToWalletDetails} />}
+              {showEditButton && <StyledText title={i18n.wallets.details.details} onPress={this.goToWalletDetails} />}
             </View>
 
             <Text style={styles.balance}>

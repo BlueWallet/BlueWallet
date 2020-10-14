@@ -251,6 +251,7 @@ module.exports = {
     },
     details: {
       edit: 'Edit',
+      details: 'Details',
       latestTransaction: 'Latest transaction',
       typeLabel: 'Type',
       nameLabel: 'Name',
@@ -441,6 +442,7 @@ module.exports = {
     details: {
       amount: 'Amount',
       share: 'Share',
+      shareWalletAddress: 'Share wallet address',
       receiveWithAmount: 'Receive with amount',
     },
   },
