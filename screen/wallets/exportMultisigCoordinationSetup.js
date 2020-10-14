@@ -32,6 +32,9 @@ const ExportMultisigCoordinationSetup = () => {
     },
     type: { ...styles.type, color: colors.foregroundColor },
     secret: { ...styles.secret, color: colors.foregroundColor },
+    exportButton: {
+      backgroundColor: colors.buttonDisabledBackgroundColor,
+    },
   };
 
   const exportTxtFile = async () => {
@@ -83,9 +86,13 @@ const ExportMultisigCoordinationSetup = () => {
             backgroundColor="#FFFFFF"
             ecl="H"
           />
-          <BlueSpacing20 />
-          <SquareButton backgroundColor="#EEF0F4" onPress={exportTxtFile} title={loc.multisig.share} />
         </View>
+        <BlueSpacing20 />
+          <SquareButton 
+            style={[styles.exportButton, stylesHook.exportButton]}
+            onPress={exportTxtFile} 
+            title={loc.multisig.share} 
+          />
         <BlueSpacing20 />
         <BlueText style={stylesHook.secret}>{wallet.getXpub()}</BlueText>
       </ScrollView>
@@ -116,6 +123,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 16,
     lineHeight: 24,
+  },
+   exportButton: {
+    height: 48,
+    borderRadius: 8,
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    width: '80%',
+    maxWidth: 300,
   },
 });
 
