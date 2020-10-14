@@ -689,7 +689,7 @@ export class AppStorage {
    * @param ms {number} Milliseconds to sleep
    * @returns {Promise<Promise<*> | Promise<*>>}
    */
-  async sleep(ms) {
+  sleep = ms => {
     return new Promise(resolve => setTimeout(resolve, ms));
-  }
+  };
 }

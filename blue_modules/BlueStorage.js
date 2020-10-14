@@ -50,6 +50,7 @@ export const BlueStorageProvider = ({ children }) => {
   const getBalance = BlueApp.getBalance;
   const storageIsEncrypted = BlueApp.storageIsEncrypted;
   const startAndDecrypt = BlueApp.startAndDecrypt;
+  const sleep = BlueApp.sleep;
 
   return (
     <BlueStorageContext.Provider
@@ -70,6 +71,7 @@ export const BlueStorageProvider = ({ children }) => {
         walletsInitialized,
         setWalletsInitialized,
         refreshAllWalletTransactions,
+        sleep,
       }}
     >
       {children}
