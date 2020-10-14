@@ -142,6 +142,7 @@ export interface Wallet {
   isAnyOfAddressesMine: (addresses: string[]) => boolean;
   id: string;
   getScriptHashes: () => string[];
+  getAddressForTransaction: () => string;
 }
 
 export interface ActionMeta {
@@ -313,7 +314,7 @@ export type MainCardStackNavigatorParams = {
   [Route.ContactDetails]: { contact: Contact };
   [Route.ContactQRCode]: { contact: Contact };
   [Route.TransactionDetails]: { transaction: EnhancedTransaction };
-  [Route.ReceiveCoins]: { secret?: string };
+  [Route.ReceiveCoins]: { id: string };
   [Route.SendCoins]: {
     fromSecret?: string;
     fromAddress?: string;

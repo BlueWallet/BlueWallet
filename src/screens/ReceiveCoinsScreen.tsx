@@ -1,20 +1,21 @@
 import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import * as Sentry from '@sentry/react-native';
 import bip21 from 'bip21';
 import React, { Component } from 'react';
 import { View, StyleSheet, Text, InteractionManager } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import Share from 'react-native-share';
+import { connect } from 'react-redux';
 
 import { Header, ScreenTemplate, Button, WalletDropdown } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
-import { Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
+import { Route, MainCardStackNavigatorParams, RootStackParams, Wallet } from 'app/consts';
+import { ApplicationState } from 'app/state';
+import { selectors, reducer } from 'app/state/wallets';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../BlueApp';
 import logger from '../../logger';
-import { Chain } from '../../models/bitcoinUnits';
 
 const i18n = require('../../loc');
 
@@ -24,89 +25,33 @@ interface Props {
     StackNavigationProp<MainCardStackNavigatorParams, Route.ReceiveCoins>
   >;
   route: RouteProp<MainCardStackNavigatorParams, Route.ReceiveCoins>;
+  wallet?: Wallet;
+  wallets: Wallet[];
 }
 interface State {
-  secret: string;
-  bip21encoded: string;
   amount: number;
-  address: string;
-  wallet: any;
 }
-export class ReceiveCoinsScreen extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    const secret = props.route.params?.secret || '';
-    this.state = {
-      secret,
-      bip21encoded: '',
-      amount: 0,
-      address: '',
-      wallet: {},
-    };
-  }
+
+class ReceiveCoinsScreen extends Component<Props, State> {
+  state = {
+    amount: 0,
+  };
 
   qrCodeSVG: any = null;
 
-  async componentDidMount() {
-    await this.updateData();
+  get bip21encoded() {
+    const { amount } = this.state;
+    const { wallet } = this.props;
+    if (!wallet) {
+      return;
+    }
+    return bip21.encode(wallet.getAddressForTransaction(), { amount }).replace('bitcoin:', '');
   }
 
-  updateData = async () => {
-    let address;
-    let wallet;
-    for (const w of BlueApp.getWallets()) {
-      if (w.getSecret() === this.state.secret) {
-        // found our wallet
-        wallet = w;
-      }
-    }
-    if (wallet) {
-      if (wallet.getAddressForTransaction) {
-        if (wallet.chain === Chain.ONCHAIN) {
-          try {
-            address = await Promise.race([wallet.getAddressForTransaction(), BlueApp.sleep(1000)]);
-          } catch (_) {}
-          if (!address) {
-            // either sleep expired or getAddressAsync threw an exception
-            address = wallet.getAddressForTransaction();
-          } else {
-            BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
-          }
-          this.setState({ address });
-        } else if (wallet.chain === Chain.OFFCHAIN) {
-          try {
-            await Promise.race([wallet.getAddressForTransaction(), BlueApp.sleep(1000)]);
-            address = wallet.getAddress();
-          } catch (_) {}
-          if (!address) {
-            // either sleep expired or getAddressAsync threw an exception
-            address = wallet.getAddress();
-          } else {
-            BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
-          }
-        }
-        this.setState({ address, wallet });
-      } else if (wallet.getAddress) {
-        this.setState({
-          address: wallet.getAddress(),
-          wallet,
-        });
-      }
-    }
-
-    InteractionManager.runAfterInteractions(async () => {
-      const bip21encoded = bip21.encode(this.state.address);
-      this.setState({ bip21encoded });
-    });
-  };
-
   updateAmount = (amount: string) => {
-    const bip21encoded = bip21.encode(this.state.address, {
-      amount: amount.replace(',', '.'),
-    });
+    const parsedAmount = amount.replace(',', '.');
     this.setState({
-      amount: parseFloat(amount.replace(',', '.')),
-      bip21encoded,
+      amount: parseFloat(parsedAmount),
     });
   };
 
@@ -125,7 +70,13 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
   };
 
   get message(): string {
-    const { address, amount } = this.state;
+    const { wallet } = this.props;
+    if (!wallet) {
+      return '';
+    }
+    const { amount } = this.state;
+
+    const address = wallet.getAddressForTransaction();
     return amount ? `${address}?amount=${amount}` : address;
   }
 
@@ -153,15 +104,21 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
   };
 
   chooseItemFromModal = (index: number) => {
-    const wallets = BlueApp.getWallets();
+    const { wallets, navigation } = this.props;
 
     const wallet = wallets[index];
-    this.setState({ wallet, secret: wallet.getSecret() }, this.updateData);
+    navigation.setParams({ id: wallet.id });
   };
 
   showModal = () => {
-    const wallets = BlueApp.getWallets();
-    const selectedIndex = wallets.findIndex(wallet => wallet.label === this.state.wallet.label);
+    const {
+      wallets,
+      route: {
+        params: { id },
+      },
+    } = this.props;
+
+    const selectedIndex = wallets.findIndex(wallet => wallet.id === id);
     this.props.navigation.navigate(Route.ActionSheet, {
       wallets,
       selectedIndex,
@@ -170,8 +127,13 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
   };
 
   render() {
-    const { amount, bip21encoded, wallet } = this.state;
-    const qrCode = bip21encoded.replace('bitcoin:', '');
+    const { amount } = this.state;
+    const { wallet } = this.props;
+
+    if (!wallet) {
+      return null;
+    }
+
     return (
       <ScreenTemplate
         footer={
@@ -190,10 +152,10 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
           unit={wallet.preferredBalanceUnit}
         />
         <View style={styles.qrcontainer}>
-          {!!qrCode && (
+          {!!this.bip21encoded && (
             <QRCode
               quietZone={10}
-              value={qrCode}
+              value={this.bip21encoded}
               size={140}
               color={BlueApp.settings.foregroundColor}
               logoBackgroundColor={BlueApp.settings.brandingColor}
@@ -214,6 +176,16 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
     );
   }
 }
+
+const mapStateToProps = (state: ApplicationState & reducer.WalletsState, props: Props) => {
+  const { id } = props.route.params;
+  return {
+    wallet: selectors.getById(state, id),
+    wallets: selectors.wallets(state),
+  };
+};
+
+export default connect(mapStateToProps)(ReceiveCoinsScreen);
 
 const styles = StyleSheet.create({
   qrcontainer: {

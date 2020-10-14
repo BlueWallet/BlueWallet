@@ -86,7 +86,7 @@ class DashboardScreen extends Component<Props, State> {
   receiveCoins = () => {
     const actionWallet = this.getActionWallet();
     this.props.navigation.navigate(Route.ReceiveCoins, {
-      secret: actionWallet.getSecret(),
+      id: actionWallet.id,
     });
   };
 
