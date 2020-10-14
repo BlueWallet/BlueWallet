@@ -13,7 +13,8 @@ import {
   Dimensions,
   useWindowDimensions,
 } from 'react-native';
-import { WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
+import { BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
+import WalletsCarousel from '../../components/WalletsCarousel';
 import { Icon } from 'react-native-elements';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';

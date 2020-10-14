@@ -29,7 +29,7 @@ import {
 import Clipboard from '@react-native-community/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
 import ActionSheet from './screen/ActionSheet';
-import { LightningCustodianWallet, MultisigHDWallet, PlaceholderWallet } from './class';
+import { LightningCustodianWallet, MultisigHDWallet } from './class';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import * as NavigationService from './NavigationService';
 import WalletGradient from './class/wallet-gradient';
@@ -1559,7 +1559,6 @@ export class ManageFundsBigButton extends Component {
     );
   }
 }
-
 
 export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, timeElapsed }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
