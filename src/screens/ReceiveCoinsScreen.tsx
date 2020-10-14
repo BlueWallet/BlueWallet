@@ -1,5 +1,6 @@
 import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import * as Sentry from '@sentry/react-native';
 import bip21 from 'bip21';
 import React, { Component } from 'react';
 import { View, StyleSheet, Text, InteractionManager } from 'react-native';
@@ -12,6 +13,7 @@ import { Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../BlueApp';
+import logger from '../../logger';
 import { Chain } from '../../models/bitcoinUnits';
 
 const i18n = require('../../loc');
@@ -66,7 +68,6 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
           } catch (_) {}
           if (!address) {
             // either sleep expired or getAddressAsync threw an exception
-            console.warn('either sleep expired or getAddressAsync threw an exception');
             address = wallet.getAddressForTransaction();
           } else {
             BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
@@ -79,7 +80,6 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
           } catch (_) {}
           if (!address) {
             // either sleep expired or getAddressAsync threw an exception
-            console.warn('either sleep expired or getAddressAsync threw an exception');
             address = wallet.getAddress();
           } else {
             BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
@@ -134,7 +134,9 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
     if (this.qrCodeSVG === undefined) {
       Share.open({
         message,
-      }).catch(error => console.log(error));
+      }).catch(error => {
+        logger.warn('ReceiveCoins', error.message);
+      });
     } else {
       InteractionManager.runAfterInteractions(async () => {
         this.qrCodeSVG.toDataURL((data: any) => {
@@ -142,7 +144,9 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
             message,
             url: `data:image/png;base64,${data}`,
           };
-          Share.open(shareImageBase64).catch(error => console.log(error));
+          Share.open(shareImageBase64).catch(error => {
+            logger.warn('ReceiveCoins', error.message);
+          });
         });
       });
     }

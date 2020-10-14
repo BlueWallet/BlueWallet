@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 
+import logger from '../logger';
 import {
   HDSegwitP2SHWallet,
   HDLegacyP2PKHWallet,
@@ -114,7 +115,7 @@ export class AppStorage {
       try {
         decrypted = encryption.decrypt(value, password);
       } catch (e) {
-        console.log(e.message);
+        logger.error('app-storage', `decryptData: ${e.message}`);
       }
 
       if (decrypted) {
@@ -234,7 +235,7 @@ export class AppStorage {
         return false; // failed loading data or loading/decryptin data
       }
     } catch (error) {
-      console.warn(error.message);
+      logger.error('app-storage', `loadFromDisk: ${error.message}`);
       return false;
     }
   }

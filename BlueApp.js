@@ -1,7 +1,8 @@
+import { AppStorage } from './class';
+import logger from './logger';
 /**
  * @exports {AppStorage}
  */
-import { AppStorage } from './class';
 
 const EV = require('./events');
 const loc = require('./loc');
@@ -12,7 +13,7 @@ const BlueApp = new AppStorage();
 
 async function startAndDecrypt(retry) {
   if (BlueApp.getWallets().length > 0) {
-    console.log('App already has some wallets, so we are in already started state, exiting startAndDecrypt');
+    logger.info('BlueApp', `App already has some wallets, so we are in already started state, exiting startAndDecrypt`);
     return;
   }
   let password = false;
@@ -23,7 +24,8 @@ async function startAndDecrypt(retry) {
   }
   const success = await BlueApp.loadFromDisk(password);
   if (success) {
-    console.log('loaded from disk');
+    logger.info('BlueApp', `loaded from disk`);
+
     EV(EV.enum.WALLETS_COUNT_CHANGED);
     EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
     // now, lets try to fetch balance and txs for first wallet if it is time for it

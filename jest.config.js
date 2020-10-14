@@ -6,6 +6,6 @@ module.exports = {
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
   },
-  transformIgnorePatterns: ['node_modules/(?!(jest-)?react-native|react-navigation|@react-native-community)'],
+  transformIgnorePatterns: ['node_modules/(?!(jest-)?react-native|react-navigation|@react-native-community|@sentry/*)'],
   coveragePathIgnorePatterns: ['/node_modules/'],
 };

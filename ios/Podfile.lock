@@ -88,7 +88,7 @@ PODS:
     - GoogleUtilities/Logger
   - GoogleUtilities/UserDefaults (6.7.2):
     - GoogleUtilities/Logger
-  - jail-monkey (2.3.2):
+  - jail-monkey (2.3.3):
     - React
   - libwebp (1.1.0):
     - libwebp/demux (= 1.1.0)
@@ -276,14 +276,14 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.39.0):
-    - React
-    - react-native-camera/RCT (= 3.39.0)
-    - react-native-camera/RN (= 3.39.0)
-  - react-native-camera/RCT (3.39.0):
-    - React
-  - react-native-camera/RN (3.39.0):
-    - React
+  - react-native-camera (3.40.0):
+    - React-Core
+    - react-native-camera/RCT (= 3.40.0)
+    - react-native-camera/RN (= 3.40.0)
+  - react-native-camera/RCT (3.40.0):
+    - React-Core
+  - react-native-camera/RN (3.40.0):
+    - React-Core
   - react-native-config (1.3.3):
     - react-native-config/App (= 1.3.3)
   - react-native-config/App (1.3.3):
@@ -294,15 +294,15 @@ PODS:
     - React
   - react-native-randombytes (3.5.3):
     - React
-  - react-native-safe-area-context (3.1.7):
-    - React
+  - react-native-safe-area-context (3.1.8):
+    - React-Core
   - react-native-slider (2.0.0-rc.1):
     - React
   - react-native-splash-screen (3.2.0):
     - React
-  - react-native-tcp-socket (4.5.0):
+  - react-native-tcp-socket (4.5.3):
     - CocoaAsyncSocket
-    - React
+    - React-Core
   - React-RCTActionSheet (0.61.5):
     - React-Core/RCTActionSheetHeaders (= 0.61.5)
   - React-RCTAnimation (0.61.5):
@@ -344,30 +344,30 @@ PODS:
     - React
   - rn-fetch-blob (0.12.0):
     - React-Core
-  - RNCAsyncStorage (1.12.0):
-    - React
-  - RNCClipboard (1.2.3):
-    - React
+  - RNCAsyncStorage (1.12.1):
+    - React-Core
+  - RNCClipboard (1.5.0):
+    - React-Core
   - RNCMaskedView (0.1.10):
     - React
   - RNDefaultPreference (1.4.1):
     - React
-  - RNDeviceInfo (6.0.3):
+  - RNDeviceInfo (6.2.0):
     - React-Core
   - RNFastImage (8.3.2):
     - React
     - SDWebImage (~> 5.8)
     - SDWebImageWebPCoder (~> 0.6.1)
-  - RNFBAnalytics (7.6.2):
+  - RNFBAnalytics (7.6.7):
     - Firebase/Analytics (~> 6.30.0)
-    - React
+    - React-Core
     - RNFBApp
-  - RNFBApp (8.4.2):
+  - RNFBApp (8.4.5):
     - Firebase/CoreOnly (~> 6.30.0)
-    - React
-  - RNFBCrashlytics (8.4.4):
+    - React-Core
+  - RNFBCrashlytics (8.4.9):
     - Firebase/Crashlytics (~> 6.30.0)
-    - React
+    - React-Core
     - RNFBApp
   - RNFS (2.13.3):
     - React
@@ -375,13 +375,13 @@ PODS:
     - React
   - RNHandoff (0.0.3):
     - React
-  - RNLocalize (1.4.1):
-    - React
+  - RNLocalize (1.4.2):
+    - React-Core
   - RNRate (1.0.1):
     - React
-  - RNReanimated (1.13.0):
+  - RNReanimated (1.13.1):
     - React
-  - RNScreens (2.10.1):
+  - RNScreens (2.11.0):
     - React
   - RNSecureKeyStore (1.0.0):
     - React
@@ -645,7 +645,7 @@ SPEC CHECKSUMS:
   GoogleAppMeasurement: 3def7652b1f5b5a576178dc332e2a36a260fbef6
   GoogleDataTransport: 672fb0ce96fe7f7f31d43672fca62ad2c9c86f7b
   GoogleUtilities: 7f2f5a07f888cdb145101d6042bc4422f57e70b3
-  jail-monkey: d7c5048b2336f22ee9c9e0efa145f1f917338ea9
+  jail-monkey: 80c9e34da2cd54023e5ad08bf7051ec75bd43d5b
   libwebp: 946cb3063cea9236285f7e9a8505d806d30e07f3
   lottie-ios: c38c3178ae8c4a8f200661aa5f80b9f1ca7f56b3
   lottie-react-native: d8caf2aa9ab8bb76312e44997c1c91804a23d44d
@@ -662,15 +662,15 @@ SPEC CHECKSUMS:
   React-jsinspector: fa0ecc501688c3c4c34f28834a76302233e29dc0
   react-native-biometrics: 9d3306e5d29c3bc4e6a3c912d759a94e76a2f683
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: 3940f67a49eaf736525a3e730653fcb98e1525dd
+  react-native-camera: 35854c4f764a4a6cf61c1c3525888b92f0fe4b31
   react-native-config: 9a061347e0136fdb32d43a34d60999297d672361
   react-native-haptic-feedback: 22c9dc85fd8059f83bf9edd9212ac4bd4ae6074d
   react-native-image-picker: 7a85cf7b0a53845f03ae52fb4592a2748ded069b
   react-native-randombytes: 3638d24759d67c68f6ccba60c52a7a8a8faa6a23
-  react-native-safe-area-context: 955ecfce672683b495d9294d2f154a9ad1d9796b
+  react-native-safe-area-context: 79fea126c6830c85f65947c223a5e3058a666937
   react-native-slider: 884693dd50f84745baa511ecdcde4c16f32182fb
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
-  react-native-tcp-socket: 0f02237ff77e9cc35814629872b78267945a1344
+  react-native-tcp-socket: b9c1ae95979fd0e16606e35d5912c3f4e6650535
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
   React-RCTAnimation: 791a87558389c80908ed06cc5dfc5e7920dfa360
   React-RCTBlob: d89293cc0236d9cb0933d85e430b0bbe81ad1d72
@@ -684,22 +684,22 @@ SPEC CHECKSUMS:
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
-  RNCAsyncStorage: 2a692bcb9b69b76a2f1a95f33db057129700af64
-  RNCClipboard: 48eaf27bea3de7c9a265529725434268d47a2ee9
+  RNCAsyncStorage: b03032fdbdb725bea0bd9e5ec5a7272865ae7398
+  RNCClipboard: c7abea1baea58adca5c1f29e56dd5261837b4892
   RNCMaskedView: 5a8ec07677aa885546a0d98da336457e2bea557f
   RNDefaultPreference: 628cb35719f2fe4111c000ccfa7e186400bbc47e
-  RNDeviceInfo: 2621e166cd79c771f30902521a1a356d886347be
+  RNDeviceInfo: eb63f95c93ff1aae15353d113c130aebc6127915
   RNFastImage: e19ba191922e7dab9d932a4d59d62d76660aa222
-  RNFBAnalytics: 20564db4cfd317c304fe5a8e5d840f8c9d105aaa
-  RNFBApp: 373cce42559cc7a9a42afc876746e3946de3e32e
-  RNFBCrashlytics: 834057016b34fa49e3eef028a13e35f48840c78c
+  RNFBAnalytics: 6fe130045b06fb4173d6f44058894007bb30b9a2
+  RNFBApp: 570b136767f588b7eef0ab918284e9fe364d0c3e
+  RNFBCrashlytics: 7b60463c742f830255fa76f13a837f95c6581700
   RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
   RNGestureHandler: 7a5833d0f788dbd107fbb913e09aa0c1ff333c39
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
-  RNLocalize: 49634a6a605dcdeb319e9c42a5c2f1aec508694b
+  RNLocalize: 452d4118e338dee1e5ca3fac4d5a11a4ab26a46a
   RNRate: 29be49c24b314c4e8ec09d848c3965f61cb0be47
-  RNReanimated: 89f5e0a04d1dd52fbf27e7e7030d8f80a646a3fc
-  RNScreens: b748efec66e095134c7166ca333b628cd7e6f3e2
+  RNReanimated: dd8c286ab5dd4ba36d3a7fef8bff7e08711b5476
+  RNScreens: 0e91da98ab26d5d04c7b59a9b6bd694124caf88c
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: 1adaa43b01c6a3ab5091d4d1add66b7c58558898
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c

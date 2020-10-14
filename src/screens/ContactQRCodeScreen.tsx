@@ -1,5 +1,6 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import * as Sentry from '@sentry/react-native';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
@@ -8,6 +9,8 @@ import Share from 'react-native-share';
 import { Button, ContactAvatar, Header, ScreenTemplate } from 'app/components';
 import { Route, MainCardStackNavigatorParams } from 'app/consts';
 import { typography } from 'app/styles';
+
+import logger from '../../logger';
 
 const i18n = require('../../loc');
 
@@ -26,7 +29,11 @@ export class ContactQRCodeScreen extends React.PureComponent<Props> {
         message: contact.address,
         url: `data:image/png;base64,${data}`,
       };
-      Share.open(shareImageBase64).catch(error => console.log(error));
+      try {
+        Share.open(shareImageBase64);
+      } catch (error) {
+        logger.warn('ContactQRCode', error.message);
+      }
     });
   };
 

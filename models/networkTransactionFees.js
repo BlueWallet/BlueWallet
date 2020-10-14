@@ -56,7 +56,6 @@ export default class NetworkTransactionFees {
           reject(networkFee);
         }
       } catch (err) {
-        console.warn(err);
         const networkFee = new NetworkTransactionFee(1, 1, 1);
         reject(networkFee);
       }

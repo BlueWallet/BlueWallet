@@ -1,5 +1,7 @@
 import Biometrics from 'react-native-biometrics';
 
+import logger from '../logger';
+
 const BlueApp = require('../BlueApp');
 
 export default class Biometric {
@@ -22,7 +24,7 @@ export default class Biometric {
       const isSensorAvailable = await Biometrics.isSensorAvailable();
       return isSensorAvailable.biometryType;
     } catch (e) {
-      console.log(e);
+      logger.error('biometrics', e.message);
     }
     return false;
   }

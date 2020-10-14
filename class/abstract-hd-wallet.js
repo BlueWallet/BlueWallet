@@ -110,20 +110,16 @@ export class AbstractHDWallet extends LegacyWallet {
 
   async fetchTransactions() {
     const txids_to_update = [];
-    try {
-      this._lastTxFetch = +new Date();
-      const tx_addr_dict = await BlueElectrum.multiGetHistoryByAddress(this.getAddress());
+    this._lastTxFetch = +new Date();
+    const tx_addr_dict = await BlueElectrum.multiGetHistoryByAddress(this.getAddress());
 
-      for (const addr in tx_addr_dict) {
-        for (const tx of tx_addr_dict[addr]) {
-          txids_to_update.push(tx);
-        }
+    for (const addr in tx_addr_dict) {
+      for (const tx of tx_addr_dict[addr]) {
+        txids_to_update.push(tx);
       }
-
-      if (txids_to_update) await this.setTransactions(txids_to_update);
-    } catch (err) {
-      console.warn(err.message);
     }
+
+    if (txids_to_update) await this.setTransactions(txids_to_update);
   }
 
   getAddress() {
@@ -158,36 +154,28 @@ export class AbstractHDWallet extends LegacyWallet {
   }
 
   async fetchBalance() {
-    try {
-      const balance = await BlueElectrum.multiGetBalanceByAddress(this.getAddress());
-      this.balance = balance.balance + balance.unconfirmed_balance;
-      this.confirmed_balance = balance.balance;
-      this.incoming_balance = balance.incoming_balance;
-      this.outgoing_balance = balance.outgoing_balance;
-      this.unconfirmed_balance = balance.unconfirmed_balance;
+    const balance = await BlueElectrum.multiGetBalanceByAddress(this.getAddress());
+    this.balance = balance.balance + balance.unconfirmed_balance;
+    this.confirmed_balance = balance.balance;
+    this.incoming_balance = balance.incoming_balance;
+    this.outgoing_balance = balance.outgoing_balance;
+    this.unconfirmed_balance = balance.unconfirmed_balance;
 
-      this._lastBalanceFetch = +new Date();
-      for (const address in balance.addresses) {
-        this._addr_balances[address] = {
-          total: balance.addresses[address].unconfirmed + balance.addresses[address].confirmed,
-          c: balance.addresses[address].confirmed,
-          u: balance.addresses[address].unconfirmed,
-        };
-      }
-    } catch (err) {
-      console.warn(err.message);
+    this._lastBalanceFetch = +new Date();
+    for (const address in balance.addresses) {
+      this._addr_balances[address] = {
+        total: balance.addresses[address].unconfirmed + balance.addresses[address].confirmed,
+        c: balance.addresses[address].confirmed,
+        u: balance.addresses[address].unconfirmed,
+      };
     }
   }
 
   async fetchUtxos() {
-    try {
-      this.utxo = [];
-      const utxos = await BlueElectrum.multiGetUtxoByAddress(this.getAddress());
-      this.utxo = utxos;
-      return this.utxo;
-    } catch (err) {
-      console.warn(err.message);
-    }
+    this.utxo = [];
+    const utxos = await BlueElectrum.multiGetUtxoByAddress(this.getAddress());
+    this.utxo = utxos;
+    return this.utxo;
   }
 
   weOwnAddress(addr) {

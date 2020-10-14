@@ -129,8 +129,6 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       const hdNode = HDNode.fromBase58(xpub);
       this._node0 = hdNode.derive(0);
     }
-    console.warn(this._node0.derive(index).publicKey);
-    console.warn(this.constructor._nodeToBech32SegwitAddress(this._node0.derive(index)));
     return this._node0.derive(index).publicKey;
   }
 

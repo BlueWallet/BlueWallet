@@ -93,7 +93,6 @@ strings.transactionTimeToReadable = time => {
   try {
     timejs = dayjs(time).format('YYYY-MM-DD, HH:mm:ss');
   } catch (_) {
-    console.warn('incorrect locale set for dayjs');
     return time;
   }
   return timejs;

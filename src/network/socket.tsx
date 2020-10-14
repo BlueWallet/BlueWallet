@@ -4,6 +4,8 @@ import TcpSocket from 'react-native-tcp-socket';
 
 import { SocketCallback, SocketOptions } from 'app/consts';
 
+import logger from '../../logger';
+
 export function connect(config: SocketOptions, callback: SocketCallback) {
   const client = TcpSocket.createConnection(
     {
@@ -33,16 +35,16 @@ export class Socket {
   setKeepAlive = () => {};
   setNoDelay = () => {};
   onData = (data: Uint8Array) => {
-    console.log('lister has not beet setup yet', data);
+    logger.info('socket', `onData lister has not beet setup yet, ${data}`);
   };
   onError = (error: {}) => {
-    console.log('lister has not beet setup yet', error);
+    logger.error('socket', `onError lister has not beet setup yet, ${error}`);
   };
   onConnect = (data: { host: string; port: number }) => {
-    console.log('lister has not beet setup yet', data);
+    logger.info('socket', `onConnect lister has not beet setup yet, ${data}`);
   };
   onClose = (data: {}) => {
-    console.log('lister has not beet setup yet', data);
+    logger.info('socket', `onClose lister has not beet setup yet, ${data}`);
   };
 
   connect = (port: number, host: string, callback: SocketCallback) => {
@@ -71,7 +73,6 @@ export class Socket {
   };
 
   on = (event: string, listener: (data: {}) => void) => {
-    console.log('listener to assign', listener);
     switch (event) {
       case 'data':
         this.onData = listener;

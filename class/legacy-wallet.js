@@ -2,6 +2,7 @@ import { findLast, difference } from 'lodash';
 import { NativeModules } from 'react-native';
 
 import config from '../config';
+import logger from '../logger';
 import { AbstractWallet } from './abstract-wallet';
 
 const { RNRandomBytes } = NativeModules;
@@ -99,7 +100,7 @@ export class LegacyWallet extends AbstractWallet {
       this.outgoing_balance = balance.alert_outgoing;
       this._lastBalanceFetch = +new Date();
     } catch (err) {
-      console.warn(err.message);
+      logger.error('legacy-wallet', `fetchBalance: ${err.message}`);
     }
   }
 
@@ -109,14 +110,11 @@ export class LegacyWallet extends AbstractWallet {
    * @return {Promise.<void>}
    */
   async fetchUtxos() {
-    try {
-      this.utxo = [];
-      const utxos = await BlueElectrum.multiGetUtxoByAddress([this.getAddress()]);
-      this.utxo = utxos;
-      return this.utxo;
-    } catch (err) {
-      console.warn(err.message);
-    }
+    this.utxo = [];
+    const utxos = await BlueElectrum.multiGetUtxoByAddress([this.getAddress()]);
+    this.utxo = utxos;
+
+    return this.utxo;
   }
 
   /**
@@ -131,8 +129,8 @@ export class LegacyWallet extends AbstractWallet {
       const txids = await BlueElectrum.getTransactionsByAddress(this.getAddress());
 
       await this.setTransactions(txids);
-    } catch (Err) {
-      console.warn(Err.message);
+    } catch (err) {
+      logger.error('legacy-wallet', `fetchTransactions: ${err.message}`);
     }
   }
 
@@ -157,7 +155,6 @@ export class LegacyWallet extends AbstractWallet {
    * @return string Signed txhex ready for broadcast
    */
   createTx(utxos, amount, fee, toAddress) {
-    // console.log('creating legacy tx ', amount, ' with fee ', fee, 'secret=', this.getSecret(), 'from address', this.getAddress());
     const amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
     return signer.createTransaction(utxos, toAddress, amountPlusFee, fee, this.getSecret(), this.getAddress());
   }
@@ -211,63 +208,60 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   async setTransactions(txs) {
-    try {
-      const txid_list = txs.map(t => t.tx_hash);
+    const txid_list = txs.map(t => t.tx_hash);
 
-      this.transactions = this.transactions.filter(tx => {
-        if (!(tx.height > 0)) {
-          return false;
-        }
-        const transaction = findLast(txs, t => t.tx_hash === tx.txid);
-
-        if (!transaction) {
-          return false;
-        }
-        return transaction.tx_type === tx.tx_type;
-      });
-
-      const alreadyFetchedTxIds = this.transactions.map(tx => tx.txid);
-
-      const txIdsDiff = difference(txid_list, alreadyFetchedTxIds);
-
-      if (txIdsDiff.length === 0) {
-        return;
+    this.transactions = this.transactions.filter(tx => {
+      if (!(tx.height > 0)) {
+        return false;
       }
+      const transaction = findLast(txs, t => t.tx_hash === tx.txid);
 
-      const txs_full = await BlueElectrum.multiGetTransactionsFullByTxid(txIdsDiff);
-
-      const transactions = [];
-
-      for (const tx of txs_full) {
-        let value = 0;
-        for (const input of tx.inputs) {
-          if (!input.txid) continue; // coinbase
-          if (this.weOwnAddress(input.addresses[0])) value -= input.value;
-        }
-        for (const output of tx.outputs) {
-          if (!output.addresses) continue; // OP_RETURN
-          if (this.weOwnAddress(output.addresses[0])) value += output.value;
-        }
-        tx.height = txs.find(t => t.tx_hash === tx.txid).height;
-        tx.tx_type = findLast(txs, t => t.tx_hash === tx.txid).tx_type;
-        tx.value = new BigNumber(value).multipliedBy(100000000).toNumber();
-        if (tx.time) {
-          tx.received = new Date(tx.time * 1000).toISOString();
-        } else {
-          tx.received = new Date().toISOString();
-        }
-        tx.walletLabel = this.label;
-        if (!tx.confirmations) tx.confirmations = 0;
-        transactions.push(tx);
+      if (!transaction) {
+        return false;
       }
-      this.transactions = this.transactions.filter(t => {
-        const duplicatedTx = transactions.find(trans => trans.txid === t.txid);
-        return !!!duplicatedTx;
-      });
+      return transaction.tx_type === tx.tx_type;
+    });
 
-      this.transactions = [...this.transactions, ...transactions];
-    } catch (err) {
-      console.warn(err.message);
+    const alreadyFetchedTxIds = this.transactions.map(tx => tx.txid);
+
+    const txIdsDiff = difference(txid_list, alreadyFetchedTxIds);
+
+    if (txIdsDiff.length === 0) {
+      return;
     }
+
+    const txs_full = await BlueElectrum.multiGetTransactionsFullByTxid(txIdsDiff);
+
+    const transactions = [];
+
+    for (const tx of txs_full) {
+      let value = 0;
+      for (const input of tx.inputs) {
+        if (!input.txid) continue; // coinbase
+        if (this.weOwnAddress(input.addresses[0])) value -= input.value;
+      }
+      for (const output of tx.outputs) {
+        if (!output.addresses) continue; // OP_RETURN
+        if (this.weOwnAddress(output.addresses[0])) value += output.value;
+      }
+      tx.height = txs.find(t => t.tx_hash === tx.txid).height;
+      tx.tx_type = findLast(txs, t => t.tx_hash === tx.txid).tx_type;
+      tx.value = new BigNumber(value).multipliedBy(100000000).toNumber();
+      if (tx.time) {
+        tx.received = new Date(tx.time * 1000).toISOString();
+      } else {
+        tx.received = new Date().toISOString();
+      }
+      tx.walletLabel = this.label;
+      if (!tx.confirmations) tx.confirmations = 0;
+      transactions.push(tx);
+    }
+
+    this.transactions = this.transactions.filter(t => {
+      const duplicatedTx = transactions.find(trans => trans.txid === t.txid);
+      return !!!duplicatedTx;
+    });
+
+    this.transactions = [...this.transactions, ...transactions];
   }
 }

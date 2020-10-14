@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { difference } from 'lodash';
 import { compose, map, mapValues, values, flatten, uniq } from 'lodash/fp';
 
 import config from './config';
+import logger from './logger';
 
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
@@ -21,11 +23,11 @@ let wasConnectedAtLeastOnce = false;
 async function connectMain() {
   const usingPeer = { host: config.host, tcp: config.port, protocol: config.protocol };
   try {
-    console.log('begin connection:', JSON.stringify(usingPeer));
+    logger.info('BlueElectrum', `begin connection: ${JSON.stringify(usingPeer)}`);
     mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, usingPeer.protocol);
 
     mainClient.onError = function(e) {
-      console.log('ElectrumClient error: ' + e);
+      logger.error('BlueElectrum', e.message);
       mainConnected = false;
     };
     const ver = await mainClient.initElectrum({
@@ -34,17 +36,17 @@ async function connectMain() {
     });
 
     if (ver && ver[0]) {
-      console.log('connected to ', ver);
+      logger.info('BlueElectrum', `connected to, ${ver}`);
       mainConnected = true;
       wasConnectedAtLeastOnce = true;
     }
   } catch (e) {
     mainConnected = false;
-    console.log('bad connection:', JSON.stringify(usingPeer), e);
+    logger.error('BlueElectrum', `bad connection: ${JSON.stringify(usingPeer)}, Error: ${e.message}`);
   }
 
   if (!mainConnected) {
-    console.log('retry');
+    logger.info('BlueElectrum', 'Reconnect');
     mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
     mainClient.reconnect = () => {}; // dirty hack to make it stop reconnecting
     mainClient.close();
@@ -202,7 +204,6 @@ module.exports.multiGetUtxoByAddress = async function(addresses, batchsize) {
   if (!mainClient) throw new Error('Electrum client is not connected');
   const ret = {};
   const res = [];
-  const uniq = {};
   const chunks = splitIntoChunks(addresses, batchsize);
   for (const chunk of chunks) {
     const scripthashes = [];

@@ -78,7 +78,6 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
         u: 0,
       };
     }
-    console.warn(this._address);
   }
 
   createTx(utxos, amount, fee, address) {

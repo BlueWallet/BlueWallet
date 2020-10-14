@@ -14,7 +14,6 @@ module.exports = (title, text, isCancelable = true, type = 'secure-text') => {
           {
             text: 'OK',
             onPress: password => {
-              console.log('OK Pressed, password: ' + password);
               resolve(password);
             },
           },
@@ -23,7 +22,6 @@ module.exports = (title, text, isCancelable = true, type = 'secure-text') => {
           {
             text: 'OK',
             onPress: password => {
-              console.log('OK Pressed, password: ' + password);
               resolve(password);
             },
           },

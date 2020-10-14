@@ -43,11 +43,7 @@ export const AboutUsScreen = (props: Props) => {
       openAppStoreIfInAppFails: true,
       fallbackPlatformURL: 'https://bitcoinvault.global',
     };
-    Rate.rate(options, success => {
-      if (success) {
-        console.log('User Rated.');
-      }
-    });
+    Rate.rate(options);
   };
 
   const goToGithub = () => {
