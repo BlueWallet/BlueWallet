@@ -17,7 +17,7 @@ import { WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem } from 
 import { Icon } from 'react-native-elements';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { AppStorage, PlaceholderWallet } from '../../class';
+import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
@@ -29,8 +29,6 @@ import ScanQRCode from '../send/ScanQRCode';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/BlueStorage';
 const A = require('../../blue_modules/analytics');
-const BlueApp: AppStorage = require('../../BlueApp');
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
@@ -39,12 +37,12 @@ const isDesktop = getSystemName() === 'Mac OS X';
 
 const WalletsList = () => {
   const walletsCarousel = useRef();
-  const { wallets, getTransactions } = useContext(BlueStorageContext);
+  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, saveToDisk } = useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
   const routeName = useRoute().name;
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [itemWidth, setItemWidth] = useState(width * 0.82 > 375 ? 375 : width * 0.82);
   const [isLargeScreen, setIsLargeScreen] = useState(
     Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3 && isTablet(),
@@ -75,10 +73,18 @@ const WalletsList = () => {
 
   useFocusEffect(
     useCallback(() => {
-      redrawScreen();
+      verifyBalance();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
+
+  const verifyBalance = () => {
+    if (getBalance() !== 0) {
+      A(A.ENUM.GOT_NONZERO_BALANCE);
+    } else {
+      A(A.ENUM.GOT_ZERO_BALANCE);
+    }
+  };
 
   useEffect(() => {
     setOptions({
@@ -107,55 +113,9 @@ const WalletsList = () => {
    * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet.
    * Triggered manually by user on pull-to-refresh.
    */
-  const refreshTransactions = async () => {
+  const refreshTransactions = () => {
     setIsLoading(true);
-    let noErr = true;
-    try {
-      // await BlueElectrum.ping();
-      await BlueElectrum.waitTillConnected();
-      const balanceStart = +new Date();
-      await BlueApp.fetchWalletBalances(lastSnappedTo || 0);
-      const balanceEnd = +new Date();
-      console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-      const start = +new Date();
-      await BlueApp.fetchWalletTransactions(lastSnappedTo || 0);
-      const end = +new Date();
-      console.log('fetch tx took', (end - start) / 1000, 'sec');
-    } catch (err) {
-      noErr = false;
-      console.warn(err);
-      setIsLoading(false);
-    }
-    if (noErr) await BlueApp.saveToDisk(); // caching
-    setIsLoading(false);
-  };
-
-  const redrawScreen = (scrollToEnd = false) => {
-    console.log('wallets/list redrawScreen()');
-
-    // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet.
-    // placing event subscription here so it gets exclusively re-subscribed more often. otherwise we would
-    // have to unsubscribe on unmount and resubscribe again on mount.
-    //  EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, refreshTransactions, true);
-
-    if (BlueApp.getBalance() !== 0) {
-      A(A.ENUM.GOT_NONZERO_BALANCE);
-    } else {
-      A(A.ENUM.GOT_ZERO_BALANCE);
-    }
-
-    // const storedWallets = BlueApp.getWallets().concat(false);
-    // const storedDataSource = BlueApp.getTransactions(null, 10);
-    if (scrollToEnd) {
-      // scrollToEnd = storedWallets.length > wallets.length;
-    }
-
-    // setWallets(storedWallets);
-    setIsLoading(false);
-    if (scrollToEnd) {
-      // eslint-disable-next-line no-unused-expressions
-      // walletsCarousel.current?.snapToItem(storedWallets.length - 2);
-    }
+    refreshAllWalletTransactions(lastSnappedTo).finally(() => setIsLoading(false));
   };
 
   const handleClick = index => {
@@ -171,7 +131,6 @@ const WalletsList = () => {
               text: loc.wallets.details_delete,
               onPress: () => {
                 WalletImport.removePlaceholderWallet();
-                //        EV(EV.enum.WALLETS_COUNT_CHANGED);
               },
               style: 'destructive',
             },
@@ -180,7 +139,6 @@ const WalletsList = () => {
               onPress: () => {
                 navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: wallet.getSecret() } });
                 WalletImport.removePlaceholderWallet();
-                //     EV(EV.enum.WALLETS_COUNT_CHANGED);
               },
               style: 'default',
             },
@@ -240,7 +198,7 @@ const WalletsList = () => {
           console.log('balance changed, thus txs too');
           // balance changed, thus txs too
           await wallets[index].fetchTransactions();
-          redrawScreen();
+          verifyBalance();
           didRefresh = true;
         } else if (wallets[index].timeToRefreshTransaction()) {
           console.log(wallets[index].getLabel(), 'thinks its time to refresh TXs');
@@ -252,7 +210,7 @@ const WalletsList = () => {
             await wallets[index].fetchUserInvoices();
             await wallets[index].fetchBalance(); // chances are, paid ln invoice was processed during `fetchUserInvoices()` call and altered user's balance, so its worth fetching balance again
           }
-          redrawScreen();
+          verifyBalance();
           didRefresh = true;
         } else {
           console.log('balance not changed');
@@ -264,7 +222,7 @@ const WalletsList = () => {
     }
 
     if (noErr && didRefresh) {
-      await BlueApp.saveToDisk(); // caching
+      await saveToDisk(); // caching
     }
   };
 

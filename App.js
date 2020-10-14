@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler'; // should be on top
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   Linking,
   DeviceEventEmitter,
@@ -27,8 +27,7 @@ import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/themes';
 import InitRoot from './Navigation';
 import BlueClipboard from './blue_modules/clipboard';
-import { BlueStorageProvider } from './blue_modules/BlueStorage';
-const BlueApp = require('./BlueApp');
+import { BlueStorageContext } from './blue_modules/BlueStorage';
 const A = require('./blue_modules/analytics');
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
@@ -41,6 +40,7 @@ const EV = require('./blue_modules/events');
 const notifications = require('./blue_modules/notifications'); // eslint-disable-line no-unused-vars
 
 const App = () => {
+  const { walletsInitialized, wallets } = useContext(BlueStorageContext);
   const appState = useRef(AppState.currentState);
   const [isClipboardContentModalVisible, setIsClipboardContentModalVisible] = useState(false);
   const [clipboardContentModalAddressType, setClipboardContentModalAddressType] = useState(bitcoinModalString);
@@ -54,7 +54,13 @@ const App = () => {
   });
 
   useEffect(() => {
-    EV(EV.enum.WALLETS_INITIALIZED, addListeners);
+    if (walletsInitialized) {
+      addListeners();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletsInitialized]);
+
+  useEffect(() => {
     return () => {
       Linking.removeEventListener('url', handleOpenURL);
       AppState.removeEventListener('change', handleAppStateChange);
@@ -79,13 +85,13 @@ const App = () => {
 
   const popInitialAction = async data => {
     if (data) {
-      const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
+      const wallet = wallets.find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
       NavigationService.dispatch(
         CommonActions.navigate({
           name: 'WalletTransactions',
           key: `WalletTransactions-${wallet.getID()}`,
           params: {
-            wallet,
+            walletID: wallet.getID(),
           },
         }),
       );
@@ -99,14 +105,14 @@ const App = () => {
         const isViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
         if (!isViewAllWalletsEnabled) {
           const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
-          const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === selectedDefaultWallet.getID());
+          const wallet = wallets.find(wallet => wallet.getID() === selectedDefaultWallet.getID());
           if (wallet) {
             NavigationService.dispatch(
               CommonActions.navigate({
                 name: 'WalletTransactions',
                 key: `WalletTransactions-${wallet.getID()}`,
                 params: {
-                  wallet,
+                  walletID: wallet.getID(),
                 },
               }),
             );
@@ -117,13 +123,13 @@ const App = () => {
   };
 
   const walletQuickActions = data => {
-    const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
+    const wallet = wallets.find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
     NavigationService.dispatch(
       CommonActions.navigate({
         name: 'WalletTransactions',
         key: `WalletTransactions-${wallet.getID()}`,
         params: {
-          wallet,
+          walletID: wallet.getID(),
         },
       }),
     );
@@ -149,11 +155,11 @@ const App = () => {
       switch (+payload.type) {
         case 2:
         case 3:
-          wallet = BlueApp.getWallets().find(w => w.weOwnAddress(payload.address));
+          wallet = wallets.find(w => w.weOwnAddress(payload.address));
           break;
         case 1:
         case 4:
-          wallet = BlueApp.getWallets().find(w => w.weOwnTransaction(payload.txid || payload.hash));
+          wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
           break;
       }
 
@@ -163,7 +169,7 @@ const App = () => {
             name: 'WalletTransactions',
             key: `WalletTransactions-${wallet.getID()}`,
             params: {
-              wallet,
+              walletID: wallet.getID(),
             },
           }),
         );
@@ -184,13 +190,13 @@ const App = () => {
   };
 
   const handleAppStateChange = async nextAppState => {
-    if (BlueApp.getWallets().length > 0) {
+    if (wallets.length > 0) {
       if ((appState.current.match(/background/) && nextAppState) === 'active' || nextAppState === undefined) {
         setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
         const processed = await processPushNotifications();
         if (processed) return;
         const clipboard = await BlueClipboard.getClipboardContent();
-        const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet => {
+        const isAddressFromStoredWallet = wallets.some(wallet => {
           if (wallet.chain === Chain.ONCHAIN) {
             // checking address validity is faster than unwrapping hierarchy only to compare it to garbage
             return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
@@ -265,16 +271,14 @@ const App = () => {
     );
   };
   return (
-    <BlueStorageProvider>
-      <SafeAreaProvider>
-        <View style={styles.root}>
-          <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-            <InitRoot />
-          </NavigationContainer>
-          {renderClipboardContentModal()}
-        </View>
-      </SafeAreaProvider>
-    </BlueStorageProvider>
+    <SafeAreaProvider>
+      <View style={styles.root}>
+        <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+          <InitRoot />
+        </NavigationContainer>
+        {renderClipboardContentModal()}
+      </View>
+    </SafeAreaProvider>
   );
 };
 

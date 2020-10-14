@@ -89,7 +89,7 @@ export class AppStorage {
     }
   }
 
-  async storageIsEncrypted() {
+  storageIsEncrypted = async () => {
     let data;
     try {
       data = await this.getItem(AppStorage.FLAG_ENCRYPTED);
@@ -511,7 +511,7 @@ export class AppStorage {
    *
    * @return {Promise.<void>}
    */
-  async fetchWalletBalances(index) {
+  fetchWalletBalances = async (index) => {
     console.log('fetchWalletBalances for wallet#', typeof index === 'undefined' ? '(all)' : index);
     if (index || index === 0) {
       let c = 0;
@@ -537,7 +537,7 @@ export class AppStorage {
    *                        blank to fetch from all wallets
    * @return {Promise.<void>}
    */
-  async fetchWalletTransactions(index) {
+  fetchWalletTransactions = async index => {
     console.log('fetchWalletTransactions for wallet#', typeof index === 'undefined' ? '(all)' : index);
     if (index || index === 0) {
       let c = 0;
@@ -619,7 +619,7 @@ export class AppStorage {
    *
    * @return {number}
    */
-  getBalance() {
+  getBalance = ()  => {
     let finalBalance = 0;
     for (const wal of this.wallets) {
       finalBalance += wal.getBalance();
@@ -672,7 +672,7 @@ export class AppStorage {
     return this.setItem(AppStorage.HODL_HODL_API_KEY, key);
   }
 
-  async isAdancedModeEnabled() {
+  isAdancedModeEnabled = async () => {
     try {
       return !!(await this.getItem(AppStorage.ADVANCED_MODE_ENABLED));
     } catch (_) {}
