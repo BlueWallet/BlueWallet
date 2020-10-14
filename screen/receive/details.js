@@ -35,7 +35,6 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import Handoff from 'react-native-handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/BlueStorage';
-/** @type {AppStorage} */
 const currency = require('../../blue_modules/currency');
 const notifications = require('../../blue_modules/notifications');
 
@@ -218,7 +217,7 @@ const ReceiveDetails = () => {
       notifications.majorTomToGroundControl([wallet.getAddress()], [], []);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet]);
+  }, []);
 
   const setAddressBIP21Encoded = address => {
     const bip21encoded = DeeplinkSchemaMatch.bip21encode(address);
