@@ -340,7 +340,7 @@ PODS:
     - React-jsi (= 0.63.3)
   - ReactNativePrivacySnapshot (1.0.0):
     - React
-  - RealmJS (6.1.0):
+  - RealmJS (6.1.2):
     - GCDWebServer
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
@@ -700,7 +700,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 8e9fb25724a0805107fc1acc9075e26f814df454
   ReactCommon: 4167844018c9ed375cc01a843e9ee564399e53c3
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
-  RealmJS: c8645e0d65b676780f7e6c393d327527a2eb15e8
+  RealmJS: 6eb9fd885c5f3cd609b8b50282a5785cb4b48a18
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: cb9a623793918c6699586281f0b51cbc38f046f9
   RNCClipboard: ce9b77f2881948e9e04af84bd70262ab37adb1c1
