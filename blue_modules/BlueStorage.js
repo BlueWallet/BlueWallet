@@ -40,7 +40,7 @@ export const BlueStorageProvider = ({ children }) => {
   const addWallet = wallet => {
     BlueApp.wallets.push(wallet);
   };
-
+  const txMetadata = BlueApp.tx_metadata;
   const getTransactions = BlueApp.getTransactions;
   const deleteWallet = BlueApp.deleteWallet;
   const isAdancedModeEnabled = BlueApp.isAdancedModeEnabled;
@@ -57,6 +57,7 @@ export const BlueStorageProvider = ({ children }) => {
     <BlueStorageContext.Provider
       value={{
         wallets,
+        txMetadata,
         saveToDisk,
         getTransactions,
         selectedWallet,
