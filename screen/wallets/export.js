@@ -36,12 +36,13 @@ const styles = StyleSheet.create({
 });
 
 const WalletExport = () => {
-  const { wallet } = useRoute().params;
+  const { wallets, saveToDisk } = useContext(BlueStorageContext);
+  const { walletID } = useRoute().params;
+  const wallet = wallets.find(w => w.getID() === walletID);
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
-  const { saveToDisk } = useContext(BlueStorageContext);
   const stylesHook = {
     ...styles,
     loading: {

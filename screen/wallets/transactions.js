@@ -574,7 +574,7 @@ const WalletTransactions = () => {
               },
               onFailure: () =>
                 navigate('WalletExport', {
-                  wallet,
+                  walletID: wallet.getID(),
                 }),
             });
           }

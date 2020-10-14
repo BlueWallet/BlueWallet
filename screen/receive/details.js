@@ -236,7 +236,7 @@ const ReceiveDetails = () => {
               onFailure: () => {
                 goBack();
                 navigate('WalletExport', {
-                  wallet: wallet,
+                  walletID: wallet.getID(),
                 });
               },
             });

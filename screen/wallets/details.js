@@ -184,7 +184,7 @@ const WalletDetails = () => {
 
   const navigateToWalletExport = () => {
     navigate('WalletExport', {
-      wallet,
+      walletID: wallet.getID(),
     });
   };
   const navigateToMultisigCoordinationSetup = () => {
