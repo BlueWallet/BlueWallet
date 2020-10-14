@@ -34,7 +34,6 @@ import HandoffSettings from '../../class/handoff';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import Handoff from 'react-native-handoff';
 import loc from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
 import { BlueStorageContext } from '../../blue_modules/BlueStorage';
 /** @type {AppStorage} */
 const currency = require('../../blue_modules/currency');
@@ -58,7 +57,7 @@ const ReceiveDetails = () => {
   const windowHeight = useWindowDimensions().height;
   const styles = StyleSheet.create({
     modalContent: {
-      backgroundColor: BlueCurrentTheme.colors.modal,
+      backgroundColor: colors.modal,
       padding: 22,
       justifyContent: 'center',
       alignItems: 'center',
@@ -75,11 +74,11 @@ const ReceiveDetails = () => {
     },
     customAmount: {
       flexDirection: 'row',
-      borderColor: BlueCurrentTheme.colors.formBorder,
-      borderBottomColor: BlueCurrentTheme.colors.formBorder,
+      borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
       borderWidth: 1.0,
       borderBottomWidth: 0.5,
-      backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
+      backgroundColor: colors.inputBackgroundColor,
       minHeight: 44,
       height: 44,
       marginHorizontal: 20,
@@ -90,13 +89,13 @@ const ReceiveDetails = () => {
     customAmountText: {
       flex: 1,
       marginHorizontal: 8,
-      color: BlueCurrentTheme.colors.foregroundColor,
+      color: colors.foregroundColor,
       minHeight: 33,
     },
     qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
     root: {
       flex: 1,
-      backgroundColor: BlueCurrentTheme.colors.elevated,
+      backgroundColor: colors.elevated,
     },
     scroll: {
       justifyContent: 'space-between',
@@ -107,14 +106,14 @@ const ReceiveDetails = () => {
       paddingHorizontal: 16,
     },
     amount: {
-      color: BlueCurrentTheme.colors.foregroundColor,
+      color: colors.foregroundColor,
       fontWeight: '600',
       fontSize: 36,
       textAlign: 'center',
       paddingBottom: 24,
     },
     label: {
-      color: BlueCurrentTheme.colors.foregroundColor,
+      color: colors.foregroundColor,
       fontWeight: '600',
       textAlign: 'center',
       paddingBottom: 24,
@@ -123,14 +122,14 @@ const ReceiveDetails = () => {
       alignItems: 'center',
       width: 300,
       height: 300,
-      backgroundColor: BlueCurrentTheme.colors.elevated,
+      backgroundColor: colors.elevated,
     },
     share: {
       marginBottom: 24,
       marginHorizontal: 16,
     },
     modalButton: {
-      backgroundColor: BlueCurrentTheme.colors.modalButton,
+      backgroundColor: colors.modalButton,
       paddingVertical: 14,
       paddingHorizontal: 70,
       maxWidth: '80%',
