@@ -35,10 +35,6 @@ EV.enum = {
   // emitted when we know for sure that on remote server tx list
   // changed (usually for current wallet)
   REMOTE_TRANSACTIONS_COUNT_CHANGED: 'REMOTE_TRANSACTIONS_COUNT_CHANGED',
-
-  // RECEIVE_ADDRESS_CHANGED: 'RECEIVE_ADDRESS_CHANGED',
-
-  PROCESS_PUSH_NOTIFICATIONS: 'PROCESS_PUSH_NOTIFICATIONS',
 };
 
 module.exports = EV;

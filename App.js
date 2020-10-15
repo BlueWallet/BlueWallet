@@ -81,7 +81,6 @@ const App = () => {
     AppState.addEventListener('change', handleAppStateChange);
     DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
     QuickActions.popInitialAction().then(popInitialAction);
-    EV(EV.enum.PROCESS_PUSH_NOTIFICATIONS, processPushNotifications, true);
     handleAppStateChange(undefined);
   };
 
@@ -277,7 +276,7 @@ const App = () => {
         <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
           <InitRoot />
           <DeeplinkSchemaMatch />
-          <BlueNotifications />
+          <BlueNotifications onProcessNotifications={processPushNotifications} />
         </NavigationContainer>
         {renderClipboardContentModal()}
       </View>

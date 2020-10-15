@@ -6,14 +6,13 @@ import AsyncStorage from '@react-native-community/async-storage';
 import loc from '../loc';
 const PushNotification = require('react-native-push-notification');
 const constants = require('./constants');
-const EV = require('./events');
 const PUSH_TOKEN = 'PUSH_TOKEN';
 const GROUNDCONTROL_BASE_URI = 'GROUNDCONTROL_BASE_URI';
 const NOTIFICATIONS_STORAGE = 'NOTIFICATIONS_STORAGE';
 let alreadyConfigured = false;
 let baseURI = constants.groundControlUri;
 
-function BlueNotifications() {
+function BlueNotifications(props) {
   async function _setPushToken(token) {
     token = JSON.stringify(token);
     return AsyncStorage.setItem(PUSH_TOKEN, token);
@@ -60,7 +59,7 @@ function BlueNotifications() {
             notification.userInteraction = true;
             // also, on iOS app is not suspending/unsuspending when user taps a notification bubble,so we simulate it
             // since its where we actually handle notifications:
-            setTimeout(() => EV(EV.enum.PROCESS_PUSH_NOTIFICATIONS), 500);
+            setTimeout(() => props.onProcessNotifications(), 500);
           }
 
           let notifications = [];
