@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { ActivityIndicator, InteractionManager, ScrollView, StatusBar, StyleSheet, useWindowDimensions, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { BlueNavigationStyle, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
@@ -8,13 +8,13 @@ import loc from '../../loc';
 import { encodeUR } from '../../blue_modules/bc-ur/dist';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SquareButton } from '../../components/SquareButton';
-
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/BlueStorage';
 const fs = require('../../blue_modules/fs');
 
 const ExportMultisigCoordinationSetup = () => {
   const walletId = useRoute().params.walletId;
-  const wallet = BlueApp.getWallets().find(w => w.getID() === walletId);
+  const { wallets } = useContext(BlueStorageContext)
+  const wallet = wallets.find(w => w.getID() === walletId);
   const qrCodeContents = encodeUR(Buffer.from(wallet.getXpub(), 'ascii').toString('hex'), 77777)[0];
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
