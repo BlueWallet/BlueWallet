@@ -12,7 +12,7 @@ export const BlueStorageProvider = ({ children }) => {
     BlueApp.tx_metadata = txMetadata;
     await BlueApp.saveToDisk();
     setWallets([...BlueApp.getWallets()]);
-    txMetadata = BlueApp.txMetadata;
+    txMetadata = BlueApp.tx_metadata;
   };
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export const BlueStorageProvider = ({ children }) => {
     BlueApp.wallets.push(wallet);
   };
 
-  let txMetadata = BlueApp.tx_metadata;
+  let txMetadata = BlueApp.tx_metadata || {};
   const getTransactions = BlueApp.getTransactions;
   const deleteWallet = BlueApp.deleteWallet;
   const isAdancedModeEnabled = BlueApp.isAdancedModeEnabled;
