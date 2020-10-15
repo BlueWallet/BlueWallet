@@ -6,24 +6,18 @@ const BlueElectrum = require('./BlueElectrum');
 export const BlueStorageContext = createContext();
 export const BlueStorageProvider = ({ children }) => {
   const [wallets, setWallets] = useState([]);
-  const [txMetadata, _setTxMetadata] = useState({});
   const [selectedWallet, setSelectedWallet] = useState('');
   const [walletsInitialized, setWalletsInitialized] = useState(false);
   const saveToDisk = async () => {
+    BlueApp.tx_metadata = txMetadata;
     await BlueApp.saveToDisk();
     setWallets([...BlueApp.getWallets()]);
-    _setTxMetadata({ ...BlueApp.tx_metadata });
+    txMetadata = BlueApp.txMetadata;
   };
 
   useEffect(() => {
     setWallets(BlueApp.getWallets());
-    _setTxMetadata(BlueApp.tx_metadata);
   }, []);
-
-  const setTxMetadata = metadata => {
-    BlueApp.tx_metadata = metadata;
-    saveToDisk();
-  };
 
   const setWalletsWithNewOrder = wallets => {
     BlueApp.wallets = wallets;
@@ -54,6 +48,7 @@ export const BlueStorageProvider = ({ children }) => {
     BlueApp.wallets.push(wallet);
   };
 
+  let txMetadata = BlueApp.tx_metadata;
   const getTransactions = BlueApp.getTransactions;
   const deleteWallet = BlueApp.deleteWallet;
   const isAdancedModeEnabled = BlueApp.isAdancedModeEnabled;
@@ -84,7 +79,6 @@ export const BlueStorageProvider = ({ children }) => {
         wallets,
         setWalletsWithNewOrder,
         txMetadata,
-        setTxMetadata,
         saveToDisk,
         getTransactions,
         selectedWallet,

@@ -144,7 +144,7 @@ export default class LNDCreateInvoice extends Component {
 
     // fallback to first wallet if it exists
     if (!fromWallet) {
-      const lightningWallets = context.getWallets().filter(item => item.type === LightningCustodianWallet.type);
+      const lightningWallets = context.wallets.filter(item => item.type === LightningCustodianWallet.type);
       if (lightningWallets.length > 0) {
         fromWallet = lightningWallets[0];
         console.warn('warning: using ln wallet index 0');

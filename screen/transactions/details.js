@@ -116,7 +116,7 @@ export default class TransactionsDetails extends Component {
     }
 
     let wallet = false;
-    for (const w of context.getWallets()) {
+    for (const w of context.wallets) {
       for (const t of w.getTransactions()) {
         if (t.hash === hash) {
           console.log('tx', hash, 'belongs to', w.getLabel());
