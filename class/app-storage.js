@@ -634,27 +634,27 @@ export class AppStorage {
     return false;
   };
 
-  async getHodlHodlSignatureKey() {
+  getHodlHodlSignatureKey = async () => {
     try {
       return await this.getItem(AppStorage.HODL_HODL_SIGNATURE_KEY);
     } catch (_) {}
     return false;
-  }
+  };
 
   /**
    * Since we cant fetch list of contracts from hodlhodl api yet, we have to keep track of it ourselves
    *
    * @returns {Promise<string[]>} String ids of contracts in an array
    */
-  async getHodlHodlContracts() {
+  getHodlHodlContracts = async () => {
     try {
       const json = await this.getItem(AppStorage.HODL_HODL_CONTRACTS);
       return JSON.parse(json);
     } catch (_) {}
     return [];
-  }
+  };
 
-  async addHodlHodlContract(id) {
+  addHodlHodlContract = async id => {
     let json;
     try {
       json = await this.getItem(AppStorage.HODL_HODL_CONTRACTS);
@@ -665,7 +665,7 @@ export class AppStorage {
 
     json.push(id);
     return this.setItem(AppStorage.HODL_HODL_CONTRACTS, JSON.stringify(json));
-  }
+  };
 
   setHodlHodlApiKey = async (key, sigKey) => {
     if (sigKey) await this.setItem(AppStorage.HODL_HODL_SIGNATURE_KEY, sigKey);
