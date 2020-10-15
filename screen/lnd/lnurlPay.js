@@ -27,12 +27,12 @@ const currency = require('../../blue_modules/currency');
 export default class LnurlPay extends Component {
   static contextType = BlueStorageContext;
 
-  constructor(props) {
+  constructor(props, context) {
     super(props);
     const fromWalletID = props.route.params.fromWalletID;
     const lnurl = props.route.params.lnurl;
 
-    const fromWallet = this.context.wallets.find(w => w.getID() === fromWalletID);
+    const fromWallet = context.wallets.find(w => w.getID() === fromWalletID);
 
     this.state = {
       isLoading: true,

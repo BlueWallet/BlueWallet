@@ -54,13 +54,13 @@ export default class AztecoRedeem extends Component {
   static contextType = BlueStorageContext;
   state = { isLoading: true };
 
-  constructor(props) {
+  constructor(props, context) {
     super(props);
 
     /** @type {AbstractWallet} */
     let toWallet = null;
 
-    const wallets = this.context.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type);
+    const wallets = context.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type);
 
     if (wallets.length === 0) {
       alert(loc.azteco.errorBeforeRefeem);

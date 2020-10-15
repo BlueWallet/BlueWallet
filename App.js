@@ -277,6 +277,7 @@ const App = () => {
       <View style={styles.root}>
         <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
           <InitRoot />
+          <DeeplinkSchemaMatch />
         </NavigationContainer>
         {renderClipboardContentModal()}
       </View>

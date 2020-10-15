@@ -212,7 +212,7 @@ export default class SendDetails extends Component {
   static contextType = BlueStorageContext;
   state = { isLoading: true };
 
-  constructor(props) {
+  constructor(props, context) {
     super(props);
 
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
@@ -222,7 +222,7 @@ export default class SendDetails extends Component {
     let fromWallet = null;
     if (props.route.params) fromWallet = props.route.params.fromWallet;
 
-    const wallets = this.context.wallets.filter(wallet => wallet.type !== LightningCustodianWallet.type);
+    const wallets = context.wallets.filter(wallet => wallet.type !== LightningCustodianWallet.type);
 
     if (wallets.length === 0) {
       alert(loc.send.details_wallet_before_tx);

@@ -117,11 +117,11 @@ export default class ScanLndInvoice extends React.Component {
     renderWalletSelectionButtonHidden: false,
   };
 
-  constructor(props) {
+  constructor(props, context) {
     super(props);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
-    if (!this.context.wallets.some(item => item.type === LightningCustodianWallet.type)) {
+    if (!context.wallets.some(item => item.type === LightningCustodianWallet.type)) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
       props.navigation.dangerouslyGetParent().pop();
@@ -138,7 +138,7 @@ export default class ScanLndInvoice extends React.Component {
         }
       }
 
-      for (const w of this.context.wallets) {
+      for (const w of context.wallets) {
         if (w.getSecret() === fromSecret) {
           fromWallet = w;
           break;
