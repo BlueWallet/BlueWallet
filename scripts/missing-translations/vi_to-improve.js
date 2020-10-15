@@ -186,6 +186,7 @@ const vi = {
       showWalletXPUB: 'Hiển thị ví XPUB',
       deleteWallet: 'Xóa ví',
       nameEdit: 'Chỉnh sửa tên',
+      details: 'TRANSLATION NEEDED | ENG: Details',
     },
     export: {
       title: 'xuất ví',
@@ -364,6 +365,7 @@ const vi = {
       amount: 'Số tiền',
       share: 'Chia sẻ',
       receiveWithAmount: 'Nhận với số tiền',
+      shareWalletAddress: 'TRANSLATION NEEDED | ENG: Share wallet address',
     },
   },
   settings: {

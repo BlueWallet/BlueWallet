@@ -186,6 +186,7 @@ const pt = {
       showWalletXPUB: 'Apresentar carteira XPUB',
       deleteWallet: 'Excluir carteira',
       nameEdit: 'Editar nome',
+      details: 'TRANSLATION NEEDED | ENG: Details',
     },
     export: {
       title: 'exportar carteira',
@@ -364,6 +365,7 @@ const pt = {
       amount: 'Montante',
       share: 'Partilhar',
       receiveWithAmount: 'Receber com o montante',
+      shareWalletAddress: 'TRANSLATION NEEDED | ENG: Share wallet address',
     },
   },
   settings: {

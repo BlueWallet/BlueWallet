@@ -186,6 +186,7 @@ const id = {
       showWalletXPUB: 'Tampilkan Dompet XPUB',
       deleteWallet: 'Hapus dompet',
       nameEdit: 'Edit nama',
+      details: 'TRANSLATION NEEDED | ENG: Details',
     },
     export: {
       title: 'ekspor dompet',
@@ -364,6 +365,7 @@ const id = {
       amount: 'Jumlah',
       share: 'Bagikan',
       receiveWithAmount: 'Terima dengan jumlah',
+      shareWalletAddress: 'TRANSLATION NEEDED | ENG: Share wallet address',
     },
   },
   settings: {

@@ -186,6 +186,7 @@ const tr = {
       showWalletXPUB: 'Cüzdan XPUB’ını göster',
       deleteWallet: 'Cüzdanı sil',
       nameEdit: 'Adı düzenle',
+      details: 'TRANSLATION NEEDED | ENG: Details',
     },
     export: {
       title: 'Cüzdanı dışarı aktarma',
@@ -364,6 +365,7 @@ const tr = {
       amount: 'Tutar',
       share: 'Paylaş',
       receiveWithAmount: 'Tutarla al',
+      shareWalletAddress: 'TRANSLATION NEEDED | ENG: Share wallet address',
     },
   },
   settings: {

@@ -6,7 +6,7 @@ const bitcoinjs = require('bitcoinjs-lib');
 
 describe('unit - signer', function() {
   describe('createSegwitTransaction()', function() {
-    it('should return valid tx hex for segwit transactions', function(done) {
+    it('should return valid tx hex for segwit transactions', async function(done) {
       const signer = require('../../models/signer');
       const utxos = [
         {
@@ -22,7 +22,7 @@ describe('unit - signer', function() {
           safe: true,
         },
       ];
-      const tx = signer.createSegwitTransaction(
+      const { tx } = await signer.createSegwitTransaction(
         utxos,
         'YQgWXHY2QduhjqMkJHywzDfhx1ntumM5Ht',
         0.001,
@@ -36,7 +36,7 @@ describe('unit - signer', function() {
       done();
     });
 
-    it('should return valid tx hex for RBF-able segwit transactions', function(done) {
+    it('should return valid tx hex for RBF-able segwit transactions', async function(done) {
       const signer = require('../../models/signer');
       const utxos = [
         {
@@ -52,7 +52,7 @@ describe('unit - signer', function() {
           safe: true,
         },
       ];
-      const txhex = signer.createSegwitTransaction(
+      const { tx: txhex } = await signer.createSegwitTransaction(
         utxos,
         'YQgWXHY2QduhjqMkJHywzDfhx1ntumM5Ht',
         0.001,
@@ -80,53 +80,7 @@ describe('unit - signer', function() {
       done();
     });
 
-    it('should create Replace-By-Fee tx, given txhex', () => {
-      const txhex =
-        '0100000000010115b7e9d1f6b8164a0e95544a94f5b0fbfaadc35f8415acd0ec0e58d5ce8c1a1e0100000017160014ac19842ed4543c10fbe074f0b9e19f973f0e1d630000000002905f0100000000001976a9140e75eb2af3599acf900cf0b7e666027b105cf3db88ace00f97000000000017a914a06bd87fce37f45094aba65d6ac1e98631ac0759870247304402203aa7c0623bf490d0d7397fd40a003fcb8379a846dbf160d5f6bd267fd2967075022068faf20cd31852825e71911ce3037569ed3929a5a5688adce63bef525bf912950121039a5f64c819f73ca1655e5514a1ddc4ea6911804718876fd93c33f3208f2f645300000000';
-      const signer = require('../../models/signer');
-      const dummyUtxodata = {
-        '1e1a8cced5580eecd0ac15845fc3adfafbb0f5944a54950e4a16b8f6d1e9b715': {
-          // txid we use output from
-          1: 10000000, // output index and it's value in satoshi
-        },
-      };
-      const newhex = signer.createRBFSegwitTransaction(
-        txhex,
-        {
-          YQgWXHY2QduhjqMkJHywzDfhx1ntumM5Ht: 'RNAFqLmCjZunuhnNpmgF6nTs8KzQddnZDm',
-        },
-        0.0001,
-        'KwWc7DAYgzgRdBcvKD844SC5cHWZ1HY5TxqUACohH59uiH4RNrXT',
-        dummyUtxodata,
-      );
-      const oldTx = bitcoinjs.Transaction.fromHex(txhex);
-      const newTx = bitcoinjs.Transaction.fromHex(newhex);
-      // just checking old tx...
-      assert.equal(
-        bitcoinjs.address.fromOutputScript(oldTx.outs[0].script, config.network),
-        'YQgWXHY2QduhjqMkJHywzDfhx1ntumM5Ht',
-      ); // old DESTINATION address
-      assert.equal(
-        bitcoinjs.address.fromOutputScript(oldTx.outs[1].script, config.network),
-        'RPuRPTc9o6DMLsESyhDSkPoinH4JX1RG26',
-      ); // old CHANGE address
-      assert.equal(oldTx.outs[0].value, 90000); // 0.0009 because we deducted fee 0.0001
-      assert.equal(oldTx.outs[1].value, 9900000); // 0.099 because 0.1 - 0.001
-      // finaly, new tx checks...
-      assert.equal(oldTx.outs[0].value, newTx.outs[0].value); // DESTINATION output amount remains unchanged
-      assert.equal(oldTx.outs[1].value - newTx.outs[1].value, 0.0001 * 100000000); // CHANGE output decreased on the amount of fee delta
-      assert.equal(
-        bitcoinjs.address.fromOutputScript(newTx.outs[0].script, config.network),
-        'RNAFqLmCjZunuhnNpmgF6nTs8KzQddnZDm',
-      ); // new DESTINATION address
-      assert.equal(
-        bitcoinjs.address.fromOutputScript(newTx.outs[1].script, config.network),
-        'RPuRPTc9o6DMLsESyhDSkPoinH4JX1RG26',
-      ); // CHANGE address remains
-      assert.equal(oldTx.ins[0].sequence + 1, newTx.ins[0].sequence);
-    });
-
-    it('should return valid tx hex for segwit transactions with multiple inputs', function(done) {
+    it('should return valid tx hex for segwit transactions with multiple inputs', async function(done) {
       const signer = require('../../models/signer');
       const utxos = [
         {
@@ -154,7 +108,7 @@ describe('unit - signer', function() {
           safe: true,
         },
       ];
-      const tx = signer.createSegwitTransaction(
+      const { tx } = await signer.createSegwitTransaction(
         utxos,
         'YQgWXHY2QduhjqMkJHywzDfhx1ntumM5Ht',
         0.0028,
@@ -168,7 +122,7 @@ describe('unit - signer', function() {
       done();
     });
 
-    it('should return valid tx hex for segwit transactions with change address', function(done) {
+    it('should return valid tx hex for segwit transactions with change address', async function(done) {
       const signer = require('../../models/signer');
       const utxos = [
         {
@@ -184,7 +138,7 @@ describe('unit - signer', function() {
           safe: true,
         },
       ];
-      const tx = signer.createSegwitTransaction(
+      const { tx } = await signer.createSegwitTransaction(
         utxos,
         'YQgWXHY2QduhjqMkJHywzDfhx1ntumM5Ht',
         0.002,
@@ -198,7 +152,7 @@ describe('unit - signer', function() {
       done();
     });
 
-    it('should return valid tx hex for segwit transactions if change is too small so it causes @dust error', function(done) {
+    it('should return valid tx hex for segwit transactions if change is too small so it causes @dust error', async function(done) {
       // checking that change amount is at least 3x of fee, otherwise screw the change, just add it to fee
       const signer = require('../../models/signer');
       const utxos = [
@@ -215,7 +169,7 @@ describe('unit - signer', function() {
           safe: true,
         },
       ];
-      const txhex = signer.createSegwitTransaction(
+      const { tx: txhex } = await signer.createSegwitTransaction(
         utxos,
         'YQgWXHY2QduhjqMkJHywzDfhx1ntumM5Ht',
         0.003998,
@@ -280,7 +234,7 @@ describe('unit - signer', function() {
 
   describe('createTransaction()', () => {
     const signer = require('../../models/signer');
-    it('should return valid TX hex for legacy transactions', () => {
+    it('should return valid TX hex for legacy transactions', async () => {
       const utxos = [
         {
           txid: '2f445cf016fa2772db7d473bff97515355b4e6148e1c980ce351d47cf54c517f',
@@ -300,7 +254,7 @@ describe('unit - signer', function() {
       const fee = 0.0001;
       const WIF = 'KzbTHhzzZyVhkTYpuReMBkE7zUvvDEZtavq1DJV85MtBZyHK1TTF';
       const fromAddr = 'Yfy3915VPWXgnSxgs14em39uB7fXBy4MSE';
-      const txHex = signer.createTransaction(utxos, toAddr, value, fee, WIF, fromAddr);
+      const { tx: txHex } = await signer.createTransaction(utxos, toAddr, value, fee, WIF, fromAddr);
       assert.equal(
         txHex,
         '01000000017f514cf57cd451e30c981c8e14e6b455535197ff3b477ddb7227fa16f05c442f010000006b483045022100dd8944c1549ee02762c031290cd1f97745c74bab72a78112beac905df5297c79022070d098a067a99c16ab817fbeed3be7b757d601af9bdf82438b208d799e71e22f012103f5438d524ad1cc288963466d6ef1a27d83183f7e9b7fe30879ecdae887692a31ffffffff02905f0100000000001976a9148cfc1bb2ab27001434bcf722038027b6fa600def88aca0bb0d00000000001976a914b620047e2947a5c036aff69c677a75b58923168488ac00000000',

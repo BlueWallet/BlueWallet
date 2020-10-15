@@ -22,6 +22,8 @@ import { HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet } from '../../../class';
 import config from '../../../config';
 import { btcToSatoshi, satoshiToBtc } from '../../../utils/bitcoin';
 
+const BigNumber = require('bignumber.js');
+
 const i18n = require('../../../loc');
 
 interface Props {
@@ -87,7 +89,8 @@ export class RecoverySendScreen extends Component<Props, State> {
     return null;
   };
 
-  getActualSatoshi = (tx: string, feeSatoshi: any) => feeSatoshi.dividedBy(Math.round(tx.length / 2)).toNumber();
+  getActualSatoshi = (tx: string, feeSatoshi: any) =>
+    new BigNumber(feeSatoshi).dividedBy(Math.round(tx.length / 2)).toNumber();
 
   increaseFee = ({
     feeSatoshi,
@@ -98,7 +101,7 @@ export class RecoverySendScreen extends Component<Props, State> {
     requestedSatPerByte: number;
     actualSatoshiPerByte: any;
   }) =>
-    feeSatoshi
+    new BigNumber(feeSatoshi)
       .multipliedBy(requestedSatPerByte / actualSatoshiPerByte)
       .plus(10)
       .dividedBy(CONST.satoshiInBtc)
@@ -193,7 +196,7 @@ export class RecoverySendScreen extends Component<Props, State> {
       for (let tries = 0; tries < MAX_TRIES; tries++) {
         amountWithoutFee = amount - fee;
 
-        tx = await wallet.createTx({
+        const { tx: txHex, fee: feeSatoshi } = await wallet.createTx({
           utxos,
           amount: amountWithoutFee,
           fee,
@@ -201,8 +204,8 @@ export class RecoverySendScreen extends Component<Props, State> {
           keyPairs,
           vaultTxType: payments.VaultTxType.Recovery,
         });
-
-        const feeSatoshi = btcToSatoshi(fee);
+        tx = txHex;
+        fee = satoshiToBtc(feeSatoshi);
 
         actualSatoshiPerByte = this.getActualSatoshi(tx, feeSatoshi);
 

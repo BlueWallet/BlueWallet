@@ -186,6 +186,7 @@ const es = {
       showWalletXPUB: 'Mostrar monedero XPUB',
       deleteWallet: 'Eliminar monedero',
       nameEdit: 'Editar nombre',
+      details: 'TRANSLATION NEEDED | ENG: Details',
     },
     export: {
       title: 'exportar monedero',
@@ -364,6 +365,7 @@ const es = {
       amount: 'Cantidad',
       share: 'Compartir',
       receiveWithAmount: 'Recibir con cantidad',
+      shareWalletAddress: 'TRANSLATION NEEDED | ENG: Share wallet address',
     },
   },
   settings: {

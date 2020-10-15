@@ -10,15 +10,23 @@ import * as bitcoinjs from 'bitcoinjs-lib';
 
 import config from '../config';
 import { btcToSatoshi } from '../utils/bitcoin';
-import { getUtxosWithMinimumRest, getUtxosFromMaxToMin, getUtxosFromMinToMax, splitChange } from './utils';
+import {
+  getUtxosWithMinimumRest,
+  getUtxosFromMaxToMin,
+  getUtxosFromMinToMax,
+  splitChange,
+  getUtxosAmount,
+  getFeeValue,
+} from './utils';
 
+const BlueElectrum = require('../BlueElectrum');
 const i18n = require('../loc');
 
 const _p2wpkh = bitcoinjs.payments.p2wpkh;
 const _p2sh = bitcoinjs.payments.p2sh;
 const _p2wsh = bitcoinjs.payments.p2wsh;
 
-exports.createHDTransaction = function(utxos, toAddress, amount, fixedFee, changeAddress) {
+exports.createHDTransaction = async function(utxos, toAddress, amount, fixedFee, changeAddress) {
   const feeInSatoshis = btcToSatoshi(fixedFee, 0);
   const amountToOutputSatoshi = btcToSatoshi(amount - fixedFee, 0); // how much payee should get
   const txb = new bitcoinjs.TransactionBuilder(config.network);
@@ -31,6 +39,8 @@ exports.createHDTransaction = function(utxos, toAddress, amount, fixedFee, chang
   if (unspentUtxos === null) {
     throw new Error(i18n.transactions.errors.notEnoughBalance);
   }
+  const utxosAmount = getUtxosAmount(unspentUtxos);
+
   for (const unspent of unspentUtxos) {
     txb.addInput(unspent.txid, unspent.vout);
     ourOutputs[outputNum] = ourOutputs[outputNum] || {};
@@ -45,13 +55,16 @@ exports.createHDTransaction = function(utxos, toAddress, amount, fixedFee, chang
 
   // adding outputs
 
+  let finalRestValueSatoshi = 0;
+
   txb.addOutput(toAddress, amountToOutputSatoshi);
   if (amountToOutputSatoshi + feeInSatoshis < unspentAmountSatoshi) {
+    const restValue = unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis;
+    const dustValue = await BlueElectrum.getDustValue();
     // sending less than we have, so the rest should go back
-    if (unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis > 3 * feeInSatoshis) {
-      // to prevent @dust error change transferred amount should be at least 3xfee.
-      // if not - we just dont send change and it wil add to fee
-      txb.addOutput(changeAddress, unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis);
+    if (restValue > dustValue) {
+      finalRestValueSatoshi += restValue;
+      txb.addOutput(changeAddress, restValue);
     }
   }
 
@@ -66,10 +79,14 @@ exports.createHDTransaction = function(utxos, toAddress, amount, fixedFee, chang
   }
 
   const tx = txb.build();
-  return tx.toHex();
+
+  return {
+    tx: tx.toHex(),
+    fee: getFeeValue({ utxosAmount, amountSend: amountToOutputSatoshi, restValue: finalRestValueSatoshi }),
+  };
 };
 
-exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee, changeAddress) {
+exports.createHDSegwitTransaction = async function(utxos, toAddress, amount, fixedFee, changeAddress) {
   const feeInSatoshis = btcToSatoshi(fixedFee, 0);
   const amountToOutputSatoshi = btcToSatoshi(amount - fixedFee, 0); // how much payee should get
   const psbt = new bitcoinjs.Psbt({ network: config.network });
@@ -83,6 +100,8 @@ exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee,
   if (unspentUtxos === null) {
     throw new Error(i18n.transactions.errors.notEnoughBalance);
   }
+  const utxosAmount = getUtxosAmount(unspentUtxos);
+
   for (const unspent of unspentUtxos) {
     const keyPair = bitcoinjs.ECPair.fromWIF(unspent.wif, config.network);
 
@@ -120,14 +139,17 @@ exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee,
     address: toAddress,
     value: amountToOutputSatoshi,
   });
+  let finalRestValueSatoshi = 0;
+
   if (amountToOutputSatoshi + feeInSatoshis < unspentAmountSatoshi) {
+    const restValue = unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis;
+    const dustValue = await BlueElectrum.getDustValue();
     // sending less than we have, so the rest should go back
-    if (unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis > 3 * feeInSatoshis) {
-      // to prevent @dust error change transferred amount should be at least 3xfee.
-      // if not - we just dont send change and it wil add to fee
+    if (restValue > dustValue) {
+      finalRestValueSatoshi += restValue;
       psbt.addOutput({
         address: changeAddress,
-        value: unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis,
+        value: restValue,
       });
     }
   }
@@ -139,7 +161,10 @@ exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee,
   }
 
   const tx = psbt.finalizeAllInputs().extractTransaction();
-  return tx.toHex();
+  return {
+    tx: tx.toHex(),
+    fee: getFeeValue({ utxosAmount, amountSend: amountToOutputSatoshi, restValue: finalRestValueSatoshi }),
+  };
 };
 
 exports.createHDSegwitVaultTransaction = async function({
@@ -174,6 +199,7 @@ exports.createHDSegwitVaultTransaction = async function({
   if (unspentUtxos === null) {
     throw new Error(i18n.transactions.errors.notEnoughBalance);
   }
+  const utxosAmount = getUtxosAmount(unspentUtxos);
 
   for (const unspent of unspentUtxos) {
     const keyPair = bitcoinjs.ECPair.fromWIF(unspent.wif, config.network);
@@ -219,12 +245,14 @@ exports.createHDSegwitVaultTransaction = async function({
     value: amountToOutputSatoshi,
   });
 
+  let finalRestValueSatoshi = 0;
   if (amountToOutputSatoshi + feeInSatoshis < unspentAmountSatoshi) {
     const restValue = unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis;
 
     const changes = await splitChange(restValue);
 
     changes.forEach((change, index) => {
+      finalRestValueSatoshi += change;
       psbt.addOutput({
         address: changeAddresses[index],
         value: change,
@@ -237,10 +265,14 @@ exports.createHDSegwitVaultTransaction = async function({
   });
 
   const tx = psbt.finalizeAllInputs(vaultTxType).extractTransaction();
-  return tx.toHex();
+
+  return {
+    tx: tx.toHex(),
+    fee: getFeeValue({ utxosAmount, amountSend: amountToOutputSatoshi, restValue: finalRestValueSatoshi }),
+  };
 };
 
-exports.createSegwitTransaction = function(utxos, toAddress, amount, fixedFee, WIF, changeAddress, sequence) {
+exports.createSegwitTransaction = async function(utxos, toAddress, amount, fixedFee, WIF, changeAddress, sequence) {
   changeAddress = changeAddress || exports.WIF2segwitAddress(WIF);
 
   if (sequence === undefined) {
@@ -267,6 +299,8 @@ exports.createSegwitTransaction = function(utxos, toAddress, amount, fixedFee, W
     throw new Error(i18n.transactions.errors.notEnoughBalance);
   }
 
+  const utxosAmount = getUtxosAmount(unspentUtxos);
+
   let unspentAmount = 0;
   for (const unspent of unspentUtxos) {
     psbt.addInput({
@@ -287,14 +321,16 @@ exports.createSegwitTransaction = function(utxos, toAddress, amount, fixedFee, W
     address: toAddress,
     value: amountToOutput,
   });
+  let finalRestValueSatoshi = 0;
 
   if (amountToOutput + feeInSatoshis < unspentAmount) {
     // sending less than we have, so the rest should go back
 
     const restValue = unspentAmount - amountToOutput - feeInSatoshis;
-    if (restValue > 3 * feeInSatoshis) {
-      // to prevent @dust error change transferred amount should be at least 3xfee.
-      // if not - we just dont send change and it wil add to fee
+    const dustValue = await BlueElectrum.getDustValue();
+
+    if (restValue > dustValue) {
+      finalRestValueSatoshi += restValue;
       psbt.addOutput({
         address: changeAddress,
         value: restValue,
@@ -306,80 +342,10 @@ exports.createSegwitTransaction = function(utxos, toAddress, amount, fixedFee, W
     psbt.signInput(c, keyPair);
   }
   const tx = psbt.finalizeAllInputs().extractTransaction();
-  return tx.toHex();
-};
-
-exports.createRBFSegwitTransaction = function(txhex, addressReplaceMap, feeDelta, WIF, utxodata) {
-  if (feeDelta < 0) {
-    throw Error('replace-by-fee requires increased fee, not decreased');
-  }
-
-  const tx = bitcoinjs.Transaction.fromHex(txhex);
-
-  // looking for latest sequence number in inputs
-  let highestSequence = 0;
-  for (const i of tx.ins) {
-    if (i.sequence > highestSequence) {
-      highestSequence = i.sequence;
-    }
-  }
-  const keyPair = bitcoinjs.ECPair.fromWIF(WIF, config.network);
-  const p2wpkh = _p2wpkh({
-    pubkey: keyPair.publicKey,
-    network: config.network,
-  });
-  const p2sh = _p2sh({
-    redeem: p2wpkh,
-    network: config.network,
-  });
-
-  // creating TX
-  const psbt = new bitcoinjs.Psbt({ network: config.network });
-  psbt.setVersion(1);
-  for (const unspent of tx.ins) {
-    const txid = Buffer.from(unspent.hash)
-      .reverse()
-      .toString('hex');
-    const index = unspent.index;
-    const amount = utxodata[txid][index];
-    psbt.addInput({
-      hash: txid,
-      index,
-      sequence: highestSequence + 1,
-      witnessUtxo: {
-        script: p2sh.output,
-        value: amount,
-      },
-      redeemScript: p2wpkh.output,
-    });
-  }
-
-  for (const o of tx.outs) {
-    const outAddress = bitcoinjs.address.fromOutputScript(o.script, config.network);
-    if (addressReplaceMap[outAddress]) {
-      // means this is DESTINATION address, not messing with it's amount
-      // but replacing the address itseld
-      psbt.addOutput({
-        address: addressReplaceMap[outAddress],
-        value: o.value,
-      });
-    } else {
-      // CHANGE address, so we deduct increased fee from here
-      const feeDeltaInSatoshi = btcToSatoshi(feeDelta, 0);
-      psbt.addOutput({
-        address: outAddress,
-        value: o.value - feeDeltaInSatoshi,
-      });
-    }
-  }
-
-  // signing
-  for (let c = 0; c < tx.ins.length; c++) {
-    psbt.signInput(c, keyPair);
-  }
-
-  const newTx = psbt.finalizeAllInputs().extractTransaction();
-  return newTx.toHex();
+  return {
+    tx: tx.toHex(),
+    fee: getFeeValue({ utxosAmount, amountSend: amountToOutput, restValue: finalRestValueSatoshi }),
+  };
 };
 
 exports.generateNewSegwitAddress = function() {
@@ -424,7 +390,7 @@ exports.WIF2segwitAddress = function(WIF) {
   }).address;
 };
 
-exports.createTransaction = function(utxos, toAddress, _amount, _fixedFee, WIF, fromAddress) {
+exports.createTransaction = async function(utxos, toAddress, _amount, _fixedFee, WIF, fromAddress) {
   const fixedFee = btcToSatoshi(_fixedFee, 0);
   const amountToOutput = btcToSatoshi(_amount - _fixedFee, 0);
   const pk = bitcoinjs.ECPair.fromWIF(WIF, config.network); // eslint-disable-line new-cap
@@ -436,6 +402,7 @@ exports.createTransaction = function(utxos, toAddress, _amount, _fixedFee, WIF, 
   if (unspentUtxos === null) {
     throw new Error(i18n.transactions.errors.notEnoughBalance);
   }
+  const utxosAmount = getUtxosAmount(unspentUtxos);
 
   for (const unspent of unspentUtxos) {
     txb.addInput(unspent.txid, unspent.vout);
@@ -443,9 +410,16 @@ exports.createTransaction = function(utxos, toAddress, _amount, _fixedFee, WIF, 
   }
   txb.addOutput(toAddress, amountToOutput);
 
+  let finalRestValueSatoshi = 0;
+
   if (amountToOutput + fixedFee < unspentAmount) {
+    const restValue = unspentAmount - amountToOutput - fixedFee;
+    const dustValue = await BlueElectrum.getDustValue();
     // sending less than we have, so the rest should go back
-    txb.addOutput(fromAddress, unspentAmount - amountToOutput - fixedFee);
+    if (restValue > dustValue) {
+      finalRestValueSatoshi += restValue;
+      txb.addOutput(fromAddress, restValue);
+    }
   }
 
   for (let c = 0; c < utxos.length; c++) {
@@ -456,7 +430,10 @@ exports.createTransaction = function(utxos, toAddress, _amount, _fixedFee, WIF, 
     });
   }
 
-  return txb.build().toHex();
+  return {
+    tx: txb.build().toHex(),
+    fee: getFeeValue({ utxosAmount, amountSend: amountToOutput, restValue: finalRestValueSatoshi }),
+  };
 };
 
 exports.signAndFinalizePSBT = function(encodedPSBT, keyPairs, vaultTxType = bitcoinjs.VaultTxType.NonVault) {

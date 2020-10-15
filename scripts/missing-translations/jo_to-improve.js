@@ -228,6 +228,7 @@ const jo = {
       amount: '金額',
       receiveWithAmount: '金額で受け取る',
       share: '共有',
+      shareWalletAddress: 'TRANSLATION NEEDED | ENG: Share wallet address',
     },
     header: 'コインの受け取り',
   },
@@ -478,6 +479,7 @@ const jo = {
       nameLabel: '名前',
       showWalletXPUB: 'ウォレットXPUBを表示する',
       typeLabel: 'タイプ',
+      details: 'TRANSLATION NEEDED | ENG: Details',
     },
     errors: {
       duplicatedPublicKey: 'この公開キーはすでに追加されています。',

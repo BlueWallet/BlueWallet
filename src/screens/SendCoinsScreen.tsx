@@ -205,7 +205,8 @@ class SendCoinsScreen extends Component<Props, State> {
     return null;
   };
 
-  getActualSatoshi = (tx: string, feeSatoshi: any) => feeSatoshi.dividedBy(Math.round(tx.length / 2)).toNumber();
+  getActualSatoshi = (tx: string, feeSatoshi: any) =>
+    new BigNumber(feeSatoshi).dividedBy(Math.round(tx.length / 2)).toNumber();
 
   increaseFee = ({
     feeSatoshi,
@@ -216,7 +217,7 @@ class SendCoinsScreen extends Component<Props, State> {
     requestedSatPerByte: number;
     actualSatoshiPerByte: any;
   }) =>
-    feeSatoshi
+    new BigNumber(feeSatoshi)
       .multipliedBy(requestedSatPerByte / actualSatoshiPerByte)
       .plus(10)
       .dividedBy(CONST.satoshiInBtc)
@@ -292,9 +293,15 @@ class SendCoinsScreen extends Component<Props, State> {
     const MAX_TRIES = 5;
 
     for (let tries = 0; tries < MAX_TRIES; tries++) {
-      tx = await createTx(utxosUnspent, this.toNumber(transaction.amount), fee, transaction.address);
+      const { tx: txHex, fee: feeSatoshi } = await createTx(
+        utxosUnspent,
+        this.toNumber(transaction.amount),
+        fee,
+        transaction.address,
+      );
+      tx = txHex;
 
-      const feeSatoshi = btcToSatoshi(fee);
+      fee = satoshiToBtc(feeSatoshi);
 
       actualSatoshiPerByte = this.getActualSatoshi(tx, feeSatoshi);
 

@@ -4,6 +4,7 @@ import { compose, map, mapValues, values, flatten, uniq } from 'lodash/fp';
 
 import config from './config';
 import logger from './logger';
+import { btcToSatoshi } from './utils/bitcoin';
 
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
@@ -346,7 +347,7 @@ module.exports.estimateFee = async function(numberOfBlocks) {
 module.exports.getDustValue = async () => {
   const relayFee = await mainClient.blockchain_relayfee();
   // magic numbers from electrum vault
-  return (183 * 3 * relayFee) / 1000;
+  return btcToSatoshi((183 * 3 * relayFee) / 1000, 0);
 };
 
 module.exports.broadcast = async function(hex) {

@@ -186,6 +186,7 @@ const ko = {
       showWalletXPUB: '지갑 XPUB 표시하기',
       deleteWallet: '지갑 삭제하기',
       nameEdit: '이름 수정하기',
+      details: 'TRANSLATION NEEDED | ENG: Details',
     },
     export: {
       title: '지갑 내보내기',
@@ -340,7 +341,7 @@ const ko = {
       confirmSecondSeedDesc: '지갑을 만들 때 생성한 두 번째 PDF 문서를 연 후 동일한 순서로 개인 키 시드 문구를 적어 둡니다.',
     },
     transaction: {
-      instant: '빠른',
+      instant: '보안 고속 거래',
       instantDesc: '이 거래는 즉시 확인됩니다. 사용할 때 매우 주의해야 합니다.',
       fastSuccess: '빠른 거래를 완료하셨습니다.',
       alert: '표준',
@@ -364,6 +365,7 @@ const ko = {
       amount: '금액',
       share: '공유',
       receiveWithAmount: '금액으로 받기',
+      shareWalletAddress: 'TRANSLATION NEEDED | ENG: Share wallet address',
     },
   },
   settings: {
