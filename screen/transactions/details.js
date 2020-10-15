@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
 import {
   SafeBlueArea,
   BlueCard,
@@ -152,6 +152,7 @@ export default class TransactionsDetails extends Component {
   }
 
   handleOnSaveButtonTapped = () => {
+    Keyboard.dismiss();
     this.context.txMetadata[this.state.tx.hash] = { memo: this.state.memo };
     this.context.saveToDisk().then(_success => alert('Transaction note has been successfully saved.'));
   };
