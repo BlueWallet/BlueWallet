@@ -83,7 +83,7 @@ export default class UnlockWith extends Component {
   };
 
   unlockWithBiometrics = async () => {
-    if (await this.context.storageIsEncrypted()) {
+    if (await this.context.isStorageEncrypted()) {
       this.unlockWithKey();
     }
     this.setState({ isAuthenticating: true }, async () => {
