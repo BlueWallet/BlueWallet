@@ -30,6 +30,7 @@ import BlueClipboard from './blue_modules/clipboard';
 import { BlueStorageContext } from './blue_modules/BlueStorage';
 import WatchConnectivity from './WatchConnectivity';
 import DeviceQuickActions from './class/quick-actions';
+import BlueNotifications from './blue_modules/notifications';
 const A = require('./blue_modules/analytics');
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
@@ -39,7 +40,6 @@ if (process.env.NODE_ENV !== 'development') {
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
 const EV = require('./blue_modules/events');
-const notifications = require('./blue_modules/notifications'); // eslint-disable-line no-unused-vars
 
 const App = () => {
   const { walletsInitialized, wallets } = useContext(BlueStorageContext);
@@ -144,10 +144,10 @@ const App = () => {
    * @private
    */
   const processPushNotifications = async () => {
-    notifications.setApplicationIconBadgeNumber(0);
+    BlueNotifications.setApplicationIconBadgeNumber(0);
     await new Promise(resolve => setTimeout(resolve, 200));
     // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
-    const notifications2process = await notifications.getStoredNotifications();
+    const notifications2process = await BlueNotifications.getStoredNotifications();
     for (const payload of notifications2process) {
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
       if (!wasTapped) continue;
@@ -175,9 +175,8 @@ const App = () => {
             },
           }),
         );
-        setTimeout(() => EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, 1 /* ms */), 500);
         // no delay (1ms) as we dont need to wait for transaction propagation. 500ms is a delay to wait for the navigation
-        await notifications.clearStoredNotifications();
+        await BlueNotifications.clearStoredNotifications();
         return true;
       } else {
         console.log('could not find wallet while processing push notification tap, NOP');
@@ -187,7 +186,7 @@ const App = () => {
     // TODO: if we are here - we did not act upon any push, so we need to iterate over _not tapped_ pushes
     // and refetch appropriate wallet and redraw screen
 
-    await notifications.clearStoredNotifications();
+    await BlueNotifications.clearStoredNotifications();
     return false;
   };
 
@@ -278,6 +277,7 @@ const App = () => {
         <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
           <InitRoot />
           <DeeplinkSchemaMatch />
+          <BlueNotifications />
         </NavigationContainer>
         {renderClipboardContentModal()}
       </View>

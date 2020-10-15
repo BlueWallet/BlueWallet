@@ -20,9 +20,8 @@ import { BlueCurrentTheme } from '../../components/themes';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/BlueStorage';
-const EV = require('../../blue_modules/events');
+import BlueNotifications from '../../blue_modules/notifications';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
-const notifications = require('../../blue_modules/notifications');
 
 const styles = StyleSheet.create({
   root: {
@@ -102,7 +101,6 @@ export default class CPFP extends Component {
         await BlueElectrum.waitTillConnected();
         const result = await this.state.wallet.broadcastTx(this.state.txhex);
         if (result) {
-          EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           this.setState({ stage: 3, isLoading: false });
           this.onSuccessBroadcast();
         } else {
@@ -120,7 +118,7 @@ export default class CPFP extends Component {
 
   onSuccessBroadcast() {
     this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
-    notifications.majorTomToGroundControl([], [], [this.state.newTxid]);
+    BlueNotifications.majorTomToGroundControl([], [], [this.state.newTxid]);
   }
 
   async componentDidMount() {

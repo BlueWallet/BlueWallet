@@ -37,10 +37,10 @@ import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import ScanQRCode from './ScanQRCode';
 import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import BlueNotifications from '../../blue_modules/notifications';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */
 const bitcoin = require('bitcoinjs-lib');
-const notifications = require('../../blue_modules/notifications');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const { height, width } = Dimensions.get('window');
 const isDesktop = getSystemName() === 'Mac OS X';
@@ -208,7 +208,7 @@ export default class PsbtWithHardwareWallet extends Component {
           this.setState({ success: true, isLoading: false });
           const txDecoded = bitcoin.Transaction.fromHex(this.state.txhex);
           const txid = txDecoded.getId();
-          notifications.majorTomToGroundControl([], [], [txid]);
+          BlueNotifications.majorTomToGroundControl([], [], [txid]);
           if (this.state.memo) {
             this.context.txMetadata[txid] = { memo: this.state.memo };
           }

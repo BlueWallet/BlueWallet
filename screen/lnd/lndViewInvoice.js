@@ -18,7 +18,6 @@ import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-const EV = require('../../blue_modules/events');
 const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -158,7 +157,6 @@ export default class LNDViewInvoice extends Component {
               ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
               clearInterval(this.fetchInvoiceInterval);
               this.fetchInvoiceInterval = undefined;
-              EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // remote because we want to refetch from server tx list and balance
             } else {
               const currentDate = new Date();
               const now = (currentDate.getTime() / 1000) | 0;
@@ -169,7 +167,6 @@ export default class LNDViewInvoice extends Component {
                 ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
                 clearInterval(this.fetchInvoiceInterval);
                 this.fetchInvoiceInterval = undefined;
-                EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
               }
             }
           }

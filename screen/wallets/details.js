@@ -31,8 +31,8 @@ import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import { getSystemName } from 'react-native-device-info';
 import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import BlueNotifications from '../../blue_modules/notifications';
 const prompt = require('../../blue_modules/prompt');
-const notifications = require('../../blue_modules/notifications');
 const isDesktop = getSystemName() === 'Mac OS X';
 
 const styles = StyleSheet.create({
@@ -168,7 +168,7 @@ const WalletDetails = () => {
       );
       if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
         setIsLoading(true);
-        notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
+        BlueNotifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
         deleteWallet(wallet);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
         await saveToDisk();
@@ -310,7 +310,7 @@ const WalletDetails = () => {
               presentWalletHasBalanceAlert();
             } else {
               setIsLoading(true);
-              notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
+              BlueNotifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
               deleteWallet(wallet);
               ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
               await saveToDisk();
