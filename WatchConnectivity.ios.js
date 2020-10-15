@@ -1,26 +1,38 @@
-import { updateApplicationContext, watchEvents, getIsWatchAppInstalled } from 'react-native-watch-connectivity';
-import { InteractionManager } from 'react-native';
+import React, { useContext, useEffect } from 'react';
+import { updateApplicationContext, watchEvents, useReachability, useInstalled } from 'react-native-watch-connectivity';
+import { InteractionManager, View } from 'react-native';
 import { Chain } from './models/bitcoinUnits';
 import loc, { formatBalance, transactionTimeToReadable } from './loc';
+import { BlueStorageContext } from './blue_modules/BlueStorage';
 const notifications = require('./blue_modules/notifications');
 
 function WatchConnectivity() {
+  const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useContext(BlueStorageContext);
+  const isReachable = useReachability();
+  const isInstalled = useInstalled(); // true | false
+
+  useEffect(() => {
+    if (isInstalled && isReachable && walletsInitialized) {
+      sendWalletsToWatch();
+      watchEvents.on('message', handleMessages);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletsInitialized, wallets, isReachable, isInstalled]);
+
   const handleMessages = (message, reply) => {
-    const BlueApp = require('./BlueApp');
     if (message.request === 'createInvoice') {
       handleLightningInvoiceCreateRequest(message.walletIndex, message.amount, message.description)
         .then(createInvoiceRequest => reply({ invoicePaymentRequest: createInvoiceRequest }))
         .catch(e => console.log(e));
     } else if (message.message === 'sendApplicationContext') {
-      WatchConnectivity.sendWalletsToWatch();
+      sendWalletsToWatch();
     } else if (message.message === 'fetchTransactions') {
-      BlueApp.fetchWalletTransactions().then(() => BlueApp.saveToDisk());
+      fetchWalletTransactions().then(() => saveToDisk());
     }
   };
 
   const handleLightningInvoiceCreateRequest = async (walletIndex, amount, description = loc.lnd.placeholder) => {
-    const BlueApp = require('./BlueApp');
-    const wallet = BlueApp.getWallets()[walletIndex];
+    const wallet = wallets[walletIndex];
     if (wallet.allowReceive() && amount > 0) {
       try {
         const invoiceRequest = await wallet.addInvoice(amount, description);
@@ -43,32 +55,20 @@ function WatchConnectivity() {
     }
   };
 
-  getIsWatchAppInstalled().then(installed => {
-    if (installed) {
-      watchEvents.on('message', handleMessages);
-    }
-  });
-}
-
-WatchConnectivity.sendWalletsToWatch = () => {
-  getIsWatchAppInstalled().then(installed => {
-    if (!installed) return;
-    const BlueApp = require('./BlueApp');
-    const allWallets = BlueApp.getWallets();
-    if (!Array.isArray(allWallets)) {
+  const sendWalletsToWatch = () => {
+    if (!Array.isArray(wallets)) {
       console.log('No Wallets set to sync with Watch app. Exiting...');
       return;
-    } else if (allWallets.length === 0) {
+    } else if (wallets.length === 0) {
       console.log('Wallets array is set. No Wallets set to sync with Watch app. Exiting...');
       updateApplicationContext({ wallets: [], randomID: Math.floor(Math.random() * 11) });
       return;
     }
 
     return InteractionManager.runAfterInteractions(async () => {
-      const BlueApp = require('./BlueApp');
-      const wallets = [];
+      const walletsToProcess = [];
 
-      for (const wallet of allWallets) {
+      for (const wallet of wallets) {
         let receiveAddress;
         if (wallet.getAddressAsync) {
           if (wallet.chain === Chain.ONCHAIN) {
@@ -138,15 +138,15 @@ WatchConnectivity.sendWalletsToWatch = () => {
           } else {
             amount = formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
           }
-          if (BlueApp.tx_metadata[transaction.hash] && BlueApp.tx_metadata[transaction.hash].memo) {
-            memo = BlueApp.tx_metadata[transaction.hash].memo;
+          if (txMetadata[transaction.hash] && txMetadata[transaction.hash].memo) {
+            memo = txMetadata[transaction.hash].memo;
           } else if (transaction.memo) {
             memo = transaction.memo;
           }
           const watchTX = { type, amount, memo, time: transactionTimeToReadable(transaction.received) };
           watchTransactions.push(watchTX);
         }
-        wallets.push({
+        walletsToProcess.push({
           label: wallet.getLabel(),
           balance: formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true),
           type: wallet.type,
@@ -156,11 +156,11 @@ WatchConnectivity.sendWalletsToWatch = () => {
           xpub: wallet.getXpub() ? wallet.getXpub() : wallet.getSecret(),
         });
       }
-      updateApplicationContext({ wallets, randomID: Math.floor(Math.random() * 11) });
-      return { wallets };
+      updateApplicationContext({ wallets: walletsToProcess, randomID: Math.floor(Math.random() * 11) });
     });
-  });
-};
+  };
 
-WatchConnectivity.default = new WatchConnectivity();
+  return <View />;
+}
+
 export default WatchConnectivity;

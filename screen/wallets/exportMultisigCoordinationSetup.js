@@ -13,7 +13,7 @@ const fs = require('../../blue_modules/fs');
 
 const ExportMultisigCoordinationSetup = () => {
   const walletId = useRoute().params.walletId;
-  const { wallets } = useContext(BlueStorageContext)
+  const { wallets } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletId);
   const qrCodeContents = encodeUR(Buffer.from(wallet.getXpub(), 'ascii').toString('hex'), 77777)[0];
   const [isLoading, setIsLoading] = useState(true);

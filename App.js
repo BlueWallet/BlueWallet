@@ -28,6 +28,7 @@ import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/
 import InitRoot from './Navigation';
 import BlueClipboard from './blue_modules/clipboard';
 import { BlueStorageContext } from './blue_modules/BlueStorage';
+import WatchConnectivity from './WatchConnectivity';
 const A = require('./blue_modules/analytics');
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
@@ -278,6 +279,7 @@ const App = () => {
         </NavigationContainer>
         {renderClipboardContentModal()}
       </View>
+      <WatchConnectivity />
     </SafeAreaProvider>
   );
 };

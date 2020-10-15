@@ -19,7 +19,6 @@ import {
 import DeviceQuickActions from './quick-actions';
 import { AbstractHDElectrumWallet } from './wallets/abstract-hd-electrum-wallet';
 import { Platform } from 'react-native';
-import WatchConnectivity from '../WatchConnectivity';
 const encryption = require('../blue_modules/encryption');
 const Realm = require('realm');
 const createHash = require('create-hash');
@@ -339,8 +338,6 @@ export class AppStorage {
           }
         }
         realm.close();
-        WatchConnectivity.sendWalletsToWatch();
-
         const isStorageEncrypted = await this.storageIsEncrypted();
         if (isStorageEncrypted) {
           DeviceQuickActions.clearShortcutItems();
@@ -493,7 +490,6 @@ export class AppStorage {
     } else {
       await this.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
-    WatchConnectivity.sendWalletsToWatch();
     DeviceQuickActions.setWallets(this.wallets);
     DeviceQuickActions.setQuickActions();
     try {
