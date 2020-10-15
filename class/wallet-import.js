@@ -1,6 +1,5 @@
 /* global alert */
 import {
-  AppStorage,
   SegwitP2SHWallet,
   LegacyWallet,
   WatchOnlyWallet,
@@ -17,14 +16,17 @@ import {
 } from '.';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import loc from '../loc';
+import { useContext } from 'react';
+import { BlueStorageContext } from '../blue_modules/BlueStorage';
+import BlueNotifications from '../blue_modules/notifications';
 const A = require('../blue_modules/analytics');
-const BlueApp: AppStorage = require('../BlueApp');
 const bip38 = require('../blue_modules/bip38');
 const wif = require('wif');
 const prompt = require('../blue_modules/prompt');
-const notifications = require('../blue_modules/notifications');
 
-export default class WalletImport {
+function WalletImport() {
+  const { wallets, saveToDisk, addWallet, deleteWallet } = useContext(BlueStorageContext);
+
   /**
    *
    * @param w {AbstractWallet}
@@ -32,15 +34,11 @@ export default class WalletImport {
    * @returns {Promise<void>}
    * @private
    */
-  static async _saveWallet(w, additionalProperties) {
-    const wallet = BlueApp.getWallets().some(
-      wallet => (wallet.getSecret() === w.secret || wallet.getID() === w.getID()) && wallet.type !== PlaceholderWallet.type,
-    );
-    if (wallet) {
-      alert('This wallet has been previously imported.');
+  WalletImport._saveWallet = async (w, additionalProperties) => {
+    if (WalletImport.isWalletImported(w.getSecret())) {
+      WalletImport.presentWalletAlreadyExistsAlert();
       return;
     }
-
     const emptyWalletLabel = new LegacyWallet().getLabel();
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
@@ -50,31 +48,44 @@ export default class WalletImport {
         w[key] = value;
       }
     }
-    BlueApp.wallets.push(w);
-    await BlueApp.saveToDisk();
+    addWallet(w);
+    await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
     alert(loc.wallets.import_success);
-    notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
-  }
+    BlueNotifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
+  };
 
-  static removePlaceholderWallet() {
-    const placeholderWalletIndex = BlueApp.wallets.findIndex(wallet => wallet.type === PlaceholderWallet.type);
-    if (placeholderWalletIndex > -1) {
-      BlueApp.wallets.splice(placeholderWalletIndex, 1);
+  WalletImport.removePlaceholderWallet = () => {
+    const placeholderWallet = wallets.find(wallet => wallet.type === PlaceholderWallet.type);
+    console.warn(placeholderWallet);
+    if (placeholderWallet) {
+      deleteWallet(placeholderWallet);
     }
-  }
+  };
 
-  static addPlaceholderWallet(importText, isFailure = false) {
+  WalletImport.isWalletImported = secret => {
+    const wallet = wallets.some(wallet => wallet.getSecret() === secret && wallet.type !== PlaceholderWallet.type);
+    if (wallet) {
+      return true;
+    }
+    return false;
+  };
+
+  WalletImport.presentWalletAlreadyExistsAlert = () => {
+    alert('This wallet has been previously imported.');
+  };
+
+  WalletImport.addPlaceholderWallet = (importText, isFailure = false) => {
     const wallet = new PlaceholderWallet();
     wallet.setSecret(importText);
     wallet.setIsFailure(isFailure);
-    BlueApp.wallets.push(wallet);
+    addWallet(wallet);
     return wallet;
-  }
+  };
 
-  static isCurrentlyImportingWallet() {
-    return BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type);
-  }
+  WalletImport.isCurrentlyImportingWallet = () => {
+    return wallets.some(wallet => wallet.type === PlaceholderWallet.type);
+  };
 
   /**
    *
@@ -82,7 +93,7 @@ export default class WalletImport {
    * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
    * @returns {Promise<void>}
    */
-  static async processImportText(importText, additionalProperties) {
+  WalletImport.processImportText = async (importText, additionalProperties) => {
     // Plan:
     // -2. check if BIP38 encrypted
     // -1a. check if multisig
@@ -293,5 +304,9 @@ export default class WalletImport {
     // TODO: try a raw private key
 
     throw new Error('Could not recognize format');
-  }
+  };
+
+  return null;
 }
+
+export default WalletImport;

@@ -31,6 +31,7 @@ import { BlueStorageContext } from './blue_modules/BlueStorage';
 import WatchConnectivity from './WatchConnectivity';
 import DeviceQuickActions from './class/quick-actions';
 import BlueNotifications from './blue_modules/notifications';
+import WalletImport from './class/wallet-import';
 const A = require('./blue_modules/analytics');
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
@@ -39,7 +40,6 @@ if (process.env.NODE_ENV !== 'development') {
 }
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
-const EV = require('./blue_modules/events');
 
 const App = () => {
   const { walletsInitialized, wallets } = useContext(BlueStorageContext);
@@ -282,6 +282,7 @@ const App = () => {
       </View>
       <WatchConnectivity />
       <DeviceQuickActions />
+      <WalletImport />
     </SafeAreaProvider>
   );
 };

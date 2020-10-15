@@ -46,11 +46,16 @@ export const BlueStorageProvider = ({ children }) => {
 
   const addWallet = wallet => {
     BlueApp.wallets.push(wallet);
+    setWallets([...BlueApp.getWallets()]);
+  };
+
+  const deleteWallet = wallet => {
+    BlueApp.deleteWallet(wallet);
+    setWallets([...BlueApp.getWallets()]);
   };
 
   let txMetadata = BlueApp.tx_metadata || {};
   const getTransactions = BlueApp.getTransactions;
-  const deleteWallet = BlueApp.deleteWallet;
   const isAdancedModeEnabled = BlueApp.isAdancedModeEnabled;
 
   const fetchWalletBalances = BlueApp.fetchWalletBalances;

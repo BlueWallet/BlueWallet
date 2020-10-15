@@ -356,7 +356,9 @@ export class AppStorage {
     const tempWallets = [];
 
     for (const value of this.wallets) {
-      if (value.getSecret() === secret) {
+      if (value.type === PlaceholderWallet.type) {
+        continue;
+      } else if (value.getSecret() === secret) {
         // the one we should delete
         // nop
       } else {
