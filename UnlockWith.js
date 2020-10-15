@@ -56,10 +56,10 @@ export default class UnlockWith extends Component {
     if (await Biometric.isBiometricUseCapableAndEnabled()) {
       biometricType = await Biometric.biometricType();
     }
-    const isStorageEncrypted = await this.context.storageIsEncrypted();
-    this.setState({ biometricType, isStorageEncrypted }, async () => {
+    const storageIsEncrypted = await this.context.isStorageEncrypted();
+    this.setState({ biometricType, isStorageEncrypted: storageIsEncrypted }, async () => {
       if (this.props.route.params.unlockOnComponentMount) {
-        if (!biometricType || isStorageEncrypted) {
+        if (!biometricType || storageIsEncrypted) {
           this.unlockWithKey();
         } else if (typeof biometricType === 'string') this.unlockWithBiometrics();
       }

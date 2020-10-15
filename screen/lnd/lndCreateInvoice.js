@@ -30,9 +30,8 @@ import { Icon } from 'react-native-elements';
 import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import Lnurl from '../../class/lnurl';
+import { BlueStorageContext } from '../../blue_modules/BlueStorage';
 const currency = require('../../blue_modules/currency');
-const BlueApp = require('../../BlueApp');
-const EV = require('../../blue_modules/events');
 const notifications = require('../../blue_modules/notifications');
 
 const styles = StyleSheet.create({
@@ -134,6 +133,7 @@ const styles = StyleSheet.create({
 });
 
 export default class LNDCreateInvoice extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
@@ -144,7 +144,7 @@ export default class LNDCreateInvoice extends Component {
 
     // fallback to first wallet if it exists
     if (!fromWallet) {
-      const lightningWallets = BlueApp.getWallets().filter(item => item.type === LightningCustodianWallet.type);
+      const lightningWallets = this.context.getWallets().filter(item => item.type === LightningCustodianWallet.type);
       if (lightningWallets.length > 0) {
         fromWallet = lightningWallets[0];
         console.warn('warning: using ln wallet index 0');
@@ -165,7 +165,7 @@ export default class LNDCreateInvoice extends Component {
 
   renderReceiveDetails = async () => {
     this.state.fromWallet.setUserHasSavedExport(true);
-    await BlueApp.saveToDisk();
+    await this.context.saveToDisk();
     if (this.props.route.params.uri) {
       this.processLnurl(this.props.route.params.uri);
     }
@@ -220,7 +220,6 @@ export default class LNDCreateInvoice extends Component {
         }
 
         const invoiceRequest = await this.state.fromWallet.addInvoice(amount, this.state.description);
-        EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
 
         // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
@@ -248,7 +247,7 @@ export default class LNDCreateInvoice extends Component {
         setTimeout(async () => {
           // wallet object doesnt have this fresh invoice in its internals, so we refetch it and only then save
           await fromWallet.fetchUserInvoices(1);
-          await BlueApp.saveToDisk();
+          await this.context.saveToDisk();
         }, 1000);
 
         this.props.navigation.navigate('LNDViewInvoice', {

@@ -31,7 +31,7 @@ const WalletXpub = () => {
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const stylesHook = StyleSheet.create({ root: { backgroundColor: colors.elevated } });
-  const { wallets } = useContext(BlueStorageContext)
+  const { wallets } = useContext(BlueStorageContext);
 
   useFocusEffect(
     useCallback(() => {

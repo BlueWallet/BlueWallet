@@ -88,11 +88,7 @@ const ExportMultisigCoordinationSetup = () => {
           />
         </View>
         <BlueSpacing20 />
-          <SquareButton 
-            style={[styles.exportButton, stylesHook.exportButton]}
-            onPress={exportTxtFile} 
-            title={loc.multisig.share} 
-          />
+        <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportTxtFile} title={loc.multisig.share} />
         <BlueSpacing20 />
         <BlueText style={stylesHook.secret}>{wallet.getXpub()}</BlueText>
       </ScrollView>
@@ -124,7 +120,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
   },
-   exportButton: {
+  exportButton: {
     height: 48,
     borderRadius: 8,
     flex: 1,

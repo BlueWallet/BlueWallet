@@ -19,10 +19,9 @@ import {
 import { BlueCurrentTheme } from '../../components/themes';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
+import { BlueStorageContext } from '../../blue_modules/BlueStorage';
 const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
 const notifications = require('../../blue_modules/notifications');
 
 const styles = StyleSheet.create({
@@ -80,6 +79,7 @@ const styles = StyleSheet.create({
 });
 
 export default class CPFP extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
     let txid;
@@ -119,7 +119,7 @@ export default class CPFP extends Component {
   }
 
   onSuccessBroadcast() {
-    BlueApp.tx_metadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
+    this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
     notifications.majorTomToGroundControl([], [], [this.state.newTxid]);
   }
 

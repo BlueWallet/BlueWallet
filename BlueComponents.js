@@ -1797,7 +1797,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
         });
       }
     }
-  }, [item]);
+  }, [item, wallets]);
 
   const onLongPress = useCallback(() => {
     if (subtitleNumberOfLines === 1) {

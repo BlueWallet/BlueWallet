@@ -98,9 +98,9 @@ export class AppStorage {
     }
 
     return !!data;
-  }
+  };
 
-  async isPasswordInUse(password) {
+  isPasswordInUse = async password => {
     try {
       let data = await this.getItem('data');
       data = this.decryptData(data, password);
@@ -108,7 +108,7 @@ export class AppStorage {
     } catch (_e) {
       return false;
     }
-  }
+  };
 
   /**
    * Iterates through all values of `data` trying to
@@ -139,7 +139,7 @@ export class AppStorage {
     return false;
   }
 
-  async decryptStorage(password) {
+  decryptStorage = async password => {
     if (password === this.cachedPassword) {
       this.cachedPassword = undefined;
       await this.setResetOnAppUninstallTo(true);
@@ -150,9 +150,9 @@ export class AppStorage {
     } else {
       throw new Error('Wrong password. Please, try again.');
     }
-  }
+  };
 
-  async isDeleteWalletAfterUninstallEnabled() {
+  isDeleteWalletAfterUninstallEnabled = async () => {
     let deleteWalletsAfterUninstall;
     try {
       deleteWalletsAfterUninstall = await this.getItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
@@ -160,9 +160,9 @@ export class AppStorage {
       deleteWalletsAfterUninstall = true;
     }
     return !!deleteWalletsAfterUninstall;
-  }
+  };
 
-  async encryptStorage(password) {
+  encryptStorage = async password => {
     // assuming the storage is not yet encrypted
     await this.saveToDisk();
     let data = await this.getItem('data');
@@ -177,7 +177,7 @@ export class AppStorage {
     await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
     DeviceQuickActions.clearShortcutItems();
     DeviceQuickActions.removeAllWallets();
-  }
+  };
 
   /**
    * Cleans up all current application data (wallets, tx metadata etc)
@@ -185,7 +185,7 @@ export class AppStorage {
    *
    * @returns {Promise.<boolean>} Success or failure
    */
-  async createFakeStorage(fakePassword) {
+  createFakeStorage = async fakePassword => {
     usedBucketNum = false; // resetting currently used bucket so we wont overwrite it
     this.wallets = [];
     this.tx_metadata = {};
@@ -202,11 +202,11 @@ export class AppStorage {
     const bucketsString = JSON.stringify(buckets);
     await this.setItem('data', bucketsString);
     return (await this.getItem('data')) === bucketsString;
-  }
+  };
 
-  hashIt(s) {
+  hashIt = s => {
     return createHash('sha256').update(s).digest().toString('hex');
-  }
+  };
 
   /**
    * Returns instace of the Realm database, which is encrypted either by cached user's password OR default password.
@@ -379,7 +379,7 @@ export class AppStorage {
       }
     }
     this.wallets = tempWallets;
-  }
+  };
 
   inflateWalletFromRealm(realm, walletToInflate) {
     const wallets = realm.objects('Wallet');
@@ -511,7 +511,7 @@ export class AppStorage {
    *
    * @return {Promise.<void>}
    */
-  fetchWalletBalances = async (index) => {
+  fetchWalletBalances = async index => {
     console.log('fetchWalletBalances for wallet#', typeof index === 'undefined' ? '(all)' : index);
     if (index || index === 0) {
       let c = 0;
@@ -525,7 +525,7 @@ export class AppStorage {
         await wallet.fetchBalance();
       }
     }
-  }
+  };
 
   /**
    * Fetches from remote endpoint all transactions for each wallet.
@@ -563,15 +563,15 @@ export class AppStorage {
         }
       }
     }
-  }
+  };
 
   /**
    *
    * @returns {Array.<AbstractWallet>}
    */
-  getWallets() {
+  getWallets = () => {
     return this.wallets;
-  }
+  };
 
   /**
    * Getter for all transactions in all wallets.
@@ -612,7 +612,7 @@ export class AppStorage {
         return b.sort_ts - a.sort_ts;
       })
       .slice(0, limit);
-  }
+  };
 
   /**
    * Getter for a sum of all balances of all wallets
@@ -625,7 +625,7 @@ export class AppStorage {
       finalBalance += wal.getBalance();
     }
     return finalBalance;
-  }
+  };
 
   getHodlHodlApiKey = async () => {
     try {
@@ -677,11 +677,11 @@ export class AppStorage {
       return !!(await this.getItem(AppStorage.ADVANCED_MODE_ENABLED));
     } catch (_) {}
     return false;
-  }
+  };
 
-  setIsAdancedModeEnabled = async (value) => {
+  setIsAdancedModeEnabled = async value => {
     await this.setItem(AppStorage.ADVANCED_MODE_ENABLED, value ? '1' : '');
-  }
+  };
 
   /**
    * Simple async sleeper function
