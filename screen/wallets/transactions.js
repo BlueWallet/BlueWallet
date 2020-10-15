@@ -55,7 +55,7 @@ const WalletTransactions = () => {
   const wallet = useRef(wallets.find(w => w.getID() === walletID)).current;
   const name = useRoute().name;
   const [itemPriceUnit, setItemPriceUnit] = useState(wallet.getPreferredBalanceUnit());
-  const [dataSource, setDataSource] = useState(wallet.getTransactions(15));
+  const [dataSource, setDataSource] = useState([]);
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [limit, setLimit] = useState(15);
   const [pageSize, setPageSize] = useState(20);
@@ -117,12 +117,12 @@ const WalletTransactions = () => {
   }, []);
 
   useEffect(() => {
+    console.warn('called');
     if (wallet) {
       setIsLoading(true);
       setLimit(15);
       setPageSize(20);
       setTimeElapsed(0);
-      setDataSource(wallet.getTransactions(15));
       setItemPriceUnit(wallet.getPreferredBalanceUnit());
       setParams({ wallet, isLoading: false });
       setIsLoading(false);
@@ -139,6 +139,11 @@ const WalletTransactions = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet]);
+
+  useEffect(() => {
+    setDataSource(wallet.getTransactions(15));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallets]);
 
   // if description of transaction has been changed we want to show new one
   useFocusEffect(
