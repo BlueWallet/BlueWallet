@@ -1,6 +1,6 @@
-import React, { useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { updateApplicationContext, watchEvents, useReachability, useInstalled } from 'react-native-watch-connectivity';
-import { InteractionManager, View } from 'react-native';
+import { InteractionManager } from 'react-native';
 import { Chain } from './models/bitcoinUnits';
 import loc, { formatBalance, transactionTimeToReadable } from './loc';
 import { BlueStorageContext } from './blue_modules/BlueStorage';
@@ -160,7 +160,7 @@ function WatchConnectivity() {
     });
   };
 
-  return <View />;
+  return null;
 }
 
 export default WatchConnectivity;

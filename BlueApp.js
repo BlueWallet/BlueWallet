@@ -1,5 +1,4 @@
 import { AppStorage } from './class';
-import DeviceQuickActions from './class/quick-actions';
 import Biometric from './class/biometrics';
 import { Platform } from 'react-native';
 import loc from './loc';
@@ -18,7 +17,6 @@ const startAndDecrypt = async retry => {
   }
   let password = false;
   if (await BlueApp.storageIsEncrypted()) {
-    DeviceQuickActions.clearShortcutItems();
     do {
       password = await prompt((retry && loc._.bad_password) || loc._.enter_password, loc._.storage_is_encrypted, false);
     } while (!password);

@@ -29,6 +29,7 @@ import InitRoot from './Navigation';
 import BlueClipboard from './blue_modules/clipboard';
 import { BlueStorageContext } from './blue_modules/BlueStorage';
 import WatchConnectivity from './WatchConnectivity';
+import DeviceQuickActions from './class/quick-actions';
 const A = require('./blue_modules/analytics');
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
@@ -280,6 +281,7 @@ const App = () => {
         {renderClipboardContentModal()}
       </View>
       <WatchConnectivity />
+      <DeviceQuickActions />
     </SafeAreaProvider>
   );
 };

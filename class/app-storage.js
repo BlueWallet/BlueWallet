@@ -16,7 +16,6 @@ import {
   HDSegwitElectrumSeedP2WPKHWallet,
   MultisigHDWallet,
 } from './';
-import DeviceQuickActions from './quick-actions';
 import { AbstractHDElectrumWallet } from './wallets/abstract-hd-electrum-wallet';
 import { Platform } from 'react-native';
 const encryption = require('../blue_modules/encryption');
@@ -174,8 +173,6 @@ export class AppStorage {
     this.cachedPassword = password;
     await this.setItem('data', data);
     await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
-    DeviceQuickActions.clearShortcutItems();
-    DeviceQuickActions.removeAllWallets();
   };
 
   /**
@@ -338,14 +335,6 @@ export class AppStorage {
           }
         }
         realm.close();
-        const isStorageEncrypted = await this.storageIsEncrypted();
-        if (isStorageEncrypted) {
-          DeviceQuickActions.clearShortcutItems();
-          DeviceQuickActions.removeAllWallets();
-        } else {
-          DeviceQuickActions.setWallets(this.wallets);
-          DeviceQuickActions.setQuickActions();
-        }
         return true;
       } else {
         return false; // failed loading data or loading/decryptin data
@@ -490,8 +479,6 @@ export class AppStorage {
     } else {
       await this.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
-    DeviceQuickActions.setWallets(this.wallets);
-    DeviceQuickActions.setQuickActions();
     try {
       return await this.setItem('data', JSON.stringify(data));
     } catch (error) {
