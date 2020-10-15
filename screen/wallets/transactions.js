@@ -117,7 +117,6 @@ const WalletTransactions = () => {
   }, []);
 
   useEffect(() => {
-    console.warn('called');
     if (wallet) {
       setIsLoading(true);
       setLimit(15);

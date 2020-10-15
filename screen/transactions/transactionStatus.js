@@ -133,13 +133,13 @@ const styles = StyleSheet.create({
 export default class TransactionsStatus extends Component {
   static contextType = BlueStorageContext;
 
-  constructor(props) {
+  constructor(props, context) {
     super(props);
     const hash = props.route.params.hash;
     let foundTx = {};
     let from = [];
     let to = [];
-    for (const tx of this.context.getTransactions()) {
+    for (const tx of context.getTransactions()) {
       if (tx.hash === hash) {
         foundTx = tx;
         for (const input of foundTx.inputs) {
@@ -153,7 +153,7 @@ export default class TransactionsStatus extends Component {
     }
 
     let wallet = false;
-    for (const w of this.context.getWallets()) {
+    for (const w of context.getWallets()) {
       for (const t of w.getTransactions()) {
         if (t.hash === hash) {
           console.log('tx', hash, 'belongs to', w.getLabel());

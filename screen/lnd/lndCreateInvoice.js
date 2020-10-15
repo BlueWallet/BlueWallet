@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
 
 export default class LNDCreateInvoice extends Component {
   static contextType = BlueStorageContext;
-  constructor(props) {
+  constructor(props, context) {
     super(props);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
@@ -144,7 +144,7 @@ export default class LNDCreateInvoice extends Component {
 
     // fallback to first wallet if it exists
     if (!fromWallet) {
-      const lightningWallets = this.context.getWallets().filter(item => item.type === LightningCustodianWallet.type);
+      const lightningWallets = context.getWallets().filter(item => item.type === LightningCustodianWallet.type);
       if (lightningWallets.length > 0) {
         fromWallet = lightningWallets[0];
         console.warn('warning: using ln wallet index 0');
