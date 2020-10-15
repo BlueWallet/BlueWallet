@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import {
   ActivityIndicator,
   Animated,
-  Dimensions,
   Image,
   Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { useTheme } from '@react-navigation/native';
@@ -21,12 +21,6 @@ import { LightningCustodianWallet, MultisigHDWallet, PlaceholderWallet } from '.
 import WalletGradient from '../class/wallet-gradient';
 import { BlueCurrentTheme } from './themes';
 import { BluePrivateBalance } from '../BlueComponents';
-
-const { width } = Dimensions.get('window');
-
-const sliderWidth = width * 1;
-const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-const sliderHeight = 190;
 
 const nStyles = StyleSheet.create({
   root: {
@@ -135,16 +129,13 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
   const onPressedIn = () => {
     const props = { duration: 50 };
     props.useNativeDriver = true;
-
     props.toValue = 0.9;
     Animated.spring(scaleValue, props).start();
   };
 
   const onPressedOut = () => {
     const props = { duration: 50 };
-
     props.useNativeDriver = true;
-
     props.toValue = 1.0;
     Animated.spring(scaleValue, props).start();
   };
@@ -202,6 +193,17 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
   }
 
   const opacity = isSelectedWallet === false ? 0.5 : 1.0;
+  let image;
+  switch (item.type) {
+    case LightningCustodianWallet.type:
+      image = require('../img/lnd-shape.png');
+      break;
+    case MultisigHDWallet.type:
+      image = require('../img/vault-shape.png');
+      break;
+    default:
+      image = require('../img/btc-shape.png');
+  }
 
   return (
     <Animated.View
@@ -226,20 +228,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
           colors={WalletGradient.gradientsFor(item.type)}
           style={iStyles.grad}
         >
-          <Image
-            source={(() => {
-              switch (item.type) {
-                case LightningCustodianWallet.type:
-                  return require('../img/lnd-shape.png');
-                case MultisigHDWallet.type:
-                  return require('../img/vault-shape.png');
-                default:
-                  return require('../img/btc-shape.png');
-              }
-            })()}
-            style={iStyles.image}
-          />
-
+          <Image source={image} style={iStyles.image} />
           <Text style={iStyles.br} />
           <Text numberOfLines={1} style={[iStyles.label, { color: BlueCurrentTheme.colors.inverseForegroundColor }]}>
             {item.getLabel()}
@@ -278,8 +267,6 @@ WalletCarouselItem.propTypes = {
 
 const cStyles = StyleSheet.create({
   loading: {
-    paddingVertical: sliderHeight / 2,
-    paddingHorizontal: sliderWidth / 2,
     position: 'absolute',
     alignItems: 'center',
   },
@@ -305,17 +292,28 @@ const WalletsCarousel = forwardRef((props, ref) => {
   );
 
   useImperativeHandle(ref, () => ({
-    snapToItem: item => {
-      carouselRef?.current?.snapToItem(item);
-    },
+    snapToItem: item => carouselRef?.current?.snapToItem(item),
   }));
+
+  const { width } = useWindowDimensions();
+  const sliderWidth = width * 1;
+  const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
+  const sliderHeight = 190;
 
   const onLayout = () => setLoading(false);
 
   return (
     <>
       {loading && (
-        <View style={cStyles.loading}>
+        <View
+          style={[
+            cStyles.loading,
+            {
+              paddingVertical: sliderHeight / 2,
+              paddingHorizontal: sliderWidth / 2,
+            },
+          ]}
+        >
           <ActivityIndicator />
         </View>
       )}
