@@ -1,7 +1,8 @@
 import React, { useRef } from 'react';
 import { StatusBar, View, TouchableOpacity, StyleSheet, Alert, useWindowDimensions } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
-import { WalletsCarousel, BlueNavigationStyle, BlueHeaderDefaultMain } from '../../BlueComponents';
+import { BlueNavigationStyle, BlueHeaderDefaultMain } from '../../BlueComponents';
+import WalletsCarousel from '../../components/WalletsCarousel';
 import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
