@@ -358,6 +358,8 @@
     "import_imported": "Imported",
     "import_scan_qr": "Scan or import a file",
     "import_success": "Your wallet has been successfully imported.",
+    "looks_like_bip38": "This looks like password-protected private key (BIP38)",
+    "enter_bip38_password": "Enter password to decrypt",
     "import_title": "import",
     "list_create_a_button": "Add now",
     "list_create_a_wallet": "Add a wallet",

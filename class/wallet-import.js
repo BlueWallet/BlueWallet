@@ -38,22 +38,23 @@ export default class WalletImport {
     );
     if (wallet) {
       alert('This wallet has been previously imported.');
-    } else {
-      const emptyWalletLabel = new LegacyWallet().getLabel();
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-      if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
-      w.setUserHasSavedExport(true);
-      if (additionalProperties) {
-        for (const [key, value] of Object.entries(additionalProperties)) {
-          w[key] = value;
-        }
-      }
-      BlueApp.wallets.push(w);
-      await BlueApp.saveToDisk();
-      A(A.ENUM.CREATED_WALLET);
-      alert(loc.wallets.import_success);
-      notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
+      return;
     }
+
+    const emptyWalletLabel = new LegacyWallet().getLabel();
+    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
+    w.setUserHasSavedExport(true);
+    if (additionalProperties) {
+      for (const [key, value] of Object.entries(additionalProperties)) {
+        w[key] = value;
+      }
+    }
+    BlueApp.wallets.push(w);
+    await BlueApp.saveToDisk();
+    A(A.ENUM.CREATED_WALLET);
+    alert(loc.wallets.import_success);
+    notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
   }
 
   static removePlaceholderWallet() {
@@ -100,7 +101,7 @@ export default class WalletImport {
     if (importText.startsWith('6P')) {
       let password = false;
       do {
-        password = await prompt('This looks like password-protected private key (BIP38)', 'Enter password to decrypt', false);
+        password = await prompt(loc.wallets.looks_like_bip38, loc.wallets.enter_bip38_password, false);
       } while (!password);
 
       const decryptedKey = await bip38.decrypt(importText, password, status => {
