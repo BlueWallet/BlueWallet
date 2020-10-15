@@ -48,8 +48,8 @@ import { useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
 import Lnurl from './class/lnurl';
-import ScanQRCode from './screen/send/ScanQRCode';
 import { BlueStorageContext } from './blue_modules/BlueStorage';
+import { presentCameraNotAuthorizedAlert } from './class/camera';
 /** @type {AppStorage} */
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -2151,7 +2151,7 @@ export class BlueAddressInput extends Component {
             }
           });
         } else if (response.error) {
-          ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
+          presentCameraNotAuthorizedAlert(response.error);
         }
       },
     );
