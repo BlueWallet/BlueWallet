@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { StatusBar, View, TouchableOpacity, StyleSheet, Alert, useWindowDimensions } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { BlueNavigationStyle, BlueHeaderDefaultMain } from '../../BlueComponents';
@@ -18,7 +18,8 @@ import { BlueStorageContext } from '../../blue_modules/BlueStorage';
 const DrawerList = props => {
   console.log('drawerList rendering...');
   const walletsCarousel = useRef();
-  const { wallets, selectedWallet } = useContext(BlueStorageContext);
+  const { wallets, selectedWallet, pendingWallets } = useContext(BlueStorageContext);
+  const [carouselData, setCarouselData] = useState([]);
   const height = useWindowDimensions().height;
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
@@ -27,9 +28,13 @@ const DrawerList = props => {
     },
   });
 
+  useEffect(() => {
+    setCarouselData(wallets.concat(pendingWallets));
+  }, [wallets, pendingWallets]);
+
   const handleClick = index => {
     console.log('click', index);
-    const wallet = wallets[index];
+    const wallet = carouselData[index];
     if (wallet) {
       if (wallet.type === PlaceholderWallet.type) {
         Alert.alert(
@@ -62,14 +67,14 @@ const DrawerList = props => {
       }
     } else {
       // if its out of index - this must be last card with incentive to create wallet
-      if (!wallets.some(wallet => wallet.type === PlaceholderWallet.type)) {
+      if (!carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
         props.navigation.navigate('Navigation', { screen: 'AddWalletRoot' });
       }
     }
   };
 
   const handleLongPress = () => {
-    if (wallets.length > 1 && !wallets.some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (carouselData.length > 1 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
       props.navigation.navigate('ReorderWallets');
     } else {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -80,7 +85,7 @@ const DrawerList = props => {
     return (
       <WalletsCarousel
         removeClippedSubviews={false}
-        data={wallets.concat(false)}
+        data={carouselData.concat(false)}
         onPress={handleClick}
         handleLongPress={handleLongPress}
         ref={walletsCarousel}
@@ -96,7 +101,7 @@ const DrawerList = props => {
   };
 
   const onNewWalletPress = () => {
-    return !wallets.some(wallet => wallet.type === PlaceholderWallet.type) ? props.navigation.navigate('AddWalletRoot') : null;
+    return !carouselData.some(wallet => wallet.type === PlaceholderWallet.type) ? props.navigation.navigate('AddWalletRoot') : null;
   };
 
   return (
