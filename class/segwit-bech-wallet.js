@@ -13,6 +13,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
       return this._scriptHashes;
     }
     this._scriptHashes = [addressToScriptHash(this._address)];
+    return this._scriptHashes;
   }
 
   getAddressForTransaction() {

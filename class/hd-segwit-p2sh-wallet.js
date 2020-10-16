@@ -21,7 +21,7 @@ export class HDSegwitP2SHWallet extends AbstractHDSegwitP2SHWallet {
   /**
    *
    * @param utxos
-   * @param amount Either float (BTC) or string 'MAX' (BitcoinUnit.MAX) to send all
+   * @param amount Float (BTC)
    * @param fee
    * @param address
    * @returns {string}

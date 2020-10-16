@@ -167,7 +167,7 @@ module.exports = {
       multipleAddresses: 'Múltiplos endereços',
       singleAddress: 'Um endereço',
       segwidAddress:
-        'Contém uma árvore de endereços de segmento nativos, gerados a partir de uma única semente de 24 palavras',
+        'Contém uma árvore de endereços de segmento nativos, gerados a partir de uma única semente de 12 palavras',
       failed: 'Falhou ao criar carteira',
       walletType: 'Tipo de carteira',
       ar: 'Faz transações Padrão e de Cancelamento.',
@@ -177,10 +177,10 @@ module.exports = {
       legacyP2SHTitle: 'Herança P2SH',
       legacyHDSegWitTitle: 'Herança HD SegWit',
       legacy: 'Faz tipos padrão de transações.',
-      legacyHDP2SH: 'Contém uma árvore de endereços P2SH gerados a partir de uma única semente de 24 palavras',
+      legacyHDP2SH: 'Contém uma árvore de endereços P2SH gerados a partir de uma única semente de 12 palavras',
       LegacyP2SH: 'Contém um único endereço P2SH',
       LegacyHDSegWit:
-        'Contém uma árvore de endereços segwit nativos, gerados a partir de uma única semente de 24 palavras',
+        'Contém uma árvore de endereços segwit nativos, gerados a partir de uma única semente de 12 palavras',
       publicKeyError: 'Chave pública apresentada é inválida',
     },
     addSuccess: {

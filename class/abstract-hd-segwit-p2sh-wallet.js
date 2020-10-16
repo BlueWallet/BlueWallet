@@ -35,7 +35,7 @@ function ypubToXpub(ypub) {
 export class AbstractHDSegwitP2SHWallet extends AbstractHDWallet {
   static type = 'abstract';
   static typeReadable = 'abstract';
-  static randomBytesSize = 32;
+  static randomBytesSize = 16;
   static basePath = "m/49'/440'/0'";
 
   allowSend() {

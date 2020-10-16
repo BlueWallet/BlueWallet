@@ -85,6 +85,7 @@ export class WatchOnlyWallet extends LegacyWallet {
       return this._scriptHashes;
     }
     this._scriptHashes = [addressToScriptHash(this.secret)];
+    return this._scriptHashes;
   }
 
   getAddress() {

@@ -166,7 +166,7 @@ module.exports = {
       multipleAddresses: 'Beberapa alamat',
       singleAddress: 'Satu alamat',
       segwidAddress:
-        'Alamat ini mengandung sebuah pohon dari alamat segwit native, yang dihasilkan oleh sebuah benih tunggal 24-kata',
+        'Alamat ini mengandung sebuah pohon dari alamat segwit native, yang dihasilkan oleh sebuah benih tunggal 12-kata',
       failed: 'Gagal membuat dompet',
       walletType: 'Tipe dompet',
       ar: 'Membuat transaksi Standar dan Pembatalan.',
@@ -176,9 +176,9 @@ module.exports = {
       legacyP2SHTitle: 'P2SH Legasi',
       legacyHDSegWitTitle: 'HD Segwit Legasi',
       legacy: 'Membuat tipe transaksi default.',
-      legacyHDP2SH: 'Berisi pohon alamat P2SH yang dibuat dari satu benih 24 kata',
+      legacyHDP2SH: 'Berisi pohon alamat P2SH yang dibuat dari satu benih 12 kata',
       LegacyP2SH: 'Berisi satu alamat P2SH',
-      LegacyHDSegWit: 'Berisi pohon alamat segwit asal, dibuat satu benih 24 kata',
+      LegacyHDSegWit: 'Berisi pohon alamat segwit asal, dibuat satu benih 12 kata',
       publicKeyError: 'Kunci publik yang disediakan tidak valid',
     },
     addSuccess: {

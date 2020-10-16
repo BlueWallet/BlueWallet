@@ -165,7 +165,7 @@ module.exports = {
       multipleAddresses: 'Múltiples direcciones',
       singleAddress: 'Dirección única',
       segwidAddress:
-        'Contiene un árbol de direcciones SegWit nativas, generadas a partir de una única semilla de 24 palabras',
+        'Contiene un árbol de direcciones SegWit nativas, generadas a partir de una única semilla de 12 palabras',
       failed: 'No se ha podido crear el monedero',
       walletType: 'Tipo de monedero',
       ar: 'Realiza transacciones estándar y de cancelación.',
@@ -175,10 +175,10 @@ module.exports = {
       legacyP2SHTitle: 'Legacy P2SH',
       legacyHDSegWitTitle: 'LegacyHD SegWit',
       legacy: 'Realiza tipos de transacciones predeterminadas.',
-      legacyHDP2SH: 'Contiene un árbol de direcciones P2SH generado de una semilla única de 24 palabras',
+      legacyHDP2SH: 'Contiene un árbol de direcciones P2SH generado de una semilla única de 12 palabras',
       LegacyP2SH: 'Contiene una única dirección P2SH',
       LegacyHDSegWit:
-        'Contiene un árbol de direcciones de segwit nativas, generadas a partir de una semilla única de 24 palabras',
+        'Contiene un árbol de direcciones de segwit nativas, generadas a partir de una semilla única de 12 palabras',
       publicKeyError: 'La clave pública proporcionada no es válida',
     },
     addSuccess: {

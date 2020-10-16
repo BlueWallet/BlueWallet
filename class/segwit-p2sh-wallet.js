@@ -59,6 +59,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
       return this._scriptHashes;
     }
     this._scriptHashes = [addressToScriptHash(this._address)];
+    return this._scriptHashes;
   }
 
   getAddressForTransaction() {

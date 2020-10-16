@@ -4,14 +4,11 @@ import b58 from 'bs58check';
 import { NativeModules } from 'react-native';
 
 import config from '../config';
-import { satoshiToBtc } from '../utils/bitcoin';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 
 const HDNode = require('bip32');
 const coinSelectAccumulative = require('coinselect/accumulative');
 const coinSelectSplit = require('coinselect/split');
-
-const BlueElectrum = require('../BlueElectrum');
 
 const { RNRandomBytes } = NativeModules;
 
@@ -24,7 +21,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   static type = 'HDsegwitBech32';
   static typeReadable = 'HD SegWit';
   static defaultRBFSequence = 2147483648; // 1 << 31, minimum for replaceable transactions as per BIP68
-  static randomBytesSize = 32;
+  static randomBytesSize = 16;
   static basePath = "m/84'/440'/0'";
 
   constructor() {
@@ -177,7 +174,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   /**
    * @deprecated
    */
-  createTx(utxos, amount, fee, address) {
+  createTx() {
     throw new Error('Deprecated');
   }
 
