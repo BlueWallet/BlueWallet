@@ -25,7 +25,7 @@ const wif = require('wif');
 const prompt = require('../blue_modules/prompt');
 
 function WalletImport() {
-  const { wallets, saveToDisk, addWallet, deleteWallet } = useContext(BlueStorageContext);
+  const { wallets, pendingWallets, setPendingWallets, saveToDisk, addWallet } = useContext(BlueStorageContext);
 
   /**
    *
@@ -56,11 +56,7 @@ function WalletImport() {
   };
 
   WalletImport.removePlaceholderWallet = () => {
-    const placeholderWallet = wallets.find(wallet => wallet.type === PlaceholderWallet.type);
-    console.warn(placeholderWallet);
-    if (placeholderWallet) {
-      deleteWallet(placeholderWallet);
-    }
+    setPendingWallets([]);
   };
 
   WalletImport.isWalletImported = secret => {
@@ -79,7 +75,7 @@ function WalletImport() {
     const wallet = new PlaceholderWallet();
     wallet.setSecret(importText);
     wallet.setIsFailure(isFailure);
-    addWallet(wallet);
+    setPendingWallets([...pendingWallets, wallet]);
     return wallet;
   };
 

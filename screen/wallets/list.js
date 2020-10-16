@@ -38,7 +38,7 @@ const isDesktop = getSystemName() === 'Mac OS X';
 
 const WalletsList = () => {
   const walletsCarousel = useRef();
-  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, saveToDisk } = useContext(BlueStorageContext);
+  const { wallets, pendingWallets, getTransactions, getBalance, refreshAllWalletTransactions, saveToDisk } = useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
@@ -48,6 +48,7 @@ const WalletsList = () => {
   const [isLargeScreen, setIsLargeScreen] = useState(
     Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3 && isTablet(),
   );
+  const [carouselData, setCarouselData] = useState([]);
   const dataSource = getTransactions(null, 10);
 
   const stylesHook = StyleSheet.create({
@@ -78,6 +79,10 @@ const WalletsList = () => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
+
+  useEffect(() => {
+    setCarouselData(wallets.concat(pendingWallets));
+  }, [wallets, pendingWallets]);
 
   const verifyBalance = () => {
     if (getBalance() !== 0) {
@@ -155,7 +160,7 @@ const WalletsList = () => {
       }
     } else {
       // if its out of index - this must be last card with incentive to create wallet
-      if (!wallets.some(wallet => wallet.type === PlaceholderWallet.type)) {
+      if (!carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
         navigate('AddWalletRoot');
       }
     }
@@ -164,10 +169,10 @@ const WalletsList = () => {
   const onSnapToItem = index => {
     console.log('onSnapToItem', index);
     lastSnappedTo = index;
-    if (index < wallets.length) {
+    if (index < carouselData.length) {
       // not the last
     }
-    if (wallets[index]?.type === PlaceholderWallet.type) {
+    if (carouselData[index]?.type === PlaceholderWallet.type) {
       return;
     }
 
@@ -242,7 +247,7 @@ const WalletsList = () => {
   };
 
   const handleLongPress = () => {
-    if (wallets.length > 1 && !wallets.some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (carouselData.length > 1 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
       navigate('ReorderWallets');
     } else {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -258,7 +263,7 @@ const WalletsList = () => {
   };
 
   const renderLocalTrader = () => {
-    if (wallets.length > 0 && !wallets.some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (carouselData.length > 0 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
       return (
         <TouchableOpacity
           onPress={() => {
@@ -284,7 +289,7 @@ const WalletsList = () => {
     return (
       <WalletsCarousel
         removeClippedSubviews={false}
-        data={wallets.concat(false)}
+        data={carouselData.concat(false)}
         onPress={handleClick}
         handleLongPress={handleLongPress}
         onSnapToItem={onSnapToItem}
@@ -315,7 +320,7 @@ const WalletsList = () => {
         return isLargeScreen ? null : (
           <BlueHeaderDefaultMain
             leftText={loc.wallets.list_title}
-            onNewWalletPress={!wallets.some(wallet => wallet.type === PlaceholderWallet.type) ? () => navigate('AddWalletRoot') : null}
+            onNewWalletPress={!carouselData.some(wallet => wallet.type === PlaceholderWallet.type) ? () => navigate('AddWalletRoot') : null}
           />
         );
       case WalletsListSections.TRANSACTIONS:
@@ -344,7 +349,7 @@ const WalletsList = () => {
   };
 
   const renderScanButton = () => {
-    if (wallets.length > 0 && !wallets.some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (carouselData.length > 0 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
       return (
         <FContainer>
           <FButton

@@ -6,6 +6,7 @@ const BlueElectrum = require('./BlueElectrum');
 export const BlueStorageContext = createContext();
 export const BlueStorageProvider = ({ children }) => {
   const [wallets, setWallets] = useState([]);
+  const [pendingWallets, setPendingWallets] = useState([]);
   const [selectedWallet, setSelectedWallet] = useState('');
   const [walletsInitialized, setWalletsInitialized] = useState(false);
   const saveToDisk = async () => {
@@ -83,6 +84,8 @@ export const BlueStorageProvider = ({ children }) => {
       value={{
         wallets,
         setWalletsWithNewOrder,
+        pendingWallets,
+        setPendingWallets,
         txMetadata,
         saveToDisk,
         getTransactions,

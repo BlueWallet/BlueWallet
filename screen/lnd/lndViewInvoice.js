@@ -157,6 +157,7 @@ export default class LNDViewInvoice extends Component {
               ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
               clearInterval(this.fetchInvoiceInterval);
               this.fetchInvoiceInterval = undefined;
+              this.context.saveToDisk();
             } else {
               const currentDate = new Date();
               const now = (currentDate.getTime() / 1000) | 0;
