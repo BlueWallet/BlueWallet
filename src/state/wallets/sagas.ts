@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import { takeEvery, takeLatest, put, all, call, select, delay } from 'redux-saga/effects';
 
 import { Wallet } from 'app/consts';
@@ -115,7 +116,7 @@ export function* importWalletSaga(action: ImportWalletAction | unknown) {
 export function* updateWalletSaga(action: UpdateWalletAction | unknown) {
   const { wallet } = action as UpdateWalletAction;
   try {
-    const updatedWallet = BlueApp.updateWallet(wallet);
+    const updatedWallet = cloneDeep(BlueApp.updateWallet(wallet));
     yield BlueApp.saveToDisk();
 
     yield put(updateWalletSuccess(updatedWallet));
@@ -130,12 +131,13 @@ export function* refreshWalletSaga(action: RefreshWalletAction | unknown) {
 
   const { id } = action as RefreshWalletAction;
 
-  const walletToRefresh: Wallet = yield select(getByIdWallet, id);
+  const walletToRefresh: Wallet = cloneDeep(yield select(getByIdWallet, id));
 
   try {
     if (!walletToRefresh) {
       throw new Error(`No wallet to refresh`);
     }
+    yield BlueElectrum.waitTillConnected();
 
     yield all([call(() => walletToRefresh.fetchBalance()), call(() => walletToRefresh.fetchTransactions())]);
 

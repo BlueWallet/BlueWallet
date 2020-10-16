@@ -68,7 +68,7 @@ export const walletsReducer = (state = initialState, action: WalletsActionType):
         ...state,
         wallets: state.wallets.map(wallet => {
           if (wallet.id === action.wallet.id) {
-            return cloneDeep(action.wallet);
+            return action.wallet;
           }
           return wallet;
         }),

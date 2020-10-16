@@ -205,7 +205,7 @@ export class RecoverySendScreen extends Component<Props, State> {
           vaultTxType: payments.VaultTxType.Recovery,
         });
         tx = txHex;
-        fee = satoshiToBtc(feeSatoshi);
+        fee = satoshiToBtc(feeSatoshi).toNumber();
 
         actualSatoshiPerByte = this.getActualSatoshi(tx, feeSatoshi);
 

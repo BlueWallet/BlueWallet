@@ -301,7 +301,7 @@ class SendCoinsScreen extends Component<Props, State> {
       );
       tx = txHex;
 
-      fee = satoshiToBtc(feeSatoshi);
+      fee = satoshiToBtc(feeSatoshi).toNumber();
 
       actualSatoshiPerByte = this.getActualSatoshi(tx, feeSatoshi);
 
