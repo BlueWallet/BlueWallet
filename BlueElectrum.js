@@ -170,7 +170,7 @@ module.exports.unsubscribeFromSriptHashes = scriptHashes => {
  */
 module.exports.multiGetBalanceByAddress = async function(addresses, batchsize) {
   batchsize = batchsize || 100;
-  if (!mainClient) throw new Error('Electrum client is not connected');
+  if (!mainConnected) throw new Error('Electrum client is not connected');
   const ret = { balance: 0, unconfirmed_balance: 0, incoming_balance: 0, outgoing_balance: 0, addresses: {} };
 
   const chunks = splitIntoChunks(addresses, batchsize);

@@ -36,6 +36,7 @@ const BlueElectrum = require('../../../BlueElectrum');
 
 export function* loadWalletsSaga() {
   try {
+    yield BlueElectrum.ping();
     yield BlueElectrum.waitTillConnected();
 
     yield all([call(() => BlueApp.fetchWalletBalances()), call(() => BlueApp.fetchWalletTransactions())]);
@@ -137,6 +138,7 @@ export function* refreshWalletSaga(action: RefreshWalletAction | unknown) {
     if (!walletToRefresh) {
       throw new Error(`No wallet to refresh`);
     }
+    yield BlueElectrum.ping();
     yield BlueElectrum.waitTillConnected();
 
     yield all([call(() => walletToRefresh.fetchBalance()), call(() => walletToRefresh.fetchTransactions())]);
