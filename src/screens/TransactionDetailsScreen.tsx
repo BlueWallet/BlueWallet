@@ -14,7 +14,7 @@ import { getConfirmationsText } from 'app/helpers/helpers';
 import { ApplicationState } from 'app/state';
 import { selectors, reducer } from 'app/state/transactionsNotes';
 import {
-  createTransactionNote,
+  createTransactionNoteSuccess,
   updateTransactionNote,
   CreateTransactionNoteAction,
   UpdateTransactionNoteAction,
@@ -27,7 +27,7 @@ const i18n = require('../../loc');
 
 interface Props {
   transactionNotes: Record<string, string>;
-  createTransactionNote: (transactionID: string, note: string) => CreateTransactionNoteAction;
+  createTransactionNoteSuccess: (transactionID: string, note: string) => CreateTransactionNoteAction;
   updateTransactionNote: (transactionID: string, note: string) => UpdateTransactionNoteAction;
   navigation: CompositeNavigationProp<
     StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
@@ -47,7 +47,7 @@ class TransactionDetailsScreen extends Component<Props> {
       transaction: { hash },
     } = this.props.route.params;
     if (!this.props.note) {
-      this.props.createTransactionNote(hash, note);
+      this.props.createTransactionNoteSuccess(hash, note);
     } else {
       this.props.updateTransactionNote(hash, note);
     }
@@ -227,7 +227,7 @@ const mapStateToProps = (state: ApplicationState & reducer.TransactionsNotesStat
 };
 
 const mapDispatchToProps = {
-  createTransactionNote,
+  createTransactionNoteSuccess,
   updateTransactionNote,
 };
 
