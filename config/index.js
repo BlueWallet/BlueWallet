@@ -4,7 +4,7 @@ const bitcoin = require('bitcoinjs-lib');
 
 const { SENTRY_DSN, HOST, PORT, BTCV_NETWORK, PROTOCOL, ELECTRUM_X_PROTOCOL_VERSION, IS_BETA } = Config;
 
-let isBeta = true;
+let isBeta = false;
 try {
   isBeta = JSON.parse(IS_BETA);
 } catch (_) {}
