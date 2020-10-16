@@ -115,7 +115,10 @@ BuyBitcoin.navigate = async wallet => {
   const uri = await BuyBitcoin.generateURL(wallet);
   if (Platform.OS === 'ios') {
     InAppBrowser.isAvailable()
-      .then(_value => InAppBrowser.open(uri, { dismissButtonStyle: 'done' }))
+      .then(_value => {
+        InAppBrowser.close();
+        InAppBrowser.open(uri, { dismissButtonStyle: 'done' });
+      })
       .catch(error => {
         console.log(error);
         Linking.openURL(uri);

@@ -293,7 +293,7 @@ const WalletTransactions = () => {
               component={TouchableOpacity}
               onPress={() => {
                 setIsManageFundsModalVisible(false);
-                navigateToBuyBitcoin();
+                setTimeout(() => navigateToBuyBitcoin(), 500);
               }}
               title={loc.lnd.refill_card}
             />

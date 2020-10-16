@@ -1,4 +1,4 @@
 const WatchConnectivity = () => {
-    return null;
+  return null;
 };
 export default WatchConnectivity;
