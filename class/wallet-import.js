@@ -35,7 +35,7 @@ function WalletImport() {
    * @private
    */
   WalletImport._saveWallet = async (w, additionalProperties) => {
-    if (WalletImport.isWalletImported(w.getSecret())) {
+    if (WalletImport.isWalletImported(w)) {
       WalletImport.presentWalletAlreadyExistsAlert();
       return;
     }
@@ -59,12 +59,15 @@ function WalletImport() {
     setPendingWallets([]);
   };
 
-  WalletImport.isWalletImported = secret => {
-    const wallet = wallets.some(wallet => wallet.getSecret() === secret && wallet.type !== PlaceholderWallet.type);
+  WalletImport.isWalletImported = w => {
+    const wallet = wallets
+      .getWallets()
+      .some(wallet => (wallet.getSecret() === w.secret || wallet.getID() === w.getID()) && wallet.type !== PlaceholderWallet.type);
     return !!wallet;
   };
 
   WalletImport.presentWalletAlreadyExistsAlert = () => {
+    ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
     alert('This wallet has been previously imported.');
   };
 
