@@ -28,7 +28,7 @@ import { FContainer, FButton } from '../../components/FloatButtons';
 import { getSystemName, isTablet } from 'react-native-device-info';
 import { presentCameraNotAuthorizedAlert } from '../../class/camera';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const A = require('../../blue_modules/analytics');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 

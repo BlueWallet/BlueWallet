@@ -15,7 +15,7 @@ import Handoff from 'react-native-handoff';
 import PropTypes from 'prop-types';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const dayjs = require('dayjs');
 
 const styles = StyleSheet.create({

@@ -34,7 +34,7 @@ import HandoffSettings from '../../class/handoff';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import Handoff from 'react-native-handoff';
 import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 const currency = require('../../blue_modules/currency');
 

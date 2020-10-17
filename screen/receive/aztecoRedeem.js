@@ -8,7 +8,7 @@ import { BlueButton, BlueCreateTxNavigationStyle, BlueLoading, BlueSpacing, Blue
 import loc from '../../loc';
 import { PlaceholderWallet } from '../../class';
 import Azteco from '../../class/azteco';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
   loading: {

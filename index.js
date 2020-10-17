@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import './shim.js';
 import { AppRegistry } from 'react-native';
 import App from './App';
-import { BlueStorageProvider } from './blue_modules/BlueStorage';
+import { BlueStorageProvider } from './blue_modules/storage-context';
 const A = require('./blue_modules/analytics');
 
 if (!Error.captureStackTrace) {

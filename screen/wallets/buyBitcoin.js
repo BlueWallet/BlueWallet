@@ -6,7 +6,7 @@ import { WebView } from 'react-native-webview';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import * as NavigationService from '../../NavigationService';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
 const styles = StyleSheet.create({
   root: {

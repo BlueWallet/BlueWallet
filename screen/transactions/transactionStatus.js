@@ -20,7 +20,7 @@ import Handoff from 'react-native-handoff';
 import HandoffSettings from '../../class/handoff';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const buttonStatus = Object.freeze({
   possible: 1,
   unknown: 2,

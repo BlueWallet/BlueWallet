@@ -5,7 +5,7 @@ import { useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import BlueClipboard from '../../blue_modules/clipboard';
 import DeviceQuickActions from '../../class/quick-actions';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const SettingsPrivacy = () => {
   const { colors } = useTheme();

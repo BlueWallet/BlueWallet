@@ -4,7 +4,7 @@ import { BlueLoading, BlueTextHooks, BlueSpacing20, BlueListItem, BlueNavigation
 import { useNavigation, useTheme } from '@react-navigation/native';
 import HandoffSettings from '../../class/handoff';
 import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
   root: {

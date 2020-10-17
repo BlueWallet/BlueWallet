@@ -8,7 +8,7 @@ import { Icon } from 'react-native-elements';
 import * as NavigationService from '../../NavigationService';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const prompt = require('../../blue_modules/prompt');
 
 export default class HodlHodlViewOffer extends Component {

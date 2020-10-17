@@ -21,7 +21,7 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { Icon } from 'react-native-elements';
 import Biometric from '../../class/biometrics';
 import PropTypes from 'prop-types';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
 
 export default class LnurlPay extends Component {

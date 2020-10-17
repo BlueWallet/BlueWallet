@@ -5,7 +5,7 @@ import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigati
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import loc from '../loc';
-import { BlueStorageContext } from '../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../blue_modules/storage-context';
 const prompt = require('../blue_modules/prompt');
 
 const styles = StyleSheet.create({

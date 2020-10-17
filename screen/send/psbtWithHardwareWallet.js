@@ -36,7 +36,7 @@ import DocumentPicker from 'react-native-document-picker';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import ScanQRCode from './ScanQRCode';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */

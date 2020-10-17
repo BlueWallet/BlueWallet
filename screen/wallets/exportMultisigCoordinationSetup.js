@@ -8,7 +8,7 @@ import loc from '../../loc';
 import { encodeUR } from '../../blue_modules/bc-ur/dist';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SquareButton } from '../../components/SquareButton';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const fs = require('../../blue_modules/fs');
 
 const ExportMultisigCoordinationSetup = () => {

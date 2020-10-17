@@ -36,7 +36,7 @@ import { FContainer, FButton } from '../../components/FloatButtons';
 import { getSystemName } from 'react-native-device-info';
 import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
 import BuyBitcoin from './buyBitcoin';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const isDesktop = getSystemName() === 'Mac OS X';

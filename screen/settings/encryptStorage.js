@@ -16,7 +16,7 @@ import {
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { colors } from 'react-native-elements';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const prompt = require('../../blue_modules/prompt');
 
 const EncryptStorage = () => {

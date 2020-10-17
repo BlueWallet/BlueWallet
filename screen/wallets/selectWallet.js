@@ -9,7 +9,7 @@ import WalletGradient from '../../class/wallet-gradient';
 import { useRoute, useTheme } from '@react-navigation/native';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { MultisigHDWallet } from '../../class';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const SelectWallet = ({ navigation }) => {
   const { chainType, onWalletSelect, availableWallets } = useRoute().params;

@@ -47,7 +47,7 @@ import { useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
 import Lnurl from './class/lnurl';
-import { BlueStorageContext } from './blue_modules/BlueStorage';
+import { BlueStorageContext } from './blue_modules/storage-context';
 import { presentCameraNotAuthorizedAlert } from './class/camera';
 /** @type {AppStorage} */
 const { height, width } = Dimensions.get('window');

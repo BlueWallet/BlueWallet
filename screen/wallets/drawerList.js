@@ -13,7 +13,7 @@ import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import { useTheme } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const DrawerList = props => {
   console.log('drawerList rendering...');

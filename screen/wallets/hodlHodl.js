@@ -27,7 +27,7 @@ import * as NavigationService from '../../NavigationService';
 import Geolocation from '@react-native-community/geolocation';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const A = require('../../blue_modules/analytics');
 
 const CURRENCY_CODE_ANY = '_any';

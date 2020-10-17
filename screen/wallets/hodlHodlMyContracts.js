@@ -28,7 +28,7 @@ import Modal from 'react-native-modal';
 import * as NavigationService from '../../NavigationService';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const windowHeight = Dimensions.get('window').height;
 
 export default class HodlHodlMyContracts extends Component {

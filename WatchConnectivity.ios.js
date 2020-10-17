@@ -3,7 +3,7 @@ import { updateApplicationContext, watchEvents, useReachability, useInstalled } 
 import { InteractionManager } from 'react-native';
 import { Chain } from './models/bitcoinUnits';
 import loc, { formatBalance, transactionTimeToReadable } from './loc';
-import { BlueStorageContext } from './blue_modules/BlueStorage';
+import { BlueStorageContext } from './blue_modules/storage-context';
 import Notifications from './blue_modules/notifications';
 
 function WatchConnectivity() {

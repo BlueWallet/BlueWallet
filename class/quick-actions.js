@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { formatBalance } from '../loc';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useContext, useEffect } from 'react';
-import { BlueStorageContext } from '../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../blue_modules/storage-context';
 
 function DeviceQuickActions() {
   DeviceQuickActions.STORAGE_KEY = 'DeviceQuickActionsEnabled';

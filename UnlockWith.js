@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as NavigationService from './NavigationService';
 import { StackActions } from '@react-navigation/native';
 import PropTypes from 'prop-types';
-import { BlueStorageContext } from './blue_modules/BlueStorage';
+import { BlueStorageContext } from './blue_modules/storage-context';
 /** @type {AppStorage} */
 
 const styles = StyleSheet.create({

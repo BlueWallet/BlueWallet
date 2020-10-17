@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { SafeBlueArea, BlueCard, BlueNavigationStyle, BlueListItem, BlueTextHooks } from '../../BlueComponents';
 import OnAppLaunch from '../../class/on-app-launch';
 import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
   flex: {

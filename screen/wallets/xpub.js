@@ -6,7 +6,7 @@ import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
-import { BlueStorageContext } from '../../blue_modules/BlueStorage';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
   root: {
