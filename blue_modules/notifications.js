@@ -12,13 +12,13 @@ const NOTIFICATIONS_STORAGE = 'NOTIFICATIONS_STORAGE';
 let alreadyConfigured = false;
 let baseURI = constants.groundControlUri;
 
-function BlueNotifications(props) {
+function Notifications(props) {
   async function _setPushToken(token) {
     token = JSON.stringify(token);
     return AsyncStorage.setItem(PUSH_TOKEN, token);
   }
 
-  BlueNotifications.getPushToken = async () => {
+  Notifications.getPushToken = async () => {
     try {
       let token = await AsyncStorage.getItem(PUSH_TOKEN);
       token = JSON.parse(token);
@@ -127,8 +127,8 @@ function BlueNotifications(props) {
    *
    * @returns {Promise<boolean>} TRUE if permissions were obtained, FALSE otherwise
    */
-  BlueNotifications.tryToObtainPermissions = async function () {
-    if (await BlueNotifications.getPushToken()) {
+  Notifications.tryToObtainPermissions = async function () {
+    if (await Notifications.getPushToken()) {
       // we already have a token, no sense asking again, just configure pushes to register callbacks and we are done
       if (!alreadyConfigured) configureNotifications(); // no await so it executes in background while we return TRUE and use token
       return true;
@@ -181,10 +181,10 @@ function BlueNotifications(props) {
    * @param txids {string[]}
    * @returns {Promise<object>} Response object from API rest call
    */
-  BlueNotifications.majorTomToGroundControl = async function (addresses, hashes, txids) {
+  Notifications.majorTomToGroundControl = async function (addresses, hashes, txids) {
     if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids))
       throw new Error('no addresses or hashes or txids provided');
-    const pushToken = await BlueNotifications.getPushToken();
+    const pushToken = await Notifications.getPushToken();
     if (!pushToken || !pushToken.token || !pushToken.os) return;
 
     const api = new Frisbee({ baseURI });
@@ -211,10 +211,10 @@ function BlueNotifications(props) {
    * @param txids {string[]}
    * @returns {Promise<object>} Response object from API rest call
    */
-  BlueNotifications.unsubscribe = async function (addresses, hashes, txids) {
+  Notifications.unsubscribe = async function (addresses, hashes, txids) {
     if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids))
       throw new Error('no addresses or hashes or txids provided');
-    const pushToken = await BlueNotifications.getPushToken();
+    const pushToken = await Notifications.getPushToken();
     if (!pushToken || !pushToken.token || !pushToken.os) return;
 
     const api = new Frisbee({ baseURI });
@@ -233,26 +233,26 @@ function BlueNotifications(props) {
     );
   };
 
-  BlueNotifications.isNotificationsEnabled = async function () {
+  Notifications.isNotificationsEnabled = async function () {
     const levels = await getLevels();
 
-    return !!(await BlueNotifications.getPushToken()) && !!levels.level_all;
+    return !!(await Notifications.getPushToken()) && !!levels.level_all;
   };
 
-  BlueNotifications.getDefaultUri = function () {
+  Notifications.getDefaultUri = function () {
     return constants.groundControlUri;
   };
 
-  BlueNotifications.saveUri = async function (uri) {
+  Notifications.saveUri = async function (uri) {
     baseURI = uri || constants.groundControlUri; // settign the url to use currently. if not set - use default
     return AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, uri);
   };
 
-  BlueNotifications.getSavedUri = async function () {
+  Notifications.getSavedUri = async function () {
     return AsyncStorage.getItem(GROUNDCONTROL_BASE_URI);
   };
 
-  BlueNotifications.isGroundControlUriValid = async uri => {
+  Notifications.isGroundControlUriValid = async uri => {
     const apiCall = new Frisbee({
       baseURI: uri,
     });
@@ -277,7 +277,7 @@ function BlueNotifications(props) {
    *
    * @returns {Promise<Object>}
    */
-  BlueNotifications.checkPermissions = async function () {
+  Notifications.checkPermissions = async function () {
     return new Promise(function (resolve) {
       PushNotification.checkPermissions(result => {
         resolve(result);
@@ -291,8 +291,8 @@ function BlueNotifications(props) {
    * @param levelAll {Boolean}
    * @returns {Promise<*>}
    */
-  BlueNotifications.setLevels = async function (levelAll) {
-    const pushToken = await BlueNotifications.getPushToken();
+  Notifications.setLevels = async function (levelAll) {
+    const pushToken = await Notifications.getPushToken();
     if (!pushToken || !pushToken.token || !pushToken.os) return;
 
     const api = new Frisbee({ baseURI });
@@ -317,7 +317,7 @@ function BlueNotifications(props) {
    * @returns {Promise<{}|*>}
    */
   const getLevels = async function () {
-    const pushToken = await BlueNotifications.getPushToken();
+    const pushToken = await Notifications.getPushToken();
     if (!pushToken || !pushToken.token || !pushToken.os) return;
 
     const api = new Frisbee({ baseURI });
@@ -335,7 +335,7 @@ function BlueNotifications(props) {
     return response.body;
   };
 
-  BlueNotifications.getStoredNotifications = async function () {
+  Notifications.getStoredNotifications = async function () {
     let notifications = [];
     try {
       const stringified = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE);
@@ -347,7 +347,7 @@ function BlueNotifications(props) {
   };
 
   const postTokenConfig = async function () {
-    const pushToken = await BlueNotifications.getPushToken();
+    const pushToken = await Notifications.getPushToken();
     if (!pushToken || !pushToken.token || !pushToken.os) return;
 
     const api = new Frisbee({ baseURI });
@@ -370,13 +370,13 @@ function BlueNotifications(props) {
     } catch (_) {}
   };
 
-  BlueNotifications.clearStoredNotifications = async function () {
+  Notifications.clearStoredNotifications = async function () {
     try {
       await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify([]));
     } catch (_) {}
   };
 
-  BlueNotifications.setApplicationIconBadgeNumber = function (badges) {
+  Notifications.setApplicationIconBadgeNumber = function (badges) {
     PushNotification.setApplicationIconBadgeNumber(badges);
   };
 
@@ -391,9 +391,9 @@ function BlueNotifications(props) {
     } catch (_) {}
 
     // every launch should clear badges:
-    BlueNotifications.setApplicationIconBadgeNumber(0);
+    Notifications.setApplicationIconBadgeNumber(0);
 
-    if (!(await BlueNotifications.getPushToken())) return;
+    if (!(await Notifications.getPushToken())) return;
     // if we previously had token that means we already acquired permission from the user and it is safe to call
     // `configure` to register callbacks etc
     await configureNotifications();
@@ -402,4 +402,4 @@ function BlueNotifications(props) {
   return null;
 }
 
-export default BlueNotifications;
+export default Notifications;

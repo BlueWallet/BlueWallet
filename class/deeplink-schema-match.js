@@ -4,15 +4,11 @@ import RNFS from 'react-native-fs';
 import url from 'url';
 import { Chain } from '../models/bitcoinUnits';
 import Azteco from './azteco';
-import { useContext } from 'react';
-import { BlueStorageContext } from '../blue_modules/BlueStorage';
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
 
-function DeeplinkSchemaMatch() {
-  const { wallets, saveToDisk, addWallet } = useContext(BlueStorageContext);
-
-  DeeplinkSchemaMatch.hasSchema = schemaString => {
+class DeeplinkSchemaMatch {
+  static hasSchema(schemaString) {
     if (typeof schemaString !== 'string' || schemaString.length <= 0) return false;
     const lowercaseString = schemaString.trim().toLowerCase();
     return (
@@ -22,7 +18,7 @@ function DeeplinkSchemaMatch() {
       lowercaseString.startsWith('bluewallet:') ||
       lowercaseString.startsWith('lapp:')
     );
-  };
+  }
 
   /**
    * Examines the content of the event parameter.
@@ -32,7 +28,7 @@ function DeeplinkSchemaMatch() {
    * @param event {{url: string}} URL deeplink as passed to app, e.g. `bitcoin:bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo`
    * @param completionHandler {function} Callback that returns [string, params: object]
    */
-  DeeplinkSchemaMatch.navigationRouteFor = (event, completionHandler) => {
+  static navigationRouteFor(event, completionHandler, context = {wallets: [], saveToDisk: () => {}, addWallet: () => {}}) {
     if (event.url === null) {
       return;
     }
@@ -115,7 +111,7 @@ function DeeplinkSchemaMatch() {
 
       const safelloStateToken = urlObject.query['safello-state-token'];
       let wallet;
-      for (const w of wallets) {
+      for (const w of context.wallets) {
         wallet = w;
         break;
       }
@@ -146,7 +142,7 @@ function DeeplinkSchemaMatch() {
               console.log('opening LAPP', urlObject.query.url);
               // searching for LN wallet:
               let haveLnWallet = false;
-              for (const w of wallets) {
+              for (const w of context.wallets) {
                 if (w.type === LightningCustodianWallet.type) {
                   haveLnWallet = true;
                 }
@@ -169,14 +165,14 @@ function DeeplinkSchemaMatch() {
                   // giving up, not doing anything
                   return;
                 }
-                addWallet(w);
-                await saveToDisk();
+                context.addWallet(w);
+                context.saveToDisk();
               }
 
               // now, opening lapp browser and navigating it to URL.
               // looking for a LN wallet:
               let lnWallet;
-              for (const w of wallets) {
+              for (const w of context.wallets) {
                 if (w.type === LightningCustodianWallet.type) {
                   lnWallet = w;
                   break;
@@ -202,30 +198,30 @@ function DeeplinkSchemaMatch() {
         }
       })();
     }
-  };
+  }
 
-  DeeplinkSchemaMatch.isTXNFile = filePath => {
+  static isTXNFile(filePath) {
     return (
       (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
       filePath.toLowerCase().endsWith('.txn')
     );
-  };
+  }
 
-  DeeplinkSchemaMatch.isPossiblySignedPSBTFile = filePath => {
+  static isPossiblySignedPSBTFile(filePath) {
     return (
       (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
       filePath.toLowerCase().endsWith('-signed.psbt')
     );
-  };
+  }
 
-  DeeplinkSchemaMatch.isPossiblyPSBTFile = filePath => {
+  static isPossiblyPSBTFile(filePath) {
     return (
       (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
       filePath.toLowerCase().endsWith('.psbt')
     );
-  };
+  }
 
-  DeeplinkSchemaMatch.isBothBitcoinAndLightningOnWalletSelect = (wallet, uri) => {
+  static isBothBitcoinAndLightningOnWalletSelect(wallet, uri) {
     if (wallet.chain === Chain.ONCHAIN) {
       return [
         'SendDetailsRoot',
@@ -249,9 +245,9 @@ function DeeplinkSchemaMatch() {
         },
       ];
     }
-  };
+  }
 
-  DeeplinkSchemaMatch.isBitcoinAddress = address => {
+  static isBitcoinAddress(address) {
     address = address.replace('bitcoin:', '').replace('BITCOIN:', '').replace('bitcoin=', '').split('?')[0];
     let isValidBitcoinAddress = false;
     try {
@@ -261,30 +257,30 @@ function DeeplinkSchemaMatch() {
       isValidBitcoinAddress = false;
     }
     return isValidBitcoinAddress;
-  };
+  }
 
-  DeeplinkSchemaMatch.isLightningInvoice = invoice => {
+  static isLightningInvoice(invoice) {
     let isValidLightningInvoice = false;
     if (invoice.toLowerCase().startsWith('lightning:lnb') || invoice.toLowerCase().startsWith('lnb')) {
       isValidLightningInvoice = true;
     }
     return isValidLightningInvoice;
-  };
+  }
 
-  DeeplinkSchemaMatch.isLnUrl = text => {
+  static isLnUrl(text) {
     if (text.toLowerCase().startsWith('lightning:lnurl') || text.toLowerCase().startsWith('lnurl')) {
       return true;
     }
     return false;
-  };
+  }
 
-  DeeplinkSchemaMatch.isSafelloRedirect = event => {
+  static isSafelloRedirect(event) {
     const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
 
     return !!urlObject.query['safello-state-token'];
-  };
+  }
 
-  DeeplinkSchemaMatch.isBothBitcoinAndLightning = url => {
+  static isBothBitcoinAndLightning(url) {
     if (url.includes('lightning') && (url.includes('bitcoin') || url.includes('BITCOIN'))) {
       const txInfo = url.split(/(bitcoin:|BITCOIN:|lightning:|lightning=|bitcoin=)+/);
       let bitcoin;
@@ -317,17 +313,17 @@ function DeeplinkSchemaMatch() {
       }
     }
     return undefined;
-  };
+  }
 
-  DeeplinkSchemaMatch.bip21decode = uri => {
+  static bip21decode(uri) {
     return bip21.decode(uri.replace('BITCOIN:', 'bitcoin:'));
-  };
+  }
 
-  DeeplinkSchemaMatch.bip21encode = () => {
+  static bip21encode() {
     return bip21.encode.apply(bip21, arguments);
-  };
+  }
 
-  DeeplinkSchemaMatch.decodeBitcoinUri = uri => {
+  static decodeBitcoinUri(uri) {
     let amount = '';
     let parsedBitcoinUri = null;
     let address = uri || '';
@@ -350,8 +346,7 @@ function DeeplinkSchemaMatch() {
       }
     } catch (_) {}
     return { address, amount, memo, payjoinUrl };
-  };
-  return null;
+  }
 }
 
 export default DeeplinkSchemaMatch;

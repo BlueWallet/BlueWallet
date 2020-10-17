@@ -31,7 +31,7 @@ import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import Lnurl from '../../class/lnurl';
 import { BlueStorageContext } from '../../blue_modules/BlueStorage';
-import BlueNotifications from '../../blue_modules/notifications';
+import Notifications from '../../blue_modules/notifications';
 const currency = require('../../blue_modules/currency');
 
 const styles = StyleSheet.create({
@@ -226,8 +226,8 @@ export default class LNDCreateInvoice extends Component {
         /** @type LightningCustodianWallet */
         const fromWallet = this.state.fromWallet;
         const decoded = await fromWallet.decodeInvoice(invoiceRequest);
-        await BlueNotifications.tryToObtainPermissions();
-        BlueNotifications.majorTomToGroundControl([], [decoded.payment_hash], []);
+        await Notifications.tryToObtainPermissions();
+        Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
 
         // send to lnurl-withdraw callback url if that exists
         if (this.state.lnurlParams) {

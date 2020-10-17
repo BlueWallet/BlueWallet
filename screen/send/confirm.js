@@ -21,7 +21,7 @@ import {
 } from '../../class';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-import BlueNotifications from '../../blue_modules/notifications';
+import Notifications from '../../blue_modules/notifications';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
@@ -76,7 +76,7 @@ export default class Confirm extends Component {
 
         const txid = bitcoin.Transaction.fromHex(this.state.tx).getId();
         txids2watch.push(txid);
-        BlueNotifications.majorTomToGroundControl([], [], txids2watch);
+        Notifications.majorTomToGroundControl([], [], txids2watch);
         let amount = 0;
         const recipients = this.state.recipients;
         if (recipients[0].amount === BitcoinUnit.MAX || (!recipients[0].amount && !recipients[0].value)) {

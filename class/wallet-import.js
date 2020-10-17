@@ -18,7 +18,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import loc from '../loc';
 import { useContext } from 'react';
 import { BlueStorageContext } from '../blue_modules/BlueStorage';
-import BlueNotifications from '../blue_modules/notifications';
+import Notifications from '../blue_modules/notifications';
 const A = require('../blue_modules/analytics');
 const bip38 = require('../blue_modules/bip38');
 const wif = require('wif');
@@ -52,7 +52,7 @@ function WalletImport() {
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
     alert(loc.wallets.import_success);
-    BlueNotifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
+    Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
   };
 
   WalletImport.removePlaceholderWallet = () => {

@@ -4,7 +4,7 @@ import { InteractionManager } from 'react-native';
 import { Chain } from './models/bitcoinUnits';
 import loc, { formatBalance, transactionTimeToReadable } from './loc';
 import { BlueStorageContext } from './blue_modules/BlueStorage';
-import BlueNotifications from './blue_modules/notifications';
+import Notifications from './blue_modules/notifications';
 
 function WatchConnectivity() {
   const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useContext(BlueStorageContext);
@@ -40,9 +40,9 @@ function WatchConnectivity() {
         // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
         try {
           // Let's verify if notifications are already configured. Otherwise the watch app will freeze waiting for user approval in iOS app
-          if (await BlueNotifications.isNotificationsEnabled()) {
+          if (await Notifications.isNotificationsEnabled()) {
             const decoded = await wallet.decodeInvoice(invoiceRequest);
-            BlueNotifications.majorTomToGroundControl([], [decoded.payment_hash], []);
+            Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
           }
         } catch (e) {
           console.log('WatchConnectivity - Running in Simulator');

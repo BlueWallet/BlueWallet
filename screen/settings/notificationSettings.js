@@ -15,7 +15,7 @@ import { useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import { Button } from 'react-native-elements';
 import { BlueCurrentTheme } from '../../components/themes';
-import BlueNotifications from '../../blue_modules/notifications';
+import Notifications from '../../blue_modules/notifications';
 
 const NotificationSettings = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -30,32 +30,32 @@ const NotificationSettings = () => {
     setNotificationsEnabled(value); // so the slider is not 'jumpy'
     if (value) {
       // user is ENABLING notifications
-      if (await BlueNotifications.getPushToken()) {
+      if (await Notifications.getPushToken()) {
         // we already have a token, so we just need to reenable ALL level on groundcontrol:
-        await BlueNotifications.setLevels(true);
+        await Notifications.setLevels(true);
       } else {
         // ok, we dont have a token. we need to try to obtain permissions, configure callbacks and save token locally:
-        await BlueNotifications.tryToObtainPermissions();
+        await Notifications.tryToObtainPermissions();
       }
     } else {
       // user is DISABLING notifications
-      await BlueNotifications.setLevels(false);
+      await Notifications.setLevels(false);
     }
 
-    setNotificationsEnabled(await BlueNotifications.isNotificationsEnabled());
+    setNotificationsEnabled(await Notifications.isNotificationsEnabled());
   };
 
   useEffect(() => {
     (async () => {
-      setNotificationsEnabled(await BlueNotifications.isNotificationsEnabled());
-      setURI(await BlueNotifications.getSavedUri());
+      setNotificationsEnabled(await Notifications.isNotificationsEnabled());
+      setURI(await Notifications.getSavedUri());
       setTokenInfo(
         'token: ' +
-          JSON.stringify(await BlueNotifications.getPushToken()) +
+          JSON.stringify(await Notifications.getPushToken()) +
           ' permissions: ' +
-          JSON.stringify(await BlueNotifications.checkPermissions()) +
+          JSON.stringify(await Notifications.checkPermissions()) +
           ' stored notifications: ' +
-          JSON.stringify(await BlueNotifications.getStoredNotifications()),
+          JSON.stringify(await Notifications.getStoredNotifications()),
       );
       setIsLoading(false);
     })();
@@ -81,14 +81,14 @@ const NotificationSettings = () => {
     try {
       if (URI) {
         // validating only if its not empty. empty means use default
-        if (await BlueNotifications.isGroundControlUriValid(URI)) {
-          await BlueNotifications.saveUri(URI);
+        if (await Notifications.isGroundControlUriValid(URI)) {
+          await Notifications.saveUri(URI);
           alert(loc.settings.saved);
         } else {
           alert(loc.settings.not_a_valid_uri);
         }
       } else {
-        await BlueNotifications.saveUri('');
+        await Notifications.saveUri('');
         alert(loc.settings.saved);
       }
     } catch (error) {
@@ -128,7 +128,7 @@ const NotificationSettings = () => {
       <BlueCard>
         <View style={styles.uri}>
           <TextInput
-            placeholder={BlueNotifications.getDefaultUri()}
+            placeholder={Notifications.getDefaultUri()}
             value={URI}
             onChangeText={setURI}
             numberOfLines={1}

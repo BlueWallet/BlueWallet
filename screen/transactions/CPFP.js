@@ -20,7 +20,7 @@ import { BlueCurrentTheme } from '../../components/themes';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/BlueStorage';
-import BlueNotifications from '../../blue_modules/notifications';
+import Notifications from '../../blue_modules/notifications';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const styles = StyleSheet.create({
@@ -118,7 +118,7 @@ export default class CPFP extends Component {
 
   onSuccessBroadcast() {
     this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
-    BlueNotifications.majorTomToGroundControl([], [], [this.state.newTxid]);
+    Notifications.majorTomToGroundControl([], [], [this.state.newTxid]);
   }
 
   async componentDidMount() {

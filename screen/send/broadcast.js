@@ -17,7 +17,7 @@ import {
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import BlueElectrum from '../../blue_modules/BlueElectrum';
-import BlueNotifications from '../../blue_modules/notifications';
+import Notifications from '../../blue_modules/notifications';
 const bitcoin = require('bitcoinjs-lib');
 
 const BROADCAST_RESULT = Object.freeze({
@@ -44,7 +44,7 @@ const Broadcast = () => {
         const txid = tx.getId();
         setTx(txid);
         setBroadcastResult(BROADCAST_RESULT.success);
-        BlueNotifications.majorTomToGroundControl([], [], [txid]);
+        Notifications.majorTomToGroundControl([], [], [txid]);
       } else {
         setBroadcastResult(BROADCAST_RESULT.error);
       }
