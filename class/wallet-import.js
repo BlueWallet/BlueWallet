@@ -61,10 +61,7 @@ function WalletImport() {
 
   WalletImport.isWalletImported = secret => {
     const wallet = wallets.some(wallet => wallet.getSecret() === secret && wallet.type !== PlaceholderWallet.type);
-    if (wallet) {
-      return true;
-    }
-    return false;
+    return !!wallet;
   };
 
   WalletImport.presentWalletAlreadyExistsAlert = () => {
