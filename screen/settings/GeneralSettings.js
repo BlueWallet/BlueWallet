@@ -15,13 +15,13 @@ const styles = StyleSheet.create({
 const GeneralSettings = () => {
   const { isAdancedModeEnabled, setIsAdancedModeEnabled, wallets } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
-  const [adancedIsModeEnabled, setAdancedModeIsEnabled] = useState(false);
+  const [isAdancedModeSwitchEnabled, setIsAdancedModeSwitchEnabled] = useState(false);
   const [isHandoffUseEnabled, setIsHandoffUseEnabled] = useState(false);
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const onAdvancedModeSwitch = async value => {
     await setIsAdancedModeEnabled(value);
-    setAdancedModeIsEnabled(value);
+    setIsAdancedModeSwitchEnabled(value);
   };
 
   const onHandOffEnabledSwitch = async value => {
@@ -31,7 +31,7 @@ const GeneralSettings = () => {
 
   useEffect(() => {
     (async () => {
-      setAdancedModeIsEnabled(await isAdancedModeEnabled());
+      setIsAdancedModeSwitchEnabled(await isAdancedModeEnabled());
       setIsHandoffUseEnabled(await HandoffSettings.isHandoffUseEnabled());
       setIsLoading(false);
     })();
@@ -78,7 +78,7 @@ const GeneralSettings = () => {
       <BlueListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.general_adv_mode}
-        switch={{ onValueChange: onAdvancedModeSwitch, value: adancedIsModeEnabled }}
+        switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeSwitchEnabled }}
       />
       <BlueCard>
         <BlueTextHooks>{loc.settings.general_adv_mode_e}</BlueTextHooks>
