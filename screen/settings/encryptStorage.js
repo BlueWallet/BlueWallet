@@ -26,7 +26,7 @@ const EncryptStorage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [deleteWalletsAfterUninstall, setDeleteWalletsAfterUninstall] = useState(false);
   const [biometrics, setBiometrics] = useState({ isDeviceBiometricCapable: false, isBiometricsEnabled: false, biometricsType: '' });
-  const [storageIsEncrypted, setStorageIsEncrypted] = useState(false);
+  const [storageIsEncryptedSwitchEnabled, setStorageIsEncryptedSwitchEnabled] = useState(false);
   const { navigate, dispatch } = useNavigation();
   const styles = StyleSheet.create({
     root: {
@@ -40,9 +40,9 @@ const EncryptStorage = () => {
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
     const biometricsType = (await Biometric.biometricType()) || 'biometrics';
     const deleteWalletsAfterUninstall = await isDeleteWalletAfterUninstallEnabled();
-    const storageIsEncrypted = await isStorageEncrypted();
+    const isStorageEncryptedSwitchEnabled = await isStorageEncrypted();
     setBiometrics(biometrics);
-    setStorageIsEncrypted(storageIsEncrypted);
+    setStorageIsEncryptedSwitchEnabled(isStorageEncryptedSwitchEnabled);
     setDeleteWalletsAfterUninstall(deleteWalletsAfterUninstall);
     setBiometrics({ isBiometricsEnabled, isDeviceBiometricCapable, biometricsType });
     setIsLoading(false);
@@ -66,11 +66,11 @@ const EncryptStorage = () => {
       }
 
       setIsLoading(false);
-      setStorageIsEncrypted(await isStorageEncrypted());
+      setStorageIsEncryptedSwitchEnabled(await isStorageEncrypted());
       setDeleteWalletsAfterUninstall(await isDeleteWalletAfterUninstallEnabled());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dispatch]);
 
   const onDeleteWalletsAfterUninstallSwitch = useCallback(async value => {
     await setResetOnAppUninstallTo(value);
@@ -78,49 +78,51 @@ const EncryptStorage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onEncryptStorageSwitch = useCallback(async value => {
-    setIsLoading(true);
-    if (value === true) {
-      let p1 = await prompt(loc.settings.password, loc.settings.password_explain).catch(() => {
-        setIsLoading(false);
-        p1 = undefined;
-      });
-      if (!p1) {
-        setIsLoading(false);
-        return;
-      }
-      const p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
-        setIsLoading(false);
-      });
-      if (p1 === p2) {
-        await encryptStorage(p1);
-        setIsLoading(false);
-        setStorageIsEncrypted(await isStorageEncrypted());
+  const onEncryptStorageSwitch = useCallback(
+    async value => {
+      setIsLoading(true);
+      if (value === true) {
+        let p1 = await prompt(loc.settings.password, loc.settings.password_explain).catch(() => {
+          setIsLoading(false);
+          p1 = undefined;
+        });
+        if (!p1) {
+          setIsLoading(false);
+          return;
+        }
+        const p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
+          setIsLoading(false);
+        });
+        if (p1 === p2) {
+          await encryptStorage(p1);
+          setIsLoading(false);
+          setStorageIsEncryptedSwitchEnabled(await isStorageEncrypted());
+        } else {
+          setIsLoading(false);
+          alert(loc.settings.passwords_do_not_match);
+        }
       } else {
-        setIsLoading(false);
-        alert(loc.settings.passwords_do_not_match);
+        Alert.alert(
+          loc.settings.encrypt_decrypt,
+          loc.settings.encrypt_decrypt_q,
+          [
+            {
+              text: loc._.cancel,
+              style: 'cancel',
+              onPress: () => setIsLoading(false),
+            },
+            {
+              text: loc._.ok,
+              style: 'destructive',
+              onPress: handleDecryptStorage,
+            },
+          ],
+          { cancelable: false },
+        );
       }
-    } else {
-      Alert.alert(
-        loc.settings.encrypt_decrypt,
-        loc.settings.encrypt_decrypt_q,
-        [
-          {
-            text: loc._.cancel,
-            style: 'cancel',
-            onPress: () => setIsLoading(false),
-          },
-          {
-            text: loc._.ok,
-            style: 'destructive',
-            onPress: handleDecryptStorage,
-          },
-        ],
-        { cancelable: false },
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    },
+    [handleDecryptStorage],
+  );
 
   const onUseBiometricSwitch = useCallback(
     async value => {
@@ -169,7 +171,7 @@ const EncryptStorage = () => {
           hideChevron
           title={loc.settings.encrypt_enc_and_pass}
           Component={TouchableWithoutFeedback}
-          switch={{ onValueChange: onEncryptStorageSwitch, value: storageIsEncrypted }}
+          switch={{ onValueChange: onEncryptStorageSwitch, value: storageIsEncryptedSwitchEnabled }}
         />
         {Platform.OS === 'ios' && (
           <BlueListItem
@@ -182,7 +184,7 @@ const EncryptStorage = () => {
             }}
           />
         )}
-        {storageIsEncrypted && (
+        {storageIsEncryptedSwitchEnabled && (
           <BlueListItem
             onPress={navigateToPlausibleDeniability}
             title={loc.settings.plausible_deniability}

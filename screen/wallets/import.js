@@ -72,11 +72,7 @@ const WalletsImport = () => {
   const importMnemonic = async (importText, additionalProperties) => {
     if (WalletImport.isCurrentlyImportingWallet()) {
       return;
-    } else if (WalletImport.isWalletImported(importText)) {
-      WalletImport.presentWalletAlreadyExistsAlert();
-      return;
     }
-
     WalletImport.addPlaceholderWallet(importText);
     navigation.dangerouslyGetParent().pop();
     await new Promise(resolve => setTimeout(resolve, 500)); // giving some time to animations
@@ -86,8 +82,7 @@ const WalletsImport = () => {
     } catch (error) {
       WalletImport.removePlaceholderWallet();
       WalletImport.addPlaceholderWallet(importText, true);
-      console.warn(error);
-
+      console.log(error);
       alert(loc.wallets.import_error);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
     }
