@@ -8,7 +8,12 @@
     "of": "{number} von {total}",
     "ok": "OK",
     "storage_is_encrypted": "Dein Speicher ist verschlüsselt. Zum Entschlüsseln wird ein Passwort benötigt.",
-    "yes": "Ja"
+    "allow": "Zulassen",
+    "dont_allow": "Ablehnen",
+    "yes": "Ja",
+    "no": "Nein",
+    "invalid_animated_qr_code_fragment" : "Ungültig animiertes QR-Code-Fragment. Bitte erneut versuchen",
+    "file_saved": "Die Datei ({filePath}) wurde deinen Downloadfolder gespeichert."
   },
   "azteco": {
     "codeIs": "Dein Gutscheincode lautet",
@@ -176,7 +181,7 @@
     "details_total_exceeds_balance": "Der zu sendende Betrag ist größer als der verfügbare Betrag.",
     "details_wallet_before_tx": "Vor der Ausführung einer Transaktion musst Du zuerst eine Bitcoin Wallet erstellen.",
     "details_wallet_selection": "Wallet Auswahl",
-    "dynamic_init": "Initialisierung",
+    "dynamic_init": "Initialisiere",
     "dynamic_next": "Nächste",
     "dynamic_prev": "Vorherige",
     "dynamic_start": "Start",
@@ -209,7 +214,8 @@
     "qr_error_no_qrcode": "Das gewählte Foto enthält keinen QR code",
     "qr_error_no_wallet": "Die ausgewählte Datei enthält keine Wallet, die importiert werden kann.",
     "success_done": "Fertig",
-    "txSaved": "Die Transaktionsdatei ({filePath}) wurde im Download-Ordner gespeichert."
+    "txSaved": "Die Transaktionsdatei ({filePath}) wurde im Download-Ordner gespeichert.",
+    "problem_with_psbt": "PSBT Problem"
   },
   "settings": {
     "about": "Über",
@@ -269,6 +275,13 @@
     "password_explain": "Erstelle das Passwort zum Entschlüsseln des Speichers",
     "passwords_do_not_match": "Passwörter stimmen nicht überein",
     "plausible_deniability": "Glaubhafte Täuschung",
+    "privacy": "Privatsphäre",
+    "privacy_read_clipboard": "Zwischenablage lesen",
+    "privacy_read_clipboard_alert": "BlueWallet wird die Einträge zur Rechnungs- oder Adressverwendung deiner Zwischenablage anzeigen.",
+    "privacy_system_settings": "Systemeinstellungen",
+    "privacy_quickactions": "Walletverknüpfungen",
+    "privacy_quickactions_explanation": "Halte auf dem Startbildschirm das BlueWallet App-Symbol gedrückt, um rasch deinen Saldo zu sehen.",
+    "privacy_clipboard_explanation": "Stellt vorhandene Verknüpfungen der Zwischenablage für Rechnungen und Adressen bereit.",
     "push_notifications": "Push-Benachrichtigungen",
     "retype_password": "Passwort wiederholen",
     "save": "Speichern",
@@ -345,11 +358,12 @@
     "import_imported": "Importiert",
     "import_scan_qr": "QR-Code scannen oder Datei importieren",
     "import_success": "Wallet wurde erfolgreich importiert.",
+    "looks_like_bip38": "Passwortgeschützter Privatschlüssel (BIP38) erkannt.",
+    "enter_bip38_password": "Passwort zur Entschlüssellung eingeben",
     "import_title": "Importieren",
     "list_create_a_button": "Jetzt hinzufügen",
     "list_create_a_wallet": "Wallet hinzufügen",
-    "list_create_a_wallet1": "Es ist kostenlos und du kannst",
-    "list_create_a_wallet2": "so viele Wallets erstellen, wie du möchtest",
+    "list_create_a_wallet_text": "Es ist kostenlos. \nErstelle so viel du magst",
     "list_empty_txs1": "Deine Transaktionen erscheinen hier",
     "list_empty_txs1_lightning": "Verwende das Lightning Wallet für Deine täglichen Bezahlungen. Lightning Transaktionen sind konkurrenzlos günstig und verblüffend schnell.",
     "list_empty_txs2": "Noch keine Transaktionen",
@@ -371,5 +385,19 @@
     "select_wallet": "Wähle eine Wallet",
     "xpub_copiedToClipboard": "In die Zwischenablage kopiert.",
     "xpub_title": "Wallet XPUB"
+  },
+  "multisig": {
+    "provide_signature": "Stell die Signatur bereit",
+    "vault_key": "Tresor-Schlüssel: {number}",
+    "fee": "Gebhür: {number}",
+    "fee_btc": "{number} BTC",
+    "confirm": "Bestätigen",
+    "header": "Senden",
+    "share": "Teilen",
+    "how_many_signatures_can_bluewallet_make": "Erlaubte Anzahl an BlueWallet Signaturen",
+    "scan_or_import_file": "Datei scannen oder importieren",
+    "export_coordination_setup": "Koordinations-Setup exportieren",
+    "cosign_this_transaction": "Diese Transaktion teilsignieren?",
+    "co_sign_transaction": "QR-Transaktion teilsignieren"
   }
 }
