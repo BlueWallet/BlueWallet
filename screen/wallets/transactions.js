@@ -407,7 +407,7 @@ const WalletTransactions = () => {
     navigate('SendDetailsRoot', {
       screen: 'SendDetails',
       params: {
-        fromWallet: wallet,
+        fromWallet: wallet.current,
       },
     });
   };
