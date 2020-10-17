@@ -564,9 +564,9 @@ const WalletTransactions = () => {
       )}
       <BlueWalletNavigationHeader
         wallet={wallet.current}
-        onWalletUnitChange={wallet =>
+        onWalletUnitChange={passedWallet =>
           InteractionManager.runAfterInteractions(async () => {
-            setItemPriceUnit(wallet.current.getPreferredBalanceUnit());
+            setItemPriceUnit(passedWallet.getPreferredBalanceUnit());
             saveToDisk();
           })
         }
