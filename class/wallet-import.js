@@ -60,9 +60,9 @@ function WalletImport() {
   };
 
   WalletImport.isWalletImported = w => {
-    const wallet = wallets
-      .getWallets()
-      .some(wallet => (wallet.getSecret() === w.secret || wallet.getID() === w.getID()) && wallet.type !== PlaceholderWallet.type);
+    const wallet = wallets.some(
+      wallet => (wallet.getSecret() === w.secret || wallet.getID() === w.getID()) && wallet.type !== PlaceholderWallet.type,
+    );
     return !!wallet;
   };
 
