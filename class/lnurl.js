@@ -20,9 +20,9 @@ export default class Lnurl {
   }
 
   static findlnurl(bodyOfText) {
-    var res = /,*?((lnurl)([0-9]{1,}[a-z0-9]+){1})/.exec(bodyOfText.toLowerCase());
+    var res = /^(http.*[&?]lightning=)?((lnurl)([0-9]{1,}[a-z0-9]+){1})/.exec(bodyOfText.toLowerCase());
     if (res) {
-      return res[1];
+      return res[2];
     }
     return null;
   }
@@ -36,7 +36,7 @@ export default class Lnurl {
   }
 
   static isLnurl(url) {
-    return url.toLowerCase().startsWith('lnurl1');
+    return Lnurl.findlnurl(url) !== null
   }
 
   async fetchGet(url) {
