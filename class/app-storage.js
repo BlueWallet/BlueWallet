@@ -53,7 +53,7 @@ export class AppStorage {
    * @param value
    * @returns {Promise<any>|Promise<any> | Promise<void> | * | Promise | void}
    */
-  setItem(key, value) {
+  setItem = (key, value) => {
     if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
       return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
     } else {
@@ -68,7 +68,7 @@ export class AppStorage {
    * @param key
    * @returns {Promise<any>|*}
    */
-  getItem(key) {
+  getItem = (key) => {
     if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
       return RNSecureKeyStore.get(key);
     } else {
@@ -76,7 +76,7 @@ export class AppStorage {
     }
   }
 
-  async setResetOnAppUninstallTo(value) {
+  setResetOnAppUninstallTo = async value => {
     if (Platform.OS === 'ios') {
       await this.setItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL, value ? '1' : '');
       try {
@@ -85,7 +85,7 @@ export class AppStorage {
         console.warn(Error);
       }
     }
-  }
+  };
 
   storageIsEncrypted = async () => {
     let data;

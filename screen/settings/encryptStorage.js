@@ -1,7 +1,7 @@
 /* global alert */
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { ScrollView, Alert, Platform, TouchableOpacity, TouchableWithoutFeedback, StyleSheet } from 'react-native';
-import { useNavigation, StackActions } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import {
   BlueLoadingHook,
@@ -27,7 +27,7 @@ const EncryptStorage = () => {
   const [deleteWalletsAfterUninstall, setDeleteWalletsAfterUninstall] = useState(false);
   const [biometrics, setBiometrics] = useState({ isDeviceBiometricCapable: false, isBiometricsEnabled: false, biometricsType: '' });
   const [storageIsEncryptedSwitchEnabled, setStorageIsEncryptedSwitchEnabled] = useState(false);
-  const { navigate, dispatch } = useNavigation();
+  const { navigate, popToTop } = useNavigation();
   const styles = StyleSheet.create({
     root: {
       flex: 1,
@@ -41,7 +41,6 @@ const EncryptStorage = () => {
     const biometricsType = (await Biometric.biometricType()) || 'biometrics';
     const deleteWalletsAfterUninstall = await isDeleteWalletAfterUninstallEnabled();
     const isStorageEncryptedSwitchEnabled = await isStorageEncrypted();
-    setBiometrics(biometrics);
     setStorageIsEncryptedSwitchEnabled(isStorageEncryptedSwitchEnabled);
     setDeleteWalletsAfterUninstall(deleteWalletsAfterUninstall);
     setBiometrics({ isBiometricsEnabled, isDeviceBiometricCapable, biometricsType });
@@ -50,15 +49,16 @@ const EncryptStorage = () => {
   }, []);
   useEffect(() => {
     initialState();
-  }, [initialState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleDecryptStorage = useCallback(async () => {
+  const handleDecryptStorage = async () => {
     const password = await prompt(loc.settings.password, loc._.storage_is_encrypted).catch(() => {
       setIsLoading(false);
     });
     try {
       await decryptStorage(password);
-      dispatch(StackActions.popToTop());
+      popToTop();
     } catch (e) {
       if (password) {
         alert(loc._.bad_password);
@@ -70,75 +70,71 @@ const EncryptStorage = () => {
       setDeleteWalletsAfterUninstall(await isDeleteWalletAfterUninstallEnabled());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]);
+  };
 
-  const onDeleteWalletsAfterUninstallSwitch = useCallback(async value => {
+  const onDeleteWalletsAfterUninstallSwitch = async value => {
     await setResetOnAppUninstallTo(value);
     setDeleteWalletsAfterUninstall(value);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
-  const onEncryptStorageSwitch = useCallback(
-    async value => {
-      setIsLoading(true);
-      if (value === true) {
-        let p1 = await prompt(loc.settings.password, loc.settings.password_explain).catch(() => {
-          setIsLoading(false);
-          p1 = undefined;
-        });
-        if (!p1) {
-          setIsLoading(false);
-          return;
-        }
-        const p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
-          setIsLoading(false);
-        });
-        if (p1 === p2) {
-          await encryptStorage(p1);
-          setIsLoading(false);
-          setStorageIsEncryptedSwitchEnabled(await isStorageEncrypted());
-        } else {
-          setIsLoading(false);
-          alert(loc.settings.passwords_do_not_match);
-        }
+  const onEncryptStorageSwitch = async value => {
+    setIsLoading(true);
+    if (value === true) {
+      let p1 = await prompt(loc.settings.password, loc.settings.password_explain).catch(() => {
+        setIsLoading(false);
+        p1 = undefined;
+      });
+      if (!p1) {
+        setIsLoading(false);
+        return;
+      }
+      const p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
+        setIsLoading(false);
+      });
+      if (p1 === p2) {
+        await encryptStorage(p1);
+        setIsLoading(false);
+        setStorageIsEncryptedSwitchEnabled(await isStorageEncrypted());
       } else {
-        Alert.alert(
-          loc.settings.encrypt_decrypt,
-          loc.settings.encrypt_decrypt_q,
-          [
-            {
-              text: loc._.cancel,
-              style: 'cancel',
-              onPress: () => setIsLoading(false),
-            },
-            {
-              text: loc._.ok,
-              style: 'destructive',
-              onPress: handleDecryptStorage,
-            },
-          ],
-          { cancelable: false },
-        );
+        setIsLoading(false);
+        alert(loc.settings.passwords_do_not_match);
       }
-    },
-    [handleDecryptStorage],
-  );
+    } else {
+      Alert.alert(
+        loc.settings.encrypt_decrypt,
+        loc.settings.encrypt_decrypt_q,
+        [
+          {
+            text: loc._.cancel,
+            style: 'cancel',
+            onPress: () => setIsLoading(false),
+          },
+          {
+            text: loc._.ok,
+            style: 'destructive',
+            onPress: handleDecryptStorage,
+          },
+        ],
+        { cancelable: false },
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  };
 
-  const onUseBiometricSwitch = useCallback(
-    async value => {
-      const isBiometricsEnabled = {
-        isDeviceBiometricCapable: biometrics.isDeviceBiometricCapable,
-        isBiometricsEnabled: biometrics.isBiometricsEnabled,
-        biometricsType: biometrics.biometricsType,
-      };
-      if (await Biometric.unlockWithBiometrics()) {
-        isBiometricsEnabled.isBiometricsEnabled = value;
-        await Biometric.setBiometricUseEnabled(value);
-        setBiometrics(isBiometricsEnabled);
-      }
-    },
-    [biometrics],
-  );
+  const onUseBiometricSwitch = async value => {
+    const isBiometricsEnabled = {
+      isDeviceBiometricCapable: biometrics.isDeviceBiometricCapable,
+      isBiometricsEnabled: biometrics.isBiometricsEnabled,
+      biometricsType: biometrics.biometricsType,
+    };
+    if (await Biometric.unlockWithBiometrics()) {
+      isBiometricsEnabled.isBiometricsEnabled = value;
+      await Biometric.setBiometricUseEnabled(value);
+      setBiometrics(isBiometricsEnabled);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  };
 
   const navigateToPlausibleDeniability = () => {
     navigate('PlausibleDeniability');

@@ -78,6 +78,8 @@ export const BlueStorageProvider = ({ children }) => {
   const getHodlHodlSignatureKey = BlueApp.getHodlHodlSignatureKey;
   const addHodlHodlContract = BlueApp.addHodlHodlContract;
   const getHodlHodlContracts = BlueApp.getHodlHodlContracts;
+  const getItem = BlueApp.getItem;
+  const setItem = BlueApp.setItem;
 
   return (
     <BlueStorageContext.Provider
@@ -93,6 +95,8 @@ export const BlueStorageProvider = ({ children }) => {
         setSelectedWallet,
         addWallet,
         deleteWallet,
+        setItem,
+        getItem,
         getHodlHodlContracts,
         isAdancedModeEnabled,
         fetchWalletBalances,

@@ -32,6 +32,7 @@ import WatchConnectivity from './WatchConnectivity';
 import DeviceQuickActions from './class/quick-actions';
 import Notifications from './blue_modules/notifications';
 import WalletImport from './class/wallet-import';
+import Biometric from './class/biometrics';
 const A = require('./blue_modules/analytics');
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
@@ -282,6 +283,7 @@ const App = () => {
       <WatchConnectivity />
       <DeviceQuickActions />
       <WalletImport />
+      <Biometric />
     </SafeAreaProvider>
   );
 };
