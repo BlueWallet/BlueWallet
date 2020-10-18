@@ -4,9 +4,16 @@ const assert = require('assert');
 
 describe('LNURL', function () {
   it('can findlnurl', () => {
-    const lnurlExample = 'LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58';
-    const found = Lnurl.findlnurl(lnurlExample);
-    assert.strictEqual(found, 'lnurl1dp68gurn8ghj7mrww3uxymm59e3xjemnw4hzu7re0ghkcmn4wfkz7urp0ylh2um9wf5kg0fhxycnv9g9w58');
+    const base = 'lnurl1dp68gurn8ghj7mrww3uxymm59e3xjemnw4hzu7re0ghkcmn4wfkz7urp0ylh2um9wf5kg0fhxycnv9g9w58';
+    assert.strictEqual(Lnurl.findlnurl(base), base);
+    assert.strictEqual(Lnurl.findlnurl(base.toUpperCase()), base);
+    assert.strictEqual(Lnurl.findlnurl('https://site.com/?lightning=' + base), base);
+    assert.strictEqual(Lnurl.findlnurl('https://site.com/?lightning=' + base.toUpperCase()), base);
+    assert.strictEqual(Lnurl.findlnurl('https://site.com/?nada=nada&lightning=' + base), base);
+    assert.strictEqual(Lnurl.findlnurl('https://site.com/?nada=nada&lightning=' + base.toUpperCase()), base);
+    assert.strictEqual(Lnurl.findlnurl('bs'), null);
+    assert.strictEqual(Lnurl.findlnurl('https://site.com'), null);
+    assert.strictEqual(Lnurl.findlnurl('https://site.com/?bs=' + base), null);
   });
 
   it('can getUrlFromLnurl()', () => {
@@ -19,6 +26,8 @@ describe('LNURL', function () {
 
   it('can isLnurl()', () => {
     assert.ok(Lnurl.isLnurl('LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58'));
+    assert.ok(Lnurl.isLnurl('https://site.com/?lightning=LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58'));
+    assert.ok(!Lnurl.isLnurl('https://site.com/?bs=LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58'));
     assert.ok(!Lnurl.isLnurl('bs'));
   });
 
