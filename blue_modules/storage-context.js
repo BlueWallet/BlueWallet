@@ -20,6 +20,10 @@ export const BlueStorageProvider = ({ children }) => {
     setWallets(BlueApp.getWallets());
   }, []);
 
+  const resetWallets = () => {
+    setWallets(BlueApp.getWallets());
+  }
+
   const setWalletsWithNewOrder = wallets => {
     BlueApp.wallets = wallets;
     saveToDisk();
@@ -114,6 +118,7 @@ export const BlueStorageProvider = ({ children }) => {
         sleep,
         setHodlHodlApiKey,
         createFakeStorage,
+        resetWallets,
         getHodlHodlApiKey,
         isDeleteWalletAfterUninstallEnabled,
         decryptStorage,

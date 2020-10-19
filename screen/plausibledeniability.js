@@ -67,6 +67,7 @@ export default class PlausibleDeniability extends Component {
                 }
 
                 await this.context.createFakeStorage(p1);
+                await this.context.resetWallets();
                 ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
                 alert(loc.plausibledeniability.success);
                 this.props.navigation.popToTop();
