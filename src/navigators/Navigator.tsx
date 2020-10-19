@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import JailMonkey from 'jail-monkey';
 import React from 'react';
+import { AppState } from 'react-native';
 import { connect } from 'react-redux';
 
 import { CONST } from 'app/consts';
@@ -93,7 +94,7 @@ class Navigator extends React.Component<Props, State> {
     if (__DEV__) {
       return false;
     }
-    return !isAuthenticated && isTxPasswordSet && isPinSet;
+    return !isAuthenticated && isTxPasswordSet && isPinSet && AppState.currentState === 'active';
   };
 
   preventOpenAppWithRootedPhone = () => {
