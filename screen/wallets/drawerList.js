@@ -29,7 +29,8 @@ const DrawerList = props => {
   });
 
   useEffect(() => {
-    setCarouselData(wallets.concat(pendingWallets));
+    const allWallets = wallets.concat(pendingWallets);
+    setCarouselData(allWallets.concat(false));
   }, [wallets, pendingWallets]);
 
   const handleClick = index => {
@@ -85,7 +86,7 @@ const DrawerList = props => {
     return (
       <WalletsCarousel
         removeClippedSubviews={false}
-        data={carouselData.concat(false)}
+        data={carouselData}
         onPress={handleClick}
         handleLongPress={handleLongPress}
         ref={walletsCarousel}
