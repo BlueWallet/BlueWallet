@@ -35,7 +35,7 @@ const DrawerList = props => {
     const currentCarouselDataLength = carouselData.length;
     setCarouselData(newCarouselData);
     if (newCarouselData.length > 1 && newCarouselData.length > currentCarouselDataLength) {
-      walletsCarousel.current?.snapToItem(newCarouselData.length);
+      walletsCarousel.current?.snapToItem(allWallets.length - pendingWallets.length > 0 ? 3 : 2);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallets, pendingWallets]);
