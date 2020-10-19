@@ -126,7 +126,7 @@ const WalletsList = () => {
 
   const handleClick = index => {
     console.log('click', index);
-    const wallet = wallets[index];
+    const wallet = carouselData[index];
     if (wallet) {
       if (wallet.type === PlaceholderWallet.type) {
         Alert.alert(
@@ -188,33 +188,33 @@ const WalletsList = () => {
    */
   const lazyRefreshWallet = async index => {
     /** @type {Array.<AbstractWallet>} wallets */
-    if (!wallets[index]) {
+    if (!carouselData[index]) {
       return;
     }
 
-    const oldBalance = wallets[index].getBalance();
+    const oldBalance = carouselData[index].getBalance();
     let noErr = true;
     let didRefresh = false;
 
     try {
-      if (wallets && wallets[index] && wallets[index].type !== PlaceholderWallet.type && wallets[index].timeToRefreshBalance()) {
+      if (carouselData && carouselData[index] && carouselData[index].type !== PlaceholderWallet.type && carouselData[index].timeToRefreshBalance()) {
         console.log('snapped to, and now its time to refresh wallet #', index);
-        await wallets[index].fetchBalance();
-        if (oldBalance !== wallets[index].getBalance() || wallets[index].getUnconfirmedBalance() !== 0) {
+        await carouselData[index].fetchBalance();
+        if (oldBalance !== carouselData[index].getBalance() || carouselData[index].getUnconfirmedBalance() !== 0) {
           console.log('balance changed, thus txs too');
           // balance changed, thus txs too
-          await wallets[index].fetchTransactions();
+          await carouselData[index].fetchTransactions();
           verifyBalance();
           didRefresh = true;
-        } else if (wallets[index].timeToRefreshTransaction()) {
-          console.log(wallets[index].getLabel(), 'thinks its time to refresh TXs');
-          await wallets[index].fetchTransactions();
-          if (wallets[index].fetchPendingTransactions) {
-            await wallets[index].fetchPendingTransactions();
+        } else if (carouselData[index].timeToRefreshTransaction()) {
+          console.log(carouselData[index].getLabel(), 'thinks its time to refresh TXs');
+          await carouselData[index].fetchTransactions();
+          if (carouselData[index].fetchPendingTransactions) {
+            await carouselData[index].fetchPendingTransactions();
           }
-          if (wallets[index].fetchUserInvoices) {
-            await wallets[index].fetchUserInvoices();
-            await wallets[index].fetchBalance(); // chances are, paid ln invoice was processed during `fetchUserInvoices()` call and altered user's balance, so its worth fetching balance again
+          if (carouselData[index].fetchUserInvoices) {
+            await carouselData[index].fetchUserInvoices();
+            await carouselData[index].fetchBalance(); // chances are, paid ln invoice was processed during `fetchUserInvoices()` call and altered user's balance, so its worth fetching balance again
           }
           verifyBalance();
           didRefresh = true;
