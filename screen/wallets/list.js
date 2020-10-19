@@ -81,7 +81,8 @@ const WalletsList = () => {
   );
 
   useEffect(() => {
-    setCarouselData(wallets.concat(pendingWallets));
+    const allWallets = wallets.concat(pendingWallets);
+    setCarouselData(allWallets.concat(false));
   }, [wallets, pendingWallets]);
 
   const verifyBalance = () => {
@@ -195,7 +196,12 @@ const WalletsList = () => {
     let didRefresh = false;
 
     try {
-      if (carouselData && carouselData[index] && carouselData[index].type !== PlaceholderWallet.type && carouselData[index].timeToRefreshBalance()) {
+      if (
+        carouselData &&
+        carouselData[index] &&
+        carouselData[index].type !== PlaceholderWallet.type &&
+        carouselData[index].timeToRefreshBalance()
+      ) {
         console.log('snapped to, and now its time to refresh wallet #', index);
         await carouselData[index].fetchBalance();
         if (oldBalance !== carouselData[index].getBalance() || carouselData[index].getUnconfirmedBalance() !== 0) {
@@ -287,7 +293,7 @@ const WalletsList = () => {
     return (
       <WalletsCarousel
         removeClippedSubviews={false}
-        data={carouselData.concat(false)}
+        data={carouselData}
         onPress={handleClick}
         handleLongPress={handleLongPress}
         onSnapToItem={onSnapToItem}
