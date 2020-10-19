@@ -583,7 +583,7 @@ async function helperCreateWallet(walletName) {
 
 async function helperImportWallet(importText, expectedWalletLabel, expectedBalance) {
   await yo('WalletsList');
-
+  await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
   // going to Import Wallet screen and importing mnemonic
   await element(by.id('CreateAWallet')).tap();
   await element(by.id('ImportWallet')).tap();
