@@ -82,7 +82,13 @@ const WalletsList = () => {
 
   useEffect(() => {
     const allWallets = wallets.concat(pendingWallets);
-    setCarouselData(allWallets.concat(false));
+    const newCarouselData = allWallets.concat(false);
+    const currentCarouselDataLength = carouselData.length;
+    setCarouselData(newCarouselData);
+    if (newCarouselData.length > 1 && newCarouselData.length > currentCarouselDataLength) {
+      walletsCarousel.current?.snapToItem(newCarouselData.length);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallets, pendingWallets]);
 
   const verifyBalance = () => {
