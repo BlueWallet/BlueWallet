@@ -160,9 +160,7 @@ const WalletsList = () => {
       }
     } else {
       // if its out of index - this must be last card with incentive to create wallet
-      if (!carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
-        navigate('AddWalletRoot');
-      }
+      navigate('AddWalletRoot');
     }
   };
 
