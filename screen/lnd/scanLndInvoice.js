@@ -295,21 +295,10 @@ export default class ScanLndInvoice extends React.Component {
           amountUnit: BitcoinUnit.SATS,
           invoiceDescription: this.state.decoded.description,
         });
-        this.fetchTransactions();
+        this.context.fetchAndSaveWalletTransactions(fromWallet);
       },
     );
   }
-
-  fetchTransactions = async () => {
-    await this.state.fromWallet.fetchTransactions();
-    if (this.state.fromWallet.fetchPendingTransactions) {
-      await this.state.fromWallet.fetchPendingTransactions();
-    }
-    if (this.state.fromWallet.fetchUserInvoices) {
-      await this.state.fromWallet.fetchUserInvoices();
-    }
-    this.context.saveToDisk();
-  };
 
   processTextForInvoice = text => {
     if (text.toLowerCase().startsWith('lnb') || text.toLowerCase().startsWith('lightning:lnb') || Lnurl.isLnurl(text)) {

@@ -49,6 +49,27 @@ export const BlueStorageProvider = ({ children }) => {
     if (noErr) await saveToDisk(); // caching
   };
 
+  const fetchAndSaveWalletTransactions = async wallet => {
+    const index = wallets.findIndex(wallet);
+    let noErr = true;
+    try {
+      // await BlueElectrum.ping();
+      await BlueElectrum.waitTillConnected();
+      const balanceStart = +new Date();
+      await fetchWalletBalances(index);
+      const balanceEnd = +new Date();
+      console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+      const start = +new Date();
+      await fetchWalletTransactions(index);
+      const end = +new Date();
+      console.log('fetch tx took', (end - start) / 1000, 'sec');
+    } catch (err) {
+      noErr = false;
+      console.warn(err);
+    }
+    if (noErr) await saveToDisk(); // caching
+  };
+
   const addWallet = wallet => {
     BlueApp.wallets.push(wallet);
     setWallets([...BlueApp.getWallets()]);
@@ -105,6 +126,7 @@ export const BlueStorageProvider = ({ children }) => {
         isAdancedModeEnabled,
         fetchWalletBalances,
         fetchWalletTransactions,
+        fetchAndSaveWalletTransactions,
         isStorageEncrypted,
         getHodlHodlSignatureKey,
         encryptStorage,

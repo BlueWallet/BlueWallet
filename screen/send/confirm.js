@@ -105,8 +105,7 @@ export default class Confirm extends Component {
           amount = formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
         }
 
-        this.state.fromWallet.fetchTransactions().then(() => this.context.saveToDisk());
-
+        this.context.fetchAndSaveWalletTransactions(this.state.fromWallet);
         this.props.navigation.navigate('Success', {
           fee: Number(this.state.fee),
           amount,
