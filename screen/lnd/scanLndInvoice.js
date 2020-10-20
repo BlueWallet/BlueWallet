@@ -289,15 +289,27 @@ export default class ScanLndInvoice extends React.Component {
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
           return alert(Err.message);
         }
-        fromWallet.getUserInvoices(1).then(() => this.context.saveToDisk());
+
         this.props.navigation.navigate('Success', {
           amount: amountSats,
           amountUnit: BitcoinUnit.SATS,
           invoiceDescription: this.state.decoded.description,
         });
+        this.fetchTransactions();
       },
     );
   }
+
+  fetchTransactions = async () => {
+    await this.state.fromWallet.fetchTransactions();
+    if (this.state.fromWallet.fetchPendingTransactions) {
+      await this.state.fromWallet.fetchPendingTransactions();
+    }
+    if (this.state.fromWallet.fetchUserInvoices) {
+      await this.state.fromWallet.fetchUserInvoices();
+    }
+    this.context.saveToDisk();
+  };
 
   processTextForInvoice = text => {
     if (text.toLowerCase().startsWith('lnb') || text.toLowerCase().startsWith('lightning:lnb') || Lnurl.isLnurl(text)) {
