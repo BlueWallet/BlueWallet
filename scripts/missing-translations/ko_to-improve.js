@@ -366,7 +366,9 @@ const ko = {
       share: '공유',
       receiveWithAmount: '금액으로 받기',
       shareWalletAddress: 'TRANSLATION NEEDED | ENG: Share wallet address',
+      receiveWithAmountSubtitle: 'TRANSLATION NEEDED | ENG: Enter the amount which you would like to receive. The QR code will update accordingly to include the amount.',
     },
+    label: 'TRANSLATION NEEDED | ENG: Wallet address',
   },
   settings: {
     language: '언어',

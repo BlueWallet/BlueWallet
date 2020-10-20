@@ -229,8 +229,10 @@ const jo = {
       receiveWithAmount: '金額で受け取る',
       share: '共有',
       shareWalletAddress: 'TRANSLATION NEEDED | ENG: Share wallet address',
+      receiveWithAmountSubtitle: 'TRANSLATION NEEDED | ENG: Enter the amount which you would like to receive. The QR code will update accordingly to include the amount.',
     },
     header: 'コインの受け取り',
+    label: 'TRANSLATION NEEDED | ENG: Wallet address',
   },
   scanQrCode: {
     cancel: 'キャンセル',

@@ -439,11 +439,14 @@ module.exports = {
   },
   receive: {
     header: 'Receive coins',
+    label: 'Wallet address',
     details: {
       amount: 'Amount',
       share: 'Share',
       shareWalletAddress: 'Share wallet address',
       receiveWithAmount: 'Receive with amount',
+      receiveWithAmountSubtitle:
+        'Enter the amount which you would like to receive. The QR code will update accordingly to include the amount.',
     },
   },
   settings: {

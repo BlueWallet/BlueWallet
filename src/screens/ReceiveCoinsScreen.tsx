@@ -164,9 +164,11 @@ class ReceiveCoinsScreen extends Component<Props, State> {
             />
           )}
         </View>
+        <Text style={styles.labelText}>{i18n.receive.label}:</Text>
         <Text style={styles.address}>{this.message}</Text>
         <CopyButton textToCopy={this.message} />
         <Text style={styles.inputTitle}>{i18n.receive.details.receiveWithAmount}</Text>
+        <Text style={styles.receiveSubtitle}>{i18n.receive.details.receiveWithAmountSubtitle}</Text>
         <View style={styles.amountInput}>
           <Text style={styles.amount} onPress={this.editAmount}>
             {amount ? amount.toString() : i18n.receive.details.amount}
@@ -193,11 +195,22 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
   },
-  address: { ...typography.headline9, alignSelf: 'center', marginTop: 30 },
-  inputTitle: { ...typography.headline4, alignSelf: 'center', marginVertical: 20 },
+  address: { ...typography.headline9, alignSelf: 'center', marginTop: 5, marginBottom: 30 },
+  inputTitle: { ...typography.headline4, alignSelf: 'center', marginTop: 20, marginBottom: 5 },
   amountInput: { width: '100%', borderBottomColor: palette.grey, borderBottomWidth: 1, paddingBottom: 10 },
   amount: { ...typography.caption, color: palette.textGrey },
   buttonContainer: {
     marginBottom: 20,
+  },
+  labelText: {
+    ...typography.overline,
+    marginTop: 20,
+  },
+  receiveSubtitle: {
+    ...typography.overline,
+    color: palette.textGrey,
+    fontSize: 13,
+    marginBottom: 30,
+    textAlign: 'center',
   },
 });

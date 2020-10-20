@@ -366,7 +366,9 @@ const pt = {
       share: 'Partilhar',
       receiveWithAmount: 'Receber com o montante',
       shareWalletAddress: 'TRANSLATION NEEDED | ENG: Share wallet address',
+      receiveWithAmountSubtitle: 'TRANSLATION NEEDED | ENG: Enter the amount which you would like to receive. The QR code will update accordingly to include the amount.',
     },
+    label: 'TRANSLATION NEEDED | ENG: Wallet address',
   },
   settings: {
     language: 'Idioma',

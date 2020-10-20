@@ -229,8 +229,10 @@ const zh = {
       receiveWithAmount: '接收金额',
       share: '分享',
       shareWalletAddress: 'TRANSLATION NEEDED | ENG: Share wallet address',
+      receiveWithAmountSubtitle: 'TRANSLATION NEEDED | ENG: Enter the amount which you would like to receive. The QR code will update accordingly to include the amount.',
     },
     header: '接收币',
+    label: 'TRANSLATION NEEDED | ENG: Wallet address',
   },
   scanQrCode: {
     cancel: '取消',

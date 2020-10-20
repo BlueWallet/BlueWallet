@@ -343,6 +343,7 @@ const styles = StyleSheet.create({
   radioButtonSubtitle: {
     ...typography.overline,
     color: palette.textGrey,
+    fontSize: 13,
   },
   importButtonContainer: {
     marginTop: 12,
