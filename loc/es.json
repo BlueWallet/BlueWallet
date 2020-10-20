@@ -8,7 +8,12 @@
     "of": "{number} de {total}",
     "ok": "OK",
     "storage_is_encrypted": "Tu almacenamiento está cifrado. Se requiere la contraseña para descifrarlo.",
-    "yes": "Sí"
+    "allow": "Allow",
+    "dont_allow": "Don't Allow",
+    "yes": "Sí",
+    "no": "No",
+    "invalid_animated_qr_code_fragment" : "Fragmento de Codigo QR invalido, favor intentar de nuevo",
+    "file_saved": "El archivo ({filePath}) se ha guardado en su carpeta de Descargas."
   },
   "azteco": {
     "codeIs": "El código de tu cupón es",
@@ -209,7 +214,8 @@
     "qr_error_no_qrcode": "La imagen seleccionada no contiene un código QR.",
     "qr_error_no_wallet": "El archivo seleccionado no contiene una cartera que pueda ser importada.",
     "success_done": "Completado",
-    "txSaved": "El archivo de la transacción ({filePath}) ha sido guardado en tu carpeta de descargas."
+    "txSaved": "El archivo de la transacción ({filePath}) ha sido guardado en tu carpeta de descargas.",
+    "problem_with_psbt": "Problema con PSBT"
   },
   "settings": {
     "about": "Sobre nosotros",
@@ -269,6 +275,13 @@
     "password_explain": "Crea la contraseña que usarás para descifrar el almacenamiento",
     "passwords_do_not_match": "Contraseñas deben ser iguales",
     "plausible_deniability": "Negación plausible",
+    "privacy": "Privacy",
+    "privacy_read_clipboard": "Read Clipboard",
+    "privacy_read_clipboard_alert": "BlueWallet will display shortcuts for handling an invoice or address found in your clipboard.",
+    "privacy_system_settings": "System Settings",
+    "privacy_quickactions": "Wallet Shortcuts",
+    "privacy_quickactions_explanation": "Touch and hold the BlueWallet app icon on your Home Screen to quickly view your wallet's balance.",
+    "privacy_clipboard_explanation": "Provide shortcuts if an address, or invoice, is found in your clipboard.",
     "push_notifications": "Notificaciones push",
     "retype_password": "Ingresa la contraseña nuevamente",
     "save": "Guardar",
@@ -293,7 +306,7 @@
     "details_to": "Destino",
     "details_transaction_details": "Detalles de la transacción",
     "enable_hw": "Esta cartera no está siendo usada en conjunción con una de hardware. ¿Quieres activar el uso con carteras de hardware?",
-    "list_conf": "conf",
+    "list_conf": "conf: {number}",
     "list_title": "Transacciones",
     "rbf_explain": "Reemplazaremos esta transacción por la de mayor comisión, lo que debería hacer que sea minada en menos tiempo. A esto se le llama RBF (Replace By Fee).",
     "rbf_title": "Incrementar comisión (RBF)",
@@ -345,11 +358,12 @@
     "import_imported": "Importado",
     "import_scan_qr": "Escanear o importar un archivo",
     "import_success": "Tu cartera ha sido importada.",
+    "looks_like_bip38": "This looks like password-protected private key (BIP38)",
+    "enter_bip38_password": "Enter password to decrypt",
     "import_title": "importar",
     "list_create_a_button": "Añadir",
     "list_create_a_wallet": "Añadir cartera",
-    "list_create_a_wallet1": "Es gratis y puedes crear",
-    "list_create_a_wallet2": "todas las que quieras",
+    "list_create_a_wallet_text": "It's free and you can create \nas many as you like",
     "list_empty_txs1": "Tus transacciones aparecerán aquí",
     "list_empty_txs1_lightning": "Usa carteras Lighting para tus transacciones diarias. Tienen tasas muy bajas y una velocidad de vértigo.",
     "list_empty_txs2": "Empieza con tu cartera",
@@ -371,5 +385,19 @@
     "select_wallet": "Selecciona una cartera",
     "xpub_copiedToClipboard": "Copiado a portapapeles.",
     "xpub_title": "XPUB de la cartera"
+  },
+  "multisig": {
+    "provide_signature": "Proporcionar firma",
+    "vault_key": "Clave de la bóveda {number}",
+    "fee": "Tarifa: {number}",
+    "fee_btc": "{number} BTC",
+    "confirm": "Confirmar",
+    "header": "Enviar",
+    "share": "Compartir",
+    "how_many_signatures_can_bluewallet_make": "Cuántas firmas puede hacer bluewallet",
+    "scan_or_import_file": "Escanear o importar archivo",
+    "export_coordination_setup": "exportar coordinacion",
+    "cosign_this_transaction": "Co-sign this transaction?",
+    "co_sign_transaction": "Co-sign QR-airgapped transaction"
   }
 }

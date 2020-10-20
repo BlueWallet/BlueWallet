@@ -8,7 +8,12 @@
     "of": "{number} из {total}",
     "ok": "OK",
     "storage_is_encrypted": "Твоё хранилище зашифровано. Введи пароль для расшифровки",
-    "yes": "Да"
+    "allow": "Разрешить",
+    "dont_allow": "Запретить",
+    "yes": "Да",
+    "no": "Нет",
+    "invalid_animated_qr_code_fragment" : "Ошибочный фрагмент QRCode, попробуйте снова",
+    "file_saved": "Файл ({filePath}) сохранён в папке Загрузки."
   },
   "azteco": {
     "codeIs": "Код вашего ваучера",
@@ -176,7 +181,7 @@
     "details_total_exceeds_balance": "Общая сумма превышает баланс.",
     "details_wallet_before_tx": "Перед созданием транзакции нужно сделать Bitcoin кошелёк.",
     "details_wallet_selection": "Выбор Кошелька",
-    "dynamic_init": "Загрузка",
+    "dynamic_init": "Инициализация",
     "dynamic_next": "Следующий",
     "dynamic_prev": "Предыдущий",
     "dynamic_start": "Старт",
@@ -209,7 +214,8 @@
     "qr_error_no_qrcode": "Выбранная картинка не содержит QR Code.",
     "qr_error_no_wallet": "Выбранный файл не содержит кошелька который можно было бы импортировать.",
     "success_done": "Готово",
-    "txSaved": "Файл с транзакцией ({filePath}) сохранён в папке Загрузки."
+    "txSaved": "Файл с транзакцией ({filePath}) сохранён в папке Загрузки.",
+    "problem_with_psbt": "Проблема с PSBT"
   },
   "settings": {
     "about": "О программе",
@@ -269,6 +275,13 @@
     "password_explain": "Придумай пароль для расшифровки хранилища",
     "passwords_do_not_match": "Пароли не совпадают",
     "plausible_deniability": "Правдоподобная имитация...",
+    "privacy": "Приватность",
+    "privacy_read_clipboard": "Чтение Буфера обмена",
+    "privacy_read_clipboard_alert": "BlueWallet позволит быстро отправить Биткоины, если обнаружит адрес в Буфера обмена.",
+    "privacy_system_settings": "Настройки системы",
+    "privacy_quickactions": "Быстрые команды",
+    "privacy_quickactions_explanation": "Нажмите и удерживайте значок приложения BlueWallet на главном экране, чтобы быстро просмотреть баланс своего кошелька.",
+    "privacy_clipboard_explanation": "Показать меню с действием, если в Буфере обмена есть адрес или инвойс.",
     "push_notifications": "Push-уведомления",
     "retype_password": "Набери пароль повторно",
     "save": "Сохранить",
@@ -333,7 +346,7 @@
     "details_no_cancel": "Нет, отмена",
     "details_save": "Сохранить",
     "details_show_xpub": "Показать XPUB",
-    "details_title": "Информация о кошельке",
+    "details_title": "Информация",
     "details_type": "Тип",
     "details_use_with_hardware_wallet": "Использовать с аппаратным кошельком",
     "details_wallet_updated": "Кошелек сохранён",
@@ -345,11 +358,12 @@
     "import_imported": "Импорт завершен",
     "import_scan_qr": "или отсканировать QR код?",
     "import_success": "Успех",
+    "looks_like_bip38": "Это похоже на закрытый ключ, защищенный паролем (BIP38)",
+    "enter_bip38_password": "Введите пароль, чтобы расшифровать",
     "import_title": "Импорт",
     "list_create_a_button": "добавить сейчас",
     "list_create_a_wallet": "добавить кошелек",
-    "list_create_a_wallet1": "Это бесплатно и ты можешь создать",
-    "list_create_a_wallet2": "неограниченное количество",
+    "list_create_a_wallet_text": "Это бесплатно и ты можешь создать\nнеограниченное количество",
     "list_empty_txs1": "Список транзакций пока пуст",
     "list_empty_txs1_lightning": "Lightning кошелек отлично подходит для ежедневных транзакций. Комиссия несправедливо мала, а скорость невероятно высока.",
     "list_empty_txs2": "Пока транзакций нет ",
@@ -371,5 +385,19 @@
     "select_wallet": "Выбрать кошелек",
     "xpub_copiedToClipboard": "Скопировано",
     "xpub_title": "XPUB кошелька"
+  },
+  "multisig": {
+    "provide_signature": "Предоставить подпись",
+    "vault_key": "Ключ хранилища {number}",
+    "fee": "Коммисия: {number}",
+    "fee_btc": "{number} BTC",
+    "confirm": "Поддтвердить",
+    "header": "Отправить",
+    "share": "Отправить",
+    "how_many_signatures_can_bluewallet_make": "сколько подписей может сделать bluewallet",
+    "scan_or_import_file": "Сканировать или импортировать файл",
+    "export_coordination_setup": "экспортировать настройки координатора",
+    "cosign_this_transaction": "Участвовать в совместном подписании транзакции?",
+    "co_sign_transaction": "Подписать транзакцию \"по воздуху\" (QRCode)"
   }
 }
