@@ -22,12 +22,14 @@ import {
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import Notifications from '../../blue_modules/notifications';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
 
 export default class Confirm extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
 
@@ -102,6 +104,8 @@ export default class Confirm extends Component {
         ) {
           amount = formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
         }
+
+        this.state.fromWallet.fetchTransactions().then(() => this.context.saveToDisk());
 
         this.props.navigation.navigate('Success', {
           fee: Number(this.state.fee),

@@ -289,7 +289,7 @@ export default class ScanLndInvoice extends React.Component {
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
           return alert(Err.message);
         }
-
+        fromWallet.getUserInvoices(1).then(() => this.context.saveToDisk());
         this.props.navigation.navigate('Success', {
           amount: amountSats,
           amountUnit: BitcoinUnit.SATS,

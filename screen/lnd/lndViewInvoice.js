@@ -18,6 +18,7 @@ import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -118,6 +119,7 @@ const styles = StyleSheet.create({
 });
 
 export default class LNDViewInvoice extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
     const invoice = props.route.params.invoice;
@@ -157,13 +159,18 @@ export default class LNDViewInvoice extends Component {
               ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
               clearInterval(this.fetchInvoiceInterval);
               this.fetchInvoiceInterval = undefined;
-              this.context.saveToDisk();
+              this.state.fromWallet.getUserInvoices(20).then(() => {
+                this.context.saveToDisk();
+              });
             } else {
               const currentDate = new Date();
               const now = (currentDate.getTime() / 1000) | 0;
               const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
               if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                 // invoice expired :-(
+                this.state.fromWallet.getUserInvoices(20).then(() => {
+                  this.context.saveToDisk();
+                });
                 this.setState({ isFetchingInvoices: false });
                 ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
                 clearInterval(this.fetchInvoiceInterval);
