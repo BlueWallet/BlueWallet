@@ -202,6 +202,34 @@ export const BitcoinButton = props => {
   );
 };
 
+export const VaultButton = props => {
+  const { colors } = useTheme();
+  return (
+    <TouchableOpacity testID={props.testID} onPress={props.onPress}>
+      <View
+        style={{
+          borderColor: colors.hdborderColor,
+          borderWidth: 1,
+          borderRadius: 5,
+          backgroundColor: (props.active && colors.hdbackgroundColor) || colors.brandingColor,
+          minWidth: props.style.width,
+          minHeight: props.style.height,
+          height: props.style.height,
+          flex: 1,
+        }}
+      >
+        <View style={{ margin: 16 }}>
+          <Text style={{ color: colors.hdborderColor, fontWeight: 'bold' }}>Multisig Vault</Text>
+        </View>
+        <Image
+          style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
+          source={require('./img/addWallet/vault.png')}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+};
+
 export const LightningButton = props => {
   const { colors } = useTheme();
   return (

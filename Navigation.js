@@ -22,6 +22,8 @@ import DefaultView from './screen/settings/defaultView';
 import WalletsList from './screen/wallets/list';
 import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
+import WalletsAddMultisig from './screen/wallets/addMultisig';
+import WalletsAddMultisigStep2 from './screen/wallets/addMultisigStep2';
 import PleaseBackup from './screen/wallets/pleaseBackup';
 import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
 import ImportWallet from './screen/wallets/import';
@@ -165,6 +167,12 @@ const AddWalletRoot = () => (
     <AddWalletStack.Screen name="PleaseBackup" component={PleaseBackup} options={PleaseBackup.navigationOptions} />
     <AddWalletStack.Screen name="PleaseBackupLNDHub" component={PleaseBackupLNDHub} options={PleaseBackupLNDHub.navigationOptions} />
     <AddWalletStack.Screen name="ProvideEntropy" component={ProvideEntropy} options={ProvideEntropy.navigationOptions} />
+    <AddWalletStack.Screen name="WalletsAddMultisig" component={WalletsAddMultisig} options={WalletsAddMultisig.navigationOptions} />
+    <AddWalletStack.Screen
+      name="WalletsAddMultisigStep2"
+      component={WalletsAddMultisigStep2}
+      options={WalletsAddMultisigStep2.navigationOptions}
+    />
   </AddWalletStack.Navigator>
 );
 

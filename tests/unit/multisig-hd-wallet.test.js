@@ -2,6 +2,7 @@
 import assert from 'assert';
 import { MultisigHDWallet } from '../../class/';
 import { decodeUR } from 'bc-ur/dist';
+import { MultisigCosigner } from '../../class/multisig-cosigner';
 const bitcoin = require('bitcoinjs-lib');
 const Base43 = require('../../blue_modules/base43');
 
@@ -1406,5 +1407,69 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), "m/48'/0'/0'/2'");
     assert.strictEqual(w.getCustomDerivationPathForCosigner(3), "m/48'/0'/0'/2'");
     assert.strictEqual(w.getDerivationPath(), '');
+  });
+});
+
+describe('multisig-cosigner', () => {
+  it('can parse cobo json', () => {
+    const cosigner = new MultisigCosigner(
+      '{"xfp":"D37EAD88","xpub":"Zpub74ijpfhERJNjhCKXRspTdLJV5eoEmSRZdHqDvp9kVtdVEyiXk7pXxRbfZzQvsDFpfDHEHVtVpx4Dz9DGUWGn2Xk5zG5u45QTMsYS2vjohNQ","path":"m\\/48\'\\/0\'\\/0\'\\/2\'"}',
+    );
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(cosigner.getFp(), fp1cobo);
+    assert.strictEqual(cosigner.getXpub(), Zpub1);
+    assert.strictEqual(cosigner.getPath(), "m/48'/0'/0'/2'");
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+  });
+
+  it('cant parse bs', () => {
+    const cosigner = new MultisigCosigner('asdfasdgsqwrgqwegq');
+    assert.ok(!cosigner.isValid());
+    assert.strictEqual(cosigner.getFp(), false);
+    assert.strictEqual(cosigner.getXpub(), false);
+    assert.strictEqual(cosigner.getPath(), false);
+  });
+
+  it('can parse file from coldcard with multiple xpubs (for different formats)', () => {
+    const cc =
+      '{\n' +
+      '  "p2sh_deriv": "m/45\'",\n' +
+      '  "p2sh": "xpub6847W6cYUqq4ixcmFb83iqPtJZfnMPTkpYiCsuUybzFppJp2qzh3KCVHsLGQy4WhaxGqkK9aDDZnSfhB92PkHDKihbH6WLztzmN7WW9GYpR",\n' +
+      '  "p2wsh_p2sh_deriv": "m/48\'/0\'/0\'/1\'",\n' +
+      '  "p2wsh_p2sh": "Ypub6kvtvTZpqGuWtQfg9bL5xe4vDWtwsirR8LzDvsY3vgXvyncW1NGXCUJ9Ps7CiizSSLV6NnnXSYyVDnxCu26QChWzWLg5YCAHam6cYjGtzRz",\n' +
+      '  "p2wsh_deriv": "m/48\'/0\'/0\'/2\'",\n' +
+      '  "p2wsh": "Zpub75mAE8EjyxSzoyPmGnd5E6MyD7ALGNndruWv52xpzimZQKukwvEfXTHqmH8nbbc6ccP5t2aM3mws3pKYSnKpKMMytdbNEZFUxKzztYFM8Pn",\n' +
+      '  "xfp": "168DD603"\n' +
+      '}\n';
+
+    const cosigner = new MultisigCosigner(cc);
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 3);
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(cosigner.getFp(), false);
+    assert.strictEqual(cosigner.getXpub(), false);
+    assert.strictEqual(cosigner.getPath(), false);
+
+    const [c1, c2, c3] = cosigner.getAllCosigners();
+
+    assert.strictEqual(
+      c1.getXpub(),
+      'xpub6847W6cYUqq4ixcmFb83iqPtJZfnMPTkpYiCsuUybzFppJp2qzh3KCVHsLGQy4WhaxGqkK9aDDZnSfhB92PkHDKihbH6WLztzmN7WW9GYpR',
+    );
+    assert.strictEqual(c1.getFp(), '168DD603');
+    assert.strictEqual(c1.getPath(), "m/45'");
+
+    assert.strictEqual(
+      c2.getXpub(),
+      'Ypub6kvtvTZpqGuWtQfg9bL5xe4vDWtwsirR8LzDvsY3vgXvyncW1NGXCUJ9Ps7CiizSSLV6NnnXSYyVDnxCu26QChWzWLg5YCAHam6cYjGtzRz',
+    );
+    assert.strictEqual(c2.getFp(), '168DD603');
+    assert.strictEqual(c2.getPath(), "m/48'/0'/0'/1'");
+
+    assert.strictEqual(
+      c3.getXpub(),
+      'Zpub75mAE8EjyxSzoyPmGnd5E6MyD7ALGNndruWv52xpzimZQKukwvEfXTHqmH8nbbc6ccP5t2aM3mws3pKYSnKpKMMytdbNEZFUxKzztYFM8Pn',
+    );
+    assert.strictEqual(c3.getFp(), '168DD603');
+    assert.strictEqual(c3.getPath(), "m/48'/0'/0'/2'");
   });
 });

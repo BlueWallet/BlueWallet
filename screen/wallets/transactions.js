@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
-    alignSelf: 'auto', 
+    alignSelf: 'auto',
     flexGrow: 1,
     marginHorizontal: 4,
   },

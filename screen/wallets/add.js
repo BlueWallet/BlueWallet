@@ -19,6 +19,7 @@ import {
   BlueListItem,
   LightningButton,
   BitcoinButton,
+  VaultButton,
   BlueFormLabel,
   BlueButtonHook,
   BlueNavigationStyle,
@@ -104,6 +105,12 @@ const styles = StyleSheet.create({
   },
 });
 
+const ButtonSelected = Object.freeze({
+  ONCHAIN: Chain.ONCHAIN,
+  OFFCHAIN: Chain.OFFCHAIN,
+  VAULT: 'VAULT',
+});
+
 const WalletsAdd = () => {
   const { colors } = useTheme();
 
@@ -170,9 +177,9 @@ const WalletsAdd = () => {
 
     let w;
 
-    if (selectedWalletType === Chain.OFFCHAIN) {
+    if (selectedWalletType === ButtonSelected.OFFCHAIN) {
       createLightningWallet(w);
-    } else if (selectedWalletType === Chain.ONCHAIN) {
+    } else if (selectedWalletType === ButtonSelected.ONCHAIN) {
       if (selectedIndex === 2) {
         // zero index radio - HD segwit
         w = new HDSegwitP2SHWallet();
@@ -188,7 +195,7 @@ const WalletsAdd = () => {
         w = new HDSegwitBech32Wallet();
         w.setLabel(label || loc.wallets.details_title);
       }
-      if (selectedWalletType === Chain.ONCHAIN) {
+      if (selectedWalletType === ButtonSelected.ONCHAIN) {
         if (entropy) {
           try {
             await w.generateFromEntropy(entropy);
@@ -214,6 +221,9 @@ const WalletsAdd = () => {
           goBack();
         }
       }
+    } else if (selectedWalletType === ButtonSelected.VAULT) {
+      setIsLoading(false);
+      navigate('WalletsAddMultisig');
     }
   };
 
@@ -260,14 +270,18 @@ const WalletsAdd = () => {
     navigate('ImportWallet');
   };
 
+  const handleOnVaultButtonPressed = () => {
+    setSelectedWalletType(ButtonSelected.VAULT);
+  };
+
   const handleOnBitcoinButtonPressed = () => {
     Keyboard.dismiss();
-    setSelectedWalletType(Chain.ONCHAIN);
+    setSelectedWalletType(ButtonSelected.ONCHAIN);
   };
 
   const handleOnLightningButtonPressed = () => {
     Keyboard.dismiss();
-    setSelectedWalletType(Chain.OFFCHAIN);
+    setSelectedWalletType(ButtonSelected.OFFCHAIN);
   };
 
   return (
@@ -293,19 +307,27 @@ const WalletsAdd = () => {
         <View style={styles.buttons}>
           <BitcoinButton
             testID="ActivateBitcoinButton"
-            active={selectedWalletType === Chain.ONCHAIN}
+            active={selectedWalletType === ButtonSelected.ONCHAIN}
             onPress={handleOnBitcoinButtonPressed}
             style={styles.button}
           />
           <View style={styles.or}>
             <BlueTextCenteredHooks style={styles.orCenter}>{loc.wallets.add_or}</BlueTextCenteredHooks>
           </View>
-          <LightningButton active={selectedWalletType === Chain.OFFCHAIN} onPress={handleOnLightningButtonPressed} style={styles.button} />
+          <LightningButton
+            active={selectedWalletType === ButtonSelected.OFFCHAIN}
+            onPress={handleOnLightningButtonPressed}
+            style={styles.button}
+          />
+        </View>
+
+        <View style={styles.buttons}>
+          <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} />
         </View>
 
         <View style={styles.advanced}>
           {(() => {
-            if (selectedWalletType === Chain.ONCHAIN && isAdvancedOptionsEnabled) {
+            if (selectedWalletType === ButtonSelected.ONCHAIN && isAdvancedOptionsEnabled) {
               return (
                 <View>
                   <BlueSpacing20 />
@@ -345,7 +367,7 @@ const WalletsAdd = () => {
                   />
                 </View>
               );
-            } else if (selectedWalletType === Chain.OFFCHAIN && isAdvancedOptionsEnabled) {
+            } else if (selectedWalletType === ButtonSelected.OFFCHAIN && isAdvancedOptionsEnabled) {
               return (
                 <>
                   <BlueSpacing20 />

@@ -14,6 +14,15 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   static type = 'HDmultisig';
   static typeReadable = 'Multisig Vault';
 
+  static FORMAT_P2WSH = 'p2wsh';
+  static FORMAT_P2SH_P2WSH = 'p2sh-p2wsh';
+  static FORMAT_P2SH_P2WSH_ALT = 'p2wsh-p2sh';
+  static FORMAT_P2SH = 'p2sh';
+
+  static PATH_NATIVE_SEGWIT = "m/48'/0'/0'/2'";
+  static PATH_WRAPPED_SEGWIT = "m/48'/0'/0'/1'";
+  static PATH_LEGACY = "m/45'";
+
   constructor() {
     super();
     this._m = 0; //  minimum required signatures so spend (m out of n)
@@ -317,12 +326,24 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     ret += 'Policy: ' + this.getM() + ' of ' + this.getN() + '\n';
 
     let hasCustomPaths = 0;
+    const customPaths = {};
     for (let index = 0; index < this.getN(); index++) {
       if (this._cosignersCustomPaths[index]) hasCustomPaths++;
+      if (this._cosignersCustomPaths[index]) customPaths[this._cosignersCustomPaths[index]] = 1;
     }
 
     let printedGlobalDerivation = false;
-    if (hasCustomPaths !== this.getN()) {
+
+    if (this.getDerivationPath()) customPaths[this.getDerivationPath()] = 1;
+    if (Object.keys(customPaths).length === 1) {
+      // we have exactly one path, for everyone. lets just print it
+      for (const path of Object.keys(customPaths)) {
+        ret += 'Derivation: ' + path + '\n';
+        printedGlobalDerivation = true;
+      }
+    }
+
+    if (hasCustomPaths !== this.getN() && !printedGlobalDerivation) {
       printedGlobalDerivation = true;
       ret += 'Derivation: ' + this.getDerivationPath() + '\n';
     }
@@ -330,7 +351,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     if (this.isNativeSegwit()) {
       ret += 'Format: P2WSH\n';
     } else if (this.isWrappedSegwit()) {
-      ret += 'Format: P2WSH-P2SH\n';
+      ret += 'Format: P2SH-P2WSH\n';
     } else if (this.isLegacy()) {
       ret += 'Format: P2SH\n';
     } else {
@@ -429,13 +450,14 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
         case 'Format':
           switch (value.trim()) {
-            case 'P2WSH':
+            case MultisigHDWallet.FORMAT_P2WSH.toUpperCase():
               this.setNativeSegwit();
               break;
-            case 'P2WSH-P2SH':
+            case MultisigHDWallet.FORMAT_P2SH_P2WSH.toUpperCase():
+            case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT.toUpperCase():
               this.setWrappedSegwit();
               break;
-            case 'P2SH':
+            case MultisigHDWallet.FORMAT_P2SH:
               this.setLegacy();
               break;
           }
@@ -499,14 +521,14 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       if (json.name) this.setLabel(json.name);
 
       switch (json.addressType.toLowerCase()) {
-        case 'P2SH':
+        case MultisigHDWallet.FORMAT_P2SH:
           this.setLegacy();
           break;
-        case 'P2SH-P2WSH':
+        case MultisigHDWallet.FORMAT_P2SH_P2WSH:
           this.setWrappedSegwit();
           break;
         default:
-        case 'P2WSH':
+        case MultisigHDWallet.FORMAT_P2WSH:
           this.setNativeSegwit();
           break;
       }
