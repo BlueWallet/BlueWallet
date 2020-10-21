@@ -422,6 +422,7 @@
     "i_wrote_it_down": "Ok, I wrote it down",
     "type_your_mnemonics": "Type your mnemonic seed phrase here:",
     "this_is_cosigners_xpub": "This is cosigner's xpub, ready to be imported in other wallet. It is safe to share it.",
-    "setup_header": "Setup"
+    "setup_header": "Setup",
+    "multisig_vault": "Multisig Vault"
   }
 }

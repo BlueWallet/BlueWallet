@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import {
   FlatList,
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -15,7 +14,7 @@ import {
 } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
-import { BlueButtonHook, BlueNavigationStyle, BlueSpacing20, BlueSpacing40, BlueTextCenteredHooks } from '../../BlueComponents';
+import { BlueButtonHook, BlueNavigationStyle, BlueSpacing20, BlueSpacing40 } from '../../BlueComponents';
 import { MultisigHDWallet } from '../../class';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
@@ -37,7 +36,7 @@ const WalletsAddMultisig = () => {
       backgroundColor: colors.elevated,
       padding: 20,
     },
-    textdesc: { 
+    textdesc: {
       color: colors.alternativeTextColor,
     },
   };
@@ -171,12 +170,7 @@ const WalletsAddMultisig = () => {
       <BlueSpacing20 />
       <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
         <View style={styles.imageWrapper}>
-          <LottieView
-            source={require('../../img/msvault.json')}
-            autoPlay
-            ref={loadingAnimation}
-            loop={false}
-           />
+          <LottieView source={require('../../img/msvault.json')} autoPlay ref={loadingAnimation} loop={false} />
         </View>
         <BlueSpacing20 />
         <Text style={[styles.textdesc, stylesHook.textdesc]}>{loc.formatString(loc.multisig.what_is_vault, { m, n })}</Text>

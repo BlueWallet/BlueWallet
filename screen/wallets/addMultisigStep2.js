@@ -16,6 +16,7 @@ import {
   BlueButton,
   BlueButtonHook,
   BlueFormMultiInput,
+  BlueLoadingHook,
   BlueNavigationStyle,
   BlueSpacing20,
   BlueSpacing40,
@@ -38,6 +39,7 @@ import WalletsAddMultisig from './addMultisig';
 const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
+const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
   const { colors } = useTheme();
@@ -47,6 +49,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path]
   const [isOnCreateButtonEnabled, setIsOnCreateButtonEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isMnemonicsModalVisible, setIsMnemonicsModalVisible] = useState(false);
   const [isProvideMnemonicsModalVisible, setIsProvideMnemonicsModalVisible] = useState(false);
   const [isRenderCosignersXpubModalVisible, setIsRenderCosignersXpubModalVisible] = useState(false);
@@ -104,7 +107,7 @@ const WalletsAddMultisigStep2 = () => {
   });
 
   const onCreate = async () => {
-    setIsOnCreateButtonEnabled(false);
+    setIsLoading(true);
     const w = new MultisigHDWallet();
     w.setM(m);
     switch (format) {
@@ -127,7 +130,6 @@ const WalletsAddMultisigStep2 = () => {
       w.addCosigner(cc[0], cc[1], cc[2]);
     }
     w.setLabel('Multisig Vault');
-    await w.fetchBalance();
     await WalletImport._saveWallet(w);
     navigation.dangerouslyGetParent().pop();
   };
@@ -141,6 +143,29 @@ const WalletsAddMultisigStep2 = () => {
     setMnemonicsToDisplay(w.getSecret());
     setIsMnemonicsModalVisible(true);
     if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
+    setTimeout(() => {
+      // filling cache
+      setXpubCacheForMnemonics(w.getSecret());
+      setFpCacheForMnemonics(w.getSecret());
+    }, 500);
+  };
+
+  const getPath = () => {
+    let path = '';
+    switch (format) {
+      case MultisigHDWallet.FORMAT_P2WSH:
+        path = MultisigHDWallet.PATH_NATIVE_SEGWIT;
+        break;
+      case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+        path = MultisigHDWallet.PATH_WRAPPED_SEGWIT;
+        break;
+      case MultisigHDWallet.FORMAT_P2SH:
+        path = MultisigHDWallet.PATH_LEGACY;
+        break;
+      default:
+        throw new Error('This should never happen');
+    }
+    return path;
   };
 
   const viewKey = cosigner => {
@@ -149,30 +174,36 @@ const WalletsAddMultisigStep2 = () => {
       setCosignerXpubFilename('bw-cosigner-' + cosigner[1] + '.json');
       setIsRenderCosignersXpubModalVisible(true);
     } else {
-      let path = '';
-      switch (format) {
-        case MultisigHDWallet.FORMAT_P2WSH:
-          path = MultisigHDWallet.PATH_NATIVE_SEGWIT;
-          break;
-        case MultisigHDWallet.FORMAT_P2SH_P2WSH:
-          path = MultisigHDWallet.PATH_WRAPPED_SEGWIT;
-          break;
-        case MultisigHDWallet.FORMAT_P2SH:
-          path = MultisigHDWallet.PATH_LEGACY;
-          break;
-        default:
-          throw new Error('This should never happen');
-      }
+      const path = getPath();
 
-      const w = new MultisigHDWallet();
-      w.setDerivationPath(path);
-
-      const xpub = w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(cosigner[0], path));
-      const fp = MultisigHDWallet.seedToFingerprint(cosigner[0]);
+      const xpub = getXpubCacheForMnemonics(cosigner[0], path);
+      const fp = getFpCacheForMnemonics(cosigner[0]);
       setCosignerXpub(MultisigCosigner.exportToJson(fp, xpub, path));
       setCosignerXpubFilename('bw-cosigner-' + fp + '.json');
       setIsRenderCosignersXpubModalVisible(true);
     }
+  };
+
+  const getXpubCacheForMnemonics = seed => {
+    const path = getPath();
+    return staticCache[seed + path] || setXpubCacheForMnemonics(seed, path);
+  };
+
+  const setXpubCacheForMnemonics = seed => {
+    const path = getPath();
+    const w = new MultisigHDWallet();
+    w.setDerivationPath(path);
+    staticCache[seed + path] = w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path));
+    return staticCache[seed + path];
+  };
+
+  const getFpCacheForMnemonics = seed => {
+    return staticCache[seed] || setFpCacheForMnemonics(seed);
+  };
+
+  const setFpCacheForMnemonics = seed => {
+    staticCache[seed] = MultisigHDWallet.seedToFingerprint(seed);
+    return staticCache[seed];
   };
 
   const _renderKeyItemProvided = el => {
@@ -469,7 +500,11 @@ const WalletsAddMultisigStep2 = () => {
           </Text>
           <FlatList data={data} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} scrollEnabled={false} />
           <BlueSpacing40 />
-          <BlueButtonHook title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
+          {isLoading ? (
+            <BlueLoadingHook />
+          ) : (
+            <BlueButtonHook title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
+          )}
           <BlueSpacing20 />
         </View>
       </KeyboardAvoidingView>
