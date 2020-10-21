@@ -84,6 +84,7 @@ class ConfirmTransactionPasswordScreen extends PureComponent<Props, State> {
         footer={
           <Button
             title={i18n._.save}
+            testID="submit-transaction-password-confirmation"
             onPress={this.onSave}
             disabled={password.length < CONST.transactionMinPasswordLength}
           />
@@ -100,6 +101,7 @@ class ConfirmTransactionPasswordScreen extends PureComponent<Props, State> {
           </TouchableOpacity>
           <InputItem
             value={password}
+            testID="confirm-transaction-password"
             setValue={this.updatePassword}
             autoFocus={true}
             error={error}

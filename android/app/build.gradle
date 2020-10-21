@@ -130,6 +130,8 @@ android {
         versionName "6.0.0"
         multiDexEnabled true
         missingDimensionStrategy 'react-native-camera', 'general'
+        testBuildType System.getProperty('testBuildType', 'debug')  // This will later be used to control the test apk build type
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     splits {
         abi {
@@ -143,6 +145,7 @@ android {
         release {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
         }
     }
     productFlavors {
@@ -177,6 +180,7 @@ dependencies {
     implementation project(':react-native-config')
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation project(path: ":@react-native-firebase_analytics")
+    androidTestImplementation('com.wix:detox:+')
     // JSC from node_modules
     if (useIntlJsc) {
         implementation 'org.webkit:android-jsc-intl:+'

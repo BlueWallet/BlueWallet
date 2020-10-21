@@ -9,8 +9,8 @@
     "suppressImplicitAnyIndexErrors": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
     "isolatedModules": true,
+    "esModuleInterop": true,
     "lib": [
       "esnext"
     ],

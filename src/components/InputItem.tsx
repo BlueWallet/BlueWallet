@@ -121,6 +121,7 @@ export class InputItem extends PureComponent<Props, State> {
           ref={this.inputItemRef}
           autoCorrect={false}
           keyboardType={keyboardType}
+          testID={this.props.testID}
           {...this.props}
           style={[
             styles.input,
@@ -134,7 +135,7 @@ export class InputItem extends PureComponent<Props, State> {
           onBlur={this.onBlur}
           onChangeText={this.onChangeText}
         />
-        {!!error && <Text style={styles.error}>{error}</Text>}
+        {!!error && <Text testID="validation-error-message" style={styles.error}>{error}</Text>}
       </View>
     );
   }

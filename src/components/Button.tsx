@@ -45,7 +45,7 @@ export const Button = (props: Props) => {
     }
   };
 
-  return <ElementsButton {...commonProps} {...renderProps()} {...(props as ButtonProps)} />;
+  return <ElementsButton testID={props.testID} {...commonProps} {...renderProps()} {...(props as ButtonProps)} />;
 };
 
 const styles = StyleSheet.create({
