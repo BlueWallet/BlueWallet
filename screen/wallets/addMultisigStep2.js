@@ -176,7 +176,7 @@ const WalletsAddMultisigStep2 = () => {
     } else {
       const path = getPath();
 
-      const xpub = getXpubCacheForMnemonics(cosigner[0], path);
+      const xpub = getXpubCacheForMnemonics(cosigner[0]);
       const fp = getFpCacheForMnemonics(cosigner[0]);
       setCosignerXpub(MultisigCosigner.exportToJson(fp, xpub, path));
       setCosignerXpubFilename('bw-cosigner-' + fp + '.json');
@@ -186,7 +186,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const getXpubCacheForMnemonics = seed => {
     const path = getPath();
-    return staticCache[seed + path] || setXpubCacheForMnemonics(seed, path);
+    return staticCache[seed + path] || setXpubCacheForMnemonics(seed);
   };
 
   const setXpubCacheForMnemonics = seed => {
