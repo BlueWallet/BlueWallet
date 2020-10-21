@@ -175,6 +175,7 @@ const WalletsList = () => {
         const walletID = wallet.getID();
         navigate('WalletTransactions', {
           walletID,
+          walletType: wallet.type,
           key: `WalletTransactions-${walletID}`,
         });
       }

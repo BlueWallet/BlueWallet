@@ -94,6 +94,7 @@ const App = () => {
           key: `WalletTransactions-${wallet.getID()}`,
           params: {
             walletID: wallet.getID(),
+            walletType: wallet.type,
           },
         }),
       );
@@ -115,6 +116,7 @@ const App = () => {
                 key: `WalletTransactions-${wallet.getID()}`,
                 params: {
                   walletID: wallet.getID(),
+                  walletType: wallet.type,
                 },
               }),
             );
@@ -132,6 +134,7 @@ const App = () => {
         key: `WalletTransactions-${wallet.getID()}`,
         params: {
           walletID: wallet.getID(),
+          walletType: wallet.type,
         },
       }),
     );
@@ -172,6 +175,7 @@ const App = () => {
             key: `WalletTransactions-${wallet.getID()}`,
             params: {
               walletID: wallet.getID(),
+              walletType: wallet.type,
             },
           }),
         );

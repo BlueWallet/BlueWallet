@@ -379,6 +379,8 @@ const WalletTransactions = () => {
   const onWalletSelect = async selectedWallet => {
     if (selectedWallet) {
       navigate('WalletTransactions', {
+        walletType: wallet.type,
+        walletID: wallet.getID(),
         key: `WalletTransactions-${wallet.current.getID()}`,
       });
       /** @type {LightningCustodianWallet} */
@@ -696,6 +698,13 @@ WalletTransactions.navigationOptions = ({ navigation, route }) => {
       </TouchableOpacity>
     ),
     headerTitle: () => null,
+    headerStyle: {
+      backgroundColor: WalletGradient.headerColorFor(route.params.walletType),
+      borderBottomWidth: 0,
+      elevation: 0,
+      // shadowRadius: 0,
+      shadowOffset: { height: 0, width: 0 },
+    },
     headerTintColor: '#FFFFFF',
     headerBackTitleVisible: false,
   };

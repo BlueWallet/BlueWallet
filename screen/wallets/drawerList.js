@@ -74,6 +74,7 @@ const DrawerList = props => {
       } else {
         props.navigation.navigate('WalletTransactions', {
           walletID: wallet.getID(),
+          walletType: wallet.type,
           key: `WalletTransactions-${wallet.getID()}`,
         });
       }
