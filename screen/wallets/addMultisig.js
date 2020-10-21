@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   FlatList,
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -13,8 +12,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
-import { BlueButtonHook, BlueNavigationStyle, BlueSpacing20, BlueSpacing40, BlueTextCenteredHooks } from '../../BlueComponents';
+import { BlueButtonHook, BlueNavigationStyle, BlueSpacing20, BlueSpacing40 } from '../../BlueComponents';
 import { MultisigHDWallet } from '../../class';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
@@ -24,6 +24,7 @@ import Modal from 'react-native-modal';
 const WalletsAddMultisig = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
+  const loadingAnimation = useRef();
 
   const [m, setM] = useState(2);
   const [n, setN] = useState(3);
@@ -34,6 +35,9 @@ const WalletsAddMultisig = () => {
     root: {
       backgroundColor: colors.elevated,
       padding: 20,
+    },
+    textdesc: {
+      color: colors.alternativeTextColor,
     },
   };
 
@@ -95,15 +99,15 @@ const WalletsAddMultisig = () => {
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContentShort}>
-            <Text style={styles.textHeader}>{loc.multisig.quorum_header}:</Text>
+            <Text style={styles.textHeader}>{loc.multisig.quorum_header}</Text>
             <View style={styles.rowCenter}>
               <View style={styles.column}>
                 <TouchableOpacity onPress={increaseM} style={styles.chevron}>
-                  <Icon name="chevron-up" size={16} type="octicon" color="#007AFF" />
+                  <Icon name="chevron-up" size={22} type="octicon" color="#007AFF" />
                 </TouchableOpacity>
                 <Text style={styles.textM}>{m}</Text>
                 <TouchableOpacity onPress={decreaseM} style={styles.chevron}>
-                  <Icon name="chevron-down" size={16} type="octicon" color="#007AFF" />
+                  <Icon name="chevron-down" size={22} type="octicon" color="#007AFF" />
                 </TouchableOpacity>
               </View>
 
@@ -113,18 +117,18 @@ const WalletsAddMultisig = () => {
 
               <View style={styles.column}>
                 <TouchableOpacity onPress={increaseN} style={styles.chevron}>
-                  <Icon name="chevron-up" size={16} type="octicon" color="#007AFF" />
+                  <Icon name="chevron-up" size={22} type="octicon" color="#007AFF" />
                 </TouchableOpacity>
                 <Text style={styles.textM}>{n}</Text>
                 <TouchableOpacity onPress={decreaseN} style={styles.chevron}>
-                  <Icon name="chevron-down" size={16} type="octicon" color="#007AFF" />
+                  <Icon name="chevron-down" size={22} type="octicon" color="#007AFF" />
                 </TouchableOpacity>
               </View>
             </View>
 
             <BlueSpacing20 />
 
-            <Text style={styles.textHeader}>{loc.multisig.wallet_type}:</Text>
+            <Text style={styles.textHeader}>{loc.multisig.wallet_type}</Text>
             <BlueSpacing20 />
 
             <TouchableOpacity
@@ -166,12 +170,12 @@ const WalletsAddMultisig = () => {
       <BlueSpacing20 />
       <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
         <View style={styles.imageWrapper}>
-          <Image source={require('../../img/addWallet/vault_main.png')} />
+          <LottieView source={require('../../img/msvault.json')} autoPlay ref={loadingAnimation} loop={false} />
         </View>
         <BlueSpacing20 />
-        <BlueTextCenteredHooks>{loc.formatString(loc.multisig.what_is_vault, { m, n })}</BlueTextCenteredHooks>
+        <Text style={[styles.textdesc, stylesHook.textdesc]}>{loc.formatString(loc.multisig.what_is_vault, { m, n })}</Text>
         <BlueSpacing20 />
-        <BlueTextCenteredHooks>{loc.formatString(loc.multisig.it_will_require, { m })}</BlueTextCenteredHooks>
+        <Text style={[styles.textdesc, stylesHook.textdesc]}>{loc.formatString(loc.multisig.it_will_require, { m })}</Text>
 
         <BlueSpacing40 />
         <BlueSpacing40 />
@@ -229,25 +233,30 @@ const styles = StyleSheet.create({
   },
   modalContentShort: {
     backgroundColor: BlueCurrentTheme.colors.elevated,
-    padding: 22,
+    padding: 24,
     justifyContent: 'center',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
     minHeight: 350,
-    height: 350,
   },
   formatSelectorTextWrapper: {
-    borderRadius: 5,
-    padding: 6,
-    marginBottom: 10,
+    borderRadius: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderColor: 0,
   },
   formatSelectorTextWrapperSelected: {
     backgroundColor: '#EEF0F4',
+    borderRadius: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderColor: 0,
   },
   formatSelectorText: {
     color: '#13244D',
     fontSize: 16,
+    fontWeight: '500',
   },
   column: {
     paddingRight: 20,
@@ -256,14 +265,20 @@ const styles = StyleSheet.create({
   chevron: {
     paddingBottom: 10,
     paddingTop: 10,
+    fontSize: 24,
   },
   columnOf: {
     paddingRight: 20,
     paddingLeft: 20,
     justifyContent: 'center',
   },
+  textdesc: {
+    fontWeight: '500',
+    alignSelf: 'center',
+  },
   textM: {
-    fontSize: 35,
+    fontSize: 50,
+    fontWeight: '700',
   },
   textOf: {
     fontSize: 30,
@@ -271,18 +286,19 @@ const styles = StyleSheet.create({
   },
   textHeader: {
     color: '#13244D',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
   },
-
   imageWrapper: {
     borderWidth: 0,
     justifyContent: 'center',
-    alignSelf: 'center',
+    flexDirection: 'row',
+    height: 160,
   },
   rowCenter: {
     flexDirection: 'row',
     justifyContent: 'center',
+    paddingVertical: 40,
   },
 });
 

@@ -219,7 +219,7 @@ export const VaultButton = props => {
         }}
       >
         <View style={{ margin: 16 }}>
-          <Text style={{ color: colors.hdborderColor, fontWeight: 'bold' }}>Multisig Vault</Text>
+          <Text style={{ color: colors.hdborderColor, fontWeight: 'bold' }}>{loc.multisig.multisig_vault}</Text>
         </View>
         <Image
           style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}

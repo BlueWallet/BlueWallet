@@ -16,6 +16,7 @@ export class MultisigCosigner {
         this._path = json.path;
         this._cosigners = [true];
         this._valid = true;
+        return;
       }
     } catch (_) {
       this._valid = false;
