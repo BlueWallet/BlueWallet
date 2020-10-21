@@ -50,8 +50,8 @@ export const BlueStorageProvider = ({ children }) => {
     if (noErr) await saveToDisk(); // caching
   };
 
-  const fetchAndSaveWalletTransactions = async wallet => {
-    const index = wallets.findIndex(wallet);
+  const fetchAndSaveWalletTransactions = async walletID => {
+    const index = wallets.findIndex(wallet => wallet.getID() === walletID);
     let noErr = true;
     try {
       // await BlueElectrum.ping();

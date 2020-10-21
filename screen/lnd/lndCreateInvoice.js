@@ -164,10 +164,14 @@ export default class LNDCreateInvoice extends Component {
   }
 
   renderReceiveDetails = async () => {
-    this.state.fromWallet.setUserHasSavedExport(true);
-    await this.context.saveToDisk();
-    if (this.props.route.params.uri) {
-      this.processLnurl(this.props.route.params.uri);
+    try {
+      this.state.fromWallet.setUserHasSavedExport(true);
+      await this.context.saveToDisk();
+      if (this.props.route.params.uri) {
+        this.processLnurl(this.props.route.params.uri);
+      }
+    } catch (e) {
+      console.log(e);
     }
     this.setState({ isLoading: false });
   };

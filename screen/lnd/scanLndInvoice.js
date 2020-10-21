@@ -295,7 +295,7 @@ export default class ScanLndInvoice extends React.Component {
           amountUnit: BitcoinUnit.SATS,
           invoiceDescription: this.state.decoded.description,
         });
-        this.context.fetchAndSaveWalletTransactions(fromWallet);
+        this.context.fetchAndSaveWalletTransactions(fromWallet.getID());
       },
     );
   }

@@ -150,7 +150,6 @@ export default class LNDViewInvoice extends Component {
               ? invoice.payment_request === this.state.invoice.payment_request
               : invoice.payment_request === this.state.invoice,
           )[0];
-
           if (typeof updatedUserInvoice !== 'undefined') {
             this.setState({ invoice: updatedUserInvoice, isLoading: false, addressText: updatedUserInvoice.payment_request });
             if (updatedUserInvoice.ispaid) {
@@ -159,14 +158,14 @@ export default class LNDViewInvoice extends Component {
               ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
               clearInterval(this.fetchInvoiceInterval);
               this.fetchInvoiceInterval = undefined;
-              this.context.fetchAndSaveWalletTransactions(this.state.fromWallet);
+              this.context.fetchAndSaveWalletTransactions(this.state.fromWallet.getID());
             } else {
               const currentDate = new Date();
               const now = (currentDate.getTime() / 1000) | 0;
               const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
               if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                 // invoice expired :-(
-                this.context.fetchAndSaveWalletTransactions(this.state.fromWallet);
+                this.context.fetchAndSaveWalletTransactions(this.state.fromWallet.getID());
                 this.setState({ isFetchingInvoices: false });
                 ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
                 clearInterval(this.fetchInvoiceInterval);

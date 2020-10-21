@@ -55,7 +55,7 @@ const WalletTransactions = () => {
   const wallet = useRef(wallets.find(w => w.getID() === walletID));
   const name = useRoute().name;
   const [itemPriceUnit, setItemPriceUnit] = useState(wallet.current.getPreferredBalanceUnit());
-  const [dataSource, setDataSource] = useState([]);
+  const [dataSource, setDataSource] = useState(wallet.current.getTransactions(15));
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [limit, setLimit] = useState(15);
   const [pageSize, setPageSize] = useState(20);
@@ -122,9 +122,9 @@ const WalletTransactions = () => {
     setPageSize(20);
     setTimeElapsed(0);
     setItemPriceUnit(wallet.current.getPreferredBalanceUnit());
-    setParams({ walletID: walletID, isLoading: false });
     setIsLoading(false);
     setSelectedWallet(wallet.current.getID());
+    setDataSource(wallet.current.getTransactions(15));
     setOptions({
       headerStyle: {
         backgroundColor: WalletGradient.headerColorFor(wallet.current.type),
@@ -135,17 +135,16 @@ const WalletTransactions = () => {
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet.current, walletID]);
+  }, [wallets, wallet.current, walletID]);
 
   useEffect(() => {
-    wallet.current = wallets.find(w => w.getID() === walletID);
+    const wallet = wallets.find(w => w.getID() === walletID);
+    if (wallet) {
+      wallet.current = wallet;
+      setParams({ walletID: walletID, isLoading: false });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
-
-  useEffect(() => {
-    setDataSource(wallet.current.getTransactions(15));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallets]);
 
   // if description of transaction has been changed we want to show new one
   useFocusEffect(
@@ -202,7 +201,7 @@ const WalletTransactions = () => {
     if (noErr && smthChanged) {
       console.log('saving to disk');
       await saveToDisk(); // caching
-      setDataSource([...getTransactionsSliced(limit)]);
+      //    setDataSource([...getTransactionsSliced(limit)]);
     }
     setIsLoading(false);
     setTimeElapsed(prev => prev + 1);

@@ -426,6 +426,7 @@ export class AppStorage {
     for (const key of this.wallets) {
       if (typeof key === 'boolean' || key.type === PlaceholderWallet.type) continue;
       key.prepareForSerialization();
+      delete key.current;
       const keyCloned = Object.assign({}, key); // stripped-down version of a wallet to save to secure keystore
       if (key._hdWalletInstance) keyCloned._hdWalletInstance = Object.assign({}, key._hdWalletInstance);
       this.offloadWalletToRealm(realm, key);
