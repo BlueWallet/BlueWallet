@@ -8,7 +8,7 @@ import { Wallet } from 'app/consts';
 interface Props {
   data: any;
   keyExtractor: (item: Wallet, index: number) => string;
-  onSnapToItem?: (index: number) => void;
+  getIndex: (index: number) => void;
 }
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -29,6 +29,7 @@ export class WalletsCarousel extends Component<Props> {
   };
 
   render() {
+    const { getIndex } = this.props;
     return (
       <View>
         <Carousel
@@ -37,6 +38,7 @@ export class WalletsCarousel extends Component<Props> {
           renderItem={this.renderItem}
           sliderWidth={SCREEN_WIDTH}
           itemWidth={SCREEN_WIDTH * 0.82}
+          onSnapToItem={index => getIndex(index)}
         />
       </View>
     );

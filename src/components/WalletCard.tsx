@@ -2,7 +2,7 @@ import React from 'react';
 import { Dimensions, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 import { images } from 'app/assets';
-import { Route, Wallet } from 'app/consts';
+import { Route, Wallet, CONST } from 'app/consts';
 import { NavigationService } from 'app/services';
 import { palette, typography } from 'app/styles';
 
@@ -30,6 +30,7 @@ export class WalletCard extends React.Component<Props> {
 
   render() {
     const { showEditButton, wallet, containerStyle } = this.props;
+    const isAllWallets = wallet.label !== CONST.allWallets;
     return (
       <GradientView style={[styles.itemContainer, containerStyle]} variant={GradientView.Variant.Primary}>
         <>
@@ -37,18 +38,24 @@ export class WalletCard extends React.Component<Props> {
           <View style={styles.cardContent}>
             <View style={styles.row}>
               <Text numberOfLines={1} ellipsizeMode="tail" style={styles.walletType}>
-                {wallet.getLabel()}
+                {isAllWallets ? wallet.getLabel() : `${i18n.wallets.dashboard.allWallets}`}
               </Text>
-              {showEditButton && <StyledText title={i18n.wallets.details.details} onPress={this.goToWalletDetails} />}
+              {showEditButton && isAllWallets && (
+                <StyledText title={i18n.wallets.details.details} onPress={this.goToWalletDetails} />
+              )}
             </View>
 
             <Text style={styles.balance}>
               {i18n.formatBalance(Number(wallet.balance), wallet.preferredBalanceUnit, true)}
             </Text>
-            <View>
-              <Text style={styles.latestTransactionTitle}>{i18n.wallets.add.walletType}</Text>
-              <Text style={styles.latestTransaction}>{wallet.typeReadable}</Text>
-            </View>
+            {isAllWallets ? (
+              <View>
+                <Text style={styles.latestTransactionTitle}>{i18n.wallets.add.walletType}</Text>
+                <Text style={styles.latestTransaction}>{wallet.typeReadable}</Text>
+              </View>
+            ) : (
+              <View />
+            )}
           </View>
         </>
       </GradientView>

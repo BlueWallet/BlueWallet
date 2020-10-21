@@ -13,6 +13,7 @@ interface Props {
   unit: string;
   label: string;
   type?: string;
+  isAllWallets?: boolean;
   onSendPress?: () => void;
   onReceivePress?: () => void;
   onSelectPress?: () => void;
@@ -34,6 +35,7 @@ export const DashboarContentdHeader = ({
   onSelectPress,
   onRecoveryPress,
   typeReadable,
+  isAllWallets,
 }: Props) => {
   return (
     <View style={styles.header}>
@@ -53,6 +55,12 @@ export const DashboarContentdHeader = ({
         <Text style={styles.chooseWalletButtonText} numberOfLines={1} ellipsizeMode="tail">
           {label}
         </Text>
+        {isAllWallets && (
+          <View style={styles.typeReadableContainer}>
+            <Text style={styles.buttonDescription}>BTCV</Text>
+            <Image source={images.coin} style={styles.coinIcon} />
+          </View>
+        )}
         {typeReadable && (
           <View style={styles.typeReadableContainer}>
             <Text style={styles.buttonDescription}>
@@ -62,7 +70,7 @@ export const DashboarContentdHeader = ({
           </View>
         )}
       </View>
-      {onReceivePress && onSelectPress && (
+      {onReceivePress && onSelectPress && !isAllWallets ? (
         <View style={styles.buttonsContainer}>
           <TouchableOpacity style={styles.circleButton} onPress={onSendPress}>
             <Image source={images.yellowMinus} style={styles.circleButtonImage} />
@@ -79,6 +87,8 @@ export const DashboarContentdHeader = ({
             </TouchableOpacity>
           )}
         </View>
+      ) : (
+        <View style={styles.buttonsContainerEmpty} />
       )}
     </View>
   );
@@ -122,6 +132,12 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     flexDirection: 'row',
     marginVertical: 25,
+    width: '100%',
+    justifyContent: 'space-evenly',
+  },
+  buttonsContainerEmpty: {
+    flexDirection: 'row',
+    marginVertical: 41,
     width: '100%',
     justifyContent: 'space-evenly',
   },

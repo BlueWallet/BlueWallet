@@ -56,22 +56,25 @@ class DashboardScreen extends Component<Props, State> {
   };
 
   chooseItemFromModal = (index: number) => {
+    this.walletCarouselRef.current?.snap(index);
     this.setState({ lastSnappedTo: index });
   };
 
   _keyExtractor = (item: Wallet, index: number) => index.toString();
 
+  getIndex = (index: number) => this.setState({ lastSnappedTo: index });
+
   getActiveWallet = () => {
     const { lastSnappedTo } = this.state;
     const { wallets } = this.props;
-    return wallets[lastSnappedTo] || wallets[0];
+    return wallets[lastSnappedTo];
   };
 
   getActionWallet = () => {
     const { lastSnappedTo } = this.state;
 
     const { wallets } = this.props;
-    return isAllWallets(wallets[lastSnappedTo] || wallets[0]) ? wallets[1] : wallets[lastSnappedTo];
+    return wallets[lastSnappedTo];
   };
 
   sendCoins = () => {
@@ -174,6 +177,7 @@ class DashboardScreen extends Component<Props, State> {
         <DashboarContentdHeader
           onSelectPress={this.showModal}
           balance={activeWallet.balance}
+          isAllWallets={isAllWallets(activeWallet)}
           label={activeWallet.label === CONST.allWallets ? i18n.wallets.dashboard.allWallets : activeWallet.label}
           type={activeWallet.type}
           typeReadable={activeWallet.typeReadable}
@@ -183,10 +187,11 @@ class DashboardScreen extends Component<Props, State> {
           onSendPress={this.sendCoins}
           onRecoveryPress={this.recoverCoins}
         />
-        {isAllWallets(activeWallet) ? (
+        {this.hasWallets() ? (
           <WalletsCarousel
             ref={this.walletCarouselRef}
-            data={wallets.filter(wallet => wallet.label !== CONST.allWallets)}
+            getIndex={this.getIndex}
+            data={wallets}
             keyExtractor={this._keyExtractor}
           />
         ) : (
