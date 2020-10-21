@@ -18,7 +18,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 const DrawerList = props => {
   console.log('drawerList rendering...');
   const walletsCarousel = useRef();
-  const { wallets, selectedWallet, pendingWallets } = useContext(BlueStorageContext);
+  const { wallets, selectedWallet, pendingWallets, newWalletAdded, setNewWalletAdded } = useContext(BlueStorageContext);
   const [carouselData, setCarouselData] = useState([]);
   const height = useWindowDimensions().height;
   const { colors } = useTheme();
@@ -32,13 +32,17 @@ const DrawerList = props => {
     const allWallets = wallets.concat(pendingWallets);
     setCarouselData(allWallets.concat(false));
     const newCarouselData = allWallets.concat(false);
-    const currentCarouselDataLength = carouselData.length;
     setCarouselData(newCarouselData);
-    if (wallets.length > 1 && newCarouselData.length > currentCarouselDataLength) {
-      walletsCarousel.current?.snapToItem(allWallets.length - pendingWallets.length > 0 ? 3 : 2);
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallets, pendingWallets]);
+
+  useEffect(() => {
+    if (newWalletAdded) {
+      walletsCarousel.current?.snapToItem(carouselData.length - pendingWallets.length - 2);
+      setNewWalletAdded(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newWalletAdded]);
 
   const handleClick = index => {
     console.log('click', index);

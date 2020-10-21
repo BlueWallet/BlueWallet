@@ -9,6 +9,7 @@ export const BlueStorageProvider = ({ children }) => {
   const [pendingWallets, setPendingWallets] = useState([]);
   const [selectedWallet, setSelectedWallet] = useState('');
   const [walletsInitialized, setWalletsInitialized] = useState(false);
+  const [newWalletAdded, setNewWalletAdded] = useState(false);
   const saveToDisk = async () => {
     BlueApp.tx_metadata = txMetadata;
     await BlueApp.saveToDisk();
@@ -22,7 +23,7 @@ export const BlueStorageProvider = ({ children }) => {
 
   const resetWallets = () => {
     setWallets(BlueApp.getWallets());
-  }
+  };
 
   const setWalletsWithNewOrder = wallets => {
     BlueApp.wallets = wallets;
@@ -140,6 +141,8 @@ export const BlueStorageProvider = ({ children }) => {
         sleep,
         setHodlHodlApiKey,
         createFakeStorage,
+        newWalletAdded,
+        setNewWalletAdded,
         resetWallets,
         getHodlHodlApiKey,
         isDeleteWalletAfterUninstallEnabled,

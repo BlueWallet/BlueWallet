@@ -38,7 +38,16 @@ const isDesktop = getSystemName() === 'Mac OS X';
 
 const WalletsList = () => {
   const walletsCarousel = useRef();
-  const { wallets, pendingWallets, getTransactions, getBalance, refreshAllWalletTransactions, saveToDisk } = useContext(BlueStorageContext);
+  const {
+    wallets,
+    pendingWallets,
+    getTransactions,
+    getBalance,
+    refreshAllWalletTransactions,
+    saveToDisk,
+    newWalletAdded,
+    setNewWalletAdded,
+  } = useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
@@ -83,13 +92,17 @@ const WalletsList = () => {
   useEffect(() => {
     const allWallets = wallets.concat(pendingWallets);
     const newCarouselData = allWallets.concat(false);
-    const currentCarouselDataLength = carouselData.length;
     setCarouselData(newCarouselData);
-    if (wallets.length > 1 && newCarouselData.length > currentCarouselDataLength) {
-      walletsCarousel.current?.snapToItem(allWallets.length - pendingWallets.length > 0 ? 3 : 2);
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallets, pendingWallets]);
+
+  useEffect(() => {
+    if (newWalletAdded) {
+      walletsCarousel.current?.snapToItem(carouselData.length - pendingWallets.length - 2);
+      setNewWalletAdded(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newWalletAdded]);
 
   const verifyBalance = () => {
     if (getBalance() !== 0) {
