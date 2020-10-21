@@ -72,6 +72,7 @@ export class CreateTransactionPassword extends PureComponent<Props, State> {
         footer={
           <Button
             title={i18n._.save}
+            testID="submit-create-transaction-password"
             onPress={this.onSave}
             disabled={password.length < CONST.transactionMinPasswordLength}
           />
@@ -88,6 +89,7 @@ export class CreateTransactionPassword extends PureComponent<Props, State> {
           </TouchableOpacity>
           <InputItem
             value={password}
+            testID="create-transaction-password"
             ref={this.inputRef}
             setValue={this.updatePassword}
             autoFocus

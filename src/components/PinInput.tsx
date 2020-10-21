@@ -13,6 +13,7 @@ type NavigationType =
 
 interface Props {
   value: string;
+  testID?: string;
   onTextChange: (pin: string) => void;
   navigation: NavigationType;
 }
@@ -44,6 +45,7 @@ export class PinInput extends PureComponent<Props> {
         ref={this.codeFieldRef}
         autoFocus
         value={this.props.value}
+        testID={this.props.testID}
         cellCount={CONST.pinCodeLength}
         onChangeText={text => this.props.onTextChange(text.replace(/\D/g, ''))}
         rootStyle={styles.container}

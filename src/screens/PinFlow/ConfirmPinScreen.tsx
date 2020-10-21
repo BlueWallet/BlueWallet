@@ -99,8 +99,8 @@ class ConfirmPinScreen extends PureComponent<Props, State> {
           <Text style={styles.pinDescription}>{i18n.onboarding.createPinDescription}</Text>
         </View>
         <View style={styles.pinContainer}>
-          <PinInput value={this.state.pin} onTextChange={this.updatePin} navigation={this.props.navigation} />
-          <Text style={styles.errorText}>{error}</Text>
+          <PinInput value={this.state.pin} testID="confirm-pin" onTextChange={this.updatePin} navigation={this.props.navigation} />
+          <Text testID="invalid-pin-message" style={styles.errorText}>{error}</Text>
         </View>
       </ScreenTemplate>
     );

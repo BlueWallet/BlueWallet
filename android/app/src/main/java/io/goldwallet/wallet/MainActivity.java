@@ -17,6 +17,6 @@ public class MainActivity extends ReactActivity {
      */
     @Override
     protected String getMainComponentName() {
-        return "GoldWallet";
+        return "Testnet Gold Wallet";
     }
 }
