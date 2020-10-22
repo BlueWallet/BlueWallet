@@ -53,6 +53,7 @@ export class DeleteContactScreen extends React.PureComponent<Props> {
             <Button title={i18n.contactDelete.yes} onPress={this.deleteContact} containerStyle={styles.yesButton} />
           </View>
         }
+        // @ts-ignore
         header={<Header navigation={this.props.navigation} title={i18n.contactDelete.header} />}
       >
         <Text style={styles.title}>{i18n.contactDelete.title}</Text>

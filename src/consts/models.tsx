@@ -309,6 +309,7 @@ export type MainCardStackNavigatorParams = {
   [Route.MainCardStackNavigator]: undefined;
   [Route.CreateWallet]: undefined;
   [Route.ImportWallet]: { walletType: string };
+  [Route.CreateTransactionPassword]: undefined;
   [Route.WalletDetails]: { id: string };
   [Route.CreateContact]: { address?: string };
   [Route.ContactDetails]: { contact: Contact };

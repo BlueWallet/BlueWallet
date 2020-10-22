@@ -1,4 +1,5 @@
 import { device, expect } from 'detox';
+
 import app from '../pageObjects';
 
 describe('Onboarding', () => {

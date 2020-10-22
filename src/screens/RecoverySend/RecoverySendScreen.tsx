@@ -334,6 +334,7 @@ export class RecoverySendScreen extends Component<Props, State> {
             containerStyle={styles.buttonContainer}
           />
         }
+        // @ts-ignore
         header={<Header navigation={this.props.navigation} isBackArrow title={i18n.send.recovery.recover} />}
       >
         <WalletDropdown balance={wallet.balance} label={wallet.label} unit={wallet.preferredBalanceUnit} />

@@ -145,6 +145,7 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
             title={i18n.contactCreate.buttonLabel}
           />
         }
+        // @ts-ignore
         header={<Header navigation={this.props.navigation} isBackArrow title={i18n.contactCreate.screenTitle} />}
       >
         <Text style={styles.subtitle}>{i18n.contactCreate.subtitle}</Text>

@@ -137,6 +137,7 @@ class TransactionDetailsScreen extends Component<Props> {
       <ScreenTemplate
         header={
           <Header
+            // @ts-ignore
             navigation={this.props.navigation}
             isBackArrow
             title={
@@ -231,6 +232,7 @@ const mapDispatchToProps = {
   updateTransactionNote,
 };
 
+// @ts-ignore - TODO: fix it later
 export default connect(mapStateToProps, mapDispatchToProps)(TransactionDetailsScreen);
 
 const styles = StyleSheet.create({

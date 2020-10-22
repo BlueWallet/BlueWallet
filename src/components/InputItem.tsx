@@ -135,7 +135,11 @@ export class InputItem extends PureComponent<Props, State> {
           onBlur={this.onBlur}
           onChangeText={this.onChangeText}
         />
-        {!!error && <Text testID="validation-error-message" style={styles.error}>{error}</Text>}
+        {!!error && (
+          <Text testID="validation-error-message" style={styles.error}>
+            {error}
+          </Text>
+        )}
       </View>
     );
   }

@@ -143,6 +143,7 @@ class ReceiveCoinsScreen extends Component<Props, State> {
             containerStyle={styles.buttonContainer}
           />
         }
+        // @ts-ignore
         header={<Header navigation={this.props.navigation} isBackArrow title={i18n.receive.header} />}
       >
         <WalletDropdown

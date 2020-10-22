@@ -18,7 +18,7 @@ export const HEADER_HEIGHT = Platform.select({
 
 interface Props {
   navigation?: StackNavigationProp<any, any>;
-  title: string;
+  title?: string;
   isBackArrow?: boolean;
   onBackArrow?: () => void;
   isCancelButton?: boolean;

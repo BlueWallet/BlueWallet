@@ -1,11 +1,11 @@
-import { RouteProp } from '@react-navigation/native';
+import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { compose, range, map, reverse } from 'lodash/fp';
-import React, { Component } from 'react';
+import React, { Component, GetDerivedStateFromProps } from 'react';
 import { Text, StyleSheet, View, Alert } from 'react-native';
 
 import { Header, ScreenTemplate, Button, FlatButton, InputItem } from 'app/components';
-import { MainCardStackNavigatorParams, Route, CONST } from 'app/consts';
+import { MainCardStackNavigatorParams, Route, RootStackParams, CONST } from 'app/consts';
 import { palette, typography } from 'app/styles';
 
 import { mnemonicToKeyPair, privateKeyToKeyPair } from '../../../utils/crypto';
@@ -13,7 +13,10 @@ import { mnemonicToKeyPair, privateKeyToKeyPair } from '../../../utils/crypto';
 const i18n = require('../../../loc');
 
 interface Props {
-  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.RecoverySeed>;
+  navigation: CompositeNavigationProp<
+    StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
+    StackNavigationProp<MainCardStackNavigatorParams, Route.RecoverySeed>
+  >;
   route: RouteProp<MainCardStackNavigatorParams, Route.RecoverySeed>;
 }
 
@@ -22,8 +25,8 @@ interface State {
   isLoading: boolean;
 }
 
-class RecoverySeedScreen extends Component<Props, State> {
-  state = {
+export class RecoverySeedScreen extends Component<Props, State> {
+  state: State = {
     mnemonic: compose(
       map(() => ''),
       range(CONST.mnemonicWordsAmount),
@@ -38,12 +41,13 @@ class RecoverySeedScreen extends Component<Props, State> {
     this.setState({ mnemonic: newMnemonic });
   };
 
-  static getDerivedStateFromProps(props: Props, state: State) {
+  static getDerivedStateFromProps: GetDerivedStateFromProps<Props, State> = (props: Props, state: State) => {
     if (props.route.params.mnemonic && !state.mnemonic[0]) {
       return { mnemonic: props.route.params?.mnemonic };
     }
+
     return null;
-  }
+  };
 
   renderInputs = () => {
     const { mnemonic } = this.state;
@@ -119,6 +123,7 @@ class RecoverySeedScreen extends Component<Props, State> {
     return (
       <ScreenTemplate
         header={
+          // @ts-ignore
           <Header onBackArrow={onBackArrow} navigation={navigation} isBackArrow title={i18n.send.recovery.recover} />
         }
         footer={

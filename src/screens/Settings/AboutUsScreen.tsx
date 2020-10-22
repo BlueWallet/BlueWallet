@@ -51,6 +51,7 @@ export const AboutUsScreen = (props: Props) => {
   };
 
   return (
+    // @ts-ignore
     <ScreenTemplate header={<Header isBackArrow={true} navigation={props.navigation} title={i18n.aboutUs.header} />}>
       <Text style={styles.title}>{i18n.aboutUs.title}</Text>
       <Text style={styles.description}>{i18n.aboutUs.alwaysBackupYourKeys}</Text>

@@ -559,7 +559,7 @@ const tr = {
     noPinOrFingerprintSet: 'Cihazınızda pin veya parmak için belirlenmemiş görünüyor. Güvenli olmayan bir cihazda GoldWallet kullanmanızı önermiyoruz.',
   },
   betaVersion: {
-    title: 'Bu GoldWallet'in beta sürümüdür',
+    title: 'Bu GoldWallet\'in beta sürümüdür',
     description: 'Hala resmi olarak piyasaya sürülme öncesinde nihai test aşamasındadır. Mobil uygulaması ve tüm içeriği \"olduğu gibi\" ve \"kullanılabildiği gibi\" esasına göre sunulur. Yazılımın kullanımına ait riskler kullanıcıya aittir.',
     button: 'Riski kabul ediyorum',
   },

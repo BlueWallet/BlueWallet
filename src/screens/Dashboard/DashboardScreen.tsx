@@ -280,6 +280,7 @@ const mapDispatchToProps = {
   clearFilters,
 };
 
+// @ts-ignore - TODO: fix it later
 export default connect(mapStateToProps, mapDispatchToProps)(DashboardScreen);
 
 const styles = StyleSheet.create({

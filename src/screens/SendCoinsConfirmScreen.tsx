@@ -196,6 +196,7 @@ class SendCoinsConfirmScreen extends Component<Props> {
     return (
       <ScreenTemplate
         footer={ScreenFooter(this.goToUnlockScreen, this.goToDetails, buttonTitle)}
+        // @ts-ignore
         header={<Header navigation={navigation} isBackArrow title={headerTitle || i18n.send.header} />}
       >
         <View style={styles.container}>

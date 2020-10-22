@@ -284,6 +284,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
             />
           </>
         }
+        // @ts-ignore
         header={<Header navigation={this.props.navigation} isBackArrow title={i18n.wallets.add.title} />}
       >
         <Text style={styles.subtitle}>{i18n.wallets.add.subtitle}</Text>

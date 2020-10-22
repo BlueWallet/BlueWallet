@@ -3,6 +3,7 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   preset: 'react-native',
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+  modulePathIgnorePatterns: ['<rootDir>/tests/e2e'],
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
   },

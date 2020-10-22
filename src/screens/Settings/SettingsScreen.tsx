@@ -70,7 +70,7 @@ export const SettingsScreen = (props: Props) => {
       <ListItem
         disabled={!biometryTypeAvailable}
         title={
-          biometryTypeAvailable ? i18n.settings[BiometricService.biometryType] : i18n.settings.notSupportedFingerPrint
+          biometryTypeAvailable ? i18n.settings[BiometricService.biometryType!] : i18n.settings.notSupportedFingerPrint
         }
         source={icons.fingerprintIcon}
         switchValue={isBiometricsEnabled}
@@ -88,6 +88,8 @@ export const SettingsScreen = (props: Props) => {
   return (
     <>
       <AppStateManager handleAppComesToForeground={refreshBiometricsAvailability} />
+      {/*
+       // @ts-ignore */}
       <Header navigation={props.navigation} title={i18n.settings.header} />
       <ScreenTemplate>
         <Image source={logoSource} style={styles.logo} resizeMode="contain" />

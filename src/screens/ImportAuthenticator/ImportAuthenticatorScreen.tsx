@@ -151,6 +151,7 @@ class ImportAuthenticatorScreen extends Component<Props, State> {
             />
           </>
         }
+        // @ts-ignore
         header={<Header navigation={this.props.navigation} isBackArrow title={i18n.authenticators.import.title} />}
       >
         <View style={styles.inputItemContainer}>

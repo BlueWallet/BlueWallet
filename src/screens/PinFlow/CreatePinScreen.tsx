@@ -103,7 +103,7 @@ export class CreatePinScreen extends PureComponent<Props, State> {
         <View style={styles.pinContainer}>
           <PinInput
             value={pin}
-            testID={"create-pin"}
+            testID={'create-pin'}
             onTextChange={this.updatePin}
             ref={this.pinInputRef}
             navigation={this.props.navigation}

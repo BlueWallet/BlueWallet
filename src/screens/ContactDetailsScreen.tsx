@@ -111,6 +111,7 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
             />
           </>
         }
+        // @ts-ignore
         header={<Header isBackArrow navigation={this.props.navigation} title={contact.name} />}
       >
         <ContactAvatar name={name} />

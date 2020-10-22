@@ -1,14 +1,10 @@
-import ReactNativeBiometrics from 'react-native-biometrics';
+import ReactNativeBiometrics, { BiometryType } from 'react-native-biometrics';
 
 import logger from '../../logger';
 
 const i18n = require('../../loc');
 
-type BiometryType =
-  | undefined
-  | ReactNativeBiometrics.FaceID
-  | ReactNativeBiometrics.TouchID
-  | ReactNativeBiometrics.Biometrics;
+type Biometry = BiometryType | undefined;
 
 export default class BiometricService {
   static FaceID = ReactNativeBiometrics.FaceID;
@@ -19,7 +15,7 @@ export default class BiometricService {
     this.setBiometricsAvailability();
   }
 
-  biometryType: BiometryType;
+  biometryType: Biometry;
 
   setBiometricsAvailability = async () => {
     const biometricsResult = await ReactNativeBiometrics.isSensorAvailable();

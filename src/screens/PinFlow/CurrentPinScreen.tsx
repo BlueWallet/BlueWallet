@@ -118,6 +118,7 @@ class CurrentPinScreen extends PureComponent<Props, State> {
     return (
       <ScreenTemplate
         noScroll
+        // @ts-ignore
         header={<Header navigation={this.props.navigation} isBackArrow title={i18n.onboarding.changePin} />}
       >
         <View style={styles.infoContainer}>

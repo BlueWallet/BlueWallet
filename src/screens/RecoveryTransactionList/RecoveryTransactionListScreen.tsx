@@ -28,6 +28,7 @@ interface MapStateProps {
   wallets: Wallet[];
   transactions: Transaction[];
 }
+
 interface State {
   selectedTransactions: Transaction[];
 }
@@ -146,6 +147,8 @@ export class RecoveryTransactionListScreen extends PureComponent<Props, State> {
 
     return (
       <View style={styles.container}>
+        {/**
+         // @ts-ignore */}
         <Header title={i18n.send.recovery.recover} isBackArrow navigation={navigation} />
         <View style={styles.contentContainer}>
           <WalletDropdown
@@ -180,6 +183,7 @@ const mapStateToProps = (state: ApplicationState & WalletsState, props: Props): 
   const { wallet } = props.route.params;
   return {
     wallets: selectors.walletsWithRecoveryTransaction(state),
+    // @ts-ignore - TODO: resolve it later.
     transactions: selectors.getTransactionsToRecoverByWalletId(state, wallet.id),
   };
 };

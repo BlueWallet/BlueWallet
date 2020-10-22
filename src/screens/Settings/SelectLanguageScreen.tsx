@@ -80,6 +80,7 @@ export const SelectLanguageScreen = (props: SelectLanguageScreenProps) => {
 
   return (
     <ScreenTemplate
+      // @ts-ignore
       header={<Header isBackArrow={true} navigation={props.navigation} title={i18n.selectLanguage.header} />}
     >
       {availableLanguages.map(item => (
