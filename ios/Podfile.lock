@@ -340,7 +340,7 @@ PODS:
     - React-jsi (= 0.63.3)
   - ReactNativePrivacySnapshot (1.0.0):
     - React
-  - RealmJS (6.1.0):
+  - RealmJS (6.1.2):
     - GCDWebServer
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
@@ -363,8 +363,8 @@ PODS:
     - React
   - RNHandoff (0.0.3):
     - React
-  - RNInAppBrowser (3.4.0):
-    - React
+  - RNInAppBrowser (3.5.1):
+    - React-Core
   - RNLocalize (1.4.2):
     - React-Core
   - RNQuickAction (0.3.13):
@@ -373,7 +373,7 @@ PODS:
     - React
   - RNReactNativeHapticFeedback (1.10.0):
     - React
-  - RNReanimated (1.13.0):
+  - RNReanimated (1.13.1):
     - React
   - RNScreens (2.11.0):
     - React
@@ -700,7 +700,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 8e9fb25724a0805107fc1acc9075e26f814df454
   ReactCommon: 4167844018c9ed375cc01a843e9ee564399e53c3
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
-  RealmJS: c8645e0d65b676780f7e6c393d327527a2eb15e8
+  RealmJS: 6eb9fd885c5f3cd609b8b50282a5785cb4b48a18
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: cb9a623793918c6699586281f0b51cbc38f046f9
   RNCClipboard: ce9b77f2881948e9e04af84bd70262ab37adb1c1
@@ -711,12 +711,12 @@ SPEC CHECKSUMS:
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
   RNGestureHandler: 7a5833d0f788dbd107fbb913e09aa0c1ff333c39
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
-  RNInAppBrowser: 6097fbc6b09051b40a6a9ec22caf7af40b115ec0
+  RNInAppBrowser: 3733c1aa6699983a1c9b4963e85d5e5a48ad297e
   RNLocalize: 4071198b59b461f3b74eebc5fee8c50f13e39e79
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 2b31dad120cd1b78e33c6034808561c386a3dddf
   RNReactNativeHapticFeedback: 22c5ecf474428766c6b148f96f2ff6155cd7225e
-  RNReanimated: 89f5e0a04d1dd52fbf27e7e7030d8f80a646a3fc
+  RNReanimated: dd8c286ab5dd4ba36d3a7fef8bff7e08711b5476
   RNScreens: 0e91da98ab26d5d04c7b59a9b6bd694124caf88c
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: cff88174a0b2e0289b2efe5be1abba1f6c54269d
