@@ -399,5 +399,8 @@
     "export_coordination_setup": "export coordination setup",
     "cosign_this_transaction": "Co-sign this transaction?",
     "co_sign_transaction": "Co-sign QR-airgapped transaction"
+  },
+  "cc": {
+    "header": "Coin control"
   }
 }

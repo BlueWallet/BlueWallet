@@ -994,6 +994,14 @@ export default class SendDetails extends Component {
     );
   };
 
+  handleCoinControl = () => {
+    const { fromWallet } = this.state;
+    this.props.navigation.navigate('CoinControl', {
+      walletId: fromWallet.getID(),
+    });
+    this.setState({ isAdvancedTransactionOptionsVisible: false });
+  };
+
   renderAdvancedTransactionOptionsModal = () => {
     const isSendMaxUsed = this.state.addresses.some(element => element.amount === BitcoinUnit.MAX);
     return (
@@ -1070,6 +1078,13 @@ export default class SendDetails extends Component {
                 />
               </>
             )}
+            <BlueListItem
+              title="Coin control"
+              hideChevron
+              // disabled={this.state.addresses.length < 2}
+              component={TouchableOpacity}
+              onPress={this.handleCoinControl}
+            />
           </View>
         </KeyboardAvoidingView>
       </Modal>
