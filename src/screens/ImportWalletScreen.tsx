@@ -331,7 +331,10 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
     } catch (e) {
       this.showErrorMessageScreen({ description: e.message });
     }
-    this.showErrorMessageScreen({ title: i18n.message.wrongMnemonic, description: i18n.message.wrongMnemonicDesc });
+    this.showErrorMessageScreen({
+      title: i18n.message.wrongMnemonic,
+      description: i18n.message.wrongMnemonicDesc,
+    });
     // ReactNativeHapticFeedback.trigger('notificationError', {
     //   ignoreAndroidSystemSettings: false,
     // });
@@ -366,7 +369,7 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
     });
   };
   render() {
-    const { validationError, text } = this.state;
+    const { validationError, text, label } = this.state;
     return (
       <ScreenTemplate
         footer={
@@ -377,6 +380,7 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
               onPress={this.onImportButtonPress}
             />
             <FlatButton
+              disabled={!label || !!validationError}
               containerStyle={styles.scanQRCodeButtonContainer}
               title={i18n.wallets.importWallet.scanQrCode}
               onPress={this.onScanQrCodeButtonPress}
