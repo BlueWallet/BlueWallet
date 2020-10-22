@@ -190,6 +190,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         const xpub = this._getXpubFromCosigner(cosigner);
         const hdNode = HDNode.fromBase58(xpub);
         _node = hdNode.derive(nodeIndex);
+        this._nodes[nodeIndex][cosignerIndex] = _node;
       } else {
         _node = this._nodes[nodeIndex][cosignerIndex];
       }
@@ -392,9 +393,10 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       for (let c = 1; c <= n; c++) {
         const cosignerData = json['x' + c + '/'];
         if (cosignerData) {
-          const fingerprint = cosignerData.ckcc_xfp
-            ? MultisigHDWallet.ckccXfp2fingerprint(cosignerData.ckcc_xfp)
-            : cosignerData.root_fingerprint?.toUpperCase();
+          const fingerprint =
+            (cosignerData.ckcc_xfp
+              ? MultisigHDWallet.ckccXfp2fingerprint(cosignerData.ckcc_xfp)
+              : cosignerData.root_fingerprint?.toUpperCase()) || '00000000';
           if (cosignerData.seed) {
             // TODO: support electrum's bip32
           }
@@ -448,6 +450,71 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
             this.addCosigner(value.trim(), false, customPathForCurrentCosigner);
           }
           break;
+      }
+    }
+
+    // is it wallet descriptor?
+    // @see https://github.com/bitcoin/bitcoin/blob/master/doc/descriptors.md
+    // @see https://github.com/Fonta1n3/FullyNoded/blob/master/Docs/Wallets/Wallet-Export-Spec.md
+    if (secret.indexOf('sortedmulti(') !== -1 && json.descriptor) {
+      if (json.label) this.setLabel(json.label);
+      if (json.descriptor.startsWith('wsh(')) {
+        this.setNativeSegwit();
+      }
+      if (json.descriptor.startsWith('sh(')) {
+        this.setLegacy();
+      }
+      if (json.descriptor.startsWith('sh(wsh(')) {
+        this.setLegacy();
+      }
+
+      const s2 = json.descriptor.substr(json.descriptor.indexOf('sortedmulti(') + 12);
+      const s3 = s2.split(',');
+      const m = parseInt(s3[0]);
+      if (m) this.setM(m);
+
+      for (let c = 1; c < s3.length; c++) {
+        const re = /\[([^\]]+)\](.*)/;
+        const m = s3[c].match(re);
+        if (m && m.length === 3) {
+          let hexFingerprint = m[1].split('/')[0];
+          if (hexFingerprint.length === 8) {
+            hexFingerprint = Buffer.from(hexFingerprint, 'hex').reverse().toString('hex');
+          }
+
+          const path = 'm/' + m[1].split('/').slice(1).join('/').replace(/[h]/g, "'");
+          let xpub = m[2];
+          if (xpub.indexOf('/') !== -1) {
+            xpub = xpub.substr(0, xpub.indexOf('/'));
+          }
+
+          this.addCosigner(xpub, hexFingerprint.toUpperCase(), path);
+        }
+      }
+    }
+
+    // is it caravan?
+    if (json && json.network === 'mainnet' && json.quorum) {
+      this.setM(+json.quorum.requiredSigners);
+      if (json.name) this.setLabel(json.name);
+
+      switch (json.addressType.toLowerCase()) {
+        case 'P2SH':
+          this.setLegacy();
+          break;
+        case 'P2SH-P2WSH':
+          this.setWrappedSegwit();
+          break;
+        default:
+        case 'P2WSH':
+          this.setNativeSegwit();
+          break;
+      }
+
+      for (const pk of json.extendedPublicKeys) {
+        const path = this.constructor.isPathValid(json.bip32Path) ? json.bip32Path : "m/1'";
+        // wtf, where caravan stores fingerprints..?
+        this.addCosigner(pk.xpub, '00000000', path);
       }
     }
 
@@ -797,5 +864,34 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
 
     return sigsHave;
+  }
+
+  /**
+   * Tries to signs passed psbt object (by reference). If there are enough signatures - tries to finalize psbt
+   * and returns Transaction (ready to extract hex)
+   *
+   * @param psbt {Psbt}
+   * @returns {{ tx: Transaction }}
+   */
+  cosignPsbt(psbt) {
+    for (let cc = 0; cc < psbt.inputCount; cc++) {
+      for (const cosigner of this._cosigners) {
+        if (!MultisigHDWallet.isXpubString(cosigner)) {
+          // ok this is a mnemonic, lets try to sign
+          const seed = bip39.mnemonicToSeed(cosigner);
+          const hdRoot = bitcoin.bip32.fromSeed(seed);
+          try {
+            psbt.signInputHD(cc, hdRoot);
+          } catch (_) {} // protects agains duplicate cosignings
+        }
+      }
+    }
+
+    let tx = false;
+    if (this.calculateHowManySignaturesWeHaveFromPsbt(psbt) >= this.getM()) {
+      tx = psbt.finalizeAllInputs().extractTransaction();
+    }
+
+    return { tx };
   }
 }

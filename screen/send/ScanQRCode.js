@@ -1,19 +1,20 @@
 /* global alert */
 import React, { useState } from 'react';
-import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, Linking, Alert, TextInput } from 'react-native';
+import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
+import { decodeUR, extractSingleWorkload } from 'bc-ur';
 import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
-import DocumentPicker from 'react-native-document-picker';
-import RNFS from 'react-native-fs';
 import loc from '../../loc';
 import { BlueLoadingHook, BlueTextHooks, BlueButtonHook, BlueSpacing40 } from '../../BlueComponents';
-import { getSystemName } from 'react-native-device-info';
 import { BlueCurrentTheme } from '../../components/themes';
+import { openPrivacyDesktopSettings } from '../../class/camera';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
-const isDesktop = getSystemName() === 'Mac OS X';
+const fs = require('../../blue_modules/fs');
+const Base43 = require('../../blue_modules/base43');
+const bitcoin = require('bitcoinjs-lib');
 
 const styles = StyleSheet.create({
   root: {
@@ -96,6 +97,7 @@ const ScanQRCode = () => {
   const [backdoorPressed, setBackdoorPressed] = useState(0);
   const [backdoorText, setBackdoorText] = useState('');
   const [backdoorVisible, setBackdoorVisible] = useState(false);
+  const [animatedQRCodeData, setAnimatedQRCodeData] = useState({});
   const stylesHook = StyleSheet.create({
     openSettingsContainer: {
       backgroundColor: colors.brandingColor,
@@ -105,6 +107,34 @@ const ScanQRCode = () => {
     return createHash('sha256').update(s).digest().toString('hex');
   };
 
+  const _onReadUniformResource = ur => {
+    try {
+      const [index, total] = extractSingleWorkload(ur);
+      animatedQRCodeData[index + 'of' + total] = ur;
+      if (Object.values(animatedQRCodeData).length === total) {
+        const payload = decodeUR(Object.values(animatedQRCodeData));
+        // lets look inside that data
+        let data = false;
+        if (Buffer.from(payload, 'hex').toString().startsWith('psbt')) {
+          // its a psbt, and whoever requested it expects it encoded in base64
+          data = Buffer.from(payload, 'hex').toString('base64');
+        } else {
+          // its something else. probably plain text is expected
+          data = Buffer.from(payload, 'hex').toString();
+        }
+        if (launchedBy) {
+          navigation.navigate(launchedBy);
+        }
+        onBarScanned({ data });
+      } else {
+        setAnimatedQRCodeData(animatedQRCodeData);
+      }
+    } catch (error) {
+      console.warn(error);
+      alert(loc._.invalid_animated_qr_code_fragment);
+    }
+  };
+
   const onBarCodeRead = ret => {
     const h = HashIt(ret.data);
     if (scannedCache[h]) {
@@ -112,6 +142,22 @@ const ScanQRCode = () => {
       return;
     }
     scannedCache[h] = +new Date();
+
+    if (ret.data.toUpperCase().startsWith('UR')) {
+      return _onReadUniformResource(ret.data);
+    }
+
+    // is it base43? stupid electrum desktop
+    try {
+      const hex = Base43.decode(ret.data);
+      bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
+
+      if (launchedBy) {
+        navigation.navigate(launchedBy);
+      }
+      onBarScanned({ data: Buffer.from(hex, 'hex').toString('base64') });
+      return;
+    } catch (_) {}
 
     if (!isLoading) {
       setIsLoading(true);
@@ -132,21 +178,9 @@ const ScanQRCode = () => {
   };
 
   const showFilePicker = async () => {
-    try {
-      const res = await DocumentPicker.pick({
-        type:
-          Platform.OS === 'ios'
-            ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', DocumentPicker.types.plainText, 'public.json']
-            : [DocumentPicker.types.allFiles],
-      });
-      setIsLoading(true);
-      const file = await RNFS.readFile(res.uri);
-      onBarCodeRead({ data: file });
-    } catch (err) {
-      if (!DocumentPicker.isCancel(err)) {
-        alert(loc.send.qr_error_no_wallet);
-      }
-    }
+    setIsLoading(true);
+    const { data } = await fs.showFilePickerAndReadFile();
+    if (data) onBarCodeRead({ data });
     setIsLoading(false);
   };
 
@@ -216,7 +250,7 @@ const ScanQRCode = () => {
         <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
           <BlueTextHooks>{loc.send.permission_camera_message}</BlueTextHooks>
           <BlueSpacing40 />
-          <BlueButtonHook title={loc.send.open_settings} onPress={ScanQRCode.openPrivacyDesktopSettings} />
+          <BlueButtonHook title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
         </View>
       )}
       <TouchableOpacity style={styles.closeTouch} onPress={dismiss}>
@@ -278,34 +312,6 @@ const ScanQRCode = () => {
         }}
       />
     </View>
-  );
-};
-
-ScanQRCode.openPrivacyDesktopSettings = () => {
-  if (isDesktop) {
-    Linking.openURL('x-apple.systempreferences:com.apple.preference.security?Privacy_Camera');
-  } else {
-    Linking.openSettings();
-  }
-};
-
-ScanQRCode.presentCameraNotAuthorizedAlert = error => {
-  Alert.alert(
-    loc.errors.error,
-    error,
-    [
-      {
-        text: loc.send.open_settings,
-        onPress: ScanQRCode.openPrivacyDesktopSettings,
-        style: 'default',
-      },
-      {
-        text: loc._.ok,
-        onPress: () => {},
-        style: 'cancel',
-      },
-    ],
-    { cancelable: true },
   );
 };
 

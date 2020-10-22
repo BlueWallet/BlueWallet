@@ -5,7 +5,6 @@ import { BlueButton, BlueButtonLink, BlueCard, BlueNavigationStyle, BlueSpacing2
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
 import { getSystemName } from 'react-native-device-info';
-import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
 import loc from '../../loc';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
@@ -40,7 +39,6 @@ const PsbtMultisig = () => {
   const memo = route.params.memo;
 
   const [psbt, setPsbt] = useState(bitcoin.Psbt.fromBase64(psbtBase64));
-  const [animatedQRCodeData, setAnimatedQRCodeData] = useState({});
   const [isModalVisible, setIsModalVisible] = useState(false);
   const stylesHook = StyleSheet.create({
     root: {
@@ -167,22 +165,6 @@ const PsbtMultisig = () => {
     );
   };
 
-  const _onReadUniformResource = ur => {
-    try {
-      const [index, total] = extractSingleWorkload(ur);
-      animatedQRCodeData[index + 'of' + total] = ur;
-      if (Object.values(animatedQRCodeData).length === total) {
-        const payload = decodeUR(Object.values(animatedQRCodeData));
-        const psbtB64 = Buffer.from(payload, 'hex').toString('base64');
-        _combinePSBT(psbtB64);
-      } else {
-        setAnimatedQRCodeData(animatedQRCodeData);
-      }
-    } catch (Err) {
-      alert(loc._.invalid_animated_qr_code_fragment);
-    }
-  };
-
   const _combinePSBT = receivedPSBTBase64 => {
     const receivedPSBT = bitcoin.Psbt.fromBase64(receivedPSBTBase64);
     try {
@@ -200,7 +182,7 @@ const PsbtMultisig = () => {
   const onBarScanned = ret => {
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
-      return _onReadUniformResource(ret.data);
+      alert('BC-UR not decoded. This should never happen');
     } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
       // we dont support it in this flow
@@ -382,22 +364,26 @@ const PsbtMultisig = () => {
       if (index > 1) {
         destinationAddressView.push(
           <View style={styles.destionationTextContainer} key={`end-${index}`}>
-            <Text style={[styles.textDestinationFirstFour, stylesHook.textFiat]}>and {destinations.length - 2} more...</Text>
+            <Text numberOfLines={0} style={[styles.textDestinationFirstFour, stylesHook.textFiat]}>
+              and {destinations.length - 2} more...
+            </Text>
           </View>,
         );
         break;
       } else {
-        const currentAddress = address.replace(/\s/g, '');
+        const currentAddress = address;
         const firstFour = currentAddress.substring(0, 5);
         const lastFour = currentAddress.substring(currentAddress.length - 5, currentAddress.length);
         const middle = currentAddress.split(firstFour)[1].split(lastFour)[0];
         destinationAddressView.push(
           <View style={styles.destionationTextContainer} key={`${currentAddress}-${index}`}>
-            <Text style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>{firstFour}</Text>
-            <View style={styles.textDestinationSpacingRight} />
-            <Text style={[styles.textDestinationFirstFour, stylesHook.textFiat]}>{middle}</Text>
-            <View style={styles.textDestinationSpacingLeft} />
-            <Text style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>{lastFour}</Text>
+            <Text numberOfLines={2} style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>
+              {firstFour}
+              <Text> </Text>
+              <Text style={[styles.textDestination, stylesHook.textFiat]}>{middle}</Text>
+              <Text> </Text>
+              <Text style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>{lastFour}</Text>
+            </Text>
           </View>,
         );
       }
@@ -502,8 +488,10 @@ const styles = StyleSheet.create({
   },
   destionationTextContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
     marginBottom: 4,
+    paddingHorizontal: 60,
+    fontSize: 14,
+    justifyContent: 'center',
   },
   textFiat: {
     fontSize: 16,
@@ -515,11 +503,13 @@ const styles = StyleSheet.create({
     fontSize: 30,
   },
   textDestinationFirstFour: {
-    fontWeight: 'bold',
+    fontSize: 14,
   },
   textDestination: {
     paddingTop: 10,
     paddingBottom: 40,
+    fontSize: 14,
+    flexWrap: 'wrap',
   },
   bottomModal: {
     justifyContent: 'flex-end',

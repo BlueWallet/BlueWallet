@@ -399,6 +399,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       txs = txs.concat(addressTxs);
     }
 
+    if (txs.length === 0) return []; // guard clause; so we wont spend time calculating addresses
+
     // its faster to pre-build hashmap of owned addresses than to query `this.weOwnAddress()`, which in turn
     // iterates over all addresses in hierarchy
     const ownedAddressesHashmap = {};

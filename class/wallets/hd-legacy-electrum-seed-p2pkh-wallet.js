@@ -1,4 +1,4 @@
-import { HDLegacyP2PKHWallet } from '..';
+import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 
 const bitcoin = require('bitcoinjs-lib');
 const mn = require('electrum-mnemonic');

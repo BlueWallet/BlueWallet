@@ -1,4 +1,4 @@
-import { HDSegwitBech32Wallet } from '..';
+import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 
 const bitcoin = require('bitcoinjs-lib');
 const mn = require('electrum-mnemonic');

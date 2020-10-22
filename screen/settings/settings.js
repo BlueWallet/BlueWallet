@@ -34,6 +34,7 @@ const Settings = () => {
         onPress={() => navigate('NotificationSettings')}
         chevron
       />
+      <BlueListItem title={loc.settings.privacy} component={TouchableOpacity} onPress={() => navigate('SettingsPrivacy')} chevron />
       <BlueListItem
         title={loc.settings.about}
         component={TouchableOpacity}

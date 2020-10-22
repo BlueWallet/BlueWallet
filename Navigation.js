@@ -70,6 +70,7 @@ import UnlockWith from './UnlockWith';
 import { BlueNavigationStyle } from './BlueComponents';
 import DrawerList from './screen/wallets/drawerList';
 import { isTablet } from 'react-native-device-info';
+import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 
 const defaultScreenOptions =
   Platform.OS === 'ios'
@@ -103,7 +104,7 @@ const defaultStackScreenOptions =
 const WalletsStack = createStackNavigator();
 const WalletsRoot = () => (
   <WalletsStack.Navigator {...(Platform.OS === 'android' ? { screenOptions: defaultScreenOptions } : null)}>
-    <WalletsStack.Screen name="WalletsList" component={WalletsList} options={WalletsList.navigationOptions} />
+    <WalletsStack.Screen name="WalletsList" component={WalletsList} />
     <WalletsStack.Screen name="WalletTransactions" component={WalletTransactions} options={WalletTransactions.navigationOptions} />
     <WalletsStack.Screen name="WalletDetails" component={WalletDetails} options={WalletDetails.navigationOptions} />
     <WalletsStack.Screen name="TransactionDetails" component={TransactionDetails} options={TransactionDetails.navigationOptions} />
@@ -136,6 +137,7 @@ const WalletsRoot = () => (
     <WalletsStack.Screen name="PlausibleDeniability" component={PlausibleDeniability} options={PlausibleDeniability.navigationOptions} />
     <WalletsStack.Screen name="LightningSettings" component={LightningSettings} options={LightningSettings.navigationOptions} />
     <WalletsStack.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions} />
+    <WalletsStack.Screen name="SettingsPrivacy" component={SettingsPrivacy} options={SettingsPrivacy.navigationOptions} />
     <WalletsStack.Screen
       name="LNDViewInvoice"
       component={LNDViewInvoice}

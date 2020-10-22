@@ -888,19 +888,77 @@ export default class SendDetails extends Component {
     }
   };
 
-  importTransactionMultisig = async () => {
+  askCosignThisTransaction = async () => {
+    return new Promise(resolve => {
+      Alert.alert(
+        loc.multisig.cosign_this_transaction,
+        '',
+        [
+          {
+            text: loc._.no,
+            style: 'cancel',
+            onPress: () => resolve(false),
+          },
+          {
+            text: loc._.yes,
+            onPress: () => resolve(true),
+          },
+        ],
+        { cancelable: false },
+      );
+    });
+  };
+
+  _importTransactionMultisig = async base64arg => {
     try {
-      const base64 = await fs.openSignedTransaction();
+      /** @type MultisigHDWallet */
+      const fromWallet = this.state.fromWallet;
+      const base64 = base64arg || (await fs.openSignedTransaction());
+      if (!base64) return;
       const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
+
+      if (fromWallet.howManySignaturesCanWeMake() > 0 && (await this.askCosignThisTransaction())) {
+        fromWallet.cosignPsbt(psbt);
+      }
+
       this.props.navigation.navigate('PsbtMultisig', {
         memo: this.state.memo,
         psbtBase64: psbt.toBase64(),
-        walletId: this.state.fromWallet.getID(),
+        walletId: fromWallet.getID(),
       });
     } catch (error) {
       alert(loc.send.problem_with_psbt + ': ' + error.message);
     }
     this.setState({ isLoading: false, isAdvancedTransactionOptionsVisible: false });
+  };
+
+  importTransactionMultisig = async () => {
+    return this._importTransactionMultisig();
+  };
+
+  onBarScanned = ret => {
+    this.props.navigation.dangerouslyGetParent().pop();
+    if (!ret.data) ret = { data: ret };
+    if (ret.data.toUpperCase().startsWith('UR')) {
+      alert('BC-UR not decoded. This should never happen');
+    } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+      // this looks like NOT base64, so maybe its transaction's hex
+      // we dont support it in this flow
+    } else {
+      // psbt base64?
+      return this._importTransactionMultisig(ret.data);
+    }
+  };
+
+  importTransactionMultisigScanQr = async () => {
+    this.setState({ isAdvancedTransactionOptionsVisible: false });
+    this.props.navigation.navigate('ScanQRCodeRoot', {
+      screen: 'ScanQRCode',
+      params: {
+        onBarScanned: this.onBarScanned,
+        showFileImportButton: true,
+      },
+    });
   };
 
   handleAddRecipient = () => {
@@ -984,6 +1042,14 @@ export default class SendDetails extends Component {
                 hideChevron
                 component={TouchableOpacity}
                 onPress={this.importTransactionMultisig}
+              />
+            )}
+            {this.state.fromWallet.type === MultisigHDWallet.type && this.state.fromWallet.howManySignaturesCanWeMake() > 0 && (
+              <BlueListItem
+                title={loc.multisig.co_sign_transaction}
+                hideChevron
+                component={TouchableOpacity}
+                onPress={this.importTransactionMultisigScanQr}
               />
             )}
             {this.state.fromWallet.allowBatchSend() && (
@@ -1287,6 +1353,7 @@ SendDetails.propTypes = {
     goBack: PropTypes.func,
     navigate: PropTypes.func,
     setParams: PropTypes.func,
+    dangerouslyGetParent: PropTypes.func,
   }),
   route: PropTypes.shape({
     name: PropTypes.string,

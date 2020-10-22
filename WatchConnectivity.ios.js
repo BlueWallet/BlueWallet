@@ -4,7 +4,7 @@ import { Chain } from './models/bitcoinUnits';
 import loc, { formatBalance, transactionTimeToReadable } from './loc';
 const notifications = require('./blue_modules/notifications');
 
-const WatchConnectivity = () => {
+function WatchConnectivity() {
   const handleMessages = (message, reply) => {
     const BlueApp = require('./BlueApp');
     if (message.request === 'createInvoice') {
@@ -45,10 +45,10 @@ const WatchConnectivity = () => {
 
   getIsWatchAppInstalled().then(installed => {
     if (installed) {
-      watchEvents.addListener('message', handleMessages);
+      watchEvents.on('message', handleMessages);
     }
   });
-};
+}
 
 WatchConnectivity.sendWalletsToWatch = () => {
   getIsWatchAppInstalled().then(installed => {
@@ -60,6 +60,7 @@ WatchConnectivity.sendWalletsToWatch = () => {
       return;
     } else if (allWallets.length === 0) {
       console.log('Wallets array is set. No Wallets set to sync with Watch app. Exiting...');
+      updateApplicationContext({ wallets: [], randomID: Math.floor(Math.random() * 11) });
       return;
     }
 
@@ -160,5 +161,6 @@ WatchConnectivity.sendWalletsToWatch = () => {
     });
   });
 };
+
+WatchConnectivity.default = new WatchConnectivity();
 export default WatchConnectivity;
-WatchConnectivity();
