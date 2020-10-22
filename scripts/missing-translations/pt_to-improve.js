@@ -269,6 +269,13 @@ const pt = {
       walletType: 'Tipo de carteira',
       addToAddressBook: 'Adicionar ao livro de Endereços',
       timePending: 'Tempo pendente',
+      returnedFee: 'TRANSLATION NEEDED | ENG: Returned fee:',
+      numberOfCancelTransactions: 'TRANSLATION NEEDED | ENG: Number of Cancel transactions',
+      toExternalWallet: 'TRANSLATION NEEDED | ENG: To the external wallet',
+      toInternalWallet: 'TRANSLATION NEEDED | ENG: To the internal wallet',
+      totalReturnedFee: 'TRANSLATION NEEDED | ENG: Total returned fee:',
+      unblocked: 'TRANSLATION NEEDED | ENG: Unblocked',
+      blocked: 'TRANSLATION NEEDED | ENG: Blocked',
     },
     label: {
       pending: 'pendente',
@@ -276,6 +283,7 @@ const pt = {
       done: 'feito',
       canceled: 'cancelado',
       unblocked: 'desbloqueado',
+      canceledDone: 'TRANSLATION NEEDED | ENG: canceled - done',
     },
     transactionTypeLabel: {
       standard: 'Padrão',

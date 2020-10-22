@@ -6,8 +6,8 @@ import React, { Component } from 'react';
 import { View, StyleSheet, Text, Linking, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux';
 
-import { images, icons } from 'app/assets';
-import { Image, Header, StyledText, Chip, ScreenTemplate, TranscationLabelStatus } from 'app/components';
+import { icons } from 'app/assets';
+import { Image, Header, StyledText, Chip, ScreenTemplate, TranscationLabelStatus, Label } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
 import { Route, MainCardStackNavigatorParams, RootStackParams, TxType } from 'app/consts';
 import { getConfirmationsText } from 'app/helpers/helpers';
@@ -22,6 +22,7 @@ import {
 import { typography, palette } from 'app/styles';
 
 import config from '../../config';
+import { satoshiToBtc, formatToBtcv } from '../../utils/bitcoin';
 
 const i18n = require('../../loc');
 
@@ -53,29 +54,62 @@ class TransactionDetailsScreen extends Component<Props> {
     }
   };
 
+  get isMinusValue() {
+    const { transaction } = this.props.route.params;
+    return transaction.valueWithoutFee < 0;
+  }
+
   renderHeader = () => {
     const { transaction } = this.props.route.params;
-    const valuePreffix = transaction.value < 0 ? '' : '+';
-    return (
-      <View style={styles.headerContainer}>
-        <Image source={transaction.value < 0 ? images.bigMinus : images.bigPlus} style={styles.image} />
-        <View style={styles.walletIconContainer}>
-          <Image
-            source={transaction.value > 0 ? icons.arrowRight : icons.arrowLeft}
-            style={styles.arrowIcon}
-            resizeMode="contain"
-          />
-          <Image source={icons.wallet} style={styles.walletIcon} resizeMode="contain" />
-        </View>
-        <Text style={styles.walletLabel}>{transaction.walletLabel}</Text>
-        <Text style={[styles.value, { color: transaction.value < 0 ? palette.textRed : palette.textBlack }]}>
-          {`${valuePreffix}${i18n.formatBalanceWithoutSuffix(
-            Number(transaction.value),
-            transaction.walletPreferredBalanceUnit,
-          )} ${transaction.walletPreferredBalanceUnit}`}
-        </Text>
-        <TranscationLabelStatus type={transaction.tx_type} />
 
+    return (
+      <View style={[styles.headerContainer, transaction.isRecoveredAlertToMe ? styles.opacity : null]}>
+        <View style={styles.walletInfoContainer}>
+          <View style={styles.walletIconContainer}>
+            <Image
+              source={this.isMinusValue ? icons.arrowRight : icons.arrowLeft}
+              style={styles.arrowIcon}
+              resizeMode="contain"
+            />
+            <Image source={icons.wallet} style={styles.walletIcon} resizeMode="contain" />
+            <Text style={styles.walletLabel}>{transaction.walletLabel}</Text>
+          </View>
+          {transaction.toExternalAddress !== undefined && (
+            <View style={styles.rowWrapper}>
+              <Text style={styles.lightGrayText}>{i18n.transactions.details.toExternalWallet}</Text>
+            </View>
+          )}
+          {transaction.toInternalAddress !== undefined && (
+            <View style={styles.rowWrapper}>
+              <Text style={styles.lightGrayText}>{i18n.transactions.details.toInternalWallet}</Text>
+            </View>
+          )}
+        </View>
+        <Text
+          style={[
+            styles.value,
+            this.isMinusValue ? styles.textRed : styles.textBlack,
+            transaction.toExternalAddress ? styles.lightGrayText : null,
+          ]}
+        >
+          {formatToBtcv(satoshiToBtc(transaction.valueWithoutFee).toNumber())}
+        </Text>
+        <TranscationLabelStatus type={transaction.tx_type} confirmations={transaction.confirmations} />
+        {transaction.blockedAmount !== undefined && (
+          <View style={styles.amountWrapper}>
+            <Text style={[styles.value, styles.textRed]}>{formatToBtcv(transaction.blockedAmount)}</Text>
+            <Label>{i18n.transactions.details.blocked}</Label>
+          </View>
+        )}
+
+        {transaction.unblockedAmount !== undefined && (
+          <View style={styles.amountWrapper}>
+            <Text style={[styles.value, transaction.toExternalAddress ? styles.lightGrayText : styles.textBlack]}>
+              {formatToBtcv(transaction.unblockedAmount)}
+            </Text>
+            <Label>{i18n.transactions.details.blocked}</Label>
+          </View>
+        )}
         {transaction.tx_type !== TxType.ALERT_RECOVERED && (
           <Chip
             containerStyle={styles.chipContainer}
@@ -84,6 +118,26 @@ class TransactionDetailsScreen extends Component<Props> {
             }`}
             textStyle={typography.overline}
           />
+        )}
+        {transaction.returnedFee !== undefined && (
+          <View style={styles.rowWrapper}>
+            <Text
+              style={[styles.label, typography.headline5, transaction.toExternalAddress ? styles.lightGrayText : null]}
+            >
+              {i18n.transactions.details.returnedFee}&nbsp;
+            </Text>
+            <Text
+              style={[styles.label, typography.headline5, transaction.toExternalAddress ? styles.lightGrayText : null]}
+            >
+              {formatToBtcv(transaction.returnedFee)}
+            </Text>
+          </View>
+        )}
+        {transaction.fee !== undefined && (
+          <View style={styles.rowWrapper}>
+            <Text style={[styles.label, typography.headline5]}>{i18n.transactions.details.fee}&nbsp;</Text>
+            <Text style={[styles.label, typography.headline5]}>{formatToBtcv(transaction.fee)}</Text>
+          </View>
         )}
       </View>
     );
@@ -205,6 +259,12 @@ class TransactionDetailsScreen extends Component<Props> {
           <Text style={styles.contentRowTitle}>{i18n.transactions.details.transactionType}</Text>
           <Text style={styles.contentRowBody}>{this.getTransactionTypeLabel(transaction.tx_type)}</Text>
         </View>
+        {transaction.recoveredTxsCounter !== undefined && (
+          <View style={styles.contentRowContainer}>
+            <Text style={styles.contentRowTitle}>{i18n.transactions.details.numberOfCancelTransactions}</Text>
+            <Text style={styles.contentRowBody}>{transaction.recoveredTxsCounter}</Text>
+          </View>
+        )}
         <View style={styles.contentRowContainer}>
           <Text style={styles.contentRowTitle}>{i18n.transactions.details.inputs}</Text>
           <Text style={styles.contentRowBody}>{transaction.inputs.length}</Text>
@@ -243,11 +303,40 @@ const styles = StyleSheet.create({
   walletLabel: {
     ...typography.headline8,
   },
-  value: { ...typography.headline5, marginTop: 6, marginBottom: 10 },
-  image: {
-    height: 90,
-    width: 90,
-    margin: 15,
+  opacity: {
+    opacity: 0.4,
+  },
+  lightGrayText: {
+    color: palette.textGrey,
+    ...typography.caption,
+  },
+  amountWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 5,
+  },
+  textRed: {
+    color: palette.textRed,
+  },
+  textBlack: {
+    color: palette.textBlack,
+  },
+  rowWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 3,
+  },
+  label: {
+    ...typography.caption,
+    color: palette.textGrey,
+  },
+  value: {
+    ...typography.headline5,
+    marginTop: 6,
+    width: 85,
+    textAlign: 'center',
+    lineHeight: 15,
+    height: 45,
   },
   noteContainer: {
     width: '100%',
@@ -262,11 +351,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  walletInfoContainer: {
+    marginBottom: 20,
+  },
   arrowIcon: {
     width: 24,
     height: 24,
   },
   walletIcon: {
+    marginHorizontal: 5,
     width: 14,
     height: 14,
   },

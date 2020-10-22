@@ -127,7 +127,7 @@ class SendCoinsScreen extends Component<Props, State> {
     const requestedSatPerByte: string | number = +this.state.fee.toString().replace(/\D/g, '');
 
     const targets: any[] = [];
-    const amount = btcToSatoshi(this.toNumber(transaction.amount)).toNumber();
+    const amount = btcToSatoshi(this.toNumber(transaction.amount));
 
     if (amount > 0.0) {
       targets.push({ address: transaction.address, value: amount });

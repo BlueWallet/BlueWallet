@@ -386,6 +386,13 @@ const jo = {
       verify: 'coinb.inから確認',
       viewInBlockRxplorer: 'ブロックエクスプローラーの表示',
       walletType: 'ウォレットタイプ',
+      returnedFee: 'TRANSLATION NEEDED | ENG: Returned fee:',
+      numberOfCancelTransactions: 'TRANSLATION NEEDED | ENG: Number of Cancel transactions',
+      toExternalWallet: 'TRANSLATION NEEDED | ENG: To the external wallet',
+      toInternalWallet: 'TRANSLATION NEEDED | ENG: To the internal wallet',
+      totalReturnedFee: 'TRANSLATION NEEDED | ENG: Total returned fee:',
+      unblocked: 'TRANSLATION NEEDED | ENG: Unblocked',
+      blocked: 'TRANSLATION NEEDED | ENG: Blocked',
     },
     errors: {
       notEnoughBalance: '残高不足。少ない金額で試してください。',
@@ -396,6 +403,7 @@ const jo = {
       pending: '保留中',
       unblocked: 'ブロック解除',
       annulled: '無効化',
+      canceledDone: 'TRANSLATION NEEDED | ENG: canceled - done',
     },
     list: {
       conf: '確認',

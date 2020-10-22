@@ -269,6 +269,13 @@ const id = {
       walletType: 'Tipe dompet',
       addToAddressBook: 'Tambahkan ke buku Alamat',
       timePending: 'Waktu tertunda',
+      returnedFee: 'TRANSLATION NEEDED | ENG: Returned fee:',
+      numberOfCancelTransactions: 'TRANSLATION NEEDED | ENG: Number of Cancel transactions',
+      toExternalWallet: 'TRANSLATION NEEDED | ENG: To the external wallet',
+      toInternalWallet: 'TRANSLATION NEEDED | ENG: To the internal wallet',
+      totalReturnedFee: 'TRANSLATION NEEDED | ENG: Total returned fee:',
+      unblocked: 'TRANSLATION NEEDED | ENG: Unblocked',
+      blocked: 'TRANSLATION NEEDED | ENG: Blocked',
     },
     label: {
       pending: 'tertunda',
@@ -276,6 +283,7 @@ const id = {
       done: 'selesai',
       canceled: 'dibatalkan',
       unblocked: 'unblocked',
+      canceledDone: 'TRANSLATION NEEDED | ENG: canceled - done',
     },
     transactionTypeLabel: {
       standard: 'Standar',

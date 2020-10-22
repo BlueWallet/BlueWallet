@@ -269,6 +269,13 @@ const ko = {
       walletType: '지갑 유형',
       addToAddressBook: '주소록에 추가',
       timePending: '보류 시간',
+      returnedFee: 'TRANSLATION NEEDED | ENG: Returned fee:',
+      numberOfCancelTransactions: 'TRANSLATION NEEDED | ENG: Number of Cancel transactions',
+      toExternalWallet: 'TRANSLATION NEEDED | ENG: To the external wallet',
+      toInternalWallet: 'TRANSLATION NEEDED | ENG: To the internal wallet',
+      totalReturnedFee: 'TRANSLATION NEEDED | ENG: Total returned fee:',
+      unblocked: 'TRANSLATION NEEDED | ENG: Unblocked',
+      blocked: 'TRANSLATION NEEDED | ENG: Blocked',
     },
     label: {
       pending: '보류 중',
@@ -276,6 +283,7 @@ const ko = {
       done: '완료',
       canceled: '취소됨',
       unblocked: '차단해제됨',
+      canceledDone: 'TRANSLATION NEEDED | ENG: canceled - done',
     },
     transactionTypeLabel: {
       standard: '표준',

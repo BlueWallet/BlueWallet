@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, StyleProp, TextProps } from 'react-native';
 import { typography, palette } from 'app/styles';
 
 interface Props {
-  labelStyle: StyleProp<TextProps>;
+  labelStyle?: StyleProp<TextProps>;
   children: string;
 }
 

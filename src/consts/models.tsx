@@ -129,7 +129,7 @@ export interface Wallet {
   utxo: any[];
   _xpub: string;
   getID: () => string;
-  weOwnAddress: (clipboard: string) => void;
+  weOwnAddress: (clipboard: string) => boolean;
   isInvoiceGeneratedByWallet?: (clipboard: string) => void;
   getPreferredBalanceUnit: () => string;
   isOutputScriptMine: (script: Uint8Array) => boolean;
@@ -173,9 +173,18 @@ export interface Transaction {
   walletLabel: string;
   confirmations: number;
   tx_type: TxType;
-  inputs: any[];
-  outputs: any[];
+  inputs: TransactionInput[];
+  outputs: TransactionOutput[];
   note?: string;
+  fee?: number;
+  blockedAmount?: number;
+  unblockedAmount?: number;
+  toExternalAddress?: string;
+  toInternalAddress?: string;
+  recoveredTxsCounter?: number;
+  valueWithoutFee: number;
+  returnedFee?: number;
+  isRecoveredAlertToMe?: boolean;
   height: number;
   walletPreferredBalanceUnit: string;
 }
@@ -202,6 +211,13 @@ export interface Filters {
   toAmount?: string;
   transactionType?: string;
   transactionStatus?: string;
+}
+
+export interface TransactionOutput {
+  addresses: string[];
+  value: number;
+  scriptPubKey: { asm: string; addresses: string[]; hex: string; type: string; reqSigs: number };
+  n: number;
 }
 
 export interface TransactionInput {

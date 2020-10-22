@@ -136,7 +136,7 @@ export class RecoverySendScreen extends Component<Props, State> {
         address: i.addresses[0],
         txid: i.txid,
         vout: i.vout,
-        value: btcToSatoshi(i.value).toNumber(),
+        value: btcToSatoshi(i.value),
       })),
       flatten,
       map(({ inputs }) => inputs),

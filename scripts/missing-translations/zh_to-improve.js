@@ -386,6 +386,13 @@ const zh = {
       verify: '在 coinb.in 上验证',
       viewInBlockRxplorer: '在区块浏览器中查看',
       walletType: '钱包类型',
+      returnedFee: 'TRANSLATION NEEDED | ENG: Returned fee:',
+      numberOfCancelTransactions: 'TRANSLATION NEEDED | ENG: Number of Cancel transactions',
+      toExternalWallet: 'TRANSLATION NEEDED | ENG: To the external wallet',
+      toInternalWallet: 'TRANSLATION NEEDED | ENG: To the internal wallet',
+      totalReturnedFee: 'TRANSLATION NEEDED | ENG: Total returned fee:',
+      unblocked: 'TRANSLATION NEEDED | ENG: Unblocked',
+      blocked: 'TRANSLATION NEEDED | ENG: Blocked',
     },
     errors: {
       notEnoughBalance: '余额不足，请尝试发送较小的金额。',
@@ -396,6 +403,7 @@ const zh = {
       done: '完成',
       pending: '待定',
       unblocked: '未锁定',
+      canceledDone: 'TRANSLATION NEEDED | ENG: canceled - done',
     },
     list: {
       conf: '确认',

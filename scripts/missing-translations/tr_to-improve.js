@@ -269,6 +269,13 @@ const tr = {
       walletType: 'Cüzdan türü',
       addToAddressBook: 'Adres defterine ekle',
       timePending: 'Bekleme süresi',
+      returnedFee: 'TRANSLATION NEEDED | ENG: Returned fee:',
+      numberOfCancelTransactions: 'TRANSLATION NEEDED | ENG: Number of Cancel transactions',
+      toExternalWallet: 'TRANSLATION NEEDED | ENG: To the external wallet',
+      toInternalWallet: 'TRANSLATION NEEDED | ENG: To the internal wallet',
+      totalReturnedFee: 'TRANSLATION NEEDED | ENG: Total returned fee:',
+      unblocked: 'TRANSLATION NEEDED | ENG: Unblocked',
+      blocked: 'TRANSLATION NEEDED | ENG: Blocked',
     },
     label: {
       pending: 'beklemede',
@@ -276,6 +283,7 @@ const tr = {
       done: 'tamamlandı',
       canceled: 'İptal Edildi',
       unblocked: 'bloke kalktı',
+      canceledDone: 'TRANSLATION NEEDED | ENG: canceled - done',
     },
     transactionTypeLabel: {
       standard: 'Standart',
