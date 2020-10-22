@@ -18,7 +18,6 @@ import { BlueButtonHook, BlueNavigationStyle, BlueSpacing20, BlueSpacing40 } fro
 import { MultisigHDWallet } from '../../class';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
 import Modal from 'react-native-modal';
 
 const WalletsAddMultisig = () => {
@@ -31,7 +30,7 @@ const WalletsAddMultisig = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [format, setFormat] = useState(MultisigHDWallet.FORMAT_P2WSH);
 
-  const stylesHook = {
+  const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
       padding: 20,
@@ -39,7 +38,14 @@ const WalletsAddMultisig = () => {
     textdesc: {
       color: colors.alternativeTextColor,
     },
-  };
+    whiteBackground: { backgroundColor: colors.background },
+    itemNameWrapper: { backgroundColor: colors.elevated },
+    nativeName: { color: colors.foregroundColor },
+    filteTextWrapper: { color: colors.foregroundColor, right: 0, position: 'absolute' },
+    modalContentShort: {
+      backgroundColor: colors.elevated,
+    },
+  });
 
   const onLetsStartPress = () => {
     navigate('WalletsAddMultisigStep2', { m, n, format });
@@ -98,7 +104,7 @@ const WalletsAddMultisig = () => {
         }}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={styles.modalContentShort}>
+          <View style={[styles.modalContentShort, styles.modalContentShort]}>
             <Text style={styles.textHeader}>{loc.multisig.quorum_header}</Text>
             <View style={styles.rowCenter}>
               <View style={styles.column}>
@@ -194,11 +200,11 @@ const WalletsAddMultisig = () => {
                 setIsModalVisible(true);
               }}
             >
-              <View style={styles.whiteBackground}>
-                <View style={styles.itemNameWrapper}>
+              <View style={[styles.whiteBackground, stylesHook.whiteBackground]}>
+                <View style={[styles.itemNameWrapper, stylesHook.itemNameWrapper]}>
                   <View style={styles.textWrapper}>
-                    <Text style={styles.nativeName}>{getCurrentlySelectedFormat(item.code)}</Text>
-                    <View style={styles.filteTextWrapper}>
+                    <Text style={[styles.nativeName, stylesHook.nativeName]}>{getCurrentlySelectedFormat(item.code)}</Text>
+                    <View style={[styles.filteTextWrapper, styles.filteTextWrapper]}>
                       <Text style={styles.filterText}>{'   ❯'}</Text>
                     </View>
                   </View>
@@ -220,11 +226,10 @@ const WalletsAddMultisig = () => {
 
 const styles = StyleSheet.create({
   modalFlatList: { width: '100%' },
-  whiteBackground: { backgroundColor: BlueCurrentTheme.colors.background },
-  itemNameWrapper: { backgroundColor: BlueCurrentTheme.colors.elevated, flex: 1, flexDirection: 'row', paddingTop: 20, paddingBottom: 0 },
+  itemNameWrapper: { flex: 1, flexDirection: 'row', paddingTop: 20, paddingBottom: 0 },
   textWrapper: { paddingLeft: 10, flex: 1, flexDirection: 'row' },
-  nativeName: { fontSize: 16, color: BlueCurrentTheme.colors.foregroundColor },
-  filteTextWrapper: { color: BlueCurrentTheme.colors.foregroundColor, right: 0, position: 'absolute' },
+  nativeName: { fontSize: 16 },
+  filteTextWrapper: { right: 0, position: 'absolute' },
   filterText: { fontSize: 16, color: 'gray' },
 
   bottomModal: {
@@ -232,7 +237,6 @@ const styles = StyleSheet.create({
     margin: 0,
   },
   modalContentShort: {
-    backgroundColor: BlueCurrentTheme.colors.elevated,
     padding: 24,
     justifyContent: 'center',
     borderTopLeftRadius: 16,

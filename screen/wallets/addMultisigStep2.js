@@ -27,7 +27,6 @@ import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import Modal from 'react-native-modal';
 import { Icon } from 'react-native-elements';
-import { BlueCurrentTheme } from '../../components/themes';
 import { getSystemName } from 'react-native-device-info';
 import ImagePicker from 'react-native-image-picker';
 import ScanQRCode from '../send/ScanQRCode';
@@ -75,6 +74,9 @@ const WalletsAddMultisigStep2 = () => {
       color: colors.foregroundColor,
     },
     modalContentShort: {
+      backgroundColor: colors.elevated,
+    },
+    modalContent: {
       backgroundColor: colors.elevated,
     },
     textFiat: {
@@ -415,7 +417,7 @@ const WalletsAddMultisigStep2 = () => {
         }}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, stylesHook.modalContent]}>
             <Text>{loc.multisig.please_write_down_mnemonics}</Text>
             <BlueSpacing40 />
             <BlueText>{mnemonicsToDisplay}</BlueText>
@@ -556,7 +558,6 @@ const styles = StyleSheet.create({
     margin: 0,
   },
   modalContent: {
-    backgroundColor: BlueCurrentTheme.colors.elevated,
     padding: 22,
     justifyContent: 'center',
     // alignItems: 'center',
