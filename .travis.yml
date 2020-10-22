@@ -9,7 +9,7 @@ dist: bionic
 
 env:
   global:
-    - NODE_VERSION=stable
+    - NODE_VERSION=12
     - COMPILE_API=29
     - ANDROID_BUILD_TOOLS=29.0.2
     - ABI=x86_64
