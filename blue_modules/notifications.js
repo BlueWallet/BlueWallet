@@ -59,7 +59,6 @@ function Notifications(props) {
             notification.userInteraction = true;
             // also, on iOS app is not suspending/unsuspending when user taps a notification bubble,so we simulate it
             // since its where we actually handle notifications:
-            setTimeout(() => props.onProcessNotifications(), 500);
           }
 
           let notifications = [];
@@ -76,7 +75,7 @@ function Notifications(props) {
             notifications.push(payload);
             await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify(notifications));
           } catch (_) {}
-
+          setTimeout(() => props.onProcessNotifications(), 500);
           // (required) Called when a remote is received or opened, or local notification is opened
           notification.finish(PushNotificationIOS.FetchResult.NoData);
         },
