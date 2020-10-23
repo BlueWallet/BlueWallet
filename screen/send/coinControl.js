@@ -72,8 +72,6 @@ const CoinControl = () => {
   const frozenUtxo = wallet.getFrozenUtxo();
   const switchValue = output && frozenUtxo.some(({ txid, vout }) => output.txid === txid && output.vout === vout);
 
-  console.info('frozenUtxo', frozenUtxo);
-
   const handleChoose = item => setOutput(item);
   const onFreeze = async ({ txid, vout }, value) => {
     if (value) {
@@ -84,11 +82,11 @@ const CoinControl = () => {
     await BlueApp.saveToDisk();
     setReRender(i => !i);
   };
-  const renderItem = ({ item }) => (
+  const renderItem = p => (
     <Output
-      item={item}
-      frozen={frozenUtxo.some(({ txid, vout }) => item.txid === txid && item.vout === vout)}
-      onPress={() => handleChoose(item)}
+      item={p.item}
+      frozen={frozenUtxo.some(({ txid, vout }) => p.item.txid === txid && p.item.vout === vout)}
+      onPress={() => handleChoose(p.item)}
     />
   );
 

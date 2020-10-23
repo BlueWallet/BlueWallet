@@ -139,14 +139,14 @@ export class LegacyWallet extends AbstractWallet {
     }
   }
 
-  getUtxo({ frozen = false }) {
+  getUtxo({ frozen = false } = {}) {
     let ret = [];
     for (const u of this.utxo) {
       if (u.txId) u.txid = u.txId;
       if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
       ret.push(u);
     }
-    if (frozen && this.frozenUtxo) {
+    if (!frozen && this.frozenUtxo) {
       ret = ret.filter(({ txId, vout }) => !this.frozenUtxo.some(i => txId === i.txid && vout === i.vout));
     }
     return ret;

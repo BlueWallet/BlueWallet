@@ -716,9 +716,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    *
    * @returns {[]}
    */
-  getUtxo() {
-    if (this._utxo.length === 0) return this.getDerivedUtxoFromOurTransaction(); // oy vey, no stored utxo. lets attempt to derive it from stored transactions
-    return this._utxo;
+  getUtxo({ frozen = false } = {}) {
+    let ret = [];
+
+    if (this._utxo.length === 0) {
+      ret = this.getDerivedUtxoFromOurTransaction(); // oy vey, no stored utxo. lets attempt to derive it from stored transactions
+    } else {
+      ret = this._utxo;
+    }
+    if (!frozen && this.frozenUtxo) {
+      ret = ret.filter(({ txId, vout }) => !this.frozenUtxo.some(i => txId === i.txid && vout === i.vout));
+    }
+    return ret;
   }
 
   getDerivedUtxoFromOurTransaction(returnSpentUtxoAsWell = false) {

@@ -150,8 +150,8 @@ export class WatchOnlyWallet extends LegacyWallet {
     throw new Error('Not initialized');
   }
 
-  getUtxo() {
-    if (this._hdWalletInstance) return this._hdWalletInstance.getUtxo();
+  getUtxo(...args) {
+    if (this._hdWalletInstance) return this._hdWalletInstance.getUtxo(...args);
     throw new Error('Not initialized');
   }
 
