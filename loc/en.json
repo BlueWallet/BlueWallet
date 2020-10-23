@@ -12,6 +12,7 @@
     "dont_allow": "Don't Allow",
     "yes": "Yes",
     "no": "No",
+    "save": "Save",
     "invalid_animated_qr_code_fragment" : "Invalid animated QRCode fragment, please try again",
     "file_saved": "File ({filePath}) has been saved in your Downloads folder ."
   },
@@ -423,6 +424,11 @@
     "type_your_mnemonics": "Type your mnemonic seed phrase here:",
     "this_is_cosigners_xpub": "This is cosigner's xpub, ready to be imported in other wallet. It is safe to share it.",
     "setup_header": "Setup",
+    "are_you_sure_seed_will_be_lost": "Are you sure? Your mnemonic seed will be lost if you dont have a backup",
+    "forget_this_seed": "Forget this seed and use Xpub instead",
+    "invalid_fingerprint": "Fingerprint for this seed doesnt match this cosigners fingerprint",
+    "view_edit_cosigners": "View/edit cosigners",
+    "view_edit_cosigners_title": "Edit Cosigners",
     "multisig_vault": "Multisig Vault"
   }
 }

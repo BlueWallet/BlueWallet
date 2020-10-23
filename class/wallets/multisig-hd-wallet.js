@@ -102,6 +102,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   getCustomDerivationPathForCosigner(index) {
     if (index === 0) throw new Error('cosigners indexation starts from 1');
+    if (index > this.getN()) return false;
     return this._cosignersCustomPaths[index - 1] || this.getDerivationPath();
   }
 
@@ -153,6 +154,11 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       fingerprint = MultisigHDWallet.seedToFingerprint(key);
     } else {
       if (!MultisigHDWallet.isXpubValid(key)) throw new Error('Not a valid xpub: ' + key);
+    }
+
+    if (fingerprint && this._cosignersFingerprints.indexOf(fingerprint.toUpperCase()) !== -1 && fingerprint !== '00000000') {
+      // 00000000 is a special case, means we have no idea what the FP is but its okay
+      throw new Error('Duplicate fingerprint');
     }
 
     const index = this._cosigners.length;
@@ -915,5 +921,65 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
 
     return { tx };
+  }
+
+  /**
+   * Looks up cosigner by Fingerprint, and repalces all its data with new data
+   *
+   * @param oldFp {string} Looks up cosigner by this fp
+   * @param newCosigner {string}
+   * @param newFp {string}
+   * @param newPath {string}
+   */
+  replaceCosigner(oldFp, newCosigner, newFp, newPath) {
+    const index = this._cosignersFingerprints.indexOf(oldFp);
+    if (index !== -1) {
+      if (!MultisigHDWallet.isXpubValid(newCosigner)) {
+        // its not an xpub, so lets derive fingerprint ourselves
+        newFp = MultisigHDWallet.seedToFingerprint(newCosigner);
+        if (oldFp !== newFp) {
+          throw new Error('Fingerprint of new seed doesnt match');
+        }
+      }
+
+      this._cosignersFingerprints[index] = newFp;
+      this._cosigners[index] = newCosigner;
+
+      if (newPath && this.getDerivationPath() !== newPath) {
+        this._cosignersCustomPaths[index] = newPath;
+      }
+    }
+  }
+
+  deleteCosigner(fp) {
+    const foundIndex = this._cosignersFingerprints.indexOf(fp);
+    if (foundIndex === -1) throw new Error('Cant find cosigner by fingerprint');
+
+    this._cosignersFingerprints = this._cosignersFingerprints.filter((el, index) => {
+      return index !== foundIndex;
+    });
+
+    this._cosigners = this._cosigners.filter((el, index) => {
+      return index !== foundIndex;
+    });
+
+    this._cosignersCustomPaths = this._cosignersCustomPaths.filter((el, index) => {
+      return index !== foundIndex;
+    });
+
+    /* const newCosigners = [];
+    for (let c = 0; c < this._cosignersFingerprints.length; c++) {
+      if (c !== index)  newCosigners.push(this._cosignersFingerprints[c]);
+    } */
+
+    // this._cosignersFingerprints = newCosigners;
+  }
+
+  getFormat() {
+    if (this.isNativeSegwit()) return this.constructor.FORMAT_P2WSH;
+    if (this.isWrappedSegwit()) return this.constructor.FORMAT_P2SH_P2WSH;
+    if (this.isLegacy()) return this.constructor.FORMAT_P2SH;
+
+    throw new Error('This should never happen');
   }
 }

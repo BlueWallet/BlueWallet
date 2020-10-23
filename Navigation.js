@@ -30,6 +30,7 @@ import ImportWallet from './screen/wallets/import';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
 import ExportMultisigCoordinationSetup from './screen/wallets/exportMultisigCoordinationSetup';
+import ViewEditMultisigCosigners from './screen/wallets/viewEditMultisigCosigners';
 import WalletXpub from './screen/wallets/xpub';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import HodlHodl from './screen/wallets/hodlHodl';
@@ -320,6 +321,11 @@ const Navigation = () => (
       name="ExportMultisigCoordinationSetup"
       component={ExportMultisigCoordinationSetup}
       options={ExportMultisigCoordinationSetup.navigationOptions}
+    />
+    <RootStack.Screen
+      name="ViewEditMultisigCosigners"
+      component={ViewEditMultisigCosigners}
+      options={ViewEditMultisigCosigners.navigationOptions}
     />
     <RootStack.Screen name="WalletXpub" component={WalletXpub} options={WalletXpub.navigationOptions} />
     <RootStack.Screen name="BuyBitcoin" component={BuyBitcoin} options={BuyBitcoin.navigationOptions} />

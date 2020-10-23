@@ -49,7 +49,7 @@ describe('multisig-wallet (p2sh)', () => {
     assert.strictEqual(w.getCosignerForFingerprint(fp1cobo), w.getCosigner(1));
     assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), w.getCosigner(2));
     assert.strictEqual(w.getFingerprint(1), fp1cobo);
-    assert.strictEqual(w.getFingerprint(2), fp2coldcard);
+    assert.strictEqual(w.getFormat(), MultisigHDWallet.FORMAT_P2SH);
 
     assert.strictEqual(w._getExternalAddressByIndex(0), '3J5xQcgBqoykSHhmDJLYp87SgVSNhYrvnz');
     assert.strictEqual(w._getExternalAddressByIndex(1), '3GkEXFYUifSmQ9SgzJDWL37pjMj4LT6vbq');
@@ -318,6 +318,7 @@ describe('multisig-wallet (wrapped segwit)', () => {
     assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), w.getCosigner(2));
     assert.strictEqual(w.getFingerprint(1), fp1cobo);
     assert.strictEqual(w.getFingerprint(2), fp2coldcard);
+    assert.strictEqual(w.getFormat(), MultisigHDWallet.FORMAT_P2SH_P2WSH);
 
     assert.strictEqual(w._getExternalAddressByIndex(0), '38xA38nfy649CC2JjjZj1CYAhtrcRc67dk');
     assert.strictEqual(w._getExternalAddressByIndex(1), '35ixkuzbrLb7Pr3j89uVYvYPe3jKSrbeB3');
@@ -635,6 +636,10 @@ describe('multisig-wallet (native segwit)', () => {
     assert.throws(() => w.addCosigner('ypubinvalid'));
     assert.throws(() => w.addCosigner('Zpubinvalid'));
     assert.throws(() => w.addCosigner(Zpub1, fp1cobo, 'ROFLBOATS')); // invalid path
+    assert.throws(() => w.addCosigner(Zpub1, fp1cobo)); // duplicates are not allowed
+    assert.throws(() => w.addCosigner(Zpub2, fp2coldcard)); // duplicates are not allowed
+    assert.throws(() => w.addCosigner(mnemonicsCobo)); // duplicates are not allowed
+    assert.throws(() => w.addCosigner(mnemonicsColdcard)); // duplicates are not allowed
 
     assert.strictEqual(w.getM(), 2);
     assert.strictEqual(w.getN(), 2);
@@ -649,6 +654,7 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(!w.isWrappedSegwit());
     assert.ok(w.isNativeSegwit());
     assert.ok(!w.isLegacy());
+    assert.strictEqual(w.getFormat(), MultisigHDWallet.FORMAT_P2WSH);
 
     // now, one of cosigners is mnemonics
 
@@ -1407,6 +1413,65 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), "m/48'/0'/0'/2'");
     assert.strictEqual(w.getCustomDerivationPathForCosigner(3), "m/48'/0'/0'/2'");
     assert.strictEqual(w.getDerivationPath(), '');
+  });
+
+  it('can edit cosigners', () => {
+    const path = "m/48'/0'/0'/2'";
+
+    const w = new MultisigHDWallet();
+    w.addCosigner(Zpub1, fp1cobo);
+    w.addCosigner(mnemonicsColdcard);
+    w.setDerivationPath(path);
+    w.setM(2);
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85');
+
+    assert.strictEqual(w.getCosigner(1), Zpub1);
+    assert.strictEqual(w.getCosigner(2), mnemonicsColdcard);
+    assert.strictEqual(w.getFingerprint(1), fp1cobo);
+    assert.strictEqual(w.getFingerprint(2), fp2coldcard);
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(1), path);
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
+
+    assert.strictEqual(w.getCosignerForFingerprint(fp1cobo), Zpub1);
+    assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), mnemonicsColdcard);
+    assert.strictEqual(w.howManySignaturesCanWeMake(), 1);
+
+    w.replaceCosigner(fp2coldcard, Zpub2, fp2coldcard, path); // <-------------------
+
+    assert.strictEqual(w.getCosigner(2), Zpub2);
+    assert.strictEqual(w.getFingerprint(2), fp2coldcard);
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
+
+    w.replaceCosigner(fp2coldcard, mnemonicsColdcard); // <---------------------------
+
+    assert.strictEqual(w.getCosigner(2), mnemonicsColdcard);
+    assert.strictEqual(w.getFingerprint(2), fp2coldcard);
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
+
+    w.deleteCosigner(fp2coldcard);
+    assert.ok(!w.getCosigner(2));
+    assert.ok(!w.getFingerprint(2));
+    assert.ok(!w.getCustomDerivationPathForCosigner(2));
+    assert.strictEqual(w.getN(), 1);
+    assert.strictEqual(w.getM(), 2);
+
+    w.addCosigner(mnemonicsColdcard);
+    assert.strictEqual(w.getN(), 2);
+    w.deleteCosigner(fp2coldcard);
+    assert.ok(!w.getCosigner(2));
+    assert.ok(!w.getFingerprint(2));
+    assert.ok(!w.getCustomDerivationPathForCosigner(2));
+    assert.strictEqual(w.getN(), 1);
+    assert.strictEqual(w.getM(), 2);
+
+    w.addCosigner(Zpub2, fp2coldcard, path);
+    assert.strictEqual(w.getN(), 2);
+    w.deleteCosigner(fp2coldcard);
+    assert.ok(!w.getCosigner(2));
+    assert.ok(!w.getFingerprint(2));
+    assert.ok(!w.getCustomDerivationPathForCosigner(2));
+    assert.strictEqual(w.getN(), 1);
+    assert.strictEqual(w.getM(), 2);
   });
 });
 
