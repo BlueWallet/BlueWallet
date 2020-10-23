@@ -43,7 +43,7 @@ const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
 
 const App = () => {
-  const { walletsInitialized, wallets, addWallet, saveToDisk } = useContext(BlueStorageContext);
+  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const appState = useRef(AppState.currentState);
   const [isClipboardContentModalVisible, setIsClipboardContentModalVisible] = useState(false);
   const [clipboardContentModalAddressType, setClipboardContentModalAddressType] = useState(bitcoinModalString);
@@ -169,12 +169,14 @@ const App = () => {
       }
 
       if (wallet) {
+        const walletID = wallet.getID();
+        fetchAndSaveWalletTransactions(walletID);
         NavigationService.dispatch(
           CommonActions.navigate({
             name: 'WalletTransactions',
             key: `WalletTransactions-${wallet.getID()}`,
             params: {
-              walletID: wallet.getID(),
+              walletID,
               walletType: wallet.type,
             },
           }),
