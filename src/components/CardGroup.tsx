@@ -38,30 +38,23 @@ interface Props {
   label: string;
   cards: Card[];
   onCardPressAction: (title: string) => void;
+  activeTitle: string;
 }
 
-export const CardGroup = ({ label, cards, onCardPressAction }: Props) => {
-  const [choosenCard, setChoosenCard] = useState('');
-
-  useEffect(() => {
-    if (!choosenCard) {
-      setChoosenCard(cards[0].title);
-    }
-  }, [cards, choosenCard]);
-
-  const onCardPress = (title: string) => {
-    onCardPressAction(title);
-    setChoosenCard(title);
-  };
-
-  const isChoosen = (title: string) => choosenCard === title;
+export const CardGroup = ({ label, cards, onCardPressAction, activeTitle }: Props) => {
+  const isChoosen = (title: string) => activeTitle === title;
 
   const renderHeaders = () => (
     <View style={styles.cardsContainer}>
       <Text style={styles.headerLabel}>{label}</Text>
       <RowTemplate
         items={cards.map((card, index) => (
-          <CardHeader key={index} title={card.title} isChoosen={isChoosen(card.title)} onCardPress={onCardPress} />
+          <CardHeader
+            key={index}
+            title={card.title}
+            isChoosen={isChoosen(card.title)}
+            onCardPress={onCardPressAction}
+          />
         ))}
       />
     </View>
