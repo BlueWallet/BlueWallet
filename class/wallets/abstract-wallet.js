@@ -26,6 +26,7 @@ export class AbstractWallet {
     this.transactions = [];
     this._address = false; // cache
     this.utxo = [];
+    this.frozenUtxo = [];
     this._lastTxFetch = 0;
     this._lastBalanceFetch = 0;
     this.preferredBalanceUnit = BitcoinUnit.BTC;
@@ -270,4 +271,18 @@ export class AbstractWallet {
   }
 
   prepareForSerialization() {}
+
+  getFrozenUtxo() {
+    return this.frozenUtxo;
+  }
+
+  freezeOutput(txid, vout) {
+    if (!this.frozenUtxo.some(i => i.txid === txid && i.vout === vout)) {
+      this.frozenUtxo.push({ txid, vout });
+    }
+  }
+
+  unFreezeOutput(txid, vout) {
+    this.frozenUtxo = this.frozenUtxo.filter(i => !(i.txid === txid && i.vout === vout));
+  }
 }

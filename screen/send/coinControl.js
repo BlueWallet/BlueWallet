@@ -16,9 +16,10 @@ const oStyles = StyleSheet.create({
   memo: { fontSize: 13, marginTop: 3 },
 });
 
-const Output = ({ item: { txid, value }, onPress }) => {
+const Output = ({ item: { txid, value, vout }, frozen, full = false, onPress }) => {
   const { colors } = useTheme();
-  const txMemo = BlueApp.tx_metadata[txid]?.memo ?? `${txid.substring(0, 6)}...${txid.substr(txid.length - 6)}`;
+  const memo = BlueApp.tx_metadata[txid]?.memo;
+  const id = `${txid.substring(0, 6)}...${txid.substr(txid.length - 6)}:${vout}`;
   const color = `#${txid.substring(0, 6)}`;
   const amount = formatBalanceWithoutSuffix(value, BitcoinUnit.BTC, true);
 
@@ -27,11 +28,24 @@ const Output = ({ item: { txid, value }, onPress }) => {
       <Avatar rounded overlayContainerStyle={[oStyles.avatar, { backgroundColor: color }]} />
       <ListItem.Content>
         <ListItem.Title style={oStyles.amount}>{amount}</ListItem.Title>
-        <ListItem.Subtitle style={[oStyles.memo, { color: colors.alternativeTextColor }]} numberOfLines={1}>
-          {txMemo}
-        </ListItem.Subtitle>
+        {full ? (
+          <>
+            {memo && (
+              <ListItem.Subtitle style={[oStyles.memo, { color: colors.alternativeTextColor }]} numberOfLines={1}>
+                {memo}
+              </ListItem.Subtitle>
+            )}
+            <ListItem.Subtitle style={[oStyles.memo, { color: colors.alternativeTextColor }]} numberOfLines={1}>
+              {id}
+            </ListItem.Subtitle>
+          </>
+        ) : (
+          <ListItem.Subtitle style={[oStyles.memo, { color: colors.alternativeTextColor }]} numberOfLines={1}>
+            {memo || id}
+          </ListItem.Subtitle>
+        )}
       </ListItem.Content>
-      <Badge value="freeze" status="error" />
+      {frozen && <Badge value="freeze" status="error" />}
     </ListItem>
   );
 };
@@ -40,7 +54,10 @@ Output.propTypes = {
   item: PropTypes.shape({
     txid: PropTypes.string.isRequired,
     value: PropTypes.number.isRequired,
+    vout: PropTypes.number.isRequired,
   }),
+  frozen: PropTypes.bool,
+  full: PropTypes.bool,
   onPress: PropTypes.func,
 };
 
@@ -49,18 +66,31 @@ const CoinControl = () => {
   const route = useRoute();
   const { walletId } = route.params;
   const wallet = useMemo(() => BlueApp.getWallets().find(w => w.getID() === walletId), [walletId]);
-  const utxo = useMemo(() => wallet.getUtxo(), [wallet]);
+  const utxo = useMemo(() => wallet.getUtxo({ frozen: true }), [wallet]);
   const [output, setOutput] = useState();
-  const [freeze, setFreeze] = useState(false);
+  const [, setReRender] = useState(false);
+  const frozenUtxo = wallet.getFrozenUtxo();
+  const switchValue = output && frozenUtxo.some(({ txid, vout }) => output.txid === txid && output.vout === vout);
+
+  console.info('frozenUtxo', frozenUtxo);
 
   const handleChoose = item => setOutput(item);
-  const renderItem = ({ item }) => <Output item={item} onPress={() => handleChoose(item)} />;
-  const onFreeze = () => {
-    console.info('onFreeze');
-    setFreeze(i => !i);
+  const onFreeze = async ({ txid, vout }, value) => {
+    if (value) {
+      wallet.freezeOutput(txid, vout);
+    } else {
+      wallet.unFreezeOutput(txid, vout);
+    }
+    await BlueApp.saveToDisk();
+    setReRender(i => !i);
   };
-
-  console.info('utxo', utxo);
+  const renderItem = ({ item }) => (
+    <Output
+      item={item}
+      frozen={frozenUtxo.some(({ txid, vout }) => item.txid === txid && item.vout === vout)}
+      onPress={() => handleChoose(item)}
+    />
+  );
 
   return (
     <SafeBlueArea>
@@ -76,8 +106,12 @@ const CoinControl = () => {
           <View style={[styles.modalContent, { backgroundColor: colors.elevated }]}>
             {output && (
               <>
-                <Output item={output} />
-                <BlueListItem title="Freeze" Component={TouchableWithoutFeedback} switch={{ value: freeze, onValueChange: onFreeze }} />
+                <Output item={output} full />
+                <BlueListItem
+                  title="Freeze"
+                  Component={TouchableWithoutFeedback}
+                  switch={{ value: switchValue, onValueChange: value => onFreeze(output, value) }}
+                />
                 <Text>{loc.multisig.type_your_mnemonics}</Text>
                 <BlueSpacing40 />
 
@@ -88,7 +122,7 @@ const CoinControl = () => {
         </KeyboardAvoidingView>
       </Modal>
 
-      <FlatList data={utxo} renderItem={renderItem} keyExtractor={item => item.txid} />
+      <FlatList data={utxo} renderItem={renderItem} keyExtractor={item => `${item.txid}:${item.vout}`} />
     </SafeBlueArea>
   );
 };
