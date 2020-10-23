@@ -152,9 +152,6 @@ const App = () => {
     // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
     const notifications2process = await Notifications.getStoredNotifications();
     for (const payload of notifications2process) {
-      const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
-      if (!wasTapped) continue;
-
       console.log('processing push notification:', payload);
       let wallet;
       switch (+payload.type) {
@@ -171,6 +168,9 @@ const App = () => {
       if (wallet) {
         const walletID = wallet.getID();
         fetchAndSaveWalletTransactions(walletID);
+        const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
+        if (!wasTapped) continue;
+
         NavigationService.dispatch(
           CommonActions.navigate({
             name: 'WalletTransactions',
