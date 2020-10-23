@@ -591,10 +591,9 @@ const styles = StyleSheet.create({
   squareButtonWrapper: { height: 50, width: 250 },
 });
 
-WalletsAddMultisigStep2.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+WalletsAddMultisigStep2.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
   headerTitle: null,
-  headerLeft: null,
 });
 
 export default WalletsAddMultisigStep2;

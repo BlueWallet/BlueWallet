@@ -1,24 +1,13 @@
 import React, { useState, useRef } from 'react';
-import {
-  FlatList,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableHighlight,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
-import { BlueButtonHook, BlueNavigationStyle, BlueSpacing20, BlueSpacing40 } from '../../BlueComponents';
+import { BlueButton, BlueNavigationStyle, BlueSpacing20 } from '../../BlueComponents';
 import { MultisigHDWallet } from '../../class';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import Modal from 'react-native-modal';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const WalletsAddMultisig = () => {
   const { colors } = useTheme();
@@ -33,7 +22,8 @@ const WalletsAddMultisig = () => {
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
-      padding: 20,
+      justifyContent: 'space-between',
+      flex: 1,
     },
     textdesc: {
       color: colors.alternativeTextColor,
@@ -171,62 +161,41 @@ const WalletsAddMultisig = () => {
   };
 
   return (
-    <ScrollView style={stylesHook.root}>
+    <SafeAreaView style={stylesHook.root}>
       <StatusBar barStyle="default" />
-      <BlueSpacing20 />
-      <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
+      <View style={styles.descriptionContainer}>
         <View style={styles.imageWrapper}>
           <LottieView source={require('../../img/msvault.json')} autoPlay ref={loadingAnimation} loop={false} />
         </View>
         <BlueSpacing20 />
-        <Text style={[styles.textdesc, stylesHook.textdesc]}>{loc.formatString(loc.multisig.what_is_vault, { m, n })}</Text>
+        <Text style={[styles.textdesc, stylesHook.textdesc]}>
+          {loc.multisig.what_is_vault}
+          <Text style={[styles.textdescBold, stylesHook.textdesc]}>
+            {loc.formatString(loc.multisig.what_is_vault_numberOfWallets, { m, n })}
+          </Text>
+          <Text style={[styles.textdesc, stylesHook.textdesc]}>{loc.multisig.what_is_vault_wallet}</Text>
+        </Text>
+
         <BlueSpacing20 />
-        <Text style={[styles.textdesc, stylesHook.textdesc]}>{loc.formatString(loc.multisig.it_will_require, { m })}</Text>
 
-        <BlueSpacing40 />
-        <BlueSpacing40 />
-
-        <FlatList
-          scrollEnabled={false}
-          style={styles.modalFlatList}
-          ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
-          data={[{ code: 'format' }, { code: 'quorum' }]}
-          keyExtractor={(item, index) => item.code}
-          renderItem={({ item, index, separators }) => (
-            <TouchableHighlight
-              onShowUnderlay={separators.highlight}
-              onHideUnderlay={separators.unhighlight}
-              onPress={() => {
-                setIsModalVisible(true);
-              }}
-            >
-              <View style={[styles.whiteBackground, stylesHook.whiteBackground]}>
-                <View style={[styles.itemNameWrapper, stylesHook.itemNameWrapper]}>
-                  <View style={styles.textWrapper}>
-                    <Text style={[styles.nativeName, stylesHook.nativeName]}>{getCurrentlySelectedFormat(item.code)}</Text>
-                    <View style={[styles.filteTextWrapper, styles.filteTextWrapper]}>
-                      <Text style={styles.filterText}>{'   ❯'}</Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </TouchableHighlight>
-          )}
-        />
-
-        <BlueSpacing40 />
-
-        <BlueButtonHook title={loc.multisig.lets_start} onPress={onLetsStartPress} />
-      </KeyboardAvoidingView>
-
-      {renderModal()}
-    </ScrollView>
+        <Text style={[styles.textdesc, stylesHook.textdesc]}>
+          {loc.multisig.needs}
+          <Text style={[styles.textdescBold, stylesHook.textdesc]}>
+            {loc.formatString(loc.multisig.what_is_vault_description_number_of_vault_keys, { m })}
+          </Text>
+          <Text style={[styles.textdesc, stylesHook.textdesc]}>{loc.multisig.what_is_vault_description_to_spend}</Text>
+        </Text>
+      </View>
+      <View style={styles.buttonContainer}>
+        <BlueButton buttonTextColor={colors.buttonAlternativeTextColor} title={loc.multisig.lets_start} onPress={onLetsStartPress} />
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   modalFlatList: { width: '100%' },
-  itemNameWrapper: { flex: 1, flexDirection: 'row', paddingTop: 20, paddingBottom: 0 },
+  itemNameWrapper: { flexDirection: 'row', paddingTop: 20, paddingBottom: 0 },
   textWrapper: { paddingLeft: 10, flex: 1, flexDirection: 'row' },
   nativeName: { fontSize: 16 },
   filteTextWrapper: { right: 0, position: 'absolute' },
@@ -235,6 +204,11 @@ const styles = StyleSheet.create({
   bottomModal: {
     justifyContent: 'flex-end',
     margin: 0,
+  },
+  descriptionContainer: {
+    alignContent: 'center',
+    justifyContent: 'center',
+    flex: 0.8,
   },
   modalContentShort: {
     padding: 24,
@@ -256,6 +230,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 8,
     borderColor: 0,
+  },
+  buttonContainer: {
+    width: 263,
+    alignSelf: 'center',
+    justifyContent: 'flex-end',
+    marginVertical: 24,
   },
   formatSelectorText: {
     color: '#13244D',
@@ -279,6 +259,12 @@ const styles = StyleSheet.create({
   textdesc: {
     fontWeight: '500',
     alignSelf: 'center',
+    textAlign: 'center',
+  },
+  textdescBold: {
+    fontWeight: '700',
+    alignSelf: 'center',
+    textAlign: 'center',
   },
   textM: {
     fontSize: 50,
@@ -295,7 +281,6 @@ const styles = StyleSheet.create({
   },
   imageWrapper: {
     borderWidth: 0,
-    justifyContent: 'center',
     flexDirection: 'row',
     height: 160,
   },
@@ -320,10 +305,9 @@ WalletsAddMultisig.getCurrentFormatReadable = f => {
   }
 };
 
-WalletsAddMultisig.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+WalletsAddMultisig.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
   headerTitle: null,
-  headerLeft: null,
 });
 
 export default WalletsAddMultisig;
