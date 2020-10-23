@@ -216,12 +216,7 @@ const WalletsList = () => {
     let didRefresh = false;
 
     try {
-      if (
-        carouselData &&
-        carouselData[index] &&
-        carouselData[index].type !== PlaceholderWallet.type &&
-        carouselData[index].timeToRefreshBalance()
-      ) {
+      if (carouselData[index] && carouselData[index].type !== PlaceholderWallet.type && carouselData[index].timeToRefreshBalance()) {
         console.log('snapped to, and now its time to refresh wallet #', index);
         await carouselData[index].fetchBalance();
         if (oldBalance !== carouselData[index].getBalance() || carouselData[index].getUnconfirmedBalance() !== 0) {
