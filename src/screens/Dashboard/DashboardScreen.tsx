@@ -67,7 +67,7 @@ class DashboardScreen extends Component<Props, State> {
   getActiveWallet = () => {
     const { lastSnappedTo } = this.state;
     const { wallets } = this.props;
-    return wallets[lastSnappedTo];
+    return wallets[lastSnappedTo] || wallets[0];
   };
 
   getActionWallet = () => {
