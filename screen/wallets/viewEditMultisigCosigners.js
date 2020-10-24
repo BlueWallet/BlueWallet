@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -29,17 +29,16 @@ import Modal from 'react-native-modal';
 import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
-
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const fs = require('../../blue_modules/fs');
-const BlueApp = require('../../BlueApp');
 const staticCache = {};
 
 const ViewEditMultisigCosigners = () => {
   const { colors } = useTheme();
-
+  const { wallets, sleep, setWalletsWithNewOrder } = useContext(BlueStorageContext);
   const navigation = useNavigation();
   const { walletId } = useRoute().params;
-  let w = BlueApp.getWallets().find(wallet => wallet.getID() === walletId);
+  let w = wallets.find(wallet => wallet.getID() === walletId);
   if (!w) {
     // lets create fake wallet so renderer wont throw any errors
     w = new MultisigHDWallet();
@@ -115,11 +114,12 @@ const ViewEditMultisigCosigners = () => {
 
   const onSave = async () => {
     setIsLoading(true);
-    BlueApp.wallets = BlueApp.wallets.filter(w => {
+    // eslint-disable-next-line prefer-const
+    let newWallets = wallets.filter(w => {
       return w.getID() !== walletId;
     });
-    BlueApp.wallets.push(wallet);
-    await BlueApp.saveToDisk();
+    newWallets.push(wallet);
+    setWalletsWithNewOrder(newWallets);
     navigation.dangerouslyGetParent().popToTop();
     navigation.dangerouslyGetParent().popToTop();
   };
@@ -272,7 +272,7 @@ const ViewEditMultisigCosigners = () => {
 
   const xpubInsteadOfSeed = async index => {
     setIsLoading(true);
-    await BlueApp.sleep(100); // chance for animations to kick in
+    await sleep(100); // chance for animations to kick in
 
     const mnemonics = wallet.getCosigner(index);
     const newFp = MultisigHDWallet.seedToFingerprint(mnemonics);
