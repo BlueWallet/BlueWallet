@@ -770,7 +770,7 @@ export const BlueListItem = React.memo(props => {
     >
       {props.leftAvatar && <Avatar>{props.leftAvatar}</Avatar>}
       {props.leftIcon && <Avatar icon={props.leftIcon} />}
-      <ListItem.Content left>
+      <ListItem.Content>
         <ListItem.Title
           style={{
             color: props.disabled ? colors.buttonDisabledTextColor : colors.foregroundColor,

@@ -153,6 +153,17 @@ const WalletsAddMultisig = () => {
     setIsModalVisible(true);
   };
 
+  const getCurrentlySelectedFormat = code => {
+    switch (code) {
+      case 'format':
+        return WalletsAddMultisig.getCurrentFormatReadable(format);
+      case 'quorum':
+        return loc.formatString(loc.multisig.quorum, { m, n });
+      default:
+        throw new Error('This should never happen');
+    }
+  };
+
   return (
     <SafeAreaView style={stylesHook.root}>
       <StatusBar barStyle="default" />
@@ -181,7 +192,12 @@ const WalletsAddMultisig = () => {
       </View>
       {isAdvancedModeEnabledRender && (
         <View style={styles.advancedOptionsContainer}>
-          <BlueListItem onPress={showAdvancedOptionsModal} title={loc.multisig.vault_advanced_customize} chevron />
+          <BlueListItem
+            onPress={showAdvancedOptionsModal}
+            title={loc.multisig.vault_advanced_customize}
+            subtitle={`${getCurrentlySelectedFormat('format')}, ${getCurrentlySelectedFormat('quorum')}`}
+            chevron
+          />
         </View>
       )}
       <View style={styles.buttonContainer}>
