@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler'; // should be on top
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   Linking,
   DeviceEventEmitter,
@@ -27,20 +27,23 @@ import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/themes';
 import InitRoot from './Navigation';
 import BlueClipboard from './blue_modules/clipboard';
+import { BlueStorageContext } from './blue_modules/storage-context';
+import WatchConnectivity from './WatchConnectivity';
+import DeviceQuickActions from './class/quick-actions';
+import Notifications from './blue_modules/notifications';
+import WalletImport from './class/wallet-import';
+import Biometric from './class/biometrics';
 const A = require('./blue_modules/analytics');
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
     dsn: 'https://23377936131848ca8003448a893cb622@sentry.io/1295736',
   });
 }
-
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
-const BlueApp = require('./BlueApp');
-const EV = require('./blue_modules/events');
-const notifications = require('./blue_modules/notifications'); // eslint-disable-line no-unused-vars
 
 const App = () => {
+  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const appState = useRef(AppState.currentState);
   const [isClipboardContentModalVisible, setIsClipboardContentModalVisible] = useState(false);
   const [clipboardContentModalAddressType, setClipboardContentModalAddressType] = useState(bitcoinModalString);
@@ -54,7 +57,13 @@ const App = () => {
   });
 
   useEffect(() => {
-    EV(EV.enum.WALLETS_INITIALIZED, addListeners);
+    if (walletsInitialized) {
+      addListeners();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletsInitialized]);
+
+  useEffect(() => {
     return () => {
       Linking.removeEventListener('url', handleOpenURL);
       AppState.removeEventListener('change', handleAppStateChange);
@@ -73,19 +82,19 @@ const App = () => {
     AppState.addEventListener('change', handleAppStateChange);
     DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
     QuickActions.popInitialAction().then(popInitialAction);
-    EV(EV.enum.PROCESS_PUSH_NOTIFICATIONS, processPushNotifications, true);
     handleAppStateChange(undefined);
   };
 
   const popInitialAction = async data => {
     if (data) {
-      const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
+      const wallet = wallets.find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
       NavigationService.dispatch(
         CommonActions.navigate({
           name: 'WalletTransactions',
           key: `WalletTransactions-${wallet.getID()}`,
           params: {
-            wallet,
+            walletID: wallet.getID(),
+            walletType: wallet.type,
           },
         }),
       );
@@ -99,14 +108,15 @@ const App = () => {
         const isViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
         if (!isViewAllWalletsEnabled) {
           const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
-          const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === selectedDefaultWallet.getID());
+          const wallet = wallets.find(wallet => wallet.getID() === selectedDefaultWallet.getID());
           if (wallet) {
             NavigationService.dispatch(
               CommonActions.navigate({
                 name: 'WalletTransactions',
                 key: `WalletTransactions-${wallet.getID()}`,
                 params: {
-                  wallet,
+                  walletID: wallet.getID(),
+                  walletType: wallet.type,
                 },
               }),
             );
@@ -117,13 +127,14 @@ const App = () => {
   };
 
   const walletQuickActions = data => {
-    const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
+    const wallet = wallets.find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
     NavigationService.dispatch(
       CommonActions.navigate({
         name: 'WalletTransactions',
         key: `WalletTransactions-${wallet.getID()}`,
         params: {
-          wallet,
+          walletID: wallet.getID(),
+          walletType: wallet.type,
         },
       }),
     );
@@ -136,10 +147,10 @@ const App = () => {
    * @private
    */
   const processPushNotifications = async () => {
-    notifications.setApplicationIconBadgeNumber(0);
+    Notifications.setApplicationIconBadgeNumber(0);
     await new Promise(resolve => setTimeout(resolve, 200));
     // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
-    const notifications2process = await notifications.getStoredNotifications();
+    const notifications2process = await Notifications.getStoredNotifications();
     for (const payload of notifications2process) {
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
       if (!wasTapped) continue;
@@ -149,27 +160,29 @@ const App = () => {
       switch (+payload.type) {
         case 2:
         case 3:
-          wallet = BlueApp.getWallets().find(w => w.weOwnAddress(payload.address));
+          wallet = wallets.find(w => w.weOwnAddress(payload.address));
           break;
         case 1:
         case 4:
-          wallet = BlueApp.getWallets().find(w => w.weOwnTransaction(payload.txid || payload.hash));
+          wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
           break;
       }
 
       if (wallet) {
+        const walletID = wallet.getID();
+        fetchAndSaveWalletTransactions(walletID);
         NavigationService.dispatch(
           CommonActions.navigate({
             name: 'WalletTransactions',
             key: `WalletTransactions-${wallet.getID()}`,
             params: {
-              wallet,
+              walletID,
+              walletType: wallet.type,
             },
           }),
         );
-        setTimeout(() => EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, 1 /* ms */), 500);
         // no delay (1ms) as we dont need to wait for transaction propagation. 500ms is a delay to wait for the navigation
-        await notifications.clearStoredNotifications();
+        await Notifications.clearStoredNotifications();
         return true;
       } else {
         console.log('could not find wallet while processing push notification tap, NOP');
@@ -179,18 +192,18 @@ const App = () => {
     // TODO: if we are here - we did not act upon any push, so we need to iterate over _not tapped_ pushes
     // and refetch appropriate wallet and redraw screen
 
-    await notifications.clearStoredNotifications();
+    await Notifications.clearStoredNotifications();
     return false;
   };
 
   const handleAppStateChange = async nextAppState => {
-    if (BlueApp.getWallets().length > 0) {
+    if (wallets.length > 0) {
       if ((appState.current.match(/background/) && nextAppState) === 'active' || nextAppState === undefined) {
         setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
         const processed = await processPushNotifications();
         if (processed) return;
         const clipboard = await BlueClipboard.getClipboardContent();
-        const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet => {
+        const isAddressFromStoredWallet = wallets.some(wallet => {
           if (wallet.chain === Chain.ONCHAIN) {
             // checking address validity is faster than unwrapping hierarchy only to compare it to garbage
             return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
@@ -225,7 +238,7 @@ const App = () => {
   };
 
   const handleOpenURL = event => {
-    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value));
+    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value), { wallets, addWallet, saveToDisk });
   };
 
   const hideClipboardContentModal = () => {
@@ -269,9 +282,14 @@ const App = () => {
       <View style={styles.root}>
         <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
           <InitRoot />
+          <Notifications onProcessNotifications={processPushNotifications} />
         </NavigationContainer>
         {renderClipboardContentModal()}
       </View>
+      <WatchConnectivity />
+      <DeviceQuickActions />
+      <WalletImport />
+      <Biometric />
     </SafeAreaProvider>
   );
 };

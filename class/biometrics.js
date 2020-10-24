@@ -6,15 +6,17 @@ import * as NavigationService from '../NavigationService';
 import { StackActions, CommonActions } from '@react-navigation/native';
 import RNSecureKeyStore from 'react-native-secure-key-store';
 import loc from '../loc';
-const BlueApp = require('../BlueApp');
+import { useContext } from 'react';
+import { BlueStorageContext } from '../blue_modules/storage-context';
 
-export default class Biometric {
-  static STORAGEKEY = 'Biometrics';
-  static FaceID = 'Face ID';
-  static TouchID = 'Touch ID';
-  static Biometrics = 'Biometrics';
+function Biometric() {
+  const { getItem, setItem, setResetOnAppUninstallTo } = useContext(BlueStorageContext);
+  Biometric.STORAGEKEY = 'Biometrics';
+  Biometric.FaceID = 'Face ID';
+  Biometric.TouchID = 'Touch ID';
+  Biometric.Biometrics = 'Biometrics';
 
-  static async isDeviceBiometricCapable() {
+  Biometric.isDeviceBiometricCapable = async () => {
     try {
       const isDeviceBiometricCapable = await FingerprintScanner.isSensorAvailable();
       if (isDeviceBiometricCapable) {
@@ -24,9 +26,9 @@ export default class Biometric {
       Biometric.setBiometricUseEnabled(false);
       return false;
     }
-  }
+  };
 
-  static async biometricType() {
+  Biometric.biometricType = async () => {
     try {
       const isSensorAvailable = await FingerprintScanner.isSensorAvailable();
       return isSensorAvailable;
@@ -34,29 +36,29 @@ export default class Biometric {
       console.log(e);
     }
     return false;
-  }
+  };
 
-  static async isBiometricUseEnabled() {
+  Biometric.isBiometricUseEnabled = async () => {
     try {
-      const enabledBiometrics = await BlueApp.getItem(Biometric.STORAGEKEY);
+      const enabledBiometrics = await getItem(Biometric.STORAGEKEY);
       return !!enabledBiometrics;
     } catch (_e) {
-      await BlueApp.setItem(Biometric.STORAGEKEY, '');
+      await setItem(Biometric.STORAGEKEY, '');
       return false;
     }
-  }
+  };
 
-  static async isBiometricUseCapableAndEnabled() {
+  Biometric.isBiometricUseCapableAndEnabled = async () => {
     const isBiometricUseEnabled = await Biometric.isBiometricUseEnabled();
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
     return isBiometricUseEnabled && isDeviceBiometricCapable;
-  }
+  };
 
-  static async setBiometricUseEnabled(value) {
-    await BlueApp.setItem(Biometric.STORAGEKEY, value === true ? '1' : '');
-  }
+  Biometric.setBiometricUseEnabled = async value => {
+    await setItem(Biometric.STORAGEKEY, value === true ? '1' : '');
+  };
 
-  static async unlockWithBiometrics() {
+  Biometric.unlockWithBiometrics = async () => {
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
     if (isDeviceBiometricCapable) {
       return new Promise(resolve => {
@@ -67,17 +69,17 @@ export default class Biometric {
       });
     }
     return false;
-  }
+  };
 
-  static async clearKeychain() {
+  Biometric.clearKeychain = async () => {
     await RNSecureKeyStore.remove('data');
     await RNSecureKeyStore.remove('data_encrypted');
     await RNSecureKeyStore.remove(Biometric.STORAGEKEY);
-    await BlueApp.setResetOnAppUninstallTo(true);
+    await setResetOnAppUninstallTo(true);
     NavigationService.dispatch(StackActions.replace('WalletsRoot'));
-  }
+  };
 
-  static async requestDevicePasscode() {
+  Biometric.requestDevicePasscode = async () => {
     let isDevicePasscodeSupported = false;
     try {
       isDevicePasscodeSupported = await PasscodeAuth.isSupported();
@@ -104,9 +106,9 @@ export default class Biometric {
     if (isDevicePasscodeSupported === false) {
       alert('Your device does not have a passcode. In order to proceed, please configure a passcode in the Settings app.');
     }
-  }
+  };
 
-  static showKeychainWipeAlert() {
+  Biometric.showKeychainWipeAlert = () => {
     if (Platform.OS === 'ios') {
       Alert.alert(
         'Storage',
@@ -133,5 +135,8 @@ export default class Biometric {
         { cancelable: false },
       );
     }
-  }
+  };
+  return null;
 }
+
+export default Biometric;

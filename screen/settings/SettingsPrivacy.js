@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, TouchableWithoutFeedback, StyleSheet, Linking } from 'react-native';
 import { BlueTextHooks, BlueSpacing20, BlueListItem, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
 import { useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import BlueClipboard from '../../blue_modules/clipboard';
 import DeviceQuickActions from '../../class/quick-actions';
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const SettingsPrivacy = () => {
   const { colors } = useTheme();
+  const { isStorageEncrypted } = useContext(BlueStorageContext);
   const sections = Object.freeze({ ALL: 0, CLIPBOARDREAD: 1, QUICKACTION: 2 });
   const [isLoading, setIsLoading] = useState(sections.ALL);
   const [isReadClipboardAllowed, setIsReadClipboardAllowed] = useState(false);
@@ -19,13 +20,14 @@ const SettingsPrivacy = () => {
     (async () => {
       try {
         setIsReadClipboardAllowed(await BlueClipboard.isReadClipboardAllowed());
-        setStorageIsEncrypted(await BlueApp.storageIsEncrypted());
+        setStorageIsEncrypted(await isStorageEncrypted());
         setIsQuickActionsEnabled(await DeviceQuickActions.getEnabled());
       } catch (e) {
         console.log(e);
       }
       setIsLoading(false);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onValueChange = async value => {

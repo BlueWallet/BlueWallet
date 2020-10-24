@@ -562,6 +562,7 @@ async function sup(text, timeout = 33000) {
 }
 
 async function helperCreateWallet(walletName) {
+  await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
   await element(by.id('CreateAWallet')).tap();
   await element(by.id('WalletNameInput')).replaceText(walletName || 'cr34t3d');
   await yo('ActivateBitcoinButton');
@@ -576,12 +577,13 @@ async function helperCreateWallet(walletName) {
   await yo('PleasebackupOk');
   await element(by.id('PleasebackupOk')).tap();
   await expect(element(by.id('WalletsList'))).toBeVisible();
+  await element(by.id('WalletsList')).swipe('right', 'fast', 1); // in case emu screen is small and it doesnt fit
   await expect(element(by.id(walletName || 'cr34t3d'))).toBeVisible();
 }
 
 async function helperImportWallet(importText, expectedWalletLabel, expectedBalance) {
   await yo('WalletsList');
-
+  await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
   // going to Import Wallet screen and importing mnemonic
   await element(by.id('CreateAWallet')).tap();
   await element(by.id('ImportWallet')).tap();

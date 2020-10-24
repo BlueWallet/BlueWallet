@@ -6,8 +6,7 @@ import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../.
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 import loc from '../../loc';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
   root: {
@@ -17,6 +16,8 @@ const styles = StyleSheet.create({
 });
 
 export default class RBFBumpFee extends CPFP {
+  static contextType = BlueStorageContext;
+
   async componentDidMount() {
     console.log('transactions/RBFBumpFee - componentDidMount');
     this.setState({
@@ -61,8 +62,8 @@ export default class RBFBumpFee extends CPFP {
 
   onSuccessBroadcast() {
     // porting memo from old tx:
-    if (BlueApp.tx_metadata[this.state.txid]) {
-      BlueApp.tx_metadata[this.state.newTxid] = BlueApp.tx_metadata[this.state.txid];
+    if (this.context.txMetadata[this.state.txid]) {
+      this.context.txMetadata[this.state.newTxid] = this.context.txMetadata[this.state.txid];
     }
   }
 

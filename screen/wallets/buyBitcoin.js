@@ -3,11 +3,11 @@ import { StyleSheet, StatusBar, Linking, Platform } from 'react-native';
 import { BlueNavigationStyle, BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
-import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
+import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import * as NavigationService from '../../NavigationService';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
-const BlueApp: AppStorage = require('../../BlueApp');
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -15,6 +15,7 @@ const styles = StyleSheet.create({
 });
 
 export default class BuyBitcoin extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
     const wallet = props.route.params.wallet;
@@ -41,7 +42,7 @@ export default class BuyBitcoin extends Component {
     } else {
       // otherwise, lets call widely-used getAddressAsync()
       try {
-        address = await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(2000)]);
+        address = await Promise.race([wallet.getAddressAsync(), this.context.sleep(2000)]);
       } catch (_) {}
 
       if (!address) {
@@ -114,7 +115,10 @@ BuyBitcoin.navigate = async wallet => {
   const uri = await BuyBitcoin.generateURL(wallet);
   if (Platform.OS === 'ios') {
     InAppBrowser.isAvailable()
-      .then(_value => InAppBrowser.open(uri, { dismissButtonStyle: 'done' }))
+      .then(_value => {
+        InAppBrowser.close();
+        InAppBrowser.open(uri, { dismissButtonStyle: 'done' });
+      })
       .catch(error => {
         console.log(error);
         Linking.openURL(uri);

@@ -20,9 +20,7 @@ import Handoff from 'react-native-handoff';
 import HandoffSettings from '../../class/handoff';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
-
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const buttonStatus = Object.freeze({
   possible: 1,
   unknown: 2,
@@ -133,13 +131,15 @@ const styles = StyleSheet.create({
 });
 
 export default class TransactionsStatus extends Component {
-  constructor(props) {
+  static contextType = BlueStorageContext;
+
+  constructor(props, context) {
     super(props);
     const hash = props.route.params.hash;
     let foundTx = {};
     let from = [];
     let to = [];
-    for (const tx of BlueApp.getTransactions()) {
+    for (const tx of context.getTransactions()) {
       if (tx.hash === hash) {
         foundTx = tx;
         for (const input of foundTx.inputs) {
@@ -153,7 +153,7 @@ export default class TransactionsStatus extends Component {
     }
 
     let wallet = false;
-    for (const w of BlueApp.getWallets()) {
+    for (const w of context.wallets) {
       for (const t of w.getTransactions()) {
         if (t.hash === hash) {
           console.log('tx', hash, 'belongs to', w.getLabel());
@@ -272,11 +272,11 @@ export default class TransactionsStatus extends Component {
             </View>
 
             {(() => {
-              if (BlueApp.tx_metadata[this.state.tx.hash]) {
-                if (BlueApp.tx_metadata[this.state.tx.hash].memo) {
+              if (this.context.txMetadata[this.state.tx.hash]) {
+                if (this.context.txMetadata[this.state.tx.hash].memo) {
                   return (
                     <View style={styles.memo}>
-                      <Text style={styles.memoText}>{BlueApp.tx_metadata[this.state.tx.hash].memo}</Text>
+                      <Text style={styles.memoText}>{this.context.txMetadata[this.state.tx.hash].memo}</Text>
                       <BlueSpacing20 />
                     </View>
                   );

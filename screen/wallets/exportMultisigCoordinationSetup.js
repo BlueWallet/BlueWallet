@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { ActivityIndicator, InteractionManager, ScrollView, StatusBar, StyleSheet, View } from 'react-native';
 import { BlueNavigationStyle, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -7,14 +7,14 @@ import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SquareButton } from '../../components/SquareButton';
-
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const fs = require('../../blue_modules/fs');
 
 const ExportMultisigCoordinationSetup = () => {
   const walletId = useRoute().params.walletId;
-  const wallet = BlueApp.getWallets().find(w => w.getID() === walletId);
-  const qrCodeContents = Buffer.from(wallet.getXpub(), 'ascii').toString('hex');
+  const { wallets } = useContext(BlueStorageContext);
+  const wallet = wallets.find(w => w.getID() === walletId);
+  const qrCodeContents = encodeURI(Buffer.from(wallet.getXpub(), 'ascii').toString('hex'), 77777)[0];
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
   const { colors } = useTheme();

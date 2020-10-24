@@ -6,11 +6,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as NavigationService from './NavigationService';
 import { StackActions } from '@react-navigation/native';
 import PropTypes from 'prop-types';
-
-const EV = require('./blue_modules/events');
+import { BlueStorageContext } from './blue_modules/storage-context';
 /** @type {AppStorage} */
-
-const BlueApp = require('./BlueApp');
 
 const styles = StyleSheet.create({
   root: {
@@ -51,6 +48,7 @@ const styles = StyleSheet.create({
 
 export default class UnlockWith extends Component {
   state = { biometricType: false, isStorageEncrypted: false, isAuthenticating: false, appearance: Appearance.getColorScheme() };
+  static contextType = BlueStorageContext;
 
   async componentDidMount() {
     Appearance.addChangeListener(this.appearanceChanged);
@@ -58,10 +56,10 @@ export default class UnlockWith extends Component {
     if (await Biometric.isBiometricUseCapableAndEnabled()) {
       biometricType = await Biometric.biometricType();
     }
-    const isStorageEncrypted = await BlueApp.storageIsEncrypted();
-    this.setState({ biometricType, isStorageEncrypted }, async () => {
+    const storageIsEncrypted = await this.context.isStorageEncrypted();
+    this.setState({ biometricType, isStorageEncrypted: storageIsEncrypted }, async () => {
       if (this.props.route.params.unlockOnComponentMount) {
-        if (!biometricType || isStorageEncrypted) {
+        if (!biometricType || storageIsEncrypted) {
           this.unlockWithKey();
         } else if (typeof biometricType === 'string') this.unlockWithBiometrics();
       }
@@ -80,18 +78,18 @@ export default class UnlockWith extends Component {
   };
 
   successfullyAuthenticated = () => {
-    EV(EV.enum.WALLETS_INITIALIZED);
+    this.context.setWalletsInitialized(true);
     NavigationService.dispatch(StackActions.replace('DrawerRoot'));
   };
 
   unlockWithBiometrics = async () => {
-    if (await BlueApp.storageIsEncrypted()) {
+    if (await this.context.isStorageEncrypted()) {
       this.unlockWithKey();
     }
     this.setState({ isAuthenticating: true }, async () => {
       if (await Biometric.unlockWithBiometrics()) {
         this.setState({ isAuthenticating: false });
-        await BlueApp.startAndDecrypt();
+        await this.context.startAndDecrypt();
         return this.successfullyAuthenticated();
       }
       this.setState({ isAuthenticating: false });
@@ -100,7 +98,7 @@ export default class UnlockWith extends Component {
 
   unlockWithKey = () => {
     this.setState({ isAuthenticating: true }, async () => {
-      if (await BlueApp.startAndDecrypt()) {
+      if (await this.context.startAndDecrypt()) {
         this.successfullyAuthenticated();
       } else {
         this.setState({ isAuthenticating: false });
