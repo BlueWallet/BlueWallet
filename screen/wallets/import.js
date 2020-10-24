@@ -25,7 +25,6 @@ import DocumentPicker from 'react-native-document-picker';
 import { presentCameraNotAuthorizedAlert } from '../../class/camera';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const isDesktop = getSystemName() === 'Mac OS X';
-const EV = require('../../blue_modules/events');
 
 const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
@@ -74,23 +73,18 @@ const WalletsImport = () => {
     if (WalletImport.isCurrentlyImportingWallet()) {
       return;
     }
-
     WalletImport.addPlaceholderWallet(importText);
     navigation.dangerouslyGetParent().pop();
     await new Promise(resolve => setTimeout(resolve, 500)); // giving some time to animations
-    EV(EV.enum.WALLETS_COUNT_CHANGED);
     try {
       await WalletImport.processImportText(importText, additionalProperties);
       WalletImport.removePlaceholderWallet();
     } catch (error) {
       WalletImport.removePlaceholderWallet();
       WalletImport.addPlaceholderWallet(importText, true);
-      console.warn(error);
-
+      console.log(error);
       alert(loc.wallets.import_error);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-    } finally {
-      EV(EV.enum.WALLETS_COUNT_CHANGED);
     }
   };
 

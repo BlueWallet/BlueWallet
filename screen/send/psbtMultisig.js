@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { FlatList, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BlueButton, BlueButtonLink, BlueCard, BlueNavigationStyle, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -11,8 +11,7 @@ import ImagePicker from 'react-native-image-picker';
 import ScanQRCode from './ScanQRCode';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const bitcoin = require('bitcoinjs-lib');
 const currency = require('../../blue_modules/currency');
 const fs = require('../../blue_modules/fs');
@@ -25,6 +24,7 @@ const shortenAddress = addr => {
 };
 
 const PsbtMultisig = () => {
+  const { wallets } = useContext(BlueStorageContext);
   const navigation = useNavigation();
   const route = useRoute();
   const { colors } = useTheme();
@@ -84,7 +84,7 @@ const PsbtMultisig = () => {
     },
   });
   /** @type MultisigHDWallet */
-  const wallet = BlueApp.getWallets().find(w => w.getID() === walletId);
+  const wallet = wallets.find(w => w.getID() === walletId);
   let destination = [];
   let totalSat = 0;
   const targets = [];

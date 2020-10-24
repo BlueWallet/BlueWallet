@@ -4,11 +4,9 @@ import { ScrollView, StyleSheet } from 'react-native';
 import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueSpacing20 } from '../BlueComponents';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { AppStorage } from '../class';
 import loc from '../loc';
-const BlueApp: AppStorage = require('../BlueApp');
+import { BlueStorageContext } from '../blue_modules/storage-context';
 const prompt = require('../blue_modules/prompt');
-const EV = require('../blue_modules/events');
 
 const styles = StyleSheet.create({
   root: {
@@ -17,6 +15,8 @@ const styles = StyleSheet.create({
 });
 
 export default class PlausibleDeniability extends Component {
+  static contextType = BlueStorageContext;
+
   constructor(props) {
     super(props);
     this.state = {
@@ -52,7 +52,7 @@ export default class PlausibleDeniability extends Component {
               title={loc.plausibledeniability.create_fake_storage}
               onPress={async () => {
                 const p1 = await prompt(loc.plausibledeniability.create_password, loc.plausibledeniability.create_password_explanation);
-                const isPasswordInUse = p1 === BlueApp.cachedPassword || (await BlueApp.isPasswordInUse(p1));
+                const isPasswordInUse = p1 === this.context.cachedPassword || (await this.context.isPasswordInUse(p1));
                 if (isPasswordInUse) {
                   ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
                   return alert(loc.plausibledeniability.password_should_not_match);
@@ -66,9 +66,8 @@ export default class PlausibleDeniability extends Component {
                   return alert(loc.plausibledeniability.passwords_do_not_match);
                 }
 
-                await BlueApp.createFakeStorage(p1);
-                EV(EV.enum.WALLETS_COUNT_CHANGED);
-                EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+                await this.context.createFakeStorage(p1);
+                await this.context.resetWallets();
                 ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
                 alert(loc.plausibledeniability.success);
                 this.props.navigation.popToTop();

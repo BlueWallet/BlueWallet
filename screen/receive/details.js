@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import {
   View,
   InteractionManager,
@@ -34,15 +34,14 @@ import HandoffSettings from '../../class/handoff';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import Handoff from 'react-native-handoff';
 import loc from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import Notifications from '../../blue_modules/notifications';
 const currency = require('../../blue_modules/currency');
-const notifications = require('../../blue_modules/notifications');
 
 const ReceiveDetails = () => {
   const { secret } = useRoute().params;
-  const wallet = BlueApp.getWallets().find(w => w.getSecret() === secret);
+  const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
+  const wallet = wallets.find(w => w.getSecret() === secret);
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [address, setAddress] = useState('');
   const [customLabel, setCustomLabel] = useState();
@@ -57,7 +56,7 @@ const ReceiveDetails = () => {
   const windowHeight = useWindowDimensions().height;
   const styles = StyleSheet.create({
     modalContent: {
-      backgroundColor: BlueCurrentTheme.colors.modal,
+      backgroundColor: colors.modal,
       padding: 22,
       justifyContent: 'center',
       alignItems: 'center',
@@ -74,11 +73,11 @@ const ReceiveDetails = () => {
     },
     customAmount: {
       flexDirection: 'row',
-      borderColor: BlueCurrentTheme.colors.formBorder,
-      borderBottomColor: BlueCurrentTheme.colors.formBorder,
+      borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
       borderWidth: 1.0,
       borderBottomWidth: 0.5,
-      backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
+      backgroundColor: colors.inputBackgroundColor,
       minHeight: 44,
       height: 44,
       marginHorizontal: 20,
@@ -89,13 +88,13 @@ const ReceiveDetails = () => {
     customAmountText: {
       flex: 1,
       marginHorizontal: 8,
-      color: BlueCurrentTheme.colors.foregroundColor,
+      color: colors.foregroundColor,
       minHeight: 33,
     },
     qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
     root: {
       flex: 1,
-      backgroundColor: BlueCurrentTheme.colors.elevated,
+      backgroundColor: colors.elevated,
     },
     scroll: {
       justifyContent: 'space-between',
@@ -106,14 +105,14 @@ const ReceiveDetails = () => {
       paddingHorizontal: 16,
     },
     amount: {
-      color: BlueCurrentTheme.colors.foregroundColor,
+      color: colors.foregroundColor,
       fontWeight: '600',
       fontSize: 36,
       textAlign: 'center',
       paddingBottom: 24,
     },
     label: {
-      color: BlueCurrentTheme.colors.foregroundColor,
+      color: colors.foregroundColor,
       fontWeight: '600',
       textAlign: 'center',
       paddingBottom: 24,
@@ -122,14 +121,14 @@ const ReceiveDetails = () => {
       alignItems: 'center',
       width: 300,
       height: 300,
-      backgroundColor: BlueCurrentTheme.colors.elevated,
+      backgroundColor: colors.elevated,
     },
     share: {
       marginBottom: 24,
       marginHorizontal: 16,
     },
     modalButton: {
-      backgroundColor: BlueCurrentTheme.colors.modalButton,
+      backgroundColor: colors.modalButton,
       paddingVertical: 14,
       paddingHorizontal: 70,
       maxWidth: '80%',
@@ -182,23 +181,23 @@ const ReceiveDetails = () => {
     Privacy.enableBlur();
     console.log('receive/details - componentDidMount');
     wallet.setUserHasSavedExport(true);
-    await BlueApp.saveToDisk();
+    await saveToDisk();
     let address;
     if (wallet.getAddressAsync) {
       if (wallet.chain === Chain.ONCHAIN) {
         try {
-          address = await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
+          address = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
         } catch (_) {}
         if (!address) {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
           address = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
         } else {
-          BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
+          saveToDisk(); // caching whatever getAddressAsync() generated internally
         }
       } else if (wallet.chain === Chain.OFFCHAIN) {
         try {
-          await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
+          await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
           address = wallet.getAddress();
         } catch (_) {}
         if (!address) {
@@ -206,18 +205,19 @@ const ReceiveDetails = () => {
           console.warn('either sleep expired or getAddressAsync threw an exception');
           address = wallet.getAddress();
         } else {
-          BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
+          saveToDisk(); // caching whatever getAddressAsync() generated internally
         }
       }
       setAddressBIP21Encoded(address);
-      await notifications.tryToObtainPermissions();
-      notifications.majorTomToGroundControl([address], [], []);
+      await Notifications.tryToObtainPermissions();
+      Notifications.majorTomToGroundControl([address], [], []);
     } else if (wallet.getAddress) {
       setAddressBIP21Encoded(wallet.getAddress());
-      await notifications.tryToObtainPermissions();
-      notifications.majorTomToGroundControl([wallet.getAddress()], [], []);
+      await Notifications.tryToObtainPermissions();
+      Notifications.majorTomToGroundControl([wallet.getAddress()], [], []);
     }
-  }, [wallet]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const setAddressBIP21Encoded = address => {
     const bip21encoded = DeeplinkSchemaMatch.bip21encode(address);
@@ -236,7 +236,7 @@ const ReceiveDetails = () => {
               onFailure: () => {
                 goBack();
                 navigate('WalletExport', {
-                  wallet: wallet,
+                  walletID: wallet.getID(),
                 });
               },
             });

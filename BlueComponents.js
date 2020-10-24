@@ -1,6 +1,6 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 /* global alert */
-import React, { Component, useState, useMemo, useCallback } from 'react';
+import React, { Component, useState, useMemo, useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, Input, Text, Header, ListItem, Avatar } from 'react-native-elements';
 import {
@@ -47,9 +47,9 @@ import { useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
 import Lnurl from './class/lnurl';
+import { BlueStorageContext } from './blue_modules/storage-context';
 import { presentCameraNotAuthorizedAlert } from './class/camera';
 /** @type {AppStorage} */
-const BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 const BigNumber = require('bignumber.js');
@@ -240,6 +240,8 @@ export class BlueWalletNavigationHeader extends Component {
     return { wallet: props.wallet, onWalletUnitChange: props.onWalletUnitChange, allowOnchainAddress: state.allowOnchainAddress };
   }
 
+  static contextType = BlueStorageContext;
+
   constructor(props) {
     super(props);
     this.state = {
@@ -275,7 +277,7 @@ export class BlueWalletNavigationHeader extends Component {
 
     wallet.hideBalance = !wallet.hideBalance;
     this.setState({ wallet });
-    await BlueApp.saveToDisk();
+    await this.context.saveToDisk();
   };
 
   showAndroidTooltip = () => {
@@ -1563,6 +1565,7 @@ export class ManageFundsBigButton extends Component {
 export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, timeElapsed }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
   const { colors } = useTheme();
+  const { txMetadata, wallets } = useContext(BlueStorageContext);
   const containerStyle = useMemo(
     () => ({
       backgroundColor: 'transparent',
@@ -1575,7 +1578,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   );
 
   const title = useMemo(() => transactionTimeToReadable(item.received), [item.received]);
-  const txMemo = BlueApp.tx_metadata[item.hash]?.memo ?? '';
+  const txMemo = txMetadata[item.hash]?.memo ?? '';
   const subtitle = useMemo(() => {
     let sub = item.confirmations < 7 ? loc.formatString(loc.transactions.list_conf, { number: item.confirmations }) : '';
     if (sub !== '') sub += ' ';
@@ -1709,7 +1712,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     if (item.hash) {
       NavigationService.navigate('TransactionStatus', { hash: item.hash });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
-      const lightningWallet = BlueApp.getWallets().filter(wallet => {
+      const lightningWallet = wallets.filter(wallet => {
         if (typeof wallet === 'object') {
           if ('secret' in wallet) {
             return wallet.getSecret() === item.fromWallet;
@@ -1743,7 +1746,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
         });
       }
     }
-  }, [item]);
+  }, [item, wallets]);
 
   const onLongPress = useCallback(() => {
     if (subtitleNumberOfLines === 1) {
