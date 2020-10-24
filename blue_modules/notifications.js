@@ -46,6 +46,7 @@ function Notifications(props) {
 
         // (required) Called when a remote is received or opened, or local notification is opened
         onNotification: async function (notification) {
+          Alert.alert(JSON.stringify(notification));
           // since we do not know whether we:
           // 1) received notification while app is in background (and storage is not decrypted so wallets are not loaded)
           // 2) opening this notification right now but storage is still unencrypted
