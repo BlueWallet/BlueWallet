@@ -32,5 +32,3 @@ jobs:
           MERGE_DELETE_BRANCH: true
           UPDATE_RETRIES: 10
           UPDATE_RETRY_SLEEP: 1800000
-          UPDATE_LABELS: ""
-          UPDATE_METHOD: "rebase"
