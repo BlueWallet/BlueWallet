@@ -4,7 +4,7 @@ import { View, TextInput, StyleSheet } from 'react-native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
-import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../../BlueComponents';
+import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueButtonLink } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -147,6 +147,23 @@ export default class ElectrumSettings extends Component {
     });
   };
 
+  onBarScanned = (value) => {
+    var [host, port, type] = value.split(':');
+    this.setState({ host: host });
+    ( type == "s" ) ? this.setState({ sslPort: port }) : this.setState({ port: port });
+  };
+
+  importScan = () => {
+    this.props.navigation.navigate('ScanQRCodeRoot', {
+      screen: 'ScanQRCode',
+      params: {
+        launchedBy: this.props.route.name,
+        onBarScanned: this.onBarScanned,
+        showFileImportButton: true,
+      },
+    });
+  };
+
   render() {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
@@ -211,7 +228,8 @@ export default class ElectrumSettings extends Component {
                 underlineColorAndroid="transparent"
               />
             </View>
-
+            <BlueSpacing20 />
+            <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={this.importScan} />
             <BlueSpacing20 />
             {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
           </BlueCard>
