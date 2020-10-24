@@ -251,13 +251,13 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.39.1):
+  - react-native-camera (3.40.0):
     - React-Core
-    - react-native-camera/RCT (= 3.39.1)
-    - react-native-camera/RN (= 3.39.1)
-  - react-native-camera/RCT (3.39.1):
+    - react-native-camera/RCT (= 3.40.0)
+    - react-native-camera/RN (= 3.40.0)
+  - react-native-camera/RCT (3.40.0):
     - React-Core
-  - react-native-camera/RN (3.39.1):
+  - react-native-camera/RN (3.40.0):
     - React-Core
   - react-native-document-picker (3.5.4):
     - React
@@ -679,7 +679,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 8e68ffbfe23880d3ee9bafa8be2777f60b25cbe2
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: fc1296181b2d393ea698164869070c96d8625129
+  react-native-camera: 5c1fbfecf63b802b8ca4a71c60d30a71550fb348
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-geolocation: cbd9d6bd06bac411eed2671810f454d4908484a8
