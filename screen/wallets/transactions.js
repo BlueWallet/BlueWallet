@@ -41,6 +41,133 @@ const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const isDesktop = getSystemName() === 'Mac OS X';
 
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingBottom: 40,
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 200,
+    height: 200,
+  },
+  advancedTransactionOptionsModalContent: {
+    padding: 22,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 130,
+  },
+  bottomModal: {
+    justifyContent: 'flex-end',
+    margin: 0,
+  },
+  walletDetails: {
+    marginHorizontal: 16,
+    minWidth: 150,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  activityIndicator: {
+    marginVertical: 20,
+  },
+  listHeader: {
+    marginLeft: 16,
+    marginRight: 16,
+    marginVertical: 16,
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  listHeaderTextRow: {
+    flex: 1,
+    marginHorizontal: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  listHeaderText: {
+    marginTop: 8,
+    marginBottom: 8,
+    fontWeight: 'bold',
+    fontSize: 24,
+  },
+  marketplaceButton1: {
+    borderRadius: 9,
+    minHeight: 49,
+    paddingHorizontal: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    alignSelf: 'auto',
+    flexGrow: 1,
+    marginHorizontal: 4,
+  },
+  marketplaceButton2: {
+    borderRadius: 9,
+    minHeight: 49,
+    paddingHorizontal: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    alignSelf: 'auto', 
+    flexGrow: 1,
+    marginHorizontal: 4,
+  },
+  marketpalceText1: {
+    fontSize: 18,
+  },
+  marketpalceText2: {
+    fontSize: 18,
+    marginHorizontal: 8,
+  },
+  list: {
+    flex: 1,
+  },
+  emptyTxs: {
+    fontSize: 18,
+    color: '#9aa0aa',
+    textAlign: 'center',
+    marginVertical: 16,
+  },
+  emptyTxsLightning: {
+    fontSize: 18,
+    color: '#9aa0aa',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  buyBitcoin: {
+    backgroundColor: '#007AFF',
+    minWidth: 260,
+    borderRadius: 8,
+    alignSelf: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+  },
+  buyBitcoinText: {
+    fontSize: 15,
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  sendIcon: {
+    transform: [{ rotate: '225deg' }],
+  },
+  receiveIcon: {
+    transform: [{ rotate: '-45deg' }],
+  },
+});
+
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
     ? 22
