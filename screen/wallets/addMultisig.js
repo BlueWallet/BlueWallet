@@ -1,13 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
-import { BlueButton, BlueNavigationStyle, BlueSpacing20 } from '../../BlueComponents';
+import { BlueButton, BlueListItem, BlueNavigationStyle, BlueSpacing20 } from '../../BlueComponents';
 import { MultisigHDWallet } from '../../class';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import Modal from 'react-native-modal';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const WalletsAddMultisig = () => {
   const { colors } = useTheme();
@@ -18,6 +19,8 @@ const WalletsAddMultisig = () => {
   const [n, setN] = useState(3);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [format, setFormat] = useState(MultisigHDWallet.FORMAT_P2WSH);
+  const { isAdancedModeEnabled } = useContext(BlueStorageContext);
+  const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -37,6 +40,11 @@ const WalletsAddMultisig = () => {
     },
   });
 
+  useEffect(() => {
+    isAdancedModeEnabled().then(setIsAdvancedModeEnabledRender);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onLetsStartPress = () => {
     navigate('WalletsAddMultisigStep2', { m, n, format });
   };
@@ -46,17 +54,6 @@ const WalletsAddMultisig = () => {
   const setFormatP2shP2wsh = () => setFormat(MultisigHDWallet.FORMAT_P2SH_P2WSH);
 
   const setFormatP2sh = () => setFormat(MultisigHDWallet.FORMAT_P2SH);
-
-  const getCurrentlySelectedFormat = code => {
-    switch (code) {
-      case 'format':
-        return WalletsAddMultisig.getCurrentFormatReadable(format);
-      case 'quorum':
-        return loc.formatString(loc.multisig.quorum, { m, n });
-      default:
-        throw new Error('This should never happen');
-    }
-  };
 
   const isP2wsh = () => format === MultisigHDWallet.FORMAT_P2WSH;
 
@@ -94,16 +91,21 @@ const WalletsAddMultisig = () => {
         }}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={[styles.modalContentShort, styles.modalContentShort]}>
+          <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
             <Text style={styles.textHeader}>{loc.multisig.quorum_header}</Text>
             <View style={styles.rowCenter}>
               <View style={styles.column}>
-                <TouchableOpacity onPress={increaseM} style={styles.chevron}>
-                  <Icon name="chevron-up" size={22} type="octicon" color="#007AFF" />
+                <TouchableOpacity onPress={increaseM} disabled={n === m || m === 7} style={styles.chevron}>
+                  <Icon
+                    name="chevron-up"
+                    size={22}
+                    type="octicon"
+                    color={n === m || m === 7 ? colors.buttonDisabledTextColor : '#007AFF'}
+                  />
                 </TouchableOpacity>
                 <Text style={styles.textM}>{m}</Text>
-                <TouchableOpacity onPress={decreaseM} style={styles.chevron}>
-                  <Icon name="chevron-down" size={22} type="octicon" color="#007AFF" />
+                <TouchableOpacity onPress={decreaseM} disabled={m === 2} style={styles.chevron}>
+                  <Icon name="chevron-down" size={22} type="octicon" color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
                 </TouchableOpacity>
               </View>
 
@@ -112,12 +114,12 @@ const WalletsAddMultisig = () => {
               </View>
 
               <View style={styles.column}>
-                <TouchableOpacity onPress={increaseN} style={styles.chevron}>
-                  <Icon name="chevron-up" size={22} type="octicon" color="#007AFF" />
+                <TouchableOpacity disabled={n === 7} onPress={increaseN} style={styles.chevron}>
+                  <Icon name="chevron-up" size={22} type="octicon" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
                 </TouchableOpacity>
                 <Text style={styles.textM}>{n}</Text>
-                <TouchableOpacity onPress={decreaseN} style={styles.chevron}>
-                  <Icon name="chevron-down" size={22} type="octicon" color="#007AFF" />
+                <TouchableOpacity onPress={decreaseN} disabled={n === m} style={styles.chevron}>
+                  <Icon name="chevron-down" size={22} type="octicon" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -126,38 +128,29 @@ const WalletsAddMultisig = () => {
 
             <Text style={styles.textHeader}>{loc.multisig.wallet_type}</Text>
             <BlueSpacing20 />
-
-            <TouchableOpacity
+            <BlueListItem
               onPress={setFormatP2wsh}
-              style={[styles.formatSelectorTextWrapper, isP2wsh() ? styles.formatSelectorTextWrapperSelected : null]}
-            >
-              <Text style={styles.formatSelectorText}>
-                {loc.multisig.native_segwit_title} ({MultisigHDWallet.FORMAT_P2WSH})
-                {isP2wsh() && <Icon name="check" color="#007AFF" size={17} type="octicon" />}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+              title={`${loc.multisig.native_segwit_title} (${MultisigHDWallet.FORMAT_P2WSH})`}
+              checkmark={isP2wsh()}
+            />
+            <BlueListItem
               onPress={setFormatP2shP2wsh}
-              style={[styles.formatSelectorTextWrapper, isP2shP2wsh() ? styles.formatSelectorTextWrapperSelected : null]}
-            >
-              <Text style={styles.formatSelectorText}>
-                {loc.multisig.wrapped_segwit_title} ({MultisigHDWallet.FORMAT_P2SH_P2WSH})
-                {isP2shP2wsh() && <Icon name="check" color="#007AFF" size={17} type="octicon" />}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+              title={`${loc.multisig.wrapped_segwit_title} (${MultisigHDWallet.FORMAT_P2SH_P2WSH})`}
+              checkmark={isP2shP2wsh()}
+            />
+            <BlueListItem
               onPress={setFormatP2sh}
-              style={[styles.formatSelectorTextWrapper, isP2sh() ? styles.formatSelectorTextWrapperSelected : null]}
-            >
-              <Text style={styles.formatSelectorText}>
-                {loc.multisig.legacy_title} ({MultisigHDWallet.FORMAT_P2SH})
-                {isP2sh() && <Icon name="check" color="#007AFF" size={17} type="octicon" />}
-              </Text>
-            </TouchableOpacity>
+              title={`${loc.multisig.legacy_title} (${MultisigHDWallet.FORMAT_P2SH})`}
+              checkmark={isP2sh()}
+            />
           </View>
         </KeyboardAvoidingView>
       </Modal>
     );
+  };
+
+  const showAdvancedOptionsModal = () => {
+    setIsModalVisible(true);
   };
 
   return (
@@ -186,9 +179,15 @@ const WalletsAddMultisig = () => {
           <Text style={[styles.textdesc, stylesHook.textdesc]}>{loc.multisig.what_is_vault_description_to_spend}</Text>
         </Text>
       </View>
+      {isAdvancedModeEnabledRender && (
+        <View style={styles.advancedOptionsContainer}>
+          <BlueListItem onPress={showAdvancedOptionsModal} title={loc.multisig.vault_advanced_customize} chevron />
+        </View>
+      )}
       <View style={styles.buttonContainer}>
         <BlueButton buttonTextColor={colors.buttonAlternativeTextColor} title={loc.multisig.lets_start} onPress={onLetsStartPress} />
       </View>
+      {renderModal()}
     </SafeAreaView>
   );
 };
@@ -200,7 +199,7 @@ const styles = StyleSheet.create({
   nativeName: { fontSize: 16 },
   filteTextWrapper: { right: 0, position: 'absolute' },
   filterText: { fontSize: 16, color: 'gray' },
-
+  advancedOptionsContainer: {},
   bottomModal: {
     justifyContent: 'flex-end',
     margin: 0,

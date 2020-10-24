@@ -770,7 +770,7 @@ export const BlueListItem = React.memo(props => {
     >
       {props.leftAvatar && <Avatar>{props.leftAvatar}</Avatar>}
       {props.leftIcon && <Avatar icon={props.leftIcon} />}
-      <ListItem.Content>
+      <ListItem.Content left>
         <ListItem.Title
           style={{
             color: props.disabled ? colors.buttonDisabledTextColor : colors.foregroundColor,
@@ -804,6 +804,7 @@ export const BlueListItem = React.memo(props => {
           {props.chevron && <ListItem.Chevron />}
           {props.rightIcon && <Avatar icon={props.rightIcon} />}
           {props.switch && <Switch {...props.switch} />}
+          {props.checkmark && <ListItem.CheckBox iconType="octaicon" checkedColor="#0070FF" checkedIcon="check" checked />}
         </>
       )}
     </ListItem>
