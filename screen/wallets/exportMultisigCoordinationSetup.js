@@ -8,13 +8,14 @@ import loc from '../../loc';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SquareButton } from '../../components/SquareButton';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { encodeUR } from '../../blue_modules/bc-ur/dist';
 const fs = require('../../blue_modules/fs');
 
 const ExportMultisigCoordinationSetup = () => {
   const walletId = useRoute().params.walletId;
   const { wallets } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletId);
-  const qrCodeContents = encodeURI(Buffer.from(wallet.getXpub(), 'ascii').toString('hex'), 77777)[0];
+  const qrCodeContents = encodeUR(Buffer.from(wallet.getXpub(), 'ascii').toString('hex'), 77777)[0];
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
   const { colors } = useTheme();
