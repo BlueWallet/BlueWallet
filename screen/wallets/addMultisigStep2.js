@@ -34,6 +34,7 @@ import WalletImport from '../../class/wallet-import';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
 import WalletsAddMultisig from './addMultisig';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
@@ -59,6 +60,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const stylesHook = StyleSheet.create({
     root: {
+      flex: 1,
       backgroundColor: colors.elevated,
     },
     textBtc: {
@@ -408,14 +410,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const renderMnemonicsModal = () => {
     return (
-      <Modal
-        isVisible={isMnemonicsModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          setIsMnemonicsModalVisible(false);
-        }}
-      >
+      <Modal isVisible={isMnemonicsModalVisible} style={styles.bottomModal} onBackdropPress={Keyboard.dismiss}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <Text>{loc.multisig.please_write_down_mnemonics}</Text>
@@ -442,7 +437,7 @@ const WalletsAddMultisigStep2 = () => {
         }}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, stylesHook.modalContent]}>
             <Text>{loc.multisig.type_your_mnemonics}</Text>
             <BlueFormMultiInput value={importText} onChangeText={setImportText} />
             <BlueSpacing40 />
@@ -469,7 +464,7 @@ const WalletsAddMultisigStep2 = () => {
         }}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={[styles.modalContent, styles.alignItemsCenter]}>
+          <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text>{loc.multisig.this_is_cosigners_xpub}</Text>
             <QRCode
               value={cosignerXpub}
@@ -492,31 +487,33 @@ const WalletsAddMultisigStep2 = () => {
 
   const data = new Array(n);
   return (
-    <ScrollView style={stylesHook.root}>
-      <StatusBar barStyle="default" />
-      <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
-        <View style={styles.mainBlock}>
-          <Text style={styles.headerText}>{loc.multisig.setup_header}</Text>
-          <Text style={styles.header2Text}>
-            {WalletsAddMultisig.getCurrentFormatReadable(format)}, {loc.formatString(loc.multisig.quorum, { m, n })}
-          </Text>
-          <FlatList data={data} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} scrollEnabled={false} />
-          <BlueSpacing40 />
-          {isLoading ? (
-            <BlueLoadingHook />
-          ) : (
-            <BlueButtonHook title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
-          )}
-          <BlueSpacing20 />
-        </View>
-      </KeyboardAvoidingView>
+    <SafeAreaView style={stylesHook.root}>
+      <ScrollView style={stylesHook.root}>
+        <StatusBar barStyle="default" />
+        <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
+          <View style={styles.mainBlock}>
+            <Text style={styles.headerText}>{loc.multisig.setup_header}</Text>
+            <Text style={styles.header2Text}>
+              {WalletsAddMultisig.getCurrentFormatReadable(format)}, {loc.formatString(loc.multisig.quorum, { m, n })}
+            </Text>
+            <FlatList data={data} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} scrollEnabled={false} />
+            <BlueSpacing40 />
+            {isLoading ? (
+              <BlueLoadingHook />
+            ) : (
+              <BlueButtonHook title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
+            )}
+            <BlueSpacing20 />
+          </View>
+        </KeyboardAvoidingView>
 
-      {renderMnemonicsModal()}
+        {renderMnemonicsModal()}
 
-      {renderProvideMnemonicsModal()}
+        {renderProvideMnemonicsModal()}
 
-      {renderCosignersXpubModal()}
-    </ScrollView>
+        {renderCosignersXpubModal()}
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
