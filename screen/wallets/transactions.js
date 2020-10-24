@@ -138,10 +138,10 @@ const WalletTransactions = () => {
   }, [wallets, wallet.current, walletID]);
 
   useEffect(() => {
-    const wallet = wallets.find(w => w.getID() === walletID);
-    if (wallet) {
-      wallet.current = wallet;
-      setParams({ walletID: walletID, isLoading: false });
+    const newwallet = wallets.find(w => w.getID() === walletID);
+    if (newwallet) {
+      wallet.current = newwallet;
+      setParams({ walletID, isLoading: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
