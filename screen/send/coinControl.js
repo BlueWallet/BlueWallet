@@ -1,14 +1,14 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import { ListItem, Avatar, Badge } from 'react-native-elements';
 import { StyleSheet, FlatList, KeyboardAvoidingView, View, Text, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { useRoute, useTheme } from '@react-navigation/native';
 
-import { BlueNavigationStyle, SafeBlueArea, BlueSpacing40, BlueButton, BlueListItem } from '../../BlueComponents';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-const BlueApp = require('../../BlueApp');
+import { BlueNavigationStyle, SafeBlueArea, BlueSpacing40, BlueButton, BlueListItem } from '../../BlueComponents';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const oStyles = StyleSheet.create({
   avatar: { borderColor: 'rgba(0, 0, 0, 0.5)', borderWidth: StyleSheet.hairlineWidth },
@@ -18,7 +18,8 @@ const oStyles = StyleSheet.create({
 
 const Output = ({ item: { txid, value, vout }, frozen, full = false, onPress }) => {
   const { colors } = useTheme();
-  const memo = BlueApp.tx_metadata[txid]?.memo;
+  const { txMetadata } = useContext(BlueStorageContext);
+  const memo = txMetadata[txid]?.memo;
   const id = `${txid.substring(0, 6)}...${txid.substr(txid.length - 6)}:${vout}`;
   const color = `#${txid.substring(0, 6)}`;
   const amount = formatBalanceWithoutSuffix(value, BitcoinUnit.BTC, true);
@@ -65,7 +66,8 @@ const CoinControl = () => {
   const { colors } = useTheme();
   const route = useRoute();
   const { walletId } = route.params;
-  const wallet = useMemo(() => BlueApp.getWallets().find(w => w.getID() === walletId), [walletId]);
+  const { wallets, saveToDisk } = useContext(BlueStorageContext);
+  const wallet = wallets.find(w => w.getID() === walletId);
   const utxo = useMemo(() => wallet.getUtxo({ frozen: true }), [wallet]);
   const [output, setOutput] = useState();
   const [, setReRender] = useState(false);
@@ -79,7 +81,7 @@ const CoinControl = () => {
     } else {
       wallet.unFreezeOutput(txid, vout);
     }
-    await BlueApp.saveToDisk();
+    await saveToDisk();
     setReRender(i => !i);
   };
   const renderItem = p => (
