@@ -19,8 +19,9 @@ const oStyles = StyleSheet.create({
 const Output = ({ item: { txid, value, vout }, frozen, full = false, onPress }) => {
   const { colors } = useTheme();
   const { txMetadata } = useContext(BlueStorageContext);
-  const memo = txMetadata[txid]?.memo;
-  const id = `${txid.substring(0, 6)}...${txid.substr(txid.length - 6)}:${vout}`;
+  const memo = txMetadata[txid]?.memo || '';
+  const fullId = `${txid}:${vout}`;
+  const shortId = `${txid.substring(0, 6)}...${txid.substr(txid.length - 6)}:${vout}`;
   const color = `#${txid.substring(0, 6)}`;
   const amount = formatBalanceWithoutSuffix(value, BitcoinUnit.BTC, true);
 
@@ -31,18 +32,14 @@ const Output = ({ item: { txid, value, vout }, frozen, full = false, onPress }) 
         <ListItem.Title style={oStyles.amount}>{amount}</ListItem.Title>
         {full ? (
           <>
-            {memo && (
-              <ListItem.Subtitle style={[oStyles.memo, { color: colors.alternativeTextColor }]} numberOfLines={1}>
-                {memo}
-              </ListItem.Subtitle>
-            )}
-            <ListItem.Subtitle style={[oStyles.memo, { color: colors.alternativeTextColor }]} numberOfLines={1}>
-              {id}
+            <ListItem.Subtitle style={[oStyles.memo, { color: colors.alternativeTextColor }]}>
+              {memo ? memo + '\n' : null}
+              {fullId}
             </ListItem.Subtitle>
           </>
         ) : (
           <ListItem.Subtitle style={[oStyles.memo, { color: colors.alternativeTextColor }]} numberOfLines={1}>
-            {memo || id}
+            {memo || shortId}
           </ListItem.Subtitle>
         )}
       </ListItem.Content>
