@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeBlueArea, BlueCard, BlueNavigationStyle, BlueListItem, BlueTextHooks } from '../../BlueComponents';
 import OnAppLaunch from '../../class/on-app-launch';
 import loc from '../../loc';
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
   flex: {
@@ -16,6 +16,7 @@ const DefaultView = () => {
   const [defaultWalletLabel, setDefaultWalletLabel] = useState('');
   const [viewAllWalletsEnabled, setViewAllWalletsEnabled] = useState(true);
   const { navigate, pop } = useNavigation();
+  const { wallets } = useContext(BlueStorageContext);
 
   useEffect(() => {
     (async () => {
@@ -63,7 +64,7 @@ const DefaultView = () => {
           switch={{
             onValueChange: onViewAllWalletsSwitchValueChanged,
             value: viewAllWalletsEnabled,
-            disabled: BlueApp.getWallets().length <= 0,
+            disabled: wallets.length <= 0,
           }}
         />
         <BlueCard>

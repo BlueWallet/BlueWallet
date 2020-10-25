@@ -295,6 +295,8 @@
     "cpfp_exp": "We will create another transaction that spends your unconfirmed transaction. The total fee will be higher than the original transaction fee, so it should be mined faster. This is called CPFP - Child Pays For Parent.",
     "cpfp_no_bump": "This transaction is not bumpable",
     "cpfp_title": "Bump fee (CPFP)",
+    "details_balance_hide": "Hide Balance",
+    "details_balance_show": "Show Balance",
     "details_block": "Block Height",
     "details_copy": "Copy",
     "details_from": "Input",

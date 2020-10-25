@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList, StyleSheet, StatusBar } from 'react-native';
 import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance, BlueNavigationStyle } from '../../BlueComponents';
 import LinearGradient from 'react-native-linear-gradient';
@@ -9,16 +9,16 @@ import WalletGradient from '../../class/wallet-gradient';
 import { useRoute, useTheme } from '@react-navigation/native';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { MultisigHDWallet } from '../../class';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const SelectWallet = ({ navigation }) => {
   const { chainType, onWalletSelect, availableWallets } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
+  const { wallets } = useContext(BlueStorageContext);
   const { colors } = useTheme();
   let data = chainType
-    ? BlueApp.getWallets().filter(item => item.chain === chainType && item.allowSend())
-    : BlueApp.getWallets().filter(item => item.allowSend()) || [];
+    ? wallets.filter(item => item.chain === chainType && item.allowSend())
+    : wallets.filter(item => item.allowSend()) || [];
 
   if (availableWallets && availableWallets.length > 0) {
     // availableWallets if provided, overrides chainType argument and `allowSend()` check

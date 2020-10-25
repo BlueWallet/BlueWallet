@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   StatusBar,
   View,
@@ -18,7 +18,7 @@ import WalletsCarousel from '../../components/WalletsCarousel';
 import { Icon } from 'react-native-elements';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { AppStorage, PlaceholderWallet } from '../../class';
+import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
@@ -28,10 +28,8 @@ import { FContainer, FButton } from '../../components/FloatButtons';
 import { getSystemName, isTablet } from 'react-native-device-info';
 import { presentCameraNotAuthorizedAlert } from '../../class/camera';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
-const EV = require('../../blue_modules/events');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const A = require('../../blue_modules/analytics');
-const BlueApp: AppStorage = require('../../BlueApp');
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
@@ -40,17 +38,27 @@ const isDesktop = getSystemName() === 'Mac OS X';
 
 const WalletsList = () => {
   const walletsCarousel = useRef();
+  const {
+    wallets,
+    pendingWallets,
+    getTransactions,
+    getBalance,
+    refreshAllWalletTransactions,
+    saveToDisk,
+    newWalletAdded,
+    setNewWalletAdded,
+  } = useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
   const routeName = useRoute().name;
-  const [isLoading, setIsLoading] = useState(true);
-  const [wallets, setWallets] = useState(BlueApp.getWallets().concat(false));
+  const [isLoading, setIsLoading] = useState(false);
   const [itemWidth, setItemWidth] = useState(width * 0.82 > 375 ? 375 : width * 0.82);
   const [isLargeScreen, setIsLargeScreen] = useState(
     Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3 && isTablet(),
   );
-  const [dataSource, setDataSource] = useState([]);
+  const [carouselData, setCarouselData] = useState([]);
+  const dataSource = getTransactions(null, 10);
 
   const stylesHook = StyleSheet.create({
     walletsListWrapper: {
@@ -74,20 +82,35 @@ const WalletsList = () => {
     },
   });
 
-  useEffect(() => {
-    EV(EV.enum.WALLETS_COUNT_CHANGED, () => redrawScreen(true));
-    // here, when we receive TRANSACTIONS_COUNT_CHANGED we do not query
-    // remote server, we just redraw the screen
-    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, redrawScreen);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   useFocusEffect(
     useCallback(() => {
-      redrawScreen();
+      verifyBalance();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
+
+  useEffect(() => {
+    const allWallets = wallets.concat(pendingWallets);
+    const newCarouselData = allWallets.concat(false);
+    setCarouselData(newCarouselData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallets, pendingWallets]);
+
+  useEffect(() => {
+    if (newWalletAdded) {
+      walletsCarousel.current?.snapToItem(carouselData.length - pendingWallets.length - 2);
+      setNewWalletAdded(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newWalletAdded]);
+
+  const verifyBalance = () => {
+    if (getBalance() !== 0) {
+      A(A.ENUM.GOT_NONZERO_BALANCE);
+    } else {
+      A(A.ENUM.GOT_ZERO_BALANCE);
+    }
+  };
 
   useEffect(() => {
     setOptions({
@@ -116,62 +139,14 @@ const WalletsList = () => {
    * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet.
    * Triggered manually by user on pull-to-refresh.
    */
-  const refreshTransactions = async () => {
+  const refreshTransactions = () => {
     setIsLoading(true);
-    let noErr = true;
-    try {
-      // await BlueElectrum.ping();
-      await BlueElectrum.waitTillConnected();
-      const balanceStart = +new Date();
-      await BlueApp.fetchWalletBalances(lastSnappedTo || 0);
-      const balanceEnd = +new Date();
-      console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-      const start = +new Date();
-      await BlueApp.fetchWalletTransactions(lastSnappedTo || 0);
-      const end = +new Date();
-      console.log('fetch tx took', (end - start) / 1000, 'sec');
-    } catch (err) {
-      noErr = false;
-      console.warn(err);
-      setIsLoading(false);
-    }
-    if (noErr) await BlueApp.saveToDisk(); // caching
-    setIsLoading(false);
-  };
-
-  const redrawScreen = (scrollToEnd = false) => {
-    console.log('wallets/list redrawScreen()');
-
-    // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet.
-    // placing event subscription here so it gets exclusively re-subscribed more often. otherwise we would
-    // have to unsubscribe on unmount and resubscribe again on mount.
-    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, refreshTransactions, true);
-
-    if (BlueApp.getBalance() !== 0) {
-      A(A.ENUM.GOT_NONZERO_BALANCE);
-    } else {
-      A(A.ENUM.GOT_ZERO_BALANCE);
-    }
-
-    const storedWallets = BlueApp.getWallets().concat(false);
-    const storedDataSource = BlueApp.getTransactions(null, 10);
-    if (scrollToEnd) {
-      scrollToEnd = storedWallets.length > wallets.length;
-    }
-
-    setDataSource(storedDataSource);
-    setWallets(storedWallets);
-    setIsLoading(false);
-    if (scrollToEnd) {
-      navigate('DrawerRoot', { wallets: BlueApp.getWallets() });
-      // eslint-disable-next-line no-unused-expressions
-      walletsCarousel.current?.snapToItem(storedWallets.length - 2);
-    }
+    refreshAllWalletTransactions(lastSnappedTo).finally(() => setIsLoading(false));
   };
 
   const handleClick = index => {
     console.log('click', index);
-    const wallet = BlueApp.wallets[index];
+    const wallet = carouselData[index];
     if (wallet) {
       if (wallet.type === PlaceholderWallet.type) {
         Alert.alert(
@@ -182,7 +157,6 @@ const WalletsList = () => {
               text: loc.wallets.details_delete,
               onPress: () => {
                 WalletImport.removePlaceholderWallet();
-                EV(EV.enum.WALLETS_COUNT_CHANGED);
               },
               style: 'destructive',
             },
@@ -191,7 +165,6 @@ const WalletsList = () => {
               onPress: () => {
                 navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: wallet.getSecret() } });
                 WalletImport.removePlaceholderWallet();
-                EV(EV.enum.WALLETS_COUNT_CHANGED);
               },
               style: 'default',
             },
@@ -199,27 +172,26 @@ const WalletsList = () => {
           { cancelable: false },
         );
       } else {
+        const walletID = wallet.getID();
         navigate('WalletTransactions', {
-          wallet,
-          key: `WalletTransactions-${wallet.getID()}`,
+          walletID,
+          walletType: wallet.type,
+          key: `WalletTransactions-${walletID}`,
         });
       }
     } else {
       // if its out of index - this must be last card with incentive to create wallet
-      if (!BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
-        navigate('AddWalletRoot');
-      }
+      navigate('AddWalletRoot');
     }
   };
 
   const onSnapToItem = index => {
     console.log('onSnapToItem', index);
     lastSnappedTo = index;
-    if (index < BlueApp.getWallets().length) {
+    if (index < carouselData.length) {
       // not the last
     }
-
-    if (wallets[index].type === PlaceholderWallet.type) {
+    if (carouselData[index]?.type === PlaceholderWallet.type) {
       return;
     }
 
@@ -235,36 +207,35 @@ const WalletsList = () => {
    */
   const lazyRefreshWallet = async index => {
     /** @type {Array.<AbstractWallet>} wallets */
-    const wallets = BlueApp.getWallets();
-    if (!wallets[index]) {
+    if (!carouselData[index]) {
       return;
     }
 
-    const oldBalance = wallets[index].getBalance();
+    const oldBalance = carouselData[index].getBalance();
     let noErr = true;
     let didRefresh = false;
 
     try {
-      if (wallets && wallets[index] && wallets[index].type !== PlaceholderWallet.type && wallets[index].timeToRefreshBalance()) {
+      if (carouselData[index] && carouselData[index].type !== PlaceholderWallet.type && carouselData[index].timeToRefreshBalance()) {
         console.log('snapped to, and now its time to refresh wallet #', index);
-        await wallets[index].fetchBalance();
-        if (oldBalance !== wallets[index].getBalance() || wallets[index].getUnconfirmedBalance() !== 0) {
+        await carouselData[index].fetchBalance();
+        if (oldBalance !== carouselData[index].getBalance() || carouselData[index].getUnconfirmedBalance() !== 0) {
           console.log('balance changed, thus txs too');
           // balance changed, thus txs too
-          await wallets[index].fetchTransactions();
-          redrawScreen();
+          await carouselData[index].fetchTransactions();
+          verifyBalance();
           didRefresh = true;
-        } else if (wallets[index].timeToRefreshTransaction()) {
-          console.log(wallets[index].getLabel(), 'thinks its time to refresh TXs');
-          await wallets[index].fetchTransactions();
-          if (wallets[index].fetchPendingTransactions) {
-            await wallets[index].fetchPendingTransactions();
+        } else if (carouselData[index].timeToRefreshTransaction()) {
+          console.log(carouselData[index].getLabel(), 'thinks its time to refresh TXs');
+          await carouselData[index].fetchTransactions();
+          if (carouselData[index].fetchPendingTransactions) {
+            await carouselData[index].fetchPendingTransactions();
           }
-          if (wallets[index].fetchUserInvoices) {
-            await wallets[index].fetchUserInvoices();
-            await wallets[index].fetchBalance(); // chances are, paid ln invoice was processed during `fetchUserInvoices()` call and altered user's balance, so its worth fetching balance again
+          if (carouselData[index].fetchUserInvoices) {
+            await carouselData[index].fetchUserInvoices();
+            await carouselData[index].fetchBalance(); // chances are, paid ln invoice was processed during `fetchUserInvoices()` call and altered user's balance, so its worth fetching balance again
           }
-          redrawScreen();
+          verifyBalance();
           didRefresh = true;
         } else {
           console.log('balance not changed');
@@ -276,7 +247,7 @@ const WalletsList = () => {
     }
 
     if (noErr && didRefresh) {
-      await BlueApp.saveToDisk(); // caching
+      await saveToDisk(); // caching
     }
   };
 
@@ -295,7 +266,7 @@ const WalletsList = () => {
   };
 
   const handleLongPress = () => {
-    if (BlueApp.getWallets().length > 1 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (carouselData.length > 1 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
       navigate('ReorderWallets');
     } else {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -311,7 +282,7 @@ const WalletsList = () => {
   };
 
   const renderLocalTrader = () => {
-    if (BlueApp.getWallets().length > 0 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (carouselData.length > 0 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
       return (
         <TouchableOpacity
           onPress={() => {
@@ -337,7 +308,7 @@ const WalletsList = () => {
     return (
       <WalletsCarousel
         removeClippedSubviews={false}
-        data={wallets}
+        data={carouselData}
         onPress={handleClick}
         handleLongPress={handleLongPress}
         onSnapToItem={onSnapToItem}
@@ -368,9 +339,7 @@ const WalletsList = () => {
         return isLargeScreen ? null : (
           <BlueHeaderDefaultMain
             leftText={loc.wallets.list_title}
-            onNewWalletPress={
-              !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type) ? () => navigate('AddWalletRoot') : null
-            }
+            onNewWalletPress={!carouselData.some(wallet => wallet.type === PlaceholderWallet.type) ? () => navigate('AddWalletRoot') : null}
           />
         );
       case WalletsListSections.TRANSACTIONS:
@@ -399,7 +368,7 @@ const WalletsList = () => {
   };
 
   const renderScanButton = () => {
-    if (BlueApp.getWallets().length > 0 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (carouselData.length > 0 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
       return (
         <FContainer>
           <FButton

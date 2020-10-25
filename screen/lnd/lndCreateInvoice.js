@@ -30,10 +30,9 @@ import { Icon } from 'react-native-elements';
 import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import Lnurl from '../../class/lnurl';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import Notifications from '../../blue_modules/notifications';
 const currency = require('../../blue_modules/currency');
-const BlueApp = require('../../BlueApp');
-const EV = require('../../blue_modules/events');
-const notifications = require('../../blue_modules/notifications');
 
 const styles = StyleSheet.create({
   createButton: {
@@ -134,7 +133,8 @@ const styles = StyleSheet.create({
 });
 
 export default class LNDCreateInvoice extends Component {
-  constructor(props) {
+  static contextType = BlueStorageContext;
+  constructor(props, context) {
     super(props);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
@@ -144,7 +144,7 @@ export default class LNDCreateInvoice extends Component {
 
     // fallback to first wallet if it exists
     if (!fromWallet) {
-      const lightningWallets = BlueApp.getWallets().filter(item => item.type === LightningCustodianWallet.type);
+      const lightningWallets = context.wallets.filter(item => item.type === LightningCustodianWallet.type);
       if (lightningWallets.length > 0) {
         fromWallet = lightningWallets[0];
         console.warn('warning: using ln wallet index 0');
@@ -164,10 +164,14 @@ export default class LNDCreateInvoice extends Component {
   }
 
   renderReceiveDetails = async () => {
-    this.state.fromWallet.setUserHasSavedExport(true);
-    await BlueApp.saveToDisk();
-    if (this.props.route.params.uri) {
-      this.processLnurl(this.props.route.params.uri);
+    try {
+      this.state.fromWallet.setUserHasSavedExport(true);
+      await this.context.saveToDisk();
+      if (this.props.route.params.uri) {
+        this.processLnurl(this.props.route.params.uri);
+      }
+    } catch (e) {
+      console.log(e);
     }
     this.setState({ isLoading: false });
   };
@@ -182,7 +186,7 @@ export default class LNDCreateInvoice extends Component {
         onFailure: () => {
           this.props.navigation.dangerouslyGetParent().pop();
           this.props.navigation.navigate('WalletExport', {
-            wallet: this.state.fromWallet,
+            walletID: this.state.fromWallet.getID(),
           });
         },
       });
@@ -220,15 +224,14 @@ export default class LNDCreateInvoice extends Component {
         }
 
         const invoiceRequest = await this.state.fromWallet.addInvoice(amount, this.state.description);
-        EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
 
         // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
         /** @type LightningCustodianWallet */
         const fromWallet = this.state.fromWallet;
         const decoded = await fromWallet.decodeInvoice(invoiceRequest);
-        await notifications.tryToObtainPermissions();
-        notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
+        await Notifications.tryToObtainPermissions();
+        Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
 
         // send to lnurl-withdraw callback url if that exists
         if (this.state.lnurlParams) {
@@ -248,7 +251,7 @@ export default class LNDCreateInvoice extends Component {
         setTimeout(async () => {
           // wallet object doesnt have this fresh invoice in its internals, so we refetch it and only then save
           await fromWallet.fetchUserInvoices(1);
-          await BlueApp.saveToDisk();
+          await this.context.saveToDisk();
         }, 1000);
 
         this.props.navigation.navigate('LNDViewInvoice', {

@@ -18,7 +18,7 @@ import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-const EV = require('../../blue_modules/events');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -119,6 +119,7 @@ const styles = StyleSheet.create({
 });
 
 export default class LNDViewInvoice extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
     const invoice = props.route.params.invoice;
@@ -149,7 +150,6 @@ export default class LNDViewInvoice extends Component {
               ? invoice.payment_request === this.state.invoice.payment_request
               : invoice.payment_request === this.state.invoice,
           )[0];
-
           if (typeof updatedUserInvoice !== 'undefined') {
             this.setState({ invoice: updatedUserInvoice, isLoading: false, addressText: updatedUserInvoice.payment_request });
             if (updatedUserInvoice.ispaid) {
@@ -158,18 +158,18 @@ export default class LNDViewInvoice extends Component {
               ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
               clearInterval(this.fetchInvoiceInterval);
               this.fetchInvoiceInterval = undefined;
-              EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // remote because we want to refetch from server tx list and balance
+              this.context.fetchAndSaveWalletTransactions(this.state.fromWallet.getID());
             } else {
               const currentDate = new Date();
               const now = (currentDate.getTime() / 1000) | 0;
               const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
               if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                 // invoice expired :-(
+                this.context.fetchAndSaveWalletTransactions(this.state.fromWallet.getID());
                 this.setState({ isFetchingInvoices: false });
                 ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
                 clearInterval(this.fetchInvoiceInterval);
                 this.fetchInvoiceInterval = undefined;
-                EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
               }
             }
           }

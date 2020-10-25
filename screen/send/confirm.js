@@ -21,14 +21,15 @@ import {
 } from '../../class';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-const EV = require('../../blue_modules/events');
+import Notifications from '../../blue_modules/notifications';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
-const notifications = require('../../blue_modules/notifications');
 
 export default class Confirm extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
 
@@ -77,8 +78,7 @@ export default class Confirm extends Component {
 
         const txid = bitcoin.Transaction.fromHex(this.state.tx).getId();
         txids2watch.push(txid);
-        notifications.majorTomToGroundControl([], [], txids2watch);
-        EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
+        Notifications.majorTomToGroundControl([], [], txids2watch);
         let amount = 0;
         const recipients = this.state.recipients;
         if (recipients[0].amount === BitcoinUnit.MAX || (!recipients[0].amount && !recipients[0].value)) {
@@ -105,6 +105,7 @@ export default class Confirm extends Component {
           amount = formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
         }
 
+        this.context.fetchAndSaveWalletTransactions(this.state.fromWallet.getID());
         this.props.navigation.navigate('Success', {
           fee: Number(this.state.fee),
           amount,

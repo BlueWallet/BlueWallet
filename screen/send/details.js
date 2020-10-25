@@ -38,15 +38,15 @@ import * as bitcoin from 'bitcoinjs-lib';
 
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { AppStorage, HDSegwitBech32Wallet, LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import { HDSegwitBech32Wallet, LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import DocumentPicker from 'react-native-document-picker';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
-const BlueApp: AppStorage = require('../../BlueApp');
 const prompt = require('../../blue_modules/prompt');
 const fs = require('../../blue_modules/fs');
 
@@ -209,9 +209,10 @@ const styles = StyleSheet.create({
 });
 
 export default class SendDetails extends Component {
+  static contextType = BlueStorageContext;
   state = { isLoading: true };
 
-  constructor(props) {
+  constructor(props, context) {
     super(props);
 
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
@@ -221,7 +222,7 @@ export default class SendDetails extends Component {
     let fromWallet = null;
     if (props.route.params) fromWallet = props.route.params.fromWallet;
 
-    const wallets = BlueApp.getWallets().filter(wallet => wallet.type !== LightningCustodianWallet.type);
+    const wallets = context.wallets.filter(wallet => wallet.type !== LightningCustodianWallet.type);
 
     if (wallets.length === 0) {
       alert(loc.send.details_wallet_before_tx);
@@ -365,7 +366,7 @@ export default class SendDetails extends Component {
     this.reCalcTx();
 
     try {
-      const recommendedFees = await Promise.race([NetworkTransactionFees.recommendedFees(), BlueApp.sleep(2000)]);
+      const recommendedFees = await Promise.race([NetworkTransactionFees.recommendedFees(), this.context.sleep(2000)]);
       if (recommendedFees && 'fastestFee' in recommendedFees) {
         await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
         this.setState({
@@ -387,7 +388,7 @@ export default class SendDetails extends Component {
     }
 
     try {
-      await Promise.race([this.state.fromWallet.fetchUtxo(), BlueApp.sleep(6000)]);
+      await Promise.race([this.state.fromWallet.fetchUtxo(), this.context.sleep(6000)]);
     } catch (_) {
       // either sleep expired or fetchUtxo threw an exception
     }
@@ -504,7 +505,7 @@ export default class SendDetails extends Component {
     } else {
       // otherwise, lets call widely-used getChangeAddressAsync()
       try {
-        changeAddress = await Promise.race([BlueApp.sleep(2000), wallet.getChangeAddressAsync()]);
+        changeAddress = await Promise.race([this.context.sleep(2000), wallet.getChangeAddressAsync()]);
       } catch (_) {}
 
       if (!changeAddress) {
@@ -655,12 +656,11 @@ export default class SendDetails extends Component {
       return;
     }
 
-    BlueApp.tx_metadata = BlueApp.tx_metadata || {};
-    BlueApp.tx_metadata[tx.getId()] = {
+    this.context.txMetadata[tx.getId()] = {
       txhex: tx.toHex(),
       memo: this.state.memo,
     };
-    await BlueApp.saveToDisk();
+    await this.context.saveToDisk();
     this.props.navigation.navigate('Confirm', {
       fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
       memo: this.state.memo,

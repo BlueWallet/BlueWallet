@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import { View, ActivityIndicator, Image, Text, StyleSheet, StatusBar, ScrollView } from 'react-native';
 import { BlueNavigationStyle } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
@@ -8,9 +8,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { useNavigation, useTheme } from '@react-navigation/native';
-const EV = require('../../blue_modules/events');
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
   loading: {
@@ -73,6 +71,7 @@ const ReorderWallets = () => {
   const sortableList = useRef();
   const { setParams, goBack } = useNavigation();
   const { colors } = useTheme();
+  const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
   const stylesHook = {
     root: {
       backgroundColor: colors.elevated,
@@ -91,11 +90,7 @@ const ReorderWallets = () => {
             sortableList.current.state.order.forEach(element => {
               newWalletsOrderArray.push(data[element]);
             });
-            BlueApp.wallets = newWalletsOrderArray;
-            await BlueApp.saveToDisk();
-            setTimeout(function () {
-              EV(EV.enum.WALLETS_COUNT_CHANGED);
-            }, 500); // adds some animaton
+            setWalletsWithNewOrder(newWalletsOrderArray);
             goBack();
           } else {
             goBack();
@@ -108,10 +103,10 @@ const ReorderWallets = () => {
   }, [goBack, hasMovedARow, setParams]);
 
   useEffect(() => {
-    const loadWallets = BlueApp.getWallets().filter(wallet => wallet.type !== PlaceholderWallet.type);
+    const loadWallets = wallets.filter(wallet => wallet.type !== PlaceholderWallet.type);
     setData(loadWallets);
     setIsLoading(false);
-  }, []);
+  }, [wallets]);
 
   const renderItem = (item, _active) => {
     if (!item.data) {
