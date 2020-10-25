@@ -116,8 +116,7 @@ BuyBitcoin.navigate = async wallet => {
   if (Platform.OS === 'ios') {
     InAppBrowser.isAvailable()
       .then(_value => {
-        InAppBrowser.close();
-        InAppBrowser.open(uri, { dismissButtonStyle: 'done' });
+        InAppBrowser.open(uri, { dismissButtonStyle: 'done', modalEnabled: true, animated: true });
       })
       .catch(error => {
         console.log(error);
