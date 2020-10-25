@@ -26,7 +26,6 @@ export class AbstractWallet {
     this.transactions = [];
     this._address = false; // cache
     this.utxo = [];
-    this.frozenUtxo = [];
     this._lastTxFetch = 0;
     this._lastBalanceFetch = 0;
     this.preferredBalanceUnit = BitcoinUnit.BTC;
@@ -34,6 +33,7 @@ export class AbstractWallet {
     this.hideBalance = false;
     this.userHasSavedExport = false;
     this._hideTransactionsInWalletsList = false;
+    this.utxoMetadata = {};
   }
 
   getID() {
@@ -272,17 +272,14 @@ export class AbstractWallet {
 
   prepareForSerialization() {}
 
-  getFrozenUtxo() {
-    return this.frozenUtxo;
+  getUTXOMetadata(txid, vout) {
+    return this.utxoMetadata[`${txid}:${vout}`] || {};
   }
 
-  freezeOutput(txid, vout) {
-    if (!this.frozenUtxo.some(i => i.txid === txid && i.vout === vout)) {
-      this.frozenUtxo.push({ txid, vout });
-    }
-  }
-
-  unFreezeOutput(txid, vout) {
-    this.frozenUtxo = this.frozenUtxo.filter(i => !(i.txid === txid && i.vout === vout));
+  setUTXOMetadata(txid, vout, opts) {
+    const meta = this.utxoMetadata[`${txid}:${vout}`] || {};
+    if ('memo' in opts) meta.memo = opts.memo;
+    if ('frozen' in opts) meta.frozen = opts.frozen;
+    this.utxoMetadata[`${txid}:${vout}`] = meta;
   }
 }

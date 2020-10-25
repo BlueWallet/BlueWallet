@@ -16,10 +16,10 @@ const oStyles = StyleSheet.create({
   memo: { fontSize: 13, marginTop: 3 },
 });
 
-const Output = ({ item: { txid, value, vout }, frozen, full = false, onPress }) => {
+const Output = ({ item: { txid, value, vout }, oMemo, frozen, full = false, onPress }) => {
   const { colors } = useTheme();
   const { txMetadata } = useContext(BlueStorageContext);
-  const memo = txMetadata[txid]?.memo || '';
+  const memo = txMetadata[txid]?.memo || oMemo || '';
   const fullId = `${txid}:${vout}`;
   const shortId = `${txid.substring(0, 6)}...${txid.substr(txid.length - 6)}:${vout}`;
   const color = `#${txid.substring(0, 6)}`;
@@ -54,6 +54,7 @@ Output.propTypes = {
     value: PropTypes.number.isRequired,
     vout: PropTypes.number.isRequired,
   }),
+  oMemo: PropTypes.string,
   frozen: PropTypes.bool,
   full: PropTypes.bool,
   onPress: PropTypes.func,
@@ -61,33 +62,22 @@ Output.propTypes = {
 
 const CoinControl = () => {
   const { colors } = useTheme();
-  const route = useRoute();
-  const { walletId } = route.params;
+  const { walletId } = useRoute().params;
   const { wallets, saveToDisk } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletId);
   const utxo = useMemo(() => wallet.getUtxo({ frozen: true }), [wallet]);
   const [output, setOutput] = useState();
-  const [, setReRender] = useState(false);
-  const frozenUtxo = wallet.getFrozenUtxo();
-  const switchValue = output && frozenUtxo.some(({ txid, vout }) => output.txid === txid && output.vout === vout);
+  const switchValue = (output && wallet.getUTXOMetadata(output.txid, output.vout).frozen) || false;
 
   const handleChoose = item => setOutput(item);
   const onFreeze = async ({ txid, vout }, value) => {
-    if (value) {
-      wallet.freezeOutput(txid, vout);
-    } else {
-      wallet.unFreezeOutput(txid, vout);
-    }
+    wallet.setUTXOMetadata(txid, vout, { frozen: value });
     await saveToDisk();
-    setReRender(i => !i);
   };
-  const renderItem = p => (
-    <Output
-      item={p.item}
-      frozen={frozenUtxo.some(({ txid, vout }) => p.item.txid === txid && p.item.vout === vout)}
-      onPress={() => handleChoose(p.item)}
-    />
-  );
+  const renderItem = p => {
+    const { memo, frozen } = wallet.getUTXOMetadata(p.item.txid, p.item.vout);
+    return <Output item={p.item} oMemo={memo} frozen={frozen} onPress={() => handleChoose(p.item)} />;
+  };
 
   return (
     <SafeBlueArea>

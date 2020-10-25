@@ -724,8 +724,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     } else {
       ret = this._utxo;
     }
-    if (!frozen && this.frozenUtxo) {
-      ret = ret.filter(({ txId, vout }) => !this.frozenUtxo.some(i => txId === i.txid && vout === i.vout));
+    if (!frozen) {
+      ret = ret.filter(({ txid, vout }) => !this.getUTXOMetadata(txid, vout).frozen);
     }
     return ret;
   }
