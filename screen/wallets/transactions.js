@@ -339,7 +339,7 @@ const WalletTransactions = () => {
         wallet.current.getBalance() > 0 ? (
           <TouchableOpacity
             onPress={async () => {
-              Linking.openURL('https://bluewallet.current.io/marketplace/');
+              Linking.openURL('https://bluewallet.io/marketplace/');
             }}
             style={[styles.marketplaceButton1, stylesHook.marketplaceButton1]}
           >
