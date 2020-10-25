@@ -1,13 +1,13 @@
-import React, { useMemo, useState, useContext } from 'react';
+import React, { useMemo, useState, useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import { ListItem, Avatar, Badge } from 'react-native-elements';
-import { StyleSheet, FlatList, KeyboardAvoidingView, View, Text, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, FlatList, KeyboardAvoidingView, View, TextInput, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { useRoute, useTheme } from '@react-navigation/native';
 
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { BlueNavigationStyle, SafeBlueArea, BlueSpacing40, BlueButton, BlueListItem } from '../../BlueComponents';
+import { BlueNavigationStyle, SafeBlueArea, BlueSpacing20, BlueButton, BlueListItem } from '../../BlueComponents';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const oStyles = StyleSheet.create({
@@ -60,20 +60,83 @@ Output.propTypes = {
   onPress: PropTypes.func,
 };
 
+const mStyles = StyleSheet.create({
+  memoTextInput: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    minHeight: 44,
+    height: 44,
+    alignItems: 'center',
+    marginVertical: 8,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    color: '#81868e',
+  },
+});
+
+const OutputModalContent = ({ output, wallet, onBackdrop }) => {
+  const { colors } = useTheme();
+  const { txMetadata, saveToDisk } = useContext(BlueStorageContext);
+  const [formChanged, setFormChanged] = useState(false);
+  const [frozen, setFrozen] = useState(wallet.getUTXOMetadata(output.txid, output.vout).frozen || false);
+  const [memo, setMemo] = useState(wallet.getUTXOMetadata(output.txid, output.vout).memo || txMetadata[output.txid]?.memo || '');
+  const onFreeze = async value => {
+    setFrozen(value);
+    setFormChanged(true);
+  };
+  const onMemoChange = async value => {
+    setMemo(value);
+    setFormChanged(true);
+  };
+
+  // save on form change
+  useEffect(() => {
+    if (!formChanged) return
+    wallet.setUTXOMetadata(output.txid, output.vout, { frozen, memo });
+    saveToDisk();
+  }, [frozen, memo]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <>
+      <Output item={output} full />
+      <BlueSpacing20 />
+      <TextInput
+        placeholder={loc.send.details_note_placeholder}
+        value={memo}
+        placeholderTextColor="#81868e"
+        style={[
+          mStyles.memoTextInput,
+          {
+            borderColor: colors.formBorder,
+            borderBottomColor: colors.formBorder,
+            backgroundColor: colors.inputBackgroundColor,
+          },
+        ]}
+        onChangeText={onMemoChange}
+      />
+      <BlueListItem title="Freeze" Component={TouchableWithoutFeedback} switch={{ value: frozen, onValueChange: onFreeze }} />
+      <BlueSpacing20 />
+      <BlueButton title="Use coin" onPress={() => {}} />
+    </>
+  );
+};
+
+OutputModalContent.propTypes = {
+  output: PropTypes.object,
+  wallet: PropTypes.object,
+  onBackdrop: PropTypes.func,
+};
+
 const CoinControl = () => {
   const { colors } = useTheme();
   const { walletId } = useRoute().params;
-  const { wallets, saveToDisk } = useContext(BlueStorageContext);
+  const { wallets } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletId);
   const utxo = useMemo(() => wallet.getUtxo({ frozen: true }), [wallet]);
   const [output, setOutput] = useState();
-  const switchValue = (output && wallet.getUTXOMetadata(output.txid, output.vout).frozen) || false;
 
   const handleChoose = item => setOutput(item);
-  const onFreeze = async ({ txid, vout }, value) => {
-    wallet.setUTXOMetadata(txid, vout, { frozen: value });
-    await saveToDisk();
-  };
   const renderItem = p => {
     const { memo, frozen } = wallet.getUTXOMetadata(p.item.txid, p.item.vout);
     return <Output item={p.item} oMemo={memo} frozen={frozen} onPress={() => handleChoose(p.item)} />;
@@ -91,20 +154,7 @@ const CoinControl = () => {
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, { backgroundColor: colors.elevated }]}>
-            {output && (
-              <>
-                <Output item={output} full />
-                <BlueListItem
-                  title="Freeze"
-                  Component={TouchableWithoutFeedback}
-                  switch={{ value: switchValue, onValueChange: value => onFreeze(output, value) }}
-                />
-                <Text>{loc.multisig.type_your_mnemonics}</Text>
-                <BlueSpacing40 />
-
-                <BlueButton title="Use coin" onPress={() => {}} />
-              </>
-            )}
+            {output && <OutputModalContent output={output} wallet={wallet} />}
           </View>
         </KeyboardAvoidingView>
       </Modal>
