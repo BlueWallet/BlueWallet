@@ -50,7 +50,7 @@ const WalletsAddMultisigStep2 = () => {
   const [isRenderCosignersXpubModalVisible, setIsRenderCosignersXpubModalVisible] = useState(false);
   const [cosignerXpub, setCosignerXpub] = useState(''); // string displayed in renderCosignersXpubModal()
   const [cosignerXpubFilename, setCosignerXpubFilename] = useState('bw-cosigner.json');
-  const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '' }); // string rendered in modal
+  const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
   const tooltip = useRef();
 
@@ -146,7 +146,7 @@ const WalletsAddMultisigStep2 = () => {
     cosignersCopy.push([w.getSecret(), false, false]);
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setCosigners(cosignersCopy);
-    setVaultKeyData({ keyIndex: cosignersCopy.length, seed: w.getSecret(), xpub: w.getXpub() });
+    setVaultKeyData({ keyIndex: cosignersCopy.length, seed: w.getSecret(), xpub: w.getXpub(), isLoading: false });
     setIsMnemonicsModalVisible(true);
     if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
     setTimeout(() => {
@@ -359,6 +359,7 @@ const WalletsAddMultisigStep2 = () => {
           }
           checked={isChecked}
           rightButton={{
+            disabled: vaultKeyData.isLoading,
             text: loc.multisig.view_key,
             onPress: async () => {
               viewKey(cosigners[el.index]);
@@ -368,9 +369,14 @@ const WalletsAddMultisigStep2 = () => {
         {renderProvideKeyButtons && (
           <>
             <MultipleStepsListItem
+              showActivityIndicator={vaultKeyData.keyIndex === el.index && vaultKeyData.isLoading}
               button={{
-                onPress: async () => await generateNewKey(),
+                onPress: () => {
+                  setVaultKeyData({ keyIndex: el.index, xpub: '', seed: '', isLoading: true });
+                  generateNewKey();
+                },
                 text: loc.multisig.create_new_key,
+                disabled: vaultKeyData.isLoading,
               }}
               dashes={MultipleStepsListItemDashType.topAndBottom}
               checked={isChecked}
@@ -379,6 +385,7 @@ const WalletsAddMultisigStep2 = () => {
               button={{
                 onPress: iHaveMnemonics,
                 text: loc.wallets.import_do_import,
+                disabled: vaultKeyData.isLoading,
               }}
               dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
               checked={isChecked}

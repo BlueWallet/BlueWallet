@@ -1,13 +1,19 @@
 import React from 'react';
 import { useTheme } from '@react-navigation/native';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
 export const MultipleStepsListItemDashType = Object.freeze({ none: 0, top: 1, bottom: 2, topAndBottom: 3 });
 
 const MultipleStepsListItem = props => {
   const { colors } = useTheme();
-  const { dashes = MultipleStepsListItemDashType.none, circledText = '', leftText = '', checked = false } = props;
+  const {
+    showActivityIndicator = false,
+    dashes = MultipleStepsListItemDashType.none,
+    circledText = '',
+    leftText = '',
+    checked = false,
+  } = props;
   const stylesHook = StyleSheet.create({
     root: {
       flex: 1,
@@ -99,6 +105,8 @@ const MultipleStepsListItem = props => {
         return {};
     }
   };
+  const buttonOpacity = { opacity: props.button?.disabled ? 0.5 : 1.0 };
+  const rightButtonOpacity = { opacity: props.rightButton?.disabled ? 0.5 : 1.0 };
   return (
     <View>
       <View style={renderDashes()} />
@@ -115,23 +123,31 @@ const MultipleStepsListItem = props => {
               </View>
             </View>
           ) : null}
-          {leftText.length > 0 && (
+          {!showActivityIndicator && leftText.length > 0 && (
             <View style={styles.vaultKeyTextWrapper}>
               <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>{leftText}</Text>
             </View>
           )}
+          {showActivityIndicator && <ActivityIndicator style={styles.activityIndicator} />}
         </View>
-
-        {props.button && (
+        {!showActivityIndicator && props.button && (
           <>
-            <TouchableOpacity style={[styles.provideKeyButton, stylesHook.provideKeyButton]} onPress={props.button.onPress}>
+            <TouchableOpacity
+              disabled={props.button.disabled}
+              style={[styles.provideKeyButton, stylesHook.provideKeyButton, buttonOpacity]}
+              onPress={props.button.onPress}
+            >
               <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.button.text}</Text>
             </TouchableOpacity>
           </>
         )}
-        {props.rightButton && checked && (
+        {!showActivityIndicator && props.rightButton && checked && (
           <View style={styles.rightButtonContainer} accessibilityComponentType>
-            <TouchableOpacity style={styles.rightButton} onPress={props.rightButton.onPress}>
+            <TouchableOpacity
+              disabled={props.rightButton.disabled}
+              style={[styles.rightButton, rightButtonOpacity]}
+              onPress={props.rightButton.onPress}
+            >
               <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.rightButton.text}</Text>
             </TouchableOpacity>
           </View>
@@ -145,14 +161,17 @@ MultipleStepsListItem.propTypes = {
   circledText: PropTypes.string,
   checked: PropTypes.bool,
   leftText: PropTypes.string,
+  showActivityIndicator: PropTypes.bool,
   dashes: PropTypes.number,
   button: PropTypes.shape({
     text: PropTypes.string,
     onPress: PropTypes.func,
+    disabled: PropTypes.bool,
   }),
   rightButton: PropTypes.shape({
     text: PropTypes.string,
     onPress: PropTypes.func,
+    disabled: PropTypes.bool,
   }),
 };
 
@@ -200,6 +219,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 16,
     marginBottom: 8,
+  },
+  activityIndicator: {
+    marginLeft: 40,
   },
   provideKeyButtonText: { fontWeight: '600', fontSize: 15 },
   vaultKeyCircleSuccess: {
