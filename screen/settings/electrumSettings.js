@@ -4,76 +4,20 @@ import { View, TextInput, StyleSheet } from 'react-native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
-import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../../BlueComponents';
+import {
+  BlueLoading,
+  BlueSpacing20,
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueText,
+  BlueNavigationStyle,
+  BlueButtonLink,
+} from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
+import PropTypes from 'prop-types';
 import loc from '../../loc';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  status: {
-    textAlign: 'center',
-    color: BlueCurrentTheme.colors.feeText,
-    marginBottom: 4,
-  },
-  connectWrap: {
-    width: 'auto',
-    height: 34,
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  container: {
-    paddingTop: 6,
-    paddingBottom: 6,
-    paddingLeft: 16,
-    paddingRight: 16,
-    borderRadius: 20,
-  },
-  containerConnected: {
-    backgroundColor: BlueCurrentTheme.colors.feeLabel,
-  },
-  containerDisconnected: {
-    backgroundColor: '#F8D2D2',
-  },
-  textConnected: {
-    color: BlueCurrentTheme.colors.feeValue,
-    fontWeight: 'bold',
-  },
-  textDisconnected: {
-    color: '#D0021B',
-    fontWeight: 'bold',
-  },
-  hostname: {
-    textAlign: 'center',
-    color: BlueCurrentTheme.colors.foregroundColor,
-  },
-  explain: {
-    color: BlueCurrentTheme.colors.feeText,
-    marginBottom: -24,
-  },
-  inputWrap: {
-    flexDirection: 'row',
-    borderColor: BlueCurrentTheme.colors.formBorder,
-    borderBottomColor: BlueCurrentTheme.colors.formBorder,
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    borderRadius: 4,
-  },
-  inputText: {
-    flex: 1,
-    marginHorizontal: 8,
-    minHeight: 36,
-    color: '#81868e',
-    height: 36,
-  },
-});
 
 export default class ElectrumSettings extends Component {
   constructor(props) {
@@ -147,6 +91,23 @@ export default class ElectrumSettings extends Component {
     });
   };
 
+  onBarScanned = value => {
+    var [host, port, type] = value.split(':');
+    this.setState({ host: host });
+    type === 's' ? this.setState({ sslPort: port }) : this.setState({ port: port });
+  };
+
+  importScan = () => {
+    this.props.navigation.navigate('ScanQRCodeRoot', {
+      screen: 'ScanQRCode',
+      params: {
+        launchedBy: this.props.route.name,
+        onBarScanned: this.onBarScanned,
+        showFileImportButton: true,
+      },
+    });
+  };
+
   render() {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
@@ -211,7 +172,8 @@ export default class ElectrumSettings extends Component {
                 underlineColorAndroid="transparent"
               />
             </View>
-
+            <BlueSpacing20 />
+            <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={this.importScan} />
             <BlueSpacing20 />
             {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
           </BlueCard>
@@ -221,7 +183,83 @@ export default class ElectrumSettings extends Component {
   }
 }
 
+ElectrumSettings.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func,
+    goBack: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+  }),
+};
+
 ElectrumSettings.navigationOptions = () => ({
   ...BlueNavigationStyle(),
   title: loc.settings.electrum_settings,
+});
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  status: {
+    textAlign: 'center',
+    color: BlueCurrentTheme.colors.feeText,
+    marginBottom: 4,
+  },
+  connectWrap: {
+    width: 'auto',
+    height: 34,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  container: {
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingLeft: 16,
+    paddingRight: 16,
+    borderRadius: 20,
+  },
+  containerConnected: {
+    backgroundColor: BlueCurrentTheme.colors.feeLabel,
+  },
+  containerDisconnected: {
+    backgroundColor: '#F8D2D2',
+  },
+  textConnected: {
+    color: BlueCurrentTheme.colors.feeValue,
+    fontWeight: 'bold',
+  },
+  textDisconnected: {
+    color: '#D0021B',
+    fontWeight: 'bold',
+  },
+  hostname: {
+    textAlign: 'center',
+    color: BlueCurrentTheme.colors.foregroundColor,
+  },
+  explain: {
+    color: BlueCurrentTheme.colors.feeText,
+    marginBottom: -24,
+  },
+  inputWrap: {
+    flexDirection: 'row',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
+    minHeight: 44,
+    height: 44,
+    alignItems: 'center',
+    borderRadius: 4,
+  },
+  inputText: {
+    flex: 1,
+    marginHorizontal: 8,
+    minHeight: 36,
+    color: '#81868e',
+    height: 36,
+  },
 });
