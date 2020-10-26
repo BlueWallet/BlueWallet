@@ -285,7 +285,7 @@ export class BlueWalletNavigationHeader extends Component {
   };
 
   handleToolTipSelection = item => {
-    if (item === loc.transactions.details_copy || item.id === loc.transactions.details.copy) {
+    if (item === 'balanceCopy' || item.id === 'balanceCopy') {
       this.handleCopyPress();
     } else if (item === 'balancePrivacy' || item.id === 'balancePrivacy') {
       this.handleBalanceVisibility();
@@ -296,14 +296,25 @@ export class BlueWalletNavigationHeader extends Component {
     return Platform.select({
       // NOT WORKING ATM.
       // ios: [
-      //   { text: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance', onPress: this.handleBalanceVisibility },
+      //   { text: this.state.wallet.hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide, onPress: this.handleBalanceVisibility },
       //   { text: loc.transactions.details_copy, onPress: this.handleCopyPress },
       // ],
       android: this.state.wallet.hideBalance
-        ? [{ id: 'balancePrivacy', label: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance' }]
+        ? [
+            {
+              id: 'balancePrivacy',
+              label: this.state.wallet.hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide,
+            },
+          ]
         : [
-            { id: 'balancePrivacy', label: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance' },
-            { id: loc.transactions.details_copy, label: loc.transactions.details.copy },
+            {
+              id: 'balancePrivacy',
+              label: this.state.wallet.hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide,
+            },
+            {
+              id: 'balanceCopy',
+              label: loc.transactions.details_copy,
+            },
           ],
     });
   }
@@ -375,10 +386,21 @@ export class BlueWalletNavigationHeader extends Component {
             ref={tooltip => (this.tooltip = tooltip)}
             actions={
               this.state.wallet.hideBalance
-                ? [{ text: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance', onPress: this.handleBalanceVisibility }]
+                ? [
+                    {
+                      text: this.state.wallet.hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide,
+                      onPress: this.handleBalanceVisibility,
+                    },
+                  ]
                 : [
-                    { text: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance', onPress: this.handleBalanceVisibility },
-                    { text: loc.transactions.details_copy, onPress: this.handleCopyPress },
+                    {
+                      text: this.state.wallet.hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide,
+                      onPress: this.handleBalanceVisibility,
+                    },
+                    {
+                      text: loc.transactions.details_copy,
+                      onPress: this.handleCopyPress,
+                    },
                   ]
             }
           />

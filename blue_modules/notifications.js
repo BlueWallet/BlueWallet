@@ -46,21 +46,13 @@ function Notifications(props) {
 
         // (required) Called when a remote is received or opened, or local notification is opened
         onNotification: async function (notification) {
-          Alert.alert(JSON.stringify(notification));
+
           // since we do not know whether we:
           // 1) received notification while app is in background (and storage is not decrypted so wallets are not loaded)
           // 2) opening this notification right now but storage is still unencrypted
           // 3) any of the above but the storage is decrypted, and app wallets are loaded
           //
           // ...we save notification in internal notifications queue thats gona be processed later (on unsuspend with decrypted storage)
-
-          if (Platform.OS === 'ios' && notification.foreground === true && notification.userInteraction === false) {
-            // iOS hack
-            // @see https://github.com/zo0r/react-native-push-notification/issues/1585
-            notification.userInteraction = true;
-            // also, on iOS app is not suspending/unsuspending when user taps a notification bubble,so we simulate it
-            // since its where we actually handle notifications:
-          }
 
           let notifications = [];
           try {
@@ -76,7 +68,7 @@ function Notifications(props) {
             notifications.push(payload);
             await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify(notifications));
           } catch (_) {}
-          setTimeout(() => props.onProcessNotifications(), 500);
+          props.onProcessNotifications();
           // (required) Called when a remote is received or opened, or local notification is opened
           notification.finish(PushNotificationIOS.FetchResult.NoData);
         },

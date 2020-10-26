@@ -168,6 +168,8 @@ const App = () => {
       if (wallet) {
         const walletID = wallet.getID();
         fetchAndSaveWalletTransactions(walletID);
+        // no delay (1ms) as we dont need to wait for transaction propagation. 500ms is a delay to wait for the navigation
+        await Notifications.clearStoredNotifications();
         const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
         if (!wasTapped) continue;
 
@@ -181,8 +183,6 @@ const App = () => {
             },
           }),
         );
-        // no delay (1ms) as we dont need to wait for transaction propagation. 500ms is a delay to wait for the navigation
-        await Notifications.clearStoredNotifications();
         return true;
       } else {
         console.log('could not find wallet while processing push notification tap, NOP');
