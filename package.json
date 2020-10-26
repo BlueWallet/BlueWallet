@@ -83,7 +83,7 @@
     "bc-bech32": "file:blue_modules/bc-bech32",
     "bc-ur": "file:blue_modules/bc-ur",
     "bech32": "1.1.4",
-    "bignumber.js": "9.0.0",
+    "bignumber.js": "9.0.1",
     "bip21": "2.0.3",
     "bip32": "2.0.6",
     "bip39": "2.6.0",
