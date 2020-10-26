@@ -93,10 +93,13 @@ export const transactions = createSelector(wallets, electrumXSelectors.blockHeig
         }
 
         const isFromMyWalletTx = wallet.weOwnAddress(transaction.inputs[0].addresses[0]);
+
         let toExternalAddress;
         let toInternalAddress;
 
         const toAddress = transaction.outputs[0].addresses[0];
+        const isToMyWalletTx = wallet.weOwnAddress(toAddress);
+
         const isToInternalAddress = walletsList.some(w => w.weOwnAddress(toAddress));
 
         if ([TxType.RECOVERY].includes(transaction.tx_type) && isFromMyWalletTx) {
@@ -116,7 +119,7 @@ export const transactions = createSelector(wallets, electrumXSelectors.blockHeig
           walletTypeReadable: wallet.typeReadable,
         };
 
-        if (TxType.RECOVERY !== transaction.tx_type && isFromMyWalletTx && isToInternalAddress) {
+        if (TxType.RECOVERY !== transaction.tx_type && isFromMyWalletTx && isToMyWalletTx) {
           // create two transactions for transaction to internal address
           const outPutSendByUser = transaction.outputs[0];
           const amountSendBtc = satoshiToBtc(transaction.outputs[0].value).toNumber();
