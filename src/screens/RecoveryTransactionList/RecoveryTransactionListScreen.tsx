@@ -157,21 +157,28 @@ export class RecoveryTransactionListScreen extends PureComponent<Props, State> {
             label={wallet.label}
             unit={wallet.preferredBalanceUnit}
           />
-          {!this.isEmptyList() && (
-            <TouchableOpacity onPress={toggleAll} style={styles.toggleAllWrapper}>
-              <CheckBox onPress={toggleAll} right checked={areAllTransactionsSelected} />
-            </TouchableOpacity>
-          )}
-          <View style={styles.listViewWrapper}>
-            <SectionList
-              sections={getGroupedTransactions(transactions)}
-              keyExtractor={item => item.txid}
-              renderItem={this.renderItem}
-              stickySectionHeadersEnabled={false}
-              renderSectionHeader={this.renderSectionHeader}
-              ListEmptyComponent={this.renderListEmpty}
-            />
-          </View>
+          <SectionList
+            style={styles.listViewWrapper}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            ListHeaderComponent={
+              <>
+                {!this.isEmptyList() && (
+                  <TouchableOpacity onPress={toggleAll} style={styles.toggleAllWrapper}>
+                    <CheckBox onPress={toggleAll} right checked={areAllTransactionsSelected} />
+                  </TouchableOpacity>
+                )}
+              </>
+            }
+            sections={getGroupedTransactions(transactions)}
+            keyExtractor={item => item.txid}
+            renderItem={this.renderItem}
+            stickySectionHeadersEnabled={false}
+            renderSectionHeader={this.renderSectionHeader}
+            ListEmptyComponent={this.renderListEmpty}
+          />
+        </View>
+        <View style={styles.buttonContainer}>
           <Button onPress={this.submit} disabled={!this.canSubmit()} title={i18n.send.details.next} />
         </View>
       </View>
@@ -196,7 +203,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     ...typography.body,
   },
-  listViewWrapper: { height: '60%', paddingBottom: 20 },
+  listViewWrapper: { paddingBottom: 20, height: '90%' },
   contentContainer: {
     paddingHorizontal: 20,
     paddingTop: 24,
@@ -217,6 +224,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     marginTop: -40,
+    top: 55,
     right: -9,
     display: 'flex',
     alignSelf: 'flex-end',
@@ -233,5 +241,14 @@ const styles = StyleSheet.create({
   transactionItemContainer: {
     flexWrap: 'wrap',
     flex: 1,
+  },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 15,
+    right: 15,
+    backgroundColor: palette.background,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
 });

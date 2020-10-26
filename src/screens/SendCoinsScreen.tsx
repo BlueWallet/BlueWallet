@@ -430,7 +430,6 @@ class SendCoinsScreen extends Component<Props, State> {
     const { transaction } = this.state;
     return (
       <InputItem
-        multiline
         label={i18n.contactDetails.addressLabel}
         style={styles.addressInput}
         value={transaction.address}
