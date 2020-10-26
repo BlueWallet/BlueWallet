@@ -197,22 +197,6 @@ const WalletsAddMultisigStep2 = () => {
     return staticCache[seed];
   };
 
-  const _renderKeyItemProvided = el => {
-    return (
-      <MultipleStepsListItem
-        checked
-        dashes={MultipleStepsListItemDashType.bottom}
-        leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-        rightButton={{
-          text: loc.multisig.view_key,
-          onPress: async () => {
-            viewKey(cosigners[el.index]);
-          },
-        }}
-      />
-    );
-  };
-
   const iHaveMnemonics = () => {
     setIsProvideMnemonicsModalVisible(true);
   };
@@ -339,13 +323,22 @@ const WalletsAddMultisigStep2 = () => {
 
   const _renderKeyItem = el => {
     const renderProvideKeyButtons = el.index === cosigners.length;
-    if (el.index < cosigners.length) return _renderKeyItemProvided(el);
+    const isChecked = el.index < cosigners.length;
     return (
       <View>
         <MultipleStepsListItem
           circledText={`${el.index + 1}`}
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-          dashes={MultipleStepsListItemDashType.top}
+          dashes={
+            el.index === data.length - 1
+              ? isChecked
+                ? MultipleStepsListItemDashType.top
+                : renderProvideKeyButtons
+                ? MultipleStepsListItemDashType.bottom
+                : MultipleStepsListItemDashType.top
+              : MultipleStepsListItemDashType.topAndBottom
+          }
+          checked={isChecked}
         />
         {renderProvideKeyButtons && (
           <>
@@ -355,6 +348,13 @@ const WalletsAddMultisigStep2 = () => {
                 text: loc.multisig.generate_new_key,
               }}
               dashes={MultipleStepsListItemDashType.topAndBottom}
+              checked={isChecked}
+              rightButton={{
+                text: loc.multisig.view_key,
+                onPress: async () => {
+                  viewKey(cosigners[el.index]);
+                },
+              }}
             />
             <MultipleStepsListItem
               button={{
@@ -362,13 +362,27 @@ const WalletsAddMultisigStep2 = () => {
                 text: loc.multisig.scan_or_open_file,
               }}
               dashes={MultipleStepsListItemDashType.topAndBottom}
+              checked={isChecked}
+              rightButton={{
+                text: loc.multisig.view_key,
+                onPress: async () => {
+                  viewKey(cosigners[el.index]);
+                },
+              }}
             />
             <MultipleStepsListItem
               button={{
                 onPress: iHaveMnemonics,
                 text: loc.multisig.i_have_mnemonics,
               }}
-              dashes={MultipleStepsListItemDashType.topAndBottom}
+              dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+              checked={isChecked}
+              rightButton={{
+                text: loc.multisig.view_key,
+                onPress: async () => {
+                  viewKey(cosigners[el.index]);
+                },
+              }}
             />
           </>
         )}

@@ -129,7 +129,7 @@ const MultipleStepsListItem = props => {
             </TouchableOpacity>
           </>
         )}
-        {props.rightButton && (
+        {props.rightButton && checked && (
           <View style={styles.rightButtonContainer} accessibilityComponentType>
             <TouchableOpacity style={styles.rightButton} onPress={props.rightButton.onPress}>
               <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.rightButton.text}</Text>
