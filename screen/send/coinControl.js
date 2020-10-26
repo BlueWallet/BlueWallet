@@ -4,7 +4,7 @@ import _debounce from 'lodash/debounce';
 import Modal from 'react-native-modal';
 import { ListItem, Avatar, Badge } from 'react-native-elements';
 import { StyleSheet, FlatList, KeyboardAvoidingView, View, TextInput, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import { useRoute, useTheme } from '@react-navigation/native';
+import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
 
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -76,7 +76,7 @@ const mStyles = StyleSheet.create({
   },
 });
 
-const OutputModalContent = ({ output, wallet, onBackdrop }) => {
+const OutputModalContent = ({ output, wallet, onUseCoin }) => {
   const { colors } = useTheme();
   const { txMetadata, saveToDisk } = useContext(BlueStorageContext);
   const [frozen, setFrozen] = useState(wallet.getUTXOMetadata(output.txid, output.vout).frozen || false);
@@ -115,7 +115,7 @@ const OutputModalContent = ({ output, wallet, onBackdrop }) => {
       />
       <BlueListItem title="Freeze" Component={TouchableWithoutFeedback} switch={{ value: frozen, onValueChange: onFreeze }} />
       <BlueSpacing20 />
-      <BlueButton title="Use coin" onPress={() => {}} />
+      <BlueButton title="Use coin" onPress={() => onUseCoin([output])} />
     </>
   );
 };
@@ -123,18 +123,26 @@ const OutputModalContent = ({ output, wallet, onBackdrop }) => {
 OutputModalContent.propTypes = {
   output: PropTypes.object,
   wallet: PropTypes.object,
-  onBackdrop: PropTypes.func,
+  onUseCoin: PropTypes.func.isRequired,
 };
 
 const CoinControl = () => {
   const { colors } = useTheme();
-  const { walletId } = useRoute().params;
+  const navigation = useNavigation();
+  const { walletId, onUTXOChoose } = useRoute().params;
   const { wallets } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletId);
   const utxo = useMemo(() => wallet.getUtxo({ frozen: true }), [wallet]);
   const [output, setOutput] = useState();
 
   const handleChoose = item => setOutput(item);
+
+  const handleUseCoin = utxo => {
+    setOutput(null);
+    navigation.pop();
+    onUTXOChoose(utxo);
+  };
+
   const renderItem = p => {
     const { memo, frozen } = wallet.getUTXOMetadata(p.item.txid, p.item.vout);
     return <Output item={p.item} oMemo={memo} frozen={frozen} onPress={() => handleChoose(p.item)} />;
@@ -152,7 +160,7 @@ const CoinControl = () => {
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, { backgroundColor: colors.elevated }]}>
-            {output && <OutputModalContent output={output} wallet={wallet} />}
+            {output && <OutputModalContent output={output} wallet={wallet} onUseCoin={handleUseCoin} />}
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -173,8 +181,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 290,
-    height: 290,
+    minHeight: 350,
+    height: 350,
   },
 });
 

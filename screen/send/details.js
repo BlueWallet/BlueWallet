@@ -254,6 +254,7 @@ export default class SendDetails extends Component {
         amountUnit: fromWallet.preferredBalanceUnit, // default for whole screen
         renderWalletSelectionButtonHidden: false,
         width: Dimensions.get('window').width - 320,
+        utxo: null,
       };
     }
   }
@@ -533,6 +534,7 @@ export default class SendDetails extends Component {
     const changeAddress = this.getChangeAddressFast();
     const requestedSatPerByte = Number(this.state.fee);
     const feePrecalc = { ...this.state.feePrecalc };
+    const utxo = this.state.utxo || wallet.getUtxo();
 
     const options = all
       ? [
@@ -575,7 +577,7 @@ export default class SendDetails extends Component {
       while (true) {
         try {
           const { fee } = wallet.coinselect(
-            wallet.getUtxo(),
+            utxo,
             targets,
             opt.fee,
             changeAddress,
@@ -606,7 +608,8 @@ export default class SendDetails extends Component {
     const wallet = this.state.fromWallet;
     const changeAddress = await this.getChangeAddressAsync();
     const requestedSatPerByte = Number(this.state.fee);
-    console.log({ requestedSatPerByte, utxo: wallet.getUtxo() });
+    const utxo = this.state.utxo || wallet.getUtxo();
+    console.log({ requestedSatPerByte, utxo });
 
     let targets = [];
     for (const transaction of this.state.addresses) {
@@ -626,7 +629,7 @@ export default class SendDetails extends Component {
     }
 
     const { tx, fee, psbt } = wallet.createTransaction(
-      wallet.getUtxo(),
+      utxo,
       targets,
       requestedSatPerByte,
       changeAddress,
@@ -674,9 +677,13 @@ export default class SendDetails extends Component {
     this.setState({ isLoading: false });
   }
 
+  onUTXOChoose = utxo => {
+    this.setState({ utxo }, this.reCalcTx);
+  };
+
   onWalletSelect = wallet => {
     const changeWallet = () => {
-      this.setState({ fromWallet: wallet }, () => {
+      this.setState({ fromWallet: wallet, utxo: null }, () => {
         this.renderNavigationHeader();
         this.props.navigation.pop();
       });
@@ -998,6 +1005,7 @@ export default class SendDetails extends Component {
     const { fromWallet } = this.state;
     this.props.navigation.navigate('CoinControl', {
       walletId: fromWallet.getID(),
+      onUTXOChoose: this.onUTXOChoose,
     });
     this.setState({ isAdvancedTransactionOptionsVisible: false });
   };
