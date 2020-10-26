@@ -3,10 +3,11 @@ import { useTheme } from '@react-navigation/native';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
+export const MultipleStepsListItemDashType = Object.freeze({ none: 0, top: 1, bottom: 2, topAndBottom: 3 });
 
 const MultipleStepsListItem = props => {
   const { colors } = useTheme();
-  const { circledText = '', leftText = '', checked = false } = props;
+  const { dashes = MultipleStepsListItemDashType.none, circledText = '', leftText = '', checked = false } = props;
   const stylesHook = StyleSheet.create({
     root: {
       flex: 1,
@@ -58,41 +59,84 @@ const MultipleStepsListItem = props => {
       color: colors.msSuccessBG,
     },
   });
+
+  const renderDashes = () => {
+    switch (dashes) {
+      case MultipleStepsListItemDashType.topAndBottom:
+        return {
+          width: 1,
+          borderStyle: 'dashed',
+          borderWidth: 0.8,
+          borderColor: '#c4c4c4',
+          top: 0,
+          bottom: 0,
+          marginLeft: 20,
+          position: 'absolute',
+        };
+      case MultipleStepsListItemDashType.bottom:
+        return {
+          width: 1,
+          borderStyle: 'dashed',
+          borderWidth: 0.8,
+          borderColor: '#c4c4c4',
+          top: '50%',
+          bottom: 0,
+          marginLeft: 20,
+          position: 'absolute',
+        };
+      case MultipleStepsListItemDashType.top:
+        return {
+          width: 1,
+          borderStyle: 'dashed',
+          borderWidth: 0.8,
+          borderColor: '#c4c4c4',
+          top: 0,
+          bottom: '50%',
+          marginLeft: 20,
+          position: 'absolute',
+        };
+      default:
+        return {};
+    }
+  };
   return (
-    <View style={styles.container}>
-      <View style={styles.itemKeyUnprovidedWrapper}>
-        {checked ? (
-          <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-            <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
-          </View>
-        ) : circledText.length > 0 ? (
-          <View style={styles.itemKeyUnprovidedWrapper}>
-            <View style={[styles.vaultKeyCircle, stylesHook.vaultKeyCircle]}>
-              <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>{circledText}</Text>
+    <View>
+      <View style={renderDashes()} />
+      <View style={styles.container}>
+        <View style={styles.itemKeyUnprovidedWrapper}>
+          {checked ? (
+            <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
+              <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
             </View>
-          </View>
-        ) : null}
-        {leftText.length > 0 && (
-          <View style={styles.vaultKeyTextWrapper}>
-            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>{leftText}</Text>
+          ) : circledText.length > 0 ? (
+            <View style={styles.itemKeyUnprovidedWrapper}>
+              <View style={[styles.vaultKeyCircle, stylesHook.vaultKeyCircle]}>
+                <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>{circledText}</Text>
+              </View>
+            </View>
+          ) : null}
+          {leftText.length > 0 && (
+            <View style={styles.vaultKeyTextWrapper}>
+              <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>{leftText}</Text>
+            </View>
+          )}
+        </View>
+
+        {props.button && (
+          <>
+            <TouchableOpacity style={[styles.provideKeyButton, stylesHook.provideKeyButton]} onPress={props.button.onPress}>
+              <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.button.text}</Text>
+            </TouchableOpacity>
+          </>
+        )}
+        {props.rightButton && (
+          <View style={styles.rightButtonContainer} accessibilityComponentType>
+            <TouchableOpacity style={styles.rightButton} onPress={props.rightButton.onPress}>
+              <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.rightButton.text}</Text>
+            </TouchableOpacity>
           </View>
         )}
       </View>
-
-      {props.button && (
-        <>
-          <TouchableOpacity style={[styles.provideKeyButton, stylesHook.provideKeyButton]} onPress={props.button.onPress}>
-            <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.button.text}</Text>
-          </TouchableOpacity>
-        </>
-      )}
-      {props.rightButton && (
-        <View style={styles.rightButtonContainer}>
-          <TouchableOpacity style={styles.rightButton} onPress={props.rightButton.onPress}>
-            <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.rightButton.text}</Text>
-          </TouchableOpacity>
-        </View>
-      )}
     </View>
   );
 };
@@ -101,6 +145,7 @@ MultipleStepsListItem.propTypes = {
   circledText: PropTypes.string,
   checked: PropTypes.bool,
   leftText: PropTypes.string,
+  dashes: PropTypes.number,
   button: PropTypes.shape({
     text: PropTypes.string,
     onPress: PropTypes.func,
@@ -128,7 +173,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   vaultKeyText: { fontSize: 18, fontWeight: 'bold' },
-  vaultKeyTextWrapper: { justifyContent: 'center', alignContent: 'center', paddingLeft: 16 },
+  vaultKeyTextWrapper: { justifyContent: 'center', alignContent: 'flex-start', paddingLeft: 16 },
   provideKeyButton: {
     marginLeft: 40,
     height: 48,

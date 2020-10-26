@@ -22,7 +22,7 @@ import WalletImport from '../../class/wallet-import';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import MultipleStepsListItem from '../../components/MultipleStepsListItem';
+import MultipleStepsListItem, { MultipleStepsListItemDashType } from '../../components/MultipleStepsListItem';
 
 const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
@@ -201,6 +201,7 @@ const WalletsAddMultisigStep2 = () => {
     return (
       <MultipleStepsListItem
         checked
+        dashes={MultipleStepsListItemDashType.bottom}
         leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
         rightButton={{
           text: loc.multisig.view_key,
@@ -344,6 +345,7 @@ const WalletsAddMultisigStep2 = () => {
         <MultipleStepsListItem
           circledText={`${el.index + 1}`}
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
+          dashes={MultipleStepsListItemDashType.top}
         />
         {renderProvideKeyButtons && (
           <>
@@ -352,18 +354,21 @@ const WalletsAddMultisigStep2 = () => {
                 onPress: async () => await generateNewKey(),
                 text: loc.multisig.generate_new_key,
               }}
+              dashes={MultipleStepsListItemDashType.topAndBottom}
             />
             <MultipleStepsListItem
               button={{
                 onPress: scanOrOpenFile,
                 text: loc.multisig.scan_or_open_file,
               }}
+              dashes={MultipleStepsListItemDashType.topAndBottom}
             />
             <MultipleStepsListItem
               button={{
                 onPress: iHaveMnemonics,
                 text: loc.multisig.i_have_mnemonics,
               }}
+              dashes={MultipleStepsListItemDashType.topAndBottom}
             />
           </>
         )}
