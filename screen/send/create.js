@@ -19,6 +19,7 @@ import Clipboard from '@react-native-community/clipboard';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
+import BigNumber from 'bignumber.js';
 
 import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import Privacy from '../../Privacy';
@@ -101,7 +102,7 @@ export default class SendCreate extends Component {
           <Text style={styles.transactionDetailsTitle}>{loc.send.create_amount}</Text>
           <Text style={styles.transactionDetailsSubtitle}>
             {item.value === BitcoinUnit.MAX || !item.value
-              ? currency.satoshiToBTC(this.state.wallet.getBalance()) - this.state.fee
+              ? new BigNumber(currency.satoshiToBTC(this.state.wallet.getBalance())).minus(this.state.fee).toNumber()
               : currency.satoshiToBTC(item.value)}{' '}
             {BitcoinUnit.BTC}
           </Text>
