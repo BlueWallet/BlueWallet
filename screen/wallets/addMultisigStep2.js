@@ -475,7 +475,12 @@ const WalletsAddMultisigStep2 = () => {
             </View>
           </View>
           <BlueSpacing20 />
-          <Text style={styles.headerText}>{loc.multisig.wallet_key_created}</Text>
+          <Text style={styles.headerText}>
+            {loc.multisig.wallet_key_created}
+            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.wallet_key_created_bold_text1}</Text>
+            <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.wallet_key_created2}</Text>
+            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.wallet_key_created_bold_text2}</Text>
+          </Text>
           <BlueSpacing20 />
           <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.wallet_key}</Text>
           <BlueSpacing10 />
@@ -607,7 +612,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   provideKeyButtonText: { fontWeight: '600', fontSize: 15 },
-
+  textDestination: { fontWeight: '600' },
   bottomModal: {
     justifyContent: 'flex-end',
     margin: 0,
