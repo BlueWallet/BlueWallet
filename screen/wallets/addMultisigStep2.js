@@ -346,6 +346,12 @@ const WalletsAddMultisigStep2 = () => {
               : MultipleStepsListItemDashType.topAndBottom
           }
           checked={isChecked}
+          rightButton={{
+            text: loc.multisig.view_key,
+            onPress: async () => {
+              viewKey(cosigners[el.index]);
+            },
+          }}
         />
         {renderProvideKeyButtons && (
           <>
@@ -430,6 +436,7 @@ const WalletsAddMultisigStep2 = () => {
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text>{loc.multisig.this_is_cosigners_xpub}</Text>
+            <BlueSpacing20 />
             <QRCode
               value={cosignerXpub}
               size={250}
