@@ -764,7 +764,8 @@ export const BlueListItem = React.memo(props => {
     <ListItem
       containerStyle={props.containerStyle ?? { backgroundColor: 'transparent' }}
       Component={props.Component ?? TouchableOpacity}
-      bottomDivider
+      bottomDivider={props.bottomDivider !== undefined ? props.bottomDivider : true}
+      topDivider={props.topDivider !== undefined ? props.topDivider : false}
       testID={props.testID}
       onPress={props.onPress}
     >

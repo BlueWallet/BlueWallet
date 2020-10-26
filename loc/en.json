@@ -394,6 +394,7 @@
   "multisig": {
     "provide_signature": "Provide signature",
     "vault_key": "Vault key {number}",
+    "required_keys_out_of_total": "Required keys out of the total",
     "fee": "Fee: {number}",
     "fee_btc": "{number} BTC",
     "confirm": "Confirm",

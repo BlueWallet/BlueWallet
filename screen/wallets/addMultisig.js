@@ -38,6 +38,15 @@ const WalletsAddMultisig = () => {
     modalContentShort: {
       backgroundColor: colors.elevated,
     },
+    textSubtitle: {
+      color: colors.alternativeTextColor,
+    },
+    selectedItem: {
+      backgroundColor: colors.buttonDisabledTextColor,
+    },
+    deSelectedItem: {
+      backgroundColor: 'transparent',
+    },
   });
 
   useEffect(() => {
@@ -93,6 +102,7 @@ const WalletsAddMultisig = () => {
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
             <Text style={styles.textHeader}>{loc.multisig.quorum_header}</Text>
+            <Text style={[styles.textSubtitle, stylesHook.textSubtitle]}>{loc.multisig.required_keys_out_of_total}</Text>
             <View style={styles.rowCenter}>
               <View style={styles.column}>
                 <TouchableOpacity onPress={increaseM} disabled={n === m || m === 7} style={styles.chevron}>
@@ -129,19 +139,25 @@ const WalletsAddMultisig = () => {
             <Text style={styles.textHeader}>{loc.multisig.wallet_type}</Text>
             <BlueSpacing20 />
             <BlueListItem
+              bottomDivider={false}
               onPress={setFormatP2wsh}
               title={`${loc.multisig.native_segwit_title} (${MultisigHDWallet.FORMAT_P2WSH})`}
               checkmark={isP2wsh()}
+              containerStyle={[styles.borderRadius6, isP2wsh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
             />
             <BlueListItem
+              bottomDivider={false}
               onPress={setFormatP2shP2wsh}
               title={`${loc.multisig.wrapped_segwit_title} (${MultisigHDWallet.FORMAT_P2SH_P2WSH})`}
               checkmark={isP2shP2wsh()}
+              containerStyle={[styles.borderRadius6, isP2shP2wsh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
             />
             <BlueListItem
+              bottomDivider={false}
               onPress={setFormatP2sh}
               title={`${loc.multisig.legacy_title} (${MultisigHDWallet.FORMAT_P2SH})`}
               checkmark={isP2sh()}
+              containerStyle={[styles.borderRadius6, isP2sh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
             />
           </View>
         </KeyboardAvoidingView>
@@ -239,6 +255,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderColor: 0,
   },
+  borderRadius6: {
+    borderRadius: 6,
+  },
   formatSelectorTextWrapperSelected: {
     backgroundColor: '#EEF0F4',
     borderRadius: 6,
@@ -293,6 +312,11 @@ const styles = StyleSheet.create({
     color: '#13244D',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  textSubtitle: {
+    fontSize: 13,
+    fontWeight: '500',
+    marginTop: 4,
   },
   imageWrapper: {
     borderWidth: 0,
