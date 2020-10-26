@@ -507,7 +507,7 @@ const WalletsAddMultisigStep2 = () => {
             <BlueSpacing20 />
             <BlueFormMultiInput value={importText} onChangeText={setImportText} />
             <BlueSpacing40 />
-            <BlueButton title={loc.wallets.import_do_import} onPress={useMnemonicPhrase} />
+            <BlueButton disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={useMnemonicPhrase} />
             <BlueButtonLinkHook onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
         </KeyboardAvoidingView>
