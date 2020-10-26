@@ -4,12 +4,14 @@ import { FlatList, Keyboard, KeyboardAvoidingView, LayoutAnimation, Platform, St
 import {
   BlueButton,
   BlueButtonHook,
+  BlueButtonLinkHook,
   BlueFormMultiInput,
   BlueLoadingHook,
   BlueNavigationStyle,
   BlueSpacing20,
   BlueSpacing40,
   BlueText,
+  BlueTextCenteredHooks,
 } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -216,6 +218,7 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const onBarScanned = ret => {
+    setIsProvideMnemonicsModalVisible(false);
     navigation.dangerouslyGetParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
@@ -291,6 +294,7 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const scanOrOpenFile = () => {
+    setIsProvideMnemonicsModalVisible(false);
     if (isDesktop) {
       ImagePicker.launchCamera(
         {
@@ -348,44 +352,18 @@ const WalletsAddMultisigStep2 = () => {
             <MultipleStepsListItem
               button={{
                 onPress: async () => await generateNewKey(),
-                text: loc.multisig.generate_new_key,
+                text: loc.multisig.create_new_key,
               }}
               dashes={MultipleStepsListItemDashType.topAndBottom}
               checked={isChecked}
-              rightButton={{
-                text: loc.multisig.view_key,
-                onPress: async () => {
-                  viewKey(cosigners[el.index]);
-                },
-              }}
-            />
-            <MultipleStepsListItem
-              button={{
-                onPress: scanOrOpenFile,
-                text: loc.multisig.scan_or_open_file,
-              }}
-              dashes={MultipleStepsListItemDashType.topAndBottom}
-              checked={isChecked}
-              rightButton={{
-                text: loc.multisig.view_key,
-                onPress: async () => {
-                  viewKey(cosigners[el.index]);
-                },
-              }}
             />
             <MultipleStepsListItem
               button={{
                 onPress: iHaveMnemonics,
-                text: loc.multisig.i_have_mnemonics,
+                text: loc.wallets.import_do_import,
               }}
               dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
               checked={isChecked}
-              rightButton={{
-                text: loc.multisig.view_key,
-                onPress: async () => {
-                  viewKey(cosigners[el.index]);
-                },
-              }}
             />
           </>
         )}
@@ -423,11 +401,12 @@ const WalletsAddMultisigStep2 = () => {
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
-            <Text>{loc.multisig.type_your_mnemonics}</Text>
+            <BlueTextCenteredHooks>{loc.multisig.type_your_mnemonics}</BlueTextCenteredHooks>
+            <BlueSpacing20 />
             <BlueFormMultiInput value={importText} onChangeText={setImportText} />
             <BlueSpacing40 />
-
-            <BlueButton title={loc._.ok} onPress={useMnemonicPhrase} />
+            <BlueButton title={loc.wallets.import_do_import} onPress={useMnemonicPhrase} />
+            <BlueButtonLinkHook onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -532,7 +511,8 @@ const styles = StyleSheet.create({
     margin: 0,
   },
   modalContent: {
-    padding: 22,
+    paddingHorizontal: 22,
+    paddingVertical: 32,
     justifyContent: 'center',
     // alignItems: 'center',
     borderTopLeftRadius: 16,
