@@ -20,32 +20,21 @@
       "jsx": true
     }
   },
-  "plugins": [
-    "@typescript-eslint",
-    "react",
-    "react-native",
-    "react-hooks",
-    "import",
-    "prettier"
-  ],
+  "plugins": ["@typescript-eslint", "react", "react-native", "react-hooks", "import", "prettier"],
   "settings": {
     "react": {
       "version": "detect"
     },
     "import/resolver": {
       "node": {
-        "extensions": [
-          ".js",
-          ".jsx",
-          ".ts",
-          ".tsx"
-        ]
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
       }
     }
   },
   "rules": {
     "@typescript-eslint/camelcase": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/member-delimiter-style": "off",
     "@typescript-eslint/no-explicit-any": "off",
@@ -68,13 +57,12 @@
     "no-shadow": [
       "warn",
       {
-        "allow": [
-          "done"
-        ]
+        "allow": ["done"]
       }
     ],
     "@typescript-eslint/ban-types": [
-      "warn", {
+      "warn",
+      {
         "types": {
           "Function": "Don't use Function because it is unsafe"
         }
@@ -102,17 +90,8 @@
       "error",
       {
         "groups": [
-          [
-            "builtin",
-            "external"
-          ],
-          [
-            "internal",
-            "parent",
-            "sibling",
-            "index",
-            "unknown"
-          ]
+          ["builtin", "external"],
+          ["internal", "parent", "sibling", "index", "unknown"]
         ],
         "pathGroups": [
           {
@@ -121,9 +100,7 @@
             "position": "before"
           }
         ],
-        "pathGroupsExcludedImportTypes": [
-          "builtin"
-        ],
+        "pathGroupsExcludedImportTypes": ["builtin"],
         "alphabetize": {
           "order": "asc"
         },

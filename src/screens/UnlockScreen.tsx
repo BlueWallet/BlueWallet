@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import React, { PureComponent } from 'react';
-import { StatusBar, StyleSheet, Text, View, Keyboard } from 'react-native';
+import { StatusBar, StyleSheet, Text, View, Keyboard, AppState } from 'react-native';
 import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
@@ -52,7 +52,7 @@ class UnlockScreen extends PureComponent<Props, State> {
 
   async componentDidMount() {
     Keyboard.dismiss();
-    if (!this.isTimeCounterVisible()) {
+    if (!this.isTimeCounterVisible() && AppState.currentState === 'active') {
       await this.unlockWithBiometrics();
     }
   }
