@@ -8,11 +8,12 @@ import {
   BlueFormMultiInput,
   BlueLoadingHook,
   BlueNavigationStyle,
+  BlueSpacing10,
   BlueSpacing20,
   BlueSpacing40,
-  BlueText,
   BlueTextCenteredHooks,
 } from '../../BlueComponents';
+import { Icon } from 'react-native-elements';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
@@ -45,7 +46,7 @@ const WalletsAddMultisigStep2 = () => {
   const [isRenderCosignersXpubModalVisible, setIsRenderCosignersXpubModalVisible] = useState(false);
   const [cosignerXpub, setCosignerXpub] = useState(''); // string displayed in renderCosignersXpubModal()
   const [cosignerXpubFilename, setCosignerXpubFilename] = useState('bw-cosigner.json');
-  const [mnemonicsToDisplay, setMnemonicsToDisplay] = useState(''); // string rendered in modal
+  const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '' }); // string rendered in modal
   const [importText, setImportText] = useState('');
 
   const stylesHook = StyleSheet.create({
@@ -97,6 +98,12 @@ const WalletsAddMultisigStep2 = () => {
     vaultKeyTextSigned: {
       color: colors.msSuccessBG,
     },
+    word: {
+      backgroundColor: colors.inputBackgroundColor,
+    },
+    wordText: {
+      color: colors.labelText,
+    },
   });
 
   const onCreate = async () => {
@@ -134,7 +141,7 @@ const WalletsAddMultisigStep2 = () => {
     cosignersCopy.push([w.getSecret(), false, false]);
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setCosigners(cosignersCopy);
-    setMnemonicsToDisplay(w.getSecret());
+    setVaultKeyData({ keyIndex: cosignersCopy.length, seed: w.getSecret(), xpub: w.getXpub() });
     setIsMnemonicsModalVisible(true);
     if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
     setTimeout(() => {
@@ -377,20 +384,46 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
+  const renderSecret = entries => {
+    const component = [];
+    const entriesObject = entries.entries();
+    for (const [index, secret] of entriesObject) {
+      component.push(
+        <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
+          <Text style={[styles.wordText, stylesHook.wordText]}>{entries.length > 1 ? `${index + 1} . ${secret}` : secret}</Text>
+        </View>,
+      );
+    }
+    return component;
+  };
+
   const renderMnemonicsModal = () => {
     return (
       <Modal isVisible={isMnemonicsModalVisible} style={styles.bottomModal} onBackdropPress={Keyboard.dismiss}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={[styles.modalContent, stylesHook.modalContent]}>
-            <Text>{loc.multisig.please_write_down_mnemonics}</Text>
-            <BlueSpacing40 />
-            <BlueText>{mnemonicsToDisplay}</BlueText>
-
-            <BlueSpacing40 />
-            <BlueSpacing40 />
-            <BlueButton title={loc.multisig.i_wrote_it_down} onPress={() => setIsMnemonicsModalVisible(false)} />
+        <View style={[styles.newKeyModalContent, stylesHook.modalContent]}>
+          <View style={styles.itemKeyUnprovidedWrapper}>
+            <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
+              <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
+            </View>
+            <View style={styles.vaultKeyTextWrapper}>
+              <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
+                {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
+              </Text>
+            </View>
           </View>
-        </KeyboardAvoidingView>
+          <BlueSpacing20 />
+          <Text style={styles.headerText}>{loc.multisig.wallet_key_created}</Text>
+          <BlueSpacing20 />
+          <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.wallet_key}</Text>
+          <BlueSpacing10 />
+          <View style={styles.secretContainer}>{renderSecret([vaultKeyData.xpub])}</View>
+          <BlueSpacing20 />
+          <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.seed}</Text>
+          <BlueSpacing10 />
+          <View style={styles.secretContainer}>{renderSecret(vaultKeyData.seed.split(' '))}</View>
+          <BlueSpacing20 />
+          <BlueButton title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
+        </View>
       </Modal>
     );
   };
@@ -482,7 +515,7 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
-  itemKeyUnprovidedWrapper: { flexDirection: 'row', paddingTop: 16 },
+  itemKeyUnprovidedWrapper: { flexDirection: 'row' },
   vaultKeyCircle: {
     width: 42,
     height: 42,
@@ -501,7 +534,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 8,
   },
-
   grayButton: {
     marginTop: 24,
     marginLeft: 40,
@@ -521,12 +553,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     paddingVertical: 32,
     justifyContent: 'center',
-    // alignItems: 'center',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
     minHeight: 400,
     height: 400,
+  },
+  newKeyModalContent: {
+    paddingHorizontal: 22,
+    paddingVertical: 32,
+    justifyContent: 'center',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 700,
+    height: 700,
   },
   vaultKeyCircleSuccess: {
     width: 42,
@@ -534,6 +575,24 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  word: {
+    width: 'auto',
+    marginRight: 8,
+    marginBottom: 8,
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingLeft: 8,
+    paddingRight: 8,
+    borderRadius: 4,
+  },
+  secretContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
+  },
+  wordText: {
+    fontWeight: 'bold',
   },
   vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold' },
@@ -544,7 +603,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 16,
   },
-  headerText: { fontSize: 30, color: '#13244D' },
+  headerText: { fontSize: 15, color: '#13244D' },
   mainBlock: { marginHorizontal: 20 },
   header2Text: { color: '#9AA0AA', fontSize: 14, paddingBottom: 20 },
   alignItemsCenter: { alignItems: 'center' },

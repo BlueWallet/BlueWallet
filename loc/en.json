@@ -13,6 +13,8 @@
     "yes": "Yes",
     "no": "No",
     "save": "Save",
+    "seed": "Seed",
+    "wallet_key": "Wallet key",
     "invalid_animated_qr_code_fragment" : "Invalid animated QRCode fragment, please try again",
     "file_saved": "File ({filePath}) has been saved in your Downloads folder ."
   },
@@ -430,6 +432,7 @@
     "i_wrote_it_down": "Ok, I wrote it down",
     "type_your_mnemonics": "Insert a seed to import your existing vault key",
     "this_is_cosigners_xpub": "This is cosigner's xpub, ready to be imported in other wallet. It is safe to share it.",
+    "wallet_key_created": "Your vault key was created. Take a moment to safely backup both your wallet key and seed, to be able to restore this vault key.",
     "setup_header": "Setup",
     "are_you_sure_seed_will_be_lost": "Are you sure? Your mnemonic seed will be lost if you dont have a backup",
     "forget_this_seed": "Forget this seed and use Xpub instead",
