@@ -20,9 +20,9 @@ export default class Lnurl {
   }
 
   static findlnurl(bodyOfText) {
-    var res = /^(http.*[&?]lightning=)?((lnurl)([0-9]{1,}[a-z0-9]+){1})/.exec(bodyOfText.toLowerCase());
+    var res = /^(?:http.*[&?]lightning=)?(lnurl1[02-9ac-hj-np-z]+)/.exec(bodyOfText.toLowerCase());
     if (res) {
-      return res[2];
+      return res[1];
     }
     return null;
   }
