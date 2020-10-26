@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { FlatList, Keyboard, KeyboardAvoidingView, LayoutAnimation, Platform, StatusBar, StyleSheet, Text, View } from 'react-native';
 import {
   BlueButton,
@@ -26,6 +26,10 @@ import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MultipleStepsListItem, { MultipleStepsListItemDashType } from '../../components/MultipleStepsListItem';
+import Clipboard from '@react-native-community/clipboard';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import showPopupMenu from 'react-native-popup-menu-android';
+import ToolTip from 'react-native-tooltip';
 
 const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
@@ -48,6 +52,7 @@ const WalletsAddMultisigStep2 = () => {
   const [cosignerXpubFilename, setCosignerXpubFilename] = useState('bw-cosigner.json');
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '' }); // string rendered in modal
   const [importText, setImportText] = useState('');
+  const tooltip = useRef();
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -384,15 +389,66 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
+  const toolTipMenuOptions = () => {
+    return Platform.select({
+      // NOT WORKING ATM.
+      // ios: [
+      //   { text: this.state.wallet.hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide, onPress: this.handleBalanceVisibility },
+      //   { text: loc.transactions.details_copy, onPress: this.handleCopyPress },
+      // ],
+      android: {
+        id: 'copyXpub',
+        label: loc.transactions.details_copy,
+      },
+    });
+  };
+
+  const showAndroidTooltip = () => {
+    showPopupMenu(toolTipMenuOptions, handleToolTipSelection, vaultKeyData.xpub);
+  };
+
+  const handleToolTipSelection = item => {
+    handleCopyPress();
+  };
+
+  const handleCopyPress = item => {
+    Clipboard.setString(vaultKeyData.xpub);
+  };
+
   const renderSecret = entries => {
     const component = [];
     const entriesObject = entries.entries();
     for (const [index, secret] of entriesObject) {
-      component.push(
-        <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
-          <Text style={[styles.wordText, stylesHook.wordText]}>{entries.length > 1 ? `${index + 1} . ${secret}` : secret}</Text>
-        </View>,
-      );
+      if (entries.length > 1) {
+        component.push(
+          <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
+            <Text style={[styles.wordText, stylesHook.wordText]}>
+              {index + 1} . {secret}
+            </Text>
+          </View>,
+        );
+      } else {
+        component.push(
+          <TouchableOpacity
+            style={[styles.word, stylesHook.word]}
+            key={`${secret}${index}`}
+            onLongPress={() => (Platform.OS === 'ios' ? tooltip.current.showMenu() : showAndroidTooltip())}
+          >
+            {Platform.OS === 'ios' && (
+              <ToolTip
+                ref={tooltip}
+                actions={[
+                  {
+                    text: loc.transactions.details_copy,
+                    onPress: handleCopyPress,
+                  },
+                ]}
+              />
+            )}
+            <Text style={[styles.wordText, stylesHook.wordText]}>{secret}</Text>
+          </TouchableOpacity>,
+        );
+      }
     }
     return component;
   };
