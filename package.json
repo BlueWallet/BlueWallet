@@ -105,6 +105,7 @@
     "eslint-plugin-standard": "4.0.1",
     "events": "1.1.1",
     "frisbee": "3.1.4",
+    "lodash": "4.17.20",
     "lottie-ios": "3.1.8",
     "lottie-react-native": "3.5.0",
     "metro-react-native-babel-preset": "0.63.0",

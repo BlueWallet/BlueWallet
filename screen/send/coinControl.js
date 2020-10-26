@@ -1,5 +1,6 @@
-import React, { useMemo, useState, useContext, useEffect } from 'react';
+import React, { useMemo, useState, useContext, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import _debounce from 'lodash/debounce';
 import Modal from 'react-native-modal';
 import { ListItem, Avatar, Badge } from 'react-native-elements';
 import { StyleSheet, FlatList, KeyboardAvoidingView, View, TextInput, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
@@ -78,24 +79,21 @@ const mStyles = StyleSheet.create({
 const OutputModalContent = ({ output, wallet, onBackdrop }) => {
   const { colors } = useTheme();
   const { txMetadata, saveToDisk } = useContext(BlueStorageContext);
-  const [formChanged, setFormChanged] = useState(false);
   const [frozen, setFrozen] = useState(wallet.getUTXOMetadata(output.txid, output.vout).frozen || false);
   const [memo, setMemo] = useState(wallet.getUTXOMetadata(output.txid, output.vout).memo || txMetadata[output.txid]?.memo || '');
-  const onFreeze = async value => {
-    setFrozen(value);
-    setFormChanged(true);
-  };
-  const onMemoChange = async value => {
-    setMemo(value);
-    setFormChanged(true);
-  };
+  const onFreeze = value => setFrozen(value);
+  const onMemoChange = value => setMemo(value);
 
-  // save on form change
+  // save on form change. Because effect called on each event, debounce it.
+  const debouncedSave = useRef(
+    _debounce(async (frozen, memo) => {
+      wallet.setUTXOMetadata(output.txid, output.vout, { frozen, memo });
+      await saveToDisk();
+    }, 500),
+  );
   useEffect(() => {
-    if (!formChanged) return
-    wallet.setUTXOMetadata(output.txid, output.vout, { frozen, memo });
-    saveToDisk();
-  }, [frozen, memo]); // eslint-disable-line react-hooks/exhaustive-deps
+    debouncedSave.current(frozen, memo);
+  }, [frozen, memo]);
 
   return (
     <>
