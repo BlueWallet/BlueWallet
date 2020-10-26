@@ -23,7 +23,6 @@ import WalletImport from '../../class/wallet-import';
 import Clipboard from '@react-native-community/clipboard';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
-import Clipboard from '@react-native-community/clipboard';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { getSystemName, isTablet } from 'react-native-device-info';
@@ -35,7 +34,6 @@ const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const isDesktop = getSystemName() === 'Mac OS X';
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
 let lastSnappedTo = 0;
-const isDesktop = getSystemName() === 'Mac OS X';
 
 const WalletsList = () => {
   const walletsCarousel = useRef();

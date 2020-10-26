@@ -48,6 +48,7 @@ import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, rem
 import Lnurl from './class/lnurl';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import { presentCameraNotAuthorizedAlert } from './class/camera';
+import LinearGradient from 'react-native-linear-gradient';
 /** @type {AppStorage} */
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
