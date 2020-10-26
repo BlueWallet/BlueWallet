@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useState } from 'react';
-import { FlatList, Keyboard, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Keyboard, KeyboardAvoidingView, LayoutAnimation, Platform, StatusBar, StyleSheet, Text, View } from 'react-native';
 import {
   BlueButton,
   BlueButtonHook,
@@ -130,6 +130,7 @@ const WalletsAddMultisigStep2 = () => {
     await w.generate();
     const cosignersCopy = [...cosigners];
     cosignersCopy.push([w.getSecret(), false, false]);
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setCosigners(cosignersCopy);
     setMnemonicsToDisplay(w.getSecret());
     setIsMnemonicsModalVisible(true);
@@ -208,6 +209,7 @@ const WalletsAddMultisigStep2 = () => {
 
     const cosignersCopy = [...cosigners];
     cosignersCopy.push([hd.getSecret(), false, false]);
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setCosigners(cosignersCopy);
     if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
     setIsProvideMnemonicsModalVisible(false);
@@ -282,6 +284,7 @@ const WalletsAddMultisigStep2 = () => {
 
       const cosignersCopy = [...cosigners];
       cosignersCopy.push([cosigner.getXpub(), cosigner.getFp(), cosigner.getPath()]);
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setCosigners(cosignersCopy);
       if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
     }
