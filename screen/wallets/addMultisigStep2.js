@@ -1,17 +1,6 @@
 /* global alert */
 import React, { useState } from 'react';
-import {
-  FlatList,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { FlatList, Keyboard, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, View } from 'react-native';
 import {
   BlueButton,
   BlueButtonHook,
@@ -26,15 +15,14 @@ import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import Modal from 'react-native-modal';
-import { Icon } from 'react-native-elements';
 import { getSystemName } from 'react-native-device-info';
 import ImagePicker from 'react-native-image-picker';
 import ScanQRCode from '../send/ScanQRCode';
 import WalletImport from '../../class/wallet-import';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
-import WalletsAddMultisig from './addMultisig';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import MultipleStepsListItem from '../../components/MultipleStepsListItem';
 
 const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
@@ -60,7 +48,6 @@ const WalletsAddMultisigStep2 = () => {
 
   const stylesHook = StyleSheet.create({
     root: {
-      flex: 1,
       backgroundColor: colors.elevated,
     },
     textBtc: {
@@ -212,27 +199,16 @@ const WalletsAddMultisigStep2 = () => {
 
   const _renderKeyItemProvided = el => {
     return (
-      <View style={styles.flexDirectionRow}>
-        <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-          <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
-        </View>
-        <View style={styles.vaultKeyTextSignedWrapper}>
-          <Text style={[styles.vaultKeyTextSigned, stylesHook.vaultKeyTextSigned]}>
-            {loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-          </Text>
-        </View>
-
-        <View>
-          <TouchableOpacity
-            style={[styles.provideKeyButton]}
-            onPress={async () => {
-              viewKey(cosigners[el.index]);
-            }}
-          >
-            <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{loc.multisig.view_key}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <MultipleStepsListItem
+        checked
+        leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
+        rightButton={{
+          text: loc.multisig.view_key,
+          onPress: async () => {
+            viewKey(cosigners[el.index]);
+          },
+        }}
+      />
     );
   };
 
@@ -365,44 +341,31 @@ const WalletsAddMultisigStep2 = () => {
     if (el.index < cosigners.length) return _renderKeyItemProvided(el);
     return (
       <View>
-        <View style={styles.itemKeyUnprovidedWrapper}>
-          <View style={[styles.vaultKeyCircle, stylesHook.vaultKeyCircle]}>
-            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>{el.index + 1}</Text>
-          </View>
-          <View style={styles.vaultKeyTextWrapper}>
-            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
-              {loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-            </Text>
-          </View>
-        </View>
-
+        <MultipleStepsListItem
+          circledText={`${el.index + 1}`}
+          leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
+        />
         {renderProvideKeyButtons && (
-          <View>
-            <TouchableOpacity
-              style={[styles.provideKeyButton, stylesHook.provideKeyButton]}
-              onPress={async () => {
-                await generateNewKey();
+          <>
+            <MultipleStepsListItem
+              button={{
+                onPress: async () => await generateNewKey(),
+                text: loc.multisig.generate_new_key,
               }}
-            >
-              <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{loc.multisig.generate_new_key}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.provideKeyButton, stylesHook.provideKeyButton]}
-              onPress={() => {
-                scanOrOpenFile();
+            />
+            <MultipleStepsListItem
+              button={{
+                onPress: scanOrOpenFile,
+                text: loc.multisig.scan_or_open_file,
               }}
-            >
-              <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{loc.multisig.scan_or_open_file}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.provideKeyButton, stylesHook.provideKeyButton]}
-              onPress={() => {
-                iHaveMnemonics();
+            />
+            <MultipleStepsListItem
+              button={{
+                onPress: iHaveMnemonics,
+                text: loc.multisig.i_have_mnemonics,
               }}
-            >
-              <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{loc.multisig.i_have_mnemonics}</Text>
-            </TouchableOpacity>
-          </View>
+            />
+          </>
         )}
       </View>
     );
@@ -484,40 +447,33 @@ const WalletsAddMultisigStep2 = () => {
       </Modal>
     );
   };
+  const footer = isLoading ? (
+    <BlueLoadingHook />
+  ) : (
+    <BlueButtonHook title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
+  );
 
   const data = new Array(n);
   return (
-    <SafeAreaView style={stylesHook.root}>
-      <ScrollView style={stylesHook.root}>
+    <SafeAreaView style={[styles.root, stylesHook.root]}>
+      <View style={[styles.root, stylesHook.root, styles.mainBlock]}>
         <StatusBar barStyle="default" />
-        <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
-          <View style={styles.mainBlock}>
-            <Text style={styles.headerText}>{loc.multisig.setup_header}</Text>
-            <Text style={styles.header2Text}>
-              {WalletsAddMultisig.getCurrentFormatReadable(format)}, {loc.formatString(loc.multisig.quorum, { m, n })}
-            </Text>
-            <FlatList data={data} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} scrollEnabled={false} />
-            <BlueSpacing40 />
-            {isLoading ? (
-              <BlueLoadingHook />
-            ) : (
-              <BlueButtonHook title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
-            )}
-            <BlueSpacing20 />
-          </View>
-        </KeyboardAvoidingView>
-
+        <FlatList data={data} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+        {footer}
         {renderMnemonicsModal()}
 
         {renderProvideMnemonicsModal()}
 
         {renderCosignersXpubModal()}
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   itemKeyUnprovidedWrapper: { flexDirection: 'row', paddingTop: 16 },
   vaultKeyCircle: {
     width: 42,
@@ -533,7 +489,6 @@ const styles = StyleSheet.create({
     marginLeft: 40,
     height: 48,
     borderRadius: 8,
-    flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 16,
     marginBottom: 8,
@@ -564,7 +519,6 @@ const styles = StyleSheet.create({
     minHeight: 400,
     height: 400,
   },
-  flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },
   vaultKeyCircleSuccess: {
     width: 42,
     height: 42,
@@ -582,7 +536,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   headerText: { fontSize: 30, color: '#13244D' },
-  mainBlock: { paddingLeft: 20, paddingRight: 20 },
+  mainBlock: { marginHorizontal: 20 },
   header2Text: { color: '#9AA0AA', fontSize: 14, paddingBottom: 20 },
   alignItemsCenter: { alignItems: 'center' },
   squareButtonWrapper: { height: 50, width: 250 },
