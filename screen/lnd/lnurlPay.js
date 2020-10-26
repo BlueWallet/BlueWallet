@@ -21,18 +21,18 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { Icon } from 'react-native-elements';
 import Biometric from '../../class/biometrics';
 import PropTypes from 'prop-types';
-
-const BlueApp = require('../../BlueApp');
-const EV = require('../../blue_modules/events');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
 
 export default class LnurlPay extends Component {
-  constructor(props) {
+  static contextType = BlueStorageContext;
+
+  constructor(props, context) {
     super(props);
     const fromWalletID = props.route.params.fromWalletID;
     const lnurl = props.route.params.lnurl;
 
-    const fromWallet = BlueApp.getWallets().find(w => w.getID() === fromWalletID);
+    const fromWallet = context.wallets.find(w => w.getID() === fromWalletID);
 
     this.state = {
       isLoading: true,
@@ -101,7 +101,6 @@ export default class LnurlPay extends Component {
 
       // success, probably
       ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-      EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
       if (fromWallet.last_paid_invoice_result && fromWallet.last_paid_invoice_result.payment_preimage) {
         await LN.storeSuccess(decoded.payment_hash, fromWallet.last_paid_invoice_result.payment_preimage);
       }

@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { FlatList, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BlueButton, BlueButtonLink, BlueCard, BlueNavigationStyle, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -9,14 +9,9 @@ import loc from '../../loc';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
 import ScanQRCode from './ScanQRCode';
-import DocumentPicker from 'react-native-document-picker';
-import ActionSheet from '../ActionSheet';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import Clipboard from '@react-native-community/clipboard';
-import RNFS from 'react-native-fs';
-
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const bitcoin = require('bitcoinjs-lib');
 const currency = require('../../blue_modules/currency');
 const fs = require('../../blue_modules/fs');
@@ -29,6 +24,7 @@ const shortenAddress = addr => {
 };
 
 const PsbtMultisig = () => {
+  const { wallets } = useContext(BlueStorageContext);
   const navigation = useNavigation();
   const route = useRoute();
   const { colors } = useTheme();
@@ -88,7 +84,7 @@ const PsbtMultisig = () => {
     },
   });
   /** @type MultisigHDWallet */
-  const wallet = BlueApp.getWallets().find(w => w.getID() === walletId);
+  const wallet = wallets.find(w => w.getID() === walletId);
   let destination = [];
   let totalSat = 0;
   const targets = [];
@@ -169,9 +165,7 @@ const PsbtMultisig = () => {
     const receivedPSBT = bitcoin.Psbt.fromBase64(receivedPSBTBase64);
     try {
       const newPsbt = psbt.combine(receivedPSBT);
-      if (!isDesktop) {
-        navigation.dangerouslyGetParent().pop();
-      }
+      navigation.dangerouslyGetParent().pop();
       setPsbt(newPsbt);
       setIsModalVisible(false);
     } catch (error) {
@@ -189,105 +183,6 @@ const PsbtMultisig = () => {
     } else {
       // psbt base64?
       _combinePSBT(ret.data);
-    }
-  };
-
-  const copyFromClipbard = async () => {
-    onBarScanned(await Clipboard.getString());
-  };
-
-  const choosePhoto = () => {
-    ImagePicker.launchImageLibrary(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        }
-      },
-    );
-  };
-
-  const handleImportFileButtonPressed = async () => {
-    try {
-      const res = await DocumentPicker.pick({
-        type:
-          Platform.OS === 'ios'
-            ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', DocumentPicker.types.plainText, 'public.json']
-            : [DocumentPicker.types.allFiles],
-      });
-
-      const file = await RNFS.readFile(res.uri);
-      if (file) {
-        onBarScanned(file);
-      } else {
-        throw new Error();
-      }
-    } catch (err) {
-      if (!DocumentPicker.isCancel(err)) {
-        alert(loc.wallets.import_error);
-      }
-    }
-  };
-
-  const takePhoto = () => {
-    ImagePicker.launchCamera(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        } else if (response.error) {
-          ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
-        }
-      },
-    );
-  };
-
-  const showActionSheet = async () => {
-    const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
-    let copyFromClipboardIndex;
-    if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, 'Take Photo', loc.wallets.list_long_choose];
-      if (!isClipboardEmpty) {
-        options.push(loc.wallets.list_long_clipboard);
-        copyFromClipboardIndex = options.length - 1;
-      }
-
-      options.push(loc.wallets.import_file);
-      const impoortFileButtonIndex = options.length - 1;
-
-      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
-        if (buttonIndex === 1) {
-          takePhoto();
-        } else if (buttonIndex === 2) {
-          choosePhoto();
-        } else if (buttonIndex === copyFromClipboardIndex) {
-          copyFromClipbard();
-        } else if (impoortFileButtonIndex) {
-          handleImportFileButtonPressed();
-        }
-      });
     }
   };
 
@@ -314,7 +209,27 @@ const PsbtMultisig = () => {
 
   const openScanner = () => {
     if (isDesktop) {
-      showActionSheet();
+      ImagePicker.launchCamera(
+        {
+          title: null,
+          mediaType: 'photo',
+          takePhotoButtonTitle: null,
+        },
+        response => {
+          if (response.uri) {
+            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+            LocalQRCode.decode(uri, (error, result) => {
+              if (!error) {
+                onBarScanned(result);
+              } else {
+                alert(loc.send.qr_error_no_qrcode);
+              }
+            });
+          } else if (response.error) {
+            ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
+          }
+        },
+      );
     } else {
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -564,8 +479,8 @@ const styles = StyleSheet.create({
   vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },
   textBtcUnit: { justifyContent: 'flex-end', bottom: 8 },
-  bottomFeesWrapper: { flexDirection: 'row', marginBottom: 20 },
-  bottomWrapper: { justifyContent: 'center', alignItems: 'center', marginVertical: 40 },
+  bottomFeesWrapper: { flexDirection: 'row', paddingBottom: 20 },
+  bottomWrapper: { justifyContent: 'center', alignItems: 'center', paddingVertical: 20 },
 });
 
 PsbtMultisig.navigationOptions = () => ({

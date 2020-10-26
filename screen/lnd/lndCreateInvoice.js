@@ -22,8 +22,6 @@ import {
 } from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import PropTypes from 'prop-types';
-import ImagePicker from 'react-native-image-picker';
-import Clipboard from '@react-native-community/clipboard';
 import bech32 from 'bech32';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
@@ -31,16 +29,11 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-import ActionSheet from '../ActionSheet';
 import Lnurl from '../../class/lnurl';
-import { getSystemName } from 'react-native-device-info';
-import ScanQRCode from '../send/ScanQRCode';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import Notifications from '../../blue_modules/notifications';
 const currency = require('../../blue_modules/currency');
-const BlueApp = require('../../BlueApp');
-const EV = require('../../blue_modules/events');
-const notifications = require('../../blue_modules/notifications');
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-const isDesktop = getSystemName() === 'Mac OS X';
+
 const styles = StyleSheet.create({
   createButton: {
     marginHorizontal: 56,
@@ -140,7 +133,8 @@ const styles = StyleSheet.create({
 });
 
 export default class LNDCreateInvoice extends Component {
-  constructor(props) {
+  static contextType = BlueStorageContext;
+  constructor(props, context) {
     super(props);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
@@ -150,7 +144,7 @@ export default class LNDCreateInvoice extends Component {
 
     // fallback to first wallet if it exists
     if (!fromWallet) {
-      const lightningWallets = BlueApp.getWallets().filter(item => item.type === LightningCustodianWallet.type);
+      const lightningWallets = context.wallets.filter(item => item.type === LightningCustodianWallet.type);
       if (lightningWallets.length > 0) {
         fromWallet = lightningWallets[0];
         console.warn('warning: using ln wallet index 0');
@@ -170,10 +164,14 @@ export default class LNDCreateInvoice extends Component {
   }
 
   renderReceiveDetails = async () => {
-    this.state.fromWallet.setUserHasSavedExport(true);
-    await BlueApp.saveToDisk();
-    if (this.props.route.params.uri) {
-      this.processLnurl(this.props.route.params.uri);
+    try {
+      this.state.fromWallet.setUserHasSavedExport(true);
+      await this.context.saveToDisk();
+      if (this.props.route.params.uri) {
+        this.processLnurl(this.props.route.params.uri);
+      }
+    } catch (e) {
+      console.log(e);
     }
     this.setState({ isLoading: false });
   };
@@ -188,7 +186,7 @@ export default class LNDCreateInvoice extends Component {
         onFailure: () => {
           this.props.navigation.dangerouslyGetParent().pop();
           this.props.navigation.navigate('WalletExport', {
-            wallet: this.state.fromWallet,
+            walletID: this.state.fromWallet.getID(),
           });
         },
       });
@@ -226,15 +224,14 @@ export default class LNDCreateInvoice extends Component {
         }
 
         const invoiceRequest = await this.state.fromWallet.addInvoice(amount, this.state.description);
-        EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
 
         // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
         /** @type LightningCustodianWallet */
         const fromWallet = this.state.fromWallet;
         const decoded = await fromWallet.decodeInvoice(invoiceRequest);
-        await notifications.tryToObtainPermissions();
-        notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
+        await Notifications.tryToObtainPermissions();
+        Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
 
         // send to lnurl-withdraw callback url if that exists
         if (this.state.lnurlParams) {
@@ -254,7 +251,7 @@ export default class LNDCreateInvoice extends Component {
         setTimeout(async () => {
           // wallet object doesnt have this fresh invoice in its internals, so we refetch it and only then save
           await fromWallet.fetchUserInvoices(1);
-          await BlueApp.saveToDisk();
+          await this.context.saveToDisk();
         }, 1000);
 
         this.props.navigation.navigate('LNDViewInvoice', {
@@ -278,21 +275,21 @@ export default class LNDCreateInvoice extends Component {
         return this.props.navigation.goBack();
       }
 
+      // handling fallback lnurl
+      const ind = data.indexOf('lightning=');
+      if (ind !== -1) {
+        data = data.substring(ind + 10).split('&')[0];
+      }
+
+      data = data.replace('LIGHTNING:', '').replace('lightning:', '');
+      console.log(data);
+
+      // decoding the lnurl
+      const decoded = bech32.decode(data, 1500);
+      const url = Buffer.from(bech32.fromWords(decoded.words)).toString();
+
+      // calling the url
       try {
-        // handling fallback lnurl
-        const ind = data.indexOf('lightning=');
-        if (ind !== -1) {
-          data = data.substring(ind + 10).split('&')[0];
-        }
-
-        data = data.replace('LIGHTNING:', '').replace('lightning:', '');
-        console.log(data);
-
-        // decoding the lnurl
-        const decoded = bech32.decode(data, 1500);
-        const url = Buffer.from(bech32.fromWords(decoded.words)).toString();
-
-        // calling the url
         const resp = await fetch(url, { method: 'GET' });
         if (resp.status >= 300) {
           throw new Error('Bad response from server');
@@ -369,93 +366,19 @@ export default class LNDCreateInvoice extends Component {
     );
   };
 
-  choosePhoto = () => {
-    ImagePicker.launchImageLibrary(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = response.uri.toString().replace('file://', '');
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              this.processLnurl(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        }
-      },
-    );
-  };
-
-  takePhoto = () => {
-    ImagePicker.launchCamera(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = response.uri.toString().replace('file://', '');
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              this.processLnurl(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        } else if (response.error) {
-          ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
-        }
-      },
-    );
-  };
-
-  copyFromClipbard = async () => {
-    this.processLnurl(await Clipboard.getString());
-  };
-
-  showActionSheet = async () => {
-    const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
-    let copyFromClipboardIndex;
-    const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.take_photo];
-    if (!isClipboardEmpty) {
-      options.push(loc.wallets.list_long_clipboard);
-      copyFromClipboardIndex = options.length - 1;
-    }
-
-    ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
-      if (buttonIndex === 1) {
-        this.choosePhoto();
-      } else if (buttonIndex === 2) {
-        this.takePhoto();
-      } else if (buttonIndex === copyFromClipboardIndex) {
-        this.copyFromClipbard();
-      }
-    });
-  };
-
   renderScanClickable = () => {
     return (
       <TouchableOpacity
         disabled={this.state.isLoading}
         onPress={() => {
+          NavigationService.navigate('ScanQRCodeRoot', {
+            screen: 'ScanQRCode',
+            params: {
+              onBarScanned: this.processLnurl,
+              launchedBy: this.props.route.name,
+            },
+          });
           Keyboard.dismiss();
-          if (isDesktop) {
-            this.showActionSheet();
-          } else {
-            NavigationService.navigate('ScanQRCodeRoot', {
-              screen: 'ScanQRCode',
-              params: {
-                onBarScanned: this.processLnurl,
-                launchedBy: this.props.route.name,
-              },
-            });
-          }
         }}
         style={styles.scanRoot}
       >

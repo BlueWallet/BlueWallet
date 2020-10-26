@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
 import {
   View,
   Text,
@@ -30,10 +30,9 @@ import { useTheme, useRoute, useNavigation } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import { getSystemName } from 'react-native-device-info';
-const EV = require('../../blue_modules/events');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import Notifications from '../../blue_modules/notifications';
 const prompt = require('../../blue_modules/prompt');
-const BlueApp = require('../../BlueApp');
-const notifications = require('../../blue_modules/notifications');
 const isDesktop = getSystemName() === 'Mac OS X';
 
 const styles = StyleSheet.create({
@@ -97,13 +96,15 @@ const styles = StyleSheet.create({
 });
 
 const WalletDetails = () => {
-  const { wallet } = useRoute().params;
+  const { saveToDisk, wallets, deleteWallet } = useContext(BlueStorageContext);
+  const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
+  const wallet = useRef(wallets.find(w => w.getID() === walletID)).current;
   const [walletName, setWalletName] = useState(wallet.getLabel());
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
-  const { setParams, goBack, navigate, popToTop } = useNavigation();
+  const { goBack, navigate, setOptions, popToTop } = useNavigation();
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     textLabel1: {
@@ -126,9 +127,7 @@ const WalletDetails = () => {
     },
   });
 
-  const setLabel = useCallback(async () => {
-    setParams({ isLoading: true });
-    setIsLoading(true);
+  const setLabel = async () => {
     if (walletName.trim().length > 0) {
       wallet.setLabel(walletName);
       if (wallet.type === WatchOnlyWallet.type && wallet.getSecret().startsWith('zpub')) {
@@ -136,20 +135,26 @@ const WalletDetails = () => {
       }
       wallet.setHideTransactionsInWalletsList(!hideTransactionsInWalletsList);
     }
-    setParams({ wallet });
-    await BlueApp.saveToDisk();
-    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+    await saveToDisk();
     alert(loc.wallets.details_wallet_updated);
     goBack();
-  }, [goBack, hideTransactionsInWalletsList, setParams, useWithHardwareWallet, wallet, walletName]);
+  };
 
   useEffect(() => {
-    setParams({ isLoading, saveAction: setLabel, saveTextStyle: stylesHook.saveText });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, colors.outputValue, setLabel]);
+    setOptions({
+      headerRight: () => (
+        <TouchableOpacity disabled={isLoading} style={styles.save} onPress={setLabel}>
+          <Text style={stylesHook.saveText}>{loc.wallets.details_save}</Text>
+        </TouchableOpacity>
+      ),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, colors.outputValue, walletName, useWithHardwareWallet, hideTransactionsInWalletsList]);
 
   useEffect(() => {
     setIsLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const presentWalletHasBalanceAlert = useCallback(async () => {
@@ -162,14 +167,11 @@ const WalletDetails = () => {
         'plain-text',
       );
       if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
-        setParams({ isLoading: true });
         setIsLoading(true);
-        notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
-        BlueApp.deleteWallet(wallet);
+        Notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
+        deleteWallet(wallet);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-        await BlueApp.saveToDisk();
-        EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-        EV(EV.enum.WALLETS_COUNT_CHANGED);
+        await saveToDisk();
         popToTop();
       } else {
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -177,11 +179,12 @@ const WalletDetails = () => {
         alert(loc.wallets.details_del_wb_err);
       }
     } catch (_) {}
-  }, [popToTop, setParams, wallet]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [popToTop, wallet]);
 
   const navigateToWalletExport = () => {
     navigate('WalletExport', {
-      wallet,
+      walletID: wallet.getID(),
     });
   };
   const navigateToMultisigCoordinationSetup = () => {
@@ -306,14 +309,11 @@ const WalletDetails = () => {
             if (wallet.getBalance() > 0 && wallet.allowSend()) {
               presentWalletHasBalanceAlert();
             } else {
-              setParams({ isLoading: true });
               setIsLoading(true);
-              notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
-              BlueApp.deleteWallet(wallet);
+              Notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
+              deleteWallet(wallet);
               ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-              await BlueApp.saveToDisk();
-              EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-              EV(EV.enum.WALLETS_COUNT_CHANGED);
+              await saveToDisk();
               popToTop();
             }
           },
@@ -475,22 +475,9 @@ const WalletDetails = () => {
   );
 };
 
-WalletDetails.navigationOptions = ({ route }) => ({
+WalletDetails.navigationOptions = () => ({
   ...BlueNavigationStyle(),
   headerTitle: loc.wallets.details_title,
-  headerRight: () => (
-    <TouchableOpacity
-      disabled={route.params.isLoading === true}
-      style={styles.save}
-      onPress={() => {
-        if (route.params.saveAction) {
-          route.params.saveAction();
-        }
-      }}
-    >
-      <Text style={route.params.saveTextStyle}>{loc.wallets.details_save}</Text>
-    </TouchableOpacity>
-  ),
 });
 
 export default WalletDetails;

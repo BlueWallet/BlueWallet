@@ -23,13 +23,11 @@ import {
 } from 'react-native';
 import { BlueButtonLink, BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
-import { AppStorage } from '../../class';
 import * as NavigationService from '../../NavigationService';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
-
-const BlueApp: AppStorage = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const A = require('../../blue_modules/analytics');
 
 const CURRENCY_CODE_ANY = '_any';
@@ -38,6 +36,7 @@ const METHOD_ANY = '_any';
 const HodlHodlListSections = { OFFERS: 'OFFERS' };
 const windowHeight = Dimensions.get('window').height;
 export default class HodlHodl extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
 
@@ -65,7 +64,7 @@ export default class HodlHodl extends Component {
 
   handleLoginPress = () => {
     const handleLoginCallback = (hodlApiKey, hodlHodlSignatureKey) => {
-      BlueApp.setHodlHodlApiKey(hodlApiKey, hodlHodlSignatureKey);
+      this.context.setHodlHodlApiKey(hodlApiKey, hodlHodlSignatureKey);
       const displayLoginButton = !hodlApiKey;
       const HodlApi = new HodlHodlApi(hodlApiKey);
       this.setState({ HodlApi, hodlApiKey });
@@ -191,7 +190,7 @@ export default class HodlHodl extends Component {
   }
 
   onFocus = async () => {
-    const hodlApiKey = await BlueApp.getHodlHodlApiKey();
+    const hodlApiKey = await this.context.getHodlHodlApiKey();
     const displayLoginButton = !hodlApiKey;
 
     if (hodlApiKey && !this.state.hodlApiKey) {
@@ -211,7 +210,7 @@ export default class HodlHodl extends Component {
     this._unsubscribeFocus = this.props.navigation.addListener('focus', this.onFocus);
     A(A.ENUM.NAVIGATED_TO_WALLETS_HODLHODL);
 
-    const hodlApiKey = await BlueApp.getHodlHodlApiKey();
+    const hodlApiKey = await this.context.getHodlHodlApiKey();
     const displayLoginButton = !hodlApiKey;
 
     const HodlApi = new HodlHodlApi(hodlApiKey);

@@ -1,11 +1,11 @@
 /* global it, describe */
+import Notifications from '../../blue_modules/notifications';
 const assert = require('assert');
-const notifications = require('../../blue_modules/notifications');
-
+Notifications.default = new Notifications();
 describe('notifications', () => {
   it('can check groundcontrol server uri validity', async () => {
-    assert.ok(await notifications.isGroundControlUriValid('https://groundcontrol-bluewallet.herokuapp.com'));
-    assert.ok(!(await notifications.isGroundControlUriValid('https://www.google.com')));
-    assert.ok(!(await notifications.isGroundControlUriValid('https://localhost.com')));
+    assert.ok(await Notifications.isGroundControlUriValid('https://groundcontrol-bluewallet.herokuapp.com'));
+    assert.ok(!(await Notifications.isGroundControlUriValid('https://www.google.com')));
+    assert.ok(!(await Notifications.isGroundControlUriValid('https://localhost.com')));
   });
 });

@@ -36,12 +36,11 @@ import DocumentPicker from 'react-native-document-picker';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import ScanQRCode from './ScanQRCode';
-const EV = require('../../blue_modules/events');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import Notifications from '../../blue_modules/notifications';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
 const bitcoin = require('bitcoinjs-lib');
-const notifications = require('../../blue_modules/notifications');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const { height, width } = Dimensions.get('window');
 const isDesktop = getSystemName() === 'Mac OS X';
@@ -124,6 +123,7 @@ const styles = StyleSheet.create({
 
 export default class PsbtWithHardwareWallet extends Component {
   cameraRef = null;
+  static contextType = BlueStorageContext;
 
   _combinePSBT = receivedPSBT => {
     return this.state.fromWallet.combinePsbt(this.state.psbt, receivedPSBT);
@@ -205,13 +205,12 @@ export default class PsbtWithHardwareWallet extends Component {
         await BlueElectrum.waitTillConnected();
         const result = await this.state.fromWallet.broadcastTx(this.state.txhex);
         if (result) {
-          EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           this.setState({ success: true, isLoading: false });
           const txDecoded = bitcoin.Transaction.fromHex(this.state.txhex);
           const txid = txDecoded.getId();
-          notifications.majorTomToGroundControl([], [], [txid]);
+          Notifications.majorTomToGroundControl([], [], [txid]);
           if (this.state.memo) {
-            BlueApp.tx_metadata[txid] = { memo: this.state.memo };
+            this.context.txMetadata[txid] = { memo: this.state.memo };
           }
         } else {
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });

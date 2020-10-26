@@ -30,8 +30,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-const BlueApp = require('../../BlueApp');
-const EV = require('../../blue_modules/events');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
 
 const styles = StyleSheet.create({
@@ -111,17 +110,18 @@ const styles = StyleSheet.create({
 });
 
 export default class ScanLndInvoice extends React.Component {
+  static contextType = BlueStorageContext;
   state = {
     isLoading: false,
     isAmountInitiallyEmpty: false,
     renderWalletSelectionButtonHidden: false,
   };
 
-  constructor(props) {
+  constructor(props, context) {
     super(props);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
-    if (!BlueApp.getWallets().some(item => item.type === LightningCustodianWallet.type)) {
+    if (!context.wallets.some(item => item.type === LightningCustodianWallet.type)) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
       props.navigation.dangerouslyGetParent().pop();
@@ -131,14 +131,14 @@ export default class ScanLndInvoice extends React.Component {
       let fromWallet = {};
 
       if (!fromSecret) {
-        const lightningWallets = BlueApp.getWallets().filter(item => item.type === LightningCustodianWallet.type);
+        const lightningWallets = context.wallets.filter(item => item.type === LightningCustodianWallet.type);
         if (lightningWallets.length > 0) {
           fromSecret = lightningWallets[0].getSecret();
           console.warn('warning: using ln wallet index 0');
         }
       }
 
-      for (const w of BlueApp.getWallets()) {
+      for (const w of context.wallets) {
         if (w.getSecret() === fromSecret) {
           fromWallet = w;
           break;
@@ -290,12 +290,12 @@ export default class ScanLndInvoice extends React.Component {
           return alert(Err.message);
         }
 
-        EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
         this.props.navigation.navigate('Success', {
           amount: amountSats,
           amountUnit: BitcoinUnit.SATS,
           invoiceDescription: this.state.decoded.description,
         });
+        this.context.fetchAndSaveWalletTransactions(fromWallet.getID());
       },
     );
   }

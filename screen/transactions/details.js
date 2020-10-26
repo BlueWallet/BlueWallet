@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
 import {
   SafeBlueArea,
   BlueCard,
@@ -15,8 +15,7 @@ import Handoff from 'react-native-handoff';
 import PropTypes from 'prop-types';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const dayjs = require('dayjs');
 
 const styles = StyleSheet.create({
@@ -95,13 +94,15 @@ function arrDiff(a1, a2) {
 }
 
 export default class TransactionsDetails extends Component {
-  constructor(props) {
+  static contextType = BlueStorageContext;
+
+  constructor(props, context) {
     super(props);
     const hash = props.route.params.hash;
     let foundTx = {};
     let from = [];
     let to = [];
-    for (const tx of BlueApp.getTransactions()) {
+    for (const tx of context.getTransactions()) {
       if (tx.hash === hash) {
         foundTx = tx;
         for (const input of foundTx.inputs) {
@@ -115,7 +116,7 @@ export default class TransactionsDetails extends Component {
     }
 
     let wallet = false;
-    for (const w of BlueApp.getWallets()) {
+    for (const w of context.wallets) {
       for (const t of w.getTransactions()) {
         if (t.hash === hash) {
           console.log('tx', hash, 'belongs to', w.getLabel());
@@ -124,9 +125,9 @@ export default class TransactionsDetails extends Component {
       }
     }
     let memo = '';
-    if (BlueApp.tx_metadata[foundTx.hash]) {
-      if (BlueApp.tx_metadata[foundTx.hash].memo) {
-        memo = BlueApp.tx_metadata[foundTx.hash].memo;
+    if (context.txMetadata[foundTx.hash]) {
+      if (context.txMetadata[foundTx.hash].memo) {
+        memo = context.txMetadata[foundTx.hash].memo;
       }
     }
     this.state = {
@@ -151,8 +152,9 @@ export default class TransactionsDetails extends Component {
   }
 
   handleOnSaveButtonTapped = () => {
-    BlueApp.tx_metadata[this.state.tx.hash] = { memo: this.state.memo };
-    BlueApp.saveToDisk().then(_success => alert('Transaction note has been successfully saved.'));
+    Keyboard.dismiss();
+    this.context.txMetadata[this.state.tx.hash] = { memo: this.state.memo };
+    this.context.saveToDisk().then(_success => alert('Transaction note has been successfully saved.'));
   };
 
   handleOnMemoChangeText = value => {

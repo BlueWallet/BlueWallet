@@ -19,7 +19,6 @@ import Carousel from 'react-native-snap-carousel';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { LightningCustodianWallet, MultisigHDWallet, PlaceholderWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
-import { BlueCurrentTheme } from './themes';
 import { BluePrivateBalance } from '../BlueComponents';
 
 const nStyles = StyleSheet.create({
@@ -125,6 +124,7 @@ const iStyles = StyleSheet.create({
 
 const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedWallet }) => {
   const scaleValue = new Animated.Value(1.0);
+  const { colors } = useTheme();
 
   const onPressedIn = () => {
     const props = { duration: 50 };
@@ -169,18 +169,14 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
             }
           }}
         >
-          <LinearGradient
-            shadowColor={BlueCurrentTheme.colors.shadowColor}
-            colors={WalletGradient.gradientsFor(item.type)}
-            style={iStyles.grad}
-          >
+          <LinearGradient shadowColor={colors.shadowColor} colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
             <Image source={require('../img/btc-shape.png')} style={iStyles.image} />
             <Text style={iStyles.br} />
-            <Text numberOfLines={1} style={[iStyles.label, { color: BlueCurrentTheme.colors.inverseForegroundColor }]}>
+            <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
               {item.getLabel()}
             </Text>
             {item.getIsFailure() ? (
-              <Text numberOfLines={0} style={[iStyles.importError, { color: BlueCurrentTheme.colors.inverseForegroundColor }]}>
+              <Text numberOfLines={0} style={[iStyles.importError, { color: colors.inverseForegroundColor }]}>
                 {loc.wallets.list_import_error}
               </Text>
             ) : (
@@ -223,32 +219,24 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
           onPressedOut();
         }}
       >
-        <LinearGradient
-          shadowColor={BlueCurrentTheme.colors.shadowColor}
-          colors={WalletGradient.gradientsFor(item.type)}
-          style={iStyles.grad}
-        >
+        <LinearGradient shadowColor={colors.shadowColor} colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
           <Image source={image} style={iStyles.image} />
           <Text style={iStyles.br} />
-          <Text numberOfLines={1} style={[iStyles.label, { color: BlueCurrentTheme.colors.inverseForegroundColor }]}>
+          <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
             {item.getLabel()}
           </Text>
           {item.hideBalance ? (
             <BluePrivateBalance />
           ) : (
-            <Text
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              style={[iStyles.balance, { color: BlueCurrentTheme.colors.inverseForegroundColor }]}
-            >
+            <Text numberOfLines={1} adjustsFontSizeToFit style={[iStyles.balance, { color: colors.inverseForegroundColor }]}>
               {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
             </Text>
           )}
           <Text style={iStyles.br} />
-          <Text numberOfLines={1} style={[iStyles.latestTx, { color: BlueCurrentTheme.colors.inverseForegroundColor }]}>
+          <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>
             {loc.wallets.list_latest_transaction}
           </Text>
-          <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: BlueCurrentTheme.colors.inverseForegroundColor }]}>
+          <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor }]}>
             {transactionTimeToReadable(item.getLatestTransactionTime())}
           </Text>
         </LinearGradient>
