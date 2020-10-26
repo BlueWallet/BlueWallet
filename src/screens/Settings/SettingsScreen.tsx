@@ -88,7 +88,7 @@ export const SettingsScreen = (props: Props) => {
   return (
     <>
       <AppStateManager handleAppComesToForeground={refreshBiometricsAvailability} />
-      {/*
+      {/*	
        // @ts-ignore */}
       <Header navigation={props.navigation} title={i18n.settings.header} />
       <ScreenTemplate>
@@ -103,7 +103,7 @@ export const SettingsScreen = (props: Props) => {
 
 const styles = StyleSheet.create({
   logo: {
-    height: 166,
+    height: 82,
     width: '100%',
     paddingTop: 3,
   },
