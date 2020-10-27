@@ -375,7 +375,7 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
         footer={
           <>
             <Button
-              disabled={!text || !!validationError}
+              disabled={!text || !!validationError || !label}
               title={i18n.wallets.importWallet.import}
               onPress={this.onImportButtonPress}
             />
