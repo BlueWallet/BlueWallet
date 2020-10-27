@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, StatusBar } from 'react-native';
+import { ActivityIndicator, View, BackHandler, ScrollView, StyleSheet, StatusBar } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueButton } from '../../BlueComponents';
 import Privacy from '../../Privacy';
 import loc from '../../loc';
+import SquareEnumeratedWords from '../../components/SquareEnumeratedWords';
 
 const PleaseBackup = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -19,21 +20,6 @@ const PleaseBackup = () => {
     loading: {
       flex: 1,
       paddingTop: 20,
-    },
-    word: {
-      width: 'auto',
-      marginRight: 8,
-      marginBottom: 8,
-      backgroundColor: colors.inputBackgroundColor,
-      paddingTop: 6,
-      paddingBottom: 6,
-      paddingLeft: 8,
-      paddingRight: 8,
-      borderRadius: 4,
-    },
-    wortText: {
-      color: colors.labelText,
-      fontWeight: 'bold',
     },
     scrollViewContent: {
       justifyContent: 'space-between',
@@ -53,13 +39,6 @@ const PleaseBackup = () => {
       paddingLeft: 0,
       color: colors.foregroundColor,
     },
-    secret: {
-      flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'center',
-      flexWrap: 'wrap',
-      marginTop: 14,
-    },
   });
 
   const handleBackButton = useCallback(() => {
@@ -77,20 +56,6 @@ const PleaseBackup = () => {
     };
   }, [handleBackButton, words]);
 
-  const renderSecret = () => {
-    const component = [];
-    for (const [index, secret] of words.entries()) {
-      component.push(
-        <View style={styles.word} key={`${secret}${index}`}>
-          <Text style={styles.wortText}>
-            {`${index + 1}`}. {secret}
-          </Text>
-        </View>,
-      );
-    }
-    return component;
-  };
-
   return isLoading ? (
     <View style={styles.loading}>
       <ActivityIndicator />
@@ -102,8 +67,7 @@ const PleaseBackup = () => {
         <View style={styles.please}>
           <BlueText style={styles.successText}>{loc.pleasebackup.success}</BlueText>
           <BlueText style={styles.pleaseText}>{loc.pleasebackup.text}</BlueText>
-
-          <View style={styles.secret}>{renderSecret()}</View>
+          <SquareEnumeratedWords entries={words} />
 
           <BlueSpacing20 />
           <BlueButton testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
