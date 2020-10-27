@@ -295,6 +295,8 @@
     "cpfp_exp": "Wir werden eine andere Transaktion erzeugen, welche deine unbestätigte Transaktion ausgibt. Die gesamten Kosten werden höher als bei der ursprünglichen Transaktion sein, daher sollte sie schneller gemined werden. Dies wird CPFP genannt - Child Pays For Parent.",
     "cpfp_no_bump": "Keine TRX-Gebührenerhöhung möglich",
     "cpfp_title": "TRX-Gebühr erhöhen (CPFP)",
+    "details_balance_hide": "Guthaben verbergen",
+    "details_balance_show": "Guthaben zeigen",
     "details_block": "Blockhöhe",
     "details_copy": "Kopieren",
     "details_from": "Eingehend",
