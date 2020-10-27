@@ -38,11 +38,11 @@ const PleaseBackup = () => {
   }, [navigation]);
 
   useEffect(() => {
-    //  Privacy.enableBlur();
+    Privacy.enableBlur();
     setIsLoading(false);
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
     return () => {
-      // Privacy.disableBlur();
+      Privacy.disableBlur();
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -51,14 +51,10 @@ const PleaseBackup = () => {
   const renderSecret = () => {
     const component = [];
     for (const [index, secret] of wallet.getSecret().split(/\s/).entries()) {
-      component.push(<>
+      component.push(
         <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
           <Text style={[styles.wortText, stylesHook.wortText]}>{`${index + 1}. ${secret}`}</Text>
-        </View>
-        <View key={`${secret}${index}`}>
-          <Text>{secret}</Text>
-        </View>
-        </>
+        </View>,
       );
     }
     return component;
@@ -73,8 +69,6 @@ const PleaseBackup = () => {
       <StatusBar barStyle="default" />
       <ScrollView contentContainerStyle={styles.scrollViewContent} testID="PleaseBackupScrollView">
         <View style={styles.please}>
-          <BlueText>{wallet.getSecret()}</BlueText>
-          <BlueText>{JSON.stringify(wallet.getSecret().split(/\s/))}</BlueText>
           <BlueText style={[styles.successText, stylesHook.successText]}>{loc.pleasebackup.success}</BlueText>
           <BlueText style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</BlueText>
 
