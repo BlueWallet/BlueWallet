@@ -70,7 +70,7 @@ const PleaseBackup = () => {
   }, [navigation]);
 
   useEffect(() => {
-  //  Privacy.enableBlur();
+    //  Privacy.enableBlur();
     setIsLoading(false);
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
     return () => {
@@ -85,9 +85,7 @@ const PleaseBackup = () => {
     for (const [index, secret] of wallet.getSecret().split(' ').entries()) {
       component.push(
         <View style={styles.word} key={`${secret}${index}`}>
-          <Text style={styles.wortText}>
-            {`${index + 1}`}. {secret}
-          </Text>
+          <Text style={styles.wortText}>{`${index + 1}. ${secret}`}</Text>
         </View>,
       );
     }
