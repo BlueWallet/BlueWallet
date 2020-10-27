@@ -138,7 +138,7 @@ const WalletsAdd = () => {
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
         if (w.type === HDSegwitP2SHWallet.type || w.type === HDSegwitBech32Wallet.type) {
           navigate('PleaseBackup', {
-            secret: w.getSecret(),
+            walletID: w.getID(),
           });
         } else {
           goBack();

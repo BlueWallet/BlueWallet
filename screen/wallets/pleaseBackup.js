@@ -1,14 +1,16 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, StatusBar } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueButton } from '../../BlueComponents';
 import Privacy from '../../Privacy';
 import loc from '../../loc';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const PleaseBackup = () => {
+  const { wallets } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
-  const route = useRoute();
-  const words = route.params.secret.split(' ');
+  const { walletID } = useRoute().params;
+  const wallet = wallets.find(w => w.getID() === walletID);
   const navigation = useNavigation();
   const { colors } = useTheme();
   const styles = StyleSheet.create({
@@ -75,11 +77,12 @@ const PleaseBackup = () => {
       Privacy.disableBlur();
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
-  }, [handleBackButton, words]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const renderSecret = () => {
     const component = [];
-    for (const [index, secret] of words.entries()) {
+    for (const [index, secret] of wallet.getSecret().split(' ').entries()) {
       component.push(
         <View style={styles.word} key={`${secret}${index}`}>
           <Text style={styles.wortText}>
