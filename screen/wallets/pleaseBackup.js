@@ -38,11 +38,11 @@ const PleaseBackup = () => {
   }, [navigation]);
 
   useEffect(() => {
-    Privacy.enableBlur();
+   // Privacy.enableBlur();
     setIsLoading(false);
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
     return () => {
-      Privacy.disableBlur();
+  //    Privacy.disableBlur();
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -51,9 +51,11 @@ const PleaseBackup = () => {
   const renderSecret = () => {
     const component = [];
     for (const [index, secret] of wallet.getSecret().split(/\s/).entries()) {
+      const text = `${index + 1}. ${secret}`;
       component.push(
-        <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
-          <Text style={[styles.wortText, stylesHook.wortText]}>{`${index + 1}. ${secret}`}</Text>
+        <View style={[styles.word, stylesHook.word]} key={`${index}`}>
+          <Text style={[styles.wortText, stylesHook.wortText]}>{text}</Text>
+          <Text>{text}</Text>
         </View>,
       );
     }
