@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Text,
   ScrollView,
@@ -16,7 +16,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {
   BlueTextCenteredHooks,
   BlueTextHooks,
-  BlueListItemHooks,
+  BlueListItem,
   LightningButton,
   BitcoinButton,
   BlueFormLabel,
@@ -27,88 +27,15 @@ import {
 } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCustodianWallet, AppStorage } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { Icon } from 'react-native-elements';
 import { useTheme, useNavigation } from '@react-navigation/native';
 import { Chain } from '../../models/bitcoinUnits';
 import loc from '../../loc';
-const EV = require('../../blue_modules/events');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const A = require('../../blue_modules/analytics');
-const BlueApp: AppStorage = require('../../BlueApp');
-const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    paddingTop: 20,
-  },
-  label: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    marginHorizontal: 20,
-    alignItems: 'center',
-    marginVertical: 16,
-    borderRadius: 4,
-  },
-  textInputCommon: {
-    flex: 1,
-    marginHorizontal: 8,
-    color: '#81868e',
-  },
-  buttons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingTop: 10,
-    marginHorizontal: 20,
-    borderWidth: 0,
-    minHeight: 100,
-  },
-  button: {
-    width: '45%',
-    height: 88,
-  },
-  or: {
-    borderWidth: 0,
-    justifyContent: 'center',
-    marginHorizontal: 8,
-    alignSelf: 'center',
-  },
-  orCenter: {
-    color: '#0c2550',
-  },
-  advanced: {
-    marginHorizontal: 20,
-  },
-  advancedText: {
-    fontWeight: '500',
-  },
-  lndUri: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    marginVertical: 16,
-    borderRadius: 4,
-  },
-  createButton: {
-    alignItems: 'center',
-    flex: 1,
-    marginTop: 32,
-  },
-  import: {
-    marginBottom: 0,
-    marginTop: 24,
-  },
-  noPadding: {
-    paddingHorizontal: 0,
-  },
-});
 
 const WalletsAdd = () => {
   const { colors } = useTheme();
-
+  const { addWallet, saveToDisk, setNewWalletAdded, isAdancedModeEnabled } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
   const [walletBaseURI, setWalletBaseURI] = useState();
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -144,9 +71,10 @@ const WalletsAdd = () => {
     AsyncStorage.getItem(AppStorage.LNDHUB)
       .then(setWalletBaseURI)
       .catch(() => setWalletBaseURI(''));
-    BlueApp.isAdancedModeEnabled()
+    isAdancedModeEnabled()
       .then(setIsAdvancedOptionsEnabled)
       .finally(() => setIsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdvancedOptionsEnabled]);
 
   const entropyGenerated = newEntropy => {
@@ -203,9 +131,9 @@ const WalletsAdd = () => {
         } else {
           await w.generate();
         }
-        BlueApp.wallets.push(w);
-        await BlueApp.saveToDisk();
-        setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500); // heavy task; hopefully will be executed while user is staring at backup screen
+        addWallet(w);
+        await saveToDisk();
+        setNewWalletAdded(true);
         A(A.ENUM.CREATED_WALLET);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
         if (w.type === HDSegwitP2SHWallet.type || w.type === HDSegwitBech32Wallet.type) {
@@ -244,9 +172,10 @@ const WalletsAdd = () => {
     }
     A(A.ENUM.CREATED_LIGHTNING_WALLET);
     await wallet.generate();
-    BlueApp.wallets.push(wallet);
-    await BlueApp.saveToDisk();
-    EV(EV.enum.WALLETS_COUNT_CHANGED);
+    addWallet(wallet);
+    await saveToDisk();
+
+    setNewWalletAdded(true);
     A(A.ENUM.CREATED_WALLET);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     navigate('PleaseBackupLNDHub', {
@@ -312,36 +241,36 @@ const WalletsAdd = () => {
                 <View>
                   <BlueSpacing20 />
                   <Text style={[styles.advancedText, stylesHook.advancedText]}>{loc.settings.advanced_options}</Text>
-                  <BlueListItemHooks
+                  <BlueListItem
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(0)}
                     title={HDSegwitBech32Wallet.typeReadable}
                     {...(selectedIndex === 0
                       ? {
-                          rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
+                          rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' },
                         }
                       : { hideChevron: true })}
                   />
-                  <BlueListItemHooks
+                  <BlueListItem
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(1)}
                     title={SegwitP2SHWallet.typeReadable}
                     {...(selectedIndex === 1
                       ? {
-                          rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
+                          rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' },
                         }
                       : { hideChevron: true })}
                   />
-                  <BlueListItemHooks
+                  <BlueListItem
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(2)}
                     title={HDSegwitP2SHWallet.typeReadable}
                     {...(selectedIndex === 2
                       ? {
-                          rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
+                          rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' },
                         }
                       : { hideChevron: true })}
                   />
@@ -351,7 +280,7 @@ const WalletsAdd = () => {
               return (
                 <>
                   <BlueSpacing20 />
-                  <Text style={styles.advancedText}>{loc.settings.advanced_options}</Text>
+                  <Text style={[styles.advancedText, stylesHook.advancedText]}>{loc.settings.advanced_options}</Text>
                   <BlueSpacing20 />
                   <BlueTextHooks>Connect to your LNDHub</BlueTextHooks>
                   <View style={[styles.lndUri, stylesHook.lndUri]}>
@@ -402,6 +331,77 @@ WalletsAdd.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
   headerTitle: loc.wallets.add_title,
   headerLeft: null,
+});
+
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  label: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    minHeight: 44,
+    height: 44,
+    marginHorizontal: 20,
+    alignItems: 'center',
+    marginVertical: 16,
+    borderRadius: 4,
+  },
+  textInputCommon: {
+    flex: 1,
+    marginHorizontal: 8,
+    color: '#81868e',
+  },
+  buttons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 10,
+    marginHorizontal: 20,
+    borderWidth: 0,
+    minHeight: 100,
+  },
+  button: {
+    width: '45%',
+    height: 88,
+  },
+  or: {
+    borderWidth: 0,
+    justifyContent: 'center',
+    marginHorizontal: 8,
+    alignSelf: 'center',
+  },
+  orCenter: {
+    color: '#0c2550',
+  },
+  advanced: {
+    marginHorizontal: 20,
+  },
+  advancedText: {
+    fontWeight: '500',
+  },
+  lndUri: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    minHeight: 44,
+    height: 44,
+    alignItems: 'center',
+    marginVertical: 16,
+    borderRadius: 4,
+  },
+  createButton: {
+    flex: 1,
+    marginTop: 32,
+  },
+  import: {
+    marginBottom: 0,
+    marginTop: 24,
+  },
+  noPadding: {
+    paddingHorizontal: 0,
+  },
 });
 
 export default WalletsAdd;

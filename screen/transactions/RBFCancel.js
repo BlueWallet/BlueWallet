@@ -1,22 +1,22 @@
 /* global alert */
 import React from 'react';
-import { ActivityIndicator, View, StyleSheet } from 'react-native';
+import { ActivityIndicator, View, StyleSheet, ScrollView } from 'react-native';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 import loc from '../../loc';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
   common: {
     flex: 1,
-    paddingTop: 20,
+    paddingTop: 16,
   },
 });
 
 export default class RBFCancel extends CPFP {
+  static contextType = BlueStorageContext;
   async componentDidMount() {
     console.log('transactions/RBFCancel - componentDidMount');
     this.setState({
@@ -67,13 +67,13 @@ export default class RBFCancel extends CPFP {
 
   onSuccessBroadcast() {
     // porting metadata, if any
-    BlueApp.tx_metadata[this.state.newTxid] = BlueApp.tx_metadata[this.state.txid] || {};
+    this.context.txMetadata[this.state.newTxid] = this.context.txMetadata[this.state.txid] || {};
 
     // porting tx memo
-    if (BlueApp.tx_metadata[this.state.newTxid].memo) {
-      BlueApp.tx_metadata[this.state.newTxid].memo = 'Cancelled: ' + BlueApp.tx_metadata[this.state.newTxid].memo;
+    if (this.context.txMetadata[this.state.newTxid].memo) {
+      this.context.txMetadata[this.state.newTxid].memo = 'Cancelled: ' + this.context.txMetadata[this.state.newTxid].memo;
     } else {
-      BlueApp.tx_metadata[this.state.newTxid].memo = 'Cancelled transaction';
+      this.context.txMetadata[this.state.newTxid].memo = 'Cancelled transaction';
     }
   }
 
@@ -103,12 +103,16 @@ export default class RBFCancel extends CPFP {
           <BlueSpacing20 />
           <BlueSpacing20 />
 
-          <BlueText h4>loc.transactions.cancel_no</BlueText>
+          <BlueText h4>{loc.transactions.cancel_no}</BlueText>
         </SafeBlueArea>
       );
     }
 
-    return this.renderStage1(loc.transactions.cancel_explain);
+    return (
+      <SafeBlueArea style={styles.root}>
+        <ScrollView>{this.renderStage1(loc.transactions.cancel_explain)}</ScrollView>
+      </SafeBlueArea>
+    );
   }
 }
 

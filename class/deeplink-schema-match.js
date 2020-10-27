@@ -6,7 +6,6 @@ import { Chain } from '../models/bitcoinUnits';
 import Azteco from './azteco';
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
-const BlueApp: AppStorage = require('../BlueApp');
 
 class DeeplinkSchemaMatch {
   static hasSchema(schemaString) {
@@ -29,7 +28,7 @@ class DeeplinkSchemaMatch {
    * @param event {{url: string}} URL deeplink as passed to app, e.g. `bitcoin:bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo`
    * @param completionHandler {function} Callback that returns [string, params: object]
    */
-  static navigationRouteFor(event, completionHandler) {
+  static navigationRouteFor(event, completionHandler, context = {wallets: [], saveToDisk: () => {}, addWallet: () => {}}) {
     if (event.url === null) {
       return;
     }
@@ -40,9 +39,8 @@ class DeeplinkSchemaMatch {
     if (event.url.toLowerCase().startsWith('bluewallet:bitcoin:') || event.url.toLowerCase().startsWith('bluewallet:lightning:')) {
       event.url = event.url.substring(11);
     }
-
-    if (DeeplinkSchemaMatch.isPossiblyPSBTFile(event.url)) {
-      RNFS.readFile(event.url)
+    if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(event.url)) {
+      RNFS.readFile(decodeURI(event.url))
         .then(file => {
           if (file) {
             completionHandler([
@@ -113,7 +111,7 @@ class DeeplinkSchemaMatch {
 
       const safelloStateToken = urlObject.query['safello-state-token'];
       let wallet;
-      for (const w of BlueApp.getWallets()) {
+      for (const w of context.wallets) {
         wallet = w;
         break;
       }
@@ -144,7 +142,7 @@ class DeeplinkSchemaMatch {
               console.log('opening LAPP', urlObject.query.url);
               // searching for LN wallet:
               let haveLnWallet = false;
-              for (const w of BlueApp.getWallets()) {
+              for (const w of context.wallets) {
                 if (w.type === LightningCustodianWallet.type) {
                   haveLnWallet = true;
                 }
@@ -167,14 +165,14 @@ class DeeplinkSchemaMatch {
                   // giving up, not doing anything
                   return;
                 }
-                BlueApp.wallets.push(w);
-                await BlueApp.saveToDisk();
+                context.addWallet(w);
+                context.saveToDisk();
               }
 
               // now, opening lapp browser and navigating it to URL.
               // looking for a LN wallet:
               let lnWallet;
-              for (const w of BlueApp.getWallets()) {
+              for (const w of context.wallets) {
                 if (w.type === LightningCustodianWallet.type) {
                   lnWallet = w;
                   break;
@@ -203,13 +201,23 @@ class DeeplinkSchemaMatch {
   }
 
   static isTXNFile(filePath) {
-    return filePath.toLowerCase().startsWith('file:') && filePath.toLowerCase().endsWith('.txn');
+    return (
+      (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
+      filePath.toLowerCase().endsWith('.txn')
+    );
+  }
+
+  static isPossiblySignedPSBTFile(filePath) {
+    return (
+      (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
+      filePath.toLowerCase().endsWith('-signed.psbt')
+    );
   }
 
   static isPossiblyPSBTFile(filePath) {
     return (
       (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
-      filePath.toLowerCase().endsWith('-signed.psbt')
+      filePath.toLowerCase().endsWith('.psbt')
     );
   }
 
@@ -313,6 +321,31 @@ class DeeplinkSchemaMatch {
 
   static bip21encode() {
     return bip21.encode.apply(bip21, arguments);
+  }
+
+  static decodeBitcoinUri(uri) {
+    let amount = '';
+    let parsedBitcoinUri = null;
+    let address = uri || '';
+    let memo = '';
+    let payjoinUrl = '';
+    try {
+      parsedBitcoinUri = DeeplinkSchemaMatch.bip21decode(uri);
+      address = 'address' in parsedBitcoinUri ? parsedBitcoinUri.address : address;
+      if ('options' in parsedBitcoinUri) {
+        if ('amount' in parsedBitcoinUri.options) {
+          amount = parsedBitcoinUri.options.amount.toString();
+          amount = parsedBitcoinUri.options.amount;
+        }
+        if ('label' in parsedBitcoinUri.options) {
+          memo = parsedBitcoinUri.options.label || memo;
+        }
+        if ('pj' in parsedBitcoinUri.options) {
+          payjoinUrl = parsedBitcoinUri.options.pj;
+        }
+      }
+    } catch (_) {}
+    return { address, amount, memo, payjoinUrl };
   }
 }
 

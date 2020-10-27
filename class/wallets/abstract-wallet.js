@@ -115,6 +115,10 @@ export class AbstractWallet {
     return false;
   }
 
+  allowPayJoin() {
+    return false;
+  }
+
   weOwnAddress(address) {
     throw Error('not implemented');
   }
@@ -215,6 +219,10 @@ export class AbstractWallet {
     return new Promise(resolve => resolve(this.getAddress()));
   }
 
+  async getChangeAddressAsync() {
+    return new Promise(resolve => resolve(this.getAddress()));
+  }
+
   useWithHardwareWalletEnabled() {
     return false;
   }
@@ -260,4 +268,6 @@ export class AbstractWallet {
 
     return b58.encode(data);
   }
+
+  prepareForSerialization() {}
 }

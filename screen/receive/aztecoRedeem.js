@@ -6,10 +6,9 @@ import { Icon } from 'react-native-elements';
 import { BlueButton, BlueCreateTxNavigationStyle, BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
 
 import loc from '../../loc';
-import { AppStorage, PlaceholderWallet } from '../../class';
+import { PlaceholderWallet } from '../../class';
 import Azteco from '../../class/azteco';
-const EV = require('../../blue_modules/events');
-const BlueApp: AppStorage = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
   loading: {
@@ -52,15 +51,16 @@ const styles = StyleSheet.create({
 });
 
 export default class AztecoRedeem extends Component {
+  static contextType = BlueStorageContext;
   state = { isLoading: true };
 
-  constructor(props) {
+  constructor(props, context) {
     super(props);
 
     /** @type {AbstractWallet} */
     let toWallet = null;
 
-    const wallets = BlueApp.getWallets().filter(wallet => wallet.type !== PlaceholderWallet.type);
+    const wallets = context.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type);
 
     if (wallets.length === 0) {
       alert(loc.azteco.errorBeforeRefeem);
@@ -101,7 +101,6 @@ export default class AztecoRedeem extends Component {
     } else {
       this.props.navigation.pop();
       // remote because we want to refetch from server tx list and balance
-      setTimeout(() => EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED), 4000);
       alert(loc.azteco.success);
     }
   };
@@ -116,7 +115,7 @@ export default class AztecoRedeem extends Component {
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', {
                 onWalletSelect: this.onWalletSelect,
-                availableWallets: BlueApp.getWallets(),
+                availableWallets: this.context.wallets,
               })
             }
           >
@@ -130,7 +129,7 @@ export default class AztecoRedeem extends Component {
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', {
                 onWalletSelect: this.onWalletSelect,
-                availableWallets: BlueApp.getWallets(),
+                availableWallets: this.context.wallet,
               })
             }
           >

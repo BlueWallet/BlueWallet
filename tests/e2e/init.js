@@ -24,6 +24,12 @@ beforeAll(async () => {
 }, 1200000);
 
 beforeEach(async () => {
+  const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+  if (process.env.TRAVIS) {
+    if (require('fs').existsSync(lockFile))
+      // speeds up test pass
+      return;
+  }
   await device.launchApp({ newInstance: true, delete: true });
   await sleep(2000);
   await adapter.beforeEach();
@@ -36,4 +42,9 @@ afterAll(async () => {
 
 async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function hashIt(s) {
+  const createHash = require('create-hash');
+  return createHash('sha256').update(s).digest().toString('hex');
 }

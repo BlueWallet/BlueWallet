@@ -1,53 +1,52 @@
-A Bitcoin wallet that allows you to store, send Bitcoin, receive Bitcoin and buy Bitcoin with focus on security and simplicity.
+محفظة Bitcoin تتيح لك تخزين عملات Bitcoin وإرسالها واستلامها وشراءها، مع التركيز على الأمان والبساطة.
 
-On BlueWallet, a bitcoin wallet you own you private keys. A Bitcoin wallet made by Bitcoin users for the community.
+ستمتلك مفاتيحك الخاصة في BlueWallet، وهي محفظة لعملات Bitcoin. محفظة Bitcoin أنشأها مستخدمو Bitcoin من أجل المجتمع.
 
-You can instantly transact with anyone in the world and transform the financial system right from your pocket.
+يمكنك إجراء المعاملات مع أي شخص في العالم على الفور، وتغيير النظام المالي من جيبك مباشرةً.
 
-Create for free unlimited number of bitcoin wallets or import your existing wallet. It's simple and fast.
+يمكنك إنشاء عدد غير محدود من محافظ Bitcoin مجانًا أو استيراد محفظتك الحالية. الأمر بسيط وسريع.
 
 _____
 
-Here's what you get:
+إليك ما تحصل عليه:
 
 
-1 - Security by design
+1 - الأمان من خلال التصميم
 
-Open Source
-MIT licensed, you can build it and run it on your own! Made with ReactNative
+المصدر المفتوح
+يمكنك إنشاؤها وتشغيلها بنفسك لأنها مرخَّصة من معهد ماساتشوستس للتكنولوجيا (MIT)! وهي مصمَّمة باستخدام ReactNative
 
-Plausible deniability
-Password which decrypts fake bitcoin wallets if you are forced to disclose your access
+الإنكار المقبول
+كلمة مرور تفك تشفير محافظ Bitcoin المزيفة إذا اضطررت إلى الكشف عن وصولك
 
-Full encryption
-On top of the iOS multi-layer encryption, we encrypt everything with added passwords
+التشفير الكامل
+علاوةً على التشفير متعدد الطبقات لنظام iOS، فإننا نقوم بتشفير كل شيء بكلمات مرور مضافة
 
-Full node
-Connect to your Bitcoin full node through Electrum
+العقدة الكاملة
+اتصل بمحفظة Bitcoin باستخدام العقدة الكاملة عن طريق برنامج Electrum
 
-Cold Storage
-Connect to your hardware wallet and keep your coins in Cold storage
+التخزين البارد
+اتصل بمحفظة جهاز واحتفظ بعملاتك في وحدة "التخزين البارد"
 
-2 - Focused on your experience
+2 - التركيز على تجربتك
 
-Be in control
-Private keys never leave your device. You control your private keys
+السيطرة على مجريات الأمور
+لا تغادر المفاتيح الخاصة جهازك أبدًا.أنت من يتحكم في مفاتيحك الخاصة
 
-Flexible fees
-Starting from 1 Satoshi. Defined by you, the user
+مرونة الرسوم
+بدايةً من ساتوشي واحد. تحددها أنت؛ أي المستخدم بنفسك
 
-Replace-By-Fee
-(RBF) Speed-up your transactions by increasing the fee (BIP125)
+الاستبدال بالرسوم
+(RBF) عزز سرعة معاملاتك بزيادة الرسوم (BIP125)
 
-Watch-only wallets
-Watch-only wallets allow you to keep an eye on your cold storage without touching the hardware.
+محافظ للتحقق من الرصيد فقط
+تتيح لك محافظ التحقق من الرصيد متابعة وحدة التخزين البارد دون لمس الجهاز.
 
-Lightning Network
-Lightning wallet with zero-configuration. Unfairly cheap and fast transactions with the best Bitcoin user experience.
+شبكة Lightning
+محفظة Lightning دون الحاجة إلى إعدادها. معاملات رخيصة جدًا وسريعة مع توفير أفضل تجربة لمستخدمي Bitcoin.
 
-Buy Bitcoin
-Enter in the open financial revolution with the ability to buy Bitcoin directly in your wallet.
+شراء Bitcoin
+ادخل في أغوار الثورة المالية المفتوحة مع القدرة على شراء Bitcoin مباشرة من محفظتك.
 
-Local Trader
-A p2p Bitcoin Trading platform, that allows you to buy and sell bitcoin directly to other users without 3rd parties.
-
+متداول محلي
+منصة تداول Bitcoin من نظير إلى نظير، والتي تتيح لك شراء عملات Bitcoin وبيعها مباشرةً إلى المستخدمين الآخرين دون الاستعانة بأطراف خارجية.

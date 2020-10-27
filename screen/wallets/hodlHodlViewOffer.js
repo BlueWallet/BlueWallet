@@ -5,15 +5,14 @@ import { BlueButton, BlueLoading, BlueNavigationStyle, BlueSpacing10, SafeBlueAr
 import PropTypes from 'prop-types';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import { Icon } from 'react-native-elements';
-import { AppStorage } from '../../class';
 import * as NavigationService from '../../NavigationService';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
-
-const BlueApp: AppStorage = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const prompt = require('../../blue_modules/prompt');
 
 export default class HodlHodlViewOffer extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
 
@@ -62,7 +61,7 @@ export default class HodlHodlViewOffer extends Component {
   async componentDidMount() {
     console.log('wallets/hodlHodlViewOffer - componentDidMount');
 
-    const hodlApiKey = await BlueApp.getHodlHodlApiKey();
+    const hodlApiKey = await this.context.getHodlHodlApiKey();
     const hodlApi = new HodlHodlApi(hodlApiKey);
     this.setState({ hodlApi, hodlApiKey });
 
@@ -73,7 +72,7 @@ export default class HodlHodlViewOffer extends Component {
 
   doLogin = () => {
     const handleLoginCallback = (hodlApiKey, hodlHodlSignatureKey) => {
-      BlueApp.setHodlHodlApiKey(hodlApiKey, hodlHodlSignatureKey);
+      this.context.setHodlHodlApiKey(hodlApiKey, hodlHodlSignatureKey);
       const HodlApi = new HodlHodlApi(hodlApiKey);
       this.setState({ HodlApi, hodlApiKey });
     };
@@ -92,7 +91,7 @@ export default class HodlHodlViewOffer extends Component {
         {
           text: loc._.yes,
           onPress: async a => {
-            const sigKey = await BlueApp.getHodlHodlSignatureKey();
+            const sigKey = await this.context.getHodlHodlSignatureKey();
             if (!sigKey) {
               alert('Error: signature key not set'); // should never happen
               return;
@@ -151,7 +150,7 @@ export default class HodlHodlViewOffer extends Component {
           this.setState({ isLoading: false });
 
           if (noError && contract.id) {
-            await BlueApp.addHodlHodlContract(contract.id);
+            await this.context.addHodlHodlContract(contract.id);
             NavigationService.navigate('HodlHodlMyContracts');
           }
         },

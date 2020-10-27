@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useEffect, useState } from 'react';
-import { Platform, Dimensions, View, Keyboard, StatusBar, StyleSheet } from 'react-native';
+import { Platform, View, Keyboard, StatusBar, StyleSheet } from 'react-native';
 import {
   BlueFormMultiInput,
   BlueButtonLink,
@@ -10,7 +10,6 @@ import {
   SafeBlueArea,
   BlueSpacing20,
   BlueNavigationStyle,
-  BlueLoadingHook,
 } from '../../BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
@@ -23,8 +22,8 @@ import loc from '../../loc';
 import { getSystemName } from 'react-native-device-info';
 import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
+import { presentCameraNotAuthorizedAlert } from '../../class/camera';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-const { width } = Dimensions.get('window');
 const isDesktop = getSystemName() === 'Mac OS X';
 
 const WalletsImport = () => {
@@ -32,7 +31,6 @@ const WalletsImport = () => {
   const route = useRoute();
   const label = (route.params && route.params.label) || '';
   const [importText, setImportText] = useState(label);
-  const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
   const { colors } = useTheme();
   const styles = StyleSheet.create({
@@ -43,7 +41,7 @@ const WalletsImport = () => {
     },
     center: {
       flex: 1,
-      alignItems: 'center',
+      marginHorizontal: 16,
       backgroundColor: colors.elevated,
     },
   });
@@ -71,15 +69,22 @@ const WalletsImport = () => {
    * @param importText
    * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
    */
-  const importMnemonic = (importText, additionalProperties) => {
-    setIsLoading(true);
+  const importMnemonic = async (importText, additionalProperties) => {
+    if (WalletImport.isCurrentlyImportingWallet()) {
+      return;
+    }
+    WalletImport.addPlaceholderWallet(importText);
+    navigation.dangerouslyGetParent().pop();
+    await new Promise(resolve => setTimeout(resolve, 500)); // giving some time to animations
     try {
-      WalletImport.processImportText(importText, additionalProperties);
-      navigation.dangerouslyGetParent().pop();
+      await WalletImport.processImportText(importText, additionalProperties);
+      WalletImport.removePlaceholderWallet();
     } catch (error) {
+      WalletImport.removePlaceholderWallet();
+      WalletImport.addPlaceholderWallet(importText, true);
+      console.log(error);
       alert(loc.wallets.import_error);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-      setIsLoading(false);
     }
   };
 
@@ -89,8 +94,9 @@ const WalletsImport = () => {
    * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
    */
   const onBarScanned = (value, additionalProperties) => {
+    if (value && value.data) value = value.data + ''; // no objects here, only strings
     setImportText(value);
-    importMnemonic(value, additionalProperties);
+    setTimeout(() => importMnemonic(value, additionalProperties), 500);
   };
 
   const importScan = () => {
@@ -147,6 +153,8 @@ const WalletsImport = () => {
               alert(loc.send.qr_error_no_qrcode);
             }
           });
+        } else if (response.error) {
+          presentCameraNotAuthorizedAlert(response.error);
         }
       },
     );
@@ -212,30 +220,22 @@ const WalletsImport = () => {
         testID="MnemonicInput"
         value={importText}
         contextMenuHidden={getSystemName() !== 'Mac OS X'}
-        editable={!isLoading}
         onChangeText={setImportText}
         inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
       />
 
       <BlueSpacing20 />
       <View style={styles.center}>
-        {!isLoading ? (
-          <>
-            <BlueButton
-              testID="DoImport"
-              disabled={importText.trim().length === 0}
-              title={loc.wallets.import_do_import}
-              buttonStyle={{
-                width: width / 1.5,
-              }}
-              onPress={importButtonPressed}
-            />
-            <BlueSpacing20 />
-            <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
-          </>
-        ) : (
-          <BlueLoadingHook />
-        )}
+        <>
+          <BlueButton
+            testID="DoImport"
+            disabled={importText.trim().length === 0}
+            title={loc.wallets.import_do_import}
+            onPress={importButtonPressed}
+          />
+          <BlueSpacing20 />
+          <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
+        </>
       </View>
       {Platform.select({
         ios: (

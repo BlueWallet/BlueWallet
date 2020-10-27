@@ -23,17 +23,16 @@ import {
   BlueSpacing20,
   BlueTextHooks,
 } from '../../BlueComponents';
-import { AppStorage } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import Modal from 'react-native-modal';
 import * as NavigationService from '../../NavigationService';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
-
-const BlueApp: AppStorage = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const windowHeight = Dimensions.get('window').height;
 
 export default class HodlHodlMyContracts extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
 
@@ -48,7 +47,7 @@ export default class HodlHodlMyContracts extends Component {
   }
 
   async componentDidMount() {
-    const hodlApiKey = await BlueApp.getHodlHodlApiKey();
+    const hodlApiKey = await this.context.getHodlHodlApiKey();
     const hodlApi = new HodlHodlApi(hodlApiKey);
     this.setState({ hodlApi: hodlApi, contracts: [] });
 
@@ -116,7 +115,7 @@ export default class HodlHodlMyContracts extends Component {
     const contracts = [];
     let contractToDisplay = this.state.contractToDisplay;
 
-    const contractIds = await BlueApp.getHodlHodlContracts();
+    const contractIds = await this.context.getHodlHodlContracts();
 
     /*
      * Initiator sends “Getting contract” request once every 1-3 minutes until contract.escrow.address is not null (thus, waiting for offer’s creator to confirm his payment password in case he uses the website)
@@ -293,7 +292,7 @@ export default class HodlHodlMyContracts extends Component {
   async _onOpenContractOnWebsite() {
     if (!this.state.contractToDisplay) return;
     const hodlApi = this.state.hodlApi;
-    const sigKey = await BlueApp.getHodlHodlSignatureKey();
+    const sigKey = await this.context.getHodlHodlSignatureKey();
     if (!sigKey) {
       alert('Error: signature key not set'); // should never happen
       return;
@@ -448,7 +447,7 @@ HodlHodlMyContracts.navigationOptions = ({ navigation }) => ({
             {
               text: loc._.ok,
               onPress: () => {
-                BlueApp.setHodlHodlApiKey('', '<empty>');
+                this.context.setHodlHodlApiKey('', '<empty>');
                 navigation.navigate('WalletsList');
               },
               style: 'default',

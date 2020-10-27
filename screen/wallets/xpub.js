@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { InteractionManager, useWindowDimensions, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle, BlueCopyTextToClipboard } from '../../BlueComponents';
@@ -6,8 +6,7 @@ import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
   root: {
@@ -31,13 +30,14 @@ const WalletXpub = () => {
   const { goBack } = useNavigation();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
-  const stylesHook = { ...styles, root: { ...styles.root, backgroundColor: colors.elevated } };
+  const stylesHook = StyleSheet.create({ root: { backgroundColor: colors.elevated } });
+  const { wallets } = useContext(BlueStorageContext);
 
   useFocusEffect(
     useCallback(() => {
       Privacy.enableBlur();
       const task = InteractionManager.runAfterInteractions(async () => {
-        for (const w of BlueApp.getWallets()) {
+        for (const w of wallets) {
           if (w.getSecret() === secret) {
             // found our wallet
             setWallet(w);
@@ -61,15 +61,16 @@ const WalletXpub = () => {
         task.cancel();
         Privacy.disableBlur();
       };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [goBack, secret, wallet]),
   );
 
   return isLoading ? (
-    <View style={stylesHook.root}>
+    <View style={[styles.root, stylesHook.root]}>
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={stylesHook.root}>
+    <SafeBlueArea style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="light-content" />
       <View style={styles.container}>
         <View>

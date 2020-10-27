@@ -56,6 +56,8 @@ export const BlueDefaultTheme = {
     successCheck: '#0f5cc0',
     warning: '#007AFF',
     warningText: '#ffffff',
+    msSuccessBG: '#37c0a1',
+    msSuccessCheck: '#ffffff',
   },
 };
 
@@ -100,6 +102,8 @@ export const BlueDarkTheme = {
     labelText: '#ffffff',
     warning: '#8EFFE5',
     warningText: '#000000',
+    msSuccessBG: '#8EFFE5',
+    msSuccessCheck: '#000000',
   },
 };
 

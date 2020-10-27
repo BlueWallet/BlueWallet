@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import { useWindowDimensions, InteractionManager, ScrollView, ActivityIndicator, StatusBar, View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
@@ -7,8 +7,7 @@ import Biometric from '../../class/biometrics';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 import loc from '../../loc';
 import { useTheme, useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
   loading: {
@@ -37,7 +36,9 @@ const styles = StyleSheet.create({
 });
 
 const WalletExport = () => {
-  const { wallet } = useRoute().params;
+  const { wallets, saveToDisk } = useContext(BlueStorageContext);
+  const { walletID } = useRoute().params;
+  const wallet = wallets.find(w => w.getID() === walletID);
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
   const { colors } = useTheme();
@@ -76,8 +77,9 @@ const WalletExport = () => {
         task.cancel();
         Privacy.disableBlur();
         wallet.setUserHasSavedExport(true);
-        BlueApp.saveToDisk();
+        saveToDisk();
       };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [goBack, wallet]),
   );
 

@@ -1,16 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import { View, ActivityIndicator, Image, Text, StyleSheet, StatusBar, ScrollView } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
+import { BlueNavigationStyle } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
-import { PlaceholderWallet, LightningCustodianWallet } from '../../class';
+import { PlaceholderWallet, LightningCustodianWallet, MultisigHDWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { useNavigation, useTheme } from '@react-navigation/native';
-const EV = require('../../blue_modules/events');
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
   loading: {
@@ -73,6 +71,7 @@ const ReorderWallets = () => {
   const sortableList = useRef();
   const { setParams, goBack } = useNavigation();
   const { colors } = useTheme();
+  const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
   const stylesHook = {
     root: {
       backgroundColor: colors.elevated,
@@ -91,11 +90,7 @@ const ReorderWallets = () => {
             sortableList.current.state.order.forEach(element => {
               newWalletsOrderArray.push(data[element]);
             });
-            BlueApp.wallets = newWalletsOrderArray;
-            await BlueApp.saveToDisk();
-            setTimeout(function () {
-              EV(EV.enum.WALLETS_COUNT_CHANGED);
-            }, 500); // adds some animaton
+            setWalletsWithNewOrder(newWalletsOrderArray);
             goBack();
           } else {
             goBack();
@@ -108,10 +103,10 @@ const ReorderWallets = () => {
   }, [goBack, hasMovedARow, setParams]);
 
   useEffect(() => {
-    const loadWallets = BlueApp.getWallets().filter(wallet => wallet.type !== PlaceholderWallet.type);
+    const loadWallets = wallets.filter(wallet => wallet.type !== PlaceholderWallet.type);
     setData(loadWallets);
     setIsLoading(false);
-  }, []);
+  }, [wallets]);
 
   const renderItem = (item, _active) => {
     if (!item.data) {
@@ -123,9 +118,16 @@ const ReorderWallets = () => {
       <View shadowOpacity={40 / 100} shadowOffset={{ width: 0, height: 0 }} shadowRadius={5} style={styles.itemRoot}>
         <LinearGradient shadowColor="#000000" colors={WalletGradient.gradientsFor(item.type)} style={styles.gradient}>
           <Image
-            source={
-              (LightningCustodianWallet.type === item.type && require('../../img/lnd-shape.png')) || require('../../img/btc-shape.png')
-            }
+            source={(() => {
+              switch (item.type) {
+                case LightningCustodianWallet.type:
+                  return require('../../img/lnd-shape.png');
+                case MultisigHDWallet.type:
+                  return require('../../img/vault-shape.png');
+                default:
+                  return require('../../img/btc-shape.png');
+              }
+            })()}
             style={styles.image}
           />
 
@@ -168,12 +170,11 @@ const ReorderWallets = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea>
+    <View style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="light-content" />
       <ScrollView scrollEnabled={scrollEnabled}>
         <SortableList
           ref={sortableList}
-          style={[styles.root, stylesHook.root]}
           data={data}
           renderRow={renderItem}
           scrollEnabled={false}
@@ -182,7 +183,7 @@ const ReorderWallets = () => {
           onReleaseRow={onReleaseRow}
         />
       </ScrollView>
-    </SafeBlueArea>
+    </View>
   );
 };
 
@@ -194,7 +195,6 @@ ReorderWallets.navigationOptions = ({ navigation, route }) => ({
   ),
   headerTitle: loc.wallets.reorder_title,
   headerLeft: null,
-  gestureEnabled: false,
 });
 
 export default ReorderWallets;

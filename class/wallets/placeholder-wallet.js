@@ -9,6 +9,11 @@ export class PlaceholderWallet extends AbstractWallet {
     this._isFailure = false;
   }
 
+  setSecret(newSecret) {
+    // so TRY AGAIN when something goes wrong during import has more consistent prefilled text
+    this.secret = newSecret;
+  }
+
   allowSend() {
     return false;
   }

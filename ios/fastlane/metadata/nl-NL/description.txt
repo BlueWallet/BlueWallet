@@ -1,0 +1,53 @@
+Een Bitcoin portomonnee die u de mogelijkheid geeft om Bitcoin te bewaren, versturen, ontvangen en kopen met focus op beveiliging en eenvoud.
+
+On BlueWallet, a bitcoin wallet you own your private keys. A Bitcoin wallet made by Bitcoin users for the community.
+
+U kan naar iedereen in de wereld direct transacties versturen en het financiële systeem veranderen vanuit uw broekzak.
+
+Maak gratis een oneindig aantal bitcoin portomonnees of importeer een bestaande portomonnee. Het is makkelijk en snel.
+
+_____
+
+Dit is wat u krijgt:
+
+
+1 - Security by design
+
+Open Source
+MIT gelicenseerd, u kunt het zelf bouwen en gebruiken. Gemaakt met ReactNative
+
+Plausible deniability
+Wachtwoord dat nep bitcoin portomonnees ontsleuten voor als u gedwongen wordt uw toegang vrij te geven
+
+Volledige versleuteling
+On top of the iOS multi-layer encryption, we encrypt everything with added passwords
+
+Full node
+Verbind uw Bitcoin full node via Electrum
+
+Cold Storage
+Verbind met uw hardware wallet en bewaard uw munten in Cold storage
+
+2 - Gericht op uw ervaring
+
+Heb de controlle
+Privé sleutels verlaten nooit uw apparaat.
+U beheert uw privé sleutels
+
+Aanpasbare vergoedingen
+Starting from 1 Satoshi. Defined by you, the user
+
+Replace-By-Fee
+(RBF) Versnel uw transactie door de vergoeding te verhogen (BIP125)
+
+Watch-only wallets
+Watch-only wallets allow you to keep an eye on your cold storage without touching the hardware.
+
+Lightning Network
+Lightning-portomonnee zonder configuratie. Oneerlijk goedkoop en snelle transacties met de ultieme Bitcoin ervaring.
+
+Koop Bitcoin
+Neem deel aan de openbare financiële revolutie met de mogelijkheid om Bitcoin direct vanuit uw portomonnee te kopen
+
+Lokale handelaar
+Een p2p Bitcoin handelsplatform, dat u de mogelijkheid geeft om direct bitcoin te kopen en verkopen zonder tussenkomst van een 3e partij.

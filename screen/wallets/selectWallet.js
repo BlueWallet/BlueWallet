@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList, StyleSheet, StatusBar } from 'react-native';
 import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance, BlueNavigationStyle } from '../../BlueComponents';
 import LinearGradient from 'react-native-linear-gradient';
@@ -8,16 +8,17 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/wallet-gradient';
 import { useRoute, useTheme } from '@react-navigation/native';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { MultisigHDWallet } from '../../class';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const SelectWallet = ({ navigation }) => {
   const { chainType, onWalletSelect, availableWallets } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
+  const { wallets } = useContext(BlueStorageContext);
   const { colors } = useTheme();
   let data = chainType
-    ? BlueApp.getWallets().filter(item => item.chain === chainType && item.allowSend())
-    : BlueApp.getWallets().filter(item => item.allowSend()) || [];
+    ? wallets.filter(item => item.chain === chainType && item.allowSend())
+    : wallets.filter(item => item.allowSend()) || [];
 
   if (availableWallets && availableWallets.length > 0) {
     // availableWallets if provided, overrides chainType argument and `allowSend()` check
@@ -33,6 +34,7 @@ const SelectWallet = ({ navigation }) => {
       justifyContent: 'center',
       alignContent: 'center',
       paddingTop: 20,
+      backgroundColor: colors.background,
     },
     itemRoot: {
       backgroundColor: 'transparent',
@@ -103,9 +105,16 @@ const SelectWallet = ({ navigation }) => {
         <View shadowOpacity={40 / 100} shadowOffset={{ width: 0, height: 0 }} shadowRadius={5} style={styles.itemRoot}>
           <LinearGradient shadowColor="#000000" colors={WalletGradient.gradientsFor(item.type)} style={styles.gradient}>
             <Image
-              source={
-                (LightningCustodianWallet.type === item.type && require('../../img/lnd-shape.png')) || require('../../img/btc-shape.png')
-              }
+              source={(() => {
+                switch (item.type) {
+                  case LightningCustodianWallet.type:
+                    return require('../../img/lnd-shape.png');
+                  case MultisigHDWallet.type:
+                    return require('../../img/vault-shape.png');
+                  default:
+                    return require('../../img/btc-shape.png');
+                }
+              })()}
               style={styles.image}
             />
 
