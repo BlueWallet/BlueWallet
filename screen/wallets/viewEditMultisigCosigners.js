@@ -11,6 +11,7 @@ import {
   BlueSpacing20,
   BlueSpacing40,
   BlueText,
+  BlueTextCentered,
 } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -303,15 +304,16 @@ const ViewEditMultisigCosigners = () => {
         onBackdropPress={() => {
           Keyboard.dismiss();
           setIsProvideMnemonicsModalVisible(false);
+          setImportText('');
         }}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
-            <Text>{loc.multisig.type_your_mnemonics}</Text>
+            <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
+            <BlueSpacing20 />
             <BlueFormMultiInput value={importText} onChangeText={setImportText} />
             <BlueSpacing40 />
-
-            <BlueButton title={loc._.ok} onPress={useMnemonicPhrase} />
+            <BlueButton disabled={importText.trim().length === 0} title={loc._.ok} onPress={useMnemonicPhrase} />
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -334,7 +336,8 @@ const ViewEditMultisigCosigners = () => {
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, styles.alignItemsCenter]}>
-            <Text>{loc.multisig.this_is_cosigners_xpub}</Text>
+            <BlueText>{loc.multisig.this_is_cosigners_xpub}</BlueText>
+            <BlueSpacing20 />
             <QRCode
               value={cosignerXpub}
               size={250}
@@ -437,7 +440,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0, 0, 0, 0.1)',
     backgroundColor: 'white',
     minHeight: 400,
-    height: 400,
   },
   word: {
     width: 'auto',

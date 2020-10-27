@@ -519,6 +519,7 @@ const WalletsAddMultisigStep2 = () => {
         onBackdropPress={() => {
           Keyboard.dismiss();
           setIsProvideMnemonicsModalVisible(false);
+          setImportText('');
         }}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
