@@ -51,10 +51,10 @@ const PleaseBackup = () => {
   const renderSecret = () => {
     const component = [];
     for (const [index, secret] of wallet.getSecret().split(/\s/).entries()) {
-      const text = `${index + 1}. ${secret}`;
+      const text = `${index + 1}. ${secret} `;
       component.push(
         <View style={[styles.word, stylesHook.word]} key={`${index}`}>
-          <Text style={[styles.wortText, stylesHook.wortText]} textBreakStrategy="simple">
+          <Text style={[styles.wortText, stylesHook.wortText]}>
             {text}
           </Text>
         </View>,
@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
   },
   wortText: {
     fontWeight: 'bold',
+    
   },
   scrollViewContent: {
     justifyContent: 'space-between',
