@@ -27,7 +27,7 @@ const staticCache = {};
 const ViewEditMultisigCosigners = () => {
   const { colors } = useTheme();
   const { wallets, sleep, setWalletsWithNewOrder } = useContext(BlueStorageContext);
-  const navigation = useNavigation();
+  const { navigate } = useNavigation();
   const { walletId } = useRoute().params;
   let w = wallets.find(wallet => wallet.getID() === walletId);
   if (!w) {
@@ -117,8 +117,7 @@ const ViewEditMultisigCosigners = () => {
     });
     newWallets.push(wallet);
     setWalletsWithNewOrder(newWallets);
-    navigation.dangerouslyGetParent().popToTop();
-    navigation.dangerouslyGetParent().popToTop();
+    navigate('WalletsList');
   };
 
   const getPath = () => {
