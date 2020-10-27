@@ -103,6 +103,7 @@ const PleaseBackup = () => {
       <StatusBar barStyle="default" />
       <ScrollView contentContainerStyle={styles.scrollViewContent} testID="PleaseBackupScrollView">
         <View style={styles.please}>
+          <BlueText>{wallet.getSecret()}</BlueText>
           <BlueText style={styles.successText}>{loc.pleasebackup.success}</BlueText>
           <BlueText style={styles.pleaseText}>{loc.pleasebackup.text}</BlueText>
 
