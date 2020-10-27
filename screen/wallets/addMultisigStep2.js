@@ -429,11 +429,11 @@ const WalletsAddMultisigStep2 = () => {
     showPopupMenu(toolTipMenuOptions, handleToolTipSelection, vaultKeyData.xpub);
   };
 
-  const handleToolTipSelection = item => {
+  const handleToolTipSelection = () => {
     handleCopyPress();
   };
 
-  const handleCopyPress = item => {
+  const handleCopyPress = () => {
     Clipboard.setString(vaultKeyData.xpub);
   };
 
@@ -462,7 +462,7 @@ const WalletsAddMultisigStep2 = () => {
                 actions={[
                   {
                     text: loc.transactions.details_copy,
-                    onPress: handleCopyPress,
+                    onPress: () => handleCopyPress,
                   },
                 ]}
               />

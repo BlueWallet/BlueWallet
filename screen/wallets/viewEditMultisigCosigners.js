@@ -1,35 +1,26 @@
 /* global alert */
 import React, { useContext, useState } from 'react';
-import {
-  Alert,
-  FlatList,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, FlatList, Keyboard, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, View } from 'react-native';
 import {
   BlueButton,
   BlueButtonHook,
   BlueFormMultiInput,
   BlueLoadingHook,
   BlueNavigationStyle,
+  BlueSpacing10,
   BlueSpacing20,
   BlueSpacing40,
+  BlueText,
 } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import Modal from 'react-native-modal';
-import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import MultipleStepsListItem from '../../components/MultipleStepsListItem';
 const fs = require('../../blue_modules/fs');
 const staticCache = {};
 
@@ -110,6 +101,12 @@ const ViewEditMultisigCosigners = () => {
     vaultKeyTextSigned: {
       color: colors.msSuccessBG,
     },
+    word: {
+      backgroundColor: colors.inputBackgroundColor,
+    },
+    wordText: {
+      color: colors.labelText,
+    },
   });
 
   const onSave = async () => {
@@ -183,73 +180,86 @@ const ViewEditMultisigCosigners = () => {
     return staticCache[seed];
   };
 
+  const renderSecret = entries => {
+    const component = [];
+    const entriesObject = entries.entries();
+    for (const [index, secret] of entriesObject) {
+      if (entries.length > 1) {
+        component.push(
+          <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
+            <Text style={[styles.wordText, stylesHook.wordText]}>
+              {index + 1} . {secret}
+            </Text>
+          </View>,
+        );
+      } else {
+        component.push(
+          <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
+            <Text style={[styles.wordText, stylesHook.wordText]}>{secret}</Text>
+          </View>,
+        );
+      }
+    }
+    return component;
+  };
+
   const _renderKeyItem = el => {
     const isXpub = MultisigHDWallet.isXpubValid(wallet.getCosigner(el.index + 1));
     return (
       <View>
-        <View style={styles.flexDirectionRow}>
-          <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-            <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
-          </View>
-          <View style={styles.vaultKeyTextSignedWrapper}>
-            <Text style={[styles.vaultKeyTextSigned, stylesHook.vaultKeyTextSigned]}>
-              {loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-            </Text>
-          </View>
-
-          <View>
-            <TouchableOpacity
-              style={[styles.provideKeyButton]}
-              onPress={async () => {
-                viewKey(el.index + 1);
-              }}
-            >
-              <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{loc.multisig.view_key}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
+        <MultipleStepsListItem
+          checked
+          leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
+          rightButton={{ text: loc.multisig.view_key, onPress: () => viewKey(el.index + 1) }}
+        />
         {isXpub ? (
           <View>
-            <Text>Xpub: {wallet.getCosigner(el.index + 1)}</Text>
-            <Text>Fingerprint: {wallet.getFingerprint(el.index + 1)}</Text>
-            <Text>Path: {wallet.getCustomDerivationPathForCosigner(el.index + 1)}</Text>
-
-            <TouchableOpacity
-              style={[styles.provideKeyButton, stylesHook.provideKeyButton]}
-              onPress={() => {
-                setCurrentlyEditingCosignerNum(el.index + 1);
-                setIsProvideMnemonicsModalVisible(true);
+            <BlueText>Xpub:</BlueText>
+            <BlueSpacing10 />
+            {renderSecret([wallet.getCosigner(el.index + 1)])}
+            <BlueText>
+              Fingerprint: <Text>{wallet.getFingerprint(el.index + 1)}</Text>{' '}
+            </BlueText>
+            <BlueSpacing10 />
+            <BlueText>
+              Path: <Text>{wallet.getCustomDerivationPathForCosigner(el.index + 1)}</Text>
+            </BlueText>
+            <BlueSpacing20 />
+            <MultipleStepsListItem
+              button={{
+                text: loc.multisig.i_have_mnemonics,
+                onPress: () => {
+                  setCurrentlyEditingCosignerNum(el.index + 1);
+                  setIsProvideMnemonicsModalVisible(true);
+                },
               }}
-            >
-              <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{loc.multisig.i_have_mnemonics}</Text>
-            </TouchableOpacity>
+            />
           </View>
         ) : (
           <View>
-            <Text>{wallet.getCosigner(el.index + 1)}</Text>
-            <TouchableOpacity
-              style={[styles.provideKeyButton, stylesHook.provideKeyButton]}
-              onPress={() => {
-                Alert.alert(
-                  loc.multisig.are_you_sure_seed_will_be_lost,
-                  '',
-                  [
-                    {
-                      text: loc._.yes,
-                      onPress: () => {
-                        xpubInsteadOfSeed(el.index + 1);
+            <View style={styles.secretContainer}>{renderSecret(wallet.getCosigner(el.index + 1).split(' '))}</View>
+            <MultipleStepsListItem
+              button={{
+                text: loc.multisig.forget_this_seed,
+                onPress: () => {
+                  Alert.alert(
+                    loc._.seed,
+                    loc.multisig.are_you_sure_seed_will_be_lost,
+                    [
+                      {
+                        text: loc._.ok,
+                        onPress: () => {
+                          xpubInsteadOfSeed(el.index + 1);
+                        },
+                        style: 'destructive',
                       },
-                      style: 'default',
-                    },
-                    { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-                  ],
-                  { cancelable: false },
-                );
+                      { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+                    ],
+                    { cancelable: false },
+                  );
+                },
               }}
-            >
-              <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{loc.multisig.forget_this_seed}</Text>
-            </TouchableOpacity>
+            />
           </View>
         )}
       </View>
@@ -349,29 +359,41 @@ const ViewEditMultisigCosigners = () => {
 
   if (isLoading) return <BlueLoadingHook />;
 
+  const header = (
+    <Text style={styles.header2Text}>
+      {format}, {loc.formatString(loc.multisig.quorum, { m, n })}
+    </Text>
+  );
+
+  const footer = <BlueButtonHook title={loc._.save} onPress={onSave} />;
+
   return (
-    <ScrollView style={stylesHook.root}>
+    <SafeAreaView style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="default" />
-      <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
-        <View style={styles.mainBlock}>
-          <Text style={styles.header2Text}>
-            {format}, {loc.formatString(loc.multisig.quorum, { m, n })}
-          </Text>
-          <FlatList data={data} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} scrollEnabled={false} />
-          <BlueSpacing40 />
-          <BlueButtonHook title={loc._.save} onPress={onSave} />
-          <BlueSpacing20 />
-        </View>
+      <KeyboardAvoidingView
+        enabled
+        behavior={Platform.OS === 'ios' ? 'padding' : null}
+        keyboardVerticalOffset={62}
+        style={[styles.mainBlock, styles.root]}
+      >
+        <FlatList ListHeaderComponent={header} data={data} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+        <BlueSpacing10 />
+        {footer}
+        <BlueSpacing10 />
       </KeyboardAvoidingView>
 
       {renderProvideMnemonicsModal()}
 
       {renderCosignersXpubModal()}
-    </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
   itemKeyUnprovidedWrapper: { flexDirection: 'row', paddingTop: 16 },
   vaultKeyCircle: {
     width: 42,
@@ -418,6 +440,24 @@ const styles = StyleSheet.create({
     minHeight: 400,
     height: 400,
   },
+  word: {
+    width: 'auto',
+    marginRight: 8,
+    marginBottom: 8,
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingLeft: 8,
+    paddingRight: 8,
+    borderRadius: 4,
+  },
+  secretContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
+  },
+  wordText: {
+    fontWeight: 'bold',
+  },
   flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },
   vaultKeyCircleSuccess: {
     width: 42,
@@ -436,7 +476,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   headerText: { fontSize: 30, color: '#13244D' },
-  mainBlock: { paddingLeft: 20, paddingRight: 20 },
+  mainBlock: { marginHorizontal: 16 },
   header2Text: { color: '#9AA0AA', fontSize: 14, paddingBottom: 20 },
   alignItemsCenter: { alignItems: 'center' },
   squareButtonWrapper: { height: 50, width: 250 },
