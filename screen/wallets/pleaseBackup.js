@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, StatusBar } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueButton } from '../../BlueComponents';
-import Privacy from '../../Privacy';
 import loc from '../../loc';
 
 const PleaseBackup = () => {
