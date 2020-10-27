@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import {
   BlueButton,
-  BlueButtonHook,
   BlueButtonLinkHook,
   BlueFormMultiInput,
   BlueLoadingHook,
@@ -584,7 +583,7 @@ const WalletsAddMultisigStep2 = () => {
   const footer = isLoading ? (
     <BlueLoadingHook />
   ) : (
-    <BlueButtonHook title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
+    <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
   );
 
   const data = new Array(n);
