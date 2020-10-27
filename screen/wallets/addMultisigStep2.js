@@ -1,6 +1,17 @@
 /* global alert */
 import React, { useRef, useState } from 'react';
-import { FlatList, Keyboard, KeyboardAvoidingView, LayoutAnimation, Platform, StatusBar, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
+  LayoutAnimation,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import {
   BlueButton,
   BlueButtonHook,
@@ -217,9 +228,13 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const useMnemonicPhrase = () => {
+    setIsLoading(true);
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(importText);
-    if (!hd.validateMnemonic()) return alert(loc.multisig.invalid_mnemonics);
+    if (!hd.validateMnemonic()) {
+      setIsLoading(false);
+      return alert(loc.multisig.invalid_mnemonics);
+    }
 
     const cosignersCopy = [...cosigners];
     cosignersCopy.push([hd.getSecret(), false, false]);
@@ -227,6 +242,7 @@ const WalletsAddMultisigStep2 = () => {
     setCosigners(cosignersCopy);
     if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
     setIsProvideMnemonicsModalVisible(false);
+    setIsLoading(false);
   };
 
   const onBarScanned = ret => {
@@ -512,8 +528,12 @@ const WalletsAddMultisigStep2 = () => {
             <BlueSpacing20 />
             <BlueFormMultiInput value={importText} onChangeText={setImportText} />
             <BlueSpacing40 />
-            <BlueButton disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={useMnemonicPhrase} />
-            <BlueButtonLinkHook onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <BlueButton disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={useMnemonicPhrase} />
+            )}
+            <BlueButtonLinkHook disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -521,7 +541,8 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const exportCosigner = async () => {
-    await fs.writeFileAndExport(cosignerXpubFilename, cosignerXpub);
+    setIsLoading(true);
+    fs.writeFileAndExport(cosignerXpubFilename, cosignerXpub).finally(() => setIsLoading(false));
   };
 
   const renderCosignersXpubModal = () => {
@@ -536,7 +557,7 @@ const WalletsAddMultisigStep2 = () => {
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
-            <Text>{loc.multisig.this_is_cosigners_xpub}</Text>
+            <Text style={[styles.headerText]}>{loc.multisig.this_is_cosigners_xpub}</Text>
             <BlueSpacing20 />
             <QRCode
               value={cosignerXpub}
@@ -549,7 +570,11 @@ const WalletsAddMultisigStep2 = () => {
 
             <BlueSpacing20 />
             <View style={styles.squareButtonWrapper}>
-              <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportCosigner} title={loc.multisig.share} />
+              {isLoading ? (
+                <ActivityIndicator />
+              ) : (
+                <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportCosigner} title={loc.multisig.share} />
+              )}
             </View>
           </View>
         </KeyboardAvoidingView>
@@ -625,7 +650,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
     minHeight: 400,
-    height: 400,
   },
   newKeyModalContent: {
     paddingHorizontal: 22,
@@ -635,7 +659,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
     minHeight: 700,
-    height: 700,
   },
   vaultKeyCircleSuccess: {
     width: 42,
