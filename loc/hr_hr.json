@@ -83,6 +83,7 @@
     "list_title": "transakcije"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Stvori",
     "add_import_wallet": "Unesi vanjski volet",
     "add_or": "ili",

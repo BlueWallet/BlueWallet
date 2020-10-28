@@ -106,12 +106,18 @@ export const BlueButton = props => {
 };
 
 export const BlueButtonHook = props => {
+  const { width } = useWindowDimensions();
   const { colors } = useTheme();
   let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.mainColor;
   let fontColor = colors.buttonTextColor;
   if (props.disabled === true) {
     backgroundColor = colors.buttonDisabledBackgroundColor;
     fontColor = colors.buttonDisabledTextColor;
+  }
+
+  let buttonWidth = props.width ? props.width : width / 1.5;
+  if ('noMinWidth' in props) {
+    buttonWidth = 0;
   }
   return (
     <TouchableOpacity
@@ -124,6 +130,7 @@ export const BlueButtonHook = props => {
         height: 45,
         maxHeight: 45,
         borderRadius: 25,
+        minWidth: buttonWidth,
         justifyContent: 'center',
         alignItems: 'center',
       }}
@@ -180,23 +187,29 @@ export const BitcoinButton = props => {
     <TouchableOpacity testID={props.testID} onPress={props.onPress}>
       <View
         style={{
-          borderColor: colors.hdborderColor,
-          borderWidth: 1,
-          borderRadius: 5,
-          backgroundColor: (props.active && colors.hdbackgroundColor) || colors.brandingColor,
+          borderColor: (props.active && colors.newBlue) || colors.buttonDisabledBackgroundColor,
+          borderWidth: 1.5,
+          borderRadius: 8,
+          backgroundColor: colors.buttonDisabledBackgroundColor,
           minWidth: props.style.width,
           minHeight: props.style.height,
           height: props.style.height,
           flex: 1,
+          marginBottom: 8,
         }}
       >
-        <View style={{ margin: 16 }}>
-          <Text style={{ color: colors.hdborderColor, fontWeight: 'bold' }}>{loc.wallets.add_bitcoin}</Text>
+        <View style={{ marginHorizontal: 16, marginVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
+          <View>
+            <Image
+              style={{ width: 34, height: 34, marginRight: 8 }}
+              source={require('./img/addWallet/bitcoin.png')}
+            />
+          </View>
+          <View>
+            <Text style={{ color: colors.newBlue, fontWeight: 'bold', fontSize: 18 }}>{loc.wallets.add_bitcoin}</Text>
+            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500' }}>{loc.wallets.add_bitcoin_explain}</Text>
+          </View>
         </View>
-        <Image
-          style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
-          source={require('./img/addWallet/bitcoin.png')}
-        />
       </View>
     </TouchableOpacity>
   );
@@ -208,23 +221,28 @@ export const VaultButton = props => {
     <TouchableOpacity testID={props.testID} onPress={props.onPress}>
       <View
         style={{
-          borderColor: colors.hdborderColor,
-          borderWidth: 1,
-          borderRadius: 5,
-          backgroundColor: (props.active && colors.hdbackgroundColor) || colors.brandingColor,
+          borderColor: (props.active && colors.foregroundColor) || colors.buttonDisabledBackgroundColor,
+          borderWidth: 1.5,
+          borderRadius: 8,
+          backgroundColor: colors.buttonDisabledBackgroundColor,
           minWidth: props.style.width,
           minHeight: props.style.height,
           height: props.style.height,
           flex: 1,
         }}
       >
-        <View style={{ margin: 16 }}>
-          <Text style={{ color: colors.hdborderColor, fontWeight: 'bold' }}>{loc.multisig.multisig_vault}</Text>
+        <View style={{ marginHorizontal: 16, marginVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
+          <View>
+            <Image
+              style={{ width: 34, height: 34, marginRight: 8, }}
+              source={require('./img/addWallet/vault.png')}
+            />
+          </View>
+          <View>
+            <Text style={{ color: colors.foregroundColor, fontWeight: 'bold', fontSize: 18  }}>{loc.multisig.multisig_vault}</Text>
+            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500'  }}>{loc.multisig.multisig_vault_explain}</Text>
+          </View>
         </View>
-        <Image
-          style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
-          source={require('./img/addWallet/vault.png')}
-        />
       </View>
     </TouchableOpacity>
   );
@@ -236,23 +254,29 @@ export const LightningButton = props => {
     <TouchableOpacity onPress={props.onPress}>
       <View
         style={{
-          borderColor: colors.lnborderColor,
-          borderWidth: 1,
-          borderRadius: 5,
-          backgroundColor: (props.active && colors.lnbackgroundColor) || colors.brandingColor,
+         borderColor: (props.active && colors.lnborderColor) || colors.buttonDisabledBackgroundColor,
+          borderWidth: 1.5,
+          borderRadius: 8,
+          backgroundColor: colors.buttonDisabledBackgroundColor,
           minWidth: props.style.width,
           minHeight: props.style.height,
           height: props.style.height,
           flex: 1,
+          marginBottom: 8,
         }}
       >
-        <View style={{ margin: 16 }}>
-          <Text style={{ color: colors.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.add_lightning}</Text>
+        <View style={{ marginHorizontal: 16, marginVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
+          <View>
+            <Image
+              style={{ width: 34, height: 34, marginRight: 8, }}
+              source={require('./img/addWallet/lightning.png')}
+            />
+          </View>
+          <View>
+            <Text style={{ color: colors.lnborderColor, fontWeight: 'bold', fontSize: 18 }}>{loc.wallets.add_lightning}</Text>
+            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500' }}>{loc.wallets.add_lightning_explain}</Text>
+          </View>
         </View>
-        <Image
-          style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
-          source={require('./img/addWallet/lightning.png')}
-        />
       </View>
     </TouchableOpacity>
   );
@@ -515,7 +539,6 @@ export class BlueButtonLink extends Component {
         style={{
           minHeight: 60,
           minWidth: 100,
-          height: 60,
           justifyContent: 'center',
         }}
         {...this.props}

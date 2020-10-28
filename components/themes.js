@@ -30,7 +30,7 @@ export const BlueDefaultTheme = {
     inverseForegroundColor: '#ffffff',
     hdborderColor: '#68BBE1',
     hdbackgroundColor: '#ECF9FF',
-    lnborderColor: '#F7C056',
+    lnborderColor: '#FFB600',
     lnbackgroundColor: '#FFFAEF',
     background: '#FFFFFF',
     customHeader: 'rgba(0,0,0,0)',
@@ -56,6 +56,7 @@ export const BlueDefaultTheme = {
     successCheck: '#0f5cc0',
     msSuccessBG: '#37c0a1',
     msSuccessCheck: '#ffffff',
+    newBlue: '#007AFF',
   },
 };
 
@@ -100,6 +101,7 @@ export const BlueDarkTheme = {
     labelText: '#ffffff',
     msSuccessBG: '#8EFFE5',
     msSuccessCheck: '#000000',
+    newBlue: '#007AFF',
   },
 };
 

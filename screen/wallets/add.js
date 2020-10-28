@@ -217,7 +217,7 @@ const WalletsAdd = () => {
 
   return (
     <ScrollView style={stylesHook.root}>
-      <StatusBar barStyle="default" />
+      <StatusBar barStyle="light-content" />
       <BlueSpacing20 />
       <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
         <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
@@ -234,27 +234,20 @@ const WalletsAdd = () => {
           />
         </View>
         <BlueFormLabel>{loc.wallets.add_wallet_type}</BlueFormLabel>
-
-        <View style={styles.buttons}>
-          <BitcoinButton
-            testID="ActivateBitcoinButton"
-            active={selectedWalletType === ButtonSelected.ONCHAIN}
-            onPress={handleOnBitcoinButtonPressed}
-            style={styles.button}
-          />
-          <View style={styles.or}>
-            <BlueTextCenteredHooks style={styles.orCenter}>{loc.wallets.add_or}</BlueTextCenteredHooks>
+          <View style={styles.buttons}>
+            <BitcoinButton
+              testID="ActivateBitcoinButton"
+              active={selectedWalletType === ButtonSelected.ONCHAIN}
+              onPress={handleOnBitcoinButtonPressed}
+              style={styles.button}
+            />
+            <LightningButton
+              active={selectedWalletType === ButtonSelected.OFFCHAIN}
+              onPress={handleOnLightningButtonPressed}
+              style={styles.button}
+            />
+            <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} />
           </View>
-          <LightningButton
-            active={selectedWalletType === ButtonSelected.OFFCHAIN}
-            onPress={handleOnLightningButtonPressed}
-            style={styles.button}
-          />
-        </View>
-
-        <View style={styles.buttons}>
-          <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} />
-        </View>
 
         <View style={styles.advanced}>
           {(() => {
@@ -327,7 +320,9 @@ const WalletsAdd = () => {
           })()}
           <View style={styles.createButton}>
             {!isLoading ? (
-              <BlueButtonHook testID="Create" title={loc.wallets.add_create} disabled={!selectedWalletType} onPress={createWallet} />
+              <View style={styles.buttonSize}>
+                <BlueButtonHook testID="Create" title={loc.wallets.add_create} disabled={!selectedWalletType} onPress={createWallet} />
+              </View>
             ) : (
               <ActivityIndicator />
             )}
@@ -356,6 +351,11 @@ WalletsAdd.navigationOptions = ({ navigation }) => ({
 });
 
 const styles = StyleSheet.create({
+  buttonSize: {
+    maxWidth: 264,
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
   loading: {
     flex: 1,
     paddingTop: 20,
@@ -377,25 +377,15 @@ const styles = StyleSheet.create({
     color: '#81868e',
   },
   buttons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingTop: 10,
+    flexDirection: 'column',
     marginHorizontal: 20,
+    marginTop: 16,
     borderWidth: 0,
     minHeight: 100,
   },
   button: {
-    width: '45%',
-    height: 88,
-  },
-  or: {
-    borderWidth: 0,
-    justifyContent: 'center',
-    marginHorizontal: 8,
-    alignSelf: 'center',
-  },
-  orCenter: {
-    color: '#0c2550',
+    width: '100%',
+    height: 'auto',
   },
   advanced: {
     marginHorizontal: 20,
@@ -423,6 +413,9 @@ const styles = StyleSheet.create({
   },
   noPadding: {
     paddingHorizontal: 0,
+  },
+  typeMargin: {
+    marginTop: 8,
   },
 });
 

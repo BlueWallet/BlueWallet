@@ -83,6 +83,7 @@
     "list_title": "συναλλαγές"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Δημιούργησε",
     "add_import_wallet": "Εισήγαγε πορτοφόλι",
     "add_or": "ή",

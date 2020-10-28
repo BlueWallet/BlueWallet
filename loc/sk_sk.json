@@ -315,6 +315,7 @@
     "transactions_count": "počet transakcií"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_bitcoin": "Bitcoin",
     "add_create": "Vytvoriť",
     "add_entropy_generated": "{gen} bytov vygenerovanej entropie",
@@ -323,6 +324,7 @@
     "add_import_wallet": "Importovať peňaženku",
     "import_file": "Import File",
     "add_lightning": "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Pripojiť sa na LNDHub",
     "add_lndhub_error": "Nesprávna adresa uzla LNDHub.",
     "add_lndhub_placeholder": "adresa uzla",
@@ -387,6 +389,8 @@
     "xpub_title": "XPUB peňaženku"
   },
   "multisig": {
+    "multisig_vault": "Vault",
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Provide signature",
     "vault_key": "Vault key {number}",
     "fee": "Fee: {number}",
