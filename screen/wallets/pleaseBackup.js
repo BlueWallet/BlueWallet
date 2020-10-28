@@ -38,11 +38,11 @@ const PleaseBackup = () => {
   }, [navigation]);
 
   useEffect(() => {
-    // Privacy.enableBlur();
+    Privacy.enableBlur();
     setIsLoading(false);
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
     return () => {
-      //    Privacy.disableBlur();
+      Privacy.disableBlur();
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
