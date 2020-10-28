@@ -20,10 +20,11 @@ const SquareEnumeratedWords = props => {
     const entriesObject = entries.entries();
     for (const [index, secret] of entriesObject) {
       if (entries.length > 1) {
+        const text = `${index + 1}. ${secret}  `;
         component.push(
           <View style={[styles.entryTextContainer, stylesHook.entryTextContainer]} key={`${secret}${index}`}>
             <Text textBreakStrategy="simple" style={[styles.entryText, stylesHook.entryText]}>
-              {index + 1} . {secret}
+              {text}
             </Text>
           </View>,
         );
@@ -55,9 +56,9 @@ const styles = StyleSheet.create({
   },
   entryText: {
     fontWeight: 'bold',
+    textAlign: 'left',
   },
   container: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     flexWrap: 'wrap',
