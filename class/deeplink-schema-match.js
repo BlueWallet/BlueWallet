@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import RNFS from 'react-native-fs';
 import url from 'url';
 import { Chain } from '../models/bitcoinUnits';
+import Lnurl from './lnurl';
 import Azteco from './azteco';
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
@@ -268,10 +269,7 @@ class DeeplinkSchemaMatch {
   }
 
   static isLnUrl(text) {
-    if (text.toLowerCase().startsWith('lightning:lnurl') || text.toLowerCase().startsWith('lnurl')) {
-      return true;
-    }
-    return false;
+    return Lnurl.isLnurl(text)
   }
 
   static isSafelloRedirect(event) {

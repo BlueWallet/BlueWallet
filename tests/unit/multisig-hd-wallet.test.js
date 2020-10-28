@@ -1212,29 +1212,71 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w._getInternalAddressByIndex(1), 'bc1qv84pedzkqz2p4sd2dxm9krs0tcfatqcn73nndycaky9qttczj9qq3az9ma');
   });
 
-  it.skip('can import electrum json file format with seeds', () => {
-    const w = new MultisigHDWallet();
-    w.setSecret(JSON.stringify(require('./fixtures/electrum-multisig-wallet-with-seed.json')));
+  it('can import electrum json file format with seeds', () => {
+    const json = require('./fixtures/electrum-multisig-wallet-with-seed.json');
+    delete json['x1/'].xpub;
+    const json2 = JSON.parse(JSON.stringify(json)); // full copy
+    delete json2['x1/'].seed;
+    const secrets = [
+      JSON.stringify(json),
+      JSON.stringify(json2), // has only xprv
+    ];
 
-    assert.strictEqual(w.getM(), 2);
-    assert.strictEqual(w.getN(), 3);
-    assert.strictEqual(w.howManySignaturesCanWeMake(), 1);
+    for (const s of secrets) {
+      const w = new MultisigHDWallet();
+      w.setSecret(s);
 
-    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qkzg22vej70cqnrlsxcee9nfnstcr70jalvsmjn0c8rjf0klwyydsk8nggs');
-    assert.strictEqual(w._getExternalAddressByIndex(1), 'bc1q2mkhkvx9l7aqksvyf0dwd2x4yn8qx2w3sythjltdkjw70r8hsves2evfg6');
-    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qqj0zx85x3d2frn4nmdn32fgskq5c2qkvk9sukxp3xsdzuf234mds85w068');
-    assert.strictEqual(w._getInternalAddressByIndex(1), 'bc1qwpxkr4ac7fyp6y8uegfpqa6phyqex3vdf5mwwrfayrp8889adpgszge8m5');
+      assert.strictEqual(w.getM(), 2);
+      assert.strictEqual(w.getN(), 3);
 
-    assert.ok(w.isNativeSegwit());
-    assert.ok(!w.isWrappedSegwit());
-    assert.ok(!w.isLegacy());
+      assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qkzg22vej70cqnrlsxcee9nfnstcr70jalvsmjn0c8rjf0klwyydsk8nggs');
+      assert.strictEqual(w._getExternalAddressByIndex(1), 'bc1q2mkhkvx9l7aqksvyf0dwd2x4yn8qx2w3sythjltdkjw70r8hsves2evfg6');
+      assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qqj0zx85x3d2frn4nmdn32fgskq5c2qkvk9sukxp3xsdzuf234mds85w068');
+      assert.strictEqual(w._getInternalAddressByIndex(1), 'bc1qwpxkr4ac7fyp6y8uegfpqa6phyqex3vdf5mwwrfayrp8889adpgszge8m5');
 
-    assert.strictEqual(w.getCustomDerivationPathForCosigner(1), "m/1'");
-    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), "m/1'");
+      if (JSON.parse(s)['x1/'].seed) {
+        assert.strictEqual(w.howManySignaturesCanWeMake(), 1);
+      } else {
+        assert.strictEqual(w.howManySignaturesCanWeMake(), 0);
+      }
 
-    assert.strictEqual(w.getFingerprint(1), '8aaa5d05'.toUpperCase());
-    assert.strictEqual(w.getFingerprint(2), 'ef748d2c'.toUpperCase());
-    assert.strictEqual(w.getFingerprint(3), 'fdb6c4d8'.toUpperCase());
+      assert.ok(w.isNativeSegwit());
+      assert.ok(!w.isWrappedSegwit());
+      assert.ok(!w.isLegacy());
+
+      assert.strictEqual(w.getCustomDerivationPathForCosigner(1), "m/1'");
+      assert.strictEqual(w.getCustomDerivationPathForCosigner(2), "m/1'");
+
+      assert.strictEqual(w.getFingerprint(1), '8aaa5d05'.toUpperCase());
+      assert.strictEqual(w.getFingerprint(2), 'ef748d2c'.toUpperCase());
+      assert.strictEqual(w.getFingerprint(3), 'fdb6c4d8'.toUpperCase());
+
+      const utxos = [
+        {
+          height: 666,
+          value: 100000,
+          address: 'bc1q2mkhkvx9l7aqksvyf0dwd2x4yn8qx2w3sythjltdkjw70r8hsves2evfg6',
+          txId: 'c097161e8ae3b12ae2c90da95ade1185e368269a861ea9a8da023714d6fea31e',
+          vout: 0,
+          txid: 'c097161e8ae3b12ae2c90da95ade1185e368269a861ea9a8da023714d6fea31e',
+          amount: 100000,
+          wif: false,
+          confirmations: 666,
+          txhex:
+            '020000000001021b43a3a3ba5ff4a23538cc2703fd8346a36431ea471a3f4dd5f0cd7f94f5c15d010000001716001426458e62e6e3c6c86f337a01419b033b19296fafffffffff058afa9f432909398bb960056ad94d25d750ebe363edb61580fa1e995ab9e70b00000000171600149807251b3dffaf026fa29efd0f33d4f3bc853105ffffffff02102700000000000022002056ed7b30c5ffba0b41844bdae6a8d524ce0329d18117797d6db49de78cf78333000300000000000017a91498a34ffa21c4b810eee5cb94cd038a9c1979aa81870247304402204e90bd4bc06f5de27c0c78bbdbcf14d18eee39c2341c8cbdd6d30c172bd83fb2022058a37442adb49f745b07c0f9cf8a06144f103856976356b2a782b5916c95728b012103a9acc34fc8e68e19bee16ca356c597c8f6336d319471dddf86dfd4e28d17264702483045022100fef44f4645da1718363fbe3a7ffde8460faa3d7ca02c9437ab4fed2cf0724cf50220575ce1b64846ffb44b5868092072727b08465d2b8884aecf25e5526f9b536e88012103c3f029468e9fd9741b26228bb71f730e24f55a7569de1f84f1e9826396999bcd00000000',
+        },
+      ];
+      const { psbt, tx } = w.createTransaction(
+        utxos,
+        [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS' }],
+        1,
+        w._getInternalAddressByIndex(3),
+        false,
+        false,
+      );
+      assert.ok(psbt);
+      assert.ok(!tx);
+    }
   });
 
   it('cant import garbage', () => {

@@ -27,8 +27,4 @@ jobs:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           MERGE_LABELS: "!work in progress,!WIP,!DO NOT MERGE"
           MERGE_FORKS: false
-          MERGE_RETRIES: 10
-          MERGE_RETRY_SLEEP: 1800000
           MERGE_DELETE_BRANCH: true
-          UPDATE_RETRIES: 10
-          UPDATE_RETRY_SLEEP: 1800000
