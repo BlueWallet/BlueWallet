@@ -496,16 +496,7 @@ const WalletsAddMultisigStep2 = () => {
             </View>
           </View>
           <BlueSpacing20 />
-          <Text style={[styles.headerText, stylesHook.textDestination]}>
-            {loc.multisig.wallet_key_created}
-            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.wallet_key_created_bold_text1}</Text>
-            <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.wallet_key_created2}</Text>
-            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.wallet_key_created_bold_text2}</Text>
-          </Text>
-          <BlueSpacing20 />
-          <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.wallet_key}</Text>
-          <BlueSpacing10 />
-          <View style={styles.secretContainer}>{renderSecret([vaultKeyData.xpub])}</View>
+          <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.wallet_key_created}</Text>
           <BlueSpacing20 />
           <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.seed}</Text>
           <BlueSpacing10 />

@@ -22,16 +22,13 @@ import {
   BlueSpacing10,
   BlueSpacing20,
   BlueSpacing40,
-  BlueText,
   BlueTextCentered,
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
-import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
+import { HDSegwitBech32Wallet, MultisigHDWallet } from '../../class';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import Modal from 'react-native-modal';
-import QRCode from 'react-native-qrcode-svg';
-import { SquareButton } from '../../components/SquareButton';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MultipleStepsListItem, {
@@ -43,14 +40,13 @@ import ImagePicker from 'react-native-image-picker';
 import ScanQRCode from '../send/ScanQRCode';
 const isDesktop = getSystemName() === 'Mac OS X';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-const fs = require('../../blue_modules/fs');
-const staticCache = {};
 
 const ViewEditMultisigCosigners = () => {
   const { colors } = useTheme();
   const { wallets, sleep, setWalletsWithNewOrder } = useContext(BlueStorageContext);
   const { navigate } = useNavigation();
-  const { walletId } = useRoute().params;
+  const route = useRoute();
+  const { walletId } = route.params;
   let w = wallets.find(wallet => wallet.getID() === walletId);
   if (!w) {
     // lets create fake wallet so renderer wont throw any errors
@@ -62,19 +58,14 @@ const ViewEditMultisigCosigners = () => {
   tempWallet.setSecret(w.getSecret());
   const [wallet, setWallet] = useState(tempWallet);
 
-  const m = tempWallet.getM();
   const n = tempWallet.getN();
-  const format = tempWallet.getFormat();
 
   const [isLoading, setIsLoading] = useState(false);
   const [currentlyEditingCosignerNum, setCurrentlyEditingCosignerNum] = useState(false);
   const [isProvideMnemonicsModalVisible, setIsProvideMnemonicsModalVisible] = useState(false);
   const [isMnemonicsModalVisible, setIsMnemonicsModalVisible] = useState(false);
-  const [isRenderCosignersXpubModalVisible, setIsRenderCosignersXpubModalVisible] = useState(false);
-  const [cosignerXpub, setCosignerXpub] = useState(''); // string displayed in renderCosignersXpubModal()
-  const [cosignerXpubFilename, setCosignerXpubFilename] = useState('bw-cosigner.json');
   const [importText, setImportText] = useState('');
-  const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
+  const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', path: '', fp: '', isLoading: false }); // string rendered in modal
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -144,65 +135,6 @@ const ViewEditMultisigCosigners = () => {
     navigate('WalletsList');
   };
 
-  const getPath = () => {
-    let path = '';
-    switch (format) {
-      case MultisigHDWallet.FORMAT_P2WSH:
-        path = MultisigHDWallet.PATH_NATIVE_SEGWIT;
-        break;
-      case MultisigHDWallet.FORMAT_P2SH_P2WSH:
-        path = MultisigHDWallet.PATH_WRAPPED_SEGWIT;
-        break;
-      case MultisigHDWallet.FORMAT_P2SH:
-        path = MultisigHDWallet.PATH_LEGACY;
-        break;
-      default:
-        throw new Error('This should never happen');
-    }
-    return path;
-  };
-
-  const viewKey = index => {
-    const cosigner = wallet.getCosigner(index);
-    if (MultisigHDWallet.isXpubValid(cosigner)) {
-      setCosignerXpub(
-        MultisigCosigner.exportToJson(wallet.getFingerprint(index), cosigner, wallet.getCustomDerivationPathForCosigner(index)),
-      );
-      setCosignerXpubFilename('bw-cosigner-' + wallet.getFingerprint(index) + '.json');
-      setIsRenderCosignersXpubModalVisible(true);
-    } else {
-      const path = getPath();
-
-      const xpub = getXpubCacheForMnemonics(cosigner);
-      const fp = getFpCacheForMnemonics(cosigner);
-      setCosignerXpub(MultisigCosigner.exportToJson(fp, xpub, path));
-      setCosignerXpubFilename('bw-cosigner-' + fp + '.json');
-      setIsRenderCosignersXpubModalVisible(true);
-    }
-  };
-
-  const getXpubCacheForMnemonics = seed => {
-    const path = getPath();
-    return staticCache[seed + path] || setXpubCacheForMnemonics(seed);
-  };
-
-  const setXpubCacheForMnemonics = seed => {
-    const path = getPath();
-    const w = new MultisigHDWallet();
-    w.setDerivationPath(path);
-    staticCache[seed + path] = w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path));
-    return staticCache[seed + path];
-  };
-
-  const getFpCacheForMnemonics = seed => {
-    return staticCache[seed] || setFpCacheForMnemonics(seed);
-  };
-
-  const setFpCacheForMnemonics = seed => {
-    staticCache[seed] = MultisigHDWallet.seedToFingerprint(seed);
-    return staticCache[seed];
-  };
-
   const renderSecret = entries => {
     const component = [];
     const entriesObject = entries.entries();
@@ -238,18 +170,11 @@ const ViewEditMultisigCosigners = () => {
             </View>
           </View>
           <BlueSpacing20 />
-          <Text style={[styles.provideKeyButtonText, stylesHook.textDestination]}>
-            {loc.multisig.wallet_key_created}
-            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.wallet_key_created_bold_text1}</Text>
-            <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.wallet_key_created2}</Text>
-            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.wallet_key_created_bold_text2}</Text>
-          </Text>
-          <BlueSpacing20 />
           {vaultKeyData.xpub.length > 1 && (
             <>
               <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.wallet_key}</Text>
               <BlueSpacing10 />
-              <View style={styles.secretContainer}>{renderSecret([vaultKeyData.xpub])}</View>
+              <View style={styles.secretContainer}>{renderSecret([vaultKeyData.xpub, vaultKeyData.fp, vaultKeyData.path])}</View>
             </>
           )}
           {vaultKeyData.seed.length > 1 && (
@@ -297,8 +222,10 @@ const ViewEditMultisigCosigners = () => {
                 onPress: () => {
                   setVaultKeyData({
                     keyIndex: el.index,
-                    seed: isXpub ? '' : wallet.getCosigner(el.index + 1),
-                    xpub: isXpub ? wallet.getCosigner(el.index + 1) : '',
+                    seed: '',
+                    xpub: wallet.getCosigner(el.index + 1),
+                    fp: wallet.getFingerprint(el.index + 1),
+                    path: wallet.getCustomDerivationPathForCosigner(el.index + 1),
                     isLoading: false,
                   });
                   setIsMnemonicsModalVisible(true);
@@ -328,8 +255,10 @@ const ViewEditMultisigCosigners = () => {
                 onPress: () => {
                   setVaultKeyData({
                     keyIndex: el.index,
-                    seed: isXpub ? '' : wallet.getCosigner(el.index + 1),
-                    xpub: isXpub ? wallet.getCosigner(el.index + 1) : '',
+                    seed: wallet.getCosigner(el.index + 1),
+                    xpub: '',
+                    fp: '',
+                    path: '',
                     isLoading: false,
                   });
                   setIsMnemonicsModalVisible(true);
@@ -368,8 +297,12 @@ const ViewEditMultisigCosigners = () => {
   };
 
   const handleUseMnemonicPhrase = () => {
+    return _handleUseMnemonicPhrase(importText);
+  };
+
+  const _handleUseMnemonicPhrase = mnemonic => {
     const hd = new HDSegwitBech32Wallet();
-    hd.setSecret(importText);
+    hd.setSecret(mnemonic);
     if (!hd.validateMnemonic()) return alert(loc.multisig.invalid_mnemonics);
 
     const newFp = MultisigHDWallet.seedToFingerprint(hd.getSecret());
@@ -411,7 +344,7 @@ const ViewEditMultisigCosigners = () => {
             const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
             LocalQRCode.decode(uri, (error, result) => {
               if (!error) {
-                handleUseMnemonicPhrase(result);
+                _handleUseMnemonicPhrase(result);
               } else {
                 alert(loc.send.qr_error_no_qrcode);
               }
@@ -425,7 +358,10 @@ const ViewEditMultisigCosigners = () => {
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
-          onBarScanned: handleUseMnemonicPhrase,
+          launchedBy: route.name,
+          onBarScanned: result => {
+            _handleUseMnemonicPhrase(result);
+          },
           showFileImportButton: true,
         },
       });
@@ -465,43 +401,6 @@ const ViewEditMultisigCosigners = () => {
     );
   };
 
-  const exportCosigner = async () => {
-    await fs.writeFileAndExport(cosignerXpubFilename, cosignerXpub);
-  };
-
-  const renderCosignersXpubModal = () => {
-    return (
-      <Modal
-        isVisible={isRenderCosignersXpubModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          setIsRenderCosignersXpubModalVisible(false);
-        }}
-      >
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={[styles.modalContent, styles.alignItemsCenter]}>
-            <BlueText>{loc.multisig.this_is_cosigners_xpub}</BlueText>
-            <BlueSpacing20 />
-            <QRCode
-              value={cosignerXpub}
-              size={250}
-              color="#000000"
-              logoBackgroundColor={colors.brandingColor}
-              backgroundColor="#FFFFFF"
-              ecl="H"
-            />
-
-            <BlueSpacing20 />
-            <View style={styles.squareButtonWrapper}>
-              <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportCosigner} title={loc.multisig.share} />
-            </View>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
-    );
-  };
-
   const data = new Array(n);
 
   if (isLoading)
@@ -529,7 +428,6 @@ const ViewEditMultisigCosigners = () => {
 
       {renderProvideMnemonicsModal()}
 
-      {renderCosignersXpubModal()}
       {renderMnemonicsModal()}
     </SafeAreaView>
   );
