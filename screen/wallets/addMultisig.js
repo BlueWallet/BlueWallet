@@ -47,6 +47,9 @@ const WalletsAddMultisig = () => {
     deSelectedItem: {
       backgroundColor: 'transparent',
     },
+    textHeader: {
+      color: colors.outputValue,
+    },
   });
 
   useEffect(() => {
@@ -101,7 +104,7 @@ const WalletsAddMultisig = () => {
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
-            <Text style={styles.textHeader}>{loc.multisig.quorum_header}</Text>
+            <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
             <Text style={[styles.textSubtitle, stylesHook.textSubtitle]}>{loc.multisig.required_keys_out_of_total}</Text>
             <View style={styles.rowCenter}>
               <View style={styles.column}>
@@ -113,7 +116,7 @@ const WalletsAddMultisig = () => {
                     color={n === m || m === 7 ? colors.buttonDisabledTextColor : '#007AFF'}
                   />
                 </TouchableOpacity>
-                <Text style={styles.textM}>{m}</Text>
+                <Text style={[styles.textM, stylesHook.textHeader]}>{m}</Text>
                 <TouchableOpacity onPress={decreaseM} disabled={m === 2} style={styles.chevron}>
                   <Icon name="chevron-down" size={22} type="octicon" color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
                 </TouchableOpacity>
@@ -127,7 +130,7 @@ const WalletsAddMultisig = () => {
                 <TouchableOpacity disabled={n === 7} onPress={increaseN} style={styles.chevron}>
                   <Icon name="chevron-up" size={22} type="octicon" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
                 </TouchableOpacity>
-                <Text style={styles.textM}>{n}</Text>
+                <Text style={[styles.textM, stylesHook.textHeader]}>{n}</Text>
                 <TouchableOpacity onPress={decreaseN} disabled={n === m} style={styles.chevron}>
                   <Icon name="chevron-down" size={22} type="octicon" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
                 </TouchableOpacity>
@@ -136,7 +139,7 @@ const WalletsAddMultisig = () => {
 
             <BlueSpacing20 />
 
-            <Text style={styles.textHeader}>{loc.multisig.wallet_type}</Text>
+            <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.wallet_type}</Text>
             <BlueSpacing20 />
             <BlueListItem
               bottomDivider={false}
@@ -309,7 +312,6 @@ const styles = StyleSheet.create({
     color: '#9AA0AA',
   },
   textHeader: {
-    color: '#13244D',
     fontSize: 18,
     fontWeight: 'bold',
   },

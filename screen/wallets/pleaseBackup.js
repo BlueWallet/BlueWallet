@@ -21,9 +21,6 @@ const PleaseBackup = () => {
       flex: 1,
       paddingTop: 20,
     },
-    scrollViewContent: {
-      justifyContent: 'space-between',
-    },
     please: {
       alignItems: 'center',
       paddingHorizontal: 16,
@@ -68,7 +65,6 @@ const PleaseBackup = () => {
           <BlueText style={styles.successText}>{loc.pleasebackup.success}</BlueText>
           <BlueText style={styles.pleaseText}>{loc.pleasebackup.text}</BlueText>
           <SquareEnumeratedWords entries={words} />
-
           <BlueSpacing20 />
           <BlueButton testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
         </View>
