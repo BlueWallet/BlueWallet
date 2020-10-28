@@ -4,6 +4,7 @@ import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator } from 'rea
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
 export const MultipleStepsListItemDashType = Object.freeze({ none: 0, top: 1, bottom: 2, topAndBottom: 3 });
+export const MultipleStepsListItemButtohType = Object.freeze({ partial: 0, full: 1 });
 
 const MultipleStepsListItem = props => {
   const { colors } = useTheme();
@@ -63,6 +64,9 @@ const MultipleStepsListItem = props => {
     },
     vaultKeyTextSigned: {
       color: colors.msSuccessBG,
+    },
+    rowPartialLeftText: {
+      color: colors.alternativeTextColor,
     },
   });
 
@@ -132,22 +136,37 @@ const MultipleStepsListItem = props => {
         </View>
         {!showActivityIndicator && props.button && (
           <>
-            <TouchableOpacity
-              disabled={props.button.disabled}
-              style={[styles.provideKeyButton, stylesHook.provideKeyButton, buttonOpacity]}
-              onPress={props.button.onPress}
-            >
-              <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.button.text}</Text>
-            </TouchableOpacity>
+            {props.button.buttonType === undefined ||
+              (props.button.buttonType === MultipleStepsListItemButtohType.full && (
+                <TouchableOpacity
+                  disabled={props.button.disabled}
+                  style={[styles.provideKeyButton, stylesHook.provideKeyButton, buttonOpacity]}
+                  onPress={props.button.onPress}
+                >
+                  <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.button.text}</Text>
+                </TouchableOpacity>
+              ))}
+            {props.button.buttonType === MultipleStepsListItemButtohType.partial && (
+              <View style={styles.buttonPartialContainer}>
+                <Text numberOfLines={1} style={(styles.rowPartialLeftText, stylesHook.rowPartialLeftText)} lineBreakMode="middle">
+                  {props.button.leftText}
+                </Text>
+                <TouchableOpacity
+                  disabled={props.button.disabled}
+                  style={[styles.rowPartialRightButton, stylesHook.provideKeyButton, rightButtonOpacity]}
+                  onPress={props.button.onPress}
+                >
+                  <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText, styles.rightButton]}>
+                    {props.button.text}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </>
         )}
         {!showActivityIndicator && props.rightButton && checked && (
           <View style={styles.rightButtonContainer} accessibilityComponentType>
-            <TouchableOpacity
-              disabled={props.rightButton.disabled}
-              style={[styles.rightButton, rightButtonOpacity]}
-              onPress={props.rightButton.onPress}
-            >
+            <TouchableOpacity disabled={props.rightButton.disabled} style={styles.rightButton} onPress={props.rightButton.onPress}>
               <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.rightButton.text}</Text>
             </TouchableOpacity>
           </View>
@@ -167,6 +186,8 @@ MultipleStepsListItem.propTypes = {
     text: PropTypes.string,
     onPress: PropTypes.func,
     disabled: PropTypes.bool,
+    buttonType: PropTypes.number,
+    leftText: PropTypes.string,
   }),
   rightButton: PropTypes.shape({
     text: PropTypes.string,
@@ -181,6 +202,27 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     flex: 1,
     justifyContent: 'space-between',
+  },
+  buttonPartialContainer: {
+    borderRadius: 8,
+    borderColor: '#EEF0F4',
+    borderWidth: 1,
+    height: 48,
+    flex: 1,
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 16,
+    paddingRight: 8,
+    paddingVertical: 5,
+    marginLeft: 40,
+  },
+  rowPartialRightButton: {
+    height: 36,
+    borderRadius: 8,
+    alignSelf: 'flex-end',
+    minWidth: 64,
+    justifyContent: 'center',
   },
   itemKeyUnprovidedWrapper: { flexDirection: 'row' },
   vaultKeyCircle: {
@@ -202,14 +244,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   rightButton: {
-    height: 48,
     borderRadius: 8,
-    right: 0,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
+    textAlign: 'center',
   },
   rightButtonContainer: {
-    alignContent: 'flex-end',
+    alignContent: 'center',
+    justifyContent: 'center',
   },
   grayButton: {
     marginTop: 24,
@@ -230,6 +270,9 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  rowPartialLeftText: {
+    textAlign: 'center',
   },
   vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold' },

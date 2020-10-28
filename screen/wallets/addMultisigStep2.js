@@ -10,6 +10,7 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import {
@@ -35,9 +36,11 @@ import WalletImport from '../../class/wallet-import';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import MultipleStepsListItem, { MultipleStepsListItemDashType } from '../../components/MultipleStepsListItem';
+import MultipleStepsListItem, {
+  MultipleStepsListItemButtohType,
+  MultipleStepsListItemDashType,
+} from '../../components/MultipleStepsListItem';
 import Clipboard from '@react-native-community/clipboard';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import showPopupMenu from 'react-native-popup-menu-android';
 import ToolTip from 'react-native-tooltip';
 
@@ -145,25 +148,26 @@ const WalletsAddMultisigStep2 = () => {
       w.addCosigner(cc[0], cc[1], cc[2]);
     }
     w.setLabel('Multisig Vault');
-    await WalletImport._saveWallet(w);
+    WalletImport._saveWallet(w);
     navigation.dangerouslyGetParent().pop();
   };
 
   const generateNewKey = async () => {
     const w = new HDSegwitBech32Wallet();
-    await w.generate();
-    const cosignersCopy = [...cosigners];
-    cosignersCopy.push([w.getSecret(), false, false]);
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setCosigners(cosignersCopy);
-    setVaultKeyData({ keyIndex: cosignersCopy.length, seed: w.getSecret(), xpub: w.getXpub(), isLoading: false });
-    setIsMnemonicsModalVisible(true);
-    if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
-    setTimeout(() => {
-      // filling cache
-      setXpubCacheForMnemonics(w.getSecret());
-      setFpCacheForMnemonics(w.getSecret());
-    }, 500);
+    w.generate().then(() => {
+      const cosignersCopy = [...cosigners];
+      cosignersCopy.push([w.getSecret(), false, false]);
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setCosigners(cosignersCopy);
+      setVaultKeyData({ keyIndex: cosignersCopy.length, seed: w.getSecret(), xpub: w.getXpub(), isLoading: false });
+      setIsMnemonicsModalVisible(true);
+      if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
+      setTimeout(() => {
+        // filling cache
+        setXpubCacheForMnemonics(w.getSecret());
+        setFpCacheForMnemonics(w.getSecret());
+      }, 500);
+    });
   };
 
   const getPath = () => {
@@ -386,6 +390,7 @@ const WalletsAddMultisigStep2 = () => {
             <MultipleStepsListItem
               showActivityIndicator={vaultKeyData.keyIndex === el.index && vaultKeyData.isLoading}
               button={{
+                buttonType: MultipleStepsListItemButtohType.full,
                 onPress: () => {
                   setVaultKeyData({ keyIndex: el.index, xpub: '', seed: '', isLoading: true });
                   generateNewKey();
@@ -399,6 +404,7 @@ const WalletsAddMultisigStep2 = () => {
             <MultipleStepsListItem
               button={{
                 onPress: iHaveMnemonics,
+                buttonType: MultipleStepsListItemButtohType.full,
                 text: loc.wallets.import_do_import,
                 disabled: vaultKeyData.isLoading,
               }}
