@@ -17,12 +17,12 @@ const oStyles = StyleSheet.create({
   memo: { fontSize: 13, marginTop: 3 },
 });
 
-const Output = ({ item: { txid, value, vout }, oMemo, frozen, full = false, onPress }) => {
+const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, full = false, onPress }) => {
   const { colors } = useTheme();
   const { txMetadata } = useContext(BlueStorageContext);
-  const memo = txMetadata[txid]?.memo || oMemo || '';
+  const memo = oMemo || txMetadata[txid]?.memo || '';
   const fullId = `${txid}:${vout}`;
-  const shortId = `${txid.substring(0, 6)}...${txid.substr(txid.length - 6)}:${vout}`;
+  const shortId = `${address.substring(0, 10)}...${address.substr(address.length - 10)}`;
   const color = `#${txid.substring(0, 6)}`;
   const amount = formatBalanceWithoutSuffix(value, BitcoinUnit.BTC, true);
 
@@ -35,7 +35,7 @@ const Output = ({ item: { txid, value, vout }, oMemo, frozen, full = false, onPr
           <>
             <ListItem.Subtitle style={[oStyles.memo, { color: colors.alternativeTextColor }]}>
               {memo ? memo + '\n' : null}
-              {fullId}
+              {address + '\n' + fullId}
             </ListItem.Subtitle>
           </>
         ) : (
@@ -51,6 +51,7 @@ const Output = ({ item: { txid, value, vout }, oMemo, frozen, full = false, onPr
 
 Output.propTypes = {
   item: PropTypes.shape({
+    address: PropTypes.string.isRequired,
     txid: PropTypes.string.isRequired,
     value: PropTypes.number.isRequired,
     vout: PropTypes.number.isRequired,
@@ -132,7 +133,11 @@ const CoinControl = () => {
   const { walletId, onUTXOChoose } = useRoute().params;
   const { wallets } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletId);
-  const utxo = useMemo(() => wallet.getUtxo({ frozen: true }), [wallet]);
+  const utxo = useMemo(
+    // sort by height ascending, txid , vout ascending
+    () => wallet.getUtxo({ frozen: true }).sort((a, b) => a.height - b.height || a.txid.localeCompare(b.txid) || a.vout - b.vout),
+    [wallet],
+  );
   const [output, setOutput] = useState();
 
   const handleChoose = item => setOutput(item);
@@ -181,8 +186,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 350,
-    height: 350,
+    minHeight: 360,
+    height: 360,
   },
 });
 
