@@ -392,7 +392,7 @@
   },
   "multisig": {
     "multisig_vault": "Vault",
-    "multisig_vault_explain": "Best security for large amounts"
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Stell die Signatur bereit",
     "vault_key": "Tresor-Schlüssel: {number}",
     "fee": "Gebhür: {number}",
