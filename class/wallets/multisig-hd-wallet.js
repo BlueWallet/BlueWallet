@@ -9,6 +9,17 @@ const HDNode = require('bip32');
 const bitcoin = require('bitcoinjs-lib');
 const createHash = require('create-hash');
 const reverse = require('buffer-reverse');
+const mn = require('electrum-mnemonic');
+
+const MNEMONIC_TO_SEED_OPTS_SEGWIT = {
+  prefix: mn.PREFIXES.segwit,
+};
+
+const MNEMONIC_TO_SEED_OPTS_STANDARD = {
+  prefix: mn.PREFIXES.standard,
+};
+
+const ELECTRUM_SEED_PREFIX = 'electrumseed:';
 
 export class MultisigHDWallet extends AbstractHDElectrumWallet {
   static type = 'HDmultisig';
@@ -148,12 +159,29 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       throw new Error('path is not valid');
     }
 
-    if (!MultisigHDWallet.isXpubString(key)) {
+    if (MultisigHDWallet.isXprvString(key)) {
+      // nop, but probably should validate xprv
+    } else if (MultisigHDWallet.isXpubString(key)) {
+      // nop, just validate
+      if (!MultisigHDWallet.isXpubValid(key)) throw new Error('Not a valid xpub: ' + key);
+    } else if (key.startsWith(ELECTRUM_SEED_PREFIX) && fingerprint && path) {
+      // its an electrum seed
+      const mnemonic = key.replace(ELECTRUM_SEED_PREFIX, '');
+      try {
+        mn.mnemonicToSeedSync(mnemonic, MNEMONIC_TO_SEED_OPTS_STANDARD);
+        this.setLegacy();
+      } catch (_) {
+        try {
+          mn.mnemonicToSeedSync(mnemonic, MNEMONIC_TO_SEED_OPTS_SEGWIT);
+          this.setNativeSegwit();
+        } catch (__) {
+          throw new Error('Not a valid electrum seed');
+        }
+      }
+    } else {
       // mnemonics. lets derive fingerprint
       if (!bip39.validateMnemonic(key)) throw new Error('Not a valid mnemonic phrase');
       fingerprint = MultisigHDWallet.seedToFingerprint(key);
-    } else {
-      if (!MultisigHDWallet.isXpubValid(key)) throw new Error('Not a valid xpub: ' + key);
     }
 
     if (fingerprint && this._cosignersFingerprints.indexOf(fingerprint.toUpperCase()) !== -1 && fingerprint !== '00000000') {
@@ -167,6 +195,17 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     if (path) this._cosignersCustomPaths[index] = path;
   }
 
+  static convertMultisigXprvToRegularXprv(Zprv) {
+    let data = b58.decode(Zprv);
+    data = data.slice(4);
+    return b58.encode(Buffer.concat([Buffer.from('0488ade4', 'hex'), data]));
+  }
+
+  static convertXprvToXpub(xprv) {
+    const restored = bitcoin.bip32.fromBase58(MultisigHDWallet.convertMultisigXprvToRegularXprv(xprv));
+    return restored.neutered().toBase58();
+  }
+
   /**
    * Stored cosigner can be EITHER xpub (or Zpub or smth), OR mnemonic phrase. This method converts it to xpub
    *
@@ -175,6 +214,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
    * @private
    */
   _getXpubFromCosigner(cosigner) {
+    if (MultisigHDWallet.isXprvString(cosigner)) cosigner = MultisigHDWallet.convertXprvToXpub(cosigner);
     let xpub = cosigner;
     if (!MultisigHDWallet.isXpubString(cosigner)) {
       const index = this._cosigners.indexOf(cosigner);
@@ -250,13 +290,16 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   static seedToXpub(mnemonic, path) {
-    const seed = bip39.mnemonicToSeed(mnemonic);
+    let seed;
+    if (mnemonic.startsWith(ELECTRUM_SEED_PREFIX)) {
+      seed = MultisigHDWallet.convertElectrumMnemonicToSeed(mnemonic);
+    } else {
+      seed = bip39.mnemonicToSeed(mnemonic);
+    }
+
     const root = bitcoin.bip32.fromSeed(seed);
-
     const child = root.derivePath(path).neutered();
-    this._xpub = child.toBase58();
-
-    return this._xpub;
+    return child.toBase58();
   }
 
   /**
@@ -291,8 +334,24 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return xpub;
   }
 
+  convertXprvToMultisignatureXprv(xpub) {
+    let data = b58.decode(xpub);
+    data = data.slice(4);
+    if (this.isNativeSegwit()) {
+      return b58.encode(Buffer.concat([Buffer.from('02aa7a99', 'hex'), data]));
+    } else if (this.isWrappedSegwit()) {
+      return b58.encode(Buffer.concat([Buffer.from('0295b005', 'hex'), data]));
+    }
+
+    return xpub;
+  }
+
   static isXpubString(xpub) {
     return ['xpub', 'ypub', 'zpub', 'Ypub', 'Zpub'].includes(xpub.substring(0, 4));
+  }
+
+  static isXprvString(xpub) {
+    return ['xprv', 'yprv', 'zprv', 'Yprv', 'Zprv'].includes(xpub.substring(0, 4));
   }
 
   /**
@@ -425,15 +484,18 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
               ? MultisigHDWallet.ckccXfp2fingerprint(cosignerData.ckcc_xfp)
               : cosignerData.root_fingerprint?.toUpperCase()) || '00000000';
           if (cosignerData.seed) {
-            // TODO: support electrum's bip32
+            this.addCosigner(ELECTRUM_SEED_PREFIX + cosignerData.seed, fingerprint, cosignerData.derivation);
+          } else if (cosignerData.xprv) {
+            this.addCosigner(cosignerData.xprv, fingerprint, cosignerData.derivation);
+          } else {
+            this.addCosigner(cosignerData.xpub, fingerprint, cosignerData.derivation);
           }
-          this.addCosigner(cosignerData.xpub, fingerprint, cosignerData.derivation);
         }
-      }
 
-      if (this.getCosigner(1).startsWith('Zpub')) this.setNativeSegwit();
-      if (this.getCosigner(1).startsWith('Ypub')) this.setWrappedSegwit();
-      if (this.getCosigner(1).startsWith('xpub')) this.setLegacy();
+        if (cosignerData?.xpub?.startsWith('Zpub')) this.setNativeSegwit();
+        if (cosignerData?.xpub?.startsWith('Ypub')) this.setWrappedSegwit();
+        if (cosignerData?.xpub?.startsWith('xpub')) this.setLegacy();
+      }
     }
 
     // coldcard & cobo txt format:
@@ -719,7 +781,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   howManySignaturesCanWeMake() {
     let howManyPrivKeysWeGot = 0;
     for (const cosigner of this._cosigners) {
-      if (!MultisigHDWallet.isXpubString(cosigner)) howManyPrivKeysWeGot++;
+      if (!MultisigHDWallet.isXpubString(cosigner) && !MultisigHDWallet.isXprvString(cosigner)) howManyPrivKeysWeGot++;
     }
 
     return howManyPrivKeysWeGot;
@@ -781,7 +843,11 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         for (const cosigner of this._cosigners) {
           if (!MultisigHDWallet.isXpubString(cosigner)) {
             // ok this is a mnemonic, lets try to sign
-            const seed = bip39.mnemonicToSeed(cosigner);
+            let seed = bip39.mnemonicToSeed(cosigner);
+            if (cosigner.startsWith(ELECTRUM_SEED_PREFIX)) {
+              seed = MultisigHDWallet.convertElectrumMnemonicToSeed(cosigner);
+            }
+
             const hdRoot = bitcoin.bip32.fromSeed(seed);
             psbt.signInputHD(cc, hdRoot);
           }
@@ -794,6 +860,20 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       tx = psbt.finalizeAllInputs().extractTransaction();
     }
     return { tx, inputs, outputs, fee, psbt };
+  }
+
+  static convertElectrumMnemonicToSeed(cosigner) {
+    let seed;
+    try {
+      seed = mn.mnemonicToSeedSync(cosigner.replace(ELECTRUM_SEED_PREFIX, ''), MNEMONIC_TO_SEED_OPTS_SEGWIT);
+    } catch (_) {
+      try {
+        seed = mn.mnemonicToSeedSync(cosigner.replace(ELECTRUM_SEED_PREFIX, ''), MNEMONIC_TO_SEED_OPTS_STANDARD);
+      } catch (__) {
+        throw new Error('Not a valid electrum mnemonic');
+      }
+    }
+    return seed;
   }
 
   /**
