@@ -1,5 +1,6 @@
-import React, { useMemo, useState, useContext, useEffect } from 'react';
+import React, { useMemo, useState, useContext, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import _debounce from 'lodash/debounce';
 import Modal from 'react-native-modal';
 import { ListItem, Avatar, Badge } from 'react-native-elements';
 import { StyleSheet, FlatList, KeyboardAvoidingView, View, TextInput, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
@@ -77,16 +78,22 @@ const mStyles = StyleSheet.create({
 
 const OutputModalContent = ({ output, wallet, onUseCoin }) => {
   const { colors } = useTheme();
-  const { txMetadata } = useContext(BlueStorageContext);
+  const { txMetadata, saveToDisk } = useContext(BlueStorageContext);
   const [frozen, setFrozen] = useState(wallet.getUTXOMetadata(output.txid, output.vout).frozen || false);
   const [memo, setMemo] = useState(wallet.getUTXOMetadata(output.txid, output.vout).memo || txMetadata[output.txid]?.memo || '');
   const onFreeze = value => setFrozen(value);
   const onMemoChange = value => setMemo(value);
 
-  // save on form change
+  // save on form change. Because effect called on each event, debounce it.
+  const debouncedSave = useRef(
+    _debounce(async (frozen, memo) => {
+      wallet.setUTXOMetadata(output.txid, output.vout, { frozen, memo });
+      await saveToDisk();
+    }, 500),
+  );
   useEffect(() => {
-    wallet.setUTXOMetadata(output.txid, output.vout, { frozen, memo });
-  }, [frozen, memo, output.txid, output.vout, wallet]);
+    debouncedSave.current(frozen, memo);
+  }, [frozen, memo]);
 
   return (
     <>
@@ -123,7 +130,7 @@ const CoinControl = () => {
   const { colors } = useTheme();
   const navigation = useNavigation();
   const { walletId, onUTXOChoose } = useRoute().params;
-  const { wallets, saveToDisk } = useContext(BlueStorageContext);
+  const { wallets } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletId);
   const utxo = useMemo(() => wallet.getUtxo({ frozen: true }), [wallet]);
   const [output, setOutput] = useState();
@@ -149,7 +156,6 @@ const CoinControl = () => {
         onBackdropPress={() => {
           Keyboard.dismiss();
           setOutput(false);
-          saveToDisk();
         }}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
