@@ -3,17 +3,11 @@ import dayjs from 'dayjs';
 import localeData from 'dayjs/plugin/localeData';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Localization from 'react-localization';
-import {
-  LocaleConfig
-} from 'react-native-calendars';
+import { LocaleConfig } from 'react-native-calendars';
 import * as RNLocalize from 'react-native-localize';
 
-import {
-  BitcoinUnit
-} from '../models/bitcoinUnits';
-import {
-  CONST
-} from '../src/consts';
+import { BitcoinUnit } from '../models/bitcoinUnits';
+import { CONST } from '../src/consts';
 
 const BigNumber = require('bignumber.js');
 
