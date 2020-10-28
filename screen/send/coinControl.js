@@ -8,11 +8,13 @@ import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
 
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { BlueNavigationStyle, SafeBlueArea, BlueSpacing20, BlueButton, BlueListItem } from '../../BlueComponents';
+import { BlueNavigationStyle, SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueButton, BlueListItem } from '../../BlueComponents';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const oStyles = StyleSheet.create({
-  avatar: { borderColor: 'rgba(0, 0, 0, 0.5)', borderWidth: StyleSheet.hairlineWidth },
+  container: { backgroundColor: 'transparent' },
+  containerFull: { paddingHorizontal: 0 },
+  avatar: { borderColor: 'white', borderWidth: 1 },
   amount: { fontWeight: 'bold' },
   memo: { fontSize: 13, marginTop: 3 },
 });
@@ -27,16 +29,21 @@ const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, full = fa
   const amount = formatBalanceWithoutSuffix(value, BitcoinUnit.BTC, true);
 
   return (
-    <ListItem bottomDivider onPress={onPress}>
+    <ListItem bottomDivider onPress={onPress} containerStyle={[oStyles.container, full && oStyles.containerFull]}>
       <Avatar rounded overlayContainerStyle={[oStyles.avatar, { backgroundColor: color }]} />
       <ListItem.Content>
-        <ListItem.Title style={oStyles.amount}>{amount}</ListItem.Title>
+        <ListItem.Title style={[oStyles.amount, { color: colors.foregroundColor }]}>{amount}</ListItem.Title>
         {full ? (
           <>
-            <ListItem.Subtitle style={[oStyles.memo, { color: colors.alternativeTextColor }]}>
-              {memo ? memo + '\n' : null}
-              {address + '\n' + fullId}
-            </ListItem.Subtitle>
+            {memo ? (
+              <>
+                <ListItem.Subtitle style={[oStyles.memo, { color: colors.alternativeTextColor }]}>{memo}</ListItem.Subtitle>
+                <BlueSpacing10 />
+              </>
+            ) : null}
+            <ListItem.Subtitle style={[oStyles.memo, { color: colors.alternativeTextColor }]}>{address}</ListItem.Subtitle>
+            <BlueSpacing10 />
+            <ListItem.Subtitle style={[oStyles.memo, { color: colors.alternativeTextColor }]}>{fullId}</ListItem.Subtitle>
           </>
         ) : (
           <ListItem.Subtitle style={[oStyles.memo, { color: colors.alternativeTextColor }]} numberOfLines={1}>
@@ -154,7 +161,7 @@ const CoinControl = () => {
   };
 
   return (
-    <SafeBlueArea>
+    <SafeBlueArea style={[styles.root, { backgroundColor: colors.elevated }]}>
       <Modal
         isVisible={Boolean(output)}
         style={styles.bottomModal}
@@ -176,6 +183,9 @@ const CoinControl = () => {
 };
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   bottomModal: {
     justifyContent: 'flex-end',
     margin: 0,
