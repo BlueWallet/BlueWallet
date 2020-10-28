@@ -323,8 +323,8 @@
     "add_entropy_remain": "{gen} tavua luotua entropiaa. Jäljellä olevat {rem} tavut saadaan Järjestelmän satunnaislukugeneraattorilta.",
     "add_import_wallet": "Tuo lompakko",
     "import_file": "Tuo tiedosto",
-"add_lightning": "Lightning",
-    "add_lightning_explain": "For spending with instant transactions", "Lightning",
+    "add_lightning": "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Yhdistä LNDHub:iisi",
     "add_lndhub_error": "Annettu solmun osoite ei ole kelvollinen LNDHub-solmu.",
     "add_lndhub_placeholder": "solmusi osoite",
@@ -389,8 +389,7 @@
   },
   "multisig": {
     "multisig_vault": "Vault",
-    "multisig_vault_explain": "Best security for large amounts"
-    "multisig_vault_explain": "Best security for large amounts"
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Toimita allekirjoitus",
     "vault_key": "Holvi avain {number}",
     "fee": "Siirtokulu: {number}",

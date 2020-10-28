@@ -323,8 +323,8 @@
     "add_entropy_remain": "{gen} octets d'entropie générée. Les {rem} octets restants seront obtenus auprès du générateur de nombres aléatoires du système.",
     "add_import_wallet": "Importer un portefeuille",
     "import_file": "Importer le fichier",
-"add_lightning": "Lightning",
-    "add_lightning_explain": "For spending with instant transactions", "Lightning",
+    "add_lightning": "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Connexion à votre LNDHub",
     "add_lndhub_error": "L'adresse de noeud fournie n'est pas un noeud LNDHub valide.",
     "add_lndhub_placeholder": "l'adresse de votre noeud",
@@ -390,8 +390,7 @@
   },
   "multisig": {
     "multisig_vault": "Vault",
-    "multisig_vault_explain": "Best security for large amounts"
-    "multisig_vault_explain": "Best security for large amounts"
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Provide signature",
     "vault_key": "Vault key {number}",
     "fee": "Fee: {number}",

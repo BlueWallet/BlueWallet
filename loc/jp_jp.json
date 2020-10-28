@@ -323,8 +323,8 @@
     "add_entropy_remain": "生成されたエントロピーの{gen}バイト。残りの{rem}バイトはシステム乱数発生器から取得されます。",
     "add_import_wallet": "ウォレットをインポート",
     "import_file": "インポートファイル",
-"add_lightning": "Lightning",
-    "add_lightning_explain": "For spending with instant transactions", "ライトニング",
+    "add_lightning": "ライトニング",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "あなたのLNDHubに接続",
     "add_lndhub_error": "指定されたノードアドレスは有効なLNDHubノードではありません。",
     "add_lndhub_placeholder": "あなたのノードアドレス",
@@ -389,7 +389,7 @@
   },
   "multisig": {
     "multisig_vault": "Vault",
-    "multisig_vault_explain": "Best security for large amounts"
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "署名を提供",
     "vault_key": "ヴォールトキー {number}",
     "fee": "費用: {number}",

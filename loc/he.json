@@ -323,8 +323,8 @@
     "add_entropy_remain": "{gen} בייטים של אנתרופיה. שאר {rem} בייטים יתקבלו ממחולל מספרים רנדומליים של המערכת.",
     "add_import_wallet": "יבוא ארנק",
     "import_file": "יבוא קובץ",
-"add_lightning": "Lightning",
-    "add_lightning_explain": "For spending with instant transactions", "ברק",
+    "add_lightning": "ברק",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "התחברו ל- LNDHub אישי",
     "add_lndhub_error": "כתובת הצומת שסופקה אינה כתובת צומת LNDHub תקינה.",
     "add_lndhub_placeholder": "כתובת הצומת שלך",
@@ -390,7 +390,7 @@
   },
   "multisig": {
     "multisig_vault": "Vault",
-    "multisig_vault_explain": "Best security for large amounts"
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Provide signature",
     "vault_key": "Vault key {number}",
     "fee": "עמלה: {number}",

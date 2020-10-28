@@ -313,8 +313,8 @@
     "add_entropy_remain": "{gen} bytes of entropía generada. Los {rem} bytes restantes serán obtenidos del generador de números aleatorios.",
     "add_import_wallet": "Importar billetera",
     "import_file": "Imortar Archivo",
-"add_lightning": "Lightning",
-    "add_lightning_explain": "For spending with instant transactions", "Lightning",
+    "add_lightning": "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Conectar a tu LNDHub",
     "add_lndhub_error": "La dirección del nodo, no es un nodo LNDHub válido.",
     "add_lndhub_placeholder": "Su dirección de nodo",
@@ -379,8 +379,7 @@
   },
   "multisig": {
     "multisig_vault": "Vault",
-    "multisig_vault_explain": "Best security for large amounts"
-    "multisig_vault_explain": "Best security for large amounts"
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Proporcionar firma",
     "vault_key": "Clave de la bóveda {number}",
     "fee": "Tarifa: {number}",

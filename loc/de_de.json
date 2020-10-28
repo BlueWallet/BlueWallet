@@ -326,7 +326,7 @@
     "add_import_wallet": "Wallet importieren",
     "import_file": "Datei importieren",
     "add_lightning": "Lightning",
-    "add_lightning_explain": "For spending with instant transactions", "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "LNDHub Verbindung",
     "add_lndhub_error": "Die angegebene LNDHub Verbindung ist ungültig. ",
     "add_lndhub_placeholder": "Adresse Deines Bitcoin-Knotens (Node)",

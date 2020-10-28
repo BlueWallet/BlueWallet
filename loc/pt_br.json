@@ -311,7 +311,7 @@
     "add_import_wallet": "Importar carteira",
     "import_file": "Importar arquivo",
     "add_lightning": "Lightning",
-    "add_lightning_explain": "For spending with instant transactions", "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Conectar ao seu LNDHub",
     "add_lndhub_error": "O endereço fornecido não é um LNDHub válido",
     "add_lndhub_placeholder": "seu endereço de nó",

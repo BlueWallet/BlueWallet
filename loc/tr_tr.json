@@ -311,7 +311,7 @@
     "add_import_wallet": "Cüzdan İçeri Yükle",
     "import_file": "Import File",
     "add_lightning": "Lightning",
-    "add_lightning_explain": "For spending with instant transactions", "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Connect to your LNDHub",
     "add_lndhub_error": "The provided node address is not valid LNDHub node.",
     "add_lndhub_placeholder": "your node address",

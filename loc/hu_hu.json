@@ -323,8 +323,8 @@
     "add_entropy_remain": "{gen} byte generálva entrópiával. A megmaradt {rem} byte a rendszer véletlenszám generátorával készül.",
     "add_import_wallet": "Tárca importálása",
     "import_file": "fájl importálása",
-"add_lightning": "Lightning",
-    "add_lightning_explain": "For spending with instant transactions", "Lightning",
+    "add_lightning": "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Kapcsolódj az LNDHub-hoz",
     "add_lndhub_error": "A megadott node cím hibás LBDHub node.",
     "add_lndhub_placeholder": "a te node címed",
@@ -390,7 +390,7 @@
   },
   "multisig": {
     "multisig_vault": "Vault",
-    "multisig_vault_explain": "Best security for large amounts"
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Aláírás végrehajtása ",
     "vault_key": "Tár kulcs {number}",
     "fee": "Tranzakciós díj: {number}",

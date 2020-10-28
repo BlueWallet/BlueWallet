@@ -311,7 +311,7 @@
     "add_import_wallet": "استيراد المحفظة",
     "import_file": "استيراد ملف",
     "add_lightning": "Lightning",
-    "add_lightning_explain": "For spending with instant transactions", "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "اتصل ببرنامج تضمين LNDHub الخاص بك",
     "add_lndhub_error": "عنوان العقدة المقدَّم لا ينطوي على عقدة LNDHub صالحة.",
     "add_lndhub_placeholder": "عنوان العقدة الخاص بك",

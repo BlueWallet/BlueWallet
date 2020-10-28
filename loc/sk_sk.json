@@ -324,7 +324,7 @@
     "add_import_wallet": "Importovať peňaženku",
     "import_file": "Import File",
     "add_lightning": "Lightning",
-    "add_lightning_explain": "For spending with instant transactions", "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Pripojiť sa na LNDHub",
     "add_lndhub_error": "Nesprávna adresa uzla LNDHub.",
     "add_lndhub_placeholder": "adresa uzla",
@@ -390,7 +390,7 @@
   },
   "multisig": {
     "multisig_vault": "Vault",
-    "multisig_vault_explain": "Best security for large amounts"
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Provide signature",
     "vault_key": "Vault key {number}",
     "fee": "Fee: {number}",
