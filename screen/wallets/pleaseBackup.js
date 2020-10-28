@@ -51,10 +51,10 @@ const PleaseBackup = () => {
   const renderSecret = () => {
     const component = [];
     for (const [index, secret] of wallet.getSecret().split(/\s/).entries()) {
-      const text = `${index + 1}. ${secret} `;
+      const text = `${index + 1}. ${secret}  `;
       component.push(
         <View style={[styles.word, stylesHook.word]} key={`${index}`}>
-          <Text style={[styles.wortText, stylesHook.wortText]}>
+          <Text style={[styles.wortText, stylesHook.wortText]} textBreakStrategy="simple">
             {text}
           </Text>
         </View>,
@@ -70,7 +70,7 @@ const PleaseBackup = () => {
   ) : (
     <SafeBlueArea style={[styles.flex, stylesHook.flex]}>
       <StatusBar barStyle="default" />
-      <ScrollView contentContainerStyle={styles.scrollViewContent} testID="PleaseBackupScrollView">
+      <ScrollView testID="PleaseBackupScrollView">
         <View style={styles.please}>
           <BlueText style={[styles.successText, stylesHook.successText]}>{loc.pleasebackup.success}</BlueText>
           <BlueText style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</BlueText>
@@ -112,10 +112,7 @@ const styles = StyleSheet.create({
   },
   wortText: {
     fontWeight: 'bold',
-    
-  },
-  scrollViewContent: {
-    justifyContent: 'space-between',
+    textAlign: 'left',
   },
   please: {
     alignItems: 'center',
@@ -131,7 +128,6 @@ const styles = StyleSheet.create({
     paddingLeft: 0,
   },
   secret: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     flexWrap: 'wrap',
