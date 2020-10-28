@@ -525,7 +525,6 @@ const ViewEditMultisigCosigners = () => {
         <FlatList data={data} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
         <BlueSpacing10 />
         {footer}
-        <BlueSpacing10 />
       </KeyboardAvoidingView>
 
       {renderProvideMnemonicsModal()}
