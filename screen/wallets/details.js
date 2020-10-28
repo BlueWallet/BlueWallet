@@ -85,13 +85,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  center: {
-    alignItems: 'center',
-  },
   delete: {
     color: '#d0021b',
     fontSize: 15,
     fontWeight: '500',
+    textAlign: 'center',
   },
 });
 
@@ -464,7 +462,7 @@ const WalletDetails = () => {
               )}
               <BlueSpacing20 />
               <BlueSpacing20 />
-              <TouchableOpacity style={styles.center} onPress={handleDeleteButtonTapped}>
+              <TouchableOpacity onPress={handleDeleteButtonTapped}>
                 <Text style={styles.delete}>{loc.wallets.details_delete}</Text>
               </TouchableOpacity>
             </View>
