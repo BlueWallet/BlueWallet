@@ -80,6 +80,7 @@
     "list_title": "transaksjoner"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Lag",
     "add_import_wallet": "Importer lommeboken",
     "add_or": "eller",

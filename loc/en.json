@@ -320,6 +320,7 @@
     "transactions_count": "transactions count"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_bitcoin": "Bitcoin",
     "add_create": "Create",
     "add_entropy_generated": "{gen} bytes of generated entropy",
@@ -328,6 +329,7 @@
     "add_import_wallet": "Import wallet",
     "import_file": "Import File",
     "add_lightning": "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Connect to your LNDHub",
     "add_lndhub_error": "The provided node address is not valid LNDHub node.",
     "add_lndhub_placeholder": "your node address",
@@ -392,6 +394,8 @@
     "xpub_title": "wallet XPUB"
   },
   "multisig": {
+    "multisig_vault": "Vault",
+    "multisig_vault_explain": "Best security for large amounts"
     "provide_signature": "Provide signature",
     "vault_key": "Vault key {number}",
     "required_keys_out_of_total": "Required keys out of the total",
@@ -443,6 +447,5 @@
     "invalid_fingerprint": "Fingerprint for this seed doesnt match this cosigners fingerprint",
     "view_edit_cosigners": "View/edit cosigners",
     "view_edit_cosigners_title": "Edit Cosigners",
-    "multisig_vault": "Multisig Vault"
   }
 }
