@@ -488,6 +488,14 @@ describe('BlueWallet UI Tests', () => {
 
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput')).typeText('0.0005\n');
+
+    // setting fee rate:
+    const feeRate = 1;
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).typeText(feeRate + '');
+    await element(by.text('OK')).tap();
+
     if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
