@@ -1034,4 +1034,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     return ret;
   }
+
+  // check if address is a Change address. Needed for Coin control
+  addressIsChange(address) {
+    for (let c = 0; c < this.next_free_change_address_index + 1; c++) {
+      if (address === this._getInternalAddressByIndex(c)) return true;
+    }
+    return false;
+  }
 }

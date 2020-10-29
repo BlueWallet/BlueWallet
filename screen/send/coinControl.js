@@ -13,6 +13,7 @@ import {
   TextInput,
   TouchableWithoutFeedback,
   View,
+  useColorScheme,
 } from 'react-native';
 import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
 
@@ -27,14 +28,21 @@ const oStyles = StyleSheet.create({
   avatar: { borderColor: 'white', borderWidth: 1 },
   amount: { fontWeight: 'bold' },
   memo: { fontSize: 13, marginTop: 3 },
+  changeLight: { backgroundColor: '#EEF0F4' },
+  changeDark: { backgroundColor: '#3b3b3c', borderWidth: 0 },
+  changeText: { color: '#9BA0A9' },
+  freezeLight: { backgroundColor: '#F2D3D3' },
+  freezeDark: { backgroundColor: '#5a4e4e', borderWidth: 0 },
+  freezeText: { color: '#FC6D6D' },
 });
 
-const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, full = false, onPress }) => {
+const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, change = false, full = false, onPress }) => {
   const { colors } = useTheme();
   const { txMetadata } = useContext(BlueStorageContext);
+  const cs = useColorScheme();
   const memo = oMemo || txMetadata[txid]?.memo || '';
   const fullId = `${txid}:${vout}`;
-  const shortId = `${address.substring(0, 10)}...${address.substr(address.length - 10)}`;
+  const shortId = `${address.substring(0, 9)}...${address.substr(address.length - 9)}`;
   const color = `#${txid.substring(0, 6)}`;
   const amount = formatBalanceWithoutSuffix(value, BitcoinUnit.BTC, true);
 
@@ -61,7 +69,12 @@ const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, full = fa
           </ListItem.Subtitle>
         )}
       </ListItem.Content>
-      {frozen && <Badge value={loc.cc.freeze} status="error" />}
+      {change && (
+        <Badge value={loc.cc.change} badgeStyle={oStyles[cs === 'dark' ? 'changeDark' : 'changeLight']} textStyle={oStyles.changeText} />
+      )}
+      {frozen && (
+        <Badge value={loc.cc.freeze} badgeStyle={oStyles[cs === 'dark' ? 'freezeDark' : 'freezeLight']} textStyle={oStyles.freezeText} />
+      )}
     </ListItem>
   );
 };
@@ -75,6 +88,7 @@ Output.propTypes = {
   }),
   oMemo: PropTypes.string,
   frozen: PropTypes.bool,
+  change: PropTypes.bool,
   full: PropTypes.bool,
   onPress: PropTypes.func,
 };
@@ -167,7 +181,8 @@ const CoinControl = () => {
 
   const renderItem = p => {
     const { memo, frozen } = wallet.getUTXOMetadata(p.item.txid, p.item.vout);
-    return <Output item={p.item} oMemo={memo} frozen={frozen} onPress={() => handleChoose(p.item)} />;
+    const change = wallet.addressIsChange(p.item.address);
+    return <Output item={p.item} oMemo={memo} frozen={frozen} change={change} onPress={() => handleChoose(p.item)} />;
   };
 
   return (

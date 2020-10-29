@@ -404,4 +404,10 @@ export class LegacyWallet extends AbstractWallet {
   allowSendMax() {
     return true;
   }
+
+  // Check if address is a Change address. Needed for Coin control.
+  // Useless for Legacy wallets, so it is always false
+  addressIsChange(address) {
+    return true;
+  }
 }
