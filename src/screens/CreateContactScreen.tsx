@@ -47,9 +47,11 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
   };
 
   static getDerivedStateFromProps(props: Props, state: State) {
-    if (props.route.params?.address && !state.address) {
+    if (props.route.params?.address && !state.address.value) {
       return {
-        address: props.route.params.address,
+        address: {
+          value: props.route.params.address,
+        },
       };
     }
     return null;
@@ -59,11 +61,11 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
     return !!this.state.address && !!this.state.name;
   }
 
-  setName = (value: string) => this.setState({ name: { value, error: '' } });
+  setName = (value: string): void => this.setState({ name: { value, error: '' } });
 
-  setAddress = (value: string) => this.setState({ address: { value, error: '' } });
+  setAddress = (value: string): void => this.setState({ address: { value, error: '' } });
 
-  onBarCodeScan = (address: string) => {
+  onBarCodeScan = (address: string): void => {
     this.setAddress(address.split('?')[0].replace('bitcoin:', ''));
   };
 
