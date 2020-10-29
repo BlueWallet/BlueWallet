@@ -81,12 +81,8 @@ export default class Confirm extends Component {
         Notifications.majorTomToGroundControl([], [], txids2watch);
         let amount = 0;
         const recipients = this.state.recipients;
-        if (recipients[0].amount === BitcoinUnit.MAX || (!recipients[0].amount && !recipients[0].value)) {
-          amount = this.state.fromWallet.getBalance() - this.state.feeSatoshi;
-        } else {
-          for (const recipient of recipients) {
-            amount += recipient.amount ? +recipient.amount : recipient.value;
-          }
+        for (const recipient of recipients) {
+          amount += recipient.value;
         }
 
         // wallets that support new createTransaction() instead of deprecated createTx()
@@ -146,17 +142,11 @@ export default class Confirm extends Component {
       <>
         <View style={styles.valueWrap}>
           <Text testID="TransactionValue" style={styles.valueValue}>
-            {!item.value || item.value === BitcoinUnit.MAX
-              ? currency.satoshiToBTC(this.state.fromWallet.getBalance() - this.state.feeSatoshi)
-              : item.amount || currency.satoshiToBTC(item.value)}
+            {currency.satoshiToBTC(item.value)}
           </Text>
           <Text style={styles.valueUnit}>{' ' + BitcoinUnit.BTC}</Text>
         </View>
-        <Text style={styles.transactionAmountFiat}>
-          {item.value !== BitcoinUnit.MAX && item.value
-            ? currency.satoshiToLocalCurrency(item.value)
-            : currency.satoshiToLocalCurrency(this.state.fromWallet.getBalance() - this.state.feeSatoshi)}
-        </Text>
+        <Text style={styles.transactionAmountFiat}>{currency.satoshiToLocalCurrency(item.value)}</Text>
         <BlueCard>
           <Text style={styles.transactionDetailsTitle}>{loc.send.create_to}</Text>
           <Text testID="TransactionAddress" style={styles.transactionDetailsSubtitle}>

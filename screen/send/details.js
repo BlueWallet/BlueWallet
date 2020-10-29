@@ -628,7 +628,7 @@ export default class SendDetails extends Component {
       }
     }
 
-    const { tx, fee, psbt } = wallet.createTransaction(
+    const { tx, outputs, fee, psbt } = wallet.createTransaction(
       utxo,
       targets,
       requestedSatPerByte,
@@ -669,7 +669,7 @@ export default class SendDetails extends Component {
       memo: this.state.memo,
       fromWallet: wallet,
       tx: tx.toHex(),
-      recipients: targets,
+      recipients: outputs,
       satoshiPerByte: requestedSatPerByte,
       payjoinUrl: this.state.payjoinUrl,
       psbt,
