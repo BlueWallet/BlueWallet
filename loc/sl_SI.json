@@ -295,6 +295,8 @@
     "cpfp_exp": "Ustvarjena bo nova transakcija, ki porabi vašo nepotrjeno transakcijo. Skupna omrežnina bo višja od omrežnine prvotne transakcije, zato bi morala biti potrditev hitrejša. To se imenuje CPFP - Child Pays For Parent.",
     "cpfp_no_bump": "Tej transakciji ni mogoče povečati omrežnine",
     "cpfp_title": "Povečaj omrežnino (CPFP)",
+    "details_balance_hide": "Skrij Stanje",
+    "details_balance_show": "Prikaži Stanje",
     "details_block": "Višina Bloka",
     "details_copy": "Kopiraj",
     "details_from": "Vhod",
