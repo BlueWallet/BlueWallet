@@ -114,6 +114,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin }) => {
   const [frozen, setFrozen] = useState(wallet.getUTXOMetadata(output.txid, output.vout).frozen || false);
   const [memo, setMemo] = useState(wallet.getUTXOMetadata(output.txid, output.vout).memo || txMetadata[output.txid]?.memo || '');
   const onMemoChange = value => setMemo(value);
+  const switchValue = useMemo(() => ({ value: frozen, onValueChange: value => setFrozen(value) }), [frozen, setFrozen]);
 
   // save on form change. Because effect called on each event, debounce it.
   const debouncedSave = useRef(
@@ -144,11 +145,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin }) => {
         ]}
         onChangeText={onMemoChange}
       />
-      <BlueListItem
-        title={loc.cc.freezeLabel}
-        Component={TouchableWithoutFeedback}
-        switch={{ value: frozen, onValueChange: value => setFrozen(value) }}
-      />
+      <BlueListItem title={loc.cc.freezeLabel} Component={TouchableWithoutFeedback} switch={switchValue} />
       <BlueSpacing20 />
       <BlueButton title={loc.cc.useCoin} onPress={() => onUseCoin([output])} />
     </>
