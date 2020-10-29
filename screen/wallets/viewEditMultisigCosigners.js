@@ -126,6 +126,8 @@ const ViewEditMultisigCosigners = () => {
     newWallets.push(wallet);
     setWalletsWithNewOrder(newWallets);
     goBack();
+    goBack();
+    goBack();
   };
   useFocusEffect(
     useCallback(() => {

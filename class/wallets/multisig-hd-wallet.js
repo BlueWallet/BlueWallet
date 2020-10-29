@@ -1013,21 +1013,20 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
    */
   replaceCosigner(oldFp, newCosigner, newFp, newPath) {
     const index = this._cosignersFingerprints.indexOf(oldFp);
-    if (index !== -1) {
-      if (!MultisigHDWallet.isXpubValid(newCosigner)) {
-        // its not an xpub, so lets derive fingerprint ourselves
-        newFp = MultisigHDWallet.seedToFingerprint(newCosigner);
-        if (oldFp !== newFp) {
-          throw new Error('Fingerprint of new seed doesnt match');
-        }
+    if (index === -1) return;
+    if (!MultisigHDWallet.isXpubValid(newCosigner)) {
+      // its not an xpub, so lets derive fingerprint ourselves
+      newFp = MultisigHDWallet.seedToFingerprint(newCosigner);
+      if (oldFp !== newFp) {
+        throw new Error('Fingerprint of new seed doesnt match');
       }
+    }
 
-      this._cosignersFingerprints[index] = newFp;
-      this._cosigners[index] = newCosigner;
+    this._cosignersFingerprints[index] = newFp;
+    this._cosigners[index] = newCosigner;
 
-      if (newPath && this.getDerivationPath() !== newPath) {
-        this._cosignersCustomPaths[index] = newPath;
-      }
+    if (newPath && this.getDerivationPath() !== newPath) {
+      this._cosignersCustomPaths[index] = newPath;
     }
   }
 
