@@ -98,7 +98,7 @@
     "ecurve": "1.0.6",
     "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#f9a827e724a5a2e578fdfdb483f83793af55b030",
     "electrum-mnemonic": "2.0.0",
-    "eslint-config-prettier": "6.11.0",
+    "eslint-config-prettier": "6.12.0",
     "eslint-config-standard": "14.1.1",
     "eslint-config-standard-react": "9.2.0",
     "eslint-plugin-prettier": "3.1.4",
