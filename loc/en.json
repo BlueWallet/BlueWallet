@@ -403,6 +403,9 @@
     "co_sign_transaction": "Co-sign QR-airgapped transaction"
   },
   "cc": {
-    "header": "Coin control"
+    "empty": "Wallet UTXO set is empty",
+    "freeze": "freeze",
+    "header": "Coin control",
+    "useCoin": "Use coin"
   }
 }

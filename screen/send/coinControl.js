@@ -3,7 +3,17 @@ import PropTypes from 'prop-types';
 import _debounce from 'lodash/debounce';
 import Modal from 'react-native-modal';
 import { ListItem, Avatar, Badge } from 'react-native-elements';
-import { StyleSheet, FlatList, KeyboardAvoidingView, View, TextInput, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import {
+  FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
 
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
@@ -51,7 +61,7 @@ const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, full = fa
           </ListItem.Subtitle>
         )}
       </ListItem.Content>
-      {frozen && <Badge value="freeze" status="error" />}
+      {frozen && <Badge value={loc.cc.freeze} status="error" />}
     </ListItem>
   );
 };
@@ -123,7 +133,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin }) => {
       />
       <BlueListItem title="Freeze" Component={TouchableWithoutFeedback} switch={{ value: frozen, onValueChange: onFreeze }} />
       <BlueSpacing20 />
-      <BlueButton title="Use coin" onPress={() => onUseCoin([output])} />
+      <BlueButton title={loc.cc.useCoin} onPress={() => onUseCoin([output])} />
     </>
   );
 };
@@ -162,6 +172,11 @@ const CoinControl = () => {
 
   return (
     <SafeBlueArea style={[styles.root, { backgroundColor: colors.elevated }]}>
+      {utxo.length === 0 && (
+        <View style={styles.empty}>
+          <Text style={{ color: colors.foregroundColor }}>{loc.cc.empty}</Text>
+        </View>
+      )}
       <Modal
         isVisible={Boolean(output)}
         style={styles.bottomModal}
@@ -198,6 +213,11 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0, 0, 0, 0.1)',
     minHeight: 360,
     height: 360,
+  },
+  empty: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
