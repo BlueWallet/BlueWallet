@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import {
-  BlueTextCenteredHooks,
   BlueTextHooks,
   BlueListItem,
   LightningButton,
@@ -234,20 +233,20 @@ const WalletsAdd = () => {
           />
         </View>
         <BlueFormLabel>{loc.wallets.add_wallet_type}</BlueFormLabel>
-          <View style={styles.buttons}>
-            <BitcoinButton
-              testID="ActivateBitcoinButton"
-              active={selectedWalletType === ButtonSelected.ONCHAIN}
-              onPress={handleOnBitcoinButtonPressed}
-              style={styles.button}
-            />
-            <LightningButton
-              active={selectedWalletType === ButtonSelected.OFFCHAIN}
-              onPress={handleOnLightningButtonPressed}
-              style={styles.button}
-            />
-            <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} />
-          </View>
+        <View style={styles.buttons}>
+          <BitcoinButton
+            testID="ActivateBitcoinButton"
+            active={selectedWalletType === ButtonSelected.ONCHAIN}
+            onPress={handleOnBitcoinButtonPressed}
+            style={styles.button}
+          />
+          <LightningButton
+            active={selectedWalletType === ButtonSelected.OFFCHAIN}
+            onPress={handleOnLightningButtonPressed}
+            style={styles.button}
+          />
+          <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} />
+        </View>
 
         <View style={styles.advanced}>
           {(() => {
@@ -261,33 +260,21 @@ const WalletsAdd = () => {
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(0)}
                     title={HDSegwitBech32Wallet.typeReadable}
-                    {...(selectedIndex === 0
-                      ? {
-                          rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' },
-                        }
-                      : { hideChevron: true })}
+                    checkmark={selectedIndex === 0}
                   />
                   <BlueListItem
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(1)}
                     title={SegwitP2SHWallet.typeReadable}
-                    {...(selectedIndex === 1
-                      ? {
-                          rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' },
-                        }
-                      : { hideChevron: true })}
+                    checkmark={selectedIndex === 1}
                   />
                   <BlueListItem
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(2)}
                     title={HDSegwitP2SHWallet.typeReadable}
-                    {...(selectedIndex === 2
-                      ? {
-                          rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' },
-                        }
-                      : { hideChevron: true })}
+                    checkmark={selectedIndex === 2}
                   />
                 </View>
               );

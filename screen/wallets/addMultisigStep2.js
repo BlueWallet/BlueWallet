@@ -66,6 +66,7 @@ const WalletsAddMultisigStep2 = () => {
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
   const tooltip = useRef();
+  const data = useRef(new Array(n));
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -124,7 +125,7 @@ const WalletsAddMultisigStep2 = () => {
     },
   });
 
-  const onCreate = async () => {
+  const onCreate = () => {
     setIsLoading(true);
     const w = new MultisigHDWallet();
     w.setM(m);
@@ -152,7 +153,7 @@ const WalletsAddMultisigStep2 = () => {
     navigation.dangerouslyGetParent().pop();
   };
 
-  const generateNewKey = async () => {
+  const generateNewKey = () => {
     const w = new HDSegwitBech32Wallet();
     w.generate().then(() => {
       const cosignersCopy = [...cosigners];
@@ -162,11 +163,9 @@ const WalletsAddMultisigStep2 = () => {
       setVaultKeyData({ keyIndex: cosignersCopy.length, seed: w.getSecret(), xpub: w.getXpub(), isLoading: false });
       setIsMnemonicsModalVisible(true);
       if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
-      setTimeout(() => {
-        // filling cache
-        setXpubCacheForMnemonics(w.getSecret());
-        setFpCacheForMnemonics(w.getSecret());
-      }, 500);
+      // filling cache
+      setXpubCacheForMnemonics(w.getSecret());
+      setFpCacheForMnemonics(w.getSecret());
     });
   };
 
@@ -380,7 +379,7 @@ const WalletsAddMultisigStep2 = () => {
           rightButton={{
             disabled: vaultKeyData.isLoading,
             text: loc.multisig.view_key,
-            onPress: async () => {
+            onPress: () => {
               viewKey(cosigners[el.index]);
             },
           }}
@@ -537,7 +536,7 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
-  const exportCosigner = async () => {
+  const exportCosigner = () => {
     setIsLoading(true);
     fs.writeFileAndExport(cosignerXpubFilename, cosignerXpub).finally(() => setIsLoading(false));
   };
@@ -584,12 +583,11 @@ const WalletsAddMultisigStep2 = () => {
     <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
   );
 
-  const data = new Array(n);
   return (
     <SafeAreaView style={[styles.root, stylesHook.root]}>
       <View style={[styles.root, stylesHook.root, styles.mainBlock]}>
         <StatusBar barStyle="default" />
-        <FlatList data={data} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+        <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
         {footer}
         {renderMnemonicsModal()}
 

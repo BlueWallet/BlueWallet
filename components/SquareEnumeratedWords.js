@@ -3,8 +3,13 @@ import { useTheme } from '@react-navigation/native';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import PropTypes from 'prop-types';
 
+export const SquareEnumeratedWordsContentAlign = Object.freeze({ left: 'flex-start', center: 'center', right: 'flex-end' });
 const SquareEnumeratedWords = props => {
-  const { entries = ['Empty entries prop. Please provide an array of strings'] } = props;
+  const {
+    entries = ['Empty entries prop. Please provide an array of strings'],
+    appendNumber = true,
+    contentAlign = SquareEnumeratedWordsContentAlign.center,
+  } = props;
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     entryTextContainer: {
@@ -20,7 +25,7 @@ const SquareEnumeratedWords = props => {
     const entriesObject = entries.entries();
     for (const [index, secret] of entriesObject) {
       if (entries.length > 1) {
-        const text = `${index + 1}. ${secret}  `;
+        const text = appendNumber ? `${index + 1}. ${secret}  ` : `${secret}  `;
         component.push(
           <View style={[styles.entryTextContainer, stylesHook.entryTextContainer]} key={`${secret}${index}`}>
             <Text textBreakStrategy="simple" style={[styles.entryText, stylesHook.entryText]}>
@@ -41,7 +46,7 @@ const SquareEnumeratedWords = props => {
     return component;
   };
 
-  return <View style={styles.container}>{renderSecret()}</View>;
+  return <View style={[styles.container, { justifyContent: contentAlign }]}>{renderSecret()}</View>;
 };
 
 const styles = StyleSheet.create({
@@ -60,12 +65,13 @@ const styles = StyleSheet.create({
   },
   container: {
     flexDirection: 'row',
-    justifyContent: 'center',
     flexWrap: 'wrap',
   },
 });
 SquareEnumeratedWords.propTypes = {
   entries: PropTypes.arrayOf(PropTypes.string),
+  contentAlign: PropTypes.string,
+  appendNumber: PropTypes.bool,
 };
 
 export default SquareEnumeratedWords;

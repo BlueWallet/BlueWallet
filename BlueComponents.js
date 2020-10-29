@@ -200,10 +200,7 @@ export const BitcoinButton = props => {
       >
         <View style={{ marginHorizontal: 16, marginVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
           <View>
-            <Image
-              style={{ width: 34, height: 34, marginRight: 8 }}
-              source={require('./img/addWallet/bitcoin.png')}
-            />
+            <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/bitcoin.png')} />
           </View>
           <View>
             <Text style={{ color: colors.newBlue, fontWeight: 'bold', fontSize: 18 }}>{loc.wallets.add_bitcoin}</Text>
@@ -233,14 +230,13 @@ export const VaultButton = props => {
       >
         <View style={{ marginHorizontal: 16, marginVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
           <View>
-            <Image
-              style={{ width: 34, height: 34, marginRight: 8, }}
-              source={require('./img/addWallet/vault.png')}
-            />
+            <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/vault.png')} />
           </View>
           <View>
-            <Text style={{ color: colors.foregroundColor, fontWeight: 'bold', fontSize: 18  }}>{loc.multisig.multisig_vault}</Text>
-            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500'  }}>{loc.multisig.multisig_vault_explain}</Text>
+            <Text style={{ color: colors.foregroundColor, fontWeight: 'bold', fontSize: 18 }}>{loc.multisig.multisig_vault}</Text>
+            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500' }}>
+              {loc.multisig.multisig_vault_explain}
+            </Text>
           </View>
         </View>
       </View>
@@ -254,7 +250,7 @@ export const LightningButton = props => {
     <TouchableOpacity onPress={props.onPress}>
       <View
         style={{
-         borderColor: (props.active && colors.lnborderColor) || colors.buttonDisabledBackgroundColor,
+          borderColor: (props.active && colors.lnborderColor) || colors.buttonDisabledBackgroundColor,
           borderWidth: 1.5,
           borderRadius: 8,
           backgroundColor: colors.buttonDisabledBackgroundColor,
@@ -267,10 +263,7 @@ export const LightningButton = props => {
       >
         <View style={{ marginHorizontal: 16, marginVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
           <View>
-            <Image
-              style={{ width: 34, height: 34, marginRight: 8, }}
-              source={require('./img/addWallet/lightning.png')}
-            />
+            <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/lightning.png')} />
           </View>
           <View>
             <Text style={{ color: colors.lnborderColor, fontWeight: 'bold', fontSize: 18 }}>{loc.wallets.add_lightning}</Text>
