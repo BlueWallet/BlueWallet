@@ -139,7 +139,7 @@
     "react-native-popup-menu-android": "1.0.3",
     "react-native-privacy-snapshot": "git+https://github.com/BlueWallet/react-native-privacy-snapshot.git",
     "react-native-prompt-android": "git+https://github.com/BlueWallet/react-native-prompt-android.git#2073b07f64bf5dc95807f64d79f37bdb111e6951",
-    "react-native-push-notification": "^6.1.2",
+    "react-native-push-notification": "6.1.2",
     "react-native-qrcode-svg": "6.0.6",
     "react-native-quick-actions": "0.3.13",
     "react-native-randombytes": "3.5.3",
