@@ -25,6 +25,15 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   static type = 'HDmultisig';
   static typeReadable = 'Multisig Vault';
 
+  static FORMAT_P2WSH = 'p2wsh';
+  static FORMAT_P2SH_P2WSH = 'p2sh-p2wsh';
+  static FORMAT_P2SH_P2WSH_ALT = 'p2wsh-p2sh';
+  static FORMAT_P2SH = 'p2sh';
+
+  static PATH_NATIVE_SEGWIT = "m/48'/0'/0'/2'";
+  static PATH_WRAPPED_SEGWIT = "m/48'/0'/0'/1'";
+  static PATH_LEGACY = "m/45'";
+
   constructor() {
     super();
     this._m = 0; //  minimum required signatures so spend (m out of n)
@@ -104,6 +113,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   getCustomDerivationPathForCosigner(index) {
     if (index === 0) throw new Error('cosigners indexation starts from 1');
+    if (index > this.getN()) return false;
     return this._cosignersCustomPaths[index - 1] || this.getDerivationPath();
   }
 
@@ -172,6 +182,11 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       // mnemonics. lets derive fingerprint
       if (!bip39.validateMnemonic(key)) throw new Error('Not a valid mnemonic phrase');
       fingerprint = MultisigHDWallet.seedToFingerprint(key);
+    }
+
+    if (fingerprint && this._cosignersFingerprints.indexOf(fingerprint.toUpperCase()) !== -1 && fingerprint !== '00000000') {
+      // 00000000 is a special case, means we have no idea what the FP is but its okay
+      throw new Error('Duplicate fingerprint');
     }
 
     const index = this._cosigners.length;
@@ -376,12 +391,24 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     ret += 'Policy: ' + this.getM() + ' of ' + this.getN() + '\n';
 
     let hasCustomPaths = 0;
+    const customPaths = {};
     for (let index = 0; index < this.getN(); index++) {
       if (this._cosignersCustomPaths[index]) hasCustomPaths++;
+      if (this._cosignersCustomPaths[index]) customPaths[this._cosignersCustomPaths[index]] = 1;
     }
 
     let printedGlobalDerivation = false;
-    if (hasCustomPaths !== this.getN()) {
+
+    if (this.getDerivationPath()) customPaths[this.getDerivationPath()] = 1;
+    if (Object.keys(customPaths).length === 1) {
+      // we have exactly one path, for everyone. lets just print it
+      for (const path of Object.keys(customPaths)) {
+        ret += 'Derivation: ' + path + '\n';
+        printedGlobalDerivation = true;
+      }
+    }
+
+    if (hasCustomPaths !== this.getN() && !printedGlobalDerivation) {
       printedGlobalDerivation = true;
       ret += 'Derivation: ' + this.getDerivationPath() + '\n';
     }
@@ -389,7 +416,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     if (this.isNativeSegwit()) {
       ret += 'Format: P2WSH\n';
     } else if (this.isWrappedSegwit()) {
-      ret += 'Format: P2WSH-P2SH\n';
+      ret += 'Format: P2SH-P2WSH\n';
     } else if (this.isLegacy()) {
       ret += 'Format: P2SH\n';
     } else {
@@ -491,13 +518,14 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
         case 'Format':
           switch (value.trim()) {
-            case 'P2WSH':
+            case MultisigHDWallet.FORMAT_P2WSH.toUpperCase():
               this.setNativeSegwit();
               break;
-            case 'P2WSH-P2SH':
+            case MultisigHDWallet.FORMAT_P2SH_P2WSH.toUpperCase():
+            case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT.toUpperCase():
               this.setWrappedSegwit();
               break;
-            case 'P2SH':
+            case MultisigHDWallet.FORMAT_P2SH:
               this.setLegacy();
               break;
           }
@@ -561,14 +589,14 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       if (json.name) this.setLabel(json.name);
 
       switch (json.addressType.toLowerCase()) {
-        case 'P2SH':
+        case MultisigHDWallet.FORMAT_P2SH:
           this.setLegacy();
           break;
-        case 'P2SH-P2WSH':
+        case MultisigHDWallet.FORMAT_P2SH_P2WSH:
           this.setWrappedSegwit();
           break;
         default:
-        case 'P2WSH':
+        case MultisigHDWallet.FORMAT_P2WSH:
           this.setNativeSegwit();
           break;
       }
@@ -973,5 +1001,64 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
 
     return { tx };
+  }
+
+  /**
+   * Looks up cosigner by Fingerprint, and repalces all its data with new data
+   *
+   * @param oldFp {string} Looks up cosigner by this fp
+   * @param newCosigner {string}
+   * @param newFp {string}
+   * @param newPath {string}
+   */
+  replaceCosigner(oldFp, newCosigner, newFp, newPath) {
+    const index = this._cosignersFingerprints.indexOf(oldFp);
+    if (index === -1) return;
+    if (!MultisigHDWallet.isXpubValid(newCosigner)) {
+      // its not an xpub, so lets derive fingerprint ourselves
+      newFp = MultisigHDWallet.seedToFingerprint(newCosigner);
+      if (oldFp !== newFp) {
+        throw new Error('Fingerprint of new seed doesnt match');
+      }
+    }
+
+    this._cosignersFingerprints[index] = newFp;
+    this._cosigners[index] = newCosigner;
+
+    if (newPath && this.getDerivationPath() !== newPath) {
+      this._cosignersCustomPaths[index] = newPath;
+    }
+  }
+
+  deleteCosigner(fp) {
+    const foundIndex = this._cosignersFingerprints.indexOf(fp);
+    if (foundIndex === -1) throw new Error('Cant find cosigner by fingerprint');
+
+    this._cosignersFingerprints = this._cosignersFingerprints.filter((el, index) => {
+      return index !== foundIndex;
+    });
+
+    this._cosigners = this._cosigners.filter((el, index) => {
+      return index !== foundIndex;
+    });
+
+    this._cosignersCustomPaths = this._cosignersCustomPaths.filter((el, index) => {
+      return index !== foundIndex;
+    });
+
+    /* const newCosigners = [];
+    for (let c = 0; c < this._cosignersFingerprints.length; c++) {
+      if (c !== index)  newCosigners.push(this._cosignersFingerprints[c]);
+    } */
+
+    // this._cosignersFingerprints = newCosigners;
+  }
+
+  getFormat() {
+    if (this.isNativeSegwit()) return this.constructor.FORMAT_P2WSH;
+    if (this.isWrappedSegwit()) return this.constructor.FORMAT_P2SH_P2WSH;
+    if (this.isLegacy()) return this.constructor.FORMAT_P2SH;
+
+    throw new Error('This should never happen');
   }
 }

@@ -315,6 +315,7 @@
     "transactions_count": "siirtotapahtumien määrä"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_bitcoin": "Bitcoin",
     "add_create": "Luo",
     "add_entropy_generated": "{gen} tavua luotua entropiaa",
@@ -323,6 +324,7 @@
     "add_import_wallet": "Tuo lompakko",
     "import_file": "Tuo tiedosto",
     "add_lightning": "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Yhdistä LNDHub:iisi",
     "add_lndhub_error": "Annettu solmun osoite ei ole kelvollinen LNDHub-solmu.",
     "add_lndhub_placeholder": "solmusi osoite",
@@ -386,6 +388,8 @@
     "xpub_title": "lompakon XPUB"
   },
   "multisig": {
+    "multisig_vault": "Vault",
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Toimita allekirjoitus",
     "vault_key": "Holvi avain {number}",
     "fee": "Siirtokulu: {number}",

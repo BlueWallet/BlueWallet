@@ -315,6 +315,7 @@
     "transactions_count": "Nombre de transactions"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_bitcoin": "Bitcoin",
     "add_create": "Créer",
     "add_entropy_generated": "{gen} octets d'entropie générée",
@@ -323,6 +324,7 @@
     "add_import_wallet": "Importer un portefeuille",
     "import_file": "Importer le fichier",
     "add_lightning": "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Connexion à votre LNDHub",
     "add_lndhub_error": "L'adresse de noeud fournie n'est pas un noeud LNDHub valide.",
     "add_lndhub_placeholder": "l'adresse de votre noeud",
@@ -387,6 +389,8 @@
     "xpub_title": "XPUB portefeuille"
   },
   "multisig": {
+    "multisig_vault": "Vault",
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Provide signature",
     "vault_key": "Vault key {number}",
     "fee": "Fee: {number}",

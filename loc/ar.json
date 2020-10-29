@@ -302,6 +302,7 @@
     "transactions_count": "عدد المعاملات"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_bitcoin": "Bitcoin",
     "add_create": "الإنشاء",
     "add_entropy_generated": "{gen} بايت من الإنتروبيا (العشوائية) المحققة",
@@ -310,6 +311,7 @@
     "add_import_wallet": "استيراد المحفظة",
     "import_file": "استيراد ملف",
     "add_lightning": "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "اتصل ببرنامج تضمين LNDHub الخاص بك",
     "add_lndhub_error": "عنوان العقدة المقدَّم لا ينطوي على عقدة LNDHub صالحة.",
     "add_lndhub_placeholder": "عنوان العقدة الخاص بك",

@@ -1,11 +1,10 @@
 import React, { useCallback, useContext, useState } from 'react';
-import { ActivityIndicator, InteractionManager, ScrollView, StatusBar, StyleSheet, useWindowDimensions, View } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
+import { ActivityIndicator, InteractionManager, ScrollView, StatusBar, StyleSheet, View } from 'react-native';
 import { BlueNavigationStyle, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
-import { encodeUR } from '../../blue_modules/bc-ur/dist';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SquareButton } from '../../components/SquareButton';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -15,11 +14,10 @@ const ExportMultisigCoordinationSetup = () => {
   const walletId = useRoute().params.walletId;
   const { wallets } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletId);
-  const qrCodeContents = encodeUR(Buffer.from(wallet.getXpub(), 'ascii').toString('hex'), 77777)[0];
+  const qrCodeContents = Buffer.from(wallet.getXpub(), 'ascii').toString('hex');
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
   const { colors } = useTheme();
-  const { width, height } = useWindowDimensions();
   const stylesHook = {
     ...styles,
     loading: {
@@ -76,17 +74,7 @@ const ExportMultisigCoordinationSetup = () => {
           <BlueText style={stylesHook.type}>{wallet.getLabel()}</BlueText>
         </View>
         <BlueSpacing20 />
-        <View style={styles.activeQrcode}>
-          <QRCode
-            value={qrCodeContents}
-            size={height > width ? width - 40 : width / 2}
-            logoSize={70}
-            color="#000000"
-            logoBackgroundColor={colors.brandingColor}
-            backgroundColor="#FFFFFF"
-            ecl="H"
-          />
-        </View>
+        <DynamicQRCode value={qrCodeContents} capacity={400} />
         <BlueSpacing20 />
         <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportTxtFile} title={loc.multisig.share} />
         <BlueSpacing20 />
@@ -109,7 +97,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexGrow: 1,
   },
-  activeQrcode: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
   type: {
     fontSize: 17,
     fontWeight: '700',
