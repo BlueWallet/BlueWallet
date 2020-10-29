@@ -406,6 +406,7 @@
     "change": "change",
     "empty": "Wallet UTXO set is empty",
     "freeze": "freeze",
+    "freezeLabel": "Freeze",
     "header": "Coin control",
     "useCoin": "Use coin"
   }
