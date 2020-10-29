@@ -290,7 +290,7 @@ const WalletsAddMultisigStep2 = () => {
       }
 
       for (const existingCosigner of cosigners) {
-        if (existingCosigner[0] === cosigner.getXpub()) return alert('This cosigner is already imported');
+        if (existingCosigner[0] === cosigner.getXpub()) return alert(loc.multisig.this_cosigner_is_already_imported);
       }
 
       // now, validating that cosigner is in correct format:
