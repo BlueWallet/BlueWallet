@@ -148,7 +148,7 @@ const MultipleStepsListItem = props => {
               ))}
             {props.button.buttonType === MultipleStepsListItemButtohType.partial && (
               <View style={styles.buttonPartialContainer}>
-                <Text numberOfLines={1} style={(styles.rowPartialLeftText, stylesHook.rowPartialLeftText)} lineBreakMode="middle">
+                <Text numberOfLines={1} style={[styles.rowPartialLeftText, stylesHook.rowPartialLeftText]} lineBreakMode="middle">
                   {props.button.leftText}
                 </Text>
                 <TouchableOpacity

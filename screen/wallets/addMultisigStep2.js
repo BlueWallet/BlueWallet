@@ -164,8 +164,11 @@ const WalletsAddMultisigStep2 = () => {
       setIsMnemonicsModalVisible(true);
       if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
       // filling cache
-      setXpubCacheForMnemonics(w.getSecret());
-      setFpCacheForMnemonics(w.getSecret());
+      setTimeout(() => {
+        // filling cache
+        setXpubCacheForMnemonics(w.getSecret());
+        setFpCacheForMnemonics(w.getSecret());
+      }, 500);
     });
   };
 
