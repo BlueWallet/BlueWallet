@@ -442,6 +442,6 @@
     "forget_this_seed": "Forget this seed and use xpub instead",
     "invalid_fingerprint": "Fingerprint for this seed doesnt match this cosigners fingerprint",
     "view_edit_cosigners": "View/edit cosigners",
-    "view_edit_cosigners_title": "Edit Cosigners",
+    "view_edit_cosigners_title": "Edit Cosigners"
   }
 }
