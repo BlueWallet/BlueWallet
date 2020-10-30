@@ -255,6 +255,6 @@ export class WatchOnlyWallet extends LegacyWallet {
 
   addressIsChange(...args) {
     if (this._hdWalletInstance) return this._hdWalletInstance.addressIsChange(...args);
-    return super.getAllExternalAddresses(...args);
+    return super.addressIsChange(...args);
   }
 }
