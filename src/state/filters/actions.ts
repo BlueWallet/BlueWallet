@@ -1,3 +1,5 @@
+import { TagsType } from 'app/consts';
+
 export enum FiltersAction {
   ActivateFilters = 'ActivateFilters',
   UpdateAddress = 'UpdateAddress',
@@ -7,7 +9,7 @@ export enum FiltersAction {
   UpdateFromAmount = 'UpdateFromAmount',
   UpdateToAmount = 'UpdateToAmount',
   UpdateTransactionType = 'UpdateTransactionType',
-  UpdateTransactionStatus = 'UpdateTransactionStatus',
+  ToggleTransactionTag = 'ToggleTransactionTag',
   ClearFilters = 'ClearFilters',
 }
 
@@ -49,9 +51,9 @@ export interface UpdateTransactionTypeAction {
   type: FiltersAction.UpdateTransactionType;
   value: string;
 }
-export interface UpdateTransactionStatusAction {
-  type: FiltersAction.UpdateTransactionStatus;
-  value: string;
+export interface ToggleTransactionTagAction {
+  type: FiltersAction.ToggleTransactionTag;
+  value: TagsType;
 }
 export interface ClearFiltersAction {
   type: FiltersAction.ClearFilters;
@@ -67,7 +69,7 @@ export type FiltersActionType =
   | UpdateFromAmountAction
   | UpdateToAmountAction
   | UpdateTransactionTypeAction
-  | UpdateTransactionStatusAction;
+  | ToggleTransactionTagAction;
 
 export const activateFilters = (): ActivateFiltersAction => ({
   type: FiltersAction.ActivateFilters,
@@ -100,8 +102,8 @@ export const updateTransactionType = (value: string): UpdateTransactionTypeActio
   type: FiltersAction.UpdateTransactionType,
   value,
 });
-export const updateTransactionStatus = (value: string): UpdateTransactionStatusAction => ({
-  type: FiltersAction.UpdateTransactionStatus,
+export const toggleTransactionTag = (value: TagsType): ToggleTransactionTagAction => ({
+  type: FiltersAction.ToggleTransactionTag,
   value,
 });
 

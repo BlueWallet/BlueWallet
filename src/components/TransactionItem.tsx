@@ -42,7 +42,7 @@ export const TransactionItem = ({ item, onPress }: { item: Transaction; onPress:
       </Text>
       {renderCofirmations(item.tx_type, item.confirmations)}
       <View style={styles.rowWrapper}>
-        <TranscationLabelStatus type={item.tx_type} confirmations={item.confirmations} />
+        <TranscationLabelStatus status={item.status} />
         <Text
           style={[
             typography.headline5,

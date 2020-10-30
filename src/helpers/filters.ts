@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-import { CONST, Transaction, Filters } from 'app/consts';
+import { CONST, Transaction, Filters, TagsType } from 'app/consts';
 
 import { satoshiToBtc } from '../../utils/bitcoin';
 
@@ -93,8 +93,8 @@ export const filterBySearch = (search: string, transactions: Transaction[]): Tra
     );
   });
 
-export const filterByStatus = (transactions: Transaction[], status: string): Transaction[] => {
-  return transactions.filter(transaction => transaction.tx_type === status);
+export const filterByTags = (transactions: Transaction[], tags: TagsType[]): Transaction[] => {
+  return transactions.filter(transaction => transaction.tags.some(t => tags.includes(t)));
 };
 
 export const filterTransaction = (filters: Filters, transactions: Transaction[]): Transaction[] => {
@@ -115,7 +115,7 @@ export const filterTransaction = (filters: Filters, transactions: Transaction[])
   const fileteredByToAmount = filters.toAmount
     ? fileterByToAmount(fileteredByFromAmount, filters.toAmount)
     : fileteredByFromAmount;
-  return filters.transactionStatus
-    ? filterByStatus(fileteredByToAmount, filters.transactionStatus)
-    : fileteredByToAmount;
+  const tags =
+    filters.transactionType === CONST.receive ? filters.transactionReceivedTags : filters.transactionSentTags;
+  return tags.length === 0 ? fileteredByToAmount : filterByTags(fileteredByToAmount, tags);
 };

@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, StyleProp, TextProps } from 'react-native';
+import { View, Text, StyleSheet, StyleProp, TextStyle } from 'react-native';
 
 import { typography, palette } from 'app/styles';
 
 interface Props {
-  labelStyle?: StyleProp<TextProps>;
+  labelStyle?: StyleProp<TextStyle>;
   children: string;
 }
 

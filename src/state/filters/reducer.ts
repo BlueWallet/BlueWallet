@@ -1,6 +1,11 @@
+import { cloneDeep } from 'lodash';
+
 import { CONST, Filters } from 'app/consts';
 
 import { FiltersAction, FiltersActionType } from './actions';
+
+const transactionSentTags = 'transactionSentTags';
+const transactionReceivedTags = 'transactionReceivedTags';
 
 const initialState: Filters = {
   isFilteringOn: false,
@@ -12,7 +17,8 @@ const initialState: Filters = {
   fromAmount: '',
   toAmount: '',
   transactionType: CONST.receive,
-  transactionStatus: '',
+  [transactionReceivedTags]: [],
+  [transactionSentTags]: [],
 };
 
 export const filtersReducer = (state = initialState, action: FiltersActionType): Filters => {
@@ -57,10 +63,23 @@ export const filtersReducer = (state = initialState, action: FiltersActionType):
         ...state,
         transactionType: action.value,
       };
-    case FiltersAction.UpdateTransactionStatus:
+    case FiltersAction.ToggleTransactionTag:
+      const { transactionType } = state;
+      const tag = action.value;
+
+      const transactionTagsName = transactionType === CONST.receive ? transactionReceivedTags : transactionSentTags;
+
+      let tags = cloneDeep(state[transactionTagsName]);
+
+      if (tags.includes(tag)) {
+        tags = tags.filter(t => t !== tag);
+      } else {
+        tags.push(tag);
+      }
+
       return {
         ...state,
-        transactionStatus: action.value,
+        [transactionTagsName]: tags,
       };
     case FiltersAction.ClearFilters:
       return {

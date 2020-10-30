@@ -2,7 +2,17 @@ import { flatten, flattenDeep, max } from 'lodash';
 import { flatten as flattenFp, some, map, compose } from 'lodash/fp';
 import { createSelector } from 'reselect';
 
-import { TxType, Wallet, TransactionInput, TransactionOutput } from 'app/consts';
+import {
+  TxType,
+  Wallet,
+  TransactionInput,
+  Transaction,
+  TransactionOutput,
+  TransactionStatus,
+  CONST,
+  TagsType,
+  Tags,
+} from 'app/consts';
 import { HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet } from 'app/legacy';
 import { ApplicationState } from 'app/state';
 
@@ -60,6 +70,35 @@ const getMyAmount = (wallet: Wallet, entities: TxEntity[]) =>
     return amount;
   }, 0);
 
+const getTranasctionStatus = (tx: Transaction, confirmations: number): TransactionStatus => {
+  switch (tx.tx_type) {
+    case TxType.NONVAULT:
+    case TxType.INSTANT:
+      return confirmations < CONST.confirmationsBlocks ? TransactionStatus.PENDING : TransactionStatus.DONE;
+    case TxType.ALERT_PENDING:
+      return TransactionStatus.PENDING;
+    case TxType.ALERT_RECOVERED:
+      return TransactionStatus.CANCELED;
+    case TxType.ALERT_CONFIRMED:
+      return TransactionStatus.DONE;
+    case TxType.RECOVERY:
+      return TransactionStatus['CANCELED-DONE'];
+    default:
+      throw new Error(`Unkown tx_type: ${tx.tx_type}`);
+  }
+};
+
+const getTranasctionTags = (tx: Transaction): TagsType[] => {
+  const tags: TagsType[] = [tx.status];
+  if (tx.unblockedAmount !== undefined) {
+    tags.push(Tags.UNBLOCKED);
+  }
+  if (tx.blockedAmount !== undefined) {
+    tags.push(Tags.BLOCKED);
+  }
+  return tags;
+};
+
 export const transactions = createSelector(wallets, electrumXSelectors.blockHeight, (walletsList, blockHeight) => {
   const txs = flattenDeep(
     walletsList.map(wallet => {
@@ -68,7 +107,7 @@ export const transactions = createSelector(wallets, electrumXSelectors.blockHeig
       const id = wallet.id;
       return wallet.transactions.map(transaction => {
         const { height } = transaction;
-        const confirmations = height > 0 ? blockHeight - height : 0;
+        const confirmations = max([height > 0 ? blockHeight - height : 0, 0]) || 0;
         const inputsAmount = transaction.inputs.reduce((amount, i) => amount + i.value, 0);
         const outputsAmount = transaction.outputs.reduce((amount, o) => amount + o.value, 0);
 
@@ -112,9 +151,10 @@ export const transactions = createSelector(wallets, electrumXSelectors.blockHeig
 
         const baseTransaction = {
           ...transaction,
-          confirmations: max([confirmations, 0]) || 0,
+          confirmations,
           walletPreferredBalanceUnit: walletBalanceUnit,
           walletId: id,
+          status: getTranasctionStatus(transaction, confirmations),
           walletLabel,
           walletTypeReadable: wallet.typeReadable,
         };
@@ -161,56 +201,58 @@ export const transactions = createSelector(wallets, electrumXSelectors.blockHeig
     }),
   );
 
-  // enhance cancel-done transaction made by our wallet
-  return txs.map(tx => {
-    if (tx.tx_type !== TxType.RECOVERY || tx.value > 0) {
-      return tx;
-    }
-
-    const recoveryInputsTxIds = flatten(tx.inputs.map(({ txid }) => txid));
-
-    const recoveredTxs = txs.filter(t => {
-      if (t.value >= 0 || t.walletId !== tx.walletId || t.txid === tx.txid) {
-        return false;
+  // enhance cancel-done transaction made by our wallet and add tags
+  return txs
+    .map(tx => {
+      if (tx.tx_type !== TxType.RECOVERY || tx.value > 0) {
+        return tx;
       }
 
-      return compose(
-        some((inTxid: string) => recoveryInputsTxIds.includes(inTxid)),
-        flattenFp,
-        map(({ txid }) => txid),
-      )(t.inputs);
-    });
+      const recoveryInputsTxIds = flatten(tx.inputs.map(({ txid }) => txid));
 
-    if (recoveredTxs.length === 0) {
-      return tx;
-    }
+      const recoveredTxs = txs.filter(t => {
+        if (t.value >= 0 || t.walletId !== tx.walletId || t.txid === tx.txid) {
+          return false;
+        }
 
-    const { valueWithoutFee: v, returnedFee: rF, unblockedAmount: uA } = recoveredTxs.reduce(
-      (
-        {
-          valueWithoutFee,
-          returnedFee,
-          unblockedAmount,
-        }: { valueWithoutFee: number; returnedFee: number; unblockedAmount: number },
-        rTx,
-      ) => {
-        return {
-          valueWithoutFee: valueWithoutFee + Math.abs(rTx.valueWithoutFee),
-          returnedFee: returnedFee + Math.abs(rTx.fee || 0),
-          unblockedAmount: unblockedAmount + Math.abs(rTx.blockedAmount || 0),
-        };
-      },
-      { valueWithoutFee: 0, returnedFee: 0, unblockedAmount: 0 },
-    );
+        return compose(
+          some((inTxid: string) => recoveryInputsTxIds.includes(inTxid)),
+          flattenFp,
+          map(({ txid }) => txid),
+        )(t.inputs);
+      });
 
-    return {
-      ...tx,
-      valueWithoutFee: v,
-      returnedFee: roundBtcToSatoshis(rF),
-      unblockedAmount: roundBtcToSatoshis(uA),
-      recoveredTxsCounter: recoveredTxs.length,
-    };
-  });
+      if (recoveredTxs.length === 0) {
+        return tx;
+      }
+
+      const { valueWithoutFee: v, returnedFee: rF, unblockedAmount: uA } = recoveredTxs.reduce(
+        (
+          {
+            valueWithoutFee,
+            returnedFee,
+            unblockedAmount,
+          }: { valueWithoutFee: number; returnedFee: number; unblockedAmount: number },
+          rTx,
+        ) => {
+          return {
+            valueWithoutFee: valueWithoutFee + Math.abs(rTx.valueWithoutFee),
+            returnedFee: returnedFee + Math.abs(rTx.fee || 0),
+            unblockedAmount: unblockedAmount + Math.abs(rTx.blockedAmount || 0),
+          };
+        },
+        { valueWithoutFee: 0, returnedFee: 0, unblockedAmount: 0 },
+      );
+
+      return {
+        ...tx,
+        valueWithoutFee: v,
+        returnedFee: roundBtcToSatoshis(rF),
+        unblockedAmount: roundBtcToSatoshis(uA),
+        recoveredTxsCounter: recoveredTxs.length,
+      };
+    })
+    .map(tx => ({ ...tx, tags: getTranasctionTags(tx) }));
 });
 
 export const getTranasctionsByWalletId = createSelector(

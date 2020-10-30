@@ -55,7 +55,7 @@
     ],
     "no-undef": "warn",
     "no-shadow": [
-      "warn",
+      "off",
       {
         "allow": ["done"]
       }

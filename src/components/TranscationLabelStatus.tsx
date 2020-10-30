@@ -2,44 +2,37 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 
-import { TxType, CONST } from 'app/consts';
+import { TransactionStatus } from 'app/consts';
 import { palette } from 'app/styles';
 
 import { Label } from './Label';
 
 const i18n = require('../../loc');
 
-const readableTransactionType = {
-  [TxType.ALERT_PENDING]: i18n.transactions.label.pending,
-  [TxType.ALERT_RECOVERED]: i18n.transactions.label.canceled,
-  [TxType.ALERT_CONFIRMED]: i18n.transactions.label.done,
-  [TxType.RECOVERY]: i18n.transactions.label.canceledDone,
+const readableTransactionStatus = {
+  [TransactionStatus.PENDING]: i18n.transactions.label.pending,
+  [TransactionStatus.CANCELED]: i18n.transactions.label.canceled,
+  [TransactionStatus.DONE]: i18n.transactions.label.done,
+  [TransactionStatus['CANCELED-DONE']]: i18n.transactions.label.canceledDone,
 };
 
-export const TranscationLabelStatus = ({ type, confirmations }: { type: TxType; confirmations: number }) => {
-  let chosenStyleType = type;
-  if (!readableTransactionType[type]) {
-    chosenStyleType = TxType.ALERT_PENDING;
-  }
-  if (!readableTransactionType[type] && CONST.confirmationsBlocks <= confirmations) {
-    chosenStyleType = TxType.ALERT_CONFIRMED;
-  }
-  return readableTransactionType[chosenStyleType] ? (
-    <Label labelStyle={styles[chosenStyleType]}>{readableTransactionType[chosenStyleType]}</Label>
+export const TranscationLabelStatus = ({ status }: { status: TransactionStatus }) => {
+  return readableTransactionStatus[status] ? (
+    <Label labelStyle={styles[status]}>{readableTransactionStatus[status]}</Label>
   ) : null;
 };
 
 const styles = StyleSheet.create({
-  ALERT_PENDING: {
+  PENDING: {
     backgroundColor: palette.textSecondary,
   },
-  ALERT_CONFIRMED: {
+  DONE: {
     backgroundColor: palette.green,
   },
-  RECOVERY: {
+  'CANCELED-DONE': {
     backgroundColor: palette.green,
   },
-  ALERT_RECOVERED: {
+  CANCELED: {
     backgroundColor: palette.textRed,
   },
 });

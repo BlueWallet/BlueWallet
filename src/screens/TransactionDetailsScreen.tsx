@@ -94,7 +94,7 @@ class TransactionDetailsScreen extends Component<Props> {
         >
           {formatToBtcv(satoshiToBtc(transaction.valueWithoutFee).toNumber())}
         </Text>
-        <TranscationLabelStatus type={transaction.tx_type} confirmations={transaction.confirmations} />
+        <TranscationLabelStatus status={transaction.status} />
         {transaction.blockedAmount !== undefined && (
           <View style={styles.amountWrapper}>
             <Text style={[styles.value, styles.textRed]}>{formatToBtcv(transaction.blockedAmount)}</Text>

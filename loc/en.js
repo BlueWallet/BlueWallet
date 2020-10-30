@@ -306,6 +306,7 @@ module.exports = {
     label: {
       pending: 'pending',
       unblocked: 'unblocked',
+      blocked: 'blocked',
       done: 'done',
       canceled: 'canceled',
       canceledDone: 'canceled - done',
@@ -572,11 +573,12 @@ module.exports = {
     fromAmount: 'From amount',
     fromDate: 'From date',
     clearFilters: 'Clear filters',
+    clearAll: 'Clear all',
     transactionType: 'Transaction type',
     transactionStatus: 'Transaction status',
     status: {
       pending: 'Pending',
-      unblocked: 'Unblocked',
+      canceledDone: 'Canceled-done',
       done: 'Done',
       canceled: 'Canceled',
     },

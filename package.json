@@ -1,4 +1,3 @@
-
 {
   "name": "goldwallet",
   "version": "6.0.0",
@@ -216,7 +215,7 @@
     "./**/*.{ts,tsx,js,jsx}": [
       "yarn lint:fix"
     ],
-    "./**/*.{ts,tsx}": [
+    "./**/*.{ts|tsx}": [
       "yarn typescript:check"
     ]
   },

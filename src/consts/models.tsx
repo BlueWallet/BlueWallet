@@ -41,6 +41,22 @@ export const ELECTRUM_VAULT_SEED_PREFIXES = {
   SEED_PREFIX_2FA_SW: '102', // Two-factor auth, using segwit
 };
 
+export enum TransactionStatus {
+  PENDING = 'PENDING',
+  DONE = 'DONE',
+  CANCELED = 'CANCELED',
+  'CANCELED-DONE' = 'CANCELED-DONE',
+}
+
+enum AdditionalTags {
+  BLOCKED = 'BLOCKED',
+  UNBLOCKED = 'UNBLOCKED',
+}
+
+export type TagsType = TransactionStatus | AdditionalTags;
+
+export const Tags = { ...TransactionStatus, ...AdditionalTags };
+
 export const ELECTRUM_VAULT_SEED_KEY = 'Seed version';
 
 export enum FlowType {
@@ -186,7 +202,9 @@ export interface Transaction {
   returnedFee?: number;
   isRecoveredAlertToMe?: boolean;
   height: number;
+  status: TransactionStatus;
   walletPreferredBalanceUnit: string;
+  tags: TagsType[];
 }
 
 export interface EnhancedTransaction extends Transaction {
@@ -211,6 +229,8 @@ export interface Filters {
   toAmount?: string;
   transactionType?: string;
   transactionStatus?: string;
+  transactionReceivedTags: TagsType[];
+  transactionSentTags: TagsType[];
 }
 
 export interface TransactionOutput {
