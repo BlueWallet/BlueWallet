@@ -82,6 +82,8 @@
     "list_title": "transaksies"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
+    "add_bitcoin": "Bitcoin",
     "add_create": "Skep",
     "add_import_wallet": "Beursie Invoer",
     "add_or": "of",

@@ -295,6 +295,8 @@
     "cpfp_exp": "Ustvarjena bo nova transakcija, ki porabi vašo nepotrjeno transakcijo. Skupna omrežnina bo višja od omrežnine prvotne transakcije, zato bi morala biti potrditev hitrejša. To se imenuje CPFP - Child Pays For Parent.",
     "cpfp_no_bump": "Tej transakciji ni mogoče povečati omrežnine",
     "cpfp_title": "Povečaj omrežnino (CPFP)",
+    "details_balance_hide": "Skrij Stanje",
+    "details_balance_show": "Prikaži Stanje",
     "details_block": "Višina Bloka",
     "details_copy": "Kopiraj",
     "details_from": "Vhod",
@@ -315,6 +317,7 @@
     "transactions_count": "število transakcij"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_bitcoin": "Bitcoin",
     "add_create": "Ustvari",
     "add_entropy_generated": "{gen} bajtov ustvarjene entropije",
@@ -323,6 +326,7 @@
     "add_import_wallet": "Uvozi denarnico",
     "import_file": "Uvozi datoteko",
     "add_lightning": "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Povežite se s svojim LNDHub-om",
     "add_lndhub_error": "Podan naslov vozlišča ni veljavno vozlišče LNDHub.",
     "add_lndhub_placeholder": "naslov vašega vozlišča",
@@ -387,6 +391,8 @@
     "xpub_title": "XPUB denarnice"
   },
   "multisig": {
+    "multisig_vault": "Vault",
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Vnesite podpis",
     "vault_key": "Ključ trezorja {number}",
     "fee": "Omrežnina: {number}",

@@ -315,6 +315,7 @@
     "transactions_count": "Número de transacciones"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_bitcoin": "Bitcoin",
     "add_create": "Crear",
     "add_entropy_generated": "{gen} bytes de entropía generada",
@@ -323,6 +324,7 @@
     "add_import_wallet": "Importar cartera",
     "import_file": "Importar archivo",
     "add_lightning": "Lightning",
+    "add_lightning_explain": "For spending with instant transactions", 
     "add_lndhub": "Conecta a tu LDNHub",
     "add_lndhub_error": "La dirección proporcionada no es válida para un nodo LNDHub.",
     "add_lndhub_placeholder": "la dirección de tu nodo",
@@ -387,6 +389,8 @@
     "xpub_title": "XPUB de la cartera"
   },
   "multisig": {
+    "multisig_vault": "Vault",
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Proporcionar firma",
     "vault_key": "Clave de la bóveda {number}",
     "fee": "Tarifa: {number}",

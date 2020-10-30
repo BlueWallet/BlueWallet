@@ -302,6 +302,7 @@
     "transactions_count": "transactions count"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_bitcoin": "Bitcoin",
     "add_create": "Aanmaken",
     "add_entropy_generated": "{gen} bytes of generated entropy",
@@ -310,6 +311,7 @@
     "add_import_wallet": "Portemonnee importeren",
     "import_file": "Importeer bestand",
     "add_lightning": "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Verbind met uw LNDHub",
     "add_lndhub_error": "The provided node address is not valid LNDHub node.",
     "add_lndhub_placeholder": "uw node adres",

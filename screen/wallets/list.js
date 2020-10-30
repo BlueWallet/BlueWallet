@@ -44,7 +44,6 @@ const WalletsList = () => {
     getTransactions,
     getBalance,
     refreshAllWalletTransactions,
-    saveToDisk,
     newWalletAdded,
     setNewWalletAdded,
   } = useContext(BlueStorageContext);
@@ -188,67 +187,6 @@ const WalletsList = () => {
   const onSnapToItem = index => {
     console.log('onSnapToItem', index);
     lastSnappedTo = index;
-    if (index < carouselData.length) {
-      // not the last
-    }
-    if (carouselData[index]?.type === PlaceholderWallet.type) {
-      return;
-    }
-
-    // now, lets try to fetch balance and txs for this wallet in case it has changed
-    lazyRefreshWallet(index);
-  };
-
-  /**
-   * Decides whether wallet with such index shoud be refreshed,
-   * refreshes if yes and redraws the screen
-   * @param index {Integer} Index of the wallet.
-   * @return {Promise.<void>}
-   */
-  const lazyRefreshWallet = async index => {
-    /** @type {Array.<AbstractWallet>} wallets */
-    if (!carouselData[index]) {
-      return;
-    }
-
-    const oldBalance = carouselData[index].getBalance();
-    let noErr = true;
-    let didRefresh = false;
-
-    try {
-      if (carouselData[index] && carouselData[index].type !== PlaceholderWallet.type && carouselData[index].timeToRefreshBalance()) {
-        console.log('snapped to, and now its time to refresh wallet #', index);
-        await carouselData[index].fetchBalance();
-        if (oldBalance !== carouselData[index].getBalance() || carouselData[index].getUnconfirmedBalance() !== 0) {
-          console.log('balance changed, thus txs too');
-          // balance changed, thus txs too
-          await carouselData[index].fetchTransactions();
-          verifyBalance();
-          didRefresh = true;
-        } else if (carouselData[index].timeToRefreshTransaction()) {
-          console.log(carouselData[index].getLabel(), 'thinks its time to refresh TXs');
-          await carouselData[index].fetchTransactions();
-          if (carouselData[index].fetchPendingTransactions) {
-            await carouselData[index].fetchPendingTransactions();
-          }
-          if (carouselData[index].fetchUserInvoices) {
-            await carouselData[index].fetchUserInvoices();
-            await carouselData[index].fetchBalance(); // chances are, paid ln invoice was processed during `fetchUserInvoices()` call and altered user's balance, so its worth fetching balance again
-          }
-          verifyBalance();
-          didRefresh = true;
-        } else {
-          console.log('balance not changed');
-        }
-      }
-    } catch (Err) {
-      noErr = false;
-      console.warn(Err);
-    }
-
-    if (noErr && didRefresh) {
-      await saveToDisk(); // caching
-    }
   };
 
   const renderListHeaderComponent = () => {

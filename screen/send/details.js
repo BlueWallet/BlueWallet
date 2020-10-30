@@ -133,6 +133,7 @@ const styles = StyleSheet.create({
   createButton: {
     marginHorizontal: 56,
     marginVertical: 16,
+    maxWidth: 260,
     minHeight: 44,
   },
   select: {

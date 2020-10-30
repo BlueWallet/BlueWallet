@@ -302,6 +302,7 @@
     "transactions_count": "จำนวนธุรกรรม"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_bitcoin": "บิตคอยน์",
     "add_create": "สร้าง",
     "add_entropy_generated": "{gen} bytes of generated entropy",
@@ -310,6 +311,7 @@
     "add_import_wallet": "นำเข้ากระเป๋าสตางค์",
     "import_file": "นำเข้าไฟล์",
     "add_lightning": "ไลท์นิง",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "เชื่อมต่ปไปที่ LNDHub ของท่าน",
     "add_lndhub_error": "แอดเดรสของโหนดLNDHub ไม่ถูกต้อง",
     "add_lndhub_placeholder": "แอดเดรสของโหนดของท่าน",

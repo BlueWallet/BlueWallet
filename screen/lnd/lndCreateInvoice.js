@@ -22,7 +22,6 @@ import {
 } from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import PropTypes from 'prop-types';
-import bech32 from 'bech32';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -275,18 +274,8 @@ export default class LNDCreateInvoice extends Component {
         return this.props.navigation.goBack();
       }
 
-      // handling fallback lnurl
-      const ind = data.indexOf('lightning=');
-      if (ind !== -1) {
-        data = data.substring(ind + 10).split('&')[0];
-      }
-
-      data = data.replace('LIGHTNING:', '').replace('lightning:', '');
-      console.log(data);
-
       // decoding the lnurl
-      const decoded = bech32.decode(data, 1500);
-      const url = Buffer.from(bech32.fromWords(decoded.words)).toString();
+      const url = Lnurl.getUrlFromLnurl(data);
 
       // calling the url
       try {

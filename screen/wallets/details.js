@@ -85,13 +85,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  center: {
-    alignItems: 'center',
-  },
   delete: {
     color: '#d0021b',
     fontSize: 15,
     fontWeight: '500',
+    textAlign: 'center',
   },
 });
 
@@ -189,6 +187,11 @@ const WalletDetails = () => {
   };
   const navigateToMultisigCoordinationSetup = () => {
     navigate('ExportMultisigCoordinationSetup', {
+      walletId: wallet.getID(),
+    });
+  };
+  const navigateToViewEditCosigners = () => {
+    navigate('ViewEditMultisigCosigners', {
       walletId: wallet.getID(),
     });
   };
@@ -382,7 +385,7 @@ const WalletDetails = () => {
               </>
             )}
 
-            {wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && (
+            {wallet.type === MultisigHDWallet.type && (
               <>
                 <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.multisig.how_many_signatures_can_bluewallet_make}</Text>
                 <BlueText>{wallet.howManySignaturesCanWeMake()}</BlueText>
@@ -445,6 +448,13 @@ const WalletDetails = () => {
                 </>
               )}
 
+              {wallet.type === MultisigHDWallet.type && (
+                <>
+                  <BlueSpacing20 />
+                  <SecondButton onPress={navigateToViewEditCosigners} title={loc.multisig.view_edit_cosigners} />
+                </>
+              )}
+
               {(wallet.type === HDLegacyBreadwalletWallet.type ||
                 wallet.type === HDLegacyP2PKHWallet.type ||
                 wallet.type === HDSegwitBech32Wallet.type ||
@@ -464,7 +474,7 @@ const WalletDetails = () => {
               )}
               <BlueSpacing20 />
               <BlueSpacing20 />
-              <TouchableOpacity style={styles.center} onPress={handleDeleteButtonTapped}>
+              <TouchableOpacity onPress={handleDeleteButtonTapped}>
                 <Text style={styles.delete}>{loc.wallets.details_delete}</Text>
               </TouchableOpacity>
             </View>

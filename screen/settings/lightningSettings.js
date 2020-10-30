@@ -92,7 +92,6 @@ const LightningSettings = () => {
     });
   };
 
-
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <BlueCard>
