@@ -7,8 +7,48 @@
 //
 
 import Foundation
+import SwiftSocket
+
+struct APIError: LocalizedError {
+  var errorDescription: String = "Failed to fetch Electrum data..."
+}
 
 class API {
+  
+  
+  static func fetchNextBlockFee(completion: @escaping ((MarketData?, Error?) -> Void)) {
+    completion(nil, APIError())
+
+//    DispatchQueue.global(qos: .background).async {
+    //let client = TCPClient(address: "electrum3.bluewallet.io", port: 50001)
+
+//      let send =  "{\"id\": 1, \"method\": \"blockchain.estimatefee\", \"params\": [1]}\n"
+//      switch client.connect(timeout: 1) {
+//      case .success:
+//        switch client.send(string: send) {
+//        case .success:
+//          guard let data = client.read(1024*10, timeout: 1) else {
+//            client.close()
+//            completion(nil, APIError())
+//            return
+//          }
+//          if let response = String(bytes: data, encoding: .utf8), let nextBlockResponse = response.components(separatedBy: #"result":"#).last?.components(separatedBy: ",").first {
+//            print(response)
+//            client.close()
+//            completion(MarketData(nextBlock: nextBlockResponse, sats: "0", price: "0"), nil)
+//          }
+//        case .failure(let error):
+//          print(error)
+//          client.close()
+//          completion(nil, APIError())
+//        }
+//      case .failure(let error):
+//        print(error)
+//        client.close()
+//        completion(nil, APIError())
+//      }
+//    }
+  }
   
   static func fetchPrice(currency: String, completion: @escaping ((TodayDataStore?, Error?) -> Void)) {
     guard let url = URL(string: "https://api.coindesk.com/v1/bpi/currentPrice/\(currency).json") else {return}
