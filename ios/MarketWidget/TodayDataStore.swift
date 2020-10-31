@@ -30,8 +30,8 @@ struct TodayDataStore {
     let numberFormatter = NumberFormatter()
     numberFormatter.locale = Locale(identifier: API.getUserPreferredCurrencyLocale())
     numberFormatter.numberStyle = .decimal
-    numberFormatter.maximumFractionDigits = 2
-    numberFormatter.minimumFractionDigits = 2
+    numberFormatter.maximumFractionDigits = 0
+    numberFormatter.minimumFractionDigits = 0
     if let rateNumber = numberFormatter.number(from: rate) {
       numberFormatter.numberStyle = .currency
       return numberFormatter.string(from: rateNumber);
