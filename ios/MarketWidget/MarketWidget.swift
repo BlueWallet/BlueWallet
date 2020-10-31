@@ -32,21 +32,17 @@ struct Provider: TimelineProvider {
     var entries: [SimpleEntry] = []
     let userPreferredCurrency = API.getUserPreferredCurrency();
     var marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...")
-    API.fetchPrice(currency: userPreferredCurrency, completion: { (result, error) in
+    API.fetchMarketData(currency: userPreferredCurrency, completion: { (result, error) in
+      let entry: SimpleEntry
       if let result = result {
-        marketDataEntry.price = result.formattedRate ?? "!"
+        entry = SimpleEntry(date: Date(), marketData: result)
+ 
+      } else {
+        entry = SimpleEntry(date: Date(), marketData: marketDataEntry)
       }
-      API.fetchNextBlockFee { (marketData, error) in
-        if let nextBlock = marketData?.nextBlock {
-          marketDataEntry.nextBlock = nextBlock
-        } else {
-          marketDataEntry.nextBlock = "!"
-        }
-        let entry = SimpleEntry(date: Date(), marketData: marketDataEntry)
-        entries.append(entry)
-        let timeline = Timeline(entries: entries, policy: .atEnd)
-        completion(timeline)
-      }
+      entries.append(entry)
+      let timeline = Timeline(entries: entries, policy: .atEnd)
+      completion(timeline)
     })
   }
 }

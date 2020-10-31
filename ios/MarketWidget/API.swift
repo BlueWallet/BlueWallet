@@ -13,12 +13,21 @@ struct APIError: LocalizedError {
   var errorDescription: String = "Failed to fetch Electrum data..."
 }
 
+var numberFormatter: NumberFormatter {
+  let formatter = NumberFormatter()
+  formatter.numberStyle = .decimal
+  formatter.maximumFractionDigits = 0
+  formatter.locale = Locale.current
+  formatter.groupingSeparator = " "
+  return formatter
+}
+
 class API {
   
   
   static func fetchNextBlockFee(completion: @escaping ((MarketData?, Error?) -> Void)) {
     DispatchQueue.global(qos: .background).async {
-    let client = TCPClient(address: "electrum3.bluewallet.io", port: 50001)
+    let client = TCPClient(address: "electrum1.bluewallet.io", port: 50001)
 
       let send =  "{\"id\": 1, \"method\": \"blockchain.estimatefee\", \"params\": [1]}\n"
       switch client.connect(timeout: 1) {
@@ -46,6 +55,26 @@ class API {
         completion(nil, APIError())
       }
     }
+  }
+  
+  static func fetchMarketData(currency: String, completion: @escaping ((MarketData?, Error?) -> Void)) {
+    var marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...")
+    API.fetchPrice(currency: currency, completion: { (result, error) in
+      if let result = result {
+        marketDataEntry.price = result.formattedRate ?? "!"
+      }
+      API.fetchNextBlockFee { (marketData, error) in
+        if let nextBlock = marketData?.nextBlock {
+          marketDataEntry.nextBlock = nextBlock
+        } else {
+          marketDataEntry.nextBlock = "!"
+        }
+        if let rateDoubleValue = result?.rateDoubleValue {
+          marketDataEntry.sats = numberFormatter.string(from:  NSNumber(value: Double(10 / rateDoubleValue) * 10000000)) ?? "!"
+        }
+        completion(marketDataEntry, nil)
+      }
+    })
   }
   
   static func fetchPrice(currency: String, completion: @escaping ((TodayDataStore?, Error?) -> Void)) {
