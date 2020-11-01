@@ -66,7 +66,7 @@ struct MarketWidgetEntryView : View {
     return amount
   }
   var formattedLatestTransactionTime: String {
-    let forDate = Date().addingTimeInterval(TimeInterval(-entry.allWalletsBalance.latestTransactionTime))
+    let forDate = Date(timeIntervalSince1970: (TimeInterval(entry.allWalletsBalance.latestTransactionTime) / 1000))
       let dateFormatter = RelativeDateTimeFormatter()
     dateFormatter.locale = Locale(identifier: Locale.current.identifier)
     dateFormatter.dateTimeStyle = .numeric
@@ -83,7 +83,7 @@ struct MarketWidgetEntryView : View {
       VStack(content: {
         VStack(alignment: .leading, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/, content: {
           Text("Latest transaction").font(Font.system(size: 11, weight: .regular, design: .default)).foregroundColor(textColorLightGray)
-          Text("").lineLimit(1).foregroundColor(textColor).font(Font.system(size:13, weight: .regular, design: .default))
+          Text(formattedLatestTransactionTime).lineLimit(1).foregroundColor(textColor).font(Font.system(size:13, weight: .regular, design: .default))
         }).padding()
       })
     }).background(Color("WidgetBackground"))
