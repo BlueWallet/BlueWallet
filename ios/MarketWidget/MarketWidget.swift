@@ -21,7 +21,7 @@ struct Provider: TimelineProvider {
   func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
     let entry: SimpleEntry
     if (context.isPreview) {
-      entry = SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
+      entry = SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: 1568804029000))
     } else {
       entry = SimpleEntry(date: Date(), marketData: emptyMarketData)
     }
@@ -126,17 +126,12 @@ struct MarketWidgetEntryView : View {
     switch family {
     case .systemMedium:
       HStack(content: {
-        if entry.allWalletsBalance.balance > 0 {
           WalletBalance
           MarketStack
-        } else {
-          MarketStack
-        }
       }).background(Color(.lightGray).opacity(0.77))
     default:
       MarketStack.background(Color("WidgetBackground"))
     }
-    
   }
 }
 
@@ -155,9 +150,9 @@ struct MarketWidget: Widget {
 
 struct MarketWidget_Previews: PreviewProvider {
   static var previews: some View {
-    MarketWidgetEntryView(entry: SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 0)))
+    MarketWidgetEntryView(entry: SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 0), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: 1568804029000)))
       .previewContext(WidgetPreviewContext(family: .systemSmall))
-    MarketWidgetEntryView(entry: SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000), allWalletsBalance: WalletData(balance: 0.01)))
+    MarketWidgetEntryView(entry: SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: 1568804029000)))
       .previewContext(WidgetPreviewContext(family: .systemMedium))
   }
 }

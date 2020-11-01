@@ -16,6 +16,9 @@ function WidgetCommunication() {
       let balance = 0;
       let latestTransactionTime = 0;
       for (const wallet of wallets) {
+        if (wallet.hideBalance) {
+          continue;
+        }
         balance += wallet.getBalance();
         if (wallet.getLatestTransactionTimeEpoch() > latestTransactionTime) {
           latestTransactionTime = wallet.getLatestTransactionTimeEpoch();
