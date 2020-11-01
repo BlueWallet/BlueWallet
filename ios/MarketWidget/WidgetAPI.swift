@@ -45,7 +45,7 @@ class WidgetAPI {
             print("Successfully obtained response from Electrum sever")
             print(userElectrumSettings)
             client.close()
-            completion(MarketData(nextBlock: String(format: "%.0f", (nextBlockResponseDouble / 1024) * 100000000), sats: "0", price: "0"), nil)
+            completion(MarketData(nextBlock: String(format: "%.0f", (nextBlockResponseDouble / 1024) * 100000000), sats: "0", price: "0", rate: 0), nil)
           }
         case .failure(let error):
           print(error)
@@ -69,9 +69,10 @@ class WidgetAPI {
   }
   
   static func fetchMarketData(currency: String, completion: @escaping ((MarketData?, Error?) -> Void)) {
-    var marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...")
+    var marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
     WidgetAPI.fetchPrice(currency: currency, completion: { (result, error) in
       if let result = result {
+        marketDataEntry.rate = result.rateDoubleValue ?? 0
         marketDataEntry.price = result.formattedRate ?? "!"
       }
       WidgetAPI.fetchNextBlockFee { (marketData, error) in
