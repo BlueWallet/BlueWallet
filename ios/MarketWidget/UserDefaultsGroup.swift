@@ -22,8 +22,8 @@ struct UserDefaultsElectrumSettings {
   let sslPort: Int32?
 }
 
-let DefaultElectrumPeers = [UserDefaultsElectrumSettings(host: "electrum2221.bluewallet.io", port: 50001, sslPort: 443),
-                              UserDefaultsElectrumSettings(host: "electrum332.bluewallet.io", port: 50001, sslPort: 443),
+let DefaultElectrumPeers = [UserDefaultsElectrumSettings(host: "electrum1.bluewallet.io", port: 50001, sslPort: 443),
+                              UserDefaultsElectrumSettings(host: "electrum2.bluewallet.io", port: 50001, sslPort: 443),
                               UserDefaultsElectrumSettings(host: "electrum3.bluewallet.io", port: 50001, sslPort: 443)]
 
 class UserDefaultsGroup {
