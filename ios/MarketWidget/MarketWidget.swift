@@ -66,6 +66,9 @@ struct MarketWidgetEntryView : View {
     return amount
   }
   var formattedLatestTransactionTime: String {
+    if entry.allWalletsBalance.latestTransactionTime == 0 {
+      return "Never"
+    }
     let forDate = Date(timeIntervalSince1970: (TimeInterval(entry.allWalletsBalance.latestTransactionTime) / 1000))
       let dateFormatter = RelativeDateTimeFormatter()
     dateFormatter.locale = Locale(identifier: Locale.current.identifier)
