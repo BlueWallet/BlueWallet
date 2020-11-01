@@ -32,6 +32,7 @@
 		6D9A2E0D254BA348007B5B82 /* MarketWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6D9A2E02254BA347007B5B82 /* MarketWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6D9A2E6D254BAB1B007B5B82 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6A254BAB1B007B5B82 /* API.swift */; };
 		6D9A2E6F254BAB1B007B5B82 /* TodayDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6B254BAB1B007B5B82 /* TodayDataStore.swift */; };
+		6DA7047E254E24D5005FE5E2 /* UserDefaultsGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA7047D254E24D5005FE5E2 /* UserDefaultsGroup.swift */; };
 		6DF25A9F249DB97E001D06F5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6DF25A9E249DB97E001D06F5 /* LaunchScreen.storyboard */; };
 		6DFC807024EA0B6C007B8700 /* EFQRCode in Frameworks */ = {isa = PBXBuildFile; productRef = 6DFC806F24EA0B6C007B8700 /* EFQRCode */; };
 		6DFC807224EA2FA9007B8700 /* ViewQRCodefaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DFC807124EA2FA9007B8700 /* ViewQRCodefaceController.swift */; };
@@ -245,6 +246,7 @@
 		6D9A2E0A254BA348007B5B82 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6D9A2E6A254BAB1B007B5B82 /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		6D9A2E6B254BAB1B007B5B82 /* TodayDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TodayDataStore.swift; sourceTree = "<group>"; };
+		6DA7047D254E24D5005FE5E2 /* UserDefaultsGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsGroup.swift; sourceTree = "<group>"; };
 		6DF25A9E249DB97E001D06F5 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6DFC807124EA2FA9007B8700 /* ViewQRCodefaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewQRCodefaceController.swift; sourceTree = "<group>"; };
 		6EB3338E347F4AFAA8C85C04 /* libRNDeviceInfo-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNDeviceInfo-tvOS.a"; sourceTree = "<group>"; };
@@ -493,6 +495,7 @@
 				6D9A2E0A254BA348007B5B82 /* Info.plist */,
 				6D9A2E6A254BAB1B007B5B82 /* API.swift */,
 				6D9A2E6B254BAB1B007B5B82 /* TodayDataStore.swift */,
+				6DA7047D254E24D5005FE5E2 /* UserDefaultsGroup.swift */,
 			);
 			path = MarketWidget;
 			sourceTree = "<group>";
@@ -1116,6 +1119,7 @@
 			files = (
 				6D9A2E6D254BAB1B007B5B82 /* API.swift in Sources */,
 				6D9A2E6F254BAB1B007B5B82 /* TodayDataStore.swift in Sources */,
+				6DA7047E254E24D5005FE5E2 /* UserDefaultsGroup.swift in Sources */,
 				6D9A2E07254BA347007B5B82 /* MarketWidget.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

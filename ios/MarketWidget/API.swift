@@ -24,11 +24,13 @@ var numberFormatter: NumberFormatter {
 
 class API {
   
-  
-  static func fetchNextBlockFee(completion: @escaping ((MarketData?, Error?) -> Void)) {
+  static func fetchNextBlockFee(completion: @escaping ((MarketData?, Error?) -> Void), userElectrumSettings: UserDefaultsElectrumSettings = UserDefaultsGroup.getElectrumSettings()) {
+    guard let host = userElectrumSettings.host, let _ = userElectrumSettings.sslPort, let port = userElectrumSettings.port else {
+      print("No valid UserDefaultsElectrumSettings found");
+      return
+    }
     DispatchQueue.global(qos: .background).async {
-    let client = TCPClient(address: "electrum1.bluewallet.io", port: 50001)
-
+      let client = TCPClient(address: host, port: port)
       let send =  "{\"id\": 1, \"method\": \"blockchain.estimatefee\", \"params\": [1]}\n"
       switch client.connect(timeout: 1) {
       case .success:
@@ -40,7 +42,8 @@ class API {
             return
           }
           if let response = String(bytes: data, encoding: .utf8), let nextBlockResponse = response.components(separatedBy: #"result":"#).last?.components(separatedBy: ",").first, let nextBlockResponseDouble = Double(nextBlockResponse.trimmingCharacters(in: .whitespacesAndNewlines)) {
-            print(response)
+            print("Successfully obtained response from Electrum sever")
+            print(userElectrumSettings)
             client.close()
             completion(MarketData(nextBlock: String(format: "%.0f", (nextBlockResponseDouble / 1024) * 100000000), sats: "0", price: "0"), nil)
           }
@@ -52,7 +55,15 @@ class API {
       case .failure(let error):
         print(error)
         client.close()
-        completion(nil, APIError())
+        if userElectrumSettings.host == DefaultElectrumPeers.last?.host {
+          completion(nil, APIError())
+        } else if let currentIndex = DefaultElectrumPeers.firstIndex(where: {$0.host == userElectrumSettings.host}) {
+            fetchNextBlockFee(completion: completion, userElectrumSettings: DefaultElectrumPeers[DefaultElectrumPeers.index(after: currentIndex)])
+        } else {
+          if let first = DefaultElectrumPeers.first {
+            fetchNextBlockFee(completion: completion, userElectrumSettings: first)
+          }
+        }
       }
     }
   }
