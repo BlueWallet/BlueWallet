@@ -1,5 +1,5 @@
 //
-//  API.swift
+//  WidgetAPI.swift
 //  TodayExtension
 //
 //  Created by Marcos Rodriguez on 11/2/19.
@@ -22,7 +22,7 @@ var numberFormatter: NumberFormatter {
   return formatter
 }
 
-class API {
+class WidgetAPI {
   
   static func fetchNextBlockFee(completion: @escaping ((MarketData?, Error?) -> Void), userElectrumSettings: UserDefaultsElectrumSettings = UserDefaultsGroup.getElectrumSettings()) {
     guard let host = userElectrumSettings.host, let _ = userElectrumSettings.sslPort, let port = userElectrumSettings.port else {
@@ -70,11 +70,11 @@ class API {
   
   static func fetchMarketData(currency: String, completion: @escaping ((MarketData?, Error?) -> Void)) {
     var marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...")
-    API.fetchPrice(currency: currency, completion: { (result, error) in
+    WidgetAPI.fetchPrice(currency: currency, completion: { (result, error) in
       if let result = result {
         marketDataEntry.price = result.formattedRate ?? "!"
       }
-      API.fetchNextBlockFee { (marketData, error) in
+      WidgetAPI.fetchNextBlockFee { (marketData, error) in
         if let nextBlock = marketData?.nextBlock {
           marketDataEntry.nextBlock = nextBlock
         } else {
@@ -88,7 +88,7 @@ class API {
     })
   }
   
-  static func fetchPrice(currency: String, completion: @escaping ((TodayDataStore?, Error?) -> Void)) {
+  static func fetchPrice(currency: String, completion: @escaping ((WidgetDataStore?, Error?) -> Void)) {
     guard let url = URL(string: "https://api.coindesk.com/v1/bpi/currentPrice/\(currency).json") else {return}
     
     URLSession.shared.dataTask(with: url) { (data, response, error) in
@@ -103,7 +103,7 @@ class API {
         print(error?.localizedDescription ?? "Response Error")
         completion(nil, error)
         return }
-      let latestRateDataStore = TodayDataStore(rate: rateString, lastUpdate: "")
+      let latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: "")
       completion(latestRateDataStore, nil)
     }.resume()
   }
@@ -115,9 +115,9 @@ class API {
       return "USD"
     }
     
-    if preferredCurrency != API.getLastSelectedCurrency() {
-      UserDefaults.standard.removeObject(forKey: TodayData.TodayCachedDataStoreKey)
-      UserDefaults.standard.removeObject(forKey: TodayData.TodayDataStoreKey)
+    if preferredCurrency != WidgetAPI.getLastSelectedCurrency() {
+      UserDefaults.standard.removeObject(forKey: WidgetData.WidgetCachedDataStoreKey)
+      UserDefaults.standard.removeObject(forKey: WidgetData.WidgetDataStoreKey)
       UserDefaults.standard.synchronize()
     }
     
@@ -142,7 +142,7 @@ class API {
   }
   
   static func saveNewSelectedCurrency() {
-    UserDefaults.standard.setValue(API.getUserPreferredCurrency(), forKey: "currency")
+    UserDefaults.standard.setValue(WidgetAPI.getUserPreferredCurrency(), forKey: "currency")
   }
   
 }

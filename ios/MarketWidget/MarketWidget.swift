@@ -30,9 +30,9 @@ struct Provider: TimelineProvider {
   func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
 
     var entries: [SimpleEntry] = []
-    let userPreferredCurrency = API.getUserPreferredCurrency();
-    var marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...")
-    API.fetchMarketData(currency: userPreferredCurrency, completion: { (result, error) in
+    let userPreferredCurrency = WidgetAPI.getUserPreferredCurrency();
+    let marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...")
+    WidgetAPI.fetchMarketData(currency: userPreferredCurrency, completion: { (result, error) in
       let entry: SimpleEntry
       if let result = result {
         entry = SimpleEntry(date: Date(), marketData: result)
@@ -54,7 +54,7 @@ struct SimpleEntry: TimelineEntry {
 
 struct MarketWidgetEntryView : View {
   var entry: Provider.Entry
-  @State var userPreferredCurrency: String = API.getUserPreferredCurrency()
+  @State var userPreferredCurrency: String = WidgetAPI.getUserPreferredCurrency()
   
   var body: some View {
     VStack(alignment: .leading, spacing:23 , content: {

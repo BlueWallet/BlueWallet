@@ -8,14 +8,14 @@
 
 import Foundation
 
-struct TodayDataStore {
+struct WidgetDataStore {
   let rate: String
   let lastUpdate: String
   
   var rateDoubleValue: Double? {
     let numberFormatter = NumberFormatter()
     numberFormatter.numberStyle = .decimal
-    numberFormatter.locale = Locale(identifier: API.getUserPreferredCurrencyLocale())
+    numberFormatter.locale = Locale(identifier: WidgetAPI.getUserPreferredCurrencyLocale())
     numberFormatter.maximumFractionDigits = 2
     numberFormatter.minimumFractionDigits = 2
     
@@ -28,7 +28,7 @@ struct TodayDataStore {
   
   var formattedRate: String? {
     let numberFormatter = NumberFormatter()
-    numberFormatter.locale = Locale(identifier: API.getUserPreferredCurrencyLocale())
+    numberFormatter.locale = Locale(identifier: WidgetAPI.getUserPreferredCurrencyLocale())
     numberFormatter.numberStyle = .decimal
     numberFormatter.maximumFractionDigits = 0
     numberFormatter.minimumFractionDigits = 0
@@ -40,34 +40,34 @@ struct TodayDataStore {
   }
 }
 
-class TodayData {
+class WidgetData {
   
-  static let TodayDataStoreKey = "TodayDataStoreKey"
-  static let TodayCachedDataStoreKey = "TodayCachedDataStoreKey"
+  static let WidgetDataStoreKey = "WidgetDataStoreKey"
+  static let WidgetCachedDataStoreKey = "WidgetCachedDataStoreKey"
   
   static func savePriceRateAndLastUpdate(rate: String, lastUpdate: String) {    
-    UserDefaults.standard.setValue(["rate": rate, "lastUpdate": lastUpdate], forKey: TodayDataStoreKey)
+    UserDefaults.standard.setValue(["rate": rate, "lastUpdate": lastUpdate], forKey: WidgetDataStoreKey)
     UserDefaults.standard.synchronize()
   }
   
-  static func getPriceRateAndLastUpdate() -> TodayDataStore? {
-    guard let dataStore = UserDefaults.standard.value(forKey: TodayDataStoreKey) as? [String: String], let rate = dataStore["rate"], let lastUpdate = dataStore["lastUpdate"] else {
+  static func getPriceRateAndLastUpdate() -> WidgetDataStore? {
+    guard let dataStore = UserDefaults.standard.value(forKey: WidgetDataStoreKey) as? [String: String], let rate = dataStore["rate"], let lastUpdate = dataStore["lastUpdate"] else {
       return nil
     }
-    return TodayDataStore(rate: rate, lastUpdate: lastUpdate)
+    return WidgetDataStore(rate: rate, lastUpdate: lastUpdate)
   }
   
   static func saveCachePriceRateAndLastUpdate(rate: String, lastUpdate: String) {
-    UserDefaults.standard.setValue(["rate": rate, "lastUpdate": lastUpdate], forKey: TodayCachedDataStoreKey)
+    UserDefaults.standard.setValue(["rate": rate, "lastUpdate": lastUpdate], forKey: WidgetCachedDataStoreKey)
     UserDefaults.standard.synchronize()
   }
   
-  static func getCachedPriceRateAndLastUpdate() -> TodayDataStore? {
-    guard let dataStore = UserDefaults.standard.value(forKey: TodayCachedDataStoreKey) as? [String: String], var rate = dataStore["rate"], let lastUpdate = dataStore["lastUpdate"] else {
+  static func getCachedPriceRateAndLastUpdate() -> WidgetDataStore? {
+    guard let dataStore = UserDefaults.standard.value(forKey: WidgetCachedDataStoreKey) as? [String: String], var rate = dataStore["rate"], let lastUpdate = dataStore["lastUpdate"] else {
       return nil
     }
     rate = rate.replacingOccurrences(of: ",", with: "");
-    return TodayDataStore(rate: rate, lastUpdate: lastUpdate)
+    return WidgetDataStore(rate: rate, lastUpdate: lastUpdate)
   }
   
   
