@@ -20,7 +20,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 const prompt = require('../../blue_modules/prompt');
 
 const EncryptStorage = () => {
-  const { isStorageEncrypted, setResetOnAppUninstallTo, encryptStorage, isDeleteWalletAfterUninstallEnabled, decryptStorage } = useContext(
+  const { isStorageEncrypted, setResetOnAppUninstallTo, encryptStorage, isDeleteWalletAfterUninstallEnabled, decryptStorage, saveToDisk } = useContext(
     BlueStorageContext,
   );
   const [isLoading, setIsLoading] = useState(true);
@@ -58,6 +58,7 @@ const EncryptStorage = () => {
     });
     try {
       await decryptStorage(password);
+      await saveToDisk();
       popToTop();
     } catch (e) {
       if (password) {
@@ -96,6 +97,7 @@ const EncryptStorage = () => {
         await encryptStorage(p1);
         setIsLoading(false);
         setStorageIsEncryptedSwitchEnabled(await isStorageEncrypted());
+        saveToDisk();
       } else {
         setIsLoading(false);
         alert(loc.settings.passwords_do_not_match);

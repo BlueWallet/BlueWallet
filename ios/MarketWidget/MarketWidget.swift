@@ -67,7 +67,7 @@ struct MarketWidgetEntryView : View {
   }
   var formattedLatestTransactionTime: String {
     if entry.allWalletsBalance.latestTransactionTime == 0 {
-      return "Never"
+      return "never"
     }
     let forDate = Date(timeIntervalSince1970: (TimeInterval(entry.allWalletsBalance.latestTransactionTime) / 1000))
       let dateFormatter = RelativeDateTimeFormatter()

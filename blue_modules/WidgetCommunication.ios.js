@@ -41,7 +41,7 @@ function WidgetCommunication() {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallets, walletsInitialized, isStorageEncrypted]);
+  }, [wallets, walletsInitialized]);
   return null;
 }
 
