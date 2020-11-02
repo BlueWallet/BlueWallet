@@ -187,6 +187,8 @@ module.exports = {
         'Open the first PDF document you generated when you created the wallet you want to import and use this app to scan the Public Key QR code.',
       unsupportedElectrumVaultMnemonic:
         'This seed is from Electrum Vault and is currently not supported. Will be supported in the near future.',
+      extendWithCustomWords: 'Extend this seed with custom words',
+      customWords: 'Custom words',
     },
     exportWallet: {
       title: 'Seed phrase',

@@ -9,6 +9,9 @@ const bitcoin = require('bitcoinjs-lib');
 export class HDSegwitP2SHWallet extends AbstractHDSegwitP2SHWallet {
   static type = 'HDsegwitP2SH';
   static typeReadable = 'HD P2SH';
+  constructor() {
+    super("m/49'/440'/0'");
+  }
 
   nodeToAddress(hdNode) {
     const { address } = bitcoin.payments.p2sh({

@@ -66,12 +66,12 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     }
   };
 
-  createARWallet = () => (publicKey: string) => {
+  createARWallet = (recoveryPublicKey: string) => {
     const { navigation } = this.props;
 
-    const onError = () => this.showAlert(() => this.navigateToIntegrateRecoveryPublicKey(this.createARWallet));
+    const onError = () => this.showAlert(() => this.navigateToIntegrateRecoveryPublicKeyForAR());
     try {
-      const wallet = new HDSegwitP2SHArWallet([publicKey]);
+      const wallet = new HDSegwitP2SHArWallet([recoveryPublicKey]);
       navigation.goBack();
       this.createWalletMessage(wallet, onError);
     } catch (_) {
@@ -111,14 +111,14 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     });
   };
 
-  createAIRWalletAddInstantPublicKey = (wallet: any) => (instantPublicKey: string) => {
+  createAIRWalletAddRecoveryPublicKey = (wallet: HDSegwitP2SHAirWallet) => (recoveryPublicKey: string) => {
     const { navigation } = this.props;
     const onError = (error: string) =>
       this.showAlert(() => {
-        this.navigateToIntegrateInstantPublicKey(wallet);
+        this.navigateToIntegrateRecoveryPublicKeyForAIR(wallet);
       }, error);
     try {
-      wallet.addPublicKey(instantPublicKey);
+      wallet.addPublicKey(recoveryPublicKey);
       navigation.goBack();
       this.createWalletMessage(wallet, onError);
     } catch (e) {
@@ -126,24 +126,24 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     }
   };
 
-  navigateToIntegrateInstantPublicKey = (wallet: any) => {
+  navigateToIntegrateRecoveryPublicKeyForAIR = (wallet: HDSegwitP2SHAirWallet) => {
     const { navigation } = this.props;
     navigation.navigate(Route.IntegrateKey, {
-      onBarCodeScan: this.createAIRWalletAddInstantPublicKey(wallet),
-      title: i18n.wallets.publicKey.instantSubtitle,
+      onBarCodeScan: this.createAIRWalletAddRecoveryPublicKey(wallet),
+
       headerTitle: i18n.wallets.add.title,
-      description: i18n.wallets.publicKey.instantDescription,
+      title: i18n.wallets.publicKey.recoverySubtitle,
+      description: i18n.wallets.publicKey.recoveryDescription,
       onBackArrow: () => {
-        wallet.clearPublickKeys();
-        this.navigateToIntegrateRecoveryPublicKey(this.createAIRWalletAddRecoveryPublicKey);
+        this.navigateToIntegrateInstantPublicKeyForAIR();
       },
     });
   };
 
-  navigateToIntegrateRecoveryPublicKey = (create: Function) => {
+  navigateToIntegrateRecoveryPublicKeyForAR = () => {
     const { navigation } = this.props;
     navigation.navigate(Route.IntegrateKey, {
-      onBarCodeScan: create(),
+      onBarCodeScan: recoveryPublicKey => this.createARWallet(recoveryPublicKey),
       headerTitle: i18n.wallets.add.title,
       title: i18n.wallets.publicKey.recoverySubtitle,
       description: i18n.wallets.publicKey.recoveryDescription,
@@ -153,26 +153,34 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     });
   };
 
-  createAIRWalletAddRecoveryPublicKey = () => (recoveryPublicKey: string) => {
-    try {
-      const wallet = new HDSegwitP2SHAirWallet();
-      wallet.addPublicKey(recoveryPublicKey);
-      this.navigateToIntegrateInstantPublicKey(wallet);
-    } catch (e) {
-      this.showAlert(
-        () => this.navigateToIntegrateRecoveryPublicKey(this.createAIRWalletAddRecoveryPublicKey),
-        e.message,
-      );
-    }
+  navigateToIntegrateInstantPublicKeyForAIR = () => {
+    const { navigation } = this.props;
+    const wallet = new HDSegwitP2SHAirWallet();
+    navigation.navigate(Route.IntegrateKey, {
+      onBarCodeScan: instantPublicKey => {
+        try {
+          wallet.addPublicKey(instantPublicKey);
+          this.navigateToIntegrateRecoveryPublicKeyForAIR(wallet);
+        } catch (e) {
+          this.showAlert(() => this.navigateToIntegrateInstantPublicKeyForAIR(), e.message);
+        }
+      },
+      title: i18n.wallets.publicKey.instantSubtitle,
+      headerTitle: i18n.wallets.add.title,
+      description: i18n.wallets.publicKey.instantDescription,
+      onBackArrow: () => {
+        navigation.navigate(Route.CreateWallet);
+      },
+    });
   };
 
   setupWallet = () => {
     const { selectedIndex } = this.state;
     if (selectedIndex === 0) {
-      return this.navigateToIntegrateRecoveryPublicKey(this.createARWallet);
+      return this.navigateToIntegrateRecoveryPublicKeyForAR();
     }
     if (selectedIndex === 1) {
-      return this.navigateToIntegrateRecoveryPublicKey(this.createAIRWalletAddRecoveryPublicKey);
+      return this.navigateToIntegrateInstantPublicKeyForAIR();
     }
     this.createWallet();
   };

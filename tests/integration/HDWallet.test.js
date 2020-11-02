@@ -325,9 +325,9 @@ it('Legacy HD (BIP44) can generate addressess based on xpub', async function() {
   const hd = new HDLegacyP2PKHWallet();
   hd._xpub = xpub;
   await hd.generateAddresses();
-  assert.strictEqual(hd.getAddress()[0], 'YR1SxEKM4F5oEDg8SUQ216vZcYyKHjoubG');
-  assert.strictEqual(hd.getAddress()[1], 'YnaF465GEdDKdyHigKuJWRhZF4f8bdodUy');
-  assert.strictEqual(hd.getAddress()[2], 'Ybybns4oH3xN5asG274kRRSjhK8AoQgC2D');
+  assert.strictEqual(hd.getAddress()[0], 'Yd1tx3ziqNa9G5hoMEKdZ7ep9JxMbFefDW');
+  assert.strictEqual(hd.getAddress()[1], 'YRWK5bPer6ZDfo42uoicrzdtPSPSHHFAzg');
+  assert.strictEqual(hd.getAddress()[2], 'YTeuE3HqGbGKHrtkbZuTqhvmza2drgJaTR');
 });
 
 it('Legacy HD (BIP44) can create TX', async () => {

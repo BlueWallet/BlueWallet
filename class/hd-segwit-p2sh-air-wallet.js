@@ -4,7 +4,7 @@ const { payments } = require('bitcoinjs-lib');
 
 export class HDSegwitP2SHAirWallet extends AbstractHDSegwitP2SHVaultWallet {
   static type = 'HDsegwitP2SHair';
-  static typeReadable = '3 Keys Vault';
+  static typeReadable = '3-Key Vault';
 
   nodeToAddress(hdNode) {
     return super.nodeToAddress(hdNode, payments.p2air);

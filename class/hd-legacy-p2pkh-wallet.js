@@ -4,6 +4,8 @@ import { cloneDeep } from 'lodash';
 
 import config from '../config';
 import signer from '../models/signer';
+import { ELECTRUM_VAULT_SEED_PREFIXES } from '../src/consts';
+import { electrumVaultMnemonicToSeed, isElectrumVaultMnemonic } from '../utils/crypto';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 
 const HDNode = require('bip32');
@@ -16,24 +18,35 @@ const bitcoin = require('bitcoinjs-lib');
  */
 export class HDLegacyP2PKHWallet extends AbstractHDWallet {
   static type = 'HDlegacyP2PKH';
-  static typeReadable = 'HD Legacy (BIP44 P2PKH)';
+  static typeReadable = 'HD P2PKH';
 
   allowSend() {
     return true;
+  }
+
+  setPassword(password) {
+    this.password = password;
+  }
+
+  getSeed() {
+    return electrumVaultMnemonicToSeed(this.secret, this.password);
   }
 
   async getXpub() {
     if (this._xpub) {
       return this._xpub; // cache hit
     }
-    const mnemonic = this.secret;
-    this.seed = await bip39.mnemonicToSeed(mnemonic);
+    this.seed = await this.getSeed();
     const root = bitcoin.bip32.fromSeed(this.seed, config.network);
 
-    const path = "m/44'/440'/0'";
+    const path = 'm/0';
     const child = root.derivePath(path).neutered();
     this._xpub = child.toBase58();
     return this._xpub;
+  }
+
+  validateMnemonic() {
+    return isElectrumVaultMnemonic(this.secret, ELECTRUM_VAULT_SEED_PREFIXES.SEED_PREFIX);
   }
 
   _getExternalWIFByIndex(index) {
@@ -57,7 +70,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
     }
 
     const root = HDNode.fromSeed(this.seed, config.network);
-    const path = `m/44'/440'/0'/0/${index}`;
+    const path = `m/0/${index}`;
     const child = root.derivePath(path);
 
     return child.toWIF();
@@ -67,7 +80,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
     const node = bitcoin.bip32.fromBase58(await this.getXpub(), config.network);
     for (let index = 0; index < this.num_addresses; index++) {
       const address = bitcoin.payments.p2pkh({
-        pubkey: node.derive(0).derive(index).publicKey,
+        pubkey: node.derive(index).publicKey,
         network: config.network,
       }).address;
       this._address.push(address);

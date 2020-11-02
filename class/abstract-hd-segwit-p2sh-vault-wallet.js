@@ -1,4 +1,3 @@
-import * as bip39 from 'bip39';
 import { cloneDeep } from 'lodash';
 
 import config from '../config';
@@ -18,7 +17,7 @@ export class AbstractHDSegwitP2SHVaultWallet extends AbstractHDSegwitP2SHWallet 
   static typeReadable = 'abstract';
 
   constructor(pubKeysHex = []) {
-    super();
+    super("m/0'");
     let pubKeys;
     try {
       pubKeys = pubKeysHex.map(
@@ -50,18 +49,6 @@ export class AbstractHDSegwitP2SHVaultWallet extends AbstractHDSegwitP2SHWallet 
     wallet.pubKeys = parsedPubKeysBuffors;
 
     return wallet;
-  }
-
-  setMnemonic(walletMnemonic) {
-    if (!bip39.validateMnemonic(walletMnemonic)) {
-      throw new Error(i18n.wallets.errors.invalidMnemonic);
-    }
-
-    this.secret = walletMnemonic
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9]/g, ' ')
-      .replace(/\s+/g, ' ');
   }
 
   hasAlreadyPubKeys = publicKeys => {

@@ -4,6 +4,7 @@ import b58 from 'bs58check';
 import { NativeModules } from 'react-native';
 
 import config from '../config';
+import { electrumVaultMnemonicToSeed } from '../utils/crypto';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 
 const HDNode = require('bip32');
@@ -22,12 +23,23 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   static typeReadable = 'HD SegWit';
   static defaultRBFSequence = 2147483648; // 1 << 31, minimum for replaceable transactions as per BIP68
   static randomBytesSize = 16;
-  static basePath = "m/84'/440'/0'";
 
-  constructor() {
+  constructor({ isElectrumVault } = {}) {
     super();
+    if (isElectrumVault !== undefined) {
+      this.isElectrumVault = isElectrumVault;
+    }
+  }
 
-    this._utxo = [];
+  setPassword(password) {
+    this.password = password;
+  }
+
+  getSeed() {
+    if (this.isElectrumVault) {
+      return electrumVaultMnemonicToSeed(this.secret, this.password);
+    }
+    return bip39.mnemonicToSeed(this.secret);
   }
 
   allowBatchSend() {
@@ -57,6 +69,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       if (typeof RNRandomBytes === 'undefined') {
         // CLI/CI environment
         // crypto should be provided globally by test launcher
+        // eslint-disable-next-line no-undef
         return crypto.randomBytes(HDSegwitBech32Wallet.randomBytesSize, async (err, buf) => {
           if (err) throw err;
           await this.setSecret(bip39.entropyToMnemonic(buf.toString('hex')));
@@ -75,7 +88,8 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   }
 
   _getPath(path = '') {
-    return `${HDSegwitBech32Wallet.basePath}${path}`;
+    const basePath = this.isElectrumVault ? "m/0'" : "m/84'/440'/0'";
+    return `${basePath}${path}`;
   }
 
   /**
@@ -87,7 +101,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    */
   async _getWIFByIndex(index) {
     if (!this.seed) {
-      this.seed = await bip39.mnemonicToSeed(this.secret);
+      this.seed = await this.getSeed();
     }
     const root = HDNode.fromSeed(this.seed, config.network);
     const path = this._getPath(`/0/${index}`);
@@ -140,8 +154,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       return this._xpub; // cache hit
     }
     // first, getting xpub
-    const mnemonic = this.secret;
-    this.seed = await bip39.mnemonicToSeed(mnemonic);
+    this.seed = await this.getSeed();
     const root = HDNode.fromSeed(this.seed, config.network);
 
     const path = this._getPath();
