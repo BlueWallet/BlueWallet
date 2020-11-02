@@ -18,10 +18,12 @@ struct MarketData {
 
 struct WalletData {
   var balance: Double
-  var formattedBalanceBTC: String {
-      return "\(balance / 10000000) BTC"
-  }
   var latestTransactionTime: Int = 0
+  var formattedBalanceBTC: String {
+      return "\(balance / 100000000) BTC"
+  }
+
 }
+
 
 let emptyMarketData = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
