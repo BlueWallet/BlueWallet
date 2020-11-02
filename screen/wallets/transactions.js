@@ -378,8 +378,8 @@ const WalletTransactions = () => {
   const onWalletSelect = async selectedWallet => {
     if (selectedWallet) {
       navigate('WalletTransactions', {
-        walletType: wallet.type,
-        walletID: wallet.getID(),
+        walletType: wallet.current.type,
+        walletID: wallet.current.getID(),
         key: `WalletTransactions-${wallet.current.getID()}`,
       });
       /** @type {LightningCustodianWallet} */
