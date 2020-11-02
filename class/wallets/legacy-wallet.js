@@ -347,7 +347,6 @@ export class LegacyWallet extends AbstractWallet {
     for (const tx of this.getTransactions()) {
       max = Math.max(new Date(tx.received) * 1, max);
     }
-
     return new Date(max).toString();
   }
 
