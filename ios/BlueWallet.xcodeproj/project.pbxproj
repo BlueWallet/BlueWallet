@@ -25,6 +25,7 @@
 		3271B0BB236E329400DA766F /* TodayAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3271B0BA236E329400DA766F /* TodayAPI.swift */; };
 		32B5A32A2334450100F8D608 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A3292334450100F8D608 /* Bridge.swift */; };
 		32F0A29A2311DBB20095C559 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F0A2992311DBB20095C559 /* ComplicationController.swift */; };
+		47A71B37E7A47E7CADA091A1 /* libPods-MarketWidgetExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD3AC9FD81723B68A63C12 /* libPods-MarketWidgetExtension.a */; };
 		5875B7B2D85DC56E00F292FF /* libPods-WalletInformationWidgetExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CC8A6C610EAE90F810EADCC /* libPods-WalletInformationWidgetExtension.a */; };
 		590C62D2ED8BF487C33945B0 /* libPods-WalletInformationAndMarketWidgetExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 98455D960744E4E5DD50BA87 /* libPods-WalletInformationAndMarketWidgetExtension.a */; };
 		6D9A2E03254BA347007B5B82 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; };
@@ -227,6 +228,7 @@
 		3703B10AAB374CF896CCC2EA /* libBVLinearGradient.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libBVLinearGradient.a; sourceTree = "<group>"; };
 		3D9CAFACCECFFBFCD9B2BC7E /* Pods-WalletInformationWidgetExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WalletInformationWidgetExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-WalletInformationWidgetExtension/Pods-WalletInformationWidgetExtension.release.xcconfig"; sourceTree = "<group>"; };
 		3F7F1B8332C6439793D55B45 /* EvilIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = EvilIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf"; sourceTree = "<group>"; };
+		41BD3AC9FD81723B68A63C12 /* libPods-MarketWidgetExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MarketWidgetExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		44BC9E3EE0E9476A830CCCB9 /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
 		47564776A7A3427DB36C087D /* FontAwesome5_Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Regular.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Regular.ttf"; sourceTree = "<group>"; };
 		47C436B1EF23484B8181DBEA /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
@@ -447,6 +449,7 @@
 				6DEB4B28254FB80300E9F9AA /* SwiftUI.framework in Frameworks */,
 				6DEB4B27254FB80300E9F9AA /* WidgetKit.framework in Frameworks */,
 				FD633BEADAD0865BD993E7EA /* (null) in Frameworks */,
+				47A71B37E7A47E7CADA091A1 /* libPods-MarketWidgetExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -515,6 +518,7 @@
 				6D333B3C252FE1A3004D72DF /* SwiftUI.framework */,
 				98455D960744E4E5DD50BA87 /* libPods-WalletInformationAndMarketWidgetExtension.a */,
 				0CC8A6C610EAE90F810EADCC /* libPods-WalletInformationWidgetExtension.a */,
+				41BD3AC9FD81723B68A63C12 /* libPods-MarketWidgetExtension.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -2100,7 +2104,7 @@
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = WalletInformationWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2140,7 +2144,7 @@
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = WalletInformationWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2177,7 +2181,7 @@
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "$(SRCROOT)/WalletInformationWidget/Widgets/MarketWidget/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2217,7 +2221,7 @@
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "$(SRCROOT)/WalletInformationWidget/Widgets/MarketWidget/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
