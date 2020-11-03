@@ -1,14 +1,14 @@
 package io.goldwallet.wallet;
 
 import com.facebook.react.ReactActivity;
-import org.devio.rn.splashscreen.SplashScreen;
 import android.os.Bundle;
+import com.zoontek.rnbootsplash.RNBootSplash;
 
 public class MainActivity extends ReactActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SplashScreen.show(this);
+        RNBootSplash.init(R.drawable.background_splash, MainActivity.this);
     }
 
     /**

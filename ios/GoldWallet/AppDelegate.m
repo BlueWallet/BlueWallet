@@ -11,7 +11,7 @@
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 #import <Firebase.h>
-#import "RNSplashScreen.h"
+#import "RNBootSplash.h"
 
 @implementation AppDelegate
 
@@ -35,7 +35,7 @@
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
-  [RNSplashScreen show];
+  [RNBootSplash initWithStoryboard:@"Launch Screen" rootView:rootView];
   return YES;
 }
 
