@@ -1087,13 +1087,7 @@ export default class SendDetails extends Component {
                 />
               </>
             )}
-            <BlueListItem
-              title="Coin control"
-              hideChevron
-              // disabled={this.state.addresses.length < 2}
-              component={TouchableOpacity}
-              onPress={this.handleCoinControl}
-            />
+            <BlueListItem title={loc.cc.header} hideChevron component={TouchableOpacity} onPress={this.handleCoinControl} />
           </View>
         </KeyboardAvoidingView>
       </Modal>

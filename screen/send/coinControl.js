@@ -4,6 +4,7 @@ import _debounce from 'lodash/debounce';
 import Modal from 'react-native-modal';
 import { ListItem, Avatar, Badge } from 'react-native-elements';
 import {
+  ActivityIndicator,
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
@@ -12,8 +13,8 @@ import {
   Text,
   TextInput,
   TouchableWithoutFeedback,
-  View,
   useColorScheme,
+  View,
 } from 'react-native';
 import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
 
@@ -164,12 +165,14 @@ const CoinControl = () => {
   const { walletId, onUTXOChoose } = useRoute().params;
   const { wallets } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletId);
-  const utxo = useMemo(
-    // sort by height ascending, txid , vout ascending
-    () => wallet.getUtxo({ frozen: true }).sort((a, b) => a.height - b.height || a.txid.localeCompare(b.txid) || a.vout - b.vout),
-    [wallet],
-  );
+  // sort by height ascending, txid , vout ascending
+  const utxo = wallet.getUtxo({ frozen: true }).sort((a, b) => a.height - b.height || a.txid.localeCompare(b.txid) || a.vout - b.vout);
   const [output, setOutput] = useState();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    wallet.fetchUtxo().then(() => setLoading(false));
+  }, [wallet, setLoading]);
 
   const handleChoose = item => setOutput(item);
 
@@ -184,6 +187,14 @@ const CoinControl = () => {
     const change = wallet.addressIsChange(p.item.address);
     return <Output item={p.item} oMemo={memo} frozen={frozen} change={change} onPress={() => handleChoose(p.item)} />;
   };
+
+  if (loading) {
+    return (
+      <SafeBlueArea style={[styles.root, styles.center, { backgroundColor: colors.elevated }]}>
+        <ActivityIndicator testID="Loading" />
+      </SafeBlueArea>
+    );
+  }
 
   return (
     <SafeBlueArea style={[styles.root, { backgroundColor: colors.elevated }]}>
@@ -215,6 +226,10 @@ const CoinControl = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+  },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   bottomModal: {
     justifyContent: 'flex-end',
