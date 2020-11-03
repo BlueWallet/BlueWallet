@@ -284,7 +284,7 @@ const WalletTransactions = () => {
                 setIsManageFundsModalVisible(false);
 
                 navigate('ReceiveDetails', {
-                  secret: wallet.current.getSecret(),
+                  walletID: wallet.current.getID(),
                 });
               }}
               title={loc.lnd.refill_external}
@@ -640,7 +640,7 @@ const WalletTransactions = () => {
               if (wallet.current.chain === Chain.OFFCHAIN) {
                 navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { fromWallet: wallet.current } });
               } else {
-                navigate('ReceiveDetails', { secret: wallet.current.getSecret() });
+                navigate('ReceiveDetails', { walletID: wallet.current.getID() });
               }
             }}
             icon={

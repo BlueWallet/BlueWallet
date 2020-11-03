@@ -51,12 +51,13 @@ struct SimpleEntry: TimelineEntry {
 }
 
 struct WalletInformationAndMarketWidgetEntryView : View {
+  @Environment(\.widgetFamily) var family
   var entry: Provider.Entry
   var formattedBalance: String {
-      let numberFormatter = NumberFormatter()
-      numberFormatter.locale = Locale(identifier: WidgetAPI.getUserPreferredCurrencyLocale())
-      numberFormatter.numberStyle = .currency
-      numberFormatter.numberStyle = .currency
+    let numberFormatter = NumberFormatter()
+    numberFormatter.locale = Locale(identifier: WidgetAPI.getUserPreferredCurrencyLocale())
+    numberFormatter.numberStyle = .currency
+    numberFormatter.numberStyle = .currency
     let amount = numberFormatter.string(from:  NSNumber(value: ((entry.allWalletsBalance.balance / 100000000) * entry.marketData.rate))) ?? ""
     return amount
   }
@@ -65,7 +66,7 @@ struct WalletInformationAndMarketWidgetEntryView : View {
       return "never"
     }
     let forDate = Date(timeIntervalSince1970: (TimeInterval(entry.allWalletsBalance.latestTransactionTime) / 1000))
-      let dateFormatter = RelativeDateTimeFormatter()
+    let dateFormatter = RelativeDateTimeFormatter()
     dateFormatter.locale = Locale(identifier: Locale.current.identifier)
     dateFormatter.dateTimeStyle = .numeric
     return dateFormatter.localizedString(for: forDate, relativeTo: Date())
@@ -76,13 +77,13 @@ struct WalletInformationAndMarketWidgetEntryView : View {
       VStack(alignment: .leading, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/, content: {
         Text(entry.allWalletsBalance.formattedBalanceBTC).font(Font.system(size: 15, weight: .medium, design: .default)).foregroundColor(.textColorLightGray).lineLimit(1).minimumScaleFactor(0.01)
         Text(formattedBalance).lineLimit(1).foregroundColor(.textColor).font(Font.system(size:28, weight: .bold, design: .default)).minimumScaleFactor(0.01)
-      }).padding()
+      })
       Spacer()
       VStack(content: {
         VStack(alignment: .leading, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/, content: {
           Text("Latest transaction").font(Font.system(size: 11, weight: .regular, design: .default)).foregroundColor(.textColorLightGray)
           Text(formattedLatestTransactionTime).lineLimit(1).foregroundColor(.textColor).font(Font.system(size:13, weight: .regular, design: .default)).minimumScaleFactor(0.01)
-        }).padding()
+        })
       })
     }).background(Color.widgetBackground)
   }
@@ -120,11 +121,41 @@ struct WalletInformationAndMarketWidgetEntryView : View {
     })
   }
   
+  var SendReceiveButtons: some View {
+    VStack(alignment: .center, spacing: nil, content: {
+      Spacer()
+      HStack(alignment: .center, spacing: nil, content: {
+        Spacer()
+        HStack( content: {
+          Link("receive", destination: URL(string: "bluewallet://widget?action=openReceive")!).frame(minWidth: 144, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, minHeight: 32, maxHeight: 32, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/).padding(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4)).lineLimit(1).foregroundColor(.textColor).font(Font.system(size:11, weight: .semibold, design: .default)).background(Color.widgetBackground).overlay(
+            RoundedRectangle(cornerRadius: 4.0)
+              .stroke(Color.widgetBackground, lineWidth: 4.0))
+        })
+        Spacer()
+        Link("send", destination: URL(string: "bluewallet://widget?action=openSend")!).frame(minWidth: 144, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, minHeight: 32, maxHeight: 32, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/).padding(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4)).lineLimit(1).foregroundColor(.textColor).font(Font.system(size:11, weight: .semibold, design: .default)).background(Color.widgetBackground).overlay(
+          RoundedRectangle(cornerRadius: 4.0)
+            .stroke(Color.widgetBackground, lineWidth: 4.0))
+        Spacer()
+      })
+      Spacer()
+    })
+  }
+  
   var body: some View {
+    if family == .systemLarge {
+      VStack(alignment: .leading, spacing: nil, content: {
+        WalletBalance.padding()
+        MarketStack.background(Color(.lightGray).opacity(0.77))
+        SendReceiveButtons.background(Color(.lightGray).opacity(0.77))
+      }).background(Color.widgetBackground)
+      
+    } else {
       HStack(content: {
-          WalletBalance
-          MarketStack
+        WalletBalance.padding().background(Color.widgetBackground)
+        MarketStack
       }).background(Color(.lightGray).opacity(0.77))
+      
+    }
   }
 }
 
@@ -137,7 +168,7 @@ struct WalletInformationAndMarketWidget: Widget {
       WalletInformationAndMarketWidgetEntryView(entry: entry)
     }
     .configurationDisplayName("Wallet and Market")
-    .description("View your total wallet balance and network prices.").supportedFamilies([.systemMedium])
+    .description("View your total wallet balance and network prices.").supportedFamilies([.systemMedium, .systemLarge])
   }
 }
 
@@ -145,5 +176,7 @@ struct WalletInformationAndMarketWidget_Previews: PreviewProvider {
   static var previews: some View {
     WalletInformationAndMarketWidgetEntryView(entry: SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 0), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: 1568804029000)))
       .previewContext(WidgetPreviewContext(family: .systemMedium))
+    WalletInformationAndMarketWidgetEntryView(entry: SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 0), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: 1568804029000)))
+      .previewContext(WidgetPreviewContext(family: .systemLarge))
   }
 }
