@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import JailMonkey from 'jail-monkey';
 import React from 'react';
+import { isEmulator } from 'react-native-device-info';
 import { connect } from 'react-redux';
 
 import { CONST } from 'app/consts';
@@ -53,11 +54,13 @@ type Props = MapStateToProps & ActionsDisptach & OwnProps;
 
 interface State {
   isBetaVersionRiskAccepted: boolean;
+  isEmulator: boolean;
 }
 
 class Navigator extends React.Component<Props, State> {
   state = {
     isBetaVersionRiskAccepted: false,
+    isEmulator: false,
   };
 
   componentDidMount() {
@@ -67,9 +70,15 @@ class Navigator extends React.Component<Props, State> {
     fetchBlockHeight();
     this.initLanguage();
 
-    if (!__DEV__) {
-      checkDeviceSecurity();
-    }
+    isEmulator().then(isEmulator => {
+      this.setState({
+        isEmulator,
+      });
+
+      if (!isEmulator && !__DEV__) {
+        checkDeviceSecurity();
+      }
+    });
   }
 
   initLanguage = async () => {
@@ -128,7 +137,7 @@ class Navigator extends React.Component<Props, State> {
       return null;
     }
 
-    if (!__DEV__ && JailMonkey.isJailBroken()) {
+    if (!__DEV__ && JailMonkey.isJailBroken() && !this.state.isEmulator) {
       return this.preventOpenAppWithRootedPhone();
     }
 
