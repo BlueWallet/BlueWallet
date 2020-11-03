@@ -119,6 +119,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  hidden: {
+    width: 0,
+    height: 0,
+  },
 });
 
 export default class PsbtWithHardwareWallet extends Component {
@@ -366,6 +370,9 @@ export default class PsbtWithHardwareWallet extends Component {
             <BlueCard>
               <BlueText testID="TextHelperForPSBT">{loc.send.psbt_this_is_psbt}</BlueText>
               <BlueSpacing20 />
+              <Text testID="PSBTHex" style={styles.hidden}>
+                {this.state.psbt.toHex()}
+              </Text>
               <DynamicQRCode value={this.state.psbt.toHex()} capacity={200} />
               <BlueSpacing20 />
               <SecondButton

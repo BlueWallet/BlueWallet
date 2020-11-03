@@ -9,7 +9,107 @@ jasmine.getEnv().addReporter({
   specDone: result => (jasmine.currentTest = result),
 });
 
-describe('BlueWallet UI Tests', () => {
+describe.only('BlueWallet UI Tests', () => {
+  it.only('can manage UTXO', async () => {
+    await helperImportWallet(
+      'zpub6qoWjSiZRHzSYPGYJ6EzxEXJXP1b2Rj9syWwJZFNCmupMwkbSAWSBk3UvSkJyQLEhQpaBAwvhmNj3HPKpwCJiTBB9Tutt46FtEmjL2DoU3J',
+      'Imported Watch-only',
+      '0.00105526 BTC',
+    );
+
+    // refresh transactions
+    await element(by.id('refreshTransactions')).tap();
+    await waitFor(element(by.id('NoTxBuyBitcoin')))
+      .not.toExist()
+      .withTimeout(300 * 1000);
+
+    // change note of 0.001 tx output
+    await element(by.text('0.001')).atIndex(0).tap();
+    await element(by.text('details')).tap();
+    await expect(element(by.text('49944e90fe917952e36b1967cdbc1139e60c89b4800b91258bf2345a77a8b888'))).toBeVisible();
+    await element(by.type('android.widget.EditText')).typeText('test1');
+    await element(by.text('Save')).tap();
+    await element(by.text('OK')).tap();
+
+    // back to wallet screen
+    await device.pressBack();
+    await device.pressBack();
+
+    // open CoinControl
+    await element(by.id('SendButton')).tap();
+    await element(by.text('OK')).tap();
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('CoinControl')).tap();
+    await waitFor(element(by.id('Loading'))) // wait for outputs to be loaded
+      .not.toExist()
+      .withTimeout(300 * 1000);
+    await expect(element(by.text('test1')).atIndex(0)).toBeVisible();
+
+    // change output note and freeze it
+    await element(by.text('test1')).atIndex(0).tap();
+    await element(by.id('OutputMemo')).replaceText('test2');
+    await element(by.type('android.widget.CompoundButton')).tap(); // freeze switch
+    await device.pressBack(); // closing modal
+    await expect(element(by.text('test2')).atIndex(0)).toBeVisible();
+    await expect(element(by.text('freeze')).atIndex(0)).toBeVisible();
+
+    // use frozen output to create tx using "Use coin" feature
+    await element(by.text('test2')).atIndex(0).tap();
+    await element(by.id('UseCoin')).tap();
+    await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('sendMaxButton')).tap();
+    await element(by.text('OK')).tap();
+    // setting fee rate:
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).typeText('1');
+    await element(by.text('OK')).tap();
+
+    await element(by.id('CreateTransactionButton')).tap();
+    await yo('TextHelperForPSBT');
+
+    const psbthex1 = await extractTextFromElementById('PSBTHex');
+    const psbt1 = bitcoin.Psbt.fromHex(psbthex1);
+
+    assert.strictEqual(psbt1.txOutputs.length, 1);
+    assert.strictEqual(psbt1.txOutputs[0].address, 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    assert.strictEqual(psbt1.txOutputs[0].value, 99808);
+    assert.strictEqual(psbt1.data.inputs.length, 1);
+    assert.strictEqual(psbt1.data.inputs[0].witnessUtxo.value, 100000);
+
+    // back to wallet screen
+    await device.pressBack();
+    await device.pressBack();
+
+    // create tx with unfrozen input
+    await element(by.id('SendButton')).tap();
+    await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('sendMaxButton')).tap();
+    await element(by.text('OK')).tap();
+    // setting fee rate:
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).typeText('1');
+    await element(by.text('OK')).tap();
+
+    await element(by.id('CreateTransactionButton')).tap();
+    await yo('TextHelperForPSBT');
+
+    const psbthex2 = await extractTextFromElementById('PSBTHex');
+    const psbt2 = bitcoin.Psbt.fromHex(psbthex2);
+
+    console.info('psbthex2', psbthex2)
+
+    assert.strictEqual(psbt2.txOutputs.length, 1);
+    assert.strictEqual(psbt2.txOutputs[0].address, 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    assert.strictEqual(psbt2.txOutputs[0].value, 99808);
+    assert.strictEqual(psbt2.data.inputs.length, 1);
+    assert.strictEqual(psbt2.data.inputs[0].witnessUtxo.value, 5526);
+
+  });
+
   it('selftest passes', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {

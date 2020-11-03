@@ -215,7 +215,18 @@ const WalletTransactions = () => {
   };
 
   const renderListHeaderComponent = () => {
-    const style = { opacity: isLoading ? 0.5 : 1.0 };
+    const style = {};
+    if (!isDesktop) {
+      // we need this button for testing
+      style.opacity = 0;
+      style.height = 1;
+      style.width = 1;
+    } else if (isLoading) {
+      style.opacity = 0.5;
+    } else {
+      style.opacity = 1.0;
+    }
+
     return (
       <View style={styles.flex}>
         <View style={styles.listHeader}>
@@ -239,11 +250,9 @@ const WalletTransactions = () => {
         </View>
         <View style={[styles.listHeaderTextRow, stylesHook.listHeaderTextRow]}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
-          {isDesktop && (
-            <TouchableOpacity style={style} onPress={refreshTransactions} disabled={isLoading}>
-              <Icon name="refresh" type="font-awesome" color={colors.feeText} />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity testID="refreshTransactions" style={style} onPress={refreshTransactions} disabled={isLoading}>
+            <Icon name="refresh" type="font-awesome" color={colors.feeText} />
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -616,7 +625,9 @@ const WalletTransactions = () => {
 
               {!isLightning() && (
                 <TouchableOpacity onPress={navigateToBuyBitcoin} style={styles.buyBitcoin}>
-                  <Text style={styles.buyBitcoinText}>{loc.wallets.list_tap_here_to_buy}</Text>
+                  <Text testID="NoTxBuyBitcoin" style={styles.buyBitcoinText}>
+                    {loc.wallets.list_tap_here_to_buy}
+                  </Text>
                 </TouchableOpacity>
               )}
             </ScrollView>

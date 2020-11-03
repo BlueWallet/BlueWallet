@@ -133,6 +133,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin }) => {
       <Output item={output} full />
       <BlueSpacing20 />
       <TextInput
+        testID="OutputMemo"
         placeholder={loc.send.details_note_placeholder}
         value={memo}
         placeholderTextColor="#81868e"
@@ -148,7 +149,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin }) => {
       />
       <BlueListItem title={loc.cc.freezeLabel} Component={TouchableWithoutFeedback} switch={switchValue} />
       <BlueSpacing20 />
-      <BlueButton title={loc.cc.useCoin} onPress={() => onUseCoin([output])} />
+      <BlueButton testID="UseCoin" title={loc.cc.useCoin} onPress={() => onUseCoin([output])} />
     </>
   );
 };
@@ -207,6 +208,10 @@ const CoinControl = () => {
         isVisible={Boolean(output)}
         style={styles.bottomModal}
         onBackdropPress={() => {
+          Keyboard.dismiss();
+          setOutput(false);
+        }}
+        onBackButtonPress={() => {
           Keyboard.dismiss();
           setOutput(false);
         }}
