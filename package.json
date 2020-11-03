@@ -73,7 +73,7 @@
     "@react-native-community/push-notification-ios": "1.7.1",
     "@react-native-community/slider": "3.0.3",
     "@react-navigation/drawer": "5.9.2",
-    "@react-navigation/native": "5.7.5",
+    "@react-navigation/native": "5.7.6",
     "@react-navigation/stack": "5.9.3",
     "@remobile/react-native-qrcode-local-image": "git+https://github.com/BlueWallet/react-native-qrcode-local-image.git",
     "@sentry/react-native": "1.9.0",
