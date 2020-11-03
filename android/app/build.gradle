@@ -23,7 +23,7 @@ import com.android.build.OutputFile
  *   // the entry file for bundle generation
  *   entryFile: "index.android.js",
  *
- *   // https://facebook.github.io/react-native/docs/performance#enable-the-ram-format
+ *   // https://reactnative.dev/docs/performance#enable-the-ram-format
  *   bundleCommand: "ram-bundle",
  *
  *   // whether to bundle JS and assets in debug mode
@@ -181,6 +181,7 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(':react-native-config')
     implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
     implementation project(path: ":@react-native-firebase_analytics")
     androidTestImplementation('com.wix:detox:+')
     // JSC from node_modules

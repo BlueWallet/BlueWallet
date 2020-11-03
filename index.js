@@ -24,4 +24,4 @@ const BlueAppComponent = () => {
   );
 };
 
-AppRegistry.registerComponent(config.applcationName, () => BlueAppComponent);
+AppRegistry.registerComponent(config.applicationName, () => BlueAppComponent);

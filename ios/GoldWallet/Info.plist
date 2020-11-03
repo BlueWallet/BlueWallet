@@ -9,7 +9,7 @@
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleGetInfoString</key>
-	<string></string>
+	<string/>
 	<key>CFBundleIcons</key>
 	<dict/>
 	<key>CFBundleIcons~ipad</key>
@@ -46,7 +46,7 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationCategoryType</key>
-	<string></string>
+	<string/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>blob</string>
@@ -77,7 +77,7 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>In order to confirm your identity, we need your permission to use FaceID.</string>
 	<key>NSHumanReadableCopyright</key>
-	<string></string>
+	<string/>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
