@@ -5,6 +5,7 @@ import { images } from 'app/assets';
 import { typography, palette } from 'app/styles';
 
 import { Avatar } from './Avatar';
+import { EllipsisText } from './EllipsisText';
 import { GradientVariant } from './GradientView';
 import { Image } from './Image';
 
@@ -33,9 +34,7 @@ export const WalletItem = (props: WalletItemProps) => {
       </View>
       <View style={styles.textContainer}>
         <Text style={typography.headline5}>{i18n.formatBalance(Number(value), unit, true)}</Text>
-        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
-          {name}
-        </Text>
+        <EllipsisText style={styles.name}>{name}</EllipsisText>
       </View>
     </TouchableOpacity>
   );

@@ -34,3 +34,4 @@ export { TranscationLabelStatus } from './TranscationLabelStatus';
 export { Dropdown } from './Dropdown';
 export { WalletDropdown } from './WalletDropdown';
 export { Separator } from './Separator';
+export { EllipsisText } from './EllipsisText';

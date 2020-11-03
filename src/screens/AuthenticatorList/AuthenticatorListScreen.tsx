@@ -5,7 +5,7 @@ import { NavigationInjectedProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import { icons, images } from 'app/assets';
-import { Header, Image, ListEmptyState, ScreenTemplate } from 'app/components';
+import { Header, Image, ListEmptyState, ScreenTemplate, EllipsisText } from 'app/components';
 import { Route, Authenticator, FinalizedPSBT, CONST } from 'app/consts';
 import { ApplicationState } from 'app/state';
 import { selectors, actions } from 'app/state/authenticators';
@@ -84,12 +84,12 @@ class AuthenticatorListScreen extends Component<Props> {
   renderItem = ({ item }: { item: Authenticator }) => (
     <TouchableOpacity style={styles.authenticatorWrapper} onPress={() => this.navigateToOptions(item.id)}>
       <View style={styles.authenticatorLeftColumn}>
-        <Text style={styles.name}>{item.name}</Text>
+        <EllipsisText style={styles.name}>{item.name}</EllipsisText>
         <Text style={styles.date}>
           {i18n._.created} {formatDate(item.createdAt)}
         </Text>
       </View>
-      <View>
+      <View style={styles.authenticatorRightColumn}>
         <Image source={images.backArrow} style={styles.backArrow} />
       </View>
     </TouchableOpacity>
@@ -185,13 +185,18 @@ const styles = StyleSheet.create({
   authenticatorWrapper: {
     backgroundColor: palette.white,
     paddingVertical: 8,
-    display: 'flex',
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
   authenticatorLeftColumn: {
-    flexGrow: 6,
+    flexGrow: 9,
+    flex: 1,
+  },
+  authenticatorRightColumn: {
+    flexGrow: 1,
+    alignItems: 'flex-end',
   },
   name: {
     ...typography.headline5,
