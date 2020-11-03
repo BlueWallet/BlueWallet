@@ -52,7 +52,16 @@ export const authenticatorsReducer = (state = initialState, action: Authenticato
         isLoading: false,
         error: action.error,
       };
-
+    case AuthenticatorsAction.UpdateAuthenticatorSuccess:
+      return {
+        ...state,
+        authenticators: state.authenticators.map(authenticator => {
+          if (authenticator.id === action.authenticator.id) {
+            return action.authenticator;
+          }
+          return authenticator;
+        }),
+      };
     default:
       return state;
   }

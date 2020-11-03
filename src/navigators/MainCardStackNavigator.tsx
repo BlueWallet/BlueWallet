@@ -25,10 +25,9 @@ import {
   ConfirmPinScreen,
   FilterTransactionsScreen,
   CreateAuthenticatorScreen,
-  EnterPINScreen,
+  CreateAuthenticatorPublicKeyScreen,
   CreateAuthenticatorSuccessScreen,
   DeleteEntityScreen,
-  ExportAuthenticatorScreen,
   ImportAuthenticatorScreen,
   CreateWalletSuccessScreen,
   IntegrateKeyScreen,
@@ -36,8 +35,8 @@ import {
   RecoverySendScreen,
   RecoverySeedScreen,
   ImportWalletChooseTypeScreen,
-  PairAuthenticatorScreen,
   OptionsAuthenticatorScreen,
+  ChunkedQrCode,
 } from 'app/screens';
 
 const Stack = createStackNavigator<MainCardStackNavigatorParams>();
@@ -66,10 +65,17 @@ export const MainCardStackNavigator = () => (
     <Stack.Screen name={Route.ConfirmPin} component={ConfirmPinScreen} />
     <Stack.Screen name={Route.FilterTransactions} component={FilterTransactionsScreen} />
     <Stack.Screen name={Route.CreateAuthenticator} component={CreateAuthenticatorScreen} />
-    <Stack.Screen name={Route.EnterPIN} component={EnterPINScreen} />
-    <Stack.Screen name={Route.CreateAuthenticatorSuccess} component={CreateAuthenticatorSuccessScreen} />
+    <Stack.Screen
+      name={Route.CreateAuthenticatorPublicKey}
+      component={CreateAuthenticatorPublicKeyScreen}
+      options={{ gestureEnabled: false }}
+    />
+    <Stack.Screen
+      name={Route.CreateAuthenticatorSuccess}
+      component={CreateAuthenticatorSuccessScreen}
+      options={{ gestureEnabled: false }}
+    />
     <Stack.Screen name={Route.DeleteEntity} component={DeleteEntityScreen} />
-    <Stack.Screen name={Route.ExportAuthenticator} component={ExportAuthenticatorScreen} />
     <Stack.Screen name={Route.ImportAuthenticator} component={ImportAuthenticatorScreen} />
     <Stack.Screen name={Route.CreateWalletSuccess} component={CreateWalletSuccessScreen} />
     <Stack.Screen name={Route.IntegrateKey} component={IntegrateKeyScreen} />
@@ -77,7 +83,7 @@ export const MainCardStackNavigator = () => (
     <Stack.Screen name={Route.RecoverySend} component={RecoverySendScreen} />
     <Stack.Screen name={Route.RecoverySeed} component={RecoverySeedScreen} />
     <Stack.Screen name={Route.ImportWalletChooseType} component={ImportWalletChooseTypeScreen} />
-    <Stack.Screen name={Route.PairAuthenticator} component={PairAuthenticatorScreen} />
     <Stack.Screen name={Route.OptionsAuthenticator} component={OptionsAuthenticatorScreen} />
+    <Stack.Screen name={Route.ChunkedQrCode} component={ChunkedQrCode} />
   </Stack.Navigator>
 );

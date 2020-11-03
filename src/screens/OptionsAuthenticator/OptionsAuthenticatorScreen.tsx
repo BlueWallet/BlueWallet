@@ -1,13 +1,17 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { cloneDeep } from 'lodash';
 import React, { Component } from 'react';
 import { Text, StyleSheet, View, TouchableOpacity } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
+import Share from 'react-native-share';
 import { connect } from 'react-redux';
 
-import { icons } from 'app/assets';
-import { Header, ScreenTemplate, Image, Separator } from 'app/components';
+import { Header, ScreenTemplate, FlatButton, Separator, TextAreaItem, Mnemonic, InputItem } from 'app/components';
 import { Authenticator, MainCardStackNavigatorParams, Route } from 'app/consts';
+import { maxAuthenticatorNameLength } from 'app/consts/text';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
+import { matchAlphanumericCharacters } from 'app/helpers/string';
 import { ApplicationState } from 'app/state';
 import { selectors, actions } from 'app/state/authenticators';
 import { AuthenticatorsState } from 'app/state/authenticators/reducer';
@@ -18,25 +22,35 @@ const i18n = require('../../../loc');
 
 interface MapStateProps {
   authenticator?: Authenticator;
+  authenticators: Authenticator[];
 }
 
 interface ActionProps {
   deleteAuthenticator: Function;
+  updateAuthenticator: Function;
 }
 
 interface NavigationProps {
-  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.ExportAuthenticator>;
-  route: RouteProp<MainCardStackNavigatorParams, Route.ExportAuthenticator>;
+  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.OptionsAuthenticator>;
+  route: RouteProp<MainCardStackNavigatorParams, Route.OptionsAuthenticator>;
+}
+
+interface State {
+  name: string;
 }
 
 type Props = MapStateProps & ActionProps & NavigationProps;
 
-class OptionsAuthenticatorScreen extends Component<Props> {
+class OptionsAuthenticatorScreen extends Component<Props, State> {
+  state = {
+    name: this.props.authenticator?.name || '',
+  };
+
   onDelete = () => {
     const { deleteAuthenticator, navigation, authenticator } = this.props;
     authenticator &&
       navigation.navigate(Route.DeleteEntity, {
-        name: authenticator.name,
+        name: authenticator?.name,
         title: i18n.authenticators.delete.title,
         subtitle: i18n.authenticators.delete.subtitle,
         onConfirm: () => {
@@ -57,16 +71,40 @@ class OptionsAuthenticatorScreen extends Component<Props> {
       });
   };
 
-  navigateToPair = () => {
-    const { authenticator, navigation } = this.props;
-
-    authenticator && navigation.navigate(Route.PairAuthenticator, { id: authenticator.id });
+  share = () => {
+    const { authenticator } = this.props;
+    Share.open({ message: authenticator?.publicKey });
   };
 
-  navigateToExport = () => {
-    const { authenticator, navigation } = this.props;
+  setName = (name: string) => this.setState({ name });
 
-    authenticator && navigation.navigate(Route.ExportAuthenticator, { id: authenticator.id });
+  get validationError(): string | undefined {
+    const { authenticators, authenticator } = this.props;
+    const { name } = this.state;
+    const trimmedName = name.trim();
+    const authenticatorsLabels = authenticators.map(a => a.name);
+    if (trimmedName?.length === 0) {
+      return i18n.authenticators.errors.noEmpty;
+    }
+    if (matchAlphanumericCharacters(name)) {
+      return i18n.contactCreate.nameCannotContainSpecialCharactersError;
+    }
+    if (authenticatorsLabels.includes(trimmedName.trim()) && trimmedName !== authenticator?.name) {
+      return i18n.authenticators.import.inUseValidationError;
+    }
+    return;
+  }
+
+  saveNameAuthenticator = () => {
+    const { authenticator, updateAuthenticator } = this.props;
+    const { name } = this.state;
+    if (!!this.validationError || !authenticator) {
+      return;
+    }
+
+    const updatedAuthenticator = cloneDeep(authenticator);
+    updatedAuthenticator.name = name.trim();
+    updateAuthenticator(updatedAuthenticator);
   };
 
   render() {
@@ -78,6 +116,7 @@ class OptionsAuthenticatorScreen extends Component<Props> {
     return (
       <ScreenTemplate
         contentContainer={styles.contentContainer}
+        // @ts-ignore
         header={<Header navigation={navigation} isBackArrow title={i18n.authenticators.options.title} />}
       >
         <View>
@@ -87,15 +126,23 @@ class OptionsAuthenticatorScreen extends Component<Props> {
           </Text>
           <Separator />
           <View style={styles.optionsContainer}>
-            <Text style={[styles.desc, styles.bottomSpace]}>{i18n.authenticators.options.sectionTitle}</Text>
-            <TouchableOpacity style={styles.optionWrapper} onPress={this.navigateToExport}>
-              <Image source={icons.export} style={styles.icon} />
-              <Text>{i18n.authenticators.options.export}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.optionWrapper} onPress={this.navigateToPair}>
-              <Image source={icons.pair} style={styles.icon} />
-              <Text>{i18n.authenticators.options.pair}</Text>
-            </TouchableOpacity>
+            <InputItem
+              onSubmitEditing={this.saveNameAuthenticator}
+              onEndEditing={this.saveNameAuthenticator}
+              value={this.state.name}
+              error={this.validationError}
+              setValue={this.setName}
+              label={i18n.wallets.add.inputLabel}
+              maxLength={maxAuthenticatorNameLength}
+            />
+            <Text style={styles.subtitlePairKey}>{i18n.authenticators.publicKey.title}</Text>
+            <TextAreaItem value={authenticator.publicKey} editable={false} style={styles.textArea} />
+            <FlatButton onPress={this.share} title={i18n.receive.details.share} />
+            <Text style={styles.subtitle}>{i18n.wallets.exportWallet.title}</Text>
+            <View style={styles.qrCodeContainer}>
+              <QRCode quietZone={10} value={authenticator.QRCode} size={140} ecl={'H'} />
+            </View>
+            <Mnemonic mnemonic={authenticator.secret} />
           </View>
         </View>
         <TouchableOpacity style={styles.deleteWrapper} onPress={this.onDelete}>
@@ -110,11 +157,13 @@ const mapStateToProps = (state: ApplicationState & AuthenticatorsState, props: P
   const { id } = props.route.params;
   return {
     authenticator: selectors.getById(state, id),
+    authenticators: selectors.list(state),
   };
 };
 
 const mapDispatchToProps: ActionProps = {
   deleteAuthenticator: actions.deleteAuthenticator,
+  updateAuthenticator: actions.updateAuthenticator,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(OptionsAuthenticatorScreen);
@@ -131,20 +180,6 @@ const styles = StyleSheet.create({
     ...typography.headline5,
     color: palette.lightRed,
   },
-  bottomSpace: {
-    marginBottom: 24,
-  },
-  optionWrapper: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 14,
-  },
-  icon: {
-    marginRight: 20,
-    width: 21,
-    height: 21,
-  },
   center: {
     textAlign: 'center',
   },
@@ -160,5 +195,18 @@ const styles = StyleSheet.create({
   optionsContainer: {
     paddingTop: 4,
     borderColor: palette.lightGrey,
+  },
+  textArea: {
+    height: 130,
+  },
+  subtitlePairKey: {
+    marginTop: 12,
+    marginBottom: 18,
+    ...typography.headline4,
+    textAlign: 'center',
+  },
+  qrCodeContainer: {
+    paddingVertical: 24,
+    alignItems: 'center',
   },
 });

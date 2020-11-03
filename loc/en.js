@@ -19,6 +19,8 @@ module.exports = {
     invalid: 'Invalid',
     satoshi: 'Sat',
     next: 'Next',
+    cancel: 'Cancel',
+    scan: 'Scan',
   },
   tabNavigator: {
     wallets: 'Wallets',
@@ -119,6 +121,13 @@ module.exports = {
       desc1: 'Write down the seed phrase or scan the QR code of the authenticator you want to import.',
       desc2: 'scan QR code by clicking on “or scan QR code” below',
       textAreaPlaceholder: 'Seed phrase',
+      inUseValidationError: 'Name must be unique. Please enter a valid name.',
+      mnemonicLength: 'Mnemonic should have 12 words',
+      scanNext: 'Scan next',
+      multipleQrCodesTitle: 'Scan another QR code',
+      multipleQrCodesDescription:
+        'Some transactions generate multiple QR codes. Make sure to scan all of them from the Electrum Vault application.',
+      code: 'Code: ',
     },
     export: {
       title: 'Export authenticator',
@@ -138,15 +147,24 @@ module.exports = {
     add: {
       successTitle: 'Your authenticator is ready!',
       title: 'Add new authenticator',
-      subtitle: 'Pair authenticator',
+      subtitle: 'Create new authenticator',
       successDescription: `Write down this seed phrase somewhere safe. It's your backup in case you need to restore your authenticator. Remember that the authenticator is necessary to confirm Fast and Cancel transactions.`,
       description:
-        'Open your Electrum Vault desktop application and create a new wallet. Follow the steps on the screen until you see a QR code. Use this app to scan it to proceed.',
+        'You will need it to pair Gold Wallet with desktop application Electrum Vault. It will serve as two-factor authentication.',
       subdescription: 'You can also import your authenticator by choosing the option below.',
+    },
+    publicKey: {
+      okButton: 'OK, I understand',
+      title: 'Public Key',
+      subtitle:
+        'You can use this Public Key to import your authenticator to the Electrum Vault desktop application during the creation of the 2FA wallet.',
     },
     enterPIN: {
       subtitle: 'Enter PIN',
       description: 'Enter this PIN into the Electrum Vault desktop application to finish the pairing process.',
+    },
+    errors: {
+      noEmpty: 'Field can not empty',
     },
   },
   wallets: {

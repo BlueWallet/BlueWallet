@@ -19,6 +19,8 @@ const jo = {
     satoshi: 'サトシ',
     save: '保存',
     storage_is_encrypted: 'ストレージは暗号化されています。それを復号化するためにはパスワードが必要です。',
+    cancel: 'TRANSLATION NEEDED | ENG: Cancel',
+    scan: 'TRANSLATION NEEDED | ENG: Scan',
   },
   aboutUs: {
     alwaysBackupYourKeys: '常にキーをバックアップしてください。',
@@ -36,10 +38,12 @@ const jo = {
   },
   authenticators: {
     add: {
-      description: 'Electrum Vaultデスクトップ応用プログラムを開いた後、新しいウォレットを作ります。QRコードが表示されるまで画面の段階に従います。続けるにはこのアプリを使用してスキャンしてください。',
+      description:
+        'Electrum Vaultデスクトップ応用プログラムを開いた後、新しいウォレットを作ります。QRコードが表示されるまで画面の段階に従います。続けるにはこのアプリを使用してスキャンしてください。',
       subdescription: '以下のオプションを選択し、認証システムを読み込むことができます。',
       subtitle: '認証システムのペアリング',
-      successDescription: '安全な所にこのシードフレーズを書き記してください。認証システムを復元する時必要です。迅速な取引及び取引のキャンセルを確認するにはこの認証システムが必要とされます。',
+      successDescription:
+        '安全な所にこのシードフレーズを書き記してください。認証システムを復元する時必要です。迅速な取引及び取引のキャンセルを確認するにはこの認証システムが必要とされます。',
       successTitle: '認証システムが用意されました。',
       title: '新しい認証システム追加',
     },
@@ -62,6 +66,13 @@ const jo = {
       success: '認証システムを読み込みました。これから使用できます。',
       textAreaPlaceholder: 'シードフレーズ',
       title: '認証システムを登録する',
+      inUseValidationError:
+        'TRANSLATION NEEDED | ENG: Authenticator is already in use. Please enter a valid authenticator',
+      scanNext: 'TRANSLATION NEEDED | ENG: Scan next',
+      multipleQrCodesTitle: 'TRANSLATION NEEDED | ENG: Scan another QR code',
+      multipleQrCodesDescription:
+        'TRANSLATION NEEDED | ENG: Some transactions generate multiple QR codes. Make sure to scan all of them from the Electrum Vault application.',
+      code: 'TRANSLATION NEEDED | ENG: Code: ',
     },
     list: {
       noAuthenticators: '認証システム登録なし',
@@ -79,7 +90,8 @@ const jo = {
     },
     pair: {
       descPin: 'このPINを使用し、デスクトップ応用プログラムに認証者ペアリングを確認します。',
-      descPublicKey: 'Gold Walletオプションでウォレットを生成する間、この公開キーを使用し、デスクトップ応用プログラムに認証者を登録することができます。',
+      descPublicKey:
+        'Gold Walletオプションでウォレットを生成する間、この公開キーを使用し、デスクトップ応用プログラムに認証者を登録することができます。',
       pin: 'PIN',
       publicKey: '公開キー',
       title: '認証システムのペアリング',
@@ -87,10 +99,20 @@ const jo = {
     sign: {
       error: '認証システムは誰でも取引に署名出来ません。',
     },
+    publicKey: {
+      okButton: 'TRANSLATION NEEDED | ENG: OK, I understand',
+      title: 'TRANSLATION NEEDED | ENG: Public Key',
+      subtitle:
+        'TRANSLATION NEEDED | ENG: You can use this Public Key to import your authenticator to the Electrum Vault desktop application during the creation of the 2FA wallet.',
+    },
+    errors: {
+      noEmpty: 'TRANSLATION NEEDED | ENG: Field can not empty',
+    },
   },
   betaVersion: {
     button: '私はリスクを認識しています',
-    description: 'まだ正式なリリース以前に最終テストを行っています。こちらに見せられる全てのコンテンツやモバイルアプリは\"そのまま\"と\"使用可能\"に基盤し提供されています。ソフトウェアの使用はユーザーのリスクを認識した上で行われます。',
+    description:
+      'まだ正式なリリース以前に最終テストを行っています。こちらに見せられる全てのコンテンツやモバイルアプリは"そのまま"と"使用可能"に基盤し提供されています。ソフトウェアの使用はユーザーのリスクを認識した上で行われます。',
     title: 'これはGoldWallletのベータ版です',
   },
   contactCreate: {
@@ -175,13 +197,15 @@ const jo = {
     allDone: 'すべて完了しました!',
     cancelTxSuccess: '取引の取消しが正常に完了しました。\nコインは間もなく届きます。',
     creatingAuthenticator: '自分の認証システムを生成中です。',
-    creatingAuthenticatorDescription: '認証システムを生成中です。しばらくお待ちください。\nしばらく時間がかかる可能性があります。',
+    creatingAuthenticatorDescription:
+      '認証システムを生成中です。しばらくお待ちください。\nしばらく時間がかかる可能性があります。',
     creatingWallet: 'ウォレットを生成中です。',
     creatingWalletDescription: 'ウォレットを生成している間お待ちください。しばらく時間がかかる場合があります。',
     generateAddressesError: 'アドレスを生成できません',
     hooray: 'おめでとうございます!',
     importingAuthenticator: '認証システムを登録する',
-    importingAuthenticatorDescription: '認証システムを登録しています。しばらくお待ちください。\nしばらく時間がかかる可能性があります。',
+    importingAuthenticatorDescription:
+      '認証システムを登録しています。しばらくお待ちください。\nしばらく時間がかかる可能性があります。',
     noTransactions: 'このウォレットには取引がありません。',
     noTransactionsDesc: 'これまで未使用のウォレットを読み込もうとしています',
     returnToAuthenticators: '認証システムに戻る',
@@ -189,12 +213,14 @@ const jo = {
     returnToWalletChoose: 'ウォレットタイプの選択に戻る',
     returnToWalletImport: 'ウォレット登録に戻る',
     somethingWentWrong: '問題が発生しました',
-    somethingWentWrongWhileCreatingWallet: 'ウォレットの作成中に問題が発生しました。ダッシュボードに戻って、再度お試しください。',
+    somethingWentWrongWhileCreatingWallet:
+      'ウォレットの作成中に問題が発生しました。ダッシュボードに戻って、再度お試しください。',
     success: '成功',
     successfullWalletDelete: 'ウォレット削除に成功しました。ただいま、ダッシュボードに戻ります。',
     successfullWalletImport: 'ウォレット登録に成功しました。ただいま、ウォレットを使用できます。',
     wrongMnemonic: 'ニーモニックが間違っています。',
-    wrongMnemonicDesc: '指定されたニーモニックと一致するサポート中のウォレットはありません。\n無効なニーモニックまたはこれまで未使用のウォレットを読み込もうとしています',
+    wrongMnemonicDesc:
+      '指定されたニーモニックと一致するサポート中のウォレットはありません。\n無効なニーモニックまたはこれまで未使用のウォレットを読み込もうとしています',
   },
   onboarding: {
     changePin: 'PINコードの変更',
@@ -203,7 +229,8 @@ const jo = {
     confirmPin: 'PINコードの確認',
     createNewPin: '新しいPINコード',
     createPassword: '取引パスワードの生成',
-    createPasswordDescription: 'すべての取引を確認するため、取引パスワードが利用されます。\n設定されたパスワードの変更は不可能です。\n取引のパスワードは最小8桁以上の英文字と数字で構成しなければなりません。',
+    createPasswordDescription:
+      'すべての取引を確認するため、取引パスワードが利用されます。\n設定されたパスワードの変更は不可能です。\n取引のパスワードは最小8桁以上の英文字と数字で構成しなければなりません。',
     createPin: 'PINコードの生成',
     createPinDescription: 'PINコードはアプリケーションのログインに利用されます。設定メニューから変更が可能です。',
     currentPin: '現在のPINコード',
@@ -229,7 +256,8 @@ const jo = {
       receiveWithAmount: '金額で受け取る',
       share: '共有',
       shareWalletAddress: 'TRANSLATION NEEDED | ENG: Share wallet address',
-      receiveWithAmountSubtitle: 'TRANSLATION NEEDED | ENG: Enter the amount which you would like to receive. The QR code will update accordingly to include the amount.',
+      receiveWithAmountSubtitle:
+        'TRANSLATION NEEDED | ENG: Enter the amount which you would like to receive. The QR code will update accordingly to include the amount.',
     },
     header: 'コインの受け取り',
     label: 'TRANSLATION NEEDED | ENG: Wallet address',
@@ -241,9 +269,12 @@ const jo = {
     permissionTitle: 'カメラの使用許容',
   },
   security: {
-    jailBrokenPhone: '貴下のデバイスが脱獄されたようです。この場合セキュリティ問題や衝突、その他、様々な問題が発生する恐れがあります。脱獄されたデバイスではGoldWalletを使用しないようお願いします。',
-    noPinOrFingerprintSet: 'デバイスにパスワード又は指紋が登録されていません。安全ではないデバイスでのGoldWallet使用しないようお願いします。\n',
-    rootedPhone: '貴下のデバイスがルーティングされたようです。この場合セキュリティ問題や衝突、その他様々な問題が発生する恐れがあります。ルーティングされたデバイスではGoldWalletを使用しないようお願いします。\n',
+    jailBrokenPhone:
+      '貴下のデバイスが脱獄されたようです。この場合セキュリティ問題や衝突、その他、様々な問題が発生する恐れがあります。脱獄されたデバイスではGoldWalletを使用しないようお願いします。',
+    noPinOrFingerprintSet:
+      'デバイスにパスワード又は指紋が登録されていません。安全ではないデバイスでのGoldWallet使用しないようお願いします。\n',
+    rootedPhone:
+      '貴下のデバイスがルーティングされたようです。この場合セキュリティ問題や衝突、その他様々な問題が発生する恐れがあります。ルーティングされたデバイスではGoldWalletを使用しないようお願いします。\n',
     title: 'セキュリティ問題',
   },
   selectLanguage: {
@@ -264,7 +295,8 @@ const jo = {
     create: {
       amount: '金額',
       fee: '手数料',
-      headerText: 'ネットワークに多数の保留中の取引がある場合（1,500超）、高い料金を支払うほど、取引の処理速度が早くなります。通常は1～500 sat/bです',
+      headerText:
+        'ネットワークに多数の保留中の取引がある場合（1,500超）、高い料金を支払うほど、取引の処理速度が早くなります。通常は1～500 sat/bです',
       setTransactionFee: '取引手数料の設定',
     },
     details: {
@@ -296,11 +328,14 @@ const jo = {
     header: 'コインを転送する',
     recovery: {
       confirmFirstSeed: 'キャンセル・シードフレーズで確定する',
-      confirmFirstSeedDesc: 'お使いのウォレットの作成時に生成された最初のPDF文書を開き、秘密キーのシードフレーズを同じ順序で書き留めます。',
+      confirmFirstSeedDesc:
+        'お使いのウォレットの作成時に生成された最初のPDF文書を開き、秘密キーのシードフレーズを同じ順序で書き留めます。',
       confirmSecondSeed: 'クイック・シードフレーズで確定する',
-      confirmSecondSeedDesc: 'お使いのウォレットの作成時に生成された2番目のPDF文書を開き、秘密キーのシードフレーズを同じ順序で書き留めます。',
+      confirmSecondSeedDesc:
+        'お使いのウォレットの作成時に生成された2番目のPDF文書を開き、秘密キーのシードフレーズを同じ順序で書き留めます。',
       confirmSeed: 'キャンセル・シードフレーズで確定する',
-      confirmSeedDesc: 'お使いのウォレットの作成時に生成されたPDF文書を開き、秘密キーのシードフレーズを同じ順序で書き留めます。',
+      confirmSeedDesc:
+        'お使いのウォレットの作成時に生成されたPDF文書を開き、秘密キーのシードフレーズを同じ順序で書き留めます。',
       recover: 'キャンセル',
       useWalletAddress: 'このウォレットのアドレスを使用',
     },
@@ -316,14 +351,17 @@ const jo = {
       fastSuccess: 'クイック取引が正常に完了しました。',
       instant: 'クイック',
       instantDesc: 'この取引は、ただちに確定されます。細心の注意を払った上でご利用ください。',
-      lightningError: 'このアドレスはLightning送状用に表示されます。この送状について支払するにはLightningウォレットに移動してお支払いください。',
-      scanInstantKeyDesc: 'ウォレットを作る際には生成したPDF文章を開いた後、秘密キーQRコードをスキャンし取引を送ります。',
+      lightningError:
+        'このアドレスはLightning送状用に表示されます。この送状について支払するにはLightningウォレットに移動してお支払いください。',
+      scanInstantKeyDesc:
+        'ウォレットを作る際には生成したPDF文章を開いた後、秘密キーQRコードをスキャンし取引を送ります。',
       scanInstantKeyTitle: '迅速取引キーをスキャンする',
       type: '取引タイプ',
       watchOnlyError: '取引を送れないウォレットだけを表示する',
     },
     warning: '警告:',
-    warningGeneral: '警告: 安全な取引機能の使用過程でお客様のウォレットの一部の資金がブロックされる可能性があります。これはUTXOやビットコインボルト・ウォレットのブロックチェーン範囲に関する一般的なプロセスです。取引が検証 されるか(約24時間後) キャンセルになると (24時間以内) 資金のブロックが解除されます。',
+    warningGeneral:
+      '警告: 安全な取引機能の使用過程でお客様のウォレットの一部の資金がブロックされる可能性があります。これはUTXOやビットコインボルト・ウォレットのブロックチェーン範囲に関する一般的なプロセスです。取引が検証 されるか(約24時間後) キャンセルになると (24時間以内) 資金のブロックが解除されます。',
   },
   settings: {
     about: '紹介',
@@ -420,7 +458,7 @@ const jo = {
     confirmButton: '指紋認証を完了してください。',
     enter: 'PINコードの入力',
     title: '解除',
-    touchID: '\"ゴールドウォレット\" のTouch ID',
+    touchID: '"ゴールドウォレット" のTouch ID',
   },
   unlockTransaction: {
     description: '続くには取引のパスワードを入力してください。',
@@ -440,7 +478,8 @@ const jo = {
       legacy: 'デフォルトタイプの取引を生成します。',
       legacyHDP2SH: 'これには、単一の12ワードのシードから生成されたP2SHアドレスのツリーが含まれています',
       legacyHDP2SHTitle: 'レガシーHD P2SH',
-      LegacyHDSegWit: 'これには、単一の12ワードのシードから生成されたネイティブのSegwitアドレスのツリーが含まれています',
+      LegacyHDSegWit:
+        'これには、単一の12ワードのシードから生成されたネイティブのSegwitアドレスのツリーが含まれています',
       legacyHDSegWitTitle: 'スタンダードHD SegWit',
       LegacyP2SH: 'これには、単一のP2SHアドレスが含まれています',
       legacyP2SHTitle: 'スタンダードP2SH',
@@ -514,7 +553,8 @@ const jo = {
     import: {
       do_import: '登録する',
       error: '読み込みに失敗しました。提供されたデータが有効であることを確認してください。',
-      explanation: 'ここにユーザーのニーモニック、秘密キー、WIF、またはお客様が持っている全てのことを入力してください。GoldWalletでは、最善を尽くして、正しいフォーマットを推測し、ウォレットを登録します',
+      explanation:
+        'ここにユーザーのニーモニック、秘密キー、WIF、またはお客様が持っている全てのことを入力してください。GoldWalletでは、最善を尽くして、正しいフォーマットを推測し、ウォレットを登録します',
       imported: '登録しました',
       scan_qr: 'または代わりにスキャンしますか？',
       success: '成功',
@@ -529,19 +569,24 @@ const jo = {
       placeholder: 'シードフレーズ、秘密キー、WIF',
       scanCancelPubKey: 'キャンセルキーのQRコードをスキャンする',
       scanFastPubKey: 'クイックキーのQRコードをスキャンする',
-      scanPublicKeyDescription: '登録するウォレットの生成の時に生成された最初のPDF文書を開き、このアプリで公開キーQRコードをスキャンします。',
+      scanPublicKeyDescription:
+        '登録するウォレットの生成の時に生成された最初のPDF文書を開き、このアプリで公開キーQRコードをスキャンします。',
       scanQrCode: '又はQRコードをスキャンする',
       scanWalletAddress: 'ウォレットのアドレスをスキャンする',
       scanWalletAddressDescription: '共用アドレスのQRコードをスキャンして、GoldWalletとの統合を開始する。',
-      subtitle: 'ここにユーザーのニーモニック、秘密キー、WIF、またはお客様が持っている全てのことを入力してください。\nGoldWalletでは、最善を尽くして、正しいフォーマットを推測し、ウォレットを登録します。',
+      subtitle:
+        'ここにユーザーのニーモニック、秘密キー、WIF、またはお客様が持っている全てのことを入力してください。\nGoldWalletでは、最善を尽くして、正しいフォーマットを推測し、ウォレットを登録します。',
       title: '使用しているウォレットをインポートする',
-      unsupportedElectrumVaultMnemonic: 'これはElectrum Vaultのシードです。このシードは現在サポートされていません。間もなくサポートされる予定です。',
+      unsupportedElectrumVaultMnemonic:
+        'これはElectrum Vaultのシードです。このシードは現在サポートされていません。間もなくサポートされる予定です。',
       walletInUseValidationError: 'ウォレットはすでに使用されています。有効なウォレットを入力してください。',
     },
     publicKey: {
-      instantDescription: '別のデバイスでWebキー生成ツールにアクセスして、このアプリで公開キーQRコードをスキャンします。キーはPDF形式で共有することを忘れないでください。',
+      instantDescription:
+        '別のデバイスでWebキー生成ツールにアクセスして、このアプリで公開キーQRコードをスキャンします。キーはPDF形式で共有することを忘れないでください。',
       instantSubtitle: 'クイックキーを追加',
-      recoveryDescription: '別のデバイスでWebキー生成ツールにアクセスして、このアプリで公開キーQRコードをスキャンします。キーは必ずPDF形式で共有することを忘れないでください。',
+      recoveryDescription:
+        '別のデバイスでWebキー生成ツールにアクセスして、このアプリで公開キーQRコードをスキャンします。キーは必ずPDF形式で共有することを忘れないでください。',
       recoverySubtitle: 'キャンセルキーを追加',
       scan: 'スキャン',
       webKeyGenerator: 'Webキー生成ジェネレータ：',
@@ -571,4 +616,4 @@ const jo = {
       wallets: 'ウォレット',
     },
   },
-}
+};

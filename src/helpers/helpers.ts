@@ -13,3 +13,8 @@ export const getConfirmationsText = (txType: TxType, confirmations: number): str
   const confs = confirmations > maxConfirmations ? maxConfirmations : confirmations;
   return `${confs}/${maxConfirmations}`;
 };
+
+export const isCodeChunked = (code: string): boolean => {
+  const reg = new RegExp(/\d;\d;/g);
+  return reg.test(code);
+};

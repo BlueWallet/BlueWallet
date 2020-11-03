@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { icons, images } from 'app/assets';
 import { Header, Image, ListEmptyState, ScreenTemplate, EllipsisText } from 'app/components';
 import { Route, Authenticator, FinalizedPSBT, CONST } from 'app/consts';
+import { isCodeChunked } from 'app/helpers/helpers';
 import { ApplicationState } from 'app/state';
 import { selectors, actions } from 'app/state/authenticators';
 import { palette, typography } from 'app/styles';
@@ -27,9 +28,16 @@ interface ActionProps {
   signTransaction: Function;
 }
 
+interface State {
+  codeValue: string;
+}
+
 type Props = NavigationInjectedProps & MapStateProps & ActionProps;
 
-class AuthenticatorListScreen extends Component<Props> {
+class AuthenticatorListScreen extends Component<Props, State> {
+  state = {
+    codeValue: '',
+  };
   componentDidMount() {
     const { loadAuthenticators } = this.props;
     loadAuthenticators();
@@ -38,40 +46,61 @@ class AuthenticatorListScreen extends Component<Props> {
   getActualSatoshiPerByte = (tx: string, feeSatoshi: number) =>
     new BigNumber(feeSatoshi).dividedBy(Math.round(tx.length / 2)).toNumber();
 
-  signTransaction = () => {
-    const { navigation, signTransaction } = this.props;
+  readPsbt = () => {
+    const { navigation } = this.props;
     navigation.navigate(Route.ScanQrCode, {
       onBarCodeScan: (psbt: string) => {
         navigation.goBack();
-        signTransaction(psbt, {
-          onSuccess: ({
-            finalizedPsbt: { recipients, tx, fee, vaultTxType },
-            authenticator,
-          }: {
-            finalizedPsbt: FinalizedPSBT;
-            authenticator: Authenticator;
-          }) => {
-            const successMsgDesc =
-              vaultTxType === bitcoin.payments.VaultTxType.Recovery
-                ? i18n.message.cancelTxSuccess
-                : i18n.send.transaction.fastSuccess;
-            navigation.navigate(Route.SendCoinsConfirm, {
-              fee,
-              // pretending that we are sending from real wallet
-              fromWallet: {
-                label: authenticator.name,
-                preferredBalanceUnit: CONST.preferredBalanceUnit,
-                broadcastTx: BlueElectrum.broadcast,
-              },
-              txDecoded: tx,
-              recipients,
-              successMsgDesc,
-              satoshiPerByte: this.getActualSatoshiPerByte(tx.toHex(), fee),
+        if (isCodeChunked(psbt)) {
+          const [chunkNo, chunksQuantity, codeValue] = psbt.split(';');
+          const newCodeValue = this.state.codeValue.concat(codeValue);
+          return this.setState({ codeValue: newCodeValue }, () => {
+            if (chunkNo === chunksQuantity) {
+              this.signTransaction(this.state.codeValue);
+              return this.setState({ codeValue: '' });
+            }
+            return this.props.navigation.navigate(Route.ChunkedQrCode, {
+              chunkNo,
+              chunksQuantity,
+              onScanned: this.readPsbt,
             });
+          });
+        } else {
+          this.signTransaction(psbt);
+        }
+      },
+    });
+  };
+
+  signTransaction = (psbt: string) => {
+    const { navigation, signTransaction } = this.props;
+    signTransaction(psbt, {
+      onSuccess: ({
+        finalizedPsbt: { recipients, tx, fee, vaultTxType },
+        authenticator,
+      }: {
+        finalizedPsbt: FinalizedPSBT;
+        authenticator: Authenticator;
+      }) => {
+        const successMsgDesc =
+          vaultTxType === bitcoin.payments.VaultTxType.Recovery
+            ? i18n.message.cancelTxSuccess
+            : i18n.send.transaction.fastSuccess;
+        navigation.navigate(Route.SendCoinsConfirm, {
+          fee,
+          // pretending that we are sending from real wallet
+          fromWallet: {
+            label: authenticator.name,
+            preferredBalanceUnit: CONST.preferredBalanceUnit,
+            broadcastTx: BlueElectrum.broadcast,
           },
-          onFailure: Alert.alert,
+          txDecoded: tx,
+          recipients,
+          successMsgDesc,
+          satoshiPerByte: this.getActualSatoshiPerByte(tx.toHex(), fee),
         });
       },
+      onFailure: Alert.alert,
     });
   };
 
@@ -102,7 +131,7 @@ class AuthenticatorListScreen extends Component<Props> {
         <Text style={styles.buttonDescription}>{i18n.wallets.walletModal.btcv}</Text>
         <Image source={images.coin} style={styles.coinIcon} />
       </View>
-      <TouchableOpacity onPress={this.signTransaction} style={styles.scanContainer}>
+      <TouchableOpacity onPress={this.readPsbt} style={styles.scanContainer}>
         <Image source={icons.scan} style={styles.scan} />
         <Text style={styles.scanText}>{i18n.authenticators.list.scan}</Text>
       </TouchableOpacity>
@@ -128,7 +157,6 @@ class AuthenticatorListScreen extends Component<Props> {
 
   render() {
     const { navigation, loadAuthenticators, isLoading } = this.props;
-
     return (
       <ScreenTemplate
         noScroll={true}

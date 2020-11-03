@@ -11,6 +11,7 @@ interface Props {
   error?: string;
   value?: string;
   editable?: boolean;
+  autoCapitalize?: 'none';
 }
 
 interface State {
@@ -25,7 +26,7 @@ export class TextAreaItem extends PureComponent<Props, State> {
   onBlur = () => this.setState({ isActive: false });
 
   render() {
-    const { style, placeholder, onChangeText, error, value, editable } = this.props;
+    const { style, placeholder, onChangeText, error, value, editable, autoCapitalize } = this.props;
     const { isActive } = this.state;
     return (
       <>
@@ -43,6 +44,7 @@ export class TextAreaItem extends PureComponent<Props, State> {
           onFocus={this.onFocus}
           onBlur={this.onBlur}
           onChangeText={onChangeText}
+          autoCapitalize={autoCapitalize}
         />
         {!!error && <Text style={styles.error}>{error}</Text>}
       </>

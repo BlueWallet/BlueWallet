@@ -89,7 +89,6 @@ describe('Utils crypto', () => {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
       const mnemonic = 'grant oval resource roast virtual wine chef inmate attack flip fresh reduce';
 
-      console.log('ELECTRUM_VAULT_SEED_PREFIXES.SEED_PREFIX_SEGWIT', ELECTRUM_VAULT_SEED_PREFIXES.SEED_PREFIX_SEGWIT);
       const res = isElectrumVaultMnemonic(mnemonic, ELECTRUM_VAULT_SEED_PREFIXES.SEED_PREFIX_SW);
 
       expect(res).toBe(true);

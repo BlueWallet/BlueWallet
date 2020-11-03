@@ -4,13 +4,19 @@ import { Text, StyleSheet, Alert, View } from 'react-native';
 import { connect } from 'react-redux';
 
 import { Header, ScreenTemplate, TextAreaItem, FlatButton, Button, InputItem } from 'app/components';
-import { Route, CONST, MainCardStackNavigatorParams } from 'app/consts';
-import { maxWalletNameLength } from 'app/consts/text';
+import { Route, CONST, MainCardStackNavigatorParams, Authenticator as IAuthenticator } from 'app/consts';
+import { maxAuthenticatorNameLength } from 'app/consts/text';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
-import { actions } from 'app/state/authenticators';
+import { matchAlphanumericCharacters } from 'app/helpers/string';
+import { ApplicationState } from 'app/state';
+import { actions, selectors } from 'app/state/authenticators';
 import { palette, typography } from 'app/styles';
 
 const i18n = require('../../../loc');
+
+interface MapStateProps {
+  authenticators: IAuthenticator[];
+}
 
 interface ActionProps {
   createAuthenticator: Function;
@@ -25,9 +31,8 @@ interface State {
 
 interface Props extends ActionProps {
   navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.ImportAuthenticator>;
+  authenticators: IAuthenticator[];
 }
-
-type DynamicState = Pick<State, keyof State>;
 
 class ImportAuthenticatorScreen extends Component<Props, State> {
   state = {
@@ -37,23 +42,30 @@ class ImportAuthenticatorScreen extends Component<Props, State> {
     mnemonicError: '',
   };
 
-  onFieldChange = (fieldName: string, validate: Function) => (val: string) => {
-    const trimedVal = val.trim();
-    this.setState({ [fieldName]: trimedVal } as DynamicState);
+  setMnemonic = (mnemonic: string) => {
+    const trimmedMnemonic = mnemonic.trim();
 
-    const fieldNameError = `${fieldName}Error`;
+    this.setState({ mnemonicError: '', mnemonic });
 
-    if (!validate(trimedVal)) {
-      this.setState({ [fieldNameError]: i18n._.invalid } as DynamicState);
-      return;
+    if (!!!trimmedMnemonic) {
+      this.setState({ mnemonicError: i18n.authenticators.errors.noEmpty });
     }
 
-    this.setState({ [fieldNameError]: '' } as DynamicState);
+    if (trimmedMnemonic.split(' ').length !== CONST.mnemonicWordsAmount) {
+      this.setState({ mnemonicError: i18n.authenticators.import.mnemonicLength });
+    }
   };
 
-  validateMnemonic = (mnemonic: string) => mnemonic.split(' ').length === CONST.mnemonicWordsAmount;
+  setName = (name: string) => {
+    this.setState({ nameError: '', name });
+    if (!!!name.trim()) {
+      this.setState({ nameError: i18n.authenticators.errors.noEmpty });
+    }
 
-  validateName = (name: string) => !!name;
+    if (matchAlphanumericCharacters(name)) {
+      this.setState({ nameError: i18n.contactCreate.nameCannotContainSpecialCharactersError });
+    }
+  };
 
   scanQRCode = () => {
     const { navigation } = this.props;
@@ -87,44 +99,59 @@ class ImportAuthenticatorScreen extends Component<Props, State> {
     });
   };
 
-  createAuthenticator = (data: { name: string; mnemonic?: string; entropy?: string }) => {
+  createAuthenticator = (mnemonic: string) => {
     const { navigation, createAuthenticator } = this.props;
-    createAuthenticator(data, {
-      onSuccess: () => {
-        CreateMessage({
-          title: i18n.message.hooray,
-          description: i18n.authenticators.import.success,
-          type: MessageType.success,
-          buttonProps: {
-            title: i18n.message.returnToAuthenticators,
-            onPress: () => navigation.navigate(Route.AuthenticatorList),
-          },
-        });
+    const { name } = this.state;
+    createAuthenticator(
+      { mnemonic, name: name.trim() },
+      {
+        onSuccess: () => {
+          CreateMessage({
+            title: i18n.message.hooray,
+            description: i18n.authenticators.import.success,
+            type: MessageType.success,
+            buttonProps: {
+              title: i18n.message.returnToAuthenticators,
+              onPress: () => navigation.navigate(Route.AuthenticatorList),
+            },
+          });
+        },
+        onFailure: (error: string) => this.onCreateAuthenticatorFailure(error),
       },
-      onFailure: (error: string) => this.onCreateAuthenticatorFailure(error),
-    });
+    );
   };
 
-  createAuthenticatorScan = (json: string) => {
+  createAuthenticatorScan = (mnemonic: string) => {
     try {
-      const data = JSON.parse(json);
-      if (!data.entropy || !data.name) {
+      if (!mnemonic) {
         throw new Error('Invalid data');
       }
-      this.createAuthenticator(data);
+      this.createAuthenticator(mnemonic);
     } catch (_) {
       this.onCreateAuthenticatorFailure(i18n.wallets.errors.invalidPrivateKey);
     }
   };
 
   createAuthenticatorForm = () => {
-    const { name, mnemonic } = this.state;
-    this.createImportMessage(() => this.createAuthenticator({ name, mnemonic }));
+    const { mnemonic } = this.state;
+    this.createImportMessage(() => this.createAuthenticator(mnemonic));
   };
 
+  get validationError(): string | undefined {
+    const { authenticators } = this.props;
+    const { name, nameError } = this.state;
+    if (nameError) {
+      return nameError;
+    }
+    const authenticatorsLabels = authenticators.map(a => a.name);
+    if (authenticatorsLabels.includes(name.trim())) {
+      return i18n.authenticators.import.inUseValidationError;
+    }
+  }
+
   hasErrors = () => {
-    const { mnemonicError, nameError } = this.state;
-    return !!(nameError || mnemonicError);
+    const { mnemonicError } = this.state;
+    return !!(this.validationError || mnemonicError);
   };
 
   canSubmit = () => {
@@ -133,7 +160,7 @@ class ImportAuthenticatorScreen extends Component<Props, State> {
   };
 
   render() {
-    const { mnemonicError, nameError } = this.state;
+    const { mnemonicError, name } = this.state;
 
     return (
       <ScreenTemplate
@@ -148,6 +175,7 @@ class ImportAuthenticatorScreen extends Component<Props, State> {
               containerStyle={styles.scanQRCodeButtonContainer}
               title={i18n.wallets.importWallet.scanQrCode}
               onPress={this.scanQRCode}
+              disabled={!name || !!this.validationError}
             />
           </>
         }
@@ -161,14 +189,15 @@ class ImportAuthenticatorScreen extends Component<Props, State> {
           <Text style={styles.subtitle}>{i18n.authenticators.import.desc2}</Text>
 
           <InputItem
-            error={nameError}
-            setValue={this.onFieldChange('name', this.validateName)}
+            error={this.validationError}
+            setValue={this.setName}
             label={i18n.wallets.add.inputLabel}
-            maxLength={maxWalletNameLength}
+            maxLength={maxAuthenticatorNameLength}
           />
           <TextAreaItem
+            autoCapitalize={'none'}
             error={mnemonicError}
-            onChangeText={this.onFieldChange('mnemonic', this.validateMnemonic)}
+            onChangeText={this.setMnemonic}
             placeholder={i18n.authenticators.import.textAreaPlaceholder}
             style={styles.textArea}
           />
@@ -178,11 +207,15 @@ class ImportAuthenticatorScreen extends Component<Props, State> {
   }
 }
 
+const mapStateToProps = (state: ApplicationState): MapStateProps => ({
+  authenticators: selectors.list(state),
+});
+
 const mapDispatchToProps: ActionProps = {
   createAuthenticator: actions.createAuthenticator,
 };
 
-export default connect(null, mapDispatchToProps)(ImportAuthenticatorScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(ImportAuthenticatorScreen);
 
 const styles = StyleSheet.create({
   inputItemContainer: {

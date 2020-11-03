@@ -17,8 +17,11 @@ const i18n = require('../../loc');
 
 interface Props {
   navigation: CompositeNavigationProp<
-    StackNavigationProp<MainTabNavigatorParams, Route.ContactList>,
-    StackNavigationProp<MainCardStackNavigatorParams, Route.CreateContact>
+    StackNavigationProp<MainCardStackNavigatorParams, Route.CreateContact>,
+    CompositeNavigationProp<
+      StackNavigationProp<MainTabNavigatorParams, Route.ContactList>,
+      StackNavigationProp<MainCardStackNavigatorParams, Route.ScanQrCode>
+    >
   >;
   route: RouteProp<MainCardStackNavigatorParams, Route.CreateContact>;
   createContact: (contact: Contact) => CreateContactAction;
@@ -147,7 +150,6 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
             title={i18n.contactCreate.buttonLabel}
           />
         }
-        // @ts-ignore
         header={<Header navigation={this.props.navigation} isBackArrow title={i18n.contactCreate.screenTitle} />}
       >
         <Text style={styles.subtitle}>{i18n.contactCreate.subtitle}</Text>

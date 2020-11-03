@@ -13,6 +13,9 @@ export enum AuthenticatorsAction {
   SignTransaction = 'SignTransaction',
   SignTransactionSuccess = 'SignTransactionSuccess',
   SignTransactionFailure = 'SignTransactionFailure',
+  UpdateAuthenticator = 'UpdateAuthenticator',
+  UpdateAuthenticatorSuccess = 'UpdateAuthenticatorSuccess',
+  UpdateAuthenticatorFailure = 'UpdateAuthenticatorFailure',
 }
 
 export interface CreateAuthenticatorAction {
@@ -74,6 +77,21 @@ export interface SignTransactionFailureAction {
   error: string;
 }
 
+export interface UpdateAuthenticatorAction {
+  type: AuthenticatorsAction.UpdateAuthenticator;
+  authenticator: IAuthenticator;
+}
+
+export interface UpdateAuthenticatorSuccessAction {
+  type: AuthenticatorsAction.UpdateAuthenticatorSuccess;
+  authenticator: IAuthenticator;
+}
+
+export interface UpdateAuthenticatorFailureAction {
+  type: AuthenticatorsAction.UpdateAuthenticatorFailure;
+  error: Error;
+}
+
 export type AuthenticatorsActionType =
   | CreateAuthenticatorAction
   | CreateAuthenticatorSuccessAction
@@ -86,11 +104,13 @@ export type AuthenticatorsActionType =
   | DeleteAuthenticatorFailureAction
   | SignTransactionSuccessAction
   | SignTransactionFailureAction
-  | SignTransactionAction;
+  | SignTransactionAction
+  | UpdateAuthenticatorAction
+  | UpdateAuthenticatorFailureAction
+  | UpdateAuthenticatorSuccessAction;
 
 interface CreateAuthenticator {
   name: string;
-  entropy?: string;
   mnemonic?: string;
 }
 
@@ -152,5 +172,20 @@ export const signTransactionSuccess = (): SignTransactionSuccessAction => ({
 
 export const signTransactionFailure = (error: string): SignTransactionFailureAction => ({
   type: AuthenticatorsAction.SignTransactionFailure,
+  error,
+});
+
+export const updateAuthenticator = (authenticator: IAuthenticator): UpdateAuthenticatorAction => ({
+  type: AuthenticatorsAction.UpdateAuthenticator,
+  authenticator,
+});
+
+export const updateAuthenticatorSuccess = (authenticator: IAuthenticator): UpdateAuthenticatorSuccessAction => ({
+  type: AuthenticatorsAction.UpdateAuthenticatorSuccess,
+  authenticator,
+});
+
+export const updateAuthenticatorFailure = (error: Error): UpdateAuthenticatorFailureAction => ({
+  type: AuthenticatorsAction.UpdateAuthenticatorFailure,
   error,
 });

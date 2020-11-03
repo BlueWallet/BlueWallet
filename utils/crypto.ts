@@ -5,6 +5,9 @@ import CryptoJS from 'crypto-js';
 import hmacSHA512 from 'crypto-js/hmac-sha512';
 import * as ecurve from 'ecurve';
 import { pbkdf2 } from 'pbkdf2';
+import { NativeModules } from 'react-native';
+
+const { RNRandomBytes } = NativeModules;
 
 import config from '../config';
 import { ELECTRUM_VAULT_SEED_KEY } from '../src/consts';
@@ -133,6 +136,17 @@ export const isElectrumVaultMnemonic = (mnemonic: string, prefix: string): boole
   const hex = hmac.toString(CryptoJS.enc.Hex);
   return hex.startsWith(prefix);
 };
+
+export const getRandomBytes = (byteSize: number): Promise<Buffer> =>
+  new Promise((resolve, reject) => {
+    RNRandomBytes.randomBytes(byteSize, (err: string, bytes: any) => {
+      if (err) {
+        reject(err);
+      }
+      const buffer = Buffer.from(bytes, 'base64');
+      resolve(buffer);
+    });
+  });
 
 export const electrumVaultMnemonicToSeed = (mnemonic: string, password = '') =>
   generatePrivateKey({

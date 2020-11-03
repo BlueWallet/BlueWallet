@@ -10,7 +10,7 @@ interface Props {
 export const Mnemonic = ({ mnemonic }: Props) => (
   <View style={styles.mnemonicPhraseContainer}>
     {mnemonic.split(' ').map((word, index) => (
-      <View style={styles.chipContainer} key={word}>
+      <View style={styles.chipContainer} key={index + word}>
         <Chip label={`${index + 1}. ${word}`} />
       </View>
     ))}

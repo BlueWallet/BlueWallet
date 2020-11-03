@@ -265,6 +265,20 @@ export class AppStorage {
   addAuthenticator(a) {
     this.authenticators = [...(this.authenticators || []), a];
   }
+  updateAuthenticator(authenticatorUpdate) {
+    let updatedAuthenticator = null;
+    this.authenticators = this.authenticators.map(authenticator => {
+      if (authenticator.id === authenticatorUpdate.id) {
+        updatedAuthenticator = authenticatorUpdate;
+        return authenticatorUpdate;
+      }
+      return authenticator;
+    });
+    if (updatedAuthenticator === null) {
+      throw new Error(`Couldn't update authenticator: ${JSON.stringify(authenticatorUpdate)}`);
+    }
+    return updatedAuthenticator;
+  }
 
   addWallet(w) {
     this.wallets = [...this.wallets, w];

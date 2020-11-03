@@ -1,4 +1,4 @@
-import { VaultTxType, Transaction as BtcTransaction } from 'bitcoinjs-lib';
+import { VaultTxType, Transaction as BtcTransaction, ECPair } from 'bitcoinjs-lib';
 import { Dayjs } from 'dayjs';
 import React from 'react';
 import { KeyboardType, StyleProp, ViewStyle, Platform } from 'react-native';
@@ -71,13 +71,11 @@ export enum Route {
   RecoverySeed = 'RecoverySeed',
   AuthenticatorList = 'AuthenticatorList',
   RecoveryTransactionList = 'RecoveryTransactionList',
-  EnterPIN = 'EnterPIN',
-  ExportAuthenticator = 'ExportAuthenticator',
-  PairAuthenticator = 'PairAuthenticator',
   ImportAuthenticator = 'ImportAuthenticator',
   OptionsAuthenticator = 'OptionsAuthenticator',
   CreateWalletSuccess = 'CreateWalletSuccess',
   DeleteEntity = 'DeleteEntity',
+  CreateAuthenticatorPublicKey = 'CreateAuthenticatorPublicKey',
   CreateAuthenticatorSuccess = 'CreateAuthenticatorSuccess',
   CreateAuthenticator = 'CreateAuthenticator',
   WalletDetails = 'WalletDetails',
@@ -117,6 +115,7 @@ export enum Route {
   Unlock = 'Unlock',
   IntegrateKey = 'IntegrateKey',
   ImportWalletChooseType = 'ImportWalletChooseType',
+  ChunkedQrCode = 'ChunkedQrCode',
 }
 
 export interface Wallet {
@@ -403,12 +402,10 @@ export type MainCardStackNavigatorParams = {
   };
   [Route.FilterTransactions]: { onFilterPress: () => void };
   [Route.CreateAuthenticator]: undefined;
-  [Route.EnterPIN]: { id: string };
-  [Route.PairAuthenticator]: { id: string };
   [Route.AuthenticatorList]: undefined;
+  [Route.CreateAuthenticatorPublicKey]: { id: string };
   [Route.CreateAuthenticatorSuccess]: { id: string };
-  [Route.DeleteEntity]: { onConfirm: () => void; name: string; subtitle: string; title: string };
-  [Route.ExportAuthenticator]: { id: string };
+  [Route.DeleteEntity]: { onConfirm: () => void; name: string | undefined; subtitle: string; title: string };
   [Route.ImportAuthenticator]: undefined;
   [Route.OptionsAuthenticator]: { id: string };
   [Route.CreateWalletSuccess]: { secret: string };
@@ -421,20 +418,23 @@ export type MainCardStackNavigatorParams = {
     onBackArrow?: () => void;
   };
   [Route.ImportWalletChooseType]: undefined;
+  [Route.ChunkedQrCode]: {
+    chunkNo: number;
+    chunksQuantity: number;
+    onScanned: () => void;
+  };
 };
 export type DateType = Date | Dayjs;
 export interface Authenticator {
-  privateKey: Buffer | null;
+  keyPair: ECPair.ECPairInterface | null;
   publicKey: string;
-  entropy: string;
   name: string;
-  id: string;
   QRCode: string;
-  init: ({ entropy, mnemonic }: { entropy?: string; mnemonic?: string }) => void;
+  id: string;
+  init: ({ mnemonic }: { mnemonic?: string }) => void;
   pin: string;
   secret: string;
   createdAt: Dayjs;
-  exportPublicKey: string;
 }
 
 export interface ActionMeta {

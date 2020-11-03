@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import { takeLatest, takeEvery, put, select } from 'redux-saga/effects';
 
 import { BlueApp, Authenticator } from 'app/legacy';
@@ -15,6 +16,9 @@ import {
   signTransactionSuccess,
   signTransactionFailure,
   SignTransactionAction,
+  UpdateAuthenticatorAction,
+  updateAuthenticatorSuccess,
+  updateAuthenticatorFailure,
 } from './actions';
 import { list } from './selectors';
 
@@ -54,12 +58,12 @@ export function* deleteAuthenticatorSaga(action: DeleteAuthenticatorAction | unk
 
 export function* createAuthenticatorSaga(action: CreateAuthenticatorAction | unknown) {
   const {
-    payload: { name, entropy, mnemonic },
+    payload: { name, mnemonic },
     meta,
   } = action as CreateAuthenticatorAction;
   try {
     const authenticator = new Authenticator(name);
-    yield authenticator.init({ entropy, mnemonic });
+    yield authenticator.init({ mnemonic });
     BlueApp.addAuthenticator(authenticator);
     yield BlueApp.saveToDisk();
     yield put(createAuthenticatorSuccess(authenticator));
@@ -71,6 +75,17 @@ export function* createAuthenticatorSaga(action: CreateAuthenticatorAction | unk
     if (meta?.onFailure) {
       meta.onFailure(e.message);
     }
+  }
+}
+
+export function* updateAuthenticatorSaga(action: UpdateAuthenticatorAction | unknown) {
+  const { authenticator } = action as UpdateAuthenticatorAction;
+  try {
+    const updatedAuthenticator = cloneDeep(BlueApp.updateAuthenticator(authenticator));
+    yield BlueApp.saveToDisk();
+    yield put(updateAuthenticatorSuccess(updatedAuthenticator));
+  } catch (e) {
+    yield put(updateAuthenticatorFailure(e.message));
   }
 }
 
@@ -108,4 +123,5 @@ export default [
   takeEvery(AuthenticatorsAction.DeleteAuthenticator, deleteAuthenticatorSaga),
   takeEvery(AuthenticatorsAction.CreateAuthenticator, createAuthenticatorSaga),
   takeEvery(AuthenticatorsAction.SignTransaction, signTransactionSaga),
+  takeEvery(AuthenticatorsAction.UpdateAuthenticator, updateAuthenticatorSaga),
 ];
