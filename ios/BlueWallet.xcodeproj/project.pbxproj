@@ -30,6 +30,7 @@
 		6D641F3525526311003792DF /* SendReceiveButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D641F3425526311003792DF /* SendReceiveButtons.swift */; };
 		6D641F3625526311003792DF /* SendReceiveButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D641F3425526311003792DF /* SendReceiveButtons.swift */; };
 		6D641F3725526311003792DF /* SendReceiveButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D641F3425526311003792DF /* SendReceiveButtons.swift */; };
+		6D641FFA255375E0003792DF /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; };
 		6D9A2E03254BA347007B5B82 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; };
 		6D9A2E04254BA347007B5B82 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3C252FE1A3004D72DF /* SwiftUI.framework */; };
 		6D9A2E07254BA347007B5B82 /* WalletInformationAndMarketWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E06254BA347007B5B82 /* WalletInformationAndMarketWidget.swift */; };
@@ -43,7 +44,6 @@
 		6DEB4AB2254FB59C00E9F9AA /* WalletInformationWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4AB1254FB59C00E9F9AA /* WalletInformationWidget.swift */; };
 		6DEB4AB8254FB59E00E9F9AA /* WalletInformationWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6DEB4AAD254FB59B00E9F9AA /* WalletInformationWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6DEB4B05254FB79100E9F9AA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D9A2E08254BA348007B5B82 /* Assets.xcassets */; };
-		6DEB4B27254FB80300E9F9AA /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; };
 		6DEB4B28254FB80300E9F9AA /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3C252FE1A3004D72DF /* SwiftUI.framework */; };
 		6DEB4B2B254FB80300E9F9AA /* MarketWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4B2A254FB80300E9F9AA /* MarketWidget.swift */; };
 		6DEB4B31254FB80300E9F9AA /* MarketWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6DEB4B26254FB80300E9F9AA /* MarketWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -85,7 +85,6 @@
 		B43D037C225847C500FBAA95 /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43D0376225847C500FBAA95 /* Wallet.swift */; };
 		B43D037D225847C500FBAA95 /* WalletInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43D0377225847C500FBAA95 /* WalletInformation.swift */; };
 		B4EE583C226703320003363C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
-		FD633BEADAD0865BD993E7EA /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -402,9 +401,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				6DEB4B28254FB80300E9F9AA /* SwiftUI.framework in Frameworks */,
-				6DEB4B27254FB80300E9F9AA /* WidgetKit.framework in Frameworks */,
-				FD633BEADAD0865BD993E7EA /* (null) in Frameworks */,
 				47A71B37E7A47E7CADA091A1 /* libPods-MarketWidgetExtension.a in Frameworks */,
+				6D641FFA255375E0003792DF /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
