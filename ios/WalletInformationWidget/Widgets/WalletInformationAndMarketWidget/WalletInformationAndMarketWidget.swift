@@ -63,17 +63,8 @@ struct WalletInformationAndMarketWidgetEntryView : View {
     MarketView(marketData: entry.marketData)
   }
   
-  var SendReceiveButtons: some View {
-    VStack(alignment: .center, spacing: nil, content: {
-      HStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 16, content: {
-        Link("receive", destination: URL(string: "bluewallet://widget?action=openReceive")!).frame(minWidth: 144, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, minHeight: 32, maxHeight: 32, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/).lineLimit(1).foregroundColor(.textColor).font(Font.system(size:11, weight: .semibold, design: .default)).background(Color.widgetBackground).overlay(
-          RoundedRectangle(cornerRadius: 4.0)
-            .stroke(Color.widgetBackground, lineWidth: 4.0))
-        Link("send", destination: URL(string: "bluewallet://widget?action=openSend")!).frame(minWidth: 144, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, minHeight: 32, maxHeight: 32, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/).lineLimit(1).foregroundColor(.textColor).font(Font.system(size:11, weight: .semibold, design: .default)).background(Color.widgetBackground).overlay(
-          RoundedRectangle(cornerRadius: 4.0)
-            .stroke(Color.widgetBackground, lineWidth: 4.0))
-      }).padding(.horizontal, /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
-    }).padding(.vertical, /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
+  var SendReceiveButtonsView: some View {
+    SendReceiveButtons().padding(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/, /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
   }
   
   var body: some View {
@@ -85,7 +76,7 @@ struct WalletInformationAndMarketWidgetEntryView : View {
                 }).background(Color.widgetBackground)
                 HStack(content: {
                         MarketStack        }).padding()
-                SendReceiveButtons        }).background(Color(.lightGray).opacity(0.77))
+                SendReceiveButtonsView        }).background(Color(.lightGray).opacity(0.77))
         
       })
       
