@@ -303,6 +303,7 @@ export class RecoverySendScreen extends Component<Props, State> {
     return (
       <InputItem
         multiline
+        maxLength={CONST.maxAddressLength}
         label={i18n.contactDetails.addressLabel}
         style={styles.addressInput}
         value={address}

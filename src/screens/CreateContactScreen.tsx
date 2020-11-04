@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { icons } from 'app/assets';
 import { Button, Header, InputItem, ScreenTemplate, Text, Image } from 'app/components';
-import { Contact, Route, MainTabNavigatorParams, MainCardStackNavigatorParams } from 'app/consts';
+import { Contact, Route, MainTabNavigatorParams, MainCardStackNavigatorParams, CONST } from 'app/consts';
 import { checkAddress } from 'app/helpers/DataProcessing';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { createContact, CreateContactAction } from 'app/state/contacts/actions';
@@ -161,6 +161,7 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
             focused={!!address.value}
             value={address.value}
             multiline
+            maxLength={CONST.maxAddressLength}
             setValue={this.setAddress}
             label={i18n.contactCreate.addressLabel}
           />

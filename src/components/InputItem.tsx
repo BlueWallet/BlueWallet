@@ -19,6 +19,7 @@ interface State {
   isActive: boolean;
   isAnimatedFocused: Animated.Value;
   value: string;
+  height: number;
 }
 
 export class InputItem extends PureComponent<Props, State> {
@@ -30,6 +31,7 @@ export class InputItem extends PureComponent<Props, State> {
       isActive: false,
       isAnimatedFocused: new Animated.Value(props.focused ? 1 : 0),
       value: this.props.value || '',
+      height: 0,
     };
   }
 
@@ -99,7 +101,7 @@ export class InputItem extends PureComponent<Props, State> {
   };
 
   render() {
-    const { isAnimatedFocused, isActive } = this.state;
+    const { isAnimatedFocused, isActive, height } = this.state;
     const { label, suffix, error, secureTextEntry } = this.props;
     const keyboardType = secureTextEntry ? 'default' : defaultKeyboardType;
 
@@ -128,12 +130,16 @@ export class InputItem extends PureComponent<Props, State> {
             !!suffix && styles.isSuffix,
             isActive && styles.isActiveInput,
             !!error && styles.isError,
+            { height: Math.max(27, height) },
             this.props.style,
           ]}
           selectionColor={palette.textSecondary}
           onFocus={this.onFocus}
           onBlur={this.onBlur}
           onChangeText={this.onChangeText}
+          onContentSizeChange={event => {
+            this.setState({ height: event.nativeEvent.contentSize.height });
+          }}
         />
         {!!error && (
           <Text testID="validation-error-message" style={styles.error}>
