@@ -20,6 +20,7 @@ export class DynamicQRCode extends Component {
       total: 0,
       qrCodeHeight: Math.min(qrCodeHeight, qrCodeMaxHeight),
       intervalHandler: null,
+      displayQRCode: true,
     };
   }
 
@@ -27,16 +28,22 @@ export class DynamicQRCode extends Component {
 
   componentDidMount() {
     const { value, capacity = 800, hideControls = true } = this.props;
-    this.fragments = encodeUR(value, capacity);
-    this.setState(
-      {
-        total: this.fragments.length,
-        hideControls,
-      },
-      () => {
-        this.startAutoMove();
-      },
-    );
+    try {
+      this.fragments = encodeUR(value, capacity);
+      this.setState(
+        {
+          total: this.fragments.length,
+          hideControls,
+          displayQRCode: true,
+        },
+        () => {
+          this.startAutoMove();
+        },
+      );
+    } catch (e) {
+      console.log(e);
+      this.setState({ displayQRCode: false, hideControls });
+    }
   }
 
   moveToNextFragment = () => {
@@ -79,10 +86,15 @@ export class DynamicQRCode extends Component {
     }
   };
 
+  onError = () => {
+    console.log('Data is too large for QR Code.');
+    this.setState({ displayQRCode: false });
+  };
+
   render() {
     const currentFragment = this.fragments[this.state.index];
 
-    if (!currentFragment) {
+    if (!currentFragment && this.state.displayQRCode) {
       return (
         <View>
           <Text>{loc.send.dynamic_init}</Text>
@@ -98,14 +110,17 @@ export class DynamicQRCode extends Component {
             this.setState(prevState => ({ hideControls: !prevState.hideControls }));
           }}
         >
-          <QRCode
-            value={currentFragment.toUpperCase()}
-            size={this.state.qrCodeHeight}
-            color="#000000"
-            logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
-            backgroundColor="#FFFFFF"
-            ecl="L"
-          />
+          {this.state.displayQRCode && (
+            <QRCode
+              value={currentFragment.toUpperCase()}
+              size={this.state.qrCodeHeight}
+              color="#000000"
+              logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
+              backgroundColor="#FFFFFF"
+              ecl="L"
+              onError={this.onError}
+            />
+          )}
         </TouchableOpacity>
 
         {!this.state.hideControls && (

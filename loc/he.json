@@ -315,6 +315,7 @@
     "transactions_count": "מספר תנועות"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_bitcoin": "ביטקוין",
     "add_create": "יצירה",
     "add_entropy_generated": "{gen} בייטים של אנתרופיה",
@@ -323,6 +324,7 @@
     "add_import_wallet": "יבוא ארנק",
     "import_file": "יבוא קובץ",
     "add_lightning": "ברק",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "התחברו ל- LNDHub אישי",
     "add_lndhub_error": "כתובת הצומת שסופקה אינה כתובת צומת LNDHub תקינה.",
     "add_lndhub_placeholder": "כתובת הצומת שלך",
@@ -387,6 +389,8 @@
     "xpub_title": "מפתח צפייה של הארנק"
   },
   "multisig": {
+    "multisig_vault": "Vault",
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Provide signature",
     "vault_key": "Vault key {number}",
     "fee": "עמלה: {number}",

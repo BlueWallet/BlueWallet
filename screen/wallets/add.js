@@ -14,11 +14,11 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import {
-  BlueTextCenteredHooks,
   BlueTextHooks,
   BlueListItem,
   LightningButton,
   BitcoinButton,
+  VaultButton,
   BlueFormLabel,
   BlueButtonHook,
   BlueNavigationStyle,
@@ -33,6 +33,12 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const A = require('../../blue_modules/analytics');
 
+const ButtonSelected = Object.freeze({
+  ONCHAIN: Chain.ONCHAIN,
+  OFFCHAIN: Chain.OFFCHAIN,
+  VAULT: 'VAULT',
+});
+
 const WalletsAdd = () => {
   const { colors } = useTheme();
   const { addWallet, saveToDisk, setNewWalletAdded, isAdancedModeEnabled } = useContext(BlueStorageContext);
@@ -42,6 +48,7 @@ const WalletsAdd = () => {
   const [label, setLabel] = useState('');
   const [isAdvancedOptionsEnabled, setIsAdvancedOptionsEnabled] = useState(false);
   const [selectedWalletType, setSelectedWalletType] = useState(false);
+  const [backdoorPressedTimes, setBackdoorPressedTimes] = useState(0);
   const { navigate, goBack } = useNavigation();
   const [entropy, setEntropy] = useState();
   const [entropyButtonText, setEntropyButtonText] = useState(loc.wallets.add_entropy_provide);
@@ -100,9 +107,9 @@ const WalletsAdd = () => {
 
     let w;
 
-    if (selectedWalletType === Chain.OFFCHAIN) {
+    if (selectedWalletType === ButtonSelected.OFFCHAIN) {
       createLightningWallet(w);
-    } else if (selectedWalletType === Chain.ONCHAIN) {
+    } else if (selectedWalletType === ButtonSelected.ONCHAIN) {
       if (selectedIndex === 2) {
         // zero index radio - HD segwit
         w = new HDSegwitP2SHWallet();
@@ -118,7 +125,7 @@ const WalletsAdd = () => {
         w = new HDSegwitBech32Wallet();
         w.setLabel(label || loc.wallets.details_title);
       }
-      if (selectedWalletType === Chain.ONCHAIN) {
+      if (selectedWalletType === ButtonSelected.ONCHAIN) {
         if (entropy) {
           try {
             await w.generateFromEntropy(entropy);
@@ -144,6 +151,9 @@ const WalletsAdd = () => {
           goBack();
         }
       }
+    } else if (selectedWalletType === ButtonSelected.VAULT) {
+      setIsLoading(false);
+      navigate('WalletsAddMultisig');
     }
   };
 
@@ -191,19 +201,24 @@ const WalletsAdd = () => {
     navigate('ImportWallet');
   };
 
+  const handleOnVaultButtonPressed = () => {
+    setSelectedWalletType(ButtonSelected.VAULT);
+  };
+
   const handleOnBitcoinButtonPressed = () => {
     Keyboard.dismiss();
-    setSelectedWalletType(Chain.ONCHAIN);
+    setSelectedWalletType(ButtonSelected.ONCHAIN);
+    setBackdoorPressedTimes(backdoorPressedTimes + 1);
   };
 
   const handleOnLightningButtonPressed = () => {
     Keyboard.dismiss();
-    setSelectedWalletType(Chain.OFFCHAIN);
+    setSelectedWalletType(ButtonSelected.OFFCHAIN);
   };
 
   return (
     <ScrollView style={stylesHook.root}>
-      <StatusBar barStyle="default" />
+      <StatusBar barStyle="light-content" />
       <BlueSpacing20 />
       <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
         <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
@@ -220,23 +235,26 @@ const WalletsAdd = () => {
           />
         </View>
         <BlueFormLabel>{loc.wallets.add_wallet_type}</BlueFormLabel>
-
         <View style={styles.buttons}>
           <BitcoinButton
             testID="ActivateBitcoinButton"
-            active={selectedWalletType === Chain.ONCHAIN}
+            active={selectedWalletType === ButtonSelected.ONCHAIN}
             onPress={handleOnBitcoinButtonPressed}
             style={styles.button}
           />
-          <View style={styles.or}>
-            <BlueTextCenteredHooks style={styles.orCenter}>{loc.wallets.add_or}</BlueTextCenteredHooks>
-          </View>
-          <LightningButton active={selectedWalletType === Chain.OFFCHAIN} onPress={handleOnLightningButtonPressed} style={styles.button} />
+          <LightningButton
+            active={selectedWalletType === ButtonSelected.OFFCHAIN}
+            onPress={handleOnLightningButtonPressed}
+            style={styles.button}
+          />
+          {backdoorPressedTimes >= 15 && (
+            <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} />
+          )}
         </View>
 
         <View style={styles.advanced}>
           {(() => {
-            if (selectedWalletType === Chain.ONCHAIN && isAdvancedOptionsEnabled) {
+            if (selectedWalletType === ButtonSelected.ONCHAIN && isAdvancedOptionsEnabled) {
               return (
                 <View>
                   <BlueSpacing20 />
@@ -246,37 +264,25 @@ const WalletsAdd = () => {
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(0)}
                     title={HDSegwitBech32Wallet.typeReadable}
-                    {...(selectedIndex === 0
-                      ? {
-                          rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' },
-                        }
-                      : { hideChevron: true })}
+                    checkmark={selectedIndex === 0}
                   />
                   <BlueListItem
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(1)}
                     title={SegwitP2SHWallet.typeReadable}
-                    {...(selectedIndex === 1
-                      ? {
-                          rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' },
-                        }
-                      : { hideChevron: true })}
+                    checkmark={selectedIndex === 1}
                   />
                   <BlueListItem
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(2)}
                     title={HDSegwitP2SHWallet.typeReadable}
-                    {...(selectedIndex === 2
-                      ? {
-                          rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' },
-                        }
-                      : { hideChevron: true })}
+                    checkmark={selectedIndex === 2}
                   />
                 </View>
               );
-            } else if (selectedWalletType === Chain.OFFCHAIN && isAdvancedOptionsEnabled) {
+            } else if (selectedWalletType === ButtonSelected.OFFCHAIN && isAdvancedOptionsEnabled) {
               return (
                 <>
                   <BlueSpacing20 />
@@ -305,7 +311,9 @@ const WalletsAdd = () => {
           })()}
           <View style={styles.createButton}>
             {!isLoading ? (
-              <BlueButtonHook testID="Create" title={loc.wallets.add_create} disabled={!selectedWalletType} onPress={createWallet} />
+              <View style={styles.buttonSize}>
+                <BlueButtonHook testID="Create" title={loc.wallets.add_create} disabled={!selectedWalletType} onPress={createWallet} />
+              </View>
             ) : (
               <ActivityIndicator />
             )}
@@ -334,6 +342,11 @@ WalletsAdd.navigationOptions = ({ navigation }) => ({
 });
 
 const styles = StyleSheet.create({
+  buttonSize: {
+    maxWidth: 264,
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
   loading: {
     flex: 1,
     paddingTop: 20,
@@ -355,25 +368,15 @@ const styles = StyleSheet.create({
     color: '#81868e',
   },
   buttons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingTop: 10,
+    flexDirection: 'column',
     marginHorizontal: 20,
+    marginTop: 16,
     borderWidth: 0,
     minHeight: 100,
   },
   button: {
-    width: '45%',
-    height: 88,
-  },
-  or: {
-    borderWidth: 0,
-    justifyContent: 'center',
-    marginHorizontal: 8,
-    alignSelf: 'center',
-  },
-  orCenter: {
-    color: '#0c2550',
+    width: '100%',
+    height: 'auto',
   },
   advanced: {
     marginHorizontal: 20,
@@ -401,6 +404,9 @@ const styles = StyleSheet.create({
   },
   noPadding: {
     paddingHorizontal: 0,
+  },
+  typeMargin: {
+    marginTop: 8,
   },
 });
 

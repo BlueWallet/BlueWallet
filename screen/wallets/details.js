@@ -190,6 +190,11 @@ const WalletDetails = () => {
       walletId: wallet.getID(),
     });
   };
+  const navigateToViewEditCosigners = () => {
+    navigate('ViewEditMultisigCosigners', {
+      walletId: wallet.getID(),
+    });
+  };
   const navigateToXPub = () =>
     navigate('WalletXpub', {
       secret: wallet.getSecret(),
@@ -380,7 +385,7 @@ const WalletDetails = () => {
               </>
             )}
 
-            {wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && (
+            {wallet.type === MultisigHDWallet.type && (
               <>
                 <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.multisig.how_many_signatures_can_bluewallet_make}</Text>
                 <BlueText>{wallet.howManySignaturesCanWeMake()}</BlueText>
@@ -440,6 +445,13 @@ const WalletDetails = () => {
                     onPress={navigateToMultisigCoordinationSetup}
                     title={loc.multisig.export_coordination_setup.replace(/^\w/, c => c.toUpperCase())}
                   />
+                </>
+              )}
+
+              {wallet.type === MultisigHDWallet.type && (
+                <>
+                  <BlueSpacing20 />
+                  <SecondButton onPress={navigateToViewEditCosigners} title={loc.multisig.view_edit_cosigners} />
                 </>
               )}
 

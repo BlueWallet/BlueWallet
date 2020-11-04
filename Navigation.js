@@ -22,12 +22,15 @@ import DefaultView from './screen/settings/defaultView';
 import WalletsList from './screen/wallets/list';
 import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
+import WalletsAddMultisig from './screen/wallets/addMultisig';
+import WalletsAddMultisigStep2 from './screen/wallets/addMultisigStep2';
 import PleaseBackup from './screen/wallets/pleaseBackup';
 import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
 import ImportWallet from './screen/wallets/import';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
 import ExportMultisigCoordinationSetup from './screen/wallets/exportMultisigCoordinationSetup';
+import ViewEditMultisigCosigners from './screen/wallets/viewEditMultisigCosigners';
 import WalletXpub from './screen/wallets/xpub';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import HodlHodl from './screen/wallets/hodlHodl';
@@ -165,6 +168,12 @@ const AddWalletRoot = () => (
     <AddWalletStack.Screen name="PleaseBackup" component={PleaseBackup} options={PleaseBackup.navigationOptions} />
     <AddWalletStack.Screen name="PleaseBackupLNDHub" component={PleaseBackupLNDHub} options={PleaseBackupLNDHub.navigationOptions} />
     <AddWalletStack.Screen name="ProvideEntropy" component={ProvideEntropy} options={ProvideEntropy.navigationOptions} />
+    <AddWalletStack.Screen name="WalletsAddMultisig" component={WalletsAddMultisig} options={WalletsAddMultisig.navigationOptions} />
+    <AddWalletStack.Screen
+      name="WalletsAddMultisigStep2"
+      component={WalletsAddMultisigStep2}
+      options={WalletsAddMultisigStep2.navigationOptions}
+    />
   </AddWalletStack.Navigator>
 );
 
@@ -312,6 +321,11 @@ const Navigation = () => (
       name="ExportMultisigCoordinationSetup"
       component={ExportMultisigCoordinationSetup}
       options={ExportMultisigCoordinationSetup.navigationOptions}
+    />
+    <RootStack.Screen
+      name="ViewEditMultisigCosigners"
+      component={ViewEditMultisigCosigners}
+      options={ViewEditMultisigCosigners.navigationOptions}
     />
     <RootStack.Screen name="WalletXpub" component={WalletXpub} options={WalletXpub.navigationOptions} />
     <RootStack.Screen name="BuyBitcoin" component={BuyBitcoin} options={BuyBitcoin.navigationOptions} />

@@ -315,6 +315,7 @@
     "transactions_count": "кол-во транзакций"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_bitcoin": "Bitcoin",
     "add_create": "Создать",
     "add_entropy_generated": "{gen} байтов сгенерированной энтории",
@@ -323,6 +324,7 @@
     "add_import_wallet": "Импортировать кошелек",
     "import_file": "Импортировать файл",
     "add_lightning": "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Подключиться к своему LNDHub",
     "add_lndhub_error": "Не верный адрес LNDHub.",
     "add_lndhub_placeholder": "Адрес хоста",
@@ -387,6 +389,8 @@
     "xpub_title": "XPUB кошелька"
   },
   "multisig": {
+    "multisig_vault": "Vault",
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Предоставить подпись",
     "vault_key": "Ключ хранилища {number}",
     "fee": "Коммисия: {number}",

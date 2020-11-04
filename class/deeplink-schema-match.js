@@ -29,7 +29,7 @@ class DeeplinkSchemaMatch {
    * @param event {{url: string}} URL deeplink as passed to app, e.g. `bitcoin:bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo`
    * @param completionHandler {function} Callback that returns [string, params: object]
    */
-  static navigationRouteFor(event, completionHandler, context = {wallets: [], saveToDisk: () => {}, addWallet: () => {}}) {
+  static navigationRouteFor(event, completionHandler, context = { wallets: [], saveToDisk: () => {}, addWallet: () => {} }) {
     if (event.url === null) {
       return;
     }
@@ -39,8 +39,54 @@ class DeeplinkSchemaMatch {
 
     if (event.url.toLowerCase().startsWith('bluewallet:bitcoin:') || event.url.toLowerCase().startsWith('bluewallet:lightning:')) {
       event.url = event.url.substring(11);
+    } else if (event.url.toLocaleLowerCase().startsWith('bluewallet://widget?action=')) {
+      event.url = event.url.substring('bluewallet://'.length);
     }
-    if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(event.url)) {
+
+    if (DeeplinkSchemaMatch.isWidgetAction(event.url)) {
+      if (context.wallets.length >= 0) {
+        const wallet = context.wallets[0];
+        const action = event.url.split('widget?action=')[1];
+        const secret = wallet.getSecret();
+        if (wallet.chain === Chain.ONCHAIN) {
+          if (action === 'openSend') {
+            completionHandler([
+              'SendDetailsRoot',
+              {
+                screen: 'SendDetails',
+                params: {
+                  secret,
+                },
+              },
+            ]);
+          } else if (action === 'openReceive') {
+            completionHandler([
+              {
+                routeName: 'ReceiveDetails',
+                params: {
+                  walletID: wallet.getID(),
+                },
+                name: 'ReceiveDetails',
+              },
+            ]);
+          }
+        } else if (wallet.chain === Chain.OFFCHAIN) {
+          if (action === 'openSend') {
+            completionHandler([
+              'ScanLndInvoiceRoot',
+              {
+                screen: 'ScanLndInvoice',
+                params: {
+                  secret,
+                },
+              },
+            ]);
+          } else if (action === 'openReceive') {
+            completionHandler(['LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { fromWallet: wallet } }]);
+          }
+        }
+      }
+    } else if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(event.url)) {
       RNFS.readFile(decodeURI(event.url))
         .then(file => {
           if (file) {
@@ -103,7 +149,7 @@ class DeeplinkSchemaMatch {
         {
           screen: 'LNDCreateInvoice',
           params: {
-            uri: event.url,
+            uri: event.url.replace('lightning:', '').replace('LIGHTNING:', ''),
           },
         },
       ]);
@@ -269,7 +315,11 @@ class DeeplinkSchemaMatch {
   }
 
   static isLnUrl(text) {
-    return Lnurl.isLnurl(text)
+    return Lnurl.isLnurl(text);
+  }
+
+  static isWidgetAction(text) {
+    return text.startsWith('widget?action=');
   }
 
   static isSafelloRedirect(event) {

@@ -19,6 +19,8 @@
     "plausible_deniability": "Plausible deniability..."
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
+    "add_bitcoin": "Bitcoin",
     "import_scan_qr": "or scan QR code instead?",
     "import_success": "Success",
     "list_empty_txs1": "Your transactions will appear here,",

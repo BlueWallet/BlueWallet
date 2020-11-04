@@ -15,3 +15,4 @@ export * from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
 export * from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
 export * from './wallets/multisig-hd-wallet';
 export * from './hd-segwit-bech32-transaction';
+export * from './multisig-cosigner';

@@ -39,9 +39,9 @@ import Notifications from '../../blue_modules/notifications';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
-  const { secret } = useRoute().params;
+  const { walletID } = useRoute().params;
   const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
-  const wallet = wallets.find(w => w.getSecret() === secret);
+  const wallet = wallets.find(w => w.getID() === walletID);
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [address, setAddress] = useState('');
   const [customLabel, setCustomLabel] = useState();

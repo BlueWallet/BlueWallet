@@ -72,6 +72,7 @@
     "list_title": "Мої транзакції"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Створити",
     "add_import_wallet": "імпортувати гаманець",
     "add_or": "чи",

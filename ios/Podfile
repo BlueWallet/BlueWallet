@@ -17,3 +17,15 @@ target 'BlueWallet' do
     flipper_post_install(installer)
   end
 end
+
+target 'MarketWidgetExtension' do
+  pod 'SwiftSocket', :git => 'https://github.com/swiftsocket/SwiftSocket.git', :branch => 'master'
+end
+
+target 'WalletInformationAndMarketWidgetExtension' do
+  pod 'SwiftSocket', :git => 'https://github.com/swiftsocket/SwiftSocket.git', :branch => 'master'
+end
+
+target 'WalletInformationWidgetExtension' do
+  pod 'SwiftSocket', :git => 'https://github.com/swiftsocket/SwiftSocket.git', :branch => 'master'
+end

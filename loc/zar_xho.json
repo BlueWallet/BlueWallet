@@ -82,9 +82,11 @@
     "list_title": "ngeniswa"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Yakha",
     "add_import_wallet": "Ukungenisa ingxowa",
     "add_lightning": "Umbane",
+    "add_lightning_explain": "For spending with instant transactions", 
     "add_or": "okanye",
     "add_title": "yongeza ingxowa",
     "add_wallet_name": "igama lengxowa",

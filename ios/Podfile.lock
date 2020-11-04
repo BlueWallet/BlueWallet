@@ -278,6 +278,8 @@ PODS:
     - React
   - react-native-webview (10.9.2):
     - React-Core
+  - react-native-widget-center (0.0.4):
+    - React
   - React-RCTActionSheet (0.63.3):
     - React-Core/RCTActionSheetHeaders (= 0.63.3)
   - React-RCTAnimation (0.63.3):
@@ -340,7 +342,7 @@ PODS:
     - React-jsi (= 0.63.3)
   - ReactNativePrivacySnapshot (1.0.0):
     - React
-  - RealmJS (6.1.2):
+  - RealmJS (6.1.4):
     - GCDWebServer
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
@@ -379,8 +381,8 @@ PODS:
     - React
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.8.2):
-    - React
+  - RNSentry (1.9.0):
+    - React-Core
     - Sentry (~> 5.2.0)
   - RNShare (4.0.2):
     - React-Core
@@ -393,6 +395,7 @@ PODS:
   - Sentry (5.2.2):
     - Sentry/Core (= 5.2.2)
   - Sentry/Core (5.2.2)
+  - SwiftSocket (2.0.2)
   - ToolTipMenu (5.2.0):
     - React
   - Yoga (1.14.0)
@@ -452,6 +455,7 @@ DEPENDENCIES:
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - react-native-webview (from `../node_modules/react-native-webview`)
+  - react-native-widget-center (from `../node_modules/react-native-widget-center`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
   - React-RCTBlob (from `../node_modules/react-native/Libraries/Blob`)
@@ -487,6 +491,7 @@ DEPENDENCIES:
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
+  - SwiftSocket (from `https://github.com/swiftsocket/SwiftSocket.git`, branch `master`)
   - ToolTipMenu (from `../node_modules/react-native-tooltip`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -570,6 +575,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-tcp-socket"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
+  react-native-widget-center:
+    :path: "../node_modules/react-native-widget-center"
   React-RCTActionSheet:
     :path: "../node_modules/react-native/Libraries/ActionSheetIOS"
   React-RCTAnimation:
@@ -640,10 +647,18 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-vector-icons"
   RNWatch:
     :path: "../node_modules/react-native-watch-connectivity"
+  SwiftSocket:
+    :branch: master
+    :git: https://github.com/swiftsocket/SwiftSocket.git
   ToolTipMenu:
     :path: "../node_modules/react-native-tooltip"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
+
+CHECKOUT OPTIONS:
+  SwiftSocket:
+    :commit: 4a3af2cbbaef5b2fddbaff80f6767fecc0ce5fe2
+    :git: https://github.com/swiftsocket/SwiftSocket.git
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
@@ -689,6 +704,7 @@ SPEC CHECKSUMS:
   react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
   react-native-webview: c51f73be304c61d359ec3e7c5e4e8f2c977fd360
+  react-native-widget-center: 0f81d17beb163e7fb5848b06754d7d277fe7d99a
   React-RCTActionSheet: 53ea72699698b0b47a6421cb1c8b4ab215a774aa
   React-RCTAnimation: 1befece0b5183c22ae01b966f5583f42e69a83c2
   React-RCTBlob: 0b284339cbe4b15705a05e2313a51c6d8b51fa40
@@ -700,7 +716,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 8e9fb25724a0805107fc1acc9075e26f814df454
   ReactCommon: 4167844018c9ed375cc01a843e9ee564399e53c3
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
-  RealmJS: 6eb9fd885c5f3cd609b8b50282a5785cb4b48a18
+  RealmJS: 899b4839a8bee46e248bc277995ad58da855e41f
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: cb9a623793918c6699586281f0b51cbc38f046f9
   RNCClipboard: ce9b77f2881948e9e04af84bd70262ab37adb1c1
@@ -719,16 +735,17 @@ SPEC CHECKSUMS:
   RNReanimated: dd8c286ab5dd4ba36d3a7fef8bff7e08711b5476
   RNScreens: 0e91da98ab26d5d04c7b59a9b6bd694124caf88c
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: cff88174a0b2e0289b2efe5be1abba1f6c54269d
+  RNSentry: 1adaa43b01c6a3ab5091d4d1add66b7c58558898
   RNShare: 7a7277f3c313652422d9de072ac50714dff5e8a4
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: d56d00be49131ee454bb5a4a574f18506c8949e4
   Sentry: 8fa58a051237554f22507fb483b9a1de0171a2dc
+  SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
   ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e
   Yoga: 7d13633d129fd179e01b8953d38d47be90db185a
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 845139ceee01fe141fab93749d578abee11b11c9
+PODFILE CHECKSUM: 5d58e3059a17a582047b2b5ec8ca2cd705d619ab
 
 COCOAPODS: 1.9.3
