@@ -257,4 +257,14 @@ export class WatchOnlyWallet extends LegacyWallet {
     if (this._hdWalletInstance) return this._hdWalletInstance.addressIsChange(...args);
     return super.addressIsChange(...args);
   }
+
+  getUTXOMetadata(...args) {
+    if (this._hdWalletInstance) return this._hdWalletInstance.getUTXOMetadata(...args);
+    return super.getUTXOMetadata(...args);
+  }
+
+  setUTXOMetadata(...args) {
+    if (this._hdWalletInstance) return this._hdWalletInstance.setUTXOMetadata(...args);
+    return super.setUTXOMetadata(...args);
+  }
 }
