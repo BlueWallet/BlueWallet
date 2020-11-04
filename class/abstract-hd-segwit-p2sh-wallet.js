@@ -46,16 +46,17 @@ export class AbstractHDSegwitP2SHWallet extends AbstractHDWallet {
     this.basePath = basePath;
   }
 
-  setMnemonic(walletMnemonic) {
-    let valid = false;
-    if (bip39.validateMnemonic(walletMnemonic)) {
-      valid = true;
-    } else if (isElectrumVaultMnemonic(walletMnemonic, ELECTRUM_VAULT_SEED_PREFIXES.SEED_PREFIX_SW)) {
-      this.isElectrumVault = true;
-      valid = true;
-    }
+  setIsElectrumVault(isElectrumVault) {
+    this.isElectrumVault = isElectrumVault;
+  }
 
-    if (!valid) {
+  setMnemonic(walletMnemonic) {
+    if (
+      !(
+        bip39.validateMnemonic(walletMnemonic) ||
+        isElectrumVaultMnemonic(walletMnemonic, ELECTRUM_VAULT_SEED_PREFIXES.SEED_PREFIX_SW)
+      )
+    ) {
       throw new Error(i18n.wallets.errors.invalidMnemonic);
     }
     this.secret = walletMnemonic
@@ -176,6 +177,15 @@ export class AbstractHDSegwitP2SHWallet extends AbstractHDWallet {
       this._node0 = hdNode.derive(0);
     }
     return this._node0;
+  }
+
+  resetAddressesGeneration() {
+    this._address = [];
+    this._address_to_wif_cache = {};
+    this._addr_balances = {};
+    this.seed = undefined;
+    this._xpub = undefined;
+    this._node0 = undefined;
   }
 
   async generateAddresses() {

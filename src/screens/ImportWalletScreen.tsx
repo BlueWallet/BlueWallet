@@ -217,6 +217,16 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
     }
   };
 
+  isValidVaultWallet = async (wallet: HDSegwitP2SHArWallet | HDSegwitP2SHAirWallet) => {
+    if (!wallet.validateMnemonic()) {
+      return false;
+    }
+    await wallet.generateAddresses();
+    await wallet.fetchTransactions();
+
+    return wallet.getTransactions().length !== 0;
+  };
+
   saveVaultWallet = async (wallet: HDSegwitP2SHArWallet | HDSegwitP2SHAirWallet) => {
     try {
       const { customWords, hasCustomWords } = this.state;
@@ -225,16 +235,20 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
         wallet.setPassword(trimmedCustomWords);
       }
 
-      await wallet.generateAddresses();
-      await wallet.fetchTransactions();
-      if (wallet.getTransactions().length !== 0) {
-        this.saveWallet(wallet);
-      } else {
-        this.showErrorMessageScreen({
-          title: i18n.message.noTransactions,
-          description: i18n.message.noTransactionsDesc,
-        });
+      if (await this.isValidVaultWallet(wallet)) {
+        return this.saveWallet(wallet);
       }
+
+      wallet.resetAddressesGeneration();
+      wallet.setIsElectrumVault(true);
+      if (await this.isValidVaultWallet(wallet)) {
+        return this.saveWallet(wallet);
+      }
+
+      this.showErrorMessageScreen({
+        title: i18n.message.noTransactions,
+        description: i18n.message.noTransactionsDesc,
+      });
     } catch (error) {
       this.showErrorMessageScreen({
         title: i18n.message.generateAddressesError,
@@ -261,9 +275,9 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
 
   addInstantPublicKey = (wallet: HDSegwitP2SHAirWallet) => {
     this.props.navigation.navigate(Route.IntegrateKey, {
-      onBarCodeScan: (recoveryPublicKey: string) => {
+      onBarCodeScan: (instantPublicKey: string) => {
         try {
-          wallet.addPublicKey(recoveryPublicKey);
+          wallet.addPublicKey(instantPublicKey);
           this.addRecoveryPublicKey(wallet);
         } catch (e) {
           this.showAlert(e.message);

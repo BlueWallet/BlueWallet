@@ -170,6 +170,7 @@ export const transactions = createSelector(wallets, electrumXSelectors.blockHeig
               ...baseTransaction,
               valueWithoutFee,
               value: 0, // not real tx so value is 0
+              ...(transaction.tx_type === TxType.ALERT_RECOVERED && { isRecoveredAlertToMe: true }),
             },
             {
               ...baseTransaction,
