@@ -27,7 +27,7 @@ struct Provider: TimelineProvider {
   func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
     var entries: [SimpleEntry] = []
     let userPreferredCurrency = WidgetAPI.getUserPreferredCurrency();
-   
+    
     let marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
     let allwalletsBalance = WalletData(balance: UserDefaultsGroup.getAllWalletsBalance(), latestTransactionTime: UserDefaultsGroup.getAllWalletsLatestTransactionTime())
     WidgetAPI.fetchPrice(currency: userPreferredCurrency, completion: { (result, error) in
@@ -53,54 +53,13 @@ struct SimpleEntry: TimelineEntry {
 
 struct WalletInformationWidgetEntryView : View {
   var entry: Provider.Entry
-  var formattedBalance: String {
-    let numberFormatter = NumberFormatter()
-    numberFormatter.locale = Locale(identifier: WidgetAPI.getUserPreferredCurrencyLocale())
-    numberFormatter.numberStyle = .currency
-    numberFormatter.numberStyle = .currency
-    let amount = numberFormatter.string(from:  NSNumber(value: ((entry.allWalletsBalance.balance / 100000000) * entry.marketData.rate))) ?? ""
-    return amount
-  }
-  var formattedLatestTransactionTime: String {
-    if entry.allWalletsBalance.latestTransactionTime == 0 {
-      return "never"
-    }
-    let forDate = Date(timeIntervalSince1970: (TimeInterval(entry.allWalletsBalance.latestTransactionTime) / 1000))
-    let dateFormatter = RelativeDateTimeFormatter()
-    dateFormatter.locale = Locale(identifier: Locale.current.identifier)
-    dateFormatter.dateTimeStyle = .numeric
-    return dateFormatter.localizedString(for: forDate, relativeTo: Date())
-  }
   
   var WalletBalance: some View {
-    VStack(alignment: .leading, spacing:nil , content: {
-            HStack(alignment: .top, content: {
-              VStack(alignment: .leading, spacing: nil, content: {
-                VStack(alignment: .leading, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/, content: {
-                  Text(entry.allWalletsBalance.formattedBalanceBTC).lineLimit(1).minimumScaleFactor(0.01).font(Font.system(size: 15, weight: .medium, design: .default)).foregroundColor(.textColorLightGray)
-                  Text(formattedBalance).lineLimit(1).foregroundColor(.textColor).font(Font.system(size:28, weight: .bold, design: .default)).minimumScaleFactor(0.01)
-                  
-                })
-              })
-              Spacer()
-            })
-            Spacer()
-            
-            HStack(alignment: .top, content: {
-              
-              VStack(alignment: .leading, spacing: nil, content: {
-                Text("Latest transaction").font(Font.system(size: 11, weight: .regular, design: .default)).foregroundColor(.textColorLightGray)
-                Text(formattedLatestTransactionTime).lineLimit(1).foregroundColor(.textColor).font(Font.system(size:13, weight: .regular, design: .default)).minimumScaleFactor(0.01)
-                
-              })
-              Spacer()
-              
-            })}).padding()
+    WalletInformationView(allWalletsBalance: entry.allWalletsBalance, marketData: entry.marketData)
   }
   
-  
   var body: some View {
-    WalletBalance.background(Color.widgetBackground)
+    WalletBalance.padding().background(Color.widgetBackground)
   }
 }
 
