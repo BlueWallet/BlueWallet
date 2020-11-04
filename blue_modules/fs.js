@@ -87,12 +87,15 @@ const showFilePickerAndReadFile = async function () {
           : [DocumentPicker.types.allFiles],
     });
 
+    const uri = Platform.OS === 'ios' ? decodeURI(res.uri) : res.uri;
+    // ^^ some weird difference on how spaces in filenames are treated on ios and android
+
     let file = false;
     if (res.uri.toLowerCase().endsWith('.psbt')) {
       // this is either binary file from ElectrumDesktop OR string file with base64 string in there
-      file = await _readPsbtFileIntoBase64(decodeURI(res.uri));
+      file = await _readPsbtFileIntoBase64(uri);
     } else {
-      file = await RNFS.readFile(decodeURI(res.uri));
+      file = await RNFS.readFile(uri);
     }
 
     return { data: file, uri: decodeURI(res.uri) };
