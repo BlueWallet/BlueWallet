@@ -31,8 +31,7 @@ const ko = {
   },
   message: {
     somethingWentWrong: '문제가 발생했습니다',
-    somethingWentWrongWhileCreatingWallet:
-      '지갑을 생성 중에 문제가 발생했습니다. 대시보드로 돌아가서 다시 시도하십시오.',
+    somethingWentWrongWhileCreatingWallet: '지갑을 생성 중에 문제가 발생했습니다. 대시보드로 돌아가서 다시 시도하십시오.',
     success: '성공',
     successfullWalletImport: '지갑 가져오기에 성공했습니다. 이제 대시보드로 돌아갑니다.',
     successfullWalletDelete: '지갑 삭제에 성공했습니다. 이제 대시보드로 돌아갑니다.',
@@ -43,8 +42,7 @@ const ko = {
     hooray: '만세!',
     cancelTxSuccess: '거래를 성공적으로 취소했습니다.\n귀하의 코인이 들어오는 중입니다.',
     wrongMnemonic: '잘못된 니모닉',
-    wrongMnemonicDesc:
-      '니모닉이 지원되는 지갑과 일치하지 않습니다. 한 번도 사용되지 않은 잘못된 니모닉 또는 지갑을 가져 오려 하고 있습니다.',
+    wrongMnemonicDesc: '니모닉이 지원되는 지갑과 일치하지 않습니다. 한 번도 사용되지 않은 잘못된 니모닉 또는 지갑을 가져 오려 하고 있습니다.',
     returnToWalletChoose: '지갑 유형 선택으로 돌아가기',
     returnToWalletImport: '지갑 가져오기로 돌아가기',
     generateAddressesError: '주소를 생성할 수 없습니다',
@@ -55,6 +53,8 @@ const ko = {
     creatingAuthenticatorDescription: '인증기를 만드는 동안 잠시 기다려주십시오.\n 시간이 걸릴 수 있습니다.',
     importingAuthenticator: '인증기 가져오기',
     importingAuthenticatorDescription: '인증기를 가져오는 동안 잠시 기다려주십시오.\n 시간이 걸릴 수 있습니다.',
+    processing: 'TRANSLATION NEEDED | ENG: Processing',
+    bePatient: 'TRANSLATION NEEDED | ENG: Please be patient, it may take a while.',
   },
   onboarding: {
     onboarding: '설정 실행',
@@ -67,8 +67,7 @@ const ko = {
     confirmNewPin: '새로운 PIN 코드 확인하기',
     confirmPassword: '트랜잭션 비밀번호 확인하기',
     passwordDoesNotMatch: '비밀번호 불일치. 유효한 비밀번호를 입력하세요.',
-    createPasswordDescription:
-      '모든 트랜잭션의 확인을 위해 트랜잭션 비밀번호가 사용됩니다. 설정된 비밀번호는 변경이 불가합니다. 트랜잭션 비밀번호는 반드시 최소 8자 이상의 알파벳과 숫자가 혼용되도록 구성되어야 합니다.',
+    createPasswordDescription: '모든 트랜잭션의 확인을 위해 트랜잭션 비밀번호가 사용됩니다. 설정된 비밀번호는 변경이 불가합니다. 트랜잭션 비밀번호는 반드시 최소 8자 이상의 알파벳과 숫자가 혼용되도록 구성되어야 합니다.',
     changePin: 'PIN 코드 변경',
     currentPin: '현재 PIN 코드',
     pinDoesNotMatch: 'PIN 코드 불일치. 유효한 PIN 코드를 입력하세요.',
@@ -86,7 +85,7 @@ const ko = {
   },
   unlock: {
     title: '해제',
-    touchID: '"Gold Wallet" Touch ID',
+    touchID: '\"Gold Wallet\" Touch ID',
     confirmButton: '지문 인증 후 넘어가기',
     enter: 'PIN 입력',
   },
@@ -116,8 +115,7 @@ const ko = {
     importWallet: {
       title: '귀하의 지갑 가져오기',
       header: '지갑 가져오기',
-      subtitle:
-        '니모닉 문구, 개인 키, WIF 또는 다른 정보를 여기에 쓰십시오. GoldWallet은 올바른 형식으로 지갑을 가져오기 위해 최선을 다합니다.',
+      subtitle: '니모닉 문구, 개인 키, WIF 또는 다른 정보를 여기에 쓰십시오. GoldWallet은 올바른 형식으로 지갑을 가져오기 위해 최선을 다합니다.',
       placeholder: '니모닉 문구, 개인 키, WIF',
       import: '가져오기',
       scanQrCode: '또는 QR 코드 스캔하기',
@@ -129,10 +127,10 @@ const ko = {
       scanWalletAddressDescription: 'GoldWallet과 통합하려면 공용 주소 QR 코드를 스캔하십시오.',
       scanFastPubKey: '빠른 키 QR 코드 스캔',
       scanCancelPubKey: '취소 키 QR 코드 스캔',
-      scanPublicKeyDescription:
-        '가져오려는 지갑을 만들 때 생성한 첫 번째 PDF 문서를 열고 이 앱을 사용하여 공개 키 QR 코드를 스캔합니다.',
-      unsupportedElectrumVaultMnemonic:
-        '이 시드는 Electrum Vault에서 가져 왔으며 현재 지원되지 않습니다. 곧 지원될 예정입니다.',
+      scanPublicKeyDescription: '가져오려는 지갑을 만들 때 생성한 첫 번째 PDF 문서를 열고 이 앱을 사용하여 공개 키 QR 코드를 스캔합니다.',
+      unsupportedElectrumVaultMnemonic: '이 시드는 Electrum Vault에서 가져 왔으며 현재 지원되지 않습니다. 곧 지원될 예정입니다.',
+      extendWithCustomWords: 'TRANSLATION NEEDED | ENG: Extend this seed with custom words',
+      customWords: 'TRANSLATION NEEDED | ENG: Custom words',
     },
     exportWallet: {
       title: '니모닉 문구',
@@ -164,8 +162,7 @@ const ko = {
       advancedOptions: '고급 옵션',
       multipleAddresses: '여러 개의 주소',
       singleAddress: '고유 주소',
-      segwidAddress:
-        '12개의 개별 단어로 구성된 시드 암호문으로부터 생성된 고유한 세그윗 (Segwit) 주소 트리를 포함합니다.',
+      segwidAddress: '12개의 개별 단어로 구성된 시드 암호문으로부터 생성된 고유한 세그윗 (Segwit) 주소 트리를 포함합니다.',
       failed: '지갑을 생성하지 못했습니다',
       walletType: '지갑 유형',
       ar: '표준 및 취소 거래를 수행합니다.',
@@ -202,8 +199,7 @@ const ko = {
     },
     import: {
       title: '가져오기',
-      explanation:
-        '니모닉 문구, 개인 키, WIF 또는 가지고 있는 것을 여기에 쓰십시오. GoldWallet은 올바른 형식으로 지갑을 가져오기 위해 최선을 다합니다',
+      explanation: '니모닉 문구, 개인 키, WIF 또는 가지고 있는 것을 여기에 쓰십시오. GoldWallet은 올바른 형식으로 지갑을 가져오기 위해 최선을 다합니다',
       imported: '가져오기',
       error: '가져오기에 실패했습니다. 제공한 데이터의 유효성을 확인하십시오.',
       success: '성공',
@@ -228,11 +224,9 @@ const ko = {
     publicKey: {
       recoverySubtitle: '취소 키 추가',
       webKeyGenerator: '웹 키 생성기:',
-      recoveryDescription:
-        '별도의 장치에서 웹 키 생성기로 이동한 후 이 앱을 사용하여 공개 키 QR 코드를 스캔합니다. 키는 반드시 PDF로 내보내야 합니다!',
+      recoveryDescription: '별도의 장치에서 웹 키 생성기로 이동한 후 이 앱을 사용하여 공개 키 QR 코드를 스캔합니다. 키는 반드시 PDF로 내보내야 합니다!',
       instantSubtitle: '빠른 키 추가',
-      instantDescription:
-        '별도의 장치에서 웹 키 생성기로 이동한 후 이 앱을 사용하여 공개 키 QR 코드를 스캔합니다. 키는 반드시 PDF로 내보내야 합니다!',
+      instantDescription: '별도의 장치에서 웹 키 생성기로 이동한 후 이 앱을 사용하여 공개 키 QR 코드를 스캔합니다. 키는 반드시 PDF로 내보내야 합니다!',
       scan: '스캔',
     },
     errors: {
@@ -295,6 +289,7 @@ const ko = {
       done: '완료',
       canceled: '취소됨',
       unblocked: '차단해제됨',
+      blocked: 'TRANSLATION NEEDED | ENG: blocked',
       canceledDone: 'TRANSLATION NEEDED | ENG: canceled - done',
     },
     transactionTypeLabel: {
@@ -348,8 +343,7 @@ const ko = {
       amount: '금액',
       fee: '수수료',
       setTransactionFee: '트랜잭션 수수료 설정하기',
-      headerText:
-        '네트워크에 보류 중인 트랜잭션이 많을 때 (>1500), 수수료가 높을수록 트랜잭션이 더 빨리 처리됩니다. 일반적인 값은 1-500 sat/b입니다',
+      headerText: '네트워크에 보류 중인 트랜잭션이 많을 때 (>1500), 수수료가 높을수록 트랜잭션이 더 빨리 처리됩니다. 일반적인 값은 1-500 sat/b입니다',
     },
     recovery: {
       recover: '취소',
@@ -357,11 +351,9 @@ const ko = {
       confirmSeed: '취소 시드 문구 확인',
       confirmSeedDesc: '지갑을 만들 때 생성한 PDF 문서를 연 후 동일한 순서로 개인 키 시드 문구를 적어 둡니다.',
       confirmFirstSeed: '취소 시드 문구 확인',
-      confirmFirstSeedDesc:
-        '지갑을 만들 때 생성한 첫 번째 PDF 문서를 연 후 동일한 순서로 개인 키 시드 문구를 적어 둡니다.',
+      confirmFirstSeedDesc: '지갑을 만들 때 생성한 첫 번째 PDF 문서를 연 후 동일한 순서로 개인 키 시드 문구를 적어 둡니다.',
       confirmSecondSeed: '빠른 시드 문구로 확인',
-      confirmSecondSeedDesc:
-        '지갑을 만들 때 생성한 두 번째 PDF 문서를 연 후 동일한 순서로 개인 키 시드 문구를 적어 둡니다.',
+      confirmSecondSeedDesc: '지갑을 만들 때 생성한 두 번째 PDF 문서를 연 후 동일한 순서로 개인 키 시드 문구를 적어 둡니다.',
     },
     transaction: {
       instant: '보안 고속 거래',
@@ -372,8 +364,7 @@ const ko = {
       type: '거래 유형',
       scanInstantKeyTitle: '빠른 키 스캔',
       scanInstantKeyDesc: '지갑을 만들 때 생성한 PDF 문서를 연 후 개인 키 QR 코드를 스캔하여 거래를 보냅니다.',
-      lightningError:
-        '이 주소는 Lightning 송장용으로 표시됩니다. 이 송장에 대해 지불하려면 Lightning 지갑으로 이동하십시오.',
+      lightningError: '이 주소는 Lightning 송장용으로 표시됩니다. 이 송장에 대해 지불하려면 Lightning 지갑으로 이동하십시오.',
       watchOnlyError: '거래를 보낼 수 없는 지갑만 표시',
     },
     error: {
@@ -381,8 +372,7 @@ const ko = {
       description: '거래를 생성하기 전에 먼저 Bitcoin Vault 지갑을 추가해야 합니다.',
     },
     warning: '경고: ',
-    warningGeneral:
-      '경고: 안전한 거래 기능 사용 과정에서 귀하의 지갑의 일부 자금이 차단될 수 있습니다. 이것은 UTXO와 비트코인 볼트 지갑 블록체인 범위에 관련된 일반적인 과정입니다. 거래가 검증되거나 (약 24시간 후) 취소되면 (24시간 이내) 자금의 차단이 해제됩니다.',
+    warningGeneral: '경고: 안전한 거래 기능 사용 과정에서 귀하의 지갑의 일부 자금이 차단될 수 있습니다. 이것은 UTXO와 비트코인 볼트 지갑 블록체인 범위에 관련된 일반적인 과정입니다. 거래가 검증되거나 (약 24시간 후) 취소되면 (24시간 이내) 자금의 차단이 해제됩니다.',
   },
   receive: {
     header: '코인 받기',
@@ -391,8 +381,7 @@ const ko = {
       share: '공유',
       receiveWithAmount: '금액으로 받기',
       shareWalletAddress: 'TRANSLATION NEEDED | ENG: Share wallet address',
-      receiveWithAmountSubtitle:
-        'TRANSLATION NEEDED | ENG: Enter the amount which you would like to receive. The QR code will update accordingly to include the amount.',
+      receiveWithAmountSubtitle: 'TRANSLATION NEEDED | ENG: Enter the amount which you would like to receive. The QR code will update accordingly to include the amount.',
     },
     label: 'TRANSLATION NEEDED | ENG: Wallet address',
   },
@@ -516,7 +505,9 @@ const ko = {
       done: '완료',
       canceled: '취소됨',
       unblocked: '차단해제됨',
+      canceledDone: 'TRANSLATION NEEDED | ENG: Canceled-done',
     },
+    clearAll: 'TRANSLATION NEEDED | ENG: Clear all',
   },
   authenticators: {
     sign: {
@@ -534,22 +525,20 @@ const ko = {
       pin: 'PIN',
       publicKey: '공개 키',
       descPin: '이 PIN을 사용하여 데스크톱 응용 프로그램에서 인증자 페어링을 확인합니다.',
-      descPublicKey:
-        'GoldWallet 옵션으로 지갑을 생성하는 동안 이 공개 키를 사용하여 데스크톱 응용 프로그램으로 인증자를 가져올 수 있습니다.',
+      descPublicKey: 'GoldWallet 옵션으로 지갑을 생성하는 동안 이 공개 키를 사용하여 데스크톱 응용 프로그램으로 인증자를 가져올 수 있습니다.',
     },
     import: {
       title: '인증기 가져오기',
       success: '인증기를 가져왔습니다. 사용할 수 있습니다.',
       subtitle: '인증기 가져오기',
       desc1: '시드 문구를 기록하거나 가져올 인증자의 QR 코드를 스캔합니다.',
-      desc2: '아래 "또는 QR 코드 스캔"을 클릭하여 QR 코드 스캔',
+      desc2: '아래 \"또는 QR 코드 스캔\"을 클릭하여 QR 코드 스캔',
       textAreaPlaceholder: '시드 문구',
-      inUseValidationError:
-        'TRANSLATION NEEDED | ENG: Authenticator is already in use. Please enter a valid authenticator',
+      inUseValidationError: 'TRANSLATION NEEDED | ENG: Name must be unique. Please enter a valid name.',
+      mnemonicLength: 'TRANSLATION NEEDED | ENG: Mnemonic should have 12 words',
       scanNext: 'TRANSLATION NEEDED | ENG: Scan next',
       multipleQrCodesTitle: 'TRANSLATION NEEDED | ENG: Scan another QR code',
-      multipleQrCodesDescription:
-        'TRANSLATION NEEDED | ENG: Some transactions generate multiple QR codes. Make sure to scan all of them from the Electrum Vault application.',
+      multipleQrCodesDescription: 'TRANSLATION NEEDED | ENG: Some transactions generate multiple QR codes. Make sure to scan all of them from the Electrum Vault application.',
       code: 'TRANSLATION NEEDED | ENG: Code: ',
     },
     export: {
@@ -571,10 +560,8 @@ const ko = {
       successTitle: '인증기가 준비되었습니다!',
       title: '새 인증기 추가',
       subtitle: '인증기 페어링',
-      successDescription:
-        '안전한 곳에 이 시드 문구를 적어 두십시오. 인증기를 복원할 때 필요합니다. 빠른 및 취소 거래를 확인할 때 이 인증기가 필요합니다.',
-      description:
-        'Electrum Vault 데스크톱 응용 프로그램을 연 후 새 지갑을 만듭니다. QR 코드가 표시될 때까지 화면의 단계를 따릅니다. 계속하려면 이 앱을 사용하여 스캔하십시오.',
+      successDescription: '안전한 곳에 이 시드 문구를 적어 두십시오. 인증기를 복원할 때 필요합니다. 빠른 및 취소 거래를 확인할 때 이 인증기가 필요합니다.',
+      description: 'Electrum Vault 데스크톱 응용 프로그램을 연 후 새 지갑을 만듭니다. QR 코드가 표시될 때까지 화면의 단계를 따릅니다. 계속하려면 이 앱을 사용하여 스캔하십시오.',
       subdescription: '아래 옵션을 선택하여 인증기를 가져올 수도 있습니다.',
     },
     enterPIN: {
@@ -584,8 +571,7 @@ const ko = {
     publicKey: {
       okButton: 'TRANSLATION NEEDED | ENG: OK, I understand',
       title: 'TRANSLATION NEEDED | ENG: Public Key',
-      subtitle:
-        'TRANSLATION NEEDED | ENG: You can use this Public Key to import your authenticator to the Electrum Vault desktop application during the creation of the 2FA wallet.',
+      subtitle: 'TRANSLATION NEEDED | ENG: You can use this Public Key to import your authenticator to the Electrum Vault desktop application during the creation of the 2FA wallet.',
     },
     errors: {
       noEmpty: 'TRANSLATION NEEDED | ENG: Field can not empty',
@@ -598,18 +584,14 @@ const ko = {
     closeTheApp: '응용 프로그램 닫기',
   },
   security: {
-    jailBrokenPhone:
-      '귀하의 장치가 탈옥된 것 같습니다. 이런 경우 보안 문제나 충돌, 기타 다양한 문제가 발생할 수 있습니다. 탈옥된 장치에서는 GoldWallet을 사용하지 않는 것이 좋습니다.',
-    rootedPhone:
-      '귀하의 장치가 루팅된 것 같습니다. 이런 경우 보안 문제나 충돌, 기타 다양한 문제가 발생할 수 있습니다. 루팅된 장치에서는 GoldWallet을 사용하지 않는 것이 좋습니다.',
+    jailBrokenPhone: '귀하의 장치가 탈옥된 것 같습니다. 이런 경우 보안 문제나 충돌, 기타 다양한 문제가 발생할 수 있습니다. 탈옥된 장치에서는 GoldWallet을 사용하지 않는 것이 좋습니다.',
+    rootedPhone: '귀하의 장치가 루팅된 것 같습니다. 이런 경우 보안 문제나 충돌, 기타 다양한 문제가 발생할 수 있습니다. 루팅된 장치에서는 GoldWallet을 사용하지 않는 것이 좋습니다.',
     title: '보안 문제',
-    noPinOrFingerprintSet:
-      '기기에 암호나 지문이 등록되어 있지 않습니다. 안전하지 않은 기기로의 GoldWallet 사용을 권장하지 않습니다.',
+    noPinOrFingerprintSet: '기기에 암호나 지문이 등록되어 있지 않습니다. 안전하지 않은 기기로의 GoldWallet 사용을 권장하지 않습니다.',
   },
   betaVersion: {
     title: '이것은 GoldWallet의 베타버전입니다',
-    description:
-      '아직 공식 출시 전 최종 테스트 중에 있습니다. 이곳에 보여지는 모든 컨텐츠와 모바일 앱은 "그대로"와 "사용가능" 기반에 제공되어 있습니다. 소프트웨어 사용은 사용자의 위험 감수하에 이루어집니다.',
+    description: '아직 공식 출시 전 최종 테스트 중에 있습니다. 이곳에 보여지는 모든 컨텐츠와 모바일 앱은 \"그대로\"와 \"사용가능\" 기반에 제공되어 있습니다. 소프트웨어 사용은 사용자의 위험 감수하에 이루어집니다.',
     button: '위험을 감수하겠습니다',
   },
-};
+}

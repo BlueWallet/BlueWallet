@@ -323,8 +323,8 @@ class SendCoinsScreen extends Component<Props, State> {
     navigation.navigate(Route.IntegrateKey, {
       onBarCodeScan: scannedKey => {
         CreateMessage({
-          title: i18n.message.creatingWallet,
-          description: i18n.message.creatingWalletDescription,
+          title: i18n.message.processing,
+          description: i18n.message.bePatient,
           type: MessageType.processingState,
           asyncTask: () => onBarCodeScanned(scannedKey),
         });

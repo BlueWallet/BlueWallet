@@ -38,12 +38,10 @@ const zh = {
   },
   authenticators: {
     add: {
-      description:
-        '打开 Electrum Vault 桌面应用程序，并新建钱包。执行屏幕上的步骤，直至看到 QR 码。用该应用程序进行扫描，以继续。',
+      description: '打开 Electrum Vault 桌面应用程序，并新建钱包。执行屏幕上的步骤，直至看到 QR 码。用该应用程序进行扫描，以继续。',
       subdescription: '您还可以通过选择以下选项导入验证器。',
       subtitle: '配对验证器',
-      successDescription:
-        '在安全地方写下该助记词。这是您的备份，用于恢复验证器。记住，确认“快速与取消”交易需要使用验证器。',
+      successDescription: '在安全地方写下该助记词。这是您的备份，用于恢复验证器。记住，确认“快速与取消”交易需要使用验证器。',
       successTitle: '您的验证器已就绪！',
       title: '添加新验证器',
     },
@@ -66,12 +64,11 @@ const zh = {
       success: '您已成功导入验证器。现在可供使用。',
       textAreaPlaceholder: '助记词',
       title: '导入验证器',
-      inUseValidationError:
-        'TRANSLATION NEEDED | ENG: Authenticator is already in use. Please enter a valid authenticator',
+      inUseValidationError: 'TRANSLATION NEEDED | ENG: Name must be unique. Please enter a valid name.',
+      mnemonicLength: 'TRANSLATION NEEDED | ENG: Mnemonic should have 12 words',
       scanNext: 'TRANSLATION NEEDED | ENG: Scan next',
       multipleQrCodesTitle: 'TRANSLATION NEEDED | ENG: Scan another QR code',
-      multipleQrCodesDescription:
-        'TRANSLATION NEEDED | ENG: Some transactions generate multiple QR codes. Make sure to scan all of them from the Electrum Vault application.',
+      multipleQrCodesDescription: 'TRANSLATION NEEDED | ENG: Some transactions generate multiple QR codes. Make sure to scan all of them from the Electrum Vault application.',
       code: 'TRANSLATION NEEDED | ENG: Code: ',
     },
     list: {
@@ -101,8 +98,7 @@ const zh = {
     publicKey: {
       okButton: 'TRANSLATION NEEDED | ENG: OK, I understand',
       title: 'TRANSLATION NEEDED | ENG: Public Key',
-      subtitle:
-        'TRANSLATION NEEDED | ENG: You can use this Public Key to import your authenticator to the Electrum Vault desktop application during the creation of the 2FA wallet.',
+      subtitle: 'TRANSLATION NEEDED | ENG: You can use this Public Key to import your authenticator to the Electrum Vault desktop application during the creation of the 2FA wallet.',
     },
     errors: {
       noEmpty: 'TRANSLATION NEEDED | ENG: Field can not empty',
@@ -110,8 +106,7 @@ const zh = {
   },
   betaVersion: {
     button: '我同意承担风险',
-    description:
-      '在正式发布之前，GoldWallet仍在接受最终测试。 该移动应用程序及程序上所有内容均基于“按原样 ”和“可使用”呈现。 使用该程序的风险由用户自行承担。',
+    description: '在正式发布之前，GoldWallet仍在接受最终测试。 该移动应用程序及程序上所有内容均基于“按原样 ”和“可使用”呈现。 使用该程序的风险由用户自行承担。',
     title: '这是GoldWallet钱包的测试版',
   },
   contactCreate: {
@@ -185,12 +180,14 @@ const zh = {
       done: '完成',
       pending: '待定',
       unblocked: '未锁定',
+      canceledDone: 'TRANSLATION NEEDED | ENG: Canceled-done',
     },
     to: '收款人',
     toAmount: '最大金额',
     toDate: '结束日期',
     transactionStatus: '交易状态',
     transactionType: '交易类型',
+    clearAll: 'TRANSLATION NEEDED | ENG: Clear all',
   },
   message: {
     allDone: '全部完成！',
@@ -216,6 +213,8 @@ const zh = {
     successfullWalletImport: '您的钱包已成功导入。您现在可以返回控制面板。',
     wrongMnemonic: '错误助记键',
     wrongMnemonicDesc: '助记键与任何受支持的钱包均不匹配。\n您正在尝试导入无效助记键或未曾用过的钱包',
+    processing: 'TRANSLATION NEEDED | ENG: Processing',
+    bePatient: 'TRANSLATION NEEDED | ENG: Please be patient, it may take a while.',
   },
   onboarding: {
     changePin: '更改PIN',
@@ -224,8 +223,7 @@ const zh = {
     confirmPin: '确认PIN',
     createNewPin: '新的PIN',
     createPassword: '创建交易密码',
-    createPasswordDescription:
-      '您的交易密码将用于验证所有交易。\n您之后将无法更改。\n交易密码必须包含至少8位字母数字字符。',
+    createPasswordDescription: '您的交易密码将用于验证所有交易。\n您之后将无法更改。\n交易密码必须包含至少8位字母数字字符。',
     createPin: '创建PIN',
     createPinDescription: '您的PIN将用于登录应用。您之后可在设置一栏更改。',
     currentPin: '现用PIN',
@@ -251,8 +249,7 @@ const zh = {
       receiveWithAmount: '接收金额',
       share: '分享',
       shareWalletAddress: 'TRANSLATION NEEDED | ENG: Share wallet address',
-      receiveWithAmountSubtitle:
-        'TRANSLATION NEEDED | ENG: Enter the amount which you would like to receive. The QR code will update accordingly to include the amount.',
+      receiveWithAmountSubtitle: 'TRANSLATION NEEDED | ENG: Enter the amount which you would like to receive. The QR code will update accordingly to include the amount.',
     },
     header: '接收币',
     label: 'TRANSLATION NEEDED | ENG: Wallet address',
@@ -264,11 +261,9 @@ const zh = {
     permissionTitle: '允许使用相机',
   },
   security: {
-    jailBrokenPhone:
-      '您的设备似乎越狱了。这可能会出现安全问题、死机或其它问题。我们不建议在已越狱的设备上使用 GoldWallet。',
+    jailBrokenPhone: '您的设备似乎越狱了。这可能会出现安全问题、死机或其它问题。我们不建议在已越狱的设备上使用 GoldWallet。',
     noPinOrFingerprintSet: '您的设备未设置PIN 密码或指纹登录。 不建议在不安全的设备上使用GoldWallet。',
-    rootedPhone:
-      '您的设备似乎取得了 root 权限。这可能会出现安全问题、死机或其它问题。我们不建议在取得 root 权限的设备上使用 GoldWallet。',
+    rootedPhone: '您的设备似乎取得了 root 权限。这可能会出现安全问题、死机或其它问题。我们不建议在取得 root 权限的设备上使用 GoldWallet。',
     title: '安全问题',
   },
   selectLanguage: {
@@ -348,8 +343,7 @@ const zh = {
       watchOnlyError: '监视钱包不能发送交易',
     },
     warning: '警告:',
-    warningGeneral:
-      '警告：请注意，在使用安全交易功能的过程中，您钱包中剩余的部分资金可能会被冻结。 这是与UTXO和比特币 Vault钱包的区块链参数的常规过程。 当交易通过验证（大约24小时后）或交易被取消（24小时内）后，资金冻结将被解除。',
+    warningGeneral: '警告：请注意，在使用安全交易功能的过程中，您钱包中剩余的部分资金可能会被冻结。 这是与UTXO和比特币 Vault钱包的区块链参数的常规过程。 当交易通过验证（大约24小时后）或交易被取消（24小时内）后，资金冻结将被解除。',
   },
   settings: {
     about: '关于',
@@ -429,6 +423,7 @@ const zh = {
       done: '完成',
       pending: '待定',
       unblocked: '未锁定',
+      blocked: 'TRANSLATION NEEDED | ENG: blocked',
       canceledDone: 'TRANSLATION NEEDED | ENG: canceled - done',
     },
     list: {
@@ -480,8 +475,7 @@ const zh = {
       walletType: '钱包类型',
     },
     addSuccess: {
-      description:
-        '您的钱包已创建。请花费一点时间在纸上写下这个助记词。这是您的备份。您可以在其它设备上使用备份来恢复钱包。',
+      description: '您的钱包已创建。请花费一点时间在纸上写下这个助记词。这是您的备份。您可以在其它设备上使用备份来恢复钱包。',
       okButton: '好的，我写完了！',
       subtitle: '操作成功',
       title: '添加新的钱包',
@@ -564,12 +558,13 @@ const zh = {
       title: '导入您的钱包',
       unsupportedElectrumVaultMnemonic: '该种子来自 Electrum Vault，目前不受支持。不久将获得支持。',
       walletInUseValidationError: '钱包已使用。请输入有效的钱包。',
+      extendWithCustomWords: 'TRANSLATION NEEDED | ENG: Extend this seed with custom words',
+      customWords: 'TRANSLATION NEEDED | ENG: Custom words',
     },
     publicKey: {
       instantDescription: '转到另一设备上的 web 密钥生成器，并使用该应用程序扫描公钥 QR二维 码。记得将密钥导出为 PDF！',
       instantSubtitle: '添加快速键',
-      recoveryDescription:
-        '转到另一设备上的 web 密钥生成器，并使用该应用程序扫描公钥 QR 二维码。记得将密钥导出为 PDF！',
+      recoveryDescription: '转到另一设备上的 web 密钥生成器，并使用该应用程序扫描公钥 QR 二维码。记得将密钥导出为 PDF！',
       recoverySubtitle: '添加取消键',
       scan: '扫描',
       webKeyGenerator: 'Web 密钥生成器：',
@@ -599,4 +594,4 @@ const zh = {
       wallets: '钱包',
     },
   },
-};
+}

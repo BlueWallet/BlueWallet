@@ -42,6 +42,8 @@ module.exports = {
     successfullWalletImport: `You have successfully imported your wallet. It's now ready to use.`,
     successfullWalletDelete: 'Your wallet has been successfully deleted. You can now return to Dashboard.',
     returnToDashboard: 'Return to Dashboard',
+    processing: 'Processing',
+    bePatient: 'Please be patient, it may take a while.',
     returnToWalletChoose: 'Return to the wallet type selection',
     returnToWalletImport: 'Return to wallet import',
     generateAddressesError: 'Couldn`t generate addresses',
