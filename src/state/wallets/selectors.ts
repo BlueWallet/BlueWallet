@@ -1,5 +1,5 @@
-import { flatten, flattenDeep, max } from 'lodash';
-import { flatten as flattenFp, some, map, compose } from 'lodash/fp';
+import { flatten, flattenDeep, max, cloneDeep } from 'lodash';
+import { flattenDeep as flattenDeepFp, flatten as flattenFp, some, map, compose, filter } from 'lodash/fp';
 import { createSelector } from 'reselect';
 
 import {
@@ -22,7 +22,44 @@ import { WalletsState } from './reducer';
 
 const local = (state: ApplicationState): WalletsState => state.wallets;
 
-export const wallets = createSelector(local, state => state.wallets);
+export const wallets = createSelector(local, state => {
+  return state.wallets.map(wallet => {
+    const w = cloneDeep(wallet);
+    const recoveryInputsTxIds = compose(
+      flattenDeepFp,
+      map(({ inputs }) => inputs.map((input: TransactionInput) => input.txid)),
+      filter(({ tx_type }) => tx_type === TxType.RECOVERY),
+    )(w.transactions);
+
+    const { balance, incomingBalance } = w.transactions.reduce(
+      ({ balance, incomingBalance }: { balance: number; incomingBalance: number }, t: Transaction) => {
+        if (t.tx_type === TxType.ALERT_RECOVERED) {
+          return { balance, incomingBalance };
+        }
+
+        const inputsMyAmount = getMyAmount(w, t.inputs);
+        const outputsMyAmount = getMyAmount(w, t.outputs);
+
+        if (t.tx_type === TxType.ALERT_PENDING) {
+          const inputsTxIds = flatten(t.inputs.map(({ txid }) => txid));
+
+          if (inputsTxIds.some(id => recoveryInputsTxIds.includes(id))) {
+            return { balance, incomingBalance };
+          }
+          return { balance: balance - inputsMyAmount, incomingBalance: incomingBalance + outputsMyAmount };
+        }
+
+        return { balance: balance + outputsMyAmount - inputsMyAmount, incomingBalance };
+      },
+      { balance: 0, incomingBalance: 0 },
+    );
+
+    w.balance = btcToSatoshi(balance, 0);
+    w.incoming_balance = btcToSatoshi(incomingBalance, 0);
+
+    return w;
+  });
+});
 
 export const getById = createSelector(
   wallets,
