@@ -21,6 +21,12 @@
 		47A71B37E7A47E7CADA091A1 /* libPods-MarketWidgetExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD3AC9FD81723B68A63C12 /* libPods-MarketWidgetExtension.a */; };
 		5875B7B2D85DC56E00F292FF /* libPods-WalletInformationWidgetExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CC8A6C610EAE90F810EADCC /* libPods-WalletInformationWidgetExtension.a */; };
 		590C62D2ED8BF487C33945B0 /* libPods-WalletInformationAndMarketWidgetExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 98455D960744E4E5DD50BA87 /* libPods-WalletInformationAndMarketWidgetExtension.a */; };
+		6D641F18255226DA003792DF /* MarketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D641F17255226DA003792DF /* MarketView.swift */; };
+		6D641F19255226DA003792DF /* MarketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D641F17255226DA003792DF /* MarketView.swift */; };
+		6D641F1A255226DA003792DF /* MarketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D641F17255226DA003792DF /* MarketView.swift */; };
+		6D641F2325525054003792DF /* WalletInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D641F2225525053003792DF /* WalletInformationView.swift */; };
+		6D641F2425525054003792DF /* WalletInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D641F2225525053003792DF /* WalletInformationView.swift */; };
+		6D641F2525525054003792DF /* WalletInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D641F2225525053003792DF /* WalletInformationView.swift */; };
 		6D9A2E03254BA347007B5B82 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; };
 		6D9A2E04254BA347007B5B82 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3C252FE1A3004D72DF /* SwiftUI.framework */; };
 		6D9A2E07254BA347007B5B82 /* WalletInformationAndMarketWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E06254BA347007B5B82 /* WalletInformationAndMarketWidget.swift */; };
@@ -254,6 +260,8 @@
 		6D294A9E24D512800039E22B /* xh */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = xh; path = xh.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D333B3A252FE1A3004D72DF /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		6D333B3C252FE1A3004D72DF /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		6D641F17255226DA003792DF /* MarketView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketView.swift; sourceTree = "<group>"; };
+		6D641F2225525053003792DF /* WalletInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInformationView.swift; sourceTree = "<group>"; };
 		6D9A2DB2254B69B6007B5B82 /* MarketWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MarketWidgetExtension.entitlements; sourceTree = "<group>"; };
 		6D9A2E02254BA347007B5B82 /* WalletInformationAndMarketWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WalletInformationAndMarketWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D9A2E06254BA347007B5B82 /* WalletInformationAndMarketWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInformationAndMarketWidget.swift; sourceTree = "<group>"; };
@@ -544,6 +552,7 @@
 		6DEB4BC1254FB98300E9F9AA /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				6DEB4DD82552260200E9F9AA /* Views */,
 				6D9A2E6A254BAB1B007B5B82 /* WidgetAPI.swift */,
 				6D9A2E6B254BAB1B007B5B82 /* WidgetDataStore.swift */,
 				6DA7047D254E24D5005FE5E2 /* UserDefaultsGroup.swift */,
@@ -552,6 +561,15 @@
 				6DEB4C3A254FBF4800E9F9AA /* Colors.swift */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		6DEB4DD82552260200E9F9AA /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				6D641F17255226DA003792DF /* MarketView.swift */,
+				6D641F2225525053003792DF /* WalletInformationView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		83CBB9F61A601CBA00E9B192 = {
@@ -1145,12 +1163,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D641F2325525054003792DF /* WalletInformationView.swift in Sources */,
 				6D9A2E6D254BAB1B007B5B82 /* WidgetAPI.swift in Sources */,
 				6DEB4C3B254FBF4800E9F9AA /* Colors.swift in Sources */,
 				6D9A2E6F254BAB1B007B5B82 /* WidgetDataStore.swift in Sources */,
 				6DA7047E254E24D5005FE5E2 /* UserDefaultsGroup.swift in Sources */,
 				6D9A2E07254BA347007B5B82 /* WalletInformationAndMarketWidget.swift in Sources */,
 				6DEB4BFB254FBA0E00E9F9AA /* Models.swift in Sources */,
+				6D641F18255226DA003792DF /* MarketView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1158,12 +1178,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D641F2425525054003792DF /* WalletInformationView.swift in Sources */,
 				6DEB4AB2254FB59C00E9F9AA /* WalletInformationWidget.swift in Sources */,
 				6DEB4C3C254FBF4800E9F9AA /* Colors.swift in Sources */,
 				6DEB4BDA254FB98E00E9F9AA /* WidgetAPI.swift in Sources */,
 				6DEB4BDB254FB98E00E9F9AA /* UserDefaultsGroup.swift in Sources */,
 				6DEB4BD9254FB98E00E9F9AA /* WidgetDataStore.swift in Sources */,
 				6DEB4BFC254FBA0E00E9F9AA /* Models.swift in Sources */,
+				6D641F19255226DA003792DF /* MarketView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1171,12 +1193,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D641F2525525054003792DF /* WalletInformationView.swift in Sources */,
 				6DEB4B2B254FB80300E9F9AA /* MarketWidget.swift in Sources */,
 				6DEB4C3D254FBF4800E9F9AA /* Colors.swift in Sources */,
 				6DEB4BD7254FB98D00E9F9AA /* WidgetAPI.swift in Sources */,
 				6DEB4BD8254FB98D00E9F9AA /* UserDefaultsGroup.swift in Sources */,
 				6DEB4BD6254FB98D00E9F9AA /* WidgetDataStore.swift in Sources */,
 				6DEB4BFD254FBA0E00E9F9AA /* Models.swift in Sources */,
+				6D641F1A255226DA003792DF /* MarketView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

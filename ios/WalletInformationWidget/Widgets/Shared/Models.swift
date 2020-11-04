@@ -6,6 +6,8 @@
 //  Copyright © 2020 BlueWallet. All rights reserved.
 //
 
+import Foundation
+
 struct MarketData {
   var nextBlock: String
   var sats: String
@@ -27,3 +29,4 @@ struct WalletData {
 
 
 let emptyMarketData = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
+let emptyWalletData = WalletData(balance: 0, latestTransactionTime: Int(Date().timeIntervalSince1970))
