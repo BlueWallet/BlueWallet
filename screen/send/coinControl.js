@@ -24,7 +24,6 @@ import { BlueNavigationStyle, SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueBu
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const oStyles = StyleSheet.create({
-  container: { backgroundColor: 'transparent' },
   containerFull: { paddingHorizontal: 0 },
   avatar: { borderColor: 'white', borderWidth: 1 },
   amount: { fontWeight: 'bold' },
@@ -48,7 +47,7 @@ const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, change = 
   const amount = formatBalanceWithoutSuffix(value, BitcoinUnit.BTC, true);
 
   return (
-    <ListItem bottomDivider onPress={onPress} containerStyle={[oStyles.container, full && oStyles.containerFull]}>
+    <ListItem bottomDivider onPress={onPress} containerStyle={[{ backgroundColor: colors.elevated }, full && oStyles.containerFull]}>
       <Avatar rounded overlayContainerStyle={[oStyles.avatar, { backgroundColor: color }]} />
       <ListItem.Content>
         <ListItem.Title style={[oStyles.amount, { color: colors.foregroundColor }]}>{amount}</ListItem.Title>
