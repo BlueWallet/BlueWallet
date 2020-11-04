@@ -149,7 +149,7 @@ class DeeplinkSchemaMatch {
         {
           screen: 'LNDCreateInvoice',
           params: {
-            uri: event.url,
+            uri: event.url.replace('lightning:', '').replace('LIGHTNING:', ''),
           },
         },
       ]);
