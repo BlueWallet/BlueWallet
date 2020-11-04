@@ -7,7 +7,16 @@ import { View, StyleSheet, Text, Linking, TouchableOpacity } from 'react-native'
 import { connect } from 'react-redux';
 
 import { icons } from 'app/assets';
-import { Image, Header, StyledText, Chip, ScreenTemplate, TranscationLabelStatus, Label } from 'app/components';
+import {
+  Image,
+  Header,
+  StyledText,
+  Chip,
+  ScreenTemplate,
+  TranscationLabelStatus,
+  Label,
+  EllipsisText,
+} from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
 import { Route, MainCardStackNavigatorParams, RootStackParams, TxType } from 'app/consts';
 import { getConfirmationsText } from 'app/helpers/helpers';
@@ -72,7 +81,7 @@ class TransactionDetailsScreen extends Component<Props> {
               resizeMode="contain"
             />
             <Image source={icons.wallet} style={styles.walletIcon} resizeMode="contain" />
-            <Text style={styles.walletLabel}>{transaction.walletLabel}</Text>
+            <EllipsisText style={styles.walletLabel}>{transaction.walletLabel}</EllipsisText>
           </View>
           {transaction.toExternalAddress !== undefined && (
             <View style={styles.rowWrapper}>
@@ -301,6 +310,7 @@ const styles = StyleSheet.create({
     marginBottom: 13,
   },
   walletLabel: {
+    marginRight: 50,
     ...typography.headline8,
   },
   opacity: {

@@ -50,6 +50,7 @@ const styles = StyleSheet.create({
     marginLeft: 26,
   },
   name: {
+    marginRight: 80,
     ...typography.caption,
     color: palette.textGrey,
   },

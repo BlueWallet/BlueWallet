@@ -117,6 +117,8 @@ const styles = StyleSheet.create({
   },
   chooseWalletButtonText: {
     textAlign: 'center',
+    marginRight: 45,
+    marginLeft: 20,
     ...typography.headline4,
   },
   pendingBalanceText: {

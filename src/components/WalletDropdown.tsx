@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
     margin: 4,
   },
   buttonDescription: {
+    marginHorizontal: 5,
     ...typography.caption,
     color: palette.textGrey,
   },

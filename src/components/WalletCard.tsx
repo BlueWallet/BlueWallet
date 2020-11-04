@@ -78,7 +78,8 @@ const styles = StyleSheet.create({
   walletType: {
     ...typography.headline7,
     color: palette.white,
-    maxWidth: ITEM_WIDTH - 60,
+    marginRight: 10,
+    maxWidth: ITEM_WIDTH - 110,
   },
   balance: {
     ...typography.headline3,

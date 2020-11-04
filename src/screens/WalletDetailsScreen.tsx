@@ -6,7 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import { connect } from 'react-redux';
 
 import { Button, FlatButton, Header, ScreenTemplate, WalletCard, ButtonType, Text } from 'app/components';
-import { Wallet, Route, MainCardStackNavigatorParams, RootStackParams, ActionMeta } from 'app/consts';
+import { Wallet, Route, MainCardStackNavigatorParams, RootStackParams, ActionMeta, CONST } from 'app/consts';
 import { maxWalletNameLength } from 'app/consts/text';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { ApplicationState } from 'app/state';
@@ -38,6 +38,8 @@ interface Props {
 export class WalletDetailsScreen extends React.PureComponent<Props> {
   validationError = (value: string): string | undefined => {
     const trimmedValue = value.trim();
+    const checkAllWallets =
+      value.toLowerCase() === i18n.wallets.dashboard.allWallets.toLowerCase() || value === CONST.allWallets;
     const { walletsLabels, wallet } = this.props;
     if (!wallet) {
       return;
@@ -45,6 +47,9 @@ export class WalletDetailsScreen extends React.PureComponent<Props> {
     const allOtherWalletLabels = walletsLabels.filter((label: string) => label !== wallet.label);
     if (allOtherWalletLabels.includes(trimmedValue)) {
       return i18n.wallets.importWallet.walletInUseValidationError;
+    }
+    if (checkAllWallets) {
+      return i18n.wallets.importWallet.allWalletsValidationError;
     }
   };
 

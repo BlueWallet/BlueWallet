@@ -194,6 +194,7 @@ module.exports = {
       import: 'Import',
       scanQrCode: 'or scan QR code',
       walletInUseValidationError: 'Wallet is already in use. Please enter a valid wallet.',
+      allWalletsValidationError: 'You cannot enter the name "All wallets"',
       chooseTypeDescription: 'Choose the type of the wallet you want to import.',
       importARDescription1: 'Enter the seed phrase',
       importARDescription2: 'scan the QR code of the wallet you want to import',

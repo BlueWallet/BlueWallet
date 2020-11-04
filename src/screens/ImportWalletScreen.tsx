@@ -6,7 +6,14 @@ import { connect } from 'react-redux';
 
 import { Header, TextAreaItem, FlatButton, ScreenTemplate, InputItem, CheckBox } from 'app/components';
 import { Button } from 'app/components/Button';
-import { Route, Wallet, MainCardStackNavigatorParams, ActionMeta, ELECTRUM_VAULT_SEED_PREFIXES } from 'app/consts';
+import {
+  Route,
+  Wallet,
+  MainCardStackNavigatorParams,
+  ActionMeta,
+  ELECTRUM_VAULT_SEED_PREFIXES,
+  CONST,
+} from 'app/consts';
 import { maxWalletNameLength } from 'app/consts/text';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { ApplicationState } from 'app/state';
@@ -99,9 +106,15 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
 
   onLabelChange = (value: string) => {
     const { wallets } = this.props;
-    const validationError = wallets.some(w => w.label === value)
-      ? i18n.wallets.importWallet.walletInUseValidationError
-      : '';
+    const walletInUse = wallets.some(w => w.label === value);
+    const allWalletsCheck =
+      value.toLowerCase() === i18n.wallets.dashboard.allWallets.toLowerCase() || this.state.label === CONST.allWallets;
+    const validationError =
+      walletInUse || allWalletsCheck
+        ? walletInUse
+          ? i18n.wallets.importWallet.walletInUseValidationError
+          : i18n.wallets.importWallet.allWalletsValidationError
+        : '';
     this.setState({
       label: value,
       validationError,
