@@ -91,26 +91,11 @@ static void InitializeFlipper(UIApplication *application) {
   [RNQuickActionManager onQuickActionPress:shortcutItem completionHandler:completionHandler];
 }
 
-
-
-
-
-
-
-
 //Called when a notification is delivered to a foreground app.
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
   completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
 }
-
-
-
-
-
-
-
-
 
 // Required to register for notifications
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings

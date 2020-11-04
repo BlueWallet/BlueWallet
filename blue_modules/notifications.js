@@ -52,6 +52,11 @@ function Notifications(props) {
           // 3) any of the above but the storage is decrypted, and app wallets are loaded
           //
           // ...we save notification in internal notifications queue thats gona be processed later (on unsuspend with decrypted storage)
+          Alert(JSON.stringify(notification));
+          if (notification.getContentAvailable() === 1) {
+            props.onReceiveSilentNotification(notification);
+            return;
+          }
 
           let notifications = [];
           try {

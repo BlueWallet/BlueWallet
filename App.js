@@ -168,7 +168,6 @@ const App = () => {
 
       if (wallet) {
         const walletID = wallet.getID();
-        fetchAndSaveWalletTransactions(walletID);
         // no delay (1ms) as we dont need to wait for transaction propagation. 500ms is a delay to wait for the navigation
         await Notifications.clearStoredNotifications();
         const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
@@ -242,6 +241,22 @@ const App = () => {
     DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value), { wallets, addWallet, saveToDisk });
   };
 
+  const onReceiveSilentNotification = notification => {
+    console.log('processing push notification:', notification);
+    let wallet;
+    switch (+notification.data.type) {
+      case 2:
+      case 3:
+        wallet = wallets.find(w => w.weOwnAddress(notification.data.address));
+        break;
+      case 1:
+      case 4:
+        wallet = wallets.find(w => w.weOwnTransaction(notification.data.txid || notification.data.hash));
+        break;
+    }
+    fetchAndSaveWalletTransactions(wallet.getID());
+  };
+
   const hideClipboardContentModal = () => {
     setIsClipboardContentModalVisible(false);
   };
@@ -283,7 +298,7 @@ const App = () => {
       <View style={styles.root}>
         <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
           <InitRoot />
-          <Notifications onProcessNotifications={processPushNotifications} />
+          <Notifications onProcessNotifications={processPushNotifications} onReceiveSilentNotification={onReceiveSilentNotification} />
         </NavigationContainer>
         {renderClipboardContentModal()}
       </View>

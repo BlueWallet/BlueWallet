@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import {
@@ -10,14 +10,16 @@ import {
   BlueListItem,
   BlueNavigationStyle,
 } from '../../BlueComponents';
-import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
+import { getApplicationName, getVersion, getBundleId, getBuildNumber, getDeviceToken } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import loc from '../../loc';
+import { TextInput } from 'react-native-gesture-handler';
 
 const About = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
+  const [token, setToken] = useState('token');
   const styles = StyleSheet.create({
     root: {
       flex: 1,
@@ -94,6 +96,10 @@ const About = () => {
       }
     });
   };
+
+  useEffect(() => {
+    getDeviceToken().then(setToken)
+  },[])
 
   return (
     <SafeBlueArea style={styles.root}>
@@ -188,6 +194,7 @@ const About = () => {
         </BlueTextCentered>
         <BlueSpacing20 />
         <BlueSpacing20 />
+        <TextInput value={token}/> 
       </ScrollView>
     </SafeBlueArea>
   );
