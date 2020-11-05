@@ -589,9 +589,7 @@ const WalletsAddMultisigStep2 = () => {
     );
 
   return (
-      <ScrollView 
-      contentContainerStyle={{ height: '100%' }}
-      style={[styles.root, stylesHook.root]}>
+      <ScrollView contentContainerStyle={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="light-content" />
       <BlueSpacing20 />
         <View style={[styles.root, stylesHook.root, styles.mainBlock]}>
@@ -614,6 +612,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: -8,
     flexDirection: 'column',
+    height: '100%',
   },
   mainBlock: { 
     height: '100%', 
