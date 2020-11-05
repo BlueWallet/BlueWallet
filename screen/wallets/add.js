@@ -312,7 +312,7 @@ const WalletsAdd = () => {
           <BlueSpacing20 />
           <View style={styles.createButton}>
             {!isLoading ? (
-                <BlueButtonHook testID="Create" title={loc.wallets.add_create} disabled={!selectedWalletType} onPress={createWallet} />
+              <BlueButtonHook testID="Create" title={loc.wallets.add_create} disabled={!selectedWalletType} onPress={createWallet} />
             ) : (
               <ActivityIndicator />
             )}
