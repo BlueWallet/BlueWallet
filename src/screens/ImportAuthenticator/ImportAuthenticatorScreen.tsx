@@ -1,6 +1,7 @@
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { Component } from 'react';
 import { Text, StyleSheet, Alert, View } from 'react-native';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { connect } from 'react-redux';
 
 import { Header, ScreenTemplate, TextAreaItem, FlatButton, Button, InputItem } from 'app/components';
@@ -159,24 +160,34 @@ class ImportAuthenticatorScreen extends Component<Props, State> {
     return !!(name && mnemonic && !this.hasErrors());
   };
 
+  sendFeedback = () => {
+    const { name } = this.state;
+    if (!!!name.trim()) {
+      this.setState({ nameError: i18n.authenticators.errors.noEmpty });
+    }
+  };
+
   render() {
     const { mnemonicError, name } = this.state;
-
     return (
       <ScreenTemplate
         footer={
           <>
-            <Button
-              disabled={!this.canSubmit()}
-              title={i18n.wallets.importWallet.import}
-              onPress={this.createAuthenticatorForm}
-            />
-            <FlatButton
-              containerStyle={styles.scanQRCodeButtonContainer}
-              title={i18n.wallets.importWallet.scanQrCode}
-              onPress={this.scanQRCode}
-              disabled={!name || !!this.validationError}
-            />
+            <TouchableWithoutFeedback onPress={this.sendFeedback}>
+              <Button
+                disabled={!this.canSubmit()}
+                title={i18n.wallets.importWallet.import}
+                onPress={this.createAuthenticatorForm}
+              />
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={this.sendFeedback}>
+              <FlatButton
+                containerStyle={styles.scanQRCodeButtonContainer}
+                title={i18n.wallets.importWallet.scanQrCode}
+                onPress={this.scanQRCode}
+                disabled={!name || !!this.validationError}
+              />
+            </TouchableWithoutFeedback>
           </>
         }
         // @ts-ignore
