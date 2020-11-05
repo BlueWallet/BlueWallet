@@ -42,7 +42,7 @@ const WalletsAddMultisig = () => {
       color: colors.alternativeTextColor,
     },
     selectedItem: {
-      backgroundColor: colors.buttonDisabledTextColor,
+      backgroundColor: colors.elevated,
     },
     deSelectedItem: {
       backgroundColor: 'transparent',
@@ -146,21 +146,21 @@ const WalletsAddMultisig = () => {
               onPress={setFormatP2wsh}
               title={`${loc.multisig.native_segwit_title} (${MultisigHDWallet.FORMAT_P2WSH})`}
               checkmark={isP2wsh()}
-              containerStyle={[styles.borderRadius6, isP2wsh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
+              containerStyle={[styles.borderRadius6, styles.item, isP2wsh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
             />
             <BlueListItem
               bottomDivider={false}
               onPress={setFormatP2shP2wsh}
               title={`${loc.multisig.wrapped_segwit_title} (${MultisigHDWallet.FORMAT_P2SH_P2WSH})`}
               checkmark={isP2shP2wsh()}
-              containerStyle={[styles.borderRadius6, isP2shP2wsh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
+              containerStyle={[styles.borderRadius6, styles.item, isP2shP2wsh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
             />
             <BlueListItem
               bottomDivider={false}
               onPress={setFormatP2sh}
               title={`${loc.multisig.legacy_title} (${MultisigHDWallet.FORMAT_P2SH})`}
               checkmark={isP2sh()}
-              containerStyle={[styles.borderRadius6, isP2sh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
+              containerStyle={[styles.borderRadius6, styles.item, isP2sh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
             />
           </View>
         </KeyboardAvoidingView>
@@ -238,6 +238,9 @@ const styles = StyleSheet.create({
   bottomModal: {
     justifyContent: 'flex-end',
     margin: 0,
+  },
+  item: {
+    paddingHorizontal: 0,
   },
   descriptionContainer: {
     alignContent: 'center',
