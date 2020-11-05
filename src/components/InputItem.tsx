@@ -130,7 +130,7 @@ export class InputItem extends PureComponent<Props, State> {
             !!suffix && styles.isSuffix,
             isActive && styles.isActiveInput,
             !!error && styles.isError,
-            { height: Math.max(27, height) },
+            { height: Math.max(40, height) },
             this.props.style,
           ]}
           selectionColor={palette.textSecondary}
