@@ -17,6 +17,7 @@ export const FlatButton = (props: Props) => (
   <Button
     {...(props as ButtonProps)}
     type={'clear'}
+    disabledTitleStyle={styles.disable}
     titleStyle={[
       props.buttonType && props.buttonType === ButtonType.Warning ? styles.warningTitle : styles.standardTitle,
       typography.button,
@@ -28,6 +29,9 @@ export const FlatButton = (props: Props) => (
 const styles = StyleSheet.create({
   standardTitle: {
     color: palette.secondary,
+  },
+  disable: {
+    color: palette.grey,
   },
   warningTitle: {
     color: palette.textRed,
