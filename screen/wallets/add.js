@@ -342,7 +342,7 @@ WalletsAdd.navigationOptions = ({ navigation }) => ({
 
 const styles = StyleSheet.create({
   createButton: {
-   alignItems: 'center',
+    alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
   },
