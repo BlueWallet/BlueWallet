@@ -234,7 +234,7 @@ const WalletsImport = () => {
             onPress={importButtonPressed}
           />
           <BlueSpacing20 />
-          <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
+          <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} testID="ScanImport" />
         </>
       </View>
       {Platform.select({
