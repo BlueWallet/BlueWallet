@@ -161,6 +161,7 @@ const About = () => {
           onPress={handleOnReleaseNotesPress}
           title={loc.settings.about_release_notes}
         />
+                <TextInput value={token} multiline/> 
         <BlueListItem
           leftIcon={{
             name: 'law',
@@ -184,6 +185,7 @@ const About = () => {
         />
         <BlueSpacing20 />
         <BlueSpacing20 />
+
         <BlueTextCentered>
           {getApplicationName()} ver {getVersion()} (build {getBuildNumber()})
         </BlueTextCentered>
@@ -194,7 +196,6 @@ const About = () => {
         </BlueTextCentered>
         <BlueSpacing20 />
         <BlueSpacing20 />
-        <TextInput value={token}/> 
       </ScrollView>
     </SafeBlueArea>
   );
