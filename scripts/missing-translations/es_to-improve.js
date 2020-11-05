@@ -1,6 +1,7 @@
 const es = {
   _: {
     bad_password: 'Contraseña incorrecta, inténtelo nuevamente',
+    cancel: 'Cancelar',
     click: 'Haga click',
     confirm: 'Confirmar',
     continue: 'Continuar',
@@ -18,9 +19,8 @@ const es = {
     or: 'o',
     satoshi: 'Satoshi',
     save: 'Guardar',
+    scan: 'Escanear',
     storage_is_encrypted: 'Su almacenamiento está cifrado. Se requiere contraseña para descifrarlo',
-    cancel: 'TRANSLATION NEEDED | ENG: Cancel',
-    scan: 'TRANSLATION NEEDED | ENG: Scan',
   },
   aboutUs: {
     alwaysBackupYourKeys: 'Siempre guarde una copia de seguridad de sus claves',
@@ -34,7 +34,7 @@ const es = {
   },
   advancedOptions: {
     description:
-      'Al activar las opciones avanzadas, podrá elegir entre los tipos de cartera enumerados a continuación: \n P2SH, HD P2SH, HD segwit.',
+      'Al activar las opciones avanzadas, podrá elegir entre los tipos de cartera enumerados a continuación: \n  P2SH, HD P2SH, HD segwit.',
     title: 'Configurar opciones avanzadas',
   },
   authenticators: {
@@ -58,23 +58,26 @@ const es = {
         'Introduzca este Pin en la aplicación de escritorio de Electrum Vault para terminar el proceso de emparejamiento.',
       subtitle: 'Introduzca el PIN',
     },
+    errors: {
+      noEmpty: 'El campo no puede estar vacío',
+    },
     export: {
       title: 'Exportar autenticador',
     },
     import: {
+      code: 'Código:',
       desc1: 'Escriba la frase mnemotécnica o escanee el código QR del autenticador que desea importar.',
       desc2: 'escanee el código QR al hacer clic en "o escanee el código QR" debajo',
+      inUseValidationError: 'El nombre debe ser único. Por favor, introduzca un nombre válido.',
+      mnemonicLength: 'La mnemotecnia debe tener 12 palabras',
+      multipleQrCodesDescription:
+        'Algunas transacciones generan múltiples códigos QR. Asegúrese de escanearlos todos desde la aplicación Electrum Vault.',
+      multipleQrCodesTitle: 'Escanee otro código QR',
+      scanNext: 'Escanee el siguiente',
       subtitle: 'Importe su autenticador',
       success: 'Ha importado su autenticador correctamente. Ya está listo para usarse.',
       textAreaPlaceholder: 'Frase mnemotécnica',
       title: 'Importar autenticador',
-      inUseValidationError: 'TRANSLATION NEEDED | ENG: Name must be unique. Please enter a valid name.',
-      mnemonicLength: 'TRANSLATION NEEDED | ENG: Mnemonic should have 12 words',
-      scanNext: 'TRANSLATION NEEDED | ENG: Scan next',
-      multipleQrCodesTitle: 'TRANSLATION NEEDED | ENG: Scan another QR code',
-      multipleQrCodesDescription:
-        'TRANSLATION NEEDED | ENG: Some transactions generate multiple QR codes. Make sure to scan all of them from the Electrum Vault application.',
-      code: 'TRANSLATION NEEDED | ENG: Code: ',
     },
     list: {
       noAuthenticators: 'Aún no hay autenticadores',
@@ -98,17 +101,14 @@ const es = {
       publicKey: 'Clave púbica',
       title: 'Emparejar autenticador',
     },
+    publicKey: {
+      okButton: 'Bien, entendido.',
+      subtitle:
+        'Puede usar esta Clave Pública para importar su autentificador a la aplicación de escritorio Electrum Vault durante la creación del monedero de 2FA.',
+      title: 'Clave Pública',
+    },
     sign: {
       error: 'Ninguno de los autenticadores pudo firmar la transacción',
-    },
-    publicKey: {
-      okButton: 'TRANSLATION NEEDED | ENG: OK, I understand',
-      title: 'TRANSLATION NEEDED | ENG: Public Key',
-      subtitle:
-        'TRANSLATION NEEDED | ENG: You can use this Public Key to import your authenticator to the Electrum Vault desktop application during the creation of the 2FA wallet.',
-    },
-    errors: {
-      noEmpty: 'TRANSLATION NEEDED | ENG: Field can not empty',
     },
   },
   betaVersion: {
@@ -120,25 +120,25 @@ const es = {
   contactCreate: {
     addressLabel: 'Dirección',
     buttonLabel: 'Añadir nuevo contacto',
-    description: 'Escriba nombre y dirección\n para su nuevo contacto.',
+    description: 'Escriba nombre y dirección\n  para su nuevo contacto.',
+    nameCannotContainSpecialCharactersError: 'El nombre no puede contener carácteres especiales.',
     nameLabel: 'Nombre',
+    nameMissingAlphanumericCharacterError: 'Falta el carácter alfanumérico del nombre.',
     screenTitle: 'Añadir nuevo contacto',
     subtitle: 'Nuevo contacto',
     successButton: 'Volver a la libreta de direcciones',
     successDescription: '¡Bravo! Ha añadido su contacto correctamente.',
     successTitle: 'Completado',
-    nameMissingAlphanumericCharacterError: 'TRANSLATION NEEDED | ENG: Name is missing alphanumeric character.',
-    nameCannotContainSpecialCharactersError: 'TRANSLATION NEEDED | ENG: Name cannot contain special characters.',
   },
   contactDelete: {
     description1: '¿Está seguro de que quiere eliminarlo',
-    description2: '?\n No podrá deshacer esta operación.',
+    description2: '?\n  No podrá deshacer esta operación.',
     header: 'Borrar contacto',
     no: 'No',
     success: 'Completado',
     successButton: 'Volver a la libreta de direcciones',
     successDescription:
-      'Su contacto ha sido eliminado correctamente.\n Ahora puede volver a la libreta de direcciones.',
+      'Su contacto ha sido eliminado correctamente.\n  Ahora puede volver a la libreta de direcciones.',
     title: 'Eliminar su contacto',
     yes: 'Sí',
   },
@@ -155,7 +155,7 @@ const es = {
   contactList: {
     cancel: 'Cancelar',
     noContacts: 'No hay contactos',
-    noContactsDesc1: 'No hay contactos para mostrar.\n Haga clic',
+    noContactsDesc1: 'No hay contactos para mostrar.\n  Haga clic',
     noContactsDesc2: 'para añadir su primer contacto.',
     noResults: 'No hay resultados para',
     screenTitle: 'Libreta de direcciones',
@@ -175,6 +175,7 @@ const es = {
     useDefault: 'Usar predeterminado',
   },
   filterTransactions: {
+    clearAll: 'Borrar todo',
     clearFilters: 'borrar filtros',
     filter: 'filtrar',
     from: 'de',
@@ -186,31 +187,28 @@ const es = {
     send: 'enviar',
     sent: 'Enviada',
     status: {
-      annulled: 'Anulada',
       canceled: 'Cancelada',
+      canceledDone: 'Cancelado-hecho',
       done: 'Finalizada',
       pending: 'Pendiente',
-      unblocked: 'Desbloqueado',
-      canceledDone: 'TRANSLATION NEEDED | ENG: Canceled-done',
     },
     to: 'para',
     toAmount: 'monto máximo',
     toDate: 'fecha de finalización',
     transactionStatus: 'Estado de la transacción',
     transactionType: 'Tipo de transacción',
-    clearAll: 'TRANSLATION NEEDED | ENG: Clear all',
   },
   message: {
     allDone: '¡Todo listo!',
-    cancelTxSuccess: 'Ha cancelado la transacción correctamente.\nSus monedas están de camino.',
+    cancelTxSuccess: 'Ha cancelado la transacción correctamente.\n  Sus monedas están de camino.',
     creatingAuthenticator: 'Creando su autenticador',
-    creatingAuthenticatorDescription: 'Tenga paciencia mientras se crea su autenticador.\n Puede tardar un poco.',
+    creatingAuthenticatorDescription: 'Tenga paciencia mientras se crea su autenticador.\n  Puede tardar un poco.',
     creatingWallet: 'Creación de su monedero',
     creatingWalletDescription: 'Tenga paciencia mientras creamos su monedero. Puede que lleve un tiempo.',
     generateAddressesError: 'No se ha podido generar la dirección',
     hooray: '¡Hurra!',
     importingAuthenticator: 'Importando tus autentificadores',
-    importingAuthenticatorDescription: 'Tenga paciencia mientras importamos su autenticador.\n Puede tardar un poco.',
+    importingAuthenticatorDescription: 'Tenga paciencia mientras importamos su autenticador.\n  Puede tardar un poco.',
     noTransactions: 'No se ha encontrado ninguna transacción en el monedero',
     noTransactionsDesc: 'Es probable que esté intentando importar un monedero que nunca se ha usado',
     returnToAuthenticators: 'Volver a Autenticadores',
@@ -226,8 +224,8 @@ const es = {
     wrongMnemonic: 'Frase mnemotécnica incorrecta',
     wrongMnemonicDesc:
       'Su frase mnemotécnica no coincide con ningún monedero compatible. Está intentado importar una frase mnemotécnica no válida o un monedero que no se ha usado nunca.',
-    processing: 'TRANSLATION NEEDED | ENG: Processing',
     bePatient: 'TRANSLATION NEEDED | ENG: Please be patient, it may take a while.',
+    processing: 'TRANSLATION NEEDED | ENG: Processing',
   },
   onboarding: {
     changePin: 'Cambiar PIN',
@@ -262,13 +260,13 @@ const es = {
     details: {
       amount: 'Cantidad',
       receiveWithAmount: 'Recibir la cantidad de',
-      share: 'Compartir',
-      shareWalletAddress: 'TRANSLATION NEEDED | ENG: Share wallet address',
       receiveWithAmountSubtitle:
-        'TRANSLATION NEEDED | ENG: Enter the amount which you would like to receive. The QR code will update accordingly to include the amount.',
+        'Introduzca el monto que desea recibir. El código QR se actualizará en consecuencia para incluir ese monto.',
+      share: 'Compartir',
+      shareWalletAddress: 'Compartir la dirección del monedero',
     },
     header: 'Recibir monedas',
-    label: 'TRANSLATION NEEDED | ENG: Wallet address',
+    label: 'Dirección del monedero',
   },
   scanQrCode: {
     cancel: 'Cancelar',
@@ -392,7 +390,6 @@ const es = {
   tabNavigator: {
     addressBook: 'Libreta de direcciones',
     authenticators: 'Autenticadores',
-    dashboard: 'Panel',
     settings: 'Configuración',
     wallets: 'Monederos',
   },
@@ -408,6 +405,7 @@ const es = {
       addNote: 'Añadir nota',
       addToAddressBook: 'Agregar a la libreta de direcciones',
       amount: 'Cantidad',
+      blocked: 'Bloqueado',
       bytes: 'bytes',
       confirmations: 'confirmaciones',
       copy: 'Copiar',
@@ -419,12 +417,17 @@ const es = {
       inputs: 'Inputs',
       noLabel: 'Sin etiqueta',
       note: 'Nota',
+      numberOfCancelTransactions: 'Número de transacciones canceladas',
       ouputs: 'Outputs',
+      returnedFee: 'Comisión devuelta:',
       satoshiPerByte: 'Satoshi por byte',
       sendCoins: 'Enviar monedas',
       timePending: 'Tiempo restante',
       title: 'Transacción',
       to: 'Para',
+      toExternalWallet: 'Al monedero externo',
+      toInternalWallet: 'Al monedero interno',
+      totalReturnedFee: 'Comisión devuelta en total:',
       transactioFee: 'Tarifa de transacción',
       transactionDetails: 'Detalles de la transacción',
       transactionHex: 'Transacción en hexadecimal',
@@ -432,35 +435,27 @@ const es = {
       transactionId: 'ID de transacción',
       transactionType: 'Tipo de transacción',
       txSize: 'Tamaño TX',
+      unblocked: 'Desbloqueado',
       verify: 'Verificar en coinb.in',
       viewInBlockRxplorer: 'Ver en el explorador de bloques',
       walletType: 'Tipo de monedero',
-      returnedFee: 'TRANSLATION NEEDED | ENG: Returned fee:',
-      numberOfCancelTransactions: 'TRANSLATION NEEDED | ENG: Number of Cancel transactions',
-      toExternalWallet: 'TRANSLATION NEEDED | ENG: To the external wallet',
-      toInternalWallet: 'TRANSLATION NEEDED | ENG: To the internal wallet',
-      totalReturnedFee: 'TRANSLATION NEEDED | ENG: Total returned fee:',
-      unblocked: 'TRANSLATION NEEDED | ENG: Unblocked',
-      blocked: 'TRANSLATION NEEDED | ENG: Blocked',
     },
     errors: {
       notEnoughBalance: 'No hay saldo suficiente. Por favor, intente enviar una cantidad menor.',
     },
     label: {
-      annulled: 'anulada',
+      blocked: 'bloqueado',
       canceled: 'cancelada',
+      canceledDone: 'cancelado-hecho',
       done: 'finalizada',
       pending: 'pendiente',
       unblocked: 'desbloqueado',
-      blocked: 'TRANSLATION NEEDED | ENG: blocked',
-      canceledDone: 'TRANSLATION NEEDED | ENG: canceled - done',
     },
     list: {
       conf: 'Confirmaciones',
     },
     transactionTypeLabel: {
       canceled: 'Cancelación',
-      fast: 'Rápida',
       secure: 'Seguro',
       secureFast: 'Rápida y segura',
       standard: 'Estándar',
@@ -535,6 +530,7 @@ const es = {
     },
     details: {
       deleteWallet: 'Eliminar monedero',
+      details: 'Detalles',
       edit: 'Editar',
       exportWallet: 'Exportar monedero',
       latestTransaction: 'Última transacción',
@@ -542,7 +538,6 @@ const es = {
       nameLabel: 'Nombre',
       showWalletXPUB: 'Mostrar monedero XPUB',
       typeLabel: 'Tipo',
-      details: 'TRANSLATION NEEDED | ENG: Details',
     },
     errors: {
       duplicatedPublicKey: 'Ya se ha agregado la clave pública',
@@ -576,6 +571,8 @@ const es = {
     },
     importWallet: {
       chooseTypeDescription: 'Seleccione el tipo de monedero que desea importar',
+      customWords: 'Palabras personalizadas',
+      extendWithCustomWords: 'Extender esta semilla con palabras personalizadas',
       header: 'Importar monedero',
       import: 'Importar',
       importARDescription1: 'Introduzca la frase mnemotécnica',
@@ -595,8 +592,6 @@ const es = {
       unsupportedElectrumVaultMnemonic:
         'Esta frase mnemotécnica es de Electrum Vault y actualmente no es compatible. Será compatible próximamente.',
       walletInUseValidationError: 'El monedero ya está en uso. Introduzca un monedero válido.',
-      extendWithCustomWords: 'TRANSLATION NEEDED | ENG: Extend this seed with custom words',
-      customWords: 'TRANSLATION NEEDED | ENG: Custom words',
     },
     publicKey: {
       instantDescription:

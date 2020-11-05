@@ -1,6 +1,7 @@
 module.exports = {
   _: {
     bad_password: 'パスワードが間違っています。再度お試しください',
+    cancel: 'キャンセル',
     click: 'クリック',
     confirm: '確認',
     continue: '続き',
@@ -18,6 +19,7 @@ module.exports = {
     or: 'または',
     satoshi: 'サトシ',
     save: '保存',
+    scan: 'スキャン',
     storage_is_encrypted: 'ストレージは暗号化されています。それを復号化するためにはパスワードが必要です。',
   },
   aboutUs: {
@@ -28,7 +30,7 @@ module.exports = {
     rateGoldWallet: 'ゴールドウォレットを評価する',
     releaseNotes: 'リリースノート',
     runSelfTest: '自体テスト実行',
-    title: 'ゴールドウォレットは無料でオープンソースのビットコインボルトウォレットです。許可されたMITです。\n',
+    title: 'ゴールドウォレットは無料でオープンソースのビットコインボルトウォレットです。許可されたMITです。',
   },
   advancedOptions: {
     description: '高級オプション設定を通じて次のウォレットを選択出来ます：P2SH、 HD P2SH、 HD segwit',
@@ -51,15 +53,25 @@ module.exports = {
       title: '認証システムの削除',
     },
     enterPIN: {
-      description: 'このPINをElectrum Vaultデスクトップ応用プログラムに入力し、ペアリングを完了します。\n',
+      description: 'このPINをElectrum Vaultデスクトップ応用プログラムに入力し、ペアリングを完了します。',
       subtitle: 'PIN入力',
+    },
+    errors: {
+      noEmpty: '空白にすることはできません。',
     },
     export: {
       title: '認証システムを共有する',
     },
     import: {
+      code: 'コード:',
       desc1: 'シードフレーズの記録もしくは認証者のQRコードをスキャンします。',
       desc2: '下記の「又はQRコード」をクリックし、QRコードをスキャンする',
+      inUseValidationError: '使用中の名前です。有効な名前を入力してください。',
+      mnemonicLength: 'ニーモニックには12の単語が必要です。',
+      multipleQrCodesDescription:
+        '一部の取引は複数のQRコードを生成します。 Electrum Vaultアプリケーションからすべてのコードをスキャンしてください。',
+      multipleQrCodesTitle: '別のQRコードをスキャンする',
+      scanNext: '次をスキャン',
       subtitle: '認証システムを読み込む',
       success: '認証システムを読み込みました。これから使用できます。',
       textAreaPlaceholder: 'シードフレーズ',
@@ -87,6 +99,12 @@ module.exports = {
       publicKey: '公開キー',
       title: '認証システムのペアリング',
     },
+    publicKey: {
+      okButton: 'はい、分かりました。',
+      subtitle:
+        '2FAウォレットの作成中にこちらの公開キーを使用して、ElectrumVaultデスクトップのアプリケーションに認証システムをインポートできます。',
+      title: '公開キー',
+    },
     sign: {
       error: '認証システムは誰でも取引に署名出来ません。',
     },
@@ -101,7 +119,9 @@ module.exports = {
     addressLabel: 'アドレス',
     buttonLabel: '新しい連絡先を追加する',
     description: '新しい連絡先の名前とアドレスを入力してください。',
+    nameCannotContainSpecialCharactersError: '名前には記号を含めません。',
     nameLabel: '名前',
+    nameMissingAlphanumericCharacterError: '名前に英文字、数字が含まれていません。',
     screenTitle: '新しい連絡先を追加する',
     subtitle: '新しい連絡先',
     successButton: 'アドレス帳に戻る',
@@ -110,7 +130,7 @@ module.exports = {
   },
   contactDelete: {
     description1: '削除しますか',
-    description2: '？\n削除の後には戻せることはできません。',
+    description2: '？\n  削除の後には戻せることはできません。',
     header: '連絡先の削除',
     no: 'いいえ',
     success: '成功',
@@ -132,7 +152,7 @@ module.exports = {
   contactList: {
     cancel: 'キャンセル',
     noContacts: '連絡先無し',
-    noContactsDesc1: '表示する連絡先がありません。 \nクリック',
+    noContactsDesc1: '表示する連絡先がありません。 \n  クリック',
     noContactsDesc2: '１番目の連絡先を追加します。',
     noResults: '次に関する結果がありません。',
     screenTitle: 'アドレス帳',
@@ -150,6 +170,7 @@ module.exports = {
     useDefault: 'デフォルト値使用',
   },
   filterTransactions: {
+    clearAll: 'すべて消去',
     clearFilters: 'フィルターを消す',
     filter: 'フィルター設定',
     from: '送金者',
@@ -162,10 +183,9 @@ module.exports = {
     sent: '送信済み',
     status: {
       canceled: 'キャンセル済み',
+      canceledDone: 'キャンセル完了',
       done: '完了',
       pending: '保留中',
-      unblocked: 'ブロック解除',
-      annulled: '無効化',
     },
     to: '受領者',
     toAmount: '最大金額',
@@ -175,17 +195,17 @@ module.exports = {
   },
   message: {
     allDone: 'すべて完了しました!',
-    cancelTxSuccess: '取引の取消しが正常に完了しました。\nコインは間もなく届きます。',
+    cancelTxSuccess: '取引の取消しが正常に完了しました。\n  コインは間もなく届きます。',
     creatingAuthenticator: '自分の認証システムを生成中です。',
     creatingAuthenticatorDescription:
-      '認証システムを生成中です。しばらくお待ちください。\nしばらく時間がかかる可能性があります。',
+      '認証システムを生成中です。しばらくお待ちください。\n  しばらく時間がかかる可能性があります。',
     creatingWallet: 'ウォレットを生成中です。',
     creatingWalletDescription: 'ウォレットを生成している間お待ちください。しばらく時間がかかる場合があります。',
     generateAddressesError: 'アドレスを生成できません',
     hooray: 'おめでとうございます!',
     importingAuthenticator: '認証システムを登録する',
     importingAuthenticatorDescription:
-      '認証システムを登録しています。しばらくお待ちください。\nしばらく時間がかかる可能性があります。',
+      '認証システムを登録しています。しばらくお待ちください。\n  しばらく時間がかかる可能性があります。',
     noTransactions: 'このウォレットには取引がありません。',
     noTransactionsDesc: 'これまで未使用のウォレットを読み込もうとしています',
     returnToAuthenticators: '認証システムに戻る',
@@ -200,7 +220,7 @@ module.exports = {
     successfullWalletImport: 'ウォレット登録に成功しました。ただいま、ウォレットを使用できます。',
     wrongMnemonic: 'ニーモニックが間違っています。',
     wrongMnemonicDesc:
-      '指定されたニーモニックと一致するサポート中のウォレットはありません。\n無効なニーモニックまたはこれまで未使用のウォレットを読み込もうとしています',
+      '指定されたニーモニックと一致するサポート中のウォレットはありません。\n  無効なニーモニックまたはこれまで未使用のウォレットを読み込もうとしています',
   },
   onboarding: {
     changePin: 'PINコードの変更',
@@ -210,7 +230,7 @@ module.exports = {
     createNewPin: '新しいPINコード',
     createPassword: '取引パスワードの生成',
     createPasswordDescription:
-      'すべての取引を確認するため、取引パスワードが利用されます。\n設定されたパスワードの変更は不可能です。\n取引のパスワードは最小8桁以上の英文字と数字で構成しなければなりません。',
+      'すべての取引を確認するため、取引パスワードが利用されます。\n  設定されたパスワードの変更は不可能です。\n  取引のパスワードは最小8桁以上の英文字と数字で構成しなければなりません。',
     createPin: 'PINコードの生成',
     createPinDescription: 'PINコードはアプリケーションのログインに利用されます。設定メニューから変更が可能です。',
     currentPin: '現在のPINコード',
@@ -226,17 +246,20 @@ module.exports = {
     seconds: '秒',
     successButton: 'ダッシュボードに戻る',
     successButtonChangedPin: '設定に戻る',
-    successDescription: 'おめでとうございます！\nPINコード生成が正常に完了されました。',
-    successDescriptionChangedPin: 'おめでとうございます！\nPINコード変更が正常に完了されました。',
+    successDescription: 'おめでとうございます！\n  PINコード生成が正常に完了されました。',
+    successDescriptionChangedPin: 'おめでとうございます！\n  PINコード変更が正常に完了されました。',
     tryAgain: 'しばらくしてからもう一度お試しください',
   },
   receive: {
     details: {
       amount: '金額',
       receiveWithAmount: '金額で受け取る',
+      receiveWithAmountSubtitle: '受け取る金額を入力してください。入力した金額に応じてQRコードはアップデートされます。',
       share: '共有',
+      shareWalletAddress: 'ウォレットアドレス共有',
     },
     header: 'コインの受け取り',
+    label: 'ウォレットアドレス',
   },
   scanQrCode: {
     cancel: 'キャンセル',
@@ -248,9 +271,9 @@ module.exports = {
     jailBrokenPhone:
       '貴下のデバイスが脱獄されたようです。この場合セキュリティ問題や衝突、その他、様々な問題が発生する恐れがあります。脱獄されたデバイスではGoldWalletを使用しないようお願いします。',
     noPinOrFingerprintSet:
-      'デバイスにパスワード又は指紋が登録されていません。安全ではないデバイスでのGoldWallet使用しないようお願いします。\n',
+      'デバイスにパスワード又は指紋が登録されていません。安全ではないデバイスでのGoldWallet使用しないようお願いします。',
     rootedPhone:
-      '貴下のデバイスがルーティングされたようです。この場合セキュリティ問題や衝突、その他様々な問題が発生する恐れがあります。ルーティングされたデバイスではGoldWalletを使用しないようお願いします。\n',
+      '貴下のデバイスがルーティングされたようです。この場合セキュリティ問題や衝突、その他様々な問題が発生する恐れがあります。ルーティングされたデバイスではGoldWalletを使用しないようお願いします。',
     title: 'セキュリティ問題',
   },
   selectLanguage: {
@@ -360,7 +383,6 @@ module.exports = {
     authenticators: '認証システム',
     settings: '設定',
     wallets: 'ウォレット',
-    dashboard: 'ダッシュボード',
   },
   timeCounter: {
     closeTheApp: '応用プログラムを閉じる',
@@ -373,6 +395,7 @@ module.exports = {
       addNote: 'メモの追加',
       addToAddressBook: 'アドレス帳に追加',
       amount: '金額',
+      blocked: 'ブロック',
       bytes: 'バイト',
       confirmations: '確認',
       copy: 'コピー',
@@ -384,12 +407,17 @@ module.exports = {
       inputs: '入力',
       noLabel: 'ラベル無し',
       note: 'メモ',
+      numberOfCancelTransactions: 'キャンセル取引の数',
       ouputs: '出力',
+      returnedFee: '返還手数料：',
       satoshiPerByte: 'バイト当たりのサトシ',
       sendCoins: 'コインを転送する',
       timePending: '保留期間',
       title: '取引',
       to: '受信先',
+      toExternalWallet: '外部ウォレットへ転送',
+      toInternalWallet: '内部ウォレットへ転送',
+      totalReturnedFee: '総返還手数料：',
       transactioFee: '取引手数料',
       transactionDetails: '取引詳細',
       transactionHex: '取引へクス（hex）',
@@ -397,6 +425,7 @@ module.exports = {
       transactionId: '取引ID',
       transactionType: '取引タイプ',
       txSize: 'TXサイズ',
+      unblocked: 'ブロック解除',
       verify: 'coinb.inから確認',
       viewInBlockRxplorer: 'ブロックエクスプローラーの表示',
       walletType: 'ウォレットタイプ',
@@ -405,11 +434,12 @@ module.exports = {
       notEnoughBalance: '残高不足。少ない金額で試してください。',
     },
     label: {
+      blocked: 'ブロック',
       canceled: 'キャンセル済み',
+      canceledDone: 'キャンセル完了',
       done: '完了',
       pending: '保留中',
       unblocked: 'ブロック解除',
-      annulled: '無効化',
     },
     list: {
       conf: '確認',
@@ -419,7 +449,6 @@ module.exports = {
       secure: '安全な',
       secureFast: '安全で早い',
       standard: '標準',
-      fast: 'クイック',
     },
   },
   unlock: {
@@ -444,17 +473,17 @@ module.exports = {
       importWalletButton: 'ウォレットの登録',
       inputLabel: '名前',
       legacy: 'デフォルトタイプの取引を生成します。',
-      legacyHDP2SH: 'これには、単一の12ワードのシードから生成されたP2SHアドレスのツリーが含まれています',
+      legacyHDP2SH: 'これには、単一の24ワードのシードから生成されたP2SHアドレスのツリーが含まれています',
       legacyHDP2SHTitle: 'レガシーHD P2SH',
       LegacyHDSegWit:
-        'これには、単一の12ワードのシードから生成されたネイティブのSegwitアドレスのツリーが含まれています',
+        'これには、単一の24ワードのシードから生成されたネイティブのSegwitアドレスのツリーが含まれています',
       legacyHDSegWitTitle: 'スタンダードHD SegWit',
       LegacyP2SH: 'これには、単一のP2SHアドレスが含まれています',
       legacyP2SHTitle: 'スタンダードP2SH',
       legacyTitle: 'スタンダード',
-      multipleAddresses: '単一の12文字シードから生成されるP2SHアドレスのツリーを含まれています。',
+      multipleAddresses: '単一の24文字シードから生成されるP2SHアドレスのツリーを含まれています。',
       publicKeyError: '入力された公開キーが間違いました。',
-      segwidAddress: '単一の12文字シードから生成されるsegwitアドレスのツリーを含まれています。',
+      segwidAddress: '単一の24文字シードから生成されるsegwitアドレスのツリーを含まれています。',
       singleAddress: '単一のP2SHアドレスが含まれています。',
       subtitle: 'ウォレットに名前を付ける',
       title: '新しいウォレットの追加',
@@ -489,6 +518,7 @@ module.exports = {
     },
     details: {
       deleteWallet: 'ウォレットの削除',
+      details: '詳細',
       edit: '編集',
       exportWallet: 'ウォレットを共有する',
       latestTransaction: '最新の取引',
@@ -529,6 +559,8 @@ module.exports = {
     },
     importWallet: {
       chooseTypeDescription: '登録するウォレットのタイプを選択',
+      customWords: 'カスタムワード',
+      extendWithCustomWords: 'カスタムワードでシード拡張',
       header: 'ウォレットを登録する',
       import: '登録する',
       importARDescription1: 'シードフレーズの入力',
@@ -542,7 +574,7 @@ module.exports = {
       scanWalletAddress: 'ウォレットのアドレスをスキャンする',
       scanWalletAddressDescription: '共用アドレスのQRコードをスキャンして、GoldWalletとの統合を開始する。',
       subtitle:
-        'ここにユーザーのニーモニック、秘密キー、WIF、またはお客様が持っている全てのことを入力してください。\nGoldWalletでは、最善を尽くして、正しいフォーマットを推測し、ウォレットを登録します。',
+        'ここにユーザーのニーモニック、秘密キー、WIF、またはお客様が持っている全てのことを入力してください。\n  GoldWalletでは、最善を尽くして、正しいフォーマットを推測し、ウォレットを登録します。',
       title: '使用しているウォレットをインポートする',
       unsupportedElectrumVaultMnemonic:
         'これはElectrum Vaultのシードです。このシードは現在サポートされていません。間もなくサポートされる予定です。',

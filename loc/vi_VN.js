@@ -1,6 +1,7 @@
 module.exports = {
   _: {
     bad_password: 'Mật khẩu kém, hãy thử lại',
+    cancel: 'Hủy bỏ',
     click: 'Nhấn',
     confirm: 'Xác nhận',
     continue: 'Tiếp tục',
@@ -18,6 +19,7 @@ module.exports = {
     or: 'hoặc',
     satoshi: 'Satoshi',
     save: 'Lưu',
+    scan: 'Quét',
     storage_is_encrypted: 'Ví lưu trữ của quý khách đã được mã hóa. Cần có mật khẩu để giải mã',
   },
   aboutUs: {
@@ -55,12 +57,22 @@ module.exports = {
       description: 'Nhập mã PIN này vào ứng dụng Electrum Vault cho máy tính để bàn để kết thúc quá trình ghép nối.',
       subtitle: 'Nhập mã PIN',
     },
+    errors: {
+      noEmpty: 'Trường không được để trống',
+    },
     export: {
       title: 'Xuất trình xác thực',
     },
     import: {
+      code: 'Mã:',
       desc1: 'Ghi lại cụm từ khóa hạt giống hoặc quét mã QR của trình xác thực bạn muốn nhập.',
       desc2: 'quét mã QR bằng cách nhấp vào “hoặc quét mã QR” bên dưới',
+      inUseValidationError: 'Tên người dùng phải là duy nhất. Xin vui lòng nhập vào một tên hợp lệ.',
+      mnemonicLength: 'Ghi nhớ nên có 12 từ',
+      multipleQrCodesDescription:
+        'Một số giao dịch tạo ra nhiều mã QR. Đảm bảo quét tất cả chúng từ ứng dụng Electrum Vault.',
+      multipleQrCodesTitle: 'Quét mã QR khác',
+      scanNext: 'Quét tiếp theo',
       subtitle: 'Nhập trình xác thực của bạn',
       success: 'Bạn đã nhập thành công trình xác thực của mình. Bây giờ nó đã sẵn sàng để sử dụng.',
       textAreaPlaceholder: 'Cụm từ khóa hạt giống',
@@ -88,6 +100,12 @@ module.exports = {
       publicKey: 'Khóa Công khai',
       title: 'Ghép nối trình xác thực',
     },
+    publicKey: {
+      okButton: 'Vâng, tôi đã hiểu',
+      subtitle:
+        'Bạn có thể sử dụng Khóa công khai này để nhập trình xác thực của mình vào ứng dụng máy tính để bàn Electrum Vault trong quá trình tạo ví 2FA.',
+      title: 'Khóa công khai',
+    },
     sign: {
       error: 'Không trình xác thực nào có thể ký giao dịch',
     },
@@ -96,28 +114,30 @@ module.exports = {
     button: 'Tôi chấp nhận rủi ro',
     description:
       'Nó vẫn đang trong quá trình thử nghiệm cuối cùng trước khi phát hành chính thức. Ứng dụng dành cho thiết bị di động và tất cả nội dung được tìm thấy được cung cấp trên cơ sở "nguyên trạng" và "sẵn có". Người dùng tự chịu rủi ro khi sử dụng phần mềm.',
-    title: 'Đây là phiên bản beta\ncủa GoldWallet',
+    title: 'Đây là phiên bản beta\n  của GoldWallet',
   },
   contactCreate: {
     addressLabel: 'Địa chỉ',
     buttonLabel: 'Thêm thông tin liên lạc mới',
-    description: 'Vui lòng nhập tên và địa chỉ\n cho thông tin liên lạc mới của quý khách.',
+    description: 'Vui lòng nhập tên và địa chỉ\n  cho thông tin liên lạc mới của quý khách.',
+    nameCannotContainSpecialCharactersError: 'Tên không được chứa các ký tự đặc biệt.',
     nameLabel: 'Tên',
+    nameMissingAlphanumericCharacterError: 'Tên bị thiếu ký tự chữ và số.',
     screenTitle: 'Thêm thông tin liên lạc mới',
     subtitle: 'Thông tin liên lạc mới',
     successButton: 'Quay lại Sổ địa chỉ',
-    successDescription: 'Xin chúc mừng! Quý khách đã thêm thông tin\n liên lạc thành công.',
+    successDescription: 'Xin chúc mừng! Quý khách đã thêm thông tin\n  liên lạc thành công.',
     successTitle: 'Thành công',
   },
   contactDelete: {
     description1: 'Quý khách có chắc chắn muốn xóa không',
-    description2: '?\n Quý khách không thể hoàn tác hành động này.',
+    description2: '?\n  Quý khách không thể hoàn tác hành động này.',
     header: 'Xóa thông tin liên lạc',
     no: 'Không',
     success: 'Thành công',
     successButton: 'Quay lại Sổ địa chỉ',
     successDescription:
-      'Thông tin liên lạc của quý khách đã được xóa thành công.\n Bây giờ quý khách có thể quay lại Sổ địa chỉ.',
+      'Thông tin liên lạc của quý khách đã được xóa thành công.\n  Bây giờ quý khách có thể quay lại Sổ địa chỉ.',
     title: 'Xóa thông tin liên lạc của quý khách',
     yes: 'Có',
   },
@@ -134,7 +154,7 @@ module.exports = {
   contactList: {
     cancel: 'Hủy',
     noContacts: 'Không có thông tin liên lạc',
-    noContactsDesc1: 'Không có thông tin liên lạc nào. \n Nhấp vào',
+    noContactsDesc1: 'Không có thông tin liên lạc nào. \n  Nhấp vào',
     noContactsDesc2: 'để thêm thông tin liên lạc đầu tiên của quý khách.',
     noResults: 'Không có kết quả cho',
     screenTitle: 'Sổ địa chỉ',
@@ -154,6 +174,7 @@ module.exports = {
     useDefault: 'Sử dụng mặc định',
   },
   filterTransactions: {
+    clearAll: 'Xóa sạch tât cả',
     clearFilters: 'xóa lọc',
     filter: 'lọc',
     from: 'từ',
@@ -165,11 +186,10 @@ module.exports = {
     send: 'gửi',
     sent: 'Gửi',
     status: {
-      annulled: 'Đã bãi bỏ',
       canceled: 'Đã hủy',
+      canceledDone: 'Đã hủy-hoàn thành',
       done: 'Xong',
       pending: 'đang chờ xử lý',
-      unblocked: 'Đã mở khóa',
     },
     to: 'đến',
     toAmount: 'đến số tiền',
@@ -179,10 +199,10 @@ module.exports = {
   },
   message: {
     allDone: 'Tất cả đã hoàn thành!',
-    cancelTxSuccess: 'Bạn đã hủy thành công giao dịch của mình.\n Tiền của bạn đang được chuyển đến.',
+    cancelTxSuccess: 'Bạn đã hủy thành công giao dịch của mình.\n  Tiền của bạn đang được chuyển đến.',
     creatingAuthenticator: 'Tạo trình xác thực của bạn',
     creatingAuthenticatorDescription:
-      'Vui lòng đợi trong khi chúng tôi tạo trình xác thực của bạn.\n Quá trình này có thể mất một thời gian.',
+      'Vui lòng đợi trong khi chúng tôi tạo trình xác thực của bạn.\n  Quá trình này có thể mất một thời gian.',
     creatingWallet: 'Tạo ví của quý khách',
     creatingWalletDescription:
       'Vui lòng đợi trong khi chúng tôi tạo ví cho quý khách. Quá trình này có thể mất một thời gian.',
@@ -190,7 +210,7 @@ module.exports = {
     hooray: 'Xin chúc mừng!',
     importingAuthenticator: 'Nhập trình xác thực của bạn',
     importingAuthenticatorDescription:
-      'Vui lòng đợi trong khi chúng tôi nhập trình xác thực của bạn.\n Quá trình này có thể mất một thời gian.',
+      'Vui lòng đợi trong khi chúng tôi nhập trình xác thực của bạn.\n  Quá trình này có thể mất một thời gian.',
     noTransactions: 'Không tìm thấy giao dịch nào trên ví',
     noTransactionsDesc: 'Có thể bạn đang nhập một ví chưa từng được sử dụng',
     returnToAuthenticators: 'Quay lại Trình xác thực',
@@ -234,17 +254,20 @@ module.exports = {
     seconds: 'giây',
     successButton: 'Đi đến Bảng điều khiển',
     successButtonChangedPin: 'Quay về Cài đặt',
-    successDescription: 'Hooray! \n Quý khách đã tạo thành công PIN của mình.',
-    successDescriptionChangedPin: 'Hooray!\n Quý khách đã thay đổi thành công PIN của mình.',
+    successDescription: 'Hooray! \n  Quý khách đã tạo thành công PIN của mình.',
+    successDescriptionChangedPin: 'Hooray!\n  Quý khách đã thay đổi thành công PIN của mình.',
     tryAgain: 'Hãy thử lại sau',
   },
   receive: {
     details: {
       amount: 'Số tiền',
       receiveWithAmount: 'Nhận với số tiền',
+      receiveWithAmountSubtitle: 'Nhập số tiền bạn muốn nhận. Mã QR sẽ cập nhật tương ứng để bao gồm số tiền.',
       share: 'Chia sẻ',
+      shareWalletAddress: 'Chia sẻ địa chỉ ví',
     },
     header: 'Nhận coin',
+    label: 'Địa chỉ ví',
   },
   scanQrCode: {
     cancel: 'Hủy',
@@ -366,7 +389,6 @@ module.exports = {
   tabNavigator: {
     addressBook: 'Sổ địa chỉ',
     authenticators: 'Trình xác thực',
-    dashboard: 'Bảng điều khiển',
     settings: 'Cài đặt',
     wallets: 'Ví',
   },
@@ -382,6 +404,7 @@ module.exports = {
       addNote: 'Thêm ghi chú',
       addToAddressBook: 'Thêm vào sổ Địa chỉ',
       amount: 'Số tiền',
+      blocked: 'Bị chặn',
       bytes: 'byte',
       confirmations: 'xác nhận',
       copy: 'Sao chép',
@@ -393,12 +416,17 @@ module.exports = {
       inputs: 'Đầu vào',
       noLabel: 'Không có nhãn',
       note: 'Ghi chú',
+      numberOfCancelTransactions: 'Số lượng giao dịch Hủy',
       ouputs: 'Đầu ra',
+      returnedFee: 'Phí trả lại:',
       satoshiPerByte: 'Satoshi mỗi byte',
       sendCoins: 'Gửi coin',
       timePending: 'Thời gian chờ xử lý',
       title: 'Giao dịch',
       to: 'Đến',
+      toExternalWallet: 'Đến ví bên ngoài',
+      toInternalWallet: 'Đến ví nội bộ',
+      totalReturnedFee: 'Tổng phí trả lại:',
       transactioFee: 'Phí giao dịch',
       transactionDetails: 'Chi tiết giao dịch',
       transactionHex: 'Hex giao dịch',
@@ -406,6 +434,7 @@ module.exports = {
       transactionId: 'ID giao dịch',
       transactionType: 'Loại giao dịch',
       txSize: 'Kích thước TX',
+      unblocked: 'Đã mở khóa',
       verify: 'Xác minh trên coinb.in',
       viewInBlockRxplorer: 'Xem trong block explorer (công cụ phân tích khối)',
       walletType: 'Loại ví',
@@ -414,8 +443,9 @@ module.exports = {
       notEnoughBalance: 'Không đủ số dư. Vui lòng, thử gửi một số tiền nhỏ hơn.',
     },
     label: {
-      annulled: 'đã bãi bỏ',
+      blocked: 'bị chặn',
       canceled: 'Đã hủy',
+      canceledDone: 'đã hủy - xong',
       done: 'xong',
       pending: 'đang chờ xử lý',
       unblocked: 'bỏ chặn',
@@ -425,7 +455,6 @@ module.exports = {
     },
     transactionTypeLabel: {
       canceled: 'Đã hủy',
-      fast: 'Nhanh',
       secure: 'Bảo mật',
       secureFast: 'Bảo mật nhanh chóng',
       standard: 'Tiêu chuẩn',
@@ -498,6 +527,7 @@ module.exports = {
     },
     details: {
       deleteWallet: 'Xóa ví',
+      details: 'Chi tiết',
       edit: 'Chỉnh sửa',
       exportWallet: 'Xuất ví',
       latestTransaction: 'Giao dịch mới nhất',
@@ -538,6 +568,8 @@ module.exports = {
     },
     importWallet: {
       chooseTypeDescription: 'Chọn loại ví bạn muốn nhập.',
+      customWords: 'Từ tùy chỉnh',
+      extendWithCustomWords: 'Mở rộng hạt giống này với các từ tùy chỉnh',
       header: 'Nhập ví',
       import: 'Nhập',
       importARDescription1: 'Nhập cụm từ khóa hạt giống',

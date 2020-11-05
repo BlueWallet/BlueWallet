@@ -1,6 +1,7 @@
 module.exports = {
   _: {
     bad_password: 'Palavra-passe incorrecta, tente novamente',
+    cancel: 'Cancelar',
     click: 'Clique',
     confirm: 'Confirmar',
     continue: 'Continuar',
@@ -18,6 +19,7 @@ module.exports = {
     or: 'ou',
     satoshi: 'Satoshi',
     save: 'Guardar',
+    scan: 'Digitalizar',
     storage_is_encrypted: 'O seu armazenamento está encriptado. A palavra-passe é necessária para desencriptá-lo',
   },
   aboutUs: {
@@ -55,12 +57,22 @@ module.exports = {
         'Introduzir este PIN na aplicação de ambiente de trabalho Electrum Vault para terminar o processo de emparelhamento.',
       subtitle: 'Introduzir PIN',
     },
+    errors: {
+      noEmpty: 'O campo não pode ficar vazio',
+    },
     export: {
       title: 'Exportar autenticador',
     },
     import: {
+      code: 'Código:',
       desc1: 'Escreva a frase semente ou leia o código QR do autenticador que pretende importar.',
       desc2: 'leia o código QR ao clicar em "ou ler código QR" abaixo da',
+      inUseValidationError: 'O nome deve ser único. Por favor, indique um nome válido.',
+      mnemonicLength: 'O mnemônico deve ter 12 palavras',
+      multipleQrCodesDescription:
+        'Algumas transações geram vários códigos QR. Certifique-se de digitalizar todos eles do aplicativo Electrum Vault.',
+      multipleQrCodesTitle: 'Leia outro código QR',
+      scanNext: 'Digitalizar o próximo',
       subtitle: 'Importar o seu autenticador',
       success: 'Importou o seu autenticador com sucesso Está agora pronto a ser utilizado.',
       textAreaPlaceholder: 'Frase semente',
@@ -89,6 +101,12 @@ module.exports = {
       publicKey: 'Chave Pública',
       title: 'Emparelhar autenticador',
     },
+    publicKey: {
+      okButton: 'Ok, entendo',
+      subtitle:
+        'Pode usar esta chave pública para importar o seu autenticador para o aplicativo de desktop Electrum Vault durante a criação da carteira 2FA.',
+      title: 'Chave Pública',
+    },
     sign: {
       error: 'Nenhum dos autenticadores pôde assinafr a transação',
     },
@@ -103,7 +121,9 @@ module.exports = {
     addressLabel: 'Endereço',
     buttonLabel: 'Adicionar novo contacto',
     description: 'Introduza um nome e um endereço',
+    nameCannotContainSpecialCharactersError: 'O nome não pode conter caracteres especiais.',
     nameLabel: 'Nome',
+    nameMissingAlphanumericCharacterError: 'O nome não contém caracteres alfanuméricos.',
     screenTitle: 'Adicionar novo contacto',
     subtitle: 'Novo contacto',
     successButton: 'Voltar à Lista de endereços',
@@ -154,6 +174,7 @@ module.exports = {
     useDefault: 'Usar predefinição',
   },
   filterTransactions: {
+    clearAll: 'Limpar tudo',
     clearFilters: 'apagar filtros',
     filter: 'filtrar',
     from: 'de',
@@ -165,11 +186,10 @@ module.exports = {
     send: 'enviar',
     sent: 'Enviado',
     status: {
-      annulled: 'Anulado',
       canceled: 'Cancelado',
+      canceledDone: 'Cancelado-concluído',
       done: 'Feito',
       pending: 'Pendente',
-      unblocked: 'desbloqueado',
     },
     to: 'para',
     toAmount: 'Montante máximo',
@@ -238,9 +258,13 @@ module.exports = {
     details: {
       amount: 'Montante',
       receiveWithAmount: 'Receber com o montante',
+      receiveWithAmountSubtitle:
+        'Insira o valor que gostaria de receber. O código QR será atualizado de acordo para incluir o valor.',
       share: 'Partilhar',
+      shareWalletAddress: 'Compartilhar endereço da carteira',
     },
     header: 'Receber moedas',
+    label: 'Endereço da carteira',
   },
   scanQrCode: {
     cancel: 'Cancelar',
@@ -364,7 +388,6 @@ module.exports = {
   tabNavigator: {
     addressBook: 'Lista de endereços',
     authenticators: 'Autenticadores',
-    dashboard: 'Menu Principal',
     settings: 'Definições',
     wallets: 'Carteiras',
   },
@@ -380,6 +403,7 @@ module.exports = {
       addNote: 'Adicionar nota',
       addToAddressBook: 'Adicionar ao livro de Endereços',
       amount: 'Montante',
+      blocked: 'Bloqueado',
       bytes: 'bytes',
       confirmations: 'confirmações',
       copy: 'Copiar',
@@ -391,12 +415,17 @@ module.exports = {
       inputs: 'Entradas',
       noLabel: 'Sem etiqueta',
       note: 'Nota',
+      numberOfCancelTransactions: 'Número de transações canceladas',
       ouputs: 'Saídas',
+      returnedFee: 'Taxa devolvida:',
       satoshiPerByte: 'Satoshi por byte',
       sendCoins: 'Enviar moedas',
       timePending: 'Tempo pendente',
       title: 'Transacção',
       to: 'Para',
+      toExternalWallet: 'Para a carteira externa',
+      toInternalWallet: 'Para a carteira interna',
+      totalReturnedFee: 'Total de taxa devolvida:',
       transactioFee: 'Taxa de transação',
       transactionDetails: 'Detalhes da transação',
       transactionHex: 'Transacção hexagonal',
@@ -404,6 +433,7 @@ module.exports = {
       transactionId: 'ID da Transação',
       transactionType: 'Tipo de transação',
       txSize: 'Tamanho de TX',
+      unblocked: 'Desbloqueado',
       verify: 'Verificar em coinb.in',
       viewInBlockRxplorer: 'Ver no explorador de blocos',
       walletType: 'Tipo de carteira',
@@ -412,8 +442,9 @@ module.exports = {
       notEnoughBalance: 'Não há saldo suficiente. Por favor, tente enviar uma quantia menor.',
     },
     label: {
-      annulled: 'anulado',
+      blocked: 'bloqueado',
       canceled: 'cancelado',
+      canceledDone: 'Cancelado-concluído',
       done: 'feito',
       pending: 'pendente',
       unblocked: 'desbloqueado',
@@ -423,7 +454,6 @@ module.exports = {
     },
     transactionTypeLabel: {
       canceled: 'Cancelado',
-      fast: 'Rápido',
       secure: 'Seguro',
       secureFast: 'Segurança Rápida',
       standard: 'Padrão',
@@ -498,6 +528,7 @@ module.exports = {
     },
     details: {
       deleteWallet: 'Excluir carteira',
+      details: 'Detalhes',
       edit: 'Editar',
       exportWallet: 'Exportar carteira',
       latestTransaction: 'Transacção mais recente',
@@ -538,6 +569,8 @@ module.exports = {
     },
     importWallet: {
       chooseTypeDescription: 'Escolha o tipo de carteira que quer importar.',
+      customWords: 'Palavras personalizadas',
+      extendWithCustomWords: 'Estender esta semente com palavras personalizadas',
       header: 'Importar carteira',
       import: 'Importar',
       importARDescription1: 'Introduza a frase semente',
