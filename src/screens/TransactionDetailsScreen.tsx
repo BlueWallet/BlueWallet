@@ -18,7 +18,7 @@ import {
   EllipsisText,
 } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
-import { Route, MainCardStackNavigatorParams, RootStackParams, TxType } from 'app/consts';
+import { Route, MainCardStackNavigatorParams, RootStackParams, TxType, CONST } from 'app/consts';
 import { getConfirmationsText } from 'app/helpers/helpers';
 import { ApplicationState } from 'app/state';
 import { selectors, reducer } from 'app/state/transactionsNotes';
@@ -31,7 +31,7 @@ import {
 import { typography, palette } from 'app/styles';
 
 import config from '../../config';
-import { satoshiToBtc, formatToBtcv } from '../../utils/bitcoin';
+import { satoshiToBtc, formatToBtcv, formatToBtcvWithoutUnit } from '../../utils/bitcoin';
 
 const i18n = require('../../loc');
 
@@ -101,8 +101,9 @@ class TransactionDetailsScreen extends Component<Props> {
             transaction.toExternalAddress ? styles.lightGrayText : null,
           ]}
         >
-          {formatToBtcv(satoshiToBtc(transaction.valueWithoutFee).toNumber())}
+          {formatToBtcvWithoutUnit(satoshiToBtc(transaction.valueWithoutFee).toNumber())}
         </Text>
+        <Text style={styles.unit}>{CONST.preferredBalanceUnit}</Text>
         <TranscationLabelStatus status={transaction.status} />
         {transaction.blockedAmount !== undefined && (
           <View style={styles.amountWrapper}>
@@ -343,10 +344,14 @@ const styles = StyleSheet.create({
   value: {
     ...typography.headline5,
     marginTop: 6,
-    width: 85,
     textAlign: 'center',
     lineHeight: 15,
-    height: 45,
+    height: 25,
+  },
+  unit: {
+    ...typography.headline5,
+    lineHeight: 15,
+    height: 25,
   },
   noteContainer: {
     width: '100%',

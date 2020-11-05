@@ -36,3 +36,6 @@ export const addMissingZerosToSatoshis = (value: number): string => {
 
 export const formatToBtcv = (value: number): string =>
   `${value >= 0 ? '+' : ''}${addMissingZerosToSatoshis(value)} ${CONST.preferredBalanceUnit}`;
+
+export const formatToBtcvWithoutUnit = (value: number): string =>
+  `${value >= 0 ? '+' : ''}${addMissingZerosToSatoshis(value)}`;
