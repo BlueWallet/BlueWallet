@@ -550,9 +550,17 @@ describe('BlueWallet UI Tests', () => {
     await yo('TransactionValue');
     expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     expect(element(by.id('TransactionAddress'))).toHaveText('BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7');
+
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can import multisig setup from UR (ver1) QRs 2 frames', async () => {
+  it('can import multisig setup from UR (ver1) QRs (2 frames), and create tx', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+    }
+
     await yo('WalletsList');
     await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
     // going to Import Wallet screen and importing mnemonic
@@ -585,6 +593,87 @@ describe('BlueWallet UI Tests', () => {
     // lets go inside wallet
     const expectedWalletLabel = 'Multisig Vault';
     await element(by.text(expectedWalletLabel)).tap();
+
+    // sending...
+
+    await element(by.id('SendButton')).tap();
+
+    await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('BitcoinAmountInput')).typeText('0.0005\n');
+
+    // setting fee rate:
+    const feeRate = 1;
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).typeText(feeRate + '');
+    await element(by.text('OK')).tap();
+
+    if (process.env.TRAVIS) await sleep(5000);
+    try {
+      await element(by.id('CreateTransactionButton')).tap();
+    } catch (_) {}
+
+    await waitFor(element(by.id('ItemUnsigned'))).toBeVisible();
+    await waitFor(element(by.id('ItemSigned'))).toBeNotVisible(); // not a single green checkmark
+
+    await element(by.id('ProvideSignature')).tap();
+    await element(by.id('CosignedScanOrImportFile')).tap();
+
+    const ursSignedByColdcard = [
+      'UR:BYTES/1OF3/AZ7UYD5YRTJGJHEPJC045UPYV6SRFURJALR0968WCXHP0ZZ9HK0SV8YW98/TYP6XURNVF607QGQ05PQQQQQQ89FQE9NVDRHTESWDDWCDCAMW53Z2H5U50T6ZRT2JVDQF3Y4QCJESQQQQQQQPLLLLLLSY5XRQQQQQQQQQQTQQ9R75WZLX547D94TPAHFFG8WPC7X6JC555C7U5QQQQQQQQQZYQPQTAH0P50D4QLFTN049K7LLDCWH7CS3ZKJY9G8XEGV63P308HSH9ZSQQQQQQQQZQ82QGQQQQQQQYQUWDNXP9500ELRFUSTVYLPAQJC34GUCHG52MH2665NTY5WSCJS72GPQQQQQQQPQQQGQQJS4YQSQQQQQQQZYQPQY8RVFMEZUPXNJSKTRUVR389TNY9XLLX7JNYE08K5FJP5R8A2UFN6TYSZQQQQQQQQZCQPFRSXCZANQ56CMLH79RF2KUUEZTAXF7QE6QJ8XPZQYGPSL9CGL7X73GC8MACPM7SNEHE2FCAP5LRUG436ZNX6YF39R7E5Y5PZQ4CAXM6KQM64TAC99DCV6THY7U9S4VL8N5XR53FX55WLPQSG4H86QYSSYUSJAUY6JC734K9PDVN9C72HFZ84ELQ9E4W8GP66RAQ2HQY3YRH8QQQQQQQPQY44P2GPQQQQQQQQYGQZQGWXCNHJ9CZD89PVK8CC8ZW2HXG2DL7DA9XFJ70DGNYRGX',
+      'UR:BYTES/2OF3/AZ7UYD5YRTJGJHEPJC045UPYV6SRFURJALR0968WCXHP0ZZ9HK0SV8YW98/064CN8YGPQXR4WY5H9Q3AE3PTAKH7XX0ZET9N09T8UFWJX9NXA59L7APH8X2ERGUCYGQ3QFQ4CKRKRQP9ZC7T85KSRA46NT9FYEKCLPZQ9X7RNA3QL9MS4Y0XSYGQSNZX89397SCJFJ4AP9UAS7PX5R0RMDTQN6YLGKPT53D05LN7QGCQSZP282GSSXR4WY5H9Q3AE3PTAKH7XX0ZET9N09T8UFWJX9NXA59L7APH8X2ERYYPN4DHVYFGS5VWQ69YPL8DE0DRZPSNPH84FTN4QK7UWHNPZP4SDQPZJ4C3QVQCW4CJJU5Z8HXY90K6LCCEUT9VKDU4VL396GCKVMKSHLM5XUUETYVWPDRWKQVCQQQYQQQQQPQQQQQQGQQSQQZQQQQQQQQPSQQQQYGRQXW4KAS39ZZ33CRG5S8UAH9A5VGXZVXU749WW5ZMM367VYGXKP5QYRNFHATVGXQQQPQQQQQQGQQQQQZQQYQQQSQQQQQQQQVQQQQQQQQQSZ36JYYP33R60ZM9YYRTYN73MJKP6UZQANNWM7GRRMX067ATJGTQG0EZ0CDFPQDP6C5KEPNKKXMNPYYPVRWLRWVQ76ZKKPKAH9K84NZRE00DMXZHGC54WYGPQXXY0FUTV5SSDVJ068W2C8TSGRKWDM0EQV0VELTM4',
+      'UR:BYTES/3OF3/AZ7UYD5YRTJGJHEPJC045UPYV6SRFURJALR0968WCXHP0ZZ9HK0SV8YW98/WFPVPPLYFLP4RNFHATVGXQQQPQQQQQQGQQQQQZQQYQQQSQQSQQQQQQQQQQPZQGP58TZJMYXW6CMWVYSS9SDMUDESRMG26CXMKUKC7KVG09AAHVC2ARQUZ6XAVQESQQQGQQQQQZQQQQQQSQPQQQYQQYQQQQQQQQQQQQQH8NSKY',
+    ];
+
+    for (const ur of ursSignedByColdcard) {
+      // tapping 10 times invisible button is a backdoor:
+      for (let c = 0; c <= 10; c++) {
+        await element(by.id('ScanQrBackdoorButton')).tap();
+      }
+      await element(by.id('scanQrBackdoorInput')).replaceText(ur);
+      await element(by.id('scanQrBackdoorOkButton')).tap();
+      await waitFor(element(by.id('UrProgressBar'))).toBeVisible();
+    }
+
+    await waitFor(element(by.id('ItemSigned'))).toBeVisible(); // one green checkmark visible
+
+    await element(by.id('ProvideSignature')).tap();
+    await element(by.id('CosignedScanOrImportFile')).tap();
+
+    const urSignedByColdcardAndCobo = [
+      'UR:BYTES/1OF3/CL7WUCY4FVHCWAA0TRRKJ0A5CA3JZTYP2L9PS2ZMPUG59ARUW2US09Z73L/TYP5CURNVF607QGQ05PQQQQQQ89FQE9NVDRHTESWDDWCDCAMW53Z2H5U50T6ZRT2JVDQF3Y4QCJESQQQQQQQPLLLLLLSY5XRQQQQQQQQQQTQQ9R75WZLX547D94TPAHFFG8WPC7X6JC555C7U5QQQQQQQQQZYQPQTAH0P50D4QLFTN049K7LLDCWH7CS3ZKJY9G8XEGV63P308HSH9ZSQQQQQQQQZQ82QGQQQQQQQYQUWDNXP9500ELRFUSTVYLPAQJC34GUCHG52MH2665NTY5WSCJS72GPQQQQQQQPQQQGQQJS4YQSQQQQQQQZYQPQY8RVFMEZUPXNJSKTRUVR389TNY9XLLX7JNYE08K5FJP5R8A2UFN6TYSZQQQQQQQQZCQPFRSXCZANQ56CMLH79RF2KUUEZTAXF7QE6QJ8XPZQYGPSL9CGL7X73GC8MACPM7SNEHE2FCAP5LRUG436ZNX6YF39R7E5Y5PZQ4CAXM6KQM64TAC99DCV6THY7U9S4VL8N5XR53FX55WLPQSG4H86QYSSYUSJAUY6JC734K9PDVN9C72HFZ84ELQ9E4W8GP66RAQ2HQY3YRH8QQQQQQQPQY44P2GPQQQQQQQQYGQZQGWXCNHJ9CZD89PVK8CC8ZW2HXG2DL7DA9XFJ70DGNYRGX',
+      'UR:BYTES/2OF3/CL7WUCY4FVHCWAA0TRRKJ0A5CA3JZTYP2L9PS2ZMPUG59ARUW2US09Z73L/064CN8QYYDKPQQGUCYGQ3QFQ4CKRKRQP9ZC7T85KSRA46NT9FYEKCLPZQ9X7RNA3QL9MS4Y0XSYGQSNZX89397SCJFJ4AP9UAS7PX5R0RMDTQN6YLGKPT53D05LN7QGCQ5SVZ9QGSSP5QHQ4KYKXRNW60UDHHKQVXK0M9XNETCY9P5EA2JUFVU0YTYNJZAQGSZQAYTRQWNMLYTLYL9UN4V4TZ6LPU4YYJNKRJLSZDNPAQRXR90LEQPGAFZZQCW4CJJU5Z8HXY90K6LCCEUT9VKDU4VL396GCKVMKSHLM5XUUETYVSSXW4KAS39ZZ33CRG5S8UAH9A5VGXZVXU749WW5ZMM367VYGXKP5QY22HQQQQPQ9R4YGGRRZ8579K2GGXKF8ARH9VR4CYPM8XAHUSX8KVL4A6HYSKQSLJYLS6JZQ6R43FDJR8DVDHXZGGZCXA7XUCPA59DVRDMWTV0TXY8J77MKV9W33F2UGSZQVVG7NCKEFPQ6EYL5WU4SWHQS8VUMKLJQC7EN7HH2UJZCZR7GN7R28XN06KCSVQQQZQQQQQQSQQQQQYQQGQQPQQPQQQQQQQQQQQZYQSRGWK99KGVA43KUCFPQTQMHCMNQ8KS44SDHDED3AVCS7TMMWES46XPC95D6CPNQQQQSQQQQQYQQQQQ',
+      'UR:BYTES/3OF3/CL7WUCY4FVHCWAA0TRRKJ0A5CA3JZTYP2L9PS2ZMPUG59ARUW2US09Z73L/PQQZQQQGQQGQQQQQQQQQQQQQGND7FE',
+    ];
+
+    for (const ur of urSignedByColdcardAndCobo) {
+      // tapping 10 times invisible button is a backdoor:
+      for (let c = 0; c <= 10; c++) {
+        await element(by.id('ScanQrBackdoorButton')).tap();
+      }
+      await element(by.id('scanQrBackdoorInput')).replaceText(ur);
+      await element(by.id('scanQrBackdoorOkButton')).tap();
+      await waitFor(element(by.id('UrProgressBar'))).toBeVisible();
+    }
+
+    await waitFor(element(by.id('ExportSignedPsbt'))).toBeVisible();
+
+    await element(by.id('PsbtMultisigConfirmButton')).tap();
+
+    // created. verifying:
+    await yo('TransactionValue');
+    expect(element(by.id('TransactionValue'))).toHaveText('0.0005');
+    await element(by.id('TransactionDetailsButton')).tap();
+
+    const txhex = await extractTextFromElementById('TxhexInput');
+
+    const transaction = bitcoin.Transaction.fromHex(txhex);
+    assert.ok(transaction.ins.length === 1 || transaction.ins.length === 2); // depending on current fees gona use either 1 or 2 inputs
+    assert.strictEqual(transaction.outs.length, 2);
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
+    assert.strictEqual(transaction.outs[0].value, 50000);
+
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 });
 
