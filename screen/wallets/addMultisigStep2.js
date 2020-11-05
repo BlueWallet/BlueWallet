@@ -583,13 +583,15 @@ const WalletsAddMultisigStep2 = () => {
   const footer = isLoading ? (
     <BlueLoadingHook />
   ) : (
-    <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
+    <View style={styles.buttonContainer}>
+      <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
+    </View>
   );
 
   return (
     <SafeAreaView style={[styles.root, stylesHook.root]}>
       <View style={[styles.root, stylesHook.root, styles.mainBlock]}>
-        <StatusBar barStyle="default" />
+        <StatusBar barStyle="light-content" />
         <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
         {footer}
         {renderMnemonicsModal()}
@@ -633,6 +635,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 16,
     marginBottom: 8,
+  },
+   buttonContainer: {
+    flexDirection: 'row',
+    marginVertical: 24,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   provideKeyButtonText: { fontWeight: '600', fontSize: 15 },
   textDestination: { fontWeight: '600' },
