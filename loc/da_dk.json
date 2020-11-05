@@ -75,6 +75,7 @@
     "list_title": "transaktioner"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Opret",
     "add_import_wallet": "Importer wallet",
     "add_or": "eller",

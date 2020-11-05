@@ -112,7 +112,7 @@ export default class HodlHodlMyContracts extends Component {
     });
 
     const hodlApi = this.state.hodlApi;
-    const contracts = [];
+    let contracts = [];
     let contractToDisplay = this.state.contractToDisplay;
 
     const contractIds = await this.context.getHodlHodlContracts();
@@ -150,6 +150,8 @@ export default class HodlHodlMyContracts extends Component {
         contractToDisplay = contract;
       }
     }
+
+    contracts = contracts.sort((a, b) => (a.created_at >= b.created_at ? -1 : 1)); // new contracts on top
 
     this.setState({ hodlApi: hodlApi, contracts, contractToDisplay, isLoading: false });
   }

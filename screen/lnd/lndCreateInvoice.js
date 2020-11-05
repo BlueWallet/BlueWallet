@@ -275,7 +275,7 @@ export default class LNDCreateInvoice extends Component {
       }
 
       // decoding the lnurl
-      const url = Lnurl.getUrlFromLnurl(data)
+      const url = Lnurl.getUrlFromLnurl(data);
 
       // calling the url
       try {

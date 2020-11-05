@@ -99,6 +99,7 @@
     "list_title": "transaccions"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Crear",
     "add_import_wallet": "Importar moneder",
     "add_or": "o",

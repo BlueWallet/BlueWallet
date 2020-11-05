@@ -317,6 +317,7 @@
     "transactions_count": "Anzahl Transaktionen"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_bitcoin": "Bitcoin",
     "add_create": "Erstellen",
     "add_entropy_generated": "{gen} Bytes an generierter Entropie ",
@@ -325,6 +326,7 @@
     "add_import_wallet": "Wallet importieren",
     "import_file": "Datei importieren",
     "add_lightning": "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "LNDHub Verbindung",
     "add_lndhub_error": "Die angegebene LNDHub Verbindung ist ungültig. ",
     "add_lndhub_placeholder": "Adresse Deines Bitcoin-Knotens (Node)",
@@ -389,6 +391,8 @@
     "xpub_title": "Wallet XPUB"
   },
   "multisig": {
+    "multisig_vault": "Vault",
+    "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Stell die Signatur bereit",
     "vault_key": "Tresor-Schlüssel: {number}",
     "fee": "Gebhür: {number}",

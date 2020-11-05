@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import { Platform } from 'react-native';
 import { AppStorage, LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
+import DefaultPreference from 'react-native-default-preference';
+import RNWidgetCenter from 'react-native-widget-center';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
@@ -103,6 +105,17 @@ async function getSavedPeer() {
   const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
   const port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
   const sslPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_SSL_PORT);
+  try {
+    await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+    await DefaultPreference.set(AppStorage.ELECTRUM_HOST, host);
+    await DefaultPreference.set(AppStorage.ELECTRUM_TCP_PORT, port);
+    await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, sslPort);
+    RNWidgetCenter.reloadAllTimelines();
+  } catch (e) {
+    // Must be running on Android
+    console.log(e);
+  }
+
   return { host, tcp: port, ssl: sslPort };
 }
 
