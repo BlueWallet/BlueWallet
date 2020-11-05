@@ -195,6 +195,7 @@ module.exports = {
   },
   message: {
     allDone: 'すべて完了しました!',
+    bePatient: 'しばらくお待ちください。しばらく時間がかかる可能性があります。',
     cancelTxSuccess: '取引の取消しが正常に完了しました。\n  コインは間もなく届きます。',
     creatingAuthenticator: '自分の認証システムを生成中です。',
     creatingAuthenticatorDescription:
@@ -208,6 +209,7 @@ module.exports = {
       '認証システムを登録しています。しばらくお待ちください。\n  しばらく時間がかかる可能性があります。',
     noTransactions: 'このウォレットには取引がありません。',
     noTransactionsDesc: 'これまで未使用のウォレットを読み込もうとしています',
+    processing: '処理',
     returnToAuthenticators: '認証システムに戻る',
     returnToDashboard: 'ダッシュボードに戻る',
     returnToWalletChoose: 'ウォレットタイプの選択に戻る',

@@ -197,6 +197,7 @@ module.exports = {
   },
   message: {
     allDone: 'Tamam!',
+    bePatient: 'Lütfen bekleyin.  Biraz zaman alabilir.',
     cancelTxSuccess: 'İşleminizi başarıyla iptal ettiniz.\n  Coinleriniz yolda.',
     creatingAuthenticator: 'Kimlik doğrulayıcınız oluşturuluyor',
     creatingAuthenticatorDescription:
@@ -210,6 +211,7 @@ module.exports = {
       'Lütfen biz kimlik doğrulayıcınızı içeri aktarırken bekleyin.\n  Biraz zaman alabilir.',
     noTransactions: 'Cüzdanda herhangi bir işlem bulunamadı',
     noTransactionsDesc: 'Muhtemelen daha önce hiç kullanılmamış bir cüzdanı içeri aktarmaya çalışıyorsunuz',
+    processing: 'İşleme',
     returnToAuthenticators: 'Kimlik Doğrulayıcılara Geri Dön',
     returnToDashboard: 'Panoya Geri Dön',
     returnToWalletChoose: 'Cüzdan türü seçimine geri dön',

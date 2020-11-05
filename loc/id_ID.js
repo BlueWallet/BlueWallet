@@ -197,6 +197,7 @@ module.exports = {
   },
   message: {
     allDone: 'Semua selesai!',
+    bePatient: 'Harap bersabar. Mungkin perlu waktu.',
     cancelTxSuccess: 'Anda berhasil membatalkan transaksi.\n  Koin Anda akan tiba.',
     creatingAuthenticator: 'authenticator Anda sedang dibuat',
     creatingAuthenticatorDescription: 'Harap bersabar selagi kami membuat authenticator Anda.\n  Mungkin perlu waktu.',
@@ -210,6 +211,7 @@ module.exports = {
       'Harap bersabar selagi kami mengimpor authenticator Anda.\n  Mungkin perlu waktu.',
     noTransactions: 'Transaksi tidak ditemukan di dompet',
     noTransactionsDesc: 'Anda mungkin mencoba mengimpor dompet yang belum pernah digunakan',
+    processing: 'Pengolahan',
     returnToAuthenticators: 'Kembali ke authenticator',
     returnToDashboard: 'Kembali ke Dasbor',
     returnToWalletChoose: 'Kembali ke pemilihan tipe dompet',

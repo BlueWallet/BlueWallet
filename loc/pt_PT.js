@@ -199,6 +199,7 @@ module.exports = {
   },
   message: {
     allDone: 'Tudo feito!',
+    bePatient: 'Por favor, seja paciente',
     cancelTxSuccess: 'Cancelou a sua transação com sucesso.',
     creatingAuthenticator: 'A criar o seu autenticador',
     creatingAuthenticatorDescription: 'Por favor, seja paciente enquanto criamos o seu autenticador.',
@@ -211,6 +212,7 @@ module.exports = {
     importingAuthenticatorDescription: 'Por favor, seja paciente enquanto importamos o seu autenticador.',
     noTransactions: 'Não foram encontradas transações na carteira',
     noTransactionsDesc: 'Provavelmente, está a tentar importar uma carteira que nunca foi utilizada',
+    processing: 'Em processamento',
     returnToAuthenticators: 'Voltar aos Autenticadores',
     returnToDashboard: 'Voltar ao Painel',
     returnToWalletChoose: 'Voltar à seleção do tipo de carteira',

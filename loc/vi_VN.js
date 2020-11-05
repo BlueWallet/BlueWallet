@@ -199,6 +199,7 @@ module.exports = {
   },
   message: {
     allDone: 'Tất cả đã hoàn thành!',
+    bePatient: 'Vui lòng đợi trong khi',
     cancelTxSuccess: 'Bạn đã hủy thành công giao dịch của mình.\n  Tiền của bạn đang được chuyển đến.',
     creatingAuthenticator: 'Tạo trình xác thực của bạn',
     creatingAuthenticatorDescription:
@@ -213,6 +214,7 @@ module.exports = {
       'Vui lòng đợi trong khi chúng tôi nhập trình xác thực của bạn.\n  Quá trình này có thể mất một thời gian.',
     noTransactions: 'Không tìm thấy giao dịch nào trên ví',
     noTransactionsDesc: 'Có thể bạn đang nhập một ví chưa từng được sử dụng',
+    processing: 'Chế biến',
     returnToAuthenticators: 'Quay lại Trình xác thực',
     returnToDashboard: 'Quay lại Bảng điều khiển',
     returnToWalletChoose: 'Quay lại lựa chọn loại ví',

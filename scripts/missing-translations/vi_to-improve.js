@@ -189,6 +189,7 @@ const vi = {
   },
   message: {
     allDone: 'Tất cả đã hoàn thành!',
+    bePatient: 'Vui lòng đợi trong khi',
     cancelTxSuccess: 'Bạn đã hủy thành công giao dịch của mình.\n  Tiền của bạn đang được chuyển đến.',
     creatingAuthenticator: 'Tạo trình xác thực của bạn',
     creatingAuthenticatorDescription: 'Vui lòng đợi trong khi chúng tôi tạo trình xác thực của bạn.\n  Quá trình này có thể mất một thời gian.',
@@ -200,6 +201,7 @@ const vi = {
     importingAuthenticatorDescription: 'Vui lòng đợi trong khi chúng tôi nhập trình xác thực của bạn.\n  Quá trình này có thể mất một thời gian.',
     noTransactions: 'Không tìm thấy giao dịch nào trên ví',
     noTransactionsDesc: 'Có thể bạn đang nhập một ví chưa từng được sử dụng',
+    processing: 'Chế biến',
     returnToAuthenticators: 'Quay lại Trình xác thực',
     returnToDashboard: 'Quay lại Bảng điều khiển',
     returnToWalletChoose: 'Quay lại lựa chọn loại ví',
@@ -211,8 +213,6 @@ const vi = {
     successfullWalletImport: 'Ví của quý khách đã được nhập thành công. Bây giờ quý khách có thể quay lại Bảng điều khiển.',
     wrongMnemonic: 'Cụm từ ghi nhớ sai',
     wrongMnemonicDesc: 'Cụm từ ghi nhớ của bạn không khớp với bất kỳ ví nào được hỗ trợ. Bạn đang nhập một cụm từ ghi nhớ không hợp lệ hoặc ví chưa từng được sử dụng',
-    bePatient: 'TRANSLATION NEEDED | ENG: Please be patient, it may take a while.',
-    processing: 'TRANSLATION NEEDED | ENG: Processing',
   },
   onboarding: {
     changePin: 'Thay đổi PIN',

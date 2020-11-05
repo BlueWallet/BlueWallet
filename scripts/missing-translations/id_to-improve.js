@@ -189,6 +189,7 @@ const id = {
   },
   message: {
     allDone: 'Semua selesai!',
+    bePatient: 'Harap bersabar. Mungkin perlu waktu.',
     cancelTxSuccess: 'Anda berhasil membatalkan transaksi.\n  Koin Anda akan tiba.',
     creatingAuthenticator: 'authenticator Anda sedang dibuat',
     creatingAuthenticatorDescription: 'Harap bersabar selagi kami membuat authenticator Anda.\n  Mungkin perlu waktu.',
@@ -200,6 +201,7 @@ const id = {
     importingAuthenticatorDescription: 'Harap bersabar selagi kami mengimpor authenticator Anda.\n  Mungkin perlu waktu.',
     noTransactions: 'Transaksi tidak ditemukan di dompet',
     noTransactionsDesc: 'Anda mungkin mencoba mengimpor dompet yang belum pernah digunakan',
+    processing: 'Pengolahan',
     returnToAuthenticators: 'Kembali ke authenticator',
     returnToDashboard: 'Kembali ke Dasbor',
     returnToWalletChoose: 'Kembali ke pemilihan tipe dompet',
@@ -211,8 +213,6 @@ const id = {
     successfullWalletImport: 'Dompet Anda berhasil diimpor. Anda sekarang dapat kembali ke Dasbor.',
     wrongMnemonic: 'Mnemonik salah',
     wrongMnemonicDesc: 'Mnemonik tidak sesuai dengan dompet apa pun yang didukung. Anda mencoba mengimpor mnemonik yang tidak valid atau dompet belum pernah digunakan',
-    bePatient: 'TRANSLATION NEEDED | ENG: Please be patient, it may take a while.',
-    processing: 'TRANSLATION NEEDED | ENG: Processing',
   },
   onboarding: {
     changePin: 'Ubah PIN',

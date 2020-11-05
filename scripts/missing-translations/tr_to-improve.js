@@ -189,6 +189,7 @@ const tr = {
   },
   message: {
     allDone: 'Tamam!',
+    bePatient: 'Lütfen bekleyin.  Biraz zaman alabilir.',
     cancelTxSuccess: 'İşleminizi başarıyla iptal ettiniz.\n  Coinleriniz yolda.',
     creatingAuthenticator: 'Kimlik doğrulayıcınız oluşturuluyor',
     creatingAuthenticatorDescription: 'Lütfen biz kimlik doğrulayıcınızı oluştururken bekleyin.\n  Biraz zaman alabilir.',
@@ -200,6 +201,7 @@ const tr = {
     importingAuthenticatorDescription: 'Lütfen biz kimlik doğrulayıcınızı içeri aktarırken bekleyin.\n  Biraz zaman alabilir.',
     noTransactions: 'Cüzdanda herhangi bir işlem bulunamadı',
     noTransactionsDesc: 'Muhtemelen daha önce hiç kullanılmamış bir cüzdanı içeri aktarmaya çalışıyorsunuz',
+    processing: 'İşleme',
     returnToAuthenticators: 'Kimlik Doğrulayıcılara Geri Dön',
     returnToDashboard: 'Panoya Geri Dön',
     returnToWalletChoose: 'Cüzdan türü seçimine geri dön',
@@ -211,8 +213,6 @@ const tr = {
     successfullWalletImport: 'Cüzdanınız başarıyla içeri aktarıldı. Şimdi Panoya geri dönebilirsiniz.',
     wrongMnemonic: 'Yanlış anımsatıcı',
     wrongMnemonicDesc: 'Anımsatıcınız desteklenen herhangi bir cüzdanla eşleşmiyor. Geçersiz bir anımsatıcıyı içeri aktarmaya çalışıyorsunuz veya cüzdan daha önce kullanılmamış',
-    bePatient: 'TRANSLATION NEEDED | ENG: Please be patient, it may take a while.',
-    processing: 'TRANSLATION NEEDED | ENG: Processing',
   },
   onboarding: {
     changePin: 'PIN’i Değiştir',

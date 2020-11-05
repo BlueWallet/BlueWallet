@@ -189,6 +189,7 @@ const zh = {
   },
   message: {
     allDone: '全部完成！',
+    bePatient: '加载时请耐心等待。  可能需要一些时间。',
     cancelTxSuccess: '您已成功取消交易。\n  正在出币。',
     creatingAuthenticator: '正在创建验证器',
     creatingAuthenticatorDescription: '创建验证器时请耐心等待。\n  可能需要一些时间。',
@@ -200,6 +201,7 @@ const zh = {
     importingAuthenticatorDescription: '导入验证器时请耐心等待。\n  可能需要一些时间。',
     noTransactions: '在钱包中没有找到交易',
     noTransactionsDesc: '您可能正在尝试导入未曾用过的钱包',
+    processing: '处理中',
     returnToAuthenticators: '返回验证器',
     returnToDashboard: '返回控制面板',
     returnToWalletChoose: '返回钱包类型选择',
@@ -211,8 +213,6 @@ const zh = {
     successfullWalletImport: '您的钱包已成功导入。您现在可以返回控制面板。',
     wrongMnemonic: '错误助记键',
     wrongMnemonicDesc: '助记键与任何受支持的钱包均不匹配。\n  您正在尝试导入无效助记键或未曾用过的钱包',
-    bePatient: 'TRANSLATION NEEDED | ENG: Please be patient, it may take a while.',
-    processing: 'TRANSLATION NEEDED | ENG: Processing',
   },
   onboarding: {
     changePin: '更改PIN',

@@ -195,6 +195,7 @@ module.exports = {
   },
   message: {
     allDone: '모두 완료!',
+    bePatient: '잠시 기다려주십시오. 다소 시간이 걸릴 수 있습니다.',
     cancelTxSuccess: '거래를 성공적으로 취소했습니다.\n  귀하의 코인이 들어오는 중입니다.',
     creatingAuthenticator: '인증기 생성',
     creatingAuthenticatorDescription: '인증기를 만드는 동안 잠시 기다려주십시오. 다소 시간이 걸릴 수 있습니다.',
@@ -206,6 +207,7 @@ module.exports = {
     importingAuthenticatorDescription: '인증기를 가져오는 동안 잠시 기다려주십시오. 다소 시간이 걸릴 수 있습니다.',
     noTransactions: '지갑에 거래가 없습니다',
     noTransactionsDesc: '한 번도 사용하지 않은 지갑을 가져오려 하고 있습니다',
+    processing: '가공',
     returnToAuthenticators: '인증기로 돌아가기',
     returnToDashboard: '대시보드로 돌아가기',
     returnToWalletChoose: '지갑 유형 선택으로 돌아가기',

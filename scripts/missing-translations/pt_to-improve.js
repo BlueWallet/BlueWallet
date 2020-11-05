@@ -189,6 +189,7 @@ const pt = {
   },
   message: {
     allDone: 'Tudo feito!',
+    bePatient: 'Por favor, seja paciente',
     cancelTxSuccess: 'Cancelou a sua transação com sucesso.',
     creatingAuthenticator: 'A criar o seu autenticador',
     creatingAuthenticatorDescription: 'Por favor, seja paciente enquanto criamos o seu autenticador.',
@@ -200,6 +201,7 @@ const pt = {
     importingAuthenticatorDescription: 'Por favor, seja paciente enquanto importamos o seu autenticador.',
     noTransactions: 'Não foram encontradas transações na carteira',
     noTransactionsDesc: 'Provavelmente, está a tentar importar uma carteira que nunca foi utilizada',
+    processing: 'Em processamento',
     returnToAuthenticators: 'Voltar aos Autenticadores',
     returnToDashboard: 'Voltar ao Painel',
     returnToWalletChoose: 'Voltar à seleção do tipo de carteira',
@@ -211,8 +213,6 @@ const pt = {
     successfullWalletImport: 'A importação da sua carteira foi realizada com sucesso. Pode voltar ao Painel.',
     wrongMnemonic: 'Mnemónica errada',
     wrongMnemonicDesc: 'A sua mnemónica não corresponde a nenhuma carteira suportada. Está a tentar importar uma mnemónica inválida ou uma carteira que nunca foi utilizada',
-    bePatient: 'TRANSLATION NEEDED | ENG: Please be patient, it may take a while.',
-    processing: 'TRANSLATION NEEDED | ENG: Processing',
   },
   onboarding: {
     changePin: 'Alterar PIN',

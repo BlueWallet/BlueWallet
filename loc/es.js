@@ -200,6 +200,7 @@ module.exports = {
   },
   message: {
     allDone: '¡Todo listo!',
+    bePatient: 'Tenga paciencia. Puede tardar un poco.',
     cancelTxSuccess: 'Ha cancelado la transacción correctamente.\n  Sus monedas están de camino.',
     creatingAuthenticator: 'Creando su autenticador',
     creatingAuthenticatorDescription: 'Tenga paciencia mientras se crea su autenticador.\n  Puede tardar un poco.',
@@ -211,6 +212,7 @@ module.exports = {
     importingAuthenticatorDescription: 'Tenga paciencia mientras importamos su autenticador.\n  Puede tardar un poco.',
     noTransactions: 'No se ha encontrado ninguna transacción en el monedero',
     noTransactionsDesc: 'Es probable que esté intentando importar un monedero que nunca se ha usado',
+    processing: 'Procesando',
     returnToAuthenticators: 'Volver a Autenticadores',
     returnToDashboard: 'Volver al Panel',
     returnToWalletChoose: 'Volver a selección del tipo de monedero',
