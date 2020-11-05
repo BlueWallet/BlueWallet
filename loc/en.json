@@ -443,6 +443,7 @@
     "invalid_fingerprint": "Fingerprint for this seed doesnt match this cosigners fingerprint",
     "view_edit_cosigners": "View/edit cosigners",
     "this_cosigner_is_already_imported": "This cosigner is already imported",
+    "export_signed_psbt": "Export Signed PSBT",
     "view_edit_cosigners_title": "Edit Cosigners"
   }
 }
