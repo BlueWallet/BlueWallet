@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -32,7 +32,6 @@ import Modal from 'react-native-modal';
 import { getSystemName } from 'react-native-device-info';
 import ImagePicker from 'react-native-image-picker';
 import ScanQRCode from '../send/ScanQRCode';
-import WalletImport from '../../class/wallet-import';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -43,13 +42,17 @@ import MultipleStepsListItem, {
 import Clipboard from '@react-native-community/clipboard';
 import showPopupMenu from 'react-native-popup-menu-android';
 import ToolTip from 'react-native-tooltip';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
+const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
+  const { addWallet, saveToDisk, setNewWalletAdded } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
   const navigation = useNavigation();
@@ -125,7 +128,7 @@ const WalletsAddMultisigStep2 = () => {
     },
   });
 
-  const onCreate = () => {
+  const onCreate = async () => {
     setIsLoading(true);
     const w = new MultisigHDWallet();
     w.setM(m);
@@ -149,7 +152,14 @@ const WalletsAddMultisigStep2 = () => {
       w.addCosigner(cc[0], cc[1], cc[2]);
     }
     w.setLabel('Multisig Vault');
-    WalletImport._saveWallet(w);
+    await w.fetchBalance();
+
+    addWallet(w);
+    await saveToDisk();
+    setNewWalletAdded(true);
+    A(A.ENUM.CREATED_WALLET);
+    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+
     navigation.dangerouslyGetParent().pop();
   };
 
