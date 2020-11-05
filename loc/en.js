@@ -585,6 +585,7 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         'This seed is from Electrum Vault and is currently not supported. Will be supported in the near future.',
       walletInUseValidationError: 'Wallet is already in use. Please enter a valid wallet.',
+      allWalletsValidationError: 'You cannot enter the name "All wallets"',
     },
     publicKey: {
       instantDescription:
