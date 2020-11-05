@@ -36,7 +36,6 @@ import ScanQRCode from '../send/ScanQRCode';
 import WalletImport from '../../class/wallet-import';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
