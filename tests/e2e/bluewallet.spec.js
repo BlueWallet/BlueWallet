@@ -551,6 +551,41 @@ describe('BlueWallet UI Tests', () => {
     expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     expect(element(by.id('TransactionAddress'))).toHaveText('BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7');
   });
+
+  it('can import multisig setup from UR (ver1) QRs 2 frames', async () => {
+    await yo('WalletsList');
+    await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
+    // going to Import Wallet screen and importing mnemonic
+    await element(by.id('CreateAWallet')).tap();
+    await element(by.id('ImportWallet')).tap();
+    await element(by.id('ScanImport')).tap();
+
+    const urs = [
+      'UR:BYTES/1OF2/J8RX04F2WJ9SSY577U30R55ELM4LUCJCXJVJTD60SYV9A286Q0AQH7QXL6/TYQMJGEQGFK82E2HV9KXCET5YPXH2MR5D9EKJEEQWDJHGATSYPNXJMR9PG3JQARGD9EJQENFD3JJQCM0DE6XZ6TWWVSX7MNV0YS8QATZD35KXGRTV4UHXGRPDEJZQ6TNYPEKZEN9YP6X7Z3RYPJXJUM5WF5KYAT5V5SXZMT0DENJQCM0WD5KWMN9WFES5GC2FESK6EF6YPXH2MR5D9EKJEEQ2ESH2MR5PFGX7MRFVDUN5GPJYPHKVGPJPFZX2UNFWESHG6T0DCAZQMF0XSUZWTESYUHNQFE0XGNS53N0WFKKZAP6YPGRY46NFQ9Q53PNXAZ5Z3PC8QAZQKNSW43RWDRFDFCXV6Z92F9YU6NGGD94S5NNWP2XGNZ22C6K2M69D4F4YKNYFPC5GANS',
+      'UR:BYTES/2OF2/J8RX04F2WJ9SSY577U30R55ELM4LUCJCXJVJTD60SYV9A286Q0AQH7QXL6/8944VARY2EZHJ62CDVMHQKRC2F3XVKN629M8X3ZXWPNYGJZ9FPT8G4NS0Q6YG73EG3R42468DCE9S6E40FRN2AF5X4G4GNTNT9FNYAN2DA5YU5G2PGCNVWZYGSMRQVE6YPD8QATZXU6K6S298PZK57TC2DAX772SD4RKUEP4G5MY672YXAQ5C36WDEJ8YA2HWC6NY7RS0F5K6KJ3FD6KKAMKG4N9S4ZGW9K5SWRWVF3XXDNRVDGR2APJV9XNXMTHWVEHQJ6E2DHYKUZTF4XHJARYVF8Y2KJX24UYK7N6W3V5VNFC2PHQ5ZSJDYL5T',
+    ];
+
+    await waitFor(element(by.id('UrProgressBar'))).toBeNotVisible();
+
+    for (const ur of urs) {
+      // tapping 10 times invisible button is a backdoor:
+      for (let c = 0; c <= 10; c++) {
+        await element(by.id('ScanQrBackdoorButton')).tap();
+      }
+      await element(by.id('scanQrBackdoorInput')).replaceText(ur);
+      await element(by.id('scanQrBackdoorOkButton')).tap();
+      await waitFor(element(by.id('UrProgressBar'))).toBeVisible();
+    }
+
+    if (process.env.TRAVIS) await sleep(60000);
+    await sup('OK', 3 * 61000); // waiting for wallet import
+    await element(by.text('OK')).tap();
+    // ok, wallet imported
+
+    // lets go inside wallet
+    const expectedWalletLabel = 'Multisig Vault';
+    await element(by.text(expectedWalletLabel)).tap();
+  });
 });
 
 async function sleep(ms) {

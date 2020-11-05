@@ -70,6 +70,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   backdoorInputWrapper: { position: 'absolute', left: '5%', top: '0%', width: '90%', height: '70%', backgroundColor: 'white' },
+  progressWrapper: { position: 'absolute', right: '0%', top: '0%', backgroundColor: 'white' },
   backdoorInput: {
     height: '50%',
     marginTop: 5,
@@ -95,6 +96,8 @@ const ScanQRCode = () => {
   const isFocused = useIsFocused();
   const [cameraStatus, setCameraStatus] = useState(RNCamera.Constants.CameraStatus.PENDING_AUTHORIZATION);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
+  const [urTotal, setUrTotal] = useState(0);
+  const [urHave, setUrHave] = useState(0);
   const [backdoorText, setBackdoorText] = useState('');
   const [backdoorVisible, setBackdoorVisible] = useState(false);
   const [animatedQRCodeData, setAnimatedQRCodeData] = useState({});
@@ -111,6 +114,8 @@ const ScanQRCode = () => {
     try {
       const [index, total] = extractSingleWorkload(ur);
       animatedQRCodeData[index + 'of' + total] = ur;
+      setUrTotal(total);
+      setUrHave(Object.values(animatedQRCodeData).length);
       if (Object.values(animatedQRCodeData).length === total) {
         const payload = decodeUR(Object.values(animatedQRCodeData));
         // lets look inside that data
@@ -264,6 +269,14 @@ const ScanQRCode = () => {
           <Icon name="file-import" type="material-community" color="#ffffff" />
         </TouchableOpacity>
       )}
+      {urTotal > 0 && (
+        <View style={styles.progressWrapper} testID="UrProgressBar">
+          <BlueTextHooks>
+            {urHave} / {urTotal}
+          </BlueTextHooks>
+        </View>
+      )}
+
       {backdoorVisible && (
         <View style={styles.backdoorInputWrapper}>
           <BlueTextHooks>Provide QR code contents manually:</BlueTextHooks>
@@ -291,6 +304,8 @@ const ScanQRCode = () => {
                 // this might be a json string (for convenience - in case there are "\n" in there)
               } catch (_) {
                 data = backdoorText;
+              } finally {
+                setBackdoorText('');
               }
 
               if (data) onBarCodeRead({ data });

@@ -9,16 +9,6 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
-import {
-  HDLegacyElectrumSeedP2PKHWallet,
-  HDLegacyP2PKHWallet,
-  HDSegwitBech32Wallet,
-  HDSegwitP2SHWallet,
-  HDLegacyBreadwalletWallet,
-  LegacyWallet,
-  SegwitP2SHWallet,
-  SegwitBech32Wallet,
-} from '../../class';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import Notifications from '../../blue_modules/notifications';
@@ -89,21 +79,7 @@ export default class Confirm extends Component {
           }
         }
 
-        // wallets that support new createTransaction() instead of deprecated createTx()
-        if (
-          [
-            HDSegwitBech32Wallet.type,
-            HDSegwitP2SHWallet.type,
-            HDLegacyP2PKHWallet.type,
-            HDLegacyBreadwalletWallet.type,
-            HDLegacyElectrumSeedP2PKHWallet.type,
-            LegacyWallet.type,
-            SegwitP2SHWallet.type,
-            SegwitBech32Wallet.type,
-          ].includes(this.state.fromWallet.type)
-        ) {
-          amount = formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
-        }
+        amount = formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
 
         this.context.fetchAndSaveWalletTransactions(this.state.fromWallet.getID());
         this.props.navigation.navigate('Success', {
