@@ -16,6 +16,7 @@ import {
 import { HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet } from 'app/legacy';
 import { ApplicationState } from 'app/state';
 
+import logger from '../../../logger';
 import { roundBtcToSatoshis, btcToSatoshi, satoshiToBtc } from '../../../utils/bitcoin';
 import { selectors as electrumXSelectors } from '../electrumX';
 import { WalletsState } from './reducer';
@@ -121,6 +122,7 @@ const getTranasctionStatus = (tx: Transaction, confirmations: number): Transacti
     case TxType.RECOVERY:
       return TransactionStatus['CANCELED-DONE'];
     default:
+      logger.error('wallets selectors', `couldn't find status for tx ${JSON.stringify(tx)}`);
       throw new Error(`Unkown tx_type: ${tx.tx_type}`);
   }
 };

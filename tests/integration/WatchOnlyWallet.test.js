@@ -26,7 +26,7 @@ describe('Watch only wallet', () => {
     assert.ok(w.getBalance() > 0);
   });
 
-  it('can fetch tx', async () => {
+  xit('can fetch tx', async () => {
     jest.setTimeout(150000);
     const w = new WatchOnlyWallet();
 
