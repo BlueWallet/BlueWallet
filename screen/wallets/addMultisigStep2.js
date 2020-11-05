@@ -12,6 +12,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ScrollView,
 } from 'react-native';
 import {
   BlueButton,
@@ -580,32 +581,53 @@ const WalletsAddMultisigStep2 = () => {
       </Modal>
     );
   };
-  const footer = isLoading ? (
-    <BlueLoadingHook />
-  ) : (
-    <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
-  );
+    const footer = isLoading ? (
+      <BlueLoadingHook />
+    ) : (
+     <View style={styles.buttonBottom}>
+      <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
+    </View>
+    );
 
   return (
-    <SafeAreaView style={[styles.root, stylesHook.root]}>
-      <View style={[styles.root, stylesHook.root, styles.mainBlock]}>
-        <StatusBar barStyle="default" />
-        <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+      <ScrollView 
+      contentContainerStyle={{ height: '100%' }}
+      style={[styles.root, stylesHook.root]}>
+      <StatusBar barStyle="light-content" />
+      <BlueSpacing20 />
+        <View style={[styles.root, stylesHook.root, styles.mainBlock]}>
+          <StatusBar barStyle="light-content" />
+          <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+          
+          {renderMnemonicsModal()}
+
+          {renderProvideMnemonicsModal()}
+
+          {renderCosignersXpubModal()}
+        </View>
         {footer}
-        {renderMnemonicsModal()}
-
-        {renderProvideMnemonicsModal()}
-
-        {renderCosignersXpubModal()}
-      </View>
-    </SafeAreaView>
+      </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    marginTop: -8,
+    flexDirection: 'column',
   },
+  mainBlock: { 
+    height: '100%', 
+    marginHorizontal: 20, 
+    marginVertical: 24, 
+  },
+  buttonBottom: { 
+    marginHorizontal: 20, 
+    flex: .12,
+    marginBottom: 36, 
+    justifyContent: 'flex-end',
+  },
+
   itemKeyUnprovidedWrapper: { flexDirection: 'row' },
   vaultKeyCircle: {
     width: 42,
@@ -651,12 +673,12 @@ const styles = StyleSheet.create({
   },
   newKeyModalContent: {
     paddingHorizontal: 22,
-    paddingVertical: 32,
+    paddingBottom: 60,
+    paddingTop: 50,
     justifyContent: 'center',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 700,
   },
   vaultKeyCircleSuccess: {
     width: 42,
@@ -693,7 +715,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   headerText: { fontSize: 15, color: '#13244D' },
-  mainBlock: { marginHorizontal: 20 },
   header2Text: { color: '#9AA0AA', fontSize: 14, paddingBottom: 20 },
   alignItemsCenter: { alignItems: 'center' },
   squareButtonWrapper: { height: 50, width: 250 },
