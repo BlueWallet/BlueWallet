@@ -15,10 +15,6 @@ struct WidgetDataStore {
   var rateDoubleValue: Double? {
     let numberFormatter = NumberFormatter()
     numberFormatter.numberStyle = .decimal
-    numberFormatter.locale = Locale(identifier: WidgetAPI.getUserPreferredCurrencyLocale())
-    numberFormatter.maximumFractionDigits = 2
-    numberFormatter.minimumFractionDigits = 2
-    
     if let rateDoubleValue =  numberFormatter.number(from: rate) {
       return rateDoubleValue.doubleValue
     }
