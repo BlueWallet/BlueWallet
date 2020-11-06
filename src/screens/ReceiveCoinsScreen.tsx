@@ -45,7 +45,7 @@ class ReceiveCoinsScreen extends Component<Props, State> {
     if (!wallet) {
       return;
     }
-    return bip21.encode(wallet.getAddressForTransaction(), { amount }).replace('bitcoin:', '');
+    return bip21.encode(wallet.getAddressForTransaction(), { amount });
   }
 
   updateAmount = (amount: string) => {
@@ -74,10 +74,8 @@ class ReceiveCoinsScreen extends Component<Props, State> {
     if (!wallet) {
       return '';
     }
-    const { amount } = this.state;
 
-    const address = wallet.getAddressForTransaction();
-    return amount ? `${address}?amount=${amount}` : address;
+    return wallet.getAddressForTransaction();
   }
 
   share = () => {
@@ -167,7 +165,7 @@ class ReceiveCoinsScreen extends Component<Props, State> {
         </View>
         <Text style={styles.labelText}>{i18n.receive.label}:</Text>
         <Text style={styles.address}>{this.message}</Text>
-        <CopyButton textToCopy={this.message} />
+        <CopyButton textToCopy={this.bip21encoded || ''} />
         <Text style={styles.inputTitle}>{i18n.receive.details.receiveWithAmount}</Text>
         <Text style={styles.receiveSubtitle}>{i18n.receive.details.receiveWithAmountSubtitle}</Text>
         <View style={styles.amountInput}>
