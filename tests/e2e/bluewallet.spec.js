@@ -553,6 +553,12 @@ describe('BlueWallet UI Tests', () => {
   });
 
   it('can manage UTXO', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+    }
+
     await helperImportWallet(
       'zpub6qoWjSiZRHzSYPGYJ6EzxEXJXP1b2Rj9syWwJZFNCmupMwkbSAWSBk3UvSkJyQLEhQpaBAwvhmNj3HPKpwCJiTBB9Tutt46FtEmjL2DoU3J',
       'Imported Watch-only',
@@ -645,6 +651,8 @@ describe('BlueWallet UI Tests', () => {
     assert.strictEqual(psbt2.txOutputs[0].value, 5334);
     assert.strictEqual(psbt2.data.inputs.length, 1);
     assert.strictEqual(psbt2.data.inputs[0].witnessUtxo.value, 5526);
+
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 });
 
