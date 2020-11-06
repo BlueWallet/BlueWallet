@@ -116,9 +116,9 @@ const showFilePickerAndReadFile = async function () {
         });
       } else {
         file = await RNFS.readFile(uri);
-        return { data: file, uri: decodeURI(res.uri) };
       }
     }
+    return { data: file, uri: decodeURI(res.uri) };
   } catch (err) {
     return { data: false, uri: false };
   }
