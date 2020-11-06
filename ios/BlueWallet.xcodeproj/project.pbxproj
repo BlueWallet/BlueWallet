@@ -95,6 +95,13 @@
 			remoteGlobalIDString = 3271B0A8236E2E0700DA766F;
 			remoteInfo = TodayExtension;
 		};
+		6D6421042554DE27003792DF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6DEB4B25254FB80300E9F9AA;
+			remoteInfo = MarketWidgetExtension;
+		};
 		6D9A2E0B254BA348007B5B82 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
@@ -728,6 +735,7 @@
 				6D9A2E0C254BA348007B5B82 /* PBXTargetDependency */,
 				6DEB4AB7254FB59E00E9F9AA /* PBXTargetDependency */,
 				6DEB4B30254FB80300E9F9AA /* PBXTargetDependency */,
+				6D6421052554DE27003792DF /* PBXTargetDependency */,
 			);
 			name = BlueWallet;
 			productName = "Hello World";
@@ -1240,6 +1248,11 @@
 			isa = PBXTargetDependency;
 			target = 3271B0A8236E2E0700DA766F /* TodayExtension */;
 			targetProxy = 3271B0B3236E2E0700DA766F /* PBXContainerItemProxy */;
+		};
+		6D6421052554DE27003792DF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6DEB4B25254FB80300E9F9AA /* MarketWidgetExtension */;
+			targetProxy = 6D6421042554DE27003792DF /* PBXContainerItemProxy */;
 		};
 		6D9A2E0C254BA348007B5B82 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
