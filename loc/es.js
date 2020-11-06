@@ -592,6 +592,7 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         'Esta frase mnemotécnica es de Electrum Vault y actualmente no es compatible. Será compatible próximamente.',
       walletInUseValidationError: 'El monedero ya está en uso. Introduzca un monedero válido.',
+      allWalletsValidationError: 'No puede introducir el nombre "Todos los monederos"',
     },
     publicKey: {
       instantDescription:

@@ -577,6 +577,7 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         '이 시드는 Electrum Vault에서 가져 왔으며 현재 지원되지 않습니다. 곧 지원될 예정입니다.',
       walletInUseValidationError: '지갑이 이미 사용 중입니다. 유효한 지갑을 입력하십시오.',
+      allWalletsValidationError: '"모든 지갑"이라는 이름을 입력할 수 없습니다',
     },
     publicKey: {
       instantDescription:

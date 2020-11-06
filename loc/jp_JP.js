@@ -581,6 +581,7 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         'これはElectrum Vaultのシードです。このシードは現在サポートされていません。間もなくサポートされる予定です。',
       walletInUseValidationError: 'ウォレットはすでに使用されています。有効なウォレットを入力してください。',
+      allWalletsValidationError: '「全てのウォレット」という名前は入力できません',
     },
     publicKey: {
       instantDescription:

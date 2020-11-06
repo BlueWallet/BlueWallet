@@ -590,6 +590,7 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         'Từ khóa hạt giống này là từ Electrum Vault và hiện không được hỗ trợ. Sẽ được hỗ trợ trong thời gian sắp tới.',
       walletInUseValidationError: 'Ví đã được sử dụng. Vui lòng nhập ví hợp lệ.',
+      allWalletsValidationError: 'Bạn không thể nhập tên ""Tất cả các ví""',
     },
     publicKey: {
       instantDescription:

@@ -591,6 +591,7 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         'Esta semente é da Electrum Vault e não é atualmente suportada. Será suportada num futuro próximo.',
       walletInUseValidationError: 'Essa carteira já está a ser usada. Introduza uma carteira válida.',
+      allWalletsValidationError: 'Não pode inserir o nome "Todas as carteiras"',
     },
     publicKey: {
       instantDescription:

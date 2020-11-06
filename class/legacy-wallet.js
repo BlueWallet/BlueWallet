@@ -207,10 +207,6 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   async setTransactions(txs) {
-    if (txs[0].tx_type === undefined) {
-      logger.info('legacy-wallet', `txs: ${JSON.stringify(txs)}`);
-      logger.error(`fetched txs with no tx_type`);
-    }
     const txid_list = txs.map(t => t.tx_hash);
 
     this.transactions = this.transactions.filter(tx => {

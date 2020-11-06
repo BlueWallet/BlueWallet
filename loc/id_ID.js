@@ -588,6 +588,7 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         'Benih ini berasal dari Electrum Vault dan belum didukung. Akan didukung di masa yang akan datang.',
       walletInUseValidationError: 'Dompet sudah digunakan. Masukkan dompet yang valid.',
+      allWalletsValidationError: 'Anda tidak bisa memasukkan nama "semua dompet"',
     },
     publicKey: {
       instantDescription:

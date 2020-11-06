@@ -587,6 +587,7 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         'Bu kök Electrum Vault’tandır ve şu anda desteklenmemektedir. Yakın gelecekte desteklenecektir.',
       walletInUseValidationError: 'Cüzdan zaten kullanılıyor. Lütfen geçerli bir cüzdan girin.',
+      allWalletsValidationError: '"Tüm Cüzdanlar" kelimesi kullanamazsınız',
     },
     publicKey: {
       instantDescription:

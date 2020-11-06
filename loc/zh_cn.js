@@ -564,6 +564,7 @@ module.exports = {
       title: '导入您的钱包',
       unsupportedElectrumVaultMnemonic: '该种子来自 Electrum Vault，目前不受支持。不久将获得支持。',
       walletInUseValidationError: '钱包已使用。请输入有效的钱包。',
+      allWalletsValidationError: '您不能输入名称“所有钱包”',
     },
     publicKey: {
       instantDescription: '转到另一设备上的 web 密钥生成器，并使用该应用程序扫描公钥 QR二维 码。记得将密钥导出为 PDF！',
