@@ -665,12 +665,15 @@ export default class SendDetails extends Component {
       memo: this.state.memo,
     };
     await this.context.saveToDisk();
+
+    const recipients = outputs.filter(({ address }) => address !== changeAddress);
+
     this.props.navigation.navigate('Confirm', {
       fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
       memo: this.state.memo,
       fromWallet: wallet,
       tx: tx.toHex(),
-      recipients: outputs,
+      recipients,
       satoshiPerByte: requestedSatPerByte,
       payjoinUrl: this.state.payjoinUrl,
       psbt,
