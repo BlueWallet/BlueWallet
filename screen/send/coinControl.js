@@ -23,19 +23,6 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueNavigationStyle, SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueButton, BlueListItem } from '../../BlueComponents';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
-const oStyles = StyleSheet.create({
-  containerFull: { paddingHorizontal: 0 },
-  avatar: { borderColor: 'white', borderWidth: 1 },
-  amount: { fontWeight: 'bold' },
-  memo: { fontSize: 13, marginTop: 3 },
-  changeLight: { backgroundColor: '#EEF0F4' },
-  changeDark: { backgroundColor: '#3b3b3c', borderWidth: 0 },
-  changeText: { color: '#9BA0A9' },
-  freezeLight: { backgroundColor: '#F2D3D3' },
-  freezeDark: { backgroundColor: '#5a4e4e', borderWidth: 0 },
-  freezeText: { color: '#FC6D6D' },
-});
-
 const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, change = false, full = false, onPress }) => {
   const { colors } = useTheme();
   const { txMetadata } = useContext(BlueStorageContext);
@@ -45,6 +32,19 @@ const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, change = 
   const shortId = `${address.substring(0, 9)}...${address.substr(address.length - 9)}`;
   const color = `#${txid.substring(0, 6)}`;
   const amount = formatBalanceWithoutSuffix(value, BitcoinUnit.BTC, true);
+
+  const oStyles = StyleSheet.create({
+    containerFull: { paddingHorizontal: 0 },
+    avatar: { borderColor: 'white', borderWidth: 1 },
+    amount: { fontWeight: 'bold' },
+    memo: { fontSize: 13, marginTop: 3 },
+    changeLight: { backgroundColor: colors.buttonDisabledBackgroundColor },
+    changeDark: { backgroundColor: colors.buttonDisabledBackgroundColor, borderWidth: 0 },
+    changeText: { color: colors.alternativeTextColor },
+    freezeLight: { backgroundColor: colors.redBG },
+    freezeDark: { backgroundColor: colors.redBG, borderWidth: 0 },
+    freezeText: { color: colors.redText },
+  });
 
   return (
     <ListItem bottomDivider onPress={onPress} containerStyle={[{ backgroundColor: colors.elevated }, full && oStyles.containerFull]}>
@@ -154,6 +154,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin }) => {
       <View style={mStyles.buttonContainer}>
         <BlueButton testID="UseCoin" title={loc.cc.useCoin} onPress={() => onUseCoin([output])} />
       </View>
+      <BlueSpacing20 />
     </>
   );
 };

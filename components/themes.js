@@ -57,6 +57,8 @@ export const BlueDefaultTheme = {
     msSuccessBG: '#37c0a1',
     msSuccessCheck: '#ffffff',
     newBlue: '#007AFF',
+    redBG: '#F8D2D2',
+    redText: '#D0021B',
   },
 };
 
@@ -102,6 +104,8 @@ export const BlueDarkTheme = {
     msSuccessBG: '#8EFFE5',
     msSuccessCheck: '#000000',
     newBlue: '#007AFF',
+    redBG: '#F2D3D3',
+    redText: '#D0021B',
   },
 };
 
