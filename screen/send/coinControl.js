@@ -106,6 +106,9 @@ const mStyles = StyleSheet.create({
     paddingHorizontal: 8,
     color: '#81868e',
   },
+  buttonContainer: {
+    height: 45,
+  },
 });
 
 const OutputModalContent = ({ output, wallet, onUseCoin }) => {
@@ -148,7 +151,9 @@ const OutputModalContent = ({ output, wallet, onUseCoin }) => {
       />
       <BlueListItem title={loc.cc.freezeLabel} Component={TouchableWithoutFeedback} switch={switchValue} />
       <BlueSpacing20 />
-      <BlueButton testID="UseCoin" title={loc.cc.useCoin} onPress={() => onUseCoin([output])} />
+      <View style={mStyles.buttonContainer}>
+        <BlueButton testID="UseCoin" title={loc.cc.useCoin} onPress={() => onUseCoin([output])} />
+      </View>
     </>
   );
 };
@@ -245,8 +250,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 360,
-    height: 360,
   },
   empty: {
     flex: 1,
