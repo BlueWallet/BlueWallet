@@ -185,7 +185,7 @@ const WalletsAddMultisig = () => {
 
   return (
     <SafeAreaView style={stylesHook.root}>
-      <StatusBar barStyle="default" />
+      <StatusBar barStyle="light-content" />
       <View style={styles.descriptionContainer}>
         <View style={styles.imageWrapper}>
           <LottieView source={require('../../img/msvault.json')} autoPlay ref={loadingAnimation} loop={false} />
@@ -272,10 +272,10 @@ const styles = StyleSheet.create({
     borderColor: 0,
   },
   buttonContainer: {
-    width: 263,
-    alignSelf: 'center',
+    flexDirection: 'row',
+    margin: 24,
+    alignItems: 'center',
     justifyContent: 'flex-end',
-    marginVertical: 24,
   },
   formatSelectorText: {
     color: '#13244D',

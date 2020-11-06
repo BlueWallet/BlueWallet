@@ -664,6 +664,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 8,
   },
+   buttonContainer: {
+    flexDirection: 'row',
+    marginVertical: 24,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
   provideKeyButtonText: { fontWeight: '600', fontSize: 15 },
   textDestination: { fontWeight: '600' },
   bottomModal: {
