@@ -18,7 +18,6 @@ struct WalletInformationView: View {
     let numberFormatter = NumberFormatter()
     numberFormatter.locale = Locale(identifier: WidgetAPI.getUserPreferredCurrencyLocale())
     numberFormatter.numberStyle = .currency
-    numberFormatter.numberStyle = .currency
     let amount = numberFormatter.string(from:  NSNumber(value: ((allWalletsBalance.balance / 100000000) * marketData.rate))) ?? ""
     return amount
   }

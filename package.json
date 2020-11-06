@@ -64,7 +64,7 @@
     ]
   },
   "dependencies": {
-    "@babel/preset-env": "7.11.5",
+    "@babel/preset-env": "7.12.1",
     "@react-native-community/async-storage": "1.12.1",
     "@react-native-community/blur": "3.6.0",
     "@react-native-community/clipboard": "1.4.0",

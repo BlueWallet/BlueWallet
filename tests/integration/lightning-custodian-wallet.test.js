@@ -107,8 +107,6 @@ describe('LightningCustodianWallet', () => {
     assert.ok(decoded.num_satoshis);
     assert.strictEqual(parseInt(decoded.num_satoshis) * 1000, parseInt(decoded.num_millisatoshis));
 
-    await l2.checkRouteInvoice(invoice);
-
     // checking that bad invoice cant be decoded
     invoice = 'gsom';
     let error = false;
@@ -238,8 +236,6 @@ describe('LightningCustodianWallet', () => {
     assert.ok(decoded.payment_hash);
     assert.ok(decoded.description);
 
-    await l2.checkRouteInvoice(invoice);
-
     let start = +new Date();
     await l2.payInvoice(invoice);
     let end = +new Date();
@@ -310,8 +306,6 @@ describe('LightningCustodianWallet', () => {
 
     await lOld.fetchBalance();
     let oldBalance = lOld.balance;
-
-    await lOld.checkRouteInvoice(invoice);
 
     const start = +new Date();
     await lOld.payInvoice(invoice);
@@ -424,8 +418,6 @@ describe('LightningCustodianWallet', () => {
     assert.ok(decoded.description);
     assert.strictEqual(+decoded.num_satoshis, 0);
 
-    await l2.checkRouteInvoice(invoice);
-
     // first, tip invoice without amount should not work:
     let gotError = false;
     try {
@@ -531,8 +523,6 @@ describe('LightningCustodianWallet', () => {
     assert.ok(decoded.payment_hash);
     assert.ok(decoded.description);
     assert.strictEqual(+decoded.num_satoshis, 0);
-
-    await l2.checkRouteInvoice(invoice);
 
     let error = false;
     try {
