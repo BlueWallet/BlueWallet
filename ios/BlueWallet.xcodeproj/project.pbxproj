@@ -39,6 +39,16 @@
 		6D9A2E6D254BAB1B007B5B82 /* WidgetAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6A254BAB1B007B5B82 /* WidgetAPI.swift */; };
 		6D9A2E6F254BAB1B007B5B82 /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6B254BAB1B007B5B82 /* WidgetDataStore.swift */; };
 		6DA7047E254E24D5005FE5E2 /* UserDefaultsGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA7047D254E24D5005FE5E2 /* UserDefaultsGroup.swift */; };
+		6DCA5D7425550FCB00B55673 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6DCA5D7325550FCB00B55673 /* Assets.xcassets */; };
+		6DCA5D7B25550FCB00B55673 /* BlueWalletWatchApp Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6DCA5D7A25550FCB00B55673 /* BlueWalletWatchApp Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6DCA5D8025550FCB00B55673 /* BlueWalletApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DCA5D7F25550FCB00B55673 /* BlueWalletApp.swift */; };
+		6DCA5D8225550FCB00B55673 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DCA5D8125550FCB00B55673 /* ContentView.swift */; };
+		6DCA5D8425550FCB00B55673 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DCA5D8325550FCB00B55673 /* NotificationController.swift */; };
+		6DCA5D8625550FCB00B55673 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DCA5D8525550FCB00B55673 /* NotificationView.swift */; };
+		6DCA5D8825550FCB00B55673 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DCA5D8725550FCB00B55673 /* ComplicationController.swift */; };
+		6DCA5D8A25550FCB00B55673 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6DCA5D8925550FCB00B55673 /* Assets.xcassets */; };
+		6DCA5D8D25550FCB00B55673 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6DCA5D8C25550FCB00B55673 /* Preview Assets.xcassets */; };
+		6DCA5D9225550FCB00B55673 /* BlueWalletWatchApp.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 6DCA5D7125550FCA00B55673 /* BlueWalletWatchApp.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6DEB4AAE254FB59C00E9F9AA /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; };
 		6DEB4AAF254FB59C00E9F9AA /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3C252FE1A3004D72DF /* SwiftUI.framework */; };
 		6DEB4AB2254FB59C00E9F9AA /* WalletInformationWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4AB1254FB59C00E9F9AA /* WalletInformationWidget.swift */; };
@@ -61,7 +71,7 @@
 		6DEB4C3C254FBF4800E9F9AA /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4C3A254FBF4800E9F9AA /* Colors.swift */; };
 		6DEB4C3D254FBF4800E9F9AA /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4C3A254FBF4800E9F9AA /* Colors.swift */; };
 		6DF25A9F249DB97E001D06F5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6DF25A9E249DB97E001D06F5 /* LaunchScreen.storyboard */; };
-		6DFC807024EA0B6C007B8700 /* EFQRCode in Frameworks */ = {isa = PBXBuildFile; productRef = 6DFC806F24EA0B6C007B8700 /* EFQRCode */; };
+		6DFC807024EA0B6C007B8700 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; productRef = 6DFC806F24EA0B6C007B8700 /* SwiftPackageProductDependency */; };
 		6DFC807224EA2FA9007B8700 /* ViewQRCodefaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DFC807124EA2FA9007B8700 /* ViewQRCodefaceController.swift */; };
 		764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B468CC34D5B41F3950078EF /* libsqlite3.0.tbd */; };
 		782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D9B3A7B2CB4255876B67AF /* libz.tbd */; };
@@ -101,6 +111,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 6D9A2E01254BA347007B5B82;
 			remoteInfo = MarketWidgetExtension;
+		};
+		6DCA5D7C25550FCB00B55673 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6DCA5D7925550FCB00B55673;
+			remoteInfo = "BlueWalletWatchApp Extension";
+		};
+		6DCA5D9025550FCB00B55673 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6DCA5D7025550FCA00B55673;
+			remoteInfo = BlueWalletWatchApp;
 		};
 		6DEB4AB6254FB59E00E9F9AA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -147,12 +171,24 @@
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6DCA5D9525550FCC00B55673 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				6DCA5D7B25550FCB00B55673 /* BlueWalletWatchApp Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B40D4E2D225841C300428FCC /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
+				6DCA5D9225550FCB00B55673 /* BlueWalletWatchApp.app in Embed Watch Content */,
 				B40D4E4D225841ED00428FCC /* BlueWalletWatch.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
@@ -273,6 +309,19 @@
 		6D9A2E6A254BAB1B007B5B82 /* WidgetAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetAPI.swift; sourceTree = "<group>"; };
 		6D9A2E6B254BAB1B007B5B82 /* WidgetDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetDataStore.swift; sourceTree = "<group>"; };
 		6DA7047D254E24D5005FE5E2 /* UserDefaultsGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsGroup.swift; sourceTree = "<group>"; };
+		6DCA5D7125550FCA00B55673 /* BlueWalletWatchApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWalletWatchApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6DCA5D7325550FCB00B55673 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6DCA5D7525550FCB00B55673 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6DCA5D7A25550FCB00B55673 /* BlueWalletWatchApp Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "BlueWalletWatchApp Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6DCA5D7F25550FCB00B55673 /* BlueWalletApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletApp.swift; sourceTree = "<group>"; };
+		6DCA5D8125550FCB00B55673 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		6DCA5D8325550FCB00B55673 /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
+		6DCA5D8525550FCB00B55673 /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
+		6DCA5D8725550FCB00B55673 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
+		6DCA5D8925550FCB00B55673 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6DCA5D8C25550FCB00B55673 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		6DCA5D8E25550FCB00B55673 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6DCA5D8F25550FCB00B55673 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
 		6DEB496F254E38DE00E9F9AA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6DEB4AAD254FB59B00E9F9AA /* WalletInformationWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WalletInformationWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		6DEB4AB1254FB59C00E9F9AA /* WalletInformationWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInformationWidget.swift; sourceTree = "<group>"; };
@@ -369,6 +418,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3EE872E82714BF174012734D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		421830728822A20A50D8A07C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -383,6 +439,13 @@
 				6D9A2E04254BA347007B5B82 /* SwiftUI.framework in Frameworks */,
 				6D9A2E03254BA347007B5B82 /* WidgetKit.framework in Frameworks */,
 				590C62D2ED8BF487C33945B0 /* libPods-WalletInformationAndMarketWidgetExtension.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6DCA5D7725550FCB00B55673 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -410,7 +473,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6DFC807024EA0B6C007B8700 /* EFQRCode in Frameworks */,
+				6DFC807024EA0B6C007B8700 /* BuildFile in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -520,6 +583,39 @@
 			path = WalletInformationAndMarketWidget;
 			sourceTree = "<group>";
 		};
+		6DCA5D7225550FCA00B55673 /* BlueWalletWatchApp */ = {
+			isa = PBXGroup;
+			children = (
+				6DCA5D7325550FCB00B55673 /* Assets.xcassets */,
+				6DCA5D7525550FCB00B55673 /* Info.plist */,
+			);
+			path = BlueWalletWatchApp;
+			sourceTree = "<group>";
+		};
+		6DCA5D7E25550FCB00B55673 /* BlueWalletWatchApp Extension */ = {
+			isa = PBXGroup;
+			children = (
+				6DCA5D7F25550FCB00B55673 /* BlueWalletApp.swift */,
+				6DCA5D8125550FCB00B55673 /* ContentView.swift */,
+				6DCA5D8325550FCB00B55673 /* NotificationController.swift */,
+				6DCA5D8525550FCB00B55673 /* NotificationView.swift */,
+				6DCA5D8725550FCB00B55673 /* ComplicationController.swift */,
+				6DCA5D8925550FCB00B55673 /* Assets.xcassets */,
+				6DCA5D8E25550FCB00B55673 /* Info.plist */,
+				6DCA5D8F25550FCB00B55673 /* PushNotificationPayload.apns */,
+				6DCA5D8B25550FCB00B55673 /* Preview Content */,
+			);
+			path = "BlueWalletWatchApp Extension";
+			sourceTree = "<group>";
+		};
+		6DCA5D8B25550FCB00B55673 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				6DCA5D8C25550FCB00B55673 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
 		6DEB4AB0254FB59C00E9F9AA /* WalletInformationWidget */ = {
 			isa = PBXGroup;
 			children = (
@@ -586,6 +682,8 @@
 				B40D4E40225841ED00428FCC /* BlueWalletWatch Extension */,
 				3271B0AC236E2E0700DA766F /* TodayExtension */,
 				6DEB4B18254FB7D700E9F9AA /* Widgets */,
+				6DCA5D7225550FCA00B55673 /* BlueWalletWatchApp */,
+				6DCA5D7E25550FCB00B55673 /* BlueWalletWatchApp Extension */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				B40FE50A21FAD228005D5578 /* Recovered References */,
@@ -607,6 +705,8 @@
 				6D9A2E02254BA347007B5B82 /* WalletInformationAndMarketWidgetExtension.appex */,
 				6DEB4AAD254FB59B00E9F9AA /* WalletInformationWidgetExtension.appex */,
 				6DEB4B26254FB80300E9F9AA /* MarketWidgetExtension.appex */,
+				6DCA5D7125550FCA00B55673 /* BlueWalletWatchApp.app */,
+				6DCA5D7A25550FCB00B55673 /* BlueWalletWatchApp Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -728,6 +828,7 @@
 				6D9A2E0C254BA348007B5B82 /* PBXTargetDependency */,
 				6DEB4AB7254FB59E00E9F9AA /* PBXTargetDependency */,
 				6DEB4B30254FB80300E9F9AA /* PBXTargetDependency */,
+				6DCA5D9125550FCB00B55673 /* PBXTargetDependency */,
 			);
 			name = BlueWallet;
 			productName = "Hello World";
@@ -768,6 +869,41 @@
 			productName = MarketWidgetExtension;
 			productReference = 6D9A2E02254BA347007B5B82 /* WalletInformationAndMarketWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
+		};
+		6DCA5D7025550FCA00B55673 /* BlueWalletWatchApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6DCA5D9925550FCC00B55673 /* Build configuration list for PBXNativeTarget "BlueWalletWatchApp" */;
+			buildPhases = (
+				6DCA5D6F25550FCA00B55673 /* Resources */,
+				6DCA5D9525550FCC00B55673 /* Embed App Extensions */,
+				3EE872E82714BF174012734D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6DCA5D7D25550FCB00B55673 /* PBXTargetDependency */,
+			);
+			name = BlueWalletWatchApp;
+			productName = BlueWalletWatchApp;
+			productReference = 6DCA5D7125550FCA00B55673 /* BlueWalletWatchApp.app */;
+			productType = "com.apple.product-type.application.watchapp2";
+		};
+		6DCA5D7925550FCB00B55673 /* BlueWalletWatchApp Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6DCA5D9825550FCC00B55673 /* Build configuration list for PBXNativeTarget "BlueWalletWatchApp Extension" */;
+			buildPhases = (
+				6DCA5D7625550FCB00B55673 /* Sources */,
+				6DCA5D7725550FCB00B55673 /* Frameworks */,
+				6DCA5D7825550FCB00B55673 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "BlueWalletWatchApp Extension";
+			productName = "BlueWalletWatchApp Extension";
+			productReference = 6DCA5D7A25550FCB00B55673 /* BlueWalletWatchApp Extension.appex */;
+			productType = "com.apple.product-type.watchkit2-extension";
 		};
 		6DEB4AAC254FB59B00E9F9AA /* WalletInformationWidgetExtension */ = {
 			isa = PBXNativeTarget;
@@ -837,7 +973,7 @@
 			);
 			name = "BlueWalletWatch Extension";
 			packageProductDependencies = (
-				6DFC806F24EA0B6C007B8700 /* EFQRCode */,
+				6DFC806F24EA0B6C007B8700 /* SwiftPackageProductDependency */,
 			);
 			productName = "BlueWalletWatch Extension";
 			productReference = B40D4E3C225841ED00428FCC /* BlueWalletWatch Extension.appex */;
@@ -868,6 +1004,12 @@
 						LastSwiftMigration = 1130;
 					};
 					6D9A2E01254BA347007B5B82 = {
+						CreatedOnToolsVersion = 12.1;
+					};
+					6DCA5D7025550FCA00B55673 = {
+						CreatedOnToolsVersion = 12.1;
+					};
+					6DCA5D7925550FCB00B55673 = {
 						CreatedOnToolsVersion = 12.1;
 					};
 					6DEB4AAC254FB59B00E9F9AA = {
@@ -927,7 +1069,7 @@
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
-				6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */,
+				6DFC806E24EA0B6C007B8700 /* RemoteSwiftPackageReference */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -940,6 +1082,8 @@
 				6D9A2E01254BA347007B5B82 /* WalletInformationAndMarketWidgetExtension */,
 				6DEB4AAC254FB59B00E9F9AA /* WalletInformationWidgetExtension */,
 				6DEB4B25254FB80300E9F9AA /* MarketWidgetExtension */,
+				6DCA5D7025550FCA00B55673 /* BlueWalletWatchApp */,
+				6DCA5D7925550FCB00B55673 /* BlueWalletWatchApp Extension */,
 			);
 		};
 /* End PBXProject section */
@@ -967,6 +1111,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				6D9A2E09254BA348007B5B82 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6DCA5D6F25550FCA00B55673 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6DCA5D7425550FCB00B55673 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6DCA5D7825550FCB00B55673 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6DCA5D8D25550FCB00B55673 /* Preview Assets.xcassets in Resources */,
+				6DCA5D8A25550FCB00B55673 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1178,6 +1339,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6DCA5D7625550FCB00B55673 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6DCA5D8425550FCB00B55673 /* NotificationController.swift in Sources */,
+				6DCA5D8225550FCB00B55673 /* ContentView.swift in Sources */,
+				6DCA5D8825550FCB00B55673 /* ComplicationController.swift in Sources */,
+				6DCA5D8025550FCB00B55673 /* BlueWalletApp.swift in Sources */,
+				6DCA5D8625550FCB00B55673 /* NotificationView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6DEB4AA9254FB59B00E9F9AA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1245,6 +1418,16 @@
 			isa = PBXTargetDependency;
 			target = 6D9A2E01254BA347007B5B82 /* WalletInformationAndMarketWidgetExtension */;
 			targetProxy = 6D9A2E0B254BA348007B5B82 /* PBXContainerItemProxy */;
+		};
+		6DCA5D7D25550FCB00B55673 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6DCA5D7925550FCB00B55673 /* BlueWalletWatchApp Extension */;
+			targetProxy = 6DCA5D7C25550FCB00B55673 /* PBXContainerItemProxy */;
+		};
+		6DCA5D9125550FCB00B55673 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6DCA5D7025550FCA00B55673 /* BlueWalletWatchApp */;
+			targetProxy = 6DCA5D9025550FCB00B55673 /* PBXContainerItemProxy */;
 		};
 		6DEB4AB7254FB59E00E9F9AA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1572,6 +1755,146 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		6DCA5D9325550FCC00B55673 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = A7W54YZ4WU;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				IBSC_MODULE = BlueWalletWatchApp_Extension;
+				INFOPLIST_FILE = BlueWalletWatchApp/Info.plist;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+			};
+			name = Debug;
+		};
+		6DCA5D9425550FCC00B55673 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = A7W54YZ4WU;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				IBSC_MODULE = BlueWalletWatchApp_Extension;
+				INFOPLIST_FILE = BlueWalletWatchApp/Info.plist;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+			};
+			name = Release;
+		};
+		6DCA5D9625550FCC00B55673 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_ASSET_PATHS = "\"BlueWalletWatchApp Extension/Preview Content\"";
+				DEVELOPMENT_TEAM = A7W54YZ4WU;
+				ENABLE_PREVIEWS = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "BlueWalletWatchApp Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watchkitapp.watchkitextension;
+				PRODUCT_NAME = "${TARGET_NAME}";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+			};
+			name = Debug;
+		};
+		6DCA5D9725550FCC00B55673 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_ASSET_PATHS = "\"BlueWalletWatchApp Extension/Preview Content\"";
+				DEVELOPMENT_TEAM = A7W54YZ4WU;
+				ENABLE_PREVIEWS = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "BlueWalletWatchApp Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watchkitapp.watchkitextension;
+				PRODUCT_NAME = "${TARGET_NAME}";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 7.0;
 			};
 			name = Release;
 		};
@@ -2009,6 +2332,24 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		6DCA5D9825550FCC00B55673 /* Build configuration list for PBXNativeTarget "BlueWalletWatchApp Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6DCA5D9625550FCC00B55673 /* Debug */,
+				6DCA5D9725550FCC00B55673 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6DCA5D9925550FCC00B55673 /* Build configuration list for PBXNativeTarget "BlueWalletWatchApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6DCA5D9325550FCC00B55673 /* Debug */,
+				6DCA5D9425550FCC00B55673 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		6DEB4ABB254FB59E00E9F9AA /* Build configuration list for PBXNativeTarget "WalletInformationWidgetExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -2057,7 +2398,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */ = {
+		6DFC806E24EA0B6C007B8700 /* RemoteSwiftPackageReference */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/EFPrefix/EFQRCode.git";
 			requirement = {
@@ -2068,9 +2409,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		6DFC806F24EA0B6C007B8700 /* EFQRCode */ = {
+		6DFC806F24EA0B6C007B8700 /* SwiftPackageProductDependency */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */;
+			package = 6DFC806E24EA0B6C007B8700 /* RemoteSwiftPackageReference */;
 			productName = EFQRCode;
 		};
 /* End XCSwiftPackageProductDependency section */
