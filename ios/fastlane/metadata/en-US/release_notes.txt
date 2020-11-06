@@ -1,3 +1,17 @@
+v5.6.3
+======
+
+* ADD: Market Widget for iOS 14
+* ADD: Large iOS widget
+* ADD: Turkish Lira
+* FIX: Refill not working on Lightning
+* FIX: iOS - lightning:lnurl... links
+* FIX: hodlhodl - my contracts - sorted by creation time
+* FIX: scanQR now has progress bar when scanning animated QRs
+* FIX: Backup screen visibility
+* REF: brush up locales sl_SI, cs_CZ
+* REF: Wallet types style
+
 v5.6.2
 ======
 
