@@ -1,7 +1,7 @@
 import { groupBy, orderBy, map, compose } from 'lodash/fp';
 
 import { Transaction } from 'app/consts';
-import { formatDate } from 'app/utils/date';
+import { formatDate } from 'app/helpers/date';
 
 // @ts-ignore - type definition is missing in the latest @types/lodash.
 const mapNoCap = map.convert({ cap: false });

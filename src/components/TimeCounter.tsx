@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
+import { secondsToFormat } from 'app/helpers/date';
 import { palette, fonts } from 'app/styles';
-import { secondsToFormat } from 'app/utils/date';
 
 import { Text } from './Text';
 

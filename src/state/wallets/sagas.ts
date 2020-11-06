@@ -2,8 +2,8 @@ import { cloneDeep } from 'lodash';
 import { takeEvery, takeLatest, put, all, call, select, delay } from 'redux-saga/effects';
 
 import { Wallet } from 'app/consts';
+import { takeLatestPerKey } from 'app/helpers/sagas';
 import { BlueApp } from 'app/legacy';
-import { takeLatestPerKey } from 'app/utils/sagas';
 
 import { actions as electrumXActions } from '../electrumX';
 import {

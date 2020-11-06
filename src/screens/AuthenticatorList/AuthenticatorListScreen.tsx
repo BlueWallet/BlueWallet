@@ -7,11 +7,11 @@ import { connect } from 'react-redux';
 import { icons, images } from 'app/assets';
 import { Header, Image, ListEmptyState, ScreenTemplate, EllipsisText } from 'app/components';
 import { Route, Authenticator, FinalizedPSBT, CONST } from 'app/consts';
+import { formatDate } from 'app/helpers/date';
 import { isCodeChunked } from 'app/helpers/helpers';
 import { ApplicationState } from 'app/state';
 import { selectors, actions } from 'app/state/authenticators';
 import { palette, typography } from 'app/styles';
-import { formatDate } from 'app/utils/date';
 
 const BigNumber = require('bignumber.js');
 
