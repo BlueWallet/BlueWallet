@@ -72,7 +72,7 @@ class WidgetAPI {
     var marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
     WidgetAPI.fetchPrice(currency: currency, completion: { (result, error) in
       if let result = result {
-        marketDataEntry.rate = result.rateDoubleValue ?? 0
+        marketDataEntry.rate = result.rateDouble
         marketDataEntry.price = result.formattedRate ?? "!"
       }
       WidgetAPI.fetchNextBlockFee { (marketData, error) in
@@ -81,8 +81,8 @@ class WidgetAPI {
         } else {
           marketDataEntry.nextBlock = "!"
         }
-        if let rateDoubleValue = result?.rateDoubleValue {
-          marketDataEntry.sats = numberFormatter.string(from:  NSNumber(value: Double(10 / rateDoubleValue) * 10000000)) ?? "!"
+        if let rateDouble = result?.rateDouble {
+          marketDataEntry.sats = numberFormatter.string(from:  NSNumber(value: Double(10 / rateDouble) * 10000000)) ?? "!"
         }
         completion(marketDataEntry, nil)
       }
@@ -100,11 +100,11 @@ class WidgetAPI {
         completion(nil, error)
         return }
       
-      guard let bpi = json?["bpi"] as? Dictionary<String, Any>, let preferredCurrency = bpi[currency] as? Dictionary<String, Any>, let rateString = preferredCurrency["rate"] as? String else {
+      guard let bpi = json?["bpi"] as? Dictionary<String, Any>, let preferredCurrency = bpi[currency] as? Dictionary<String, Any>, let rateString = preferredCurrency["rate"] as? String, let rateDouble = preferredCurrency["rate_float"] as? Double else {
         print(error?.localizedDescription ?? "Response Error")
         completion(nil, error)
         return }
-      let latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: "")
+      let latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: "", rateDouble: rateDouble)
       completion(latestRateDataStore, nil)
     }.resume()
   }

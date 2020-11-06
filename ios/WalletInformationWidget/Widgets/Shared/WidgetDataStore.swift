@@ -11,17 +11,7 @@ import Foundation
 struct WidgetDataStore {
   let rate: String
   let lastUpdate: String
-  
-  var rateDoubleValue: Double? {
-    let numberFormatter = NumberFormatter()
-    numberFormatter.numberStyle = .decimal
-    if let rateDoubleValue =  numberFormatter.number(from: rate) {
-      return rateDoubleValue.doubleValue
-    }
-    
-    return nil
-  }
-  
+  let rateDouble: Double
   var formattedRate: String? {
     let numberFormatter = NumberFormatter()
     numberFormatter.locale = Locale(identifier: WidgetAPI.getUserPreferredCurrencyLocale())
@@ -45,28 +35,5 @@ class WidgetData {
     UserDefaults.standard.setValue(["rate": rate, "lastUpdate": lastUpdate], forKey: WidgetDataStoreKey)
     UserDefaults.standard.synchronize()
   }
-  
-  static func getPriceRateAndLastUpdate() -> WidgetDataStore? {
-    guard let dataStore = UserDefaults.standard.value(forKey: WidgetDataStoreKey) as? [String: String], let rate = dataStore["rate"], let lastUpdate = dataStore["lastUpdate"] else {
-      return nil
-    }
-    return WidgetDataStore(rate: rate, lastUpdate: lastUpdate)
-  }
-  
-  static func saveCachePriceRateAndLastUpdate(rate: String, lastUpdate: String) {
-    UserDefaults.standard.setValue(["rate": rate, "lastUpdate": lastUpdate], forKey: WidgetCachedDataStoreKey)
-    UserDefaults.standard.synchronize()
-  }
-  
-  static func getCachedPriceRateAndLastUpdate() -> WidgetDataStore? {
-    guard let dataStore = UserDefaults.standard.value(forKey: WidgetCachedDataStoreKey) as? [String: String], var rate = dataStore["rate"], let lastUpdate = dataStore["lastUpdate"] else {
-      return nil
-    }
-    rate = rate.replacingOccurrences(of: ",", with: "");
-    return WidgetDataStore(rate: rate, lastUpdate: lastUpdate)
-  }
-  
-  
-  
   
 }

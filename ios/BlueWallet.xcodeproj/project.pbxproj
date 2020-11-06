@@ -945,9 +945,9 @@
 				B40D4E2F225841EC00428FCC /* BlueWalletWatch */,
 				B40D4E3B225841ED00428FCC /* BlueWalletWatch Extension */,
 				3271B0A8236E2E0700DA766F /* TodayExtension */,
-				6D9A2E01254BA347007B5B82 /* WalletInformationAndMarketWidgetExtension */,
-				6DEB4AAC254FB59B00E9F9AA /* WalletInformationWidgetExtension */,
 				6D99465D2555A660000E52E8 /* MarketWidgetExtension */,
+				6DEB4AAC254FB59B00E9F9AA /* WalletInformationWidgetExtension */,
+				6D9A2E01254BA347007B5B82 /* WalletInformationAndMarketWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
