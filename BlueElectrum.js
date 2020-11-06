@@ -32,10 +32,6 @@ async function connectMain() {
       mainConnected = false;
     };
 
-    mainClient.onConnect = function() {
-      logger.info('BlueElectrum', `Connected ${JSON.stringify(mainClient.electrumConfig)}`);
-    };
-
     const ver = await mainClient.initElectrum({
       client: '2.7.11',
       version: config.electrumXProtocolVersion,
