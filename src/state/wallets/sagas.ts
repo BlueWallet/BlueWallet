@@ -1,5 +1,5 @@
 import { cloneDeep } from 'lodash';
-import { takeEvery, takeLatest, put, all, call, select, delay } from 'redux-saga/effects';
+import { takeEvery, takeLatest, put, all, call, select, delay, debounce } from 'redux-saga/effects';
 
 import { Wallet } from 'app/consts';
 import { takeLatestPerKey } from 'app/helpers/sagas';
@@ -8,6 +8,7 @@ import { BlueApp } from 'app/legacy';
 import { actions as electrumXActions } from '../electrumX';
 import {
   WalletsAction,
+  loadWallets,
   loadWalletsSuccess,
   loadWalletsFailure,
   DeleteWalletAction,
@@ -189,6 +190,14 @@ export function* scripHashHasChangedSaga(action: electrumXActions.ScriptHashChan
   }
 }
 
+function* refreshWallets() {
+  yield put(loadWallets());
+}
+
+export function* refreshAllWalletsSaga() {
+  yield debounce(10000, WalletsAction.RefreshAllWallets, refreshWallets);
+}
+
 export default [
   takeLatestPerKey(WalletsAction.RefreshWallet, refreshWalletSaga, ({ id }: { id: string }) => id),
   takeEvery(electrumXActions.ElectrumXAction.ScriptHashChanged, scripHashHasChangedSaga),
@@ -198,4 +207,5 @@ export default [
   takeEvery(WalletsAction.ImportWallet, importWalletSaga),
   takeEvery(WalletsAction.UpdateWallet, updateWalletSaga),
   takeEvery(WalletsAction.SendTransaction, sendTransactionSaga),
+  takeLatest(electrumXActions.ElectrumXAction.StartListeners, refreshAllWalletsSaga),
 ];

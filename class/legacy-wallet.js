@@ -2,15 +2,12 @@ import { findLast, difference } from 'lodash';
 import { NativeModules } from 'react-native';
 
 import config from '../config';
-import { captureException } from '../error';
 import logger from '../logger';
 import { AbstractWallet } from './abstract-wallet';
 
 const { RNRandomBytes } = NativeModules;
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
-
-import { mainClient } from '../BlueElectrum';
 
 const BlueElectrum = require('../BlueElectrum');
 const signer = require('../models/signer');
@@ -212,15 +209,7 @@ export class LegacyWallet extends AbstractWallet {
   async setTransactions(txs) {
     if (txs[0].tx_type === undefined) {
       logger.info('legacy-wallet', `txs: ${JSON.stringify(txs)}`);
-      logger.info(
-        'legacy-wallet',
-        `mainClient:
-     status: ${JSON.stringify(mainClient.status)}
-     config: ${JSON.stringify(mainClient.electrumConfig)}`,
-      );
-      const error = `fetched txs with no tx_type`;
-      captureException(error);
-      throw new Error(error);
+      logger.error(`fetched txs with no tx_type`);
     }
     const txid_list = txs.map(t => t.tx_hash);
 
@@ -261,18 +250,6 @@ export class LegacyWallet extends AbstractWallet {
       tx.height = txs.find(t => t.tx_hash === tx.txid).height;
       tx.tx_type = findLast(txs, t => t.tx_hash === tx.txid).tx_type;
 
-      if (tx.tx_type === undefined) {
-        logger.info('legacy-wallet', `txs: ${JSON.stringify(txs)}`);
-        logger.info(
-          'legacy-wallet',
-          `mainClient:
-       status: ${JSON.stringify(mainClient.status)}
-       config: ${JSON.stringify(mainClient.electrumConfig)}`,
-        );
-        const error = `couldnt find tx_type for transaction: ${JSON.stringify(tx)}`;
-        captureException(error);
-        throw new Error(error);
-      }
       tx.value = new BigNumber(value).multipliedBy(100000000).toNumber();
       if (tx.time) {
         tx.received = new Date(tx.time * 1000).toISOString();

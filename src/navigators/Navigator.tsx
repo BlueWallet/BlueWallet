@@ -23,7 +23,7 @@ import {
   fetchBlockHeight as fetchBlockHeightAction,
   FetchBlockHeightAction,
 } from 'app/state/electrumX/actions';
-import { LoadWalletsAction, loadWallets as loadWalletsAction } from 'app/state/wallets/actions';
+import { RefreshAllWalletsAction, refreshAllWallets as refreshAllWalletsAction } from 'app/state/wallets/actions';
 import { isAndroid, isIos } from 'app/styles';
 
 import config from '../../config';
@@ -41,7 +41,7 @@ interface MapStateToProps {
 interface ActionsDisptach {
   checkCredentials: Function;
   startElectrumXListeners: () => StartListenersAction;
-  loadWallets: () => LoadWalletsAction;
+  refreshAllWallets: () => RefreshAllWalletsAction;
   fetchBlockHeight: () => FetchBlockHeightAction;
   updateSelectedLanguage: Function;
 }
@@ -126,8 +126,8 @@ class Navigator extends React.Component<Props, State> {
   };
 
   refresh = () => {
-    const { loadWallets, fetchBlockHeight } = this.props;
-    loadWallets();
+    const { refreshAllWallets, fetchBlockHeight } = this.props;
+    refreshAllWallets();
     fetchBlockHeight();
   };
 
@@ -180,7 +180,7 @@ const mapStateToProps = (state: ApplicationState): MapStateToProps => ({
 const mapDispatchToProps: ActionsDisptach = {
   checkCredentials: checkCredentialsAction,
   startElectrumXListeners: startListeners,
-  loadWallets: loadWalletsAction,
+  refreshAllWallets: refreshAllWalletsAction,
   updateSelectedLanguage: updateSelectedLanguageAction,
   fetchBlockHeight: fetchBlockHeightAction,
 };

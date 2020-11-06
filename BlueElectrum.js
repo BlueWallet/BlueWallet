@@ -17,7 +17,7 @@ const hardcodedPeers = [
   { host: '157.245.20.66', tcp: '50001' },
 ];
 
-export let mainClient = false;
+let mainClient = false;
 let mainConnected = false;
 let wasConnectedAtLeastOnce = false;
 

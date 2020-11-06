@@ -24,6 +24,11 @@ export enum WalletsAction {
   RefreshWallet = 'RefreshWallet',
   RefreshWalletSuccess = 'RefreshWalletSuccess',
   RefreshWalletFailure = 'SendTransactionFailure',
+  RefreshAllWallets = 'RefreshAllWallets',
+}
+
+export interface RefreshAllWalletsAction {
+  type: WalletsAction.RefreshAllWallets;
 }
 
 export interface LoadWalletsAction {
@@ -156,7 +161,12 @@ export type WalletsActionType =
   | SendTransactionSuccessAction
   | RefreshWalletAction
   | RefreshWalletSuccessAction
-  | RefreshWalletFailureAction;
+  | RefreshWalletFailureAction
+  | RefreshAllWalletsAction;
+
+export const refreshAllWallets = (): RefreshAllWalletsAction => ({
+  type: WalletsAction.RefreshAllWallets,
+});
 
 export const loadWallets = (): LoadWalletsAction => ({
   type: WalletsAction.LoadWallets,
