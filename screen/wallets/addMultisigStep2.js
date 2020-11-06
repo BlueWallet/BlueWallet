@@ -590,30 +590,30 @@ const WalletsAddMultisigStep2 = () => {
       </Modal>
     );
   };
-    const footer = isLoading ? (
-      <BlueLoadingHook />
-    ) : (
-     <View style={styles.buttonBottom}>
+  const footer = isLoading ? (
+    <BlueLoadingHook />
+  ) : (
+    <View style={styles.buttonBottom}>
       <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
     </View>
-    );
+  );
 
   return (
-      <ScrollView contentContainerStyle={[styles.root, stylesHook.root]}>
+    <ScrollView contentContainerStyle={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="light-content" />
       <BlueSpacing20 />
-        <View style={[styles.root, stylesHook.root, styles.mainBlock]}>
-          <StatusBar barStyle="light-content" />
-          <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
-          
-          {renderMnemonicsModal()}
+      <View style={[styles.root, stylesHook.root, styles.mainBlock]}>
+        <StatusBar barStyle="light-content" />
+        <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
 
-          {renderProvideMnemonicsModal()}
+        {renderMnemonicsModal()}
 
-          {renderCosignersXpubModal()}
-        </View>
-        {footer}
-      </ScrollView>
+        {renderProvideMnemonicsModal()}
+
+        {renderCosignersXpubModal()}
+      </View>
+      {footer}
+    </ScrollView>
   );
 };
 
@@ -624,15 +624,15 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     height: '100%',
   },
-  mainBlock: { 
-    height: '100%', 
-    marginHorizontal: 20, 
-    marginVertical: 24, 
+  mainBlock: {
+    height: '100%',
+    marginHorizontal: 20,
+    marginVertical: 24,
   },
-  buttonBottom: { 
-    marginHorizontal: 20, 
-    flex: .12,
-    marginBottom: 36, 
+  buttonBottom: {
+    marginHorizontal: 20,
+    flex: 0.12,
+    marginBottom: 36,
     justifyContent: 'flex-end',
   },
 
