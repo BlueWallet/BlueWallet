@@ -5,6 +5,7 @@ import Share from 'react-native-share';
 import loc from '../loc';
 import { getSystemName } from 'react-native-device-info';
 import DocumentPicker from 'react-native-document-picker';
+const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const isDesktop = getSystemName() === 'Mac OS X';
 
@@ -83,7 +84,14 @@ const showFilePickerAndReadFile = async function () {
     const res = await DocumentPicker.pick({
       type:
         Platform.OS === 'ios'
-          ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', 'io.bluewallet.backup', DocumentPicker.types.plainText, 'public.json']
+          ? [
+              'io.bluewallet.psbt',
+              'io.bluewallet.psbt.txn',
+              'io.bluewallet.backup',
+              DocumentPicker.types.plainText,
+              'public.json',
+              DocumentPicker.types.images,
+            ]
           : [DocumentPicker.types.allFiles],
     });
 
@@ -108,9 +116,9 @@ const showFilePickerAndReadFile = async function () {
         });
       } else {
         file = await RNFS.readFile(uri);
+        return { data: file, uri: decodeURI(res.uri) };
       }
     }
-    return { data: file, uri: decodeURI(res.uri) };
   } catch (err) {
     return { data: false, uri: false };
   }
