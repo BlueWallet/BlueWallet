@@ -293,7 +293,6 @@
     "details_to": "Para",
     "details_transaction_details": "Detalhes da transacção",
     "enable_hw": "Esta carteira não está a ser usada em conjunto com uma carteira de hardware. Gostaria de habilitar o uso de carteira de hardware?",
-    "list_conf": "conf",
     "list_title": "transacções",
     "rbf_explain": "Substituiremos esta transacção por outra com uma taxa mais alta, portanto, ela deve ser confirmada mais rapidamente. Isto é chamado de RBF - Substituir por Taxa.",
     "rbf_title": "Aumento de taxa (RBF)",
