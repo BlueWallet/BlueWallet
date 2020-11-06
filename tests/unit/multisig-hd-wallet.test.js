@@ -601,6 +601,20 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(MultisigHDWallet.isPathValid("m/48'/0'/0'/2'"));
     assert.ok(!MultisigHDWallet.isPathValid('ROFLBOATS'));
     assert.ok(!MultisigHDWallet.isPathValid(''));
+
+    assert.ok(
+      MultisigHDWallet.isXprvValid(
+        'ZprvAkUsoZMLiqxrhaM8VpmVJ6QhjH4dZnYpTNNHGMZ3VoE6vRv7xfDeMEiKAeH1eUcN3CFUP87CgM1anM2UytMkykUMtVmXkkohRsiVGth1VMG',
+      ),
+    );
+    assert.ok(!MultisigHDWallet.isXprvValid(''));
+    assert.ok(!MultisigHDWallet.isXprvValid('Zprvlabla'));
+    assert.ok(!MultisigHDWallet.isXprvValid('xprvblabla'));
+    assert.ok(
+      !MultisigHDWallet.isXprvValid(
+        'xprv9tpBCBeAwBnVgYroSvicqDR2XhAj6sth3idqBWhRqnrq99x17WZvZHQup679rXc3ndPLN3fwbpLkv4WTQhfhZN89B2NbTMmYFePPPHJ5jVP',
+      ),
+    ); // invalid fp
   });
 
   it('basic operations work', async () => {
@@ -1578,5 +1592,20 @@ describe('multisig-cosigner', () => {
     );
     assert.strictEqual(c3.getFp(), '168DD603');
     assert.strictEqual(c3.getPath(), "m/48'/0'/0'/2'");
+  });
+
+  it('can parse files from sparrow wallet', () => {
+    const secrets = [
+      JSON.stringify(require('./fixtures/fromsparrow-electrum.json')),
+      require('fs').readFileSync('./tests/unit/fixtures/fromsparrow-coldcard.txt', 'ascii'),
+      JSON.stringify(require('./fixtures/fromsparrow-specter.json')),
+    ];
+
+    for (const s of secrets) {
+      const w = new MultisigHDWallet();
+      w.setSecret(s);
+
+      assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qtysquqsjqjfqvhd6l2h470hdgwhcahs4nq2ca49cyxftwjnjt9ssh8emel');
+    }
   });
 });

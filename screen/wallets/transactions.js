@@ -293,7 +293,7 @@ const WalletTransactions = () => {
                 setIsManageFundsModalVisible(false);
 
                 navigate('ReceiveDetails', {
-                  secret: wallet.current.getSecret(),
+                  walletID: wallet.current.getID(),
                 });
               }}
               title={loc.lnd.refill_external}
@@ -387,8 +387,8 @@ const WalletTransactions = () => {
   const onWalletSelect = async selectedWallet => {
     if (selectedWallet) {
       navigate('WalletTransactions', {
-        walletType: wallet.type,
-        walletID: wallet.getID(),
+        walletType: wallet.current.type,
+        walletID: wallet.current.getID(),
         key: `WalletTransactions-${wallet.current.getID()}`,
       });
       /** @type {LightningCustodianWallet} */
@@ -651,7 +651,7 @@ const WalletTransactions = () => {
               if (wallet.current.chain === Chain.OFFCHAIN) {
                 navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { fromWallet: wallet.current } });
               } else {
-                navigate('ReceiveDetails', { secret: wallet.current.getSecret() });
+                navigate('ReceiveDetails', { walletID: wallet.current.getID() });
               }
             }}
             icon={

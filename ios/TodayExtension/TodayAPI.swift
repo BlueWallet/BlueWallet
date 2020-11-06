@@ -8,7 +8,7 @@
 
 import Foundation
 
-class API {
+class TodayAPI {
   
   static func fetchPrice(currency: String, completion: @escaping ((Dictionary<String, Any>?, Error?) -> Void)) {
     guard let url = URL(string: "https://api.coindesk.com/v1/bpi/currentPrice/\(currency).json") else {return}
@@ -32,7 +32,7 @@ class API {
         return "USD"
     }
     
-    if preferredCurrency != API.getLastSelectedCurrency() {
+    if preferredCurrency != TodayAPI.getLastSelectedCurrency() {
       UserDefaults.standard.removeObject(forKey: TodayData.TodayCachedDataStoreKey)
       UserDefaults.standard.removeObject(forKey: TodayData.TodayDataStoreKey)
       UserDefaults.standard.synchronize()
@@ -59,7 +59,7 @@ class API {
   }
   
   static func saveNewSelectedCurrency() {
-    UserDefaults.standard.setValue(API.getUserPreferredCurrency(), forKey: "currency")
+    UserDefaults.standard.setValue(TodayAPI.getUserPreferredCurrency(), forKey: "currency")
   }
   
 }

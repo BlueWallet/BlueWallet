@@ -17,6 +17,8 @@ import {
 import { BlueCurrentTheme } from '../../components/themes';
 import PropTypes from 'prop-types';
 import loc from '../../loc';
+import DefaultPreference from 'react-native-default-preference';
+import RNWidgetCenter from 'react-native-widget-center';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 export default class ElectrumSettings extends Component {
@@ -75,6 +77,16 @@ export default class ElectrumSettings extends Component {
           await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, '');
           await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, '');
           await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, '');
+          try {
+            await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+            await DefaultPreference.clear(AppStorage.ELECTRUM_HOST);
+            await DefaultPreference.clear(AppStorage.ELECTRUM_SSL_PORT);
+            await DefaultPreference.clear(AppStorage.ELECTRUM_TCP_PORT);
+            RNWidgetCenter.reloadAllTimelines();
+          } catch (e) {
+            // Must be running on Android
+            console.log(e);
+          }
           alert(loc.settings.electrum_saved);
         } else if (!(await BlueElectrum.testConnection(host, port, sslPort))) {
           alert(loc.settings.electrum_error_connect);
@@ -82,6 +94,17 @@ export default class ElectrumSettings extends Component {
           await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, host);
           await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, port);
           await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, sslPort);
+          try {
+            await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+            await DefaultPreference.set(AppStorage.ELECTRUM_HOST, host);
+            await DefaultPreference.set(AppStorage.ELECTRUM_TCP_PORT, port);
+            await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, sslPort);
+            RNWidgetCenter.reloadAllTimelines();
+          } catch (e) {
+            // Must be running on Android
+            console.log(e);
+          }
+
           alert(loc.settings.electrum_saved);
         }
       } catch (error) {
@@ -141,6 +164,7 @@ export default class ElectrumSettings extends Component {
                 editable={!this.state.isLoading}
                 placeholderTextColor="#81868e"
                 autoCorrect={false}
+                autoCapitalize="none"
                 underlineColorAndroid="transparent"
               />
             </View>
@@ -156,6 +180,7 @@ export default class ElectrumSettings extends Component {
                 placeholderTextColor="#81868e"
                 underlineColorAndroid="transparent"
                 autoCorrect={false}
+                autoCapitalize="none"
               />
             </View>
             <BlueSpacing20 />
@@ -169,6 +194,7 @@ export default class ElectrumSettings extends Component {
                 editable={!this.state.isLoading}
                 autoCorrect={false}
                 placeholderTextColor="#81868e"
+                autoCapitalize="none"
                 underlineColorAndroid="transparent"
               />
             </View>

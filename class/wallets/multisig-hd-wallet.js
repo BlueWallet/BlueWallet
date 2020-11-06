@@ -144,6 +144,16 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return false;
   }
 
+  static isXprvValid(xprv) {
+    try {
+      xprv = MultisigHDWallet.convertMultisigXprvToRegularXprv(xprv);
+      bitcoin.bip32.fromBase58(xprv);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /**
    *
    * @param key {string} Either xpub or mnemonic phrase
@@ -485,7 +495,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
               : cosignerData.root_fingerprint?.toUpperCase()) || '00000000';
           if (cosignerData.seed) {
             this.addCosigner(ELECTRUM_SEED_PREFIX + cosignerData.seed, fingerprint, cosignerData.derivation);
-          } else if (cosignerData.xprv) {
+          } else if (cosignerData.xprv && MultisigHDWallet.isXprvValid(cosignerData.xprv)) {
             this.addCosigner(cosignerData.xprv, fingerprint, cosignerData.derivation);
           } else {
             this.addCosigner(cosignerData.xpub, fingerprint, cosignerData.derivation);
@@ -576,6 +586,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           let xpub = m[2];
           if (xpub.indexOf('/') !== -1) {
             xpub = xpub.substr(0, xpub.indexOf('/'));
+          }
+          if (xpub.indexOf(')') !== -1) {
+            xpub = xpub.substr(0, xpub.indexOf(')'));
           }
 
           this.addCosigner(xpub, hexFingerprint.toUpperCase(), path);

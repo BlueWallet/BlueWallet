@@ -116,7 +116,7 @@ const PsbtMultisig = () => {
   const _renderItemUnsigned = el => {
     const renderProvideSignature = el.index === howManySignaturesWeHave();
     return (
-      <View>
+      <View testID="ItemUnsigned">
         <View style={styles.itemUnsignedWrapper}>
           <View style={[styles.vaultKeyCircle, stylesHook.vaultKeyCircle]}>
             <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>{el.index + 1}</Text>
@@ -131,6 +131,7 @@ const PsbtMultisig = () => {
         {renderProvideSignature && (
           <View>
             <TouchableOpacity
+              testID="ProvideSignature"
               style={[styles.provideSignatureButton, stylesHook.provideSignatureButton]}
               onPress={() => {
                 setIsModalVisible(true);
@@ -148,7 +149,7 @@ const PsbtMultisig = () => {
 
   const _renderItemSigned = el => {
     return (
-      <View style={styles.flexDirectionRow}>
+      <View style={styles.flexDirectionRow} testID="ItemSigned">
         <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
           <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
         </View>
@@ -255,12 +256,17 @@ const PsbtMultisig = () => {
         <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
           <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
             <DynamicQRCode value={psbt.toHex()} capacity={666} />
-            <BlueSpacing20 />
-            <SquareButton
-              style={[styles.exportButton, stylesHook.exportButton]}
-              onPress={openScanner}
-              title={loc.multisig.scan_or_import_file}
-            />
+            {!isConfirmEnabled() && (
+              <>
+                <BlueSpacing20 />
+                <SquareButton
+                  testID="CosignedScanOrImportFile"
+                  style={[styles.exportButton, stylesHook.exportButton]}
+                  onPress={openScanner}
+                  title={loc.multisig.scan_or_import_file}
+                />
+              </>
+            )}
             <BlueSpacing20 />
             <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportPSBT} title={loc.multisig.share} />
             <BlueSpacing20 />
@@ -328,7 +334,7 @@ const PsbtMultisig = () => {
         </BlueText>
         <BlueText>{loc.formatString(loc.multisig.fee_btc, { number: currency.satoshiToBTC(getFee()) })}</BlueText>
       </View>
-      <BlueButton disabled={!isConfirmEnabled()} title={loc.multisig.confirm} onPress={onConfirm} />
+      <BlueButton disabled={!isConfirmEnabled()} title={loc.multisig.confirm} onPress={onConfirm} testID="PsbtMultisigConfirmButton" />
     </View>
   );
 
@@ -356,6 +362,21 @@ const PsbtMultisig = () => {
                 ListHeaderComponent={header}
                 scrollEnabled={false}
               />
+              {isConfirmEnabled() && (
+                <View style={styles.height80}>
+                  <TouchableOpacity
+                    testID="ExportSignedPsbt"
+                    style={[styles.provideSignatureButton, stylesHook.provideSignatureButton]}
+                    onPress={() => {
+                      setIsModalVisible(true);
+                    }}
+                  >
+                    <Text style={[styles.provideSignatureButtonText, stylesHook.provideSignatureButtonText]}>
+                      {loc.multisig.export_signed_psbt}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </BlueCard>
           </View>
         </View>
@@ -481,6 +502,9 @@ const styles = StyleSheet.create({
   textBtcUnit: { justifyContent: 'flex-end', bottom: 8 },
   bottomFeesWrapper: { flexDirection: 'row', paddingBottom: 20 },
   bottomWrapper: { justifyContent: 'center', alignItems: 'center', paddingVertical: 20 },
+  height80: {
+    height: 80,
+  },
 });
 
 PsbtMultisig.navigationOptions = () => ({

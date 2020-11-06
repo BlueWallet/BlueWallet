@@ -309,11 +309,10 @@ const WalletsAdd = () => {
               );
             }
           })()}
+          <BlueSpacing20 />
           <View style={styles.createButton}>
             {!isLoading ? (
-              <View style={styles.buttonSize}>
-                <BlueButtonHook testID="Create" title={loc.wallets.add_create} disabled={!selectedWalletType} onPress={createWallet} />
-              </View>
+              <BlueButtonHook testID="Create" title={loc.wallets.add_create} disabled={!selectedWalletType} onPress={createWallet} />
             ) : (
               <ActivityIndicator />
             )}
@@ -342,10 +341,10 @@ WalletsAdd.navigationOptions = ({ navigation }) => ({
 });
 
 const styles = StyleSheet.create({
-  buttonSize: {
-    maxWidth: 264,
+  createButton: {
+    alignItems: 'center',
+    flex: 1,
     justifyContent: 'center',
-    alignSelf: 'center',
   },
   loading: {
     flex: 1,
@@ -393,10 +392,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 16,
     borderRadius: 4,
-  },
-  createButton: {
-    flex: 1,
-    marginTop: 32,
   },
   import: {
     marginBottom: 0,

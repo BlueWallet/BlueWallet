@@ -27,7 +27,7 @@ struct TodayDataStore {
   var rateDoubleValue: Double? {
     let numberFormatter = NumberFormatter()
     numberFormatter.numberStyle = .decimal
-    numberFormatter.locale = Locale(identifier: API.getUserPreferredCurrencyLocale())
+    numberFormatter.locale = Locale(identifier: TodayAPI.getUserPreferredCurrencyLocale())
     numberFormatter.maximumFractionDigits = 2
     numberFormatter.minimumFractionDigits = 2
     
@@ -40,7 +40,7 @@ struct TodayDataStore {
   
   var formattedRate: String? {
     let numberFormatter = NumberFormatter()
-    numberFormatter.locale = Locale(identifier: API.getUserPreferredCurrencyLocale())
+    numberFormatter.locale = Locale(identifier: TodayAPI.getUserPreferredCurrencyLocale())
     numberFormatter.numberStyle = .decimal
     numberFormatter.maximumFractionDigits = 2
     numberFormatter.minimumFractionDigits = 2
@@ -57,7 +57,7 @@ class TodayData {
   static let TodayDataStoreKey = "TodayDataStoreKey"
   static let TodayCachedDataStoreKey = "TodayCachedDataStoreKey"
   
-  static func savePriceRateAndLastUpdate(rate: String, lastUpdate: String) {    
+  static func savePriceRateAndLastUpdate(rate: String, lastUpdate: String) {
     UserDefaults.standard.setValue(["rate": rate, "lastUpdate": lastUpdate], forKey: TodayDataStoreKey)
     UserDefaults.standard.synchronize()
   }
