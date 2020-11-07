@@ -102,7 +102,7 @@ const showFilePickerAndReadFile = async function () {
     if (res.uri.toLowerCase().endsWith('.psbt')) {
       // this is either binary file from ElectrumDesktop OR string file with base64 string in there
       file = await _readPsbtFileIntoBase64(uri);
-      return file;
+      return { data: file, uri: decodeURI(res.uri) };
     } else {
       if (res.type === DocumentPicker.types.images || res.type.startsWith('image/')) {
         return new Promise(resolve => {
