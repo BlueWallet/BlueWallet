@@ -2,7 +2,7 @@
 //  BlueWalletApp.swift
 //  BlueWalletWatchApp Extension
 //
-//  Created by Marcos Rodriguez on 11/5/20.
+//  Created by Marcos Rodriguez on 11/6/20.
 //  Copyright © 2020 BlueWallet. All rights reserved.
 //
 
@@ -10,13 +10,14 @@ import SwiftUI
 
 @main
 struct BlueWalletApp: App {
+  @EnvironmentObject var wallets: [Wallet]
     @SceneBuilder var body: some Scene {
         WindowGroup {
             NavigationView {
-                ContentView()
+              ContentView().environmentObject(wallets)
             }
         }
-
+      
         WKNotificationScene(controller: NotificationController.self, category: "myCategory")
     }
 }

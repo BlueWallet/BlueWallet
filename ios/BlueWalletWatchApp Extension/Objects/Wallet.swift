@@ -12,7 +12,7 @@ enum InterfaceMode {
   case Address, QRCode
 }
 
-class Wallet: NSObject, NSCoding {
+class Wallet: NSObject, NSCoding, ObservableObject {
   static let identifier: String = "Wallet"
 
   var identifier: Int?

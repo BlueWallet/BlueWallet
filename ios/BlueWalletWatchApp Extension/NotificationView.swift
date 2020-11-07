@@ -2,7 +2,7 @@
 //  NotificationView.swift
 //  BlueWalletWatchApp Extension
 //
-//  Created by Marcos Rodriguez on 11/5/20.
+//  Created by Marcos Rodriguez on 11/6/20.
 //  Copyright © 2020 BlueWallet. All rights reserved.
 //
 

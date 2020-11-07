@@ -11,23 +11,16 @@ import Foundation
 import WatchConnectivity
 
 class WatchDataSource: NSObject, WCSessionDelegate {
-  struct NotificationName {
-    static let dataUpdated = Notification.Name(rawValue: "Notification.WalletDataSource.Updated")
-  }
-  struct Notifications {
-    static let dataUpdated = Notification(name: NotificationName.dataUpdated)
-  }
   
   static let shared = WatchDataSource()
-  var wallets: [Wallet] = [Wallet]()
+  @ObservableObject var wallets: [Wallet] = [Wallet]()
   private let keychain = KeychainSwift()
   
-  override init() {
+  init(session: WCSession = .default){
     super.init()
     if WCSession.isSupported() {
-      print("Activating watch session")
-      WCSession.default.delegate = self
-      WCSession.default.activate()
+      session.delegate = self
+      session.activate()
     }
   }
   
@@ -53,12 +46,7 @@ class WatchDataSource: NSObject, WCSessionDelegate {
       if let walletsArchived = try? NSKeyedArchiver.archivedData(withRootObject: wallets, requiringSecureCoding: false) {
         keychain.set(walletsArchived, forKey: Wallet.identifier)
       }
-      WatchDataSource.postDataUpdatedNotification()
     }
-  }
-  
-  static func postDataUpdatedNotification() {
-    NotificationCenter.default.post(Notifications.dataUpdated)
   }
   
   static func requestLightningInvoice(walletIdentifier: Int, amount: Double, description: String?, responseHandler: @escaping (_ invoice: String) -> Void) {
@@ -87,12 +75,12 @@ class WatchDataSource: NSObject, WCSessionDelegate {
     WatchDataSource.shared.processWalletsData(walletsInfo: applicationContext)
   }
   
+  
   func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
     if activationState == .activated {
       if let existingData = keychain.getData(Wallet.identifier), let walletData = ((try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(existingData) as? [Wallet]) as [Wallet]??) {
         guard let walletData = walletData, walletData != self.wallets  else { return }
         wallets = walletData
-        WatchDataSource.postDataUpdatedNotification()
       }
       WCSession.default.sendMessage(["message" : "sendApplicationContext"], replyHandler: { (replyData) in
       }) { (error) in
@@ -100,5 +88,7 @@ class WatchDataSource: NSObject, WCSessionDelegate {
       }
     }
   }
+  
+  
   
 }
