@@ -293,7 +293,6 @@
     "details_to": "เอ้าพุท",
     "details_transaction_details": "รายละเอียดธุรกรรม",
     "enable_hw": "This wallet is not being used in conjunction with a hardwarde wallet. Would you like to enable hardware wallet use?",
-    "list_conf": "conf",
     "list_title": "ธุรกรรม",
     "rbf_explain": "We will replace this transaction with the one with a higher fee, so it should be mined faster. This is called RBF - Replace By Fee.",
     "rbf_title": "เพิ่มค่าธรรมเนียม (RBF)",
