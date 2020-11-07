@@ -578,7 +578,10 @@ describe('BlueWallet UI Tests', () => {
     for (const ur of urs) {
       // tapping 10 times invisible button is a backdoor:
       for (let c = 0; c <= 10; c++) {
-        await element(by.id('ScanQrBackdoorButton')).tap();
+        try {
+          await element(by.id('ScanQrBackdoorButton')).tap();
+        } catch (_) {}
+        if (process.env.TRAVIS) await sleep(1000);
       }
       await element(by.id('scanQrBackdoorInput')).replaceText(ur);
       await element(by.id('scanQrBackdoorOkButton')).tap();
@@ -617,7 +620,11 @@ describe('BlueWallet UI Tests', () => {
     await waitFor(element(by.id('ItemSigned'))).toBeNotVisible(); // not a single green checkmark
 
     await element(by.id('ProvideSignature')).tap();
-    await element(by.id('CosignedScanOrImportFile')).tap();
+    if (process.env.TRAVIS) await sleep(5000);
+    try {
+      await element(by.id('CosignedScanOrImportFile')).tap();
+    } catch (_) {}
+    if (process.env.TRAVIS) await sleep(5000);
 
     const ursSignedByColdcard = [
       'UR:BYTES/1OF3/AZ7UYD5YRTJGJHEPJC045UPYV6SRFURJALR0968WCXHP0ZZ9HK0SV8YW98/TYP6XURNVF607QGQ05PQQQQQQ89FQE9NVDRHTESWDDWCDCAMW53Z2H5U50T6ZRT2JVDQF3Y4QCJESQQQQQQQPLLLLLLSY5XRQQQQQQQQQQTQQ9R75WZLX547D94TPAHFFG8WPC7X6JC555C7U5QQQQQQQQQZYQPQTAH0P50D4QLFTN049K7LLDCWH7CS3ZKJY9G8XEGV63P308HSH9ZSQQQQQQQQZQ82QGQQQQQQQYQUWDNXP9500ELRFUSTVYLPAQJC34GUCHG52MH2665NTY5WSCJS72GPQQQQQQQPQQQGQQJS4YQSQQQQQQQZYQPQY8RVFMEZUPXNJSKTRUVR389TNY9XLLX7JNYE08K5FJP5R8A2UFN6TYSZQQQQQQQQZCQPFRSXCZANQ56CMLH79RF2KUUEZTAXF7QE6QJ8XPZQYGPSL9CGL7X73GC8MACPM7SNEHE2FCAP5LRUG436ZNX6YF39R7E5Y5PZQ4CAXM6KQM64TAC99DCV6THY7U9S4VL8N5XR53FX55WLPQSG4H86QYSSYUSJAUY6JC734K9PDVN9C72HFZ84ELQ9E4W8GP66RAQ2HQY3YRH8QQQQQQQPQY44P2GPQQQQQQQQYGQZQGWXCNHJ9CZD89PVK8CC8ZW2HXG2DL7DA9XFJ70DGNYRGX',
@@ -628,7 +635,10 @@ describe('BlueWallet UI Tests', () => {
     for (const ur of ursSignedByColdcard) {
       // tapping 10 times invisible button is a backdoor:
       for (let c = 0; c <= 10; c++) {
-        await element(by.id('ScanQrBackdoorButton')).tap();
+        try {
+          await element(by.id('ScanQrBackdoorButton')).tap();
+        } catch (_) {}
+        if (process.env.TRAVIS) await sleep(1000);
       }
       await element(by.id('scanQrBackdoorInput')).replaceText(ur);
       await element(by.id('scanQrBackdoorOkButton')).tap();
@@ -638,7 +648,11 @@ describe('BlueWallet UI Tests', () => {
     await waitFor(element(by.id('ItemSigned'))).toBeVisible(); // one green checkmark visible
 
     await element(by.id('ProvideSignature')).tap();
-    await element(by.id('CosignedScanOrImportFile')).tap();
+    if (process.env.TRAVIS) await sleep(5000);
+    try {
+      await element(by.id('CosignedScanOrImportFile')).tap();
+    } catch (_) {}
+    if (process.env.TRAVIS) await sleep(5000);
 
     const urSignedByColdcardAndCobo = [
       'UR:BYTES/1OF3/CL7WUCY4FVHCWAA0TRRKJ0A5CA3JZTYP2L9PS2ZMPUG59ARUW2US09Z73L/TYP5CURNVF607QGQ05PQQQQQQ89FQE9NVDRHTESWDDWCDCAMW53Z2H5U50T6ZRT2JVDQF3Y4QCJESQQQQQQQPLLLLLLSY5XRQQQQQQQQQQTQQ9R75WZLX547D94TPAHFFG8WPC7X6JC555C7U5QQQQQQQQQZYQPQTAH0P50D4QLFTN049K7LLDCWH7CS3ZKJY9G8XEGV63P308HSH9ZSQQQQQQQQZQ82QGQQQQQQQYQUWDNXP9500ELRFUSTVYLPAQJC34GUCHG52MH2665NTY5WSCJS72GPQQQQQQQPQQQGQQJS4YQSQQQQQQQZYQPQY8RVFMEZUPXNJSKTRUVR389TNY9XLLX7JNYE08K5FJP5R8A2UFN6TYSZQQQQQQQQZCQPFRSXCZANQ56CMLH79RF2KUUEZTAXF7QE6QJ8XPZQYGPSL9CGL7X73GC8MACPM7SNEHE2FCAP5LRUG436ZNX6YF39R7E5Y5PZQ4CAXM6KQM64TAC99DCV6THY7U9S4VL8N5XR53FX55WLPQSG4H86QYSSYUSJAUY6JC734K9PDVN9C72HFZ84ELQ9E4W8GP66RAQ2HQY3YRH8QQQQQQQPQY44P2GPQQQQQQQQYGQZQGWXCNHJ9CZD89PVK8CC8ZW2HXG2DL7DA9XFJ70DGNYRGX',
@@ -649,7 +663,10 @@ describe('BlueWallet UI Tests', () => {
     for (const ur of urSignedByColdcardAndCobo) {
       // tapping 10 times invisible button is a backdoor:
       for (let c = 0; c <= 10; c++) {
-        await element(by.id('ScanQrBackdoorButton')).tap();
+        try {
+          await element(by.id('ScanQrBackdoorButton')).tap();
+        } catch (_) {}
+        if (process.env.TRAVIS) await sleep(1000);
       }
       await element(by.id('scanQrBackdoorInput')).replaceText(ur);
       await element(by.id('scanQrBackdoorOkButton')).tap();
