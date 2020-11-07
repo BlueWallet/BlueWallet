@@ -33,7 +33,7 @@ struct Provider: TimelineProvider {
     WidgetAPI.fetchPrice(currency: userPreferredCurrency, completion: { (result, error) in
       let entry: SimpleEntry
       if let result = result {
-        entry = SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "", sats: "", price: result.formattedRate ?? "!", rate: result.rateDoubleValue ?? 0), allWalletsBalance: allwalletsBalance)
+        entry = SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "", sats: "", price: result.formattedRate ?? "!", rate: result.rateDouble), allWalletsBalance: allwalletsBalance)
         
       } else {
         entry = SimpleEntry(date: Date(), marketData: marketDataEntry, allWalletsBalance: allwalletsBalance)
