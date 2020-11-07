@@ -640,6 +640,7 @@ describe('BlueWallet UI Tests', () => {
         } catch (_) {}
         if (process.env.TRAVIS) await sleep(1000);
       }
+      if (process.env.TRAVIS) await sleep(61000);
       await element(by.id('scanQrBackdoorInput')).replaceText(ur);
       await element(by.id('scanQrBackdoorOkButton')).tap();
       await waitFor(element(by.id('UrProgressBar'))).toBeVisible();
