@@ -12,7 +12,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  ScrollView,
 } from 'react-native';
 import {
   BlueButton,
@@ -599,30 +598,24 @@ const WalletsAddMultisigStep2 = () => {
   );
 
   return (
-    <ScrollView contentContainerStyle={[styles.root, stylesHook.root]}>
+    <View style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="light-content" />
-      <BlueSpacing20 />
-      <View style={[styles.root, stylesHook.root, styles.mainBlock]}>
-        <StatusBar barStyle="light-content" />
-        <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+      <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
 
-        {renderMnemonicsModal()}
+      {renderMnemonicsModal()}
 
-        {renderProvideMnemonicsModal()}
+      {renderProvideMnemonicsModal()}
 
-        {renderCosignersXpubModal()}
-      </View>
+      {renderCosignersXpubModal()}
       {footer}
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    marginTop: -8,
-    flexDirection: 'column',
-    height: '100%',
+    marginHorizontal: 20,
   },
   mainBlock: {
     height: '100%',
@@ -664,7 +657,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 8,
   },
-   buttonContainer: {
+  buttonContainer: {
     flexDirection: 'row',
     marginVertical: 24,
     alignItems: 'center',
