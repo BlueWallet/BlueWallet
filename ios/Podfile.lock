@@ -347,7 +347,6 @@ PODS:
   - Sentry (5.2.2):
     - Sentry/Core (= 5.2.2)
   - Sentry/Core (5.2.2)
-  - SwiftSocket (2.0.2)
   - ToolTipMenu (5.2.0):
     - React
   - Yoga (1.14.0)
@@ -423,7 +422,6 @@ DEPENDENCIES:
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
-  - SwiftSocket (from `https://github.com/swiftsocket/SwiftSocket.git`, branch `master`)
   - ToolTipMenu (from `../node_modules/react-native-tooltip`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -571,18 +569,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-vector-icons"
   RNWatch:
     :path: "../node_modules/react-native-watch-connectivity"
-  SwiftSocket:
-    :branch: master
-    :git: https://github.com/swiftsocket/SwiftSocket.git
   ToolTipMenu:
     :path: "../node_modules/react-native-tooltip"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
-
-CHECKOUT OPTIONS:
-  SwiftSocket:
-    :commit: 4a3af2cbbaef5b2fddbaff80f6767fecc0ce5fe2
-    :git: https://github.com/swiftsocket/SwiftSocket.git
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
@@ -657,10 +647,9 @@ SPEC CHECKSUMS:
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: d56d00be49131ee454bb5a4a574f18506c8949e4
   Sentry: 8fa58a051237554f22507fb483b9a1de0171a2dc
-  SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
   ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e
   Yoga: 7d13633d129fd179e01b8953d38d47be90db185a
 
-PODFILE CHECKSUM: 9e8811401a7d0b340175a881c8e0706c5500008f
+PODFILE CHECKSUM: 12df602dfe03ca098fcce5822e5b3794d22ad473
 
 COCOAPODS: 1.9.3
