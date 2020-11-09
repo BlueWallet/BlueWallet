@@ -249,7 +249,13 @@ const ScanQRCode = () => {
           onBarCodeRead={onBarCodeRead}
           barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
           onStatusChange={handleCameraStatusChange}
-        />
+        >
+          {({ camera, status, recordAudioPermissionStatus }) => {
+            if (status !== 'READY') return <View />;
+            camera.pausePreview();
+            return <View />;
+          }}
+        </RNCamera>
       )}
       {cameraStatus === RNCamera.Constants.CameraStatus.NOT_AUTHORIZED && (
         <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
