@@ -127,7 +127,7 @@
     "react-native-fs": "2.16.6",
     "react-native-gesture-handler": "1.8.0",
     "react-native-handoff": "git+https://github.com/marcosrdz/react-native-handoff.git",
-    "react-native-haptic-feedback": "1.10.0",
+    "react-native-haptic-feedback": "1.11.0",
     "react-native-image-picker": "2.3.4",
     "react-native-inappbrowser-reborn": "git+https://github.com/BlueWallet/react-native-inappbrowser.git#fa2d8e1763e46dd12a7e53081e97a0f908049103",
     "react-native-level-fs": "3.0.1",
