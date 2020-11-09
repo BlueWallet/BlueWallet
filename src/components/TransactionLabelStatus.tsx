@@ -9,14 +9,13 @@ import { Label } from './Label';
 
 const i18n = require('../../loc');
 
-const readableTransactionStatus = {
-  [TransactionStatus.PENDING]: i18n.transactions.label.pending,
-  [TransactionStatus.CANCELED]: i18n.transactions.label.canceled,
-  [TransactionStatus.DONE]: i18n.transactions.label.done,
-  [TransactionStatus['CANCELED-DONE']]: i18n.transactions.label.canceledDone,
-};
-
-export const TranscationLabelStatus = ({ status }: { status: TransactionStatus }) => {
+export const TransactionLabelStatus = ({ status }: { status: TransactionStatus }) => {
+  const readableTransactionStatus = {
+    [TransactionStatus.PENDING]: i18n.transactions.label.pending,
+    [TransactionStatus.CANCELED]: i18n.transactions.label.canceled,
+    [TransactionStatus.DONE]: i18n.transactions.label.done,
+    [TransactionStatus['CANCELED-DONE']]: i18n.transactions.label.canceledDone,
+  };
   return readableTransactionStatus[status] ? (
     <Label labelStyle={styles[status]}>{readableTransactionStatus[status]}</Label>
   ) : null;

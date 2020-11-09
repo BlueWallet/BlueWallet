@@ -30,7 +30,7 @@ export { Mnemonic } from './Mnemonic';
 export { CheckBox } from './CheckBox';
 export { Label } from './Label';
 export { Warning } from './Warning';
-export { TranscationLabelStatus } from './TranscationLabelStatus';
+export { TransactionLabelStatus } from './TransactionLabelStatus';
 export { Dropdown } from './Dropdown';
 export { WalletDropdown } from './WalletDropdown';
 export { Separator } from './Separator';

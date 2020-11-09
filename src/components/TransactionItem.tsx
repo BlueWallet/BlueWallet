@@ -3,7 +3,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { icons } from 'app/assets';
-import { TranscationLabelStatus, Image, Label, EllipsisText } from 'app/components';
+import { TransactionLabelStatus, Image, Label, EllipsisText } from 'app/components';
 import { Transaction, TxType } from 'app/consts';
 import { getConfirmationsText } from 'app/helpers/helpers';
 import { typography, palette } from 'app/styles';
@@ -40,7 +40,7 @@ export const TransactionItem = ({ item, onPress }: { item: Transaction; onPress:
       </Text>
       {renderCofirmations(item.tx_type, item.confirmations)}
       <View style={styles.rowWrapper}>
-        <TranscationLabelStatus status={item.status} />
+        <TransactionLabelStatus status={item.status} />
         <Text
           style={[
             typography.headline5,
