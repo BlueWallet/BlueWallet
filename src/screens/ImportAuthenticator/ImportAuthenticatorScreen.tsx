@@ -1,7 +1,6 @@
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { Component } from 'react';
-import { Text, StyleSheet, Alert, View } from 'react-native';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { Text, StyleSheet, Alert, View, TouchableHighlight } from 'react-native';
 import { connect } from 'react-redux';
 
 import { Header, ScreenTemplate, TextAreaItem, FlatButton, Button, InputItem } from 'app/components';
@@ -173,21 +172,21 @@ class ImportAuthenticatorScreen extends Component<Props, State> {
       <ScreenTemplate
         footer={
           <>
-            <TouchableWithoutFeedback onPress={this.sendFeedback}>
+            <TouchableHighlight onPress={this.sendFeedback} activeOpacity={0} underlayColor={'transparent'}>
               <Button
                 disabled={!this.canSubmit()}
                 title={i18n.wallets.importWallet.import}
                 onPress={this.createAuthenticatorForm}
               />
-            </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={this.sendFeedback}>
+            </TouchableHighlight>
+            <TouchableHighlight onPress={this.sendFeedback} activeOpacity={0} underlayColor={'transparent'}>
               <FlatButton
                 containerStyle={styles.scanQRCodeButtonContainer}
                 title={i18n.wallets.importWallet.scanQrCode}
                 onPress={this.scanQRCode}
                 disabled={!name || !!this.validationError}
               />
-            </TouchableWithoutFeedback>
+            </TouchableHighlight>
           </>
         }
         // @ts-ignore
