@@ -13,25 +13,10 @@ const filterByTransactionType = (transactions: Transaction[], type?: string): Tr
   return transactions.filter(transaction => Number(transaction.value) > 0);
 };
 
-const filterByAddress = (transactions: Transaction[], address: string, type?: string): Transaction[] => {
-  if (type === CONST.send) {
-    return transactions.filter(transaction => {
-      const inputs: string[] = [];
-      transaction.inputs.filter(input => {
-        inputs.push(...input.addresses);
-      });
-      if (inputs.includes(address)) return transaction;
-    });
-  } else {
-    return transactions.filter(transaction => {
-      const outputs: string[] = [];
-      transaction.outputs.filter(output => {
-        outputs.push(...output.addresses);
-      });
-      if (outputs.includes(address)) return transaction;
-    });
-  }
-};
+const filterByAddress = (transactions: Transaction[], address: string, type?: string): Transaction[] =>
+  type === CONST.receive
+    ? transactions.filter(transaction => transaction.inputs.some(input => input.addresses.includes(address)))
+    : transactions.filter(transaction => transaction.outputs.some(output => output.addresses.includes(address)));
 
 const filterByFromDate = (transactions: Transaction[], fromDate: string): Transaction[] => {
   return transactions.filter(transaction => {
