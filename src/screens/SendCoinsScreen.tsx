@@ -377,7 +377,15 @@ class SendCoinsScreen extends Component<Props, State> {
                 }),
               );
             } catch (error) {
-              Alert.alert(error.message);
+              CreateMessage({
+                title: i18n.send.error.title,
+                description: error.message,
+                type: MessageType.error,
+                buttonProps: {
+                  title: i18n._.cancel,
+                  onPress: this.confirmTransaction,
+                },
+              });
             }
           });
         }
