@@ -421,6 +421,13 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
       this.importLegacyWallet(trimmedMnemonic);
     });
   };
+
+  get canScan() {
+    const { validationError, label } = this.state;
+
+    return label.trim() && !!!validationError;
+  }
+
   render() {
     const { validationError, text, label, hasCustomWords, customWords } = this.state;
     return (
@@ -433,7 +440,7 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
               onPress={this.onImportButtonPress}
             />
             <FlatButton
-              disabled={!label || !!validationError}
+              disabled={!this.canScan}
               containerStyle={styles.scanQRCodeButtonContainer}
               title={i18n.wallets.importWallet.scanQrCode}
               onPress={this.onScanQrCodeButtonPress}
