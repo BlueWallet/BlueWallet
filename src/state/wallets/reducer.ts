@@ -59,7 +59,6 @@ export const walletsReducer = (state = initialState, action: WalletsActionType):
       return {
         ...state,
         isLoading: false,
-        isInitialized: true,
         error: action.error,
       };
     case WalletsAction.UpdateWalletSuccess:

@@ -165,7 +165,7 @@ class ReceiveCoinsScreen extends Component<Props, State> {
         </View>
         <Text style={styles.labelText}>{i18n.receive.label}:</Text>
         <Text style={styles.address}>{this.message}</Text>
-        <CopyButton textToCopy={this.bip21encoded || ''} />
+        <CopyButton textToCopy={this.message} />
         <Text style={styles.inputTitle}>{i18n.receive.details.receiveWithAmount}</Text>
         <Text style={styles.receiveSubtitle}>{i18n.receive.details.receiveWithAmountSubtitle}</Text>
         <View style={styles.amountInput}>
