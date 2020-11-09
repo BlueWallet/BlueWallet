@@ -152,7 +152,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin }) => {
       <BlueListItem title={loc.cc.freezeLabel} Component={TouchableWithoutFeedback} switch={switchValue} />
       <BlueSpacing20 />
       <View style={mStyles.buttonContainer}>
-        <BlueButton testID="UseCoin" title={loc.cc.useCoin} onPress={() => onUseCoin([output])} />
+        <BlueButton testID="UseCoin" title={loc.cc.use_coin} onPress={() => onUseCoin([output])} />
       </View>
       <BlueSpacing20 />
     </>

@@ -44,6 +44,7 @@ import DocumentPicker from 'react-native-document-picker';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import CoinsSelected from '../../components/CoinsSelected';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
@@ -138,6 +139,7 @@ const styles = StyleSheet.create({
   },
   select: {
     marginBottom: 24,
+    marginHorizontal: 24,
     alignItems: 'center',
   },
   selectTouch: {
@@ -253,7 +255,7 @@ export default class SendDetails extends Component {
         },
         feeUnit: fromWallet.getPreferredBalanceUnit(),
         amountUnit: fromWallet.preferredBalanceUnit, // default for whole screen
-        renderWalletSelectionButtonHidden: false,
+        renderWalletSelectionOrCoinsSelectedHidden: false,
         width: Dimensions.get('window').width - 320,
         utxo: null,
       };
@@ -406,11 +408,11 @@ export default class SendDetails extends Component {
   }
 
   _keyboardDidShow = () => {
-    this.setState({ renderWalletSelectionButtonHidden: true, isAmountToolbarVisibleForAndroid: true });
+    this.setState({ renderWalletSelectionOrCoinsSelectedHidden: true, isAmountToolbarVisibleForAndroid: true });
   };
 
   _keyboardDidHide = () => {
-    this.setState({ renderWalletSelectionButtonHidden: false, isAmountToolbarVisibleForAndroid: false });
+    this.setState({ renderWalletSelectionOrCoinsSelectedHidden: false, isAmountToolbarVisibleForAndroid: false });
   };
 
   async createTransaction() {
@@ -1119,8 +1121,17 @@ export default class SendDetails extends Component {
     );
   };
 
-  renderWalletSelectionButton = () => {
-    if (this.state.renderWalletSelectionButtonHidden) return;
+  renderWalletSelectionOrCoinsSelected = () => {
+    if (this.state.renderWalletSelectionOrCoinsSelectedHidden) return;
+
+    if (this.state.utxo !== null) {
+      return (
+        <View style={styles.select}>
+          <CoinsSelected number={this.state.utxo.length} onClose={() => this.setState({ utxo: null }, this.reCalcTx)} />
+        </View>
+      );
+    }
+
     return (
       <View style={styles.select}>
         {!this.state.isLoading && (
@@ -1380,7 +1391,7 @@ export default class SendDetails extends Component {
             ),
           })}
 
-          {this.renderWalletSelectionButton()}
+          {this.renderWalletSelectionOrCoinsSelected()}
         </View>
       </TouchableWithoutFeedback>
     );
