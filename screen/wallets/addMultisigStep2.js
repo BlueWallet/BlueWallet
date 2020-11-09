@@ -88,10 +88,10 @@ const WalletsAddMultisigStep2 = () => {
       color: colors.foregroundColor,
     },
     modalContentShort: {
-      backgroundColor: colors.elevated,
+      backgroundColor: colors.modal,
     },
     modalContent: {
-      backgroundColor: colors.elevated,
+      backgroundColor: colors.modal,
     },
     textFiat: {
       color: colors.alternativeTextColor,
@@ -125,6 +125,9 @@ const WalletsAddMultisigStep2 = () => {
     },
     wordText: {
       color: colors.labelText,
+    },
+    headerText: {
+      color: colors.foregroundColor,
     },
   });
 
@@ -566,17 +569,18 @@ const WalletsAddMultisigStep2 = () => {
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
-            <Text style={[styles.headerText]}>{loc.multisig.this_is_cosigners_xpub}</Text>
+            <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
             <BlueSpacing20 />
-            <QRCode
-              value={cosignerXpub}
-              size={250}
-              color="#000000"
-              logoBackgroundColor={colors.brandingColor}
-              backgroundColor="#FFFFFF"
-              ecl="H"
-            />
-
+            <View style={styles.qrCodeContainer}>
+              <QRCode
+                value={cosignerXpub}
+                size={260}
+                color="#000000"
+                logoBackgroundColor={colors.brandingColor}
+                backgroundColor="#FFFFFF"
+                ecl="H"
+              />
+            </View>
             <BlueSpacing20 />
             <View style={styles.squareButtonWrapper}>
               {isLoading ? (
@@ -732,6 +736,7 @@ const styles = StyleSheet.create({
   header2Text: { color: '#9AA0AA', fontSize: 14, paddingBottom: 20 },
   alignItemsCenter: { alignItems: 'center' },
   squareButtonWrapper: { height: 50, width: 250 },
+  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
 });
 
 WalletsAddMultisigStep2.navigationOptions = () => ({
