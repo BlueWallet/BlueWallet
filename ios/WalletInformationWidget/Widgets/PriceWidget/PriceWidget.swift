@@ -70,7 +70,7 @@ struct PriceWidget: Widget {
             PriceWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("Price")
-        .description("View the current price of Bitcoin.").supportedFamilies([.systemSmall, .systemMedium])
+        .description("View the current price of Bitcoin.").supportedFamilies([.systemSmall])
     }
 }
 
