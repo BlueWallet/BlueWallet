@@ -1061,12 +1061,9 @@ export class BlueList extends Component {
 export class BlueUseAllFundsButton extends Component {
   static InputAccessoryViewID = 'useMaxInputAccessoryViewID';
   static propTypes = {
-    wallet: PropTypes.shape().isRequired,
+    balance: PropTypes.string.isRequired,
+    canUseAll: PropTypes.bool.isRequired,
     onUseAllPressed: PropTypes.func.isRequired,
-  };
-
-  static defaultProps = {
-    unit: BitcoinUnit.BTC,
   };
 
   render() {
@@ -1096,11 +1093,11 @@ export class BlueUseAllFundsButton extends Component {
           >
             {loc.send.input_total}
           </Text>
-          {this.props.wallet.allowSendMax() && this.props.wallet.getBalance() > 0 ? (
+          {this.props.canUseAll ? (
             <BlueButtonLink
               onPress={this.props.onUseAllPressed}
               style={{ marginLeft: 8, paddingRight: 0, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
-              title={`${formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} ${BitcoinUnit.BTC}`}
+              title={`${this.props.balance} ${BitcoinUnit.BTC}`}
             />
           ) : (
             <Text
@@ -1115,7 +1112,7 @@ export class BlueUseAllFundsButton extends Component {
                 paddingBottom: 12,
               }}
             >
-              {formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} {BitcoinUnit.BTC}
+              {this.props.balance} {BitcoinUnit.BTC}
             </Text>
           )}
         </View>
@@ -1128,6 +1125,7 @@ export class BlueUseAllFundsButton extends Component {
         </View>
       </View>
     );
+
     if (Platform.OS === 'ios') {
       return <InputAccessoryView nativeID={BlueUseAllFundsButton.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
     } else {

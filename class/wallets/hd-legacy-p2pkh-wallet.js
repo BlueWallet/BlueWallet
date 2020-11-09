@@ -148,8 +148,4 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
 
     return psbt;
   }
-
-  allowSendMax() {
-    return true;
-  }
 }

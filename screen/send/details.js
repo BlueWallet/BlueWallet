@@ -42,7 +42,7 @@ import { HDSegwitBech32Wallet, LightningCustodianWallet, MultisigHDWallet, Watch
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import DocumentPicker from 'react-native-document-picker';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import loc from '../../loc';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -1298,13 +1298,18 @@ export default class SendDetails extends Component {
   };
 
   render() {
-    if (this.state.isLoading || typeof this.state.fromWallet === 'undefined') {
+    const { fromWallet, utxo } = this.state;
+    if (this.state.isLoading || typeof fromWallet === 'undefined') {
       return (
         <View style={styles.loading}>
           <BlueLoading />
         </View>
       );
     }
+
+    // if utxo is limited we use it to calculate available balance
+    const balance = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : fromWallet.getBalance();
+    const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
 
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -1360,10 +1365,18 @@ export default class SendDetails extends Component {
           <BlueDismissKeyboardInputAccessory />
           {Platform.select({
             ios: (
-              <BlueUseAllFundsButton unit={this.state.amountUnit} onUseAllPressed={this.onUseAllPressed} wallet={this.state.fromWallet} />
+              <BlueUseAllFundsButton
+                canUseAll={fromWallet.allowSendMax() && fromWallet.getBalance() > 0}
+                onUseAllPressed={this.onUseAllPressed}
+                balance={allBalance}
+              />
             ),
             android: this.state.isAmountToolbarVisibleForAndroid && (
-              <BlueUseAllFundsButton unit={this.state.amountUnit} onUseAllPressed={this.onUseAllPressed} wallet={this.state.fromWallet} />
+              <BlueUseAllFundsButton
+                canUseAll={fromWallet.allowSendMax() && fromWallet.getBalance() > 0}
+                onUseAllPressed={this.onUseAllPressed}
+                balance={allBalance}
+              />
             ),
           })}
 
