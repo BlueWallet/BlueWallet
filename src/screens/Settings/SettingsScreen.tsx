@@ -1,6 +1,6 @@
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { icons } from 'app/assets';
@@ -11,7 +11,6 @@ import { BiometricService, AppStateManager } from 'app/services';
 import { ApplicationState } from 'app/state';
 import { updateBiometricSetting } from 'app/state/appSettings/actions';
 
-import config from '../../../config/';
 import { LabeledSettingsRow } from './LabeledSettingsRow';
 
 const i18n = require('../../../loc');
@@ -92,7 +91,6 @@ export const SettingsScreen = (props: Props) => {
       {/*	
        // @ts-ignore */}
       <Header navigation={props.navigation} title={i18n.settings.header} />
-      <Text>{`Network info: ${config.host}:${config.port}`}</Text>
       <ScreenTemplate>
         <Image source={logoSource} style={styles.logo} resizeMode="contain" />
         <LabeledSettingsRow label={i18n.settings.general}>{renderGeneralSettings()}</LabeledSettingsRow>
