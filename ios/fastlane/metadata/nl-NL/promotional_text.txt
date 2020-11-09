@@ -1,7 +1,10 @@
+Functies
+
 * Open Source
 * Volledig versleutelt
-* Plausible deniability
+* Plausibele ontkenning
 * Aanpasbare transactievergoedingen
-* Replace-By-Fee
-* Watch-only (Sentinel)
+* Replace-By-Fee (RBF)
+* SegWit
+* Watch-only (Sentinel) portomonnees
 * Lightning network
