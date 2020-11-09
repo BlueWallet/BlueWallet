@@ -16,6 +16,18 @@ struct MarketData {
   var formattedNextBlock: String {
     return nextBlock == "..." ? "..." : #"\#(nextBlock) sat/b"#
   }
+  var dateString: String = ""
+  var formattedDate: String? {
+    let isoDateFormatter = ISO8601DateFormatter()
+    let dateFormatter = DateFormatter()
+    dateFormatter.timeStyle = .short
+    
+    if let date = isoDateFormatter.date(from: dateString) {
+      return dateFormatter.string(from: date)
+    }
+    return nil
+  }
+  
 }
 
 struct WalletData {
