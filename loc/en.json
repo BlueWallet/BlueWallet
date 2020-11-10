@@ -436,7 +436,7 @@
     "please_write_down_mnemonics": "Please write down this mnemonic phrase on paper. Don't worry, you can write it down later.",
     "i_wrote_it_down": "Ok, I wrote it down",
     "type_your_mnemonics": "Insert a seed to import your existing vault key",
-    "this_is_cosigners_xpub": "This is cosigner's xpub, ready to be imported in other wallet. It is safe to share it.",
+    "this_is_cosigners_xpub": "This is the cosigner's xpub, ready to be imported into another wallet. It is safe to share it.",
     "wallet_key_created": "Your vault key was created. Take a moment to safely backup your mnemonic seed",
     "are_you_sure_seed_will_be_lost": "Are you sure? Your mnemonic seed will be lost if you dont have a backup",
     "forget_this_seed": "Forget this seed and use xpub instead",

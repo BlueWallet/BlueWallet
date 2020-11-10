@@ -3,12 +3,8 @@ import { HDSegwitBech32Wallet } from '../../class';
 import PayjoinTransaction from '../../class/payjoin-transaction';
 import { PayjoinClient } from 'payjoin-client';
 const bitcoin = require('bitcoinjs-lib');
+const assert = require('assert');
 jest.useFakeTimers();
-
-const w = new HDSegwitBech32Wallet();
-w.setSecret(
-  'inhale flip hundred clock onion wool upgrade unable cigar cricket move federal drum firm excuse adapt parade flag rice assume acid inch park cool',
-);
 
 const utxos = [
   {
@@ -24,10 +20,14 @@ const utxos = [
   },
 ];
 
-const assert = require('assert');
-
 describe('PayjoinTransaction', () => {
   it('throws if smth is wrong with pj transaction', async () => {
+    if (!process.env.MNEMONICS_COLDCARD) {
+      console.error('process.env.MNEMONICS_COLDCARD not set, skipped');
+      return;
+    }
+    const w = new HDSegwitBech32Wallet();
+    w.setSecret(process.env.MNEMONICS_COLDCARD);
     const { tx: txOrig, psbt: psbtOrig } = w.createTransaction(
       utxos,
       [{ address: 'bc1qyvdzueznsh0rsyfqzdtj9ce7nlx4rlg2v93lcl', value: 10000 }],
@@ -69,6 +69,12 @@ describe('PayjoinTransaction', () => {
   });
 
   it('works', async () => {
+    if (!process.env.MNEMONICS_COLDCARD) {
+      console.error('process.env.MNEMONICS_COLDCARD not set, skipped');
+      return;
+    }
+    const w = new HDSegwitBech32Wallet();
+    w.setSecret(process.env.MNEMONICS_COLDCARD);
     // bitcoin:bc1qy0ydthpa35m37pvwl5tu76j0srcmcwtmaur3aw?amount=0.0001&pj=https://btc.donate.kukks.org/BTC/pj
     const { tx: txOrigin, psbt: psbtOrigin } = w.createTransaction(
       utxos,
