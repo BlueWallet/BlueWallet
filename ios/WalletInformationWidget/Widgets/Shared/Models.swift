@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct MarketData {
+struct MarketData:Codable  {
   var nextBlock: String
   var sats: String
   var price: String
@@ -16,6 +16,19 @@ struct MarketData {
   var formattedNextBlock: String {
     return nextBlock == "..." ? "..." : #"\#(nextBlock) sat/b"#
   }
+  var dateString: String = ""
+  var formattedDate: String? {
+    let isoDateFormatter = ISO8601DateFormatter()
+    let dateFormatter = DateFormatter()
+    dateFormatter.locale = Locale.current
+    dateFormatter.timeStyle = .short
+    
+    if let date = isoDateFormatter.date(from: dateString) {
+      return dateFormatter.string(from: date)
+    }
+    return nil
+  }
+  
 }
 
 struct WalletData {
@@ -30,3 +43,8 @@ struct WalletData {
 
 let emptyMarketData = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
 let emptyWalletData = WalletData(balance: 0, latestTransactionTime: Int(Date().timeIntervalSince1970))
+
+enum MarketDataTimeline: String {
+  case Previous = "previous"
+  case Current = "current"
+}
