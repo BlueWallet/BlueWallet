@@ -6,12 +6,6 @@ import { MultisigCosigner } from '../../class/multisig-cosigner';
 const bitcoin = require('bitcoinjs-lib');
 const Base43 = require('../../blue_modules/base43');
 
-const mnemonicsCobo =
-  'fossil glove maze chest logic shadow document describe awake card bunker lottery sunset athlete giant among logic capable happy sword ridge beef warfare fire';
-
-const mnemonicsColdcard =
-  'inhale flip hundred clock onion wool upgrade unable cigar cricket move federal drum firm excuse adapt parade flag rice assume acid inch park cool';
-
 const fp1cobo = 'D37EAD88';
 const Zpub1 = 'Zpub74ijpfhERJNjhCKXRspTdLJV5eoEmSRZdHqDvp9kVtdVEyiXk7pXxRbfZzQvsDFpfDHEHVtVpx4Dz9DGUWGn2Xk5zG5u45QTMsYS2vjohNQ';
 
@@ -30,6 +24,15 @@ const electumJson =
   '{"x2/": {"xpub": "Zpub75mAE8EjyxSzoyPmGnd5E6MyD7ALGNndruWv52xpzimZQKukwvEfXTHqmH8nbbc6ccP5t2aM3mws3pKYSnKpKMMytdbNEZFUxKzztYFM8Pn", "hw_type": "coldcard", "ckcc_xfp": 64392470, "label": "Coldcard", "derivation": "m/48\'/1\'/0\'/1\'", "type": "hardware"}, "x1/": {"xpub": "Zpub74ijpfhERJNjhCKXRspTdLJV5eoEmSRZdHqDvp9kVtdVEyiXk7pXxRbfZzQvsDFpfDHEHVtVpx4Dz9DGUWGn2Xk5zG5u45QTMsYS2vjohNQ", "hw_type": "coldcard", "ckcc_xfp": 2293071571, "label": "Coldcard", "derivation": "m/48\'/1\'/0\'/1\'", "type": "hardware"}, "wallet_type": "2of2", "use_encryption": false, "seed_version": 17}';
 
 describe('multisig-wallet (p2sh)', () => {
+  if (!process.env.MNEMONICS_COBO) {
+    console.error('process.env.MNEMONICS_COBO not set, skipped');
+    return;
+  }
+  if (!process.env.MNEMONICS_COLDCARD) {
+    console.error('process.env.MNEMONICS_COLDCARD not set, skipped');
+    return;
+  }
+
   it('basic operations work', async () => {
     const w = new MultisigHDWallet();
     w.setSecret(txtFileFormatMultisigLegacy);
@@ -174,7 +177,7 @@ describe('multisig-wallet (p2sh)', () => {
       'xpub69SfFhG5eA9cqxHKM6b1HhXMpDzipUPDBNMBrjNgWWbbzKqnqwx2mvMyB5bRgmLAi7cBgr8euuz4Lvz3maWxpfUmdM71dyQuvq68mTAG4Cp',
       fp1cobo,
     );
-    w.addCosigner(mnemonicsColdcard);
+    w.addCosigner(process.env.MNEMONICS_COLDCARD);
     w.setDerivationPath(path);
     w.setM(2);
 
@@ -250,8 +253,8 @@ describe('multisig-wallet (p2sh)', () => {
     ];
 
     const w = new MultisigHDWallet();
-    w.addCosigner(mnemonicsCobo);
-    w.addCosigner(mnemonicsColdcard);
+    w.addCosigner(process.env.MNEMONICS_COBO);
+    w.addCosigner(process.env.MNEMONICS_COLDCARD);
     w.setDerivationPath(path);
     w.setM(2);
 
@@ -299,6 +302,15 @@ describe('multisig-wallet (p2sh)', () => {
 });
 
 describe('multisig-wallet (wrapped segwit)', () => {
+  if (!process.env.MNEMONICS_COBO) {
+    console.error('process.env.MNEMONICS_COBO not set, skipped');
+    return;
+  }
+  if (!process.env.MNEMONICS_COLDCARD) {
+    console.error('process.env.MNEMONICS_COLDCARD not set, skipped');
+    return;
+  }
+
   it('basic operations work', async () => {
     const w = new MultisigHDWallet();
     w.setSecret(txtFileFormatMultisigWrappedSegwit);
@@ -415,12 +427,12 @@ describe('multisig-wallet (wrapped segwit)', () => {
 
     const w = new MultisigHDWallet();
     w.addCosigner(Ypub1, fp1cobo);
-    w.addCosigner(mnemonicsColdcard);
+    w.addCosigner(process.env.MNEMONICS_COLDCARD);
     w.setDerivationPath(path);
     w.setM(2);
 
     assert.strictEqual(
-      w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(mnemonicsColdcard, path)),
+      w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(process.env.MNEMONICS_COLDCARD, path)),
       'Ypub6kvtvTZpqGuWtQfg9bL5xe4vDWtwsirR8LzDvsY3vgXvyncW1NGXCUJ9Ps7CiizSSLV6NnnXSYyVDnxCu26QChWzWLg5YCAHam6cYjGtzRz',
     );
     assert.strictEqual(w.getCosignerForFingerprint(fp1cobo), w.getCosigner(1));
@@ -490,12 +502,12 @@ describe('multisig-wallet (wrapped segwit)', () => {
 
     const w = new MultisigHDWallet();
     w.addCosigner(Ypub1, fp1cobo);
-    w.addCosigner(mnemonicsColdcard);
+    w.addCosigner(process.env.MNEMONICS_COLDCARD);
     w.setDerivationPath(path);
     w.setM(2);
 
     assert.strictEqual(
-      w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(mnemonicsColdcard, path)),
+      w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(process.env.MNEMONICS_COLDCARD, path)),
       'Ypub6kvtvTZpqGuWtQfg9bL5xe4vDWtwsirR8LzDvsY3vgXvyncW1NGXCUJ9Ps7CiizSSLV6NnnXSYyVDnxCu26QChWzWLg5YCAHam6cYjGtzRz',
     );
     assert.strictEqual(w.getCosignerForFingerprint(fp1cobo), w.getCosigner(1));
@@ -543,6 +555,15 @@ describe('multisig-wallet (wrapped segwit)', () => {
 });
 
 describe('multisig-wallet (native segwit)', () => {
+  if (!process.env.MNEMONICS_COBO) {
+    console.error('process.env.MNEMONICS_COBO not set, skipped');
+    return;
+  }
+  if (!process.env.MNEMONICS_COLDCARD) {
+    console.error('process.env.MNEMONICS_COLDCARD not set, skipped');
+    return;
+  }
+
   it('can sort buffers', async () => {
     let sorted;
     sorted = MultisigHDWallet.sortBuffers([Buffer.from('10', 'hex'), Buffer.from('0011', 'hex')]);
@@ -636,7 +657,7 @@ describe('multisig-wallet (native segwit)', () => {
       "m/48'/0'/0'/2'/1/3",
     );
     assert.strictEqual(
-      MultisigHDWallet.seedToXpub(mnemonicsColdcard, path),
+      MultisigHDWallet.seedToXpub(process.env.MNEMONICS_COLDCARD, path),
       'xpub6FCYVZAU7dofgor9fQaqyqqA9NqBAn83iQpoayuWrwBPfwiPgCXGCD7dvAG93M5MZs5VWVP7FErGA5UeiALqaPt7KV67fL9WX9bqXTyeWxb',
     );
     assert.strictEqual(
@@ -652,8 +673,8 @@ describe('multisig-wallet (native segwit)', () => {
     assert.throws(() => w.addCosigner(Zpub1, fp1cobo, 'ROFLBOATS')); // invalid path
     assert.throws(() => w.addCosigner(Zpub1, fp1cobo)); // duplicates are not allowed
     assert.throws(() => w.addCosigner(Zpub2, fp2coldcard)); // duplicates are not allowed
-    assert.throws(() => w.addCosigner(mnemonicsCobo)); // duplicates are not allowed
-    assert.throws(() => w.addCosigner(mnemonicsColdcard)); // duplicates are not allowed
+    assert.throws(() => w.addCosigner(process.env.MNEMONICS_COBO)); // duplicates are not allowed
+    assert.throws(() => w.addCosigner(process.env.MNEMONICS_COLDCARD)); // duplicates are not allowed
 
     assert.strictEqual(w.getM(), 2);
     assert.strictEqual(w.getN(), 2);
@@ -674,7 +695,7 @@ describe('multisig-wallet (native segwit)', () => {
 
     w = new MultisigHDWallet();
     w.addCosigner(Zpub1, fp1cobo);
-    w.addCosigner(mnemonicsColdcard);
+    w.addCosigner(process.env.MNEMONICS_COLDCARD);
     w.setDerivationPath(path);
     w.setM(2);
     assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85');
@@ -686,9 +707,9 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getN(), 2);
     assert.strictEqual(w.getDerivationPath(), path);
     assert.strictEqual(w.getCosigner(1), Zpub1);
-    assert.strictEqual(w.getCosigner(2), mnemonicsColdcard);
+    assert.strictEqual(w.getCosigner(2), process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.getCosignerForFingerprint(fp1cobo), Zpub1);
-    assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), mnemonicsColdcard);
+    assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.howManySignaturesCanWeMake(), 1);
   });
 
@@ -841,8 +862,8 @@ describe('multisig-wallet (native segwit)', () => {
     const path = "m/48'/0'/0'/2'";
 
     const w = new MultisigHDWallet();
-    w.addCosigner(mnemonicsCobo, false, path);
-    w.addCosigner(mnemonicsColdcard, false, path);
+    w.addCosigner(process.env.MNEMONICS_COBO, false, path);
+    w.addCosigner(process.env.MNEMONICS_COLDCARD, false, path);
     w.setDerivationPath(path);
     w.setM(2);
 
@@ -899,7 +920,7 @@ describe('multisig-wallet (native segwit)', () => {
 
     const w = new MultisigHDWallet();
     w.addCosigner(Zpub1, fp1cobo);
-    w.addCosigner(mnemonicsColdcard, false, path);
+    w.addCosigner(process.env.MNEMONICS_COLDCARD, false, path);
     w.setDerivationPath(path);
     w.setM(2);
 
@@ -987,7 +1008,7 @@ describe('multisig-wallet (native segwit)', () => {
 
     const walletWithFirstKey = new MultisigHDWallet();
     walletWithFirstKey.addCosigner(Zpub1, fp1cobo);
-    walletWithFirstKey.addCosigner(mnemonicsColdcard, false, path);
+    walletWithFirstKey.addCosigner(process.env.MNEMONICS_COLDCARD, false, path);
     walletWithFirstKey.setDerivationPath(path);
     walletWithFirstKey.setM(2);
 
@@ -1000,7 +1021,7 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(walletWithFirstKey.calculateHowManySignaturesWeHaveFromPsbt(psbt), 1); // didnt change
 
     const walletWithSecondKey = new MultisigHDWallet();
-    walletWithSecondKey.addCosigner(mnemonicsCobo);
+    walletWithSecondKey.addCosigner(process.env.MNEMONICS_COBO);
     walletWithSecondKey.addCosigner(Zpub2, fp2coldcard);
     walletWithSecondKey.setDerivationPath(path);
     walletWithSecondKey.setM(2);
@@ -1018,7 +1039,7 @@ describe('multisig-wallet (native segwit)', () => {
 
     const w = new MultisigHDWallet();
     w.addCosigner(Zpub1, fp1cobo);
-    w.addCosigner(mnemonicsColdcard, false, path);
+    w.addCosigner(process.env.MNEMONICS_COLDCARD, false, path);
     w.setDerivationPath(path);
     w.setM(2);
 
@@ -1310,11 +1331,11 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getM(), 0);
     assert.strictEqual(w.getN(), 0);
 
-    w.setSecret(mnemonicsCobo);
+    w.setSecret(process.env.MNEMONICS_COBO);
     assert.strictEqual(w.getM(), 0);
     assert.strictEqual(w.getN(), 0);
 
-    w.setSecret(MultisigHDWallet.seedToXpub(mnemonicsColdcard, "m/48'/0'/0'/1'"));
+    w.setSecret(MultisigHDWallet.seedToXpub(process.env.MNEMONICS_COLDCARD, "m/48'/0'/0'/1'"));
     assert.strictEqual(w.getM(), 0);
     assert.strictEqual(w.getN(), 0);
   });
@@ -1476,20 +1497,20 @@ describe('multisig-wallet (native segwit)', () => {
 
     const w = new MultisigHDWallet();
     w.addCosigner(Zpub1, fp1cobo);
-    w.addCosigner(mnemonicsColdcard);
+    w.addCosigner(process.env.MNEMONICS_COLDCARD);
     w.setDerivationPath(path);
     w.setM(2);
     assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85');
 
     assert.strictEqual(w.getCosigner(1), Zpub1);
-    assert.strictEqual(w.getCosigner(2), mnemonicsColdcard);
+    assert.strictEqual(w.getCosigner(2), process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.getFingerprint(1), fp1cobo);
     assert.strictEqual(w.getFingerprint(2), fp2coldcard);
     assert.strictEqual(w.getCustomDerivationPathForCosigner(1), path);
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
 
     assert.strictEqual(w.getCosignerForFingerprint(fp1cobo), Zpub1);
-    assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), mnemonicsColdcard);
+    assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.howManySignaturesCanWeMake(), 1);
 
     w.replaceCosigner(fp2coldcard, Zpub2, fp2coldcard, path); // <-------------------
@@ -1498,9 +1519,9 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getFingerprint(2), fp2coldcard);
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
 
-    w.replaceCosigner(fp2coldcard, mnemonicsColdcard); // <---------------------------
+    w.replaceCosigner(fp2coldcard, process.env.MNEMONICS_COLDCARD); // <---------------------------
 
-    assert.strictEqual(w.getCosigner(2), mnemonicsColdcard);
+    assert.strictEqual(w.getCosigner(2), process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.getFingerprint(2), fp2coldcard);
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
 
@@ -1511,7 +1532,7 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getN(), 1);
     assert.strictEqual(w.getM(), 2);
 
-    w.addCosigner(mnemonicsColdcard);
+    w.addCosigner(process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.getN(), 2);
     w.deleteCosigner(fp2coldcard);
     assert.ok(!w.getCosigner(2));
