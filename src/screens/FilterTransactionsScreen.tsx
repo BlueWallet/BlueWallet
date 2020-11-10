@@ -47,43 +47,49 @@ interface State {
   isCalendarVisible: boolean;
 }
 
-const transactionTagsBase = [
-  {
-    tag: Tags.PENDING,
-    text: i18n.filterTransactions.status.pending,
-  },
-  {
-    tag: Tags.DONE,
-    text: i18n.filterTransactions.status.done,
-  },
-  {
-    tag: Tags['CANCELED-DONE'],
-    text: i18n.filterTransactions.status.canceledDone,
-  },
-  {
-    tag: Tags.CANCELED,
-    text: i18n.filterTransactions.status.canceled,
-  },
-];
-
-const transactionTagsReceived = transactionTagsBase;
-
-const transactionTagsSent = [
-  ...transactionTagsBase,
-  {
-    tag: Tags.BLOCKED,
-    text: i18n.transactions.label.blocked,
-  },
-  {
-    tag: Tags.UNBLOCKED,
-    text: i18n.transactions.label.unblocked,
-  },
-];
-
 class FilterTransactionsScreen extends PureComponent<Props, State> {
   state = {
     isCalendarVisible: false,
   };
+
+  get transactionTagsBase() {
+    return [
+      {
+        tag: Tags.PENDING,
+        text: i18n.filterTransactions.status.pending,
+      },
+      {
+        tag: Tags.DONE,
+        text: i18n.filterTransactions.status.done,
+      },
+      {
+        tag: Tags['CANCELED-DONE'],
+        text: i18n.filterTransactions.status.canceledDone,
+      },
+      {
+        tag: Tags.CANCELED,
+        text: i18n.filterTransactions.status.canceled,
+      },
+    ];
+  }
+
+  get transactionTagsReceived() {
+    return this.transactionTagsBase;
+  }
+
+  get transactionTagsSent() {
+    return [
+      ...this.transactionTagsBase,
+      {
+        tag: Tags.BLOCKED,
+        text: i18n.transactions.label.blocked,
+      },
+      {
+        tag: Tags.UNBLOCKED,
+        text: i18n.transactions.label.unblocked,
+      },
+    ];
+  }
 
   onFilterButtonPress = () => {
     this.props.activateFilters();
@@ -121,7 +127,9 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
   };
 
   get transactionTagsList() {
-    return this.props.filters.transactionType === CONST.receive ? transactionTagsReceived : transactionTagsSent;
+    return this.props.filters.transactionType === CONST.receive
+      ? this.transactionTagsReceived
+      : this.transactionTagsSent;
   }
 
   renderCommonCardContent = () => {
