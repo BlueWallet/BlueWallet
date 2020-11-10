@@ -14,8 +14,9 @@ import {
   StyleSheet,
   Dimensions,
   Platform,
-  ScrollView,
   Text,
+  LayoutAnimation,
+  FlatList,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -64,7 +65,6 @@ const styles = StyleSheet.create({
     backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   scrollViewContent: {
-    flexWrap: 'wrap',
     flexDirection: 'row',
   },
   modalContent: {
@@ -212,6 +212,7 @@ const styles = StyleSheet.create({
 export default class SendDetails extends Component {
   static contextType = BlueStorageContext;
   state = { isLoading: true };
+  scrollView = React.createRef();
 
   constructor(props, context) {
     super(props);
@@ -254,7 +255,7 @@ export default class SendDetails extends Component {
         feeUnit: fromWallet.getPreferredBalanceUnit(),
         amountUnit: fromWallet.preferredBalanceUnit, // default for whole screen
         renderWalletSelectionButtonHidden: false,
-        width: Dimensions.get('window').width - 320,
+        width: Dimensions.get('window').width,
       };
     }
   }
@@ -450,15 +451,8 @@ export default class SendDetails extends Component {
         }
       }
       if (error) {
-        if (index === 0) {
-          this.scrollView.scrollTo();
-        } else if (index === this.state.addresses.length - 1) {
-          this.scrollView.scrollToEnd();
-        } else {
-          const page = Math.round(this.state.width * (this.state.addresses.length - 2));
-          this.scrollView.scrollTo({ x: page, y: 0, animated: true });
-        }
-        this.setState({ isLoading: false, recipientsScrollIndex: index });
+        this.scrollView.current.scrollToIndex({ index });
+        this.setState({ isLoading: false });
         alert(error);
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         return;
@@ -696,7 +690,8 @@ export default class SendDetails extends Component {
                   const feeSatoshi = new BigNumber(element.amount).multipliedBy(100000000);
                   return element.address.length > 0 && feeSatoshi > 0;
                 }) || this.state.addresses[0];
-              this.setState({ addresses: [firstTransaction], recipientsScrollIndex: 0 }, () => changeWallet());
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              this.setState({ addresses: [firstTransaction] }, () => changeWallet());
             },
             style: 'default',
           },
@@ -718,7 +713,8 @@ export default class SendDetails extends Component {
                   return element.amount === BitcoinUnit.MAX;
                 }) || this.state.addresses[0];
               firstTransaction.amount = 0;
-              this.setState({ addresses: [firstTransaction], recipientsScrollIndex: 0 }, () => changeWallet());
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              this.setState({ addresses: [firstTransaction] }, () => changeWallet());
             },
             style: 'default',
           },
@@ -965,14 +961,15 @@ export default class SendDetails extends Component {
   handleAddRecipient = () => {
     const { addresses } = this.state;
     addresses.push(new BitcoinTransaction());
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut, () => this.scrollView.current.scrollToEnd());
     this.setState(
       {
         addresses,
         isAdvancedTransactionOptionsVisible: false,
       },
       () => {
-        this.scrollView.scrollToEnd();
-        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
+        this.scrollView.current.scrollToEnd();
+        if (this.state.addresses.length > 1) this.scrollView.current.flashScrollIndicators();
         // after adding recipient it automatically scrolls to the last one
         this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
       },
@@ -982,13 +979,14 @@ export default class SendDetails extends Component {
   handleRemoveRecipient = () => {
     const { addresses } = this.state;
     addresses.splice(this.state.recipientsScrollIndex, 1);
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     this.setState(
       {
         addresses,
         isAdvancedTransactionOptionsVisible: false,
       },
       () => {
-        if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
+        if (this.state.addresses.length > 1) this.scrollView.current.flashScrollIndicators();
         // after deletion it automatically scrolls to the last one
         this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
       },
@@ -1081,6 +1079,16 @@ export default class SendDetails extends Component {
     this.setState({ isTransactionReplaceable: value });
   };
 
+  scrollViewCurrentIndex = () => {
+    Keyboard.dismiss();
+    const offset = this.scrollView.current.contentOffset;
+    if (offset) {
+      const page = Math.round(offset.x / Dimensions.get('window').width);
+      return page;
+    }
+    return 0;
+  };
+
   renderCreateButton = () => {
     return (
       <View style={styles.createButton}>
@@ -1122,110 +1130,84 @@ export default class SendDetails extends Component {
     );
   };
 
-  handlePageChange = e => {
-    Keyboard.dismiss();
-    const offset = e.nativeEvent.contentOffset;
-    if (offset) {
-      const page = Math.round(offset.x / this.state.width);
-      if (this.state.recipientsScrollIndex !== page) {
-        this.setState({ recipientsScrollIndex: page });
-      }
-    }
-  };
+  renderBitcoinTransactionInfoFields = ({ item, index }) => {
+    return (
+      <View style={{ width: this.state.width }}>
+        <BlueBitcoinAmount
+          isLoading={this.state.isLoading}
+          amount={item.amount ? item.amount.toString() : null}
+          onAmountUnitChange={unit => {
+            const units = this.state.units;
+            units[index] = unit;
 
-  scrollViewCurrentIndex = () => {
-    Keyboard.dismiss();
-    const offset = this.scrollView.contentOffset;
-    if (offset) {
-      const page = Math.round(offset.x / this.state.width);
-      return page;
-    }
-    return 0;
-  };
+            const addresses = this.state.addresses;
+            const item = addresses[index];
 
-  renderBitcoinTransactionInfoFields = () => {
-    const rows = [];
+            switch (unit) {
+              case BitcoinUnit.SATS:
+                item.amountSats = parseInt(item.amount);
+                break;
+              case BitcoinUnit.BTC:
+                item.amountSats = currency.btcToSatoshi(item.amount);
+                break;
+              case BitcoinUnit.LOCAL_CURRENCY:
+                // also accounting for cached fiat->sat conversion to avoid rounding error
+                item.amountSats =
+                  BlueBitcoinAmount.getCachedSatoshis(item.amount) || currency.btcToSatoshi(currency.fiatToBTC(item.amount));
+                break;
+            }
 
-    for (const [index, item] of this.state.addresses.entries()) {
-      rows.push(
-        <View key={index} style={{ width: this.state.width }}>
-          <BlueBitcoinAmount
-            isLoading={this.state.isLoading}
-            amount={item.amount ? item.amount.toString() : null}
-            onAmountUnitChange={unit => {
-              const units = this.state.units;
-              units[index] = unit;
-
-              const addresses = this.state.addresses;
-              const item = addresses[index];
-
-              switch (unit) {
-                case BitcoinUnit.SATS:
-                  item.amountSats = parseInt(item.amount);
-                  break;
-                case BitcoinUnit.BTC:
-                  item.amountSats = currency.btcToSatoshi(item.amount);
-                  break;
-                case BitcoinUnit.LOCAL_CURRENCY:
-                  // also accounting for cached fiat->sat conversion to avoid rounding error
-                  item.amountSats =
-                    BlueBitcoinAmount.getCachedSatoshis(item.amount) || currency.btcToSatoshi(currency.fiatToBTC(item.amount));
-                  break;
-              }
-
-              addresses[index] = item;
-              this.setState({ units, addresses });
-            }}
-            onChangeText={text => {
-              item.amount = text;
-              switch (this.state.units[index] || this.state.amountUnit) {
-                case BitcoinUnit.BTC:
-                  item.amountSats = currency.btcToSatoshi(item.amount);
-                  break;
-                case BitcoinUnit.LOCAL_CURRENCY:
-                  item.amountSats = currency.btcToSatoshi(currency.fiatToBTC(item.amount));
-                  break;
-                default:
-                case BitcoinUnit.SATS:
-                  item.amountSats = parseInt(text);
-                  break;
-              }
-              const addresses = this.state.addresses;
-              addresses[index] = item;
-              this.setState({ addresses }, this.reCalcTx);
-            }}
-            unit={this.state.units[index] || this.state.amountUnit}
-            inputAccessoryViewID={this.state.fromWallet.allowSendMax() ? BlueUseAllFundsButton.InputAccessoryViewID : null}
-          />
-          <BlueAddressInput
-            onChangeText={async text => {
-              text = text.trim();
-              const transactions = this.state.addresses;
-              const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text);
-              item.address = address || text;
-              item.amount = amount || item.amount;
-              transactions[index] = item;
-              this.setState({
-                addresses: transactions,
-                memo: memo || this.state.memo,
-                isLoading: false,
-                payjoinUrl,
-              });
-              this.reCalcTx();
-            }}
-            onBarScanned={this.processAddressData}
-            address={item.address}
-            isLoading={this.state.isLoading}
-            inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-            launchedBy={this.props.route.name}
-          />
-          {this.state.addresses.length > 1 && (
-            <BlueText style={styles.of}>{loc.formatString(loc._.of, { number: index + 1, total: this.state.addresses.length })}</BlueText>
-          )}
-        </View>,
-      );
-    }
-    return rows;
+            addresses[index] = item;
+            this.setState({ units, addresses });
+          }}
+          onChangeText={text => {
+            item.amount = text;
+            switch (this.state.units[index] || this.state.amountUnit) {
+              case BitcoinUnit.BTC:
+                item.amountSats = currency.btcToSatoshi(item.amount);
+                break;
+              case BitcoinUnit.LOCAL_CURRENCY:
+                item.amountSats = currency.btcToSatoshi(currency.fiatToBTC(item.amount));
+                break;
+              default:
+              case BitcoinUnit.SATS:
+                item.amountSats = parseInt(text);
+                break;
+            }
+            const addresses = this.state.addresses;
+            addresses[index] = item;
+            this.setState({ addresses }, this.reCalcTx);
+          }}
+          unit={this.state.units[index] || this.state.amountUnit}
+          inputAccessoryViewID={this.state.fromWallet.allowSendMax() ? BlueUseAllFundsButton.InputAccessoryViewID : null}
+        />
+        <BlueAddressInput
+          onChangeText={async text => {
+            text = text.trim();
+            const transactions = this.state.addresses;
+            const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text);
+            item.address = address || text;
+            item.amount = amount || item.amount;
+            transactions[index] = item;
+            this.setState({
+              addresses: transactions,
+              memo: memo || this.state.memo,
+              isLoading: false,
+              payjoinUrl,
+            });
+            this.reCalcTx();
+          }}
+          onBarScanned={this.processAddressData}
+          address={item.address}
+          isLoading={this.state.isLoading}
+          inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+          launchedBy={this.props.route.name}
+        />
+        {this.state.addresses.length > 1 && (
+          <BlueText style={styles.of}>{loc.formatString(loc._.of, { number: index + 1, total: this.state.addresses.length })}</BlueText>
+        )}
+      </View>
+    );
   };
 
   onUseAllPressed = () => {
@@ -1238,13 +1220,13 @@ export default class SendDetails extends Component {
           text: loc._.ok,
           onPress: async () => {
             Keyboard.dismiss();
-            const recipient = this.state.addresses[this.state.recipientsScrollIndex];
+            const recipient = this.state.addresses[this.scrollViewCurrentIndex()];
             recipient.amount = BitcoinUnit.MAX;
             recipient.amountSats = BitcoinUnit.MAX;
+            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
             this.setState({
               addresses: [recipient],
               units: [BitcoinUnit.BTC],
-              recipientsScrollIndex: 0,
               isAdvancedTransactionOptionsVisible: false,
             });
           },
@@ -1271,6 +1253,8 @@ export default class SendDetails extends Component {
     this.setState({ width: e.nativeEvent.layout.width });
   };
 
+  keyExtractor = (_item, index) => `${index}`;
+
   render() {
     if (this.state.isLoading || typeof this.state.fromWallet === 'undefined') {
       return (
@@ -1286,20 +1270,20 @@ export default class SendDetails extends Component {
           <StatusBar barStyle="light-content" />
           <View>
             <KeyboardAvoidingView behavior="position">
-              <ScrollView
-                pagingEnabled
-                horizontal
-                contentContainerStyle={styles.scrollViewContent}
-                ref={ref => (this.scrollView = ref)}
+              <FlatList
                 keyboardShouldPersistTaps="always"
-                onContentSizeChange={() => this.scrollView.scrollToEnd()}
-                onLayout={() => this.scrollView.scrollToEnd()}
-                onMomentumScrollEnd={this.handlePageChange}
                 scrollEnabled={this.state.addresses.length > 1}
+                extraData={this.state.addresses}
+                data={this.state.addresses}
+                renderItem={this.renderBitcoinTransactionInfoFields}
+                keyExtractor={this.keyExtractor}
+                ref={this.scrollView}
+                horizontal
+                pagingEnabled
+                onMomentumScrollBegin={Keyboard.dismiss}
                 scrollIndicatorInsets={{ top: 0, left: 8, bottom: 0, right: 8 }}
-              >
-                {this.renderBitcoinTransactionInfoFields()}
-              </ScrollView>
+                contentContainerStyle={styles.scrollViewContent}
+              />
               <View hide={!this.state.showMemoRow} style={styles.memo}>
                 <TextInput
                   onChangeText={text => this.setState({ memo: text })}
