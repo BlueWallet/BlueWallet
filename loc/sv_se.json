@@ -176,7 +176,7 @@
     "details_total_exceeds_balance": "Beloppet överstiger plånbokens tillgängliga belopp",
     "details_wallet_before_tx": "Before creating a transaction, you must first add a Bitcoin wallet.",
     "details_wallet_selection": "Wallet Selection",
-    "dynamic_init": "Initialing",
+    "dynamic_init": "Initializing",
     "dynamic_next": "Nästa",
     "dynamic_prev": "Föregående",
     "dynamic_start": "Starta",
@@ -293,7 +293,6 @@
     "details_to": "Output",
     "details_transaction_details": "Transaktionsdetaljer",
     "enable_hw": "This wallet is not being used in conjunction with a hardwarde wallet. Would you like to enable hardware wallet use?",
-    "list_conf": "konf",
     "list_title": "transaktioner",
     "rbf_explain": "We will replace this transaction with the one with a higher fee, so it should be mined faster. This is called RBF - Replace By Fee.",
     "rbf_title": "Bump fee (RBF)",
@@ -302,6 +301,7 @@
     "transactions_count": "transactions count"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_bitcoin": "Bitcoin",
     "add_create": "Skapa",
     "add_entropy_generated": "{gen} bytes of generated entropy",
@@ -310,6 +310,7 @@
     "add_import_wallet": "Importera plånbok",
     "import_file": "Import File",
     "add_lightning": "Lightning",
+    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Connect to your LNDHub",
     "add_lndhub_error": "The provided node address is not valid LNDHub node.",
     "add_lndhub_placeholder": "your node address",

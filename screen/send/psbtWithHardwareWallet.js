@@ -33,16 +33,14 @@ import { getSystemName } from 'react-native-device-info';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
-import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import ScanQRCode from './ScanQRCode';
-const EV = require('../../blue_modules/events');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import Notifications from '../../blue_modules/notifications';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
 const bitcoin = require('bitcoinjs-lib');
-const notifications = require('../../blue_modules/notifications');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const { height, width } = Dimensions.get('window');
 const isDesktop = getSystemName() === 'Mac OS X';
@@ -125,44 +123,7 @@ const styles = StyleSheet.create({
 
 export default class PsbtWithHardwareWallet extends Component {
   cameraRef = null;
-
-  _onReadUniformResource = ur => {
-    try {
-      const [index, total] = extractSingleWorkload(ur);
-      const { animatedQRCodeData } = this.state;
-      if (animatedQRCodeData.length > 0) {
-        const currentTotal = animatedQRCodeData[0].total;
-        if (total !== currentTotal) {
-          alert('invalid animated QRCode');
-        }
-      }
-      if (!animatedQRCodeData.find(i => i.index === index)) {
-        this.setState(
-          state => ({
-            animatedQRCodeData: [
-              ...state.animatedQRCodeData,
-              {
-                index,
-                total,
-                data: ur,
-              },
-            ],
-          }),
-          () => {
-            if (this.state.animatedQRCodeData.length === total) {
-              const payload = decodeUR(this.state.animatedQRCodeData.map(i => i.data));
-              const psbtB64 = Buffer.from(payload, 'hex').toString('base64');
-              const Tx = this._combinePSBT(psbtB64);
-              this.setState({ txhex: Tx.toHex() });
-              this.props.navigation.dangerouslyGetParent().pop();
-            }
-          },
-        );
-      }
-    } catch (Err) {
-      alert('invalid animated QRCode fragment, please try again');
-    }
-  };
+  static contextType = BlueStorageContext;
 
   _combinePSBT = receivedPSBT => {
     return this.state.fromWallet.combinePsbt(this.state.psbt, receivedPSBT);
@@ -171,7 +132,7 @@ export default class PsbtWithHardwareWallet extends Component {
   onBarScanned = ret => {
     if (ret && !ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
-      return this._onReadUniformResource(ret.data);
+      alert('BC-UR not decoded. This should never happen');
     }
     if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
@@ -244,13 +205,12 @@ export default class PsbtWithHardwareWallet extends Component {
         await BlueElectrum.waitTillConnected();
         const result = await this.state.fromWallet.broadcastTx(this.state.txhex);
         if (result) {
-          EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           this.setState({ success: true, isLoading: false });
           const txDecoded = bitcoin.Transaction.fromHex(this.state.txhex);
           const txid = txDecoded.getId();
-          notifications.majorTomToGroundControl([], [], [txid]);
+          Notifications.majorTomToGroundControl([], [], [txid]);
           if (this.state.memo) {
-            BlueApp.tx_metadata[txid] = { memo: this.state.memo };
+            this.context.txMetadata[txid] = { memo: this.state.memo };
           }
         } else {
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });

@@ -347,7 +347,6 @@ export class LegacyWallet extends AbstractWallet {
     for (const tx of this.getTransactions()) {
       max = Math.max(new Date(tx.received) * 1, max);
     }
-
     return new Date(max).toString();
   }
 
@@ -400,11 +399,5 @@ export class LegacyWallet extends AbstractWallet {
 
   allowSendMax() {
     return true;
-  }
-
-  async getChangeAddressAsync() {
-    return new Promise(resolve => {
-      resolve(this.getAddress());
-    });
   }
 }

@@ -237,25 +237,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     return json.pay_req;
   }
 
-  async checkRouteInvoice(invoice) {
-    const response = await this._api.get('/checkrouteinvoice?invoice=' + invoice, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer' + ' ' + this.access_token,
-      },
-    });
-
-    const json = response.body;
-    if (typeof json === 'undefined') {
-      throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
-    }
-
-    if (json && json.error) {
-      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-    }
-  }
-
   /**
    * Uses login & pass stored in `this.secret` to authorize
    * and set internal `access_token` & `refresh_token`

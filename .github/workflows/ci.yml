@@ -91,6 +91,7 @@ jobs:
         api-level: 29
         target: google_apis
         avd-name: Pixel_API_29_AOSP
+        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
         script: npm run e2e:release-test || npm run e2e:release-test || npm run e2e:release-test
       env:
         TRAVIS: 1

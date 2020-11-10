@@ -32,7 +32,7 @@ class WatchDataSource: NSObject, WCSessionDelegate {
   }
   
   func processWalletsData(walletsInfo: [String: Any]) {
-    if let walletsToProcess = walletsInfo["wallets"] as? [[String: Any]], !walletsToProcess.isEmpty {
+    if let walletsToProcess = walletsInfo["wallets"] as? [[String: Any]] {
       wallets.removeAll();
       for (index, entry) in walletsToProcess.enumerated() {
         guard let label = entry["label"] as? String, let balance = entry["balance"] as? String, let type = entry["type"] as? String, let preferredBalanceUnit = entry["preferredBalanceUnit"] as? String, let transactions = entry["transactions"] as? [[String: Any]]  else {

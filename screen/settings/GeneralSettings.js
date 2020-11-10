@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, Platform, TouchableWithoutFeedback, TouchableOpacity, StyleSheet } from 'react-native';
-import { BlueLoading, BlueTextHooks, BlueSpacing20, BlueListItemHooks, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
-import { AppStorage } from '../../class';
+import { BlueLoading, BlueTextHooks, BlueSpacing20, BlueListItem, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import HandoffSettings from '../../class/handoff';
 import loc from '../../loc';
-const BlueApp: AppStorage = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
   root: {
@@ -14,14 +13,15 @@ const styles = StyleSheet.create({
 });
 
 const GeneralSettings = () => {
+  const { isAdancedModeEnabled, setIsAdancedModeEnabled, wallets } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAdancedModeEnabled, setIsAdancedModeEnabled] = useState(false);
+  const [isAdancedModeSwitchEnabled, setIsAdancedModeSwitchEnabled] = useState(false);
   const [isHandoffUseEnabled, setIsHandoffUseEnabled] = useState(false);
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const onAdvancedModeSwitch = async value => {
-    await BlueApp.setIsAdancedModeEnabled(value);
-    setIsAdancedModeEnabled(value);
+    await setIsAdancedModeEnabled(value);
+    setIsAdancedModeSwitchEnabled(value);
   };
 
   const onHandOffEnabledSwitch = async value => {
@@ -31,7 +31,7 @@ const GeneralSettings = () => {
 
   useEffect(() => {
     (async () => {
-      setIsAdancedModeEnabled(await BlueApp.isAdancedModeEnabled());
+      setIsAdancedModeSwitchEnabled(await isAdancedModeEnabled());
       setIsHandoffUseEnabled(await HandoffSettings.isHandoffUseEnabled());
       setIsLoading(false);
     })();
@@ -56,19 +56,14 @@ const GeneralSettings = () => {
     <BlueLoading />
   ) : (
     <ScrollView style={stylesWithThemeHook.scroll}>
-      {BlueApp.getWallets().length > 1 && (
+      {wallets.length > 1 && (
         <>
-          <BlueListItemHooks
-            component={TouchableOpacity}
-            onPress={() => navigate('DefaultView')}
-            title={loc.settings.default_title}
-            chevron
-          />
+          <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title={loc.settings.default_title} chevron />
         </>
       )}
       {Platform.OS === 'ios' ? (
         <>
-          <BlueListItemHooks
+          <BlueListItem
             hideChevron
             title={loc.settings.general_continuity}
             Component={TouchableWithoutFeedback}
@@ -80,10 +75,10 @@ const GeneralSettings = () => {
           <BlueSpacing20 />
         </>
       ) : null}
-      <BlueListItemHooks
+      <BlueListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.general_adv_mode}
-        switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeEnabled }}
+        switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeSwitchEnabled }}
       />
       <BlueCard>
         <BlueTextHooks>{loc.settings.general_adv_mode_e}</BlueTextHooks>

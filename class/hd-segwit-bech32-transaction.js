@@ -1,4 +1,5 @@
-import { HDSegwitBech32Wallet, SegwitBech32Wallet } from './';
+import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
+import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../blue_modules/BlueElectrum');
 const reverse = require('buffer-reverse');
@@ -215,6 +216,32 @@ export class HDSegwitBech32Transaction {
   }
 
   /**
+   * We get _all_ our UTXOs (even spent kek),
+   * and see if each input in this transaction's UTXO is in there. If its not there - its an unknown
+   * input, we dont own it (possibly a payjoin transaction), and we cant do RBF
+   *
+   * @returns {Promise<boolean>}
+   */
+  async thereAreUnknownInputsInTx() {
+    if (!this._wallet) throw new Error('Wallet required for this method');
+    if (!this._txDecoded) await this._fetchTxhexAndDecode();
+
+    const spentUtxos = this._wallet.getDerivedUtxoFromOurTransaction(true);
+    for (const inp of this._txDecoded.ins) {
+      const txidInUtxo = reverse(inp.hash).toString('hex');
+
+      let found = false;
+      for (const spentU of spentUtxos) {
+        if (spentU.txid === txidInUtxo && spentU.vout === inp.index) found = true;
+      }
+
+      if (!found) {
+        return true;
+      }
+    }
+  }
+
+  /**
    * Checks if all outputs belong to us, that
    * means we already canceled this tx and we can only bump fees
    *
@@ -224,12 +251,23 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._txDecoded) await this._fetchTxhexAndDecode();
 
+    if (await this.thereAreUnknownInputsInTx()) return false;
+
     // if theres at least one output we dont own - we can cancel this transaction!
     for (const outp of this._txDecoded.outs) {
       if (!this._wallet.weOwnAddress(SegwitBech32Wallet.scriptPubKeyToAddress(outp.script))) return true;
     }
 
     return false;
+  }
+
+  async canBumpTx() {
+    if (!this._wallet) throw new Error('Wallet required for this method');
+    if (!this._txDecoded) await this._fetchTxhexAndDecode();
+
+    if (await this.thereAreUnknownInputsInTx()) return false;
+
+    return true;
   }
 
   /**

@@ -19,11 +19,9 @@ import {
 import { BlueCurrentTheme } from '../../components/themes';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
-const EV = require('../../blue_modules/events');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import Notifications from '../../blue_modules/notifications';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
-const notifications = require('../../blue_modules/notifications');
 
 const styles = StyleSheet.create({
   root: {
@@ -80,6 +78,7 @@ const styles = StyleSheet.create({
 });
 
 export default class CPFP extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
     let txid;
@@ -102,7 +101,6 @@ export default class CPFP extends Component {
         await BlueElectrum.waitTillConnected();
         const result = await this.state.wallet.broadcastTx(this.state.txhex);
         if (result) {
-          EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           this.setState({ stage: 3, isLoading: false });
           this.onSuccessBroadcast();
         } else {
@@ -119,8 +117,8 @@ export default class CPFP extends Component {
   }
 
   onSuccessBroadcast() {
-    BlueApp.tx_metadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
-    notifications.majorTomToGroundControl([], [], [this.state.newTxid]);
+    this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
+    Notifications.majorTomToGroundControl([], [], [this.state.newTxid]);
   }
 
   async componentDidMount() {

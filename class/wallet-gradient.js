@@ -9,7 +9,8 @@ import { PlaceholderWallet } from './wallets/placeholder-wallet';
 import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
 import { HDLegacyElectrumSeedP2PKHWallet } from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
 import { HDSegwitElectrumSeedP2WPKHWallet } from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
-import { BlueCurrentTheme } from '../components/themes';
+import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
+import { useTheme } from '@react-navigation/native';
 
 export default class WalletGradient {
   static hdSegwitP2SHWallet = ['#65ceef', '#68bbe1'];
@@ -19,9 +20,15 @@ export default class WalletGradient {
   static legacyWallet = ['#40fad1', '#15be98'];
   static hdLegacyP2PKHWallet = ['#e36dfa', '#bd10e0'];
   static hdLegacyBreadWallet = ['#fe6381', '#f99c42'];
+  static multisigHdWallet = ['#1ce6eb', '#296fc5', '#3500A2'];
   static defaultGradients = ['#c65afb', '#9053fe'];
   static lightningCustodianWallet = ['#f1be07', '#f79056'];
-  static createWallet = BlueCurrentTheme.colors.lightButton;
+
+  static createWallet = () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { colors } = useTheme();
+    return colors.lightButton;
+  };
 
   static gradientsFor(type) {
     let gradient;
@@ -55,6 +62,9 @@ export default class WalletGradient {
       case SegwitBech32Wallet.type:
         gradient = WalletGradient.segwitBech32Wallet;
         break;
+      case MultisigHDWallet.type:
+        gradient = WalletGradient.multisigHdWallet;
+        break;
       default:
         gradient = WalletGradient.defaultGradients;
         break;
@@ -87,6 +97,9 @@ export default class WalletGradient {
         break;
       case SegwitBech32Wallet.type:
         gradient = WalletGradient.segwitBech32Wallet;
+        break;
+      case MultisigHDWallet.type:
+        gradient = WalletGradient.multisigHdWallet;
         break;
       case LightningCustodianWallet.type:
         gradient = WalletGradient.lightningCustodianWallet;

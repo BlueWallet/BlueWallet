@@ -20,23 +20,35 @@ class TodayViewController: UIViewController, NCWidgetProviding {
   @IBOutlet weak var lastPrice: UILabel!
   @IBOutlet weak var lastPriceFromLabel: UILabel!
   private var lastPriceNumber: NSNumber?
-
+  
   
   override func viewDidLoad() {
     super.viewDidLoad()
-   
+    
     setLastPriceOutletsHidden(isHidden: true)
     if let lastStoredTodayStore = TodayData.getPriceRateAndLastUpdate() {
       processRateAndLastUpdate(todayStore: lastStoredTodayStore)
     } else {
       setLastPriceOutletsHidden(isHidden: true)
     }
+    
+    if #available(iOSApplicationExtension 13.0, *) {
+    } else{
+      self.lastPriceArrowImage.removeFromSuperview()
+    }
   }
   
   func setLastPriceOutletsHidden(isHidden: Bool) {
     lastPrice.isHidden = isHidden
     lastPriceFromLabel.isHidden = isHidden
-    lastPriceArrowImage.isHidden = isHidden
+    lastPriceArrowImage?.isHidden = isHidden
+  }
+  
+  override func viewWillAppear(_ animated: Bool)
+  {
+      var currentSize: CGSize = self.preferredContentSize
+      currentSize.height = 200.0
+      self.preferredContentSize = currentSize
   }
   
   func processRateAndLastUpdate(todayStore: TodayDataStore) {
@@ -87,9 +99,9 @@ class TodayViewController: UIViewController, NCWidgetProviding {
     // If an error is encountered, use NCUpdateResult.Failed
     // If there's no update required, use NCUpdateResult.NoData
     // If there's an update, use NCUpdateResult.NewData
-    let userPreferredCurrency = API.getUserPreferredCurrency();
+    let userPreferredCurrency = TodayAPI.getUserPreferredCurrency();
     self.currencyLabel.text = userPreferredCurrency
-    API.fetchPrice(currency: userPreferredCurrency, completion: { (result, error) in
+    TodayAPI.fetchPrice(currency: userPreferredCurrency, completion: { (result, error) in
       DispatchQueue.main.async { [unowned self] in
         guard let result = result else {
           self.lastUpdatedDate.text = error?.localizedDescription
@@ -107,7 +119,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
         
         let latestRateDataStore = TodayDataStore(rate: rateString, lastUpdate: lastUpdatedString)
         
-        if let lastStoredTodayStore = TodayData.getPriceRateAndLastUpdate(), lastStoredTodayStore.lastUpdate == latestRateDataStore.lastUpdate, rateString == lastStoredTodayStore.rate, API.getLastSelectedCurrency() == userPreferredCurrency {
+        if let lastStoredTodayStore = TodayData.getPriceRateAndLastUpdate(), lastStoredTodayStore.lastUpdate == latestRateDataStore.lastUpdate, rateString == lastStoredTodayStore.rate, TodayAPI.getLastSelectedCurrency() == userPreferredCurrency {
           if let cached = TodayData.getCachedPriceRateAndLastUpdate() {
             self.processCachedStoredRateAndLastUpdate(new: lastStoredTodayStore, cached: cached)
           } else {
@@ -122,7 +134,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
             TodayData.saveCachePriceRateAndLastUpdate(rate: rate, lastUpdate: lastUpdate);
           }
           
-          if let latestRateDataStore = latestRateDataStore.rateDoubleValue, let lastStoredPriceNumber = priceRiceAndLastUpdate?.rateDoubleValue, API.getLastSelectedCurrency() == userPreferredCurrency {
+          if let latestRateDataStore = latestRateDataStore.rateDoubleValue, let lastStoredPriceNumber = priceRiceAndLastUpdate?.rateDoubleValue, TodayAPI.getLastSelectedCurrency() == userPreferredCurrency {
             
             if latestRateDataStore > lastStoredPriceNumber  {
               if #available(iOSApplicationExtension 13.0, *) {
@@ -148,7 +160,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
           }
           
           TodayData.savePriceRateAndLastUpdate(rate: latestRateDataStore.rate, lastUpdate: latestRateDataStore.lastUpdate)
-          API.saveNewSelectedCurrency()
+          TodayAPI.saveNewSelectedCurrency()
           completionHandler(.newData)
         }
       }

@@ -68,10 +68,10 @@
     "details_show_in_block_explorer": "Show in block explorer",
     "details_title": "Деталі транзакції",
     "details_to": "Кому",
-    "list_conf": "підтв.",
     "list_title": "Мої транзакції"
   },
   "wallets": {
+    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Створити",
     "add_import_wallet": "імпортувати гаманець",
     "add_or": "чи",

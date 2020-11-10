@@ -7,6 +7,7 @@ amplitude.getInstance().init('8b7cf19e8eea3cdcf16340f5fbf16330', null, {
   platform: getSystemName().toLocaleLowerCase().includes('mac') ? getSystemName() : Platform.OS,
 });
 amplitude.getInstance().setVersionName(getVersion());
+amplitude.getInstance().options.apiEndpoint = 'api2.amplitude.com';
 
 const A = async event => {
   console.log('posting analytics...', event);
