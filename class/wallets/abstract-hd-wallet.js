@@ -1,5 +1,4 @@
 import { LegacyWallet } from './legacy-wallet';
-import Frisbee from 'frisbee';
 const bip39 = require('bip39');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -180,99 +179,7 @@ export class AbstractHDWallet extends LegacyWallet {
    * @returns {Promise<void>}
    */
   async fetchTransactions() {
-    try {
-      const api = new Frisbee({ baseURI: 'https://blockchain.info' });
-      this.transactions = [];
-      let offset = 0;
-
-      while (1) {
-        const response = await api.get('/multiaddr?active=' + this.getXpub() + '&n=100&offset=' + offset);
-
-        if (response && response.body) {
-          if (response.body.txs && response.body.txs.length === 0) {
-            break;
-          }
-
-          let latestBlock = false;
-          if (response.body.info && response.body.info.latest_block) {
-            latestBlock = response.body.info.latest_block.height;
-          }
-
-          this._lastTxFetch = +new Date();
-
-          // processing TXs and adding to internal memory
-          if (response.body.txs) {
-            for (const tx of response.body.txs) {
-              let value = 0;
-
-              for (const input of tx.inputs) {
-                // ----- INPUTS
-                if (input.prev_out.xpub) {
-                  // sent FROM US
-                  value -= input.prev_out.value;
-
-                  // setting internal caches to help ourselves in future...
-                  const path = input.prev_out.xpub.path.split('/');
-                  if (path[path.length - 2] === '1') {
-                    // change address
-                    this.next_free_change_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_change_address_index);
-                    // setting to point to last maximum known change address + 1
-                  }
-                  if (path[path.length - 2] === '0') {
-                    // main (aka external) address
-                    this.next_free_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_address_index);
-                    // setting to point to last maximum known main address + 1
-                  }
-                  // done with cache
-                }
-              }
-
-              for (const output of tx.out) {
-                // ----- OUTPUTS
-                if (output.xpub) {
-                  // sent TO US (change)
-                  value += output.value;
-
-                  // setting internal caches to help ourselves in future...
-                  const path = output.xpub.path.split('/');
-                  if (path[path.length - 2] === '1') {
-                    // change address
-                    this.next_free_change_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_change_address_index);
-                    // setting to point to last maximum known change address + 1
-                  }
-                  if (path[path.length - 2] === '0') {
-                    // main (aka external) address
-                    this.next_free_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_address_index);
-                    // setting to point to last maximum known main address + 1
-                  }
-                  // done with cache
-                }
-              }
-
-              tx.value = value; // new BigNumber(value).div(100000000).toString() * 1;
-              if (!tx.confirmations && latestBlock) {
-                tx.confirmations = latestBlock - tx.block_height + 1;
-              }
-
-              this.transactions.push(tx);
-            }
-
-            if (response.body.txs.length < 100) {
-              // this fetch yilded less than page size, thus requesting next batch makes no sense
-              break;
-            }
-          } else {
-            break; // error ?
-          }
-        } else {
-          throw new Error('Could not fetch transactions from API: ' + response.err); // breaks here
-        }
-
-        offset += 100;
-      }
-    } catch (err) {
-      console.warn(err);
-    }
+    throw new Error('not implemented');
   }
 
   /**
