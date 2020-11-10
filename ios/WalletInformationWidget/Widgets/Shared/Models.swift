@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct MarketData {
+struct MarketData:Codable  {
   var nextBlock: String
   var sats: String
   var price: String
@@ -42,3 +42,8 @@ struct WalletData {
 
 let emptyMarketData = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
 let emptyWalletData = WalletData(balance: 0, latestTransactionTime: Int(Date().timeIntervalSince1970))
+
+enum MarketDataTimeline: String {
+  case Previous = "previous"
+  case Current = "current"
+}
