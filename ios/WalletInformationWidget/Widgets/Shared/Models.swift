@@ -20,6 +20,7 @@ struct MarketData:Codable  {
   var formattedDate: String? {
     let isoDateFormatter = ISO8601DateFormatter()
     let dateFormatter = DateFormatter()
+    dateFormatter.locale = Locale.current
     dateFormatter.timeStyle = .short
     
     if let date = isoDateFormatter.date(from: dateString) {
