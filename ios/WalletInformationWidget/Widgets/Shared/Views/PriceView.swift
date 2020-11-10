@@ -37,7 +37,7 @@ struct PriceView: View {
              maxWidth: .infinity,
              minHeight: 0,
              maxHeight: .infinity,
-             alignment: .topLeading)
+             alignment: .trailing)
   }
 }
 
