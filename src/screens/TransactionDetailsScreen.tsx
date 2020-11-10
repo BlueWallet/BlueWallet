@@ -251,19 +251,17 @@ class TransactionDetailsScreen extends Component<Props> {
             <CopyButton textToCopy={transaction.txid} />
           </View>
           <Text style={styles.contentRowBody}>{transaction.txid}</Text>
-          {!config.isBeta && (
-            <StyledText
-              title={i18n.transactions.details.viewInBlockRxplorer}
-              onPress={() => {
-                const url = `http://explorer.bitcoinvault.global/tx/${transaction.txid}`;
-                Linking.canOpenURL(url).then(supported => {
-                  if (supported) {
-                    Linking.openURL(url);
-                  }
-                });
-              }}
-            />
-          )}
+          <StyledText
+            title={i18n.transactions.details.viewInBlockRxplorer}
+            onPress={() => {
+              const url = `${config.explorerUrl}/tx/${transaction.txid}`;
+              Linking.canOpenURL(url).then(supported => {
+                if (supported) {
+                  Linking.openURL(url);
+                }
+              });
+            }}
+          />
         </View>
         <View style={styles.contentRowContainer}>
           <Text style={styles.contentRowTitle}>{i18n.transactions.details.transactionType}</Text>

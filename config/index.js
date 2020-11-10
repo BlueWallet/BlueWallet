@@ -2,7 +2,7 @@ import Config from 'react-native-config';
 
 const bitcoin = require('bitcoinjs-lib');
 
-const { SENTRY_DSN, HOST, PORT, BTCV_NETWORK, PROTOCOL, ELECTRUM_X_PROTOCOL_VERSION, IS_BETA } = Config;
+const { SENTRY_DSN, HOST, PORT, BTCV_NETWORK, PROTOCOL, ELECTRUM_X_PROTOCOL_VERSION, IS_BETA, EXPLORER_URL } = Config;
 
 let isBeta = false;
 try {
@@ -19,4 +19,5 @@ export default {
   isBeta,
   applicationId: isBeta ? 'io.goldwallet.wallet.testnet' : 'io.goldwallet.wallet',
   applicationName: isBeta ? 'Testnet Gold Wallet' : 'GoldWallet',
+  explorerUrl: EXPLORER_URL || 'https://explorer.bitcoinvault.global',
 };
