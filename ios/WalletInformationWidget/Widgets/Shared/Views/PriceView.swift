@@ -25,7 +25,7 @@ struct PriceView: View {
         HStack(alignment: .lastTextBaseline, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/, content: {
           Text(currentMarketData?.price ?? "").lineLimit(1).foregroundColor(.textColor).font(Font.system(size:28, weight: .bold, design: .default)).minimumScaleFactor(0.01).transition(.opacity)
         })
-        if let previousMarketDataPrice = previousMarketData?.price, let currentMarketDataRate = currentMarketData?.rate, let previousMarketDataRate = previousMarketData?.rate, currentMarketDataRate != previousMarketDataRate {
+        if let previousMarketDataPrice = previousMarketData?.price, let currentMarketDataRate = currentMarketData?.rate, let previousMarketDataRate = previousMarketData?.rate, previousMarketDataRate > 0, currentMarketDataRate != previousMarketDataRate {
           HStack(alignment: .lastTextBaseline, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/, content: {
             Image(systemName: currentMarketDataRate > previousMarketDataRate  ?  "arrow.up" : "arrow.down")
             Text("from").lineLimit(1).foregroundColor(.textColor).font(Font.system(size:13, weight: .regular, design: .default)).minimumScaleFactor(0.01)

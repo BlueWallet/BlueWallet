@@ -24,15 +24,23 @@ struct Provider: TimelineProvider {
   func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
     var entries: [SimpleEntry] = []
     
+    if WidgetAPI.getUserPreferredCurrency() != WidgetAPI.getLastSelectedCurrency() {
+      marketData[.Current] = nil
+      marketData[.Previous] = nil
+      WidgetAPI.saveNewSelectedCurrency()
+    }
     
+    var entryMarketData = marketData[.Current] ?? emptyMarketData
     WidgetAPI.fetchPrice(currency: WidgetAPI.getUserPreferredCurrency()) { (data, error) in
       if let data = data, let formattedRate = data.formattedRate {
         let currentMarketData = MarketData(nextBlock: "", sats: "", price: formattedRate, rate: data.rateDouble, dateString: data.lastUpdate)
-        let entry = SimpleEntry(date:Date(), currentMarketData: currentMarketData)
         if let cachedMarketData = marketData[.Current], currentMarketData.dateString != cachedMarketData?.dateString {
           marketData[.Previous] = marketData[.Current]
           marketData[.Current] = currentMarketData
-          entries.append(entry)
+          entryMarketData = currentMarketData
+          entries.append(SimpleEntry(date:Date(), currentMarketData: entryMarketData))
+        } else {
+          entries.append(SimpleEntry(date:Date(), currentMarketData: currentMarketData))
         }
       }
       
