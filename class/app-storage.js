@@ -16,7 +16,6 @@ import {
   HDSegwitElectrumSeedP2WPKHWallet,
   MultisigHDWallet,
 } from './';
-import { AbstractHDElectrumWallet } from './wallets/abstract-hd-electrum-wallet';
 import { Platform } from 'react-native';
 const encryption = require('../blue_modules/encryption');
 const Realm = require('realm');
@@ -59,7 +58,7 @@ export class AppStorage {
     } else {
       return AsyncStorage.setItem(key, value);
     }
-  }
+  };
 
   /**
    * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
@@ -68,13 +67,13 @@ export class AppStorage {
    * @param key
    * @returns {Promise<any>|*}
    */
-  getItem = (key) => {
+  getItem = key => {
     if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
       return RNSecureKeyStore.get(key);
     } else {
       return AsyncStorage.getItem(key);
     }
-  }
+  };
 
   setResetOnAppUninstallTo = async value => {
     if (Platform.OS === 'ios') {
@@ -396,7 +395,7 @@ export class AppStorage {
     const id = wallet.getID();
     const walletToSave = wallet._hdWalletInstance ?? wallet;
 
-    if (walletToSave instanceof AbstractHDElectrumWallet) {
+    if (walletToSave._txs_by_external_index) {
       realm.write(() => {
         const j1 = JSON.stringify(walletToSave._txs_by_external_index);
         const j2 = JSON.stringify(walletToSave._txs_by_internal_index);
