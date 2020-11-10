@@ -17,7 +17,12 @@ struct Provider: TimelineProvider {
   }
   
   func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-    let entry = SimpleEntry(date: Date(), currentMarketData: nil)
+    let entry: SimpleEntry
+    if (context.isPreview) {
+      entry = SimpleEntry(date: Date(), currentMarketData: MarketData(nextBlock: "", sats: "", price: "$10,000", rate: 10000, dateString: "2019-09-18T17:27:00+00:00"))
+    } else {
+      entry = SimpleEntry(date: Date(), currentMarketData: emptyMarketData)
+    }
     completion(entry)
   }
   
@@ -67,6 +72,7 @@ struct PriceWidgetEntryView : View {
   
   var body: some View {
     priceView.background(Color.widgetBackground)
+    
   }
 }
 
