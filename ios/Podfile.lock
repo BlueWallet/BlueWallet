@@ -390,7 +390,7 @@ PODS:
     - React
   - RNVectorIcons (6.6.0):
     - React
-  - RNWatch (1.0.2):
+  - RNWatch (1.0.3):
     - React
   - Sentry (5.2.2):
     - Sentry/Core (= 5.2.2)
@@ -739,7 +739,7 @@ SPEC CHECKSUMS:
   RNShare: 7a7277f3c313652422d9de072ac50714dff5e8a4
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
-  RNWatch: d56d00be49131ee454bb5a4a574f18506c8949e4
+  RNWatch: e4c5d19506c94506860032fb68aedd5991beb985
   Sentry: 8fa58a051237554f22507fb483b9a1de0171a2dc
   SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
   ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e

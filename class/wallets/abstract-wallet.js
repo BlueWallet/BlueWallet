@@ -23,7 +23,6 @@ export class AbstractWallet {
     this.secret = ''; // private key or recovery phrase
     this.balance = 0;
     this.unconfirmed_balance = 0;
-    this.transactions = [];
     this._address = false; // cache
     this.utxo = [];
     this._lastTxFetch = 0;
@@ -41,7 +40,7 @@ export class AbstractWallet {
   }
 
   getTransactions() {
-    return this.transactions;
+    throw new Error('not implemented');
   }
 
   getUserHasSavedExport() {
