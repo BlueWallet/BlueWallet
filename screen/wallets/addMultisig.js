@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
-import { Keyboard, Image, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
 import { BlueButton, BlueListItem, BlueNavigationStyle, BlueSpacing20 } from '../../BlueComponents';
@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const WalletsAddMultisig = () => {
-  const { colors, closeImage } = useTheme();
+  const { colors } = useTheme();
   const { navigate } = useNavigation();
   const loadingAnimation = useRef();
 
@@ -92,28 +92,20 @@ const WalletsAddMultisig = () => {
     setN(n - 1);
   };
 
-  const closeModal = () => {
-    Keyboard.dismiss();
-    setIsModalVisible(false);
-  };
-
   const renderModal = () => {
     return (
-      <Modal isVisible={isModalVisible} style={styles.bottomModal} onBackdropPress={closeModal}>
+      <Modal
+        isVisible={isModalVisible}
+        style={styles.bottomModal}
+        onBackdropPress={() => {
+          Keyboard.dismiss();
+          setIsModalVisible(false);
+        }}
+      >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
-            <View style={styles.modalHeader}>
-              <View style={styles.modalHeaderContent}>
-                <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
-                <Text style={[styles.textSubtitle, stylesHook.textSubtitle]}>{loc.multisig.required_keys_out_of_total}</Text>
-              </View>
-              <View style={styles.modalHeaderContentCloseButton}>
-                <TouchableOpacity onPress={closeModal}>
-                  <Image source={closeImage} />
-                </TouchableOpacity>
-              </View>
-            </View>
-
+            <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
+            <Text style={[styles.textSubtitle, stylesHook.textSubtitle]}>{loc.multisig.required_keys_out_of_total}</Text>
             <View style={styles.rowCenter}>
               <View style={styles.column}>
                 <TouchableOpacity onPress={increaseM} disabled={n === m || m === 7} style={styles.chevron}>
@@ -246,16 +238,6 @@ const styles = StyleSheet.create({
   bottomModal: {
     justifyContent: 'flex-end',
     margin: 0,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  modalHeaderContent: {
-    flexDirection: 'column',
-  },
-  modalHeaderContentCloseButton: {
-    justifyContent: 'center',
   },
   item: {
     paddingHorizontal: 0,
