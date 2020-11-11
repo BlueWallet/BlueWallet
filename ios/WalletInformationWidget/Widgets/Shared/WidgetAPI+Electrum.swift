@@ -36,9 +36,8 @@ extension WidgetAPI {
           if let response = String(bytes: data, encoding: .utf8), let nextBlockResponse = response.components(separatedBy: #"result":"#).last?.components(separatedBy: ",").first, let nextBlockResponseDouble = Double(nextBlockResponse.filter({characterSet.contains($0)}).trimmingCharacters(in: .whitespacesAndNewlines)) {
             print("Successfully obtained response from Electrum sever")
             print(userElectrumSettings)
-            let marketData = MarketData(nextBlock: String(format: "%.0f", (nextBlockResponseDouble / 1024) * 100000000), sats: "0", price: "0", rate: 0)
             client.close()
-            completion(MarketData(nextBlock: String(format: "%.0f", (nextBlockResponseDouble / 1024) * 100000000), sats: "0", price: "0", rate: 0), nil)
+            let marketData = MarketData(nextBlock: String(format: "%.0f", (nextBlockResponseDouble / 1024) * 100000000), sats: "0", price: "0", rate: 0)
             completion(marketData, nil)
           } else {
             client.close()
