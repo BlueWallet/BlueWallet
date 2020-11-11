@@ -11,6 +11,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import {
@@ -53,6 +54,8 @@ const staticCache = {};
 const WalletsAddMultisigStep2 = () => {
   const { addWallet, saveToDisk, setNewWalletAdded } = useContext(BlueStorageContext);
   const { colors } = useTheme();
+  const windowHeight = useWindowDimensions().height;
+  const windowWidth = useWindowDimensions().width;
 
   const navigation = useNavigation();
   const { m, n, format } = useRoute().params;
@@ -393,7 +396,7 @@ const WalletsAddMultisigStep2 = () => {
           checked={isChecked}
           rightButton={{
             disabled: vaultKeyData.isLoading,
-            text: loc.multisig.view_key,
+            text: loc.multisig.share,
             onPress: () => {
               viewKey(cosigners[el.index]);
             },
@@ -497,7 +500,13 @@ const WalletsAddMultisigStep2 = () => {
 
   const renderMnemonicsModal = () => {
     return (
-      <Modal isVisible={isMnemonicsModalVisible} style={styles.bottomModal} onBackdropPress={Keyboard.dismiss}>
+      <Modal
+        deviceHeight={windowHeight}
+        deviceWidth={windowWidth}
+        isVisible={isMnemonicsModalVisible}
+        style={styles.bottomModal}
+        onBackdropPress={Keyboard.dismiss}
+      >
         <View style={[styles.newKeyModalContent, stylesHook.modalContent]}>
           <View style={styles.itemKeyUnprovidedWrapper}>
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
@@ -525,6 +534,8 @@ const WalletsAddMultisigStep2 = () => {
   const renderProvideMnemonicsModal = () => {
     return (
       <Modal
+        deviceHeight={windowHeight}
+        deviceWidth={windowWidth}
         isVisible={isProvideMnemonicsModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
@@ -559,6 +570,8 @@ const WalletsAddMultisigStep2 = () => {
   const renderCosignersXpubModal = () => {
     return (
       <Modal
+        deviceHeight={windowHeight}
+        deviceWidth={windowWidth}
         isVisible={isRenderCosignersXpubModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
@@ -619,7 +632,7 @@ const WalletsAddMultisigStep2 = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    marginHorizontal: 20,
+    paddingHorizontal: 20,
   },
   mainBlock: {
     height: '100%',

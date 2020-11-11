@@ -193,7 +193,9 @@ const WalletsList = () => {
     const style = { opacity: isLoading ? 1.0 : 0.5 };
     return (
       <View style={[styles.listHeaderBack, stylesHook.listHeaderBack]}>
-        <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
+        <Text textBreakStrategy="simple" style={[styles.listHeaderText, stylesHook.listHeaderText]}>
+          {`${loc.transactions.list_title}${'  '}`}
+        </Text>
         {isDesktop && (
           <TouchableOpacity style={style} onPress={refreshTransactions} disabled={isLoading}>
             <Icon name="refresh" type="font-awesome" color={colors.feeText} />

@@ -35,7 +35,8 @@ struct WalletData {
   var balance: Double
   var latestTransactionTime: Int = 0
   var formattedBalanceBTC: String {
-      return "\(balance / 100000000) BTC"
+    let value = NSNumber(value: balance / 100000000);
+    return "\(value.decimalValue) BTC"
   }
 
 }

@@ -31,7 +31,6 @@ import HandoffSettings from '../../class/handoff';
 import Handoff from 'react-native-handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { getSystemName } from 'react-native-device-info';
 import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
@@ -656,12 +655,7 @@ const WalletTransactions = () => {
             }}
             icon={
               <View style={styles.receiveIcon}>
-                <Icon
-                  name="arrow-down"
-                  size={buttonFontSize}
-                  type="font-awesome"
-                  color={BlueCurrentTheme.colors.buttonAlternativeTextColor}
-                />
+                <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
               </View>
             }
           />
@@ -675,12 +669,7 @@ const WalletTransactions = () => {
             testID="SendButton"
             icon={
               <View style={styles.sendIcon}>
-                <Icon
-                  name="arrow-down"
-                  size={buttonFontSize}
-                  type="font-awesome"
-                  color={BlueCurrentTheme.colors.buttonAlternativeTextColor}
-                />
+                <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
               </View>
             }
           />

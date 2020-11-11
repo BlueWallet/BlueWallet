@@ -349,7 +349,7 @@ PODS:
     - React
   - RNCAsyncStorage (1.12.1):
     - React-Core
-  - RNCClipboard (1.4.0):
+  - RNCClipboard (1.5.0):
     - React-Core
   - RNCMaskedView (0.1.10):
     - React
@@ -719,7 +719,7 @@ SPEC CHECKSUMS:
   RealmJS: 899b4839a8bee46e248bc277995ad58da855e41f
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: cb9a623793918c6699586281f0b51cbc38f046f9
-  RNCClipboard: ce9b77f2881948e9e04af84bd70262ab37adb1c1
+  RNCClipboard: 8f9f12fabf3c06e976f19f87a62c89e28dfedfca
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNCPushNotificationIOS: eaf01f848a0b872b194d31bcad94bb864299e01e
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
