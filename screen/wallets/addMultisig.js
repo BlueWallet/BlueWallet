@@ -92,16 +92,14 @@ const WalletsAddMultisig = () => {
     setN(n - 1);
   };
 
+  const closeModal = () => {
+    Keyboard.dismiss();
+    setIsModalVisible(false);
+  };
+
   const renderModal = () => {
     return (
-      <Modal
-        isVisible={isModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          setIsModalVisible(false);
-        }}
-      >
+      <Modal isVisible={isModalVisible} style={styles.bottomModal} onBackdropPress={closeModal} onBackButtonPress={closeModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
             <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>

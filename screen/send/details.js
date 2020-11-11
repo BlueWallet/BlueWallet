@@ -727,6 +727,8 @@ export default class SendDetails extends Component {
     }
   };
 
+  hideFeeSelectionModal = () => this.setState({ isFeeSelectionModalVisible: false });
+
   renderFeeSelectionModal = () => {
     const { feePrecalc, fee, networkTransactionFees: nf } = this.state;
     const options = [
@@ -759,7 +761,8 @@ export default class SendDetails extends Component {
         deviceWidth={this.state.width + this.state.width / 2}
         isVisible={this.state.isFeeSelectionModalVisible}
         style={styles.bottomModal}
-        onBackdropPress={() => this.setState({ isFeeSelectionModalVisible: false })}
+        onBackdropPress={this.hideFeeSelectionModal}
+        onBackButtonPress={this.hideFeeSelectionModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
@@ -993,6 +996,11 @@ export default class SendDetails extends Component {
     );
   };
 
+  hideAdvancedTransactionOptionsModal = () => {
+    Keyboard.dismiss();
+    this.setState({ isAdvancedTransactionOptionsVisible: false });
+  };
+
   renderAdvancedTransactionOptionsModal = () => {
     const isSendMaxUsed = this.state.addresses.some(element => element.amount === BitcoinUnit.MAX);
     return (
@@ -1001,10 +1009,8 @@ export default class SendDetails extends Component {
         deviceWidth={this.state.width + this.state.width / 2}
         isVisible={this.state.isAdvancedTransactionOptionsVisible}
         style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isAdvancedTransactionOptionsVisible: false });
-        }}
+        onBackdropPress={this.hideAdvancedTransactionOptionsModal}
+        onBackButtonPress={this.hideAdvancedTransactionOptionsModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.advancedTransactionOptionsModalContent}>

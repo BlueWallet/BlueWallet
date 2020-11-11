@@ -497,7 +497,12 @@ const WalletsAddMultisigStep2 = () => {
 
   const renderMnemonicsModal = () => {
     return (
-      <Modal isVisible={isMnemonicsModalVisible} style={styles.bottomModal} onBackdropPress={Keyboard.dismiss}>
+      <Modal
+        isVisible={isMnemonicsModalVisible}
+        style={styles.bottomModal}
+        onBackButtonPress={Keyboard.dismiss}
+        onBackdropPress={Keyboard.dismiss}
+      >
         <View style={[styles.newKeyModalContent, stylesHook.modalContent]}>
           <View style={styles.itemKeyUnprovidedWrapper}>
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
@@ -522,16 +527,19 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
+  const hideProvideMnemonicsModal = () => {
+    Keyboard.dismiss();
+    setIsProvideMnemonicsModalVisible(false);
+    setImportText('');
+  };
+
   const renderProvideMnemonicsModal = () => {
     return (
       <Modal
         isVisible={isProvideMnemonicsModalVisible}
         style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          setIsProvideMnemonicsModalVisible(false);
-          setImportText('');
-        }}
+        onBackdropPress={hideProvideMnemonicsModal}
+        onBackButtonPress={hideProvideMnemonicsModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
@@ -556,15 +564,18 @@ const WalletsAddMultisigStep2 = () => {
     fs.writeFileAndExport(cosignerXpubFilename, cosignerXpub).finally(() => setIsLoading(false));
   };
 
+  const hideCosignersXpubModal = () => {
+    Keyboard.dismiss();
+    setIsRenderCosignersXpubModalVisible(false);
+  };
+
   const renderCosignersXpubModal = () => {
     return (
       <Modal
         isVisible={isRenderCosignersXpubModalVisible}
         style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          setIsRenderCosignersXpubModalVisible(false);
-        }}
+        onBackdropPress={hideCosignersXpubModal}
+        onBackButtonPress={hideCosignersXpubModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>

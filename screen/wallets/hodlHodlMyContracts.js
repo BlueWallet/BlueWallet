@@ -163,6 +163,11 @@ export default class HodlHodlMyContracts extends Component {
     });
   }
 
+  hideContractModal = () => {
+    Keyboard.dismiss();
+    this.setState({ isRenderContractVisible: false });
+  };
+
   renderContract = () => {
     if (!this.state.contractToDisplay) return;
 
@@ -171,10 +176,8 @@ export default class HodlHodlMyContracts extends Component {
         isVisible={this.state.isRenderContractVisible}
         style={styles.bottomModal}
         deviceHeight={windowHeight}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isRenderContractVisible: false });
-        }}
+        onBackdropPress={this.hideContractModal}
+        onBackButtonPress={this.hideContractModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
