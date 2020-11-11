@@ -393,7 +393,7 @@ const WalletsAddMultisigStep2 = () => {
           checked={isChecked}
           rightButton={{
             disabled: vaultKeyData.isLoading,
-            text: loc.multisig.view_key,
+            text: loc.multisig.share,
             onPress: () => {
               viewKey(cosigners[el.index]);
             },
