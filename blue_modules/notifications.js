@@ -9,6 +9,7 @@ const constants = require('./constants');
 const PUSH_TOKEN = 'PUSH_TOKEN';
 const GROUNDCONTROL_BASE_URI = 'GROUNDCONTROL_BASE_URI';
 const NOTIFICATIONS_STORAGE = 'NOTIFICATIONS_STORAGE';
+const NOTIFICATIONS_NO_AND_DONT_ASK_FLAG = 'NOTIFICATIONS_NO_AND_DONT_ASK_FLAG';
 let alreadyConfigured = false;
 let baseURI = constants.groundControlUri;
 
@@ -118,6 +119,10 @@ function Notifications(props) {
     });
   };
 
+  Notifications.cleanUserOptOutFlag = async function () {
+    return AsyncStorage.removeItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
+  };
+
   /**
    * Should be called when user is most interested in receiving push notifications.
    * If we dont have a token it will show alert asking whether
@@ -134,13 +139,26 @@ function Notifications(props) {
       return true;
     }
 
+    if (await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG)) {
+      // user doesnt want them
+      return false;
+    }
+
     return new Promise(function (resolve) {
       Alert.alert(
         loc.settings.notifications,
-        'Would you like to receive notifications when you get incoming payments?',
+        loc.notifications.would_you_like_to_receive_notifications,
         [
           {
-            text: 'Ask Me Later',
+            text: loc.notifications.no_and_dont_ask,
+            onPress: () => {
+              AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, '1');
+              resolve(false);
+            },
+            style: 'cancel',
+          },
+          {
+            text: loc.notifications.ask_me_later,
             onPress: () => {
               resolve(false);
             },
