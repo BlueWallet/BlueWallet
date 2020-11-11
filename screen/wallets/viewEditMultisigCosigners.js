@@ -230,7 +230,7 @@ const ViewEditMultisigCosigners = () => {
                 button={{
                   buttonType: MultipleStepsListItemButtohType.partial,
                   leftText,
-                  text: loc.multisig.view_key,
+                  text: loc.multisig.share,
                   disabled: vaultKeyData.isLoading,
                   onPress: () => {
                     setVaultKeyData({
@@ -268,7 +268,7 @@ const ViewEditMultisigCosigners = () => {
                 showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
                 button={{
                   leftText,
-                  text: loc.multisig.view_key,
+                  text: loc.multisig.share,
                   disabled: vaultKeyData.isLoading,
                   buttonType: MultipleStepsListItemButtohType.partial,
                   onPress: () => {
