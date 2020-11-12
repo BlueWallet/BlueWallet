@@ -152,15 +152,18 @@ const ViewEditMultisigCosigners = () => {
     }, []),
   );
 
+  const hideMnemonicsModal = () => {
+    Keyboard.dismiss();
+    setIsMnemonicsModalVisible(false);
+  };
+
   const renderMnemonicsModal = () => {
     return (
       <Modal
         isVisible={isMnemonicsModalVisible}
         style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          setIsMnemonicsModalVisible(false);
-        }}
+        onBackdropPress={hideMnemonicsModal}
+        onBackButtonPress={hideMnemonicsModal}
       >
         <View style={[styles.newKeyModalContent, stylesHook.modalContent]}>
           <View style={styles.itemKeyUnprovidedWrapper}>
@@ -418,16 +421,19 @@ const ViewEditMultisigCosigners = () => {
     }
   };
 
+  const hideProvideMnemonicsModal = () => {
+    Keyboard.dismiss();
+    setIsProvideMnemonicsModalVisible(false);
+    setImportText('');
+  };
+
   const renderProvideMnemonicsModal = () => {
     return (
       <Modal
         isVisible={isProvideMnemonicsModalVisible}
         style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          setIsProvideMnemonicsModalVisible(false);
-          setImportText('');
-        }}
+        onBackdropPress={hideProvideMnemonicsModal}
+        onBackButtonPress={hideProvideMnemonicsModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
@@ -458,9 +464,7 @@ const ViewEditMultisigCosigners = () => {
       </SafeAreaView>
     );
 
-  const footer = (
-    <BlueButtonHook disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />
-  );
+  const footer = <BlueButtonHook disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
 
   return (
     <SafeAreaView style={[styles.root, stylesHook.root]}>
