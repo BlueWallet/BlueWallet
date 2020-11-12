@@ -195,7 +195,8 @@ const styles = StyleSheet.create({
   scanQRCodeButton: {
     position: 'absolute',
     right: 0,
-    bottom: 36,
+    bottom: 20,
+    padding: 8,
   },
   qrCodeImage: {
     width: 24,
