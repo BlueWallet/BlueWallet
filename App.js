@@ -254,6 +254,7 @@ const App = () => {
         style={styles.bottomModal}
         deviceHeight={height}
         onBackdropPress={hideClipboardContentModal}
+        onBackButtonPress={hideClipboardContentModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>

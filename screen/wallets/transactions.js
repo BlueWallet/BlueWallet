@@ -257,6 +257,11 @@ const WalletTransactions = () => {
     );
   };
 
+  const hideManageFundsModal = () => {
+    Keyboard.dismiss();
+    setIsManageFundsModalVisible(false);
+  };
+
   const renderManageFundsModal = () => {
     return (
       <Modal
@@ -264,10 +269,8 @@ const WalletTransactions = () => {
         deviceWidth={windowWidth}
         isVisible={isManageFundsModalVisible}
         style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          setIsManageFundsModalVisible(false);
-        }}
+        onBackdropPress={hideManageFundsModal}
+        onBackButtonPress={hideManageFundsModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.advancedTransactionOptionsModalContent, stylesHook.advancedTransactionOptionsModalContent]}>
