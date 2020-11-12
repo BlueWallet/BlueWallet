@@ -1,5 +1,15 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
 import { BlueButton, BlueListItem, BlueNavigationStyle, BlueSpacing20 } from '../../BlueComponents';
@@ -21,6 +31,8 @@ const WalletsAddMultisig = () => {
   const [format, setFormat] = useState(MultisigHDWallet.FORMAT_P2WSH);
   const { isAdancedModeEnabled } = useContext(BlueStorageContext);
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
+  const windowHeight = useWindowDimensions().height;
+  const windowWidth = useWindowDimensions().width;
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -99,7 +111,14 @@ const WalletsAddMultisig = () => {
 
   const renderModal = () => {
     return (
-      <Modal isVisible={isModalVisible} style={styles.bottomModal} onBackdropPress={closeModal} onBackButtonPress={closeModal}>
+      <Modal
+        isVisible={isModalVisible}
+        style={styles.bottomModal}
+        deviceHeight={windowHeight}
+        deviceWidth={windowWidth}
+        onBackdropPress={closeModal}
+        onBackButtonPress={closeModal}
+      >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
             <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
