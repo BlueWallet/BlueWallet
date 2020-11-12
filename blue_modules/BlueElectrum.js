@@ -45,6 +45,17 @@ async function connectMain() {
   }
 
   try {
+    await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+    await DefaultPreference.set(AppStorage.ELECTRUM_HOST, usingPeer.host);
+    await DefaultPreference.set(AppStorage.ELECTRUM_TCP_PORT, usingPeer.tcp);
+    await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, usingPeer.ssl);
+    RNWidgetCenter.reloadAllTimelines();
+  } catch (e) {
+    // Must be running on Android
+    console.log(e);
+  }
+
+  try {
     console.log('begin connection:', JSON.stringify(usingPeer));
     mainClient = new ElectrumClient(usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp');
     mainClient.onError = function (e) {
@@ -105,17 +116,6 @@ async function getSavedPeer() {
   const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
   const port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
   const sslPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_SSL_PORT);
-  try {
-    await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-    await DefaultPreference.set(AppStorage.ELECTRUM_HOST, host);
-    await DefaultPreference.set(AppStorage.ELECTRUM_TCP_PORT, port);
-    await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, sslPort);
-    RNWidgetCenter.reloadAllTimelines();
-  } catch (e) {
-    // Must be running on Android
-    console.log(e);
-  }
-
   return { host, tcp: port, ssl: sslPort };
 }
 
