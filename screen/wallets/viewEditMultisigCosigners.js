@@ -54,6 +54,7 @@ const ViewEditMultisigCosigners = () => {
   const tempWallet = useRef(new MultisigHDWallet());
   const [wallet, setWallet] = useState();
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState(true);
   const [currentlyEditingCosignerNum, setCurrentlyEditingCosignerNum] = useState(false);
   const [isProvideMnemonicsModalVisible, setIsProvideMnemonicsModalVisible] = useState(false);
   const [isMnemonicsModalVisible, setIsMnemonicsModalVisible] = useState(false);
@@ -117,12 +118,13 @@ const ViewEditMultisigCosigners = () => {
     },
   });
 
-  const onSave = () => {
+  const onSave = async () => {
     setIsLoading(true);
     // eslint-disable-next-line prefer-const
     let newWallets = wallets.filter(w => {
       return w.getID() !== walletId;
     });
+    await wallet.fetchBalance();
     newWallets.push(wallet);
     setWalletsWithNewOrder(newWallets);
     goBack();
@@ -352,6 +354,7 @@ const ViewEditMultisigCosigners = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setWallet(wallet);
     setIsProvideMnemonicsModalVisible(false);
+    setIsSaveButtonDisabled(false);
   };
 
   const xpubInsteadOfSeed = index => {
@@ -366,6 +369,7 @@ const ViewEditMultisigCosigners = () => {
           wallet.addCosigner(xpub, newFp, path);
           LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
           setWallet(wallet);
+          setIsSaveButtonDisabled(false);
           resolve();
         } catch (e) {
           alert(e.message);
@@ -454,7 +458,9 @@ const ViewEditMultisigCosigners = () => {
       </SafeAreaView>
     );
 
-  const footer = <BlueButtonHook disabled={vaultKeyData.isLoading || isLoading} title={loc._.save} onPress={onSave} />;
+  const footer = (
+    <BlueButtonHook disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />
+  );
 
   return (
     <SafeAreaView style={[styles.root, stylesHook.root]}>
