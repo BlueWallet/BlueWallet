@@ -2348,10 +2348,6 @@ export class BlueBitcoinAmount extends Component {
                     if (text.startsWith('.')) {
                       text = '0.';
                     }
-                    text = text.replace(/(0{1,}.)\./g, '$1');
-                    if (this.state.unit !== BitcoinUnit.BTC) {
-                      text = text.replace(/[^0-9.]/g, '');
-                    }
                   } else if (this.state.unit === BitcoinUnit.LOCAL_CURRENCY) {
                     text = text.replace(/,/gi, '');
                     if (text.split('.').length > 2) {
@@ -2367,9 +2363,8 @@ export class BlueBitcoinAmount extends Component {
                       }
                       text = rez;
                     }
-                    text = text.replace(/[^\d.,-]/g, ''); // remove all but numberd, dots & commas
+                    text = text.replace(/[^\d.,-]/g, ''); // remove all but numbers, dots & commas
                   }
-
                   this.props.onChangeText(text);
                 }}
                 onBlur={() => {
@@ -2382,7 +2377,7 @@ export class BlueBitcoinAmount extends Component {
                 maxLength={this.maxLength()}
                 ref={textInput => (this.textInput = textInput)}
                 editable={!this.props.isLoading && !this.props.disabled}
-                value={parseFloat(amount) > 0 || amount === BitcoinUnit.MAX ? amount : undefined}
+                value={parseFloat(amount) >= 0 || amount === BitcoinUnit.MAX ? amount : undefined}
                 placeholderTextColor={
                   this.props.disabled ? BlueCurrentTheme.colors.buttonDisabledTextColor : BlueCurrentTheme.colors.alternativeTextColor2
                 }

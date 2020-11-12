@@ -458,9 +458,7 @@ const ViewEditMultisigCosigners = () => {
       </SafeAreaView>
     );
 
-  const footer = (
-    <BlueButtonHook disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />
-  );
+  const footer = <BlueButtonHook disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
 
   return (
     <SafeAreaView style={[styles.root, stylesHook.root]}>
