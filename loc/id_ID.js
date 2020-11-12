@@ -447,7 +447,7 @@ module.exports = {
       canceledDone: 'Dibatalkan - selesai',
       done: 'selesai',
       pending: 'tertunda',
-      unblocked: 'unblocked',
+      unblocked: 'Dibuka',
     },
     list: {
       conf: 'Konfirmasi',
