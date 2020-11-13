@@ -189,9 +189,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         }
       }
     } else {
-      // mnemonics. lets derive fingerprint
+      // mnemonics. lets derive fingerprint (if it wasnt provided)
       if (!bip39.validateMnemonic(key)) throw new Error('Not a valid mnemonic phrase');
-      fingerprint = MultisigHDWallet.seedToFingerprint(key);
+      fingerprint = fingerprint || MultisigHDWallet.seedToFingerprint(key);
     }
 
     if (fingerprint && this._cosignersFingerprints.indexOf(fingerprint.toUpperCase()) !== -1 && fingerprint !== '00000000') {
