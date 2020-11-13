@@ -290,6 +290,11 @@
     "save": "Save",
     "saved": "Saved"
   },
+  "notifications": {
+    "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",
+    "no_and_dont_ask": "No and dont ask",
+    "ask_me_later": "Ask Me Later"
+  },
   "transactions": {
     "cancel_explain": "We will replace this transaction with the one that pays you and has higher fees. This effectively cancels transaction. This is called RBF - Replace By Fee.",
     "cancel_no": "This transaction is not replaceable",

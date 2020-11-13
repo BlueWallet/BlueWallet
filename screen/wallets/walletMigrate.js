@@ -15,8 +15,15 @@ export default class WalletMigrate {
   // 0: Let's start!
   async start() {
     if (Platform.OS === 'ios') {
+      const defaultPreferenceGroupName = await DefaultPreference.getName();
+      console.log('----- defaultPreferenceGroupName');
+      console.log(defaultPreferenceGroupName);
+      console.log('----- ');
       const isNotFirstLaunch = await DefaultPreference.get('RnSksIsAppInstalled');
-      if (!isNotFirstLaunch) {
+      console.log('----- isNotFirstLaunch');
+      console.log(isNotFirstLaunch);
+      console.log('----- ');
+      if (isNotFirstLaunch === undefined) {
         try {
           console.warn('It is the first launch...');
           await RNSecureKeyStore.setResetOnAppUninstallTo(false);
@@ -26,10 +33,11 @@ export default class WalletMigrate {
           console.log('----- ');
           await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
           await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
-          await DefaultPreference.set('RnSksIsAppInstalled', '1');
         } catch (e) {
           console.log(e);
         }
+      } else {
+        console.warn('It is NOT the first launch...');
       }
       await DefaultPreference.set('RnSksIsAppInstalled', '1');
     }
