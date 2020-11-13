@@ -34,15 +34,15 @@ module.exports = {
   },
   advancedOptions: {
     description:
-      'Al activar las opciones avanzadas, podrá elegir entre los tipos de cartera enumerados a continuación: \n  P2SH, HD P2SH, HD segwit.',
+      'Al activar las opciones avanzadas, podrá elegir entre los tipos de monedero enumerados a continuación: \n  P2SH, HD P2SH, HD segwit.',
     title: 'Configurar opciones avanzadas',
   },
   authenticators: {
     add: {
       description:
-        'Abra su aplicación de escritorio de Electrum Vault y cree un nuevo monedero. Siga los pasos en la pantalla hasta que vea un código QR. Use esta aplicación para escanearlo y continuar.',
+        'Tendrá que emaprejar Gold Wallet con la aplicación de escritorio Electrum Vault. Servirá como autenticación de dos factores.',
       subdescription: 'También puede importar su autenticador al escoger la siguiente opción.',
-      subtitle: 'Emparejar autenticador',
+      subtitle: 'Crear un nuevo autenticador',
       successDescription:
         'Escriba esta frase mnemotécnica en un lugar seguro. Es su copia de seguridad en caso de que necesite recuperar su autenticador. Recuerde que se necesita el autenticador para confirmar transacciones rápidas y de cancelación.',
       successTitle: '¡Su autenticador está listo!',
@@ -55,7 +55,7 @@ module.exports = {
     },
     enterPIN: {
       description:
-        'Introduzca este Pin en la aplicación de escritorio de Electrum Vault para terminar el proceso de emparejamiento.',
+        'Introduzca este PIN en la aplicación de escritorio Electrum Vault para terminar el proceso de emparejamiento.',
       subtitle: 'Introduzca el PIN',
     },
     errors: {
@@ -115,13 +115,13 @@ module.exports = {
     button: 'Acepto el riesgo',
     description:
       'Aún está en fase de pruebas finales antes de su lanzamiento oficial. La aplicación móvil y todo el contenido que se encuentra en ella se proporciona "tal como está" y según "esté disponible". El uso del programa se realiza por cuenta y riesgo del usuario.',
-    title: 'Es una versión beta de GoldWallet',
+    title: 'Es versión beta de GoldWallet',
   },
   contactCreate: {
     addressLabel: 'Dirección',
     buttonLabel: 'Añadir nuevo contacto',
     description: 'Escriba nombre y dirección\n  para su nuevo contacto.',
-    nameCannotContainSpecialCharactersError: 'El nombre no puede contener carácteres especiales.',
+    nameCannotContainSpecialCharactersError: 'El nombre no puede contener caracteres especiales.',
     nameLabel: 'Nombre',
     nameMissingAlphanumericCharacterError: 'Falta el carácter alfanumérico del nombre.',
     screenTitle: 'Añadir nuevo contacto',
@@ -131,7 +131,7 @@ module.exports = {
     successTitle: 'Completado',
   },
   contactDelete: {
-    description1: '¿Está seguro de que quiere eliminarlo',
+    description1: '¿Está seguro de que quiere eliminar',
     description2: '?\n  No podrá deshacer esta operación.',
     header: 'Borrar contacto',
     no: 'No',
@@ -164,7 +164,7 @@ module.exports = {
   electrumServer: {
     connectionError: 'No se puede conectar al servidor Electrum proporcionado',
     description:
-      'Puede cambiar la dirección del servidor al que se conectará su aplicación. Se recomienda la dirección por defecto.',
+      'Puede cambiar la dirección del servidor al que se conectará su aplicación. Se recomienda la dirección predeterminada.',
     header: 'Servidor Electrum',
     host: 'host',
     port: 'puerto',
@@ -188,7 +188,7 @@ module.exports = {
     sent: 'Enviada',
     status: {
       canceled: 'Cancelada',
-      canceledDone: 'Cancelado-hecho',
+      canceledDone: 'Cancelada-hecha',
       done: 'Finalizada',
       pending: 'Pendiente',
     },
@@ -200,16 +200,17 @@ module.exports = {
   },
   message: {
     allDone: '¡Todo listo!',
-    bePatient: 'Tenga paciencia. Puede tardar un poco.',
-    cancelTxSuccess: 'Ha cancelado la transacción correctamente.\n  Sus monedas están de camino.',
+    bePatient: 'Tenga paciencia. Puede tardar un momento.',
+    cancelTxSuccess: 'Ha cancelado la transacción correctamente.\nSus monedas están de camino.',
     creatingAuthenticator: 'Creando su autenticador',
-    creatingAuthenticatorDescription: 'Tenga paciencia mientras se crea su autenticador.\n  Puede tardar un poco.',
-    creatingWallet: 'Creación de su monedero',
-    creatingWalletDescription: 'Tenga paciencia mientras creamos su monedero. Puede que lleve un tiempo.',
+    creatingAuthenticatorDescription: 'Tenga paciencia mientras se crea su autenticador.\nPuede tardar un momento.',
+    creatingWallet: 'Creando su monedero',
+    creatingWalletDescription: 'Tenga paciencia mientras se crea su monedero. Puede tardar un momento.',
     generateAddressesError: 'No se ha podido generar la dirección',
     hooray: '¡Hurra!',
-    importingAuthenticator: 'Importando tus autentificadores',
-    importingAuthenticatorDescription: 'Tenga paciencia mientras importamos su autenticador.\n  Puede tardar un poco.',
+    importingAuthenticator: 'Importando su autentificador',
+    importingAuthenticatorDescription:
+      'Tenga paciencia mientras se importa su autenticador.\n Puede tardar un momento.',
     noTransactions: 'No se ha encontrado ninguna transacción en el monedero',
     noTransactionsDesc: 'Es probable que esté intentando importar un monedero que nunca se ha usado',
     processing: 'Procesando',
@@ -222,10 +223,10 @@ module.exports = {
       'Algo salió mal mientras estábamos creando su monedero. Vuelva al Panel e inténtelo nuevamente.',
     success: 'Completado',
     successfullWalletDelete: 'Su monedero ha sido eliminado correctamente. Ahora puede volver al Panel.',
-    successfullWalletImport: 'Su monedero ha sido importado correctamente. Ahora puede volver al Panel.',
+    successfullWalletImport: 'Su monedero ha sido importado correctamente. Está listo para ser usado.',
     wrongMnemonic: 'Frase mnemotécnica incorrecta',
     wrongMnemonicDesc:
-      'Su frase mnemotécnica no coincide con ningún monedero compatible. Está intentado importar una frase mnemotécnica no válida o un monedero que no se ha usado nunca.',
+      'Su frase mnemotécnica no coincide con ningún monedero compatible. Está intentado importar una frase mnemotécnica no válida o un monedero que nunca se ha usado.',
   },
   onboarding: {
     changePin: 'Cambiar PIN',
@@ -240,7 +241,7 @@ module.exports = {
     createPinDescription:
       'Su PIN se utilizará para acceder a la aplicación. Puede cambiarlo más tarde en la sección de Configuración.',
     currentPin: 'PIN actual',
-    failedTimes: 'Veces que ha fallado',
+    failedTimes: 'Intentos fallidos',
     failedTimesErrorInfo: 'Después de tres intentos sin éxito, se bloqueará el acceso para',
     goBack: 'Volver',
     minutes: 'minutos.',
@@ -252,14 +253,14 @@ module.exports = {
     seconds: 'segundos',
     successButton: 'Ir al Panel',
     successButtonChangedPin: 'Volver a Configuración',
-    successDescription: '¡Bravo! \n  Ha creado con éxito su PIN.',
-    successDescriptionChangedPin: '¡Bravo! \n  Ha cambiado con éxito su PIN.',
-    tryAgain: 'Vuelva intentarlo luego de',
+    successDescription: '¡Bravo! \n Ha creado con éxito su PIN.',
+    successDescriptionChangedPin: '¡Bravo! \nHa cambiado con éxito su PIN.',
+    tryAgain: 'Vuelva a intentarlo después de',
   },
   receive: {
     details: {
-      amount: 'Cantidad',
-      receiveWithAmount: 'Recibir la cantidad de',
+      amount: 'Monto',
+      receiveWithAmount: 'Recibir un monto de',
       receiveWithAmountSubtitle:
         'Introduzca el monto que desea recibir. El código QR se actualizará en consecuencia para incluir ese monto.',
       share: 'Compartir',
@@ -276,7 +277,7 @@ module.exports = {
   },
   security: {
     jailBrokenPhone:
-      'Su dispositivo parece estar liberado. Esto puede producir riesgos de seguridad, errores u otros problemas. No recomendamos usar GoldWallet con un dispositivo liberado.',
+      'Su dispositivo parece estar desbloqueado. Esto puede producir riesgos de seguridad, errores u otros problemas. No recomendamos usar GoldWallet en un dispositivo desbloqueado.',
     noPinOrFingerprintSet:
       'Parece que su dispositivo no tiene PIN o huella dactilar configurada. No recomendamos usar el Monedero de Oro en un dispositivo no asegurado.',
     rootedPhone:
@@ -300,20 +301,20 @@ module.exports = {
       sendNow: 'Enviar ahora',
     },
     create: {
-      amount: 'Cantidad',
+      amount: 'Monto',
       fee: 'Comisión',
       headerText:
-        'Cuando hay una gran cantidad de transacciones pendientes en la red (> 1500), la tarifa más alta dará como resultado que su transacción se procese más rápido. Los valores típicos son 1-500 sat/b',
+        'Cuando hay una gran cantidad de transacciones pendientes en la red (> 1500), la tarifa más alta hará que su transacción se procese más rápido. Los valores típicos son de 1-500 sat/b',
       setTransactionFee: 'Establezca una comisión de transacción',
     },
     details: {
       address: 'dirección',
       address_field_is_not_valid: 'El campo de dirección no es válido',
-      amount_field_is_not_valid: 'El campo de cantidad no es válido',
-      amount_placeholder: 'cantidad a enviar (en BTCV)',
+      amount_field_is_not_valid: 'El campo de monto no es válido',
+      amount_placeholder: 'monto a enviar (en BTCV)',
       cancel: 'Cancelar',
       create: 'Crear factura',
-      create_tx_error: 'Se produjo un error al crear la transacción. Asegúrese de que la dirección sea válida.',
+      create_tx_error: 'Se produjo un error al crear la transacción. Asegúrese de que la dirección es válida.',
       fee: 'Comisión:',
       fee_field_is_not_valid: 'El campo de comisión no es válido',
       fee_placeholder: 'más la comisión de transacción (en BTCV)',
@@ -334,13 +335,13 @@ module.exports = {
     },
     header: 'Enviar monedas',
     recovery: {
-      confirmFirstSeed: 'Confirmar con Cancelar Frase Mnemotécnica',
+      confirmFirstSeed: 'Confirmar con Frase Mnemotécnica de Cancelación',
       confirmFirstSeedDesc:
         'Abra el primer documento PDF que generó al crear su monedero y escriba la frase mnemotécnica de la clave privada en el mismo orden',
       confirmSecondSeed: 'Confirmar con Frase Mnemotécnica Rápida',
       confirmSecondSeedDesc:
         'Abre el segundo documento PDF que generó al crear su monedero y escriba la frase mnemotécnica de la clave privada en el mismo orden.',
-      confirmSeed: 'Confirmar con Cancelar Frase Mnemotécnica',
+      confirmSeed: 'Confirmar con Frase Mnemotécnica de Cancelación',
       confirmSeedDesc:
         'Abra el documento PDF que generó al crear su monedero y escriba la frase mnemotécnica de la clave privada en el mismo orden.',
       recover: 'Cancelar',
@@ -357,22 +358,22 @@ module.exports = {
       alertDesc:
         'Esta transacción necesita 144 bloques o unas 24 horas para confirmarse. Puede cancelarla durante este tiempo.',
       fastSuccess: 'Su transacción rápida se ha realizado correctamente.',
-      instant: 'Rápida',
+      instant: 'Rápida y Segura',
       instantDesc: 'Esta transacción será confirmada inmediatamente. Úsela con extrema precaución.',
       lightningError:
-        'Esta dirección aparece para la factura de Lightning. Vaya a su monedero de Lightning para poder realizar el pago de esta factura.',
+        'Esta dirección parece corresponder a una factura de Lightning. Vaya a su monedero de Lightning para realizar el pago de esa factura.',
       scanInstantKeyDesc:
         'Abra el documento PDF que generó al crear su monedero y escanee el código QR de la clave privada para enviar la transacción.',
       scanInstantKeyTitle: 'Escanee la Clave Rápida',
       type: 'Tipo de transacción',
-      watchOnlyError: 'Los monederos de solo lectura no pueden enviar transacciones',
+      watchOnlyError: 'Los monederos que sean solo de lectura no pueden enviar transacciones',
     },
     warning: 'Aviso:',
     warningGeneral:
       'Aviso: Tenga en cuenta que en el proceso de utilizar la función de Transacción Segura, una parte de los fondos dejados en su monedero puede quedarse bloqueada. Es un procedimiento normal vinculado con UTXO y con los parámetros de la Blockchain del monedero de Bitcoin Vault. Sus fondos serán desbloqueados una vez la transacción se haya verificado (después de unas 24 horas) o cancelado (dentro de las 24 horas).',
   },
   settings: {
-    about: 'Acerca de',
+    about: 'Sobre',
     aboutUs: 'Sobre nosotros',
     advancedOptions: 'Opciones avanzadas',
     Biometrics: 'Permitir biometría',
@@ -396,15 +397,15 @@ module.exports = {
   timeCounter: {
     closeTheApp: 'Cerrar la aplicación',
     description:
-      'Se ha bloqueado su aplicación debido a los intentos de iniciar sesión sin éxito. Espere el tiempo necesario para poder volver a intentarlo.',
+      'Se ha bloqueado su aplicación debido a los intentos fallidos de iniciar sesión. Por favor, espere el tiempo necesario para volver a intentarlo.',
     title: 'Aplicación bloqueada',
-    tryAgain: 'Volver a intentarlo',
+    tryAgain: 'Volver a intentar',
   },
   transactions: {
     details: {
       addNote: 'Añadir nota',
       addToAddressBook: 'Agregar a la libreta de direcciones',
-      amount: 'Cantidad',
+      amount: 'Monto',
       blocked: 'Bloqueado',
       bytes: 'bytes',
       confirmations: 'confirmaciones',
@@ -428,7 +429,7 @@ module.exports = {
       toExternalWallet: 'Al monedero externo',
       toInternalWallet: 'Al monedero interno',
       totalReturnedFee: 'Comisión devuelta en total:',
-      transactioFee: 'Tarifa de transacción',
+      transactioFee: 'Comisión de transacción',
       transactionDetails: 'Detalles de la transacción',
       transactionHex: 'Transacción en hexadecimal',
       transactionHexDescription: 'Esta es una transacción hexadecimal, firmada y lista para ser transmitida a la red',
@@ -444,20 +445,20 @@ module.exports = {
       notEnoughBalance: 'No hay saldo suficiente. Por favor, intente enviar una cantidad menor.',
     },
     label: {
-      blocked: 'bloqueado',
+      blocked: 'bloqueada',
       canceled: 'cancelada',
-      canceledDone: 'cancelado-hecho',
-      done: 'finalizada',
+      canceledDone: 'cancelada-hecha',
+      done: 'hecha',
       pending: 'pendiente',
-      unblocked: 'desbloqueado',
+      unblocked: 'desbloqueada',
     },
     list: {
       conf: 'Confirmaciones',
     },
     transactionTypeLabel: {
-      canceled: 'Cancelación',
-      secure: 'Seguro',
-      secureFast: 'Rápida y segura',
+      canceled: 'Cancelada',
+      secure: 'Segura',
+      secureFast: 'Rápida y Segura',
       standard: 'Estándar',
     },
   },
@@ -470,58 +471,60 @@ module.exports = {
   unlockTransaction: {
     description: 'Ingrese la contraseña de la transacción para proceder.',
     headerText: 'Confirmar transacción',
-    title: 'Confirmar la contraseña de transacción',
+    title: 'Confirmar la transacción',
   },
   wallets: {
     add: {
-      addWalletButton: 'Añadir nuevo monedero',
+      addWalletButton: 'Agregar un monedero nuevo',
       advancedOptions: 'Opciones avanzadas',
-      air: 'Realiza transacciones estándar, de cancelación y rápidas.',
-      ar: 'Realiza transacciones estándar y de cancelación.',
-      description: 'Introduzca un nombre para su nuevo monedero.',
+      air: 'Realiza transacciones Seguras, de Cancelación y transacciones Seguras y Rápidas.',
+      ar: 'Realiza transacciones Seguras y de Cancelación.',
+      description: 'Elija un nombre para su nuevo monedero.',
       failed: 'No se ha podido crear el monedero',
       importWalletButton: 'Importar monedero',
       inputLabel: 'Nombre',
       legacy: 'Realiza tipos de transacciones predeterminadas.',
-      legacyHDP2SH: 'Contiene un árbol de direcciones P2SH generado de una semilla única de 12 palabras',
+      legacyHDP2SH:
+        'Contiene un árbol de direcciones P2SH generado a partir de una sola frase mnemotécnica de 12 palabras',
       legacyHDP2SHTitle: 'Legacy HD P2SH',
       LegacyHDSegWit:
-        'Contiene un árbol de direcciones de segwit nativas, generadas a partir de una semilla única de 12 palabras',
+        'Contiene un árbol de direcciones de segwit nativas, generado a partir de una sola frase mnemotécnica de 12 palabras',
       legacyHDSegWitTitle: 'LegacyHD SegWit',
-      LegacyP2SH: 'Contiene una única dirección P2SH',
+      LegacyP2SH: 'Contiene una sola dirección P2SH',
       legacyP2SHTitle: 'Legacy P2SH',
       legacyTitle: 'Legacy',
-      multipleAddresses: 'Múltiples direcciones',
+      multipleAddresses:
+        'Contiene un árbol de direcciones P2SH generado a partir de una sola frase mnemotécnica de 12 palabras',
       publicKeyError: 'La clave pública proporcionada no es válida',
       segwidAddress:
-        'Contiene un árbol de direcciones SegWit nativas, generadas a partir de una única semilla de 12 palabras',
+        'Contiene un árbol de direcciones SegWit nativas, generado a partir de una sola frase mnemotécnica de 12 palabras',
       singleAddress: 'Dirección única',
       subtitle: 'Ponga un nombre a su monedero',
-      title: 'Añadir nuevo monedero',
+      title: 'Agregar un monedero nuevo',
       walletType: 'Tipo de monedero',
     },
     addSuccess: {
       description:
-        'Su monedero ha sido creado. Tómese un momento para escribir esta frase mnemotécnica en una hoja de papel. Esta será su copia de seguridad en caso de que necesite recuperar el monedero.',
-      okButton: 'De acuerdo, ¡ya lo he escrito!',
-      subtitle: 'Completado',
-      title: 'Añadir nuevo monedero',
+        'Apunte esta frase mnemotécnica en algún lugar seguro. Es su copia de seguridad en caso de que necesite restaurar su monedero.',
+      okButton: 'De acuerdo, ¡lo he apuntado!',
+      subtitle: '¡Su monedero está listo! \n¡Ha creado su monedero!',
+      title: 'Agregar un monedero nuevo',
     },
     dashboard: {
-      allWallets: 'Todas las carteras',
+      allWallets: 'Todos los monederos',
       availableBalance: 'Saldo disponible',
       noTransactions: 'No hay transacciones para mostrar.',
       noWallets: 'No hay monederos',
       noWalletsDesc1: 'No hay monederos para mostrar.',
       noWalletsDesc2: 'para agregar su primer monedero.',
-      receive: 'Recibir monedas',
+      receive: 'Recibir',
       recover: 'Cancelar',
       send: 'Enviar monedas',
       title: 'Monederos',
       wallet: 'monedero',
     },
     deleteWallet: {
-      description1: '¿Está seguro de que quiere eliminarlo',
+      description1: '¿Está seguro de que quiere eliminar',
       description2: '? No podrá deshacer esta operación.',
       header: 'Eliminar monedero',
       no: 'No',
@@ -542,12 +545,13 @@ module.exports = {
     errors: {
       duplicatedPublicKey: 'Ya se ha agregado la clave pública',
       invalidMnemonic: 'Frase mnemotécnica no válida',
-      invalidMnemonicWordsNumber: 'Palabras proporcionadas {receivedWordsNumber} esperadas {expectedWordsNumber}',
+      invalidMnemonicWordsNumber:
+        'Palabras proporcionadas {receivedWordsNumber} palabras esperadas {expectedWordsNumber}',
       invalidPrivateKey: 'Clave privada no válida',
       invalidPublicKey: 'Clave pública no válida',
       invalidQrCode: 'Código QR no válido',
       invalidSign: 'No se ha podido firmar la transacción',
-      noIndexForWord: 'No se ha podido encontrar el índice por palabra: {word}',
+      noIndexForWord: 'No se ha podido encontrar el índice para la palabra: {word}',
     },
     export: {
       title: 'exportar monedero',
@@ -560,19 +564,19 @@ module.exports = {
       header: 'Monedero XPUB',
     },
     import: {
-      do_import: '¿Importar',
-      error: 'Error al importar. Asegúrese de que los datos proporcionados sean válidos.',
+      do_import: 'Importar',
+      error: 'Error al importar. Asegúrese de que los datos proporcionados son válidos.',
       explanation:
-        'Escriba aquí su clave mnemotécnica privada, WIF o cualquier cosa que tenga. GoldWallet hará todo lo posible para adivinar el formato correcto e importar su monedero',
+        'Escriba aquí su frase mnemotécnica, clave privada, WIF o cualquier cosa que tenga. GoldWallet hará todo lo posible para adivinar el formato correcto e importar su monedero',
       imported: 'Importado',
       scan_qr: 'o escanear el código QR en su lugar?',
       success: 'Completado',
       title: 'importar',
     },
     importWallet: {
-      chooseTypeDescription: 'Seleccione el tipo de monedero que desea importar',
+      chooseTypeDescription: 'Seleccione el tipo de monedero que desea importar.',
       customWords: 'Palabras personalizadas',
-      extendWithCustomWords: 'Extender esta semilla con palabras personalizadas',
+      extendWithCustomWords: 'Extender esta frase mnemotécnica con palabras personalizadas',
       header: 'Importar monedero',
       import: 'Importar',
       importARDescription1: 'Introduzca la frase mnemotécnica',
@@ -590,16 +594,16 @@ module.exports = {
         'Escriba aquí su frase mnemotécnica, clave privada, WIF o cualquier dato que tenga. GoldWallet hará todo lo posible para adivinar el formato correcto e importar su monedero.',
       title: 'Importe su monedero',
       unsupportedElectrumVaultMnemonic:
-        'Esta frase mnemotécnica es de Electrum Vault y actualmente no es compatible. Será compatible próximamente.',
+        'Esta frase mnemotécnica es de Electrum Vault y actualmente no es aspoyada. Será apoyada en un futuro próximo.',
       walletInUseValidationError: 'El monedero ya está en uso. Introduzca un monedero válido.',
       allWalletsValidationError: 'No puede introducir el nombre "Todos los monederos"',
     },
     publicKey: {
       instantDescription:
-        'Vaya al Generador de Claves web en un dispositivo diferente y use esta aplicación para escanear el código QR público. ¡Recuerde exportar sus claves como PDF!',
+        'Vaya al Generador de Claves web en un dispositivo diferente, refresque la página y use esta aplicación para escanear el nuevo código QR de clave pública. ¡Recuerde exportar sus claves como PDF!',
       instantSubtitle: 'Agregar Clave Rápida',
       recoveryDescription:
-        'Vaya al Generador de Claves web en un dispositivo diferente y use esta aplicación para escanear el código QR público. ¡Recuerde exportar sus claves como PDF!',
+        'Vaya al Generador de Claves web en un dispositivo diferente y use esta aplicación para escanear el código QR de clave pública. ¡Recuerde exportar sus claves como PDF!',
       recoverySubtitle: 'Agregar Clave de Cancelación',
       scan: 'Escanear',
       webKeyGenerator: 'Generador de claves web:',
@@ -615,7 +619,7 @@ module.exports = {
       imported_watchonly: 'Versión de solo lectura importada',
       imported_wif: 'WIF importado',
       input_password: 'Introduzca la contraseña',
-      password_explain: 'Esta es la clave privada cifrada BIP38',
+      password_explain: 'Esta es una clave privada BIP38 cifrada',
       wallet_already_exists: 'Este monedero ya existe',
       with_address: 'con dirección',
     },

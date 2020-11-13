@@ -27,7 +27,7 @@ module.exports = {
     buildWithAwesome: 'Bangun dengan hebat:',
     goToOurGithub: 'Masuk ke Github kami',
     header: 'Tentang kami',
-    rateGoldWallet: 'Beri peringkat GoldWallet',
+    rateGoldWallet: 'Beri rating GoldWallet',
     releaseNotes: 'Catatan rilis',
     runSelfTest: 'Jalankan tes mandiri',
     title: 'GoldWallet adalah dompet Bitcoin Vault gratis dan sumber terbuka. Dilisensi MIT.',
@@ -40,11 +40,11 @@ module.exports = {
   authenticators: {
     add: {
       description:
-        'Buka aplikasi desktop Electrum Vault lalu buat dompet baru. Ikuti langkah-langkah di layar hingga muncul kode QR. Gunakan aplikasi ini untuk memindainya untuk lanjut.',
+        'Hal ini akan diperlukan untuk menyambungkan Gold Wallet dengan aplikasi desktop Electrum Vault. Ini digunakan sebagai autentikasi dua-faktor.',
       subdescription: 'Anda juga dapat mengimpor authenticator dengan memilih opsi di bawah.',
-      subtitle: 'Sandingkan authenticator',
+      subtitle: 'Buat authenticator baru',
       successDescription:
-        'Tuliskan frasa benih ini di suatu tempat yang aman. Untuk berjaga-jaga seandainya Anda perlu memulihkan pengautentikasi. Ingat bahwa pengautentikasi diperlukan untuk mengonfirmasi transaksi Cepat dan Batalkan.',
+        'Tuliskan frasa benih ini di suatu tempat yang aman. Untuk berjaga-jaga seandainya Anda perlu memulihkan pengautentikasi. Ingat bahwa pengautentikasi diperlukan untuk mengonfirmasi transaksi Cepat dan Pembatalan.',
       successTitle: 'Authenticator Anda siap!',
       title: 'Tambahkan authenticator baru',
     },
@@ -167,7 +167,7 @@ module.exports = {
     host: 'host',
     port: 'port',
     save: 'Simpan',
-    successfullSave: 'Perubahan Anda berhasil disimpan. Mungkin dibutuhkan pemulaian ulang agar perubahan berlaku.',
+    successfullSave: 'Perubahan Anda berhasil disimpan. Restart mungkin diperlukan supaya perubahan berlaku.',
     title: 'Ubah server electrum',
     useDefault: 'Gunakan default',
   },
@@ -176,7 +176,7 @@ module.exports = {
     clearFilters: 'bersihkan filter',
     filter: 'filter',
     from: 'dari',
-    fromAmount: 'monto mínimo',
+    fromAmount: 'Dari jumlah',
     fromDate: 'dari tanggal',
     header: 'filter transaksi',
     receive: 'terima',
@@ -189,9 +189,9 @@ module.exports = {
       done: 'Selesai',
       pending: 'Tertunda',
     },
-    to: 'ke',
-    toAmount: 'ke jumlah',
-    toDate: 'ke tanggal',
+    to: 'Ke',
+    toAmount: 'Ke jumlah',
+    toDate: 'Ke tanggal',
     transactionStatus: 'Status transaksi',
     transactionType: 'Tipe transaksi',
   },
@@ -288,7 +288,8 @@ module.exports = {
     confirm: 'Konfirmasi',
     confirmation: 'Konfirmasi',
     header: 'Bahasa',
-    restartInfo: 'Saat memilih bahasa baru, mungkin dibutuhkan pemulaian ulang GoldWallet agar perubahan berlaku',
+    restartInfo:
+      'Saat memilih bahasa baru, mungkin dibutuhkan pemulaian ulang/restart GoldWallet agar perubahan berlaku',
   },
   send: {
     confirm: {
@@ -311,7 +312,7 @@ module.exports = {
       amount_placeholder: 'jumlah yang dikirimkan (dalam BTCV)',
       cancel: 'Batal',
       create: 'Buat Faktur',
-      create_tx_error: 'Ada kesalahan saat membuat transaksi. Harap pastikan alamat valid.',
+      create_tx_error: 'Terjadi kesalahan saat membuat transaksi. Harap pastikan alamat valid.',
       fee: 'Biaya:',
       fee_field_is_not_valid: 'Bidang biaya tidak valid',
       fee_placeholder: 'plus biaya transaksi (dalam BTCV)',
@@ -351,19 +352,19 @@ module.exports = {
       title: 'Berhasil',
     },
     transaction: {
-      alert: 'Standar',
+      alert: 'Aman',
       alertDesc:
         'Transaksi ini perlu 144 blok atau sekitar 24 jam untuk dikonfirmasi. Anda dapat membatalkannya selama waktu ini.',
       fastSuccess: 'Anda berhasil membuat transaksi cepat.',
-      instant: 'Cepat',
-      instantDesc: 'Transaksi ini akan segera dikonfirmasi. Gunakan dengan hati-hati.',
+      instant: 'Cepat Aman',
+      instantDesc: 'Transaksi ini akan segera dikonfirmasi. Gunakan dengan sangat hati-hati.',
       lightningError:
         'Alamat ini tampaknya merupakan faktur Lightning. Buka dompet Lightning Anda untuk melakukan pembayaran untuk faktur ini.',
       scanInstantKeyDesc:
         'Buka dokumen PDF yang Anda buat saat membuat dompet, lalu pindai kode QR Kunci Privat untuk mengirim transaksi.',
       scanInstantKeyTitle: 'Pindai Kunci Cepat',
       type: 'Tipe transaksi',
-      watchOnlyError: 'Dompet lihat saja tidak dapat mengirim transaksi',
+      watchOnlyError: 'Dompet lihat saja/watch only tidak dapat mengirim transaksi',
     },
     warning: 'Peringatan:',
     warningGeneral:
@@ -447,7 +448,7 @@ module.exports = {
       canceledDone: 'Dibatalkan - selesai',
       done: 'selesai',
       pending: 'tertunda',
-      unblocked: 'Dibuka',
+      unblocked: 'unblocked',
     },
     list: {
       conf: 'Konfirmasi',
@@ -468,7 +469,7 @@ module.exports = {
   unlockTransaction: {
     description: 'Konfirmasi Kata Sandi Transaksi untuk melanjutkan transaksi.',
     headerText: 'Konfirmasi transaksi',
-    title: 'Konfirmasi Kata Sandi Transaksi',
+    title: 'Konfirmasi Transaksi',
   },
   wallets: {
     add: {
@@ -484,24 +485,24 @@ module.exports = {
       legacyHDP2SH: 'Berisi pohon alamat P2SH yang dibuat dari satu benih 12 kata',
       legacyHDP2SHTitle: 'HD P2SH Legasi',
       LegacyHDSegWit: 'Berisi pohon alamat segwit asal, dibuat satu benih 12 kata',
-      legacyHDSegWitTitle: 'HD Segwit Legasi',
+      legacyHDSegWitTitle: 'HD Segwit Standar',
       LegacyP2SH: 'Berisi satu alamat P2SH',
-      legacyP2SHTitle: 'P2SH Legasi',
-      legacyTitle: 'Legasi',
-      multipleAddresses: 'Beberapa alamat',
+      legacyP2SHTitle: 'P2SH Standar',
+      legacyTitle: 'Standar',
+      multipleAddresses: 'Mengandung sebuah pohon alamat P2SH dari sebuah seed satuan 12-kata',
       publicKeyError: 'Kunci publik yang disediakan tidak valid',
       segwidAddress:
         'Alamat ini mengandung sebuah pohon dari alamat segwit native, yang dihasilkan oleh sebuah benih tunggal 12-kata',
-      singleAddress: 'Satu alamat',
+      singleAddress: 'Mengandung satu alamat P2SH',
       subtitle: 'Namai dompet Anda',
       title: 'Tambah dompet baru',
       walletType: 'Tipe dompet',
     },
     addSuccess: {
       description:
-        'Dompet Anda telah dibuat. Luangkan waktu sebentar untuk menulis frasa mnemonik ini di selembar kertas. Untuk berjaga-jaga. Anda dapat menggunakannya untuk memulihkan dompet di perangkat lain.',
+        'Dompet Anda telah dibuat. Luangkan waktu sebentar untuk menulis frasa mnemonik ini di selembar kertas sebagai cadangan/backup. Anda dapat menggunakannya untuk memulihkan dompet di perangkat lain.',
       okButton: 'Oke, saya sudah menuliskannya!',
-      subtitle: 'Berhasil',
+      subtitle: 'Dompet Anda sudah siap!\n\nDopet Anda telah dibuat!',
       title: 'Tambah dompet baru',
     },
     dashboard: {
@@ -513,7 +514,7 @@ module.exports = {
       noWalletsDesc2: 'untuk menambahkan dompet pertama Anda.',
       receive: 'Terima koin',
       recover: 'Batal',
-      send: 'Kirim koin',
+      send: 'Kirim',
       title: 'Dompet',
       wallet: 'dompet',
     },
@@ -551,7 +552,7 @@ module.exports = {
     },
     exportWallet: {
       header: 'Ekspor dompet',
-      title: 'Frasa mnemonik',
+      title: 'Frasa seed',
     },
     exportWalletXpub: {
       header: 'Dompet XPUB',
@@ -574,7 +575,7 @@ module.exports = {
       import: 'Impor',
       importARDescription1: 'Masukkan frasa benih (seed)',
       importARDescription2: 'pindai kode QR dompet yang ingin Anda impor',
-      placeholder: 'Mnemonik, kunci pribadi, WIF',
+      placeholder: 'Frasa benih (seed), kunci pribadi, WIF',
       scanCancelPubKey: 'Pindai kode QR Kunci Pembatalan',
       scanFastPubKey: 'Pindai kode QR Kunci Cepat',
       scanPublicKeyDescription:
@@ -588,7 +589,7 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         'Benih ini berasal dari Electrum Vault dan belum didukung. Akan didukung di masa yang akan datang.',
       walletInUseValidationError: 'Dompet sudah digunakan. Masukkan dompet yang valid.',
-      allWalletsValidationError: 'Anda tidak bisa memasukkan nama "semua dompet"',
+      allWalletsValidationError: 'Anda tidak bisa memasukkan nama "Semua dompet"',
     },
     publicKey: {
       instantDescription:
