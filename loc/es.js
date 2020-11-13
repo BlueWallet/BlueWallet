@@ -486,13 +486,13 @@ module.exports = {
       legacy: 'Realiza tipos de transacciones predeterminadas.',
       legacyHDP2SH:
         'Contiene un árbol de direcciones P2SH generado a partir de una sola frase mnemotécnica de 12 palabras',
-      legacyHDP2SHTitle: 'Legacy HD P2SH',
+      legacyHDP2SHTitle: 'Estándar HD P2SH',
       LegacyHDSegWit:
         'Contiene un árbol de direcciones de segwit nativas, generado a partir de una sola frase mnemotécnica de 12 palabras',
-      legacyHDSegWitTitle: 'LegacyHD SegWit',
+      legacyHDSegWitTitle: 'EstándarHD SegWit',
       LegacyP2SH: 'Contiene una sola dirección P2SH',
-      legacyP2SHTitle: 'Legacy P2SH',
-      legacyTitle: 'Legacy',
+      legacyP2SHTitle: 'Estándar P2SH',
+      legacyTitle: 'Estándar',
       multipleAddresses:
         'Contiene un árbol de direcciones P2SH generado a partir de una sola frase mnemotécnica de 12 palabras',
       publicKeyError: 'La clave pública proporcionada no es válida',
@@ -596,7 +596,7 @@ module.exports = {
       unsupportedElectrumVaultMnemonic:
         'Esta frase mnemotécnica es de Electrum Vault y actualmente no es aspoyada. Será apoyada en un futuro próximo.',
       walletInUseValidationError: 'El monedero ya está en uso. Introduzca un monedero válido.',
-      allWalletsValidationError: 'No puede introducir el nombre "Todos los monederos"',
+      allWalletsValidationError: 'No puede introducir el nombre "Todos monederos"',
     },
     publicKey: {
       instantDescription:
@@ -614,7 +614,7 @@ module.exports = {
       cancel: 'Cancelar',
       decoding: 'Descifrando',
       go_back: 'Volver',
-      imported_legacy: 'Legacy importado',
+      imported_legacy: 'Estándar importado',
       imported_segwit: 'SegWit importado',
       imported_watchonly: 'Versión de solo lectura importada',
       imported_wif: 'WIF importado',

@@ -555,6 +555,7 @@ const tr = {
       title: 'Cüzdanınızı içeri aktarın',
       unsupportedElectrumVaultMnemonic: 'Bu kök Electrum Vault’tandır ve şu anda desteklenmemektedir. Yakın gelecekte desteklenecektir.',
       walletInUseValidationError: 'Cüzdan zaten kullanılıyor. Lütfen geçerli bir cüzdan girin.',
+      allWalletsValidationError: '\"Tüm Cüzdanlar\" kelimesi kullanamazsınız',
     },
     publicKey: {
       instantDescription: 'Ayrı bir cihazdan web Anahtarı Oluşturucuya gidin ve Açık Anahtar QR kodunu taratmak için bu uygulamayı kullanın. Anahtarlarınızı PDF olarak dışarı aktarmayı unutmayın!',

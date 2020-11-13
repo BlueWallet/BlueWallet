@@ -555,6 +555,7 @@ const vi = {
       title: 'Nhập ví của quý khách',
       unsupportedElectrumVaultMnemonic: 'Từ khóa hạt giống này là từ Electrum Vault và hiện không được hỗ trợ. Sẽ được hỗ trợ trong thời gian sắp tới.',
       walletInUseValidationError: 'Ví đã được sử dụng. Vui lòng nhập ví hợp lệ.',
+      allWalletsValidationError: 'Bạn không thể nhập tên \"\"Tất cả các ví\"\"',
     },
     publicKey: {
       instantDescription: 'Truy cập Trình tạo Khóa web trên một thiết bị riêng biệt và sử dụng ứng dụng này để quét mã QR Khóa Công khai. Hãy nhớ xuất các khóa của bạn dưới dạng PDF!',
