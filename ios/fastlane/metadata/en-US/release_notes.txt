@@ -1,3 +1,17 @@
+v5.6.5
+======
+
+* ADD: Price Current/Previous Widget
+* ADD: Allow image for importing wallet
+* FIX: wallets are not refreshing when app boots
+* FIX: wallets are not refreshing when they are navigated to
+* FIX: Some colors were not using usetheme
+* FIX: Track time first seen of unconfirmed transactions
+* FIX: missing transactions after restart for single-address wallets
+* FIX: locales nl_NL, ru
+* FIX: Widget Fiat calculation
+* FIX: 'RnSksIsAppInstalled' was being read from the wrong suite
+
 v5.6.3
 ======
 
@@ -65,29 +79,3 @@ v5.5.9
 * FIX: Only send wallets to watch app if installed
 * FIX: Send Max not working
 * FIX: Reorder screen is broken
-
-
-v5.5.8
-======
-
-* ADD: Split for large devices
-* ADD: Export file option
-* ADD: Arabic, Slovenian & Hebrew language
-* ADD: KES, NGN, TWD Fiat
-* FIX: After broadcast, value of sent transaction is incorrect
-* FIX: transaction time when using ElectrumPersonalServer
-* FIX: some ElectrumPersonalServer txs stay unconfirmed
-* FIX: Fixed dark/light theme switch
-* FIX: updated languages pt_BR, pt_PT, es_ES, sl_SI, de_DE, fr_FR, cs_CZ, ja_JP, it, ru, he
-* FIX: create-ln-invoice - button is not blocked, which can lead to multiple invoices created
-* FIX: If user has approved notifications, send hash from watch
-* FIX: If Camera not authorized, show Alert.
-* FIX: Only show direct export
-* FIX: better handling of errors from HodlHodl
-* FIX: Safello buy-bitcoin flow
-* FIX: Request location authorization for HodlHodl
-* FIX: Settings|Network|Lightning Settings fails input for leading or trailing blank
-* FIX: show Import file option
-* FIX: Background had wrong color during loading phase
-* REF: speeded up large wallets (>3k txs)
-* REF: speedup onchain wallet creation
