@@ -292,6 +292,7 @@ const ReceiveDetails = () => {
         isVisible={isCustomModalVisible}
         style={styles.bottomModal}
         onBackdropPress={dismissCustomAmountModal}
+        onBackButtonPress={dismissCustomAmountModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>

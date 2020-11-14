@@ -784,6 +784,7 @@ export const BlueListItem = React.memo(props => {
       topDivider={props.topDivider !== undefined ? props.topDivider : false}
       testID={props.testID}
       onPress={props.onPress}
+      disabled={props.disabled}
     >
       {props.leftAvatar && <Avatar>{props.leftAvatar}</Avatar>}
       {props.leftIcon && <Avatar icon={props.leftIcon} />}
@@ -1638,7 +1639,13 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     [colors.lightBorder],
   );
 
-  const title = useMemo(() => transactionTimeToReadable(item.received), [item.received]);
+  const title = useMemo(() => {
+    if (item.confirmations === 0) {
+      return loc.transactions.pending;
+    } else {
+      return transactionTimeToReadable(item.received);
+    }
+  }, [item.confirmations, item.received]);
   const txMemo = txMetadata[item.hash]?.memo ?? '';
   const subtitle = useMemo(() => {
     let sub = item.confirmations < 7 ? loc.formatString(loc.transactions.list_conf, { number: item.confirmations }) : '';

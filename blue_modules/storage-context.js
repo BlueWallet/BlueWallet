@@ -33,14 +33,13 @@ export const BlueStorageProvider = ({ children }) => {
   const refreshAllWalletTransactions = async lastSnappedTo => {
     let noErr = true;
     try {
-      // await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
       const balanceStart = +new Date();
-      await fetchWalletBalances(lastSnappedTo || 0);
+      await fetchWalletBalances(lastSnappedTo);
       const balanceEnd = +new Date();
       console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
       const start = +new Date();
-      await fetchWalletTransactions(lastSnappedTo || 0);
+      await fetchWalletTransactions(lastSnappedTo);
       const end = +new Date();
       console.log('fetch tx took', (end - start) / 1000, 'sec');
     } catch (err) {

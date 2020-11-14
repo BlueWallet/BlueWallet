@@ -33,7 +33,6 @@ const A = require('../../blue_modules/analytics');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const isDesktop = getSystemName() === 'Mac OS X';
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
-let lastSnappedTo = 0;
 
 const WalletsList = () => {
   const walletsCarousel = useRef();
@@ -134,13 +133,19 @@ const WalletsList = () => {
   };
 
   /**
-   * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet.
+   * Forcefully fetches TXs and balance for ALL wallets.
    * Triggered manually by user on pull-to-refresh.
    */
   const refreshTransactions = () => {
     setIsLoading(true);
-    refreshAllWalletTransactions(lastSnappedTo).finally(() => setIsLoading(false));
+    refreshAllWalletTransactions().finally(() => setIsLoading(false));
   };
+
+  useEffect(
+    refreshTransactions,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  ); // call refreshTransactions() only once, when screen mounts
 
   const handleClick = index => {
     console.log('click', index);
@@ -185,14 +190,20 @@ const WalletsList = () => {
 
   const onSnapToItem = index => {
     console.log('onSnapToItem', index);
-    lastSnappedTo = index;
+    if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
+      console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
+      setIsLoading(true);
+      refreshAllWalletTransactions(index).finally(() => setIsLoading(false));
+    }
   };
 
   const renderListHeaderComponent = () => {
     const style = { opacity: isLoading ? 1.0 : 0.5 };
     return (
       <View style={[styles.listHeaderBack, stylesHook.listHeaderBack]}>
-        <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
+        <Text textBreakStrategy="simple" style={[styles.listHeaderText, stylesHook.listHeaderText]}>
+          {`${loc.transactions.list_title}${'  '}`}
+        </Text>
         {isDesktop && (
           <TouchableOpacity style={style} onPress={refreshTransactions} disabled={isLoading}>
             <Icon name="refresh" type="font-awesome" color={colors.feeText} />
@@ -219,6 +230,7 @@ const WalletsList = () => {
   };
 
   const renderLocalTrader = () => {
+    if (carouselData.every(wallet => wallet === false)) return null;
     if (carouselData.length > 0 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
       return (
         <TouchableOpacity

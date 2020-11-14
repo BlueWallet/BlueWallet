@@ -290,6 +290,11 @@
     "save": "Save",
     "saved": "Saved"
   },
+  "notifications": {
+    "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",
+    "no_and_dont_ask": "No and dont ask",
+    "ask_me_later": "Ask Me Later"
+  },
   "transactions": {
     "cancel_explain": "We will replace this transaction with the one that pays you and has higher fees. This effectively cancels transaction. This is called RBF - Replace By Fee.",
     "cancel_no": "This transaction is not replaceable",
@@ -310,8 +315,9 @@
     "details_title": "Transaction",
     "details_to": "Output",
     "details_transaction_details": "Transaction details",
-    "enable_hw": "This wallet is not being used in conjunction with a hardwarde wallet. Would you like to enable hardware wallet use?",
+    "enable_hw": "This wallet is not being used in conjunction with a hardware wallet. Would you like to enable hardware wallet use?",
     "list_conf": "conf: {number}",
+    "pending": "Pending",
     "list_title": "transactions",
     "rbf_explain": "We will replace this transaction with the one with a higher fee, so it should be mined faster. This is called RBF - Replace By Fee.",
     "rbf_title": "Bump fee (RBF)",
@@ -436,7 +442,7 @@
     "please_write_down_mnemonics": "Please write down this mnemonic phrase on paper. Don't worry, you can write it down later.",
     "i_wrote_it_down": "Ok, I wrote it down",
     "type_your_mnemonics": "Insert a seed to import your existing vault key",
-    "this_is_cosigners_xpub": "This is cosigner's xpub, ready to be imported in other wallet. It is safe to share it.",
+    "this_is_cosigners_xpub": "This is the cosigner's xpub, ready to be imported into another wallet. It is safe to share it.",
     "wallet_key_created": "Your vault key was created. Take a moment to safely backup your mnemonic seed",
     "are_you_sure_seed_will_be_lost": "Are you sure? Your mnemonic seed will be lost if you dont have a backup",
     "forget_this_seed": "Forget this seed and use xpub instead",

@@ -475,7 +475,7 @@ const WalletDetails = () => {
               <BlueSpacing20 />
               <BlueSpacing20 />
               <TouchableOpacity onPress={handleDeleteButtonTapped}>
-                <Text style={styles.delete}>{loc.wallets.details_delete}</Text>
+                <Text textBreakStrategy="simple" style={styles.delete}>{`${loc.wallets.details_delete}${'  '}`}</Text>
               </TouchableOpacity>
             </View>
           </BlueCard>

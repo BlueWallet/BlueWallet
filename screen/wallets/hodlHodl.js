@@ -362,16 +362,19 @@ export default class HodlHodl extends Component {
     return loc.hodl.filter_country_global;
   }
 
+  hideChooseSideModal = () => {
+    Keyboard.dismiss();
+    this.setState({ isChooseSideModalVisible: false });
+  };
+
   renderChooseSideModal = () => {
     return (
       <Modal
         isVisible={this.state.isChooseSideModalVisible}
         style={styles.bottomModal}
         deviceHeight={windowHeight}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isChooseSideModalVisible: false });
-        }}
+        onBackdropPress={this.hideChooseSideModal}
+        onBackButtonPress={this.hideChooseSideModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContentShort}>
@@ -402,6 +405,11 @@ export default class HodlHodl extends Component {
     );
   };
 
+  hideFiltersModal = () => {
+    Keyboard.dismiss();
+    this.setState({ isFiltersModalVisible: false });
+  };
+
   renderFiltersModal = () => {
     return (
       <Modal
@@ -417,10 +425,8 @@ export default class HodlHodl extends Component {
             });
           }
         }}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isFiltersModalVisible: false });
-        }}
+        onBackdropPress={this.hideFiltersModal}
+        onBackButtonPress={this.hideFiltersModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContentShort}>
@@ -474,6 +480,11 @@ export default class HodlHodl extends Component {
     );
   };
 
+  hideChooseCountryModal = () => {
+    Keyboard.dismiss();
+    this.setState({ isChooseCountryModalVisible: false });
+  };
+
   renderChooseContryModal = () => {
     const countries2render = [];
 
@@ -515,10 +526,8 @@ export default class HodlHodl extends Component {
         deviceHeight={windowHeight}
         isVisible={this.state.isChooseCountryModalVisible}
         style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isChooseCountryModalVisible: false });
-        }}
+        onBackdropPress={this.hideChooseCountryModal}
+        onBackButtonPress={this.hideChooseCountryModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
@@ -562,6 +571,11 @@ export default class HodlHodl extends Component {
     );
   };
 
+  hideChooseCurrencyModal = () => {
+    Keyboard.dismiss();
+    this.setState({ isChooseCurrencyVisible: false });
+  };
+
   renderChooseCurrencyModal = () => {
     const currencies2render = [];
 
@@ -592,10 +606,8 @@ export default class HodlHodl extends Component {
         isVisible={this.state.isChooseCurrencyVisible}
         style={styles.bottomModal}
         deviceHeight={windowHeight}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isChooseCurrencyVisible: false });
-        }}
+        onBackdropPress={this.hideChooseCurrencyModal}
+        onBackButtonPress={this.hideChooseCurrencyModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
@@ -639,6 +651,11 @@ export default class HodlHodl extends Component {
     );
   };
 
+  hideChooseMethodModal = () => {
+    Keyboard.dismiss();
+    this.setState({ isChooseMethodVisible: false });
+  };
+
   renderChooseMethodModal = () => {
     const methods2render = [];
 
@@ -669,10 +686,8 @@ export default class HodlHodl extends Component {
         isVisible={this.state.isChooseMethodVisible}
         style={styles.bottomModal}
         deviceHeight={windowHeight}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isChooseMethodVisible: false });
-        }}
+        onBackdropPress={this.hideChooseMethodModal}
+        onBackButtonPress={this.hideChooseMethodModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>

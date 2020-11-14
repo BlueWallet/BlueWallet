@@ -11,8 +11,8 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
-  ScrollView,
 } from 'react-native';
 import {
   BlueButton,
@@ -54,6 +54,8 @@ const staticCache = {};
 const WalletsAddMultisigStep2 = () => {
   const { addWallet, saveToDisk, setNewWalletAdded } = useContext(BlueStorageContext);
   const { colors } = useTheme();
+  const windowHeight = useWindowDimensions().height;
+  const windowWidth = useWindowDimensions().width;
 
   const navigation = useNavigation();
   const { m, n, format } = useRoute().params;
@@ -88,10 +90,10 @@ const WalletsAddMultisigStep2 = () => {
       color: colors.foregroundColor,
     },
     modalContentShort: {
-      backgroundColor: colors.elevated,
+      backgroundColor: colors.modal,
     },
     modalContent: {
-      backgroundColor: colors.elevated,
+      backgroundColor: colors.modal,
     },
     textFiat: {
       color: colors.alternativeTextColor,
@@ -125,6 +127,9 @@ const WalletsAddMultisigStep2 = () => {
     },
     wordText: {
       color: colors.labelText,
+    },
+    headerText: {
+      color: colors.foregroundColor,
     },
   });
 
@@ -391,7 +396,7 @@ const WalletsAddMultisigStep2 = () => {
           checked={isChecked}
           rightButton={{
             disabled: vaultKeyData.isLoading,
-            text: loc.multisig.view_key,
+            text: loc.multisig.share,
             onPress: () => {
               viewKey(cosigners[el.index]);
             },
@@ -495,7 +500,14 @@ const WalletsAddMultisigStep2 = () => {
 
   const renderMnemonicsModal = () => {
     return (
-      <Modal isVisible={isMnemonicsModalVisible} style={styles.bottomModal} onBackdropPress={Keyboard.dismiss}>
+      <Modal
+        isVisible={isMnemonicsModalVisible}
+        style={styles.bottomModal}
+        onBackButtonPress={Keyboard.dismiss}
+        deviceHeight={windowHeight}
+        deviceWidth={windowWidth}
+        onBackdropPress={Keyboard.dismiss}
+      >
         <View style={[styles.newKeyModalContent, stylesHook.modalContent]}>
           <View style={styles.itemKeyUnprovidedWrapper}>
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
@@ -520,16 +532,21 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
+  const hideProvideMnemonicsModal = () => {
+    Keyboard.dismiss();
+    setIsProvideMnemonicsModalVisible(false);
+    setImportText('');
+  };
+
   const renderProvideMnemonicsModal = () => {
     return (
       <Modal
+        deviceHeight={windowHeight}
+        deviceWidth={windowWidth}
         isVisible={isProvideMnemonicsModalVisible}
         style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          setIsProvideMnemonicsModalVisible(false);
-          setImportText('');
-        }}
+        onBackdropPress={hideProvideMnemonicsModal}
+        onBackButtonPress={hideProvideMnemonicsModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
@@ -554,29 +571,35 @@ const WalletsAddMultisigStep2 = () => {
     fs.writeFileAndExport(cosignerXpubFilename, cosignerXpub).finally(() => setIsLoading(false));
   };
 
+  const hideCosignersXpubModal = () => {
+    Keyboard.dismiss();
+    setIsRenderCosignersXpubModalVisible(false);
+  };
+
   const renderCosignersXpubModal = () => {
     return (
       <Modal
+        deviceHeight={windowHeight}
+        deviceWidth={windowWidth}
         isVisible={isRenderCosignersXpubModalVisible}
         style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          setIsRenderCosignersXpubModalVisible(false);
-        }}
+        onBackdropPress={hideCosignersXpubModal}
+        onBackButtonPress={hideCosignersXpubModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
-            <Text style={[styles.headerText]}>{loc.multisig.this_is_cosigners_xpub}</Text>
+            <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
             <BlueSpacing20 />
-            <QRCode
-              value={cosignerXpub}
-              size={250}
-              color="#000000"
-              logoBackgroundColor={colors.brandingColor}
-              backgroundColor="#FFFFFF"
-              ecl="H"
-            />
-
+            <View style={styles.qrCodeContainer}>
+              <QRCode
+                value={cosignerXpub}
+                size={260}
+                color="#000000"
+                logoBackgroundColor={colors.brandingColor}
+                backgroundColor="#FFFFFF"
+                ecl="H"
+              />
+            </View>
             <BlueSpacing20 />
             <View style={styles.squareButtonWrapper}>
               {isLoading ? (
@@ -599,30 +622,24 @@ const WalletsAddMultisigStep2 = () => {
   );
 
   return (
-    <ScrollView contentContainerStyle={[styles.root, stylesHook.root]}>
+    <View style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="light-content" />
-      <BlueSpacing20 />
-      <View style={[styles.root, stylesHook.root, styles.mainBlock]}>
-        <StatusBar barStyle="light-content" />
-        <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+      <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
 
-        {renderMnemonicsModal()}
+      {renderMnemonicsModal()}
 
-        {renderProvideMnemonicsModal()}
+      {renderProvideMnemonicsModal()}
 
-        {renderCosignersXpubModal()}
-      </View>
+      {renderCosignersXpubModal()}
       {footer}
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    marginTop: -8,
-    flexDirection: 'column',
-    height: '100%',
+    paddingHorizontal: 20,
   },
   mainBlock: {
     height: '100%',
@@ -664,7 +681,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 8,
   },
-   buttonContainer: {
+  buttonContainer: {
     flexDirection: 'row',
     marginVertical: 24,
     alignItems: 'center',
@@ -732,6 +749,7 @@ const styles = StyleSheet.create({
   header2Text: { color: '#9AA0AA', fontSize: 14, paddingBottom: 20 },
   alignItemsCenter: { alignItems: 'center' },
   squareButtonWrapper: { height: 50, width: 250 },
+  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
 });
 
 WalletsAddMultisigStep2.navigationOptions = () => ({

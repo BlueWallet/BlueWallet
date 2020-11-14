@@ -30,6 +30,7 @@ const NotificationSettings = () => {
     setNotificationsEnabled(value); // so the slider is not 'jumpy'
     if (value) {
       // user is ENABLING notifications
+      await Notifications.cleanUserOptOutFlag();
       if (await Notifications.getPushToken()) {
         // we already have a token, so we just need to reenable ALL level on groundcontrol:
         await Notifications.setLevels(true);
