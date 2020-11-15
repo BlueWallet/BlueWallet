@@ -711,6 +711,13 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getCosignerForFingerprint(fp1cobo), Zpub1);
     assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.howManySignaturesCanWeMake(), 1);
+
+    // now, provide fp with mnemonics and expect that wallet wont recalculate fp, and will use provided
+    w = new MultisigHDWallet();
+    w.addCosigner(process.env.MNEMONICS_COLDCARD, 'DEADBABE');
+    w.addCosigner(process.env.MNEMONICS_COBO);
+    assert.strictEqual(w.getFingerprint(1), 'DEADBABE');
+    assert.strictEqual(w.getCosignerForFingerprint('DEADBABE'), process.env.MNEMONICS_COLDCARD);
   });
 
   it('basic operations work for 2-of-3', async () => {

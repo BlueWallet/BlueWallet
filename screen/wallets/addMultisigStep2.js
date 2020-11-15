@@ -154,7 +154,8 @@ const WalletsAddMultisigStep2 = () => {
         throw new Error('This should never happen');
     }
     for (const cc of cosigners) {
-      w.addCosigner(cc[0], cc[1], cc[2]);
+      const fp = cc[1] || getFpCacheForMnemonics(cc[0]);
+      w.addCosigner(cc[0], fp, cc[2]);
     }
     w.setLabel('Multisig Vault');
     await w.fetchBalance();
