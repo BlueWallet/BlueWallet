@@ -39,6 +39,7 @@ struct WalletData {
     formatter.numberStyle = .none
     formatter.usesSignificantDigits = true
     formatter.maximumSignificantDigits = 9
+    formatter.roundingMode = .up
     let value = NSNumber(value: balance / 100000000);
     if let valueString = formatter.string(from: value) {
       return "\(String(describing: valueString)) BTC"
