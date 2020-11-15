@@ -110,7 +110,6 @@ const WalletTransactions = () => {
     const interval = setInterval(() => setTimeElapsed(prev => prev + 1), 60000);
     return () => {
       clearInterval(interval);
-      setSelectedWallet('');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

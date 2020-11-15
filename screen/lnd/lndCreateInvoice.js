@@ -177,6 +177,7 @@ export default class LNDCreateInvoice extends Component {
 
   componentDidMount() {
     console.log('lnd/lndCreateInvoice mounted');
+    this.context.setSelectedWallet(this.state.fromWallet.getID());
     if (this.state.fromWallet.getUserHasSavedExport()) {
       this.renderReceiveDetails();
     } else {
@@ -411,7 +412,10 @@ export default class LNDCreateInvoice extends Component {
   };
 
   onWalletSelect = wallet => {
-    this.setState({ fromWallet: wallet }, () => this.props.navigation.pop());
+    this.setState({ fromWallet: wallet }, () => {
+      this.context.setSelectedWallet(wallet.getID());
+      this.props.navigation.pop();
+    });
   };
 
   render() {
