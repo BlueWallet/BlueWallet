@@ -1,0 +1,11 @@
+--- RealmJS.podspec	1985-10-26 04:15:00.000000000 -0400
++++ RealmJS.podspec	2020-11-14 23:44:40.000000000 -0500
+@@ -94,7 +94,7 @@
+                              }
+ 
+   # TODO: Consider providing an option to build with the -dbg binaries instead
+-  s.ios.vendored_libraries = 'vendor/realm-ios/librealm-ios.a', 'vendor/realm-ios/librealm-parser-ios.a'
++  s.ios.vendored_libraries = 'vendor/realm-ios/librealm-maccatalyst.a', 'vendor/realm-ios/librealm-parser-maccatalyst.a'
+   # s.watchos.vendored_libraries = 'vendor/realm-ios/librealm-watchos.a', 'vendor/realm-ios/librealm-parser-watchos.a'
+   # s.tvos.vendored_libraries = 'vendor/realm-ios/librealm-tvos.a', 'vendor/realm-ios/librealm-parser-tvos.a'
+ 
