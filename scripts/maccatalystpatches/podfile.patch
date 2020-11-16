@@ -1,12 +1,6 @@
---- Podfile	2020-11-15 00:35:20.000000000 -0500
-+++ Podfile	2020-11-15 00:36:56.000000000 -0500
-@@ -8,24 +8,21 @@
- 
-   use_react_native!(:path => config["reactNativePath"])
- 
-+  permissions_path = '../node_modules/react-native-permissions/ios'
-+  pod 'Permission-LocationWhenInUse', :path => "#{permissions_path}/LocationWhenInUse.podspec"
-   # Enables Flipper.
+--- Podfile	2020-11-15 21:21:27.000000000 -0500
++++ Podfile	2020-11-15 21:22:20.000000000 -0500
+@@ -12,20 +12,15 @@
    #
    # Note that if you have use_frameworks! enabled, Flipper will not work and
    # you should disable these next few lines.

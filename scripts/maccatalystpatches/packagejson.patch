@@ -1,39 +1,5 @@
 --- package.json	2020-11-14 23:48:43.000000000 -0500
 +++ package.json	2020-11-14 23:45:12.000000000 -0500
-@@ -68,7 +68,6 @@
-     "@react-native-community/async-storage": "1.12.1",
-     "@react-native-community/blur": "3.6.0",
-     "@react-native-community/clipboard": "1.5.0",
--    "@react-native-community/geolocation": "2.0.2",
-     "@react-native-community/masked-view": "0.1.10",
-     "@react-native-community/push-notification-ios": "1.7.1",
-     "@react-native-community/slider": "3.0.3",
-@@ -118,7 +117,7 @@
-     "react-localization": "1.0.15",
-     "react-native": "0.63.3",
-     "react-native-blue-crypto": "git+https://github.com/Overtorment/react-native-blue-crypto.git",
--    "react-native-camera": "3.40.0",
-+    "react-native-camera": "git+https://github.com/BlueWallet/react-native-camera.git#c307142c9d989051e9a51dabb20845e2b3e3ca03",
-     "react-native-default-preference": "1.4.3",
-     "react-native-device-info": "6.2.0",
-     "react-native-document-picker": "git+https://github.com/BlueWallet/react-native-document-picker.git#3684d4fcc2bc0b47c32be39024e4796004c3e428",
-@@ -128,7 +127,7 @@
-     "react-native-gesture-handler": "1.8.0",
-     "react-native-handoff": "git+https://github.com/marcosrdz/react-native-handoff.git",
-     "react-native-haptic-feedback": "1.11.0",
--    "react-native-image-picker": "2.3.4",
-+    "react-native-image-picker": "git+https://github.com/BlueWallet/react-native-image-picker.git#da9bd7db9d0b7731b33000c3f07d45d569a21cd9",
-     "react-native-inappbrowser-reborn": "git+https://github.com/BlueWallet/react-native-inappbrowser.git#fa2d8e1763e46dd12a7e53081e97a0f908049103",
-     "react-native-level-fs": "3.0.1",
-     "react-native-linear-gradient": "2.5.6",
-@@ -136,6 +135,7 @@
-     "react-native-modal": "11.5.6",
-     "react-native-obscure": "1.2.1",
-     "react-native-passcode-auth": "git+https://github.com/BlueWallet/react-native-passcode-auth.git#a2ff977ba92b36f8d0a5567f59c05cc608e8bd12",
-+    "react-native-permissions": "2.2.0",
-     "react-native-popup-menu-android": "1.0.3",
-     "react-native-privacy-snapshot": "git+https://github.com/BlueWallet/react-native-privacy-snapshot.git",
-     "react-native-prompt-android": "git+https://github.com/BlueWallet/react-native-prompt-android.git#2073b07f64bf5dc95807f64d79f37bdb111e6951",
 @@ -160,7 +160,7 @@
      "react-native-widget-center": "git+https://github.com/BlueWallet/react-native-widget-center.git#e2e9a9038b76d096bf929a87105a97a0a7095001",
      "react-test-render": "1.1.2",
