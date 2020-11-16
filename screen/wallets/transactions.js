@@ -32,13 +32,12 @@ import Handoff from 'react-native-handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { getSystemName } from 'react-native-device-info';
+import isCatalyst from 'react-native-is-catalyst';
 import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
 import BuyBitcoin from './buyBitcoin';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-const isDesktop = getSystemName() === 'Mac OS X';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -238,7 +237,7 @@ const WalletTransactions = () => {
         </View>
         <View style={[styles.listHeaderTextRow, stylesHook.listHeaderTextRow]}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
-          {isDesktop && (
+          {isCatalyst && (
             <TouchableOpacity style={style} onPress={refreshTransactions} disabled={isLoading}>
               <Icon name="refresh" type="font-awesome" color={colors.feeText} />
             </TouchableOpacity>

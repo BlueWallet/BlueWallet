@@ -267,6 +267,8 @@ PODS:
     - React
   - react-native-image-picker (2.3.4):
     - React-Core
+  - react-native-is-catalyst (1.0.0):
+    - React
   - react-native-randombytes (3.5.3):
     - React
   - react-native-safe-area-context (3.1.8):
@@ -450,6 +452,7 @@ DEPENDENCIES:
   - react-native-fingerprint-scanner (from `../node_modules/react-native-fingerprint-scanner`)
   - "react-native-geolocation (from `../node_modules/@react-native-community/geolocation`)"
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - react-native-is-catalyst (from `../node_modules/react-native-is-catalyst`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
@@ -565,6 +568,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/geolocation"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-is-catalyst:
+    :path: "../node_modules/react-native-is-catalyst"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
@@ -699,6 +704,7 @@ SPEC CHECKSUMS:
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-geolocation: cbd9d6bd06bac411eed2671810f454d4908484a8
   react-native-image-picker: 32d1ad2c0024ca36161ae0d5c2117e2d6c441f11
+  react-native-is-catalyst: 52ee70e0123c82419dd4ce47dc4cc94b22467512
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-safe-area-context: 01158a92c300895d79dee447e980672dc3fb85a6
   react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93

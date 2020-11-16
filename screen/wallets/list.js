@@ -29,6 +29,7 @@ import { getSystemName, isTablet } from 'react-native-device-info';
 import { presentCameraNotAuthorizedAlert } from '../../class/camera';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import isCatalyst from 'react-native-is-catalyst';
 const A = require('../../blue_modules/analytics');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
@@ -205,7 +206,7 @@ const WalletsList = () => {
         <Text textBreakStrategy="simple" style={[styles.listHeaderText, stylesHook.listHeaderText]}>
           {`${loc.transactions.list_title}${'  '}`}
         </Text>
-        {isDesktop && (
+        {isCatalyst && (
           <TouchableOpacity style={style} onPress={refreshTransactions} disabled={isLoading}>
             <Icon name="refresh" type="font-awesome" color={colors.feeText} />
           </TouchableOpacity>
@@ -406,7 +407,7 @@ const WalletsList = () => {
     );
   };
 
-  const copyFromClipbard = async () => {
+  const copyFromClipboard = async () => {
     onBarScanned(await Clipboard.getString());
   };
 
@@ -434,7 +435,7 @@ const WalletsList = () => {
             });
           }
         } else if (buttonIndex === 3) {
-          copyFromClipbard();
+          copyFromClipboard();
         }
       });
     } else if (Platform.OS === 'android') {
@@ -464,7 +465,7 @@ const WalletsList = () => {
       if (!isClipboardEmpty) {
         buttons.push({
           text: loc.wallets.list_long_clipboard,
-          onPress: copyFromClipbard,
+          onPress: copyFromClipboard,
         });
       }
       ActionSheet.showActionSheetWithOptions({
