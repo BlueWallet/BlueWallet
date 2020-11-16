@@ -78,6 +78,14 @@ In another terminal window within the BlueWallet folder:
 npx react-native run-ios
 ```
 
+* To run on macOS using Mac Catalyst:
+
+```
+./scripts/maccatalystpatches/applypatchesformaccatalyst.sh
+```
+
+You will need to enable Mac in Deployment Info using Xcode. If you are running macOS Catalina, you might need to remove all iOS 14 Widget targets.
+
 
 ## TESTS
 
