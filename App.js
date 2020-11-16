@@ -33,7 +33,8 @@ import DeviceQuickActions from './class/quick-actions';
 import Notifications from './blue_modules/notifications';
 import WalletImport from './class/wallet-import';
 import Biometric from './class/biometrics';
-import WidgetCommunication from './blue_modules/WidgetCommunication.ios';
+import WidgetCommunication from './blue_modules/WidgetCommunication';
+import changeNavigationBarColor from 'react-native-navigation-bar-color';
 const A = require('./blue_modules/analytics');
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
@@ -75,6 +76,11 @@ const App = () => {
   useEffect(() => {
     if (colorScheme) {
       BlueCurrentTheme.updateColorScheme();
+      if (colorScheme === 'light') {
+        changeNavigationBarColor(BlueDefaultTheme.colors.background, true, true);
+      } else {
+        changeNavigationBarColor(BlueDarkTheme.colors.buttonBackgroundColor, false, true);
+      }
     }
   }, [colorScheme]);
 
