@@ -4,16 +4,22 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  InteractionManager,
   Keyboard,
   KeyboardAvoidingView,
+  LayoutAnimation,
   Platform,
   StatusBar,
   StyleSheet,
   Text,
-  InteractionManager,
   View,
-  LayoutAnimation,
 } from 'react-native';
+import { Icon } from 'react-native-elements';
+import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { getSystemName } from 'react-native-device-info';
+import ImagePicker from 'react-native-image-picker';
+
 import {
   BlueButton,
   BlueButtonHook,
@@ -27,22 +33,18 @@ import {
   BlueTextCentered,
 } from '../../BlueComponents';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
-import { Icon } from 'react-native-elements';
+import BottomModal from '../../components/BottomModal';
 import { HDSegwitBech32Wallet, MultisigHDWallet } from '../../class';
-import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import Modal from 'react-native-modal';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
-import { getSystemName } from 'react-native-device-info';
-import ImagePicker from 'react-native-image-picker';
 import ScanQRCode from '../send/ScanQRCode';
-const isDesktop = getSystemName() === 'Mac OS X';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
+
+const isDesktop = getSystemName() === 'Mac OS X';
 
 const ViewEditMultisigCosigners = () => {
   const { colors } = useTheme();
@@ -159,12 +161,7 @@ const ViewEditMultisigCosigners = () => {
 
   const renderMnemonicsModal = () => {
     return (
-      <Modal
-        isVisible={isMnemonicsModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={hideMnemonicsModal}
-        onBackButtonPress={hideMnemonicsModal}
-      >
+      <BottomModal isVisible={isMnemonicsModalVisible} onClose={hideMnemonicsModal}>
         <View style={[styles.newKeyModalContent, stylesHook.modalContent]}>
           <View style={styles.itemKeyUnprovidedWrapper}>
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
@@ -203,7 +200,7 @@ const ViewEditMultisigCosigners = () => {
           <BlueSpacing20 />
           <BlueButton title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
         </View>
-      </Modal>
+      </BottomModal>
     );
   };
 
@@ -429,12 +426,7 @@ const ViewEditMultisigCosigners = () => {
 
   const renderProvideMnemonicsModal = () => {
     return (
-      <Modal
-        isVisible={isProvideMnemonicsModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={hideProvideMnemonicsModal}
-        onBackButtonPress={hideProvideMnemonicsModal}
-      >
+      <BottomModal isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
@@ -453,7 +445,7 @@ const ViewEditMultisigCosigners = () => {
             <BlueButtonLinkHook disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
   };
 
@@ -531,10 +523,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
   },
   modalContent: {
     padding: 22,

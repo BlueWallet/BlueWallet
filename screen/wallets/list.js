@@ -83,6 +83,7 @@ const WalletsList = () => {
   useFocusEffect(
     useCallback(() => {
       verifyBalance();
+      StatusBar.setBarStyle('default');
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
