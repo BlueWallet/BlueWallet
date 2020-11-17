@@ -561,7 +561,7 @@ const WalletTransactions = () => {
       {wallet.current.chain === Chain.ONCHAIN && isHandOffUseEnabled && (
         <Handoff
           title={`Bitcoin Wallet ${wallet.current.getLabel()}`}
-          type="io.bluewallet.current.bluewallet"
+          type="io.bluewallet.bluewallet"
           url={`https://blockpath.com/search/addr?q=${wallet.current.getXpub()}`}
         />
       )}
