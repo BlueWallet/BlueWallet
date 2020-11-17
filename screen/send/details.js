@@ -31,7 +31,6 @@ import {
   BlueListItem,
   BlueText,
 } from '../../BlueComponents';
-import Modal from 'react-native-modal';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import BigNumber from 'bignumber.js';
 import RNFS from 'react-native-fs';
@@ -45,6 +44,7 @@ import DocumentPicker from 'react-native-document-picker';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import BottomModal from '../../components/BottomModal';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
@@ -84,10 +84,6 @@ const styles = StyleSheet.create({
     borderTopColor: BlueCurrentTheme.colors.borderTopColor,
     borderWidth: BlueCurrentTheme.colors.borderWidth,
     minHeight: 130,
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
   },
   feeModalItem: {
     paddingHorizontal: 16,
@@ -758,13 +754,10 @@ export default class SendDetails extends Component {
     ];
 
     return (
-      <Modal
-        deviceHeight={Dimensions.get('window').height}
+      <BottomModal
         deviceWidth={this.state.width + this.state.width / 2}
         isVisible={this.state.isFeeSelectionModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={this.hideFeeSelectionModal}
-        onBackButtonPress={this.hideFeeSelectionModal}
+        onClose={this.hideFeeSelectionModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
@@ -821,7 +814,7 @@ export default class SendDetails extends Component {
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
   };
 
@@ -1006,13 +999,10 @@ export default class SendDetails extends Component {
   renderAdvancedTransactionOptionsModal = () => {
     const isSendMaxUsed = this.state.addresses.some(element => element.amount === BitcoinUnit.MAX);
     return (
-      <Modal
-        deviceHeight={Dimensions.get('window').height}
+      <BottomModal
         deviceWidth={this.state.width + this.state.width / 2}
         isVisible={this.state.isAdvancedTransactionOptionsVisible}
-        style={styles.bottomModal}
-        onBackdropPress={this.hideAdvancedTransactionOptionsModal}
-        onBackButtonPress={this.hideAdvancedTransactionOptionsModal}
+        onClose={this.hideAdvancedTransactionOptionsModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.advancedTransactionOptionsModalContent}>
@@ -1079,7 +1069,7 @@ export default class SendDetails extends Component {
             )}
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
   };
 

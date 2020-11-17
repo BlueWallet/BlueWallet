@@ -85,6 +85,7 @@ const WalletsList = () => {
     useCallback(() => {
       verifyBalance();
       setSelectedWallet('');
+      StatusBar.setBarStyle('default');
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );

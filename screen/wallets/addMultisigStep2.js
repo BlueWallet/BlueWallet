@@ -11,7 +11,6 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import {
@@ -29,12 +28,12 @@ import { Icon } from 'react-native-elements';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import Modal from 'react-native-modal';
 import { getSystemName } from 'react-native-device-info';
 import ImagePicker from 'react-native-image-picker';
 import ScanQRCode from '../send/ScanQRCode';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
+import BottomModal from '../../components/BottomModal';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
@@ -54,8 +53,6 @@ const staticCache = {};
 const WalletsAddMultisigStep2 = () => {
   const { addWallet, saveToDisk, setNewWalletAdded } = useContext(BlueStorageContext);
   const { colors } = useTheme();
-  const windowHeight = useWindowDimensions().height;
-  const windowWidth = useWindowDimensions().width;
 
   const navigation = useNavigation();
   const { m, n, format } = useRoute().params;
@@ -501,14 +498,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const renderMnemonicsModal = () => {
     return (
-      <Modal
-        isVisible={isMnemonicsModalVisible}
-        style={styles.bottomModal}
-        onBackButtonPress={Keyboard.dismiss}
-        deviceHeight={windowHeight}
-        deviceWidth={windowWidth}
-        onBackdropPress={Keyboard.dismiss}
-      >
+      <BottomModal isVisible={isMnemonicsModalVisible} onClose={Keyboard.dismiss}>
         <View style={[styles.newKeyModalContent, stylesHook.modalContent]}>
           <View style={styles.itemKeyUnprovidedWrapper}>
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
@@ -529,7 +519,7 @@ const WalletsAddMultisigStep2 = () => {
           <BlueSpacing20 />
           <BlueButton title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
         </View>
-      </Modal>
+      </BottomModal>
     );
   };
 
@@ -541,14 +531,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const renderProvideMnemonicsModal = () => {
     return (
-      <Modal
-        deviceHeight={windowHeight}
-        deviceWidth={windowWidth}
-        isVisible={isProvideMnemonicsModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={hideProvideMnemonicsModal}
-        onBackButtonPress={hideProvideMnemonicsModal}
-      >
+      <BottomModal isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCenteredHooks>{loc.multisig.type_your_mnemonics}</BlueTextCenteredHooks>
@@ -563,7 +546,7 @@ const WalletsAddMultisigStep2 = () => {
             <BlueButtonLinkHook disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
   };
 
@@ -579,14 +562,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const renderCosignersXpubModal = () => {
     return (
-      <Modal
-        deviceHeight={windowHeight}
-        deviceWidth={windowWidth}
-        isVisible={isRenderCosignersXpubModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={hideCosignersXpubModal}
-        onBackButtonPress={hideCosignersXpubModal}
-      >
+      <BottomModal isVisible={isRenderCosignersXpubModalVisible} onClose={hideCosignersXpubModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
@@ -611,7 +587,7 @@ const WalletsAddMultisigStep2 = () => {
             </View>
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
   };
   const footer = isLoading ? (
@@ -690,10 +666,6 @@ const styles = StyleSheet.create({
   },
   provideKeyButtonText: { fontWeight: '600', fontSize: 15 },
   textDestination: { fontWeight: '600' },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
   modalContent: {
     paddingHorizontal: 22,
     paddingVertical: 32,
