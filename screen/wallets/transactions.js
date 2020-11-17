@@ -1,43 +1,44 @@
 /* global alert */
 import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
-import { Chain } from '../../models/bitcoinUnits';
 import {
-  Text,
-  Platform,
-  StyleSheet,
-  View,
-  Keyboard,
   ActivityIndicator,
-  FlatList,
-  ScrollView,
-  TouchableOpacity,
-  StatusBar,
-  Linking,
-  KeyboardAvoidingView,
   Alert,
-  InteractionManager,
-  useWindowDimensions,
-  PixelRatio,
   Dimensions,
+  FlatList,
+  InteractionManager,
+  Keyboard,
+  KeyboardAvoidingView,
+  Linking,
+  PixelRatio,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
+import { Icon } from 'react-native-elements';
+import Handoff from 'react-native-handoff';
+import { getSystemName } from 'react-native-device-info';
+import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
+
+import { Chain } from '../../models/bitcoinUnits';
 import { BlueTransactionListItem, BlueWalletNavigationHeader, BlueAlertWalletExportReminder, BlueListItem } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
-import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
-import Modal from 'react-native-modal';
 import HandoffSettings from '../../class/handoff';
-import Handoff from 'react-native-handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { getSystemName } from 'react-native-device-info';
-import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
+import BottomModal from '../../components/BottomModal';
 import BuyBitcoin from './buyBitcoin';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
+
 const isDesktop = getSystemName() === 'Mac OS X';
 
 const buttonFontSize =
@@ -61,8 +62,6 @@ const WalletTransactions = () => {
   const { setParams, setOptions, navigate } = useNavigation();
   const { colors } = useTheme();
 
-  const windowHeight = useWindowDimensions().height;
-  const windowWidth = useWindowDimensions().width;
   const stylesHook = StyleSheet.create({
     advancedTransactionOptionsModalContent: {
       backgroundColor: colors.elevated,
@@ -255,14 +254,7 @@ const WalletTransactions = () => {
 
   const renderManageFundsModal = () => {
     return (
-      <Modal
-        deviceHeight={windowHeight}
-        deviceWidth={windowWidth}
-        isVisible={isManageFundsModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={hideManageFundsModal}
-        onBackButtonPress={hideManageFundsModal}
-      >
+      <BottomModal isVisible={isManageFundsModalVisible} onClose={hideManageFundsModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.advancedTransactionOptionsModalContent, stylesHook.advancedTransactionOptionsModalContent]}>
             <BlueListItem
@@ -313,7 +305,7 @@ const WalletTransactions = () => {
             />
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
   };
 
@@ -728,10 +720,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
     minHeight: 130,
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
   },
   walletDetails: {
     marginHorizontal: 16,

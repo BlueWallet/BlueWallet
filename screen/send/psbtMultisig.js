@@ -447,10 +447,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     flexWrap: 'wrap',
   },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
   modalContentShort: {
     marginLeft: 20,
     marginRight: 20,
