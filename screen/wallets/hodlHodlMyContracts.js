@@ -8,12 +8,12 @@ import {
   Linking,
   Platform,
   StyleSheet,
-  Dimensions,
   Text,
   TouchableHighlight,
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import {
   BlueButton,
   BlueCopyTextToClipboard,
@@ -24,12 +24,11 @@ import {
   BlueTextHooks,
 } from '../../BlueComponents';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
-import Modal from 'react-native-modal';
 import * as NavigationService from '../../NavigationService';
 import { BlueCurrentTheme } from '../../components/themes';
+import BottomModal from '../../components/BottomModal';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-const windowHeight = Dimensions.get('window').height;
 
 export default class HodlHodlMyContracts extends Component {
   static contextType = BlueStorageContext;
@@ -172,13 +171,7 @@ export default class HodlHodlMyContracts extends Component {
     if (!this.state.contractToDisplay) return;
 
     return (
-      <Modal
-        isVisible={this.state.isRenderContractVisible}
-        style={styles.bottomModal}
-        deviceHeight={windowHeight}
-        onBackdropPress={this.hideContractModal}
-        onBackButtonPress={this.hideContractModal}
-      >
+      <BottomModal isVisible={this.state.isRenderContractVisible} onClose={this.hideContractModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <View style={styles.modalContentCentered}>
@@ -256,7 +249,7 @@ export default class HodlHodlMyContracts extends Component {
             </Text>
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
   };
 
@@ -350,10 +343,6 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: BlueCurrentTheme.colors.elevated,
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
   },
   modalContent: {
     backgroundColor: BlueCurrentTheme.colors.modal,

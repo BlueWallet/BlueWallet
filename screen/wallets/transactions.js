@@ -1,39 +1,38 @@
 /* global alert */
 import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
-import { Chain } from '../../models/bitcoinUnits';
 import {
-  Text,
-  Platform,
-  StyleSheet,
-  View,
-  Keyboard,
   ActivityIndicator,
-  FlatList,
-  ScrollView,
-  TouchableOpacity,
-  StatusBar,
-  Linking,
-  KeyboardAvoidingView,
   Alert,
-  InteractionManager,
-  useWindowDimensions,
-  PixelRatio,
   Dimensions,
+  FlatList,
+  InteractionManager,
+  Keyboard,
+  KeyboardAvoidingView,
+  Linking,
+  PixelRatio,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
+import { Icon } from 'react-native-elements';
+import Handoff from 'react-native-handoff';
+import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
+import { Chain } from '../../models/bitcoinUnits';
 import { BlueTransactionListItem, BlueWalletNavigationHeader, BlueAlertWalletExportReminder, BlueListItem } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
-import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
-import Modal from 'react-native-modal';
 import HandoffSettings from '../../class/handoff';
-import Handoff from 'react-native-handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import isCatalyst from 'react-native-is-catalyst';
-import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
+import BottomModal from '../../components/BottomModal';
 import BuyBitcoin from './buyBitcoin';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -60,8 +59,6 @@ const WalletTransactions = () => {
   const { setParams, setOptions, navigate } = useNavigation();
   const { colors } = useTheme();
 
-  const windowHeight = useWindowDimensions().height;
-  const windowWidth = useWindowDimensions().width;
   const stylesHook = StyleSheet.create({
     advancedTransactionOptionsModalContent: {
       backgroundColor: colors.elevated,
@@ -254,14 +251,7 @@ const WalletTransactions = () => {
 
   const renderManageFundsModal = () => {
     return (
-      <Modal
-        deviceHeight={windowHeight}
-        deviceWidth={windowWidth}
-        isVisible={isManageFundsModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={hideManageFundsModal}
-        onBackButtonPress={hideManageFundsModal}
-      >
+      <BottomModal isVisible={isManageFundsModalVisible} onClose={hideManageFundsModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.advancedTransactionOptionsModalContent, stylesHook.advancedTransactionOptionsModalContent]}>
             <BlueListItem
@@ -312,7 +302,7 @@ const WalletTransactions = () => {
             />
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
   };
 
@@ -456,7 +446,7 @@ const WalletTransactions = () => {
     );
   };
 
-  const copyFromClipbard = async () => {
+  const copyFromClipboard = async () => {
     onBarCodeRead({ data: await Clipboard.getString() });
   };
 
@@ -513,7 +503,7 @@ const WalletTransactions = () => {
             },
           });
         } else if (buttonIndex === 3) {
-          copyFromClipbard();
+          copyFromClipboard();
         }
       });
     } else if (Platform.OS === 'android') {
@@ -543,7 +533,7 @@ const WalletTransactions = () => {
       if (!isClipboardEmpty) {
         buttons.push({
           text: loc.wallets.list_long_clipboard,
-          onPress: copyFromClipbard,
+          onPress: copyFromClipboard,
         });
       }
       ActionSheet.showActionSheetWithOptions({
@@ -560,7 +550,7 @@ const WalletTransactions = () => {
       {wallet.current.chain === Chain.ONCHAIN && isHandOffUseEnabled && (
         <Handoff
           title={`Bitcoin Wallet ${wallet.current.getLabel()}`}
-          type="io.bluewallet.current.bluewallet"
+          type="io.bluewallet.bluewallet"
           url={`https://blockpath.com/search/addr?q=${wallet.current.getXpub()}`}
         />
       )}
@@ -595,7 +585,7 @@ const WalletTransactions = () => {
           ListHeaderComponent={renderListHeaderComponent}
           onEndReachedThreshold={0.3}
           onEndReached={async () => {
-            // pagination in works. in this block we will add more txs to flatlist
+            // pagination in works. in this block we will add more txs to FlatList
             // so as user scrolls closer to bottom it will render mode transactions
 
             if (getTransactionsSliced(Infinity).length < limit) {
@@ -727,10 +717,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
     minHeight: 130,
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
   },
   walletDetails: {
     marginHorizontal: 16,

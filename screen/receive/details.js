@@ -1,18 +1,20 @@
 import React, { useCallback, useContext, useState } from 'react';
 import {
-  View,
   InteractionManager,
-  StatusBar,
-  Platform,
-  TextInput,
-  KeyboardAvoidingView,
   Keyboard,
-  StyleSheet,
-  useWindowDimensions,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
+  StatusBar,
+  StyleSheet,
+  TextInput,
+  View,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
+import Share from 'react-native-share';
+import Handoff from 'react-native-handoff';
+
 import {
   BlueLoadingHook,
   BlueCopyTextToClipboard,
@@ -26,13 +28,11 @@ import {
   BlueAlertWalletExportReminder,
   BlueNavigationStyle,
 } from '../../BlueComponents';
+import BottomModal from '../../components/BottomModal';
 import Privacy from '../../Privacy';
-import Share from 'react-native-share';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
-import Modal from 'react-native-modal';
 import HandoffSettings from '../../class/handoff';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import Handoff from 'react-native-handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
@@ -53,7 +53,6 @@ const ReceiveDetails = () => {
   const [showAddress, setShowAddress] = useState(false);
   const { navigate, goBack } = useNavigation();
   const { colors } = useTheme();
-  const windowHeight = useWindowDimensions().height;
   const styles = StyleSheet.create({
     modalContent: {
       backgroundColor: colors.modal,
@@ -66,10 +65,6 @@ const ReceiveDetails = () => {
       borderWidth: colors.borderWidth,
       minHeight: 350,
       height: 350,
-    },
-    bottomModal: {
-      justifyContent: 'flex-end',
-      margin: 0,
     },
     customAmount: {
       flexDirection: 'row',
@@ -287,13 +282,7 @@ const ReceiveDetails = () => {
 
   const renderCustomAmountModal = () => {
     return (
-      <Modal
-        deviceHeight={windowHeight}
-        isVisible={isCustomModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={dismissCustomAmountModal}
-        onBackButtonPress={dismissCustomAmountModal}
-      >
+      <BottomModal isVisible={isCustomModalVisible} onClose={dismissCustomAmountModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <BlueBitcoinAmount
@@ -320,7 +309,7 @@ const ReceiveDetails = () => {
             <BlueSpacing20 />
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
   };
 
