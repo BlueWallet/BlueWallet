@@ -2288,19 +2288,19 @@ export class BlueBitcoinAmount extends Component {
         secondaryDisplayCurrency = formatBalanceWithoutSuffix(sat, BitcoinUnit.LOCAL_CURRENCY, false);
         break;
       case BitcoinUnit.SATS:
-        secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount.toString(), BitcoinUnit.LOCAL_CURRENCY, false);
+        secondaryDisplayCurrency = formatBalanceWithoutSuffix((isNaN(amount) ? 0 : amount).toString(), BitcoinUnit.LOCAL_CURRENCY, false);
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
-        secondaryDisplayCurrency = currency.fiatToBTC(parseFloat(amount));
-        if (BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
-          // cache hit! we reuse old value that supposedly doesnt have rounding errors
-          const sats = BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY];
+        secondaryDisplayCurrency = currency.fiatToBTC(parseFloat(isNaN(amount) ? 0 : amount));
+        if (BlueBitcoinAmount.conversionCache[isNaN(amount) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY]) {
+          // cache hit! we reuse old value that supposedly doesn't have rounding errors
+          const sats = BlueBitcoinAmount.conversionCache[isNaN(amount) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY];
           secondaryDisplayCurrency = currency.satoshiToBTC(sats);
         }
         break;
     }
 
-    if (amount === BitcoinUnit.MAX) secondaryDisplayCurrency = ''; // we dont want to display NaN
+    if (amount === BitcoinUnit.MAX) secondaryDisplayCurrency = ''; // we don't want to display NaN
     return (
       <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -2340,15 +2340,11 @@ export class BlueBitcoinAmount extends Component {
                     } else {
                       text = `${parseInt(split[0], 10)}`;
                     }
+
                     text = this.state.unit === BitcoinUnit.BTC ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
-                    text = text.replace(/(\..*)\./g, '$1');
 
                     if (text.startsWith('.')) {
                       text = '0.';
-                    }
-                    text = text.replace(/(0{1,}.)\./g, '$1');
-                    if (this.state.unit !== BitcoinUnit.BTC) {
-                      text = text.replace(/[^0-9.]/g, '');
                     }
                   } else if (this.state.unit === BitcoinUnit.LOCAL_CURRENCY) {
                     text = text.replace(/,/gi, '');
@@ -2365,9 +2361,9 @@ export class BlueBitcoinAmount extends Component {
                       }
                       text = rez;
                     }
-                    text = text.replace(/[^\d.,-]/g, ''); // remove all but numberd, dots & commas
+                    text = text.replace(/[^\d.,-]/g, ''); // remove all but numbers, dots & commas
+                    text = text.replace(/(\..*)\./g, '$1');
                   }
-
                   this.props.onChangeText(text);
                 }}
                 onBlur={() => {
@@ -2380,7 +2376,7 @@ export class BlueBitcoinAmount extends Component {
                 maxLength={this.maxLength()}
                 ref={textInput => (this.textInput = textInput)}
                 editable={!this.props.isLoading && !this.props.disabled}
-                value={parseFloat(amount) > 0 || amount === BitcoinUnit.MAX ? amount : undefined}
+                value={parseFloat(amount) >= 0 || amount === BitcoinUnit.MAX ? amount : undefined}
                 placeholderTextColor={
                   this.props.disabled ? BlueCurrentTheme.colors.buttonDisabledTextColor : BlueCurrentTheme.colors.alternativeTextColor2
                 }
