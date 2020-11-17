@@ -199,25 +199,23 @@ export const removeTrailingZeros = value => {
  *
  * @param balance {number} Satoshis
  * @param toUnit {String} Value from models/bitcoinUnits.js
- * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces between groups of 000
  * @returns {string}
  */
-export function formatBalance(balance, toUnit, withFormatting = false) {
+export function formatBalance(balance, toUnit, withFormatting = false, appendUnit = true) {
   if (toUnit === undefined) {
-    return balance + ' ' + BitcoinUnit.BTC;
+    return appendUnit ? balance + ' ' + BitcoinUnit.BTC : balance;
   }
   if (toUnit === BitcoinUnit.BTC) {
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-    return removeTrailingZeros(value) + ' ' + BitcoinUnit.BTC;
+
+    return appendUnit ? `${removeTrailingZeros(value)} ${BitcoinUnit.BTC}` : removeTrailingZeros(value);
   } else if (toUnit === BitcoinUnit.SATS) {
-    return (
-      (balance < 0 ? '-' : '') +
-      (withFormatting ? new Intl.NumberFormat().format(balance.toString()).replace(/[^0-9]/g, ' ') : balance) +
-      ' ' +
-      BitcoinUnit.SATS
-    );
+    const sats =
+      (balance < 0 ? '-' : '') + (withFormatting ? new Intl.NumberFormat().format(balance.toString()).replace(/[^0-9]/g, ' ') : balance);
+    return appendUnit ? `${sats} ${BitcoinUnit.SATS}` : sats;
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-    return currency.satoshiToLocalCurrency(balance);
+    return currency.satoshiToLocalCurrency(balance, appendUnit);
   }
 }
 
@@ -225,7 +223,7 @@ export function formatBalance(balance, toUnit, withFormatting = false) {
  *
  * @param balance {Integer} Satoshis
  * @param toUnit {String} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
- * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces between groups of 000
  * @returns {string}
  */
 export function formatBalanceWithoutSuffix(balance = 0, toUnit, withFormatting = false) {
@@ -250,7 +248,7 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit, withFormatting =
  *
  * @param  balance {integer} Satoshis
  * @param toUnit {String} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
- * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces between groups of 000
  * @returns {string}
  */
 export function formatBalancePlain(balance = 0, toUnit, withFormatting = false) {

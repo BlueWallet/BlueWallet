@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useRef, useCallback, useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   ActivityIndicator,
@@ -20,7 +20,9 @@ import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { LightningCustodianWallet, MultisigHDWallet, PlaceholderWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { BluePrivateBalance } from '../BlueComponents';
-
+import AnimatedNumbers from './AnimatedNumbers';
+import { BitcoinUnit } from '../models/bitcoinUnits';
+import { getCurrencySymbol } from '../blue_modules/currency';
 const nStyles = StyleSheet.create({
   root: {
     marginVertical: 17,
@@ -120,10 +122,12 @@ const iStyles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  flexDirectionRow: { flexDirection: 'row' },
 });
 
 const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedWallet }) => {
   const scaleValue = new Animated.Value(1.0);
+  const [animateToNumber, setAnimateToNumber] = useState();
   const { colors } = useTheme();
 
   const onPressedIn = () => {
@@ -132,6 +136,13 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
     props.toValue = 0.9;
     Animated.spring(scaleValue, props).start();
   };
+
+  useEffect(() => {
+    if (item) {
+      const number = formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), false, false);
+      setAnimateToNumber(number);
+    }
+  }, [item]);
 
   const onPressedOut = () => {
     const props = { duration: 50 };
@@ -228,9 +239,12 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
           {item.hideBalance ? (
             <BluePrivateBalance />
           ) : (
-            <Text numberOfLines={1} adjustsFontSizeToFit style={[iStyles.balance, { color: colors.inverseForegroundColor }]}>
-              {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
-            </Text>
+            <AnimatedNumbers
+              animateToNumber={animateToNumber}
+              fontStyle={[iStyles.balance, { color: colors.inverseForegroundColor }]}
+              prefixText={item.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY && getCurrencySymbol()}
+              suffixText={item.getPreferredBalanceUnit() !== BitcoinUnit.LOCAL_CURRENCY && item.getPreferredBalanceUnit()}
+            />
           )}
           <Text style={iStyles.br} />
           <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>

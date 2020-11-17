@@ -18,37 +18,27 @@ const usePrevious = value => {
   return ref.current;
 };
 
-const AnimatedNumber = ({ animateToNumber, fontStyle, animationDuration, includeComma, easing }) => {
+const AnimatedNumber = ({ animateToNumber, fontStyle, animationDuration, easing, prefixText, suffixText }) => {
   const prevNumber = usePrevious(animateToNumber);
-  const animateToNumberString = String(Math.abs(animateToNumber));
-  const prevNumberString = String(Math.abs(prevNumber));
+  const animateToNumberString = String(animateToNumber);
+  const prevNumberString = String(prevNumber);
 
-  const animateToNumbersArr = Array.from(animateToNumberString, Number);
-  const prevNumberersArr = Array.from(prevNumberString, Number);
+  const animateToNumbersArr = Array.from(animateToNumberString, x => {
+    if (isNaN(x)) {
+      return String(x);
+    } else {
+      return Number(x);
+    }
+  });
+  const prevNumberersArr = Array.from(prevNumberString, x => {
+    if (isNaN(x)) {
+      return String(x);
+    } else {
+      return Number(x);
+    }
+  });
 
-  if (includeComma) {
-    const reducedArray = new Array(Math.ceil(animateToNumberString.length / 3)).fill(0);
-
-    const startReducedArray = new Array(Math.ceil(prevNumberString.length / 3)).fill(0);
-
-    reducedArray.map((__, index) => {
-      if (index === 0) {
-        return;
-      }
-
-      animateToNumbersArr.splice(animateToNumberString.length - index * 3, 0, ',');
-    });
-
-    startReducedArray.map((__, index) => {
-      if (index === 0) {
-        return;
-      }
-
-      prevNumberersArr.splice(prevNumberString.length - index * 3, 0, ',');
-    });
-  }
-
-  const [numberHeight, setNumberHeight] = React.useState(0);
+  const [numberHeight, setNumberHeight] = React.useState(36);
   const animations = animateToNumbersArr.map((__, index) => {
     if (typeof prevNumberersArr[index] !== 'number') {
       return new Animated.Value(0);
@@ -67,7 +57,6 @@ const AnimatedNumber = ({ animateToNumber, fontStyle, animationDuration, include
       if (typeof animateToNumbersArr[index] !== 'number') {
         return;
       }
-
       Animated.timing(animation, {
         toValue: -1 * (numberHeight * animateToNumbersArr[index]),
         duration: animationDuration || 1400,
@@ -86,11 +75,13 @@ const AnimatedNumber = ({ animateToNumber, fontStyle, animationDuration, include
     <>
       {numberHeight !== 0 && (
         <View style={styles.flexDirectionRow}>
-          {animateToNumber < 0 && <Text style={[fontStyle, { height: numberHeight }]}>-</Text>}
+          <Text adjustsFontSizeToFit style={[fontStyle, { height: numberHeight }]}>
+            {prefixText}
+          </Text>
           {animateToNumbersArr.map((n, index) => {
             if (typeof n === 'string') {
               return (
-                <Text key={index} style={[fontStyle, { height: numberHeight }]}>
+                <Text adjustsFontSizeToFit key={index} style={[fontStyle, { height: numberHeight }]}>
                   {n}
                 </Text>
               );
@@ -111,16 +102,23 @@ const AnimatedNumber = ({ animateToNumber, fontStyle, animationDuration, include
                 >
                   {NUMBERS.map((number, i) => (
                     <View style={styles.flexDirectionRow} key={i}>
-                      <Text style={[fontStyle, { height: numberHeight }]}>{number}</Text>
+                      <Text adjustsFontSizeToFit style={fontStyle}>
+                        {number}
+                      </Text>
                     </View>
                   ))}
                 </Animated.View>
               </View>
             );
           })}
+          <Text> </Text>
+          <Text adjustsFontSizeToFit style={[fontStyle, { height: numberHeight }]}>
+            {suffixText}
+          </Text>
         </View>
       )}
-      <Text style={[fontStyle, styles.numberText]} onLayout={setButtonLayout}>
+
+      <Text adjustsFontSizeToFit style={[fontStyle, styles.numberText]} onLayout={setButtonLayout}>
         {0}
       </Text>
     </>
@@ -135,9 +133,10 @@ const styles = StyleSheet.create({
 
 export default AnimatedNumber;
 AnimatedNumber.propTypes = {
-  animateToNumber: PropTypes.number,
-  fontStyle: PropTypes.string,
+  animateToNumber: PropTypes.any,
+  fontStyle: PropTypes.array,
   animationDuration: PropTypes.number,
-  includeComma: PropTypes.bool,
   easing: PropTypes.bool,
+  suffixText: PropTypes.string,
+  prefixText: PropTypes.string,
 };

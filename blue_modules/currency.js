@@ -90,7 +90,7 @@ async function startUpdater() {
   return updateExchangeRate();
 }
 
-function satoshiToLocalCurrency(satoshi) {
+function satoshiToLocalCurrency(satoshi, prefixCurrencySymbol = true) {
   if (!exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]) {
     startUpdater();
     return '...';
@@ -107,7 +107,7 @@ function satoshiToLocalCurrency(satoshi) {
   let formatter;
   try {
     formatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
-      style: 'currency',
+      style: prefixCurrencySymbol ? 'currency' : 'decimal',
       currency: preferredFiatCurrency.endPointKey,
       minimumFractionDigits: 2,
       maximumFractionDigits: 8,
@@ -116,7 +116,7 @@ function satoshiToLocalCurrency(satoshi) {
     console.warn(error);
     console.log(error);
     formatter = new Intl.NumberFormat(FiatUnit.USD.locale, {
-      style: 'currency',
+      style: prefixCurrencySymbol ? 'currency' : 'decimal',
       currency: preferredFiatCurrency.endPointKey,
       minimumFractionDigits: 2,
       maximumFractionDigits: 8,
