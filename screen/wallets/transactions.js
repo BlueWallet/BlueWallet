@@ -457,7 +457,7 @@ const WalletTransactions = () => {
     );
   };
 
-  const copyFromClipbard = async () => {
+  const copyFromClipboard = async () => {
     onBarCodeRead({ data: await Clipboard.getString() });
   };
 
@@ -514,7 +514,7 @@ const WalletTransactions = () => {
             },
           });
         } else if (buttonIndex === 3) {
-          copyFromClipbard();
+          copyFromClipboard();
         }
       });
     } else if (Platform.OS === 'android') {
@@ -544,7 +544,7 @@ const WalletTransactions = () => {
       if (!isClipboardEmpty) {
         buttons.push({
           text: loc.wallets.list_long_clipboard,
-          onPress: copyFromClipbard,
+          onPress: copyFromClipboard,
         });
       }
       ActionSheet.showActionSheetWithOptions({
@@ -596,7 +596,7 @@ const WalletTransactions = () => {
           ListHeaderComponent={renderListHeaderComponent}
           onEndReachedThreshold={0.3}
           onEndReached={async () => {
-            // pagination in works. in this block we will add more txs to flatlist
+            // pagination in works. in this block we will add more txs to FlatList
             // so as user scrolls closer to bottom it will render mode transactions
 
             if (getTransactionsSliced(Infinity).length < limit) {
