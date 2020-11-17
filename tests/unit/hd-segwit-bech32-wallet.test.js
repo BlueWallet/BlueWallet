@@ -63,6 +63,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     for (let c = 0; c < 1000; c++) {
       await hd.generate();
       const secret = hd.getSecret();
+      assert.strictEqual(secret.split(' ').length, 12);
       if (hashmap[secret]) {
         throw new Error('Duplicate secret generated!');
       }

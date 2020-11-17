@@ -1,23 +1,14 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
-import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
-import { BlueButton, BlueListItem, BlueNavigationStyle, BlueSpacing20 } from '../../BlueComponents';
-import { MultisigHDWallet } from '../../class';
 import { useNavigation, useTheme } from '@react-navigation/native';
-import loc from '../../loc';
-import Modal from 'react-native-modal';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { BlueButton, BlueListItem, BlueNavigationStyle, BlueSpacing20 } from '../../BlueComponents';
+import BottomModal from '../../components/BottomModal';
+import { MultisigHDWallet } from '../../class';
+import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const WalletsAddMultisig = () => {
@@ -31,8 +22,6 @@ const WalletsAddMultisig = () => {
   const [format, setFormat] = useState(MultisigHDWallet.FORMAT_P2WSH);
   const { isAdancedModeEnabled } = useContext(BlueStorageContext);
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
-  const windowHeight = useWindowDimensions().height;
-  const windowWidth = useWindowDimensions().width;
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -111,14 +100,7 @@ const WalletsAddMultisig = () => {
 
   const renderModal = () => {
     return (
-      <Modal
-        isVisible={isModalVisible}
-        style={styles.bottomModal}
-        deviceHeight={windowHeight}
-        deviceWidth={windowWidth}
-        onBackdropPress={closeModal}
-        onBackButtonPress={closeModal}
-      >
+      <BottomModal isVisible={isModalVisible} onClose={closeModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
             <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
@@ -181,7 +163,7 @@ const WalletsAddMultisig = () => {
             />
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
   };
 
@@ -252,10 +234,6 @@ const styles = StyleSheet.create({
   filteTextWrapper: { right: 0, position: 'absolute' },
   filterText: { fontSize: 16, color: 'gray' },
   advancedOptionsContainer: {},
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
   item: {
     paddingHorizontal: 0,
   },
