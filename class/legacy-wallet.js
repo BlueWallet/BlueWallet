@@ -207,6 +207,9 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   async setTransactions(txs) {
+    logger.info('legacy-wallet', `wallet current transactions: ${JSON.stringify(this.transactions)}`);
+    logger.info('legacy-wallet', `transactions history: ${JSON.stringify(txs)}`);
+
     const txid_list = txs.map(t => t.tx_hash);
 
     this.transactions = this.transactions.filter(tx => {
