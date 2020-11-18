@@ -517,7 +517,6 @@ module.exports = {
       recover: 'Hủy',
       send: 'Gửi coin',
       title: 'Ví',
-      wallet: 'ví',
     },
     deleteWallet: {
       description1: 'Quý khách có chắc chắn muốn xóa không',

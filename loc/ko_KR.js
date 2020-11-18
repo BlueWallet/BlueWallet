@@ -504,7 +504,6 @@ module.exports = {
       recover: '취소',
       send: '코인 보내기',
       title: '지갑',
-      wallet: '지갑',
     },
     deleteWallet: {
       description1: '정말로 삭제하시겠습니까',

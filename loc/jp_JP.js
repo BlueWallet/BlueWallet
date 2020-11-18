@@ -511,7 +511,6 @@ module.exports = {
       recover: 'キャンセル',
       send: '送金',
       title: 'ウォレット',
-      wallet: 'ウォレット',
     },
     deleteWallet: {
       description1: '削除してもよろしいですか',

@@ -518,7 +518,6 @@ module.exports = {
       recover: 'Cancelar',
       send: 'Enviar moedas',
       title: 'Carteiras',
-      wallet: 'carteira',
     },
     deleteWallet: {
       description1: 'Tem a certeza que deseja excluir',

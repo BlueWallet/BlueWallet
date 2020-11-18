@@ -516,7 +516,6 @@ module.exports = {
       recover: 'Batal',
       send: 'Kirim',
       title: 'Dompet',
-      wallet: 'dompet',
     },
     deleteWallet: {
       description1: 'Anda yakin ingin menghapus',

@@ -61,9 +61,7 @@ export const DashboardContentHeader = ({
         )}
         {typeReadable && (
           <View style={styles.typeReadableContainer}>
-            <Text style={styles.buttonDescription}>
-              {typeReadable} {i18n.wallets.dashboard.wallet}
-            </Text>
+            <Text style={styles.buttonDescription}>{typeReadable}</Text>
             <Image source={images.coin} style={styles.coinIcon} />
           </View>
         )}

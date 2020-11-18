@@ -495,7 +495,6 @@ module.exports = {
       recover: '取消',
       send: '汇出',
       title: '钱包',
-      wallet: '钱包',
     },
     deleteWallet: {
       description1: '是否确认删除',

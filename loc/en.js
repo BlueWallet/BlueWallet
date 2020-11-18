@@ -512,7 +512,6 @@ module.exports = {
       recover: 'Cancel',
       send: 'Send',
       title: 'Wallets',
-      wallet: 'wallet',
     },
     deleteWallet: {
       description1: 'Are you sure you want to delete',

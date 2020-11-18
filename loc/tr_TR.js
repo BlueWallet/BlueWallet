@@ -514,7 +514,6 @@ module.exports = {
       recover: 'İptal Et',
       send: 'Coin gönder',
       title: 'Cüzdanlar',
-      wallet: 'cüzdan',
     },
     deleteWallet: {
       description1: 'Silmek istediğinizden emin misiniz',
