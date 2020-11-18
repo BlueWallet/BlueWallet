@@ -104,8 +104,9 @@ class SendCoinsConfirmScreen extends Component<Props> {
       { txDecoded },
       {
         onSuccess: (txid: string) => {
-          if (memo) {
-            createTransactionNote(txid, memo);
+          const trimmedMemo = memo.trim();
+          if (trimmedMemo) {
+            createTransactionNote(txid, trimmedMemo);
           }
 
           CreateMessage({
