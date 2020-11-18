@@ -155,7 +155,7 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
         <Text style={styles.subtitle}>{i18n.contactCreate.subtitle}</Text>
         <Text style={styles.description}>{i18n.contactCreate.description}</Text>
         <InputItem setValue={this.setName} label={i18n.contactCreate.nameLabel} error={name.error} />
-        <View>
+        <View style={styles.inputContainer}>
           <InputItem
             error={address.error}
             focused={!!address.value}
@@ -195,8 +195,11 @@ const styles = StyleSheet.create({
   scanQRCodeButton: {
     position: 'absolute',
     right: 0,
-    bottom: 20,
+    top: 20,
     padding: 8,
+  },
+  inputContainer: {
+    height: 100,
   },
   qrCodeImage: {
     width: 24,
