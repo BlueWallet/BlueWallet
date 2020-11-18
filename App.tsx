@@ -17,6 +17,7 @@ const i18n = require('./loc');
 if (!__DEV__) {
   Sentry.init({
     dsn: config.sentryDsn,
+    enableAutoSessionTracking: true,
   });
 }
 
