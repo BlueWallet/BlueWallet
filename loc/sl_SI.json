@@ -290,6 +290,11 @@
     "save": "Shrani",
     "saved": "Shranjeno"
   },
+  "notifications": {
+    "would_you_like_to_receive_notifications": "Želite prikaz obvestil ob prejemu plačila?",
+    "no_and_dont_ask": "Ne in ne sprašuj",
+    "ask_me_later": "Vprašaj me kasneje"
+  },
   "transactions": {
     "cancel_explain": "To transakcijo bomo nadomestili z novo, ki plača višjo omrežnino. To prekliče prejšnjo transakcijo. To se imenuje RBF - Replace By Fee.",
     "cancel_no": "Ta transakcija ni zamenljiva",
@@ -312,6 +317,7 @@
     "details_transaction_details": "Podrobnosti transakcije",
     "enable_hw": "Ta denarnica se ne uporablja skupaj s strojno denarnico. Ali želite omogočiti uporabo strojne denarnice?",
     "list_conf": "potrd: {number}",
+    "pending": "V teku",
     "list_title": "transakcije",
     "rbf_explain": "To transakcijo bomo nadomestili z novo, ki plača višjo omrežnino, zato bi morala biti potrditev hitrejša. To se imenuje RBF - Replace By Fee.",
     "rbf_title": "Povečaj omrežnino (RBF)",
@@ -443,6 +449,7 @@
     "invalid_fingerprint": "Prstni odtis (fingerprint) tega semena se ne ujema s sopodpisnikovim",
     "view_edit_cosigners": "Prikaži/uredi sopodpisnike",
     "this_cosigner_is_already_imported": "Ta sopodpisnik je že uvožen",
+    "export_signed_psbt": "Izvozi podpisano PSBT",
     "view_edit_cosigners_title": "Urejanje sopodpisnikov"
   }
 }
