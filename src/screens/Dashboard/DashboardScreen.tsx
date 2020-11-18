@@ -67,18 +67,11 @@ class DashboardScreen extends Component<Props, State> {
   getActiveWallet = () => {
     const { lastSnappedTo } = this.state;
     const { wallets } = this.props;
-    return wallets[lastSnappedTo] || wallets[0];
-  };
-
-  getActionWallet = () => {
-    const { lastSnappedTo } = this.state;
-
-    const { wallets } = this.props;
-    return wallets[lastSnappedTo];
+    return wallets[lastSnappedTo] || wallets[wallets.length - 1];
   };
 
   sendCoins = () => {
-    const actionWallet = this.getActionWallet();
+    const actionWallet = this.getActiveWallet();
     this.props.navigation.navigate(Route.SendCoins, {
       fromAddress: actionWallet.getAddress(),
       fromSecret: actionWallet.getSecret(),
@@ -87,14 +80,14 @@ class DashboardScreen extends Component<Props, State> {
   };
 
   receiveCoins = () => {
-    const actionWallet = this.getActionWallet();
+    const actionWallet = this.getActiveWallet();
     this.props.navigation.navigate(Route.ReceiveCoins, {
       id: actionWallet.id,
     });
   };
 
   recoverCoins = () => {
-    const actionWallet = this.getActionWallet();
+    const actionWallet = this.getActiveWallet();
     this.props.navigation.navigate(Route.RecoveryTransactionList, {
       wallet: actionWallet,
     });
