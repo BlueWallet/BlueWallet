@@ -1002,11 +1002,18 @@ export default class SendDetails extends Component {
   };
 
   handleCoinControl = () => {
-    const { fromWallet } = this.state;
-    this.props.navigation.navigate('CoinControl', {
-      walletId: fromWallet.getID(),
-      onUTXOChoose: this.onUTXOChoose,
-    });
+    this.setState(
+      {
+        isAdvancedTransactionOptionsVisible: false,
+      },
+      () => {
+        const { fromWallet } = this.state;
+        this.props.navigation.navigate('CoinControl', {
+          walletId: fromWallet.getID(),
+          onUTXOChoose: this.onUTXOChoose,
+        });
+      },
+    );
   };
 
   hideAdvancedTransactionOptionsModal = () => {
