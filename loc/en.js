@@ -22,6 +22,19 @@ module.exports = {
     scan: 'Scan',
     storage_is_encrypted: 'Your storage is encrypted. Password is required to decrypt it',
   },
+  termsConditions: {
+    header: 'Terms & Conditions',
+    title: 'Agreement to Terms',
+    text: '',
+    buttons: { agree: 'I agree', disagree: 'I disagree' },
+    modal: {
+      header: 'Are you sure?',
+      text:
+        'Note that if you disagree to our Terms & Conditions you won’t be able to use the Gold Wallet application.\nAre you sure you want to disagree?',
+      noButton: 'No, I changed my mind',
+      yesButton: 'Yes, I disagree',
+    },
+  },
   aboutUs: {
     alwaysBackupYourKeys: 'Always backup your keys',
     buildWithAwesome: 'Build with awesome:',
@@ -57,12 +70,8 @@ module.exports = {
       description: 'Enter this PIN into the Electrum Vault desktop application to finish the pairing process.',
       subtitle: 'Enter PIN',
     },
-    errors: {
-      noEmpty: 'Field can not empty',
-    },
-    export: {
-      title: 'Export authenticator',
-    },
+    errors: { noEmpty: 'Field can not empty' },
+    export: { title: 'Export authenticator' },
     import: {
       code: 'Code:',
       desc1: 'Write down the seed phrase or scan the QR code of the authenticator you want to import.',
@@ -447,9 +456,7 @@ module.exports = {
       pending: 'pending',
       unblocked: 'unblocked',
     },
-    list: {
-      conf: 'Confirmations',
-    },
+    list: { conf: 'Confirmations' },
     transactionTypeLabel: {
       canceled: 'Canceled',
       secure: 'Secure',
@@ -512,6 +519,7 @@ module.exports = {
       recover: 'Cancel',
       send: 'Send',
       title: 'Wallets',
+      wallet: 'wallet',
     },
     deleteWallet: {
       description1: 'Are you sure you want to delete',
@@ -542,16 +550,9 @@ module.exports = {
       invalidSign: "Couldn't sign transaction",
       noIndexForWord: "Couldn't find index for word: {word}",
     },
-    export: {
-      title: 'wallet export',
-    },
-    exportWallet: {
-      header: 'Export wallet',
-      title: 'Seed phrase',
-    },
-    exportWalletXpub: {
-      header: 'Wallet XPUB',
-    },
+    export: { title: 'wallet export' },
+    exportWallet: { header: 'Export wallet', title: 'Seed phrase' },
+    exportWalletXpub: { header: 'Wallet XPUB' },
     import: {
       do_import: 'Import',
       error: 'Failed to import. Please, make sure that the provided data is valid.',
@@ -570,7 +571,7 @@ module.exports = {
       import: 'Import',
       importARDescription1: 'Enter the seed phrase',
       importARDescription2: 'scan the QR code of the wallet you want to import',
-      placeholder: 'Seed phrase, private key, WIF',
+      placeholder: 'Seed phrase',
       scanCancelPubKey: 'Scan the Cancel Key QR code',
       scanFastPubKey: 'Scan the Fast Key QR code',
       scanPublicKeyDescription:
@@ -616,9 +617,6 @@ module.exports = {
       none: 'None',
       pendingBalance: 'Blocked balance',
     },
-    walletModal: {
-      btcv: 'BTCV',
-      wallets: 'Wallets',
-    },
+    walletModal: { btcv: 'BTCV', wallets: 'Wallets' },
   },
 };

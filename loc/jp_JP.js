@@ -22,6 +22,22 @@ module.exports = {
     scan: 'スキャン',
     storage_is_encrypted: 'ストレージは暗号化されています。復号するためにはパスワードが必要です。',
   },
+  termsConditions: {
+    header: '利用規約',
+    title: '規約への同意',
+    text: '',
+    buttons: {
+      agree: '同意する',
+      disagree: '同意しない',
+    },
+    modal: {
+      header: '本当によろしですか？',
+      text:
+        '利用規約に同意しない場合、Gold Walletアプリケーションを使用できないことに注意してください。\n本当に同意しなくてよろしいですか？',
+      noButton: 'いいえ、同意します',
+      yesButton: 'はい、同意しません',
+    },
+  },
   aboutUs: {
     alwaysBackupYourKeys: '常にキーをバックアップしてください。',
     buildWithAwesome: '以下でビルド：',
@@ -511,6 +527,7 @@ module.exports = {
       recover: 'キャンセル',
       send: '送金',
       title: 'ウォレット',
+      wallet: 'ウォレット',
     },
     deleteWallet: {
       description1: '削除してもよろしいですか',
@@ -570,7 +587,7 @@ module.exports = {
       import: '登録',
       importARDescription1: 'シードフレーズを入力してください',
       importARDescription2: '登録したいウォレットのQRコードをスキャンしてください',
-      placeholder: 'シードフレーズ、個人キー、WIF',
+      placeholder: 'シードフレーズ',
       scanCancelPubKey: 'キャンセルキーのQRコードをスキャンする',
       scanFastPubKey: 'クイックキーのQRコードをスキャンする',
       scanPublicKeyDescription:

@@ -22,6 +22,19 @@ module.exports = {
     scan: 'Digitalizar',
     storage_is_encrypted: 'O seu armazenamento está encriptado. A palavra-passe é necessária para desencriptá-lo',
   },
+  termsConditions: {
+    header: 'Termos e Condições',
+    title: 'Acordo dos Termos',
+    text: '',
+    buttons: { agree: 'Eu concordo', disagree: 'Eu discordo' },
+    modal: {
+      header: 'Tem a certeza?',
+      text:
+        'Observe que se discordar com os nossos Termos e Condições, não poderá utilizar a aplicação Gold Wallet.\nTem a certeza de que deseja discordar?',
+      noButton: 'Não, eu mudei de ideias',
+      yesButton: 'Sim, eu discordo',
+    },
+  },
   aboutUs: {
     alwaysBackupYourKeys: 'Realizar sempre uma cópia de segurança nas suas chaves',
     buildWithAwesome: 'Construir com Awesome:',
@@ -57,12 +70,8 @@ module.exports = {
         'Introduzir este PIN na aplicação de ambiente de trabalho Electrum Vault para terminar o processo de emparelhamento.',
       subtitle: 'Introduzir PIN',
     },
-    errors: {
-      noEmpty: 'O campo não pode ficar vazio',
-    },
-    export: {
-      title: 'Exportar autenticador',
-    },
+    errors: { noEmpty: 'O campo não pode ficar vazio' },
+    export: { title: 'Exportar autenticador' },
     import: {
       code: 'Código:',
       desc1: 'Escreva a frase semente ou leia o código QR do autenticador que pretende importar.',
@@ -107,9 +116,7 @@ module.exports = {
         'Pode usar esta chave pública para importar o seu autenticador para o aplicativo de desktop Electrum Vault durante a criação da carteira 2FA.',
       title: 'Chave Pública',
     },
-    sign: {
-      error: 'Nenhum dos autenticadores pôde assinafr a transação',
-    },
+    sign: { error: 'Nenhum dos autenticadores pôde assinafr a transação' },
   },
   betaVersion: {
     button: 'Eu aceito o risco',
@@ -451,9 +458,7 @@ module.exports = {
       pending: 'pendente',
       unblocked: 'desbloqueado',
     },
-    list: {
-      conf: 'Confirmações',
-    },
+    list: { conf: 'Confirmações' },
     transactionTypeLabel: {
       canceled: 'Cancelado',
       secure: 'Seguro',
@@ -518,6 +523,7 @@ module.exports = {
       recover: 'Cancelar',
       send: 'Enviar moedas',
       title: 'Carteiras',
+      wallet: 'carteira',
     },
     deleteWallet: {
       description1: 'Tem a certeza que deseja excluir',
@@ -548,16 +554,9 @@ module.exports = {
       invalidSign: 'Não foi possível assinar transação',
       noIndexForWord: 'Não foi possível encontrar índice da palavra: {palavra}',
     },
-    export: {
-      title: 'exportar carteira',
-    },
-    exportWallet: {
-      header: 'Exportar carteira',
-      title: 'Frase Semente',
-    },
-    exportWalletXpub: {
-      header: 'Carteira XPUB',
-    },
+    export: { title: 'exportar carteira' },
+    exportWallet: { header: 'Exportar carteira', title: 'Frase Semente' },
+    exportWalletXpub: { header: 'Carteira XPUB' },
     import: {
       do_import: 'Importar',
       error: 'Falha na importação. Garanta que os dados fornecidos são válidos.',
@@ -576,7 +575,7 @@ module.exports = {
       import: 'Importar',
       importARDescription1: 'Introduza a frase semente',
       importARDescription2: 'leia o código QR do tipo de carteira que quer importar',
-      placeholder: 'Mnemónica, chave privada, WIF',
+      placeholder: 'Mnemónica',
       scanCancelPubKey: 'Leia o código QR da Chave Cancelar',
       scanFastPubKey: 'Leia o código QR da Chave Rápida',
       scanPublicKeyDescription:
@@ -622,9 +621,6 @@ module.exports = {
       none: 'Nenhum',
       pendingBalance: 'Saldo pendente',
     },
-    walletModal: {
-      btcv: 'BTCV',
-      wallets: 'Carteiras',
-    },
+    walletModal: { btcv: 'BTCV', wallets: 'Carteiras' },
   },
 };

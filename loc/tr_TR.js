@@ -22,6 +22,22 @@ module.exports = {
     scan: 'Tarat',
     storage_is_encrypted: 'Kasanız şifrelidir. Açmak için parola gereklidir.',
   },
+  termsConditions: {
+    header: 'Hüküm ve Şartlar',
+    title: 'Şartların Kabul Edilmesi',
+    text: '',
+    buttons: {
+      agree: 'Kabul ediyorum',
+      disagree: 'Kabul etmiyorum',
+    },
+    modal: {
+      header: 'Emin misiniz?',
+      text:
+        'Hüküm ve Şartlarımızı kabul etmezseniz Gold Wallet uygulamasını kullanamayacaksınız. Kabul etmediğinizden emin misiniz?',
+      noButton: 'Hayır, fikrimi değiştirdim',
+      yesButton: 'Evet, kabul etmiyorum',
+    },
+  },
   aboutUs: {
     alwaysBackupYourKeys: 'Her zaman anahtarlarınızı yedekleyin',
     buildWithAwesome: 'Muhteşem özellikle oluştur:',
@@ -482,12 +498,12 @@ module.exports = {
       inputLabel: 'Ad',
       legacy: 'Varsayılan işlem türlerini gerçekleştirir.',
       legacyHDP2SH: '12 kelimelik tek bir çekirdekten oluşturulmuş bir P2SH adresleri ağacı içerir',
-      legacyHDP2SHTitle: 'Legacy HD P2SH',
+      legacyHDP2SHTitle: 'Standart HD P2SH',
       LegacyHDSegWit: '12 kelimelik tek bir çekirdekten oluşturulmuş bir native segwit adresleri ağacı içerir',
-      legacyHDSegWitTitle: 'Legacy HD SegWit',
+      legacyHDSegWitTitle: 'Standart HD SegWit',
       LegacyP2SH: 'Tek bir P2SH adresi içerir',
-      legacyP2SHTitle: 'Legacy P2SH',
-      legacyTitle: 'Legacy',
+      legacyP2SHTitle: 'Standart P2SH',
+      legacyTitle: 'Standart',
       multipleAddresses: 'Çoklu adresler',
       publicKeyError: 'Sağlanan açık anahtar geçerli değil',
       segwidAddress: 'Tek bir 12 kelimelik seedden oluşturulmuş yerli segwit adreslerinden oluşan ağaç içerir',
@@ -514,6 +530,7 @@ module.exports = {
       recover: 'İptal Et',
       send: 'Coin gönder',
       title: 'Cüzdanlar',
+      wallet: 'cüzdan',
     },
     deleteWallet: {
       description1: 'Silmek istediğinizden emin misiniz',
@@ -572,7 +589,7 @@ module.exports = {
       import: 'İçeri aktar',
       importARDescription1: 'Çekirdek ifadeyi girin',
       importARDescription2: 'İçeri aktarmak istediğiniz cüzdanın QR kodunu tarayın',
-      placeholder: 'Özel ipucu, özel anahtar, WIF',
+      placeholder: 'Çekirdek ifade',
       scanCancelPubKey: 'İptal Anahtarı QR kodunu tarayın',
       scanFastPubKey: 'Hızlı Anahtar QR kodunu tarayın',
       scanPublicKeyDescription:

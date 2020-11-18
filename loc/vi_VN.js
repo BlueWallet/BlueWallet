@@ -22,6 +22,22 @@ module.exports = {
     scan: 'Quét',
     storage_is_encrypted: 'Ví lưu trữ của quý khách đã được mã hóa. Cần có mật khẩu để giải mã',
   },
+  termsConditions: {
+    header: 'Điều khoản và điều kiện',
+    title: 'Đồng ý với các điều khoản',
+    text: '',
+    buttons: {
+      agree: 'Tôi đồng ý',
+      disagree: 'Tôi không đồng ý',
+    },
+    modal: {
+      header: 'Bạn có chắc chắn không?',
+      text:
+        'Lưu ý rằng nếu bạn không đồng ý với Điều khoản & Điều kiện của chúng tôi, bạn sẽ không thể sử dụng ứng dụng Gold Wallet.\nBạn có chắc chắn không đồng ý không?',
+      noButton: 'Không, tôi đã đổi ý',
+      yesButton: 'Vâng, tôi không đồng ý',
+    },
+  },
   aboutUs: {
     alwaysBackupYourKeys: 'Hãy luôn sao lưu mã khóa của quý khách',
     buildWithAwesome: 'Xây dựng với:',
@@ -485,12 +501,12 @@ module.exports = {
       inputLabel: 'Tên',
       legacy: 'Thực hiện các loại giao dịch mặc định.',
       legacyHDP2SH: 'Nó chứa một cây địa chỉ P2SH được tạo ra từ một từ khóa hạt giống gồm 12 từ riêng lẻ',
-      legacyHDP2SHTitle: 'Legacy HD P2SH',
+      legacyHDP2SHTitle: 'Tiêu chuẩn HD P2SH',
       LegacyHDSegWit: 'Nó chứa một cây địa chỉ segwit gốc, được tạo ra từ một từ khóa hạt giống gồm 12 từ riêng lẻ',
-      legacyHDSegWitTitle: 'Legacy HD SegWit',
+      legacyHDSegWitTitle: 'Tiêu chuẩn HD SegWit',
       LegacyP2SH: 'Nó chứa một địa chỉ P2SH duy nhất',
-      legacyP2SHTitle: 'Legacy P2SH',
-      legacyTitle: 'Legacy',
+      legacyP2SHTitle: 'Tiêu chuẩn P2SH',
+      legacyTitle: 'Tiêu chuẩn',
       multipleAddresses: 'Nhiều địa chỉ',
       publicKeyError: 'Khóa công khai được cung cấp không hợp lệ',
       segwidAddress: 'Nó chứa một cây bao gồm các địa chỉ ví segwit, được tạo từ một hạt giống 12 từ duy nhất',
@@ -517,6 +533,7 @@ module.exports = {
       recover: 'Hủy',
       send: 'Gửi coin',
       title: 'Ví',
+      wallet: 'ví',
     },
     deleteWallet: {
       description1: 'Quý khách có chắc chắn muốn xóa không',
@@ -575,7 +592,7 @@ module.exports = {
       import: 'Nhập',
       importARDescription1: 'Nhập cụm từ khóa hạt giống',
       importARDescription2: 'quét mã QR của ví bạn muốn nhập',
-      placeholder: 'Thông tin ghi nhớ, khóa riêng tư, WIF',
+      placeholder: 'Cụm từ khóa hạt giống',
       scanCancelPubKey: 'Quét mã QR Khóa Hủy',
       scanFastPubKey: 'Quét mã QR Khóa Nhanh',
       scanPublicKeyDescription:

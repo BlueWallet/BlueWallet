@@ -22,6 +22,22 @@ module.exports = {
     scan: 'Pindai',
     storage_is_encrypted: 'Penyimpanan Anda dienkripsi. Perlu kata sandi untuk mendekripsinya',
   },
+  termsConditions: {
+    header: 'Syarat & Ketentuan',
+    title: 'Persetujuan Syarat',
+    text: '',
+    buttons: {
+      agree: 'Saya setuju',
+      disagree: 'Saya tidak setuju',
+    },
+    modal: {
+      header: 'Apakah Anda yakin?',
+      text:
+        'Mohon dicatat bahwa apabila Anda tidak setuju dengan syarat dan ketentuan kami Anda tidak akan dapat menggunakan aplikasi Gold Wallet. Apakah Anda masih tidak menyetujui?',
+      noButton: 'Tidak, Saya berubah pikiran.',
+      yesButton: 'Ya, Saya tidak setuju.',
+    },
+  },
   aboutUs: {
     alwaysBackupYourKeys: 'Selalu cadangkan kunci Anda',
     buildWithAwesome: 'Bangun dengan hebat:',
@@ -448,7 +464,7 @@ module.exports = {
       canceledDone: 'Dibatalkan - selesai',
       done: 'selesai',
       pending: 'tertunda',
-      unblocked: 'Dibuka',
+      unblocked: 'unblocked',
     },
     list: {
       conf: 'Konfirmasi',
@@ -483,7 +499,7 @@ module.exports = {
       inputLabel: 'Nama',
       legacy: 'Membuat tipe transaksi default.',
       legacyHDP2SH: 'Berisi pohon alamat P2SH yang dibuat dari satu benih 12 kata',
-      legacyHDP2SHTitle: 'HD P2SH Legasi',
+      legacyHDP2SHTitle: 'HD P2SH Standar',
       LegacyHDSegWit: 'Berisi pohon alamat segwit asal, dibuat satu benih 12 kata',
       legacyHDSegWitTitle: 'HD Segwit Standar',
       LegacyP2SH: 'Berisi satu alamat P2SH',
@@ -516,6 +532,7 @@ module.exports = {
       recover: 'Batal',
       send: 'Kirim',
       title: 'Dompet',
+      wallet: 'dompet',
     },
     deleteWallet: {
       description1: 'Anda yakin ingin menghapus',
@@ -574,7 +591,7 @@ module.exports = {
       import: 'Impor',
       importARDescription1: 'Masukkan frasa benih (seed)',
       importARDescription2: 'pindai kode QR dompet yang ingin Anda impor',
-      placeholder: 'Frasa benih (seed), kunci pribadi, WIF',
+      placeholder: 'Frasa benih (seed)',
       scanCancelPubKey: 'Pindai kode QR Kunci Pembatalan',
       scanFastPubKey: 'Pindai kode QR Kunci Cepat',
       scanPublicKeyDescription:

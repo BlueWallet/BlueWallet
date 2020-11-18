@@ -22,6 +22,22 @@ module.exports = {
     scan: 'Escanear',
     storage_is_encrypted: 'Su almacenamiento está cifrado. Se requiere contraseña para descifrarlo',
   },
+  termsConditions: {
+    header: 'Términos y Condiciones',
+    title: 'Acuerdo de los Términos',
+    text: '',
+    buttons: {
+      agree: 'Estoy de acuerdo',
+      disagree: 'No estoy de acuerdo',
+    },
+    modal: {
+      header: '¿Está seguro?',
+      text:
+        'Tenga en cuenta que si no está de acuerdo con nuestros Términos y Condiciones, no podrá utilizar la aplicación Gold Wallet.¿Está seguro de que no está de acuerdo?',
+      noButton: 'No, cambié de opinión.',
+      yesButton: 'Sí, no estoy de acuerdo.',
+    },
+  },
   aboutUs: {
     alwaysBackupYourKeys: 'Siempre guarde una copia de seguridad de sus claves',
     buildWithAwesome: 'Construido con genialidad:',
@@ -521,6 +537,7 @@ module.exports = {
       recover: 'Cancelar',
       send: 'Enviar monedas',
       title: 'Monederos',
+      wallet: 'monedero',
     },
     deleteWallet: {
       description1: '¿Está seguro de que quiere eliminar',
@@ -580,7 +597,7 @@ module.exports = {
       import: 'Importar',
       importARDescription1: 'Introduzca la frase mnemotécnica',
       importARDescription2: 'Escanee el código QR del monedero que desea importar',
-      placeholder: 'Frase mnemotécnica, clave privada, WIF',
+      placeholder: 'Frase mnemotécnica',
       scanCancelPubKey: 'Escanee el código QR de la clave de Cancelación',
       scanFastPubKey: 'Escanee el código QR de la Clave Rápida',
       scanPublicKeyDescription:
