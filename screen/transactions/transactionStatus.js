@@ -158,6 +158,7 @@ export default class TransactionsStatus extends Component {
         if (t.hash === hash) {
           console.log('tx', hash, 'belongs to', w.getLabel());
           wallet = w;
+          break;
         }
       }
     }
@@ -194,6 +195,7 @@ export default class TransactionsStatus extends Component {
         isRBFCancelPossible: buttonStatus.notPossible,
       });
     }
+    this.context.setSelectedWallet(this.state.wallet.getID());
   }
 
   async checkPossibilityOfCPFP() {

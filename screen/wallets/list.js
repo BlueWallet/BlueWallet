@@ -46,6 +46,7 @@ const WalletsList = () => {
     refreshAllWalletTransactions,
     newWalletAdded,
     setNewWalletAdded,
+    setSelectedWallet,
   } = useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
@@ -84,6 +85,7 @@ const WalletsList = () => {
   useFocusEffect(
     useCallback(() => {
       verifyBalance();
+      setSelectedWallet('');
       StatusBar.setBarStyle('default');
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
