@@ -363,9 +363,9 @@ module.exports = {
       type: 'Transaction type',
       watchOnlyError: 'Watch only wallets cannot send transactions',
     },
-    warning: 'Warning:',
+    warning: 'Warning: ',
     warningGeneral:
-      'Warning: Please be aware that in the process of using the Secure Transaction feature, a part of the funds left in your wallet might be blocked. This is a normal procedure linked to UTXO and the blockchain parameters of the Bitcoin Vault wallet. Your funds will be unblocked once the transaction is verified (after approximately 24 hrs) or canceled (within 24 hrs).',
+      'Please be aware that in the process of using the Secure Transaction feature, a part of the funds left in your wallet might be blocked. This is a normal procedure linked to UTXO and the blockchain parameters of the Bitcoin Vault wallet. Your funds will be unblocked once the transaction is verified (after approximately 24 hrs) or canceled (within 24 hrs).',
   },
   settings: {
     about: 'About',

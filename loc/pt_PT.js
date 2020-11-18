@@ -367,9 +367,9 @@ module.exports = {
       type: 'Tipo de transação',
       watchOnlyError: 'Carteiras apenas de observação não podem enviar transações',
     },
-    warning: 'Aviso:',
+    warning: 'Aviso: ',
     warningGeneral:
-      'Aviso: Esteja ciente de que no processo de uso do recurso Transação segura, uma parte dos fundos deixados na sua carteira pode ser bloqueada. Este é um procedimento normal vinculado ao UTXO e aos parâmetros de blockchain da carteira Bitcoin Vault. Os seus fundos serão desbloqueados assim que a transação for verificada (após aproximadamente 24 horas) ou cancelada (dentro de 24 horas).',
+      'Esteja ciente de que no processo de uso do recurso Transação segura, uma parte dos fundos deixados na sua carteira pode ser bloqueada. Este é um procedimento normal vinculado ao UTXO e aos parâmetros de blockchain da carteira Bitcoin Vault. Os seus fundos serão desbloqueados assim que a transação for verificada (após aproximadamente 24 horas) ou cancelada (dentro de 24 horas).',
   },
   settings: {
     about: 'Sobre',

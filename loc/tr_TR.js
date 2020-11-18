@@ -365,9 +365,9 @@ module.exports = {
       type: 'İşlem türü',
       watchOnlyError: 'Yalnızca izlenebilir cüzdanlar işlem gönderemez',
     },
-    warning: 'Uyarı:',
+    warning: 'Uyarı: ',
     warningGeneral:
-      'Uyarı: Lütfen Güvenli İşlem özelliğini kullanma sırasında cüzdanınızda kalan fonların bir kısmının bloke edilebileceğini dikkate alın. Bu UTXO ve Bitcoin Vault cüzdanının bitcoin parametreleriyle ile ilişkili normal bir prosedürdür. Fonlarınızın blokesi işlem tamamlandıktan sonra (yaklaşık 24 saat sonra) veya iptal edildikten sonra (24 saat içinde) kaldırılacaktır.',
+      'Lütfen Güvenli İşlem özelliğini kullanma sırasında cüzdanınızda kalan fonların bir kısmının bloke edilebileceğini dikkate alın. Bu UTXO ve Bitcoin Vault cüzdanının bitcoin parametreleriyle ile ilişkili normal bir prosedürdür. Fonlarınızın blokesi işlem tamamlandıktan sonra (yaklaşık 24 saat sonra) veya iptal edildikten sonra (24 saat içinde) kaldırılacaktır.',
   },
   settings: {
     about: 'Hakkında',

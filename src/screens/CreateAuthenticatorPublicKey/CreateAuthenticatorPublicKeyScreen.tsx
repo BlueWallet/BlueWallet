@@ -59,7 +59,7 @@ class CreateAuthenticatorPublicKeyScreen extends Component<Props> {
         header={<Header navigation={navigation} isBackArrow={false} title={i18n.authenticators.add.title} />}
       >
         <Text style={styles.subtitle}>{i18n.authenticators.publicKey.title}</Text>
-        <Text style={styles.description}>{i18n.authenticators.add.description}</Text>
+        <Text style={styles.description}>{i18n.authenticators.publicKey.subtitle}</Text>
         <TextAreaItem style={styles.textArea} value={authenticator.publicKey} editable={false} />
         <FlatButton onPress={this.share} title={i18n.receive.details.share} />
       </ScreenTemplate>
