@@ -1,10 +1,15 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 import { CONST, Transaction, Filters, TagsType } from 'app/consts';
 
 import { satoshiToBtc } from '../../utils/bitcoin';
 
 const i18n = require('../../loc');
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
 const filterByTransactionType = (transactions: Transaction[], type?: string): Transaction[] => {
   if (type === CONST.send) {
@@ -23,7 +28,8 @@ const filterByFromDate = (transactions: Transaction[], fromDate: string): Transa
     if (!transaction.received) {
       return;
     }
-    return moment(fromDate).isSameOrBefore(transaction.received, 'day');
+
+    return dayjs(fromDate).isSameOrBefore(transaction.received, 'day');
   });
 };
 
@@ -32,7 +38,8 @@ const filterByToDate = (transactions: Transaction[], toDate: string): Transactio
     if (!transaction.received) {
       return;
     }
-    return moment(toDate).isSameOrAfter(transaction.received, 'day');
+
+    return dayjs(toDate).isSameOrAfter(transaction.received, 'day');
   });
 };
 

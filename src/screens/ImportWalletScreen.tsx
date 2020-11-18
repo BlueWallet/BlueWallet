@@ -456,6 +456,7 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
           {this.renderSubtitle()}
           <TextAreaItem
             error={validationError}
+            autoCapitalize="none"
             onChangeText={this.onChangeText}
             placeholder={i18n.wallets.importWallet.placeholder}
             style={styles.textArea}
@@ -472,6 +473,7 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
           {hasCustomWords && (
             <TextAreaItem
               value={customWords}
+              autoCapitalize="none"
               onChangeText={this.setCustomWords}
               placeholder={i18n.wallets.importWallet.customWords}
               style={styles.textAreaCustomWords}

@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     right: 10,
     position: 'absolute',
   },
-  clearButton: { padding: 10, alignSelf: 'flex-end', position: 'absolute' },
+  clearButton: { padding: 10, alignSelf: 'flex-end', position: 'absolute', top: 20 },
   clearImage: { height: 25, width: 25 },
   groupTitle: {
     color: palette.textGrey,

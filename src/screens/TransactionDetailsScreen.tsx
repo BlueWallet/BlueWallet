@@ -1,7 +1,7 @@
 import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import dayjs from 'dayjs';
 import { map, compose, uniq, flatten, join } from 'lodash/fp';
-import moment from 'moment';
 import React, { Component } from 'react';
 import { View, StyleSheet, Text, Linking, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux';
@@ -157,7 +157,7 @@ class TransactionDetailsScreen extends Component<Props> {
     const { transaction } = this.props.route.params;
     const { note } = this.props;
     this.props.navigation.navigate(Route.EditText, {
-      title: transaction.time ? moment.unix(transaction.time).format('lll') : '',
+      title: transaction.time ? dayjs.unix(transaction.time).format('lll') : '',
       label: i18n.transactions.details.note,
       onSave: this.updateNote,
       value: note,
@@ -205,7 +205,7 @@ class TransactionDetailsScreen extends Component<Props> {
             navigation={this.props.navigation}
             isBackArrow
             title={
-              transaction.time ? moment.unix(transaction.time).format('lll') : i18n.transactions.details.timePending
+              transaction.time ? dayjs.unix(transaction.time).format('lll') : i18n.transactions.details.timePending
             }
           />
         }
@@ -234,7 +234,7 @@ class TransactionDetailsScreen extends Component<Props> {
           <StyledText
             title={i18n.transactions.details.addToAddressBook}
             onPress={() => {
-              this.addToAddressBook(fromValue);
+              this.addToAddressBook(fromValue.split(',')[0]);
             }}
           />
         </View>

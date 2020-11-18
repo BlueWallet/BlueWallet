@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
@@ -36,7 +36,7 @@ export const TransactionItem = ({ item, onPress }: { item: Transaction; onPress:
       </View>
       {!!item.note && <Text style={typography.caption}>{item.note}</Text>}
       <Text style={styles.label}>
-        {item.time ? moment(item.received).format('LT') : i18n.transactions.details.timePending}
+        {item.time ? dayjs(item.received).format('LT') : i18n.transactions.details.timePending}
       </Text>
       {renderCofirmations(item.tx_type, item.confirmations)}
       <View style={styles.rowWrapper}>

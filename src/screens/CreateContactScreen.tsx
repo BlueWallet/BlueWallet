@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   description: {
-    marginBottom: 52,
+    marginBottom: 40,
     color: palette.textGrey,
     ...typography.caption,
     textAlign: 'center',
