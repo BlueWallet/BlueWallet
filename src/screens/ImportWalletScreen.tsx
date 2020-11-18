@@ -16,6 +16,7 @@ import {
 } from 'app/consts';
 import { maxWalletNameLength } from 'app/consts/text';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
+import { preventScreenshots, allowScreenshots } from 'app/services/ScreenshotsService';
 import { ApplicationState } from 'app/state';
 import { selectors } from 'app/state/wallets';
 import { importWallet as importWalletAction, ImportWalletAction } from 'app/state/wallets/actions';
@@ -58,6 +59,14 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
     label: '',
     validationError: '',
   };
+
+  componentDidMount() {
+    preventScreenshots();
+  }
+
+  componentWillUnmount() {
+    allowScreenshots();
+  }
 
   setCustomWords = (customWords: string) => this.setState({ customWords });
 

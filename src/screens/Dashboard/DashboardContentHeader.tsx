@@ -24,7 +24,7 @@ interface Props {
 
 const shouldRenderRecover = (type: string) => [HDSegwitP2SHArWallet.type, HDSegwitP2SHAirWallet.type].includes(type);
 
-export const DashboarContentdHeader = ({
+export const DashboardContentHeader = ({
   balance,
   unit,
   label,

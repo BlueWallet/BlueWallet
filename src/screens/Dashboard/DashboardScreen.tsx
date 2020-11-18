@@ -13,7 +13,7 @@ import { loadWallets, LoadWalletsAction } from 'app/state/wallets/actions';
 import * as walletsSelectors from 'app/state/wallets/selectors';
 import { palette } from 'app/styles';
 
-import { DashboarContentdHeader } from './DashboarContentdHeader';
+import { DashboardContentHeader } from './DashboardContentHeader';
 import { DashboardHeader } from './DashboardHeader';
 import TransactionList from './TransactionList';
 import { WalletsCarousel } from './WalletsCarousel';
@@ -174,7 +174,7 @@ class DashboardScreen extends Component<Props, State> {
           });
         }}
       >
-        <DashboarContentdHeader
+        <DashboardContentHeader
           onSelectPress={this.showModal}
           balance={activeWallet.balance}
           isAllWallets={isAllWallets(activeWallet)}
