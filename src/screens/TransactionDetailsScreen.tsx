@@ -199,6 +199,7 @@ class TransactionDetailsScreen extends Component<Props> {
     const { transaction } = this.props.route.params;
     const fromValue = this.getAddresses('inputs');
     const toValue = this.getAddresses('outputs');
+    const splitForm = fromValue.split(',')[0];
     return (
       <ScreenTemplate
         header={
@@ -230,13 +231,13 @@ class TransactionDetailsScreen extends Component<Props> {
         <View style={styles.contentRowContainer}>
           <View style={styles.row}>
             <Text style={styles.contentRowTitle}>{i18n.transactions.details.from}</Text>
-            <CopyButton textToCopy={fromValue.split(',')[0]} />
+            <CopyButton textToCopy={splitForm} />
           </View>
           <Text style={styles.contentRowBody}>{fromValue}</Text>
           <StyledText
             title={i18n.transactions.details.addToAddressBook}
             onPress={() => {
-              this.addToAddressBook(fromValue.split(',')[0]);
+              this.addToAddressBook(splitForm);
             }}
           />
         </View>
