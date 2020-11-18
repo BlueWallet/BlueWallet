@@ -17,7 +17,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
   }
 
   getAddressForTransaction() {
-    return this._address;
+    return this.getAddress();
   }
 
   getAddress() {

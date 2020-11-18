@@ -64,7 +64,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
   }
 
   getAddressForTransaction() {
-    return this._address;
+    return this.getAddress();
   }
 
   getAddress() {
