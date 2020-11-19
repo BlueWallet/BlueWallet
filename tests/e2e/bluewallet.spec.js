@@ -403,7 +403,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('BlueAddressInputScanQrButton')).tap();
 
     // tapping 10 times invisible button is a backdoor:
-    for (let c = 0; c <= 10; c++) {
+    for (let c = 0; c <= 5; c++) {
       await element(by.id('ScanQrBackdoorButton')).tap();
       await sleep(1000);
     }
@@ -471,7 +471,7 @@ describe('BlueWallet UI Tests', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can import zpub as watch-only and create PSBT', async () => {
+  it('can import zpub as watch-only and create PSBT, and scan txhex back', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
@@ -509,7 +509,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('PsbtTxScanButton')).tap(); // opening camera
 
     // tapping 10 times invisible button is a backdoor:
-    for (let c = 0; c <= 10; c++) {
+    for (let c = 0; c <= 5; c++) {
       await element(by.id('ScanQrBackdoorButton')).tap();
       await sleep(1000);
     }
@@ -518,9 +518,68 @@ describe('BlueWallet UI Tests', () => {
       '020000000001011628f58e8e81bfcfff1b106bb8968e342fb86f09aa810ed2939e43d5127c51040200000000000000000227e42d000000000017a914c679a827d57a9b8b539515dbafb4e573d2bcc6ca87df15cf02000000002200209705cdfcbc459a220e7f39ffe547a31335505c2357f452ae12a22b9ae36ea59d04004730440220626c5205a6f49d1dd1577c85c0af4c5fc70f41de61f891d71a5cf57af09110d4022045bcb1e7d4e93e1a9baf6ae1ad0b4087c9e9f73ec366e97576912377d9f6904301473044022044aea98e8983f09cb0639f08d34526bb7e3ed47d208b7bf714fb29a1b5f9535a02200baa510b94cf434775b4aa2184682f2fb33f15e5e76f79aa0885e7ee12bdc8f70169522102e67ce679d617d674d68eea95ecb166c67b4b5520105c4745adf37ce8a40b92dc21029ff54b8bf26dbddd7bd4336593d2ff17519d5374989f36a6f5f8239675ff79a421039000ee2853c6db4bd956e80b1ecfb8711bf3e0a9a8886d15450c29458b60473153ae00000000';
     await element(by.id('scanQrBackdoorInput')).replaceText(randomTxHex);
     await element(by.id('scanQrBackdoorOkButton')).tap();
+    await expect(element(by.id('ScanQrBackdoorButton'))).toBeNotVisible();
     await yo('PsbtWithHardwareWalletBroadcastTransactionButton');
 
-    // TODO: same but with real signed PSBT QR for this specific transaction
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  /**
+   * test plan:
+   * 1. import wallet
+   * 2. wallet -> send -> import transaction (scan QR)
+   * 3. provide unsigned psbt from coldcard (UR)
+   * 4. on psbtWithHardwareWallet, tap scanQr
+   * 5. provide fully signed psbt (UR)
+   * 6. verify that we can see broadcast button and camera backdorr button is NOT visible
+   */
+  it('can import zpub as watch-only, import psbt, and then scan signed psbt', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+    }
+    await helperImportWallet(
+      'zpub6rDWXE4wbwefeCrHWehXJheXnti5F9PbpamDUeB5eFbqaY89x3jq86JADBuXpnJnSvRVwqkaTnyMaZERUg4BpxD9V4tSZfKeYh1ozPdL1xK',
+      'Imported Watch-only',
+      '0.00030666 BTC',
+    );
+
+    await element(by.id('SendButton')).tap();
+    await element(by.text('OK')).tap();
+
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('ImportQrTransactionButton')).tap(); // opens camera
+
+    const unsignedPsbt =
+      'ur:bytes/tzahqumzwnlszqzjqgqqqqqp6uu247pvcz6zld9p77ghlnl753q8fgygggzv9ugjxsmggyy5gqcqqqqqqqq0llllluqepssqqqqqqqqqzcqpfkxmzh6ud2yrvcl37uyy9yswr2z4mx276qqqqqqqqqgpragvxqqqqqqqqqqkqq2tgxjzwa0000egemyzygsv92j2zdwvg5ejypszwe3qctjvrwul6t2ts7yhk8e5takxwzey2z70kdnykwd43jsptrzps95d6cp4gqqqsqqqqqyqqqqqpqqqqqqqqpqqqqqqqqq0vr0lj';
+    const signedPsbt =
+      'ur:bytes/tyqjuurnvf607qgq2gpqqqqqq8tn32hc9nqtgta558mezl70l6jyqa9q3ppqfsh3zg6rdpqsj3qrqqqqqqqqpllllllsryxzqqqqqqqqqqtqq9xcmv2lt34gsdnr78msss5jpcdg2hvetmgqqqqqqqqpqy04pscqqqqqqqqqzcqpfdq6gfm4aaal9r8vsg3zps42fgf4e3znxgszqfmxyrpwfsdmnlfdfwrcj7clx30kcecty3gte7ekvjeekkx2q9vvgjpsg5pzzqxjc9xv3rlhu2n6u87pm94agwcmvcywwsx9k0jpvwyng8crytgrkcpzqae6amp5xy03x2lsklv5zgnmeht0grzns27tmsjtsg2j0ne2969kqyqsxpqpqqqqqgsxqfmxyrpwfsdmnlfdfwrcj7clx30kcecty3gte7ekvjeekkx2q9vvgxqk3htqx4qqqzqqqqqqsqqqqqyqqqqqqqqyqqqqqqqqear8ke';
+
+    // tapping 10 times invisible button is a backdoor:
+    for (let c = 0; c <= 5; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+      await sleep(1000);
+    }
+
+    await element(by.id('scanQrBackdoorInput')).replaceText(unsignedPsbt);
+    await element(by.id('scanQrBackdoorOkButton')).tap();
+
+    // now lets test scanning back QR with UR PSBT. this should lead straight to broadcast dialog
+
+    await element(by.id('PsbtWithHardwareScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
+    await element(by.id('PsbtTxScanButton')).tap(); // opening camera
+
+    // tapping 10 times invisible button is a backdoor:
+    for (let c = 0; c <= 5; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+      await sleep(1000);
+    }
+
+    await element(by.id('scanQrBackdoorInput')).replaceText(signedPsbt);
+    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await expect(element(by.id('ScanQrBackdoorButton'))).toBeNotVisible();
+    await yo('PsbtWithHardwareWalletBroadcastTransactionButton');
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -577,7 +636,7 @@ describe('BlueWallet UI Tests', () => {
 
     for (const ur of urs) {
       // tapping 10 times invisible button is a backdoor:
-      for (let c = 0; c <= 10; c++) {
+      for (let c = 0; c <= 5; c++) {
         await element(by.id('ScanQrBackdoorButton')).tap();
       }
       await element(by.id('scanQrBackdoorInput')).replaceText(ur);
@@ -627,7 +686,7 @@ describe('BlueWallet UI Tests', () => {
 
     for (const ur of ursSignedByColdcard) {
       // tapping 10 times invisible button is a backdoor:
-      for (let c = 0; c <= 10; c++) {
+      for (let c = 0; c <= 5; c++) {
         await element(by.id('ScanQrBackdoorButton')).tap();
       }
       await element(by.id('scanQrBackdoorInput')).replaceText(ur);
@@ -648,7 +707,7 @@ describe('BlueWallet UI Tests', () => {
 
     for (const ur of urSignedByColdcardAndCobo) {
       // tapping 10 times invisible button is a backdoor:
-      for (let c = 0; c <= 10; c++) {
+      for (let c = 0; c <= 5; c++) {
         await element(by.id('ScanQrBackdoorButton')).tap();
       }
       await element(by.id('scanQrBackdoorInput')).replaceText(ur);
