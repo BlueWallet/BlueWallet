@@ -290,6 +290,11 @@
     "save": "Opslaan",
     "saved": "Opgeslagen"
   },
+  "notifications": {
+    "would_you_like_to_receive_notifications": "Wil je meldingen ontvangen als je binnenkomende betalingen ontvangt?",
+    "no_and_dont_ask": "Nee en vraag het mij niet meer",
+    "ask_me_later": "Vraag het mij later"
+  },
   "transactions": {
     "cancel_explain": "We zullen deze transactie vervangen door degene die u betaalt en hogere fees heeft. Dit annuleert effectief de transactie. Dit heet RBF - Replace By Fee.",
     "cancel_no": "Deze transactie is niet vervangbaar",
@@ -312,6 +317,7 @@
     "details_transaction_details": "Transactie details",
     "enable_hw": "Deze wallet wordt niet gebruikt in combinatie met een hardware wallet. Wilt u het gebruik van een hardware wallet inschakelen?",
     "list_conf": "conf: {number}",
+    "pending": "In afwachting",
     "list_title": "transacties",
     "rbf_explain": "We zullen deze transactie vervangen door degene met een hogere fee, dus het zou sneller moeten worden gemined. Dit heet RBF - Replace By Fee.",
     "rbf_title": "Bumb fee (RBF)",
