@@ -184,7 +184,7 @@ const CoinControl = () => {
     },
   });
 
-  tipCoins = () => {
+  const tipCoins = () => {
     return( 
       <View style={[styles.tip, stylesHook.tip]}>
           <Text style={{ color: colors.foregroundColor }}>
