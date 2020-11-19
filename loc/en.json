@@ -455,10 +455,11 @@
   "cc": {
     "change": "change",
     "coins_selected": "Coins selected ({number})",
-    "empty": "Wallet UTXO set is empty",
+    "empty": "This wallet doesn't have any coins at the moment",
     "freeze": "freeze",
     "freezeLabel": "Freeze",
     "header": "Coin control",
-    "use_coin": "Use coin"
+    "use_coin": "Use coin",
+    "tip": "Allows you to see, label, freeze or select coins for improved wallet management."
   }
 }

@@ -104,8 +104,8 @@ export const BlueDarkTheme = {
     msSuccessBG: '#8EFFE5',
     msSuccessCheck: '#000000',
     newBlue: '#007AFF',
-    redBG: '#F2D3D3',
-    redText: '#D0021B',
+    redBG: '#5A4E4E',
+    redText: '#FC6D6D',
   },
 };
 

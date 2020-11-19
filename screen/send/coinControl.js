@@ -20,7 +20,7 @@ import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
 
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { BlueNavigationStyle, SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueButton, BlueListItem } from '../../BlueComponents';
+import { BlueNavigationStyle, SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueSpacing40, BlueButton, BlueListItem } from '../../BlueComponents';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, change = false, full = false, onPress }) => {
@@ -46,8 +46,9 @@ const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, change = 
     freezeText: { color: colors.redText },
   });
 
+
   return (
-    <ListItem bottomDivider onPress={onPress} containerStyle={[{ backgroundColor: colors.elevated }, full && oStyles.containerFull]}>
+    <ListItem bottomDivider onPress={onPress} containerStyle={[{ borderBottomColor: colors.lightBorder, backgroundColor: colors.elevated }, full && oStyles.containerFull]}>
       <Avatar rounded overlayContainerStyle={[oStyles.avatar, { backgroundColor: color }]} />
       <ListItem.Content>
         <ListItem.Title style={[oStyles.amount, { color: colors.foregroundColor }]}>{amount}</ListItem.Title>
@@ -165,6 +166,7 @@ OutputModalContent.propTypes = {
   onUseCoin: PropTypes.func.isRequired,
 };
 
+
 const CoinControl = () => {
   const { colors } = useTheme();
   const navigation = useNavigation();
@@ -175,6 +177,22 @@ const CoinControl = () => {
   const utxo = wallet.getUtxo({ frozen: true }).sort((a, b) => a.height - b.height || a.txid.localeCompare(b.txid) || a.vout - b.vout);
   const [output, setOutput] = useState();
   const [loading, setLoading] = useState(true);
+
+  const stylesHook = StyleSheet.create({
+    tip: {
+      backgroundColor: colors.ballOutgoingExpired,
+    },
+  });
+
+  renderHeader = () => {
+    return( 
+      <View style={[styles.tip, stylesHook.tip]}>
+          <Text style={{ color: colors.foregroundColor }}>
+            {loc.cc.tip}
+          </Text>
+      </View>
+    );
+  };
 
   useEffect(() => {
     wallet.fetchUtxo().then(() => setLoading(false));
@@ -209,6 +227,7 @@ const CoinControl = () => {
           <Text style={{ color: colors.foregroundColor }}>{loc.cc.empty}</Text>
         </View>
       )}
+
       <Modal
         isVisible={Boolean(output)}
         style={styles.bottomModal}
@@ -228,7 +247,7 @@ const CoinControl = () => {
         </KeyboardAvoidingView>
       </Modal>
 
-      <FlatList data={utxo} renderItem={renderItem} keyExtractor={item => `${item.txid}:${item.vout}`} />
+      <FlatList ListHeaderComponent={renderHeader} data={utxo} renderItem={renderItem} keyExtractor={item => `${item.txid}:${item.vout}`} />
     </SafeBlueArea>
   );
 };
@@ -256,6 +275,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 24,
+  },
+  tip: {
+    marginHorizontal: 16,
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 24,
   },
 });
 
