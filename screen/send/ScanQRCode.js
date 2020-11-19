@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   backdoorInputWrapper: { position: 'absolute', left: '5%', top: '0%', width: '90%', height: '70%', backgroundColor: 'white' },
-  progressWrapper: { position: 'absolute', right: '0%', top: '0%', backgroundColor: 'white' },
+  progressWrapper: { position: 'absolute', right: '50%', top: '50%', backgroundColor: 'rgba(255, 255, 255, 0.1)' },
   backdoorInput: {
     height: '50%',
     marginTop: 5,
@@ -321,7 +321,7 @@ const ScanQRCode = () => {
           // tapping it 10 times fires prompt dialog asking for a string thats gona be passed to onBarCodeRead.
           // this allows to mock and test QR scanning in e2e tests
           setBackdoorPressed(backdoorPressed + 1);
-          if (backdoorPressed < 10) return;
+          if (backdoorPressed < 5) return;
           setBackdoorPressed(0);
           setBackdoorVisible(true);
         }}

@@ -819,6 +819,50 @@ export default class SendDetails extends Component {
   };
 
   /**
+   * same as `importTransaction`, but opens camera instead.
+   *
+   * @returns {Promise<void>}
+   */
+  importQrTransaction = async () => {
+    if (this.state.fromWallet.type !== WatchOnlyWallet.type) {
+      alert('Error: importing transaction in non-watchonly wallet (this should never happen)');
+      return;
+    }
+
+    this.setState({ isAdvancedTransactionOptionsVisible: false });
+    this.props.navigation.navigate('ScanQRCodeRoot', {
+      screen: 'ScanQRCode',
+      params: {
+        onBarScanned: this.importQrTransactionOnBarScanned,
+        showFileImportButton: false,
+      },
+    });
+  };
+
+  importQrTransactionOnBarScanned = async ret => {
+    this.props.navigation.dangerouslyGetParent().pop();
+    if (!ret.data) ret = { data: ret };
+    if (ret.data.toUpperCase().startsWith('UR')) {
+      alert('BC-UR not decoded. This should never happen');
+    } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+      // this looks like NOT base64, so maybe its transaction's hex
+      // we dont support it in this flow
+    } else {
+      // psbt base64?
+
+      // we construct PSBT object and pass to next screen
+      // so user can do smth with it:
+      const psbt = bitcoin.Psbt.fromBase64(ret.data);
+      this.props.navigation.navigate('PsbtWithHardwareWallet', {
+        memo: this.state.memo,
+        fromWallet: this.state.fromWallet,
+        psbt,
+      });
+      this.setState({ isLoading: false, isAdvancedTransactionOptionsVisible: false });
+    }
+  };
+
+  /**
    * watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
    * so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
    * user whether he wants to broadcast it.
@@ -1031,6 +1075,17 @@ export default class SendDetails extends Component {
                   hideChevron
                   component={TouchableOpacity}
                   onPress={this.importTransaction}
+                />
+              )}
+            {this.state.fromWallet.type === WatchOnlyWallet.type &&
+              this.state.fromWallet.isHd() &&
+              this.state.fromWallet.getSecret().startsWith('zpub') && (
+                <BlueListItem
+                  testID="ImportQrTransactionButton"
+                  title={loc.send.details_adv_import + ' (QR)'}
+                  hideChevron
+                  component={TouchableOpacity}
+                  onPress={this.importQrTransaction}
                 />
               )}
             {this.state.fromWallet.type === MultisigHDWallet.type && (
