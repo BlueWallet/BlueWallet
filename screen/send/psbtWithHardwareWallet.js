@@ -345,6 +345,8 @@ export default class PsbtWithHardwareWallet extends Component {
       this.props.navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
+          launchedBy: this.props.route.name,
+          showFileImportButton: false,
           onBarScanned: this.onBarScanned,
         },
       });

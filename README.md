@@ -81,10 +81,10 @@ npx react-native run-ios
 * To run on macOS using Mac Catalyst:
 
 ```
-./scripts/maccatalystpatches/applypatchesformaccatalyst.sh
+npm run maccatalystpatches
 ```
 
-You will need to enable Mac in Deployment Info using Xcode. If you are running macOS Catalina, you might need to remove all iOS 14 Widget targets.
+Once the patches are applied, open Xcode and select "My Mac" as destination. If you are running macOS Catalina, you may need to remove all iOS 14 Widget targets.
 
 
 ## TESTS
