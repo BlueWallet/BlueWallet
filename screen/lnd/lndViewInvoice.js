@@ -137,6 +137,7 @@ export default class LNDViewInvoice extends Component {
   }
 
   componentDidMount() {
+    this.context.setSelectedWallet(this.state.fromWallet.getID());
     console.log('LNDViewInvoice - componentDidMount');
     this.fetchInvoiceInterval = setInterval(async () => {
       if (this.state.isFetchingInvoices) {

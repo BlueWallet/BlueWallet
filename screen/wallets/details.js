@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
 });
 
 const WalletDetails = () => {
-  const { saveToDisk, wallets, deleteWallet } = useContext(BlueStorageContext);
+  const { saveToDisk, wallets, deleteWallet, setSelectedWallet } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
@@ -154,6 +154,11 @@ const WalletDetails = () => {
     setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    setSelectedWallet(walletID);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletID]);
 
   const presentWalletHasBalanceAlert = useCallback(async () => {
     ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });

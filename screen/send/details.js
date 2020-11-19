@@ -329,8 +329,9 @@ export default class SendDetails extends Component {
   };
 
   async componentDidMount() {
-    this.renderNavigationHeader();
     console.log('send/details - componentDidMount');
+    this.renderNavigationHeader();
+    this.context.setSelectedWallet(this.state.fromWallet.getID());
     /** @type {BitcoinTransaction[]} */
     const addresses = [];
     let initialMemo = '';
@@ -681,6 +682,7 @@ export default class SendDetails extends Component {
     const changeWallet = () => {
       this.setState({ fromWallet: wallet, utxo: null }, () => {
         this.renderNavigationHeader();
+        this.context.setSelectedWallet(wallet.getID());
         this.props.navigation.pop();
       });
     };

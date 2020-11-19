@@ -22,9 +22,7 @@ import ImagePicker from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
 import { Icon } from 'react-native-elements';
 import Handoff from 'react-native-handoff';
-import { getSystemName } from 'react-native-device-info';
 import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
-
 import { Chain } from '../../models/bitcoinUnits';
 import { BlueTransactionListItem, BlueWalletNavigationHeader, BlueAlertWalletExportReminder, BlueListItem } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
@@ -33,13 +31,12 @@ import HandoffSettings from '../../class/handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
+import isCatalyst from 'react-native-is-catalyst';
 import BottomModal from '../../components/BottomModal';
 import BuyBitcoin from './buyBitcoin';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-
-const isDesktop = getSystemName() === 'Mac OS X';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -109,7 +106,6 @@ const WalletTransactions = () => {
     const interval = setInterval(() => setTimeElapsed(prev => prev + 1), 60000);
     return () => {
       clearInterval(interval);
-      setSelectedWallet('');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -248,9 +244,11 @@ const WalletTransactions = () => {
         </View>
         <View style={[styles.listHeaderTextRow, stylesHook.listHeaderTextRow]}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
-          <TouchableOpacity testID="refreshTransactions" style={style} onPress={refreshTransactions} disabled={isLoading}>
-            <Icon name="refresh" type="font-awesome" color={colors.feeText} />
-          </TouchableOpacity>
+          {isCatalyst && (
+            <TouchableOpacity style={style} onPress={refreshTransactions} disabled={isLoading}>
+              <Icon name="refresh" type="font-awesome" color={colors.feeText} />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     );
