@@ -209,18 +209,7 @@ const WalletTransactions = () => {
   };
 
   const renderListHeaderComponent = () => {
-    const style = {};
-    if (!isDesktop) {
-      // we need this button for testing
-      style.opacity = 0;
-      style.height = 1;
-      style.width = 1;
-    } else if (isLoading) {
-      style.opacity = 0.5;
-    } else {
-      style.opacity = 1.0;
-    }
-
+    const style = { opacity: isLoading ? 0.5 : 1.0 };
     return (
       <View style={styles.flex}>
         <View style={styles.listHeader}>
