@@ -184,7 +184,7 @@ const CoinControl = () => {
     },
   });
 
-  renderHeader = () => {
+  tipCoins = () => {
     return( 
       <View style={[styles.tip, stylesHook.tip]}>
           <Text style={{ color: colors.foregroundColor }}>
@@ -247,7 +247,7 @@ const CoinControl = () => {
         </KeyboardAvoidingView>
       </Modal>
 
-      <FlatList ListHeaderComponent={renderHeader} data={utxo} renderItem={renderItem} keyExtractor={item => `${item.txid}:${item.vout}`} />
+      <FlatList ListHeaderComponent={tipCoins} data={utxo} renderItem={renderItem} keyExtractor={item => `${item.txid}:${item.vout}`} />
     </SafeBlueArea>
   );
 };
