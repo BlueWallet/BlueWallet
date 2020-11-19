@@ -312,7 +312,6 @@ const styles = StyleSheet.create({
     marginBottom: 13,
   },
   walletLabel: {
-    marginRight: 50,
     ...typography.headline8,
   },
   opacity: {

@@ -107,7 +107,7 @@ export class InputItem extends PureComponent<Props, State> {
 
     const top = this.state.isAnimatedFocused.interpolate({
       inputRange: [0, 1],
-      outputRange: [12, -8],
+      outputRange: [18, -8],
     });
 
     const fontSize = isAnimatedFocused.interpolate({
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   suffix: {
     position: 'absolute',
     right: 0,
-    top: 12,
+    top: 18,
     ...typography.caption,
     lineHeight: 19,
   },

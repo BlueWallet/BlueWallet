@@ -26,31 +26,13 @@ interface Props {
   addFunction?: () => void;
 }
 
-interface State {
-  cancelButtonWidth: number;
-}
-
-export class Header extends PureComponent<Props, State> {
-  state = {
-    cancelButtonWidth: 0,
-  };
-
+export class Header extends PureComponent<Props> {
   backHandler?: NativeEventSubscription;
 
   onLeftItemPress = () => (this.props.onBackArrow ? this.props.onBackArrow() : this.props.navigation!.pop());
   renderBackArrow = () => <Image style={styles.image} source={images.backArrow} />;
   renderCancelButton = () => (
-    <FlatButton
-      onLayout={event => {
-        const { width } = event.nativeEvent.layout;
-        this.setState({
-          cancelButtonWidth: width,
-        });
-      }}
-      onPress={this.onLeftItemPress}
-      titleStyle={typography.headline4}
-      title={i18n.send.details.cancel}
-    />
+    <FlatButton onPress={this.onLeftItemPress} titleStyle={typography.headline4} title={i18n.send.details.cancel} />
   );
 
   componentDidMount() {
@@ -82,16 +64,13 @@ export class Header extends PureComponent<Props, State> {
     }
   };
   render() {
-    const { cancelButtonWidth } = this.state;
     const { title, addFunction } = this.props;
 
     return (
       <GradientView variant={GradientView.Variant.Primary} style={styles.container}>
         <>
           {this.renderLeftItem()}
-          <EllipsisText style={[styles.title, { marginLeft: (cancelButtonWidth && cancelButtonWidth / 2) || 0 }]}>
-            {title}
-          </EllipsisText>
+          <EllipsisText style={styles.title}>{title}</EllipsisText>
           {!!addFunction && (
             <TouchableOpacity style={styles.rightElement} onPress={addFunction}>
               <Image source={icons.addIcon} style={styles.addIcon} />

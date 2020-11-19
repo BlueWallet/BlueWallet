@@ -50,7 +50,11 @@ export const ListItem = ({
 
   return (
     <View style={[styles.container, containerStyle]}>
-      <TouchableOpacity style={styles.touchableOpacityContainer} onPress={handleOnItemPress}>
+      <TouchableOpacity
+        style={styles.touchableOpacityContainer}
+        onPress={handleOnItemPress}
+        activeOpacity={disabled ? 1 : 0.2}
+      >
         {!!source && (
           <View style={styles.imageContainer}>
             <Image
@@ -63,7 +67,7 @@ export const ListItem = ({
             />
           </View>
         )}
-        <View style={styles.textContainer}>
+        <View style={[styles.textContainer, { paddingRight: !isSwitch() ? 50 : 0 }]}>
           <Text style={[styles.title, disabled && styles.disabled]}>{title}</Text>
         </View>
       </TouchableOpacity>
