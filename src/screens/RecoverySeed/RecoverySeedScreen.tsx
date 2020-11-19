@@ -63,7 +63,7 @@ export class RecoverySeedScreen extends Component<Props, State> {
     return compose(
       map((index: number) => (
         <InputItem
-          key={index}
+          key={index.toString()}
           label={`${index}.`}
           value={mnemonic[index - 1]}
           setValue={word => this.setWordInMnemonic(word, index)}
