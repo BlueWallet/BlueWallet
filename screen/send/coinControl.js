@@ -20,7 +20,7 @@ import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
 
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { BlueNavigationStyle, SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueSpacing40, BlueButton, BlueListItem } from '../../BlueComponents';
+import { BlueNavigationStyle, SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueButton, BlueListItem } from '../../BlueComponents';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, change = false, full = false, onPress }) => {
