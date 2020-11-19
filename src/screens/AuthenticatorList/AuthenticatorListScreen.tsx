@@ -50,7 +50,6 @@ class AuthenticatorListScreen extends Component<Props, State> {
     const { navigation } = this.props;
     navigation.navigate(Route.ScanQrCode, {
       onBarCodeScan: (psbt: string) => {
-        navigation.goBack();
         if (isCodeChunked(psbt)) {
           const [chunkNo, chunksQuantity, codeValue] = psbt.split(';');
           const newCodeValue = this.state.codeValue.concat(codeValue);

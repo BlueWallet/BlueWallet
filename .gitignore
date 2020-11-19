@@ -76,3 +76,7 @@ config/prod/GoogleService-Info.plist
 
 # Testing
 coverage
+android/keystore.properties
+android/app/sentry.properties
+android/app/src/beta/google-services.json
+android/app/src/prod/google-services.json

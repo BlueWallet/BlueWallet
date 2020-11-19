@@ -2,7 +2,7 @@ import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { Image, View, TouchableOpacity, StatusBar, StyleSheet, Dimensions } from 'react-native';
-import { RNCamera } from 'react-native-camera';
+import { BarCodeReadEvent, RNCamera } from 'react-native-camera';
 
 import { images } from 'app/assets';
 import { MainCardStackNavigatorParams, Route } from 'app/consts';
@@ -15,21 +15,27 @@ interface Props {
   navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.ScanQrCode>;
   route: RouteProp<MainCardStackNavigatorParams, Route.ScanQrCode>;
 }
+
 export default class ScanQrCodeScreen extends React.PureComponent<Props> {
   state = {
-    scanned: false,
+    isBarcodeRead: false,
   };
+
   goBack = () => this.props.navigation.goBack();
-  onBarCodeScanned = (scannedQr: any) => {
-    if (this.state.scanned) {
+
+  onBarCodeScanned = (event: BarCodeReadEvent) => {
+    const { onBarCodeScan } = this.props.route.params;
+
+    // Prevents multiple scans in one second
+    if (this.state.isBarcodeRead) {
       return;
     }
-    this.setState({ scanned: true });
-    const { route } = this.props;
-    const { onBarCodeScan } = route.params;
-    if (scannedQr.data) {
+
+    this.setState({ isBarcodeRead: true });
+
+    if (event.data) {
+      onBarCodeScan(event.data);
       this.goBack();
-      onBarCodeScan(scannedQr.data);
     }
   };
 
