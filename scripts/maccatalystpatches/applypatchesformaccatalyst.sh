@@ -22,7 +22,7 @@ patch ImagePickerManager.m ../../../scripts/maccatalystpatches/ImagePickerManage
 echo "Applying patch for Podfile"
 cd ../../../
 patch ios/Podfile ./scripts/maccatalystpatches/podfile.patch --no-backup-if-mismatch
-echo "Applying patch for realm podspec"
+echo "Applying patch for Realm podspec"
 patch node_modules/realm/RealmJS.podspec ./scripts/maccatalystpatches/realm.patch --no-backup-if-mismatch
 cd ios
 pod update
