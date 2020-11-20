@@ -143,6 +143,10 @@ const PsbtWithHardwareWallet = () => {
     }
   };
 
+  const handleOnVerifyPressed = () => {
+    Linking.openURL('https://coinb.in/?verify=' + txHex);
+  };
+
   const _renderBroadcastHex = () => {
     return (
       <View style={[styles.rootPadding, stylesHook.rootPadding]}>
@@ -153,7 +157,7 @@ const PsbtWithHardwareWallet = () => {
           <TouchableOpacity style={styles.hexTouch} onPress={Clipboard.setString}>
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_copy}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.hexTouch} onPress={() => Linking.openURL('https://coinb.in/?verify=' + txHex)}>
+          <TouchableOpacity style={styles.hexTouch} onPress={handleOnVerifyPressed}>
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
           <BlueSpacing20 />
