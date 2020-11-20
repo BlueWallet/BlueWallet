@@ -1,6 +1,6 @@
 export const FiatUnit = Object.freeze({
   USD: { endPointKey: 'USD', symbol: '$', locale: 'en-US' },
-  ARS: { endPointKey: 'ARS', symbol: '$', locale: 'es-AR' },
+  ARS: { endPointKey: 'ARS', symbol: '$', locale: 'es-AR', dataSource: 'https://api.yadio.io/rate/', rateKey: 'rate' },
   AUD: { endPointKey: 'AUD', symbol: '$', locale: 'en-AU' },
   BRL: { endPointKey: 'BRL', symbol: 'R$', locale: 'pt-BR' },
   CAD: { endPointKey: 'CAD', symbol: '$', locale: 'en-CA' },
@@ -35,3 +35,49 @@ export const FiatUnit = Object.freeze({
   VEF: { endPointKey: 'VEF', symbol: 'Bs.', locale: 'es-VE' },
   ZAR: { endPointKey: 'ZAR', symbol: 'R', locale: 'en-ZA' },
 });
+
+export class FiatServerResponse {
+
+  constructor(fiatUnit) {
+    this.fiatUnit = fiatUnit;
+  }
+
+  baseURI = () => {
+    if (this.fiatUnit.dataSource) {
+      return this.fiatUnit.dataSource;
+    } else {
+      return 'https://api.coindesk.com';
+    }
+  };
+
+  endPoint = () => {
+    if (this.fiatUnit.dataSource) {
+      return this.fiatUnit.endPointKey;
+    } else {
+      return '/v1/bpi/currentprice/' + this.fiatUnit.endPointKey + '.json';
+    }
+  };
+
+  rate = response => {
+    const json = JSON.parse(response.body);
+    console.error(json);
+    if (this.fiatUnit.dataSource) {
+      return json[this.fiatUnit.rateKey] * 1;
+    } else {
+      return json.bpi[this.fiatUnit.endPointKey].rate_float * 1;
+    }
+  };
+
+  isErrorFound = response => {
+    const json = JSON.parse(response.body);
+    if (this.fiatUnit.dataSource) {
+      if (!json || !json[this.fiatUnit.rateKey]) {
+        throw new Error('Could not update currency rate: ' + response.err);
+      }
+    } else {
+       if (!json || !json.bpi || !json.bpi[this.fiatUnit.endPointKey] || !json.bpi[this.fiatUnit.endPointKey].rate_float) {
+        throw new Error('Could not update currency rate: ' + response.err);
+      }
+    }
+  };
+};

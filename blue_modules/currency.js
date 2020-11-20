@@ -1,10 +1,11 @@
 import Frisbee from 'frisbee';
 import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from '../class';
-import { FiatUnit } from '../models/fiatUnit';
+import { FiatServerResponse, FiatUnit } from '../models/fiatUnit';
 import DefaultPreference from 'react-native-default-preference';
 import RNWidgetCenter from 'react-native-widget-center';
 import * as RNLocalize from 'react-native-localize';
+import { report } from 'process';
 const BigNumber = require('bignumber.js');
 let preferredFiatCurrency = FiatUnit.USD;
 const exchangeRates = {};
@@ -55,16 +56,15 @@ async function updateExchangeRate() {
     }
   }
 
-  let json;
+  let response;
+  const fiatServerResponse = new FiatServerResponse(preferredFiatCurrency);
   try {
     const api = new Frisbee({
-      baseURI: 'https://api.coindesk.com',
+      baseURI: fiatServerResponse.baseURI(),
     });
-    const response = await api.get('/v1/bpi/currentprice/' + preferredFiatCurrency.endPointKey + '.json');
-    json = JSON.parse(response.body);
-    if (!json || !json.bpi || !json.bpi[preferredFiatCurrency.endPointKey] || !json.bpi[preferredFiatCurrency.endPointKey].rate_float) {
-      throw new Error('Could not update currency rate: ' + response.err);
-    }
+    response = await api.get(fiatServerResponse.endPoint());
+    console.warn(JSON.parse(response.body))
+   // fiatServerResponse.isErrorFound(response);
   } catch (Err) {
     console.warn(Err);
     const lastSavedExchangeRate = JSON.parse(await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES));
@@ -73,7 +73,7 @@ async function updateExchangeRate() {
   }
 
   exchangeRates[STRUCT.LAST_UPDATED] = +new Date();
-  exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = json.bpi[preferredFiatCurrency.endPointKey].rate_float * 1;
+  exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = fiatServerResponse.rate(response);
   await AsyncStorage.setItem(AppStorage.EXCHANGE_RATES, JSON.stringify(exchangeRates));
   await AsyncStorage.setItem(AppStorage.PREFERRED_CURRENCY, JSON.stringify(preferredFiatCurrency));
   await setPrefferedCurrency(preferredFiatCurrency);
