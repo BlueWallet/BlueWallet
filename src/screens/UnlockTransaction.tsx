@@ -80,7 +80,7 @@ export class UnlockTransaction extends PureComponent<Props, State> {
         <Text style={styles.description}>{i18n.unlockTransaction.description}</Text>
         <View style={styles.inputContainer}>
           <TouchableOpacity style={styles.visibilityIcon} onPress={this.changeVisability}>
-            <Image style={styles.icon} source={isVisible ? icons.visibilityOn : icons.visibilityOff} />
+            <Image style={styles.icon} source={!isVisible ? icons.visibilityOn : icons.visibilityOff} />
           </TouchableOpacity>
           <InputItem
             value={password}
