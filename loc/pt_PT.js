@@ -553,6 +553,7 @@ module.exports = {
       invalidQrCode: 'Código QR inválido',
       invalidSign: 'Não foi possível assinar transação',
       noIndexForWord: 'Não foi possível encontrar índice da palavra: {palavra}',
+      wrongNetwork: `Você tem a carteira na rede {walletNetworkName} enquanto a rede de aplicativos é {appNetworkName}. Por favor, entre em contato com o nosso suporte através do Telegram`,
     },
     export: { title: 'exportar carteira' },
     exportWallet: { header: 'Exportar carteira', title: 'Frase Semente' },

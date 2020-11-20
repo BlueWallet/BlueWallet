@@ -237,9 +237,9 @@ it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', 
   const hd = new HDSegwitP2SHWallet();
   hd.setSecret(process.env.HD_MNEMONIC_BIP49_MANY_TX);
   assert.ok(hd.validateMnemonic());
-  const start = +new Date();
+  const start = new Date().getTime();
   await hd.fetchBalance();
-  const end = +new Date();
+  const end = new Date().getTime();
   const took = (end - start) / 1000;
   took > 15 && console.warn('took', took, "sec to fetch huge HD wallet's balance");
   assert.strictEqual(hd.getBalance(), 51432);

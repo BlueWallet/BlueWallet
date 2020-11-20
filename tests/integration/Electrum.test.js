@@ -55,9 +55,9 @@ describe('Electrum', () => {
       let script = bitcoin.address.toOutputScript(addr4elect, config.network);
       let hash = bitcoin.crypto.sha256(script);
       let reversedHash = Buffer.from(hash.reverse());
-      const start = +new Date();
+      const start = new Date().getTime();
       let balance = await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex'));
-      const end = +new Date();
+      const end = new Date().getTime();
       console.warn(peer.host, 'took', (end - start) / 1000, 'seconds to fetch balance');
       assert.ok(balance.confirmed > 0);
 

@@ -198,28 +198,28 @@ describe('Bech32 Segwit HD (BIP84)', () => {
       'zpub6qoWjSiZRHzSYPGYJ6EzxEXJXP1b2Rj9syWwJZFNCmupMwkbSAWSBk3UvSkJyQLEhQpaBAwvhmNj3HPKpwCJiTBB9Tutt46FtEmjL2DoU3J',
     );
 
-    let start = +new Date();
+    let start = new Date().getTime();
     await hd.fetchBalance();
-    let end = +new Date();
+    let end = new Date().getTime();
     end - start > 5000 && console.warn('fetchBalance took', (end - start) / 1000, 'sec');
 
     assert.ok(hd.next_free_change_address_index > 0);
     assert.ok(hd.next_free_address_index > 0);
 
-    start = +new Date();
+    start = new Date().getTime();
     await hd.fetchTransactions();
-    end = +new Date();
+    end = new Date().getTime();
     end - start > 15000 && console.warn('fetchTransactions took', (end - start) / 1000, 'sec');
 
-    start = +new Date();
+    start = new Date().getTime();
     await hd.fetchBalance();
-    end = +new Date();
+    end = new Date().getTime();
     end - start > 2000 && console.warn('warm fetchBalance took', (end - start) / 1000, 'sec');
 
     global.debug = true;
-    start = +new Date();
+    start = new Date().getTime();
     await hd.fetchTransactions();
-    end = +new Date();
+    end = new Date().getTime();
     end - start > 2000 && console.warn('warm fetchTransactions took', (end - start) / 1000, 'sec');
 
     let txFound = 0;

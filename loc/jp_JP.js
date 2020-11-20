@@ -558,6 +558,7 @@ module.exports = {
       invalidQrCode: '無効なQRコード',
       invalidSign: '取引を署名できません。',
       noIndexForWord: '{word}についてのインデックスが見つかりませんでした。',
+      wrongNetwork: `本アプリケーションのネットワークは{appNetworkName}ですが、お客様のウォレットはこちらのネットワーク {walletNetworkName} にあるようです。Telegramにて弊社サポートまでご連絡いただくようお願いいたします。`,
     },
     export: {
       title: 'ウォレットのエクスポート',

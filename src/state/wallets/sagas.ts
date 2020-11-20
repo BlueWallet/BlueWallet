@@ -1,10 +1,14 @@
 import { cloneDeep } from 'lodash';
+import { Alert } from 'react-native';
 import { takeEvery, takeLatest, put, all, call, select, delay, debounce } from 'redux-saga/effects';
 
 import { Wallet } from 'app/consts';
 import { takeLatestPerKey } from 'app/helpers/sagas';
 import { BlueApp } from 'app/legacy';
 
+import config from '../../../config';
+import { messages } from '../../../error';
+import { checkAddressNetworkName } from '../../../utils/bitcoin';
 import { actions as electrumXActions } from '../electrumX';
 import {
   WalletsAction,
@@ -34,6 +38,7 @@ import {
 import { getById as getByIdWallet, wallets as walletsSelector } from './selectors';
 
 const BlueElectrum = require('../../../BlueElectrum');
+const i18n = require('../../../loc');
 
 export function* loadWalletsSaga() {
   try {
@@ -44,8 +49,18 @@ export function* loadWalletsSaga() {
 
     const wallets = BlueApp.getWallets();
     yield put(loadWalletsSuccess(wallets));
-  } catch (e) {
-    yield put(loadWalletsFailure(e.message));
+  } catch ({ message }) {
+    if (message.includes(messages.noMatchingScript)) {
+      const [address] = message.split(' ');
+      const walletNetworkName = checkAddressNetworkName(address);
+      Alert.alert(
+        i18n.formatString(i18n.wallets.errors.wrongNetwork, {
+          walletNetworkName,
+          appNetworkName: config.networkName,
+        }),
+      );
+    }
+    yield put(loadWalletsFailure(message));
   }
 }
 

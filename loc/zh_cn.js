@@ -540,6 +540,7 @@ module.exports = {
       invalidQrCode: '无效二维（QR）码',
       invalidSign: '无法进行交易签名',
       noIndexForWord: '找不到以下单词的索引：{word}',
+      wrongNetwork: `当应用程序网络是{appNetworkName}时，您在网络{walletNetworkName}上有钱包。请通过电报（Telegram）与我们的支持团队联系`,
     },
     export: {
       title: '钱包导出',

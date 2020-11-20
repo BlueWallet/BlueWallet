@@ -568,6 +568,7 @@ module.exports = {
       invalidQrCode: 'Código QR no válido',
       invalidSign: 'No se ha podido firmar la transacción',
       noIndexForWord: 'No se ha podido encontrar el índice para la palabra: {word}',
+      wrongNetwork: `Tiene un monedero en la red {walletNetworkName}, mientras que la red de la aplicación es {appNetworkName}. Por favor, póngase en contacto con nuestro soporte a través de Telegram.`,
     },
     export: {
       title: 'exportar monedero',

@@ -549,6 +549,7 @@ module.exports = {
       invalidQrCode: '유효하지 않은 QR 코드',
       invalidSign: '거래에 서명할 수 없음',
       noIndexForWord: '다음 단어에 대한 인덱스를 찾을 수 없음: {word}',
+      wrongNetwork: `앱 네트워크는 {appNetworkName} 상에 있지만 고객님의 지갑 네트워크는 {walletNetworkName} 상에 있습니다. 텔레그램을 통해 당사 지원 팀에 연락 주시기 바랍니다.`,
     },
     export: {
       title: '지갑 내보내기',

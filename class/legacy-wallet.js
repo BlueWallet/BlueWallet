@@ -26,7 +26,7 @@ export class LegacyWallet extends AbstractWallet {
    * @return {boolean}
    */
   timeToRefreshBalance() {
-    if (+new Date() - this._lastBalanceFetch >= 5 * 60 * 1000) {
+    if (new Date().getTime() - this._lastBalanceFetch >= 5 * 60 * 1000) {
       return true;
     }
     return false;
@@ -90,17 +90,13 @@ export class LegacyWallet extends AbstractWallet {
    * @returns {Promise.<void>}
    */
   async fetchBalance() {
-    try {
-      const balance = await BlueElectrum.getBalanceByAddress(this.getAddress());
-      this.balance = balance.confirmed + balance.unconfirmed;
-      this.unconfirmed_balance = balance.unconfirmed;
-      this.confirmed_balance = balance.balance;
-      this.incoming_balance = balance.alert_incoming;
-      this.outgoing_balance = balance.alert_outgoing;
-      this._lastBalanceFetch = +new Date();
-    } catch (err) {
-      logger.error('legacy-wallet', `fetchBalance: ${err.message}`);
-    }
+    const balance = await BlueElectrum.getBalanceByAddress(this.getAddress());
+    this.balance = balance.confirmed + balance.unconfirmed;
+    this.unconfirmed_balance = balance.unconfirmed;
+    this.confirmed_balance = balance.balance;
+    this.incoming_balance = balance.alert_incoming;
+    this.outgoing_balance = balance.alert_outgoing;
+    this._lastBalanceFetch = new Date().getTime();
   }
 
   /**
@@ -124,7 +120,7 @@ export class LegacyWallet extends AbstractWallet {
    */
   async fetchTransactions() {
     try {
-      this._lastTxFetch = +new Date();
+      this._lastTxFetch = new Date().getTime();
       const txids = await BlueElectrum.getTransactionsByAddress(this.getAddress());
 
       await this.setTransactions(txids);

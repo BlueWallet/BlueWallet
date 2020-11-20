@@ -560,6 +560,7 @@ module.exports = {
       invalidQrCode: 'Geçersiz QR kodu',
       invalidSign: 'İşlem imzalanamıyor',
       noIndexForWord: 'Şu kelime için endeks bulunamadı: {word}',
+      wrongNetwork: `Uygulama ağı {appNetworkName} iken {walletNetworkName} ağında cüzdanınız var. Lütfen Telegram'da destek ekibimizle iletişime geçin`,
     },
     export: {
       title: 'Cüzdanı dışarı aktarma',

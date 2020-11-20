@@ -39,3 +39,14 @@ export const formatToBtcv = (value: number): string =>
 
 export const formatToBtcvWithoutUnit = (value: number): string =>
   `${value >= 0 ? '+' : ''}${addMissingZerosToSatoshis(value)}`;
+
+export const checkAddressNetworkName = (address: string): string => {
+  for (const networkName in bitcoin.alt_networks) {
+    try {
+      const altNetwork = bitcoin.alt_networks[networkName];
+      bitcoin.address.toOutputScript(address, altNetwork);
+      return networkName;
+    } catch (_) {}
+  }
+  throw new Error('Didn`t much any known network');
+};

@@ -562,6 +562,7 @@ module.exports = {
       invalidQrCode: 'Kode QR tidak valid',
       invalidSign: 'Tidak bisa menandatangani transaksi',
       noIndexForWord: 'Tidak bisa menemukan indeks untuk kata: {word}',
+      wrongNetwork: `Anda memiliki dompet dalam jaringan {walletNetworkName} sedangkan aplikasi Anda berada dalam jaringan {appNetworkName}. Mohon hubungi tim bantuan kami di Telegram`,
     },
     export: {
       title: 'ekspor dompet',

@@ -563,6 +563,7 @@ module.exports = {
       invalidQrCode: 'Mã QR không hợp lệ',
       invalidSign: 'Không thể ký giao dịch',
       noIndexForWord: 'Không tìm thấy chỉ mục cho từ: {word}',
+      wrongNetwork: `Bạn có ví trên mạng {walletNetworkName} trong khi mạng ứng dụng là {appNetworkName}. Vui lòng liên hệ với bộ phận hỗ trợ của chúng tôi trên Telegram`,
     },
     export: {
       title: 'xuất ví',

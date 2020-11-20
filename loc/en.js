@@ -549,6 +549,7 @@ module.exports = {
       invalidQrCode: 'Invalid QR code',
       invalidSign: "Couldn't sign transaction",
       noIndexForWord: "Couldn't find index for word: {word}",
+      wrongNetwork: `You have wallet on the network {walletNetworkName} while the app network is {appNetworkName}. Please contact our support on the Telegram.`,
     },
     export: { title: 'wallet export' },
     exportWallet: { header: 'Export wallet', title: 'Seed phrase' },
