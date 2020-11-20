@@ -2,6 +2,7 @@ import { AuthenticationAction, AuthenticationActionType } from './actions';
 
 export interface AuthenticationState {
   isPinSet: boolean;
+  isTcAccepted: boolean;
   isTxPasswordSet: boolean;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -11,6 +12,7 @@ export interface AuthenticationState {
 const initialState: AuthenticationState = {
   isTxPasswordSet: false,
   isPinSet: false,
+  isTcAccepted: false,
   isAuthenticated: false,
   isLoading: true,
   error: '',
@@ -18,6 +20,11 @@ const initialState: AuthenticationState = {
 
 export const authenticationReducer = (state = initialState, action: AuthenticationActionType): AuthenticationState => {
   switch (action.type) {
+    case AuthenticationAction.SetIsTcAccepted:
+      return {
+        ...state,
+        isTcAccepted: action.isTcAccepted,
+      };
     case AuthenticationAction.SetIsAuthenticated:
       return {
         ...state,

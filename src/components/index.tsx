@@ -35,3 +35,4 @@ export { Dropdown } from './Dropdown';
 export { WalletDropdown } from './WalletDropdown';
 export { Separator } from './Separator';
 export { EllipsisText } from './EllipsisText';
+export { CustomModal } from './CustomModal';

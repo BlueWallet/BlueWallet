@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import { CONST } from 'app/consts';
 import { RenderMessage, MessageType } from 'app/helpers/MessageCreator';
 import { RootNavigator, PasswordNavigator } from 'app/navigators';
-import { UnlockScreen } from 'app/screens';
+import { TermsConditionsScreen, UnlockScreen } from 'app/screens';
 import { BetaVersionScreen } from 'app/screens/BetaVersionScreen';
 import { navigationRef, AppStateManager } from 'app/services';
 import { checkDeviceSecurity } from 'app/services/DeviceSecurityService';
@@ -16,7 +16,7 @@ import { ApplicationState } from 'app/state';
 import { selectors as appSettingsSelectors } from 'app/state/appSettings';
 import { updateSelectedLanguage as updateSelectedLanguageAction } from 'app/state/appSettings/actions';
 import { selectors as authenticationSelectors } from 'app/state/authentication';
-import { checkCredentials as checkCredentialsAction } from 'app/state/authentication/actions';
+import { checkCredentials as checkCredentialsAction, checkTc as checkTcAction } from 'app/state/authentication/actions';
 import {
   startListeners,
   StartListenersAction,
@@ -32,6 +32,7 @@ const i18n = require('../../loc');
 
 interface MapStateToProps {
   isPinSet: boolean;
+  isTcAccepted: boolean;
   isAuthenticated: boolean;
   isTxPasswordSet: boolean;
   isLoading: boolean;
@@ -44,6 +45,7 @@ interface ActionsDisptach {
   refreshAllWallets: () => RefreshAllWalletsAction;
   fetchBlockHeight: () => FetchBlockHeightAction;
   updateSelectedLanguage: Function;
+  checkTc: Function;
 }
 
 interface OwnProps {
@@ -64,7 +66,8 @@ class Navigator extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    const { checkCredentials, startElectrumXListeners, fetchBlockHeight } = this.props;
+    const { checkCredentials, startElectrumXListeners, fetchBlockHeight, checkTc } = this.props;
+    checkTc();
     checkCredentials();
     startElectrumXListeners();
     fetchBlockHeight();
@@ -132,9 +135,13 @@ class Navigator extends React.Component<Props, State> {
   };
 
   renderRoutes = () => {
-    const { isLoading, unlockKey } = this.props;
+    const { isLoading, unlockKey, isTcAccepted } = this.props;
     if (isLoading) {
       return null;
+    }
+
+    if (!isTcAccepted) {
+      return <TermsConditionsScreen />;
     }
 
     if (!__DEV__ && JailMonkey.isJailBroken() && !this.state.isEmulator) {
@@ -148,7 +155,6 @@ class Navigator extends React.Component<Props, State> {
     if (this.shouldRenderOnBoarding()) {
       return <PasswordNavigator />;
     }
-
     return (
       <>
         <RootNavigator />
@@ -170,6 +176,7 @@ class Navigator extends React.Component<Props, State> {
 }
 
 const mapStateToProps = (state: ApplicationState): MapStateToProps => ({
+  isTcAccepted: authenticationSelectors.isTcAccepted(state),
   isLoading: authenticationSelectors.isLoading(state),
   isPinSet: authenticationSelectors.isPinSet(state),
   isTxPasswordSet: authenticationSelectors.isTxPasswordSet(state),
@@ -179,6 +186,7 @@ const mapStateToProps = (state: ApplicationState): MapStateToProps => ({
 
 const mapDispatchToProps: ActionsDisptach = {
   checkCredentials: checkCredentialsAction,
+  checkTc: checkTcAction,
   startElectrumXListeners: startListeners,
   refreshAllWallets: refreshAllWalletsAction,
   updateSelectedLanguage: updateSelectedLanguageAction,

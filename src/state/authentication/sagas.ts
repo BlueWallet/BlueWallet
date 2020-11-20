@@ -3,7 +3,7 @@ import { takeLatest, takeEvery, put, call } from 'redux-saga/effects';
 
 import { CONST } from 'app/consts';
 import { BlueApp } from 'app/legacy';
-import { SecureStorageService } from 'app/services';
+import { SecureStorageService, StoreService } from 'app/services';
 
 import {
   createTxPasswordSuccess,
@@ -19,6 +19,7 @@ import {
   CreateTxPasswordAction,
   CheckCredentialsAction,
   AuthenticationAction,
+  setIsTcAccepted,
 } from './actions';
 
 export function* checkCredentialsSaga(action: CheckCredentialsAction | unknown) {
@@ -101,9 +102,23 @@ export function* createTxPasswordSaga(action: CreateTxPasswordAction | unknown) 
   }
 }
 
+export function* checkTcSaga() {
+  const tcVersion = yield call(StoreService.getStoreValue, CONST.tcVersion);
+  if (tcVersion && Number(tcVersion) >= CONST.tcVersionRequired) {
+    yield put(setIsTcAccepted(true));
+  }
+}
+
+export function* createTcSaga() {
+  yield call(StoreService.setStoreValue, CONST.tcVersion, CONST.tcVersionRequired);
+  yield put(setIsTcAccepted(true));
+}
+
 export default [
   takeLatest(AuthenticationAction.CheckCredentials, checkCredentialsSaga),
   takeEvery(AuthenticationAction.Authenticate, authenticateSaga),
   takeEvery(AuthenticationAction.CreatePin, createPinSaga),
   takeEvery(AuthenticationAction.CreateTxPassword, createTxPasswordSaga),
+  takeEvery(AuthenticationAction.CheckTc, checkTcSaga),
+  takeEvery(AuthenticationAction.CreateTc, createTcSaga),
 ];

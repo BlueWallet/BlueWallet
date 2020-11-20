@@ -4,6 +4,8 @@ export enum AuthenticationAction {
   Authenticate = 'Authenticate',
   AuthenticateSuccess = 'AuthenticateSuccess',
   AuthenticateFailure = 'AuthenticateFailure',
+  CheckTc = 'CheckTc',
+  CreateTc = 'CreateTc',
   CheckCredentials = 'CheckCredentials',
   CheckCredentialsSuccess = 'CheckCredentialsSuccess',
   CheckCredentialsFailure = 'CheckCredentialsFailure',
@@ -14,6 +16,7 @@ export enum AuthenticationAction {
   CreateTxPasswordSuccess = 'CreateTxPasswordSuccess',
   CreateTxPasswordFailure = 'CreateTxPasswordFailure',
   SetIsAuthenticated = 'SetIsAuthenticated',
+  SetIsTcAccepted = 'SetIsTcAccepted',
 }
 
 interface CheckCredentials {
@@ -36,6 +39,15 @@ export interface AuthenticateSuccessAction {
 export interface AuthenticateFailureAction {
   type: AuthenticationAction.AuthenticateFailure;
   error: string;
+}
+
+export interface CheckTcAction {
+  type: AuthenticationAction.CheckTc;
+  meta?: ActionMeta;
+}
+
+export interface CreateTcAction {
+  type: AuthenticationAction.CreateTc;
 }
 
 export interface CheckCredentialsAction {
@@ -92,10 +104,17 @@ export interface SetIsAuthenticatedAction {
   isAuthenticated: boolean;
 }
 
+export interface SetIsTcAcceptedAction {
+  type: AuthenticationAction.SetIsTcAccepted;
+  isTcAccepted: boolean;
+}
+
 export type AuthenticationActionType =
   | AuthenticateAction
   | AuthenticateSuccessAction
   | AuthenticateFailureAction
+  | CheckTcAction
+  | CreateTcAction
   | CheckCredentialsAction
   | CheckCredentialsSuccessAction
   | CheckCredentialsFailureAction
@@ -105,6 +124,7 @@ export type AuthenticationActionType =
   | CreateTxPasswordAction
   | CreateTxPasswordSuccessAction
   | CreateTxPasswordFailureAction
+  | SetIsTcAcceptedAction
   | SetIsAuthenticatedAction;
 
 export const authenticate = (pin: string, meta?: ActionMeta): AuthenticateAction => ({
@@ -120,6 +140,14 @@ export const authenticateSuccess = (): AuthenticateSuccessAction => ({
 export const authenticateFailure = (error: string): AuthenticateFailureAction => ({
   type: AuthenticationAction.AuthenticateFailure,
   error,
+});
+
+export const checkTc = (): CheckTcAction => ({
+  type: AuthenticationAction.CheckTc,
+});
+
+export const createTc = (): CreateTcAction => ({
+  type: AuthenticationAction.CreateTc,
 });
 
 export const checkCredentials = (meta?: ActionMeta): CheckCredentialsAction => ({
@@ -170,4 +198,9 @@ export const createTxPasswordFailure = (error: string): CreateTxPasswordFailureA
 export const setIsAuthenticated = (isAuthenticated: boolean): SetIsAuthenticatedAction => ({
   type: AuthenticationAction.SetIsAuthenticated,
   isAuthenticated,
+});
+
+export const setIsTcAccepted = (isTcAccepted: boolean): SetIsTcAcceptedAction => ({
+  type: AuthenticationAction.SetIsTcAccepted,
+  isTcAccepted,
 });
