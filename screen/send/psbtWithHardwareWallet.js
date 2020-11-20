@@ -335,30 +335,9 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 16,
   },
-  rootCamera: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
   rootPadding: {
     flex: 1,
     paddingTop: 20,
-  },
-  closeCamera: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    borderRadius: 20,
-    position: 'absolute',
-    right: 16,
-    top: 64,
-  },
-  closeCameraImage: {
-    alignSelf: 'center',
-  },
-  blueBigCheckmark: {
-    marginTop: 143,
-    marginBottom: 53,
   },
   hexWrap: {
     alignItems: 'center',
