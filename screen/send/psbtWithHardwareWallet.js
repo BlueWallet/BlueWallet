@@ -147,6 +147,10 @@ const PsbtWithHardwareWallet = () => {
     Linking.openURL('https://coinb.in/?verify=' + txHex);
   };
 
+  const copyHexToClipboard = () => {
+    Clipboard.setString(txHex);
+  };
+
   const _renderBroadcastHex = () => {
     return (
       <View style={[styles.rootPadding, stylesHook.rootPadding]}>
@@ -154,7 +158,7 @@ const PsbtWithHardwareWallet = () => {
           <BlueText style={[styles.hexLabel, stylesHook.hexLabel]}>{loc.send.create_this_is_hex}</BlueText>
           <TextInput style={[styles.hexInput, stylesHook.hexInput]} height={112} multiline editable value={txHex} />
 
-          <TouchableOpacity style={styles.hexTouch} onPress={Clipboard.setString}>
+          <TouchableOpacity style={styles.hexTouch} onPress={copyHexToClipboard}>
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_copy}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.hexTouch} onPress={handleOnVerifyPressed}>
