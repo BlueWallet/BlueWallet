@@ -421,7 +421,7 @@
     "native_segwit_title": "Best practice",
     "wrapped_segwit_title": "Best compatibility",
     "legacy_title": "Legacy",
-    "co_sign_transaction": "Co-sign QR-airgapped transaction",
+    "co_sign_transaction": "Sign a transaction",
     "what_is_vault": "A Vault is a",
     "what_is_vault_numberOfWallets": " {m}-of-{n} multisig ",
     "what_is_vault_wallet": "wallet",
