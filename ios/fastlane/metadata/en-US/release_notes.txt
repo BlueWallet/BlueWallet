@@ -1,3 +1,15 @@
+v5.6.6
+======
+
+* FIX: camera is not closing after QR with PSBT (UR) scanned from hw wallet
+* FIX: Input amount can now start with dot for fractional values
+* ADD: ARS fiat currency
+* FIX: locales nl_NL, sl_SI, es_ES
+* FIX: Dim nonselected wallets on additional screens
+* FIX: Use numberformatter for properly displaying the wallet balance on widget
+* REF: new wallets now generate 12 words mnemonic seed instead of 24, same security, but easier to manage
+
+
 v5.6.5
 ======
 
@@ -61,21 +73,3 @@ v.5.6.0
 * FIX: rare crash on watch-only receive button
 * FIX: RBF cancel style
 * REF: updated languages sl_SI, de_DE, fi_FI, es_ES
-
-v5.5.9
-=======
-
-* ADD: Arabic language
-* ADD: new choose fee workflow
-* FIX: broken LN -> manage funds -> refill
-* FIX: camera wont scan QR with airgapped HW wallet flow
-* FIX: Refresh from notification
-* FIX: transaction not updating on refresh
-* FIX: textAlign: right for custom fee in CPFP/RBF form
-* FIX: set default fee in CPFP/RBF fee-selection component
-* FIX: update recalculate fee on send screen with custom sat/byte fee rate
-* FIX: broken sendMAX if units are changed several times
-* FIX: validation allows user to create transaction even without valid address & amount
-* FIX: Only send wallets to watch app if installed
-* FIX: Send Max not working
-* FIX: Reorder screen is broken

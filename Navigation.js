@@ -146,7 +146,7 @@ const WalletsRoot = () => (
       component={LNDViewInvoice}
       options={LNDViewInvoice.navigationOptions}
       swipeEnabled={false}
-      gesturesEnabled={false}
+      gestureEnabled={false}
     />
     <WalletsStack.Screen
       name="LNDViewAdditionalInvoiceInformation"
@@ -190,7 +190,14 @@ const SendDetailsRoot = () => (
     />
     <SendDetailsStack.Screen name="CreateTransaction" component={SendCreate} options={SendCreate.navigationOptions} />
     <SendDetailsStack.Screen name="PsbtMultisig" component={PsbtMultisig} options={PsbtMultisig.navigationOptions} />
-    <SendDetailsStack.Screen name="Success" component={Success} options={Success.navigationOptions} />
+    <SendDetailsStack.Screen
+      name="Success"
+      component={Success}
+      options={{
+        headerShown: false,
+        gestureEnabled: false,
+      }}
+    />
     <SendDetailsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
   </SendDetailsStack.Navigator>
 );
@@ -205,7 +212,7 @@ const LNDCreateInvoiceRoot = () => (
       component={LNDViewInvoice}
       options={LNDViewInvoice.navigationOptions}
       swipeEnabled={false}
-      gesturesEnabled={false}
+      gestureEnabled={false}
     />
     <LNDCreateInvoiceStack.Screen
       name="LNDViewAdditionalInvoiceInformation"
