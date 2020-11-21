@@ -270,6 +270,14 @@
 		<key>locale</key>
 		<string>uk-UA</string>
 	</dict>
+		<dict>
+		<key>endPointKey</key>
+		<string>UYU</string>
+		<key>symbol</key>
+		<string>$</string>
+		<key>locale</key>
+		<string>es-UY</string>
+	</dict>
 	<dict>
 		<key>endPointKey</key>
 		<string>VEF</string>

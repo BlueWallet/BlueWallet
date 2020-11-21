@@ -32,6 +32,7 @@ export const FiatUnit = Object.freeze({
   THB: { endPointKey: 'THB', symbol: '฿', locale: 'th-TH' },
   TWD: { endPointKey: 'TWD', symbol: 'NT$', locale: 'zh-Hant-TW' },
   UAH: { endPointKey: 'UAH', symbol: '₴', locale: 'uk-UA' },
+  UYU: { endPointKey: 'UYU', symbol: '$', locale: 'es-UY' },
   VEF: { endPointKey: 'VEF', symbol: 'Bs.', locale: 'es-VE' },
   VES: { endPointKey: 'VES', symbol: 'Bs.', locale: 'es-VE', dataSource: 'https://api.yadio.io/json', rateKey: 'VES' },
   ZAR: { endPointKey: 'ZAR', symbol: 'R', locale: 'en-ZA' },
