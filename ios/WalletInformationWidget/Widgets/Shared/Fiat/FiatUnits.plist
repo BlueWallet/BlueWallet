@@ -18,9 +18,9 @@
 		<key>locale</key>
 		<string>es-AR</string>
 		<key>dataSource</key>
-		<string>https://api.yadio.io/rate</string>
+		<string>https://api.yadio.io/json</string>
 		<key>rateKey</key>
-		<string>rate</string>
+		<string>ARS</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -286,9 +286,9 @@
 		<key>locale</key>
 		<string>es-VE</string>
 		<key>dataSource</key>
-		<string>https://api.yadio.io/rate</string>
+		<string>https://api.yadio.io/json</string>
 		<key>rateKey</key>
-		<string>btc</string>
+		<string>VES</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>

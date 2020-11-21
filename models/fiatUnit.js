@@ -1,6 +1,6 @@
 export const FiatUnit = Object.freeze({
   USD: { endPointKey: 'USD', symbol: '$', locale: 'en-US' },
-  ARS: { endPointKey: 'ARS', symbol: '$', locale: 'es-AR', dataSource: 'https://api.yadio.io/rate', rateKey: 'rate' },
+  ARS: { endPointKey: 'ARS', symbol: '$', locale: 'es-AR', dataSource: 'https://api.yadio.io/json', rateKey: 'ARS' },
   AUD: { endPointKey: 'AUD', symbol: '$', locale: 'en-AU' },
   BRL: { endPointKey: 'BRL', symbol: 'R$', locale: 'pt-BR' },
   CAD: { endPointKey: 'CAD', symbol: '$', locale: 'en-CA' },
@@ -33,7 +33,7 @@ export const FiatUnit = Object.freeze({
   TWD: { endPointKey: 'TWD', symbol: 'NT$', locale: 'zh-Hant-TW' },
   UAH: { endPointKey: 'UAH', symbol: '₴', locale: 'uk-UA' },
   VEF: { endPointKey: 'VEF', symbol: 'Bs.', locale: 'es-VE' },
-  VES: { endPointKey: 'VES', symbol: 'Bs.', locale: 'es-VE', dataSource: 'https://api.yadio.io/rate', rateKey: 'btc' },
+  VES: { endPointKey: 'VES', symbol: 'Bs.', locale: 'es-VE', dataSource: 'https://api.yadio.io/json', rateKey: 'VES' },
   ZAR: { endPointKey: 'ZAR', symbol: 'R', locale: 'en-ZA' },
 });
 
@@ -61,7 +61,7 @@ export class FiatServerResponse {
   rate = response => {
     const json = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
     if (this.fiatUnit.dataSource) {
-      return json[this.fiatUnit.rateKey] * 1;
+      return json[this.fiatUnit.rateKey].price * 1;
     } else {
       return json.bpi[this.fiatUnit.endPointKey].rate_float * 1;
     }

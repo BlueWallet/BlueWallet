@@ -29,7 +29,7 @@ struct FiatUnit: Codable {
       }
       return WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
   } else {
-    guard let rateKey = rateKey, let rateDouble = json[rateKey] as? Double, let lastUpdated = json["timestamp"] as? Int else {
+    guard let rateKey = rateKey, let rateDict = json[rateKey] as? [String: Any], let rateDouble = rateDict["price"] as? Double, let lastUpdated = json["timestamp"] as? Int else {
       return nil
     }
     return WidgetDataStore(rate: String(rateDouble), lastUpdate: String(lastUpdated), rateDouble: rateDouble)
