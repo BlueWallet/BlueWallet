@@ -1,6 +1,6 @@
 export const FiatUnit = Object.freeze({
   USD: { endPointKey: 'USD', symbol: '$', locale: 'en-US' },
-  ARS: { endPointKey: 'ARS', symbol: '$', locale: 'es-AR', dataSource: 'https://api.yadio.io/rate/', rateKey: 'rate' },
+  ARS: { endPointKey: 'ARS', symbol: '$', locale: 'es-AR', dataSource: 'https://api.yadio.io/rate', rateKey: 'rate' },
   AUD: { endPointKey: 'AUD', symbol: '$', locale: 'en-AU' },
   BRL: { endPointKey: 'BRL', symbol: 'R$', locale: 'pt-BR' },
   CAD: { endPointKey: 'CAD', symbol: '$', locale: 'en-CA' },
@@ -33,11 +33,11 @@ export const FiatUnit = Object.freeze({
   TWD: { endPointKey: 'TWD', symbol: 'NT$', locale: 'zh-Hant-TW' },
   UAH: { endPointKey: 'UAH', symbol: '₴', locale: 'uk-UA' },
   VEF: { endPointKey: 'VEF', symbol: 'Bs.', locale: 'es-VE' },
+  VES: { endPointKey: 'VES', symbol: 'Bs.', locale: 'es-VE', dataSource: 'https://api.yadio.io/rate', rateKey: 'btc' },
   ZAR: { endPointKey: 'ZAR', symbol: 'R', locale: 'en-ZA' },
 });
 
 export class FiatServerResponse {
-
   constructor(fiatUnit) {
     this.fiatUnit = fiatUnit;
   }
@@ -52,15 +52,14 @@ export class FiatServerResponse {
 
   endPoint = () => {
     if (this.fiatUnit.dataSource) {
-      return this.fiatUnit.endPointKey;
+      return `/${this.fiatUnit.endPointKey}`;
     } else {
       return '/v1/bpi/currentprice/' + this.fiatUnit.endPointKey + '.json';
     }
   };
 
   rate = response => {
-    const json = JSON.parse(response.body);
-    console.error(json);
+    const json = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
     if (this.fiatUnit.dataSource) {
       return json[this.fiatUnit.rateKey] * 1;
     } else {
@@ -69,15 +68,15 @@ export class FiatServerResponse {
   };
 
   isErrorFound = response => {
-    const json = JSON.parse(response.body);
+    const json = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
     if (this.fiatUnit.dataSource) {
       if (!json || !json[this.fiatUnit.rateKey]) {
         throw new Error('Could not update currency rate: ' + response.err);
       }
     } else {
-       if (!json || !json.bpi || !json.bpi[this.fiatUnit.endPointKey] || !json.bpi[this.fiatUnit.endPointKey].rate_float) {
+      if (!json || !json.bpi || !json.bpi[this.fiatUnit.endPointKey] || !json.bpi[this.fiatUnit.endPointKey].rate_float) {
         throw new Error('Could not update currency rate: ' + response.err);
       }
     }
   };
-};
+}

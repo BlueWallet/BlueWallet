@@ -5,7 +5,6 @@ import { FiatServerResponse, FiatUnit } from '../models/fiatUnit';
 import DefaultPreference from 'react-native-default-preference';
 import RNWidgetCenter from 'react-native-widget-center';
 import * as RNLocalize from 'react-native-localize';
-import { report } from 'process';
 const BigNumber = require('bignumber.js');
 let preferredFiatCurrency = FiatUnit.USD;
 const exchangeRates = {};
@@ -63,8 +62,7 @@ async function updateExchangeRate() {
       baseURI: fiatServerResponse.baseURI(),
     });
     response = await api.get(fiatServerResponse.endPoint());
-    console.warn(JSON.parse(response.body))
-   // fiatServerResponse.isErrorFound(response);
+    fiatServerResponse.isErrorFound(response);
   } catch (Err) {
     console.warn(Err);
     const lastSavedExchangeRate = JSON.parse(await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES));
