@@ -228,7 +228,7 @@ const ScanLndInvoiceRoot = () => (
   <ScanLndInvoiceStack.Navigator screenOptions={defaultStackScreenOptions}>
     <ScanLndInvoiceStack.Screen name="ScanLndInvoice" component={ScanLndInvoice} options={ScanLndInvoice.navigationOptions} />
     <ScanLndInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
-    <ScanLndInvoiceStack.Screen name="Success" component={Success} options={Success.navigationOptions} />
+    <ScanLndInvoiceStack.Screen name="Success" component={Success} options={{ headerShown: false, gestureEnabled: false }} />
     <ScanLndInvoiceStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions} />
     <ScanLndInvoiceStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions} />
   </ScanLndInvoiceStack.Navigator>
