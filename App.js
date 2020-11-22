@@ -1,17 +1,6 @@
 import 'react-native-gesture-handler'; // should be on top
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import {
-  Linking,
-  DeviceEventEmitter,
-  AppState,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  View,
-  useColorScheme,
-  useWindowDimensions,
-} from 'react-native';
-import Modal from 'react-native-modal';
+import { AppState, DeviceEventEmitter, KeyboardAvoidingView, Linking, Platform, StyleSheet, useColorScheme, View } from 'react-native';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { navigationRef } from './NavigationService';
@@ -25,6 +14,7 @@ import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/themes';
+import BottomModal from './components/BottomModal';
 import InitRoot from './Navigation';
 import BlueClipboard from './blue_modules/clipboard';
 import { BlueStorageContext } from './blue_modules/storage-context';
@@ -36,22 +26,25 @@ import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
 import changeNavigationBarColor from 'react-native-navigation-bar-color';
 const A = require('./blue_modules/analytics');
+
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
     dsn: 'https://23377936131848ca8003448a893cb622@sentry.io/1295736',
   });
 }
-const bitcoinModalString = 'Bitcoin address';
-const lightningModalString = 'Lightning Invoice';
+
+const ClipboardContentType = Object.freeze({
+  BITCOIN: 'BITCOIN',
+  LIGHTNING: 'LIGHTNING',
+});
 
 const App = () => {
   const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const appState = useRef(AppState.currentState);
   const [isClipboardContentModalVisible, setIsClipboardContentModalVisible] = useState(false);
-  const [clipboardContentModalAddressType, setClipboardContentModalAddressType] = useState(bitcoinModalString);
+  const [clipboardContentType, setClipboardContentType] = useState();
   const [clipboardContent, setClipboardContent] = useState('');
   const colorScheme = useColorScheme();
-  const { height } = useWindowDimensions();
   const stylesHook = StyleSheet.create({
     modalContent: {
       backgroundColor: colorScheme === 'dark' ? BlueDarkTheme.colors.elevated : BlueDefaultTheme.colors.elevated,
@@ -228,11 +221,11 @@ const App = () => {
           (isBitcoinAddress || isLightningInvoice || isLNURL || isBothBitcoinAndLightning)
         ) {
           if (isBitcoinAddress) {
-            setClipboardContentModalAddressType(bitcoinModalString);
+            setClipboardContentType(ClipboardContentType.BITCOIN);
           } else if (isLightningInvoice || isLNURL) {
-            setClipboardContentModalAddressType(lightningModalString);
+            setClipboardContentType(ClipboardContentType.LIGHTNING);
           } else if (isBothBitcoinAndLightning) {
-            setClipboardContentModalAddressType(bitcoinModalString);
+            setClipboardContentType(ClipboardContentType.BITCOIN);
           }
           setIsClipboardContentModalVisible(true);
         }
@@ -254,18 +247,16 @@ const App = () => {
 
   const renderClipboardContentModal = () => {
     return (
-      <Modal
+      <BottomModal
         onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false })}
         isVisible={isClipboardContentModalVisible}
-        style={styles.bottomModal}
-        deviceHeight={height}
-        onBackdropPress={hideClipboardContentModal}
-        onBackButtonPress={hideClipboardContentModal}
+        onClose={hideClipboardContentModal}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCentered>
-              You have a {clipboardContentModalAddressType} on your clipboard. Would you like to use it for a transaction?
+              {clipboardContentType === ClipboardContentType.BITCOIN && loc.wallets.clipboard_bitcoin}
+              {clipboardContentType === ClipboardContentType.LIGHTNING && loc.wallets.clipboard_lightning}
             </BlueTextCentered>
             <View style={styles.modelContentButtonLayout}>
               <SecondButton noMinWidth title={loc._.cancel} onPress={hideClipboardContentModal} />
@@ -282,7 +273,7 @@ const App = () => {
             </View>
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
   };
   return (
@@ -319,10 +310,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0, 0, 0, 0.1)',
     minHeight: 200,
     height: 200,
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
   },
   modelContentButtonLayout: {
     flexDirection: 'row',
