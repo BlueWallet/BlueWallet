@@ -78,4 +78,31 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     hd2.setSecret(hd.getSecret());
     assert.ok(hd2.validateMnemonic());
   });
+
+  it('can coin control', async () => {
+    const hd = new HDSegwitBech32Wallet();
+
+    // fake UTXO so we don't need to use fetchUtxo
+    hd._utxo = [
+      { txid: '11111', vout: 0, value: 11111 },
+      { txid: '22222', vout: 0, value: 22222 },
+    ];
+
+    assert.ok(hd.getUtxo().length === 2);
+
+    // freeze one UTXO and set a memo on it
+    hd.setUTXOMetadata('11111', 0, { memo: 'somememo', frozen: true });
+    assert.strictEqual(hd.getUTXOMetadata('11111', 0).memo, 'somememo');
+    assert.strictEqual(hd.getUTXOMetadata('11111', 0).frozen, true);
+
+    // now .getUtxo() should return a limited UTXO set
+    assert.ok(hd.getUtxo().length === 1);
+    assert.strictEqual(hd.getUtxo()[0].txid, '22222');
+
+    // now .getUtxo(true) should return a full UTXO set
+    assert.ok(hd.getUtxo(true).length === 2);
+
+    // for UTXO with no metadata .getUTXOMetadata() should return an empty object
+    assert.ok(Object.keys(hd.getUTXOMetadata('22222', 0)).length === 0);
+  });
 });
