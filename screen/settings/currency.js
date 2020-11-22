@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FlatList, TouchableOpacity, ActivityIndicator, View, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueListItem, BlueTextHooks, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
+import { SafeBlueArea, BlueListItem, BlueText, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { FiatUnit } from '../../models/fiatUnit';
 import loc from '../../loc';
@@ -70,7 +70,7 @@ const Currency = () => {
           }}
         />
         <BlueCard>
-          <BlueTextHooks>{loc.settings.currency_source}</BlueTextHooks>
+          <BlueText>{loc.settings.currency_source}</BlueText>
         </BlueCard>
       </SafeBlueArea>
     );

@@ -22,7 +22,7 @@ import {
   BlueSpacing10,
   BlueSpacing20,
   BlueSpacing40,
-  BlueTextCenteredHooks,
+  BlueTextCentered,
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
@@ -534,7 +534,7 @@ const WalletsAddMultisigStep2 = () => {
       <BottomModal isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
-            <BlueTextCenteredHooks>{loc.multisig.type_your_mnemonics}</BlueTextCenteredHooks>
+            <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
             <BlueSpacing20 />
             <BlueFormMultiInput value={importText} onChangeText={setImportText} />
             <BlueSpacing40 />

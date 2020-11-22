@@ -21,7 +21,7 @@ import {
   BlueNavigationStyle,
   BlueSpacing10,
   BlueSpacing20,
-  BlueTextHooks,
+  BlueText,
 } from '../../BlueComponents';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import * as NavigationService from '../../NavigationService';
@@ -452,7 +452,7 @@ HodlHodlMyContracts.navigationOptions = ({ navigation }) => ({
         );
       }}
     >
-      <BlueTextHooks>logout</BlueTextHooks>
+      <BlueText>logout</BlueText>
     </TouchableOpacity>
   ),
 });

@@ -12,7 +12,7 @@ import {
   BlueCard,
   BlueNavigationStyle,
   BlueLoadingHook,
-  BlueTextHooks,
+  BlueText,
   BlueButtonLink,
 } from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
@@ -95,7 +95,7 @@ const LightningSettings = () => {
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <BlueCard>
-        <BlueTextHooks>{loc.settings.lightning_settings_explain}</BlueTextHooks>
+        <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
       </BlueCard>
 
       <Button

@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import {
-  BlueTextHooks,
+  BlueText,
   BlueListItem,
   LightningButton,
   BitcoinButton,
@@ -288,7 +288,7 @@ const WalletsAdd = () => {
                   <BlueSpacing20 />
                   <Text style={[styles.advancedText, stylesHook.advancedText]}>{loc.settings.advanced_options}</Text>
                   <BlueSpacing20 />
-                  <BlueTextHooks>Connect to your LNDHub</BlueTextHooks>
+                  <BlueText>Connect to your LNDHub</BlueText>
                   <View style={[styles.lndUri, stylesHook.lndUri]}>
                     <TextInput
                       value={walletBaseURI}

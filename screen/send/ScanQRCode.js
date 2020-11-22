@@ -7,7 +7,7 @@ import ImagePicker from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload } from 'bc-ur';
 import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import { BlueLoadingHook, BlueTextHooks, BlueButtonHook, BlueSpacing40 } from '../../BlueComponents';
+import { BlueLoadingHook, BlueText, BlueButtonHook, BlueSpacing40 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
@@ -253,7 +253,7 @@ const ScanQRCode = () => {
       )}
       {cameraStatus === RNCamera.Constants.CameraStatus.NOT_AUTHORIZED && (
         <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
-          <BlueTextHooks>{loc.send.permission_camera_message}</BlueTextHooks>
+          <BlueText>{loc.send.permission_camera_message}</BlueText>
           <BlueSpacing40 />
           <BlueButtonHook title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
         </View>
@@ -271,15 +271,15 @@ const ScanQRCode = () => {
       )}
       {urTotal > 0 && (
         <View style={styles.progressWrapper} testID="UrProgressBar">
-          <BlueTextHooks>
+          <BlueText>
             {urHave} / {urTotal}
-          </BlueTextHooks>
+          </BlueText>
         </View>
       )}
 
       {backdoorVisible && (
         <View style={styles.backdoorInputWrapper}>
-          <BlueTextHooks>Provide QR code contents manually:</BlueTextHooks>
+          <BlueText>Provide QR code contents manually:</BlueText>
           <TextInput
             testID="scanQrBackdoorInput"
             multiline
