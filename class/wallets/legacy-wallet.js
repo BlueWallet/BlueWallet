@@ -419,8 +419,13 @@ export class LegacyWallet extends AbstractWallet {
     return true;
   }
 
-  // Check if address is a Change address. Needed for Coin control.
-  // Useless for Legacy wallets, so it is always false
+  /**
+   * Check if address is a Change address. Needed for Coin control.
+   * Useless for Legacy wallets, so it is always false
+   *
+   * @param address
+   * @returns {Boolean} Either address is a change or not
+   */
   addressIsChange(address) {
     return false;
   }
