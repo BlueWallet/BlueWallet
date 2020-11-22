@@ -230,7 +230,7 @@
     "about_sm_twitter": "Sledujte nás na Twitteri",
     "advanced_options": "Pokročilé nastavenia",
     "currency": "Mena",
-    "currency_source": "Prices are obtained from CoinDesk and Yadio",
+    "currency_source": "Prices are obtained from",
     "default_desc": "When disabled, BlueWallet will immediately open the selected wallet at launch.",
     "default_info": "Default info",
     "default_title": "On Launch",

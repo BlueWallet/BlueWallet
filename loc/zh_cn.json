@@ -233,7 +233,7 @@
     "about_sm_twitter": "Follow us on Twitter",
     "advanced_options": "Advanced Options",
     "currency": "货币",
-    "currency_source": "Prices are obtained from CoinDesk and Yadio",
+    "currency_source": "Prices are obtained from",
     "default_desc": "When disabled, BlueWallet will immediately open the selected wallet at launch.",
     "default_info": "Default info",
     "default_title": "On Launch",

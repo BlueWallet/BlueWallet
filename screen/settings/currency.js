@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FlatList, ActivityIndicator, View, StyleSheet } from 'react-native';
 import { SafeBlueArea, BlueListItem, BlueTextHooks, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { FiatUnit } from '../../models/fiatUnit';
+import { FiatUnit, FiatUnitSource } from '../../models/fiatUnit';
 import loc from '../../loc';
 import { useTheme } from '@react-navigation/native';
 const currency = require('../../blue_modules/currency');
@@ -68,7 +68,9 @@ const Currency = () => {
           }}
         />
         <BlueCard>
-          <BlueTextHooks>{loc.settings.currency_source}</BlueTextHooks>
+          <BlueTextHooks>
+            {loc.settings.currency_source} {selectedCurrency.source ?? FiatUnitSource.CoinDesk}
+          </BlueTextHooks>
         </BlueCard>
       </SafeBlueArea>
     );
