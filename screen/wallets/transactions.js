@@ -676,7 +676,7 @@ WalletTransactions.navigationOptions = ({ navigation, route }) => {
         <Icon name="kebab-horizontal" type="octicon" size={22} color="#FFFFFF" />
       </TouchableOpacity>
     ),
-    headerTitle: () => null,
+    headerTitle: '',
     headerStyle: {
       backgroundColor: WalletGradient.headerColorFor(route.params.walletType),
       borderBottomWidth: 0,

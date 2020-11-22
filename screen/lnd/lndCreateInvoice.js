@@ -35,10 +35,9 @@ const currency = require('../../blue_modules/currency');
 
 const styles = StyleSheet.create({
   createButton: {
-    marginHorizontal: 56,
+    marginHorizontal: 16,
     marginVertical: 16,
     minHeight: 45,
-    alignItems: 'center',
   },
   scanRoot: {
     height: 36,

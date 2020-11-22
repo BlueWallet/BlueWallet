@@ -127,9 +127,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   createButton: {
-    marginHorizontal: 56,
     marginVertical: 16,
-    maxWidth: 260,
+    marginHorizontal: 16,
+    alignContent: 'center',
     minHeight: 44,
   },
   select: {

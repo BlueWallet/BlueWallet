@@ -7,7 +7,7 @@ import ImagePicker from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload } from 'bc-ur';
 import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import { BlueLoadingHook, BlueTextHooks, BlueButtonHook, BlueSpacing40 } from '../../BlueComponents';
+import { BlueLoadingHook, BlueTextHooks, BlueButton, BlueSpacing40 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
@@ -255,7 +255,7 @@ const ScanQRCode = () => {
         <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
           <BlueTextHooks>{loc.send.permission_camera_message}</BlueTextHooks>
           <BlueSpacing40 />
-          <BlueButtonHook title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
+          <BlueButton title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
         </View>
       )}
       <TouchableOpacity style={styles.closeTouch} onPress={dismiss}>
@@ -293,7 +293,7 @@ const ScanQRCode = () => {
             value={backdoorText}
             onChangeText={setBackdoorText}
           />
-          <BlueButtonHook
+          <BlueButton
             title="OK"
             testID="scanQrBackdoorOkButton"
             onPress={() => {
