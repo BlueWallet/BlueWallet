@@ -96,11 +96,11 @@ describe('BlueWallet UI Tests', () => {
       .toBeVisible()
       .withTimeout(33000);
 
-    // trying to decrypt with wrong password
+    // trying to decrypt with incorrect password
     await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('wrong');
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Wrong password, please try again.'))).toBeVisible();
+    await expect(element(by.text('Incorrect password, please try again.'))).toBeVisible();
 
     // correct password
     await element(by.type('android.widget.EditText')).typeText('qqq');
@@ -249,7 +249,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.text('OK')).tap();
     await element(by.type('android.widget.EditText')).typeText('fake');
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Wrong password, please try again.'))).toBeVisible();
+    await expect(element(by.text('Incorrect password, please try again.'))).toBeVisible();
     await element(by.text('OK')).tap();
 
     // correct password
@@ -328,7 +328,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.text('OK')).tap();
     await element(by.type('android.widget.EditText')).typeText('pass');
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Wrong password, please try again.'))).toBeVisible();
+    await expect(element(by.text('Incorrect password, please try again.'))).toBeVisible();
     await element(by.text('OK')).tap();
 
     // correct password
