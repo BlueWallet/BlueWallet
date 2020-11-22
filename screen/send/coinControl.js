@@ -200,9 +200,11 @@ const CoinControl = () => {
 
   const tipCoins = () => {
     return (
-      <View style={[styles.tip, stylesHook.tip]}>
-        <Text style={{ color: colors.foregroundColor }}>{loc.cc.tip}</Text>
-      </View>
+      utxo.length >= 1 && (
+        <View style={[styles.tip, stylesHook.tip]}>
+          <Text style={{ color: colors.foregroundColor }}>{loc.cc.tip}</Text>
+        </View> 
+      )
     );
   };
 
