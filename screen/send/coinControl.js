@@ -46,9 +46,12 @@ const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, change = 
     freezeText: { color: colors.redText },
   });
 
-
   return (
-    <ListItem bottomDivider onPress={onPress} containerStyle={[{ borderBottomColor: colors.lightBorder, backgroundColor: colors.elevated }, full && oStyles.containerFull]}>
+    <ListItem
+      bottomDivider
+      onPress={onPress}
+      containerStyle={[{ borderBottomColor: colors.lightBorder, backgroundColor: colors.elevated }, full && oStyles.containerFull]}
+    >
       <Avatar rounded overlayContainerStyle={[oStyles.avatar, { backgroundColor: color }]} />
       <ListItem.Content>
         <ListItem.Title style={[oStyles.amount, { color: colors.foregroundColor }]}>{amount}</ListItem.Title>
@@ -166,7 +169,6 @@ OutputModalContent.propTypes = {
   onUseCoin: PropTypes.func.isRequired,
 };
 
-
 const CoinControl = () => {
   const { colors } = useTheme();
   const navigation = useNavigation();
@@ -185,11 +187,9 @@ const CoinControl = () => {
   });
 
   const tipCoins = () => {
-    return( 
+    return (
       <View style={[styles.tip, stylesHook.tip]}>
-          <Text style={{ color: colors.foregroundColor }}>
-            {loc.cc.tip}
-          </Text>
+        <Text style={{ color: colors.foregroundColor }}>{loc.cc.tip}</Text>
       </View>
     );
   };
