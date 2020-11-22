@@ -654,7 +654,7 @@ export const BluePrivateBalance = () => {
 
 export const BlueCopyToClipboardButton = ({ stringToCopy, displayText = false }) => {
   return (
-    <TouchableOpacity testID="CopyToClipboard" onPress={() => Clipboard.setString(stringToCopy)}>
+    <TouchableOpacity onPress={() => Clipboard.setString(stringToCopy)}>
       <Text style={{ fontSize: 13, fontWeight: '400', color: '#68bbe1' }}>{displayText || loc.transactions.details_copy}</Text>
     </TouchableOpacity>
   );
