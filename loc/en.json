@@ -293,7 +293,7 @@
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",
-    "no_and_dont_ask": "No and dont ask",
+    "no_and_dont_ask": "No, and Don't Ask Me Again",
     "ask_me_later": "Ask Me Later"
   },
   "transactions": {
