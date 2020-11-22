@@ -40,7 +40,7 @@ dayjs.extend(relativeTime);
         require('dayjs/locale/es');
         break;
       case 'es_419':
-        // es-do it is the closesd one to es_419
+        // es-do it is the closes one to es_419
         lang = 'es-do';
         require('dayjs/locale/es-do');
         break;

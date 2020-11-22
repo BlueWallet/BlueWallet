@@ -28,7 +28,7 @@ struct MarketView: View {
           
           Spacer()
           HStack(alignment: .center, spacing: 0, content: {
-            Text("Sats/Dollar").bold().lineLimit(1).font(Font.system(size:11, weight: .medium, design: .default)).foregroundColor(.textColor)
+            Text("Sats/\(WidgetAPI.getUserPreferredCurrency())").bold().lineLimit(1).font(Font.system(size:11, weight: .medium, design: .default)).foregroundColor(.textColor)
             Spacer()
             Text(marketData.sats == "..." ? "..." : marketData.sats).padding(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4)).lineLimit(1).minimumScaleFactor(0.1).foregroundColor(.widgetBackground).font(Font.system(size:11, weight: .semibold, design: .default)).background(Color(red: 0.97, green: 0.21, blue: 0.38)).overlay(
               RoundedRectangle(cornerRadius: 4.0)

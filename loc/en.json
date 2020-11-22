@@ -234,7 +234,7 @@
     "about_sm_twitter": "Follow us on Twitter",
     "advanced_options": "Advanced Options",
     "currency": "Currency",
-    "currency_source": "Prices are obtained from CoinDesk",
+    "currency_source": "Prices are obtained from",
     "default_desc": "When disabled, BlueWallet will immediately open the selected wallet at launch.",
     "default_info": "Default info",
     "default_title": "On Launch",
@@ -293,7 +293,7 @@
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",
-    "no_and_dont_ask": "No and dont ask",
+    "no_and_dont_ask": "No, and Don't Ask Me Again",
     "ask_me_later": "Ask Me Later"
   },
   "transactions": {
