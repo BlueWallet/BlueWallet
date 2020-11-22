@@ -714,9 +714,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    *    wif: 'string',
    *    confirmations: 0 } ]
    *
+   * @param respectFrozen {boolean} Add Frozen outputs
    * @returns {[]}
    */
-  getUtxo({ frozen = false } = {}) {
+  getUtxo(respectFrozen = false) {
     let ret = [];
 
     if (this._utxo.length === 0) {
@@ -724,7 +725,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     } else {
       ret = this._utxo;
     }
-    if (!frozen) {
+    if (!respectFrozen) {
       ret = ret.filter(({ txid, vout }) => !this.getUTXOMetadata(txid, vout).frozen);
     }
     return ret;

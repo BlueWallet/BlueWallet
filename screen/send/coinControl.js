@@ -176,7 +176,7 @@ const CoinControl = () => {
   const { wallets } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletId);
   // sort by height ascending, txid , vout ascending
-  const utxo = wallet.getUtxo({ frozen: true }).sort((a, b) => a.height - b.height || a.txid.localeCompare(b.txid) || a.vout - b.vout);
+  const utxo = wallet.getUtxo(true).sort((a, b) => a.height - b.height || a.txid.localeCompare(b.txid) || a.vout - b.vout);
   const [output, setOutput] = useState();
   const [loading, setLoading] = useState(true);
 

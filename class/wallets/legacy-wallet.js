@@ -139,14 +139,29 @@ export class LegacyWallet extends AbstractWallet {
     }
   }
 
-  getUtxo({ frozen = false } = {}) {
+  /**
+   * Getter for previously fetched UTXO. For example:
+   *     [ { height: 0,
+   *    value: 666,
+   *    address: 'string',
+   *    txId: 'string',
+   *    vout: 1,
+   *    txid: 'string',
+   *    amount: 666,
+   *    wif: 'string',
+   *    confirmations: 0 } ]
+   *
+   * @param respectFrozen {boolean} Add Frozen outputs
+   * @returns {[]}
+   */
+  getUtxo(respectFrozen = false) {
     let ret = [];
     for (const u of this.utxo) {
       if (u.txId) u.txid = u.txId;
       if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
       ret.push(u);
     }
-    if (!frozen) {
+    if (!respectFrozen) {
       ret = ret.filter(({ txid, vout }) => !this.getUTXOMetadata(txid, vout).frozen);
     }
     return ret;
