@@ -140,7 +140,7 @@ describe('BlueWallet UI Tests', () => {
     await expect(element(by.text('Retype password'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorageWithTypo'); // retyping with typo
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Passwords do not match, try again'))).toBeVisible();
+    await expect(element(by.text('Passwords do not match, please try again.'))).toBeVisible();
     await element(by.text('OK')).tap();
 
     // trying new password
