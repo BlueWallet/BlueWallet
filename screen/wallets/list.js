@@ -141,16 +141,15 @@ const WalletsList = () => {
    * Forcefully fetches TXs and balance for ALL wallets.
    * Triggered manually by user on pull-to-refresh.
    */
-  const refreshTransactions = () => {
-    setIsLoading(true);
+  const refreshTransactions = (showLoadingIndicator = true) => {
+    setIsLoading(showLoadingIndicator);
     refreshAllWalletTransactions().finally(() => setIsLoading(false));
   };
 
-  useEffect(
-    refreshTransactions,
+  useEffect(() => {
+    refreshTransactions(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  ); // call refreshTransactions() only once, when screen mounts
+  }, []); // call refreshTransactions() only once, when screen mounts
 
   const handleClick = index => {
     console.log('click', index);
@@ -197,7 +196,6 @@ const WalletsList = () => {
     console.log('onSnapToItem', index);
     if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
       console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
-      setIsLoading(true);
       refreshAllWalletTransactions(index).finally(() => setIsLoading(false));
     }
   };
