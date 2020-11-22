@@ -1,6 +1,5 @@
 import React, { useMemo, useState, useContext, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import _debounce from 'lodash/debounce';
 import Modal from 'react-native-modal';
 import { ListItem, Avatar, Badge } from 'react-native-elements';
 import {
@@ -22,6 +21,19 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueNavigationStyle, SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueButton, BlueListItem } from '../../BlueComponents';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+
+// https://levelup.gitconnected.com/debounce-in-javascript-improve-your-applications-performance-5b01855e086
+const debounce = (func, wait) => {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      timeout = null;
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
 
 const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, change = false, full = false, onPress }) => {
   const { colors } = useTheme();
@@ -125,7 +137,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin }) => {
 
   // save on form change. Because effect called on each event, debounce it.
   const debouncedSave = useRef(
-    _debounce(async (frozen, memo) => {
+    debounce(async (frozen, memo) => {
       wallet.setUTXOMetadata(output.txid, output.vout, { frozen, memo });
       await saveToDisk();
     }, 500),
