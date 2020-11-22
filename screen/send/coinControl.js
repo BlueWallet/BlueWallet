@@ -1,6 +1,5 @@
 import React, { useMemo, useState, useContext, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import Modal from 'react-native-modal';
 import { ListItem, Avatar, Badge } from 'react-native-elements';
 import {
   ActivityIndicator,
@@ -20,6 +19,7 @@ import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueNavigationStyle, SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueButton, BlueListItem } from '../../BlueComponents';
+import BottomModal from '../../components/BottomModal';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 // https://levelup.gitconnected.com/debounce-in-javascript-improve-your-applications-performance-5b01855e086
@@ -240,14 +240,9 @@ const CoinControl = () => {
         </View>
       )}
 
-      <Modal
+      <BottomModal
         isVisible={Boolean(output)}
-        style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          setOutput(false);
-        }}
-        onBackButtonPress={() => {
+        onClose={() => {
           Keyboard.dismiss();
           setOutput(false);
         }}
@@ -257,7 +252,7 @@ const CoinControl = () => {
             {output && <OutputModalContent output={output} wallet={wallet} onUseCoin={handleUseCoin} />}
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
 
       <FlatList ListHeaderComponent={tipCoins} data={utxo} renderItem={renderItem} keyExtractor={item => `${item.txid}:${item.vout}`} />
     </SafeBlueArea>
@@ -271,10 +266,6 @@ const styles = StyleSheet.create({
   center: {
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
   },
   modalContent: {
     padding: 22,
