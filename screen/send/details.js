@@ -1420,14 +1420,14 @@ export default class SendDetails extends Component {
           {Platform.select({
             ios: (
               <BlueUseAllFundsButton
-                canUseAll={fromWallet.allowSendMax() && fromWallet.getBalance() > 0}
+                canUseAll={fromWallet.allowSendMax() && allBalance > 0}
                 onUseAllPressed={this.onUseAllPressed}
                 balance={allBalance}
               />
             ),
             android: this.state.isAmountToolbarVisibleForAndroid && (
               <BlueUseAllFundsButton
-                canUseAll={fromWallet.allowSendMax() && fromWallet.getBalance() > 0}
+                canUseAll={fromWallet.allowSendMax() && allBalance > 0}
                 onUseAllPressed={this.onUseAllPressed}
                 balance={allBalance}
               />
