@@ -17,6 +17,10 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
     return true;
   }
 
+  allowSendMax() {
+    return true;
+  }
+
   getXpub() {
     if (this._xpub) {
       return this._xpub; // cache hit
