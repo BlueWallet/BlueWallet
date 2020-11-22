@@ -145,7 +145,7 @@ export class AppStorage {
       this.tx_metadata = [];
       return this.loadFromDisk();
     } else {
-      throw new Error('Wrong password. Please, try again.');
+      throw new Error('Incorrect password. Please, try again.');
     }
   };
 
