@@ -233,7 +233,7 @@
     "about_sm_twitter": "Мы в Twitter",
     "advanced_options": "Расширенные настройки",
     "currency": "Валюта",
-    "currency_source": "Источник курсов CoinDesk",
+    "currency_source": "Источник курсов",
     "default_desc": "Когда выключено BlueWallet сразу же откроет выбранный кошелек при запуске.",
     "default_info": "Показать",
     "default_title": "При старте",

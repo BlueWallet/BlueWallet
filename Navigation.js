@@ -70,7 +70,6 @@ import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
-import { BlueNavigationStyle } from './BlueComponents';
 import DrawerList from './screen/wallets/drawerList';
 import { isTablet } from 'react-native-device-info';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
@@ -116,15 +115,7 @@ const WalletsRoot = () => (
     <WalletsStack.Screen name="CPFP" component={CPFP} options={CPFP.navigationOptions} />
     <WalletsStack.Screen name="RBFBumpFee" component={RBFBumpFee} options={RBFBumpFee.navigationOptions} />
     <WalletsStack.Screen name="RBFCancel" component={RBFCancel} options={RBFCancel.navigationOptions} />
-    <WalletsStack.Screen
-      name="Settings"
-      component={Settings}
-      options={{
-        ...BlueNavigationStyle(),
-
-        headerTitle: '',
-      }}
-    />
+    <WalletsStack.Screen name="Settings" component={Settings} options={Settings.navigationOptions} />
     <WalletsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
     <WalletsStack.Screen name="Currency" component={Currency} options={Currency.navigationOptions} />
     <WalletsStack.Screen name="About" component={About} options={About.navigationOptions} />

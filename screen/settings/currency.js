@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { FlatList, TouchableOpacity, ActivityIndicator, View, StyleSheet } from 'react-native';
+import { FlatList, ActivityIndicator, View, StyleSheet } from 'react-native';
 import { SafeBlueArea, BlueListItem, BlueText, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { FiatUnit } from '../../models/fiatUnit';
+import { FiatUnit, FiatUnitSource } from '../../models/fiatUnit';
 import loc from '../../loc';
 import { useTheme } from '@react-navigation/native';
 const currency = require('../../blue_modules/currency');
@@ -48,16 +48,14 @@ const Currency = () => {
           style={styles.flex}
           keyExtractor={(_item, index) => `${index}`}
           data={data}
+          initialNumToRender={25}
           extraData={data}
           renderItem={({ item }) => {
             return (
               <BlueListItem
                 disabled={isSavingNewPreferredCurrency}
                 title={`${item.endPointKey} (${item.symbol})`}
-                {...(selectedCurrency.endPointKey === item.endPointKey
-                  ? { rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' } }
-                  : { hideChevron: true })}
-                Component={TouchableOpacity}
+                checkmark={selectedCurrency.endPointKey === item.endPointKey}
                 onPress={async () => {
                   setIsSavingNewPreferredCurrency(true);
                   setSelectedCurrency(item);
@@ -70,7 +68,9 @@ const Currency = () => {
           }}
         />
         <BlueCard>
-          <BlueText>{loc.settings.currency_source}</BlueText>
+          <BlueText>
+            {loc.settings.currency_source} {selectedCurrency.source ?? FiatUnitSource.CoinDesk}
+          </BlueText>
         </BlueCard>
       </SafeBlueArea>
     );
