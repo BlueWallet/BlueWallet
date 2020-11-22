@@ -147,7 +147,7 @@ const WalletsRoot = () => (
       component={LNDViewInvoice}
       options={LNDViewInvoice.navigationOptions}
       swipeEnabled={false}
-      gesturesEnabled={false}
+      gestureEnabled={false}
     />
     <WalletsStack.Screen
       name="LNDViewAdditionalInvoiceInformation"
@@ -191,7 +191,14 @@ const SendDetailsRoot = () => (
     />
     <SendDetailsStack.Screen name="CreateTransaction" component={SendCreate} options={SendCreate.navigationOptions} />
     <SendDetailsStack.Screen name="PsbtMultisig" component={PsbtMultisig} options={PsbtMultisig.navigationOptions} />
-    <SendDetailsStack.Screen name="Success" component={Success} options={Success.navigationOptions} />
+    <SendDetailsStack.Screen
+      name="Success"
+      component={Success}
+      options={{
+        headerShown: false,
+        gestureEnabled: false,
+      }}
+    />
     <SendDetailsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
     <SendDetailsStack.Screen name="CoinControl" component={CoinControl} options={CoinControl.navigationOptions} />
   </SendDetailsStack.Navigator>
@@ -207,7 +214,7 @@ const LNDCreateInvoiceRoot = () => (
       component={LNDViewInvoice}
       options={LNDViewInvoice.navigationOptions}
       swipeEnabled={false}
-      gesturesEnabled={false}
+      gestureEnabled={false}
     />
     <LNDCreateInvoiceStack.Screen
       name="LNDViewAdditionalInvoiceInformation"
@@ -223,7 +230,7 @@ const ScanLndInvoiceRoot = () => (
   <ScanLndInvoiceStack.Navigator screenOptions={defaultStackScreenOptions}>
     <ScanLndInvoiceStack.Screen name="ScanLndInvoice" component={ScanLndInvoice} options={ScanLndInvoice.navigationOptions} />
     <ScanLndInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
-    <ScanLndInvoiceStack.Screen name="Success" component={Success} options={Success.navigationOptions} />
+    <ScanLndInvoiceStack.Screen name="Success" component={Success} options={{ headerShown: false, gestureEnabled: false }} />
     <ScanLndInvoiceStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions} />
     <ScanLndInvoiceStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions} />
   </ScanLndInvoiceStack.Navigator>

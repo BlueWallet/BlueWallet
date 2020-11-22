@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import LottieView from 'lottie-react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { Text } from 'react-native-elements';
-import { BlueButton, SafeBlueArea, BlueCard } from '../../BlueComponents';
+import { BlueButton, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -11,7 +11,7 @@ import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 const Success = () => {
   const { colors } = useTheme();
   const { dangerouslyGetParent } = useNavigation();
-  const { amount, fee = 0, amountUnit = BitcoinUnit.BTC, invoiceDescription = '' } = useRoute().params;
+  const { amount = 0, fee = 0, amountUnit = BitcoinUnit.BTC, invoiceDescription = '' } = useRoute().params;
   const animationRef = useRef();
   const stylesHook = StyleSheet.create({
     root: {
@@ -39,14 +39,16 @@ const Success = () => {
   }, [colors]);
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
-      <BlueCard style={styles.amout}>
-        {amount > 0 && (
-          <View style={styles.view}>
-            <Text style={[styles.amountValue, stylesHook.amountValue]}>{amount}</Text>
-            <Text style={[styles.amountUnit, stylesHook.amountUnit]}>{' ' + amountUnit}</Text>
-          </View>
-        )}
+    <SafeAreaView style={[styles.root, stylesHook.root]}>
+      <BlueCard style={styles.amount}>
+        <View style={styles.view}>
+          {amount > 0 && (
+            <>
+              <Text style={[styles.amountValue, stylesHook.amountValue]}>{amount}</Text>
+              <Text style={[styles.amountUnit, stylesHook.amountUnit]}>{' ' + amountUnit}</Text>
+            </>
+          )}
+        </View>
         {fee > 0 && (
           <Text style={styles.feeText}>
             {loc.send.create_fee}: {fee} {BitcoinUnit.BTC}
@@ -81,16 +83,11 @@ const Success = () => {
           ]}
         />
       </View>
-      <BlueCard>
+      <View style={styles.buttonContainer}>
         <BlueButton onPress={pop} title={loc.send.success_done} />
-      </BlueCard>
-    </SafeBlueArea>
+      </View>
+    </SafeAreaView>
   );
-};
-
-Success.navigationOptions = {
-  headerShown: false,
-  gesturesEnabled: false,
 };
 
 export default Success;
@@ -99,10 +96,13 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     paddingTop: 19,
+    justifyContent: 'space-between',
   },
-  amout: {
+  buttonContainer: {
+    padding: 58,
+  },
+  amount: {
     alignItems: 'center',
-    flex: 1,
   },
   view: {
     flexDirection: 'row',

@@ -1,6 +1,6 @@
 {
   "name": "bluewallet",
-  "version": "5.6.6",
+  "version": "5.6.7",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.10.4",
@@ -74,8 +74,8 @@
     "@react-native-community/push-notification-ios": "1.7.1",
     "@react-native-community/slider": "3.0.3",
     "@react-navigation/drawer": "5.10.0",
-    "@react-navigation/native": "5.7.6",
-    "@react-navigation/stack": "5.9.3",
+    "@react-navigation/native": "5.8.2",
+    "@react-navigation/stack": "5.11.1",
     "@remobile/react-native-qrcode-local-image": "git+https://github.com/BlueWallet/react-native-qrcode-local-image.git",
     "@sentry/react-native": "1.9.0",
     "amplitude-js": "7.3.0",
@@ -95,7 +95,7 @@
     "coinselect": "3.1.12",
     "crypto-js": "3.1.9-1",
     "dayjs": "1.9.4",
-    "detox": "17.10.2",
+    "detox": "17.10.5",
     "ecurve": "1.0.6",
     "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#f9a827e724a5a2e578fdfdb483f83793af55b030",
     "electrum-mnemonic": "2.0.0",
