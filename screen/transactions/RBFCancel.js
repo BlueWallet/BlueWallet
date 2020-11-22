@@ -75,6 +75,7 @@ export default class RBFCancel extends CPFP {
     } else {
       this.context.txMetadata[this.state.newTxid].memo = 'Cancelled transaction';
     }
+    this.props.navigation.navigate('Success', { onDonePressed: () => this.props.navigation.popToTop(), amount: undefined });
   }
 
   render() {
@@ -84,10 +85,6 @@ export default class RBFCancel extends CPFP {
           <ActivityIndicator />
         </View>
       );
-    }
-
-    if (this.state.stage === 3) {
-      return this.renderStage3();
     }
 
     if (this.state.stage === 2) {

@@ -157,6 +157,14 @@ const WalletsRoot = () => (
     <WalletsStack.Screen name="Broadcast" component={Broadcast} options={Broadcast.navigationOptions} />
     <WalletsStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions} />
     <WalletsStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions} />
+    <WalletsStack.Screen
+      name="Success"
+      component={Success}
+      options={{
+        headerShown: false,
+        gestureEnabled: false,
+      }}
+    />
   </WalletsStack.Navigator>
 );
 

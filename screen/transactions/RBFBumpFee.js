@@ -65,6 +65,7 @@ export default class RBFBumpFee extends CPFP {
     if (this.context.txMetadata[this.state.txid]) {
       this.context.txMetadata[this.state.newTxid] = this.context.txMetadata[this.state.txid];
     }
+    this.props.navigation.navigate('Success', { onDonePressed: () => this.props.navigation.popToTop(), amount: undefined });
   }
 
   render() {
@@ -74,10 +75,6 @@ export default class RBFBumpFee extends CPFP {
           <ActivityIndicator />
         </View>
       );
-    }
-
-    if (this.state.stage === 3) {
-      return this.renderStage3();
     }
 
     if (this.state.stage === 2) {

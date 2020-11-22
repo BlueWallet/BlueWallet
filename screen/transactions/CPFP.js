@@ -14,7 +14,6 @@ import {
   BlueText,
   BlueSpacing,
   BlueNavigationStyle,
-  BlueBigCheckmark,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
@@ -101,7 +100,6 @@ export default class CPFP extends Component {
         await BlueElectrum.waitTillConnected();
         const result = await this.state.wallet.broadcastTx(this.state.txhex);
         if (result) {
-          this.setState({ stage: 3, isLoading: false });
           this.onSuccessBroadcast();
         } else {
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -119,6 +117,7 @@ export default class CPFP extends Component {
   onSuccessBroadcast() {
     this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
     Notifications.majorTomToGroundControl([], [], [this.state.newTxid]);
+    this.props.navigation.navigate('Success', { onDonePressed: () => this.props.navigation.popToTop(), amount: undefined });
   }
 
   async componentDidMount() {
@@ -203,20 +202,6 @@ export default class CPFP extends Component {
     );
   }
 
-  renderStage3() {
-    return (
-      <SafeBlueArea style={styles.doneWrap}>
-        <BlueCard style={styles.center}>
-          <View style={styles.doneCard} />
-        </BlueCard>
-        <BlueBigCheckmark style={styles.blueBigCheckmark} />
-        <BlueCard>
-          <BlueButton onPress={() => this.props.navigation.popToTop()} title={loc.send.success_done} />
-        </BlueCard>
-      </SafeBlueArea>
-    );
-  }
-
   render() {
     if (this.state.isLoading) {
       return (
@@ -224,10 +209,6 @@ export default class CPFP extends Component {
           <ActivityIndicator />
         </View>
       );
-    }
-
-    if (this.state.stage === 3) {
-      return this.renderStage3();
     }
 
     if (this.state.stage === 2) {
