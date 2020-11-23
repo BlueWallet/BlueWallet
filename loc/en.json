@@ -400,6 +400,7 @@
     "select_wallet": "Select Wallet",
     "take_photo": "Take Photo",
     "xpub_copiedToClipboard": "Copied to clipboard.",
+    "pull_to_refresh": "pull to refresh",
     "xpub_title": "wallet XPUB"
   },
   "multisig": {
