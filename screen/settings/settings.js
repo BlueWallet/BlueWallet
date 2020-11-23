@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
-import { BlueListItem, BlueHeaderDefaultSubHooks } from '../../BlueComponents';
+import { BlueListItem, BlueNavigationStyle, BlueHeaderDefaultSubHooks } from '../../BlueComponents';
 import { useNavigation } from '@react-navigation/native';
 import loc from '../../loc';
 
@@ -47,3 +47,7 @@ const Settings = () => {
 };
 
 export default Settings;
+Settings.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
+  headerTitle: '',
+});
