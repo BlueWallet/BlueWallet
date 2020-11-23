@@ -251,14 +251,14 @@ const styles = StyleSheet.create({
     backgroundColor: BlueCurrentTheme.colors.feeLabel,
   },
   containerDisconnected: {
-    backgroundColor: '#F8D2D2',
+    backgroundColor: BlueCurrentTheme.colors.redBG,
   },
   textConnected: {
     color: BlueCurrentTheme.colors.feeValue,
     fontWeight: 'bold',
   },
   textDisconnected: {
-    color: '#D0021B',
+    color: BlueCurrentTheme.colors.redText,
     fontWeight: 'bold',
   },
   hostname: {

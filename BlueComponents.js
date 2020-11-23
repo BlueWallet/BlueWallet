@@ -23,7 +23,6 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   UIManager,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
@@ -66,7 +65,6 @@ Platform.OS === 'android' ? (ActivityIndicator.defaultProps.color = PlatformColo
 
 export const BlueButton = props => {
   const { colors } = useTheme();
-  const { width } = useWindowDimensions();
 
   let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.mainColor || BlueCurrentTheme.colors.mainColor;
   let fontColor = props.buttonTextColor || colors.buttonTextColor;
@@ -75,11 +73,6 @@ export const BlueButton = props => {
     fontColor = colors.buttonDisabledTextColor;
   }
 
-  let buttonWidth = props.width ? props.width : width / 1.5;
-  if ('noMinWidth' in props) {
-    buttonWidth = 0;
-  }
-
   return (
     <TouchableOpacity
       style={{
@@ -91,54 +84,15 @@ export const BlueButton = props => {
         height: 45,
         maxHeight: 45,
         borderRadius: 25,
-        minWidth: buttonWidth,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingHorizontal: 16,
       }}
       {...props}
     >
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
         {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
         {props.title && <Text style={{ marginHorizontal: 8, fontSize: 16, color: fontColor, fontWeight: '500' }}>{props.title}</Text>}
-      </View>
-    </TouchableOpacity>
-  );
-};
-
-export const BlueButtonHook = props => {
-  const { width } = useWindowDimensions();
-  const { colors } = useTheme();
-  let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.mainColor;
-  let fontColor = colors.buttonTextColor;
-  if (props.disabled === true) {
-    backgroundColor = colors.buttonDisabledBackgroundColor;
-    fontColor = colors.buttonDisabledTextColor;
-  }
-
-  let buttonWidth = props.width ? props.width : width / 1.5;
-  if ('noMinWidth' in props) {
-    buttonWidth = 0;
-  }
-  return (
-    <TouchableOpacity
-      style={{
-        flex: 1,
-        borderWidth: 0.7,
-        borderColor: 'transparent',
-        backgroundColor: backgroundColor,
-        minHeight: 45,
-        height: 45,
-        maxHeight: 45,
-        borderRadius: 25,
-        minWidth: buttonWidth,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-      {...props}
-    >
-      <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-        {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
-        {props.title && <Text style={{ marginHorizontal: 8, fontSize: 16, color: fontColor }}>{props.title}</Text>}
       </View>
     </TouchableOpacity>
   );
@@ -152,10 +106,7 @@ export const SecondButton = props => {
     backgroundColor = colors.buttonDisabledBackgroundColor;
     fontColor = colors.buttonDisabledTextColor;
   }
-  // let buttonWidth = this.props.width ? this.props.width : width / 1.5;
-  // if ('noMinWidth' in this.props) {
-  //   buttonWidth = 0;
-  // }
+
   return (
     <TouchableOpacity
       style={{
@@ -1061,12 +1012,9 @@ export class BlueList extends Component {
 export class BlueUseAllFundsButton extends Component {
   static InputAccessoryViewID = 'useMaxInputAccessoryViewID';
   static propTypes = {
-    wallet: PropTypes.shape().isRequired,
+    balance: PropTypes.string.isRequired,
+    canUseAll: PropTypes.bool.isRequired,
     onUseAllPressed: PropTypes.func.isRequired,
-  };
-
-  static defaultProps = {
-    unit: BitcoinUnit.BTC,
   };
 
   render() {
@@ -1096,11 +1044,11 @@ export class BlueUseAllFundsButton extends Component {
           >
             {loc.send.input_total}
           </Text>
-          {this.props.wallet.allowSendMax() && this.props.wallet.getBalance() > 0 ? (
+          {this.props.canUseAll ? (
             <BlueButtonLink
               onPress={this.props.onUseAllPressed}
               style={{ marginLeft: 8, paddingRight: 0, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
-              title={`${formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} ${BitcoinUnit.BTC}`}
+              title={`${this.props.balance} ${BitcoinUnit.BTC}`}
             />
           ) : (
             <Text
@@ -1115,7 +1063,7 @@ export class BlueUseAllFundsButton extends Component {
                 paddingBottom: 12,
               }}
             >
-              {formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} {BitcoinUnit.BTC}
+              {this.props.balance} {BitcoinUnit.BTC}
             </Text>
           )}
         </View>
@@ -1128,6 +1076,7 @@ export class BlueUseAllFundsButton extends Component {
         </View>
       </View>
     );
+
     if (Platform.OS === 'ios') {
       return <InputAccessoryView nativeID={BlueUseAllFundsButton.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
     } else {

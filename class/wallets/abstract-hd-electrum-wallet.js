@@ -714,11 +714,21 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    *    wif: 'string',
    *    confirmations: 0 } ]
    *
+   * @param respectFrozen {boolean} Add Frozen outputs
    * @returns {[]}
    */
-  getUtxo() {
-    if (this._utxo.length === 0) return this.getDerivedUtxoFromOurTransaction(); // oy vey, no stored utxo. lets attempt to derive it from stored transactions
-    return this._utxo;
+  getUtxo(respectFrozen = false) {
+    let ret = [];
+
+    if (this._utxo.length === 0) {
+      ret = this.getDerivedUtxoFromOurTransaction(); // oy vey, no stored utxo. lets attempt to derive it from stored transactions
+    } else {
+      ret = this._utxo;
+    }
+    if (!respectFrozen) {
+      ret = ret.filter(({ txid, vout }) => !this.getUTXOMetadata(txid, vout).frozen);
+    }
+    return ret;
   }
 
   getDerivedUtxoFromOurTransaction(returnSpentUtxoAsWell = false) {
@@ -1024,5 +1034,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     return ret;
+  }
+
+  /**
+   * Check if address is a Change address. Needed for Coin control.
+   *
+   * @param address
+   * @returns {Boolean} Either address is a change or not
+   */
+  addressIsChange(address) {
+    for (let c = 0; c < this.next_free_change_address_index + 1; c++) {
+      if (address === this._getInternalAddressByIndex(c)) return true;
+    }
+    return false;
   }
 }
