@@ -60,6 +60,7 @@ import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
 import PsbtMultisig from './screen/send/psbtMultisig';
 import Success from './screen/send/success';
 import Broadcast from './screen/send/broadcast';
+import CoinControl from './screen/send/coinControl';
 
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
 import LappBrowser from './screen/lnd/browser';
@@ -184,6 +185,7 @@ const SendDetailsRoot = () => (
       }}
     />
     <SendDetailsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
+    <SendDetailsStack.Screen name="CoinControl" component={CoinControl} options={CoinControl.navigationOptions} />
   </SendDetailsStack.Navigator>
 );
 

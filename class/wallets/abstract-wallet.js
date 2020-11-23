@@ -32,6 +32,7 @@ export class AbstractWallet {
     this.hideBalance = false;
     this.userHasSavedExport = false;
     this._hideTransactionsInWalletsList = false;
+    this._utxoMetadata = {};
   }
 
   getID() {
@@ -280,4 +281,28 @@ export class AbstractWallet {
   }
 
   prepareForSerialization() {}
+
+  /*
+   * Get metadata (frozen, memo) for a specific UTXO
+   *
+   * @param {String} txid - transaction id
+   * @param {number} vout - an index number of the output in transaction
+   */
+  getUTXOMetadata(txid, vout) {
+    return this._utxoMetadata[`${txid}:${vout}`] || {};
+  }
+
+  /*
+   * Set metadata (frozen, memo) for a specific UTXO
+   *
+   * @param {String} txid - transaction id
+   * @param {number} vout - an index number of the output in transaction
+   * @param {{memo: String, frozen: Boolean}} opts - options to attach to UTXO
+   */
+  setUTXOMetadata(txid, vout, opts) {
+    const meta = this._utxoMetadata[`${txid}:${vout}`] || {};
+    if ('memo' in opts) meta.memo = opts.memo;
+    if ('frozen' in opts) meta.frozen = opts.frozen;
+    this._utxoMetadata[`${txid}:${vout}`] = meta;
+  }
 }
