@@ -132,13 +132,7 @@ const WalletsRoot = () => (
     <WalletsStack.Screen name="LightningSettings" component={LightningSettings} options={LightningSettings.navigationOptions} />
     <WalletsStack.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions} />
     <WalletsStack.Screen name="SettingsPrivacy" component={SettingsPrivacy} options={SettingsPrivacy.navigationOptions} />
-    <WalletsStack.Screen
-      name="LNDViewInvoice"
-      component={LNDViewInvoice}
-      options={LNDViewInvoice.navigationOptions}
-      swipeEnabled={false}
-      gestureEnabled={false}
-    />
+    <WalletsStack.Screen name="LNDViewInvoice" component={LNDViewInvoice} options={LNDViewInvoice.navigationOptions} />
     <WalletsStack.Screen
       name="LNDViewAdditionalInvoiceInformation"
       component={LNDViewAdditionalInvoiceInformation}
@@ -198,13 +192,7 @@ const LNDCreateInvoiceRoot = () => (
   <LNDCreateInvoiceStack.Navigator screenOptions={defaultStackScreenOptions}>
     <LNDCreateInvoiceStack.Screen name="LNDCreateInvoice" component={LNDCreateInvoice} options={LNDCreateInvoice.navigationOptions} />
     <LNDCreateInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
-    <LNDCreateInvoiceStack.Screen
-      name="LNDViewInvoice"
-      component={LNDViewInvoice}
-      options={LNDViewInvoice.navigationOptions}
-      swipeEnabled={false}
-      gestureEnabled={false}
-    />
+    <LNDCreateInvoiceStack.Screen name="LNDViewInvoice" component={LNDViewInvoice} options={LNDViewInvoice.navigationOptions} />
     <LNDCreateInvoiceStack.Screen
       name="LNDViewAdditionalInvoiceInformation"
       component={LNDViewAdditionalInvoiceInformation}
@@ -304,7 +292,7 @@ const Navigation = () => (
   <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
     {/* stacks */}
     <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false }} />
-    <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={{ headerShown: false, gestureEnabled: false }} />
+    <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="SendDetailsRoot" component={SendDetailsRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={{ headerShown: false }} />

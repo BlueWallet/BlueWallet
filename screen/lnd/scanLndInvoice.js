@@ -53,9 +53,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 4,
   },
-  payButtonContainer: {
-    alignItems: 'center',
-  },
   walletWrapTouch: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -438,7 +435,7 @@ export default class ScanLndInvoice extends React.Component {
                       <ActivityIndicator />
                     </View>
                   ) : (
-                    <View style={styles.payButtonContainer}>
+                    <View>
                       <BlueButton title={loc.lnd.payButton} onPress={() => this.pay()} disabled={this.shouldDisablePayButton()} />
                     </View>
                   )}
