@@ -15,12 +15,11 @@ struct WidgetDataStore {
   var formattedRate: String? {
     let numberFormatter = NumberFormatter()
     numberFormatter.locale = Locale(identifier: WidgetAPI.getUserPreferredCurrencyLocale())
-    numberFormatter.numberStyle = .decimal
+    numberFormatter.numberStyle = .currency
     numberFormatter.maximumFractionDigits = 0
     numberFormatter.minimumFractionDigits = 0
-    if let rateNumber = numberFormatter.number(from: rate) {
-      numberFormatter.numberStyle = .currency
-      return numberFormatter.string(from: rateNumber);
+    if let rateString = numberFormatter.string(from: NSNumber(value: rateDouble)) {
+      return rateString
     }
     return rate
   }

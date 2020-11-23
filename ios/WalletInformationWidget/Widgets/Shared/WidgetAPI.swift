@@ -21,22 +21,22 @@ var numberFormatter: NumberFormatter {
 class WidgetAPI {
   
   static func fetchPrice(currency: String, completion: @escaping ((WidgetDataStore?, Error?) -> Void)) {
-    guard let url = URL(string: "https://api.coindesk.com/v1/bpi/currentPrice/\(currency).json") else {return}
+    let currencyToFiatUnit = fiatUnit(currency: currency)
+    guard let url = currencyToFiatUnit?.rateURL else {return}
     
     URLSession.shared.dataTask(with: url) { (data, response, error) in
       guard let dataResponse = data,
-            let json = ((try? JSONSerialization.jsonObject(with: dataResponse, options: .mutableContainers) as? Dictionary<String, Any>) as Dictionary<String, Any>??),
+            let json = (try? JSONSerialization.jsonObject(with: dataResponse, options: .mutableContainers) as? Dictionary<String, Any>),
             error == nil else {
         print(error?.localizedDescription ?? "Response Error")
         completion(nil, error)
         return }
       
-      guard let bpi = json?["bpi"] as? Dictionary<String, Any>, let preferredCurrency = bpi[currency] as? Dictionary<String, Any>, let rateString = preferredCurrency["rate"] as? String, let rateDouble = preferredCurrency["rate_float"] as? Double, let time = json?["time"] as? Dictionary<String, Any>, let lastUpdatedString = time["updatedISO"] as? String
- else {
+      guard let latestRateDataStore = currencyToFiatUnit?.currentRate(json: json)
+      else {
         print(error?.localizedDescription ?? "Response Error")
         completion(nil, error)
         return }
-      let latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
       completion(latestRateDataStore, nil)
     }.resume()
   }
