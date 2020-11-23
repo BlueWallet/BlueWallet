@@ -360,7 +360,7 @@ export type MainCardStackNavigatorParams = {
   [Route.SendCoinsConfirm]: {
     fee: number;
     feeSatoshi?: number;
-    memo: string;
+    memo?: string;
     recipients: any;
     size?: number;
     txDecoded: BtcTransaction;
