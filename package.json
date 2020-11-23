@@ -67,7 +67,6 @@
     "test:local": "yarn jest",
     "unit": "echo",
     "jest": "node node_modules/jest/bin/jest.js tests/*",
-    "install_local": "cd src && yarn install",
     "lint": "eslint '**/*.{js,ts,tsx}'",
     "lint:fix": "yarn lint --fix",
     "typescript:check": "tsc --noEmit",
