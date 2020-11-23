@@ -29,11 +29,10 @@ import loc from '../../loc';
 import { useTheme, useRoute, useNavigation } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
-import { getSystemName } from 'react-native-device-info';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
+import isCatalyst from 'react-native-is-catalyst';
 const prompt = require('../../blue_modules/prompt');
-const isDesktop = getSystemName() === 'Mac OS X';
 
 const styles = StyleSheet.create({
   root: {
@@ -258,7 +257,7 @@ const WalletDetails = () => {
       await RNFS.writeFile(filePath, contents);
       Share.open({
         url: 'file://' + filePath,
-        saveToFiles: isDesktop,
+        saveToFiles: isCatalyst,
       })
         .catch(error => {
           console.log(error);
