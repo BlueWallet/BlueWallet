@@ -283,6 +283,16 @@ const WalletDetails = () => {
         alert(loc.formatString(loc.send.txSaved, { filePath: fileName }));
       } else {
         console.log('Storage Permission: Denied');
+        Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
+          {
+            text: loc.send.open_settings,
+            onPress: () => {
+              Linking.openSettings();
+            },
+            style: 'default',
+          },
+          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+        ]);
       }
     }
   };

@@ -1,5 +1,5 @@
 /* global alert */
-import { PermissionsAndroid, Platform } from 'react-native';
+import { Alert, Linking, PermissionsAndroid, Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import loc from '../loc';
@@ -39,6 +39,16 @@ const writeFileAndExport = async function (filename, contents) {
       alert(loc.formatString(loc._.file_saved, { filePath: filename }));
     } else {
       console.log('Storage Permission: Denied');
+      Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
+        {
+          text: loc.send.open_settings,
+          onPress: () => {
+            Linking.openSettings();
+          },
+          style: 'default',
+        },
+        { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+      ]);
     }
   }
 };
