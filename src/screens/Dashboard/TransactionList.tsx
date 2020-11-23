@@ -53,9 +53,9 @@ class TransactionList extends PureComponent<Props> {
     const { search, transactions, filters, transactionNotes } = this.props;
     return getGroupedTransactions(
       transactions,
-      map((tx: Transaction) => ({ ...tx, note: transactionNotes[tx.hash] })),
       curry(filterBySearch)(search),
       curry(filterTransaction)(filters),
+      map((tx: Transaction) => ({ ...tx, note: transactionNotes[tx.hash] })),
     );
   };
 
