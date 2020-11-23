@@ -1194,7 +1194,13 @@ export default class SendDetails extends Component {
     if (this.state.utxo !== null) {
       return (
         <View style={styles.select}>
-          <CoinsSelected number={this.state.utxo.length} onClose={() => this.setState({ utxo: null }, this.reCalcTx)} />
+          <CoinsSelected
+            number={this.state.utxo.length}
+            onClose={() => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              this.setState({ utxo: null }, this.reCalcTx);
+            }}
+          />
         </View>
       );
     }
