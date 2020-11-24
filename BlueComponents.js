@@ -236,6 +236,7 @@ export class BlueWalletNavigationHeader extends Component {
   }
 
   static contextType = BlueStorageContext;
+  walletBalanceText = React.createRef();
 
   constructor(props) {
     super(props);
@@ -276,7 +277,7 @@ export class BlueWalletNavigationHeader extends Component {
   };
 
   showAndroidTooltip = () => {
-    showPopupMenu(this.toolTipMenuOptions(), this.handleToolTipSelection, this.walletBalanceText);
+    showPopupMenu(this.toolTipMenuOptions(), this.handleToolTipSelection, this.walletBalanceText.current);
   };
 
   handleToolTipSelection = item => {
@@ -314,7 +315,7 @@ export class BlueWalletNavigationHeader extends Component {
     });
   }
 
-  changeWalletBalanceUnit() {
+  changeWalletBalanceUnit = () => {
     let walletPreviousPreferredUnit = this.state.wallet.getPreferredBalanceUnit();
     const wallet = this.state.wallet;
     if (walletPreviousPreferredUnit === BitcoinUnit.BTC) {
@@ -334,7 +335,7 @@ export class BlueWalletNavigationHeader extends Component {
     this.setState({ wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit }, () => {
       this.props.onWalletUnitChange(wallet);
     });
-  }
+  };
 
   manageFundsPressed = () => {
     this.props.onManageFundsPressed();
@@ -402,8 +403,8 @@ export class BlueWalletNavigationHeader extends Component {
         )}
         <TouchableOpacity
           style={styles.balance}
-          onPress={() => this.changeWalletBalanceUnit()}
-          ref={ref => (this.walletBalanceText = ref)}
+          onPress={this.changeWalletBalanceUnit}
+          ref={this.walletBalanceText}
           onLongPress={() => (Platform.OS === 'ios' ? this.tooltip.showMenu() : this.showAndroidTooltip())}
         >
           {this.state.wallet.hideBalance ? (
@@ -572,7 +573,7 @@ export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuB
     headerTintColor: BlueCurrentTheme.colors.foregroundColor,
     headerLeft: () => (
       <TouchableOpacity
-        style={{ minWwidth: 40, height: 40, justifyContent: 'center', paddingHorizontal: 14 }}
+        style={{ minWidth: 40, height: 40, justifyContent: 'center', paddingHorizontal: 14 }}
         onPress={() => {
           Keyboard.dismiss();
           navigation.goBack(null);
@@ -589,13 +590,13 @@ export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuB
 export const BluePrivateBalance = () => {
   return Platform.select({
     ios: (
-      <View style={{ flexDirection: 'row' }}>
+      <View style={{ flexDirection: 'row', marginTop: 13 }}>
         <BlurView style={styles.balanceBlur} blurType="light" blurAmount={25} />
         <Icon name="eye-slash" type="font-awesome" color="#FFFFFF" />
       </View>
     ),
     android: (
-      <View style={{ flexDirection: 'row' }}>
+      <View style={{ flexDirection: 'row', marginTop: 13 }}>
         <View style={{ backgroundColor: '#FFFFFF', opacity: 0.5, height: 30, width: 100, marginRight: 8 }} />
         <Icon name="eye-slash" type="font-awesome" color="#FFFFFF" />
       </View>
