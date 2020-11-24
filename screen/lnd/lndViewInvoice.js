@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { View, Text, Dimensions, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
 import Share from 'react-native-share';
 import {
   BlueLoading,
@@ -12,7 +12,6 @@ import {
   BlueSpacing20,
   BlueBigCheckmark,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
