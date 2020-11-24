@@ -186,8 +186,11 @@ const WalletDetails = () => {
   }, [popToTop, wallet]);
 
   const navigateToWalletExport = () => {
-    navigate('WalletExport', {
-      walletID: wallet.getID(),
+    navigate('WalletExportRoot', {
+      screen: 'WalletExport',
+      params: {
+        walletID: wallet.getID(),
+      },
     });
   };
   const navigateToMultisigCoordinationSetup = () => {
@@ -201,8 +204,11 @@ const WalletDetails = () => {
     });
   };
   const navigateToXPub = () =>
-    navigate('WalletXpub', {
-      secret: wallet.getSecret(),
+    navigate('WalletXpubRoot', {
+      screen: 'WalletXpub',
+      params: {
+        secret: wallet.getSecret(),
+      },
     });
 
   const renderMarketplaceButton = () => {

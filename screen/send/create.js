@@ -63,7 +63,6 @@ export default class SendCreate extends Component {
       })
         .catch(error => {
           console.log(error);
-          alert(error.message);
         })
         .finally(() => {
           RNFS.unlink(filePath);

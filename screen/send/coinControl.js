@@ -203,7 +203,7 @@ const CoinControl = () => {
       utxo.length >= 1 && (
         <View style={[styles.tip, stylesHook.tip]}>
           <Text style={{ color: colors.foregroundColor }}>{loc.cc.tip}</Text>
-        </View> 
+        </View>
       )
     );
   };
@@ -293,7 +293,6 @@ const styles = StyleSheet.create({
 CoinControl.navigationOptions = () => ({
   ...BlueNavigationStyle(null, false),
   title: loc.cc.header,
-  gestureEnabled: false,
 });
 
 export default CoinControl;

@@ -230,8 +230,11 @@ const ReceiveDetails = () => {
               onSuccess: obtainWalletAddress,
               onFailure: () => {
                 goBack();
-                navigate('WalletExport', {
-                  walletID: wallet.getID(),
+                navigate('WalletExportRoot', {
+                  screen: 'WalletExport',
+                  params: {
+                    walletID: wallet.getID(),
+                  },
                 });
               },
             });
