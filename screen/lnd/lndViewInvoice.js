@@ -18,13 +18,15 @@ import QRCode from 'react-native-qrcode-svg';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+//import Success from '../send/success';
 
 const LNDViewInvoice = () => {
   const { invoice, fromWallet, isModal } = useRoute().params;
   const { setSelectedWallet, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const { width, height } = useWindowDimensions();
   const { colors } = useTheme();
-  const { goBack, navigation, navigate, setParams, setOptions, dangerouslyGetParent } = useNavigation();
+  const { goBack, popToRoot, navigate, setParams, setOptions } = useNavigation();
   const [isLoading, setIsLoading] = useState(typeof invoice === 'string');
   const [isFetchingInvoices, setIsFetchingInvoices] = useState(true);
   const [showPreimageQr, setShowPreimageQr] = useState(false);
@@ -36,6 +38,9 @@ const LNDViewInvoice = () => {
     },
     valueText: {
       color: colors.alternativeTextColor2,
+    },
+    valueRoot: {
+      backgroundColor: colors.background,
     },
     valueSats: {
       color: colors.alternativeTextColor2,
@@ -69,20 +74,13 @@ const LNDViewInvoice = () => {
     setOptions(
       isModal === true
         ? {
-            ...BlueNavigationStyle(navigation, true, () => dangerouslyGetParent().pop()),
-            title: loc.lnd.lightning_invoice,
-            headerLeft: null,
             headerStyle: {
-              ...BlueNavigationStyle().headerStyle,
               backgroundColor: colors.customHeader,
             },
             gestureEnabled: false,
           }
         : {
-            ...BlueNavigationStyle(),
-            title: loc.lnd.lightning_invoice,
             headerStyle: {
-              ...BlueNavigationStyle().headerStyle,
               backgroundColor: colors.customHeader,
             },
           },
@@ -107,7 +105,7 @@ const LNDViewInvoice = () => {
           )[0];
           if (typeof updatedUserInvoice !== 'undefined') {
             setParams({ invoice: updatedUserInvoice });
-            setIsLoading(true);
+            setIsLoading(false);
             if (updatedUserInvoice.ispaid) {
               // we fetched the invoice, and it is paid :-)
               setIsFetchingInvoices(false);
@@ -154,24 +152,35 @@ const LNDViewInvoice = () => {
     navigate('LNDViewAdditionalInvoiceInformation', { fromWallet });
   };
 
-  if (isLoading) {
-    return (
-      <View style={[styles.root, stylesHook.root]}>
-        <BlueLoading />
-      </View>
-    );
-  }
+  useEffect(() => {
+    if (invoice.ispaid) {
+      navigate('Success', {
+        amount: invoice.amt,
+        amountUnit: BitcoinUnit.SATS,
+        invoiceDescription: invoice.description,
+        onDonePressed: popToRoot,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoice]);
 
-  if (typeof invoice === 'object') {
-    const currentDate = new Date();
-    const now = (currentDate.getTime() / 1000) | 0;
-    const invoiceExpiration = invoice.timestamp + invoice.expire_time;
-
-    if (showPreimageQr) {
+  const render = () => {
+    if (isLoading) {
       return (
-        <SafeBlueArea style={[styles.root, stylesHook.root]}>
-          <StatusBar barStyle="default" />
-          <View style={styles.center}>
+        <View style={[styles.root, stylesHook.root]}>
+          <BlueLoading />
+        </View>
+      );
+    }
+
+    if (typeof invoice === 'object') {
+      const currentDate = new Date();
+      const now = (currentDate.getTime() / 1000) | 0;
+      const invoiceExpiration = invoice.timestamp + invoice.expire_time;
+
+      if (showPreimageQr) {
+        return (
+          <View>
             <BlueText>{loc.lndViewInvoice.preimage}:</BlueText>
             <BlueSpacing20 />
             <View style={styles.qrCodeContainer}>
@@ -190,77 +199,58 @@ const LNDViewInvoice = () => {
               text={invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? invoice.payment_preimage : 'none'}
             />
           </View>
-        </SafeBlueArea>
-      );
-    }
+        );
+      }
 
-    if (invoice.ispaid || invoice.type === 'paid_invoice') {
-      return (
-        <SafeBlueArea style={[styles.root, stylesHook.root]}>
-          <StatusBar barStyle="default" />
-          <View style={styles.valueRoot}>
-            {invoice.type === 'paid_invoice' && invoice.value && (
-              <View style={styles.valueAmount}>
-                <Text style={[styles.valueText, stylesHook.valueText]}>{invoice.value}</Text>
-                <Text style={[styles.valueSats, stylesHook.valueSats]}>{loc.lndViewInvoice.sats}</Text>
-              </View>
-            )}
-            {invoice.type === 'user_invoice' && invoice.amt && (
-              <View style={styles.valueAmount}>
-                <Text style={[styles.valueText, stylesHook.valueText]}>{invoice.amt}</Text>
-                <Text style={[styles.valueSats, stylesHook.valueSats]}>{loc.lndViewInvoice.sats}</Text>
-              </View>
-            )}
-            {!invoice.ispaid && invoice.memo && invoice.memo.length > 0 && <Text style={styles.memo}>{invoice.memo}</Text>}
-          </View>
+      if (invoice.ispaid || invoice.type === 'paid_invoice') {
+        return (
+          <>
+            <View style={[styles.valueRoot, stylesHook.valueRoot]}>
+              {invoice.type === 'paid_invoice' && invoice.value && (
+                <View style={styles.valueAmount}>
+                  <Text style={[styles.valueText, stylesHook.valueText]}>{invoice.value}</Text>
+                  <Text style={[styles.valueSats, stylesHook.valueSats]}>{loc.lndViewInvoice.sats}</Text>
+                </View>
+              )}
+              {invoice.type === 'user_invoice' && invoice.amt && (
+                <View style={styles.valueAmount}>
+                  <Text style={[styles.valueText, stylesHook.valueText]}>{invoice.amt}</Text>
+                  <Text style={[styles.valueSats, stylesHook.valueSats]}>{loc.lndViewInvoice.sats}</Text>
+                </View>
+              )}
+              {!invoice.ispaid && invoice.memo && invoice.memo.length > 0 && <Text style={styles.memo}>{invoice.memo}</Text>}
+            </View>
 
-          <View style={styles.paid}>
-            <BlueBigCheckmark style={styles.paidMark} />
-            <BlueText>{loc.lndViewInvoice.has_been_paid}</BlueText>
-          </View>
-          <View style={styles.detailsRoot}>
-            {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
-              <TouchableOpacity style={styles.detailsTouch} onPress={setShowPreimageQrTrue}>
-                <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
-                <Icon name="angle-right" size={18} type="font-awesome" color={colors.alternativeTextColor} />
-              </TouchableOpacity>
-            ) : (
-              <View />
-            )}
-          </View>
-        </SafeBlueArea>
-      );
-    }
-    if (invoiceExpiration < now && !invoice.ispaid) {
-      return (
-        <SafeBlueArea style={[styles.root, stylesHook.root]}>
-          <StatusBar barStyle="default" />
-          <View style={styles.center}>
+            <View style={styles.paid}>
+              <BlueBigCheckmark style={styles.paidMark} />
+              <BlueText>{loc.lndViewInvoice.has_been_paid}</BlueText>
+            </View>
+            <View style={styles.detailsRoot}>
+              {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
+                <TouchableOpacity style={styles.detailsTouch} onPress={setShowPreimageQrTrue}>
+                  <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
+                  <Icon name="angle-right" size={18} type="font-awesome" color={colors.alternativeTextColor} />
+                </TouchableOpacity>
+              ) : (
+                <View />
+              )}
+            </View>
+          </>
+        );
+      }
+      if (invoiceExpiration < now && !invoice.ispaid) {
+        return (
+          <View>
             <View style={[styles.expired, stylesHook.expired]}>
               <Icon name="times" size={50} type="font-awesome" color={colors.successCheck} />
             </View>
             <BlueText>{loc.lndViewInvoice.wasnt_paid_and_expired}</BlueText>
           </View>
-        </SafeBlueArea>
-      );
-    } else if (invoiceExpiration > now && invoice.ispaid) {
-      if (invoice.ispaid) {
-        return (
-          <SafeBlueArea style={[styles.root, stylesHook.root]}>
-            <View style={styles.center}>
-              <BlueText>{loc.lndViewInvoice.has_been_paid}</BlueText>
-            </View>
-          </SafeBlueArea>
         );
       }
-    }
-  }
-  // Invoice has not expired, nor has it been paid for.
-  return (
-    <SafeBlueArea>
-      <StatusBar barStyle="default" />
-      <ScrollView>
-        <View style={styles.activeRoot}>
+      // Invoice has not expired, nor has it been paid for.
+      return (
+        <View style={[styles.activeRoot, stylesHook.root]}>
           <View style={styles.activeQrcode}>
             <QRCode
               value={typeof invoice === 'object' ? invoice.payment_request : invoice}
@@ -285,6 +275,7 @@ const LNDViewInvoice = () => {
           <BlueCopyTextToClipboard text={invoice.payment_request} />
 
           <SecondButton onPress={handleOnSharePressed} title={loc.receive.details_share} />
+
           <BlueSpacing20 />
           <BlueButton
             style={stylesHook.additionalInfo}
@@ -292,7 +283,15 @@ const LNDViewInvoice = () => {
             title={loc.lndViewInvoice.additional_info}
           />
         </View>
-        <BlueSpacing20 />
+      );
+    }
+  };
+
+  return (
+    <SafeBlueArea styles={[styles.root, stylesHook.root]}>
+      <StatusBar barStyle="default" />
+      <ScrollView style={stylesHook.root} centerContent contentContainerStyle={stylesHook.root}>
+        {render()}
       </ScrollView>
     </SafeBlueArea>
   );
@@ -301,11 +300,6 @@ const LNDViewInvoice = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
   valueRoot: {
@@ -372,7 +366,6 @@ const styles = StyleSheet.create({
   activeRoot: {
     flex: 1,
     alignItems: 'center',
-    marginTop: 8,
     justifyContent: 'space-between',
   },
   activeQrcode: {
@@ -387,3 +380,22 @@ const styles = StyleSheet.create({
 });
 
 export default LNDViewInvoice;
+
+LNDViewInvoice.navigationOptions = ({ navigation, route }) =>
+  route.params.isModal === true
+    ? {
+        ...BlueNavigationStyle(navigation, true, () => navigation.dangerouslyGetParent().pop()),
+        title: loc.lndViewInvoice.lightning_invoice,
+        headerLeft: null,
+        headerStyle: {
+          ...BlueNavigationStyle().headerStyle,
+        },
+        gestureEnabled: false,
+      }
+    : {
+        ...BlueNavigationStyle(),
+        title: loc.lndViewInvoice.lightning_invoice,
+        headerStyle: {
+          ...BlueNavigationStyle().headerStyle,
+        },
+      };

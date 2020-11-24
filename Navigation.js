@@ -133,7 +133,15 @@ const WalletsRoot = () => (
     <WalletsStack.Screen name="LightningSettings" component={LightningSettings} options={LightningSettings.navigationOptions} />
     <WalletsStack.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions} />
     <WalletsStack.Screen name="SettingsPrivacy" component={SettingsPrivacy} options={SettingsPrivacy.navigationOptions} />
-    <WalletsStack.Screen name="LNDViewInvoice" component={LNDViewInvoice} />
+    <WalletsStack.Screen name="LNDViewInvoice" component={LNDViewInvoice} options={LNDViewInvoice.navigationOptions} />
+    <WalletsStack.Screen
+      name="Success"
+      component={Success}
+      options={{
+        headerShown: false,
+        gestureEnabled: false,
+      }}
+    />
     <WalletsStack.Screen
       name="LNDViewAdditionalInvoiceInformation"
       component={LNDViewAdditionalInvoiceInformation}
@@ -194,7 +202,7 @@ const LNDCreateInvoiceRoot = () => (
   <LNDCreateInvoiceStack.Navigator screenOptions={defaultStackScreenOptions}>
     <LNDCreateInvoiceStack.Screen name="LNDCreateInvoice" component={LNDCreateInvoice} options={LNDCreateInvoice.navigationOptions} />
     <LNDCreateInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
-    <LNDCreateInvoiceStack.Screen name="LNDViewInvoice" component={LNDViewInvoice} />
+    <LNDCreateInvoiceStack.Screen name="LNDViewInvoice" component={LNDViewInvoice} options={LNDViewInvoice.navigationOptions} />
     <LNDCreateInvoiceStack.Screen
       name="LNDViewAdditionalInvoiceInformation"
       component={LNDViewAdditionalInvoiceInformation}
