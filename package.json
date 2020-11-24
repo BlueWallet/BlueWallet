@@ -110,7 +110,7 @@
     "lottie-react-native": "3.5.0",
     "metro-react-native-babel-preset": "0.63.0",
     "path-browserify": "1.0.1",
-    "payjoin-client": "git+https://github.com/bitcoinjs/payjoin-client.git#31d2118a4c0d00192d975f3a6da2a96238f8f7a5",
+    "payjoin-client": "1.0.0",
     "pbkdf2": "3.1.1",
     "prettier": "2.1.2",
     "process": "0.11.10",
