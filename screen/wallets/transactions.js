@@ -421,7 +421,7 @@ const WalletTransactions = () => {
         fromSecret: wallet.current.getSecret(),
         // ScanLndInvoice actrually uses `fromSecret` so keeping it for now
         uri: ret.data ? ret.data : ret,
-        fromWallet: wallet,
+        fromWallet: wallet.current,
       };
       if (wallet.current.chain === Chain.ONCHAIN) {
         navigate('SendDetailsRoot', { screen: 'SendDetails', params });
