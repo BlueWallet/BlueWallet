@@ -237,7 +237,9 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
             {loc.wallets.list_latest_transaction}
           </Text>
           <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor }]}>
-            {transactionTimeToReadable(item.getLatestTransactionTime())}
+            {item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
+              ? loc.wallets.pull_to_refresh
+              : transactionTimeToReadable(item.getLatestTransactionTime())}
           </Text>
         </LinearGradient>
       </TouchableWithoutFeedback>

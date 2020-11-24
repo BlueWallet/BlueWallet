@@ -20,7 +20,7 @@ import {
   BitcoinButton,
   VaultButton,
   BlueFormLabel,
-  BlueButtonHook,
+  BlueButton,
   BlueNavigationStyle,
   BlueButtonLinkHook,
   BlueSpacing20,
@@ -312,7 +312,7 @@ const WalletsAdd = () => {
           <BlueSpacing20 />
           <View style={styles.createButton}>
             {!isLoading ? (
-              <BlueButtonHook testID="Create" title={loc.wallets.add_create} disabled={!selectedWalletType} onPress={createWallet} />
+              <BlueButton testID="Create" title={loc.wallets.add_create} disabled={!selectedWalletType} onPress={createWallet} />
             ) : (
               <ActivityIndicator />
             )}
@@ -342,9 +342,7 @@ WalletsAdd.navigationOptions = ({ navigation }) => ({
 
 const styles = StyleSheet.create({
   createButton: {
-    alignItems: 'center',
     flex: 1,
-    justifyContent: 'center',
   },
   loading: {
     flex: 1,

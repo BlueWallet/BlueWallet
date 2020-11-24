@@ -272,6 +272,9 @@ const PsbtWithHardwareWallet = () => {
           <BlueCard>
             <BlueText testID="TextHelperForPSBT">{loc.send.psbt_this_is_psbt}</BlueText>
             <BlueSpacing20 />
+            <Text testID="PSBTHex" style={styles.hidden}>
+              {psbt.toHex()}
+            </Text>
             <DynamicQRCode value={psbt.toHex()} capacity={200} />
             <BlueSpacing20 />
             <SecondButton
@@ -370,5 +373,9 @@ const styles = StyleSheet.create({
   copyToClipboard: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  hidden: {
+    width: 0,
+    height: 0,
   },
 });

@@ -139,12 +139,30 @@ export class LegacyWallet extends AbstractWallet {
     }
   }
 
-  getUtxo() {
-    const ret = [];
+  /**
+   * Getter for previously fetched UTXO. For example:
+   *     [ { height: 0,
+   *    value: 666,
+   *    address: 'string',
+   *    txId: 'string',
+   *    vout: 1,
+   *    txid: 'string',
+   *    amount: 666,
+   *    wif: 'string',
+   *    confirmations: 0 } ]
+   *
+   * @param respectFrozen {boolean} Add Frozen outputs
+   * @returns {[]}
+   */
+  getUtxo(respectFrozen = false) {
+    let ret = [];
     for (const u of this.utxo) {
       if (u.txId) u.txid = u.txId;
       if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
       ret.push(u);
+    }
+    if (!respectFrozen) {
+      ret = ret.filter(({ txid, vout }) => !this.getUTXOMetadata(txid, vout).frozen);
     }
     return ret;
   }
@@ -399,5 +417,16 @@ export class LegacyWallet extends AbstractWallet {
 
   allowSendMax() {
     return true;
+  }
+
+  /**
+   * Check if address is a Change address. Needed for Coin control.
+   * Useless for Legacy wallets, so it is always false
+   *
+   * @param address
+   * @returns {Boolean} Either address is a change or not
+   */
+  addressIsChange(address) {
+    return false;
   }
 }
