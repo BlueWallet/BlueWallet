@@ -222,7 +222,7 @@ export default class SendDetails extends Component {
     let fromWallet = null;
     if (props.route.params) fromWallet = props.route.params.fromWallet;
 
-    const wallets = context.wallets.filter(wallet => wallet.type !== LightningCustodianWallet.type);
+    const wallets = context.wallets.filter(wallet => wallet.type !== LightningCustodianWallet.type && wallet.allowSend());
 
     if (wallets.length === 0) {
       alert(loc.send.details_wallet_before_tx);
@@ -330,6 +330,7 @@ export default class SendDetails extends Component {
 
   async componentDidMount() {
     console.log('send/details - componentDidMount');
+    if (!this.state.fromWallet) return;
     this.renderNavigationHeader();
     this.context.setSelectedWallet(this.state.fromWallet.getID());
     /** @type {BitcoinTransaction[]} */
