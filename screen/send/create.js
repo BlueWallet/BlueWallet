@@ -14,6 +14,7 @@ import {
   View,
   Platform,
   PermissionsAndroid,
+  Alert,
 } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import { Icon } from 'react-native-elements';
@@ -83,6 +84,16 @@ export default class SendCreate extends Component {
         alert(loc.formatString(loc.send.txSaved, { filePath }));
       } else {
         console.log('Storage Permission: Denied');
+        Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
+          {
+            text: loc.send.open_settings,
+            onPress: () => {
+              Linking.openSettings();
+            },
+            style: 'default',
+          },
+          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+        ]);
       }
     }
   };
