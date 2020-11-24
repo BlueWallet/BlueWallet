@@ -471,59 +471,6 @@ describe('BlueWallet UI Tests', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can import zpub as watch-only and create PSBT, and scan txhex back', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
-    if (process.env.TRAVIS) {
-      if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
-    }
-    await helperImportWallet(
-      'zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP',
-      'Imported Watch-only',
-      '0.002 BTC',
-    );
-
-    await element(by.id('SendButton')).tap();
-    await element(by.text('OK')).tap();
-
-    await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('BitcoinAmountInput')).typeText('0.0005\n');
-
-    // setting fee rate:
-    const feeRate = 1;
-    await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '');
-    await element(by.text('OK')).tap();
-
-    if (process.env.TRAVIS) await sleep(5000);
-    try {
-      await element(by.id('CreateTransactionButton')).tap();
-    } catch (_) {}
-
-    await yo('TextHelperForPSBT');
-
-    // now lets test scanning back QR with txhex. this should lead straight to broadcast dialog
-
-    await element(by.id('PsbtWithHardwareScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
-    await element(by.id('PsbtTxScanButton')).tap(); // opening camera
-
-    // tapping 10 times invisible button is a backdoor:
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-      await sleep(1000);
-    }
-
-    const randomTxHex =
-      '020000000001011628f58e8e81bfcfff1b106bb8968e342fb86f09aa810ed2939e43d5127c51040200000000000000000227e42d000000000017a914c679a827d57a9b8b539515dbafb4e573d2bcc6ca87df15cf02000000002200209705cdfcbc459a220e7f39ffe547a31335505c2357f452ae12a22b9ae36ea59d04004730440220626c5205a6f49d1dd1577c85c0af4c5fc70f41de61f891d71a5cf57af09110d4022045bcb1e7d4e93e1a9baf6ae1ad0b4087c9e9f73ec366e97576912377d9f6904301473044022044aea98e8983f09cb0639f08d34526bb7e3ed47d208b7bf714fb29a1b5f9535a02200baa510b94cf434775b4aa2184682f2fb33f15e5e76f79aa0885e7ee12bdc8f70169522102e67ce679d617d674d68eea95ecb166c67b4b5520105c4745adf37ce8a40b92dc21029ff54b8bf26dbddd7bd4336593d2ff17519d5374989f36a6f5f8239675ff79a421039000ee2853c6db4bd956e80b1ecfb8711bf3e0a9a8886d15450c29458b60473153ae00000000';
-    await element(by.id('scanQrBackdoorInput')).replaceText(randomTxHex);
-    await element(by.id('scanQrBackdoorOkButton')).tap();
-    await expect(element(by.id('ScanQrBackdoorButton'))).toBeNotVisible();
-    await yo('PsbtWithHardwareWalletBroadcastTransactionButton');
-
-    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
-  });
-
   /**
    * test plan:
    * 1. import wallet
@@ -731,6 +678,109 @@ describe('BlueWallet UI Tests', () => {
     assert.strictEqual(transaction.outs.length, 2);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
     assert.strictEqual(transaction.outs[0].value, 50000);
+
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('can manage UTXO', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+    }
+
+    await helperImportWallet(
+      'zpub6qoWjSiZRHzSYPGYJ6EzxEXJXP1b2Rj9syWwJZFNCmupMwkbSAWSBk3UvSkJyQLEhQpaBAwvhmNj3HPKpwCJiTBB9Tutt46FtEmjL2DoU3J',
+      'Imported Watch-only',
+      '0.00105526 BTC',
+    );
+
+    // refresh transactions
+    await element(by.id('refreshTransactions')).tap();
+    await waitFor(element(by.id('NoTxBuyBitcoin')))
+      .not.toExist()
+      .withTimeout(300 * 1000);
+
+    // change note of 0.001 tx output
+    await element(by.text('0.001')).atIndex(0).tap();
+    await element(by.text('details')).tap();
+    await expect(element(by.text('49944e90fe917952e36b1967cdbc1139e60c89b4800b91258bf2345a77a8b888'))).toBeVisible();
+    await element(by.type('android.widget.EditText')).typeText('test1');
+    await element(by.text('Save')).tap();
+    await element(by.text('OK')).tap();
+
+    // back to wallet screen
+    await device.pressBack();
+    await device.pressBack();
+
+    // open CoinControl
+    await element(by.id('SendButton')).tap();
+    await element(by.text('OK')).tap();
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('CoinControl')).tap();
+    await waitFor(element(by.id('Loading'))) // wait for outputs to be loaded
+      .not.toExist()
+      .withTimeout(300 * 1000);
+    await expect(element(by.text('test1')).atIndex(0)).toBeVisible();
+
+    // change output note and freeze it
+    await element(by.text('test1')).atIndex(0).tap();
+    await element(by.id('OutputMemo')).replaceText('test2');
+    await element(by.type('android.widget.CompoundButton')).tap(); // freeze switch
+    await device.pressBack(); // closing modal
+    await expect(element(by.text('test2')).atIndex(0)).toBeVisible();
+    await expect(element(by.text('freeze')).atIndex(0)).toBeVisible();
+
+    // use frozen output to create tx using "Use coin" feature
+    await element(by.text('test2')).atIndex(0).tap();
+    await element(by.id('UseCoin')).tap();
+    await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('sendMaxButton')).tap();
+    await element(by.text('OK')).tap();
+    // setting fee rate:
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).typeText('1');
+    await element(by.text('OK')).tap();
+
+    await element(by.id('CreateTransactionButton')).tap();
+    await yo('TextHelperForPSBT');
+
+    const psbthex1 = await extractTextFromElementById('PSBTHex');
+    const psbt1 = bitcoin.Psbt.fromHex(psbthex1);
+    assert.strictEqual(psbt1.txOutputs.length, 1);
+    assert.strictEqual(psbt1.txOutputs[0].address, 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    assert.strictEqual(psbt1.txOutputs[0].value, 99808);
+    assert.strictEqual(psbt1.data.inputs.length, 1);
+    assert.strictEqual(psbt1.data.inputs[0].witnessUtxo.value, 100000);
+
+    // back to wallet screen
+    await device.pressBack();
+    await device.pressBack();
+
+    // create tx with unfrozen input
+    await element(by.id('SendButton')).tap();
+    await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('sendMaxButton')).tap();
+    await element(by.text('OK')).tap();
+    // setting fee rate:
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).typeText('1');
+    await element(by.text('OK')).tap();
+
+    await element(by.id('CreateTransactionButton')).tap();
+    await yo('TextHelperForPSBT');
+
+    const psbthex2 = await extractTextFromElementById('PSBTHex');
+    const psbt2 = bitcoin.Psbt.fromHex(psbthex2);
+    assert.strictEqual(psbt2.txOutputs.length, 1);
+    assert.strictEqual(psbt2.txOutputs[0].address, 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    assert.strictEqual(psbt2.txOutputs[0].value, 5334);
+    assert.strictEqual(psbt2.data.inputs.length, 1);
+    assert.strictEqual(psbt2.data.inputs[0].witnessUtxo.value, 5526);
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });

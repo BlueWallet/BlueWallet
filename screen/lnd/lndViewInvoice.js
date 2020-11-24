@@ -367,13 +367,16 @@ LNDViewInvoice.navigationOptions = ({ navigation, route }) =>
         title: 'Lightning Invoice',
         headerLeft: null,
         headerStyle: {
+          ...BlueNavigationStyle().headerStyle,
           backgroundColor: BlueCurrentTheme.colors.customHeader,
         },
+        gestureEnabled: false,
       }
     : {
         ...BlueNavigationStyle(),
         title: 'Lightning Invoice',
         headerStyle: {
+          ...BlueNavigationStyle().headerStyle,
           backgroundColor: BlueCurrentTheme.colors.customHeader,
         },
       };

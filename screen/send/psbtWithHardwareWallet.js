@@ -11,6 +11,7 @@ import {
   PermissionsAndroid,
   Text,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
@@ -34,6 +35,7 @@ import ScanQRCode from './ScanQRCode';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import isCatalyst from 'react-native-is-catalyst';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */
 const bitcoin = require('bitcoinjs-lib');
@@ -178,7 +180,7 @@ const PsbtWithHardwareWallet = () => {
       await RNFS.writeFile(filePath, typeof psbt === 'string' ? psbt : psbt.toBase64());
       Share.open({
         url: 'file://' + filePath,
-        saveToFiles: isDesktop,
+        saveToFiles: isCatalyst,
       })
         .catch(error => {
           console.log(error);
@@ -202,6 +204,16 @@ const PsbtWithHardwareWallet = () => {
         alert(loc.formatString(loc.send.txSaved, { filePath: fileName }));
       } else {
         console.log('Storage Permission: Denied');
+        Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
+          {
+            text: loc.send.open_settings,
+            onPress: () => {
+              Linking.openSettings();
+            },
+            style: 'default',
+          },
+          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+        ]);
       }
     }
   };
@@ -272,6 +284,9 @@ const PsbtWithHardwareWallet = () => {
           <BlueCard>
             <BlueText testID="TextHelperForPSBT">{loc.send.psbt_this_is_psbt}</BlueText>
             <BlueSpacing20 />
+            <Text testID="PSBTHex" style={styles.hidden}>
+              {psbt.toHex()}
+            </Text>
             <DynamicQRCode value={psbt.toHex()} capacity={200} />
             <BlueSpacing20 />
             <SecondButton
@@ -370,5 +385,9 @@ const styles = StyleSheet.create({
   copyToClipboard: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  hidden: {
+    width: 0,
+    height: 0,
   },
 });

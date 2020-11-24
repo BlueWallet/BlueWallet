@@ -207,8 +207,9 @@
     "permission_camera_title": "Permission to use camera",
     "open_settings": "Open Settings",
     "permission_storage_later": "Ask Me Later",
-    "permission_storage_message": "BlueWallet needs your permission to access your storage to save this transaction.",
-    "permission_storage_title": "BlueWallet Storage Access Permission",
+    "permission_storage_message": "BlueWallet needs your permission to access your storage to save this file.",
+    "permission_storage_denied_message": "BlueWallet is unable save this file. Please, open your device settings and enable Storage Permission.",
+    "permission_storage_title": "Storage Access Permission",
     "psbt_clipboard": "Copy to Clipboard",
     "psbt_this_is_psbt": "This is a partially signed bitcoin transaction (PSBT). Please finish signing it with your hardware wallet.",
     "psbt_tx_export": "Export to file",
@@ -400,6 +401,7 @@
     "select_wallet": "Select Wallet",
     "take_photo": "Take Photo",
     "xpub_copiedToClipboard": "Copied to clipboard.",
+    "pull_to_refresh": "pull to refresh",
     "xpub_title": "wallet XPUB"
   },
   "multisig": {
@@ -454,5 +456,15 @@
     "this_cosigner_is_already_imported": "This cosigner is already imported",
     "export_signed_psbt": "Export Signed PSBT",
     "view_edit_cosigners_title": "Edit Cosigners"
+  },
+  "cc": {
+    "change": "change",
+    "coins_selected": "Coins selected ({number})",
+    "empty": "This wallet doesn't have any coins at the moment",
+    "freeze": "freeze",
+    "freezeLabel": "Freeze",
+    "header": "Coin control",
+    "use_coin": "Use coin",
+    "tip": "Allows you to see, label, freeze or select coins for improved wallet management."
   }
 }

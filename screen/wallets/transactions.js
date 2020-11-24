@@ -209,7 +209,18 @@ const WalletTransactions = () => {
   };
 
   const renderListHeaderComponent = () => {
-    const style = { opacity: isLoading ? 0.5 : 1.0 };
+    const style = {};
+    if (!isCatalyst) {
+      // we need this button for testing
+      style.opacity = 0;
+      style.height = 1;
+      style.width = 1;
+    } else if (isLoading) {
+      style.opacity = 0.5;
+    } else {
+      style.opacity = 1.0;
+    }
+
     return (
       <View style={styles.flex}>
         <View style={styles.listHeader}>
@@ -233,11 +244,9 @@ const WalletTransactions = () => {
         </View>
         <View style={[styles.listHeaderTextRow, stylesHook.listHeaderTextRow]}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
-          {isCatalyst && (
-            <TouchableOpacity style={style} onPress={refreshTransactions} disabled={isLoading}>
-              <Icon name="refresh" type="font-awesome" color={colors.feeText} />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity testID="refreshTransactions" style={style} onPress={refreshTransactions} disabled={isLoading}>
+            <Icon name="refresh" type="font-awesome" color={colors.feeText} />
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -412,7 +421,7 @@ const WalletTransactions = () => {
         fromSecret: wallet.current.getSecret(),
         // ScanLndInvoice actrually uses `fromSecret` so keeping it for now
         uri: ret.data ? ret.data : ret,
-        fromWallet: wallet,
+        fromWallet: wallet.current,
       };
       if (wallet.current.chain === Chain.ONCHAIN) {
         navigate('SendDetailsRoot', { screen: 'SendDetails', params });
@@ -606,7 +615,9 @@ const WalletTransactions = () => {
 
               {!isLightning() && (
                 <TouchableOpacity onPress={navigateToBuyBitcoin} style={styles.buyBitcoin}>
-                  <Text style={styles.buyBitcoinText}>{loc.wallets.list_tap_here_to_buy}</Text>
+                  <Text testID="NoTxBuyBitcoin" style={styles.buyBitcoinText}>
+                    {loc.wallets.list_tap_here_to_buy}
+                  </Text>
                 </TouchableOpacity>
               )}
             </ScrollView>
@@ -676,7 +687,7 @@ WalletTransactions.navigationOptions = ({ navigation, route }) => {
         <Icon name="kebab-horizontal" type="octicon" size={22} color="#FFFFFF" />
       </TouchableOpacity>
     ),
-    headerTitle: () => null,
+    headerTitle: '',
     headerStyle: {
       backgroundColor: WalletGradient.headerColorFor(route.params.walletType),
       borderBottomWidth: 0,

@@ -22,7 +22,6 @@ import ImagePicker from 'react-native-image-picker';
 
 import {
   BlueButton,
-  BlueButtonHook,
   BlueButtonLinkHook,
   BlueFormMultiInput,
   BlueLoadingHook,
@@ -456,7 +455,7 @@ const ViewEditMultisigCosigners = () => {
       </SafeAreaView>
     );
 
-  const footer = <BlueButtonHook disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
+  const footer = <BlueButton disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
 
   return (
     <SafeAreaView style={[styles.root, stylesHook.root]}>

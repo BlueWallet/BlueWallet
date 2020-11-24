@@ -42,8 +42,9 @@ import { HDSegwitBech32Wallet, LightningCustodianWallet, MultisigHDWallet, Watch
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import DocumentPicker from 'react-native-document-picker';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import loc from '../../loc';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import CoinsSelected from '../../components/CoinsSelected';
 import BottomModal from '../../components/BottomModal';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -127,13 +128,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   createButton: {
-    marginHorizontal: 56,
     marginVertical: 16,
-    maxWidth: 260,
+    marginHorizontal: 16,
+    alignContent: 'center',
     minHeight: 44,
   },
   select: {
     marginBottom: 24,
+    marginHorizontal: 24,
     alignItems: 'center',
   },
   selectTouch: {
@@ -220,7 +222,7 @@ export default class SendDetails extends Component {
     let fromWallet = null;
     if (props.route.params) fromWallet = props.route.params.fromWallet;
 
-    const wallets = context.wallets.filter(wallet => wallet.type !== LightningCustodianWallet.type);
+    const wallets = context.wallets.filter(wallet => wallet.type !== LightningCustodianWallet.type && wallet.allowSend());
 
     if (wallets.length === 0) {
       alert(loc.send.details_wallet_before_tx);
@@ -252,6 +254,7 @@ export default class SendDetails extends Component {
         amountUnit: fromWallet.preferredBalanceUnit, // default for whole screen
         renderWalletSelectionButtonHidden: false,
         width: Dimensions.get('window').width,
+        utxo: null,
       };
     }
   }
@@ -326,6 +329,7 @@ export default class SendDetails extends Component {
 
   async componentDidMount() {
     console.log('send/details - componentDidMount');
+    if (!this.state.fromWallet) return;
     this.renderNavigationHeader();
     this.context.setSelectedWallet(this.state.fromWallet.getID());
     /** @type {BitcoinTransaction[]} */
@@ -402,11 +406,11 @@ export default class SendDetails extends Component {
   }
 
   _keyboardDidShow = () => {
-    this.setState({ renderWalletSelectionButtonHidden: true, isAmountToolbarVisibleForAndroid: true });
+    this.setState({ renderWalletSelectionOrCoinsSelectedHidden: true, isAmountToolbarVisibleForAndroid: true });
   };
 
   _keyboardDidHide = () => {
-    this.setState({ renderWalletSelectionButtonHidden: false, isAmountToolbarVisibleForAndroid: false });
+    this.setState({ renderWalletSelectionOrCoinsSelectedHidden: false, isAmountToolbarVisibleForAndroid: false });
   };
 
   async createTransaction() {
@@ -524,6 +528,7 @@ export default class SendDetails extends Component {
     const changeAddress = this.getChangeAddressFast();
     const requestedSatPerByte = Number(this.state.fee);
     const feePrecalc = { ...this.state.feePrecalc };
+    const utxo = this.state.utxo || wallet.getUtxo();
 
     const options = all
       ? [
@@ -566,7 +571,7 @@ export default class SendDetails extends Component {
       while (true) {
         try {
           const { fee } = wallet.coinselect(
-            wallet.getUtxo(),
+            utxo,
             targets,
             opt.fee,
             changeAddress,
@@ -597,7 +602,8 @@ export default class SendDetails extends Component {
     const wallet = this.state.fromWallet;
     const changeAddress = await this.getChangeAddressAsync();
     const requestedSatPerByte = Number(this.state.fee);
-    console.log({ requestedSatPerByte, utxo: wallet.getUtxo() });
+    const utxo = this.state.utxo || wallet.getUtxo();
+    console.log({ requestedSatPerByte, utxo });
 
     let targets = [];
     for (const transaction of this.state.addresses) {
@@ -616,8 +622,8 @@ export default class SendDetails extends Component {
       }
     }
 
-    const { tx, fee, psbt } = wallet.createTransaction(
-      wallet.getUtxo(),
+    const { tx, outputs, fee, psbt } = wallet.createTransaction(
+      utxo,
       targets,
       requestedSatPerByte,
       changeAddress,
@@ -652,12 +658,15 @@ export default class SendDetails extends Component {
       memo: this.state.memo,
     };
     await this.context.saveToDisk();
+
+    const recipients = outputs.filter(({ address }) => address !== changeAddress);
+
     this.props.navigation.navigate('Confirm', {
       fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
       memo: this.state.memo,
       fromWallet: wallet,
       tx: tx.toHex(),
-      recipients: targets,
+      recipients,
       satoshiPerByte: requestedSatPerByte,
       payjoinUrl: this.state.payjoinUrl,
       psbt,
@@ -665,9 +674,13 @@ export default class SendDetails extends Component {
     this.setState({ isLoading: false });
   }
 
+  onUTXOChoose = utxo => {
+    this.setState({ utxo }, this.reCalcTx);
+  };
+
   onWalletSelect = wallet => {
     const changeWallet = () => {
-      this.setState({ fromWallet: wallet }, () => {
+      this.setState({ fromWallet: wallet, utxo: null }, () => {
         this.renderNavigationHeader();
         this.context.setSelectedWallet(wallet.getID());
         this.props.navigation.pop();
@@ -1034,6 +1047,21 @@ export default class SendDetails extends Component {
     );
   };
 
+  handleCoinControl = () => {
+    this.setState(
+      {
+        isAdvancedTransactionOptionsVisible: false,
+      },
+      () => {
+        const { fromWallet } = this.state;
+        this.props.navigation.navigate('CoinControl', {
+          walletId: fromWallet.getID(),
+          onUTXOChoose: this.onUTXOChoose,
+        });
+      },
+    );
+  };
+
   hideAdvancedTransactionOptionsModal = () => {
     Keyboard.dismiss();
     this.setState({ isAdvancedTransactionOptionsVisible: false });
@@ -1121,6 +1149,13 @@ export default class SendDetails extends Component {
                 />
               </>
             )}
+            <BlueListItem
+              testID="CoinControl"
+              title={loc.cc.header}
+              hideChevron
+              component={TouchableOpacity}
+              onPress={this.handleCoinControl}
+            />
           </View>
         </KeyboardAvoidingView>
       </BottomModal>
@@ -1153,8 +1188,23 @@ export default class SendDetails extends Component {
     );
   };
 
-  renderWalletSelectionButton = () => {
-    if (this.state.renderWalletSelectionButtonHidden) return;
+  renderWalletSelectionOrCoinsSelected = () => {
+    if (this.state.renderWalletSelectionOrCoinsSelectedHidden) return;
+
+    if (this.state.utxo !== null) {
+      return (
+        <View style={styles.select}>
+          <CoinsSelected
+            number={this.state.utxo.length}
+            onClose={() => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              this.setState({ utxo: null }, this.reCalcTx);
+            }}
+          />
+        </View>
+      );
+    }
+
     return (
       <View style={styles.select}>
         {!this.state.isLoading && (
@@ -1308,13 +1358,18 @@ export default class SendDetails extends Component {
   keyExtractor = (_item, index) => `${index}`;
 
   render() {
-    if (this.state.isLoading || typeof this.state.fromWallet === 'undefined') {
+    const { fromWallet, utxo } = this.state;
+    if (this.state.isLoading || typeof fromWallet === 'undefined') {
       return (
         <View style={styles.loading}>
           <BlueLoading />
         </View>
       );
     }
+
+    // if utxo is limited we use it to calculate available balance
+    const balance = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : fromWallet.getBalance();
+    const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
 
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -1370,14 +1425,22 @@ export default class SendDetails extends Component {
           <BlueDismissKeyboardInputAccessory />
           {Platform.select({
             ios: (
-              <BlueUseAllFundsButton unit={this.state.amountUnit} onUseAllPressed={this.onUseAllPressed} wallet={this.state.fromWallet} />
+              <BlueUseAllFundsButton
+                canUseAll={fromWallet.allowSendMax() && allBalance > 0}
+                onUseAllPressed={this.onUseAllPressed}
+                balance={allBalance}
+              />
             ),
             android: this.state.isAmountToolbarVisibleForAndroid && (
-              <BlueUseAllFundsButton unit={this.state.amountUnit} onUseAllPressed={this.onUseAllPressed} wallet={this.state.fromWallet} />
+              <BlueUseAllFundsButton
+                canUseAll={fromWallet.allowSendMax() && allBalance > 0}
+                onUseAllPressed={this.onUseAllPressed}
+                balance={allBalance}
+              />
             ),
           })}
 
-          {this.renderWalletSelectionButton()}
+          {this.renderWalletSelectionOrCoinsSelected()}
         </View>
       </TouchableWithoutFeedback>
     );
