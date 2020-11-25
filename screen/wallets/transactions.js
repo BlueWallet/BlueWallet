@@ -282,8 +282,11 @@ const WalletTransactions = () => {
               onPress={() => {
                 setIsManageFundsModalVisible(false);
 
-                navigate('ReceiveDetails', {
-                  walletID: wallet.current.getID(),
+                navigate('ReceiveDetailsRoot', {
+                  screen: 'ReceiveDetails',
+                  params: {
+                    walletID: wallet.current.getID(),
+                  },
                 });
               }}
               title={loc.lnd.refill_external}
@@ -324,7 +327,10 @@ const WalletTransactions = () => {
         <TouchableOpacity
           onPress={() => {
             if (wallet.current.type === LightningCustodianWallet.type) {
-              navigate('LappBrowser', { fromSecret: wallet.current.getSecret(), fromWallet: wallet.current });
+              navigate('LappBrowserRoot', {
+                screen: 'LappBrowser',
+                params: { fromSecret: wallet.current.getSecret(), fromWallet: wallet.current },
+              });
             } else {
               navigate('Marketplace', { fromWallet: wallet.current });
             }
@@ -353,10 +359,13 @@ const WalletTransactions = () => {
     return (
       <TouchableOpacity
         onPress={() => {
-          navigate('LappBrowser', {
-            fromSecret: wallet.current.getSecret(),
-            fromWallet: wallet,
-            url: 'https://duckduckgo.com',
+          navigate('LappBrowserRoot', {
+            screen: 'LappBrowser',
+            params: {
+              fromSecret: wallet.current.getSecret(),
+              fromWallet: wallet,
+              url: 'https://duckduckgo.com',
+            },
           });
         }}
         style={[styles.marketplaceButton2, stylesHook.marketplaceButton2]}
@@ -581,8 +590,11 @@ const WalletTransactions = () => {
                 setIsManageFundsModalVisible(true);
               },
               onFailure: () =>
-                navigate('WalletExport', {
-                  walletID: wallet.current.getID(),
+                navigate('WalletExportRoot', {
+                  screen: 'WalletExport',
+                  params: {
+                    walletID: wallet.current.getID(),
+                  },
                 }),
             });
           }
@@ -641,7 +653,7 @@ const WalletTransactions = () => {
               if (wallet.current.chain === Chain.OFFCHAIN) {
                 navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { fromWallet: wallet.current } });
               } else {
-                navigate('ReceiveDetails', { walletID: wallet.current.getID() });
+                navigate('ReceiveDetailsRoot', { screen: 'ReceiveDetails', params: { walletID: wallet.current.getID() } });
               }
             }}
             icon={

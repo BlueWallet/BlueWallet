@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, TouchableWithoutFeedback, StyleSheet, Linking } from 'react-native';
-import { BlueTextHooks, BlueSpacing20, BlueListItem, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
+import { BlueText, BlueSpacing20, BlueListItem, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
 import { useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import BlueClipboard from '../../blue_modules/clipboard';
@@ -71,7 +71,7 @@ const SettingsPrivacy = () => {
         switch={{ onValueChange, value: isReadClipboardAllowed, disabled: isLoading === sections.ALL }}
       />
       <BlueCard>
-        <BlueTextHooks>{loc.settings.privacy_clipboard_explanation}</BlueTextHooks>
+        <BlueText>{loc.settings.privacy_clipboard_explanation}</BlueText>
       </BlueCard>
       <BlueSpacing20 />
       {!storageIsEncrypted && (
@@ -83,7 +83,7 @@ const SettingsPrivacy = () => {
             switch={{ onValueChange: onQuickActionsValueChange, value: isQuickActionsEnabled, disabled: isLoading === sections.ALL }}
           />
           <BlueCard>
-            <BlueTextHooks>{loc.settings.privacy_quickactions_explanation}</BlueTextHooks>
+            <BlueText>{loc.settings.privacy_quickactions_explanation}</BlueText>
           </BlueCard>
         </>
       )}

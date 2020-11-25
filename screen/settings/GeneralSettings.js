@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, Platform, TouchableWithoutFeedback, TouchableOpacity, StyleSheet } from 'react-native';
-import { BlueLoading, BlueTextHooks, BlueSpacing20, BlueListItem, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
+import { BlueLoading, BlueText, BlueSpacing20, BlueListItem, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import HandoffSettings from '../../class/handoff';
 import loc from '../../loc';
@@ -70,7 +70,7 @@ const GeneralSettings = () => {
             switch={{ onValueChange: onHandOffEnabledSwitch, value: isHandoffUseEnabled }}
           />
           <BlueCard>
-            <BlueTextHooks>{loc.settings.general_continuity_e}</BlueTextHooks>
+            <BlueText>{loc.settings.general_continuity_e}</BlueText>
           </BlueCard>
           <BlueSpacing20 />
         </>
@@ -81,7 +81,7 @@ const GeneralSettings = () => {
         switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeSwitchEnabled }}
       />
       <BlueCard>
-        <BlueTextHooks>{loc.settings.general_adv_mode_e}</BlueTextHooks>
+        <BlueText>{loc.settings.general_adv_mode_e}</BlueText>
       </BlueCard>
       <BlueSpacing20 />
     </ScrollView>

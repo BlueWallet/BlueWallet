@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, TouchableWithoutFeedback, StyleSheet, Linking, View, TextInput } from 'react-native';
 import {
   BlueLoading,
-  BlueTextHooks,
+  BlueText,
   BlueSpacing20,
   BlueListItem,
   BlueNavigationStyle,
@@ -110,7 +110,7 @@ const NotificationSettings = () => {
       <BlueSpacing20 />
 
       <BlueCard>
-        <BlueTextHooks>{loc.settings.groundcontrol_explanation}</BlueTextHooks>
+        <BlueText>{loc.settings.groundcontrol_explanation}</BlueText>
       </BlueCard>
 
       <Button
@@ -143,12 +143,12 @@ const NotificationSettings = () => {
         </View>
 
         <BlueSpacing20 />
-        <BlueTextHooks style={styles.centered} onPress={() => setShowTokenInfo(isShowTokenInfo + 1)}>
+        <BlueText style={styles.centered} onPress={() => setShowTokenInfo(isShowTokenInfo + 1)}>
           ♪ Ground Control to Major Tom ♪
-        </BlueTextHooks>
-        <BlueTextHooks style={styles.centered} onPress={() => setShowTokenInfo(isShowTokenInfo + 1)}>
+        </BlueText>
+        <BlueText style={styles.centered} onPress={() => setShowTokenInfo(isShowTokenInfo + 1)}>
           ♪ Commencing countdown, engines on ♪
-        </BlueTextHooks>
+        </BlueText>
 
         {isShowTokenInfo >= 9 && (
           <View>

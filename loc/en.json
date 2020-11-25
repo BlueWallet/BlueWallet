@@ -1,6 +1,6 @@
 {
   "_": {
-    "bad_password": "Wrong password, please try again.",
+    "bad_password": "Incorrect password, please try again.",
     "cancel": "Cancel",
     "continue": "Continue",
     "enter_password": "Enter password",
@@ -121,7 +121,7 @@
     "help": "Under certain circumstances, you might be forced to disclose a password. To keep your coins safe, BlueWallet can create another encrypted storage, with a different password. Under pressure, you can disclose this password to a 3rd party. If entered in BlueWallet, it will unlock a new 'fake' storage. This will seem legit to a 3rd party, but it will secretly keep your main storage with coins safe.",
     "help2": "The new storage will be fully functional, and you can store some minimum amounts there so it looks more believable.",
     "password_should_not_match": "Password is currently in use. Please, try a different password.",
-    "passwords_do_not_match": "Passwords do not match, try again",
+    "passwords_do_not_match": "Passwords do not match, please try again.",
     "retype_password": "Retype password",
     "success": "Success",
     "title": "Plausible Deniability"

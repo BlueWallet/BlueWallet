@@ -688,21 +688,7 @@ export class BlueCard extends Component {
   }
 }
 
-export class BlueText extends Component {
-  render() {
-    return (
-      <Text
-        style={{
-          color: BlueCurrentTheme.colors.foregroundColor,
-          ...this.props.style,
-        }}
-        {...this.props}
-      />
-    );
-  }
-}
-
-export const BlueTextHooks = props => {
+export const BlueText = props => {
   const { colors } = useTheme();
   return (
     <Text
@@ -714,13 +700,8 @@ export const BlueTextHooks = props => {
     />
   );
 };
-export class BlueTextCentered extends Component {
-  render() {
-    return <Text {...this.props} style={{ color: BlueCurrentTheme.colors.foregroundColor, textAlign: 'center' }} />;
-  }
-}
 
-export const BlueTextCenteredHooks = props => {
+export const BlueTextCentered = props => {
   const { colors } = useTheme();
   return <Text {...props} style={{ color: colors.foregroundColor, textAlign: 'center' }} />;
 };

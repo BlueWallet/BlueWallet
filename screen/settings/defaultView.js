@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { SafeBlueArea, BlueCard, BlueNavigationStyle, BlueListItem, BlueTextHooks } from '../../BlueComponents';
+import { SafeBlueArea, BlueCard, BlueNavigationStyle, BlueListItem, BlueText } from '../../BlueComponents';
 import OnAppLaunch from '../../class/on-app-launch';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -68,7 +68,7 @@ const DefaultView = () => {
           }}
         />
         <BlueCard>
-          <BlueTextHooks>{loc.settings.default_desc}</BlueTextHooks>
+          <BlueText>{loc.settings.default_desc}</BlueText>
         </BlueCard>
         {!viewAllWalletsEnabled && (
           <BlueListItem title={loc.settings.default_info} onPress={selectWallet} rightTitle={defaultWalletLabel} chevron />

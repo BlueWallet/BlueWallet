@@ -283,6 +283,34 @@ function DrawerRoot() {
   );
 }
 
+const ReceiveDetailsStack = createStackNavigator();
+const ReceiveDetailsStackRoot = () => (
+  <ReceiveDetailsStack.Navigator name="ReceiveDetailsRoot" screenOptions={defaultStackScreenOptions} initialRouteName="ReceiveDetails">
+    <RootStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions} />
+  </ReceiveDetailsStack.Navigator>
+);
+
+const WalletXpubStack = createStackNavigator();
+const WalletXpubStackRoot = () => (
+  <WalletXpubStack.Navigator name="WalletXpubRoot" screenOptions={defaultStackScreenOptions} initialRouteName="WalletXpub">
+    <WalletXpubStack.Screen name="WalletXpub" component={WalletXpub} options={WalletXpub.navigationOptions} />
+  </WalletXpubStack.Navigator>
+);
+
+const WalletExportStack = createStackNavigator();
+const WalletExportStackRoot = () => (
+  <WalletExportStack.Navigator name="WalletExportRoot" screenOptions={defaultStackScreenOptions} initialRouteName="WalletExport">
+    <WalletExportStack.Screen name="WalletExport" component={WalletExport} options={WalletExport.navigationOptions} />
+  </WalletExportStack.Navigator>
+);
+
+const LappBrowserStack = createStackNavigator();
+const LappBrowserStackRoot = () => (
+  <LappBrowserStack.Navigator name="LappBrowserRoot" screenOptions={defaultStackScreenOptions} initialRouteName="LappBrowser">
+    <LappBrowserStack.Screen name="LappBrowser" component={LappBrowser} options={LappBrowser.navigationOptions} />
+  </LappBrowserStack.Navigator>
+);
+
 const InitStack = createStackNavigator();
 const InitRoot = () => (
   <InitStack.Navigator screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
@@ -312,7 +340,7 @@ const Navigation = () => (
     <RootStack.Screen name="HodlHodlWebview" component={HodlHodlWebview} options={HodlHodlWebview.navigationOptions} />
 
     {/* screens */}
-    <RootStack.Screen name="WalletExport" component={WalletExport} options={WalletExport.navigationOptions} />
+    <RootStack.Screen name="WalletExportRoot" component={WalletExportStackRoot} options={{ headerShown: false }} />
     <RootStack.Screen
       name="ExportMultisigCoordinationSetup"
       component={ExportMultisigCoordinationSetup}
@@ -323,12 +351,12 @@ const Navigation = () => (
       component={ViewEditMultisigCosigners}
       options={ViewEditMultisigCosigners.navigationOptions}
     />
-    <RootStack.Screen name="WalletXpub" component={WalletXpub} options={WalletXpub.navigationOptions} />
+    <RootStack.Screen name="WalletXpubRoot" component={WalletXpubStackRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="BuyBitcoin" component={BuyBitcoin} options={BuyBitcoin.navigationOptions} />
     <RootStack.Screen name="Marketplace" component={Marketplace} options={Marketplace.navigationOptions} />
     <RootStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />
-    <RootStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions} />
-    <RootStack.Screen name="LappBrowser" component={LappBrowser} options={LappBrowser.navigationOptions} />
+    <RootStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={{ headerShown: false }} />
+    <RootStack.Screen name="LappBrowserRoot" component={LappBrowserStackRoot} options={{ headerShown: false }} />
 
     <RootStack.Screen
       name="ScanQRCodeRoot"
