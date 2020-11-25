@@ -636,6 +636,17 @@ describe('multisig-wallet (native segwit)', () => {
         'xprv9tpBCBeAwBnVgYroSvicqDR2XhAj6sth3idqBWhRqnrq99x17WZvZHQup679rXc3ndPLN3fwbpLkv4WTQhfhZN89B2NbTMmYFePPPHJ5jVP',
       ),
     ); // invalid fp
+
+    assert.ok(MultisigHDWallet.isFpValid(fp1cobo));
+    assert.ok(MultisigHDWallet.isFpValid(fp2coldcard));
+    assert.ok(MultisigHDWallet.isFpValid('00000000'));
+    assert.ok(MultisigHDWallet.isFpValid('DEADFEEF'));
+    assert.ok(MultisigHDWallet.isFpValid('deadbeef'));
+    assert.ok(MultisigHDWallet.isFpValid('dEaDbeEF'));
+    assert.ok(!MultisigHDWallet.isFpValid('rmjiweg3'));
+    assert.ok(!MultisigHDWallet.isFpValid('bruh'));
+    assert.ok(!MultisigHDWallet.isFpValid('0'));
+    assert.ok(!MultisigHDWallet.isFpValid('0'));
   });
 
   it('basic operations work', async () => {
