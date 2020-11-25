@@ -263,7 +263,7 @@ const LNDViewInvoice = () => {
           <BlueText>
             {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
           </BlueText>
-          {invoice !== undefined && 'description' in invoice && invoice.description.length > 0 && (
+          {'description' in invoice && invoice.description.length > 0 && (
             <BlueText>
               {loc.lndViewInvoice.for} {invoice.description}
             </BlueText>
