@@ -670,17 +670,10 @@ const styleCopyTextToClipboard = StyleSheet.create({
   },
 });
 
-export class SafeBlueArea extends Component {
-  render() {
-    return (
-      <SafeAreaView
-        forceInset={{ horizontal: 'always' }}
-        style={{ flex: 1, backgroundColor: BlueCurrentTheme.colors.background }}
-        {...this.props}
-      />
-    );
-  }
-}
+export const SafeBlueArea = props => {
+  const { colors } = useTheme();
+  return <SafeAreaView forceInset={{ horizontal: 'always' }} style={{ flex: 1, backgroundColor: colors.background }} {...props} />;
+};
 
 export class BlueCard extends Component {
   render() {
