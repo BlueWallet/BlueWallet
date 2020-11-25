@@ -234,7 +234,7 @@ const LNDViewInvoice = () => {
           </View>
         );
       }
-      if (invoiceExpiration < now && !invoice.ispaid) {
+      if (invoiceExpiration < now) {
         return (
           <View>
             <View style={[styles.expired, stylesHook.expired]}>
@@ -249,7 +249,7 @@ const LNDViewInvoice = () => {
         <View style={[styles.activeRoot, stylesHook.root]}>
           <View style={styles.activeQrcode}>
             <QRCode
-              value={typeof invoice === 'object' ? invoice.payment_request : invoice}
+              value={invoice.payment_request}
               logo={require('../../img/qr-code.png')}
               size={qrCodeHeight}
               logoSize={90}
@@ -263,7 +263,7 @@ const LNDViewInvoice = () => {
           <BlueText>
             {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
           </BlueText>
-          {invoice && 'description' in invoice && invoice.description.length > 0 && (
+          {invoice !== undefined && 'description' in invoice && invoice.description.length > 0 && (
             <BlueText>
               {loc.lndViewInvoice.for} {invoice.description}
             </BlueText>
