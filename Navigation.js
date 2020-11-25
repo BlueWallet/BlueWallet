@@ -135,14 +135,6 @@ const WalletsRoot = () => (
     <WalletsStack.Screen name="SettingsPrivacy" component={SettingsPrivacy} options={SettingsPrivacy.navigationOptions} />
     <WalletsStack.Screen name="LNDViewInvoice" component={LNDViewInvoice} options={LNDViewInvoice.navigationOptions} />
     <WalletsStack.Screen
-      name="Success"
-      component={Success}
-      options={{
-        headerShown: false,
-        gestureEnabled: false,
-      }}
-    />
-    <WalletsStack.Screen
       name="LNDViewAdditionalInvoiceInformation"
       component={LNDViewAdditionalInvoiceInformation}
       options={LNDViewAdditionalInvoiceInformation.navigationOptions}
@@ -151,14 +143,6 @@ const WalletsRoot = () => (
     <WalletsStack.Screen name="Broadcast" component={Broadcast} options={Broadcast.navigationOptions} />
     <WalletsStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions} />
     <WalletsStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions} />
-    <WalletsStack.Screen
-      name="Success"
-      component={Success}
-      options={{
-        headerShown: false,
-        gestureEnabled: false,
-      }}
-    />
   </WalletsStack.Navigator>
 );
 

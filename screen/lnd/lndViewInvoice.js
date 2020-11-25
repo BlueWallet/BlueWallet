@@ -10,7 +10,7 @@ import {
   BlueCopyTextToClipboard,
   BlueNavigationStyle,
   BlueSpacing20,
-  BlueBigCheckmark,
+  BlueTextCentered,
 } from '../../BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
@@ -19,17 +19,18 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-//import Success from '../send/success';
+import { SuccessView } from '../send/success';
 
 const LNDViewInvoice = () => {
   const { invoice, fromWallet, isModal } = useRoute().params;
   const { setSelectedWallet, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const { width, height } = useWindowDimensions();
   const { colors } = useTheme();
-  const { goBack, popToRoot, navigate, setParams, setOptions } = useNavigation();
+  const { goBack, navigate, setParams, setOptions } = useNavigation();
   const [isLoading, setIsLoading] = useState(typeof invoice === 'string');
   const [isFetchingInvoices, setIsFetchingInvoices] = useState(true);
   const [showPreimageQr, setShowPreimageQr] = useState(false);
+  const [invoiceStatusChanged, setInvoiceStatusChanged] = useState(false);
   const qrCodeHeight = height > width ? width - 20 : width / 2;
   const fetchInvoiceInterval = useRef();
   const stylesHook = StyleSheet.create({
@@ -91,47 +92,52 @@ const LNDViewInvoice = () => {
   useEffect(() => {
     setSelectedWallet(fromWallet.getID());
     console.log('LNDViewInvoice - useEffect');
-    fetchInvoiceInterval.current = setInterval(async () => {
-      if (isFetchingInvoices) {
-        try {
-          const userInvoices = await fromWallet.getUserInvoices(20);
-          // fetching only last 20 invoices
-          // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
-          // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
-          const updatedUserInvoice = userInvoices.filter(filteredInvoice =>
-            typeof invoice === 'object'
-              ? filteredInvoice.payment_request === invoice.payment_request
-              : filteredInvoice.payment_request === invoice,
-          )[0];
-          if (typeof updatedUserInvoice !== 'undefined') {
-            setParams({ invoice: updatedUserInvoice });
-            setIsLoading(false);
-            if (updatedUserInvoice.ispaid) {
-              // we fetched the invoice, and it is paid :-)
-              setIsFetchingInvoices(false);
-              ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-              clearInterval(fetchInvoiceInterval.current);
-              fetchInvoiceInterval.current = undefined;
-              fetchAndSaveWalletTransactions(fromWallet.getID());
-            } else {
-              const currentDate = new Date();
-              const now = (currentDate.getTime() / 1000) | 0;
-              const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
-              if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
-                // invoice expired :-(
-                fetchAndSaveWalletTransactions(fromWallet.getID());
+    if (!invoice.ispaid) {
+      fetchInvoiceInterval.current = setInterval(async () => {
+        if (isFetchingInvoices) {
+          try {
+            const userInvoices = await fromWallet.getUserInvoices(20);
+            // fetching only last 20 invoices
+            // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
+            // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
+            const updatedUserInvoice = userInvoices.filter(filteredInvoice =>
+              typeof invoice === 'object'
+                ? filteredInvoice.payment_request === invoice.payment_request
+                : filteredInvoice.payment_request === invoice,
+            )[0];
+            if (typeof updatedUserInvoice !== 'undefined') {
+              setInvoiceStatusChanged(true);
+              setParams({ invoice: updatedUserInvoice });
+              setIsLoading(false);
+              if (updatedUserInvoice.ispaid) {
+                // we fetched the invoice, and it is paid :-)
                 setIsFetchingInvoices(false);
-                ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-                clearInterval(fetchInvoiceInterval.current);
-                fetchInvoiceInterval.current = undefined;
+                fetchAndSaveWalletTransactions(fromWallet.getID());
+              } else {
+                const currentDate = new Date();
+                const now = (currentDate.getTime() / 1000) | 0;
+                const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
+                if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
+                  // invoice expired :-(
+                  fetchAndSaveWalletTransactions(fromWallet.getID());
+                  setIsFetchingInvoices(false);
+                  ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+                  clearInterval(fetchInvoiceInterval.current);
+                  fetchInvoiceInterval.current = undefined;
+                }
               }
             }
+          } catch (error) {
+            console.log(error);
           }
-        } catch (error) {
-          console.log(error);
         }
-      }
-    }, 3000);
+      }, 3000);
+    } else {
+      setIsFetchingInvoices(false);
+      clearInterval(fetchInvoiceInterval.current);
+      fetchInvoiceInterval.current = undefined;
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -153,13 +159,9 @@ const LNDViewInvoice = () => {
   };
 
   useEffect(() => {
-    if (invoice.ispaid) {
-      navigate('Success', {
-        amount: invoice.amt,
-        amountUnit: BitcoinUnit.SATS,
-        invoiceDescription: invoice.description,
-        onDonePressed: popToRoot,
-      });
+    if (invoice.ispaid && invoiceStatusChanged) {
+      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      setInvoiceStatusChanged(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoice]);
@@ -180,7 +182,7 @@ const LNDViewInvoice = () => {
 
       if (showPreimageQr) {
         return (
-          <View>
+          <View style={styles.root}>
             <BlueText>{loc.lndViewInvoice.preimage}:</BlueText>
             <BlueSpacing20 />
             <View style={styles.qrCodeContainer}>
@@ -203,39 +205,33 @@ const LNDViewInvoice = () => {
       }
 
       if (invoice.ispaid || invoice.type === 'paid_invoice') {
+        let amount = 0;
+        if (invoice.type === 'paid_invoice' && invoice.value) {
+          amount = invoice.value;
+        } else if (invoice.type === 'user_invoice' && invoice.amt) {
+          amount = invoice.amt;
+        }
+        let description = invoice.description;
+        if (invoice.memo && invoice.memo.length > 0) {
+          description = invoice.memo;
+        }
         return (
-          <>
-            <View style={[styles.valueRoot, stylesHook.valueRoot]}>
-              {invoice.type === 'paid_invoice' && invoice.value && (
-                <View style={styles.valueAmount}>
-                  <Text style={[styles.valueText, stylesHook.valueText]}>{invoice.value}</Text>
-                  <Text style={[styles.valueSats, stylesHook.valueSats]}>{loc.lndViewInvoice.sats}</Text>
-                </View>
-              )}
-              {invoice.type === 'user_invoice' && invoice.amt && (
-                <View style={styles.valueAmount}>
-                  <Text style={[styles.valueText, stylesHook.valueText]}>{invoice.amt}</Text>
-                  <Text style={[styles.valueSats, stylesHook.valueSats]}>{loc.lndViewInvoice.sats}</Text>
-                </View>
-              )}
-              {!invoice.ispaid && invoice.memo && invoice.memo.length > 0 && <Text style={styles.memo}>{invoice.memo}</Text>}
-            </View>
-
-            <View style={styles.paid}>
-              <BlueBigCheckmark style={styles.paidMark} />
-              <BlueText>{loc.lndViewInvoice.has_been_paid}</BlueText>
-            </View>
+          <View style={[styles.root, stylesHook.root]}>
+            <SuccessView
+              amount={amount}
+              amountUnit={BitcoinUnit.SATS}
+              invoiceDescription={description}
+              shouldAnimate={invoiceStatusChanged}
+            />
             <View style={styles.detailsRoot}>
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
                 <TouchableOpacity style={styles.detailsTouch} onPress={setShowPreimageQrTrue}>
                   <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
                   <Icon name="angle-right" size={18} type="font-awesome" color={colors.alternativeTextColor} />
                 </TouchableOpacity>
-              ) : (
-                <View />
-              )}
+              ) : undefined}
             </View>
-          </>
+          </View>
         );
       }
       if (invoiceExpiration < now && !invoice.ispaid) {
@@ -244,7 +240,7 @@ const LNDViewInvoice = () => {
             <View style={[styles.expired, stylesHook.expired]}>
               <Icon name="times" size={50} type="font-awesome" color={colors.successCheck} />
             </View>
-            <BlueText>{loc.lndViewInvoice.wasnt_paid_and_expired}</BlueText>
+            <BlueTextCentered>{loc.lndViewInvoice.wasnt_paid_and_expired}</BlueTextCentered>
           </View>
         );
       }
@@ -290,7 +286,7 @@ const LNDViewInvoice = () => {
   return (
     <SafeBlueArea styles={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="default" />
-      <ScrollView style={stylesHook.root} centerContent contentContainerStyle={stylesHook.root}>
+      <ScrollView style={[styles.root, stylesHook.root]} centerContent contentContainerStyle={stylesHook.root}>
         {render()}
       </ScrollView>
     </SafeBlueArea>
@@ -302,11 +298,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
-  valueRoot: {
-    flex: 2,
-    flexDirection: 'column',
-    justifyContent: 'center',
-  },
   valueAmount: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -360,7 +351,6 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     alignSelf: 'center',
     justifyContent: 'center',
-    marginTop: -100,
     marginBottom: 30,
   },
   activeRoot: {

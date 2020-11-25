@@ -714,13 +714,8 @@ export const BlueTextHooks = props => {
     />
   );
 };
-export class BlueTextCentered extends Component {
-  render() {
-    return <Text {...this.props} style={{ color: BlueCurrentTheme.colors.foregroundColor, textAlign: 'center' }} />;
-  }
-}
 
-export const BlueTextCenteredHooks = props => {
+export const BlueTextCentered = props => {
   const { colors } = useTheme();
   return <Text {...props} style={{ color: colors.foregroundColor, textAlign: 'center' }} />;
 };
