@@ -1,13 +1,11 @@
 /* global alert */
-import { PermissionsAndroid, Platform } from 'react-native';
+import { Alert, Linking, PermissionsAndroid, Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import loc from '../loc';
-import { getSystemName } from 'react-native-device-info';
 import DocumentPicker from 'react-native-document-picker';
+import isCatalyst from 'react-native-is-catalyst';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-
-const isDesktop = getSystemName() === 'Mac OS X';
 
 const writeFileAndExport = async function (filename, contents) {
   if (Platform.OS === 'ios') {
@@ -15,7 +13,7 @@ const writeFileAndExport = async function (filename, contents) {
     await RNFS.writeFile(filePath, contents);
     Share.open({
       url: 'file://' + filePath,
-      saveToFiles: isDesktop,
+      saveToFiles: isCatalyst,
     })
       .catch(error => {
         console.log(error);
@@ -39,6 +37,16 @@ const writeFileAndExport = async function (filename, contents) {
       alert(loc.formatString(loc._.file_saved, { filePath: filename }));
     } else {
       console.log('Storage Permission: Denied');
+      Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
+        {
+          text: loc.send.open_settings,
+          onPress: () => {
+            Linking.openSettings();
+          },
+          style: 'default',
+        },
+        { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+      ]);
     }
   }
 };
