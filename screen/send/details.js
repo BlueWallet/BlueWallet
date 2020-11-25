@@ -281,11 +281,10 @@ export default class SendDetails extends Component {
       if (this.state.fromWallet.isAddressValid(dataWithoutSchema)) {
         recipients[[this.state.recipientsScrollIndex]].address = dataWithoutSchema;
         const units = this.state.units;
-        units[this.state.recipientsScrollIndex] = BitcoinUnit.BTC; // also resetting current unit to BTC
+        units[this.state.recipientsScrollIndex] = this.state.amountUnit;
         this.setState({
           address: recipients,
           isLoading: false,
-          amountUnit: BitcoinUnit.BTC,
           units,
         });
       } else {
