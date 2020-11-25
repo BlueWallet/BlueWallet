@@ -293,7 +293,6 @@ const styles = StyleSheet.create({
 CoinControl.navigationOptions = () => ({
   ...BlueNavigationStyle(null, false),
   title: loc.cc.header,
-  gestureEnabled: false,
 });
 
 export default CoinControl;

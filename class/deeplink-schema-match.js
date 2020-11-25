@@ -61,12 +61,12 @@ class DeeplinkSchemaMatch {
             ]);
           } else if (action === 'openReceive') {
             completionHandler([
+              'ReceiveDetailsRoot',
               {
-                routeName: 'ReceiveDetails',
+                screen: 'ReceiveDetails',
                 params: {
                   walletID: wallet.getID(),
                 },
-                name: 'ReceiveDetails',
               },
             ]);
           }
@@ -232,11 +232,14 @@ class DeeplinkSchemaMatch {
               }
 
               completionHandler([
-                'LappBrowser',
+                'LappBrowserRoot',
                 {
-                  fromSecret: lnWallet.getSecret(),
-                  fromWallet: lnWallet,
-                  url: urlObject.query.url,
+                  screen: 'LappBrowser',
+                  params: {
+                    fromSecret: lnWallet.getSecret(),
+                    fromWallet: lnWallet,
+                    url: urlObject.query.url,
+                  },
                 },
               ]);
               break;

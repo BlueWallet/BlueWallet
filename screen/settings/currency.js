@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FlatList, ActivityIndicator, View, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueListItem, BlueTextHooks, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
+import { SafeBlueArea, BlueListItem, BlueText, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { FiatUnit, FiatUnitSource } from '../../models/fiatUnit';
 import loc from '../../loc';
@@ -68,9 +68,9 @@ const Currency = () => {
           }}
         />
         <BlueCard>
-          <BlueTextHooks>
+          <BlueText>
             {loc.settings.currency_source} {selectedCurrency.source ?? FiatUnitSource.CoinDesk}
-          </BlueTextHooks>
+          </BlueText>
         </BlueCard>
       </SafeBlueArea>
     );

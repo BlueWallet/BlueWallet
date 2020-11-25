@@ -46,6 +46,18 @@ export default class Confirm extends Component {
     this.isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
   }
 
+  /**
+   * we need to look into `recipients`, find destination address and return its outputScript
+   * (needed for payjoin)
+   *
+   * @return {string}
+   */
+  getPaymentScript() {
+    for (const recipient of this.state.recipients) {
+      return bitcoin.address.toOutputScript(recipient.address);
+    }
+  }
+
   send() {
     this.setState({ isLoading: true }, async () => {
       try {
@@ -54,7 +66,9 @@ export default class Confirm extends Component {
           await this.broadcast(this.state.tx);
         } else {
           const wallet = new PayjoinTransaction(this.state.psbt, txHex => this.broadcast(txHex), this.state.fromWallet);
+          const paymentScript = this.getPaymentScript();
           const payjoinClient = new PayjoinClient({
+            paymentScript,
             wallet,
             payjoinUrl: this.state.payjoinUrl,
           });

@@ -10,7 +10,7 @@ import {
   BlueCard,
   BlueListItem,
   BlueHeaderDefaultSubHooks,
-  BlueTextHooks,
+  BlueText,
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import Biometric from '../../class/biometrics';
@@ -163,7 +163,7 @@ const EncryptStorage = () => {
               switch={{ value: biometrics.isBiometricsEnabled, onValueChange: onUseBiometricSwitch }}
             />
             <BlueCard>
-              <BlueTextHooks>{loc.formatString(loc.settings.encrypt_use_expl, { type: biometrics.biometricsType })}</BlueTextHooks>
+              <BlueText>{loc.formatString(loc.settings.encrypt_use_expl, { type: biometrics.biometricsType })}</BlueText>
             </BlueCard>
             <BlueSpacing20 />
           </>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueListItem, BlueCard, BlueLoadingHook, BlueNavigationStyle, BlueTextHooks } from '../../BlueComponents';
+import { SafeBlueArea, BlueListItem, BlueCard, BlueLoadingHook, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import { AvailableLanguages } from '../../loc/languages';
 import loc from '../../loc';
 
@@ -45,7 +45,7 @@ const Language = () => {
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.flex}>
       <FlatList style={styles.flex} keyExtractor={(_item, index) => `${index}`} data={AvailableLanguages} renderItem={renderItem} />
       <BlueCard>
-        <BlueTextHooks>{loc.settings.language_restart}</BlueTextHooks>
+        <BlueText>{loc.settings.language_restart}</BlueText>
       </BlueCard>
     </SafeBlueArea>
   );
