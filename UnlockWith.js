@@ -1,12 +1,11 @@
-import React, { Component } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet, Appearance, StatusBar, ActivityIndicator } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { View, Image, TouchableOpacity, StyleSheet, StatusBar, ActivityIndicator, useColorScheme } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as NavigationService from './NavigationService';
-import { StackActions } from '@react-navigation/native';
-import PropTypes from 'prop-types';
+import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from './blue_modules/storage-context';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 /** @type {AppStorage} */
 
 const styles = StyleSheet.create({
@@ -46,92 +45,88 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class UnlockWith extends Component {
-  state = { biometricType: false, isStorageEncrypted: false, isAuthenticating: false, appearance: Appearance.getColorScheme() };
-  static contextType = BlueStorageContext;
+const UnlockWith = () => {
+  const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useContext(BlueStorageContext);
+  const { dispatch } = useNavigation();
+  const { unlockOnComponentMount } = useRoute().params;
+  const [biometricType, setBiometricType] = useState(false);
+  const [isStorageEncryptedEnabled, setIsStorageEncryptedEnabled] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const colorScheme = useColorScheme();
 
-  async componentDidMount() {
-    Appearance.addChangeListener(this.appearanceChanged);
+  const initialRender = async () => {
     let biometricType = false;
     if (await Biometric.isBiometricUseCapableAndEnabled()) {
       biometricType = await Biometric.biometricType();
     }
-    const storageIsEncrypted = await this.context.isStorageEncrypted();
-    this.setState({ biometricType, isStorageEncrypted: storageIsEncrypted }, async () => {
-      if (this.props.route.params.unlockOnComponentMount) {
-        if (!biometricType || storageIsEncrypted) {
-          this.unlockWithKey();
-        } else if (typeof biometricType === 'string') this.unlockWithBiometrics();
-      }
-    });
-  }
-
-  componentWillUnmount() {
-    Appearance.removeChangeListener();
-  }
-
-  appearanceChanged = () => {
-    const appearance = Appearance.getColorScheme();
-    if (appearance) {
-      this.setState({ appearance });
+    const storageIsEncrypted = await isStorageEncrypted();
+    setIsStorageEncryptedEnabled(storageIsEncrypted);
+    setBiometricType(biometricType);
+    if (unlockOnComponentMount) {
+      if (!biometricType || storageIsEncrypted) {
+        unlockWithKey();
+      } else if (typeof biometricType === 'string') unlockWithBiometrics();
     }
   };
 
-  successfullyAuthenticated = () => {
-    this.context.setWalletsInitialized(true);
-    NavigationService.dispatch(StackActions.replace('DrawerRoot'));
+  useEffect(() => {
+    initialRender();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const successfullyAuthenticated = () => {
+    setWalletsInitialized(true);
+    dispatch(StackActions.replace('DrawerRoot'));
   };
 
-  unlockWithBiometrics = async () => {
-    if (await this.context.isStorageEncrypted()) {
-      this.unlockWithKey();
+  const unlockWithBiometrics = async () => {
+    if (await isStorageEncrypted()) {
+      unlockWithKey();
     }
-    this.setState({ isAuthenticating: true }, async () => {
-      if (await Biometric.unlockWithBiometrics()) {
-        this.setState({ isAuthenticating: false });
-        await this.context.startAndDecrypt();
-        return this.successfullyAuthenticated();
-      }
-      this.setState({ isAuthenticating: false });
-    });
+    setIsAuthenticating(true);
+
+    if (await Biometric.unlockWithBiometrics()) {
+      setIsAuthenticating(false);
+      await startAndDecrypt();
+      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      return successfullyAuthenticated();
+    }
+    setIsAuthenticating(false);
   };
 
-  unlockWithKey = () => {
-    this.setState({ isAuthenticating: true }, async () => {
-      if (await this.context.startAndDecrypt()) {
-        this.successfullyAuthenticated();
-      } else {
-        this.setState({ isAuthenticating: false });
-      }
-    });
+  const unlockWithKey = async () => {
+    setIsAuthenticating(true);
+    if (await startAndDecrypt()) {
+      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      successfullyAuthenticated();
+    } else {
+      setIsAuthenticating(false);
+    }
   };
 
-  renderUnlockOptions = () => {
-    if (this.state.isAuthenticating) {
+  const renderUnlockOptions = () => {
+    if (isAuthenticating) {
       return <ActivityIndicator />;
     } else {
-      const color = this.state.appearance === 'dark' ? '#FFFFFF' : '#000000';
-      if (
-        (this.state.biometricType === Biometric.TouchID || this.state.biometricType === Biometric.Biometrics) &&
-        !this.state.isStorageEncrypted
-      ) {
+      const color = colorScheme === 'dark' ? '#FFFFFF' : '#000000';
+      if ((biometricType === Biometric.TouchID || biometricType === Biometric.Biometrics) && !isStorageEncryptedEnabled) {
         return (
-          <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
+          <TouchableOpacity disabled={isAuthenticating} onPress={unlockWithBiometrics}>
             <Icon name="fingerprint" size={64} type="font-awesome5" color={color} />
           </TouchableOpacity>
         );
-      } else if (this.state.biometricType === Biometric.FaceID && !this.state.isStorageEncrypted) {
+      } else if (biometricType === Biometric.FaceID && !isStorageEncryptedEnabled) {
         return (
-          <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
+          <TouchableOpacity disabled={isAuthenticating} onPress={unlockWithBiometrics}>
             <Image
-              source={this.state.appearance === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')}
+              source={colorScheme === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')}
               style={styles.icon}
             />
           </TouchableOpacity>
         );
-      } else if (this.state.isStorageEncrypted) {
+      } else if (isStorageEncryptedEnabled) {
         return (
-          <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithKey}>
+          <TouchableOpacity disabled={isAuthenticating} onPress={unlockWithKey}>
             <Icon name="lock" size={64} type="font-awesome5" color={color} />
           </TouchableOpacity>
         );
@@ -139,11 +134,9 @@ export default class UnlockWith extends Component {
     }
   };
 
-  render() {
-    if (!this.state.biometricType && !this.state.isStorageEncrypted) {
-      return <View />;
-    }
-
+  if (!biometricType && !isStorageEncryptedEnabled) {
+    return <View />;
+  } else {
     return (
       <SafeAreaView style={styles.root}>
         <StatusBar barStyle="default" />
@@ -152,18 +145,12 @@ export default class UnlockWith extends Component {
             <Image source={require('./img/qr-code.png')} style={styles.qrCodeImage} />
           </View>
           <View style={styles.biometric}>
-            <View style={styles.biometricRow}>{this.renderUnlockOptions()}</View>
+            <View style={styles.biometricRow}>{renderUnlockOptions()}</View>
           </View>
         </View>
       </SafeAreaView>
     );
   }
-}
-
-UnlockWith.propTypes = {
-  route: PropTypes.shape({
-    params: PropTypes.shape({
-      unlockOnComponentMount: PropTypes.bool,
-    }),
-  }),
 };
+
+export default UnlockWith;
