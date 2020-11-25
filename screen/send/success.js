@@ -9,9 +9,13 @@ import loc from '../../loc';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 const Success = () => {
+  const pop = () => {
+    dangerouslyGetParent().pop();
+  };
+
   const { colors } = useTheme();
   const { dangerouslyGetParent } = useNavigation();
-  const { amount = 0, fee = 0, amountUnit = BitcoinUnit.BTC, invoiceDescription = '' } = useRoute().params;
+  const { amount = 0, fee = 0, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', onDonePressed = pop } = useRoute().params;
   const animationRef = useRef();
   const stylesHook = StyleSheet.create({
     root: {
@@ -29,9 +33,6 @@ const Success = () => {
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const pop = () => {
-    dangerouslyGetParent().pop();
-  };
 
   useEffect(() => {
     animationRef.current.reset();
@@ -84,7 +85,7 @@ const Success = () => {
         />
       </View>
       <View style={styles.buttonContainer}>
-        <BlueButton onPress={pop} title={loc.send.success_done} />
+        <BlueButton onPress={onDonePressed} title={loc.send.success_done} />
       </View>
     </SafeAreaView>
   );
