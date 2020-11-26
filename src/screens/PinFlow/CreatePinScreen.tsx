@@ -82,7 +82,6 @@ export class CreatePinScreen extends PureComponent<Props, State> {
       <ScreenTemplate
         header={
           <Header
-            navigation={this.props.navigation}
             isBackArrow={this.props.route.params?.flowType === FlowType.newPin}
             onBackArrow={() => this.props.navigation.popToTop()}
             title={
@@ -101,13 +100,7 @@ export class CreatePinScreen extends PureComponent<Props, State> {
           <Text style={styles.pinDescription}>{i18n.onboarding.createPinDescription}</Text>
         </View>
         <View style={styles.pinContainer}>
-          <PinInput
-            value={pin}
-            testID={'create-pin'}
-            onTextChange={this.updatePin}
-            ref={this.pinInputRef}
-            navigation={this.props.navigation}
-          />
+          <PinInput value={pin} testID={'create-pin'} onTextChange={this.updatePin} ref={this.pinInputRef} />
         </View>
       </ScreenTemplate>
     );

@@ -131,10 +131,7 @@ export class RecoverySeedScreen extends Component<Props, State> {
     const { isLoading } = this.state;
     return (
       <ScreenTemplate
-        header={
-          // @ts-ignore
-          <Header onBackArrow={onBackArrow} navigation={navigation} isBackArrow title={i18n.send.recovery.recover} />
-        }
+        header={<Header onBackArrow={onBackArrow} isBackArrow title={i18n.send.recovery.recover} />}
         footer={
           <>
             <Button loading={isLoading} disabled={!this.canSubmit()} title={buttonText} onPress={this.submit} />

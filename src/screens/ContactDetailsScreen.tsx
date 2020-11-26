@@ -25,7 +25,7 @@ const i18n = require('../../loc');
 interface Props {
   updateContact: (contact: Contact) => UpdateContactAction;
   navigation: CompositeNavigationProp<
-    StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
+    StackNavigationProp<RootStackParams, Route.DeleteContact>,
     StackNavigationProp<MainCardStackNavigatorParams, Route.ContactDetails>
   >;
   route: RouteProp<MainCardStackNavigatorParams, Route.ContactDetails>;
@@ -111,8 +111,7 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
             />
           </>
         }
-        // @ts-ignore
-        header={<Header isBackArrow navigation={this.props.navigation} title={contact.name} />}
+        header={<Header isBackArrow title={contact.name} />}
       >
         <ContactAvatar name={name} />
         <View style={styles.nameInputContainer}>

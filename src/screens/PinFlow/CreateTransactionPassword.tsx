@@ -77,8 +77,7 @@ export class CreateTransactionPassword extends PureComponent<Props, State> {
             disabled={password.length < CONST.transactionMinPasswordLength}
           />
         }
-        // @ts-ignore
-        header={<Header navigation={this.props.navigation} title={i18n.onboarding.onboarding} />}
+        header={<Header title={i18n.onboarding.onboarding} />}
       >
         <View style={styles.infoContainer}>
           <Text style={typography.headline4}>{i18n.onboarding.createPassword}</Text>

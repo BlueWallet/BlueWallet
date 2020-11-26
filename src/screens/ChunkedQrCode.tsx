@@ -25,8 +25,6 @@ export class ChunkedQrCode extends Component<Props> {
     return (
       <ScreenTemplate
         header={<Header title={i18n._.scan} isBackArrow onBackArrow={this.goBack} />}
-        // @ts-ignore
-        navigation={this.props.navigation}
         footer={
           <>
             <Button title={i18n.authenticators.import.scanNext} onPress={onScanned} />

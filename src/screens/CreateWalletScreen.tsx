@@ -1,11 +1,11 @@
-import { RouteProp } from '@react-navigation/native';
+import { CompositeNavigationProp, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { StyleSheet, View, Alert } from 'react-native';
 import { connect } from 'react-redux';
 
 import { ScreenTemplate, Text, InputItem, Header, Button, FlatButton, RadioGroup, RadioButton } from 'app/components';
-import { Route, Wallet, MainCardStackNavigatorParams, ActionMeta, CONST } from 'app/consts';
+import { Route, Wallet, MainTabNavigatorParams, MainCardStackNavigatorParams, ActionMeta, CONST } from 'app/consts';
 import { maxWalletNameLength } from 'app/consts/text';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import {
@@ -24,7 +24,13 @@ import { palette, typography } from 'app/styles';
 const i18n = require('../../loc');
 
 interface Props {
-  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.CreateWallet>;
+  navigation: CompositeNavigationProp<
+    StackNavigationProp<MainCardStackNavigatorParams, Route.CreateContact>,
+    CompositeNavigationProp<
+      StackNavigationProp<MainTabNavigatorParams, Route.Dashboard>,
+      StackNavigationProp<MainCardStackNavigatorParams, Route.CreateWallet>
+    >
+  >;
   route: RouteProp<MainCardStackNavigatorParams, Route.CreateWallet>;
   appSettings: AppSettingsState;
   createWallet: (wallet: Wallet, meta?: ActionMeta) => CreateWalletAction;
@@ -298,8 +304,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
             />
           </>
         }
-        // @ts-ignore
-        header={<Header navigation={this.props.navigation} isBackArrow title={i18n.wallets.add.title} />}
+        header={<Header isBackArrow title={i18n.wallets.add.title} />}
       >
         <Text style={styles.subtitle}>{i18n.wallets.add.subtitle}</Text>
         <Text style={styles.description}>{i18n.wallets.add.description}</Text>

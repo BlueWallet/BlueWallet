@@ -37,7 +37,7 @@ class CreateAuthenticatorSuccessScreen extends Component<Props> {
   };
 
   render() {
-    const { authenticator, navigation } = this.props;
+    const { authenticator } = this.props;
 
     if (!authenticator) {
       return null;
@@ -45,7 +45,7 @@ class CreateAuthenticatorSuccessScreen extends Component<Props> {
     return (
       <ScreenTemplate
         footer={<Button onPress={this.navigate} title={i18n.wallets.addSuccess.okButton} />}
-        header={<Header navigation={navigation} isBackArrow={false} title={i18n.authenticators.add.title} />}
+        header={<Header isBackArrow={false} title={i18n.authenticators.add.title} />}
       >
         <Text style={styles.subtitle}>{i18n.authenticators.add.successTitle}</Text>
         <Text style={styles.description}>{i18n.authenticators.add.successDescription}</Text>

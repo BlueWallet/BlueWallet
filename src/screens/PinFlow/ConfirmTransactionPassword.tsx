@@ -92,8 +92,7 @@ class ConfirmTransactionPasswordScreen extends PureComponent<Props, State> {
             disabled={password.length < CONST.transactionMinPasswordLength}
           />
         }
-        // @ts-ignore
-        header={<Header navigation={this.props.navigation} isBackArrow title={i18n.onboarding.confirmPassword} />}
+        header={<Header isBackArrow title={i18n.onboarding.confirmPassword} />}
       >
         <View style={styles.infoContainer}>
           <Text style={typography.headline4}>{i18n.onboarding.createPassword}</Text>

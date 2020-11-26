@@ -43,7 +43,6 @@ export class IntegrateKeyScreen extends React.PureComponent<Props> {
 
   render() {
     const {
-      navigation,
       route: {
         params: { title, description, onBackArrow, withLink = true, headerTitle },
       },
@@ -52,8 +51,7 @@ export class IntegrateKeyScreen extends React.PureComponent<Props> {
     return (
       <ScreenTemplate
         footer={<Button onPress={this.scanKey} title={i18n.wallets.publicKey.scan} />}
-        // @ts-ignore
-        header={<Header navigation={navigation} onBackArrow={onBackArrow} isBackArrow title={headerTitle} />}
+        header={<Header onBackArrow={onBackArrow} isBackArrow title={headerTitle} />}
       >
         <Text style={styles.subtitle}>{title}</Text>
         <Text style={styles.description}>{description}</Text>

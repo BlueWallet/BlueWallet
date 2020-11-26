@@ -1,3 +1,4 @@
+import { CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { Text, StyleSheet, View, Linking, Dimensions } from 'react-native';
@@ -6,13 +7,16 @@ import Rate, { AndroidMarket } from 'react-native-rate';
 
 import { icons } from 'app/assets';
 import { ScreenTemplate, Button, Header } from 'app/components';
-import { Route, MainCardStackNavigatorParams } from 'app/consts';
+import { Route, MainCardStackNavigatorParams, MainTabNavigatorParams } from 'app/consts';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../../loc');
 
 interface Props {
-  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.AboutUs>;
+  navigation: CompositeNavigationProp<
+    StackNavigationProp<MainTabNavigatorParams, Route.Settings>,
+    StackNavigationProp<MainCardStackNavigatorParams, Route.AboutUs>
+  >;
 }
 
 export const AboutUsScreen = (props: Props) => {
@@ -51,8 +55,7 @@ export const AboutUsScreen = (props: Props) => {
   };
 
   return (
-    // @ts-ignore
-    <ScreenTemplate header={<Header isBackArrow={true} navigation={props.navigation} title={i18n.aboutUs.header} />}>
+    <ScreenTemplate header={<Header isBackArrow={true} title={i18n.aboutUs.header} />}>
       <Text style={styles.title}>{i18n.aboutUs.title}</Text>
       <Text style={styles.description}>{i18n.aboutUs.alwaysBackupYourKeys}</Text>
       <Button

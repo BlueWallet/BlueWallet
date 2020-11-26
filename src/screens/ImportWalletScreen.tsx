@@ -1,7 +1,7 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { PureComponent } from 'react';
-import { View, StyleSheet, Text, Keyboard, Alert } from 'react-native';
+import { View, StyleSheet, Text, Keyboard, Alert, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux';
 
 import { Header, TextAreaItem, FlatButton, ScreenTemplate, InputItem, CheckBox } from 'app/components';
@@ -449,16 +449,14 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
               onPress={this.onImportButtonPress}
             />
             <FlatButton
-              disabled={!this.canScan}
+              disabled={!label || !!validationError}
+              onPress={this.onScanQrCodeButtonPress}
               containerStyle={styles.scanQRCodeButtonContainer}
               title={i18n.wallets.importWallet.scanQrCode}
-              onPress={this.onScanQrCodeButtonPress}
             />
           </>
         }
-        header={
-          <Header navigation={this.props.navigation} isBackArrow={true} title={i18n.wallets.importWallet.header} />
-        }
+        header={<Header isBackArrow={true} title={i18n.wallets.importWallet.header} />}
       >
         <View style={styles.inputItemContainer}>
           <Text style={styles.title}>{i18n.wallets.importWallet.title}</Text>

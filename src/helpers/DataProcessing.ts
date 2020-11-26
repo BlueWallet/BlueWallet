@@ -2,7 +2,7 @@ import config from '../../config';
 
 const bitcoin = require('bitcoinjs-lib');
 
-export const processAddressData = (data: string, stateAmount?: any) => {
+export const processAddressData = (data: string, stateAmount?: string) => {
   const regex = /[?&]([^=#]+)=([^&#]*)/g;
   const solvedData = regex.exec(data);
   let address, amount;

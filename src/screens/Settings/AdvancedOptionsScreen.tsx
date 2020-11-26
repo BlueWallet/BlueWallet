@@ -25,10 +25,7 @@ class AdvancedOptionsScreen extends PureComponent<Props> {
 
   render() {
     return (
-      <ScreenTemplate
-        // @ts-ignore
-        header={<Header isBackArrow={true} navigation={this.props.navigation} title={i18n.settings.advancedOptions} />}
-      >
+      <ScreenTemplate header={<Header isBackArrow={true} title={i18n.settings.advancedOptions} />}>
         <Text style={styles.title}>{i18n.advancedOptions.title}</Text>
         <Text style={styles.description}>{i18n.advancedOptions.description}</Text>
         <View style={styles.divider} />

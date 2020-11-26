@@ -45,7 +45,7 @@ export const DeleteEntityScreen = ({
           />
         </View>
       }
-      header={<Header navigation={navigation} isBackArrow title={title} />}
+      header={<Header isBackArrow title={title} />}
     >
       <Text style={styles.title}>{subtitle}</Text>
       <Text style={styles.description}>

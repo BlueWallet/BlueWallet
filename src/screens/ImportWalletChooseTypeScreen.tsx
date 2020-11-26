@@ -1,9 +1,11 @@
+import { CompositeNavigationProp, RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { NavigationInjectedProps } from 'react-navigation';
 
 import { ScreenTemplate, Text, Header, Button, RadioGroup, RadioButton } from 'app/components';
-import { Route } from 'app/consts';
+import { Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
 import { HDSegwitP2SHArWallet, HDSegwitP2SHAirWallet } from 'app/legacy';
 import { AppSettingsState } from 'app/state/appSettings/reducer';
 import { WalletsActionType } from 'app/state/wallets/actions';
@@ -13,7 +15,11 @@ const i18n = require('../../loc');
 
 const WalletTypes = [HDSegwitP2SHArWallet.type, HDSegwitP2SHAirWallet.type, 'legacy'];
 
-interface Props extends NavigationInjectedProps {
+interface Props {
+  navigation: CompositeNavigationProp<
+    StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
+    StackNavigationProp<MainCardStackNavigatorParams, Route.ImportWalletChooseType>
+  >;
   appSettings: AppSettingsState;
   loadWallets: () => Promise<WalletsActionType>;
 }
@@ -53,8 +59,7 @@ export class ImportWalletChooseTypeScreen extends React.PureComponent<Props, Sta
             <Button loading={this.state.isLoading} onPress={this.navigateToImportWallet} title={i18n._.next} />
           </>
         }
-        // @ts-ignore
-        header={<Header navigation={this.props.navigation} isBackArrow title={i18n.wallets.importWallet.header} />}
+        header={<Header isBackArrow title={i18n.wallets.importWallet.header} />}
       >
         <View style={styles.titleContainer}>
           <Text style={styles.title}>{i18n.wallets.importWallet.title}</Text>

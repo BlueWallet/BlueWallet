@@ -41,7 +41,7 @@ export class ContactQRCodeScreen extends React.PureComponent<Props> {
     return (
       <ScreenTemplate
         footer={<Button onPress={this.openShareDialog} title={i18n.contactDetails.share} />}
-        header={<Header navigation={this.props.navigation} isBackArrow title={contact.name} />}
+        header={<Header isBackArrow title={contact.name} />}
       >
         <ContactAvatar name={contact.name} />
         <View style={styles.qrCodeContainer}>

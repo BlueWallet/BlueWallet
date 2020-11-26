@@ -92,7 +92,6 @@ export enum Route {
   CreateWallet = 'CreateWallet',
   ImportWallet = 'ImportWallet',
   ExportWallet = 'ExportWallet',
-  DeleteWallet = 'DeleteWallet',
   ExportWalletXpub = 'ExportWalletXub',
   TransactionDetails = 'TransactionDetails',
   ReceiveCoins = 'ReceiveCoins',
@@ -101,7 +100,6 @@ export enum Route {
   EditText = 'EditText',
   AboutUs = 'AboutUs',
   SelectLanguage = 'SelectLanguage',
-  ReleaseNotes = 'ReleaseNotes',
   ActionSheet = 'ActionSheet',
   SendTransactionDetails = 'SendTransactionDetailsScreen',
   ScanQrCode = 'ScanQrCode',
@@ -115,7 +113,6 @@ export enum Route {
   AdvancedOptions = 'AdvancedOptions',
   UnlockTransaction = 'UnlockTransaction',
   FilterTransactions = 'FilterTransactions',
-  Unlock = 'Unlock',
   IntegrateKey = 'IntegrateKey',
   ImportWalletChooseType = 'ImportWalletChooseType',
   ChunkedQrCode = 'ChunkedQrCode',
@@ -214,7 +211,7 @@ export interface EnhancedTransaction extends Transaction {
   walletPreferredBalanceUnit: string;
   walletId: string;
   walletLabel: string;
-  walletTypeReadable: string;
+  walletTypeReadable?: string;
 }
 
 export interface AppSettings {
@@ -312,7 +309,6 @@ export type RootStackParams = {
   [Route.ExportWallet]: { wallet: Wallet };
   [Route.ExportWalletXpub]: { wallet: Wallet };
   [Route.DeleteContact]: { contact?: Contact };
-  [Route.MainCardStackNavigator]: undefined;
   [Route.SendTransactionDetails]: {
     fee: number;
     recipients: any;
@@ -351,7 +347,7 @@ export type MainCardStackNavigatorParams = {
   [Route.ImportWallet]: { walletType: string };
   [Route.CreateTransactionPassword]: undefined;
   [Route.WalletDetails]: { id: string };
-  [Route.CreateContact]: { address?: string };
+  [Route.CreateContact]: { address?: string } | undefined;
   [Route.ContactDetails]: { contact: Contact };
   [Route.ContactQRCode]: { contact: Contact };
   [Route.TransactionDetails]: { transaction: EnhancedTransaction };
@@ -436,7 +432,7 @@ export interface Authenticator {
   createdAt: Dayjs;
 }
 
-export interface ActionMeta {
-  onSuccess?: Function;
-  onFailure?: Function;
-}
+export type GlobalParams = MainCardStackNavigatorParams &
+  PasswordNavigatorParams &
+  RootStackParams &
+  MainTabNavigatorParams;

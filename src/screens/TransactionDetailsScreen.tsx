@@ -25,7 +25,7 @@ import { selectors, reducer } from 'app/state/transactionsNotes';
 import {
   createTransactionNoteSuccess,
   updateTransactionNote,
-  CreateTransactionNoteAction,
+  CreateTransactionNoteSuccessAction,
   UpdateTransactionNoteAction,
 } from 'app/state/transactionsNotes/actions';
 import { typography, palette } from 'app/styles';
@@ -37,7 +37,7 @@ const i18n = require('../../loc');
 
 interface Props {
   transactionNotes: Record<string, string>;
-  createTransactionNoteSuccess: (transactionID: string, note: string) => CreateTransactionNoteAction;
+  createTransactionNoteSuccess: (txHash: string, note: string) => CreateTransactionNoteSuccessAction;
   updateTransactionNote: (transactionID: string, note: string) => UpdateTransactionNoteAction;
   navigation: CompositeNavigationProp<
     StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
@@ -204,8 +204,6 @@ class TransactionDetailsScreen extends Component<Props> {
       <ScreenTemplate
         header={
           <Header
-            // @ts-ignore
-            navigation={this.props.navigation}
             isBackArrow
             title={
               transaction.time ? dayjs.unix(transaction.time).format('lll') : i18n.transactions.details.timePending
@@ -303,7 +301,6 @@ const mapDispatchToProps = {
   updateTransactionNote,
 };
 
-// @ts-ignore - TODO: fix it later
 export default connect(mapStateToProps, mapDispatchToProps)(TransactionDetailsScreen);
 
 const styles = StyleSheet.create({

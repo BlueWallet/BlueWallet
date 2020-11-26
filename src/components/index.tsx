@@ -7,11 +7,9 @@ export { InputItem } from './InputItem';
 export { TextAreaItem } from './TextAreaItem';
 export { Button } from './Button';
 export { FlatButton, ButtonType } from './FlatButton';
-// @ts-ignore
 export { Image, FastImageSource } from './Image';
 export { StyledText } from './StyledText';
 export * from './Gradient';
-// @ts-ignore
 export { WalletItemProps, WalletItem } from './WalletItem';
 export { ScreenTemplate } from './ScreenTemplate';
 export { Text } from './Text';

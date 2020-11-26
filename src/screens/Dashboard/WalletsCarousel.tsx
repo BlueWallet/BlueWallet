@@ -6,7 +6,7 @@ import { WalletCard } from 'app/components';
 import { Wallet } from 'app/consts';
 
 interface Props {
-  data: any;
+  data: Wallet[];
   keyExtractor: (item: Wallet, index: number) => string;
   getIndex: (index: number) => void;
 }

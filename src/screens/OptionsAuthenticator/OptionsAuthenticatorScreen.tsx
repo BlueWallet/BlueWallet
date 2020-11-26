@@ -108,7 +108,7 @@ class OptionsAuthenticatorScreen extends Component<Props, State> {
   };
 
   render() {
-    const { authenticator, navigation } = this.props;
+    const { authenticator } = this.props;
 
     if (!authenticator) {
       return null;
@@ -116,8 +116,7 @@ class OptionsAuthenticatorScreen extends Component<Props, State> {
     return (
       <ScreenTemplate
         contentContainer={styles.contentContainer}
-        // @ts-ignore
-        header={<Header navigation={navigation} isBackArrow title={i18n.authenticators.options.title} />}
+        header={<Header isBackArrow title={i18n.authenticators.options.title} />}
       >
         <View>
           <Text style={styles.subtitle}>{authenticator.name}</Text>

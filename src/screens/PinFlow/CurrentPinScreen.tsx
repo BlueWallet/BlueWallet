@@ -116,16 +116,12 @@ class CurrentPinScreen extends PureComponent<Props, State> {
       return <TimeCounterScreen onTryAgain={this.onTryAgain} timestamp={this.props.timeCounter.timestamp} />;
     }
     return (
-      <ScreenTemplate
-        noScroll
-        // @ts-ignore
-        header={<Header navigation={this.props.navigation} isBackArrow title={i18n.onboarding.changePin} />}
-      >
+      <ScreenTemplate noScroll header={<Header isBackArrow title={i18n.onboarding.changePin} />}>
         <View style={styles.infoContainer}>
           <Text style={typography.headline4}>{i18n.onboarding.currentPin}</Text>
         </View>
         <View style={styles.pinContainer}>
-          <PinInput value={this.state.pin} onTextChange={this.updatePin} navigation={this.props.navigation} />
+          <PinInput value={this.state.pin} onTextChange={this.updatePin} />
           <Text style={styles.errorText}>{error}</Text>
         </View>
       </ScreenTemplate>

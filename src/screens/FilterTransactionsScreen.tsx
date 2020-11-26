@@ -262,7 +262,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
             />
           </>
         }
-        header={<Header navigation={this.props.navigation} isBackArrow={true} title={i18n.filterTransactions.header} />}
+        header={<Header isBackArrow={true} title={i18n.filterTransactions.header} />}
       >
         <Calendar
           isVisible={this.state.isCalendarVisible}

@@ -57,7 +57,7 @@ export const EditTextScreen = (props: Props) => {
   return (
     <ScreenTemplate
       footer={<Button title={i18n._.save} onPress={handlePressOnSaveButton} disabled={!canSubmit()} />}
-      header={<Header navigation={props.navigation} isBackArrow={true} title={title} />}
+      header={<Header isBackArrow={true} title={title} />}
     >
       {header}
       <View style={styles.inputItemContainer}>

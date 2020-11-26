@@ -1,8 +1,8 @@
-import { StackNavigationProp } from '@react-navigation/stack';
 import React, { PureComponent } from 'react';
 import { Platform, StyleSheet, TouchableOpacity, BackHandler, NativeEventSubscription } from 'react-native';
 
 import { images, icons } from 'app/assets';
+import { NavigationService } from 'app/services';
 import { getStatusBarHeight, palette, typography } from 'app/styles';
 
 import { EllipsisText } from './EllipsisText';
@@ -18,7 +18,6 @@ export const HEADER_HEIGHT = Platform.select({
 }) as number;
 
 interface Props {
-  navigation?: StackNavigationProp<any, any>;
   title?: string;
   isBackArrow?: boolean;
   onBackArrow?: () => void;
@@ -29,7 +28,7 @@ interface Props {
 export class Header extends PureComponent<Props> {
   backHandler?: NativeEventSubscription;
 
-  onLeftItemPress = () => (this.props.onBackArrow ? this.props.onBackArrow() : this.props.navigation!.pop());
+  onLeftItemPress = () => (this.props.onBackArrow ? this.props.onBackArrow() : NavigationService.goBack());
   renderBackArrow = () => <Image style={styles.image} source={images.backArrow} />;
   renderCancelButton = () => (
     <FlatButton onPress={this.onLeftItemPress} titleStyle={typography.headline4} title={i18n.send.details.cancel} />

@@ -35,7 +35,6 @@ export class ContactListScreen extends PureComponent<Props, State> {
     query: '',
   };
 
-  // @ts-ignore - TODO: fix it later
   navigateToAddContact = () => this.props.navigation.navigate(Route.CreateContact);
 
   navigateToContactDetails = (contact: Contact) => {

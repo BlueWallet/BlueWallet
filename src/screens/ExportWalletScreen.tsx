@@ -29,9 +29,7 @@ export const ExportWalletScreen = ({ route, navigation }: Props) => {
   }, []);
 
   return (
-    <ScreenTemplate
-      header={<Header title={i18n.wallets.exportWallet.header} isCancelButton={true} navigation={navigation} />}
-    >
+    <ScreenTemplate header={<Header title={i18n.wallets.exportWallet.header} isCancelButton={true} />}>
       <Text style={styles.title}>{i18n.wallets.exportWallet.title}</Text>
       <View style={styles.qrCodeContainer}>
         {secret && <QRCode quietZone={10} value={secret} size={140} ecl={'H'} />}

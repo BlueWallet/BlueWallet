@@ -5,7 +5,7 @@ import { Text, View, StyleSheet } from 'react-native';
 import { connect } from 'react-redux';
 
 import { Button, Header, ScreenTemplate } from 'app/components';
-import { Contact, Route, RootStackParams, MainTabNavigatorParams } from 'app/consts';
+import { Contact, Route, MainTabNavigatorParams, RootStackParams } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { deleteContact, DeleteContactAction } from 'app/state/contacts/actions';
 import { typography, palette } from 'app/styles';
@@ -14,8 +14,11 @@ const i18n = require('../../loc');
 
 interface Props {
   navigation: CompositeNavigationProp<
-    StackNavigationProp<MainTabNavigatorParams, Route.ContactList>,
-    StackNavigationProp<RootStackParams, Route.DeleteContact>
+    StackNavigationProp<RootStackParams, Route.DeleteContact>,
+    CompositeNavigationProp<
+      StackNavigationProp<MainTabNavigatorParams, Route.ContactList>,
+      StackNavigationProp<RootStackParams, Route.DeleteContact>
+    >
   >;
   route: RouteProp<RootStackParams, Route.DeleteContact>;
   deleteContact: (contact: Contact) => DeleteContactAction;
@@ -23,7 +26,7 @@ interface Props {
 
 export class DeleteContactScreen extends React.PureComponent<Props> {
   navigateBack = () => this.props.navigation.goBack();
-
+  navigateToContactList = () => this.props.navigation.navigate(Route.ContactList);
   deleteContact = () => {
     const { contact } = this.props.route.params;
     this.props.deleteContact(contact as Contact);
@@ -33,7 +36,7 @@ export class DeleteContactScreen extends React.PureComponent<Props> {
       type: MessageType.success,
       buttonProps: {
         title: i18n.contactDelete.successButton,
-        onPress: () => this.props.navigation.navigate(Route.ContactList),
+        onPress: this.navigateToContactList,
       },
     });
   };
@@ -53,8 +56,7 @@ export class DeleteContactScreen extends React.PureComponent<Props> {
             <Button title={i18n.contactDelete.yes} onPress={this.deleteContact} containerStyle={styles.yesButton} />
           </View>
         }
-        // @ts-ignore
-        header={<Header navigation={this.props.navigation} title={i18n.contactDelete.header} />}
+        header={<Header title={i18n.contactDelete.header} />}
       >
         <Text style={styles.title}>{i18n.contactDelete.title}</Text>
         <Text style={styles.description}>

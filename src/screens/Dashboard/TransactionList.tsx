@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
 import { Image, TransactionItem } from 'app/components';
-import { Route, Transaction, Filters } from 'app/consts';
+import { Route, Transaction, Filters, EnhancedTransaction } from 'app/consts';
 import { filterTransaction, filterBySearch } from 'app/helpers/filters';
 import { getGroupedTransactions } from 'app/helpers/transactions';
 import { NavigationService } from 'app/services';
@@ -36,7 +36,7 @@ class TransactionList extends PureComponent<Props> {
     );
   };
 
-  onTransactionItemPress = (item: Transaction) => {
+  onTransactionItemPress = (item: EnhancedTransaction) => {
     NavigationService.navigate(Route.TransactionDetails, { transaction: item });
   };
 

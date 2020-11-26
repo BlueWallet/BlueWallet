@@ -25,9 +25,7 @@ export const ExportWalletXpubScreen = ({ navigation, route }: Props) => {
   const xpub = isWatchOnlyWallet ? wallet.secret : wallet._xpub;
 
   return (
-    <ScreenTemplate
-      header={<Header title={i18n.wallets.exportWalletXpub.header} isCancelButton={true} navigation={navigation} />}
-    >
+    <ScreenTemplate header={<Header title={i18n.wallets.exportWalletXpub.header} isCancelButton={true} />}>
       <Text style={styles.title}>{wallet.label}</Text>
       <View style={styles.qrCodeContainer}>
         <QRCode quietZone={10} value={xpub} size={140} ecl={'H'} />
