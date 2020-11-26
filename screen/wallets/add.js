@@ -309,6 +309,9 @@ const WalletsAdd = () => {
               );
             }
           })()}
+          {isAdvancedOptionsEnabled && selectedWalletType === ButtonSelected.ONCHAIN && !isLoading && (
+            <BlueButtonLinkHook style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />
+          )}
           <BlueSpacing20 />
           <View style={styles.createButton}>
             {!isLoading ? (
@@ -324,9 +327,6 @@ const WalletsAdd = () => {
               title={loc.wallets.add_import_wallet}
               onPress={navigateToImportWallet}
             />
-          )}
-          {isAdvancedOptionsEnabled && !isLoading && (
-            <BlueButtonLinkHook style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />
           )}
         </View>
       </KeyboardAvoidingView>
