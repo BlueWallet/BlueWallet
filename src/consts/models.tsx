@@ -5,6 +5,13 @@ import { KeyboardType, StyleProp, ViewStyle, Platform } from 'react-native';
 import { ButtonProps } from 'react-native-elements';
 
 import { FastImageSource } from 'app/components';
+import {
+  HDSegwitP2SHAirWallet,
+  HDSegwitP2SHArWallet,
+  HDSegwitBech32Wallet,
+  SegwitP2SHWallet,
+  HDSegwitP2SHWallet,
+} from 'app/legacy';
 
 export const CONST = {
   pinCodeLength: 4,
@@ -117,6 +124,13 @@ export enum Route {
   ImportWalletChooseType = 'ImportWalletChooseType',
   ChunkedQrCode = 'ChunkedQrCode',
 }
+
+/** Only for strongly typed RadioButton's values in ImportWalletChooseTypeScreen */
+export type ImportWalletType = '3-Key Vault' | '2-Key Vault' | 'Standard';
+
+export type WalletType = typeof HDSegwitP2SHAirWallet | typeof HDSegwitP2SHArWallet | StandardWalletType;
+
+export type StandardWalletType = typeof HDSegwitP2SHWallet | typeof SegwitP2SHWallet | typeof HDSegwitBech32Wallet;
 
 export interface Wallet {
   balance: number;
@@ -343,7 +357,7 @@ export type MainCardStackNavigatorParams = {
   [Route.Dashboard]: { activeWallet?: Wallet } | undefined;
   [Route.MainCardStackNavigator]: undefined;
   [Route.CreateWallet]: undefined;
-  [Route.ImportWallet]: { walletType: string };
+  [Route.ImportWallet]: { walletType: ImportWalletType };
   [Route.CreateTransactionPassword]: undefined;
   [Route.WalletDetails]: { id: string };
   [Route.CreateContact]: { address?: string } | undefined;

@@ -7,7 +7,6 @@ import { icons } from 'app/assets';
 import { Button, InputItem, ScreenTemplate } from 'app/components';
 import { MainCardStackNavigatorParams, Route } from 'app/consts';
 
-const { width } = Dimensions.get('window');
 const i18n = require('../../loc');
 
 interface Props {
@@ -23,8 +22,8 @@ export default class ScanQrCodeScreen extends React.PureComponent<Props> {
   goBack = () => this.props.navigation.goBack();
 
   onButtonClicked = (data: string) => {
-    this.onBarCodeScanned(data);
     this.goBack();
+    this.onBarCodeScanned(data);
   };
 
   onBarCodeScanned = (data: string) => {
@@ -38,8 +37,8 @@ export default class ScanQrCodeScreen extends React.PureComponent<Props> {
   setCustomString = (value: string): void => this.setState({ customString: value });
 
   onSubmitCustomStringButtonClicked = () => {
-    this.onBarCodeScanned(this.state.customString);
     this.goBack();
+    this.onBarCodeScanned(this.state.customString);
   };
 
   mockedQrCodeData = {

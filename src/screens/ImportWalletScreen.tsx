@@ -420,12 +420,15 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
 
   importMnemonic = (mnemonic: string) => {
     const trimmedMnemonic = mnemonic.trim().replace(/ +/g, ' ');
-    if (this.props?.route.params.walletType === HDSegwitP2SHArWallet.type) {
+
+    if (this.props?.route.params.walletType === '2-Key Vault') {
       return this.createARWallet(trimmedMnemonic);
     }
-    if (this.props?.route.params.walletType === HDSegwitP2SHAirWallet.type) {
+
+    if (this.props?.route.params.walletType === '3-Key Vault') {
       return this.createAIRWallet(trimmedMnemonic);
     }
+
     this.createWalletMessage(() => {
       this.importLegacyWallet(trimmedMnemonic);
     });

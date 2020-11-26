@@ -13,7 +13,6 @@ import {
   InputItem,
   StyledText,
   Image,
-  RadioGroup,
   RadioButton,
   WalletDropdown,
   Warning,
@@ -469,7 +468,7 @@ class SendCoinsScreen extends Component<Props, State> {
     return wallet.type === HDSegwitP2SHAirWallet.type;
   };
 
-  onVaultTranscationSelect = (index: number, vaultTxType: number) => {
+  onVaultTranscationSelect = (vaultTxType: number) => {
     this.setState({ vaultTxType });
   };
 
@@ -477,24 +476,21 @@ class SendCoinsScreen extends Component<Props, State> {
     return (
       <View>
         <Text style={styles.radioButtonsTitle}>{i18n.send.transaction.type}</Text>
-        <RadioGroup
-          color={palette.secondary}
-          onSelect={this.onVaultTranscationSelect}
-          selectedIndex={this.state.vaultTxType}
-        >
-          <RadioButton style={styles.radioButton} value={bitcoin.payments.VaultTxType.Alert}>
-            <View style={styles.radioButtonContent}>
-              <Text style={styles.radioButtonTitle}>{i18n.send.transaction.alert}</Text>
-              <Text style={styles.radioButtonSubtitle}>{i18n.send.transaction.alertDesc}</Text>
-            </View>
-          </RadioButton>
-          <RadioButton style={styles.radioButton} value={bitcoin.payments.VaultTxType.Instant}>
-            <View style={styles.radioButtonContent}>
-              <Text style={styles.radioButtonTitle}>{i18n.send.transaction.instant}</Text>
-              <Text style={styles.radioButtonSubtitle}>{i18n.send.transaction.instantDesc}</Text>
-            </View>
-          </RadioButton>
-        </RadioGroup>
+
+        <RadioButton
+          title={i18n.send.transaction.alert}
+          subtitle={i18n.send.transaction.alertDesc}
+          value={bitcoin.payments.VaultTxType.Alert}
+          checked={this.state.vaultTxType === bitcoin.payments.VaultTxType.Alert}
+          onPress={this.onVaultTranscationSelect}
+        />
+        <RadioButton
+          title={i18n.send.transaction.instant}
+          subtitle={i18n.send.transaction.instantDesc}
+          value={bitcoin.payments.VaultTxType.Instant}
+          checked={this.state.vaultTxType === bitcoin.payments.VaultTxType.Instant}
+          onPress={this.onVaultTranscationSelect}
+        />
       </View>
     );
   };
@@ -597,22 +593,6 @@ const styles = StyleSheet.create({
   },
   addressInput: {
     paddingEnd: 100,
-  },
-  radioButton: {
-    paddingStart: 0,
-    paddingVertical: 8,
-  },
-  radioButtonContent: {
-    paddingStart: 10,
-    top: -3,
-  },
-  radioButtonTitle: {
-    ...typography.caption,
-    marginBottom: 2,
-  },
-  radioButtonSubtitle: {
-    ...typography.overline,
-    color: palette.textGrey,
   },
   radioButtonsTitle: {
     ...typography.overline,
