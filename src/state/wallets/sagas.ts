@@ -176,11 +176,6 @@ export function* sendTransactionSaga(action: SendTransactionAction | unknown) {
     yield BlueElectrum.waitTillConnected();
     const result = yield BlueElectrum.broadcast(txDecoded.toHex());
 
-    if (result?.code === 1) {
-      const message = result.message.split('\n');
-      throw new Error(`${message[0]}: ${message[2]}`);
-    }
-
     yield put(sendTransactionSuccess());
     if (meta?.onSuccess) {
       meta.onSuccess(result);

@@ -143,11 +143,6 @@ export class WatchOnlyWallet extends LegacyWallet {
     throw new Error('Not initialized');
   }
 
-  broadcastTx(hex) {
-    if (this._hdWalletInstance) return this._hdWalletInstance.broadcastTx(hex);
-    throw new Error('Not initialized');
-  }
-
   /**
    * signature of this method is the same ad BIP84 createTransaction, BUT this method should be used to create
    * unsinged PSBT to be used with HW wallet (or other external signer)

@@ -15,7 +15,6 @@ import { palette, typography } from 'app/styles';
 
 const BigNumber = require('bignumber.js');
 
-const BlueElectrum = require('../../../BlueElectrum');
 const i18n = require('../../../loc');
 
 interface MapStateProps {
@@ -91,7 +90,6 @@ class AuthenticatorListScreen extends Component<Props, State> {
           fromWallet: {
             label: authenticator.name,
             preferredBalanceUnit: CONST.preferredBalanceUnit,
-            broadcastTx: BlueElectrum.broadcast,
           },
           txDecoded: tx,
           recipients,

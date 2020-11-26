@@ -129,15 +129,6 @@ export class LegacyWallet extends AbstractWallet {
     }
   }
 
-  async broadcastTx(txhex) {
-    try {
-      const broadcast = await BlueElectrum.broadcast(txhex);
-      return broadcast;
-    } catch (error) {
-      return error;
-    }
-  }
-
   /**
    * Takes UTXOs (as presented by blockcypher api), transforms them into
    * format expected by signer module, creates tx and returns signed string txhex.
