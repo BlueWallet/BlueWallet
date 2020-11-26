@@ -1074,4 +1074,13 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
     throw new Error('This should never happen');
   }
+
+  /**
+   * @param fp {string} Exactly 8 chars of hex
+   * @return {boolean}
+   */
+  static isFpValid(fp) {
+    if (fp.length !== 8) return false;
+    return /^[0-9A-F]{8}$/i.test(fp);
+  }
 }

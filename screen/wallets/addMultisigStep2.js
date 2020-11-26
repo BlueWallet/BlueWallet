@@ -44,6 +44,7 @@ import ToolTip from 'react-native-tooltip';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
+const prompt = require('../../blue_modules/prompt');
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
@@ -245,8 +246,36 @@ const WalletsAddMultisigStep2 = () => {
     setIsProvideMnemonicsModalVisible(true);
   };
 
+  const tryUsingXpub = async xpub => {
+    let fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, false, 'plain-text');
+    fp = (fp + '').toUpperCase();
+    if (!MultisigHDWallet.isFpValid(fp)) fp = '00000000';
+
+    let path = await prompt(
+      loc.multisig.input_path,
+      loc.formatString(loc.multisig.input_path_explain, { default: getPath() }),
+      false,
+      'plain-text',
+    );
+    if (!MultisigHDWallet.isPathValid(path)) path = getPath();
+
+    setIsProvideMnemonicsModalVisible(false);
+    setIsLoading(false);
+    setImportText('');
+
+    const cosignersCopy = [...cosigners];
+    cosignersCopy.push([xpub, fp, path]);
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setCosigners(cosignersCopy);
+    if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
+  };
+
   const useMnemonicPhrase = () => {
     setIsLoading(true);
+
+    if (MultisigHDWallet.isXpubValid(importText)) {
+      return tryUsingXpub(importText);
+    }
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(importText);
     if (!hd.validateMnemonic()) {
