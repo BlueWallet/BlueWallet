@@ -1,6 +1,6 @@
 {
   "_": {
-    "bad_password": "Неверный пароль, попробуй еще раз",
+    "bad_password": "Неверный пароль, попробуй еще раз.",
     "cancel": "Отмена",
     "continue": "Продолжить",
     "enter_password": "Введи пароль",
@@ -207,11 +207,13 @@
     "permission_camera_title": "Разрешите пользоваться камерой",
     "open_settings": "Открыть настройки",
     "permission_storage_later": "Спроси меня позже",
-    "permission_storage_message": "BlueWallet нужно ваше разрешение для доступа к хранилищу файлов, чтобы сохранить эту транзакцию.",
-    "permission_storage_title": "Разрешите сохранять файлы",
+    "permission_storage_message": "BlueWallet нужно ваше разрешение для доступа к хранилищу, чтобы сохранить этот файл.",
+    "permission_storage_denied_message": "BlueWallet не может сохранить этот файл. Пожалуйста, откройте настройки устройства и разрешите использование Хранилища.",
+    "permission_storage_title": "Разрешение на доступ к Хранилищу",
     "psbt_clipboard": "Скопировать в буфер обмена",
     "psbt_this_is_psbt": "Это частично подписаная транзакция (PSBT). Пожалуйста, завершите подпись в вашем аппаратном кошельке.",
     "psbt_tx_export": "Экспортировать в файл",
+    "no_tx_signing_in_progress": "Нет транзакции в процессе подписания",
     "psbt_tx_open": "Открыть Подписаную Транзакцию",
     "psbt_tx_scan": "Сканировать Подписаную Транзакцию",
     "qr_error_no_qrcode": "Выбранная картинка не содержит QR Code.",
@@ -290,6 +292,11 @@
     "save": "Сохранить",
     "saved": "Сохранено"
   },
+  "notifications": {
+    "would_you_like_to_receive_notifications": "Хотите получать уведомления при входящих платежах?",
+    "no_and_dont_ask": "Нет, и больше не спрашивать",
+    "ask_me_later": "Спроси меня позже"
+  },
   "transactions": {
     "cancel_explain": "Мы заменим эту транзакцию другой, которая платит вам и имеет более высокую комиссию. Это отменит предыдущую транзакцию. Это называется RBF - Replace By Fee.",
     "cancel_no": "Эту транзакцию не отменить",
@@ -321,14 +328,13 @@
     "transactions_count": "кол-во транзакций"
   },
   "wallets": {
-    "add_bitcoin_explain": "Простой и мощный Биткойн кошелек",
     "add_bitcoin": "Bitcoin",
+    "add_bitcoin_explain": "Простой и мощный Биткойн кошелек",
     "add_create": "Создать",
     "add_entropy_generated": "{gen} байтов сгенерированной энтории",
     "add_entropy_provide": "Сгенерировать энторию с помощью игральных костей",
     "add_entropy_remain": "{gen} байтов сгенерированной энтории. Оставшиеся {rem} байт будут получены из системного генератора случайных чисел.",
     "add_import_wallet": "Импортировать кошелек",
-    "import_file": "Импортировать файл",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Для мгновенных переводов",
     "add_lndhub": "Подключиться к своему LNDHub",
@@ -338,6 +344,8 @@
     "add_title": "Добавить кошелек",
     "add_wallet_name": "Имя кошелька",
     "add_wallet_type": "Тип кошелька",
+    "clipboard_bitcoin": "В буфере обмена есть Биткойн адрес. Использовать его для создания транзакции?",
+    "clipboard_lightning": "В буфере обмена есть Lightning инвойс. Использовать его для создания транзакции?",
     "details_address": "Адрес",
     "details_advanced": "Расширенные настройки",
     "details_are_you_sure": "Точно удалить?",
@@ -359,15 +367,15 @@
     "details_use_with_hardware_wallet": "Использовать с аппаратным кошельком",
     "details_wallet_updated": "Кошелек сохранён",
     "details_yes_delete": "Да, удалить",
+    "enter_bip38_password": "Введите пароль, чтобы расшифровать",
     "export_title": "Экспорт Кошелька",
     "import_do_import": "Импортировать",
     "import_error": "Не удалось импортировать",
     "import_explanation": "Напиши тут свою мнемоническую фразу, приватный ключ, WIF - что угодно! BlueWallet постарается угадать верный формат",
+    "import_file": "Импортировать файл",
     "import_imported": "Импорт завершен",
     "import_scan_qr": "или отсканировать QR код?",
     "import_success": "Успех",
-    "looks_like_bip38": "Это похоже на закрытый ключ, защищенный паролем (BIP38)",
-    "enter_bip38_password": "Введите пароль, чтобы расшифровать",
     "import_title": "Импорт",
     "list_create_a_button": "добавить сейчас",
     "list_create_a_wallet": "добавить кошелек",
@@ -383,15 +391,17 @@
     "list_long_choose": "Выбрать фото",
     "list_long_clipboard": "Вставить из буфера обмена",
     "list_long_scan": "Сканировать QR-код",
-    "take_photo": "Сфотографировать",
     "list_tap_here_to_buy": "Купить Bitcoin",
     "list_title": "Кошельки",
     "list_tryagain": "Попробовать еще раз",
+    "looks_like_bip38": "Это похоже на закрытый ключ, защищенный паролем (BIP38)",
     "reorder_title": "Отсортировать кошельки",
     "select_no_bitcoin": "В настоящее время нет доступных биткойн-кошельков.",
     "select_no_bitcoin_exp": "Биткойн-кошелек необходим для пополнения Lightning кошельков. Пожалуйста, создайте или импортируйте его.",
     "select_wallet": "Выбрать кошелек",
+    "take_photo": "Сфотографировать",
     "xpub_copiedToClipboard": "Скопировано",
+    "pull_to_refresh": "потяните, чтобы обновить",
     "xpub_title": "XPUB кошелька"
   },
   "multisig": {
@@ -415,7 +425,7 @@
     "native_segwit_title": "Лучшая практика",
     "wrapped_segwit_title": "Лучшая совместимость",
     "legacy_title": "Устаревший",
-    "co_sign_transaction": "Подписать транзакцию \"по воздуху\" (QRCode)",
+    "co_sign_transaction": "Подписать транзакцию",
     "what_is_vault": "Хранилище — это",
     "what_is_vault_numberOfWallets": "{m} из {n} мультисиг",
     "what_is_vault_wallet": "кошелёк",
@@ -446,5 +456,15 @@
     "this_cosigner_is_already_imported": "Этот cosigner уже импортирован",
     "export_signed_psbt": "Экспортировать PSBT с подписью",
     "view_edit_cosigners_title": "Редактировать Cosigner'ов"
+  },
+  "cc": {
+    "change": "сдача",
+    "coins_selected": "Выбрано монет ({number})",
+    "empty": "В этом кошельке пока нет монет",
+    "freeze": "заморозить",
+    "freezeLabel": "Заморозить",
+    "header": "Управление Монетами",
+    "use_coin": "Использовать Монету",
+    "tip": "Позволяет просматривать, помечать, замораживать или использовать Монеты для гибкого управления кошельком."
   }
 }
