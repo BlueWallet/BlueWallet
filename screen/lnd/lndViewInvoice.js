@@ -107,6 +107,8 @@ const LNDViewInvoice = () => {
             )[0];
             if (typeof updatedUserInvoice !== 'undefined') {
               setInvoiceStatusChanged(true);
+              updatedUserInvoice.ispaid = true;
+              updatedUserInvoice.payment_preimage = 'tttt';
               setParams({ invoice: updatedUserInvoice });
               setIsLoading(false);
               if (updatedUserInvoice.ispaid) {
@@ -216,7 +218,7 @@ const LNDViewInvoice = () => {
           description = invoice.memo;
         }
         return (
-          <View style={[styles.root, stylesHook.root]}>
+          <View style={[styles.root, styles.contentContainerStyle]}>
             <SuccessView
               amount={amount}
               amountUnit={BitcoinUnit.SATS}
@@ -286,7 +288,11 @@ const LNDViewInvoice = () => {
   return (
     <SafeBlueArea styles={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="default" />
-      <ScrollView style={[styles.root, stylesHook.root]} centerContent contentContainerStyle={stylesHook.root}>
+      <ScrollView
+        style={[styles.root, stylesHook.root]}
+        centerContent
+        contentContainerStyle={[styles.contentContainerStyle, stylesHook.root]}
+      >
         {render()}
       </ScrollView>
     </SafeBlueArea>
@@ -296,6 +302,10 @@ const LNDViewInvoice = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+  },
+  contentContainerStyle: {
+    flex: 1,
+    justifyContent: 'space-between',
   },
   qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
   valueAmount: {
@@ -332,7 +342,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   detailsRoot: {
-    flex: 1,
     justifyContent: 'flex-end',
     marginBottom: 24,
     alignItems: 'center',
