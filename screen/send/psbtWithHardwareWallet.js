@@ -131,8 +131,9 @@ const PsbtWithHardwareWallet = () => {
         if (memo) {
           txMetadata[txid] = { memo };
         }
-        fetchAndSaveWalletTransactions(fromWallet.getID());
         navigation.navigate('Success', { amount: undefined });
+        await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
+        fetchAndSaveWalletTransactions(fromWallet.getID());
       } else {
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         setIsLoading(false);
