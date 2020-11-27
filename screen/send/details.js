@@ -922,7 +922,8 @@ export default class SendDetails extends Component {
         this.setState({ isLoading: false, isAdvancedTransactionOptionsVisible: false });
       } else if (DeeplinkSchemaMatch.isTXNFile(res.uri)) {
         // plain text file with txhex ready to broadcast
-        const file = await RNFS.readFile(res.uri, 'ascii');
+        const file = (await RNFS.readFile(res.uri, 'ascii')).replace('\n', '').replace('\r', '');
+        console.warn(JSON.stringify(file));
         this.props.navigation.navigate('PsbtWithHardwareWallet', {
           memo: this.state.memo,
           fromWallet: this.state.fromWallet,
