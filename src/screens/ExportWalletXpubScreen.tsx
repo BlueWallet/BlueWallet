@@ -18,14 +18,14 @@ interface Props {
   route: RouteProp<RootStackParams, Route.ExportWalletXpub>;
 }
 
-export const ExportWalletXpubScreen = ({ navigation, route }: Props) => {
+export const ExportWalletXpubScreen = ({ route }: Props) => {
   const { wallet } = route.params;
   const isWatchOnlyWallet = wallet.type === WatchOnlyWallet.type;
 
   const xpub = isWatchOnlyWallet ? wallet.secret : wallet._xpub;
 
   return (
-    <ScreenTemplate header={<Header title={i18n.wallets.exportWalletXpub.header} isCancelButton={true} />}>
+    <ScreenTemplate header={<Header title={i18n.wallets.exportWalletXpub.header} isBackArrow />}>
       <Text style={styles.title}>{wallet.label}</Text>
       <View style={styles.qrCodeContainer}>
         <QRCode quietZone={10} value={xpub} size={140} ecl={'H'} />

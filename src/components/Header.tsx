@@ -6,11 +6,8 @@ import { NavigationService } from 'app/services';
 import { getStatusBarHeight, palette, typography } from 'app/styles';
 
 import { EllipsisText } from './EllipsisText';
-import { FlatButton } from './FlatButton';
 import { GradientView } from './GradientView';
 import { Image } from './Image';
-
-const i18n = require('../../loc');
 
 export const HEADER_HEIGHT = Platform.select({
   ios: 44,
@@ -21,7 +18,6 @@ interface Props {
   title?: string;
   isBackArrow?: boolean;
   onBackArrow?: () => void;
-  isCancelButton?: boolean;
   addFunction?: () => void;
 }
 
@@ -29,10 +25,6 @@ export class Header extends PureComponent<Props> {
   backHandler?: NativeEventSubscription;
 
   onLeftItemPress = () => (this.props.onBackArrow ? this.props.onBackArrow() : NavigationService.goBack());
-  renderBackArrow = () => <Image style={styles.image} source={images.backArrow} />;
-  renderCancelButton = () => (
-    <FlatButton onPress={this.onLeftItemPress} titleStyle={typography.headline4} title={i18n.send.details.cancel} />
-  );
 
   componentDidMount() {
     this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.backAction);
@@ -48,16 +40,12 @@ export class Header extends PureComponent<Props> {
   };
 
   renderLeftItem = () => {
-    const { isBackArrow, isCancelButton } = this.props;
-    const leftItem = isBackArrow ? this.renderBackArrow() : isCancelButton ? this.renderCancelButton() : undefined;
+    const { isBackArrow } = this.props;
 
-    if (leftItem) {
+    if (isBackArrow) {
       return (
-        <TouchableOpacity
-          style={isBackArrow ? styles.backArrowContainer : styles.cancelButtonContainer}
-          onPress={this.onLeftItemPress}
-        >
-          {leftItem}
+        <TouchableOpacity style={styles.backArrowContainer} onPress={this.onLeftItemPress}>
+          <Image style={styles.image} source={images.backArrow} />
         </TouchableOpacity>
       );
     }
@@ -102,15 +90,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     top: getStatusBarHeight(),
     left: 10,
-    zIndex: 10,
-  },
-  cancelButtonContainer: {
-    position: 'absolute',
-    height: HEADER_HEIGHT,
-    justifyContent: 'center',
-    alignItems: 'center',
-    top: getStatusBarHeight(),
-    left: 16,
     zIndex: 10,
   },
   image: {

@@ -33,7 +33,7 @@ export class SendTransactionDetailsScreen extends PureComponent<Props> {
     const amount = recipient.amount || satoshiToBtc(recipient.value).toString();
 
     return (
-      <ScreenTemplate header={<Header title={i18n.transactions.details.details} isCancelButton={true} />}>
+      <ScreenTemplate header={<Header title={i18n.transactions.details.details} isBackArrow />}>
         <View style={styles.upperContainer}>
           <Text style={styles.title}>{i18n.transactions.details.transactionHex}</Text>
           <Text style={styles.description}>{i18n.transactions.details.transactionHexDescription}</Text>
