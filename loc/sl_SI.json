@@ -121,7 +121,7 @@
     "help": "V določenih okoliščinah boste morda prisiljeni razkriti geslo. Da zavarujete vaša sredstva, lahko BlueWallet ustvari dodatno šifrirano shrambo z drugačnim geslom. Pod prisilo, lahko to geslo razkrijete tretji osebi. Če ga vnesete v BlueWallet, bo odklenilo 'lažno' shrambo. To se bo tretji osebi zdelo verodostojno, vaša skrivna glavna shramba s pravimi sredstvi pa bo ostala varna.",
     "help2": "Nova shramba bo popolnoma uporabna, za večjo verodostojnost lahko tam hranite manjši znesek.",
     "password_should_not_match": "Geslo je trenutno v uporabi. Prosimo, poskusite z drugim geslom.",
-    "passwords_do_not_match": "Gesli se ne ujemata, poskusite ponovno",
+    "passwords_do_not_match": "Gesli se ne ujemata, prosimo poskusite ponovno.",
     "retype_password": "Ponovno vpišite geslo",
     "success": "Uspešno",
     "title": "Verodostojno Zanikanje"
@@ -207,8 +207,9 @@
     "permission_camera_title": "Dovoljenje za uporabo kamere",
     "open_settings": "Odpri Nastavitve",
     "permission_storage_later": "Vprašaj me kasneje",
-    "permission_storage_message": "BlueWallet potrebuje dovoljenje za dostop do vaše shrambe, da shrani to transakcijo.",
-    "permission_storage_title": "BlueWallet dovoljenje za dostop do shrambe",
+    "permission_storage_message": "BlueWallet potrebuje dovoljenje za dostop do vaše shrambe, da shrani to datoteko.",
+    "permission_storage_denied_message": "BlueWallet ne more shraniti te datoteke. Odprite nastavitve naprave in omogočite dovoljenje za shranjevanje.",
+    "permission_storage_title": "Dovoljenje za dostop do shrambe",
     "psbt_clipboard": "Kopiraj v odložišče",
     "psbt_this_is_psbt": "To je delno podpisana bitcoin transakcija (PSBT). Dokončajte podpis s svojo strojno denarnico.",
     "psbt_tx_export": "Izvozi v datoteko",
@@ -400,6 +401,7 @@
     "select_wallet": "Izberite Denarnico",
     "take_photo": "Fotografiraj",
     "xpub_copiedToClipboard": "Kopirano v odložišče.",
+    "pull_to_refresh": "povlecite za osvežitev",
     "xpub_title": "XPUB denarnice"
   },
   "multisig": {
@@ -454,5 +456,15 @@
     "this_cosigner_is_already_imported": "Ta sopodpisnik je že uvožen",
     "export_signed_psbt": "Izvozi podpisano PSBT",
     "view_edit_cosigners_title": "Urejanje sopodpisnikov"
+  },
+  "cc": {
+    "change": "vračilo",
+    "coins_selected": "Izbrani kovanci ({number})",
+    "empty": "Ta denarnica trenutno nima kovancev",
+    "freeze": "zamrznjen",
+    "freezeLabel": "Zamrznitev",
+    "header": "Nadzor nad kovanci",
+    "use_coin": "Uporabi kovanec",
+    "tip": "Omogoča ogled, označevanje, zamrznitev ali izbiro kovancev za boljše upravljanje denarnice."
   }
 }
