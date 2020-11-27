@@ -1,6 +1,6 @@
 /* global it */
+import assert from 'assert';
 import { HDLegacyBreadwalletWallet } from '../../class';
-const assert = require('assert');
 
 it('Legacy HD Breadwallet works', async () => {
   if (!process.env.HD_MNEMONIC_BREAD) {
@@ -11,22 +11,32 @@ it('Legacy HD Breadwallet works', async () => {
   hdBread.setSecret(process.env.HD_MNEMONIC_BREAD);
 
   assert.strictEqual(hdBread.validateMnemonic(), true);
-  assert.strictEqual(hdBread._getExternalAddressByIndex(0), '1ARGkNMdsBE36fJhddSwf8PqBXG3s4d2KU');
-  assert.ok(hdBread.getAllExternalAddresses().includes('1ARGkNMdsBE36fJhddSwf8PqBXG3s4d2KU'));
-  assert.strictEqual(hdBread._getInternalAddressByIndex(0), '1JLvA5D7RpWgChb4A5sFcLNrfxYbyZdw3V');
-  assert.strictEqual(hdBread._getExternalWIFByIndex(0), 'L25CoHfqWKR5byQhgp4M8sW1roifBteD3Lj3zCGNcV4JXhbxZ93F');
-  assert.strictEqual(hdBread._getInternalWIFByIndex(0), 'KyEQuB73eueeS7D6iBJrNSvkD1kkdkJoUsavuxGXv5fxWkPJxt96');
+  assert.strictEqual(hdBread._getExternalAddressByIndex(0), '1M1UphJDb1mpXV3FVEg6b2qqaBieNuaNrt');
+  assert.strictEqual(hdBread._getInternalAddressByIndex(0), '1A9Sc4opR6c7Ui6NazECiGmsmnUPh2WeHJ');
+  hdBread._internal_segwit_index = 2;
+  hdBread._external_segwit_index = 2;
+  assert.ok(hdBread._getExternalAddressByIndex(0).startsWith('1'));
+  assert.ok(hdBread._getInternalAddressByIndex(0).startsWith('1'));
+  assert.strictEqual(hdBread._getExternalAddressByIndex(2), 'bc1qh0vtrnjn7zs99j4n6xaadde95ctnnvegh9l2jn');
+  assert.strictEqual(hdBread._getInternalAddressByIndex(2), 'bc1qk9hvkxqsqmps6ex3qawr79rvtg8es4ecjfu5v0');
+
+  assert.strictEqual(hdBread._getDerivationPathByAddress('1M1UphJDb1mpXV3FVEg6b2qqaBieNuaNrt'), "m/0'/0/0");
+  assert.strictEqual(hdBread._getDerivationPathByAddress('bc1qk9hvkxqsqmps6ex3qawr79rvtg8es4ecjfu5v0'), "m/0'/1/2");
+
   assert.strictEqual(
     hdBread._getPubkeyByAddress(hdBread._getExternalAddressByIndex(0)).toString('hex'),
-    '0354d804a7943eb61ec13deef44586510506889175dc2f3a375867e4796debf2a9',
+    '029ba027f3f0a9fa69ce680a246198d56a3b047108f26791d1e4aa2d10e7e7a29a',
   );
   assert.strictEqual(
     hdBread._getPubkeyByAddress(hdBread._getInternalAddressByIndex(0)).toString('hex'),
-    '02d241fadf3e48ff30a93360f6ef255cc3a797c588c907615d096510a918f46dce',
+    '03074225b31a95af63de31267104e07863d892d291a33ef5b2b32d59c772d5c784',
   );
 
   assert.strictEqual(
     hdBread.getXpub(),
-    'xpub68nLLEi3KERQY7jyznC9PQSpSjmekrEmN8324YRCXayMXaavbdEJsK4gEcX2bNf9vGzT4xRks9utZ7ot1CTHLtdyCn9udvv1NWvtY7HXroh',
+    'xpub68hPk9CrHimZMBQEja43qWRC2TuXmCDdgZcR5YMebr38XatUEPu2Q2oaBViSMshDcyuMDGkGbTS2aqNHFKdcN1sFWaZgK6SLg84dtN7Ym64',
   );
+
+  assert.ok(hdBread.getAllExternalAddresses().includes('1M1UphJDb1mpXV3FVEg6b2qqaBieNuaNrt'));
+  assert.ok(hdBread.getAllExternalAddresses().includes('bc1qh0vtrnjn7zs99j4n6xaadde95ctnnvegh9l2jn'));
 });
