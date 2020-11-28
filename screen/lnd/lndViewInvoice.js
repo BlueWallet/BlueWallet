@@ -77,12 +77,20 @@ const LNDViewInvoice = () => {
         ? {
             headerStyle: {
               backgroundColor: colors.customHeader,
+              borderBottomWidth: 0,
+              elevation: 0,
+              shadowOpacity: 0,
+              shadowOffset: { height: 0, width: 0 },
             },
             gestureEnabled: false,
           }
         : {
             headerStyle: {
               backgroundColor: colors.customHeader,
+              borderBottomWidth: 0,
+              elevation: 0,
+              shadowOpacity: 0,
+              shadowOffset: { height: 0, width: 0 },
             },
           },
     );
