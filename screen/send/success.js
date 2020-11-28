@@ -76,12 +76,10 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
     <View style={styles.root}>
       <BlueCard style={styles.amount}>
         <View style={styles.view}>
-          {amount > 0 && (
-            <>
-              <Text style={[styles.amountValue, stylesHook.amountValue]}>{amount}</Text>
-              <Text style={[styles.amountUnit, stylesHook.amountUnit]}>{' ' + amountUnit}</Text>
-            </>
-          )}
+          <>
+            <Text style={[styles.amountValue, stylesHook.amountValue]}>{amount}</Text>
+            <Text style={[styles.amountUnit, stylesHook.amountUnit]}>{' ' + amountUnit}</Text>
+          </>
         </View>
         {fee > 0 && (
           <Text style={styles.feeText}>

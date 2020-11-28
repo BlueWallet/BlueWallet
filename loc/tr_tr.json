@@ -104,7 +104,7 @@
     "please_pay": "Please pay",
     "preimage": "Preimage",
     "sats": "sats",
-    "wasnt_paid_and_expired": "This invoice was not paid for and has expired"
+    "wasnt_paid_and_expired": "This invoice was not paid for and has expired."
   },
   "plausibledeniability": {
     "create_fake_storage": "Sahte şifreli depolama oluşturun",
