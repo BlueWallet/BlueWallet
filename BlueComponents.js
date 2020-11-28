@@ -1673,21 +1673,27 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
         }
       });
       if (lightningWallet.length === 1) {
-        // is it a successful lnurl-pay?
-        const LN = new Lnurl(false, AsyncStorage);
-        let paymentHash = item.payment_hash;
-        if (typeof paymentHash === 'object') {
-          paymentHash = Buffer.from(paymentHash.data).toString('hex');
-        }
-        const loaded = await LN.loadSuccessfulPayment(paymentHash);
-        if (loaded) {
-          navigate('ScanLndInvoiceRoot', {
-            screen: 'LnurlPaySuccess',
-            paymentHash,
-            justPaid: false,
-            fromWalletID: lightningWallet[0].getID(),
-          });
-          return;
+        try {
+          // is it a successful lnurl-pay?
+          const LN = new Lnurl(false, AsyncStorage);
+          let paymentHash = item.payment_hash;
+          if (typeof paymentHash === 'object') {
+            paymentHash = Buffer.from(paymentHash.data).toString('hex');
+          }
+          const loaded = await LN.loadSuccessfulPayment(paymentHash);
+          if (loaded) {
+            NavigationService.navigate('ScanLndInvoiceRoot', {
+              screen: 'LnurlPaySuccess',
+              params: {
+                paymentHash,
+                justPaid: false,
+                fromWalletID: lightningWallet[0].getID(),
+              },
+            });
+            return;
+          }
+        } catch (e) {
+          console.log(e);
         }
 
         navigate('LNDViewInvoice', {
