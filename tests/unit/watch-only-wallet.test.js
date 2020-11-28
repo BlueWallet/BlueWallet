@@ -1,8 +1,7 @@
-/* global it, describe */
-import { WatchOnlyWallet } from '../../class';
+import assert from 'assert';
 import { decodeUR } from 'bc-ur/dist';
 import { Psbt } from 'bitcoinjs-lib';
-const assert = require('assert');
+import { WatchOnlyWallet } from '../../class';
 
 describe('Watch only wallet', () => {
   it('can validate address', async () => {

@@ -1,9 +1,9 @@
-/* global it, describe, jasmine */
-const bitcoin = require('bitcoinjs-lib');
+import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
+
 global.net = require('net');
 global.tls = require('tls');
 
-const assert = require('assert');
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
 
 const hardcodedPeers = [
@@ -14,6 +14,8 @@ const hardcodedPeers = [
   { host: 'electrum2.bluewallet.io', tcp: '50001' },
   { host: 'electrum3.bluewallet.io', tcp: '50001' },
 ];
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 describe('ElectrumClient', () => {
   it('can connect and query', async () => {
@@ -50,6 +52,7 @@ describe('ElectrumClient', () => {
       // let peers = await mainClient.serverPeers_subscribe();
       // console.log(peers);
       mainClient.close();
+      await sleep(10); // wait till socket is closed
     }
   });
 });

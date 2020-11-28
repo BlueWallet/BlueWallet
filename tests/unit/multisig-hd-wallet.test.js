@@ -1,9 +1,8 @@
-/* global it, describe */
 import assert from 'assert';
 import { MultisigHDWallet } from '../../class/';
 import { decodeUR } from 'bc-ur/dist';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
-const bitcoin = require('bitcoinjs-lib');
+import * as bitcoin from 'bitcoinjs-lib';
 const Base43 = require('../../blue_modules/base43');
 
 const fp1cobo = 'D37EAD88';

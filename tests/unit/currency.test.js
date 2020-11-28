@@ -1,6 +1,5 @@
-/* global describe, it */
+import assert from 'assert';
 import { FiatUnit } from '../../models/fiatUnit';
-const assert = require('assert');
 
 describe('currency', () => {
   it('formats everything correctly', async () => {

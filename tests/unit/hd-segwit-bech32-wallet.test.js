@@ -1,6 +1,5 @@
-/* global it, describe */
+import assert from 'assert';
 import { HDSegwitBech32Wallet } from '../../class';
-const assert = require('assert');
 
 describe('Bech32 Segwit HD (BIP84)', () => {
   it('can create', async function () {

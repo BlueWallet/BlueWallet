@@ -1,13 +1,13 @@
-/* global it, expect, jest */
 import React from 'react';
+import assert from 'assert';
 import TestRenderer from 'react-test-renderer';
+
 import Settings from '../../screen/settings/settings';
 import Selftest from '../../screen/selftest';
 import { BlueHeader } from '../../BlueComponents';
-const assert = require('assert');
-jest.mock('react-native-qrcode-svg', () => 'Video');
-jest.useFakeTimers();
 
+jest.useFakeTimers();
+jest.mock('react-native-qrcode-svg', () => 'Video');
 jest.mock('amplitude-js', () => ({
   getInstance: function () {
     return {

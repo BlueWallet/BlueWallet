@@ -1,5 +1,4 @@
-/* global it, jasmine */
-const assert = require('assert');
+import assert from 'assert';
 
 it('bip38 decodes', async () => {
   const bip38 = require('../../blue_modules/bip38');

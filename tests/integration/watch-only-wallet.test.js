@@ -1,6 +1,5 @@
-/* global it, describe, jasmine, afterAll, beforeAll  */
+import assert from 'assert';
 import { WatchOnlyWallet } from '../../class';
-const assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
 const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
@@ -8,11 +7,13 @@ const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connec
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
   BlueElectrum.forceDisconnect();
+  await BlueElectrum.waitTillDisconnected();
 });
 
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
+  BlueElectrum.connectMain();
   await BlueElectrum.waitTillConnected();
 });
 

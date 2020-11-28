@@ -1,8 +1,9 @@
-/* global describe, it, jest, jasmine */
+import assert from 'assert';
+import AsyncStorage from '@react-native-community/async-storage';
+
 import { AppStorage } from '../../class';
 import { FiatUnit } from '../../models/fiatUnit';
-import AsyncStorage from '@react-native-community/async-storage';
-const assert = require('assert');
+
 jest.useFakeTimers();
 
 describe('currency', () => {

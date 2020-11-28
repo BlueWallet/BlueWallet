@@ -3,13 +3,15 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AppState, DeviceEventEmitter, KeyboardAvoidingView, Linking, Platform, StyleSheet, useColorScheme, View } from 'react-native';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import QuickActions from 'react-native-quick-actions';
+import * as Sentry from '@sentry/react-native';
+import changeNavigationBarColor from 'react-native-navigation-bar-color';
+
 import { navigationRef } from './NavigationService';
 import * as NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton, SecondButton } from './BlueComponents';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Chain } from './models/bitcoinUnits';
-import QuickActions from 'react-native-quick-actions';
-import * as Sentry from '@sentry/react-native';
 import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import loc from './loc';
@@ -24,7 +26,7 @@ import Notifications from './blue_modules/notifications';
 import WalletImport from './class/wallet-import';
 import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
-import changeNavigationBarColor from 'react-native-navigation-bar-color';
+import BlueElectrum from './blue_modules/BlueElectrum';
 const A = require('./blue_modules/analytics');
 
 if (process.env.NODE_ENV !== 'development') {
@@ -37,6 +39,8 @@ const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
   LIGHTNING: 'LIGHTNING',
 });
+
+BlueElectrum.connectMain();
 
 const App = () => {
   const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);

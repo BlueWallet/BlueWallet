@@ -1,5 +1,4 @@
-/* global describe, it */
-const assert = require('assert');
+import assert from 'assert';
 const c = require('../../blue_modules/encryption');
 
 describe('unit - encryption', function () {

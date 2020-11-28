@@ -100,8 +100,6 @@ async function connectMain() {
   }
 }
 
-connectMain();
-
 /**
  * Returns random hardcoded electrum server guaranteed to work
  * at the time of writing.
@@ -148,6 +146,8 @@ async function getRandomDynamicPeer() {
     return defaultPeer; // smth went wrong, using default
   }
 }
+
+module.exports.connectMain = connectMain;
 
 /**
  *
@@ -454,6 +454,29 @@ module.exports.waitTillConnected = async function () {
         reject(new Error('Waiting for Electrum connection timeout'));
       }
     }, 500);
+  });
+};
+
+/**
+ * Simple waiter till socket `mainClient.conn` becomes undefined or timeout 30 sec.
+ *
+ * @returns {Promise<Promise<*> | Promise<*>>}
+ */
+module.exports.waitTillDisconnected = async function () {
+  let waitTillConnectedInterval = false;
+  let retriesCounter = 0;
+  return new Promise((resolve, reject) => {
+    waitTillConnectedInterval = setInterval(() => {
+      if (mainConnected.conn === undefined) {
+        clearInterval(waitTillConnectedInterval);
+        resolve(true);
+      }
+
+      if (retriesCounter++ >= 30) {
+        clearInterval(waitTillConnectedInterval);
+        reject(new Error('Waiting for Electrum socket destruction timeout'));
+      }
+    }, 100);
   });
 };
 

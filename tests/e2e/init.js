@@ -1,4 +1,4 @@
-/* global jasmine, jest, beforeAll, afterAll, beforeEach, device */
+/* global device */
 
 const detox = require('detox');
 const config = require('../../package.json').detox;

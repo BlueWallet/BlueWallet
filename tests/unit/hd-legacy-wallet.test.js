@@ -1,7 +1,6 @@
-/* global it */
+import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
 import { HDLegacyP2PKHWallet } from '../../class';
-const assert = require('assert');
-const bitcoin = require('bitcoinjs-lib');
 
 it('Legacy HD (BIP44) works', async () => {
   if (!process.env.HD_MNEMONIC) {

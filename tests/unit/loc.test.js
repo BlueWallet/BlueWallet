@@ -1,9 +1,9 @@
-/* global it, describe, jest */
+import assert from 'assert';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { FiatUnit } from '../../models/fiatUnit';
 import { _leaveNumbersAndDots, formatBalanceWithoutSuffix, formatBalancePlain, formatBalance } from '../../loc';
-const assert = require('assert');
 const currency = require('../../blue_modules/currency');
+
 jest.useFakeTimers();
 
 describe('Localization', () => {
