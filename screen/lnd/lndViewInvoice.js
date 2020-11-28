@@ -22,8 +22,9 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 
 const LNDViewInvoice = () => {
-  const { invoice, fromWallet, isModal } = useRoute().params;
-  const { setSelectedWallet, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { invoice, walletID, isModal } = useRoute().params;
+  const { wallets, setSelectedWallet, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const wallet = wallets.find(w => w.getID() === walletID);
   const { width, height } = useWindowDimensions();
   const { colors } = useTheme();
   const { goBack, navigate, setParams, setOptions } = useNavigation();
@@ -90,13 +91,13 @@ const LNDViewInvoice = () => {
   }, [colors]);
 
   useEffect(() => {
-    setSelectedWallet(fromWallet.getID());
+    setSelectedWallet(walletID);
     console.log('LNDViewInvoice - useEffect');
     if (!invoice.ispaid) {
       fetchInvoiceInterval.current = setInterval(async () => {
         if (isFetchingInvoices) {
           try {
-            const userInvoices = await fromWallet.getUserInvoices(20);
+            const userInvoices = await wallet.getUserInvoices(20);
             // fetching only last 20 invoices
             // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
             // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
@@ -107,21 +108,19 @@ const LNDViewInvoice = () => {
             )[0];
             if (typeof updatedUserInvoice !== 'undefined') {
               setInvoiceStatusChanged(true);
-              updatedUserInvoice.ispaid = true;
-              updatedUserInvoice.payment_preimage = 'tttt';
               setParams({ invoice: updatedUserInvoice });
               setIsLoading(false);
               if (updatedUserInvoice.ispaid) {
                 // we fetched the invoice, and it is paid :-)
                 setIsFetchingInvoices(false);
-                fetchAndSaveWalletTransactions(fromWallet.getID());
+                fetchAndSaveWalletTransactions(walletID);
               } else {
                 const currentDate = new Date();
                 const now = (currentDate.getTime() / 1000) | 0;
                 const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
                 if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                   // invoice expired :-(
-                  fetchAndSaveWalletTransactions(fromWallet.getID());
+                  fetchAndSaveWalletTransactions(walletID);
                   setIsFetchingInvoices(false);
                   ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
                   clearInterval(fetchInvoiceInterval.current);
@@ -157,7 +156,7 @@ const LNDViewInvoice = () => {
   };
 
   const handleOnViewAdditionalInformationPressed = () => {
-    navigate('LNDViewAdditionalInvoiceInformation', { fromWallet });
+    navigate('LNDViewAdditionalInvoiceInformation', { walletID });
   };
 
   useEffect(() => {
@@ -218,7 +217,7 @@ const LNDViewInvoice = () => {
           description = invoice.memo;
         }
         return (
-          <View style={[styles.root, styles.contentContainerStyle]}>
+          <View style={styles.root}>
             <SuccessView
               amount={amount}
               amountUnit={BitcoinUnit.SATS}
@@ -238,7 +237,7 @@ const LNDViewInvoice = () => {
       }
       if (invoiceExpiration < now) {
         return (
-          <View>
+          <View style={[styles.root, stylesHook.root, styles.justifyContentCenter]}>
             <View style={[styles.expired, stylesHook.expired]}>
               <Icon name="times" size={50} type="font-awesome" color={colors.successCheck} />
             </View>
@@ -288,13 +287,7 @@ const LNDViewInvoice = () => {
   return (
     <SafeBlueArea styles={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="default" />
-      <ScrollView
-        style={[styles.root, stylesHook.root]}
-        centerContent
-        contentContainerStyle={[styles.contentContainerStyle, stylesHook.root]}
-      >
-        {render()}
-      </ScrollView>
+      <ScrollView contentContainerStyle={styles.contentContainerStyle}>{render()}</ScrollView>
     </SafeBlueArea>
   );
 };
@@ -304,8 +297,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainerStyle: {
-    flex: 1,
-    justifyContent: 'space-between',
+    flexGrow: 1,
+  },
+  justifyContentCenter: {
+    justifyContent: 'center',
   },
   qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
   valueAmount: {
@@ -368,7 +363,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   activeQrcode: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 16,

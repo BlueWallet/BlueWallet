@@ -42,7 +42,7 @@ import { getSystemName } from 'react-native-device-info';
 import { encodeUR } from 'bc-ur/dist';
 import QRCode from 'react-native-qrcode-svg';
 import AsyncStorage from '@react-native-community/async-storage';
-import { useTheme } from '@react-navigation/native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
 import Lnurl from './class/lnurl';
@@ -1557,6 +1557,7 @@ export class ManageFundsBigButton extends Component {
 export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, timeElapsed }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
   const { colors } = useTheme();
+  const { navigate } = useNavigation();
   const { txMetadata, wallets } = useContext(BlueStorageContext);
   const containerStyle = useMemo(
     () => ({
@@ -1708,7 +1709,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
 
   const onPress = useCallback(async () => {
     if (item.hash) {
-      NavigationService.navigate('TransactionStatus', { hash: item.hash });
+      navigate('TransactionStatus', { params: { hash: item.hash } });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
       const lightningWallet = wallets.filter(wallet => {
         if (typeof wallet === 'object') {
@@ -1726,24 +1727,23 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
         }
         const loaded = await LN.loadSuccessfulPayment(paymentHash);
         if (loaded) {
-          NavigationService.navigate('ScanLndInvoiceRoot', {
+          navigate('ScanLndInvoiceRoot', {
             screen: 'LnurlPaySuccess',
-            params: {
-              paymentHash,
-              justPaid: false,
-              fromWalletID: lightningWallet[0].getID(),
-            },
+            paymentHash,
+            justPaid: false,
+            fromWalletID: lightningWallet[0].getID(),
           });
           return;
         }
 
-        NavigationService.navigate('LNDViewInvoice', {
+        navigate('LNDViewInvoice', {
           invoice: item,
-          fromWallet: lightningWallet[0],
+          walletID: lightningWallet[0].getID(),
           isModal: false,
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item, wallets]);
 
   const onLongPress = useCallback(() => {
