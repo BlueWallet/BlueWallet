@@ -30,7 +30,6 @@ const LNDViewInvoice = () => {
   const { goBack, navigate, setParams, setOptions } = useNavigation();
   const [isLoading, setIsLoading] = useState(typeof invoice === 'string');
   const [isFetchingInvoices, setIsFetchingInvoices] = useState(true);
-  const [showPreimageQr, setShowPreimageQr] = useState(false);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState(false);
   const qrCodeHeight = height > width ? width - 20 : width / 2;
   const fetchInvoiceInterval = useRef();
@@ -147,8 +146,10 @@ const LNDViewInvoice = () => {
     return true;
   };
 
-  const setShowPreimageQrTrue = () => {
-    setShowPreimageQr(true);
+  const navigateToPreImageScreen = () => {
+    navigate('LNDViewAdditionalInvoicePreImage', {
+      preImageData: invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? invoice.payment_preimage : 'none',
+    });
   };
 
   const handleOnSharePressed = () => {
@@ -180,31 +181,6 @@ const LNDViewInvoice = () => {
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0;
       const invoiceExpiration = invoice.timestamp + invoice.expire_time;
-
-      if (showPreimageQr) {
-        return (
-          <View style={styles.root}>
-            <BlueText>{loc.lndViewInvoice.preimage}:</BlueText>
-            <BlueSpacing20 />
-            <View style={styles.qrCodeContainer}>
-              <QRCode
-                value={invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? invoice.payment_preimage : 'none'}
-                logo={require('../../img/qr-code.png')}
-                size={qrCodeHeight}
-                logoSize={90}
-                color="#000000"
-                logoBackgroundColor={colors.brandingColor}
-                backgroundColor="#FFFFFF"
-              />
-            </View>
-            <BlueSpacing20 />
-            <BlueCopyTextToClipboard
-              text={invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? invoice.payment_preimage : 'none'}
-            />
-          </View>
-        );
-      }
-
       if (invoice.ispaid || invoice.type === 'paid_invoice') {
         let amount = 0;
         if (invoice.type === 'paid_invoice' && invoice.value) {
@@ -226,7 +202,7 @@ const LNDViewInvoice = () => {
             />
             <View style={styles.detailsRoot}>
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
-                <TouchableOpacity style={styles.detailsTouch} onPress={setShowPreimageQrTrue}>
+                <TouchableOpacity style={styles.detailsTouch} onPress={navigateToPreImageScreen}>
                   <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
                   <Icon name="angle-right" size={18} type="font-awesome" color={colors.alternativeTextColor} />
                 </TouchableOpacity>

@@ -944,11 +944,9 @@ export class BlueSpacing extends Component {
   }
 }
 
-export class BlueSpacing40 extends Component {
-  render() {
-    return <View {...this.props} style={{ height: 50 }} />;
-  }
-}
+export const BlueSpacing40 = props => {
+  return <View {...props} style={{ height: 50 }} />;
+};
 
 export class BlueSpacingVariable extends Component {
   render() {
@@ -966,17 +964,13 @@ export class is {
   }
 }
 
-export class BlueSpacing20 extends Component {
-  render() {
-    return <View {...this.props} style={{ height: 20, opacity: 0 }} />;
-  }
-}
+export const BlueSpacing20 = props => {
+  return <View {...props} style={{ height: 20, opacity: 0 }} />;
+};
 
-export class BlueSpacing10 extends Component {
-  render() {
-    return <View {...this.props} style={{ height: 10, opacity: 0 }} />;
-  }
-}
+export const BlueSpacing10 = props => {
+  return <View {...props} style={{ height: 10, opacity: 0 }} />;
+};
 
 export class BlueList extends Component {
   render() {
@@ -1506,46 +1500,6 @@ export class BlueSendButtonIcon extends Component {
               }}
             >
               {loc.send.header}
-            </Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  }
-}
-
-export class ManageFundsBigButton extends Component {
-  render() {
-    return (
-      <TouchableOpacity {...this.props}>
-        <View
-          style={{
-            flex: 1,
-            width: 168,
-            backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
-          }}
-        >
-          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-            <View
-              style={{
-                minWidth: 30,
-                minHeight: 30,
-                right: 5,
-                backgroundColor: 'transparent',
-                transform: [{ rotate: '90deg' }],
-              }}
-            >
-              <Icon {...this.props} name="link" size={16} type="font-awesome" color={BlueCurrentTheme.colors.buttonAlternativeTextColor} />
-            </View>
-            <Text
-              style={{
-                color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
-                fontSize: (isIpad && 10) || 16,
-                fontWeight: '500',
-                backgroundColor: 'transparent',
-              }}
-            >
-              {loc.lnd.title}
             </Text>
           </View>
         </View>
