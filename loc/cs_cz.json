@@ -1,6 +1,6 @@
 {
   "_": {
-    "bad_password": "Špatné heslo, prosím zkuste to znovu",
+    "bad_password": "Nesprávné heslo, zkuste to znovu.",
     "cancel": "Zrušit",
     "continue": "Pokračovat",
     "enter_password": "Zadejte heslo",
@@ -121,7 +121,7 @@
     "help": "Za určitých okolností můžete být donuceni k prozrazení vašeho hesla. K zajištění bezpečností vašich prostředků, BlueWallet může vytvořit další zašifrované úložiště s rozdílným heslem. V případě potřeby můžete toto heslo dát třetí straně. Pokud bude zadáno do BlueWallet, odemkne nové \"falešné\" úložiště. To bude vypadat legitimně, ale udrží vaše pravé hlavní úložiště v bezpečí.",
     "help2": "Nové úložiště bude plně funkční, můžete na něj uložit minimální částku, aby vypadalo více uvěřitelně.",
     "password_should_not_match": "Heslo k falešnému úložišti nesmí být stejné jako heslo k hlavnímu úložišti",
-    "passwords_do_not_match": "Hesla se neshodují, zkuste to znovu",
+    "passwords_do_not_match": "Hesla se neshodují, zkuste to prosím znovu.",
     "retype_password": "Zadejte heslo znovu",
     "success": "Úspěch",
     "title": "Věrohodná popiratelnost"
@@ -207,8 +207,9 @@
     "permission_camera_title": "Povolení k použití kamery",
     "open_settings": "Otevřít nastavení",
     "permission_storage_later": "Zeptejte se mě později",
-    "permission_storage_message": "K uložení této transakce BlueWallet potřebuje vaše oprávnění k přístupu do vašeho úložiště.",
-    "permission_storage_title": "Oprávnění pro přístup k úložišti BlueWallet",
+    "permission_storage_message": "BlueWallet potřebuje vaše oprávnění k přístupu k vašemu úložišti, aby mohl tento soubor uložit.",
+    "permission_storage_denied_message": "BlueWallet nemůže tento soubor uložit. Otevřete nastavení zařízení a povolte oprávnění úložiště.",
+    "permission_storage_title": "Povolení k přístupu do úložiště",
     "psbt_clipboard": "Zkopírovat do schránky",
     "psbt_this_is_psbt": "Toto je částečně podepsaná bitcoinová transakce (PSBT). Dokončete podepisování pomocí hardwarové peněženky.",
     "psbt_tx_export": "Export do souboru",
@@ -400,6 +401,7 @@
     "select_wallet": "Vyberte peněženku",
     "take_photo": "Vyfotit",
     "xpub_copiedToClipboard": "Zkopírováno do schránky.",
+    "pull_to_refresh": "zatáhněte pro obnovení",
     "xpub_title": "XPUB peněženky"
   },
   "multisig": {
@@ -453,6 +455,20 @@
     "view_edit_cosigners": "Zobrazit/upravit spolupodepisující",
     "this_cosigner_is_already_imported": "Tento spolupodepisující je již importován",
     "export_signed_psbt": "Exportovat podepsanou PSBT",
+    "input_fp": "Zadejte otisk prstu",
+    "input_fp_explain": "přeskočit a použít výchozí (00000000)",
+    "input_path": "Vložit derivační cestu",
+    "input_path_explain": "přeskočit a použít výchozí ({default})",
     "view_edit_cosigners_title": "Upravit spolupodepisující"
+  },
+  "cc": {
+    "change": "změnit",
+    "coins_selected": "Vybrané mince ({number})",
+    "empty": "Tato peněženka nemá v tuto chvíli žádné mince",
+    "freeze": "zmrazit",
+    "freezeLabel": "Zmrazit",
+    "header": "Kontrola mincí",
+    "use_coin": "Použít minci",
+    "tip": "Umožňuje zobrazit, označit, zmrazit nebo vybrat mince pro lepší správu peněženky."
   }
 }
