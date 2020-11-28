@@ -302,6 +302,24 @@ const WalletDetails = () => {
     }
   };
 
+  const purgeTransactions = async () => {
+    if (backdoorPressed < 10) return setBackdoorPressed(backdoorPressed + 1);
+    setBackdoorPressed(0);
+    const msg = 'Transactions purged. Pls go to main screen and back to rerender screen';
+
+    if (wallet.type === HDSegwitBech32Wallet.type) {
+      wallet._txs_by_external_index = {};
+      wallet._txs_by_internal_index = {};
+      alert(msg);
+    }
+
+    if (wallet._hdWalletInstance) {
+      wallet._hdWalletInstance._txs_by_external_index = {};
+      wallet._hdWalletInstance._txs_by_internal_index = {};
+      alert(msg);
+    }
+  };
+
   const navigateToBroadcast = () => {
     navigate('Broadcast');
   };
@@ -435,7 +453,9 @@ const WalletDetails = () => {
               </View>
             </>
             <>
-              <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.transactions.transactions_count.toLowerCase()}</Text>
+              <Text onPress={purgeTransactions} style={[styles.textLabel2, stylesHook.textLabel2]}>
+                {loc.transactions.transactions_count.toLowerCase()}
+              </Text>
               <BlueText>{wallet.getTransactions().length}</BlueText>
             </>
             <View>
