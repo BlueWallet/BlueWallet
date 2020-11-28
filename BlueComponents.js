@@ -1663,7 +1663,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
 
   const onPress = useCallback(async () => {
     if (item.hash) {
-      navigate('TransactionStatus', { params: { hash: item.hash } });
+      navigate('TransactionStatus', { hash: item.hash });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
       const lightningWallet = wallets.filter(wallet => {
         if (typeof wallet === 'object') {
