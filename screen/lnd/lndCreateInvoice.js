@@ -258,7 +258,7 @@ export default class LNDCreateInvoice extends Component {
 
         this.props.navigation.navigate('LNDViewInvoice', {
           invoice: invoiceRequest,
-          fromWallet: this.state.fromWallet,
+          walletID: this.state.fromWallet.getID(),
           isModal: true,
         });
       } catch (Err) {

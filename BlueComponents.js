@@ -42,7 +42,7 @@ import { getSystemName } from 'react-native-device-info';
 import { encodeUR } from 'bc-ur/dist';
 import QRCode from 'react-native-qrcode-svg';
 import AsyncStorage from '@react-native-community/async-storage';
-import { useTheme } from '@react-navigation/native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
 import Lnurl from './class/lnurl';
@@ -670,17 +670,10 @@ const styleCopyTextToClipboard = StyleSheet.create({
   },
 });
 
-export class SafeBlueArea extends Component {
-  render() {
-    return (
-      <SafeAreaView
-        forceInset={{ horizontal: 'always' }}
-        style={{ flex: 1, backgroundColor: BlueCurrentTheme.colors.background }}
-        {...this.props}
-      />
-    );
-  }
-}
+export const SafeBlueArea = props => {
+  const { colors } = useTheme();
+  return <SafeAreaView forceInset={{ horizontal: 'always' }} style={{ flex: 1, backgroundColor: colors.background }} {...props} />;
+};
 
 export class BlueCard extends Component {
   render() {
@@ -951,11 +944,9 @@ export class BlueSpacing extends Component {
   }
 }
 
-export class BlueSpacing40 extends Component {
-  render() {
-    return <View {...this.props} style={{ height: 50 }} />;
-  }
-}
+export const BlueSpacing40 = props => {
+  return <View {...props} style={{ height: 50 }} />;
+};
 
 export class BlueSpacingVariable extends Component {
   render() {
@@ -973,17 +964,13 @@ export class is {
   }
 }
 
-export class BlueSpacing20 extends Component {
-  render() {
-    return <View {...this.props} style={{ height: 20, opacity: 0 }} />;
-  }
-}
+export const BlueSpacing20 = props => {
+  return <View {...props} style={{ height: 20, opacity: 0 }} />;
+};
 
-export class BlueSpacing10 extends Component {
-  render() {
-    return <View {...this.props} style={{ height: 10, opacity: 0 }} />;
-  }
-}
+export const BlueSpacing10 = props => {
+  return <View {...props} style={{ height: 10, opacity: 0 }} />;
+};
 
 export class BlueList extends Component {
   render() {
@@ -1521,49 +1508,10 @@ export class BlueSendButtonIcon extends Component {
   }
 }
 
-export class ManageFundsBigButton extends Component {
-  render() {
-    return (
-      <TouchableOpacity {...this.props}>
-        <View
-          style={{
-            flex: 1,
-            width: 168,
-            backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
-          }}
-        >
-          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-            <View
-              style={{
-                minWidth: 30,
-                minHeight: 30,
-                right: 5,
-                backgroundColor: 'transparent',
-                transform: [{ rotate: '90deg' }],
-              }}
-            >
-              <Icon {...this.props} name="link" size={16} type="font-awesome" color={BlueCurrentTheme.colors.buttonAlternativeTextColor} />
-            </View>
-            <Text
-              style={{
-                color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
-                fontSize: (isIpad && 10) || 16,
-                fontWeight: '500',
-                backgroundColor: 'transparent',
-              }}
-            >
-              {loc.lnd.title}
-            </Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  }
-}
-
 export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, timeElapsed }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
   const { colors } = useTheme();
+  const { navigate } = useNavigation();
   const { txMetadata, wallets } = useContext(BlueStorageContext);
   const containerStyle = useMemo(
     () => ({
@@ -1715,7 +1663,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
 
   const onPress = useCallback(async () => {
     if (item.hash) {
-      NavigationService.navigate('TransactionStatus', { hash: item.hash });
+      navigate('TransactionStatus', { hash: item.hash });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
       const lightningWallet = wallets.filter(wallet => {
         if (typeof wallet === 'object') {
@@ -1725,32 +1673,37 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
         }
       });
       if (lightningWallet.length === 1) {
-        // is it a successful lnurl-pay?
-        const LN = new Lnurl(false, AsyncStorage);
-        let paymentHash = item.payment_hash;
-        if (typeof paymentHash === 'object') {
-          paymentHash = Buffer.from(paymentHash.data).toString('hex');
-        }
-        const loaded = await LN.loadSuccessfulPayment(paymentHash);
-        if (loaded) {
-          NavigationService.navigate('ScanLndInvoiceRoot', {
-            screen: 'LnurlPaySuccess',
-            params: {
-              paymentHash,
-              justPaid: false,
-              fromWalletID: lightningWallet[0].getID(),
-            },
-          });
-          return;
+        try {
+          // is it a successful lnurl-pay?
+          const LN = new Lnurl(false, AsyncStorage);
+          let paymentHash = item.payment_hash;
+          if (typeof paymentHash === 'object') {
+            paymentHash = Buffer.from(paymentHash.data).toString('hex');
+          }
+          const loaded = await LN.loadSuccessfulPayment(paymentHash);
+          if (loaded) {
+            NavigationService.navigate('ScanLndInvoiceRoot', {
+              screen: 'LnurlPaySuccess',
+              params: {
+                paymentHash,
+                justPaid: false,
+                fromWalletID: lightningWallet[0].getID(),
+              },
+            });
+            return;
+          }
+        } catch (e) {
+          console.log(e);
         }
 
-        NavigationService.navigate('LNDViewInvoice', {
+        navigate('LNDViewInvoice', {
           invoice: item,
-          fromWallet: lightningWallet[0],
+          walletID: lightningWallet[0].getID(),
           isModal: false,
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item, wallets]);
 
   const onLongPress = useCallback(() => {

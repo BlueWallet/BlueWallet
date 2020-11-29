@@ -107,12 +107,13 @@
   "lndViewInvoice": {
     "additional_info": "Additional Information",
     "for": "For:",
+    "lightning_invoice": "Lightning Invoice",
     "has_been_paid": "This invoice has been paid for",
     "open_direct_channel": "Open direct channel with this node:",
     "please_pay": "Please pay",
     "preimage": "Preimage",
     "sats": "sats",
-    "wasnt_paid_and_expired": "This invoice was not paid for and has expired"
+    "wasnt_paid_and_expired": "This invoice was not paid for and has expired."
   },
   "plausibledeniability": {
     "create_fake_storage": "Create Encrypted storage",

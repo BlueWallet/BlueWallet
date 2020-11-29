@@ -74,6 +74,7 @@ import UnlockWith from './UnlockWith';
 import DrawerList from './screen/wallets/drawerList';
 import { isTablet } from 'react-native-device-info';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
+import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
 
 const defaultScreenOptions =
   Platform.OS === 'ios'
@@ -139,18 +140,15 @@ const WalletsRoot = () => (
       component={LNDViewAdditionalInvoiceInformation}
       options={LNDViewAdditionalInvoiceInformation.navigationOptions}
     />
+    <WalletsStack.Screen
+      name="LNDViewAdditionalInvoicePreImage"
+      component={LNDViewAdditionalInvoicePreImage}
+      options={LNDViewAdditionalInvoicePreImage.navigationOptions}
+    />
     <WalletsStack.Screen name="HodlHodlViewOffer" component={HodlHodlViewOffer} options={HodlHodlViewOffer.navigationOptions} />
     <WalletsStack.Screen name="Broadcast" component={Broadcast} options={Broadcast.navigationOptions} />
     <WalletsStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions} />
     <WalletsStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions} />
-    <WalletsStack.Screen
-      name="Success"
-      component={Success}
-      options={{
-        headerShown: false,
-        gestureEnabled: false,
-      }}
-    />
   </WalletsStack.Navigator>
 );
 
@@ -207,6 +205,11 @@ const LNDCreateInvoiceRoot = () => (
       name="LNDViewAdditionalInvoiceInformation"
       component={LNDViewAdditionalInvoiceInformation}
       options={LNDViewAdditionalInvoiceInformation.navigationOptions}
+    />
+    <LNDCreateInvoiceStack.Screen
+      name="LNDViewAdditionalInvoicePreImage"
+      component={LNDViewAdditionalInvoicePreImage}
+      options={LNDViewAdditionalInvoicePreImage.navigationOptions}
     />
   </LNDCreateInvoiceStack.Navigator>
 );
