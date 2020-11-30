@@ -1388,6 +1388,7 @@ export default class SendDetails extends Component {
                 ref={this.scrollView}
                 horizontal
                 pagingEnabled
+                removeClippedSubviews={false}
                 onMomentumScrollBegin={Keyboard.dismiss}
                 scrollIndicatorInsets={{ top: 0, left: 8, bottom: 0, right: 8 }}
                 contentContainerStyle={styles.scrollViewContent}
