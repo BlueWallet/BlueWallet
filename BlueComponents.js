@@ -8,7 +8,6 @@ import {
   Alert,
   Animated,
   Dimensions,
-  FlatList,
   Image,
   InputAccessoryView,
   Keyboard,
@@ -458,40 +457,21 @@ export class BlueWalletNavigationHeader extends Component {
   }
 }
 
-export const BlueButtonLinkHook = props => {
+export const BlueButtonLink = props => {
   const { colors } = useTheme();
   return (
     <TouchableOpacity
       style={{
         minHeight: 60,
         minWidth: 100,
-        height: 60,
         justifyContent: 'center',
       }}
-      onPress={props.onPress}
       {...props}
     >
       <Text style={{ color: colors.foregroundColor, textAlign: 'center', fontSize: 16 }}>{props.title}</Text>
     </TouchableOpacity>
   );
 };
-
-export class BlueButtonLink extends Component {
-  render() {
-    return (
-      <TouchableOpacity
-        style={{
-          minHeight: 60,
-          minWidth: 100,
-          justifyContent: 'center',
-        }}
-        {...this.props}
-      >
-        <Text style={{ color: BlueCurrentTheme.colors.foregroundColor, textAlign: 'center', fontSize: 16 }}>{this.props.title}</Text>
-      </TouchableOpacity>
-    );
-  }
-}
 
 export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure }) => {
   Alert.alert(
@@ -546,6 +526,8 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
 };
 
 export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuButton = false, advancedOptionsMenuButtonAction) => {
+  const { colors, closeImage } = useTheme();
+
   let headerRight;
   if (withAdvancedOptionsMenuButton) {
     headerRight = () => (
@@ -554,7 +536,7 @@ export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuB
         onPress={advancedOptionsMenuButtonAction}
         testID="advancedOptionsMenuButton"
       >
-        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueCurrentTheme.colors.foregroundColor} />
+        <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
       </TouchableOpacity>
     );
   } else {
@@ -568,9 +550,9 @@ export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuB
     },
     headerTitleStyle: {
       fontWeight: '600',
-      color: BlueCurrentTheme.colors.foregroundColor,
+      color: colors.foregroundColor,
     },
-    headerTintColor: BlueCurrentTheme.colors.foregroundColor,
+    headerTintColor: colors.foregroundColor,
     headerLeft: () => (
       <TouchableOpacity
         style={{ minWidth: 40, height: 40, justifyContent: 'center', paddingHorizontal: 14 }}
@@ -579,7 +561,7 @@ export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuB
           navigation.goBack(null);
         }}
       >
-        <Image style={{}} source={BlueCurrentTheme.closeImage} />
+        <Image style={{}} source={closeImage} />
       </TouchableOpacity>
     ),
     headerRight,
@@ -675,11 +657,9 @@ export const SafeBlueArea = props => {
   return <SafeAreaView forceInset={{ horizontal: 'always' }} style={{ flex: 1, backgroundColor: colors.background }} {...props} />;
 };
 
-export class BlueCard extends Component {
-  render() {
-    return <View {...this.props} style={{ padding: 20 }} />;
-  }
-}
+export const BlueCard = props => {
+  return <View {...props} style={{ padding: 20 }} />;
+};
 
 export const BlueText = props => {
   const { colors } = useTheme();
@@ -760,122 +740,111 @@ export const BlueFormLabel = props => {
   return <Text {...props} style={{ color: colors.foregroundColor, fontWeight: '400', marginHorizontal: 20 }} />;
 };
 
-export class BlueFormInput extends Component {
-  render() {
-    return (
-      <Input
-        {...this.props}
-        inputStyle={{ color: BlueCurrentTheme.colors.foregroundColor, maxWidth: width - 105 }}
-        containerStyle={{
-          marginTop: 5,
-          borderColor: BlueCurrentTheme.colors.inputBorderColor,
-          borderBottomColor: BlueCurrentTheme.colors.inputBorderColor,
-          borderWidth: 0.5,
-          borderBottomWidth: 0.5,
-          backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
-        }}
-      />
-    );
-  }
-}
+export const BlueFormInput = props => {
+  const { colors } = useTheme();
+  return (
+    <Input
+      {...props}
+      inputStyle={{ color: colors.foregroundColor, maxWidth: width - 105 }}
+      containerStyle={{
+        marginTop: 5,
+        borderColor: colors.inputBorderColor,
+        borderBottomColor: colors.inputBorderColor,
+        borderWidth: 0.5,
+        borderBottomWidth: 0.5,
+        backgroundColor: colors.inputBackgroundColor,
+      }}
+    />
+  );
+};
 
-export class BlueFormMultiInput extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selection: { start: 0, end: 0 },
-    };
-  }
+export const BlueFormMultiInput = props => {
+  const { colors } = useTheme();
 
-  render() {
-    return (
-      <TextInput
-        multiline
-        underlineColorAndroid="transparent"
-        numberOfLines={4}
-        style={{
-          paddingHorizontal: 8,
-          paddingVertical: 16,
-          flex: 1,
-          marginTop: 5,
-          marginHorizontal: 20,
-          borderColor: BlueCurrentTheme.colors.formBorder,
-          borderBottomColor: BlueCurrentTheme.colors.formBorder,
-          borderWidth: 1,
-          borderBottomWidth: 0.5,
-          borderRadius: 4,
-          backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
-          color: BlueCurrentTheme.colors.foregroundColor,
-          textAlignVertical: 'top',
-        }}
-        autoCorrect={false}
-        autoCapitalize="none"
-        spellCheck={false}
-        {...this.props}
-        selectTextOnFocus={false}
-        keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
-      />
-    );
-  }
-}
+  return (
+    <TextInput
+      multiline
+      underlineColorAndroid="transparent"
+      numberOfLines={4}
+      style={{
+        paddingHorizontal: 8,
+        paddingVertical: 16,
+        flex: 1,
+        marginTop: 5,
+        marginHorizontal: 20,
+        borderColor: colors.formBorder,
+        borderBottomColor: colors.formBorder,
+        borderWidth: 1,
+        borderBottomWidth: 0.5,
+        borderRadius: 4,
+        backgroundColor: colors.inputBackgroundColor,
+        color: colors.foregroundColor,
+        textAlignVertical: 'top',
+      }}
+      autoCorrect={false}
+      autoCapitalize="none"
+      spellCheck={false}
+      {...props}
+      selectTextOnFocus={false}
+      keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
+    />
+  );
+};
 
-export class BlueHeader extends Component {
-  render() {
-    return (
+export const BlueHeader = props => {
+  return (
+    <Header
+      {...props}
+      backgroundColor="transparent"
+      outerContainerStyles={{
+        borderBottomColor: 'transparent',
+        borderBottomWidth: 0,
+      }}
+    />
+  );
+};
+
+export const BlueHeaderDefaultSub = props => {
+  const { colors } = useTheme();
+  return (
+    <SafeAreaView style={{ backgroundColor: colors.brandingColor }}>
       <Header
-        {...this.props}
-        backgroundColor="transparent"
+        backgroundColor={colors.background}
+        leftContainerStyle={{ minWidth: '100%' }}
         outerContainerStyles={{
           borderBottomColor: 'transparent',
           borderBottomWidth: 0,
         }}
-      />
-    );
-  }
-}
-
-export class BlueHeaderDefaultSub extends Component {
-  render() {
-    return (
-      <SafeAreaView style={{ backgroundColor: BlueCurrentTheme.colors.brandingColor }}>
-        <Header
-          backgroundColor={BlueCurrentTheme.colors.background}
-          leftContainerStyle={{ minWidth: '100%' }}
-          outerContainerStyles={{
-            borderBottomColor: 'transparent',
-            borderBottomWidth: 0,
-          }}
-          leftComponent={
-            <Text
-              adjustsFontSizeToFit
-              style={{
-                fontWeight: 'bold',
-                fontSize: 30,
-                color: BlueCurrentTheme.colors.foregroundColor,
-              }}
-            >
-              {this.props.leftText}
-            </Text>
-          }
-          rightComponent={
-            <TouchableOpacity
-              onPress={() => {
-                if (this.props.onClose) this.props.onClose();
-              }}
-            >
-              <View style={stylesBlueIcon.box}>
-                <View style={stylesBlueIcon.ballTransparrent}>
-                  <Image source={require('./img/close.png')} />
-                </View>
+        leftComponent={
+          <Text
+            adjustsFontSizeToFit
+            style={{
+              fontWeight: 'bold',
+              fontSize: 30,
+              color: colors.foregroundColor,
+            }}
+          >
+            {props.leftText}
+          </Text>
+        }
+        rightComponent={
+          <TouchableOpacity
+            onPress={() => {
+              if (props.onClose) props.onClose();
+            }}
+          >
+            <View style={stylesBlueIcon.box}>
+              <View style={stylesBlueIcon.ballTransparrent}>
+                <Image source={require('./img/close.png')} />
               </View>
-            </TouchableOpacity>
-          }
-          {...this.props}
-        />
-      </SafeAreaView>
-    );
-  }
-}
+            </View>
+          </TouchableOpacity>
+        }
+        {...props}
+      />
+    </SafeAreaView>
+  );
+};
 
 export const BlueHeaderDefaultSubHooks = props => {
   const { colors } = useTheme();
@@ -938,11 +907,9 @@ export const BlueHeaderDefaultMain = props => {
   );
 };
 
-export class BlueSpacing extends Component {
-  render() {
-    return <View {...this.props} style={{ height: 60 }} />;
-  }
-}
+export const BlueSpacing = props => {
+  return <View {...props} style={{ height: 60 }} />;
+};
 
 export const BlueSpacing40 = props => {
   return <View {...props} style={{ height: 50 }} />;
@@ -971,12 +938,6 @@ export const BlueSpacing20 = props => {
 export const BlueSpacing10 = props => {
   return <View {...props} style={{ height: 10, opacity: 0 }} />;
 };
-
-export class BlueList extends Component {
-  render() {
-    return <FlatList {...this.props} />;
-  }
-}
 
 export class BlueUseAllFundsButton extends Component {
   static InputAccessoryViewID = 'useMaxInputAccessoryViewID';
@@ -1110,19 +1071,9 @@ export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
   }
 }
 
-export class BlueLoading extends Component {
-  render() {
-    return (
-      <View style={{ flex: 1, paddingTop: 200 }} {...this.props}>
-        <ActivityIndicator />
-      </View>
-    );
-  }
-}
-
-export const BlueLoadingHook = () => {
+export const BlueLoading = props => {
   return (
-    <View style={{ flex: 1, paddingTop: 200 }}>
+    <View style={{ flex: 1, paddingTop: 200 }} {...props}>
       <ActivityIndicator />
     </View>
   );
@@ -1420,93 +1371,6 @@ export const BlueReceiveButtonIcon = props => {
     </TouchableOpacity>
   );
 };
-
-export class BlueScanButton extends Component {
-  render() {
-    return (
-      <TouchableOpacity {...this.props} style={{ flex: 1 }}>
-        <View
-          style={{
-            flex: 1,
-            minWidth: 130,
-            backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
-          }}
-        >
-          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-            <View
-              style={{
-                minWidth: 24,
-                minHeight: 30,
-                backgroundColor: 'transparent',
-                alignItems: 'center',
-                marginBottom: -15,
-                marginLeft: -8,
-              }}
-            >
-              <Image resizeMode="stretch" source={BlueCurrentTheme.scanImage} />
-            </View>
-            <Text
-              style={{
-                color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
-                fontSize: sendReceiveScanButtonFontSize,
-                fontWeight: '600',
-                left: 5,
-                backgroundColor: 'transparent',
-              }}
-            >
-              {loc.send.details_scan}
-            </Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  }
-}
-
-export class BlueSendButtonIcon extends Component {
-  render() {
-    return (
-      <TouchableOpacity {...this.props} testID="SendButton" style={{ flex: 1 }}>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
-            alignItems: 'center',
-          }}
-        >
-          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-            <View
-              style={{
-                left: 5,
-                backgroundColor: 'transparent',
-                transform: [{ rotate: '225deg' }],
-                marginRight: 8,
-              }}
-            >
-              <Icon
-                {...this.props}
-                name="arrow-down"
-                size={sendReceiveScanButtonFontSize}
-                type="font-awesome"
-                color={BlueCurrentTheme.colors.buttonAlternativeTextColor}
-              />
-            </View>
-            <Text
-              style={{
-                color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
-                fontSize: sendReceiveScanButtonFontSize,
-                fontWeight: '500',
-                backgroundColor: 'transparent',
-              }}
-            >
-              {loc.send.header}
-            </Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  }
-}
 
 export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, timeElapsed }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);

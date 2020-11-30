@@ -15,9 +15,9 @@ import {
 } from 'react-native';
 import {
   BlueButton,
-  BlueButtonLinkHook,
+  BlueButtonLink,
   BlueFormMultiInput,
-  BlueLoadingHook,
+  BlueLoading,
   BlueNavigationStyle,
   BlueSpacing10,
   BlueSpacing20,
@@ -572,7 +572,7 @@ const WalletsAddMultisigStep2 = () => {
             ) : (
               <BlueButton disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={useMnemonicPhrase} />
             )}
-            <BlueButtonLinkHook disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+            <BlueButtonLink disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
         </KeyboardAvoidingView>
       </BottomModal>
@@ -620,7 +620,7 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
   const footer = isLoading ? (
-    <BlueLoadingHook />
+    <BlueLoading />
   ) : (
     <View style={styles.buttonBottom}>
       <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />

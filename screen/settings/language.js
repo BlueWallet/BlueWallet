@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueListItem, BlueCard, BlueLoadingHook, BlueNavigationStyle, BlueText } from '../../BlueComponents';
+import { SafeBlueArea, BlueListItem, BlueCard, BlueLoading, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import { AvailableLanguages } from '../../loc/languages';
 import loc from '../../loc';
 
@@ -40,7 +40,7 @@ const Language = () => {
   );
 
   return isLoading ? (
-    <BlueLoadingHook />
+    <BlueLoading />
   ) : (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.flex}>
       <FlatList style={styles.flex} keyExtractor={(_item, index) => `${index}`} data={AvailableLanguages} renderItem={renderItem} />
