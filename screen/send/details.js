@@ -367,17 +367,23 @@ export default class SendDetails extends Component {
 
     this.reCalcTx();
 
-    const recommendedFeesPromise = Promise.race([NetworkTransactionFees.recommendedFees(), this.context.sleep(2000)]).then(
-      recommendedFees => {
-        if (recommendedFees.fastestFee) {
-          AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
-          this.setState({
+    Promise.race([NetworkTransactionFees.recommendedFees(), this.context.sleep(2000)]).then(recommendedFees => {
+      if (recommendedFees.fastestFee) {
+        AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
+        this.setState(
+          {
             fee: recommendedFees.fastestFee.toString(),
             networkTransactionFees: recommendedFees,
-          });
-        }
-      },
-    );
+          },
+          () => {
+            Promise.race([this.state.fromWallet.fetchUtxo(), this.context.sleep(2000)]).then(() => {
+              this.reCalcTx();
+              this.setState({ isLoading: false });
+            });
+          },
+        );
+      }
+    });
 
     if (this.props.route.params.uri) {
       try {
@@ -389,12 +395,6 @@ export default class SendDetails extends Component {
         alert(loc.send.details_error_decode);
       }
     }
-    const fetchUTXOPromise = Promise.race([this.state.fromWallet.fetchUtxo(), this.context.sleep(2000)]);
-
-    Promise.all([recommendedFeesPromise, fetchUTXOPromise]).then(() => {
-      this.reCalcTx();
-      this.setState({ isLoading: false });
-    });
   }
 
   componentWillUnmount() {
