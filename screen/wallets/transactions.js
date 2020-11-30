@@ -140,6 +140,15 @@ const WalletTransactions = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
 
+  // if balance of the wallet positive and there are no transactions, then
+  // it'a freshly impoted wallet and we need to refresh transactions
+  useEffect(() => {
+    if (dataSource.length === 0 && wallet.current.getBalance() > 0) {
+      refreshTransactions();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // if description of transaction has been changed we want to show new one
   useFocusEffect(
     useCallback(() => {
