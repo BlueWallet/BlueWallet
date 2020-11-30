@@ -367,16 +367,15 @@ export default class SendDetails extends Component {
 
     this.reCalcTx();
 
-    try {
-      const recommendedFees = await Promise.race([NetworkTransactionFees.recommendedFees(), this.context.sleep(2000)]);
-      if (recommendedFees && 'fastestFee' in recommendedFees) {
-        await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
+    Promise.race([NetworkTransactionFees.recommendedFees(), this.context.sleep(2000)]).then(recommendedFees => {
+      if (recommendedFees.fastestFee) {
+        AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
         this.setState({
           fee: recommendedFees.fastestFee.toString(),
           networkTransactionFees: recommendedFees,
         });
       }
-    } catch (_) {} // either sleep expired or recommendedFees threw an exception
+    });
 
     if (this.props.route.params.uri) {
       try {
@@ -388,14 +387,7 @@ export default class SendDetails extends Component {
         alert(loc.send.details_error_decode);
       }
     }
-
-    try {
-      await Promise.race([this.state.fromWallet.fetchUtxo(), this.context.sleep(6000)]);
-    } catch (_) {
-      // either sleep expired or fetchUtxo threw an exception
-    }
-
-    this.setState({ isLoading: false });
+    Promise.race([this.state.fromWallet.fetchUtxo(), this.context.sleep(2000)]).finally(() => this.setState({ isLoading: false }));
 
     this.reCalcTx();
   }
