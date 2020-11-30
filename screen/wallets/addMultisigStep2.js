@@ -290,6 +290,13 @@ const WalletsAddMultisigStep2 = () => {
     if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
     setIsProvideMnemonicsModalVisible(false);
     setIsLoading(false);
+    setImportText('');
+  };
+
+  const isValidMnemonicSeed = mnemonicSeed => {
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(mnemonicSeed);
+    return hd.validateMnemonic();
   };
 
   const onBarScanned = ret => {
@@ -298,6 +305,9 @@ const WalletsAddMultisigStep2 = () => {
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       alert('BC-UR not decoded. This should never happen');
+    } else if (isValidMnemonicSeed(ret.data)) {
+      setIsProvideMnemonicsModalVisible(true);
+      setImportText(ret.data);
     } else {
       let cosigner = new MultisigCosigner(ret.data);
       if (!cosigner.isValid()) return alert(loc.multisig.invalid_cosigner);
