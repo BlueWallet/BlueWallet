@@ -70,13 +70,6 @@ const TransactionsStatus = () => {
   }, [colors]);
 
   useEffect(() => {
-    for (const tx of getTransactions()) {
-      if (tx.hash === hash) {
-        setTX(tx);
-        break;
-      }
-    }
-
     for (const w of wallets) {
       for (const t of w.getTransactions()) {
         if (t.hash === hash) {
@@ -87,15 +80,34 @@ const TransactionsStatus = () => {
       }
     }
 
-    Promise.all([checkPossibilityOfCPFP(), checkPossibilityOfRBFBumpFee(), checkPossibilityOfRBFCancel()])
-      .catch(_ => {
-        setIsRBFBumpFeePossible(buttonStatus.notPossible);
-        setIsCPFPPossible(buttonStatus.notPossible);
-        setIsRBFCancelPossible(buttonStatus.notPossible);
-      })
-      .finally(() => setIsLoading(false));
+    for (const tx of getTransactions()) {
+      if (tx.hash === hash) {
+        setTX(tx);
+        break;
+      }
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hash]);
+
+  const initialState = async () => {
+    try {
+      await checkPossibilityOfCPFP();
+      await checkPossibilityOfRBFBumpFee();
+      await checkPossibilityOfRBFCancel();
+    } catch (e) {
+      setIsCPFPPossible(buttonStatus.notPossible);
+      setIsRBFBumpFeePossible(buttonStatus.notPossible);
+      setIsRBFCancelPossible(buttonStatus.notPossible);
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    initialState();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tx]);
 
   useEffect(() => {
     if (wallet) {
