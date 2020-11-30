@@ -4,7 +4,6 @@ import {
   StatusBar,
   StyleSheet,
   KeyboardAvoidingView,
-  Platform,
   StyleProp,
   ViewStyle,
   View,
@@ -12,7 +11,6 @@ import {
 } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { CONST } from 'app/consts';
 import { palette } from 'app/styles';
 import { ifIphoneX, isIos } from 'app/styles/helpers';
 
