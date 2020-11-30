@@ -679,6 +679,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       });
       const witnessScript = p2wsh.redeem.output;
 
+      if (!input.txhex) throw new Error('Electrum server didnt provide txhex to properly create PSBT transaction');
+
       psbt.addInput({
         hash: input.txId,
         index: input.vout,
@@ -932,7 +934,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       newUtxos.push(u);
     }
 
-    return newUtxos;
+    this._utxo = newUtxos;
   }
 
   getID() {

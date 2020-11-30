@@ -307,6 +307,8 @@ module.exports.multiGetUtxoByAddress = async function (addresses, batchsize) {
 
     if (disableBatching) {
       // ElectrumPersonalServer doesnt support `blockchain.scripthash.listunspent`
+      // electrs OTOH supports it, but we dont know it we are currently connected to it or to EPS
+      // so it is pretty safe to do nothing, as caller can derive UTXO from stored transactions
     } else {
       results = await mainClient.blockchainScripthash_listunspentBatch(scripthashes);
     }
