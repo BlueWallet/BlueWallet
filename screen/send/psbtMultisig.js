@@ -40,6 +40,9 @@ const PsbtMultisig = () => {
     root: {
       backgroundColor: colors.elevated,
     },
+    whitespace: {
+      color: colors.elevated,
+    },
     textBtc: {
       color: colors.buttonAlternativeTextColor,
     },
@@ -280,11 +283,12 @@ const PsbtMultisig = () => {
   const destinationAddress = () => {
     // eslint-disable-next-line prefer-const
     let destinationAddressView = [];
+    const whitespace = '_';
     const destinations = Object.entries(destination.split(','));
     for (const [index, address] of destinations) {
       if (index > 1) {
         destinationAddressView.push(
-          <View style={styles.destionationTextContainer} key={`end-${index}`}>
+          <View style={styles.destinationTextContainer} key={`end-${index}`}>
             <Text numberOfLines={0} style={[styles.textDestinationFirstFour, stylesHook.textFiat]}>
               and {destinations.length - 2} more...
             </Text>
@@ -297,13 +301,15 @@ const PsbtMultisig = () => {
         const lastFour = currentAddress.substring(currentAddress.length - 5, currentAddress.length);
         const middle = currentAddress.split(firstFour)[1].split(lastFour)[0];
         destinationAddressView.push(
-          <View style={styles.destionationTextContainer} key={`${currentAddress}-${index}`}>
-            <Text numberOfLines={2} style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>
-              {firstFour}
-              <Text> </Text>
-              <Text style={[styles.textDestination, stylesHook.textFiat]}>{middle}</Text>
-              <Text> </Text>
-              <Text style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>{lastFour}</Text>
+          <View style={styles.destinationTextContainer} key={`${currentAddress}-${index}`}>
+            <Text style={styles.textAlignCenter}>
+              <Text numberOfLines={2} style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>
+                {firstFour}
+                <Text style={stylesHook.whitespace}>{whitespace}</Text>
+                <Text style={[styles.textDestination, stylesHook.textFiat]}>{middle}</Text>
+                <Text style={stylesHook.whitespace}>{whitespace}</Text>
+                <Text style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>{lastFour}</Text>
+              </Text>
             </Text>
           </View>,
         );
@@ -422,7 +428,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  destionationTextContainer: {
+  destinationTextContainer: {
     flexDirection: 'row',
     marginBottom: 4,
     paddingHorizontal: 60,
@@ -437,6 +443,9 @@ const styles = StyleSheet.create({
   textBtc: {
     fontWeight: 'bold',
     fontSize: 30,
+  },
+  textAlignCenter: {
+    textAlign: 'center',
   },
   textDestinationFirstFour: {
     fontSize: 14,
