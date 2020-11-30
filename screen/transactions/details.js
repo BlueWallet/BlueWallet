@@ -78,7 +78,7 @@ const TransactionsDetails = () => {
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors, isLoading]);
+  }, [colors, isLoading, memo]);
 
   useEffect(() => {
     let foundTx = {};
@@ -126,6 +126,15 @@ const TransactionsDetails = () => {
     Keyboard.dismiss();
     txMetadata[tx.hash] = { memo };
     saveToDisk().then(_success => alert(loc.transactions.transaction_note_saved));
+  };
+
+  const handleOnOpenTransactionOnBlockExporerTapped = () => {
+    const url = `https://blockstream.info/tx/${tx.hash}`;
+    Linking.canOpenURL(url).then(supported => {
+      if (supported) {
+        Linking.openURL(url);
+      }
+    });
   };
 
   if (isLoading || !tx) {
@@ -185,16 +194,7 @@ const TransactionsDetails = () => {
                 <BlueCopyToClipboardButton stringToCopy={tx.hash} />
               </View>
               <BlueText style={styles.txHash}>{tx.hash}</BlueText>
-              <TouchableOpacity
-                onPress={() => {
-                  const url = `https://blockstream.info/tx/${tx.hash}`;
-                  Linking.canOpenURL(url).then(supported => {
-                    if (supported) {
-                      Linking.openURL(url);
-                    }
-                  });
-                }}
-              >
+              <TouchableOpacity onPress={handleOnOpenTransactionOnBlockExporerTapped}>
                 <BlueText style={[styles.txLink, stylesHooks.txLink]}>{loc.transactions.details_show_in_block_explorer}</BlueText>
               </TouchableOpacity>
             </>
