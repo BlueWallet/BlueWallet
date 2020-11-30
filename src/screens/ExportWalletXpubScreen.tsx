@@ -4,7 +4,7 @@ import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
-import { Header, ScreenTemplate } from 'app/components';
+import { Header, ScreenTemplate, TextAreaItem } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
 import { RootStackParams, Route } from 'app/consts';
 import { typography } from 'app/styles';
@@ -30,7 +30,7 @@ export const ExportWalletXpubScreen = ({ route }: Props) => {
       <View style={styles.qrCodeContainer}>
         <QRCode quietZone={10} value={xpub} size={140} ecl={'H'} />
       </View>
-      <Text style={styles.xpub}>{xpub}</Text>
+      <TextAreaItem value={xpub} editable={false} style={styles.textArea} />
       <CopyButton textToCopy={xpub} />
     </ScreenTemplate>
   );
@@ -41,8 +41,8 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
     alignItems: 'center',
   },
-  title: { ...typography.headline4, marginTop: 16, textAlign: 'center' },
-  xpub: {
-    ...typography.caption,
+  textArea: {
+    height: 130,
   },
+  title: { ...typography.headline4, marginTop: 16, textAlign: 'center' },
 });
