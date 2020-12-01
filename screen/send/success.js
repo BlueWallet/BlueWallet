@@ -15,7 +15,7 @@ const Success = () => {
   };
   const { colors } = useTheme();
   const { dangerouslyGetParent } = useNavigation();
-  const { amount = 0, fee = 0, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', onDonePressed = pop } = useRoute().params;
+  const { amount, fee, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', onDonePressed = pop } = useRoute().params;
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -76,10 +76,12 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
     <View style={styles.root}>
       <BlueCard style={styles.amount}>
         <View style={styles.view}>
-          <>
-            <Text style={[styles.amountValue, stylesHook.amountValue]}>{amount}</Text>
-            <Text style={[styles.amountUnit, stylesHook.amountUnit]}>{' ' + amountUnit}</Text>
-          </>
+          {amount && (
+            <>
+              <Text style={[styles.amountValue, stylesHook.amountValue]}>{amount}</Text>
+              <Text style={[styles.amountUnit, stylesHook.amountUnit]}>{' ' + amountUnit}</Text>
+            </>
+          )}
         </View>
         {fee > 0 && (
           <Text style={styles.feeText}>
