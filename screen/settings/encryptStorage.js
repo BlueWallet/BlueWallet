@@ -4,7 +4,7 @@ import { ScrollView, Alert, Platform, TouchableOpacity, TouchableWithoutFeedback
 import { useNavigation } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import {
-  BlueLoadingHook,
+  BlueLoading,
   SafeBlueArea,
   BlueSpacing20,
   BlueCard,
@@ -149,7 +149,7 @@ const EncryptStorage = () => {
 
   return isLoading ? (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-      <BlueLoadingHook />
+      <BlueLoading />
     </SafeBlueArea>
   ) : (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>

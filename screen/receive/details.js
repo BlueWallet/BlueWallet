@@ -16,11 +16,11 @@ import Share from 'react-native-share';
 import Handoff from 'react-native-handoff';
 
 import {
-  BlueLoadingHook,
+  BlueLoading,
   BlueCopyTextToClipboard,
   BlueButton,
   SecondButton,
-  BlueButtonLinkHook,
+  BlueButtonLink,
   is,
   BlueBitcoinAmount,
   BlueText,
@@ -161,7 +161,7 @@ const ReceiveDetails = () => {
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>
-          <BlueButtonLinkHook title={loc.receive.details_setAmount} onPress={showCustomAmountModal} />
+          <BlueButtonLink title={loc.receive.details_setAmount} onPress={showCustomAmountModal} />
           <View>
             <SecondButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </View>
@@ -345,7 +345,7 @@ const ReceiveDetails = () => {
           url={`https://blockstream.info/address/${address}`}
         />
       )}
-      {showAddress ? renderReceiveDetails() : <BlueLoadingHook />}
+      {showAddress ? renderReceiveDetails() : <BlueLoading />}
     </View>
   );
 };

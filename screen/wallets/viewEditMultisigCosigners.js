@@ -22,9 +22,9 @@ import ImagePicker from 'react-native-image-picker';
 
 import {
   BlueButton,
-  BlueButtonLinkHook,
+  BlueButtonLink,
   BlueFormMultiInput,
-  BlueLoadingHook,
+  BlueLoading,
   BlueNavigationStyle,
   BlueSpacing10,
   BlueSpacing20,
@@ -441,7 +441,7 @@ const ViewEditMultisigCosigners = () => {
                 onPress={handleUseMnemonicPhrase}
               />
             )}
-            <BlueButtonLinkHook disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+            <BlueButtonLink disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
         </KeyboardAvoidingView>
       </BottomModal>
@@ -451,7 +451,7 @@ const ViewEditMultisigCosigners = () => {
   if (isLoading)
     return (
       <SafeAreaView style={[styles.root, stylesHook.root]}>
-        <BlueLoadingHook />
+        <BlueLoading />
       </SafeAreaView>
     );
 

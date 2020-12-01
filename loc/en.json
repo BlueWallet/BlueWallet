@@ -314,6 +314,7 @@
     "details_inputs": "Inputs",
     "details_outputs": "Outputs",
     "details_received": "Received",
+    "transaction_note_saved":"Transaction note has been successfully saved.",
     "details_show_in_block_explorer": "View in block explorer",
     "details_title": "Transaction",
     "details_to": "Output",

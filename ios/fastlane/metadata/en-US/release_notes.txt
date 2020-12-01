@@ -1,3 +1,26 @@
+v5.6.7
+======
+
+* ADD: coincontrol
+* ADD: Handle fiat rate from alternate sources
+* ADD: new languages: Bulgarian, Polish, Welsh
+* ADD: UYU currency
+* FIX: PayJoin is now BIP compliant
+* FIX: better support for BRD (aka bread) wallet with segwit
+* FIX: Disregarding curent denomination on send screen, scanning address always resets it to BTC
+* FIX: import *.txn file with txhex - extra newline characted prevented it from being recognized (closes #2161)
+* FIX: locale pt_BR, cs_CZ, sl_SI, es_ES, nl_NL, fi_FI, ru
+* FIX: translate message if Bitcoin address or LN invoice is in clipboard
+* FIX: Styling for large screens
+* FIX: exclude change address from recipients for Confirm screen
+* FIX: Dont show loading indicator on launch and onsnapitem
+* FIX: Show alert if storage access is denied
+* FIX: When wallet card has balance but no txs it displays 'pull to refresh'
+* FIX: broken wallet->send->longtap send btn->choose photo
+* FIX: Use system color on widgets
+* FIX: hide provide entropy button when creating Lightning or MS wallet
+* FIX: Can't paste in address block while building tx
+
 v5.6.6
 ======
 
@@ -64,12 +87,3 @@ v5.6.1
 * FIX: locales pt_BR, pt_PT, ru, sl_SI, ja_JP
 * FIX: add margin for RTL languages
 * FIX: Missing (NT) before $ sign
-
-v.5.6.0
-=======
-
-* FIX: some transactions displayed with 0 value
-* FIX: PSBT with HW wallets flow
-* FIX: rare crash on watch-only receive button
-* FIX: RBF cancel style
-* REF: updated languages sl_SI, de_DE, fi_FI, es_ES

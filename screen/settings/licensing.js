@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueSpacing20, BlueLoadingHook } from '../../BlueComponents';
+import { SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueSpacing20, BlueLoading } from '../../BlueComponents';
 /** @type {AppStorage} */
 
 const styles = StyleSheet.create({
@@ -17,7 +17,7 @@ const Licensing = () => {
   }, []);
 
   return isLoading ? (
-    <BlueLoadingHook />
+    <BlueLoading />
   ) : (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <ScrollView>

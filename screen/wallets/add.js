@@ -22,7 +22,7 @@ import {
   BlueFormLabel,
   BlueButton,
   BlueNavigationStyle,
-  BlueButtonLinkHook,
+  BlueButtonLink,
   BlueSpacing20,
 } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCustodianWallet, AppStorage } from '../../class';
@@ -310,7 +310,7 @@ const WalletsAdd = () => {
             }
           })()}
           {isAdvancedOptionsEnabled && selectedWalletType === ButtonSelected.ONCHAIN && !isLoading && (
-            <BlueButtonLinkHook style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />
+            <BlueButtonLink style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />
           )}
           <BlueSpacing20 />
           <View style={styles.createButton}>
@@ -321,7 +321,7 @@ const WalletsAdd = () => {
             )}
           </View>
           {!isLoading && (
-            <BlueButtonLinkHook
+            <BlueButtonLink
               testID="ImportWallet"
               style={styles.import}
               title={loc.wallets.add_import_wallet}

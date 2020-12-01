@@ -15,9 +15,9 @@ import {
 } from 'react-native';
 import {
   BlueButton,
-  BlueButtonLinkHook,
+  BlueButtonLink,
   BlueFormMultiInput,
-  BlueLoadingHook,
+  BlueLoading,
   BlueNavigationStyle,
   BlueSpacing10,
   BlueSpacing20,
@@ -290,6 +290,13 @@ const WalletsAddMultisigStep2 = () => {
     if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
     setIsProvideMnemonicsModalVisible(false);
     setIsLoading(false);
+    setImportText('');
+  };
+
+  const isValidMnemonicSeed = mnemonicSeed => {
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(mnemonicSeed);
+    return hd.validateMnemonic();
   };
 
   const onBarScanned = ret => {
@@ -298,6 +305,9 @@ const WalletsAddMultisigStep2 = () => {
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       alert('BC-UR not decoded. This should never happen');
+    } else if (isValidMnemonicSeed(ret.data)) {
+      setIsProvideMnemonicsModalVisible(true);
+      setImportText(ret.data);
     } else {
       let cosigner = new MultisigCosigner(ret.data);
       if (!cosigner.isValid()) return alert(loc.multisig.invalid_cosigner);
@@ -572,7 +582,7 @@ const WalletsAddMultisigStep2 = () => {
             ) : (
               <BlueButton disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={useMnemonicPhrase} />
             )}
-            <BlueButtonLinkHook disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+            <BlueButtonLink disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
         </KeyboardAvoidingView>
       </BottomModal>
@@ -620,7 +630,7 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
   const footer = isLoading ? (
-    <BlueLoadingHook />
+    <BlueLoading />
   ) : (
     <View style={styles.buttonBottom}>
       <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
