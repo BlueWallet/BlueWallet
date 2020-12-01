@@ -13,6 +13,7 @@ interface Props extends TextInputProps {
   autoFocus?: boolean;
   setValue?: (value: string) => void;
   focused?: boolean;
+  onBlur?: () => void;
 }
 
 interface State {
@@ -58,6 +59,7 @@ export class InputItem extends PureComponent<Props, State> {
     this.setState({
       isActive: false,
     });
+    const { onBlur } = this.props;
     if (!this.state.value) {
       Animated.timing(this.state.isAnimatedFocused, {
         toValue: 0,
@@ -65,6 +67,7 @@ export class InputItem extends PureComponent<Props, State> {
         useNativeDriver: false,
       }).start();
     }
+    !!onBlur && onBlur();
   };
 
   componentDidUpdate() {
