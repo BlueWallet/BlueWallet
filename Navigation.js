@@ -75,6 +75,7 @@ import DrawerList from './screen/wallets/drawerList';
 import { isTablet } from 'react-native-device-info';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
+import PsbtMultisigQRCode from './screen/send/psbtMultisigQRCode';
 
 const defaultScreenOptions =
   Platform.OS === 'ios'
@@ -182,6 +183,7 @@ const SendDetailsRoot = () => (
     />
     <SendDetailsStack.Screen name="CreateTransaction" component={SendCreate} options={SendCreate.navigationOptions} />
     <SendDetailsStack.Screen name="PsbtMultisig" component={PsbtMultisig} options={PsbtMultisig.navigationOptions} />
+    <SendDetailsStack.Screen name="PsbtMultisigQRCode" component={PsbtMultisigQRCode} options={PsbtMultisigQRCode.navigationOptions} />
     <SendDetailsStack.Screen
       name="Success"
       component={Success}

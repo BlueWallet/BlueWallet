@@ -1,22 +1,14 @@
 /* global alert */
-import React, { useContext, useState } from 'react';
-import { FlatList, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { BlueButton, BlueButtonLink, BlueCard, BlueNavigationStyle, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
-import { DynamicQRCode } from '../../components/DynamicQRCode';
-import { SquareButton } from '../../components/SquareButton';
-import { getSystemName } from 'react-native-device-info';
+import React, { useContext, useEffect, useState } from 'react';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BlueButton, BlueCard, BlueNavigationStyle, BlueText, SafeBlueArea } from '../../BlueComponents';
 import loc from '../../loc';
 import { Icon } from 'react-native-elements';
-import ImagePicker from 'react-native-image-picker';
-import ScanQRCode from './ScanQRCode';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const bitcoin = require('bitcoinjs-lib');
 const currency = require('../../blue_modules/currency');
-const fs = require('../../blue_modules/fs');
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-const isDesktop = getSystemName() === 'Mac OS X';
 const BigNumber = require('bignumber.js');
 
 const shortenAddress = addr => {
@@ -30,12 +22,12 @@ const PsbtMultisig = () => {
   const { colors } = useTheme();
   const [flatListHeight, setFlatListHeight] = useState(0);
 
-  const walletId = route.params.walletId;
+  const walletID = route.params.walletId;
   const psbtBase64 = route.params.psbtBase64;
   const memo = route.params.memo;
+  const receivedPSBTBase64 = route.params.receivedPSBTBase64;
 
   const [psbt, setPsbt] = useState(bitcoin.Psbt.fromBase64(psbtBase64));
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -52,16 +44,10 @@ const PsbtMultisig = () => {
     textDestination: {
       color: colors.foregroundColor,
     },
-    modalContentShort: {
-      backgroundColor: colors.elevated,
-    },
     textFiat: {
       color: colors.alternativeTextColor,
     },
     provideSignatureButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    exportButton: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
     },
     provideSignatureButtonText: {
@@ -84,7 +70,7 @@ const PsbtMultisig = () => {
     },
   });
   /** @type MultisigHDWallet */
-  const wallet = wallets.find(w => w.getID() === walletId);
+  const wallet = wallets.find(w => w.getID() === walletID);
   let destination = [];
   let totalSat = 0;
   const targets = [];
@@ -98,7 +84,6 @@ const PsbtMultisig = () => {
   destination = shortenAddress(destination.join(', '));
   const totalBtc = new BigNumber(totalSat).dividedBy(100000000).toNumber();
   const totalFiat = currency.satoshiToLocalCurrency(totalSat);
-  const fileName = `${Date.now()}.psbt`;
 
   const howManySignaturesWeHave = () => {
     return wallet.calculateHowManySignaturesWeHaveFromPsbt(psbt);
@@ -111,6 +96,10 @@ const PsbtMultisig = () => {
   const _renderItem = el => {
     if (el.index >= howManySignaturesWeHave()) return _renderItemUnsigned(el);
     else return _renderItemSigned(el);
+  };
+
+  const navigateToPSBTMultisigQRCode = () => {
+    navigation.navigate('PsbtMultisigQRCode', { walletID, psbtBase64 });
   };
 
   const _renderItemUnsigned = el => {
@@ -133,9 +122,7 @@ const PsbtMultisig = () => {
             <TouchableOpacity
               testID="ProvideSignature"
               style={[styles.provideSignatureButton, stylesHook.provideSignatureButton]}
-              onPress={() => {
-                setIsModalVisible(true);
-              }}
+              onPress={navigateToPSBTMultisigQRCode}
             >
               <Text style={[styles.provideSignatureButtonText, stylesHook.provideSignatureButtonText]}>
                 {loc.multisig.provide_signature}
@@ -162,28 +149,16 @@ const PsbtMultisig = () => {
     );
   };
 
-  const _combinePSBT = receivedPSBTBase64 => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => _combinePSBT, [receivedPSBTBase64]);
+
+  const _combinePSBT = () => {
     const receivedPSBT = bitcoin.Psbt.fromBase64(receivedPSBTBase64);
     try {
       const newPsbt = psbt.combine(receivedPSBT);
-      navigation.dangerouslyGetParent().pop();
       setPsbt(newPsbt);
-      setIsModalVisible(false);
     } catch (error) {
       alert(error);
-    }
-  };
-
-  const onBarScanned = ret => {
-    if (!ret.data) ret = { data: ret };
-    if (ret.data.toUpperCase().startsWith('UR')) {
-      alert('BC-UR not decoded. This should never happen');
-    } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
-      // this looks like NOT base64, so maybe its transaction's hex
-      // we dont support it in this flow
-    } else {
-      // psbt base64?
-      _combinePSBT(ret.data);
     }
   };
 
@@ -208,73 +183,8 @@ const PsbtMultisig = () => {
     }
   };
 
-  const openScanner = () => {
-    if (isDesktop) {
-      ImagePicker.launchCamera(
-        {
-          title: null,
-          mediaType: 'photo',
-          takePhotoButtonTitle: null,
-        },
-        response => {
-          if (response.uri) {
-            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
-            LocalQRCode.decode(uri, (error, result) => {
-              if (!error) {
-                onBarScanned(result);
-              } else {
-                alert(loc.send.qr_error_no_qrcode);
-              }
-            });
-          } else if (response.error) {
-            ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
-          }
-        },
-      );
-    } else {
-      navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          onBarScanned: onBarScanned,
-          showFileImportButton: true,
-        },
-      });
-    }
-  };
-
-  const exportPSBT = async () => {
-    await fs.writeFileAndExport(fileName, psbt.toBase64());
-  };
-
   const isConfirmEnabled = () => {
     return howManySignaturesWeHave() >= wallet.getM();
-  };
-
-  const renderDynamicQrCode = () => {
-    return (
-      <SafeBlueArea style={[styles.root, stylesHook.root]}>
-        <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
-          <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
-            <DynamicQRCode value={psbt.toHex()} capacity={666} />
-            {!isConfirmEnabled() && (
-              <>
-                <BlueSpacing20 />
-                <SquareButton
-                  testID="CosignedScanOrImportFile"
-                  style={[styles.exportButton, stylesHook.exportButton]}
-                  onPress={openScanner}
-                  title={loc.multisig.scan_or_import_file}
-                />
-              </>
-            )}
-            <BlueSpacing20 />
-            <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportPSBT} title={loc.multisig.share} />
-            <BlueSpacing20 />
-            <BlueButtonLink title={loc._.cancel} onPress={() => setIsModalVisible(false)} />
-          </View>
-        </ScrollView>
-      </SafeBlueArea>
-    );
   };
 
   const destinationAddress = () => {
@@ -338,8 +248,6 @@ const PsbtMultisig = () => {
     </View>
   );
 
-  if (isModalVisible) return renderDynamicQrCode();
-
   const onLayout = e => {
     setFlatListHeight(e.nativeEvent.layout.height);
   };
@@ -367,9 +275,7 @@ const PsbtMultisig = () => {
                   <TouchableOpacity
                     testID="ExportSignedPsbt"
                     style={[styles.provideSignatureButton, stylesHook.provideSignatureButton]}
-                    onPress={() => {
-                      setIsModalVisible(true);
-                    }}
+                    onPress={navigateToPSBTMultisigQRCode}
                   >
                     <Text style={[styles.provideSignatureButtonText, stylesHook.provideSignatureButtonText]}>
                       {loc.multisig.export_signed_psbt}
@@ -446,21 +352,6 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     fontSize: 14,
     flexWrap: 'wrap',
-  },
-  modalContentShort: {
-    marginLeft: 20,
-    marginRight: 20,
-  },
-  copyToClipboard: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  exportButton: {
-    height: 48,
-    borderRadius: 8,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
   },
   provideSignatureButton: {
     marginTop: 24,
