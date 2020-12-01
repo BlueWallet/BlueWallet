@@ -7,7 +7,7 @@ import ImagePicker from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload } from 'bc-ur';
 import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import { BlueLoadingHook, BlueText, BlueButton, BlueSpacing40 } from '../../BlueComponents';
+import { BlueLoading, BlueText, BlueButton, BlueSpacing40 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
@@ -231,7 +231,7 @@ const ScanQRCode = () => {
 
   return isLoading ? (
     <View style={styles.root}>
-      <BlueLoadingHook />
+      <BlueLoading />
     </View>
   ) : (
     <View style={styles.root}>

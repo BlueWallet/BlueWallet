@@ -11,7 +11,7 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueNavigationStyle,
-  BlueLoadingHook,
+  BlueLoading,
   BlueText,
   BlueButtonLink,
 } from '../../BlueComponents';
@@ -130,7 +130,7 @@ const LightningSettings = () => {
 
         <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
         <BlueSpacing20 />
-        {isLoading ? <BlueLoadingHook /> : <BlueButton onPress={save} title={loc.settings.save} />}
+        {isLoading ? <BlueLoading /> : <BlueButton onPress={save} title={loc.settings.save} />}
       </BlueCard>
     </SafeBlueArea>
   );
