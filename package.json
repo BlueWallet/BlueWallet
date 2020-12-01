@@ -72,7 +72,7 @@
     "lint:fix": "yarn lint --fix",
     "typescript:check": "tsc --noEmit",
     "prettier:fix": "prettier --write '**/*.{js,ts,tsx}'",
-    "precommit": "yarn lint-staged",
+    "precommit": "yarn lint-staged && yarn typescript:check",
     "shake": "adb shell input keyevent 82",
     "translate:check-missing": "node --experimental-modules -r @std/esm scripts/checkTranslation.mjs"
   },
@@ -211,14 +211,11 @@
   "lint-staged": {
     "./**/*.{ts,tsx,js,jsx}": [
       "yarn lint:fix"
-    ],
-    "./**/*.{ts|tsx}": [
-      "yarn typescript:check"
     ]
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged",
+      "pre-commit": "yarn precommit",
       "pre-push": "yarn test:local"
     }
   }
