@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BlueButton, BlueCard, BlueNavigationStyle, BlueText, SafeBlueArea } from '../../BlueComponents';
 import loc from '../../loc';
@@ -23,7 +23,7 @@ const PsbtMultisig = () => {
   const { walletID, psbtBase64, memo, receivedPSBTBase64 } = useRoute().params;
   /** @type MultisigHDWallet */
   const wallet = wallets.find(w => w.getID() === walletID);
-  const [psbt, setPsbt] = useState(bitcoin.Psbt.fromBase64(psbtBase64));
+  const psbt = useRef(bitcoin.Psbt.fromBase64(psbtBase64));
   const data = new Array(wallet.getM());
   const stylesHook = StyleSheet.create({
     root: {
@@ -73,7 +73,7 @@ const PsbtMultisig = () => {
   let destination = [];
   let totalSat = 0;
   const targets = [];
-  for (const output of psbt.txOutputs) {
+  for (const output of psbt.current.txOutputs) {
     if (output.address && !wallet.weOwnAddress(output.address)) {
       totalSat += output.value;
       destination.push(output.address);
@@ -85,7 +85,7 @@ const PsbtMultisig = () => {
   const totalFiat = currency.satoshiToLocalCurrency(totalSat);
 
   const getFee = () => {
-    return wallet.calculateFeeFromPsbt(psbt);
+    return wallet.calculateFeeFromPsbt(psbt.current);
   };
 
   const _renderItem = el => {
@@ -156,8 +156,8 @@ const PsbtMultisig = () => {
   const _combinePSBT = () => {
     const receivedPSBT = bitcoin.Psbt.fromBase64(receivedPSBTBase64);
     try {
-      const newPsbt = psbt.combine(receivedPSBT);
-      setPsbt(newPsbt);
+      const newPsbt = psbt.current.combine(receivedPSBT);
+      psbt.current = newPsbt;
     } catch (error) {
       alert(error);
     }
@@ -165,11 +165,11 @@ const PsbtMultisig = () => {
 
   const onConfirm = () => {
     try {
-      psbt.finalizeAllInputs();
+      psbt.current.finalizeAllInputs();
     } catch (_) {} // ignore if it is already finalized
 
     try {
-      const tx = psbt.extractTransaction().toHex();
+      const tx = psbt.current.extractTransaction().toHex();
       const satoshiPerByte = Math.round(getFee() / (tx.length / 2));
       navigate('Confirm', {
         fee: new BigNumber(getFee()).dividedBy(100000000).toNumber(),
@@ -184,7 +184,7 @@ const PsbtMultisig = () => {
     }
   };
 
-  const howManySignaturesWeHave = wallet.calculateHowManySignaturesWeHaveFromPsbt(psbt);
+  const howManySignaturesWeHave = wallet.calculateHowManySignaturesWeHaveFromPsbt(psbt.current);
   const isConfirmEnabled = () => {
     return howManySignaturesWeHave >= wallet.getM();
   };
