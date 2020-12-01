@@ -117,7 +117,7 @@
     "prop-types": "15.7.2",
     "react": "16.13.1",
     "react-localization": "1.0.15",
-    "react-native": "0.63.3",
+    "react-native": "0.63.4",
     "react-native-blue-crypto": "git+https://github.com/Overtorment/react-native-blue-crypto.git",
     "react-native-camera": "3.40.0",
     "react-native-default-preference": "1.4.3",
