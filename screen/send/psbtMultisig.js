@@ -17,17 +17,14 @@ const shortenAddress = addr => {
 
 const PsbtMultisig = () => {
   const { wallets } = useContext(BlueStorageContext);
-  const navigation = useNavigation();
-  const route = useRoute();
+  const { navigate, setParams } = useNavigation();
   const { colors } = useTheme();
   const [flatListHeight, setFlatListHeight] = useState(0);
-
-  const walletID = route.params.walletId;
-  const psbtBase64 = route.params.psbtBase64;
-  const memo = route.params.memo;
-  const receivedPSBTBase64 = route.params.receivedPSBTBase64;
-
+  const { walletID, psbtBase64, memo, receivedPSBTBase64 } = useRoute().params;
+  /** @type MultisigHDWallet */
+  const wallet = wallets.find(w => w.getID() === walletID);
   const [psbt, setPsbt] = useState(bitcoin.Psbt.fromBase64(psbtBase64));
+  const data = new Array(wallet.getM());
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -69,8 +66,7 @@ const PsbtMultisig = () => {
       color: colors.msSuccessBG,
     },
   });
-  /** @type MultisigHDWallet */
-  const wallet = wallets.find(w => w.getID() === walletID);
+
   let destination = [];
   let totalSat = 0;
   const targets = [];
@@ -85,25 +81,21 @@ const PsbtMultisig = () => {
   const totalBtc = new BigNumber(totalSat).dividedBy(100000000).toNumber();
   const totalFiat = currency.satoshiToLocalCurrency(totalSat);
 
-  const howManySignaturesWeHave = () => {
-    return wallet.calculateHowManySignaturesWeHaveFromPsbt(psbt);
-  };
-
   const getFee = () => {
     return wallet.calculateFeeFromPsbt(psbt);
   };
 
   const _renderItem = el => {
-    if (el.index >= howManySignaturesWeHave()) return _renderItemUnsigned(el);
+    if (el.index >= howManySignaturesWeHave) return _renderItemUnsigned(el);
     else return _renderItemSigned(el);
   };
 
   const navigateToPSBTMultisigQRCode = () => {
-    navigation.navigate('PsbtMultisigQRCode', { walletID, psbtBase64 });
+    navigate('PsbtMultisigQRCode', { walletID, psbtBase64, isShowOpenScanner: isConfirmEnabled() });
   };
 
   const _renderItemUnsigned = el => {
-    const renderProvideSignature = el.index === howManySignaturesWeHave();
+    const renderProvideSignature = el.index === howManySignaturesWeHave;
     return (
       <View testID="ItemUnsigned">
         <View style={styles.itemUnsignedWrapper}>
@@ -150,9 +142,16 @@ const PsbtMultisig = () => {
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => _combinePSBT, [receivedPSBTBase64]);
+  useEffect(() => {
+    if (receivedPSBTBase64) {
+      _combinePSBT();
+      setParams({ receivedPSBTBase64: undefined });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [receivedPSBTBase64]);
 
   const _combinePSBT = () => {
+    console.warn(receivedPSBTBase64);
     const receivedPSBT = bitcoin.Psbt.fromBase64(receivedPSBTBase64);
     try {
       const newPsbt = psbt.combine(receivedPSBT);
@@ -170,7 +169,7 @@ const PsbtMultisig = () => {
     try {
       const tx = psbt.extractTransaction().toHex();
       const satoshiPerByte = Math.round(getFee() / (tx.length / 2));
-      navigation.navigate('Confirm', {
+      navigate('Confirm', {
         fee: new BigNumber(getFee()).dividedBy(100000000).toNumber(),
         memo: memo,
         fromWallet: wallet,
@@ -183,8 +182,9 @@ const PsbtMultisig = () => {
     }
   };
 
+  const howManySignaturesWeHave = wallet.calculateHowManySignaturesWeHaveFromPsbt(psbt);
   const isConfirmEnabled = () => {
-    return howManySignaturesWeHave() >= wallet.getM();
+    return howManySignaturesWeHave >= wallet.getM();
   };
 
   const destinationAddress = () => {
@@ -252,7 +252,6 @@ const PsbtMultisig = () => {
     setFlatListHeight(e.nativeEvent.layout.height);
   };
 
-  const data = new Array(wallet.getM());
   return (
     <SafeBlueArea style={[styles.root, stylesHook.root]}>
       <View style={styles.container}>
