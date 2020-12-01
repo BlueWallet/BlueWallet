@@ -151,7 +151,6 @@ const PsbtMultisig = () => {
   }, [receivedPSBTBase64]);
 
   const _combinePSBT = () => {
-    console.warn(receivedPSBTBase64);
     const receivedPSBT = bitcoin.Psbt.fromBase64(receivedPSBTBase64);
     try {
       const newPsbt = psbt.combine(receivedPSBT);
