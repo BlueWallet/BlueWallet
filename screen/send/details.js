@@ -647,7 +647,7 @@ export default class SendDetails extends Component {
       this.props.navigation.navigate('PsbtMultisig', {
         memo: this.state.memo,
         psbtBase64: psbt.toBase64(),
-        walletId: wallet.getID(),
+        walletID: wallet.getID(),
       });
       this.setState({ isLoading: false });
       return;
@@ -976,7 +976,7 @@ export default class SendDetails extends Component {
       this.props.navigation.navigate('PsbtMultisig', {
         memo: this.state.memo,
         psbtBase64: psbt.toBase64(),
-        walletId: fromWallet.getID(),
+        walletID: fromWallet.getID(),
       });
     } catch (error) {
       alert(loc.send.problem_with_psbt + ': ' + error.message);
