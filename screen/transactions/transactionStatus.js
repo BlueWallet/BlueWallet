@@ -11,6 +11,7 @@ import {
   BlueLoading,
   BlueSpacing20,
   BlueNavigationStyle,
+  BlueSpacing10,
 } from '../../BlueComponents';
 import { HDSegwitBech32Transaction } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -33,9 +34,9 @@ const TransactionsStatus = () => {
   const { navigate, setOptions } = useNavigation();
   const { colors } = useTheme();
   const wallet = useRef();
-  const [isCPFPPossible, setIsCPFPPossible] = useState(buttonStatus.unknown);
-  const [isRBFBumpFeePossible, setIsRBFBumpFeePossible] = useState(buttonStatus.unknown);
-  const [isRBFCancelPossible, setIsRBFCancelPossible] = useState(buttonStatus.unknown);
+  const [isCPFPPossible, setIsCPFPPossible] = useState();
+  const [isRBFBumpFeePossible, setIsRBFBumpFeePossible] = useState();
+  const [isRBFCancelPossible, setIsRBFCancelPossible] = useState();
   const [tx, setTX] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const stylesHook = StyleSheet.create({
@@ -55,6 +56,12 @@ const TransactionsStatus = () => {
       backgroundColor: colors.lightButton,
     },
   });
+
+  useEffect(() => {
+    setIsCPFPPossible(buttonStatus.unknown);
+    setIsRBFBumpFeePossible(buttonStatus.unknown);
+    setIsRBFCancelPossible(buttonStatus.unknown);
+  }, []);
 
   useEffect(() => {
     setOptions({
@@ -206,7 +213,7 @@ const TransactionsStatus = () => {
       return (
         <>
           <BlueButton onPress={navigateToCPFP} title={loc.transactions.status_bump} />
-          <BlueSpacing20 />
+          <BlueSpacing10 />
         </>
       );
     }
@@ -227,6 +234,7 @@ const TransactionsStatus = () => {
               {loc.transactions.status_cancel}
             </Text>
           </TouchableOpacity>
+          <BlueSpacing10 />
         </>
       );
     }
@@ -244,6 +252,7 @@ const TransactionsStatus = () => {
       return (
         <>
           <BlueButton onPress={navigateToRBFBumpFee} title={loc.transactions.status_bump} />
+          <BlueSpacing10 />
         </>
       );
     }
