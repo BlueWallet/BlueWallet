@@ -65,6 +65,7 @@ export default class RBFBumpFee extends CPFP {
     if (this.context.txMetadata[this.state.txid]) {
       this.context.txMetadata[this.state.newTxid] = this.context.txMetadata[this.state.txid];
     }
+    this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
     this.props.navigation.navigate('Success', { onDonePressed: () => this.props.navigation.popToTop(), amount: undefined });
   }
 
