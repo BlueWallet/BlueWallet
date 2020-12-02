@@ -9,6 +9,7 @@ module.exports = {
     copy: 'Kopyala',
     created: 'Oluşturulma tarihi',
     delete: 'Sil',
+    details: 'Ayrıntılar',
     enter_password: 'Parolayı girin',
     here: 'buraya',
     invalid: 'Geçersiz',

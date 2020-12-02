@@ -114,10 +114,7 @@ class OptionsAuthenticatorScreen extends Component<Props, State> {
       return null;
     }
     return (
-      <ScreenTemplate
-        contentContainer={styles.contentContainer}
-        header={<Header isBackArrow title={i18n.authenticators.options.title} />}
-      >
+      <ScreenTemplate contentContainer={styles.contentContainer} header={<Header isBackArrow title={i18n._.details} />}>
         <View>
           <Text style={styles.subtitle}>{authenticator.name}</Text>
           <Text style={[styles.desc, styles.center]}>

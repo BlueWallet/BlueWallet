@@ -9,6 +9,7 @@ module.exports = {
     copy: 'Salin',
     created: 'Dibuat pada',
     delete: 'Hapus',
+    details: 'Detail',
     enter_password: 'Masukkan kata sandi',
     here: 'Disini',
     invalid: 'Tidak Valid',

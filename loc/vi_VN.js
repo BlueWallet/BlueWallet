@@ -9,6 +9,7 @@ module.exports = {
     copy: 'Sao chép',
     created: 'Đã tạo vào',
     delete: 'Xóa',
+    details: 'Chi tiết',
     enter_password: 'Nhập mật khẩu',
     here: 'tại đây',
     invalid: 'Không hợp lệ',

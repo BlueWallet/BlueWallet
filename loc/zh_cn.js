@@ -9,6 +9,7 @@ module.exports = {
     copy: '复制',
     created: '创建日期',
     delete: '删除',
+    details: '详情',
     enter_password: '输入密码',
     here: '这里',
     invalid: '无效',

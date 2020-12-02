@@ -9,6 +9,7 @@ module.exports = {
     copy: 'Copiar',
     created: 'Criado em',
     delete: 'Apagar',
+    details: 'Detalhes',
     enter_password: 'Introduzir palavra-passe',
     here: 'Aqui',
     invalid: 'Inválido',

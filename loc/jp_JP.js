@@ -9,6 +9,7 @@ module.exports = {
     copy: 'コピー',
     created: '作成日付',
     delete: '削除',
+    details: '詳細',
     enter_password: 'パスワード入力',
     here: 'こちらへ',
     invalid: '無効',

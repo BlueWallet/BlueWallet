@@ -9,6 +9,7 @@ module.exports = {
     copy: '복사',
     created: '생성 날짜',
     delete: '삭제',
+    details: '세부 사항',
     enter_password: '패스워드를 입력하십시오',
     here: '여기',
     invalid: '유효하지 않음',
