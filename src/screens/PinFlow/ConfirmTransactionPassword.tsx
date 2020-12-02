@@ -92,10 +92,10 @@ class ConfirmTransactionPasswordScreen extends PureComponent<Props, State> {
             disabled={password.length < CONST.transactionMinPasswordLength}
           />
         }
-        header={<Header isBackArrow title={i18n.onboarding.confirmPassword} />}
+        header={<Header isBackArrow title={i18n.onboarding.onboarding} />}
       >
         <View style={styles.infoContainer}>
-          <Text style={typography.headline4}>{i18n.onboarding.createPassword}</Text>
+          <Text style={typography.headline4}>{i18n.onboarding.confirmPassword}</Text>
           <Text style={styles.pinDescription}>{i18n.onboarding.createPasswordDescription}</Text>
         </View>
         <View style={styles.inputItemContainer}>
