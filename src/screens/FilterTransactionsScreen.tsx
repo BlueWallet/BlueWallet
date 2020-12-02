@@ -134,7 +134,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
 
   formatAmount = (amount: string, update: 'updateFromAmount' | 'updateToAmount') => {
     !this.validateAmount(amount) &&
-      this.props[update](i18n.formatBalanceWithoutSuffix(Number(amount), '', true).toString());
+      this.props[update](i18n.formatBalanceWithoutSuffix(Number(amount), undefined, true).toString());
   };
 
   renderCommonCardContent = () => {
