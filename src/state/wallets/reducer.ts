@@ -47,7 +47,8 @@ export const walletsReducer = (state = initialState, action: WalletsActionType):
     case WalletsAction.CreateWalletSuccess:
       return {
         ...state,
-        wallets: [...state.wallets, cloneDeep(action.wallet)],
+        // filter wallets with same id to prevent duplicates
+        wallets: [...state.wallets.filter(w => w.id !== action.wallet.id), cloneDeep(action.wallet)],
         isLoading: false,
         error: null,
       };

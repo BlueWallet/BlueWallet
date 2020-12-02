@@ -54,6 +54,7 @@ export function* loadWalletsSaga() {
       const [address] = message.split(' ');
       const walletNetworkName = checkAddressNetworkName(address);
       Alert.alert(
+        i18n.send.error.title,
         i18n.formatString(i18n.wallets.errors.wrongNetwork, {
           walletNetworkName,
           appNetworkName: config.networkName,
