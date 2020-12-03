@@ -168,7 +168,7 @@ const ViewEditMultisigCosigners = () => {
             </View>
             <View style={styles.vaultKeyTextWrapper}>
               <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
-                {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex + 1 })}
+                {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
               </Text>
             </View>
           </View>
