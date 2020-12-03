@@ -404,6 +404,7 @@
     "take_photo": "Take Photo",
     "xpub_copiedToClipboard": "Copied to clipboard.",
     "pull_to_refresh": "pull to refresh",
+    "warning_do_not_disclose": "Warning! Do not disclose",
     "xpub_title": "wallet XPUB"
   },
   "multisig": {
