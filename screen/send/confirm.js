@@ -91,14 +91,15 @@ export default class Confirm extends Component {
 
         amount = formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
 
-        this.context.fetchAndSaveWalletTransactions(this.state.fromWallet.getID());
         this.props.navigation.navigate('Success', {
           fee: Number(this.state.fee),
           amount,
-          dismissModal: () => this.props.navigation.dangerouslyGetParent().pop(),
         });
 
         this.setState({ isLoading: false });
+
+        await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
+        this.context.fetchAndSaveWalletTransactions(this.state.fromWallet.getID());
       } catch (error) {
         ReactNativeHapticFeedback.trigger('notificationError', {
           ignoreAndroidSystemSettings: false,
