@@ -208,7 +208,7 @@ const WalletsList = () => {
           {`${loc.transactions.list_title}${'  '}`}
         </Text>
         {isCatalyst && (
-          <TouchableOpacity style={style} onPress={refreshTransactions} disabled={isLoading}>
+          <TouchableOpacity style={style} onPress={() => refreshTransactions(true)} disabled={isLoading}>
             <Icon name="refresh" type="font-awesome" color={colors.feeText} />
           </TouchableOpacity>
         )}
