@@ -1,5 +1,5 @@
 /* global alert */
-import React, { Component } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   View,
@@ -20,18 +20,385 @@ import {
   BlueDismissKeyboardInputAccessory,
   BlueAlertWalletExportReminder,
 } from '../../BlueComponents';
-import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import PropTypes from 'prop-types';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
 import Lnurl from '../../class/lnurl';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
+import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 const currency = require('../../blue_modules/currency');
+
+const LNDCreateInvoice = () => {
+  const { wallets, saveToDisk, setSelectedWallet } = useContext(BlueStorageContext);
+  const { walletID, uri } = useRoute().params;
+  const wallet = useRef(
+    wallets.find(item => item.getID() === walletID) || wallets.find(item => item.type === LightningCustodianWallet.type),
+  );
+  const { name } = useRoute();
+  const { colors } = useTheme();
+  const { navigate, dangerouslyGetParent, goBack, pop, setParams } = useNavigation();
+  const [unit, setUnit] = useState();
+  const [amount, setAmount] = useState();
+  const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [description, setDescription] = useState('');
+  const [lnurlParams, setLNURLParams] = useState();
+  const styleHooks = StyleSheet.create({
+    scanRoot: {
+      backgroundColor: colors.scanLabel,
+    },
+    scanClick: {
+      color: colors.inverseForegroundColor,
+    },
+    walletNameText: {
+      color: colors.buttonAlternativeTextColor,
+    },
+    walletNameBalance: {
+      color: colors.buttonAlternativeTextColor,
+    },
+    walletNameSats: {
+      color: colors.buttonAlternativeTextColor,
+    },
+    root: {
+      backgroundColor: colors.elevated,
+    },
+    amount: {
+      backgroundColor: colors.elevated,
+    },
+    fiat: {
+      borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
+      backgroundColor: colors.inputBackgroundColor,
+    },
+  });
+
+  useEffect(() => {
+    // console.log(params)
+    Keyboard.addListener('keyboardDidShow', _keyboardDidShow);
+    Keyboard.addListener('keyboardDidHide', _keyboardDidHide);
+    return () => {
+      Keyboard.removeListener('keyboardDidShow', _keyboardDidShow);
+      Keyboard.removeListener('keyboardDidHide', _keyboardDidHide);
+    };
+  }, []);
+
+  const renderReceiveDetails = async () => {
+    try {
+      wallet.current.setUserHasSavedExport(true);
+      await saveToDisk();
+      if (uri) {
+        processLnurl(uri);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    if (wallet.current && wallet.current.getID() !== walletID) {
+      wallet.current = wallets.filter(w => w.getID() === walletID);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletID]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (wallet.current) {
+        setSelectedWallet(walletID);
+        setUnit(wallet.current.preferredBalanceUnit);
+        if (wallet.current.getUserHasSavedExport()) {
+          renderReceiveDetails();
+        } else {
+          BlueAlertWalletExportReminder({
+            onSuccess: () => renderReceiveDetails(),
+            onFailure: () => {
+              dangerouslyGetParent().pop();
+              NavigationService.navigate('WalletExportRoot', {
+                screen: 'WalletExport',
+                params: {
+                  walletID,
+                },
+              });
+            },
+          });
+        }
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [wallet]),
+    [],
+  );
+
+  const _keyboardDidShow = () => {
+    setRenderWalletSelectionButtonHidden(true);
+  };
+
+  const _keyboardDidHide = () => {
+    setRenderWalletSelectionButtonHidden(false);
+  };
+
+  const createInvoice = async () => {
+    setIsLoading(true);
+    try {
+      let invoiceAmount = amount;
+      switch (unit) {
+        case BitcoinUnit.SATS:
+          invoiceAmount = parseInt(invoiceAmount); // basically nop
+          break;
+        case BitcoinUnit.BTC:
+          invoiceAmount = currency.btcToSatoshi(invoiceAmount);
+          break;
+        case BitcoinUnit.LOCAL_CURRENCY:
+          // trying to fetch cached sat equivalent for this fiat amount
+          invoiceAmount = BlueBitcoinAmount.getCachedSatoshis(invoiceAmount) || currency.btcToSatoshi(currency.fiatToBTC(invoiceAmount));
+          break;
+      }
+
+      const invoiceRequest = await wallet.current.addInvoice(invoiceAmount, description);
+      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+
+      // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
+      /** @type LightningCustodianWallet */
+      const decoded = await wallet.current.decodeInvoice(invoiceRequest);
+      await Notifications.tryToObtainPermissions();
+      Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
+
+      // send to lnurl-withdraw callback url if that exists
+      if (lnurlParams) {
+        const { callback, k1 } = lnurlParams;
+        const callbackUrl = callback + (callback.indexOf('?') !== -1 ? '&' : '?') + 'k1=' + k1 + '&pr=' + invoiceRequest;
+        const resp = await fetch(callbackUrl, { method: 'GET' });
+        if (resp.status >= 300) {
+          const text = await resp.text();
+          throw new Error(text);
+        }
+        const reply = await resp.json();
+        if (reply.status === 'ERROR') {
+          throw new Error('Reply from server: ' + reply.reason);
+        }
+      }
+
+      setTimeout(async () => {
+        // wallet object doesnt have this fresh invoice in its internals, so we refetch it and only then save
+        await wallet.current.fetchUserInvoices(1);
+        await saveToDisk();
+      }, 1000);
+
+      navigate('LNDViewInvoice', {
+        invoice: invoiceRequest,
+        walletID,
+        isModal: true,
+      });
+    } catch (Err) {
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      setIsLoading(false);
+      alert(Err.message);
+    }
+  };
+
+  const processLnurl = async data => {
+    setIsLoading(true);
+    if (!wallet) {
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
+      return goBack();
+    }
+
+    // decoding the lnurl
+    const url = Lnurl.getUrlFromLnurl(data);
+
+    // calling the url
+    try {
+      const resp = await fetch(url, { method: 'GET' });
+      if (resp.status >= 300) {
+        throw new Error('Bad response from server');
+      }
+      const reply = await resp.json();
+      if (reply.status === 'ERROR') {
+        throw new Error('Reply from server: ' + reply.reason);
+      }
+
+      if (reply.tag === Lnurl.TAG_PAY_REQUEST) {
+        // we are here by mistake. user wants to SEND to lnurl-pay, but he is on a screen that creates
+        // invoices (including through lnurl-withdraw)
+        navigate('ScanLndInvoiceRoot', {
+          screen: 'LnurlPay',
+          params: {
+            lnurl: data,
+            fromWalletID: walletID,
+          },
+        });
+        return;
+      }
+
+      if (reply.tag !== Lnurl.TAG_WITHDRAW_REQUEST) {
+        throw new Error('Unsupported lnurl');
+      }
+
+      // amount that comes from lnurl is always in sats
+      let amount = (reply.maxWithdrawable / 1000).toString();
+      const sats = amount;
+      switch (unit) {
+        case BitcoinUnit.SATS:
+          // nop
+          break;
+        case BitcoinUnit.BTC:
+          amount = currency.satoshiToBTC(amount);
+          break;
+        case BitcoinUnit.LOCAL_CURRENCY:
+          amount = formatBalancePlain(amount, BitcoinUnit.LOCAL_CURRENCY);
+          BlueBitcoinAmount.setCachedSatoshis(amount, sats);
+          break;
+      }
+
+      // setting the invoice creating screen with the parameters
+      setLNURLParams({
+        k1: reply.k1,
+        callback: reply.callback,
+        fixed: reply.minWithdrawable === reply.maxWithdrawable,
+        min: (reply.minWithdrawable || 0) / 1000,
+        max: reply.maxWithdrawable / 1000,
+      });
+      setAmount(amount);
+      setDescription(reply.defaultDescription);
+      setIsLoading(false);
+    } catch (Err) {
+      Keyboard.dismiss();
+      setIsLoading(false);
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      alert(Err.message);
+    }
+  };
+
+  const renderCreateButton = () => {
+    return (
+      <View style={styles.createButton}>
+        {isLoading ? (
+          <ActivityIndicator />
+        ) : (
+          <BlueButton disabled={!(amount > 0)} onPress={createInvoice} title={loc.send.details_create} />
+        )}
+      </View>
+    );
+  };
+
+  const navigateToScanQRCode = () => {
+    NavigationService.navigate('ScanQRCodeRoot', {
+      screen: 'ScanQRCode',
+      params: {
+        onBarScanned: processLnurl,
+        launchedBy: name,
+      },
+    });
+    Keyboard.dismiss();
+  };
+
+  const renderScanClickable = () => {
+    return (
+      <TouchableOpacity disabled={isLoading} onPress={navigateToScanQRCode} style={[styles.scanRoot, styleHooks.scanRoot]}>
+        <Image style={{}} source={require('../../img/scan-white.png')} />
+        <Text style={[styles.scanClick, styles.scanClick]}>{loc.send.details_scan}</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  const navigateToSelectWallet = () => {
+    navigate('SelectWallet', { onWalletSelect: onWalletSelect, chainType: Chain.OFFCHAIN });
+  };
+
+  const renderWalletSelectionButton = () => {
+    if (renderWalletSelectionButtonHidden) return;
+    return (
+      <View style={styles.walletRoot}>
+        {!isLoading && (
+          <TouchableOpacity style={styles.walletChooseWrap} onPress={navigateToSelectWallet}>
+            <Text style={styles.walletChooseText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
+            <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
+          </TouchableOpacity>
+        )}
+        <View style={styles.walletNameWrap}>
+          <TouchableOpacity style={styles.walletNameTouch} onPress={navigateToSelectWallet}>
+            <Text style={[styles.walletNameText, styleHooks.walletNameText]}>{wallet.current.getLabel()}</Text>
+            <Text style={[styles.walletNameBalance, styleHooks.walletNameBalance]}>
+              {formatBalanceWithoutSuffix(wallet.current.getBalance(), BitcoinUnit.SATS, false)}
+            </Text>
+            <Text style={[styles.walletNameSats, styleHooks.walletNameSats]}>{BitcoinUnit.SATS}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  const onWalletSelect = selectedWallet => {
+    wallet.current = selectedWallet;
+    setParams({ walletID: selectedWallet.getID() });
+    setSelectedWallet(selectedWallet.getID());
+    pop();
+  };
+
+  if (wallet.current === undefined || !walletID) {
+    return (
+      <View style={styles.error}>
+        <Text>System error: Source wallet not found (this should never happen)</Text>
+      </View>
+    );
+  }
+
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={[styles.root, styleHooks.root]}>
+        <StatusBar barStyle="light-content" />
+        <View style={[styles.amount, styleHooks.amount]}>
+          <KeyboardAvoidingView behavior="position">
+            <BlueBitcoinAmount
+              isLoading={isLoading}
+              amount={amount}
+              onAmountUnitChange={setUnit}
+              onChangeText={text => {
+                if (lnurlParams) {
+                  // in this case we prevent the user from changing the amount to < min or > max
+                  const { min, max } = lnurlParams;
+                  const nextAmount = parseInt(text);
+                  if (nextAmount < min) {
+                    text = min.toString();
+                  } else if (nextAmount > max) {
+                    text = max.toString();
+                  }
+                }
+
+                setAmount(text);
+              }}
+              disabled={isLoading || (lnurlParams && lnurlParams.fixed)}
+              unit={unit}
+              inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+            />
+            <View style={[styles.fiat, styleHooks.fiat]}>
+              <TextInput
+                onChangeText={setDescription}
+                placeholder={loc.receive.details_label}
+                value={description}
+                numberOfLines={1}
+                placeholderTextColor="#81868e"
+                style={styles.fiat2}
+                editable={!isLoading}
+                onSubmitEditing={Keyboard.dismiss}
+                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+              />
+              {lnurlParams ? null : renderScanClickable()}
+            </View>
+            <BlueDismissKeyboardInputAccessory />
+            {renderCreateButton()}
+          </KeyboardAvoidingView>
+        </View>
+        {renderWalletSelectionButton()}
+      </View>
+    </TouchableWithoutFeedback>
+  );
+};
 
 const styles = StyleSheet.create({
   createButton: {
@@ -44,7 +411,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: BlueCurrentTheme.colors.scanLabel,
     borderRadius: 4,
     paddingVertical: 4,
     paddingHorizontal: 8,
@@ -52,7 +418,6 @@ const styles = StyleSheet.create({
   },
   scanClick: {
     marginLeft: 4,
-    color: BlueCurrentTheme.colors.inverseForegroundColor,
   },
   walletRoot: {
     marginBottom: 16,
@@ -78,18 +443,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   walletNameText: {
-    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 14,
   },
   walletNameBalance: {
-    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 8,
     marginRight: 4,
   },
   walletNameSats: {
-    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 11,
     fontWeight: '600',
     textAlignVertical: 'bottom',
@@ -102,19 +464,14 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: 'space-between',
-    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   amount: {
     flex: 1,
-    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   fiat: {
     flexDirection: 'row',
-    borderColor: BlueCurrentTheme.colors.formBorder,
-    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1.0,
     borderBottomWidth: 0.5,
-    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     marginHorizontal: 20,
@@ -130,375 +487,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class LNDCreateInvoice extends Component {
-  static contextType = BlueStorageContext;
-  constructor(props, context) {
-    super(props);
-    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
-    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
-    /** @type LightningCustodianWallet */
-    let fromWallet;
-    if (props.route.params.fromWallet) fromWallet = props.route.params.fromWallet;
+export default LNDCreateInvoice;
 
-    // fallback to first wallet if it exists
-    if (!fromWallet) {
-      const lightningWallets = context.wallets.filter(item => item.type === LightningCustodianWallet.type);
-      if (lightningWallets.length > 0) {
-        fromWallet = lightningWallets[0];
-        console.warn('warning: using ln wallet index 0');
-      }
-    }
-
-    this.state = {
-      fromWallet,
-      amount: '',
-      unit: fromWallet.preferredBalanceUnit,
-      description: '',
-      lnurl: '',
-      lnurlParams: null,
-      isLoading: true,
-      renderWalletSelectionButtonHidden: false,
-    };
-  }
-
-  renderReceiveDetails = async () => {
-    try {
-      this.state.fromWallet.setUserHasSavedExport(true);
-      await this.context.saveToDisk();
-      if (this.props.route.params.uri) {
-        this.processLnurl(this.props.route.params.uri);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-    this.setState({ isLoading: false });
-  };
-
-  componentDidMount() {
-    console.log('lnd/lndCreateInvoice mounted');
-    this.context.setSelectedWallet(this.state.fromWallet.getID());
-    if (this.state.fromWallet.getUserHasSavedExport()) {
-      this.renderReceiveDetails();
-    } else {
-      BlueAlertWalletExportReminder({
-        onSuccess: this.renderReceiveDetails,
-        onFailure: () => {
-          this.props.navigation.dangerouslyGetParent().pop();
-          this.props.navigation.navigate('WalletExportRoot', {
-            screen: 'WalletExportRoot',
-            params: {
-              walletID: this.state.fromWallet.getID(),
-            },
-          });
-        },
-      });
-    }
-  }
-
-  componentWillUnmount() {
-    this.keyboardDidShowListener.remove();
-    this.keyboardDidHideListener.remove();
-  }
-
-  _keyboardDidShow = () => {
-    this.setState({ renderWalletSelectionButtonHidden: true });
-  };
-
-  _keyboardDidHide = () => {
-    this.setState({ renderWalletSelectionButtonHidden: false });
-  };
-
-  async createInvoice() {
-    this.setState({ isLoading: true }, async () => {
-      try {
-        let amount = this.state.amount;
-        switch (this.state.unit) {
-          case BitcoinUnit.SATS:
-            amount = parseInt(amount); // basically nop
-            break;
-          case BitcoinUnit.BTC:
-            amount = currency.btcToSatoshi(amount);
-            break;
-          case BitcoinUnit.LOCAL_CURRENCY:
-            // trying to fetch cached sat equivalent for this fiat amount
-            amount = BlueBitcoinAmount.getCachedSatoshis(amount) || currency.btcToSatoshi(currency.fiatToBTC(amount));
-            break;
-        }
-
-        const invoiceRequest = await this.state.fromWallet.addInvoice(amount, this.state.description);
-        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-
-        // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
-        /** @type LightningCustodianWallet */
-        const fromWallet = this.state.fromWallet;
-        const decoded = await fromWallet.decodeInvoice(invoiceRequest);
-        await Notifications.tryToObtainPermissions();
-        Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
-
-        // send to lnurl-withdraw callback url if that exists
-        if (this.state.lnurlParams) {
-          const { callback, k1 } = this.state.lnurlParams;
-          const callbackUrl = callback + (callback.indexOf('?') !== -1 ? '&' : '?') + 'k1=' + k1 + '&pr=' + invoiceRequest;
-          const resp = await fetch(callbackUrl, { method: 'GET' });
-          if (resp.status >= 300) {
-            const text = await resp.text();
-            throw new Error(text);
-          }
-          const reply = await resp.json();
-          if (reply.status === 'ERROR') {
-            throw new Error('Reply from server: ' + reply.reason);
-          }
-        }
-
-        setTimeout(async () => {
-          // wallet object doesnt have this fresh invoice in its internals, so we refetch it and only then save
-          await fromWallet.fetchUserInvoices(1);
-          await this.context.saveToDisk();
-        }, 1000);
-
-        this.props.navigation.navigate('LNDViewInvoice', {
-          invoice: invoiceRequest,
-          walletID: this.state.fromWallet.getID(),
-          isModal: true,
-        });
-      } catch (Err) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-        this.setState({ isLoading: false });
-        alert(Err.message);
-      }
-    });
-  }
-
-  processLnurl = data => {
-    this.setState({ isLoading: true }, async () => {
-      if (!this.state.fromWallet) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-        alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
-        return this.props.navigation.goBack();
-      }
-
-      // decoding the lnurl
-      const url = Lnurl.getUrlFromLnurl(data);
-
-      // calling the url
-      try {
-        const resp = await fetch(url, { method: 'GET' });
-        if (resp.status >= 300) {
-          throw new Error('Bad response from server');
-        }
-        const reply = await resp.json();
-        if (reply.status === 'ERROR') {
-          throw new Error('Reply from server: ' + reply.reason);
-        }
-
-        if (reply.tag === Lnurl.TAG_PAY_REQUEST) {
-          // we are here by mistake. user wants to SEND to lnurl-pay, but he is on a screen that creates
-          // invoices (including through lnurl-withdraw)
-          this.props.navigation.navigate('ScanLndInvoiceRoot', {
-            screen: 'LnurlPay',
-            params: {
-              lnurl: data,
-              fromWalletID: this.state.fromWallet.getID(),
-            },
-          });
-          return;
-        }
-
-        if (reply.tag !== Lnurl.TAG_WITHDRAW_REQUEST) {
-          throw new Error('Unsupported lnurl');
-        }
-
-        // amount that comes from lnurl is always in sats
-        let amount = (reply.maxWithdrawable / 1000).toString();
-        const sats = amount;
-        switch (this.state.unit) {
-          case BitcoinUnit.SATS:
-            // nop
-            break;
-          case BitcoinUnit.BTC:
-            amount = currency.satoshiToBTC(amount);
-            break;
-          case BitcoinUnit.LOCAL_CURRENCY:
-            amount = formatBalancePlain(amount, BitcoinUnit.LOCAL_CURRENCY);
-            BlueBitcoinAmount.setCachedSatoshis(amount, sats);
-            break;
-        }
-
-        // setting the invoice creating screen with the parameters
-        this.setState({
-          isLoading: false,
-          lnurlParams: {
-            k1: reply.k1,
-            callback: reply.callback,
-            fixed: reply.minWithdrawable === reply.maxWithdrawable,
-            min: (reply.minWithdrawable || 0) / 1000,
-            max: reply.maxWithdrawable / 1000,
-          },
-          amount,
-          description: reply.defaultDescription,
-        });
-      } catch (Err) {
-        Keyboard.dismiss();
-        this.setState({ isLoading: false });
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-        alert(Err.message);
-      }
-    });
-  };
-
-  renderCreateButton = () => {
-    return (
-      <View style={styles.createButton}>
-        {this.state.isLoading ? (
-          <ActivityIndicator />
-        ) : (
-          <BlueButton disabled={!(this.state.amount > 0)} onPress={() => this.createInvoice()} title={loc.send.details_create} />
-        )}
-      </View>
-    );
-  };
-
-  renderScanClickable = () => {
-    return (
-      <TouchableOpacity
-        disabled={this.state.isLoading}
-        onPress={() => {
-          NavigationService.navigate('ScanQRCodeRoot', {
-            screen: 'ScanQRCode',
-            params: {
-              onBarScanned: this.processLnurl,
-              launchedBy: this.props.route.name,
-            },
-          });
-          Keyboard.dismiss();
-        }}
-        style={styles.scanRoot}
-      >
-        <Image style={{}} source={require('../../img/scan-white.png')} />
-        <Text style={styles.scanClick}>{loc.send.details_scan}</Text>
-      </TouchableOpacity>
-    );
-  };
-
-  renderWalletSelectionButton = () => {
-    if (this.state.renderWalletSelectionButtonHidden) return;
-    return (
-      <View style={styles.walletRoot}>
-        {!this.state.isLoading && (
-          <TouchableOpacity
-            style={styles.walletChooseWrap}
-            onPress={() =>
-              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
-            }
-          >
-            <Text style={styles.walletChooseText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-            <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
-          </TouchableOpacity>
-        )}
-        <View style={styles.walletNameWrap}>
-          <TouchableOpacity
-            style={styles.walletNameTouch}
-            onPress={() =>
-              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
-            }
-          >
-            <Text style={styles.walletNameText}>{this.state.fromWallet.getLabel()}</Text>
-            <Text style={styles.walletNameBalance}>
-              {formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
-            </Text>
-            <Text style={styles.walletNameSats}>{BitcoinUnit.SATS}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
-
-  onWalletSelect = wallet => {
-    this.setState({ fromWallet: wallet }, () => {
-      this.context.setSelectedWallet(wallet.getID());
-      this.props.navigation.pop();
-    });
-  };
-
-  render() {
-    if (!this.state.fromWallet) {
-      return (
-        <View style={styles.error}>
-          <Text>System error: Source wallet not found (this should never happen)</Text>
-        </View>
-      );
-    }
-
-    return (
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={styles.root}>
-          <StatusBar barStyle="light-content" />
-          <View style={styles.amount}>
-            <KeyboardAvoidingView behavior="position">
-              <BlueBitcoinAmount
-                isLoading={this.state.isLoading}
-                amount={this.state.amount}
-                onAmountUnitChange={unit => {
-                  this.setState({ unit });
-                }}
-                onChangeText={text => {
-                  if (this.state.lnurlParams) {
-                    // in this case we prevent the user from changing the amount to < min or > max
-                    const { min, max } = this.state.lnurlParams;
-                    const nextAmount = parseInt(text);
-                    if (nextAmount < min) {
-                      text = min.toString();
-                    } else if (nextAmount > max) {
-                      text = max.toString();
-                    }
-                  }
-
-                  this.setState({ amount: text });
-                }}
-                disabled={this.state.isLoading || (this.state.lnurlParams && this.state.lnurlParams.fixed)}
-                unit={this.state.unit}
-                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-              />
-              <View style={styles.fiat}>
-                <TextInput
-                  onChangeText={text => this.setState({ description: text })}
-                  placeholder={loc.receive.details_label}
-                  value={this.state.description}
-                  numberOfLines={1}
-                  placeholderTextColor="#81868e"
-                  style={styles.fiat2}
-                  editable={!this.state.isLoading}
-                  onSubmitEditing={Keyboard.dismiss}
-                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-                />
-                {this.state.lnurlParams ? null : this.renderScanClickable()}
-              </View>
-              <BlueDismissKeyboardInputAccessory />
-              {this.renderCreateButton()}
-            </KeyboardAvoidingView>
-          </View>
-          {this.renderWalletSelectionButton()}
-        </View>
-      </TouchableWithoutFeedback>
-    );
-  }
-}
-
-LNDCreateInvoice.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    dangerouslyGetParent: PropTypes.func,
-    navigate: PropTypes.func,
-    pop: PropTypes.func,
-  }),
-  route: PropTypes.shape({
-    name: PropTypes.string,
-    params: PropTypes.shape({
-      uri: PropTypes.string,
-      fromWallet: PropTypes.shape({}),
-    }),
-  }),
-};
 LNDCreateInvoice.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
   headerTitle: loc.receive.header,
