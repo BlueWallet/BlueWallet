@@ -27,6 +27,7 @@ export const FiatUnit = Object.freeze({
   JPY: { endPointKey: 'JPY', symbol: '¥', locale: 'ja-JP', source: FiatUnitSource.CoinDesk },
   KES: { endPointKey: 'KES', symbol: 'Ksh', locale: 'en-KE', source: FiatUnitSource.CoinDesk },
   KRW: { endPointKey: 'KRW', symbol: '₩', locale: 'ko-KR', source: FiatUnitSource.CoinDesk },
+  LBP: { endPointKey: 'LBP', symbol: 'ل.ل.', locale: 'ar-LB', source: FiatUnitSource.CoinDesk },
   MXN: { endPointKey: 'MXN', symbol: '$', locale: 'es-MX', source: FiatUnitSource.CoinDesk },
   MYR: { endPointKey: 'MYR', symbol: 'RM', locale: 'ms-MY', source: FiatUnitSource.CoinDesk },
   NGN: { endPointKey: 'NGN', symbol: '₦', locale: 'en-NG', source: FiatUnitSource.CoinDesk },

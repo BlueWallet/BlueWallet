@@ -75,6 +75,7 @@ export default class RBFCancel extends CPFP {
     } else {
       this.context.txMetadata[this.state.newTxid].memo = 'Cancelled transaction';
     }
+    this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
     this.props.navigation.navigate('Success', { onDonePressed: () => this.props.navigation.popToTop(), amount: undefined });
   }
 

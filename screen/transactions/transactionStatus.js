@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import {
   BlueButton,
@@ -11,22 +11,350 @@ import {
   BlueLoading,
   BlueSpacing20,
   BlueNavigationStyle,
+  BlueSpacing10,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import Handoff from 'react-native-handoff';
 import HandoffSettings from '../../class/handoff';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 const buttonStatus = Object.freeze({
   possible: 1,
   unknown: 2,
   notPossible: 3,
 });
 
+const TransactionsStatus = () => {
+  const { setSelectedWallet, wallets, txMetadata, getTransactions } = useContext(BlueStorageContext);
+  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
+  const { hash } = useRoute().params;
+  const { navigate, setOptions } = useNavigation();
+  const { colors } = useTheme();
+  const wallet = useRef();
+  const [isCPFPPossible, setIsCPFPPossible] = useState();
+  const [isRBFBumpFeePossible, setIsRBFBumpFeePossible] = useState();
+  const [isRBFCancelPossible, setIsRBFCancelPossible] = useState();
+  const [tx, setTX] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+  const stylesHook = StyleSheet.create({
+    root: {
+      backgroundColor: colors.background,
+    },
+    value: {
+      color: colors.alternativeTextColor2,
+    },
+    valueUnit: {
+      color: colors.alternativeTextColor2,
+    },
+    iconRoot: {
+      backgroundColor: colors.success,
+    },
+    confirmations: {
+      backgroundColor: colors.lightButton,
+    },
+  });
+
+  useEffect(() => {
+    setIsCPFPPossible(buttonStatus.unknown);
+    setIsRBFBumpFeePossible(buttonStatus.unknown);
+    setIsRBFCancelPossible(buttonStatus.unknown);
+  }, []);
+
+  useEffect(() => {
+    setOptions({
+      headerStyle: {
+        borderBottomWidth: 0,
+        elevation: 0,
+        shadowOpacity: 0,
+        shadowOffset: { height: 0, width: 0 },
+        backgroundColor: colors.customHeader,
+      },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colors]);
+
+  useEffect(() => {
+    for (const w of wallets) {
+      for (const t of w.getTransactions()) {
+        if (t.hash === hash) {
+          console.log('tx', hash, 'belongs to', w.getLabel());
+          wallet.current = w;
+          break;
+        }
+      }
+    }
+
+    for (const tx of getTransactions()) {
+      if (tx.hash === hash) {
+        setTX(tx);
+        break;
+      }
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hash]);
+
+  const initialState = async () => {
+    try {
+      await checkPossibilityOfCPFP();
+      await checkPossibilityOfRBFBumpFee();
+      await checkPossibilityOfRBFCancel();
+    } catch (e) {
+      setIsCPFPPossible(buttonStatus.notPossible);
+      setIsRBFBumpFeePossible(buttonStatus.notPossible);
+      setIsRBFCancelPossible(buttonStatus.notPossible);
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    initialState();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tx]);
+
+  useEffect(() => {
+    if (wallet) {
+      setSelectedWallet(wallet.current.getID());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet]);
+
+  useEffect(() => {
+    console.log('transactions/details - useEffect');
+    HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
+  }, []);
+
+  const checkPossibilityOfCPFP = async () => {
+    if (!wallet.current.allowRBF()) {
+      return setIsCPFPPossible(buttonStatus.notPossible);
+    }
+
+    const cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet.current);
+    if ((await cpfbTx.isToUsTransaction()) && (await cpfbTx.getRemoteConfirmationsNum()) === 0) {
+      return setIsCPFPPossible(buttonStatus.possible);
+    } else {
+      return setIsCPFPPossible(buttonStatus.notPossible);
+    }
+  };
+
+  const checkPossibilityOfRBFBumpFee = async () => {
+    if (!wallet.current.allowRBF()) {
+      return setIsRBFBumpFeePossible(buttonStatus.notPossible);
+    }
+
+    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet.current);
+    if (
+      (await rbfTx.isOurTransaction()) &&
+      (await rbfTx.getRemoteConfirmationsNum()) === 0 &&
+      (await rbfTx.isSequenceReplaceable()) &&
+      (await rbfTx.canBumpTx())
+    ) {
+      return setIsRBFBumpFeePossible(buttonStatus.possible);
+    } else {
+      return setIsRBFBumpFeePossible(buttonStatus.notPossible);
+    }
+  };
+
+  const checkPossibilityOfRBFCancel = async () => {
+    if (!wallet.current.allowRBF()) {
+      return setIsRBFCancelPossible(buttonStatus.notPossible);
+    }
+
+    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet.current);
+    if (
+      (await rbfTx.isOurTransaction()) &&
+      (await rbfTx.getRemoteConfirmationsNum()) === 0 &&
+      (await rbfTx.isSequenceReplaceable()) &&
+      (await rbfTx.canCancelTx())
+    ) {
+      return setIsRBFCancelPossible(buttonStatus.possible);
+    } else {
+      return setIsRBFCancelPossible(buttonStatus.notPossible);
+    }
+  };
+
+  const navigateToRBFBumpFee = () => {
+    navigate('RBFBumpFee', {
+      txid: tx.hash,
+      wallet: wallet.current,
+    });
+  };
+
+  const navigateToRBFCancel = () => {
+    navigate('RBFCancel', {
+      txid: tx.hash,
+      wallet: wallet.current,
+    });
+  };
+
+  const navigateToCPFP = () => {
+    navigate('CPFP', {
+      txid: tx.hash,
+      wallet: wallet.current,
+    });
+  };
+  const navigateToTransactionDetials = () => {
+    navigate('TransactionDetails', { hash: tx.hash });
+  };
+
+  const renderCPFP = () => {
+    if (isCPFPPossible === buttonStatus.unknown) {
+      return (
+        <>
+          <ActivityIndicator />
+          <BlueSpacing20 />
+        </>
+      );
+    } else if (isCPFPPossible === buttonStatus.possible) {
+      return (
+        <>
+          <BlueButton onPress={navigateToCPFP} title={loc.transactions.status_bump} />
+          <BlueSpacing10 />
+        </>
+      );
+    }
+  };
+
+  const renderRBFCancel = () => {
+    if (isRBFCancelPossible === buttonStatus.unknown) {
+      return (
+        <>
+          <ActivityIndicator />
+        </>
+      );
+    } else if (isRBFCancelPossible === buttonStatus.possible) {
+      return (
+        <>
+          <TouchableOpacity style={styles.cancel}>
+            <Text onPress={navigateToRBFCancel} style={styles.cancelText}>
+              {loc.transactions.status_cancel}
+            </Text>
+          </TouchableOpacity>
+          <BlueSpacing10 />
+        </>
+      );
+    }
+  };
+
+  const renderRBFBumpFee = () => {
+    if (isRBFBumpFeePossible === buttonStatus.unknown) {
+      return (
+        <>
+          <ActivityIndicator />
+          <BlueSpacing20 />
+        </>
+      );
+    } else if (isRBFBumpFeePossible === buttonStatus.possible) {
+      return (
+        <>
+          <BlueButton onPress={navigateToRBFBumpFee} title={loc.transactions.status_bump} />
+          <BlueSpacing10 />
+        </>
+      );
+    }
+  };
+
+  const renderTXMetadata = () => {
+    if (txMetadata[tx.hash]) {
+      if (txMetadata[tx.hash].memo) {
+        return (
+          <View style={styles.memo}>
+            <Text style={styles.memoText}>{txMetadata[tx.hash].memo}</Text>
+            <BlueSpacing20 />
+          </View>
+        );
+      }
+    }
+  };
+
+  if (isLoading || !tx) {
+    return (
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.root, stylesHook.root]}>
+        <BlueLoading />
+      </SafeBlueArea>
+    );
+  }
+  return (
+    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.root, stylesHook.root]}>
+      {isHandOffUseEnabled && (
+        <Handoff title={`Bitcoin Transaction ${tx.hash}`} type="io.bluewallet.bluewallet" url={`https://blockstream.info/tx/${tx.hash}`} />
+      )}
+      <StatusBar barStyle="default" />
+      <View style={styles.container}>
+        <BlueCard>
+          <View style={styles.center}>
+            <Text style={[styles.value, stylesHook.value]}>
+              {formatBalanceWithoutSuffix(tx.value, wallet.current.preferredBalanceUnit, true)}{' '}
+              {wallet.current.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
+                <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{wallet.current.preferredBalanceUnit}</Text>
+              )}
+            </Text>
+          </View>
+
+          {renderTXMetadata()}
+
+          <View style={[styles.iconRoot, stylesHook.iconRoot]}>
+            <View>
+              <Icon name="check" size={50} type="font-awesome" color={colors.successCheck} />
+            </View>
+            <View style={[styles.iconWrap, styles.margin]}>
+              {(() => {
+                if (!tx.confirmations) {
+                  return (
+                    <View style={styles.icon}>
+                      <BlueTransactionPendingIcon />
+                    </View>
+                  );
+                } else if (tx.value < 0) {
+                  return (
+                    <View style={styles.icon}>
+                      <BlueTransactionOutgoingIcon />
+                    </View>
+                  );
+                } else {
+                  return (
+                    <View style={styles.icon}>
+                      <BlueTransactionIncomingIcon />
+                    </View>
+                  );
+                }
+              })()}
+            </View>
+          </View>
+
+          {tx.fee && (
+            <View style={styles.fee}>
+              <BlueText style={styles.feeText}>
+                {loc.send.create_fee.toLowerCase()} {formatBalanceWithoutSuffix(tx.fee, wallet.current.preferredBalanceUnit, true)}{' '}
+                {wallet.current.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && wallet.current.preferredBalanceUnit}
+              </BlueText>
+            </View>
+          )}
+
+          <View style={[styles.confirmations, stylesHook.confirmations]}>
+            <Text style={styles.confirmationsText}>{tx.confirmations > 6 ? '6+' : tx.confirmations} confirmations</Text>
+          </View>
+        </BlueCard>
+
+        <View style={styles.actions}>
+          {renderCPFP()}
+          {renderRBFBumpFee()}
+          {renderRBFCancel()}
+          <TouchableOpacity style={styles.details} onPress={navigateToTransactionDetials}>
+            <Text style={styles.detailsText}>{loc.send.create_details.toLowerCase()}</Text>
+            <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeBlueArea>
+  );
+};
+
+export default TransactionsStatus;
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -39,12 +367,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   value: {
-    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 36,
     fontWeight: '600',
   },
   valueUnit: {
-    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -57,7 +383,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   iconRoot: {
-    backgroundColor: BlueCurrentTheme.colors.success,
     width: 120,
     height: 120,
     borderRadius: 60,
@@ -93,7 +418,6 @@ const styles = StyleSheet.create({
   },
   confirmations: {
     borderRadius: 11,
-    backgroundColor: BlueCurrentTheme.colors.lightButton,
     width: 109,
     height: 21,
     alignSelf: 'center',
@@ -130,321 +454,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class TransactionsStatus extends Component {
-  static contextType = BlueStorageContext;
-
-  constructor(props, context) {
-    super(props);
-    const hash = props.route.params.hash;
-    let foundTx = {};
-    let from = [];
-    let to = [];
-    for (const tx of context.getTransactions()) {
-      if (tx.hash === hash) {
-        foundTx = tx;
-        for (const input of foundTx.inputs) {
-          from = from.concat(input.addresses);
-        }
-        for (const output of foundTx.outputs) {
-          if (output.addresses) to = to.concat(output.addresses);
-          if (output.scriptPubKey && output.scriptPubKey.addresses) to = to.concat(output.scriptPubKey.addresses);
-        }
-      }
-    }
-
-    let wallet = false;
-    for (const w of context.wallets) {
-      for (const t of w.getTransactions()) {
-        if (t.hash === hash) {
-          console.log('tx', hash, 'belongs to', w.getLabel());
-          wallet = w;
-          break;
-        }
-      }
-    }
-
-    this.state = {
-      isLoading: true,
-      tx: foundTx,
-      from,
-      to,
-      wallet,
-      isCPFPpossible: buttonStatus.unknown,
-      isRBFBumpFeePossible: buttonStatus.unknown,
-      isRBFCancelPossible: buttonStatus.unknown,
-      isHandOffUseEnabled: false,
-    };
-  }
-
-  async componentDidMount() {
-    console.log('transactions/details - componentDidMount');
-    const isHandOffUseEnabled = await HandoffSettings.isHandoffUseEnabled();
-    this.setState({
-      isLoading: false,
-      isHandOffUseEnabled,
-    });
-
-    try {
-      await this.checkPossibilityOfCPFP();
-      await this.checkPossibilityOfRBFBumpFee();
-      await this.checkPossibilityOfRBFCancel();
-    } catch (_) {
-      this.setState({
-        isCPFPpossible: buttonStatus.notPossible,
-        isRBFBumpFeePossible: buttonStatus.notPossible,
-        isRBFCancelPossible: buttonStatus.notPossible,
-      });
-    }
-    this.context.setSelectedWallet(this.state.wallet.getID());
-  }
-
-  async checkPossibilityOfCPFP() {
-    if (!this.state.wallet.allowRBF()) {
-      return this.setState({ isCPFPpossible: buttonStatus.notPossible });
-    }
-
-    const tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
-    if ((await tx.isToUsTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0) {
-      return this.setState({ isCPFPpossible: buttonStatus.possible });
-    } else {
-      return this.setState({ isCPFPpossible: buttonStatus.notPossible });
-    }
-  }
-
-  async checkPossibilityOfRBFBumpFee() {
-    if (!this.state.wallet.allowRBF()) {
-      return this.setState({ isRBFBumpFeePossible: buttonStatus.notPossible });
-    }
-
-    const tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
-    if (
-      (await tx.isOurTransaction()) &&
-      (await tx.getRemoteConfirmationsNum()) === 0 &&
-      (await tx.isSequenceReplaceable()) &&
-      (await tx.canBumpTx())
-    ) {
-      return this.setState({ isRBFBumpFeePossible: buttonStatus.possible });
-    } else {
-      return this.setState({ isRBFBumpFeePossible: buttonStatus.notPossible });
-    }
-  }
-
-  async checkPossibilityOfRBFCancel() {
-    if (!this.state.wallet.allowRBF()) {
-      return this.setState({ isRBFCancelPossible: buttonStatus.notPossible });
-    }
-
-    const tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
-    if (
-      (await tx.isOurTransaction()) &&
-      (await tx.getRemoteConfirmationsNum()) === 0 &&
-      (await tx.isSequenceReplaceable()) &&
-      (await tx.canCancelTx())
-    ) {
-      return this.setState({ isRBFCancelPossible: buttonStatus.possible });
-    } else {
-      return this.setState({ isRBFCancelPossible: buttonStatus.notPossible });
-    }
-  }
-
-  render() {
-    if (this.state.isLoading || !('tx' in this.state)) {
-      return <BlueLoading />;
-    }
-
-    return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-        {this.state.isHandOffUseEnabled && (
-          <Handoff
-            title={`Bitcoin Transaction ${this.state.tx.hash}`}
-            type="io.bluewallet.bluewallet"
-            url={`https://blockstream.info/tx/${this.state.tx.hash}`}
-          />
-        )}
-        <StatusBar barStyle="default" />
-        <View style={styles.container}>
-          <BlueCard>
-            <View style={styles.center}>
-              <Text style={styles.value}>
-                {formatBalanceWithoutSuffix(this.state.tx.value, this.state.wallet.preferredBalanceUnit, true)}{' '}
-                {this.state.wallet.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
-                  <Text style={styles.valueUnit}>{this.state.wallet.preferredBalanceUnit}</Text>
-                )}
-              </Text>
-            </View>
-
-            {(() => {
-              if (this.context.txMetadata[this.state.tx.hash]) {
-                if (this.context.txMetadata[this.state.tx.hash].memo) {
-                  return (
-                    <View style={styles.memo}>
-                      <Text style={styles.memoText}>{this.context.txMetadata[this.state.tx.hash].memo}</Text>
-                      <BlueSpacing20 />
-                    </View>
-                  );
-                }
-              }
-            })()}
-
-            <View style={styles.iconRoot}>
-              <View>
-                <Icon name="check" size={50} type="font-awesome" color={BlueCurrentTheme.colors.successCheck} />
-              </View>
-              <View style={[styles.iconWrap, styles.margin]}>
-                {(() => {
-                  if (!this.state.tx.confirmations) {
-                    return (
-                      <View style={styles.icon}>
-                        <BlueTransactionPendingIcon />
-                      </View>
-                    );
-                  } else if (this.state.tx.value < 0) {
-                    return (
-                      <View style={styles.icon}>
-                        <BlueTransactionOutgoingIcon />
-                      </View>
-                    );
-                  } else {
-                    return (
-                      <View style={styles.icon}>
-                        <BlueTransactionIncomingIcon />
-                      </View>
-                    );
-                  }
-                })()}
-              </View>
-            </View>
-
-            {'fee' in this.state.tx && (
-              <View style={styles.fee}>
-                <BlueText style={styles.feeText}>
-                  {loc.send.create_fee.toLowerCase()}{' '}
-                  {formatBalanceWithoutSuffix(this.state.tx.fee, this.state.wallet.preferredBalanceUnit, true)}{' '}
-                  {this.state.wallet.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && this.state.wallet.preferredBalanceUnit}
-                </BlueText>
-              </View>
-            )}
-
-            <View style={styles.confirmations}>
-              <Text style={styles.confirmationsText}>
-                {this.state.tx.confirmations > 6 ? '6+' : this.state.tx.confirmations} confirmations
-              </Text>
-            </View>
-          </BlueCard>
-
-          <View style={styles.actions}>
-            {(() => {
-              if (this.state.isCPFPpossible === buttonStatus.unknown) {
-                return (
-                  <>
-                    <ActivityIndicator />
-                    <BlueSpacing20 />
-                  </>
-                );
-              } else if (this.state.isCPFPpossible === buttonStatus.possible) {
-                return (
-                  <>
-                    <BlueButton
-                      onPress={() =>
-                        this.props.navigation.navigate('CPFP', {
-                          txid: this.state.tx.hash,
-                          wallet: this.state.wallet,
-                        })
-                      }
-                      title={loc.transactions.status_bump}
-                    />
-                    <BlueSpacing20 />
-                  </>
-                );
-              }
-            })()}
-
-            {(() => {
-              if (this.state.isRBFBumpFeePossible === buttonStatus.unknown) {
-                return (
-                  <>
-                    <ActivityIndicator />
-                    <BlueSpacing20 />
-                  </>
-                );
-              } else if (this.state.isRBFBumpFeePossible === buttonStatus.possible) {
-                return (
-                  <>
-                    <BlueButton
-                      onPress={() =>
-                        this.props.navigation.navigate('RBFBumpFee', {
-                          txid: this.state.tx.hash,
-                          wallet: this.state.wallet,
-                        })
-                      }
-                      title={loc.transactions.status_bump}
-                    />
-                  </>
-                );
-              }
-            })()}
-            {(() => {
-              if (this.state.isRBFCancelPossible === buttonStatus.unknown) {
-                return (
-                  <>
-                    <ActivityIndicator />
-                  </>
-                );
-              } else if (this.state.isRBFCancelPossible === buttonStatus.possible) {
-                return (
-                  <>
-                    <TouchableOpacity style={styles.cancel}>
-                      <Text
-                        onPress={() =>
-                          this.props.navigation.navigate('RBFCancel', {
-                            txid: this.state.tx.hash,
-                            wallet: this.state.wallet,
-                          })
-                        }
-                        style={styles.cancelText}
-                      >
-                        {loc.transactions.status_cancel}
-                      </Text>
-                    </TouchableOpacity>
-                  </>
-                );
-              }
-            })()}
-
-            <TouchableOpacity
-              style={styles.details}
-              onPress={() => this.props.navigation.navigate('TransactionDetails', { hash: this.state.tx.hash })}
-            >
-              <Text style={styles.detailsText}>{loc.send.create_details.toLowerCase()}</Text>
-              <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </SafeBlueArea>
-    );
-  }
-}
-
-TransactionsStatus.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    navigate: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        hash: PropTypes.string,
-      }),
-    }),
-  }),
-  route: PropTypes.shape({
-    params: PropTypes.object,
-  }),
-};
-
 TransactionsStatus.navigationOptions = () => ({
   ...BlueNavigationStyle(),
   title: '',
-  headerStyle: {
-    ...BlueNavigationStyle().headerStyle,
-    backgroundColor: BlueCurrentTheme.colors.customHeader,
-  },
 });

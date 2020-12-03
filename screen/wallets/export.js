@@ -55,6 +55,7 @@ const WalletExport = () => {
     },
     type: { ...styles.type, color: colors.foregroundColor },
     secret: { ...styles.secret, color: colors.foregroundColor },
+    warning: { ...styles.secret, color: colors.failedColor },
   };
 
   useFocusEffect(
@@ -117,6 +118,7 @@ const WalletExport = () => {
             ecl="H"
           />
         </View>
+        {wallet.type !== WatchOnlyWallet.type && <BlueText style={stylesHook.warning}>{loc.wallets.warning_do_not_disclose}</BlueText>}
         <BlueSpacing20 />
         {wallet.current.type === LightningCustodianWallet.type || wallet.current.type === WatchOnlyWallet.type ? (
           <BlueCopyTextToClipboard text={wallet.current.getSecret()} />
