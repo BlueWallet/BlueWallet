@@ -147,7 +147,7 @@
   "send": {
     "broadcastButton": "Objavi v omrežju",
     "broadcastError": "napaka",
-    "broadcastNone": "Vnesite zgoščeno vrednost transakcije",
+    "broadcastNone": "Vnesite zgoščeno vrednost transakcije (hash)",
     "broadcastPending": "v teku",
     "broadcastSuccess": "uspešno",
     "confirm_header": "Potrditev",
@@ -314,6 +314,7 @@
     "details_inputs": "Vhodi",
     "details_outputs": "Izhodi",
     "details_received": "Prejeto",
+    "transaction_note_saved":"Opomba transakcije je bila uspešno shranjena.",
     "details_show_in_block_explorer": "Prikaži v raziskovalcu blokov",
     "details_title": "Transakcija",
     "details_to": "Izhod",
