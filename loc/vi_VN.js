@@ -645,4 +645,14 @@ module.exports = {
       wallets: 'Ví',
     },
   },
+  connectionIssue: {
+    noInternetTitle: 'Không có kết nối internet',
+    noInternetDescription: 'Đảm bảo rằng WI-FI hoặc dữ liệu di động đã được bật, sau đó thử lại.',
+    offlineMessageTitle: 'Bạn đang ngoại tuyến',
+    offlineMessageDescription: 'Kết nối với Internet để khôi phục toàn bộ chức năng.',
+    offlineMessageDescription2: 'Kết nối với internet để tiếp tục sử dụng các chức năng này.',
+    noNetworkTitle: 'Không có mạng',
+    noNetworkDescription:
+      ' Internet của bạn hoạt động, nhưng bạn chưa kết nối với mạng. Vui lòng đợi một vài phút và thử lại.',
+  },
 };

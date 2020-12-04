@@ -631,4 +631,13 @@ module.exports = {
       wallets: '지갑',
     },
   },
+  connectionIssue: {
+    noInternetTitle: '인터넷에 연결 없음',
+    noInternetDescription: 'WI-FI 또는 모바일데이터가 켜져 있는지 확인한 후 다시시도하십시오.',
+    offlineMessageTitle: '오프라인 상태입니다',
+    offlineMessageDescription: '전체 기능을 복원하려면인터넷에 연결하세요.',
+    offlineMessageDescription2: '해당 기능을 계속사용하려면 인터넷에 연결하세요.',
+    noNetworkTitle: '네트워크 없음',
+    noNetworkDescription: '인터넷은 작동하지만, 네트워크에 연결되어 있지 않습니다. 몇 분 후에다시 시도하십시오.',
+  },
 };

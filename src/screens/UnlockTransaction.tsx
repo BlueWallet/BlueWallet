@@ -1,11 +1,12 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import React, { PureComponent, RefObject } from 'react';
+import React, { PureComponent } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 
 import { icons } from 'app/assets';
 import { Header, InputItem, ScreenTemplate, Button } from 'app/components';
 import { CONST, RootStackParams, Route } from 'app/consts';
+import { withCheckNetworkConnection, CheckNetworkConnectionCallback } from 'app/hocs';
 import { SecureStorageService } from 'app/services';
 import { palette, typography } from 'app/styles';
 
@@ -14,6 +15,7 @@ const i18n = require('../../loc');
 type Props = {
   navigation: StackNavigationProp<RootStackParams, Route.UnlockTransaction>;
   route: RouteProp<RootStackParams, Route.UnlockTransaction>;
+  checkNetworkConnection: (callback: CheckNetworkConnectionCallback) => void;
 };
 
 interface State {
@@ -23,12 +25,17 @@ interface State {
   isLoading: boolean;
 }
 
-export class UnlockTransaction extends PureComponent<Props, State> {
+class UnlockTransaction extends PureComponent<Props, State> {
   state = {
     password: '',
     error: '',
     isVisible: false,
     isLoading: false,
+  };
+
+  onConfirmWithNetworkConnectionCheck = () => {
+    const { checkNetworkConnection } = this.props;
+    checkNetworkConnection(this.onConfirm);
   };
 
   onConfirm = () => {
@@ -72,7 +79,7 @@ export class UnlockTransaction extends PureComponent<Props, State> {
           <Button
             title={i18n._.confirm}
             loading={isLoading}
-            onPress={this.onConfirm}
+            onPress={this.onConfirmWithNetworkConnectionCheck}
             disabled={isLoading || password.length < CONST.transactionMinPasswordLength}
           />
         }
@@ -96,6 +103,8 @@ export class UnlockTransaction extends PureComponent<Props, State> {
     );
   }
 }
+
+export default withCheckNetworkConnection(UnlockTransaction);
 
 const styles = StyleSheet.create({
   title: {

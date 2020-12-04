@@ -624,4 +624,15 @@ module.exports = {
     },
     walletModal: { btcv: 'BTCV', wallets: 'Wallets' },
   },
+  connectionIssue: {
+    noInternetTitle: 'No internet connection',
+    noInternetDescription: 'Ensure that WI-FI or mobile data are turned on, then try again.',
+    offlineMessageTitle: "You're offline",
+    offlineMessageDescription: 'Connect to the internet to restore full functionality.',
+    offlineMessageDescription2: 'Connect to the internet to continue using these functions.',
+    noNetworkTitle: 'No network',
+    noNetworkDescription:
+      'Your internet works, but you are not connected to the network. Please wait a couple of minutes and try again.',
+    electrumXNotConnected: 'Electrum client is not connected',
+  },
 };

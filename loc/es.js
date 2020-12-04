@@ -651,4 +651,14 @@ module.exports = {
       wallets: 'Monederos',
     },
   },
+  connectionIssue: {
+    noInternetTitle: 'Sin conexión a internet',
+    noInternetDescription: 'Asegúrese de que el WI-FI o los datos móviles están encendidos e inténtelo de nuevo.',
+    offlineMessageTitle: 'Está offline',
+    offlineMessageDescription: 'Conéctese a internet para restaurar la funcionalidad total.',
+    offlineMessageDescription2: 'Conéctese a internet para continuar a usar estas funciones.',
+    noNetworkTitle: 'No hay red',
+    noNetworkDescription:
+      'Su internet funciona, pero no está conectado a la red. Por favor, espere unos minutos e inténtelo de nuevo.',
+  },
 };

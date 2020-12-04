@@ -1744,6 +1744,11 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/masked-view/-/masked-view-0.1.10.tgz#5dda643e19e587793bc2034dd9bf7398ad43d401"
   integrity sha512-rk4sWFsmtOw8oyx8SD3KSvawwaK7gRBSEIy2TAwURyGt+3TizssXP1r8nx3zY+R7v2vYYHXZ+k2/GULAT/bcaQ==
 
+"@react-native-community/netinfo@^5.9.7":
+  version "5.9.7"
+  resolved "https://registry.yarnpkg.com/@react-native-community/netinfo/-/netinfo-5.9.7.tgz#769c6b306ea6bbaa1c4a3fffdd183d0cfc30ed7e"
+  integrity sha512-NAkkT68oF+M9o6El2xeUqZK7magPjG/tAcEbvCbqyhlh3yElKWnI1e1vpbVvFXzTefy67FwYFWOJqBN6U7Mnkg==
+
 "@react-native-community/slider@2.0.0-rc.1":
   version "2.0.0-rc.1"
   resolved "https://registry.yarnpkg.com/@react-native-community/slider/-/slider-2.0.0-rc.1.tgz#78ac885550bf88b10be7dcd983d0a270c336452e"
@@ -4431,7 +4436,7 @@ electron-to-chromium@^1.3.571:
 
 "electrum-client@git+https://github.com/bitcoinvault/rn-electrum-client.git":
   version "1.3.0"
-  resolved "git+https://github.com/bitcoinvault/rn-electrum-client.git#bd0d6ba501db3e59c22fcaf79b253c877b68fa4e"
+  resolved "git+https://github.com/bitcoinvault/rn-electrum-client.git#94f3854c28b5671b9cab82f531a371b1de1e91be"
 
 elliptic@^6.4.0, elliptic@^6.5.3:
   version "6.5.3"

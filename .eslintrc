@@ -76,7 +76,7 @@
     "prettier/prettier": "error",
     "prefer-const": "warn",
     "react/display-name": "off",
-    "react/prop-types": "warn",
+    "react/prop-types": "off",
     "react/no-unescaped-entities": "warn",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",

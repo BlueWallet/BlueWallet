@@ -6,10 +6,37 @@ export enum ElectrumXAction {
   SetBlockHeight = 'SetBlockHeight',
   ScriptHashChanged = 'ScriptHashChanged',
   SetSubscribedScriptHashes = 'SetSubscribedScriptHashes',
+  ConnectionClosed = 'ConnectionClosed',
+  ConnectionConnected = 'ConnectionConnected',
+  SetServerConnection = 'SetServerConnection',
+  SetInternetConnection = 'SetInternetConnection',
+  CheckConnection = 'CheckConnection',
+}
+
+export interface CheckConnectionAction {
+  type: ElectrumXAction.CheckConnection;
 }
 
 export interface FetchBlockHeightAction {
   type: ElectrumXAction.FetchBlockHeight;
+}
+
+export interface ConnectionClosedAction {
+  type: ElectrumXAction.ConnectionClosed;
+}
+
+export interface ConnectionConnectedAction {
+  type: ElectrumXAction.ConnectionConnected;
+}
+
+export interface SetServerConnectionAction {
+  type: ElectrumXAction.SetServerConnection;
+  isServerConnected: boolean;
+}
+
+export interface SetInternetConnectionAction {
+  type: ElectrumXAction.SetInternetConnection;
+  isInternetReachable: boolean;
 }
 
 export interface FetchBlockHeightSuccessAction {
@@ -47,7 +74,29 @@ export type ElectrymXActionType =
   | SetSubscribedScriptHashesAction
   | FetchBlockHeightAction
   | FetchBlockHeightSuccessAction
-  | FetchBlockHeightFailureAction;
+  | FetchBlockHeightFailureAction
+  | ConnectionClosedAction
+  | ConnectionConnectedAction
+  | SetServerConnectionAction
+  | SetInternetConnectionAction;
+
+export const connectionClosed = (): ConnectionClosedAction => ({
+  type: ElectrumXAction.ConnectionClosed,
+});
+
+export const connectionConnected = (): ConnectionConnectedAction => ({
+  type: ElectrumXAction.ConnectionConnected,
+});
+
+export const setInternetConnection = (isInternetReachable: boolean): SetInternetConnectionAction => ({
+  type: ElectrumXAction.SetInternetConnection,
+  isInternetReachable,
+});
+
+export const setServerConnection = (isServerConnected: boolean): SetServerConnectionAction => ({
+  type: ElectrumXAction.SetServerConnection,
+  isServerConnected,
+});
 
 export const startListeners = (): StartListenersAction => ({
   type: ElectrumXAction.StartListeners,
@@ -80,4 +129,8 @@ export const fetchBlockHeightSuccess = (blockHeight: number): FetchBlockHeightSu
 export const fetchBlockHeightFailure = (error: string): FetchBlockHeightFailureAction => ({
   type: ElectrumXAction.FetchBlockHeightFailure,
   error,
+});
+
+export const checkConnection = (): CheckConnectionAction => ({
+  type: ElectrumXAction.CheckConnection,
 });

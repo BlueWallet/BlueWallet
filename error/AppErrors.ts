@@ -34,3 +34,9 @@ export class BroadcastError extends AppError {
     super(errorMsg);
   }
 }
+
+export class ElectrumXConnectionError extends AppError {
+  constructor(message = i18n.connectionIssue.electrumXNotConnected) {
+    super(message);
+  }
+}

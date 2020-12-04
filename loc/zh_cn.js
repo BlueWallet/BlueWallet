@@ -618,4 +618,13 @@ module.exports = {
       wallets: '钱包',
     },
   },
+  connectionIssue: {
+    noInternetTitle: '互联网未连接',
+    noInternetDescription: '确保WI-FI或移动数据已打开，然后重试',
+    offlineMessageTitle: '您处于离线状态',
+    offlineMessageDescription: '连接到互联网以继续使用这些功能。',
+    offlineMessageDescription2: '连接到互联网以继续使用这些功能。',
+    noNetworkTitle: '无网络',
+    noNetworkDescription: '您的互联网运行正常，但是您没有成功连接到网络。 请等待几分钟，然后重试。',
+  },
 };

@@ -640,4 +640,14 @@ module.exports = {
       wallets: 'ウォレット',
     },
   },
+  connectionIssue: {
+    noInternetTitle: 'インターネットに接続されていません',
+    noInternetDescription: 'WI-FIまたはモバイルデータがオンになっているかを確認してから、もう一度お試しください。',
+    offlineMessageTitle: 'オフライン状態',
+    offlineMessageDescription: 'インターネットに接続して全機能を復元してください。',
+    offlineMessageDescription2: 'この機能を使い続けるにはインターネットに接続してください。',
+    noNetworkTitle: 'ネットワーク無し',
+    noNetworkDescription:
+      'インターネットは作動しますが、ネットワークに接続されていません。数分待ってから、もう一度お試しください',
+  },
 };

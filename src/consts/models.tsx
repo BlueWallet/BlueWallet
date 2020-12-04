@@ -51,6 +51,13 @@ export const ELECTRUM_VAULT_SEED_PREFIXES = {
   SEED_PREFIX_2FA_SW: '102', // Two-factor auth, using segwit
 };
 
+export interface Toast {
+  title: string;
+  description: string;
+  duration: number;
+  id: string;
+}
+
 export enum TransactionStatus {
   PENDING = 'PENDING',
   DONE = 'DONE',

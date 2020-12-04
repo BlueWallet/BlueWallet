@@ -11,24 +11,15 @@
     "allowSyntheticDefaultImports": true,
     "isolatedModules": false,
     "esModuleInterop": true,
-    "lib": [
-      "esnext"
-    ],
+    "lib": ["esnext"],
     "resolveJsonModule": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "baseUrl": "./src",
     "skipLibCheck": true,
     "paths": {
-      "app/*": [
-        "./*"
-      ]
+      "app/*": ["./*"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "babel.config.js",
-    "jest.config.js",
-    "scripts"
-  ]
+  "exclude": ["node_modules", "babel.config.js", "jest.config.js", "scripts"]
 }

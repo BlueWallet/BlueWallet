@@ -295,6 +295,8 @@ PODS:
     - React
   - react-native-image-picker (1.1.0):
     - React
+  - react-native-netinfo (5.9.7):
+    - React-Core
   - react-native-randombytes (3.5.3):
     - React
   - react-native-safe-area-context (3.1.8):
@@ -466,6 +468,7 @@ DEPENDENCIES:
   - react-native-config (from `../node_modules/react-native-config`)
   - react-native-haptic-feedback (from `../node_modules/react-native-haptic-feedback`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
@@ -580,6 +583,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-haptic-feedback"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-netinfo:
+    :path: "../node_modules/@react-native-community/netinfo"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
@@ -707,6 +712,7 @@ SPEC CHECKSUMS:
   react-native-config: f309b9ac19456dea12325699af51e0fa0217ce6a
   react-native-haptic-feedback: 22c9dc85fd8059f83bf9edd9212ac4bd4ae6074d
   react-native-image-picker: 7a85cf7b0a53845f03ae52fb4592a2748ded069b
+  react-native-netinfo: 250dc0ca126512f618a8a2ca6a936577e1f66586
   react-native-randombytes: 3638d24759d67c68f6ccba60c52a7a8a8faa6a23
   react-native-safe-area-context: 79fea126c6830c85f65947c223a5e3058a666937
   react-native-slider: 884693dd50f84745baa511ecdcde4c16f32182fb

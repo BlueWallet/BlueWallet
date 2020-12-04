@@ -1,6 +1,6 @@
 import { cloneDeep } from 'lodash';
 import { Alert } from 'react-native';
-import { takeEvery, takeLatest, put, all, call, select, delay, debounce } from 'redux-saga/effects';
+import { takeEvery, takeLatest, put, all, call, select, delay } from 'redux-saga/effects';
 
 import { Wallet } from 'app/consts';
 import { takeLatestPerKey } from 'app/helpers/sagas';
@@ -12,7 +12,6 @@ import { checkAddressNetworkName } from '../../../utils/bitcoin';
 import { actions as electrumXActions } from '../electrumX';
 import {
   WalletsAction,
-  loadWallets,
   loadWalletsSuccess,
   loadWalletsFailure,
   DeleteWalletAction,
@@ -42,7 +41,6 @@ const i18n = require('../../../loc');
 
 export function* loadWalletsSaga() {
   try {
-    yield BlueElectrum.ping();
     yield BlueElectrum.waitTillConnected();
 
     yield all([call(() => BlueApp.fetchWalletBalances()), call(() => BlueApp.fetchWalletTransactions())]);
@@ -155,7 +153,6 @@ export function* refreshWalletSaga(action: RefreshWalletAction | unknown) {
     if (!walletToRefresh) {
       throw new Error(`No wallet to refresh`);
     }
-    yield BlueElectrum.ping();
     yield BlueElectrum.waitTillConnected();
 
     yield all([call(() => walletToRefresh.fetchBalance()), call(() => walletToRefresh.fetchTransactions())]);
@@ -173,8 +170,8 @@ export function* sendTransactionSaga(action: SendTransactionAction | unknown) {
   } = action as SendTransactionAction;
 
   try {
-    yield BlueElectrum.ping();
     yield BlueElectrum.waitTillConnected();
+
     const result = yield BlueElectrum.broadcast(txDecoded.toHex());
 
     yield put(sendTransactionSuccess());
@@ -201,22 +198,13 @@ export function* scripHashHasChangedSaga(action: electrumXActions.ScriptHashChan
   }
 }
 
-function* refreshWallets() {
-  yield put(loadWallets());
-}
-
-export function* refreshAllWalletsSaga() {
-  yield debounce(10000, WalletsAction.RefreshAllWallets, refreshWallets);
-}
-
 export default [
   takeLatestPerKey(WalletsAction.RefreshWallet, refreshWalletSaga, ({ id }: { id: string }) => id),
   takeEvery(electrumXActions.ElectrumXAction.ScriptHashChanged, scripHashHasChangedSaga),
   takeEvery(WalletsAction.DeleteWallet, deleteWalletSaga),
-  takeLatest(WalletsAction.LoadWallets, loadWalletsSaga),
+  takeLatest([WalletsAction.LoadWallets, electrumXActions.ElectrumXAction.ConnectionConnected], loadWalletsSaga),
   takeEvery(WalletsAction.CreateWallet, createWalletSaga),
   takeEvery(WalletsAction.ImportWallet, importWalletSaga),
   takeEvery(WalletsAction.UpdateWallet, updateWalletSaga),
   takeEvery(WalletsAction.SendTransaction, sendTransactionSaga),
-  takeLatest(electrumXActions.ElectrumXAction.StartListeners, refreshAllWalletsSaga),
 ];

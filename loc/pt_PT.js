@@ -625,4 +625,14 @@ module.exports = {
     },
     walletModal: { btcv: 'BTCV', wallets: 'Carteiras' },
   },
+  connectionIssue: {
+    noInternetTitle: 'Sem ligação à Internet',
+    noInternetDescription: 'Certifique-se de que o WIFI ou os dados móveis estão ligados e tente novamente.',
+    offlineMessageTitle: 'Está offline',
+    offlineMessageDescription: 'Ligue-se à Internet para restaurar a funcionalidade total.',
+    offlineMessageDescription2: 'Ligue-se à Internet para continuar a usar essas funções.',
+    noNetworkTitle: 'Sem rede',
+    noNetworkDescription:
+      'A sua internet funciona, mas você não está ligado à rede. Aguarde alguns minutos e tente novamente.',
+  },
 };

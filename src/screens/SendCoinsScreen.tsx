@@ -1,6 +1,7 @@
 import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import * as bitcoin from 'bitcoinjs-lib';
+import { compose } from 'lodash/fp';
 import React, { Component } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
 import { connect } from 'react-redux';
@@ -21,6 +22,7 @@ import { CONST, MainCardStackNavigatorParams, Route, RootStackParams, Utxo, Wall
 import { processAddressData } from 'app/helpers/DataProcessing';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { loadTransactionsFees } from 'app/helpers/fees';
+import { withCheckNetworkConnection, CheckNetworkConnectionCallback } from 'app/hocs';
 import { ApplicationState } from 'app/state';
 import { selectors } from 'app/state/wallets';
 import { typography, palette } from 'app/styles';
@@ -41,6 +43,7 @@ interface Props {
   >;
   wallets: Wallet[];
   route: RouteProp<MainCardStackNavigatorParams, Route.SendCoins>;
+  checkNetworkConnection: (callback: CheckNetworkConnectionCallback) => void;
 }
 
 interface State {
@@ -495,6 +498,11 @@ class SendCoinsScreen extends Component<Props, State> {
     );
   };
 
+  confirmTransactionWithNetworkConnectionCheck = () => {
+    const { checkNetworkConnection } = this.props;
+    checkNetworkConnection(this.confirmTransaction);
+  };
+
   render() {
     const { wallet, fee, isLoading } = this.state;
     return (
@@ -502,7 +510,7 @@ class SendCoinsScreen extends Component<Props, State> {
         footer={
           <Button
             title={i18n.send.details.next}
-            onPress={this.confirmTransaction}
+            onPress={this.confirmTransactionWithNetworkConnectionCheck}
             containerStyle={styles.buttonContainer}
             disabled={isLoading}
           />
@@ -560,7 +568,7 @@ const mapStateToProps = (state: ApplicationState) => ({
   wallets: selectors.wallets(state),
 });
 
-export default connect(mapStateToProps)(SendCoinsScreen);
+export default compose(withCheckNetworkConnection, connect(mapStateToProps))(SendCoinsScreen);
 
 const styles = StyleSheet.create({
   buttonContainer: {

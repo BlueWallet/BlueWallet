@@ -6,24 +6,26 @@ import { isEmulator } from 'react-native-device-info';
 import { connect } from 'react-redux';
 
 import { CONST } from 'app/consts';
+import { Toasts } from 'app/containers';
 import { RenderMessage, MessageType } from 'app/helpers/MessageCreator';
 import { RootNavigator, PasswordNavigator } from 'app/navigators';
-import { TermsConditionsScreen, UnlockScreen } from 'app/screens';
+import { UnlockScreen, TermsConditionsScreen, ConnectionIssuesScreen } from 'app/screens';
 import { BetaVersionScreen } from 'app/screens/BetaVersionScreen';
-import { navigationRef, AppStateManager } from 'app/services';
+import { navigationRef } from 'app/services';
 import { checkDeviceSecurity } from 'app/services/DeviceSecurityService';
 import { ApplicationState } from 'app/state';
 import { selectors as appSettingsSelectors } from 'app/state/appSettings';
 import { updateSelectedLanguage as updateSelectedLanguageAction } from 'app/state/appSettings/actions';
 import { selectors as authenticationSelectors } from 'app/state/authentication';
 import { checkCredentials as checkCredentialsAction, checkTc as checkTcAction } from 'app/state/authentication/actions';
+import { selectors as electrumXSelectors } from 'app/state/electrumX';
 import {
   startListeners,
   StartListenersAction,
-  fetchBlockHeight as fetchBlockHeightAction,
-  FetchBlockHeightAction,
+  checkConnection as checkConnectionAction,
+  CheckConnectionAction,
 } from 'app/state/electrumX/actions';
-import { RefreshAllWalletsAction, refreshAllWallets as refreshAllWalletsAction } from 'app/state/wallets/actions';
+import { selectors as walletsSelectors } from 'app/state/wallets';
 import { isAndroid, isIos } from 'app/styles';
 
 import config from '../../config';
@@ -37,15 +39,16 @@ interface MapStateToProps {
   isTxPasswordSet: boolean;
   isLoading: boolean;
   language: string;
+  isInitialized: boolean;
+  hasConnectedToServerAtLeaseOnce: boolean;
 }
 
 interface ActionsDisptach {
   checkCredentials: Function;
   startElectrumXListeners: () => StartListenersAction;
-  refreshAllWallets: () => RefreshAllWalletsAction;
-  fetchBlockHeight: () => FetchBlockHeightAction;
   updateSelectedLanguage: Function;
   checkTc: Function;
+  checkConnection: () => CheckConnectionAction;
 }
 
 interface OwnProps {
@@ -66,11 +69,11 @@ class Navigator extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    const { checkCredentials, startElectrumXListeners, fetchBlockHeight, checkTc } = this.props;
+    const { checkCredentials, startElectrumXListeners, checkTc, checkConnection } = this.props;
     checkTc();
     checkCredentials();
     startElectrumXListeners();
-    fetchBlockHeight();
+    checkConnection();
     this.initLanguage();
 
     isEmulator().then(isEmulator => {
@@ -128,14 +131,8 @@ class Navigator extends React.Component<Props, State> {
     this.setState({ isBetaVersionRiskAccepted: true });
   };
 
-  refresh = () => {
-    const { refreshAllWallets, fetchBlockHeight } = this.props;
-    refreshAllWallets();
-    fetchBlockHeight();
-  };
-
   renderRoutes = () => {
-    const { isLoading, unlockKey, isTcAccepted } = this.props;
+    const { isLoading, unlockKey, isAuthenticated, hasConnectedToServerAtLeaseOnce, isTcAccepted } = this.props;
     if (isLoading) {
       return null;
     }
@@ -155,9 +152,15 @@ class Navigator extends React.Component<Props, State> {
     if (this.shouldRenderOnBoarding()) {
       return <PasswordNavigator />;
     }
+
+    if (!hasConnectedToServerAtLeaseOnce) {
+      return <ConnectionIssuesScreen />;
+    }
+
     return (
       <>
         <RootNavigator />
+        {isAuthenticated && <Toasts />}
         {this.shouldRenderUnlockScreen() && <UnlockScreen key={unlockKey} />}
       </>
     );
@@ -165,12 +168,9 @@ class Navigator extends React.Component<Props, State> {
 
   render() {
     return (
-      <>
-        <AppStateManager handleAppComesToForeground={this.refresh} />
-        <NavigationContainer key={this.props.language} ref={navigationRef}>
-          {this.renderRoutes()}
-        </NavigationContainer>
-      </>
+      <NavigationContainer key={this.props.language} ref={navigationRef}>
+        {this.renderRoutes()}
+      </NavigationContainer>
     );
   }
 }
@@ -182,15 +182,16 @@ const mapStateToProps = (state: ApplicationState): MapStateToProps => ({
   isTxPasswordSet: authenticationSelectors.isTxPasswordSet(state),
   isAuthenticated: authenticationSelectors.isAuthenticated(state),
   language: appSettingsSelectors.language(state),
+  isInitialized: walletsSelectors.isInitialized(state),
+  hasConnectedToServerAtLeaseOnce: electrumXSelectors.hasConnectedToServerAtLeaseOnce(state),
 });
 
 const mapDispatchToProps: ActionsDisptach = {
   checkCredentials: checkCredentialsAction,
   checkTc: checkTcAction,
   startElectrumXListeners: startListeners,
-  refreshAllWallets: refreshAllWalletsAction,
   updateSelectedLanguage: updateSelectedLanguageAction,
-  fetchBlockHeight: fetchBlockHeightAction,
+  checkConnection: checkConnectionAction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Navigator);

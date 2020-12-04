@@ -644,4 +644,14 @@ module.exports = {
       wallets: 'Dompet',
     },
   },
+  connectionIssue: {
+    noInternetTitle: 'Koneksi Internet Tidak Ada',
+    noInternetDescription: 'Pastikan bahwa WI-FI atau mobile dat  Anda aktif, dan coba kembali.',
+    offlineMessageTitle: 'Anda offline',
+    offlineMessageDescription: 'Sambungkan perangkat Anda ke Internet untuk mengembalikan fungsionalitas penuh.',
+    offlineMessageDescription2: 'Sambungkan perangkat Anda ke Internet untuk kembali menggunakan fitur ini',
+    noNetworkTitle: 'TIdak ada Jaringan',
+    noNetworkDescription:
+      'Internet Anda berfungsi, namun Anda tidak tersambung ke jaringan. Mohon tunggu beberapa menit dan coba kembali',
+  },
 };

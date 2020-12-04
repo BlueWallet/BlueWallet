@@ -317,3 +317,5 @@ export const getTransactionsToRecoverByWalletId = createSelector(getAlertPending
 export const hasWallets = createSelector(wallets, walletsList => walletsList.length > 0);
 
 export const isLoading = createSelector(local, state => state.isLoading);
+
+export const isInitialized = createSelector(local, state => state.isInitialized);

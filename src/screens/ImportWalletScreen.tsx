@@ -1,7 +1,8 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { compose } from 'lodash/fp';
 import React, { PureComponent } from 'react';
-import { View, StyleSheet, Text, Keyboard, Alert, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, Keyboard, Alert } from 'react-native';
 import { connect } from 'react-redux';
 
 import { Header, TextAreaItem, FlatButton, ScreenTemplate, InputItem, CheckBox } from 'app/components';
@@ -16,6 +17,7 @@ import {
 } from 'app/consts';
 import { maxWalletNameLength } from 'app/consts/text';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
+import { withCheckNetworkConnection, CheckNetworkConnectionCallback } from 'app/hocs';
 import { preventScreenshots, allowScreenshots } from 'app/services/ScreenshotsService';
 import { ApplicationState } from 'app/state';
 import { selectors } from 'app/state/wallets';
@@ -41,6 +43,7 @@ interface Props {
   route: RouteProp<MainCardStackNavigatorParams, Route.ImportWallet>;
   importWallet: (wallet: Wallet, meta?: ActionMeta) => ImportWalletAction;
   wallets: Wallet[];
+  checkNetworkConnection: (callback: CheckNetworkConnectionCallback) => void;
 }
 
 interface State {
@@ -434,6 +437,11 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
     });
   };
 
+  executeWithNetworkConnectionCheck = (callback: () => void) => () => {
+    const { checkNetworkConnection } = this.props;
+    checkNetworkConnection(() => callback());
+  };
+
   get canScan() {
     const { validationError, label } = this.state;
 
@@ -449,13 +457,14 @@ export class ImportWalletScreen extends PureComponent<Props, State> {
             <Button
               disabled={!text || !!validationError || !label}
               title={i18n.wallets.importWallet.import}
-              onPress={this.onImportButtonPress}
+              onPress={this.executeWithNetworkConnectionCheck(this.onImportButtonPress)}
             />
             <FlatButton
               disabled={!label || !!validationError}
-              onPress={this.onScanQrCodeButtonPress}
               containerStyle={styles.scanQRCodeButtonContainer}
               title={i18n.wallets.importWallet.scanQrCode}
+              onPress={this.executeWithNetworkConnectionCheck(this.onScanQrCodeButtonPress)}
+              disabledTitleStyle={{ color: palette.grey }}
             />
           </>
         }
@@ -503,7 +512,7 @@ const mapDispatchToProps = {
   importWallet: importWalletAction,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ImportWalletScreen);
+export default compose(withCheckNetworkConnection, connect(mapStateToProps, mapDispatchToProps))(ImportWalletScreen);
 
 const styles = StyleSheet.create({
   checkboxContainer: {

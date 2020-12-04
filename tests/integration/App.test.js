@@ -1,23 +1,28 @@
 /* global describe, it, expect, jest, jasmine */
-import React from 'react';
 
 import { LegacyWallet, SegwitP2SHWallet } from '../../class';
 
-global.net = require('net');
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 const assert = require('assert');
 
-jest.mock('react-native-qrcode-svg', () => 'Video');
-jest.useFakeTimers();
+global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
+const BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
 
-jest.mock('amplitude-js', () => ({
-  getInstance() {
-    return {
-      init: jest.fn(),
-      logEvent: jest.fn(),
-    };
-  },
-}));
+afterAll(async () => {
+  // after all tests we close socket so the test suite can actually terminate
+  BlueElectrum.forceDisconnect();
+  return new Promise(resolve => setTimeout(resolve, 10000)); // simple sleep to wait for all timeouts termination
+});
+
+beforeAll(async () => {
+  // awaiting for Electrum to be connected. For RN Electrum would naturally connect
+  // while app starts up, but for tests we need to wait for it
+  await BlueElectrum.waitTillConnected();
+});
+
+beforeEach(() => {
+  jest.setTimeout(30000);
+});
 
 describe('unit - LegacyWallet', function() {
   it('serialize and unserialize work correctly', () => {
@@ -45,13 +50,13 @@ describe('unit - LegacyWallet', function() {
 
 it('SegwitP2SHWallet can generate segwit P2SH address from WIF', async () => {
   const l = new SegwitP2SHWallet();
+
   l.setSecret('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct');
   assert.strictEqual(l.getAddress(), 'RBkrVH6nanQxjQ6n99nPHXcvY73u3jBLdU');
   assert.strictEqual(l.getAddress(), await l.getAddressAsync());
 });
 
 it('Wallet can fetch balance', async () => {
-  jest.setTimeout(30000);
   const w = new LegacyWallet();
   w._address = 'YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba'; // hack internals
   assert.ok(w.getBalance() === 0);
@@ -63,7 +68,6 @@ it('Wallet can fetch balance', async () => {
 });
 
 it('Wallet can fetch UTXO', async () => {
-  jest.setTimeout(30000);
   const w = new LegacyWallet();
   w._address = 'YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba';
   assert.strictEqual(w.getAddress(), 'YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba');

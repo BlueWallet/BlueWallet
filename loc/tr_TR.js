@@ -642,4 +642,14 @@ module.exports = {
       wallets: 'Cüzdanlar',
     },
   },
+  connectionIssue: {
+    noInternetTitle: 'İnternet bağlantısı yok',
+    noInternetDescription: 'WI-FI veya mobil verinin açık olduğundan emin olun ve tekrar deneyin.',
+    offlineMessageTitle: 'Çevrimdışısınız',
+    offlineMessageDescription: 'Erişim sağlamak için internete bağlanın.',
+    offlineMessageDescription2: 'Erişim sağlamak için internete bağlanın.',
+    noNetworkTitle: 'Ağ bulunmuyor',
+    noNetworkDescription:
+      'İnternetiniz çalışıyor, ancak herhangi bir ağa bağlı değilsiniz. Lütfen birkaç dakika sonra tekrar deneyin.',
+  },
 };

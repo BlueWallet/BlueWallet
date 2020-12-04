@@ -1,4 +1,5 @@
 import { StackNavigationProp } from '@react-navigation/stack';
+import { compose } from 'lodash/fp';
 import React, { Component } from 'react';
 import { View, StyleSheet, ActivityIndicator, TouchableOpacity, SectionList } from 'react-native';
 import { connect } from 'react-redux';
@@ -6,6 +7,7 @@ import { connect } from 'react-redux';
 import { ListEmptyState, WalletCard, ScreenTemplate, Header, SearchBar, StyledText } from 'app/components';
 import { Wallet, Route, EnhancedTransaction, CONST } from 'app/consts';
 import { isAllWallets } from 'app/helpers/helpers';
+import { withCheckNetworkConnection, CheckNetworkConnectionCallback } from 'app/hocs';
 import { ApplicationState } from 'app/state';
 import { clearFilters, ClearFiltersAction } from 'app/state/filters/actions';
 import * as transactionsNotesSelectors from 'app/state/transactionsNotes/selectors';
@@ -30,6 +32,7 @@ interface Props {
   loadWallets: () => LoadWalletsAction;
   clearFilters: () => ClearFiltersAction;
   isFilteringOn?: boolean;
+  checkNetworkConnection: (callback: CheckNetworkConnectionCallback) => void;
 }
 
 interface State {
@@ -52,7 +55,7 @@ class DashboardScreen extends Component<Props, State> {
   }
 
   refreshTransactions = () => {
-    this.props.loadWallets();
+    this.props.checkNetworkConnection(() => this.props.loadWallets());
   };
 
   chooseItemFromModal = (index: number) => {
@@ -273,7 +276,7 @@ const mapDispatchToProps = {
   clearFilters,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DashboardScreen);
+export default compose(withCheckNetworkConnection, connect(mapStateToProps, mapDispatchToProps))(DashboardScreen);
 
 const styles = StyleSheet.create({
   loadingIndicatorContainer: {
