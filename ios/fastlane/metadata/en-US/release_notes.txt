@@ -1,3 +1,16 @@
+v5.6.8
+======
+
+* ADD: warning text on backup screen
+* ADD: CoinControl displays balances with user's preferred unit
+* ADD: LBP Currency
+* FIX: fetch wallet transaction after broadcast
+* FIX: crash on refresh button
+* FIX: Don't display amount if none is passed
+* REF: PSBT Multisig provide signature flow
+* ADD: refresh wallet transactions for freshly imported wallets
+* FIX: locales sl_SI, fi_FI
+
 v5.6.7
 ======
 
@@ -75,15 +88,3 @@ v5.6.2
 * REF: show numeric keyboard when ask for numbers in prompt
 * FIX: locales de_DE, sl_SI, ru, fi_FI, ja_JP, es, pt_BR
 * REF: improve wallet import speed
-
-v5.6.1
-======
-
-* ADD: payjoin support
-* FIX: rare crash on startup (electrum server malformed response)
-* FIX: rare freezes on send screen
-* FIX: bitcoin price widget content overlap
-* FIX: biometrics listener release for some devices
-* FIX: locales pt_BR, pt_PT, ru, sl_SI, ja_JP
-* FIX: add margin for RTL languages
-* FIX: Missing (NT) before $ sign
