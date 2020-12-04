@@ -1,9 +1,7 @@
 import React, { useRef } from 'react';
 import { WebView } from 'react-native-webview';
+import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import { useRoute, useNavigation } from '@react-navigation/native';
-
-import { SafeBlueArea } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 
 const url = 'https://accounts.hodlhodl.com/accounts/request_access?attributes=api_key,api_signature_key';
@@ -53,8 +51,8 @@ const HodlHodlLogin = () => {
   );
 };
 
-HodlHodlLogin.navigationOptions = navigationStyle({
-  closeButton: true,
+HodlHodlLogin.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
   title: loc.hodl.login,
   headerLeft: null,
 });

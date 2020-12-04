@@ -3,9 +3,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Keyboard, Text, TouchableOpacity, StatusBar, TouchableWithoutFeedback, View, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
+import { BlueButton, BlueCreateTxNavigationStyle, BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
 
-import { BlueButton, BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
-import { navigationStyleTx } from '../../components/navigationStyle';
 import loc from '../../loc';
 import { PlaceholderWallet } from '../../class';
 import Azteco from '../../class/azteco';
@@ -184,6 +183,7 @@ AztecoRedeem.propTypes = {
   }),
 };
 
-AztecoRedeem.navigationOptions = navigationStyleTx({
+AztecoRedeem.navigationOptions = ({ navigation }) => ({
+  ...BlueCreateTxNavigationStyle(navigation),
   title: loc.azteco.title,
 });

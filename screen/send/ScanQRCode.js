@@ -330,4 +330,8 @@ const ScanQRCode = () => {
   );
 };
 
+ScanQRCode.navigationOptions = {
+  headerShown: false,
+};
+
 export default ScanQRCode;

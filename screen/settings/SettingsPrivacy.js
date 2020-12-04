@@ -1,9 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, TouchableWithoutFeedback, StyleSheet, Linking } from 'react-native';
+import { BlueText, BlueSpacing20, BlueListItem, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
 import { useTheme } from '@react-navigation/native';
-
-import navigationStyle from '../../components/navigationStyle';
-import { BlueText, BlueSpacing20, BlueListItem, BlueCard } from '../../BlueComponents';
 import loc from '../../loc';
 import BlueClipboard from '../../blue_modules/clipboard';
 import DeviceQuickActions from '../../class/quick-actions';
@@ -102,7 +100,8 @@ const styles = StyleSheet.create({
   },
 });
 
-SettingsPrivacy.navigationOptions = navigationStyle({
+SettingsPrivacy.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
   title: loc.settings.privacy,
 });
 

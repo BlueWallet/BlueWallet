@@ -1,14 +1,6 @@
 /* global alert */
 import React, { useEffect, useState } from 'react';
 import { Platform, View, Keyboard, StatusBar, StyleSheet } from 'react-native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import Clipboard from '@react-native-community/clipboard';
-import ImagePicker from 'react-native-image-picker';
-import { getSystemName } from 'react-native-device-info';
-import RNFS from 'react-native-fs';
-import DocumentPicker from 'react-native-document-picker';
-
 import {
   BlueFormMultiInput,
   BlueButtonLink,
@@ -17,12 +9,19 @@ import {
   BlueButton,
   SafeBlueArea,
   BlueSpacing20,
+  BlueNavigationStyle,
 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import WalletImport from '../../class/wallet-import';
+import Clipboard from '@react-native-community/clipboard';
 import ActionSheet from '../ActionSheet';
+import ImagePicker from 'react-native-image-picker';
 import loc from '../../loc';
+import { getSystemName } from 'react-native-device-info';
+import RNFS from 'react-native-fs';
+import DocumentPicker from 'react-native-document-picker';
 import { presentCameraNotAuthorizedAlert } from '../../class/camera';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const isDesktop = getSystemName() === 'Mac OS X';
@@ -268,7 +267,8 @@ const WalletsImport = () => {
   );
 };
 
-WalletsImport.navigationOptions = navigationStyle({
+WalletsImport.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
   title: loc.wallets.import_title,
 });
 export default WalletsImport;
