@@ -41,7 +41,7 @@ const LNDCreateInvoice = () => {
   const { name } = useRoute();
   const { colors } = useTheme();
   const { navigate, dangerouslyGetParent, goBack, pop, setParams } = useNavigation();
-  const [unit, setUnit] = useState();
+  const [unit, setUnit] = useState(wallet.current.getPreferredBalanceUnit());
   const [amount, setAmount] = useState();
   const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -101,7 +101,11 @@ const LNDCreateInvoice = () => {
 
   useEffect(() => {
     if (wallet.current && wallet.current.getID() !== walletID) {
-      wallet.current = wallets.filter(w => w.getID() === walletID);
+      const newWallet = wallets.find(w => w.getID() === walletID);
+      if (newWallet) {
+        wallet.current = newWallet;
+        setSelectedWallet(newWallet.getID());
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
@@ -110,7 +114,6 @@ const LNDCreateInvoice = () => {
     useCallback(() => {
       if (wallet.current) {
         setSelectedWallet(walletID);
-        setUnit(wallet.current.preferredBalanceUnit);
         if (wallet.current.getUserHasSavedExport()) {
           renderReceiveDetails();
         } else {
@@ -301,7 +304,7 @@ const LNDCreateInvoice = () => {
     return (
       <TouchableOpacity disabled={isLoading} onPress={navigateToScanQRCode} style={[styles.scanRoot, styleHooks.scanRoot]}>
         <Image style={{}} source={require('../../img/scan-white.png')} />
-        <Text style={[styles.scanClick, styles.scanClick]}>{loc.send.details_scan}</Text>
+        <Text style={[styles.scanClick, styleHooks.scanClick]}>{loc.send.details_scan}</Text>
       </TouchableOpacity>
     );
   };
@@ -334,9 +337,7 @@ const LNDCreateInvoice = () => {
   };
 
   const onWalletSelect = selectedWallet => {
-    wallet.current = selectedWallet;
     setParams({ walletID: selectedWallet.getID() });
-    setSelectedWallet(selectedWallet.getID());
     pop();
   };
 
