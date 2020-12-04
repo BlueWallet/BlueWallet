@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext } from 'react';
+import React, { useState, useCallback, useContext, useRef } from 'react';
 import { useWindowDimensions, InteractionManager, ScrollView, ActivityIndicator, StatusBar, View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
 const WalletExport = () => {
   const { wallets, saveToDisk } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = useRef(wallets.find(w => w.getID() === walletID));
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
   const { colors } = useTheme();
@@ -77,14 +77,14 @@ const WalletExport = () => {
       return () => {
         task.cancel();
         Privacy.disableBlur();
-        wallet.setUserHasSavedExport(true);
+        wallet.current.setUserHasSavedExport(true);
         saveToDisk();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [goBack, wallet]),
+    }, [goBack, walletID]),
   );
 
-  return isLoading ? (
+  return isLoading && wallet ? (
     <View style={stylesHook.loading}>
       <ActivityIndicator />
     </View>
@@ -93,14 +93,14 @@ const WalletExport = () => {
       <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View>
-          <BlueText style={stylesHook.type}>{wallet.typeReadable}</BlueText>
+          <BlueText style={stylesHook.type}>{wallet.current.typeReadable}</BlueText>
         </View>
 
         {(() => {
-          if ([LegacyWallet.type, SegwitBech32Wallet.type, SegwitP2SHWallet.type].includes(wallet.type)) {
+          if ([LegacyWallet.type, SegwitBech32Wallet.type, SegwitP2SHWallet.type].includes(wallet.current.type)) {
             return (
               <BlueCard>
-                <BlueText>{wallet.getAddress()}</BlueText>
+                <BlueText>{wallet.current.getAddress()}</BlueText>
               </BlueCard>
             );
           }
@@ -108,7 +108,7 @@ const WalletExport = () => {
         <BlueSpacing20 />
         <View style={styles.activeQrcode}>
           <QRCode
-            value={wallet.getSecret()}
+            value={wallet.current.getSecret()}
             logo={require('../../img/qr-code.png')}
             size={height > width ? width - 40 : width / 2}
             logoSize={70}
@@ -120,10 +120,10 @@ const WalletExport = () => {
         </View>
         {wallet.type !== WatchOnlyWallet.type && <BlueText style={stylesHook.warning}>{loc.wallets.warning_do_not_disclose}</BlueText>}
         <BlueSpacing20 />
-        {wallet.type === LightningCustodianWallet.type || wallet.type === WatchOnlyWallet.type ? (
-          <BlueCopyTextToClipboard text={wallet.getSecret()} />
+        {wallet.current.type === LightningCustodianWallet.type || wallet.current.type === WatchOnlyWallet.type ? (
+          <BlueCopyTextToClipboard text={wallet.current.getSecret()} />
         ) : (
-          <BlueText style={stylesHook.secret}>{wallet.getSecret()}</BlueText>
+          <BlueText style={stylesHook.secret}>{wallet.current.getSecret()}</BlueText>
         )}
       </ScrollView>
     </SafeBlueArea>

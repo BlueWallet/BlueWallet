@@ -660,7 +660,7 @@ const WalletTransactions = () => {
             text={loc.receive.header}
             onPress={() => {
               if (wallet.current.chain === Chain.OFFCHAIN) {
-                navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { fromWallet: wallet.current } });
+                navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID: wallet.current.getID() } });
               } else {
                 navigate('ReceiveDetailsRoot', { screen: 'ReceiveDetails', params: { walletID: wallet.current.getID() } });
               }

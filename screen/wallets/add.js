@@ -189,7 +189,7 @@ const WalletsAdd = () => {
     A(A.ENUM.CREATED_WALLET);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     navigate('PleaseBackupLNDHub', {
-      wallet,
+      walletID: wallet.getID(),
     });
   };
 
