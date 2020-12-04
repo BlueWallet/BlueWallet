@@ -2,30 +2,34 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Image,
-  Keyboard,
-  KeyboardAvoidingView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
+  TextInput,
+  KeyboardAvoidingView,
+  Keyboard,
+  StatusBar,
+  TouchableWithoutFeedback,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  Image,
 } from 'react-native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { Icon } from 'react-native-elements';
-import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
-
-import { BlueAlertWalletExportReminder, BlueBitcoinAmount, BlueButton, BlueDismissKeyboardInputAccessory } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
+import {
+  BlueNavigationStyle,
+  BlueButton,
+  BlueBitcoinAmount,
+  BlueDismissKeyboardInputAccessory,
+  BlueAlertWalletExportReminder,
+} from '../../BlueComponents';
 import * as NavigationService from '../../NavigationService';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { Icon } from 'react-native-elements';
 import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
 import Lnurl from '../../class/lnurl';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
+import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 const currency = require('../../blue_modules/currency');
 
 const LNDCreateInvoice = () => {
@@ -486,8 +490,8 @@ const styles = StyleSheet.create({
 
 export default LNDCreateInvoice;
 
-LNDCreateInvoice.navigationOptions = navigationStyle({
-  closeButton: true,
+LNDCreateInvoice.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
   headerTitle: loc.receive.header,
   headerLeft: null,
 });

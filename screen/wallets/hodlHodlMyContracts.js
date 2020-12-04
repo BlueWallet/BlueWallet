@@ -1,6 +1,5 @@
 /* global alert */
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
   Alert,
   FlatList,
@@ -15,8 +14,15 @@ import {
   View,
 } from 'react-native';
 
-import { BlueButton, BlueCopyTextToClipboard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
+import {
+  BlueButton,
+  BlueCopyTextToClipboard,
+  BlueLoading,
+  BlueNavigationStyle,
+  BlueSpacing10,
+  BlueSpacing20,
+  BlueText,
+} from '../../BlueComponents';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import * as NavigationService from '../../NavigationService';
 import { BlueCurrentTheme } from '../../components/themes';
@@ -29,7 +35,6 @@ export default class HodlHodlMyContracts extends Component {
   constructor(props) {
     super(props);
 
-    props.navigation.setParams({ handleLogout: this.handleLogout });
     this.state = {
       contracts: [],
       isLoading: true,
@@ -39,11 +44,6 @@ export default class HodlHodlMyContracts extends Component {
   componentWillUnmount() {
     clearInterval(this.state.inverval);
   }
-
-  handleLogout = () => {
-    this.context.setHodlHodlApiKey('', '<empty>');
-    this.props.navigation.navigate('WalletsList');
-  };
 
   async componentDidMount() {
     const hodlApiKey = await this.context.getHodlHodlApiKey();
@@ -424,44 +424,35 @@ const styles = StyleSheet.create({
   },
 });
 
-HodlHodlMyContracts.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    setParams: PropTypes.func,
-  }),
-};
-
-HodlHodlMyContracts.navigationOptions = navigationStyle(
-  {
-    closeButton: true,
-    title: loc.hodl.cont_title,
+HodlHodlMyContracts.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: loc.hodl.cont_title,
+  headerStyle: {
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
-  (options, { theme, navigation, route }) => ({
-    ...options,
-    headerStyle: {
-      backgroundColor: theme.colors.elevated,
-    },
-    headerRight: () => (
-      <TouchableOpacity
-        style={styles.marginRight}
-        onPress={() => {
-          Alert.alert(
-            loc.hodl.are_you_sure_you_want_to_logout,
-            '',
-            [
-              {
-                text: loc._.ok,
-                onPress: route.params.handleLogout,
-                style: 'default',
+  headerRight: () => (
+    <TouchableOpacity
+      style={styles.marginRight}
+      onPress={() => {
+        Alert.alert(
+          loc.hodl.are_you_sure_you_want_to_logout,
+          '',
+          [
+            {
+              text: loc._.ok,
+              onPress: () => {
+                this.context.setHodlHodlApiKey('', '<empty>');
+                navigation.navigate('WalletsList');
               },
-              { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-            ],
-            { cancelable: false },
-          );
-        }}
-      >
-        <BlueText>{loc.hodl.logout}</BlueText>
-      </TouchableOpacity>
-    ),
-  }),
-);
+              style: 'default',
+            },
+            { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+          ],
+          { cancelable: false },
+        );
+      }}
+    >
+      <BlueText>logout</BlueText>
+    </TouchableOpacity>
+  ),
+});

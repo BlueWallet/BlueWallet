@@ -1,9 +1,8 @@
 /* global alert */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { ActivityIndicator, View, StyleSheet, ScrollView } from 'react-native';
-import { BlueSpacing20, SafeBlueArea, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
+import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
+import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 import loc from '../../loc';
@@ -128,6 +127,7 @@ RBFCancel.propTypes = {
   }),
 };
 
-RBFCancel.navigationOptions = navigationStyle({
+RBFCancel.navigationOptions = () => ({
+  ...BlueNavigationStyle(null, false),
   title: loc.transactions.cancel_title,
 });

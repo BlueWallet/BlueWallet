@@ -1,28 +1,26 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
-import { Icon } from 'react-native-elements';
-import Handoff from 'react-native-handoff';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-
 import {
   BlueButton,
-  BlueCard,
-  BlueLoading,
-  BlueSpacing10,
-  BlueSpacing20,
-  BlueText,
-  BlueTransactionIncomingIcon,
+  SafeBlueArea,
   BlueTransactionOutgoingIcon,
   BlueTransactionPendingIcon,
-  SafeBlueArea,
+  BlueTransactionIncomingIcon,
+  BlueCard,
+  BlueText,
+  BlueLoading,
+  BlueSpacing20,
+  BlueNavigationStyle,
+  BlueSpacing10,
 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Transaction } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { Icon } from 'react-native-elements';
+import Handoff from 'react-native-handoff';
 import HandoffSettings from '../../class/handoff';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 const buttonStatus = Object.freeze({
   possible: 1,
   unknown: 2,
@@ -456,6 +454,7 @@ const styles = StyleSheet.create({
   },
 });
 
-TransactionsStatus.navigationOptions = navigationStyle({
+TransactionsStatus.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
   title: '',
 });

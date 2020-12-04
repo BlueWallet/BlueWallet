@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FlatList, ActivityIndicator, View, StyleSheet } from 'react-native';
-import { useTheme } from '@react-navigation/native';
-
-import navigationStyle from '../../components/navigationStyle';
-import { SafeBlueArea, BlueListItem, BlueText, BlueCard } from '../../BlueComponents';
+import { SafeBlueArea, BlueListItem, BlueText, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
+import PropTypes from 'prop-types';
 import { FiatUnit, FiatUnitSource } from '../../models/fiatUnit';
 import loc from '../../loc';
+import { useTheme } from '@react-navigation/native';
 const currency = require('../../blue_modules/currency');
 
 const data = Object.values(FiatUnit);
@@ -83,8 +82,15 @@ const Currency = () => {
   );
 };
 
-Currency.navigationOptions = navigationStyle({
+Currency.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func,
+    goBack: PropTypes.func,
+  }),
+};
+
+Currency.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
   title: loc.settings.currency,
 });
-
 export default Currency;

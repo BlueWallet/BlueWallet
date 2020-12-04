@@ -1,12 +1,19 @@
 /* global alert */
 import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, TouchableWithoutFeedback, StyleSheet, Linking, View, TextInput } from 'react-native';
+import {
+  BlueLoading,
+  BlueText,
+  BlueSpacing20,
+  BlueListItem,
+  BlueNavigationStyle,
+  BlueCard,
+  BlueButton,
+  BlueCopyToClipboardButton,
+} from '../../BlueComponents';
 import { useTheme } from '@react-navigation/native';
-import { Button } from 'react-native-elements';
-
-import navigationStyle from '../../components/navigationStyle';
-import { BlueButton, BlueCard, BlueCopyToClipboardButton, BlueListItem, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import loc from '../../loc';
+import { Button } from 'react-native-elements';
 import { BlueCurrentTheme } from '../../components/themes';
 import Notifications from '../../blue_modules/notifications';
 
@@ -156,7 +163,8 @@ const NotificationSettings = () => {
   );
 };
 
-NotificationSettings.navigationOptions = navigationStyle({
+NotificationSettings.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
   title: loc.settings.notifications,
 });
 

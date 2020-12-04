@@ -1,11 +1,9 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { BlueCopyTextToClipboard, SafeBlueArea, BlueNavigationStyle, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import QRCode from 'react-native-qrcode-svg';
-import { useRoute, useTheme } from '@react-navigation/native';
-
-import { BlueCopyTextToClipboard, SafeBlueArea, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
+import { useRoute, useTheme } from '@react-navigation/native';
 
 const LNDViewAdditionalInvoicePreImage = () => {
   // state = { walletInfo: undefined };
@@ -61,6 +59,7 @@ const styles = StyleSheet.create({
 
 export default LNDViewAdditionalInvoicePreImage;
 
-LNDViewAdditionalInvoicePreImage.navigationOptions = navigationStyle({
+LNDViewAdditionalInvoicePreImage.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
   title: loc.lndViewInvoice.additional_info,
 });

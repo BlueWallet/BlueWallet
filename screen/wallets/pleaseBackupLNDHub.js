@@ -1,12 +1,17 @@
 import React, { useCallback, useContext, useEffect } from 'react';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { View, useWindowDimensions, StyleSheet, BackHandler, StatusBar } from 'react-native';
+import {
+  SafeBlueArea,
+  BlueNavigationStyle,
+  BlueSpacing20,
+  BlueCopyTextToClipboard,
+  BlueButton,
+  BlueTextCentered,
+} from '../../BlueComponents';
 import QRCode from 'react-native-qrcode-svg';
-import { ScrollView } from 'react-native-gesture-handler';
-
-import { BlueButton, BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../Privacy';
+import { ScrollView } from 'react-native-gesture-handler';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
@@ -75,8 +80,8 @@ const PleaseBackupLNDHub = () => {
   );
 };
 
-PleaseBackupLNDHub.navigationOptions = navigationStyle({
-  closeButton: true,
+PleaseBackupLNDHub.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
   title: loc.pleasebackup.title,
   headerLeft: null,
   headerRight: null,

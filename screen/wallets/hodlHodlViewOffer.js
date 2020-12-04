@@ -1,12 +1,10 @@
 /* global alert */
 import React, { Component } from 'react';
 import { Alert, FlatList, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { BlueButton, BlueLoading, BlueNavigationStyle, BlueSpacing10, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { Icon } from 'react-native-elements';
-
-import navigationStyle from '../../components/navigationStyle';
-import { BlueButton, BlueLoading, BlueSpacing10, SafeBlueArea } from '../../BlueComponents';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
+import { Icon } from 'react-native-elements';
 import * as NavigationService from '../../NavigationService';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -382,15 +380,11 @@ const styles = StyleSheet.create({
   acceptOfferButtonWrapperWrapper: { marginTop: 24, alignItems: 'center' },
 });
 
-HodlHodlViewOffer.navigationOptions = navigationStyle(
-  {
-    title: '',
+HodlHodlViewOffer.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
+  title: '',
+  headerStyle: {
+    ...BlueNavigationStyle().headerStyle,
+    backgroundColor: BlueCurrentTheme.colors.customHeader,
   },
-  (options, { theme }) => ({
-    ...options,
-    headerStyle: {
-      ...options.headerStyle,
-      backgroundColor: theme.colors.customHeader,
-    },
-  }),
-);
+});
