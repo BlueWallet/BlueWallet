@@ -20,8 +20,12 @@ import {
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import RNFS from 'react-native-fs';
+import BigNumber from 'bignumber.js';
+import * as bitcoin from 'bitcoinjs-lib';
+
 import {
-  BlueCreateTxNavigationStyle,
   BlueButton,
   BlueBitcoinAmount,
   BlueAddressInput,
@@ -31,11 +35,7 @@ import {
   BlueListItem,
   BlueText,
 } from '../../BlueComponents';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import BigNumber from 'bignumber.js';
-import RNFS from 'react-native-fs';
-import * as bitcoin from 'bitcoinjs-lib';
-
+import { navigationStyleTx } from '../../components/navigationStyle';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { HDSegwitBech32Wallet, LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
@@ -204,6 +204,11 @@ const styles = StyleSheet.create({
   },
   feeValue: {
     color: BlueCurrentTheme.colors.feeValue,
+  },
+  advancedOptions: {
+    minWidth: 40,
+    height: 40,
+    justifyContent: 'center',
   },
 });
 
@@ -647,7 +652,7 @@ export default class SendDetails extends Component {
       this.props.navigation.navigate('PsbtMultisig', {
         memo: this.state.memo,
         psbtBase64: psbt.toBase64(),
-        walletId: wallet.getID(),
+        walletID: wallet.getID(),
       });
       this.setState({ isLoading: false });
       return;
@@ -923,7 +928,6 @@ export default class SendDetails extends Component {
       } else if (DeeplinkSchemaMatch.isTXNFile(res.uri)) {
         // plain text file with txhex ready to broadcast
         const file = (await RNFS.readFile(res.uri, 'ascii')).replace('\n', '').replace('\r', '');
-        console.warn(JSON.stringify(file));
         this.props.navigation.navigate('PsbtWithHardwareWallet', {
           memo: this.state.memo,
           fromWallet: this.state.fromWallet,
@@ -976,7 +980,7 @@ export default class SendDetails extends Component {
       this.props.navigation.navigate('PsbtMultisig', {
         memo: this.state.memo,
         psbtBase64: psbt.toBase64(),
-        walletId: fromWallet.getID(),
+        walletID: fromWallet.getID(),
       });
     } catch (error) {
       alert(loc.send.problem_with_psbt + ': ' + error.message);
@@ -1470,7 +1474,28 @@ SendDetails.propTypes = {
   }),
 };
 
-SendDetails.navigationOptions = ({ navigation, route }) => ({
-  ...BlueCreateTxNavigationStyle(navigation, route.params.withAdvancedOptionsMenuButton, route.params.advancedOptionsMenuButtonAction),
-  title: loc.send.header,
-});
+SendDetails.navigationOptions = navigationStyleTx(
+  {
+    title: loc.send.header,
+  },
+  (options, { theme, navigation, route }) => {
+    let headerRight;
+    if (route.params.withAdvancedOptionsMenuButton) {
+      headerRight = () => (
+        <TouchableOpacity
+          style={styles.advancedOptions}
+          onPress={route.params.advancedOptionsMenuButtonAction}
+          testID="advancedOptionsMenuButton"
+        >
+          <Icon size={22} name="kebab-horizontal" type="octicon" color={theme.colors.foregroundColor} />
+        </TouchableOpacity>
+      );
+    } else {
+      headerRight = null;
+    }
+    return {
+      ...options,
+      headerRight,
+    };
+  },
+);

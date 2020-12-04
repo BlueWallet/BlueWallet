@@ -5,16 +5,9 @@ import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, ScrollVi
 import Clipboard from '@react-native-community/clipboard';
 import { Text } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import {
-  BlueSpacing20,
-  BlueReplaceFeeSuggestions,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueSpacing,
-  BlueNavigationStyle,
-} from '../../BlueComponents';
+
+import { BlueButton, BlueCard, BlueReplaceFeeSuggestions, BlueSpacing, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { BlueCurrentTheme } from '../../components/themes';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
@@ -117,6 +110,7 @@ export default class CPFP extends Component {
   onSuccessBroadcast() {
     this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
     Notifications.majorTomToGroundControl([], [], [this.state.newTxid]);
+    this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
     this.props.navigation.navigate('Success', { onDonePressed: () => this.props.navigation.popToTop(), amount: undefined });
   }
 
@@ -249,7 +243,6 @@ CPFP.propTypes = {
     }),
   }),
 };
-CPFP.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
+CPFP.navigationOptions = navigationStyle({
   title: loc.transactions.cpfp_title,
 });

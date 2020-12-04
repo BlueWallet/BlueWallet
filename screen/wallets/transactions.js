@@ -23,15 +23,17 @@ import Clipboard from '@react-native-community/clipboard';
 import { Icon } from 'react-native-elements';
 import Handoff from 'react-native-handoff';
 import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
+import isCatalyst from 'react-native-is-catalyst';
+
 import { Chain } from '../../models/bitcoinUnits';
 import { BlueTransactionListItem, BlueWalletNavigationHeader, BlueAlertWalletExportReminder, BlueListItem } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
+import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import HandoffSettings from '../../class/handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import isCatalyst from 'react-native-is-catalyst';
 import BottomModal from '../../components/BottomModal';
 import BuyBitcoin from './buyBitcoin';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -139,6 +141,15 @@ const WalletTransactions = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
+
+  // if balance of the wallet positive and there are no transactions, then
+  // it'a freshly impoted wallet and we need to refresh transactions
+  useEffect(() => {
+    if (dataSource.length === 0 && wallet.current.getBalance() > 0) {
+      refreshTransactions();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // if description of transaction has been changed we want to show new one
   useFocusEffect(
@@ -651,7 +662,7 @@ const WalletTransactions = () => {
             text={loc.receive.header}
             onPress={() => {
               if (wallet.current.chain === Chain.OFFCHAIN) {
-                navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { fromWallet: wallet.current } });
+                navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID: wallet.current.getID() } });
               } else {
                 navigate('ReceiveDetailsRoot', { screen: 'ReceiveDetails', params: { walletID: wallet.current.getID() } });
               }
@@ -684,7 +695,7 @@ const WalletTransactions = () => {
 
 export default WalletTransactions;
 
-WalletTransactions.navigationOptions = ({ navigation, route }) => {
+WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, navigation, route }) => {
   return {
     headerRight: () => (
       <TouchableOpacity
@@ -699,7 +710,7 @@ WalletTransactions.navigationOptions = ({ navigation, route }) => {
         <Icon name="kebab-horizontal" type="octicon" size={22} color="#FFFFFF" />
       </TouchableOpacity>
     ),
-    headerTitle: '',
+    title: '',
     headerStyle: {
       backgroundColor: WalletGradient.headerColorFor(route.params.walletType),
       borderBottomWidth: 0,
@@ -710,7 +721,7 @@ WalletTransactions.navigationOptions = ({ navigation, route }) => {
     headerTintColor: '#FFFFFF',
     headerBackTitleVisible: false,
   };
-};
+});
 
 const styles = StyleSheet.create({
   flex: {

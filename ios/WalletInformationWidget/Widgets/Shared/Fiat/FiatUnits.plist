@@ -158,6 +158,14 @@
 		<key>locale</key>
 		<string>ko-KR</string>
 	</dict>
+		<dict>
+		<key>endPointKey</key>
+		<string>LBP</string>
+		<key>symbol</key>
+		<string>ل.ل.‏</string>
+		<key>locale</key>
+		<string>ar-LB</string>
+	</dict>
 	<dict>
 		<key>endPointKey</key>
 		<string>MXN</string>

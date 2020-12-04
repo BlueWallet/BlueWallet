@@ -82,7 +82,7 @@ class DeeplinkSchemaMatch {
               },
             ]);
           } else if (action === 'openReceive') {
-            completionHandler(['LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { fromWallet: wallet } }]);
+            completionHandler(['LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID: wallet.getID() } }]);
           }
         }
       }

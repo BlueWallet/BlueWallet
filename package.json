@@ -1,6 +1,6 @@
 {
   "name": "bluewallet",
-  "version": "5.6.7",
+  "version": "5.6.8",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.10.4",
@@ -73,9 +73,9 @@
     "@react-native-community/masked-view": "0.1.10",
     "@react-native-community/push-notification-ios": "1.7.1",
     "@react-native-community/slider": "3.0.3",
-    "@react-navigation/drawer": "5.10.2",
+    "@react-navigation/drawer": "5.11.2",
     "@react-navigation/native": "5.8.2",
-    "@react-navigation/stack": "5.11.1",
+    "@react-navigation/stack": "5.12.6",
     "@remobile/react-native-qrcode-local-image": "git+https://github.com/BlueWallet/react-native-qrcode-local-image.git",
     "@sentry/react-native": "1.9.0",
     "amplitude-js": "7.3.0",
@@ -90,7 +90,7 @@
     "bip39": "2.6.0",
     "bitcoinjs-lib": "5.2.0",
     "bolt11": "1.2.7",
-    "buffer": "5.6.0",
+    "buffer": "6.0.1",
     "buffer-reverse": "1.0.1",
     "coinselect": "3.1.12",
     "crypto-js": "3.1.9-1",

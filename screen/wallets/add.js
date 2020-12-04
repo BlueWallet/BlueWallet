@@ -21,10 +21,10 @@ import {
   VaultButton,
   BlueFormLabel,
   BlueButton,
-  BlueNavigationStyle,
-  BlueButtonLinkHook,
+  BlueButtonLink,
   BlueSpacing20,
 } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCustodianWallet, AppStorage } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useTheme, useNavigation } from '@react-navigation/native';
@@ -189,7 +189,7 @@ const WalletsAdd = () => {
     A(A.ENUM.CREATED_WALLET);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     navigate('PleaseBackupLNDHub', {
-      wallet,
+      walletID: wallet.getID(),
     });
   };
 
@@ -310,7 +310,7 @@ const WalletsAdd = () => {
             }
           })()}
           {isAdvancedOptionsEnabled && selectedWalletType === ButtonSelected.ONCHAIN && !isLoading && (
-            <BlueButtonLinkHook style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />
+            <BlueButtonLink style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />
           )}
           <BlueSpacing20 />
           <View style={styles.createButton}>
@@ -321,7 +321,7 @@ const WalletsAdd = () => {
             )}
           </View>
           {!isLoading && (
-            <BlueButtonLinkHook
+            <BlueButtonLink
               testID="ImportWallet"
               style={styles.import}
               title={loc.wallets.add_import_wallet}
@@ -334,8 +334,8 @@ const WalletsAdd = () => {
   );
 };
 
-WalletsAdd.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+WalletsAdd.navigationOptions = navigationStyle({
+  closeButton: true,
   headerTitle: loc.wallets.add_title,
   headerLeft: null,
 });

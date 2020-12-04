@@ -3,18 +3,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, TextInput, Linking, StyleSheet } from 'react-native';
 import { Button } from 'react-native-elements';
 import { useTheme, useNavigation, useRoute } from '@react-navigation/native';
-import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
-import {
-  BlueSpacing20,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueNavigationStyle,
-  BlueLoadingHook,
-  BlueText,
-  BlueButtonLink,
-} from '../../BlueComponents';
+
+import navigationStyle from '../../components/navigationStyle';
+import { BlueButton, BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { AppStorage } from '../../class';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
@@ -130,14 +123,14 @@ const LightningSettings = () => {
 
         <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
         <BlueSpacing20 />
-        {isLoading ? <BlueLoadingHook /> : <BlueButton onPress={save} title={loc.settings.save} />}
+        {isLoading ? <BlueLoading /> : <BlueButton onPress={save} title={loc.settings.save} />}
       </BlueCard>
     </SafeBlueArea>
   );
 };
 
-LightningSettings.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+LightningSettings.navigationOptions = navigationStyle({
   title: loc.settings.lightning_settings,
 });
+
 export default LightningSettings;

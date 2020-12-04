@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueListItem, BlueCard, BlueLoadingHook, BlueNavigationStyle, BlueText } from '../../BlueComponents';
+
+import navigationStyle from '../../components/navigationStyle';
+import { SafeBlueArea, BlueListItem, BlueCard, BlueLoading, BlueText } from '../../BlueComponents';
 import { AvailableLanguages } from '../../loc/languages';
 import loc from '../../loc';
 
@@ -40,7 +42,7 @@ const Language = () => {
   );
 
   return isLoading ? (
-    <BlueLoadingHook />
+    <BlueLoading />
   ) : (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.flex}>
       <FlatList style={styles.flex} keyExtractor={(_item, index) => `${index}`} data={AvailableLanguages} renderItem={renderItem} />
@@ -51,8 +53,7 @@ const Language = () => {
   );
 };
 
-Language.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+Language.navigationOptions = navigationStyle({
   headerTitle: loc.settings.language,
 });
 

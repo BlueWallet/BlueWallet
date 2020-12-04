@@ -1,6 +1,11 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
 import Share from 'react-native-share';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { Icon } from 'react-native-elements';
+import QRCode from 'react-native-qrcode-svg';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+
 import {
   BlueLoading,
   BlueText,
@@ -8,16 +13,12 @@ import {
   BlueButton,
   SecondButton,
   BlueCopyTextToClipboard,
-  BlueNavigationStyle,
   BlueSpacing20,
   BlueTextCentered,
 } from '../../BlueComponents';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { Icon } from 'react-native-elements';
-import QRCode from 'react-native-qrcode-svg';
+import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 
@@ -356,23 +357,22 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LNDViewInvoice;
+LNDViewInvoice.navigationOptions = navigationStyle(
+  {
+    title: loc.lndViewInvoice.lightning_invoice,
+    closeButton: true,
+    closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().pop(),
+  },
+  (options, { theme, navigation, route }) => {
+    return route.params.isModal === true
+      ? {
+          headerLeft: null,
+          gestureEnabled: false,
+        }
+      : {
+          headerRight: null,
+        };
+  },
+);
 
-LNDViewInvoice.navigationOptions = ({ navigation, route }) =>
-  route.params.isModal === true
-    ? {
-        ...BlueNavigationStyle(navigation, true, () => navigation.dangerouslyGetParent().pop()),
-        title: loc.lndViewInvoice.lightning_invoice,
-        headerLeft: null,
-        headerStyle: {
-          ...BlueNavigationStyle().headerStyle,
-        },
-        gestureEnabled: false,
-      }
-    : {
-        ...BlueNavigationStyle(),
-        title: loc.lndViewInvoice.lightning_invoice,
-        headerStyle: {
-          ...BlueNavigationStyle().headerStyle,
-        },
-      };
+export default LNDViewInvoice;

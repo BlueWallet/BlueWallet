@@ -1,8 +1,9 @@
 /* global alert */
 import React from 'react';
-import { ActivityIndicator, View, StyleSheet, ScrollView } from 'react-native';
-import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import { ActivityIndicator, View, StyleSheet, ScrollView } from 'react-native';
+import { BlueSpacing20, SafeBlueArea, BlueText } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 import loc from '../../loc';
@@ -75,6 +76,7 @@ export default class RBFCancel extends CPFP {
     } else {
       this.context.txMetadata[this.state.newTxid].memo = 'Cancelled transaction';
     }
+    this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
     this.props.navigation.navigate('Success', { onDonePressed: () => this.props.navigation.popToTop(), amount: undefined });
   }
 
@@ -126,7 +128,6 @@ RBFCancel.propTypes = {
   }),
 };
 
-RBFCancel.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
+RBFCancel.navigationOptions = navigationStyle({
   title: loc.transactions.cancel_title,
 });

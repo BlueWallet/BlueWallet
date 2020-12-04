@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueSpacing20, BlueLoadingHook } from '../../BlueComponents';
-/** @type {AppStorage} */
+import navigationStyle from '../../components/navigationStyle';
+import { SafeBlueArea, BlueCard, BlueText, BlueSpacing20, BlueLoading } from '../../BlueComponents';
 
 const styles = StyleSheet.create({
   root: {
@@ -17,7 +17,7 @@ const Licensing = () => {
   }, []);
 
   return isLoading ? (
-    <BlueLoadingHook />
+    <BlueLoading />
   ) : (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <ScrollView>
@@ -51,8 +51,7 @@ const Licensing = () => {
   );
 };
 
-Licensing.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+Licensing.navigationOptions = navigationStyle({
   title: 'License',
 });
 

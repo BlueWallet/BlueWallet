@@ -13,35 +13,36 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Icon } from 'react-native-elements';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { getSystemName } from 'react-native-device-info';
+import ImagePicker from 'react-native-image-picker';
+import QRCode from 'react-native-qrcode-svg';
+import Clipboard from '@react-native-community/clipboard';
+import showPopupMenu from 'react-native-popup-menu-android';
+import ToolTip from 'react-native-tooltip';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import {
   BlueButton,
-  BlueButtonLinkHook,
+  BlueButtonLink,
   BlueFormMultiInput,
-  BlueLoadingHook,
-  BlueNavigationStyle,
+  BlueLoading,
   BlueSpacing10,
   BlueSpacing20,
   BlueSpacing40,
   BlueTextCentered,
 } from '../../BlueComponents';
-import { Icon } from 'react-native-elements';
+import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import { getSystemName } from 'react-native-device-info';
-import ImagePicker from 'react-native-image-picker';
 import ScanQRCode from '../send/ScanQRCode';
-import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
 import BottomModal from '../../components/BottomModal';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
-import Clipboard from '@react-native-community/clipboard';
-import showPopupMenu from 'react-native-popup-menu-android';
-import ToolTip from 'react-native-tooltip';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const prompt = require('../../blue_modules/prompt');
@@ -290,6 +291,13 @@ const WalletsAddMultisigStep2 = () => {
     if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
     setIsProvideMnemonicsModalVisible(false);
     setIsLoading(false);
+    setImportText('');
+  };
+
+  const isValidMnemonicSeed = mnemonicSeed => {
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(mnemonicSeed);
+    return hd.validateMnemonic();
   };
 
   const onBarScanned = ret => {
@@ -298,6 +306,9 @@ const WalletsAddMultisigStep2 = () => {
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       alert('BC-UR not decoded. This should never happen');
+    } else if (isValidMnemonicSeed(ret.data)) {
+      setIsProvideMnemonicsModalVisible(true);
+      setImportText(ret.data);
     } else {
       let cosigner = new MultisigCosigner(ret.data);
       if (!cosigner.isValid()) return alert(loc.multisig.invalid_cosigner);
@@ -572,7 +583,7 @@ const WalletsAddMultisigStep2 = () => {
             ) : (
               <BlueButton disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={useMnemonicPhrase} />
             )}
-            <BlueButtonLinkHook disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+            <BlueButtonLink disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
         </KeyboardAvoidingView>
       </BottomModal>
@@ -620,7 +631,7 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
   const footer = isLoading ? (
-    <BlueLoadingHook />
+    <BlueLoading />
   ) : (
     <View style={styles.buttonBottom}>
       <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
@@ -754,8 +765,7 @@ const styles = StyleSheet.create({
   qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
 });
 
-WalletsAddMultisigStep2.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+WalletsAddMultisigStep2.navigationOptions = navigationStyle({
   headerTitle: null,
 });
 

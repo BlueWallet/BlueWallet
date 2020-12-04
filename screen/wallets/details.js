@@ -16,7 +16,8 @@ import {
   StatusBar,
   PermissionsAndroid,
 } from 'react-native';
-import { SecondButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText, BlueLoadingHook } from '../../BlueComponents';
+import { SecondButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueText, BlueLoading } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { HDLegacyBreadwalletWallet } from '../../class/wallets/hd-legacy-breadwallet-wallet';
 import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet';
@@ -368,7 +369,7 @@ const WalletDetails = () => {
 
   return isLoading ? (
     <View style={styles.root}>
-      <BlueLoadingHook />
+      <BlueLoading />
     </View>
   ) : (
     <SafeBlueArea style={styles.root}>
@@ -525,8 +526,7 @@ const WalletDetails = () => {
   );
 };
 
-WalletDetails.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+WalletDetails.navigationOptions = navigationStyle({
   headerTitle: loc.wallets.details_title,
 });
 

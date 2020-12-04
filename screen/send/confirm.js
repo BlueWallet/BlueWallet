@@ -1,13 +1,15 @@
 /* global alert */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
 import { Text } from 'react-native-elements';
 import { PayjoinClient } from 'payjoin-client';
-import PayjoinTransaction from '../../class/payjoin-transaction';
-import { BlueButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing40, BlueNavigationStyle } from '../../BlueComponents';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
-import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
+import PayjoinTransaction from '../../class/payjoin-transaction';
+import { BlueButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing40 } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 import Biometric from '../../class/biometrics';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
@@ -91,14 +93,15 @@ export default class Confirm extends Component {
 
         amount = formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
 
-        this.context.fetchAndSaveWalletTransactions(this.state.fromWallet.getID());
         this.props.navigation.navigate('Success', {
           fee: Number(this.state.fee),
           amount,
-          dismissModal: () => this.props.navigation.dangerouslyGetParent().pop(),
         });
 
         this.setState({ isLoading: false });
+
+        await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
+        this.context.fetchAndSaveWalletTransactions(this.state.fromWallet.getID());
       } catch (error) {
         ReactNativeHapticFeedback.trigger('notificationError', {
           ignoreAndroidSystemSettings: false,
@@ -323,7 +326,6 @@ Confirm.propTypes = {
   }),
 };
 
-Confirm.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
+Confirm.navigationOptions = navigationStyle({
   title: loc.send.confirm_header,
 });

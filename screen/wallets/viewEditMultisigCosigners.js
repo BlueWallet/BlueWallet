@@ -22,15 +22,15 @@ import ImagePicker from 'react-native-image-picker';
 
 import {
   BlueButton,
-  BlueButtonLinkHook,
+  BlueButtonLink,
   BlueFormMultiInput,
-  BlueLoadingHook,
-  BlueNavigationStyle,
+  BlueLoading,
   BlueSpacing10,
   BlueSpacing20,
   BlueSpacing40,
   BlueTextCentered,
 } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
 import BottomModal from '../../components/BottomModal';
 import { HDSegwitBech32Wallet, MultisigHDWallet } from '../../class';
@@ -168,7 +168,7 @@ const ViewEditMultisigCosigners = () => {
             </View>
             <View style={styles.vaultKeyTextWrapper}>
               <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
-                {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex + 1 })}
+                {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
               </Text>
             </View>
           </View>
@@ -441,7 +441,7 @@ const ViewEditMultisigCosigners = () => {
                 onPress={handleUseMnemonicPhrase}
               />
             )}
-            <BlueButtonLinkHook disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+            <BlueButtonLink disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
         </KeyboardAvoidingView>
       </BottomModal>
@@ -451,7 +451,7 @@ const ViewEditMultisigCosigners = () => {
   if (isLoading)
     return (
       <SafeAreaView style={[styles.root, stylesHook.root]}>
-        <BlueLoadingHook />
+        <BlueLoading />
       </SafeAreaView>
     );
 
@@ -574,8 +574,8 @@ const styles = StyleSheet.create({
   squareButtonWrapper: { height: 50, width: 250 },
 });
 
-ViewEditMultisigCosigners.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+ViewEditMultisigCosigners.navigationOptions = navigationStyle({
+  closeButton: true,
   title: loc.multisig.view_edit_cosigners_title,
   headerLeft: null,
 });

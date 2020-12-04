@@ -2,7 +2,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, View, ScrollView, StyleSheet } from 'react-native';
-import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import { BlueSpacing20, SafeBlueArea, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 import loc from '../../loc';
@@ -65,6 +66,7 @@ export default class RBFBumpFee extends CPFP {
     if (this.context.txMetadata[this.state.txid]) {
       this.context.txMetadata[this.state.newTxid] = this.context.txMetadata[this.state.txid];
     }
+    this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
     this.props.navigation.navigate('Success', { onDonePressed: () => this.props.navigation.popToTop(), amount: undefined });
   }
 
@@ -115,8 +117,6 @@ RBFBumpFee.propTypes = {
     }),
   }),
 };
-
-RBFBumpFee.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
+RBFBumpFee.navigationOptions = navigationStyle({
   title: loc.transactions.rbf_title,
 });

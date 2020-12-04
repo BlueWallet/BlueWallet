@@ -107,12 +107,13 @@
   "lndViewInvoice": {
     "additional_info": "Dodatne Informacije",
     "for": "Za:",
+    "lightning_invoice": "Lightning Račun",
     "has_been_paid": "Ta račun je bil plačan",
     "open_direct_channel": "Odpri neposreden kanal s tem vozliščem:",
     "please_pay": "Prosim plačajte",
     "preimage": "Preimage",
     "sats": "sats",
-    "wasnt_paid_and_expired": "Ta račun ni bil plačan in je potekel"
+    "wasnt_paid_and_expired": "Ta račun ni bil plačan in je potekel."
   },
   "plausibledeniability": {
     "create_fake_storage": "Ustvari Šifrirano shrambo",
@@ -146,7 +147,7 @@
   "send": {
     "broadcastButton": "Objavi v omrežju",
     "broadcastError": "napaka",
-    "broadcastNone": "Vnesite zgoščeno vrednost transakcije",
+    "broadcastNone": "Vnesite zgoščeno vrednost transakcije (hash)",
     "broadcastPending": "v teku",
     "broadcastSuccess": "uspešno",
     "confirm_header": "Potrditev",
@@ -313,6 +314,7 @@
     "details_inputs": "Vhodi",
     "details_outputs": "Izhodi",
     "details_received": "Prejeto",
+    "transaction_note_saved":"Opomba transakcije je bila uspešno shranjena.",
     "details_show_in_block_explorer": "Prikaži v raziskovalcu blokov",
     "details_title": "Transakcija",
     "details_to": "Izhod",
@@ -358,7 +360,7 @@
     "details_display": "prikaži na seznamu denarnic",
     "details_export_backup": "Izvozi / varnostna kopija",
     "details_marketplace": "Tržnica",
-    "details_master_fingerprint": "Master fingerprint",
+    "details_master_fingerprint": "Glavni prstni odtis (fingerprint)",
     "details_no_cancel": "Ne, prekliči",
     "details_save": "Shrani",
     "details_show_xpub": "Prikaži XPUB denarnice",
@@ -455,6 +457,10 @@
     "view_edit_cosigners": "Prikaži/uredi sopodpisnike",
     "this_cosigner_is_already_imported": "Ta sopodpisnik je že uvožen",
     "export_signed_psbt": "Izvozi podpisano PSBT",
+    "input_fp": "Vnesite xfp (master key fingerprint)",
+    "input_fp_explain": "preskoči in uporabi privzetega (00000000)",
+    "input_path": "Vnesite pot izpeljave (derivation path)",
+    "input_path_explain": "preskoči in uporabi privzeto ({default})",
     "view_edit_cosigners_title": "Urejanje sopodpisnikov"
   },
   "cc": {

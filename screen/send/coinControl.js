@@ -16,9 +16,10 @@ import {
 } from 'react-native';
 import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
 
-import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { BlueNavigationStyle, SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueButton, BlueListItem } from '../../BlueComponents';
+import { SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueButton, BlueListItem } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
@@ -35,7 +36,15 @@ const debounce = (func, wait) => {
   };
 };
 
-const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, change = false, full = false, onPress }) => {
+const Output = ({
+  item: { address, txid, value, vout },
+  balanceUnit = BitcoinUnit.BTC,
+  oMemo,
+  frozen,
+  change = false,
+  full = false,
+  onPress,
+}) => {
   const { colors } = useTheme();
   const { txMetadata } = useContext(BlueStorageContext);
   const cs = useColorScheme();
@@ -43,7 +52,7 @@ const Output = ({ item: { address, txid, value, vout }, oMemo, frozen, change = 
   const fullId = `${txid}:${vout}`;
   const shortId = `${address.substring(0, 9)}...${address.substr(address.length - 9)}`;
   const color = `#${txid.substring(0, 6)}`;
-  const amount = formatBalanceWithoutSuffix(value, BitcoinUnit.BTC, true);
+  const amount = formatBalance(value, balanceUnit, true);
 
   const oStyles = StyleSheet.create({
     containerFull: { paddingHorizontal: 0 },
@@ -102,6 +111,7 @@ Output.propTypes = {
     value: PropTypes.number.isRequired,
     vout: PropTypes.number.isRequired,
   }),
+  balanceUnit: PropTypes.string,
   oMemo: PropTypes.string,
   frozen: PropTypes.bool,
   change: PropTypes.bool,
@@ -148,7 +158,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin }) => {
 
   return (
     <>
-      <Output item={output} full />
+      <Output item={output} balanceUnit={wallet.getPreferredBalanceUnit()} full />
       <BlueSpacing20 />
       <TextInput
         testID="OutputMemo"
@@ -223,7 +233,16 @@ const CoinControl = () => {
   const renderItem = p => {
     const { memo, frozen } = wallet.getUTXOMetadata(p.item.txid, p.item.vout);
     const change = wallet.addressIsChange(p.item.address);
-    return <Output item={p.item} oMemo={memo} frozen={frozen} change={change} onPress={() => handleChoose(p.item)} />;
+    return (
+      <Output
+        balanceUnit={wallet.getPreferredBalanceUnit()}
+        item={p.item}
+        oMemo={memo}
+        frozen={frozen}
+        change={change}
+        onPress={() => handleChoose(p.item)}
+      />
+    );
   };
 
   if (loading) {
@@ -290,8 +309,7 @@ const styles = StyleSheet.create({
   },
 });
 
-CoinControl.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
+CoinControl.navigationOptions = navigationStyle({
   title: loc.cc.header,
 });
 

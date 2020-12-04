@@ -1,22 +1,230 @@
 /* global alert */
-import React, { Component } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
-import {
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueLoading,
-  BlueSpacing20,
-  BlueCopyToClipboardButton,
-  BlueNavigationStyle,
-} from '../../BlueComponents';
-import HandoffSettings from '../../class/handoff';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import Handoff from 'react-native-handoff';
-import PropTypes from 'prop-types';
+import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import HandoffSettings from '../../class/handoff';
 import loc from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const dayjs = require('dayjs');
+
+function onlyUnique(value, index, self) {
+  return self.indexOf(value) === index;
+}
+
+function arrDiff(a1, a2) {
+  const ret = [];
+  for (const v of a2) {
+    if (a1.indexOf(v) === -1) {
+      ret.push(v);
+    }
+  }
+  return ret;
+}
+
+const TransactionsDetails = () => {
+  const { setOptions } = useNavigation();
+  const { hash } = useRoute().params;
+  const { saveToDisk, txMetadata, wallets, getTransactions } = useContext(BlueStorageContext);
+  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
+  const [from, setFrom] = useState();
+  const [to, setTo] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+  const [tx, setTX] = useState();
+  const [memo, setMemo] = useState();
+  const { colors } = useTheme();
+  const stylesHooks = StyleSheet.create({
+    rowCaption: {
+      color: colors.foregroundColor,
+    },
+    txId: {
+      color: colors.foregroundColor,
+    },
+    txLink: {
+      color: colors.alternativeTextColor2,
+    },
+    saveText: {
+      color: colors.alternativeTextColor2,
+    },
+    memoTextInput: {
+      borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
+      backgroundColor: colors.inputBackgroundColor,
+    },
+  });
+
+  useEffect(() => {
+    setOptions({
+      headerRight: () => (
+        <TouchableOpacity disabled={isLoading} style={styles.save} onPress={handleOnSaveButtonTapped}>
+          <Text style={stylesHooks.saveText}>{loc.wallets.details_save}</Text>
+        </TouchableOpacity>
+      ),
+      headerStyle: {
+        borderBottomWidth: 0,
+        elevation: 0,
+        shadowOpacity: 0,
+        shadowOffset: { height: 0, width: 0 },
+        backgroundColor: colors.customHeader,
+      },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colors, isLoading, memo]);
+
+  useEffect(() => {
+    let foundTx = {};
+    let from = [];
+    let to = [];
+    for (const tx of getTransactions()) {
+      if (tx.hash === hash) {
+        foundTx = tx;
+        for (const input of foundTx.inputs) {
+          from = from.concat(input.addresses);
+        }
+        for (const output of foundTx.outputs) {
+          if (output.addresses) to = to.concat(output.addresses);
+          if (output.scriptPubKey && output.scriptPubKey.addresses) to = to.concat(output.scriptPubKey.addresses);
+        }
+      }
+    }
+
+    for (const w of wallets) {
+      for (const t of w.getTransactions()) {
+        if (t.hash === hash) {
+          console.log('tx', hash, 'belongs to', w.getLabel());
+        }
+      }
+    }
+    if (txMetadata[foundTx.hash]) {
+      if (txMetadata[foundTx.hash].memo) {
+        setMemo(txMetadata[foundTx.hash].memo);
+      }
+    }
+
+    setTX(foundTx);
+    setFrom(from);
+    setTo(to);
+    setIsLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hash]);
+
+  useEffect(() => {
+    HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleOnSaveButtonTapped = () => {
+    Keyboard.dismiss();
+    txMetadata[tx.hash] = { memo };
+    saveToDisk().then(_success => alert(loc.transactions.transaction_note_saved));
+  };
+
+  const handleOnOpenTransactionOnBlockExporerTapped = () => {
+    const url = `https://blockstream.info/tx/${tx.hash}`;
+    Linking.canOpenURL(url).then(supported => {
+      if (supported) {
+        Linking.openURL(url);
+      }
+    });
+  };
+
+  if (isLoading || !tx) {
+    return <BlueLoading />;
+  }
+
+  return (
+    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+      {isHandOffUseEnabled && (
+        <Handoff title={`Bitcoin Transaction ${tx.hash}`} type="io.bluewallet.bluewallet" url={`https://blockstream.info/tx/${tx.hash}`} />
+      )}
+      <StatusBar barStyle="default" />
+      <ScrollView style={styles.scroll}>
+        <BlueCard>
+          <View>
+            <TextInput
+              placeholder={loc.send.details_note_placeholder}
+              value={memo}
+              placeholderTextColor="#81868e"
+              style={[styles.memoTextInput, stylesHooks.memoTextInput]}
+              onChangeText={setMemo}
+            />
+            <BlueSpacing20 />
+          </View>
+
+          {from && (
+            <>
+              <View style={styles.rowHeader}>
+                <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_from}</BlueText>
+                <BlueCopyToClipboardButton stringToCopy={from.filter(onlyUnique).join(', ')} />
+              </View>
+              <BlueText style={styles.rowValue}>{from.filter(onlyUnique).join(', ')}</BlueText>
+            </>
+          )}
+
+          {to && (
+            <>
+              <View style={styles.rowHeader}>
+                <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_to}</BlueText>
+                <BlueCopyToClipboardButton stringToCopy={to.filter(onlyUnique).join(', ')} />
+              </View>
+              <BlueText style={styles.rowValue}>{arrDiff(from, to.filter(onlyUnique)).join(', ')}</BlueText>
+            </>
+          )}
+
+          {tx.fee && (
+            <>
+              <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.send.create_fee}</BlueText>
+              <BlueText style={styles.rowValue}>{tx.fee + ' sats'}</BlueText>
+            </>
+          )}
+
+          {tx.hash && (
+            <>
+              <View style={styles.rowHeader}>
+                <BlueText style={[styles.txId, stylesHooks.txId]}>Txid</BlueText>
+                <BlueCopyToClipboardButton stringToCopy={tx.hash} />
+              </View>
+              <BlueText style={styles.txHash}>{tx.hash}</BlueText>
+              <TouchableOpacity onPress={handleOnOpenTransactionOnBlockExporerTapped}>
+                <BlueText style={[styles.txLink, stylesHooks.txLink]}>{loc.transactions.details_show_in_block_explorer}</BlueText>
+              </TouchableOpacity>
+            </>
+          )}
+
+          {tx.received && (
+            <>
+              <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_received}</BlueText>
+              <BlueText style={styles.rowValue}>{dayjs(tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
+            </>
+          )}
+
+          {tx.block_height > 0 && (
+            <>
+              <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_block}</BlueText>
+              <BlueText style={styles.rowValue}>{tx.block_height}</BlueText>
+            </>
+          )}
+
+          {tx.inputs && (
+            <>
+              <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_inputs}</BlueText>
+              <BlueText style={styles.rowValue}>{tx.inputs.length}</BlueText>
+            </>
+          )}
+
+          {tx.outputs.length > 0 && (
+            <>
+              <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_outputs}</BlueText>
+              <BlueText style={styles.rowValue}>{tx.outputs.length}</BlueText>
+            </>
+          )}
+        </BlueCard>
+      </ScrollView>
+    </SafeBlueArea>
+  );
+};
 
 const styles = StyleSheet.create({
   root: {
@@ -35,7 +243,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     marginBottom: 4,
-    color: BlueCurrentTheme.colors.foregroundColor,
   },
   rowValue: {
     marginBottom: 26,
@@ -44,7 +251,6 @@ const styles = StyleSheet.create({
   txId: {
     fontSize: 16,
     fontWeight: '500',
-    color: BlueCurrentTheme.colors.foregroundColor,
   },
   txHash: {
     marginBottom: 8,
@@ -52,23 +258,16 @@ const styles = StyleSheet.create({
   },
   txLink: {
     marginBottom: 26,
-    color: BlueCurrentTheme.colors.alternativeTextColor2,
   },
   save: {
     marginHorizontal: 16,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  saveText: {
-    color: BlueCurrentTheme.colors.alternativeTextColor2,
-  },
   memoTextInput: {
     flexDirection: 'row',
-    borderColor: BlueCurrentTheme.colors.formBorder,
-    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1,
     borderBottomWidth: 0.5,
-    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     alignItems: 'center',
@@ -79,221 +278,8 @@ const styles = StyleSheet.create({
   },
 });
 
-function onlyUnique(value, index, self) {
-  return self.indexOf(value) === index;
-}
+export default TransactionsDetails;
 
-function arrDiff(a1, a2) {
-  const ret = [];
-  for (const v of a2) {
-    if (a1.indexOf(v) === -1) {
-      ret.push(v);
-    }
-  }
-  return ret;
-}
-
-export default class TransactionsDetails extends Component {
-  static contextType = BlueStorageContext;
-
-  constructor(props, context) {
-    super(props);
-    const hash = props.route.params.hash;
-    let foundTx = {};
-    let from = [];
-    let to = [];
-    for (const tx of context.getTransactions()) {
-      if (tx.hash === hash) {
-        foundTx = tx;
-        for (const input of foundTx.inputs) {
-          from = from.concat(input.addresses);
-        }
-        for (const output of foundTx.outputs) {
-          if (output.addresses) to = to.concat(output.addresses);
-          if (output.scriptPubKey && output.scriptPubKey.addresses) to = to.concat(output.scriptPubKey.addresses);
-        }
-      }
-    }
-
-    let wallet = false;
-    for (const w of context.wallets) {
-      for (const t of w.getTransactions()) {
-        if (t.hash === hash) {
-          console.log('tx', hash, 'belongs to', w.getLabel());
-          wallet = w;
-        }
-      }
-    }
-    let memo = '';
-    if (context.txMetadata[foundTx.hash]) {
-      if (context.txMetadata[foundTx.hash].memo) {
-        memo = context.txMetadata[foundTx.hash].memo;
-      }
-    }
-    this.state = {
-      isLoading: true,
-      tx: foundTx,
-      from,
-      to,
-      wallet,
-      isHandOffUseEnabled: false,
-      memo,
-    };
-  }
-
-  async componentDidMount() {
-    console.log('transactions/details - componentDidMount');
-    this.props.navigation.setParams({ handleOnSaveButtonTapped: this.handleOnSaveButtonTapped });
-    const isHandOffUseEnabled = await HandoffSettings.isHandoffUseEnabled();
-    this.setState({
-      isLoading: false,
-      isHandOffUseEnabled,
-    });
-  }
-
-  handleOnSaveButtonTapped = () => {
-    Keyboard.dismiss();
-    this.context.txMetadata[this.state.tx.hash] = { memo: this.state.memo };
-    this.context.saveToDisk().then(_success => alert('Transaction note has been successfully saved.'));
-  };
-
-  handleOnMemoChangeText = value => {
-    this.setState({ memo: value });
-  };
-
-  render() {
-    if (this.state.isLoading || !('tx' in this.state)) {
-      return <BlueLoading />;
-    }
-
-    return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-        {this.state.isHandOffUseEnabled && (
-          <Handoff
-            title={`Bitcoin Transaction ${this.state.tx.hash}`}
-            type="io.bluewallet.bluewallet"
-            url={`https://blockstream.info/tx/${this.state.tx.hash}`}
-          />
-        )}
-        <StatusBar barStyle="default" />
-        <ScrollView style={styles.scroll}>
-          <BlueCard>
-            <View>
-              <TextInput
-                placeholder={loc.send.details_note_placeholder}
-                value={this.state.memo}
-                placeholderTextColor="#81868e"
-                style={styles.memoTextInput}
-                onChangeText={this.handleOnMemoChangeText}
-              />
-              <BlueSpacing20 />
-            </View>
-
-            {'from' in this.state && (
-              <>
-                <View style={styles.rowHeader}>
-                  <BlueText style={styles.rowCaption}>{loc.transactions.details_from}</BlueText>
-                  <BlueCopyToClipboardButton stringToCopy={this.state.from.filter(onlyUnique).join(', ')} />
-                </View>
-                <BlueText style={styles.rowValue}>{this.state.from.filter(onlyUnique).join(', ')}</BlueText>
-              </>
-            )}
-
-            {'to' in this.state && (
-              <>
-                <View style={styles.rowHeader}>
-                  <BlueText style={styles.rowCaption}>{loc.transactions.details_to}</BlueText>
-                  <BlueCopyToClipboardButton stringToCopy={this.state.to.filter(onlyUnique).join(', ')} />
-                </View>
-                <BlueText style={styles.rowValue}>{arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}</BlueText>
-              </>
-            )}
-
-            {'fee' in this.state.tx && (
-              <>
-                <BlueText style={styles.rowCaption}>{loc.send.create_fee}</BlueText>
-                <BlueText style={styles.rowValue}>{this.state.tx.fee + ' sats'}</BlueText>
-              </>
-            )}
-
-            {'hash' in this.state.tx && (
-              <>
-                <View style={styles.rowHeader}>
-                  <BlueText style={styles.txId}>Txid</BlueText>
-                  <BlueCopyToClipboardButton stringToCopy={this.state.tx.hash} />
-                </View>
-                <BlueText style={styles.txHash}>{this.state.tx.hash}</BlueText>
-                <TouchableOpacity
-                  onPress={() => {
-                    const url = `https://blockstream.info/tx/${this.state.tx.hash}`;
-                    Linking.canOpenURL(url).then(supported => {
-                      if (supported) {
-                        Linking.openURL(url);
-                      }
-                    });
-                  }}
-                >
-                  <BlueText style={styles.txLink}>{loc.transactions.details_show_in_block_explorer}</BlueText>
-                </TouchableOpacity>
-              </>
-            )}
-
-            {'received' in this.state.tx && (
-              <>
-                <BlueText style={styles.rowCaption}>{loc.transactions.details_received}</BlueText>
-                <BlueText style={styles.rowValue}>{dayjs(this.state.tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
-              </>
-            )}
-
-            {'block_height' in this.state.tx && this.state.tx.block_height > 0 && (
-              <>
-                <BlueText style={styles.rowCaption}>{loc.transactions.details_block}</BlueText>
-                <BlueText style={styles.rowValue}>{this.state.tx.block_height}</BlueText>
-              </>
-            )}
-
-            {'inputs' in this.state.tx && (
-              <>
-                <BlueText style={styles.rowCaption}>{loc.transactions.details_inputs}</BlueText>
-                <BlueText style={styles.rowValue}>{this.state.tx.inputs.length}</BlueText>
-              </>
-            )}
-
-            {'outputs' in this.state.tx && this.state.tx.outputs.length > 0 && (
-              <>
-                <BlueText style={styles.rowCaption}>{loc.transactions.details_outputs}</BlueText>
-                <BlueText style={styles.rowValue}>{this.state.tx.outputs.length}</BlueText>
-              </>
-            )}
-          </BlueCard>
-        </ScrollView>
-      </SafeBlueArea>
-    );
-  }
-}
-
-TransactionsDetails.propTypes = {
-  route: PropTypes.shape({
-    name: PropTypes.string,
-    params: PropTypes.shape({
-      hash: PropTypes.string,
-    }),
-  }),
-  navigation: PropTypes.shape({
-    setParams: PropTypes.func,
-  }),
-};
-
-TransactionsDetails.navigationOptions = ({ navigation, route }) => ({
-  ...BlueNavigationStyle(),
+TransactionsDetails.navigationOptions = navigationStyle({
   title: loc.transactions.details_title,
-  headerStyle: {
-    ...BlueNavigationStyle().headerStyle,
-    backgroundColor: BlueCurrentTheme.colors.customHeader,
-  },
-  headerRight: () => (
-    <TouchableOpacity disabled={route.params.isLoading === true} style={styles.save} onPress={route.params.handleOnSaveButtonTapped}>
-      <Text style={styles.saveText}>{loc.wallets.details_save}</Text>
-    </TouchableOpacity>
-  ),
 });
