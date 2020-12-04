@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
   textBtcUnit: { justifyContent: 'flex-end', bottom: 8 },
   bottomFeesWrapper: { justifyContent: 'center', alignItems: 'center', flexDirection: 'row' },
   bottomWrapper: { marginTop: 16 },
-  marginConfirmButton: { margin: 16, marginBottom: 48 },
+  marginConfirmButton: { marginTop: 16, marginHorizontal: 32, marginBottom: 48 },
   height80: {
     height: 80,
   },
