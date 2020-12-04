@@ -1,16 +1,14 @@
 /* global alert */
 import React, { useState } from 'react';
 import { ActivityIndicator, Platform, ScrollView, StyleSheet, View } from 'react-native';
-import { getSystemName } from 'react-native-device-info';
-import ImagePicker from 'react-native-image-picker';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-
-import { BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
+import { BlueNavigationStyle, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
+import { getSystemName } from 'react-native-device-info';
 import loc from '../../loc';
+import ImagePicker from 'react-native-image-picker';
 import ScanQRCode from './ScanQRCode';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
@@ -141,7 +139,8 @@ const styles = StyleSheet.create({
   },
 });
 
-PsbtMultisigQRCode.navigationOptions = navigationStyle({
+PsbtMultisigQRCode.navigationOptions = () => ({
+  ...BlueNavigationStyle(null, false),
   title: loc.multisig.header,
 });
 

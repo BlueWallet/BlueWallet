@@ -18,8 +18,7 @@ import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
 
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueButton, BlueListItem } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
+import { BlueNavigationStyle, SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueButton, BlueListItem } from '../../BlueComponents';
 import BottomModal from '../../components/BottomModal';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
@@ -309,7 +308,8 @@ const styles = StyleSheet.create({
   },
 });
 
-CoinControl.navigationOptions = navigationStyle({
+CoinControl.navigationOptions = () => ({
+  ...BlueNavigationStyle(null, false),
   title: loc.cc.header,
 });
 

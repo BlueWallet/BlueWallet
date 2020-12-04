@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-
-import navigationStyle from '../../components/navigationStyle';
-import { SafeBlueArea, BlueListItem, BlueCard, BlueLoading, BlueText } from '../../BlueComponents';
+import { SafeBlueArea, BlueListItem, BlueCard, BlueLoading, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import { AvailableLanguages } from '../../loc/languages';
 import loc from '../../loc';
 
@@ -53,7 +51,8 @@ const Language = () => {
   );
 };
 
-Language.navigationOptions = navigationStyle({
+Language.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
   headerTitle: loc.settings.language,
 });
 

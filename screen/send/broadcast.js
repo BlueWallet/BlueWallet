@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, Linking, StyleSheet, View, KeyboardAvoidingView, Platform, Text, TextInput } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-
 import loc from '../../loc';
 import { HDSegwitBech32Wallet } from '../../class';
-import navigationStyle from '../../components/navigationStyle';
 import {
   SafeBlueArea,
   BlueCard,
@@ -15,6 +13,7 @@ import {
   BlueFormLabel,
   BlueTextCentered,
   BlueBigCheckmark,
+  BlueNavigationStyle,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -111,7 +110,8 @@ const Broadcast = () => {
 };
 
 export default Broadcast;
-Broadcast.navigationOptions = navigationStyle({
+Broadcast.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
   title: loc.send.create_broadcast,
 });
 
@@ -180,10 +180,10 @@ function SuccessScreen({ tx }) {
         <View style={styles.broadcastResultWrapper}>
           <BlueBigCheckmark />
           <BlueSpacing20 />
-          <BlueTextCentered>{loc.send.broadcast_success_screen_msg}</BlueTextCentered>
+          <BlueTextCentered>Success! You transaction has been broadcasted!</BlueTextCentered>
           <BlueSpacing10 />
           <Text style={styles.link} onPress={() => Linking.openURL(`https://blockstream.info/tx/${tx}`)}>
-            {loc.send.broadcast_success_screen_open}
+            Open link in explorer
           </Text>
         </View>
       </BlueCard>

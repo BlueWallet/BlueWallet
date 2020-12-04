@@ -15,28 +15,27 @@ import {
 } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
-import Share from 'react-native-share';
-import { getSystemName } from 'react-native-device-info';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import DocumentPicker from 'react-native-document-picker';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import isCatalyst from 'react-native-is-catalyst';
-import RNFS from 'react-native-fs';
-
 import {
   SecondButton,
   BlueText,
   SafeBlueArea,
   BlueCard,
+  BlueNavigationStyle,
   BlueSpacing20,
   BlueCopyToClipboardButton,
   DynamicQRCode,
 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
+import Share from 'react-native-share';
+import { getSystemName } from 'react-native-device-info';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import RNFS from 'react-native-fs';
+import DocumentPicker from 'react-native-document-picker';
 import loc from '../../loc';
 import ScanQRCode from './ScanQRCode';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import isCatalyst from 'react-native-is-catalyst';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */
 const bitcoin = require('bitcoinjs-lib');
@@ -337,7 +336,8 @@ const PsbtWithHardwareWallet = () => {
 
 export default PsbtWithHardwareWallet;
 
-PsbtWithHardwareWallet.navigationOptions = navigationStyle({
+PsbtWithHardwareWallet.navigationOptions = () => ({
+  ...BlueNavigationStyle(null, false),
   title: loc.send.header,
 });
 

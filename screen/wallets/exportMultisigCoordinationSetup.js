@@ -1,13 +1,11 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { ActivityIndicator, InteractionManager, ScrollView, StatusBar, StyleSheet, View } from 'react-native';
-import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
-
-import { BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
+import { BlueNavigationStyle, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
+import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SquareButton } from '../../components/SquareButton';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const fs = require('../../blue_modules/fs');
@@ -120,8 +118,8 @@ const styles = StyleSheet.create({
   },
 });
 
-ExportMultisigCoordinationSetup.navigationOptions = navigationStyle({
-  closeButton: true,
+ExportMultisigCoordinationSetup.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
   title: loc.multisig.export_coordination_setup,
   headerLeft: null,
 });

@@ -1,11 +1,17 @@
 import React from 'react';
 import { ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
+import {
+  BlueTextCentered,
+  BlueSpacing20,
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueListItem,
+  BlueNavigationStyle,
+} from '../../BlueComponents';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
-
-import { BlueButton, BlueCard, BlueListItem, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 
 const About = () => {
@@ -187,7 +193,8 @@ const About = () => {
   );
 };
 
-About.navigationOptions = navigationStyle({
+About.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
   headerTitle: loc.settings.about,
 });
 export default About;

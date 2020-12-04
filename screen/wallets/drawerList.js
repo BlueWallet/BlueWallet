@@ -1,16 +1,18 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { StatusBar, View, StyleSheet, Alert, useWindowDimensions } from 'react-native';
+import { StatusBar, View, TouchableOpacity, StyleSheet, Alert, useWindowDimensions } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
+import { BlueNavigationStyle, BlueHeaderDefaultMain } from '../../BlueComponents';
+import WalletsCarousel from '../../components/WalletsCarousel';
+import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
-import { useTheme } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { BlueHeaderDefaultMain } from '../../BlueComponents';
-import WalletsCarousel from '../../components/WalletsCarousel';
 import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
+import * as NavigationService from '../../NavigationService';
 import loc from '../../loc';
+import { BlueCurrentTheme } from '../../components/themes';
+import { useTheme } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const DrawerList = props => {
@@ -129,7 +131,6 @@ const DrawerList = props => {
 };
 
 export default DrawerList;
-
 const styles = StyleSheet.create({
   contentContainerCustomStyle: {
     paddingRight: 10,
@@ -155,4 +156,23 @@ DrawerList.propTypes = {
     name: PropTypes.string,
     params: PropTypes.object,
   }),
+};
+
+DrawerList.navigationOptions = ({ navigation }) => {
+  return {
+    ...BlueNavigationStyle(navigation, true),
+    title: '',
+    headerStyle: {
+      backgroundColor: BlueCurrentTheme.colors.customHeader,
+      borderBottomWidth: 0,
+      elevation: 0,
+      shadowOpacity: 0,
+      shadowOffset: { height: 0, width: 0 },
+    },
+    headerRight: () => (
+      <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
+        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueCurrentTheme.colors.foregroundColor} />
+      </TouchableOpacity>
+    ),
+  };
 };

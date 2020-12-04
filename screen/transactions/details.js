@@ -1,13 +1,20 @@
 /* global alert */
 import React, { useContext, useEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import Handoff from 'react-native-handoff';
-import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
+import {
+  SafeBlueArea,
+  BlueCard,
+  BlueText,
+  BlueLoading,
+  BlueSpacing20,
+  BlueCopyToClipboardButton,
+  BlueNavigationStyle,
+} from '../../BlueComponents';
 import HandoffSettings from '../../class/handoff';
+import Handoff from 'react-native-handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 const dayjs = require('dayjs');
 
 function onlyUnique(value, index, self) {
@@ -280,6 +287,7 @@ const styles = StyleSheet.create({
 
 export default TransactionsDetails;
 
-TransactionsDetails.navigationOptions = navigationStyle({
+TransactionsDetails.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
   title: loc.transactions.details_title,
 });

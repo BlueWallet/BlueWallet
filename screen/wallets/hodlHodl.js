@@ -22,8 +22,7 @@ import {
 } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 
-import { BlueButtonLink, SafeBlueArea } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
+import { BlueButtonLink, BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import * as NavigationService from '../../NavigationService';
 import { BlueCurrentTheme } from '../../components/themes';
@@ -882,25 +881,21 @@ HodlHodl.propTypes = {
   }),
 };
 
-HodlHodl.navigationOptions = navigationStyle(
-  {
-    title: '',
+HodlHodl.navigationOptions = ({ navigation, route }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: '',
+  headerStyle: {
+    ...BlueNavigationStyle(navigation, true).headerStyle,
+    backgroundColor: BlueCurrentTheme.colors.customHeader,
   },
-  (options, { theme, navigation, route }) => ({
-    ...options,
-    headerStyle: {
-      ...options.headerStyle,
-      backgroundColor: theme.colors.customHeader,
-    },
-    headerRight: () => {
-      return route.params.displayLoginButton ? (
-        <BlueButtonLink title={loc.hodl.login} onPress={route.params.handleLoginPress} style={styles.marginHorizontal20} />
-      ) : (
-        <BlueButtonLink title={loc.hodl.mycont} onPress={route.params.handleMyContractsPress} style={styles.marginHorizontal20} />
-      );
-    },
-  }),
-);
+  headerRight: () => {
+    return route.params.displayLoginButton ? (
+      <BlueButtonLink title={loc.hodl.login} onPress={route.params.handleLoginPress} style={styles.marginHorizontal20} />
+    ) : (
+      <BlueButtonLink title={loc.hodl.mycont} onPress={route.params.handleMyContractsPress} style={styles.marginHorizontal20} />
+    );
+  },
+});
 
 const styles = StyleSheet.create({
   grayDropdownText: {

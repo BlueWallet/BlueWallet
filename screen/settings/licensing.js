@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import navigationStyle from '../../components/navigationStyle';
-import { SafeBlueArea, BlueCard, BlueText, BlueSpacing20, BlueLoading } from '../../BlueComponents';
+import { SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueSpacing20, BlueLoading } from '../../BlueComponents';
+/** @type {AppStorage} */
 
 const styles = StyleSheet.create({
   root: {
@@ -51,7 +51,8 @@ const Licensing = () => {
   );
 };
 
-Licensing.navigationOptions = navigationStyle({
+Licensing.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
   title: 'License',
 });
 
