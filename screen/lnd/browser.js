@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   TouchableOpacity,
   ActivityIndicator,
@@ -12,9 +14,9 @@ import {
   StyleSheet,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import PropTypes from 'prop-types';
+
+import { SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import Notifications from '../../blue_modules/notifications';
 
 let processedInvoices = {};
@@ -517,8 +519,8 @@ Browser.propTypes = {
   }),
 };
 
-Browser.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+Browser.navigationOptions = navigationStyle({
+  closeButton: true,
   title: 'Lapp Browser',
   headerLeft: null,
 });

@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import { View, ActivityIndicator, Image, Text, StyleSheet, StatusBar, ScrollView } from 'react-native';
-import { BlueNavigationStyle } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
-import { PlaceholderWallet, LightningCustodianWallet, MultisigHDWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { useNavigation, useTheme } from '@react-navigation/native';
+
+import navigationStyle from '../../components/navigationStyle';
+import { PlaceholderWallet, LightningCustodianWallet, MultisigHDWallet } from '../../class';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
-import { useNavigation, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
@@ -187,13 +188,14 @@ const ReorderWallets = () => {
   );
 };
 
-ReorderWallets.navigationOptions = ({ navigation, route }) => ({
-  ...BlueNavigationStyle(
-    navigation,
-    true,
-    route.params && route.params.customCloseButtonFunction ? route.params.customCloseButtonFunction : undefined,
-  ),
-  headerTitle: loc.wallets.reorder_title,
+ReorderWallets.navigationOptions = navigationStyle({
+  title: loc.wallets.reorder_title,
+  closeButton: true,
+  closeButtonFunc: ({ navigation, route }) => {
+    if (route.params && route.params.customCloseButtonFunction) {
+      route.params.customCloseButtonFunction();
+    }
+  },
   headerLeft: null,
 });
 

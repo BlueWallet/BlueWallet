@@ -2,7 +2,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, View, ScrollView, StyleSheet } from 'react-native';
-import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import { BlueSpacing20, SafeBlueArea, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 import loc from '../../loc';
@@ -116,8 +117,6 @@ RBFBumpFee.propTypes = {
     }),
   }),
 };
-
-RBFBumpFee.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
+RBFBumpFee.navigationOptions = navigationStyle({
   title: loc.transactions.rbf_title,
 });

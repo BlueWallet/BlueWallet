@@ -5,7 +5,8 @@ import { Icon } from 'react-native-elements';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { BlueButton, BlueListItem, BlueNavigationStyle, BlueSpacing20 } from '../../BlueComponents';
+import { BlueButton, BlueListItem, BlueSpacing20 } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { MultisigHDWallet } from '../../class';
 import loc from '../../loc';
@@ -344,8 +345,7 @@ WalletsAddMultisig.getCurrentFormatReadable = f => {
   }
 };
 
-WalletsAddMultisig.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+WalletsAddMultisig.navigationOptions = navigationStyle({
   headerTitle: null,
 });
 

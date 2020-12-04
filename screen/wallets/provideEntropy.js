@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import BN from 'bignumber.js';
 import { Dimensions, PixelRatio, View, ScrollView, Text, Image, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
 import { Icon } from 'react-native-elements';
-
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+
 import { BlueCurrentTheme } from '../../components/themes';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueTabs } from '../../BlueComponents';
+import { BlueSpacing20, SafeBlueArea, BlueTabs } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 
 const ENTROPY_LIMIT = 256;
@@ -270,15 +271,7 @@ const Entropy = () => {
   );
 };
 
-Entropy.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
-};
-
-Entropy.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+Entropy.navigationOptions = navigationStyle({
   title: loc.entropy.title,
 });
 

@@ -75,6 +75,7 @@
     "item_rating": "{rating} trades",
     "item_rating_no": "No rating",
     "login": "Login",
+    "logout": "logout",
     "mycont": "My contracts",
     "offer_accept": "Accept offer",
     "offer_account_finish": "Looks like you didn't finish setting up account on HodlHodl, would you like to finish setup now?",
@@ -145,6 +146,8 @@
     "header": "Receive"
   },
   "send": {
+    "broadcast_success_screen_msg": "Success! You transaction has been broadcasted!",
+    "broadcast_success_screen_open": "Open link in explorer",
     "broadcastButton": "BROADCAST",
     "broadcastError": "error",
     "broadcastNone": "Input transaction hash",

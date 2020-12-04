@@ -26,8 +26,8 @@ import {
   BlueText,
   BlueSpacing20,
   BlueAlertWalletExportReminder,
-  BlueNavigationStyle,
 } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import Privacy from '../../Privacy';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
@@ -350,8 +350,8 @@ const ReceiveDetails = () => {
   );
 };
 
-ReceiveDetails.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+ReceiveDetails.navigationOptions = navigationStyle({
+  closeButton: true,
   title: loc.receive.header,
   headerLeft: null,
 });
