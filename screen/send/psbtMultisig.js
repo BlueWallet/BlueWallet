@@ -242,15 +242,19 @@ const PsbtMultisig = () => {
     </View>
   );
   const footer = (
-    <View style={styles.bottomWrapper}>
-      <View style={styles.bottomFeesWrapper}>
-        <BlueText style={[styles.feeFiatText, stylesHook.feeFiatText]}>
-          {loc.formatString(loc.multisig.fee, { number: currency.satoshiToLocalCurrency(getFee()) })} -{' '}
-        </BlueText>
-        <BlueText>{loc.formatString(loc.multisig.fee_btc, { number: currency.satoshiToBTC(getFee()) })}</BlueText>
+    <>
+      <View style={styles.bottomWrapper}>
+        <View style={styles.bottomFeesWrapper}>
+          <BlueText style={[styles.feeFiatText, stylesHook.feeFiatText]}>
+            {loc.formatString(loc.multisig.fee, { number: currency.satoshiToLocalCurrency(getFee()) })} -{' '}
+          </BlueText>
+          <BlueText>{loc.formatString(loc.multisig.fee_btc, { number: currency.satoshiToBTC(getFee()) })}</BlueText>
+        </View>
       </View>
-      <BlueButton disabled={!isConfirmEnabled()} title={loc.multisig.confirm} onPress={onConfirm} testID="PsbtMultisigConfirmButton" />
-    </View>
+      <View style={styles.marginConfirmButton}>
+        <BlueButton disabled={!isConfirmEnabled()} title={loc.multisig.confirm} onPress={onConfirm} testID="PsbtMultisigConfirmButton" />
+      </View>
+    </>
   );
 
   const onLayout = e => {
@@ -394,8 +398,9 @@ const styles = StyleSheet.create({
   vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },
   textBtcUnit: { justifyContent: 'flex-end', bottom: 8 },
-  bottomFeesWrapper: { flexDirection: 'row', paddingBottom: 20 },
-  bottomWrapper: { justifyContent: 'center', alignItems: 'center', paddingVertical: 20 },
+  bottomFeesWrapper: { justifyContent: 'center', alignItems: 'center', flexDirection: 'row' },
+  bottomWrapper: { marginTop: 16 },
+  marginConfirmButton: { margin: 16, marginBottom: 48 },
   height80: {
     height: 80,
   },
