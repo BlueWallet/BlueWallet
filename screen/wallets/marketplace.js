@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { BackHandler } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { BlueLoading, BlueNavigationStyle } from '../../BlueComponents';
-import PropTypes from 'prop-types';
+
+import { BlueLoading } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 
 export default class Marketplace extends Component {
   webview = React.createRef();
@@ -75,8 +77,8 @@ Marketplace.propTypes = {
   }),
 };
 
-Marketplace.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+Marketplace.navigationOptions = navigationStyle({
+  closeButton: true,
   title: 'Marketplace',
   headerLeft: null,
 });

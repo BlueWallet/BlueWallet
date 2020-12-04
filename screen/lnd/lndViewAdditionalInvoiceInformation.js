@@ -1,22 +1,15 @@
 /* global alert */
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Share, StyleSheet } from 'react-native';
-import {
-  BlueLoading,
-  BlueCopyTextToClipboard,
-  SafeBlueArea,
-  BlueButton,
-  BlueNavigationStyle,
-  BlueText,
-  BlueSpacing20,
-} from '../../BlueComponents';
 import QRCode from 'react-native-qrcode-svg';
-import loc from '../../loc';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+
+import { BlueButton, BlueCopyTextToClipboard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const LNDViewAdditionalInvoiceInformation = () => {
-  // state = { walletInfo: undefined };
   const { walletID } = useRoute().params;
   const { wallets } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
@@ -123,7 +116,6 @@ const styles = StyleSheet.create({
 
 export default LNDViewAdditionalInvoiceInformation;
 
-LNDViewAdditionalInvoiceInformation.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+LNDViewAdditionalInvoiceInformation.navigationOptions = navigationStyle({
   title: loc.lndViewInvoice.additional_info,
 });

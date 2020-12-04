@@ -12,21 +12,22 @@ import {
   StyleSheet,
 } from 'react-native';
 import PropTypes from 'prop-types';
+import { Icon } from 'react-native-elements';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import {
   BlueButton,
   SafeBlueArea,
   BlueCard,
   BlueDismissKeyboardInputAccessory,
-  BlueNavigationStyle,
   BlueAddressInput,
   BlueBitcoinAmount,
   BlueLoading,
 } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import Lnurl from '../../class/lnurl';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { Icon } from 'react-native-elements';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
@@ -468,8 +469,8 @@ ScanLndInvoice.propTypes = {
   }),
 };
 
-ScanLndInvoice.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+ScanLndInvoice.navigationOptions = navigationStyle({
+  closeButton: true,
   title: loc.send.header,
   headerLeft: null,
 });

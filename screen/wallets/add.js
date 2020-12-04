@@ -21,10 +21,10 @@ import {
   VaultButton,
   BlueFormLabel,
   BlueButton,
-  BlueNavigationStyle,
   BlueButtonLink,
   BlueSpacing20,
 } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCustodianWallet, AppStorage } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useTheme, useNavigation } from '@react-navigation/native';
@@ -334,8 +334,8 @@ const WalletsAdd = () => {
   );
 };
 
-WalletsAdd.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+WalletsAdd.navigationOptions = navigationStyle({
+  closeButton: true,
   headerTitle: loc.wallets.add_title,
   headerLeft: null,
 });

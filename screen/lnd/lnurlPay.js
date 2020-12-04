@@ -1,26 +1,27 @@
 /* global alert */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import AsyncStorage from '@react-native-community/async-storage';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Icon } from 'react-native-elements';
+
+import navigationStyle from '../../components/navigationStyle';
 import {
   BlueBitcoinAmount,
   BlueButton,
   BlueCard,
   BlueDismissKeyboardInputAccessory,
   BlueLoading,
-  BlueNavigationStyle,
   BlueSpacing20,
   BlueText,
   SafeBlueArea,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import Lnurl from '../../class/lnurl';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
-import { Icon } from 'react-native-elements';
 import Biometric from '../../class/biometrics';
-import PropTypes from 'prop-types';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
 
@@ -260,10 +261,9 @@ const styles = StyleSheet.create({
   },
 });
 
-LnurlPay.navigationOptions = ({ navigation, route }) => {
-  return {
-    ...BlueNavigationStyle(navigation, true, () => navigation.dangerouslyGetParent().popToTop()),
-    title: '',
-    headerLeft: null,
-  };
-};
+LnurlPay.navigationOptions = navigationStyle({
+  title: '',
+  closeButton: true,
+  closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop(),
+  headerLeft: null,
+});

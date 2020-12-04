@@ -1,15 +1,17 @@
 /* global alert */
 import React, { useContext, useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { BlueButton, BlueCard, BlueNavigationStyle, BlueText, SafeBlueArea } from '../../BlueComponents';
-import loc from '../../loc';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+
+import { BlueButton, BlueCard, BlueText, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const bitcoin = require('bitcoinjs-lib');
-const currency = require('../../blue_modules/currency');
 const BigNumber = require('bignumber.js');
+const currency = require('../../blue_modules/currency');
 
 const shortenAddress = addr => {
   return addr.substr(0, Math.floor(addr.length / 2) - 1) + '\n' + addr.substr(Math.floor(addr.length / 2) - 1, addr.length);
@@ -401,8 +403,7 @@ const styles = StyleSheet.create({
   },
 });
 
-PsbtMultisig.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
+PsbtMultisig.navigationOptions = navigationStyle({
   title: loc.multisig.header,
 });
 

@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { WebView } from 'react-native-webview';
-import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+
+import { SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 
 export default class HodlHodlWebview extends Component {
   constructor(props) {
@@ -31,8 +33,8 @@ HodlHodlWebview.propTypes = {
   }),
 };
 
-HodlHodlWebview.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+HodlHodlWebview.navigationOptions = navigationStyle({
+  closeButton: true,
   title: '',
   headerLeft: null,
 });
