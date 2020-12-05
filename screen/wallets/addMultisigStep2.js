@@ -130,40 +130,43 @@ const WalletsAddMultisigStep2 = () => {
     },
   });
 
-  const onCreate = async () => {
+  const onCreate = () => {
     setIsLoading(true);
-    const w = new MultisigHDWallet();
-    w.setM(m);
-    switch (format) {
-      case MultisigHDWallet.FORMAT_P2WSH:
-        w.setNativeSegwit();
-        w.setDerivationPath(MultisigHDWallet.PATH_NATIVE_SEGWIT);
-        break;
-      case MultisigHDWallet.FORMAT_P2SH_P2WSH:
-        w.setWrappedSegwit();
-        w.setDerivationPath(MultisigHDWallet.PATH_WRAPPED_SEGWIT);
-        break;
-      case MultisigHDWallet.FORMAT_P2SH:
-        w.setLegacy();
-        w.setDerivationPath(MultisigHDWallet.PATH_LEGACY);
-        break;
-      default:
-        throw new Error('This should never happen');
-    }
-    for (const cc of cosigners) {
-      const fp = cc[1] || getFpCacheForMnemonics(cc[0]);
-      w.addCosigner(cc[0], fp, cc[2]);
-    }
-    w.setLabel('Multisig Vault');
-    await w.fetchBalance();
+    // give it time to show loading indicator
+    setTimeout(async () => {
+      const w = new MultisigHDWallet();
+      w.setM(m);
+      switch (format) {
+        case MultisigHDWallet.FORMAT_P2WSH:
+          w.setNativeSegwit();
+          w.setDerivationPath(MultisigHDWallet.PATH_NATIVE_SEGWIT);
+          break;
+        case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+          w.setWrappedSegwit();
+          w.setDerivationPath(MultisigHDWallet.PATH_WRAPPED_SEGWIT);
+          break;
+        case MultisigHDWallet.FORMAT_P2SH:
+          w.setLegacy();
+          w.setDerivationPath(MultisigHDWallet.PATH_LEGACY);
+          break;
+        default:
+          throw new Error('This should never happen');
+      }
+      for (const cc of cosigners) {
+        const fp = cc[1] || getFpCacheForMnemonics(cc[0]);
+        w.addCosigner(cc[0], fp, cc[2]);
+      }
+      w.setLabel('Multisig Vault');
+      await w.fetchBalance();
 
-    addWallet(w);
-    await saveToDisk();
-    setNewWalletAdded(true);
-    A(A.ENUM.CREATED_WALLET);
-    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      addWallet(w);
+      await saveToDisk();
+      setNewWalletAdded(true);
+      A(A.ENUM.CREATED_WALLET);
+      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
 
-    navigation.dangerouslyGetParent().pop();
+      navigation.dangerouslyGetParent().pop();
+    }, 100);
   };
 
   const generateNewKey = () => {
