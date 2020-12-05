@@ -360,7 +360,7 @@ export default class Browser extends Component {
                       screen: 'ScanLndInvoice',
                       params: {
                         uri: json.sendPayment,
-                        fromSecret: this.state.fromSecret,
+                        walletID: this.state.fromWallet.getID(),
                       },
                     });
                   },

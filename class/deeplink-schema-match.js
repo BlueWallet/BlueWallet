@@ -77,7 +77,7 @@ class DeeplinkSchemaMatch {
               {
                 screen: 'ScanLndInvoice',
                 params: {
-                  secret,
+                  walletID: wallet.getID(),
                 },
               },
             ]);
@@ -290,7 +290,7 @@ class DeeplinkSchemaMatch {
           screen: 'ScanLndInvoice',
           params: {
             uri: uri.lndInvoice,
-            fromSecret: wallet.getSecret(),
+            walletID: wallet.getID(),
           },
         },
       ];
