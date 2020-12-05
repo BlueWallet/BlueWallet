@@ -397,6 +397,7 @@
     "list_title": "wallets",
     "list_tryagain": "Try Again",
     "looks_like_bip38": "This looks like password-protected private key (BIP38)",
+    "no_ln_wallet_error": "Before paying a Lightning invoice, you must first add a Lightning wallet.",
     "reorder_title": "Reorder Wallets",
     "select_no_bitcoin": "There are currently no Bitcoin wallets available.",
     "select_no_bitcoin_exp": "A Bitcoin wallet is required to refill Lightning wallets. Please, create or import one.",

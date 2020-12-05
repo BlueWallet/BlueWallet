@@ -207,7 +207,7 @@ const LNDCreateInvoice = () => {
     setIsLoading(true);
     if (!wallet) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-      alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
+      alert(loc.wallets.no_ln_wallet_error);
       return goBack();
     }
 
