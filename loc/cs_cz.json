@@ -107,12 +107,13 @@
   "lndViewInvoice": {
     "additional_info": "dodatečné informace",
     "for": "Pro:",
+    "lightning_invoice": "Lightning faktura",
     "has_been_paid": "Tato faktura byla uhrazena",
     "open_direct_channel": "Otevřít přímý kanál s tímto uzlem:",
     "please_pay": "Prosím zaplaťte",
     "preimage": "Předobraz",
     "sats": "sats",
-    "wasnt_paid_and_expired": "Tato faktura nebyla uhrazena a její platnost vypršela"
+    "wasnt_paid_and_expired": "Tato faktura nebyla zaplacena a její platnost vypršela."
   },
   "plausibledeniability": {
     "create_fake_storage": "Vytvořit zašifrované úložiště",
@@ -313,6 +314,7 @@
     "details_inputs": "Vstupy",
     "details_outputs": "Výstupy",
     "details_received": "Přijato",
+    "transaction_note_saved":"Transakční poznámka byla úspěšně uložena.",
     "details_show_in_block_explorer": "Ukázat v block exploreru",
     "details_title": "Transakce",
     "details_to": "Výstup",
@@ -402,6 +404,7 @@
     "take_photo": "Vyfotit",
     "xpub_copiedToClipboard": "Zkopírováno do schránky.",
     "pull_to_refresh": "zatáhněte pro obnovení",
+    "warning_do_not_disclose": "Varování! Nezveřejňujte",
     "xpub_title": "XPUB peněženky"
   },
   "multisig": {
