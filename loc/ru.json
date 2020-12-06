@@ -107,6 +107,7 @@
   "lndViewInvoice": {
     "additional_info": "Дополнительная информация",
     "for": "Для:",
+    "lightning_invoice": "Lightning Invoice",
     "has_been_paid": "Этот инвойс оплачен",
     "open_direct_channel": "Открыть канал с этой нодой:",
     "please_pay": "Пожалуйста оплатите",
@@ -313,6 +314,7 @@
     "details_inputs": "Входы",
     "details_outputs": "Выходы",
     "details_received": "Получена",
+    "transaction_note_saved":"Заметка о транзакции успешно сохранена.",
     "details_show_in_block_explorer": "Показать транзакцию в блокчейне",
     "details_title": "Детали транзакци",
     "details_to": "Кому",
@@ -402,6 +404,7 @@
     "take_photo": "Сфотографировать",
     "xpub_copiedToClipboard": "Скопировано",
     "pull_to_refresh": "потяните, чтобы обновить",
+    "warning_do_not_disclose": "Внимание! Не разглашать",
     "xpub_title": "XPUB кошелька"
   },
   "multisig": {
@@ -455,6 +458,10 @@
     "view_edit_cosigners": "Просмотр/редактирование cosigner'ов",
     "this_cosigner_is_already_imported": "Этот cosigner уже импортирован",
     "export_signed_psbt": "Экспортировать PSBT с подписью",
+    "input_fp": "Введите отпечаток (finderprint)",
+    "input_fp_explain": "пропустить и использовать значение по умолчанию (00000000)",
+    "input_path": "Input derivation path",
+    "input_path_explain": "пропустить и использовать значение по умолчанию ({default})",
     "view_edit_cosigners_title": "Редактировать Cosigner'ов"
   },
   "cc": {
