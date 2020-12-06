@@ -84,7 +84,7 @@ const TransactionsDetails = () => {
     let foundTx = {};
     let from = [];
     let to = [];
-    for (const tx of getTransactions()) {
+    for (const tx of getTransactions(null, Infinity, true)) {
       if (tx.hash === hash) {
         foundTx = tx;
         for (const input of foundTx.inputs) {
