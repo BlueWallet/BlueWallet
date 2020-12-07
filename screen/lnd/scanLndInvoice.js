@@ -151,7 +151,7 @@ const ScanLndInvoice = () => {
       screen: 'LnurlPay',
       params: {
         lnurl: data,
-        fromWalletID: walletID,
+        fromWalletID: walletID || wallet.current.getID(),
       },
     });
   };
@@ -236,24 +236,22 @@ const ScanLndInvoice = () => {
     // return decoded.num_satoshis <= 0 || isLoading || isNaN(decoded.num_satoshis);
   };
 
+  const naviageToSelectWallet = () => {
+    navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN });
+  };
+
   const renderWalletSelectionButton = () => {
     if (renderWalletSelectionButtonHidden) return;
     return (
       <View style={styles.walletSelectRoot}>
         {!isLoading && (
-          <TouchableOpacity
-            style={styles.walletSelectTouch}
-            onPress={() => navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN })}
-          >
+          <TouchableOpacity style={styles.walletSelectTouch} onPress={naviageToSelectWallet}>
             <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
             <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.walletWrap}>
-          <TouchableOpacity
-            style={styles.walletWrapTouch}
-            onPress={() => navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN })}
-          >
+          <TouchableOpacity style={styles.walletWrapTouch} onPress={naviageToSelectWallet}>
             <Text style={[styles.walletWrapLabel, stylesHook.walletWrapLabel]}>{wallet.current.getLabel()}</Text>
             <Text style={[styles.walletWrapBalance, stylesHook.walletWrapBalance]}>
               {formatBalanceWithoutSuffix(wallet.current.getBalance(), BitcoinUnit.SATS, false)}
