@@ -23,6 +23,7 @@ import {
   BlueSpacing20,
   BlueSpacing40,
   BlueTextCentered,
+  BlueListItem,
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
@@ -70,6 +71,10 @@ const WalletsAddMultisigStep2 = () => {
   const [importText, setImportText] = useState('');
   const tooltip = useRef();
   const data = useRef(new Array(n));
+
+  const handleOnHelpPress = () => {
+    navigation.navigate('WalletsAddMultisigHelp');
+  };
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -629,6 +634,18 @@ const WalletsAddMultisigStep2 = () => {
       </BottomModal>
     );
   };
+
+  const renderHelp = () => {
+    return (
+      <TouchableOpacity
+        onPress={handleOnHelpPress}
+        title="help"
+      >
+      <Text>sdfsd</Text>
+      </TouchableOpacity>
+    );
+  };
+
   const footer = isLoading ? (
     <BlueLoading />
   ) : (
@@ -640,6 +657,9 @@ const WalletsAddMultisigStep2 = () => {
   return (
     <View style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="light-content" />
+
+      {renderHelp()}
+
       <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
 
       {renderMnemonicsModal()}
