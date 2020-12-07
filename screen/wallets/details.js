@@ -518,7 +518,7 @@ const WalletDetails = () => {
               )}
               <>
                 <BlueSpacing20 />
-                <SecondButton onPress={navigateToIsItMyAddress} title="Is it my address?" />
+                <SecondButton onPress={navigateToIsItMyAddress} title={loc.is_it_my_address.title} />
               </>
               <BlueSpacing20 />
               <BlueSpacing20 />
