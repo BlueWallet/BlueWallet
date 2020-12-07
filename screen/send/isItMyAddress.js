@@ -37,7 +37,7 @@ const IsItMyAddress = () => {
 
   const handleUpdateAddress = nextValue => setAddress(nextValue.trim());
 
-  const checkAddress = async () => {
+  const checkAddress = () => {
     const cleanAddress = address.replace('bitcoin:', '').replace('BITCOIN:', '').replace('bitcoin=', '').split('?')[0];
     const _result = [];
     for (const w of wallets) {
@@ -49,11 +49,11 @@ const IsItMyAddress = () => {
     setResult(_result.join('\n\n'));
   };
 
-  const onBarScanned = async value => {
+  const onBarScanned = value => {
     setAddress(value);
   };
 
-  const importScan = async () => {
+  const importScan = () => {
     navigate('ScanQRCodeRoot', {
       screen: 'ScanQRCode',
       params: {
