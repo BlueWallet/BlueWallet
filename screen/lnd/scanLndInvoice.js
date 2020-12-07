@@ -291,7 +291,7 @@ const ScanLndInvoice = () => {
                 amount={amount}
                 onAmountUnitChange={setUnit}
                 onChangeText={setAmount}
-                disabled={!decoded || isLoading || (decoded && decoded.num_satoshis > 0)}
+                disabled={!decoded || isLoading || decoded.num_satoshis > 0}
                 unit={BitcoinUnit.SATS}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
