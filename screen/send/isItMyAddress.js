@@ -14,16 +14,26 @@ import {
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 const IsItMyAddress = () => {
   /** @type {AbstractWallet[]} */
   const wallets = useContext(BlueStorageContext).wallets;
-  const navigation = useNavigation();
-  const route = useRoute();
+  const { navigate } = useNavigation();
+  const { name } = useRoute();
+  const { colors } = useTheme();
 
   const [address, setAddress] = useState('');
   const [result, setResult] = useState('');
+
+  const stylesHooks = StyleSheet.create({
+    blueArea: {
+      backgroundColor: colors.background,
+    },
+    text: {
+      color: colors.foregroundColor,
+    },
+  });
 
   const handleUpdateAddress = nextValue => setAddress(nextValue.trim());
 
@@ -44,18 +54,18 @@ const IsItMyAddress = () => {
   };
 
   const importScan = async () => {
-    navigation.navigate('ScanQRCodeRoot', {
+    navigate('ScanQRCodeRoot', {
       screen: 'ScanQRCode',
       params: {
-        launchedBy: route.name,
-        onBarScanned: onBarScanned,
+        launchedBy: name,
+        onBarScanned,
         showFileImportButton: true,
       },
     });
   };
 
   return (
-    <SafeBlueArea style={styles.blueArea}>
+    <SafeBlueArea style={[styles.blueArea, stylesHooks.blueArea]}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null} keyboardShouldPersistTaps="handled">
         <View style={styles.wrapper}>
           <BlueCard style={styles.mainCard}>
@@ -63,7 +73,7 @@ const IsItMyAddress = () => {
               <BlueFormLabel>{loc.is_it_my_address.enter_address}</BlueFormLabel>
             </View>
             <TextInput
-              style={styles.text}
+              style={[styles.text, stylesHooks.text]}
               maxHeight={100}
               minHeight={100}
               maxWidth="100%"
@@ -110,9 +120,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: '100%',
     width: '100%',
-  },
-  link: {
-    color: BlueCurrentTheme.colors.foregroundColor,
   },
   mainCard: {
     padding: 0,
