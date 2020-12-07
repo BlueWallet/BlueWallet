@@ -114,7 +114,7 @@ const TransactionsStatus = () => {
     initialState();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tx]);
+  }, [tx, wallets]);
 
   useEffect(() => {
     if (wallet) {
