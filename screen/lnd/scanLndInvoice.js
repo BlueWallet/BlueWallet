@@ -275,7 +275,7 @@ const ScanLndInvoice = () => {
     pop();
   };
 
-  if (!wallet) {
+  if (wallet === undefined || !wallet) {
     return <BlueLoading />;
   }
 
