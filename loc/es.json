@@ -1,6 +1,6 @@
 {
   "_": {
-    "bad_password": "Contraseña incorrecta, por favor inténtalo de nuevo.",
+    "bad_password": "Password incorrecto, por favor inténtalo otra vez.",
     "cancel": "Cancelar",
     "continue": "Continua",
     "enter_password": "Introduce la contraseña",
@@ -33,7 +33,7 @@
     "undo": "Deshacer"
   },
   "errors": {
-    "broadcast": "Error de transmisión",
+    "broadcast": "Emisión fallida",
     "error": "Error",
     "network": "Error de Red"
   },
@@ -107,12 +107,13 @@
   "lndViewInvoice": {
     "additional_info": "Información adicional",
     "for": "Para:",
+    "lightning_invoice": "Factura Lighting",
     "has_been_paid": "Esta factura ha sido pagada para",
     "open_direct_channel": "Abrir un canal directo con este nodo:",
     "please_pay": "Por favor, pague",
     "preimage": "Preimage",
     "sats": "sats",
-    "wasnt_paid_and_expired": "Esta factura no se pagó y ha caducado"
+    "wasnt_paid_and_expired": "Esta factura no fue pagada y ha expirado."
   },
   "plausibledeniability": {
     "create_fake_storage": "Crear un almacen cifrado falso",
@@ -121,7 +122,7 @@
     "help": "Bajo ciertas circunstancias, podrías verte forzado a revelar tu contraseña. Para proteger tus fondos, BlueWallet puede crear otro almacenamiento cifrado con una contraseña diferente. Da esta otra contraseña a quien te esté obligando a hacerlo y BlueWallet mostrará un almacenamiento \"falso\" que parecerá legítimo. Así mantendrás a buen recaudo el almacenamiento con tus fondos.",
     "help2": "El nuevo almacen sera completamente funcional, y puedes almacenar cantidades minimas para que sea mas creible.",
     "password_should_not_match": "Esta contraseña ya está en uso. Por favor, introduce una diferente.",
-    "passwords_do_not_match": "Las contraseñas no coinciden, inténtalo otra vez",
+    "passwords_do_not_match": "Los passwords no coinciden, por favor inténtalo otra vez.",
     "retype_password": "Volver a escribir contraseña",
     "success": "Completado",
     "title": "Negación plausible"
@@ -144,21 +145,21 @@
     "header": "Recibir"
   },
   "send": {
-    "broadcastButton": "TRANSMITIR",
+    "broadcastButton": "EMITIR",
     "broadcastError": "error",
-    "broadcastNone": "Introducir hash de transacción ",
+    "broadcastNone": "Introduce el hash de la transacción",
     "broadcastPending": "Pendiente",
     "broadcastSuccess": "Completado",
     "confirm_header": "Confirmar",
     "confirm_sendNow": "Enviar ahora",
     "create_amount": "Cantidad",
-    "create_broadcast": "Transmitir",
+    "create_broadcast": "Emitir",
     "create_copy": "Escanear código QR",
     "create_details": "Detalles",
     "create_fee": "Comisión",
     "create_memo": "Comentario",
     "create_satoshi_per_byte": "Satoshis por byte",
-    "create_this_is_hex": "Esto es el HEX de tu transacción, firmado y listo para ser transmitido a la red.",
+    "create_this_is_hex": "Esto es el hex de tu transacción, firmado y listo para ser emitido a la red.",
     "create_to": "Dirección de destino",
     "create_tx_size": "Tamaño del TX",
     "create_verify": "Verificar en coinb.in",
@@ -207,8 +208,9 @@
     "permission_camera_title": "Permiso para usar la cámara",
     "open_settings": "Abrir configuración",
     "permission_storage_later": "Pregúntame luego",
-    "permission_storage_message": "BlueWallet necesita permiso para acceder a su almacenamiento para poder guardar esta transacción.",
-    "permission_storage_title": "Permiso para acceder al almacenamiento",
+    "permission_storage_message": "BlueWallet necesita permiso de acceso a tu almacenamiento para guardar este archivo.",
+    "permission_storage_denied_message": "BlueWallet no puede guardar este archivo. Por favor, abre los ajustes de tu dispositivo y permite el acceso al almacenamiento.",
+    "permission_storage_title": "Permiso de acceso al almacenamiento",
     "psbt_clipboard": "Copiar al portapapeles",
     "psbt_this_is_psbt": "Esta transacción está parcialmente firmada (PSBT). Por favor termina de firmarla con tu cartera de hardware.",
     "psbt_tx_export": "Exportar a archivo",
@@ -312,6 +314,7 @@
     "details_inputs": "Inputs",
     "details_outputs": "Outputs",
     "details_received": "Recibido",
+    "transaction_note_saved":"La nota de la transacción ha sido guardada.",
     "details_show_in_block_explorer": "Mostrar en explorador de bloques",
     "details_title": "Transaccion",
     "details_to": "Destino",
@@ -400,6 +403,8 @@
     "select_wallet": "Selecciona una cartera",
     "take_photo": "Hacer una foto",
     "xpub_copiedToClipboard": "Copiado a portapapeles.",
+    "pull_to_refresh": "Desliza el dedo de arriba a abajo para actualizar",
+    "warning_do_not_disclose": "Warning! Do not disclose",
     "xpub_title": "XPUB de la cartera"
   },
   "multisig": {
@@ -453,6 +458,20 @@
     "view_edit_cosigners": "Ver/editar co-firmantes",
     "this_cosigner_is_already_imported": "Este co-firmante ya ha sido importado",
     "export_signed_psbt": "Exportar PSBT firmado",
+    "input_fp": "introduce la huella dactilar",
+    "input_fp_explain": "déjalo en blanco para usar el predeterminado (00000000)",
+    "input_path": "Input derivation path",
+    "input_path_explain": "Déjalo en blanco para usar el predeterminado ({default})",
     "view_edit_cosigners_title": "Editar co-firmantes"
+  },
+  "cc": {
+    "change": "change",
+    "coins_selected": "({number}) monedas (coins) seleccionadas",
+    "empty": "Esta cartera no tiene fondos en este momento",
+    "freeze": "congelar",
+    "freezeLabel": "Congelar",
+    "header": "Coin control",
+    "use_coin": "Usar moneda (coin)",
+    "tip": "Te permite ver, etiquetar, congelar o seleccionar monedas para mejorar la organización de las carteras."
   }
 }

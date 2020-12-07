@@ -54,6 +54,9 @@ dayjs.extend(relativeTime);
       case 'fi_fi':
         require('dayjs/locale/fi');
         break;
+      case 'fa':
+        require('dayjs/locale/fa');
+        break;
       case 'fr_fr':
         require('dayjs/locale/fr');
         break;
@@ -153,6 +156,7 @@ const strings = new Localization({
   el: require('./el.json'),
   es: require('./es.json'),
   es_419: require('./es_419.json'),
+  fa: require('./fa.json'),
   fi_fi: require('./fi_fi.json'),
   fr_fr: require('./fr_fr.json'),
   he: require('./he.json'),
