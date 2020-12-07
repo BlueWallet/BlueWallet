@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Text,
   ActivityIndicator,
@@ -38,14 +38,14 @@ const ScanLndInvoice = () => {
   const { walletID, uri, invoice } = useRoute().params;
   const name = useRoute().name;
   /** @type {LightningCustodianWallet} */
-  const wallet = useRef(
+  const [wallet, setWallet] = useState(
     wallets.find(item => item.getID() === walletID) || wallets.find(item => item.type === LightningCustodianWallet.type),
   );
   const { navigate, dangerouslyGetParent, setParams, pop } = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
   const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState(false);
   const [destination, setDestination] = useState('');
-  const [unit, setUnit] = useState(wallet.current.getPreferredBalanceUnit());
+  const [unit, setUnit] = useState(wallet.getPreferredBalanceUnit());
   const [decoded, setDecoded] = useState();
   const [amount, setAmount] = useState();
   const [isAmountInitiallyEmpty, setIsAmountInitiallyEmpty] = useState();
@@ -83,8 +83,8 @@ const ScanLndInvoice = () => {
   }, []);
 
   useEffect(() => {
-    if (walletID && wallet.current && wallet.current.getID() !== walletID) {
-      wallet.current = wallets.find(w => w.getID() === walletID);
+    if (walletID && wallet && wallet.getID() !== walletID) {
+      setWallet(wallets.find(w => w.getID() === walletID));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
@@ -106,7 +106,7 @@ const ScanLndInvoice = () => {
        */
       let decoded;
       try {
-        decoded = wallet.current.decodeInvoice(data);
+        decoded = wallet.decodeInvoice(data);
 
         let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
         if (+new Date() > expiresIn) {
@@ -151,7 +151,7 @@ const ScanLndInvoice = () => {
       screen: 'LnurlPay',
       params: {
         lnurl: data,
-        fromWalletID: walletID || wallet.current.getID(),
+        fromWalletID: walletID || wallet.getID(),
       },
     });
   };
@@ -190,7 +190,7 @@ const ScanLndInvoice = () => {
       return alert(loc.lnd.errorInvoiceExpired);
     }
 
-    const currentUserInvoices = wallet.current.let.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
+    const currentUserInvoices = wallet.let.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
     if (currentUserInvoices.some(invoice => invoice.payment_hash === decoded.payment_hash)) {
       setIsLoading(false);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -198,7 +198,7 @@ const ScanLndInvoice = () => {
     }
 
     try {
-      await wallet.current.payInvoice(invoice, amountSats);
+      await wallet.payInvoice(invoice, amountSats);
     } catch (Err) {
       console.log(Err.message);
       setIsLoading(false);
@@ -242,6 +242,7 @@ const ScanLndInvoice = () => {
 
   const renderWalletSelectionButton = () => {
     if (renderWalletSelectionButtonHidden) return;
+    const walletLabel = wallet.getLabel();
     return (
       <View style={styles.walletSelectRoot}>
         {!isLoading && (
@@ -252,9 +253,9 @@ const ScanLndInvoice = () => {
         )}
         <View style={styles.walletWrap}>
           <TouchableOpacity style={styles.walletWrapTouch} onPress={naviageToSelectWallet}>
-            <Text style={[styles.walletWrapLabel, stylesHook.walletWrapLabel]}>{wallet.current.getLabel()}</Text>
+            <Text style={[styles.walletWrapLabel, stylesHook.walletWrapLabel]}>{walletLabel}</Text>
             <Text style={[styles.walletWrapBalance, stylesHook.walletWrapBalance]}>
-              {formatBalanceWithoutSuffix(wallet.current.getBalance(), BitcoinUnit.SATS, false)}
+              {formatBalanceWithoutSuffix(wallet.getBalance(), BitcoinUnit.SATS, false)}
             </Text>
             <Text style={[styles.walletWrapSats, stylesHook.walletWrapSats]}>{BitcoinUnit.SATS}</Text>
           </TouchableOpacity>
@@ -274,7 +275,7 @@ const ScanLndInvoice = () => {
     pop();
   };
 
-  if (!wallet.current) {
+  if (!wallet) {
     return <BlueLoading />;
   }
 

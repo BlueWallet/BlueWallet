@@ -1599,23 +1599,16 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
 });
 
 const isDesktop = getSystemName() === 'Mac OS X';
-export class BlueAddressInput extends Component {
-  static propTypes = {
-    isLoading: PropTypes.bool,
-    onChangeText: PropTypes.func,
-    onBarScanned: PropTypes.func.isRequired,
-    launchedBy: PropTypes.string.isRequired,
-    address: PropTypes.string,
-    placeholder: PropTypes.string,
-  };
-
-  static defaultProps = {
-    isLoading: false,
-    address: '',
-    placeholder: loc.send.details_address,
-  };
-
-  choosePhoto = () => {
+export const BlueAddressInput = ({
+  isLoading = false,
+  address = '',
+  placeholder = loc.send.details_address,
+  onChangeText,
+  onBarScanned,
+  launchedBy,
+}) => {
+  const { colors } = useTheme();
+  const choosePhoto = () => {
     ImagePicker.launchImageLibrary(
       {
         title: null,
@@ -1627,7 +1620,7 @@ export class BlueAddressInput extends Component {
           const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
-              this.props.onBarScanned(result);
+              onBarScanned(result);
             } else {
               alert(loc.send.qr_error_no_qrcode);
             }
@@ -1637,7 +1630,7 @@ export class BlueAddressInput extends Component {
     );
   };
 
-  takePhoto = () => {
+  const takePhoto = () => {
     ImagePicker.launchCamera(
       {
         title: null,
@@ -1649,7 +1642,7 @@ export class BlueAddressInput extends Component {
           const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
-              this.props.onBarScanned(result);
+              onBarScanned(result);
             } else {
               alert(loc.send.qr_error_no_qrcode);
             }
@@ -1661,11 +1654,11 @@ export class BlueAddressInput extends Component {
     );
   };
 
-  copyFromClipbard = async () => {
-    this.props.onBarScanned(await Clipboard.getString());
+  const copyFromClipbard = async () => {
+    onBarScanned(await Clipboard.getString());
   };
 
-  showActionSheet = async () => {
+  const showActionSheet = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).trim().length === 0;
     let copyFromClipboardIndex;
     if (Platform.OS === 'ios') {
@@ -1677,84 +1670,88 @@ export class BlueAddressInput extends Component {
 
       ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
         if (buttonIndex === 1) {
-          this.choosePhoto();
+          choosePhoto();
         } else if (buttonIndex === 2) {
-          this.takePhoto();
+          takePhoto();
         } else if (buttonIndex === copyFromClipboardIndex) {
-          this.copyFromClipbard();
+          copyFromClipbard();
         }
       });
     }
   };
 
-  render() {
-    return (
-      <View
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        borderColor: colors.formBorder,
+        borderBottomColor: colors.formBorder,
+        borderWidth: 1.0,
+        borderBottomWidth: 0.5,
+        backgroundColor: colors.inputBackgroundColor,
+        minHeight: 44,
+        height: 44,
+        marginHorizontal: 20,
+        alignItems: 'center',
+        marginVertical: 8,
+        borderRadius: 4,
+      }}
+    >
+      <TextInput
+        testID="AddressInput"
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        numberOfLines={1}
+        placeholderTextColor="#81868e"
+        value={address}
+        style={{ flex: 1, marginHorizontal: 8, minHeight: 33, color: '#81868e' }}
+        editable={!isLoading}
+        onSubmitEditing={Keyboard.dismiss}
+      />
+      <TouchableOpacity
+        testID="BlueAddressInputScanQrButton"
+        disabled={isLoading}
+        onPress={() => {
+          Keyboard.dismiss();
+          if (isDesktop) {
+            showActionSheet();
+          } else {
+            NavigationService.navigate('ScanQRCodeRoot', {
+              screen: 'ScanQRCode',
+              params: {
+                launchedBy,
+                onBarScanned,
+              },
+            });
+          }
+        }}
         style={{
+          height: 36,
           flexDirection: 'row',
-          borderColor: BlueCurrentTheme.colors.formBorder,
-          borderBottomColor: BlueCurrentTheme.colors.formBorder,
-          borderWidth: 1.0,
-          borderBottomWidth: 0.5,
-          backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
-          minHeight: 44,
-          height: 44,
-          marginHorizontal: 20,
           alignItems: 'center',
-          marginVertical: 8,
+          justifyContent: 'space-between',
+          backgroundColor: colors.scanLabel,
           borderRadius: 4,
+          paddingVertical: 4,
+          paddingHorizontal: 8,
+          marginHorizontal: 4,
         }}
       >
-        <TextInput
-          testID="AddressInput"
-          onChangeText={text => {
-            this.props.onChangeText(text);
-          }}
-          placeholder={this.props.placeholder}
-          numberOfLines={1}
-          placeholderTextColor="#81868e"
-          value={this.props.address}
-          style={{ flex: 1, marginHorizontal: 8, minHeight: 33, color: '#81868e' }}
-          editable={!this.props.isLoading}
-          onSubmitEditing={Keyboard.dismiss}
-          {...this.props}
-        />
-        <TouchableOpacity
-          testID="BlueAddressInputScanQrButton"
-          disabled={this.props.isLoading}
-          onPress={() => {
-            Keyboard.dismiss();
-            if (isDesktop) {
-              this.showActionSheet();
-            } else {
-              NavigationService.navigate('ScanQRCodeRoot', {
-                screen: 'ScanQRCode',
-                params: {
-                  launchedBy: this.props.launchedBy,
-                  onBarScanned: this.props.onBarScanned,
-                },
-              });
-            }
-          }}
-          style={{
-            height: 36,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            backgroundColor: BlueCurrentTheme.colors.scanLabel,
-            borderRadius: 4,
-            paddingVertical: 4,
-            paddingHorizontal: 8,
-            marginHorizontal: 4,
-          }}
-        >
-          <Image style={{}} source={require('./img/scan-white.png')} />
-          <Text style={{ marginLeft: 4, color: BlueCurrentTheme.colors.inverseForegroundColor }}>{loc.send.details_scan}</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-}
+        <Image style={{}} source={require('./img/scan-white.png')} />
+        <Text style={{ marginLeft: 4, color: colors.inverseForegroundColor }}>{loc.send.details_scan}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+BlueAddressInput.propTypes = {
+  isLoading: PropTypes.bool,
+  onChangeText: PropTypes.func,
+  onBarScanned: PropTypes.func.isRequired,
+  launchedBy: PropTypes.string.isRequired,
+  address: PropTypes.string,
+  placeholder: PropTypes.string,
+};
 
 export class BlueReplaceFeeSuggestions extends Component {
   static propTypes = {
