@@ -464,6 +464,12 @@
     "input_path_explain": "skip to use default one ({default})",
     "view_edit_cosigners_title": "Edit Cosigners"
   },
+  "is_it_my_address": {
+    "title": "Is it my address?",
+    "owns": "{label} owns {address}",
+    "enter_address": "Enter address:",
+    "check_address": "Check address"
+  },
   "cc": {
     "change": "change",
     "coins_selected": "Coins selected ({number})",
