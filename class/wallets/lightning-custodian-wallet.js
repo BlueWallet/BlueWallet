@@ -2,6 +2,7 @@ import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
 import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+const Torsbee = require('../../blue_modules/torsbee');
 
 export class LightningCustodianWallet extends LegacyWallet {
   static type = 'lightningCustodianWallet';
@@ -77,6 +78,12 @@ export class LightningCustodianWallet extends LegacyWallet {
     this._api = new Frisbee({
       baseURI: this.baseURI,
     });
+
+    if (this.baseURI.indexOf('.onion') !== -1) {
+      this._api = new Torsbee({
+        baseURI: this.baseURI,
+      });
+    }
   }
 
   accessTokenExpired() {
