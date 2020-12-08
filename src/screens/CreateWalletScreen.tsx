@@ -131,7 +131,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
       onBarCodeScan: this.createAIRWalletAddRecoveryPublicKey(wallet),
       headerTitle: i18n.wallets.add.title,
       title: i18n.wallets.publicKey.recoverySubtitle,
-      description: i18n.wallets.publicKey.recoveryDescription,
+      description: i18n.wallets.publicKey.instantDescription,
       onBackArrow: () => {
         this.navigateToIntegrateInstantPublicKeyForAIR();
       },
@@ -165,7 +165,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
       },
       title: i18n.wallets.publicKey.instantSubtitle,
       headerTitle: i18n.wallets.add.title,
-      description: i18n.wallets.publicKey.instantDescription,
+      description: i18n.wallets.publicKey.recoveryDescription,
       onBackArrow: () => {
         navigation.navigate(Route.CreateWallet);
       },
