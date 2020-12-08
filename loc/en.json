@@ -147,7 +147,7 @@
   "send": {
     "broadcastButton": "BROADCAST",
     "broadcastError": "error",
-    "broadcastNone": "Input transaction hash",
+    "broadcastNone": "Insert Input Transaction Hex",
     "broadcastPending": "pending",
     "broadcastSuccess": "success",
     "confirm_header": "Confirm",
