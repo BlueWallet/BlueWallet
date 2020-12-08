@@ -134,6 +134,12 @@ const WalletsAddMultisigStep2 = () => {
     headerText: {
       color: colors.foregroundColor,
     },
+    helpButton: {
+      backgroundColor: colors.buttonDisabledBackgroundColor,
+    },
+     helpButtonText: {
+      color: colors.foregroundColor,
+    },
   });
 
   const onCreate = async () => {
@@ -637,12 +643,12 @@ const WalletsAddMultisigStep2 = () => {
 
   const renderHelp = () => {
     return (
-      <TouchableOpacity
-        onPress={handleOnHelpPress}
-        title="help"
-      >
-      <Text>sdfsd</Text>
-      </TouchableOpacity>
+      <View style={styles.helpButtonWrapper}>
+        <TouchableOpacity style={[styles.helpButton, stylesHook.helpButton]} onPress={handleOnHelpPress}>
+          <Icon size={20} name="help" type="octaicon" color={colors.foregroundColor} />
+          <Text style={[styles.helpButtonTex, stylesHook.helpButtonTex]}>{loc.multisig.ms_help}</Text>
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -782,6 +788,21 @@ const styles = StyleSheet.create({
   alignItemsCenter: { alignItems: 'center' },
   squareButtonWrapper: { height: 50, width: 250 },
   qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
+  
+  helpButtonWrapper: {
+    alignItems: 'flex-end',
+  },
+  helpButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 50,
+    flexDirection: 'row', 
+  },
+  helpButtonTex: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
 });
 
 WalletsAddMultisigStep2.navigationOptions = () => ({

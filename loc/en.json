@@ -462,7 +462,8 @@
     "input_fp_explain": "skip to use default one (00000000)",
     "input_path": "Input derivation path",
     "input_path_explain": "skip to use default one ({default})",
-    "view_edit_cosigners_title": "Edit Cosigners"
+    "view_edit_cosigners_title": "Edit Cosigners",
+    "ms_help": "Help"
   },
   "cc": {
     "change": "change",
