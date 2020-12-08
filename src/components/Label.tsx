@@ -8,11 +8,11 @@ interface Props {
   children: string;
 }
 
-export const Label = ({ children, labelStyle }: Props) => (
+export const Label = React.memo(({ children, labelStyle }: Props) => (
   <View style={styles.labelWrapper}>
     <Text style={[styles.label, labelStyle]}>{children}</Text>
   </View>
-);
+));
 
 const styles = StyleSheet.create({
   labelWrapper: {

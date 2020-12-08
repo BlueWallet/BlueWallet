@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { StyleSheet, TextInput as BaseTextInput, View, Text, Animated, TextInputProps } from 'react-native';
 
 import { defaultKeyboardType } from 'app/consts';
@@ -23,7 +23,7 @@ interface State {
   height: number;
 }
 
-export class InputItem extends PureComponent<Props, State> {
+export class InputItem extends Component<Props, State> {
   inputItemRef = React.createRef<BaseTextInput>();
 
   constructor(props: Props) {
@@ -34,6 +34,10 @@ export class InputItem extends PureComponent<Props, State> {
       value: this.props.value || '',
       height: 0,
     };
+  }
+
+  shouldComponentUpdate(nextProps: Props) {
+    return this.props.value !== nextProps.value;
   }
 
   onFocus = () => {

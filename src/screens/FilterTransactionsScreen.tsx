@@ -6,11 +6,18 @@ import { DateObject } from 'react-native-calendars';
 import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
-import { Header, ScreenTemplate, InputItem, Image, Label, FlatButton } from 'app/components';
-import { Button } from 'app/components/Button';
-import { Calendar } from 'app/components/Calendar';
-import { CardGroup } from 'app/components/CardGroup';
-import { RowTemplate } from 'app/components/RowTemplate';
+import {
+  Header,
+  ScreenTemplate,
+  InputItem,
+  Image,
+  Label,
+  FlatButton,
+  Button,
+  Calendar,
+  CardGroup,
+  RowTemplate,
+} from 'app/components';
 import { CONST, Route, MainCardStackNavigatorParams, Filters, Tags, TagsType } from 'app/consts';
 import { processAddressData } from 'app/helpers/DataProcessing';
 import { AppStateManager } from 'app/services';
@@ -91,6 +98,12 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
     ];
   }
 
+  get transactionTagsList() {
+    return this.props.filters.transactionType === CONST.receive
+      ? this.transactionTagsReceived
+      : this.transactionTagsSent;
+  }
+
   onFilterButtonPress = () => {
     this.props.activateFilters();
     this.props.route.params?.onFilterPress();
@@ -125,12 +138,6 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
     }
     return '';
   };
-
-  get transactionTagsList() {
-    return this.props.filters.transactionType === CONST.receive
-      ? this.transactionTagsReceived
-      : this.transactionTagsSent;
-  }
 
   formatAmount = (amount: string, update: 'updateFromAmount' | 'updateToAmount') => {
     !this.validateAmount(amount) &&
@@ -212,6 +219,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
                   onPress={() => this.props.toggleTransactionTag(tag)}
                   key={tag}
                   style={styles.statusContainer}
+                  activeOpacity={1}
                 >
                   <Label labelStyle={isActive ? styles.yellow : null}>{text}</Label>
                 </TouchableOpacity>
