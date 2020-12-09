@@ -646,7 +646,7 @@ const WalletsAddMultisigStep2 = () => {
       <View style={styles.helpButtonWrapper}>
         <TouchableOpacity style={[styles.helpButton, stylesHook.helpButton]} onPress={handleOnHelpPress}>
           <Icon size={20} name="help" type="octaicon" color={colors.foregroundColor} />
-          <Text style={[styles.helpButtonTex, stylesHook.helpButtonTex]}>{loc.multisig.ms_help}</Text>
+          <Text style={[styles.helpButtonText, stylesHook.helpButtonText]}>{loc.multisig.ms_help}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -802,7 +802,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     flexDirection: 'row', 
   },
-  helpButtonTex: {
+  helpButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 8,
@@ -812,6 +812,8 @@ const styles = StyleSheet.create({
 WalletsAddMultisigStep2.navigationOptions = () => ({
   ...BlueNavigationStyle(),
   headerTitle: null,
+  gestureEnabled: false,
+  swipeEnabled: false,
 });
 
 export default WalletsAddMultisigStep2;
