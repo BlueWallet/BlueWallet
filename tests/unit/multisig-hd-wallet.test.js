@@ -1582,6 +1582,41 @@ describe('multisig-cosigner', () => {
     assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
   });
 
+  it('can parse plain Zpub', () => {
+    const cosigner = new MultisigCosigner(Zpub1);
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(cosigner.getFp(), '00000000');
+    assert.strictEqual(cosigner.getXpub(), Zpub1);
+    assert.strictEqual(cosigner.getPath(), "m/48'/0'/0'/2'");
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+  });
+
+  it('can parse wallet descriptor', () => {
+    let cosigner = new MultisigCosigner(
+      '[73c5da0a/48h/0h/0h/2h]Zpub74Jru6aftwwHxCUCWEvP6DgrfFsdA4U6ZRtQ5i8qJpMcC39yZGv3egBhQfV3MS9pZtH5z8iV5qWkJsK6ESs6mSzt4qvGhzJxPeeVS2e1zUG',
+    );
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(cosigner.getFp(), '73c5da0a');
+    assert.strictEqual(
+      cosigner.getXpub(),
+      'Zpub74Jru6aftwwHxCUCWEvP6DgrfFsdA4U6ZRtQ5i8qJpMcC39yZGv3egBhQfV3MS9pZtH5z8iV5qWkJsK6ESs6mSzt4qvGhzJxPeeVS2e1zUG',
+    );
+    assert.strictEqual(cosigner.getPath(), "m/48'/0'/0'/2'");
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+
+    cosigner = new MultisigCosigner(
+      '[73c5da0a/48h/0h/0h/2h]xpub6DkFAXWQ2dHxq2vatrt9qyA3bXYU4ToWQwCHbf5XB2mSTexcHZCeKS1VZYcPoBd5X8yVcbXFHJR9R8UCVpt82VX1VhR28mCyxUFL4r6KFrf',
+    );
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(cosigner.getFp(), '73c5da0a');
+    assert.strictEqual(
+      cosigner.getXpub(),
+      'xpub6DkFAXWQ2dHxq2vatrt9qyA3bXYU4ToWQwCHbf5XB2mSTexcHZCeKS1VZYcPoBd5X8yVcbXFHJR9R8UCVpt82VX1VhR28mCyxUFL4r6KFrf',
+    );
+    assert.strictEqual(cosigner.getPath(), "m/48'/0'/0'/2'");
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+  });
+
   it('cant parse bs', () => {
     const cosigner = new MultisigCosigner('asdfasdgsqwrgqwegq');
     assert.ok(!cosigner.isValid());
