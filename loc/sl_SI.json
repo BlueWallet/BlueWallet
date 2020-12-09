@@ -464,6 +464,12 @@
     "input_path_explain": "preskoči in uporabi privzeto ({default})",
     "view_edit_cosigners_title": "Urejanje sopodpisnikov"
   },
+  "is_it_my_address": {
+    "title": "Je to moj naslov?",
+    "owns": "{label} ima v lasti {address}",
+    "enter_address": "Vnesite naslov:",
+    "check_address": "Preveri naslov"
+  },
   "cc": {
     "change": "vračilo",
     "coins_selected": "Izbrani kovanci ({number})",
