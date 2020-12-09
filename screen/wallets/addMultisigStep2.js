@@ -141,8 +141,12 @@ const WalletsAddMultisigStep2 = () => {
     },
   });
 
-  const onCreate = async () => {
+  const onCreate = () => {
     setIsLoading(true);
+    setTimeout(_onCreate, 100);
+  };
+
+  const _onCreate = async () => {
     const w = new MultisigHDWallet();
     w.setM(m);
     switch (format) {

@@ -324,6 +324,10 @@ const WalletDetails = () => {
     navigate('Broadcast');
   };
 
+  const navigateToIsItMyAddress = () => {
+    navigate('IsItMyAddress');
+  };
+
   const walletNameTextInputOnBlur = () => {
     if (walletName.trim().length === 0) {
       const walletLabel = wallet.getLabel();
@@ -512,6 +516,10 @@ const WalletDetails = () => {
                   <SecondButton onPress={navigateToBroadcast} title={loc.settings.network_broadcast} />
                 </>
               )}
+              <>
+                <BlueSpacing20 />
+                <SecondButton onPress={navigateToIsItMyAddress} title={loc.is_it_my_address.title} />
+              </>
               <BlueSpacing20 />
               <BlueSpacing20 />
               <TouchableOpacity onPress={handleDeleteButtonTapped}>

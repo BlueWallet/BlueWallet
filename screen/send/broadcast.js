@@ -21,7 +21,7 @@ import Notifications from '../../blue_modules/notifications';
 const bitcoin = require('bitcoinjs-lib');
 
 const BROADCAST_RESULT = Object.freeze({
-  none: 'Input transaction hash',
+  none: 'Input transaction hex',
   pending: 'pending',
   success: 'success',
   error: 'error',

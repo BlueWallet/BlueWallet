@@ -61,6 +61,7 @@ import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
 import PsbtMultisig from './screen/send/psbtMultisig';
 import Success from './screen/send/success';
 import Broadcast from './screen/send/broadcast';
+import IsItMyAddress from './screen/send/isItMyAddress';
 import CoinControl from './screen/send/coinControl';
 
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
@@ -149,6 +150,7 @@ const WalletsRoot = () => (
     />
     <WalletsStack.Screen name="HodlHodlViewOffer" component={HodlHodlViewOffer} options={HodlHodlViewOffer.navigationOptions} />
     <WalletsStack.Screen name="Broadcast" component={Broadcast} options={Broadcast.navigationOptions} />
+    <WalletsStack.Screen name="IsItMyAddress" component={IsItMyAddress} options={IsItMyAddress.navigationOptions} />
     <WalletsStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions} />
     <WalletsStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions} />
     <WalletsStack.Screen

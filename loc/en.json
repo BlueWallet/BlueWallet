@@ -477,6 +477,12 @@
     "ms_help_title5": "Advanced options",
     "ms_help_5": "By default BlueWallet will generate a 2of3 Vault. To create a different quorum or to change the address type, activate the advanced options in the Settings."
   },
+  "is_it_my_address": {
+    "title": "Is it my address?",
+    "owns": "{label} owns {address}",
+    "enter_address": "Enter address:",
+    "check_address": "Check address"
+  },
   "cc": {
     "change": "change",
     "coins_selected": "Coins selected ({number})",
