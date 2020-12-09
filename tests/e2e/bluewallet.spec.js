@@ -97,10 +97,10 @@ describe('BlueWallet UI Tests', () => {
       .withTimeout(33000);
 
     // trying to decrypt with incorrect password
-    await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it'))).toBeVisible();
+    await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it.'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('wrong');
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Incorrect password, please try again.'))).toBeVisible();
+    await expect(element(by.text('Incorrect password. Please try again.'))).toBeVisible();
 
     // correct password
     await element(by.type('android.widget.EditText')).typeText('qqq');
@@ -122,12 +122,12 @@ describe('BlueWallet UI Tests', () => {
 
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
-    await expect(element(by.text('Password for fake storage should not match the password for your main storage'))).toBeVisible();
+    await expect(element(by.text('Password for fake storage should not match the password for your main storage.'))).toBeVisible();
 
     // trying MAIN password: should fail, obviously
     await element(by.type('android.widget.EditText')).typeText('qqq');
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Password is currently in use. Please, try a different password.'))).toBeVisible();
+    await expect(element(by.text('Password is currently in use. Please try a different password.'))).toBeVisible();
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
     await element(by.text('OK')).tap();
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
@@ -137,17 +137,17 @@ describe('BlueWallet UI Tests', () => {
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
     await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage');
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Retype password'))).toBeVisible();
+    await expect(element(by.text('Re-type password'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorageWithTypo'); // retyping with typo
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Passwords do not match, please try again.'))).toBeVisible();
+    await expect(element(by.text('Passwords do not match. Please try again.'))).toBeVisible();
     await element(by.text('OK')).tap();
 
     // trying new password
     await element(by.id('CreateFakeStorageButton')).tap();
     await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage');
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Retype password'))).toBeVisible();
+    await expect(element(by.text('Re-type password'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage'); // retyping
     await element(by.text('OK')).tap();
 
@@ -166,7 +166,7 @@ describe('BlueWallet UI Tests', () => {
       .toBeVisible()
       .withTimeout(33000);
     //
-    await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it'))).toBeVisible();
+    await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it.'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('qqq');
     await element(by.text('OK')).tap();
     await yo('WalletsList');
@@ -178,7 +178,7 @@ describe('BlueWallet UI Tests', () => {
     await device.launchApp({ newInstance: true });
     await sleep(3000);
     //
-    await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it'))).toBeVisible();
+    await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it.'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage');
     await element(by.text('OK')).tap();
     await yo('WalletsList');
@@ -216,7 +216,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('CreateFakeStorageButton')).tap();
     await element(by.type('android.widget.EditText')).typeText('fake');
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Retype password'))).toBeVisible();
+    await expect(element(by.text('Re-type password'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('fake'); // retyping
     await element(by.text('OK')).tap();
     await expect(element(by.text('Success'))).toBeVisible();
@@ -232,7 +232,7 @@ describe('BlueWallet UI Tests', () => {
       .toBeVisible()
       .withTimeout(33000);
     //
-    await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it'))).toBeVisible();
+    await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it.'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('pass');
     await element(by.text('OK')).tap();
     await yo('WalletsList');
@@ -295,7 +295,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('CreateFakeStorageButton')).tap();
     await element(by.type('android.widget.EditText')).typeText('fake');
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Retype password'))).toBeVisible();
+    await expect(element(by.text('Re-type password'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('fake'); // retyping
     await element(by.text('OK')).tap();
     await expect(element(by.text('Success'))).toBeVisible();
@@ -311,7 +311,7 @@ describe('BlueWallet UI Tests', () => {
       .toBeVisible()
       .withTimeout(33000);
     //
-    await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it'))).toBeVisible();
+    await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it.'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('fake');
     await element(by.text('OK')).tap();
     await yo('WalletsList');
