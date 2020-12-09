@@ -161,14 +161,13 @@ const WalletsAddMultisigStep2 = () => {
     w.setLabel('Multisig Vault');
     await w.fetchBalance();
 
-      addWallet(w);
-      await saveToDisk();
-      setNewWalletAdded(true);
-      A(A.ENUM.CREATED_WALLET);
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    addWallet(w);
+    await saveToDisk();
+    setNewWalletAdded(true);
+    A(A.ENUM.CREATED_WALLET);
+    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
 
-      navigation.dangerouslyGetParent().pop();
-    };
+    navigation.dangerouslyGetParent().pop();
   };
 
   const generateNewKey = () => {
