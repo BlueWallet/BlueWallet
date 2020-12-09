@@ -665,9 +665,9 @@ const WalletsAddMultisigStep2 = () => {
       <StatusBar barStyle="light-content" />
 
       {renderHelp()}
-
-      <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
-
+      <View style={[styles.wrapBox]}>
+        <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+      </View>
       {renderMnemonicsModal()}
 
       {renderProvideMnemonicsModal()}
@@ -686,6 +686,10 @@ const styles = StyleSheet.create({
   mainBlock: {
     height: '100%',
     marginHorizontal: 20,
+    marginVertical: 24,
+  },
+  wrapBox: {
+    flex: 1, 
     marginVertical: 24,
   },
   buttonBottom: {

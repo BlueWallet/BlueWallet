@@ -463,7 +463,9 @@
     "input_path": "Input derivation path",
     "input_path_explain": "skip to use default one ({default})",
     "view_edit_cosigners_title": "Edit Cosigners",
-    "ms_help": "Help"
+    "ms_help": "Help",
+    "ms_help_title": "How Multisig Vaults work. Tips and tricks",
+    "ms_help_text": "A wallet with multiple keys, to exponentially increase security or for shared custody."
   },
   "cc": {
     "change": "change",
