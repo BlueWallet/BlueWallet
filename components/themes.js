@@ -59,7 +59,6 @@ export const BlueDefaultTheme = {
     newBlue: '#007AFF',
     redBG: '#F8D2D2',
     redText: '#D0021B',
-    newBlue: '#0070FF',
   },
 };
 

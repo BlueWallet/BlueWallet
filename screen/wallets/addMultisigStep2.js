@@ -23,7 +23,6 @@ import {
   BlueSpacing20,
   BlueSpacing40,
   BlueTextCentered,
-  BlueListItem,
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
