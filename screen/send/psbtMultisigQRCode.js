@@ -83,7 +83,14 @@ const PsbtMultisigQRCode = () => {
 
   const exportPSBT = () => {
     setIsLoading(true);
-    setTimeout(() => fs.writeFileAndExport(fileName, psbt.toBase64()).finally(() => setIsLoading(false)), 10);
+    setTimeout(
+      () =>
+        fs
+          .writeFileAndExport(fileName, psbt.toBase64())
+          .catch(error => alert(error))
+          .finally(() => setIsLoading(false)),
+      10,
+    );
   };
 
   return (

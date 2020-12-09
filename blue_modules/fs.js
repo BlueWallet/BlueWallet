@@ -48,6 +48,8 @@ const writeFileAndExport = async function (filename, contents) {
         { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
       ]);
     }
+  } else {
+    alert('Unexpected OS:' + Platform.OS);
   }
 };
 
