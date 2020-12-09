@@ -132,32 +132,34 @@ const WalletsAddMultisigStep2 = () => {
 
   const onCreate = () => {
     setIsLoading(true);
-    // give it time to show loading indicator
-    setTimeout(async () => {
-      const w = new MultisigHDWallet();
-      w.setM(m);
-      switch (format) {
-        case MultisigHDWallet.FORMAT_P2WSH:
-          w.setNativeSegwit();
-          w.setDerivationPath(MultisigHDWallet.PATH_NATIVE_SEGWIT);
-          break;
-        case MultisigHDWallet.FORMAT_P2SH_P2WSH:
-          w.setWrappedSegwit();
-          w.setDerivationPath(MultisigHDWallet.PATH_WRAPPED_SEGWIT);
-          break;
-        case MultisigHDWallet.FORMAT_P2SH:
-          w.setLegacy();
-          w.setDerivationPath(MultisigHDWallet.PATH_LEGACY);
-          break;
-        default:
-          throw new Error('This should never happen');
-      }
-      for (const cc of cosigners) {
-        const fp = cc[1] || getFpCacheForMnemonics(cc[0]);
-        w.addCosigner(cc[0], fp, cc[2]);
-      }
-      w.setLabel('Multisig Vault');
-      await w.fetchBalance();
+    setTimeout(_onCreate, 100);
+  };
+
+  const _onCreate = async () => {
+    const w = new MultisigHDWallet();
+    w.setM(m);
+    switch (format) {
+      case MultisigHDWallet.FORMAT_P2WSH:
+        w.setNativeSegwit();
+        w.setDerivationPath(MultisigHDWallet.PATH_NATIVE_SEGWIT);
+        break;
+      case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+        w.setWrappedSegwit();
+        w.setDerivationPath(MultisigHDWallet.PATH_WRAPPED_SEGWIT);
+        break;
+      case MultisigHDWallet.FORMAT_P2SH:
+        w.setLegacy();
+        w.setDerivationPath(MultisigHDWallet.PATH_LEGACY);
+        break;
+      default:
+        throw new Error('This should never happen');
+    }
+    for (const cc of cosigners) {
+      const fp = cc[1] || getFpCacheForMnemonics(cc[0]);
+      w.addCosigner(cc[0], fp, cc[2]);
+    }
+    w.setLabel('Multisig Vault');
+    await w.fetchBalance();
 
       addWallet(w);
       await saveToDisk();
@@ -166,7 +168,7 @@ const WalletsAddMultisigStep2 = () => {
       ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
 
       navigation.dangerouslyGetParent().pop();
-    }, 100);
+    };
   };
 
   const generateNewKey = () => {

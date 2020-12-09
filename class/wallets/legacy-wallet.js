@@ -176,7 +176,7 @@ export class LegacyWallet extends AbstractWallet {
    */
   async fetchTransactions() {
     // Below is a simplified copypaste from HD electrum wallet
-    this._txs_by_external_index = [];
+    const _txsByExternalIndex = [];
     const addresses2fetch = [this.getAddress()];
 
     // first: batch fetch for all addresses histories
@@ -229,7 +229,7 @@ export class LegacyWallet extends AbstractWallet {
           delete clonedTx.vin;
           delete clonedTx.vout;
 
-          this._txs_by_external_index.push(clonedTx);
+          _txsByExternalIndex.push(clonedTx);
         }
       }
       for (const vout of tx.vout) {
@@ -241,11 +241,12 @@ export class LegacyWallet extends AbstractWallet {
           delete clonedTx.vin;
           delete clonedTx.vout;
 
-          this._txs_by_external_index.push(clonedTx);
+          _txsByExternalIndex.push(clonedTx);
         }
       }
     }
 
+    this._txs_by_external_index = _txsByExternalIndex;
     this._lastTxFetch = +new Date();
   }
 

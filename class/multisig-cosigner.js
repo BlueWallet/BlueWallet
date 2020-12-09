@@ -1,3 +1,6 @@
+import b58 from 'bs58check';
+const HDNode = require('bip32');
+
 export class MultisigCosigner {
   constructor(data) {
     this._data = data;
@@ -6,6 +9,50 @@ export class MultisigCosigner {
     this._path = false;
     this._valid = false;
     this._cosigners = [];
+
+    // is it plain simple Zpub/Ypub/xpub?
+    if (data.startsWith('Zpub') && MultisigCosigner.isXpubValid(data)) {
+      this._fp = '00000000';
+      this._xpub = data;
+      this._path = "m/48'/0'/0'/2'";
+      this._valid = true;
+      this._cosigners = [true];
+      return;
+    } else if (data.startsWith('Ypub') && MultisigCosigner.isXpubValid(data)) {
+      this._fp = '00000000';
+      this._xpub = data;
+      this._path = "m/48'/0'/0'/1'";
+      this._valid = true;
+      this._cosigners = [true];
+      return;
+    } else if (data.startsWith('xpub') && MultisigCosigner.isXpubValid(data)) {
+      this._fp = '00000000';
+      this._xpub = data;
+      this._path = "m/45'";
+      this._valid = true;
+      this._cosigners = [true];
+      return;
+    }
+
+    // is it wallet descriptor?
+    if (data.startsWith('[')) {
+      const end = data.indexOf(']');
+      const part = data.substr(1, end - 1).replace(/[h]/g, "'");
+      this._fp = part.split('/')[0];
+      const xpub = data.substr(end + 1);
+
+      if (MultisigCosigner.isXpubValid(xpub)) {
+        this._xpub = xpub;
+        this._path = 'm';
+        for (let c = 0; c < part.split('/').length; c++) {
+          if (c === 0) continue;
+          this._path += '/' + part.split('/')[c];
+        }
+        this._cosigners = [true];
+        this._valid = true;
+        return;
+      }
+    }
 
     // is it cobo json?
     try {
@@ -45,6 +92,26 @@ export class MultisigCosigner {
     } catch (_) {
       this._valid = false;
     }
+  }
+
+  static _zpubToXpub(zpub) {
+    let data = b58.decode(zpub);
+    data = data.slice(4);
+    data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
+
+    return b58.encode(data);
+  }
+
+  static isXpubValid(key) {
+    let xpub;
+
+    try {
+      xpub = MultisigCosigner._zpubToXpub(key);
+      HDNode.fromBase58(xpub);
+      return true;
+    } catch (_) {}
+
+    return false;
   }
 
   static exportToJson(xfp, xpub, path) {
