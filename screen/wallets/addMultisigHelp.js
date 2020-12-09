@@ -129,7 +129,6 @@ WalletsAddMultisigHelp.navigationOptions = () => ({
     borderBottomWidth: 0,
     borderBottomColor: '#0070FF',
     elevation: 0,
-    // shadowRadius: 0,
     shadowOffset: { height: 0, width: 0 },
   },
   headerTintColor: '#FFFFFF',
