@@ -1,11 +1,22 @@
 apply plugin: "com.android.application"
-apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 apply plugin: 'io.fabric'
 apply plugin: 'com.google.gms.google-services'
 crashlytics {
   enableNdk true
 }
 import com.android.build.OutputFile
+
+project.ext.envConfigFiles = [
+    // requires lowercase
+    proddebug: ".env.testnet",
+    betadebug: ".env.beta.testnet",
+    prodstagingrelease: ".env.testnet",
+    betastagingrelease: ".env.beta.testnet",
+    prodrelease: ".env.mainnet",
+    betarelease: ".env.beta.mainnet",
+]
+
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -115,9 +126,11 @@ def useIntlJsc = false
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     flavorDimensions "default" 
+
     lintOptions {
         checkReleaseBuilds false
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -135,6 +148,7 @@ android {
         testBuildType System.getProperty('testBuildType', 'debug')  // This will later be used to control the test apk build type
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
+
     splits {
         abi {
             reset()
@@ -143,23 +157,42 @@ android {
             include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
         }
     }
+
     buildTypes {
         release {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
         }
+
+        stagingRelease {
+            initWith release
+            matchingFallbacks = ['release', 'staging', 'debug']
+            minifyEnabled enableProguardInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
+        }
+
+        debug {
+            debuggable true
+            minifyEnabled enableProguardInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
+        }
     }
     productFlavors {
+        beta {
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId 'io.goldwallet.wallet.beta'
+            targetSdkVersion rootProject.ext.targetSdkVersion
+            resValue "string", "build_config_package", "io.goldwallet.wallet"
+        }
+
         prod {
             minSdkVersion rootProject.ext.minSdkVersion
             applicationId 'io.goldwallet.wallet'
             targetSdkVersion rootProject.ext.targetSdkVersion
-        }
-        beta {
-            minSdkVersion rootProject.ext.minSdkVersion
-            applicationId 'io.goldwallet.wallet.testnet'
-            targetSdkVersion rootProject.ext.targetSdkVersion
+            resValue "string", "build_config_package", "io.goldwallet.wallet"
         }
     }
     // applicationVariants are e.g. debug, release
@@ -179,8 +212,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation project(':react-native-config')
     implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+    implementation project(':react-native-config')
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
     implementation project(path: ":@react-native-firebase_analytics")
     androidTestImplementation('com.wix:detox:+')

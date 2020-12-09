@@ -2,12 +2,19 @@ import Config from 'react-native-config';
 
 const bitcoin = require('bitcoinjs-lib');
 
-const { SENTRY_DSN, HOSTS, PORT, BTCV_NETWORK, PROTOCOL, ELECTRUM_X_PROTOCOL_VERSION, IS_BETA, EXPLORER_URL } = Config;
-
-let isBeta = false;
-try {
-  isBeta = JSON.parse(IS_BETA);
-} catch (_) {}
+const {
+  ENVIRONMENT,
+  SENTRY_DSN,
+  HOSTS,
+  PORT,
+  BTCV_NETWORK,
+  PROTOCOL,
+  ELECTRUM_X_PROTOCOL_VERSION,
+  IS_BETA,
+  APP_ID,
+  APPLICATION_NAME,
+  EXPLORER_URL,
+} = Config;
 
 const defaultNetworkName = 'bitcoinvault';
 
@@ -16,15 +23,16 @@ const networkName = BTCV_NETWORK || defaultNetworkName;
 const hosts = (HOSTS || 'electrumx-mainnet1.bitcoinvault.global,electrumx-mainnet2.bitcoinvault.global').split(',');
 
 export default {
-  sentryDsn: SENTRY_DSN || '',
+  environment: ENVIRONMENT,
+  isBeta: IS_BETA === 'true',
+  applicationId: APP_ID,
+  applicationName: APPLICATION_NAME,
   hosts,
   port: PORT || '443',
-  network: bitcoin.alt_networks[networkName],
   networkName,
-  protocol: PROTOCOL || 'tls',
+  network: bitcoin.alt_networks[networkName],
+  protocol: PROTOCOL || 'tcp',
   electrumXProtocolVersion: ELECTRUM_X_PROTOCOL_VERSION || '2.0',
-  isBeta,
-  applicationId: isBeta ? 'io.goldwallet.wallet.testnet' : 'io.goldwallet.wallet',
-  applicationName: isBeta ? 'Testnet Gold Wallet' : 'GoldWallet',
   explorerUrl: EXPLORER_URL || 'https://explorer.bitcoinvault.global',
+  sentryDsn: SENTRY_DSN,
 };

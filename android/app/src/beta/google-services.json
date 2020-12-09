@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "977756931798",
+    "firebase_url": "https://gold-wallet-a588e.firebaseio.com",
+    "project_id": "gold-wallet-a588e",
+    "storage_bucket": "gold-wallet-a588e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:977756931798:android:38c869140727d8c7d3eb77",
+        "android_client_info": {
+          "package_name": "io.goldwallet.wallet.beta"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "977756931798-dp3pkg8o8bp36jejjsgqi1e52lqppie4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBn874AYSA6ToQgeu_6VFWJ8f-UIzbZGlM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "977756931798-dp3pkg8o8bp36jejjsgqi1e52lqppie4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "977756931798-134kua73sf8a3a5qvlskefpeckspsedg.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.minebest.goldwalletbtcv"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -5,5 +5,6 @@
     "testTimeout": 120000,
     "testRegex": "\\.spec\\.ts$",
     "reporters": ["detox/runners/jest/streamlineReporter"],
-    "verbose": true
+    "verbose": true,
+    "forceExit": true
 }

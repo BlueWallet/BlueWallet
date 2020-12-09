@@ -126,17 +126,20 @@ export class TermsConditionsScreen extends React.PureComponent<Props> {
       <ScreenTemplate
         isCloseToBottom={this.isCloseToBottom}
         allowedUserClick={this.handleCanGo}
+        testID={'terms-conditions-screen'}
         footer={
           <View style={styles.buttonContainer}>
             <Button
               title={i18n.termsConditions.buttons.disagree}
               onPress={this.disagreeAction}
               type="outline"
+              testID="disagree-button"
               containerStyle={styles.disagreeButton}
             />
             <Button
               title={i18n.termsConditions.buttons.agree}
               onPress={this.agreeAction}
+              testID="agree-button"
               containerStyle={styles.agreeButton}
               disabled={!canGo}
             />

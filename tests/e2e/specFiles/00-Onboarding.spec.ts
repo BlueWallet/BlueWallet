@@ -1,5 +1,6 @@
 import { device, expect } from 'detox';
 
+import { isBeta } from '../helpers';
 import app from '../pageObjects';
 
 describe('Onboarding', () => {
@@ -8,8 +9,15 @@ describe('Onboarding', () => {
     await device.launchApp({ newInstance: true, delete: true });
   });
 
+  beforeEach(async () => {
+    await app.termsConditionScreen.scrollDown();
+    await app.termsConditionScreen.tapOnAgreeButton();
+  });
+
   describe('@android @ios @smoke', () => {
     it('should pass onboarding successfully if typed credentials are correct', async () => {
+      isBeta() && (await app.betaVersionScreen.close());
+
       await app.createPin.type('1111');
       await app.confirmPin.type('1111');
 
@@ -26,6 +34,8 @@ describe('Onboarding', () => {
 
   describe('@android @ios @regression', () => {
     it('should see an error message if typed PIN on confirmation page doesnt match', async () => {
+      isBeta() && (await app.betaVersionScreen.close());
+
       await app.createPin.type('1111');
       await app.confirmPin.type('2222');
 
@@ -33,6 +43,8 @@ describe('Onboarding', () => {
     });
 
     it('should see an error message if typed transaction password on confirmation page doesnt match', async () => {
+      isBeta() && (await app.betaVersionScreen.close());
+
       await app.createPin.type('1111');
       await app.confirmPin.type('1111');
 

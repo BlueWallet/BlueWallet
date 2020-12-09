@@ -4,12 +4,12 @@ import 'intl';
 import 'intl/locale-data/jsonp/en';
 import './shim.js';
 import React from 'react';
-import { AppRegistry, StatusBar, YellowBox } from 'react-native';
+import { AppRegistry, StatusBar, LogBox } from 'react-native';
 
 import App from './App';
 import config from './config';
 
-YellowBox.ignoreWarnings(['Non-serializable values were found in the navigation state']);
+LogBox.ignoreLogs(['Non-serializable values were found in the navigation state']);
 
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging

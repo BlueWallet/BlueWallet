@@ -27,6 +27,7 @@ interface Props {
   contentContainer?: StyleProp<ViewStyle>;
   refreshControl?: React.ReactElement;
   noScroll?: boolean;
+  testID?: string;
   isCloseToBottom?: (nativeElement: NativeScrollEvent) => boolean;
   allowedUserClick?: () => void;
   keyboardShouldPersistTaps?: 'always' | 'never' | 'handled';
@@ -50,6 +51,7 @@ export class ScreenTemplate extends React.PureComponent<Props> {
       contentContainer,
       refreshControl,
       noScroll,
+      testID,
       isCloseToBottom,
       allowedUserClick,
       keyboardShouldPersistTaps,
@@ -60,6 +62,7 @@ export class ScreenTemplate extends React.PureComponent<Props> {
         <StatusBar barStyle={statusBarStyle} />
         {header}
         <Container
+          testID={testID}
           ref={this.scrollRef}
           style={[noScroll && styles.contentContainer, noScroll && contentContainer]}
           contentContainerStyle={[styles.contentContainer, contentContainer]}

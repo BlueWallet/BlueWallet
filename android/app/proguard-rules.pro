@@ -8,3 +8,6 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+
+-keep class io.goldwallet.wallet.BuildConfig { *; }
+-keepresources string/build_config_package

@@ -12,7 +12,9 @@ interface Props {
 }
 
 export const BetaVersionScreen = ({ onButtonPress }: Props) => (
-  <ScreenTemplate footer={<Button onPress={onButtonPress} title={i18n.betaVersion.button} />}>
+  <ScreenTemplate
+    footer={<Button testID={'close-beta-version-screen'} onPress={onButtonPress} title={i18n.betaVersion.button} />}
+  >
     <Image source={logoSource} style={styles.logo} resizeMode="contain" />
     <Text style={styles.title}>{i18n.betaVersion.title}</Text>
     <Text style={styles.description}>{i18n.betaVersion.description}</Text>

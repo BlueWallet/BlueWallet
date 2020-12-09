@@ -1,9 +1,7 @@
 # OSX
-#
 .DS_Store
 
 # Xcode
-#
 build/
 *.pbxuser
 !default.pbxuser
@@ -23,16 +21,15 @@ DerivedData
 project.xcworkspace
 
 # Android/IntelliJ
-#
 build/
 .idea
 .gradle
 local.properties
+keystore.properties
 *.iml
 !debug.keystore
 
 # node.js
-#
 node_modules/
 npm-debug.log
 yarn-error.log
@@ -61,22 +58,12 @@ release-notes.json
 release-notes.txt
 
 ios/Pods/
-
-#Firebase
-/ios/GoogleService-Info.plist
-android/app/google-services.json
-
 .history
 .vscode
 /.env
-config/beta/google-services.json
-config/prod/google-services.json
-config/beta/GoogleService-Info.plist
-config/prod/GoogleService-Info.plist
 
 # Testing
 coverage
-android/keystore.properties
-android/app/sentry.properties
-android/app/src/beta/google-services.json
-android/app/src/prod/google-services.json
+
+# Sentry
+sentry.properties

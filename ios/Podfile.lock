@@ -388,18 +388,18 @@ PODS:
     - React-Core
   - RNExitApp (1.1.0):
     - React
-  - RNFastImage (8.3.2):
-    - React
+  - RNFastImage (8.3.3):
+    - React-Core
     - SDWebImage (~> 5.8)
     - SDWebImageWebPCoder (~> 0.6.1)
-  - RNFBAnalytics (7.6.8):
+  - RNFBAnalytics (7.6.9):
     - Firebase/Analytics (~> 6.34.0)
     - React-Core
     - RNFBApp
-  - RNFBApp (8.4.6):
+  - RNFBApp (8.4.7):
     - Firebase/CoreOnly (~> 6.34.0)
     - React-Core
-  - RNFBCrashlytics (8.4.11):
+  - RNFBCrashlytics (8.4.12):
     - Firebase/Crashlytics (~> 6.34.0)
     - React-Core
     - RNFBApp
@@ -409,7 +409,7 @@ PODS:
     - React
   - RNHandoff (0.0.3):
     - React
-  - RNLocalize (1.4.2):
+  - RNLocalize (1.4.3):
     - React-Core
   - RNRate (1.0.1):
     - React
@@ -419,9 +419,9 @@ PODS:
     - React-Core
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (2.0.0):
+  - RNSentry (2.0.2):
     - React-Core
-    - Sentry (~> 6.0.3)
+    - Sentry (= 6.0.9)
   - RNShare (2.0.0):
     - React
   - RNSVG (9.5.1):
@@ -434,9 +434,9 @@ PODS:
   - SDWebImageWebPCoder (0.6.1):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.7)
-  - Sentry (6.0.3):
-    - Sentry/Core (= 6.0.3)
-  - Sentry/Core (6.0.3)
+  - Sentry (6.0.9):
+    - Sentry/Core (= 6.0.9)
+  - Sentry/Core (6.0.9)
   - ToolTipMenu (5.2.1):
     - React
   - Yoga (1.14.0)
@@ -738,28 +738,28 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 628cb35719f2fe4111c000ccfa7e186400bbc47e
   RNDeviceInfo: 9b6aba9ffaed69ecb72bd13c7bcb0debf277bc9f
   RNExitApp: c4e052df2568b43bec8a37c7cd61194d4cfee2c3
-  RNFastImage: e19ba191922e7dab9d932a4d59d62d76660aa222
-  RNFBAnalytics: 2dc4dd9e2445faffca041b10447a23a71dcdabf8
-  RNFBApp: 7eacc7da7ab19f96c05e434017d44a9f09410da8
-  RNFBCrashlytics: e35507742eebf1483d518efe70425ee931d555e6
+  RNFastImage: ff7e055d085abe465b358ce5aa51e3c6d64b1efd
+  RNFBAnalytics: 7d40b9b392fe2b8e6c2beeb119d1b090ed671c94
+  RNFBApp: 804b98033f45c3a3e35b56de8c894f85ef5e4388
+  RNFBCrashlytics: 99a37e88b45e599908d8b2fabfda1f98420ae48a
   RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
   RNGestureHandler: 7a5833d0f788dbd107fbb913e09aa0c1ff333c39
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
-  RNLocalize: 452d4118e338dee1e5ca3fac4d5a11a4ab26a46a
+  RNLocalize: 7c7aeda16c01db7a0918981c14875c0a53be9b79
   RNRate: 29be49c24b314c4e8ec09d848c3965f61cb0be47
   RNReanimated: dd8c286ab5dd4ba36d3a7fef8bff7e08711b5476
   RNScreens: 4b488fdf9537bbce829e2910c8cce1d17f6d9be8
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: cb4ef23400fb6690f6ac8f6acef0c023a8a4f37d
+  RNSentry: 5ebc2926dbcbb9b77857ba6df0754a869037123d
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
   RNSVG: 0eb087cfb5d7937be93c45b163b26352a647e681
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   SDWebImage: a31ee8e90a97303529e03fb0c333eae0eacb88e9
   SDWebImageWebPCoder: d0dac55073088d24b2ac1b191a71a8f8d0adac21
-  Sentry: 286e33636e0be9b559e2ebe2eae63ec53f83816e
+  Sentry: 388c9dc093b2fd3a264466a5c5b21e25959610a9
   ToolTipMenu: 8ac61aded0fbc4acfe7e84a7d0c9479d15a9a382
   Yoga: 7d13633d129fd179e01b8953d38d47be90db185a
 
-PODFILE CHECKSUM: b34aecd9b3ac62055459f52b75b4a0a0780f5cbf
+PODFILE CHECKSUM: 455bf95e96026a70ba7e1615d448987947c42e5b
 
 COCOAPODS: 1.10.0
