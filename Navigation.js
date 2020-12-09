@@ -176,7 +176,11 @@ const AddWalletRoot = () => (
       component={WalletsAddMultisigStep2}
       options={WalletsAddMultisigStep2.navigationOptions}
     />
-    <AddWalletStack.Screen name="WalletsAddMultisigHelp" component={WalletsAddMultisigHelp} options={WalletsAddMultisigHelp.navigationOptions} />
+    <AddWalletStack.Screen
+      name="WalletsAddMultisigHelp"
+      component={WalletsAddMultisigHelp}
+      options={WalletsAddMultisigHelp.navigationOptions}
+    />
   </AddWalletStack.Navigator>
 );
 

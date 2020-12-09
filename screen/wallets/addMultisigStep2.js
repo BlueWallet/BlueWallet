@@ -136,7 +136,7 @@ const WalletsAddMultisigStep2 = () => {
     helpButton: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
     },
-     helpButtonText: {
+    helpButtonText: {
       color: colors.foregroundColor,
     },
   });
@@ -688,7 +688,7 @@ const styles = StyleSheet.create({
     marginVertical: 24,
   },
   wrapBox: {
-    flex: 1, 
+    flex: 1,
     marginVertical: 24,
   },
   buttonBottom: {
@@ -791,7 +791,7 @@ const styles = StyleSheet.create({
   alignItemsCenter: { alignItems: 'center' },
   squareButtonWrapper: { height: 50, width: 250 },
   qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
-  
+
   helpButtonWrapper: {
     alignItems: 'flex-end',
   },
@@ -799,7 +799,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 50,
-    flexDirection: 'row', 
+    flexDirection: 'row',
   },
   helpButtonText: {
     fontSize: 16,
