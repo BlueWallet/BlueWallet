@@ -147,7 +147,7 @@
   "send": {
     "broadcastButton": "Broadcast",
     "broadcastError": "Error",
-    "broadcastNone": "Input transaction hash",
+    "broadcastNone": "Insert Transaction Hex",
     "broadcastPending": "Pending",
     "broadcastSuccess": "Success",
     "confirm_header": "Confirm",
@@ -460,7 +460,7 @@
     "export_signed_psbt": "Export Signed PSBT",
     "input_fp": "Enter fingerprint",
     "input_fp_explain": "skip to use default one (00000000)",
-    "input_path": "Input derivation path",
+    "input_path": "Insert Derivation Path",
     "input_path_explain": "skip to use default one ({default})",
     "view_edit_cosigners_title": "Edit Cosigners",
     "ms_help": "Help",
