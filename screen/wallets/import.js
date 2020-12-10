@@ -123,7 +123,7 @@ const WalletsImport = () => {
       },
       response => {
         if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
               onBarScanned(result);
@@ -145,7 +145,7 @@ const WalletsImport = () => {
       },
       response => {
         if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
               onBarScanned(result);

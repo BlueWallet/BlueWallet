@@ -29,7 +29,7 @@ import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import { getSystemName } from 'react-native-device-info';
-import ImagePicker from 'react-native-image-picker';
+import { launchCamera } from 'react-native-image-picker';
 import ScanQRCode from '../send/ScanQRCode';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
@@ -395,7 +395,7 @@ const WalletsAddMultisigStep2 = () => {
   const scanOrOpenFile = () => {
     setIsProvideMnemonicsModalVisible(false);
     if (isDesktop) {
-      ImagePicker.launchCamera(
+      launchCamera(
         {
           title: null,
           mediaType: 'photo',
@@ -403,7 +403,7 @@ const WalletsAddMultisigStep2 = () => {
         },
         response => {
           if (response.uri) {
-            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
             LocalQRCode.decode(uri, (error, result) => {
               if (!error) {
                 onBarScanned(result);
