@@ -83,7 +83,6 @@
     "list_title": "συναλλαγές"
   },
   "wallets": {
-    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Δημιούργησε",
     "add_import_wallet": "Εισήγαγε πορτοφόλι",
     "add_or": "ή",
@@ -110,8 +109,6 @@
     "import_title": "Εισαγωγή",
     "list_create_a_button": "Προσθήκη τώρα",
     "list_create_a_wallet": "Προσθέστε ένα πορτοφόλι",
-    "list_create_a_wallet1": "Είναι δωρεάν και μπορείς να",
-    "list_create_a_wallet2": "δημιουργήσεις όσα θέλεις",
     "list_empty_txs1": "Οι συναλλαγές θα εμφανιστούν εδώ,",
     "list_empty_txs2": "καμία συναλλαγή",
     "list_latest_transaction": "τελευταία συναλλαγή",

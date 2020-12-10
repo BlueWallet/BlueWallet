@@ -83,7 +83,7 @@
     "offer_minmax": "حداقل/حداکثر",
     "offer_minutes": "حداقل",
     "offer_promt_fiat": "چه مقدار {currency} می‌خواهید بخرید؟",
-    "offer_promt_fiat_e": "برای مثال ۱۰۰",
+    "offer_promt_fiat_e": "به‌عنوان مثال، ۱۰۰",
     "offer_window": "بازه",
     "p2p": "تبادل همتابه‌همتا"
   },
@@ -110,9 +110,9 @@
     "lightning_invoice": "فاکتور لایتنینگ",
     "has_been_paid": "این فاکتور پرداخت شده است",
     "open_direct_channel": "کانال مستقیمی با این گره باز کن:",
-    "please_pay": "لطفاً بپردازید",
+    "please_pay": "لطفاً",
     "preimage": "پیش‌نگاره",
-    "sats": "ساتوشی",
+    "sats": "ساتوشی بپردازید",
     "wasnt_paid_and_expired": "این فاکتور پرداخت نشده و منقضی شده است."
   },
   "plausibledeniability": {
@@ -147,7 +147,7 @@
   "send": {
     "broadcastButton": "انتشار",
     "broadcastError": "خطا",
-    "broadcastNone": "هگزادسیمال تراکنش ورودی",
+    "broadcastNone": "هگزادسیمال تراکنش را وارد کنید",
     "broadcastPending": "در انتظار ثبت",
     "broadcastSuccess": "موفقیت‌آمیز بود",
     "confirm_header": "تأیید",
@@ -244,9 +244,9 @@
     "electrum_connected": "متصل",
     "electrum_connected_not": "عدم اتصال",
     "electrum_error_connect": "نمی‌توان به سرور الکترام ارائه‌شده متصل شد",
-    "electrum_host": "میزبان، به‌عنوان مثال {example}",
-    "electrum_port": "پورت TCP، به‌طورمعمول {example}",
-    "electrum_port_ssl": "پورت SSL، به‌طورمعمول {example}",
+    "electrum_host": "میزبان، به‌عنوان مثال، {example}",
+    "electrum_port": "درگاه TCP، به‌طورمعمول {example}",
+    "electrum_port_ssl": "درگاه SSL، به‌طورمعمول {example}",
     "electrum_saved": "تغییرات شما با موفقیت ذخیره شدند. ممکن است برای اعمال تغییرات به راه‌اندازی مجدد برنامه نیاز داشته باشید.",
     "electrum_settings": "تنظیمات الکترام",
     "electrum_settings_explain": "برای استفاده از تنظیمات پیش‌فرض خالی بگذارید",
@@ -261,7 +261,7 @@
     "encrypt_use_expl": "از {type} برای تأیید هویت شما قبل از انجام تراکنش، بازکردن قفل، صادرکردن، یا حذف کیف پول استفاده خواهد شد. از {type} برای بازکردن فضای ذخیره‌سازی رمزگذاری‌شده استفاده نخواهد شد.",
     "general": "عمومی",
     "general_adv_mode": "حالت پیشرفته",
-    "general_adv_mode_e": "درصورت فعال‌بودن، گزینه‌های پیشرفته‌ای مانند انواع مختلف کیف پول، امکان تعیین سرور LNDHub موردنظر شما جهت اتصال، و آنتروپی سفارشی در هنگام ایجاد کیف پول را مشاهده خواهید کرد.",
+    "general_adv_mode_e": "درصورت فعال‌بودن، گزینه‌های پیشرفته‌ای مانند انواع مختلف کیف پول، امکان تعیین سرور LNDHub جهت اتصال، و آنتروپی سفارشی را در هنگام ایجاد کیف پول مشاهده خواهید کرد.",
     "general_continuity": "پیوستگی",
     "general_continuity_e": "درصورت فعال‌بودن، می‌توانید کیف پول‌های انتخاب‌شده و تراکنش‌ها را با استفاده از سایر دستگاه‌های متصل به Apple iCloud خود مشاهده کنید.",
     "groundcontrol_explanation": "سرویس GroundControl یک سرور اعلانات متن‌باز و رایگان برای کیف پول‌های بیت‌کوین است. شما می‌توانید سرور GroundControl خود را نصب کرده و آدرس آن را اینجا قرار دهید تا به زیرساخت‌های BlueWallet متکی نباشید. برای استفاده از تنظیمات پیش‌فرض خالی بگذارید.",
@@ -460,13 +460,13 @@
     "export_signed_psbt": "صادرکردن PSBT امضاشده",
     "input_fp": "اثر انگشت را وارد کنید",
     "input_fp_explain": "جهت استفاده از تنظیمات پیش‌فرض (۰۰۰۰۰۰۰۰) رد کنید",
-    "input_path": "مسیر اشتقاق ورودی",
+    "input_path": "مسیر اشتقاق را وارد کنید",
     "input_path_explain": "جهت استفاده از تنظیمات پیش‌فرض ({default}) رد کنید",
     "view_edit_cosigners_title": "ویرایش امضاکنندگان مشترک"
   },
   "is_it_my_address": {
     "title": "آیا آدرس من است؟",
-    "owns": "آدرس {address} متعلق به {label} است.",
+    "owns": "آدرس {address} متعلق به «{label}» است.",
     "enter_address": "آدرس را وارد کنید:",
     "check_address": "بررسی آدرس"
   },
