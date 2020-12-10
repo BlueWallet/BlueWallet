@@ -14,7 +14,7 @@ struct FiatUnit: Codable {
   let locale: String
   let dataSource: String?
   let rateKey: String?
-  
+  let isDataSourceSufficient: Bool?
   var rateURL: URL? {
     if let dataSource = dataSource {
          return URL(string: "\(dataSource)/\(endPointKey)")

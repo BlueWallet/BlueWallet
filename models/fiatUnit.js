@@ -1,4 +1,4 @@
-export const FiatUnitSource = Object.freeze({ CoinDesk: 'CoinDesk', Yadio: 'Yadio' });
+export const FiatUnitSource = Object.freeze({ CoinDesk: 'CoinDesk', Yadio: 'Yadio', BitcoinDuliban: 'fluus.me, businessnews.com.lb' });
 
 export const FiatUnit = Object.freeze({
   USD: { endPointKey: 'USD', symbol: '$', locale: 'en-US', source: FiatUnitSource.CoinDesk },
@@ -27,7 +27,15 @@ export const FiatUnit = Object.freeze({
   JPY: { endPointKey: 'JPY', symbol: '¥', locale: 'ja-JP', source: FiatUnitSource.CoinDesk },
   KES: { endPointKey: 'KES', symbol: 'Ksh', locale: 'en-KE', source: FiatUnitSource.CoinDesk },
   KRW: { endPointKey: 'KRW', symbol: '₩', locale: 'ko-KR', source: FiatUnitSource.CoinDesk },
-  LBP: { endPointKey: 'LBP', symbol: 'ل.ل.', locale: 'ar-LB', source: FiatUnitSource.CoinDesk },
+  LBP: {
+    endPointKey: 'LBP',
+    symbol: 'ل.ل.',
+    locale: 'ar-LB',
+    dataSource: 'https://bitcoinduliban.org/api.php?key=lbpusd',
+    isDataSourceSufficient: true,
+    rateKey: 'BTC/LBP',
+    source: FiatUnitSource.BitcoinDuliban,
+  },
   MXN: { endPointKey: 'MXN', symbol: '$', locale: 'es-MX', source: FiatUnitSource.CoinDesk },
   MYR: { endPointKey: 'MYR', symbol: 'RM', locale: 'ms-MY', source: FiatUnitSource.CoinDesk },
   NGN: { endPointKey: 'NGN', symbol: '₦', locale: 'en-NG', source: FiatUnitSource.CoinDesk },
@@ -70,7 +78,11 @@ export class FiatServerResponse {
 
   endPoint = () => {
     if (this.fiatUnit.dataSource) {
-      return `/${this.fiatUnit.endPointKey}`;
+      if (this.fiatUnit.isDataSourceSufficient) {
+        return '';
+      } else {
+        return `/${this.fiatUnit.endPointKey}`;
+      }
     } else {
       return '/v1/bpi/currentprice/' + this.fiatUnit.endPointKey + '.json';
     }
@@ -79,7 +91,11 @@ export class FiatServerResponse {
   rate = response => {
     const json = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
     if (this.fiatUnit.dataSource) {
-      return json[this.fiatUnit.rateKey].price * 1;
+      if (json[this.fiatUnit.rateKey].price) {
+        return json[this.fiatUnit.rateKey].price * 1;
+      } else {
+        return json[this.fiatUnit.rateKey] * 1;
+      }
     } else {
       return json.bpi[this.fiatUnit.endPointKey].rate_float * 1;
     }
