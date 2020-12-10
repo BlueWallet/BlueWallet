@@ -81,9 +81,6 @@ const IsItMyAddress = () => {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null} keyboardShouldPersistTaps="handled">
         <View style={styles.wrapper}>
           <BlueCard style={styles.mainCard}>
-            <View style={styles.topFormRow}>
-              <BlueText>{loc.is_it_my_address.enter_address}</BlueText>
-            </View>
             <View style={[styles.input, stylesHooks.input]}>
               <TextInput
                 style={styles.text}
@@ -93,6 +90,8 @@ const IsItMyAddress = () => {
                 minWidth="100%"
                 multiline
                 editable
+                placeholder={loc.is_it_my_address.enter_address}
+                placeholderTextColor="#81868e"
                 value={address}
                 onChangeText={handleUpdateAddress}
               />
