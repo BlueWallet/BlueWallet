@@ -99,7 +99,6 @@
     "list_title": "transaccions"
   },
   "wallets": {
-    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Crear",
     "add_import_wallet": "Importar moneder",
     "add_or": "o",
@@ -130,12 +129,9 @@
     "import_title": "importar",
     "list_create_a_button": "Afegir ara",
     "list_create_a_wallet": "Afegeix un moneder",
-    "list_create_a_wallet1": "És gratuït i pots crear",
-    "list_create_a_wallet2": "tants com vulguis",
     "list_empty_txs1": "Les seves transaccions apareixeran aquí,",
     "list_empty_txs1_lightning": "Els moneders Lightning poden ser usats per les seves transaccions diàries. Les comissions són baixes i els pagaments ràpids.",
     "list_empty_txs2": "encara no té cap transacció.",
-    "list_empty_txs2_lightning": "",
     "list_latest_transaction": "última transacció",
     "list_tap_here_to_buy": "Prem aquí per comprar Bitcoin",
     "list_title": "moneders",

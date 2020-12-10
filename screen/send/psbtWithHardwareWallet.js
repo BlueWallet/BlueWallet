@@ -201,8 +201,13 @@ const PsbtWithHardwareWallet = () => {
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
-        await RNFS.writeFile(filePath, typeof psbt === 'string' ? psbt : psbt.toBase64());
-        alert(loc.formatString(loc.send.txSaved, { filePath: fileName }));
+        try {
+          await RNFS.writeFile(filePath, typeof psbt === 'string' ? psbt : psbt.toBase64());
+          alert(loc.formatString(loc.send.txSaved, { filePath: fileName }));
+        } catch (e) {
+          console.log(e);
+          alert(e.message);
+        }
       } else {
         console.log('Storage Permission: Denied');
         Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
