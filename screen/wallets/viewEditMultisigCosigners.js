@@ -18,7 +18,7 @@ import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getSystemName } from 'react-native-device-info';
-import ImagePicker from 'react-native-image-picker';
+import { launchCamera } from 'react-native-image-picker';
 
 import {
   BlueButton,
@@ -382,7 +382,7 @@ const ViewEditMultisigCosigners = () => {
   const scanOrOpenFile = () => {
     setIsProvideMnemonicsModalVisible(false);
     if (isDesktop) {
-      ImagePicker.launchCamera(
+      launchCamera(
         {
           title: null,
           mediaType: 'photo',

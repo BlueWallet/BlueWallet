@@ -18,7 +18,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import ImagePicker from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
 import { Icon } from 'react-native-elements';
 import Handoff from 'react-native-handoff';
@@ -451,7 +451,7 @@ const WalletTransactions = () => {
   };
 
   const choosePhoto = () => {
-    ImagePicker.launchImageLibrary(
+    launchImageLibrary(
       {
         title: null,
         mediaType: 'photo',

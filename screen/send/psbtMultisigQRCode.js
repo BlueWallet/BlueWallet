@@ -6,7 +6,7 @@ import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
 import { getSystemName } from 'react-native-device-info';
 import loc from '../../loc';
-import ImagePicker from 'react-native-image-picker';
+import { launchCamera } from 'react-native-image-picker';
 import ScanQRCode from './ScanQRCode';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 const bitcoin = require('bitcoinjs-lib');
@@ -49,7 +49,7 @@ const PsbtMultisigQRCode = () => {
 
   const openScanner = () => {
     if (isDesktop) {
-      ImagePicker.launchCamera(
+      launchCamera(
         {
           title: null,
           mediaType: 'photo',

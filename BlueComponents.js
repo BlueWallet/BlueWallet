@@ -33,7 +33,7 @@ import * as NavigationService from './NavigationService';
 import WalletGradient from './class/wallet-gradient';
 import ToolTip from 'react-native-tooltip';
 import { BlurView } from '@react-native-community/blur';
-import ImagePicker from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
@@ -1616,7 +1616,7 @@ export class BlueAddressInput extends Component {
   };
 
   choosePhoto = () => {
-    ImagePicker.launchImageLibrary(
+    launchImageLibrary(
       {
         title: null,
         mediaType: 'photo',
@@ -1638,7 +1638,7 @@ export class BlueAddressInput extends Component {
   };
 
   takePhoto = () => {
-    ImagePicker.launchCamera(
+    launchCamera(
       {
         title: null,
         mediaType: 'photo',
