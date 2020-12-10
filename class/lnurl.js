@@ -9,7 +9,7 @@ const createHash = require('create-hash');
  */
 export default class Lnurl {
   static TAG_PAY_REQUEST = 'payRequest'; // type of LNURL
-  static TAG_WITHDRAW_REQUEST = "withdrawRequest"; // type of LNURL
+  static TAG_WITHDRAW_REQUEST = 'withdrawRequest'; // type of LNURL
 
   constructor(url, AsyncStorage) {
     this._lnurl = url;
@@ -31,12 +31,12 @@ export default class Lnurl {
     const found = Lnurl.findlnurl(lnurlExample);
     if (!found) return false;
 
-    const decoded = bech32.decode(lnurlExample, 10000);
+    const decoded = bech32.decode(found, 10000);
     return Buffer.from(bech32.fromWords(decoded.words)).toString();
   }
 
   static isLnurl(url) {
-    return Lnurl.findlnurl(url) !== null
+    return Lnurl.findlnurl(url) !== null;
   }
 
   async fetchGet(url) {
