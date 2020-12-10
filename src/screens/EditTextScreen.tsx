@@ -20,6 +20,7 @@ export const EditTextScreen = (props: Props) => {
     onSave,
     title,
     maxLength,
+    checkZero,
     keyboardType = defaultKeyboardType,
     validate,
     validateOnSave = null,
@@ -63,7 +64,7 @@ export const EditTextScreen = (props: Props) => {
       <View style={styles.inputItemContainer}>
         <InputItem
           label={label}
-          value={value}
+          value={checkZero ? checkZero(value) : value}
           setValue={setValue}
           autoFocus={true}
           error={error || (value && !!validate && validate(value)) || ''}

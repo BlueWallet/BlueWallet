@@ -18,3 +18,12 @@ export const isCodeChunked = (code: string): boolean => {
   const reg = new RegExp(/\d;\d;/g);
   return reg.test(code);
 };
+
+export const checkZero = (amount: string) => {
+  if (amount.charAt(0) === '.' || amount.charAt(0) === ',') {
+    const newAmount = `0.${amount.substring(1)}`;
+    return newAmount;
+  } else {
+    return amount;
+  }
+};

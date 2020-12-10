@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { Header, ScreenTemplate, Button, WalletDropdown } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
 import { Route, MainCardStackNavigatorParams, RootStackParams, Wallet } from 'app/consts';
+import { checkZero } from 'app/helpers/helpers';
 import { ApplicationState } from 'app/state';
 import { selectors, reducer } from 'app/state/wallets';
 import { typography, palette } from 'app/styles';
@@ -49,7 +50,7 @@ class ReceiveCoinsScreen extends Component<Props, State> {
   }
 
   updateAmount = (amount: string) => {
-    const parsedAmount = amount.replace(',', '.');
+    const parsedAmount = amount;
     this.setState({
       amount: parseFloat(parsedAmount),
     });
@@ -65,6 +66,7 @@ class ReceiveCoinsScreen extends Component<Props, State> {
       onSave: this.updateAmount,
       keyboardType: 'numeric',
       validate: this.validate,
+      checkZero,
       value: this.state.amount && !!this.state.amount ? this.state.amount.toString() : '',
     });
   };

@@ -22,6 +22,7 @@ import { CONST, MainCardStackNavigatorParams, Route, RootStackParams, Utxo, Wall
 import { processAddressData } from 'app/helpers/DataProcessing';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { loadTransactionsFees } from 'app/helpers/fees';
+import { checkZero } from 'app/helpers/helpers';
 import { withCheckNetworkConnection, CheckNetworkConnectionCallback } from 'app/hocs';
 import { ApplicationState } from 'app/state';
 import { selectors } from 'app/state/wallets';
@@ -430,7 +431,7 @@ class SendCoinsScreen extends Component<Props, State> {
         keyboardType="numeric"
         value={transaction.amount}
         setValue={text => {
-          this.setState({ transaction: { ...transaction, amount: text } });
+          this.setState({ transaction: { ...transaction, amount: checkZero(text) } });
         }}
       />
     );

@@ -20,6 +20,7 @@ import {
 } from 'app/components';
 import { CONST, Route, MainCardStackNavigatorParams, Filters, Tags, TagsType } from 'app/consts';
 import { processAddressData } from 'app/helpers/DataProcessing';
+import { checkZero } from 'app/helpers/helpers';
 import { AppStateManager } from 'app/services';
 import { ApplicationState } from 'app/state';
 import * as actions from 'app/state/filters/actions';
@@ -190,7 +191,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
                 key={Index.From}
                 value={fromAmount}
                 error={this.validateAmount(fromAmount)}
-                setValue={text => this.props.updateFromAmount(text.replace(',', '.'))}
+                setValue={text => this.props.updateFromAmount(checkZero(text))}
                 label={i18n.filterTransactions.fromAmount}
                 suffix="BTCV"
                 keyboardType="numeric"
@@ -200,7 +201,7 @@ class FilterTransactionsScreen extends PureComponent<Props, State> {
                 key={Index.To}
                 value={toAmount}
                 error={this.validateAmount(toAmount)}
-                setValue={text => this.props.updateToAmount(text.replace(',', '.'))}
+                setValue={text => this.props.updateToAmount(checkZero(text))}
                 label={i18n.filterTransactions.toAmount}
                 suffix="BTCV"
                 keyboardType="numeric"

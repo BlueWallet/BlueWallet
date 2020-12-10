@@ -317,6 +317,7 @@ export type RootStackParams = {
     keyboardType?: KeyboardType;
     maxLength?: number;
     emptyValueAllowed?: boolean;
+    checkZero?: (value: string) => string | undefined;
   };
   [Route.Message]: {
     title: string;
