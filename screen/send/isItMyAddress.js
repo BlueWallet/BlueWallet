@@ -7,12 +7,10 @@ import {
   BlueButton,
   BlueSpacing10,
   BlueSpacing20,
-  BlueFormLabel,
   BlueNavigationStyle,
   BlueText,
   BlueButtonLink,
 } from '../../BlueComponents';
-import { BlueCurrentTheme } from '../../components/themes';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
@@ -74,9 +72,9 @@ const IsItMyAddress = () => {
   };
 
   const clearAddressInput = () => {
-    setAddress('')
+    setAddress('');
     setResult();
-  }
+  };
 
   return (
     <SafeBlueArea style={[styles.blueArea, stylesHooks.blueArea]}>
