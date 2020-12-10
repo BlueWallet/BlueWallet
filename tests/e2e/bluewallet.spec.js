@@ -729,7 +729,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.type('android.widget.CompoundButton')).tap(); // freeze switch
     await device.pressBack(); // closing modal
     await expect(element(by.text('test2')).atIndex(0)).toBeVisible();
-    await expect(element(by.text('freeze')).atIndex(0)).toBeVisible();
+    await expect(element(by.text('Freeze')).atIndex(0)).toBeVisible();
 
     // use frozen output to create tx using "Use coin" feature
     await element(by.text('test2')).atIndex(0).tap();
