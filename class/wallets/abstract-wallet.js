@@ -172,7 +172,7 @@ export class AbstractWallet {
           masterFingerprint = Number(parsedSecret.keystore.ckcc_xfp);
         }
         if (parsedSecret.keystore.label) {
-          this.label = parsedSecret.keystore.label;
+          this.setLabel(parsedSecret.keystore.label);
         }
         this.secret = parsedSecret.keystore.xpub;
         this.masterFingerprint = masterFingerprint;
