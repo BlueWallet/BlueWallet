@@ -249,7 +249,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.text('OK')).tap();
     await element(by.type('android.widget.EditText')).typeText('fake');
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Incorrect password, please try again.'))).toBeVisible();
+    await expect(element(by.text('Incorrect password. Please try again.'))).toBeVisible();
     await element(by.text('OK')).tap();
 
     // correct password
@@ -328,7 +328,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.text('OK')).tap();
     await element(by.type('android.widget.EditText')).typeText('pass');
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Incorrect password, please try again.'))).toBeVisible();
+    await expect(element(by.text('Incorrect password. Please try again.'))).toBeVisible();
     await element(by.text('OK')).tap();
 
     // correct password
