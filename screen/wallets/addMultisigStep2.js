@@ -29,8 +29,6 @@ import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import { getSystemName } from 'react-native-device-info';
-import ImagePicker from 'react-native-image-picker';
-import ScanQRCode from '../send/ScanQRCode';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
 import BottomModal from '../../components/BottomModal';
@@ -49,7 +47,6 @@ const prompt = require('../../blue_modules/prompt');
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
@@ -407,60 +404,14 @@ const WalletsAddMultisigStep2 = () => {
     }
   };
 
-  const takePhoto = () => {
-    ImagePicker.launchCamera(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        } else if (response.error) {
-          ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
-        }
-      },
-    );
-  };
-
-  const choosePhoto = () => {
-    ImagePicker.launchImageLibrary(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        }
-      },
-    );
-  };
-
   const showActionSheet = () => {
     const options = [loc._.cancel, loc.wallets.take_photo, loc.wallets.list_long_choose, loc.wallets.import_file];
 
     ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, async buttonIndex => {
       if (buttonIndex === 1) {
-        takePhoto();
+        fs.takePhotoWithImagePickerAndReadPhoto.then(onBarScanned);
       } else if (buttonIndex === 2) {
-        choosePhoto();
+        fs.showImagePickerAndReadImage(onBarScanned).catch(error => alert(error.message));
       } else if (buttonIndex === 3) {
         const { data } = await fs.showFilePickerAndReadFile();
         if (data) {

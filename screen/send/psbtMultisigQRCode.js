@@ -1,19 +1,16 @@
 /* global alert */
 import React, { useState } from 'react';
-import { ActivityIndicator, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { BlueNavigationStyle, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
 import { getSystemName } from 'react-native-device-info';
 import loc from '../../loc';
-import ImagePicker from 'react-native-image-picker';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { presentCameraNotAuthorizedAlert } from '../../class/camera';
 import ActionSheet from '../ActionSheet';
 const bitcoin = require('bitcoinjs-lib');
 
 const fs = require('../../blue_modules/fs');
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const isDesktop = getSystemName() === 'Mac OS X';
 
 const PsbtMultisigQRCode = () => {
@@ -50,60 +47,14 @@ const PsbtMultisigQRCode = () => {
     }
   };
 
-  const choosePhoto = () => {
-    ImagePicker.launchImageLibrary(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        }
-      },
-    );
-  };
-
-  const takePhoto = () => {
-    ImagePicker.launchCamera(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        } else if (response.error) {
-          presentCameraNotAuthorizedAlert(response.error);
-        }
-      },
-    );
-  };
-
   const showActionSheet = () => {
     const options = [loc._.cancel, loc.wallets.take_photo, loc.wallets.list_long_choose, loc.wallets.import_file];
 
     ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, async buttonIndex => {
       if (buttonIndex === 1) {
-        takePhoto();
+        fs.takePhotoWithImagePickerAndReadPhoto.then(onBarScanned);
       } else if (buttonIndex === 2) {
-        choosePhoto();
+        fs.showImagePickerAndReadImage(onBarScanned).catch(error => alert(error.message));
       } else if (buttonIndex === 3) {
         const { data } = await fs.showFilePickerAndReadFile();
         if (data) {
