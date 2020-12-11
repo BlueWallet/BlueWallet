@@ -1,3 +1,18 @@
+v5.6.9
+======
+
+* ADD: warning text on backup screen
+* ADD: CoinControl displays balances with user's preferred unit
+* ADD: LBP Currency
+* ADD: Verify if an address belongs to one of your wallets.
+* FIX: fetch wallet transaction after broadcast
+* FIX: crash on refresh button
+* FIX: Don't display amount if none is passed
+* REF: PSBT Multisig provide signature flow
+* ADD: refresh wallet transactions for freshly imported wallets
+* FIX: locales sl_SI, fi_FI
+
+
 v5.6.8
 ======
 
