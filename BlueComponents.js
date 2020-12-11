@@ -345,6 +345,7 @@ export class BlueWalletNavigationHeader extends Component {
       <LinearGradient
         colors={WalletGradient.gradientsFor(this.state.wallet.type)}
         style={{ padding: 15, minHeight: 140, justifyContent: 'center' }}
+        {...WalletGradient.linearGradientProps(this.state.wallet.type)}
       >
         <Image
           source={(() => {
@@ -448,6 +449,34 @@ export class BlueWalletNavigationHeader extends Component {
                 }}
               >
                 {loc.lnd.title}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
+        {this.state.wallet.type === MultisigHDWallet.type && (
+          <TouchableOpacity onPress={this.manageFundsPressed}>
+            <View
+              style={{
+                marginTop: 14,
+                marginBottom: 10,
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                borderRadius: 9,
+                minHeight: 39,
+                alignSelf: 'flex-start',
+                paddingHorizontal: 12,
+                height: 39,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Text
+                style={{
+                  fontWeight: '500',
+                  fontSize: 14,
+                  color: '#FFFFFF',
+                }}
+              >
+                {loc.multisig.manage_keys}
               </Text>
             </View>
           </TouchableOpacity>
@@ -915,15 +944,13 @@ export const BlueSpacing40 = props => {
   return <View {...props} style={{ height: 50 }} />;
 };
 
-export class BlueSpacingVariable extends Component {
-  render() {
-    if (isIpad) {
-      return <BlueSpacing40 {...this.props} />;
-    } else {
-      return <BlueSpacing {...this.props} />;
-    }
+export const BlueSpacingVariable = props => {
+  if (isIpad) {
+    return <BlueSpacing40 {...props} />;
+  } else {
+    return <BlueSpacing {...props} />;
   }
-}
+};
 
 export class is {
   static ipad() {
@@ -1015,61 +1042,59 @@ export class BlueUseAllFundsButton extends Component {
   }
 }
 
-export class BlueDismissKeyboardInputAccessory extends Component {
-  static InputAccessoryViewID = 'BlueDismissKeyboardInputAccessory';
+export const BlueDismissKeyboardInputAccessory = () => {
+  const { colors } = useTheme();
+  BlueDismissKeyboardInputAccessory.InputAccessoryViewID = 'BlueDismissKeyboardInputAccessory';
 
-  render() {
-    return Platform.OS !== 'ios' ? null : (
-      <InputAccessoryView nativeID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}>
-        <View
-          style={{
-            backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
-            height: 44,
-            flex: 1,
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-          }}
-        >
-          <BlueButtonLink title={loc.send.input_done} onPress={() => Keyboard.dismiss()} />
-        </View>
-      </InputAccessoryView>
-    );
-  }
-}
-
-export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
-  static InputAccessoryViewID = 'BlueDoneAndDismissKeyboardInputAccessory';
-
-  onPasteTapped = async () => {
-    const clipboard = await Clipboard.getString();
-    this.props.onPasteTapped(clipboard);
-  };
-
-  render() {
-    const inputView = (
+  return Platform.OS !== 'ios' ? null : (
+    <InputAccessoryView nativeID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}>
       <View
         style={{
-          backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
+          backgroundColor: colors.inputBackgroundColor,
+          height: 44,
+          flex: 1,
           flexDirection: 'row',
           justifyContent: 'flex-end',
           alignItems: 'center',
-          maxHeight: 44,
         }}
       >
-        <BlueButtonLink title={loc.send.input_clear} onPress={this.props.onClearTapped} />
-        <BlueButtonLink title={loc.send.input_paste} onPress={this.onPasteTapped} />
-        <BlueButtonLink title={loc.send.input_done} onPress={() => Keyboard.dismiss()} />
+        <BlueButtonLink title={loc.send.input_done} onPress={Keyboard.dismiss} />
       </View>
-    );
+    </InputAccessoryView>
+  );
+};
 
-    if (Platform.OS === 'ios') {
-      return <InputAccessoryView nativeID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
-    } else {
-      return <KeyboardAvoidingView>{inputView}</KeyboardAvoidingView>;
-    }
+export const BlueDoneAndDismissKeyboardInputAccessory = props => {
+  const { colors } = useTheme();
+  BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID = 'BlueDoneAndDismissKeyboardInputAccessory';
+
+  const onPasteTapped = async () => {
+    const clipboard = await Clipboard.getString();
+    props.onPasteTapped(clipboard);
+  };
+
+  const inputView = (
+    <View
+      style={{
+        backgroundColor: colors.inputBackgroundColor,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        maxHeight: 44,
+      }}
+    >
+      <BlueButtonLink title={loc.send.input_clear} onPress={props.onClearTapped} />
+      <BlueButtonLink title={loc.send.input_paste} onPress={onPasteTapped} />
+      <BlueButtonLink title={loc.send.input_done} onPress={Keyboard.dismiss} />
+    </View>
+  );
+
+  if (Platform.OS === 'ios') {
+    return <InputAccessoryView nativeID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
+  } else {
+    return <KeyboardAvoidingView>{inputView}</KeyboardAvoidingView>;
   }
-}
+};
 
 export const BlueLoading = props => {
   return (

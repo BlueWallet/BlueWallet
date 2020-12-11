@@ -26,7 +26,7 @@ import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-naviga
 import { Chain } from '../../models/bitcoinUnits';
 import { BlueTransactionListItem, BlueWalletNavigationHeader, BlueAlertWalletExportReminder, BlueListItem } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
-import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
+import { LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import HandoffSettings from '../../class/handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
@@ -570,6 +570,12 @@ const WalletTransactions = () => {
     }
   };
 
+  const navigateToViewEditCosigners = () => {
+    navigate('ViewEditMultisigCosigners', {
+      walletId: wallet.current.getID(),
+    });
+  };
+
   return (
     <View style={styles.flex}>
       <StatusBar barStyle="light-content" backgroundColor={WalletGradient.headerColorFor(wallet.current.type)} />
@@ -589,23 +595,27 @@ const WalletTransactions = () => {
           })
         }
         onManageFundsPressed={() => {
-          if (wallet.current.getUserHasSavedExport()) {
-            setIsManageFundsModalVisible(true);
-          } else {
-            BlueAlertWalletExportReminder({
-              onSuccess: async () => {
-                wallet.current.setUserHasSavedExport(true);
-                await saveToDisk();
-                setIsManageFundsModalVisible(true);
-              },
-              onFailure: () =>
-                navigate('WalletExportRoot', {
-                  screen: 'WalletExport',
-                  params: {
-                    walletID: wallet.current.getID(),
-                  },
-                }),
-            });
+          if (wallet.current.type === MultisigHDWallet.type) {
+            navigateToViewEditCosigners();
+          } else if (wallet.current.type === LightningCustodianWallet.type) {
+            if (wallet.current.getUserHasSavedExport()) {
+              setIsManageFundsModalVisible(true);
+            } else {
+              BlueAlertWalletExportReminder({
+                onSuccess: async () => {
+                  wallet.current.setUserHasSavedExport(true);
+                  await saveToDisk();
+                  setIsManageFundsModalVisible(true);
+                },
+                onFailure: () =>
+                  navigate('WalletExportRoot', {
+                    screen: 'WalletExport',
+                    params: {
+                      walletID: wallet.current.getID(),
+                    },
+                  }),
+              });
+            }
           }
         }}
       />
