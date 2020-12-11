@@ -187,6 +187,7 @@ const WalletsAddMultisigStep2 = () => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setCosigners(cosignersCopy);
       setVaultKeyData({ keyIndex: cosignersCopy.length, seed: w.getSecret(), xpub: w.getXpub(), isLoading: false });
+      setIsLoading(true);
       setIsMnemonicsModalVisible(true);
       if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
       // filling cache
@@ -194,6 +195,7 @@ const WalletsAddMultisigStep2 = () => {
         // filling cache
         setXpubCacheForMnemonics(w.getSecret());
         setFpCacheForMnemonics(w.getSecret());
+        setIsLoading(false);
       }, 500);
     });
   };
@@ -564,7 +566,11 @@ const WalletsAddMultisigStep2 = () => {
           <BlueSpacing10 />
           <View style={styles.secretContainer}>{renderSecret(vaultKeyData.seed.split(' '))}</View>
           <BlueSpacing20 />
-          <BlueButton title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
+          {isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <BlueButton title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
+          )}
         </View>
       </BottomModal>
     );
