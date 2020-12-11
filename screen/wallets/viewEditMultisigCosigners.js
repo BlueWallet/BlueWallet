@@ -48,7 +48,7 @@ const isDesktop = getSystemName() === 'Mac OS X';
 const ViewEditMultisigCosigners = () => {
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
-  const { navigate, goBack } = useNavigation();
+  const { navigate } = useNavigation();
   const route = useRoute();
   const { walletId } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletId));
@@ -128,9 +128,7 @@ const ViewEditMultisigCosigners = () => {
     await wallet.fetchBalance();
     newWallets.push(wallet);
     setWalletsWithNewOrder(newWallets);
-    goBack();
-    goBack();
-    goBack();
+    navigate('WalletsList');
   };
   useFocusEffect(
     useCallback(() => {
