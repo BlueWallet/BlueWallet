@@ -4,7 +4,7 @@
   "configurations": {
     "ios.sim.prod.debug": {
       "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/GoldWallet.app",
-      "build": "xcodebuild -workspace ios/GoldWallet.xcworkspace -scheme \"GoldWallet (Debug)\" -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build -quiet",
+      "build": "RN_SRC_EXT=e2e.tsx xcodebuild -workspace ios/GoldWallet.xcworkspace -scheme \"GoldWallet (Debug)\" -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build -quiet",
       "type": "ios.simulator",
       "device": {
         "type": "iPhone 11"
@@ -12,14 +12,14 @@
     },
     "ios.sim.prod.staging": {
       "binaryPath": "ios/build/Build/Products/Release-iphonesimulator/GoldWallet.app",
-      "build": "xcodebuild -workspace ios/GoldWallet.xcworkspace -scheme \"GoldWallet (Staging)\" -configuration Release -sdk iphonesimulator -derivedDataPath ios/build -quiet",
+      "build": "RN_SRC_EXT=e2e.tsx xcodebuild -workspace ios/GoldWallet.xcworkspace -scheme \"GoldWallet (Staging)\" -configuration Release -sdk iphonesimulator -derivedDataPath ios/build -quiet",
       "type": "ios.simulator",
       "device": {
         "type": "iPhone 11"
       }
     },
     "android.emu.prod.debug": {
-      "build": "cd android && ./gradlew assembleProdDebug assembleProdDebugAndroidTest -DtestBuildType=debug && cd ..",
+      "build": "cd android && RN_SRC_EXT=e2e.tsx ./gradlew assembleProdDebug assembleProdDebugAndroidTest -DtestBuildType=debug && cd ..",
       "type": "android.emulator",
       "binaryPath": "android/app/build/outputs/apk/prod/debug/app-prod-debug.apk",
       "device": {

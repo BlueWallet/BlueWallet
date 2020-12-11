@@ -145,6 +145,7 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
       <ScreenTemplate
         footer={
           <Button
+            testID="new-contact-submit-button"
             disabled={!this.canCreateContact}
             onPress={this.createContact}
             title={i18n.contactCreate.buttonLabel}
@@ -154,9 +155,15 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
       >
         <Text style={styles.subtitle}>{i18n.contactCreate.subtitle}</Text>
         <Text style={styles.description}>{i18n.contactCreate.description}</Text>
-        <InputItem setValue={this.setName} label={i18n.contactCreate.nameLabel} error={name.error} />
-        <View style={styles.inputContainer}>
+        <InputItem
+          testID="new-contact-name-input"
+          setValue={this.setName}
+          label={i18n.contactCreate.nameLabel}
+          error={name.error}
+        />
+        <View>
           <InputItem
+            testID="new-contact-address-input"
             error={address.error}
             focused={!!address.value}
             value={address.value}
@@ -165,7 +172,11 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
             setValue={this.setAddress}
             label={i18n.contactCreate.addressLabel}
           />
-          <TouchableOpacity style={styles.scanQRCodeButton} onPress={this.onScanQrCodePress}>
+          <TouchableOpacity
+            testID="new-contact-qr-code-button"
+            style={styles.scanQRCodeButton}
+            onPress={this.onScanQrCodePress}
+          >
             <Image style={styles.qrCodeImage} source={icons.qrCode} />
           </TouchableOpacity>
         </View>

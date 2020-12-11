@@ -31,7 +31,7 @@
     "babel-plugin-module-resolver": "^4.0.0",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "babel-plugin-transform-remove-console": "^6.9.4",
-    "detox": "^17.10.3",
+    "detox": "^17.14.4",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.20.2",
@@ -55,6 +55,7 @@
     "typescript": "^4.0.3"
   },
   "scripts": {
+    "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack; npx jetify",
     "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; yarn cache clean --force; yarn install",
     "start": "react-native start",
     "start:detox": "LOG_BOX_IGNORE=true RN_SRC_EXT=e2e.tsx react-native start --reset-cache",
@@ -63,8 +64,9 @@
     "android:beta": "react-native run-android --variant=betaDebug --appIdSuffix beta",
     "ios:prod": "react-native run-ios --scheme='GoldWallet (Debug)'",
     "ios:beta": "react-native run-ios --scheme='GoldWallet Beta (Debug)'",
-    "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack; npx jetify",
+    "build:detox": "detox build",
     "test": "CI=true yarn jest --forceExit",
+    "test:detox": "detox test",
     "test:local": "yarn jest --forceExit",
     "jest": "node node_modules/jest/bin/jest.js tests/*",
     "lint": "eslint '**/*.{js,ts,tsx}'",

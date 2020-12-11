@@ -12,6 +12,7 @@ interface Props {
   value?: string;
   editable?: boolean;
   autoCapitalize?: 'none';
+  testID?: string;
 }
 
 interface State {
@@ -26,7 +27,7 @@ export class TextAreaItem extends PureComponent<Props, State> {
   onBlur = () => this.setState({ isActive: false });
 
   render() {
-    const { style, placeholder, onChangeText, error, value, editable, autoCapitalize } = this.props;
+    const { style, placeholder, onChangeText, error, value, editable, autoCapitalize, testID } = this.props;
     const { isActive } = this.state;
     return (
       <>
@@ -41,12 +42,17 @@ export class TextAreaItem extends PureComponent<Props, State> {
           value={value}
           editable={editable}
           multiline={true}
+          testID={testID}
           onFocus={this.onFocus}
           onBlur={this.onBlur}
           onChangeText={onChangeText}
           autoCapitalize={autoCapitalize}
         />
-        {!!error && <Text style={styles.error}>{error}</Text>}
+        {!!error && (
+          <Text testID={`${testID}-validation-error`} style={styles.error}>
+            {error}
+          </Text>
+        )}
       </>
     );
   }

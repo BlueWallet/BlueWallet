@@ -110,8 +110,14 @@ class CreateAuthenticatorScreen extends Component<Props> {
         header={<Header isBackArrow title={i18n.authenticators.add.title} />}
         footer={
           <>
-            <Button onPress={this.confirmCreateAuthenticator} title={i18n._.confirm} disabled={this.canSubmit()} />
+            <Button
+              testID="submit-authenticator-name"
+              onPress={this.confirmCreateAuthenticator}
+              title={i18n._.confirm}
+              disabled={this.canSubmit()}
+            />
             <FlatButton
+              testID="import-authenticator"
               onPress={this.navigateToImport}
               containerStyle={styles.importButtonContainer}
               title={i18n.authenticators.import.title}
@@ -122,6 +128,7 @@ class CreateAuthenticatorScreen extends Component<Props> {
         <Text style={styles.subtitle}>{i18n.authenticators.add.subtitle}</Text>
         <Text style={styles.description}>{i18n.authenticators.add.description}</Text>
         <InputItem
+          testID="authenticator-name"
           error={this.validationError}
           setValue={this.setLabel}
           label={i18n.wallets.add.inputLabel}

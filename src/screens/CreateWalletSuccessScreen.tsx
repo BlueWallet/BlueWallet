@@ -44,7 +44,7 @@ export class CreateWalletSuccessScreen extends React.PureComponent<Props> {
 
     return (
       <ScreenTemplate
-        footer={<Button onPress={this.navigateBack} title={i18n.wallets.addSuccess.okButton} />}
+        footer={<Button testID="close-button" onPress={this.navigateBack} title={i18n.wallets.addSuccess.okButton} />}
         header={<Header isBackArrow title={i18n.wallets.add.title} />}
       >
         <Text style={styles.subtitle}>{i18n.wallets.addSuccess.subtitle}</Text>

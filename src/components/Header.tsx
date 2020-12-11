@@ -19,6 +19,7 @@ interface Props {
   isBackArrow?: boolean;
   onBackArrow?: () => void;
   addFunction?: () => void;
+  addButtonTestID?: string;
 }
 
 export class Header extends PureComponent<Props> {
@@ -51,7 +52,7 @@ export class Header extends PureComponent<Props> {
     }
   };
   render() {
-    const { title, addFunction } = this.props;
+    const { title, addFunction, addButtonTestID } = this.props;
 
     return (
       <GradientView variant={GradientView.Variant.Primary} style={styles.container}>
@@ -59,7 +60,7 @@ export class Header extends PureComponent<Props> {
           {this.renderLeftItem()}
           <EllipsisText style={styles.title}>{title}</EllipsisText>
           {!!addFunction && (
-            <TouchableOpacity style={styles.rightElement} onPress={addFunction}>
+            <TouchableOpacity testID={addButtonTestID} style={styles.rightElement} onPress={addFunction}>
               <Image source={icons.addIcon} style={styles.addIcon} />
             </TouchableOpacity>
           )}

@@ -108,7 +108,11 @@ class AuthenticatorListScreen extends Component<Props, State> {
   };
 
   renderItem = ({ item }: { item: Authenticator }) => (
-    <TouchableOpacity style={styles.authenticatorWrapper} onPress={() => this.navigateToOptions(item.id)}>
+    <TouchableOpacity
+      testID={`authenticator-${item.name}`}
+      style={styles.authenticatorWrapper}
+      onPress={() => this.navigateToOptions(item.id)}
+    >
       <View style={styles.authenticatorLeftColumn}>
         <EllipsisText style={styles.name}>{item.name}</EllipsisText>
         <Text style={styles.date}>
@@ -137,6 +141,7 @@ class AuthenticatorListScreen extends Component<Props, State> {
 
   renderEmptyList = () => (
     <ListEmptyState
+      testID="no-authenticators-icon"
       variant={ListEmptyState.Variant.Authenticators}
       onPress={() => this.props.navigation.navigate(Route.CreateAuthenticator)}
     />
@@ -161,6 +166,7 @@ class AuthenticatorListScreen extends Component<Props, State> {
           <Header
             isBackArrow={false}
             title={i18n.tabNavigator.authenticators}
+            addButtonTestID="create-authenticator-button"
             addFunction={() => navigation.navigate(Route.CreateAuthenticator)}
           />
         }

@@ -54,13 +54,19 @@ class CreateAuthenticatorPublicKeyScreen extends Component<Props> {
 
     return (
       <ScreenTemplate
-        footer={<Button onPress={this.navigate} title={i18n.authenticators.publicKey.okButton} />}
+        footer={
+          <Button
+            testID="public-key-proceed-button"
+            onPress={this.navigate}
+            title={i18n.authenticators.publicKey.okButton}
+          />
+        }
         header={<Header isBackArrow={false} title={i18n.authenticators.add.title} />}
       >
         <Text style={styles.subtitle}>{i18n.authenticators.publicKey.title}</Text>
         <Text style={styles.description}>{i18n.authenticators.publicKey.subtitle}</Text>
         <TextAreaItem style={styles.textArea} value={authenticator.publicKey} editable={false} />
-        <FlatButton onPress={this.share} title={i18n.receive.details.share} />
+        <FlatButton testID="share-public-key-button" onPress={this.share} title={i18n.receive.details.share} />
       </ScreenTemplate>
     );
   }

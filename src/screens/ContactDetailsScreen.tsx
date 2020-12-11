@@ -91,19 +91,23 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
 
     return (
       <ScreenTemplate
+        testID="contact-details-screen"
         footer={
           <>
             <Button
+              testID="contact-details-send-coins-button"
               disabled={!hasWallets}
               onPress={this.navigateToSendCoins}
               title={i18n.contactDetails.sendCoinsButton}
             />
             <Button
+              testID="contact-details-show-qr-code-button"
               onPress={this.navigateToContactQRCode}
               title={i18n.contactDetails.showQRCodeButton}
               containerStyle={styles.showWalletXPUBContainer}
             />
             <FlatButton
+              testID="contact-delete-button"
               onPress={this.deleteContact}
               title={i18n.contactDetails.deleteButton}
               containerStyle={styles.deleteWalletButtonContainer}
@@ -116,6 +120,7 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
         <ContactAvatar name={name} />
         <View style={styles.nameInputContainer}>
           <GenericInputItem
+            testID="edit-contact-name-input"
             title={i18n.contactDetails.editName}
             label={i18n.contactDetails.nameLabel}
             value={name}
@@ -124,13 +129,18 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
         </View>
         <View style={styles.addressInputContainer}>
           <GenericInputItem
+            testID="edit-contact-address-input"
             title={i18n.contactDetails.editAddress}
             label={i18n.contactDetails.addressLabel}
             value={address}
             validateOnSave={this.validateAddress}
             onSave={this.setAddress}
           />
-          <CopyButton textToCopy={address} containerStyle={styles.copyButtonContainer} />
+          <CopyButton
+            testID="copy-contact-address-button"
+            textToCopy={address}
+            containerStyle={styles.copyButtonContainer}
+          />
         </View>
       </ScreenTemplate>
     );

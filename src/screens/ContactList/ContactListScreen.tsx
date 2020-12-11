@@ -69,7 +69,7 @@ export class ContactListScreen extends PureComponent<Props, State> {
             onBackArrowPress={params?.onContactPress && this.goBack}
             title={params?.title}
           >
-            <SearchBar query={this.state.query} setQuery={this.setQuery} />
+            <SearchBar testID="contacts-searchbar" query={this.state.query} setQuery={this.setQuery} />
           </ContactListHeader>
         }
       >
@@ -81,7 +81,11 @@ export class ContactListScreen extends PureComponent<Props, State> {
             navigateToContactDetails={this.navigateToContactDetails}
           />
         ) : (
-          <ListEmptyState variant={ListEmptyState.Variant.ContactList} onPress={this.navigateToAddContact} />
+          <ListEmptyState
+            testID="no-contacts-icon"
+            variant={ListEmptyState.Variant.ContactList}
+            onPress={this.navigateToAddContact}
+          />
         )}
       </ScreenTemplate>
     );

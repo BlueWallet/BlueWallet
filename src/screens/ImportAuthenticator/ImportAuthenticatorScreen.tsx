@@ -182,6 +182,7 @@ class ImportAuthenticatorScreen extends Component<Props, State> {
           <>
             <TouchableHighlight onPress={this.sendFeedback} activeOpacity={0} underlayColor={'transparent'}>
               <Button
+                testID="submit-import-authenticator-name"
                 disabled={!this.canSubmit()}
                 title={i18n.wallets.importWallet.import}
                 onPress={this.createAuthenticatorForm}
@@ -189,6 +190,7 @@ class ImportAuthenticatorScreen extends Component<Props, State> {
             </TouchableHighlight>
             <TouchableHighlight onPress={this.sendFeedback} activeOpacity={0} underlayColor={'transparent'}>
               <FlatButton
+                testID="scan-import-authenticator-qr-code"
                 containerStyle={styles.scanQRCodeButtonContainer}
                 title={i18n.wallets.importWallet.scanQrCode}
                 onPress={this.scanQRCode}
@@ -206,12 +208,14 @@ class ImportAuthenticatorScreen extends Component<Props, State> {
           <Text style={styles.subtitle}>{i18n.authenticators.import.desc2}</Text>
 
           <InputItem
+            testID="import-authenticator-name"
             error={this.validationError}
             setValue={this.setName}
             label={i18n.wallets.add.inputLabel}
             maxLength={maxAuthenticatorNameLength}
           />
           <TextAreaItem
+            testID="import-authenticator-seed-phrase"
             autoCapitalize={'none'}
             error={mnemonicError}
             onChangeText={this.setMnemonic}

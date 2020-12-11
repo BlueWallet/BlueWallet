@@ -11,10 +11,12 @@ export enum ButtonType {
 
 interface Props extends ButtonProps {
   buttonType?: ButtonType;
+  testID?: string;
 }
 
 export const FlatButton = (props: Props) => (
   <Button
+    testID={props.testID}
     {...(props as ButtonProps)}
     type={'clear'}
     disabledTitleStyle={styles.disable}

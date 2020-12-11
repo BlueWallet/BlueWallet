@@ -44,7 +44,13 @@ class CreateAuthenticatorSuccessScreen extends Component<Props> {
     }
     return (
       <ScreenTemplate
-        footer={<Button onPress={this.navigate} title={i18n.wallets.addSuccess.okButton} />}
+        footer={
+          <Button
+            testID="seed-phrase-proceed-button"
+            onPress={this.navigate}
+            title={i18n.wallets.addSuccess.okButton}
+          />
+        }
         header={<Header isBackArrow={false} title={i18n.authenticators.add.title} />}
       >
         <Text style={styles.subtitle}>{i18n.authenticators.add.successTitle}</Text>

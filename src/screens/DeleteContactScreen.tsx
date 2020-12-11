@@ -48,12 +48,18 @@ export class DeleteContactScreen extends React.PureComponent<Props> {
         footer={
           <View style={styles.buttonContainer}>
             <Button
+              testID="cancel-button"
               title={i18n.contactDelete.no}
               onPress={this.navigateBack}
               type="outline"
               containerStyle={styles.noButton}
             />
-            <Button title={i18n.contactDelete.yes} onPress={this.deleteContact} containerStyle={styles.yesButton} />
+            <Button
+              testID="confirm-button"
+              title={i18n.contactDelete.yes}
+              onPress={this.deleteContact}
+              containerStyle={styles.yesButton}
+            />
           </View>
         }
         header={<Header title={i18n.contactDelete.header} />}

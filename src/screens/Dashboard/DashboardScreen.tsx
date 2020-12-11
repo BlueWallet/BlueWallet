@@ -152,6 +152,7 @@ class DashboardScreen extends Component<Props, State> {
     return (
       <Header
         title={i18n.wallets.dashboard.title}
+        addButtonTestID="add-wallet-button"
         addFunction={() => this.props.navigation.navigate(Route.CreateWallet)}
       />
     );
@@ -229,6 +230,7 @@ class DashboardScreen extends Component<Props, State> {
     }
     return (
       <ListEmptyState
+        testID="no-wallets-icon"
         variant={ListEmptyState.Variant.Dashboard}
         onPress={() => this.props.navigation.navigate(Route.CreateWallet)}
       />

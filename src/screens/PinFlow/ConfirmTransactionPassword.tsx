@@ -51,6 +51,7 @@ class ConfirmTransactionPasswordScreen extends PureComponent<Props, State> {
           navigation.navigate(Route.Message, {
             title: i18n.contactCreate.successTitle,
             description: i18n.onboarding.successDescription,
+            testID: 'success-message',
             source: images.success,
             buttonProps: {
               title: i18n.onboarding.successButton,
@@ -86,8 +87,8 @@ class ConfirmTransactionPasswordScreen extends PureComponent<Props, State> {
         keyboardShouldPersistTaps="always"
         footer={
           <Button
-            title={i18n._.save}
             testID="submit-transaction-password-confirmation"
+            title={i18n._.save}
             onPress={this.onSave}
             disabled={password.length < CONST.transactionMinPasswordLength}
           />
@@ -103,8 +104,8 @@ class ConfirmTransactionPasswordScreen extends PureComponent<Props, State> {
             <Image style={styles.icon} source={!isVisible ? icons.visibilityOn : icons.visibilityOff} />
           </TouchableOpacity>
           <InputItem
-            value={password}
             testID="confirm-transaction-password"
+            value={password}
             setValue={this.updatePassword}
             autoFocus={true}
             error={error}

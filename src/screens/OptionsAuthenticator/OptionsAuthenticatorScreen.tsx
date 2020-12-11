@@ -114,9 +114,15 @@ class OptionsAuthenticatorScreen extends Component<Props, State> {
       return null;
     }
     return (
-      <ScreenTemplate contentContainer={styles.contentContainer} header={<Header isBackArrow title={i18n._.details} />}>
+      <ScreenTemplate
+        testID={'authenticator-details-screen'}
+        contentContainer={styles.contentContainer}
+        header={<Header isBackArrow title={i18n._.details} />}
+      >
         <View>
-          <Text style={styles.subtitle}>{authenticator.name}</Text>
+          <Text testID="authenticator-name" style={styles.subtitle}>
+            {authenticator.name}
+          </Text>
           <Text style={[styles.desc, styles.center]}>
             {i18n._.created} {formatDate(authenticator.createdAt)}
           </Text>
@@ -128,12 +134,13 @@ class OptionsAuthenticatorScreen extends Component<Props, State> {
               value={this.state.name}
               error={this.validationError}
               setValue={this.setName}
+              testID="rename-authenticator"
               label={i18n.wallets.add.inputLabel}
               maxLength={maxAuthenticatorNameLength}
             />
             <Text style={styles.subtitlePairKey}>{i18n.authenticators.publicKey.title}</Text>
             <TextAreaItem value={authenticator.publicKey} editable={false} style={styles.textArea} />
-            <FlatButton onPress={this.share} title={i18n.receive.details.share} />
+            <FlatButton testID="share-public-key-button" onPress={this.share} title={i18n.receive.details.share} />
             <Text style={styles.subtitle}>{i18n.wallets.exportWallet.title}</Text>
             <View style={styles.qrCodeContainer}>
               <QRCode quietZone={10} value={authenticator.QRCode} size={140} ecl={'H'} />
@@ -141,7 +148,7 @@ class OptionsAuthenticatorScreen extends Component<Props, State> {
             <Mnemonic mnemonic={authenticator.secret} />
           </View>
         </View>
-        <TouchableOpacity style={styles.deleteWrapper} onPress={this.onDelete}>
+        <TouchableOpacity testID="delete-authenticator" style={styles.deleteWrapper} onPress={this.onDelete}>
           <Text style={styles.delete}>{i18n.authenticators.options.delete}</Text>
         </TouchableOpacity>
       </ScreenTemplate>

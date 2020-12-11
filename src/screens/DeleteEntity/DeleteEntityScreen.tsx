@@ -31,6 +31,7 @@ export const DeleteEntityScreen = ({
       footer={
         <View style={styles.buttonContainer}>
           <Button
+            testID="cancel-button"
             title={i18n.wallets.deleteWallet.no}
             onPress={() => onPress(navigation.goBack)}
             disabled={clicked}
@@ -38,6 +39,7 @@ export const DeleteEntityScreen = ({
             containerStyle={styles.noButton}
           />
           <Button
+            testID="confirm-button"
             title={i18n.wallets.deleteWallet.yes}
             disabled={clicked}
             onPress={() => onPress(onConfirm)}

@@ -46,7 +46,12 @@ export class ImportWalletChooseTypeScreen extends React.PureComponent<Props, Sta
             {this.state.isLoading && (
               <Text style={styles.isLoadingDescription}>{i18n.message.creatingWalletDescription}</Text>
             )}
-            <Button loading={this.state.isLoading} onPress={this.navigateToImportWallet} title={i18n._.next} />
+            <Button
+              testID="confirm-import-button"
+              loading={this.state.isLoading}
+              onPress={this.navigateToImportWallet}
+              title={i18n._.next}
+            />
           </>
         }
         header={<Header isBackArrow title={i18n.wallets.importWallet.header} />}
@@ -60,7 +65,7 @@ export class ImportWalletChooseTypeScreen extends React.PureComponent<Props, Sta
             title={HDSegwitP2SHArWallet.typeReadable}
             subtitle={i18n.wallets.add.ar}
             value="2-Key Vault"
-            testID="2-key-wallet-checkbox"
+            testID="2-key-vault-radio"
             checked={this.state.selectedWallet === '2-Key Vault'}
             onPress={this.onSelect}
           />
@@ -68,7 +73,7 @@ export class ImportWalletChooseTypeScreen extends React.PureComponent<Props, Sta
             title={HDSegwitP2SHAirWallet.typeReadable}
             subtitle={i18n.wallets.add.air}
             value="3-Key Vault"
-            testID="3-key-wallet-checkbox"
+            testID="3-key-vault-radio"
             checked={this.state.selectedWallet === '3-Key Vault'}
             onPress={this.onSelect}
           />
@@ -76,7 +81,7 @@ export class ImportWalletChooseTypeScreen extends React.PureComponent<Props, Sta
             title={i18n.wallets.add.legacyTitle}
             subtitle={i18n.wallets.add.legacy}
             value="Standard"
-            testID="standard-wallet-checkbox"
+            testID="standard-wallet-radio"
             checked={this.state.selectedWallet === 'Standard'}
             onPress={this.onSelect}
           />

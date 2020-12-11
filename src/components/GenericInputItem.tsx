@@ -13,6 +13,7 @@ interface Props {
   validateOnSave?: (value: string) => void;
   onSave?: (value: string) => void;
   maxLength?: number;
+  testID?: string;
 }
 
 export const GenericInputItem = (props: Props) => {
@@ -35,5 +36,5 @@ export const GenericInputItem = (props: Props) => {
       maxLength,
     });
   };
-  return <InputItem focused value={value} onFocus={onFocus} label={label} />;
+  return <InputItem testID={props.testID} focused value={value} onFocus={onFocus} label={label} />;
 };

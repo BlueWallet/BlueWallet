@@ -100,7 +100,7 @@ export class CreatePinScreen extends PureComponent<Props, State> {
           <Text style={styles.pinDescription}>{i18n.onboarding.createPinDescription}</Text>
         </View>
         <View style={styles.pinContainer}>
-          <PinInput value={pin} testID={'create-pin'} onTextChange={this.updatePin} ref={this.pinInputRef} />
+          <PinInput value={pin} testID={'create-pin-input'} onTextChange={this.updatePin} ref={this.pinInputRef} />
         </View>
       </ScreenTemplate>
     );
