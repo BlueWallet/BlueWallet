@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   Text,
   ActivityIndicator,
@@ -29,7 +29,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 const currency = require('../../blue_modules/currency');
 
 const ScanLndInvoice = () => {
@@ -41,11 +41,11 @@ const ScanLndInvoice = () => {
   const [wallet, setWallet] = useState(
     wallets.find(item => item.getID() === walletID) || wallets.find(item => item.type === LightningCustodianWallet.type),
   );
-  const { navigate, dangerouslyGetParent, setParams, pop } = useNavigation();
+  const { navigate, setParams, goBack, pop } = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
   const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState(false);
   const [destination, setDestination] = useState('');
-  const [unit, setUnit] = useState(wallet.getPreferredBalanceUnit());
+  const [unit, setUnit] = useState(wallet?.getPreferredBalanceUnit() || BitcoinUnit.SATS);
   const [decoded, setDecoded] = useState();
   const [amount, setAmount] = useState();
   const [isAmountInitiallyEmpty, setIsAmountInitiallyEmpty] = useState();
@@ -69,12 +69,6 @@ const ScanLndInvoice = () => {
     console.log('scanLndInvoice useEffect');
     Keyboard.addListener('keyboardDidShow', _keyboardDidShow);
     Keyboard.addListener('keyboardDidHide', _keyboardDidHide);
-
-    if (!wallets.some(item => item.type === LightningCustodianWallet.type)) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-      alert(loc.wallets.no_ln_wallet_error);
-      dangerouslyGetParent().pop();
-    }
     return () => {
       Keyboard.removeListener('keyboardDidShow', _keyboardDidShow);
       Keyboard.removeListener('keyboardDidHide', _keyboardDidHide);
@@ -83,14 +77,26 @@ const ScanLndInvoice = () => {
   }, []);
 
   useEffect(() => {
-    if (walletID && wallet && wallet.getID() !== walletID) {
+    if (walletID && wallet?.getID() !== walletID) {
       setWallet(wallets.find(w => w.getID() === walletID));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (!wallet) {
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        alert(loc.wallets.no_ln_wallet_error);
+        goBack();
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [wallet]),
+    [],
+  );
+
   useEffect(() => {
-    if (uri) {
+    if (wallet && uri) {
       let data = uri;
       // handling BIP21 w/BOLT11 support
       const ind = data.indexOf('lightning=');
@@ -276,7 +282,11 @@ const ScanLndInvoice = () => {
   };
 
   if (wallet === undefined || !wallet) {
-    return <BlueLoading />;
+    return (
+      <View style={[styles.loadingIndicator, stylesHook.root]}>
+        <BlueLoading />
+      </View>
+    );
   }
 
   return (
@@ -358,6 +368,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     alignItems: 'center',
     justifyContent: 'flex-end',
+  },
+  loadingIndicator: {
+    flex: 1,
+    justifyContent: 'center',
   },
   walletSelectTouch: {
     flexDirection: 'row',
