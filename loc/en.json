@@ -406,6 +406,7 @@
     "xpub_copiedToClipboard": "Copied to clipboard.",
     "pull_to_refresh": "Pull to Refresh",
     "warning_do_not_disclose": "Warning! Do not disclose",
+    "add_ln_wallet_first": "You must first add a Lightning wallet.",
     "xpub_title": "Wallet XPUB"
   },
   "multisig": {
@@ -419,6 +420,7 @@
     "confirm": "Confirm",
     "header": "Send",
     "share": "Share",
+    "manage_keys": "Manage Keys",
     "how_many_signatures_can_bluewallet_make": "How Many Signatures Can BlueWallet Make",
     "scan_or_import_file": "Scan or import file",
     "export_coordination_setup": "Export Coordination Setup",
