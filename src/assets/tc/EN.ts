@@ -196,6 +196,7 @@ You must not:
 </p>
 <p>
     The Websites and the Products are not in any manner or in any form or part intended to constitute or form the basis of any advice (professional or otherwise) or to be used in, or in relation to, any investment or other decision or transaction. We do not accept any liability (regardless of how it might arise) for any claim or loss arising from:
+</p>    
     <ul>
         <li>
             any advice given;
@@ -207,6 +208,7 @@ You must not:
             any transaction made or effected;
         </li>
     </ul>
+<p>
     in reliance on, or based on, any information on the Websites or in any of the Products, nor do we accept any liability arising from any other use of, or reliance on, the Products.
 </p>
 <p>
@@ -217,6 +219,7 @@ You must not:
 </p>
 <p>
     You release us from all liability related to any losses, damages, or claims arising from:
+</p>
     <ol type="a">
         <li>
             user error such as forgotten passwords, incorrectly constructed transactions, or mistyped BTCV addresses; 
@@ -234,6 +237,7 @@ You must not:
             any unauthorized third party activities, including, but not limited to, the use of viruses, phishing, brute forcing, or other means of attack against the Application. 
         </li>
     </ol>
+<p>
     We make no representations concerning any third party content contained in or accessed through our Products. Any other terms, conditions, warranties, or representations associated with such content, are solely between you and such organizations and/or individuals.
 </p>
 <h3>
