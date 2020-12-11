@@ -81,7 +81,6 @@
     "list_title": "transaksies"
   },
   "wallets": {
-    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_bitcoin": "Bitcoin",
     "add_create": "Skep",
     "add_import_wallet": "Beursie Invoer",
@@ -108,8 +107,6 @@
     "import_success": "Suksesvol",
     "import_title": "Invoer",
     "list_create_a_wallet": "Skep ‘n beursie",
-    "list_create_a_wallet1": "Dit is gratis so skep",
-    "list_create_a_wallet2": "soveel as wat u benodig",
     "list_empty_txs1": "U transaksies is hier beskikbaar,",
     "list_empty_txs2": "huidiglik geen transaksies",
     "list_latest_transaction": "laaste transaksie",

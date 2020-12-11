@@ -70,6 +70,10 @@ const WalletsAddMultisigStep2 = () => {
   const tooltip = useRef();
   const data = useRef(new Array(n));
 
+  const handleOnHelpPress = () => {
+    navigation.navigate('WalletsAddMultisigHelp');
+  };
+
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -128,6 +132,12 @@ const WalletsAddMultisigStep2 = () => {
     headerText: {
       color: colors.foregroundColor,
     },
+    helpButton: {
+      backgroundColor: colors.buttonDisabledBackgroundColor,
+    },
+    helpButtonText: {
+      color: colors.foregroundColor,
+    },
   });
 
   const onCreate = () => {
@@ -178,6 +188,7 @@ const WalletsAddMultisigStep2 = () => {
       if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setCosigners(cosignersCopy);
       setVaultKeyData({ keyIndex: cosignersCopy.length, seed: w.getSecret(), xpub: w.getXpub(), isLoading: false });
+      setIsLoading(true);
       setIsMnemonicsModalVisible(true);
 
       // filling cache
@@ -185,6 +196,7 @@ const WalletsAddMultisigStep2 = () => {
         // filling cache
         setXpubCacheForMnemonics(w.getSecret());
         setFpCacheForMnemonics(w.getSecret());
+        setIsLoading(false);
       }, 500);
     });
   };
@@ -557,7 +569,11 @@ const WalletsAddMultisigStep2 = () => {
           <BlueSpacing10 />
           <View style={styles.secretContainer}>{renderSecret(vaultKeyData.seed.split(' '))}</View>
           <BlueSpacing20 />
-          <BlueButton title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
+          {isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <BlueButton title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
+          )}
         </View>
       </BottomModal>
     );
@@ -630,6 +646,18 @@ const WalletsAddMultisigStep2 = () => {
       </BottomModal>
     );
   };
+
+  const renderHelp = () => {
+    return (
+      <View style={styles.helpButtonWrapper}>
+        <TouchableOpacity style={[styles.helpButton, stylesHook.helpButton]} onPress={handleOnHelpPress}>
+          <Icon size={20} name="help" type="octaicon" color={colors.foregroundColor} />
+          <Text style={[styles.helpButtonText, stylesHook.helpButtonText]}>{loc.multisig.ms_help}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   const footer = isLoading ? (
     <BlueLoading />
   ) : (
@@ -641,8 +669,11 @@ const WalletsAddMultisigStep2 = () => {
   return (
     <View style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="light-content" />
-      <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
 
+      {renderHelp()}
+      <View style={[styles.wrapBox]}>
+        <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+      </View>
       {renderMnemonicsModal()}
 
       {renderProvideMnemonicsModal()}
@@ -661,6 +692,10 @@ const styles = StyleSheet.create({
   mainBlock: {
     height: '100%',
     marginHorizontal: 20,
+    marginVertical: 24,
+  },
+  wrapBox: {
+    flex: 1,
     marginVertical: 24,
   },
   buttonBottom: {
@@ -763,11 +798,28 @@ const styles = StyleSheet.create({
   alignItemsCenter: { alignItems: 'center' },
   squareButtonWrapper: { height: 50, width: 250 },
   qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
+
+  helpButtonWrapper: {
+    alignItems: 'flex-end',
+  },
+  helpButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 50,
+    flexDirection: 'row',
+  },
+  helpButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
 });
 
 WalletsAddMultisigStep2.navigationOptions = () => ({
   ...BlueNavigationStyle(),
   headerTitle: null,
+  gestureEnabled: false,
+  swipeEnabled: false,
 });
 
 export default WalletsAddMultisigStep2;

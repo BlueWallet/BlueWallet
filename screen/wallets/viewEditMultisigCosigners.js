@@ -41,6 +41,8 @@ import MultipleStepsListItem, {
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
 import ScanQRCode from '../send/ScanQRCode';
+import Privacy from '../../Privacy';
+import Biometric from '../../class/biometrics';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const isDesktop = getSystemName() === 'Mac OS X';
@@ -48,7 +50,7 @@ const isDesktop = getSystemName() === 'Mac OS X';
 const ViewEditMultisigCosigners = () => {
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
-  const { navigate, goBack } = useNavigation();
+  const { navigate } = useNavigation();
   const route = useRoute();
   const { walletId } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletId));
@@ -121,6 +123,16 @@ const ViewEditMultisigCosigners = () => {
 
   const onSave = async () => {
     setIsLoading(true);
+
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        setIsLoading(false);
+        return;
+      }
+    }
+
     // eslint-disable-next-line prefer-const
     let newWallets = wallets.filter(w => {
       return w.getID() !== walletId;
@@ -128,14 +140,22 @@ const ViewEditMultisigCosigners = () => {
     await wallet.fetchBalance();
     newWallets.push(wallet);
     setWalletsWithNewOrder(newWallets);
-    goBack();
-    goBack();
-    goBack();
+    navigate('WalletsList');
   };
   useFocusEffect(
     useCallback(() => {
       setIsLoading(true);
-      const task = InteractionManager.runAfterInteractions(() => {
+
+      Privacy.enableBlur();
+
+      const task = InteractionManager.runAfterInteractions(async () => {
+        const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+        if (isBiometricsEnabled) {
+          if (!(await Biometric.unlockWithBiometrics())) {
+            return goBack();
+          }
+        }
         if (!w.current) {
           // lets create fake wallet so renderer wont throw any errors
           w.current = new MultisigHDWallet();
@@ -148,9 +168,11 @@ const ViewEditMultisigCosigners = () => {
         setIsLoading(false);
       });
       return () => {
+        Privacy.disableBlur();
         task.cancel();
       };
-    }, []),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [walletId]),
   );
 
   const hideMnemonicsModal = () => {
