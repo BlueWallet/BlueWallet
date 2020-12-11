@@ -418,6 +418,7 @@
     "confirm": "Confirm",
     "header": "Send",
     "share": "Share",
+    "manage_keys": "Manage Keys",
     "how_many_signatures_can_bluewallet_make": "How Many Signatures Can BlueWallet Make",
     "scan_or_import_file": "Scan or import file",
     "export_coordination_setup": "Export Coordination Setup",

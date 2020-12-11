@@ -452,6 +452,34 @@ export class BlueWalletNavigationHeader extends Component {
             </View>
           </TouchableOpacity>
         )}
+        {this.state.wallet.type === MultisigHDWallet.type && (
+          <TouchableOpacity onPress={this.manageFundsPressed}>
+            <View
+              style={{
+                marginTop: 14,
+                marginBottom: 10,
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                borderRadius: 9,
+                minHeight: 39,
+                alignSelf: 'flex-start',
+                paddingHorizontal: 12,
+                height: 39,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Text
+                style={{
+                  fontWeight: '500',
+                  fontSize: 14,
+                  color: '#FFFFFF',
+                }}
+              >
+                {loc.multisig.manage_keys}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
       </LinearGradient>
     );
   }
