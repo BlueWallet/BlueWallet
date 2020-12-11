@@ -1,12 +1,18 @@
 {
   "_": {
+    "allow": "Dozvoli",
     "bad_password": "Kriva lozinka, pokušaj ponovo",
     "cancel": "Otkaži",
     "continue": "Nastavi",
+    "dont_allow": "Nemoj dozvoliti",
     "enter_password": "Unesi lozinku",
     "never": "nikad",
+    "no": "Ne",
     "ok": "U redu",
-    "storage_is_encrypted": "Vaš spremnik je kriptiran. Za dekripcoju je potrebna lozinka."
+    "save": "Spremi",
+    "seed": "Izvor",
+    "storage_is_encrypted": "Vaš spremnik je kriptiran. Za dekripcoju je potrebna lozinka.",
+    "yes": "Da"
   },
   "lnd": {
     "expired": "Isteklo",
@@ -82,7 +88,6 @@
     "list_title": "transakcije"
   },
   "wallets": {
-    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Stvori",
     "add_import_wallet": "Unesi vanjski volet",
     "add_or": "ili",
@@ -109,8 +114,6 @@
     "import_title": "unesi",
     "list_create_a_button": "dodaj sada",
     "list_create_a_wallet": "Stvori novi volet",
-    "list_create_a_wallet1": "Ne košta ništa i možete",
-    "list_create_a_wallet2": "ih stvoriti moliko želite",
     "list_empty_txs1": "Vaše transakcije će se pojaviti ovdje",
     "list_empty_txs2": "trenutno nema nijedne",
     "list_latest_transaction": "posljednja transakcija",

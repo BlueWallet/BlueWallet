@@ -1,30 +1,5 @@
 {
   "_": {
-    "bad_password": "Bad password, try again",
-    "ok": "OK",
     "storage_is_encrypted": "Lưu trữ của bạn được mã hoá. Mật khẩu được yêu cầu để giải mã"
-  },
-  "plausibledeniability": {
-    "create_fake_storage": "Create fake encrypted storage",
-    "create_password_explanation": "Password for fake storage should not match password for your main storage",
-    "help": "Under certain circumstances, you might be forced to disclose a password. To keep your coins safe, BlueWallet can create another encrypted storage, with a different password. Under pressure, you can disclose this password to a 3rd party. If entered in BlueWallet, it will unlock new 'fake' storage. This will seem legit to a 3rd party, but will secretly keep your main storage with coins safe.",
-    "help2": "New storage will be fully functional, and you can store some minimum amounts there so it looks more believable.",
-    "password_should_not_match": "Password for fake storage should not match password for your main storage"
-  },
-  "send": {
-    "details_create": "Create"
-  },
-  "settings": {
-    "general_adv_mode": "Enable advanced mode",
-    "plausible_deniability": "Plausible deniability..."
-  },
-  "wallets": {
-    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
-    "add_bitcoin": "Bitcoin",
-    "import_scan_qr": "or scan QR code instead?",
-    "import_success": "Success",
-    "list_empty_txs1": "Your transactions will appear here,",
-    "list_empty_txs2": "none at the moment",
-    "list_tap_here_to_buy": "Tap here to buy Bitcoin"
   }
 }

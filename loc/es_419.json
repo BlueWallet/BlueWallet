@@ -4,13 +4,13 @@
     "cancel": "Cancelar",
     "continue": "Continua",
     "enter_password": "Inserte contraseña",
+    "file_saved": "El archivo ({filePath}) se ha guardado en su carpeta de Descargas.",
+    "invalid_animated_qr_code_fragment": "Fragmento de Codigo QR invalido, favor intentar de nuevo",
     "never": "nunca",
     "of": "{number} de {total}",
     "ok": "OK",
     "storage_is_encrypted": "Su almacenamiento está cifrado. Se requiere contraseña para descifrarla.",
-    "yes": "Sí",
-    "invalid_animated_qr_code_fragment" : "Fragmento de Codigo QR invalido, favor intentar de nuevo",
-    "file_saved": "El archivo ({filePath}) se ha guardado en su carpeta de Descargas."
+    "yes": "Sí"
   },
   "azteco": {
     "codeIs": "Tu Código de Boleto es",
@@ -108,6 +108,18 @@
     "sats": "sats",
     "wasnt_paid_and_expired": "Esta factura no se pagó y ha caducado"
   },
+  "multisig": {
+    "confirm": "Confirmar",
+    "export_coordination_setup": "exportacion de coordinacion",
+    "fee": "Tarifa: {number}",
+    "fee_btc": "{number} BTC",
+    "header": "Enviar",
+    "how_many_signatures_can_bluewallet_make": "Cuántas firmas puede hacer bluewallet",
+    "provide_signature": "Proporcionar firma",
+    "scan_or_import_file": "Escanear o importar archivo",
+    "share": "Compartir",
+    "vault_key": "Clave de la bóveda {number}"
+  },
   "plausibledeniability": {
     "create_fake_storage": "Crear un almacen cifrado falso",
     "create_password": "Crear una contraseña",
@@ -197,12 +209,13 @@
     "input_done": "Hecho",
     "input_paste": "Pegar",
     "input_total": "Total:",
+    "open_settings": "Abrir configuraciones",
     "permission_camera_message": "Necesitamos su permiso para usar su cámara",
     "permission_camera_title": "Permiso para usar la cámara",
-    "open_settings": "Abrir configuraciones",
     "permission_storage_later": "Pregúntame Luego",
     "permission_storage_message": "BlueWallet necesita tu permiso para acceder al almacenamiento para guardar esta transacción",
     "permission_storage_title": "Permiso de acceso al almacen de BlueWallet",
+    "problem_with_psbt": "Problema con PSBT",
     "psbt_clipboard": "Copiar al portapapeles",
     "psbt_this_is_psbt": "Esta es una transacción bitcoin parcialmente firmada  (PSBT). Para finalizar por favor firmarla con tú hardware wallet",
     "psbt_tx_export": "Exportar a archivo",
@@ -211,8 +224,7 @@
     "qr_error_no_qrcode": "La imagen seleccionada no contiene un código QR.",
     "qr_error_no_wallet": "El archivo seleccionado no contiene una billetera que se pueda importar.",
     "success_done": "Hecho",
-    "txSaved": "El archivo ({filePath}) se ha guardado en su carpeta de Descargas.",
-    "problem_with_psbt": "Problema con PSBT"
+    "txSaved": "El archivo ({filePath}) se ha guardado en su carpeta de Descargas."
   },
   "settings": {
     "about": "Sobre nosotros",
@@ -305,16 +317,13 @@
     "transactions_count": "Número de transacciones"
   },
   "wallets": {
-    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_bitcoin": "Bitcoin",
     "add_create": "Crear",
     "add_entropy_generated": "{gen} bytes de entropía generada",
     "add_entropy_provide": "Entropía mediante el lanzamiento de dados",
     "add_entropy_remain": "{gen} bytes of entropía generada. Los {rem} bytes restantes serán obtenidos del generador de números aleatorios.",
     "add_import_wallet": "Importar billetera",
-    "import_file": "Imortar Archivo",
     "add_lightning": "Lightning",
-    "add_lightning_explain": "For spending with instant transactions",
     "add_lndhub": "Conectar a tu LNDHub",
     "add_lndhub_error": "La dirección del nodo, no es un nodo LNDHub válido.",
     "add_lndhub_placeholder": "Su dirección de nodo",
@@ -347,14 +356,13 @@
     "import_do_import": "Importar",
     "import_error": "No se pudo importar. ¿Es valido?",
     "import_explanation": "Escriba aquí mnemotécnica, clave privada, WIF o cualquier cosa que tenga. BlueWallet hará todo lo posible para adivinar el formato correcto e importar su billetera.",
+    "import_file": "Imortar Archivo",
     "import_imported": "Importado",
     "import_scan_qr": "o escanear codigo QR?",
     "import_success": "Exito",
     "import_title": "importar",
     "list_create_a_button": "Agrega ahora",
     "list_create_a_wallet": "Agrega una billetera",
-    "list_create_a_wallet1": "Es gratis y puedes crear",
-    "list_create_a_wallet2": "cuantas usted quiera",
     "list_empty_txs1": "Sus transacciones aparecerán aquí,",
     "list_empty_txs1_lightning": "La billetera Lightning debe usarse para sus transacciones diarias. Las tarifas son injustamente baratas y la velocidad es increíblemente rápida.",
     "list_empty_txs2": "ninguno por el momento.",
@@ -366,7 +374,6 @@
     "list_long_choose": "Escoge una foto",
     "list_long_clipboard": "Copiar desde el raton",
     "list_long_scan": "Escanear código QR",
-    "take_photo": "Sacar foto",
     "list_tap_here_to_buy": "Tap here to buy Bitcoin",
     "list_title": "billeteras",
     "list_tryagain": "Intentar nuevamente",
@@ -374,21 +381,8 @@
     "select_no_bitcoin": "Actualmente no hay billeteras Bitcoin disponibles.",
     "select_no_bitcoin_exp": "Se requiere una billetera Bitcoin para recargar las billeteras Lightning. Por favor, cree o importe una.",
     "select_wallet": "Selecciona billetera",
+    "take_photo": "Sacar foto",
     "xpub_copiedToClipboard": "Copiado a portapapeles.",
     "xpub_title": "XPUB de la billetera"
-  },
-  "multisig": {
-    "multisig_vault": "Vault",
-    "multisig_vault_explain": "Best security for large amounts",
-    "provide_signature": "Proporcionar firma",
-    "vault_key": "Clave de la bóveda {number}",
-    "fee": "Tarifa: {number}",
-    "fee_btc": "{number} BTC",
-    "confirm": "Confirmar",
-    "header": "Enviar",
-    "share": "Compartir",
-    "how_many_signatures_can_bluewallet_make": "Cuántas firmas puede hacer bluewallet",
-    "scan_or_import_file": "Escanear o importar archivo",
-    "export_coordination_setup": "exportacion de coordinacion"
   }
 }
