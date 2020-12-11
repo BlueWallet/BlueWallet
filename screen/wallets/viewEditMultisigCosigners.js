@@ -220,6 +220,8 @@ const ViewEditMultisigCosigners = () => {
           )}
           <BlueSpacing20 />
           <BlueButton title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
+          <BlueSpacing40 />
+
         </View>
       </BottomModal>
     );
@@ -253,7 +255,7 @@ const ViewEditMultisigCosigners = () => {
                 button={{
                   buttonType: MultipleStepsListItemButtohType.partial,
                   leftText,
-                  text: loc.multisig.share,
+                  text: loc.multisig.view,
                   disabled: vaultKeyData.isLoading,
                   onPress: () => {
                     setVaultKeyData({
@@ -291,7 +293,7 @@ const ViewEditMultisigCosigners = () => {
                 showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
                 button={{
                   leftText,
-                  text: loc.multisig.share,
+                  text: loc.multisig.view,
                   disabled: vaultKeyData.isLoading,
                   buttonType: MultipleStepsListItemButtohType.partial,
                   onPress: () => {
@@ -598,7 +600,7 @@ const styles = StyleSheet.create({
 
 ViewEditMultisigCosigners.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
-  title: loc.multisig.view_edit_cosigners_title,
+  title: loc.multisig.manage_keys,
   headerLeft: null,
 });
 
