@@ -50,7 +50,7 @@ const isDesktop = getSystemName() === 'Mac OS X';
 const ViewEditMultisigCosigners = () => {
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
-  const { navigate } = useNavigation();
+  const { navigate, goBack } = useNavigation();
   const route = useRoute();
   const { walletId } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletId));
