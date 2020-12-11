@@ -44,8 +44,6 @@ import showPopupMenu from 'react-native-popup-menu-android';
 import ToolTip from 'react-native-tooltip';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import DocumentPicker from 'react-native-document-picker';
-import RNFS from 'react-native-fs';
 
 const prompt = require('../../blue_modules/prompt');
 const A = require('../../blue_modules/analytics');
@@ -455,39 +453,21 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
-  const showActionSheet = async () => {
-    if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, 'Take Photo', loc.wallets.list_long_choose, loc.wallets.import_file];
+  const showActionSheet = () => {
+    const options = [loc._.cancel, loc.wallets.take_photo, loc.wallets.list_long_choose, loc.wallets.import_file];
 
-      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
-        if (buttonIndex === 1) {
-          takePhoto();
-        } else if (buttonIndex === 2) {
-          choosePhoto();
-        } else if (buttonIndex === 3) {
-          handleImportFileButtonPressed();
+    ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, async buttonIndex => {
+      if (buttonIndex === 1) {
+        takePhoto();
+      } else if (buttonIndex === 2) {
+        choosePhoto();
+      } else if (buttonIndex === 3) {
+        const { data } = await fs.showFilePickerAndReadFile();
+        if (data) {
+          onBarScanned({ data });
         }
-      });
-    }
-  };
-
-  const handleImportFileButtonPressed = async () => {
-    try {
-      const res = await DocumentPicker.pick({
-        type: [DocumentPicker.types.allFiles],
-      });
-
-      const file = await RNFS.readFile(res.uri);
-      if (file) {
-        onBarScanned(file);
-      } else {
-        throw new Error();
       }
-    } catch (err) {
-      if (!DocumentPicker.isCancel(err)) {
-        alert(loc.wallets.import_error);
-      }
-    }
+    });
   };
 
   const _renderKeyItem = el => {

@@ -8,8 +8,6 @@ import { getSystemName } from 'react-native-device-info';
 import loc from '../../loc';
 import ImagePicker from 'react-native-image-picker';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import RNFS from 'react-native-fs';
-import DocumentPicker from 'react-native-document-picker';
 import { presentCameraNotAuthorizedAlert } from '../../class/camera';
 import ActionSheet from '../ActionSheet';
 const bitcoin = require('bitcoinjs-lib');
@@ -98,39 +96,21 @@ const PsbtMultisigQRCode = () => {
     );
   };
 
-  const handleImportFileButtonPressed = async () => {
-    try {
-      const res = await DocumentPicker.pick({
-        type: [DocumentPicker.types.allFiles],
-      });
+  const showActionSheet = () => {
+    const options = [loc._.cancel, loc.wallets.take_photo, loc.wallets.list_long_choose, loc.wallets.import_file];
 
-      const file = await RNFS.readFile(res.uri);
-      if (file) {
-        onBarScanned(file);
-      } else {
-        throw new Error();
-      }
-    } catch (err) {
-      if (!DocumentPicker.isCancel(err)) {
-        alert(loc.wallets.import_error);
-      }
-    }
-  };
-
-  const showActionSheet = async () => {
-    if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, 'Take Photo', loc.wallets.list_long_choose, loc.wallets.import_file];
-
-      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
-        if (buttonIndex === 1) {
-          takePhoto();
-        } else if (buttonIndex === 2) {
-          choosePhoto();
-        } else if (buttonIndex === 3) {
-          handleImportFileButtonPressed();
+    ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, async buttonIndex => {
+      if (buttonIndex === 1) {
+        takePhoto();
+      } else if (buttonIndex === 2) {
+        choosePhoto();
+      } else if (buttonIndex === 3) {
+        const { data } = await fs.showFilePickerAndReadFile();
+        if (data) {
+          onBarScanned({ data });
         }
-      });
-    }
+      }
+    });
   };
 
   const openScanner = () => {
