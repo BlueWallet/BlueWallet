@@ -345,6 +345,7 @@ export class BlueWalletNavigationHeader extends Component {
       <LinearGradient
         colors={WalletGradient.gradientsFor(this.state.wallet.type)}
         style={{ padding: 15, minHeight: 140, justifyContent: 'center' }}
+        {...WalletGradient.linearGradientProps(this.state.wallet.type)}
       >
         <Image
           source={(() => {
