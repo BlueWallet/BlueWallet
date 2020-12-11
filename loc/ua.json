@@ -43,7 +43,7 @@
     "details_create": "Створити",
     "details_fee_field_is_not_valid": "Поле `комісія` не валідно",
     "details_note_placeholder": "примітка платежу",
-    "details_scan": "Скан QR",
+    "details_scan": "Скан",
     "details_total_exceeds_balance": "total_exceeds_balance",
     "header": "Переказ"
   },
@@ -95,8 +95,6 @@
     "import_title": "імпорт",
     "list_create_a_button": "додати зараз",
     "list_create_a_wallet": "додати гаманець",
-    "list_create_a_wallet1": "Це безкоштовно і можно",
-    "list_create_a_wallet2": "створювати безліч",
     "list_empty_txs1": "Транзакціі з'являться тут,",
     "list_empty_txs2": "поки що жодноі",
     "list_latest_transaction": "остання транзакція",

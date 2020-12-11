@@ -33,8 +33,13 @@ const writeFileAndExport = async function (filename, contents) {
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       console.log('Storage Permission: Granted');
       const filePath = RNFS.DownloadDirectoryPath + `/${filename}`;
-      await RNFS.writeFile(filePath, contents);
-      alert(loc.formatString(loc._.file_saved, { filePath: filename }));
+      try {
+        await RNFS.writeFile(filePath, contents);
+        alert(loc.formatString(loc._.file_saved, { filePath: filename }));
+      } catch (e) {
+        console.log(e);
+        alert(e.message);
+      }
     } else {
       console.log('Storage Permission: Denied');
       Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
