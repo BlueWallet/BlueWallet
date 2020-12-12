@@ -436,8 +436,7 @@ const WalletTransactions = () => {
     if (!isLoading) {
       setIsLoading(true);
       const params = {
-        fromSecret: wallet.current.getSecret(),
-        // ScanLndInvoice actrually uses `fromSecret` so keeping it for now
+        walletID: wallet.current.getID(),
         uri: ret.data ? ret.data : ret,
         fromWallet: wallet.current,
       };
@@ -478,7 +477,7 @@ const WalletTransactions = () => {
 
   const sendButtonPress = () => {
     if (wallet.current.chain === Chain.OFFCHAIN) {
-      navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params: { fromSecret: wallet.current.getSecret() } });
+      navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params: { walletID: wallet.current.getID() } });
     } else {
       if (wallet.current.type === WatchOnlyWallet.type && wallet.current.isHd() && wallet.current.getSecret().startsWith('zpub')) {
         if (wallet.current.useWithHardwareWalletEnabled()) {
