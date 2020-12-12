@@ -483,8 +483,9 @@
   "is_it_my_address": {
     "title": "Is it my address?",
     "owns": "{label} owns {address}",
-    "enter_address": "Enter Address:",
-    "check_address": "Check Address"
+    "enter_address": "Enter address",
+    "check_address": "Check address",
+    "no_wallet_owns_address": "None of the available wallets own the provided address."
   },
   "cc": {
     "change": "Change",
