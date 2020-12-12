@@ -33,7 +33,7 @@ import * as NavigationService from './NavigationService';
 import WalletGradient from './class/wallet-gradient';
 import ToolTip from 'react-native-tooltip';
 import { BlurView } from '@react-native-community/blur';
-import ImagePicker from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
@@ -1634,7 +1634,7 @@ export const BlueAddressInput = ({
 }) => {
   const { colors } = useTheme();
   const choosePhoto = () => {
-    ImagePicker.launchImageLibrary(
+    launchImageLibrary(
       {
         title: null,
         mediaType: 'photo',
@@ -1642,7 +1642,7 @@ export const BlueAddressInput = ({
       },
       response => {
         if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
               onBarScanned(result);
@@ -1656,7 +1656,7 @@ export const BlueAddressInput = ({
   };
 
   const takePhoto = () => {
-    ImagePicker.launchCamera(
+    launchCamera(
       {
         title: null,
         mediaType: 'photo',
@@ -1664,7 +1664,7 @@ export const BlueAddressInput = ({
       },
       response => {
         if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
               onBarScanned(result);
