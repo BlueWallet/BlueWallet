@@ -5,7 +5,7 @@ import Share from 'react-native-share';
 import loc from '../loc';
 import DocumentPicker from 'react-native-document-picker';
 import isCatalyst from 'react-native-is-catalyst';
-import ImagePicker from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { presentCameraNotAuthorizedAlert } from './class/camera';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
@@ -96,7 +96,7 @@ const _readPsbtFileIntoBase64 = async function (uri) {
 
 const showImagePickerAndReadImage = () => {
   return new Promise((resolve, reject) =>
-    ImagePicker.launchImageLibrary(
+    launchImageLibrary(
       {
         title: null,
         mediaType: 'photo',
@@ -120,7 +120,7 @@ const showImagePickerAndReadImage = () => {
 
 const takePhotoWithImagePickerAndReadPhoto = () => {
   return new Promise((resolve, reject) =>
-    ImagePicker.launchCamera(
+    launchCamera(
       {
         title: null,
         mediaType: 'photo',
