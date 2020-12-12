@@ -21,7 +21,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
-import ImagePicker from 'react-native-image-picker';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
@@ -363,7 +363,7 @@ const WalletsList = () => {
   };
 
   const choosePhoto = () => {
-    ImagePicker.launchImageLibrary(
+    launchImageLibrary(
       {
         title: null,
         mediaType: 'photo',
@@ -371,7 +371,7 @@ const WalletsList = () => {
       },
       response => {
         if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
               onBarScanned(result);
@@ -385,7 +385,7 @@ const WalletsList = () => {
   };
 
   const takePhoto = () => {
-    ImagePicker.launchCamera(
+    launchCamera(
       {
         title: null,
         mediaType: 'photo',
@@ -393,7 +393,7 @@ const WalletsList = () => {
       },
       response => {
         if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
               onBarScanned(result);
