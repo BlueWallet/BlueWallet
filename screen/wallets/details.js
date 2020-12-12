@@ -193,8 +193,11 @@ const WalletDetails = () => {
     });
   };
   const navigateToMultisigCoordinationSetup = () => {
-    navigate('ExportMultisigCoordinationSetup', {
-      walletId: wallet.getID(),
+    navigate('ExportMultisigCoordinationSetupRoot', {
+      screen: 'ExportMultisigCoordinationSetup',
+      params: {
+        walletId: wallet.getID(),
+      },
     });
   };
   const navigateToViewEditCosigners = () => {

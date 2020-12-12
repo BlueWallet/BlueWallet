@@ -361,6 +361,21 @@ const ViewEditMultisigCosignersRoot = () => (
   </ViewEditMultisigCosignersStack.Navigator>
 );
 
+const ExportMultisigCoordinationSetupStack = createStackNavigator();
+const ExportMultisigCoordinationSetupRoot = () => (
+  <ExportMultisigCoordinationSetupStack.Navigator
+    name="ExportMultisigCoordinationSetupRoot"
+    screenOptions={defaultStackScreenOptions}
+    initialRouteName="ExportMultisigCoordinationSetup"
+  >
+    <ExportMultisigCoordinationSetupStack.Screen
+      name="ExportMultisigCoordinationSetup"
+      component={ExportMultisigCoordinationSetup}
+      options={ExportMultisigCoordinationSetup.navigationOptions}
+    />
+  </ExportMultisigCoordinationSetupStack.Navigator>
+);
+
 const RootStack = createStackNavigator();
 const Navigation = () => (
   <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
@@ -378,9 +393,9 @@ const Navigation = () => (
     {/* screens */}
     <RootStack.Screen name="WalletExportRoot" component={WalletExportStackRoot} options={{ headerShown: false }} />
     <RootStack.Screen
-      name="ExportMultisigCoordinationSetup"
-      component={ExportMultisigCoordinationSetup}
-      options={ExportMultisigCoordinationSetup.navigationOptions}
+      name="ExportMultisigCoordinationSetupRoot"
+      component={ExportMultisigCoordinationSetupRoot}
+      options={{ headerShown: false }}
     />
     <RootStack.Screen name="ViewEditMultisigCosignersRoot" component={ViewEditMultisigCosignersRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="WalletXpubRoot" component={WalletXpubStackRoot} options={{ headerShown: false }} />
