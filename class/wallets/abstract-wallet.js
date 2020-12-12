@@ -171,6 +171,9 @@ export class AbstractWallet {
           // It is a ColdCard Hardware Wallet
           masterFingerprint = Number(parsedSecret.keystore.ckcc_xfp);
         }
+        if (parsedSecret.keystore.label) {
+          this.setLabel(parsedSecret.keystore.label);
+        }
         this.secret = parsedSecret.keystore.xpub;
         this.masterFingerprint = masterFingerprint;
       }

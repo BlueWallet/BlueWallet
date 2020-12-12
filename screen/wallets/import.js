@@ -17,7 +17,7 @@ import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import WalletImport from '../../class/wallet-import';
 import Clipboard from '@react-native-community/clipboard';
 import ActionSheet from '../ActionSheet';
-import ImagePicker from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import loc from '../../loc';
 import { getSystemName } from 'react-native-device-info';
 import RNFS from 'react-native-fs';
@@ -115,7 +115,7 @@ const WalletsImport = () => {
   };
 
   const choosePhoto = () => {
-    ImagePicker.launchImageLibrary(
+    launchImageLibrary(
       {
         title: null,
         mediaType: 'photo',
@@ -123,7 +123,7 @@ const WalletsImport = () => {
       },
       response => {
         if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
               onBarScanned(result);
@@ -137,7 +137,7 @@ const WalletsImport = () => {
   };
 
   const takePhoto = () => {
-    ImagePicker.launchCamera(
+    launchCamera(
       {
         title: null,
         mediaType: 'photo',
@@ -145,7 +145,7 @@ const WalletsImport = () => {
       },
       response => {
         if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
               onBarScanned(result);

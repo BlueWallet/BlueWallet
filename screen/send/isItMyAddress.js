@@ -7,12 +7,10 @@ import {
   BlueButton,
   BlueSpacing10,
   BlueSpacing20,
-  BlueFormLabel,
   BlueNavigationStyle,
   BlueText,
   BlueButtonLink,
 } from '../../BlueComponents';
-import { BlueCurrentTheme } from '../../components/themes';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
@@ -33,6 +31,11 @@ const IsItMyAddress = () => {
     text: {
       color: colors.foregroundColor,
     },
+    input: {
+      borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
+      backgroundColor: colors.inputBackgroundColor,
+    },
   });
 
   const handleUpdateAddress = nextValue => setAddress(nextValue.trim());
@@ -44,6 +47,10 @@ const IsItMyAddress = () => {
       if (w.weOwnAddress(cleanAddress)) {
         _result.push(loc.formatString(loc.is_it_my_address.owns, { label: w.getLabel(), address: cleanAddress }));
       }
+    }
+
+    if (_result.length === 0) {
+      setResult(_result.push(loc.is_it_my_address.no_wallet_owns_address));
     }
 
     setResult(_result.join('\n\n'));
@@ -64,30 +71,38 @@ const IsItMyAddress = () => {
     });
   };
 
+  const clearAddressInput = () => {
+    setAddress('');
+    setResult();
+  };
+
   return (
     <SafeBlueArea style={[styles.blueArea, stylesHooks.blueArea]}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null} keyboardShouldPersistTaps="handled">
         <View style={styles.wrapper}>
           <BlueCard style={styles.mainCard}>
-            <View style={styles.topFormRow}>
-              <BlueFormLabel>{loc.is_it_my_address.enter_address}</BlueFormLabel>
+            <View style={[styles.input, stylesHooks.input]}>
+              <TextInput
+                style={styles.text}
+                maxHeight={100}
+                minHeight={100}
+                maxWidth="100%"
+                minWidth="100%"
+                multiline
+                editable
+                placeholder={loc.is_it_my_address.enter_address}
+                placeholderTextColor="#81868e"
+                value={address}
+                onChangeText={handleUpdateAddress}
+              />
             </View>
-            <TextInput
-              style={[styles.text, stylesHooks.text]}
-              maxHeight={100}
-              minHeight={100}
-              maxWidth="100%"
-              minWidth="100%"
-              multiline
-              editable
-              value={address}
-              onChangeText={handleUpdateAddress}
-            />
 
             <BlueSpacing10 />
             <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
             <BlueSpacing10 />
-            <BlueButton title={loc.is_it_my_address.check_address} onPress={checkAddress} />
+            <BlueButton title={loc.send.input_clear} onPress={clearAddressInput} />
+            <BlueSpacing20 />
+            <BlueButton disabled={address.trim().length === 0} title={loc.is_it_my_address.check_address} onPress={checkAddress} />
             <BlueSpacing20 />
             <BlueText>{result}</BlueText>
           </BlueCard>
@@ -140,17 +155,16 @@ const styles = StyleSheet.create({
     height: 30,
     maxHeight: 30,
   },
-  text: {
-    flex: 1,
-    borderColor: '#ebebeb',
-    backgroundColor: '#d2f8d6',
+  input: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    alignItems: 'center',
     borderRadius: 4,
-    marginTop: 20,
-    color: BlueCurrentTheme.colors.foregroundColor,
-    fontWeight: '500',
-    fontSize: 14,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    paddingTop: 16,
+  },
+  text: {
+    padding: 8,
+    minHeight: 33,
+    color: '#81868e',
   },
 });

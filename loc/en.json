@@ -394,6 +394,7 @@
     "list_long_clipboard": "Copy from Clipboard",
     "list_long_scan": "Scan QR Code",
     "list_tap_here_to_buy": "Buy Bitcoin",
+    "no_ln_wallet_error": "Before paying a Lightning invoice, you must first add a Lightning wallet.",
     "list_title": "Wallets",
     "list_tryagain": "Try again",
     "looks_like_bip38": "This looks like a password-protected private key (BIP38).",
@@ -405,6 +406,7 @@
     "xpub_copiedToClipboard": "Copied to clipboard.",
     "pull_to_refresh": "Pull to Refresh",
     "warning_do_not_disclose": "Warning! Do not disclose",
+    "add_ln_wallet_first": "You must first add a Lightning wallet.",
     "xpub_title": "Wallet XPUB"
   },
   "multisig": {
@@ -418,6 +420,8 @@
     "confirm": "Confirm",
     "header": "Send",
     "share": "Share",
+    "view": "View",
+    "manage_keys": "Manage Keys",
     "how_many_signatures_can_bluewallet_make": "How Many Signatures Can BlueWallet Make",
     "scan_or_import_file": "Scan or import file",
     "export_coordination_setup": "Export Coordination Setup",
@@ -462,7 +466,6 @@
     "input_fp_explain": "Skip to use the default one (00000000)",
     "input_path": "Insert Derivation Path",
     "input_path_explain": "Skip to use the default one ({default})",
-    "view_edit_cosigners_title": "Edit Cosigners",
     "ms_help": "Help",
     "ms_help_title": "How Multisig Vaults Work: Tips and Tricks",
     "ms_help_text": "A wallet with multiple keys, for increased security or shared custody",
@@ -480,8 +483,9 @@
   "is_it_my_address": {
     "title": "Is it my address?",
     "owns": "{label} owns {address}",
-    "enter_address": "Enter Address:",
-    "check_address": "Check Address"
+    "enter_address": "Enter address",
+    "check_address": "Check address",
+    "no_wallet_owns_address": "None of the available wallets own the provided address."
   },
   "cc": {
     "change": "Change",
