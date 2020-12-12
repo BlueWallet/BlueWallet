@@ -491,8 +491,10 @@
     "empty": "This wallet doesn't have any coins at the moment",
     "freeze": "Freeze",
     "freezeLabel": "Freeze",
+    "freezeLabel_un": "Unfreeze",
     "header": "Coin Control",
     "use_coin": "Use Coin",
+    "use_coins": "Use Coins",
     "tip": "Allows you to see, label, freeze or select coins for improved wallet management."
   }
 }
