@@ -221,7 +221,6 @@ const ViewEditMultisigCosigners = () => {
           <BlueSpacing20 />
           <BlueButton title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
           <BlueSpacing40 />
-
         </View>
       </BottomModal>
     );
