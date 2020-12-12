@@ -18,7 +18,7 @@ import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getSystemName } from 'react-native-device-info';
-import ImagePicker from 'react-native-image-picker';
+import { launchCamera } from 'react-native-image-picker';
 
 import {
   BlueButton,
@@ -50,7 +50,7 @@ const isDesktop = getSystemName() === 'Mac OS X';
 const ViewEditMultisigCosigners = () => {
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
-  const { navigate } = useNavigation();
+  const { navigate, goBack } = useNavigation();
   const route = useRoute();
   const { walletId } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletId));
@@ -404,7 +404,7 @@ const ViewEditMultisigCosigners = () => {
   const scanOrOpenFile = () => {
     setIsProvideMnemonicsModalVisible(false);
     if (isDesktop) {
-      ImagePicker.launchCamera(
+      launchCamera(
         {
           title: null,
           mediaType: 'photo',
@@ -412,7 +412,7 @@ const ViewEditMultisigCosigners = () => {
         },
         response => {
           if (response.uri) {
-            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
             LocalQRCode.decode(uri, (error, result) => {
               if (!error) {
                 _handleUseMnemonicPhrase(result);

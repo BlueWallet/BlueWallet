@@ -119,7 +119,7 @@ const showFilePickerAndReadFile = async function () {
     } else {
       if (res.type === DocumentPicker.types.images || res.type.startsWith('image/')) {
         return new Promise(resolve => {
-          const uri = Platform.OS === 'ios' ? res.uri.toString().replace('file://', '') : res.path.toString();
+          const uri = Platform.OS === 'ios' ? res.uri.toString().replace('file://', '') : res.uri;
           LocalQRCode.decode(decodeURI(uri), (error, result) => {
             if (!error) {
               resolve({ data: result, uri: decodeURI(res.uri) });
