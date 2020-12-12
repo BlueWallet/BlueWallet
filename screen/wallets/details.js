@@ -198,8 +198,11 @@ const WalletDetails = () => {
     });
   };
   const navigateToViewEditCosigners = () => {
-    navigate('ViewEditMultisigCosigners', {
-      walletId: wallet.getID(),
+    navigate('ViewEditMultisigCosignersRoot', {
+      screen: 'ViewEditMultisigCosigners',
+      params: {
+        walletId: wallet.getID(),
+      },
     });
   };
   const navigateToXPub = () =>

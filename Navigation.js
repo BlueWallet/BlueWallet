@@ -346,6 +346,21 @@ const InitRoot = () => (
   </InitStack.Navigator>
 );
 
+const ViewEditMultisigCosignersStack = createStackNavigator();
+const ViewEditMultisigCosignersRoot = () => (
+  <ViewEditMultisigCosignersStack.Navigator
+    name="ViewEditMultisigCosignersRoot"
+    screenOptions={defaultStackScreenOptions}
+    initialRouteName="ViewEditMultisigCosigners"
+  >
+    <ViewEditMultisigCosignersStack.Screen
+      name="ViewEditMultisigCosigners"
+      component={ViewEditMultisigCosigners}
+      options={ViewEditMultisigCosigners.navigationOptions}
+    />
+  </ViewEditMultisigCosignersStack.Navigator>
+);
+
 const RootStack = createStackNavigator();
 const Navigation = () => (
   <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
@@ -367,11 +382,7 @@ const Navigation = () => (
       component={ExportMultisigCoordinationSetup}
       options={ExportMultisigCoordinationSetup.navigationOptions}
     />
-    <RootStack.Screen
-      name="ViewEditMultisigCosigners"
-      component={ViewEditMultisigCosigners}
-      options={ViewEditMultisigCosigners.navigationOptions}
-    />
+    <RootStack.Screen name="ViewEditMultisigCosignersRoot" component={ViewEditMultisigCosignersRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="WalletXpubRoot" component={WalletXpubStackRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="BuyBitcoin" component={BuyBitcoin} options={BuyBitcoin.navigationOptions} />
     <RootStack.Screen name="Marketplace" component={Marketplace} options={Marketplace.navigationOptions} />
