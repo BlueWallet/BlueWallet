@@ -394,6 +394,7 @@
     "list_long_clipboard": "Copy from Clipboard",
     "list_long_scan": "Scan QR Code",
     "list_tap_here_to_buy": "Buy Bitcoin",
+    "no_ln_wallet_error": "Before paying a Lightning invoice, you must first add a Lightning wallet.",
     "list_title": "Wallets",
     "list_tryagain": "Try again",
     "looks_like_bip38": "This looks like a password-protected private key (BIP38)",
