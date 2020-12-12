@@ -570,8 +570,11 @@ const WalletTransactions = () => {
   };
 
   const navigateToViewEditCosigners = () => {
-    navigate('ViewEditMultisigCosigners', {
-      walletId: wallet.current.getID(),
+    navigate('ViewEditMultisigCosignersRoot', {
+      screen: 'ViewEditMultisigCosigners',
+      params: {
+        walletId: wallet.current.getID(),
+      },
     });
   };
 
