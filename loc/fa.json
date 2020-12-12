@@ -420,6 +420,7 @@
     "confirm": "تأیید",
     "header": "ارسال",
     "share": "اشتراک‌گذاری",
+    "view": "مشاهده",
     "manage_keys": "مدیریت کلیدها",
     "how_many_signatures_can_bluewallet_make": "امضاهایی که BlueWallet می‌تواند ایجاد کند",
     "scan_or_import_file": "اسکن یا واردکردن فایل",
@@ -465,7 +466,6 @@
     "input_fp_explain": "جهت استفاده از تنظیمات پیش‌فرض (۰۰۰۰۰۰۰۰) رد کنید",
     "input_path": "مسیر اشتقاق را وارد کنید",
     "input_path_explain": "جهت استفاده از تنظیمات پیش‌فرض ({default}) رد کنید",
-    "view_edit_cosigners_title": "ویرایش امضاکنندگان مشترک",
     "ms_help": "راهنما",
     "ms_help_title": "نحوهٔ کارکرد گاوصندوق‌های چندامضایی: نکات و ترفندها",
     "ms_help_text": "یک کیف پول با چندین کلید، جهت امنیت بالاتر یا داشتن حساب مشترک",
@@ -483,8 +483,9 @@
   "is_it_my_address": {
     "title": "آیا آدرس من است؟",
     "owns": "آدرس {address} متعلق به «{label}» است.",
-    "enter_address": "آدرس را وارد کنید:",
-    "check_address": "بررسی آدرس"
+    "enter_address": "آدرس را وارد کنید",
+    "check_address": "بررسی آدرس",
+    "no_wallet_owns_address": "آدرس ارائه‌شده متعلق به هیچ‌کدام از کیف پول‌های موجود نیست."
   },
   "cc": {
     "change": "باقی‌مانده (change)",
