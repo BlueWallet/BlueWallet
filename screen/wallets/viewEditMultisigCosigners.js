@@ -472,31 +472,31 @@ const ViewEditMultisigCosigners = () => {
 
   if (isLoading)
     return (
-      <View style={[styles.root, stylesHook.root]}>
+      <SafeAreaView style={[styles.root, stylesHook.root]}>
         <BlueLoading />
-      </View>
+      </SafeAreaView>
     );
 
   const footer = <BlueButton disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
 
   return (
-    <View style={[styles.root, stylesHook.root]}>
+    <SafeAreaView style={[styles.root, stylesHook.root]}>
+      <StatusBar barStyle="default" />
       <KeyboardAvoidingView
         enabled
         behavior={Platform.OS === 'ios' ? 'padding' : null}
-        keyboardVerticalOffset={12}
+        keyboardVerticalOffset={62}
         style={[styles.mainBlock, styles.root]}
       >
         <FlatList data={data.current} extraData={vaultKeyData} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+        <BlueSpacing10 />
         {footer}
-        <BlueSpacing40 />
-
       </KeyboardAvoidingView>
 
       {renderProvideMnemonicsModal()}
 
       {renderMnemonicsModal()}
-    </View>
+    </SafeAreaView>
   );
 };
 
