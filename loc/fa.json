@@ -277,6 +277,7 @@
     "network_electrum": "سرور الکترام",
     "not_a_valid_uri": "یوآرآی معتبر نیست",
     "notifications": "اعلانات",
+    "open_link_in_explorer" : "بازکردن پیوند در مرورگر",
     "password": "گذرواژه",
     "password_explain": "گذرواژه‌ای را که برای رمزگشایی فضای ذخیره‌سازی استفاده خواهید کرد ایجاد کنید",
     "passwords_do_not_match": "گذرواژه‌ها مطابقت ندارند",
@@ -291,7 +292,8 @@
     "push_notifications": "پوش نوتیفیکیشن",
     "retype_password": "گذرواژه را دوباره بنویسید",
     "save": "ذخیره",
-    "saved": "ذخیره شد"
+    "saved": "ذخیره شد",
+    "success_transaction_broadcasted" : "موفقیت‌آمیز بود! تراکنش شما منتشر شد."
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "آیا می‌خواهید هنگام دریافت وجه اعلان دریافت کنید؟",
