@@ -277,6 +277,7 @@
     "network_electrum": "Electrum Server",
     "not_a_valid_uri": "Not a valid URI",
     "notifications": "Notifications",
+    "open_link_in_explorer" : "Open link in explorer",
     "password": "Password",
     "password_explain": "Create the password you will use to decrypt the storage",
     "passwords_do_not_match": "Passwords do not match",
@@ -291,7 +292,8 @@
     "push_notifications": "Push Notifications",
     "retype_password": "Re-type password",
     "save": "Save",
-    "saved": "Saved"
+    "saved": "Saved",
+    "success_transaction_broadcasted" : "Success! You transaction has been broadcasted!"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",
