@@ -87,7 +87,7 @@ const TransactionsStatus = () => {
       }
     }
 
-    for (const tx of getTransactions()) {
+    for (const tx of getTransactions(null, Infinity, true)) {
       if (tx.hash === hash) {
         setTX(tx);
         break;
