@@ -1,3 +1,15 @@
+v6.0
+======
+* ADD: Multisig 
+* FIX: scan multisig cosigner in formats: plain Zpub, wallet descriptor 
+* FIX: txs disappear and re-fetch if opened wallet too fast 
+* ADD: Help section and tips to Vaults 
+* FIX: DE language files
+* ADD: Persian language, sync cs_cz, es, it and ru 
+* FIX: Transaction details not shown when 'display in wallets list' not set (closes #1966) 
+* FIX: LNURL wallet not found
+
+
 v5.6.9
 ======
 
