@@ -13,7 +13,6 @@ import {
   Text,
   TextInput,
   TouchableWithoutFeedback,
-  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -41,26 +40,20 @@ const debounce = (func, wait) => {
 
 const FrozenBadge = () => {
   const { colors } = useTheme();
-  const cs = useColorScheme();
   const oStyles = StyleSheet.create({
-    freezeLight: { backgroundColor: colors.redBG },
-    freezeDark: { backgroundColor: colors.redBG, borderWidth: 0 },
+    freeze: { backgroundColor: colors.redBG, borderWidth: 0 },
     freezeText: { color: colors.redText },
   });
-
-  return <Badge value={loc.cc.freeze} badgeStyle={oStyles[cs === 'dark' ? 'freezeDark' : 'freezeLight']} textStyle={oStyles.freezeText} />;
+  return <Badge value={loc.cc.freeze} badgeStyle={oStyles.freeze} textStyle={oStyles.freezeText} />;
 };
 
 const ChangeBadge = () => {
   const { colors } = useTheme();
-  const cs = useColorScheme();
   const oStyles = StyleSheet.create({
-    changeLight: { backgroundColor: colors.buttonDisabledBackgroundColor },
-    changeDark: { backgroundColor: colors.buttonDisabledBackgroundColor, borderWidth: 0 },
+    change: { backgroundColor: colors.buttonDisabledBackgroundColor, borderWidth: 0 },
     changeText: { color: colors.alternativeTextColor },
   });
-
-  return <Badge value={loc.cc.change} badgeStyle={oStyles[cs === 'dark' ? 'changeDark' : 'changeLight']} textStyle={oStyles.changeText} />;
+  return <Badge value={loc.cc.change} badgeStyle={oStyles.change} textStyle={oStyles.changeText} />;
 };
 
 const OutputList = ({
