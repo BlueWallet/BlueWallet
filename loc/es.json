@@ -374,6 +374,7 @@
     "cancel_explain": "Reemplazaremos esta transacción con la que te paga y tiene tasas más altas, lo que cancelará la transacción. A esto se le llama RBF (Replace By Fee).",
     "cancel_no": "Esta transacción no se puede reemplazar",
     "cancel_title": "Cancelar esta transacción (RBF)",
+    "confirmations_lowercase": "confirmaciones",
     "cpfp_create": "Crear",
     "cpfp_exp": "Crearemos otra transacción que gastará tu otra transacción aun no confirmada. La comisión total será mayor que la comisión original, lo cual debería hacer que sea minada antes. A esto se le llama CPFP (Child Pays For Parent).",
     "cpfp_no_bump": "Esta transacción no se puede acelerar",
