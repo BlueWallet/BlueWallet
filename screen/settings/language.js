@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueListItem, BlueCard, BlueLoading, BlueNavigationStyle, BlueText } from '../../BlueComponents';
+import { SafeBlueArea, BlueListItem, BlueLoading, BlueNavigationStyle } from '../../BlueComponents';
 import { AvailableLanguages } from '../../loc/languages';
 import loc from '../../loc';
+
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useNavigation, useTheme } from '@react-navigation/native';
 
 const styles = StyleSheet.create({
   flex: {
@@ -11,42 +14,51 @@ const styles = StyleSheet.create({
 });
 
 const Language = () => {
+  const { setLanguage, language } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
-  const [language, setLanguage] = useState(loc.getLanguage());
-
+  const [selectedLanguage, setSelectedLanguage] = useState(loc.getLanguage());
+  const { setOptions } = useNavigation();
+  const { colors } = useTheme();
+  const stylesHook = StyleSheet.create({
+    flex: {
+      backgroundColor: colors.background,
+    },
+  });
   useEffect(() => {
     setIsLoading(false);
   }, []);
 
-  const renderItem = useCallback(
-    ({ item }) => {
-      return (
-        <BlueListItem
-          onPress={() => {
-            console.log('setLanguage', item.value);
-            loc.saveLanguage(item.value);
-            setLanguage(item.value);
-          }}
-          title={item.label}
-          {...(language === item.value
-            ? {
-                rightIcon: { name: 'check', type: 'octaicon', color: '#0070FF' },
-              }
-            : { hideChevron: true })}
-        />
-      );
-    },
-    [language],
-  );
+  useEffect(() => {
+    setOptions({ headerTitle: loc.settings.language });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
+
+  const renderItem = item => {
+    return (
+      <BlueListItem
+        onPress={() => {
+          console.log('setLanguage', item.item.value);
+          loc.saveLanguage(item.item.value);
+          setSelectedLanguage(item.item.value);
+          setLanguage();
+        }}
+        title={item.item.label}
+        checkmark={selectedLanguage === item.item.value}
+      />
+    );
+  };
 
   return isLoading ? (
     <BlueLoading />
   ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.flex}>
-      <FlatList style={styles.flex} keyExtractor={(_item, index) => `${index}`} data={AvailableLanguages} renderItem={renderItem} />
-      <BlueCard>
-        <BlueText>{loc.settings.language_restart}</BlueText>
-      </BlueCard>
+    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.flex, stylesHook.flex]}>
+      <FlatList
+        style={[styles.flex, stylesHook.flex]}
+        keyExtractor={(_item, index) => `${index}`}
+        data={AvailableLanguages}
+        renderItem={renderItem}
+        initialNumToRender={25}
+      />
     </SafeBlueArea>
   );
 };

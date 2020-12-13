@@ -12,7 +12,9 @@ export const BlueStorageProvider = ({ children }) => {
   const [selectedWallet, setSelectedWallet] = useState('');
   const [walletsInitialized, setWalletsInitialized] = useState(false);
   const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState();
+  const [language, _setLanguage] = useState();
   const getPreferredCurrencyAsyncStorage = useAsyncStorage(AppStorage.PREFERRED_CURRENCY).getItem;
+  const getLanguageAsyncStorage = useAsyncStorage(AppStorage.LANG).getItem;
   const [newWalletAdded, setNewWalletAdded] = useState(false);
   const saveToDisk = async () => {
     BlueApp.tx_metadata = txMetadata;
@@ -34,8 +36,18 @@ export const BlueStorageProvider = ({ children }) => {
     getPreferredCurrency();
   };
 
+  const getLanguage = async () => {
+    const item = await getLanguageAsyncStorage();
+    _setLanguage(item);
+  };
+
+  const setLanguage = () => {
+    getLanguage();
+  };
+
   useEffect(() => {
     getPreferredCurrency();
+    getLanguageAsyncStorage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -169,6 +181,8 @@ export const BlueStorageProvider = ({ children }) => {
         setIsAdancedModeEnabled,
         setPreferredFiatCurrency,
         preferredFiatCurrency,
+        setLanguage,
+        language,
       }}
     >
       {children}

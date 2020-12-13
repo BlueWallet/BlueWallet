@@ -13,7 +13,7 @@ const currency = require('../blue_modules/currency');
 dayjs.extend(relativeTime);
 
 // first-time loading sequence
-(async () => {
+const setLanguageAndDateTimeLocale = async () => {
   // finding out whether lang preference was saved
   // For some reason using the AppStorage.LANG constant is not working. Hard coding string for now.
   let lang = await AsyncStorage.getItem('lang');
@@ -142,7 +142,8 @@ dayjs.extend(relativeTime);
       strings.setLanguage('en');
     }
   }
-})();
+};
+setLanguageAndDateTimeLocale();
 
 const strings = new Localization({
   en: require('./en.json'),
@@ -187,6 +188,7 @@ const strings = new Localization({
 strings.saveLanguage = lang => {
   AsyncStorage.setItem(AppStorage.LANG, lang);
   strings.setLanguage(lang);
+  setLanguageAndDateTimeLocale();
 };
 
 export const transactionTimeToReadable = time => {
