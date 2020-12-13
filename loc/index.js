@@ -184,7 +184,10 @@ const strings = new Localization({
   zh_tw: require('./zh_tw.json'),
 });
 
-strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
+strings.saveLanguage = lang => {
+  AsyncStorage.setItem(AppStorage.LANG, lang);
+  strings.setLanguage(lang);
+};
 
 export const transactionTimeToReadable = time => {
   if (time === 0) {

@@ -1401,7 +1401,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
   const { colors } = useTheme();
   const { navigate } = useNavigation();
-  const { txMetadata, wallets } = useContext(BlueStorageContext);
+  const { txMetadata, wallets, preferredFiatCurrency } = useContext(BlueStorageContext);
   const containerStyle = useMemo(
     () => ({
       backgroundColor: 'transparent',
@@ -1450,7 +1450,8 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     } else {
       return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
     }
-  }, [item, itemPriceUnit]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item, itemPriceUnit, preferredFiatCurrency]);
 
   const rowTitleStyle = useMemo(() => {
     let color = colors.successColor;
