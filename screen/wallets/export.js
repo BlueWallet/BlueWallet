@@ -12,7 +12,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 const styles = StyleSheet.create({
   loading: {
     flex: 1,
-    paddingTop: 20,
+    justifyContent: 'center',
   },
   root: {
     flex: 1,
