@@ -194,7 +194,7 @@ const strings = new Localization({
 strings.saveLanguage = async lang => {
   await AsyncStorage.setItem(AppStorage.LANG, lang);
   strings.setLanguage(lang);
-  setDateTimeLocale();
+  await setDateTimeLocale();
 };
 
 export const transactionTimeToReadable = time => {

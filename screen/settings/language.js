@@ -36,9 +36,8 @@ const Language = () => {
   const renderItem = item => {
     return (
       <BlueListItem
-        onPress={() => {
-          console.log('setLanguage', item.item.value);
-          loc.saveLanguage(item.item.value);
+        onPress={async () => {
+          await loc.saveLanguage(item.item.value);
           setSelectedLanguage(item.item.value);
           setLanguage();
         }}
