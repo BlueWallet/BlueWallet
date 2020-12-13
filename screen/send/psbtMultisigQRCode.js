@@ -1,17 +1,16 @@
 /* global alert */
 import React, { useState } from 'react';
-import { ActivityIndicator, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { BlueNavigationStyle, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
 import { getSystemName } from 'react-native-device-info';
 import loc from '../../loc';
-import { launchCamera } from 'react-native-image-picker';
-import ScanQRCode from './ScanQRCode';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import ActionSheet from '../ActionSheet';
 const bitcoin = require('bitcoinjs-lib');
+
 const fs = require('../../blue_modules/fs');
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const isDesktop = getSystemName() === 'Mac OS X';
 
 const PsbtMultisigQRCode = () => {
@@ -41,35 +40,33 @@ const PsbtMultisigQRCode = () => {
     } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
       // we dont support it in this flow
+      alert(loc.wallets.import_error);
     } else {
       // psbt base64?
       navigate('PsbtMultisig', { receivedPSBTBase64: ret.data });
     }
   };
 
+  const showActionSheet = () => {
+    const options = [loc._.cancel, loc.wallets.take_photo, loc.wallets.list_long_choose, loc.wallets.import_file];
+
+    ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, async buttonIndex => {
+      if (buttonIndex === 1) {
+        fs.takePhotoWithImagePickerAndReadPhoto.then(onBarScanned);
+      } else if (buttonIndex === 2) {
+        fs.showImagePickerAndReadImage(onBarScanned).catch(error => alert(error.message));
+      } else if (buttonIndex === 3) {
+        const { data } = await fs.showFilePickerAndReadFile();
+        if (data) {
+          onBarScanned({ data });
+        }
+      }
+    });
+  };
+
   const openScanner = () => {
     if (isDesktop) {
-      launchCamera(
-        {
-          title: null,
-          mediaType: 'photo',
-          takePhotoButtonTitle: null,
-        },
-        response => {
-          if (response.uri) {
-            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
-            LocalQRCode.decode(uri, (error, result) => {
-              if (!error) {
-                onBarScanned(result);
-              } else {
-                alert(loc.send.qr_error_no_qrcode);
-              }
-            });
-          } else if (response.error) {
-            ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
-          }
-        },
-      );
+      showActionSheet();
     } else {
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
