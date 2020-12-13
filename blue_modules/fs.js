@@ -5,6 +5,8 @@ import Share from 'react-native-share';
 import loc from '../loc';
 import DocumentPicker from 'react-native-document-picker';
 import isCatalyst from 'react-native-is-catalyst';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { presentCameraNotAuthorizedAlert } from '../class/camera';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const writeFileAndExport = async function (filename, contents) {
@@ -92,6 +94,56 @@ const _readPsbtFileIntoBase64 = async function (uri) {
   }
 };
 
+const showImagePickerAndReadImage = () => {
+  return new Promise((resolve, reject) =>
+    launchImageLibrary(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
+      },
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              resolve(result);
+            } else {
+              reject(new Error(loc.send.qr_error_no_qrcode));
+            }
+          });
+        }
+      },
+    ),
+  );
+};
+
+const takePhotoWithImagePickerAndReadPhoto = () => {
+  return new Promise((resolve, reject) =>
+    launchCamera(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
+      },
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              resolve(result);
+            } else {
+              reject(new Error(loc.send.qr_error_no_qrcode));
+            }
+          });
+        } else if (response.error) {
+          presentCameraNotAuthorizedAlert(response.error);
+        }
+      },
+    ),
+  );
+};
+
 const showFilePickerAndReadFile = async function () {
   try {
     const res = await DocumentPicker.pick({
@@ -141,3 +193,5 @@ const showFilePickerAndReadFile = async function () {
 module.exports.writeFileAndExport = writeFileAndExport;
 module.exports.openSignedTransaction = openSignedTransaction;
 module.exports.showFilePickerAndReadFile = showFilePickerAndReadFile;
+module.exports.showImagePickerAndReadImage = showImagePickerAndReadImage;
+module.exports.takePhotoWithImagePickerAndReadPhoto = takePhotoWithImagePickerAndReadPhoto;
