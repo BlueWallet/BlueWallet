@@ -304,7 +304,7 @@
     "cancel_explain": "We will replace this transaction with the one that pays you and has higher fees. This effectively cancels transaction. This is called RBF—Replace by Fee.",
     "cancel_no": "This transaction is not replaceable.",
     "cancel_title": "Cancel this transaction (RBF)",
-    "confirmations_lowercase": "confirmations",
+    "confirmations_lowercase": "{confirmations} confirmations",
     "cpfp_create": "Create",
     "cpfp_exp": "We will create another transaction that spends your unconfirmed transaction. The total fee will be higher than the original transaction fee, so it should be mined faster. This is called CPFP - Child Pays For Parent.",
     "cpfp_no_bump": "This transaction is not bumpable",

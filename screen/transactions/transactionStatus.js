@@ -337,7 +337,9 @@ const TransactionsStatus = () => {
 
           <View style={[styles.confirmations, stylesHook.confirmations]}>
             <Text style={styles.confirmationsText}>
-              {tx.confirmations > 6 ? '6+' : tx.confirmations} {loc.transactions.confirmations_lowercase}
+              {loc.formatString(loc.transactions.confirmations_lowercase, {
+                confirmations: tx.confirmations > 6 ? '6+' : tx.confirmations,
+              })}
             </Text>
           </View>
         </BlueCard>
