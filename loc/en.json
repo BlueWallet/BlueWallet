@@ -277,6 +277,7 @@
     "network_electrum": "Electrum Server",
     "not_a_valid_uri": "Not a valid URI",
     "notifications": "Notifications",
+    "open_link_in_explorer" : "Open link in explorer",
     "password": "Password",
     "password_explain": "Create the password you will use to decrypt the storage",
     "passwords_do_not_match": "Passwords do not match",
@@ -291,7 +292,8 @@
     "push_notifications": "Push Notifications",
     "retype_password": "Re-type password",
     "save": "Save",
-    "saved": "Saved"
+    "saved": "Saved",
+    "success_transaction_broadcasted" : "Success! You transaction has been broadcasted!"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",
@@ -394,6 +396,7 @@
     "list_long_clipboard": "Copy from Clipboard",
     "list_long_scan": "Scan QR Code",
     "list_tap_here_to_buy": "Buy Bitcoin",
+    "no_ln_wallet_error": "Before paying a Lightning invoice, you must first add a Lightning wallet.",
     "list_title": "Wallets",
     "list_tryagain": "Try again",
     "looks_like_bip38": "This looks like a password-protected private key (BIP38)",
@@ -419,6 +422,7 @@
     "confirm": "Confirm",
     "header": "Send",
     "share": "Share",
+    "view": "View",
     "manage_keys": "Manage Keys",
     "how_many_signatures_can_bluewallet_make": "How Many Signatures Can BlueWallet Make",
     "scan_or_import_file": "Scan or import file",
@@ -455,7 +459,7 @@
     "this_is_cosigners_xpub": "This is the cosigner's XPUB, ready to be imported into another wallet. It is safe to share it.",
     "wallet_key_created": "Your vault key was created. Take a moment to safely backup your mnemonic seed",
     "are_you_sure_seed_will_be_lost": "Are you sure? Your mnemonic seed will be lost if you dont have a backup",
-    "forget_this_seed": "Forget this seed and use XPUB instead",
+    "forget_this_seed": "Forget this seed and use XPUB",
     "invalid_fingerprint": "Fingerprint for this seed doesnt match this cosigners fingerprint",
     "view_edit_cosigners": "View/edit cosigners",
     "this_cosigner_is_already_imported": "This cosigner is already imported.",
@@ -464,7 +468,6 @@
     "input_fp_explain": "Skip to use the default one (00000000)",
     "input_path": "Input derivation path",
     "input_path_explain": "Skip to use the default one ({default})",
-    "view_edit_cosigners_title": "Edit Cosigners",
     "ms_help": "Help",
     "ms_help_title": "How Multisig Vaults work. Tips and tricks",
     "ms_help_text": "A wallet with multiple keys, to exponentially increase security or for shared custody.",
@@ -482,8 +485,9 @@
   "is_it_my_address": {
     "title": "Is it my address?",
     "owns": "{label} owns {address}",
-    "enter_address": "Enter Address:",
-    "check_address": "Check Address"
+    "enter_address": "Enter address",
+    "check_address": "Check address",
+    "no_wallet_owns_address": "None of the available wallets own the provided address."
   },
   "cc": {
     "change": "Change",

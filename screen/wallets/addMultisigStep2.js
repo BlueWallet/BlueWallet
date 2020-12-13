@@ -29,8 +29,6 @@ import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import { getSystemName } from 'react-native-device-info';
-import ImagePicker from 'react-native-image-picker';
-import ScanQRCode from '../send/ScanQRCode';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
 import BottomModal from '../../components/BottomModal';
@@ -38,6 +36,7 @@ import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
+import ActionSheet from '../ActionSheet';
 import Clipboard from '@react-native-community/clipboard';
 import showPopupMenu from 'react-native-popup-menu-android';
 import ToolTip from 'react-native-tooltip';
@@ -48,7 +47,6 @@ const prompt = require('../../blue_modules/prompt');
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
@@ -59,7 +57,6 @@ const WalletsAddMultisigStep2 = () => {
   const { m, n, format } = useRoute().params;
 
   const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path]
-  const [isOnCreateButtonEnabled, setIsOnCreateButtonEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMnemonicsModalVisible, setIsMnemonicsModalVisible] = useState(false);
   const [isProvideMnemonicsModalVisible, setIsProvideMnemonicsModalVisible] = useState(false);
@@ -186,12 +183,12 @@ const WalletsAddMultisigStep2 = () => {
     w.generate().then(() => {
       const cosignersCopy = [...cosigners];
       cosignersCopy.push([w.getSecret(), false, false]);
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setCosigners(cosignersCopy);
       setVaultKeyData({ keyIndex: cosignersCopy.length, seed: w.getSecret(), xpub: w.getXpub(), isLoading: false });
       setIsLoading(true);
       setIsMnemonicsModalVisible(true);
-      if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
+
       // filling cache
       setTimeout(() => {
         // filling cache
@@ -281,9 +278,8 @@ const WalletsAddMultisigStep2 = () => {
 
     const cosignersCopy = [...cosigners];
     cosignersCopy.push([xpub, fp, path]);
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setCosigners(cosignersCopy);
-    if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
   };
 
   const useMnemonicPhrase = () => {
@@ -301,9 +297,9 @@ const WalletsAddMultisigStep2 = () => {
 
     const cosignersCopy = [...cosigners];
     cosignersCopy.push([hd.getSecret(), false, false]);
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setCosigners(cosignersCopy);
-    if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
+
     setIsProvideMnemonicsModalVisible(false);
     setIsLoading(false);
     setImportText('');
@@ -317,7 +313,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const onBarScanned = ret => {
     setIsProvideMnemonicsModalVisible(false);
-    navigation.dangerouslyGetParent().pop();
+    if (!isDesktop) navigation.dangerouslyGetParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       alert('BC-UR not decoded. This should never happen');
@@ -388,36 +384,14 @@ const WalletsAddMultisigStep2 = () => {
 
       const cosignersCopy = [...cosigners];
       cosignersCopy.push([cosigner.getXpub(), cosigner.getFp(), cosigner.getPath()]);
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setCosigners(cosignersCopy);
-      if (cosignersCopy.length === n) setIsOnCreateButtonEnabled(true);
     }
   };
 
   const scanOrOpenFile = () => {
-    setIsProvideMnemonicsModalVisible(false);
     if (isDesktop) {
-      ImagePicker.launchCamera(
-        {
-          title: null,
-          mediaType: 'photo',
-          takePhotoButtonTitle: null,
-        },
-        response => {
-          if (response.uri) {
-            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
-            LocalQRCode.decode(uri, (error, result) => {
-              if (!error) {
-                onBarScanned(result);
-              } else {
-                alert(loc.send.qr_error_no_qrcode);
-              }
-            });
-          } else if (response.error) {
-            ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
-          }
-        },
-      );
+      showActionSheet();
     } else {
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -427,6 +401,23 @@ const WalletsAddMultisigStep2 = () => {
         },
       });
     }
+  };
+
+  const showActionSheet = () => {
+    const options = [loc._.cancel, loc.wallets.take_photo, loc.wallets.list_long_choose, loc.wallets.import_file];
+
+    ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, async buttonIndex => {
+      if (buttonIndex === 1) {
+        fs.takePhotoWithImagePickerAndReadPhoto.then(onBarScanned);
+      } else if (buttonIndex === 2) {
+        fs.showImagePickerAndReadImage(onBarScanned).catch(error => alert(error.message));
+      } else if (buttonIndex === 3) {
+        const { data } = await fs.showFilePickerAndReadFile();
+        if (data) {
+          onBarScanned({ data });
+        }
+      }
+    });
   };
 
   const _renderKeyItem = el => {
@@ -665,7 +656,7 @@ const WalletsAddMultisigStep2 = () => {
     <BlueLoading />
   ) : (
     <View style={styles.buttonBottom}>
-      <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={!isOnCreateButtonEnabled} />
+      <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={cosigners.length !== n} />
     </View>
   );
 

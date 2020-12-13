@@ -193,13 +193,19 @@ const WalletDetails = () => {
     });
   };
   const navigateToMultisigCoordinationSetup = () => {
-    navigate('ExportMultisigCoordinationSetup', {
-      walletId: wallet.getID(),
+    navigate('ExportMultisigCoordinationSetupRoot', {
+      screen: 'ExportMultisigCoordinationSetup',
+      params: {
+        walletId: wallet.getID(),
+      },
     });
   };
   const navigateToViewEditCosigners = () => {
-    navigate('ViewEditMultisigCosigners', {
-      walletId: wallet.getID(),
+    navigate('ViewEditMultisigCosignersRoot', {
+      screen: 'ViewEditMultisigCosigners',
+      params: {
+        walletId: wallet.getID(),
+      },
     });
   };
   const navigateToXPub = () =>
