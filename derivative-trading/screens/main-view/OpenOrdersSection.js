@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 import { View } from 'react-native';
 import loc from '../../../loc';
 import EmptyListSectionView from '../../components/EmptyListSectionView';

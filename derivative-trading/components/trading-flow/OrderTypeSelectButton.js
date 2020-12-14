@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Button } from 'react-native-elements';
 import { useTheme } from '@react-navigation/native';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Button } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient';
 
 const OrderTypeSelectButton = ({ title, onPress, buttonStyle, containerStyle }) => {

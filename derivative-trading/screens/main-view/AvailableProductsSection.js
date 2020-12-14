@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 import { View } from 'react-native';
-import loc from '../../../loc';
-import AvailableProductListItem from './AvailableProductListItem';
 import { BlueLoading } from '../../../BlueComponents';
+import loc from '../../../loc';
 import EmptyListSectionView from '../../components/EmptyListSectionView';
+import AvailableProductListItem from './AvailableProductListItem';
 
 const AvailableProductsSection = ({
   products,

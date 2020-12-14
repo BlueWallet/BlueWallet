@@ -1,14 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions, Text } from 'react-native';
-import moment from 'moment';
-
+import { Dimensions, StyleSheet, View } from 'react-native';
 import {
-  SlideAreaChart,
-} from 'react-native-slide-charts'
-
-import { BlueCurrentTheme } from '../../components/themes';
+  SlideAreaChart
+} from 'react-native-slide-charts';
 import { BlueLoading } from '../../BlueComponents';
+import { BlueCurrentTheme } from '../../components/themes';
 import { convertYDataRange } from '../class/Utils';
+
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];

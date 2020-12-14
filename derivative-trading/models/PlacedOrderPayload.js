@@ -1,6 +1,6 @@
-import { MarginType } from './TradingTypes';
 import 'react-native-get-random-values'; // https://github.com/uuidjs/uuid#react-native
 import { v4 as uuidV4 } from 'uuid';
+import { MarginType } from './TradingTypes';
 
 const defaultProperties = Object.freeze({
   marginType: MarginType.ISOLATED,

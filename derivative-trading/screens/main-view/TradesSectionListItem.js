@@ -1,22 +1,13 @@
 import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
-import { View, StyleSheet, Text } from 'react-native';
-import { ListItem, Avatar } from 'react-native-elements';
-import TradingDataStyles from '../../class/styles/TradingDataStyles';
-import { BlueHSpacing20 } from '../../../BlueComponents';
+import { StyleSheet, Text, View } from 'react-native';
+import { Avatar, ListItem } from 'react-native-elements';
 import { BlueCurrentTheme } from '../../../components/themes';
-import CurrencyPairAvatar from '../../components/CurrencyPairAvatar';
+import TradingDataStyles from '../../class/styles/TradingDataStyles';
+import { priceToDollars } from '../../class/Utils';
 import LeverageBadge from '../../components/LeverageBadge';
-import DerivativesTradingOpenedOrder from '../../models/OpenedOrder';
 import { PositionSide } from '../../models/Position';
-import { calculateOrderCostForProduct } from '../../class/OrderCalculationUtils';
-import { bankerRound, priceToDollars } from '../../class/Utils';
 
 const TradesSectionListItem = ({ trade, product }) => {
-    console.log('2919291929129219192191291291291291')
-    console.log(trade)
-    console.log(product)
-
     const subtitleStyles = useMemo(() => {
         const colorName = trade.side === PositionSide.BID ? 'tradingProfit' : 'tradingLoss';
         return {
@@ -87,7 +78,6 @@ const styles = StyleSheet.create({
         flexWrap: 'nowrap',
         alignItems: 'center',
         flex: 0,
-        // backgroundColor: 'purple',
         marginRight: 24,
     },
 
@@ -96,7 +86,6 @@ const styles = StyleSheet.create({
         flexWrap: 'nowrap',
         alignItems: 'center',
         flex: 1,
-        // backgroundColor: 'red',
     },
 
     avatarContainer: {

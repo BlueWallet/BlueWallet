@@ -1,10 +1,10 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import { BlueTextCentered } from '../../../BlueComponents';
-import { OrderType } from '../../models/TradingTypes';
+import React from 'react';
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { ListItem } from 'react-native-elements';
+import { BlueTextCentered } from '../../../BlueComponents';
 import { BlueCurrentTheme } from '../../../components/themes';
+import { OrderType } from '../../models/TradingTypes';
 
 const OrderTypeSelectionModal = ({ onOrderTypeSelected }) => {
   return (

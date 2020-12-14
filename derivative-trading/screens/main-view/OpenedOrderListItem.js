@@ -1,16 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { ListItem, Avatar } from 'react-native-elements';
-import TradingDataStyles from '../../class/styles/TradingDataStyles';
+import React, { useEffect, useMemo, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { Avatar, ListItem } from 'react-native-elements';
 import { BlueCurrentTheme } from '../../../components/themes';
+import DataNormalizer from '../../class/DataNormalization';
+import { RestApiClient } from '../../class/RestApiClient';
+import TradingDataStyles from '../../class/styles/TradingDataStyles';
+import { priceToDollars } from '../../class/Utils';
 import LeverageBadge from '../../components/LeverageBadge';
 import DerivativesTradingOpenedOrder from '../../models/OpenedOrder';
 import { PositionSide } from '../../models/Position';
-import { calculateOrderCostForProduct } from '../../class/OrderCalculationUtils';
-import { bankerRound, formatCurrencyValue, priceToDollars } from '../../class/Utils';
-import { RestApiClient } from '../../class/RestApiClient';
-import DataNormalizer from '../../class/DataNormalization';
 
 const OpenedOrderListItem = ({ order, onPress, product, apiKey }) => {
 
@@ -39,7 +38,6 @@ const OpenedOrderListItem = ({ order, onPress, product, apiKey }) => {
       symbol: order.symbol
     }
     let info = await apiClient.fetchOrderInfo({order: o})
-    console.log(info)
     info = DataNormalizer.orderInfoFromPayload(info)
     setOrderInfo(info)
   }
@@ -156,7 +154,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flexShrink: 1,
-    // backgroundColor: 'blue',
   },
 
   dataGroupItem: {

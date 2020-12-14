@@ -1,9 +1,7 @@
-import React, {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
-import DerivativesTradingProduct from '../../models/Product';
 import LeverageSelectionView from '../../components/trading-flow/LeverageSelectionView';
-import DTSelectLimitPrice from './SelectLimitPrice';
 
 const DTSelectLeverage = ({
     navigation,

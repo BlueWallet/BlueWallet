@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, Text, Dimensions } from 'react-native';
-import { BlueButton } from '../../../BlueComponents';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { Slider } from 'react-native-elements';
+import { BlueButton } from '../../../BlueComponents';
 import { BlueCurrentTheme } from '../../../components/themes';
 import { calculateOrderCostForProduct } from '../../class/OrderCalculationUtils';
 

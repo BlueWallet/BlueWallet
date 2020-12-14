@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import loc from '../../../../loc';
-import { View, StyleSheet, Platform, Dimensions, Text, TouchableOpacity } from 'react-native';
-import { BlueCurrentTheme } from '../../../../components/themes';
-import { BlueSpacing20 } from '../../../../BlueComponents';
+import React, { useState } from 'react';
+import { Dimensions, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Modal from 'react-native-modal';
-import { Icon } from 'react-native-elements';
+import { BlueSpacing20 } from '../../../../BlueComponents';
+import { BlueCurrentTheme } from '../../../../components/themes';
+import loc from '../../../../loc';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -14,7 +13,6 @@ const TradingLaunchFooter = ({
   onSellSelected,
   onClosePositionSelected,
   canClosePosition,
-  bottomOffset,
   baseFooterHeight,
   onOpenTradingModal,
   onCloseTradingModal,
@@ -22,7 +20,6 @@ const TradingLaunchFooter = ({
   const customContainerStyles = {
     height: baseFooterHeight,
     backgroundColor: BlueCurrentTheme.colors.cta2,
-    // paddingBottom: bottomOffset,
   };
   const customModalContentStyles = { marginBottom: baseFooterHeight };
 
@@ -39,7 +36,6 @@ const TradingLaunchFooter = ({
   }
 
   function onBuyButtonPressed() {
-    console.log('hello')
     closeActionsModal();
     onBuySelected();
   }
@@ -104,7 +100,6 @@ const TradingLaunchFooter = ({
       <View style={[styles.footerContentContainer]}>
         <TouchableOpacity onPress={showActionsModal} style={{bottom: 30}}>
           <View style={[styles.buttonContainer, styles.modalActionButtonContainer, styles.tradeButtonContainer]}>
-            <Icon name="layers" type="feather" color={BlueCurrentTheme.colors.buttonTextColor} />
             <Text style={styles.modalActionButtonTitle}>{loc.derivatives_trading.trade}</Text>
           </View>
         </TouchableOpacity>
@@ -149,8 +144,8 @@ const styles = StyleSheet.create({
 
   modalActionButtonTitle: {
     marginLeft: 0,
-    fontSize: 15,
-    color: BlueCurrentTheme.colors.buttonTextColor,
+    fontSize: 18,
+    color: 'white',
   },
 
   buyButtonContainer: {

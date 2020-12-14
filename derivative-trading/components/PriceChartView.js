@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-
+import { StyleSheet, Text, View } from 'react-native';
 import { formatCurrencyValue } from '../class/Utils';
-
 import PriceChart from './PriceChart';
+
 
 const PriceChartView = ({ data, ticker, product }) => {
 

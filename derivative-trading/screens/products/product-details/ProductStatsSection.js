@@ -1,9 +1,7 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import ListSectionStyles from '../../../class/styles/ListSectionStyles';
-import DerivativesTradingProduct from '../../../models/Product';
-import { Icon } from 'react-native-elements';
 import TradingDataStyles from '../../../class/styles/TradingDataStyles';
 
 const ProductStatsSection = ({ product }) => {

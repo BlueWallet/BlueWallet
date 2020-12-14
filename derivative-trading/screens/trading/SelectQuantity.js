@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, Text, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import Modal from 'react-native-modal';
-import DerivativesTradingProduct from '../../models/Product';
-import { OrderType } from '../../models/TradingTypes';
-import QuantitySelectionView from '../../components/trading-flow/QuantitySelectionView';
-import OrderTypeSelectionModal from '../../components/trading-flow/OrderTypeSelectionModal';
 import OrderTypeSelectButton from '../../components/trading-flow/OrderTypeSelectButton';
+import OrderTypeSelectionModal from '../../components/trading-flow/OrderTypeSelectionModal';
+import QuantitySelectionView from '../../components/trading-flow/QuantitySelectionView';
+import { OrderType } from '../../models/TradingTypes';
 
 const DTSelectQuantity = ({
     navigation,

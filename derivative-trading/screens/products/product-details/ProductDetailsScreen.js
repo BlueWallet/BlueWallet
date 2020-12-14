@@ -1,19 +1,18 @@
-import React, { useEffect, useMemo, useState, useRef, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, Text, Platform, TouchableOpacity } from 'react-native';
-import DerivativesTradingPosition from '../../../models/Position';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { showMessage } from 'react-native-flash-message';
 import { ScrollView } from 'react-native-gesture-handler';
+import { v4 as uuidV4 } from 'react-native-uuid';
+import DataNormalizer, { APIResponseType } from '../../../class/DataNormalization';
 import RestApiClient from '../../../class/RestApiClient';
+import TradingDataStyles from '../../../class/styles/TradingDataStyles';
+import { convertToChartData } from '../../../class/Utils';
+import PriceChartView from '../../../components/PriceChartView';
+import DerivativesTradingPosition from '../../../models/Position';
+import CurrentPositionSection from './CurrentPositionSection';
 import ProductStatsSection from './ProductStatsSection';
 import TradingLaunchFooter from './TradingLaunchFooter';
-import TradingDataStyles from '../../../class/styles/TradingDataStyles';
-import { showMessage } from 'react-native-flash-message';
-import CurrentPositionSection from './CurrentPositionSection';
-import { v4 as uuidV4 } from 'react-native-uuid'
-import DataNormalizer, {APIResponseType} from '../../../class/DataNormalization';
-import { formatCurrencyValue, convertToChartData } from '../../../class/Utils';
-import PriceChartView from '../../../components/PriceChartView';
-import FullViewLoader from '../../../components/FullViewLoader';
 
 
 const ProductDetailsScreen = ({
@@ -141,7 +140,6 @@ const ProductDetailsScreen = ({
   };
 
   function onOpenTradingModal() {
-    console.log('opening modal');
     wsClientRef.current.unsubscribeFromChannels({ channels: ['ticker'], symbols: [product.symbol] })
     muteWs();
   }
@@ -197,13 +195,10 @@ const ProductDetailsScreen = ({
       ext_order_id: uuidV4(),
       settlement_type: 'Instant',
     }
-    console.log('Close Order')
-    console.log(closeOrder);
     wsClientRef.current.placeOrder(closeOrder);
   }
 
   function handleWebSocketsAPIResponse(response) {
-    console.log('response on product detail screen');
     if (DataNormalizer.isResponseOk(response)) {
       const responseType = DataNormalizer.getAPIResponseType(response);
       if (responseType === APIResponseType.ORDER_RECEIVED) {
@@ -281,7 +276,6 @@ const ProductDetailsScreen = ({
    * @param {DerivativesTradingPosition} position
    */
   function handleNewPositionState(position) {
-    console.log(position);
     if (position.symbol === product.symbol) {
       if (position.quantity === 0) {
         setCurrentPosition(undefined);

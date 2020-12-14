@@ -1,12 +1,12 @@
-import React, { useMemo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, Text } from 'react-native';
-import ListSectionStyles from '../../../class/styles/ListSectionStyles';
-import DerivativesTradingPosition, { PositionSide } from '../../../models/Position';
-import loc from '../../../../loc';
-import PriceChart from '../../../components/PriceChart';
-import { BlueCurrentTheme } from '../../../../components/themes';
+import React, { useEffect, useMemo, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { BlueLoading } from '../../../../BlueComponents';
+import { BlueCurrentTheme } from '../../../../components/themes';
+import loc from '../../../../loc';
+import ListSectionStyles from '../../../class/styles/ListSectionStyles';
+import PriceChart from '../../../components/PriceChart';
+import { PositionSide } from '../../../models/Position';
 
 const CurrentPositionSection = ({ position, style, ticker, product}) => {
   const [uPNLChartData, setUPNLChartData] = useState([]);
@@ -36,12 +36,6 @@ const CurrentPositionSection = ({ position, style, ticker, product}) => {
   }, [position]);
 
   const uPNLText = useMemo(() => {
-    // let currentPrice = position.side === 'Bid'? ticker.bestBid: ticker.bestAsk;
-    // let realUpnl = calculatePnl(position.entryPrice, currentPrice, position.quantity, position.side, product);
-    // console.log(realUpnl);
-    // if (realUpnl === undefined || !isFinite(realUpnl)) {
-    //   realUpnl = 0;
-    // }
     const textValue = Math.abs(Number.parseFloat(position.upnl).toFixed(0));
     const symbol = position.upnl === 0 ? '' : position.upnl > 0 ? '+' : '-';
 
@@ -61,29 +55,6 @@ const CurrentPositionSection = ({ position, style, ticker, product}) => {
   useEffect(() => {
     fetchChartData();
   }, []);
-
-  async function fetchChartData() {
-    // setIsFetchingUPNLChartData(true);
-
-    // const restAPIClient = new RestApiClient({ apiKey: restAPIKey });
-    // const data = await restAPIClient.fetchUPNLHistoryForPosition(position, {
-    //   granularity: '1d',
-    //   start: '5w',
-    // });
-
-    // setUPNLChartData(convertToChartData(data));
-    // setIsFetchingUPNLChartData(false);
-  }
-
-  const renderUPNLChartView = () => {
-    if (isFetchingUPNLChartData) {
-      return <BlueLoading paddingTop={40} paddingBottom={40} />;
-      // } else if (uPNLChartData.length === 0) {
-      // return <EmptyListSectionView height={80} message="No historical uPNL" />;
-    } else {
-      return <PriceChart data={uPNLChartData} height={88} />;
-    }
-  };
 
   return (
     <View style={{ ...style }}>

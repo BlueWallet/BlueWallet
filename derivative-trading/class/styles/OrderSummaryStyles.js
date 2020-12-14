@@ -1,5 +1,4 @@
 import { StyleSheet } from 'react-native';
-import { BlueCurrentTheme } from '../../../components/themes';
 
 export default StyleSheet.create({
   screenHeadline: {

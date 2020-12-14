@@ -1,18 +1,17 @@
-import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, Text, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import Modal from 'react-native-modal';
-import DerivativesTradingProduct from '../../models/Product';
-import { OrderType } from '../../models/TradingTypes';
-import OrderTypeSelectionModal from '../../components/trading-flow/OrderTypeSelectionModal';
 import OrderTypeSelectButton from '../../components/trading-flow/OrderTypeSelectButton';
+import OrderTypeSelectionModal from '../../components/trading-flow/OrderTypeSelectionModal';
 import PriceSelectionView from '../../components/trading-flow/PriceSelectionView';
+import { OrderType } from '../../models/TradingTypes';
 
 
 const DTSelectLimitPrice = ({
     navigation,
     route: {
-        params: { wallet, product, wsClientRef, side, ticker, leverage, quantity, apiKey },
+        params: { wallet, product, wsClientRef, side, ticker, leverage, quantity},
     },
 }) => {
     // https://stackoverflow.com/a/48759750/8859365

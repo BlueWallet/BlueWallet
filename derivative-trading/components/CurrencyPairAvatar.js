@@ -1,5 +1,5 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 import { Avatar } from 'react-native-elements';
 import { getAvatarImageFromSymbol } from '../models/Product';
 

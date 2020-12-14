@@ -1,6 +1,6 @@
 import React from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Modal from 'react-native-modal';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 
 const TCModal = ({ isVisible, onAccept, onDecline }) => {
     return (

@@ -1,18 +1,18 @@
-import React, { useEffect, useRef, useReducer, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, Image, StatusBar, Platform, TouchableOpacity, ActivityIndicator } from 'react-native';
-import RestApiClient from '../../class/RestApiClient';
-import { deriveCredentialsForWallet } from '../../class/AccountUtils';
-import MainView from './MainView';
-import WebsocketClient from '../../class/WebsocketClient';
-import DerivativesTradingOpenedOrderDetailsScreen from '../open-orders/details/DerivativesTradingOpenedOrderDetailsScreen';
-import DataNormalizer, {APIResponseType} from '../../class/DataNormalization';
-import { WS_BASE_URL } from '../../constants';
+import React, { useEffect, useMemo, useReducer, useRef } from 'react';
+import { ActivityIndicator, Image, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import { showMessage } from 'react-native-flash-message';
+import { deriveCredentialsForWallet } from '../../class/AccountUtils';
+import DataNormalizer, { APIResponseType } from '../../class/DataNormalization';
+import RestApiClient from '../../class/RestApiClient';
+import WebsocketClient from '../../class/WebsocketClient';
 import TCModal from '../../components/TermsModal';
-import { Icon } from 'react-native-elements'
+import { WS_BASE_URL } from '../../constants';
+import { initialState, reducer, TradingDispatch } from '../../reducer';
+import DerivativesTradingOpenedOrderDetailsScreen from '../open-orders/details/DerivativesTradingOpenedOrderDetailsScreen';
+import MainView from './MainView';
 
-import { reducer, initialState, TradingDispatch } from '../../reducer';
 
 const BlueApp = require('../../../BlueApp');
 
@@ -245,7 +245,7 @@ const MainViewContainer = ({
       } else if (responseType === APIResponseType.WITHDRAWAL_SUCCESS) {
         dispatch({ type: 'setIsSettling', payload: false })
       } else if (responseType === APIResponseType.ERROR) {
-        console.log('error from ws');
+        console.log('Message not parsable.');
       }
     }
   }

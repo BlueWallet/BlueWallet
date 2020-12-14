@@ -1,11 +1,9 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, Text, Appearance } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 export const DEFAULT_CONTAINER_WIDTH = 60;
 export const DEFAULT_CONTAINER_HEIGHT = 26;
-
-const colorScheme = Appearance.getColorScheme();
 
 function colorFromLeverage(leverage) {
   const quantile = Math.ceil((leverage / 10000) * 5);
@@ -40,7 +38,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
-    // backgroundColor: colorScheme === 'dark' ? 'white' : BlueCurrentTheme.colors.offBlack,
     backgroundColor: 'white'
   },
 

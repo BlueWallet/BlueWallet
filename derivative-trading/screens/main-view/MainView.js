@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { Dimensions, StyleSheet, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+// import TabViewExample from '../../components/TabView';
+import { TabBar, TabView } from 'react-native-tab-view';
+import { convertToChartData } from '../../class/Utils';
+import BalanceChartView from '../../components/BalanceChartView';
 import AvailableProductsSection from './AvailableProductsSection';
 import CurrentPositionsSection from './CurrentPositionsSection';
 import OpenOrdersSection from './OpenOrdersSection';
-import { ScrollView } from 'react-native-gesture-handler';
-import { convertToChartData, priceToDollars } from '../../class/Utils';
-import BalanceChartView from '../../components/BalanceChartView';
-// import TabViewExample from '../../components/TabView';
-import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import TradesSection from './TradesSection';
 
 

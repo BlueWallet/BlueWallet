@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, TextInput, Text, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Keyboard, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { BlueButton } from '../../../BlueComponents';
-
-import DerivativesTradingProduct from '../../models/Product';
-
 import { calculateOrderCostForProduct } from '../../class/OrderCalculationUtils';
 
-const QuantitySelectionView = ({ onQuantitySubmitted, style, product, ticker, orderType, leverage, limitPrice }) => {
+
+const QuantitySelectionView = ({ onQuantitySubmitted, product, ticker, orderType, leverage, limitPrice }) => {
   const [quantity, setQuantity] = useState(1);
   const [isQuantityValid, setIsQuantityValid] = useState(true);
   const [cost, setCost] = useState(0);

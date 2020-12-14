@@ -1,5 +1,4 @@
-import { avatarImageMap } from "../class/AvatarUtils";
-import { getKindFromSymbol, getAvatarImageFromSymbol } from "./Product";
+import { getAvatarImageFromSymbol, getKindFromSymbol } from "./Product";
 
 export const PositionSide = Object.freeze({
   BID: 'Bid',

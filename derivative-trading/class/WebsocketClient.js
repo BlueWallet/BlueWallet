@@ -1,5 +1,4 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { WS_BASE_URL } from '../constants';
 
 // https://github.com/pladaria/reconnecting-websocket#default-values
 const defaultConnectionOptions = Object.freeze({
@@ -95,7 +94,6 @@ export class WebsocketClient {
   }
 
   authenticate(token) {
-    // console.log(`WebsocketClient -- Authenticating: ${this._jsonForAuthentication()}`);
     this.socket.send(this._jsonForAuthentication(token));
   }
 

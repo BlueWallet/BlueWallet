@@ -1,6 +1,6 @@
-import { OrderType, MarginType } from './TradingTypes';
 import { PositionSide } from './Position';
 import { getKindFromSymbol } from './Product';
+import { MarginType, OrderType } from './TradingTypes';
 
 const defaultProperties = {
   price: 0,

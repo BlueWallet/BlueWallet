@@ -1,12 +1,12 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
+import { SectionList, Text, View } from 'react-native';
 import loc from '../../../loc';
-import { View, Text, SectionList } from 'react-native';
-import NavbarStyles from '../../class/styles/NavbarStyles';
 import ListSectionStyles from '../../class/styles/ListSectionStyles';
-import CurrentPositionListItem from '../main-view/CurrentPositionListItem';
-import { ProductKind } from '../../models/Product';
+import NavbarStyles from '../../class/styles/NavbarStyles';
 import DerivativesTradingPosition from '../../models/Position';
+import { ProductKind } from '../../models/Product';
+import CurrentPositionListItem from '../main-view/CurrentPositionListItem';
 
 function keyExtractor(position) {
   return position.uID;

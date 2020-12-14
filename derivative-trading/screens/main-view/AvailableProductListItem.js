@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { ListItem, Icon, Avatar } from 'react-native-elements';
-import { Text, StyleSheet, View, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Avatar, Icon, ListItem } from 'react-native-elements';
 import { BlueCurrentTheme } from '../../../components/themes';
-import SparkLine from '../../components/SparkLine';
 import { RestApiClient } from '../../class/RestApiClient';
+import SparkLine from '../../components/SparkLine';
 
 const AvailableProductListItem = ({ product, onPress, indexPriceHistory }) => {
   const [priceChange, setPriceChange] = useState(0);

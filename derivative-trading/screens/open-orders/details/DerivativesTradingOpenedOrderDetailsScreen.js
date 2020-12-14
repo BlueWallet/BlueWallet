@@ -1,19 +1,19 @@
-import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, Text, useColorScheme } from 'react-native';
+import React, { useMemo } from 'react';
+import { StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import loc from '../../../../loc';
-import NavbarStyles from '../../../class/styles/NavbarStyles';
-import DerivativesTradingOpenedOrder from '../../../models/OpenedOrder';
+import LinearGradient from 'react-native-linear-gradient';
 import { BlueButton } from '../../../../BlueComponents';
 import { BlueCurrentTheme } from '../../../../components/themes';
-import CurrencyPairAvatar from '../../../components/CurrencyPairAvatar';
+import loc from '../../../../loc';
+import { calculateOrderCostForProduct } from '../../../class/OrderCalculationUtils';
+import NavbarStyles from '../../../class/styles/NavbarStyles';
 import OrderSummaryStyles from '../../../class/styles/OrderSummaryStyles';
-import LinearGradient from 'react-native-linear-gradient';
+import CurrencyPairAvatar from '../../../components/CurrencyPairAvatar';
 import LeverageBadge from '../../../components/LeverageBadge';
+import DerivativesTradingOpenedOrder from '../../../models/OpenedOrder';
 import { PositionSide } from '../../../models/Position';
 import { OrderType } from '../../../models/TradingTypes';
-import { calculateOrderCostForProduct } from '../../../class/OrderCalculationUtils';
 
 const leverageBadgeWidth = 60;
 const leverageBadgeHeight = 26;
@@ -49,9 +49,6 @@ const DerivativesTradingOpenedOrderDetailsScreen = ({
     params: { order, wsClientRef, product },
   },
 }) => {
-  const isAPISocketConnected = useMemo(() => {
-    return wsClientRef.current.isConnected;
-  }, [wsClientRef.current]);
 
   function cancelOrder() {
     const payload = {
@@ -64,8 +61,6 @@ const DerivativesTradingOpenedOrderDetailsScreen = ({
       side: order.side,
       margin_type: 'Isolated',
     };
-    console.log('Cancelling Order');
-    console.log(payload);
     wsClientRef.current.cancelOrder(payload);
     navigation.goBack();
   }

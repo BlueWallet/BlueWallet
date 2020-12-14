@@ -1,14 +1,13 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { ListItem, Avatar } from 'react-native-elements';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { Avatar, ListItem } from 'react-native-elements';
 import TradingDataStyles from '../../class/styles/TradingDataStyles';
 import LeverageBadge from '../../components/LeverageBadge';
 
 
 const CurrentPositionListItem = ({ product, onPress, currentPosition}) => {
   const side = () => {
-    console.log(currentPosition.side);
     return currentPosition.side === 'Bid' ? 'BUY' : 'SELL';
   }
   return (

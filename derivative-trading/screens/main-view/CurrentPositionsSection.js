@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 import { View } from 'react-native';
 import loc from '../../../loc';
 import EmptyListSectionView from '../../components/EmptyListSectionView';
-import { BlueLoading } from '../../../BlueComponents';
 import CurrentPositionListItem from './CurrentPositionListItem';
-import RestApiClient from '../../class/RestApiClient';
 
-const CurrentPositionsSection = ({ currentPositions, products, onPositionSelected, style, apiKey }) => {
+const CurrentPositionsSection = ({ currentPositions, products, onPositionSelected, style }) => {
 
   const SectionBody = () => {
     if (Object.values(currentPositions).length == 0) {
@@ -39,7 +37,6 @@ const CurrentPositionsSection = ({ currentPositions, products, onPositionSelecte
 
 CurrentPositionsSection.propTypes = {
   style: PropTypes.object,
-  currentPositions: PropTypes.arrayOf(PropTypes.object).isRequired,
   onPositionSelected: PropTypes.func,
   apiKey: PropTypes.string.isRequired,
 };

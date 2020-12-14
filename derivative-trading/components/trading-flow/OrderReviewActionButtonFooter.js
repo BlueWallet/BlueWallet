@@ -1,6 +1,6 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet } from 'react-native';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Button } from 'react-native-elements';
 import { BlueCurrentTheme } from '../../../components/themes';
 

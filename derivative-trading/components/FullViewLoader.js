@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, StyleSheet, ActivityIndicator, Text} from 'react-native'
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 
-const FullViewLoader = ({ message }) => {
+const FullViewLoader = () => {
     return (
         <View style={styles.mainContainer}>
             <ActivityIndicator size={'large'} color={'#5d5dff'}></ActivityIndicator>

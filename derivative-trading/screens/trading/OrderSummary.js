@@ -1,20 +1,11 @@
-import React, { useMemo, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, Text, Platform } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import {
-    calculateLiquidationPriceFromMarginAndFees,
-    calculateOrderValueForProduct,
-    calculateOrderCostForProduct,
-    calculateRequiredMargin,
-    calculateTradingFees,
-} from '../../class/OrderCalculationUtils';
-import DerivativesTradingFeesInfo from '../../models/FeesInfo';
+import { v4 as uuidV4 } from 'react-native-uuid';
+import RestApiClient from '../../class/RestApiClient';
 import OrderReviewStyles from '../../class/styles/trading-flow/OrderReviewStyles';
 import OrderReviewActionButtonFooter from '../../components/trading-flow/OrderReviewActionButtonFooter';
-import RestApiClient from '../../class/RestApiClient';
-
-import { v4 as uuidV4 } from 'react-native-uuid'
 
 const baseFooterHeight = 102;
 const extraFooterOffset = 20;
@@ -31,18 +22,8 @@ const DTOrderSummay = ({
         mid: 0,
     });
 
-    const [orderFees, setOrderFees] = useState(0);
-
-    const [costOfOrder, setCostOfOrder] = useState(null);
     const [stagedOrder, setStagedOrder] = useState(null);
     const [orderInfo, setOrderInfo] = useState([]);
-
-    const feesInfo = new DerivativesTradingFeesInfo({
-        maker: -0.00025,
-        taker: 0.00075,
-    });
-
-    const fundingRate = 0;
 
     const restAPIClient = new RestApiClient({apiKey});
 
@@ -84,7 +65,6 @@ const DTOrderSummay = ({
 
     async function getOrderInfo() {
         let info = await restAPIClient.fetchOrderInfo({order: stagedOrder});
-        console.log(info);
         let oi = {
             fees: Number(info.exchange_fee).toFixed(0),
             value: Number(info.value).toFixed(2),
@@ -132,8 +112,6 @@ const DTOrderSummay = ({
             margin_type: 'Isolated',
             settlement_type: 'Instant',
         };
-        console.log('----------- SENDING ORDER -------------');
-        console.log(order);
         wsClientRef.current.placeOrder(order);
         navigateBackToDetails();
     }

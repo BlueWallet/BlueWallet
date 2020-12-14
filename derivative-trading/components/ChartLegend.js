@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { getPairFromSymbol } from '../class/Utils';
 
 class ChartLegend extends React.Component {

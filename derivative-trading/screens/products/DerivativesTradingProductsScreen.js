@@ -1,12 +1,12 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { ProductKind } from '../../models/Product';
+import React from 'react';
+import { SectionList, Text, View } from 'react-native';
 import loc from '../../../loc';
 import ListSectionStyles from '../../class/styles/ListSectionStyles';
-
-import { View, Text, SectionList } from 'react-native';
-import AvailableProductListItem from '../main-view/AvailableProductListItem';
 import NavbarStyles from '../../class/styles/NavbarStyles';
+import { ProductKind } from '../../models/Product';
+import AvailableProductListItem from '../main-view/AvailableProductListItem';
+
 
 function keyExtractor({ product }) {
   return product.symbol;

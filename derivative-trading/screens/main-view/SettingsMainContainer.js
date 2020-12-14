@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, TextInput } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { BlueLoading } from '../../../BlueComponents';
 import RestApiClient from '../../class/RestApiClient';
-import { useReachability } from 'react-native-watch-connectivity';
 
 const BlueApp = require('../../../BlueApp');
 
@@ -25,7 +24,6 @@ const SettingsMainContainer = ({ route: {
         setIsLoadingUserData(true);
         let savedData = await BlueApp.getKolliderUserData(wallet);
         savedData = JSON.parse(savedData);
-        console.log(savedData)
         let restClient = new RestApiClient({ apiKey: savedData.token});
         let whoami = await restClient.whoAmI();
         let balances = await restClient.fetchBalances();

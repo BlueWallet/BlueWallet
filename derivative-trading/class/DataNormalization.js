@@ -1,4 +1,3 @@
-import { getCurrencies } from "react-native-localize";
 import { avatarImageMap } from './AvatarUtils';
 
 const RESPONSE_TYPE_OPEN_ORDERS = 'open_orders';

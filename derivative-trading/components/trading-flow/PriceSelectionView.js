@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, TextInput, Text, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Keyboard, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { BlueButton } from '../../../BlueComponents';
 import { calculateOrderCostForProduct } from '../../class/OrderCalculationUtils';
-import { useReachability } from 'react-native-watch-connectivity';
 
-const PriceSelectionView = ({ onPriceSubmitted, style, product, leverage, quantity, ticker, side }) => {
+const PriceSelectionView = ({ onPriceSubmitted, product, leverage, quantity, ticker, side }) => {
   const [price, setPrice] = useState(1);
   const [priceFormatted, setPriceFormatted] = useState('$ 1')
   const [isPriceValid, setIsPriceValid] = useState(true);

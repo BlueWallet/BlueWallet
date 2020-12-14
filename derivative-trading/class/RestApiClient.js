@@ -1,7 +1,7 @@
 import Frisbee from 'frisbee';
+import { API_BASE_URL } from '../constants';
 import DataNormalizer from './DataNormalization';
 
-import { API_BASE_URL } from '../constants';
 
 export class RestApiClient {
   static BASE_URL = API_BASE_URL;
@@ -234,7 +234,6 @@ export class RestApiClient {
       this.urlFor(RestApiClient.PATH_GET_POSITION_STATE) +
       '?' +
       `symbol='${symbol}'`
-    console.log(url);
     try {
       const response = await fetch(url, {
         method: 'GET',
@@ -272,7 +271,6 @@ export class RestApiClient {
       url += '&' +
         `offset_start=${start}`
     }
-    console.log(url);
     try {
       const response = await fetch(url, {
         method: 'GET',
@@ -294,7 +292,6 @@ export class RestApiClient {
 
   async fetchOrderInfo({ order }) {
     let url = this.urlFor(RestApiClient.PATH_GET_ORDER_INFO);
-    console.log(url);
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -345,7 +342,6 @@ export class RestApiClient {
   async fetchOpenOrders() {
     const url =
       this.urlFor(RestApiClient.PATH_GET_OPEN_ORDERS)
-      console.log(url);
     try {
       const response = await fetch(url, {
         method: 'GET',
@@ -358,7 +354,6 @@ export class RestApiClient {
         `);
       }
       let res = await response.json();
-      console.log(res)
       let openOrders = []
       Object.values(res).map(openOrder => {
         let o = DataNormalizer.openOrderFromPayload(openOrder)
@@ -388,7 +383,6 @@ export class RestApiClient {
 
       if (response.ok === false) {
         if (response.status === 404) {
-          console.log(404)
           return []
         }
         // throw new Error(`

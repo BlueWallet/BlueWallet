@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import { View } from 'react-native';
-import loc from '../../../loc';
-import EmptyListSectionView from '../../components/EmptyListSectionView';
 import { BlueLoading } from '../../../BlueComponents';
 import RestApiClient from '../../class/RestApiClient';
+import EmptyListSectionView from '../../components/EmptyListSectionView';
 import TradesSectionListItem from './TradesSectionListItem';
 
 const TradesSection = ({ style, apiKey, products }) => {
@@ -20,13 +18,11 @@ const TradesSection = ({ style, apiKey, products }) => {
         let restClient = new RestApiClient({ apiKey });
         try {
             let trades = await restClient.fetchTrades({});
-            console.log(trades)
             setTrades(trades)
             setIsLoadingTrades(false);
         } catch (error) {
             setTrades([])
             setIsLoadingTrades(false);
-            console.log(error)
         }
     }
 
@@ -37,8 +33,6 @@ const TradesSection = ({ style, apiKey, products }) => {
             return <EmptyListSectionView height={80} message={"Your trades will appear here."} />;
         } else {
             return trades.map((trade, index) => {
-                console.log('-------------------------')
-                console.log(trade)
                 let product = products.filter(product => product.symbol === trade.symbol);
                 if (product.length > 0) {
                     return <TradesSectionListItem trade={trade} product={product[0]} ></TradesSectionListItem>

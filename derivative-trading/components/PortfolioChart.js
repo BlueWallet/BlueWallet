@@ -1,7 +1,6 @@
-import React from 'react'
-import { PieChart } from 'react-native-svg-charts'
-import { Circle, G, Line } from 'react-native-svg'
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { PieChart } from 'react-native-svg-charts';
 
 
 class PortfolioChart extends React.Component {

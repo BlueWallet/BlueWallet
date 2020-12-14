@@ -7,7 +7,6 @@ const defaultProperties = Object.freeze({
 class DerivativesTradingCancelledOrderPayload {
   constructor(_props = {}) {
     const props = Object.assign({}, defaultProperties, _props);
-    console.log('fuck me up the butt');
     this.symbol = props.symbol;
     this.order_id = props.orderID;
     this.old_quantity = props.oldQuantity;

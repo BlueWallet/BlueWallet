@@ -1,8 +1,7 @@
+import * as shape from 'd3-shape';
 import React from 'react';
-import { View, StyleSheet, Dimensions, Button } from 'react-native';
-import { LineChart } from 'react-native-svg-charts'
-import { G, Line, Text } from 'react-native-svg'
-import * as shape from 'd3-shape'
+import { Dimensions, StyleSheet, View } from 'react-native';
+import { LineChart } from 'react-native-svg-charts';
 
 
 export default class SparkLine extends React.Component {
