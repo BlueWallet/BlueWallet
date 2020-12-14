@@ -79,7 +79,6 @@ import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
-import { BlueNavigationStyle } from './BlueComponents';
 import DTSelectQuantity from './derivative-trading/screens/trading/SelectQuantity';
 import DTSelectLeverage from './derivative-trading/screens/trading/SelectLeverage';
 import DTSelectLimitPrice from './derivative-trading/screens/trading/SelectLimitPrice';
@@ -234,7 +233,7 @@ const DerivativesTradingRoot = () => (
       options={DerivativesTradingOpenedOrderDetailsScreen.navigationOptions}
     />
     <DerivativesTradingStack.Screen
-      name={"DerivativesTradingSettingsMainContainer"}
+      name="DerivativesTradingSettingsMainContainer"
       component={DerivativesTradingSettingsMainContainer}
       options={DerivativesTradingSettingsMainContainer.navigationOptions}
     />

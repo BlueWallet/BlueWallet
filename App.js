@@ -286,7 +286,7 @@ const App = () => {
           <Notifications onProcessNotifications={processPushNotifications} />
           {renderClipboardContentModal()}
         </NavigationContainer>
-        <FlashMessage position="top"  style={{marginTop: 20}}/>
+        <FlashMessage position="top"  style={styles.flashMessage}/>
       </View>
       <WatchConnectivity />
       <DeviceQuickActions />
@@ -320,6 +320,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-end',
   },
+  flashMessage: {
+    marginTop: 20,
+  }
 });
 
 export default App;
