@@ -1,7 +1,7 @@
 {
   "_": {
     "allow": "Permitir",
-    "bad_password": "Password incorrecto, por favor inténtalo otra vez.",
+    "bad_password": "Contraseña incorrecta, por favor inténtelo otra vez.",
     "cancel": "Cancelar",
     "continue": "Continua",
     "dont_allow": "No permitir",
@@ -28,6 +28,7 @@
     "title": "Canjear cupón Azte.co"
   },
   "cc": {
+    "change": "Cambio",
     "coins_selected": "({number}) monedas (coins) seleccionadas",
     "empty": "Esta cartera no tiene fondos en este momento",
     "freeze": "congelar",
@@ -97,8 +98,9 @@
     "p2p": "Una casa de cambio p2p"
   },
   "is_it_my_address": {
-    "check_address": "Comprobar dirección",
-    "enter_address": "Introduce la dirección:",
+    "check_address": "Comprueba dirección",
+    "enter_address": "Escribe la dirección",
+    "no_wallet_owns_address": "Ninguna de las carteras disponibles posee la dirección proporcionada.",
     "owns": "{address} es de {label}",
     "title": "¿Es mi dirección?"
   },
@@ -141,7 +143,7 @@
     "export_signed_psbt": "Exportar PSBT firmado",
     "fee": "Tarifa: {number}",
     "fee_btc": "{number} BTC",
-    "forget_this_seed": "Olvida esta semilla y usa xpub",
+    "forget_this_seed": "Olvida esta semilla y usa XPUB",
     "header": "Enviar",
     "how_many_signatures_can_bluewallet_make": "Cuántas firmas puede hacer bluewallet",
     "i_have_mnemonics": "Tengo una semilla para esta llave...",
@@ -156,6 +158,16 @@
     "invalid_mnemonics": "Esta frase mnemotécnica no es válida",
     "legacy_title": "La versión antigua",
     "lets_start": "Comencemos",
+    "manage_keys": "Administrar claves",
+    "ms_help": "Ayuda",
+    "ms_help_1": "La Bóveda funcionará con otras aplicaciones BlueWallet y carteras compatibles con PSBT, como Electrum, Spectre, Coldcard, Cobo Vault, etc.",
+    "ms_help_2": "Puede crear todas las claves de Bóveda en este dispositivo y eliminarlas o editarlas más tarde. Tener todas las claves en el mismo dispositivo tiene la seguridad equivalente a una cartera de Bitcoin normal.",
+    "ms_help_text": "Una cartera con múltiples claves, para aumentar exponencialmente la seguridad o para custodia compartida.",
+    "ms_help_title": "Cómo funcionan las bóvedas multifirma. Consejos y trucos",
+    "ms_help_title1": "Se recomienda multiples dispositivos",
+    "ms_help_title2": "Editar claves",
+    "ms_help_title3": "Copias de seguridad de la bóveda",
+    "ms_help_title5": "Opciones avanzadas",
     "multisig_vault": "Caja fuerte",
     "multisig_vault_explain": "La mejor seguridad para grandes cantidades",
     "native_segwit_title": "La mejor opción para la mayoría de usuarios",
@@ -175,8 +187,8 @@
     "type_your_mnemonics": "Introduce una semilla para importar la llave de tu caja fuerte",
     "vault_advanced_customize": "Opciones de la caja fuerte...",
     "vault_key": "Clave de la bóveda {number}",
+    "view": "Ver",
     "view_edit_cosigners": "Ver/editar co-firmantes",
-    "view_edit_cosigners_title": "Editar co-firmantes",
     "view_key": "Ver",
     "wallet_key_created": "Caja fuerte creada. Tómate un momento para anotar la semilla mnemotécnica",
     "wallet_type": "Tipo de cartera",
@@ -354,6 +366,7 @@
     "network_electrum": "Servidor Electrum",
     "not_a_valid_uri": "URI no válida",
     "notifications": "Notificaciones",
+    "open_link_in_explorer": "Abrir enlace en el navegador",
     "password": "Contraseña",
     "password_explain": "Crea la contraseña que usarás para descifrar el almacenamiento",
     "passwords_do_not_match": "Contraseñas deben ser iguales",
@@ -368,7 +381,8 @@
     "push_notifications": "Notificaciones push",
     "retype_password": "Introduce la contraseña otra vez",
     "save": "Guardar",
-    "saved": "Guardado"
+    "saved": "Guardado",
+    "success_transaction_broadcasted": "¡Éxito! ¡Su transacción ha sido emitida!"
   },
   "transactions": {
     "cancel_explain": "Reemplazaremos esta transacción con la que te paga y tiene tasas más altas, lo que cancelará la transacción. A esto se le llama RBF (Replace By Fee).",
@@ -411,6 +425,7 @@
     "add_import_wallet": "Importar cartera",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Para pagos con transferencias instantáneas",
+    "add_ln_wallet_first": "Primero debe agregar una cartera Lightning.",
     "add_lndhub": "Conecta a tu LDNHub",
     "add_lndhub_error": "La dirección proporcionada no es válida para un nodo LNDHub.",
     "add_lndhub_placeholder": "la dirección de tu nodo",
@@ -469,6 +484,7 @@
     "list_title": "Carteras",
     "list_tryagain": "Inténtalo otra vez",
     "looks_like_bip38": "Parece que esto es una llave privada protegida con contraseña (BIP38)",
+    "no_ln_wallet_error": "Antes de pagar una factura Lightning, primero debe agregar una cartera Lightning.",
     "pull_to_refresh": "Desliza el dedo de arriba a abajo para actualizar",
     "reorder_title": "Reorganizar carteras",
     "select_no_bitcoin": "No hay carteras de Bitcoin disponibles.",
