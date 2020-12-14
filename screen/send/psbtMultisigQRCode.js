@@ -52,9 +52,11 @@ const PsbtMultisigQRCode = () => {
 
     ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, async buttonIndex => {
       if (buttonIndex === 1) {
-        fs.takePhotoWithImagePickerAndReadPhoto.then(onBarScanned);
+        fs.takePhotoWithImagePickerAndReadPhoto.then(data => onBarScanned({ data }));
       } else if (buttonIndex === 2) {
-        fs.showImagePickerAndReadImage(onBarScanned).catch(error => alert(error.message));
+        fs.showImagePickerAndReadImage(onBarScanned)
+          .then(data => onBarScanned({ data }))
+          .catch(error => alert(error.message));
       } else if (buttonIndex === 3) {
         const { data } = await fs.showFilePickerAndReadFile();
         if (data) {
