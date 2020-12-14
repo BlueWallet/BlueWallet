@@ -248,6 +248,8 @@
     "electrum_port": "TCP port, usually {example}",
     "electrum_port_ssl": "SSL port, usually {example}",
     "electrum_saved": "Your changes have been saved successfully. Restart may be required for changes to take effect.",
+    "set_electrum_server_as_default": "Set {server} as default electrum server?",
+    "set_lndhub_as_default": "Set {url} as default LNDHub server?",
     "electrum_settings": "Electrum Settings",
     "electrum_settings_explain": "Set to blank to use default",
     "electrum_status": "Status",
