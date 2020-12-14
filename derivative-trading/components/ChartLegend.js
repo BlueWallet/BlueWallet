@@ -29,7 +29,6 @@ class ChartLegend extends React.Component {
         return legend
     }
 
-
     render() {
         return (
             <View style={styles.legendMainContainer}>
