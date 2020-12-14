@@ -272,7 +272,7 @@ const ScanQRCode = () => {
       )}
       {urTotal > 0 && (
         <View style={[styles.progressWrapper, stylesHook.progressWrapper]} testID="UrProgressBar">
-          <BlueText>{loc.wallets.scan_in_progress}</BlueText>
+          <BlueText>{loc.wallets.please_continue_scanning}</BlueText>
           <BlueText>
             {urHave} / {urTotal}
           </BlueText>
