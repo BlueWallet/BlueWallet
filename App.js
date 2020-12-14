@@ -25,6 +25,8 @@ import WalletImport from './class/wallet-import';
 import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
 import changeNavigationBarColor from 'react-native-navigation-bar-color';
+import FlashMessage from 'react-native-flash-message';
+
 const A = require('./blue_modules/analytics');
 
 if (process.env.NODE_ENV !== 'development') {
@@ -284,6 +286,7 @@ const App = () => {
           <Notifications onProcessNotifications={processPushNotifications} />
           {renderClipboardContentModal()}
         </NavigationContainer>
+        <FlashMessage position="top"  style={{marginTop: 20}}/>
       </View>
       <WatchConnectivity />
       <DeviceQuickActions />
