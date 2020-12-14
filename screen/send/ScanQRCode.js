@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   backdoorInputWrapper: { position: 'absolute', left: '5%', top: '0%', width: '90%', height: '70%', backgroundColor: 'white' },
-  progressWrapper: { position: 'absolute', right: '50%', top: '50%', backgroundColor: 'rgba(255, 255, 255, 0.1)' },
+  progressWrapper: { position: 'absolute', alignSelf: 'center', alignItems: 'center', top: '50%', padding: 8, borderRadius: 8 },
   backdoorInput: {
     height: '50%',
     marginTop: 5,
@@ -105,6 +105,7 @@ const ScanQRCode = () => {
     openSettingsContainer: {
       backgroundColor: colors.brandingColor,
     },
+    progressWrapper: { backgroundColor: colors.brandingColor, borderColor: colors.foregroundColor, borderWidth: 4 },
   });
   const HashIt = function (s) {
     return createHash('sha256').update(s).digest().toString('hex');
@@ -270,13 +271,13 @@ const ScanQRCode = () => {
         </TouchableOpacity>
       )}
       {urTotal > 0 && (
-        <View style={styles.progressWrapper} testID="UrProgressBar">
+        <View style={[styles.progressWrapper, stylesHook.progressWrapper]} testID="UrProgressBar">
+          <BlueText>{loc.wallets.scan_in_progress}</BlueText>
           <BlueText>
             {urHave} / {urTotal}
           </BlueText>
         </View>
       )}
-
       {backdoorVisible && (
         <View style={styles.backdoorInputWrapper}>
           <BlueText>Provide QR code contents manually:</BlueText>
