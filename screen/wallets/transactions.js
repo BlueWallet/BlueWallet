@@ -66,11 +66,14 @@ const WalletTransactions = () => {
     listHeaderText: {
       color: colors.foregroundColor,
     },
+    derivativesTradingButton: {
+      backgroundColor: colors.lightButton,
+    },
     marketplaceButton1: {
       backgroundColor: colors.lightButton,
     },
     marketplaceButton2: {
-      backgroundColor: colors.lightButton,
+      backgroundColor: colors.lightButton
     },
     marketpalceText1: {
       color: colors.cta2,
@@ -243,12 +246,14 @@ const WalletTransactions = () => {
             - Shows Lapp Browser empty (iOS)
             - Shows Lapp Browser with marketplace (android)
             - Shows Marketplace button to open in browser (iOS)
+            - Shows Derivatives Trading button on details screen, open in in-app
 
             The idea is to avoid showing on iOS an appstore/market style app that goes against the TOS.
 
            */}
           {wallet.current.getTransactions().length > 0 && wallet.current.type !== LightningCustodianWallet.type && renderSellFiat()}
           {wallet.current.type === LightningCustodianWallet.type && renderMarketplaceButton()}
+          {wallet.current.type === LightningCustodianWallet.type && renderDerivativesTradingButton()}
           {wallet.current.type === LightningCustodianWallet.type && Platform.OS === 'ios' && renderLappBrowserButton()}
         </View>
         <View style={[styles.listHeaderTextRow, stylesHook.listHeaderTextRow]}>
@@ -362,6 +367,25 @@ const WalletTransactions = () => {
           </TouchableOpacity>
         ) : null,
     });
+  };
+
+  const renderDerivativesTradingButton = () => {
+    return (
+      <TouchableOpacity
+        onPress={() =>
+          navigate('DerivativesTradingRoot', {
+            screen: 'DerivativesTradingMain',
+            params: {
+              fromWallet: wallet.current,
+            },
+          })
+        }
+        title={loc.wallets.details_derivatives_trading}
+        style={[styles.derivativesTradingButton, stylesHook.derivativesTradingButton]}
+      >
+        <Text style={styles.marketpalceText1}>{loc.wallets.details_derivatives_trading}</Text>
+      </TouchableOpacity>
+    );
   };
 
   const renderLappBrowserButton = () => {
@@ -497,7 +521,7 @@ const WalletTransactions = () => {
                 style: 'default',
               },
 
-              { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+              { text: loc._.cancel, onPress: () => { }, style: 'cancel' },
             ],
             { cancelable: false },
           );
@@ -535,7 +559,7 @@ const WalletTransactions = () => {
       const buttons = [
         {
           text: loc._.cancel,
-          onPress: () => {},
+          onPress: () => { },
           style: 'cancel',
         },
         {
@@ -686,18 +710,18 @@ const WalletTransactions = () => {
         )}
         {(wallet.current.allowSend() ||
           (wallet.current.type === WatchOnlyWallet.type && wallet.current.isHd() && wallet.current.getSecret().startsWith('zpub'))) && (
-          <FButton
-            onLongPress={sendButtonLongPress}
-            onPress={sendButtonPress}
-            text={loc.send.header}
-            testID="SendButton"
-            icon={
-              <View style={styles.sendIcon}>
-                <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
-              </View>
-            }
-          />
-        )}
+            <FButton
+              onLongPress={sendButtonLongPress}
+              onPress={sendButtonPress}
+              text={loc.send.header}
+              testID="SendButton"
+              icon={
+                <View style={styles.sendIcon}>
+                  <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
+                </View>
+              }
+            />
+          )}
       </FContainer>
     </View>
   );
@@ -800,6 +824,17 @@ const styles = StyleSheet.create({
     alignSelf: 'auto',
     flexGrow: 1,
     marginHorizontal: 4,
+  },
+  derivativesTradingButton: {
+    marginLeft: 5,
+    borderRadius: 9,
+    minHeight: 49,
+    flexGrow: 1,
+    flexBasis: '40%',
+    paddingHorizontal: 8,
+    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   marketplaceButton2: {
     borderRadius: 9,

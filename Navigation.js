@@ -40,6 +40,12 @@ import HodlHodlLogin from './screen/wallets/hodlHodlLogin';
 import HodlHodlWebview from './screen/wallets/hodlHodlWebview';
 import HodlHodlMyContracts from './screen/wallets/hodlHodlMyContracts';
 import Marketplace from './screen/wallets/marketplace';
+
+import DerivativesTradingMain from './derivative-trading/screens/main-view/MainViewContainer';
+import DerivativesTradingProductsScreen from './derivative-trading/screens/products/DerivativesTradingProductsScreen';
+import DerivativesTradingSettingsMainContainer from './derivative-trading/screens/main-view/SettingsMainContainer';
+import DerivativesTradingProductDetails from './derivative-trading/screens/products/product-details/ProductDetailsScreen';
+
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 import ProvideEntropy from './screen/wallets/provideEntropy';
@@ -73,6 +79,14 @@ import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
+import { BlueNavigationStyle } from './BlueComponents';
+import DTSelectQuantity from './derivative-trading/screens/trading/SelectQuantity';
+import DTSelectLeverage from './derivative-trading/screens/trading/SelectLeverage';
+import DTSelectLimitPrice from './derivative-trading/screens/trading/SelectLimitPrice';
+import DTOrderSummary from './derivative-trading/screens/trading/OrderSummary';
+import DerivativesTradingCurrentPositionsScreen from './derivative-trading/screens/current-positions/DerivativesTradingCurrentPositionsScreen';
+import DerivativesTradingOpenOrdersScreen from './derivative-trading/screens/open-orders/DerivativesTradingOpenOrdersScreen';
+import DerivativesTradingOpenedOrderDetailsScreen from './derivative-trading/screens/open-orders/details/DerivativesTradingOpenedOrderDetailsScreen';
 import DrawerList from './screen/wallets/drawerList';
 import { isTablet } from 'react-native-device-info';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
@@ -185,6 +199,74 @@ const AddWalletRoot = () => (
     />
   </AddWalletStack.Navigator>
 );
+
+const DerivativesTradingStack = createStackNavigator();
+const DerivativesTradingRoot = () => (
+  <DerivativesTradingStack.Navigator initialRouteName="DerivativesTradingMain" screenOptions={defaultStackScreenOptions}>
+    <DerivativesTradingStack.Screen
+      name="DerivativesTradingMain"
+      component={DerivativesTradingMain}
+      options={DerivativesTradingMain.navigationOptions}
+    />
+    <DerivativesTradingStack.Screen
+      name="DerivativesTradingProductsScreen"
+      component={DerivativesTradingProductsScreen}
+      options={DerivativesTradingProductsScreen.navigationOptions}
+    />
+    <DerivativesTradingStack.Screen
+      name="DerivativesTradingProductDetails"
+      component={DerivativesTradingProductDetails}
+      options={DerivativesTradingProductDetails.navigationOptions}
+    />
+    <DerivativesTradingStack.Screen
+      name="DerivativesTradingCurrentPositionsScreen"
+      component={DerivativesTradingCurrentPositionsScreen}
+      options={DerivativesTradingCurrentPositionsScreen.navigationOptions}
+    />
+    <DerivativesTradingStack.Screen
+      name="DerivativesTradingOpenOrdersScreen"
+      component={DerivativesTradingOpenOrdersScreen}
+      options={DerivativesTradingOpenOrdersScreen.navigationOptions}
+    />
+    <DerivativesTradingStack.Screen
+      name={DerivativesTradingOpenedOrderDetailsScreen.navigationName}
+      component={DerivativesTradingOpenedOrderDetailsScreen}
+      options={DerivativesTradingOpenedOrderDetailsScreen.navigationOptions}
+    />
+    <DerivativesTradingStack.Screen
+      name={"DerivativesTradingSettingsMainContainer"}
+      component={DerivativesTradingSettingsMainContainer}
+      options={DerivativesTradingSettingsMainContainer.navigationOptions}
+    />
+  </DerivativesTradingStack.Navigator>
+);
+
+const DTStack = createStackNavigator();
+const DTTradingRoot = () => (
+  <DTStack.Navigator screenOptions={defaultStackScreenOptions}>
+    <DTStack.Screen
+      name="DTSelectQuantity"
+      component={DTSelectQuantity}
+      options={DTSelectQuantity.navigationOptions}
+    />
+    <DTStack.Screen
+      name="DTSelectLeverage"
+      component={DTSelectLeverage}
+      options={DTSelectLeverage.navigationOptions}
+    />
+    <DTStack.Screen
+      name="DTSelectLimitPrice"
+      component={DTSelectLimitPrice}
+      options={DTSelectLimitPrice.navigationOptions}
+    />
+    <DTStack.Screen
+      name="DTOrderSummary"
+      component={DTOrderSummary}
+      options={DTOrderSummary.navigationOptions}
+    />
+  </DTStack.Navigator>
+);
+
 
 // CreateTransactionStackNavigator === SendDetailsStack
 const SendDetailsStack = createStackNavigator();
@@ -411,6 +493,22 @@ const Navigation = () => (
       options={{
         ...(Platform.OS === 'ios' ? TransitionPresets.ModalTransition : TransitionPresets.ScaleFromCenterAndroid),
         headerShown: false,
+      }}
+    />
+    <RootStack.Screen
+      name="DerivativesTradingRoot"
+      component={DerivativesTradingRoot}
+      options={{
+        headerShown: false,
+        animationEnabled: true,
+      }}
+    />
+    <RootStack.Screen
+      name="DTTradingRoot"
+      component={DTTradingRoot}
+      options={{
+        headerShown: false,
+        animationEnabled: true,
       }}
     />
   </RootStack.Navigator>

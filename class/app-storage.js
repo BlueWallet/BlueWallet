@@ -36,6 +36,7 @@ export class AppStorage {
   static HODL_HODL_API_KEY = 'HODL_HODL_API_KEY';
   static HODL_HODL_SIGNATURE_KEY = 'HODL_HODL_SIGNATURE_KEY';
   static HODL_HODL_CONTRACTS = 'HODL_HODL_CONTRACTS';
+  static KOLLIDER_API_KEY = 'KOLLIDER_API_KEY';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
@@ -656,6 +657,19 @@ export class AppStorage {
     if (sigKey) await this.setItem(AppStorage.HODL_HODL_SIGNATURE_KEY, sigKey);
     return this.setItem(AppStorage.HODL_HODL_API_KEY, key);
   };
+
+  async getKolliderUserData(wallet) {
+    try {
+      const storageKey = `${AppStorage.KOLLIDER_API_KEY}-${wallet.getID()}`;
+      return await this.getItem(storageKey);
+    } catch (_) {}
+    return false;
+  }
+
+  async setKolliderUserData(userData, wallet) {
+    const storageKey = `${AppStorage.KOLLIDER_API_KEY}-${wallet.getID()}`;
+    return this.setItem(storageKey, userData);
+  }
 
   isAdancedModeEnabled = async () => {
     try {
