@@ -465,6 +465,10 @@ const ViewEditMultisigCosigners = () => {
         keyboardVerticalOffset={62}
         style={[styles.mainBlock, styles.root]}
       >
+        <BlueTextCentered>{loc.formatString(loc.multisig.signatures_required_to_spend, { number: wallet.getM() })}</BlueTextCentered>
+        <BlueTextCentered>
+          {loc.formatString(loc.multisig.signatures_we_can_make, { number: wallet.howManySignaturesCanWeMake() })}
+        </BlueTextCentered>
         <FlatList data={data.current} extraData={vaultKeyData} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
         <BlueSpacing10 />
         {footer}
