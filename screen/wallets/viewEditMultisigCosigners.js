@@ -18,7 +18,6 @@ import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getSystemName } from 'react-native-device-info';
-import ActionSheet from '../ActionSheet';
 
 import {
   BlueButton,
@@ -400,32 +399,9 @@ const ViewEditMultisigCosigners = () => {
     });
   };
 
-  const showActionSheet = () => {
-    const options = [loc._.cancel, loc.wallets.take_photo, loc.wallets.list_long_choose, loc.wallets.import_file];
-
-    ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, async buttonIndex => {
-      if (buttonIndex === 1) {
-        fs.takePhotoWithImagePickerAndReadPhoto.then(data => {
-          _handleUseMnemonicPhrase(data);
-        });
-      } else if (buttonIndex === 2) {
-        fs.showImagePickerAndReadImage()
-          .then(data => {
-            _handleUseMnemonicPhrase(data);
-          })
-          .catch(error => alert(error.message));
-      } else if (buttonIndex === 3) {
-        const { data } = await fs.showFilePickerAndReadFile();
-        if (data) {
-          _handleUseMnemonicPhrase(data);
-        }
-      }
-    });
-  };
-
   const scanOrOpenFile = () => {
     if (isDesktop) {
-      showActionSheet();
+      fs.showActionSheet().then(_handleUseMnemonicPhrase);
     } else {
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
