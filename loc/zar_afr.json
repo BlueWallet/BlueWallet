@@ -78,10 +78,10 @@
     "details_title": "Transaksie",
     "details_to": "Resultaat",
     "details_transaction_details": "Transaksie besonderhede",
-    "list_conf": "bev.",
     "list_title": "transaksies"
   },
   "wallets": {
+    "add_bitcoin": "Bitcoin",
     "add_create": "Skep",
     "add_import_wallet": "Beursie Invoer",
     "add_or": "of",
@@ -107,8 +107,6 @@
     "import_success": "Suksesvol",
     "import_title": "Invoer",
     "list_create_a_wallet": "Skep ‘n beursie",
-    "list_create_a_wallet1": "Dit is gratis so skep",
-    "list_create_a_wallet2": "soveel as wat u benodig",
     "list_empty_txs1": "U transaksies is hier beskikbaar,",
     "list_empty_txs2": "huidiglik geen transaksies",
     "list_latest_transaction": "laaste transaksie",

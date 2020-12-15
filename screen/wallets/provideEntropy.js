@@ -1,11 +1,12 @@
 import React, { useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import BN from 'bignumber.js';
-import { Dimensions, View, ScrollView, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { Dimensions, PixelRatio, View, ScrollView, Text, Image, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from '../../components/themes';
+import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueTabs } from '../../BlueComponents';
 import loc from '../../loc';
 
@@ -115,6 +116,20 @@ Coin.propTypes = {
 };
 
 const Dice = ({ push, sides }) => {
+  const { width } = useWindowDimensions();
+  const { colors } = useTheme();
+  const diceWidth = width / 4;
+  const stylesHook = StyleSheet.create({
+    dice: {
+      borderColor: colors.buttonBackgroundColor,
+    },
+    diceText: {
+      color: colors.foregroundColor,
+    },
+    diceContainer: {
+      backgroundColor: colors.elevated,
+    },
+  });
   const diceIcon = i => {
     switch (i) {
       case 1:
@@ -133,15 +148,15 @@ const Dice = ({ push, sides }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.diceContainer}>
+    <ScrollView contentContainerStyle={[styles.diceContainer, stylesHook.diceContainer]}>
       {[...Array(sides)].map((_, i) => (
         <TouchableOpacity key={i} onPress={() => push(getEntropy(i, sides))}>
-          <View style={styles.diceRoot}>
+          <View style={[styles.diceRoot, { width: diceWidth }]}>
             {sides === 6 ? (
               <Icon style={styles.diceIcon} name={diceIcon(i + 1)} size={70} color="grey" type="font-awesome-5" />
             ) : (
-              <View style={styles.dice}>
-                <Text style={styles.diceText}>{i + 1}</Text>
+              <View style={[styles.dice, stylesHook.dice]}>
+                <Text style={stylesHook.diceText}>{i + 1}</Text>
               </View>
             )}
           </View>
@@ -156,34 +171,38 @@ Dice.propTypes = {
   push: PropTypes.func.isRequired,
 };
 
-const Buttons = ({ pop, save }) => (
-  <View style={styles.buttonsRoot}>
-    <TouchableOpacity onPress={pop}>
-      <View style={styles.buttonsBody}>
-        <View style={styles.buttonsRow}>
-          <View style={styles.buttonsIcon}>
-            <Icon name="undo" size={16} type="font-awesome" color={BlueCurrentTheme.colors.buttonAlternativeTextColor} />
-          </View>
-          <Text style={styles.buttonsLabel}>{loc.entropy.undo}</Text>
+const buttonFontSize =
+  PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
+    ? 22
+    : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
+
+const Buttons = ({ pop, save, colors }) => (
+  <FContainer>
+    <FButton
+      onPress={pop}
+      icon={
+        <View style={styles.buttonsIcon}>
+          <Icon name="undo" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
         </View>
-      </View>
-    </TouchableOpacity>
-    <TouchableOpacity onPress={save}>
-      <View style={styles.buttonsBody}>
-        <View style={styles.buttonsRow}>
-          <View style={styles.buttonsIcon}>
-            <Icon name="arrow-down" size={16} type="font-awesome" color={BlueCurrentTheme.colors.buttonAlternativeTextColor} />
-          </View>
-          <Text style={[styles.buttonsLabel, styles.buttonsLabelRight]}>{loc.entropy.save}</Text>
+      }
+      text={loc.entropy.undo}
+    />
+    <FButton
+      onPress={save}
+      icon={
+        <View style={styles.buttonsIcon}>
+          <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
         </View>
-      </View>
-    </TouchableOpacity>
-  </View>
+      }
+      text={loc.entropy.save}
+    />
+  </FContainer>
 );
 
 Buttons.propTypes = {
   pop: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,
+  colors: PropTypes.shape.isRequired,
 };
 
 const Entropy = () => {
@@ -193,6 +212,17 @@ const Entropy = () => {
   const [tab, setTab] = useState(1);
   const [show, setShow] = useState(false);
   const { colors } = useTheme();
+  const stylesHook = StyleSheet.create({
+    entropy: {
+      backgroundColor: colors.inputBackgroundColor,
+    },
+    entropyText: {
+      color: colors.foregroundColor,
+    },
+    coinBody: {
+      borderColor: colors.lightButton,
+    },
+  });
 
   const push = v => v && dispatch({ type: 'push', value: v.value, bits: v.bits });
   const pop = () => dispatch({ type: 'pop' });
@@ -210,8 +240,8 @@ const Entropy = () => {
     <SafeBlueArea>
       <BlueSpacing20 />
       <TouchableOpacity onPress={() => setShow(!show)}>
-        <View style={styles.entropy}>
-          <Text style={styles.entropyText}>{show ? hex : `${bits} of 256 bits`}</Text>
+        <View style={[styles.entropy, stylesHook.entropy]}>
+          <Text style={[styles.entropyText, stylesHook.entropyText]}>{show ? hex : `${bits} of 256 bits`}</Text>
         </View>
       </TouchableOpacity>
 
@@ -235,7 +265,7 @@ const Entropy = () => {
       {tab === 1 && <Dice sides={6} push={push} />}
       {tab === 2 && <Dice sides={20} push={push} />}
 
-      <Buttons pop={pop} save={save} />
+      <Buttons pop={pop} save={save} colors={colors} />
     </SafeBlueArea>
   );
 };
@@ -257,7 +287,6 @@ const styles = StyleSheet.create({
     padding: 5,
     marginLeft: 10,
     marginRight: 10,
-    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     borderRadius: 9,
     minHeight: 49,
     paddingHorizontal: 8,
@@ -268,7 +297,6 @@ const styles = StyleSheet.create({
   entropyText: {
     fontSize: 15,
     fontFamily: 'Courier',
-    color: BlueCurrentTheme.colors.foregroundColor,
   },
   coinRoot: {
     flex: 1,
@@ -286,6 +314,8 @@ const styles = StyleSheet.create({
     borderColor: BlueCurrentTheme.colors.lightButton,
     margin: 10,
     padding: 10,
+    maxWidth: 100,
+    maxHeight: 100,
   },
   coinImage: {
     aspectRatio: 1,
@@ -301,8 +331,9 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   diceRoot: {
-    width: Dimensions.get('window').width / 4,
     aspectRatio: 1,
+    maxWidth: 100,
+    maxHeight: 100,
   },
   dice: {
     margin: 3,
@@ -313,9 +344,6 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderColor: BlueCurrentTheme.colors.buttonBackgroundColor,
   },
-  diceText: {
-    color: BlueCurrentTheme.colors.foregroundColor,
-  },
   diceIcon: {
     margin: 3,
     justifyContent: 'center',
@@ -323,45 +351,10 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     color: 'grey',
   },
-  buttonsRoot: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    backgroundColor: 'transparent',
-    position: 'absolute',
-    bottom: 30,
-    borderRadius: 30,
-    minHeight: 48,
-    overflow: 'hidden',
-  },
-  buttonsBody: {
-    flex: 1,
-    minWidth: 130,
-    backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
-  },
-  buttonsRow: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   buttonsIcon: {
-    minWidth: 30,
-    minHeight: 30,
-    left: 5,
     backgroundColor: 'transparent',
     transform: [{ rotate: '-45deg' }],
     alignItems: 'center',
-    marginBottom: -11,
-  },
-  buttonsLabel: {
-    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
-    fontWeight: '500',
-    left: 5,
-    backgroundColor: 'transparent',
-    paddingRight: 20,
-  },
-  buttonsLabelRight: {
-    paddingRight: 20,
   },
 });
 

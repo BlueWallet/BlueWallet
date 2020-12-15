@@ -194,6 +194,14 @@ describe('Watch only wallet', () => {
     assert.ok((await w._getExternalAddressByIndex(0)).startsWith('1'));
     assert.ok(w.getAllExternalAddresses().includes(await w._getExternalAddressByIndex(0)));
   });
+
+  it('can determine change address for HD wallet', async () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('ypub6Y9u3QCRC1HkZv3stNxcQVwmw7vC7KX5Ldz38En5P88RQbesP2oy16hNyQocVCfYRQPxdHcd3pmu9AFhLv7NdChWmw5iNLryZ2U6EEHdnfo');
+    w.init();
+    assert.ok(!w.addressIsChange(await w._getExternalAddressByIndex(0)));
+    assert.ok(w.addressIsChange(await w._getInternalAddressByIndex(0)));
+  });
 });
 
 describe('BC-UR', () => {

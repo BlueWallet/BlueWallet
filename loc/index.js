@@ -24,8 +24,15 @@ dayjs.extend(relativeTime);
       case 'ar':
         require('dayjs/locale/ar');
         break;
+      case 'bg_bg':
+        lang = 'bg';
+        require('dayjs/locale/bg');
+        break;
       case 'ca':
         require('dayjs/locale/ca');
+        break;
+      case 'cy':
+        require('dayjs/locale/cy');
         break;
       case 'da_dk':
         require('dayjs/locale/da');
@@ -39,8 +46,16 @@ dayjs.extend(relativeTime);
       case 'es':
         require('dayjs/locale/es');
         break;
+      case 'es_419':
+        // es-do it is the closes one to es_419
+        lang = 'es-do';
+        require('dayjs/locale/es-do');
+        break;
       case 'fi_fi':
         require('dayjs/locale/fi');
+        break;
+      case 'fa':
+        require('dayjs/locale/fa');
         break;
       case 'fr_fr':
         require('dayjs/locale/fr');
@@ -77,6 +92,9 @@ dayjs.extend(relativeTime);
       case 'pt_pt':
         lang = 'pt';
         require('dayjs/locale/pt');
+        break;
+      case 'pl':
+        require('dayjs/locale/pl');
         break;
       case 'ru':
         require('dayjs/locale/ru');
@@ -128,12 +146,17 @@ dayjs.extend(relativeTime);
 
 const strings = new Localization({
   en: require('./en.json'),
+  ar: require('./ar.json'),
+  bg_bg: require('./bg_bg.json'),
   ca: require('./ca.json'),
+  cy: require('./cy.json'),
   cs_cz: require('./cs_cz.json'),
   da_dk: require('./da_dk.json'),
   de_de: require('./de_de.json'),
   el: require('./el.json'),
   es: require('./es.json'),
+  es_419: require('./es_419.json'),
+  fa: require('./fa.json'),
   fi_fi: require('./fi_fi.json'),
   fr_fr: require('./fr_fr.json'),
   he: require('./he.json'),
@@ -146,6 +169,7 @@ const strings = new Localization({
   nl_nl: require('./nl_nl.json'),
   pt_br: require('./pt_br.json'),
   pt_pt: require('./pt_pt.json'),
+  pl: require('./pl.json'),
   ru: require('./ru.json'),
   sk_sk: require('./sk_sk.json'),
   sl_si: require('./sl_SI.json'),

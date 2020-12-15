@@ -2,8 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, TextInput, Linking, StyleSheet } from 'react-native';
 import { Button } from 'react-native-elements';
-import { useTheme } from '@react-navigation/native';
-
+import { useTheme, useNavigation, useRoute } from '@react-navigation/native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import {
@@ -12,8 +11,9 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueNavigationStyle,
-  BlueLoadingHook,
-  BlueTextHooks,
+  BlueLoading,
+  BlueText,
+  BlueButtonLink,
 } from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import loc from '../../loc';
@@ -51,6 +51,8 @@ const LightningSettings = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState();
   const { colors } = useTheme();
+  const route = useRoute();
+  const navigation = useNavigation();
 
   useEffect(() => {
     AsyncStorage.getItem(AppStorage.LNDHUB)
@@ -79,10 +81,21 @@ const LightningSettings = () => {
     setIsLoading(false);
   }, [URI]);
 
+  const importScan = () => {
+    navigation.navigate('ScanQRCodeRoot', {
+      screen: 'ScanQRCode',
+      params: {
+        launchedBy: route.name,
+        onBarScanned: setLndhubURI,
+        showFileImportButton: true,
+      },
+    });
+  };
+
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <BlueCard>
-        <BlueTextHooks>{loc.settings.lightning_settings_explain}</BlueTextHooks>
+        <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
       </BlueCard>
 
       <Button
@@ -115,8 +128,9 @@ const LightningSettings = () => {
           />
         </View>
 
+        <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
         <BlueSpacing20 />
-        {isLoading ? <BlueLoadingHook /> : <BlueButton onPress={save} title={loc.settings.save} />}
+        {isLoading ? <BlueLoading /> : <BlueButton onPress={save} title={loc.settings.save} />}
       </BlueCard>
     </SafeBlueArea>
   );

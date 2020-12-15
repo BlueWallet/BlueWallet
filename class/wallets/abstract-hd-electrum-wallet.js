@@ -6,8 +6,6 @@ import { AbstractHDWallet } from './abstract-hd-wallet';
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const HDNode = require('bip32');
-const coinSelectAccumulative = require('coinselect/accumulative');
-const coinSelectSplit = require('coinselect/split');
 const reverse = require('buffer-reverse');
 
 /**
@@ -70,7 +68,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   async generate() {
-    const buf = await randomBytes(32);
+    const buf = await randomBytes(16);
     this.secret = bip39.entropyToMnemonic(buf.toString('hex'));
   }
 
@@ -401,6 +399,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       txs = txs.concat(addressTxs);
     }
 
+    if (txs.length === 0) return []; // guard clause; so we wont spend time calculating addresses
+
     // its faster to pre-build hashmap of owned addresses than to query `this.weOwnAddress()`, which in turn
     // iterates over all addresses in hierarchy
     const ownedAddressesHashmap = {};
@@ -555,27 +555,33 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   async _fetchBalance() {
     // probing future addressess in hierarchy whether they have any transactions, in case
     // our 'next free addr' pointers are lagging behind
-    let tryAgain = false;
-    let txs = await BlueElectrum.getTransactionsByAddress(
-      this._getExternalAddressByIndex(this.next_free_address_index + this.gap_limit - 1),
-    );
-    if (txs.length > 0) {
-      // whoa, someone uses our wallet outside! better catch up
-      this.next_free_address_index += this.gap_limit;
-      tryAgain = true;
+    // for that we are gona batch fetch history for all addresses between last used and last used + gap_limit
+
+    const lagAddressesToFetch = [];
+    for (let c = this.next_free_address_index; c < this.next_free_address_index + this.gap_limit; c++) {
+      lagAddressesToFetch.push(this._getExternalAddressByIndex(c));
+    }
+    for (let c = this.next_free_change_address_index; c < this.next_free_change_address_index + this.gap_limit; c++) {
+      lagAddressesToFetch.push(this._getInternalAddressByIndex(c));
     }
 
-    txs = await BlueElectrum.getTransactionsByAddress(
-      this._getInternalAddressByIndex(this.next_free_change_address_index + this.gap_limit - 1),
-    );
-    if (txs.length > 0) {
-      this.next_free_change_address_index += this.gap_limit;
-      tryAgain = true;
+    const txs = await BlueElectrum.multiGetHistoryByAddress(lagAddressesToFetch); // <------ electrum call
+
+    for (let c = this.next_free_address_index; c < this.next_free_address_index + this.gap_limit; c++) {
+      const address = this._getExternalAddressByIndex(c);
+      if (txs[address] && Array.isArray(txs[address]) && txs[address].length > 0) {
+        // whoa, someone uses our wallet outside! better catch up
+        this.next_free_address_index = c + 1;
+      }
     }
 
-    // FIXME: refactor me ^^^ can be batched in single call. plus not just couple of addresses, but all between [ next_free .. (next_free + gap_limit) ]
-
-    if (tryAgain) return this._fetchBalance();
+    for (let c = this.next_free_change_address_index; c < this.next_free_change_address_index + this.gap_limit; c++) {
+      const address = this._getInternalAddressByIndex(c);
+      if (txs[address] && Array.isArray(txs[address]) && txs[address].length > 0) {
+        // whoa, someone uses our wallet outside! better catch up
+        this.next_free_change_address_index = c + 1;
+      }
+    }
 
     // next, business as usuall. fetch balances
 
@@ -676,8 +682,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     addressess = [...new Set(addressess)]; // deduplicate just for any case
 
+    const fetchedUtxo = await BlueElectrum.multiGetUtxoByAddress(addressess);
     this._utxo = [];
-    for (const arr of Object.values(await BlueElectrum.multiGetUtxoByAddress(addressess))) {
+    for (const arr of Object.values(fetchedUtxo)) {
       this._utxo = this._utxo.concat(arr);
     }
 
@@ -707,22 +714,43 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    *    wif: 'string',
    *    confirmations: 0 } ]
    *
+   * @param respectFrozen {boolean} Add Frozen outputs
    * @returns {[]}
    */
-  getUtxo() {
-    if (this._utxo.length === 0) return this.getDerivedUtxoFromOurTransaction(); // oy vey, no stored utxo. lets attempt to derive it from stored transactions
-    return this._utxo;
+  getUtxo(respectFrozen = false) {
+    let ret = [];
+
+    if (this._utxo.length === 0) {
+      ret = this.getDerivedUtxoFromOurTransaction(); // oy vey, no stored utxo. lets attempt to derive it from stored transactions
+    } else {
+      ret = this._utxo;
+    }
+    if (!respectFrozen) {
+      ret = ret.filter(({ txid, vout }) => !this.getUTXOMetadata(txid, vout).frozen);
+    }
+    return ret;
   }
 
-  getDerivedUtxoFromOurTransaction() {
+  getDerivedUtxoFromOurTransaction(returnSpentUtxoAsWell = false) {
     const utxos = [];
+
+    // its faster to pre-build hashmap of owned addresses than to query `this.weOwnAddress()`, which in turn
+    // iterates over all addresses in hierarchy
+    const ownedAddressesHashmap = {};
+    for (let c = 0; c < this.next_free_address_index + 1; c++) {
+      ownedAddressesHashmap[this._getExternalAddressByIndex(c)] = true;
+    }
+    for (let c = 0; c < this.next_free_change_address_index + 1; c++) {
+      ownedAddressesHashmap[this._getInternalAddressByIndex(c)] = true;
+    }
+
     for (const tx of this.getTransactions()) {
       for (const output of tx.outputs) {
         let address = false;
         if (output.scriptPubKey && output.scriptPubKey.addresses && output.scriptPubKey.addresses[0]) {
           address = output.scriptPubKey.addresses[0];
         }
-        if (this.weOwnAddress(address)) {
+        if (ownedAddressesHashmap[address]) {
           const value = new BigNumber(output.value).multipliedBy(100000000).toNumber();
           utxos.push({
             txid: tx.txid,
@@ -732,12 +760,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
             value,
             amount: value,
             confirmations: tx.confirmations,
-            wif: this._getWifForAddress(address),
+            wif: false,
             height: BlueElectrum.estimateCurrentBlockheight() - tx.confirmations,
           });
         }
       }
     }
+
+    if (returnSpentUtxoAsWell) return utxos;
 
     // got all utxos we ever had. lets filter out the ones that are spent:
     const ret = [];
@@ -750,7 +780,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         }
       }
 
-      if (!spent) ret.push(utxo);
+      if (!spent) {
+        // filling WIFs only for legit unspent UTXO, as it is a slow operation
+        utxo.wif = this._getWifForAddress(utxo.address);
+        ret.push(utxo);
+      }
     }
 
     return ret;
@@ -806,24 +840,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
   createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
-    if (!changeAddress) throw new Error('No change address provided');
+    if (targets.length === 0) throw new Error('No destination provided');
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
+
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
-
-    let algo = coinSelectAccumulative;
-    if (targets.length === 1 && targets[0] && !targets[0].value) {
-      // we want to send MAX
-      algo = coinSelectSplit;
-    }
-
-    const { inputs, outputs, fee } = algo(utxos, targets, feeRate);
-
-    // .inputs and .outputs will be undefined if no solution was found
-    if (!inputs || !outputs) {
-      throw new Error('Not enough balance. Try sending smaller amount');
-    }
-
     let psbt = new bitcoin.Psbt();
-
     let c = 0;
     const keypairs = {};
     const values = {};
@@ -1013,5 +1034,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     return ret;
+  }
+
+  /**
+   * Check if address is a Change address. Needed for Coin control.
+   *
+   * @param address
+   * @returns {Boolean} Either address is a change or not
+   */
+  addressIsChange(address) {
+    for (let c = 0; c < this.next_free_change_address_index + 1; c++) {
+      if (address === this._getInternalAddressByIndex(c)) return true;
+    }
+    return false;
   }
 }

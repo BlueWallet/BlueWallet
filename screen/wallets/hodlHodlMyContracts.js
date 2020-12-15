@@ -8,12 +8,12 @@ import {
   Linking,
   Platform,
   StyleSheet,
-  Dimensions,
   Text,
   TouchableHighlight,
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import {
   BlueButton,
   BlueCopyTextToClipboard,
@@ -21,19 +21,17 @@ import {
   BlueNavigationStyle,
   BlueSpacing10,
   BlueSpacing20,
-  BlueTextHooks,
+  BlueText,
 } from '../../BlueComponents';
-import { AppStorage } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
-import Modal from 'react-native-modal';
 import * as NavigationService from '../../NavigationService';
 import { BlueCurrentTheme } from '../../components/themes';
+import BottomModal from '../../components/BottomModal';
 import loc from '../../loc';
-
-const BlueApp: AppStorage = require('../../BlueApp');
-const windowHeight = Dimensions.get('window').height;
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 export default class HodlHodlMyContracts extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
 
@@ -48,7 +46,7 @@ export default class HodlHodlMyContracts extends Component {
   }
 
   async componentDidMount() {
-    const hodlApiKey = await BlueApp.getHodlHodlApiKey();
+    const hodlApiKey = await this.context.getHodlHodlApiKey();
     const hodlApi = new HodlHodlApi(hodlApiKey);
     this.setState({ hodlApi: hodlApi, contracts: [] });
 
@@ -113,10 +111,10 @@ export default class HodlHodlMyContracts extends Component {
     });
 
     const hodlApi = this.state.hodlApi;
-    const contracts = [];
+    let contracts = [];
     let contractToDisplay = this.state.contractToDisplay;
 
-    const contractIds = await BlueApp.getHodlHodlContracts();
+    const contractIds = await this.context.getHodlHodlContracts();
 
     /*
      * Initiator sends “Getting contract” request once every 1-3 minutes until contract.escrow.address is not null (thus, waiting for offer’s creator to confirm his payment password in case he uses the website)
@@ -152,6 +150,8 @@ export default class HodlHodlMyContracts extends Component {
       }
     }
 
+    contracts = contracts.sort((a, b) => (a.created_at >= b.created_at ? -1 : 1)); // new contracts on top
+
     this.setState({ hodlApi: hodlApi, contracts, contractToDisplay, isLoading: false });
   }
 
@@ -162,19 +162,16 @@ export default class HodlHodlMyContracts extends Component {
     });
   }
 
+  hideContractModal = () => {
+    Keyboard.dismiss();
+    this.setState({ isRenderContractVisible: false });
+  };
+
   renderContract = () => {
     if (!this.state.contractToDisplay) return;
 
     return (
-      <Modal
-        isVisible={this.state.isRenderContractVisible}
-        style={styles.bottomModal}
-        deviceHeight={windowHeight}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isRenderContractVisible: false });
-        }}
-      >
+      <BottomModal isVisible={this.state.isRenderContractVisible} onClose={this.hideContractModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <View style={styles.modalContentCentered}>
@@ -252,7 +249,7 @@ export default class HodlHodlMyContracts extends Component {
             </Text>
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
   };
 
@@ -293,7 +290,7 @@ export default class HodlHodlMyContracts extends Component {
   async _onOpenContractOnWebsite() {
     if (!this.state.contractToDisplay) return;
     const hodlApi = this.state.hodlApi;
-    const sigKey = await BlueApp.getHodlHodlSignatureKey();
+    const sigKey = await this.context.getHodlHodlSignatureKey();
     if (!sigKey) {
       alert('Error: signature key not set'); // should never happen
       return;
@@ -346,10 +343,6 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: BlueCurrentTheme.colors.elevated,
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
   },
   modalContent: {
     backgroundColor: BlueCurrentTheme.colors.modal,
@@ -448,7 +441,7 @@ HodlHodlMyContracts.navigationOptions = ({ navigation }) => ({
             {
               text: loc._.ok,
               onPress: () => {
-                BlueApp.setHodlHodlApiKey('', '<empty>');
+                this.context.setHodlHodlApiKey('', '<empty>');
                 navigation.navigate('WalletsList');
               },
               style: 'default',
@@ -459,7 +452,7 @@ HodlHodlMyContracts.navigationOptions = ({ navigation }) => ({
         );
       }}
     >
-      <BlueTextHooks>logout</BlueTextHooks>
+      <BlueText>logout</BlueText>
     </TouchableOpacity>
   ),
 });

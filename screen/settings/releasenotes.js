@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueCard, BlueNavigationStyle, BlueTextHooks } from '../../BlueComponents';
+import { SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import { useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 
@@ -18,7 +18,7 @@ const ReleaseNotes = () => {
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <ScrollView>
         <BlueCard>
-          <BlueTextHooks>{notes}</BlueTextHooks>
+          <BlueText>{notes}</BlueText>
         </BlueCard>
       </ScrollView>
     </SafeBlueArea>

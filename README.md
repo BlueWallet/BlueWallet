@@ -69,7 +69,7 @@ The above command will build the app and install it. Once you launch the app it 
 * To run on iOS:
 
 ```
-npx podinstall
+npx pod-install
 npm start
 ```
 
@@ -77,6 +77,14 @@ In another terminal window within the BlueWallet folder:
 ```
 npx react-native run-ios
 ```
+
+* To run on macOS using Mac Catalyst:
+
+```
+npm run maccatalystpatches
+```
+
+Once the patches are applied, open Xcode and select "My Mac" as destination. If you are running macOS Catalina, you may need to remove all iOS 14 Widget targets.
 
 
 ## TESTS

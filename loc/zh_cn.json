@@ -1,19 +1,68 @@
 {
   "_": {
+    "allow": "允许",
     "bad_password": "密码无效，请重试",
     "cancel": "取消",
     "continue": "继续",
     "enter_password": "输入密码",
+    "invalid_animated_qr_code_fragment": "无效的动态二维码，请重试",
     "never": "不",
     "ok": "好的",
-    "storage_is_encrypted": "你的信息已经被加密， 请输入密码解密"
+    "save": "保存",
+    "seed": "种子",
+    "storage_is_encrypted": "你的信息已经被加密， 请输入密码解密",
+    "yes": "是的"
+  },
+  "azteco": {
+    "errorBeforeRefeem": "你需先添加一个Bitcoin钱包",
+    "success": "成功"
+  },
+  "entropy": {
+    "save": "保存",
+    "title": "随机熵值",
+    "undo": "回退"
+  },
+  "errors": {
+    "broadcast": "广播失败",
+    "error": "错误",
+    "network": "网络错误"
+  },
+  "hodl": {
+    "are_you_sure_you_want_to_logout": "您确定要注销HodlHodl吗？",
+    "cont_address_to": "发给\n",
+    "cont_buying": "购买",
+    "cont_how": "如何支付",
+    "cont_st_completed": "全部完成",
+    "cont_title": "我的联系人",
+    "filter_currency": "币种",
+    "filter_detail": "详细信息",
+    "filter_filters": "过滤器",
+    "filter_iambuying": "我要买比特币",
+    "filter_iamselling": "我要卖比特币",
+    "filter_method": "支付方式",
+    "filter_search": "搜索",
+    "item_minmax": "最小/最大",
+    "login": "登录",
+    "offer_minmax": "最小 / 最大",
+    "offer_minutes": "最小",
+    "offer_promt_fiat_e": "例如100",
+    "offer_window": "窗口",
+    "p2p": "一种点对点交易"
   },
   "lnd": {
+    "errorInvoiceExpired": "凭证已过期",
     "expired": "超时",
+    "expiredLow": "已过期",
+    "payButton": "支付",
+    "placeholder": "凭证",
     "refill": "充值",
     "refill_lnd_balance": "给闪电钱包充值",
     "sameWalletAsInvoiceError": "你不能用创建账单的钱包去支付该账单",
     "title": "配置资金支持"
+  },
+  "lndViewInvoice": {
+    "please_pay": "请支付",
+    "sats": "sats"
   },
   "plausibledeniability": {
     "create_fake_storage": "创建虚拟加密存储",
@@ -22,10 +71,18 @@
     "help": "在某些情况下, 你不得不暴露 密码. 为了让你的比特币更加安全, BlueWallet可以创建一些 加密空间, 用不同的密码. 在压力之下, 你可以暴露这个钱包密码. 再次进入 BlueWallet, 我们会解锁一些虚拟空间. 对第三方来说看上去是合理的, 但会偷偷的帮你保证主钱包的安全 币也就安全了.",
     "help2": "新的空间具备完整的功能，你可以存在 少量的金额在里面.",
     "password_should_not_match": "虚拟存储空间密码不能和主存储空间密码相同",
-    "passwords_do_not_match": "两次输入密码不同，请重新输入",
     "retype_password": "重输密码",
     "success": "成功",
     "title": "可否认性"
+  },
+  "pleasebackup": {
+    "ask_no": "不，我还没有",
+    "ask_yes": "是的，已完成",
+    "ok": "OK！我已抄下来！",
+    "ok_lnd": "OK！我已保存好，",
+    "text": "请将您的助记词抄写于一张纸上。这些助记词可以用来在别的设备或者软件上恢复出你的钱包。",
+    "text_lnd": "请保存好你的NDHub authentication。这个备份可以用来在别的设备或软件上恢复出你的钱包。",
+    "title": "你的钱包已创建。"
   },
   "receive": {
     "details_create": "创建",
@@ -35,6 +92,10 @@
     "header": "收款"
   },
   "send": {
+    "broadcastButton": "广播",
+    "broadcastError": "错误",
+    "broadcastNone": "交易输入的哈希",
+    "broadcastSuccess": "成功",
     "confirm_header": "确认",
     "confirm_sendNow": "现在发送",
     "create_amount": "金额",
@@ -54,6 +115,7 @@
     "details_note_placeholder": "消息",
     "details_scan": "扫描",
     "details_total_exceeds_balance": "余额不足",
+    "details_wallet_selection": "选择钱包",
     "header": "发送",
     "success_done": "完成"
   },
@@ -79,7 +141,6 @@
     "details_title": "转账",
     "details_to": "输出",
     "details_transaction_details": "转账详情",
-    "list_conf": "配置",
     "list_title": "转账"
   },
   "wallets": {
@@ -111,8 +172,6 @@
     "import_title": "导入",
     "list_create_a_button": "现在添加",
     "list_create_a_wallet": "添加钱包",
-    "list_create_a_wallet1": "创建钱包是免费的，你可以",
-    "list_create_a_wallet2": "想创建多少就创建多少个",
     "list_empty_txs1": "你的转账信息将展示在这里",
     "list_empty_txs2": "当前无信息",
     "list_latest_transaction": "最近的转账",

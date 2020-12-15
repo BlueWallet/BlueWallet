@@ -17,6 +17,10 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
     return true;
   }
 
+  allowSendMax() {
+    return true;
+  }
+
   getXpub() {
     if (this._xpub) {
       return this._xpub; // cache hit
@@ -48,6 +52,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
    * @private
    */
   _getWIFByIndex(internal, index) {
+    if (!this.secret) return false;
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
 
@@ -146,9 +151,5 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
     });
 
     return psbt;
-  }
-
-  allowSendMax() {
-    return true;
   }
 }

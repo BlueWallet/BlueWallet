@@ -1,24 +1,26 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import {
-  View,
   InteractionManager,
-  StatusBar,
-  Platform,
-  TextInput,
-  KeyboardAvoidingView,
   Keyboard,
-  StyleSheet,
-  useWindowDimensions,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
+  StatusBar,
+  StyleSheet,
+  TextInput,
+  View,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
+import Share from 'react-native-share';
+import Handoff from 'react-native-handoff';
+
 import {
-  BlueLoadingHook,
+  BlueLoading,
   BlueCopyTextToClipboard,
   BlueButton,
   SecondButton,
-  BlueButtonLinkHook,
+  BlueButtonLink,
   is,
   BlueBitcoinAmount,
   BlueText,
@@ -26,23 +28,20 @@ import {
   BlueAlertWalletExportReminder,
   BlueNavigationStyle,
 } from '../../BlueComponents';
+import BottomModal from '../../components/BottomModal';
 import Privacy from '../../Privacy';
-import Share from 'react-native-share';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
-import Modal from 'react-native-modal';
 import HandoffSettings from '../../class/handoff';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import Handoff from 'react-native-handoff';
 import loc from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import Notifications from '../../blue_modules/notifications';
 const currency = require('../../blue_modules/currency');
-const notifications = require('../../blue_modules/notifications');
 
 const ReceiveDetails = () => {
-  const { secret } = useRoute().params;
-  const wallet = BlueApp.getWallets().find(w => w.getSecret() === secret);
+  const { walletID } = useRoute().params;
+  const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
+  const wallet = wallets.find(w => w.getID() === walletID);
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [address, setAddress] = useState('');
   const [customLabel, setCustomLabel] = useState();
@@ -54,10 +53,9 @@ const ReceiveDetails = () => {
   const [showAddress, setShowAddress] = useState(false);
   const { navigate, goBack } = useNavigation();
   const { colors } = useTheme();
-  const windowHeight = useWindowDimensions().height;
   const styles = StyleSheet.create({
     modalContent: {
-      backgroundColor: BlueCurrentTheme.colors.modal,
+      backgroundColor: colors.modal,
       padding: 22,
       justifyContent: 'center',
       alignItems: 'center',
@@ -68,17 +66,13 @@ const ReceiveDetails = () => {
       minHeight: 350,
       height: 350,
     },
-    bottomModal: {
-      justifyContent: 'flex-end',
-      margin: 0,
-    },
     customAmount: {
       flexDirection: 'row',
-      borderColor: BlueCurrentTheme.colors.formBorder,
-      borderBottomColor: BlueCurrentTheme.colors.formBorder,
+      borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
       borderWidth: 1.0,
       borderBottomWidth: 0.5,
-      backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
+      backgroundColor: colors.inputBackgroundColor,
       minHeight: 44,
       height: 44,
       marginHorizontal: 20,
@@ -89,13 +83,13 @@ const ReceiveDetails = () => {
     customAmountText: {
       flex: 1,
       marginHorizontal: 8,
-      color: BlueCurrentTheme.colors.foregroundColor,
+      color: colors.foregroundColor,
       minHeight: 33,
     },
     qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
     root: {
       flex: 1,
-      backgroundColor: BlueCurrentTheme.colors.elevated,
+      backgroundColor: colors.elevated,
     },
     scroll: {
       justifyContent: 'space-between',
@@ -106,14 +100,14 @@ const ReceiveDetails = () => {
       paddingHorizontal: 16,
     },
     amount: {
-      color: BlueCurrentTheme.colors.foregroundColor,
+      color: colors.foregroundColor,
       fontWeight: '600',
       fontSize: 36,
       textAlign: 'center',
       paddingBottom: 24,
     },
     label: {
-      color: BlueCurrentTheme.colors.foregroundColor,
+      color: colors.foregroundColor,
       fontWeight: '600',
       textAlign: 'center',
       paddingBottom: 24,
@@ -122,15 +116,14 @@ const ReceiveDetails = () => {
       alignItems: 'center',
       width: 300,
       height: 300,
-      backgroundColor: BlueCurrentTheme.colors.elevated,
+      backgroundColor: colors.elevated,
     },
     share: {
-      alignItems: 'center',
-      alignContent: 'flex-end',
       marginBottom: 24,
+      marginHorizontal: 16,
     },
     modalButton: {
-      backgroundColor: BlueCurrentTheme.colors.modalButton,
+      backgroundColor: colors.modalButton,
       paddingVertical: 14,
       paddingHorizontal: 70,
       maxWidth: '80%',
@@ -168,7 +161,7 @@ const ReceiveDetails = () => {
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>
-          <BlueButtonLinkHook title={loc.receive.details_setAmount} onPress={showCustomAmountModal} />
+          <BlueButtonLink title={loc.receive.details_setAmount} onPress={showCustomAmountModal} />
           <View>
             <SecondButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </View>
@@ -183,23 +176,23 @@ const ReceiveDetails = () => {
     Privacy.enableBlur();
     console.log('receive/details - componentDidMount');
     wallet.setUserHasSavedExport(true);
-    await BlueApp.saveToDisk();
+    await saveToDisk();
     let address;
     if (wallet.getAddressAsync) {
       if (wallet.chain === Chain.ONCHAIN) {
         try {
-          address = await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
+          address = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
         } catch (_) {}
         if (!address) {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
-          address = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
+          address = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
         } else {
-          BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
+          saveToDisk(); // caching whatever getAddressAsync() generated internally
         }
       } else if (wallet.chain === Chain.OFFCHAIN) {
         try {
-          await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
+          await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
           address = wallet.getAddress();
         } catch (_) {}
         if (!address) {
@@ -207,18 +200,19 @@ const ReceiveDetails = () => {
           console.warn('either sleep expired or getAddressAsync threw an exception');
           address = wallet.getAddress();
         } else {
-          BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
+          saveToDisk(); // caching whatever getAddressAsync() generated internally
         }
       }
       setAddressBIP21Encoded(address);
-      await notifications.tryToObtainPermissions();
-      notifications.majorTomToGroundControl([address], [], []);
+      await Notifications.tryToObtainPermissions();
+      Notifications.majorTomToGroundControl([address], [], []);
     } else if (wallet.getAddress) {
       setAddressBIP21Encoded(wallet.getAddress());
-      await notifications.tryToObtainPermissions();
-      notifications.majorTomToGroundControl([wallet.getAddress()], [], []);
+      await Notifications.tryToObtainPermissions();
+      Notifications.majorTomToGroundControl([wallet.getAddress()], [], []);
     }
-  }, [wallet]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const setAddressBIP21Encoded = address => {
     const bip21encoded = DeeplinkSchemaMatch.bip21encode(address);
@@ -236,8 +230,11 @@ const ReceiveDetails = () => {
               onSuccess: obtainWalletAddress,
               onFailure: () => {
                 goBack();
-                navigate('WalletExport', {
-                  wallet: wallet,
+                navigate('WalletExportRoot', {
+                  screen: 'WalletExport',
+                  params: {
+                    walletID: wallet.getID(),
+                  },
                 });
               },
             });
@@ -288,12 +285,7 @@ const ReceiveDetails = () => {
 
   const renderCustomAmountModal = () => {
     return (
-      <Modal
-        deviceHeight={windowHeight}
-        isVisible={isCustomModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={dismissCustomAmountModal}
-      >
+      <BottomModal isVisible={isCustomModalVisible} onClose={dismissCustomAmountModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <BlueBitcoinAmount
@@ -320,7 +312,7 @@ const ReceiveDetails = () => {
             <BlueSpacing20 />
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
   };
 
@@ -353,7 +345,7 @@ const ReceiveDetails = () => {
           url={`https://blockstream.info/address/${address}`}
         />
       )}
-      {showAddress ? renderReceiveDetails() : <BlueLoadingHook />}
+      {showAddress ? renderReceiveDetails() : <BlueLoading />}
     </View>
   );
 };

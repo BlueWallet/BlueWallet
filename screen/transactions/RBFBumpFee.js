@@ -1,13 +1,12 @@
 /* global alert */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { ActivityIndicator, View, ScrollView, StyleSheet } from 'react-native';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 import loc from '../../loc';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
   root: {
@@ -17,6 +16,8 @@ const styles = StyleSheet.create({
 });
 
 export default class RBFBumpFee extends CPFP {
+  static contextType = BlueStorageContext;
+
   async componentDidMount() {
     console.log('transactions/RBFBumpFee - componentDidMount');
     this.setState({
@@ -61,9 +62,11 @@ export default class RBFBumpFee extends CPFP {
 
   onSuccessBroadcast() {
     // porting memo from old tx:
-    if (BlueApp.tx_metadata[this.state.txid]) {
-      BlueApp.tx_metadata[this.state.newTxid] = BlueApp.tx_metadata[this.state.txid];
+    if (this.context.txMetadata[this.state.txid]) {
+      this.context.txMetadata[this.state.newTxid] = this.context.txMetadata[this.state.txid];
     }
+    this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
+    this.props.navigation.navigate('Success', { onDonePressed: () => this.props.navigation.popToTop(), amount: undefined });
   }
 
   render() {
@@ -73,10 +76,6 @@ export default class RBFBumpFee extends CPFP {
           <ActivityIndicator />
         </View>
       );
-    }
-
-    if (this.state.stage === 3) {
-      return this.renderStage3();
     }
 
     if (this.state.stage === 2) {

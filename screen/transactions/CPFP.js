@@ -1,7 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, ScrollView, StyleSheet, KeyboardAvoidingView } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import { Text } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -14,15 +14,13 @@ import {
   BlueText,
   BlueSpacing,
   BlueNavigationStyle,
-  BlueBigCheckmark,
 } from '../../BlueComponents';
+import { BlueCurrentTheme } from '../../components/themes';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
-const EV = require('../../blue_modules/events');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import Notifications from '../../blue_modules/notifications';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
-const notifications = require('../../blue_modules/notifications');
 
 const styles = StyleSheet.create({
   root: {
@@ -38,7 +36,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   hex: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontWeight: '500',
   },
   hexInput: {
@@ -79,6 +77,7 @@ const styles = StyleSheet.create({
 });
 
 export default class CPFP extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
     let txid;
@@ -101,8 +100,6 @@ export default class CPFP extends Component {
         await BlueElectrum.waitTillConnected();
         const result = await this.state.wallet.broadcastTx(this.state.txhex);
         if (result) {
-          EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
-          this.setState({ stage: 3, isLoading: false });
           this.onSuccessBroadcast();
         } else {
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -118,8 +115,10 @@ export default class CPFP extends Component {
   }
 
   onSuccessBroadcast() {
-    BlueApp.tx_metadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
-    notifications.majorTomToGroundControl([], [], [this.state.newTxid]);
+    this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
+    Notifications.majorTomToGroundControl([], [], [this.state.newTxid]);
+    this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
+    this.props.navigation.navigate('Success', { onDonePressed: () => this.props.navigation.popToTop(), amount: undefined });
   }
 
   async componentDidMount() {
@@ -164,6 +163,46 @@ export default class CPFP extends Component {
     }
   }
 
+  renderStage1(text) {
+    return (
+      <KeyboardAvoidingView behavior="position">
+        <SafeBlueArea style={styles.root}>
+          <BlueSpacing />
+          <BlueCard style={styles.center}>
+            <BlueText>{text}</BlueText>
+            <BlueSpacing20 />
+            <BlueReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
+            <BlueSpacing />
+            <BlueButton
+              disabled={this.state.newFeeRate <= this.state.feeRate}
+              onPress={() => this.createTransaction()}
+              title={loc.transactions.cpfp_create}
+            />
+          </BlueCard>
+        </SafeBlueArea>
+      </KeyboardAvoidingView>
+    );
+  }
+
+  renderStage2() {
+    return (
+      <View style={styles.root}>
+        <BlueCard style={styles.center}>
+          <BlueText style={styles.hex}>{loc.send.create_this_is_hex}</BlueText>
+          <TextInput style={styles.hexInput} height={112} multiline editable value={this.state.txhex} />
+
+          <TouchableOpacity style={styles.action} onPress={() => Clipboard.setString(this.state.txhex)}>
+            <Text style={styles.actionText}>{loc.send.create_copy}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.action} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}>
+            <Text style={styles.actionText}>{loc.send.create_verify}</Text>
+          </TouchableOpacity>
+          <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm_sendNow} />
+        </BlueCard>
+      </View>
+    );
+  }
+
   render() {
     if (this.state.isLoading) {
       return (
@@ -171,10 +210,6 @@ export default class CPFP extends Component {
           <ActivityIndicator />
         </View>
       );
-    }
-
-    if (this.state.stage === 3) {
-      return this.renderStage3();
     }
 
     if (this.state.stage === 2) {
@@ -198,61 +233,6 @@ export default class CPFP extends Component {
     return (
       <SafeBlueArea style={styles.explain}>
         <ScrollView>{this.renderStage1(loc.transactions.cpfp_exp)}</ScrollView>
-      </SafeBlueArea>
-    );
-  }
-
-  renderStage2() {
-    return (
-      <View style={styles.root}>
-        <BlueCard style={styles.center}>
-          <BlueText style={styles.hex}>{loc.send.create_this_is_hex}</BlueText>
-          <TextInput style={styles.hexInput} height={112} multiline editable value={this.state.txhex} />
-
-          <TouchableOpacity style={styles.action} onPress={() => Clipboard.setString(this.state.txhex)}>
-            <Text style={styles.actionText}>{loc.send.create_copy}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.action} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}>
-            <Text style={styles.actionText}>{loc.send.create_verify}</Text>
-          </TouchableOpacity>
-          <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm_sendNow} />
-        </BlueCard>
-      </View>
-    );
-  }
-
-  renderStage3() {
-    return (
-      <SafeBlueArea style={styles.doneWrap}>
-        <BlueCard style={styles.center}>
-          <View style={styles.doneCard} />
-        </BlueCard>
-        <BlueBigCheckmark style={styles.blueBigCheckmark} />
-        <BlueCard>
-          <BlueButton onPress={() => this.props.navigation.popToTop()} title={loc.send.success_done} />
-        </BlueCard>
-      </SafeBlueArea>
-    );
-  }
-
-  renderStage1(text) {
-    return (
-      <SafeBlueArea style={styles.root}>
-        <BlueSpacing />
-        <BlueCard style={styles.center}>
-          <BlueText>{text}</BlueText>
-          <BlueSpacing20 />
-          <BlueReplaceFeeSuggestions
-            onFeeSelected={fee => this.setState({ newFeeRate: fee })}
-            transactionMinimum={this.state.feeRate + 1}
-          />
-          <BlueSpacing />
-          <BlueButton
-            disabled={this.state.newFeeRate <= this.state.feeRate}
-            onPress={() => this.createTransaction()}
-            title={loc.transactions.cpfp_create}
-          />
-        </BlueCard>
       </SafeBlueArea>
     );
   }

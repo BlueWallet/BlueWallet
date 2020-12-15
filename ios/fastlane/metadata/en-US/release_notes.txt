@@ -1,69 +1,117 @@
-v5.5.6
+v6.0.0
+======
+* ADD: Multisig 
+* FIX: scan multisig cosigner in formats: plain Zpub, wallet descriptor 
+* FIX: txs disappear and re-fetch if opened wallet too fast 
+* ADD: Help section and tips to Vaults 
+* FIX: DE language files
+* ADD: Persian language, sync cs_cz, es, it and ru 
+* FIX: Transaction details not shown when 'display in wallets list' not set (closes #1966) 
+* FIX: LNURL wallet not found
+
+
+v5.6.9
 ======
 
-* ADD: Camera Permission authorization view
-* FIX: recieve button for watch-only wallets
-* FIX: could not scan animated QR signed psbt
-* FIX: updated 'fi_FI' language.
+* ADD: warning text on backup screen
+* ADD: CoinControl displays balances with user's preferred unit
+* ADD: LBP Currency
+* ADD: Verify if an address belongs to one of your wallets.
+* FIX: fetch wallet transaction after broadcast
+* FIX: crash on refresh button
+* FIX: Don't display amount if none is passed
+* REF: PSBT Multisig provide signature flow
+* ADD: refresh wallet transactions for freshly imported wallets
+* FIX: locales sl_SI, fi_FI
 
-v5.5.5
+
+v5.6.8
 ======
 
-* FIX: scan Cobo vault signed transaction QR
+* ADD: warning text on backup screen
+* ADD: CoinControl displays balances with user's preferred unit
+* ADD: LBP Currency
+* FIX: fetch wallet transaction after broadcast
+* FIX: crash on refresh button
+* FIX: Don't display amount if none is passed
+* REF: PSBT Multisig provide signature flow
+* ADD: refresh wallet transactions for freshly imported wallets
+* FIX: locales sl_SI, fi_FI
 
-v5.5.4
+v5.6.7
 ======
 
-* ADD: handling push notification open
-* ADD: View Wallet xPub (Apple Watch)
-* ADD: COP Fiat
-* FIX: Invoice were not being sent (Apple Watch)
-* FIX: Disable some Watch app elements when app is not reachable
-* FIX: Show loading indicator when processing file or qrcode image
-* FIX: Button size for large devices
-* FIX: better handling of electrum disconnect
-* FIX: disable push notifications in settings
-* FIX: Font-Color in Bump-Fee Input Field "Custom" is not adapted for dark mode
-* FIX: QRCode border in LND Backup screen
-* FIX: Animated QRCode border. Change save path to Downloads folder
-* FIX: sk_SK language updates
+* ADD: coincontrol
+* ADD: Handle fiat rate from alternate sources
+* ADD: new languages: Bulgarian, Polish, Welsh
+* ADD: UYU currency
+* FIX: PayJoin is now BIP compliant
+* FIX: better support for BRD (aka bread) wallet with segwit
+* FIX: Disregarding curent denomination on send screen, scanning address always resets it to BTC
+* FIX: import *.txn file with txhex - extra newline characted prevented it from being recognized (closes #2161)
+* FIX: locale pt_BR, cs_CZ, sl_SI, es_ES, nl_NL, fi_FI, ru
+* FIX: translate message if Bitcoin address or LN invoice is in clipboard
+* FIX: Styling for large screens
+* FIX: exclude change address from recipients for Confirm screen
+* FIX: Dont show loading indicator on launch and onsnapitem
+* FIX: Show alert if storage access is denied
+* FIX: When wallet card has balance but no txs it displays 'pull to refresh'
+* FIX: broken wallet->send->longtap send btn->choose photo
+* FIX: Use system color on widgets
+* FIX: hide provide entropy button when creating Lightning or MS wallet
+* FIX: Can't paste in address block while building tx
 
-v5.5.3
+v5.6.6
 ======
 
-* FIX: notifications
-* FIX: Inverted QR codes
-* FIX: translations
-* FIX: Wallet rename
+* FIX: camera is not closing after QR with PSBT (UR) scanned from hw wallet
+* FIX: Input amount can now start with dot for fractional values
+* ADD: ARS fiat currency
+* FIX: locales nl_NL, sl_SI, es_ES
+* FIX: Dim nonselected wallets on additional screens
+* FIX: Use numberformatter for properly displaying the wallet balance on widget
+* REF: new wallets now generate 12 words mnemonic seed instead of 24, same security, but easier to manage
 
-v5.5.2
+
+v5.6.5
 ======
 
-* ADD: push notifications
-* ADD: lnurl-pay support
-* ADD: HodlHodl logout button
-* ADD: Keychain clear if password is lost
-* ADD: screen/wallets/details transactions count
-* FIX: crashes after importing malformed xpub as watch-only
-* FIX: Restore Change unit on balance  tap
-* FIX: When doing max amount, some scenarios would return invalid amount due to missing value change.
-* FIX: Input field to rename wallet is covered when typing
-* FIX: missing text on sendMAX dialog box confirmation
-* FIX: Invoice creation darkmode
-* FIX: Font-Color in Input Field "transaction notes" is not adapted for dark mode
+* ADD: Price Current/Previous Widget
+* ADD: Allow image for importing wallet
+* FIX: wallets are not refreshing when app boots
+* FIX: wallets are not refreshing when they are navigated to
+* FIX: Some colors were not using usetheme
+* FIX: Track time first seen of unconfirmed transactions
+* FIX: missing transactions after restart for single-address wallets
+* FIX: locales nl_NL, ru
+* FIX: Widget Fiat calculation
+* FIX: 'RnSksIsAppInstalled' was being read from the wrong suite
 
-v5.5.1
+v5.6.3
 ======
 
-* ADD: Dark Mode
-* FIX: #1309 Sharing doesnt include text
-* FIX: import mnemonic w/typo, 'try again' does nothing (closes #1286)
-* ADD: support importing watch-only in bitcoincore format [fingerprint/derivation]xpub (wallet descriptors)
-* REF: dont store txhex in transactions list
-* REF: wrap save storage in try-catch
+* ADD: Market Widget for iOS 14
+* ADD: Large iOS widget
+* ADD: Turkish Lira
+* FIX: Refill not working on Lightning
+* FIX: iOS - lightning:lnurl... links
+* FIX: hodlhodl - my contracts - sorted by creation time
+* FIX: scanQR now has progress bar when scanning animated QRs
+* FIX: Backup screen visibility
+* REF: brush up locales sl_SI, cs_CZ
+* REF: Wallet types style
 
-v5.5.0
+v5.6.2
 ======
 
-* FIX: provide entropy for D20
-* REF: speeded up transactions list
+* ADD: Privacy Settings Screen
+* ADD: Clipboard read opt-out
+* ADD: support lnurl fallback scheme
+* ADD: import LNDHub from QR
+* ADD: Electrum server import from QR
+* ADD: Philippines Peso currency
+* FIX: copy balance on wallet/transactions screen crash
+* FIX: remove padding to prevent text concealment
+* REF: show numeric keyboard when ask for numbers in prompt
+* FIX: locales de_DE, sl_SI, ru, fi_FI, ja_JP, es, pt_BR
+* REF: improve wallet import speed

@@ -3,9 +3,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, TouchableWithoutFeedback, StyleSheet, Linking, View, TextInput } from 'react-native';
 import {
   BlueLoading,
-  BlueTextHooks,
+  BlueText,
   BlueSpacing20,
-  BlueListItemHooks,
+  BlueListItem,
   BlueNavigationStyle,
   BlueCard,
   BlueButton,
@@ -15,7 +15,7 @@ import { useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import { Button } from 'react-native-elements';
 import { BlueCurrentTheme } from '../../components/themes';
-const notifications = require('../../blue_modules/notifications');
+import Notifications from '../../blue_modules/notifications';
 
 const NotificationSettings = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -30,32 +30,33 @@ const NotificationSettings = () => {
     setNotificationsEnabled(value); // so the slider is not 'jumpy'
     if (value) {
       // user is ENABLING notifications
-      if (await notifications.getPushToken()) {
+      await Notifications.cleanUserOptOutFlag();
+      if (await Notifications.getPushToken()) {
         // we already have a token, so we just need to reenable ALL level on groundcontrol:
-        await notifications.setLevels(true);
+        await Notifications.setLevels(true);
       } else {
         // ok, we dont have a token. we need to try to obtain permissions, configure callbacks and save token locally:
-        await notifications.tryToObtainPermissions();
+        await Notifications.tryToObtainPermissions();
       }
     } else {
       // user is DISABLING notifications
-      await notifications.setLevels(false);
+      await Notifications.setLevels(false);
     }
 
-    setNotificationsEnabled(await notifications.isNotificationsEnabled());
+    setNotificationsEnabled(await Notifications.isNotificationsEnabled());
   };
 
   useEffect(() => {
     (async () => {
-      setNotificationsEnabled(await notifications.isNotificationsEnabled());
-      setURI(await notifications.getSavedUri());
+      setNotificationsEnabled(await Notifications.isNotificationsEnabled());
+      setURI(await Notifications.getSavedUri());
       setTokenInfo(
         'token: ' +
-          JSON.stringify(await notifications.getPushToken()) +
+          JSON.stringify(await Notifications.getPushToken()) +
           ' permissions: ' +
-          JSON.stringify(await notifications.checkPermissions()) +
+          JSON.stringify(await Notifications.checkPermissions()) +
           ' stored notifications: ' +
-          JSON.stringify(await notifications.getStoredNotifications()),
+          JSON.stringify(await Notifications.getStoredNotifications()),
       );
       setIsLoading(false);
     })();
@@ -81,14 +82,14 @@ const NotificationSettings = () => {
     try {
       if (URI) {
         // validating only if its not empty. empty means use default
-        if (await notifications.isGroundControlUriValid(URI)) {
-          await notifications.saveUri(URI);
+        if (await Notifications.isGroundControlUriValid(URI)) {
+          await Notifications.saveUri(URI);
           alert(loc.settings.saved);
         } else {
           alert(loc.settings.not_a_valid_uri);
         }
       } else {
-        await notifications.saveUri('');
+        await Notifications.saveUri('');
         alert(loc.settings.saved);
       }
     } catch (error) {
@@ -101,7 +102,7 @@ const NotificationSettings = () => {
     <BlueLoading />
   ) : (
     <ScrollView style={stylesWithThemeHook.scroll}>
-      <BlueListItemHooks
+      <BlueListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.push_notifications}
         switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabled }}
@@ -109,7 +110,7 @@ const NotificationSettings = () => {
       <BlueSpacing20 />
 
       <BlueCard>
-        <BlueTextHooks>{loc.settings.groundcontrol_explanation}</BlueTextHooks>
+        <BlueText>{loc.settings.groundcontrol_explanation}</BlueText>
       </BlueCard>
 
       <Button
@@ -128,7 +129,7 @@ const NotificationSettings = () => {
       <BlueCard>
         <View style={styles.uri}>
           <TextInput
-            placeholder={notifications.getDefaultUri()}
+            placeholder={Notifications.getDefaultUri()}
             value={URI}
             onChangeText={setURI}
             numberOfLines={1}
@@ -142,12 +143,12 @@ const NotificationSettings = () => {
         </View>
 
         <BlueSpacing20 />
-        <BlueTextHooks style={styles.centered} onPress={() => setShowTokenInfo(isShowTokenInfo + 1)}>
+        <BlueText style={styles.centered} onPress={() => setShowTokenInfo(isShowTokenInfo + 1)}>
           ♪ Ground Control to Major Tom ♪
-        </BlueTextHooks>
-        <BlueTextHooks style={styles.centered} onPress={() => setShowTokenInfo(isShowTokenInfo + 1)}>
+        </BlueText>
+        <BlueText style={styles.centered} onPress={() => setShowTokenInfo(isShowTokenInfo + 1)}>
           ♪ Commencing countdown, engines on ♪
-        </BlueTextHooks>
+        </BlueText>
 
         {isShowTokenInfo >= 9 && (
           <View>

@@ -5,7 +5,16 @@
     "continue": "Devam et",
     "enter_password": "Şifre gir",
     "never": "asla",
-    "ok": "Tamam"
+    "ok": "Tamam",
+    "storage_is_encrypted": "Depolama alani sifrelenmis. Kilidi acmak icin sifre gerekli.",
+    "yes": "Evet"
+  },
+  "azteco": {
+    "codeIs": "Bilet kodunuz ",
+    "errorBeforeRefeem": "Hesabiniza yuklemeden once bir Bitcoin cuzdani olusturmalisiniz",
+    "errorSomething": "Birseyler yanlis gitti. Bu kod hala gecerli mi?",
+    "redeem": "Cüzdana yükle",
+    "redeemButton": "Yükle"
   },
   "lnd": {
     "expired": "Süresi doldu",
@@ -22,7 +31,6 @@
     "help": "Bazı koşullar altında, şifrenizi açıklamanız gerekebilir. Paralarınızı güvende tutmak için, BlueWallet başka bir şifre ile şifreli depolama alanı yaratabilir. Baskı altında, Bu şifreyi 3. bir tarafa söyleyebilirsiniz. Girilirse BlueWallet, yeni 'sahte' bir depolamanın kilidini açacaktır. Bu 3. şahıslara normal görünecektir, ancak paraların olduğu ana depolama alanınızı gizlice saklamaya devam edecektir.",
     "help2": "Yeni depolama alanı tamamen işlevsel olacak ve ufak bir miktar tutarsanız daha inanılır görünecektir.",
     "password_should_not_match": "Sahte depolama şifreniz, ana depolama şifrenizle aynı olmamalıdır",
-    "passwords_do_not_match": "Şifreler eşleşmedi, tekrar dene",
     "retype_password": "Şifrenizi yeniden yazın",
     "success": "Başarılı",
     "title": "Makul Ret"
@@ -79,7 +87,6 @@
     "details_title": "İşlem",
     "details_to": "Çıktı",
     "details_transaction_details": "İşlem detayları",
-    "list_conf": "onay",
     "list_title": "işlemler"
   },
   "wallets": {
@@ -109,8 +116,6 @@
     "import_title": "içeri yükle",
     "list_create_a_button": "şimdi ekle",
     "list_create_a_wallet": "Cüzdan oluştur",
-    "list_create_a_wallet1": "Oluşturması bedava ve",
-    "list_create_a_wallet2": "istediğiniz kadar oluşturabilirsiniz",
     "list_empty_txs1": "İşlemleriniz burada görünür,",
     "list_empty_txs2": "şu anda hiç yok",
     "list_latest_transaction": "en son işlem",

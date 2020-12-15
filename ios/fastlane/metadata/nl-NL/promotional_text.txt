@@ -1,0 +1,7 @@
+* Open Source
+* Volledig versleutelt
+* Plausible deniability
+* Aanpasbare transactievergoedingen
+* Replace-By-Fee
+* Watch-only (Sentinel)
+* Lightning network

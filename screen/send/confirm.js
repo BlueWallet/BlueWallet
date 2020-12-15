@@ -1,38 +1,34 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
 import { Text } from 'react-native-elements';
+import { PayjoinClient } from 'payjoin-client';
+import PayjoinTransaction from '../../class/payjoin-transaction';
 import { BlueButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing40, BlueNavigationStyle } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
-import {
-  HDLegacyElectrumSeedP2PKHWallet,
-  HDLegacyP2PKHWallet,
-  HDSegwitBech32Wallet,
-  HDSegwitP2SHWallet,
-  HDLegacyBreadwalletWallet,
-  LegacyWallet,
-  SegwitP2SHWallet,
-  SegwitBech32Wallet,
-} from '../../class';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-const EV = require('../../blue_modules/events');
+import Notifications from '../../blue_modules/notifications';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
-const notifications = require('../../blue_modules/notifications');
 
 export default class Confirm extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
 
     this.state = {
       isLoading: false,
-      fee: props.route.params.fee,
+      isPayjoinEnabled: false,
+      payjoinUrl: props.route.params.fromWallet.allowPayJoin() ? props.route.params?.payjoinUrl : false,
+      psbt: props.route.params?.psbt,
+      fee: props.route.params?.fee,
       feeSatoshi: new Bignumber(props.route.params.fee).multipliedBy(100000000).toNumber(),
       memo: props.route.params.memo,
       recipients: props.route.params.recipients,
@@ -50,59 +46,60 @@ export default class Confirm extends Component {
     this.isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
   }
 
-  broadcast() {
+  /**
+   * we need to look into `recipients`, find destination address and return its outputScript
+   * (needed for payjoin)
+   *
+   * @return {string}
+   */
+  getPaymentScript() {
+    for (const recipient of this.state.recipients) {
+      return bitcoin.address.toOutputScript(recipient.address);
+    }
+  }
+
+  send() {
     this.setState({ isLoading: true }, async () => {
       try {
-        await BlueElectrum.ping();
-        await BlueElectrum.waitTillConnected();
-
-        if (this.isBiometricUseCapableAndEnabled) {
-          if (!(await Biometric.unlockWithBiometrics())) {
-            this.setState({ isLoading: false });
-            return;
-          }
-        }
-
-        const result = await this.state.fromWallet.broadcastTx(this.state.tx);
-        if (!result) {
-          throw new Error(loc.errors.broadcast);
+        const txids2watch = [];
+        if (!this.state.isPayjoinEnabled) {
+          await this.broadcast(this.state.tx);
         } else {
-          const txid = bitcoin.Transaction.fromHex(this.state.tx).getId();
-          notifications.majorTomToGroundControl([], [], [txid]);
-          EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
-          let amount = 0;
-          const recipients = this.state.recipients;
-          if (recipients[0].amount === BitcoinUnit.MAX || !recipients[0].amount) {
-            amount = this.state.fromWallet.getBalance() - this.state.feeSatoshi;
-          } else {
-            for (const recipient of recipients) {
-              amount += recipient.amount ? +recipient.amount : recipient.value;
-            }
-          }
-
-          // wallets that support new createTransaction() instead of deprecated createTx()
-          if (
-            [
-              HDSegwitBech32Wallet.type,
-              HDSegwitP2SHWallet.type,
-              HDLegacyP2PKHWallet.type,
-              HDLegacyBreadwalletWallet.type,
-              HDLegacyElectrumSeedP2PKHWallet.type,
-              LegacyWallet.type,
-              SegwitP2SHWallet.type,
-              SegwitBech32Wallet.type,
-            ].includes(this.state.fromWallet.type)
-          ) {
-            amount = formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
-          }
-
-          this.props.navigation.navigate('Success', {
-            fee: Number(this.state.fee),
-            amount,
-            dismissModal: () => this.props.navigation.dangerouslyGetParent().pop(),
+          const wallet = new PayjoinTransaction(this.state.psbt, txHex => this.broadcast(txHex), this.state.fromWallet);
+          const paymentScript = this.getPaymentScript();
+          const payjoinClient = new PayjoinClient({
+            paymentScript,
+            wallet,
+            payjoinUrl: this.state.payjoinUrl,
           });
-          this.setState({ isLoading: false });
+          await payjoinClient.run();
+          const payjoinPsbt = wallet.getPayjoinPsbt();
+          if (payjoinPsbt) {
+            const tx = payjoinPsbt.extractTransaction();
+            txids2watch.push(tx.getId());
+          }
         }
+
+        const txid = bitcoin.Transaction.fromHex(this.state.tx).getId();
+        txids2watch.push(txid);
+        Notifications.majorTomToGroundControl([], [], txids2watch);
+        let amount = 0;
+        const recipients = this.state.recipients;
+        for (const recipient of recipients) {
+          amount += recipient.value;
+        }
+
+        amount = formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
+
+        this.props.navigation.navigate('Success', {
+          fee: Number(this.state.fee),
+          amount,
+        });
+
+        this.setState({ isLoading: false });
+
+        await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
+        this.context.fetchAndSaveWalletTransactions(this.state.fromWallet.getID());
       } catch (error) {
         ReactNativeHapticFeedback.trigger('notificationError', {
           ignoreAndroidSystemSettings: false,
@@ -113,22 +110,34 @@ export default class Confirm extends Component {
     });
   }
 
+  async broadcast(tx) {
+    await BlueElectrum.ping();
+    await BlueElectrum.waitTillConnected();
+
+    if (this.isBiometricUseCapableAndEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return;
+      }
+    }
+
+    const result = await this.state.fromWallet.broadcastTx(tx);
+    if (!result) {
+      throw new Error(loc.errors.broadcast);
+    }
+
+    return result;
+  }
+
   _renderItem = ({ index, item }) => {
     return (
       <>
         <View style={styles.valueWrap}>
           <Text testID="TransactionValue" style={styles.valueValue}>
-            {!item.value || item.value === BitcoinUnit.MAX
-              ? currency.satoshiToBTC(this.state.fromWallet.getBalance() - this.state.feeSatoshi)
-              : item.amount || currency.satoshiToBTC(item.value)}
+            {currency.satoshiToBTC(item.value)}
           </Text>
           <Text style={styles.valueUnit}>{' ' + BitcoinUnit.BTC}</Text>
         </View>
-        <Text style={styles.transactionAmountFiat}>
-          {item.value !== BitcoinUnit.MAX && item.value
-            ? currency.satoshiToLocalCurrency(item.value)
-            : currency.satoshiToLocalCurrency(this.state.fromWallet.getBalance() - this.state.feeSatoshi)}
-        </Text>
+        <Text style={styles.transactionAmountFiat}>{currency.satoshiToLocalCurrency(item.value)}</Text>
         <BlueCard>
           <Text style={styles.transactionDetailsTitle}>{loc.send.create_to}</Text>
           <Text testID="TransactionAddress" style={styles.transactionDetailsSubtitle}>
@@ -168,11 +177,17 @@ export default class Confirm extends Component {
                 {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
               </Text>
               <BlueSpacing40 />
-              {this.state.isLoading ? (
-                <ActivityIndicator />
-              ) : (
-                <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm_sendNow} />
+              {!!this.state.payjoinUrl && (
+                <View style={styles.payjoinWrapper}>
+                  <Text style={styles.payjoinText}>Payjoin</Text>
+                  <Switch
+                    testID="PayjoinSwitch"
+                    value={this.state.isPayjoinEnabled}
+                    onValueChange={isPayjoinEnabled => this.setState({ isPayjoinEnabled })}
+                  />
+                </View>
               )}
+              {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm_sendNow} />}
 
               <TouchableOpacity
                 testID="TransactionDetailsButton"
@@ -287,11 +302,20 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     alignSelf: 'center',
   },
+  payjoinWrapper: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginBottom: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  payjoinText: { color: '#81868e', fontSize: 14 },
 });
 
 Confirm.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
+    dismiss: PropTypes.func,
     navigate: PropTypes.func,
     dangerouslyGetParent: PropTypes.func,
   }),

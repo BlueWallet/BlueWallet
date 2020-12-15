@@ -65,5 +65,6 @@ artifacts/
 
 # Editors
 .vscode/
-/.vs
 /.editorconfig
+/.vs/BlueWallet/v16
+/.vs

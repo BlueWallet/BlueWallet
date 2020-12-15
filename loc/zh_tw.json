@@ -1,19 +1,69 @@
 {
   "_": {
+    "allow": "允許",
     "bad_password": "密碼無效，請重試",
     "cancel": "取消",
     "continue": "繼續",
+    "dont_allow": "不允許",
     "enter_password": "輸入密碼",
     "never": "不",
+    "no": "否",
     "ok": "好的",
-    "storage_is_encrypted": "你的資訊已經被加密， 請輸入密碼解密"
+    "storage_is_encrypted": "你的資訊已經被加密， 請輸入密碼解密",
+    "yes": "是"
+  },
+  "azteco": {
+    "codeIs": "您的優惠碼為",
+    "redeem": "贖回到錢包",
+    "redeemButton": "贖回",
+    "success": "成功"
+  },
+  "entropy": {
+    "save": "儲存",
+    "title": "熵",
+    "undo": "復原"
+  },
+  "errors": {
+    "broadcast": "廣播失敗",
+    "error": "錯誤",
+    "network": "網路錯誤"
+  },
+  "hodl": {
+    "are_you_sure_you_want_to_logout": "您確定要從HodlHodl登出嗎？",
+    "cont_buying": "購買",
+    "cont_cancel": "取消合約",
+    "cont_cancel_q": "你確定你要取消這個合約嗎？",
+    "cont_cancel_y": "是的。取消合約",
+    "cont_how": "如何支付",
+    "cont_st_completed": "全部完成！",
+    "cont_title": "我的合約",
+    "filter_any": "任何",
+    "filter_buying": "購買",
+    "filter_country_near": "靠近我",
+    "filter_currency": "貨幣",
+    "filter_detail": "細節",
+    "filter_iambuying": "我正在買比特幣",
+    "filter_iamselling": "我正在賣比特幣",
+    "filter_method": "支付方法",
+    "filter_search": "搜尋",
+    "filter_selling": "賣",
+    "login": "登入",
+    "mycont": "我的合約"
   },
   "lnd": {
     "expired": "超時",
+    "payButton": "支付",
+    "placeholder": "收據",
     "refill": "充值",
+    "refill_card": "用銀行卡加值",
     "refill_lnd_balance": "給閃電錢包充值",
     "sameWalletAsInvoiceError": "你不能用建立賬單的錢包去支付該賬單",
     "title": "配置資金支援"
+  },
+  "lndViewInvoice": {
+    "has_been_paid": " 該收據已支付",
+    "please_pay": "請支付",
+    "wasnt_paid_and_expired": "該收據未付款且已過期"
   },
   "plausibledeniability": {
     "create_fake_storage": "建立虛擬加密儲存",
@@ -27,6 +77,12 @@
     "success": "成功",
     "title": "可否認性"
   },
+  "pleasebackup": {
+    "ask_yes": "是的 我有",
+    "ok": "是的 我已經寫下來了",
+    "ok_lnd": "好的 我已經儲存了",
+    "title": "你的錢包已經產生..."
+  },
   "receive": {
     "details_create": "建立",
     "details_label": "描述",
@@ -35,10 +91,16 @@
     "header": "收款"
   },
   "send": {
+    "broadcastButton": "廣播",
+    "broadcastError": "錯誤",
+    "broadcastNone": "輸入交易hash",
+    "broadcastPending": "等待中",
+    "broadcastSuccess": "成功",
     "confirm_header": "確認",
     "confirm_sendNow": "現在傳送",
     "create_amount": "金額",
     "create_broadcast": "廣播",
+    "create_copy": "稍後復制並廣播",
     "create_details": "詳情",
     "create_fee": "手續費",
     "create_memo": "訊息",
@@ -48,12 +110,18 @@
     "create_tx_size": "交易大小",
     "details_address": "地址",
     "details_address_field_is_not_valid": "地址內容無效",
+    "details_adv_fee_bump": "允許費用上漲",
+    "details_adv_full": "使用全部餘額",
+    "details_adv_import": "匯入交易",
     "details_amount_field_is_not_valid": "金額格式無效",
     "details_create": "建立",
     "details_fee_field_is_not_valid": "費用格式無效",
+    "details_next": "下一個",
     "details_note_placeholder": "訊息",
     "details_scan": "掃描",
     "details_total_exceeds_balance": "餘額不足",
+    "fee_fast": "快",
+    "fee_medium": "中",
     "header": "傳送",
     "success_done": "完成"
   },
@@ -79,7 +147,6 @@
     "details_title": "轉賬",
     "details_to": "輸出",
     "details_transaction_details": "轉賬詳情",
-    "list_conf": "配置",
     "list_title": "轉賬"
   },
   "wallets": {
@@ -111,8 +178,6 @@
     "import_title": "匯入",
     "list_create_a_button": "立即添加",
     "list_create_a_wallet": "建立一個錢包",
-    "list_create_a_wallet1": "建立錢包是免費的，你可以",
-    "list_create_a_wallet2": "想建立多少就建立多少個",
     "list_empty_txs1": "你的轉賬資訊將展示在這裡",
     "list_empty_txs2": "當前無資訊",
     "list_latest_transaction": "最近的轉賬",

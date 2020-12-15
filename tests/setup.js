@@ -32,13 +32,6 @@ jest.mock('react-native-quick-actions', () => {
   };
 });
 
-jest.mock('react-native-image-picker', () => {
-  return {
-    launchCamera: jest.fn(),
-    launchImageLibrary: jest.fn(),
-  };
-});
-
 jest.mock('react-native-default-preference', () => {
   return {
     setName: jest.fn(),
@@ -93,3 +86,7 @@ jest.mock('react-native-fs', () => {
 });
 
 jest.mock('react-native-gesture-handler', () => jest.requireActual('react-native-gesture-handler/__mocks__/RNGestureHandlerModule.js'));
+
+jest.mock('react-native-document-picker', () => ({}));
+
+jest.mock('react-native-haptic-feedback', () => ({}));

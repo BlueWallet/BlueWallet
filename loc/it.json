@@ -1,20 +1,67 @@
 {
   "_": {
-    "bad_password": "Password errata, riprova",
+    "bad_password": "Password errata, riprova.",
     "cancel": "Annulla",
     "continue": "Continua",
     "enter_password": "Inserisci password",
     "never": "mai",
+    "no": "No",
+    "of": "{number} su {total}",
     "ok": "OK",
-    "storage_is_encrypted": "Il tuo archivio è criptato. È necessaria una password per decriptarlo"
+    "save": "Salva",
+    "storage_is_encrypted": "Il tuo archivio è criptato. È necessaria una password per decriptarlo",
+    "yes": "Sì"
+  },
+  "azteco": {
+    "redeemButton": "Riscattare",
+    "success": "Fatto"
+  },
+  "entropy": {
+    "save": "Salva",
+    "title": "Entropia",
+    "undo": "Annulla"
+  },
+  "errors": {
+    "broadcast": "Trasmissione fallita",
+    "error": "Errore",
+    "network": "Errore di rete"
+  },
+  "hodl": {
+    "cont_address_to": "A",
+    "cont_cancel": "Cancella contratto",
+    "cont_cancel_q": "Sei sicuro di voler cancellare questo contratto?",
+    "cont_cancel_y": "Sì, cancella il contratto",
+    "cont_how": "Come pagare",
+    "cont_st_completed": "Fatto!",
+    "cont_title": "I miei contratti",
+    "filter_country_near": "Vicino a me",
+    "filter_currency": "Valuta",
+    "filter_detail": "Dettaglio",
+    "filter_filters": "Filtri",
+    "filter_iambuying": "Sto comprando bitcoin",
+    "filter_iamselling": "Sto vendendo bitcoin",
+    "filter_method": "Metodo di pagamento",
+    "filter_search": "Cerca",
+    "item_rating_no": "Nessuna recensione",
+    "login": "Login",
+    "mycont": "I miei contratti",
+    "offer_accept": "Accetta l'offerta",
+    "offer_choosemethod": "Scegli il metodo di pagamento",
+    "offer_confirmations": "Conferme"
   },
   "lnd": {
     "expired": "Scaduto",
+    "payButton": "Paga",
     "placeholder": "Fattura",
+    "potentialFee": "Commissioni potenziali: {fee}",
     "refill": "Ricarica",
+    "refill_card": "Ricarica con una carta",
     "refill_lnd_balance": "Ricarica saldo del portafoglio Lightning",
     "sameWalletAsInvoiceError": "Non puoi pagare una fattura con lo stesso portafoglio utilizzato per crearla.",
     "title": "Gestisci fondi"
+  },
+  "lndViewInvoice": {
+    "additional_info": "Ulteriori Informazioni"
   },
   "plausibledeniability": {
     "create_fake_storage": "Crea archivio falso criptato",
@@ -23,7 +70,7 @@
     "help": "In alcune circostanze, potresti essere costretto a rivelare la password. Per mantenere i tuoi Bitcoin al sicuro, BlueWallet può creare un altro archivio criptato, con una password diversa. Se costretto, puoi rivelare questa password alle terze parti. Se inserita in BlueWallet, questa sbloccherà un \"falso\" archivio. Esso sembrerà autentico alle terze parti, ma manterrà segretamente il tuo archivio principale con i Bitcoin al sicuro.",
     "help2": "Il nuovo archivio sarà completamente funzionante, e puoi conservarci piccole quantità così sembrerà più credibile.",
     "password_should_not_match": "La password per l'archivio falso non deve corrispondere a quella dell'archivio principale",
-    "passwords_do_not_match": "Le password non corrispondono, riprova",
+    "passwords_do_not_match": "Le password non corrispondono, riprova.",
     "retype_password": "Reinserisci password",
     "success": "Fatto",
     "title": "Negazione Plausibile"
@@ -45,15 +92,20 @@
     "create_this_is_hex": "Questo è l'hex della transazione, firmato e pronto per essere trasmesso sulla rete.",
     "create_to": "A",
     "create_tx_size": "Grandezza TX",
+    "details_add_rec_add": "Aggiungi Destinatario",
+    "details_add_rec_rem": "Rimuovi Destinatario",
     "details_address": "Indirizzo",
     "details_address_field_is_not_valid": "Indirizzo non valido",
+    "details_adv_import": "Importa Transazione",
     "details_amount_field_is_not_valid": "Importo non valido",
     "details_create": "Crea",
     "details_fee_field_is_not_valid": "Commissione non valida",
+    "details_next": "Avanti",
     "details_note_placeholder": "Nota",
     "details_scan": "Scansiona",
     "details_total_exceeds_balance": "L'importo da inviare eccede i fondi disponibili.",
     "header": "Invia",
+    "input_paste": "Incolla",
     "success_done": "Fatto"
   },
   "settings": {
@@ -106,8 +158,6 @@
     "import_title": "Importa",
     "list_create_a_button": "Aggiungi ora",
     "list_create_a_wallet": "Aggiungi un portafoglio",
-    "list_create_a_wallet1": "È gratuito e puoi crearne",
-    "list_create_a_wallet2": "quanti ne vuoi",
     "list_empty_txs1": "Le tue transazioni appariranno qui,",
     "list_empty_txs2": "Nessuna transazione",
     "list_latest_transaction": "Transazioni recenti",

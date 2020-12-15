@@ -139,12 +139,30 @@ export class LegacyWallet extends AbstractWallet {
     }
   }
 
-  getUtxo() {
-    const ret = [];
+  /**
+   * Getter for previously fetched UTXO. For example:
+   *     [ { height: 0,
+   *    value: 666,
+   *    address: 'string',
+   *    txId: 'string',
+   *    vout: 1,
+   *    txid: 'string',
+   *    amount: 666,
+   *    wif: 'string',
+   *    confirmations: 0 } ]
+   *
+   * @param respectFrozen {boolean} Add Frozen outputs
+   * @returns {[]}
+   */
+  getUtxo(respectFrozen = false) {
+    let ret = [];
     for (const u of this.utxo) {
       if (u.txId) u.txid = u.txId;
       if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
       ret.push(u);
+    }
+    if (!respectFrozen) {
+      ret = ret.filter(({ txid, vout }) => !this.getUTXOMetadata(txid, vout).frozen);
     }
     return ret;
   }
@@ -158,7 +176,7 @@ export class LegacyWallet extends AbstractWallet {
    */
   async fetchTransactions() {
     // Below is a simplified copypaste from HD electrum wallet
-    this._txs_by_external_index = [];
+    const _txsByExternalIndex = [];
     const addresses2fetch = [this.getAddress()];
 
     // first: batch fetch for all addresses histories
@@ -211,7 +229,7 @@ export class LegacyWallet extends AbstractWallet {
           delete clonedTx.vin;
           delete clonedTx.vout;
 
-          this._txs_by_external_index.push(clonedTx);
+          _txsByExternalIndex.push(clonedTx);
         }
       }
       for (const vout of tx.vout) {
@@ -223,11 +241,12 @@ export class LegacyWallet extends AbstractWallet {
           delete clonedTx.vin;
           delete clonedTx.vout;
 
-          this._txs_by_external_index.push(clonedTx);
+          _txsByExternalIndex.push(clonedTx);
         }
       }
     }
 
+    this._txs_by_external_index = _txsByExternalIndex;
     this._lastTxFetch = +new Date();
   }
 
@@ -253,20 +272,8 @@ export class LegacyWallet extends AbstractWallet {
     return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
   }
 
-  /**
-   *
-   * @param utxos {Array.<{vout: Number, value: Number, txId: String, address: String, txhex: String, }>} List of spendable utxos
-   * @param targets {Array.<{value: Number, address: String}>} Where coins are going. If theres only 1 target and that target has no value - this will send MAX to that address (respecting fee rate)
-   * @param feeRate {Number} satoshi per byte
-   * @param changeAddress {String} Excessive coins will go back to that address
-   * @param sequence {Number} Used in RBF
-   * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
-   * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
-   * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
-   */
-  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
+  coinselect(utxos, targets, feeRate, changeAddress) {
     if (!changeAddress) throw new Error('No change address provided');
-    sequence = sequence || 0xffffffff; // disable RBF by default
 
     let algo = coinSelectAccumulative;
     if (targets.length === 1 && targets[0] && !targets[0].value) {
@@ -281,8 +288,25 @@ export class LegacyWallet extends AbstractWallet {
       throw new Error('Not enough balance. Try sending smaller amount');
     }
 
-    const psbt = new bitcoin.Psbt();
+    return { inputs, outputs, fee };
+  }
 
+  /**
+   *
+   * @param utxos {Array.<{vout: Number, value: Number, txId: String, address: String, txhex: String, }>} List of spendable utxos
+   * @param targets {Array.<{value: Number, address: String}>} Where coins are going. If theres only 1 target and that target has no value - this will send MAX to that address (respecting fee rate)
+   * @param feeRate {Number} satoshi per byte
+   * @param changeAddress {String} Excessive coins will go back to that address
+   * @param sequence {Number} Used in RBF
+   * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
+   * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
+   * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
+   */
+  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
+    if (targets.length === 0) throw new Error('No destination provided');
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
+    sequence = sequence || 0xffffffff; // disable RBF by default
+    const psbt = new bitcoin.Psbt();
     let c = 0;
     const values = {};
     let keyPair;
@@ -342,7 +366,6 @@ export class LegacyWallet extends AbstractWallet {
     for (const tx of this.getTransactions()) {
       max = Math.max(new Date(tx.received) * 1, max);
     }
-
     return new Date(max).toString();
   }
 
@@ -397,9 +420,14 @@ export class LegacyWallet extends AbstractWallet {
     return true;
   }
 
-  async getChangeAddressAsync() {
-    return new Promise(resolve => {
-      resolve(this.getAddress());
-    });
+  /**
+   * Check if address is a Change address. Needed for Coin control.
+   * Useless for Legacy wallets, so it is always false
+   *
+   * @param address
+   * @returns {Boolean} Either address is a change or not
+   */
+  addressIsChange(address) {
+    return false;
   }
 }

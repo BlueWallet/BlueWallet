@@ -1,0 +1,47 @@
+{
+  "_": {
+    "cancel": "Canslo",
+    "continue": "Parhau",
+    "enter_password": "Cyfrinair",
+    "never": "byth",
+    "of": "{nifer} o {gyfanswm}",
+    "ok": "Iawn",
+    "storage_is_encrypted": "Mae'r storfa wedi encryptio. Mae angen Cyfrinair i'w ddad-gryptio. ",
+    "yes": "Ie"
+  },
+  "azteco": {
+    "success": "Llwyddiant"
+  },
+  "entropy": {
+    "save": "Safio",
+    "undo": "Dad-wneud"
+  },
+  "errors": {
+    "broadcast": "Methu darlledu",
+    "error": "Camgymeriad",
+    "network": "Camgymeriad rhwydwaith"
+  },
+  "lnd": {
+    "payButton": "Talu",
+    "placeholder": "Anfoneb",
+    "refill": "Ail-lenwi",
+    "refill_card": "Ail-lenwi efo cerdyn banc",
+    "refill_create": "Er mwyn parhau, ffurfia waled Bitcoin i'w ail-lenwi. ",
+    "refill_external": "Ail-lenwi efo Waled Allanol",
+    "refill_lnd_balance": "Ail-lenwi balans waled Mellten",
+    "sameWalletAsInvoiceError": "Does dim modd talu anfoneb efo'r un waled ddefnyddwyd i'w greu.",
+    "title": "Rheoli cyllid"
+  },
+  "lndViewInvoice": {
+    "additional_info": "Gwybodaeth Ychwanegol",
+    "for": "Ar Gyfer:",
+    "has_been_paid": "Mae'r anfoneb yma wedi cael ei dalu",
+    "open_direct_channel": "Agor sianel uniongyrchol efo'r nodyn hwn:",
+    "please_pay": "Talu"
+  },
+  "plausibledeniability": {
+    "create_fake_storage": "Creu storfa wedi encryptio",
+    "create_password": "Creu cyfrinair",
+    "create_password_explanation": "Ni ddyliai'r cyfrinair ar gyfer y storfa ffug fod yr un cyfrinair ag ar gyfer y brif storfa"
+  }
+}

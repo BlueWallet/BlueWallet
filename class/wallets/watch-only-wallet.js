@@ -120,13 +120,23 @@ export class WatchOnlyWallet extends LegacyWallet {
     throw new Error('Not initialized');
   }
 
-  async _getExternalAddressByIndex(index) {
+  _getExternalAddressByIndex(index) {
     if (this._hdWalletInstance) return this._hdWalletInstance._getExternalAddressByIndex(index);
+    throw new Error('Not initialized');
+  }
+
+  _getInternalAddressByIndex(index) {
+    if (this._hdWalletInstance) return this._hdWalletInstance._getInternalAddressByIndex(index);
     throw new Error('Not initialized');
   }
 
   getNextFreeAddressIndex() {
     if (this._hdWalletInstance) return this._hdWalletInstance.next_free_address_index;
+    throw new Error('Not initialized');
+  }
+
+  getNextFreeChangeAddressIndex() {
+    if (this._hdWalletInstance) return this._hdWalletInstance.next_free_change_address_index;
     throw new Error('Not initialized');
   }
 
@@ -140,8 +150,8 @@ export class WatchOnlyWallet extends LegacyWallet {
     throw new Error('Not initialized');
   }
 
-  getUtxo() {
-    if (this._hdWalletInstance) return this._hdWalletInstance.getUtxo();
+  getUtxo(...args) {
+    if (this._hdWalletInstance) return this._hdWalletInstance.getUtxo(...args);
     throw new Error('Not initialized');
   }
 
@@ -241,5 +251,20 @@ export class WatchOnlyWallet extends LegacyWallet {
     } catch (_) {}
 
     return false;
+  }
+
+  addressIsChange(...args) {
+    if (this._hdWalletInstance) return this._hdWalletInstance.addressIsChange(...args);
+    return super.addressIsChange(...args);
+  }
+
+  getUTXOMetadata(...args) {
+    if (this._hdWalletInstance) return this._hdWalletInstance.getUTXOMetadata(...args);
+    return super.getUTXOMetadata(...args);
+  }
+
+  setUTXOMetadata(...args) {
+    if (this._hdWalletInstance) return this._hdWalletInstance.setUTXOMetadata(...args);
+    return super.setUTXOMetadata(...args);
   }
 }

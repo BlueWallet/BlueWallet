@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/EFPrefix/EFQRCode.git",
         "state": {
           "branch": null,
-          "revision": "f0644f503685ad6c74f788a8f81865b02a7b3ade",
-          "version": "5.1.6"
+          "revision": "62eff300b439d0088007b4e2e2e8c600f4b2e515",
+          "version": "5.1.8"
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/ApolloZhu/swift_qrcodejs.git",
         "state": {
           "branch": null,
-          "revision": "1c277e0b8220bfabd1b57fff5d7e33df73685e53",
-          "version": "1.1.3"
+          "revision": "f3fe9fdd39fa48e45b501000194b43a3883f732f",
+          "version": "1.1.4"
         }
       }
     ]

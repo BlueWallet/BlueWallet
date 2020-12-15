@@ -1,3 +1,4 @@
-const WatchConnectivity = () => {};
-WatchConnectivity.sendWalletsToWatch = () => {};
+const WatchConnectivity = () => {
+  return null;
+};
 export default WatchConnectivity;

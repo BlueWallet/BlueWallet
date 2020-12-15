@@ -4,9 +4,16 @@ const assert = require('assert');
 
 describe('LNURL', function () {
   it('can findlnurl', () => {
-    const lnurlExample = 'LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58';
-    const found = Lnurl.findlnurl(lnurlExample);
-    assert.strictEqual(found, 'lnurl1dp68gurn8ghj7mrww3uxymm59e3xjemnw4hzu7re0ghkcmn4wfkz7urp0ylh2um9wf5kg0fhxycnv9g9w58');
+    const base = 'lnurl1dp68gurn8ghj7mrww3uxymm59e3xjemnw4hzu7re0ghkcmn4wfkz7urp0ylh2um9wf5kg0fhxycnv9g9w58';
+    assert.strictEqual(Lnurl.findlnurl(base), base);
+    assert.strictEqual(Lnurl.findlnurl(base.toUpperCase()), base);
+    assert.strictEqual(Lnurl.findlnurl('https://site.com/?lightning=' + base), base);
+    assert.strictEqual(Lnurl.findlnurl('https://site.com/?lightning=' + base.toUpperCase()), base);
+    assert.strictEqual(Lnurl.findlnurl('https://site.com/?nada=nada&lightning=' + base), base);
+    assert.strictEqual(Lnurl.findlnurl('https://site.com/?nada=nada&lightning=' + base.toUpperCase()), base);
+    assert.strictEqual(Lnurl.findlnurl('bs'), null);
+    assert.strictEqual(Lnurl.findlnurl('https://site.com'), null);
+    assert.strictEqual(Lnurl.findlnurl('https://site.com/?bs=' + base), null);
   });
 
   it('can getUrlFromLnurl()', () => {
@@ -14,11 +21,25 @@ describe('LNURL', function () {
       Lnurl.getUrlFromLnurl('LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58'),
       'https://lntxbot.bigsun.xyz/lnurl/pay?userid=7116',
     );
+    assert.strictEqual(
+      Lnurl.getUrlFromLnurl(
+        'https://lnbits.com/?lightning=LNURL1DP68GURN8GHJ7MRWVF5HGUEWVDHK6TMHD96XSERJV9MJ7CTSDYHHVVF0D3H82UNV9UM9JDENFPN5SMMK2359J5RKWVMKZ5ZVWAV4VJD63TM',
+      ),
+      'https://lnbits.com/withdraw/api/v1/lnurl/6Y73HgHovThYPvs7aPLwYV',
+    );
     assert.strictEqual(Lnurl.getUrlFromLnurl('bs'), false);
   });
 
   it('can isLnurl()', () => {
     assert.ok(Lnurl.isLnurl('LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58'));
+    assert.ok(
+      Lnurl.isLnurl(
+        'https://site.com/?lightning=LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58',
+      ),
+    );
+    assert.ok(
+      !Lnurl.isLnurl('https://site.com/?bs=LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58'),
+    );
     assert.ok(!Lnurl.isLnurl('bs'));
   });
 

@@ -1,35 +1,34 @@
 /* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Modal from 'react-native-modal';
 import { Icon } from 'react-native-elements';
 import {
   ActivityIndicator,
+  Dimensions,
   FlatList,
   Image,
   Keyboard,
   KeyboardAvoidingView,
-  Dimensions,
   Linking,
   Platform,
   SectionList,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableHighlight,
   TouchableOpacity,
   View,
-  StatusBar,
 } from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
+
 import { BlueButtonLink, BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
-import { AppStorage } from '../../class';
 import * as NavigationService from '../../NavigationService';
-import Geolocation from '@react-native-community/geolocation';
 import { BlueCurrentTheme } from '../../components/themes';
+import BottomModal from '../../components/BottomModal';
 import loc from '../../loc';
-
-const BlueApp: AppStorage = require('../../BlueApp');
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const A = require('../../blue_modules/analytics');
 
 const CURRENCY_CODE_ANY = '_any';
@@ -38,7 +37,9 @@ const METHOD_ANY = '_any';
 const HodlHodlListSections = { OFFERS: 'OFFERS' };
 const windowHeight = Dimensions.get('window').height;
 Geolocation.setRNConfiguration({ authorizationLevel: 'whenInUse' });
+
 export default class HodlHodl extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
 
@@ -66,7 +67,7 @@ export default class HodlHodl extends Component {
 
   handleLoginPress = () => {
     const handleLoginCallback = (hodlApiKey, hodlHodlSignatureKey) => {
-      BlueApp.setHodlHodlApiKey(hodlApiKey, hodlHodlSignatureKey);
+      this.context.setHodlHodlApiKey(hodlApiKey, hodlHodlSignatureKey);
       const displayLoginButton = !hodlApiKey;
       const HodlApi = new HodlHodlApi(hodlApiKey);
       this.setState({ HodlApi, hodlApiKey });
@@ -179,7 +180,7 @@ export default class HodlHodl extends Component {
   }
 
   onFocus = async () => {
-    const hodlApiKey = await BlueApp.getHodlHodlApiKey();
+    const hodlApiKey = await this.context.getHodlHodlApiKey();
     const displayLoginButton = !hodlApiKey;
 
     if (hodlApiKey && !this.state.hodlApiKey) {
@@ -199,7 +200,7 @@ export default class HodlHodl extends Component {
     this._unsubscribeFocus = this.props.navigation.addListener('focus', this.onFocus);
     A(A.ENUM.NAVIGATED_TO_WALLETS_HODLHODL);
 
-    const hodlApiKey = await BlueApp.getHodlHodlApiKey();
+    const hodlApiKey = await this.context.getHodlHodlApiKey();
     const displayLoginButton = !hodlApiKey;
 
     const HodlApi = new HodlHodlApi(hodlApiKey);
@@ -351,17 +352,14 @@ export default class HodlHodl extends Component {
     return loc.hodl.filter_country_global;
   }
 
+  hideChooseSideModal = () => {
+    Keyboard.dismiss();
+    this.setState({ isChooseSideModalVisible: false });
+  };
+
   renderChooseSideModal = () => {
     return (
-      <Modal
-        isVisible={this.state.isChooseSideModalVisible}
-        style={styles.bottomModal}
-        deviceHeight={windowHeight}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isChooseSideModalVisible: false });
-        }}
-      >
+      <BottomModal isVisible={this.state.isChooseSideModalVisible} onClose={this.hideChooseSideModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContentShort}>
             <FlatList
@@ -387,16 +385,20 @@ export default class HodlHodl extends Component {
             />
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
+  };
+
+  hideFiltersModal = () => {
+    Keyboard.dismiss();
+    this.setState({ isFiltersModalVisible: false });
   };
 
   renderFiltersModal = () => {
     return (
-      <Modal
+      <BottomModal
         isVisible={this.state.isFiltersModalVisible}
-        style={styles.bottomModal}
-        deviceHeight={windowHeight}
+        onClose={this.hideFiltersModal}
         onModalHide={() => {
           if (this.state.openNextModal) {
             const openNextModal = this.state.openNextModal;
@@ -405,10 +407,6 @@ export default class HodlHodl extends Component {
               [openNextModal]: true,
             });
           }
-        }}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isFiltersModalVisible: false });
         }}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
@@ -459,8 +457,13 @@ export default class HodlHodl extends Component {
             />
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
+  };
+
+  hideChooseCountryModal = () => {
+    Keyboard.dismiss();
+    this.setState({ isChooseCountryModalVisible: false });
   };
 
   renderChooseContryModal = () => {
@@ -500,15 +503,7 @@ export default class HodlHodl extends Component {
     }
 
     return (
-      <Modal
-        deviceHeight={windowHeight}
-        isVisible={this.state.isChooseCountryModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isChooseCountryModalVisible: false });
-        }}
-      >
+      <BottomModal isVisible={this.state.isChooseCountryModalVisible} onClose={this.hideChooseCountryModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <View style={styles.searchInputContainer}>
@@ -547,8 +542,13 @@ export default class HodlHodl extends Component {
             />
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
+  };
+
+  hideChooseCurrencyModal = () => {
+    Keyboard.dismiss();
+    this.setState({ isChooseCurrencyVisible: false });
   };
 
   renderChooseCurrencyModal = () => {
@@ -577,15 +577,7 @@ export default class HodlHodl extends Component {
     }
 
     return (
-      <Modal
-        isVisible={this.state.isChooseCurrencyVisible}
-        style={styles.bottomModal}
-        deviceHeight={windowHeight}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isChooseCurrencyVisible: false });
-        }}
-      >
+      <BottomModal isVisible={this.state.isChooseCurrencyVisible} onClose={this.hideChooseCurrencyModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <View style={styles.searchInputContainer}>
@@ -624,8 +616,13 @@ export default class HodlHodl extends Component {
             />
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
+  };
+
+  hideChooseMethodModal = () => {
+    Keyboard.dismiss();
+    this.setState({ isChooseMethodVisible: false });
   };
 
   renderChooseMethodModal = () => {
@@ -654,15 +651,7 @@ export default class HodlHodl extends Component {
     }
 
     return (
-      <Modal
-        isVisible={this.state.isChooseMethodVisible}
-        style={styles.bottomModal}
-        deviceHeight={windowHeight}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isChooseMethodVisible: false });
-        }}
-      >
+      <BottomModal isVisible={this.state.isChooseMethodVisible} deviceHeight={windowHeight} onClose={this.hideChooseMethodModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <View style={styles.searchInputContainer}>
@@ -707,7 +696,7 @@ export default class HodlHodl extends Component {
             />
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </BottomModal>
     );
   };
 
@@ -935,10 +924,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0, 0, 0, 0.1)',
     minHeight: 200,
     height: 200,
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
   },
   Title: {
     fontWeight: 'bold',
