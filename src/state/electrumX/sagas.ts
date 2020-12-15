@@ -1,9 +1,9 @@
-import NetInfo from '@react-native-community/netinfo';
+import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 import { difference, noop } from 'lodash';
 import { flatten, compose, map } from 'lodash/fp';
 import RNBootSplash from 'react-native-bootsplash';
 import { eventChannel } from 'redux-saga';
-import { takeLatest, put, take, all, call, select } from 'redux-saga/effects';
+import { takeLatest, put, take, call, select, delay } from 'redux-saga/effects';
 
 import { Wallet } from 'app/consts';
 
@@ -174,11 +174,17 @@ export function* checkConnection() {
     const currentIsInternetReachable = yield select(isInternetReachableSelector);
     const currentIsServerConnectedSelector = yield select(isServerConnectedSelector);
 
-    const { internetState, isServerConnected } = yield all({
-      internetState: call(() => NetInfo.fetch()),
-      isServerConnected: call(() => BlueElectrum.ping()),
-    });
+    let internetState: NetInfoState | undefined = undefined;
+
+    while (internetState === undefined || internetState?.isInternetReachable === null) {
+      if (internetState !== undefined) {
+        yield delay(500);
+      }
+      internetState = yield call(() => NetInfo.fetch());
+    }
     const { isInternetReachable } = internetState;
+
+    const isServerConnected = yield call(() => BlueElectrum.ping());
     const { isInitialized } = (yield select()).wallets;
 
     if (isInitialized && currentIsInternetReachable && !isInternetReachable) {
