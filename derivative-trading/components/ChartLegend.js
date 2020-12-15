@@ -33,10 +33,9 @@ class ChartLegend extends React.Component {
         return (
             <View style={styles.legendMainContainer}>
                 {
-                    this.props.elements.map(element => {
+                    this.props.elements.map((element, index) => {
                         return (
-                            <View style={styles.legendElementContainer}>
-                                {/* <View style={styles.bulletPoint} backgroundColor={element.color}></View> */}
+                            <View key={index} style={styles.legendElementContainer}>
                                 <Image source={element.avatarImage} style={styles.legendItemImage}/>
                                 <View>
                                     <Text style={styles.legendText}>

@@ -32,10 +32,10 @@ const TradesSection = ({ style, apiKey, products }) => {
         } else if (trades.length === 0) {
             return <EmptyListSectionView height={80} message={"Your trades will appear here."} />;
         } else {
-            return trades.map((trade, index) => {
+            return trades.slice(0).reverse().map((trade, index) => {
                 let product = products.filter(product => product.symbol === trade.symbol);
                 if (product.length > 0) {
-                    return <TradesSectionListItem trade={trade} product={product[0]} ></TradesSectionListItem>
+                    return <TradesSectionListItem key={index} trade={trade} product={product[0]} ></TradesSectionListItem>
                 }
             });
         }

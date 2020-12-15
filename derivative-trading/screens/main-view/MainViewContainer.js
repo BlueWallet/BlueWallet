@@ -6,6 +6,7 @@ import { showMessage } from 'react-native-flash-message';
 import { deriveCredentialsForWallet } from '../../class/AccountUtils';
 import DataNormalizer, { APIResponseType } from '../../class/DataNormalization';
 import RestApiClient from '../../class/RestApiClient';
+import { toDollars } from '../../class/Utils';
 import WebsocketClient from '../../class/WebsocketClient';
 import TCModal from '../../components/TermsModal';
 import { WS_BASE_URL } from '../../constants';
@@ -95,7 +96,7 @@ const MainViewContainer = ({
     existingUserData = JSON.parse(existingUserData)
     if (existingUserData) {
       let now = Math.round((new Date()).getTime() / 1000)
-      if (typeof existingUserData.expires === undefined || typeof existingUserData.token === undefined) {
+      if (!existingUserData.expires || !existingUserData.token) {
         registerUser()
       }
       if (now > existingUserData.expires) {
@@ -165,14 +166,14 @@ const MainViewContainer = ({
 
   async function payForTrade(invoice) {
     try {
-      let res = await wallet.payInvoice(invoice);
+      await wallet.payInvoice(invoice);
     } catch (error) {
-      showPaymentFailiure(error)
+      showPaymentFailiure()
     }
   }
 
   function handleWebSocketsMsg(response) {
-    if (DataNormalizer.isResponseOk(response)) { 
+    if (DataNormalizer.isResponseOk(response)) {
       const responseType = DataNormalizer.getAPIResponseType(response);
       if (responseType === APIResponseType.AUTHENTICATION) {
         if (response.data.message === 'success') {
@@ -186,13 +187,13 @@ const MainViewContainer = ({
         let data = DataNormalizer.dataFromWsMessage(response);
         let openOrders = data.open_orders;
         let oo = []
-        Object.values(openOrders).map(openOrdersVec => {
+        Object.values(openOrders).forEach(openOrdersVec => {
           openOrdersVec.map(openOrder => {
             let o = DataNormalizer.openOrderFromPayload(openOrder)
             oo.push(o);
           })
         })
-        dispatch({ type: 'setOpenOrders', payload: oo});
+        dispatch({ type: 'setOpenOrders', payload: oo });
       } else if (responseType === APIResponseType.ORDER_OPENED) {
         let data = DataNormalizer.dataFromWsMessage(response);
         let openOrder = DataNormalizer.openOrderFromPayload(data);
@@ -205,16 +206,14 @@ const MainViewContainer = ({
         showOrderFillAlert(fill);
       } else if (responseType === APIResponseType.USER_POSITIONS) {
         let data = DataNormalizer.dataFromWsMessage(response);
-        Object.values(data.positions).map(position => {
+        let positions = {}
+        Object.values(data.positions).forEach(position => {
           let pos = DataNormalizer.positionStateFromPayload(position)
           if (pos.quantity > 0) {
-            dispatch({ type: 'setPositionState', payload: pos })
+            positions[pos.symbol] = pos
           }
         })
-      } else if (responseType === APIResponseType.POSITION_STATE) {
-        let data = DataNormalizer.dataFromWsMessage(response);
-        let pos = DataNormalizer.positionStateFromPayload(data);
-        // dispatch({ type: 'setPositionState', payload: pos })
+        dispatch({ type: 'setPositionStates', payload: positions })
       } else if (responseType === APIResponseType.SETTLEMENT_REQUEST) {
         let data = DataNormalizer.dataFromWsMessage(response);
         let message = DataNormalizer.settlementRequestFromPayload(data);
@@ -223,8 +222,6 @@ const MainViewContainer = ({
         let data = DataNormalizer.dataFromWsMessage(response);
         let message = DataNormalizer.orderInvoiceFromPayload(data);
         payForTrade(message.invoice);
-      } else if (responseType === APIResponseType.TICKER) {
-        let ticker = DataNormalizer.dataFromWsMessage(response);
       } else if (responseType === APIResponseType.TRADABLE_SYMBOLS) {
         let data = DataNormalizer.dataFromWsMessage(response);
         let products = Object.values(data.symbols).map(product => DataNormalizer.productFromPayload(product));
@@ -239,9 +236,8 @@ const MainViewContainer = ({
         let data = DataNormalizer.dataFromWsMessage(response);
         let done = DataNormalizer.doneFromPayload(data)
         if (done.reason === 'Cancel') {
-          showOrderCanceledMessage(done.orderId)
+          showOrderCanceledMessage({ orderId: done.orderId })
         }
-      } else if (responseType === APIResponseType.USER_ACCOUNTS) {
       } else if (responseType === APIResponseType.WITHDRAWAL_SUCCESS) {
         dispatch({ type: 'setIsSettling', payload: false })
       } else if (responseType === APIResponseType.ERROR) {
@@ -250,10 +246,10 @@ const MainViewContainer = ({
     }
   }
 
-  function showOrderCanceledMessage({ order_id: orderID }) {
+  function showOrderCanceledMessage({ orderId }) {
     const message = 'Order Canceled';
 
-    const messageDescription = `Cancelled Order: ${orderID}`;
+    const messageDescription = `Cancelled Order: ${orderId}`;
     showMessage({
       message,
       description: messageDescription,
@@ -335,18 +331,6 @@ const MainViewContainer = ({
     });
   }
 
-  const getErrorMessageText = () => {
-    if (productsLoadingError !== null) {
-      return `Error while loading products: ${productsLoadingError}`;
-    }
-
-    if (authError !== null) {
-      return `Error while authenticating: ${authError}`;
-    }
-
-    return '';
-  };
-
   async function onAcceptTerms() {
     let uD = { ...state.userData, hasAcceptedTerms: true };
     await BlueApp.setKolliderUserData(JSON.stringify(uD), wallet);
@@ -395,7 +379,7 @@ const MainViewContainer = ({
 MainViewContainer.navigationOptions = ({ navigation, route }) => ({
   headerTitle: () => {
     return (
-      <View style={[styles.headerIcon, { left: Platform.OS === 'ios' ? 0 : 0 }, { flexDirection: 'row', justifyContent: 'center' }]}>
+      <View style={[styles.headerIcon, { flexDirection: 'row', justifyContent: 'center' }]}>
         <Image source={require('../../../img/derivatives-trading/kollider_icon_white.png')} style={{ height: 22, width: 22 }} />
         <Text style={{ color: 'white', fontSize: 18, marginLeft: 5 }}>Kollider</Text>
       </View>

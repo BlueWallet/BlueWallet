@@ -91,7 +91,6 @@ const DTSelectQuantity = ({
                     onPress={showOrderTypeSelectionModal}
                 />
             </View>
-            {/* <Text>{ticker.mid}</Text> */}
             <QuantitySelectionView style={styles.quantitySelectionView} onQuantitySubmitted={onQuantitySubmitted}
                 ticker={ticker} product={product} leverage={leverage} limitPrice={limitPrice} orderType={orderType} />
             <Modal
@@ -161,7 +160,6 @@ DTSelectQuantity.propTypes = {
             wsClientRef: PropTypes.object.isRequired,
             side: PropTypes.string.isRequired,
             orderType: PropTypes.string.isRequired,
-            ticker: PropTypes.number.isRequired,
         }),
     }),
 };

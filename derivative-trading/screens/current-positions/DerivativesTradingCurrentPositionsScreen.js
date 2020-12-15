@@ -32,7 +32,7 @@ const DerivativesTradingCurrentPositionsScreen = ({
   function renderListItem({ item: position, section }) {
     return (
       <CurrentPositionListItem
-        position={position}
+        currentPosition={position}
         onPress={() => {
           onPositionSelected(position);
         }}

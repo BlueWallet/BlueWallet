@@ -174,7 +174,6 @@ TradingLaunchFooter.propTypes = {
   onSellSelected: PropTypes.func.isRequired,
   onClosePositionSelected: PropTypes.func.isRequired,
   canClosePosition: PropTypes.bool,
-  bottomOffset: PropTypes.number,
   baseFooterHeight: PropTypes.number,
 };
 

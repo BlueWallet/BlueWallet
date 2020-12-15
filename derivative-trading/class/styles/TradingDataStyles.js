@@ -19,7 +19,6 @@ export default StyleSheet.create({
   },
 
   dataItemLabel: {
-    color: 'black',
     fontSize: 12,
     fontWeight: '700',
     marginBottom: 4,

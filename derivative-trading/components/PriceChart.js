@@ -8,12 +8,6 @@ import { BlueCurrentTheme } from '../../components/themes';
 import { convertYDataRange } from '../class/Utils';
 
 
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-const DEFAULT_DATA = [{ timestamp: 1000, value: 0 }, { timestamp: 1000, value: 0 }];
-
 export default class PriceChart extends React.Component {
   constructor(props) {
     super(props);
@@ -54,11 +48,6 @@ export default class PriceChart extends React.Component {
   }
 
   render() {
-    const MeanReturnLine = ({ y }) => {
-      const y1 = this.calcMeanReturn();
-      return <Line key="zero-axis" x1="0%" x2="100%" y1={y(y1)} y2={y(y1)} stroke="black" strokeDasharray={[3, 10]} strokeWidth={1} />;
-    };
-
     return (
       <View style={[styles.mainContainer, this.props.styles]}>
         <View style={[styles.chartContentContainer, { height: this.props.containerHeight }]}>

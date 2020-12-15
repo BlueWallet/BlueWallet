@@ -12,8 +12,12 @@ const OrderTypeSelectionModal = ({ onOrderTypeSelected }) => {
       <View style={styles.modalContent}>
         <BlueTextCentered>Select an order type.</BlueTextCentered>
         <View style={styles.modelContentListContainer}>
-          <ListItem title="Market" bottomDivider onPress={() => onOrderTypeSelected(OrderType.MARKET)} />
-          <ListItem title="Limit" onPress={() => onOrderTypeSelected(OrderType.LIMIT)} />
+          <ListItem bottomDivider onPress={() => onOrderTypeSelected(OrderType.MARKET)}>
+            <ListItem.Title>Market</ListItem.Title>
+          </ListItem>
+          <ListItem onPress={() => onOrderTypeSelected(OrderType.LIMIT)}>
+            <ListItem.Title>Limit</ListItem.Title>
+          </ListItem>
         </View>
       </View>
     </KeyboardAvoidingView>

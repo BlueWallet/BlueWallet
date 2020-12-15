@@ -162,7 +162,6 @@ const styles = StyleSheet.create({
 });
 
 OpenedOrderListItem.propTypes = {
-  order: PropTypes.instanceOf(DerivativesTradingOpenedOrder).isRequired,
   onPress: PropTypes.func,
 };
 

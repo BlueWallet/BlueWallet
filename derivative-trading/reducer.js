@@ -99,8 +99,10 @@ export function reducer(state, action) {
       } else {
         return { ...state, currentPositions: { ...state.currentPositions, [action.payload.symbol]: action.payload } };
       }
+    case 'setPositionStates':
+      return { ...state, currentPositions: action.payload};
     case 'removePositionState':
-      return delete state.positions[action.payload];
+      return delete state.currentPositions[action.payload];
     default:
       throw new Error();
   }

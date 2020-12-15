@@ -84,10 +84,6 @@ const DTOrderSummay = ({
         }
     }, [wallet, orderInfo])
 
-    const availableBalanceText = useMemo(() => {
-        return `${wallet.getBalance()} Sats`;
-    }, [wallet]);
-
     const isAPISocketConnected = useMemo(() => {
         return wsClientRef.current.isConnected;
     }, [wsClientRef.current.socket]);

@@ -33,7 +33,6 @@ const ProductDetailsScreen = ({
     low: 0
   });
   const [isFetchingChartData, setIsFetchingChartData] = useState(false);
-  const [isFetchingTickerData, setIsFetchingTickerData] = useState(false);
   const [currentPrice, setCurrentPrice] = useState(0);
   const [ticker, setTicker] = useState({
     bestBid: 0,
@@ -75,16 +74,6 @@ const ProductDetailsScreen = ({
     wsClientRef.current.addEventListener('message', msgHandlerRef.current);
   }
 
-  async function fetchTicker() {
-    setIsFetchingTickerData(true);
-    const restAPIClient = new RestApiClient();
-    const ticker = await restAPIClient.fetchTicker({
-      symbol: product.symbol,
-    });
-    setTicker(ticker);
-    setIsFetchingTickerData(false);
-  }
-
   async function fetchHistoricalPrices({ timeFrame, granularity }) {
     setIsFetchingChartData(true);
 
@@ -112,32 +101,6 @@ const ProductDetailsScreen = ({
       wsClientRef.current.unsubscribeFromChannels({ channels: ['ticker'], symbols: [product.symbol] })
     };
   }, [isWSClientConnected])
-
-  const OHLCSummary = ({ position, style }) => {
-    return (
-      <View style={[...style]}>
-        <View style={[TradingDataStyles.labeledDataVGroup]}>
-          <Text style={TradingDataStyles.dataItemLabel}>Open</Text>
-          <Text style={TradingDataStyles.dataItemValue}>${chartStats.open}</Text>
-        </View>
-
-        <View style={[TradingDataStyles.labeledDataVGroup]}>
-          <Text style={TradingDataStyles.dataItemLabel}>High</Text>
-          <Text style={TradingDataStyles.dataItemValue}>${chartStats.high}</Text>
-        </View>
-
-        <View style={[TradingDataStyles.labeledDataVGroup]}>
-          <Text style={TradingDataStyles.dataItemLabel}>Low</Text>
-          <Text style={TradingDataStyles.dataItemValue}>${chartStats.low}</Text>
-        </View>
-
-        <View style={[TradingDataStyles.labeledDataVGroup]}>
-          <Text style={TradingDataStyles.dataItemLabel}>Close</Text>
-          <Text style={TradingDataStyles.dataItemValue}>${chartStats.close}</Text>
-        </View>
-      </View>
-    );
-  };
 
   function onOpenTradingModal() {
     wsClientRef.current.unsubscribeFromChannels({ channels: ['ticker'], symbols: [product.symbol] })
@@ -202,7 +165,9 @@ const ProductDetailsScreen = ({
     if (DataNormalizer.isResponseOk(response)) {
       const responseType = DataNormalizer.getAPIResponseType(response);
       if (responseType === APIResponseType.ORDER_RECEIVED) {
-        showOrderReceivedMessage(DataNormalizer.receivedFromPayload(response));
+        let data = DataNormalizer.dataFromWsMessage(response);
+        console.log(data)
+        showOrderReceivedMessage(DataNormalizer.receivedFromPayload(data));
       } else if (responseType === APIResponseType.ORDER_REJECTION) {
         // showOrderRejectedMessage(APIParser.rejectedOrderInfoFromResponse(response));
       } else if (responseType === APIResponseType.POSITION_STATE) {
@@ -229,52 +194,6 @@ const ProductDetailsScreen = ({
     });
   }
 
-  function showOrderOpenedAlert({ symbol, quantity, price }) {
-    const message = 'Order Opened';
-    const messageDescription = ` Order open: ${quantity} ${symbol} @ ${price}`;
-
-    showMessage({
-      message,
-      description: messageDescription,
-      type: 'success',
-    });
-  }
-
-  function showOrderRejectedMessage({ externalOrderID, reason }) {
-    const message = 'Order Rejected';
-    const messageDescription = `Order Rejected: ${reason}`;
-
-    showMessage({
-      message,
-      description: messageDescription,
-      type: 'danger',
-    });
-  }
-
-  function showOrderPending() {
-    const message = 'Order Pending';
-    let messageDescription = 'Waiting to payment.'
-    showMessage({
-      message,
-      description: messageDescription,
-      type: 'info',
-    });
-  }
-
-  function showPaymentFailiure(error) {
-    const message = 'Payment failed';
-    const messageDescription = `Payment for order: failed. ${error}`;
-    showMessage({
-      message,
-      description: messageDescription,
-      type: 'danger',
-    });
-  }
-
-  /**
-   *
-   * @param {DerivativesTradingPosition} position
-   */
   function handleNewPositionState(position) {
     if (position.symbol === product.symbol) {
       if (position.quantity === 0) {
@@ -492,8 +411,6 @@ ProductDetailsScreen.propTypes = {
       product: PropTypes.object.isRequired,
       currentPosition: PropTypes.object,
       wsClientRef: PropTypes.object.isRequired,
-      restAPIKey: PropTypes.string.isRequired,
-      indexPriceHistory: PropTypes.arrayOf(PropTypes.object),
     }),
   }),
 };

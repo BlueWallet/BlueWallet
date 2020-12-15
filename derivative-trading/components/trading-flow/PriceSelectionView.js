@@ -25,18 +25,16 @@ const PriceSelectionView = ({ onPriceSubmitted, product, leverage, quantity, tic
     }
   }, [ticker])
 
-  const checkPriceIsValid = useMemo(() => {
+  useMemo(() => {
     if (Number.isNaN(price)) {
       setIsPriceValid(false)
     } else {
       setIsPriceValid(true)
     }
-
   }, [price]);
 
   function onPriceTextChanged(newText) {
     setPrice(Number(newText.substring(1)))
-    const newValue = parseFloat(newText.replace('$', ''));
     setPriceFormatted(newText)
   }
 
@@ -53,7 +51,7 @@ const PriceSelectionView = ({ onPriceSubmitted, product, leverage, quantity, tic
             autoCorrect={false}
             value={priceFormatted}
             keyboardType="numeric"
-            defaultValue={price}
+            defaultValue={`${price}`}
             autoFocus
             style={styles.mainValueText}
             clearButtonMode={'never'}
@@ -124,7 +122,6 @@ const styles = StyleSheet.create({
 
 PriceSelectionView.propTypes = {
   onPriceSubmitted: PropTypes.func.isRequired,
-  style: PropTypes.object,
 };
 
 export default PriceSelectionView;

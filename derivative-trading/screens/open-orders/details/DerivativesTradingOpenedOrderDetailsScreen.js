@@ -19,7 +19,6 @@ const leverageBadgeWidth = 60;
 const leverageBadgeHeight = 26;
 
 const LeverageBadgeTooltip = ({ leverage, style, badgeStyles }) => {
-  const colorScheme = useColorScheme();
   const backgroundColor = 'white';
   const pointerStyles = {
     width: 0,
@@ -207,6 +206,7 @@ const DerivativesTradingOpenedOrderDetailsScreen = ({
         <BlueButton
           backgroundColor={BlueCurrentTheme.colors.tradingLoss}
           title="Cancel Order"
+          buttonTextColor="white"
           onPress={cancelOrder}
           width={'75%'}
         />
@@ -302,14 +302,12 @@ DerivativesTradingOpenedOrderDetailsScreen.propTypes = {
   }),
   route: PropTypes.shape({
     params: PropTypes.shape({
-      order: PropTypes.instanceOf(DerivativesTradingOpenedOrder).isRequired,
       wsClientRef: PropTypes.object.isRequired,
     }),
   }),
 };
 
 DerivativesTradingOpenedOrderDetailsScreen.navigationOptions = {
-  // ...BlueNavigationStyle(navigation, true),
   headerTitle: () => {
     return <Text style={NavbarStyles.navHeaderTitle}>{loc.derivatives_trading.opened_order_details.title}</Text>;
   },

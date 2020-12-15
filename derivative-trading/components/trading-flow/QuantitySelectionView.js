@@ -104,7 +104,6 @@ const styles = StyleSheet.create({
 
 QuantitySelectionView.propTypes = {
   onQuantitySubmitted: PropTypes.func.isRequired,
-  style: PropTypes.object,
   product: PropTypes.object.isRequired
 };
 

@@ -23,8 +23,6 @@ class PortfolioChart extends React.Component {
 
     render() {
         const { labelWidth, selectedSlice } = this.state;
-        const { label, value } = selectedSlice;
-        // const randomColor = () => ('#' + ((Math.random() * 0xffffff) << 0).toString(16) + '000000').slice(0, 7)
         const emptyData = [{ value: 100, svg: { fill: 'grey', fillOpacity: '.25' } }];
 
         const pieData = this.props.data
@@ -84,12 +82,6 @@ class PortfolioChart extends React.Component {
         )
     }
 }
-
-const styles = StyleSheet.create({
-    totalPnlPortfolioText: {
-        textAlign: 'center',
-    }
-});
 
 
 export default PortfolioChart;

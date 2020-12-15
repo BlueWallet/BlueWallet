@@ -1,16 +1,12 @@
 import PropTypes from 'prop-types';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { BlueLoading } from '../../../../BlueComponents';
 import { BlueCurrentTheme } from '../../../../components/themes';
 import loc from '../../../../loc';
 import ListSectionStyles from '../../../class/styles/ListSectionStyles';
-import PriceChart from '../../../components/PriceChart';
 import { PositionSide } from '../../../models/Position';
 
-const CurrentPositionSection = ({ position, style, ticker, product}) => {
-  const [uPNLChartData, setUPNLChartData] = useState([]);
-  const [isFetchingUPNLChartData, setIsFetchingUPNLChartData] = useState(false);
+const CurrentPositionSection = ({ position, style }) => {
 
   const sideDescriptionText = useMemo(() => {
     const sideText = position.side === PositionSide.BID ? 'Long' : 'Short';
@@ -44,17 +40,13 @@ const CurrentPositionSection = ({ position, style, ticker, product}) => {
 
   const uPNLTextColorStyle = useMemo(() => {
     if (position.upnl === 0) {
-      return {color: BlueCurrentTheme.colors.tradingProfit};
+      return { color: BlueCurrentTheme.colors.tradingProfit };
     } else if (position.upnl > 0) {
       return { color: BlueCurrentTheme.colors.tradingProfit };
     } else if (position.upnl < 0) {
       return { color: BlueCurrentTheme.colors.tradingLoss };
     }
   }, [position]);
-
-  useEffect(() => {
-    fetchChartData();
-  }, []);
 
   return (
     <View style={{ ...style }}>
@@ -130,7 +122,6 @@ const styles = StyleSheet.create({
 
 CurrentPositionSection.propTypes = {
   position: PropTypes.object.isRequired,
-  restAPIKey: PropTypes.string.isRequired,
   style: PropTypes.object,
 };
 

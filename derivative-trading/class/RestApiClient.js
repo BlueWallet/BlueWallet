@@ -326,7 +326,7 @@ export class RestApiClient {
       }
       let res = await response.json();
       let positions = {}
-      Object.values(res).map(position => {
+      Object.values(res).forEach(position => {
         let pos = DataNormalizer.positionStateFromPayload(position)
         if (pos.quantity > 0) {
           positions[pos.symbol] = pos

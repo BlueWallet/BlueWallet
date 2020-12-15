@@ -252,12 +252,12 @@ export default class DataNormalizer {
 
     static receivedFromPayload(payload) {
         return {
-            externalOrderID: data.ext_order_id,
-            symbol: data.symbol,
-            timestamp: data.timestamp,
-            leverage: Number(data.leverage),
-            quantity: Number(data.quantity),
-            price: Number(data.price),
+            externalOrderID: payload.ext_order_id,
+            symbol: payload.symbol,
+            timestamp: payload.timestamp,
+            leverage: Number(payload.leverage),
+            quantity: Number(payload.quantity),
+            price: Number(payload.price),
         }
     }
 }

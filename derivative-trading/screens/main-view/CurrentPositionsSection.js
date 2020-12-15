@@ -38,7 +38,6 @@ const CurrentPositionsSection = ({ currentPositions, products, onPositionSelecte
 CurrentPositionsSection.propTypes = {
   style: PropTypes.object,
   onPositionSelected: PropTypes.func,
-  apiKey: PropTypes.string.isRequired,
 };
 
 CurrentPositionsSection.defaultProps = {
