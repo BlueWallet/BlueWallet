@@ -44,7 +44,7 @@ export default class ElectrumSettings extends Component {
     const sslPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_SSL_PORT);
     const servers = await AsyncStorage.getItem(AppStorage.ELECTRUM_SERVER_HISTORY);
 
-    console.log('[DEBUG] Servers in history', servers)
+    console.log('[DEBUG] Servers in history', servers);
 
     this.setState({
       isLoading: false,
@@ -74,7 +74,7 @@ export default class ElectrumSettings extends Component {
     });
   };
 
-  selectServer = async (server) => {
+  selectServer = async server => {
     const { host, port, sslPort } = server;
 
     this.setState({ isLoading: true }, async () => {
@@ -109,7 +109,6 @@ export default class ElectrumSettings extends Component {
     });
   };
 
-
   clearHistory = async () => {
     this.setState({ isLoading: true }, async () => {
       await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_HISTORY, JSON.stringify([]));
@@ -129,9 +128,8 @@ export default class ElectrumSettings extends Component {
     });
   };
 
-  serverExists = (server) => {
+  serverExists = server => {
     const { serverHistory } = this.state;
-    console.log('[DEBUG] serverExists', server, serverHistory)
     return serverHistory.some(s => {
       return `${s.host}${s.tcp}${s.ssl}` === `${server.host}${server.tcp}${server.ssl}`;
     });
@@ -227,13 +225,13 @@ export default class ElectrumSettings extends Component {
           key={i}
           title={`${server.host}:${server.port || server.sslPort}`}
           titleStyle={styles.serverHistoryItem}
-          rightTitle={              
+          rightTitle={
             <TouchableOpacity onPress={() => this.selectServer(server)}>
               <BlueText>Select</BlueText>
             </TouchableOpacity>
           }
         />
-      )
+      );
     });
 
     return (
@@ -408,5 +406,5 @@ const styles = StyleSheet.create({
   serverListTitle: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-  }
+  },
 });
