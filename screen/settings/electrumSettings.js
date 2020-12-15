@@ -1,14 +1,19 @@
 /* global alert */
 import React, { Component } from 'react';
-<<<<<<< HEAD
 import { View, TextInput, StyleSheet, Text, TouchableOpacity, Switch } from 'react-native';
-=======
-import { View, TextInput, StyleSheet, Text, TouchableOpacity, Switch, LayoutAnimation } from 'react-native';
->>>>>>> Fix Electrum test function, add validations and improve UX for add electrum server form
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
-import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
+import {
+  BlueLoading,
+  BlueSpacing20,
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueText,
+  BlueNavigationStyle,
+  BlueListItem,
+} from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -55,11 +60,15 @@ const styles = StyleSheet.create({
     color: BlueCurrentTheme.colors.foregroundColor,
   },
   addServerTitle: {
-    flexDirection:'row', 
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  settingTextContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
   settingText: {
-    color: BlueCurrentTheme.colors.feeText,    
+    color: BlueCurrentTheme.colors.feeText,
   },
   inputWrap: {
     flexDirection: 'row',
@@ -184,7 +193,7 @@ export default class ElectrumSettings extends Component {
           } else {
             server.selected = false;
             console.log('[DEBUG] marked as not selected', server);
-          }          
+          }
         });
         await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_LIST, JSON.stringify(serverList));
         console.log('[DEBUG] selectServer updated serverList', serverList);
@@ -201,11 +210,11 @@ export default class ElectrumSettings extends Component {
     }
   };
 
-  removeServer = async (server) => {
+  removeServer = async server => {
     const { host, tcp, ssl } = server;
     const { serverList } = this.state;
     this.setState({ isLoading: true });
-    
+
     const updatedList = serverList.filter(function (server, i) {
       if (`${server.host}${server.tcp}${server.ssl}` !== `${host}${tcp}${ssl}`) {
         return server;
@@ -218,10 +227,10 @@ export default class ElectrumSettings extends Component {
 
   resetServers = async () => {
     this.setState({ isLoading: true });
-    await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_LIST, JSON.stringify([]))
+    await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_LIST, JSON.stringify([]));
     this.setState({
       serverList: [],
-      isLoading: false
+      isLoading: false,
     });
   };
 
@@ -236,9 +245,9 @@ export default class ElectrumSettings extends Component {
   serverExists = (host, tcp, ssl) => {
     const { serverList } = this.state;
     return serverList.some(server => {
-        return `${server.host}${server.tcp}${server.ssl}` === `${host}${tcp}${ssl}`;
+      return `${server.host}${server.tcp}${server.ssl}` === `${host}${tcp}${ssl}`;
     });
-  }
+  };
 
   onSslSwitch = () => {
     return this.setState({
@@ -246,7 +255,7 @@ export default class ElectrumSettings extends Component {
       port: '',
       sslPort: '',
     });
-  }
+  };
 
   save = async () => {
     const { serverList } = this.state;
@@ -254,7 +263,7 @@ export default class ElectrumSettings extends Component {
     this.setState({ isLoading: true });
 
     try {
-      if (!host  || !port && !sslPort) {
+      if (!host || (!port && !sslPort)) {
         alert('Please specify host and port');
         this.setState({ isLoading: false });
         return false;
@@ -276,12 +285,12 @@ export default class ElectrumSettings extends Component {
         host,
         tcp: port,
         ssl: sslPort,
-        selected: false
+        selected: false,
       });
 
       await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_LIST, JSON.stringify(serverList));
       this.setState({ serverList, isLoading: false });
-      alert('Server saved to list');      
+      alert('Server saved to list');
     } catch (error) {
       alert(error);
       this.setState({ isLoading: false });
@@ -289,90 +298,75 @@ export default class ElectrumSettings extends Component {
   };
 
   render() {
-    const { serverList } = this.state;    
-    const serverListItems = serverList.map(
-      (server, i) => {
-        return (
-          <BlueListItem
-            key={i}
-            title={`${server.host}:${server.ssl || server.tcp}`}
-            titleStyle={styles.serverListItem}
-            rightTitle={
-              (server.selected) ? (
-                (`${server.host}${server.tcp}${server.ssl}` === `${this.state.config.host}${this.state.config.port}`) ? (
-                  <View style={styles.serverListActions}>
-                    <Text style={styles.serverListSelected}>Connected</Text>
-                  </View>
-                ) : (
-                  <View style={styles.serverListActions}>
-                    <Text style={styles.serverListSelected}>Restart to connect</Text>
-                  </View>
-                )
+    const { serverList } = this.state;
+    const serverListItems = serverList.map((server, i) => {
+      return (
+        <BlueListItem
+          key={i}
+          title={`${server.host}:${server.ssl || server.tcp}`}
+          titleStyle={styles.serverListItem}
+          rightTitle={
+            server.selected ? (
+              `${server.host}${server.tcp}${server.ssl}` === `${this.state.config.host}${this.state.config.port}` ? (
+                <View style={styles.serverListActions}>
+                  <Text style={styles.serverListSelected}>Connected</Text>
+                </View>
               ) : (
                 <View style={styles.serverListActions}>
-                  <TouchableOpacity
-                      style={styles.serverListSelect}
-                      onPress={() => this.selectServer(server)}
-                  >
-                    <Text style={styles.serverListSelectText}>Select</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                      style={styles.serverListRemove}
-                      onPress={() => this.removeServer(server)}
-                  >
-                    <Text style={styles.serverListRemoveText}>Remove</Text>
-                  </TouchableOpacity>
+                  <Text style={styles.serverListSelected}>Restart to connect</Text>
                 </View>
               )
-            }
-          />
-        )
-      }
-    );
+            ) : (
+              <View style={styles.serverListActions}>
+                <TouchableOpacity style={styles.serverListSelect} onPress={() => this.selectServer(server)}>
+                  <Text style={styles.serverListSelectText}>Select</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.serverListRemove} onPress={() => this.removeServer(server)}>
+                  <Text style={styles.serverListRemoveText}>Remove</Text>
+                </TouchableOpacity>
+              </View>
+            )
+          }
+        />
+      );
+    });
 
     return (
-        <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-          <ScrollView>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+        <ScrollView>
           <BlueCard>
             <BlueText style={styles.status}>{loc.settings.electrum_status}</BlueText>
             <View style={styles.connectWrap}>
               <View style={[styles.container, this.state.config.status === 1 ? styles.containerConnected : styles.containerDisconnected]}>
-                  <BlueText style={this.state.config.status === 1 ? styles.textConnected : styles.textDisconnected}>
-                      {this.state.config.status === 1 ? loc.settings.electrum_connected : loc.settings.electrum_connected_not}
-                  </BlueText>
+                <BlueText style={this.state.config.status === 1 ? styles.textConnected : styles.textDisconnected}>
+                  {this.state.config.status === 1 ? loc.settings.electrum_connected : loc.settings.electrum_connected_not}
+                </BlueText>
               </View>
             </View>
             <BlueSpacing20 />
             <BlueText style={styles.hostname} onPress={this.checkServer}>
-                {this.state.config.host}:{this.state.config.port}
-            </BlueText>            
+              {this.state.config.host}:{this.state.config.port}
+            </BlueText>
           </BlueCard>
           {serverListItems.length > 0 && (
             <>
               <BlueCard>
                 <View style={styles.serverListTitle}>
                   <BlueText style={styles.settingText}>Custom electrum servers</BlueText>
-                  <TouchableOpacity
-                    onPress={() => this.resetServers()}
-                    style={styles.serverListRemove}
-                  >
-                    <Text style={styles.serverListRemoveText}>Reset to default</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={() => this.resetServers()} style={styles.serverListRemove}>
+                    <Text style={styles.serverListRemoveText}>Reset to default</Text>
+                  </TouchableOpacity>
                 </View>
               </BlueCard>
-              <ScrollView>
-                  {serverListItems}
-              </ScrollView>
+              <ScrollView>{serverListItems}</ScrollView>
             </>
           )}
           <BlueCard>
             <View style={styles.addServerTitle}>
               <BlueText style={styles.settingText}>Add custom server</BlueText>
-              <View style={{flexDirection:'row', justifyContent: 'center'}}>
+              <View style={styles.settingTextContainer}>
                 <Text style={styles.settingText}>Use SSL</Text>
-                <Switch
-                  onValueChange={() => this.onSslSwitch()}
-                  value={this.state.isSslPort || false}                  
-                />
+                <Switch onValueChange={() => this.onSslSwitch()} value={this.state.isSslPort || false} />
               </View>
             </View>
             <BlueSpacing20 />
@@ -403,11 +397,11 @@ export default class ElectrumSettings extends Component {
                     placeholderTextColor="#81868e"
                     underlineColorAndroid="transparent"
                     autoCorrect={false}
-                    keyboardType={'numeric'}
+                    keyboardType="numeric"
                   />
                 </View>
               </>
-            ):(
+            ) : (
               <>
                 <BlueSpacing20 />
                 <View style={styles.inputWrap}>
@@ -421,7 +415,7 @@ export default class ElectrumSettings extends Component {
                     autoCorrect={false}
                     placeholderTextColor="#81868e"
                     underlineColorAndroid="transparent"
-                    keyboardType={'numeric'}
+                    keyboardType="numeric"
                   />
                 </View>
               </>
@@ -431,11 +425,11 @@ export default class ElectrumSettings extends Component {
           </BlueCard>
         </ScrollView>
       </SafeBlueArea>
-      );
-    };
+    );
   }
+}
 
-  ElectrumSettings.navigationOptions = () => ({
-    ...BlueNavigationStyle(),
-    title: loc.settings.electrum_settings,
-  });
+ElectrumSettings.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
+  title: loc.settings.electrum_settings,
+});
