@@ -35,7 +35,7 @@ export const pt = `<!DOCTYPE html>
     <p>Os seguintes termos e condi&ccedil;&otilde;es, juntamente com quaisquer documentos que incorporem expressamente
         por
         refer&ecirc;ncia (em conjunto, estes "Termos de Utiliza&ccedil;&atilde;o"), regem o seu acesso e
-        utiliza&ccedil;&atilde;o de <a href="http://www.bitcoinvault.global">www.bitcoinvault.global</a>, (o "Website"),
+        utiliza&ccedil;&atilde;o de <a href="https://www.bitcoinvault.global">www.bitcoinvault.global</a>, (o "Website"),
         incluindo a aplica&ccedil;&atilde;o para computadores associada ELECTRUM VAULT e a aplica&ccedil;&atilde;o para
         dispositivos m&oacute;veis GOLD WALLET (cada uma, a "Aplica&ccedil;&atilde;o" e em conjunto, as
         "Aplica&ccedil;&otilde;es") e o seu acesso e utiliza&ccedil;&atilde;o de quaisquer meios de

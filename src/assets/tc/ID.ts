@@ -30,7 +30,7 @@ export const id = `<!DOCTYPE html>
     01-747 Warsaw, Polandia, ("<b>Perusahaan</b>&rdquo; atau "<b>kami</b>&rdquo;).</p>
 <p>Syarat dan ketentuan berikut, bersama dengan setiap dokumen yang secara jelas dimasukkan sebagai referensi (secara
     bersama-sama disebut sebagai "Ketentuan Penggunaan" ini), mengatur akses ke dan penggunaan Anda atas <a
-        href="http://www.bitcoinvault.global">www.bitcoinvault.global</a>, ("Situs Web"), termasuk Aplikasi Desktop
+        href="https://www.bitcoinvault.global">www.bitcoinvault.global</a>, ("Situs Web"), termasuk Aplikasi Desktop
     ELECTRUM VAULT dan Aplikasi Seluler GOLD WALLET terkait (secara sendiri-sendiri disebut sebagai "Aplikasi" dan
     secara bersama-sama disebut sebagai "Aplikasi-Aplikasi") dan akses ke dan penggunaan Anda atas setiap media,
     analitik, konten, fungsionalitas, dan layanan yang ditawarkan di atau melalui Situs Web dan Aplikasi-Aplikasi

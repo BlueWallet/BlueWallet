@@ -39,7 +39,7 @@ export const vi = `<!DOCTYPE html>
         r&otilde;
         r&agrave;ng th&ocirc;ng qua tham chiếu (gọi chung l&agrave; c&aacute;c "Điều khoản Sử dụng" n&agrave;y) chi phối
         quyền truy cập v&agrave; sử dụng của bạn đối với<a
-            href="http://www.bitcoinvault.global">www.bitcoinvault.global</a>,(Trang web), bao gồm ứng dụng m&aacute;y
+            href="https://www.bitcoinvault.global">www.bitcoinvault.global</a>,(Trang web), bao gồm ứng dụng m&aacute;y
         t&iacute;nh để b&agrave;n ELECTRUM VAULT được li&ecirc;n kết v&agrave; ứng dụng di động GOLD WALLET (gọi
         ri&ecirc;ng
         l&agrave; &ldquo;Ứng dụng&rdquo; v&agrave; gọi chung l&agrave; &ldquo;c&aacute;c Ứng dụng&rdquo;) c&ugrave;ng

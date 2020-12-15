@@ -26,7 +26,7 @@ export const zh = `<!DOCTYPE html>
 <p>使用条款由您与 Mine Best sp. z o.o. 公司共同订立。Mine Best sp. z o.o. 是一家根据波兰法律正式成立并有效存续的有限责任公司，地址：ul.Jerzego Ficowskiego 15,
     01-747 Warsaw, Poland，（&ldquo;<b>公司</b>&rdquo;或&ldquo;<b>我们</b>&rdquo;）。</p>
 <p>下列条款和条件以及明确纳入的任何参考文件（统称&ldquo;使用条款&rdquo;）对您使用及访问 <a
-        href="http://www.bitcoinvault.global">www.bitcoinvault.global</a>，（&ldquo;本网站&rdquo;）进行约束，包括相关的 ELECTRUM VAULT
+        href="https://www.bitcoinvault.global">www.bitcoinvault.global</a>，（&ldquo;本网站&rdquo;）进行约束，包括相关的 ELECTRUM VAULT
     桌面应用程序和 GOLD WALLET
     移动应用程序（单称与统称均为&ldquo;应用程序&rdquo;），此外还对您访问及使用任何网站或应用程序上提供的、或者通过任何网站或应用程序提供的任何媒体、分析、内容、功能与服务，以及任何相关站点与服务进行约束。</p>
 <p>本网站、应用程序以及由我们提供或者通过我们提供的任何其他媒体、分析、内容、功能与服务均称之为&ldquo;产品&rdquo;。</p>

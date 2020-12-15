@@ -29,7 +29,7 @@ export const ko = `<!DOCTYPE html>
 <p>본 이용 약관은 폴란드 법률에 따라 합법적으로 조직 및 운영되고 있는 유한책임회사인 Mine Best와 귀하의 사이에서 체결됩니다. 유한책임회사 Mine Best("<strong>회사</strong>",
     "<strong>당사</strong>" 또는 "<strong>저희</strong>")의 주소는 다음과 같습니다: Jerzego Ficowskiego 15, 01-747 Warsaw, Poland.</p>
 
-<p>다음 약관은 참조에 의해 명시적으로 통합된 일체의 문서(통칭하여 본 "이용 약관")와 함께 귀하의 <a href="http://www.bitcoinvault.global">www.bitcoinvault.global</a>,(이하 "웹사이트") 액세스 및 이용에 적용되며, 여기에는 관련 ELECTRUM
+<p>다음 약관은 참조에 의해 명시적으로 통합된 일체의 문서(통칭하여 본 "이용 약관")와 함께 귀하의 <a href="https://www.bitcoinvault.global">www.bitcoinvault.global</a>,(이하 "웹사이트") 액세스 및 이용에 적용되며, 여기에는 관련 ELECTRUM
     VAULT 데스크톱 응용프로그램 및 GOLD WALLET 모바일 응용프로그램(각각 "응용프로그램", 통칭하여 "응용프로그램들")의 액세스 및 이용, 웹사이트 및 응용프로그램들 일체에서 또는 이를 통하여
     제공되는 모든 미디어, 분석, 콘텐츠, 기능 및 서비스에 대한 액세스 및 이용, 모든 관련 사이트 및 서비스에 대한 액세스 및 이용도 포함됩니다.</p>
 

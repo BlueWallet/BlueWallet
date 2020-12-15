@@ -37,7 +37,7 @@ export const tr = `<!DOCTYPE html>
         &ldquo;Uygulamalar)
         ve Web Sitesinde ve Uygulamalarda veya bunlar &uuml;zerinden sunulan herhangi bir medya, analiz, i&ccedil;erik,
         işlevsellik veya hizmet ve her t&uuml;rl&uuml; ilişkili siteyi ve hizmeti kullanımınız dahil olmak &uuml;zere <a
-            href="http://www.bitcoinvault.global">www.bitcoinvault.global</a> (&ldquo;Web Sitesi)&rdquo; sitesine
+            href="https://www.bitcoinvault.global">www.bitcoinvault.global</a> (&ldquo;Web Sitesi)&rdquo; sitesine
         erişiminizi ve bu siteyi kullanımınızı y&ouml;netir.</p>
     <p>Web Sitesi, Uygulamalar ve tarafımızca veya tarafımız &uuml;zerinden sunulan t&uuml;m ve diğer medya, analiz,
         i&ccedil;erik,işlevsellik, &uuml;r&uuml;n ve hizmetlerden &ldquo;&Uuml;r&uuml;n&rdquo; olarak bahsedilir.</p>
