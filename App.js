@@ -285,11 +285,11 @@ const App = () => {
           {renderClipboardContentModal()}
         </NavigationContainer>
       </View>
-      <WatchConnectivity />
+      {/* <WatchConnectivity />
       <DeviceQuickActions />
-      <WalletImport />
+      <WalletImport /> */}
       <Biometric />
-      <WidgetCommunication />
+      {/* <WidgetCommunication /> */}
     </SafeAreaProvider>
   );
 };
