@@ -35,7 +35,7 @@ Private Schlüssel verlassen niemals Dein Gerät.
 Du kontrollierst Deine privaten Schlüssel
 
 Definierbare Transaktionsgebühren
-Starting from 1 Satoshi. Defined by you, the user
+Beginnend bei 1 Satoshi. Du entscheidest.
 
 Replace-By-Fee
 (RBF) Speed-up your transactions by increasing the fee (BIP125)

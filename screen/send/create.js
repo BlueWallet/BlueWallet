@@ -78,7 +78,7 @@ export default class SendCreate extends Component {
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('Storage Permission: Granted');
-        const filePath = RNFS.DownloadDirectoryPath + `/${this.fileName}`;
+        const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
         try {
           await RNFS.writeFile(filePath, this.state.tx);
           alert(loc.formatString(loc.send.txSaved, { filePath }));

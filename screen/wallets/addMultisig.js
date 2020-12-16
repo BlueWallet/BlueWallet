@@ -205,7 +205,9 @@ const WalletsAddMultisig = () => {
           <Text style={[styles.textdescBold, stylesHook.textdesc]}>
             {loc.formatString(loc.multisig.what_is_vault_description_number_of_vault_keys, { m })}
           </Text>
-          <Text style={[styles.textdesc, stylesHook.textdesc]}>{loc.multisig.what_is_vault_description_to_spend}</Text>
+          <Text style={[styles.textdesc, stylesHook.textdesc]}>
+            {m === 2 && n === 3 ? loc.multisig.what_is_vault_description_to_spend : loc.multisig.what_is_vault_description_to_spend_other}
+          </Text>
         </Text>
       </View>
       {isAdvancedModeEnabledRender && (
