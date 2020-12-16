@@ -1085,4 +1085,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     if (fp.length !== 8) return false;
     return /^[0-9A-F]{8}$/i.test(fp);
   }
+
+  allowBatchSend() {
+    return true;
+  }
 }
