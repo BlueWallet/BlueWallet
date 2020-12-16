@@ -1,5 +1,5 @@
 /* global alert */
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import {
   HDLegacyBreadwalletWallet,

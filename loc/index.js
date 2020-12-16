@@ -1,5 +1,5 @@
 import Localization from 'react-localization';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import * as RNLocalize from 'react-native-localize';

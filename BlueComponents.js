@@ -40,7 +40,7 @@ import Biometric from './class/biometrics';
 import { getSystemName } from 'react-native-device-info';
 import { encodeUR } from 'bc-ur/dist';
 import QRCode from 'react-native-qrcode-svg';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';

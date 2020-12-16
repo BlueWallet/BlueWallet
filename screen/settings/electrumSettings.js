@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import { AppStorage } from '../../class';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
 import {
   BlueLoading,
