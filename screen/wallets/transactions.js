@@ -69,6 +69,10 @@ const WalletTransactions = () => {
     derivativesTradingButton: {
       backgroundColor: colors.lightButton,
     },
+    derivativesTradingText2: {
+      color: colors.cta2,
+      fontSize: 18
+    },
     marketplaceButton1: {
       backgroundColor: colors.lightButton,
     },
@@ -380,10 +384,9 @@ const WalletTransactions = () => {
             },
           })
         }
-        title={loc.wallets.details_derivatives_trading}
         style={[styles.derivativesTradingButton, stylesHook.derivativesTradingButton]}
       >
-        <Text style={styles.marketpalceText1}>{loc.wallets.details_derivatives_trading}</Text>
+        <Text style={styles.derivativesTradingText2, stylesHook.derivativesTradingText2}>{loc.wallets.details_derivatives_trading}</Text>
       </TouchableOpacity>
     );
   };
@@ -835,6 +838,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  derivativesTradingText2: {
+    fontSize: 18,
   },
   marketplaceButton2: {
     borderRadius: 9,

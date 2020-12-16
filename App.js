@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   flashMessage: {
-    marginTop: 20,
+    marginTop: 30,
   }
 });
 

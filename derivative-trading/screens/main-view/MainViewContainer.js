@@ -1,12 +1,11 @@
 import PropTypes from 'prop-types';
 import React, { useEffect, useMemo, useReducer, useRef } from 'react';
-import { ActivityIndicator, Image, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { showMessage } from 'react-native-flash-message';
 import { deriveCredentialsForWallet } from '../../class/AccountUtils';
 import DataNormalizer, { APIResponseType } from '../../class/DataNormalization';
 import RestApiClient from '../../class/RestApiClient';
-import { toDollars } from '../../class/Utils';
 import WebsocketClient from '../../class/WebsocketClient';
 import TCModal from '../../components/TermsModal';
 import { WS_BASE_URL } from '../../constants';

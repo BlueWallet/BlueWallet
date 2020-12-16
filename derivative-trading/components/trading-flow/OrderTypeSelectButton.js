@@ -1,7 +1,8 @@
 import { useTheme } from '@react-navigation/native';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Button } from 'react-native-elements';
+import { Button, Icon } from 'react-native-elements';
+import { StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 const OrderTypeSelectButton = ({ title, onPress, buttonStyle, containerStyle }) => {
@@ -9,11 +10,9 @@ const OrderTypeSelectButton = ({ title, onPress, buttonStyle, containerStyle }) 
 
   return (
     <Button
-      icon={{
-        name: 'chevron-down',
-        type: 'feather',
-        color: colors.brandingColor,
-      }}
+      icon={
+        <Icon name="chevron-down" size={18} type="font-awesome" color="white" style={styles.button}/>
+      }
       raised
       iconRight
       onPress={onPress}
@@ -28,7 +27,8 @@ const OrderTypeSelectButton = ({ title, onPress, buttonStyle, containerStyle }) 
         start: { x: 0, y: 0.0 },
         end: { x: 1.0, y: 1.0 },
       }}
-    />
+    >
+    </Button>
   );
 };
 
@@ -38,5 +38,11 @@ OrderTypeSelectButton.propTypes = {
   buttonStyle: PropTypes.object.isRequired,
   containerStyle: PropTypes.object.isRequired,
 };
+
+const styles = StyleSheet.create({
+  button: {
+    marginLeft: 5
+  }
+})
 
 export default OrderTypeSelectButton;

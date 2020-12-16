@@ -8,7 +8,6 @@ import { RestApiClient } from '../../class/RestApiClient';
 import TradingDataStyles from '../../class/styles/TradingDataStyles';
 import { priceToDollars } from '../../class/Utils';
 import LeverageBadge from '../../components/LeverageBadge';
-import DerivativesTradingOpenedOrder from '../../models/OpenedOrder';
 import { PositionSide } from '../../models/Position';
 
 const OpenedOrderListItem = ({ order, onPress, product, apiKey }) => {

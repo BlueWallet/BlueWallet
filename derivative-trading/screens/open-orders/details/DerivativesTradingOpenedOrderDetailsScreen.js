@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { useMemo } from 'react';
-import { StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import { BlueButton } from '../../../../BlueComponents';
@@ -11,7 +11,6 @@ import NavbarStyles from '../../../class/styles/NavbarStyles';
 import OrderSummaryStyles from '../../../class/styles/OrderSummaryStyles';
 import CurrencyPairAvatar from '../../../components/CurrencyPairAvatar';
 import LeverageBadge from '../../../components/LeverageBadge';
-import DerivativesTradingOpenedOrder from '../../../models/OpenedOrder';
 import { PositionSide } from '../../../models/Position';
 import { OrderType } from '../../../models/TradingTypes';
 

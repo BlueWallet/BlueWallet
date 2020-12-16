@@ -355,7 +355,7 @@ export class RestApiClient {
       }
       let res = await response.json();
       let openOrders = []
-      Object.values(res).map(openOrder => {
+      Object.values(res).forEach(openOrder => {
         let o = DataNormalizer.openOrderFromPayload(openOrder)
         openOrders.push(o)
       })
