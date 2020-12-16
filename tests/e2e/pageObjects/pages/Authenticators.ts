@@ -28,7 +28,7 @@ const Authenticators = () => {
       importButton: element(by.id('import-authenticator')),
 
       async typeName(value: string) {
-        await actions.typeText(this.nameInput, value);
+        await actions.typeText(this.nameInput, value, { closeKeyboard: true });
       },
 
       async submit() {

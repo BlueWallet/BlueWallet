@@ -12,7 +12,11 @@ const MessageScreen = (type: MessageScreenType) => ({
     await actions.tap(this.closeButton);
   },
 
-  async waitUntilEnded(): Promise<void> {},
+  async waitUntilEnded(): Promise<void> {
+    await waitFor(this.icon)
+      .toBeNotVisible()
+      .withTimeout(30 * 1000);
+  },
 });
 
 export default MessageScreen;
