@@ -71,13 +71,13 @@ const WalletTransactions = () => {
     },
     derivativesTradingText2: {
       color: colors.cta2,
-      fontSize: 18
+      fontSize: 18,
     },
     marketplaceButton1: {
       backgroundColor: colors.lightButton,
     },
     marketplaceButton2: {
-      backgroundColor: colors.lightButton
+      backgroundColor: colors.lightButton,
     },
     marketpalceText1: {
       color: colors.cta2,
@@ -386,7 +386,7 @@ const WalletTransactions = () => {
         }
         style={[styles.derivativesTradingButton, stylesHook.derivativesTradingButton]}
       >
-        <Text style={styles.derivativesTradingText2, stylesHook.derivativesTradingText2}>{loc.wallets.details_derivatives_trading}</Text>
+        <Text style={[styles.derivativesTradingText2, stylesHook.derivativesTradingText2]}>{loc.wallets.details_derivatives_trading}</Text>
       </TouchableOpacity>
     );
   };

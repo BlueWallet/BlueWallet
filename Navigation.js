@@ -266,7 +266,6 @@ const DTTradingRoot = () => (
   </DTStack.Navigator>
 );
 
-
 // CreateTransactionStackNavigator === SendDetailsStack
 const SendDetailsStack = createStackNavigator();
 const SendDetailsRoot = () => (
