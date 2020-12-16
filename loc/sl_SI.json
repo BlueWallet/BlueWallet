@@ -277,6 +277,7 @@
     "network_electrum": "Electrum strežnik",
     "not_a_valid_uri": "Neveljaven URI",
     "notifications": "Obvestila",
+    "open_link_in_explorer" : "Odpri v raziskovalcu blokov",
     "password": "Geslo",
     "password_explain": "Ustvarite geslo za dešifriranje shrambe",
     "passwords_do_not_match": "Gesli se ne ujemata",
@@ -291,7 +292,8 @@
     "push_notifications": "Potisna obvestila",
     "retype_password": "Ponovno vpišite geslo",
     "save": "Shrani",
-    "saved": "Shranjeno"
+    "saved": "Shranjeno",
+    "success_transaction_broadcasted" : "Vaša transakcija je bila objavljena!"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Želite prikaz obvestil ob prejemu plačila?",
@@ -302,6 +304,7 @@
     "cancel_explain": "To transakcijo bomo nadomestili z novo, ki plača višjo omrežnino. To prekliče prejšnjo transakcijo. To se imenuje RBF - Replace By Fee.",
     "cancel_no": "Ta transakcija ni zamenljiva.",
     "cancel_title": "Prekliči to transakcijo (RBF)",
+    "confirmations_lowercase": "potrditev: {confirmations}",
     "cpfp_create": "Ustvari",
     "cpfp_exp": "Ustvarjena bo nova transakcija, ki porabi vašo nepotrjeno transakcijo. Skupna omrežnina bo višja od omrežnine prvotne transakcije, zato bi morala biti potrditev hitrejša. To se imenuje CPFP - Child Pays For Parent.",
     "cpfp_no_bump": "Tej transakciji ni mogoče povečati omrežnine",
@@ -468,17 +471,17 @@
     "input_path_explain": "preskoči in uporabi privzeto ({default})",
     "ms_help": "Pomoč",
     "ms_help_title": "Kako delujejo Multisig trezorji. Namigi in triki",
-    "ms_help_text": "Denarnica z več ključi, za eksponentno povečanje varnosti ali skupno upravljanje sredstev.",
+    "ms_help_text": "Denarnica z več ključi eksponentno poveča varnost. Omogoča skupno upravljanje sredstev.",
     "ms_help_title1": "Priporočena uporaba več naprav",
     "ms_help_1": "Trezor deluje z aplikacijo BlueWallet nameščeno na drugih napravah ter s PSBT združljivimi denarnicami, kot so: Electrum, Specter, Coldcard, Cobo vault,...",
     "ms_help_title2": "Urejanje ključev",
     "ms_help_2": "V tej napravi lahko ustvarite vse ključe trezorja in jih kasneje odstranite ali uredite. Varnost je v primeru, da so vsi ključi na isti napravi enaka, kot če gre za običajno Bitcoin denarnico.",
     "ms_help_title3": "Varnostna kopija",
-    "ms_help_3": "Med možnostmi denarnice najdete varnostno kopijo trezorja in podatke za opazovalno (watch-only) denarnico. Ta varnostna kopija je kot zemljevid poti do vaše denarnice. Ob izgubi katerega od semen (ključev), jo boste potrebovali za obnovitev denarnice.",
+    "ms_help_3": "Med možnostmi denarnice najdete varnostno kopijo trezorja in podatke za opazovalno (watch-only) denarnico. Ta varnostna kopija je kot zemljevid poti do vaše denarnice. Ob izgubi katerega od semen (ključev), jo boste potrebovali za obnovitev.",
     "ms_help_title4": "Uvoz trezorja",
-    "ms_help_4": "Trezor lahko uvozite z uporabo funkcije uvoza in izbiro datoteke z varnostno kopijo. Če imate samo razširjene ključe in semena, lahko uporabite posamezna polja za uvoz pri ustvarjanju ključev trezorja.",
+    "ms_help_4": "Trezor lahko uvozite z uporabo funkcije uvoza in izbiro datoteke z varnostno kopijo. Če imate samo semena in razširjene ključe, lahko uporabite posamezna polja za uvoz pri ustvarjanju ključev trezorja.",
     "ms_help_title5": "Napredne možnosti",
-    "ms_help_5": "Privzeto bo ustvarjen trezor 2 od 3. Za ustvarjanje trezorja, ki ima drugačen kvorum ali tip naslova, v nastavitvah omogočite napredni način."
+    "ms_help_5": "Privzeto bo ustvarjen trezor 2 od 3. Za ustvarjanje trezorja, ki ima drugačen kvorum ali tip naslova v nastavitvah omogočite napredni način."
   },
   "is_it_my_address": {
     "title": "Je to moj naslov?",

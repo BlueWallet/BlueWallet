@@ -196,7 +196,7 @@ const ScanLndInvoice = () => {
       return alert(loc.lnd.errorInvoiceExpired);
     }
 
-    const currentUserInvoices = wallet.let.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
+    const currentUserInvoices = wallet.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
     if (currentUserInvoices.some(invoice => invoice.payment_hash === decoded.payment_hash)) {
       setIsLoading(false);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
