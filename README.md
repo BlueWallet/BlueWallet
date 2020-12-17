@@ -81,7 +81,7 @@ $ yarn start:detox
 
 And then run the tests:
 ```sh
-$ yarn test:detox  -c ${CONFIGRURATION} 
+$ yarn test:detox -- -c ${CONFIGRURATION} 
 ```
 
 Check `.detoxrc.json` file to see all available configurations
@@ -89,7 +89,7 @@ Check `.detoxrc.json` file to see all available configurations
 To control what tests should be executed use the Jest's `-t` flag:
 
 ```sh
-$ yarn test:detox  -c ${CONFIGRURATION} -t ${REGEX}
+$ yarn test:detox -- -c ${CONFIGRURATION} -t ${REGEX}
 ```
 
 ## LICENSE
