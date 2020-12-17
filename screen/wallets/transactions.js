@@ -581,7 +581,7 @@ const WalletTransactions = () => {
   return (
     <View style={styles.flex}>
       <StatusBar barStyle="light-content" backgroundColor={WalletGradient.headerColorFor(wallet.current.type)} />
-      {wallet.current.chain === Chain.ONCHAIN && isHandOffUseEnabled && (
+      {wallet.current.chain === Chain.ONCHAIN && wallet.current.type !== MultisigHDWallet.type && isHandOffUseEnabled && (
         <Handoff
           title={`Bitcoin Wallet ${wallet.current.getLabel()}`}
           type="io.bluewallet.bluewallet"

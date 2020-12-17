@@ -15,16 +15,10 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import WalletImport from '../../class/wallet-import';
-import Clipboard from '@react-native-community/clipboard';
-import ActionSheet from '../ActionSheet';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import loc from '../../loc';
 import { getSystemName } from 'react-native-device-info';
-import RNFS from 'react-native-fs';
-import DocumentPicker from 'react-native-document-picker';
-import { presentCameraNotAuthorizedAlert } from '../../class/camera';
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const isDesktop = getSystemName() === 'Mac OS X';
+const fs = require('../../blue_modules/fs');
 
 const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
@@ -101,7 +95,7 @@ const WalletsImport = () => {
 
   const importScan = () => {
     if (isDesktop) {
-      showActionSheet();
+      fs.showActionSheet().then(onBarScanned);
     } else {
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -110,102 +104,6 @@ const WalletsImport = () => {
           onBarScanned: onBarScanned,
           showFileImportButton: true,
         },
-      });
-    }
-  };
-
-  const choosePhoto = () => {
-    launchImageLibrary(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        }
-      },
-    );
-  };
-
-  const takePhoto = () => {
-    launchCamera(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        } else if (response.error) {
-          presentCameraNotAuthorizedAlert(response.error);
-        }
-      },
-    );
-  };
-
-  const copyFromClipbard = async () => {
-    onBarScanned(await Clipboard.getString());
-  };
-
-  const handleImportFileButtonPressed = async () => {
-    try {
-      const res = await DocumentPicker.pick({
-        type: [DocumentPicker.types.allFiles],
-      });
-
-      const file = await RNFS.readFile(res.uri);
-      if (file) {
-        onBarScanned(file);
-      } else {
-        throw new Error();
-      }
-    } catch (err) {
-      if (!DocumentPicker.isCancel(err)) {
-        alert(loc.wallets.import_error);
-      }
-    }
-  };
-
-  const showActionSheet = async () => {
-    const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
-    let copyFromClipboardIndex;
-    if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, 'Take Photo', loc.wallets.list_long_choose];
-      if (!isClipboardEmpty) {
-        options.push(loc.wallets.list_long_clipboard);
-        copyFromClipboardIndex = options.length - 1;
-      }
-
-      options.push(loc.wallets.import_file);
-      const impoortFileButtonIndex = options.length - 1;
-
-      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
-        if (buttonIndex === 1) {
-          takePhoto();
-        } else if (buttonIndex === 2) {
-          choosePhoto();
-        } else if (buttonIndex === copyFromClipboardIndex) {
-          copyFromClipbard();
-        } else if (impoortFileButtonIndex) {
-          handleImportFileButtonPressed();
-        }
       });
     }
   };

@@ -443,6 +443,7 @@
     "needs": "It needs",
     "what_is_vault_description_number_of_vault_keys": " {m} vault keys ",
     "what_is_vault_description_to_spend": "to spend and a third one you \ncan use as backup.",
+    "what_is_vault_description_to_spend_other": "to spend.",
     "quorum": "{m} of {n} quorum",
     "quorum_header": "Quorum",
     "of": "of",
