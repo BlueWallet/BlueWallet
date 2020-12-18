@@ -1,5 +1,5 @@
 import { AppStorage } from '../../class';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import DefaultPreference from 'react-native-default-preference';

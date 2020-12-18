@@ -4,7 +4,7 @@ import { View, TextInput, Linking, StyleSheet } from 'react-native';
 import { Button } from 'react-native-elements';
 import { useTheme, useNavigation, useRoute } from '@react-navigation/native';
 import { AppStorage } from '../../class';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   BlueSpacing20,
   BlueButton,

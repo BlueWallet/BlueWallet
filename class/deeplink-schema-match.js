@@ -1,5 +1,5 @@
 import { AppStorage, LightningCustodianWallet } from './';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import url from 'url';
 import { Chain } from '../models/bitcoinUnits';
