@@ -443,6 +443,7 @@
     "needs": "به",
     "what_is_vault_description_number_of_vault_keys": " {m} کلید گاوصندوق ",
     "what_is_vault_description_to_spend": "برای خرج‌کردن نیاز داشته و یک کلید سوم\nکه می‌توانید برای تهیهٔ نسخهٔ پشتیبان از آن استفاده کنید.",
+    "what_is_vault_description_to_spend_other": "برای خرج‌کردن نیاز دارد.",
     "quorum": "حد نصاب {m} از {n}",
     "quorum_header": "حد نصاب",
     "of": "از",

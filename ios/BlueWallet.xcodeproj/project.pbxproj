@@ -20,6 +20,8 @@
 		32F0A29A2311DBB20095C559 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F0A2992311DBB20095C559 /* ComplicationController.swift */; };
 		5875B7B2D85DC56E00F292FF /* libPods-WalletInformationWidgetExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CC8A6C610EAE90F810EADCC /* libPods-WalletInformationWidgetExtension.a */; platformFilter = ios; };
 		590C62D2ED8BF487C33945B0 /* libPods-WalletInformationAndMarketWidgetExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 98455D960744E4E5DD50BA87 /* libPods-WalletInformationAndMarketWidgetExtension.a */; platformFilter = ios; };
+		6D2A6464258BA92D0092292B /* Stickers.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D2A6463258BA92D0092292B /* Stickers.xcassets */; };
+		6D2A6468258BA92D0092292B /* Stickers.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6D2A6461258BA92C0092292B /* Stickers.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6D2AA7FA2568B8750090B089 /* FiatUnits.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6D2AA7F92568B8750090B089 /* FiatUnits.plist */; };
 		6D2AA7FB2568B8750090B089 /* FiatUnits.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6D2AA7F92568B8750090B089 /* FiatUnits.plist */; };
 		6D2AA7FC2568B8750090B089 /* FiatUnits.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6D2AA7F92568B8750090B089 /* FiatUnits.plist */; };
@@ -118,6 +120,13 @@
 			remoteGlobalIDString = 3271B0A8236E2E0700DA766F;
 			remoteInfo = TodayExtension;
 		};
+		6D2A6466258BA92D0092292B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6D2A6460258BA92C0092292B;
+			remoteInfo = Stickers;
+		};
 		6D6CA4C1255872E7009312A5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
@@ -176,6 +185,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				6D2A6468258BA92D0092292B /* Stickers.appex in Embed App Extensions */,
 				6D9946692555A661000E52E8 /* MarketWidgetExtension.appex in Embed App Extensions */,
 				6D6CA4C3255872E7009312A5 /* PriceWidgetExtension.appex in Embed App Extensions */,
 				6D9A2E0D254BA348007B5B82 /* WalletInformationAndMarketWidgetExtension.appex in Embed App Extensions */,
@@ -298,6 +308,9 @@
 		6D294A9C24D512770039E22B /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A9D24D5127F0039E22B /* xh */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = xh; path = xh.lproj/Interface.strings; sourceTree = "<group>"; };
 		6D294A9E24D512800039E22B /* xh */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = xh; path = xh.lproj/MainInterface.strings; sourceTree = "<group>"; };
+		6D2A6461258BA92C0092292B /* Stickers.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Stickers.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6D2A6463258BA92D0092292B /* Stickers.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Stickers.xcassets; sourceTree = "<group>"; };
+		6D2A6465258BA92D0092292B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6D2AA7F92568B8750090B089 /* FiatUnits.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = FiatUnits.plist; sourceTree = "<group>"; };
 		6D2AA8072568B8F40090B089 /* FiatUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatUnit.swift; sourceTree = "<group>"; };
 		6D333B3A252FE1A3004D72DF /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -461,6 +474,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8889F8F93C39BB72C97DD77E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B40D4E39225841ED00428FCC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -566,6 +586,15 @@
 			name = Resources;
 			sourceTree = "<group>";
 		};
+		6D2A6462258BA92C0092292B /* Stickers */ = {
+			isa = PBXGroup;
+			children = (
+				6D2A6463258BA92D0092292B /* Stickers.xcassets */,
+				6D2A6465258BA92D0092292B /* Info.plist */,
+			);
+			path = Stickers;
+			sourceTree = "<group>";
+		};
 		6D2AA8062568B8E50090B089 /* Fiat */ = {
 			isa = PBXGroup;
 			children = (
@@ -664,6 +693,7 @@
 				B40D4E40225841ED00428FCC /* BlueWalletWatch Extension */,
 				3271B0AC236E2E0700DA766F /* TodayExtension */,
 				6DEB4B18254FB7D700E9F9AA /* Widgets */,
+				6D2A6462258BA92C0092292B /* Stickers */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				B40FE50A21FAD228005D5578 /* Recovered References */,
@@ -686,6 +716,7 @@
 				6DEB4AAD254FB59B00E9F9AA /* WalletInformationWidgetExtension.appex */,
 				6D99465E2555A660000E52E8 /* MarketWidgetExtension.appex */,
 				6D6CA4B8255872E3009312A5 /* PriceWidgetExtension.appex */,
+				6D2A6461258BA92C0092292B /* Stickers.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -809,6 +840,7 @@
 				6D9946452555A583000E52E8 /* PBXTargetDependency */,
 				6D9946682555A661000E52E8 /* PBXTargetDependency */,
 				6D6CA4C2255872E7009312A5 /* PBXTargetDependency */,
+				6D2A6467258BA92D0092292B /* PBXTargetDependency */,
 			);
 			name = BlueWallet;
 			productName = "Hello World";
@@ -831,6 +863,22 @@
 			productName = TodayExtension;
 			productReference = 3271B0A9236E2E0700DA766F /* BlueWallet - Bitcoin Price.appex */;
 			productType = "com.apple.product-type.app-extension";
+		};
+		6D2A6460258BA92C0092292B /* Stickers */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6D2A646B258BA92D0092292B /* Build configuration list for PBXNativeTarget "Stickers" */;
+			buildPhases = (
+				6D2A645F258BA92C0092292B /* Resources */,
+				8889F8F93C39BB72C97DD77E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Stickers;
+			productName = Stickers;
+			productReference = 6D2A6461258BA92C0092292B /* Stickers.appex */;
+			productType = "com.apple.product-type.app-extension.messages-sticker-pack";
 		};
 		6D6CA4B7255872E3009312A5 /* PriceWidgetExtension */ = {
 			isa = PBXNativeTarget;
@@ -963,6 +1011,9 @@
 						CreatedOnToolsVersion = 11.2;
 						LastSwiftMigration = 1130;
 					};
+					6D2A6460258BA92C0092292B = {
+						CreatedOnToolsVersion = 12.1;
+					};
 					6D6CA4B7255872E3009312A5 = {
 						CreatedOnToolsVersion = 12.1;
 					};
@@ -1040,6 +1091,7 @@
 				6DEB4AAC254FB59B00E9F9AA /* WalletInformationWidgetExtension */,
 				6D9A2E01254BA347007B5B82 /* WalletInformationAndMarketWidgetExtension */,
 				6D6CA4B7255872E3009312A5 /* PriceWidgetExtension */,
+				6D2A6460258BA92C0092292B /* Stickers */,
 			);
 		};
 /* End PBXProject section */
@@ -1059,6 +1111,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				3271B0B1236E2E0700DA766F /* MainInterface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6D2A645F258BA92C0092292B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6D2A6464258BA92D0092292B /* Stickers.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1376,6 +1436,11 @@
 			target = 3271B0A8236E2E0700DA766F /* TodayExtension */;
 			targetProxy = 3271B0B3236E2E0700DA766F /* PBXContainerItemProxy */;
 		};
+		6D2A6467258BA92D0092292B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6D2A6460258BA92C0092292B /* Stickers */;
+			targetProxy = 6D2A6466258BA92D0092292B /* PBXContainerItemProxy */;
+		};
 		6D6CA4C2255872E7009312A5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			platformFilter = ios;
@@ -1513,7 +1578,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1556,7 +1621,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1597,7 +1662,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.TodayExtension;
@@ -1636,7 +1701,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.TodayExtension;
 				PRODUCT_NAME = "BlueWallet - Bitcoin Price";
@@ -1645,6 +1710,64 @@
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		6D2A6469258BA92D0092292B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "iMessage App Icon";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = A7W54YZ4WU;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Stickers/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				MARKETING_VERSION = 6.0.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.Stickers;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6D2A646A258BA92D0092292B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "iMessage App Icon";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = A7W54YZ4WU;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Stickers/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				MARKETING_VERSION = 6.0.2;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.Stickers;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = Stickers;
+				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -1675,7 +1798,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.PriceWidget;
@@ -1717,7 +1840,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.PriceWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1757,7 +1880,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.MarketWidget;
@@ -1800,7 +1923,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.MarketWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1841,7 +1964,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.WalletInformationAndMarketWidget;
@@ -1885,7 +2008,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.WalletInformationAndMarketWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1926,7 +2049,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.WalletInformationWidget;
@@ -1969,7 +2092,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.WalletInformationWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2111,7 +2234,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch.extension;
@@ -2151,7 +2274,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch.extension;
 				PRODUCT_NAME = "${TARGET_NAME}";
@@ -2185,7 +2308,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BlueWalletWatch_Extension;
 				INFOPLIST_FILE = BlueWalletWatch/Info.plist;
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch;
@@ -2221,7 +2344,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BlueWalletWatch_Extension;
 				INFOPLIST_FILE = BlueWalletWatch/Info.plist;
-				MARKETING_VERSION = 6.0.1;
+				MARKETING_VERSION = 6.0.2;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2253,6 +2376,15 @@
 			buildConfigurations = (
 				3271B0B7236E2E0700DA766F /* Debug */,
 				3271B0B8236E2E0700DA766F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6D2A646B258BA92D0092292B /* Build configuration list for PBXNativeTarget "Stickers" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6D2A6469258BA92D0092292B /* Debug */,
+				6D2A646A258BA92D0092292B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
