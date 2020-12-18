@@ -32,7 +32,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import isCatalyst from 'react-native-is-catalyst';
 const A = require('../../blue_modules/analytics');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-
+const fs = require('../../blue_modules/fs');
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
 const isDesktop = getSystemName() === 'Mac OS X';
 
@@ -342,7 +342,7 @@ const WalletsList = () => {
 
   const onScanButtonPressed = () => {
     if (isDesktop) {
-      sendButtonLongPress();
+      fs.showActionSheet().then(onBarScanned);
     } else {
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',

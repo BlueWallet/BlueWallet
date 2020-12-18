@@ -1487,9 +1487,9 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(w.isNativeSegwit());
     assert.ok(!w.isLegacy());
 
-    assert.strictEqual(w.getFingerprint(1), '2D440411');
-    assert.strictEqual(w.getFingerprint(2), 'F863CE8C');
-    assert.strictEqual(w.getFingerprint(3), '7BBD27BF');
+    assert.strictEqual(w.getFingerprint(1), '1104442D');
+    assert.strictEqual(w.getFingerprint(2), '8CCE63F8');
+    assert.strictEqual(w.getFingerprint(3), 'BF27BD7B');
 
     assert.strictEqual(
       w.getCosigner(1),

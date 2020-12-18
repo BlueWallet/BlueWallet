@@ -1,7 +1,8 @@
 * Open Source
 * Volledig versleutelt
-* Plausible deniability
+* Plausibele ontkenning
 * Aanpasbare transactievergoedingen
 * Replace-By-Fee
-* Watch-only (Sentinel)
+* SegWit
+* Watch-only portomonnees
 * Lightning network
