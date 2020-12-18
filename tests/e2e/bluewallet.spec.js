@@ -548,6 +548,14 @@ describe('BlueWallet UI Tests', () => {
       newInstance: true,
       url: 'bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7\\?amount=0.0001\\&label=Yo',
     });
+
+    // setting fee rate:
+    const feeRate = 2;
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).typeText(feeRate + '');
+    await element(by.text('OK')).tap();
+
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
