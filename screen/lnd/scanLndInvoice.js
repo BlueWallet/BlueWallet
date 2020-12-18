@@ -213,7 +213,7 @@ const ScanLndInvoice = () => {
     }
 
     navigate('Success', {
-      amount: amountSats,
+      amount,
       amountUnit: BitcoinUnit.SATS,
       invoiceDescription: decoded.description,
     });
