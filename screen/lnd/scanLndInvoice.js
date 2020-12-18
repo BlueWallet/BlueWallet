@@ -45,7 +45,7 @@ const ScanLndInvoice = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState(false);
   const [destination, setDestination] = useState('');
-  const [unit, setUnit] = useState(wallet?.getPreferredBalanceUnit() || BitcoinUnit.SATS);
+  const [unit, setUnit] = useState(BitcoinUnit.SATS);
   const [decoded, setDecoded] = useState();
   const [amount, setAmount] = useState();
   const [isAmountInitiallyEmpty, setIsAmountInitiallyEmpty] = useState();
@@ -213,7 +213,7 @@ const ScanLndInvoice = () => {
     }
 
     navigate('Success', {
-      amount,
+      amount: amountSats,
       amountUnit: BitcoinUnit.SATS,
       invoiceDescription: decoded.description,
     });
