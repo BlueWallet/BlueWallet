@@ -962,30 +962,50 @@ export const BlueSpacing10 = props => {
   return <View {...props} style={{ height: 10, opacity: 0 }} />;
 };
 
-export class BlueUseAllFundsButton extends Component {
-  static InputAccessoryViewID = 'useMaxInputAccessoryViewID';
-  static propTypes = {
+export const BlueUseAllFundsButton = ({ balance, canUseAll, onUseAllPressed }) => {
+  const { colors } = useTheme();
+  BlueUseAllFundsButton.InputAccessoryViewID = 'useMaxInputAccessoryViewID';
+  BlueUseAllFundsButton.propTypes = {
     balance: PropTypes.string.isRequired,
     canUseAll: PropTypes.bool.isRequired,
     onUseAllPressed: PropTypes.func.isRequired,
   };
-
-  render() {
-    const inputView = (
-      <View
-        style={{
-          flex: 1,
-          flexDirection: 'row',
-          maxHeight: 44,
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
-        }}
-      >
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+  const inputView = (
+    <View
+      style={{
+        flex: 1,
+        flexDirection: 'row',
+        maxHeight: 44,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: colors.inputBackgroundColor,
+      }}
+    >
+      <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+        <Text
+          style={{
+            color: colors.alternativeTextColor,
+            fontSize: 16,
+            marginLeft: 8,
+            marginRight: 0,
+            paddingRight: 0,
+            paddingLeft: 0,
+            paddingTop: 12,
+            paddingBottom: 12,
+          }}
+        >
+          {loc.send.input_total}
+        </Text>
+        {canUseAll ? (
+          <BlueButtonLink
+            onPress={onUseAllPressed}
+            style={{ marginLeft: 8, paddingRight: 0, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
+            title={`${balance} ${BitcoinUnit.BTC}`}
+          />
+        ) : (
           <Text
             style={{
-              color: BlueCurrentTheme.colors.alternativeTextColor,
+              color: colors.alternativeTextColor,
               fontSize: 16,
               marginLeft: 8,
               marginRight: 0,
@@ -995,48 +1015,26 @@ export class BlueUseAllFundsButton extends Component {
               paddingBottom: 12,
             }}
           >
-            {loc.send.input_total}
+            {balance} {BitcoinUnit.BTC}
           </Text>
-          {this.props.canUseAll ? (
-            <BlueButtonLink
-              onPress={this.props.onUseAllPressed}
-              style={{ marginLeft: 8, paddingRight: 0, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
-              title={`${this.props.balance} ${BitcoinUnit.BTC}`}
-            />
-          ) : (
-            <Text
-              style={{
-                color: BlueCurrentTheme.colors.alternativeTextColor,
-                fontSize: 16,
-                marginLeft: 8,
-                marginRight: 0,
-                paddingRight: 0,
-                paddingLeft: 0,
-                paddingTop: 12,
-                paddingBottom: 12,
-              }}
-            >
-              {this.props.balance} {BitcoinUnit.BTC}
-            </Text>
-          )}
-        </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-          <BlueButtonLink
-            style={{ paddingRight: 8, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
-            title={loc.send.input_done}
-            onPress={() => Keyboard.dismiss()}
-          />
-        </View>
+        )}
       </View>
-    );
+      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+        <BlueButtonLink
+          style={{ paddingRight: 8, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
+          title={loc.send.input_done}
+          onPress={Keyboard.dismiss}
+        />
+      </View>
+    </View>
+  );
 
-    if (Platform.OS === 'ios') {
-      return <InputAccessoryView nativeID={BlueUseAllFundsButton.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
-    } else {
-      return <KeyboardAvoidingView style={{ height: 44 }}>{inputView}</KeyboardAvoidingView>;
-    }
+  if (Platform.OS === 'ios') {
+    return <InputAccessoryView nativeID={BlueUseAllFundsButton.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
+  } else {
+    return <KeyboardAvoidingView style={{ height: 44 }}>{inputView}</KeyboardAvoidingView>;
   }
-}
+};
 
 export const BlueDismissKeyboardInputAccessory = () => {
   const { colors } = useTheme();
