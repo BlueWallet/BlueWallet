@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import {
   BlueTextCentered,
@@ -10,6 +10,7 @@ import {
   BlueListItem,
   BlueNavigationStyle,
 } from '../../BlueComponents';
+import { Icon } from 'react-native-elements';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import loc from '../../loc';
@@ -53,6 +54,18 @@ const About = () => {
       paddingTop: 0,
       borderRadius: 8,
     },
+    buttonLink :{
+      backgroundColor: colors.lightButton,
+      borderRadius: 12,
+      justifyContent: 'center', 
+      padding: 8,
+      flexDirection: 'row', 
+    },
+    textLink :{
+      color: colors.foregroundColor,
+      marginLeft: 8,
+      fontWeight: '600',
+    },
   });
 
   const handleOnReleaseNotesPress = () => {
@@ -78,7 +91,9 @@ const About = () => {
   const handleOnTelegramPress = () => {
     Linking.openURL('https://t.me/bluewallethat');
   };
-
+  const handleOnGithubPress = () => {
+    Linking.openURL('https://github.com/BlueWallet/BlueWallet');
+  };
   const handleOnRatePress = () => {
     const options = {
       AppleAppID: '1376878040',
@@ -143,6 +158,15 @@ const About = () => {
             <BlueTextCentered>bitcoinjs-lib</BlueTextCentered>
             <BlueTextCentered>Nodejs</BlueTextCentered>
             <BlueTextCentered>Electrum server</BlueTextCentered>
+            <BlueSpacing20 />
+
+            <TouchableOpacity
+              onPress={handleOnGithubPress}
+              style={styles.buttonLink}
+            >
+              <Icon size={22} name="github" type="font-awesome-5" color={colors.foregroundColor} />
+              <Text style={styles.textLink}>{loc.settings.about_sm_github}</Text>
+            </TouchableOpacity>
           </View>
         </BlueCard>
         <BlueListItem
