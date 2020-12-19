@@ -1,9 +1,5 @@
 /* global jest */
 
-import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
-
-jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
-
 jest.mock('react-native-watch-connectivity', () => {
   return {
     getIsWatchAppInstalled: jest.fn(() => Promise.resolve(false)),
@@ -94,3 +90,20 @@ jest.mock('react-native-gesture-handler', () => jest.requireActual('react-native
 jest.mock('react-native-document-picker', () => ({}));
 
 jest.mock('react-native-haptic-feedback', () => ({}));
+
+const realmInstanceMock = {
+  close: function () {},
+  objects: function () {
+    const wallets = {
+      filtered: function () {
+        return [];
+      },
+    };
+    return wallets;
+  },
+};
+jest.mock('realm', () => {
+  return {
+    open: jest.fn(() => realmInstanceMock),
+  };
+});
