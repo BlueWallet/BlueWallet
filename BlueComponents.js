@@ -964,12 +964,6 @@ export const BlueSpacing10 = props => {
 
 export const BlueUseAllFundsButton = ({ balance, canUseAll, onUseAllPressed }) => {
   const { colors } = useTheme();
-  BlueUseAllFundsButton.InputAccessoryViewID = 'useMaxInputAccessoryViewID';
-  BlueUseAllFundsButton.propTypes = {
-    balance: PropTypes.string.isRequired,
-    canUseAll: PropTypes.bool.isRequired,
-    onUseAllPressed: PropTypes.func.isRequired,
-  };
   const inputView = (
     <View
       style={{
@@ -1034,6 +1028,12 @@ export const BlueUseAllFundsButton = ({ balance, canUseAll, onUseAllPressed }) =
   } else {
     return <KeyboardAvoidingView style={{ height: 44 }}>{inputView}</KeyboardAvoidingView>;
   }
+};
+BlueUseAllFundsButton.InputAccessoryViewID = 'useMaxInputAccessoryViewID';
+BlueUseAllFundsButton.propTypes = {
+  balance: PropTypes.string.isRequired,
+  canUseAll: PropTypes.bool.isRequired,
+  onUseAllPressed: PropTypes.func.isRequired,
 };
 
 export const BlueDismissKeyboardInputAccessory = () => {
