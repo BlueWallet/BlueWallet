@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useAsyncStorage } from '@react-native-community/async-storage';
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import React, { createContext, useEffect, useState } from 'react';
 import { AppStorage } from '../class';
 const BlueApp = require('../BlueApp');
