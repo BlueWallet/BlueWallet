@@ -1,5 +1,5 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import Frisbee from 'frisbee';
 import { getApplicationName, getVersion, getSystemName, getSystemVersion } from 'react-native-device-info';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -52,8 +52,15 @@ function Notifications(props) {
           // 2) opening this notification right now but storage is still unencrypted
           // 3) any of the above but the storage is decrypted, and app wallets are loaded
           //
-          // ...we save notification in internal notifications queue thats gonna be processed later (on unsuspend with decrypted storage)
+          // ...we save notification in internal notifications queue thats gona be processed later (on unsuspend with decrypted storage)
 
+          if (Platform.OS === 'ios' && notification.foreground === true && notification.userInteraction === false) {
+            // iOS hack
+            // @see https://github.com/zo0r/react-native-push-notification/issues/1585
+            notification.userInteraction = true;
+            // also, on iOS app is not suspending/unsuspending when user taps a notification bubble,so we simulate it
+            // since its where we actually handle notifications:
+          }
           setTimeout(() => props.onProcessNotifications(), 500);
 
           let notifications = [];
@@ -72,7 +79,7 @@ function Notifications(props) {
           } catch (_) {}
 
           // (required) Called when a remote is received or opened, or local notification is opened
-          notification.finish(PushNotificationIOS.FetchResult.NewData);
+          notification.finish(PushNotificationIOS.FetchResult.NoData);
         },
 
         // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
