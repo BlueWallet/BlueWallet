@@ -402,6 +402,7 @@
     "list_tryagain": "Try again",
     "looks_like_bip38": "This looks like a password-protected private key (BIP38)",
     "reorder_title": "Reorder Wallets",
+    "please_continue_scanning": "Please continue scanning",
     "select_no_bitcoin": "There are currently no Bitcoin wallets available.",
     "select_no_bitcoin_exp": "A Bitcoin wallet is required to refill Lightning wallets. Please create or import one.",
     "select_wallet": "Select Wallet",
