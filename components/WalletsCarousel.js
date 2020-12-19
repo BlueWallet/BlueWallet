@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useRef, useCallback, useState, useImperativeHandle, forwardRef, useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
   ActivityIndicator,
@@ -20,6 +20,8 @@ import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { LightningCustodianWallet, MultisigHDWallet, PlaceholderWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { BluePrivateBalance } from '../BlueComponents';
+
+import { BlueStorageContext } from '../blue_modules/storage-context';
 
 const nStyles = StyleSheet.create({
   root: {
@@ -268,6 +270,7 @@ const cStyles = StyleSheet.create({
 const WalletsCarousel = forwardRef((props, ref) => {
   const carouselRef = useRef();
   const [loading, setLoading] = useState(true);
+  const { preferredFiatCurrency, language } = useContext(BlueStorageContext);
   const renderItem = useCallback(
     ({ item, index }) => (
       <WalletCarouselItem
@@ -278,7 +281,8 @@ const WalletsCarousel = forwardRef((props, ref) => {
         onPress={props.onPress}
       />
     ),
-    [props.vertical, props.selectedWallet, props.handleLongPress, props.onPress],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [props.vertical, props.selectedWallet, props.handleLongPress, props.onPress, preferredFiatCurrency, language],
   );
 
   useImperativeHandle(ref, () => ({
