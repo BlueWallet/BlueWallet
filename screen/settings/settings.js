@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
-import { BlueListItem, BlueNavigationStyle, BlueHeaderDefaultSubHooks } from '../../BlueComponents';
+import { BlueListItem, BlueNavigationStyle, BlueHeaderDefaultSub } from '../../BlueComponents';
 import { useNavigation } from '@react-navigation/native';
 import loc from '../../loc';
 
@@ -16,7 +16,7 @@ const Settings = () => {
   return (
     <ScrollView style={styles.root}>
       <StatusBar barStyle="default" />
-      <BlueHeaderDefaultSubHooks leftText={loc.settings.header} rightComponent={null} />
+      <BlueHeaderDefaultSub leftText={loc.settings.header} rightComponent={null} />
       <BlueListItem title={loc.settings.general} component={TouchableOpacity} onPress={() => navigate('GeneralSettings')} chevron />
       <BlueListItem title={loc.settings.currency} component={TouchableOpacity} onPress={() => navigate('Currency')} chevron />
       <BlueListItem title={loc.settings.language} component={TouchableOpacity} onPress={() => navigate('Language')} chevron />

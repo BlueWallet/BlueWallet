@@ -831,48 +831,6 @@ export const BlueHeader = props => {
 
 export const BlueHeaderDefaultSub = props => {
   const { colors } = useTheme();
-  return (
-    <SafeAreaView style={{ backgroundColor: colors.brandingColor }}>
-      <Header
-        backgroundColor={colors.background}
-        leftContainerStyle={{ minWidth: '100%' }}
-        outerContainerStyles={{
-          borderBottomColor: 'transparent',
-          borderBottomWidth: 0,
-        }}
-        leftComponent={
-          <Text
-            adjustsFontSizeToFit
-            style={{
-              fontWeight: 'bold',
-              fontSize: 30,
-              color: colors.foregroundColor,
-            }}
-          >
-            {props.leftText}
-          </Text>
-        }
-        rightComponent={
-          <TouchableOpacity
-            onPress={() => {
-              if (props.onClose) props.onClose();
-            }}
-          >
-            <View style={stylesBlueIcon.box}>
-              <View style={stylesBlueIcon.ballTransparrent}>
-                <Image source={require('./img/close.png')} />
-              </View>
-            </View>
-          </TouchableOpacity>
-        }
-        {...props}
-      />
-    </SafeAreaView>
-  );
-};
-
-export const BlueHeaderDefaultSubHooks = props => {
-  const { colors } = useTheme();
 
   return (
     <SafeAreaView>
