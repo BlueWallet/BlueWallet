@@ -71,12 +71,12 @@ const About = () => {
     Linking.openURL('https://twitter.com/bluewalletio');
   };
 
-  const handleOnGithubPress = () => {
-    Linking.openURL('https://github.com/BlueWallet/BlueWallet');
+  const handleOnDiscordPress = () => {
+    Linking.openURL('https://discord.gg/btWq2Aby2z');
   };
 
   const handleOnTelegramPress = () => {
-    Linking.openURL('https://t.me/bluewallet');
+    Linking.openURL('https://t.me/bluewallethat');
   };
 
   const handleOnRatePress = () => {
@@ -126,12 +126,12 @@ const About = () => {
         />
         <BlueListItem
           leftIcon={{
-            name: 'github',
-            type: 'font-awesome',
-            color: colors.foregroundColor,
+            name: 'discord',
+            type: 'font-awesome-5',
+            color: '#7289da',
           }}
-          onPress={handleOnGithubPress}
-          title={loc.settings.about_sm_github}
+          onPress={handleOnDiscordPress}
+          title={loc.settings.about_sm_discord}
         />
         <BlueCard>
           <View style={styles.buildWith}>
