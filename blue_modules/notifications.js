@@ -1,5 +1,5 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import { Alert, Platform } from 'react-native';
+import { Alert } from 'react-native';
 import Frisbee from 'frisbee';
 import { getApplicationName, getVersion, getSystemName, getSystemVersion } from 'react-native-device-info';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -54,13 +54,6 @@ function Notifications(props) {
           //
           // ...we save notification in internal notifications queue thats gona be processed later (on unsuspend with decrypted storage)
 
-          if (Platform.OS === 'ios' && notification.foreground === true && notification.userInteraction === false) {
-            // iOS hack
-            // @see https://github.com/zo0r/react-native-push-notification/issues/1585
-            notification.userInteraction = true;
-            // also, on iOS app is not suspending/unsuspending when user taps a notification bubble,so we simulate it
-            // since its where we actually handle notifications:
-          }
           setTimeout(() => props.onProcessNotifications(), 500);
 
           let notifications = [];
