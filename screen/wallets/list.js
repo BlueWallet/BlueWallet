@@ -10,7 +10,6 @@ import {
   Alert,
   Platform,
   Image,
-  Dimensions,
   useWindowDimensions,
 } from 'react-native';
 import { BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
@@ -25,11 +24,12 @@ import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { getSystemName, isTablet } from 'react-native-device-info';
+import { getSystemName } from 'react-native-device-info';
 import { presentCameraNotAuthorizedAlert } from '../../class/camera';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import isCatalyst from 'react-native-is-catalyst';
+import { useIsDrawerOpen } from '@react-navigation/drawer';
 const A = require('../../blue_modules/analytics');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const fs = require('../../blue_modules/fs');
@@ -54,9 +54,7 @@ const WalletsList = () => {
   const routeName = useRoute().name;
   const [isLoading, setIsLoading] = useState(false);
   const [itemWidth, setItemWidth] = useState(width * 0.82 > 375 ? 375 : width * 0.82);
-  const [isLargeScreen, setIsLargeScreen] = useState(
-    Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3 && isTablet(),
-  );
+  const isDrawerOpen = useIsDrawerOpen();
   const [carouselData, setCarouselData] = useState([]);
   const dataSource = getTransactions(null, 10);
 
@@ -275,7 +273,7 @@ const WalletsList = () => {
   const renderSectionItem = item => {
     switch (item.section.key) {
       case WalletsListSections.CAROUSEL:
-        return isLargeScreen ? null : renderWalletsCarousel();
+        return isDrawerOpen ? null : renderWalletsCarousel();
       case WalletsListSections.LOCALTRADER:
         return renderLocalTrader();
       case WalletsListSections.TRANSACTIONS:
@@ -288,7 +286,7 @@ const WalletsList = () => {
   const renderSectionHeader = section => {
     switch (section.section.key) {
       case WalletsListSections.CAROUSEL:
-        return isLargeScreen ? null : (
+        return isDrawerOpen ? null : (
           <BlueHeaderDefaultMain
             leftText={loc.wallets.list_title}
             onNewWalletPress={!carouselData.some(wallet => wallet.type === PlaceholderWallet.type) ? () => navigate('AddWalletRoot') : null}
@@ -478,7 +476,6 @@ const WalletsList = () => {
   };
 
   const onLayout = _e => {
-    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3 && isTablet());
     setItemWidth(width * 0.82 > 375 ? 375 : width * 0.82);
   };
 

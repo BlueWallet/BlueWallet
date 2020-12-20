@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { StatusBar, View, TouchableOpacity, StyleSheet, Alert, useWindowDimensions } from 'react-native';
+import { StatusBar, View, TouchableOpacity, StyleSheet, Alert, useWindowDimensions, Platform, Dimensions } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { BlueNavigationStyle, BlueHeaderDefaultMain } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
@@ -15,6 +15,8 @@ import { useTheme } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
+import { isTablet } from 'react-native-device-info';
+
 const DrawerList = props => {
   console.log('drawerList rendering...');
   const walletsCarousel = useRef();
@@ -28,6 +30,17 @@ const DrawerList = props => {
     },
   });
 
+  const dimensions = useWindowDimensions();
+  const isLargeScreen = Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 3 && isTablet();
+
+  useEffect(() => {
+    const isLargeScreen = Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 3 && isTablet();
+    console.warn(isLargeScreen)
+    isLargeScreen ? props.navigation.openDrawer() : props.navigation.closeDrawer();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dimensions]);
+
+ 
   useEffect(() => {
     const allWallets = wallets.concat(pendingWallets);
     setCarouselData(allWallets.concat(false));
@@ -117,7 +130,7 @@ const DrawerList = props => {
     return !carouselData.some(wallet => wallet.type === PlaceholderWallet.type) ? props.navigation.navigate('AddWalletRoot') : null;
   };
 
-  return (
+  return isLargeScreen ? (
     <DrawerContentScrollView {...props} scrollEnabled={false}>
       <View styles={[styles.root, stylesHook.root]}>
         <StatusBar barStyle="default" />
@@ -127,7 +140,7 @@ const DrawerList = props => {
         {renderWalletsCarousel()}
       </View>
     </DrawerContentScrollView>
-  );
+  ) :null;
 };
 
 export default DrawerList;
@@ -151,6 +164,8 @@ DrawerList.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     addListener: PropTypes.func,
+    openDrawer: PropTypes.func,
+    closeDrawer: PropTypes.func,
   }),
   route: PropTypes.shape({
     name: PropTypes.string,
