@@ -368,7 +368,7 @@ const WalletsList = () => {
       if (isDesktop) {
         fs.showActionSheet().then(onBarScanned);
       } else {
-        const options = [loc._.cancel, loc.wallets.list_long_choose, isDesktop ? loc.wallets.take_photo : loc.wallets.list_long_scan];
+        const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
         if (!isClipboardEmpty) {
           options.push(loc.wallets.list_long_clipboard);
         }
