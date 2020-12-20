@@ -54,14 +54,14 @@ const About = () => {
       paddingTop: 0,
       borderRadius: 8,
     },
-    buttonLink :{
+    buttonLink: {
       backgroundColor: colors.lightButton,
       borderRadius: 12,
-      justifyContent: 'center', 
+      justifyContent: 'center',
       padding: 8,
-      flexDirection: 'row', 
+      flexDirection: 'row',
     },
-    textLink :{
+    textLink: {
       color: colors.foregroundColor,
       marginLeft: 8,
       fontWeight: '600',
@@ -160,10 +160,7 @@ const About = () => {
             <BlueTextCentered>Electrum server</BlueTextCentered>
             <BlueSpacing20 />
 
-            <TouchableOpacity
-              onPress={handleOnGithubPress}
-              style={styles.buttonLink}
-            >
+            <TouchableOpacity onPress={handleOnGithubPress} style={styles.buttonLink}>
               <Icon size={22} name="github" type="font-awesome-5" color={colors.foregroundColor} />
               <Text style={styles.textLink}>{loc.settings.about_sm_github}</Text>
             </TouchableOpacity>
