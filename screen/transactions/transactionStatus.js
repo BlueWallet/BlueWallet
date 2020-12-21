@@ -290,7 +290,7 @@ const TransactionsStatus = () => {
             <Text style={[styles.value, stylesHook.value]}>
               {formatBalanceWithoutSuffix(tx.value, wallet.current.preferredBalanceUnit, true)}{' '}
               {wallet.current.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
-                <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{wallet.current.preferredBalanceUnit}</Text>
+                <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{loc.units[wallet.current.preferredBalanceUnit]}</Text>
               )}
             </Text>
           </View>

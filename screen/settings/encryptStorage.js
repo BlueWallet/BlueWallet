@@ -156,7 +156,7 @@ const EncryptStorage = () => {
       <ScrollView contentContainerStyle={styles.root}>
         {biometrics.isDeviceBiometricCapable && (
           <>
-            <BlueHeaderDefaultSubHooks leftText="biometrics" rightComponent={null} />
+            <BlueHeaderDefaultSubHooks leftText={loc.settings.biom} rightComponent={null} />
             <BlueListItem
               title={loc.formatString(loc.settings.encrypt_use, { type: biometrics.biometricsType })}
               Component={TouchableWithoutFeedback}

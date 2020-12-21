@@ -135,7 +135,7 @@ export default class Confirm extends Component {
           <Text testID="TransactionValue" style={styles.valueValue}>
             {currency.satoshiToBTC(item.value)}
           </Text>
-          <Text style={styles.valueUnit}>{' ' + BitcoinUnit.BTC}</Text>
+          <Text style={styles.valueUnit}>{' ' + loc.units[BitcoinUnit.BTC]}</Text>
         </View>
         <Text style={styles.transactionAmountFiat}>{currency.satoshiToLocalCurrency(item.value)}</Text>
         <BlueCard>

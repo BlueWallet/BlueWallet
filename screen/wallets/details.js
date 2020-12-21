@@ -426,14 +426,12 @@ const WalletDetails = () => {
 
             {wallet.type === MultisigHDWallet.type && (
               <>
-                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>multisig</Text>
+                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_multisig_type}</Text>
                 <BlueText>
-                  {wallet.getM()} of {wallet.getN()}{' '}
-                  {wallet.isNativeSegwit()
-                    ? 'native segwit (p2wsh)'
-                    : wallet.isWrappedSegwit()
-                    ? 'wrapped segwit (p2sh-p2wsh)'
-                    : 'legacy (p2sh)'}
+                  {loc.formatString(loc.wallets[`details_ms_${wallet.isNativeSegwit() ? 'ns' : wallet.isWrappedSegwit() ? 'ws' : 'l'}`], {
+                    m: wallet.getM(),
+                    n: wallet.getN(),
+                  })}
                 </BlueText>
               </>
             )}
@@ -447,7 +445,7 @@ const WalletDetails = () => {
 
             {wallet.type === MultisigHDWallet.type && !!wallet.getDerivationPath() && (
               <>
-                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>derivation path</Text>
+                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_derivation_path}</Text>
                 <BlueText>{wallet.getDerivationPath()}</BlueText>
               </>
             )}

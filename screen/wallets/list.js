@@ -243,11 +243,11 @@ const WalletsList = () => {
           style={[styles.ltRoot, stylesHook.ltRoot]}
         >
           <View style={styles.ltTextWrap}>
-            <Text style={[styles.ltTextBig, stylesHook.ltTextBig]}>Local Trader</Text>
+            <Text style={[styles.ltTextBig, stylesHook.ltTextBig]}>{loc.hodl.local_trader}</Text>
             <Text style={[styles.ltTextSmall, stylesHook.ltTextSmall]}>{loc.hodl.p2p}</Text>
           </View>
           <View style={styles.ltButtonWrap}>
-            <Text style={styles.ltButton}>New</Text>
+            <Text style={styles.ltButton}>{loc.hodl.local_trader_new}</Text>
           </View>
         </TouchableOpacity>
       );

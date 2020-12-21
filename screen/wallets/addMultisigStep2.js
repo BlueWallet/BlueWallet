@@ -494,7 +494,7 @@ const WalletsAddMultisigStep2 = () => {
         component.push(
           <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
             <Text style={[styles.wordText, stylesHook.wordText]}>
-              {index + 1} . {secret}
+              {index + 1}. {secret}
             </Text>
           </View>,
         );
