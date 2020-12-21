@@ -853,11 +853,16 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       psbt.addOutput(outputData);
     });
 
+    let signaturesMade = 0;
     if (!skipSigning) {
       for (let cc = 0; cc < c; cc++) {
         for (const cosigner of this._cosigners) {
           if (!MultisigHDWallet.isXpubString(cosigner)) {
             // ok this is a mnemonic, lets try to sign
+            if (signaturesMade >= this.getM()) {
+              // dont sign more than we need, otherwise there will be "Too many signatures" error
+              continue;
+            }
             let seed = bip39.mnemonicToSeed(cosigner);
             if (cosigner.startsWith(ELECTRUM_SEED_PREFIX)) {
               seed = MultisigHDWallet.convertElectrumMnemonicToSeed(cosigner);
@@ -865,6 +870,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
             const hdRoot = bitcoin.bip32.fromSeed(seed);
             psbt.signInputHD(cc, hdRoot);
+            signaturesMade++;
           }
         }
       }
