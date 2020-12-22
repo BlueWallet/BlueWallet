@@ -1,5 +1,7 @@
 /* eslint-disable react/prop-types */
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import React, { createContext, useEffect, useState } from 'react';
+import { AppStorage } from '../class';
 const BlueApp = require('../BlueApp');
 const BlueElectrum = require('./BlueElectrum');
 
@@ -9,6 +11,10 @@ export const BlueStorageProvider = ({ children }) => {
   const [pendingWallets, setPendingWallets] = useState([]);
   const [selectedWallet, setSelectedWallet] = useState('');
   const [walletsInitialized, setWalletsInitialized] = useState(false);
+  const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState();
+  const [language, _setLanguage] = useState();
+  const getPreferredCurrencyAsyncStorage = useAsyncStorage(AppStorage.PREFERRED_CURRENCY).getItem;
+  const getLanguageAsyncStorage = useAsyncStorage(AppStorage.LANG).getItem;
   const [newWalletAdded, setNewWalletAdded] = useState(false);
   const saveToDisk = async () => {
     BlueApp.tx_metadata = txMetadata;
@@ -19,6 +25,30 @@ export const BlueStorageProvider = ({ children }) => {
 
   useEffect(() => {
     setWallets(BlueApp.getWallets());
+  }, []);
+
+  const getPreferredCurrency = async () => {
+    const item = await getPreferredCurrencyAsyncStorage();
+    _setPreferredFiatCurrency(item);
+  };
+
+  const setPreferredFiatCurrency = () => {
+    getPreferredCurrency();
+  };
+
+  const getLanguage = async () => {
+    const item = await getLanguageAsyncStorage();
+    _setLanguage(item);
+  };
+
+  const setLanguage = () => {
+    getLanguage();
+  };
+
+  useEffect(() => {
+    getPreferredCurrency();
+    getLanguageAsyncStorage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const resetWallets = () => {
@@ -149,6 +179,10 @@ export const BlueStorageProvider = ({ children }) => {
         setResetOnAppUninstallTo,
         isPasswordInUse,
         setIsAdancedModeEnabled,
+        setPreferredFiatCurrency,
+        preferredFiatCurrency,
+        setLanguage,
+        language,
       }}
     >
       {children}

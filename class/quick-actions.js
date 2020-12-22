@@ -1,7 +1,7 @@
 import QuickActions from 'react-native-quick-actions';
 import { Platform } from 'react-native';
 import { formatBalance } from '../loc';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useContext, useEffect } from 'react';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 

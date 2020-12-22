@@ -64,7 +64,7 @@ const PleaseBackup = () => {
   };
 
   return isLoading ? (
-    <View style={styles.loading}>
+    <View style={[styles.loading, stylesHook.flex]}>
       <ActivityIndicator />
     </View>
   ) : (
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   },
   loading: {
     flex: 1,
-    paddingTop: 20,
+    justifyContent: 'center',
   },
   word: {
     marginRight: 8,

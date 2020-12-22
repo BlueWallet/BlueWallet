@@ -1,5 +1,5 @@
 import Localization from 'react-localization';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import * as RNLocalize from 'react-native-localize';
@@ -13,125 +13,131 @@ const currency = require('../blue_modules/currency');
 dayjs.extend(relativeTime);
 
 // first-time loading sequence
-(async () => {
+
+const setDateTimeLocale = async () => {
+  let lang = await AsyncStorage.getItem('lang');
+  let localeForDayJSAvailable = true;
+  switch (lang) {
+    case 'ar':
+      require('dayjs/locale/ar');
+      break;
+    case 'bg_bg':
+      lang = 'bg';
+      require('dayjs/locale/bg');
+      break;
+    case 'ca':
+      require('dayjs/locale/ca');
+      break;
+    case 'cy':
+      require('dayjs/locale/cy');
+      break;
+    case 'da_dk':
+      require('dayjs/locale/da');
+      break;
+    case 'de_de':
+      require('dayjs/locale/de');
+      break;
+    case 'el':
+      require('dayjs/locale/el');
+      break;
+    case 'es':
+      require('dayjs/locale/es');
+      break;
+    case 'es_419':
+      // es-do it is the closes one to es_419
+      lang = 'es-do';
+      require('dayjs/locale/es-do');
+      break;
+    case 'fi_fi':
+      require('dayjs/locale/fi');
+      break;
+    case 'fa':
+      require('dayjs/locale/fa');
+      break;
+    case 'fr_fr':
+      require('dayjs/locale/fr');
+      break;
+    case 'he':
+      require('dayjs/locale/he');
+      break;
+    case 'hr_hr':
+      require('dayjs/locale/hr');
+      break;
+    case 'hu_hu':
+      require('dayjs/locale/hu');
+      break;
+    case 'id_id':
+      require('dayjs/locale/id');
+      break;
+    case 'it':
+      require('dayjs/locale/it');
+      break;
+    case 'jp_jp':
+      lang = 'ja';
+      require('dayjs/locale/ja');
+      break;
+    case 'nb_no':
+      require('dayjs/locale/nb');
+      break;
+    case 'nl_nl':
+      require('dayjs/locale/nl');
+      break;
+    case 'pt_br':
+      lang = 'pt-br';
+      require('dayjs/locale/pt-br');
+      break;
+    case 'pt_pt':
+      lang = 'pt';
+      require('dayjs/locale/pt');
+      break;
+    case 'pl':
+      require('dayjs/locale/pl');
+      break;
+    case 'ru':
+      require('dayjs/locale/ru');
+      break;
+    case 'sk_sk':
+      require('dayjs/locale/sk');
+      break;
+    case 'sl_si':
+      require('dayjs/locale/sl');
+      break;
+    case 'sv_se':
+      require('dayjs/locale/sv');
+      break;
+    case 'th_th':
+      require('dayjs/locale/th');
+      break;
+    case 'tr_tr':
+      require('dayjs/locale/tr');
+      break;
+    case 'vi_vn':
+      require('dayjs/locale/vi');
+      break;
+    case 'zh_cn':
+      lang = 'zh-cn';
+      require('dayjs/locale/zh-cn');
+      break;
+    case 'zh_tw':
+      lang = 'zh-tw';
+      require('dayjs/locale/zh-tw');
+      break;
+    default:
+      localeForDayJSAvailable = false;
+      break;
+  }
+  if (localeForDayJSAvailable) {
+    dayjs.locale(lang.split('_')[0]);
+  }
+};
+
+const setLanguageLocale = async () => {
   // finding out whether lang preference was saved
   // For some reason using the AppStorage.LANG constant is not working. Hard coding string for now.
-  let lang = await AsyncStorage.getItem('lang');
+  const lang = await AsyncStorage.getItem('lang');
   if (lang) {
     strings.setLanguage(lang);
-    let localeForDayJSAvailable = true;
-    switch (lang) {
-      case 'ar':
-        require('dayjs/locale/ar');
-        break;
-      case 'bg_bg':
-        lang = 'bg';
-        require('dayjs/locale/bg');
-        break;
-      case 'ca':
-        require('dayjs/locale/ca');
-        break;
-      case 'cy':
-        require('dayjs/locale/cy');
-        break;
-      case 'da_dk':
-        require('dayjs/locale/da');
-        break;
-      case 'de_de':
-        require('dayjs/locale/de');
-        break;
-      case 'el':
-        require('dayjs/locale/el');
-        break;
-      case 'es':
-        require('dayjs/locale/es');
-        break;
-      case 'es_419':
-        // es-do it is the closes one to es_419
-        lang = 'es-do';
-        require('dayjs/locale/es-do');
-        break;
-      case 'fi_fi':
-        require('dayjs/locale/fi');
-        break;
-      case 'fa':
-        require('dayjs/locale/fa');
-        break;
-      case 'fr_fr':
-        require('dayjs/locale/fr');
-        break;
-      case 'he':
-        require('dayjs/locale/he');
-        break;
-      case 'hr_hr':
-        require('dayjs/locale/hr');
-        break;
-      case 'hu_hu':
-        require('dayjs/locale/hu');
-        break;
-      case 'id_id':
-        require('dayjs/locale/id');
-        break;
-      case 'it':
-        require('dayjs/locale/it');
-        break;
-      case 'jp_jp':
-        lang = 'ja';
-        require('dayjs/locale/ja');
-        break;
-      case 'nb_no':
-        require('dayjs/locale/nb');
-        break;
-      case 'nl_nl':
-        require('dayjs/locale/nl');
-        break;
-      case 'pt_br':
-        lang = 'pt-br';
-        require('dayjs/locale/pt-br');
-        break;
-      case 'pt_pt':
-        lang = 'pt';
-        require('dayjs/locale/pt');
-        break;
-      case 'pl':
-        require('dayjs/locale/pl');
-        break;
-      case 'ru':
-        require('dayjs/locale/ru');
-        break;
-      case 'sk_sk':
-        require('dayjs/locale/sk');
-        break;
-      case 'sl_si':
-        require('dayjs/locale/sl');
-        break;
-      case 'sv_se':
-        require('dayjs/locale/sv');
-        break;
-      case 'th_th':
-        require('dayjs/locale/th');
-        break;
-      case 'tr_tr':
-        require('dayjs/locale/tr');
-        break;
-      case 'vi_vn':
-        require('dayjs/locale/vi');
-        break;
-      case 'zh_cn':
-        lang = 'zh-cn';
-        require('dayjs/locale/zh-cn');
-        break;
-      case 'zh_tw':
-        lang = 'zh-tw';
-        require('dayjs/locale/zh-tw');
-        break;
-      default:
-        localeForDayJSAvailable = false;
-        break;
-    }
-    if (localeForDayJSAvailable) {
-      dayjs.locale(lang.split('_')[0]);
-    }
+    await setDateTimeLocale();
   } else {
     const locales = RNLocalize.getLocales();
     if (Object.keys(AvailableLanguages).some(language => language === locales[0])) {
@@ -142,7 +148,8 @@ dayjs.extend(relativeTime);
       strings.setLanguage('en');
     }
   }
-})();
+};
+setLanguageLocale();
 
 const strings = new Localization({
   en: require('./en.json'),
@@ -184,7 +191,11 @@ const strings = new Localization({
   zh_tw: require('./zh_tw.json'),
 });
 
-strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
+strings.saveLanguage = async lang => {
+  await AsyncStorage.setItem(AppStorage.LANG, lang);
+  strings.setLanguage(lang);
+  await setDateTimeLocale();
+};
 
 export const transactionTimeToReadable = time => {
   if (time === 0) {
