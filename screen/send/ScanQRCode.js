@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
-import ImagePicker from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload } from 'bc-ur';
 import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
@@ -192,7 +192,7 @@ const ScanQRCode = () => {
   const showImagePicker = () => {
     if (!isLoading) {
       setIsLoading(true);
-      ImagePicker.launchImageLibrary(
+      launchImageLibrary(
         {
           title: null,
           mediaType: 'photo',
@@ -200,7 +200,7 @@ const ScanQRCode = () => {
         },
         response => {
           if (response.uri) {
-            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
             LocalQRCode.decode(uri, (error, result) => {
               if (!error) {
                 onBarCodeRead({ data: result });

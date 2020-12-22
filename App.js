@@ -282,8 +282,8 @@ const App = () => {
         <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
           <InitRoot />
           <Notifications onProcessNotifications={processPushNotifications} />
+          {renderClipboardContentModal()}
         </NavigationContainer>
-        {renderClipboardContentModal()}
       </View>
       <WatchConnectivity />
       <DeviceQuickActions />
