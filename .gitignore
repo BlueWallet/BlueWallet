@@ -65,6 +65,7 @@ artifacts/
 
 # Editors
 .vscode/
-/.editorconfig
-/.vs/BlueWallet/v16
+*.mx
+*.realm
+*.realm.lock
 /.vs
