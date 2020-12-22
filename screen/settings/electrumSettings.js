@@ -36,25 +36,28 @@ export default class ElectrumSettings extends Component {
   }
 
   async componentDidMount() {
-    const servers = await AsyncStorage.getItem(AppStorage.ELECTRUM_SERVER_HISTORY);
+    try {
+      const serverHistoryStr = await AsyncStorage.getItem(AppStorage.ELECTRUM_SERVER_HISTORY);
+      console.log('[DEBUG] Servers in history', serverHistoryStr);
 
-    console.log('[DEBUG] Servers in history', servers);
+      const serverHistory = JSON.parse(serverHistoryStr) || [];
 
-    this.setState({
-      isLoading: false,
-      serverHistory: JSON.parse(servers) || [],
-    });
+      const inverval = setInterval(async () => {
+        this.setState({
+          config: await BlueElectrum.getConfig(),
+        });
+      }, 500);
 
-    const inverval = setInterval(async () => {
       this.setState({
+        isLoading: false,
         config: await BlueElectrum.getConfig(),
+        inverval,
+        serverHistory,
       });
-    }, 500);
-
-    this.setState({
-      config: await BlueElectrum.getConfig(),
-      inverval,
-    });
+    } catch (e) {
+      // Must be running on Android
+      console.log(e);
+    }
   }
 
   checkServer = async () => {
@@ -66,79 +69,38 @@ export default class ElectrumSettings extends Component {
   };
 
   selectServer = async server => {
-    const { host, port, sslPort } = server;
-
-    this.setState({ isLoading: true }, async () => {
-      const canConnect = await BlueElectrum.testConnection(host, port, sslPort);
-
-      if (canConnect) {
-        await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, host);
-        await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, port);
-        await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, sslPort);
-        try {
-          await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-          await DefaultPreference.set(AppStorage.ELECTRUM_HOST, host);
-          await DefaultPreference.set(AppStorage.ELECTRUM_TCP_PORT, port);
-          await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, sslPort);
-          RNWidgetCenter.reloadAllTimelines();
-
-          this.setState({
-            host,
-            port,
-            sslPort,
-          });
-
-          alert(loc.settings.electrum_saved);
-        } catch (e) {
-          // Must be running on Android
-          console.log(e);
-        }
-      } else {
-        alert(loc.settings.electrum_error_connect);
-      }
-      this.setState({ isLoading: false });
+    this.setState({ host: server.host, port: server.port, sslPort: server.sslPort }, () => {
+      this.save();
     });
   };
 
   clearHistoryAlert() {
     Alert.alert(loc.settings.electrum_clear_alert_title, loc.settings.electrum_clear_alert_message, [
-      { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-      { text: 'OK', onPress: () => this.clearHistory() },
+      { text: loc.settings.electrum_clear_alert_cancel, onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+      { text: loc.settings.electrum_clear_alert_ok, onPress: () => this.clearHistory() },
     ]);
   }
 
   clearHistory = async () => {
     this.setState({ isLoading: true }, async () => {
       await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_HISTORY, JSON.stringify([]));
-      try {
-        await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-        await DefaultPreference.set(AppStorage.ELECTRUM_SERVER_HISTORY, JSON.stringify([]));
-        RNWidgetCenter.reloadAllTimelines();
-        this.setState({
-          serverHistory: [],
-          isLoading: false,
-        });
-      } catch (e) {
-        console.log(e);
-      }
-      this.setState({ isLoading: false });
+      this.setState({
+        serverHistory: [],
+        isLoading: false,
+      });
     });
   };
 
   resetToDefault = async () => {
-    await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, '');
-    await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, '');
-    await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, '');
-    try {
-      await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-      await DefaultPreference.clear(AppStorage.ELECTRUM_HOST);
-      await DefaultPreference.clear(AppStorage.ELECTRUM_SSL_PORT);
-      await DefaultPreference.clear(AppStorage.ELECTRUM_TCP_PORT);
-      RNWidgetCenter.reloadAllTimelines();
-    } catch (e) {
-      console.log(e);
-    }
-    alert(loc.settings.electrum_saved);
+    this.setState({ isLoading: true }, async () => {
+      await Promise.all([
+        AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, ''),
+        AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, ''),
+        AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, ''),
+      ]);
+      this.setState({ isLoading: false });
+      alert(loc.settings.electrum_saved);
+    });
   };
 
   serverExists = server => {
@@ -161,9 +123,11 @@ export default class ElectrumSettings extends Component {
         } else if (!(await BlueElectrum.testConnection(host, port, sslPort))) {
           alert(loc.settings.electrum_error_connect);
         } else {
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, host);
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, port);
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, sslPort);
+          await Promise.all([
+            AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, host),
+            AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, port),
+            AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, sslPort),
+          ]);
 
           if (!this.serverExists({ host, port, sslPort })) {
             serverHistory.push({
@@ -173,7 +137,6 @@ export default class ElectrumSettings extends Component {
             });
 
             await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_HISTORY, JSON.stringify(serverHistory));
-            await DefaultPreference.set(AppStorage.ELECTRUM_SERVER_HISTORY, JSON.stringify(serverHistory));
             this.setState({
               serverHistory,
             });
