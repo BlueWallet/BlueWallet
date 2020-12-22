@@ -1,5 +1,5 @@
 import Frisbee from 'frisbee';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppStorage } from '../class';
 import { FiatServerResponse, FiatUnit } from '../models/fiatUnit';
 import DefaultPreference from 'react-native-default-preference';

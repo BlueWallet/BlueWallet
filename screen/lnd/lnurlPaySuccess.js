@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import LottieView from 'lottie-react-native';
 import { View, Text, Linking, StyleSheet, Image, ScrollView } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Icon } from 'react-native-elements';
 import {
   BlueButton,
