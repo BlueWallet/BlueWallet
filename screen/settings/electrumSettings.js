@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -26,6 +26,7 @@ export default class ElectrumSettings extends Component {
     super(props);
     this.state = {
       isLoading: true,
+      serverHistory: [],
       config: {},
     };
   }
@@ -35,27 +36,28 @@ export default class ElectrumSettings extends Component {
   }
 
   async componentDidMount() {
-    const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
-    const port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
-    const sslPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_SSL_PORT);
+    try {
+      const serverHistoryStr = await AsyncStorage.getItem(AppStorage.ELECTRUM_SERVER_HISTORY);
+      console.log('[DEBUG] Servers in history', serverHistoryStr);
 
-    this.setState({
-      isLoading: false,
-      host,
-      port,
-      sslPort,
-    });
+      const serverHistory = JSON.parse(serverHistoryStr) || [];
 
-    const inverval = setInterval(async () => {
+      const inverval = setInterval(async () => {
+        this.setState({
+          config: await BlueElectrum.getConfig(),
+        });
+      }, 500);
+
       this.setState({
+        isLoading: false,
         config: await BlueElectrum.getConfig(),
+        inverval,
+        serverHistory,
       });
-    }, 500);
-
-    this.setState({
-      config: await BlueElectrum.getConfig(),
-      inverval,
-    });
+    } catch (e) {
+      // Must be running on Android
+      console.log(e);
+    }
   }
 
   checkServer = async () => {
@@ -66,34 +68,80 @@ export default class ElectrumSettings extends Component {
     });
   };
 
+  selectServer = async server => {
+    this.setState({ host: server.host, port: server.port, sslPort: server.sslPort }, () => {
+      this.save();
+    });
+  };
+
+  clearHistoryAlert() {
+    Alert.alert(loc.settings.electrum_clear_alert_title, loc.settings.electrum_clear_alert_message, [
+      { text: loc.settings.electrum_clear_alert_cancel, onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+      { text: loc.settings.electrum_clear_alert_ok, onPress: () => this.clearHistory() },
+    ]);
+  }
+
+  clearHistory = async () => {
+    this.setState({ isLoading: true }, async () => {
+      await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_HISTORY, JSON.stringify([]));
+      this.setState({
+        serverHistory: [],
+        isLoading: false,
+      });
+    });
+  };
+
+  resetToDefault = async () => {
+    this.setState({ isLoading: true }, async () => {
+      await Promise.all([
+        AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, ''),
+        AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, ''),
+        AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, ''),
+      ]);
+      this.setState({ isLoading: false });
+      alert(loc.settings.electrum_saved);
+    });
+  };
+
+  serverExists = server => {
+    const { serverHistory } = this.state;
+    return serverHistory.some(s => {
+      return `${s.host}${s.tcp}${s.ssl}` === `${server.host}${server.tcp}${server.ssl}`;
+    });
+  };
+
   save = () => {
     const host = this.state.host ? this.state.host : '';
     const port = this.state.port ? this.state.port : '';
     const sslPort = this.state.sslPort ? this.state.sslPort : '';
+    const { serverHistory } = this.state;
 
     this.setState({ isLoading: true }, async () => {
       try {
-        if (!host && !port && !sslPort) {
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, '');
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, '');
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, '');
-          try {
-            await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-            await DefaultPreference.clear(AppStorage.ELECTRUM_HOST);
-            await DefaultPreference.clear(AppStorage.ELECTRUM_SSL_PORT);
-            await DefaultPreference.clear(AppStorage.ELECTRUM_TCP_PORT);
-            RNWidgetCenter.reloadAllTimelines();
-          } catch (e) {
-            // Must be running on Android
-            console.log(e);
-          }
-          alert(loc.settings.electrum_saved);
+        if (!host || (!port && !sslPort)) {
+          alert(loc.settings.electrum_error_fill);
         } else if (!(await BlueElectrum.testConnection(host, port, sslPort))) {
           alert(loc.settings.electrum_error_connect);
         } else {
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, host);
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, port);
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, sslPort);
+          await Promise.all([
+            AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, host),
+            AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, port),
+            AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, sslPort),
+          ]);
+
+          if (!this.serverExists({ host, port, sslPort })) {
+            serverHistory.push({
+              host,
+              port,
+              sslPort,
+            });
+
+            await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_HISTORY, JSON.stringify(serverHistory));
+            this.setState({
+              serverHistory,
+            });
+          }
+
           try {
             await DefaultPreference.setName('group.io.bluewallet.bluewallet');
             await DefaultPreference.set(AppStorage.ELECTRUM_HOST, host);
@@ -101,7 +149,6 @@ export default class ElectrumSettings extends Component {
             await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, sslPort);
             RNWidgetCenter.reloadAllTimelines();
           } catch (e) {
-            // Must be running on Android
             console.log(e);
           }
 
@@ -132,6 +179,19 @@ export default class ElectrumSettings extends Component {
   };
 
   render() {
+    const serverHistoryItems = this.state.serverHistory.map((server, i) => {
+      return (
+        <View key={i} style={styles.serverHistoryItem}>
+          <View>
+            <BlueText>{`${server.host}:${server.port || server.sslPort}`}</BlueText>
+          </View>
+          <TouchableOpacity onPress={() => this.selectServer(server)}>
+            <BlueText>{loc.settings.electrum_select}</BlueText>
+          </TouchableOpacity>
+        </View>
+      );
+    });
+
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
         <ScrollView>
@@ -148,10 +208,14 @@ export default class ElectrumSettings extends Component {
             <BlueText style={styles.hostname} onPress={this.checkServer}>
               {this.state.config.host}:{this.state.config.port}
             </BlueText>
-            <BlueSpacing20 />
           </BlueCard>
           <BlueCard>
-            <BlueText style={styles.explain}>{loc.settings.electrum_settings_explain}</BlueText>
+            <View style={styles.serverAddTitle}>
+              <BlueText style={styles.explain}>{loc.settings.electrum_settings_explain}</BlueText>
+              <TouchableOpacity onPress={() => this.resetToDefault()}>
+                <BlueText>{loc.settings.electrum_reset}</BlueText>
+              </TouchableOpacity>
+            </View>
           </BlueCard>
           <BlueCard>
             <View style={styles.inputWrap}>
@@ -203,6 +267,17 @@ export default class ElectrumSettings extends Component {
             <BlueSpacing20 />
             {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
           </BlueCard>
+          {serverHistoryItems.length > 0 && !this.state.isLoading && (
+            <BlueCard>
+              <View style={styles.serverHistoryTitle}>
+                <BlueText style={styles.explain}>{loc.settings.electrum_history}</BlueText>
+                <TouchableOpacity onPress={() => this.clearHistoryAlert()}>
+                  <BlueText>{loc.settings.electrum_clear}</BlueText>
+                </TouchableOpacity>
+              </View>
+              {serverHistoryItems}
+            </BlueCard>
+          )}
         </ScrollView>
       </SafeBlueArea>
     );
@@ -287,5 +362,21 @@ const styles = StyleSheet.create({
     minHeight: 36,
     color: '#81868e',
     height: 36,
+  },
+  serverAddTitle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  serverHistoryTitle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+  },
+  serverHistoryItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 20,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomWidth: 1,
   },
 });
