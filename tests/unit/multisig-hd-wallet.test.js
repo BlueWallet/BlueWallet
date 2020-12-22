@@ -1568,6 +1568,66 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getN(), 1);
     assert.strictEqual(w.getM(), 2);
   });
+
+  it('can sign valid tx if we have more keys than quorum ("Too many signatures" error)', async () => {
+    const w = new MultisigHDWallet();
+    w.setSecret(
+      '# BlueWallet Multisig setup file\n' +
+        '# this file may contain private information\n' +
+        '#\n' +
+        'Name: Multisig Vault\n' +
+        'Policy: 3 of 6\n' +
+        "Derivation: m/48'/0'/0'/2'\n" +
+        'Format: P2WSH\n' +
+        '\n' +
+        'seed: start local figure rose pony artist voice agent pyramid still spot walk\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: empty fall vanish sheriff vibrant diary route lock purity noodle ripple clutch\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: else heart suggest proof travel announce reason priority trick bargain author duty\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: craft response kitchen column feed fitness pill loyal capital together usage either\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: trigger zebra image engine inhale employ floor soul glimpse version extra pizza\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: thank post talent polar hire model trophy elevator wide green hungry gossip\n' +
+        '# warning! sensitive information, do not disclose ^^^',
+    );
+
+    const utxos = [
+      {
+        height: 662352,
+        value: 100000,
+        address: 'bc1qlkh0zgq5ypcdfs9rdvrucra96c5gmjgaufm0au8cglkkrah29nesrkvewg',
+        txId: 'e112e3b109aff5fe76d4fde90bd3c2df58bfb250280a4404421fff42d6801fd2',
+        vout: 0,
+        txid: 'e112e3b109aff5fe76d4fde90bd3c2df58bfb250280a4404421fff42d6801fd2',
+        amount: 100000,
+        wif: false,
+        confirmations: 1,
+        txhex:
+          '020000000001020d0f713ba314566ea9b7e7d64eb8538dd0a88826377945464e9bb25eed61d665010000000000000080f570a2bb8faff02b848a4a5b2d334324a1ccc6cebf1c1cc27e231316f579e66d01000000000000008002a086010000000000220020fdaef120142070d4c0a36b07cc0fa5d6288dc91de276fef0f847ed61f6ea2cf3d6eb060000000000160014696154a1ed38813c4c45b58ece291c1a8d9cd7d102483045022100d02ef858d129ba50aeee126e41e9cca5fa58232def7934d6705747e81bcd61a402206d2565c336cd32cb128ae9e80af60d610154af0d4e77cb60e015dead349b368b012103471950f9952608d9db6d3698b731d89387b7b55026ae020919ee7da7a2a4866d0247304402204088a68fc4654c0cedb724f6e8fe3820845d5e7184b0363806ea77f8a739f58702202bf7b3b20d6d6db28617e8edd6d0ea3870ab7e3bc62307ad77fa9717a3689bcb01210371d2366d9fc32c5a83bb78d7ced38d5e318a96dc43a18074742e567defe4585d00000000',
+      },
+    ];
+
+    const { psbt, tx } = w.createTransaction(
+      utxos,
+      [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS' }], // sendMax
+      1,
+      w._getInternalAddressByIndex(0),
+    );
+
+    assert.ok(tx);
+    assert.ok(psbt);
+
+    assert.strictEqual(psbt.data.inputs.length, 1);
+    assert.strictEqual(psbt.data.outputs.length, 1);
+  });
 });
 
 describe('multisig-cosigner', () => {
