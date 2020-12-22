@@ -15,12 +15,8 @@ cd node_modules/react-native-camera/ios/RCT
 patch RCTCameraManager.m ../../../../scripts/maccatalystpatches/RCTCameraManager.patch --no-backup-if-mismatch
 cd ../RN/
 patch RNCamera.m ../../../../scripts/maccatalystpatches/RNCamera.patch
-echo "Applying patch for react-native-image-picker"
-cd ../../../../
-cd node_modules/react-native-image-picker/ios
-patch ImagePickerManager.m ../../../scripts/maccatalystpatches/ImagePickerManager.patch --no-backup-if-mismatch
 echo "Applying patch for Podfile"
-cd ../../../
+cd ../../../../
 patch ios/Podfile ./scripts/maccatalystpatches/podfile.patch --no-backup-if-mismatch
 echo "Applying patch for Realm podspec"
 patch node_modules/realm/RealmJS.podspec ./scripts/maccatalystpatches/realm.patch --no-backup-if-mismatch

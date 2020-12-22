@@ -13,7 +13,7 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import ImagePicker from 'react-native-image-picker';
+import { launchCamera } from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
 import {
   SecondButton,
@@ -201,8 +201,13 @@ const PsbtWithHardwareWallet = () => {
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
-        await RNFS.writeFile(filePath, typeof psbt === 'string' ? psbt : psbt.toBase64());
-        alert(loc.formatString(loc.send.txSaved, { filePath: fileName }));
+        try {
+          await RNFS.writeFile(filePath, typeof psbt === 'string' ? psbt : psbt.toBase64());
+          alert(loc.formatString(loc.send.txSaved, { filePath: fileName }));
+        } catch (e) {
+          console.log(e);
+          alert(e.message);
+        }
       } else {
         console.log('Storage Permission: Denied');
         Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
@@ -239,7 +244,7 @@ const PsbtWithHardwareWallet = () => {
 
   const openScanner = () => {
     if (isDesktop) {
-      ImagePicker.launchCamera(
+      launchCamera(
         {
           title: null,
           mediaType: 'photo',
@@ -247,7 +252,7 @@ const PsbtWithHardwareWallet = () => {
         },
         response => {
           if (response.uri) {
-            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
             LocalQRCode.decode(uri, (error, result) => {
               if (!error) {
                 onBarScanned(result);

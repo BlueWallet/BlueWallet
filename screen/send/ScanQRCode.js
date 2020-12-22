@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
-import ImagePicker from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload } from 'bc-ur';
 import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   backdoorInputWrapper: { position: 'absolute', left: '5%', top: '0%', width: '90%', height: '70%', backgroundColor: 'white' },
-  progressWrapper: { position: 'absolute', right: '50%', top: '50%', backgroundColor: 'rgba(255, 255, 255, 0.1)' },
+  progressWrapper: { position: 'absolute', alignSelf: 'center', alignItems: 'center', top: '50%', padding: 8, borderRadius: 8 },
   backdoorInput: {
     height: '50%',
     marginTop: 5,
@@ -105,6 +105,7 @@ const ScanQRCode = () => {
     openSettingsContainer: {
       backgroundColor: colors.brandingColor,
     },
+    progressWrapper: { backgroundColor: colors.brandingColor, borderColor: colors.foregroundColor, borderWidth: 4 },
   });
   const HashIt = function (s) {
     return createHash('sha256').update(s).digest().toString('hex');
@@ -192,7 +193,7 @@ const ScanQRCode = () => {
   const showImagePicker = () => {
     if (!isLoading) {
       setIsLoading(true);
-      ImagePicker.launchImageLibrary(
+      launchImageLibrary(
         {
           title: null,
           mediaType: 'photo',
@@ -200,7 +201,7 @@ const ScanQRCode = () => {
         },
         response => {
           if (response.uri) {
-            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
             LocalQRCode.decode(uri, (error, result) => {
               if (!error) {
                 onBarCodeRead({ data: result });
@@ -270,13 +271,13 @@ const ScanQRCode = () => {
         </TouchableOpacity>
       )}
       {urTotal > 0 && (
-        <View style={styles.progressWrapper} testID="UrProgressBar">
+        <View style={[styles.progressWrapper, stylesHook.progressWrapper]} testID="UrProgressBar">
+          <BlueText>{loc.wallets.please_continue_scanning}</BlueText>
           <BlueText>
             {urHave} / {urTotal}
           </BlueText>
         </View>
       )}
-
       {backdoorVisible && (
         <View style={styles.backdoorInputWrapper}>
           <BlueText>Provide QR code contents manually:</BlueText>

@@ -1,7 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   BlueBitcoinAmount,
   BlueButton,
@@ -156,7 +156,7 @@ export default class LnurlPay extends Component {
 
   renderGotPayload() {
     return (
-      <SafeBlueArea>
+      <SafeBlueArea style={styles.root}>
         <ScrollView>
           <BlueCard>
             <BlueBitcoinAmount
@@ -191,7 +191,11 @@ export default class LnurlPay extends Component {
 
   render() {
     if (this.state.isLoading) {
-      return <BlueLoading />;
+      return (
+        <View style={styles.root}>
+          <BlueLoading />
+        </View>
+      );
     }
 
     return this.renderGotPayload();
@@ -216,6 +220,10 @@ const styles = StyleSheet.create({
   img: { width: 200, height: 200, alignSelf: 'center' },
   alignSelfCenter: {
     alignSelf: 'center',
+  },
+  root: {
+    flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.background,
   },
   walletSelectRoot: {
     marginBottom: 16,

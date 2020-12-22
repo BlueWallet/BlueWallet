@@ -1,5 +1,4 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-/* global alert */
 import React, { Component, useState, useMemo, useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, Input, Text, Header, ListItem, Avatar } from 'react-native-elements';
@@ -26,33 +25,30 @@ import {
 } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
-import ActionSheet from './screen/ActionSheet';
 import { LightningCustodianWallet, MultisigHDWallet } from './class';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import * as NavigationService from './NavigationService';
 import WalletGradient from './class/wallet-gradient';
 import ToolTip from 'react-native-tooltip';
 import { BlurView } from '@react-native-community/blur';
-import ImagePicker from 'react-native-image-picker';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
 import { getSystemName } from 'react-native-device-info';
 import { encodeUR } from 'bc-ur/dist';
 import QRCode from 'react-native-qrcode-svg';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
 import Lnurl from './class/lnurl';
 import { BlueStorageContext } from './blue_modules/storage-context';
-import { presentCameraNotAuthorizedAlert } from './class/camera';
 /** @type {AppStorage} */
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 const BigNumber = require('bignumber.js');
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const currency = require('./blue_modules/currency');
+const fs = require('./blue_modules/fs');
 let isIpad;
 if (aspectRatio > 1.6) {
   isIpad = false;
@@ -345,6 +341,7 @@ export class BlueWalletNavigationHeader extends Component {
       <LinearGradient
         colors={WalletGradient.gradientsFor(this.state.wallet.type)}
         style={{ padding: 15, minHeight: 140, justifyContent: 'center' }}
+        {...WalletGradient.linearGradientProps(this.state.wallet.type)}
       >
         <Image
           source={(() => {
@@ -448,6 +445,34 @@ export class BlueWalletNavigationHeader extends Component {
                 }}
               >
                 {loc.lnd.title}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
+        {this.state.wallet.type === MultisigHDWallet.type && (
+          <TouchableOpacity onPress={this.manageFundsPressed}>
+            <View
+              style={{
+                marginTop: 14,
+                marginBottom: 10,
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                borderRadius: 9,
+                minHeight: 39,
+                alignSelf: 'flex-start',
+                paddingHorizontal: 12,
+                height: 39,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Text
+                style={{
+                  fontWeight: '500',
+                  fontSize: 14,
+                  color: '#FFFFFF',
+                }}
+              >
+                {loc.multisig.manage_keys}
               </Text>
             </View>
           </TouchableOpacity>
@@ -915,15 +940,13 @@ export const BlueSpacing40 = props => {
   return <View {...props} style={{ height: 50 }} />;
 };
 
-export class BlueSpacingVariable extends Component {
-  render() {
-    if (isIpad) {
-      return <BlueSpacing40 {...this.props} />;
-    } else {
-      return <BlueSpacing {...this.props} />;
-    }
+export const BlueSpacingVariable = props => {
+  if (isIpad) {
+    return <BlueSpacing40 {...props} />;
+  } else {
+    return <BlueSpacing {...props} />;
   }
-}
+};
 
 export class is {
   static ipad() {
@@ -1015,61 +1038,59 @@ export class BlueUseAllFundsButton extends Component {
   }
 }
 
-export class BlueDismissKeyboardInputAccessory extends Component {
-  static InputAccessoryViewID = 'BlueDismissKeyboardInputAccessory';
+export const BlueDismissKeyboardInputAccessory = () => {
+  const { colors } = useTheme();
+  BlueDismissKeyboardInputAccessory.InputAccessoryViewID = 'BlueDismissKeyboardInputAccessory';
 
-  render() {
-    return Platform.OS !== 'ios' ? null : (
-      <InputAccessoryView nativeID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}>
-        <View
-          style={{
-            backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
-            height: 44,
-            flex: 1,
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-          }}
-        >
-          <BlueButtonLink title={loc.send.input_done} onPress={() => Keyboard.dismiss()} />
-        </View>
-      </InputAccessoryView>
-    );
-  }
-}
-
-export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
-  static InputAccessoryViewID = 'BlueDoneAndDismissKeyboardInputAccessory';
-
-  onPasteTapped = async () => {
-    const clipboard = await Clipboard.getString();
-    this.props.onPasteTapped(clipboard);
-  };
-
-  render() {
-    const inputView = (
+  return Platform.OS !== 'ios' ? null : (
+    <InputAccessoryView nativeID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}>
       <View
         style={{
-          backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
+          backgroundColor: colors.inputBackgroundColor,
+          height: 44,
+          flex: 1,
           flexDirection: 'row',
           justifyContent: 'flex-end',
           alignItems: 'center',
-          maxHeight: 44,
         }}
       >
-        <BlueButtonLink title={loc.send.input_clear} onPress={this.props.onClearTapped} />
-        <BlueButtonLink title={loc.send.input_paste} onPress={this.onPasteTapped} />
-        <BlueButtonLink title={loc.send.input_done} onPress={() => Keyboard.dismiss()} />
+        <BlueButtonLink title={loc.send.input_done} onPress={Keyboard.dismiss} />
       </View>
-    );
+    </InputAccessoryView>
+  );
+};
 
-    if (Platform.OS === 'ios') {
-      return <InputAccessoryView nativeID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
-    } else {
-      return <KeyboardAvoidingView>{inputView}</KeyboardAvoidingView>;
-    }
+export const BlueDoneAndDismissKeyboardInputAccessory = props => {
+  const { colors } = useTheme();
+  BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID = 'BlueDoneAndDismissKeyboardInputAccessory';
+
+  const onPasteTapped = async () => {
+    const clipboard = await Clipboard.getString();
+    props.onPasteTapped(clipboard);
+  };
+
+  const inputView = (
+    <View
+      style={{
+        backgroundColor: colors.inputBackgroundColor,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        maxHeight: 44,
+      }}
+    >
+      <BlueButtonLink title={loc.send.input_clear} onPress={props.onClearTapped} />
+      <BlueButtonLink title={loc.send.input_paste} onPress={onPasteTapped} />
+      <BlueButtonLink title={loc.send.input_done} onPress={Keyboard.dismiss} />
+    </View>
+  );
+
+  if (Platform.OS === 'ios') {
+    return <InputAccessoryView nativeID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
+  } else {
+    return <KeyboardAvoidingView>{inputView}</KeyboardAvoidingView>;
   }
-}
+};
 
 export const BlueLoading = props => {
   return (
@@ -1376,7 +1397,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
   const { colors } = useTheme();
   const { navigate } = useNavigation();
-  const { txMetadata, wallets } = useContext(BlueStorageContext);
+  const { txMetadata, wallets, preferredFiatCurrency, language } = useContext(BlueStorageContext);
   const containerStyle = useMemo(
     () => ({
       backgroundColor: 'transparent',
@@ -1394,7 +1415,8 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     } else {
       return transactionTimeToReadable(item.received);
     }
-  }, [item.confirmations, item.received]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.confirmations, item.received, language]);
   const txMemo = txMetadata[item.hash]?.memo ?? '';
   const subtitle = useMemo(() => {
     let sub = item.confirmations < 7 ? loc.formatString(loc.transactions.list_conf, { number: item.confirmations }) : '';
@@ -1425,7 +1447,8 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     } else {
       return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
     }
-  }, [item, itemPriceUnit]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item, itemPriceUnit, preferredFiatCurrency]);
 
   const rowTitleStyle = useMemo(() => {
     let color = colors.successColor;
@@ -1599,162 +1622,88 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
 });
 
 const isDesktop = getSystemName() === 'Mac OS X';
-export class BlueAddressInput extends Component {
-  static propTypes = {
-    isLoading: PropTypes.bool,
-    onChangeText: PropTypes.func,
-    onBarScanned: PropTypes.func.isRequired,
-    launchedBy: PropTypes.string.isRequired,
-    address: PropTypes.string,
-    placeholder: PropTypes.string,
-  };
+export const BlueAddressInput = ({
+  isLoading = false,
+  address = '',
+  placeholder = loc.send.details_address,
+  onChangeText,
+  onBarScanned,
+  launchedBy,
+}) => {
+  const { colors } = useTheme();
 
-  static defaultProps = {
-    isLoading: false,
-    address: '',
-    placeholder: loc.send.details_address,
-  };
-
-  choosePhoto = () => {
-    ImagePicker.launchImageLibrary(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              this.props.onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        }
-      },
-    );
-  };
-
-  takePhoto = () => {
-    ImagePicker.launchCamera(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              this.props.onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        } else if (response.error) {
-          presentCameraNotAuthorizedAlert(response.error);
-        }
-      },
-    );
-  };
-
-  copyFromClipbard = async () => {
-    this.props.onBarScanned(await Clipboard.getString());
-  };
-
-  showActionSheet = async () => {
-    const isClipboardEmpty = (await Clipboard.getString()).trim().length === 0;
-    let copyFromClipboardIndex;
-    if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, loc.wallets.list_long_choose, isDesktop ? loc.wallets.take_photo : loc.wallets.list_long_scan];
-      if (!isClipboardEmpty) {
-        options.push(loc.wallets.list_long_clipboard);
-        copyFromClipboardIndex = options.length - 1;
-      }
-
-      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
-        if (buttonIndex === 1) {
-          this.choosePhoto();
-        } else if (buttonIndex === 2) {
-          this.takePhoto();
-        } else if (buttonIndex === copyFromClipboardIndex) {
-          this.copyFromClipbard();
-        }
-      });
-    }
-  };
-
-  render() {
-    return (
-      <View
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        borderColor: colors.formBorder,
+        borderBottomColor: colors.formBorder,
+        borderWidth: 1.0,
+        borderBottomWidth: 0.5,
+        backgroundColor: colors.inputBackgroundColor,
+        minHeight: 44,
+        height: 44,
+        marginHorizontal: 20,
+        alignItems: 'center',
+        marginVertical: 8,
+        borderRadius: 4,
+      }}
+    >
+      <TextInput
+        testID="AddressInput"
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        numberOfLines={1}
+        placeholderTextColor="#81868e"
+        value={address}
+        style={{ flex: 1, marginHorizontal: 8, minHeight: 33, color: '#81868e' }}
+        editable={!isLoading}
+        onSubmitEditing={Keyboard.dismiss}
+      />
+      <TouchableOpacity
+        testID="BlueAddressInputScanQrButton"
+        disabled={isLoading}
+        onPress={() => {
+          Keyboard.dismiss();
+          if (isDesktop) {
+            fs.showActionSheet().then(onBarScanned);
+          } else {
+            NavigationService.navigate('ScanQRCodeRoot', {
+              screen: 'ScanQRCode',
+              params: {
+                launchedBy,
+                onBarScanned,
+              },
+            });
+          }
+        }}
         style={{
+          height: 36,
           flexDirection: 'row',
-          borderColor: BlueCurrentTheme.colors.formBorder,
-          borderBottomColor: BlueCurrentTheme.colors.formBorder,
-          borderWidth: 1.0,
-          borderBottomWidth: 0.5,
-          backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
-          minHeight: 44,
-          height: 44,
-          marginHorizontal: 20,
           alignItems: 'center',
-          marginVertical: 8,
+          justifyContent: 'space-between',
+          backgroundColor: colors.scanLabel,
           borderRadius: 4,
+          paddingVertical: 4,
+          paddingHorizontal: 8,
+          marginHorizontal: 4,
         }}
       >
-        <TextInput
-          testID="AddressInput"
-          onChangeText={text => {
-            this.props.onChangeText(text);
-          }}
-          placeholder={this.props.placeholder}
-          numberOfLines={1}
-          placeholderTextColor="#81868e"
-          value={this.props.address}
-          style={{ flex: 1, marginHorizontal: 8, minHeight: 33, color: '#81868e' }}
-          editable={!this.props.isLoading}
-          onSubmitEditing={Keyboard.dismiss}
-          {...this.props}
-        />
-        <TouchableOpacity
-          testID="BlueAddressInputScanQrButton"
-          disabled={this.props.isLoading}
-          onPress={() => {
-            Keyboard.dismiss();
-            if (isDesktop) {
-              this.showActionSheet();
-            } else {
-              NavigationService.navigate('ScanQRCodeRoot', {
-                screen: 'ScanQRCode',
-                params: {
-                  launchedBy: this.props.launchedBy,
-                  onBarScanned: this.props.onBarScanned,
-                },
-              });
-            }
-          }}
-          style={{
-            height: 36,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            backgroundColor: BlueCurrentTheme.colors.scanLabel,
-            borderRadius: 4,
-            paddingVertical: 4,
-            paddingHorizontal: 8,
-            marginHorizontal: 4,
-          }}
-        >
-          <Image style={{}} source={require('./img/scan-white.png')} />
-          <Text style={{ marginLeft: 4, color: BlueCurrentTheme.colors.inverseForegroundColor }}>{loc.send.details_scan}</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-}
+        <Image style={{}} source={require('./img/scan-white.png')} />
+        <Text style={{ marginLeft: 4, color: colors.inverseForegroundColor }}>{loc.send.details_scan}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+BlueAddressInput.propTypes = {
+  isLoading: PropTypes.bool,
+  onChangeText: PropTypes.func,
+  onBarScanned: PropTypes.func.isRequired,
+  launchedBy: PropTypes.string.isRequired,
+  address: PropTypes.string,
+  placeholder: PropTypes.string,
+};
 
 export class BlueReplaceFeeSuggestions extends Component {
   static propTypes = {

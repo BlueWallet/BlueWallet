@@ -18,7 +18,6 @@ import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getSystemName } from 'react-native-device-info';
-import ImagePicker from 'react-native-image-picker';
 
 import {
   BlueButton,
@@ -40,9 +39,9 @@ import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
-import ScanQRCode from '../send/ScanQRCode';
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-
+import Privacy from '../../Privacy';
+import Biometric from '../../class/biometrics';
+const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
 
 const ViewEditMultisigCosigners = () => {
@@ -121,6 +120,16 @@ const ViewEditMultisigCosigners = () => {
 
   const onSave = async () => {
     setIsLoading(true);
+
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        setIsLoading(false);
+        return;
+      }
+    }
+
     // eslint-disable-next-line prefer-const
     let newWallets = wallets.filter(w => {
       return w.getID() !== walletId;
@@ -128,14 +137,22 @@ const ViewEditMultisigCosigners = () => {
     await wallet.fetchBalance();
     newWallets.push(wallet);
     setWalletsWithNewOrder(newWallets);
-    goBack();
-    goBack();
-    goBack();
+    navigate('WalletsList');
   };
   useFocusEffect(
     useCallback(() => {
       setIsLoading(true);
-      const task = InteractionManager.runAfterInteractions(() => {
+
+      Privacy.enableBlur();
+
+      const task = InteractionManager.runAfterInteractions(async () => {
+        const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+        if (isBiometricsEnabled) {
+          if (!(await Biometric.unlockWithBiometrics())) {
+            return goBack();
+          }
+        }
         if (!w.current) {
           // lets create fake wallet so renderer wont throw any errors
           w.current = new MultisigHDWallet();
@@ -148,9 +165,11 @@ const ViewEditMultisigCosigners = () => {
         setIsLoading(false);
       });
       return () => {
+        Privacy.disableBlur();
         task.cancel();
       };
-    }, []),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [walletId]),
   );
 
   const hideMnemonicsModal = () => {
@@ -198,6 +217,7 @@ const ViewEditMultisigCosigners = () => {
           )}
           <BlueSpacing20 />
           <BlueButton title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
+          <BlueSpacing40 />
         </View>
       </BottomModal>
     );
@@ -231,7 +251,7 @@ const ViewEditMultisigCosigners = () => {
                 button={{
                   buttonType: MultipleStepsListItemButtohType.partial,
                   leftText,
-                  text: loc.multisig.share,
+                  text: loc.multisig.view,
                   disabled: vaultKeyData.isLoading,
                   onPress: () => {
                     setVaultKeyData({
@@ -269,7 +289,7 @@ const ViewEditMultisigCosigners = () => {
                 showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
                 button={{
                   leftText,
-                  text: loc.multisig.share,
+                  text: loc.multisig.view,
                   disabled: vaultKeyData.isLoading,
                   buttonType: MultipleStepsListItemButtohType.partial,
                   onPress: () => {
@@ -380,29 +400,8 @@ const ViewEditMultisigCosigners = () => {
   };
 
   const scanOrOpenFile = () => {
-    setIsProvideMnemonicsModalVisible(false);
     if (isDesktop) {
-      ImagePicker.launchCamera(
-        {
-          title: null,
-          mediaType: 'photo',
-          takePhotoButtonTitle: null,
-        },
-        response => {
-          if (response.uri) {
-            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
-            LocalQRCode.decode(uri, (error, result) => {
-              if (!error) {
-                _handleUseMnemonicPhrase(result);
-              } else {
-                alert(loc.send.qr_error_no_qrcode);
-              }
-            });
-          } else if (response.error) {
-            ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
-          }
-        },
-      );
+      fs.showActionSheet().then(_handleUseMnemonicPhrase);
     } else {
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -576,7 +575,7 @@ const styles = StyleSheet.create({
 
 ViewEditMultisigCosigners.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
-  title: loc.multisig.view_edit_cosigners_title,
+  title: loc.multisig.manage_keys,
   headerLeft: null,
 });
 

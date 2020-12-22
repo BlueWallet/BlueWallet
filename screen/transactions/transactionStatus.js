@@ -87,7 +87,7 @@ const TransactionsStatus = () => {
       }
     }
 
-    for (const tx of getTransactions()) {
+    for (const tx of getTransactions(null, Infinity, true)) {
       if (tx.hash === hash) {
         setTX(tx);
         break;
@@ -114,7 +114,7 @@ const TransactionsStatus = () => {
     initialState();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tx]);
+  }, [tx, wallets]);
 
   useEffect(() => {
     if (wallet) {
@@ -336,7 +336,11 @@ const TransactionsStatus = () => {
           )}
 
           <View style={[styles.confirmations, stylesHook.confirmations]}>
-            <Text style={styles.confirmationsText}>{tx.confirmations > 6 ? '6+' : tx.confirmations} confirmations</Text>
+            <Text style={styles.confirmationsText}>
+              {loc.formatString(loc.transactions.confirmations_lowercase, {
+                confirmations: tx.confirmations > 6 ? '6+' : tx.confirmations,
+              })}
+            </Text>
           </View>
         </BlueCard>
 

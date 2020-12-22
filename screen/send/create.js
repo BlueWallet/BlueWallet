@@ -78,9 +78,14 @@ export default class SendCreate extends Component {
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('Storage Permission: Granted');
-        const filePath = RNFS.DownloadDirectoryPath + `/${this.fileName}`;
-        await RNFS.writeFile(filePath, this.state.tx);
-        alert(loc.formatString(loc.send.txSaved, { filePath }));
+        const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
+        try {
+          await RNFS.writeFile(filePath, this.state.tx);
+          alert(loc.formatString(loc.send.txSaved, { filePath }));
+        } catch (e) {
+          console.log(e);
+          alert(e.message);
+        }
       } else {
         console.log('Storage Permission: Denied');
         Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [

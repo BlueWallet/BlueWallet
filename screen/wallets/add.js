@@ -12,7 +12,7 @@ import {
   TextInput,
   StyleSheet,
 } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   BlueText,
   BlueListItem,
@@ -48,7 +48,6 @@ const WalletsAdd = () => {
   const [label, setLabel] = useState('');
   const [isAdvancedOptionsEnabled, setIsAdvancedOptionsEnabled] = useState(false);
   const [selectedWalletType, setSelectedWalletType] = useState(false);
-  const [backdoorPressedTimes, setBackdoorPressedTimes] = useState(0);
   const { navigate, goBack } = useNavigation();
   const [entropy, setEntropy] = useState();
   const [entropyButtonText, setEntropyButtonText] = useState(loc.wallets.add_entropy_provide);
@@ -202,13 +201,13 @@ const WalletsAdd = () => {
   };
 
   const handleOnVaultButtonPressed = () => {
+    Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.VAULT);
   };
 
   const handleOnBitcoinButtonPressed = () => {
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.ONCHAIN);
-    setBackdoorPressedTimes(backdoorPressedTimes + 1);
   };
 
   const handleOnLightningButtonPressed = () => {
@@ -247,9 +246,7 @@ const WalletsAdd = () => {
             onPress={handleOnLightningButtonPressed}
             style={styles.button}
           />
-          {backdoorPressedTimes >= 15 && (
-            <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} />
-          )}
+          <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} />
         </View>
 
         <View style={styles.advanced}>

@@ -107,6 +107,7 @@
   "lndViewInvoice": {
     "additional_info": "Informação Adicional",
     "for": "Para:",
+    "lightning_invoice": "Fatura Lightning",
     "has_been_paid": "O boleto foi pago",
     "open_direct_channel": "Abrir canal direto com este node:",
     "please_pay": "Pagar",
@@ -276,6 +277,7 @@
     "network_electrum": "Servidor Electrum",
     "not_a_valid_uri": "Não é um URI válido",
     "notifications": "Notificações",
+    "open_link_in_explorer" : "Abrir link no explorador",
     "password": "Senha",
     "password_explain": "Definir a senha para descriptografar os arquivos",
     "passwords_do_not_match": "Senhas não conferem",
@@ -290,7 +292,8 @@
     "push_notifications": "Notificações via push",
     "retype_password": "Inserir senha novamente",
     "save": "Salvar",
-    "saved": "Salvo"
+    "saved": "Salvo",
+    "success_transaction_broadcasted" : "Sucesso! Sua transação foi transmitida!"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Gostaria de receber notificações quando receber pagamentos?",
@@ -301,6 +304,7 @@
     "cancel_explain": "Substituiremos esta transação por aquela que lhe paga e tem taxas mais altas. Isso efetivamente cancela a transação. Isso é chamado de RBF - Substituir por Taxa.",
     "cancel_no": "Esta transação não é substituível",
     "cancel_title": "Cancelar esta transação (RBF)",
+    "confirmations_lowercase": "{confirmations} confirmações",
     "cpfp_create": "Criar",
     "cpfp_exp": "Criaremos outra transação que gasta sua transação não confirmada. A taxa total será maior do que a taxa de transação original, portanto, deve ser confirmada mais rapidamente. Isso é chamado de CPFP - Child Pays For Parent.",
     "cpfp_no_bump": "Esta transação não pode ser Bumpeada",
@@ -313,6 +317,7 @@
     "details_inputs": "Inputs",
     "details_outputs": "Outputs",
     "details_received": "Recebido",
+    "transaction_note_saved":"Anotação da transação salva com sucesso.",
     "details_show_in_block_explorer": "Mostrar num navegador",
     "details_title": "Transação",
     "details_to": "Para",
@@ -392,6 +397,7 @@
     "list_long_clipboard": "Copiar da área de transferência",
     "list_long_scan": "Ler QR Code",
     "list_tap_here_to_buy": "Comprar Bitcoin",
+    "no_ln_wallet_error": "Antes de pagar uma fatura Lightning você deve adicionar uma carteira Lightning.",
     "list_title": "carteiras",
     "list_tryagain": "Tente Novamente",
     "looks_like_bip38": "Parece uma chave privada protegida por senha (BIP38)",
@@ -402,6 +408,8 @@
     "take_photo": "Registrar Foto",
     "xpub_copiedToClipboard": "Copiado para a área de transferência",
     "pull_to_refresh": "puxe para atualizar",
+    "warning_do_not_disclose": "Cuidado! Não divulgue",
+    "add_ln_wallet_first": "Primeiro você deve adicionar uma carteira Lightning.",
     "xpub_title": "XPUB"
   },
   "multisig": {
@@ -415,6 +423,8 @@
     "confirm": "Confirmar",
     "header": "Enviar",
     "share": "Ver",
+    "view": "Exibir",
+    "manage_keys": "Gerenciar chaves",
     "how_many_signatures_can_bluewallet_make": "quantas assinaturas o bluewallet pode fazer",
     "scan_or_import_file": "Scan ou importar arquivo",
     "export_coordination_setup": "exportação de \"apenas assistir\"",
@@ -450,7 +460,7 @@
     "this_is_cosigners_xpub": "Esta é a chave da carteira do co-signatário, pronta para ser importada para outra carteira. É seguro compartilhá-lo.",
     "wallet_key_created": "Sua chave do cofre foi criada. Reserve um momento para fazer backup com segurança de sua seed.",
     "are_you_sure_seed_will_be_lost": "Você tem certeza? Sua seed mnemônica será perdida se você não tiver um backup",
-    "forget_this_seed": "Remover seed e use a chave (xpub)",
+    "forget_this_seed": "Esquecer esta seed e usar XPUB",
     "invalid_fingerprint": "A \"fingerprint\" desta seed não corresponde à \"fingerprint\" do co-signatário ",
     "view_edit_cosigners": "Ver/editar chaves do cofre",
     "this_cosigner_is_already_imported": "Este co-signatário já foi importado",
@@ -459,7 +469,26 @@
     "input_fp_explain": "pule para usar a padrão (00000000)",
     "input_path": "Inserir path de derivação",
     "input_path_explain": "pule para usar o padrão ({default})",
-    "view_edit_cosigners_title": "Editar co-signatários"
+    "ms_help": "Ajuda",
+    "ms_help_title": "Como os Cofres Multisig funcionam. Dicas e manhas",
+    "ms_help_text": "Uma carteira com várias chaves, para aumentar exponencialmente a segurança ou para custódia compartilhada.",
+    "ms_help_title1": "Recomendamos usar dispositivos diferentes",
+    "ms_help_1": "O Cofre vai funcionar com outros apps BlueWallet e carteiras compatíveis com PSBT como Electrum, Specter, Coldcard, Cobo Vault, etc.",
+    "ms_help_title2": "Editando chaves",
+    "ms_help_2": "Você pode criar todas as chaves do Cofre neste dispositivo e remover ou editar as chaves depois. Ter todas as chaves armazenadas no mesmo dispositivo oferece a mesma segurança de uma carteira de Bitcoin normal.",
+    "ms_help_title3": "Backups do Cofre",
+    "ms_help_3": "Nas opções da carteira você irá encontrar backup do Cofre e backup somente-leitura. Esse backup é como um mapa da sua carteira. Ele é essencial para recuperar a carteira caso você perca qualquer uma de suas seeds.",
+    "ms_help_title4": "Importando Cofres",
+    "ms_help_4": "Para importar uma Multisig, use o arquivo de backup da sua multisig e o recurso de importação. Se você só tem chaves estendidas (xpubs) e seeds, você pode usar os campos de importação individuais na interface de Adicionar Cofre.",
+    "ms_help_title5": "Opções avançadas",
+    "ms_help_5": "Por padrão, a BlueWallet vai gerar um Cofre 2 de 3. Para criar um quorum diferente ou alterar o tipo de endereço, ative as opções avançadas nas Configurações."
+  },
+  "is_it_my_address": {
+    "title": "É o meu endereço?",
+    "owns": "{label} possui {address}",
+    "enter_address": "Insira o endereço",
+    "check_address": "Verificar endereço",
+    "no_wallet_owns_address": "Nenhuma das carteiras disponíveis possui o endereço fornecido."
   },
   "cc": {
     "change": "troco",

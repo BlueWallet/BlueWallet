@@ -277,6 +277,7 @@
     "network_electrum": "Electrum-palvelin",
     "not_a_valid_uri": "URI ei kelpaa",
     "notifications": "Ilmoitukset",
+    "open_link_in_explorer" : "Avaa linkki selaimessa",
     "password": "Salasana",
     "password_explain": "Luo salasana, jota käytät tallennustilan salauksen purkamiseen",
     "passwords_do_not_match": "Salasanat eivät täsmää",
@@ -291,7 +292,8 @@
     "push_notifications": "Push-ilmoitukset",
     "retype_password": "Salasana uudelleen",
     "save": "Tallenna",
-    "saved": "Tallennettu"
+    "saved": "Tallennettu",
+    "success_transaction_broadcasted" : "Onnistui! Siirtotapahtumasi on lähetetty!"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Haluatko saada ilmoituksia, kun saat saapuvia maksuja?",
@@ -302,6 +304,7 @@
     "cancel_explain": "Korvaamme tämän siirtotapahtuman sillä, joka maksaa sinulle ja on korkeammat siirtokulut. Tämä peruuttaa siirtotapahtuman tehokkaasti. Tätä kutsutaan RBF - Replace By Fee - Korvaa korkeammilla kuluilla.",
     "cancel_no": "Tämä siirtotapahtuma ei ole vaihdettavissa",
     "cancel_title": "Peruuta tämä siirtotapahtuma (RBF)",
+    "confirmations_lowercase": "{confirmations} vahvistukset",
     "cpfp_create": "Luo",
     "cpfp_exp": "Luomme toisen siirtotapahtuman, joka kuluttaa vahvistamattoman siirtotapahtuman. Kokonaiskulu on suurempi kuin alkuperäinen siirtokulu, joten sen pitäisi olla louhittu nopeammin. Tätä kutsutaan CPFP - Child Pays For Parent - Lapsi Maksaa Vanhemmalle.",
     "cpfp_no_bump": "Tämä siirtotapahtuma ei ole nostettavissa",
@@ -394,6 +397,7 @@
     "list_long_clipboard": "Kopioi Leikepöydältä",
     "list_long_scan": "Skannaa QR-koodi",
     "list_tap_here_to_buy": "Osta Bitcoinia",
+    "no_ln_wallet_error": "Ennen kuin maksat Lightning-laskun, sinun on ensin lisättävä Lightning-lompakko.",
     "list_title": "lompakot",
     "list_tryagain": "Yritä uudelleen",
     "looks_like_bip38": "Tämä näyttää salasanalla suojatulta yksityiseltä avaimelta (BIP38)",
@@ -404,6 +408,8 @@
     "take_photo": "Ota Kuva",
     "xpub_copiedToClipboard": "Kopioitu leikepöydälle.",
     "pull_to_refresh": "vedä päivittääksesi",
+    "warning_do_not_disclose": "Varoitus! Älä paljasta",
+    "add_ln_wallet_first": "Sinun on ensin lisättävä Lightning-lompakko.",
     "xpub_title": "lompakon XPUB"
   },
   "multisig": {
@@ -417,6 +423,8 @@
     "confirm": "Vahvista",
     "header": "Lähetä",
     "share": "Jaa",
+    "view": "Näytä",
+    "manage_keys": "Hallitse Avaimia",
     "how_many_signatures_can_bluewallet_make": "kuinka monta allekirjoitusta bluewallet voi tehdä",
     "scan_or_import_file": "Skannaa tai tuo tiedosto",
     "export_coordination_setup": "vie koordinoinnin asetukset",
@@ -435,6 +443,7 @@
     "needs": "Tarpeet",
     "what_is_vault_description_number_of_vault_keys": "{m} holvin avaimet",
     "what_is_vault_description_to_spend": "kuluttaa ja kolmas sinulle\nvoidaan käyttää varmuuskopiona.",
+    "what_is_vault_description_to_spend_other": "kuluttaa.",
     "quorum": "{m} {n} quorum",
     "quorum_header": "Quorum",
     "of": "n",
@@ -452,7 +461,7 @@
     "this_is_cosigners_xpub": "Tämä on allekirjoittajan xpub, joka on valmis tuotavaksi toiseen lompakkoon. On turvallista jakaa se.",
     "wallet_key_created": "Holviavaimesi luotiin. Käytä hetki muistisiemenesi turvalliseen varmuuskopioimiseen",
     "are_you_sure_seed_will_be_lost": "Oletko varma? Muistisiemenesi menetetään, jos sinulla ei ole varmuuskopiota",
-    "forget_this_seed": "Unohda tämä siemen ja käytä sen sijaan xpubia",
+    "forget_this_seed": "Unohda tämä siemen ja käytä XPUB:ia",
     "invalid_fingerprint": "Tämän siemenen sormenjälki ei vastaa tämän allekirjoittajan sormenjälkeä",
     "view_edit_cosigners": "Tarkastele/muokkaa allekirjoittajia",
     "this_cosigner_is_already_imported": "Tämä allekirjoittaja on jo tuotu.",
@@ -461,7 +470,26 @@
     "input_fp_explain": "ohita käyttääksesi oletusarvoa (00000000)",
     "input_path": "Syöte johtamisen polku",
     "input_path_explain": "ohita käyttääksesi oletusarvoa ({default})",
-    "view_edit_cosigners_title": "Muokkaa Allekirjoittajia"
+    "ms_help": "Apu",
+    "ms_help_title": "Kuinka Multisig Vaults toimii. Vinkkejä",
+    "ms_help_text": "Lompakko, jossa on useita avaimia, turvallisuuden eksponentiaaliseen parantamiseen tai jaettuun säilöön.",
+    "ms_help_title1": "Useita laitteita suositellaan",
+    "ms_help_1": "Vault toimii muiden BlueWallet-sovellusten ja PSBT-yhteensopivien lompakoiden kanssa, kuten Electrum, Spectre, Coldcard, Cobo vault jne.",
+    "ms_help_title2": "Avainten Muokkaus",
+    "ms_help_2": "Voit luoda kaikki Vault-avaimet tälle laitteelle ja poistaa tai muokata niitä myöhemmin. Pitämällä kaikki avaimet samalla laitteella on vastaavanlainen suojaus kuin tavallisella Bitcoin-lompakolla.",
+    "ms_help_title3": "Vault Varmuuskopiot",
+    "ms_help_3": "Lompakon vaihtoehdoista löydät Vault-varmuuskopion ja vain-lukuoikeus varmuuskopion. Tämä varmuuskopio on kuin kartta lompakkoosi. Se on välttämätöntä lompakon palauttamiseksi, jos menetät yhden siemenistäsi.",
+    "ms_help_title4": "Tuodaan Vaults",
+    "ms_help_4": "Voit tuoda Multisig:in käyttämällä multisig-varmuuskopiotiedostoa ja käyttämällä tuontiominaisuutta. Jos sinulla on vain laajennettuja avaimia ja siemeniä, voit käyttää yksittäisiä tuontikenttiä Lisää Vault -kulkuun.",
+    "ms_help_title5": "Lisäasetukset",
+    "ms_help_5": "Oletuksena BlueWallet luo 2/3 Vaultin. Jos haluat luoda erilaisen päätösvallan tai muuttaa osoitetyyppiä, aktivoi lisäasetukset Asetuksissa."
+  },
+  "is_it_my_address": {
+    "title": "Onko se osoitteeni?",
+    "owns": "{label} omistaa {address}",
+    "enter_address": "Syötä osoite",
+    "check_address": "Tarkista osoite",
+    "no_wallet_owns_address": "Mikään käytettävissä olevista lompakoista ei omista annettua osoitetta."
   },
   "cc": {
     "change": "vaihto",

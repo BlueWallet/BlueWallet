@@ -43,7 +43,7 @@ const App = () => {
   const appState = useRef(AppState.currentState);
   const [isClipboardContentModalVisible, setIsClipboardContentModalVisible] = useState(false);
   const [clipboardContentType, setClipboardContentType] = useState();
-  const [clipboardContent, setClipboardContent] = useState('');
+  const clipboardContent = useRef();
   const colorScheme = useColorScheme();
   const stylesHook = StyleSheet.create({
     modalContent: {
@@ -217,7 +217,7 @@ const App = () => {
         const isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(clipboard);
         if (
           !isAddressFromStoredWallet &&
-          clipboardContent !== clipboard &&
+          clipboardContent.current !== clipboard &&
           (isBitcoinAddress || isLightningInvoice || isLNURL || isBothBitcoinAndLightning)
         ) {
           if (isBitcoinAddress) {
@@ -229,7 +229,7 @@ const App = () => {
           }
           setIsClipboardContentModalVisible(true);
         }
-        setClipboardContent(clipboard);
+        clipboardContent.current = clipboard;
       }
       if (nextAppState) {
         appState.current = nextAppState;
@@ -282,8 +282,8 @@ const App = () => {
         <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
           <InitRoot />
           <Notifications onProcessNotifications={processPushNotifications} />
+          {renderClipboardContentModal()}
         </NavigationContainer>
-        {renderClipboardContentModal()}
       </View>
       <WatchConnectivity />
       <DeviceQuickActions />

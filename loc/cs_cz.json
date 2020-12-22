@@ -107,12 +107,13 @@
   "lndViewInvoice": {
     "additional_info": "dodatečné informace",
     "for": "Pro:",
+    "lightning_invoice": "Lightning faktura",
     "has_been_paid": "Tato faktura byla uhrazena",
     "open_direct_channel": "Otevřít přímý kanál s tímto uzlem:",
     "please_pay": "Prosím zaplaťte",
     "preimage": "Předobraz",
     "sats": "sats",
-    "wasnt_paid_and_expired": "Tato faktura nebyla uhrazena a její platnost vypršela"
+    "wasnt_paid_and_expired": "Tato faktura nebyla zaplacena a její platnost vypršela."
   },
   "plausibledeniability": {
     "create_fake_storage": "Vytvořit zašifrované úložiště",
@@ -276,6 +277,7 @@
     "network_electrum": "Electrum server",
     "not_a_valid_uri": "Není platné URI",
     "notifications": "Oznámení",
+    "open_link_in_explorer" : "Otevřít odkaz v průzkumníku",
     "password": "Heslo",
     "password_explain": "Vytořte si heslo k zašifrování úložiště.",
     "passwords_do_not_match": "Hesla se neshodují",
@@ -290,7 +292,8 @@
     "push_notifications": "Push notifikace",
     "retype_password": "Zadejte heslo znovu",
     "save": "Uložit",
-    "saved": "Uloženo"
+    "saved": "Uloženo",
+    "success_transaction_broadcasted" : "Úspěch! Vaše transakce byla vysílána!"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Chcete dostávat oznámení o příchozích platbách?",
@@ -301,6 +304,7 @@
     "cancel_explain": "Tuto transakci nahradíme transakcí, která vám platí a má vyšší poplatky. Tím se transakce účinně zruší. Tomu se říká RBF - Replace By Fee.",
     "cancel_no": "Tato transakce není vyměnitelná",
     "cancel_title": "Zrušit tuto transakci (RBF)",
+    "confirmations_lowercase": "{confirmations} potvrzení",
     "cpfp_create": "Vytvořit",
     "cpfp_exp": "Vytvoříme další transakci, která utratí vaši nepotvrzenou transakci. Celkový poplatek bude vyšší než původní transakční poplatek, takže by měl být těžen rychleji. Tomu se říká CPFP - dítě platí za rodiče.",
     "cpfp_no_bump": "Tuto transakci nelze popostrčit",
@@ -313,6 +317,7 @@
     "details_inputs": "Vstupy",
     "details_outputs": "Výstupy",
     "details_received": "Přijato",
+    "transaction_note_saved":"Transakční poznámka byla úspěšně uložena.",
     "details_show_in_block_explorer": "Ukázat v block exploreru",
     "details_title": "Transakce",
     "details_to": "Výstup",
@@ -392,6 +397,7 @@
     "list_long_clipboard": "Kopírovat ze schránky",
     "list_long_scan": "Naskenovat QR kód",
     "list_tap_here_to_buy": "Koupit bitcoiny",
+    "no_ln_wallet_error": "Před zaplacením Lightning faktury musíte nejprve přidat Lightning peněženku.",
     "list_title": "peněženky",
     "list_tryagain": "Zkuste to znovu",
     "looks_like_bip38": "Tohle vypadá jako soukromý klíč chráněný heslem (BIP38)",
@@ -402,6 +408,8 @@
     "take_photo": "Vyfotit",
     "xpub_copiedToClipboard": "Zkopírováno do schránky.",
     "pull_to_refresh": "zatáhněte pro obnovení",
+    "warning_do_not_disclose": "Varování! Nezveřejňujte",
+    "add_ln_wallet_first": "Nejprve musíte přidat Lightning peněženku.",
     "xpub_title": "XPUB peněženky"
   },
   "multisig": {
@@ -415,6 +423,8 @@
     "confirm": "Potvrdit",
     "header": "Odeslat",
     "share": "Sdílet",
+    "view": "Podívat se",
+    "manage_keys": "Spravovat klíče",
     "how_many_signatures_can_bluewallet_make": "kolik podpisů může bluewallet udělat",
     "scan_or_import_file": "Naskenujte nebo importujte soubor",
     "export_coordination_setup": "nastavení koordinace exportu",
@@ -450,7 +460,7 @@
     "this_is_cosigners_xpub": "Toto je xpub spolupodepisujícího připravený k importu do jiné peněženky. Je bezpečné ho sdílet.",
     "wallet_key_created": "Klíč k uložišti byl vytvořen. Udělejte si chvíli a bezpečně zálohujte svůj mnemotechnický seed",
     "are_you_sure_seed_will_be_lost": "Jsi si jistý(á)? Vaš mnemotechnický seed budou ztracen, pokud nemáte zálohu",
-    "forget_this_seed": "Zapomeňte na toto seed a použijte místo něj xpub",
+    "forget_this_seed": "Zapomeňte na tento seed a použijte XPUB",
     "invalid_fingerprint": "Otisk pro tento seed neodpovídá tomuto otisku spolupodepisujícího",
     "view_edit_cosigners": "Zobrazit/upravit spolupodepisující",
     "this_cosigner_is_already_imported": "Tento spolupodepisující je již importován",
@@ -459,7 +469,26 @@
     "input_fp_explain": "přeskočit a použít výchozí (00000000)",
     "input_path": "Vložit derivační cestu",
     "input_path_explain": "přeskočit a použít výchozí ({default})",
-    "view_edit_cosigners_title": "Upravit spolupodepisující"
+    "ms_help": "Pomoc",
+    "ms_help_title": "Jak fungují Vícepodpisová uložiště. Tipy a triky",
+    "ms_help_text": "Peněženka s více klíči, k exponenciálnímu zvýšení bezpečnosti nebo ke sdílené úschově.",
+    "ms_help_title1": "Doporučujeme použít více zařízení",
+    "ms_help_1": "Uložiště bude fungovat s dalšími aplikacemi BlueWallet a peněženkami kompatibilními s PSBT, jako jsou Electrum, Specter, Coldcard, Cobo vault atd.",
+    "ms_help_title2": "Editace klíčů",
+    "ms_help_2": "V tomto zařízení můžete vytvořit všechny klíče úložiště a tyto klíče později odebrat nebo upravit. Mít všechny klíče na stejném zařízení má ekvivalentní zabezpečení jako běžná bitcoinová peněženka.",
+    "ms_help_title3": "Zálohy úložiště",
+    "ms_help_3": "V možnostech peněženky najdete zálohu Uložiště a zálohu peněženek pouze pro sledování. Tato záloha je jako mapa do vaší peněženky. Je nezbytná pro obnovení peněženky v případě, že ztratíte jeden z vašich seedů.",
+    "ms_help_title4": "Import uložiště",
+    "ms_help_4": "Chcete-li importovat multisig, použijte záložní soubor multisig a použijte funkci importu. Pokud máte pouze rozšířené klíče a seedy, můžete použít jednotlivá pole importu v procesu Přidat uložiště.",
+    "ms_help_title5": "Pokročilé možnosti",
+    "ms_help_5": "Ve výchozím nastavení vygeneruje BlueWallet uložiště 2z3. Chcete-li vytvořit jiné kvorum nebo změnit typ adresy, aktivujte pokročilé možnosti v Nastavení."
+  },
+  "is_it_my_address": {
+    "title": "Je to moje adresa?",
+    "owns": "{label} vlastní {address}",
+    "enter_address": "Zadat adresu",
+    "check_address": "Zkontrolovat adresu",
+    "no_wallet_owns_address": "Žádná z dostupných peněženek nevlastní uvedenou adresu."
   },
   "cc": {
     "change": "změnit",

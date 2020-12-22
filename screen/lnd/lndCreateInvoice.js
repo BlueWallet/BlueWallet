@@ -19,6 +19,7 @@ import {
   BlueBitcoinAmount,
   BlueDismissKeyboardInputAccessory,
   BlueAlertWalletExportReminder,
+  BlueLoading,
 } from '../../BlueComponents';
 import * as NavigationService from '../../NavigationService';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
@@ -41,7 +42,7 @@ const LNDCreateInvoice = () => {
   const { name } = useRoute();
   const { colors } = useTheme();
   const { navigate, dangerouslyGetParent, goBack, pop, setParams } = useNavigation();
-  const [unit, setUnit] = useState(wallet.current.getPreferredBalanceUnit());
+  const [unit, setUnit] = useState(wallet.current?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
   const [amount, setAmount] = useState();
   const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -130,6 +131,10 @@ const LNDCreateInvoice = () => {
             },
           });
         }
+      } else {
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        alert(loc.wallets.add_ln_wallet_first);
+        goBack();
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet]),
@@ -193,7 +198,7 @@ const LNDCreateInvoice = () => {
 
       navigate('LNDViewInvoice', {
         invoice: invoiceRequest,
-        walletID,
+        walletID: wallet.current.getID(),
         isModal: true,
       });
     } catch (Err) {
@@ -205,9 +210,9 @@ const LNDCreateInvoice = () => {
 
   const processLnurl = async data => {
     setIsLoading(true);
-    if (!wallet) {
+    if (!wallet.current) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-      alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
+      alert(loc.wallets.no_ln_wallet_error);
       return goBack();
     }
 
@@ -232,7 +237,7 @@ const LNDCreateInvoice = () => {
           screen: 'LnurlPay',
           params: {
             lnurl: data,
-            fromWalletID: walletID,
+            fromWalletID: wallet.current.getID(),
           },
         });
         return;
@@ -341,10 +346,11 @@ const LNDCreateInvoice = () => {
     pop();
   };
 
-  if (wallet.current === undefined || !walletID) {
+  if (!wallet.current) {
     return (
-      <View style={styles.error}>
-        <Text>System error: Source wallet not found (this should never happen)</Text>
+      <View style={[styles.root, styleHooks.root]}>
+        <StatusBar barStyle="light-content" />
+        <BlueLoading />
       </View>
     );
   }

@@ -1,3 +1,55 @@
+v6.0.1
+======
+
+* ADD: enable batch-send on multisig wallets
+* FIX: Speed-up multisig wallets (disable handoff for multisig)
+* FIX: Import Multisig from Specter Desktop - Fingerprint is Incorrect
+* FIX: broken export .txn file on tx confirmation screen
+* FIX: backup screen would flash during loading on dark mode
+* FIX: Handle opening links if the default browser isnt Safari
+* FIX: contradiction in Vaul introduction text
+* FIX: localizations for CA, DE, ES, fa_IR, sl_SI, cs_CZ, pt_BR
+
+v6.0.0
+======
+* ADD: Multisig 
+* FIX: scan multisig cosigner in formats: plain Zpub, wallet descriptor 
+* FIX: txs disappear and re-fetch if opened wallet too fast 
+* ADD: Help section and tips to Vaults 
+* FIX: DE language files
+* ADD: Persian language, sync cs_cz, es, it and ru 
+* FIX: Transaction details not shown when 'display in wallets list' not set (closes #1966) 
+* FIX: LNURL wallet not found
+
+
+v5.6.9
+======
+
+* ADD: warning text on backup screen
+* ADD: CoinControl displays balances with user's preferred unit
+* ADD: LBP Currency
+* ADD: Verify if an address belongs to one of your wallets.
+* FIX: fetch wallet transaction after broadcast
+* FIX: crash on refresh button
+* FIX: Don't display amount if none is passed
+* REF: PSBT Multisig provide signature flow
+* ADD: refresh wallet transactions for freshly imported wallets
+* FIX: locales sl_SI, fi_FI
+
+
+v5.6.8
+======
+
+* ADD: warning text on backup screen
+* ADD: CoinControl displays balances with user's preferred unit
+* ADD: LBP Currency
+* FIX: fetch wallet transaction after broadcast
+* FIX: crash on refresh button
+* FIX: Don't display amount if none is passed
+* REF: PSBT Multisig provide signature flow
+* ADD: refresh wallet transactions for freshly imported wallets
+* FIX: locales sl_SI, fi_FI
+
 v5.6.7
 ======
 
@@ -46,44 +98,3 @@ v5.6.5
 * FIX: locales nl_NL, ru
 * FIX: Widget Fiat calculation
 * FIX: 'RnSksIsAppInstalled' was being read from the wrong suite
-
-v5.6.3
-======
-
-* ADD: Market Widget for iOS 14
-* ADD: Large iOS widget
-* ADD: Turkish Lira
-* FIX: Refill not working on Lightning
-* FIX: iOS - lightning:lnurl... links
-* FIX: hodlhodl - my contracts - sorted by creation time
-* FIX: scanQR now has progress bar when scanning animated QRs
-* FIX: Backup screen visibility
-* REF: brush up locales sl_SI, cs_CZ
-* REF: Wallet types style
-
-v5.6.2
-======
-
-* ADD: Privacy Settings Screen
-* ADD: Clipboard read opt-out
-* ADD: support lnurl fallback scheme
-* ADD: import LNDHub from QR
-* ADD: Electrum server import from QR
-* ADD: Philippines Peso currency
-* FIX: copy balance on wallet/transactions screen crash
-* FIX: remove padding to prevent text concealment
-* REF: show numeric keyboard when ask for numbers in prompt
-* FIX: locales de_DE, sl_SI, ru, fi_FI, ja_JP, es, pt_BR
-* REF: improve wallet import speed
-
-v5.6.1
-======
-
-* ADD: payjoin support
-* FIX: rare crash on startup (electrum server malformed response)
-* FIX: rare freezes on send screen
-* FIX: bitcoin price widget content overlap
-* FIX: biometrics listener release for some devices
-* FIX: locales pt_BR, pt_PT, ru, sl_SI, ja_JP
-* FIX: add margin for RTL languages
-* FIX: Missing (NT) before $ sign
