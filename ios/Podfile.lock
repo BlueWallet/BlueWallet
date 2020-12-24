@@ -355,7 +355,7 @@ PODS:
     - React-Core
   - RNCMaskedView (0.1.10):
     - React
-  - RNCPushNotificationIOS (1.7.1):
+  - RNCPushNotificationIOS (1.8.0):
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
@@ -727,7 +727,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: bc2f81cc1df90c267ce9ed30bb2dbc93b945a8ee
   RNCClipboard: 8f9f12fabf3c06e976f19f87a62c89e28dfedfca
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
-  RNCPushNotificationIOS: eaf01f848a0b872b194d31bcad94bb864299e01e
+  RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
   RNDeviceInfo: 57bb2806fb7bd982a1434e9f0b4e6a6ab1f6702e
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
