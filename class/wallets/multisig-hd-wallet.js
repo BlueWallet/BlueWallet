@@ -3,8 +3,6 @@ import bip39 from 'bip39';
 import b58 from 'bs58check';
 import { decodeUR } from 'bc-ur';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
-const coinSelectAccumulative = require('coinselect/accumulative');
-const coinSelectSplit = require('coinselect/split');
 const HDNode = require('bip32');
 const bitcoin = require('bitcoinjs-lib');
 const createHash = require('create-hash');
@@ -809,21 +807,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     if (targets.length === 0) throw new Error('No destination provided');
     if (this.howManySignaturesCanWeMake() === 0) skipSigning = true;
 
-    if (!changeAddress) throw new Error('No change address provided');
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
-
-    let algo = coinSelectAccumulative;
-    if (targets.length === 1 && targets[0] && !targets[0].value) {
-      // we want to send MAX
-      algo = coinSelectSplit;
-    }
-
-    const { inputs, outputs, fee } = algo(utxos, targets, feeRate);
-
-    // .inputs and .outputs will be undefined if no solution was found
-    if (!inputs || !outputs) {
-      throw new Error('Not enough balance. Try sending smaller amount');
-    }
 
     let psbt = new bitcoin.Psbt();
 

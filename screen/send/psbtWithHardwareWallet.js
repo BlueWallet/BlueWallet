@@ -13,7 +13,6 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import { launchCamera } from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
 import {
   SecondButton,
@@ -31,7 +30,6 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
 import loc from '../../loc';
-import ScanQRCode from './ScanQRCode';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -39,8 +37,8 @@ import isCatalyst from 'react-native-is-catalyst';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */
 const bitcoin = require('bitcoinjs-lib');
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const isDesktop = getSystemName() === 'Mac OS X';
+const fs = require('../../blue_modules/fs');
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
@@ -244,27 +242,7 @@ const PsbtWithHardwareWallet = () => {
 
   const openScanner = () => {
     if (isDesktop) {
-      launchCamera(
-        {
-          title: null,
-          mediaType: 'photo',
-          takePhotoButtonTitle: null,
-        },
-        response => {
-          if (response.uri) {
-            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
-            LocalQRCode.decode(uri, (error, result) => {
-              if (!error) {
-                onBarScanned(result);
-              } else {
-                alert(loc.send.qr_error_no_qrcode);
-              }
-            });
-          } else if (response.error) {
-            ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
-          }
-        },
-      );
+      fs.showActionSheet().then(data => onBarScanned({ data }));
     } else {
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',

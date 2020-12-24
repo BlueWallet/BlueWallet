@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   StatusBar,
@@ -21,17 +20,14 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { getSystemName, isTablet } from 'react-native-device-info';
-import { presentCameraNotAuthorizedAlert } from '../../class/camera';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import isCatalyst from 'react-native-is-catalyst';
 const A = require('../../blue_modules/analytics');
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const fs = require('../../blue_modules/fs');
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
 const isDesktop = getSystemName() === 'Mac OS X';
@@ -362,52 +358,6 @@ const WalletsList = () => {
     });
   };
 
-  const choosePhoto = () => {
-    launchImageLibrary(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        }
-      },
-    );
-  };
-
-  const takePhoto = () => {
-    launchCamera(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        } else if (response.error) {
-          presentCameraNotAuthorizedAlert(response.error);
-        }
-      },
-    );
-  };
-
   const copyFromClipboard = async () => {
     onBarScanned(await Clipboard.getString());
   };
@@ -415,17 +365,17 @@ const WalletsList = () => {
   const sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, loc.wallets.list_long_choose, isDesktop ? loc.wallets.take_photo : loc.wallets.list_long_scan];
-      if (!isClipboardEmpty) {
-        options.push(loc.wallets.list_long_clipboard);
-      }
-      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
-        if (buttonIndex === 1) {
-          choosePhoto();
-        } else if (buttonIndex === 2) {
-          if (isDesktop) {
-            takePhoto();
-          } else {
+      if (isDesktop) {
+        fs.showActionSheet().then(onBarScanned);
+      } else {
+        const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
+        if (!isClipboardEmpty) {
+          options.push(loc.wallets.list_long_clipboard);
+        }
+        ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
+          if (buttonIndex === 1) {
+            fs.showImagePickerAndReadImage().then(onBarScanned);
+          } else if (buttonIndex === 2) {
             navigate('ScanQRCodeRoot', {
               screen: 'ScanQRCode',
               params: {
@@ -434,11 +384,11 @@ const WalletsList = () => {
                 showFileImportButton: false,
               },
             });
+          } else if (buttonIndex === 3) {
+            copyFromClipboard();
           }
-        } else if (buttonIndex === 3) {
-          copyFromClipboard();
-        }
-      });
+        });
+      }
     } else if (Platform.OS === 'android') {
       const buttons = [
         {
@@ -448,7 +398,7 @@ const WalletsList = () => {
         },
         {
           text: loc.wallets.list_long_choose,
-          onPress: choosePhoto,
+          onPress: () => fs.showActionSheet().then(onBarScanned),
         },
         {
           text: loc.wallets.list_long_scan,

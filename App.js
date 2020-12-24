@@ -153,7 +153,6 @@ const App = () => {
     const notifications2process = await Notifications.getStoredNotifications();
     for (const payload of notifications2process) {
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
-      if (!wasTapped) continue;
 
       console.log('processing push notification:', payload);
       let wallet;
@@ -171,16 +170,19 @@ const App = () => {
       if (wallet) {
         const walletID = wallet.getID();
         fetchAndSaveWalletTransactions(walletID);
-        NavigationService.dispatch(
-          CommonActions.navigate({
-            name: 'WalletTransactions',
-            key: `WalletTransactions-${wallet.getID()}`,
-            params: {
-              walletID,
-              walletType: wallet.type,
-            },
-          }),
-        );
+        if (wasTapped) {
+          NavigationService.dispatch(
+            CommonActions.navigate({
+              name: 'WalletTransactions',
+              key: `WalletTransactions-${wallet.getID()}`,
+              params: {
+                walletID,
+                walletType: wallet.type,
+              },
+            }),
+          );
+        }
+
         // no delay (1ms) as we dont need to wait for transaction propagation. 500ms is a delay to wait for the navigation
         await Notifications.clearStoredNotifications();
         return true;
@@ -192,7 +194,6 @@ const App = () => {
     // TODO: if we are here - we did not act upon any push, so we need to iterate over _not tapped_ pushes
     // and refetch appropriate wallet and redraw screen
 
-    await Notifications.clearStoredNotifications();
     return false;
   };
 
