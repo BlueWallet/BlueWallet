@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput } from 'react-native';
+import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput, Keyboard } from 'react-native';
 import loc from '../../loc';
 import {
   SafeBlueArea,
@@ -41,6 +41,7 @@ const IsItMyAddress = () => {
   const handleUpdateAddress = nextValue => setAddress(nextValue.trim());
 
   const checkAddress = () => {
+    Keyboard.dismiss();
     const cleanAddress = address.replace('bitcoin:', '').replace('BITCOIN:', '').replace('bitcoin=', '').split('?')[0];
     const _result = [];
     for (const w of wallets) {
