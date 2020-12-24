@@ -8,6 +8,7 @@ const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
 const BlueElectrum = require('../blue_modules/BlueElectrum');
+const Torsbee = require('../blue_modules/torsbee');
 
 const styles = StyleSheet.create({
   root: {
@@ -47,6 +48,22 @@ export default class Selftest extends Component {
       }
 
       //
+
+      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        this._api = new Torsbee({
+          baseURI: 'http://explorerzydxu5ecjrkwceayqybizmpjjznk5izmitf2modhcusuqlid.onion/',
+        });
+        const torResponse = await this._api.get('/api/tx/a84dbcf0d2550f673dda9331eea7cab86b645fd6e12049755c4b47bd238adce9', {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const json = torResponse.body;
+        if (json.txid !== 'a84dbcf0d2550f673dda9331eea7cab86b645fd6e12049755c4b47bd238adce9')
+          throw new Error('TOR failure, got ' + JSON.stringify(torResponse));
+      } else {
+        // skipping RN-specific test'
+      }
 
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
         await BlueElectrum.ping();

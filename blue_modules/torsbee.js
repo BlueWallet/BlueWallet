@@ -26,12 +26,11 @@ class Torsbee {
       console.log('TOR: requesting', uri);
       const torResponse = await tor.get(uri, options?.headers || {}, true);
       response.originalResponse = torResponse;
-      const str = Buffer.from(torResponse.b64Data, 'base64').toString();
 
-      if (options?.headers['Content-Type'] === 'application/json') {
-        response.body = JSON.parse(str);
+      if (options?.headers['Content-Type'] === 'application/json' && torResponse.json) {
+        response.body = torResponse.json;
       } else {
-        response.body = str;
+        response.body = Buffer.from(torResponse.b64Data, 'base64').toString();
       }
     } catch (error) {
       response.err = error;
@@ -57,12 +56,11 @@ class Torsbee {
     try {
       const torResponse = await tor.post(uri, JSON.stringify(options?.body || {}), options?.headers || {}, true);
       response.originalResponse = torResponse;
-      const str = Buffer.from(torResponse.b64Data, 'base64').toString();
 
-      if (options?.headers['Content-Type'] === 'application/json') {
-        response.body = JSON.parse(str);
+      if (options?.headers['Content-Type'] === 'application/json' && torResponse.json) {
+        response.body = torResponse.json;
       } else {
-        response.body = str;
+        response.body = Buffer.from(torResponse.b64Data, 'base64').toString();
       }
     } catch (error) {
       response.err = error;
