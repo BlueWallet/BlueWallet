@@ -167,6 +167,28 @@ describe('unit - DeepLinkSchemaMatch', function () {
       },
       {
         argument: {
+          url: 'bluewallet:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As',
+        },
+        expected: [
+          'ElectrumSettings',
+          {
+            server: 'electrum1.bluewallet.io:443:s',
+          },
+        ],
+      },
+      {
+        argument: {
+          url: 'bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com',
+        },
+        expected: [
+          'LightningSettings',
+          {
+            url: 'https://lndhub.herokuapp.com',
+          },
+        ],
+      },
+      {
+        argument: {
           url:
             'https://lnbits.com/?lightning=LNURL1DP68GURN8GHJ7MRWVF5HGUEWVDHK6TMHD96XSERJV9MJ7CTSDYHHVVF0D3H82UNV9UM9JDENFPN5SMMK2359J5RKWVMKZ5ZVWAV4VJD63TM',
         },
@@ -290,5 +312,40 @@ describe('unit - DeepLinkSchemaMatch', function () {
     // psbt files (unsigned):
     assert.ok(DeeplinkSchemaMatch.isPossiblyPSBTFile('content://com.android.externalstorage.documents/document/081D-1403%3Atxhex.psbt'));
     assert.ok(DeeplinkSchemaMatch.isPossiblyPSBTFile('file://com.android.externalstorage.documents/document/081D-1403%3Atxhex.psbt'));
+  });
+
+  it('can work with some deeplink actions', () => {
+    assert.strictEqual(DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('sgasdgasdgasd'), false);
+    assert.strictEqual(
+      DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('bluewallet:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As'),
+      'electrum1.bluewallet.io:443:s',
+    );
+    assert.strictEqual(
+      DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('setelectrumserver?server=electrum1.bluewallet.io%3A443%3As'),
+      'electrum1.bluewallet.io:443:s',
+    );
+    assert.strictEqual(
+      DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('ololo:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As'),
+      false,
+    );
+    assert.strictEqual(
+      DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('setTrololo?server=electrum1.bluewallet.io%3A443%3As'),
+      false,
+    );
+
+    assert.strictEqual(
+      DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction('bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com'),
+      'https://lndhub.herokuapp.com',
+    );
+    assert.strictEqual(
+      DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction('bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com%3A443'),
+      'https://lndhub.herokuapp.com:443',
+    );
+    assert.strictEqual(
+      DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction('setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com%3A443'),
+      'https://lndhub.herokuapp.com:443',
+    );
+    assert.strictEqual(DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction('gsom?url=https%3A%2F%2Flndhub.herokuapp.com%3A443'), false);
+    assert.strictEqual(DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction('sdfhserhsthsd'), false);
   });
 });

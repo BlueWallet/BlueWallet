@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, TextInput, Linking, StyleSheet } from 'react-native';
+import { View, TextInput, Linking, StyleSheet, Alert } from 'react-native';
 import { Button } from 'react-native-elements';
 import { useTheme, useNavigation, useRoute } from '@react-navigation/native';
 import { AppStorage } from '../../class';
@@ -18,6 +18,7 @@ import {
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 
 const styles = StyleSheet.create({
   root: {
@@ -48,6 +49,7 @@ const styles = StyleSheet.create({
 });
 
 const LightningSettings = () => {
+  const params = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState();
   const { colors } = useTheme();
@@ -59,9 +61,31 @@ const LightningSettings = () => {
       .then(setURI)
       .then(() => setIsLoading(false))
       .catch(() => setIsLoading(false));
-  }, []);
+
+    if (params?.url) {
+      Alert.alert(
+        loc.formatString(loc.settings.set_lndhub_as_default, { url: params?.url }),
+        '',
+        [
+          {
+            text: loc._.ok,
+            onPress: () => {
+              setLndhubURI(params?.url);
+            },
+            style: 'default',
+          },
+          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+        ],
+        { cancelable: false },
+      );
+    }
+  }, [params?.url]);
 
   const setLndhubURI = value => {
+    if (DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(value)) {
+      // in case user scans a QR with a deeplink like `bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com`
+      value = DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(value);
+    }
     setURI(value.trim());
   };
 
