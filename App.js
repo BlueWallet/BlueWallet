@@ -194,7 +194,6 @@ const App = () => {
     // TODO: if we are here - we did not act upon any push, so we need to iterate over _not tapped_ pushes
     // and refetch appropriate wallet and redraw screen
 
-    await Notifications.clearStoredNotifications();
     return false;
   };
 
