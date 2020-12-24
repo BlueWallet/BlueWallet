@@ -13,6 +13,8 @@ import {
 } from '../../BlueComponents';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { isMacCatalina } from '../../blue_modules/environment';
+const fs = require('../../blue_modules/fs');
 
 const IsItMyAddress = () => {
   /** @type {AbstractWallet[]} */
@@ -62,14 +64,18 @@ const IsItMyAddress = () => {
   };
 
   const importScan = () => {
-    navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        launchedBy: name,
-        onBarScanned,
-        showFileImportButton: true,
-      },
-    });
+    if (isMacCatalina) {
+      fs.showActionSheet().then(onBarScanned);
+    } else {
+      navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          launchedBy: name,
+          onBarScanned,
+          showFileImportButton: true,
+        },
+      });
+    }
   };
 
   const clearAddressInput = () => {
