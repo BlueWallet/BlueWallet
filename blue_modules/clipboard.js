@@ -1,4 +1,4 @@
-import { useAsyncStorage } from '@react-native-community/async-storage';
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-community/clipboard';
 
 function BlueClipboard() {

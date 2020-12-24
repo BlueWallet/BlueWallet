@@ -19,7 +19,7 @@ import {
   FlatList,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   BlueCreateTxNavigationStyle,
   BlueButton,
@@ -557,6 +557,11 @@ export default class SendDetails extends Component {
         }
       }
 
+      // if targets is empty, insert dust
+      if (targets.length === 0) {
+        targets.push({ address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV', value: 546 });
+      }
+
       // replace wrong addresses with dump
       targets = targets.map(t => {
         try {
@@ -570,21 +575,15 @@ export default class SendDetails extends Component {
       let flag = false;
       while (true) {
         try {
-          const { fee } = wallet.coinselect(
-            utxo,
-            targets,
-            opt.fee,
-            changeAddress,
-            this.state.isTransactionReplaceable ? HDSegwitBech32Wallet.defaultRBFSequence : HDSegwitBech32Wallet.finalRBFSequence,
-          );
+          const { fee } = wallet.coinselect(utxo, targets, opt.fee, changeAddress);
 
           feePrecalc[opt.key] = fee;
           break;
         } catch (e) {
           if (e.message.includes('Not enough') && !flag) {
             flag = true;
-            // if the outputs are too big, replace them with dust
-            targets = targets.map(t => ({ ...t, value: 546 }));
+            // if we don't have enough funds, construct maximum possible transaction
+            targets = targets.map((t, index) => (index > 0 ? { ...t, value: 546 } : { address: t.address }));
             continue;
           }
 
@@ -1293,13 +1292,15 @@ export default class SendDetails extends Component {
             item.address = address || text;
             item.amount = amount || item.amount;
             transactions[index] = item;
-            this.setState({
-              addresses: transactions,
-              memo: memo || this.state.memo,
-              isLoading: false,
-              payjoinUrl,
-            });
-            this.reCalcTx();
+            this.setState(
+              {
+                addresses: transactions,
+                memo: memo || this.state.memo,
+                isLoading: false,
+                payjoinUrl,
+              },
+              this.reCalcTx,
+            );
           }}
           onBarScanned={this.processAddressData}
           address={item.address}
@@ -1328,11 +1329,14 @@ export default class SendDetails extends Component {
             recipient.amount = BitcoinUnit.MAX;
             recipient.amountSats = BitcoinUnit.MAX;
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-            this.setState({
-              addresses: [recipient],
-              units: [BitcoinUnit.BTC],
-              isAdvancedTransactionOptionsVisible: false,
-            });
+            this.setState(
+              {
+                addresses: [recipient],
+                units: [BitcoinUnit.BTC],
+                isAdvancedTransactionOptionsVisible: false,
+              },
+              this.reCalcTx,
+            );
           },
           style: 'default',
         },

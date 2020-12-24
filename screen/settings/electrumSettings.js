@@ -1,8 +1,8 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { Alert, View, TextInput, StyleSheet } from 'react-native';
 import { AppStorage } from '../../class';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
 import {
   BlueLoading,
@@ -19,14 +19,17 @@ import PropTypes from 'prop-types';
 import loc from '../../loc';
 import DefaultPreference from 'react-native-default-preference';
 import RNWidgetCenter from 'react-native-widget-center';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 export default class ElectrumSettings extends Component {
   constructor(props) {
     super(props);
+    const server = props?.route?.params?.server;
     this.state = {
       isLoading: true,
       config: {},
+      server,
     };
   }
 
@@ -56,6 +59,24 @@ export default class ElectrumSettings extends Component {
       config: await BlueElectrum.getConfig(),
       inverval,
     });
+
+    if (this.state.server) {
+      Alert.alert(
+        loc.formatString(loc.settings.set_electrum_server_as_default, { server: this.state.server }),
+        '',
+        [
+          {
+            text: loc._.ok,
+            onPress: () => {
+              this.onBarScanned(this.state.server);
+            },
+            style: 'default',
+          },
+          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+        ],
+        { cancelable: false },
+      );
+    }
   }
 
   checkServer = async () => {
@@ -115,6 +136,10 @@ export default class ElectrumSettings extends Component {
   };
 
   onBarScanned = value => {
+    if (DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(value)) {
+      // in case user scans a QR with a deeplink like `bluewallet:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As`
+      value = DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(value);
+    }
     var [host, port, type] = value.split(':');
     this.setState({ host: host });
     type === 's' ? this.setState({ sslPort: port }) : this.setState({ port: port });
@@ -216,6 +241,9 @@ ElectrumSettings.propTypes = {
   }),
   route: PropTypes.shape({
     name: PropTypes.string,
+    params: PropTypes.shape({
+      server: PropTypes.string,
+    }),
   }),
 };
 

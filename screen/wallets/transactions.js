@@ -35,8 +35,11 @@ import isCatalyst from 'react-native-is-catalyst';
 import BottomModal from '../../components/BottomModal';
 import BuyBitcoin from './buyBitcoin';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { getSystemName } from 'react-native-device-info';
+const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
+const isDesktop = getSystemName() === 'Mac OS X';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -509,42 +512,19 @@ const WalletTransactions = () => {
   };
 
   const sendButtonLongPress = async () => {
-    const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
-    if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
-      if (!isClipboardEmpty) {
-        options.push(loc.wallets.list_long_clipboard);
-      }
-      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
-        if (buttonIndex === 1) {
-          choosePhoto();
-        } else if (buttonIndex === 2) {
-          navigate('ScanQRCodeRoot', {
-            screen: 'ScanQRCode',
-            params: {
-              launchedBy: name,
-              onBarScanned: onBarCodeRead,
-              showFileImportButton: false,
-            },
-          });
-        } else if (buttonIndex === 3) {
-          copyFromClipboard();
+    if (isDesktop) {
+      fs.showActionSheet().then(onBarCodeRead);
+    } else {
+      const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
+      if (Platform.OS === 'ios') {
+        const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
+        if (!isClipboardEmpty) {
+          options.push(loc.wallets.list_long_clipboard);
         }
-      });
-    } else if (Platform.OS === 'android') {
-      const buttons = [
-        {
-          text: loc._.cancel,
-          onPress: () => {},
-          style: 'cancel',
-        },
-        {
-          text: loc.wallets.list_long_choose,
-          onPress: choosePhoto,
-        },
-        {
-          text: loc.wallets.list_long_scan,
-          onPress: () =>
+        ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
+          if (buttonIndex === 1) {
+            choosePhoto();
+          } else if (buttonIndex === 2) {
             navigate('ScanQRCodeRoot', {
               screen: 'ScanQRCode',
               params: {
@@ -552,20 +532,47 @@ const WalletTransactions = () => {
                 onBarScanned: onBarCodeRead,
                 showFileImportButton: false,
               },
-            }),
-        },
-      ];
-      if (!isClipboardEmpty) {
-        buttons.push({
-          text: loc.wallets.list_long_clipboard,
-          onPress: copyFromClipboard,
+            });
+          } else if (buttonIndex === 3) {
+            copyFromClipboard();
+          }
+        });
+      } else if (Platform.OS === 'android') {
+        const buttons = [
+          {
+            text: loc._.cancel,
+            onPress: () => {},
+            style: 'cancel',
+          },
+          {
+            text: loc.wallets.list_long_choose,
+            onPress: choosePhoto,
+          },
+          {
+            text: loc.wallets.list_long_scan,
+            onPress: () =>
+              navigate('ScanQRCodeRoot', {
+                screen: 'ScanQRCode',
+                params: {
+                  launchedBy: name,
+                  onBarScanned: onBarCodeRead,
+                  showFileImportButton: false,
+                },
+              }),
+          },
+        ];
+        if (!isClipboardEmpty) {
+          buttons.push({
+            text: loc.wallets.list_long_clipboard,
+            onPress: copyFromClipboard,
+          });
+        }
+        ActionSheet.showActionSheetWithOptions({
+          title: '',
+          message: '',
+          buttons,
         });
       }
-      ActionSheet.showActionSheetWithOptions({
-        title: '',
-        message: '',
-        buttons,
-      });
     }
   };
 
