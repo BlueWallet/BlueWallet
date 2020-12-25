@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { Alert, View, TextInput, StyleSheet } from 'react-native';
+import { Alert, View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -28,6 +28,7 @@ export default class ElectrumSettings extends Component {
     const server = props?.route?.params?.server;
     this.state = {
       isLoading: true,
+      serverHistory: [],
       config: {},
       server,
     };
@@ -41,12 +42,15 @@ export default class ElectrumSettings extends Component {
     const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
     const port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
     const sslPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_SSL_PORT);
+    const serverHistoryStr = await AsyncStorage.getItem(AppStorage.ELECTRUM_SERVER_HISTORY);
+    const serverHistory = JSON.parse(serverHistoryStr) || [];
 
     this.setState({
       isLoading: false,
       host,
       port,
       sslPort,
+      serverHistory,
     });
 
     const inverval = setInterval(async () => {
@@ -87,10 +91,47 @@ export default class ElectrumSettings extends Component {
     });
   };
 
+  selectServer = async server => {
+    this.setState({ host: server.host, port: server.port, sslPort: server.sslPort }, () => {
+      this.save();
+    });
+  };
+
+  clearHistoryAlert() {
+    Alert.alert(loc.settings.electrum_clear_alert_title, loc.settings.electrum_clear_alert_message, [
+      { text: loc.settings.electrum_clear_alert_cancel, onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+      { text: loc.settings.electrum_clear_alert_ok, onPress: () => this.clearHistory() },
+    ]);
+  }
+
+  clearHistory = async () => {
+    this.setState({ isLoading: true }, async () => {
+      await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_HISTORY, JSON.stringify([]));
+      this.setState({
+        serverHistory: [],
+        isLoading: false,
+      });
+    });
+  };
+
+  resetToDefault = async () => {
+    this.setState({ port: '', host: '', sslPort: '' }, () => {
+      this.save();
+    });
+  };
+
+  serverExists = server => {
+    const { serverHistory } = this.state;
+    return serverHistory.some(s => {
+      return `${s.host}${s.port}${s.sslPort}` === `${server.host}${server.port}${server.sslPort}`;
+    });
+  };
+
   save = () => {
     const host = this.state.host ? this.state.host : '';
     const port = this.state.port ? this.state.port : '';
     const sslPort = this.state.sslPort ? this.state.sslPort : '';
+    const serverHistory = this.state.serverHistory || [];
 
     this.setState({ isLoading: true }, async () => {
       try {
@@ -115,6 +156,16 @@ export default class ElectrumSettings extends Component {
           await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, host);
           await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, port);
           await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, sslPort);
+
+          if (!this.serverExists({ host, port, sslPort })) {
+            serverHistory.push({
+              host,
+              port,
+              sslPort,
+            });
+            await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_HISTORY, JSON.stringify(serverHistory));
+          }
+
           try {
             await DefaultPreference.setName('group.io.bluewallet.bluewallet');
             await DefaultPreference.set(AppStorage.ELECTRUM_HOST, host);
@@ -157,6 +208,19 @@ export default class ElectrumSettings extends Component {
   };
 
   render() {
+    const serverHistoryItems = this.state.serverHistory.map((server, i) => {
+      return (
+        <View key={i} style={styles.serverHistoryItem}>
+          <View>
+            <BlueText>{`${server.host}:${server.port || server.sslPort}`}</BlueText>
+          </View>
+          <TouchableOpacity onPress={() => this.selectServer(server)}>
+            <BlueText>{loc.settings.electrum_select}</BlueText>
+          </TouchableOpacity>
+        </View>
+      );
+    });
+
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
         <ScrollView>
@@ -173,10 +237,14 @@ export default class ElectrumSettings extends Component {
             <BlueText style={styles.hostname} onPress={this.checkServer}>
               {this.state.config.host}:{this.state.config.port}
             </BlueText>
-            <BlueSpacing20 />
           </BlueCard>
           <BlueCard>
-            <BlueText style={styles.explain}>{loc.settings.electrum_settings_explain}</BlueText>
+            <View style={styles.serverAddTitle}>
+              <BlueText style={styles.explain}>{loc.settings.electrum_settings_explain}</BlueText>
+              <TouchableOpacity onPress={() => this.resetToDefault()}>
+                <BlueText>{loc.settings.electrum_reset}</BlueText>
+              </TouchableOpacity>
+            </View>
           </BlueCard>
           <BlueCard>
             <View style={styles.inputWrap}>
@@ -228,6 +296,17 @@ export default class ElectrumSettings extends Component {
             <BlueSpacing20 />
             {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
           </BlueCard>
+          {serverHistoryItems.length > 0 && !this.state.isLoading && (
+            <BlueCard>
+              <View style={styles.serverHistoryTitle}>
+                <BlueText style={styles.explain}>{loc.settings.electrum_history}</BlueText>
+                <TouchableOpacity onPress={() => this.clearHistoryAlert()}>
+                  <BlueText>{loc.settings.electrum_clear}</BlueText>
+                </TouchableOpacity>
+              </View>
+              {serverHistoryItems}
+            </BlueCard>
+          )}
         </ScrollView>
       </SafeBlueArea>
     );
@@ -315,5 +394,21 @@ const styles = StyleSheet.create({
     minHeight: 36,
     color: '#81868e',
     height: 36,
+  },
+  serverAddTitle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  serverHistoryTitle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+  },
+  serverHistoryItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 20,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomWidth: 1,
   },
 });
