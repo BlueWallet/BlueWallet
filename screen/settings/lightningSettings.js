@@ -3,18 +3,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, TextInput, Linking, StyleSheet, Alert } from 'react-native';
 import { Button } from 'react-native-elements';
 import { useTheme, useNavigation, useRoute } from '@react-navigation/native';
-import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  BlueSpacing20,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueNavigationStyle,
-  BlueLoading,
-  BlueText,
-  BlueButtonLink,
-} from '../../BlueComponents';
+
+import navigationStyle from '../../components/navigationStyle';
+import { BlueButton, BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { AppStorage } from '../../class';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
@@ -160,8 +153,8 @@ const LightningSettings = () => {
   );
 };
 
-LightningSettings.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+LightningSettings.navigationOptions = navigationStyle({
   title: loc.settings.lightning_settings,
 });
+
 export default LightningSettings;

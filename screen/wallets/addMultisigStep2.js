@@ -13,33 +13,34 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Icon } from 'react-native-elements';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { getSystemName } from 'react-native-device-info';
+import QRCode from 'react-native-qrcode-svg';
+import Clipboard from '@react-native-community/clipboard';
+import showPopupMenu from 'react-native-popup-menu-android';
+import ToolTip from 'react-native-tooltip';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import {
   BlueButton,
   BlueButtonLink,
   BlueFormMultiInput,
   BlueLoading,
-  BlueNavigationStyle,
   BlueSpacing10,
   BlueSpacing20,
   BlueSpacing40,
   BlueTextCentered,
 } from '../../BlueComponents';
-import { Icon } from 'react-native-elements';
+import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import { getSystemName } from 'react-native-device-info';
-import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
 import BottomModal from '../../components/BottomModal';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
-import Clipboard from '@react-native-community/clipboard';
-import showPopupMenu from 'react-native-popup-menu-android';
-import ToolTip from 'react-native-tooltip';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const prompt = require('../../blue_modules/prompt');
@@ -791,8 +792,7 @@ const styles = StyleSheet.create({
   },
 });
 
-WalletsAddMultisigStep2.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+WalletsAddMultisigStep2.navigationOptions = navigationStyle({
   headerTitle: null,
   gestureEnabled: false,
   swipeEnabled: false,

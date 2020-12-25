@@ -1,25 +1,18 @@
 /* global alert */
 import React, { Component } from 'react';
-import { Alert, View, TextInput, StyleSheet } from 'react-native';
-import { AppStorage } from '../../class';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ScrollView } from 'react-native-gesture-handler';
-import {
-  BlueLoading,
-  BlueSpacing20,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueNavigationStyle,
-  BlueButtonLink,
-} from '../../BlueComponents';
-import { BlueCurrentTheme } from '../../components/themes';
 import PropTypes from 'prop-types';
-import loc from '../../loc';
+import { Alert, View, TextInput, StyleSheet } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import RNWidgetCenter from 'react-native-widget-center';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ScrollView } from 'react-native-gesture-handler';
+
+import loc from '../../loc';
+import { AppStorage } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import navigationStyle from '../../components/navigationStyle';
+import { BlueButton, BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueCurrentTheme } from '../../components/themes';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 export default class ElectrumSettings extends Component {
@@ -247,8 +240,7 @@ ElectrumSettings.propTypes = {
   }),
 };
 
-ElectrumSettings.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+ElectrumSettings.navigationOptions = navigationStyle({
   title: loc.settings.electrum_settings,
 });
 

@@ -11,25 +11,26 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native';
+import { Icon } from 'react-native-elements';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+
 import {
   BlueButton,
   SafeBlueArea,
   BlueCard,
   BlueDismissKeyboardInputAccessory,
-  BlueNavigationStyle,
   BlueAddressInput,
   BlueBitcoinAmount,
   BlueLoading,
 } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import Lnurl from '../../class/lnurl';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { Icon } from 'react-native-elements';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 const currency = require('../../blue_modules/currency');
 
 const ScanLndInvoice = () => {
@@ -356,9 +357,8 @@ const ScanLndInvoice = () => {
 };
 
 export default ScanLndInvoice;
-
-ScanLndInvoice.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+ScanLndInvoice.navigationOptions = navigationStyle({
+  closeButton: true,
   title: loc.send.header,
   headerLeft: null,
 });

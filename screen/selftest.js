@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { ScrollView, View, StyleSheet } from 'react-native';
-import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueLoading } from '../BlueComponents';
 import PropTypes from 'prop-types';
+import { ScrollView, View, StyleSheet } from 'react-native';
+import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading } from '../BlueComponents';
+import navigationStyle from '../components/navigationStyle';
 import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../class';
 import { BlueCurrentTheme } from '../components/themes';
 const bitcoin = require('bitcoinjs-lib');
@@ -259,7 +260,6 @@ Selftest.propTypes = {
   }),
 };
 
-Selftest.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+Selftest.navigationOptions = navigationStyle({
   title: 'Self test',
 });
