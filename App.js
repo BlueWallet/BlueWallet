@@ -151,6 +151,7 @@ const App = () => {
     await new Promise(resolve => setTimeout(resolve, 200));
     // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
     const notifications2process = await Notifications.getStoredNotifications();
+    let returnValue = false;
     for (const payload of notifications2process) {
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
 
@@ -184,17 +185,16 @@ const App = () => {
         }
 
         // no delay (1ms) as we don't need to wait for transaction propagation. 500ms is a delay to wait for the navigation
-        return true;
+        returnValue = true;
       } else {
         console.log('could not find wallet while processing push notification tap, NOP');
       }
-      await Notifications.clearStoredNotifications();
     }
-
+    await Notifications.clearStoredNotifications();
     // TODO: if we are here - we did not act upon any push, so we need to iterate over _not tapped_ pushes
     // and refetch appropriate wallet and redraw screen
 
-    return false;
+    return returnValue;
   };
 
   const handleAppStateChange = async nextAppState => {
