@@ -152,7 +152,7 @@ const App = () => {
     // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
     const notifications2process = await Notifications.getStoredNotifications();
     for (const payload of notifications2process) {
-      const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
+      const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
 
       console.log('processing push notification:', payload);
       let wallet;
@@ -181,10 +181,10 @@ const App = () => {
               },
             }),
           );
+          await Notifications.clearStoredNotifications();
         }
 
-        // no delay (1ms) as we dont need to wait for transaction propagation. 500ms is a delay to wait for the navigation
-        await Notifications.clearStoredNotifications();
+        // no delay (1ms) as we don't need to wait for transaction propagation. 500ms is a delay to wait for the navigation
         return true;
       } else {
         console.log('could not find wallet while processing push notification tap, NOP');
