@@ -232,17 +232,17 @@ export const removeTrailingZeros = value => {
  */
 export function formatBalance(balance, toUnit, withFormatting = false) {
   if (toUnit === undefined) {
-    return balance + ' ' + BitcoinUnit.BTC;
+    return balance + ' ' + strings.units[BitcoinUnit.BTC];
   }
   if (toUnit === BitcoinUnit.BTC) {
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-    return removeTrailingZeros(value) + ' ' + BitcoinUnit.BTC;
+    return removeTrailingZeros(value) + ' ' + strings.units[BitcoinUnit.BTC];
   } else if (toUnit === BitcoinUnit.SATS) {
     return (
       (balance < 0 ? '-' : '') +
       (withFormatting ? new Intl.NumberFormat().format(balance.toString()).replace(/[^0-9]/g, ' ') : balance) +
       ' ' +
-      BitcoinUnit.SATS
+      strings.units[BitcoinUnit.SATS]
     );
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
     return currency.satoshiToLocalCurrency(balance);

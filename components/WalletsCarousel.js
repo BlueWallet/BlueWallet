@@ -175,7 +175,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
             <Image source={require('../img/btc-shape.png')} style={iStyles.image} />
             <Text style={iStyles.br} />
             <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
-              {item.getLabel()}
+              {item.getIsFailure() ? loc.wallets.import_placeholder_fail : loc.wallets.import_placeholder_inprogress}
             </Text>
             {item.getIsFailure() ? (
               <Text numberOfLines={0} style={[iStyles.importError, { color: colors.inverseForegroundColor }]}>

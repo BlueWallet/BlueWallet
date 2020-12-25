@@ -16,6 +16,7 @@ import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 import Notifications from '../../blue_modules/notifications';
+import loc from '../../loc';
 
 let processedInvoices = {};
 let lastTimeTriedToPay = 0;
@@ -517,6 +518,6 @@ Browser.propTypes = {
 
 Browser.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
-  title: 'Lapp Browser',
+  title: loc.wallets.list_ln_browser,
   headerLeft: null,
 });

@@ -190,7 +190,7 @@ const TransactionsDetails = () => {
           {tx.hash && (
             <>
               <View style={styles.rowHeader}>
-                <BlueText style={[styles.txId, stylesHooks.txId]}>Txid</BlueText>
+                <BlueText style={[styles.txId, stylesHooks.txId]}>{loc.transactions.txid}</BlueText>
                 <BlueCopyToClipboardButton stringToCopy={tx.hash} />
               </View>
               <BlueText style={styles.txHash}>{tx.hash}</BlueText>

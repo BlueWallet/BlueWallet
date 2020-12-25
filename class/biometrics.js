@@ -62,7 +62,7 @@ function Biometric() {
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
     if (isDeviceBiometricCapable) {
       return new Promise(resolve => {
-        FingerprintScanner.authenticate({ description: 'Please confirm your identity.', fallbackEnabled: true })
+        FingerprintScanner.authenticate({ description: loc.settings.biom_conf_identity, fallbackEnabled: true })
           .then(() => resolve(true))
           .catch(() => resolve(false))
           .finally(() => FingerprintScanner.release());
@@ -87,8 +87,8 @@ function Biometric() {
         const isAuthenticated = await PasscodeAuth.authenticate();
         if (isAuthenticated) {
           Alert.alert(
-            'Storage',
-            `All your wallets will be removed and your storage will be decrypted. Are you sure you want to proceed?`,
+            loc.settings.encrypt_tstorage,
+            loc.settings.biom_remove_decrypt,
             [
               { text: loc._.cancel, style: 'cancel' },
               {
@@ -104,15 +104,15 @@ function Biometric() {
       isDevicePasscodeSupported = undefined;
     }
     if (isDevicePasscodeSupported === false) {
-      alert('Your device does not have a passcode. In order to proceed, please configure a passcode in the Settings app.');
+      alert(loc.settings.biom_no_passcode);
     }
   };
 
   Biometric.showKeychainWipeAlert = () => {
     if (Platform.OS === 'ios') {
       Alert.alert(
-        'Storage',
-        `You have attempted to enter your password 10 times. Would you like to reset your storage? This will remove all wallets and decrypt your storage.`,
+        loc.settings.encrypt_tstorage,
+        loc.settings.biom_10times,
         [
           {
             text: loc._.cancel,

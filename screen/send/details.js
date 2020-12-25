@@ -42,7 +42,7 @@ import { HDSegwitBech32Wallet, LightningCustodianWallet, MultisigHDWallet, Watch
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import DocumentPicker from 'react-native-document-picker';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import CoinsSelected from '../../components/CoinsSelected';
 import BottomModal from '../../components/BottomModal';
@@ -791,7 +791,9 @@ export default class SendDetails extends Component {
                 </View>
                 <View style={styles.feeModalRow}>
                   <Text style={styles.feeModalValue}>{fee && this.formatFee(fee)}</Text>
-                  <Text style={styles.feeModalValue}>{rate} sat/byte</Text>
+                  <Text style={styles.feeModalValue}>
+                    {rate} {loc.units.sat_byte}
+                  </Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -1345,14 +1347,7 @@ export default class SendDetails extends Component {
   };
 
   formatFee = fee => {
-    switch (this.state.feeUnit) {
-      case BitcoinUnit.SATS:
-        return fee + ' ' + BitcoinUnit.SATS;
-      case BitcoinUnit.BTC:
-        return currency.satoshiToBTC(fee) + ' ' + BitcoinUnit.BTC;
-      case BitcoinUnit.LOCAL_CURRENCY:
-        return currency.satoshiToLocalCurrency(fee);
-    }
+    return formatBalance(fee, this.state.feeUnit, true);
   };
 
   onLayout = e => {
@@ -1418,7 +1413,9 @@ export default class SendDetails extends Component {
                 <Text style={styles.feeLabel}>{loc.send.create_fee}</Text>
                 <View style={styles.feeRow}>
                   <Text style={styles.feeValue}>
-                    {this.state.feePrecalc.current ? this.formatFee(this.state.feePrecalc.current) : this.state.fee + ' sat/byte'}
+                    {this.state.feePrecalc.current
+                      ? this.formatFee(this.state.feePrecalc.current)
+                      : this.state.fee + ' ' + loc.units.sat_byte}
                   </Text>
                 </View>
               </TouchableOpacity>
