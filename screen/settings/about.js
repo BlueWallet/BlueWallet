@@ -184,7 +184,7 @@ const About = () => {
           }}
           chevron
           onPress={handleOnLicensingPress}
-          title="MIT License"
+          title={loc.settings.about_license}
         />
         <BlueListItem
           leftIcon={{

@@ -42,7 +42,7 @@ import { HDSegwitBech32Wallet, LightningCustodianWallet, MultisigHDWallet, Watch
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import DocumentPicker from 'react-native-document-picker';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import CoinsSelected from '../../components/CoinsSelected';
 import BottomModal from '../../components/BottomModal';
@@ -557,6 +557,11 @@ export default class SendDetails extends Component {
         }
       }
 
+      // if targets is empty, insert dust
+      if (targets.length === 0) {
+        targets.push({ address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV', value: 546 });
+      }
+
       // replace wrong addresses with dump
       targets = targets.map(t => {
         try {
@@ -570,21 +575,15 @@ export default class SendDetails extends Component {
       let flag = false;
       while (true) {
         try {
-          const { fee } = wallet.coinselect(
-            utxo,
-            targets,
-            opt.fee,
-            changeAddress,
-            this.state.isTransactionReplaceable ? HDSegwitBech32Wallet.defaultRBFSequence : HDSegwitBech32Wallet.finalRBFSequence,
-          );
+          const { fee } = wallet.coinselect(utxo, targets, opt.fee, changeAddress);
 
           feePrecalc[opt.key] = fee;
           break;
         } catch (e) {
           if (e.message.includes('Not enough') && !flag) {
             flag = true;
-            // if the outputs are too big, replace them with dust
-            targets = targets.map(t => ({ ...t, value: 546 }));
+            // if we don't have enough funds, construct maximum possible transaction
+            targets = targets.map((t, index) => (index > 0 ? { ...t, value: 546 } : { address: t.address }));
             continue;
           }
 
@@ -792,7 +791,9 @@ export default class SendDetails extends Component {
                 </View>
                 <View style={styles.feeModalRow}>
                   <Text style={styles.feeModalValue}>{fee && this.formatFee(fee)}</Text>
-                  <Text style={styles.feeModalValue}>{rate} sat/byte</Text>
+                  <Text style={styles.feeModalValue}>
+                    {rate} {loc.units.sat_byte}
+                  </Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -1291,13 +1292,15 @@ export default class SendDetails extends Component {
             item.address = address || text;
             item.amount = amount || item.amount;
             transactions[index] = item;
-            this.setState({
-              addresses: transactions,
-              memo: memo || this.state.memo,
-              isLoading: false,
-              payjoinUrl,
-            });
-            this.reCalcTx();
+            this.setState(
+              {
+                addresses: transactions,
+                memo: memo || this.state.memo,
+                isLoading: false,
+                payjoinUrl,
+              },
+              this.reCalcTx,
+            );
           }}
           onBarScanned={this.processAddressData}
           address={item.address}
@@ -1326,11 +1329,14 @@ export default class SendDetails extends Component {
             recipient.amount = BitcoinUnit.MAX;
             recipient.amountSats = BitcoinUnit.MAX;
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-            this.setState({
-              addresses: [recipient],
-              units: [BitcoinUnit.BTC],
-              isAdvancedTransactionOptionsVisible: false,
-            });
+            this.setState(
+              {
+                addresses: [recipient],
+                units: [BitcoinUnit.BTC],
+                isAdvancedTransactionOptionsVisible: false,
+              },
+              this.reCalcTx,
+            );
           },
           style: 'default',
         },
@@ -1341,14 +1347,7 @@ export default class SendDetails extends Component {
   };
 
   formatFee = fee => {
-    switch (this.state.feeUnit) {
-      case BitcoinUnit.SATS:
-        return fee + ' ' + BitcoinUnit.SATS;
-      case BitcoinUnit.BTC:
-        return currency.satoshiToBTC(fee) + ' ' + BitcoinUnit.BTC;
-      case BitcoinUnit.LOCAL_CURRENCY:
-        return currency.satoshiToLocalCurrency(fee);
-    }
+    return formatBalance(fee, this.state.feeUnit, true);
   };
 
   onLayout = e => {
@@ -1414,7 +1413,9 @@ export default class SendDetails extends Component {
                 <Text style={styles.feeLabel}>{loc.send.create_fee}</Text>
                 <View style={styles.feeRow}>
                   <Text style={styles.feeValue}>
-                    {this.state.feePrecalc.current ? this.formatFee(this.state.feePrecalc.current) : this.state.fee + ' sat/byte'}
+                    {this.state.feePrecalc.current
+                      ? this.formatFee(this.state.feePrecalc.current)
+                      : this.state.fee + ' ' + loc.units.sat_byte}
                   </Text>
                 </View>
               </TouchableOpacity>

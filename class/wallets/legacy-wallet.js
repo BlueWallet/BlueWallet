@@ -276,8 +276,8 @@ export class LegacyWallet extends AbstractWallet {
     if (!changeAddress) throw new Error('No change address provided');
 
     let algo = coinSelectAccumulative;
-    if (targets.length === 1 && targets[0] && !targets[0].value) {
-      // we want to send MAX
+    // if targets has output without a value, we want send MAX to it
+    if (targets.some(i => !('value' in i))) {
       algo = coinSelectSplit;
     }
 
@@ -285,7 +285,7 @@ export class LegacyWallet extends AbstractWallet {
 
     // .inputs and .outputs will be undefined if no solution was found
     if (!inputs || !outputs) {
-      throw new Error('Not enough balance. Try sending smaller amount');
+      throw new Error('Not enough balance. Try sending smaller amount or decrease the fee.');
     }
 
     return { inputs, outputs, fee };

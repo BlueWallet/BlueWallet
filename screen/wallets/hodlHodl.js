@@ -720,7 +720,7 @@ export default class HodlHodl extends Component {
         <View style={styles.headerWrapper}>
           <Text style={styles.BottomLine}>Powered by HodlHodl®</Text>
           <View style={styles.flexRow}>
-            <Text style={styles.Title}>Local Trader </Text>
+            <Text style={styles.Title}>{loc.hodl.local_trader} </Text>
             <TouchableOpacity
               style={styles.grayDropdownTextContainer}
               onPress={() => {
