@@ -6,13 +6,13 @@
  */
 
 #import "AppDelegate.h"
-
 #import <React/RCTLinkingManager.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 #import "RNQuickActionManager.h"
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
+#import "EventEmitter.h"
 #ifdef FB_SONARKIT_ENABLED
 #if DEBUG
 #import <FlipperKit/FlipperClient.h>
@@ -38,10 +38,11 @@ static void InitializeFlipper(UIApplication *application) {
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-#ifdef FB_SONARKIT_ENABLED
+#if DEBUG
+  #if !TARGET_OS_MACCATALYST
   InitializeFlipper(application);
 #endif
-
+#endif
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                    moduleName:@"BlueWallet"
@@ -52,7 +53,6 @@ static void InitializeFlipper(UIApplication *application) {
   } else {
     rootView.backgroundColor = [UIColor clearColor];
   }
-
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   UIViewController *rootViewController = [UIViewController new];
   rootViewController.view = rootView;
@@ -61,11 +61,9 @@ static void InitializeFlipper(UIApplication *application) {
   UIView* launchScreenView = [[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil] instantiateInitialViewController].view;
    launchScreenView.frame = self.window.bounds;
    rootView.loadingView = launchScreenView;
-  
   // Define UNUserNotificationCenter
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
-  
   return YES;
 }
 
@@ -95,10 +93,7 @@ static void InitializeFlipper(UIApplication *application) {
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
   NSDictionary *userInfo = notification.request.content.userInfo;
-  //Foreground
-  NSLog(@"APP_PUSH from foreground %@", userInfo);
- [RNCPushNotificationIOS didReceiveRemoteNotification:userInfo
- fetchCompletionHandler:^void (UIBackgroundFetchResult result){}];
+  [EventEmitter.sharedInstance sendNotification:userInfo];
   completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
 }
 

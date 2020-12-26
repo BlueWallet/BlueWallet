@@ -1,6 +1,17 @@
 import 'react-native-gesture-handler'; // should be on top
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { AppState, DeviceEventEmitter, KeyboardAvoidingView, Linking, Platform, StyleSheet, useColorScheme, View } from 'react-native';
+import {
+  AppState,
+  DeviceEventEmitter,
+  NativeModules,
+  NativeEventEmitter,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  StyleSheet,
+  useColorScheme,
+  View,
+} from 'react-native';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { navigationRef } from './NavigationService';
@@ -27,6 +38,8 @@ import WidgetCommunication from './blue_modules/WidgetCommunication';
 import changeNavigationBarColor from 'react-native-navigation-bar-color';
 const A = require('./blue_modules/analytics');
 
+const eventEmitter = new NativeEventEmitter(NativeModules.EventEmitter);
+
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
     dsn: 'https://23377936131848ca8003448a893cb622@sentry.io/1295736',
@@ -51,6 +64,26 @@ const App = () => {
     },
   });
 
+  const fetchWalletTransactionsInReceivedNotification = payload => {
+    payload = payload.aps.content;
+    let wallet;
+    switch (+payload.type) {
+      case 2:
+      case 3:
+        wallet = wallets.find(w => w.weOwnAddress(payload.address));
+        break;
+      case 1:
+      case 4:
+        wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
+        break;
+    }
+
+    if (wallet) {
+      const walletID = wallet.getID();
+      fetchAndSaveWalletTransactions(walletID);
+    }
+  };
+
   useEffect(() => {
     if (walletsInitialized) {
       addListeners();
@@ -62,6 +95,7 @@ const App = () => {
     return () => {
       Linking.removeEventListener('url', handleOpenURL);
       AppState.removeEventListener('change', handleAppStateChange);
+      eventEmitter.removeAllListeners('onNotificationReceived');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -83,6 +117,7 @@ const App = () => {
     DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
     QuickActions.popInitialAction().then(popInitialAction);
     handleAppStateChange(undefined);
+    eventEmitter.addListener('onNotificationReceived', fetchWalletTransactionsInReceivedNotification);
   };
 
   const popInitialAction = async data => {
@@ -151,9 +186,8 @@ const App = () => {
     await new Promise(resolve => setTimeout(resolve, 200));
     // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
     const notifications2process = await Notifications.getStoredNotifications();
-    let returnValue = false;
     for (const payload of notifications2process) {
-      const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
+      const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
 
       console.log('processing push notification:', payload);
       let wallet;
@@ -184,17 +218,19 @@ const App = () => {
           );
         }
 
-        // no delay (1ms) as we don't need to wait for transaction propagation. 500ms is a delay to wait for the navigation
-        returnValue = true;
+        // no delay (1ms) as we dont need to wait for transaction propagation. 500ms is a delay to wait for the navigation
+        await Notifications.clearStoredNotifications();
+        return true;
       } else {
         console.log('could not find wallet while processing push notification tap, NOP');
       }
     }
-    await Notifications.clearStoredNotifications();
+
     // TODO: if we are here - we did not act upon any push, so we need to iterate over _not tapped_ pushes
     // and refetch appropriate wallet and redraw screen
 
-    return returnValue;
+    await Notifications.clearStoredNotifications();
+    return false;
   };
 
   const handleAppStateChange = async nextAppState => {
