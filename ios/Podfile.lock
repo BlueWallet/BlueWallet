@@ -342,8 +342,6 @@ PODS:
     - React-Core (= 0.63.3)
     - React-cxxreact (= 0.63.3)
     - React-jsi (= 0.63.3)
-  - ReactNativePrivacySnapshot (1.0.0):
-    - React
   - RealmJS (6.1.4):
     - GCDWebServer
     - React
@@ -371,6 +369,8 @@ PODS:
     - React-Core
   - RNLocalize (1.4.2):
     - React-Core
+  - RNPrivacySnapshot (1.0.0):
+    - React
   - RNQuickAction (0.3.13):
     - React
   - RNRate (1.2.4):
@@ -469,7 +469,6 @@ DEPENDENCIES:
   - React-RCTText (from `../node_modules/react-native/Libraries/Text`)
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - ReactNativePrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
   - RealmJS (from `../node_modules/realm`)
   - "RemobileReactNativeQrcodeLocalImage (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
@@ -483,6 +482,7 @@ DEPENDENCIES:
   - RNHandoff (from `../node_modules/react-native-handoff`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNLocalize (from `../node_modules/react-native-localize`)
+  - RNPrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNRate (from `../node_modules/react-native-rate`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
@@ -602,8 +602,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/Libraries/Vibration"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
-  ReactNativePrivacySnapshot:
-    :path: "../node_modules/react-native-privacy-snapshot"
   RealmJS:
     :path: "../node_modules/realm"
   RemobileReactNativeQrcodeLocalImage:
@@ -630,6 +628,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-inappbrowser-reborn"
   RNLocalize:
     :path: "../node_modules/react-native-localize"
+  RNPrivacySnapshot:
+    :path: "../node_modules/react-native-privacy-snapshot"
   RNQuickAction:
     :path: "../node_modules/react-native-quick-actions"
   RNRate:
@@ -721,7 +721,6 @@ SPEC CHECKSUMS:
   React-RCTText: 65a6de06a7389098ce24340d1d3556015c38f746
   React-RCTVibration: 8e9fb25724a0805107fc1acc9075e26f814df454
   ReactCommon: 4167844018c9ed375cc01a843e9ee564399e53c3
-  ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RealmJS: 899b4839a8bee46e248bc277995ad58da855e41f
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: bc2f81cc1df90c267ce9ed30bb2dbc93b945a8ee
@@ -735,6 +734,7 @@ SPEC CHECKSUMS:
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNInAppBrowser: 3733c1aa6699983a1c9b4963e85d5e5a48ad297e
   RNLocalize: 4071198b59b461f3b74eebc5fee8c50f13e39e79
+  RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 2b31dad120cd1b78e33c6034808561c386a3dddf
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
