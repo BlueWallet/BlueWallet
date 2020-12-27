@@ -27,12 +27,20 @@ export default class WalletMigrate {
         try {
           console.warn('It is the first launch...');
           await RNSecureKeyStore.setResetOnAppUninstallTo(false);
-          const deleteWalletsFromKeychain = await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
+          let deleteWalletsFromKeychain = '1';
+          try {
+            deleteWalletsFromKeychain = await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
+            await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
+            await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
+          } catch (e) {
+            console.log('----- deleteWalletsFromKeychain catch');
+            console.log(e.message);
+            await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
+            await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
+          }
           console.log('----- deleteWalletsFromKeychain');
           console.log(deleteWalletsFromKeychain);
           console.log('----- ');
-          await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
-          await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
         } catch (e) {
           console.log(e);
         }
