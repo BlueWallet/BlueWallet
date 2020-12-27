@@ -4,6 +4,7 @@ import RNFS from 'react-native-fs';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import DefaultPreference from 'react-native-default-preference';
 import { Platform } from 'react-native';
+import { isCatalyst } from '../../blue_modules/environment';
 
 export default class WalletMigrate {
   static expoDataDirectory = RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage';
@@ -14,7 +15,7 @@ export default class WalletMigrate {
 
   // 0: Let's start!
   async start() {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' && !isCatalyst) {
       const defaultPreferenceGroupName = await DefaultPreference.getName();
       console.log('----- defaultPreferenceGroupName');
       console.log(defaultPreferenceGroupName);
