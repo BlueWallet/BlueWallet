@@ -11,6 +11,7 @@ import {
   Image,
   Dimensions,
   useWindowDimensions,
+  SafeAreaView,
 } from 'react-native';
 import { BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
@@ -27,6 +28,7 @@ import { getSystemName, isTablet } from 'react-native-device-info';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import isCatalyst from 'react-native-is-catalyst';
+
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
@@ -113,6 +115,7 @@ const WalletsList = () => {
   useEffect(() => {
     setOptions({
       title: '',
+      headerShown: !isCatalyst,
       headerStyle: {
         backgroundColor: colors.customHeader,
         borderBottomWidth: 0,
@@ -433,7 +436,7 @@ const WalletsList = () => {
   };
 
   return (
-    <View style={styles.root} onLayout={onLayout}>
+    <SafeAreaView style={styles.root} onLayout={onLayout}>
       <StatusBar barStyle="default" />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
@@ -453,7 +456,7 @@ const WalletsList = () => {
         />
         {renderScanButton()}
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

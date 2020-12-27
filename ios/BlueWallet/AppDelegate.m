@@ -13,8 +13,8 @@
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
 #import "EventEmitter.h"
+#if !TARGET_OS_MACCATALYST
 #ifdef FB_SONARKIT_ENABLED
-#if DEBUG
 #import <FlipperKit/FlipperClient.h>
 #import <FlipperKitLayoutPlugin/FlipperKitLayoutPlugin.h>
 #import <FlipperKitUserDefaultsPlugin/FKUserDefaultsPlugin.h>
@@ -38,8 +38,10 @@ static void InitializeFlipper(UIApplication *application) {
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+#if !TARGET_OS_MACCATALYST
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);
+#endif
 #endif
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
@@ -133,6 +135,37 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
 {
  [RNCPushNotificationIOS didReceiveLocalNotification:notification];
+}
+
+- (void)openPreferences {
+  [EventEmitter.sharedInstance openSettings];
+}
+
+- (void)buildMenuWithBuilder:(id<UIMenuBuilder>)builder {
+  [super buildMenuWithBuilder:builder];
+  [builder removeMenuForIdentifier:UIMenuServices];
+  [builder removeMenuForIdentifier:UIMenuFormat];
+  [builder removeMenuForIdentifier:UIMenuToolbar];
+  [builder removeMenuForIdentifier:UIMenuFile];
+
+  UIKeyCommand *preferencesCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openPreferences)];
+  [preferencesCommand setTitle:@"Preferences..."];
+  UIMenu *preferences = [UIMenu menuWithTitle:@"Preferences..." image:nil identifier:@"openPreferences" options:UIMenuOptionsDisplayInline children:@[preferencesCommand]];
+  
+  [builder insertSiblingMenu:preferences afterMenuForIdentifier:UIMenuAbout];
+}
+
+
+-(void)showHelp:(id)sender {
+  [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://help.bluewallet.io"] options:@{} completionHandler:nil];
+}
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
+  if (action == @selector(showHelp:)) {
+    return true;
+  } else {
+    return [super canPerformAction:action withSender:sender];
+  }
 }
 
 @end

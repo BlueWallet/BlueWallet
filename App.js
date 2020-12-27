@@ -84,6 +84,14 @@ const App = () => {
     }
   };
 
+  const openSettings = () => {
+    NavigationService.dispatch(
+      CommonActions.navigate({
+        name: 'Settings',
+      }),
+    );
+  };
+
   useEffect(() => {
     if (walletsInitialized) {
       addListeners();
@@ -96,6 +104,7 @@ const App = () => {
       Linking.removeEventListener('url', handleOpenURL);
       AppState.removeEventListener('change', handleAppStateChange);
       eventEmitter.removeAllListeners('onNotificationReceived');
+      eventEmitter.removeAllListeners('openSettings');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -118,6 +127,7 @@ const App = () => {
     QuickActions.popInitialAction().then(popInitialAction);
     handleAppStateChange(undefined);
     eventEmitter.addListener('onNotificationReceived', fetchWalletTransactionsInReceivedNotification);
+    eventEmitter.addListener('openSettings', openSettings);
   };
 
   const popInitialAction = async data => {

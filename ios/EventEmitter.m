@@ -29,12 +29,19 @@ RCT_EXPORT_MODULE();
 }
 
 - (NSArray<NSString *> *)supportedEvents {
-    return @[@"onNotificationReceived"];
+    return @[@"onNotificationReceived",@"openSettings"];
 }
 
 - (void)sendNotification:(NSDictionary *)userInfo
 {
   [sharedInstance sendEventWithName:@"onNotificationReceived" body:userInfo];
 }
+
+
+- (void)openSettings
+{
+  [sharedInstance sendEventWithName:@"openSettings" body:nil];
+}
+
 
 @end

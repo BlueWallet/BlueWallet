@@ -13,5 +13,6 @@
 
 + (EventEmitter *)sharedInstance;
 - (void)sendNotification:(NSDictionary *)userInfo;
+- (void)openSettings;
 
 @end
