@@ -68,22 +68,20 @@ const App = () => {
     const payload = Object.assign({}, notification, notification.data);
     if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
     delete payload.data;
-    if (payload) {
-      let wallet;
-      switch (+payload.type) {
-        case 2:
-        case 3:
-          wallet = wallets.find(w => w.weOwnAddress(payload.address));
-          break;
-        case 1:
-        case 4:
-          wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
-          break;
-      }
-      if (wallet) {
-        const walletID = wallet.getID();
-        fetchAndSaveWalletTransactions(walletID);
-      }
+    let wallet;
+    switch (+payload.type) {
+      case 2:
+      case 3:
+        wallet = wallets.find(w => w.weOwnAddress(payload.address));
+        break;
+      case 1:
+      case 4:
+        wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
+        break;
+    }
+    if (wallet) {
+      const walletID = wallet.getID();
+      fetchAndSaveWalletTransactions(walletID);
     }
   };
 
