@@ -94,7 +94,7 @@ static void InitializeFlipper(UIApplication *application) {
 {
   NSDictionary *userInfo = notification.request.content.userInfo;
   [EventEmitter.sharedInstance sendNotification:userInfo];
-  completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
+  completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
 }
 
 // Required to register for notifications
