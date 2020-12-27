@@ -64,7 +64,10 @@ const App = () => {
     },
   });
 
-  const fetchWalletTransactionsInReceivedNotification = payload => {
+  const fetchWalletTransactionsInReceivedNotification = notification => {
+    const payload = Object.assign({}, notification, notification.data);
+    if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
+    delete payload.data;
     if (payload) {
       let wallet;
       switch (+payload.type) {
