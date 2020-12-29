@@ -36,6 +36,7 @@ import WalletImport from './class/wallet-import';
 import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
 import changeNavigationBarColor from 'react-native-navigation-bar-color';
+const PushNotification = require('react-native-push-notification');
 const A = require('./blue_modules/analytics');
 
 const eventEmitter = new NativeEventEmitter(NativeModules.EventEmitter);
@@ -65,6 +66,7 @@ const App = () => {
   });
 
   const fetchWalletTransactionsInReceivedNotification = notification => {
+    console.log('Received notification that has NOT been acted upon, fetch TXs...');
     const payload = Object.assign({}, notification, notification.data);
     if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
     delete payload.data;
@@ -186,6 +188,12 @@ const App = () => {
     );
   };
 
+  const getDeliveredNotifications = () => {
+    return new Promise(resolve => {
+      PushNotification.getDeliveredNotifications(notifications => resolve(notifications));
+    });
+  };
+
   /**
    * Processes push notifications stored in AsyncStorage. Might navigate to some screen.
    *
@@ -193,11 +201,18 @@ const App = () => {
    * @private
    */
   const processPushNotifications = async () => {
-    Notifications.setApplicationIconBadgeNumber(0);
     await new Promise(resolve => setTimeout(resolve, 200));
     // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
     const notifications2process = await Notifications.getStoredNotifications();
-    for (const payload of notifications2process) {
+    /* notifications2process uses AsyncStorage and it might be empty. deliveredNotifications will 
+    return notifications that are still in the Notification Center and have not processed. 
+    Useful for when app comes back from background.
+    */
+    const deliveredNotifications = await getDeliveredNotifications();
+    // Set will remove duplicates.
+    const notificationsSet = Array.from(new Set(notifications2process.concat(deliveredNotifications)));
+    console.log(notificationsSet);
+    for (const payload of notificationsSet) {
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
 
       console.log('processing push notification:', payload);
@@ -227,13 +242,24 @@ const App = () => {
               },
             }),
           );
+          try {
+            PushNotification.removeDeliveredNotifications([payload.identifier]);
+          } catch (e) {
+            PushNotification.removeAllDeliveredNotifications();
+          }
+          Notifications.setApplicationIconBadgeNumber(0);
         }
-
-        // no delay (1ms) as we dont need to wait for transaction propagation. 500ms is a delay to wait for the navigation
+        // no delay (1ms) as we don't need to wait for transaction propagation. 500ms is a delay to wait for the navigation
         await Notifications.clearStoredNotifications();
         return true;
       } else {
         console.log('could not find wallet while processing push notification tap, NOP');
+        try {
+          PushNotification.removeDeliveredNotifications([payload.identifier]);
+        } catch (e) {
+          PushNotification.removeAllDeliveredNotifications();
+          Notifications.setApplicationIconBadgeNumber(0);
+        }
       }
     }
 
