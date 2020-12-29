@@ -15,6 +15,7 @@ import Privacy from '../../Privacy';
 import { ScrollView } from 'react-native-gesture-handler';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { LightningCustodianWallet } from '../../class';
 
 const PleaseBackupLNDHub = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -60,7 +61,7 @@ const PleaseBackupLNDHub = () => {
           <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>
           <BlueSpacing20 />
           <BlueText>- {loc.pleasebackup.text_lnd2}</BlueText>
-          <BlueText>- {loc.pleasebackup.text_lnd3}</BlueText>
+          {wallet.getBaseURI() === LightningCustodianWallet.defaultBaseUri && <BlueText>- {loc.pleasebackup.text_lnd3}</BlueText>}
         </View>
         <BlueSpacing20 />
         <View style={styles.qrCodeContainer}>
