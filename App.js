@@ -36,7 +36,6 @@ import WalletImport from './class/wallet-import';
 import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
 import changeNavigationBarColor from 'react-native-navigation-bar-color';
-const PushNotification = require('react-native-push-notification');
 const A = require('./blue_modules/analytics');
 
 const eventEmitter = new NativeEventEmitter(NativeModules.EventEmitter);
@@ -188,12 +187,6 @@ const App = () => {
     );
   };
 
-  const getDeliveredNotifications = () => {
-    return new Promise(resolve => {
-      PushNotification.getDeliveredNotifications(notifications => resolve(notifications));
-    });
-  };
-
   /**
    * Processes push notifications stored in AsyncStorage. Might navigate to some screen.
    *
@@ -208,7 +201,7 @@ const App = () => {
     return notifications that are still in the Notification Center and have not processed. 
     Useful for when app comes back from background.
     */
-    const deliveredNotifications = await getDeliveredNotifications();
+    const deliveredNotifications = await Notifications.getDeliveredNotifications();
     // Set will remove duplicates.
     const notificationsSet = Array.from(new Set(notifications2process.concat(deliveredNotifications)));
     console.log(notificationsSet);
@@ -243,9 +236,9 @@ const App = () => {
             }),
           );
           try {
-            PushNotification.removeDeliveredNotifications([payload.identifier]);
+            Notifications.removeDeliveredNotifications([payload.identifier]);
           } catch (e) {
-            PushNotification.removeAllDeliveredNotifications();
+            Notifications.removeAllDeliveredNotifications();
           }
           Notifications.setApplicationIconBadgeNumber(0);
         }
@@ -255,9 +248,9 @@ const App = () => {
       } else {
         console.log('could not find wallet while processing push notification tap, NOP');
         try {
-          PushNotification.removeDeliveredNotifications([payload.identifier]);
+          Notifications.removeDeliveredNotifications([payload.identifier]);
         } catch (e) {
-          PushNotification.removeAllDeliveredNotifications();
+          Notifications.removeAllDeliveredNotifications();
           Notifications.setApplicationIconBadgeNumber(0);
         }
       }

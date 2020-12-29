@@ -387,8 +387,22 @@ function Notifications(props) {
     } catch (_) {}
   };
 
+  Notifications.getDeliveredNotifications = () => {
+    return new Promise(resolve => {
+      PushNotification.getDeliveredNotifications(notifications => resolve(notifications));
+    });
+  };
+
+  Notifications.removeDeliveredNotifications = (identifiers = []) => {
+    PushNotification.removeDeliveredNotifications(identifiers);
+  };
+
   Notifications.setApplicationIconBadgeNumber = function (badges) {
     PushNotification.setApplicationIconBadgeNumber(badges);
+  };
+
+  Notifications.removeAllDeliveredNotifications = () => {
+    PushNotification.removeAllDeliveredNotifications();
   };
 
   // on app launch (load module):
