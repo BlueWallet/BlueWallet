@@ -44,7 +44,7 @@ const EncryptStorage = () => {
   const initialState = useCallback(async () => {
     const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
-    const biometricsType = (await Biometric.biometricType()) || loc.settings.biometrics.toLowercase();
+    const biometricsType = (await Biometric.biometricType()) || loc.settings.biometrics;
     const deleteWalletsAfterUninstall = await isDeleteWalletAfterUninstallEnabled();
     const isStorageEncryptedSwitchEnabled = await isStorageEncrypted();
     setStorageIsEncryptedSwitchEnabled(isStorageEncryptedSwitchEnabled);
