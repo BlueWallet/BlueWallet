@@ -8,6 +8,7 @@ import {
   BlueCopyTextToClipboard,
   BlueButton,
   BlueTextCentered,
+  BlueText,
 } from '../../BlueComponents';
 import QRCode from 'react-native-qrcode-svg';
 import Privacy from '../../Privacy';
@@ -57,6 +58,9 @@ const PleaseBackupLNDHub = () => {
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View>
           <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>
+          <BlueSpacing20 />
+          <BlueText>- {loc.pleasebackup.text_lnd2}</BlueText>
+          <BlueText>- {loc.pleasebackup.text_lnd3}</BlueText>
         </View>
         <BlueSpacing20 />
         <View style={styles.qrCodeContainer}>
@@ -71,7 +75,6 @@ const PleaseBackupLNDHub = () => {
             ecl="H"
           />
         </View>
-        <BlueSpacing20 />
         <BlueCopyTextToClipboard text={wallet.secret} />
         <BlueSpacing20 />
         <BlueButton onPress={() => navigation.dangerouslyGetParent().pop()} title={loc.pleasebackup.ok_lnd} />
