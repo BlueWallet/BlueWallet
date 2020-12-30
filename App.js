@@ -52,7 +52,9 @@ const ClipboardContentType = Object.freeze({
 });
 
 const App = () => {
-  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions } = useContext(
+    BlueStorageContext,
+  );
   const appState = useRef(AppState.currentState);
   const [isClipboardContentModalVisible, setIsClipboardContentModalVisible] = useState(false);
   const [clipboardContentType, setClipboardContentType] = useState();
@@ -259,6 +261,10 @@ const App = () => {
     // TODO: if we are here - we did not act upon any push, so we need to iterate over _not tapped_ pushes
     // and refetch appropriate wallet and redraw screen
 
+    if (notificationsSet.length > 0) {
+      // notification object is missing userInfo. We know we received a notification but don't have sufficient data to refresh 1 wallet. let's refresh all.
+      refreshAllWalletTransactions();
+    }
     await Notifications.clearStoredNotifications();
     return false;
   };
