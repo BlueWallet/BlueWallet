@@ -52,7 +52,9 @@ const ClipboardContentType = Object.freeze({
 });
 
 const App = () => {
-  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions } = useContext(
+    BlueStorageContext,
+  );
   const appState = useRef(AppState.currentState);
   const [isClipboardContentModalVisible, setIsClipboardContentModalVisible] = useState(false);
   const [clipboardContentType, setClipboardContentType] = useState();
@@ -65,6 +67,7 @@ const App = () => {
   });
 
   const fetchWalletTransactionsInReceivedNotification = notification => {
+    console.log('Received notification that has NOT been acted upon, fetch TXs...');
     const payload = Object.assign({}, notification, notification.data);
     if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
     delete payload.data;
@@ -193,11 +196,18 @@ const App = () => {
    * @private
    */
   const processPushNotifications = async () => {
-    Notifications.setApplicationIconBadgeNumber(0);
     await new Promise(resolve => setTimeout(resolve, 200));
     // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
     const notifications2process = await Notifications.getStoredNotifications();
-    for (const payload of notifications2process) {
+    /* notifications2process uses AsyncStorage and it might be empty. deliveredNotifications will 
+    return notifications that are still in the Notification Center and have not processed. 
+    Useful for when app comes back from background.
+    */
+    const deliveredNotifications = await Notifications.getDeliveredNotifications();
+    // Set will remove duplicates.
+    const notificationsSet = Array.from(new Set(notifications2process.concat(deliveredNotifications)));
+    console.log(notificationsSet);
+    for (const payload of notificationsSet) {
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
 
       console.log('processing push notification:', payload);
@@ -227,19 +237,34 @@ const App = () => {
               },
             }),
           );
+          try {
+            Notifications.removeDeliveredNotifications([payload.identifier]);
+          } catch (e) {
+            Notifications.removeAllDeliveredNotifications();
+          }
+          Notifications.setApplicationIconBadgeNumber(0);
         }
-
-        // no delay (1ms) as we dont need to wait for transaction propagation. 500ms is a delay to wait for the navigation
+        // no delay (1ms) as we don't need to wait for transaction propagation. 500ms is a delay to wait for the navigation
         await Notifications.clearStoredNotifications();
         return true;
       } else {
         console.log('could not find wallet while processing push notification tap, NOP');
+        try {
+          Notifications.removeDeliveredNotifications([payload.identifier]);
+        } catch (e) {
+          Notifications.removeAllDeliveredNotifications();
+          Notifications.setApplicationIconBadgeNumber(0);
+        }
       }
     }
 
     // TODO: if we are here - we did not act upon any push, so we need to iterate over _not tapped_ pushes
     // and refetch appropriate wallet and redraw screen
 
+    if (notificationsSet.length > 0) {
+      // notification object is missing userInfo. We know we received a notification but don't have sufficient data to refresh 1 wallet. let's refresh all.
+      refreshAllWalletTransactions();
+    }
     await Notifications.clearStoredNotifications();
     return false;
   };
