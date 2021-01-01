@@ -196,75 +196,75 @@ const App = () => {
    * @private
    */
   const processPushNotifications = async () => {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
-    const notifications2process = await Notifications.getStoredNotifications();
-    /* notifications2process uses AsyncStorage and it might be empty. deliveredNotifications will 
-    return notifications that are still in the Notification Center and have not processed. 
-    Useful for when app comes back from background.
-    */
-    const deliveredNotifications = await Notifications.getDeliveredNotifications();
-    // Set will remove duplicates.
-    const notificationsSet = Array.from(new Set(notifications2process.concat(deliveredNotifications)));
-    console.log(notificationsSet);
-    for (const payload of notificationsSet) {
-      const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
+    if (walletsInitialized) {
+      await new Promise(resolve => setTimeout(resolve, 200));
+      // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
+      const notifications2process = await Notifications.getStoredNotifications();
+      /* notifications2process uses AsyncStorage and it might be empty. deliveredNotifications will 
+      return notifications that are still in the Notification Center and have not processed. 
+      Useful for when app comes back from background.
+      */
+      const deliveredNotifications = await Notifications.getDeliveredNotifications();
+      // Set will remove duplicates.
+      const notificationsSet = Array.from(new Set(notifications2process.concat(deliveredNotifications)));
+      console.log(notificationsSet);
+      for (const payload of notificationsSet) {
+        const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
 
-      console.log('processing push notification:', payload);
-      let wallet;
-      switch (+payload.type) {
-        case 2:
-        case 3:
-          wallet = wallets.find(w => w.weOwnAddress(payload.address));
-          break;
-        case 1:
-        case 4:
-          wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
-          break;
-      }
-
-      if (wallet) {
-        const walletID = wallet.getID();
-        fetchAndSaveWalletTransactions(walletID);
-        if (wasTapped) {
-          NavigationService.dispatch(
-            CommonActions.navigate({
-              name: 'WalletTransactions',
-              key: `WalletTransactions-${wallet.getID()}`,
-              params: {
-                walletID,
-                walletType: wallet.type,
-              },
-            }),
-          );
-          try {
-            Notifications.removeDeliveredNotifications([payload.identifier]);
-          } catch (e) {
-            Notifications.removeAllDeliveredNotifications();
-          }
-          Notifications.setApplicationIconBadgeNumber(0);
+        console.log('processing push notification:', payload);
+        let wallet;
+        switch (+payload.type) {
+          case 2:
+          case 3:
+            wallet = wallets.find(w => w.weOwnAddress(payload.address));
+            break;
+          case 1:
+          case 4:
+            wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
+            break;
         }
-        // no delay (1ms) as we don't need to wait for transaction propagation. 500ms is a delay to wait for the navigation
-        await Notifications.clearStoredNotifications();
-        return true;
-      } else {
-        console.log('could not find wallet while processing push notification tap, NOP');
-        try {
-          Notifications.removeDeliveredNotifications([payload.identifier]);
-        } catch (e) {
+
+        if (wallet) {
+          const walletID = wallet.getID();
+          fetchAndSaveWalletTransactions(walletID);
+          if (wasTapped) {
+            NavigationService.dispatch(
+              CommonActions.navigate({
+                name: 'WalletTransactions',
+                key: `WalletTransactions-${wallet.getID()}`,
+                params: {
+                  walletID,
+                  walletType: wallet.type,
+                },
+              }),
+            );
+            try {
+              Notifications.removeAllDeliveredNotifications();
+            } catch (e) {
+              Notifications.removeAllDeliveredNotifications();
+            }
+            Notifications.setApplicationIconBadgeNumber(0);
+          }
+          // no delay (1ms) as we don't need to wait for transaction propagation. 500ms is a delay to wait for the navigation
+          await Notifications.clearStoredNotifications();
+          return true;
+        } else {
+          console.log('could not find wallet while processing push notification tap, NOP');
+
           Notifications.removeAllDeliveredNotifications();
           Notifications.setApplicationIconBadgeNumber(0);
         }
       }
+
+      // TODO: if we are here - we did not act upon any push, so we need to iterate over _not tapped_ pushes
+      // and refetch appropriate wallet and redraw screen
+
+      if (notificationsSet.length > 0) {
+        // notification object is missing userInfo. We know we received a notification but don't have sufficient data to refresh 1 wallet. let's refresh all.
+        refreshAllWalletTransactions();
+      }
     }
 
-    // TODO: if we are here - we did not act upon any push, so we need to iterate over _not tapped_ pushes
-    // and refetch appropriate wallet and redraw screen
-
-    if (notificationsSet.length > 0) {
-      // notification object is missing userInfo. We know we received a notification but don't have sufficient data to refresh 1 wallet. let's refresh all.
-      refreshAllWalletTransactions();
-    }
     await Notifications.clearStoredNotifications();
     return false;
   };
