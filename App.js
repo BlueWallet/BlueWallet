@@ -200,7 +200,7 @@ const App = () => {
     setTimeout(() => Notifications.removeAllDeliveredNotifications(), 5000); // so notification bubble wont disappear too fast
 
     for (const payload of notifications2process) {
-      const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
+      const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
 
       console.log('processing push notification:', payload);
       let wallet;
