@@ -5,6 +5,8 @@ import { AppStorage } from '../class';
 const BlueApp = require('../BlueApp');
 const BlueElectrum = require('./BlueElectrum');
 
+const _lastTimeTriedToRefetchWallet = {}; // hashmap of timestamps we _started_ refetching some wallet
+
 export const BlueStorageContext = createContext();
 export const BlueStorageProvider = ({ children }) => {
   const [wallets, setWallets] = useState([]);
@@ -83,7 +85,13 @@ export const BlueStorageProvider = ({ children }) => {
     const index = wallets.findIndex(wallet => wallet.getID() === walletID);
     let noErr = true;
     try {
-      // await BlueElectrum.ping();
+      // 5sec debounce:
+      if (+new Date() - _lastTimeTriedToRefetchWallet[walletID] < 5000) {
+        console.log('re-fetch wallet happens too fast; NOP');
+        return;
+      }
+      _lastTimeTriedToRefetchWallet[walletID] = +new Date();
+
       await BlueElectrum.waitTillConnected();
       const balanceStart = +new Date();
       await fetchWalletBalances(index);
