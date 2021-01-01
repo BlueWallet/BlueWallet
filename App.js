@@ -66,26 +66,16 @@ const App = () => {
     },
   });
 
-  const fetchWalletTransactionsInReceivedNotification = notification => {
-    console.log('Received notification that has NOT been acted upon, fetch TXs...');
+  const onNotificationReceived = async notification => {
     const payload = Object.assign({}, notification, notification.data);
     if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
-    delete payload.data;
-    let wallet;
-    switch (+payload.type) {
-      case 2:
-      case 3:
-        wallet = wallets.find(w => w.weOwnAddress(payload.address));
-        break;
-      case 1:
-      case 4:
-        wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
-        break;
-    }
-    if (wallet) {
-      const walletID = wallet.getID();
-      fetchAndSaveWalletTransactions(walletID);
-    }
+    payload.foreground = true;
+    payload.userInteraction = false;
+
+    await Notifications.addNotification(payload);
+    // if user is staring at the app when he receives the notification we process it instantly
+    // so app refetches related wallet
+    if (payload.foreground) await processPushNotifications();
   };
 
   const openSettings = () => {
@@ -130,7 +120,11 @@ const App = () => {
     DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
     QuickActions.popInitialAction().then(popInitialAction);
     handleAppStateChange(undefined);
-    eventEmitter.addListener('onNotificationReceived', fetchWalletTransactionsInReceivedNotification);
+    /*
+      When a notification on iOS is shown while the app is on foreground;
+      On willPresent on AppDelegate.m
+     */
+    eventEmitter.addListener('onNotificationReceived', onNotificationReceived);
     eventEmitter.addListener('openSettings', openSettings);
   };
 
@@ -199,15 +193,13 @@ const App = () => {
     await new Promise(resolve => setTimeout(resolve, 200));
     // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
     const notifications2process = await Notifications.getStoredNotifications();
-    /* notifications2process uses AsyncStorage and it might be empty. deliveredNotifications will 
-    return notifications that are still in the Notification Center and have not processed. 
-    Useful for when app comes back from background.
-    */
+
+    await Notifications.clearStoredNotifications();
+    Notifications.setApplicationIconBadgeNumber(0);
     const deliveredNotifications = await Notifications.getDeliveredNotifications();
-    // Set will remove duplicates.
-    const notificationsSet = Array.from(new Set(notifications2process.concat(deliveredNotifications)));
-    console.log(notificationsSet);
-    for (const payload of notificationsSet) {
+    setTimeout(() => Notifications.removeAllDeliveredNotifications(), 5000); // so notification bubble wont disappear too fast
+
+    for (const payload of notifications2process) {
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction === true);
 
       console.log('processing push notification:', payload);
@@ -237,35 +229,21 @@ const App = () => {
               },
             }),
           );
-          try {
-            Notifications.removeDeliveredNotifications([payload.identifier]);
-          } catch (e) {
-            Notifications.removeAllDeliveredNotifications();
-          }
-          Notifications.setApplicationIconBadgeNumber(0);
+
+          return true;
         }
-        // no delay (1ms) as we don't need to wait for transaction propagation. 500ms is a delay to wait for the navigation
-        await Notifications.clearStoredNotifications();
-        return true;
       } else {
-        console.log('could not find wallet while processing push notification tap, NOP');
-        try {
-          Notifications.removeDeliveredNotifications([payload.identifier]);
-        } catch (e) {
-          Notifications.removeAllDeliveredNotifications();
-          Notifications.setApplicationIconBadgeNumber(0);
-        }
+        console.log('could not find wallet while processing push notification, NOP');
       }
-    }
+    } // end foreach notifications loop
 
-    // TODO: if we are here - we did not act upon any push, so we need to iterate over _not tapped_ pushes
-    // and refetch appropriate wallet and redraw screen
-
-    if (notificationsSet.length > 0) {
-      // notification object is missing userInfo. We know we received a notification but don't have sufficient data to refresh 1 wallet. let's refresh all.
+    if (deliveredNotifications.length > 0) {
+      // notification object is missing userInfo. We know we received a notification but don't have sufficient
+      // data to refresh 1 wallet. let's refresh all.
       refreshAllWalletTransactions();
     }
-    await Notifications.clearStoredNotifications();
+
+    // if we are here - we did not act upon any push
     return false;
   };
 
