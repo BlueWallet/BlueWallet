@@ -70,7 +70,6 @@ const App = () => {
     const payload = Object.assign({}, notification, notification.data);
     if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
     payload.foreground = true;
-    payload.userInteraction = false;
 
     await Notifications.addNotification(payload);
     // if user is staring at the app when he receives the notification we process it instantly
