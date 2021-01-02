@@ -435,7 +435,7 @@ const WalletsList = () => {
   };
 
   const ContainerView = props =>
-    isCatalyst ? <SafeAreaView style={styles.root} onLayout={onLayout} {...props} /> : <View style={styles.root} {...props} />;
+    isCatalyst ? <SafeAreaView style={styles.root} onLayout={onLayout} {...props} /> : <View style={styles.root} />;
 
   return (
     <ContainerView style={styles.root}>
