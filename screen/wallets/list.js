@@ -11,8 +11,8 @@ import {
   Image,
   Dimensions,
   useWindowDimensions,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import { Icon } from 'react-native-elements';
@@ -434,40 +434,36 @@ const WalletsList = () => {
     setItemWidth(width * 0.82 > 375 ? 375 : width * 0.82);
   };
 
-  const ContainerView = props =>
-    isCatalyst ? <SafeAreaView style={styles.root} onLayout={onLayout} {...props} /> : <View style={styles.root} />;
-
   return (
-    <ContainerView style={styles.root}>
+    <SafeAreaView
+      style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}
+      onLayout={onLayout}
+      edges={isCatalyst ? ['right', 'top', 'left'] : ['right', 'left']}
+    >
       <StatusBar barStyle="default" />
-      <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]} onLayout={onLayout}>
-        <SectionList
-          onRefresh={refreshTransactions}
-          refreshing={isLoading}
-          renderItem={renderSectionItem}
-          keyExtractor={sectionListKeyExtractor}
-          renderSectionHeader={renderSectionHeader}
-          initialNumToRender={20}
-          contentInset={styles.scrollContent}
-          renderSectionFooter={renderSectionFooter}
-          sections={[
-            { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
-            { key: WalletsListSections.LOCALTRADER, data: [WalletsListSections.LOCALTRADER] },
-            { key: WalletsListSections.TRANSACTIONS, data: dataSource },
-          ]}
-        />
-        {renderScanButton()}
-      </View>
-    </ContainerView>
+      <SectionList
+        onRefresh={refreshTransactions}
+        refreshing={isLoading}
+        renderItem={renderSectionItem}
+        keyExtractor={sectionListKeyExtractor}
+        renderSectionHeader={renderSectionHeader}
+        initialNumToRender={20}
+        contentInset={styles.scrollContent}
+        renderSectionFooter={renderSectionFooter}
+        sections={[
+          { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
+          { key: WalletsListSections.LOCALTRADER, data: [WalletsListSections.LOCALTRADER] },
+          { key: WalletsListSections.TRANSACTIONS, data: dataSource },
+        ]}
+      />
+      {renderScanButton()}
+    </SafeAreaView>
   );
 };
 
 export default WalletsList;
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   scrollContent: {
     top: 0,
     left: 0,
