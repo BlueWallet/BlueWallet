@@ -55,7 +55,7 @@ const PleaseBackupLNDHub = () => {
 
   return (
     <SafeBlueArea style={styles.root}>
-      <StatusBar barStyle="default" />
+      <StatusBar barStyle="light-content" />
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View>
           <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>
