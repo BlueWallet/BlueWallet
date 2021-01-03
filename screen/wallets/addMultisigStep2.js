@@ -36,7 +36,6 @@ import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
-import ActionSheet from '../ActionSheet';
 import Clipboard from '@react-native-community/clipboard';
 import showPopupMenu from 'react-native-popup-menu-android';
 import ToolTip from 'react-native-tooltip';
@@ -312,7 +311,6 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const onBarScanned = ret => {
-    setIsProvideMnemonicsModalVisible(false);
     if (!isDesktop) navigation.dangerouslyGetParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
@@ -323,7 +321,7 @@ const WalletsAddMultisigStep2 = () => {
     } else {
       let cosigner = new MultisigCosigner(ret.data);
       if (!cosigner.isValid()) return alert(loc.multisig.invalid_cosigner);
-
+      setIsProvideMnemonicsModalVisible(false);
       if (cosigner.howManyCosignersWeHave() > 1) {
         // lets look for the correct cosigner. thats probably gona be the one with specific corresponding path,
         // for example m/48'/0'/0'/2' if user chose to setup native segwit in BW
@@ -391,8 +389,9 @@ const WalletsAddMultisigStep2 = () => {
 
   const scanOrOpenFile = () => {
     if (isDesktop) {
-      showActionSheet();
+      fs.showActionSheet().then(onBarScanned);
     } else {
+      setIsProvideMnemonicsModalVisible(false);
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
@@ -401,23 +400,6 @@ const WalletsAddMultisigStep2 = () => {
         },
       });
     }
-  };
-
-  const showActionSheet = () => {
-    const options = [loc._.cancel, loc.wallets.take_photo, loc.wallets.list_long_choose, loc.wallets.import_file];
-
-    ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, async buttonIndex => {
-      if (buttonIndex === 1) {
-        fs.takePhotoWithImagePickerAndReadPhoto.then(onBarScanned);
-      } else if (buttonIndex === 2) {
-        fs.showImagePickerAndReadImage(onBarScanned).catch(error => alert(error.message));
-      } else if (buttonIndex === 3) {
-        const { data } = await fs.showFilePickerAndReadFile();
-        if (data) {
-          onBarScanned({ data });
-        }
-      }
-    });
   };
 
   const _renderKeyItem = el => {
@@ -512,7 +494,7 @@ const WalletsAddMultisigStep2 = () => {
         component.push(
           <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
             <Text style={[styles.wordText, stylesHook.wordText]}>
-              {index + 1} . {secret}
+              {index + 1}. {secret}
             </Text>
           </View>,
         );

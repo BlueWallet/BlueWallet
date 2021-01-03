@@ -1,7 +1,11 @@
 /* eslint-disable react/prop-types */
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import React, { createContext, useEffect, useState } from 'react';
+import { AppStorage } from '../class';
 const BlueApp = require('../BlueApp');
 const BlueElectrum = require('./BlueElectrum');
+
+const _lastTimeTriedToRefetchWallet = {}; // hashmap of timestamps we _started_ refetching some wallet
 
 export const BlueStorageContext = createContext();
 export const BlueStorageProvider = ({ children }) => {
@@ -9,6 +13,10 @@ export const BlueStorageProvider = ({ children }) => {
   const [pendingWallets, setPendingWallets] = useState([]);
   const [selectedWallet, setSelectedWallet] = useState('');
   const [walletsInitialized, setWalletsInitialized] = useState(false);
+  const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState();
+  const [language, _setLanguage] = useState();
+  const getPreferredCurrencyAsyncStorage = useAsyncStorage(AppStorage.PREFERRED_CURRENCY).getItem;
+  const getLanguageAsyncStorage = useAsyncStorage(AppStorage.LANG).getItem;
   const [newWalletAdded, setNewWalletAdded] = useState(false);
   const saveToDisk = async () => {
     BlueApp.tx_metadata = txMetadata;
@@ -19,6 +27,30 @@ export const BlueStorageProvider = ({ children }) => {
 
   useEffect(() => {
     setWallets(BlueApp.getWallets());
+  }, []);
+
+  const getPreferredCurrency = async () => {
+    const item = await getPreferredCurrencyAsyncStorage();
+    _setPreferredFiatCurrency(item);
+  };
+
+  const setPreferredFiatCurrency = () => {
+    getPreferredCurrency();
+  };
+
+  const getLanguage = async () => {
+    const item = await getLanguageAsyncStorage();
+    _setLanguage(item);
+  };
+
+  const setLanguage = () => {
+    getLanguage();
+  };
+
+  useEffect(() => {
+    getPreferredCurrency();
+    getLanguageAsyncStorage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const resetWallets = () => {
@@ -53,7 +85,13 @@ export const BlueStorageProvider = ({ children }) => {
     const index = wallets.findIndex(wallet => wallet.getID() === walletID);
     let noErr = true;
     try {
-      // await BlueElectrum.ping();
+      // 5sec debounce:
+      if (+new Date() - _lastTimeTriedToRefetchWallet[walletID] < 5000) {
+        console.log('re-fetch wallet happens too fast; NOP');
+        return;
+      }
+      _lastTimeTriedToRefetchWallet[walletID] = +new Date();
+
       await BlueElectrum.waitTillConnected();
       const balanceStart = +new Date();
       await fetchWalletBalances(index);
@@ -149,6 +187,10 @@ export const BlueStorageProvider = ({ children }) => {
         setResetOnAppUninstallTo,
         isPasswordInUse,
         setIsAdancedModeEnabled,
+        setPreferredFiatCurrency,
+        preferredFiatCurrency,
+        setLanguage,
+        language,
       }}
     >
       {children}

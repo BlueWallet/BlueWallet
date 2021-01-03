@@ -1,5 +1,4 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-/* global alert */
 import React, { Component, useState, useMemo, useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, Input, Text, Header, ListItem, Avatar } from 'react-native-elements';
@@ -26,33 +25,30 @@ import {
 } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
-import ActionSheet from './screen/ActionSheet';
 import { LightningCustodianWallet, MultisigHDWallet } from './class';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import * as NavigationService from './NavigationService';
 import WalletGradient from './class/wallet-gradient';
 import ToolTip from 'react-native-tooltip';
 import { BlurView } from '@react-native-community/blur';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
 import { getSystemName } from 'react-native-device-info';
 import { encodeUR } from 'bc-ur/dist';
 import QRCode from 'react-native-qrcode-svg';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
 import Lnurl from './class/lnurl';
 import { BlueStorageContext } from './blue_modules/storage-context';
-import { presentCameraNotAuthorizedAlert } from './class/camera';
 /** @type {AppStorage} */
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 const BigNumber = require('bignumber.js');
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const currency = require('./blue_modules/currency');
+const fs = require('./blue_modules/fs');
 let isIpad;
 if (aspectRatio > 1.6) {
   isIpad = false;
@@ -1401,7 +1397,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
   const { colors } = useTheme();
   const { navigate } = useNavigation();
-  const { txMetadata, wallets } = useContext(BlueStorageContext);
+  const { txMetadata, wallets, preferredFiatCurrency, language } = useContext(BlueStorageContext);
   const containerStyle = useMemo(
     () => ({
       backgroundColor: 'transparent',
@@ -1419,7 +1415,8 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     } else {
       return transactionTimeToReadable(item.received);
     }
-  }, [item.confirmations, item.received]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.confirmations, item.received, language]);
   const txMemo = txMetadata[item.hash]?.memo ?? '';
   const subtitle = useMemo(() => {
     let sub = item.confirmations < 7 ? loc.formatString(loc.transactions.list_conf, { number: item.confirmations }) : '';
@@ -1450,7 +1447,8 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     } else {
       return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
     }
-  }, [item, itemPriceUnit]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item, itemPriceUnit, preferredFiatCurrency]);
 
   const rowTitleStyle = useMemo(() => {
     let color = colors.successColor;
@@ -1633,77 +1631,6 @@ export const BlueAddressInput = ({
   launchedBy,
 }) => {
   const { colors } = useTheme();
-  const choosePhoto = () => {
-    launchImageLibrary(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        }
-      },
-    );
-  };
-
-  const takePhoto = () => {
-    launchCamera(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        } else if (response.error) {
-          presentCameraNotAuthorizedAlert(response.error);
-        }
-      },
-    );
-  };
-
-  const copyFromClipbard = async () => {
-    onBarScanned(await Clipboard.getString());
-  };
-
-  const showActionSheet = async () => {
-    const isClipboardEmpty = (await Clipboard.getString()).trim().length === 0;
-    let copyFromClipboardIndex;
-    if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, loc.wallets.list_long_choose, isDesktop ? loc.wallets.take_photo : loc.wallets.list_long_scan];
-      if (!isClipboardEmpty) {
-        options.push(loc.wallets.list_long_clipboard);
-        copyFromClipboardIndex = options.length - 1;
-      }
-
-      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
-        if (buttonIndex === 1) {
-          choosePhoto();
-        } else if (buttonIndex === 2) {
-          takePhoto();
-        } else if (buttonIndex === copyFromClipboardIndex) {
-          copyFromClipbard();
-        }
-      });
-    }
-  };
 
   return (
     <View
@@ -1739,7 +1666,7 @@ export const BlueAddressInput = ({
         onPress={() => {
           Keyboard.dismiss();
           if (isDesktop) {
-            showActionSheet();
+            fs.showActionSheet().then(onBarScanned);
           } else {
             NavigationService.navigate('ScanQRCodeRoot', {
               screen: 'ScanQRCode',
@@ -2147,7 +2074,7 @@ export class BlueBitcoinAmount extends Component {
                 maxLength={this.maxLength()}
                 ref={textInput => (this.textInput = textInput)}
                 editable={!this.props.isLoading && !this.props.disabled}
-                value={parseFloat(amount) >= 0 || amount === BitcoinUnit.MAX ? amount : undefined}
+                value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? amount : undefined}
                 placeholderTextColor={
                   this.props.disabled ? BlueCurrentTheme.colors.buttonDisabledTextColor : BlueCurrentTheme.colors.alternativeTextColor2
                 }
@@ -2172,7 +2099,7 @@ export class BlueBitcoinAmount extends Component {
                     justifyContent: 'center',
                   }}
                 >
-                  {' ' + this.state.unit}
+                  {' ' + loc.units[this.state.unit]}
                 </Text>
               )}
             </View>
@@ -2181,7 +2108,7 @@ export class BlueBitcoinAmount extends Component {
                 {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX
                   ? removeTrailingZeros(secondaryDisplayCurrency)
                   : secondaryDisplayCurrency}
-                {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX ? ` ${BitcoinUnit.BTC}` : null}
+                {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX ? ` ${loc.units[BitcoinUnit.BTC]}` : null}
               </Text>
             </View>
           </View>

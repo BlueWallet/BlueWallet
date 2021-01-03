@@ -12,7 +12,7 @@ import {
   TextInput,
   StyleSheet,
 } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   BlueText,
   BlueListItem,
@@ -285,13 +285,13 @@ const WalletsAdd = () => {
                   <BlueSpacing20 />
                   <Text style={[styles.advancedText, stylesHook.advancedText]}>{loc.settings.advanced_options}</Text>
                   <BlueSpacing20 />
-                  <BlueText>Connect to your LNDHub</BlueText>
+                  <BlueText>{loc.wallets.add_lndhub}</BlueText>
                   <View style={[styles.lndUri, stylesHook.lndUri]}>
                     <TextInput
                       value={walletBaseURI}
                       onChangeText={setWalletBaseURI}
                       onSubmitEditing={Keyboard.dismiss}
-                      placeholder="your node address"
+                      placeholder={loc.wallets.add_lndhub_placeholder}
                       clearButtonMode="while-editing"
                       autoCapitalize="none"
                       textContentType="URL"

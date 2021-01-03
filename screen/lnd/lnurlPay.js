@@ -1,7 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   BlueBitcoinAmount,
   BlueButton,

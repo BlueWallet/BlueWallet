@@ -1487,9 +1487,9 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(w.isNativeSegwit());
     assert.ok(!w.isLegacy());
 
-    assert.strictEqual(w.getFingerprint(1), '2D440411');
-    assert.strictEqual(w.getFingerprint(2), 'F863CE8C');
-    assert.strictEqual(w.getFingerprint(3), '7BBD27BF');
+    assert.strictEqual(w.getFingerprint(1), '1104442D');
+    assert.strictEqual(w.getFingerprint(2), '8CCE63F8');
+    assert.strictEqual(w.getFingerprint(3), 'BF27BD7B');
 
     assert.strictEqual(
       w.getCosigner(1),
@@ -1508,6 +1508,65 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), "m/48'/0'/0'/2'");
     assert.strictEqual(w.getCustomDerivationPathForCosigner(3), "m/48'/0'/0'/2'");
     assert.strictEqual(w.getDerivationPath(), '');
+  });
+
+  it('can import from specter-desktop/fullynoded (p2sh-p2wsh)', () => {
+    // @see https://github.com/Fonta1n3/FullyNoded/blob/master/Docs/Wallets/Wallet-Export-Spec.md
+
+    const secrets = [
+      JSON.stringify({
+        label: 'nested2of3',
+        blockheight: 481824,
+        descriptor:
+          'sh(wsh(sortedmulti(2,[99fe7770/48h/0h/0h/1h]xpub6FEEbEaYM9pmY8rxz4g6AuaJVszwKt8g6cFg9nFWeE85EdBrGBcnhHqXAaPbQ4Hi3Xu9vijtYdYnNjERw9eSniF3235Vjde11GieeHjv7XT/0/*,[636bdad0/48h/0h/0h/1h]xpub6F67TyyWngU5rkVPxHTdmuYkaXHXeRwwVg5SsDeiPPjt6Mithh4Qzpu2yHjNa5W7nhcTbV6QaJMvppYMDSnB3SxArCkp9GvHQqpr5P17yFv/0/*,[99c90b2f/48h/0h/0h/1h]xpub6E6FyTrwmuUYeRMULXSAGvUKeP5ba6pQKVhWNuvVZFmGPnDYb9m5vP2XsSEQ4gKUGfXtLcKs4AV31vpfx2P5KuWm9co4HM3FtGov8enmJ6f/0/*)))#wy7xtlnw',
+      }),
+      'sh(wsh(sortedmulti(2,[99fe7770/48h/0h/0h/1h]xpub6FEEbEaYM9pmY8rxz4g6AuaJVszwKt8g6cFg9nFWeE85EdBrGBcnhHqXAaPbQ4Hi3Xu9vijtYdYnNjERw9eSniF3235Vjde11GieeHjv7XT/0/*,[636bdad0/48h/0h/0h/1h]xpub6F67TyyWngU5rkVPxHTdmuYkaXHXeRwwVg5SsDeiPPjt6Mithh4Qzpu2yHjNa5W7nhcTbV6QaJMvppYMDSnB3SxArCkp9GvHQqpr5P17yFv/0/*,[99c90b2f/48h/0h/0h/1h]xpub6E6FyTrwmuUYeRMULXSAGvUKeP5ba6pQKVhWNuvVZFmGPnDYb9m5vP2XsSEQ4gKUGfXtLcKs4AV31vpfx2P5KuWm9co4HM3FtGov8enmJ6f/0/*)))#wy7xtlnw',
+    ];
+
+    for (const secret of secrets) {
+      const w = new MultisigHDWallet();
+      w.setSecret(secret);
+      assert.strictEqual(w.getM(), 2);
+      assert.strictEqual(w.getN(), 3);
+      assert.strictEqual(w._getExternalAddressByIndex(0), '3GSZaKT3LujScx6JeWejc6xjZsCDRzptsA');
+      assert.strictEqual(w._getExternalAddressByIndex(1), '3GT11kStn8W6q2kj257uZqW9xEKJwPMDkw');
+      assert.ok(w.getLabel() === 'nested2of3' || w.getLabel() === 'Multisig vault');
+      assert.ok(w.isWrappedSegwit());
+      assert.ok(!w.isNativeSegwit());
+      assert.ok(!w.isLegacy());
+
+      assert.strictEqual(w.getFingerprint(1), '99FE7770');
+      assert.strictEqual(w.getFingerprint(2), '636BDAD0');
+      assert.strictEqual(w.getFingerprint(3), '99C90B2F');
+
+      assert.strictEqual(
+        w.getCosigner(1),
+        'xpub6FEEbEaYM9pmY8rxz4g6AuaJVszwKt8g6cFg9nFWeE85EdBrGBcnhHqXAaPbQ4Hi3Xu9vijtYdYnNjERw9eSniF3235Vjde11GieeHjv7XT',
+      );
+      assert.strictEqual(
+        w.getCosigner(2),
+        'xpub6F67TyyWngU5rkVPxHTdmuYkaXHXeRwwVg5SsDeiPPjt6Mithh4Qzpu2yHjNa5W7nhcTbV6QaJMvppYMDSnB3SxArCkp9GvHQqpr5P17yFv',
+      );
+      assert.strictEqual(
+        w.getCosigner(3),
+        'xpub6E6FyTrwmuUYeRMULXSAGvUKeP5ba6pQKVhWNuvVZFmGPnDYb9m5vP2XsSEQ4gKUGfXtLcKs4AV31vpfx2P5KuWm9co4HM3FtGov8enmJ6f',
+      );
+
+      assert.strictEqual(w.getCustomDerivationPathForCosigner(1), "m/48'/0'/0'/1'");
+      assert.strictEqual(w.getCustomDerivationPathForCosigner(2), "m/48'/0'/0'/1'");
+      assert.strictEqual(w.getCustomDerivationPathForCosigner(3), "m/48'/0'/0'/1'");
+      assert.strictEqual(w.getDerivationPath(), '');
+    }
+
+    const ww = new MultisigHDWallet();
+    ww.addCosigner('equal emotion skin exchange scale inflict half expose awkward deliver series broken');
+    ww.addCosigner('spatial road snack luggage buddy media seek charge people pool neither family');
+    ww.addCosigner('sing author lyrics expand ladder embody frost rapid survey similar flight unknown');
+    ww.setM(2);
+    ww.setDerivationPath("m/48'/0'/0'/1'");
+    ww.setWrappedSegwit();
+    assert.strictEqual(ww._getExternalAddressByIndex(0), '3GSZaKT3LujScx6JeWejc6xjZsCDRzptsA');
+    assert.strictEqual(ww.getFingerprint(1), '99FE7770');
   });
 
   it('can edit cosigners', () => {
@@ -1567,6 +1626,66 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(!w.getCustomDerivationPathForCosigner(2));
     assert.strictEqual(w.getN(), 1);
     assert.strictEqual(w.getM(), 2);
+  });
+
+  it('can sign valid tx if we have more keys than quorum ("Too many signatures" error)', async () => {
+    const w = new MultisigHDWallet();
+    w.setSecret(
+      '# BlueWallet Multisig setup file\n' +
+        '# this file may contain private information\n' +
+        '#\n' +
+        'Name: Multisig Vault\n' +
+        'Policy: 3 of 6\n' +
+        "Derivation: m/48'/0'/0'/2'\n" +
+        'Format: P2WSH\n' +
+        '\n' +
+        'seed: start local figure rose pony artist voice agent pyramid still spot walk\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: empty fall vanish sheriff vibrant diary route lock purity noodle ripple clutch\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: else heart suggest proof travel announce reason priority trick bargain author duty\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: craft response kitchen column feed fitness pill loyal capital together usage either\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: trigger zebra image engine inhale employ floor soul glimpse version extra pizza\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: thank post talent polar hire model trophy elevator wide green hungry gossip\n' +
+        '# warning! sensitive information, do not disclose ^^^',
+    );
+
+    const utxos = [
+      {
+        height: 662352,
+        value: 100000,
+        address: 'bc1qlkh0zgq5ypcdfs9rdvrucra96c5gmjgaufm0au8cglkkrah29nesrkvewg',
+        txId: 'e112e3b109aff5fe76d4fde90bd3c2df58bfb250280a4404421fff42d6801fd2',
+        vout: 0,
+        txid: 'e112e3b109aff5fe76d4fde90bd3c2df58bfb250280a4404421fff42d6801fd2',
+        amount: 100000,
+        wif: false,
+        confirmations: 1,
+        txhex:
+          '020000000001020d0f713ba314566ea9b7e7d64eb8538dd0a88826377945464e9bb25eed61d665010000000000000080f570a2bb8faff02b848a4a5b2d334324a1ccc6cebf1c1cc27e231316f579e66d01000000000000008002a086010000000000220020fdaef120142070d4c0a36b07cc0fa5d6288dc91de276fef0f847ed61f6ea2cf3d6eb060000000000160014696154a1ed38813c4c45b58ece291c1a8d9cd7d102483045022100d02ef858d129ba50aeee126e41e9cca5fa58232def7934d6705747e81bcd61a402206d2565c336cd32cb128ae9e80af60d610154af0d4e77cb60e015dead349b368b012103471950f9952608d9db6d3698b731d89387b7b55026ae020919ee7da7a2a4866d0247304402204088a68fc4654c0cedb724f6e8fe3820845d5e7184b0363806ea77f8a739f58702202bf7b3b20d6d6db28617e8edd6d0ea3870ab7e3bc62307ad77fa9717a3689bcb01210371d2366d9fc32c5a83bb78d7ced38d5e318a96dc43a18074742e567defe4585d00000000',
+      },
+    ];
+
+    const { psbt, tx } = w.createTransaction(
+      utxos,
+      [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS' }], // sendMax
+      1,
+      w._getInternalAddressByIndex(0),
+    );
+
+    assert.ok(tx);
+    assert.ok(psbt);
+
+    assert.strictEqual(psbt.data.inputs.length, 1);
+    assert.strictEqual(psbt.data.outputs.length, 1);
   });
 });
 

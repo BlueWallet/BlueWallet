@@ -7,6 +7,8 @@ import DocumentPicker from 'react-native-document-picker';
 import isCatalyst from 'react-native-is-catalyst';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { presentCameraNotAuthorizedAlert } from '../class/camera';
+import Clipboard from '@react-native-community/clipboard';
+import ActionSheet from '../screen/ActionSheet';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const writeFileAndExport = async function (filename, contents) {
@@ -190,8 +192,43 @@ const showFilePickerAndReadFile = async function () {
   }
 };
 
+// Intended for macOS Catalina. Not for long press shortcut
+const showActionSheet = async () => {
+  const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
+  let copyFromClipboardIndex;
+  const options = [loc._.cancel, loc.wallets.take_photo, loc.wallets.list_long_choose];
+  if (!isClipboardEmpty) {
+    options.push(loc.wallets.list_long_clipboard);
+    copyFromClipboardIndex = options.length - 1;
+  }
+
+  options.push(loc.wallets.import_file);
+  const importFileButtonIndex = options.length - 1;
+
+  return new Promise(resolve =>
+    ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, async buttonIndex => {
+      if (buttonIndex === 1) {
+        takePhotoWithImagePickerAndReadPhoto().then(resolve);
+      } else if (buttonIndex === 2) {
+        showImagePickerAndReadImage()
+          .then(resolve)
+          .catch(error => alert(error.message));
+      } else if (buttonIndex === copyFromClipboardIndex) {
+        const clipboard = await Clipboard.getString();
+        resolve(clipboard);
+      } else if (importFileButtonIndex) {
+        const { data } = await showFilePickerAndReadFile();
+        if (data) {
+          resolve(data);
+        }
+      }
+    }),
+  );
+};
+
 module.exports.writeFileAndExport = writeFileAndExport;
 module.exports.openSignedTransaction = openSignedTransaction;
 module.exports.showFilePickerAndReadFile = showFilePickerAndReadFile;
 module.exports.showImagePickerAndReadImage = showImagePickerAndReadImage;
 module.exports.takePhotoWithImagePickerAndReadPhoto = takePhotoWithImagePickerAndReadPhoto;
+module.exports.showActionSheet = showActionSheet;

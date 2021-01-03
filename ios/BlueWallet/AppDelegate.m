@@ -6,15 +6,15 @@
  */
 
 #import "AppDelegate.h"
-
 #import <React/RCTLinkingManager.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 #import "RNQuickActionManager.h"
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
+#import "EventEmitter.h"
+#if !TARGET_OS_MACCATALYST
 #ifdef FB_SONARKIT_ENABLED
-#if DEBUG
 #import <FlipperKit/FlipperClient.h>
 #import <FlipperKitLayoutPlugin/FlipperKitLayoutPlugin.h>
 #import <FlipperKitUserDefaultsPlugin/FKUserDefaultsPlugin.h>
@@ -38,10 +38,11 @@ static void InitializeFlipper(UIApplication *application) {
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+#if !TARGET_OS_MACCATALYST
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);
 #endif
-
+#endif
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                    moduleName:@"BlueWallet"
@@ -52,7 +53,6 @@ static void InitializeFlipper(UIApplication *application) {
   } else {
     rootView.backgroundColor = [UIColor clearColor];
   }
-
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   UIViewController *rootViewController = [UIViewController new];
   rootViewController.view = rootView;
@@ -61,11 +61,9 @@ static void InitializeFlipper(UIApplication *application) {
   UIView* launchScreenView = [[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil] instantiateInitialViewController].view;
    launchScreenView.frame = self.window.bounds;
    rootView.loadingView = launchScreenView;
-  
   // Define UNUserNotificationCenter
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
-  
   return YES;
 }
 
@@ -91,48 +89,39 @@ static void InitializeFlipper(UIApplication *application) {
   [RNQuickActionManager onQuickActionPress:shortcutItem completionHandler:completionHandler];
 }
 
-
-
-
-
-
-
-
 //Called when a notification is delivered to a foreground app.
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
-  completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
+  NSDictionary *userInfo = notification.request.content.userInfo;
+  [EventEmitter.sharedInstance sendNotification:userInfo];
+  completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
 }
-
-
-
-
-
-
-
-
 
 // Required to register for notifications
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
 {
  [RNCPushNotificationIOS didRegisterUserNotificationSettings:notificationSettings];
 }
+
 // Required for the register event.
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
  [RNCPushNotificationIOS didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
+
 // Required for the notification event. You must call the completion handler after handling the remote notification.
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
   [RNCPushNotificationIOS didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 }
+
 // Required for the registrationError event.
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 {
  [RNCPushNotificationIOS didFailToRegisterForRemoteNotificationsWithError:error];
 }
+
 // IOS 10+ Required for localNotification event
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
 didReceiveNotificationResponse:(UNNotificationResponse *)response
@@ -141,19 +130,42 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   [RNCPushNotificationIOS didReceiveNotificationResponse:response];
   completionHandler();
 }
+
 // IOS 4-10 Required for the localNotification event.
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
 {
  [RNCPushNotificationIOS didReceiveLocalNotification:notification];
 }
 
+- (void)openPreferences {
+  [EventEmitter.sharedInstance openSettings];
+}
+
+- (void)buildMenuWithBuilder:(id<UIMenuBuilder>)builder {
+  [super buildMenuWithBuilder:builder];
+  [builder removeMenuForIdentifier:UIMenuServices];
+  [builder removeMenuForIdentifier:UIMenuFormat];
+  [builder removeMenuForIdentifier:UIMenuToolbar];
+  [builder removeMenuForIdentifier:UIMenuFile];
+
+  UIKeyCommand *preferencesCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openPreferences)];
+  [preferencesCommand setTitle:@"Preferences..."];
+  UIMenu *preferences = [UIMenu menuWithTitle:@"Preferences..." image:nil identifier:@"openPreferences" options:UIMenuOptionsDisplayInline children:@[preferencesCommand]];
+  
+  [builder insertSiblingMenu:preferences afterMenuForIdentifier:UIMenuAbout];
+}
 
 
+-(void)showHelp:(id)sender {
+  [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://help.bluewallet.io"] options:@{} completionHandler:nil];
+}
 
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
+  if (action == @selector(showHelp:)) {
+    return true;
+  } else {
+    return [super canPerformAction:action withSender:sender];
+  }
+}
 
 @end
-
-
-
-
-

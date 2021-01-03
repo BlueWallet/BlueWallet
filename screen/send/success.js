@@ -79,13 +79,13 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
           {amount && (
             <>
               <Text style={[styles.amountValue, stylesHook.amountValue]}>{amount}</Text>
-              <Text style={[styles.amountUnit, stylesHook.amountUnit]}>{' ' + amountUnit}</Text>
+              <Text style={[styles.amountUnit, stylesHook.amountUnit]}>{' ' + loc.units[amountUnit]}</Text>
             </>
           )}
         </View>
         {fee > 0 && (
           <Text style={styles.feeText}>
-            {loc.send.create_fee}: {fee} {BitcoinUnit.BTC}
+            {loc.send.create_fee}: {fee} {loc.units[BitcoinUnit.BTC]}
           </Text>
         )}
         <Text numberOfLines={0} style={styles.feeText}>

@@ -18,7 +18,6 @@ import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getSystemName } from 'react-native-device-info';
-import { launchCamera } from 'react-native-image-picker';
 
 import {
   BlueButton,
@@ -40,11 +39,9 @@ import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
-import ScanQRCode from '../send/ScanQRCode';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-
+const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
 
 const ViewEditMultisigCosigners = () => {
@@ -403,29 +400,8 @@ const ViewEditMultisigCosigners = () => {
   };
 
   const scanOrOpenFile = () => {
-    setIsProvideMnemonicsModalVisible(false);
     if (isDesktop) {
-      launchCamera(
-        {
-          title: null,
-          mediaType: 'photo',
-          takePhotoButtonTitle: null,
-        },
-        response => {
-          if (response.uri) {
-            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
-            LocalQRCode.decode(uri, (error, result) => {
-              if (!error) {
-                _handleUseMnemonicPhrase(result);
-              } else {
-                alert(loc.send.qr_error_no_qrcode);
-              }
-            });
-          } else if (response.error) {
-            ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
-          }
-        },
-      );
+      fs.showActionSheet().then(_handleUseMnemonicPhrase);
     } else {
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',

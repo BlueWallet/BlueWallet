@@ -190,7 +190,7 @@ const TransactionsDetails = () => {
           {tx.hash && (
             <>
               <View style={styles.rowHeader}>
-                <BlueText style={[styles.txId, stylesHooks.txId]}>Txid</BlueText>
+                <BlueText style={[styles.txId, stylesHooks.txId]}>{loc.transactions.txid}</BlueText>
                 <BlueCopyToClipboardButton stringToCopy={tx.hash} />
               </View>
               <BlueText style={styles.txHash}>{tx.hash}</BlueText>
@@ -203,7 +203,7 @@ const TransactionsDetails = () => {
           {tx.received && (
             <>
               <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_received}</BlueText>
-              <BlueText style={styles.rowValue}>{dayjs(tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
+              <BlueText style={styles.rowValue}>{dayjs(tx.received).format('LLL')}</BlueText>
             </>
           )}
 

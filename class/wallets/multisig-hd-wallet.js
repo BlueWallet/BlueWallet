@@ -3,8 +3,6 @@ import bip39 from 'bip39';
 import b58 from 'bs58check';
 import { decodeUR } from 'bc-ur';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
-const coinSelectAccumulative = require('coinselect/accumulative');
-const coinSelectSplit = require('coinselect/split');
 const HDNode = require('bip32');
 const bitcoin = require('bitcoinjs-lib');
 const createHash = require('create-hash');
@@ -556,15 +554,17 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     // is it wallet descriptor?
     // @see https://github.com/bitcoin/bitcoin/blob/master/doc/descriptors.md
     // @see https://github.com/Fonta1n3/FullyNoded/blob/master/Docs/Wallets/Wallet-Export-Spec.md
+    if (!json && secret.indexOf('sortedmulti(')) {
+      // provided secret was NOT json but plain wallet descriptor text. lets mock json
+      json = { descriptor: secret, label: 'Multisig vault' };
+    }
     if (secret.indexOf('sortedmulti(') !== -1 && json.descriptor) {
       if (json.label) this.setLabel(json.label);
       if (json.descriptor.startsWith('wsh(')) {
         this.setNativeSegwit();
-      }
-      if (json.descriptor.startsWith('sh(')) {
-        this.setLegacy();
-      }
-      if (json.descriptor.startsWith('sh(wsh(')) {
+      } else if (json.descriptor.startsWith('sh(wsh(')) {
+        this.setWrappedSegwit();
+      } else if (json.descriptor.startsWith('sh(')) {
         this.setLegacy();
       }
 
@@ -579,7 +579,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         if (m && m.length === 3) {
           let hexFingerprint = m[1].split('/')[0];
           if (hexFingerprint.length === 8) {
-            hexFingerprint = Buffer.from(hexFingerprint, 'hex').reverse().toString('hex');
+            hexFingerprint = Buffer.from(hexFingerprint, 'hex').toString('hex');
           }
 
           const path = 'm/' + m[1].split('/').slice(1).join('/').replace(/[h]/g, "'");
@@ -809,21 +809,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     if (targets.length === 0) throw new Error('No destination provided');
     if (this.howManySignaturesCanWeMake() === 0) skipSigning = true;
 
-    if (!changeAddress) throw new Error('No change address provided');
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
-
-    let algo = coinSelectAccumulative;
-    if (targets.length === 1 && targets[0] && !targets[0].value) {
-      // we want to send MAX
-      algo = coinSelectSplit;
-    }
-
-    const { inputs, outputs, fee } = algo(utxos, targets, feeRate);
-
-    // .inputs and .outputs will be undefined if no solution was found
-    if (!inputs || !outputs) {
-      throw new Error('Not enough balance. Try sending smaller amount');
-    }
 
     let psbt = new bitcoin.Psbt();
 
@@ -853,11 +840,16 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       psbt.addOutput(outputData);
     });
 
+    let signaturesMade = 0;
     if (!skipSigning) {
       for (let cc = 0; cc < c; cc++) {
         for (const cosigner of this._cosigners) {
           if (!MultisigHDWallet.isXpubString(cosigner)) {
             // ok this is a mnemonic, lets try to sign
+            if (signaturesMade >= this.getM()) {
+              // dont sign more than we need, otherwise there will be "Too many signatures" error
+              continue;
+            }
             let seed = bip39.mnemonicToSeed(cosigner);
             if (cosigner.startsWith(ELECTRUM_SEED_PREFIX)) {
               seed = MultisigHDWallet.convertElectrumMnemonicToSeed(cosigner);
@@ -865,6 +857,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
             const hdRoot = bitcoin.bip32.fromSeed(seed);
             psbt.signInputHD(cc, hdRoot);
+            signaturesMade++;
           }
         }
       }
