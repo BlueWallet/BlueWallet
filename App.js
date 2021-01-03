@@ -1,6 +1,17 @@
 import 'react-native-gesture-handler'; // should be on top
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { AppState, DeviceEventEmitter, KeyboardAvoidingView, Linking, Platform, StyleSheet, useColorScheme, View } from 'react-native';
+import {
+  AppState,
+  DeviceEventEmitter,
+  NativeModules,
+  NativeEventEmitter,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  StyleSheet,
+  useColorScheme,
+  View,
+} from 'react-native';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { navigationRef } from './NavigationService';
@@ -27,6 +38,8 @@ import WidgetCommunication from './blue_modules/WidgetCommunication';
 import changeNavigationBarColor from 'react-native-navigation-bar-color';
 const A = require('./blue_modules/analytics');
 
+const eventEmitter = new NativeEventEmitter(NativeModules.EventEmitter);
+
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
     dsn: 'https://23377936131848ca8003448a893cb622@sentry.io/1295736',
@@ -39,7 +52,9 @@ const ClipboardContentType = Object.freeze({
 });
 
 const App = () => {
-  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions } = useContext(
+    BlueStorageContext,
+  );
   const appState = useRef(AppState.currentState);
   const [isClipboardContentModalVisible, setIsClipboardContentModalVisible] = useState(false);
   const [clipboardContentType, setClipboardContentType] = useState();
@@ -50,6 +65,25 @@ const App = () => {
       backgroundColor: colorScheme === 'dark' ? BlueDarkTheme.colors.elevated : BlueDefaultTheme.colors.elevated,
     },
   });
+
+  const onNotificationReceived = async notification => {
+    const payload = Object.assign({}, notification, notification.data);
+    if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
+    payload.foreground = true;
+
+    await Notifications.addNotification(payload);
+    // if user is staring at the app when he receives the notification we process it instantly
+    // so app refetches related wallet
+    if (payload.foreground) await processPushNotifications();
+  };
+
+  const openSettings = () => {
+    NavigationService.dispatch(
+      CommonActions.navigate({
+        name: 'Settings',
+      }),
+    );
+  };
 
   useEffect(() => {
     if (walletsInitialized) {
@@ -62,6 +96,8 @@ const App = () => {
     return () => {
       Linking.removeEventListener('url', handleOpenURL);
       AppState.removeEventListener('change', handleAppStateChange);
+      eventEmitter.removeAllListeners('onNotificationReceived');
+      eventEmitter.removeAllListeners('openSettings');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -83,6 +119,12 @@ const App = () => {
     DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
     QuickActions.popInitialAction().then(popInitialAction);
     handleAppStateChange(undefined);
+    /*
+      When a notification on iOS is shown while the app is on foreground;
+      On willPresent on AppDelegate.m
+     */
+    eventEmitter.addListener('onNotificationReceived', onNotificationReceived);
+    eventEmitter.addListener('openSettings', openSettings);
   };
 
   const popInitialAction = async data => {
@@ -147,11 +189,15 @@ const App = () => {
    * @private
    */
   const processPushNotifications = async () => {
-    Notifications.setApplicationIconBadgeNumber(0);
     await new Promise(resolve => setTimeout(resolve, 200));
     // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
     const notifications2process = await Notifications.getStoredNotifications();
-    let returnValue = false;
+
+    await Notifications.clearStoredNotifications();
+    Notifications.setApplicationIconBadgeNumber(0);
+    const deliveredNotifications = await Notifications.getDeliveredNotifications();
+    setTimeout(() => Notifications.removeAllDeliveredNotifications(), 5000); // so notification bubble wont disappear too fast
+
     for (const payload of notifications2process) {
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
 
@@ -182,19 +228,22 @@ const App = () => {
               },
             }),
           );
+
+          return true;
         }
-
-        // no delay (1ms) as we don't need to wait for transaction propagation. 500ms is a delay to wait for the navigation
-        returnValue = true;
       } else {
-        console.log('could not find wallet while processing push notification tap, NOP');
+        console.log('could not find wallet while processing push notification, NOP');
       }
-    }
-    await Notifications.clearStoredNotifications();
-    // TODO: if we are here - we did not act upon any push, so we need to iterate over _not tapped_ pushes
-    // and refetch appropriate wallet and redraw screen
+    } // end foreach notifications loop
 
-    return returnValue;
+    if (deliveredNotifications.length > 0) {
+      // notification object is missing userInfo. We know we received a notification but don't have sufficient
+      // data to refresh 1 wallet. let's refresh all.
+      refreshAllWalletTransactions();
+    }
+
+    // if we are here - we did not act upon any push
+    return false;
   };
 
   const handleAppStateChange = async nextAppState => {

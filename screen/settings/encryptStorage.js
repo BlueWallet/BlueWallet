@@ -18,6 +18,7 @@ import {
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { isCatalyst } from '../../blue_modules/environment';
 const prompt = require('../../blue_modules/prompt');
 
 const EncryptStorage = () => {
@@ -44,7 +45,7 @@ const EncryptStorage = () => {
   const initialState = useCallback(async () => {
     const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
-    const biometricsType = (await Biometric.biometricType()) || 'biometrics';
+    const biometricsType = (await Biometric.biometricType()) || loc.settings.biometrics;
     const deleteWalletsAfterUninstall = await isDeleteWalletAfterUninstallEnabled();
     const isStorageEncryptedSwitchEnabled = await isStorageEncrypted();
     setStorageIsEncryptedSwitchEnabled(isStorageEncryptedSwitchEnabled);
@@ -157,7 +158,7 @@ const EncryptStorage = () => {
       <ScrollView contentContainerStyle={styles.root}>
         {biometrics.isDeviceBiometricCapable && (
           <>
-            <BlueHeaderDefaultSubHooks leftText={loc.settings.biom} rightComponent={null} />
+            <BlueHeaderDefaultSubHooks leftText={loc.settings.biometrics} rightComponent={null} />
             <BlueListItem
               title={loc.formatString(loc.settings.encrypt_use, { type: biometrics.biometricsType })}
               Component={TouchableWithoutFeedback}
@@ -177,7 +178,7 @@ const EncryptStorage = () => {
           Component={TouchableWithoutFeedback}
           switch={{ onValueChange: onEncryptStorageSwitch, value: storageIsEncryptedSwitchEnabled }}
         />
-        {Platform.OS === 'ios' && (
+        {Platform.OS === 'ios' && !isCatalyst && (
           <BlueListItem
             hideChevron
             title={loc.settings.encrypt_del_uninstall}

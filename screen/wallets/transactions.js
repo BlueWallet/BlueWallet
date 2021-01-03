@@ -351,7 +351,7 @@ const WalletTransactions = () => {
           }}
           style={[styles.marketplaceButton1, stylesHook.marketplaceButton1]}
         >
-          <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.marketplace}</Text>
+          <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_marketplace}</Text>
         </TouchableOpacity>
       ),
       ios:
@@ -363,7 +363,7 @@ const WalletTransactions = () => {
             style={[styles.marketplaceButton1, stylesHook.marketplaceButton1]}
           >
             <Icon name="external-link" size={18} type="font-awesome" color="#9aa0aa" />
-            <Text style={[styles.marketpalceText2, stylesHook.marketpalceText2]}>{loc.wallets.marketplace}</Text>
+            <Text style={[styles.marketpalceText2, stylesHook.marketpalceText2]}>{loc.wallets.list_marketplace}</Text>
           </TouchableOpacity>
         ) : null,
     });

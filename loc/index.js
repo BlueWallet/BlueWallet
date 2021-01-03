@@ -128,6 +128,8 @@ const setDateTimeLocale = async () => {
   }
   if (localeForDayJSAvailable) {
     dayjs.locale(lang.split('_')[0]);
+  } else {
+    dayjs.locale('en');
   }
 };
 
