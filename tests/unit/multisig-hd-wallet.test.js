@@ -1569,6 +1569,38 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(ww.getFingerprint(1), '99FE7770');
   });
 
+  it('can import wallet descriptor without sorted keys', () => {
+    // @see https://github.com/Fonta1n3/FullyNoded/blob/master/Docs/Wallets/Wallet-Export-Spec.md
+    const w = new MultisigHDWallet();
+    w.setSecret(
+      'wsh(multi(3,xpub661MyMwAqRbcF13nMmebEmEzQvNH6ZC65QMi6wvmTAvbu957VAWpt2SM7wQiLd5NVudfUpvzpeXNfT5AjhWbbuSKpJ2cssPiPM2tCeZMy7T/,xpub661MyMwAqRbcEbwCpKydkE7KTa2EeMNtZtvSQ8BS1UK2jxVpb9767T5hyBxt67Wa2vev7defUorAFxVvNuSsrMJA34pSDAqj7MYig32Yn12/,xpub661MyMwAqRbcEnmMnN5ish1Z7tPBfPDKp4wdKhSj6j4UDhiK5bzU6qjE5KnQKw6cQLKg6AhwnPvGmw7A7gsgZqvkEQZDmDqgPUutccd74Wh/,xpub661MyMwAqRbcEydQM8Y6dCRKkpFszd8xeCFTqiwSUZW7MQ5f249yjRuD8EV43gtkNNxHCDgDmZwy2oVDuAY9pV6sWdBbeU2FuoWGtkERFhV/,xpub661MyMwAqRbcGNZ4VG1dRWTN2qcsQhz5w4McN9KRXrAECe4toPr44jEtskvCjizC63xM3QnSXyfraFgLqb14ExZUP4QQxnSejCngFjQ8sZz/,xpub661MyMwAqRbcGHtzSBVBkk166iS6XQgYQnrgu2CHAFL5znv1byy5e4ZjCmZ3ZhugmUx3x91kC5xjyYAQCvtoJXheTyUSQ23y8RWDhH6wbs2/,xpub661MyMwAqRbcGUuSCPhxc7NDC6Zh4fhecozKEiR7QK7APCVt9Yhyx2NMUd4wrTHYP91G4Fh6Jp9P5Aipf8FjDsrSutkLj3Lie5bCrrM2CfT/*))#9hky7ctt',
+    );
+    assert.strictEqual(w.getM(), 3);
+    assert.strictEqual(w.getN(), 7);
+
+    assert.ok(!w.isWrappedSegwit());
+    assert.ok(w.isNativeSegwit());
+    assert.ok(!w.isLegacy());
+
+    assert.strictEqual(
+      w.getCosigner(1),
+      'xpub661MyMwAqRbcF13nMmebEmEzQvNH6ZC65QMi6wvmTAvbu957VAWpt2SM7wQiLd5NVudfUpvzpeXNfT5AjhWbbuSKpJ2cssPiPM2tCeZMy7T',
+    );
+
+    assert.strictEqual(
+      w.getCosigner(6),
+      'xpub661MyMwAqRbcGHtzSBVBkk166iS6XQgYQnrgu2CHAFL5znv1byy5e4ZjCmZ3ZhugmUx3x91kC5xjyYAQCvtoJXheTyUSQ23y8RWDhH6wbs2',
+    );
+
+    assert.strictEqual(
+      w.getCosigner(7),
+      'xpub661MyMwAqRbcGUuSCPhxc7NDC6Zh4fhecozKEiR7QK7APCVt9Yhyx2NMUd4wrTHYP91G4Fh6Jp9P5Aipf8FjDsrSutkLj3Lie5bCrrM2CfT',
+    );
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qg4wtpw3vn9lv0je3ca679nhpqstmvxqan8mjrj8rkg52snq0hzyqsncezw');
+    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1q25ercknufqd2a9lkwr0sgzd54634w4nfww4jkp7gl6yt7cs9gztsvn5utg');
+  });
+
   it('can edit cosigners', () => {
     const path = "m/48'/0'/0'/2'";
 
