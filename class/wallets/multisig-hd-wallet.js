@@ -554,6 +554,10 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     // is it wallet descriptor?
     // @see https://github.com/bitcoin/bitcoin/blob/master/doc/descriptors.md
     // @see https://github.com/Fonta1n3/FullyNoded/blob/master/Docs/Wallets/Wallet-Export-Spec.md
+    if (!json && secret.indexOf('sortedmulti(')) {
+      // provided secret was NOT json but plain wallet descriptor text. lets mock json
+      json = { descriptor: secret, label: 'Multisig vault' };
+    }
     if (secret.indexOf('sortedmulti(') !== -1 && json.descriptor) {
       if (json.label) this.setLabel(json.label);
       if (json.descriptor.startsWith('wsh(')) {
