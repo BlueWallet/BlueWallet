@@ -12,7 +12,7 @@ import { AvailableLanguages } from './languages';
 const currency = require('../blue_modules/currency');
 
 dayjs.extend(relativeTime);
-dayjs.extend(localizedFormat)
+dayjs.extend(localizedFormat);
 
 // first-time loading sequence
 
