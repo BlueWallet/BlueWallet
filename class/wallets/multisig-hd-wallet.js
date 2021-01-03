@@ -558,11 +558,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       if (json.label) this.setLabel(json.label);
       if (json.descriptor.startsWith('wsh(')) {
         this.setNativeSegwit();
-      }
-      if (json.descriptor.startsWith('sh(')) {
-        this.setLegacy();
-      }
-      if (json.descriptor.startsWith('sh(wsh(')) {
+      } else if (json.descriptor.startsWith('sh(wsh(')) {
+        this.setWrappedSegwit();
+      } else if (json.descriptor.startsWith('sh(')) {
         this.setLegacy();
       }
 
