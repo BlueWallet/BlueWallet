@@ -60,8 +60,7 @@ const PleaseBackupLNDHub = () => {
         <View>
           <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>
           <BlueSpacing20 />
-          <BlueText>- {loc.pleasebackup.text_lnd2}</BlueText>
-          {wallet.getBaseURI() === LightningCustodianWallet.defaultBaseUri && <BlueText>- {loc.pleasebackup.text_lnd3}</BlueText>}
+          {wallet.getBaseURI() === LightningCustodianWallet.defaultBaseUri && <BlueText>- {loc.pleasebackup.text_lnd2}</BlueText>}
         </View>
         <BlueSpacing20 />
         <View style={styles.qrCodeContainer}>

@@ -137,8 +137,7 @@
     "ok_lnd": "OK, I have saved it.",
     "text": "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device.",
     "text_lnd": "Please save this wallet backup. It allows you to restore the wallet in case of loss.",
-    "text_lnd2": "Don't use it for large amounts.",
-    "text_lnd3": "This wallet is hosted by BlueWallet.",
+    "text_lnd2": "This wallet is hosted by BlueWallet.",
     "title": "Your wallet is created"
   },
   "receive": {
