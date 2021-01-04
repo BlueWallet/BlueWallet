@@ -1082,4 +1082,16 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   allowBatchSend() {
     return true;
   }
+
+  /**
+   * Returns TRUE only for _multisignature_ xpubs as per SLIP-0132
+   * (capital Z, capital Y, or just xpub)
+   * @see https://github.com/satoshilabs/slips/blob/master/slip-0132.md
+   *
+   * @param xpub
+   * @return {boolean}
+   */
+  static isXpubForMultisig(xpub) {
+    return ['xpub', 'Ypub', 'Zpub'].includes(xpub.substring(0, 4));
+  }
 }
