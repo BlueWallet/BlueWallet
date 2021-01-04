@@ -6,15 +6,15 @@
  */
 
 #import "AppDelegate.h"
-
 #import <React/RCTLinkingManager.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 #import "RNQuickActionManager.h"
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
+#import "EventEmitter.h"
+#if !TARGET_OS_MACCATALYST
 #ifdef FB_SONARKIT_ENABLED
-#if DEBUG
 #import <FlipperKit/FlipperClient.h>
 #import <FlipperKitLayoutPlugin/FlipperKitLayoutPlugin.h>
 #import <FlipperKitUserDefaultsPlugin/FKUserDefaultsPlugin.h>
@@ -38,10 +38,11 @@ static void InitializeFlipper(UIApplication *application) {
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+#if !TARGET_OS_MACCATALYST
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);
 #endif
-
+#endif
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                    moduleName:@"BlueWallet"
@@ -52,7 +53,6 @@ static void InitializeFlipper(UIApplication *application) {
   } else {
     rootView.backgroundColor = [UIColor clearColor];
   }
-
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   UIViewController *rootViewController = [UIViewController new];
   rootViewController.view = rootView;
@@ -61,11 +61,9 @@ static void InitializeFlipper(UIApplication *application) {
   UIView* launchScreenView = [[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil] instantiateInitialViewController].view;
    launchScreenView.frame = self.window.bounds;
    rootView.loadingView = launchScreenView;
-  
   // Define UNUserNotificationCenter
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
-  
   return YES;
 }
 
@@ -95,11 +93,8 @@ static void InitializeFlipper(UIApplication *application) {
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
   NSDictionary *userInfo = notification.request.content.userInfo;
-  //Foreground
-  NSLog(@"APP_PUSH from foreground %@", userInfo);
- [RNCPushNotificationIOS didReceiveRemoteNotification:userInfo
- fetchCompletionHandler:^void (UIBackgroundFetchResult result){}];
-  completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
+  [EventEmitter.sharedInstance sendNotification:userInfo];
+  completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
 }
 
 // Required to register for notifications
@@ -140,6 +135,37 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
 {
  [RNCPushNotificationIOS didReceiveLocalNotification:notification];
+}
+
+- (void)openPreferences {
+  [EventEmitter.sharedInstance openSettings];
+}
+
+- (void)buildMenuWithBuilder:(id<UIMenuBuilder>)builder {
+  [super buildMenuWithBuilder:builder];
+  [builder removeMenuForIdentifier:UIMenuServices];
+  [builder removeMenuForIdentifier:UIMenuFormat];
+  [builder removeMenuForIdentifier:UIMenuToolbar];
+  [builder removeMenuForIdentifier:UIMenuFile];
+
+  UIKeyCommand *preferencesCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openPreferences)];
+  [preferencesCommand setTitle:@"Preferences..."];
+  UIMenu *preferences = [UIMenu menuWithTitle:@"Preferences..." image:nil identifier:@"openPreferences" options:UIMenuOptionsDisplayInline children:@[preferencesCommand]];
+  
+  [builder insertSiblingMenu:preferences afterMenuForIdentifier:UIMenuAbout];
+}
+
+
+-(void)showHelp:(id)sender {
+  [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://help.bluewallet.io"] options:@{} completionHandler:nil];
+}
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
+  if (action == @selector(showHelp:)) {
+    return true;
+  } else {
+    return [super canPerformAction:action withSender:sender];
+  }
 }
 
 @end

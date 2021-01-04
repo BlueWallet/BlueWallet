@@ -54,25 +54,19 @@ function Notifications(props) {
           //
           // ...we save notification in internal notifications queue thats gona be processed later (on unsuspend with decrypted storage)
 
-          setTimeout(() => props.onProcessNotifications(), 500);
+          const payload = Object.assign({}, notification, notification.data);
+          if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
+          delete payload.data;
+          // ^^^ weird, but sometimes payload data is not in `data` but in root level
 
-          let notifications = [];
-          try {
-            const stringified = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE);
-            notifications = JSON.parse(stringified);
-            if (!Array.isArray(notifications)) notifications = [];
-
-            const payload = Object.assign({}, notification, notification.data);
-            if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
-            delete payload.data;
-            // ^^^ weird, but sometimes payload data is not in `data` but in root level
-
-            notifications.push(payload);
-            await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify(notifications));
-          } catch (_) {}
+          await Notifications.addNotification(payload);
 
           // (required) Called when a remote is received or opened, or local notification is opened
           notification.finish(PushNotificationIOS.FetchResult.NoData);
+
+          // if user is staring at the app when he receives the notification we process it instantly
+          // so app refetches related wallet
+          if (payload.foreground) props.onProcessNotifications();
         },
 
         // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
@@ -357,6 +351,18 @@ function Notifications(props) {
     return notifications;
   };
 
+  Notifications.addNotification = async function (notification) {
+    let notifications = [];
+    try {
+      const stringified = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE);
+      notifications = JSON.parse(stringified);
+      if (!Array.isArray(notifications)) notifications = [];
+    } catch (_) {}
+
+    notifications.push(notification);
+    await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify(notifications));
+  };
+
   const postTokenConfig = async function () {
     const pushToken = await Notifications.getPushToken();
     if (!pushToken || !pushToken.token || !pushToken.os) return;
@@ -387,8 +393,22 @@ function Notifications(props) {
     } catch (_) {}
   };
 
+  Notifications.getDeliveredNotifications = () => {
+    return new Promise(resolve => {
+      PushNotification.getDeliveredNotifications(notifications => resolve(notifications));
+    });
+  };
+
+  Notifications.removeDeliveredNotifications = (identifiers = []) => {
+    PushNotification.removeDeliveredNotifications(identifiers);
+  };
+
   Notifications.setApplicationIconBadgeNumber = function (badges) {
     PushNotification.setApplicationIconBadgeNumber(badges);
+  };
+
+  Notifications.removeAllDeliveredNotifications = () => {
+    PushNotification.removeAllDeliveredNotifications();
   };
 
   // on app launch (load module):
