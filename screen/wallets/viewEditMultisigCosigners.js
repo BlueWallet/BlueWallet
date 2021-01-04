@@ -14,9 +14,8 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon, Badge } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { getSystemName } from 'react-native-device-info';
 
 import {
@@ -115,6 +114,16 @@ const ViewEditMultisigCosigners = () => {
     },
     wordText: {
       color: colors.labelText,
+    },
+    tipKeys: {
+      color: colors.alternativeTextColor,
+    },
+    tipLabel: {
+      backgroundColor: colors.inputBackgroundColor,
+      borderColor: colors.inputBackgroundColor,
+    },
+    tipLabelText: {
+      color: colors.buttonTextColor,
     },
   });
 
@@ -449,31 +458,51 @@ const ViewEditMultisigCosigners = () => {
 
   if (isLoading)
     return (
-      <SafeAreaView style={[styles.root, stylesHook.root]}>
+      <View style={[styles.root, stylesHook.root]}>
         <BlueLoading />
-      </SafeAreaView>
+      </View>
     );
+
+  const howMany = <Badge value={wallet.getM()} badgeStyle={[styles.tipLabel, stylesHook.tipLabel]} textStyle={[styles.tipLabelText, stylesHook.tipLabelText]} />;
+
+  const andHere = <Badge value={wallet.howManySignaturesCanWeMake()} badgeStyle={[styles.tipLabel, stylesHook.tipLabel]} textStyle={[styles.tipLabelText, stylesHook.tipLabelText]} />;
+
+  const tipKeys = () => {
+    return (
+      <View>
+        <BlueSpacing20 />
+        <Text style={[styles.tipKeys, stylesHook.tipKeys]}>
+          {loc.formatString(loc.multisig.signatures_required_to_spend, {number: howMany} )}
+          {loc.formatString(loc.multisig.signatures_we_can_make, { number: andHere} )}
+        </Text>
+        <BlueSpacing10 />
+        <BlueSpacing20 />
+      </View>
+    );
+  };
 
   const footer = <BlueButton disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
 
   return (
-    <SafeAreaView style={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="default" />
+    <View style={[styles.root, stylesHook.root]}>
+      <StatusBar barStyle="light-content" />
       <KeyboardAvoidingView
         enabled
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         keyboardVerticalOffset={62}
         style={[styles.mainBlock, styles.root]}
-      >
-        <FlatList data={data.current} extraData={vaultKeyData} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+      > 
+        
+        <FlatList ListHeaderComponent={tipKeys} data={data.current} extraData={vaultKeyData} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
         <BlueSpacing10 />
         {footer}
+        <BlueSpacing40 />
       </KeyboardAvoidingView>
 
       {renderProvideMnemonicsModal()}
 
       {renderMnemonicsModal()}
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -571,6 +600,20 @@ const styles = StyleSheet.create({
   header2Text: { color: '#9AA0AA', fontSize: 14, paddingBottom: 20 },
   alignItemsCenter: { alignItems: 'center' },
   squareButtonWrapper: { height: 50, width: 250 },
+  tipKeys: {
+    fontSize: 15,
+    fontWeight: '600',
+    flex: 1,
+  },
+  tipLabel: {
+    width: 30,
+    marginRight: 6,
+    position: 'relative',
+    bottom: -3,
+  },
+  tipLabelText: {
+    fontWeight: '500',
+  }
 });
 
 ViewEditMultisigCosigners.navigationOptions = ({ navigation }) => ({
