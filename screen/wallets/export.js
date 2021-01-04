@@ -70,15 +70,16 @@ const WalletExport = () => {
               return goBack();
             }
           }
-
+          if (!wallet.current.getUserHasSavedExport()) {
+            wallet.current.setUserHasSavedExport(true);
+            saveToDisk();
+          }
           setIsLoading(false);
         }
       });
       return () => {
         task.cancel();
         Privacy.disableBlur();
-        wallet.current.setUserHasSavedExport(true);
-        saveToDisk();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [goBack, walletID]),
