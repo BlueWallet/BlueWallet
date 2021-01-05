@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
-import { BlueListItem, BlueHeaderDefaultSubHooks } from '../../BlueComponents';
+import { BlueListItem, BlueHeaderDefaultSub } from '../../BlueComponents';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
@@ -22,7 +22,7 @@ const Settings = () => {
   return (
     <ScrollView style={styles.root}>
       <StatusBar barStyle="default" />
-      <BlueHeaderDefaultSubHooks leftText={loc.settings.header} rightComponent={null} />
+      <BlueHeaderDefaultSub leftText={loc.settings.header} />
       <BlueListItem title={loc.settings.general} onPress={() => navigate('GeneralSettings')} chevron />
       <BlueListItem title={loc.settings.currency} onPress={() => navigate('Currency')} chevron />
       <BlueListItem title={loc.settings.language} onPress={() => navigate('Language')} chevron />

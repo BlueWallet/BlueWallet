@@ -2,6 +2,7 @@ import Localization from 'react-localization';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 import * as RNLocalize from 'react-native-localize';
 import BigNumber from 'bignumber.js';
 
@@ -11,6 +12,7 @@ import { AvailableLanguages } from './languages';
 const currency = require('../blue_modules/currency');
 
 dayjs.extend(relativeTime);
+dayjs.extend(localizedFormat);
 
 // first-time loading sequence
 

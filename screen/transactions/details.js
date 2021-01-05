@@ -196,7 +196,7 @@ const TransactionsDetails = () => {
           {tx.received && (
             <>
               <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_received}</BlueText>
-              <BlueText style={styles.rowValue}>{dayjs(tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
+              <BlueText style={styles.rowValue}>{dayjs(tx.received).format('LLL')}</BlueText>
             </>
           )}
 

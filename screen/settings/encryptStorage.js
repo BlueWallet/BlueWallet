@@ -12,7 +12,7 @@ import {
   BlueSpacing20,
   BlueCard,
   BlueListItem,
-  BlueHeaderDefaultSubHooks,
+  BlueHeaderDefaultSub,
   BlueText,
 } from '../../BlueComponents';
 import Biometric from '../../class/biometrics';
@@ -158,7 +158,7 @@ const EncryptStorage = () => {
       <ScrollView contentContainerStyle={styles.root}>
         {biometrics.isDeviceBiometricCapable && (
           <>
-            <BlueHeaderDefaultSubHooks leftText={loc.settings.biometrics} rightComponent={null} />
+            <BlueHeaderDefaultSub leftText={loc.settings.biometrics} rightComponent={null} />
             <BlueListItem
               title={loc.formatString(loc.settings.encrypt_use, { type: biometrics.biometricsType })}
               Component={TouchableWithoutFeedback}
@@ -170,7 +170,7 @@ const EncryptStorage = () => {
             <BlueSpacing20 />
           </>
         )}
-        <BlueHeaderDefaultSubHooks leftText={loc.settings.encrypt_tstorage} rightComponent={null} />
+        <BlueHeaderDefaultSub leftText={loc.settings.encrypt_tstorage} rightComponent={null} />
         <BlueListItem
           testID="EncyptedAndPasswordProtected"
           hideChevron
