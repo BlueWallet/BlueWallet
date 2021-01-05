@@ -259,6 +259,13 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const tryUsingXpub = async xpub => {
+    if (!MultisigHDWallet.isXpubForMultisig(xpub)) {
+      setIsProvideMnemonicsModalVisible(false);
+      setIsLoading(false);
+      setImportText('');
+      alert(loc.multisig.not_a_multisignature_xpub);
+      return;
+    }
     let fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, false, 'plain-text');
     fp = (fp + '').toUpperCase();
     if (!MultisigHDWallet.isFpValid(fp)) fp = '00000000';
@@ -319,6 +326,9 @@ const WalletsAddMultisigStep2 = () => {
       setIsProvideMnemonicsModalVisible(true);
       setImportText(ret.data);
     } else {
+      if (MultisigHDWallet.isXpubValid(ret.data) && !MultisigHDWallet.isXpubForMultisig(ret.data)) {
+        return alert(loc.multisig.not_a_multisignature_xpub);
+      }
       let cosigner = new MultisigCosigner(ret.data);
       if (!cosigner.isValid()) return alert(loc.multisig.invalid_cosigner);
       setIsProvideMnemonicsModalVisible(false);

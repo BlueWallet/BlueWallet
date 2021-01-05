@@ -487,6 +487,7 @@
     "view_key": "View",
     "invalid_mnemonics": "This mnemonic phrase doesn’t seem to be valid",
     "invalid_cosigner": "Not a valid cosigner data",
+    "not_a_multisignature_xpub": "This is not an xpub from multisignature wallet!",
     "invalid_cosigner_format": "Incorrect cosigner: this is not a cosigner for {format} format",
     "create_new_key": "Create New",
     "scan_or_open_file": "Scan or open file",
