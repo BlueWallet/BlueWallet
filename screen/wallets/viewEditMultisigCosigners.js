@@ -463,17 +463,29 @@ const ViewEditMultisigCosigners = () => {
       </View>
     );
 
-  const howMany = <Badge value={wallet.getM()} badgeStyle={[styles.tipLabel, stylesHook.tipLabel]} textStyle={[styles.tipLabelText, stylesHook.tipLabelText]} />;
+  const howMany = (
+    <Badge
+      value={wallet.getM()}
+      badgeStyle={[styles.tipLabel, stylesHook.tipLabel]}
+      textStyle={[styles.tipLabelText, stylesHook.tipLabelText]}
+    />
+  );
 
-  const andHere = <Badge value={wallet.howManySignaturesCanWeMake()} badgeStyle={[styles.tipLabel, stylesHook.tipLabel]} textStyle={[styles.tipLabelText, stylesHook.tipLabelText]} />;
+  const andHere = (
+    <Badge
+      value={wallet.howManySignaturesCanWeMake()}
+      badgeStyle={[styles.tipLabel, stylesHook.tipLabel]}
+      textStyle={[styles.tipLabelText, stylesHook.tipLabelText]}
+    />
+  );
 
   const tipKeys = () => {
     return (
       <View>
         <BlueSpacing20 />
         <Text style={[styles.tipKeys, stylesHook.tipKeys]}>
-          {loc.formatString(loc.multisig.signatures_required_to_spend, {number: howMany} )}
-          {loc.formatString(loc.multisig.signatures_we_can_make, { number: andHere} )}
+          {loc.formatString(loc.multisig.signatures_required_to_spend, { number: howMany })}
+          {loc.formatString(loc.multisig.signatures_we_can_make, { number: andHere })}
         </Text>
         <BlueSpacing10 />
         <BlueSpacing20 />
@@ -491,9 +503,14 @@ const ViewEditMultisigCosigners = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         keyboardVerticalOffset={62}
         style={[styles.mainBlock, styles.root]}
-      > 
-        
-        <FlatList ListHeaderComponent={tipKeys} data={data.current} extraData={vaultKeyData} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+      >
+        <FlatList
+          ListHeaderComponent={tipKeys}
+          data={data.current}
+          extraData={vaultKeyData}
+          renderItem={_renderKeyItem}
+          keyExtractor={(_item, index) => `${index}`}
+        />
         <BlueSpacing10 />
         {footer}
         <BlueSpacing40 />
@@ -613,7 +630,7 @@ const styles = StyleSheet.create({
   },
   tipLabelText: {
     fontWeight: '500',
-  }
+  },
 });
 
 ViewEditMultisigCosigners.navigationOptions = ({ navigation }) => ({

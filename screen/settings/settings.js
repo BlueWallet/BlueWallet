@@ -20,7 +20,7 @@ const Settings = () => {
   return (
     <ScrollView style={styles.root}>
       <StatusBar barStyle="default" />
-      <BlueHeaderDefaultSub leftText={loc.settings.header}/>
+      <BlueHeaderDefaultSub leftText={loc.settings.header} />
       <BlueListItem title={loc.settings.general} onPress={() => navigate('GeneralSettings')} chevron />
       <BlueListItem title={loc.settings.currency} onPress={() => navigate('Currency')} chevron />
       <BlueListItem title={loc.settings.language} onPress={() => navigate('Language')} chevron />
