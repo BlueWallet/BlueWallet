@@ -134,8 +134,7 @@ const ViewEditMultisigCosigners = () => {
 
   const exportCosigner = () => {
     setIsShareModalVisible(false);
-    setIsLoading(true);
-    fs.writeFileAndExport(exportFilename, exportString).finally(() => setIsLoading(false));
+    fs.writeFileAndExport(exportFilename, exportString);
   };
 
   const onSave = async () => {
