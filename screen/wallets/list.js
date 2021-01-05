@@ -24,15 +24,14 @@ import ActionSheet from '../ActionSheet';
 import Clipboard from '@react-native-community/clipboard';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { getSystemName, isTablet } from 'react-native-device-info';
+import { isTablet } from 'react-native-device-info';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import isCatalyst from 'react-native-is-catalyst';
+import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
 
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
-const isDesktop = getSystemName() === 'Mac OS X';
 
 const WalletsList = () => {
   const walletsCarousel = useRef();
@@ -234,7 +233,7 @@ const WalletsList = () => {
   const renderLocalTrader = () => {
     if (carouselData.every(wallet => wallet === false)) return null;
     if (carouselData.length > 0 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
-      return (
+      const button = (
         <TouchableOpacity
           onPress={() => {
             navigate('HodlHodl', { screen: 'HodlHodl' });
@@ -250,6 +249,7 @@ const WalletsList = () => {
           </View>
         </TouchableOpacity>
       );
+      return isLargeScreen ? <SafeAreaView>{button}</SafeAreaView> : button;
     } else {
       return null;
     }
@@ -324,7 +324,7 @@ const WalletsList = () => {
         <FContainer>
           <FButton
             onPress={onScanButtonPressed}
-            onLongPress={isDesktop ? undefined : sendButtonLongPress}
+            onLongPress={isMacCatalina ? undefined : sendButtonLongPress}
             icon={<Image resizeMode="stretch" source={scanImage} />}
             text={loc.send.details_scan}
           />
@@ -340,7 +340,7 @@ const WalletsList = () => {
   };
 
   const onScanButtonPressed = () => {
-    if (isDesktop) {
+    if (isMacCatalina) {
       fs.showActionSheet().then(onBarScanned);
     } else {
       navigate('ScanQRCodeRoot', {
@@ -368,7 +368,7 @@ const WalletsList = () => {
   const sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      if (isDesktop) {
+      if (isMacCatalina) {
         fs.showActionSheet().then(onBarScanned);
       } else {
         const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
@@ -436,7 +436,7 @@ const WalletsList = () => {
   };
 
   return (
-    <SafeAreaView style={styles.root} onLayout={onLayout}>
+    <View style={styles.root} onLayout={onLayout}>
       <StatusBar barStyle="default" />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
@@ -456,7 +456,7 @@ const WalletsList = () => {
         />
         {renderScanButton()}
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
