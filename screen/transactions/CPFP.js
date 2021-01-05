@@ -5,16 +5,9 @@ import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, ScrollVi
 import Clipboard from '@react-native-community/clipboard';
 import { Text } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import {
-  BlueSpacing20,
-  BlueReplaceFeeSuggestions,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueSpacing,
-  BlueNavigationStyle,
-} from '../../BlueComponents';
+
+import { BlueButton, BlueCard, BlueReplaceFeeSuggestions, BlueSpacing, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { BlueCurrentTheme } from '../../components/themes';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
@@ -250,7 +243,6 @@ CPFP.propTypes = {
     }),
   }),
 };
-CPFP.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
+CPFP.navigationOptions = navigationStyle({
   title: loc.transactions.cpfp_title,
 });

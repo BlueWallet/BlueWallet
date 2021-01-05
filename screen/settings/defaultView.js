@@ -1,7 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { SafeBlueArea, BlueCard, BlueNavigationStyle, BlueListItem, BlueText } from '../../BlueComponents';
+
+import navigationStyle from '../../components/navigationStyle';
+import { SafeBlueArea, BlueCard, BlueListItem, BlueText } from '../../BlueComponents';
 import OnAppLaunch from '../../class/on-app-launch';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -78,8 +80,7 @@ const DefaultView = () => {
   );
 };
 
-DefaultView.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+DefaultView.navigationOptions = navigationStyle({
   title: loc.settings.default_title,
 });
 

@@ -1,6 +1,10 @@
 /* global alert */
 import React, { useEffect, useState } from 'react';
 import { Platform, View, Keyboard, StatusBar, StyleSheet } from 'react-native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { getSystemName } from 'react-native-device-info';
+
 import {
   BlueFormMultiInput,
   BlueButtonLink,
@@ -9,14 +13,11 @@ import {
   BlueButton,
   SafeBlueArea,
   BlueSpacing20,
-  BlueNavigationStyle,
 } from '../../BlueComponents';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../Privacy';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import WalletImport from '../../class/wallet-import';
 import loc from '../../loc';
-import { getSystemName } from 'react-native-device-info';
 const isDesktop = getSystemName() === 'Mac OS X';
 const fs = require('../../blue_modules/fs');
 
@@ -165,8 +166,7 @@ const WalletsImport = () => {
   );
 };
 
-WalletsImport.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+WalletsImport.navigationOptions = navigationStyle({
   title: loc.wallets.import_title,
 });
 export default WalletsImport;

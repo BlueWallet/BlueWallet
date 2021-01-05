@@ -1,18 +1,12 @@
 import React, { useCallback, useContext, useEffect } from 'react';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { View, useWindowDimensions, StyleSheet, BackHandler, StatusBar } from 'react-native';
-import {
-  SafeBlueArea,
-  BlueNavigationStyle,
-  BlueSpacing20,
-  BlueCopyTextToClipboard,
-  BlueButton,
-  BlueTextCentered,
-  BlueText,
-} from '../../BlueComponents';
 import QRCode from 'react-native-qrcode-svg';
-import Privacy from '../../Privacy';
 import { ScrollView } from 'react-native-gesture-handler';
+
+import { BlueButton, BlueCopyTextToClipboard, BlueSpacing20, BlueText, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import Privacy from '../../Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { LightningCustodianWallet } from '../../class';
@@ -83,8 +77,8 @@ const PleaseBackupLNDHub = () => {
   );
 };
 
-PleaseBackupLNDHub.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+PleaseBackupLNDHub.navigationOptions = navigationStyle({
+  closeButton: true,
   title: loc.pleasebackup.title,
   headerLeft: null,
   headerRight: null,

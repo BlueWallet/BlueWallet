@@ -77,6 +77,7 @@
     "local_trader": "Local Trader",
     "local_trader_new": "New",
     "login": "Login",
+    "logout": "logout",
     "mycont": "My contracts",
     "offer_accept": "Accept offer",
     "offer_account_finish": "Looks like you didn't finish setting up account on HodlHodl. Would you like to finish setup now?",
