@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import { View, ActivityIndicator, Image, Text, StyleSheet, StatusBar, ScrollView } from 'react-native';
+import { BluePrivateBalance } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -136,9 +137,13 @@ const ReorderWallets = () => {
           <Text numberOfLines={1} style={styles.label}>
             {item.getLabel()}
           </Text>
-          <Text numberOfLines={1} adjustsFontSizeToFit style={styles.balance}>
-            {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
-          </Text>
+          {item.hideBalance ? (
+            <BluePrivateBalance />
+          ) : (
+            <Text numberOfLines={1} adjustsFontSizeToFit style={styles.balance}>
+              {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+            </Text>
+          )}
           <Text style={styles.transparentText} />
           <Text numberOfLines={1} style={styles.latestTxLabel}>
             {loc.wallets.list_latest_transaction}
