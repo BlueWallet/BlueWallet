@@ -1052,6 +1052,32 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(tx.toHex());
   });
 
+  it('can cosign PSBT that comes from electrum', async () => {
+    const wallet = new MultisigHDWallet();
+    wallet.setSecret(
+      'Name: Multisig Vault\n' +
+        'Policy: 2 of 2\n' +
+        "Derivation: m/48'/0'/0'/2'\n" +
+        'Format: P2WSH\n' +
+        '\n' +
+        '00000000: Zpub6yjw2xcmSY3uD1KbYLnrSuP2PaxDXajA1YymjzstkZCGnBX3Z1oC6dVFtA1TQNPoTaguixnjYfRK3edDDoP3xxJZSSv1S9NrG5zqK5YzKHE\n' +
+        '\n' +
+        'seed: point match rack notable poverty welcome slice stem warfare later skirt dream',
+    );
+
+    const psbt = bitcoin.Psbt.fromBase64(
+      'cHNidP8BAHsCAAAAAn99yxH8deILgpB2qT23xRUvfnu8v98JSREOvhP5SFhHAAAAAAD9////2NGbHPsAqZoKkO+PsxfYuLT9pN8T5/LtHnQnStXsyWsAAAAAAP3///8B2LECAAAAAAAWABTNx1+3yJfKJVcFfHn3KBn9EVdBLmIkCgAAAQDrAgAAAAABAdjRmxz7AKmaCpDvj7MX2Li0/aTfE+fy7R50J0rV7MlrAQAAAAAAAACAAqCGAQAAAAAAIgAgNjviJkwSkV3MVJI0X8KnLUc+MfW/d4EQvWgykrvTwHDeDAIAAAAAABYAFGPIzN0T0b+DfXhLYiOUdT2c5pEBAkgwRQIhAIyPdquXeaHAXL7PpaYt5+G9rl0lLXMPaDM2u9fVuCp4AiA7EIZQm8bIdC4Z+oWtXh0xCKSvTgiwDQWGsQ2kMC2+LwEhA7+3G393F7pqELKBkYzEka2iEvVsLpGjdTvVuP6nufrLAAAAACICA6qDyEv6617qV3VEJoGIQowgTguor7GTI1qOYIz/M6PpRzBEAiBN+gF6Xa7PO1/NbL7K8Nqa3W5vPiuaAov6v+7zjTNDlgIgf9jYQ76Hf4xoOBdveYCyaOeoq+jwXN05nvJlVgZFngkBAQVHUiEDWcyClcxZ8xFXyF1LM8kiGaXqdqM3aHgKK2/Di976NAohA6qDyEv6617qV3VEJoGIQowgTguor7GTI1qOYIz/M6PpUq4iBgNZzIKVzFnzEVfIXUszySIZpep2ozdoeAorb8OL3vo0CgyRUA3SAAAAAAEAAAAiBgOqg8hL+ute6ld1RCaBiEKMIE4LqK+xkyNajmCM/zOj6RCvgJIDAQAAgAAAAAABAAAAAAEA6wIAAAAAAQHWV2FCU0XMuya/nkpDw/yIOK7U3NehUDZmechoTJQFlQEAAAAAAAAAgAKghgEAAAAAACIAIJi9hmdhYfHNmOEaEADqxlNRmtsZIU/NisM8/b4UVU67JqUDAAAAAAAWABSOkTpoURBU5UZG1VIoBj+EHlF6cgJIMEUCIQCJjUIn/LFJNknngMXEfHUNegppt/olh+2RCYGDZ/yw7AIgLw7SwWCaZvHB8PwMj+9F4Rjhvmq4BZ7gozr7tQZMOY0BIQN3F33l/rnJgyIJQHHYEwfxCympfDiFZ8rV76gttJdnLwAAAAAiAgKk1ZQ+v8BXIY1q1aQcRA1Qy6XQVrrhXEcWtXrOvOzf8kcwRAIgPYRi8+wJVym+EF3LNyOylj1RcdPzMiLxKRqlVm64IUgCIH1JVGxAIvmwKpg1TqlvbeXZbUMCjnr7CkYWqxBqghLfAQEFR1IhAqTVlD6/wFchjWrVpBxEDVDLpdBWuuFcRxa1es687N/yIQPo29i9fz5IsDSF1lSMDBbhehw+ydEhNYmjujZiSfyQD1KuIgYCpNWUPr/AVyGNatWkHEQNUMul0Fa64VxHFrV6zrzs3/IQr4CSAwEAAIAAAAAAAAAAACIGA+jb2L1/PkiwNIXWVIwMFuF6HD7J0SE1iaO6NmJJ/JAPDJFQDdIAAAAAAAAAAAAA',
+    );
+    assert.strictEqual(wallet.calculateHowManySignaturesWeHaveFromPsbt(psbt), 1);
+
+    const { tx } = wallet.cosignPsbt(psbt); // <---------------------------------------------------------
+
+    assert.strictEqual(wallet.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
+    assert.ok(tx);
+    assert.throws(() => psbt.finalizeAllInputs()); // as it is already finalized
+    assert.ok(tx.toHex());
+  });
+
   it('can export/import when one of cosigners is mnemonic seed', async () => {
     const path = "m/48'/0'/0'/2'";
 

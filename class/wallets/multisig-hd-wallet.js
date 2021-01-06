@@ -991,7 +991,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
    */
   cosignPsbt(psbt) {
     for (let cc = 0; cc < psbt.inputCount; cc++) {
-      for (const cosigner of this._cosigners) {
+      for (const [cosignerIndex, cosigner] of this._cosigners.entries()) {
         if (!MultisigHDWallet.isXpubString(cosigner)) {
           // ok this is a mnemonic, lets try to sign
           const seed = bip39.mnemonicToSeed(cosigner);
@@ -999,6 +999,34 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           try {
             psbt.signInputHD(cc, hdRoot);
           } catch (_) {} // protects agains duplicate cosignings
+
+          if (!psbt.inputHasHDKey(cc, hdRoot)) {
+            // failed signing as HD. probably bitcoinjs-lib could not match provided hdRoot's
+            // fingerprint (or path?) to the ones in psbt, which is the case of stupid Electrum desktop which can
+            // put bullshit paths and fingerprints in created psbt.
+            // lets try to find correct priv key and sign manually.
+            for (const derivation of psbt.data.inputs[cc].bip32Derivation || []) {
+              // okay, here we assume that fingerprint is irrelevant, but ending of the path is somewhat correct and
+              // correctly points to `/internal/index`, so we extract pubkey from our stored mnemonics+path and
+              // match it to the one provided in PSBT's input, and if we have a match - we are in luck! we can sign
+              // with this private key.
+              const seed = bip39.mnemonicToSeed(cosigner);
+              const root = HDNode.fromSeed(seed);
+              const splt = derivation.path.split('/');
+              const internal = +splt[splt.length - 2];
+              const index = +splt[splt.length - 1];
+
+              const path = this.getCustomDerivationPathForCosigner(cosignerIndex + 1) + `/${internal ? 1 : 0}/${index}`;
+              // ^^^ we assume that counterparty has Zpub for specified derivation path
+              const child = root.derivePath(path);
+              if (psbt.inputHasPubkey(cc, child.publicKey)) {
+                const keyPair = bitcoin.ECPair.fromPrivateKey(child.privateKey);
+                try {
+                  psbt.signInput(cc, keyPair);
+                } catch (_) {}
+              }
+            }
+          }
         }
       }
     }
