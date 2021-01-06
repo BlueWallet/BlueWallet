@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, TouchableWithoutFeedback, StyleSheet, Linking, Platform } from 'react-native';
-import { BlueText, BlueSpacing20, BlueListItem, BlueNavigationStyle, BlueCard, BlueHeaderDefaultSub } from '../../BlueComponents';
 import { useTheme } from '@react-navigation/native';
-import loc from '../../loc';
-import BlueClipboard from '../../blue_modules/clipboard';
-import DeviceQuickActions from '../../class/quick-actions';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 
+import navigationStyle from '../../components/navigationStyle';
+import { BlueText, BlueSpacing20, BlueListItem, BlueCard, BlueHeaderDefaultSub } from '../../BlueComponents';
+import loc from '../../loc';
+import DeviceQuickActions from '../../class/quick-actions';
+import BlueClipboard from '../../blue_modules/clipboard';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 
 const SettingsPrivacy = () => {
@@ -135,8 +136,7 @@ const styles = StyleSheet.create({
   },
 });
 
-SettingsPrivacy.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+SettingsPrivacy.navigationOptions = navigationStyle({
   title: loc.settings.privacy,
 });
 

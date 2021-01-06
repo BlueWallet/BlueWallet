@@ -23,12 +23,12 @@ import {
   BlueButtonLink,
   BlueFormMultiInput,
   BlueLoading,
-  BlueNavigationStyle,
   BlueSpacing10,
   BlueSpacing20,
   BlueSpacing40,
   BlueTextCentered,
 } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
 import BottomModal from '../../components/BottomModal';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
@@ -699,8 +699,8 @@ const styles = StyleSheet.create({
   },
 });
 
-ViewEditMultisigCosigners.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+ViewEditMultisigCosigners.navigationOptions = navigationStyle({
+  closeButton: true,
   title: loc.multisig.manage_keys,
   headerLeft: null,
 });

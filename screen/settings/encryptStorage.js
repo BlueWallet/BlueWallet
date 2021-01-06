@@ -3,6 +3,9 @@ import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { ScrollView, Alert, Platform, TouchableOpacity, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { colors } from 'react-native-elements';
+
+import navigationStyle from '../../components/navigationStyle';
 import {
   BlueLoading,
   SafeBlueArea,
@@ -11,11 +14,9 @@ import {
   BlueListItem,
   BlueHeaderDefaultSub,
   BlueText,
-  BlueNavigationStyle,
 } from '../../BlueComponents';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
-import { colors } from 'react-native-elements';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isCatalyst } from '../../blue_modules/environment';
 const prompt = require('../../blue_modules/prompt');
@@ -203,7 +204,6 @@ const EncryptStorage = () => {
 };
 
 export default EncryptStorage;
-EncryptStorage.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+EncryptStorage.navigationOptions = navigationStyle({
   headerTitle: loc.settings.encrypt_title,
 });

@@ -1,12 +1,14 @@
 /* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useState } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList, StyleSheet, StatusBar } from 'react-native';
-import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance, BlueNavigationStyle } from '../../BlueComponents';
 import LinearGradient from 'react-native-linear-gradient';
-import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import WalletGradient from '../../class/wallet-gradient';
 import { useRoute, useTheme } from '@react-navigation/native';
+
+import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { MultisigHDWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -170,11 +172,8 @@ const SelectWallet = ({ navigation }) => {
   }
 };
 
-SelectWallet.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
-  headerRight: null,
-  headerTitle: loc.wallets.select_wallet,
-  headerBackTitleVisible: false,
+SelectWallet.navigationOptions = navigationStyle({
+  title: loc.wallets.select_wallet,
 });
 
 export default SelectWallet;
