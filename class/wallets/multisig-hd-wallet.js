@@ -916,13 +916,13 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     await super.fetchUtxo();
     // now we need to fetch txhash for each input as required by PSBT
     const txhexes = await BlueElectrum.multiGetTransactionByTxid(
-      this.getUtxo().map(x => x.txid),
+      this.getUtxo(true).map(x => x.txid),
       50,
       false,
     );
 
     const newUtxos = [];
-    for (const u of this.getUtxo()) {
+    for (const u of this.getUtxo(true)) {
       if (txhexes[u.txid]) u.txhex = txhexes[u.txid];
       newUtxos.push(u);
     }
