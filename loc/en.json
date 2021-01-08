@@ -449,6 +449,7 @@
   },
   "multisig": {
     "multisig_vault": "Vault",
+    "default_label": "Multisig Vault",
     "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Provide signature",
     "vault_key": "Vault key {number}",
