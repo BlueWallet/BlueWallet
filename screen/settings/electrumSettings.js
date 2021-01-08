@@ -202,10 +202,12 @@ export default class ElectrumSettings extends Component {
 
   render() {
     const serverHistoryItems = this.state.serverHistory.map((server, i) => {
+      let host = server.host;
+      if (host.length >= 30) host = server.host.substr(0, 6) + '...' + server.host.substr(server.host.length - 12);
       return (
         <View key={i} style={styles.serverHistoryItem}>
           <View>
-            <BlueText>{`${server.host}:${server.port || server.sslPort}`}</BlueText>
+            <BlueText>{`${host}:${server.port || server.sslPort}`}</BlueText>
           </View>
           <TouchableOpacity onPress={() => this.selectServer(server)}>
             <BlueText>{loc.settings.electrum_select}</BlueText>
