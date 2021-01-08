@@ -77,6 +77,7 @@
     "local_trader": "Comerciante local",
     "local_trader_new": "Nuevo",
     "login": "Login",
+    "logout": "cerrar sesión",
     "mycont": "Mis contratos",
     "offer_accept": "Aceptar oferta",
     "offer_account_finish": "Parece que no terminó de configurar la cuenta en HodlHodl. ¿Le gustaría finalizar la configuración ahora?",
@@ -136,8 +137,9 @@
     "ok": "OK, ya lo he anotado.",
     "ok_lnd": "OK, lo he guardado.",
     "text": "Tómate un momento para apuntar esta frase mnemotécnica en un papel. Es lo que te permitirá restaurar la cartera en otro dispositivo.",
-    "text_lnd": "Por favor, anota esta autenticación del LNDHub. Actuará como una copia de seguridad que puedes usar para restaurar la cartera en otro dispositivo.",
-    "title": "Tu cartera ha sido creada."
+    "text_lnd": "Por favor guarda la copia de seguridad de esta cartera. Te permitirá restaurarla en caso de pérdida.",
+    "text_lnd2": "Esta cartera está alojada en BlueWallet.",
+    "title": "Tu cartera ha sido creada"
   },
   "receive": {
     "details_create": "Crear",
@@ -486,6 +488,7 @@
     "view_key": "Ver",
     "invalid_mnemonics": "Esta frase mnemotécnica no es válida",
     "invalid_cosigner": "Los datos del co-firmante no son válidos",
+    "not_a_multisignature_xpub": "¡Esto no es el XPUB de una cartera multifirma!",
     "invalid_cosigner_format": "Co-firmante incorrecto: no es un co-firmante de {format}",
     "create_new_key": "Crear una nueva",
     "scan_or_open_file": "Escanear o abrir archivo",
