@@ -1,18 +1,13 @@
 import React, { useState, useContext } from 'react';
-import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput, Keyboard } from 'react-native';
-import loc from '../../loc';
-import {
-  SafeBlueArea,
-  BlueCard,
-  BlueButton,
-  BlueSpacing10,
-  BlueSpacing20,
-  BlueNavigationStyle,
-  BlueText,
-  BlueButtonLink,
-} from '../../BlueComponents';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput, Keyboard } from 'react-native';
+
+import loc from '../../loc';
+import { BlueButton, BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { isMacCatalina } from '../../blue_modules/environment';
+const fs = require('../../blue_modules/fs');
 
 const IsItMyAddress = () => {
   /** @type {AbstractWallet[]} */
@@ -62,14 +57,18 @@ const IsItMyAddress = () => {
   };
 
   const importScan = () => {
-    navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        launchedBy: name,
-        onBarScanned,
-        showFileImportButton: true,
-      },
-    });
+    if (isMacCatalina) {
+      fs.showActionSheet().then(onBarScanned);
+    } else {
+      navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          launchedBy: name,
+          onBarScanned,
+          showFileImportButton: true,
+        },
+      });
+    }
   };
 
   const clearAddressInput = () => {
@@ -114,8 +113,7 @@ const IsItMyAddress = () => {
 };
 
 export default IsItMyAddress;
-IsItMyAddress.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+IsItMyAddress.navigationOptions = navigationStyle({
   title: loc.is_it_my_address.title,
 });
 

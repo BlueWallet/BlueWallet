@@ -1,20 +1,13 @@
 /* global alert */
 import React, { useContext, useEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
-import {
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueLoading,
-  BlueSpacing20,
-  BlueCopyToClipboardButton,
-  BlueNavigationStyle,
-} from '../../BlueComponents';
-import HandoffSettings from '../../class/handoff';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import Handoff from 'react-native-handoff';
+import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import HandoffSettings from '../../class/handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 const dayjs = require('dayjs');
 
 function onlyUnique(value, index, self) {
@@ -190,7 +183,7 @@ const TransactionsDetails = () => {
           {tx.hash && (
             <>
               <View style={styles.rowHeader}>
-                <BlueText style={[styles.txId, stylesHooks.txId]}>Txid</BlueText>
+                <BlueText style={[styles.txId, stylesHooks.txId]}>{loc.transactions.txid}</BlueText>
                 <BlueCopyToClipboardButton stringToCopy={tx.hash} />
               </View>
               <BlueText style={styles.txHash}>{tx.hash}</BlueText>
@@ -203,7 +196,7 @@ const TransactionsDetails = () => {
           {tx.received && (
             <>
               <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_received}</BlueText>
-              <BlueText style={styles.rowValue}>{dayjs(tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
+              <BlueText style={styles.rowValue}>{dayjs(tx.received).format('LLL')}</BlueText>
             </>
           )}
 
@@ -287,7 +280,6 @@ const styles = StyleSheet.create({
 
 export default TransactionsDetails;
 
-TransactionsDetails.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+TransactionsDetails.navigationOptions = navigationStyle({
   title: loc.transactions.details_title,
 });

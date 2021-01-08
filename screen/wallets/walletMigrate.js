@@ -4,6 +4,7 @@ import RNFS from 'react-native-fs';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import DefaultPreference from 'react-native-default-preference';
 import { Platform } from 'react-native';
+import { isCatalyst } from '../../blue_modules/environment';
 
 export default class WalletMigrate {
   static expoDataDirectory = RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage';
@@ -14,7 +15,7 @@ export default class WalletMigrate {
 
   // 0: Let's start!
   async start() {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' && !isCatalyst) {
       const defaultPreferenceGroupName = await DefaultPreference.getName();
       console.log('----- defaultPreferenceGroupName');
       console.log(defaultPreferenceGroupName);
@@ -27,12 +28,20 @@ export default class WalletMigrate {
         try {
           console.warn('It is the first launch...');
           await RNSecureKeyStore.setResetOnAppUninstallTo(false);
-          const deleteWalletsFromKeychain = await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
+          let deleteWalletsFromKeychain = '1';
+          try {
+            deleteWalletsFromKeychain = await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
+            await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
+            await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
+          } catch (e) {
+            console.log('----- deleteWalletsFromKeychain catch');
+            console.log(e.message);
+            await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
+            await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
+          }
           console.log('----- deleteWalletsFromKeychain');
           console.log(deleteWalletsFromKeychain);
           console.log('----- ');
-          await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
-          await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
         } catch (e) {
           console.log(e);
         }

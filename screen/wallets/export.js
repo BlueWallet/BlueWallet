@@ -1,12 +1,14 @@
 import React, { useState, useCallback, useContext, useRef } from 'react';
 import { useWindowDimensions, InteractionManager, ScrollView, ActivityIndicator, StatusBar, View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
+import { useTheme, useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
+
+import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 import loc from '../../loc';
-import { useTheme, useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
@@ -70,15 +72,16 @@ const WalletExport = () => {
               return goBack();
             }
           }
-
+          if (!wallet.current.getUserHasSavedExport()) {
+            wallet.current.setUserHasSavedExport(true);
+            saveToDisk();
+          }
           setIsLoading(false);
         }
       });
       return () => {
         task.cancel();
         Privacy.disableBlur();
-        wallet.current.setUserHasSavedExport(true);
-        saveToDisk();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [goBack, walletID]),
@@ -130,8 +133,8 @@ const WalletExport = () => {
   );
 };
 
-WalletExport.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+WalletExport.navigationOptions = navigationStyle({
+  closeButton: true,
   title: loc.wallets.export_title,
   headerLeft: null,
 });

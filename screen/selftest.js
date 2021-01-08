@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
-import { ScrollView, View, StyleSheet } from 'react-native';
-import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueLoading } from '../BlueComponents';
 import PropTypes from 'prop-types';
+import { ScrollView, View, StyleSheet } from 'react-native';
+import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading } from '../BlueComponents';
+import navigationStyle from '../components/navigationStyle';
 import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../class';
 import { BlueCurrentTheme } from '../components/themes';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
 const BlueElectrum = require('../blue_modules/BlueElectrum');
-const Torsbee = require('../blue_modules/torsbee');
+const torrific = require('../blue_modules/torrific');
 
 const styles = StyleSheet.create({
   root: {
@@ -50,8 +51,8 @@ export default class Selftest extends Component {
       //
 
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-        this._api = new Torsbee({
-          baseURI: 'http://explorerzydxu5ecjrkwceayqybizmpjjznk5izmitf2modhcusuqlid.onion/',
+        this._api = new torrific.Torsbee({
+          baseURI: 'http://explorerzydxu5ecjrkwceayqybizmpjjznk5izmitf2modhcusuqlid.onion:80/',
         });
         const torResponse = await this._api.get('/api/tx/a84dbcf0d2550f673dda9331eea7cab86b645fd6e12049755c4b47bd238adce9', {
           headers: {
@@ -61,6 +62,8 @@ export default class Selftest extends Component {
         const json = torResponse.body;
         if (json.txid !== 'a84dbcf0d2550f673dda9331eea7cab86b645fd6e12049755c4b47bd238adce9')
           throw new Error('TOR failure, got ' + JSON.stringify(torResponse));
+
+        await this._api.testSocket();
       } else {
         // skipping RN-specific test'
       }
@@ -276,7 +279,6 @@ Selftest.propTypes = {
   }),
 };
 
-Selftest.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+Selftest.navigationOptions = navigationStyle({
   title: 'Self test',
 });

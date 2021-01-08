@@ -1,7 +1,9 @@
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueListItem, BlueNavigationStyle } from '../../BlueComponents';
 import { useNavigation, useTheme } from '@react-navigation/native';
+
+import navigationStyle from '../../components/navigationStyle';
+import { SafeBlueArea, BlueListItem } from '../../BlueComponents';
 import loc from '../../loc';
 
 const NetworkSettings = () => {
@@ -36,8 +38,9 @@ const NetworkSettings = () => {
     </SafeBlueArea>
   );
 };
-NetworkSettings.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+
+NetworkSettings.navigationOptions = navigationStyle({
   title: loc.settings.network,
 });
+
 export default NetworkSettings;

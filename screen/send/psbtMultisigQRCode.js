@@ -1,15 +1,17 @@
 /* global alert */
 import React, { useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
-import { BlueNavigationStyle, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
+import { getSystemName } from 'react-native-device-info';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+
+import { BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
-import { getSystemName } from 'react-native-device-info';
 import loc from '../../loc';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 const bitcoin = require('bitcoinjs-lib');
-
 const fs = require('../../blue_modules/fs');
+
 const isDesktop = getSystemName() === 'Mac OS X';
 
 const PsbtMultisigQRCode = () => {
@@ -118,8 +120,7 @@ const styles = StyleSheet.create({
   },
 });
 
-PsbtMultisigQRCode.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
+PsbtMultisigQRCode.navigationOptions = navigationStyle({
   title: loc.multisig.header,
 });
 
