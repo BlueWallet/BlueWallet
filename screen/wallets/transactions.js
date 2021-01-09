@@ -162,7 +162,7 @@ const WalletTransactions = () => {
   );
 
   const isLightning = () => {
-    const w = wallet;
+    const w = wallet.current;
     if (w && w.chain === Chain.OFFCHAIN) {
       return true;
     }
