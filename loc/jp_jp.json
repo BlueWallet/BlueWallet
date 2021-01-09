@@ -222,7 +222,7 @@
     "details_note_placeholder": "ラベル",
     "details_scan": "スキャン",
     "details_total_exceeds_balance": "送金額が利用可能残額を超えています。",
-    "details_wallet_befoe_tx": "トランザクションを作成する前に、まずはビットコインウォレットを追加する必要があります。",
+    "details_wallet_before_tx": "トランザクションを作成する前に、まずはビットコインウォレットを追加する必要があります。",
     "details_wallet_selection": "ウォレット選択",
     "dynamic_init": "初期化中",
     "dynamic_next": "次",
