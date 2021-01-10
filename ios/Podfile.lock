@@ -278,7 +278,7 @@ PODS:
   - react-native-tcp-socket (3.7.1):
     - CocoaAsyncSocket
     - React
-  - react-native-tor (0.1.3):
+  - react-native-tor (0.1.5):
     - React
   - react-native-webview (11.0.0):
     - React-Core
@@ -714,7 +714,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 01158a92c300895d79dee447e980672dc3fb85a6
   react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
-  react-native-tor: c0096214d2cc79eff5a21adbfa0d293daf9df428
+  react-native-tor: 2d1260ed81552d90b58237539a54fab3f34c4b1e
   react-native-webview: f0da708d7e471b60ebdbf861c114d2c5d7f7af2d
   react-native-widget-center: 0f81d17beb163e7fb5848b06754d7d277fe7d99a
   React-RCTActionSheet: 53ea72699698b0b47a6421cb1c8b4ab215a774aa
@@ -758,6 +758,6 @@ SPEC CHECKSUMS:
   Yoga: 7d13633d129fd179e01b8953d38d47be90db185a
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: b3bd25cb4428d9d3183b74cc190b94f88a199e20
+PODFILE CHECKSUM: 5a66baf01774660a98e1b0de7c3ed9a78c8c1efc
 
 COCOAPODS: 1.10.0
