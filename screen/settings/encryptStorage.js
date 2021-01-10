@@ -6,15 +6,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { colors } from 'react-native-elements';
 
 import navigationStyle from '../../components/navigationStyle';
-import {
-  BlueLoading,
-  SafeBlueArea,
-  BlueSpacing20,
-  BlueCard,
-  BlueListItem,
-  BlueHeaderDefaultSub,
-  BlueText,
-} from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueSpacing20, BlueCard, BlueListItem, BlueHeaderDefaultSub, BlueText } from '../../BlueComponents';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
