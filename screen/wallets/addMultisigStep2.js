@@ -54,7 +54,7 @@ const WalletsAddMultisigStep2 = () => {
   const { colors } = useTheme();
 
   const navigation = useNavigation();
-  const { m, n, format } = useRoute().params;
+  const { m, n, format, walletLabel } = useRoute().params;
 
   const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path]
   const [isLoading, setIsLoading] = useState(false);
@@ -166,7 +166,7 @@ const WalletsAddMultisigStep2 = () => {
       const fp = cc[1] || getFpCacheForMnemonics(cc[0]);
       w.addCosigner(cc[0], fp, cc[2]);
     }
-    w.setLabel('Multisig Vault');
+    w.setLabel(walletLabel);
     await w.fetchBalance();
 
     addWallet(w);

@@ -152,7 +152,7 @@ const WalletsAdd = () => {
       }
     } else if (selectedWalletType === ButtonSelected.VAULT) {
       setIsLoading(false);
-      navigate('WalletsAddMultisig');
+      navigate('WalletsAddMultisig', { walletLabel: label.trim().length > 0 ? label : loc.multisig.default_label });
     }
   };
 
