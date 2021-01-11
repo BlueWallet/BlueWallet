@@ -1501,6 +1501,9 @@ export const BlueAddressInput = ({
   onChangeText,
   onBarScanned,
   launchedBy,
+  marginHorizontal = 20,
+  marginVertical = 8,
+  showFileImportButton = false,
 }) => {
   const { colors } = useTheme();
 
@@ -1515,9 +1518,9 @@ export const BlueAddressInput = ({
         backgroundColor: colors.inputBackgroundColor,
         minHeight: 44,
         height: 44,
-        marginHorizontal: 20,
+        marginHorizontal,
         alignItems: 'center',
-        marginVertical: 8,
+        marginVertical,
         borderRadius: 4,
       }}
     >
@@ -1531,6 +1534,9 @@ export const BlueAddressInput = ({
         style={{ flex: 1, marginHorizontal: 8, minHeight: 33, color: '#81868e' }}
         editable={!isLoading}
         onSubmitEditing={Keyboard.dismiss}
+        autoCapitalize="none"
+        underlineColorAndroid="transparent"
+        autoCorrect={false}
       />
       <TouchableOpacity
         testID="BlueAddressInputScanQrButton"
@@ -1545,6 +1551,7 @@ export const BlueAddressInput = ({
               params: {
                 launchedBy,
                 onBarScanned,
+                showFileImportButton,
               },
             });
           }
@@ -1575,6 +1582,9 @@ BlueAddressInput.propTypes = {
   launchedBy: PropTypes.string.isRequired,
   address: PropTypes.string,
   placeholder: PropTypes.string,
+  marginHorizontal: PropTypes.number,
+  marginVertical: PropTypes.number,
+  showFileImportButton: PropTypes.bool,
 };
 
 export class BlueReplaceFeeSuggestions extends Component {
