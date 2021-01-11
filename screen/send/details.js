@@ -282,6 +282,13 @@ export default class SendDetails extends Component {
   processAddressData = data => {
     this.setState({ isLoading: true }, async () => {
       const recipients = this.state.addresses;
+      if (!data.replace) {
+        // user probably scanned PSBT and got an object instead of string..?
+        this.setState({
+          isLoading: false,
+        });
+        return alert(loc.send.details_address_field_is_not_valid);
+      }
       const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
       if (this.state.fromWallet.isAddressValid(dataWithoutSchema)) {
         recipients[[this.state.recipientsScrollIndex]].address = dataWithoutSchema;
