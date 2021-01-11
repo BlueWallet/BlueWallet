@@ -11,16 +11,7 @@ import loc from '../../loc';
 import { AppStorage } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import navigationStyle from '../../components/navigationStyle';
-import {
-  BlueAddressInput,
-  BlueButton,
-  BlueCard,
-  BlueLoading,
-  BlueSpacing20,
-  BlueText,
-  BlueTextCentered,
-  SafeBlueArea
-} from '../../BlueComponents';
+import { BlueAddressInput, BlueButton, BlueCard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import ToolTip from 'react-native-tooltip';
 import Clipboard from '@react-native-community/clipboard';
