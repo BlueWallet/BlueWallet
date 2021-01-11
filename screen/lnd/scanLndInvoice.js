@@ -88,8 +88,8 @@ const ScanLndInvoice = () => {
     useCallback(() => {
       if (!wallet) {
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-        alert(loc.wallets.no_ln_wallet_error);
         goBack();
+        setTimeout(() => alert(loc.wallets.no_ln_wallet_error), 500);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet]),

@@ -15,6 +15,7 @@
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
       android:extractNativeLibs="true"
+      android:requestLegacyExternalStorage="true"
       android:usesCleartextTraffic="true"
       android:theme="@style/AppTheme">
 
