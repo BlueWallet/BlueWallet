@@ -177,6 +177,7 @@
     "details_adv_full_sure": "Are you sure you want to use your wallet's full balance for this transaction?",
     "details_adv_import": "Import Transaction",
     "details_amount_field_is_not_valid": "Amount field is not valid",
+    "details_amount_field_is_less_than_minimum_amount_sat": "The specified amount is too small. Please enter an amount greater than 500 sats.",
     "details_create": "Create Invoice",
     "details_error_decode": "Error: Unable to decode Bitcoin address",
     "details_fee_field_is_not_valid": "Fee field is not valid",
