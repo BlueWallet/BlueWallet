@@ -219,12 +219,16 @@ export default class ElectrumSettings extends Component {
     },
   ];
 
+  handleAndroidPopupMenuAction = ({ item, server }) => {
+    if (item.id === 'copyHost') {
+      Clipboard.setString(server.host);
+    } else if (item.id === 'copyPort') {
+      Clipboard.setString(server.port || server.sslPort);
+    }
+  };
+
   showAndroidTooltip = server => {
-    showPopupMenu(
-      this.toolTipMenuOptions,
-      item => (item === 'copyHost' ? Clipboard.setString(server.host) : Clipboard.setString(server.port || server.sslPort)),
-      this.hostText.current,
-    );
+    showPopupMenu(this.toolTipMenuOptions, item => this.handleAndroidPopupMenuAction({ item, server }), this.hostText.current);
   };
 
   render() {
