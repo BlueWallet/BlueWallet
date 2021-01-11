@@ -264,8 +264,6 @@
     "electrum_status": "Status",
     "electrum_clear_alert_title": "Historie löschen?",
     "electrum_clear_alert_message": "Electrum-Serverhistorie löschen?",
-    "electrum_clear_alert_cancel": "Abbrechen",
-    "electrum_clear_alert_ok": "Ok",
     "electrum_select": "Auswählen",
     "electrum_reset": "Auf Standard zurücksetzen",
     "electrum_history": "Serverhistorie",

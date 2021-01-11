@@ -266,8 +266,6 @@
     "electrum_status": "Статус",
     "electrum_clear_alert_title": "Очистить историю?",
     "electrum_clear_alert_message": "Удалить историю серверов electrum?",
-    "electrum_clear_alert_cancel": "Отмена",
-    "electrum_clear_alert_ok": "Ок",
     "electrum_select": "Выбрать",
     "electrum_reset": "По умолчанию",
     "electrum_history": "История",

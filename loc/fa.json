@@ -266,8 +266,6 @@
     "electrum_status": "وضعیت",
     "electrum_clear_alert_title": "تاریخچه پاک شود؟",
     "electrum_clear_alert_message": "آیا می‌خواهید تاریخچهٔ سرورهای الکترام را پاک کنید؟",
-    "electrum_clear_alert_cancel": "لغو",
-    "electrum_clear_alert_ok": "بله",
     "electrum_select": "انتخاب",
     "electrum_reset": "بازنشانی به پیش‌فرض",
     "electrum_history": "تاریخچهٔ سرورها",

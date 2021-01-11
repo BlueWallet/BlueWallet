@@ -39,6 +39,11 @@ const styles = StyleSheet.create({
   buttonStyle: {
     backgroundColor: 'transparent',
   },
+  torSupported: {
+    marginTop: 20,
+    textAlign: 'center',
+    color: BlueCurrentTheme.colors.feeText,
+  },
 });
 
 const LightningSettings = () => {
@@ -144,6 +149,8 @@ const LightningSettings = () => {
             underlineColorAndroid="transparent"
           />
         </View>
+
+        <BlueText style={styles.torSupported}>{loc.settings.tor_supported}</BlueText>
 
         <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
         <BlueSpacing20 />

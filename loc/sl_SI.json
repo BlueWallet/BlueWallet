@@ -266,8 +266,6 @@
     "electrum_status": "Stanje",
     "electrum_clear_alert_title": "Počisti zgodovino?",
     "electrum_clear_alert_message": "Ali želite počistiti zgodovino electrum strežnikov?",
-    "electrum_clear_alert_cancel": "Prekliči",
-    "electrum_clear_alert_ok": "Ok",
     "electrum_select": "Izberi",
     "electrum_reset": "Ponastavi na privzeto",
     "electrum_history": "Zgodovina strežnikov",

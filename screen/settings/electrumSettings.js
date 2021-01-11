@@ -11,7 +11,16 @@ import loc from '../../loc';
 import { AppStorage } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import navigationStyle from '../../components/navigationStyle';
-import { BlueAddressInput, BlueButton, BlueCard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import {
+  BlueAddressInput,
+  BlueButton,
+  BlueCard,
+  BlueLoading,
+  BlueSpacing20,
+  BlueText,
+  BlueTextCentered,
+  SafeBlueArea
+} from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import ToolTip from 'react-native-tooltip';
 import Clipboard from '@react-native-community/clipboard';
@@ -331,6 +340,8 @@ export default class ElectrumSettings extends Component {
               />
             </View>
             <BlueSpacing20 />
+            <BlueText style={styles.torSupported}>{loc.settings.tor_supported}</BlueText>
+            <BlueSpacing20 />
             {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
             <BlueSpacing20 />
             {!this.state.isLoading && <BlueButton title={loc.settings.electrum_reset} onPress={this.resetToDefault} />}
@@ -413,6 +424,10 @@ const styles = StyleSheet.create({
   explain: {
     color: BlueCurrentTheme.colors.feeText,
     marginBottom: -24,
+  },
+  torSupported: {
+    textAlign: 'center',
+    color: BlueCurrentTheme.colors.feeText,
   },
   inputWrap: {
     flexDirection: 'row',

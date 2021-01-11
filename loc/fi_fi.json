@@ -266,8 +266,6 @@
     "electrum_status": "Tila",
     "electrum_clear_alert_title": "Tyhjennä historia?",
     "electrum_clear_alert_message": "Haluatko tyhjentää Electrum-palvelinten historian?",
-    "electrum_clear_alert_cancel": "Peruuta",
-    "electrum_clear_alert_ok": "Ok",
     "electrum_select": "Valitse",
     "electrum_reset": "Palauta oletusasetuksiin",
     "electrum_history": "Palvelimen historia",
