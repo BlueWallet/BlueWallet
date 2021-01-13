@@ -330,6 +330,9 @@ const WalletsAddMultisigStep2 = () => {
       if (MultisigHDWallet.isXpubValid(ret.data) && !MultisigHDWallet.isXpubForMultisig(ret.data)) {
         return alert(loc.multisig.not_a_multisignature_xpub);
       }
+      if (MultisigHDWallet.isXpubValid(ret.data)) {
+        return tryUsingXpub(ret.data);
+      }
       let cosigner = new MultisigCosigner(ret.data);
       if (!cosigner.isValid()) return alert(loc.multisig.invalid_cosigner);
       setIsProvideMnemonicsModalVisible(false);
