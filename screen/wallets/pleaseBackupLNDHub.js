@@ -47,9 +47,6 @@ const PleaseBackupLNDHub = () => {
     };
   }, [handleBackButton]);
 
-  const secret =
-    wallet.getBaseURI() === LightningCustodianWallet.defaultBaseUri ? wallet.secret : `${wallet.secret}@${wallet.getBaseURI()}`;
-
   const pop = () => navigation.dangerouslyGetParent().pop();
   return (
     <SafeBlueArea style={styles.root}>
@@ -73,7 +70,7 @@ const PleaseBackupLNDHub = () => {
             ecl="H"
           />
         </View>
-        <BlueCopyTextToClipboard text={secret} />
+        <BlueCopyTextToClipboard text={wallet.getSecret()} />
         <BlueSpacing20 />
         <BlueButton onPress={pop} title={loc.pleasebackup.ok_lnd} />
       </ScrollView>
