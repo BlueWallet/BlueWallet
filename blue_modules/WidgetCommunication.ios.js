@@ -2,15 +2,34 @@ import { useContext, useEffect } from 'react';
 import { BlueStorageContext } from './storage-context';
 import DefaultPreference from 'react-native-default-preference';
 import RNWidgetCenter from 'react-native-widget-center';
-
-const WidgetCommunicationAllWalletsSatoshiBalance = 'WidgetCommunicationAllWalletsSatoshiBalance';
-const WidgetCommunicationAllWalletsLatestTransactionTime = 'WidgetCommunicationAllWalletsLatestTransactionTime';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function WidgetCommunication() {
+  WidgetCommunication.WidgetCommunicationAllWalletsSatoshiBalance = 'WidgetCommunicationAllWalletsSatoshiBalance';
+  WidgetCommunication.WidgetCommunicationAllWalletsLatestTransactionTime = 'WidgetCommunicationAllWalletsLatestTransactionTime';
+  WidgetCommunication.WidgetCommunicationDisplayBalanceAllowed = 'WidgetCommunicationDisplayBalanceAllowed';
   const { wallets, walletsInitialized, isStorageEncrypted } = useContext(BlueStorageContext);
 
+  WidgetCommunication.isBalanceDisplayAllowed = async () => {
+    try {
+      const displayBalance = JSON.parse(await AsyncStorage.getItem(WidgetCommunication.WidgetCommunicationDisplayBalanceAllowed));
+      if (displayBalance !== null) {
+        return displayBalance;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      return true;
+    }
+  };
+
+  WidgetCommunication.setBalanceDisplayAllowed = async value => {
+    await AsyncStorage.setItem(WidgetCommunication.WidgetCommunicationDisplayBalanceAllowed, JSON.stringify(value));
+    setValues();
+  };
+
   const allWalletsBalanceAndTransactionTime = async () => {
-    if (await isStorageEncrypted()) {
+    if ((await isStorageEncrypted()) || !(await WidgetCommunication.isBalanceDisplayAllowed())) {
       return { allWalletsBalance: 0, latestTransactionTime: 0 };
     } else {
       let balance = 0;
@@ -30,8 +49,11 @@ function WidgetCommunication() {
   const setValues = async () => {
     await DefaultPreference.setName('group.io.bluewallet.bluewallet');
     const { allWalletsBalance, latestTransactionTime } = await allWalletsBalanceAndTransactionTime();
-    await DefaultPreference.set(WidgetCommunicationAllWalletsSatoshiBalance, JSON.stringify(allWalletsBalance));
-    await DefaultPreference.set(WidgetCommunicationAllWalletsLatestTransactionTime, JSON.stringify(latestTransactionTime));
+    await DefaultPreference.set(WidgetCommunication.WidgetCommunicationAllWalletsSatoshiBalance, JSON.stringify(allWalletsBalance));
+    await DefaultPreference.set(
+      WidgetCommunication.WidgetCommunicationAllWalletsLatestTransactionTime,
+      JSON.stringify(latestTransactionTime),
+    );
     RNWidgetCenter.reloadAllTimelines();
   };
 

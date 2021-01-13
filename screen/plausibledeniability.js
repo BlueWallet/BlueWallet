@@ -1,11 +1,13 @@
 /* global alert */
 import React, { useContext, useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueSpacing20 } from '../BlueComponents';
+import { useNavigation, useTheme } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
+import navigationStyle from '../components/navigationStyle';
+import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing20 } from '../BlueComponents';
 import loc from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
-import { useNavigation, useTheme } from '@react-navigation/native';
 const prompt = require('../blue_modules/prompt');
 
 const styles = StyleSheet.create({
@@ -85,7 +87,6 @@ const PlausibleDeniability = () => {
 
 export default PlausibleDeniability;
 
-PlausibleDeniability.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+PlausibleDeniability.navigationOptions = navigationStyle({
   title: loc.plausibledeniability.title,
 });

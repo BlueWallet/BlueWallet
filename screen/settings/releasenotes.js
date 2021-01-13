@@ -1,7 +1,8 @@
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import { useTheme } from '@react-navigation/native';
+import navigationStyle from '../../components/navigationStyle';
+import { SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import loc from '../../loc';
 
 const ReleaseNotes = () => {
@@ -25,8 +26,7 @@ const ReleaseNotes = () => {
   );
 };
 
-ReleaseNotes.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+ReleaseNotes.navigationOptions = navigationStyle({
   title: loc.settings.about_release_notes,
 });
 

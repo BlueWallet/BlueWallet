@@ -13,33 +13,34 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Icon } from 'react-native-elements';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { getSystemName } from 'react-native-device-info';
+import QRCode from 'react-native-qrcode-svg';
+import Clipboard from '@react-native-community/clipboard';
+import showPopupMenu from 'react-native-popup-menu-android';
+import ToolTip from 'react-native-tooltip';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import {
   BlueButton,
   BlueButtonLink,
   BlueFormMultiInput,
   BlueLoading,
-  BlueNavigationStyle,
   BlueSpacing10,
   BlueSpacing20,
   BlueSpacing40,
   BlueTextCentered,
 } from '../../BlueComponents';
-import { Icon } from 'react-native-elements';
+import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import { getSystemName } from 'react-native-device-info';
-import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
 import BottomModal from '../../components/BottomModal';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
-import Clipboard from '@react-native-community/clipboard';
-import showPopupMenu from 'react-native-popup-menu-android';
-import ToolTip from 'react-native-tooltip';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const prompt = require('../../blue_modules/prompt');
@@ -53,7 +54,7 @@ const WalletsAddMultisigStep2 = () => {
   const { colors } = useTheme();
 
   const navigation = useNavigation();
-  const { m, n, format } = useRoute().params;
+  const { m, n, format, walletLabel } = useRoute().params;
 
   const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path]
   const [isLoading, setIsLoading] = useState(false);
@@ -165,7 +166,7 @@ const WalletsAddMultisigStep2 = () => {
       const fp = cc[1] || getFpCacheForMnemonics(cc[0]);
       w.addCosigner(cc[0], fp, cc[2]);
     }
-    w.setLabel('Multisig Vault');
+    w.setLabel(walletLabel);
     await w.fetchBalance();
 
     addWallet(w);
@@ -259,6 +260,13 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const tryUsingXpub = async xpub => {
+    if (!MultisigHDWallet.isXpubForMultisig(xpub)) {
+      setIsProvideMnemonicsModalVisible(false);
+      setIsLoading(false);
+      setImportText('');
+      alert(loc.multisig.not_a_multisignature_xpub);
+      return;
+    }
     let fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, false, 'plain-text');
     fp = (fp + '').toUpperCase();
     if (!MultisigHDWallet.isFpValid(fp)) fp = '00000000';
@@ -311,7 +319,6 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const onBarScanned = ret => {
-    setIsProvideMnemonicsModalVisible(false);
     if (!isDesktop) navigation.dangerouslyGetParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
@@ -320,9 +327,12 @@ const WalletsAddMultisigStep2 = () => {
       setIsProvideMnemonicsModalVisible(true);
       setImportText(ret.data);
     } else {
+      if (MultisigHDWallet.isXpubValid(ret.data) && !MultisigHDWallet.isXpubForMultisig(ret.data)) {
+        return alert(loc.multisig.not_a_multisignature_xpub);
+      }
       let cosigner = new MultisigCosigner(ret.data);
       if (!cosigner.isValid()) return alert(loc.multisig.invalid_cosigner);
-
+      setIsProvideMnemonicsModalVisible(false);
       if (cosigner.howManyCosignersWeHave() > 1) {
         // lets look for the correct cosigner. thats probably gona be the one with specific corresponding path,
         // for example m/48'/0'/0'/2' if user chose to setup native segwit in BW
@@ -390,8 +400,9 @@ const WalletsAddMultisigStep2 = () => {
 
   const scanOrOpenFile = () => {
     if (isDesktop) {
-      fs.showActionSheet().then(data => onBarScanned({ data }));
+      fs.showActionSheet().then(onBarScanned);
     } else {
+      setIsProvideMnemonicsModalVisible(false);
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
@@ -494,7 +505,7 @@ const WalletsAddMultisigStep2 = () => {
         component.push(
           <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
             <Text style={[styles.wordText, stylesHook.wordText]}>
-              {index + 1} . {secret}
+              {index + 1}. {secret}
             </Text>
           </View>,
         );
@@ -791,8 +802,7 @@ const styles = StyleSheet.create({
   },
 });
 
-WalletsAddMultisigStep2.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+WalletsAddMultisigStep2.navigationOptions = navigationStyle({
   headerTitle: null,
   gestureEnabled: false,
   swipeEnabled: false,

@@ -1,19 +1,12 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import LottieView from 'lottie-react-native';
 import { View, Text, Linking, StyleSheet, Image, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Icon } from 'react-native-elements';
-import {
-  BlueButton,
-  BlueButtonLink,
-  BlueNavigationStyle,
-  SafeBlueArea,
-  BlueCard,
-  BlueLoading,
-  BlueText,
-  BlueSpacing20,
-} from '../../BlueComponents';
-import PropTypes from 'prop-types';
+
+import { BlueButton, BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import Lnurl from '../../class/lnurl';
 import loc from '../../loc';
 
@@ -201,10 +194,9 @@ const styles = StyleSheet.create({
   },
 });
 
-LnurlPaySuccess.navigationOptions = ({ navigation, route }) => {
-  return {
-    ...BlueNavigationStyle(navigation, true, () => navigation.dangerouslyGetParent().popToTop()),
-    title: '',
-    headerLeft: null,
-  };
-};
+LnurlPaySuccess.navigationOptions = navigationStyle({
+  title: '',
+  closeButton: true,
+  closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop(),
+  headerLeft: null,
+});

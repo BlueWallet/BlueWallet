@@ -2,7 +2,7 @@ PODS:
   - boost-for-react-native (1.63.0)
   - BVLinearGradient (2.5.6):
     - React
-  - CocoaAsyncSocket (7.6.4)
+  - CocoaAsyncSocket (7.6.5)
   - CocoaLibEvent (1.0.0)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.63.4)
@@ -342,8 +342,6 @@ PODS:
     - React-Core (= 0.63.4)
     - React-cxxreact (= 0.63.4)
     - React-jsi (= 0.63.4)
-  - ReactNativePrivacySnapshot (1.0.0):
-    - React
   - RealmJS (6.1.4):
     - GCDWebServer
     - React
@@ -355,7 +353,7 @@ PODS:
     - React-Core
   - RNCMaskedView (0.1.10):
     - React
-  - RNCPushNotificationIOS (1.7.1):
+  - RNCPushNotificationIOS (1.8.0):
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
@@ -371,6 +369,8 @@ PODS:
     - React-Core
   - RNLocalize (1.4.2):
     - React-Core
+  - RNPrivacySnapshot (1.0.0):
+    - React
   - RNQuickAction (0.3.13):
     - React
   - RNRate (1.2.4):
@@ -469,7 +469,6 @@ DEPENDENCIES:
   - React-RCTText (from `../node_modules/react-native/Libraries/Text`)
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - ReactNativePrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
   - RealmJS (from `../node_modules/realm`)
   - "RemobileReactNativeQrcodeLocalImage (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
@@ -483,6 +482,7 @@ DEPENDENCIES:
   - RNHandoff (from `../node_modules/react-native-handoff`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNLocalize (from `../node_modules/react-native-localize`)
+  - RNPrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNRate (from `../node_modules/react-native-rate`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
@@ -602,8 +602,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/Libraries/Vibration"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
-  ReactNativePrivacySnapshot:
-    :path: "../node_modules/react-native-privacy-snapshot"
   RealmJS:
     :path: "../node_modules/realm"
   RemobileReactNativeQrcodeLocalImage:
@@ -630,6 +628,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-inappbrowser-reborn"
   RNLocalize:
     :path: "../node_modules/react-native-localize"
+  RNPrivacySnapshot:
+    :path: "../node_modules/react-native-privacy-snapshot"
   RNQuickAction:
     :path: "../node_modules/react-native-quick-actions"
   RNRate:
@@ -668,7 +668,7 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
-  CocoaAsyncSocket: 694058e7c0ed05a9e217d1b3c7ded962f4180845
+  CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   CocoaLibEvent: 2fab71b8bd46dd33ddb959f7928ec5909f838e3f
   DoubleConversion: cde416483dac037923206447da6e1454df403714
   FBLazyVector: 3bb422f41b18121b71783a905c10e58606f7dc3e
@@ -721,13 +721,12 @@ SPEC CHECKSUMS:
   React-RCTText: 5c51df3f08cb9dedc6e790161195d12bac06101c
   React-RCTVibration: ae4f914cfe8de7d4de95ae1ea6cc8f6315d73d9d
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
-  ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RealmJS: 899b4839a8bee46e248bc277995ad58da855e41f
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: bc2f81cc1df90c267ce9ed30bb2dbc93b945a8ee
   RNCClipboard: 8f9f12fabf3c06e976f19f87a62c89e28dfedfca
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
-  RNCPushNotificationIOS: eaf01f848a0b872b194d31bcad94bb864299e01e
+  RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
   RNDeviceInfo: 57bb2806fb7bd982a1434e9f0b4e6a6ab1f6702e
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
@@ -735,6 +734,7 @@ SPEC CHECKSUMS:
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNInAppBrowser: 3733c1aa6699983a1c9b4963e85d5e5a48ad297e
   RNLocalize: 4071198b59b461f3b74eebc5fee8c50f13e39e79
+  RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 2b31dad120cd1b78e33c6034808561c386a3dddf
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
@@ -754,4 +754,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: b3a4c68ed1fc7dace2357d96ad07c3e104e0afe2
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.10.0

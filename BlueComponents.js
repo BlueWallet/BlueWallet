@@ -510,90 +510,6 @@ export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure 
   );
 };
 
-export const BlueNavigationStyle = (navigation, withNavigationCloseButton = false, customCloseButtonFunction = undefined) => {
-  let headerRight;
-  const { colors, closeImage } = useTheme();
-  if (withNavigationCloseButton) {
-    headerRight = () => (
-      <TouchableOpacity
-        style={{ width: 40, height: 40, padding: 14 }}
-        onPress={
-          customCloseButtonFunction === undefined
-            ? () => {
-                Keyboard.dismiss();
-                navigation.goBack(null);
-              }
-            : customCloseButtonFunction
-        }
-      >
-        <Image style={{ alignSelf: 'center' }} source={closeImage} />
-      </TouchableOpacity>
-    );
-  } else {
-    headerRight = null;
-  }
-
-  return {
-    headerStyle: {
-      borderBottomWidth: 0,
-      elevation: 0,
-      shadowOpacity: 0,
-      shadowOffset: { height: 0, width: 0 },
-    },
-    headerTitleStyle: {
-      fontWeight: '600',
-      color: colors.foregroundColor,
-    },
-    headerRight,
-    headerBackTitleVisible: false,
-    headerTintColor: colors.foregroundColor,
-  };
-};
-
-export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuButton = false, advancedOptionsMenuButtonAction) => {
-  const { colors, closeImage } = useTheme();
-
-  let headerRight;
-  if (withAdvancedOptionsMenuButton) {
-    headerRight = () => (
-      <TouchableOpacity
-        style={{ minWidth: 40, height: 40, justifyContent: 'center' }}
-        onPress={advancedOptionsMenuButtonAction}
-        testID="advancedOptionsMenuButton"
-      >
-        <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
-      </TouchableOpacity>
-    );
-  } else {
-    headerRight = null;
-  }
-  return {
-    headerStyle: {
-      borderBottomWidth: 0,
-      elevation: 0,
-      shadowOffset: { height: 0, width: 0 },
-    },
-    headerTitleStyle: {
-      fontWeight: '600',
-      color: colors.foregroundColor,
-    },
-    headerTintColor: colors.foregroundColor,
-    headerLeft: () => (
-      <TouchableOpacity
-        style={{ minWidth: 40, height: 40, justifyContent: 'center', paddingHorizontal: 14 }}
-        onPress={() => {
-          Keyboard.dismiss();
-          navigation.goBack(null);
-        }}
-      >
-        <Image style={{}} source={closeImage} />
-      </TouchableOpacity>
-    ),
-    headerRight,
-    headerBackTitle: null,
-  };
-};
-
 export const BluePrivateBalance = () => {
   return Platform.select({
     ios: (
@@ -831,48 +747,6 @@ export const BlueHeader = props => {
 
 export const BlueHeaderDefaultSub = props => {
   const { colors } = useTheme();
-  return (
-    <SafeAreaView style={{ backgroundColor: colors.brandingColor }}>
-      <Header
-        backgroundColor={colors.background}
-        leftContainerStyle={{ minWidth: '100%' }}
-        outerContainerStyles={{
-          borderBottomColor: 'transparent',
-          borderBottomWidth: 0,
-        }}
-        leftComponent={
-          <Text
-            adjustsFontSizeToFit
-            style={{
-              fontWeight: 'bold',
-              fontSize: 30,
-              color: colors.foregroundColor,
-            }}
-          >
-            {props.leftText}
-          </Text>
-        }
-        rightComponent={
-          <TouchableOpacity
-            onPress={() => {
-              if (props.onClose) props.onClose();
-            }}
-          >
-            <View style={stylesBlueIcon.box}>
-              <View style={stylesBlueIcon.ballTransparrent}>
-                <Image source={require('./img/close.png')} />
-              </View>
-            </View>
-          </TouchableOpacity>
-        }
-        {...props}
-      />
-    </SafeAreaView>
-  );
-};
-
-export const BlueHeaderDefaultSubHooks = props => {
-  const { colors } = useTheme();
 
   return (
     <SafeAreaView>
@@ -962,30 +836,44 @@ export const BlueSpacing10 = props => {
   return <View {...props} style={{ height: 10, opacity: 0 }} />;
 };
 
-export class BlueUseAllFundsButton extends Component {
-  static InputAccessoryViewID = 'useMaxInputAccessoryViewID';
-  static propTypes = {
-    balance: PropTypes.string.isRequired,
-    canUseAll: PropTypes.bool.isRequired,
-    onUseAllPressed: PropTypes.func.isRequired,
-  };
-
-  render() {
-    const inputView = (
-      <View
-        style={{
-          flex: 1,
-          flexDirection: 'row',
-          maxHeight: 44,
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
-        }}
-      >
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+export const BlueUseAllFundsButton = ({ balance, canUseAll, onUseAllPressed }) => {
+  const { colors } = useTheme();
+  const inputView = (
+    <View
+      style={{
+        flex: 1,
+        flexDirection: 'row',
+        maxHeight: 44,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: colors.inputBackgroundColor,
+      }}
+    >
+      <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+        <Text
+          style={{
+            color: colors.alternativeTextColor,
+            fontSize: 16,
+            marginLeft: 8,
+            marginRight: 0,
+            paddingRight: 0,
+            paddingLeft: 0,
+            paddingTop: 12,
+            paddingBottom: 12,
+          }}
+        >
+          {loc.send.input_total}
+        </Text>
+        {canUseAll ? (
+          <BlueButtonLink
+            onPress={onUseAllPressed}
+            style={{ marginLeft: 8, paddingRight: 0, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
+            title={`${balance} ${BitcoinUnit.BTC}`}
+          />
+        ) : (
           <Text
             style={{
-              color: BlueCurrentTheme.colors.alternativeTextColor,
+              color: colors.alternativeTextColor,
               fontSize: 16,
               marginLeft: 8,
               marginRight: 0,
@@ -995,48 +883,32 @@ export class BlueUseAllFundsButton extends Component {
               paddingBottom: 12,
             }}
           >
-            {loc.send.input_total}
+            {balance} {BitcoinUnit.BTC}
           </Text>
-          {this.props.canUseAll ? (
-            <BlueButtonLink
-              onPress={this.props.onUseAllPressed}
-              style={{ marginLeft: 8, paddingRight: 0, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
-              title={`${this.props.balance} ${BitcoinUnit.BTC}`}
-            />
-          ) : (
-            <Text
-              style={{
-                color: BlueCurrentTheme.colors.alternativeTextColor,
-                fontSize: 16,
-                marginLeft: 8,
-                marginRight: 0,
-                paddingRight: 0,
-                paddingLeft: 0,
-                paddingTop: 12,
-                paddingBottom: 12,
-              }}
-            >
-              {this.props.balance} {BitcoinUnit.BTC}
-            </Text>
-          )}
-        </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-          <BlueButtonLink
-            style={{ paddingRight: 8, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
-            title={loc.send.input_done}
-            onPress={() => Keyboard.dismiss()}
-          />
-        </View>
+        )}
       </View>
-    );
+      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+        <BlueButtonLink
+          style={{ paddingRight: 8, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
+          title={loc.send.input_done}
+          onPress={Keyboard.dismiss}
+        />
+      </View>
+    </View>
+  );
 
-    if (Platform.OS === 'ios') {
-      return <InputAccessoryView nativeID={BlueUseAllFundsButton.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
-    } else {
-      return <KeyboardAvoidingView style={{ height: 44 }}>{inputView}</KeyboardAvoidingView>;
-    }
+  if (Platform.OS === 'ios') {
+    return <InputAccessoryView nativeID={BlueUseAllFundsButton.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
+  } else {
+    return <KeyboardAvoidingView style={{ height: 44 }}>{inputView}</KeyboardAvoidingView>;
   }
-}
+};
+BlueUseAllFundsButton.InputAccessoryViewID = 'useMaxInputAccessoryViewID';
+BlueUseAllFundsButton.propTypes = {
+  balance: PropTypes.string.isRequired,
+  canUseAll: PropTypes.bool.isRequired,
+  onUseAllPressed: PropTypes.func.isRequired,
+};
 
 export const BlueDismissKeyboardInputAccessory = () => {
   const { colors } = useTheme();
@@ -2074,7 +1946,7 @@ export class BlueBitcoinAmount extends Component {
                 maxLength={this.maxLength()}
                 ref={textInput => (this.textInput = textInput)}
                 editable={!this.props.isLoading && !this.props.disabled}
-                value={parseFloat(amount) >= 0 || amount === BitcoinUnit.MAX ? amount : undefined}
+                value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? amount : undefined}
                 placeholderTextColor={
                   this.props.disabled ? BlueCurrentTheme.colors.buttonDisabledTextColor : BlueCurrentTheme.colors.alternativeTextColor2
                 }
@@ -2099,7 +1971,7 @@ export class BlueBitcoinAmount extends Component {
                     justifyContent: 'center',
                   }}
                 >
-                  {' ' + this.state.unit}
+                  {' ' + loc.units[this.state.unit]}
                 </Text>
               )}
             </View>
@@ -2108,7 +1980,7 @@ export class BlueBitcoinAmount extends Component {
                 {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX
                   ? removeTrailingZeros(secondaryDisplayCurrency)
                   : secondaryDisplayCurrency}
-                {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX ? ` ${BitcoinUnit.BTC}` : null}
+                {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX ? ` ${loc.units[BitcoinUnit.BTC]}` : null}
               </Text>
             </View>
           </View>

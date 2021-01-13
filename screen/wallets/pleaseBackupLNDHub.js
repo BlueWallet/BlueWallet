@@ -1,19 +1,15 @@
 import React, { useCallback, useContext, useEffect } from 'react';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { View, useWindowDimensions, StyleSheet, BackHandler, StatusBar } from 'react-native';
-import {
-  SafeBlueArea,
-  BlueNavigationStyle,
-  BlueSpacing20,
-  BlueCopyTextToClipboard,
-  BlueButton,
-  BlueTextCentered,
-} from '../../BlueComponents';
 import QRCode from 'react-native-qrcode-svg';
-import Privacy from '../../Privacy';
 import { ScrollView } from 'react-native-gesture-handler';
+
+import { BlueButton, BlueCopyTextToClipboard, BlueSpacing20, BlueText, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import Privacy from '../../Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { LightningCustodianWallet } from '../../class';
 
 const PleaseBackupLNDHub = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -53,10 +49,12 @@ const PleaseBackupLNDHub = () => {
 
   return (
     <SafeBlueArea style={styles.root}>
-      <StatusBar barStyle="default" />
+      <StatusBar barStyle="light-content" />
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View>
           <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>
+          <BlueSpacing20 />
+          {wallet.getBaseURI() === LightningCustodianWallet.defaultBaseUri && <BlueText>- {loc.pleasebackup.text_lnd2}</BlueText>}
         </View>
         <BlueSpacing20 />
         <View style={styles.qrCodeContainer}>
@@ -71,7 +69,6 @@ const PleaseBackupLNDHub = () => {
             ecl="H"
           />
         </View>
-        <BlueSpacing20 />
         <BlueCopyTextToClipboard text={wallet.secret} />
         <BlueSpacing20 />
         <BlueButton onPress={() => navigation.dangerouslyGetParent().pop()} title={loc.pleasebackup.ok_lnd} />
@@ -80,8 +77,8 @@ const PleaseBackupLNDHub = () => {
   );
 };
 
-PleaseBackupLNDHub.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+PleaseBackupLNDHub.navigationOptions = navigationStyle({
+  closeButton: true,
   title: loc.pleasebackup.title,
   headerLeft: null,
   headerRight: null,

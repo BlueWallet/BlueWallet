@@ -376,7 +376,7 @@
     "export_title": "Exportar carteira",
     "import_do_import": "Importar",
     "import_error": "Erro. Por favor, confira se o formato que você passou é válido.",
-    "import_explanation": "Escreva aqui sua frase mnemônica, chave privada, WIF, ou o que você tiver. Faremos nosso melhor para adivinhar o formato e importat sua carteira",
+    "import_explanation": "Escreva aqui sua frase mnemônica, chave privada, WIF, ou o que você tiver. Faremos nosso melhor para adivinhar o formato e importar sua carteira",
     "import_file": "Importar arquivo",
     "import_imported": "Importada",
     "import_scan_qr": "Ler um código QR ou arquivo",

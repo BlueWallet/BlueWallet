@@ -2,19 +2,20 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, Linking, StyleSheet, View, KeyboardAvoidingView, Platform, TextInput } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import loc from '../../loc';
 import { HDSegwitBech32Wallet } from '../../class';
+import navigationStyle from '../../components/navigationStyle';
 import {
-  SafeBlueArea,
-  BlueCard,
+  BlueBigCheckmark,
   BlueButton,
+  BlueButtonLink,
+  BlueCard,
+  BlueFormLabel,
   BlueSpacing10,
   BlueSpacing20,
-  BlueFormLabel,
   BlueTextCentered,
-  BlueBigCheckmark,
-  BlueNavigationStyle,
-  BlueButtonLink,
+  SafeBlueArea,
 } from '../../BlueComponents';
 import BlueElectrum from '../../blue_modules/BlueElectrum';
 import Notifications from '../../blue_modules/notifications';
@@ -131,8 +132,7 @@ const Broadcast = () => {
 };
 
 export default Broadcast;
-Broadcast.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+Broadcast.navigationOptions = navigationStyle({
   title: loc.send.create_broadcast,
 });
 

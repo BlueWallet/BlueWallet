@@ -21,10 +21,10 @@ import {
   VaultButton,
   BlueFormLabel,
   BlueButton,
-  BlueNavigationStyle,
   BlueButtonLink,
   BlueSpacing20,
 } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCustodianWallet, AppStorage } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useTheme, useNavigation } from '@react-navigation/native';
@@ -152,7 +152,7 @@ const WalletsAdd = () => {
       }
     } else if (selectedWalletType === ButtonSelected.VAULT) {
       setIsLoading(false);
-      navigate('WalletsAddMultisig');
+      navigate('WalletsAddMultisig', { walletLabel: label.trim().length > 0 ? label : loc.multisig.default_label });
     }
   };
 
@@ -285,13 +285,13 @@ const WalletsAdd = () => {
                   <BlueSpacing20 />
                   <Text style={[styles.advancedText, stylesHook.advancedText]}>{loc.settings.advanced_options}</Text>
                   <BlueSpacing20 />
-                  <BlueText>Connect to your LNDHub</BlueText>
+                  <BlueText>{loc.wallets.add_lndhub}</BlueText>
                   <View style={[styles.lndUri, stylesHook.lndUri]}>
                     <TextInput
                       value={walletBaseURI}
                       onChangeText={setWalletBaseURI}
                       onSubmitEditing={Keyboard.dismiss}
-                      placeholder="your node address"
+                      placeholder={loc.wallets.add_lndhub_placeholder}
                       clearButtonMode="while-editing"
                       autoCapitalize="none"
                       textContentType="URL"
@@ -331,8 +331,8 @@ const WalletsAdd = () => {
   );
 };
 
-WalletsAdd.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+WalletsAdd.navigationOptions = navigationStyle({
+  closeButton: true,
   headerTitle: loc.wallets.add_title,
   headerLeft: null,
 });
