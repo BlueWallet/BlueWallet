@@ -77,7 +77,7 @@ async function connectMain() {
       serverName = ver[0];
       mainConnected = true;
       wasConnectedAtLeastOnce = true;
-      if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs')) {
+      if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs') || ver[0].startsWith('Fulcrum')) {
         // TODO: once they release support for batching - disable batching only for lower versions
         disableBatching = true;
       }
