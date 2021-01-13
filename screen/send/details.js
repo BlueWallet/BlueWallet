@@ -973,6 +973,13 @@ export default class SendDetails extends Component {
     });
   };
 
+  setIsloading = async isLoading => {
+    const that = this;
+    return new Promise(function (resolve) {
+      that.setState({ isLoading: isLoading }, () => setTimeout(resolve, 100));
+    });
+  };
+
   _importTransactionMultisig = async base64arg => {
     try {
       /** @type MultisigHDWallet */
@@ -982,7 +989,10 @@ export default class SendDetails extends Component {
       const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
       if (fromWallet.howManySignaturesCanWeMake() > 0 && (await this.askCosignThisTransaction())) {
+        this.hideAdvancedTransactionOptionsModal();
+        await this.setIsloading(true);
         fromWallet.cosignPsbt(psbt);
+        await this.setIsloading(false);
       }
 
       this.props.navigation.navigate('PsbtMultisig', {
