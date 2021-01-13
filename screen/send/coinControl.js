@@ -264,7 +264,7 @@ const CoinControl = () => {
   const navigation = useNavigation();
   const { width } = useWindowDimensions();
   const { walletId, onUTXOChoose } = useRoute().params;
-  const { wallets, saveToDisk } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletId);
   // sort by height ascending, txid , vout ascending
   const utxo = wallet.getUtxo(true).sort((a, b) => a.height - b.height || a.txid.localeCompare(b.txid) || a.vout - b.vout);
@@ -289,14 +289,19 @@ const CoinControl = () => {
   }, [frozen]);
 
   useEffect(() => {
-    wallet.fetchUtxo().then(() => {
+    (async () => {
+      try {
+        await Promise.race([wallet.fetchUtxo(), sleep(10000)]);
+      } catch (e) {
+        console.log('coincontrol wallet.fetchUtxo() failed'); // either sleep expired or fetchUtxo threw an exception
+      }
       const freshUtxo = wallet.getUtxo(true);
       setFrozen(
         freshUtxo.filter(output => wallet.getUTXOMetadata(output.txid, output.vout).frozen).map(({ txid, vout }) => `${txid}:${vout}`),
       );
       setLoading(false);
-    });
-  }, [wallet, setLoading]);
+    })();
+  }, [wallet, setLoading, sleep]);
 
   const stylesHook = StyleSheet.create({
     tip: {
