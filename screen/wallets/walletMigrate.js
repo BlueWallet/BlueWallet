@@ -1,11 +1,6 @@
-import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
-import DefaultPreference from 'react-native-default-preference';
-import { Platform } from 'react-native';
-import { isCatalyst } from '../../blue_modules/environment';
-
 export default class WalletMigrate {
   static expoDataDirectory = RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage';
 
@@ -15,41 +10,6 @@ export default class WalletMigrate {
 
   // 0: Let's start!
   async start() {
-    if (Platform.OS === 'ios' && !isCatalyst) {
-      const defaultPreferenceGroupName = await DefaultPreference.getName();
-      console.log('----- defaultPreferenceGroupName');
-      console.log(defaultPreferenceGroupName);
-      console.log('----- ');
-      const isNotFirstLaunch = await DefaultPreference.get('RnSksIsAppInstalled');
-      console.log('----- isNotFirstLaunch');
-      console.log(isNotFirstLaunch);
-      console.log('----- ');
-      if (isNotFirstLaunch === undefined) {
-        try {
-          console.warn('It is the first launch...');
-          await RNSecureKeyStore.setResetOnAppUninstallTo(false);
-          let deleteWalletsFromKeychain = '1';
-          try {
-            deleteWalletsFromKeychain = await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
-            await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
-            await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
-          } catch (e) {
-            console.log('----- deleteWalletsFromKeychain catch');
-            console.log(e.message);
-            await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
-            await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
-          }
-          console.log('----- deleteWalletsFromKeychain');
-          console.log(deleteWalletsFromKeychain);
-          console.log('----- ');
-        } catch (e) {
-          console.log(e);
-        }
-      } else {
-        console.warn('It is NOT the first launch...');
-      }
-      await DefaultPreference.set('RnSksIsAppInstalled', '1');
-    }
     return this.migrateDataFromExpo();
   }
 
