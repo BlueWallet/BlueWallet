@@ -5,7 +5,7 @@
 sudo: true
 language: bash
 os: linux
-virt: lxd 
+virt: vm 
 arch: arm64-graviton2
 # ignored on non-linux platforms, but bionic is required for nested virtualization
 dist: bionic
