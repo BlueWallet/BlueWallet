@@ -244,9 +244,6 @@ const WalletsList = () => {
             <Text style={[styles.ltTextBig, stylesHook.ltTextBig]}>{loc.hodl.local_trader}</Text>
             <Text style={[styles.ltTextSmall, stylesHook.ltTextSmall]}>{loc.hodl.p2p}</Text>
           </View>
-          <View style={styles.ltButtonWrap}>
-            <Text style={styles.ltButton}>{loc.hodl.local_trader_new}</Text>
-          </View>
         </TouchableOpacity>
       );
       return isLargeScreen ? <SafeAreaView>{button}</SafeAreaView> : button;
@@ -530,18 +527,6 @@ const styles = StyleSheet.create({
   ltTextSmall: {
     fontSize: 13,
     fontWeight: '500',
-  },
-  ltButtonWrap: {
-    flexDirection: 'column',
-    backgroundColor: '#007AFF',
-    borderRadius: 16,
-  },
-  ltButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    fontSize: 13,
-    color: '#fff',
-    fontWeight: '600',
   },
   footerRoot: {
     top: 80,
