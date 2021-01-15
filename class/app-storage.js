@@ -16,7 +16,6 @@ import {
   HDSegwitElectrumSeedP2WPKHWallet,
   MultisigHDWallet,
 } from './';
-import { Platform } from 'react-native';
 const encryption = require('../blue_modules/encryption');
 const Realm = require('realm');
 const createHash = require('create-hash');
@@ -33,7 +32,6 @@ export class AppStorage {
   static ELECTRUM_SERVER_HISTORY = 'electrum_server_history';
   static PREFERRED_CURRENCY = 'preferredCurrency';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
-  static DELETE_WALLET_AFTER_UNINSTALL = 'deleteWalletAfterUninstall';
   static HODL_HODL_API_KEY = 'HODL_HODL_API_KEY';
   static HODL_HODL_SIGNATURE_KEY = 'HODL_HODL_SIGNATURE_KEY';
   static HODL_HODL_CONTRACTS = 'HODL_HODL_CONTRACTS';
@@ -76,16 +74,6 @@ export class AppStorage {
     }
   };
 
-  setResetOnAppUninstallTo = async value => {
-    if (Platform.OS === 'ios') {
-      await this.setItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL, value ? '1' : '');
-      try {
-        RNSecureKeyStore.setResetOnAppUninstallTo(value);
-      } catch (Error) {
-        console.warn(Error);
-      }
-    }
-  };
 
   storageIsEncrypted = async () => {
     let data;
@@ -140,7 +128,6 @@ export class AppStorage {
   decryptStorage = async password => {
     if (password === this.cachedPassword) {
       this.cachedPassword = undefined;
-      await this.setResetOnAppUninstallTo(true);
       await this.saveToDisk();
       this.wallets = [];
       this.tx_metadata = [];
@@ -148,16 +135,6 @@ export class AppStorage {
     } else {
       throw new Error('Incorrect password. Please, try again.');
     }
-  };
-
-  isDeleteWalletAfterUninstallEnabled = async () => {
-    let deleteWalletsAfterUninstall;
-    try {
-      deleteWalletsAfterUninstall = await this.getItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
-    } catch (_e) {
-      deleteWalletsAfterUninstall = true;
-    }
-    return !!deleteWalletsAfterUninstall;
   };
 
   encryptStorage = async password => {
