@@ -47,6 +47,7 @@ const PleaseBackupLNDHub = () => {
     };
   }, [handleBackButton]);
 
+  const pop = () => navigation.dangerouslyGetParent().pop();
   return (
     <SafeBlueArea style={styles.root}>
       <StatusBar barStyle="light-content" />
@@ -69,9 +70,9 @@ const PleaseBackupLNDHub = () => {
             ecl="H"
           />
         </View>
-        <BlueCopyTextToClipboard text={wallet.secret} />
+        <BlueCopyTextToClipboard text={wallet.getSecret()} />
         <BlueSpacing20 />
-        <BlueButton onPress={() => navigation.dangerouslyGetParent().pop()} title={loc.pleasebackup.ok_lnd} />
+        <BlueButton onPress={pop} title={loc.pleasebackup.ok_lnd} />
       </ScrollView>
     </SafeBlueArea>
   );
