@@ -77,6 +77,7 @@
     "local_trader": "Trader local",
     "local_trader_new": "Nouveau",
     "login": "Connexion",
+    "logout": "Déconnexion",
     "mycont": "Mes contrats",
     "offer_accept": "Accepter l'offre",
     "offer_account_finish": "Il semblerait que vous n'avez pas terminé la configuration de votre compte sur HodlHodl. Voulez-vous la terminer maintenant ?",
@@ -448,6 +449,7 @@
   },
   "multisig": {
     "multisig_vault": "Coffre",
+    "default_label": "Coffre-fort multi-signature",
     "multisig_vault_explain": "Meilleur sécurité pour les gros montants",
     "provide_signature": "Fournir la signature",
     "vault_key": "Clé du coffre {number}",
