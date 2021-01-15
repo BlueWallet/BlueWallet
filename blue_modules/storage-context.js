@@ -133,8 +133,6 @@ export const BlueStorageProvider = ({ children }) => {
   const getHodlHodlApiKey = BlueApp.getHodlHodlApiKey;
   const createFakeStorage = BlueApp.createFakeStorage;
   const decryptStorage = BlueApp.decryptStorage;
-  const isDeleteWalletAfterUninstallEnabled = BlueApp.isDeleteWalletAfterUninstallEnabled;
-  const setResetOnAppUninstallTo = BlueApp.setResetOnAppUninstallTo;
   const isPasswordInUse = BlueApp.isPasswordInUse;
   const cachedPassword = BlueApp.cachedPassword;
   const setIsAdancedModeEnabled = BlueApp.setIsAdancedModeEnabled;
@@ -182,9 +180,7 @@ export const BlueStorageProvider = ({ children }) => {
         setNewWalletAdded,
         resetWallets,
         getHodlHodlApiKey,
-        isDeleteWalletAfterUninstallEnabled,
         decryptStorage,
-        setResetOnAppUninstallTo,
         isPasswordInUse,
         setIsAdancedModeEnabled,
         setPreferredFiatCurrency,
