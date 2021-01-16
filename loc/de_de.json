@@ -77,6 +77,7 @@
     "local_trader": "Local Trader",
     "local_trader_new": "Neu",
     "login": "Login",
+    "logout": "Abmelden",
     "mycont": "Meine Verträge",
     "offer_accept": "Angebot annehmen",
     "offer_account_finish": "Die Einrichtung Deines HodlHodl Konto scheint unvollständig. Möchtest Du die Einrichtung jetzt abschliessen?",
@@ -136,8 +137,9 @@
     "ok": "Ja, ich habe sie aufgeschrieben!",
     "ok_lnd": "Okay, ich habe sie gesichert.",
     "text": "Nimm Dir Zeit die mnemonischen Wörter zur späteren Wiederherstellung des Wallets aufzuschreiben. Die Wörter sind dein einziges Backup im Fall eines Geräteverlustes.",
-    "text_lnd": "Bitte sichere die LNDHub-Authentifizierung. Die Sicherung ist erforderlich, damit Du das Wallet auf anderen Geräten wiederherstellen kannst.",
-    "title": "Ihr Wallet wird erstellt..."
+    "text_lnd": "Zur Wiederherstellung des Wallet im Verlustfall bitte dieses Wallet-Backup speichern. ",
+    "text_lnd2": "Diese Wallet wird durch BlueWallet verwaltet.",
+    "title": "Dein Wallet ist erstellt"
   },
   "receive": {
     "details_create": "Erstelle",
@@ -447,6 +449,7 @@
   },
   "multisig": {
     "multisig_vault": "Tresor",
+    "default_label": "Multisignatur Tresor",
     "multisig_vault_explain": "Höchste Sicherheit für große Beträge",
     "provide_signature": "Stell die Signatur bereit",
     "vault_key": "Tresor-Schlüssel: {number}",
@@ -458,7 +461,9 @@
     "share": "Teilen",
     "view": "Anzeigen",
     "manage_keys": "Schlüssel verwalten",
-    "how_many_signatures_can_bluewallet_make": "Erlaubte Anzahl an BlueWallet-Signaturen",
+    "how_many_signatures_can_bluewallet_make": "Anzahl Signaturen durch BlueWallet",
+    "signatures_required_to_spend": "Benötigte Signaturen {number}",
+    "signatures_we_can_make": "kann {number} machen",
     "scan_or_import_file": "Datei scannen oder importieren",
     "export_coordination_setup": "Koordinations-Setup exportieren",
     "cosign_this_transaction": "Diese Transaktion teilsignieren?",
@@ -484,6 +489,7 @@
     "view_key": "Anzeigen",
     "invalid_mnemonics": "Ungültige mnemonische Phrase",
     "invalid_cosigner": "Keine gültigen Daten des Mitsignierers",
+    "not_a_multisignature_xpub": "Dies ist keine xpub eines Multisignatur-Wallet!",
     "invalid_cosigner_format": "Falscher Mitsignierer: Dies ist kein Mitsignierer für das Format {format} ",
     "create_new_key": "Neuerstellen",
     "scan_or_open_file": "Datei scannen oder öffnen",
@@ -530,8 +536,10 @@
     "empty": "Dieses Wallet hat aktuell keine Münzen",
     "freeze": "einfrieren",
     "freezeLabel": "Einfrieren",
+    "freezeLabel_un": "Entblocken",
     "header": "Münzenauswahl 'Coin control'",
     "use_coin": "Münzen benutzen",
+    "use_coins": "Benutze Münzen",
     "tip": "Wallet-Verwaltung zum Anzeigen, Beschriften, Einfrieren oder Auswählen von Münzen."
   },
   "units": {
