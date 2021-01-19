@@ -13,7 +13,6 @@ import {
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import Share from 'react-native-share';
-import Handoff from 'react-native-handoff';
 
 import {
   BlueLoading,
@@ -31,7 +30,7 @@ import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import Privacy from '../../Privacy';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
-import HandoffSettings from '../../class/handoff';
+import HandoffComponent from '../../blue_modules/handoff';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -42,7 +41,6 @@ const ReceiveDetails = () => {
   const { walletID } = useRoute().params;
   const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
-  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [address, setAddress] = useState('');
   const [customLabel, setCustomLabel] = useState();
   const [customAmount, setCustomAmount] = useState(0);
@@ -172,7 +170,6 @@ const ReceiveDetails = () => {
   };
 
   const obtainWalletAddress = useCallback(async () => {
-    HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
     Privacy.enableBlur();
     console.log('receive/details - componentDidMount');
     wallet.setUserHasSavedExport(true);
@@ -338,8 +335,8 @@ const ReceiveDetails = () => {
   return (
     <View style={styles.root}>
       <StatusBar barStyle="light-content" />
-      {isHandOffUseEnabled && address !== undefined && showAddress && (
-        <Handoff
+      {address !== undefined && showAddress && (
+        <HandoffComponent
           title={`Bitcoin Transaction ${address}`}
           type="io.bluewallet.bluewallet"
           url={`https://blockstream.info/address/${address}`}
