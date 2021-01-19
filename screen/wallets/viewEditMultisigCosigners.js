@@ -38,7 +38,7 @@ import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
-import Privacy from '../../Privacy';
+import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';

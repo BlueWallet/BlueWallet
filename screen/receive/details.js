@@ -29,7 +29,7 @@ import {
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
-import Privacy from '../../Privacy';
+import Privacy from '../../blue_modules/Privacy';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
 import HandoffSettings from '../../class/handoff';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';

@@ -6,7 +6,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import { BlueButton, BlueCopyTextToClipboard, BlueSpacing20, BlueText, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import Privacy from '../../Privacy';
+import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { LightningCustodianWallet } from '../../class';

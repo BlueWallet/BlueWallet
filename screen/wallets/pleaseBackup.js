@@ -4,7 +4,7 @@ import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import Privacy from '../../Privacy';
+import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
