@@ -8,7 +8,6 @@ const HandoffComponent = props => {
 
   return isHandOffUseEnabled && props && props.url ? <Handoff {...props} /> : null;
 };
-HandoffComponent.STORAGE_KEY = 'HandOff';
 export default HandoffComponent;
 
 HandoffComponent.propTypes = {
