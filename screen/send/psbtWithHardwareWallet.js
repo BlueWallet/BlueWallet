@@ -15,12 +15,12 @@ import {
 } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import Share from 'react-native-share';
-import { getSystemName } from 'react-native-device-info';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import DocumentPicker from 'react-native-document-picker';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import isCatalyst from 'react-native-is-catalyst';
+import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
 import RNFS from 'react-native-fs';
+import Biometric from '../../class/biometrics';
 
 import {
   SecondButton,
@@ -38,7 +38,6 @@ import Notifications from '../../blue_modules/notifications';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */
 const bitcoin = require('bitcoinjs-lib');
-const isDesktop = getSystemName() === 'Mac OS X';
 const fs = require('../../blue_modules/fs');
 
 const PsbtWithHardwareWallet = () => {
@@ -118,6 +117,14 @@ const PsbtWithHardwareWallet = () => {
 
   const broadcast = async () => {
     setIsLoading(true);
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        setIsLoading(false);
+        return;
+      }
+    }
     try {
       await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
@@ -242,7 +249,7 @@ const PsbtWithHardwareWallet = () => {
   };
 
   const openScanner = () => {
-    if (isDesktop) {
+    if (isMacCatalina) {
       fs.showActionSheet().then(data => onBarScanned({ data }));
     } else {
       navigation.navigate('ScanQRCodeRoot', {
