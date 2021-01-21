@@ -162,16 +162,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   topFormRow: {
-    flex: 0.1,
-    flexBasis: 0.1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingBottom: 10,
     paddingTop: 0,
     paddingRight: 100,
-    height: 30,
-    maxHeight: 30,
   },
   input: {
     flexDirection: 'row',
