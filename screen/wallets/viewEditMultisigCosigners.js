@@ -16,8 +16,6 @@ import {
 } from 'react-native';
 import { Icon, Badge } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { getSystemName } from 'react-native-device-info';
-
 import {
   BlueButton,
   BlueButtonLink,
@@ -42,8 +40,8 @@ import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
+import { isMacCatalina } from '../../blue_modules/environment';
 const fs = require('../../blue_modules/fs');
-const isDesktop = getSystemName() === 'Mac OS X';
 
 const ViewEditMultisigCosigners = () => {
   const hasLoaded = useRef(false);
@@ -418,7 +416,6 @@ const ViewEditMultisigCosigners = () => {
     wallet.addCosigner(hd.getSecret());
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setWallet(wallet);
-    setImportText('');
     setIsProvideMnemonicsModalVisible(false);
     setIsSaveButtonDisabled(false);
   };
@@ -447,7 +444,7 @@ const ViewEditMultisigCosigners = () => {
   };
 
   const scanOrOpenFile = () => {
-    if (isDesktop) {
+    if (isMacCatalina) {
       fs.showActionSheet().then(result => {
         // Triggers FlatList re-render
         setImportText(result);
