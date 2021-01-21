@@ -46,6 +46,7 @@ const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
 
 const ViewEditMultisigCosigners = () => {
+  const hasLoaded = useRef(false);
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
   const { navigate, goBack } = useNavigation();
@@ -160,6 +161,8 @@ const ViewEditMultisigCosigners = () => {
   };
   useFocusEffect(
     useCallback(() => {
+      // useFocusEffect is called on willAppear (example: when camera dismisses). we want to avoid this.
+      if (hasLoaded.current) return;
       setIsLoading(true);
 
       Privacy.enableBlur();
@@ -181,6 +184,7 @@ const ViewEditMultisigCosigners = () => {
           data.current = new Array(tempWallet.current.getN());
           setWallet(tempWallet.current);
         }
+        hasLoaded.current = true;
         setIsLoading(false);
       });
       return () => {
@@ -414,6 +418,7 @@ const ViewEditMultisigCosigners = () => {
     wallet.addCosigner(hd.getSecret());
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setWallet(wallet);
+    setImportText('');
     setIsProvideMnemonicsModalVisible(false);
     setIsSaveButtonDisabled(false);
   };
@@ -443,13 +448,22 @@ const ViewEditMultisigCosigners = () => {
 
   const scanOrOpenFile = () => {
     if (isDesktop) {
-      fs.showActionSheet().then(_handleUseMnemonicPhrase);
+      fs.showActionSheet().then(result => {
+        // Triggers FlatList re-render
+        setImportText(result);
+        //
+        _handleUseMnemonicPhrase(result);
+      });
     } else {
+      setIsProvideMnemonicsModalVisible(false);
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
           launchedBy: route.name,
           onBarScanned: result => {
+            // Triggers FlatList re-render
+            setImportText(result);
+            //
             _handleUseMnemonicPhrase(result);
           },
           showFileImportButton: true,
