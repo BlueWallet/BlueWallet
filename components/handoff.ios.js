@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import Handoff from 'react-native-handoff';
-import { BlueStorageContext } from './storage-context';
+import { BlueStorageContext } from '../blue_modules/storage-context';
 import PropTypes from 'prop-types';
 
 const HandoffComponent = props => {

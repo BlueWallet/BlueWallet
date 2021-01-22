@@ -4,7 +4,7 @@ import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import HandoffComponent from '../../blue_modules/handoff';
+import HandoffComponent from '../../components/handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const dayjs = require('dayjs');

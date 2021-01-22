@@ -30,7 +30,7 @@ import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import Privacy from '../../Privacy';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
-import HandoffComponent from '../../blue_modules/handoff';
+import HandoffComponent from '../../components/handoff';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
