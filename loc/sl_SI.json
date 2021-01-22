@@ -177,6 +177,7 @@
     "details_adv_full_sure": "Ali ste prepričani, da želite za to transakcijo uporabiti celotno stanje denarnice?",
     "details_adv_import": "Uvozi transakcijo",
     "details_amount_field_is_not_valid": "Znesek ni veljaven",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Znesek je premajhen. Vnesite znesek večji od 500 satošijev.",
     "details_create": "Ustvari Račun",
     "details_error_decode": "Napaka: Ni mogoče dekodirati Bitcoin naslova",
     "details_fee_field_is_not_valid": "Omrežnina ni veljavna",
