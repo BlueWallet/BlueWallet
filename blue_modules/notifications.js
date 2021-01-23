@@ -1,9 +1,10 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import Frisbee from 'frisbee';
-import { getApplicationName, getVersion, getSystemName, getSystemVersion } from 'react-native-device-info';
+import { getApplicationName, getVersion, getSystemName, getSystemVersion, hasGmsSync, hasHmsSync } from 'react-native-device-info';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import loc from '../loc';
+
 const PushNotification = require('react-native-push-notification');
 const constants = require('./constants');
 const PUSH_TOKEN = 'PUSH_TOKEN';
@@ -28,6 +29,7 @@ function Notifications(props) {
     return false;
   };
 
+  Notifications.isNotificationsCapable = hasGmsSync() || hasHmsSync() || Platform.OS !== 'android';
   /**
    * Calls `configure`, which tries to obtain push token, save it, and registers all associated with
    * notifications callbacks
@@ -120,6 +122,7 @@ function Notifications(props) {
    * @returns {Promise<boolean>} TRUE if permissions were obtained, FALSE otherwise
    */
   Notifications.tryToObtainPermissions = async function () {
+    if (!Notifications.isNotificationsCapable) return false;
     if (await Notifications.getPushToken()) {
       // we already have a token, no sense asking again, just configure pushes to register callbacks and we are done
       if (!alreadyConfigured) configureNotifications(); // no await so it executes in background while we return TRUE and use token
@@ -127,7 +130,7 @@ function Notifications(props) {
     }
 
     if (await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG)) {
-      // user doesnt want them
+      // user doesn't want them
       return false;
     }
 
