@@ -574,7 +574,7 @@ export class BlueCopyTextToClipboard extends Component {
   render() {
     return (
       <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-        <TouchableOpacity onPress={this.copyToClipboard} disabled={this.state.hasTappedText}>
+        <TouchableOpacity onPress={this.copyToClipboard} disabled={this.state.hasTappedText} testID="BlueCopyTextToClipboard">
           <Animated.Text style={styleCopyTextToClipboard.address} numberOfLines={0}>
             {this.state.address}
           </Animated.Text>
