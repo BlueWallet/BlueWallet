@@ -16,7 +16,8 @@
     "seed": "Seed",
     "wallet_key": "Wallet key",
     "invalid_animated_qr_code_fragment" : "Invalid animated QRCode fragment. Please try again.",
-    "file_saved": "File ({filePath}) has been saved in your Downloads folder."
+    "file_saved": "File ({filePath}) has been saved in your Downloads folder.",
+    "connection_error": "Connection Error"
   },
   "azteco": {
     "codeIs": "Your voucher code is",
@@ -271,7 +272,9 @@
     "electrum_clear_alert_ok": "Ok",
     "electrum_select": "Select",
     "electrum_reset": "Reset to default",
+    "electrum_unable_to_connect": "Unable to connect to {server}.",
     "electrum_history": "Server history",
+    "electrum_reset_to_default": "Are you sure to want to reset your Electrum settings to default?",
     "electrum_clear": "Clear",
     "encrypt_decrypt": "Decrypt Storage",
     "encrypt_decrypt_q": "Are you sure you want to decrypt your storage? This will allow your wallets to be accessed without a password.",

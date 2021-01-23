@@ -1,8 +1,10 @@
+/* global alert */
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 import { AppStorage, LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
 import DefaultPreference from 'react-native-default-preference';
 import RNWidgetCenter from 'react-native-widget-center';
+import loc from '../loc';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
@@ -31,6 +33,7 @@ let mainConnected = false;
 let wasConnectedAtLeastOnce = false;
 let serverName = false;
 let disableBatching = false;
+let connectionAttempt = 0;
 
 let latestBlockheight = false;
 let latestBlockheightTimestamp = false;
@@ -95,8 +98,77 @@ async function connectMain() {
 
   if (!mainConnected) {
     console.log('retry');
+    connectionAttempt = connectionAttempt + 1;
     mainClient.close && mainClient.close();
-    setTimeout(connectMain, 500);
+    if (connectionAttempt >= 5) {
+      Alert.alert(
+        loc._.connection_error,
+        loc.formatString(loc.settings.electrum_unable_to_connect, { server: `${usingPeer.host}:${usingPeer.ssl ?? usingPeer.tcp}` }),
+        [
+          {
+            text: loc.wallets.list_tryagain,
+            onPress: () => {
+              connectionAttempt = 0;
+              setTimeout(connectMain, 500);
+            },
+            style: 'default',
+          },
+          {
+            text: loc.settings.electrum_reset,
+            onPress: () => {
+              Alert.alert(
+                loc.settings.electrum_reset,
+                loc.settings.electrum_reset_to_default,
+                [
+                  {
+                    text: loc._.cancel,
+                    style: 'cancel',
+                    onPress: () => {
+                      connectionAttempt = 0;
+                    },
+                  },
+                  {
+                    text: loc._.ok,
+                    style: 'destructive',
+                    onPress: async () => {
+                      await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, '');
+                      await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, '');
+                      await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, '');
+                      try {
+                        await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+                        await DefaultPreference.clear(AppStorage.ELECTRUM_HOST);
+                        await DefaultPreference.clear(AppStorage.ELECTRUM_SSL_PORT);
+                        await DefaultPreference.clear(AppStorage.ELECTRUM_TCP_PORT);
+                        RNWidgetCenter.reloadAllTimelines();
+                      } catch (e) {
+                        // Must be running on Android
+                        console.log(e);
+                      }
+                      alert(loc.settings.electrum_saved);
+
+                      connectionAttempt = 0;
+                    },
+                  },
+                ],
+                { cancelable: false },
+              );
+              connectionAttempt = 0;
+            },
+            style: 'destructive',
+          },
+          {
+            text: loc._.cancel,
+            onPress: () => {
+              connectionAttempt = 0;
+            },
+            style: 'cancel',
+          },
+        ],
+        { cancelable: false },
+      );
+    } else {
+      setTimeout(connectMain, 500);
+    }
   }
 }
 
