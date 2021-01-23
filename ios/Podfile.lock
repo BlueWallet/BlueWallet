@@ -265,8 +265,8 @@ PODS:
     - React
   - react-native-geolocation (2.0.2):
     - React
-  - react-native-image-picker (3.1.1):
-    - React
+  - react-native-image-picker (3.1.4):
+    - React-Core
   - react-native-is-catalyst (1.0.0):
     - React
   - react-native-randombytes (3.5.3):
@@ -703,7 +703,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-geolocation: cbd9d6bd06bac411eed2671810f454d4908484a8
-  react-native-image-picker: 510ea4e35cbe99ec92ecd89e9449e7e149c930e6
+  react-native-image-picker: 248afb60a0c5a24153cb7c7483b257f30541323b
   react-native-is-catalyst: 52ee70e0123c82419dd4ce47dc4cc94b22467512
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-safe-area-context: 01158a92c300895d79dee447e980672dc3fb85a6
