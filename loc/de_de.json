@@ -177,6 +177,7 @@
     "details_adv_full_sure": "Bist Du sicher, dass Du das gesamte Guthaben für diese Transaktion verwenden willst?",
     "details_adv_import": "Transaktion importieren",
     "details_amount_field_is_not_valid": "Betrageingabe ist nicht korrekt",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Der angegebene Betrag ist zu klein. Bitte einen Betrag größer 500 sats eingeben.",
     "details_create": "Erstellen",
     "details_error_decode": "Fehler: Bitcoinadresse kann nicht dekodiert werden",
     "details_fee_field_is_not_valid": "Gebühreneingabe ist nicht korrekt",

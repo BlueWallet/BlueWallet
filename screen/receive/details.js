@@ -136,15 +136,15 @@ const ReceiveDetails = () => {
         <View style={styles.scrollBody}>
           {isCustom && (
             <>
-              <BlueText style={styles.amount} numberOfLines={1}>
+              <BlueText testID="CustomAmountText" style={styles.amount} numberOfLines={1}>
                 {getDisplayAmount()}
               </BlueText>
-              <BlueText style={styles.label} numberOfLines={1}>
+              <BlueText testID="CustomAmountDescriptionText" style={styles.label} numberOfLines={1}>
                 {customLabel}
               </BlueText>
             </>
           )}
-          <View style={styles.qrCodeContainer}>
+          <View style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer">
             <QRCode
               value={bip21encoded}
               logo={require('../../img/qr-code.png')}
@@ -159,7 +159,7 @@ const ReceiveDetails = () => {
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>
-          <BlueButtonLink title={loc.receive.details_setAmount} onPress={showCustomAmountModal} />
+          <BlueButtonLink testID="SetCustomAmountButton" title={loc.receive.details_setAmount} onPress={showCustomAmountModal} />
           <View>
             <SecondButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </View>
@@ -299,11 +299,17 @@ const ReceiveDetails = () => {
                 value={customLabel || ''}
                 numberOfLines={1}
                 style={styles.customAmountText}
+                testID="CustomAmountDescription"
               />
             </View>
             <BlueSpacing20 />
             <View>
-              <BlueButton style={styles.modalButton} title={loc.receive.details_create} onPress={createCustomAmountAddress} />
+              <BlueButton
+                testID="CustomAmountSaveButton"
+                style={styles.modalButton}
+                title={loc.receive.details_create}
+                onPress={createCustomAmountAddress}
+              />
               <BlueSpacing20 />
             </View>
             <BlueSpacing20 />
