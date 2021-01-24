@@ -79,10 +79,8 @@ const OutputList = ({
   const oStyles = StyleSheet.create({
     container: { borderBottomColor: colors.lightBorder, backgroundColor: colors.elevated },
     containerSelected: {
-      borderBottomColor: 'rgba(0, 0, 0, 0)',
       backgroundColor: colors.ballOutgoingExpired,
-      borderTopLeftRadius: 10,
-      borderBottomLeftRadius: 10,
+      borderBottomColor: 'rgba(0, 0, 0, 0)',
     },
     avatar: { borderColor: 'white', borderWidth: 1, backgroundColor: color },
     amount: { fontWeight: 'bold', color: colors.foregroundColor },
@@ -135,7 +133,7 @@ OutputList.propTypes = {
 
 const OutputModal = ({ item: { address, txid, value, vout, confirmations }, balanceUnit = BitcoinUnit.BTC, oMemo }) => {
   const { colors } = useTheme();
-  const { txMetadata } = useContext(BlueStorageContext);
+  const { txMetadata, preferredFiatCurrency } = useContext(BlueStorageContext);
   const memo = oMemo || txMetadata[txid]?.memo || '';
   const fullId = `${txid}:${vout}`;
   const color = `#${txid.substring(0, 6)}`;
@@ -149,15 +147,16 @@ const OutputModal = ({ item: { address, txid, value, vout, confirmations }, bala
     tranText: { fontWeight: 'normal', fontSize: 13, color: colors.alternativeTextColor },
     memo: { fontSize: 13, marginTop: 3, color: colors.alternativeTextColor },
   });
+  const confirmationsFormatted = new Intl.NumberFormat(preferredFiatCurrency.locale, { maximumSignificantDigits: 3 }).format(confirmations);
 
   return (
     <ListItem bottomDivider containerStyle={oStyles.container}>
       <Avatar rounded overlayContainerStyle={oStyles.avatar} />
       <ListItem.Content>
-        <ListItem.Title style={oStyles.amount}>
+        <ListItem.Title numberOfLines={1} adjustsFontSizeToFit style={oStyles.amount}>
           {amount}
           <View style={oStyles.tranContainer}>
-            <Text style={oStyles.tranText}>{loc.formatString(loc.transactions.list_conf, { number: confirmations })}</Text>
+            <Text style={oStyles.tranText}>{loc.formatString(loc.transactions.list_conf, { number: confirmationsFormatted })}</Text>
           </View>
         </ListItem.Title>
         {memo ? (
@@ -364,7 +363,10 @@ const CoinControl = () => {
           LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // animate buttons show
           setSelected(selected => [...selected, `${p.item.txid}:${p.item.vout}`]);
         }}
-        onDeSelect={() => setSelected(selected => selected.filter(i => i !== `${p.item.txid}:${p.item.vout}`))}
+        onDeSelect={() => {
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // animate buttons show
+          setSelected(selected => selected.filter(i => i !== `${p.item.txid}:${p.item.vout}`));
+        }}
       />
     );
   };

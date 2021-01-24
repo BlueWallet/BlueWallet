@@ -1222,6 +1222,7 @@ export default class SendDetails extends Component {
         <View style={styles.select}>
           <CoinsSelected
             number={this.state.utxo.length}
+            onContainerPress={this.handleCoinControl}
             onClose={() => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               this.setState({ utxo: null }, this.reCalcTx);
