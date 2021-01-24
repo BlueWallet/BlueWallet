@@ -16,8 +16,6 @@ import {
 } from 'react-native';
 import { Icon, Badge } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { getSystemName } from 'react-native-device-info';
-
 import {
   BlueButton,
   BlueButtonLink,
@@ -42,10 +40,11 @@ import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
+import { isMacCatalina } from '../../blue_modules/environment';
 const fs = require('../../blue_modules/fs');
-const isDesktop = getSystemName() === 'Mac OS X';
 
 const ViewEditMultisigCosigners = () => {
+  const hasLoaded = useRef(false);
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
   const { navigate, goBack } = useNavigation();
@@ -160,6 +159,8 @@ const ViewEditMultisigCosigners = () => {
   };
   useFocusEffect(
     useCallback(() => {
+      // useFocusEffect is called on willAppear (example: when camera dismisses). we want to avoid this.
+      if (hasLoaded.current) return;
       setIsLoading(true);
 
       Privacy.enableBlur();
@@ -181,6 +182,7 @@ const ViewEditMultisigCosigners = () => {
           data.current = new Array(tempWallet.current.getN());
           setWallet(tempWallet.current);
         }
+        hasLoaded.current = true;
         setIsLoading(false);
       });
       return () => {
@@ -442,14 +444,23 @@ const ViewEditMultisigCosigners = () => {
   };
 
   const scanOrOpenFile = () => {
-    if (isDesktop) {
-      fs.showActionSheet().then(_handleUseMnemonicPhrase);
+    if (isMacCatalina) {
+      fs.showActionSheet().then(result => {
+        // Triggers FlatList re-render
+        setImportText(result);
+        //
+        _handleUseMnemonicPhrase(result);
+      });
     } else {
+      setIsProvideMnemonicsModalVisible(false);
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
           launchedBy: route.name,
           onBarScanned: result => {
+            // Triggers FlatList re-render
+            setImportText(result);
+            //
             _handleUseMnemonicPhrase(result);
           },
           showFileImportButton: true,

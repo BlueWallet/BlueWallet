@@ -678,6 +678,7 @@ const WalletTransactions = () => {
       <FContainer>
         {wallet.current.allowReceive() && (
           <FButton
+            testID="ReceiveButton"
             text={loc.receive.header}
             onPress={() => {
               if (wallet.current.chain === Chain.OFFCHAIN) {
