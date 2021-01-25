@@ -13,7 +13,6 @@ import {
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import Share from 'react-native-share';
-import Handoff from 'react-native-handoff';
 
 import {
   BlueLoading,
@@ -29,9 +28,9 @@ import {
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
-import Privacy from '../../Privacy';
+import Privacy from '../../blue_modules/Privacy';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
-import HandoffSettings from '../../class/handoff';
+import HandoffComponent from '../../components/handoff';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -42,7 +41,6 @@ const ReceiveDetails = () => {
   const { walletID } = useRoute().params;
   const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
-  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [address, setAddress] = useState('');
   const [customLabel, setCustomLabel] = useState();
   const [customAmount, setCustomAmount] = useState(0);
@@ -138,15 +136,15 @@ const ReceiveDetails = () => {
         <View style={styles.scrollBody}>
           {isCustom && (
             <>
-              <BlueText style={styles.amount} numberOfLines={1}>
+              <BlueText testID="CustomAmountText" style={styles.amount} numberOfLines={1}>
                 {getDisplayAmount()}
               </BlueText>
-              <BlueText style={styles.label} numberOfLines={1}>
+              <BlueText testID="CustomAmountDescriptionText" style={styles.label} numberOfLines={1}>
                 {customLabel}
               </BlueText>
             </>
           )}
-          <View style={styles.qrCodeContainer}>
+          <View style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer">
             <QRCode
               value={bip21encoded}
               logo={require('../../img/qr-code.png')}
@@ -161,7 +159,7 @@ const ReceiveDetails = () => {
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>
-          <BlueButtonLink title={loc.receive.details_setAmount} onPress={showCustomAmountModal} />
+          <BlueButtonLink testID="SetCustomAmountButton" title={loc.receive.details_setAmount} onPress={showCustomAmountModal} />
           <View>
             <SecondButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </View>
@@ -172,7 +170,6 @@ const ReceiveDetails = () => {
   };
 
   const obtainWalletAddress = useCallback(async () => {
-    HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
     Privacy.enableBlur();
     console.log('receive/details - componentDidMount');
     wallet.setUserHasSavedExport(true);
@@ -302,11 +299,17 @@ const ReceiveDetails = () => {
                 value={customLabel || ''}
                 numberOfLines={1}
                 style={styles.customAmountText}
+                testID="CustomAmountDescription"
               />
             </View>
             <BlueSpacing20 />
             <View>
-              <BlueButton style={styles.modalButton} title={loc.receive.details_create} onPress={createCustomAmountAddress} />
+              <BlueButton
+                testID="CustomAmountSaveButton"
+                style={styles.modalButton}
+                title={loc.receive.details_create}
+                onPress={createCustomAmountAddress}
+              />
               <BlueSpacing20 />
             </View>
             <BlueSpacing20 />
@@ -338,8 +341,8 @@ const ReceiveDetails = () => {
   return (
     <View style={styles.root}>
       <StatusBar barStyle="light-content" />
-      {isHandOffUseEnabled && address !== undefined && showAddress && (
-        <Handoff
+      {address !== undefined && showAddress && (
+        <HandoffComponent
           title={`Bitcoin Transaction ${address}`}
           type="io.bluewallet.bluewallet"
           url={`https://blockstream.info/address/${address}`}

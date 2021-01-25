@@ -18,6 +18,12 @@ export const BlueStorageProvider = ({ children }) => {
   const getPreferredCurrencyAsyncStorage = useAsyncStorage(AppStorage.PREFERRED_CURRENCY).getItem;
   const getLanguageAsyncStorage = useAsyncStorage(AppStorage.LANG).getItem;
   const [newWalletAdded, setNewWalletAdded] = useState(false);
+  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
+  const setIsHandOffUseEnabledAsyncStorage = value => {
+    setIsHandOffUseEnabled(value);
+    return BlueApp.setItem(AppStorage.HANDOFF_STORAGE_KEY, value === true ? '1' : '');
+  };
+
   const saveToDisk = async () => {
     BlueApp.tx_metadata = txMetadata;
     await BlueApp.saveToDisk();
@@ -27,6 +33,18 @@ export const BlueStorageProvider = ({ children }) => {
 
   useEffect(() => {
     setWallets(BlueApp.getWallets());
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const enabledHandoff = await BlueApp.getItem(AppStorage.HANDOFF_STORAGE_KEY);
+        setIsHandOffUseEnabled(!!enabledHandoff);
+      } catch (_e) {
+        setIsHandOffUseEnabledAsyncStorage(false);
+        setIsHandOffUseEnabled(false);
+      }
+    })();
   }, []);
 
   const getPreferredCurrency = async () => {
@@ -187,6 +205,8 @@ export const BlueStorageProvider = ({ children }) => {
         preferredFiatCurrency,
         setLanguage,
         language,
+        isHandOffUseEnabled,
+        setIsHandOffUseEnabledAsyncStorage,
       }}
     >
       {children}

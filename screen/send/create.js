@@ -24,7 +24,7 @@ import isCatalyst from 'react-native-is-catalyst';
 
 import { SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import Privacy from '../../Privacy';
+import Privacy from '../../blue_modules/Privacy';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';

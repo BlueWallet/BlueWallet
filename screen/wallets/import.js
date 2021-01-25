@@ -15,7 +15,7 @@ import {
   BlueSpacing20,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import Privacy from '../../Privacy';
+import Privacy from '../../blue_modules/Privacy';
 import WalletImport from '../../class/wallet-import';
 import loc from '../../loc';
 const isDesktop = getSystemName() === 'Mac OS X';
