@@ -21,7 +21,6 @@ import {
 import { launchImageLibrary } from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
 import { Icon } from 'react-native-elements';
-import Handoff from 'react-native-handoff';
 import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
 import isCatalyst from 'react-native-is-catalyst';
 
@@ -30,7 +29,7 @@ import { BlueTransactionListItem, BlueWalletNavigationHeader, BlueAlertWalletExp
 import WalletGradient from '../../class/wallet-gradient';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
-import HandoffSettings from '../../class/handoff';
+import HandoffComponent from '../../components/handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
@@ -50,7 +49,6 @@ const buttonFontSize =
 
 const WalletTransactions = () => {
   const { wallets, saveToDisk, setSelectedWallet } = useContext(BlueStorageContext);
-  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isManageFundsModalVisible, setIsManageFundsModalVisible] = useState(false);
   const { walletID } = useRoute().params;
@@ -107,7 +105,6 @@ const WalletTransactions = () => {
   };
 
   useEffect(() => {
-    HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
     const interval = setInterval(() => setTimeElapsed(prev => prev + 1), 60000);
     return () => {
       clearInterval(interval);
@@ -590,8 +587,8 @@ const WalletTransactions = () => {
   return (
     <View style={styles.flex}>
       <StatusBar barStyle="light-content" backgroundColor={WalletGradient.headerColorFor(wallet.current.type)} />
-      {wallet.current.chain === Chain.ONCHAIN && wallet.current.type !== MultisigHDWallet.type && isHandOffUseEnabled && (
-        <Handoff
+      {wallet.current.chain === Chain.ONCHAIN && wallet.current.type !== MultisigHDWallet.type && (
+        <HandoffComponent
           title={`Bitcoin Wallet ${wallet.current.getLabel()}`}
           type="io.bluewallet.bluewallet"
           url={`https://blockpath.com/search/addr?q=${wallet.current.getXpub()}`}
