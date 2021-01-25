@@ -35,6 +35,7 @@ export class AppStorage {
   static HODL_HODL_API_KEY = 'HODL_HODL_API_KEY';
   static HODL_HODL_SIGNATURE_KEY = 'HODL_HODL_SIGNATURE_KEY';
   static HODL_HODL_CONTRACTS = 'HODL_HODL_CONTRACTS';
+  static HANDOFF_STORAGE_KEY = 'HandOff';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
