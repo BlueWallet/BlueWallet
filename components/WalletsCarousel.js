@@ -241,6 +241,8 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
           <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor }]}>
             {item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
               ? loc.wallets.pull_to_refresh
+              : item.getTransactions().find(tx => tx.confirmations === 0)
+              ? loc.transactions.pending.toLowerCase()
               : transactionTimeToReadable(item.getLatestTransactionTime())}
           </Text>
         </LinearGradient>
