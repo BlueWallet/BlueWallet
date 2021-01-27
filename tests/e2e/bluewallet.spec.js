@@ -47,7 +47,11 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('cr34t3d')).tap();
     await element(by.id('ReceiveButton')).tap();
     await element(by.text('Yes, I have')).tap();
-    await element(by.text(`No, and don't ask me again`)).tap();
+    try {
+      // in case emulator has no google services and doesnt support pushes
+      // we just dont show this popup
+      await element(by.text(`No, and don't ask me again`)).tap();
+    } catch (_) {}
     await yo('BitcoinAddressQRCodeContainer');
     await yo('BlueCopyTextToClipboard');
     await element(by.id('SetCustomAmountButton')).tap();
