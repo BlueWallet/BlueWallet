@@ -20,7 +20,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Geolocation from '@react-native-community/geolocation';
 
 import { BlueButtonLink, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -37,7 +36,6 @@ const METHOD_ANY = '_any';
 
 const HodlHodlListSections = { OFFERS: 'OFFERS' };
 const windowHeight = Dimensions.get('window').height;
-Geolocation.setRNConfiguration({ authorizationLevel: 'whenInUse' });
 
 export default class HodlHodl extends Component {
   static contextType = BlueStorageContext;
