@@ -70,7 +70,6 @@
     "@react-native-async-storage/async-storage": "1.13.3",
     "@react-native-community/blur": "3.6.0",
     "@react-native-community/clipboard": "1.5.1",
-    "@react-native-community/geolocation": "2.0.2",
     "@react-native-community/masked-view": "0.1.10",
     "@react-native-community/push-notification-ios": "1.8.0",
     "@react-native-community/slider": "3.0.3",
