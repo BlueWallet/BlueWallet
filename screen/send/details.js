@@ -694,7 +694,7 @@ export default class SendDetails extends Component {
 
   onWalletSelect = wallet => {
     const changeWallet = () => {
-      this.setState({ fromWallet: wallet, utxo: null }, () => {
+      this.setState({ fromWallet: wallet, utxo: null, changeAddress: null }, () => {
         this.renderNavigationHeader();
         this.context.setSelectedWallet(wallet.getID());
         this.props.navigation.pop();
