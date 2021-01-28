@@ -12,6 +12,7 @@ import {
   SegwitBech32Wallet,
   HDLegacyElectrumSeedP2PKHWallet,
   HDSegwitElectrumSeedP2WPKHWallet,
+  HDAezeedWallet,
   MultisigHDWallet,
 } from '.';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -100,6 +101,7 @@ function WalletImport() {
     // 2. check if its HDLegacyP2PKHWallet (BIP44)
     // 3. check if its HDLegacyBreadwalletWallet (no BIP, just "m/0")
     // 3.1 check HD Electrum legacy
+    // 3.2 check if its AEZEED
     // 4. check if its Segwit WIF (P2SH)
     // 5. check if its Legacy WIF
     // 6. check if its address (watch-only wallet)
@@ -231,6 +233,28 @@ function WalletImport() {
       if (await hdElectrumSeedLegacy.wasEverUsed()) {
         // not fetching txs or balances, fuck it, yolo, life is too short
         return WalletImport._saveWallet(hdElectrumSeedLegacy);
+      }
+    } catch (_) {}
+
+    // is it AEZEED?
+    try {
+      const aezeed = new HDAezeedWallet();
+      aezeed.setSecret(importText);
+      if (await aezeed.validateMnemonicAsync()) {
+        // not fetching txs or balances, fuck it, yolo, life is too short
+        return WalletImport._saveWallet(aezeed);
+      } else {
+        // there is a chance that a password is required
+        if (await aezeed.mnemonicInvalidPassword()) {
+          const password = await prompt(loc.wallets.enter_bip38_password, '', false);
+          if (!password) {
+            // no passord is basically cancel whole aezeed import process
+            throw new Error(loc._.bad_password);
+          }
+
+          const mnemonics = importText.split(':')[0];
+          return WalletImport.processImportText(mnemonics + ':' + password);
+        }
       }
     } catch (_) {}
 
