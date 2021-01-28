@@ -518,18 +518,16 @@ describe('BlueWallet UI Tests', () => {
       // we just dont show this popup
       await element(by.text(`No, and don't ask me again`)).tap();
     } catch (_) {}
-    await expect(element(by.id('BlueCopyTextToClipboard'))).toHaveText('bitcoin:bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay');
+    await expect(element(by.text('bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay'))).toBeVisible();
     await element(by.id('SetCustomAmountButton')).tap();
     await element(by.id('BitcoinAmountInput')).typeText('1');
-    await element(by.id('CustomAmountDescription')).typeText('test');
+    await element(by.id('CustomAmountDescription')).typeText('Test');
     await element(by.id('CustomAmountSaveButton')).tap();
-    await sup('1 BTC');
-    await sup('Test');
+    await expect(element(by.text('1 BTC'))).toBeVisible();
+    await expect(element(by.text('Test'))).toBeVisible();
     await yo('BitcoinAddressQRCodeContainer');
 
-    await expect(element(by.id('BlueCopyTextToClipboard'))).toHaveText(
-      'bitcoin:bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay?amount=1&label=Test',
-    );
+    await expect(element(by.text('bitcoin:bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay?amount=1&label=Test'))).toBeVisible();
     await device.pressBack();
 
     await element(by.id('SendButton')).tap();
