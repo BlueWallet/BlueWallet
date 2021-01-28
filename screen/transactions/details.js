@@ -2,10 +2,9 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import Handoff from 'react-native-handoff';
 import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import HandoffSettings from '../../class/handoff';
+import HandoffComponent from '../../components/handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const dayjs = require('dayjs');
@@ -28,7 +27,6 @@ const TransactionsDetails = () => {
   const { setOptions } = useNavigation();
   const { hash } = useRoute().params;
   const { saveToDisk, txMetadata, wallets, getTransactions } = useContext(BlueStorageContext);
-  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [from, setFrom] = useState();
   const [to, setTo] = useState();
   const [isLoading, setIsLoading] = useState(true);
@@ -110,11 +108,6 @@ const TransactionsDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hash, wallets]);
 
-  useEffect(() => {
-    HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const handleOnSaveButtonTapped = () => {
     Keyboard.dismiss();
     txMetadata[tx.hash] = { memo };
@@ -136,9 +129,11 @@ const TransactionsDetails = () => {
 
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-      {isHandOffUseEnabled && (
-        <Handoff title={`Bitcoin Transaction ${tx.hash}`} type="io.bluewallet.bluewallet" url={`https://blockstream.info/tx/${tx.hash}`} />
-      )}
+      <HandoffComponent
+        title={`Bitcoin Transaction ${tx.hash}`}
+        type="io.bluewallet.bluewallet"
+        url={`https://blockstream.info/tx/${tx.hash}`}
+      />
       <StatusBar barStyle="default" />
       <ScrollView style={styles.scroll}>
         <BlueCard>

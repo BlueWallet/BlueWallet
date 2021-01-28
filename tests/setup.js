@@ -21,6 +21,8 @@ jest.mock('@react-native-community/push-notification-ios', () => {
 jest.mock('react-native-device-info', () => {
   return {
     getSystemName: jest.fn(),
+    hasGmsSync: jest.fn().mockReturnValue(true),
+    hasHmsSync: jest.fn().mockReturnValue(false),
   };
 });
 
