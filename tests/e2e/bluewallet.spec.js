@@ -512,6 +512,19 @@ describe('BlueWallet UI Tests', () => {
       '0.00030666 BTC',
     );
 
+    await element(by.id('ReceiveButton')).tap();
+    await element(by.text(`No, and don't ask me again`)).tap();
+    await element(by.id('BlueCopyTextToClipboard')).toHaveText('bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay');
+    await element(by.id('SetCustomAmountButton')).tap();
+    await element(by.id('BitcoinAmountInput')).typeText('1');
+    await element(by.id('CustomAmountDescription')).typeText('test');
+    await element(by.id('CustomAmountSaveButton')).tap();
+    await sup('1 BTC');
+    await sup('Test');
+    await yo('BitcoinAddressQRCodeContainer');
+    await element(by.id('BlueCopyTextToClipboard')).toHaveText('bitcoin:bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay?amount=1&label=Test');
+    await device.pressBack();
+
     await element(by.id('SendButton')).tap();
     await element(by.text('OK')).tap();
 
@@ -550,37 +563,7 @@ describe('BlueWallet UI Tests', () => {
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
-
-  it('can import zpub as watch-only, go to transactions list, go into Receive modal, and set custom amount. Dismiss modal and go to WalletsList.', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
-    if (process.env.TRAVIS) {
-      if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
-    }
-    await helperImportWallet(
-      'zpub6rDWXE4wbwefeCrHWehXJheXnti5F9PbpamDUeB5eFbqaY89x3jq86JADBuXpnJnSvRVwqkaTnyMaZERUg4BpxD9V4tSZfKeYh1ozPdL1xK',
-      'Imported Watch-only',
-      '0.00030666 BTC',
-    );
-
-    await element(by.id('ReceiveButton')).tap();
-    await element(by.text(`No, and don't ask me again`)).tap();
-    await yo('BitcoinAddressQRCodeContainer');
-    await yo('BlueCopyTextToClipboard');
-    await element(by.id('SetCustomAmountButton')).tap();
-    await element(by.id('BitcoinAmountInput')).typeText('1');
-    await element(by.id('CustomAmountDescription')).typeText('test');
-    await element(by.id('CustomAmountSaveButton')).tap();
-    await sup('1 BTC');
-    await sup('test');
-    await yo('BitcoinAddressQRCodeContainer');
-    await yo('BlueCopyTextToClipboard');
-    await device.pressBack();
-    await device.pressBack();
-
-    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
-  });
-
+  
   it('should handle URL successfully', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
