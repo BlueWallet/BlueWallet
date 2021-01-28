@@ -127,6 +127,7 @@ const iStyles = StyleSheet.create({
 const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedWallet }) => {
   const scaleValue = new Animated.Value(1.0);
   const { colors } = useTheme();
+  const { walletTransactionUpdateStatus } = useContext(BlueStorageContext);
 
   const onPressedIn = () => {
     const props = { duration: 50 };
@@ -203,6 +204,15 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
       image = require('../img/btc-shape.png');
   }
 
+  const latestTransactionText =
+    walletTransactionUpdateStatus === true || walletTransactionUpdateStatus === item.getID()
+      ? loc.transactions.updating
+      : item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
+      ? loc.wallets.pull_to_refresh
+      : item.getTransactions().find(tx => tx.confirmations === 0)
+      ? loc.transactions.pending.toLowerCase()
+      : transactionTimeToReadable(item.getLatestTransactionTime());
+
   return (
     <Animated.View
       style={[iStyles.root, { opacity, transform: [{ scale: scaleValue }] }]}
@@ -238,12 +248,9 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
           <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>
             {loc.wallets.list_latest_transaction}
           </Text>
+
           <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor }]}>
-            {item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
-              ? loc.wallets.pull_to_refresh
-              : item.getTransactions().find(tx => tx.confirmations === 0)
-              ? loc.transactions.pending.toLowerCase()
-              : transactionTimeToReadable(item.getLatestTransactionTime())}
+            {latestTransactionText}
           </Text>
         </LinearGradient>
       </TouchableWithoutFeedback>

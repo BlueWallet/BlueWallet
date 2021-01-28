@@ -355,7 +355,8 @@
     "status_bump": "Bump Fee",
     "status_cancel": "Cancel Transaction",
     "transactions_count": "Transactions Count",
-    "txid": "Txid"
+    "txid": "Txid",
+    "updating": "Updating..."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
