@@ -149,7 +149,9 @@ const ReorderWallets = () => {
             {loc.wallets.list_latest_transaction}
           </Text>
           <Text numberOfLines={1} style={styles.latestTxValue}>
-            {transactionTimeToReadable(item.getLatestTransactionTime())}
+            {item.getTransactions().find(tx => tx.confirmations === 0)
+              ? loc.transactions.pending.toLowerCase()
+              : transactionTimeToReadable(item.getLatestTransactionTime())}
           </Text>
         </LinearGradient>
       </View>
