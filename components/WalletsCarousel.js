@@ -210,7 +210,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
       : item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
       ? loc.wallets.pull_to_refresh
       : item.getTransactions().find(tx => tx.confirmations === 0)
-      ? loc.transactions.pending.toLowerCase()
+      ? loc.transactions.pending
       : transactionTimeToReadable(item.getLatestTransactionTime());
 
   return (
