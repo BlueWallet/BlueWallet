@@ -518,7 +518,7 @@ describe('BlueWallet UI Tests', () => {
       // we just dont show this popup
       await element(by.text(`No, and don't ask me again`)).tap();
     } catch (_) {}
-    await element(by.id('BlueCopyTextToClipboard')).toHaveText('bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay');
+    await expect(element(by.id('BlueCopyTextToClipboard'))).toHaveText('bitcoin:bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay');
     await element(by.id('SetCustomAmountButton')).tap();
     await element(by.id('BitcoinAmountInput')).typeText('1');
     await element(by.id('CustomAmountDescription')).typeText('test');
@@ -526,7 +526,10 @@ describe('BlueWallet UI Tests', () => {
     await sup('1 BTC');
     await sup('Test');
     await yo('BitcoinAddressQRCodeContainer');
-    await element(by.id('BlueCopyTextToClipboard')).toHaveText('bitcoin:bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay?amount=1&label=Test');
+
+    await expect(element(by.id('BlueCopyTextToClipboard'))).toHaveText(
+      'bitcoin:bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay?amount=1&label=Test',
+    );
     await device.pressBack();
 
     await element(by.id('SendButton')).tap();
@@ -567,7 +570,7 @@ describe('BlueWallet UI Tests', () => {
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
-  
+
   it('should handle URL successfully', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
