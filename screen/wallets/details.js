@@ -24,7 +24,15 @@ import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet'
 import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
-import { HDSegwitBech32Wallet, SegwitP2SHWallet, LegacyWallet, SegwitBech32Wallet, WatchOnlyWallet, MultisigHDWallet } from '../../class';
+import {
+  HDSegwitBech32Wallet,
+  SegwitP2SHWallet,
+  LegacyWallet,
+  SegwitBech32Wallet,
+  WatchOnlyWallet,
+  MultisigHDWallet,
+  HDAezeedWallet,
+} from '../../class';
 import { ScrollView } from 'react-native-gesture-handler';
 import loc from '../../loc';
 import { useTheme, useRoute, useNavigation } from '@react-navigation/native';
@@ -455,6 +463,13 @@ const WalletDetails = () => {
               <>
                 <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.details_connected_to.toLowerCase()}</Text>
                 <BlueText>{wallet.getBaseURI()}</BlueText>
+              </>
+            )}
+
+            {wallet.type === HDAezeedWallet.type && (
+              <>
+                <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.identity_pubkey.toLowerCase()}</Text>
+                <BlueText>{wallet.getIdentityPubkey()}</BlueText>
               </>
             )}
             <>

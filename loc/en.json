@@ -445,6 +445,7 @@
     "pull_to_refresh": "Pull to Refresh",
     "warning_do_not_disclose": "Warning! Do not disclose",
     "add_ln_wallet_first": "You must first add a Lightning wallet.",
+    "identity_pubkey": "Identity Pubkey",
     "xpub_title": "Wallet XPUB"
   },
   "multisig": {

@@ -14,6 +14,7 @@ import {
   LightningCustodianWallet,
   HDLegacyElectrumSeedP2PKHWallet,
   HDSegwitElectrumSeedP2WPKHWallet,
+  HDAezeedWallet,
   MultisigHDWallet,
 } from './';
 const encryption = require('../blue_modules/encryption');
@@ -274,6 +275,9 @@ export class AppStorage {
               break;
             case MultisigHDWallet.type:
               unserializedWallet = MultisigHDWallet.fromJson(key);
+              break;
+            case HDAezeedWallet.type:
+              unserializedWallet = HDAezeedWallet.fromJson(key);
               break;
             case LightningCustodianWallet.type: {
               /** @type {LightningCustodianWallet} */
