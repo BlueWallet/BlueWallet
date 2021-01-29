@@ -4,7 +4,7 @@ var assert = require('assert')
 var Buffer = require('safe-buffer').Buffer
 var bs58check = require('bs58check')
 var createHash = require('create-hash')
-var scrypt = require('./scryptsy')
+var scrypt = require('scryptsy')
 var xor = require('buffer-xor/inplace')
 
 var ecurve = require('ecurve')

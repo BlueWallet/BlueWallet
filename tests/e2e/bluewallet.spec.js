@@ -31,7 +31,7 @@ describe('BlueWallet UI Tests', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can create wallet, reload app and it persists. then go to receive screen, set custom amount and label.', async () => {
+  it('can create wallet, reload app and it persists. then go to receive screen, set custom amount and label. Dismiss modal and go to WalletsList.', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
@@ -47,7 +47,11 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('cr34t3d')).tap();
     await element(by.id('ReceiveButton')).tap();
     await element(by.text('Yes, I have')).tap();
-    await element(by.text(`No, and don't ask me again`)).tap();
+    try {
+      // in case emulator has no google services and doesnt support pushes
+      // we just dont show this popup
+      await element(by.text(`No, and don't ask me again`)).tap();
+    } catch (_) {}
     await yo('BitcoinAddressQRCodeContainer');
     await yo('BlueCopyTextToClipboard');
     await element(by.id('SetCustomAmountButton')).tap();
@@ -507,6 +511,26 @@ describe('BlueWallet UI Tests', () => {
       'Imported Watch-only',
       '0.00030666 BTC',
     );
+
+    await element(by.id('ReceiveButton')).tap();
+    try {
+      // in case emulator has no google services and doesnt support pushes
+      // we just dont show this popup
+      await element(by.text(`No, and don't ask me again`)).tap();
+    } catch (_) {}
+    await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
+    await expect(element(by.text('bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay'))).toBeVisible();
+    await element(by.id('SetCustomAmountButton')).tap();
+    await element(by.id('BitcoinAmountInput')).typeText('1');
+    await element(by.id('CustomAmountDescription')).typeText('Test');
+    await element(by.id('CustomAmountSaveButton')).tap();
+    await expect(element(by.text('1 BTC'))).toBeVisible();
+    await expect(element(by.text('Test'))).toBeVisible();
+    await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
+
+
+    await expect(element(by.text('bitcoin:bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay?amount=1&label=Test'))).toBeVisible();
+    await device.pressBack();
 
     await element(by.id('SendButton')).tap();
     await element(by.text('OK')).tap();

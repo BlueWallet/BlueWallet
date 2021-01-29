@@ -61,7 +61,6 @@
     "filter_any": "Any",
     "filter_buying": "Buying",
     "filter_country_global": "Global Offers",
-    "filter_country_near": "Near Me",
     "filter_currency": "Currency",
     "filter_detail": "Detail",
     "filter_filters": "Filters",
@@ -88,7 +87,7 @@
     "offer_promt_fiat": "How much {currency} do you want to buy?",
     "offer_promt_fiat_e": "For example, 100",
     "offer_window": "window",
-    "p2p": "A p2p exchange"
+    "p2p": "Buy Bitcoin on a p2p exchange"
   },
   "lnd": {
     "errorInvoiceExpired": "Invoice expired",
@@ -446,6 +445,7 @@
     "pull_to_refresh": "Pull to Refresh",
     "warning_do_not_disclose": "Warning! Do not disclose",
     "add_ln_wallet_first": "You must first add a Lightning wallet.",
+    "identity_pubkey": "Identity Pubkey",
     "xpub_title": "Wallet XPUB"
   },
   "multisig": {

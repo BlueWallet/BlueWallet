@@ -1,3 +1,9 @@
+3.0.0 / 2019-03-12
+------------------
+- **breaking** Import gives an object with two functions `scrypt` and `scryptSync`
+- `scryptSync` is the old synchronus function.
+- `scrypt` will return a promise with the buffer.
+
 2.0.0 / 2016-05-26
 ------------------
 - **breaking** Node v0.10 not supported anymore.
