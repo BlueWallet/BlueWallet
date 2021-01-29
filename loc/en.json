@@ -87,7 +87,7 @@
     "offer_promt_fiat": "How much {currency} do you want to buy?",
     "offer_promt_fiat_e": "For example, 100",
     "offer_window": "window",
-    "p2p": "A p2p exchange"
+    "p2p": "Buy Bitcoin on a p2p exchange"
   },
   "lnd": {
     "errorInvoiceExpired": "Invoice expired",
@@ -355,7 +355,8 @@
     "status_bump": "Bump Fee",
     "status_cancel": "Cancel Transaction",
     "transactions_count": "Transactions Count",
-    "txid": "Txid"
+    "txid": "Txid",
+    "updating": "Updating..."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
