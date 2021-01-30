@@ -2,6 +2,7 @@
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import React, { createContext, useEffect, useState } from 'react';
 import { AppStorage } from '../class';
+import { FiatUnit } from '../models/fiatUnit';
 const BlueApp = require('../BlueApp');
 const BlueElectrum = require('./BlueElectrum');
 
@@ -15,7 +16,7 @@ export const BlueStorageProvider = ({ children }) => {
   const [selectedWallet, setSelectedWallet] = useState('');
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState(WalletTransactionsStatus.NONE);
   const [walletsInitialized, setWalletsInitialized] = useState(false);
-  const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState();
+  const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(FiatUnit.USD);
   const [language, _setLanguage] = useState();
   const getPreferredCurrencyAsyncStorage = useAsyncStorage(AppStorage.PREFERRED_CURRENCY).getItem;
   const getLanguageAsyncStorage = useAsyncStorage(AppStorage.LANG).getItem;
