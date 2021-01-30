@@ -66,5 +66,23 @@ describe('HDAezeedWallet', () => {
     assert.strictEqual(wif, 'L1dewhNXkVMB3JdoXYRikbz6g4CbaMGfSqSXSrmTkk5PvzmEgpdT');
 
     assert.strictEqual(aezeed.getIdentityPubkey(), '0384b9a7158320e828280075224af324931ca9d6de4334f724dbb553ffee447164');
+
+    // we should not really test private methods, but oh well
+    assert.strictEqual(
+      aezeed._getNodePubkeyByIndex(0, 0).toString('hex'),
+      '03ed28668d446c6e2ac11e4848f7afd894761ad26569baa8a16adff723699f2c07',
+    );
+    assert.strictEqual(
+      aezeed._getNodePubkeyByIndex(1, 0).toString('hex'),
+      '0210791263114fe72ab5a2131ca1986b84c62a93e30ee9d509266f1eadf4febaf2',
+    );
+    assert.strictEqual(
+      aezeed._getPubkeyByAddress(aezeed._getExternalAddressByIndex(1)).toString('hex'),
+      aezeed._getNodePubkeyByIndex(0, 1).toString('hex'),
+    );
+    assert.strictEqual(
+      aezeed._getPubkeyByAddress(aezeed._getInternalAddressByIndex(1)).toString('hex'),
+      aezeed._getNodePubkeyByIndex(1, 1).toString('hex'),
+    );
   });
 });

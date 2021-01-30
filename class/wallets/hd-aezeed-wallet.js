@@ -61,15 +61,24 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     throw new Error('Not implemented');
   }
 
+  _getNode0() {
+    const root = bitcoin.bip32.fromSeed(this._getEntropyCached());
+    const node = root.derivePath("m/84'/0'/0'");
+    return node.derive(0);
+  }
+
+  _getNode1() {
+    const root = bitcoin.bip32.fromSeed(this._getEntropyCached());
+    const node = root.derivePath("m/84'/0'/0'");
+    return node.derive(1);
+  }
+
   _getInternalAddressByIndex(index) {
     index = index * 1; // cast to int
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
 
-    if (!this._node1) {
-      const root = bitcoin.bip32.fromSeed(this._getEntropyCached());
-      const node = root.derivePath("m/84'/0'/0'");
-      this._node1 = node.derive(1);
-    }
+    this._node1 = this._node1 || this._getNode1(); // cache
+
     const address = bitcoin.payments.p2wpkh({
       pubkey: this._node1.derive(index).publicKey,
     }).address;
@@ -81,11 +90,8 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     index = index * 1; // cast to int
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
 
-    if (!this._node0) {
-      const root = bitcoin.bip32.fromSeed(this._getEntropyCached());
-      const node = root.derivePath("m/84'/0'/0'");
-      this._node0 = node.derive(0);
-    }
+    this._node0 = this._node0 || this._getNode0(); // cache
+
     const address = bitcoin.payments.p2wpkh({
       pubkey: this._node0.derive(index).publicKey,
     }).address;
@@ -103,7 +109,23 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
   }
 
   _getNodePubkeyByIndex(node, index) {
-    throw new Error('Not implemented');
+    index = index * 1; // cast to int
+
+    if (node === 0 && !this._node0) {
+      this._node0 = this._getNode0();
+    }
+
+    if (node === 1 && !this._node1) {
+      this._node1 = this._getNode1();
+    }
+
+    if (node === 0) {
+      return this._node0.derive(index).publicKey;
+    }
+
+    if (node === 1) {
+      return this._node1.derive(index).publicKey;
+    }
   }
 
   getIdentityPubkey() {
