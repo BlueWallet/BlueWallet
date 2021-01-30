@@ -2,18 +2,21 @@
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import React, { createContext, useEffect, useState } from 'react';
 import { AppStorage } from '../class';
+import { FiatUnit } from '../models/fiatUnit';
 const BlueApp = require('../BlueApp');
 const BlueElectrum = require('./BlueElectrum');
 
 const _lastTimeTriedToRefetchWallet = {}; // hashmap of timestamps we _started_ refetching some wallet
 
+export const WalletTransactionsStatus = { NONE: false, ALL: true };
 export const BlueStorageContext = createContext();
 export const BlueStorageProvider = ({ children }) => {
   const [wallets, setWallets] = useState([]);
   const [pendingWallets, setPendingWallets] = useState([]);
   const [selectedWallet, setSelectedWallet] = useState('');
+  const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState(WalletTransactionsStatus.NONE);
   const [walletsInitialized, setWalletsInitialized] = useState(false);
-  const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState();
+  const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(FiatUnit.USD);
   const [language, _setLanguage] = useState();
   const getPreferredCurrencyAsyncStorage = useAsyncStorage(AppStorage.PREFERRED_CURRENCY).getItem;
   const getLanguageAsyncStorage = useAsyncStorage(AppStorage.LANG).getItem;
@@ -80,9 +83,12 @@ export const BlueStorageProvider = ({ children }) => {
     saveToDisk();
   };
 
-  const refreshAllWalletTransactions = async lastSnappedTo => {
+  const refreshAllWalletTransactions = async (lastSnappedTo, showUpdateStatusIndicator = true) => {
     let noErr = true;
     try {
+      if (showUpdateStatusIndicator) {
+        setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
+      }
       await BlueElectrum.waitTillConnected();
       const balanceStart = +new Date();
       await fetchWalletBalances(lastSnappedTo);
@@ -95,6 +101,8 @@ export const BlueStorageProvider = ({ children }) => {
     } catch (err) {
       noErr = false;
       console.warn(err);
+    } finally {
+      setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
     }
     if (noErr) await saveToDisk(); // caching
   };
@@ -104,6 +112,7 @@ export const BlueStorageProvider = ({ children }) => {
     let noErr = true;
     try {
       // 5sec debounce:
+      setWalletTransactionUpdateStatus(walletID);
       if (+new Date() - _lastTimeTriedToRefetchWallet[walletID] < 5000) {
         console.log('re-fetch wallet happens too fast; NOP');
         return;
@@ -122,6 +131,8 @@ export const BlueStorageProvider = ({ children }) => {
     } catch (err) {
       noErr = false;
       console.warn(err);
+    } finally {
+      setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
     }
     if (noErr) await saveToDisk(); // caching
   };
@@ -207,6 +218,8 @@ export const BlueStorageProvider = ({ children }) => {
         language,
         isHandOffUseEnabled,
         setIsHandOffUseEnabledAsyncStorage,
+        walletTransactionUpdateStatus,
+        setWalletTransactionUpdateStatus,
       }}
     >
       {children}

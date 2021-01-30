@@ -355,7 +355,8 @@
     "status_bump": "Bump Fee",
     "status_cancel": "Cancel Transaction",
     "transactions_count": "Transactions Count",
-    "txid": "Txid"
+    "txid": "Txid",
+    "updating": "Updating..."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -541,7 +542,7 @@
     "header": "Coin Control",
     "use_coin": "Use Coin",
     "use_coins": "Use Coins",
-    "tip": "Allows you to see, label, freeze or select coins for improved wallet management."
+    "tip": "Allows you to see, label, freeze or select coins for improved wallet management. You can select multiple coins by tapping on the colored circles."
   },
   "units": {
     "BTC": "BTC",
