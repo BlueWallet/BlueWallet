@@ -25,6 +25,7 @@ import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import * as RNLocalize from 'react-native-localize';
 
 // https://levelup.gitconnected.com/debounce-in-javascript-improve-your-applications-performance-5b01855e086
 const debounce = (func, wait) => {
@@ -133,7 +134,7 @@ OutputList.propTypes = {
 
 const OutputModal = ({ item: { address, txid, value, vout, confirmations }, balanceUnit = BitcoinUnit.BTC, oMemo }) => {
   const { colors } = useTheme();
-  const { txMetadata, preferredFiatCurrency } = useContext(BlueStorageContext);
+  const { txMetadata } = useContext(BlueStorageContext);
   const memo = oMemo || txMetadata[txid]?.memo || '';
   const fullId = `${txid}:${vout}`;
   const color = `#${txid.substring(0, 6)}`;
@@ -147,7 +148,9 @@ const OutputModal = ({ item: { address, txid, value, vout, confirmations }, bala
     tranText: { fontWeight: 'normal', fontSize: 13, color: colors.alternativeTextColor },
     memo: { fontSize: 13, marginTop: 3, color: colors.alternativeTextColor },
   });
-  const confirmationsFormatted = new Intl.NumberFormat(preferredFiatCurrency.locale, { maximumSignificantDigits: 3 }).format(confirmations);
+  const confirmationsFormatted = new Intl.NumberFormat(RNLocalize.getLocales()[0].languageCode, { maximumSignificantDigits: 3 }).format(
+    confirmations,
+  );
 
   return (
     <ListItem bottomDivider containerStyle={oStyles.container}>
