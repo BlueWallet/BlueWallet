@@ -123,7 +123,6 @@ const WalletTransactions = () => {
     setPageSize(20);
     setTimeElapsed(0);
     setItemPriceUnit(wallet.current.getPreferredBalanceUnit());
-    setIsLoading(false);
     setSelectedWallet(wallet.current.getID());
     setDataSource(wallet.current.getTransactions(15));
     setOptions({
@@ -135,6 +134,7 @@ const WalletTransactions = () => {
         shadowOffset: { height: 0, width: 0 },
       },
     });
+    setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallets, wallet.current, walletID]);
 
@@ -143,9 +143,10 @@ const WalletTransactions = () => {
     if (newwallet) {
       wallet.current = newwallet;
       setParams({ walletID, isLoading: false });
+      setIsLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletID]);
+  }, [walletID, wallets]);
 
   // if balance of the wallet positive and there are no transactions, then
   // it'a freshly impoted wallet and we need to refresh transactions
@@ -669,7 +670,7 @@ const WalletTransactions = () => {
           onRefresh={refreshTransactions}
           refreshing={isLoading}
           data={dataSource}
-          extraData={[timeElapsed, dataSource]}
+          extraData={[timeElapsed, dataSource, wallets]}
           keyExtractor={_keyExtractor}
           renderItem={renderItem}
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
