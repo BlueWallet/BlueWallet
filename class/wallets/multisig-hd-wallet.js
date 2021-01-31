@@ -606,6 +606,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           this.setLegacy();
           break;
         case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+        case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
           this.setWrappedSegwit();
           break;
         default:

@@ -152,6 +152,7 @@ const WalletsAddMultisigStep2 = () => {
         w.setDerivationPath(MultisigHDWallet.PATH_NATIVE_SEGWIT);
         break;
       case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+      case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
         w.setWrappedSegwit();
         w.setDerivationPath(MultisigHDWallet.PATH_WRAPPED_SEGWIT);
         break;
@@ -206,6 +207,7 @@ const WalletsAddMultisigStep2 = () => {
         path = MultisigHDWallet.PATH_NATIVE_SEGWIT;
         break;
       case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+      case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
         path = MultisigHDWallet.PATH_WRAPPED_SEGWIT;
         break;
       case MultisigHDWallet.FORMAT_P2SH:
@@ -348,6 +350,7 @@ const WalletsAddMultisigStep2 = () => {
               }
               break;
             case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+            case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
               if (cc.getPath().startsWith('m/48') && cc.getPath().endsWith("/1'")) {
                 // found it
                 cosigner = cc;
@@ -379,6 +382,7 @@ const WalletsAddMultisigStep2 = () => {
           }
           break;
         case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+        case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
           if (cosigner.getPath().startsWith('m/48') && cosigner.getPath().endsWith("/1'")) {
             correctFormat = true;
           }

@@ -71,7 +71,7 @@ const WalletsAddMultisig = () => {
 
   const isP2wsh = () => format === MultisigHDWallet.FORMAT_P2WSH;
 
-  const isP2shP2wsh = () => format === MultisigHDWallet.FORMAT_P2SH_P2WSH;
+  const isP2shP2wsh = () => format === MultisigHDWallet.FORMAT_P2SH_P2WSH || format === MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT;
 
   const isP2sh = () => format === MultisigHDWallet.FORMAT_P2SH;
 
