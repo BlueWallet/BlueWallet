@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import React, { createContext, useEffect, useState } from 'react';
+import { LayoutAnimation } from 'react-native';
 import { AppStorage } from '../class';
 import { FiatUnit } from '../models/fiatUnit';
 const BlueApp = require('../BlueApp');
@@ -22,6 +23,8 @@ export const BlueStorageProvider = ({ children }) => {
   const getLanguageAsyncStorage = useAsyncStorage(AppStorage.LANG).getItem;
   const [newWalletAdded, setNewWalletAdded] = useState(false);
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
+  const [isDrawerListBlurred, _setIsDrawerListBlurred] = useState(false);
+
   const setIsHandOffUseEnabledAsyncStorage = value => {
     setIsHandOffUseEnabled(value);
     return BlueApp.setItem(AppStorage.HANDOFF_STORAGE_KEY, value === true ? '1' : '');
@@ -49,6 +52,11 @@ export const BlueStorageProvider = ({ children }) => {
       }
     })();
   }, []);
+
+  const setIsDrawerListBlurred = value => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    _setIsDrawerListBlurred(value);
+  };
 
   const getPreferredCurrency = async () => {
     const item = await getPreferredCurrencyAsyncStorage();
@@ -220,6 +228,8 @@ export const BlueStorageProvider = ({ children }) => {
         setIsHandOffUseEnabledAsyncStorage,
         walletTransactionUpdateStatus,
         setWalletTransactionUpdateStatus,
+        isDrawerListBlurred,
+        setIsDrawerListBlurred,
       }}
     >
       {children}
