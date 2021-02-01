@@ -16,12 +16,18 @@ enum UserDefaultsGroupKey: String {
   case ElectrumSettingsSSLPort = "electrum_ssl_port"
   case AllWalletsBalance = "WidgetCommunicationAllWalletsSatoshiBalance"
   case AllWalletsLatestTransactionTime = "WidgetCommunicationAllWalletsLatestTransactionTime"
+  case LatestTransactionIsUnconfirmed = "\"WidgetCommunicationLatestTransactionIsUnconfirmed\""
 }
 
 struct UserDefaultsElectrumSettings {
   let host: String?
   let port: Int32?
   let sslPort: Int32?
+}
+
+struct LatestTransaction {
+  let isUnconfirmed: Bool?
+  let epochValue: Int?
 }
 
 let DefaultElectrumPeers = [UserDefaultsElectrumSettings(host: "electrum1.bluewallet.io", port: 50001, sslPort: 443),
@@ -54,12 +60,17 @@ class UserDefaultsGroup {
     return Double(allWalletsBalance) ?? 0
   }
   
-  static func getAllWalletsLatestTransactionTime() -> Int {
+  // Int: EPOCH value, Bool: Latest transaction is unconfirmed
+  static func getAllWalletsLatestTransactionTime() -> LatestTransaction {
     guard let allWalletsTransactionTime = suite?.string(forKey: UserDefaultsGroupKey.AllWalletsLatestTransactionTime.rawValue) else {
-      return 0
+      return LatestTransaction(isUnconfirmed: false, epochValue: 0)
     }
-
-    return Int(allWalletsTransactionTime) ?? 0
+    
+    if allWalletsTransactionTime == UserDefaultsGroupKey.LatestTransactionIsUnconfirmed.rawValue {
+      return LatestTransaction(isUnconfirmed: true, epochValue: 0)
+    } else {
+      return LatestTransaction(isUnconfirmed: false, epochValue: Int(allWalletsTransactionTime))
+    }
   }
   
 }

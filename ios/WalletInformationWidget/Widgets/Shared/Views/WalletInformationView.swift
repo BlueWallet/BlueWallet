@@ -22,10 +22,15 @@ struct WalletInformationView: View {
     return amount
   }
   var formattedLatestTransactionTime: String {
-    if allWalletsBalance.latestTransactionTime == 0 {
-      return "never"
+    if allWalletsBalance.latestTransactionTime.isUnconfirmed == true {
+      return "Pending..."
+    } else if allWalletsBalance.latestTransactionTime.epochValue == 0 {
+      return "Never"
     }
-    let forDate = Date(timeIntervalSince1970: (TimeInterval(allWalletsBalance.latestTransactionTime) / 1000))
+    guard let epochValue = allWalletsBalance.latestTransactionTime.epochValue else {
+      return "Never"
+    }
+    let forDate = Date(timeIntervalSince1970: TimeInterval(epochValue / 1000))
     let dateFormatter = RelativeDateTimeFormatter()
     dateFormatter.locale = Locale(identifier: Locale.current.identifier)
     dateFormatter.dateTimeStyle = .numeric
@@ -53,7 +58,7 @@ struct WalletInformationView: View {
 
 struct WalletInformationView_Previews: PreviewProvider {
   static var previews: some View {
-    WalletInformationView(allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: 1568804029000), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: Double(13000)))
+    WalletInformationView(allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: Double(13000)))
       .previewContext(WidgetPreviewContext(family: .systemSmall))
   }
 }
