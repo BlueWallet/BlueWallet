@@ -528,7 +528,6 @@ describe('BlueWallet UI Tests', () => {
     await expect(element(by.text('Test'))).toBeVisible();
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
 
-
     await expect(element(by.text('bitcoin:bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay?amount=1&label=Test'))).toBeVisible();
     await device.pressBack();
 

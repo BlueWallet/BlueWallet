@@ -20,6 +20,7 @@ import loc from '../loc';
 import { useContext } from 'react';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import Notifications from '../blue_modules/notifications';
+import IdleTimerManager from 'react-native-idle-timer';
 const A = require('../blue_modules/analytics');
 const bip38 = require('../blue_modules/bip38');
 const wif = require('wif');
@@ -36,6 +37,7 @@ function WalletImport() {
    * @private
    */
   WalletImport._saveWallet = async (w, additionalProperties) => {
+    IdleTimerManager.setIdleTimerDisabled(false);
     if (WalletImport.isWalletImported(w)) {
       WalletImport.presentWalletAlreadyExistsAlert();
       return;
@@ -92,6 +94,7 @@ function WalletImport() {
    * @returns {Promise<void>}
    */
   WalletImport.processImportText = async (importText, additionalProperties) => {
+    IdleTimerManager.setIdleTimerDisabled(true);
     // Plan:
     // -2. check if BIP38 encrypted
     // -1a. check if multisig
@@ -323,10 +326,10 @@ function WalletImport() {
     // nope?
 
     // TODO: try a raw private key
-
+    IdleTimerManager.setIdleTimerDisabled(false);
     throw new Error('Could not recognize format');
   };
-
+  IdleTimerManager.setIdleTimerDisabled(false);
   return null;
 }
 

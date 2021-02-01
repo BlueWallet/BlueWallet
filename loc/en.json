@@ -16,7 +16,9 @@
     "seed": "Seed",
     "wallet_key": "Wallet key",
     "invalid_animated_qr_code_fragment" : "Invalid animated QRCode fragment. Please try again.",
-    "file_saved": "File ({filePath}) has been saved in your Downloads folder."
+    "file_saved": "File ({filePath}) has been saved in your Downloads folder.",
+    "discard_changes": "Discard changes?",
+    "discard_changes_detail": "You have unsaved changes. Are you sure to discard them and leave the screen?"
   },
   "azteco": {
     "codeIs": "Your voucher code is",
@@ -438,6 +440,7 @@
     "looks_like_bip38": "This looks like a password-protected private key (BIP38)",
     "reorder_title": "Reorder Wallets",
     "please_continue_scanning": "Please continue scanning",
+    "scan_error": "Scan Error",
     "select_no_bitcoin": "There are currently no Bitcoin wallets available.",
     "select_no_bitcoin_exp": "A Bitcoin wallet is required to refill Lightning wallets. Please create or import one.",
     "select_wallet": "Select Wallet",
@@ -542,7 +545,7 @@
     "header": "Coin Control",
     "use_coin": "Use Coin",
     "use_coins": "Use Coins",
-    "tip": "Allows you to see, label, freeze or select coins for improved wallet management."
+    "tip": "Allows you to see, label, freeze or select coins for improved wallet management. You can select multiple coins by tapping on the colored circles."
   },
   "units": {
     "BTC": "BTC",

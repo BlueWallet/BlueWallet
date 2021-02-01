@@ -33,7 +33,7 @@ struct MarketData:Codable  {
 
 struct WalletData {
   var balance: Double
-  var latestTransactionTime: Int = 0
+  var latestTransactionTime: LatestTransaction = LatestTransaction(isUnconfirmed: false, epochValue: 0)
   var formattedBalanceBTC: String {
     let formatter = NumberFormatter()
     formatter.numberStyle = .none
@@ -52,7 +52,7 @@ struct WalletData {
 
 
 let emptyMarketData = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
-let emptyWalletData = WalletData(balance: 0, latestTransactionTime: Int(Date().timeIntervalSince1970))
+let emptyWalletData = WalletData(balance: 0, latestTransactionTime:  LatestTransaction(isUnconfirmed: false, epochValue: Int(Date().timeIntervalSince1970)))
 
 enum MarketDataTimeline: String {
   case Previous = "previous"

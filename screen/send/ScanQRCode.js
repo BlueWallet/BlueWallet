@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useState } from 'react';
-import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput } from 'react-native';
+import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput, Alert } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -10,6 +10,7 @@ import loc from '../../loc';
 import { BlueLoading, BlueText, BlueButton, BlueSpacing40 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import { openPrivacyDesktopSettings } from '../../class/camera';
+
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
 const fs = require('../../blue_modules/fs');
@@ -137,7 +138,17 @@ const ScanQRCode = () => {
       }
     } catch (error) {
       console.warn(error);
-      alert(loc._.invalid_animated_qr_code_fragment);
+      setIsLoading(true);
+      Alert.alert(loc.send.scan_error, loc._.invalid_animated_qr_code_fragment, [
+        {
+          text: loc._.ok,
+          onPress: () => {
+            setIsLoading(false);
+          },
+          style: 'default',
+        },
+        { cancelabe: false },
+      ]);
     }
   };
 
@@ -200,18 +211,22 @@ const ScanQRCode = () => {
           takePhotoButtonTitle: null,
         },
         response => {
-          if (response.uri) {
-            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
-            LocalQRCode.decode(uri, (error, result) => {
-              if (!error) {
-                onBarCodeRead({ data: result });
-              } else {
-                alert(loc.send.qr_error_no_qrcode);
-                setIsLoading(false);
-              }
-            });
-          } else {
+          if (response.didCancel) {
             setIsLoading(false);
+          } else {
+            if (response.uri) {
+              const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
+              LocalQRCode.decode(uri, (error, result) => {
+                if (!error) {
+                  onBarCodeRead({ data: result });
+                } else {
+                  alert(loc.send.qr_error_no_qrcode);
+                  setIsLoading(false);
+                }
+              });
+            } else {
+              setIsLoading(false);
+            }
           }
         },
       );
