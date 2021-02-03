@@ -242,7 +242,6 @@
     "about_sm_twitter": "Folgt uns auf Twitter",
     "advanced_options": "Erweiterte Optionen",
     "biometrics": "Biometrie",
-    "biom_10times": "Sie haben 10 Mal versucht, Ihr Passwort einzugeben. Möchten Sie Ihren Speicher zurücksetzen? Dadurch werden alle Wallets entfernt und Ihr Speicher entschlüsselt.",
     "biom_conf_identity": "Bitte deine Identität bestätigen.",
     "biom_no_passcode": "Dein Gerät verfügt über keinen Passcode. Um fortzufahren zuerst in den Geräteeinstellungen einen Passcode konfigurieren.",
     "biom_remove_decrypt": "Alle Deine Wallets werden entfernt und der Speicher wird entschlüsselt. Bist du sicher, dass du fortfahren möchten?",

@@ -242,7 +242,6 @@
     "about_sm_twitter": "Seuraa meitä Twitterissä",
     "advanced_options": "Lisäasetukset",
     "biometrics": "Biometriset tiedot",
-    "biom_10times": "Olet yrittänyt antaa salasanasi 10 kertaa. Haluatko nollata tallennustilan? Tämä poistaa kaikki lompakot ja purkaa tallennustilan salauksen.",
     "biom_conf_identity": "Vahvista identiteettisi.",
     "biom_no_passcode": "Laitteellasi ei ole salasanaa. Jatkaaksesi määritä salasana Asetukset-sovelluksessa.",
     "biom_remove_decrypt": "Kaikki lompakot poistetaan ja tallennustilasi puretaan. Haluatko varmasti jatkaa?",

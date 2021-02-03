@@ -242,7 +242,6 @@
     "about_sm_twitter": "Nous suivre sur Twitter",
     "advanced_options": "Options avancées",
     "biometrics": "Biométrie",
-    "biom_10times": "Vous avez tenter d'entrer votre mots de passe 10 fois. Voulez vous réinitialiser votre espace de stockage ? Ceci effacera tous les portefeuilles et déchiffrera votre espace de stockage.",
     "biom_conf_identity": "Veuillez confirmer votre identité.",
     "biom_no_passcode": "Votre appareil n'as pas de code de passe. Pour continuer veuillez configurer un code de passe dans les paramètres.",
     "biom_remove_decrypt": "Tous vos portefeuilles seront effacés et votre espace de stockage sera déchiffré. Etes vous sure de vouloir continuer ?",

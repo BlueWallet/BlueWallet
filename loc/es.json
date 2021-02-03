@@ -241,7 +241,6 @@
     "about_sm_twitter": "Síguenos en Twitter",
     "advanced_options": "Opciones avanzadas",
     "biometrics": "Biométrico",
-    "biom_10times": "Has intentado introducir tu contraseña 10 veces. ¿Te gustaría reestablecer tu almacenamiento? Esta acción eliminará todas las carteras y desencriptará tu almacenamiento.",
     "biom_conf_identity": "Por favor confirma tu identidad.",
     "biom_no_passcode": "Tu dispositivo no tiene una contraseña. Para continuar, por favor configura una contraseña en Ajustes.",
     "biom_remove_decrypt": "Todas tus carteras se eliminarán y tu almacenado será desencriptado. ¿Estás seguro de que quieres continuar?",
