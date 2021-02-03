@@ -16,7 +16,9 @@
     "seed": "Siemen",
     "wallet_key": "Lompakkoavain",
     "invalid_animated_qr_code_fragment" : "Virheellinen animoitu QRCode-fragmentti, yritä uudelleen",
-    "file_saved": "Tiedosto ({filePath}) on tallennettu Lataukset-kansioon."
+    "file_saved": "Tiedosto ({filePath}) on tallennettu Lataukset-kansioon.",
+    "discard_changes": "Hylkää muutokset?",
+    "discard_changes_detail": "Sinulla on tallentamattomia muutoksia. Haluatko varmasti hylätä ne ja poistut näytöltä? "
   },
   "azteco": {
     "codeIs": "Kuponkikoodisi on",
@@ -87,7 +89,7 @@
     "offer_promt_fiat": "Kuinka paljon {currency} haluat ostaa?",
     "offer_promt_fiat_e": "Esimerkiksi 100",
     "offer_window": "ikkuna",
-    "p2p": "P2p-vaihto"
+    "p2p": "Osta Bitcoinia p2p-pörssistä "
   },
   "lnd": {
     "errorInvoiceExpired": "Lasku vanheni",
@@ -355,7 +357,8 @@
     "status_bump": "Nosta siirtokuluja",
     "status_cancel": "Peruuta Siirtotapahtuma",
     "transactions_count": "siirtotapahtumien määrä",
-    "txid": "Siirtotunniste"
+    "txid": "Siirtotunniste",
+    "updating": "Päivitetään..."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -437,6 +440,7 @@
     "looks_like_bip38": "Tämä näyttää salasanalla suojatulta yksityiseltä avaimelta (BIP38)",
     "reorder_title": "Järjestele Lompakot",
     "please_continue_scanning": "Jatka skannausta",
+    "scan_error": "Skannausvirhe ",
     "select_no_bitcoin": "Bitcoin-lompakkoa ei tällä hetkellä ole saatavana.",
     "select_no_bitcoin_exp": "Bitcoin-lompakkoa vaaditaan Lightning-lompakkojen täyttämiseksi. Luo tai tuo yksi.",
     "select_wallet": "Valitse Lompakko",
@@ -541,7 +545,7 @@
     "header": "Kolikoiden hallinta",
     "use_coin": "Käytä kolikko",
     "use_coins": "Käytä kolikkoja",
-    "tip": "Antaa sinun nähdä, merkitä, jäädyttää tai valita kolikoita parempaan lompakon hallintaan."
+    "tip": "Antaa sinun nähdä, merkitä, jäädyttää tai valita kolikoita parempaan lompakon hallintaan. Voit valita useita kolikoita napauttamalla värillisiä ympyröitä. "
   },
   "units": {
     "BTC": "BTC",
