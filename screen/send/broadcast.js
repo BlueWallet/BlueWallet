@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, Linking, StyleSheet, View, KeyboardAvoidingView, Platform, Text, TextInput } from 'react-native';
+import { ActivityIndicator, Linking, StyleSheet, View, KeyboardAvoidingView, Platform, TextInput } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import loc from '../../loc';
 import { HDSegwitBech32Wallet } from '../../class';
+import navigationStyle from '../../components/navigationStyle';
 import {
-  SafeBlueArea,
-  BlueCard,
+  BlueBigCheckmark,
   BlueButton,
+  BlueButtonLink,
+  BlueCard,
+  BlueFormLabel,
   BlueSpacing10,
   BlueSpacing20,
-  BlueFormLabel,
   BlueTextCentered,
-  BlueBigCheckmark,
-  BlueNavigationStyle,
+  SafeBlueArea,
 } from '../../BlueComponents';
-import { BlueCurrentTheme } from '../../components/themes';
 import BlueElectrum from '../../blue_modules/BlueElectrum';
 import Notifications from '../../blue_modules/notifications';
+import { useTheme } from '@react-navigation/native';
 const bitcoin = require('bitcoinjs-lib');
 
 const BROADCAST_RESULT = Object.freeze({
@@ -28,9 +30,23 @@ const BROADCAST_RESULT = Object.freeze({
 });
 
 const Broadcast = () => {
-  const [tx, setTx] = useState('');
-  const [txHex, setTxHex] = useState('');
+  const [tx, setTx] = useState();
+  const [txHex, setTxHex] = useState();
+  const { colors } = useTheme();
   const [broadcastResult, setBroadcastResult] = useState(BROADCAST_RESULT.none);
+  const stylesHooks = StyleSheet.create({
+    blueArea: {
+      backgroundColor: colors.background,
+    },
+    text: {
+      color: colors.foregroundColor,
+    },
+    input: {
+      borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
+      backgroundColor: colors.inputBackgroundColor,
+    },
+  });
   const handleUpdateTxHex = nextValue => setTxHex(nextValue.trim());
   const handleBroadcast = async () => {
     setBroadcastResult(BROADCAST_RESULT.pending);
@@ -43,7 +59,9 @@ const Broadcast = () => {
         const tx = bitcoin.Transaction.fromHex(txHex);
         const txid = tx.getId();
         setTx(txid);
+
         setBroadcastResult(BROADCAST_RESULT.success);
+        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
         Notifications.majorTomToGroundControl([], [], [txid]);
       } else {
         setBroadcastResult(BROADCAST_RESULT.error);
@@ -82,17 +100,21 @@ const Broadcast = () => {
                 <BlueFormLabel>{status}</BlueFormLabel>
                 {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
               </View>
-              <TextInput
-                style={styles.text}
-                maxHeight={100}
-                minHeight={100}
-                maxWidth="100%"
-                minWidth="100%"
-                multiline
-                editable
-                value={txHex}
-                onChangeText={handleUpdateTxHex}
-              />
+
+              <View style={[styles.input, stylesHooks.input]}>
+                <TextInput
+                  style={styles.text}
+                  maxHeight={100}
+                  minHeight={100}
+                  maxWidth="100%"
+                  minWidth="100%"
+                  multiline
+                  editable
+                  placeholderTextColor="#81868e"
+                  value={txHex}
+                  onChangeText={handleUpdateTxHex}
+                />
+              </View>
 
               <BlueSpacing10 />
               <BlueButton
@@ -110,8 +132,7 @@ const Broadcast = () => {
 };
 
 export default Broadcast;
-Broadcast.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+Broadcast.navigationOptions = navigationStyle({
   title: loc.send.create_broadcast,
 });
 
@@ -133,9 +154,6 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
   },
-  link: {
-    color: BlueCurrentTheme.colors.foregroundColor,
-  },
   mainCard: {
     padding: 0,
     display: 'flex',
@@ -144,52 +162,46 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   topFormRow: {
-    flex: 0.1,
-    flexBasis: 0.1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingBottom: 10,
     paddingTop: 0,
     paddingRight: 100,
-    height: 30,
-    maxHeight: 30,
+  },
+  input: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    alignItems: 'center',
+    borderRadius: 4,
   },
   text: {
-    flex: 1,
-    borderColor: '#ebebeb',
-    backgroundColor: '#d2f8d6',
-    borderRadius: 4,
-    marginTop: 20,
-    color: BlueCurrentTheme.colors.foregroundColor,
-    fontWeight: '500',
-    fontSize: 14,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    paddingTop: 16,
+    padding: 8,
+    minHeight: 33,
+    color: '#81868e',
   },
 });
 
-function SuccessScreen({ tx }) {
+const SuccessScreen = ({ tx }) => {
   if (!tx) {
     return null;
   }
+
   return (
     <View style={styles.wrapper}>
       <BlueCard>
         <View style={styles.broadcastResultWrapper}>
           <BlueBigCheckmark />
           <BlueSpacing20 />
-          <BlueTextCentered>Success! You transaction has been broadcasted!</BlueTextCentered>
+          <BlueTextCentered>{loc.settings.success_transaction_broadcasted}</BlueTextCentered>
           <BlueSpacing10 />
-          <Text style={styles.link} onPress={() => Linking.openURL(`https://blockstream.info/tx/${tx}`)}>
-            Open link in explorer
-          </Text>
+          <BlueButtonLink title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(`https://blockstream.info/tx/${tx}`)} />
         </View>
       </BlueCard>
     </View>
   );
-}
+};
 
 SuccessScreen.propTypes = {
   tx: PropTypes.string.isRequired,

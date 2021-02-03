@@ -21,6 +21,8 @@ jest.mock('@react-native-community/push-notification-ios', () => {
 jest.mock('react-native-device-info', () => {
   return {
     getSystemName: jest.fn(),
+    hasGmsSync: jest.fn().mockReturnValue(true),
+    hasHmsSync: jest.fn().mockReturnValue(false),
   };
 });
 
@@ -90,3 +92,20 @@ jest.mock('react-native-gesture-handler', () => jest.requireActual('react-native
 jest.mock('react-native-document-picker', () => ({}));
 
 jest.mock('react-native-haptic-feedback', () => ({}));
+
+const realmInstanceMock = {
+  close: function () {},
+  objects: function () {
+    const wallets = {
+      filtered: function () {
+        return [];
+      },
+    };
+    return wallets;
+  },
+};
+jest.mock('realm', () => {
+  return {
+    open: jest.fn(() => realmInstanceMock),
+  };
+});

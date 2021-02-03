@@ -1,9 +1,10 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import { Alert, Platform } from 'react-native';
 import Frisbee from 'frisbee';
-import { getApplicationName, getVersion, getSystemName, getSystemVersion } from 'react-native-device-info';
-import AsyncStorage from '@react-native-community/async-storage';
+import { getApplicationName, getVersion, getSystemName, getSystemVersion, hasGmsSync, hasHmsSync } from 'react-native-device-info';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import loc from '../loc';
+
 const PushNotification = require('react-native-push-notification');
 const constants = require('./constants');
 const PUSH_TOKEN = 'PUSH_TOKEN';
@@ -28,6 +29,7 @@ function Notifications(props) {
     return false;
   };
 
+  Notifications.isNotificationsCapable = hasGmsSync() || hasHmsSync() || Platform.OS !== 'android';
   /**
    * Calls `configure`, which tries to obtain push token, save it, and registers all associated with
    * notifications callbacks
@@ -54,32 +56,19 @@ function Notifications(props) {
           //
           // ...we save notification in internal notifications queue thats gona be processed later (on unsuspend with decrypted storage)
 
-          if (Platform.OS === 'ios' && notification.foreground === true && notification.userInteraction === false) {
-            // iOS hack
-            // @see https://github.com/zo0r/react-native-push-notification/issues/1585
-            notification.userInteraction = true;
-            // also, on iOS app is not suspending/unsuspending when user taps a notification bubble,so we simulate it
-            // since its where we actually handle notifications:
-            setTimeout(() => props.onProcessNotifications(), 500);
-          }
+          const payload = Object.assign({}, notification, notification.data);
+          if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
+          delete payload.data;
+          // ^^^ weird, but sometimes payload data is not in `data` but in root level
 
-          let notifications = [];
-          try {
-            const stringified = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE);
-            notifications = JSON.parse(stringified);
-            if (!Array.isArray(notifications)) notifications = [];
-
-            const payload = Object.assign({}, notification, notification.data);
-            if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
-            delete payload.data;
-            // ^^^ weird, but sometimes payload data is not in `data` but in root level
-
-            notifications.push(payload);
-            await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify(notifications));
-          } catch (_) {}
+          await Notifications.addNotification(payload);
 
           // (required) Called when a remote is received or opened, or local notification is opened
           notification.finish(PushNotificationIOS.FetchResult.NoData);
+
+          // if user is staring at the app when he receives the notification we process it instantly
+          // so app refetches related wallet
+          if (payload.foreground) props.onProcessNotifications();
         },
 
         // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
@@ -133,6 +122,7 @@ function Notifications(props) {
    * @returns {Promise<boolean>} TRUE if permissions were obtained, FALSE otherwise
    */
   Notifications.tryToObtainPermissions = async function () {
+    if (!Notifications.isNotificationsCapable) return false;
     if (await Notifications.getPushToken()) {
       // we already have a token, no sense asking again, just configure pushes to register callbacks and we are done
       if (!alreadyConfigured) configureNotifications(); // no await so it executes in background while we return TRUE and use token
@@ -140,7 +130,7 @@ function Notifications(props) {
     }
 
     if (await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG)) {
-      // user doesnt want them
+      // user doesn't want them
       return false;
     }
 
@@ -364,6 +354,18 @@ function Notifications(props) {
     return notifications;
   };
 
+  Notifications.addNotification = async function (notification) {
+    let notifications = [];
+    try {
+      const stringified = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE);
+      notifications = JSON.parse(stringified);
+      if (!Array.isArray(notifications)) notifications = [];
+    } catch (_) {}
+
+    notifications.push(notification);
+    await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify(notifications));
+  };
+
   const postTokenConfig = async function () {
     const pushToken = await Notifications.getPushToken();
     if (!pushToken || !pushToken.token || !pushToken.os) return;
@@ -394,8 +396,22 @@ function Notifications(props) {
     } catch (_) {}
   };
 
+  Notifications.getDeliveredNotifications = () => {
+    return new Promise(resolve => {
+      PushNotification.getDeliveredNotifications(notifications => resolve(notifications));
+    });
+  };
+
+  Notifications.removeDeliveredNotifications = (identifiers = []) => {
+    PushNotification.removeDeliveredNotifications(identifiers);
+  };
+
   Notifications.setApplicationIconBadgeNumber = function (badges) {
     PushNotification.setApplicationIconBadgeNumber(badges);
+  };
+
+  Notifications.removeAllDeliveredNotifications = () => {
+    PushNotification.removeAllDeliveredNotifications();
   };
 
   // on app launch (load module):

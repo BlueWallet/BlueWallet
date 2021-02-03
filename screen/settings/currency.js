@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { FlatList, ActivityIndicator, View, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueListItem, BlueText, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
-import PropTypes from 'prop-types';
+import { useTheme } from '@react-navigation/native';
+
+import navigationStyle from '../../components/navigationStyle';
+import { SafeBlueArea, BlueListItem, BlueText, BlueCard } from '../../BlueComponents';
 import { FiatUnit, FiatUnitSource } from '../../models/fiatUnit';
 import loc from '../../loc';
-import { useTheme } from '@react-navigation/native';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
 
 const data = Object.values(FiatUnit);
 
 const Currency = () => {
+  const { setPreferredFiatCurrency } = useContext(BlueStorageContext);
   const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState(null);
   const { colors } = useTheme();
@@ -62,6 +65,7 @@ const Currency = () => {
                   await currency.setPrefferedCurrency(item);
                   await currency.startUpdater();
                   setIsSavingNewPreferredCurrency(false);
+                  setPreferredFiatCurrency();
                 }}
               />
             );
@@ -82,15 +86,8 @@ const Currency = () => {
   );
 };
 
-Currency.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
-};
-
-Currency.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+Currency.navigationOptions = navigationStyle({
   title: loc.settings.currency,
 });
+
 export default Currency;

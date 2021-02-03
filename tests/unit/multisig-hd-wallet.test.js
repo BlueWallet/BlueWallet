@@ -1052,6 +1052,32 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(tx.toHex());
   });
 
+  it('can cosign PSBT that comes from electrum', async () => {
+    const wallet = new MultisigHDWallet();
+    wallet.setSecret(
+      'Name: Multisig Vault\n' +
+        'Policy: 2 of 2\n' +
+        "Derivation: m/48'/0'/0'/2'\n" +
+        'Format: P2WSH\n' +
+        '\n' +
+        '00000000: Zpub6yjw2xcmSY3uD1KbYLnrSuP2PaxDXajA1YymjzstkZCGnBX3Z1oC6dVFtA1TQNPoTaguixnjYfRK3edDDoP3xxJZSSv1S9NrG5zqK5YzKHE\n' +
+        '\n' +
+        'seed: point match rack notable poverty welcome slice stem warfare later skirt dream',
+    );
+
+    const psbt = bitcoin.Psbt.fromBase64(
+      'cHNidP8BAHsCAAAAAn99yxH8deILgpB2qT23xRUvfnu8v98JSREOvhP5SFhHAAAAAAD9////2NGbHPsAqZoKkO+PsxfYuLT9pN8T5/LtHnQnStXsyWsAAAAAAP3///8B2LECAAAAAAAWABTNx1+3yJfKJVcFfHn3KBn9EVdBLmIkCgAAAQDrAgAAAAABAdjRmxz7AKmaCpDvj7MX2Li0/aTfE+fy7R50J0rV7MlrAQAAAAAAAACAAqCGAQAAAAAAIgAgNjviJkwSkV3MVJI0X8KnLUc+MfW/d4EQvWgykrvTwHDeDAIAAAAAABYAFGPIzN0T0b+DfXhLYiOUdT2c5pEBAkgwRQIhAIyPdquXeaHAXL7PpaYt5+G9rl0lLXMPaDM2u9fVuCp4AiA7EIZQm8bIdC4Z+oWtXh0xCKSvTgiwDQWGsQ2kMC2+LwEhA7+3G393F7pqELKBkYzEka2iEvVsLpGjdTvVuP6nufrLAAAAACICA6qDyEv6617qV3VEJoGIQowgTguor7GTI1qOYIz/M6PpRzBEAiBN+gF6Xa7PO1/NbL7K8Nqa3W5vPiuaAov6v+7zjTNDlgIgf9jYQ76Hf4xoOBdveYCyaOeoq+jwXN05nvJlVgZFngkBAQVHUiEDWcyClcxZ8xFXyF1LM8kiGaXqdqM3aHgKK2/Di976NAohA6qDyEv6617qV3VEJoGIQowgTguor7GTI1qOYIz/M6PpUq4iBgNZzIKVzFnzEVfIXUszySIZpep2ozdoeAorb8OL3vo0CgyRUA3SAAAAAAEAAAAiBgOqg8hL+ute6ld1RCaBiEKMIE4LqK+xkyNajmCM/zOj6RCvgJIDAQAAgAAAAAABAAAAAAEA6wIAAAAAAQHWV2FCU0XMuya/nkpDw/yIOK7U3NehUDZmechoTJQFlQEAAAAAAAAAgAKghgEAAAAAACIAIJi9hmdhYfHNmOEaEADqxlNRmtsZIU/NisM8/b4UVU67JqUDAAAAAAAWABSOkTpoURBU5UZG1VIoBj+EHlF6cgJIMEUCIQCJjUIn/LFJNknngMXEfHUNegppt/olh+2RCYGDZ/yw7AIgLw7SwWCaZvHB8PwMj+9F4Rjhvmq4BZ7gozr7tQZMOY0BIQN3F33l/rnJgyIJQHHYEwfxCympfDiFZ8rV76gttJdnLwAAAAAiAgKk1ZQ+v8BXIY1q1aQcRA1Qy6XQVrrhXEcWtXrOvOzf8kcwRAIgPYRi8+wJVym+EF3LNyOylj1RcdPzMiLxKRqlVm64IUgCIH1JVGxAIvmwKpg1TqlvbeXZbUMCjnr7CkYWqxBqghLfAQEFR1IhAqTVlD6/wFchjWrVpBxEDVDLpdBWuuFcRxa1es687N/yIQPo29i9fz5IsDSF1lSMDBbhehw+ydEhNYmjujZiSfyQD1KuIgYCpNWUPr/AVyGNatWkHEQNUMul0Fa64VxHFrV6zrzs3/IQr4CSAwEAAIAAAAAAAAAAACIGA+jb2L1/PkiwNIXWVIwMFuF6HD7J0SE1iaO6NmJJ/JAPDJFQDdIAAAAAAAAAAAAA',
+    );
+    assert.strictEqual(wallet.calculateHowManySignaturesWeHaveFromPsbt(psbt), 1);
+
+    const { tx } = wallet.cosignPsbt(psbt); // <---------------------------------------------------------
+
+    assert.strictEqual(wallet.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
+    assert.ok(tx);
+    assert.throws(() => psbt.finalizeAllInputs()); // as it is already finalized
+    assert.ok(tx.toHex());
+  });
+
   it('can export/import when one of cosigners is mnemonic seed', async () => {
     const path = "m/48'/0'/0'/2'";
 
@@ -1487,9 +1513,9 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(w.isNativeSegwit());
     assert.ok(!w.isLegacy());
 
-    assert.strictEqual(w.getFingerprint(1), '2D440411');
-    assert.strictEqual(w.getFingerprint(2), 'F863CE8C');
-    assert.strictEqual(w.getFingerprint(3), '7BBD27BF');
+    assert.strictEqual(w.getFingerprint(1), '1104442D');
+    assert.strictEqual(w.getFingerprint(2), '8CCE63F8');
+    assert.strictEqual(w.getFingerprint(3), 'BF27BD7B');
 
     assert.strictEqual(
       w.getCosigner(1),
@@ -1508,6 +1534,65 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), "m/48'/0'/0'/2'");
     assert.strictEqual(w.getCustomDerivationPathForCosigner(3), "m/48'/0'/0'/2'");
     assert.strictEqual(w.getDerivationPath(), '');
+  });
+
+  it('can import from specter-desktop/fullynoded (p2sh-p2wsh)', () => {
+    // @see https://github.com/Fonta1n3/FullyNoded/blob/master/Docs/Wallets/Wallet-Export-Spec.md
+
+    const secrets = [
+      JSON.stringify({
+        label: 'nested2of3',
+        blockheight: 481824,
+        descriptor:
+          'sh(wsh(sortedmulti(2,[99fe7770/48h/0h/0h/1h]xpub6FEEbEaYM9pmY8rxz4g6AuaJVszwKt8g6cFg9nFWeE85EdBrGBcnhHqXAaPbQ4Hi3Xu9vijtYdYnNjERw9eSniF3235Vjde11GieeHjv7XT/0/*,[636bdad0/48h/0h/0h/1h]xpub6F67TyyWngU5rkVPxHTdmuYkaXHXeRwwVg5SsDeiPPjt6Mithh4Qzpu2yHjNa5W7nhcTbV6QaJMvppYMDSnB3SxArCkp9GvHQqpr5P17yFv/0/*,[99c90b2f/48h/0h/0h/1h]xpub6E6FyTrwmuUYeRMULXSAGvUKeP5ba6pQKVhWNuvVZFmGPnDYb9m5vP2XsSEQ4gKUGfXtLcKs4AV31vpfx2P5KuWm9co4HM3FtGov8enmJ6f/0/*)))#wy7xtlnw',
+      }),
+      'sh(wsh(sortedmulti(2,[99fe7770/48h/0h/0h/1h]xpub6FEEbEaYM9pmY8rxz4g6AuaJVszwKt8g6cFg9nFWeE85EdBrGBcnhHqXAaPbQ4Hi3Xu9vijtYdYnNjERw9eSniF3235Vjde11GieeHjv7XT/0/*,[636bdad0/48h/0h/0h/1h]xpub6F67TyyWngU5rkVPxHTdmuYkaXHXeRwwVg5SsDeiPPjt6Mithh4Qzpu2yHjNa5W7nhcTbV6QaJMvppYMDSnB3SxArCkp9GvHQqpr5P17yFv/0/*,[99c90b2f/48h/0h/0h/1h]xpub6E6FyTrwmuUYeRMULXSAGvUKeP5ba6pQKVhWNuvVZFmGPnDYb9m5vP2XsSEQ4gKUGfXtLcKs4AV31vpfx2P5KuWm9co4HM3FtGov8enmJ6f/0/*)))#wy7xtlnw',
+    ];
+
+    for (const secret of secrets) {
+      const w = new MultisigHDWallet();
+      w.setSecret(secret);
+      assert.strictEqual(w.getM(), 2);
+      assert.strictEqual(w.getN(), 3);
+      assert.strictEqual(w._getExternalAddressByIndex(0), '3GSZaKT3LujScx6JeWejc6xjZsCDRzptsA');
+      assert.strictEqual(w._getExternalAddressByIndex(1), '3GT11kStn8W6q2kj257uZqW9xEKJwPMDkw');
+      assert.ok(w.getLabel() === 'nested2of3' || w.getLabel() === 'Multisig vault');
+      assert.ok(w.isWrappedSegwit());
+      assert.ok(!w.isNativeSegwit());
+      assert.ok(!w.isLegacy());
+
+      assert.strictEqual(w.getFingerprint(1), '99FE7770');
+      assert.strictEqual(w.getFingerprint(2), '636BDAD0');
+      assert.strictEqual(w.getFingerprint(3), '99C90B2F');
+
+      assert.strictEqual(
+        w.getCosigner(1),
+        'xpub6FEEbEaYM9pmY8rxz4g6AuaJVszwKt8g6cFg9nFWeE85EdBrGBcnhHqXAaPbQ4Hi3Xu9vijtYdYnNjERw9eSniF3235Vjde11GieeHjv7XT',
+      );
+      assert.strictEqual(
+        w.getCosigner(2),
+        'xpub6F67TyyWngU5rkVPxHTdmuYkaXHXeRwwVg5SsDeiPPjt6Mithh4Qzpu2yHjNa5W7nhcTbV6QaJMvppYMDSnB3SxArCkp9GvHQqpr5P17yFv',
+      );
+      assert.strictEqual(
+        w.getCosigner(3),
+        'xpub6E6FyTrwmuUYeRMULXSAGvUKeP5ba6pQKVhWNuvVZFmGPnDYb9m5vP2XsSEQ4gKUGfXtLcKs4AV31vpfx2P5KuWm9co4HM3FtGov8enmJ6f',
+      );
+
+      assert.strictEqual(w.getCustomDerivationPathForCosigner(1), "m/48'/0'/0'/1'");
+      assert.strictEqual(w.getCustomDerivationPathForCosigner(2), "m/48'/0'/0'/1'");
+      assert.strictEqual(w.getCustomDerivationPathForCosigner(3), "m/48'/0'/0'/1'");
+      assert.strictEqual(w.getDerivationPath(), '');
+    }
+
+    const ww = new MultisigHDWallet();
+    ww.addCosigner('equal emotion skin exchange scale inflict half expose awkward deliver series broken');
+    ww.addCosigner('spatial road snack luggage buddy media seek charge people pool neither family');
+    ww.addCosigner('sing author lyrics expand ladder embody frost rapid survey similar flight unknown');
+    ww.setM(2);
+    ww.setDerivationPath("m/48'/0'/0'/1'");
+    ww.setWrappedSegwit();
+    assert.strictEqual(ww._getExternalAddressByIndex(0), '3GSZaKT3LujScx6JeWejc6xjZsCDRzptsA');
+    assert.strictEqual(ww.getFingerprint(1), '99FE7770');
   });
 
   it('can edit cosigners', () => {
@@ -1567,6 +1652,130 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(!w.getCustomDerivationPathForCosigner(2));
     assert.strictEqual(w.getN(), 1);
     assert.strictEqual(w.getM(), 2);
+  });
+
+  it('can sign valid tx if we have more keys than quorum ("Too many signatures" error)', async () => {
+    const w = new MultisigHDWallet();
+    w.setSecret(
+      '# BlueWallet Multisig setup file\n' +
+        '# this file may contain private information\n' +
+        '#\n' +
+        'Name: Multisig Vault\n' +
+        'Policy: 3 of 6\n' +
+        "Derivation: m/48'/0'/0'/2'\n" +
+        'Format: P2WSH\n' +
+        '\n' +
+        'seed: start local figure rose pony artist voice agent pyramid still spot walk\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: empty fall vanish sheriff vibrant diary route lock purity noodle ripple clutch\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: else heart suggest proof travel announce reason priority trick bargain author duty\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: craft response kitchen column feed fitness pill loyal capital together usage either\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: trigger zebra image engine inhale employ floor soul glimpse version extra pizza\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: thank post talent polar hire model trophy elevator wide green hungry gossip\n' +
+        '# warning! sensitive information, do not disclose ^^^',
+    );
+
+    const utxos = [
+      {
+        height: 662352,
+        value: 100000,
+        address: 'bc1qlkh0zgq5ypcdfs9rdvrucra96c5gmjgaufm0au8cglkkrah29nesrkvewg',
+        txId: 'e112e3b109aff5fe76d4fde90bd3c2df58bfb250280a4404421fff42d6801fd2',
+        vout: 0,
+        txid: 'e112e3b109aff5fe76d4fde90bd3c2df58bfb250280a4404421fff42d6801fd2',
+        amount: 100000,
+        wif: false,
+        confirmations: 1,
+        txhex:
+          '020000000001020d0f713ba314566ea9b7e7d64eb8538dd0a88826377945464e9bb25eed61d665010000000000000080f570a2bb8faff02b848a4a5b2d334324a1ccc6cebf1c1cc27e231316f579e66d01000000000000008002a086010000000000220020fdaef120142070d4c0a36b07cc0fa5d6288dc91de276fef0f847ed61f6ea2cf3d6eb060000000000160014696154a1ed38813c4c45b58ece291c1a8d9cd7d102483045022100d02ef858d129ba50aeee126e41e9cca5fa58232def7934d6705747e81bcd61a402206d2565c336cd32cb128ae9e80af60d610154af0d4e77cb60e015dead349b368b012103471950f9952608d9db6d3698b731d89387b7b55026ae020919ee7da7a2a4866d0247304402204088a68fc4654c0cedb724f6e8fe3820845d5e7184b0363806ea77f8a739f58702202bf7b3b20d6d6db28617e8edd6d0ea3870ab7e3bc62307ad77fa9717a3689bcb01210371d2366d9fc32c5a83bb78d7ced38d5e318a96dc43a18074742e567defe4585d00000000',
+      },
+    ];
+
+    const { psbt, tx } = w.createTransaction(
+      utxos,
+      [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS' }], // sendMax
+      1,
+      w._getInternalAddressByIndex(0),
+    );
+
+    assert.ok(tx);
+    assert.ok(psbt);
+
+    assert.strictEqual(psbt.data.inputs.length, 1);
+    assert.strictEqual(psbt.data.outputs.length, 1);
+  });
+
+  it('can sign multiple inputs', async () => {
+    const w = new MultisigHDWallet();
+    w.setSecret(
+      '# BlueWallet Multisig setup file\n' +
+        '# this file may contain private information\n' +
+        '#\n' +
+        'Name: Multisig Vault\n' +
+        'Policy: 2 of 3\n' +
+        "Derivation: m/48'/0'/0'/2'\n" +
+        'Format: P2WSH\n' +
+        '\n' +
+        'seed: certain cruise forum ladder reveal frame company book sausage flat wasp mouse\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: sting tumble brave remember sadness embrace increase under year joke drum skate\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: daughter parade neck suit brick wife horror inquiry leopard exhibit body mobile\n' +
+        '# warning! sensitive information, do not disclose ^^^',
+    );
+
+    const utxos = [
+      {
+        address: 'bc1qzwt595g0q0xauxzr4h56kw4zavfrnq3r4zkx42relm8rvwuuxyvsqndmgl',
+        amount: 2120,
+        confirmations: 33,
+        height: 668483,
+        txId: '43b2ac418539b61610c3ae2e216052d634b9b20fcece05940b5662fe5cf3f3b5',
+        txhex:
+          '020000000001019e590dee7124728b988e32c1daad3a550663327b3478c4f9ee15eeaf740b898f0100000017160014018958ab9e2b29b7313a39c1a62189affeac94a8ffffffff014808000000000000220020139742d10f03cdde1843ade9ab3aa2eb12398223a8ac6aa879fece363b9c311902483045022100f431ad4d213265531f600ebf242cabd3adcb7b5c27464ad080a34ce4fb4a5e5702206fad42768d29ee1121e19dc4489366d0c02a412e9d60431cac59d49642868c7b0121037a24a1d8a4e86946e89478f352bda9d6b40843e01b86af5c94b99634cbb0c6b200000000',
+        txid: '43b2ac418539b61610c3ae2e216052d634b9b20fcece05940b5662fe5cf3f3b5',
+        value: 2120,
+        vout: 0,
+        wif: false,
+      },
+      {
+        address: 'bc1qn0j7y5hau6s8tdcpnxyyumck256lfet78ehpxdkytv5nt570dr4qxl9s3p',
+        amount: 10000,
+        confirmations: 1,
+        height: 668515,
+        txId: '3a2753147121c2ab312a419f0788cb534232d3c0bd4838de718487aca495ac7a',
+        txhex:
+          '02000000000101a1fba4a09a1a7ed090c64f15024de4b9008b6ec4ee5e336f0f0fc43f78022dfa01000000171600142f78bf055b26feb8f2f6b3caa5956b991c507e49ffffffff0210270000000000002200209be5e252fde6a075b70199884e6f165535f4e57e3e6e1336c45b2935d3cf68ea9a8705000000000017a91484d55f28fc28676c5f195ce649851428ec5010a3870248304502210098a970398bc40a34423d5661ecc499240bb0edb6e6bea74a752269f92e588b1b022031fcdf66c4ed8378f352a5a096c438e7a8c1415c47c119a4c69ef787e1cdf5d9012102ade0a25d66406f67dc3e4a6c8bedd989dd3ceed7a623fb4c2839a84b5262ca0900000000',
+        txid: '3a2753147121c2ab312a419f0788cb534232d3c0bd4838de718487aca495ac7a',
+        value: 10000,
+        vout: 0,
+        wif: false,
+      },
+    ];
+
+    const { psbt, tx } = w.createTransaction(
+      utxos,
+      [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS' }], // sendMax
+      6,
+      w._getInternalAddressByIndex(0),
+    );
+
+    assert.ok(tx);
+    assert.ok(psbt);
+
+    assert.strictEqual(psbt.data.inputs.length, 2);
+    assert.strictEqual(psbt.data.outputs.length, 1);
   });
 });
 

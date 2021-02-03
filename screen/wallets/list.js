@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   StatusBar,
@@ -12,6 +11,7 @@ import {
   Image,
   Dimensions,
   useWindowDimensions,
+  SafeAreaView,
 } from 'react-native';
 import { BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
@@ -21,20 +21,17 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { getSystemName, isTablet } from 'react-native-device-info';
-import { presentCameraNotAuthorizedAlert } from '../../class/camera';
+import { isTablet } from 'react-native-device-info';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import isCatalyst from 'react-native-is-catalyst';
-const A = require('../../blue_modules/analytics');
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
+import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
 
+const A = require('../../blue_modules/analytics');
+const fs = require('../../blue_modules/fs');
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
-const isDesktop = getSystemName() === 'Mac OS X';
 
 const WalletsList = () => {
   const walletsCarousel = useRef();
@@ -117,6 +114,7 @@ const WalletsList = () => {
   useEffect(() => {
     setOptions({
       title: '',
+      headerShown: !isCatalyst,
       headerStyle: {
         backgroundColor: colors.customHeader,
         borderBottomWidth: 0,
@@ -141,13 +139,13 @@ const WalletsList = () => {
    * Forcefully fetches TXs and balance for ALL wallets.
    * Triggered manually by user on pull-to-refresh.
    */
-  const refreshTransactions = (showLoadingIndicator = true) => {
+  const refreshTransactions = (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
     setIsLoading(showLoadingIndicator);
-    refreshAllWalletTransactions().finally(() => setIsLoading(false));
+    refreshAllWalletTransactions(showLoadingIndicator, showUpdateStatusIndicator).finally(() => setIsLoading(false));
   };
 
   useEffect(() => {
-    refreshTransactions(false);
+    refreshTransactions(false, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // call refreshTransactions() only once, when screen mounts
 
@@ -196,7 +194,7 @@ const WalletsList = () => {
     console.log('onSnapToItem', index);
     if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
       console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
-      refreshAllWalletTransactions(index).finally(() => setIsLoading(false));
+      refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
     }
   };
 
@@ -235,7 +233,7 @@ const WalletsList = () => {
   const renderLocalTrader = () => {
     if (carouselData.every(wallet => wallet === false)) return null;
     if (carouselData.length > 0 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
-      return (
+      const button = (
         <TouchableOpacity
           onPress={() => {
             navigate('HodlHodl', { screen: 'HodlHodl' });
@@ -243,14 +241,12 @@ const WalletsList = () => {
           style={[styles.ltRoot, stylesHook.ltRoot]}
         >
           <View style={styles.ltTextWrap}>
-            <Text style={[styles.ltTextBig, stylesHook.ltTextBig]}>Local Trader</Text>
+            <Text style={[styles.ltTextBig, stylesHook.ltTextBig]}>{loc.hodl.local_trader}</Text>
             <Text style={[styles.ltTextSmall, stylesHook.ltTextSmall]}>{loc.hodl.p2p}</Text>
-          </View>
-          <View style={styles.ltButtonWrap}>
-            <Text style={styles.ltButton}>New</Text>
           </View>
         </TouchableOpacity>
       );
+      return isLargeScreen ? <SafeAreaView>{button}</SafeAreaView> : button;
     } else {
       return null;
     }
@@ -325,7 +321,7 @@ const WalletsList = () => {
         <FContainer>
           <FButton
             onPress={onScanButtonPressed}
-            onLongPress={isDesktop ? undefined : sendButtonLongPress}
+            onLongPress={isMacCatalina ? undefined : sendButtonLongPress}
             icon={<Image resizeMode="stretch" source={scanImage} />}
             text={loc.send.details_scan}
           />
@@ -341,8 +337,8 @@ const WalletsList = () => {
   };
 
   const onScanButtonPressed = () => {
-    if (isDesktop) {
-      sendButtonLongPress();
+    if (isMacCatalina) {
+      fs.showActionSheet().then(onBarScanned);
     } else {
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -362,52 +358,6 @@ const WalletsList = () => {
     });
   };
 
-  const choosePhoto = () => {
-    launchImageLibrary(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        }
-      },
-    );
-  };
-
-  const takePhoto = () => {
-    launchCamera(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              onBarScanned(result);
-            } else {
-              alert(loc.send.qr_error_no_qrcode);
-            }
-          });
-        } else if (response.error) {
-          presentCameraNotAuthorizedAlert(response.error);
-        }
-      },
-    );
-  };
-
   const copyFromClipboard = async () => {
     onBarScanned(await Clipboard.getString());
   };
@@ -415,17 +365,17 @@ const WalletsList = () => {
   const sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, loc.wallets.list_long_choose, isDesktop ? loc.wallets.take_photo : loc.wallets.list_long_scan];
-      if (!isClipboardEmpty) {
-        options.push(loc.wallets.list_long_clipboard);
-      }
-      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
-        if (buttonIndex === 1) {
-          choosePhoto();
-        } else if (buttonIndex === 2) {
-          if (isDesktop) {
-            takePhoto();
-          } else {
+      if (isMacCatalina) {
+        fs.showActionSheet().then(onBarScanned);
+      } else {
+        const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
+        if (!isClipboardEmpty) {
+          options.push(loc.wallets.list_long_clipboard);
+        }
+        ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
+          if (buttonIndex === 1) {
+            fs.showImagePickerAndReadImage().then(onBarScanned);
+          } else if (buttonIndex === 2) {
             navigate('ScanQRCodeRoot', {
               screen: 'ScanQRCode',
               params: {
@@ -434,11 +384,11 @@ const WalletsList = () => {
                 showFileImportButton: false,
               },
             });
+          } else if (buttonIndex === 3) {
+            copyFromClipboard();
           }
-        } else if (buttonIndex === 3) {
-          copyFromClipboard();
-        }
-      });
+        });
+      }
     } else if (Platform.OS === 'android') {
       const buttons = [
         {
@@ -448,7 +398,7 @@ const WalletsList = () => {
         },
         {
           text: loc.wallets.list_long_choose,
-          onPress: choosePhoto,
+          onPress: () => fs.showActionSheet().then(onBarScanned),
         },
         {
           text: loc.wallets.list_long_scan,
@@ -482,12 +432,16 @@ const WalletsList = () => {
     setItemWidth(width * 0.82 > 375 ? 375 : width * 0.82);
   };
 
+  const onRefresh = () => {
+    refreshTransactions(true, false);
+  };
+
   return (
     <View style={styles.root} onLayout={onLayout}>
       <StatusBar barStyle="default" />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
-          onRefresh={refreshTransactions}
+          onRefresh={onRefresh}
           refreshing={isLoading}
           renderItem={renderSectionItem}
           keyExtractor={sectionListKeyExtractor}
@@ -577,18 +531,6 @@ const styles = StyleSheet.create({
   ltTextSmall: {
     fontSize: 13,
     fontWeight: '500',
-  },
-  ltButtonWrap: {
-    flexDirection: 'column',
-    backgroundColor: '#007AFF',
-    borderRadius: 16,
-  },
-  ltButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    fontSize: 13,
-    color: '#fff',
-    fontWeight: '600',
   },
   footerRoot: {
     top: 80,

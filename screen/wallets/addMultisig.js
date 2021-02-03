@@ -2,10 +2,11 @@ import React, { useState, useRef, useEffect, useContext } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
-import { useNavigation, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { BlueButton, BlueListItem, BlueNavigationStyle, BlueSpacing20 } from '../../BlueComponents';
+import { BlueButton, BlueListItem, BlueSpacing20 } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { MultisigHDWallet } from '../../class';
 import loc from '../../loc';
@@ -15,7 +16,7 @@ const WalletsAddMultisig = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
   const loadingAnimation = useRef();
-
+  const { walletLabel = loc.multisig.default_label } = useRoute().params;
   const [m, setM] = useState(2);
   const [n, setN] = useState(3);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -59,7 +60,7 @@ const WalletsAddMultisig = () => {
   }, []);
 
   const onLetsStartPress = () => {
-    navigate('WalletsAddMultisigStep2', { m, n, format });
+    navigate('WalletsAddMultisigStep2', { m, n, format, walletLabel });
   };
 
   const setFormatP2wsh = () => setFormat(MultisigHDWallet.FORMAT_P2WSH);
@@ -70,7 +71,7 @@ const WalletsAddMultisig = () => {
 
   const isP2wsh = () => format === MultisigHDWallet.FORMAT_P2WSH;
 
-  const isP2shP2wsh = () => format === MultisigHDWallet.FORMAT_P2SH_P2WSH;
+  const isP2shP2wsh = () => format === MultisigHDWallet.FORMAT_P2SH_P2WSH || format === MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT;
 
   const isP2sh = () => format === MultisigHDWallet.FORMAT_P2SH;
 
@@ -205,7 +206,9 @@ const WalletsAddMultisig = () => {
           <Text style={[styles.textdescBold, stylesHook.textdesc]}>
             {loc.formatString(loc.multisig.what_is_vault_description_number_of_vault_keys, { m })}
           </Text>
-          <Text style={[styles.textdesc, stylesHook.textdesc]}>{loc.multisig.what_is_vault_description_to_spend}</Text>
+          <Text style={[styles.textdesc, stylesHook.textdesc]}>
+            {m === 2 && n === 3 ? loc.multisig.what_is_vault_description_to_spend : loc.multisig.what_is_vault_description_to_spend_other}
+          </Text>
         </Text>
       </View>
       {isAdvancedModeEnabledRender && (
@@ -344,8 +347,7 @@ WalletsAddMultisig.getCurrentFormatReadable = f => {
   }
 };
 
-WalletsAddMultisig.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+WalletsAddMultisig.navigationOptions = navigationStyle({
   headerTitle: null,
 });
 

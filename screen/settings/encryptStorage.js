@@ -1,35 +1,20 @@
 /* global alert */
 import React, { useEffect, useState, useCallback, useContext } from 'react';
-import { ScrollView, Alert, Platform, TouchableOpacity, TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import { ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import {
-  BlueLoading,
-  SafeBlueArea,
-  BlueSpacing20,
-  BlueCard,
-  BlueListItem,
-  BlueHeaderDefaultSubHooks,
-  BlueText,
-  BlueNavigationStyle,
-} from '../../BlueComponents';
+import { colors } from 'react-native-elements';
+
+import navigationStyle from '../../components/navigationStyle';
+import { BlueLoading, SafeBlueArea, BlueSpacing20, BlueCard, BlueListItem, BlueHeaderDefaultSub, BlueText } from '../../BlueComponents';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
-import { colors } from 'react-native-elements';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const prompt = require('../../blue_modules/prompt');
 
 const EncryptStorage = () => {
-  const {
-    isStorageEncrypted,
-    setResetOnAppUninstallTo,
-    encryptStorage,
-    isDeleteWalletAfterUninstallEnabled,
-    decryptStorage,
-    saveToDisk,
-  } = useContext(BlueStorageContext);
+  const { isStorageEncrypted, encryptStorage, decryptStorage, saveToDisk } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
-  const [deleteWalletsAfterUninstall, setDeleteWalletsAfterUninstall] = useState(false);
   const [biometrics, setBiometrics] = useState({ isDeviceBiometricCapable: false, isBiometricsEnabled: false, biometricsType: '' });
   const [storageIsEncryptedSwitchEnabled, setStorageIsEncryptedSwitchEnabled] = useState(false);
   const { navigate, popToTop } = useNavigation();
@@ -43,11 +28,9 @@ const EncryptStorage = () => {
   const initialState = useCallback(async () => {
     const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
-    const biometricsType = (await Biometric.biometricType()) || 'biometrics';
-    const deleteWalletsAfterUninstall = await isDeleteWalletAfterUninstallEnabled();
+    const biometricsType = (await Biometric.biometricType()) || loc.settings.biometrics;
     const isStorageEncryptedSwitchEnabled = await isStorageEncrypted();
     setStorageIsEncryptedSwitchEnabled(isStorageEncryptedSwitchEnabled);
-    setDeleteWalletsAfterUninstall(deleteWalletsAfterUninstall);
     setBiometrics({ isBiometricsEnabled, isDeviceBiometricCapable, biometricsType });
     setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -73,14 +56,7 @@ const EncryptStorage = () => {
 
       setIsLoading(false);
       setStorageIsEncryptedSwitchEnabled(await isStorageEncrypted());
-      setDeleteWalletsAfterUninstall(await isDeleteWalletAfterUninstallEnabled());
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  };
-
-  const onDeleteWalletsAfterUninstallSwitch = async value => {
-    await setResetOnAppUninstallTo(value);
-    setDeleteWalletsAfterUninstall(value);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   };
 
@@ -156,7 +132,7 @@ const EncryptStorage = () => {
       <ScrollView contentContainerStyle={styles.root}>
         {biometrics.isDeviceBiometricCapable && (
           <>
-            <BlueHeaderDefaultSubHooks leftText="biometrics" rightComponent={null} />
+            <BlueHeaderDefaultSub leftText={loc.settings.biometrics} rightComponent={null} />
             <BlueListItem
               title={loc.formatString(loc.settings.encrypt_use, { type: biometrics.biometricsType })}
               Component={TouchableWithoutFeedback}
@@ -168,7 +144,7 @@ const EncryptStorage = () => {
             <BlueSpacing20 />
           </>
         )}
-        <BlueHeaderDefaultSubHooks leftText={loc.settings.encrypt_tstorage} rightComponent={null} />
+        <BlueHeaderDefaultSub leftText={loc.settings.encrypt_tstorage} rightComponent={null} />
         <BlueListItem
           testID="EncyptedAndPasswordProtected"
           hideChevron
@@ -176,17 +152,6 @@ const EncryptStorage = () => {
           Component={TouchableWithoutFeedback}
           switch={{ onValueChange: onEncryptStorageSwitch, value: storageIsEncryptedSwitchEnabled }}
         />
-        {Platform.OS === 'ios' && (
-          <BlueListItem
-            hideChevron
-            title={loc.settings.encrypt_del_uninstall}
-            Component={TouchableWithoutFeedback}
-            switch={{
-              onValueChange: onDeleteWalletsAfterUninstallSwitch,
-              value: deleteWalletsAfterUninstall,
-            }}
-          />
-        )}
         {storageIsEncryptedSwitchEnabled && (
           <BlueListItem
             onPress={navigateToPlausibleDeniability}
@@ -202,7 +167,6 @@ const EncryptStorage = () => {
 };
 
 export default EncryptStorage;
-EncryptStorage.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+EncryptStorage.navigationOptions = navigationStyle({
   headerTitle: loc.settings.encrypt_title,
 });

@@ -1,6 +1,7 @@
 import { randomBytes } from '../rng';
 import { AbstractWallet } from './abstract-wallet';
 import { HDSegwitBech32Wallet } from '..';
+import BigNumber from 'bignumber.js';
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const coinSelectAccumulative = require('coinselect/accumulative');
@@ -161,9 +162,69 @@ export class LegacyWallet extends AbstractWallet {
       if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
       ret.push(u);
     }
+
+    if (ret.length === 0) {
+      ret = this.getDerivedUtxoFromOurTransaction(); // oy vey, no stored utxo. lets attempt to derive it from stored transactions
+    }
+
     if (!respectFrozen) {
       ret = ret.filter(({ txid, vout }) => !this.getUTXOMetadata(txid, vout).frozen);
     }
+    return ret;
+  }
+
+  getDerivedUtxoFromOurTransaction(returnSpentUtxoAsWell = false) {
+    const utxos = [];
+
+    const ownedAddressesHashmap = {};
+    ownedAddressesHashmap[this.getAddress()] = true;
+
+    /**
+     * below copypasted from
+     * @see AbstractHDElectrumWallet.getDerivedUtxoFromOurTransaction
+     */
+
+    for (const tx of this.getTransactions()) {
+      for (const output of tx.outputs) {
+        let address = false;
+        if (output.scriptPubKey && output.scriptPubKey.addresses && output.scriptPubKey.addresses[0]) {
+          address = output.scriptPubKey.addresses[0];
+        }
+        if (ownedAddressesHashmap[address]) {
+          const value = new BigNumber(output.value).multipliedBy(100000000).toNumber();
+          utxos.push({
+            txid: tx.txid,
+            txId: tx.txid,
+            vout: output.n,
+            address,
+            value,
+            amount: value,
+            confirmations: tx.confirmations,
+            wif: false,
+            height: BlueElectrum.estimateCurrentBlockheight() - tx.confirmations,
+          });
+        }
+      }
+    }
+
+    if (returnSpentUtxoAsWell) return utxos;
+
+    // got all utxos we ever had. lets filter out the ones that are spent:
+    const ret = [];
+    for (const utxo of utxos) {
+      let spent = false;
+      for (const tx of this.getTransactions()) {
+        for (const input of tx.inputs) {
+          if (input.txid === utxo.txid && input.vout === utxo.vout) spent = true;
+          // utxo we got previously was actually spent right here ^^
+        }
+      }
+
+      if (!spent) {
+        ret.push(utxo);
+      }
+    }
+
     return ret;
   }
 
@@ -276,8 +337,8 @@ export class LegacyWallet extends AbstractWallet {
     if (!changeAddress) throw new Error('No change address provided');
 
     let algo = coinSelectAccumulative;
-    if (targets.length === 1 && targets[0] && !targets[0].value) {
-      // we want to send MAX
+    // if targets has output without a value, we want send MAX to it
+    if (targets.some(i => !('value' in i))) {
       algo = coinSelectSplit;
     }
 
@@ -285,7 +346,7 @@ export class LegacyWallet extends AbstractWallet {
 
     // .inputs and .outputs will be undefined if no solution was found
     if (!inputs || !outputs) {
-      throw new Error('Not enough balance. Try sending smaller amount');
+      throw new Error('Not enough balance. Try sending smaller amount or decrease the fee.');
     }
 
     return { inputs, outputs, fee };

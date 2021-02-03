@@ -1,5 +1,3 @@
-echo "Applying patch for AppDelegate.m"
-patch ios/BlueWallet/AppDelegate.m  ./scripts/maccatalystpatches/appdelegate.patch --no-backup-if-mismatch
 echo "Applying patch for package.json"
 patch package.json ./scripts/maccatalystpatches/packagejson.patch --no-backup-if-mismatch
 echo "Removing node_modules"

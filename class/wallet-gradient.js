@@ -10,6 +10,7 @@ import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
 import { HDLegacyElectrumSeedP2PKHWallet } from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
 import { HDSegwitElectrumSeedP2WPKHWallet } from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
 import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
+import { HDAezeedWallet } from "./wallets/hd-aezeed-wallet";
 import { useTheme } from '@react-navigation/native';
 
 export default class WalletGradient {
@@ -23,6 +24,7 @@ export default class WalletGradient {
   static multisigHdWallet = ['#1ce6eb', '#296fc5', '#3500A2'];
   static defaultGradients = ['#c65afb', '#9053fe'];
   static lightningCustodianWallet = ['#f1be07', '#f79056'];
+  static aezeedWallet = ['#550271', '#530140'];
 
   static createWallet = () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -64,6 +66,9 @@ export default class WalletGradient {
         break;
       case MultisigHDWallet.type:
         gradient = WalletGradient.multisigHdWallet;
+        break;
+      case HDAezeedWallet.type:
+        gradient = WalletGradient.aezeedWallet;
         break;
       default:
         gradient = WalletGradient.defaultGradients;
@@ -118,6 +123,9 @@ export default class WalletGradient {
         break;
       case LightningCustodianWallet.type:
         gradient = WalletGradient.lightningCustodianWallet;
+        break;
+      case HDAezeedWallet.type:
+        gradient = WalletGradient.aezeedWallet;
         break;
       default:
         gradient = WalletGradient.defaultGradients;

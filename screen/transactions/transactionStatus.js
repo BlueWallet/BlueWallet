@@ -1,26 +1,27 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import { Icon } from 'react-native-elements';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+
 import {
   BlueButton,
-  SafeBlueArea,
+  BlueCard,
+  BlueLoading,
+  BlueSpacing10,
+  BlueSpacing20,
+  BlueText,
+  BlueTransactionIncomingIcon,
   BlueTransactionOutgoingIcon,
   BlueTransactionPendingIcon,
-  BlueTransactionIncomingIcon,
-  BlueCard,
-  BlueText,
-  BlueLoading,
-  BlueSpacing20,
-  BlueNavigationStyle,
-  BlueSpacing10,
+  SafeBlueArea,
 } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Transaction } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { Icon } from 'react-native-elements';
-import Handoff from 'react-native-handoff';
-import HandoffSettings from '../../class/handoff';
+import HandoffComponent from '../../components/handoff';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+
 const buttonStatus = Object.freeze({
   possible: 1,
   unknown: 2,
@@ -29,7 +30,6 @@ const buttonStatus = Object.freeze({
 
 const TransactionsStatus = () => {
   const { setSelectedWallet, wallets, txMetadata, getTransactions } = useContext(BlueStorageContext);
-  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const { hash } = useRoute().params;
   const { navigate, setOptions } = useNavigation();
   const { colors } = useTheme();
@@ -87,7 +87,7 @@ const TransactionsStatus = () => {
       }
     }
 
-    for (const tx of getTransactions()) {
+    for (const tx of getTransactions(null, Infinity, true)) {
       if (tx.hash === hash) {
         setTX(tx);
         break;
@@ -125,7 +125,6 @@ const TransactionsStatus = () => {
 
   useEffect(() => {
     console.log('transactions/details - useEffect');
-    HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
   }, []);
 
   const checkPossibilityOfCPFP = async () => {
@@ -280,9 +279,12 @@ const TransactionsStatus = () => {
   }
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.root, stylesHook.root]}>
-      {isHandOffUseEnabled && (
-        <Handoff title={`Bitcoin Transaction ${tx.hash}`} type="io.bluewallet.bluewallet" url={`https://blockstream.info/tx/${tx.hash}`} />
-      )}
+      <HandoffComponent
+        title={`Bitcoin Transaction ${tx.hash}`}
+        type="io.bluewallet.bluewallet"
+        url={`https://blockstream.info/tx/${tx.hash}`}
+      />
+
       <StatusBar barStyle="default" />
       <View style={styles.container}>
         <BlueCard>
@@ -290,7 +292,7 @@ const TransactionsStatus = () => {
             <Text style={[styles.value, stylesHook.value]}>
               {formatBalanceWithoutSuffix(tx.value, wallet.current.preferredBalanceUnit, true)}{' '}
               {wallet.current.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
-                <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{wallet.current.preferredBalanceUnit}</Text>
+                <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{loc.units[wallet.current.preferredBalanceUnit]}</Text>
               )}
             </Text>
           </View>
@@ -336,7 +338,11 @@ const TransactionsStatus = () => {
           )}
 
           <View style={[styles.confirmations, stylesHook.confirmations]}>
-            <Text style={styles.confirmationsText}>{tx.confirmations > 6 ? '6+' : tx.confirmations} confirmations</Text>
+            <Text style={styles.confirmationsText}>
+              {loc.formatString(loc.transactions.confirmations_lowercase, {
+                confirmations: tx.confirmations > 6 ? '6+' : tx.confirmations,
+              })}
+            </Text>
           </View>
         </BlueCard>
 
@@ -454,7 +460,6 @@ const styles = StyleSheet.create({
   },
 });
 
-TransactionsStatus.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+TransactionsStatus.navigationOptions = navigationStyle({
   title: '',
 });

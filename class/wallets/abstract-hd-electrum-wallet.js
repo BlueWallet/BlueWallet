@@ -695,7 +695,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       u.txid = u.txId;
       u.amount = u.value;
       u.wif = this._getWifForAddress(u.address);
-      u.confirmations = u.height ? 1 : 0;
+      if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
     }
 
     this.utxo = this.utxo.sort((a, b) => a.amount - b.amount);

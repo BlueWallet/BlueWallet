@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useRef, useCallback, useState, useImperativeHandle, forwardRef, useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
   ActivityIndicator,
@@ -20,6 +20,8 @@ import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { LightningCustodianWallet, MultisigHDWallet, PlaceholderWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { BluePrivateBalance } from '../BlueComponents';
+
+import { BlueStorageContext } from '../blue_modules/storage-context';
 
 const nStyles = StyleSheet.create({
   root: {
@@ -125,6 +127,7 @@ const iStyles = StyleSheet.create({
 const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedWallet }) => {
   const scaleValue = new Animated.Value(1.0);
   const { colors } = useTheme();
+  const { walletTransactionUpdateStatus } = useContext(BlueStorageContext);
 
   const onPressedIn = () => {
     const props = { duration: 50 };
@@ -173,7 +176,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
             <Image source={require('../img/btc-shape.png')} style={iStyles.image} />
             <Text style={iStyles.br} />
             <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
-              {item.getLabel()}
+              {item.getIsFailure() ? loc.wallets.import_placeholder_fail : loc.wallets.import_placeholder_inprogress}
             </Text>
             {item.getIsFailure() ? (
               <Text numberOfLines={0} style={[iStyles.importError, { color: colors.inverseForegroundColor }]}>
@@ -200,6 +203,15 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
     default:
       image = require('../img/btc-shape.png');
   }
+
+  const latestTransactionText =
+    walletTransactionUpdateStatus === true || walletTransactionUpdateStatus === item.getID()
+      ? loc.transactions.updating
+      : item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
+      ? loc.wallets.pull_to_refresh
+      : item.getTransactions().find(tx => tx.confirmations === 0)
+      ? loc.transactions.pending
+      : transactionTimeToReadable(item.getLatestTransactionTime());
 
   return (
     <Animated.View
@@ -236,10 +248,9 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
           <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>
             {loc.wallets.list_latest_transaction}
           </Text>
+
           <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor }]}>
-            {item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
-              ? loc.wallets.pull_to_refresh
-              : transactionTimeToReadable(item.getLatestTransactionTime())}
+            {latestTransactionText}
           </Text>
         </LinearGradient>
       </TouchableWithoutFeedback>
@@ -268,6 +279,7 @@ const cStyles = StyleSheet.create({
 const WalletsCarousel = forwardRef((props, ref) => {
   const carouselRef = useRef();
   const [loading, setLoading] = useState(true);
+  const { preferredFiatCurrency, language } = useContext(BlueStorageContext);
   const renderItem = useCallback(
     ({ item, index }) => (
       <WalletCarouselItem
@@ -278,7 +290,8 @@ const WalletsCarousel = forwardRef((props, ref) => {
         onPress={props.onPress}
       />
     ),
-    [props.vertical, props.selectedWallet, props.handleLongPress, props.onPress],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [props.vertical, props.selectedWallet, props.handleLongPress, props.onPress, preferredFiatCurrency, language],
   );
 
   useImperativeHandle(ref, () => ({

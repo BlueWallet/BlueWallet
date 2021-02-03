@@ -13,6 +13,7 @@ export * from './wallets/hd-segwit-bech32-wallet';
 export * from './wallets/placeholder-wallet';
 export * from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
 export * from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
+export * from './wallets/hd-aezeed-wallet';
 export * from './wallets/multisig-hd-wallet';
 export * from './hd-segwit-bech32-transaction';
 export * from './multisig-cosigner';

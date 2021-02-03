@@ -1,11 +1,13 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { InteractionManager, useWindowDimensions, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle, BlueCopyTextToClipboard } from '../../BlueComponents';
-import Privacy from '../../Privacy';
+import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
+
+import navigationStyle from '../../components/navigationStyle';
+import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard } from '../../BlueComponents';
+import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
-import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const styles = StyleSheet.create({
@@ -97,8 +99,8 @@ const WalletXpub = () => {
   );
 };
 
-WalletXpub.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+WalletXpub.navigationOptions = navigationStyle({
+  closeButton: true,
   title: loc.wallets.xpub_title,
   headerLeft: null,
 });

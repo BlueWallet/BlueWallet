@@ -16,14 +16,23 @@ import {
   StatusBar,
   PermissionsAndroid,
 } from 'react-native';
-import { SecondButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText, BlueLoading } from '../../BlueComponents';
+import { SecondButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueText, BlueLoading } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { HDLegacyBreadwalletWallet } from '../../class/wallets/hd-legacy-breadwallet-wallet';
 import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet';
 import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
-import { HDSegwitBech32Wallet, SegwitP2SHWallet, LegacyWallet, SegwitBech32Wallet, WatchOnlyWallet, MultisigHDWallet } from '../../class';
+import {
+  HDSegwitBech32Wallet,
+  SegwitP2SHWallet,
+  LegacyWallet,
+  SegwitBech32Wallet,
+  WatchOnlyWallet,
+  MultisigHDWallet,
+  HDAezeedWallet,
+} from '../../class';
 import { ScrollView } from 'react-native-gesture-handler';
 import loc from '../../loc';
 import { useTheme, useRoute, useNavigation } from '@react-navigation/native';
@@ -426,14 +435,12 @@ const WalletDetails = () => {
 
             {wallet.type === MultisigHDWallet.type && (
               <>
-                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>multisig</Text>
+                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_multisig_type}</Text>
                 <BlueText>
-                  {wallet.getM()} of {wallet.getN()}{' '}
-                  {wallet.isNativeSegwit()
-                    ? 'native segwit (p2wsh)'
-                    : wallet.isWrappedSegwit()
-                    ? 'wrapped segwit (p2sh-p2wsh)'
-                    : 'legacy (p2sh)'}
+                  {loc.formatString(loc.wallets[`details_ms_${wallet.isNativeSegwit() ? 'ns' : wallet.isWrappedSegwit() ? 'ws' : 'l'}`], {
+                    m: wallet.getM(),
+                    n: wallet.getN(),
+                  })}
                 </BlueText>
               </>
             )}
@@ -447,7 +454,7 @@ const WalletDetails = () => {
 
             {wallet.type === MultisigHDWallet.type && !!wallet.getDerivationPath() && (
               <>
-                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>derivation path</Text>
+                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_derivation_path}</Text>
                 <BlueText>{wallet.getDerivationPath()}</BlueText>
               </>
             )}
@@ -456,6 +463,13 @@ const WalletDetails = () => {
               <>
                 <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.details_connected_to.toLowerCase()}</Text>
                 <BlueText>{wallet.getBaseURI()}</BlueText>
+              </>
+            )}
+
+            {wallet.type === HDAezeedWallet.type && (
+              <>
+                <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.identity_pubkey.toLowerCase()}</Text>
+                <BlueText>{wallet.getIdentityPubkey()}</BlueText>
               </>
             )}
             <>
@@ -544,8 +558,7 @@ const WalletDetails = () => {
   );
 };
 
-WalletDetails.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+WalletDetails.navigationOptions = navigationStyle({
   headerTitle: loc.wallets.details_title,
 });
 

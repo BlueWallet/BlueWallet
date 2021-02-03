@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, StatusBar } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueButton } from '../../BlueComponents';
-import Privacy from '../../Privacy';
+
+import { BlueSpacing20, SafeBlueArea, BlueText, BlueButton } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
@@ -64,7 +66,7 @@ const PleaseBackup = () => {
   };
 
   return isLoading ? (
-    <View style={styles.loading}>
+    <View style={[styles.loading, stylesHook.flex]}>
       <ActivityIndicator />
     </View>
   ) : (
@@ -85,21 +87,22 @@ const PleaseBackup = () => {
   );
 };
 
-PleaseBackup.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+PleaseBackup.navigationOptions = navigationStyle({
+  closeButton: true,
   title: loc.pleasebackup.title,
   headerLeft: null,
   headerRight: null,
   gestureEnabled: false,
   swipeEnabled: false,
 });
+
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
   loading: {
     flex: 1,
-    paddingTop: 20,
+    justifyContent: 'center',
   },
   word: {
     marginRight: 8,

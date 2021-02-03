@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -12,43 +12,42 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Alert,
 } from 'react-native';
+import { Icon } from 'react-native-elements';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { getSystemName } from 'react-native-device-info';
+import QRCode from 'react-native-qrcode-svg';
+import Clipboard from '@react-native-community/clipboard';
+import showPopupMenu from 'react-native-popup-menu-android';
+import ToolTip from 'react-native-tooltip';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import {
   BlueButton,
   BlueButtonLink,
   BlueFormMultiInput,
   BlueLoading,
-  BlueNavigationStyle,
   BlueSpacing10,
   BlueSpacing20,
   BlueSpacing40,
   BlueTextCentered,
 } from '../../BlueComponents';
-import { Icon } from 'react-native-elements';
+import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import { getSystemName } from 'react-native-device-info';
-import { launchCamera } from 'react-native-image-picker';
-import ScanQRCode from '../send/ScanQRCode';
-import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
 import BottomModal from '../../components/BottomModal';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
-import Clipboard from '@react-native-community/clipboard';
-import showPopupMenu from 'react-native-popup-menu-android';
-import ToolTip from 'react-native-tooltip';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const prompt = require('../../blue_modules/prompt');
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
@@ -56,7 +55,7 @@ const WalletsAddMultisigStep2 = () => {
   const { colors } = useTheme();
 
   const navigation = useNavigation();
-  const { m, n, format } = useRoute().params;
+  const { m, n, format, walletLabel } = useRoute().params;
 
   const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path]
   const [isLoading, setIsLoading] = useState(false);
@@ -69,6 +68,7 @@ const WalletsAddMultisigStep2 = () => {
   const [importText, setImportText] = useState('');
   const tooltip = useRef();
   const data = useRef(new Array(n));
+  const hasUnsavedChanges = Boolean(cosigners.length > 0 && cosigners.length !== n);
 
   const handleOnHelpPress = () => {
     navigation.navigate('WalletsAddMultisigHelp');
@@ -145,6 +145,28 @@ const WalletsAddMultisigStep2 = () => {
     setTimeout(_onCreate, 100);
   };
 
+  useEffect(() => {
+    navigation.addListener('beforeRemove', e => {
+      if (e.data.action.type === 'POP' && hasUnsavedChanges) {
+        e.preventDefault();
+
+        // Prompt the user before leaving the screen
+
+        Alert.alert(loc._.discard_changes, loc._.discard_changes_detail, [
+          { text: loc._.cancel, style: 'cancel', onPress: () => {} },
+          {
+            text: loc._.ok,
+            style: 'destructive',
+            // If the user confirmed, then we dispatch the action we blocked earlier
+            // This will continue the action that had triggered the removal of the screen
+            onPress: () => navigation.dispatch(e.data.action),
+          },
+        ]);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation, hasUnsavedChanges, cosigners]);
+
   const _onCreate = async () => {
     const w = new MultisigHDWallet();
     w.setM(m);
@@ -154,6 +176,7 @@ const WalletsAddMultisigStep2 = () => {
         w.setDerivationPath(MultisigHDWallet.PATH_NATIVE_SEGWIT);
         break;
       case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+      case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
         w.setWrappedSegwit();
         w.setDerivationPath(MultisigHDWallet.PATH_WRAPPED_SEGWIT);
         break;
@@ -168,7 +191,7 @@ const WalletsAddMultisigStep2 = () => {
       const fp = cc[1] || getFpCacheForMnemonics(cc[0]);
       w.addCosigner(cc[0], fp, cc[2]);
     }
-    w.setLabel('Multisig Vault');
+    w.setLabel(walletLabel);
     await w.fetchBalance();
 
     addWallet(w);
@@ -176,8 +199,7 @@ const WalletsAddMultisigStep2 = () => {
     setNewWalletAdded(true);
     A(A.ENUM.CREATED_WALLET);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-
-    navigation.dangerouslyGetParent().pop();
+    navigation.dangerouslyGetParent().goBack();
   };
 
   const generateNewKey = () => {
@@ -208,6 +230,7 @@ const WalletsAddMultisigStep2 = () => {
         path = MultisigHDWallet.PATH_NATIVE_SEGWIT;
         break;
       case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+      case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
         path = MultisigHDWallet.PATH_WRAPPED_SEGWIT;
         break;
       case MultisigHDWallet.FORMAT_P2SH:
@@ -262,6 +285,13 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const tryUsingXpub = async xpub => {
+    if (!MultisigHDWallet.isXpubForMultisig(xpub)) {
+      setIsProvideMnemonicsModalVisible(false);
+      setIsLoading(false);
+      setImportText('');
+      alert(loc.multisig.not_a_multisignature_xpub);
+      return;
+    }
     let fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, false, 'plain-text');
     fp = (fp + '').toUpperCase();
     if (!MultisigHDWallet.isFpValid(fp)) fp = '00000000';
@@ -314,8 +344,7 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const onBarScanned = ret => {
-    setIsProvideMnemonicsModalVisible(false);
-    navigation.dangerouslyGetParent().pop();
+    if (!isDesktop) navigation.dangerouslyGetParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       alert('BC-UR not decoded. This should never happen');
@@ -323,9 +352,15 @@ const WalletsAddMultisigStep2 = () => {
       setIsProvideMnemonicsModalVisible(true);
       setImportText(ret.data);
     } else {
+      if (MultisigHDWallet.isXpubValid(ret.data) && !MultisigHDWallet.isXpubForMultisig(ret.data)) {
+        return alert(loc.multisig.not_a_multisignature_xpub);
+      }
+      if (MultisigHDWallet.isXpubValid(ret.data)) {
+        return tryUsingXpub(ret.data);
+      }
       let cosigner = new MultisigCosigner(ret.data);
       if (!cosigner.isValid()) return alert(loc.multisig.invalid_cosigner);
-
+      setIsProvideMnemonicsModalVisible(false);
       if (cosigner.howManyCosignersWeHave() > 1) {
         // lets look for the correct cosigner. thats probably gona be the one with specific corresponding path,
         // for example m/48'/0'/0'/2' if user chose to setup native segwit in BW
@@ -338,6 +373,7 @@ const WalletsAddMultisigStep2 = () => {
               }
               break;
             case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+            case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
               if (cc.getPath().startsWith('m/48') && cc.getPath().endsWith("/1'")) {
                 // found it
                 cosigner = cc;
@@ -369,6 +405,7 @@ const WalletsAddMultisigStep2 = () => {
           }
           break;
         case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+        case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
           if (cosigner.getPath().startsWith('m/48') && cosigner.getPath().endsWith("/1'")) {
             correctFormat = true;
           }
@@ -392,30 +429,10 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const scanOrOpenFile = () => {
-    setIsProvideMnemonicsModalVisible(false);
     if (isDesktop) {
-      launchCamera(
-        {
-          title: null,
-          mediaType: 'photo',
-          takePhotoButtonTitle: null,
-        },
-        response => {
-          if (response.uri) {
-            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
-            LocalQRCode.decode(uri, (error, result) => {
-              if (!error) {
-                onBarScanned(result);
-              } else {
-                alert(loc.send.qr_error_no_qrcode);
-              }
-            });
-          } else if (response.error) {
-            ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
-          }
-        },
-      );
+      fs.showActionSheet().then(onBarScanned);
     } else {
+      setIsProvideMnemonicsModalVisible(false);
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
@@ -518,7 +535,7 @@ const WalletsAddMultisigStep2 = () => {
         component.push(
           <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
             <Text style={[styles.wordText, stylesHook.wordText]}>
-              {index + 1} . {secret}
+              {index + 1}. {secret}
             </Text>
           </View>,
         );
@@ -815,8 +832,7 @@ const styles = StyleSheet.create({
   },
 });
 
-WalletsAddMultisigStep2.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+WalletsAddMultisigStep2.navigationOptions = navigationStyle({
   headerTitle: null,
   gestureEnabled: false,
   swipeEnabled: false,

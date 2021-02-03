@@ -13,34 +13,32 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import { launchCamera } from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
+import Share from 'react-native-share';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import DocumentPicker from 'react-native-document-picker';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
+import RNFS from 'react-native-fs';
+import Biometric from '../../class/biometrics';
+
 import {
   SecondButton,
   BlueText,
   SafeBlueArea,
   BlueCard,
-  BlueNavigationStyle,
   BlueSpacing20,
   BlueCopyToClipboardButton,
   DynamicQRCode,
 } from '../../BlueComponents';
-import Share from 'react-native-share';
-import { getSystemName } from 'react-native-device-info';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import RNFS from 'react-native-fs';
-import DocumentPicker from 'react-native-document-picker';
+import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
-import ScanQRCode from './ScanQRCode';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import isCatalyst from 'react-native-is-catalyst';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */
 const bitcoin = require('bitcoinjs-lib');
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-const isDesktop = getSystemName() === 'Mac OS X';
+const fs = require('../../blue_modules/fs');
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
@@ -119,6 +117,14 @@ const PsbtWithHardwareWallet = () => {
 
   const broadcast = async () => {
     setIsLoading(true);
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        setIsLoading(false);
+        return;
+      }
+    }
     try {
       await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
@@ -243,28 +249,8 @@ const PsbtWithHardwareWallet = () => {
   };
 
   const openScanner = () => {
-    if (isDesktop) {
-      launchCamera(
-        {
-          title: null,
-          mediaType: 'photo',
-          takePhotoButtonTitle: null,
-        },
-        response => {
-          if (response.uri) {
-            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
-            LocalQRCode.decode(uri, (error, result) => {
-              if (!error) {
-                onBarScanned(result);
-              } else {
-                alert(loc.send.qr_error_no_qrcode);
-              }
-            });
-          } else if (response.error) {
-            ScanQRCode.presentCameraNotAuthorizedAlert(response.error);
-          }
-        },
-      );
+    if (isMacCatalina) {
+      fs.showActionSheet().then(data => onBarScanned({ data }));
     } else {
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -341,8 +327,7 @@ const PsbtWithHardwareWallet = () => {
 
 export default PsbtWithHardwareWallet;
 
-PsbtWithHardwareWallet.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
+PsbtWithHardwareWallet.navigationOptions = navigationStyle({
   title: loc.send.header,
 });
 

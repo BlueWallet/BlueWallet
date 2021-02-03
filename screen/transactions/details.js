@@ -1,20 +1,12 @@
 /* global alert */
 import React, { useContext, useEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
-import {
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueLoading,
-  BlueSpacing20,
-  BlueCopyToClipboardButton,
-  BlueNavigationStyle,
-} from '../../BlueComponents';
-import HandoffSettings from '../../class/handoff';
-import Handoff from 'react-native-handoff';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import HandoffComponent from '../../components/handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 const dayjs = require('dayjs');
 
 function onlyUnique(value, index, self) {
@@ -35,7 +27,6 @@ const TransactionsDetails = () => {
   const { setOptions } = useNavigation();
   const { hash } = useRoute().params;
   const { saveToDisk, txMetadata, wallets, getTransactions } = useContext(BlueStorageContext);
-  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [from, setFrom] = useState();
   const [to, setTo] = useState();
   const [isLoading, setIsLoading] = useState(true);
@@ -84,7 +75,7 @@ const TransactionsDetails = () => {
     let foundTx = {};
     let from = [];
     let to = [];
-    for (const tx of getTransactions()) {
+    for (const tx of getTransactions(null, Infinity, true)) {
       if (tx.hash === hash) {
         foundTx = tx;
         for (const input of foundTx.inputs) {
@@ -117,11 +108,6 @@ const TransactionsDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hash, wallets]);
 
-  useEffect(() => {
-    HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const handleOnSaveButtonTapped = () => {
     Keyboard.dismiss();
     txMetadata[tx.hash] = { memo };
@@ -143,9 +129,11 @@ const TransactionsDetails = () => {
 
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-      {isHandOffUseEnabled && (
-        <Handoff title={`Bitcoin Transaction ${tx.hash}`} type="io.bluewallet.bluewallet" url={`https://blockstream.info/tx/${tx.hash}`} />
-      )}
+      <HandoffComponent
+        title={`Bitcoin Transaction ${tx.hash}`}
+        type="io.bluewallet.bluewallet"
+        url={`https://blockstream.info/tx/${tx.hash}`}
+      />
       <StatusBar barStyle="default" />
       <ScrollView style={styles.scroll}>
         <BlueCard>
@@ -190,7 +178,7 @@ const TransactionsDetails = () => {
           {tx.hash && (
             <>
               <View style={styles.rowHeader}>
-                <BlueText style={[styles.txId, stylesHooks.txId]}>Txid</BlueText>
+                <BlueText style={[styles.txId, stylesHooks.txId]}>{loc.transactions.txid}</BlueText>
                 <BlueCopyToClipboardButton stringToCopy={tx.hash} />
               </View>
               <BlueText style={styles.txHash}>{tx.hash}</BlueText>
@@ -203,7 +191,7 @@ const TransactionsDetails = () => {
           {tx.received && (
             <>
               <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_received}</BlueText>
-              <BlueText style={styles.rowValue}>{dayjs(tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
+              <BlueText style={styles.rowValue}>{dayjs(tx.received).format('LLL')}</BlueText>
             </>
           )}
 
@@ -287,7 +275,6 @@ const styles = StyleSheet.create({
 
 export default TransactionsDetails;
 
-TransactionsDetails.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+TransactionsDetails.navigationOptions = navigationStyle({
   title: loc.transactions.details_title,
 });

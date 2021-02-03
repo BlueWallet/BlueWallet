@@ -1,23 +1,28 @@
 import QuickActions from 'react-native-quick-actions';
 import { Platform } from 'react-native';
 import { formatBalance } from '../loc';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useContext, useEffect } from 'react';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 
 function DeviceQuickActions() {
   DeviceQuickActions.STORAGE_KEY = 'DeviceQuickActionsEnabled';
-  const { wallets, walletsInitialized, isStorageEncryted } = useContext(BlueStorageContext);
+  const { wallets, walletsInitialized, isStorageEncrypted } = useContext(BlueStorageContext);
+
   useEffect(() => {
     if (walletsInitialized) {
-      if (isStorageEncryted) {
-        QuickActions.clearShortcutItems();
-      } else {
-        setQuickActions();
-      }
+      isStorageEncrypted()
+        .then(value => {
+          if (value) {
+            QuickActions.clearShortcutItems();
+          } else {
+            setQuickActions();
+          }
+        })
+        .catch(() => QuickActions.clearShortcutItems());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallets, walletsInitialized, isStorageEncryted]);
+  }, [wallets, walletsInitialized]);
 
   DeviceQuickActions.setEnabled = (enabled = true) => {
     return AsyncStorage.setItem(DeviceQuickActions.STORAGE_KEY, JSON.stringify(enabled)).then(() => {

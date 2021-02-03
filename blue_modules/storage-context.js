@@ -1,15 +1,35 @@
 /* eslint-disable react/prop-types */
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import React, { createContext, useEffect, useState } from 'react';
+import { LayoutAnimation } from 'react-native';
+import { AppStorage } from '../class';
+import { FiatUnit } from '../models/fiatUnit';
 const BlueApp = require('../BlueApp');
 const BlueElectrum = require('./BlueElectrum');
 
+const _lastTimeTriedToRefetchWallet = {}; // hashmap of timestamps we _started_ refetching some wallet
+
+export const WalletTransactionsStatus = { NONE: false, ALL: true };
 export const BlueStorageContext = createContext();
 export const BlueStorageProvider = ({ children }) => {
   const [wallets, setWallets] = useState([]);
   const [pendingWallets, setPendingWallets] = useState([]);
   const [selectedWallet, setSelectedWallet] = useState('');
+  const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState(WalletTransactionsStatus.NONE);
   const [walletsInitialized, setWalletsInitialized] = useState(false);
+  const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(FiatUnit.USD);
+  const [language, _setLanguage] = useState();
+  const getPreferredCurrencyAsyncStorage = useAsyncStorage(AppStorage.PREFERRED_CURRENCY).getItem;
+  const getLanguageAsyncStorage = useAsyncStorage(AppStorage.LANG).getItem;
   const [newWalletAdded, setNewWalletAdded] = useState(false);
+  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
+  const [isDrawerListBlurred, _setIsDrawerListBlurred] = useState(false);
+
+  const setIsHandOffUseEnabledAsyncStorage = value => {
+    setIsHandOffUseEnabled(value);
+    return BlueApp.setItem(AppStorage.HANDOFF_STORAGE_KEY, value === true ? '1' : '');
+  };
+
   const saveToDisk = async () => {
     BlueApp.tx_metadata = txMetadata;
     await BlueApp.saveToDisk();
@@ -21,6 +41,47 @@ export const BlueStorageProvider = ({ children }) => {
     setWallets(BlueApp.getWallets());
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const enabledHandoff = await BlueApp.getItem(AppStorage.HANDOFF_STORAGE_KEY);
+        setIsHandOffUseEnabled(!!enabledHandoff);
+      } catch (_e) {
+        setIsHandOffUseEnabledAsyncStorage(false);
+        setIsHandOffUseEnabled(false);
+      }
+    })();
+  }, []);
+
+  const setIsDrawerListBlurred = value => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    _setIsDrawerListBlurred(value);
+  };
+
+  const getPreferredCurrency = async () => {
+    const item = await getPreferredCurrencyAsyncStorage();
+    _setPreferredFiatCurrency(item);
+  };
+
+  const setPreferredFiatCurrency = () => {
+    getPreferredCurrency();
+  };
+
+  const getLanguage = async () => {
+    const item = await getLanguageAsyncStorage();
+    _setLanguage(item);
+  };
+
+  const setLanguage = () => {
+    getLanguage();
+  };
+
+  useEffect(() => {
+    getPreferredCurrency();
+    getLanguageAsyncStorage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const resetWallets = () => {
     setWallets(BlueApp.getWallets());
   };
@@ -30,9 +91,12 @@ export const BlueStorageProvider = ({ children }) => {
     saveToDisk();
   };
 
-  const refreshAllWalletTransactions = async lastSnappedTo => {
+  const refreshAllWalletTransactions = async (lastSnappedTo, showUpdateStatusIndicator = true) => {
     let noErr = true;
     try {
+      if (showUpdateStatusIndicator) {
+        setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
+      }
       await BlueElectrum.waitTillConnected();
       const balanceStart = +new Date();
       await fetchWalletBalances(lastSnappedTo);
@@ -45,6 +109,8 @@ export const BlueStorageProvider = ({ children }) => {
     } catch (err) {
       noErr = false;
       console.warn(err);
+    } finally {
+      setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
     }
     if (noErr) await saveToDisk(); // caching
   };
@@ -53,7 +119,14 @@ export const BlueStorageProvider = ({ children }) => {
     const index = wallets.findIndex(wallet => wallet.getID() === walletID);
     let noErr = true;
     try {
-      // await BlueElectrum.ping();
+      // 5sec debounce:
+      setWalletTransactionUpdateStatus(walletID);
+      if (+new Date() - _lastTimeTriedToRefetchWallet[walletID] < 5000) {
+        console.log('re-fetch wallet happens too fast; NOP');
+        return;
+      }
+      _lastTimeTriedToRefetchWallet[walletID] = +new Date();
+
       await BlueElectrum.waitTillConnected();
       const balanceStart = +new Date();
       await fetchWalletBalances(index);
@@ -66,6 +139,8 @@ export const BlueStorageProvider = ({ children }) => {
     } catch (err) {
       noErr = false;
       console.warn(err);
+    } finally {
+      setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
     }
     if (noErr) await saveToDisk(); // caching
   };
@@ -95,8 +170,6 @@ export const BlueStorageProvider = ({ children }) => {
   const getHodlHodlApiKey = BlueApp.getHodlHodlApiKey;
   const createFakeStorage = BlueApp.createFakeStorage;
   const decryptStorage = BlueApp.decryptStorage;
-  const isDeleteWalletAfterUninstallEnabled = BlueApp.isDeleteWalletAfterUninstallEnabled;
-  const setResetOnAppUninstallTo = BlueApp.setResetOnAppUninstallTo;
   const isPasswordInUse = BlueApp.isPasswordInUse;
   const cachedPassword = BlueApp.cachedPassword;
   const setIsAdancedModeEnabled = BlueApp.setIsAdancedModeEnabled;
@@ -144,11 +217,19 @@ export const BlueStorageProvider = ({ children }) => {
         setNewWalletAdded,
         resetWallets,
         getHodlHodlApiKey,
-        isDeleteWalletAfterUninstallEnabled,
         decryptStorage,
-        setResetOnAppUninstallTo,
         isPasswordInUse,
         setIsAdancedModeEnabled,
+        setPreferredFiatCurrency,
+        preferredFiatCurrency,
+        setLanguage,
+        language,
+        isHandOffUseEnabled,
+        setIsHandOffUseEnabledAsyncStorage,
+        walletTransactionUpdateStatus,
+        setWalletTransactionUpdateStatus,
+        isDrawerListBlurred,
+        setIsDrawerListBlurred,
       }}
     >
       {children}

@@ -19,9 +19,13 @@ import {
   FlatList,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import RNFS from 'react-native-fs';
+import BigNumber from 'bignumber.js';
+import * as bitcoin from 'bitcoinjs-lib';
+
 import {
-  BlueCreateTxNavigationStyle,
   BlueButton,
   BlueBitcoinAmount,
   BlueAddressInput,
@@ -31,18 +35,14 @@ import {
   BlueListItem,
   BlueText,
 } from '../../BlueComponents';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import BigNumber from 'bignumber.js';
-import RNFS from 'react-native-fs';
-import * as bitcoin from 'bitcoinjs-lib';
-
+import { navigationStyleTx } from '../../components/navigationStyle';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { HDSegwitBech32Wallet, LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import DocumentPicker from 'react-native-document-picker';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import CoinsSelected from '../../components/CoinsSelected';
 import BottomModal from '../../components/BottomModal';
@@ -205,6 +205,11 @@ const styles = StyleSheet.create({
   feeValue: {
     color: BlueCurrentTheme.colors.feeValue,
   },
+  advancedOptions: {
+    minWidth: 40,
+    height: 40,
+    justifyContent: 'center',
+  },
 });
 
 export default class SendDetails extends Component {
@@ -277,6 +282,13 @@ export default class SendDetails extends Component {
   processAddressData = data => {
     this.setState({ isLoading: true }, async () => {
       const recipients = this.state.addresses;
+      if (!data.replace) {
+        // user probably scanned PSBT and got an object instead of string..?
+        this.setState({
+          isLoading: false,
+        });
+        return alert(loc.send.details_address_field_is_not_valid);
+      }
       const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
       if (this.state.fromWallet.isAddressValid(dataWithoutSchema)) {
         recipients[[this.state.recipientsScrollIndex]].address = dataWithoutSchema;
@@ -422,6 +434,9 @@ export default class SendDetails extends Component {
       if (!transaction.amount || transaction.amount < 0 || parseFloat(transaction.amount) === 0) {
         error = loc.send.details_amount_field_is_not_valid;
         console.log('validation error');
+      } else if (parseFloat(transaction.amountSats) <= 500) {
+        error = loc.send.details_amount_field_is_less_than_minimum_amount_sat;
+        console.log('validation error');
       } else if (!requestedSatPerByte || parseFloat(requestedSatPerByte) < 1) {
         error = loc.send.details_fee_field_is_not_valid;
         console.log('validation error');
@@ -557,6 +572,11 @@ export default class SendDetails extends Component {
         }
       }
 
+      // if targets is empty, insert dust
+      if (targets.length === 0) {
+        targets.push({ address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV', value: 546 });
+      }
+
       // replace wrong addresses with dump
       targets = targets.map(t => {
         try {
@@ -570,21 +590,15 @@ export default class SendDetails extends Component {
       let flag = false;
       while (true) {
         try {
-          const { fee } = wallet.coinselect(
-            utxo,
-            targets,
-            opt.fee,
-            changeAddress,
-            this.state.isTransactionReplaceable ? HDSegwitBech32Wallet.defaultRBFSequence : HDSegwitBech32Wallet.finalRBFSequence,
-          );
+          const { fee } = wallet.coinselect(utxo, targets, opt.fee, changeAddress);
 
           feePrecalc[opt.key] = fee;
           break;
         } catch (e) {
           if (e.message.includes('Not enough') && !flag) {
             flag = true;
-            // if the outputs are too big, replace them with dust
-            targets = targets.map(t => ({ ...t, value: 546 }));
+            // if we don't have enough funds, construct maximum possible transaction
+            targets = targets.map((t, index) => (index > 0 ? { ...t, value: 546 } : { address: t.address }));
             continue;
           }
 
@@ -680,7 +694,7 @@ export default class SendDetails extends Component {
 
   onWalletSelect = wallet => {
     const changeWallet = () => {
-      this.setState({ fromWallet: wallet, utxo: null }, () => {
+      this.setState({ fromWallet: wallet, utxo: null, changeAddress: null }, () => {
         this.renderNavigationHeader();
         this.context.setSelectedWallet(wallet.getID());
         this.props.navigation.pop();
@@ -792,7 +806,9 @@ export default class SendDetails extends Component {
                 </View>
                 <View style={styles.feeModalRow}>
                   <Text style={styles.feeModalValue}>{fee && this.formatFee(fee)}</Text>
-                  <Text style={styles.feeModalValue}>{rate} sat/byte</Text>
+                  <Text style={styles.feeModalValue}>
+                    {rate} {loc.units.sat_byte}
+                  </Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -960,6 +976,13 @@ export default class SendDetails extends Component {
     });
   };
 
+  setIsloading = async isLoading => {
+    const that = this;
+    return new Promise(function (resolve) {
+      that.setState({ isLoading: isLoading }, () => setTimeout(resolve, 100));
+    });
+  };
+
   _importTransactionMultisig = async base64arg => {
     try {
       /** @type MultisigHDWallet */
@@ -969,7 +992,10 @@ export default class SendDetails extends Component {
       const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
       if (fromWallet.howManySignaturesCanWeMake() > 0 && (await this.askCosignThisTransaction())) {
+        this.hideAdvancedTransactionOptionsModal();
+        await this.setIsloading(true);
         fromWallet.cosignPsbt(psbt);
+        await this.setIsloading(false);
       }
 
       this.props.navigation.navigate('PsbtMultisig', {
@@ -1196,6 +1222,7 @@ export default class SendDetails extends Component {
         <View style={styles.select}>
           <CoinsSelected
             number={this.state.utxo.length}
+            onContainerPress={this.handleCoinControl}
             onClose={() => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               this.setState({ utxo: null }, this.reCalcTx);
@@ -1291,13 +1318,15 @@ export default class SendDetails extends Component {
             item.address = address || text;
             item.amount = amount || item.amount;
             transactions[index] = item;
-            this.setState({
-              addresses: transactions,
-              memo: memo || this.state.memo,
-              isLoading: false,
-              payjoinUrl,
-            });
-            this.reCalcTx();
+            this.setState(
+              {
+                addresses: transactions,
+                memo: memo || this.state.memo,
+                isLoading: false,
+                payjoinUrl,
+              },
+              this.reCalcTx,
+            );
           }}
           onBarScanned={this.processAddressData}
           address={item.address}
@@ -1326,11 +1355,14 @@ export default class SendDetails extends Component {
             recipient.amount = BitcoinUnit.MAX;
             recipient.amountSats = BitcoinUnit.MAX;
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-            this.setState({
-              addresses: [recipient],
-              units: [BitcoinUnit.BTC],
-              isAdvancedTransactionOptionsVisible: false,
-            });
+            this.setState(
+              {
+                addresses: [recipient],
+                units: [BitcoinUnit.BTC],
+                isAdvancedTransactionOptionsVisible: false,
+              },
+              this.reCalcTx,
+            );
           },
           style: 'default',
         },
@@ -1341,14 +1373,7 @@ export default class SendDetails extends Component {
   };
 
   formatFee = fee => {
-    switch (this.state.feeUnit) {
-      case BitcoinUnit.SATS:
-        return fee + ' ' + BitcoinUnit.SATS;
-      case BitcoinUnit.BTC:
-        return currency.satoshiToBTC(fee) + ' ' + BitcoinUnit.BTC;
-      case BitcoinUnit.LOCAL_CURRENCY:
-        return currency.satoshiToLocalCurrency(fee);
-    }
+    return formatBalance(fee, this.state.feeUnit, true);
   };
 
   onLayout = e => {
@@ -1414,7 +1439,9 @@ export default class SendDetails extends Component {
                 <Text style={styles.feeLabel}>{loc.send.create_fee}</Text>
                 <View style={styles.feeRow}>
                   <Text style={styles.feeValue}>
-                    {this.state.feePrecalc.current ? this.formatFee(this.state.feePrecalc.current) : this.state.fee + ' sat/byte'}
+                    {this.state.feePrecalc.current
+                      ? this.formatFee(this.state.feePrecalc.current)
+                      : this.state.fee + ' ' + loc.units.sat_byte}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -1469,7 +1496,28 @@ SendDetails.propTypes = {
   }),
 };
 
-SendDetails.navigationOptions = ({ navigation, route }) => ({
-  ...BlueCreateTxNavigationStyle(navigation, route.params.withAdvancedOptionsMenuButton, route.params.advancedOptionsMenuButtonAction),
-  title: loc.send.header,
-});
+SendDetails.navigationOptions = navigationStyleTx(
+  {
+    title: loc.send.header,
+  },
+  (options, { theme, navigation, route }) => {
+    let headerRight;
+    if (route.params.withAdvancedOptionsMenuButton) {
+      headerRight = () => (
+        <TouchableOpacity
+          style={styles.advancedOptions}
+          onPress={route.params.advancedOptionsMenuButtonAction}
+          testID="advancedOptionsMenuButton"
+        >
+          <Icon size={22} name="kebab-horizontal" type="octicon" color={theme.colors.foregroundColor} />
+        </TouchableOpacity>
+      );
+    } else {
+      headerRight = null;
+    }
+    return {
+      ...options,
+      headerRight,
+    };
+  },
+);

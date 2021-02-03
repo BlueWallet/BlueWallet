@@ -263,10 +263,10 @@ PODS:
     - React
   - react-native-fingerprint-scanner (6.0.0):
     - React
-  - react-native-geolocation (2.0.2):
-    - React
-  - react-native-image-picker (3.0.1):
-    - React
+  - react-native-idle-timer (2.1.6):
+    - React-Core
+  - react-native-image-picker (3.1.4):
+    - React-Core
   - react-native-is-catalyst (1.0.0):
     - React
   - react-native-randombytes (3.5.3):
@@ -342,20 +342,18 @@ PODS:
     - React-Core (= 0.63.3)
     - React-cxxreact (= 0.63.3)
     - React-jsi (= 0.63.3)
-  - ReactNativePrivacySnapshot (1.0.0):
-    - React
   - RealmJS (6.1.4):
     - GCDWebServer
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - RNCAsyncStorage (1.12.1):
+  - RNCAsyncStorage (1.13.3):
     - React-Core
-  - RNCClipboard (1.5.0):
+  - RNCClipboard (1.5.1):
     - React-Core
   - RNCMaskedView (0.1.10):
     - React
-  - RNCPushNotificationIOS (1.7.1):
+  - RNCPushNotificationIOS (1.8.0):
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
@@ -371,6 +369,8 @@ PODS:
     - React-Core
   - RNLocalize (1.4.2):
     - React-Core
+  - RNPrivacySnapshot (1.0.0):
+    - React
   - RNQuickAction (0.3.13):
     - React
   - RNRate (1.2.4):
@@ -390,7 +390,7 @@ PODS:
     - React-Core
   - RNSVG (12.1.0):
     - React
-  - RNVectorIcons (6.6.0):
+  - RNVectorIcons (7.1.0):
     - React
   - RNWatch (1.0.3):
     - React
@@ -450,7 +450,7 @@ DEPENDENCIES:
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-fingerprint-scanner (from `../node_modules/react-native-fingerprint-scanner`)
-  - "react-native-geolocation (from `../node_modules/@react-native-community/geolocation`)"
+  - react-native-idle-timer (from `../node_modules/react-native-idle-timer`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-is-catalyst (from `../node_modules/react-native-is-catalyst`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
@@ -469,10 +469,9 @@ DEPENDENCIES:
   - React-RCTText (from `../node_modules/react-native/Libraries/Text`)
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - ReactNativePrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
   - RealmJS (from `../node_modules/realm`)
   - "RemobileReactNativeQrcodeLocalImage (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
-  - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
+  - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-community/clipboard`)"
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - "RNCPushNotificationIOS (from `../node_modules/@react-native-community/push-notification-ios`)"
@@ -483,6 +482,7 @@ DEPENDENCIES:
   - RNHandoff (from `../node_modules/react-native-handoff`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNLocalize (from `../node_modules/react-native-localize`)
+  - RNPrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNRate (from `../node_modules/react-native-rate`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
@@ -564,8 +564,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-document-picker"
   react-native-fingerprint-scanner:
     :path: "../node_modules/react-native-fingerprint-scanner"
-  react-native-geolocation:
-    :path: "../node_modules/@react-native-community/geolocation"
+  react-native-idle-timer:
+    :path: "../node_modules/react-native-idle-timer"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-is-catalyst:
@@ -602,14 +602,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/Libraries/Vibration"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
-  ReactNativePrivacySnapshot:
-    :path: "../node_modules/react-native-privacy-snapshot"
   RealmJS:
     :path: "../node_modules/realm"
   RemobileReactNativeQrcodeLocalImage:
     :path: "../node_modules/@remobile/react-native-qrcode-local-image"
   RNCAsyncStorage:
-    :path: "../node_modules/@react-native-community/async-storage"
+    :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
     :path: "../node_modules/@react-native-community/clipboard"
   RNCMaskedView:
@@ -630,6 +628,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-inappbrowser-reborn"
   RNLocalize:
     :path: "../node_modules/react-native-localize"
+  RNPrivacySnapshot:
+    :path: "../node_modules/react-native-privacy-snapshot"
   RNQuickAction:
     :path: "../node_modules/react-native-quick-actions"
   RNRate:
@@ -702,8 +702,8 @@ SPEC CHECKSUMS:
   react-native-camera: 5c1fbfecf63b802b8ca4a71c60d30a71550fb348
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
-  react-native-geolocation: cbd9d6bd06bac411eed2671810f454d4908484a8
-  react-native-image-picker: 4efc5b7f3a780975bcc677335eb670e52d203424
+  react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
+  react-native-image-picker: 248afb60a0c5a24153cb7c7483b257f30541323b
   react-native-is-catalyst: 52ee70e0123c82419dd4ce47dc4cc94b22467512
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-safe-area-context: 01158a92c300895d79dee447e980672dc3fb85a6
@@ -721,13 +721,12 @@ SPEC CHECKSUMS:
   React-RCTText: 65a6de06a7389098ce24340d1d3556015c38f746
   React-RCTVibration: 8e9fb25724a0805107fc1acc9075e26f814df454
   ReactCommon: 4167844018c9ed375cc01a843e9ee564399e53c3
-  ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RealmJS: 899b4839a8bee46e248bc277995ad58da855e41f
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  RNCAsyncStorage: cb9a623793918c6699586281f0b51cbc38f046f9
-  RNCClipboard: 8f9f12fabf3c06e976f19f87a62c89e28dfedfca
+  RNCAsyncStorage: 32c7cbe1d43dff5f03f3d0b9e9d2c44d8ec91a3a
+  RNCClipboard: 5e299c6df8e0c98f3d7416b86ae563d3a9f768a3
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
-  RNCPushNotificationIOS: eaf01f848a0b872b194d31bcad94bb864299e01e
+  RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
   RNDeviceInfo: 57bb2806fb7bd982a1434e9f0b4e6a6ab1f6702e
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
@@ -735,6 +734,7 @@ SPEC CHECKSUMS:
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNInAppBrowser: 3733c1aa6699983a1c9b4963e85d5e5a48ad297e
   RNLocalize: 4071198b59b461f3b74eebc5fee8c50f13e39e79
+  RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 2b31dad120cd1b78e33c6034808561c386a3dddf
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
@@ -744,7 +744,7 @@ SPEC CHECKSUMS:
   RNSentry: 1adaa43b01c6a3ab5091d4d1add66b7c58558898
   RNShare: 7a7277f3c313652422d9de072ac50714dff5e8a4
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
-  RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
+  RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
   RNWatch: e4c5d19506c94506860032fb68aedd5991beb985
   Sentry: 8fa58a051237554f22507fb483b9a1de0171a2dc
   SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
@@ -754,4 +754,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: b3a4c68ed1fc7dace2357d96ad07c3e104e0afe2
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.10.0

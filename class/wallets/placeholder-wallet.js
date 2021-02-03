@@ -19,6 +19,7 @@ export class PlaceholderWallet extends AbstractWallet {
   }
 
   getLabel() {
+    // no longer used in wallets carousel
     return this.getIsFailure() ? 'Wallet Import' : 'Importing Wallet...';
   }
 

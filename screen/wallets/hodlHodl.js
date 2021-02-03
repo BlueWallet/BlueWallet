@@ -20,9 +20,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Geolocation from '@react-native-community/geolocation';
 
-import { BlueButtonLink, BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
+import { BlueButtonLink, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import * as NavigationService from '../../NavigationService';
 import { BlueCurrentTheme } from '../../components/themes';
@@ -36,7 +36,6 @@ const METHOD_ANY = '_any';
 
 const HodlHodlListSections = { OFFERS: 'OFFERS' };
 const windowHeight = Dimensions.get('window').height;
-Geolocation.setRNConfiguration({ authorizationLevel: 'whenInUse' });
 
 export default class HodlHodl extends Component {
   static contextType = BlueStorageContext;
@@ -61,7 +60,6 @@ export default class HodlHodl extends Component {
       currencies: [], // list of hodlhodl supported currencies. filled later via api
       methods: [], // list of hodlhodl payment methods. filled later via api
       country: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL, // country currently selected by user to display orders on screen. this is country code
-      myCountryCode: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL, // current user's country. filled later, via geoip api
     };
   }
 
@@ -119,33 +117,6 @@ export default class HodlHodl extends Component {
 
     this.setState({
       offers,
-    });
-  }
-
-  async fetchMyCountry() {
-    return new Promise(resolve => {
-      Geolocation.getCurrentPosition(
-        async _position => {
-          const myCountryCode = await this.state.HodlApi.getMyCountryCode();
-          if (myCountryCode === 'US') {
-            alert('This service is currently not available in your country.');
-            this.props.navigation.goBack();
-          } else {
-            this.setState(
-              {
-                myCountryCode,
-                country: myCountryCode, // we start with orders from current country
-              },
-              resolve(),
-            );
-          }
-        },
-        _error =>
-          resolve(
-            this.setState({ myCountryCode: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL, cuntry: HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL }),
-          ),
-        { enableHighAccuracy: false, timeout: 20000, maximumAge: 1000 },
-      );
     });
   }
 
@@ -212,7 +183,6 @@ export default class HodlHodl extends Component {
     });
 
     try {
-      await this.fetchMyCountry();
       await this.fetchOffers();
     } catch (Error) {
       alert(Error.message);
@@ -344,8 +314,6 @@ export default class HodlHodl extends Component {
   }
 
   getNativeCountryName() {
-    if (this.state.country === this.state.myCountryCode && this.state.country !== HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL)
-      return loc.hodl.filter_country_near;
     for (const c of this.state.countries) {
       if (c.code === this.state.country) return c.native_name;
     }
@@ -720,7 +688,7 @@ export default class HodlHodl extends Component {
         <View style={styles.headerWrapper}>
           <Text style={styles.BottomLine}>Powered by HodlHodl®</Text>
           <View style={styles.flexRow}>
-            <Text style={styles.Title}>Local Trader </Text>
+            <Text style={styles.Title}>{loc.hodl.local_trader} </Text>
             <TouchableOpacity
               style={styles.grayDropdownTextContainer}
               onPress={() => {
@@ -881,21 +849,25 @@ HodlHodl.propTypes = {
   }),
 };
 
-HodlHodl.navigationOptions = ({ navigation, route }) => ({
-  ...BlueNavigationStyle(navigation, true),
-  title: '',
-  headerStyle: {
-    ...BlueNavigationStyle(navigation, true).headerStyle,
-    backgroundColor: BlueCurrentTheme.colors.customHeader,
+HodlHodl.navigationOptions = navigationStyle(
+  {
+    title: '',
   },
-  headerRight: () => {
-    return route.params.displayLoginButton ? (
-      <BlueButtonLink title={loc.hodl.login} onPress={route.params.handleLoginPress} style={styles.marginHorizontal20} />
-    ) : (
-      <BlueButtonLink title={loc.hodl.mycont} onPress={route.params.handleMyContractsPress} style={styles.marginHorizontal20} />
-    );
-  },
-});
+  (options, { theme, navigation, route }) => ({
+    ...options,
+    headerStyle: {
+      ...options.headerStyle,
+      backgroundColor: theme.colors.customHeader,
+    },
+    headerRight: () => {
+      return route.params.displayLoginButton ? (
+        <BlueButtonLink title={loc.hodl.login} onPress={route.params.handleLoginPress} style={styles.marginHorizontal20} />
+      ) : (
+        <BlueButtonLink title={loc.hodl.mycont} onPress={route.params.handleMyContractsPress} style={styles.marginHorizontal20} />
+      );
+    },
+  }),
+);
 
 const styles = StyleSheet.create({
   grayDropdownText: {

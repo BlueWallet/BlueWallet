@@ -2,7 +2,8 @@
 
 echo Uploading to Appetize and publishing link to Github...
 echo -n "Branch "
-git ls-remote --heads origin | grep $(git rev-parse HEAD) | cut -d / -f 3
+BRANCH=`git ls-remote --heads origin | grep $(git rev-parse HEAD) | cut -d / -f 3`
+echo $BRANCH
 echo -n "Branch 2 "
 git log -n 1 --pretty=%d HEAD | awk '{print $2}' | sed 's/origin\///' | sed 's/)//'
 
@@ -19,11 +20,11 @@ if [ -f $FILENAME ]; then
 
     # uploading file
     HASH=`date +%s`
-    FILENAME_UNIQ="$APPCENTER_OUTPUT_DIRECTORY/$HASH.apk"
+    FILENAME_UNIQ="$APPCENTER_OUTPUT_DIRECTORY/$BRANCH-$HASH.apk"
     cp "$FILENAME" "$FILENAME_UNIQ"
     curl "http://filestorage.bluewallet.io:1488/upload.php" -F "fileToUpload=@$FILENAME_UNIQ"
     rm "$FILENAME_UNIQ"
-    DLOAD_APK="http://filestorage.bluewallet.io:1488/$HASH.apk"
+    DLOAD_APK="http://filestorage.bluewallet.io:1488/$BRANCH-$HASH.apk"
 
     curl -X POST --data "{\"body\":\"♫ This was a triumph. I'm making a note here: HUGE SUCCESS ♫\n\n [android in browser] $APPURL\n\n[download apk]($DLOAD_APK) \"}"  -u "$GITHUB" "https://api.github.com/repos/BlueWallet/BlueWallet/issues/$PR/comments"
 fi

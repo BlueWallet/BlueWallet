@@ -20,13 +20,14 @@ import Clipboard from '@react-native-community/clipboard';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
+import isCatalyst from 'react-native-is-catalyst';
 
-import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
-import Privacy from '../../Privacy';
+import { SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import Privacy from '../../blue_modules/Privacy';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
-import isCatalyst from 'react-native-is-catalyst';
 const currency = require('../../blue_modules/currency');
 
 export default class SendCreate extends Component {
@@ -78,7 +79,7 @@ export default class SendCreate extends Component {
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('Storage Permission: Granted');
-        const filePath = RNFS.DownloadDirectoryPath + `/${this.fileName}`;
+        const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
         try {
           await RNFS.writeFile(filePath, this.state.tx);
           alert(loc.formatString(loc.send.txSaved, { filePath }));
@@ -251,21 +252,25 @@ SendCreate.propTypes = {
   }),
 };
 
-SendCreate.navigationOptions = ({ navigation, route }) => {
-  let headerRight;
-  if (route.params.exportTXN) {
-    headerRight = () => (
-      <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
-        <Icon size={22} name="share-alternative" type="entypo" color={BlueCurrentTheme.colors.foregroundColor} />
-      </TouchableOpacity>
-    );
-  } else {
-    headerRight = null;
-  }
-
-  return {
-    ...BlueNavigationStyle(),
+SendCreate.navigationOptions = navigationStyle(
+  {
     title: loc.send.create_details,
-    headerRight,
-  };
-};
+  },
+  (options, { theme, navigation, route }) => {
+    let headerRight;
+    if (route.params.exportTXN) {
+      headerRight = () => (
+        <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
+          <Icon size={22} name="share-alternative" type="entypo" color={BlueCurrentTheme.colors.foregroundColor} />
+        </TouchableOpacity>
+      );
+    } else {
+      headerRight = null;
+    }
+
+    return {
+      ...options,
+      headerRight,
+    };
+  },
+);

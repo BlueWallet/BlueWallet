@@ -34,19 +34,20 @@ const styles = StyleSheet.create({
   },
 });
 
-const CoinsSelected = ({ number, onClose }) => (
-  <View style={styles.root}>
+const CoinsSelected = ({ number, onContainerPress, onClose }) => (
+  <TouchableOpacity style={styles.root} onPress={onContainerPress}>
     <View style={styles.labelContainer}>
       <Text style={styles.labelText}>{loc.formatString(loc.cc.coins_selected, { number })}</Text>
     </View>
     <TouchableOpacity style={styles.buttonContainer} onPress={onClose}>
       <Avatar rounded containerStyle={[styles.ball]} icon={{ name: 'close', size: 22, type: 'ionicons', color: 'white' }} />
     </TouchableOpacity>
-  </View>
+  </TouchableOpacity>
 );
 
 CoinsSelected.propTypes = {
   number: PropTypes.number.isRequired,
+  onContainerPress: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
 };
 
