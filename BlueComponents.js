@@ -513,7 +513,6 @@ export const BlurredBalance = ({ balance, isBlurred = false }) => {
       >
         {balance}
       </Text>
-
       {isBlurred && (
         <BlurView
           style={{
@@ -521,13 +520,15 @@ export const BlurredBalance = ({ balance, isBlurred = false }) => {
             top: 0,
             left: 0,
             bottom: 0,
-            right: 0,
-            width: 200,
-            backgroundColor:'transparent'
+            width: '100%',
+            borderRadius: 6,
           }}
           blurType="light"
+          blurAmount={7}
           reducedTransparencyFallbackColor="white"
         />
+      
+      
       )}
     </>
   );
