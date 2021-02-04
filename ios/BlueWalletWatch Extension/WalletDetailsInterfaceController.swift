@@ -31,8 +31,9 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     }
     let wallet = WatchDataSource.shared.wallets[identifier]
     self.wallet = wallet
-    walletBalanceLabel.setText(wallet.balance)
-    walletNameLabel.setText(wallet.label) 
+    walletBalanceLabel.setHidden(wallet.hideBalance)
+    walletBalanceLabel.setText(wallet.hideBalance ? "" : wallet.balance)
+    walletNameLabel.setText(wallet.label)
     walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
     createInvoiceButton.setHidden(wallet.type != "lightningCustodianWallet")
     processWalletsTable()

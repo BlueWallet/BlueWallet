@@ -154,6 +154,7 @@ function WatchConnectivity() {
           receiveAddress: receiveAddress,
           transactions: watchTransactions,
           xpub: wallet.getXpub() ? wallet.getXpub() : wallet.getSecret(),
+          hideBalance: wallet.hideBalance,
         });
       }
       updateApplicationContext({ wallets: walletsToProcess, randomID: Math.floor(Math.random() * 11) });

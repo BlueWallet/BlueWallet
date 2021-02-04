@@ -35,7 +35,7 @@ class WatchDataSource: NSObject, WCSessionDelegate {
     if let walletsToProcess = walletsInfo["wallets"] as? [[String: Any]] {
       wallets.removeAll();
       for (index, entry) in walletsToProcess.enumerated() {
-        guard let label = entry["label"] as? String, let balance = entry["balance"] as? String, let type = entry["type"] as? String, let preferredBalanceUnit = entry["preferredBalanceUnit"] as? String, let transactions = entry["transactions"] as? [[String: Any]]  else {
+        guard let label = entry["label"] as? String, let balance = entry["balance"] as? String, let type = entry["type"] as? String, let preferredBalanceUnit = entry["preferredBalanceUnit"] as? String, let transactions = entry["transactions"] as? [[String: Any]], let hideBalance = entry["hideBalance"] as? Bool ?? false  else {
           continue
         }
         var transactionsProcessed = [Transaction]()
@@ -46,7 +46,7 @@ class WatchDataSource: NSObject, WCSessionDelegate {
         }
         let receiveAddress = entry["receiveAddress"] as? String ?? ""
         let xpub = entry["xpub"] as? String ?? ""
-        let wallet = Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit, receiveAddress: receiveAddress, transactions: transactionsProcessed, identifier: index, xpub: xpub)
+        let wallet = Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit, receiveAddress: receiveAddress, transactions: transactionsProcessed, identifier: index, xpub: xpub, hideBalance: hideBalance)
         wallets.append(wallet)
       }
       
