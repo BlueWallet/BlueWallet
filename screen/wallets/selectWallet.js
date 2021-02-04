@@ -5,13 +5,14 @@ import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useRoute, useTheme } from '@react-navigation/native';
 
-import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
+import { SafeBlueArea, BlueText, BlueSpacing20, BlurredBalance } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { MultisigHDWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlurView } from '@react-native-community/blur';
 
 const SelectWallet = () => {
   const { chainType, onWalletSelect, availableWallets } = useRoute().params;
@@ -124,13 +125,11 @@ const SelectWallet = () => {
             <Text numberOfLines={1} style={styles.label}>
               {item.getLabel()}
             </Text>
-            {item.hideBalance ? (
-              <BluePrivateBalance />
-            ) : (
-              <Text numberOfLines={1} adjustsFontSizeToFit style={styles.balance}>
-                {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
-              </Text>
-            )}
+
+            <BlurredBalance
+              balance={formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+              isBlurred={item.hideBalance}
+            />
             <Text style={styles.transparentText} />
             <Text numberOfLines={1} style={styles.latestTxLabel}>
               {loc.wallets.list_latest_transaction}

@@ -19,9 +19,9 @@ import Carousel from 'react-native-snap-carousel';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { LightningCustodianWallet, MultisigHDWallet, PlaceholderWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
-import { BluePrivateBalance } from '../BlueComponents';
 
 import { BlueStorageContext } from '../blue_modules/storage-context';
+import { BlurredBalance } from '../BlueComponents';
 
 const nStyles = StyleSheet.create({
   root: {
@@ -237,13 +237,14 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
           <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
             {item.getLabel()}
           </Text>
-          {item.hideBalance ? (
-            <BluePrivateBalance />
-          ) : (
-            <Text numberOfLines={1} adjustsFontSizeToFit style={[iStyles.balance, { color: colors.inverseForegroundColor }]}>
-              {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
-            </Text>
-          )}
+          <View >
+          <BlurredBalance
+            balance={formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+            isBlurred={item.hideBalance}
+          />
+            </View>
+
+
           <Text style={iStyles.br} />
           <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>
             {loc.wallets.list_latest_transaction}
@@ -273,6 +274,13 @@ const cStyles = StyleSheet.create({
   },
   content: {
     left: 20,
+  },
+  absolute: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
   },
 });
 

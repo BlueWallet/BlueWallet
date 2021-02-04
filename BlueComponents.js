@@ -403,23 +403,11 @@ export class BlueWalletNavigationHeader extends Component {
           ref={this.walletBalanceText}
           onLongPress={() => (Platform.OS === 'ios' ? this.tooltip.showMenu() : this.showAndroidTooltip())}
         >
-          {this.state.wallet.hideBalance ? (
-            <BluePrivateBalance />
-          ) : (
-            <Text
-              testID="WalletBalance"
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              style={{
-                backgroundColor: 'transparent',
-                fontWeight: 'bold',
-                fontSize: 36,
-                color: '#fff',
-              }}
-            >
-              {formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit(), true).toString()}
-            </Text>
-          )}
+          <BlurredBalance
+            testID="WalletBalance"
+            balance={formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit(), true).toString()}
+            isBlurred={this.state.wallet.hideBalance}
+          />
         </TouchableOpacity>
         {this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress && (
           <TouchableOpacity onPress={this.manageFundsPressed}>
@@ -510,21 +498,39 @@ export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure 
   );
 };
 
-export const BluePrivateBalance = () => {
-  return Platform.select({
-    ios: (
-      <View style={{ flexDirection: 'row', marginTop: 13 }}>
-        <BlurView style={styles.balanceBlur} blurType="light" blurAmount={25} />
-        <Icon name="eye-slash" type="font-awesome" color="#FFFFFF" />
-      </View>
-    ),
-    android: (
-      <View style={{ flexDirection: 'row', marginTop: 13 }}>
-        <View style={{ backgroundColor: '#FFFFFF', opacity: 0.5, height: 30, width: 100, marginRight: 8 }} />
-        <Icon name="eye-slash" type="font-awesome" color="#FFFFFF" />
-      </View>
-    ),
-  });
+export const BlurredBalance = ({ balance, isBlurred = false }) => {
+  return (
+    <>
+      <Text
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        style={{
+          backgroundColor: 'transparent',
+          fontWeight: 'bold',
+          fontSize: 36,
+          color: '#fff',
+        }}
+      >
+        {balance}
+      </Text>
+
+      {isBlurred && (
+        <BlurView
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+            width: 200,
+            backgroundColor:'transparent'
+          }}
+          blurType="light"
+          reducedTransparencyFallbackColor="white"
+        />
+      )}
+    </>
+  );
 };
 
 export const BlueCopyToClipboardButton = ({ stringToCopy, displayText = false }) => {

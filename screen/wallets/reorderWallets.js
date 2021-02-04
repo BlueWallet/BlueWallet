@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import { View, ActivityIndicator, Image, Text, StyleSheet, StatusBar, ScrollView } from 'react-native';
-import { BluePrivateBalance } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -11,6 +10,7 @@ import { PlaceholderWallet, LightningCustodianWallet, MultisigHDWallet } from '.
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlurredBalance } from '../../BlueComponents';
 
 const styles = StyleSheet.create({
   loading: {
@@ -137,13 +137,11 @@ const ReorderWallets = () => {
           <Text numberOfLines={1} style={styles.label}>
             {item.getLabel()}
           </Text>
-          {item.hideBalance ? (
-            <BluePrivateBalance />
-          ) : (
-            <Text numberOfLines={1} adjustsFontSizeToFit style={styles.balance}>
-              {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
-            </Text>
-          )}
+          
+          <BlurredBalance
+              balance={formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+              isBlurred={item.hideBalance}
+            />
           <Text style={styles.transparentText} />
           <Text numberOfLines={1} style={styles.latestTxLabel}>
             {loc.wallets.list_latest_transaction}
