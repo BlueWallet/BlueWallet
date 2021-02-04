@@ -177,7 +177,7 @@ const LNDViewInvoice = () => {
   }, [invoice]);
 
   const onLayout = e => {
-    setQRCodeSize(e.nativeEvent.layout.width / 1.3);
+    setQRCodeSize(e.nativeEvent.layout.width / 1.8);
   };
 
   const render = () => {
@@ -259,7 +259,7 @@ const LNDViewInvoice = () => {
           )}
           <BlueCopyTextToClipboard text={invoice.payment_request} />
 
-          <SecondButton onPress={handleOnSharePressed} title={loc.receive.details_share} />
+          <BlueButton onPress={handleOnSharePressed} title={loc.receive.details_share} />
 
           <BlueSpacing20 />
           <BlueButton
