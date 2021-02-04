@@ -11,7 +11,6 @@ import {
   BlueText,
   SafeBlueArea,
   BlueButton,
-  SecondButton,
   BlueCopyTextToClipboard,
   BlueSpacing20,
   BlueTextCentered,
