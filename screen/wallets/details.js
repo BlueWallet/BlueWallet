@@ -41,6 +41,7 @@ import Share from 'react-native-share';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import isCatalyst from 'react-native-is-catalyst';
+import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 const prompt = require('../../blue_modules/prompt');
 
 const styles = StyleSheet.create({
@@ -237,6 +238,14 @@ const WalletDetails = () => {
       params: {
         walletID: wallet.getID(),
         address: wallet.getAllExternalAddresses()[0], // works for both single address and HD wallets
+      },
+    });
+
+  const navigateToAddresses = () =>
+    navigate('WalletAddressesRoot', {
+      screen: 'WalletAddresses',
+      params: {
+        walletID: wallet.getID(),
       },
     });
 
@@ -533,6 +542,13 @@ const WalletDetails = () => {
                 </>
               )}
 
+              {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
+                <>
+                  <BlueSpacing20 />
+                  <SecondButton onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} />
+                </>
+              )}
+
               {(wallet.type === HDLegacyBreadwalletWallet.type ||
                 wallet.type === HDLegacyP2PKHWallet.type ||
                 wallet.type === HDSegwitBech32Wallet.type ||
@@ -542,6 +558,7 @@ const WalletDetails = () => {
                   <BlueSpacing20 />
                   <SecondButton onPress={navigateToXPub} testID="XPub" title={loc.wallets.details_show_xpub} />
                   <BlueSpacing20 />
+
                   {renderMarketplaceButton()}
                 </>
               )}
