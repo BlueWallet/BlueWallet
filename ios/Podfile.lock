@@ -379,14 +379,14 @@ PODS:
     - React-Core
   - RNReanimated (1.13.1):
     - React
-  - RNScreens (2.11.0):
-    - React
+  - RNScreens (2.16.1):
+    - React-Core
   - RNSecureKeyStore (1.0.0):
     - React
   - RNSentry (1.9.0):
     - React-Core
     - Sentry (~> 5.2.0)
-  - RNShare (4.0.2):
+  - RNShare (5.1.0):
     - React-Core
   - RNSVG (12.1.0):
     - React
@@ -739,10 +739,10 @@ SPEC CHECKSUMS:
   RNRate: 2b31dad120cd1b78e33c6034808561c386a3dddf
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
   RNReanimated: dd8c286ab5dd4ba36d3a7fef8bff7e08711b5476
-  RNScreens: 0e91da98ab26d5d04c7b59a9b6bd694124caf88c
+  RNScreens: 45c457af3d2ee9e08fc01e70da87e653d46b1198
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: 1adaa43b01c6a3ab5091d4d1add66b7c58558898
-  RNShare: 7a7277f3c313652422d9de072ac50714dff5e8a4
+  RNShare: fed99fd743f80ca255903c1da46fc9a6430efab6
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
   RNWatch: e4c5d19506c94506860032fb68aedd5991beb985
