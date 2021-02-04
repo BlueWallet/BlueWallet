@@ -22,9 +22,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import Clipboard from '@react-native-community/clipboard';
 import { Icon } from 'react-native-elements';
 import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
-import isCatalyst from 'react-native-is-catalyst';
-
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { Chain } from '../../models/bitcoinUnits';
 import { BlueTransactionListItem, BlueWalletNavigationHeader, BlueAlertWalletExportReminder, BlueListItem } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
 import navigationStyle from '../../components/navigationStyle';
@@ -36,11 +34,11 @@ import { FContainer, FButton } from '../../components/FloatButtons';
 import BottomModal from '../../components/BottomModal';
 import BuyBitcoin from './buyBitcoin';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { getSystemName } from 'react-native-device-info';
+import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
+
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-const isDesktop = getSystemName() === 'Mac OS X';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -53,8 +51,8 @@ const WalletTransactions = () => {
   const [isManageFundsModalVisible, setIsManageFundsModalVisible] = useState(false);
   const { walletID, name } = useRoute().params;
   const wallet = wallets.find(w => w.getID() === walletID);
-  const [itemPriceUnit, setItemPriceUnit] = useState(wallet?.getPreferredBalanceUnit() ?? BitcoinUnit.BTC);
-  const [dataSource, setDataSource] = useState(wallet?.getTransactions(15) ?? []);
+  const [itemPriceUnit, setItemPriceUnit] = useState(wallet.getPreferredBalanceUnit());
+  const [dataSource, setDataSource] = useState(wallet.getTransactions(15));
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [limit, setLimit] = useState(15);
   const [pageSize, setPageSize] = useState(20);
@@ -514,7 +512,7 @@ const WalletTransactions = () => {
   };
 
   const sendButtonLongPress = async () => {
-    if (isDesktop) {
+    if (isMacCatalina) {
       fs.showActionSheet().then(onBarCodeRead);
     } else {
       const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
