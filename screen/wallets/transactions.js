@@ -665,7 +665,7 @@ const WalletTransactions = () => {
           onRefresh={refreshTransactions}
           refreshing={isLoading}
           data={dataSource}
-          extraData={[timeElapsed, dataSource]}
+          extraData={[timeElapsed, dataSource, wallets]}
           keyExtractor={_keyExtractor}
           renderItem={renderItem}
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
