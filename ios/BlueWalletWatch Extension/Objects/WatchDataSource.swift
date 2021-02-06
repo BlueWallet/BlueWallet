@@ -35,9 +35,10 @@ class WatchDataSource: NSObject, WCSessionDelegate {
     if let walletsToProcess = walletsInfo["wallets"] as? [[String: Any]] {
       wallets.removeAll();
       for (index, entry) in walletsToProcess.enumerated() {
-        guard let label = entry["label"] as? String, let balance = entry["balance"] as? String, let type = entry["type"] as? String, let preferredBalanceUnit = entry["preferredBalanceUnit"] as? String, let transactions = entry["transactions"] as? [[String: Any]], let hideBalance = entry["hideBalance"] as? Bool ?? false  else {
+        guard let label = entry["label"] as? String, let balance = entry["balance"] as? String, let type = entry["type"] as? String, let preferredBalanceUnit = entry["preferredBalanceUnit"] as? String, let transactions = entry["transactions"] as? [[String: Any]]  else {
           continue
         }
+        
         var transactionsProcessed = [Transaction]()
         for transactionEntry in transactions {
           guard let time = transactionEntry["time"] as? String, let memo = transactionEntry["memo"] as? String, let amount = transactionEntry["amount"] as? String, let type =  transactionEntry["type"] as? String else { continue }
@@ -46,6 +47,7 @@ class WatchDataSource: NSObject, WCSessionDelegate {
         }
         let receiveAddress = entry["receiveAddress"] as? String ?? ""
         let xpub = entry["xpub"] as? String ?? ""
+        let hideBalance = entry["hideBalance"] as? Bool ?? false
         let wallet = Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit, receiveAddress: receiveAddress, transactions: transactionsProcessed, identifier: index, xpub: xpub, hideBalance: hideBalance)
         wallets.append(wallet)
       }
@@ -72,6 +74,20 @@ class WatchDataSource: NSObject, WCSessionDelegate {
       } else {
         responseHandler("")
       }
+    }) { (error) in
+      print(error)
+      responseHandler("")
+      
+    }
+  }
+  
+  static func toggleWalletHideBalance(walletIdentifier: Int, hideBalance: Bool, responseHandler: @escaping (_ invoice: String) -> Void) {
+    guard WatchDataSource.shared.wallets.count > walletIdentifier  else {
+      responseHandler("")
+      return
+    }
+    WCSession.default.sendMessage(["message": "hideBalance", "walletIndex": walletIdentifier, "hideBalance": hideBalance], replyHandler: { (reply: [String : Any]) in
+        responseHandler("")
     }) { (error) in
       print(error)
       responseHandler("")

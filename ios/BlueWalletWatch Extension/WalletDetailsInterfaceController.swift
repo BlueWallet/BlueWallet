@@ -29,23 +29,54 @@ class WalletDetailsInterfaceController: WKInterfaceController {
       pop()
       return
     }
-    let wallet = WatchDataSource.shared.wallets[identifier]
-    self.wallet = wallet
-    walletBalanceLabel.setHidden(wallet.hideBalance)
-    walletBalanceLabel.setText(wallet.hideBalance ? "" : wallet.balance)
-    walletNameLabel.setText(wallet.label)
-    walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
-    createInvoiceButton.setHidden(wallet.type != "lightningCustodianWallet")
-    processWalletsTable()
-    addMenuItems()
+    processInterface(identifier: identifier)
+  }
+  
+  func processInterface(identifier: Int)  {
+  let wallet = WatchDataSource.shared.wallets[identifier]
+  self.wallet = wallet
+  walletBalanceLabel.setHidden(wallet.hideBalance)
+  walletBalanceLabel.setText(wallet.hideBalance ? "" : wallet.balance)
+  walletNameLabel.setText(wallet.label)
+  walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
+  createInvoiceButton.setHidden(wallet.type != "lightningCustodianWallet")
+  processWalletsTable()
+  addMenuItems()
   }
   
   func addMenuItems() {
     guard let wallet = wallet else {
        return
     }
+    
+    clearAllMenuItems()
     if wallet.type != "lightningCustodianWallet" && !(wallet.xpub ?? "").isEmpty {
       addMenuItem(with: .share, title: "View XPub", action: #selector(viewXPubMenuItemTapped))
+    }
+    if wallet.hideBalance {
+      addMenuItem(with: .accept, title: "Show Balance", action: #selector(showBalanceMenuItemTapped))
+    }else{
+      addMenuItem(with: .decline, title: "Hide Balance", action: #selector(hideBalanceMenuItemTapped))
+    }
+  }
+  
+  @objc func showBalanceMenuItemTapped() {
+    guard let identifier = wallet?.identifier else { return }
+    WatchDataSource.toggleWalletHideBalance(walletIdentifier: identifier, hideBalance: false) { [weak self] _ in
+      DispatchQueue.main.async {
+        WatchDataSource.postDataUpdatedNotification()
+        self?.processInterface(identifier: identifier)
+      }
+    }
+  }
+  
+  @objc func hideBalanceMenuItemTapped() {
+    guard let identifier = wallet?.identifier else { return }
+    WatchDataSource.toggleWalletHideBalance(walletIdentifier: identifier, hideBalance: true) { [weak self] _ in
+      DispatchQueue.main.async {
+        WatchDataSource.postDataUpdatedNotification()
+        self?.processInterface(identifier: identifier)
+      }
     }
   }
   

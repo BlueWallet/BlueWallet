@@ -28,6 +28,11 @@ function WatchConnectivity() {
       sendWalletsToWatch();
     } else if (message.message === 'fetchTransactions') {
       fetchWalletTransactions().then(() => saveToDisk());
+    } else if (message.message === 'hideBalance') {
+      const walletIndex = message.walletIndex;
+      const wallet = wallets[walletIndex];
+      wallet.hideBalance = message.hideBalance;
+      saveToDisk().finally(() => reply({}));
     }
   };
 
