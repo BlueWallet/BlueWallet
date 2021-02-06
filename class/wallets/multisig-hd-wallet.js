@@ -480,7 +480,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
 
     // is it electrum json?
-    if (json && json.wallet_type) {
+    if (json && json.wallet_type && json.wallet_type !== 'standard') {
       const mofn = json.wallet_type.split('of');
       this.setM(parseInt(mofn[0].trim()));
       const n = parseInt(mofn[1].trim());

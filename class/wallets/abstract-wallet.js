@@ -164,12 +164,20 @@ export class AbstractWallet {
     }
 
     try {
-      const parsedSecret = JSON.parse(this.secret);
+      let parsedSecret;
+      // regex might've matched invalid data. if so, parse newSecret.
+      if (this.secret.trim().length > 0) {
+        parsedSecret = JSON.parse(this.secret);
+      } else {
+        parsedSecret = JSON.parse(newSecret);
+      }
       if (parsedSecret && parsedSecret.keystore && parsedSecret.keystore.xpub) {
         let masterFingerprint = false;
         if (parsedSecret.keystore.ckcc_xfp) {
           // It is a ColdCard Hardware Wallet
           masterFingerprint = Number(parsedSecret.keystore.ckcc_xfp);
+        } else if (parsedSecret.keystore.root_fingerprint) {
+          masterFingerprint = Number(parsedSecret.keystore.root_fingerprint);
         }
         if (parsedSecret.keystore.label) {
           this.setLabel(parsedSecret.keystore.label);
