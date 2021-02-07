@@ -85,4 +85,60 @@ extension WidgetAPI {
     })
   }
   
+  static func percentile(array: [Double], percentage: Double) -> Double {
+    if array.isEmpty {
+      return 0
+    } else if percentage <= 0 {
+      return array.first ?? 0
+     } else if percentage >= 1 {
+      return array.last ?? 0
+    }
+    let index = Double(array.count - 1) * percentage
+    let lower = Int(floor(index))
+    let upper = Int(lower + 1)
+    let weight = index.truncatingRemainder(dividingBy: 1)
+
+    if upper >= array.count {
+      return array[lower]
+      
+    };
+    return array[lower] * (1 - weight) + array[upper] * weight
+  }
+  
+  static func calcEstimateFeeFromFeeHistorgam(numberOfBlocks: Int, feeHistorgram: [[Int]]) -> Double {
+    // first, transforming histogram:
+    var totalVsize = 0;
+    var histogramToUse =  [[Int]]()
+    for history in feeHistorgram {
+      let fee = history[0]
+      var vsize = history[1]
+      var timeToStop = false
+
+      if totalVsize + vsize >= 1000000 * numberOfBlocks {
+        vsize = 1000000 * numberOfBlocks - totalVsize; // only the difference between current summarized sige to tip of the block
+        timeToStop = true;
+      }
+
+      histogramToUse.append([fee, vsize])
+      totalVsize = totalVsize + vsize
+      if timeToStop {
+        break
+      }
+    }
+
+    // now we have histogram of precisely size for numberOfBlocks.
+    // lets spread it into flat array so its easier to calculate percentile:
+    var histogramFlat = [Double]()
+    for history in histogramToUse {
+      let calc = round(Double(history[0]) / 25000)
+      histogramFlat.append(contentsOf: [calc])
+      
+      // division is needed so resulting flat array is not too huge
+    }
+
+    
+//    histogramFlat = histogramFlat.sorted { $0[ - $1 }
+    return round(percentile(array: histogramFlat, percentage: 0.5))
+  };
+  
 }
