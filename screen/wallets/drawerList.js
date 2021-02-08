@@ -37,13 +37,15 @@ const DrawerList = props => {
   }, [wallets, pendingWallets]);
 
   useEffect(() => {
+    if (walletsCount.current < wallets.length) {
+      walletsCarousel.current?.snapToItem(walletsCount.current);
+    }
+    walletsCount.current = wallets.length;
+  }, [wallets]);
+
+  useEffect(() => {
     if (pendingWallets.length > 0) {
       walletsCarousel.current?.snapToItem(carouselData.length - pendingWallets.length);
-    } else {
-      if (walletsCount.current <= wallets.length) {
-        walletsCarousel.current?.snapToItem(walletsCount.current - 1);
-        walletsCount.current = wallets.length;
-      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingWallets]);
