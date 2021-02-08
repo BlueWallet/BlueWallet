@@ -167,7 +167,12 @@ export class AbstractWallet {
       let parsedSecret;
       // regex might've matched invalid data. if so, parse newSecret.
       if (this.secret.trim().length > 0) {
-        parsedSecret = JSON.parse(this.secret);
+        try {
+          parsedSecret = JSON.parse(this.secret);
+        } catch (e) {
+          console.log(e);
+          parsedSecret = JSON.parse(newSecret);
+        }
       } else {
         parsedSecret = JSON.parse(newSecret);
       }
