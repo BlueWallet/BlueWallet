@@ -284,7 +284,7 @@ describe('BlueWallet UI Tests', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it.skip('can encrypt storage, and decrypt storage, but this time the fake one', async () => {
+  it('can encrypt storage, and decrypt storage, but this time the fake one', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
@@ -828,6 +828,61 @@ describe('BlueWallet UI Tests', () => {
     assert.strictEqual(psbt2.txOutputs[0].value, 5334);
     assert.strictEqual(psbt2.data.inputs.length, 1);
     assert.strictEqual(psbt2.data.inputs[0].witnessUtxo.value, 5526);
+
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('can co-sign psbt with HD wallets', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+    }
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
+
+    // open PsbtSign
+    await element(by.id('SendButton')).tap();
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('PsbtSign')).tap();
+
+    // tapping 10 times invisible button is a backdoor:
+    for (let c = 0; c <= 5; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+      await sleep(1000);
+    }
+    // 1 input, 2 outputs. wallet can fully sign this tx
+    const psbt =
+      'cHNidP8BAFICAAAAAXYa7FEQBAQ2X0B48aHHKKgzkVuHfQ2yCOi3v9RR0IqlAQAAAAAAAACAAegDAAAAAAAAFgAUSnH40G+jiJfreeRb36cs641KFm8AAAAAAAEBH5YVAAAAAAAAFgAUTKHjDm4OJQSbvy9uzyLYi5i5XIoiBgMQcGrP5TIMrdvb73yB4WnZvkPzKr1EzJXJYBHWmlPJZRgAAAAAVAAAgAAAAIAAAACAAQAAAD4AAAAAAA==';
+    await element(by.id('scanQrBackdoorInput')).replaceText(psbt);
+    await element(by.id('scanQrBackdoorOkButton')).tap();
+
+    // this is fully-signed tx, "this is tx hex" help text should appear
+    await yo('thisIsHex');
+
+    await device.pressBack();
+    // open PsbtSign
+    await element(by.id('SendButton')).tap();
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('PsbtSign')).tap();
+
+    // tapping 10 times invisible button is a backdoor:
+    for (let c = 0; c <= 5; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+      await sleep(1000);
+    }
+    // 2 inputs, 2 outputs, wallet can sign only one input
+    const psbt2 =
+      'cHNidP8BAHsCAAAAAl+8dBEMLW/PTRFhpZkT+80rarPFqetNDcCFlRXLyGVPAAAAAAAAAACAdhrsURAEBDZfQHjxoccoqDORW4d9DbII6Le/1FHQiqUBAAAAAAAAAIAB6AMAAAAAAAAWABRKcfjQb6OIl+t55FvfpyzrjUoWbwAAAAAAAQD9YAEBAAAAAAEB6NmO/7tPuk8KibzyF+tafi+O/K5E8y7Ky8XYzDzmg8MBAAAAFxYAFIum0C50wKbgAOixdOsu1E5eohGm/////wUQJwAAAAAAABl2qRRNxsv2TfmrEGzugSx1AZYLk+khd4isIE4AAAAAAAAZdqkUvC22t0yNubGIcR3O3VEeajBWA/WIrDB1AAAAAAAAGXapFE3Gy/ZN+asQbO6BLHUBlguT6SF3iKxAnAAAAAAAABl2qRS8Lba3TI25sYhxHc7dUR5qMFYD9YisIEcWAAAAAAAXqRTihtWOU/kkekcQ5RIyzOBobxaHPIcCSDBFAiEArzgAzYFx8VR4XPE/RsCS9hwWaPl9tDK7Tn7XvIEqjG0CIFG93KHq8a2LXzvQzN50R+Vv08hwnlkG8C7GMm6aWy/zASEDmkIdXrfJ3mWQripHHLVWtg3oxrBWvrkH29wfXmCS9YgAAAAAIgYDFuhKJVbzChmVQWM/Xdpnh3EMyrJncbcIT0yeEQT0dmcYAAAAACwAAIAAAACAAAAAgAAAAAAAAAAAAAEBH5YVAAAAAAAAFgAUTKHjDm4OJQSbvy9uzyLYi5i5XIoiBgMQcGrP5TIMrdvb73yB4WnZvkPzKr1EzJXJYBHWmlPJZRgAAAAAVAAAgAAAAIAAAACAAQAAAD4AAAAAAA==';
+    await element(by.id('scanQrBackdoorInput')).replaceText(psbt2);
+    await element(by.id('scanQrBackdoorOkButton')).tap();
+
+    // this is fully-signed tx, "this is psbt" help text should appear
+    await yo('thisIsPSBT');
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });

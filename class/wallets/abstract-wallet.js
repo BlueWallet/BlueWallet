@@ -119,6 +119,10 @@ export class AbstractWallet {
     return false;
   }
 
+  allowCosignPsbt() {
+    return false;
+  }
+
   weOwnAddress(address) {
     throw Error('not implemented');
   }

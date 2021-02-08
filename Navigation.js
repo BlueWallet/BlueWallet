@@ -60,6 +60,8 @@ import SendCreate from './screen/send/create';
 import Confirm from './screen/send/confirm';
 import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
 import PsbtMultisig from './screen/send/psbtMultisig';
+import PsbtMultisigQRCode from './screen/send/psbtMultisigQRCode';
+import PsbtSign from './screen/send/psbtSign';
 import Success from './screen/send/success';
 import Broadcast from './screen/send/broadcast';
 import IsItMyAddress from './screen/send/isItMyAddress';
@@ -78,7 +80,6 @@ import DrawerList from './screen/wallets/drawerList';
 import { isTablet } from 'react-native-device-info';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
-import PsbtMultisigQRCode from './screen/send/psbtMultisigQRCode';
 
 const defaultScreenOptions =
   Platform.OS === 'ios'
@@ -243,6 +244,7 @@ const SendDetailsRoot = () => {
       />
       <SendDetailsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
       <SendDetailsStack.Screen name="CoinControl" component={CoinControl} options={CoinControl.navigationOptions(theme)} />
+      <SendDetailsStack.Screen name="PsbtSign" component={PsbtSign} options={PsbtSign.navigationOptions(theme)} />
     </SendDetailsStack.Navigator>
   );
 };

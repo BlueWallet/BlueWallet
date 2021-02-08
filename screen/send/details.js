@@ -1109,6 +1109,20 @@ export default class SendDetails extends Component {
     );
   };
 
+  handlePsbtSign = () => {
+    this.setState(
+      {
+        isAdvancedTransactionOptionsVisible: false,
+      },
+      () => {
+        const { fromWallet } = this.state;
+        this.props.navigation.navigate('PsbtSign', {
+          walletId: fromWallet.getID(),
+        });
+      },
+    );
+  };
+
   hideAdvancedTransactionOptionsModal = () => {
     Keyboard.dismiss();
     this.setState({ isAdvancedTransactionOptionsVisible: false });
@@ -1203,6 +1217,15 @@ export default class SendDetails extends Component {
               component={TouchableOpacity}
               onPress={this.handleCoinControl}
             />
+            {this.state.fromWallet.allowCosignPsbt() && (
+              <BlueListItem
+                testID="PsbtSign"
+                title={loc.send.psbt_sign}
+                hideChevron
+                component={TouchableOpacity}
+                onPress={this.handlePsbtSign}
+              />
+            )}
           </View>
         </KeyboardAvoidingView>
       </BottomModal>
