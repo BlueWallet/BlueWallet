@@ -51,7 +51,7 @@ const isDesktop = getSystemName() === 'Mac OS X';
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
-  const { addWallet, saveToDisk, setNewWalletAdded } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
   const navigation = useNavigation();
@@ -196,7 +196,6 @@ const WalletsAddMultisigStep2 = () => {
 
     addWallet(w);
     await saveToDisk();
-    setNewWalletAdded(true);
     A(A.ENUM.CREATED_WALLET);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     navigation.dangerouslyGetParent().goBack();

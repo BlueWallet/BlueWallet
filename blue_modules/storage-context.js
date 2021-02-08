@@ -21,7 +21,6 @@ export const BlueStorageProvider = ({ children }) => {
   const [language, _setLanguage] = useState();
   const getPreferredCurrencyAsyncStorage = useAsyncStorage(AppStorage.PREFERRED_CURRENCY).getItem;
   const getLanguageAsyncStorage = useAsyncStorage(AppStorage.LANG).getItem;
-  const [newWalletAdded, setNewWalletAdded] = useState(false);
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [isDrawerListBlurred, _setIsDrawerListBlurred] = useState(false);
 
@@ -213,8 +212,6 @@ export const BlueStorageProvider = ({ children }) => {
         sleep,
         setHodlHodlApiKey,
         createFakeStorage,
-        newWalletAdded,
-        setNewWalletAdded,
         resetWallets,
         getHodlHodlApiKey,
         decryptStorage,

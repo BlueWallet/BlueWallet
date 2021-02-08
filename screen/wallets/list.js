@@ -35,16 +35,9 @@ const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', 
 
 const WalletsList = () => {
   const walletsCarousel = useRef();
-  const {
-    wallets,
-    pendingWallets,
-    getTransactions,
-    getBalance,
-    refreshAllWalletTransactions,
-    newWalletAdded,
-    setNewWalletAdded,
-    setSelectedWallet,
-  } = useContext(BlueStorageContext);
+  const { wallets, pendingWallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet } = useContext(
+    BlueStorageContext,
+  );
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
@@ -56,6 +49,7 @@ const WalletsList = () => {
   );
   const [carouselData, setCarouselData] = useState([]);
   const dataSource = getTransactions(null, 10);
+  const walletsCount = useRef(wallets.length);
 
   const stylesHook = StyleSheet.create({
     walletsListWrapper: {
@@ -96,12 +90,16 @@ const WalletsList = () => {
   }, [wallets, pendingWallets]);
 
   useEffect(() => {
-    if (newWalletAdded) {
-      walletsCarousel.current?.snapToItem(carouselData.length - pendingWallets.length - 2);
-      setNewWalletAdded(false);
+    if (pendingWallets.length > 0) {
+      walletsCarousel.current?.snapToItem(carouselData.length - pendingWallets.length);
+    } else {
+      if (walletsCount.current <= wallets.length) {
+        walletsCarousel.current?.snapToItem(walletsCount.current - 1);
+        walletsCount.current = wallets.length;
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newWalletAdded]);
+  }, [pendingWallets]);
 
   const verifyBalance = () => {
     if (getBalance() !== 0) {
