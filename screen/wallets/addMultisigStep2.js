@@ -27,7 +27,6 @@ import {
   BlueButton,
   BlueButtonLink,
   BlueFormMultiInput,
-  BlueLoading,
   BlueSpacing10,
   BlueSpacing20,
   BlueSpacing40,
@@ -675,11 +674,9 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
-  const footer = isLoading ? (
-    <BlueLoading />
-  ) : (
+  const footer = (
     <View style={styles.buttonBottom}>
-      <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={cosigners.length !== n} />
+      {isLoading ? <ActivityIndicator /> : <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={cosigners.length !== n} />}
     </View>
   );
 
@@ -718,7 +715,7 @@ const styles = StyleSheet.create({
   buttonBottom: {
     marginHorizontal: 20,
     flex: 0.12,
-    marginBottom: 36,
+    marginBottom: 40,
     justifyContent: 'flex-end',
   },
 
