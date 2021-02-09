@@ -10,47 +10,167 @@ import ClockKit
 
 
 class ComplicationController: NSObject, CLKComplicationDataSource {
+  
+  // MARK: - Timeline Configuration
+  
+  func getSupportedTimeTravelDirections(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimeTravelDirections) -> Void) {
+    handler([])
+  }
+  
+  func getTimelineStartDate(for complication: CLKComplication, withHandler handler: @escaping (Date?) -> Void) {
+    handler(nil)
+  }
+  
+  func getTimelineEndDate(for complication: CLKComplication, withHandler handler: @escaping (Date?) -> Void) {
+    handler(nil)
+  }
+  
+  func getPrivacyBehavior(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationPrivacyBehavior) -> Void) {
+    handler(.showOnLockScreen)
+  }
+  
+  // MARK: - Timeline Population
+  
+  func getCurrentTimelineEntry(
+    for complication: CLKComplication,
+    withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void)
+  {
+    let marketData: WidgetDataStore? = UserDefaults.standard.codable(forKey: MarketData.string)
+    let entry: CLKComplicationTimelineEntry
+    let date: Date
+    let valueLabel: String
+    let currencySymbol: String
     
-    // MARK: - Timeline Configuration
-    
-    func getSupportedTimeTravelDirections(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimeTravelDirections) -> Void) {
-        handler([.forward, .backward])
+    if let price = marketData?.formattedRateForComplication, let marketDatadata = marketData?.date, let userCurrencySymbol = fiatUnit(currency: WidgetAPI.getUserPreferredCurrency())?.symbol {
+      date = marketDatadata
+      valueLabel = price
+      currencySymbol = userCurrencySymbol
+    } else {
+      valueLabel = "--"
+      currencySymbol = "USD"
+      date = Date()
     }
     
-    func getTimelineStartDate(for complication: CLKComplication, withHandler handler: @escaping (Date?) -> Void) {
+    let line1Text = CLKSimpleTextProvider(text:valueLabel)
+    line1Text.tintColor = .white
+    let line2Text = CLKSimpleTextProvider(text:currencySymbol)
+    line2Text.tintColor = .blue
+
+    switch complication.family {
+    case .circularSmall:
+      let template = CLKComplicationTemplateCircularSmallStackText()
+      template.line1TextProvider = line1Text
+      template.line2TextProvider = line2Text
+      entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+      handler(entry)
+    case .utilitarianSmallFlat:
+      let template = CLKComplicationTemplateUtilitarianSmallFlat()
+      if #available(watchOSApplicationExtension 6.0, *) {
+        template.textProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueLabel)
+      } else {
         handler(nil)
-    }
-    
-    func getTimelineEndDate(for complication: CLKComplication, withHandler handler: @escaping (Date?) -> Void) {
+      }
+      entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+      handler(entry)
+    case .utilitarianSmall:
+      let template = CLKComplicationTemplateUtilitarianSmallRingImage()
+      template.imageProvider = CLKImageProvider(onePieceImage: UIImage(named: "Complication/Utilitarian")!)
+      entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+      handler(entry)
+    case .graphicCircular:
+      if #available(watchOSApplicationExtension 6.0, *) {
+        let template = CLKComplicationTemplateGraphicCircularStackText()
+        template.line1TextProvider = line1Text
+        template.line2TextProvider = line2Text
+        entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+        handler(entry)
+      } else {
         handler(nil)
-    }
-    
-    func getPrivacyBehavior(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationPrivacyBehavior) -> Void) {
-        handler(.showOnLockScreen)
-    }
-    
-    // MARK: - Timeline Population
-    
-    func getCurrentTimelineEntry(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void) {
-        // Call the handler with the current timeline entry
+      }
+    case .modularSmall:
+      let template = CLKComplicationTemplateModularSmallStackText()
+      template.line1TextProvider = line1Text
+      template.line2TextProvider = line2Text
+      entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+      handler(entry)
+    case .graphicCorner:
+      let template = CLKComplicationTemplateGraphicCornerStackText()
+      if #available(watchOSApplicationExtension 6.0, *) {
+        template.outerTextProvider = CLKTextProvider(format: "%@", valueLabel)
+        template.innerTextProvider = CLKTextProvider(format: "%@", currencySymbol)
+      } else {
         handler(nil)
+      }
+      entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+      handler(entry)
+    default:
+      preconditionFailure("Complication family not supported")
     }
+  }
+  
+  func getTimelineEntries(for complication: CLKComplication, before date: Date, limit: Int, withHandler handler: @escaping ([CLKComplicationTimelineEntry]?) -> Void) {
+    // Call the handler with the timeline entries prior to the given date
+    handler(nil)
+  }
+  
+  func getTimelineEntries(for complication: CLKComplication, after date: Date, limit: Int, withHandler handler: @escaping ([CLKComplicationTimelineEntry]?) -> Void) {
+    // Call the handler with the timeline entries after to the given date
+    handler(nil)
+  }
+  
+  // MARK: - Placeholder Templates
+  
+  func getLocalizableSampleTemplate(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTemplate?) -> Void) {
+    // This method will be called once per supported complication, and the results will be cached
+    let line1Text = CLKSimpleTextProvider(text:"46 K")
+    line1Text.tintColor = .white
+    let line2Text = CLKSimpleTextProvider(text:"$")
+    line2Text.tintColor = .blue
     
-    func getTimelineEntries(for complication: CLKComplication, before date: Date, limit: Int, withHandler handler: @escaping ([CLKComplicationTimelineEntry]?) -> Void) {
-        // Call the handler with the timeline entries prior to the given date
+    switch complication.family {
+    case .circularSmall:
+      let template = CLKComplicationTemplateCircularSmallStackText()
+      template.line1TextProvider = line1Text
+      template.line2TextProvider = line2Text
+      handler(template)
+    case .utilitarianSmallFlat:
+      let template = CLKComplicationTemplateUtilitarianSmallFlat()
+      if #available(watchOSApplicationExtension 6.0, *) {
+        template.textProvider = CLKTextProvider(format: "%@", "$46,134")
+      } else {
         handler(nil)
-    }
-    
-    func getTimelineEntries(for complication: CLKComplication, after date: Date, limit: Int, withHandler handler: @escaping ([CLKComplicationTimelineEntry]?) -> Void) {
-        // Call the handler with the timeline entries after to the given date
+      }
+      handler(template)
+    case .utilitarianSmall:
+      let template = CLKComplicationTemplateUtilitarianSmallRingImage()
+      template.imageProvider = CLKImageProvider(onePieceImage: UIImage(named: "Complication/Utilitarian")!)
+      handler(template)
+    case .graphicCircular:
+      if #available(watchOSApplicationExtension 6.0, *) {
+        let template = CLKComplicationTemplateGraphicCircularStackText()
+        template.line1TextProvider = line1Text
+        template.line2TextProvider = line2Text
+        handler(template)
+      } else {
         handler(nil)
-    }
-    
-    // MARK: - Placeholder Templates
-    
-    func getLocalizableSampleTemplate(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTemplate?) -> Void) {
-        // This method will be called once per supported complication, and the results will be cached
+      }
+    case .graphicCorner:
+      let template = CLKComplicationTemplateGraphicCornerStackText()
+      if #available(watchOSApplicationExtension 6.0, *) {
+        template.outerTextProvider = CLKTextProvider(format: "46,134")
+        template.innerTextProvider = CLKTextProvider(format: "$")
+      } else {
         handler(nil)
+      }
+      handler(template)
+    case .modularSmall:
+      let template = CLKComplicationTemplateModularSmallStackText()
+      template.line1TextProvider = line1Text
+      template.line2TextProvider = line2Text
+      handler(template)
+    default:
+      handler(nil)
     }
-    
+  }
+  
 }

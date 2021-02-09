@@ -25,11 +25,6 @@ struct UserDefaultsElectrumSettings {
   let sslPort: Int32?
 }
 
-struct LatestTransaction {
-  let isUnconfirmed: Bool?
-  let epochValue: Int?
-}
-
 let DefaultElectrumPeers = [UserDefaultsElectrumSettings(host: "electrum1.bluewallet.io", port: 50001, sslPort: 443),
                               UserDefaultsElectrumSettings(host: "electrum2.bluewallet.io", port: 50001, sslPort: 443),
                               UserDefaultsElectrumSettings(host: "electrum3.bluewallet.io", port: 50001, sslPort: 443)]
