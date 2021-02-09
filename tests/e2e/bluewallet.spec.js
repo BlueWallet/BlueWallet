@@ -50,7 +50,7 @@ describe('BlueWallet UI Tests', () => {
     try {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
-      await element(by.text(`No, and don't ask me again`)).tap();
+      await element(by.text(`No, and don’t ask me again`)).tap();
     } catch (_) {}
     await yo('BitcoinAddressQRCodeContainer');
     await yo('BlueCopyTextToClipboard');
@@ -100,7 +100,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.text('OK')).tap();
     await element(by.type('android.widget.EditText')).typeText('666');
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Passwords do not match'))).toBeVisible();
+    await expect(element(by.text('Passwords do not match.'))).toBeVisible();
     await element(by.text('OK')).tap();
 
     // now, lets put correct passwords and encrypt the storage
@@ -142,7 +142,7 @@ describe('BlueWallet UI Tests', () => {
 
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
-    await expect(element(by.text('Password for fake storage should not match the password for your main storage.'))).toBeVisible();
+    await expect(element(by.text('Password for the fake storage should not match the password for your main storage.'))).toBeVisible();
 
     // trying MAIN password: should fail, obviously
     await element(by.type('android.widget.EditText')).typeText('qqq');
@@ -516,7 +516,7 @@ describe('BlueWallet UI Tests', () => {
     try {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
-      await element(by.text(`No, and don't ask me again`)).tap();
+      await element(by.text(`No, and don’t ask me again`)).tap();
     } catch (_) {}
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
     await expect(element(by.text('bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay'))).toBeVisible();
