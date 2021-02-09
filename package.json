@@ -166,7 +166,7 @@
     "react-native-widget-center": "git+https://github.com/BlueWallet/react-native-widget-center.git#e2e9a9038b76d096bf929a87105a97a0a7095001",
     "react-test-render": "1.1.2",
     "readable-stream": "3.6.0",
-    "realm": "6.1.4",
+    "realm": "10.2.0",
     "rn-nodeify": "10.2.0",
     "scryptsy": "file:blue_modules/scryptsy",
     "secure-random": "1.1.2",

@@ -141,7 +141,6 @@ const WalletsImport = () => {
           <BlueDoneAndDismissKeyboardInputAccessory
             onClearTapped={() => {
               setImportText('');
-              Keyboard.dismiss();
             }}
             onPasteTapped={text => {
               setImportText(text);

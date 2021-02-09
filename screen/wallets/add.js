@@ -41,7 +41,7 @@ const ButtonSelected = Object.freeze({
 
 const WalletsAdd = () => {
   const { colors } = useTheme();
-  const { addWallet, saveToDisk, setNewWalletAdded, isAdancedModeEnabled } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk, isAdancedModeEnabled } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
   const [walletBaseURI, setWalletBaseURI] = useState();
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -139,7 +139,6 @@ const WalletsAdd = () => {
         }
         addWallet(w);
         await saveToDisk();
-        setNewWalletAdded(true);
         A(A.ENUM.CREATED_WALLET);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
         if (w.type === HDSegwitP2SHWallet.type || w.type === HDSegwitBech32Wallet.type) {
@@ -184,7 +183,6 @@ const WalletsAdd = () => {
     addWallet(wallet);
     await saveToDisk();
 
-    setNewWalletAdded(true);
     A(A.ENUM.CREATED_WALLET);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     navigate('PleaseBackupLNDHub', {
