@@ -50,7 +50,7 @@ describe('BlueWallet UI Tests', () => {
     try {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
-      await element(by.text(`No, and don't ask me again`)).tap();
+      await element(by.text(`No, and don’t ask me again`)).tap();
     } catch (_) {}
     await yo('BitcoinAddressQRCodeContainer');
     await yo('BlueCopyTextToClipboard');
@@ -516,7 +516,7 @@ describe('BlueWallet UI Tests', () => {
     try {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
-      await element(by.text(`No, and don't ask me again`)).tap();
+      await element(by.text(`No, and don’t ask me again`)).tap();
     } catch (_) {}
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
     await expect(element(by.text('bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay'))).toBeVisible();
