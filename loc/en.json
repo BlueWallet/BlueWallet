@@ -16,7 +16,9 @@
     "seed": "Seed",
     "wallet_key": "Wallet key",
     "invalid_animated_qr_code_fragment" : "Invalid animated QRCode fragment. Please try again.",
-    "file_saved": "File ({filePath}) has been saved in your Downloads folder."
+    "file_saved": "File ({filePath}) has been saved in your Downloads folder.",
+    "discard_changes": "Discard changes?",
+    "discard_changes_detail": "You have unsaved changes. Are you sure to discard them and leave the screen?"
   },
   "azteco": {
     "codeIs": "Your voucher code is",
