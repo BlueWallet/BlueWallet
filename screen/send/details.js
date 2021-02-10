@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   },
   feeModalItemActive: {
     borderRadius: 8,
-    backgroundColor: BlueCurrentTheme.colors.feeLabel,
+    backgroundColor: BlueCurrentTheme.colors.feeActive,
   },
   feeModalRow: {
     justifyContent: 'space-between',
