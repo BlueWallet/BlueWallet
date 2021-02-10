@@ -353,20 +353,20 @@ export class BlueWalletNavigationHeader extends Component {
               ? [
                   {
                     id: 'walletBalanceVisibility',
-                    text: this.state.wallet.hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide,
+                    text: loc.transactions.details_balance_show,
                     onPress: this.handleBalanceVisibility,
                   },
                 ]
               : [
                   {
                     id: 'walletBalanceVisibility',
-                    text: this.state.wallet.hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide,
+                    text: loc.transactions.details_balance_hide,
                     onPress: this.handleBalanceVisibility,
                   },
                   {
                     id: 'copyToClipboard',
                     text: loc.transactions.details_copy,
-                    onPress: () => this.handleCopyPress,
+                    onPress: this.handleCopyPress,
                   },
                 ]
           }
