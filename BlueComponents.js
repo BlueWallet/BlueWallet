@@ -1265,7 +1265,7 @@ export const BlueReceiveButtonIcon = props => {
   );
 };
 
-export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, walletID }) => {
+export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, timeElapsed }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
   const { colors } = useTheme();
   const { navigate } = useNavigation();
@@ -1422,38 +1422,46 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
 
   const onPress = useCallback(async () => {
     if (item.hash) {
-      navigate('TransactionStatus', { hash: item.hash, walletID });
+      navigate('TransactionStatus', { hash: item.hash });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
-      try {
-        // is it a successful lnurl-pay?
-        const LN = new Lnurl(false, AsyncStorage);
-        let paymentHash = item.payment_hash;
-        if (typeof paymentHash === 'object') {
-          paymentHash = Buffer.from(paymentHash.data).toString('hex');
+      const lightningWallet = wallets.filter(wallet => {
+        if (typeof wallet === 'object') {
+          if ('secret' in wallet) {
+            return wallet.getSecret() === item.fromWallet;
+          }
         }
-        const loaded = await LN.loadSuccessfulPayment(paymentHash);
-        if (loaded) {
-          NavigationService.navigate('ScanLndInvoiceRoot', {
-            screen: 'LnurlPaySuccess',
-            params: {
-              paymentHash,
-              justPaid: false,
-              fromWalletID: walletID,
-            },
-          });
-          return;
-        }
-      } catch (e) {
-        console.log(e);
-      }
-
-      navigate('LNDViewInvoice', {
-        invoice: item,
-        walletID,
-        isModal: false,
       });
-    }
+      if (lightningWallet.length === 1) {
+        try {
+          // is it a successful lnurl-pay?
+          const LN = new Lnurl(false, AsyncStorage);
+          let paymentHash = item.payment_hash;
+          if (typeof paymentHash === 'object') {
+            paymentHash = Buffer.from(paymentHash.data).toString('hex');
+          }
+          const loaded = await LN.loadSuccessfulPayment(paymentHash);
+          if (loaded) {
+            NavigationService.navigate('ScanLndInvoiceRoot', {
+              screen: 'LnurlPaySuccess',
+              params: {
+                paymentHash,
+                justPaid: false,
+                fromWalletID: lightningWallet[0].getID(),
+              },
+            });
+            return;
+          }
+        } catch (e) {
+          console.log(e);
+        }
 
+        navigate('LNDViewInvoice', {
+          invoice: item,
+          walletID: lightningWallet[0].getID(),
+          isModal: false,
+        });
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item, wallets]);
 
@@ -1476,7 +1484,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
         onPress={onPress}
         onLongPress={onLongPress}
         chevron={false}
-        Component={item.type === 'bitcoind_tx' ? View : TouchableOpacity}
+        Component={TouchableOpacity}
         rightTitle={rowTitle}
         rightTitleStyle={rowTitleStyle}
         containerStyle={containerStyle}
