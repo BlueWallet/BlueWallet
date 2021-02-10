@@ -337,6 +337,10 @@ export class BlueWalletNavigationHeader extends Component {
   };
 
   render() {
+    const balance =
+      !this.state.wallet.hideBalance &&
+      formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit(), true).toString();
+
     return (
       <LinearGradient
         colors={WalletGradient.gradientsFor(this.state.wallet.type)}
@@ -408,6 +412,7 @@ export class BlueWalletNavigationHeader extends Component {
           ) : (
             <Text
               testID="WalletBalance"
+              key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
               numberOfLines={1}
               adjustsFontSizeToFit
               style={{
@@ -417,7 +422,7 @@ export class BlueWalletNavigationHeader extends Component {
                 color: '#fff',
               }}
             >
-              {formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit(), true).toString()}
+              {balance}
             </Text>
           )}
         </TouchableOpacity>
