@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
@@ -7,6 +7,8 @@ import navigationStyle from '../../components/navigationStyle';
 import HandoffComponent from '../../components/handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import Clipboard from '@react-native-community/clipboard';
+import ToolTipMenu from '../../components/TooltipMenu';
 const dayjs = require('dayjs');
 
 function onlyUnique(value, index, self) {
@@ -33,6 +35,8 @@ const TransactionsDetails = () => {
   const [tx, setTX] = useState();
   const [memo, setMemo] = useState();
   const { colors } = useTheme();
+  const openTransactionOnBlockExplorerRef = useRef();
+  const toolTip = useRef();
   const stylesHooks = StyleSheet.create({
     rowCaption: {
       color: colors.foregroundColor,
@@ -123,6 +127,14 @@ const TransactionsDetails = () => {
     });
   };
 
+  const handleCopyPress = () => {
+    Clipboard.setString(`https://blockstream.info/tx/${tx.hash}`);
+  };
+
+  const showToolTipMenu = () => {
+    toolTip.current.showMenu();
+  };
+
   if (isLoading || !tx) {
     return <BlueLoading />;
   }
@@ -182,7 +194,23 @@ const TransactionsDetails = () => {
                 <BlueCopyToClipboardButton stringToCopy={tx.hash} />
               </View>
               <BlueText style={styles.txHash}>{tx.hash}</BlueText>
-              <TouchableOpacity onPress={handleOnOpenTransactionOnBlockExporerTapped}>
+              <ToolTipMenu
+                ref={toolTip}
+                anchorRef={openTransactionOnBlockExplorerRef}
+                actions={[
+                  {
+                    id: 'copyToClipboard',
+                    text: loc.transactions.details_copy,
+                    onPress: handleCopyPress,
+                  },
+                ]}
+                onPress={handleCopyPress}
+              />
+              <TouchableOpacity
+                ref={openTransactionOnBlockExplorerRef}
+                onPress={handleOnOpenTransactionOnBlockExporerTapped}
+                onLongPress={showToolTipMenu}
+              >
                 <BlueText style={[styles.txLink, stylesHooks.txLink]}>{loc.transactions.details_show_in_block_explorer}</BlueText>
               </TouchableOpacity>
             </>
