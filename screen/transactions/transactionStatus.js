@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -28,16 +28,16 @@ const buttonStatus = Object.freeze({
   notPossible: 3,
 });
 
-const TransactionStatus = () => {
+const TransactionsStatus = () => {
   const { setSelectedWallet, wallets, txMetadata, getTransactions } = useContext(BlueStorageContext);
-  const { hash, walletID } = useRoute().params;
+  const { hash } = useRoute().params;
   const { navigate, setOptions } = useNavigation();
   const { colors } = useTheme();
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = useRef();
   const [isCPFPPossible, setIsCPFPPossible] = useState();
   const [isRBFBumpFeePossible, setIsRBFBumpFeePossible] = useState();
   const [isRBFCancelPossible, setIsRBFCancelPossible] = useState();
-  const tx = getTransactions(null, Infinity, true).find(transactionHash => transactionHash.hash === hash);
+  const [tx, setTX] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const stylesHook = StyleSheet.create({
     root: {
@@ -76,6 +76,27 @@ const TransactionStatus = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors]);
 
+  useEffect(() => {
+    for (const w of wallets) {
+      for (const t of w.getTransactions()) {
+        if (t.hash === hash) {
+          console.log('tx', hash, 'belongs to', w.getLabel());
+          wallet.current = w;
+          break;
+        }
+      }
+    }
+
+    for (const tx of getTransactions(null, Infinity, true)) {
+      if (tx.hash === hash) {
+        setTX(tx);
+        break;
+      }
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hash]);
+
   const initialState = async () => {
     try {
       await checkPossibilityOfCPFP();
@@ -97,7 +118,7 @@ const TransactionStatus = () => {
 
   useEffect(() => {
     if (wallet) {
-      setSelectedWallet(wallet.getID());
+      setSelectedWallet(wallet.current.getID());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet]);
@@ -107,11 +128,11 @@ const TransactionStatus = () => {
   }, []);
 
   const checkPossibilityOfCPFP = async () => {
-    if (!wallet.allowRBF()) {
+    if (!wallet.current.allowRBF()) {
       return setIsCPFPPossible(buttonStatus.notPossible);
     }
 
-    const cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet);
+    const cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet.current);
     if ((await cpfbTx.isToUsTransaction()) && (await cpfbTx.getRemoteConfirmationsNum()) === 0) {
       return setIsCPFPPossible(buttonStatus.possible);
     } else {
@@ -120,11 +141,11 @@ const TransactionStatus = () => {
   };
 
   const checkPossibilityOfRBFBumpFee = async () => {
-    if (!wallet.allowRBF()) {
+    if (!wallet.current.allowRBF()) {
       return setIsRBFBumpFeePossible(buttonStatus.notPossible);
     }
 
-    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet);
+    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet.current);
     if (
       (await rbfTx.isOurTransaction()) &&
       (await rbfTx.getRemoteConfirmationsNum()) === 0 &&
@@ -138,11 +159,11 @@ const TransactionStatus = () => {
   };
 
   const checkPossibilityOfRBFCancel = async () => {
-    if (!wallet.allowRBF()) {
+    if (!wallet.current.allowRBF()) {
       return setIsRBFCancelPossible(buttonStatus.notPossible);
     }
 
-    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet);
+    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet.current);
     if (
       (await rbfTx.isOurTransaction()) &&
       (await rbfTx.getRemoteConfirmationsNum()) === 0 &&
@@ -158,21 +179,21 @@ const TransactionStatus = () => {
   const navigateToRBFBumpFee = () => {
     navigate('RBFBumpFee', {
       txid: tx.hash,
-      wallet: wallet,
+      wallet: wallet.current,
     });
   };
 
   const navigateToRBFCancel = () => {
     navigate('RBFCancel', {
       txid: tx.hash,
-      wallet: wallet,
+      wallet: wallet.current,
     });
   };
 
   const navigateToCPFP = () => {
     navigate('CPFP', {
       txid: tx.hash,
-      wallet: wallet,
+      wallet: wallet.current,
     });
   };
   const navigateToTransactionDetials = () => {
@@ -269,9 +290,9 @@ const TransactionStatus = () => {
         <BlueCard>
           <View style={styles.center}>
             <Text style={[styles.value, stylesHook.value]}>
-              {formatBalanceWithoutSuffix(tx.value, wallet.preferredBalanceUnit, true)}{' '}
-              {wallet.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
-                <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{loc.units[wallet.preferredBalanceUnit]}</Text>
+              {formatBalanceWithoutSuffix(tx.value, wallet.current.preferredBalanceUnit, true)}{' '}
+              {wallet.current.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
+                <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{loc.units[wallet.current.preferredBalanceUnit]}</Text>
               )}
             </Text>
           </View>
@@ -310,8 +331,8 @@ const TransactionStatus = () => {
           {tx.fee && (
             <View style={styles.fee}>
               <BlueText style={styles.feeText}>
-                {loc.send.create_fee.toLowerCase()} {formatBalanceWithoutSuffix(tx.fee, wallet.preferredBalanceUnit, true)}{' '}
-                {wallet.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && wallet.preferredBalanceUnit}
+                {loc.send.create_fee.toLowerCase()} {formatBalanceWithoutSuffix(tx.fee, wallet.current.preferredBalanceUnit, true)}{' '}
+                {wallet.current.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && wallet.current.preferredBalanceUnit}
               </BlueText>
             </View>
           )}
@@ -339,7 +360,7 @@ const TransactionStatus = () => {
   );
 };
 
-export default TransactionStatus;
+export default TransactionsStatus;
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -439,6 +460,6 @@ const styles = StyleSheet.create({
   },
 });
 
-TransactionStatus.navigationOptions = navigationStyle({
+TransactionsStatus.navigationOptions = navigationStyle({
   title: '',
 });
