@@ -24,7 +24,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
   
   func nextReloadTime(after date: Date) -> Date {
     let calendar = Calendar(identifier: .gregorian)
-    return calendar.date(byAdding: .minute, value: 10, to: date)!
+    return calendar.date(byAdding: .minute, value: 1, to: date)!
   }
   
   func scheduleNextReload() {

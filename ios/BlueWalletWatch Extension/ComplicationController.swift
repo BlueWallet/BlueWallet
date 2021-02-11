@@ -52,9 +52,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     }
     
     let line1Text = CLKSimpleTextProvider(text:valueLabel)
-    line1Text.tintColor = .white
     let line2Text = CLKSimpleTextProvider(text:currencySymbol)
-    line2Text.tintColor = .blue
 
     switch complication.family {
     case .circularSmall:
@@ -123,9 +121,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
   func getLocalizableSampleTemplate(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTemplate?) -> Void) {
     // This method will be called once per supported complication, and the results will be cached
     let line1Text = CLKSimpleTextProvider(text:"46 K")
-    line1Text.tintColor = .white
     let line2Text = CLKSimpleTextProvider(text:"$")
-    line2Text.tintColor = .blue
     
     switch complication.family {
     case .circularSmall:
