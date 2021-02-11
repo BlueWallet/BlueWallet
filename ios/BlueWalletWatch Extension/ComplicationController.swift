@@ -53,7 +53,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     
     let line1Text = CLKSimpleTextProvider(text:valueLabel)
     let line2Text = CLKSimpleTextProvider(text:currencySymbol)
-
+    
     switch complication.family {
     case .circularSmall:
       let template = CLKComplicationTemplateCircularSmallStackText()
@@ -70,6 +70,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
       }
       entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
       handler(entry)
+      
     case .utilitarianSmall:
       let template = CLKComplicationTemplateUtilitarianSmallRingImage()
       template.imageProvider = CLKImageProvider(onePieceImage: UIImage(named: "Complication/Utilitarian")!)
@@ -101,9 +102,33 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
       }
       entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
       handler(entry)
+    case .graphicBezel:
+      let template = CLKComplicationTemplateGraphicBezelCircularText()
+      if #available(watchOSApplicationExtension 6.0, *) {
+        template.textProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueLabel)
+        let imageProvider = CLKFullColorImageProvider(fullColorImage: UIImage(named: "Complication/Graphic Bezel")!)
+        let circularTemplate = CLKComplicationTemplateGraphicCircularImage()
+        circularTemplate.imageProvider = imageProvider
+        template.circularTemplate = circularTemplate
+        entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+        handler(entry)
+      } else {
+        handler(nil)
+      }
+    case .utilitarianLarge:
+      if #available(watchOSApplicationExtension 7.0, *) {
+        let textProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueLabel)
+        let template = CLKComplicationTemplateUtilitarianLargeFlat(textProvider: textProvider)
+        entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+        handler(entry)
+      } else {
+        handler(nil)
+      }
     default:
       preconditionFailure("Complication family not supported")
+      
     }
+    
   }
   
   func getTimelineEntries(for complication: CLKComplication, before date: Date, limit: Int, withHandler handler: @escaping ([CLKComplicationTimelineEntry]?) -> Void) {
@@ -164,6 +189,26 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
       template.line1TextProvider = line1Text
       template.line2TextProvider = line2Text
       handler(template)
+    case .utilitarianLarge:
+      if #available(watchOSApplicationExtension 7.0, *) {
+        let textProvider = CLKTextProvider(format: "%@%@", "$", "46,000")
+        let template = CLKComplicationTemplateUtilitarianLargeFlat(textProvider: textProvider)
+        handler(template)
+      } else {
+        handler(nil)
+      }
+    case .graphicBezel:
+      let template = CLKComplicationTemplateGraphicBezelCircularText()
+      if #available(watchOSApplicationExtension 6.0, *) {
+        template.textProvider = CLKTextProvider(format: "%@%@", "$S", "46,000")
+        let imageProvider = CLKFullColorImageProvider(fullColorImage: UIImage(named: "Complication/Graphic Bezel")!)
+        let circularTemplate = CLKComplicationTemplateGraphicCircularImage()
+        circularTemplate.imageProvider = imageProvider
+        template.circularTemplate = circularTemplate
+        handler(template)
+      } else {
+        handler(nil)
+      }
     default:
       handler(nil)
     }
