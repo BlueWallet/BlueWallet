@@ -20,7 +20,6 @@ import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { LightningCustodianWallet, MultisigHDWallet, PlaceholderWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { BluePrivateBalance } from '../BlueComponents';
-
 import { BlueStorageContext } from '../blue_modules/storage-context';
 
 const nStyles = StyleSheet.create({
@@ -213,6 +212,8 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
       ? loc.transactions.pending
       : transactionTimeToReadable(item.getLatestTransactionTime());
 
+  const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
+
   return (
     <Animated.View
       style={[iStyles.root, { opacity, transform: [{ scale: scaleValue }] }]}
@@ -240,8 +241,13 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
           {item.hideBalance ? (
             <BluePrivateBalance />
           ) : (
-            <Text numberOfLines={1} adjustsFontSizeToFit style={[iStyles.balance, { color: colors.inverseForegroundColor }]}>
-              {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+            <Text
+              numberOfLines={1}
+              key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
+              adjustsFontSizeToFit
+              style={[iStyles.balance, { color: colors.inverseForegroundColor }]}
+            >
+              {balance}
             </Text>
           )}
           <Text style={iStyles.br} />
