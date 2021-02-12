@@ -123,6 +123,12 @@ Please note the values in curly braces should not be translated. These are the n
 
 Transifex automatically creates Pull Request when language reaches 100% translation. We also trigger this by hand before each release, so don't worry if you can't translate everything, every word counts.
 
+## Q&A
+
+Builds automated and tested with BrowserStack
+
+<a href="https://www.browserstack.com/"><img src="https://i.imgur.com/syscHCN.png" width="160px"></a>
+
 ## RESPONSIBLE DISCLOSURE
 
 Found critical bugs/vulnerabilities? Please email them bluewallet@bluewallet.io

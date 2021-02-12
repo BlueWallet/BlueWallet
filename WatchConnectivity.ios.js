@@ -7,7 +7,9 @@ import { BlueStorageContext } from './blue_modules/storage-context';
 import Notifications from './blue_modules/notifications';
 
 function WatchConnectivity() {
-  const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useContext(BlueStorageContext);
+  const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata, preferredFiatCurrency } = useContext(
+    BlueStorageContext,
+  );
   const isReachable = useReachability();
   const isInstalled = useInstalled(); // true | false
 
@@ -18,6 +20,21 @@ function WatchConnectivity() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized, wallets, isReachable, isInstalled]);
+
+  useEffect(() => {
+    if (walletsInitialized) {
+      try {
+        updateApplicationContext({
+          preferredFiatCurrency: JSON.parse(preferredFiatCurrency).endPointKey,
+          randomID: Math.floor(Math.random() * 11),
+        });
+      } catch (e) {
+        console.log('WatchConnectivity useEffect preferredFiatCurrency error');
+        console.log(e);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preferredFiatCurrency, walletsInitialized]);
 
   const handleMessages = (message, reply) => {
     if (message.request === 'createInvoice') {

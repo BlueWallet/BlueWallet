@@ -437,9 +437,7 @@ const WalletTransactions = () => {
     });
   };
 
-  const renderItem = item => (
-    <BlueTransactionListItem item={item.item} itemPriceUnit={itemPriceUnit} timeElapsed={timeElapsed} walletID={walletID} />
-  );
+  const renderItem = item => <BlueTransactionListItem item={item.item} itemPriceUnit={itemPriceUnit} timeElapsed={timeElapsed} />;
 
   const onBarCodeRead = ret => {
     if (!isLoading) {
