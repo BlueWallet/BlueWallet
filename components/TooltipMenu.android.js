@@ -3,13 +3,6 @@ import PropTypes from 'prop-types';
 import { View } from 'react-native';
 import showPopupMenu from 'react-native-popup-menu-android';
 
-export const ToolTipAction = { text: '', onPress: () => {}, id: '' };
-ToolTipAction.propTypes = {
-  text: PropTypes.string.isRequired,
-  onPress: PropTypes.func.isRequired,
-  id: PropTypes.string,
-};
-
 const ToolTipMenu = (props, ref) => {
   const handleToolTipSelection = selection => {
     props.onPress(selection.id);
