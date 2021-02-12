@@ -96,11 +96,23 @@ class WatchDataSource: NSObject, WCSessionDelegate {
   }
   
   func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-    WatchDataSource.shared.processWalletsData(walletsInfo: applicationContext)
+    if let preferredFiatCurrency = applicationContext["preferredFiatCurrency"] as? String, let  preferredFiatCurrencyUnit = fiatUnit(currency: preferredFiatCurrency) {
+      UserDefaults.standard.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredFiatCurrency")
+      UserDefaults.standard.synchronize()
+      ExtensionDelegate.preferredFiatCurrencyChanged()
+    } else {
+      WatchDataSource.shared.processWalletsData(walletsInfo: applicationContext)
+    }
   }
   
   func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
-    WatchDataSource.shared.processWalletsData(walletsInfo: applicationContext)
+    if let preferredFiatCurrency = applicationContext["preferredFiatCurrency"] as? String, let  preferredFiatCurrencyUnit = fiatUnit(currency: preferredFiatCurrency) {
+      UserDefaults.standard.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredFiatCurrency")
+      UserDefaults.standard.synchronize()
+      ExtensionDelegate.preferredFiatCurrencyChanged()
+    } else {
+      WatchDataSource.shared.processWalletsData(walletsInfo: applicationContext)
+    }
   }
   
   func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {

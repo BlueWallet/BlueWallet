@@ -41,13 +41,17 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     let valueLabel: String
     let currencySymbol: String
     
-    if let price = marketData?.formattedRateForComplication, let marketDatadata = marketData?.date, let userCurrencySymbol = fiatUnit(currency: WidgetAPI.getUserPreferredCurrency())?.symbol {
+    if let price = marketData?.formattedRateForComplication, let marketDatadata = marketData?.date {
       date = marketDatadata
       valueLabel = price
-      currencySymbol = userCurrencySymbol
+      if let preferredFiatCurrency = UserDefaults.standard.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
+        currencySymbol = preferredFiatUnit.symbol
+      } else {
+        currencySymbol = fiatUnit(currency: "USD")!.symbol
+      }
     } else {
       valueLabel = "--"
-      currencySymbol = "USD"
+      currencySymbol = fiatUnit(currency: "USD")!.symbol
       date = Date()
     }
     

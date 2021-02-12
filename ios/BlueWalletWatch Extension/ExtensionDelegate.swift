@@ -14,17 +14,32 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
   func applicationDidFinishLaunching() {
     // Perform any final initialization of your application.
     scheduleNextReload()
-    WidgetAPI.fetchPrice(currency: WidgetAPI.getUserPreferredCurrency()) { [weak self] (data, error) in
+    ExtensionDelegate.preferredFiatCurrencyChanged()
+  }
+  
+  static func preferredFiatCurrencyChanged() {
+    let fiatUnitUserDefaults: FiatUnit
+    if let preferredFiatCurrency = UserDefaults.standard.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
+      fiatUnitUserDefaults = preferredFiatUnit
+    } else {
+      fiatUnitUserDefaults = fiatUnit(currency: "USD")!
+    }
+    WidgetAPI.fetchPrice(currency: fiatUnitUserDefaults.endPointKey) { (data, error) in
       if let data = data, let encodedData = try? PropertyListEncoder().encode(data) {
         UserDefaults.standard.set(encodedData, forKey: MarketData.string)
-        self?.reloadActiveComplications()
+        UserDefaults.standard.synchronize()
+        let server = CLKComplicationServer.sharedInstance()
+        
+        for complication in server.activeComplications ?? [] {
+          server.reloadTimeline(for: complication)
+        }
       }
     }
   }
   
   func nextReloadTime(after date: Date) -> Date {
     let calendar = Calendar(identifier: .gregorian)
-    return calendar.date(byAdding: .minute, value: 1, to: date)!
+    return calendar.date(byAdding: .minute, value: 10, to: date)!
   }
   
   func scheduleNextReload() {
@@ -60,14 +75,20 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
   func handle(_ backgroundTasks: Set<WKRefreshBackgroundTask>) {
     for task in backgroundTasks {
       switch task {
-      case let backgroundTask as WKApplicationRefreshBackgroundTask:
+        case let backgroundTask as WKApplicationRefreshBackgroundTask:
         NSLog("ExtensionDelegate: handling WKApplicationRefreshBackgroundTask")
         
         scheduleNextReload()
-        
-        WidgetAPI.fetchPrice(currency: WidgetAPI.getUserPreferredCurrency()) { [weak self] (data, error) in
+          let fiatUnitUserDefaults: FiatUnit
+          if let preferredFiatCurrency = UserDefaults.standard.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
+            fiatUnitUserDefaults = preferredFiatUnit
+          } else {
+            fiatUnitUserDefaults = fiatUnit(currency: "USD")!
+          }
+          WidgetAPI.fetchPrice(currency: fiatUnitUserDefaults.endPointKey) { [weak self] (data, error) in
           if let data = data, let encodedData = try? PropertyListEncoder().encode(data) {
             UserDefaults.standard.set(encodedData, forKey: MarketData.string)
+            UserDefaults.standard.synchronize()
             self?.reloadActiveComplications()
             backgroundTask.setTaskCompletedWithSnapshot(false)
           }
@@ -78,5 +99,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
       }
     }
   }
+  
+  
   
 }

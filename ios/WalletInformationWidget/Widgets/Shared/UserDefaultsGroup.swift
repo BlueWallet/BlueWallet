@@ -8,17 +8,6 @@
 
 import Foundation
 
-enum UserDefaultsGroupKey: String {
-  case GroupName = "group.io.bluewallet.bluewallet"
-  case PreferredCurrency = "preferredCurrency"
-  case ElectrumSettingsHost = "electrum_host"
-  case ElectrumSettingsTCPPort = "electrum_tcp_port"
-  case ElectrumSettingsSSLPort = "electrum_ssl_port"
-  case AllWalletsBalance = "WidgetCommunicationAllWalletsSatoshiBalance"
-  case AllWalletsLatestTransactionTime = "WidgetCommunicationAllWalletsLatestTransactionTime"
-  case LatestTransactionIsUnconfirmed = "\"WidgetCommunicationLatestTransactionIsUnconfirmed\""
-}
-
 struct UserDefaultsElectrumSettings {
   let host: String?
   let port: Int32?
