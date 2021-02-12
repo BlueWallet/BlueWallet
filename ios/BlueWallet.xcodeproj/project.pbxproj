@@ -31,6 +31,17 @@
 		6D2AA80A2568B8F40090B089 /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2AA8072568B8F40090B089 /* FiatUnit.swift */; };
 		6D2AA80B2568B8F40090B089 /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2AA8072568B8F40090B089 /* FiatUnit.swift */; };
 		6D32C5C62596CE3A008C077C /* EventEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D32C5C52596CE3A008C077C /* EventEmitter.m */; };
+		6D4AF15925D21172009DD853 /* WidgetAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6A254BAB1B007B5B82 /* WidgetAPI.swift */; };
+		6D4AF16325D21185009DD853 /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6B254BAB1B007B5B82 /* WidgetDataStore.swift */; };
+		6D4AF16D25D21192009DD853 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4BFA254FBA0E00E9F9AA /* Models.swift */; };
+		6D4AF17725D211A3009DD853 /* FiatUnits.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6D2AA7F92568B8750090B089 /* FiatUnits.plist */; };
+		6D4AF17825D211A3009DD853 /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2AA8072568B8F40090B089 /* FiatUnit.swift */; };
+		6D4AF18425D215D1009DD853 /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */; };
+		6D4AF18525D215D1009DD853 /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */; };
+		6D4AF18625D215D1009DD853 /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */; };
+		6D4AF18725D215D1009DD853 /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */; };
+		6D4AF18825D215D1009DD853 /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */; };
+		6D4AF18925D215D1009DD853 /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */; };
 		6D641F18255226DA003792DF /* MarketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D641F17255226DA003792DF /* MarketView.swift */; };
 		6D641F19255226DA003792DF /* MarketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D641F17255226DA003792DF /* MarketView.swift */; };
 		6D641F2325525054003792DF /* WalletInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D641F2225525053003792DF /* WalletInformationView.swift */; };
@@ -86,7 +97,7 @@
 		6DEB4C3B254FBF4800E9F9AA /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4C3A254FBF4800E9F9AA /* Colors.swift */; };
 		6DEB4C3C254FBF4800E9F9AA /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4C3A254FBF4800E9F9AA /* Colors.swift */; };
 		6DF25A9F249DB97E001D06F5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6DF25A9E249DB97E001D06F5 /* LaunchScreen.storyboard */; };
-		6DFC807024EA0B6C007B8700 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; productRef = 6DFC806F24EA0B6C007B8700 /* SwiftPackageProductDependency */; };
+		6DFC807024EA0B6C007B8700 /* EFQRCode in Frameworks */ = {isa = PBXBuildFile; productRef = 6DFC806F24EA0B6C007B8700 /* EFQRCode */; };
 		6DFC807224EA2FA9007B8700 /* ViewQRCodefaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DFC807124EA2FA9007B8700 /* ViewQRCodefaceController.swift */; };
 		764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B468CC34D5B41F3950078EF /* libsqlite3.0.tbd */; };
 		782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D9B3A7B2CB4255876B67AF /* libz.tbd */; };
@@ -265,6 +276,7 @@
 		5A8F67CF29564E41882ECEF8 /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Brands.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf"; sourceTree = "<group>"; };
 		64774910B0DBEC412995CB89 /* Pods-WalletInformationWidgetExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WalletInformationWidgetExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WalletInformationWidgetExtension/Pods-WalletInformationWidgetExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		6A65D81712444D37BA152B06 /* libRNRandomBytes.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNRandomBytes.a; sourceTree = "<group>"; };
+		6D203C2025D4ED2500493AD1 /* BlueWalletWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BlueWalletWatch.entitlements; sourceTree = "<group>"; };
 		6D294A7324D510AC0039E22B /* af */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = af; path = af.lproj/Interface.strings; sourceTree = "<group>"; };
 		6D294A7424D510AC0039E22B /* af */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = af; path = af.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A7524D510D60039E22B /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Interface.strings; sourceTree = "<group>"; };
@@ -318,6 +330,8 @@
 		6D32C5C52596CE3A008C077C /* EventEmitter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EventEmitter.m; sourceTree = "<group>"; };
 		6D333B3A252FE1A3004D72DF /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		6D333B3C252FE1A3004D72DF /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		6D4AF18225D215D0009DD853 /* BlueWalletWatch-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BlueWalletWatch-Bridging-Header.h"; sourceTree = "<group>"; };
+		6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsExtension.swift; sourceTree = "<group>"; };
 		6D641F17255226DA003792DF /* MarketView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketView.swift; sourceTree = "<group>"; };
 		6D641F2225525053003792DF /* WalletInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInformationView.swift; sourceTree = "<group>"; };
 		6D641F3425526311003792DF /* SendReceiveButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendReceiveButtons.swift; sourceTree = "<group>"; };
@@ -488,7 +502,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6DFC807024EA0B6C007B8700 /* BuildFile in Frameworks */,
+				6DFC807024EA0B6C007B8700 /* EFQRCode in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -671,6 +685,8 @@
 				6D9A2E08254BA348007B5B82 /* Assets.xcassets */,
 				6DEB4BFA254FBA0E00E9F9AA /* Models.swift */,
 				6DEB4C3A254FBF4800E9F9AA /* Colors.swift */,
+				6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */,
+				6D4AF18225D215D0009DD853 /* BlueWalletWatch-Bridging-Header.h */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -744,6 +760,7 @@
 		B40D4E31225841EC00428FCC /* BlueWalletWatch */ = {
 			isa = PBXGroup;
 			children = (
+				6D203C2025D4ED2500493AD1 /* BlueWalletWatch.entitlements */,
 				B40D4E32225841EC00428FCC /* Interface.storyboard */,
 				B40D4E35225841ED00428FCC /* Assets.xcassets */,
 				B40D4E37225841ED00428FCC /* Info.plist */,
@@ -989,7 +1006,7 @@
 			);
 			name = "BlueWalletWatch Extension";
 			packageProductDependencies = (
-				6DFC806F24EA0B6C007B8700 /* SwiftPackageProductDependency */,
+				6DFC806F24EA0B6C007B8700 /* EFQRCode */,
 			);
 			productName = "BlueWalletWatch Extension";
 			productReference = B40D4E3C225841ED00428FCC /* BlueWalletWatch Extension.appex */;
@@ -1035,6 +1052,7 @@
 					B40D4E2F225841EC00428FCC = {
 						CreatedOnToolsVersion = 10.2;
 						DevelopmentTeam = A7W54YZ4WU;
+						LastSwiftMigration = 1240;
 						ProvisioningStyle = Manual;
 					};
 					B40D4E3B225841ED00428FCC = {
@@ -1083,7 +1101,7 @@
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
-				6DFC806E24EA0B6C007B8700 /* RemoteSwiftPackageReference */,
+				6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -1177,6 +1195,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D4AF17725D211A3009DD853 /* FiatUnits.plist in Resources */,
 				B4EE583C226703320003363C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1388,6 +1407,7 @@
 			files = (
 				3271B0BB236E329400DA766F /* TodayAPI.swift in Sources */,
 				3271B0AE236E2E0700DA766F /* TodayViewController.swift in Sources */,
+				6D4AF18525D215D1009DD853 /* UserDefaultsExtension.swift in Sources */,
 				32002D9D236FAA9F00B93396 /* TodayDataStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1403,6 +1423,7 @@
 				6D6CA5292558EC52009312A5 /* PriceView.swift in Sources */,
 				6D2AA80B2568B8F40090B089 /* FiatUnit.swift in Sources */,
 				6D6CA53C2558F316009312A5 /* WidgetAPI.swift in Sources */,
+				6D4AF18925D215D1009DD853 /* UserDefaultsExtension.swift in Sources */,
 				6D6CA5332558ED54009312A5 /* Models.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1421,6 +1442,7 @@
 				6D99467B2555A68A000E52E8 /* MarketView.swift in Sources */,
 				6D9946872555A695000E52E8 /* UserDefaultsGroup.swift in Sources */,
 				6D9946632555A660000E52E8 /* MarketWidget.swift in Sources */,
+				6D4AF18625D215D1009DD853 /* UserDefaultsExtension.swift in Sources */,
 				6D6CA5152558EBA4009312A5 /* WidgetAPI+Electrum.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1441,6 +1463,7 @@
 				6DEB4BFB254FBA0E00E9F9AA /* Models.swift in Sources */,
 				6D641F18255226DA003792DF /* MarketView.swift in Sources */,
 				6D6CA5162558EBA4009312A5 /* WidgetAPI+Electrum.swift in Sources */,
+				6D4AF18825D215D1009DD853 /* UserDefaultsExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1458,6 +1481,7 @@
 				6D641F3625526311003792DF /* SendReceiveButtons.swift in Sources */,
 				6DEB4BFC254FBA0E00E9F9AA /* Models.swift in Sources */,
 				6D641F19255226DA003792DF /* MarketView.swift in Sources */,
+				6D4AF18725D215D1009DD853 /* UserDefaultsExtension.swift in Sources */,
 				6D6CA54E2558F497009312A5 /* WidgetAPI+Electrum.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1467,20 +1491,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				B43D037C225847C500FBAA95 /* Wallet.swift in Sources */,
+				6D4AF17825D211A3009DD853 /* FiatUnit.swift in Sources */,
 				B43D037A225847C500FBAA95 /* Transaction.swift in Sources */,
 				32F0A29A2311DBB20095C559 /* ComplicationController.swift in Sources */,
 				B40D4E602258425500428FCC /* SpecifyInterfaceController.swift in Sources */,
 				B43D0379225847C500FBAA95 /* WatchDataSource.swift in Sources */,
+				6D4AF16325D21185009DD853 /* WidgetDataStore.swift in Sources */,
 				6DFC807224EA2FA9007B8700 /* ViewQRCodefaceController.swift in Sources */,
 				B40D4E46225841ED00428FCC /* NotificationController.swift in Sources */,
 				B40D4E5D2258425500428FCC /* InterfaceController.swift in Sources */,
 				B43D037B225847C500FBAA95 /* TransactionTableRow.swift in Sources */,
 				B43D037D225847C500FBAA95 /* WalletInformation.swift in Sources */,
+				6D4AF15925D21172009DD853 /* WidgetAPI.swift in Sources */,
 				B40D4E642258425500428FCC /* WalletDetailsInterfaceController.swift in Sources */,
 				B40D4E44225841ED00428FCC /* ExtensionDelegate.swift in Sources */,
 				B40D4E682258426B00428FCC /* KeychainSwiftDistrib.swift in Sources */,
+				6D4AF16D25D21192009DD853 /* Models.swift in Sources */,
 				B40D4E632258425500428FCC /* ReceiveInterfaceController.swift in Sources */,
 				B43D0378225847C500FBAA95 /* WalletGradient.swift in Sources */,
+				6D4AF18425D215D1009DD853 /* UserDefaultsExtension.swift in Sources */,
 				B40D4E5E2258425500428FCC /* NumericKeypadInterfaceController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2357,9 +2386,11 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = BlueWalletWatch/BlueWalletWatch.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 310;
@@ -2377,6 +2408,7 @@
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "WalletInformationWidget/Widgets/Shared/BlueWalletWatch-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -2392,9 +2424,11 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = BlueWalletWatch/BlueWalletWatch.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
@@ -2412,6 +2446,7 @@
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OBJC_BRIDGING_HEADER = "WalletInformationWidget/Widgets/Shared/BlueWalletWatch-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -2515,7 +2550,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		6DFC806E24EA0B6C007B8700 /* RemoteSwiftPackageReference */ = {
+		6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/EFPrefix/EFQRCode.git";
 			requirement = {
@@ -2526,9 +2561,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		6DFC806F24EA0B6C007B8700 /* SwiftPackageProductDependency */ = {
+		6DFC806F24EA0B6C007B8700 /* EFQRCode */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 6DFC806E24EA0B6C007B8700 /* RemoteSwiftPackageReference */;
+			package = 6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */;
 			productName = EFQRCode;
 		};
 /* End XCSwiftPackageProductDependency section */
