@@ -227,6 +227,8 @@ export default class SendDetails extends Component {
     let fromWallet = null;
     if (props.route.params) fromWallet = props.route.params.fromWallet;
 
+    const hideWalletSelector = props?.route?.params?.hideWalletSelector;
+
     const wallets = context.wallets.filter(wallet => wallet.type !== LightningCustodianWallet.type && wallet.allowSend());
 
     if (wallets.length === 0) {
@@ -236,12 +238,14 @@ export default class SendDetails extends Component {
       if (!fromWallet && wallets.length > 0) {
         fromWallet = wallets[0];
       }
+
+      const isTransactionReplaceable = fromWallet.type === HDSegwitBech32Wallet.type && !props.route.params.noRbf;
       this.state = {
         isLoading: false,
         showSendMax: false,
         isFeeSelectionModalVisible: false,
         isAdvancedTransactionOptionsVisible: false,
-        isTransactionReplaceable: fromWallet.type === HDSegwitBech32Wallet.type,
+        isTransactionReplaceable,
         recipientsScrollIndex: 0,
         fromWallet,
         addresses: [],
@@ -260,6 +264,7 @@ export default class SendDetails extends Component {
         renderWalletSelectionButtonHidden: false,
         width: Dimensions.get('window').width,
         utxo: null,
+        hideWalletSelector,
       };
     }
   }
@@ -359,7 +364,7 @@ export default class SendDetails extends Component {
         alert(loc.send.details_error_decode);
       }
     } else if (this.props.route.params.address) {
-      addresses.push(new BitcoinTransaction(this.props.route.params.address));
+      addresses.push(new BitcoinTransaction(this.props.route.params.address, this.props.route.params.amount));
       if (this.props.route.params.memo) initialMemo = this.props.route.params.memo;
       this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC });
     } else {
@@ -665,6 +670,11 @@ export default class SendDetails extends Component {
       this.state.isTransactionReplaceable ? HDSegwitBech32Wallet.defaultRBFSequence : HDSegwitBech32Wallet.finalRBFSequence,
     );
 
+    if (tx && this.props.route.params.launchedBy && psbt) {
+      console.warn('navigating back to ', this.props.route.params.launchedBy);
+      this.props.navigation.navigate(this.props.route.params.launchedBy, { psbt });
+    }
+
     if (wallet.type === WatchOnlyWallet.type) {
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
@@ -673,6 +683,7 @@ export default class SendDetails extends Component {
         memo: this.state.memo,
         fromWallet: wallet,
         psbt,
+        launchedBy: this.props.route.params.launchedBy,
       });
       this.setState({ isLoading: false });
       return;
@@ -683,6 +694,7 @@ export default class SendDetails extends Component {
         memo: this.state.memo,
         psbtBase64: psbt.toBase64(),
         walletID: wallet.getID(),
+        launchedBy: this.props.route.params.launchedBy,
       });
       this.setState({ isLoading: false });
       return;
@@ -1236,6 +1248,7 @@ export default class SendDetails extends Component {
   };
 
   renderWalletSelectionOrCoinsSelected = () => {
+    if (this.state.hideWalletSelector) return;
     if (this.state.renderWalletSelectionOrCoinsSelectedHidden) return;
 
     if (this.state.utxo !== null) {
@@ -1513,6 +1526,8 @@ SendDetails.propTypes = {
       fromWallet: PropTypes.fromWallet,
       memo: PropTypes.string,
       uri: PropTypes.string,
+      launchedBy: PropTypes.string,
+      noRbf: PropTypes.bool,
     }),
   }),
 };

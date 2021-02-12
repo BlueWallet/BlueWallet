@@ -16,6 +16,7 @@ import {
   HDSegwitElectrumSeedP2WPKHWallet,
   HDAezeedWallet,
   MultisigHDWallet,
+  LightningLndWallet,
 } from './';
 const encryption = require('../blue_modules/encryption');
 const Realm = require('realm');
@@ -75,7 +76,6 @@ export class AppStorage {
       return AsyncStorage.getItem(key);
     }
   };
-
 
   storageIsEncrypted = async () => {
     let data;
@@ -279,6 +279,10 @@ export class AppStorage {
             case HDAezeedWallet.type:
               unserializedWallet = HDAezeedWallet.fromJson(key);
               break;
+            case LightningLndWallet.type:
+              unserializedWallet = LightningLndWallet.fromJson(key);
+              unserializedWallet.init();
+              break;
             case LightningCustodianWallet.type: {
               /** @type {LightningCustodianWallet} */
               unserializedWallet = LightningCustodianWallet.fromJson(key);
@@ -336,6 +340,22 @@ export class AppStorage {
   deleteWallet = wallet => {
     const secret = wallet.getSecret();
     const tempWallets = [];
+
+    if (wallet.type === LightningLndWallet.type) {
+      /** @type {LightningLndWallet} */
+      const lndwallet = wallet;
+      (async () => {
+        // scheduled for execution later
+        try {
+          await lndwallet.stop();
+          await lndwallet.wipeLndDir();
+        } catch (_) {
+        } finally {
+          alert('LND wallet deleted. To create another LND wallet please restart the app');
+          // as starting LND again will crash the whole app (known LND bug)
+        }
+      })();
+    }
 
     for (const value of this.wallets) {
       if (value.type === PlaceholderWallet.type) {

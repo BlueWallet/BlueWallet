@@ -28,7 +28,7 @@ import { Chain } from '../../models/bitcoinUnits';
 import { BlueTransactionListItem, BlueWalletNavigationHeader, BlueAlertWalletExportReminder, BlueListItem } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
 import navigationStyle from '../../components/navigationStyle';
-import { LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import { LightningCustodianWallet, LightningLndWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import HandoffComponent from '../../components/handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
@@ -41,6 +41,7 @@ const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const isDesktop = getSystemName() === 'Mac OS X';
+const selectWallet = require('../../blue_modules/select-wallet');
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -51,6 +52,7 @@ const WalletTransactions = () => {
   const { wallets, saveToDisk, setSelectedWallet, walletTransactionUpdateStatus } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(false);
   const [isManageFundsModalVisible, setIsManageFundsModalVisible] = useState(false);
+  const [isManageLndModalVisible, setIsManageLndModalVisible] = useState(false);
   const { walletID } = useRoute().params;
   const wallet = useRef(wallets.find(w => w.getID() === walletID));
   const name = useRoute().name;
@@ -254,9 +256,9 @@ const WalletTransactions = () => {
             The idea is to avoid showing on iOS an appstore/market style app that goes against the TOS.
 
            */}
-          {wallet.current.getTransactions().length > 0 && wallet.current.type !== LightningCustodianWallet.type && renderSellFiat()}
-          {wallet.current.type === LightningCustodianWallet.type && renderMarketplaceButton()}
-          {wallet.current.type === LightningCustodianWallet.type && Platform.OS === 'ios' && renderLappBrowserButton()}
+          {wallet.current.getTransactions().length > 0 && wallet.current.chain !== Chain.OFFCHAIN && renderSellFiat()}
+          {wallet.current.chain === Chain.OFFCHAIN && renderMarketplaceButton()}
+          {wallet.current.chain === Chain.OFFCHAIN && Platform.OS === 'ios' && renderLappBrowserButton()}
         </View>
         <View style={[styles.listHeaderTextRow, stylesHook.listHeaderTextRow]}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
@@ -271,6 +273,11 @@ const WalletTransactions = () => {
   const hideManageFundsModal = () => {
     Keyboard.dismiss();
     setIsManageFundsModalVisible(false);
+  };
+
+  const hideManageLndModal = () => {
+    Keyboard.dismiss();
+    setIsManageLndModalVisible(false);
   };
 
   const renderManageFundsModal = () => {
@@ -333,6 +340,45 @@ const WalletTransactions = () => {
     );
   };
 
+  const renderManageLndModal = () => {
+    return (
+      <BottomModal isVisible={isManageLndModalVisible} onClose={hideManageLndModal}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+          <View style={[styles.advancedTransactionOptionsModalContent, stylesHook.advancedTransactionOptionsModalContent]}>
+            <BlueListItem
+              hideChevron
+              component={TouchableOpacity}
+              onPress={async () => {
+                const availableWallets = [...wallets.filter(item => item.isSegwit() && item.allowSend())];
+                if (availableWallets.length === 0) {
+                  return alert(loc.lnd.refill_create);
+                }
+
+                setIsManageLndModalVisible(false);
+                /** @type {AbstractWallet} */
+                const selectedWallet = await selectWallet(navigate, name, false, availableWallets);
+                return navigate('LndOpenChannel', {
+                  fundingWalletID: selectedWallet.getID(),
+                  lndWalletID: wallet.current.getID(),
+                });
+              }}
+              title="Open Channel"
+            />
+            <BlueListItem
+              hideChevron
+              component={TouchableOpacity}
+              onPress={() => {
+                setIsManageLndModalVisible(false);
+                navigate('LndInfo', { walletID: wallet.current.getID() });
+              }}
+              title="Manage Node"
+            />
+          </View>
+        </KeyboardAvoidingView>
+      </BottomModal>
+    );
+  };
+
   const navigateToBuyBitcoin = () => {
     BuyBitcoin.navigate(wallet.current);
   };
@@ -342,7 +388,7 @@ const WalletTransactions = () => {
       android: (
         <TouchableOpacity
           onPress={() => {
-            if (wallet.current.type === LightningCustodianWallet.type) {
+            if (wallet.current.chain === Chain.OFFCHAIN) {
               navigate('LappBrowserRoot', {
                 screen: 'LappBrowser',
                 params: { fromSecret: wallet.current.getSecret(), fromWallet: wallet.current },
@@ -610,6 +656,8 @@ const WalletTransactions = () => {
         onManageFundsPressed={() => {
           if (wallet.current.type === MultisigHDWallet.type) {
             navigateToViewEditCosigners();
+          } else if (wallet.current.type === LightningLndWallet.type) {
+            setIsManageLndModalVisible(true);
           } else if (wallet.current.type === LightningCustodianWallet.type) {
             if (wallet.current.getUserHasSavedExport()) {
               setIsManageFundsModalVisible(true);
@@ -675,6 +723,7 @@ const WalletTransactions = () => {
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
         />
         {renderManageFundsModal()}
+        {renderManageLndModal()}
       </View>
 
       <FContainer>

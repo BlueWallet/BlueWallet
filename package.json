@@ -167,6 +167,7 @@
     "react-test-render": "1.1.2",
     "readable-stream": "3.6.0",
     "realm": "10.2.0",
+    "rn-lnd": "git+https://github.com/BlueWallet/rn-lnd.git",
     "rn-nodeify": "10.2.0",
     "scryptsy": "file:blue_modules/scryptsy",
     "secure-random": "1.1.2",

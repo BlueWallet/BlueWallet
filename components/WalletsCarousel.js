@@ -17,7 +17,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Carousel from 'react-native-snap-carousel';
 
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
-import { LightningCustodianWallet, MultisigHDWallet, PlaceholderWallet } from '../class';
+import { LightningCustodianWallet, LightningLndWallet, MultisigHDWallet, PlaceholderWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { BluePrivateBalance } from '../BlueComponents';
 
@@ -194,6 +194,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
   const opacity = isSelectedWallet === false ? 0.5 : 1.0;
   let image;
   switch (item.type) {
+    case LightningLndWallet.type:
     case LightningCustodianWallet.type:
       image = require('../img/lnd-shape.png');
       break;

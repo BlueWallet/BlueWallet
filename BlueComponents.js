@@ -25,7 +25,7 @@ import {
 } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
-import { LightningCustodianWallet, MultisigHDWallet } from './class';
+import { LightningCustodianWallet, LightningLndWallet, MultisigHDWallet } from './class';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import * as NavigationService from './NavigationService';
 import WalletGradient from './class/wallet-gradient';
@@ -220,6 +220,37 @@ export const LightningButton = props => {
   );
 };
 
+export const LndButton = props => {
+  const { colors } = useTheme();
+  return (
+    <TouchableOpacity onPress={props.onPress}>
+      <View
+        style={{
+          borderColor: (props.active && colors.lnborderColor) || colors.buttonDisabledBackgroundColor,
+          borderWidth: 1.5,
+          borderRadius: 8,
+          backgroundColor: colors.buttonDisabledBackgroundColor,
+          minWidth: props.style.width,
+          minHeight: props.style.height,
+          height: props.style.height,
+          flex: 1,
+          marginBottom: 8,
+        }}
+      >
+        <View style={{ marginHorizontal: 16, marginVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
+          <View>
+            <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/lightning.png')} />
+          </View>
+          <View>
+            <Text style={{ color: colors.lnborderColor, fontWeight: 'bold', fontSize: 18 }}>LND</Text>
+            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500' }}>0.12</Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
 export class BlueWalletNavigationHeader extends Component {
   static propTypes = {
     wallet: PropTypes.shape().isRequired,
@@ -346,6 +377,7 @@ export class BlueWalletNavigationHeader extends Component {
         <Image
           source={(() => {
             switch (this.state.wallet.type) {
+              case LightningLndWallet.type:
               case LightningCustodianWallet.type:
                 return require('./img/lnd-shape.png');
               case MultisigHDWallet.type:
@@ -449,6 +481,36 @@ export class BlueWalletNavigationHeader extends Component {
             </View>
           </TouchableOpacity>
         )}
+
+        {this.state.wallet.type === LightningLndWallet.type && (
+          <TouchableOpacity onPress={this.manageFundsPressed}>
+            <View
+              style={{
+                marginTop: 14,
+                marginBottom: 10,
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                borderRadius: 9,
+                minHeight: 39,
+                alignSelf: 'flex-start',
+                paddingHorizontal: 12,
+                height: 39,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Text
+                style={{
+                  fontWeight: '500',
+                  fontSize: 14,
+                  color: '#FFFFFF',
+                }}
+              >
+                {loc.lnd.title}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
+
         {this.state.wallet.type === MultisigHDWallet.type && (
           <TouchableOpacity onPress={this.manageFundsPressed}>
             <View
