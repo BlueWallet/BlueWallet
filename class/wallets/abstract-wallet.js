@@ -170,7 +170,6 @@ export class AbstractWallet {
         try {
           parsedSecret = JSON.parse(this.secret);
         } catch (e) {
-          console.log(e);
           parsedSecret = JSON.parse(newSecret);
         }
       } else {
