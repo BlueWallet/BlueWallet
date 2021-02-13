@@ -1,5 +1,11 @@
 import { useContext, useEffect } from 'react';
-import { updateApplicationContext, watchEvents, useReachability, useInstalled } from 'react-native-watch-connectivity';
+import {
+  updateApplicationContext,
+  watchEvents,
+  useReachability,
+  useInstalled,
+  transferCurrentComplicationUserInfo,
+} from 'react-native-watch-connectivity';
 import { InteractionManager } from 'react-native';
 import { Chain } from './models/bitcoinUnits';
 import loc, { formatBalance, transactionTimeToReadable } from './loc';
@@ -19,14 +25,13 @@ function WatchConnectivity() {
       watchEvents.on('message', handleMessages);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletsInitialized, wallets, isReachable, isInstalled]);
+  }, [walletsInitialized, wallets, preferredFiatCurrency, isReachable, isInstalled]);
 
   useEffect(() => {
-    if (walletsInitialized) {
+    if (walletsInitialized && preferredFiatCurrency) {
       try {
-        updateApplicationContext({
+        transferCurrentComplicationUserInfo({
           preferredFiatCurrency: JSON.parse(preferredFiatCurrency).endPointKey,
-          randomID: Math.floor(Math.random() * 11),
         });
       } catch (e) {
         console.log('WatchConnectivity useEffect preferredFiatCurrency error');
