@@ -192,10 +192,9 @@ const App = () => {
     await new Promise(resolve => setTimeout(resolve, 200));
     // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
     const notifications2process = await Notifications.getStoredNotifications();
-
+    const deliveredNotifications = await Notifications.getDeliveredNotifications();
     await Notifications.clearStoredNotifications();
     Notifications.setApplicationIconBadgeNumber(0);
-    const deliveredNotifications = await Notifications.getDeliveredNotifications();
     setTimeout(() => Notifications.removeAllDeliveredNotifications(), 5000); // so notification bubble wont disappear too fast
 
     for (const payload of notifications2process) {
