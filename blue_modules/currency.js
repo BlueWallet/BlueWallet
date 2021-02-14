@@ -30,6 +30,7 @@ async function setPrefferedCurrency(item) {
 
 async function getPreferredCurrency() {
   const preferredCurrency = await JSON.parse(await AsyncStorage.getItem(AppStorage.PREFERRED_CURRENCY));
+  await DefaultPreference.setName('group.io.bluewallet.bluewallet');
   await DefaultPreference.set('preferredCurrency', preferredCurrency.endPointKey);
   await DefaultPreference.set('preferredCurrencyLocale', preferredCurrency.locale.replace('-', '_'));
   return preferredCurrency;
