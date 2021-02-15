@@ -1,4 +1,3 @@
-/* global it, describe */
 import assert from 'assert';
 import { MultisigHDWallet } from '../../class/';
 import { decodeUR } from 'bc-ur/dist';

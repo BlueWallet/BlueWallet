@@ -1,4 +1,3 @@
-/* global it, describe, jasmine, afterAll, beforeAll */
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitBech32Transaction, SegwitBech32Wallet } from '../../class';
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');

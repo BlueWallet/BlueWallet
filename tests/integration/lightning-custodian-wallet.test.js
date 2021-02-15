@@ -1,4 +1,3 @@
-/* global it, describe, jasmine */
 import Frisbee from 'frisbee';
 import { LightningCustodianWallet } from '../../class';
 const assert = require('assert');
