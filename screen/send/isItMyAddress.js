@@ -113,9 +113,7 @@ const IsItMyAddress = () => {
 };
 
 export default IsItMyAddress;
-IsItMyAddress.navigationOptions = navigationStyle({
-  title: loc.is_it_my_address.title,
-});
+IsItMyAddress.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.is_it_my_address.title }));
 
 const styles = StyleSheet.create({
   wrapper: {

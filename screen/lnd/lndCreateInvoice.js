@@ -497,8 +497,10 @@ const styles = StyleSheet.create({
 
 export default LNDCreateInvoice;
 
-LNDCreateInvoice.navigationOptions = navigationStyle({
-  closeButton: true,
-  headerTitle: loc.receive.header,
-  headerLeft: null,
-});
+LNDCreateInvoice.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.receive.header }),
+);

@@ -128,6 +128,4 @@ RBFCancel.propTypes = {
   }),
 };
 
-RBFCancel.navigationOptions = navigationStyle({
-  title: loc.transactions.cancel_title,
-});
+RBFCancel.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.transactions.cancel_title }));

@@ -476,8 +476,6 @@ const styles = StyleSheet.create({
   },
 });
 
-CoinControl.navigationOptions = navigationStyle({
-  title: loc.cc.header,
-});
+CoinControl.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.cc.header }));
 
 export default CoinControl;

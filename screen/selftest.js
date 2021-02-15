@@ -65,7 +65,9 @@ export default class Selftest extends Component {
 
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
         const aezeed = new HDAezeedWallet();
-        aezeed.setSecret('abstract rhythm weird food attract treat mosquito sight royal actor surround ride strike remove guilt catch filter summer mushroom protect poverty cruel chaos pattern');
+        aezeed.setSecret(
+          'abstract rhythm weird food attract treat mosquito sight royal actor surround ride strike remove guilt catch filter summer mushroom protect poverty cruel chaos pattern',
+        );
         assertStrictEqual(await aezeed.validateMnemonicAsync(), true, 'Aezeed failed');
         assertStrictEqual(aezeed._getExternalAddressByIndex(0), 'bc1qdjj7lhj9lnjye7xq3dzv3r4z0cta294xy78txn', 'Aezeed failed');
       } else {

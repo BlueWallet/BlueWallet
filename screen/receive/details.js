@@ -353,10 +353,12 @@ const ReceiveDetails = () => {
   );
 };
 
-ReceiveDetails.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.receive.header,
-  headerLeft: null,
-});
+ReceiveDetails.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.receive.header }),
+);
 
 export default ReceiveDetails;

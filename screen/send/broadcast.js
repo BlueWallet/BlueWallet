@@ -132,9 +132,7 @@ const Broadcast = () => {
 };
 
 export default Broadcast;
-Broadcast.navigationOptions = navigationStyle({
-  title: loc.send.create_broadcast,
-});
+Broadcast.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.send.create_broadcast }));
 
 const styles = StyleSheet.create({
   wrapper: {

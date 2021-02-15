@@ -518,8 +518,10 @@ Browser.propTypes = {
   }),
 };
 
-Browser.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.wallets.list_ln_browser,
-  headerLeft: null,
-});
+Browser.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.wallets.list_ln_browser }),
+);

@@ -39,8 +39,6 @@ const NetworkSettings = () => {
   );
 };
 
-NetworkSettings.navigationOptions = navigationStyle({
-  title: loc.settings.network,
-});
+NetworkSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.network }));
 
 export default NetworkSettings;

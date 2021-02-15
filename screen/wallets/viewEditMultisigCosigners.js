@@ -738,10 +738,12 @@ const styles = StyleSheet.create({
   },
 });
 
-ViewEditMultisigCosigners.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.multisig.manage_keys,
-  headerLeft: null,
-});
+ViewEditMultisigCosigners.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.multisig.manage_keys }),
+);
 
 export default ViewEditMultisigCosigners;

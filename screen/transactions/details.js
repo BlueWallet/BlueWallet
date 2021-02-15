@@ -303,6 +303,4 @@ const styles = StyleSheet.create({
 
 export default TransactionsDetails;
 
-TransactionsDetails.navigationOptions = navigationStyle({
-  title: loc.transactions.details_title,
-});
+TransactionsDetails.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.transactions.details_title }));

@@ -271,9 +271,7 @@ const Entropy = () => {
   );
 };
 
-Entropy.navigationOptions = navigationStyle({
-  title: loc.entropy.title,
-});
+Entropy.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.entropy.title }));
 
 const styles = StyleSheet.create({
   entropy: {
