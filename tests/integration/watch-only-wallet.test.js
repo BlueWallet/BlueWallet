@@ -1,4 +1,3 @@
-/* global it, describe, jasmine, afterAll, beforeAll  */
 import { WatchOnlyWallet } from '../../class';
 const assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js

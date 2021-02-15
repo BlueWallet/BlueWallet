@@ -1,5 +1,3 @@
-/* global it, describe, expect, element, by, waitFor, device, jasmine */
-
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
 const createHash = require('create-hash');
