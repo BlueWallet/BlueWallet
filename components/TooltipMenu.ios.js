@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { View } from 'react-native';
 
 const ToolTipMenu = (props, ref) => {
-  const toolTip = useRef(null);
+  const toolTip = useRef();
 
   const showMenu = () => {
     console.log('Showing ToolTip');
@@ -15,7 +15,11 @@ const ToolTipMenu = (props, ref) => {
     ref.current.showMenu = showMenu;
   }, [ref]);
 
-  return <View ref={ref}>{ref.current && <ToolTip ref={toolTip} actions={props.actions} />}</View>;
+  return (
+    <View ref={ref}>
+      <ToolTip ref={toolTip} actions={props.actions} />
+    </View>
+  );
 };
 
 export default forwardRef(ToolTipMenu);
