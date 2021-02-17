@@ -284,7 +284,7 @@ describe('BlueWallet UI Tests', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can encrypt storage, and decrypt storage, but this time the fake one', async () => {
+  it.skip('can encrypt storage, and decrypt storage, but this time the fake one', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
