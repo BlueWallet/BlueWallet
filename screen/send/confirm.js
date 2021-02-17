@@ -15,6 +15,7 @@ import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import Notifications from '../../blue_modules/notifications';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
@@ -38,6 +39,7 @@ export default class Confirm extends Component {
       tx: props.route.params.tx,
       satoshiPerByte: props.route.params.satoshiPerByte,
       fromWallet: props.route.params.fromWallet,
+      showAnimatedQr: props.route.params.showAnimatedQr,
     };
   }
 
@@ -190,6 +192,8 @@ export default class Confirm extends Component {
                 </View>
               )}
               {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm_sendNow} />}
+
+              {this.state.showAnimatedQr && this.state.psbt ? <DynamicQRCode value={this.state.psbt.toHex()} capacity={666} /> : null}
 
               <TouchableOpacity
                 testID="TransactionDetailsButton"

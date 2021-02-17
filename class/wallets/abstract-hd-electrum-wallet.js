@@ -1070,13 +1070,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const hdRoot = HDNode.fromSeed(seed);
 
     for (let cc = 0; cc < psbt.inputCount; cc++) {
-      // TODO make this work
-      // try {
-      //   psbt.signInputHD(cc, hdRoot);
-      // } catch (e) {
-      //   // protects agains duplicate cosignings
-      //   if (e.message !== 'Can not add duplicate data to array') throw e;
-      // }
+      try {
+        psbt.signInputHD(cc, hdRoot);
+      } catch (e) {} // protects agains duplicate cosignings
 
       if (!psbt.inputHasHDKey(cc, hdRoot)) {
         for (const derivation of psbt.data.inputs[cc].bip32Derivation || []) {
@@ -1087,9 +1083,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           const keyPair = bitcoin.ECPair.fromWIF(wif);
           try {
             psbt.signInput(cc, keyPair);
-          } catch (e) {
-            // protects agains duplicate cosignings or if this output can't be signed with current wallet
-          }
+          } catch (e) {} // protects agains duplicate cosignings or if this output can't be signed with current wallet
         }
       }
     }

@@ -235,7 +235,7 @@ const ScanQRCode = () => {
 
   const dismiss = () => {
     if (launchedBy) {
-      navigation.navigate(launchedBy, { dismissed: true });
+      navigation.navigate(launchedBy);
     } else {
       navigation.goBack();
     }
