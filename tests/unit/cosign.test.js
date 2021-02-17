@@ -7,6 +7,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
   it('different descendants of AbstractHDElectrumWallet can cosign one transaction', async () => {
     if (!process.env.HD_MNEMONIC || !process.env.HD_MNEMONIC_BIP49) {
       console.error('process.env.HD_MNEMONIC or HD_MNEMONIC_BIP49 not set, skipped');
+      return;
     }
 
     const w1 = new HDLegacyP2PKHWallet();
@@ -181,6 +182,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
   it('HDSegwitBech32Wallet can cosign psbt with correct fingerprint', async () => {
     if (!process.env.MNEMONICS_COBO) {
       console.error('process.env.HD_MNEMONIC or HD_MNEMONIC_BIP49 not set, skipped');
+      return;
     }
 
     const w = new HDSegwitBech32Wallet();
