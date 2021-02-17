@@ -71,8 +71,9 @@ struct PriceWidgetEntryView : View {
   }
   
   var body: some View {
-    priceView.background(Color.widgetBackground)
-    
+    VStack(content: {
+      priceView
+    }).background(Color.widgetBackground)
   }
 }
 
