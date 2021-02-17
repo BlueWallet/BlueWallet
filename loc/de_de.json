@@ -16,7 +16,9 @@
     "seed": "Seed",
     "wallet_key": "Wallet Schlüssel",
     "invalid_animated_qr_code_fragment" : "Ungültig animiertes QR-Code-Fragment. Bitte erneut versuchen",
-    "file_saved": "Die Datei ({filePath}) wurde deinen Downloadfolder gespeichert."
+    "file_saved": "Die Datei ({filePath}) wurde deinen Downloadfolder gespeichert.",
+    "discard_changes": "Änderungen verwerfen?",
+    "discard_changes_detail": "Die nicht gespeicherten Änderungen verwerfen und den Bildschirm verlassen?"
   },
   "azteco": {
     "codeIs": "Dein Gutscheincode lautet",
@@ -355,7 +357,8 @@
     "status_bump": "TRX-Gebühr erhöhen",
     "status_cancel": "Transaktion abbrechen",
     "transactions_count": "Anzahl Transaktionen",
-    "txid": "TX-ID"
+    "txid": "TX-ID",
+    "updating": "Aktualisiere...."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -437,6 +440,7 @@
     "looks_like_bip38": "Passwortgeschützter Privatschlüssel (BIP38) erkannt.",
     "reorder_title": "Wallets neu ordnen",
     "please_continue_scanning": "Bitte Scanvorgang fortsetzten",
+    "scan_error": "Scanfehler",
     "select_no_bitcoin": "Es sind momentan keine Bitcoin Wallets verfügbar.",
     "select_no_bitcoin_exp": "Eine Bitcoin Wallet ist Voraussetzung dafür, um eine Lightning Wallet zu befüllen. Bitte erstelle oder importiere eines.",
     "select_wallet": "Wähle eine Wallet",
@@ -445,6 +449,7 @@
     "pull_to_refresh": "Zum Aktualisieren ziehen",
     "warning_do_not_disclose": "Warnung! Nicht veröffentlichen",
     "add_ln_wallet_first": "Bitte zuerst ein Lightning-Wallet hinzufügen.",
+    "identity_pubkey": "Pubkey-Identität",
     "xpub_title": "Wallet XPUB"
   },
   "multisig": {

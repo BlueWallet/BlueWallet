@@ -38,8 +38,9 @@ class InterfaceController: WKInterfaceController {
       if wallet.identifier == nil {
         WatchDataSource.shared.wallets[index].identifier = index
       }
+      controller.walletBalanceLabel.setHidden(wallet.hideBalance)
       controller.name = wallet.label
-      controller.balance = wallet.balance
+      controller.balance = wallet.hideBalance ? "" : wallet.balance
       controller.type = WalletGradient(rawValue: wallet.type) ?? .SegwitHD
     }
     noWalletsAvailableLabel.setHidden(!WatchDataSource.shared.wallets.isEmpty)

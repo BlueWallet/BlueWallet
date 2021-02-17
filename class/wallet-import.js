@@ -27,7 +27,7 @@ const wif = require('wif');
 const prompt = require('../blue_modules/prompt');
 
 function WalletImport() {
-  const { wallets, pendingWallets, setPendingWallets, saveToDisk, addWallet, setNewWalletAdded } = useContext(BlueStorageContext);
+  const { wallets, pendingWallets, setPendingWallets, saveToDisk, addWallet } = useContext(BlueStorageContext);
 
   /**
    *
@@ -53,7 +53,6 @@ function WalletImport() {
     }
     addWallet(w);
     await saveToDisk();
-    setNewWalletAdded(true);
     A(A.ENUM.CREATED_WALLET);
     alert(loc.wallets.import_success);
     Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);

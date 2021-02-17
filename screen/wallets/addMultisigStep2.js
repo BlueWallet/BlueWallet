@@ -27,7 +27,6 @@ import {
   BlueButton,
   BlueButtonLink,
   BlueFormMultiInput,
-  BlueLoading,
   BlueSpacing10,
   BlueSpacing20,
   BlueSpacing40,
@@ -51,7 +50,7 @@ const isDesktop = getSystemName() === 'Mac OS X';
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
-  const { addWallet, saveToDisk, setNewWalletAdded } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
   const navigation = useNavigation();
@@ -196,7 +195,6 @@ const WalletsAddMultisigStep2 = () => {
 
     addWallet(w);
     await saveToDisk();
-    setNewWalletAdded(true);
     A(A.ENUM.CREATED_WALLET);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     navigation.dangerouslyGetParent().goBack();
@@ -675,11 +673,9 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
-  const footer = isLoading ? (
-    <BlueLoading />
-  ) : (
+  const footer = (
     <View style={styles.buttonBottom}>
-      <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={cosigners.length !== n} />
+      {isLoading ? <ActivityIndicator /> : <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={cosigners.length !== n} />}
     </View>
   );
 
@@ -718,7 +714,7 @@ const styles = StyleSheet.create({
   buttonBottom: {
     marginHorizontal: 20,
     flex: 0.12,
-    marginBottom: 36,
+    marginBottom: 40,
     justifyContent: 'flex-end',
   },
 

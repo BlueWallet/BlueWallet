@@ -23,8 +23,9 @@ class Wallet: NSObject, NSCoding {
   let receiveAddress: String
   let transactions: [Transaction]
   let xpub: String?
+  let hideBalance: Bool
   
-  init(label: String, balance: String, type: String, preferredBalanceUnit: String, receiveAddress: String, transactions: [Transaction], identifier: Int, xpub: String?) {
+  init(label: String, balance: String, type: String, preferredBalanceUnit: String, receiveAddress: String, transactions: [Transaction], identifier: Int, xpub: String?, hideBalance: Bool = false) {
     self.label = label
     self.balance = balance
     self.type = type
@@ -33,6 +34,7 @@ class Wallet: NSObject, NSCoding {
     self.transactions = transactions
     self.identifier = identifier
     self.xpub = xpub
+    self.hideBalance = hideBalance
   }
   
   func encode(with aCoder: NSCoder) {
@@ -44,6 +46,7 @@ class Wallet: NSObject, NSCoding {
     aCoder.encode(transactions, forKey: "transactions")
     aCoder.encode(identifier, forKey: "identifier")
     aCoder.encode(xpub, forKey: "xpub")
+    aCoder.encode(hideBalance, forKey: "hideBalance")
   }
   
   required init?(coder aDecoder: NSCoder) {
@@ -54,6 +57,7 @@ class Wallet: NSObject, NSCoding {
     receiveAddress = aDecoder.decodeObject(forKey: "receiveAddress") as! String
     transactions = aDecoder.decodeObject(forKey: "transactions") as? [Transaction] ?? [Transaction]()
     xpub = aDecoder.decodeObject(forKey: "xpub") as? String
+    hideBalance = aDecoder.decodeObject(forKey: "hideBalance") as? Bool ?? false
 
   }
 
