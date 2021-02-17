@@ -1,20 +1,20 @@
 /* global alert */
 import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
 import {
-  Alert,
-  Keyboard,
-  KeyboardAvoidingView,
-  Linking,
-  PermissionsAndroid,
-  Platform,
-  StatusBar,
-  StyleSheet,
-  Switch,
+  View,
   Text,
   TextInput,
+  Alert,
+  KeyboardAvoidingView,
   TouchableOpacity,
+  Keyboard,
   TouchableWithoutFeedback,
-  View,
+  Switch,
+  Platform,
+  Linking,
+  StyleSheet,
+  StatusBar,
+  PermissionsAndroid,
 } from 'react-native';
 import { SecondButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueText, BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
