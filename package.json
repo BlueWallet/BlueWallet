@@ -77,7 +77,7 @@
     "@react-native-community/masked-view": "0.1.10",
     "@react-native-community/push-notification-ios": "1.8.0",
     "@react-native-community/slider": "3.0.3",
-    "@react-navigation/drawer": "5.11.5",
+    "@react-navigation/drawer": "5.12.2",
     "@react-navigation/native": "5.9.2",
     "@react-navigation/stack": "5.13.0",
     "@remobile/react-native-qrcode-local-image": "git+https://github.com/BlueWallet/react-native-qrcode-local-image.git",
