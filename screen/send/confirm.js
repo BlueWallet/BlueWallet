@@ -1,7 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, FlatList, TouchableOpacity, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
 import { Text } from 'react-native-elements';
 import { PayjoinClient } from 'payjoin-client';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -164,61 +164,63 @@ export default class Confirm extends Component {
   render() {
     return (
       <SafeBlueArea style={styles.root}>
-        <ScrollView contentContainerStyle={styles.rootWrap}>
+        <View style={styles.rootWrap}>
           <FlatList
+            scrollEnabled={this.state.recipients.length > 1}
             extraData={this.state.recipients}
             data={this.state.recipients}
             renderItem={this._renderItem}
             keyExtractor={(_item, index) => `${index}`}
             ItemSeparatorComponent={this.renderSeparator}
             style={styles.flat}
-            scrollEnabled={false}
           />
           <View style={styles.cardContainer}>
-            <Text style={styles.cardText}>
-              {loc.send.create_fee}: {formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
-              {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
-            </Text>
-            <BlueSpacing40 />
-            {!!this.state.payjoinUrl && (
-              <View style={styles.payjoinWrapper}>
-                <Text style={styles.payjoinText}>Payjoin</Text>
-                <Switch
-                  testID="PayjoinSwitch"
-                  value={this.state.isPayjoinEnabled}
-                  onValueChange={isPayjoinEnabled => this.setState({ isPayjoinEnabled })}
-                />
-              </View>
-            )}
+            <BlueCard>
+              <Text style={styles.cardText}>
+                {loc.send.create_fee}: {formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
+                {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
+              </Text>
+              <BlueSpacing40 />
+              {!!this.state.payjoinUrl && (
+                <View style={styles.payjoinWrapper}>
+                  <Text style={styles.payjoinText}>Payjoin</Text>
+                  <Switch
+                    testID="PayjoinSwitch"
+                    value={this.state.isPayjoinEnabled}
+                    onValueChange={isPayjoinEnabled => this.setState({ isPayjoinEnabled })}
+                  />
+                </View>
+              )}
+              {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm_sendNow} />}
 
-            {this.state.showAnimatedQr && this.state.psbt ? <DynamicQRCode value={this.state.psbt.toHex()} capacity={666} /> : null}
+              {this.state.showAnimatedQr && this.state.psbt ? <DynamicQRCode value={this.state.psbt.toHex()} capacity={666} /> : null}
 
-            <TouchableOpacity
-              testID="TransactionDetailsButton"
-              style={styles.txDetails}
-              onPress={async () => {
-                if (this.isBiometricUseCapableAndEnabled) {
-                  if (!(await Biometric.unlockWithBiometrics())) {
-                    return;
+              <TouchableOpacity
+                testID="TransactionDetailsButton"
+                style={styles.txDetails}
+                onPress={async () => {
+                  if (this.isBiometricUseCapableAndEnabled) {
+                    if (!(await Biometric.unlockWithBiometrics())) {
+                      return;
+                    }
                   }
-                }
 
-                this.props.navigation.navigate('CreateTransaction', {
-                  fee: this.state.fee,
-                  recipients: this.state.recipients,
-                  memo: this.state.memo,
-                  tx: this.state.tx,
-                  satoshiPerByte: this.state.satoshiPerByte,
-                  wallet: this.state.fromWallet,
-                  feeSatoshi: this.state.feeSatoshi,
-                });
-              }}
-            >
-              <Text style={styles.txText}>{loc.transactions.details_transaction_details}</Text>
-            </TouchableOpacity>
-            {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm_sendNow} />}
+                  this.props.navigation.navigate('CreateTransaction', {
+                    fee: this.state.fee,
+                    recipients: this.state.recipients,
+                    memo: this.state.memo,
+                    tx: this.state.tx,
+                    satoshiPerByte: this.state.satoshiPerByte,
+                    wallet: this.state.fromWallet,
+                    feeSatoshi: this.state.feeSatoshi,
+                  });
+                }}
+              >
+                <Text style={styles.txText}>{loc.transactions.details_transaction_details}</Text>
+              </TouchableOpacity>
+            </BlueCard>
           </View>
-        </ScrollView>
+        </View>
       </SafeBlueArea>
     );
   }
@@ -284,9 +286,10 @@ const styles = StyleSheet.create({
     maxHeight: '55%',
   },
   cardContainer: {
+    flexDirection: 'row',
     justifyContent: 'center',
-    marginVertical: 16,
-    flex: 1,
+    paddingTop: 16,
+    paddingBottom: 16,
   },
   cardText: {
     color: '#37c0a1',
