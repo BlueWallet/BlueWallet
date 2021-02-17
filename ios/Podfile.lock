@@ -276,7 +276,7 @@ PODS:
   - react-native-tcp-socket (3.7.1):
     - CocoaAsyncSocket
     - React
-  - react-native-webview (11.0.0):
+  - react-native-webview (11.2.0):
     - React-Core
   - react-native-widget-center (0.0.4):
     - React
@@ -707,7 +707,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 01158a92c300895d79dee447e980672dc3fb85a6
   react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
-  react-native-webview: f0da708d7e471b60ebdbf861c114d2c5d7f7af2d
+  react-native-webview: c010115ea45efd0d329ac7746d0cc59579d7860c
   react-native-widget-center: 0f81d17beb163e7fb5848b06754d7d277fe7d99a
   React-RCTActionSheet: 53ea72699698b0b47a6421cb1c8b4ab215a774aa
   React-RCTAnimation: 1befece0b5183c22ae01b966f5583f42e69a83c2
