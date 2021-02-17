@@ -464,6 +464,10 @@ export default class Browser extends Component {
                 placeholderTextColor="#81868e"
                 style={styles.safeURLText}
                 editable
+                textContentType="URL"
+                keyboardType="url"
+                autoCorrect={false}
+                autoCapitalize="none"
                 onSubmitEditing={() => {
                   Keyboard.dismiss();
                   let url = this.state.stateURL;
