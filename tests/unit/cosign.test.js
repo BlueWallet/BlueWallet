@@ -161,10 +161,12 @@ describe('AbstractHDElectrumWallet.cosign', () => {
 
     let psbt2 = bitcoin.Psbt.fromBase64(psbt.toBase64());
     tx = w1.cosignPsbt(psbt2).tx;
+    assert.strictEqual(w1.calculateHowManySignaturesWeHaveFromPsbt(psbt2), 1);
     assert.strictEqual(tx, false); // not yet fully-signed
 
     psbt2 = bitcoin.Psbt.fromBase64(psbt2.toBase64());
     tx = w2.cosignPsbt(psbt2).tx;
+    assert.strictEqual(w2.calculateHowManySignaturesWeHaveFromPsbt(psbt2), 2);
     assert.strictEqual(tx, false); // not yet fully-signed
 
     psbt2 = bitcoin.Psbt.fromBase64(psbt2.toBase64());
