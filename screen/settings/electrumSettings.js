@@ -319,9 +319,7 @@ ElectrumSettings.propTypes = {
   }),
 };
 
-ElectrumSettings.navigationOptions = navigationStyle({
-  title: loc.settings.electrum_settings,
-});
+ElectrumSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.electrum_settings }));
 
 const styles = StyleSheet.create({
   root: {

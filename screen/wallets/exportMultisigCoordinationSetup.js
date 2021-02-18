@@ -127,10 +127,12 @@ const styles = StyleSheet.create({
   },
 });
 
-ExportMultisigCoordinationSetup.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.multisig.export_coordination_setup,
-  headerLeft: null,
-});
+ExportMultisigCoordinationSetup.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.multisig.export_coordination_setup }),
+);
 
 export default ExportMultisigCoordinationSetup;

@@ -156,9 +156,7 @@ const NotificationSettings = () => {
   );
 };
 
-NotificationSettings.navigationOptions = navigationStyle({
-  title: loc.settings.notifications,
-});
+NotificationSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.notifications }));
 
 const styles = StyleSheet.create({
   root: {

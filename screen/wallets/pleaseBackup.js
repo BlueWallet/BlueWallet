@@ -87,14 +87,16 @@ const PleaseBackup = () => {
   );
 };
 
-PleaseBackup.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.pleasebackup.title,
-  headerLeft: null,
-  headerRight: null,
-  gestureEnabled: false,
-  swipeEnabled: false,
-});
+PleaseBackup.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+    headerRight: null,
+    gestureEnabled: false,
+    swipeEnabled: false,
+  },
+  opts => ({ ...opts, title: loc.pleasebackup.title }),
+);
 
 const styles = StyleSheet.create({
   flex: {

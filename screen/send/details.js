@@ -1517,28 +1517,24 @@ SendDetails.propTypes = {
   }),
 };
 
-SendDetails.navigationOptions = navigationStyleTx(
-  {
+SendDetails.navigationOptions = navigationStyleTx({}, (options, { theme, navigation, route }) => {
+  let headerRight;
+  if (route.params.withAdvancedOptionsMenuButton) {
+    headerRight = () => (
+      <TouchableOpacity
+        style={styles.advancedOptions}
+        onPress={route.params.advancedOptionsMenuButtonAction}
+        testID="advancedOptionsMenuButton"
+      >
+        <Icon size={22} name="kebab-horizontal" type="octicon" color={theme.colors.foregroundColor} />
+      </TouchableOpacity>
+    );
+  } else {
+    headerRight = null;
+  }
+  return {
+    ...options,
+    headerRight,
     title: loc.send.header,
-  },
-  (options, { theme, navigation, route }) => {
-    let headerRight;
-    if (route.params.withAdvancedOptionsMenuButton) {
-      headerRight = () => (
-        <TouchableOpacity
-          style={styles.advancedOptions}
-          onPress={route.params.advancedOptionsMenuButtonAction}
-          testID="advancedOptionsMenuButton"
-        >
-          <Icon size={22} name="kebab-horizontal" type="octicon" color={theme.colors.foregroundColor} />
-        </TouchableOpacity>
-      );
-    } else {
-      headerRight = null;
-    }
-    return {
-      ...options,
-      headerRight,
-    };
-  },
-);
+  };
+});

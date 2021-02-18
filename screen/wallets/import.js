@@ -163,7 +163,6 @@ const WalletsImport = () => {
   );
 };
 
-WalletsImport.navigationOptions = navigationStyle({
-  title: loc.wallets.import_title,
-});
+WalletsImport.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.import_title }));
+
 export default WalletsImport;

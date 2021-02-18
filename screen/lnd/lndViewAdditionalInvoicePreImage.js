@@ -61,6 +61,4 @@ const styles = StyleSheet.create({
 
 export default LNDViewAdditionalInvoicePreImage;
 
-LNDViewAdditionalInvoicePreImage.navigationOptions = navigationStyle({
-  title: loc.lndViewInvoice.additional_info,
-});
+LNDViewAdditionalInvoicePreImage.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.lndViewInvoice.additional_info }));

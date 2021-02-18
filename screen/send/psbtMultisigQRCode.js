@@ -120,8 +120,6 @@ const styles = StyleSheet.create({
   },
 });
 
-PsbtMultisigQRCode.navigationOptions = navigationStyle({
-  title: loc.multisig.header,
-});
+PsbtMultisigQRCode.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.multisig.header }));
 
 export default PsbtMultisigQRCode;

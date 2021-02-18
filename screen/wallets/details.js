@@ -558,8 +558,6 @@ const WalletDetails = () => {
   );
 };
 
-WalletDetails.navigationOptions = navigationStyle({
-  headerTitle: loc.wallets.details_title,
-});
+WalletDetails.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.details_title }));
 
 export default WalletDetails;

@@ -26,8 +26,6 @@ const ReleaseNotes = () => {
   );
 };
 
-ReleaseNotes.navigationOptions = navigationStyle({
-  title: loc.settings.about_release_notes,
-});
+ReleaseNotes.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.about_release_notes }));
 
 export default ReleaseNotes;
