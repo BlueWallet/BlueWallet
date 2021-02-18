@@ -93,7 +93,6 @@ const ScanLndInvoice = () => {
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet]),
-    [],
   );
 
   useEffect(() => {

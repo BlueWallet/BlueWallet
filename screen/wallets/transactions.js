@@ -379,7 +379,7 @@ const WalletTransactions = () => {
             screen: 'LappBrowser',
             params: {
               fromSecret: wallet.current.getSecret(),
-              fromWallet: wallet,
+              fromWallet: wallet.current,
               url: 'https://duckduckgo.com',
             },
           });
