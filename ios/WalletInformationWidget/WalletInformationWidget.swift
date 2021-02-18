@@ -11,7 +11,7 @@ import SwiftUI
 
 struct Provider: TimelineProvider {
   func placeholder(in context: Context) -> SimpleEntry {
-    SimpleEntry(date: Date(), marketData: emptyMarketData)
+    return SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
   }
   
   func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
@@ -59,7 +59,9 @@ struct WalletInformationWidgetEntryView : View {
   }
   
   var body: some View {
-    WalletBalance.padding().background(Color.widgetBackground)
+    VStack(content: {
+      WalletBalance
+    }).padding().background(Color.widgetBackground)
   }
 }
 
@@ -78,7 +80,7 @@ struct WalletInformationWidget: Widget {
 
 struct WalletInformationWidget_Previews: PreviewProvider {
   static var previews: some View {
-    WalletInformationWidgetEntryView(entry: SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: Double(13000)), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000))))
+    WalletInformationWidgetEntryView(entry: SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: Double(0)), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000))))
       .previewContext(WidgetPreviewContext(family: .systemSmall))
   }
 }
