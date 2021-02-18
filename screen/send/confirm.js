@@ -209,7 +209,6 @@ export default class Confirm extends Component {
                     satoshiPerByte: this.state.satoshiPerByte,
                     wallet: this.state.fromWallet,
                     feeSatoshi: this.state.feeSatoshi,
-                    psbt: this.state.psbt,
                   });
                 }}
               >

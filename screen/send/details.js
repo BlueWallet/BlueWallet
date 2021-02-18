@@ -1114,10 +1114,7 @@ export default class SendDetails extends Component {
     this.setState({ isAdvancedTransactionOptionsVisible: false, isLoading: true });
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
     const scannedData = await scanqr(this.props.navigation.navigate, this.props.route.name);
-    if (!scannedData) {
-      this.setState({ isLoading: false });
-      return;
-    }
+    if (!scannedData) return this.setState({ isLoading: false });
 
     /** @type {HDSegwitBech32Wallet} */
     const wallet = this.state.fromWallet;
@@ -1134,7 +1131,7 @@ export default class SendDetails extends Component {
       this.setState({ isLoading: false });
     }
 
-    if (!tx) return;
+    if (!tx) return this.setState({ isLoading: false });
 
     // we need to remove change address from recipients, so that Confirm screen show more accurate info
     const changeAddresses = [];
