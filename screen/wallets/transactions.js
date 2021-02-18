@@ -492,7 +492,7 @@ const WalletTransactions = () => {
         } else {
           Alert.alert(
             loc.wallets.details_title,
-            loc.transactions.enable_hw,
+            loc.transactions.enable_offline_signing,
             [
               {
                 text: loc._.ok,

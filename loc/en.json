@@ -349,7 +349,7 @@
     "details_title": "Transaction",
     "details_to": "Output",
     "details_transaction_details": "Transaction Details",
-    "enable_hw": "This wallet is not being used in conjunction with an offline signing. Would you wish to enable it now?",
+    "enable_offline_signing": "This wallet is not being used in conjunction with an offline signing. Would you wish to enable it now?",
     "list_conf": "Conf: {number}",
     "pending": "Pending",
     "list_title": "Transactions",
