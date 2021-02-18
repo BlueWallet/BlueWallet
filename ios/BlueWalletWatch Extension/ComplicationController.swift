@@ -40,10 +40,11 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     let date: Date
     let valueLabel: String
     let currencySymbol: String
-    
-    if let price = marketData?.formattedRateForComplication, let marketDatadata = marketData?.date {
+    let timeLabel: String
+    if let price = marketData?.formattedRateForComplication, let marketDatadata = marketData?.date, let lastUpdated = marketData?.formattedDate {
       date = marketDatadata
       valueLabel = price
+      timeLabel = lastUpdated
       if let preferredFiatCurrency = UserDefaults.standard.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
         currencySymbol = preferredFiatUnit.symbol
       } else {
@@ -51,6 +52,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
       }
     } else {
       valueLabel = "--"
+      timeLabel = "--"
       currencySymbol = fiatUnit(currency: "USD")!.symbol
       date = Date()
     }
@@ -131,7 +133,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     case .modularLarge:
       let template = CLKComplicationTemplateModularLargeStandardBody()
       if #available(watchOSApplicationExtension 6.0, *) {
-        template.headerTextProvider =  CLKTextProvider(format: "Bitcoin Market Price")
+        template.headerTextProvider =  CLKTextProvider(format: "Bitcoin Price")
         template.body1TextProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueLabel)
         entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
         handler(entry)
@@ -143,8 +145,9 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     case .graphicRectangular:
       let template = CLKComplicationTemplateGraphicRectangularStandardBody()
       if #available(watchOSApplicationExtension 6.0, *) {
-        template.headerTextProvider =  CLKTextProvider(format: "Bitcoin Market Price")
+        template.headerTextProvider =  CLKTextProvider(format: "Bitcoin Price")
         template.body1TextProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueLabel)
+        template.body2TextProvider = CLKTextProvider(format: "%@", timeLabel)
         entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
         handler(entry)
       } else {
@@ -248,7 +251,7 @@ func getLocalizableSampleTemplate(for complication: CLKComplication, withHandler
   case .modularLarge:
     let template = CLKComplicationTemplateModularLargeStandardBody()
     if #available(watchOSApplicationExtension 6.0, *) {
-      template.headerTextProvider =  CLKTextProvider(format: "Bitcoin Market Price")
+      template.headerTextProvider =  CLKTextProvider(format: "Bitcoin Price")
       template.body1TextProvider = CLKTextProvider(format: "%@%@", "$S", "46,000")
       
       handler(template)
@@ -260,8 +263,9 @@ func getLocalizableSampleTemplate(for complication: CLKComplication, withHandler
   case .graphicRectangular:
     let template = CLKComplicationTemplateGraphicRectangularStandardBody()
     if #available(watchOSApplicationExtension 6.0, *) {
-      template.headerTextProvider =  CLKTextProvider(format: "Bitcoin Market Price")
+      template.headerTextProvider =  CLKTextProvider(format: "Bitcoin Price")
       template.body1TextProvider = CLKTextProvider(format: "%@%@", "$S", "46,000")
+      template.body2TextProvider = CLKTextProvider(format: "%@", Date().description)
       handler(template)
     } else {
       handler(nil)
