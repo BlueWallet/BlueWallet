@@ -508,7 +508,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('scanQrBackdoorOkButton')).tap();
 
     // this is fully-signed tx, "this is tx hex" help text should appear
-    await yo('TransactionValue');
     await yo('DynamicCode');
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');

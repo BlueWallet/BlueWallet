@@ -1143,9 +1143,10 @@ export default class SendDetails extends Component {
     }
     const recipients = psbt.txOutputs.filter(({ address }) => !changeAddresses.includes(address));
 
-    this.props.navigation.navigate('Confirm', {
+    this.props.navigation.navigate('CreateTransaction', {
       fee: new BigNumber(psbt.getFee()).dividedBy(100000000).toNumber(),
-      fromWallet: wallet,
+      feeSatoshi: psbt.getFee(),
+      wallet,
       tx: tx.toHex(),
       recipients,
       satoshiPerByte: psbt.getFeeRate(),

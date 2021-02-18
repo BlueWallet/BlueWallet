@@ -38,7 +38,6 @@ export default class Confirm extends Component {
       tx: props.route.params.tx,
       satoshiPerByte: props.route.params.satoshiPerByte,
       fromWallet: props.route.params.fromWallet,
-      showAnimatedQr: props.route.params.showAnimatedQr,
     };
   }
 
@@ -210,7 +209,6 @@ export default class Confirm extends Component {
                     satoshiPerByte: this.state.satoshiPerByte,
                     wallet: this.state.fromWallet,
                     feeSatoshi: this.state.feeSatoshi,
-                    showAnimatedQr: this.state.showAnimatedQr,
                     psbt: this.state.psbt,
                   });
                 }}
