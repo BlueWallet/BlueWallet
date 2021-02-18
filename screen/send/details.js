@@ -1114,7 +1114,10 @@ export default class SendDetails extends Component {
     this.setState({ isAdvancedTransactionOptionsVisible: false, isLoading: true });
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
     const scannedData = await scanqr(this.props.navigation.navigate, this.props.route.name);
-    if (!scannedData) return;
+    if (!scannedData) {
+      this.setState({ isLoading: false });
+      return;
+    }
 
     /** @type {HDSegwitBech32Wallet} */
     const wallet = this.state.fromWallet;
