@@ -26,18 +26,15 @@ target 'BlueWallet' do
           end
       end
   end
-
-  
 end
 
-target 'MarketWidgetExtension' do
-  pod 'SwiftSocket', :git => 'https://github.com/swiftsocket/SwiftSocket.git', :branch => 'master'
+def swiftSocketPod
 end
 
-target 'WalletInformationAndMarketWidgetExtension' do
+abstract_target 'Widgets' do
   pod 'SwiftSocket', :git => 'https://github.com/swiftsocket/SwiftSocket.git', :branch => 'master'
-end
-
-target 'WalletInformationWidgetExtension' do
-  pod 'SwiftSocket', :git => 'https://github.com/swiftsocket/SwiftSocket.git', :branch => 'master'
+  target 'MarketWidgetExtension' do
+  end
+  target 'WalletInformationAndMarketWidgetExtension' do
+  end
 end

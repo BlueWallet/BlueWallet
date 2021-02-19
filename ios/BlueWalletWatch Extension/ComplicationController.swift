@@ -135,13 +135,22 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
       if #available(watchOSApplicationExtension 6.0, *) {
         template.headerTextProvider =  CLKTextProvider(format: "Bitcoin Price")
         template.body1TextProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueLabel)
+        template.body2TextProvider = CLKTextProvider(format: "%@", timeLabel)
         entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
         handler(entry)
       } else {
         handler(nil)
       }
     case .extraLarge:
-      handler(nil)
+      let template = CLKComplicationTemplateExtraLargeStackText()
+      if #available(watchOSApplicationExtension 6.0, *) {
+        template.line1TextProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueLabel)
+        template.line2TextProvider = CLKTextProvider(format: "%@", timeLabel)
+        entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+        handler(entry)
+      } else {
+        handler(nil)
+      }
     case .graphicRectangular:
       let template = CLKComplicationTemplateGraphicRectangularStandardBody()
       if #available(watchOSApplicationExtension 6.0, *) {
@@ -156,8 +165,8 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     case .graphicExtraLarge:
       if #available(watchOSApplicationExtension 7.0, *) {
         let template = CLKComplicationTemplateGraphicExtraLargeCircularStackText()
-        template.line1TextProvider = line1Text
-        template.line2TextProvider = line2Text
+        template.line1TextProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueLabel)
+        template.line1TextProvider = CLKTextProvider(format: "%@", timeLabel)
         entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
         handler(entry)
       } else {
@@ -186,7 +195,8 @@ func getLocalizableSampleTemplate(for complication: CLKComplication, withHandler
   // This method will be called once per supported complication, and the results will be cached
   let line1Text = CLKSimpleTextProvider(text:"46 K")
   let line2Text = CLKSimpleTextProvider(text:"$")
-  
+  let lineTimeText = CLKSimpleTextProvider(text:"3:40 PM")
+
   switch complication.family {
   case .circularSmall:
     let template = CLKComplicationTemplateCircularSmallStackText()
@@ -253,13 +263,16 @@ func getLocalizableSampleTemplate(for complication: CLKComplication, withHandler
     if #available(watchOSApplicationExtension 6.0, *) {
       template.headerTextProvider =  CLKTextProvider(format: "Bitcoin Price")
       template.body1TextProvider = CLKTextProvider(format: "%@%@", "$S", "46,000")
-      
+      template.body2TextProvider = lineTimeText
       handler(template)
     } else {
       handler(nil)
     }
   case .extraLarge:
-    handler(nil)
+    let template = CLKComplicationTemplateExtraLargeStackText()
+    template.line1TextProvider = line1Text
+    template.line2TextProvider = lineTimeText
+    handler(template)
   case .graphicRectangular:
     let template = CLKComplicationTemplateGraphicRectangularStandardBody()
     if #available(watchOSApplicationExtension 6.0, *) {
@@ -279,7 +292,7 @@ func getLocalizableSampleTemplate(for complication: CLKComplication, withHandler
     } else {
       handler(nil)
     }
-  default:
-    handler(nil)
+  @unknown default:
+    fatalError()
   }
 }
