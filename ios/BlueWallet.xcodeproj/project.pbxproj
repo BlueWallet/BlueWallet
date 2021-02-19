@@ -183,7 +183,7 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		3271B0B6236E2E0700DA766F /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
+			buildActionMask = 12;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
@@ -194,7 +194,7 @@
 				3271B0B5236E2E0700DA766F /* BlueWallet - Bitcoin Price.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B40D4E2D225841C300428FCC /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
