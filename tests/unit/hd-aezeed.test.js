@@ -1,4 +1,3 @@
-/* global describe, it */
 import { HDAezeedWallet } from '../../class';
 const assert = require('assert');
 

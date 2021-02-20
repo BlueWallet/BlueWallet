@@ -1,4 +1,3 @@
-/* global describe, it, jasmine, afterAll, beforeAll */
 import { LegacyWallet, SegwitP2SHWallet, SegwitBech32Wallet } from '../../class';
 const assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js

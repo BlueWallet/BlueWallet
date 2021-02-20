@@ -84,8 +84,6 @@ const GeneralSettings = () => {
   );
 };
 
-GeneralSettings.navigationOptions = navigationStyle({
-  title: loc.settings.general,
-});
+GeneralSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.general }));
 
 export default GeneralSettings;

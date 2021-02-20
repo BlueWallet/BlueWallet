@@ -1,4 +1,3 @@
-/* global it, describe */
 import { SegwitP2SHWallet } from '../../class';
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');

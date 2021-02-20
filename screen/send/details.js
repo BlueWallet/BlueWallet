@@ -51,6 +51,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
 const prompt = require('../../blue_modules/prompt');
 const fs = require('../../blue_modules/fs');
+const scanqr = require('../../helpers/scan-qr');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -93,7 +94,7 @@ const styles = StyleSheet.create({
   },
   feeModalItemActive: {
     borderRadius: 8,
-    backgroundColor: BlueCurrentTheme.colors.feeLabel,
+    backgroundColor: BlueCurrentTheme.colors.feeActive,
   },
   feeModalRow: {
     justifyContent: 'space-between',
@@ -1109,6 +1110,48 @@ export default class SendDetails extends Component {
     );
   };
 
+  handlePsbtSign = async () => {
+    this.setState({ isAdvancedTransactionOptionsVisible: false, isLoading: true });
+    await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
+    const scannedData = await scanqr(this.props.navigation.navigate, this.props.route.name);
+    if (!scannedData) return this.setState({ isLoading: false });
+
+    /** @type {HDSegwitBech32Wallet} */
+    const wallet = this.state.fromWallet;
+
+    let tx;
+    let psbt;
+    try {
+      psbt = bitcoin.Psbt.fromBase64(scannedData);
+      tx = wallet.cosignPsbt(psbt).tx;
+    } catch (e) {
+      alert(e.message);
+      return;
+    } finally {
+      this.setState({ isLoading: false });
+    }
+
+    if (!tx) return this.setState({ isLoading: false });
+
+    // we need to remove change address from recipients, so that Confirm screen show more accurate info
+    const changeAddresses = [];
+    for (let c = 0; c < wallet.next_free_change_address_index + wallet.gap_limit; c++) {
+      changeAddresses.push(wallet._getInternalAddressByIndex(c));
+    }
+    const recipients = psbt.txOutputs.filter(({ address }) => !changeAddresses.includes(address));
+
+    this.props.navigation.navigate('CreateTransaction', {
+      fee: new BigNumber(psbt.getFee()).dividedBy(100000000).toNumber(),
+      feeSatoshi: psbt.getFee(),
+      wallet,
+      tx: tx.toHex(),
+      recipients,
+      satoshiPerByte: psbt.getFeeRate(),
+      showAnimatedQr: true,
+      psbt,
+    });
+  };
+
   hideAdvancedTransactionOptionsModal = () => {
     Keyboard.dismiss();
     this.setState({ isAdvancedTransactionOptionsVisible: false });
@@ -1203,6 +1246,15 @@ export default class SendDetails extends Component {
               component={TouchableOpacity}
               onPress={this.handleCoinControl}
             />
+            {this.state.fromWallet.allowCosignPsbt() && (
+              <BlueListItem
+                testID="PsbtSign"
+                title={loc.send.psbt_sign}
+                hideChevron
+                component={TouchableOpacity}
+                onPress={this.handlePsbtSign}
+              />
+            )}
           </View>
         </KeyboardAvoidingView>
       </BottomModal>
@@ -1517,28 +1569,24 @@ SendDetails.propTypes = {
   }),
 };
 
-SendDetails.navigationOptions = navigationStyleTx(
-  {
+SendDetails.navigationOptions = navigationStyleTx({}, (options, { theme, navigation, route }) => {
+  let headerRight;
+  if (route.params.withAdvancedOptionsMenuButton) {
+    headerRight = () => (
+      <TouchableOpacity
+        style={styles.advancedOptions}
+        onPress={route.params.advancedOptionsMenuButtonAction}
+        testID="advancedOptionsMenuButton"
+      >
+        <Icon size={22} name="kebab-horizontal" type="octicon" color={theme.colors.foregroundColor} />
+      </TouchableOpacity>
+    );
+  } else {
+    headerRight = null;
+  }
+  return {
+    ...options,
+    headerRight,
     title: loc.send.header,
-  },
-  (options, { theme, navigation, route }) => {
-    let headerRight;
-    if (route.params.withAdvancedOptionsMenuButton) {
-      headerRight = () => (
-        <TouchableOpacity
-          style={styles.advancedOptions}
-          onPress={route.params.advancedOptionsMenuButtonAction}
-          testID="advancedOptionsMenuButton"
-        >
-          <Icon size={22} name="kebab-horizontal" type="octicon" color={theme.colors.foregroundColor} />
-        </TouchableOpacity>
-      );
-    } else {
-      headerRight = null;
-    }
-    return {
-      ...options,
-      headerRight,
-    };
-  },
-);
+  };
+});

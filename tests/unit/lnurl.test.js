@@ -1,4 +1,3 @@
-/* global describe, it */
 import Lnurl from '../../class/lnurl';
 const assert = require('assert');
 

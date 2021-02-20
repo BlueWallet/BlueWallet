@@ -243,6 +243,4 @@ CPFP.propTypes = {
     }),
   }),
 };
-CPFP.navigationOptions = navigationStyle({
-  title: loc.transactions.cpfp_title,
-});
+CPFP.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.transactions.cpfp_title }));

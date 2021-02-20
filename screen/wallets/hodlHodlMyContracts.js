@@ -434,10 +434,10 @@ HodlHodlMyContracts.propTypes = {
 HodlHodlMyContracts.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    title: loc.hodl.cont_title,
   },
   (options, { theme, navigation, route }) => ({
     ...options,
+    title: loc.hodl.cont_title,
     headerStyle: {
       backgroundColor: theme.colors.elevated,
     },

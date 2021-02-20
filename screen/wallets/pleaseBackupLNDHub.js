@@ -78,13 +78,15 @@ const PleaseBackupLNDHub = () => {
   );
 };
 
-PleaseBackupLNDHub.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.pleasebackup.title,
-  headerLeft: null,
-  headerRight: null,
-  gestureEnabled: false,
-  swipeEnabled: false,
-});
+PleaseBackupLNDHub.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+    headerRight: null,
+    gestureEnabled: false,
+    swipeEnabled: false,
+  },
+  opts => ({ ...opts, title: loc.pleasebackup.title }),
+);
 
 export default PleaseBackupLNDHub;

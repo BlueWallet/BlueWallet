@@ -1,4 +1,3 @@
-/* global describe, it, jest, jasmine */
 import { AppStorage } from '../../class';
 import { FiatUnit } from '../../models/fiatUnit';
 import AsyncStorage from '@react-native-async-storage/async-storage';

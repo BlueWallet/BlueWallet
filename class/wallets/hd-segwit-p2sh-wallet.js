@@ -21,6 +21,10 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     return true;
   }
 
+  allowCosignPsbt() {
+    return true;
+  }
+
   /**
    * Get internal/external WIF by wallet index
    * @param {Boolean} internal

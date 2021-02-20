@@ -32,4 +32,8 @@ export class HDSegwitBech32Wallet extends AbstractHDElectrumWallet {
   allowPayJoin() {
     return true;
   }
+
+  allowCosignPsbt() {
+    return true;
+  }
 }

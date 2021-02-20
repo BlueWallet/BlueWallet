@@ -1,4 +1,3 @@
-/* global describe, it */
 import { FiatUnit } from '../../models/fiatUnit';
 const assert = require('assert');
 

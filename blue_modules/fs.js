@@ -170,23 +170,23 @@ const showFilePickerAndReadFile = async function () {
       // this is either binary file from ElectrumDesktop OR string file with base64 string in there
       file = await _readPsbtFileIntoBase64(uri);
       return { data: file, uri: decodeURI(res.uri) };
-    } else {
-      if (res.type === DocumentPicker.types.images || res.type.startsWith('image/')) {
-        return new Promise(resolve => {
-          const uri = Platform.OS === 'ios' ? res.uri.toString().replace('file://', '') : res.uri;
-          LocalQRCode.decode(decodeURI(uri), (error, result) => {
-            if (!error) {
-              resolve({ data: result, uri: decodeURI(res.uri) });
-            } else {
-              resolve({ data: false, uri: false });
-            }
-          });
-        });
-      } else {
-        file = await RNFS.readFile(uri);
-        return { data: file, uri: decodeURI(res.uri) };
-      }
     }
+
+    if (res?.type === DocumentPicker.types.images || res?.type?.startsWith('image/')) {
+      return new Promise(resolve => {
+        const uri = Platform.OS === 'ios' ? res.uri.toString().replace('file://', '') : res.uri;
+        LocalQRCode.decode(decodeURI(uri), (error, result) => {
+          if (!error) {
+            resolve({ data: result, uri: decodeURI(res.uri) });
+          } else {
+            resolve({ data: false, uri: false });
+          }
+        });
+      });
+    }
+
+    file = await RNFS.readFile(uri);
+    return { data: file, uri: decodeURI(res.uri) };
   } catch (err) {
     return { data: false, uri: false };
   }

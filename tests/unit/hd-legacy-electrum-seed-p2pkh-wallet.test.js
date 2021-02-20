@@ -1,4 +1,3 @@
-/* global describe, it */
 import { HDLegacyElectrumSeedP2PKHWallet } from '../../class';
 const assert = require('assert');
 

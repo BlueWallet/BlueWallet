@@ -16,7 +16,9 @@
     "seed": "Graine",
     "wallet_key": "Clé de portefeuille",
     "invalid_animated_qr_code_fragment" : "Fragment du QR Code animé invalide. Veuillez essayer encore.",
-    "file_saved": "Le fichier ({filePath}) a été enregistré dans le dossier Téléchargements."
+    "file_saved": "Le fichier ({filePath}) a été enregistré dans le dossier Téléchargements.",
+    "discard_changes": "Supprimer les changements ?",
+    "discard_changes_detail": "Certaines modifications n'ont pas été enregistrées. Êtes-vous sûr de vouloir les supprimer et quitter cet écran ?"
   },
   "azteco": {
     "codeIs": "Votre code promo est",
@@ -87,7 +89,7 @@
     "offer_promt_fiat": "Combien de {currency} désirez-vous acheter ?",
     "offer_promt_fiat_e": "Par example 100",
     "offer_window": "fenêtre",
-    "p2p": "Un échange pair-à-pair"
+    "p2p": "Acheter du Bitcoin sur un échange pair à pair"
   },
   "lnd": {
     "errorInvoiceExpired": "Requête expirée",
@@ -355,7 +357,8 @@
     "status_bump": "Frais de propulsion",
     "status_cancel": "Annuler la transaction",
     "transactions_count": "Nombre de transactions",
-    "txid": "Txid"
+    "txid": "Txid",
+    "updating": "Chargement..."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -437,6 +440,7 @@
     "looks_like_bip38": "Ceci ressemble a une clé privée protégée par un mot de passe (BIP38)",
     "reorder_title": "Trier vos portefeuilles",
     "please_continue_scanning": "Merci de continuer à scaner",
+    "scan_error": "Erreur de scan",
     "select_no_bitcoin": "Il n'y a aucun portefeuille Bitcoin disponible pour le moment.",
     "select_no_bitcoin_exp": "Un portefeuille Bitcoin est nécessaire pour approvisionner les portefeuilles Lightning. Veuillez en créer ou en importer un.",
     "select_wallet": "Choix du portefeuille",
@@ -445,6 +449,7 @@
     "pull_to_refresh": "Tirer pour rafraichir",
     "warning_do_not_disclose": "Attention! Ne pas divulguer",
     "add_ln_wallet_first": "Vous devez d'abord ajouter un portefeuille Lightning.",
+    "identity_pubkey": "Clé publique identité",
     "xpub_title": "XPUB portefeuille"
   },
   "multisig": {
@@ -540,7 +545,7 @@
     "header": "Controle de Pièces",
     "use_coin": "Utiliser la pièces",
     "use_coins": "Utiliser les Pièces",
-    "tip": "Autorise la vue, l'étiquetage, le gel ou la sélection des pièces pour une gestion améliorée du portefeuille."
+    "tip": "Permet de voir, étiqueter, bloquer ou sélectionner des UTXOs pour une meilleure gestion du portefeuille. Vous pouvez sélectionner plusieurs UTXOs en appuyant sur les cercles colorés."
   },
   "units": {
     "BTC": "BTC",

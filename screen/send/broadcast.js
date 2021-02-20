@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, Linking, StyleSheet, View, KeyboardAvoidingView, Platform, TextInput } from 'react-native';
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Linking, StyleSheet, Platform, TextInput, View } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
+import * as bitcoin from 'bitcoinjs-lib';
 
 import loc from '../../loc';
 import { HDSegwitBech32Wallet } from '../../class';
@@ -19,8 +21,7 @@ import {
 } from '../../BlueComponents';
 import BlueElectrum from '../../blue_modules/BlueElectrum';
 import Notifications from '../../blue_modules/notifications';
-import { useTheme } from '@react-navigation/native';
-const bitcoin = require('bitcoinjs-lib');
+const scanqr = require('../../helpers/scan-qr');
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
@@ -30,10 +31,13 @@ const BROADCAST_RESULT = Object.freeze({
 });
 
 const Broadcast = () => {
+  const { name } = useRoute();
+  const { navigate } = useNavigation();
   const [tx, setTx] = useState();
   const [txHex, setTxHex] = useState();
   const { colors } = useTheme();
   const [broadcastResult, setBroadcastResult] = useState(BROADCAST_RESULT.none);
+
   const stylesHooks = StyleSheet.create({
     blueArea: {
       backgroundColor: colors.background,
@@ -47,7 +51,9 @@ const Broadcast = () => {
       backgroundColor: colors.inputBackgroundColor,
     },
   });
+
   const handleUpdateTxHex = nextValue => setTxHex(nextValue.trim());
+
   const handleBroadcast = async () => {
     setBroadcastResult(BROADCAST_RESULT.pending);
     try {
@@ -67,9 +73,26 @@ const Broadcast = () => {
         setBroadcastResult(BROADCAST_RESULT.error);
       }
     } catch (error) {
+      Alert.alert(error.message);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       setBroadcastResult(BROADCAST_RESULT.error);
     }
+  };
+
+  const handleQRScan = async () => {
+    const scannedData = await scanqr(navigate, name);
+    if (!scannedData) return;
+
+    if (scannedData.indexOf('+') === -1 && scannedData.indexOf('=') === -1 && scannedData.indexOf('=') === -1) {
+      // this looks like NOT base64, so maybe its transaction's hex
+      return handleUpdateTxHex(scannedData);
+    }
+
+    try {
+      // sould be base64 encoded PSBT
+      const tx = bitcoin.Psbt.fromBase64(scannedData).extractTransaction();
+      return handleUpdateTxHex(tx.toHex());
+    } catch (e) {}
   };
 
   let status;
@@ -115,13 +138,17 @@ const Broadcast = () => {
                   onChangeText={handleUpdateTxHex}
                 />
               </View>
+              <BlueSpacing20 />
 
-              <BlueSpacing10 />
+              <BlueButton title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
+              <BlueSpacing20 />
+
               <BlueButton
                 title={loc.send.broadcastButton}
                 onPress={handleBroadcast}
                 disabled={broadcastResult === BROADCAST_RESULT.pending}
               />
+              <BlueSpacing20 />
             </BlueCard>
           )}
           {BROADCAST_RESULT.success === broadcastResult && <SuccessScreen tx={tx} />}
@@ -132,9 +159,7 @@ const Broadcast = () => {
 };
 
 export default Broadcast;
-Broadcast.navigationOptions = navigationStyle({
-  title: loc.send.create_broadcast,
-});
+Broadcast.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.send.create_broadcast }));
 
 const styles = StyleSheet.create({
   wrapper: {
