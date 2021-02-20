@@ -376,10 +376,10 @@ const WalletDetails = () => {
             } else {
               setIsLoading(true);
               Notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
-              deleteWallet(wallet);
-              ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-              await saveToDisk();
               popToTop();
+              ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+              deleteWallet(wallet);
+              saveToDisk();
             }
           },
           style: 'destructive',
