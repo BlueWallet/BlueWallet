@@ -411,7 +411,7 @@
     "export_title": "Wallet Export",
     "import_do_import": "Import",
     "import_error": "Failed to import. Please make sure that the provided data is valid.",
-    "import_explanation": "Write here your mnemonic, private key, WIF, or anything you’ve got. BlueWallet will do its best to guess the correct format and import your wallet.",
+    "import_explanation": "Write here your mnemonic, private key, WIF, or anything you’ve got. BlueWallet will do its best to guess the correct format and import your wallet. If a public key is entered, we will add it as a Watch-only wallet.",
     "import_file": "Import File",
     "import_imported": "Imported",
     "import_placeholder_fail": "Wallet Import",
