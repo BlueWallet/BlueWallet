@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { ScrollView, View, StyleSheet } from 'react-native';
+
+import loc from '../loc';
 import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading } from '../BlueComponents';
 import navigationStyle from '../components/navigationStyle';
 import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet, HDAezeedWallet } from '../class';
@@ -236,6 +238,8 @@ export default class Selftest extends Component {
                     <BlueText testID="SelfTestOk" h4>
                       OK
                     </BlueText>
+                    <BlueSpacing20 />
+                    <BlueText>{loc.settings.about_selftest_ok}</BlueText>
                   </View>
                 );
               } else {
