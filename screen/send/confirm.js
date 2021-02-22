@@ -326,6 +326,4 @@ Confirm.propTypes = {
   }),
 };
 
-Confirm.navigationOptions = navigationStyle({
-  title: loc.send.confirm_header,
-});
+Confirm.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.send.confirm_header }));

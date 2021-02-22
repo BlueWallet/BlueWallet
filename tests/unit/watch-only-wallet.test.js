@@ -1,4 +1,3 @@
-/* global it, describe */
 import { WatchOnlyWallet } from '../../class';
 import { decodeUR } from 'bc-ur/dist';
 import { Psbt } from 'bitcoinjs-lib';

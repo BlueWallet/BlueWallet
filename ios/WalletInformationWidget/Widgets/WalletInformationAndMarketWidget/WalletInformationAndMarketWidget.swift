@@ -11,7 +11,7 @@ import SwiftUI
 
 struct Provider: TimelineProvider {
   func placeholder(in context: Context) -> SimpleEntry {
-    SimpleEntry(date: Date(), marketData: emptyMarketData)
+    return SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
   }
   
   func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {

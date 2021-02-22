@@ -93,7 +93,6 @@ const ScanLndInvoice = () => {
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet]),
-    [],
   );
 
   useEffect(() => {
@@ -357,11 +356,13 @@ const ScanLndInvoice = () => {
 };
 
 export default ScanLndInvoice;
-ScanLndInvoice.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.send.header,
-  headerLeft: null,
-});
+ScanLndInvoice.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.send.header }),
+);
 
 const styles = StyleSheet.create({
   walletSelectRoot: {

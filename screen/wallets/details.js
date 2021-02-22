@@ -376,10 +376,10 @@ const WalletDetails = () => {
             } else {
               setIsLoading(true);
               Notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
-              deleteWallet(wallet);
-              ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-              await saveToDisk();
               popToTop();
+              ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+              deleteWallet(wallet);
+              saveToDisk();
             }
           },
           style: 'destructive',
@@ -558,8 +558,6 @@ const WalletDetails = () => {
   );
 };
 
-WalletDetails.navigationOptions = navigationStyle({
-  headerTitle: loc.wallets.details_title,
-});
+WalletDetails.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.details_title }));
 
 export default WalletDetails;

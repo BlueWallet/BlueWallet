@@ -408,8 +408,6 @@ const styles = StyleSheet.create({
   },
 });
 
-PsbtMultisig.navigationOptions = navigationStyle({
-  title: loc.multisig.header,
-});
+PsbtMultisig.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.multisig.header }));
 
 export default PsbtMultisig;

@@ -1,4 +1,3 @@
-/* global it */
 import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyP2PKHWallet, LegacyWallet } from '../../class';
 const assert = require('assert');
 

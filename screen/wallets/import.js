@@ -3,8 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { Platform, View, Keyboard, StatusBar, StyleSheet } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { getSystemName } from 'react-native-device-info';
-
 import {
   BlueFormMultiInput,
   BlueButtonLink,
@@ -18,7 +16,7 @@ import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import WalletImport from '../../class/wallet-import';
 import loc from '../../loc';
-const isDesktop = getSystemName() === 'Mac OS X';
+import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
 const fs = require('../../blue_modules/fs');
 
 const WalletsImport = () => {
@@ -95,7 +93,7 @@ const WalletsImport = () => {
   };
 
   const importScan = () => {
-    if (isDesktop) {
+    if (isMacCatalina) {
       fs.showActionSheet().then(onBarScanned);
     } else {
       navigation.navigate('ScanQRCodeRoot', {
@@ -118,7 +116,7 @@ const WalletsImport = () => {
       <BlueFormMultiInput
         testID="MnemonicInput"
         value={importText}
-        contextMenuHidden={getSystemName() !== 'Mac OS X'}
+        contextMenuHidden={!isCatalyst}
         onChangeText={setImportText}
         inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
       />
@@ -165,7 +163,6 @@ const WalletsImport = () => {
   );
 };
 
-WalletsImport.navigationOptions = navigationStyle({
-  title: loc.wallets.import_title,
-});
+WalletsImport.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.import_title }));
+
 export default WalletsImport;

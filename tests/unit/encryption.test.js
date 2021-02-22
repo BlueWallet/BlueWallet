@@ -1,4 +1,3 @@
-/* global describe, it */
 const assert = require('assert');
 const c = require('../../blue_modules/encryption');
 

@@ -1,4 +1,3 @@
-/* global it */
 import { SegwitP2SHWallet, AppStorage } from '../../class';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const assert = require('assert');

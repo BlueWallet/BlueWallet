@@ -53,10 +53,12 @@ const HodlHodlLogin = () => {
   );
 };
 
-HodlHodlLogin.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.hodl.login,
-  headerLeft: null,
-});
+HodlHodlLogin.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.hodl.login }),
+);
 
 export default HodlHodlLogin;

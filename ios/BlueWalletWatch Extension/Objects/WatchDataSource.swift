@@ -96,23 +96,25 @@ class WatchDataSource: NSObject, WCSessionDelegate {
   }
   
   func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-    if let preferredFiatCurrency = applicationContext["preferredFiatCurrency"] as? String, let  preferredFiatCurrencyUnit = fiatUnit(currency: preferredFiatCurrency) {
-      UserDefaults.standard.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredFiatCurrency")
-      UserDefaults.standard.synchronize()
-      ExtensionDelegate.preferredFiatCurrencyChanged()
-    } else {
-      WatchDataSource.shared.processWalletsData(walletsInfo: applicationContext)
-    }
+    processData(data: applicationContext)
   }
   
   func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
-    if let preferredFiatCurrency = applicationContext["preferredFiatCurrency"] as? String, let  preferredFiatCurrencyUnit = fiatUnit(currency: preferredFiatCurrency) {
+    processData(data: applicationContext)
+  }
+  
+  func processData(data: [String: Any]) {
+    if let preferredFiatCurrency = data["preferredFiatCurrency"] as? String, let  preferredFiatCurrencyUnit = fiatUnit(currency: preferredFiatCurrency) {
       UserDefaults.standard.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredFiatCurrency")
       UserDefaults.standard.synchronize()
-      ExtensionDelegate.preferredFiatCurrencyChanged()
+        ExtensionDelegate.preferredFiatCurrencyChanged()
     } else {
-      WatchDataSource.shared.processWalletsData(walletsInfo: applicationContext)
+      WatchDataSource.shared.processWalletsData(walletsInfo: data)
     }
+  }
+  
+  func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
+    processData(data: userInfo)
   }
   
   func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {

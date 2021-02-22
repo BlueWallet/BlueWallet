@@ -319,9 +319,7 @@ ElectrumSettings.propTypes = {
   }),
 };
 
-ElectrumSettings.navigationOptions = navigationStyle({
-  title: loc.settings.electrum_settings,
-});
+ElectrumSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.electrum_settings_server }));
 
 const styles = StyleSheet.create({
   root: {
@@ -367,6 +365,7 @@ const styles = StyleSheet.create({
   explain: {
     color: BlueCurrentTheme.colors.feeText,
     marginBottom: -24,
+    flexShrink: 1,
   },
   inputWrap: {
     flexDirection: 'row',

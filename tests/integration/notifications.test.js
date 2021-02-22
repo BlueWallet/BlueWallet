@@ -1,4 +1,3 @@
-/* global it, describe */
 import Notifications from '../../blue_modules/notifications';
 const assert = require('assert');
 Notifications.default = new Notifications();

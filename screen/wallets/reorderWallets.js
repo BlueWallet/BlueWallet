@@ -195,15 +195,17 @@ const ReorderWallets = () => {
   );
 };
 
-ReorderWallets.navigationOptions = navigationStyle({
-  title: loc.wallets.reorder_title,
-  closeButton: true,
-  closeButtonFunc: ({ navigation, route }) => {
-    if (route.params && route.params.customCloseButtonFunction) {
-      route.params.customCloseButtonFunction();
-    }
+ReorderWallets.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    closeButtonFunc: ({ navigation, route }) => {
+      if (route.params && route.params.customCloseButtonFunction) {
+        route.params.customCloseButtonFunction();
+      }
+    },
+    headerLeft: null,
   },
-  headerLeft: null,
-});
+  opts => ({ ...opts, title: loc.wallets.reorder_title }),
+);
 
 export default ReorderWallets;
