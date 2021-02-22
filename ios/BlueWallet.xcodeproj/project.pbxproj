@@ -14,11 +14,11 @@
 		3271B0AB236E2E0700DA766F /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3271B0AA236E2E0700DA766F /* NotificationCenter.framework */; platformFilter = ios; };
 		3271B0AE236E2E0700DA766F /* TodayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3271B0AD236E2E0700DA766F /* TodayViewController.swift */; };
 		3271B0B1236E2E0700DA766F /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3271B0AF236E2E0700DA766F /* MainInterface.storyboard */; };
-		3271B0B5236E2E0700DA766F /* BlueWallet - Bitcoin Price.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 3271B0A9236E2E0700DA766F /* BlueWallet - Bitcoin Price.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		3271B0B5236E2E0700DA766F /* BlueWallet - Bitcoin Price.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 3271B0A9236E2E0700DA766F /* BlueWallet - Bitcoin Price.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		3271B0BB236E329400DA766F /* TodayAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3271B0BA236E329400DA766F /* TodayAPI.swift */; };
 		32B5A32A2334450100F8D608 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A3292334450100F8D608 /* Bridge.swift */; };
 		32F0A29A2311DBB20095C559 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F0A2992311DBB20095C559 /* ComplicationController.swift */; };
-		6D055BDD25DF6844009CAD55 /* MarketWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6D99465E2555A660000E52E8 /* MarketWidgetExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6D055BDD25DF6844009CAD55 /* MarketWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6D99465E2555A660000E52E8 /* MarketWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6D2A6464258BA92D0092292B /* Stickers.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D2A6463258BA92D0092292B /* Stickers.xcassets */; };
 		6D2AA7FA2568B8750090B089 /* FiatUnits.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6D2AA7F92568B8750090B089 /* FiatUnits.plist */; };
 		6D2AA7FB2568B8750090B089 /* FiatUnits.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6D2AA7F92568B8750090B089 /* FiatUnits.plist */; };
@@ -46,10 +46,10 @@
 		6D641F2425525054003792DF /* WalletInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D641F2225525053003792DF /* WalletInformationView.swift */; };
 		6D641F3525526311003792DF /* SendReceiveButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D641F3425526311003792DF /* SendReceiveButtons.swift */; };
 		6D641F3625526311003792DF /* SendReceiveButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D641F3425526311003792DF /* SendReceiveButtons.swift */; };
-		6D6CA4B9255872E3009312A5 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; platformFilter = ios; };
-		6D6CA4BA255872E3009312A5 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3C252FE1A3004D72DF /* SwiftUI.framework */; platformFilter = ios; };
+		6D6CA4B9255872E3009312A5 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; };
+		6D6CA4BA255872E3009312A5 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3C252FE1A3004D72DF /* SwiftUI.framework */; };
 		6D6CA4BD255872E3009312A5 /* PriceWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6CA4BC255872E3009312A5 /* PriceWidget.swift */; };
-		6D6CA4C3255872E7009312A5 /* PriceWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6D6CA4B8255872E3009312A5 /* PriceWidgetExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6D6CA4C3255872E7009312A5 /* PriceWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6D6CA4B8255872E3009312A5 /* PriceWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6D6CA4D725587397009312A5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D9A2E08254BA348007B5B82 /* Assets.xcassets */; };
 		6D6CA4E0255873BC009312A5 /* UserDefaultsGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA7047D254E24D5005FE5E2 /* UserDefaultsGroup.swift */; };
 		6D6CA5152558EBA4009312A5 /* WidgetAPI+Electrum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6CA5142558EBA3009312A5 /* WidgetAPI+Electrum.swift */; };
@@ -76,14 +76,14 @@
 		6D9A2E04254BA347007B5B82 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3C252FE1A3004D72DF /* SwiftUI.framework */; platformFilter = ios; };
 		6D9A2E07254BA347007B5B82 /* WalletInformationAndMarketWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E06254BA347007B5B82 /* WalletInformationAndMarketWidget.swift */; };
 		6D9A2E09254BA348007B5B82 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D9A2E08254BA348007B5B82 /* Assets.xcassets */; };
-		6D9A2E0D254BA348007B5B82 /* WalletInformationAndMarketWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6D9A2E02254BA347007B5B82 /* WalletInformationAndMarketWidgetExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6D9A2E0D254BA348007B5B82 /* WalletInformationAndMarketWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6D9A2E02254BA347007B5B82 /* WalletInformationAndMarketWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6D9A2E6D254BAB1B007B5B82 /* WidgetAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6A254BAB1B007B5B82 /* WidgetAPI.swift */; };
 		6D9A2E6F254BAB1B007B5B82 /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6B254BAB1B007B5B82 /* WidgetDataStore.swift */; };
 		6DA7047E254E24D5005FE5E2 /* UserDefaultsGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA7047D254E24D5005FE5E2 /* UserDefaultsGroup.swift */; };
 		6DEB4AAE254FB59C00E9F9AA /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; platformFilter = ios; };
 		6DEB4AAF254FB59C00E9F9AA /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3C252FE1A3004D72DF /* SwiftUI.framework */; platformFilter = ios; };
 		6DEB4AB2254FB59C00E9F9AA /* WalletInformationWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4AB1254FB59C00E9F9AA /* WalletInformationWidget.swift */; };
-		6DEB4AB8254FB59E00E9F9AA /* WalletInformationWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6DEB4AAD254FB59B00E9F9AA /* WalletInformationWidgetExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6DEB4AB8254FB59E00E9F9AA /* WalletInformationWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6DEB4AAD254FB59B00E9F9AA /* WalletInformationWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6DEB4B05254FB79100E9F9AA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D9A2E08254BA348007B5B82 /* Assets.xcassets */; };
 		6DEB4BD9254FB98E00E9F9AA /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6B254BAB1B007B5B82 /* WidgetDataStore.swift */; };
 		6DEB4BDA254FB98E00E9F9AA /* WidgetAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6A254BAB1B007B5B82 /* WidgetAPI.swift */; };
@@ -1486,7 +1486,6 @@
 /* Begin PBXTargetDependency section */
 		3271B0B4236E2E0700DA766F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilter = ios;
 			target = 3271B0A8236E2E0700DA766F /* TodayExtension */;
 			targetProxy = 3271B0B3236E2E0700DA766F /* PBXContainerItemProxy */;
 		};
@@ -1498,25 +1497,21 @@
 		};
 		6D6CA4C2255872E7009312A5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilter = ios;
 			target = 6D6CA4B7255872E3009312A5 /* PriceWidgetExtension */;
 			targetProxy = 6D6CA4C1255872E7009312A5 /* PBXContainerItemProxy */;
 		};
 		6D9946682555A661000E52E8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilter = ios;
 			target = 6D99465D2555A660000E52E8 /* MarketWidgetExtension */;
 			targetProxy = 6D9946672555A661000E52E8 /* PBXContainerItemProxy */;
 		};
 		6D9A2E0C254BA348007B5B82 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilter = ios;
 			target = 6D9A2E01254BA347007B5B82 /* WalletInformationAndMarketWidgetExtension */;
 			targetProxy = 6D9A2E0B254BA348007B5B82 /* PBXContainerItemProxy */;
 		};
 		6DEB4AB7254FB59E00E9F9AA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilter = ios;
 			target = 6DEB4AAC254FB59B00E9F9AA /* WalletInformationWidgetExtension */;
 			targetProxy = 6DEB4AB6254FB59E00E9F9AA /* PBXContainerItemProxy */;
 		};
@@ -1619,7 +1614,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = BlueWallet/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1638,6 +1633,7 @@
 				PRODUCT_NAME = BlueWallet;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTS_MACCATALYST = "$(OVERRIDE_SUPPORTS_MACCATALYST:default=YES)";
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "BlueWallet-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
@@ -1662,7 +1658,7 @@
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = BlueWallet/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1682,6 +1678,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SUPPORTS_MACCATALYST = "$(OVERRIDE_SUPPORTS_MACCATALYST:default=YES)";
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "BlueWallet-Bridging-Header.h";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1857,7 +1854,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -1898,7 +1895,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1939,7 +1936,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -1981,7 +1978,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2023,7 +2020,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -2067,7 +2064,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2107,7 +2104,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -2148,7 +2145,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
