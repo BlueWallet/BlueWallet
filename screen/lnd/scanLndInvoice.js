@@ -341,7 +341,7 @@ const ScanLndInvoice = () => {
                   </View>
                 ) : (
                   <View>
-                    <BlueButton title={loc.lnd.payButton} onPress={pay} disabled={shouldDisablePayButton()} />
+                    <BlueButton title={loc.lnd.payButton} networkMustBeReachable onPress={pay} disabled={shouldDisablePayButton()} />
                   </View>
                 )}
               </BlueCard>

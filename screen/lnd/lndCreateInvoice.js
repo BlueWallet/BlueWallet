@@ -289,7 +289,7 @@ const LNDCreateInvoice = () => {
         {isLoading ? (
           <ActivityIndicator />
         ) : (
-          <BlueButton disabled={!(amount > 0)} onPress={createInvoice} title={loc.send.details_create} />
+          <BlueButton disabled={!(amount > 0)} onPress={createInvoice} networkMustBeReachable title={loc.send.details_create} />
         )}
       </View>
     );

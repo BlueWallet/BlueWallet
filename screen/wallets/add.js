@@ -310,7 +310,13 @@ const WalletsAdd = () => {
           <BlueSpacing20 />
           <View style={styles.createButton}>
             {!isLoading ? (
-              <BlueButton testID="Create" title={loc.wallets.add_create} disabled={!selectedWalletType} onPress={createWallet} />
+              <BlueButton
+                testID="Create"
+                title={loc.wallets.add_create}
+                disabled={!selectedWalletType}
+                onPress={createWallet}
+                networkMustBeReachable={selectedWalletType === ButtonSelected.OFFCHAIN}
+              />
             ) : (
               <ActivityIndicator />
             )}

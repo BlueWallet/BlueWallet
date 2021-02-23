@@ -73,6 +73,22 @@ export const BlueButton = props => {
     fontColor = colors.buttonDisabledTextColor;
   }
 
+  const presentNoNetworkAlert = () => {
+    Alert.alert(
+      loc._.no_network_available_title,
+      loc._.no_network_available_description,
+      [
+        {
+          text: loc._.cancel,
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        { text: loc._.proceed_anyway, onPress: props.onPress, style: 'default' },
+      ],
+      { cancelable: true },
+    );
+  };
+
   return (
     <TouchableOpacity
       style={{
@@ -90,9 +106,8 @@ export const BlueButton = props => {
       }}
       {...props}
       onPress={
-        (props.onPressWithNoNetwork && props.networkMustBeReachable && isConnected === false) ||
-        (props.onPressWithNoNetwork && props.internetMustBeReachable && isInternetReachable === false)
-          ? props.onPressWithNoNetwork
+        (props.networkMustBeReachable && isConnected === false) || (props.internetMustBeReachable && isInternetReachable === false)
+          ? presentNoNetworkAlert
           : props.onPress
       }
     >
