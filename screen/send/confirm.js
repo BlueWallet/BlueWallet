@@ -189,7 +189,11 @@ export default class Confirm extends Component {
                   />
                 </View>
               )}
-              {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm_sendNow} />}
+              {this.state.isLoading ? (
+                <ActivityIndicator />
+              ) : (
+                <BlueButton networkMustBeReachable onPress={() => this.send()} title={loc.send.confirm_sendNow} />
+              )}
 
               <TouchableOpacity
                 testID="TransactionDetailsButton"

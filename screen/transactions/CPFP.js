@@ -190,7 +190,7 @@ export default class CPFP extends Component {
           <TouchableOpacity style={styles.action} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}>
             <Text style={styles.actionText}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
-          <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm_sendNow} />
+          <BlueButton onPress={() => this.broadcast()} networkMustBeReachable title={loc.send.confirm_sendNow} />
         </BlueCard>
       </View>
     );
