@@ -194,7 +194,8 @@ describe('LightningCustodianWallet', () => {
     // transactions became more after paying an invoice
   });
 
-  it('can pay invoice (acinq)', async () => {
+  // turned off because acinq strike is shutting down
+  it.skip('can pay invoice (acinq)', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
@@ -234,6 +235,71 @@ describe('LightningCustodianWallet', () => {
     const decoded = l2.decodeInvoice(invoice);
     assert.ok(decoded.payment_hash);
     assert.ok(decoded.description);
+
+    let start = +new Date();
+    await l2.payInvoice(invoice);
+    let end = +new Date();
+    if ((end - start) / 1000 > 9) {
+      console.warn('payInvoice took', (end - start) / 1000, 'sec');
+    }
+
+    await l2.fetchTransactions();
+    assert.strictEqual(l2.transactions_raw.length, txLen + 1);
+    const lastTx = l2.transactions_raw[l2.transactions_raw.length - 1];
+    assert.strictEqual(typeof lastTx.payment_preimage, 'string', 'preimage is present and is a string');
+    assert.strictEqual(lastTx.payment_preimage.length, 64, 'preimage is present and is a string of 32 hex-encoded bytes');
+    // transactions became more after paying an invoice
+
+    // now, trying to pay duplicate invoice
+    start = +new Date();
+    let caughtError = false;
+    try {
+      await l2.payInvoice(invoice);
+    } catch (Err) {
+      caughtError = true;
+    }
+    assert.ok(caughtError);
+    await l2.fetchTransactions();
+    assert.strictEqual(l2.transactions_raw.length, txLen + 1);
+    // havent changed since last time
+    end = +new Date();
+    if ((end - start) / 1000 > 9) {
+      console.warn('duplicate payInvoice took', (end - start) / 1000, 'sec');
+    }
+  });
+
+  it('can pay invoice (bitrefill)', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
+    if (!process.env.BLITZHUB) {
+      console.error('process.env.BLITZHUB not set, skipped');
+      return;
+    }
+    if (!process.env.BITREFILL) {
+      console.error('process.env.BITREFILL not set, skipped');
+      return;
+    }
+
+    const api = new Frisbee({
+      baseURI: 'https://api.bitrefill.com',
+      headers: {},
+    });
+
+    const res = await api.get('/v1/lnurl_pay/' + process.env.BITREFILL + '/callback?amount=1000');
+
+    if (!res.body || !res.body.pr) {
+      throw new Error('Bitrefill problem: ' + JSON.stringify(res));
+    }
+
+    const invoice = res.body.pr;
+
+    const l2 = new LightningCustodianWallet();
+    l2.setSecret(process.env.BLITZHUB);
+    await l2.authorize();
+    await l2.fetchTransactions();
+    const txLen = l2.transactions_raw.length;
+
+    const decoded = l2.decodeInvoice(invoice);
+    assert.ok(decoded.payment_hash);
 
     let start = +new Date();
     await l2.payInvoice(invoice);
