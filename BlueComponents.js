@@ -90,7 +90,8 @@ export const BlueButton = props => {
       }}
       {...props}
       onPress={
-        (props.onPressWithNoNetwork && !isConnected) || (props.onPressWithNoNetwork && props.disableOnInternetNotReachable)
+        (props.onPressWithNoNetwork && props.networkMustBeReachable && isConnected === false) ||
+        (props.onPressWithNoNetwork && props.internetMustBeReachable && isInternetReachable === false)
           ? props.onPressWithNoNetwork
           : props.onPress
       }

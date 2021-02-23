@@ -147,6 +147,7 @@ const WalletsImport = () => {
             title={loc.wallets.import_do_import}
             onPress={importButtonPressed}
             onPressWithNoNetwork={presentNoNetworkAlert}
+            networkMustBeReachable
           />
           <BlueSpacing20 />
           <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} testID="ScanImport" />
