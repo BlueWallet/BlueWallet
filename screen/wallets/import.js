@@ -146,7 +146,6 @@ const WalletsImport = () => {
             disabled={importText.trim().length === 0}
             title={loc.wallets.import_do_import}
             onPress={importButtonPressed}
-            disableOnNoNetworkAvailable
             onPressWithNoNetwork={presentNoNetworkAlert}
           />
           <BlueSpacing20 />
