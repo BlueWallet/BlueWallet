@@ -28,7 +28,7 @@ function WatchConnectivity() {
   }, [walletsInitialized, wallets, preferredFiatCurrency, isReachable, isInstalled]);
 
   useEffect(() => {
-    if (walletsInitialized && preferredFiatCurrency) {
+    if (isInstalled && isReachable && walletsInitialized && preferredFiatCurrency) {
       try {
         transferCurrentComplicationUserInfo({
           preferredFiatCurrency: JSON.parse(preferredFiatCurrency).endPointKey,
@@ -38,8 +38,7 @@ function WatchConnectivity() {
         console.log(e);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preferredFiatCurrency, walletsInitialized]);
+  }, [preferredFiatCurrency, walletsInitialized, isReachable, isInstalled]);
 
   const handleMessages = (message, reply) => {
     if (message.request === 'createInvoice') {
