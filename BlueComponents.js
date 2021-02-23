@@ -42,6 +42,7 @@ import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, rem
 import Lnurl from './class/lnurl';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import ToolTipMenu from './components/TooltipMenu';
+import { useNetInfo } from '@react-native-community/netinfo';
 /** @type {AppStorage} */
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -59,10 +60,15 @@ Platform.OS === 'android' ? (ActivityIndicator.defaultProps.color = PlatformColo
 
 export const BlueButton = props => {
   const { colors } = useTheme();
+  const { isConnected, isInternetReachable } = useNetInfo();
 
   let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.mainColor || BlueCurrentTheme.colors.mainColor;
   let fontColor = props.buttonTextColor || colors.buttonTextColor;
-  if (props.disabled === true) {
+  const isButtonDisabled =
+    props.disabled === true ||
+    (props.disableOnNoNetworkAvailable === true && isConnected === false) ||
+    (props.disableOnInternetNotReachable === true && isInternetReachable === false);
+  if (isButtonDisabled) {
     backgroundColor = colors.buttonDisabledBackgroundColor;
     fontColor = colors.buttonDisabledTextColor;
   }
@@ -83,6 +89,11 @@ export const BlueButton = props => {
         paddingHorizontal: 16,
       }}
       {...props}
+      onPress={
+        (props.onPressWithNoNetwork && !isConnected) || (props.onPressWithNoNetwork && props.disableOnInternetNotReachable)
+          ? props.onPressWithNoNetwork
+          : props.onPress
+      }
     >
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
         {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}

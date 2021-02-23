@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useEffect, useState } from 'react';
-import { Platform, View, Keyboard, StatusBar, StyleSheet } from 'react-native';
+import { Platform, View, Keyboard, Alert, StatusBar, StyleSheet } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
@@ -17,6 +17,7 @@ import Privacy from '../../blue_modules/Privacy';
 import WalletImport from '../../class/wallet-import';
 import loc from '../../loc';
 import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
+
 const fs = require('../../blue_modules/fs');
 
 const WalletsImport = () => {
@@ -107,6 +108,22 @@ const WalletsImport = () => {
     }
   };
 
+  const presentNoNetworkAlert = () => {
+    Alert.alert(
+      loc._.no_network_available_title,
+      loc._.no_network_available_description,
+      [
+        {
+          text: loc._.cancel,
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        { text: loc._.proceed_anyway, onPress: importButtonPressed, style: 'default' },
+      ],
+      { cancelable: true },
+    );
+  };
+
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <StatusBar barStyle="light-content" />
@@ -129,6 +146,8 @@ const WalletsImport = () => {
             disabled={importText.trim().length === 0}
             title={loc.wallets.import_do_import}
             onPress={importButtonPressed}
+            disableOnNoNetworkAvailable
+            onPressWithNoNetwork={presentNoNetworkAlert}
           />
           <BlueSpacing20 />
           <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} testID="ScanImport" />
