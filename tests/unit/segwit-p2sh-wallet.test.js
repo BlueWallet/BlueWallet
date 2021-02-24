@@ -9,6 +9,7 @@ describe('Segwit P2SH wallet', () => {
     assert.strictEqual(wallet.getAddress(), '3CKN8HTCews4rYJYsyub5hjAVm5g5VFdQJ');
     assert.deepStrictEqual(wallet.getAllExternalAddresses(), ['3CKN8HTCews4rYJYsyub5hjAVm5g5VFdQJ']);
     assert.strictEqual(await wallet.getChangeAddressAsync(), wallet.getAddress());
+    assert.strictEqual(await wallet.getAddressAsync(), wallet.getAddress());
 
     const utxos = [
       {
