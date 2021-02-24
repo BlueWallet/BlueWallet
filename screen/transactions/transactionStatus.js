@@ -117,11 +117,11 @@ const TransactionsStatus = () => {
   }, [tx, wallets]);
 
   useEffect(() => {
-    if (wallet) {
-      setSelectedWallet(wallet.current.getID());
+    if (wallet.current) {
+      setSelectedWallet(wallet.current?.getID());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet]);
+  }, [wallet.current]);
 
   useEffect(() => {
     console.log('transactions/details - useEffect');
