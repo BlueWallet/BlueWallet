@@ -33,6 +33,10 @@ export class HDSegwitBech32Wallet extends AbstractHDElectrumWallet {
     return true;
   }
 
+  allowCosignPsbt() {
+    return true;
+  }
+
   isSegwit() {
     return true;
   }

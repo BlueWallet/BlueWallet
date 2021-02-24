@@ -334,9 +334,7 @@ const PsbtWithHardwareWallet = () => {
 
 export default PsbtWithHardwareWallet;
 
-PsbtWithHardwareWallet.navigationOptions = navigationStyle({
-  title: loc.send.header,
-});
+PsbtWithHardwareWallet.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.send.header }));
 
 const styles = StyleSheet.create({
   root: {

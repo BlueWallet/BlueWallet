@@ -1,5 +1,3 @@
-/* global it, describe, expect, element, by, waitFor, device, jasmine */
-
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
 const createHash = require('create-hash');
@@ -363,7 +361,7 @@ describe('BlueWallet UI Tests', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction', async () => {
+  it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction; then cosign', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
@@ -487,6 +485,28 @@ describe('BlueWallet UI Tests', () => {
     transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(transaction.outs.length, 1, 'should be single output, no change');
     assert.ok(transaction.outs[0].value > 100000);
+
+    // now, testing cosign psbt:
+
+    await device.pressBack();
+    await device.pressBack();
+    await element(by.id('SendButton')).tap();
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('PsbtSign')).tap();
+
+    // tapping 10 times invisible button is a backdoor:
+    for (let c = 0; c <= 5; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+      await sleep(1000);
+    }
+    // 1 input, 2 outputs. wallet can fully sign this tx
+    const psbt =
+      'cHNidP8BAFICAAAAAXYa7FEQBAQ2X0B48aHHKKgzkVuHfQ2yCOi3v9RR0IqlAQAAAAAAAACAAegDAAAAAAAAFgAUSnH40G+jiJfreeRb36cs641KFm8AAAAAAAEBH5YVAAAAAAAAFgAUTKHjDm4OJQSbvy9uzyLYi5i5XIoiBgMQcGrP5TIMrdvb73yB4WnZvkPzKr1EzJXJYBHWmlPJZRgAAAAAVAAAgAAAAIAAAACAAQAAAD4AAAAAAA==';
+    await element(by.id('scanQrBackdoorInput')).replaceText(psbt);
+    await element(by.id('scanQrBackdoorOkButton')).tap();
+
+    // this is fully-signed tx, "this is tx hex" help text should appear
+    await yo('DynamicCode');
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });

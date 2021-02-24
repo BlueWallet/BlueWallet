@@ -18,7 +18,6 @@
 		3271B0BB236E329400DA766F /* TodayAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3271B0BA236E329400DA766F /* TodayAPI.swift */; };
 		32B5A32A2334450100F8D608 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A3292334450100F8D608 /* Bridge.swift */; };
 		32F0A29A2311DBB20095C559 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F0A2992311DBB20095C559 /* ComplicationController.swift */; };
-		5875B7B2D85DC56E00F292FF /* libPods-WalletInformationWidgetExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CC8A6C610EAE90F810EADCC /* libPods-WalletInformationWidgetExtension.a */; platformFilter = ios; };
 		590C62D2ED8BF487C33945B0 /* libPods-WalletInformationAndMarketWidgetExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 98455D960744E4E5DD50BA87 /* libPods-WalletInformationAndMarketWidgetExtension.a */; platformFilter = ios; };
 		6D2A6464258BA92D0092292B /* Stickers.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D2A6463258BA92D0092292B /* Stickers.xcassets */; };
 		6D2A6468258BA92D0092292B /* Stickers.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6D2A6461258BA92C0092292B /* Stickers.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -62,7 +61,6 @@
 		6D6CA5332558ED54009312A5 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4BFA254FBA0E00E9F9AA /* Models.swift */; };
 		6D6CA53C2558F316009312A5 /* WidgetAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6A254BAB1B007B5B82 /* WidgetAPI.swift */; };
 		6D6CA5452558F365009312A5 /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6B254BAB1B007B5B82 /* WidgetDataStore.swift */; };
-		6D6CA54E2558F497009312A5 /* WidgetAPI+Electrum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6CA5142558EBA3009312A5 /* WidgetAPI+Electrum.swift */; };
 		6D99465F2555A660000E52E8 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; platformFilter = ios; };
 		6D9946602555A660000E52E8 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3C252FE1A3004D72DF /* SwiftUI.framework */; platformFilter = ios; };
 		6D9946632555A660000E52E8 /* MarketWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9946622555A660000E52E8 /* MarketWidget.swift */; };
@@ -236,7 +234,6 @@
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* BlueWalletTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BlueWalletTests.m; sourceTree = "<group>"; };
 		04466491BA2D4876A71222FC /* Foundation.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Foundation.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Foundation.ttf"; sourceTree = "<group>"; };
-		0CC8A6C610EAE90F810EADCC /* libPods-WalletInformationWidgetExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WalletInformationWidgetExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* BlueWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = BlueWallet/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = BlueWallet/AppDelegate.m; sourceTree = "<group>"; };
@@ -265,7 +262,6 @@
 		334051161886419EA186F4BA /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
 		367FA8CEB35BC9431019D98A /* Pods-MarketWidgetExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MarketWidgetExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MarketWidgetExtension/Pods-MarketWidgetExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		3703B10AAB374CF896CCC2EA /* libBVLinearGradient.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libBVLinearGradient.a; sourceTree = "<group>"; };
-		3D9CAFACCECFFBFCD9B2BC7E /* Pods-WalletInformationWidgetExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WalletInformationWidgetExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-WalletInformationWidgetExtension/Pods-WalletInformationWidgetExtension.release.xcconfig"; sourceTree = "<group>"; };
 		3F7F1B8332C6439793D55B45 /* EvilIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = EvilIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf"; sourceTree = "<group>"; };
 		41BD3AC9FD81723B68A63C12 /* libPods-MarketWidgetExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MarketWidgetExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		44BC9E3EE0E9476A830CCCB9 /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
@@ -274,7 +270,6 @@
 		4D746BBE67E84684848246E2 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
 		4F12F501B686459183E0BE0D /* libRNVectorIcons.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNVectorIcons.a; sourceTree = "<group>"; };
 		5A8F67CF29564E41882ECEF8 /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Brands.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf"; sourceTree = "<group>"; };
-		64774910B0DBEC412995CB89 /* Pods-WalletInformationWidgetExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WalletInformationWidgetExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WalletInformationWidgetExtension/Pods-WalletInformationWidgetExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		6A65D81712444D37BA152B06 /* libRNRandomBytes.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNRandomBytes.a; sourceTree = "<group>"; };
 		6D203C2025D4ED2500493AD1 /* BlueWalletWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BlueWalletWatch.entitlements; sourceTree = "<group>"; };
 		6D294A7324D510AC0039E22B /* af */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = af; path = af.lproj/Interface.strings; sourceTree = "<group>"; };
@@ -487,7 +482,6 @@
 			files = (
 				6DEB4AAF254FB59C00E9F9AA /* SwiftUI.framework in Frameworks */,
 				6DEB4AAE254FB59C00E9F9AA /* WidgetKit.framework in Frameworks */,
-				5875B7B2D85DC56E00F292FF /* libPods-WalletInformationWidgetExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -564,7 +558,6 @@
 				6D333B3A252FE1A3004D72DF /* WidgetKit.framework */,
 				6D333B3C252FE1A3004D72DF /* SwiftUI.framework */,
 				98455D960744E4E5DD50BA87 /* libPods-WalletInformationAndMarketWidgetExtension.a */,
-				0CC8A6C610EAE90F810EADCC /* libPods-WalletInformationWidgetExtension.a */,
 				41BD3AC9FD81723B68A63C12 /* libPods-MarketWidgetExtension.a */,
 			);
 			name = Frameworks;
@@ -751,8 +744,6 @@
 				FF45EB303C9601ED114589A4 /* Pods-MarketWidgetExtension.release.xcconfig */,
 				AA7DCFB2C7887DF26EDB5710 /* Pods-WalletInformationAndMarketWidgetExtension.debug.xcconfig */,
 				7BAA8F97E61B677D33CF1944 /* Pods-WalletInformationAndMarketWidgetExtension.release.xcconfig */,
-				64774910B0DBEC412995CB89 /* Pods-WalletInformationWidgetExtension.debug.xcconfig */,
-				3D9CAFACCECFFBFCD9B2BC7E /* Pods-WalletInformationWidgetExtension.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -960,7 +951,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6DEB4ABB254FB59E00E9F9AA /* Build configuration list for PBXNativeTarget "WalletInformationWidgetExtension" */;
 			buildPhases = (
-				ACD6FC5C1476108D882D6B61 /* [CP] Check Pods Manifest.lock */,
 				6DEB4AA9254FB59B00E9F9AA /* Sources */,
 				6DEB4AAA254FB59B00E9F9AA /* Frameworks */,
 				6DEB4AAB254FB59B00E9F9AA /* Resources */,
@@ -1053,13 +1043,11 @@
 						CreatedOnToolsVersion = 10.2;
 						DevelopmentTeam = A7W54YZ4WU;
 						LastSwiftMigration = 1240;
-						ProvisioningStyle = Manual;
 					};
 					B40D4E3B225841ED00428FCC = {
 						CreatedOnToolsVersion = 10.2;
 						DevelopmentTeam = A7W54YZ4WU;
 						LastSwiftMigration = 1130;
-						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.Keychain = {
 								enabled = 0;
@@ -1293,28 +1281,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		ACD6FC5C1476108D882D6B61 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-WalletInformationWidgetExtension-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		C18D00A61007A84C9887DEDE /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1482,7 +1448,6 @@
 				6DEB4BFC254FBA0E00E9F9AA /* Models.swift in Sources */,
 				6D641F19255226DA003792DF /* MarketView.swift in Sources */,
 				6D4AF18725D215D1009DD853 /* UserDefaultsExtension.swift in Sources */,
-				6D6CA54E2558F497009312A5 /* WidgetAPI+Electrum.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1736,8 +1701,8 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "TodayExtension/BlueWallet - Bitcoin Price.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 310;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
@@ -1754,7 +1719,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.TodayExtension;
 				PRODUCT_NAME = "BlueWallet - Bitcoin Price";
-				PROVISIONING_PROFILE_SPECIFIER = io.bluewallet.bluewallet.TodayExtension;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -1774,8 +1739,8 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "TodayExtension/BlueWallet - Bitcoin Price.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 310;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -1792,7 +1757,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.TodayExtension;
 				PRODUCT_NAME = "BlueWallet - Bitcoin Price";
-				PROVISIONING_PROFILE_SPECIFIER = io.bluewallet.bluewallet.TodayExtension;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -1841,9 +1806,9 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 310;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -1855,7 +1820,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.Stickers;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = Stickers;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1874,8 +1839,8 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = PriceWidgetExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 310;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
@@ -1892,9 +1857,9 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.PriceWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = PriceWidget;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -1915,8 +1880,8 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = PriceWidgetExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 310;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -1933,9 +1898,9 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.PriceWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = PriceWidget;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1956,14 +1921,14 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = MarketWidgetExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 310;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "$(SRCROOT)/WalletInformationWidget/Widgets/MarketWidget/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1974,9 +1939,9 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.MarketWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = MarketWidget;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -1998,15 +1963,15 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = MarketWidgetExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 310;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "$(SRCROOT)/WalletInformationWidget/Widgets/MarketWidget/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2016,9 +1981,9 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.MarketWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = MarketWidget;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2039,15 +2004,15 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = MarketWidgetExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 310;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = WalletInformationWidget/Widgets/MarketWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2058,9 +2023,9 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.WalletInformationAndMarketWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = WalletInformationAndMarketWidget;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -2082,8 +2047,8 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = MarketWidgetExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 310;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -2091,7 +2056,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
 				INFOPLIST_FILE = WalletInformationWidget/Widgets/MarketWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2101,10 +2066,10 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.WalletInformationAndMarketWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = WalletInformationAndMarketWidget;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2113,7 +2078,6 @@
 		};
 		6DEB4AB9254FB59E00E9F9AA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 64774910B0DBEC412995CB89 /* Pods-WalletInformationWidgetExtension.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -2125,14 +2089,14 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = WalletInformationWidgetExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 310;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = WalletInformationWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2143,9 +2107,9 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.WalletInformationWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Wallet Information Widget";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -2155,7 +2119,6 @@
 		};
 		6DEB4ABA254FB59E00E9F9AA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3D9CAFACCECFFBFCD9B2BC7E /* Pods-WalletInformationWidgetExtension.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -2167,15 +2130,15 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = WalletInformationWidgetExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 310;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = WalletInformationWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2185,9 +2148,9 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.WalletInformationWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Wallet Information Widget";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2311,11 +2274,11 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "BlueWalletWatch Extension/BlueWalletWatch Extension.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 310;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = A7W54YZ4WU;
+				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BlueWalletWatch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2328,7 +2291,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch.extension;
 				PRODUCT_NAME = "${TARGET_NAME}";
-				PROVISIONING_PROFILE_SPECIFIER = "BlueWallet for Apple Watch Extension Dist";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -2350,12 +2313,12 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "BlueWalletWatch Extension/BlueWalletWatch Extension.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 310;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = A7W54YZ4WU;
+				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BlueWalletWatch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2367,7 +2330,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch.extension;
 				PRODUCT_NAME = "${TARGET_NAME}";
-				PROVISIONING_PROFILE_SPECIFIER = "BlueWallet for Apple Watch Extension Dist";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -2391,11 +2354,11 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BlueWalletWatch/BlueWalletWatch.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 310;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = A7W54YZ4WU;
+				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BlueWalletWatch_Extension;
 				INFOPLIST_FILE = BlueWalletWatch/Info.plist;
@@ -2404,7 +2367,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "BlueWallet for Apple Watch Distribution";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -2429,12 +2392,12 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BlueWalletWatch/BlueWalletWatch.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 310;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = A7W54YZ4WU;
+				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BlueWalletWatch_Extension;
 				INFOPLIST_FILE = BlueWalletWatch/Info.plist;
@@ -2442,7 +2405,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "BlueWallet for Apple Watch Distribution";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;

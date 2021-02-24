@@ -1,4 +1,3 @@
-/* global it, jasmine, afterAll, beforeAll */
 import * as bitcoin from 'bitcoinjs-lib';
 import { HDLegacyBreadwalletWallet } from '../../class';
 import assert from 'assert';

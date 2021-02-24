@@ -72,7 +72,7 @@ PODS:
   - GCDWebServer/Core (3.5.4)
   - glog (0.3.5)
   - libevent (2.1.12)
-  - lottie-ios (3.1.8)
+  - lottie-ios (3.1.9)
   - lottie-react-native (3.5.0):
     - lottie-ios (~> 3.1.8)
     - React
@@ -276,7 +276,7 @@ PODS:
   - react-native-tcp-socket (3.7.1):
     - CocoaAsyncSocket
     - React
-  - react-native-webview (11.0.0):
+  - react-native-webview (11.2.0):
     - React-Core
   - react-native-widget-center (0.0.4):
     - React
@@ -345,7 +345,7 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - RNCAsyncStorage (1.13.3):
+  - RNCAsyncStorage (1.13.4):
     - React-Core
   - RNCClipboard (1.5.1):
     - React-Core
@@ -355,7 +355,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
-  - RNDeviceInfo (7.3.1):
+  - RNDeviceInfo (8.0.1):
     - React-Core
   - RNFS (2.16.6):
     - React
@@ -377,14 +377,14 @@ PODS:
     - React-Core
   - RNReanimated (1.13.1):
     - React
-  - RNScreens (2.16.1):
+  - RNScreens (2.17.1):
     - React-Core
   - RNSecureKeyStore (1.0.0):
     - React
   - RNSentry (1.9.0):
     - React-Core
     - Sentry (~> 5.2.0)
-  - RNShare (5.1.0):
+  - RNShare (5.1.3):
     - React-Core
   - RNSVG (12.1.0):
     - React
@@ -681,7 +681,7 @@ SPEC CHECKSUMS:
   GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
   glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  lottie-ios: 48fac6be217c76937e36e340e2d09cf7b10b7f5f
+  lottie-ios: 3a3758ef5a008e762faec9c9d50a39842f26d124
   lottie-react-native: 1fb4ce21d6ad37dab8343eaff8719df76035bd93
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   PasscodeAuth: 1cc99b13d8e4de4716d7e2b4069af2f1a9de30b2
@@ -707,7 +707,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 01158a92c300895d79dee447e980672dc3fb85a6
   react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
-  react-native-webview: f0da708d7e471b60ebdbf861c114d2c5d7f7af2d
+  react-native-webview: c010115ea45efd0d329ac7746d0cc59579d7860c
   react-native-widget-center: 0f81d17beb163e7fb5848b06754d7d277fe7d99a
   React-RCTActionSheet: 53ea72699698b0b47a6421cb1c8b4ab215a774aa
   React-RCTAnimation: 1befece0b5183c22ae01b966f5583f42e69a83c2
@@ -721,12 +721,12 @@ SPEC CHECKSUMS:
   ReactCommon: 4167844018c9ed375cc01a843e9ee564399e53c3
   RealmJS: 5195064e9aeccf94ae3756bd9d0f2301b9074b07
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  RNCAsyncStorage: 32c7cbe1d43dff5f03f3d0b9e9d2c44d8ec91a3a
+  RNCAsyncStorage: 0701cb7395f06d744184641241888a0eec0e2f2a
   RNCClipboard: 5e299c6df8e0c98f3d7416b86ae563d3a9f768a3
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
-  RNDeviceInfo: 57bb2806fb7bd982a1434e9f0b4e6a6ab1f6702e
+  RNDeviceInfo: 54401b60514387f9120ab8265be5ed9103d842b9
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
   RNGestureHandler: 7a5833d0f788dbd107fbb913e09aa0c1ff333c39
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
@@ -737,10 +737,10 @@ SPEC CHECKSUMS:
   RNRate: 2b31dad120cd1b78e33c6034808561c386a3dddf
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
   RNReanimated: dd8c286ab5dd4ba36d3a7fef8bff7e08711b5476
-  RNScreens: 45c457af3d2ee9e08fc01e70da87e653d46b1198
+  RNScreens: b6c9607e6fe47c1b6e2f1910d2acd46dd7ecea3a
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: 1adaa43b01c6a3ab5091d4d1add66b7c58558898
-  RNShare: fed99fd743f80ca255903c1da46fc9a6430efab6
+  RNShare: d98667ee0277d9cd068041e5f316a5fe67aa8536
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
   RNWatch: e4c5d19506c94506860032fb68aedd5991beb985
@@ -750,6 +750,6 @@ SPEC CHECKSUMS:
   Yoga: 7d13633d129fd179e01b8953d38d47be90db185a
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 0a9cc46978a031458f110f72f4b1f21d675a659a
+PODFILE CHECKSUM: 070fb164a2dfb94605ea7862fd9b1c25e95ff046
 
 COCOAPODS: 1.10.0

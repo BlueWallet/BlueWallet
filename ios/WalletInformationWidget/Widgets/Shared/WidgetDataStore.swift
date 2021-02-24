@@ -43,6 +43,17 @@ struct WidgetDataStore: Codable {
     
     return  isoDateFormatter.date(from: lastUpdate)
   }
+  var formattedDate: String? {
+    let isoDateFormatter = ISO8601DateFormatter()
+    let dateFormatter = DateFormatter()
+    dateFormatter.locale = Locale.current
+    dateFormatter.timeStyle = .short
+    
+    if let date = isoDateFormatter.date(from: lastUpdate) {
+      return dateFormatter.string(from: date)
+    }
+    return nil
+  }
 }
 
 class WidgetData {

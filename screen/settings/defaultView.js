@@ -80,8 +80,6 @@ const DefaultView = () => {
   );
 };
 
-DefaultView.navigationOptions = navigationStyle({
-  title: loc.settings.default_title,
-});
+DefaultView.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.default_title }));
 
 export default DefaultView;

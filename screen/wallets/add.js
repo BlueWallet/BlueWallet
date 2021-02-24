@@ -371,11 +371,13 @@ const WalletsAdd = () => {
   );
 };
 
-WalletsAdd.navigationOptions = navigationStyle({
-  closeButton: true,
-  headerTitle: loc.wallets.add_title,
-  headerLeft: null,
-});
+WalletsAdd.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.wallets.add_title }),
+);
 
 const styles = StyleSheet.create({
   createButton: {

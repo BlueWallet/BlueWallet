@@ -91,7 +91,7 @@ const ScanQRCode = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const showFileImportButton = route.params.showFileImportButton || false;
-  const { launchedBy, onBarScanned } = route.params;
+  const { launchedBy, onBarScanned, onDismiss } = route.params;
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -239,6 +239,7 @@ const ScanQRCode = () => {
     } else {
       navigation.goBack();
     }
+    if (onDismiss) onDismiss();
   };
 
   const handleCameraStatusChange = event => {

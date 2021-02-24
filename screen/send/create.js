@@ -28,6 +28,7 @@ import Privacy from '../../blue_modules/Privacy';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
 const currency = require('../../blue_modules/currency');
 
 export default class SendCreate extends Component {
@@ -45,6 +46,8 @@ export default class SendCreate extends Component {
       satoshiPerByte: props.route.params.satoshiPerByte,
       wallet: props.route.params.wallet,
       feeSatoshi: props.route.params.feeSatoshi,
+      showAnimatedQr: props.route.params.showAnimatedQr ?? false,
+      psbt: props.route.params.psbt,
     };
   }
 
@@ -137,6 +140,7 @@ export default class SendCreate extends Component {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <ScrollView>
             <BlueCard style={styles.card}>
+              {this.state.showAnimatedQr && this.state.psbt ? <DynamicQRCode value={this.state.psbt.toHex()} capacity={666} /> : null}
               <BlueText style={styles.cardText}>{loc.send.create_this_is_hex}</BlueText>
               <TextInput testID="TxhexInput" style={styles.cardTx} height={72} multiline editable value={this.state.tx} />
 
@@ -206,7 +210,6 @@ const styles = StyleSheet.create({
   },
   root: {
     flex: 1,
-    paddingTop: 19,
     backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   card: {
@@ -252,25 +255,21 @@ SendCreate.propTypes = {
   }),
 };
 
-SendCreate.navigationOptions = navigationStyle(
-  {
-    title: loc.send.create_details,
-  },
-  (options, { theme, navigation, route }) => {
-    let headerRight;
-    if (route.params.exportTXN) {
-      headerRight = () => (
-        <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
-          <Icon size={22} name="share-alternative" type="entypo" color={BlueCurrentTheme.colors.foregroundColor} />
-        </TouchableOpacity>
-      );
-    } else {
-      headerRight = null;
-    }
+SendCreate.navigationOptions = navigationStyle({}, (options, { theme, navigation, route }) => {
+  let headerRight;
+  if (route.params.exportTXN) {
+    headerRight = () => (
+      <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
+        <Icon size={22} name="share-alternative" type="entypo" color={BlueCurrentTheme.colors.foregroundColor} />
+      </TouchableOpacity>
+    );
+  } else {
+    headerRight = null;
+  }
 
-    return {
-      ...options,
-      headerRight,
-    };
-  },
-);
+  return {
+    ...options,
+    headerRight,
+    title: loc.send.create_details,
+  };
+});

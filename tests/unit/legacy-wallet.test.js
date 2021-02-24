@@ -1,4 +1,3 @@
-/* global it, describe */
 import { LegacyWallet } from '../../class';
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');

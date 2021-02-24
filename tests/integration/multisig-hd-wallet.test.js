@@ -1,4 +1,3 @@
-/* global it, describe, jasmine, afterAll, beforeAll */
 import assert from 'assert';
 import { MultisigHDWallet } from '../../class/';
 const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP

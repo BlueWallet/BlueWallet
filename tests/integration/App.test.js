@@ -1,4 +1,3 @@
-/* global it, expect, jest */
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
 import Settings from '../../screen/settings/settings';

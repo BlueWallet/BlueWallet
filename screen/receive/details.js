@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useRef, useState } from 'react';
 import {
   InteractionManager,
   Keyboard,
@@ -35,6 +35,8 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
+import ToolTipMenu from '../../components/TooltipMenu';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
@@ -51,6 +53,8 @@ const ReceiveDetails = () => {
   const [showAddress, setShowAddress] = useState(false);
   const { navigate, goBack } = useNavigation();
   const { colors } = useTheme();
+  const toolTip = useRef();
+  const qrCode = useRef();
   const styles = StyleSheet.create({
     modalContent: {
       backgroundColor: colors.modal,
@@ -130,6 +134,18 @@ const ReceiveDetails = () => {
     },
   });
 
+  const handleShareQRCode = () => {
+    qrCode.current.toDataURL(data => {
+      const shareImageBase64 = {
+        url: `data:image/png;base64,${data}`,
+      };
+      Share.open(shareImageBase64).catch(error => console.log(error));
+    });
+  };
+
+  const showToolTipMenu = () => {
+    toolTip.current.showMenu();
+  };
   const renderReceiveDetails = () => {
     return (
       <ScrollView style={styles.root} contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
@@ -144,7 +160,20 @@ const ReceiveDetails = () => {
               </BlueText>
             </>
           )}
-          <View style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer">
+          <TouchableWithoutFeedback style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer" onLongPress={showToolTipMenu}>
+            <ToolTipMenu
+              ref={toolTip}
+              anchorRef={qrCode}
+              actions={[
+                {
+                  id: 'shareQRCode',
+                  text: loc.receive.details_share,
+                  onPress: handleShareQRCode,
+                },
+              ]}
+              onPress={handleShareQRCode}
+            />
+
             <QRCode
               value={bip21encoded}
               logo={require('../../img/qr-code.png')}
@@ -154,8 +183,9 @@ const ReceiveDetails = () => {
               logoBackgroundColor={colors.brandingColor}
               backgroundColor="#FFFFFF"
               ecl="H"
+              getRef={qrCode}
             />
-          </View>
+          </TouchableWithoutFeedback>
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>
@@ -353,10 +383,12 @@ const ReceiveDetails = () => {
   );
 };
 
-ReceiveDetails.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.receive.header,
-  headerLeft: null,
-});
+ReceiveDetails.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.receive.header }),
+);
 
 export default ReceiveDetails;
