@@ -16,7 +16,9 @@
     "seed": "Seed",
     "wallet_key": "Wallet sleutel",
     "invalid_animated_qr_code_fragment" : "Ongeldig geanimeerde QRCode, probeer het opnieuw",
-    "file_saved": "Bestand ({filePath}) is opgeslagen in uw gedownloade bestanden."
+    "file_saved": "Bestand ({filePath}) is opgeslagen in uw gedownloade bestanden.",
+    "discard_changes": "Veranderingen ongedaan maken?",
+    "discard_changes_detail": "U heeft onopgeslagen veranderingen. Weet u zeker dat u ze ongedaan wilt maken en het scherm verlaten?"
   },
   "azteco": {
     "codeIs": "De code van uw tegoedbon is",
@@ -38,7 +40,7 @@
     "network": "Netwerkfout"
   },
   "hodl": {
-    "are_you_sure_you_want_to_logout": "Weet u zeker dat u wilt uitloggen van HodlHodl?",
+    "are_you_sure_you_want_to_logout": "Weet u zeker dat u wilt uitloggen van Hodl Hodl?",
     "cont_address_escrow": "Escrow",
     "cont_address_to": "Naar",
     "cont_buying": "kopen",
@@ -210,6 +212,7 @@
     "input_total": "Totaal:",
     "permission_camera_message": "We hebben toestemming nodig om uw camera te gebruiken",
     "permission_camera_title": "Toestemming om camera te gebruiken",
+    "psbt_sign": "Onderteken een transactie",
     "open_settings": "Open instellingen",
     "permission_storage_later": "Vraag mij later",
     "permission_storage_message": "BlueWallet heeft u toestemming nodig om toegang te krijgen tot uw opslag om deze transactie op te slaan.",
@@ -236,6 +239,7 @@
     "about_release_notes": "Release-opmerkingen",
     "about_review": "Laat een review achter",
     "about_selftest": "Voer een zelftest uit",
+    "about_selftest_ok": "Alle interne tests zijn geslaagd. De wallet werkt.",
     "about_sm_github": "GitHub",
     "about_sm_discord": "Discord server",
     "about_sm_telegram": "Telegram kanaal",
@@ -261,7 +265,7 @@
     "electrum_saved": "Uw veranderingen zijn succesvol opgeslagen. Opnieuw opstarten kan nodig zijn om de wijzigingen door te voeren.",
     "set_electrum_server_as_default": "{server} instellen als de standaard electrum server?",
     "set_lndhub_as_default": "{url} instellen als de standaard LNDHub server?",
-    "electrum_settings": "Electrum instellingen",
+    "electrum_settings_server": "Electrum Server Instellingen",
     "electrum_settings_explain": "Laat leeg om standaardinstelling te gebruiken",
     "electrum_status": "Status",
     "electrum_clear_alert_title": "Geschiedenis verwijderen?",
@@ -346,7 +350,7 @@
     "details_title": "Transacties",
     "details_to": "Uitvoer",
     "details_transaction_details": "Transactie details",
-    "enable_hw": "Deze wallet wordt niet gebruikt in combinatie met een hardware wallet. Wilt u het gebruik van een hardware wallet inschakelen?",
+    "enable_offline_signing": "Deze wallet wordt niet gebruikt in combinatie met een hardware wallet. Wilt u het gebruik inschakelen?",
     "list_conf": "conf: {number}",
     "pending": "In afwachting",
     "list_title": "Transacties",
@@ -355,7 +359,8 @@
     "status_bump": "Bumb fee",
     "status_cancel": "Annuleer transactie",
     "transactions_count": "Transactieteller",
-    "txid": "Txid"
+    "txid": "Txid",
+    "updating": "Updaten..."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -406,7 +411,7 @@
     "export_title": "Wallet exporteren",
     "import_do_import": "Importeren",
     "import_error": "Importeren mislukt. Zorg ervoor dat de verstrekte gegevens geldig zijn.",
-    "import_explanation": "Schrijf hier je mnemonic phrase, private key, WIF of wat je maar hebt. BlueWallet zal zijn best doen om het juiste formaat te raden en uw wallet te importeren",
+    "import_explanation": "Schrijf hier uw mnemonic phrase, private key, WIF of wat je maar hebt. BlueWallet zal zijn best doen om het juiste formaat te raden en uw wallet te importeren. Als u een public key invoert, zal BlueWallet deze toevoegen als Watch-only wallet.",
     "import_file": "Importeer bestand",
     "import_imported": "Geïmporteerd",
     "import_placeholder_fail": "Wallet Importeren",
@@ -437,6 +442,7 @@
     "looks_like_bip38": "Dit lijkt op een met een wachtwoord beveiligde private key (BIP38)",
     "reorder_title": "Wallets opnieuw ordenen",
     "please_continue_scanning": "Ga door met scannen",
+    "scan_error": "Scan Fout",
     "select_no_bitcoin": "Er is momenteel geen Bitcoin-wallet beschikbaar",
     "select_no_bitcoin_exp": "Een Bitcoin-wallet is vereist om Lightning-wallets opnieuw te vullen. Maak of importeer er een.",
     "select_wallet": "Selecteer wallet",
@@ -445,6 +451,7 @@
     "pull_to_refresh": "Pull om te refreshen.",
     "warning_do_not_disclose": "Waarschuwing! Niet bekendmaken",
     "add_ln_wallet_first": "U moet eerst een Lightning-wallet toevoegen.",
+    "identity_pubkey": "Identiteit PubKey",
     "xpub_title": "Wallet XPUB"
   },
   "multisig": {
