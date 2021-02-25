@@ -171,7 +171,6 @@ const ReceiveDetails = () => {
                   onPress: handleShareQRCode,
                 },
               ]}
-              onPress={handleShareQRCode}
             />
 
             <QRCode

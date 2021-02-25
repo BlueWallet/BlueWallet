@@ -204,7 +204,6 @@ const TransactionsDetails = () => {
                     onPress: handleCopyPress,
                   },
                 ]}
-                onPress={handleCopyPress}
               />
               <TouchableOpacity
                 ref={openTransactionOnBlockExplorerRef}

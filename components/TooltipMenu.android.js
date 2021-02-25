@@ -5,7 +5,8 @@ import showPopupMenu from 'react-native-popup-menu-android';
 
 const ToolTipMenu = (props, ref) => {
   const handleToolTipSelection = selection => {
-    props.onPress(selection.id);
+    const action = props.actions.find(action => action.id === selection.id);
+    action.onPress();
   };
 
   const showMenu = () => {
@@ -25,5 +26,4 @@ export default forwardRef(ToolTipMenu);
 ToolTipMenu.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.shape).isRequired,
   anchorRef: PropTypes.node,
-  onPress: PropTypes.func.isRequired,
 };

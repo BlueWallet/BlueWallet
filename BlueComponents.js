@@ -301,14 +301,6 @@ export class BlueWalletNavigationHeader extends Component {
     this.tooltip.current.showMenu();
   };
 
-  handleToolTipOnPress = item => {
-    if (item === 'copyToClipboard') {
-      this.handleCopyPress();
-    } else if (item === 'walletBalanceVisibility') {
-      this.handleBalanceVisibility();
-    }
-  };
-
   render() {
     const balance =
       !this.state.wallet.hideBalance &&
@@ -374,7 +366,6 @@ export class BlueWalletNavigationHeader extends Component {
                   },
                 ]
           }
-          onPress={this.handleToolTipOnPress}
         />
         <TouchableOpacity
           style={styles.balance}
@@ -1456,7 +1447,8 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     if (subtitleNumberOfLines === 1) {
       setSubtitleNumberOfLines(0);
     }
-  }, [subtitleNumberOfLines]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const subtitleProps = useMemo(() => ({ numberOfLines: subtitleNumberOfLines }), [subtitleNumberOfLines]);
 
@@ -1480,35 +1472,27 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
       });
     }
     if (subtitle) {
-      actions.push(
-        {
-          id: 'copyNote',
-          text: loc.transactions.copy_note,
-          onPress: handleOnCopyNote,
-        },
-        {
+      actions.push({
+        id: 'copyNote',
+        text: loc.transactions.copy_note,
+        onPress: handleOnCopyNote,
+      });
+      if (subtitleNumberOfLines === 1) {
+        actions.push({
           id: 'expandNote',
           text: loc.transactions.expand_note,
           onPress: handleOnExpandNote,
-        },
-      );
+        });
+      }
     }
     return actions;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item.hash, subtitle, rowTitle]);
-
-  const handleOnToolTipActionPress = useCallback(
-    id => {
-      const action = toolTipActions.find(action => action.id === id);
-      action.onPress();
-    },
-    [toolTipActions],
-  );
+  }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
 
   return (
     <TouchableWithoutFeedback ref={listItemRef}>
       <View style={{ marginHorizontal: 4 }}>
-        <ToolTipMenu ref={toolTip} anchorRef={listItemRef} actions={toolTipActions} onPress={handleOnToolTipActionPress} />
+        <ToolTipMenu ref={toolTip} anchorRef={listItemRef} actions={toolTipActions} />
         <BlueListItem
           leftAvatar={avatar}
           title={title}
