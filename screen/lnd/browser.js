@@ -19,6 +19,7 @@ import { SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Notifications from '../../blue_modules/notifications';
 import loc from '../../loc';
+import { Button } from 'react-native-elements';
 
 let processedInvoices = {};
 let lastTimeTriedToPay = 0;
@@ -291,6 +292,7 @@ const styles = StyleSheet.create({
 });
 
 export default class Browser extends Component {
+  webView = React.createRef();
   constructor(props) {
     super(props);
     if (!props.route.params.fromWallet) throw new Error('Invalid param');
@@ -312,7 +314,7 @@ export default class Browser extends Component {
   };
 
   handleBackButton() {
-    this.state.canGoBack ? this.webview.goBack() : this.props.navigation.goBack(null);
+    this.state.canGoBack ? this.webView.current?.goBack() : this.props.navigation.goBack(null);
     return true;
   }
 
@@ -324,7 +326,7 @@ export default class Browser extends Component {
     return (
       <WebView
         onNavigationStateChange={this._onNavigationStateChange}
-        ref={ref => (this.webview = ref)}
+        ref={this.webView}
         source={{ uri: this.state.url }}
         onMessage={e => {
           // this is a handler which receives messages sent from within the browser
@@ -389,11 +391,13 @@ export default class Browser extends Component {
                     /** @type {LightningCustodianWallet} */
                     const fromWallet = this.state.fromWallet;
                     const payreq = await fromWallet.addInvoice(amount, json.makeInvoice.defaultMemo || ' ');
-                    // this.webview.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
+                    // this.webView.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
                     // Since webview.postMessage is removed from webview, we inject javascript that will manually triger document
                     // event; note how data is passed in 'detail', not 'data'
                     const jsonstr = JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id });
-                    this.webview.injectJavaScript("document.dispatchEvent( new CustomEvent('message', { detail: '" + jsonstr + "' }) );");
+                    this.webView.current?.injectJavaScript(
+                      "document.dispatchEvent( new CustomEvent('message', { detail: '" + jsonstr + "' }) );",
+                    );
 
                     // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
                     const decoded = await fromWallet.decodeInvoice(payreq);
@@ -423,7 +427,7 @@ export default class Browser extends Component {
         onLoadProgress={e => {
           console.log('progress:', e.nativeEvent.progress);
           if (!alreadyInjected && e.nativeEvent.progress > 0.5) {
-            this.webview.injectJavaScript(injectedParadise);
+            this.webView.current?.injectJavaScript(injectedParadise);
             alreadyInjected = true;
             console.log('injected');
           }
@@ -437,19 +441,19 @@ export default class Browser extends Component {
       <SafeBlueArea>
         <View style={styles.safeRoot}>
           <StatusBar barStyle="default" />
-          <TouchableOpacity
-            disabled={!this.state.canGoBack}
-            onPress={() => {
-              this.webview.goBack();
+
+          <Button
+            icon={{
+              type: 'ionicon',
+              name: 'arrow-back-outline',
+              size: 36,
+              color: this.state.canGoBack ? styles.colorRed.color : styles.colorGray.color,
             }}
-            style={styles.safeBack}
-          >
-            <Ionicons
-              name="ios-arrow-round-back"
-              size={36}
-              style={[styles.goBack, this.state.canGoBack ? styles.colorRed : styles.colorGray]}
-            />
-          </TouchableOpacity>
+            type="clear"
+            disabled={!this.state.canGoBack}
+            style={styles.goBack}
+            onPress={() => this.webView.current?.goBack()}
+          />
 
           <View style={styles.safeURL}>
             <View style={styles.safeURLTextWrap}>
@@ -460,6 +464,10 @@ export default class Browser extends Component {
                 placeholderTextColor="#81868e"
                 style={styles.safeURLText}
                 editable
+                textContentType="URL"
+                keyboardType="url"
+                autoCorrect={false}
+                autoCapitalize="none"
                 onSubmitEditing={() => {
                   Keyboard.dismiss();
                   let url = this.state.stateURL;
@@ -489,7 +497,7 @@ export default class Browser extends Component {
 
             <TouchableOpacity
               onPress={() => {
-                this.webview.reload();
+                this.webView.current?.reload();
               }}
             >
               {!this.state.pageIsLoading ? (
@@ -518,8 +526,10 @@ Browser.propTypes = {
   }),
 };
 
-Browser.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.wallets.list_ln_browser,
-  headerLeft: null,
-});
+Browser.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.wallets.list_ln_browser }),
+);

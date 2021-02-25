@@ -1,28 +1,31 @@
 {
   "_": {
-    "allow": "Tillåt",
     "bad_password": "Felaktigt lösenord, försök igen.",
     "cancel": "Avbryt",
     "continue": "Fortsätt",
-    "dont_allow": "Tillåt inte",
     "enter_password": "Ange lösenord",
     "never": "aldrig",
-    "no": "Nej",
     "of": "{number} av {total}",
     "ok": "OK",
-    "save": "Spara",
     "storage_is_encrypted": "Lagringen är krypterad. Lösenords krävs för att dekryptera",
+    "allow": "Tillåt",
+    "dont_allow": "Tillåt inte",
+    "yes": "Ja",
+    "no": "Nej",
+    "save": "Spara",
+    "seed": "Frö",
     "wallet_key": "Nyckel till plånbok",
-    "yes": "Ja"
+    "invalid_animated_qr_code_fragment": "Felaktig animerad QR-kod. Vänligen försök igen.",
+    "file_saved": "Filen ({filePath}) har sparats i din Sparade Filer folder"
   },
   "azteco": {
     "codeIs": "Din kupong är",
+    "errorBeforeRefeem": "Innan inlösen måste du först skapa en Bitcoin plånbok.",
     "errorSomething": "Något gick fel. Är din kupong fortfarande giltig?",
+    "redeem": "Lös in till en plånbok",
     "redeemButton": "Lös in",
+    "success": "Framgång",
     "title": "Lös in Azte.co kupong"
-  },
-  "cc": {
-    "change": "ändra"
   },
   "entropy": {
     "save": "Spara",
@@ -43,12 +46,16 @@
     "cont_cancel_q": "Är du säker på att du vill avbryta detta kontraktet?",
     "cont_cancel_y": "Ja, avbryt kontrakt",
     "cont_chat": "Öppna chatt med motpart",
+    "cont_how": "Hur du betalar",
     "cont_paid": "Markera kontrakt som betalad",
     "cont_paid_q": "Är du säker att du vill markera detta kontrakt som betalt?",
     "cont_selling": "Säljer",
     "cont_st_completed": "Klart!",
     "cont_st_paid_enought": "Bitcoin hålls som säkerhet! Betala säljaren\nvia överenskommen betalmetod.",
     "cont_title": "Mina kontrakt",
+    "filter_any": "Valfri",
+    "filter_buying": "Köper",
+    "filter_country_global": "Globala erbjudanden",
     "filter_currency": "Valuta",
     "filter_detail": "Detaljer",
     "filter_filters": "Filtrera",
@@ -56,7 +63,13 @@
     "filter_iamselling": "Jag säljer bitcoin",
     "filter_method": "Betalnings metod",
     "filter_search": "Sök",
+    "filter_selling": "Säljer",
     "item_minmax": "Min/Max",
+    "item_rating": "{rating} köp",
+    "item_rating_no": "Inga betyg",
+    "local_trader": "Lokal säljare",
+    "local_trader_new": "Ny",
+    "login": "Logga in",
     "mycont": "Mina kontrakt",
     "offer_accept": "Acceptera bud",
     "offer_account_finish": "Det verkar som om du inte är klar med att skapa ett HodlHodl konto. Vill du fortsätta med att skapa ditt konto nu?",
@@ -71,6 +84,7 @@
   },
   "lnd": {
     "errorInvoiceExpired": "Fakturan har förfallit",
+    "exchange": "Börs",
     "expired": "Förfallen",
     "expiredLow": "förfallen",
     "expiresIn": "Förfaller om: {tid}",
@@ -88,17 +102,11 @@
   "lndViewInvoice": {
     "additional_info": "Ytterligare information",
     "for": "För:",
+    "lightning_invoice": "Lightning faktura",
     "has_been_paid": "Denna faktura är betald",
     "open_direct_channel": "Öppna en direkt kanal med denna nod:",
     "please_pay": "Var god betala",
     "sats": "sats"
-  },
-  "multisig": {
-    "create": "Skapa"
-  },
-  "notifications": {
-    "ask_me_later": "Fråga mig senare",
-    "no_and_dont_ask": "Nej och fråga mig inte igen"
   },
   "plausibledeniability": {
     "create_fake_storage": "Skapa fejkad lagringsyta",
@@ -150,8 +158,11 @@
     "details_add_rec_rem": "Ta bort mottagare",
     "details_address": "adress",
     "details_address_field_is_not_valid": "Angiven adress är inte giltig",
+    "details_adv_full": "Andvänd hela beloppet",
+    "details_adv_full_remove": "Dina andra mottagare kommer att tas bort från denna transaktion.",
     "details_adv_import": "Importera Transaction",
     "details_amount_field_is_not_valid": "Angivet belopp är inte giltigt",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Det angivna beloppet är för litet. Vänligen ange ett belopp som är större än 500 sats.",
     "details_create": "Skapa",
     "details_fee_field_is_not_valid": "Angiven avgift är inte giltig",
     "details_next": "Nästa",
@@ -169,9 +180,9 @@
     "input_done": "Klart",
     "input_paste": "Klistra in",
     "input_total": "Totalt:",
-    "open_settings": "Öppna inställningar",
     "permission_camera_message": "Vi behöver ditt godkännande för att använda kameran",
     "permission_camera_title": "Tillåtelse för att använda kameran",
+    "open_settings": "Öppna inställningar",
     "permission_storage_later": "Fråga mig senare",
     "psbt_tx_export": "Exportera till fil",
     "qr_error_no_qrcode": "Bilden innehåller inte en QR kod",
@@ -202,6 +213,10 @@
     "privacy_system_settings": "Systeminställningar",
     "retype_password": "Ange lösenord igen",
     "save": "Spara"
+  },
+  "notifications": {
+    "no_and_dont_ask": "Nej och fråga mig inte igen",
+    "ask_me_later": "Fråga mig senare"
   },
   "transactions": {
     "cpfp_create": "Skapa",
@@ -256,5 +271,11 @@
     "select_wallet": "Välj plånbok",
     "xpub_copiedToClipboard": "Kopierad till urklipp",
     "xpub_title": "plånbokens XPUB"
+  },
+  "multisig": {
+    "create": "Skapa"
+  },
+  "cc": {
+    "change": "ändra"
   }
 }

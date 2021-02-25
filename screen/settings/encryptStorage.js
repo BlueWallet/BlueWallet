@@ -167,6 +167,4 @@ const EncryptStorage = () => {
 };
 
 export default EncryptStorage;
-EncryptStorage.navigationOptions = navigationStyle({
-  headerTitle: loc.settings.encrypt_title,
-});
+EncryptStorage.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: loc.settings.encrypt_title }));

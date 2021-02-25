@@ -51,6 +51,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
 const prompt = require('../../blue_modules/prompt');
 const fs = require('../../blue_modules/fs');
+const scanqr = require('../../helpers/scan-qr');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -93,7 +94,7 @@ const styles = StyleSheet.create({
   },
   feeModalItemActive: {
     borderRadius: 8,
-    backgroundColor: BlueCurrentTheme.colors.feeLabel,
+    backgroundColor: BlueCurrentTheme.colors.feeActive,
   },
   feeModalRow: {
     justifyContent: 'space-between',
@@ -366,29 +367,35 @@ export default class SendDetails extends Component {
       this.setState({ addresses: [new BitcoinTransaction()], isLoading: false });
     }
 
+    let cachedNetworkTransactionFees;
     try {
-      const cachedNetworkTransactionFees = JSON.parse(await AsyncStorage.getItem(NetworkTransactionFee.StorageKey));
-
-      if (cachedNetworkTransactionFees && 'fastestFee' in cachedNetworkTransactionFees) {
-        this.setState({
-          fee: cachedNetworkTransactionFees.fastestFee.toString(),
-          networkTransactionFees: cachedNetworkTransactionFees,
-        });
-      }
+      cachedNetworkTransactionFees = JSON.parse(await AsyncStorage.getItem(NetworkTransactionFee.StorageKey));
     } catch (_) {}
+    if (cachedNetworkTransactionFees && 'fastestFee' in cachedNetworkTransactionFees) {
+      this.setState(
+        {
+          networkTransactionFees: cachedNetworkTransactionFees,
+        },
+        () => this.reCalcTx(true, true),
+      );
+    } else {
+      // even if we can't load old fees values, we need to re-calculate
+      this.reCalcTx(true, true);
+    }
 
-    this.reCalcTx();
-
+    let recommendedFees;
     try {
-      const recommendedFees = await Promise.race([NetworkTransactionFees.recommendedFees(), this.context.sleep(2000)]);
-      if (recommendedFees && 'fastestFee' in recommendedFees) {
-        await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
-        this.setState({
-          fee: recommendedFees.fastestFee.toString(),
-          networkTransactionFees: recommendedFees,
-        });
-      }
+      recommendedFees = await Promise.race([NetworkTransactionFees.recommendedFees(), this.context.sleep(2000)]);
     } catch (_) {} // either sleep expired or recommendedFees threw an exception
+    if (recommendedFees && 'fastestFee' in recommendedFees) {
+      await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
+      this.setState(
+        {
+          networkTransactionFees: recommendedFees,
+        },
+        () => this.reCalcTx(true, true),
+      );
+    }
 
     if (this.props.route.params.uri) {
       try {
@@ -403,13 +410,12 @@ export default class SendDetails extends Component {
 
     try {
       await Promise.race([this.state.fromWallet.fetchUtxo(), this.context.sleep(6000)]);
-    } catch (_) {
+    } catch (e) {
+      console.log('fetchUtxo error', e);
       // either sleep expired or fetchUtxo threw an exception
     }
 
     this.setState({ isLoading: false });
-
-    this.reCalcTx();
   }
 
   componentWillUnmount() {
@@ -537,7 +543,7 @@ export default class SendDetails extends Component {
   /**
    * Recalculating fee options by creating skeleton of future tx.
    */
-  reCalcTx = (all = false) => {
+  reCalcTx = (all = false, setInitialValue = false) => {
     const wallet = this.state.fromWallet;
     const fees = this.state.networkTransactionFees;
     const changeAddress = this.getChangeAddressFast();
@@ -608,7 +614,23 @@ export default class SendDetails extends Component {
       }
     }
 
-    this.setState({ feePrecalc });
+    const newState = { feePrecalc };
+
+    // set state.fee during component mount. Choose highest possible fee for wallet balance
+    // if there are no funds for even Slow option, use 1 sat/byte fee
+    if (setInitialValue) {
+      if (feePrecalc.fastestFee !== null) {
+        newState.fee = String(fees.fastestFee);
+      } else if (feePrecalc.mediumFee !== null) {
+        newState.fee = String(fees.mediumFee);
+      } else if (feePrecalc.slowFee !== null) {
+        newState.fee = String(fees.slowFee);
+      } else {
+        newState.fee = '1';
+      }
+    }
+
+    this.setState(newState);
   };
 
   async createPsbtTransaction() {
@@ -1088,6 +1110,48 @@ export default class SendDetails extends Component {
     );
   };
 
+  handlePsbtSign = async () => {
+    this.setState({ isAdvancedTransactionOptionsVisible: false, isLoading: true });
+    await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
+    const scannedData = await scanqr(this.props.navigation.navigate, this.props.route.name);
+    if (!scannedData) return this.setState({ isLoading: false });
+
+    /** @type {HDSegwitBech32Wallet} */
+    const wallet = this.state.fromWallet;
+
+    let tx;
+    let psbt;
+    try {
+      psbt = bitcoin.Psbt.fromBase64(scannedData);
+      tx = wallet.cosignPsbt(psbt).tx;
+    } catch (e) {
+      alert(e.message);
+      return;
+    } finally {
+      this.setState({ isLoading: false });
+    }
+
+    if (!tx) return this.setState({ isLoading: false });
+
+    // we need to remove change address from recipients, so that Confirm screen show more accurate info
+    const changeAddresses = [];
+    for (let c = 0; c < wallet.next_free_change_address_index + wallet.gap_limit; c++) {
+      changeAddresses.push(wallet._getInternalAddressByIndex(c));
+    }
+    const recipients = psbt.txOutputs.filter(({ address }) => !changeAddresses.includes(address));
+
+    this.props.navigation.navigate('CreateTransaction', {
+      fee: new BigNumber(psbt.getFee()).dividedBy(100000000).toNumber(),
+      feeSatoshi: psbt.getFee(),
+      wallet,
+      tx: tx.toHex(),
+      recipients,
+      satoshiPerByte: psbt.getFeeRate(),
+      showAnimatedQr: true,
+      psbt,
+    });
+  };
+
   hideAdvancedTransactionOptionsModal = () => {
     Keyboard.dismiss();
     this.setState({ isAdvancedTransactionOptionsVisible: false });
@@ -1182,6 +1246,15 @@ export default class SendDetails extends Component {
               component={TouchableOpacity}
               onPress={this.handleCoinControl}
             />
+            {this.state.fromWallet.allowCosignPsbt() && (
+              <BlueListItem
+                testID="PsbtSign"
+                title={loc.send.psbt_sign}
+                hideChevron
+                component={TouchableOpacity}
+                onPress={this.handlePsbtSign}
+              />
+            )}
           </View>
         </KeyboardAvoidingView>
       </BottomModal>
@@ -1496,28 +1569,24 @@ SendDetails.propTypes = {
   }),
 };
 
-SendDetails.navigationOptions = navigationStyleTx(
-  {
+SendDetails.navigationOptions = navigationStyleTx({}, (options, { theme, navigation, route }) => {
+  let headerRight;
+  if (route.params.withAdvancedOptionsMenuButton) {
+    headerRight = () => (
+      <TouchableOpacity
+        style={styles.advancedOptions}
+        onPress={route.params.advancedOptionsMenuButtonAction}
+        testID="advancedOptionsMenuButton"
+      >
+        <Icon size={22} name="kebab-horizontal" type="octicon" color={theme.colors.foregroundColor} />
+      </TouchableOpacity>
+    );
+  } else {
+    headerRight = null;
+  }
+  return {
+    ...options,
+    headerRight,
     title: loc.send.header,
-  },
-  (options, { theme, navigation, route }) => {
-    let headerRight;
-    if (route.params.withAdvancedOptionsMenuButton) {
-      headerRight = () => (
-        <TouchableOpacity
-          style={styles.advancedOptions}
-          onPress={route.params.advancedOptionsMenuButtonAction}
-          testID="advancedOptionsMenuButton"
-        >
-          <Icon size={22} name="kebab-horizontal" type="octicon" color={theme.colors.foregroundColor} />
-        </TouchableOpacity>
-      );
-    } else {
-      headerRight = null;
-    }
-    return {
-      ...options,
-      headerRight,
-    };
-  },
-);
+  };
+});

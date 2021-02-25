@@ -16,7 +16,9 @@
     "seed": "Сид-фраза",
     "wallet_key": "Ключ кошелька",
     "invalid_animated_qr_code_fragment" : "Ошибочный фрагмент QRCode, попробуйте снова",
-    "file_saved": "Файл ({filePath}) сохранён в папке Загрузки."
+    "file_saved": "Файл ({filePath}) сохранён в папке Загрузки.",
+    "discard_changes": "Отменить изменения?",
+    "discard_changes_detail": "У вас есть несохраненные изменения. Вы уверены, что хотите отменить их?"
   },
   "azteco": {
     "codeIs": "Код вашего ваучера",
@@ -176,6 +178,7 @@
     "details_adv_full_sure": "Ты уверен что хочешь использоавать весь баланс кошелька для этой транзакции?",
     "details_adv_import": "Импортировать транзакцию",
     "details_amount_field_is_not_valid": "Введенная сумма неверна",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Сумма слишком мала. Пожалуйста, введите сумму больше 500 сатоши.",
     "details_create": "Создать",
     "details_error_decode": "Ошибка: Нельзя декодировать Bitcoin адрес",
     "details_fee_field_is_not_valid": "Введенная комиссия неверна",
@@ -209,6 +212,7 @@
     "input_total": "Всего:",
     "permission_camera_message": "Нужно ваше разрешение на использование камеры",
     "permission_camera_title": "Разрешите пользоваться камерой",
+    "psbt_sign": "Подписать транзакцию",
     "open_settings": "Открыть настройки",
     "permission_storage_later": "Спроси меня позже",
     "permission_storage_message": "BlueWallet нужно ваше разрешение для доступа к хранилищу, чтобы сохранить этот файл.",
@@ -345,7 +349,7 @@
     "details_title": "Детали транзакци",
     "details_to": "Кому",
     "details_transaction_details": "Детали транзакции",
-    "enable_hw": "Кошелек не используется вместе с аппаратным. Вы хотите включить поддержку аппаратного кошелека?",
+    "enable_offline_signing": "Этот кошелек не используется вместе с оффлайн подписью. Хотите включить это сейчас?",
     "list_conf": "{number} подтв.",
     "pending": "В процессе",
     "list_title": "Мои транзакции",
@@ -354,7 +358,8 @@
     "status_bump": "Повысить комиссию",
     "status_cancel": "Отменить транзакцию",
     "transactions_count": "кол-во транзакций",
-    "txid": "Txid"
+    "txid": "Txid",
+    "updating": "Обновление..."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -436,6 +441,7 @@
     "looks_like_bip38": "Это похоже на закрытый ключ, защищенный паролем (BIP38)",
     "reorder_title": "Отсортировать кошельки",
     "please_continue_scanning": "Продолжайте сканировать",
+    "scan_error": "Ошибка сканирования",
     "select_no_bitcoin": "В настоящее время нет доступных биткойн-кошельков.",
     "select_no_bitcoin_exp": "Биткойн-кошелек необходим для пополнения Lightning кошельков. Пожалуйста, создайте или импортируйте его.",
     "select_wallet": "Выбрать кошелек",
@@ -444,10 +450,12 @@
     "pull_to_refresh": "потяните, чтобы обновить",
     "warning_do_not_disclose": "Внимание! Не разглашать",
     "add_ln_wallet_first": "Сначала добавьте Лайтнинг кошелёк.",
+    "identity_pubkey": "Identity Pubkey",
     "xpub_title": "XPUB кошелька"
   },
   "multisig": {
     "multisig_vault": "Хранилище",
+    "default_label": "Мультисиг Хранилище",
     "multisig_vault_explain": "Лучшая безопасность для больших сумм",
     "provide_signature": "Предоставить подпись",
     "vault_key": "Ключ хранилища {number}",

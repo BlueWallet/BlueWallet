@@ -139,7 +139,6 @@ const LNDCreateInvoice = () => {
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet]),
-    [],
   );
 
   const _keyboardDidShow = () => {
@@ -497,8 +496,10 @@ const styles = StyleSheet.create({
 
 export default LNDCreateInvoice;
 
-LNDCreateInvoice.navigationOptions = navigationStyle({
-  closeButton: true,
-  headerTitle: loc.receive.header,
-  headerLeft: null,
-});
+LNDCreateInvoice.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.receive.header }),
+);

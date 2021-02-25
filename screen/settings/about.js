@@ -208,7 +208,5 @@ const About = () => {
   );
 };
 
-About.navigationOptions = navigationStyle({
-  headerTitle: loc.settings.about,
-});
+About.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.about }));
 export default About;

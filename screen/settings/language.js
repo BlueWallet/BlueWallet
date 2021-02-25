@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
 import { SafeBlueArea, BlueListItem, BlueLoading } from '../../BlueComponents';
-import { AvailableLanguages } from '../../loc/languages';
 import loc from '../../loc';
-
+import { AvailableLanguages } from '../../loc/languages';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useNavigation, useTheme } from '@react-navigation/native';
 
 const styles = StyleSheet.create({
   flex: {
@@ -31,7 +30,7 @@ const Language = () => {
   }, []);
 
   useEffect(() => {
-    setOptions({ headerTitle: loc.settings.language });
+    setOptions({ title: loc.settings.language });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
@@ -64,8 +63,6 @@ const Language = () => {
   );
 };
 
-Language.navigationOptions = navigationStyle({
-  headerTitle: loc.settings.language,
-});
+Language.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.language }));
 
 export default Language;

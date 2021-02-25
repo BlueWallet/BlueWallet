@@ -1,4 +1,3 @@
-/* global it, jasmine, describe */
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 

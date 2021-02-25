@@ -358,7 +358,6 @@ const styles = StyleSheet.create({
 
 LNDViewInvoice.navigationOptions = navigationStyle(
   {
-    title: loc.lndViewInvoice.lightning_invoice,
     closeButton: true,
     closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().pop(),
   },
@@ -376,6 +375,7 @@ LNDViewInvoice.navigationOptions = navigationStyle(
     return {
       ...options,
       ...additionalOptions,
+      title: loc.lndViewInvoice.lightning_invoice,
     };
   },
 );

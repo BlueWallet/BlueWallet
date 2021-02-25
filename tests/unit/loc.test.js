@@ -1,4 +1,3 @@
-/* global it, describe, jest */
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { FiatUnit } from '../../models/fiatUnit';
 import { _leaveNumbersAndDots, formatBalanceWithoutSuffix, formatBalancePlain, formatBalance } from '../../loc';

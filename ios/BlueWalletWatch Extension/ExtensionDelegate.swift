@@ -7,50 +7,99 @@
 //
 
 import WatchKit
+import ClockKit
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
-
-    func applicationDidFinishLaunching() {
-        // Perform any final initialization of your application.
+  
+  func applicationDidFinishLaunching() {
+    // Perform any final initialization of your application.
+    scheduleNextReload()
+    ExtensionDelegate.preferredFiatCurrencyChanged()
+  }
+  
+  static func preferredFiatCurrencyChanged() {
+    let fiatUnitUserDefaults: FiatUnit
+    if let preferredFiatCurrency = UserDefaults.standard.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
+      fiatUnitUserDefaults = preferredFiatUnit
+    } else {
+      fiatUnitUserDefaults = fiatUnit(currency: "USD")!
     }
-
-    func applicationDidBecomeActive() {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-    }
-
-    func applicationWillResignActive() {
-        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, etc.
-    }
-
-    func handle(_ backgroundTasks: Set<WKRefreshBackgroundTask>) {
-        // Sent when the system needs to launch the application in the background to process tasks. Tasks arrive in a set, so loop through and process each one.
-        for task in backgroundTasks {
-            // Use a switch statement to check the task type
-            switch task {
-            case let backgroundTask as WKApplicationRefreshBackgroundTask:
-                // Be sure to complete the background task once you’re done.
-                backgroundTask.setTaskCompletedWithSnapshot(false)
-            case let snapshotTask as WKSnapshotRefreshBackgroundTask:
-                // Snapshot tasks have a unique completion call, make sure to set your expiration date
-                snapshotTask.setTaskCompleted(restoredDefaultState: true, estimatedSnapshotExpiration: Date.distantFuture, userInfo: nil)
-            case let connectivityTask as WKWatchConnectivityRefreshBackgroundTask:
-                // Be sure to complete the connectivity task once you’re done.
-                connectivityTask.setTaskCompletedWithSnapshot(false)
-            case let urlSessionTask as WKURLSessionRefreshBackgroundTask:
-                // Be sure to complete the URL session task once you’re done.
-                urlSessionTask.setTaskCompletedWithSnapshot(false)
-            case let relevantShortcutTask as WKRelevantShortcutRefreshBackgroundTask:
-                // Be sure to complete the relevant-shortcut task once you're done.
-                relevantShortcutTask.setTaskCompletedWithSnapshot(false)
-            case let intentDidRunTask as WKIntentDidRunRefreshBackgroundTask:
-                // Be sure to complete the intent-did-run task once you're done.
-                intentDidRunTask.setTaskCompletedWithSnapshot(false)
-            default:
-                // make sure to complete unhandled task types
-                task.setTaskCompletedWithSnapshot(false)
-            }
+    WidgetAPI.fetchPrice(currency: fiatUnitUserDefaults.endPointKey) { (data, error) in
+      if let data = data, let encodedData = try? PropertyListEncoder().encode(data) {
+        UserDefaults.standard.set(encodedData, forKey: MarketData.string)
+        UserDefaults.standard.synchronize()
+        let server = CLKComplicationServer.sharedInstance()
+        
+        for complication in server.activeComplications ?? [] {
+          server.reloadTimeline(for: complication)
         }
+      }
     }
-
+  }
+  
+  func nextReloadTime(after date: Date) -> Date {
+    let calendar = Calendar(identifier: .gregorian)
+    return calendar.date(byAdding: .minute, value: 10, to: date)!
+  }
+  
+  func scheduleNextReload() {
+    let targetDate = nextReloadTime(after: Date())
+    
+    NSLog("ExtensionDelegate: scheduling next update at %@", "\(targetDate)")
+    
+    WKExtension.shared().scheduleBackgroundRefresh(
+      withPreferredDate: targetDate,
+      userInfo: nil,
+      scheduledCompletion: { _ in }
+    )
+  }
+  
+  func reloadActiveComplications() {
+    let server = CLKComplicationServer.sharedInstance()
+    
+    for complication in server.activeComplications ?? [] {
+      server.reloadTimeline(for: complication)
+    }
+  }
+  
+  
+  func applicationDidBecomeActive() {
+    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+  }
+  
+  func applicationWillResignActive() {
+    // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
+    // Use this method to pause ongoing tasks, disable timers, etc.
+  }
+  
+  func handle(_ backgroundTasks: Set<WKRefreshBackgroundTask>) {
+    for task in backgroundTasks {
+      switch task {
+        case let backgroundTask as WKApplicationRefreshBackgroundTask:
+        NSLog("ExtensionDelegate: handling WKApplicationRefreshBackgroundTask")
+        
+        scheduleNextReload()
+          let fiatUnitUserDefaults: FiatUnit
+          if let preferredFiatCurrency = UserDefaults.standard.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
+            fiatUnitUserDefaults = preferredFiatUnit
+          } else {
+            fiatUnitUserDefaults = fiatUnit(currency: "USD")!
+          }
+          WidgetAPI.fetchPrice(currency: fiatUnitUserDefaults.endPointKey) { [weak self] (data, error) in
+          if let data = data, let encodedData = try? PropertyListEncoder().encode(data) {
+            UserDefaults.standard.set(encodedData, forKey: MarketData.string)
+            UserDefaults.standard.synchronize()
+            self?.reloadActiveComplications()
+            backgroundTask.setTaskCompletedWithSnapshot(false)
+          }
+        }
+        
+      default:
+        task.setTaskCompletedWithSnapshot(false)
+      }
+    }
+  }
+  
+  
+  
 }

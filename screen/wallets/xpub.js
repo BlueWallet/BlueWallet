@@ -99,10 +99,12 @@ const WalletXpub = () => {
   );
 };
 
-WalletXpub.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.wallets.xpub_title,
-  headerLeft: null,
-});
+WalletXpub.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.wallets.xpub_title }),
+);
 
 export default WalletXpub;

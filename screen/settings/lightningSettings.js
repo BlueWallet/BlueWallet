@@ -153,8 +153,6 @@ const LightningSettings = () => {
   );
 };
 
-LightningSettings.navigationOptions = navigationStyle({
-  title: loc.settings.lightning_settings,
-});
+LightningSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.lightning_settings }));
 
 export default LightningSettings;

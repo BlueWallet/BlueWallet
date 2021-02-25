@@ -1,4 +1,3 @@
-/* global it */
 import { HDLegacyP2PKHWallet } from '../../class';
 const assert = require('assert');
 const bitcoin = require('bitcoinjs-lib');

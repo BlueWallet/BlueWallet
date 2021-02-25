@@ -133,10 +133,12 @@ const WalletExport = () => {
   );
 };
 
-WalletExport.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.wallets.export_title,
-  headerLeft: null,
-});
+WalletExport.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.wallets.export_title }),
+);
 
 export default WalletExport;

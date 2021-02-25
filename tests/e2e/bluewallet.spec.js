@@ -1,5 +1,3 @@
-/* global it, describe, expect, element, by, waitFor, device, jasmine */
-
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
 const createHash = require('create-hash');
@@ -50,7 +48,7 @@ describe('BlueWallet UI Tests', () => {
     try {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
-      await element(by.text(`No, and don't ask me again`)).tap();
+      await element(by.text(`No, and don’t ask me again`)).tap();
     } catch (_) {}
     await yo('BitcoinAddressQRCodeContainer');
     await yo('BlueCopyTextToClipboard');
@@ -100,7 +98,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.text('OK')).tap();
     await element(by.type('android.widget.EditText')).typeText('666');
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Passwords do not match'))).toBeVisible();
+    await expect(element(by.text('Passwords do not match.'))).toBeVisible();
     await element(by.text('OK')).tap();
 
     // now, lets put correct passwords and encrypt the storage
@@ -142,7 +140,7 @@ describe('BlueWallet UI Tests', () => {
 
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
-    await expect(element(by.text('Password for fake storage should not match the password for your main storage.'))).toBeVisible();
+    await expect(element(by.text('Password for the fake storage should not match the password for your main storage.'))).toBeVisible();
 
     // trying MAIN password: should fail, obviously
     await element(by.type('android.widget.EditText')).typeText('qqq');
@@ -363,7 +361,7 @@ describe('BlueWallet UI Tests', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction', async () => {
+  it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction; then cosign', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
@@ -488,6 +486,28 @@ describe('BlueWallet UI Tests', () => {
     assert.strictEqual(transaction.outs.length, 1, 'should be single output, no change');
     assert.ok(transaction.outs[0].value > 100000);
 
+    // now, testing cosign psbt:
+
+    await device.pressBack();
+    await device.pressBack();
+    await element(by.id('SendButton')).tap();
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('PsbtSign')).tap();
+
+    // tapping 10 times invisible button is a backdoor:
+    for (let c = 0; c <= 5; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+      await sleep(1000);
+    }
+    // 1 input, 2 outputs. wallet can fully sign this tx
+    const psbt =
+      'cHNidP8BAFICAAAAAXYa7FEQBAQ2X0B48aHHKKgzkVuHfQ2yCOi3v9RR0IqlAQAAAAAAAACAAegDAAAAAAAAFgAUSnH40G+jiJfreeRb36cs641KFm8AAAAAAAEBH5YVAAAAAAAAFgAUTKHjDm4OJQSbvy9uzyLYi5i5XIoiBgMQcGrP5TIMrdvb73yB4WnZvkPzKr1EzJXJYBHWmlPJZRgAAAAAVAAAgAAAAIAAAACAAQAAAD4AAAAAAA==';
+    await element(by.id('scanQrBackdoorInput')).replaceText(psbt);
+    await element(by.id('scanQrBackdoorOkButton')).tap();
+
+    // this is fully-signed tx, "this is tx hex" help text should appear
+    await yo('DynamicCode');
+
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -516,7 +536,7 @@ describe('BlueWallet UI Tests', () => {
     try {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
-      await element(by.text(`No, and don't ask me again`)).tap();
+      await element(by.text(`No, and don’t ask me again`)).tap();
     } catch (_) {}
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
     await expect(element(by.text('bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay'))).toBeVisible();

@@ -1,0 +1,53 @@
+Bitcoin-lompakko, jonka avulla voit tallentaa, lähettää Bitcoinia, vastaanottaa Bitcoinia ja ostaa Bitcoinia keskittyen turvallisuuteen ja yksinkertaisuuteen.
+
+Sinulla on yksityiset avaimesi BlueWalletissa, joka on bitcoin-lompakko. Bitcoin-käyttäjien tekemä Bitcoin-lompakko yhteisölle.
+
+Voit heti tehdä kauppaa kenen tahansa kanssa maailmassa ja muuttaa rahoitusjärjestelmän suoraan taskustasi.
+
+Luo ilmaiseksi rajoittamaton määrä bitcoin-lompakoita tai tuo nykyinen lompakko. Se on yksinkertaista ja nopeaa.
+
+_____
+
+Tässä on mitä saat:
+
+
+1 - Suunniteltu tietoturvalliseksi
+
+Avoin lähdekoodi
+MIT-lisensoitu, voit rakentaa sen ja käyttää sitä itsenäisesti! Valmistettu ReactNative: lla
+
+Uskottava kiistettävyys
+Salasana, joka purkaa vale bitcoin-lompakot, jos sinun on pakko paljastaa käyttöoikeutesi
+
+Täysi salaus
+IOS:n monikerroksisen salauksen lisäksi salaamme kaiken lisätyillä salasanoilla
+
+Täysi solmu
+Yhdistä Bitcoinin täyteen solmuusi Electrumin kautta
+
+Kylmävarasto
+Yhdistä laitteistolompakkoon ja säilytä kolikkosi kylmävarastossa
+
+2 - Kohdennettu kokemukseesi
+
+Kontrolloi itse
+Yksityiset avaimet eivät koskaan poistu laitteeltasi.
+Sinä hallitset yksityisiä avaimiasi
+
+Joustavat siirtokulut
+Alkaen 1 Satoshista. Käyttäjän itse määrittämä
+
+Replace-By-Fee
+(RBF) Nopeuta siirtotapahtumiasi korottamalla siirtokulua (BIP125)
+
+Vain lukuoikeus-lompakot
+Vain lukuoikeus-lompakot antavat sinun pitää silmällä kylmävarastoa koskematta laitteistoon.
+
+Lightning-verkko
+Lightning-lompakko nolla-konfiguraatiolla. Luvattoman halvat ja nopeat siirtotapahtumat parhaalla Bitcoin-käyttökokemuksella.
+
+Osta bitcoinia
+Osallistu avoimeen talouden vallankumoukseen kyvyllä ostaa bitcoinia suoraan lompakkoosi.
+
+Paikallinen kauppias
+P2p Bitcoin-vaihtoalusta, jonka avulla voit ostaa ja myydä bitcoinia suoraan muille käyttäjille ilman kolmansia osapuolia.
