@@ -11,6 +11,7 @@ import {
   InputAccessoryView,
   Keyboard,
   KeyboardAvoidingView,
+  Linking,
   PixelRatio,
   Platform,
   PlatformColor,
@@ -1455,7 +1456,14 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle), [rowTitle]);
   const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
   const handleOnCopyNote = useCallback(() => Clipboard.setString(subtitle), [subtitle]);
-
+  const handleOnViewOnBlockExplorer = useCallback(() => {
+    const url = `https://blockstream.info/tx/${item.hash}`;
+    Linking.canOpenURL(url).then(supported => {
+      if (supported) {
+        Linking.openURL(url);
+      }
+    });
+  }, [item.hash]);
   const toolTipActions = useMemo(() => {
     const actions = [
       {
@@ -1465,11 +1473,18 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
       },
     ];
     if (item.hash) {
-      actions.push({
-        id: 'copyTX_ID',
-        text: loc.transactions.copy_transaction_id,
-        onPress: handleOnCopyTransactionID,
-      });
+      actions.push(
+        {
+          id: 'copyTX_ID',
+          text: loc.transactions.copy_transaction_id,
+          onPress: handleOnCopyTransactionID,
+        },
+        {
+          id: 'open_in_blockexplorer',
+          text: loc.transactions.details_show_in_block_explorer,
+          onPress: handleOnViewOnBlockExplorer,
+        },
+      );
     }
     if (subtitle) {
       actions.push({
