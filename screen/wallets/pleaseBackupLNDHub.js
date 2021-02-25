@@ -50,7 +50,8 @@ const PleaseBackupLNDHub = () => {
   const pop = () => navigation.dangerouslyGetParent().pop();
 
   const onLayout = e => {
-    setQRCodeSize(e.nativeEvent.layout.width / 1.5);
+    const { height, width } = e.nativeEvent.layout;
+    setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.5);
   };
   return (
     <SafeBlueArea style={styles.root} onLayout={onLayout}>
