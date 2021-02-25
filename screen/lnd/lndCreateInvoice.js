@@ -17,14 +17,9 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
-import {
-  BlueAlertWalletExportReminder,
-  BlueBitcoinAmount,
-  BlueButton,
-  BlueDismissKeyboardInputAccessory,
-  BlueLoading,
-} from '../../BlueComponents';
+import { BlueAlertWalletExportReminder, BlueButton, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
+import AmountInput from '../../components/AmountInput';
 import * as NavigationService from '../../NavigationService';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -163,7 +158,7 @@ const LNDCreateInvoice = () => {
           break;
         case BitcoinUnit.LOCAL_CURRENCY:
           // trying to fetch cached sat equivalent for this fiat amount
-          invoiceAmount = BlueBitcoinAmount.getCachedSatoshis(invoiceAmount) || currency.btcToSatoshi(currency.fiatToBTC(invoiceAmount));
+          invoiceAmount = AmountInput.getCachedSatoshis(invoiceAmount) || currency.btcToSatoshi(currency.fiatToBTC(invoiceAmount));
           break;
       }
 
@@ -260,7 +255,7 @@ const LNDCreateInvoice = () => {
           break;
         case BitcoinUnit.LOCAL_CURRENCY:
           amount = formatBalancePlain(amount, BitcoinUnit.LOCAL_CURRENCY);
-          BlueBitcoinAmount.setCachedSatoshis(amount, sats);
+          AmountInput.setCachedSatoshis(amount, sats);
           break;
       }
 
@@ -362,7 +357,7 @@ const LNDCreateInvoice = () => {
         <StatusBar barStyle="light-content" />
         <View style={[styles.amount, styleHooks.amount]}>
           <KeyboardAvoidingView behavior="position">
-            <BlueBitcoinAmount
+            <AmountInput
               isLoading={isLoading}
               amount={amount}
               onAmountUnitChange={setUnit}
