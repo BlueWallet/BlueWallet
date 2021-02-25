@@ -18,13 +18,12 @@ const ToolTipMenu = (props, ref) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 
-  return <View ref={ref}>{props.children}</View>;
+  return <View ref={ref} />;
 };
 
 export default forwardRef(ToolTipMenu);
 ToolTipMenu.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.shape).isRequired,
   anchorRef: PropTypes.node,
-  children: PropTypes.node,
   onPress: PropTypes.func.isRequired,
 };

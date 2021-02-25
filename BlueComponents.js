@@ -1,5 +1,5 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import React, { Component, useState, useMemo, useCallback, useContext } from 'react';
+import React, { Component, useState, useMemo, useCallback, useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, Input, Text, Header, ListItem, Avatar } from 'react-native-elements';
 import {
@@ -42,6 +42,7 @@ import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, rem
 import Lnurl from './class/lnurl';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import ToolTipMenu from './components/TooltipMenu';
+
 /** @type {AppStorage} */
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -301,7 +302,6 @@ export class BlueWalletNavigationHeader extends Component {
   };
 
   handleToolTipOnPress = item => {
-    console.warn(item);
     if (item === 'copyToClipboard') {
       this.handleCopyPress();
     } else if (item === 'walletBalanceVisibility') {
@@ -610,6 +610,7 @@ export const BlueListItem = React.memo(props => {
       topDivider={props.topDivider !== undefined ? props.topDivider : false}
       testID={props.testID}
       onPress={props.onPress}
+      onLongPress={props.onLongPress}
       disabled={props.disabled}
     >
       {props.leftAvatar && <Avatar>{props.leftAvatar}</Avatar>}
@@ -1260,6 +1261,8 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     }),
     [colors.lightBorder],
   );
+  const toolTip = useRef();
+  const listItemRef = useRef();
 
   const title = useMemo(() => {
     if (item.confirmations === 0) {
@@ -1446,6 +1449,10 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   }, [item, wallets]);
 
   const onLongPress = useCallback(() => {
+    toolTip.current.showMenu();
+  }, []);
+
+  const handleOnExpandNote = useCallback(() => {
     if (subtitleNumberOfLines === 1) {
       setSubtitleNumberOfLines(0);
     }
@@ -1453,23 +1460,71 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
 
   const subtitleProps = useMemo(() => ({ numberOfLines: subtitleNumberOfLines }), [subtitleNumberOfLines]);
 
+  const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle), [rowTitle]);
+  const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
+  const handleOnCopyNote = useCallback(() => Clipboard.setString(subtitle), [subtitle]);
+
+  const toolTipActions = useMemo(() => {
+    const actions = [
+      {
+        id: 'copyAmount',
+        text: loc.transactions.copy_amount,
+        onPress: handleOnCopyAmountTap,
+      },
+    ];
+    if (item.hash) {
+      actions.push({
+        id: 'copyTX_ID',
+        text: loc.transactions.copy_transaction_id,
+        onPress: handleOnCopyTransactionID,
+      });
+    }
+    if (subtitle) {
+      actions.push(
+        {
+          id: 'copyNote',
+          text: loc.transactions.copy_note,
+          onPress: handleOnCopyNote,
+        },
+        {
+          id: 'expandNote',
+          text: loc.transactions.expand_note,
+          onPress: handleOnExpandNote,
+        },
+      );
+    }
+    return actions;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.hash, subtitle, rowTitle]);
+
+  const handleOnToolTipActionPress = useCallback(
+    id => {
+      const action = toolTipActions.find(action => action.id === id);
+      action.onPress();
+    },
+    [toolTipActions],
+  );
+
   return (
-    <View style={{ marginHorizontal: 4 }}>
-      <BlueListItem
-        leftAvatar={avatar}
-        title={title}
-        titleNumberOfLines={subtitleNumberOfLines}
-        subtitle={subtitle}
-        subtitleProps={subtitleProps}
-        onPress={onPress}
-        onLongPress={onLongPress}
-        chevron={false}
-        Component={TouchableOpacity}
-        rightTitle={rowTitle}
-        rightTitleStyle={rowTitleStyle}
-        containerStyle={containerStyle}
-      />
-    </View>
+    <TouchableWithoutFeedback ref={listItemRef}>
+      <View style={{ marginHorizontal: 4 }}>
+        <ToolTipMenu ref={toolTip} anchorRef={listItemRef} actions={toolTipActions} onPress={handleOnToolTipActionPress} />
+        <BlueListItem
+          leftAvatar={avatar}
+          title={title}
+          titleNumberOfLines={subtitleNumberOfLines}
+          subtitle={subtitle}
+          subtitleProps={subtitleProps}
+          onPress={onPress}
+          chevron={false}
+          Component={TouchableOpacity}
+          rightTitle={rowTitle}
+          rightTitleStyle={rowTitleStyle}
+          containerStyle={containerStyle}
+          onLongPress={onLongPress}
+        />
+      </View>
+    </TouchableWithoutFeedback>
   );
 });
 
