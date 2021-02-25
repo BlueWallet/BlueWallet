@@ -510,7 +510,7 @@ const ViewEditMultisigCosigners = () => {
   const renderProvideMnemonicsModal = () => {
     return (
       <BottomModal isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
             <BlueSpacing20 />
@@ -535,7 +535,7 @@ const ViewEditMultisigCosigners = () => {
   const renderShareModal = () => {
     return (
       <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
             <View style={styles.qrCodeContainer}>
@@ -601,7 +601,7 @@ const ViewEditMultisigCosigners = () => {
     <View style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="light-content" />
       <KeyboardAvoidingView
-        enabled
+        enabled={!Platform.isPad}
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         keyboardVerticalOffset={62}
         style={[styles.mainBlock, styles.root]}

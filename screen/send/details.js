@@ -807,7 +807,7 @@ export default class SendDetails extends Component {
         isVisible={this.state.isFeeSelectionModalVisible}
         onClose={this.hideFeeSelectionModal}
       >
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             {options.map(({ label, time, fee, rate, active }, index) => (
               <TouchableOpacity
@@ -1165,7 +1165,7 @@ export default class SendDetails extends Component {
         isVisible={this.state.isAdvancedTransactionOptionsVisible}
         onClose={this.hideAdvancedTransactionOptionsModal}
       >
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.advancedTransactionOptionsModalContent}>
             {this.state.fromWallet.allowSendMax() && (
               <BlueListItem
@@ -1474,7 +1474,7 @@ export default class SendDetails extends Component {
         <View style={styles.root} onLayout={this.onLayout}>
           <StatusBar barStyle="light-content" />
           <View>
-            <KeyboardAvoidingView behavior="position">
+            <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
               <FlatList
                 keyboardShouldPersistTaps="always"
                 scrollEnabled={this.state.addresses.length > 1}
