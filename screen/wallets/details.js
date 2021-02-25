@@ -413,7 +413,7 @@ const WalletDetails = () => {
               }
             })()}
             <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.add_wallet_name.toLowerCase()}</Text>
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+            <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
               <View style={[styles.input, stylesHook.input]}>
                 <TextInput
                   placeholder={loc.send.details_note_placeholder}

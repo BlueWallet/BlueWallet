@@ -176,7 +176,7 @@ export default class HodlHodlViewOffer extends Component {
     ) : (
       <SafeBlueArea>
         <ScrollView>
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+          <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
             <View style={styles.modalContent}>
               <Text style={styles.Title}>{this.state.offerToDisplay.title}</Text>
 
