@@ -60,14 +60,11 @@ Platform.OS === 'android' ? (ActivityIndicator.defaultProps.color = PlatformColo
 
 export const BlueButton = props => {
   const { colors } = useTheme();
-  const { isConnected, isInternetReachable } = useNetInfo();
+  const { isConnected } = useNetInfo();
 
   let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.mainColor || BlueCurrentTheme.colors.mainColor;
   let fontColor = props.buttonTextColor || colors.buttonTextColor;
-  const isButtonDisabled =
-    props.disabled === true ||
-    (props.disableOnNoNetworkAvailable === true && isConnected === false) ||
-    (props.disableOnInternetNotReachable === true && isInternetReachable === false);
+  const isButtonDisabled = props.disabled === true || (props.disableOnNoNetworkAvailable === true && isConnected === false);
   if (isButtonDisabled) {
     backgroundColor = colors.buttonDisabledBackgroundColor;
     fontColor = colors.buttonDisabledTextColor;
@@ -105,11 +102,7 @@ export const BlueButton = props => {
         paddingHorizontal: 16,
       }}
       {...props}
-      onPress={
-        (props.networkMustBeReachable && isConnected === false) || (props.internetMustBeReachable && isInternetReachable === false)
-          ? presentNoNetworkAlert
-          : props.onPress
-      }
+      onPress={props.networkMustBeReachable && isConnected === false ? presentNoNetworkAlert : props.onPress}
     >
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
         {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
