@@ -115,7 +115,11 @@ const Broadcast = () => {
 
   return (
     <SafeBlueArea style={styles.blueArea}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView
+        enabled={!Platform.isPad}
+        behavior={Platform.OS === 'ios' ? 'position' : null}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.wrapper}>
           {BROADCAST_RESULT.success !== broadcastResult && (
             <BlueCard style={styles.mainCard}>

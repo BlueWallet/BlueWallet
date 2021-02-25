@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import prompt from 'react-native-prompt-android';
 
-module.exports = (title, text, isCancelable = true, type = 'secure-text') => {
+module.exports = (title, text, isCancelable = true, type = 'secure-text', isOKDestructive = false) => {
   const keyboardType = type === 'numeric' ? 'numeric' : 'default';
 
   if (Platform.OS === 'ios' && type === 'numeric') {
@@ -25,6 +25,7 @@ module.exports = (title, text, isCancelable = true, type = 'secure-text') => {
               console.log('OK Pressed');
               resolve(password);
             },
+            style: isOKDestructive ? 'destructive' : 'default',
           },
         ]
       : [

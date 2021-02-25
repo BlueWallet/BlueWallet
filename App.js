@@ -302,7 +302,7 @@ const App = () => {
         isVisible={isClipboardContentModalVisible}
         onClose={hideClipboardContentModal}
       >
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCentered>
               {clipboardContentType === ClipboardContentType.BITCOIN && loc.wallets.clipboard_bitcoin}

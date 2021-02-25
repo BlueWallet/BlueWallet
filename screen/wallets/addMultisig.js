@@ -102,7 +102,7 @@ const WalletsAddMultisig = () => {
   const renderModal = () => {
     return (
       <BottomModal isVisible={isModalVisible} onClose={closeModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
             <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
             <Text style={[styles.textSubtitle, stylesHook.textSubtitle]}>{loc.multisig.required_keys_out_of_total}</Text>

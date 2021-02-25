@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  Platform,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
@@ -360,7 +361,7 @@ const LNDCreateInvoice = () => {
       <View style={[styles.root, styleHooks.root]}>
         <StatusBar barStyle="light-content" />
         <View style={[styles.amount, styleHooks.amount]}>
-          <KeyboardAvoidingView behavior="position">
+          <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
             <BlueBitcoinAmount
               isLoading={isLoading}
               amount={amount}

@@ -272,7 +272,7 @@ const WalletTransactions = () => {
   const renderManageFundsModal = () => {
     return (
       <BottomModal isVisible={isManageFundsModalVisible} onClose={hideManageFundsModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.advancedTransactionOptionsModalContent, stylesHook.advancedTransactionOptionsModalContent]}>
             <BlueListItem
               hideChevron
