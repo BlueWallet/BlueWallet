@@ -1,0 +1,10 @@
+Cechy
+
+* Otwarty kod źródłowy
+* Pełne szyfrowanie
+* Wiarygodna zaprzeczalność
+* Elastyczne opłaty
+* Transakcja typu Zastąp Opłatą czyli Replace-By-Fee (RBF)
+* SegWit
+* Portfele tylko-do-wglądu (Sentinel)
+* Sieć Lightning
