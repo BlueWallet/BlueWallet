@@ -21,11 +21,17 @@ function WatchConnectivity() {
 
   useEffect(() => {
     if (isInstalled && isReachable && walletsInitialized) {
-      sendWalletsToWatch();
       watchEvents.on('message', handleMessages);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletsInitialized, wallets, preferredFiatCurrency, isReachable, isInstalled]);
+  }, [walletsInitialized, isReachable, isInstalled]);
+
+  useEffect(() => {
+    if (isInstalled && isReachable && walletsInitialized) {
+      sendWalletsToWatch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletsInitialized, wallets, isReachable, isInstalled]);
 
   useEffect(() => {
     if (isInstalled && isReachable && walletsInitialized && preferredFiatCurrency) {
@@ -33,11 +39,13 @@ function WatchConnectivity() {
         transferCurrentComplicationUserInfo({
           preferredFiatCurrency: JSON.parse(preferredFiatCurrency).endPointKey,
         });
+        sendWalletsToWatch();
       } catch (e) {
         console.log('WatchConnectivity useEffect preferredFiatCurrency error');
         console.log(e);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preferredFiatCurrency, walletsInitialized, isReachable, isInstalled]);
 
   const handleMessages = (message, reply) => {

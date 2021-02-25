@@ -45,7 +45,7 @@ const WalletsList = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [itemWidth, setItemWidth] = useState(width * 0.82 > 375 ? 375 : width * 0.82);
   const [isLargeScreen, setIsLargeScreen] = useState(
-    Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3 && isTablet(),
+    Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && isTablet(),
   );
   const [carouselData, setCarouselData] = useState([]);
   const dataSource = getTransactions(null, 10);
@@ -428,7 +428,7 @@ const WalletsList = () => {
   };
 
   const onLayout = _e => {
-    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3 && isTablet());
+    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && isTablet());
     setItemWidth(width * 0.82 > 375 ? 375 : width * 0.82);
   };
 
