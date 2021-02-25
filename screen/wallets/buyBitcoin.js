@@ -45,7 +45,7 @@ export default class BuyBitcoin extends Component {
     } else {
       // otherwise, lets call widely-used getAddressAsync()
       try {
-        address = await Promise.race([wallet.getAddressAsync(), this.context.sleep(2000)]);
+        address = await Promise.race([wallet.getAddressAsync(), new Promise(resolve => setTimeout(resolve, 2000))]);
       } catch (_) {}
 
       if (!address) {
