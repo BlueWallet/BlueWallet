@@ -348,7 +348,7 @@ const ReorderWalletsStackRoot = () => {
 const Drawer = createDrawerNavigator();
 function DrawerRoot() {
   const dimensions = useWindowDimensions();
-  const isLargeScreen = Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 3 && isTablet();
+  const isLargeScreen = Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 2 && isTablet();
   const drawerStyle = { width: '0%' };
 
   return (
