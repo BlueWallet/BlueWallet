@@ -468,7 +468,7 @@
     "share": "Share",
     "view": "View",
     "manage_keys": "Manage Keys",
-    "how_many_signatures_can_bluewallet_make": "how many signatures can bluewallet make",
+    "how_many_signatures_can_bluewallet_make": "how many signatures can BlueWallet make",
     "signatures_required_to_spend": "Signatures required {number}",
     "signatures_we_can_make": "can make {number}",
     "scan_or_import_file": "Scan or import file",
