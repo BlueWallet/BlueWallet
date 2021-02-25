@@ -328,7 +328,7 @@ export default class HodlHodl extends Component {
   renderChooseSideModal = () => {
     return (
       <BottomModal isVisible={this.state.isChooseSideModalVisible} onClose={this.hideChooseSideModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContentShort}>
             <FlatList
               scrollEnabled={false}
@@ -377,7 +377,7 @@ export default class HodlHodl extends Component {
           }
         }}
       >
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContentShort}>
             <FlatList
               scrollEnabled={false}
@@ -472,7 +472,7 @@ export default class HodlHodl extends Component {
 
     return (
       <BottomModal isVisible={this.state.isChooseCountryModalVisible} onClose={this.hideChooseCountryModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <View style={styles.searchInputContainer}>
               <TextInput
@@ -546,7 +546,7 @@ export default class HodlHodl extends Component {
 
     return (
       <BottomModal isVisible={this.state.isChooseCurrencyVisible} onClose={this.hideChooseCurrencyModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <View style={styles.searchInputContainer}>
               <TextInput
@@ -620,7 +620,7 @@ export default class HodlHodl extends Component {
 
     return (
       <BottomModal isVisible={this.state.isChooseMethodVisible} deviceHeight={windowHeight} onClose={this.hideChooseMethodModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <View style={styles.searchInputContainer}>
               <TextInput

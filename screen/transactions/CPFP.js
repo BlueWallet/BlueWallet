@@ -1,7 +1,17 @@
 /* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, ScrollView, StyleSheet, KeyboardAvoidingView } from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  KeyboardAvoidingView,
+} from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import { Text } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -158,7 +168,7 @@ export default class CPFP extends Component {
 
   renderStage1(text) {
     return (
-      <KeyboardAvoidingView behavior="position">
+      <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
         <SafeBlueArea style={styles.root}>
           <BlueSpacing />
           <BlueCard style={styles.center}>
