@@ -177,7 +177,6 @@ const LNDViewInvoice = () => {
 
   const onLayout = e => {
     const { height, width } = e.nativeEvent.layout;
-    console.warn(height > width);
     setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.8);
   };
 
