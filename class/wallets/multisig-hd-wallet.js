@@ -480,7 +480,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
 
     // is it electrum json?
-    if (json && json.wallet_type) {
+    if (json && json.wallet_type && json.wallet_type !== 'standard') {
       const mofn = json.wallet_type.split('of');
       this.setM(parseInt(mofn[0].trim()));
       const n = parseInt(mofn[1].trim());
@@ -606,6 +606,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           this.setLegacy();
           break;
         case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+        case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
           this.setWrappedSegwit();
           break;
         default:
@@ -840,9 +841,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       psbt.addOutput(outputData);
     });
 
-    let signaturesMade = 0;
     if (!skipSigning) {
       for (let cc = 0; cc < c; cc++) {
+        let signaturesMade = 0;
         for (const cosigner of this._cosigners) {
           if (!MultisigHDWallet.isXpubString(cosigner)) {
             // ok this is a mnemonic, lets try to sign

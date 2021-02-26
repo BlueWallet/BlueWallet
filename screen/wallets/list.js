@@ -35,16 +35,9 @@ const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', 
 
 const WalletsList = () => {
   const walletsCarousel = useRef();
-  const {
-    wallets,
-    pendingWallets,
-    getTransactions,
-    getBalance,
-    refreshAllWalletTransactions,
-    newWalletAdded,
-    setNewWalletAdded,
-    setSelectedWallet,
-  } = useContext(BlueStorageContext);
+  const { wallets, pendingWallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet } = useContext(
+    BlueStorageContext,
+  );
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
@@ -52,10 +45,11 @@ const WalletsList = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [itemWidth, setItemWidth] = useState(width * 0.82 > 375 ? 375 : width * 0.82);
   const [isLargeScreen, setIsLargeScreen] = useState(
-    Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3 && isTablet(),
+    Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && isTablet(),
   );
   const [carouselData, setCarouselData] = useState([]);
   const dataSource = getTransactions(null, 10);
+  const walletsCount = useRef(wallets.length);
 
   const stylesHook = StyleSheet.create({
     walletsListWrapper: {
@@ -96,12 +90,18 @@ const WalletsList = () => {
   }, [wallets, pendingWallets]);
 
   useEffect(() => {
-    if (newWalletAdded) {
-      walletsCarousel.current?.snapToItem(carouselData.length - pendingWallets.length - 2);
-      setNewWalletAdded(false);
+    if (walletsCount.current < wallets.length) {
+      walletsCarousel.current?.snapToItem(walletsCount.current);
+    }
+    walletsCount.current = wallets.length;
+  }, [wallets]);
+
+  useEffect(() => {
+    if (pendingWallets.length > 0) {
+      walletsCarousel.current?.snapToItem(carouselData.length - pendingWallets.length);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newWalletAdded]);
+  }, [pendingWallets]);
 
   const verifyBalance = () => {
     if (getBalance() !== 0) {
@@ -139,13 +139,13 @@ const WalletsList = () => {
    * Forcefully fetches TXs and balance for ALL wallets.
    * Triggered manually by user on pull-to-refresh.
    */
-  const refreshTransactions = (showLoadingIndicator = true) => {
+  const refreshTransactions = (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
     setIsLoading(showLoadingIndicator);
-    refreshAllWalletTransactions().finally(() => setIsLoading(false));
+    refreshAllWalletTransactions(showLoadingIndicator, showUpdateStatusIndicator).finally(() => setIsLoading(false));
   };
 
   useEffect(() => {
-    refreshTransactions(false);
+    refreshTransactions(false, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // call refreshTransactions() only once, when screen mounts
 
@@ -194,7 +194,7 @@ const WalletsList = () => {
     console.log('onSnapToItem', index);
     if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
       console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
-      refreshAllWalletTransactions(index).finally(() => setIsLoading(false));
+      refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
     }
   };
 
@@ -428,8 +428,12 @@ const WalletsList = () => {
   };
 
   const onLayout = _e => {
-    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 3 && isTablet());
+    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && isTablet());
     setItemWidth(width * 0.82 > 375 ? 375 : width * 0.82);
+  };
+
+  const onRefresh = () => {
+    refreshTransactions(true, false);
   };
 
   return (
@@ -437,7 +441,7 @@ const WalletsList = () => {
       <StatusBar barStyle="default" />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
-          onRefresh={refreshTransactions}
+          onRefresh={onRefresh}
           refreshing={isLoading}
           renderItem={renderSectionItem}
           keyExtractor={sectionListKeyExtractor}

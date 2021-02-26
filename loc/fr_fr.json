@@ -16,7 +16,9 @@
     "seed": "Graine",
     "wallet_key": "Clé de portefeuille",
     "invalid_animated_qr_code_fragment" : "Fragment du QR Code animé invalide. Veuillez essayer encore.",
-    "file_saved": "Le fichier ({filePath}) a été enregistré dans le dossier Téléchargements."
+    "file_saved": "Le fichier ({filePath}) a été enregistré dans le dossier Téléchargements.",
+    "discard_changes": "Supprimer les changements ?",
+    "discard_changes_detail": "Certaines modifications n'ont pas été enregistrées. Êtes-vous sûr de vouloir les supprimer et quitter cet écran ?"
   },
   "azteco": {
     "codeIs": "Votre code promo est",
@@ -61,7 +63,6 @@
     "filter_any": "Tous",
     "filter_buying": "Acheteur",
     "filter_country_global": "Offres internationales",
-    "filter_country_near": "Près de moi",
     "filter_currency": "Devise",
     "filter_detail": "Détails",
     "filter_filters": "Filtres",
@@ -88,7 +89,7 @@
     "offer_promt_fiat": "Combien de {currency} désirez-vous acheter ?",
     "offer_promt_fiat_e": "Par example 100",
     "offer_window": "fenêtre",
-    "p2p": "Un échange pair-à-pair"
+    "p2p": "Acheter du Bitcoin sur un échange pair à pair"
   },
   "lnd": {
     "errorInvoiceExpired": "Requête expirée",
@@ -177,6 +178,7 @@
     "details_adv_full_sure": "Etes-vous sûr de vouloir utiliser la totalité de votre solde pour cette transaction ?",
     "details_adv_import": "Importer une transaction",
     "details_amount_field_is_not_valid": "Champ montant invalide",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Le montant spécifié est trop petit. Veuillez entrer un montant supérieur à 500 sats.",
     "details_create": "Créer la requête",
     "details_error_decode": "Erreur : impossible de décoder l'adresse Bitcoin",
     "details_fee_field_is_not_valid": "Champ frais invalide",
@@ -210,6 +212,7 @@
     "input_total": "Total :",
     "permission_camera_message": "Nous avons besoin de votre permission pour utiliser l'appareil photo",
     "permission_camera_title": "Permission d'utiliser l'appareil photo",
+    "psbt_sign": "Signer une transaction",
     "open_settings": "Ouvrir les paramètres",
     "permission_storage_later": "Redemander Plus Tard",
     "permission_storage_message": "BlueWallet a besoin de votre permission pour accéder a votre stockage pour enregistrer ce fichier.",
@@ -236,6 +239,7 @@
     "about_release_notes": "Notes de version",
     "about_review": "Laissez-nous votre avis",
     "about_selftest": "Effectuer un auto-test",
+    "about_selftest_ok": "Tous les tests internes ont été passés avec succès. Le portefeuille fonctionne parfaitement. ",
     "about_sm_github": "GitHub",
     "about_sm_discord": "Serveur discord",
     "about_sm_telegram": "Chaîne Telegram",
@@ -261,7 +265,7 @@
     "electrum_saved": "Les changements ont bien été enregistrés. Un redémarrage sera peut-être nécessaires pour qu'ils prennent effet.",
     "set_electrum_server_as_default": "Mettre {server} come serveur electrum par défaut ?",
     "set_lndhub_as_default": "Mettre {url} comme serveur LNDHub par défaut?",
-    "electrum_settings": "Paramètres Electrum",
+    "electrum_settings_server": "Paramètres du serveur Electrum ",
     "electrum_settings_explain": "Laisser blanc pour utiliser l'option par défaut",
     "electrum_status": "Statut",
     "electrum_clear_alert_title": "Effacer l'historique?",
@@ -346,7 +350,7 @@
     "details_title": "Transaction",
     "details_to": "À",
     "details_transaction_details": "Détails de la transaction",
-    "enable_hw": "Ce portefeuille n'est pas utilisé en conjonction avec un portefeuille matériel. Voulez-vous permettre l'utilisation de portefeuilles matériels ?",
+    "enable_offline_signing": "Ce portefeuille n'est pas utilisé en conjonction avec une signature hors ligne. Voulez-vous l'activer maintenant ? ",
     "list_conf": "Conf: {number}",
     "pending": "En attente",
     "list_title": "transactions",
@@ -355,7 +359,8 @@
     "status_bump": "Frais de propulsion",
     "status_cancel": "Annuler la transaction",
     "transactions_count": "Nombre de transactions",
-    "txid": "Txid"
+    "txid": "Txid",
+    "updating": "Chargement..."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -406,7 +411,7 @@
     "export_title": "export du portefeuille",
     "import_do_import": "Importer",
     "import_error": "Échec de l'import. Merci, de vérifier que les données saisies sont valides.",
-    "import_explanation": "Entrez ici votre mnémonique, clé privée, WIF, ou quoi que ce soit que vous ayez. BlueWallet fera de son mieux pour deviner le bon format et importer votre portefeuille",
+    "import_explanation": "Écrivez ici vos mnémonique, clés privés, WIF ou tout simplement ce que vous avez. Bluewallet fera de son mieux pour détecter automatiquement le bon format. Si c'est une clé publique, nous créerons une portefeuille en lecture seul. ",
     "import_file": "Importer le fichier",
     "import_imported": "Importé",
     "import_placeholder_fail": "Importation de portefeuille",
@@ -437,6 +442,7 @@
     "looks_like_bip38": "Ceci ressemble a une clé privée protégée par un mot de passe (BIP38)",
     "reorder_title": "Trier vos portefeuilles",
     "please_continue_scanning": "Merci de continuer à scaner",
+    "scan_error": "Erreur de scan",
     "select_no_bitcoin": "Il n'y a aucun portefeuille Bitcoin disponible pour le moment.",
     "select_no_bitcoin_exp": "Un portefeuille Bitcoin est nécessaire pour approvisionner les portefeuilles Lightning. Veuillez en créer ou en importer un.",
     "select_wallet": "Choix du portefeuille",
@@ -445,6 +451,7 @@
     "pull_to_refresh": "Tirer pour rafraichir",
     "warning_do_not_disclose": "Attention! Ne pas divulguer",
     "add_ln_wallet_first": "Vous devez d'abord ajouter un portefeuille Lightning.",
+    "identity_pubkey": "Clé publique identité",
     "xpub_title": "XPUB portefeuille"
   },
   "multisig": {
@@ -540,7 +547,7 @@
     "header": "Controle de Pièces",
     "use_coin": "Utiliser la pièces",
     "use_coins": "Utiliser les Pièces",
-    "tip": "Autorise la vue, l'étiquetage, le gel ou la sélection des pièces pour une gestion améliorée du portefeuille."
+    "tip": "Permet de voir, étiqueter, bloquer ou sélectionner des UTXOs pour une meilleure gestion du portefeuille. Vous pouvez sélectionner plusieurs UTXOs en appuyant sur les cercles colorés."
   },
   "units": {
     "BTC": "BTC",

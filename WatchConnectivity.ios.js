@@ -1,5 +1,11 @@
 import { useContext, useEffect } from 'react';
-import { updateApplicationContext, watchEvents, useReachability, useInstalled } from 'react-native-watch-connectivity';
+import {
+  updateApplicationContext,
+  watchEvents,
+  useReachability,
+  useInstalled,
+  transferCurrentComplicationUserInfo,
+} from 'react-native-watch-connectivity';
 import { InteractionManager } from 'react-native';
 import { Chain } from './models/bitcoinUnits';
 import loc, { formatBalance, transactionTimeToReadable } from './loc';
@@ -7,17 +13,40 @@ import { BlueStorageContext } from './blue_modules/storage-context';
 import Notifications from './blue_modules/notifications';
 
 function WatchConnectivity() {
-  const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useContext(BlueStorageContext);
+  const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata, preferredFiatCurrency } = useContext(
+    BlueStorageContext,
+  );
   const isReachable = useReachability();
   const isInstalled = useInstalled(); // true | false
 
   useEffect(() => {
     if (isInstalled && isReachable && walletsInitialized) {
-      sendWalletsToWatch();
       watchEvents.on('message', handleMessages);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletsInitialized, isReachable, isInstalled]);
+
+  useEffect(() => {
+    if (isInstalled && isReachable && walletsInitialized) {
+      sendWalletsToWatch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized, wallets, isReachable, isInstalled]);
+
+  useEffect(() => {
+    if (isInstalled && isReachable && walletsInitialized && preferredFiatCurrency) {
+      try {
+        transferCurrentComplicationUserInfo({
+          preferredFiatCurrency: JSON.parse(preferredFiatCurrency).endPointKey,
+        });
+        sendWalletsToWatch();
+      } catch (e) {
+        console.log('WatchConnectivity useEffect preferredFiatCurrency error');
+        console.log(e);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preferredFiatCurrency, walletsInitialized, isReachable, isInstalled]);
 
   const handleMessages = (message, reply) => {
     if (message.request === 'createInvoice') {
@@ -28,6 +57,11 @@ function WatchConnectivity() {
       sendWalletsToWatch();
     } else if (message.message === 'fetchTransactions') {
       fetchWalletTransactions().then(() => saveToDisk());
+    } else if (message.message === 'hideBalance') {
+      const walletIndex = message.walletIndex;
+      const wallet = wallets[walletIndex];
+      wallet.hideBalance = message.hideBalance;
+      saveToDisk().finally(() => reply({}));
     }
   };
 
@@ -154,6 +188,7 @@ function WatchConnectivity() {
           receiveAddress: receiveAddress,
           transactions: watchTransactions,
           xpub: wallet.getXpub() ? wallet.getXpub() : wallet.getSecret(),
+          hideBalance: wallet.hideBalance,
         });
       }
       updateApplicationContext({ wallets: walletsToProcess, randomID: Math.floor(Math.random() * 11) });

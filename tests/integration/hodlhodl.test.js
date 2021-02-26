@@ -1,4 +1,3 @@
-/* global it, jasmine, describe */
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 
@@ -106,9 +105,6 @@ describe.skip('HodlHodl API', function () {
     assert.ok(countries[0].native_name);
     assert.ok(countries[0].currency_code);
     assert.ok(countries[0].currency_name);
-
-    const countryCode = await Hodl.getMyCountryCode();
-    assert.strictEqual(countryCode.length, 2);
   });
 
   it('can get offers', async () => {

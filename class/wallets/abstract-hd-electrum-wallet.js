@@ -695,7 +695,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       u.txid = u.txId;
       u.amount = u.value;
       u.wif = this._getWifForAddress(u.address);
-      u.confirmations = u.height ? 1 : 0;
+      if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
     }
 
     this.utxo = this.utxo.sort((a, b) => a.amount - b.amount);
@@ -1047,5 +1047,52 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       if (address === this._getInternalAddressByIndex(c)) return true;
     }
     return false;
+  }
+
+  calculateHowManySignaturesWeHaveFromPsbt(psbt) {
+    let sigsHave = 0;
+    for (const inp of psbt.data.inputs) {
+      if (inp.finalScriptSig || inp.finalScriptWitness || inp.partialSig) sigsHave++;
+    }
+    return sigsHave;
+  }
+
+  /**
+   * Tries to signs passed psbt object (by reference). If there are enough signatures - tries to finalize psbt
+   * and returns Transaction (ready to extract hex)
+   *
+   * @param psbt {Psbt}
+   * @returns {{ tx: Transaction }}
+   */
+  cosignPsbt(psbt) {
+    const mnemonic = this.secret;
+    const seed = bip39.mnemonicToSeed(mnemonic);
+    const hdRoot = HDNode.fromSeed(seed);
+
+    for (let cc = 0; cc < psbt.inputCount; cc++) {
+      try {
+        psbt.signInputHD(cc, hdRoot);
+      } catch (e) {} // protects agains duplicate cosignings
+
+      if (!psbt.inputHasHDKey(cc, hdRoot)) {
+        for (const derivation of psbt.data.inputs[cc].bip32Derivation || []) {
+          const splt = derivation.path.split('/');
+          const internal = +splt[splt.length - 2];
+          const index = +splt[splt.length - 1];
+          const wif = this._getWIFByIndex(internal, index);
+          const keyPair = bitcoin.ECPair.fromWIF(wif);
+          try {
+            psbt.signInput(cc, keyPair);
+          } catch (e) {} // protects agains duplicate cosignings or if this output can't be signed with current wallet
+        }
+      }
+    }
+
+    let tx = false;
+    if (this.calculateHowManySignaturesWeHaveFromPsbt(psbt) === psbt.inputCount) {
+      tx = psbt.finalizeAllInputs().extractTransaction();
+    }
+
+    return { tx };
   }
 }

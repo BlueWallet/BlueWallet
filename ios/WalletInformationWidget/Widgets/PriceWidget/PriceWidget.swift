@@ -13,7 +13,7 @@ var marketData: [MarketDataTimeline: MarketData?] = [ .Current: nil, .Previous: 
 struct Provider: TimelineProvider {
   
   func placeholder(in context: Context) -> SimpleEntry {
-    SimpleEntry(date: Date(), currentMarketData: nil)
+    return SimpleEntry(date: Date(), currentMarketData: MarketData(nextBlock: "", sats: "", price: "$10,000", rate: 10000, dateString: "2019-09-18T17:27:00+00:00"))
   }
   
   func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
@@ -71,8 +71,9 @@ struct PriceWidgetEntryView : View {
   }
   
   var body: some View {
-    priceView.background(Color.widgetBackground)
-    
+    VStack(content: {
+      priceView
+    }).background(Color.widgetBackground)
   }
 }
 

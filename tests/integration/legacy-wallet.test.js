@@ -1,4 +1,3 @@
-/* global describe, it, jasmine, afterAll, beforeAll */
 import { LegacyWallet, SegwitP2SHWallet, SegwitBech32Wallet } from '../../class';
 const assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
@@ -54,11 +53,11 @@ describe('LegacyWallet', function () {
     assert.ok(w._lastBalanceFetch > 0);
   });
 
-  it('can fetch TXs', async () => {
+  it('can fetch TXs and derive UTXO from them', async () => {
     const w = new LegacyWallet();
-    w._address = '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG';
+    w._address = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
     await w.fetchTransactions();
-    assert.strictEqual(w.getTransactions().length, 2);
+    assert.strictEqual(w.getTransactions().length, 1);
 
     for (const tx of w.getTransactions()) {
       assert.ok(tx.hash);
@@ -67,9 +66,19 @@ describe('LegacyWallet', function () {
       assert.ok(tx.confirmations > 1);
     }
 
-    assert.ok(w.weOwnTransaction('4924f3a29acdee007ebcf6084d2c9e1752c4eb7f26f7d1a06ef808780bf5fe6d'));
-    assert.ok(w.weOwnTransaction('d0432027a86119c63a0be8fa453275c2333b59067f1e559389cd3e0e377c8b96'));
+    assert.ok(w.weOwnTransaction('b2ac59bc282083498d1e87805d89bef9d3f3bc216c1d2c4dfaa2e2911b547100'));
     assert.ok(!w.weOwnTransaction('825c12f277d1f84911ac15ad1f41a3de28e9d906868a930b0a7bca61b17c8881'));
+
+    assert.strictEqual(w.getUtxo().length, 1);
+
+    for (const tx of w.getUtxo()) {
+      assert.strictEqual(tx.txid, 'b2ac59bc282083498d1e87805d89bef9d3f3bc216c1d2c4dfaa2e2911b547100');
+      assert.strictEqual(tx.vout, 0);
+      assert.strictEqual(tx.address, '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK');
+      assert.strictEqual(tx.value, 51432);
+      assert.strictEqual(tx.value, tx.amount);
+      assert.ok(tx.confirmations > 0);
+    }
   });
 
   it.each([

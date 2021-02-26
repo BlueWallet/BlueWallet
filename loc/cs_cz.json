@@ -16,7 +16,9 @@
     "seed": "Seed",
     "wallet_key": "Klíč peněženky",
     "invalid_animated_qr_code_fragment" : "Neplatný animovaný fragment QRCode, zkuste to prosím znovu",
-    "file_saved": "Soubor ({filePath}) byl uložen do složky Stažené soubory."
+    "file_saved": "Soubor ({filePath}) byl uložen do složky Stažené soubory.",
+    "discard_changes": "Zrušit změny?",
+    "discard_changes_detail": "Máte neuložené změny. Opravdu je chcete zahodit a opustit obrazovku?"
   },
   "azteco": {
     "codeIs": "Váš kód voucheru je",
@@ -61,7 +63,6 @@
     "filter_any": "Žádné",
     "filter_buying": "Nákup",
     "filter_country_global": "Globální nabídky",
-    "filter_country_near": "Blízko mne",
     "filter_currency": "Měna",
     "filter_detail": "Detail",
     "filter_filters": "Filtry",
@@ -77,6 +78,7 @@
     "local_trader": "Local Trader",
     "local_trader_new": "Nový",
     "login": "Přihlásit se",
+    "logout": "odhlásit se",
     "mycont": "Moje kontrakty",
     "offer_accept": "Přijmout nabídku",
     "offer_account_finish": "Vypadá to, že jste nedokončili nastavení účtu na HodlHodl, chtěli byste dokončit nastavení hned teď?",
@@ -87,7 +89,7 @@
     "offer_promt_fiat": "Kolik {currency} chcete koupit?",
     "offer_promt_fiat_e": "Například 100",
     "offer_window": "okno",
-    "p2p": "P2P směnárna"
+    "p2p": "Nakoupit bitcoiny na p2P burze"
   },
   "lnd": {
     "errorInvoiceExpired": "Faktura vypršela",
@@ -136,8 +138,9 @@
     "ok": "Dobře, přepsal jsem to!",
     "ok_lnd": "Dobře, uložil jsem to.",
     "text": "Věnujte prosím chvíli zápisu této mnemotechnické věty na kus papíru. Je to vaše záloha, kterou můžete použít k obnovení peněženky na jiném zařízení.",
-    "text_lnd": "Věnujte chvíli uložení této autentizace LNDHub. Je to vaše záloha, kterou můžete použít k obnovení peněženky na jiném zařízení.",
-    "title": "Vaše peněženka je vytvořena..."
+    "text_lnd": "Uložte si tuto zálohu peněženky. Umožňí vám obnovit peněženku v případě ztráty.",
+    "text_lnd2": "Tuto peněženku hostuje BlueWallet.",
+    "title": "Vaše peněženka je vytvořena"
   },
   "receive": {
     "details_create": "Vytvořit",
@@ -175,6 +178,7 @@
     "details_adv_full_sure": "Opravdu chcete pro tuto transakci použít celý zůstatek vaší peněženky?",
     "details_adv_import": "Importovat transakci",
     "details_amount_field_is_not_valid": "Čáskta není správně vyplněna",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Zadaná částka je příliš malá. Zadejte částku větší než 500 sat.",
     "details_create": "Vytvořit fakturu",
     "details_error_decode": "Chyba: Nelze dekódovat bitcoinovou adresu",
     "details_fee_field_is_not_valid": "Poplatek není správně vyplněn",
@@ -239,7 +243,7 @@
     "about_sm_telegram": "Telegram kanál",
     "about_sm_twitter": "Sleduj nás na Twitteru",
     "advanced_options": "Pokročilé možnosti",
-    "biom": "biometrie",
+    "biometrics": "Biometrie",
     "biom_10times": "Pokusili jste se zadat heslo desetkrát. Chcete obnovit své úložiště? Tím odstraníte všechny peněženky a dešifrujete úložiště.",
     "biom_conf_identity": "Potvrďte prosím svoji totožnost.",
     "biom_no_passcode": "Vaše zařízení nemá přístupový kód. Chcete-li pokračovat, nakonfigurujte přístupový kód v Nastavení aplikace.",
@@ -262,6 +266,14 @@
     "electrum_settings": "Nastavení Electrum",
     "electrum_settings_explain": "Chcete-li použít výchozí, nastavte na prázdné",
     "electrum_status": "Status",
+    "electrum_clear_alert_title": "Smazat historii?",
+    "electrum_clear_alert_message": "Chcete vymazat historii serverů electrum?",
+    "electrum_clear_alert_cancel": "Zrušit",
+    "electrum_clear_alert_ok": "Ok",
+    "electrum_select": "Vybrat",
+    "electrum_reset": "Obnovit do základního nastavení",
+    "electrum_history": "Historie serveru",
+    "electrum_clear": "Vymazat",
     "encrypt_decrypt": "Dešifrovat úložiště",
     "encrypt_decrypt_q": "Opravdu chcete dešifrovat své úložiště? To umožní přístup k vašim peněženkám bez hesla.",
     "encrypt_del_uninstall": "Odstranit, pokud je BlueWallet odinstalován",
@@ -345,7 +357,8 @@
     "status_bump": "Poplatek za popostrčení",
     "status_cancel": "Zrušit transakci",
     "transactions_count": "počet transakcí",
-    "txid": "Txid"
+    "txid": "Txid",
+    "updating": "Aktualizace..."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -419,7 +432,7 @@
     "list_long_choose": "Vybrat fotku",
     "list_long_clipboard": "Kopírovat ze schránky",
     "list_long_scan": "Naskenovat QR kód",
-    "list_marketplace": "tržiště",
+    "list_marketplace": "Tržiště",
     "list_tap_here_to_buy": "Koupit bitcoiny",
     "list_title": "peněženky",
     "list_tryagain": "Zkuste to znovu",
@@ -427,6 +440,7 @@
     "looks_like_bip38": "Tohle vypadá jako soukromý klíč chráněný heslem (BIP38)",
     "reorder_title": "Seřadit peěženky",
     "please_continue_scanning": "Pokračujte ve skenování",
+    "scan_error": "Chyba skenování",
     "select_no_bitcoin": "V současné době nejsou k dispozici žádné bitcoinové peněženky.",
     "select_no_bitcoin_exp": "Bitcoinová peněženka je vyžadována pro doplnění Lightning peněženky. Vytvořte nebo importujte jednu.",
     "select_wallet": "Vyberte peněženku",
@@ -435,10 +449,12 @@
     "pull_to_refresh": "zatáhněte pro obnovení",
     "warning_do_not_disclose": "Varování! Nezveřejňujte",
     "add_ln_wallet_first": "Nejprve musíte přidat Lightning peněženku.",
+    "identity_pubkey": "Identity Pubkey",
     "xpub_title": "XPUB peněženky"
   },
   "multisig": {
     "multisig_vault": "Uložiště",
+    "default_label": "Vícepodpisové uložiště",
     "multisig_vault_explain": "Nejlepší zabezpečení pro velké částky",
     "provide_signature": "Poskytnout podpis",
     "vault_key": "Klíč úložiště {number}",
@@ -450,7 +466,9 @@
     "share": "Sdílet",
     "view": "Podívat se",
     "manage_keys": "Spravovat klíče",
-    "how_many_signatures_can_bluewallet_make": "kolik podpisů může bluewallet udělat",
+    "how_many_signatures_can_bluewallet_make": "kolik podpisů může bluewallet vytvořit",
+    "signatures_required_to_spend": "Vyžadují se {number} podpisy",
+    "signatures_we_can_make": "může vytvořit {number}",
     "scan_or_import_file": "Naskenujte nebo importujte soubor",
     "export_coordination_setup": "nastavení koordinace exportu",
     "cosign_this_transaction": "Spolupodepsat transakci?",
@@ -476,6 +494,7 @@
     "view_key": "Podívat se",
     "invalid_mnemonics": "Zdá se, že tato mnemotechnická fráze není platná",
     "invalid_cosigner": "Nejsou platná data spolupodepsaného",
+    "not_a_multisignature_xpub": "Toto není xpub z vícepodpisové peněženky!",
     "invalid_cosigner_format": "Nesprávný spolupodepsaný: toto není spolupodepsaný pro {format} formát",
     "create_new_key": "Vytvořit novou",
     "scan_or_open_file": "Naskenujte nebo otevřete soubor",
@@ -522,9 +541,11 @@
     "empty": "Tato peněženka nemá v tuto chvíli žádné mince",
     "freeze": "zmrazit",
     "freezeLabel": "Zmrazit",
+    "freezeLabel_un": "Uvolnit",
     "header": "Kontrola mincí",
     "use_coin": "Použít minci",
-    "tip": "Umožňuje zobrazit, označit, zmrazit nebo vybrat mince pro lepší správu peněženky."
+    "use_coins": "Použít mince",
+    "tip": "Umožňuje zobrazit, označit, zmrazit nebo vybrat mince pro lepší správu peněženky. Klepnutím na barevné kruhy můžete vybrat více mincí."
   },
   "units": {
     "BTC": "BTC",

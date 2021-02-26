@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { ScrollView, View, StyleSheet } from 'react-native';
+
+import loc from '../loc';
 import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading } from '../BlueComponents';
 import navigationStyle from '../components/navigationStyle';
-import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../class';
+import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet, HDAezeedWallet } from '../class';
 import { BlueCurrentTheme } from '../components/themes';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
@@ -63,7 +65,16 @@ export default class Selftest extends Component {
         // skipping RN-specific test'
       }
 
-      //
+      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        const aezeed = new HDAezeedWallet();
+        aezeed.setSecret(
+          'abstract rhythm weird food attract treat mosquito sight royal actor surround ride strike remove guilt catch filter summer mushroom protect poverty cruel chaos pattern',
+        );
+        assertStrictEqual(await aezeed.validateMnemonicAsync(), true, 'Aezeed failed');
+        assertStrictEqual(aezeed._getExternalAddressByIndex(0), 'bc1qdjj7lhj9lnjye7xq3dzv3r4z0cta294xy78txn', 'Aezeed failed');
+      } else {
+        // skipping RN-specific test
+      }
 
       let l = new LegacyWallet();
       l.setSecret('L4ccWrPMmFDZw4kzAKFqJNxgHANjdy6b7YKNXMwB4xac4FLF3Tov');
@@ -227,6 +238,8 @@ export default class Selftest extends Component {
                     <BlueText testID="SelfTestOk" h4>
                       OK
                     </BlueText>
+                    <BlueSpacing20 />
+                    <BlueText>{loc.settings.about_selftest_ok}</BlueText>
                   </View>
                 );
               } else {

@@ -1,4 +1,3 @@
-/* global it, describe, jest */
 import { HDSegwitBech32Wallet } from '../../class';
 import PayjoinTransaction from '../../class/payjoin-transaction';
 import { PayjoinClient } from 'payjoin-client';

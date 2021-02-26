@@ -1,13 +1,14 @@
 /* global alert */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import Handoff from 'react-native-handoff';
 import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import HandoffSettings from '../../class/handoff';
+import HandoffComponent from '../../components/handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import Clipboard from '@react-native-community/clipboard';
+import ToolTipMenu from '../../components/TooltipMenu';
 const dayjs = require('dayjs');
 
 function onlyUnique(value, index, self) {
@@ -28,13 +29,14 @@ const TransactionsDetails = () => {
   const { setOptions } = useNavigation();
   const { hash } = useRoute().params;
   const { saveToDisk, txMetadata, wallets, getTransactions } = useContext(BlueStorageContext);
-  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [from, setFrom] = useState();
   const [to, setTo] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [tx, setTX] = useState();
   const [memo, setMemo] = useState();
   const { colors } = useTheme();
+  const openTransactionOnBlockExplorerRef = useRef();
+  const toolTip = useRef();
   const stylesHooks = StyleSheet.create({
     rowCaption: {
       color: colors.foregroundColor,
@@ -110,11 +112,6 @@ const TransactionsDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hash, wallets]);
 
-  useEffect(() => {
-    HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const handleOnSaveButtonTapped = () => {
     Keyboard.dismiss();
     txMetadata[tx.hash] = { memo };
@@ -130,15 +127,25 @@ const TransactionsDetails = () => {
     });
   };
 
+  const handleCopyPress = () => {
+    Clipboard.setString(`https://blockstream.info/tx/${tx.hash}`);
+  };
+
+  const showToolTipMenu = () => {
+    toolTip.current.showMenu();
+  };
+
   if (isLoading || !tx) {
     return <BlueLoading />;
   }
 
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-      {isHandOffUseEnabled && (
-        <Handoff title={`Bitcoin Transaction ${tx.hash}`} type="io.bluewallet.bluewallet" url={`https://blockstream.info/tx/${tx.hash}`} />
-      )}
+      <HandoffComponent
+        title={`Bitcoin Transaction ${tx.hash}`}
+        type="io.bluewallet.bluewallet"
+        url={`https://blockstream.info/tx/${tx.hash}`}
+      />
       <StatusBar barStyle="default" />
       <ScrollView style={styles.scroll}>
         <BlueCard>
@@ -187,7 +194,23 @@ const TransactionsDetails = () => {
                 <BlueCopyToClipboardButton stringToCopy={tx.hash} />
               </View>
               <BlueText style={styles.txHash}>{tx.hash}</BlueText>
-              <TouchableOpacity onPress={handleOnOpenTransactionOnBlockExporerTapped}>
+              <ToolTipMenu
+                ref={toolTip}
+                anchorRef={openTransactionOnBlockExplorerRef}
+                actions={[
+                  {
+                    id: 'copyToClipboard',
+                    text: loc.transactions.details_copy,
+                    onPress: handleCopyPress,
+                  },
+                ]}
+                onPress={handleCopyPress}
+              />
+              <TouchableOpacity
+                ref={openTransactionOnBlockExplorerRef}
+                onPress={handleOnOpenTransactionOnBlockExporerTapped}
+                onLongPress={showToolTipMenu}
+              >
                 <BlueText style={[styles.txLink, stylesHooks.txLink]}>{loc.transactions.details_show_in_block_explorer}</BlueText>
               </TouchableOpacity>
             </>
@@ -214,7 +237,7 @@ const TransactionsDetails = () => {
             </>
           )}
 
-          {tx.outputs.length > 0 && (
+          {tx.outputs?.length > 0 && (
             <>
               <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_outputs}</BlueText>
               <BlueText style={styles.rowValue}>{tx.outputs.length}</BlueText>
@@ -280,6 +303,4 @@ const styles = StyleSheet.create({
 
 export default TransactionsDetails;
 
-TransactionsDetails.navigationOptions = navigationStyle({
-  title: loc.transactions.details_title,
-});
+TransactionsDetails.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.transactions.details_title }));

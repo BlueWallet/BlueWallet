@@ -12,6 +12,7 @@ import {
   SegwitBech32Wallet,
   HDLegacyElectrumSeedP2PKHWallet,
   HDSegwitElectrumSeedP2WPKHWallet,
+  HDAezeedWallet,
   MultisigHDWallet,
 } from '.';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -19,13 +20,14 @@ import loc from '../loc';
 import { useContext } from 'react';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import Notifications from '../blue_modules/notifications';
+import IdleTimerManager from 'react-native-idle-timer';
 const A = require('../blue_modules/analytics');
 const bip38 = require('../blue_modules/bip38');
 const wif = require('wif');
 const prompt = require('../blue_modules/prompt');
 
 function WalletImport() {
-  const { wallets, pendingWallets, setPendingWallets, saveToDisk, addWallet, setNewWalletAdded } = useContext(BlueStorageContext);
+  const { wallets, pendingWallets, setPendingWallets, saveToDisk, addWallet } = useContext(BlueStorageContext);
 
   /**
    *
@@ -35,6 +37,7 @@ function WalletImport() {
    * @private
    */
   WalletImport._saveWallet = async (w, additionalProperties) => {
+    IdleTimerManager.setIdleTimerDisabled(false);
     if (WalletImport.isWalletImported(w)) {
       WalletImport.presentWalletAlreadyExistsAlert();
       return;
@@ -50,7 +53,6 @@ function WalletImport() {
     }
     addWallet(w);
     await saveToDisk();
-    setNewWalletAdded(true);
     A(A.ENUM.CREATED_WALLET);
     alert(loc.wallets.import_success);
     Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
@@ -91,6 +93,7 @@ function WalletImport() {
    * @returns {Promise<void>}
    */
   WalletImport.processImportText = async (importText, additionalProperties) => {
+    IdleTimerManager.setIdleTimerDisabled(true);
     // Plan:
     // -2. check if BIP38 encrypted
     // -1a. check if multisig
@@ -100,6 +103,7 @@ function WalletImport() {
     // 2. check if its HDLegacyP2PKHWallet (BIP44)
     // 3. check if its HDLegacyBreadwalletWallet (no BIP, just "m/0")
     // 3.1 check HD Electrum legacy
+    // 3.2 check if its AEZEED
     // 4. check if its Segwit WIF (P2SH)
     // 5. check if its Legacy WIF
     // 6. check if its address (watch-only wallet)
@@ -234,6 +238,28 @@ function WalletImport() {
       }
     } catch (_) {}
 
+    // is it AEZEED?
+    try {
+      const aezeed = new HDAezeedWallet();
+      aezeed.setSecret(importText);
+      if (await aezeed.validateMnemonicAsync()) {
+        // not fetching txs or balances, fuck it, yolo, life is too short
+        return WalletImport._saveWallet(aezeed);
+      } else {
+        // there is a chance that a password is required
+        if (await aezeed.mnemonicInvalidPassword()) {
+          const password = await prompt(loc.wallets.enter_bip38_password, '', false);
+          if (!password) {
+            // no passord is basically cancel whole aezeed import process
+            throw new Error(loc._.bad_password);
+          }
+
+          const mnemonics = importText.split(':')[0];
+          return WalletImport.processImportText(mnemonics + ':' + password);
+        }
+      }
+    } catch (_) {}
+
     const hd2 = new HDSegwitP2SHWallet();
     hd2.setSecret(importText);
     if (hd2.validateMnemonic()) {
@@ -299,10 +325,10 @@ function WalletImport() {
     // nope?
 
     // TODO: try a raw private key
-
+    IdleTimerManager.setIdleTimerDisabled(false);
     throw new Error('Could not recognize format');
   };
-
+  IdleTimerManager.setIdleTimerDisabled(false);
   return null;
 }
 

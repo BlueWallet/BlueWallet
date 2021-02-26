@@ -1,4 +1,3 @@
-/* global it */
 import assert from 'assert';
 import { HDLegacyBreadwalletWallet } from '../../class';
 

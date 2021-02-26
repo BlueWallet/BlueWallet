@@ -116,6 +116,7 @@ const styles = StyleSheet.create({
 
 export default LNDViewAdditionalInvoiceInformation;
 
-LNDViewAdditionalInvoiceInformation.navigationOptions = navigationStyle({
+LNDViewAdditionalInvoiceInformation.navigationOptions = navigationStyle({}, opts => ({
+  ...opts,
   title: loc.lndViewInvoice.additional_info,
-});
+}));

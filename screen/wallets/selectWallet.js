@@ -13,7 +13,7 @@ import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { MultisigHDWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
-const SelectWallet = ({ navigation }) => {
+const SelectWallet = () => {
   const { chainType, onWalletSelect, availableWallets } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   const { wallets } = useContext(BlueStorageContext);
@@ -101,7 +101,7 @@ const SelectWallet = ({ navigation }) => {
       <TouchableOpacity
         onPress={() => {
           ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
-          onWalletSelect(item, { navigation });
+          onWalletSelect(item);
         }}
       >
         <View shadowOpacity={40 / 100} shadowOffset={{ width: 0, height: 0 }} shadowRadius={5} style={styles.itemRoot}>
@@ -172,8 +172,6 @@ const SelectWallet = ({ navigation }) => {
   }
 };
 
-SelectWallet.navigationOptions = navigationStyle({
-  title: loc.wallets.select_wallet,
-});
+SelectWallet.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.select_wallet }));
 
 export default SelectWallet;

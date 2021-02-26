@@ -5,7 +5,7 @@ import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-naviga
 
 import navigationStyle from '../../components/navigationStyle';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard } from '../../BlueComponents';
-import Privacy from '../../Privacy';
+import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -99,10 +99,12 @@ const WalletXpub = () => {
   );
 };
 
-WalletXpub.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.wallets.xpub_title,
-  headerLeft: null,
-});
+WalletXpub.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.wallets.xpub_title }),
+);
 
 export default WalletXpub;

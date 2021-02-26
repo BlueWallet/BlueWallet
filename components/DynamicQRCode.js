@@ -105,6 +105,7 @@ export class DynamicQRCode extends Component {
     return (
       <View style={animatedQRCodeStyle.container}>
         <TouchableOpacity
+          testID="DynamicCode"
           style={animatedQRCodeStyle.qrcodeContainer}
           onPress={() => {
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);

@@ -136,8 +136,6 @@ const styles = StyleSheet.create({
   },
 });
 
-SettingsPrivacy.navigationOptions = navigationStyle({
-  title: loc.settings.privacy,
-});
+SettingsPrivacy.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.privacy }));
 
 export default SettingsPrivacy;

@@ -1,4 +1,3 @@
-/* global it, describe, afterAll, beforeAll, jasmine */
 global.net = require('net');
 global.tls = require('tls');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -22,6 +21,75 @@ beforeAll(async () => {
 });
 
 describe('BlueElectrum', () => {
+  it('ElectrumClient can estimate fees from histogram', async () => {
+    assert.strictEqual(
+      BlueElectrum.calcEstimateFeeFromFeeHistorgam(1, [
+        [96, 105086],
+        [83, 124591],
+        [64, 108207],
+        [50, 131141],
+        [22, 148800],
+        [17, 156916],
+        [11, 413222],
+        [10, 361384],
+        [9, 294146],
+        [8, 121778],
+        [7, 1153727],
+        [6, 283925],
+        [5, 880946],
+        [4, 825703],
+        [3, 2179023],
+        [2, 590559],
+        [1, 1648473],
+      ]),
+      22,
+    );
+    assert.strictEqual(
+      BlueElectrum.calcEstimateFeeFromFeeHistorgam(18, [
+        [96, 105086],
+        [83, 124591],
+        [64, 108207],
+        [50, 131141],
+        [22, 148800],
+        [17, 156916],
+        [11, 413222],
+        [10, 361384],
+        [9, 294146],
+        [8, 121778],
+        [7, 1153727],
+        [6, 283925],
+        [5, 880946],
+        [4, 825703],
+        [3, 2179023],
+        [2, 590559],
+        [1, 1648473],
+      ]),
+      4,
+    );
+    assert.strictEqual(
+      BlueElectrum.calcEstimateFeeFromFeeHistorgam(144, [
+        [96, 105086],
+        [83, 124591],
+        [64, 108207],
+        [50, 131141],
+        [22, 148800],
+        [17, 156916],
+        [11, 413222],
+        [10, 361384],
+        [9, 294146],
+        [8, 121778],
+        [7, 1153727],
+        [6, 283925],
+        [5, 880946],
+        [4, 825703],
+        [3, 2179023],
+        [2, 590559],
+        [1, 1648473],
+      ]),
+      4,
+    );
+  });
+
   it('ElectrumClient can test connection', async () => {
     assert.ok(!(await BlueElectrum.testConnection('electrum1.bluewallet.io', 444, false)));
     assert.ok(!(await BlueElectrum.testConnection('electrum1.bluewallet.io', false, 444)));
@@ -41,6 +109,10 @@ describe('BlueElectrum', () => {
 
   it('ElectrumClient can estimate fees', async () => {
     assert.ok((await BlueElectrum.estimateFee(1)) > 1);
+    const fees = await BlueElectrum.estimateFees();
+    assert.ok(fees.fast > 0);
+    assert.ok(fees.medium > 0);
+    assert.ok(fees.slow > 0);
   });
 
   it('ElectrumClient can request server features', async () => {

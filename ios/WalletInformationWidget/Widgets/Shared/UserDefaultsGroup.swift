@@ -8,16 +8,6 @@
 
 import Foundation
 
-enum UserDefaultsGroupKey: String {
-  case GroupName = "group.io.bluewallet.bluewallet"
-  case PreferredCurrency = "preferredCurrency"
-  case ElectrumSettingsHost = "electrum_host"
-  case ElectrumSettingsTCPPort = "electrum_tcp_port"
-  case ElectrumSettingsSSLPort = "electrum_ssl_port"
-  case AllWalletsBalance = "WidgetCommunicationAllWalletsSatoshiBalance"
-  case AllWalletsLatestTransactionTime = "WidgetCommunicationAllWalletsLatestTransactionTime"
-}
-
 struct UserDefaultsElectrumSettings {
   let host: String?
   let port: Int32?
@@ -54,12 +44,17 @@ class UserDefaultsGroup {
     return Double(allWalletsBalance) ?? 0
   }
   
-  static func getAllWalletsLatestTransactionTime() -> Int {
+  // Int: EPOCH value, Bool: Latest transaction is unconfirmed
+  static func getAllWalletsLatestTransactionTime() -> LatestTransaction {
     guard let allWalletsTransactionTime = suite?.string(forKey: UserDefaultsGroupKey.AllWalletsLatestTransactionTime.rawValue) else {
-      return 0
+      return LatestTransaction(isUnconfirmed: false, epochValue: 0)
     }
-
-    return Int(allWalletsTransactionTime) ?? 0
+    
+    if allWalletsTransactionTime == UserDefaultsGroupKey.LatestTransactionIsUnconfirmed.rawValue {
+      return LatestTransaction(isUnconfirmed: true, epochValue: 0)
+    } else {
+      return LatestTransaction(isUnconfirmed: false, epochValue: Int(allWalletsTransactionTime))
+    }
   }
   
 }

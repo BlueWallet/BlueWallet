@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useContext, useRef, useState, useCallback } from 'react';
+import React, { useContext, useRef, useState, useCallback, useEffect } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -36,7 +36,7 @@ import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
-import Privacy from '../../Privacy';
+import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
@@ -46,8 +46,8 @@ const fs = require('../../blue_modules/fs');
 const ViewEditMultisigCosigners = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
-  const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
-  const { navigate, goBack } = useNavigation();
+  const { wallets, setWalletsWithNewOrder, setIsDrawerListBlurred } = useContext(BlueStorageContext);
+  const { navigate, dispatch, goBack, addListener } = useNavigation();
   const route = useRoute();
   const { walletId } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletId));
@@ -130,6 +130,34 @@ const ViewEditMultisigCosigners = () => {
       color: colors.buttonTextColor,
     },
   });
+
+  useEffect(() => {
+    addListener('beforeRemove', e => {
+      if (!isSaveButtonDisabled) {
+        e.preventDefault();
+
+        // Prompt the user before leaving the screen
+
+        Alert.alert(loc._.discard_changes, loc._.discard_changes_detail, [
+          { text: loc._.cancel, style: 'cancel', onPress: () => {} },
+          {
+            text: loc._.ok,
+            style: 'destructive',
+            // If the user confirmed, then we dispatch the action we blocked earlier
+            // This will continue the action that had triggered the removal of the screen
+            onPress: () => dispatch(e.data.action),
+          },
+        ]);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSaveButtonDisabled]);
+
+  useEffect(() => {
+    setIsDrawerListBlurred(true);
+    return () => setIsDrawerListBlurred(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const exportCosigner = () => {
     setIsShareModalVisible(false);
@@ -482,7 +510,7 @@ const ViewEditMultisigCosigners = () => {
   const renderProvideMnemonicsModal = () => {
     return (
       <BottomModal isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
             <BlueSpacing20 />
@@ -507,7 +535,7 @@ const ViewEditMultisigCosigners = () => {
   const renderShareModal = () => {
     return (
       <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
             <View style={styles.qrCodeContainer}>
@@ -573,7 +601,7 @@ const ViewEditMultisigCosigners = () => {
     <View style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="light-content" />
       <KeyboardAvoidingView
-        enabled
+        enabled={!Platform.isPad}
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         keyboardVerticalOffset={62}
         style={[styles.mainBlock, styles.root]}
@@ -710,10 +738,12 @@ const styles = StyleSheet.create({
   },
 });
 
-ViewEditMultisigCosigners.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.multisig.manage_keys,
-  headerLeft: null,
-});
+ViewEditMultisigCosigners.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.multisig.manage_keys }),
+);
 
 export default ViewEditMultisigCosigners;

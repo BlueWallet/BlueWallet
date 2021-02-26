@@ -1,4 +1,3 @@
-/* global describe, it, jest */
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 const assert = require('assert');
 jest.useFakeTimers();

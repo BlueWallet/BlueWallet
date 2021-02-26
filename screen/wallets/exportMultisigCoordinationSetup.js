@@ -5,7 +5,7 @@ import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-naviga
 import { BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
-import Privacy from '../../Privacy';
+import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { SquareButton } from '../../components/SquareButton';
@@ -127,10 +127,12 @@ const styles = StyleSheet.create({
   },
 });
 
-ExportMultisigCoordinationSetup.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.multisig.export_coordination_setup,
-  headerLeft: null,
-});
+ExportMultisigCoordinationSetup.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.multisig.export_coordination_setup }),
+);
 
 export default ExportMultisigCoordinationSetup;

@@ -24,7 +24,15 @@ import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet'
 import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
-import { HDSegwitBech32Wallet, SegwitP2SHWallet, LegacyWallet, SegwitBech32Wallet, WatchOnlyWallet, MultisigHDWallet } from '../../class';
+import {
+  HDSegwitBech32Wallet,
+  SegwitP2SHWallet,
+  LegacyWallet,
+  SegwitBech32Wallet,
+  WatchOnlyWallet,
+  MultisigHDWallet,
+  HDAezeedWallet,
+} from '../../class';
 import { ScrollView } from 'react-native-gesture-handler';
 import loc from '../../loc';
 import { useTheme, useRoute, useNavigation } from '@react-navigation/native';
@@ -160,6 +168,15 @@ const WalletDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
 
+  const navigateToOverviewAndDeleteWallet = () => {
+    setIsLoading(true);
+    Notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
+    popToTop();
+    deleteWallet(wallet);
+    saveToDisk();
+    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+  };
+
   const presentWalletHasBalanceAlert = useCallback(async () => {
     ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
     try {
@@ -168,14 +185,10 @@ const WalletDetails = () => {
         loc.formatString(loc.wallets.details_del_wb_q, { balance: wallet.getBalance() }),
         true,
         'plain-text',
+        true,
       );
       if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
-        setIsLoading(true);
-        Notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
-        deleteWallet(wallet);
-        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-        await saveToDisk();
-        popToTop();
+        navigateToOverviewAndDeleteWallet();
       } else {
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         setIsLoading(false);
@@ -183,7 +196,7 @@ const WalletDetails = () => {
       }
     } catch (_) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [popToTop, wallet]);
+  }, []);
 
   const navigateToWalletExport = () => {
     navigate('WalletExportRoot', {
@@ -366,12 +379,7 @@ const WalletDetails = () => {
             if (wallet.getBalance() > 0 && wallet.allowSend()) {
               presentWalletHasBalanceAlert();
             } else {
-              setIsLoading(true);
-              Notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
-              deleteWallet(wallet);
-              ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-              await saveToDisk();
-              popToTop();
+              navigateToOverviewAndDeleteWallet();
             }
           },
           style: 'destructive',
@@ -406,7 +414,7 @@ const WalletDetails = () => {
               }
             })()}
             <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.add_wallet_name.toLowerCase()}</Text>
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+            <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
               <View style={[styles.input, stylesHook.input]}>
                 <TextInput
                   placeholder={loc.send.details_note_placeholder}
@@ -455,6 +463,13 @@ const WalletDetails = () => {
               <>
                 <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.details_connected_to.toLowerCase()}</Text>
                 <BlueText>{wallet.getBaseURI()}</BlueText>
+              </>
+            )}
+
+            {wallet.type === HDAezeedWallet.type && (
+              <>
+                <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.identity_pubkey.toLowerCase()}</Text>
+                <BlueText>{wallet.getIdentityPubkey()}</BlueText>
               </>
             )}
             <>
@@ -543,8 +558,6 @@ const WalletDetails = () => {
   );
 };
 
-WalletDetails.navigationOptions = navigationStyle({
-  headerTitle: loc.wallets.details_title,
-});
+WalletDetails.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.details_title }));
 
 export default WalletDetails;

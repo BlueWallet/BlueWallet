@@ -6,6 +6,7 @@ import navigationStyle from '../../components/navigationStyle';
 import { BlueListItem, BlueHeaderDefaultSub } from '../../BlueComponents';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import Notifications from '../../blue_modules/notifications';
 
 const styles = StyleSheet.create({
   root: {
@@ -28,7 +29,9 @@ const Settings = () => {
       <BlueListItem title={loc.settings.language} onPress={() => navigate('Language')} chevron />
       <BlueListItem title={loc.settings.encrypt_title} onPress={() => navigate('EncryptStorage')} testID="SecurityButton" chevron />
       <BlueListItem title={loc.settings.network} onPress={() => navigate('NetworkSettings')} chevron />
-      <BlueListItem title={loc.settings.notifications} onPress={() => navigate('NotificationSettings')} chevron />
+      {Notifications.isNotificationsCapable && (
+        <BlueListItem title={loc.settings.notifications} onPress={() => navigate('NotificationSettings')} chevron />
+      )}
       <BlueListItem title={loc.settings.privacy} onPress={() => navigate('SettingsPrivacy')} chevron />
       <BlueListItem title={loc.settings.about} onPress={() => navigate('About')} testID="AboutButton" chevron />
     </ScrollView>

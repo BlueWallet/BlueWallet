@@ -20,7 +20,6 @@ import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { LightningCustodianWallet, MultisigHDWallet, PlaceholderWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { BluePrivateBalance } from '../BlueComponents';
-
 import { BlueStorageContext } from '../blue_modules/storage-context';
 
 const nStyles = StyleSheet.create({
@@ -127,6 +126,7 @@ const iStyles = StyleSheet.create({
 const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedWallet }) => {
   const scaleValue = new Animated.Value(1.0);
   const { colors } = useTheme();
+  const { walletTransactionUpdateStatus } = useContext(BlueStorageContext);
 
   const onPressedIn = () => {
     const props = { duration: 50 };
@@ -203,6 +203,17 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
       image = require('../img/btc-shape.png');
   }
 
+  const latestTransactionText =
+    walletTransactionUpdateStatus === true || walletTransactionUpdateStatus === item.getID()
+      ? loc.transactions.updating
+      : item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
+      ? loc.wallets.pull_to_refresh
+      : item.getTransactions().find(tx => tx.confirmations === 0)
+      ? loc.transactions.pending
+      : transactionTimeToReadable(item.getLatestTransactionTime());
+
+  const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
+
   return (
     <Animated.View
       style={[iStyles.root, { opacity, transform: [{ scale: scaleValue }] }]}
@@ -230,18 +241,22 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
           {item.hideBalance ? (
             <BluePrivateBalance />
           ) : (
-            <Text numberOfLines={1} adjustsFontSizeToFit style={[iStyles.balance, { color: colors.inverseForegroundColor }]}>
-              {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+            <Text
+              numberOfLines={1}
+              key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
+              adjustsFontSizeToFit
+              style={[iStyles.balance, { color: colors.inverseForegroundColor }]}
+            >
+              {balance}
             </Text>
           )}
           <Text style={iStyles.br} />
           <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>
             {loc.wallets.list_latest_transaction}
           </Text>
+
           <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor }]}>
-            {item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
-              ? loc.wallets.pull_to_refresh
-              : transactionTimeToReadable(item.getLatestTransactionTime())}
+            {latestTransactionText}
           </Text>
         </LinearGradient>
       </TouchableWithoutFeedback>

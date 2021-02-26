@@ -1,4 +1,3 @@
-/* global it, describe */
 import assert from 'assert';
 
 import { eReducer, entropyToHex, getEntropy, convertToBuffer } from '../../screen/wallets/provideEntropy';
