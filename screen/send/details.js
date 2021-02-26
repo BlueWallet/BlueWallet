@@ -1236,6 +1236,7 @@ export default class SendDetails extends Component {
             {this.state.fromWallet.allowBatchSend() && (
               <>
                 <BlueListItem
+                  testID="AddRecipient"
                   disabled={isSendMaxUsed}
                   title={loc.send.details_add_rec_add}
                   hideChevron
@@ -1243,6 +1244,7 @@ export default class SendDetails extends Component {
                   onPress={this.handleAddRecipient}
                 />
                 <BlueListItem
+                  testID="RemoveRecipient"
                   title={loc.send.details_add_rec_rem}
                   hideChevron
                   disabled={this.state.addresses.length < 2}
@@ -1347,7 +1349,7 @@ export default class SendDetails extends Component {
 
   renderBitcoinTransactionInfoFields = ({ item, index }) => {
     return (
-      <View style={{ width: this.state.width }}>
+      <View style={{ width: this.state.width }} testID={'Transaction' + index}>
         <BlueBitcoinAmount
           isLoading={this.state.isLoading}
           amount={item.amount ? item.amount.toString() : null}
