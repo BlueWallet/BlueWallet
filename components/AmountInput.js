@@ -15,7 +15,7 @@ class AmountInput extends Component {
     /**
      * amount is a sting thats always in current unit denomination, e.g. '0.001' or '9.43' or '10000'
      */
-    amount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+    amount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     /**
      * callback that returns currently typed amount, in current denomination, e.g. 0.001 or 10000 or $9.34
      * (btc, sat, fiat)
