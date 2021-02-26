@@ -78,6 +78,7 @@ const EncryptStorage = () => {
         await encryptStorage(p1);
         setIsLoading(false);
         setStorageIsEncryptedSwitchEnabled(await isStorageEncrypted());
+        Biometric.setBiometricUseEnabled(false);
         saveToDisk();
       } else {
         setIsLoading(false);
