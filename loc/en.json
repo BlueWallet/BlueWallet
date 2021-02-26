@@ -20,7 +20,6 @@
     "file_saved": "File ({filePath}) has been saved in your Downloads folder.",
     "discard_changes": "Discard changes?",
     "discard_changes_detail": "You have unsaved changes. Are you sure to discard them and leave the screen?",
-    "no_network_available_title": "Network Connection",
     "no_network_available_description": "A network connection was not found. In order to proceed please verify your connection settings."
   },
   "azteco": {
