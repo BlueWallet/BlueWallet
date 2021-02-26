@@ -102,71 +102,7 @@ async function connectMain() {
     connectionAttempt = connectionAttempt + 1;
     mainClient.close && mainClient.close();
     if (connectionAttempt >= 5) {
-      Alert.alert(
-        loc.errors.network,
-        loc.formatString(loc.settings.electrum_unable_to_connect, { server: `${usingPeer.host}:${usingPeer.ssl ?? usingPeer.tcp}` }),
-        [
-          {
-            text: loc.wallets.list_tryagain,
-            onPress: () => {
-              connectionAttempt = 0;
-              setTimeout(connectMain, 500);
-            },
-            style: 'default',
-          },
-          {
-            text: loc.settings.electrum_reset,
-            onPress: () => {
-              Alert.alert(
-                loc.settings.electrum_reset,
-                loc.settings.electrum_reset_to_default,
-                [
-                  {
-                    text: loc._.cancel,
-                    style: 'cancel',
-                    onPress: () => {
-                      connectionAttempt = 0;
-                    },
-                  },
-                  {
-                    text: loc._.ok,
-                    style: 'destructive',
-                    onPress: async () => {
-                      await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, '');
-                      await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, '');
-                      await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, '');
-                      try {
-                        await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-                        await DefaultPreference.clear(AppStorage.ELECTRUM_HOST);
-                        await DefaultPreference.clear(AppStorage.ELECTRUM_SSL_PORT);
-                        await DefaultPreference.clear(AppStorage.ELECTRUM_TCP_PORT);
-                        RNWidgetCenter.reloadAllTimelines();
-                      } catch (e) {
-                        // Must be running on Android
-                        console.log(e);
-                      }
-                      alert(loc.settings.electrum_saved);
-
-                      connectionAttempt = 0;
-                    },
-                  },
-                ],
-                { cancelable: false },
-              );
-              connectionAttempt = 0;
-            },
-            style: 'destructive',
-          },
-          {
-            text: loc._.cancel,
-            onPress: () => {
-              connectionAttempt = 0;
-            },
-            style: 'cancel',
-          },
-        ],
-        { cancelable: false },
-      );
+      presentNetworkErrorAlert(usingPeer);
     } else {
       setTimeout(connectMain, 500);
     }
@@ -174,6 +110,77 @@ async function connectMain() {
 }
 
 connectMain();
+
+async function presentNetworkErrorAlert(usingPeer) {
+  Alert.alert(
+    loc.errors.network,
+    loc.formatString(
+      usingPeer ? loc.settings.electrum_unable_to_connect : loc.settings.electrum_error_connect,
+      usingPeer ? { server: `${usingPeer.host}:${usingPeer.ssl ?? usingPeer.tcp}` } : {},
+    ),
+    [
+      {
+        text: loc.wallets.list_tryagain,
+        onPress: () => {
+          connectionAttempt = 0;
+          mainClient.close() && mainClient.close();
+          setTimeout(connectMain, 500);
+        },
+        style: 'default',
+      },
+      {
+        text: loc.settings.electrum_reset,
+        onPress: () => {
+          Alert.alert(
+            loc.settings.electrum_reset,
+            loc.settings.electrum_reset_to_default,
+            [
+              {
+                text: loc._.cancel,
+                style: 'cancel',
+                onPress: () => {},
+              },
+              {
+                text: loc._.ok,
+                style: 'destructive',
+                onPress: async () => {
+                  await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, '');
+                  await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, '');
+                  await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, '');
+                  try {
+                    await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+                    await DefaultPreference.clear(AppStorage.ELECTRUM_HOST);
+                    await DefaultPreference.clear(AppStorage.ELECTRUM_SSL_PORT);
+                    await DefaultPreference.clear(AppStorage.ELECTRUM_TCP_PORT);
+                    RNWidgetCenter.reloadAllTimelines();
+                  } catch (e) {
+                    // Must be running on Android
+                    console.log(e);
+                  }
+                  alert(loc.settings.electrum_saved);
+                  setTimeout(connectMain, 500);
+                },
+              },
+            ],
+            { cancelable: true },
+          );
+          connectionAttempt = 0;
+          mainClient.close() && mainClient.close();
+        },
+        style: 'destructive',
+      },
+      {
+        text: loc._.cancel,
+        onPress: () => {
+          connectionAttempt = 0;
+          mainClient.close() && mainClient.close();
+        },
+        style: 'cancel',
+      },
+    ],
+    { cancelable: false },
+  );
+}
 
 /**
  * Returns random hardcoded electrum server guaranteed to work
@@ -526,6 +533,8 @@ module.exports.waitTillConnected = async function () {
 
       if (retriesCounter++ >= 30) {
         clearInterval(waitTillConnectedInterval);
+        connectionAttempt = 0;
+        presentNetworkErrorAlert();
         reject(new Error('Waiting for Electrum connection timeout'));
       }
     }, 500);
