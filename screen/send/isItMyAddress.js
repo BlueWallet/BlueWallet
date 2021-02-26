@@ -78,7 +78,11 @@ const IsItMyAddress = () => {
 
   return (
     <SafeBlueArea style={[styles.blueArea, stylesHooks.blueArea]}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView
+        enabled={!Platform.isPad}
+        behavior={Platform.OS === 'ios' ? 'position' : null}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.wrapper}>
           <BlueCard style={styles.mainCard}>
             <View style={[styles.input, stylesHooks.input]}>

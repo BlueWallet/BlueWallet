@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  Platform,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
@@ -134,7 +135,6 @@ const LNDCreateInvoice = () => {
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet]),
-    [],
   );
 
   const _keyboardDidShow = () => {
@@ -356,7 +356,7 @@ const LNDCreateInvoice = () => {
       <View style={[styles.root, styleHooks.root]}>
         <StatusBar barStyle="light-content" />
         <View style={[styles.amount, styleHooks.amount]}>
-          <KeyboardAvoidingView behavior="position">
+          <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
             <AmountInput
               isLoading={isLoading}
               amount={amount}

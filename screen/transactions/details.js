@@ -204,7 +204,6 @@ const TransactionsDetails = () => {
                     onPress: handleCopyPress,
                   },
                 ]}
-                onPress={handleCopyPress}
               />
               <TouchableOpacity
                 ref={openTransactionOnBlockExplorerRef}
@@ -237,7 +236,7 @@ const TransactionsDetails = () => {
             </>
           )}
 
-          {tx.outputs.length > 0 && (
+          {tx.outputs?.length > 0 && (
             <>
               <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_outputs}</BlueText>
               <BlueText style={styles.rowValue}>{tx.outputs.length}</BlueText>

@@ -959,7 +959,7 @@ const SendDetails = () => {
         isVisible={isFeeSelectionModalVisible}
         onClose={() => setIsFeeSelectionModalVisible(false)}
       >
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             {options.map(({ label, time, fee, rate, active }, index) => (
               <TouchableOpacity
@@ -1025,7 +1025,7 @@ const SendDetails = () => {
 
     return (
       <BottomModal deviceWidth={width + width / 2} isVisible={optionsVisible} onClose={hideOptions}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.optionsContent, stylesHook.optionsContent]}>
             {wallet.allowSendMax() && (
               <BlueListItem
@@ -1254,7 +1254,7 @@ const SendDetails = () => {
       <View style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
         <StatusBar barStyle="light-content" />
         <View>
-          <KeyboardAvoidingView behavior="position">
+          <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
             <FlatList
               keyboardShouldPersistTaps="always"
               scrollEnabled={addresses.length > 1}

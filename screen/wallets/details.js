@@ -168,6 +168,15 @@ const WalletDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
 
+  const navigateToOverviewAndDeleteWallet = () => {
+    setIsLoading(true);
+    Notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
+    popToTop();
+    deleteWallet(wallet);
+    saveToDisk();
+    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+  };
+
   const presentWalletHasBalanceAlert = useCallback(async () => {
     ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
     try {
@@ -176,14 +185,10 @@ const WalletDetails = () => {
         loc.formatString(loc.wallets.details_del_wb_q, { balance: wallet.getBalance() }),
         true,
         'plain-text',
+        true,
       );
       if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
-        setIsLoading(true);
-        Notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
-        deleteWallet(wallet);
-        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-        await saveToDisk();
-        popToTop();
+        navigateToOverviewAndDeleteWallet();
       } else {
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         setIsLoading(false);
@@ -191,7 +196,7 @@ const WalletDetails = () => {
       }
     } catch (_) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [popToTop, wallet]);
+  }, []);
 
   const navigateToWalletExport = () => {
     navigate('WalletExportRoot', {
@@ -374,12 +379,7 @@ const WalletDetails = () => {
             if (wallet.getBalance() > 0 && wallet.allowSend()) {
               presentWalletHasBalanceAlert();
             } else {
-              setIsLoading(true);
-              Notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
-              popToTop();
-              ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-              deleteWallet(wallet);
-              saveToDisk();
+              navigateToOverviewAndDeleteWallet();
             }
           },
           style: 'destructive',
@@ -414,7 +414,7 @@ const WalletDetails = () => {
               }
             })()}
             <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.add_wallet_name.toLowerCase()}</Text>
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+            <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
               <View style={[styles.input, stylesHook.input]}>
                 <TextInput
                   placeholder={loc.send.details_note_placeholder}

@@ -171,7 +171,6 @@ const ReceiveDetails = () => {
                   onPress: handleShareQRCode,
                 },
               ]}
-              onPress={handleShareQRCode}
             />
 
             <QRCode
@@ -313,7 +312,7 @@ const ReceiveDetails = () => {
   const renderCustomAmountModal = () => {
     return (
       <BottomModal isVisible={isCustomModalVisible} onClose={dismissCustomAmountModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <AmountInput unit={customUnit} amount={customAmount || ''} onChangeText={setCustomAmount} onAmountUnitChange={setCustomUnit} />
             <View style={styles.customAmount}>

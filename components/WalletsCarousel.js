@@ -178,7 +178,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
               {item.getIsFailure() ? loc.wallets.import_placeholder_fail : loc.wallets.import_placeholder_inprogress}
             </Text>
             {item.getIsFailure() ? (
-              <Text numberOfLines={0} style={[iStyles.importError, { color: colors.inverseForegroundColor }]}>
+              <Text testID="ImportError" numberOfLines={0} style={[iStyles.importError, { color: colors.inverseForegroundColor }]}>
                 {loc.wallets.list_import_error}
               </Text>
             ) : (

@@ -928,18 +928,36 @@ async function helperCreateWallet(walletName) {
 
 async function helperImportWallet(importText, expectedWalletLabel, expectedBalance) {
   await yo('WalletsList');
+
   await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
   // going to Import Wallet screen and importing mnemonic
   await element(by.id('CreateAWallet')).tap();
   await element(by.id('ImportWallet')).tap();
   await element(by.id('MnemonicInput')).replaceText(importText);
-  try {
-    await element(by.id('DoImport')).tap();
-  } catch (_) {}
-  if (process.env.TRAVIS) await sleep(60000);
-  await sup('OK', 3 * 61000); // waiting for wallet import
-  await element(by.text('OK')).tap();
-  // ok, wallet imported
+
+  let retries = 0;
+  while (true) {
+    retries = retries + 1;
+    try {
+      await element(by.id('DoImport')).tap();
+    } catch (_) {}
+    if (process.env.TRAVIS) await sleep(60000);
+
+    // waiting for import result
+    await sup('OK', 3 * 61000);
+    await element(by.text('OK')).tap();
+
+    try {
+      await expect(element(by.id('ImportError'))).not.toBeVisible();
+      break; // import succeded
+    } catch (e) {
+      // exit after two failed attempts
+      if (retries === 2) break;
+      // restart import
+      await element(by.id('ImportError')).tap();
+      await element(by.text('Try again')).tap();
+    }
+  }
 
   // lets go inside wallet
   await element(by.text(expectedWalletLabel)).tap();

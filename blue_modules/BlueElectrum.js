@@ -422,7 +422,7 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
         txdata.result = await mainClient.blockchainTransaction_get(txdata.param, verbose);
       }
       ret[txdata.param] = txdata.result;
-      delete ret[txdata.param].hex; // compact
+      if (ret[txdata.param]) delete ret[txdata.param].hex; // compact
     }
   }
 
