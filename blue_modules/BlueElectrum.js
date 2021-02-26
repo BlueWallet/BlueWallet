@@ -103,7 +103,7 @@ async function connectMain() {
     mainClient.close && mainClient.close();
     if (connectionAttempt >= 5) {
       Alert.alert(
-        loc._.connection_error,
+        loc.errors.network,
         loc.formatString(loc.settings.electrum_unable_to_connect, { server: `${usingPeer.host}:${usingPeer.ssl ?? usingPeer.tcp}` }),
         [
           {
