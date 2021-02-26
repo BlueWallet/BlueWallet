@@ -20,7 +20,6 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  UIManager,
   View,
 } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
@@ -526,9 +525,6 @@ export class BlueCopyTextToClipboard extends Component {
 
   constructor(props) {
     super(props);
-    if (Platform.OS === 'android') {
-      UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
-    }
     this.state = { hasTappedText: false, address: props.text };
   }
 
