@@ -114,6 +114,7 @@ export class LightningLndWallet extends LightningCustodianWallet {
   }
 
   async init() {
+    if (!this.getSecret()) return;
     console.warn('starting lnd');
 
     // there are chances that we are running in dev, so LND is already started (only JS bundle reloaded)

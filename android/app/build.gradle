@@ -176,6 +176,7 @@ android {
 }
 
 dependencies {
+    implementation files("../../node_modules/rn-lnd/android/libs/Lndmobile.aar")
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     
