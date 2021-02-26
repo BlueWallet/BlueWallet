@@ -1,5 +1,5 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import React, { Component, useState, useMemo, useCallback, useContext } from 'react';
+import React, { Component, useState, useMemo, useCallback, useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, Input, Text, Header, ListItem, Avatar } from 'react-native-elements';
 import {
@@ -11,6 +11,7 @@ import {
   InputAccessoryView,
   Keyboard,
   KeyboardAvoidingView,
+  Linking,
   PixelRatio,
   Platform,
   PlatformColor,
@@ -20,7 +21,6 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  UIManager,
   View,
 } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
@@ -72,7 +72,7 @@ export const BlueButton = props => {
 
   const presentNoNetworkAlert = () => {
     Alert.alert(
-      loc._.no_network_available_title,
+      loc.errors.network,
       loc._.no_network_available_description,
       [
         {
@@ -320,15 +320,6 @@ export class BlueWalletNavigationHeader extends Component {
     this.tooltip.current.showMenu();
   };
 
-  handleToolTipOnPress = item => {
-    console.warn(item);
-    if (item === 'copyToClipboard') {
-      this.handleCopyPress();
-    } else if (item === 'walletBalanceVisibility') {
-      this.handleBalanceVisibility();
-    }
-  };
-
   render() {
     const balance =
       !this.state.wallet.hideBalance &&
@@ -394,7 +385,6 @@ export class BlueWalletNavigationHeader extends Component {
                   },
                 ]
           }
-          onPress={this.handleToolTipOnPress}
         />
         <TouchableOpacity
           style={styles.balance}
@@ -546,9 +536,6 @@ export class BlueCopyTextToClipboard extends Component {
 
   constructor(props) {
     super(props);
-    if (Platform.OS === 'android') {
-      UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
-    }
     this.state = { hasTappedText: false, address: props.text };
   }
 
@@ -630,6 +617,7 @@ export const BlueListItem = React.memo(props => {
       topDivider={props.topDivider !== undefined ? props.topDivider : false}
       testID={props.testID}
       onPress={props.onPress}
+      onLongPress={props.onLongPress}
       disabled={props.disabled}
     >
       {props.leftAvatar && <Avatar>{props.leftAvatar}</Avatar>}
@@ -1280,6 +1268,9 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     }),
     [colors.lightBorder],
   );
+  const toolTip = useRef();
+  const copyToolTip = useRef();
+  const listItemRef = useRef();
 
   const title = useMemo(() => {
     if (item.confirmations === 0) {
@@ -1466,30 +1457,117 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   }, [item, wallets]);
 
   const onLongPress = useCallback(() => {
+    toolTip.current.showMenu();
+  }, []);
+
+  const handleOnExpandNote = useCallback(() => {
     if (subtitleNumberOfLines === 1) {
       setSubtitleNumberOfLines(0);
     }
-  }, [subtitleNumberOfLines]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const subtitleProps = useMemo(() => ({ numberOfLines: subtitleNumberOfLines }), [subtitleNumberOfLines]);
+  const handleOnCopyTap = useCallback(() => {
+    toolTip.current.hideMenu();
+    setTimeout(copyToolTip.current.showMenu, 400);
+  }, []);
+  const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle), [rowTitle]);
+  const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
+  const handleOnCopyNote = useCallback(() => Clipboard.setString(subtitle), [subtitle]);
+  const handleOnViewOnBlockExplorer = useCallback(() => {
+    const url = `https://blockstream.info/tx/${item.hash}`;
+    Linking.canOpenURL(url).then(supported => {
+      if (supported) {
+        Linking.openURL(url);
+      }
+    });
+  }, [item.hash]);
+  const handleCopyOpenInBlockExplorerPress = useCallback(() => {
+    Clipboard.setString(`https://blockstream.info/tx/${item.hash}`);
+  }, [item.hash]);
+  const toolTipActions = useMemo(() => {
+    const actions = [
+      {
+        id: 'copy',
+        text: loc.transactions.details_copy,
+        onPress: handleOnCopyTap,
+      },
+    ];
+    if (item.hash) {
+      actions.push({
+        id: 'open_in_blockExplorer',
+        text: loc.transactions.details_show_in_block_explorer,
+        onPress: handleOnViewOnBlockExplorer,
+      });
+    }
+    if (subtitle && subtitleNumberOfLines === 1) {
+      actions.push({
+        id: 'expandNote',
+        text: loc.transactions.expand_note,
+        onPress: handleOnExpandNote,
+      });
+    }
+    return actions;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
+
+  const copyToolTipActions = useMemo(() => {
+    const actions = [];
+    if (rowTitle !== loc.lnd.expired) {
+      actions.push({
+        id: 'copyAmount',
+        text: loc.send.create_amount,
+        onPress: handleOnCopyAmountTap,
+      });
+    }
+
+    if (item.hash) {
+      actions.push(
+        {
+          id: 'copyTX_ID',
+          text: loc.transactions.transaction_id,
+          onPress: handleOnCopyTransactionID,
+        },
+        {
+          id: 'copy_blockExplorer',
+          text: loc.transactions.block_explorer_link,
+          onPress: handleCopyOpenInBlockExplorerPress,
+        },
+      );
+    }
+    if (subtitle) {
+      actions.push({
+        id: 'copyNote',
+        text: loc.transactions.note,
+        onPress: handleOnCopyNote,
+      });
+    }
+    return actions;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toolTipActions]);
 
   return (
-    <View style={{ marginHorizontal: 4 }}>
-      <BlueListItem
-        leftAvatar={avatar}
-        title={title}
-        titleNumberOfLines={subtitleNumberOfLines}
-        subtitle={subtitle}
-        subtitleProps={subtitleProps}
-        onPress={onPress}
-        onLongPress={onLongPress}
-        chevron={false}
-        Component={TouchableOpacity}
-        rightTitle={rowTitle}
-        rightTitleStyle={rowTitleStyle}
-        containerStyle={containerStyle}
-      />
-    </View>
+    <TouchableWithoutFeedback ref={listItemRef}>
+      <View style={{ marginHorizontal: 4 }}>
+        <ToolTipMenu ref={toolTip} anchorRef={listItemRef} actions={toolTipActions} />
+        <ToolTipMenu ref={copyToolTip} anchorRef={listItemRef} actions={copyToolTipActions} />
+        <BlueListItem
+          leftAvatar={avatar}
+          title={title}
+          titleNumberOfLines={subtitleNumberOfLines}
+          subtitle={subtitle}
+          subtitleProps={subtitleProps}
+          onPress={onPress}
+          chevron={false}
+          Component={TouchableOpacity}
+          rightTitle={rowTitle}
+          rightTitleStyle={rowTitleStyle}
+          containerStyle={containerStyle}
+          onLongPress={onLongPress}
+        />
+      </View>
+    </TouchableWithoutFeedback>
   );
 });
 

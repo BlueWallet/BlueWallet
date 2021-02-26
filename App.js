@@ -9,6 +9,7 @@ import {
   Linking,
   Platform,
   StyleSheet,
+  UIManager,
   useColorScheme,
   View,
 } from 'react-native';
@@ -50,6 +51,12 @@ const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
   LIGHTNING: 'LIGHTNING',
 });
+
+if (Platform.OS === 'android') {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}
 
 const App = () => {
   const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions } = useContext(

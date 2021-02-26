@@ -131,7 +131,12 @@ export default class CPFP extends Component {
       newFeeRate: '',
       nonReplaceable: false,
     });
-    await this.checkPossibilityOfCPFP();
+    try {
+      await this.checkPossibilityOfCPFP();
+    } catch (_) {
+      // if anything goes wrong we just show "this is not bumpable" message
+      this.setState({ nonReplaceable: true, isLoading: false });
+    }
   }
 
   async checkPossibilityOfCPFP() {

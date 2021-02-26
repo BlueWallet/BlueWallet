@@ -418,6 +418,7 @@ describe('BlueWallet UI Tests', () => {
 
     await device.pressBack();
     await device.pressBack();
+    await element(by.id('changeAmountUnitButton')).tap(); // switched to FIAT
     await element(by.id('BlueAddressInputScanQrButton')).tap();
 
     // tapping 10 times invisible button is a backdoor:
@@ -466,6 +467,42 @@ describe('BlueWallet UI Tests', () => {
     transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(transaction.outs.length, 2);
     assert.strictEqual(transaction.outs[0].value, 50000);
+
+    // now, testing send many feature
+
+    await device.pressBack();
+    await device.pressBack();
+    // we already have one output, lest add another two
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('AddRecipient')).tap();
+    await element(by.id('Transaction0')).swipe('left');
+    await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).typeText('0.0002\n');
+
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('AddRecipient')).tap();
+    await element(by.id('Transaction1')).swipe('left');
+    await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).typeText('0.0003\n');
+
+    // remove second output
+    await element(by.id('Transaction2')).swipe('right', 'fast', NaN, 0.2);
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('RemoveRecipient')).tap();
+
+    // creating and verifying. tx should have 3 outputs
+    try {
+      await element(by.id('CreateTransactionButton')).tap();
+    } catch (_) {}
+
+    await element(by.id('TransactionDetailsButton')).tap();
+    txhex = await extractTextFromElementById('TxhexInput');
+    transaction = bitcoin.Transaction.fromHex(txhex);
+    assert.strictEqual(transaction.outs.length, 3);
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    assert.strictEqual(transaction.outs[0].value, 50000);
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    assert.strictEqual(transaction.outs[1].value, 20000);
 
     // now, testing sendMAX feature:
 
@@ -891,18 +928,36 @@ async function helperCreateWallet(walletName) {
 
 async function helperImportWallet(importText, expectedWalletLabel, expectedBalance) {
   await yo('WalletsList');
+
   await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
   // going to Import Wallet screen and importing mnemonic
   await element(by.id('CreateAWallet')).tap();
   await element(by.id('ImportWallet')).tap();
   await element(by.id('MnemonicInput')).replaceText(importText);
-  try {
-    await element(by.id('DoImport')).tap();
-  } catch (_) {}
-  if (process.env.TRAVIS) await sleep(60000);
-  await sup('OK', 3 * 61000); // waiting for wallet import
-  await element(by.text('OK')).tap();
-  // ok, wallet imported
+
+  let retries = 0;
+  while (true) {
+    retries = retries + 1;
+    try {
+      await element(by.id('DoImport')).tap();
+    } catch (_) {}
+    if (process.env.TRAVIS) await sleep(60000);
+
+    // waiting for import result
+    await sup('OK', 3 * 61000);
+    await element(by.text('OK')).tap();
+
+    try {
+      await expect(element(by.id('ImportError'))).not.toBeVisible();
+      break; // import succeded
+    } catch (e) {
+      // exit after two failed attempts
+      if (retries === 2) break;
+      // restart import
+      await element(by.id('ImportError')).tap();
+      await element(by.text('Try again')).tap();
+    }
+  }
 
   // lets go inside wallet
   await element(by.text(expectedWalletLabel)).tap();
