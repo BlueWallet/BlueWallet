@@ -603,7 +603,7 @@ const WalletsAddMultisigStep2 = () => {
   const renderProvideMnemonicsModal = () => {
     return (
       <BottomModal isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
             <BlueSpacing20 />
@@ -634,7 +634,7 @@ const WalletsAddMultisigStep2 = () => {
   const renderCosignersXpubModal = () => {
     return (
       <BottomModal isVisible={isRenderCosignersXpubModalVisible} onClose={hideCosignersXpubModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
             <BlueSpacing20 />

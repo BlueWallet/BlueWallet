@@ -11,8 +11,14 @@ const ToolTipMenu = (props, ref) => {
     toolTip.current?.showMenu();
   };
 
+  const hideMenu = () => {
+    console.log('Hiding ToolTip');
+    toolTip.current?.hideMenu();
+  };
+
   useEffect(() => {
     ref.current.showMenu = showMenu;
+    ref.current.hideMenu = hideMenu;
   }, [ref]);
 
   return (

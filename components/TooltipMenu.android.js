@@ -5,7 +5,8 @@ import showPopupMenu from 'react-native-popup-menu-android';
 
 const ToolTipMenu = (props, ref) => {
   const handleToolTipSelection = selection => {
-    props.onPress(selection.id);
+    const action = props.actions.find(action => action.id === selection.id);
+    action.onPress();
   };
 
   const showMenu = () => {
@@ -13,18 +14,21 @@ const ToolTipMenu = (props, ref) => {
     showPopupMenu(actions, handleToolTipSelection, props.anchorRef.current);
   };
 
+  const hideMenu = () => {
+    console.log('not implemented');
+  };
+
   useEffect(() => {
     ref.current.showMenu = showMenu;
+    ref.current.hideMenu = hideMenu;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ref]);
+  }, [ref, props.actions]);
 
-  return <View ref={ref}>{props.children}</View>;
+  return <View ref={ref} />;
 };
 
 export default forwardRef(ToolTipMenu);
 ToolTipMenu.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.shape).isRequired,
   anchorRef: PropTypes.node,
-  children: PropTypes.node,
-  onPress: PropTypes.func.isRequired,
 };

@@ -27,19 +27,20 @@ extension WidgetAPI {
       case .success:
         switch client.send(string: send) {
         case .success:
-          guard let data = client.read(1024*10, timeout: 1) else {
+          guard let data = client.read(1024*10, timeout: 1),  let response = String(bytes: data, encoding: .utf8)?.data(using: .utf8) else {
             client.close()
             completion(nil, APIError())
             return
           }
-          let characterSet = Set("0123456789.")
-          if let response = String(bytes: data, encoding: .utf8), let nextBlockResponse = response.components(separatedBy: #"result":"#).last?.components(separatedBy: ",").first, let nextBlockResponseDouble = Double(nextBlockResponse.filter({characterSet.contains($0)}).trimmingCharacters(in: .whitespacesAndNewlines)) {
-            print("Successfully obtained response from Electrum sever")
-            print(userElectrumSettings)
-            client.close()
-            let marketData = MarketData(nextBlock: String(format: "%.0f", (nextBlockResponseDouble / 1024) * 100000000), sats: "0", price: "0", rate: 0)
-            completion(marketData, nil)
-          } else {
+          do {
+            if let json = try JSONSerialization.jsonObject(with: response, options: .allowFragments) as? [String: AnyObject], let nextBlockResponseDouble = json["result"] as? Double {
+              print("Successfully obtained response from Electrum sever")
+              print(userElectrumSettings)
+              client.close()
+              let marketData = MarketData(nextBlock: String(format: "%.0f", (nextBlockResponseDouble / 1024) * 100000000), sats: "0", price: "0", rate: 0)
+              completion(marketData, nil)
+            }
+          } catch {
             client.close()
             completion(nil, APIError())
           }
