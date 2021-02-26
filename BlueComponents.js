@@ -1254,6 +1254,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     [colors.lightBorder],
   );
   const toolTip = useRef();
+  const copyToolTip = useRef();
   const listItemRef = useRef();
 
   const title = useMemo(() => {
@@ -1452,7 +1453,10 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   }, []);
 
   const subtitleProps = useMemo(() => ({ numberOfLines: subtitleNumberOfLines }), [subtitleNumberOfLines]);
-
+  const handleOnCopyTap = useCallback(() => {
+    toolTip.current.hideMenu();
+    setTimeout(copyToolTip.current.showMenu, 400);
+  }, []);
   const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle), [rowTitle]);
   const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
   const handleOnCopyNote = useCallback(() => Clipboard.setString(subtitle), [subtitle]);
@@ -1464,50 +1468,75 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
       }
     });
   }, [item.hash]);
+  const handleCopyOpenInBlockExplorerPress = useCallback(() => {
+    Clipboard.setString(`https://blockstream.info/tx/${item.hash}`);
+  }, [item.hash]);
   const toolTipActions = useMemo(() => {
     const actions = [
       {
-        id: 'copyAmount',
-        text: loc.transactions.copy_amount,
-        onPress: handleOnCopyAmountTap,
+        id: 'copy',
+        text: loc.transactions.details_copy,
+        onPress: handleOnCopyTap,
       },
     ];
+    if (item.hash) {
+      actions.push({
+        id: 'open_in_blockExplorer',
+        text: loc.transactions.details_show_in_block_explorer,
+        onPress: handleOnViewOnBlockExplorer,
+      });
+    }
+    if (subtitle && subtitleNumberOfLines === 1) {
+      actions.push({
+        id: 'expandNote',
+        text: loc.transactions.expand_note,
+        onPress: handleOnExpandNote,
+      });
+    }
+    return actions;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
+
+  const copyToolTipActions = useMemo(() => {
+    const actions = [];
+    if (rowTitle !== loc.lnd.expired) {
+      actions.push({
+        id: 'copyAmount',
+        text: loc.send.create_amount,
+        onPress: handleOnCopyAmountTap,
+      });
+    }
+
     if (item.hash) {
       actions.push(
         {
           id: 'copyTX_ID',
-          text: loc.transactions.copy_transaction_id,
+          text: loc.transactions.transaction_id,
           onPress: handleOnCopyTransactionID,
         },
         {
-          id: 'open_in_blockexplorer',
-          text: loc.transactions.details_show_in_block_explorer,
-          onPress: handleOnViewOnBlockExplorer,
+          id: 'copy_blockExplorer',
+          text: loc.transactions.block_explorer_link,
+          onPress: handleCopyOpenInBlockExplorerPress,
         },
       );
     }
     if (subtitle) {
       actions.push({
         id: 'copyNote',
-        text: loc.transactions.copy_note,
+        text: loc.transactions.note,
         onPress: handleOnCopyNote,
       });
-      if (subtitleNumberOfLines === 1) {
-        actions.push({
-          id: 'expandNote',
-          text: loc.transactions.expand_note,
-          onPress: handleOnExpandNote,
-        });
-      }
     }
     return actions;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
+  }, [toolTipActions]);
 
   return (
     <TouchableWithoutFeedback ref={listItemRef}>
       <View style={{ marginHorizontal: 4 }}>
         <ToolTipMenu ref={toolTip} anchorRef={listItemRef} actions={toolTipActions} />
+        <ToolTipMenu ref={copyToolTip} anchorRef={listItemRef} actions={copyToolTipActions} />
         <BlueListItem
           leftAvatar={avatar}
           title={title}

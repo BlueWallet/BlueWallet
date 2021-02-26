@@ -14,10 +14,15 @@ const ToolTipMenu = (props, ref) => {
     showPopupMenu(actions, handleToolTipSelection, props.anchorRef.current);
   };
 
+  const hideMenu = () => {
+    console.log('not implemented');
+  };
+
   useEffect(() => {
     ref.current.showMenu = showMenu;
+    ref.current.hideMenu = hideMenu;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ref]);
+  }, [ref, props.actions]);
 
   return <View ref={ref} />;
 };
