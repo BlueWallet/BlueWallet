@@ -1451,9 +1451,9 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   const subtitleProps = useMemo(() => ({ numberOfLines: subtitleNumberOfLines }), [subtitleNumberOfLines]);
   const handleOnCopyTap = useCallback(() => {
     toolTip.current.hideMenu();
-    setTimeout(copyToolTip.current.showMenu, 400);
+    setTimeout(copyToolTip.current.showMenu, 205);
   }, []);
-  const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle), [rowTitle]);
+  const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle.replace('-', '').replace(/\s/g, '')), [rowTitle]);
   const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
   const handleOnCopyNote = useCallback(() => Clipboard.setString(subtitle), [subtitle]);
   const handleOnViewOnBlockExplorer = useCallback(() => {
