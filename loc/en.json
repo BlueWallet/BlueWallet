@@ -137,7 +137,7 @@
     "ask_yes": "Yes, I have",
     "ok": "OK, I wrote this down.",
     "ok_lnd": "OK, I have saved it.",
-    "text": "Please take a moment to write down this mnemonic phrase on a piece of paper. It’s your backup you can use to restore the wallet on other device.",
+    "text": "Please take a moment to write down this mnemonic phrase on a piece of paper. It’s your backup you can use to restore the wallet on another device.",
     "text_lnd": "Please save this wallet backup. It allows you to restore the wallet in case of loss.",
     "text_lnd2": "This wallet is hosted by BlueWallet.",
     "title": "Your wallet has been created."
@@ -329,7 +329,7 @@
     "ask_me_later": "Ask me later"
   },
   "transactions": {
-    "cancel_explain": "We will replace this transaction with the one that pays you and has higher fees. This effectively cancels transaction. This is called RBF—Replace by Fee.",
+    "cancel_explain": "We will replace this transaction with the one that pays you and has higher fees. This effectively cancels the transaction. This is called RBF—Replace by Fee.",
     "cancel_no": "This transaction is not replaceable.",
     "cancel_title": "Cancel this transaction (RBF)",
     "confirmations_lowercase": "{confirmations} confirmations",
@@ -349,7 +349,7 @@
     "details_inputs": "Inputs",
     "details_outputs": "Outputs",
     "details_received": "Received",
-    "transaction_note_saved":"Transaction note has been successfully saved.",
+    "transaction_note_saved": "Transaction note has been successfully saved.",
     "details_show_in_block_explorer": "View in Block Explorer",
     "details_title": "Transaction",
     "details_to": "Output",
@@ -363,7 +363,7 @@
     "status_bump": "Bump Fee",
     "status_cancel": "Cancel Transaction",
     "transactions_count": "Transactions Count",
-    "txid": "Txid",
+    "txid": "Transaction ID",
     "updating": "Updating..."
   },
   "wallets": {
@@ -415,7 +415,7 @@
     "export_title": "Wallet Export",
     "import_do_import": "Import",
     "import_error": "Failed to import. Please make sure that the provided data is valid.",
-    "import_explanation": "Write here your mnemonic, private key, WIF, or anything you’ve got. BlueWallet will do its best to guess the correct format and import your wallet. If a public key is entered, we will add it as a Watch-only wallet.",
+    "import_explanation": "Please enter your seed words, public key, WIF, or anything you’ve got. BlueWallet will do its best to guess the correct format and import your wallet.",
     "import_file": "Import File",
     "import_imported": "Imported",
     "import_placeholder_fail": "Wallet Import",
@@ -428,7 +428,7 @@
     "list_create_a_wallet_text": "It’s free and you can create \nas many as you like.",
     "list_empty_txs1": "Your transactions will appear here.",
     "list_empty_txs1_lightning": "Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and the speed is blazing fast.",
-    "list_empty_txs2": "Start with your wallet",
+    "list_empty_txs2": "Start with your wallet.",
     "list_empty_txs2_lightning": "\nTo start using it, tap on Manage Funds and topup your balance.",
     "list_header": "A wallet represents a pair of keys: one private and one you can share to receive coins.",
     "list_import_error": "An error was encountered when attempting to import this wallet.",
