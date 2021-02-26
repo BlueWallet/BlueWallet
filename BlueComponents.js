@@ -1,5 +1,5 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import React, { Component, useState, useMemo, useCallback, useContext, useRef } from 'react';
+import React, { Component, useState, useMemo, useCallback, useContext, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, Input, Text, Header, ListItem, Avatar } from 'react-native-elements';
 import {
@@ -616,7 +616,7 @@ export const BlueListItem = React.memo(props => {
         </ListItem.Title>
         {props.subtitle && (
           <ListItem.Subtitle
-            numberOfLines={1}
+            numberOfLines={props.subtitleNumberOfLines ?? 1}
             style={{ flexWrap: 'wrap', color: colors.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
           >
             {props.subtitle}
@@ -1392,6 +1392,10 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     }
   }, [item]);
 
+  useEffect(() => {
+    setSubtitleNumberOfLines(1);
+  }, [subtitle]);
+
   const onPress = useCallback(async () => {
     if (item.hash) {
       navigate('TransactionStatus', { hash: item.hash });
@@ -1442,11 +1446,9 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   }, []);
 
   const handleOnExpandNote = useCallback(() => {
-    if (subtitleNumberOfLines === 1) {
-      setSubtitleNumberOfLines(0);
-    }
+    setSubtitleNumberOfLines(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [subtitle]);
 
   const subtitleProps = useMemo(() => ({ numberOfLines: subtitleNumberOfLines }), [subtitleNumberOfLines]);
   const handleOnCopyTap = useCallback(() => {
@@ -1536,7 +1538,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
         <BlueListItem
           leftAvatar={avatar}
           title={title}
-          titleNumberOfLines={subtitleNumberOfLines}
+          subtitleNumberOfLines={subtitleNumberOfLines}
           subtitle={subtitle}
           subtitleProps={subtitleProps}
           onPress={onPress}
