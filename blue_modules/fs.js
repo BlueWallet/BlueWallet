@@ -193,7 +193,7 @@ const showFilePickerAndReadFile = async function () {
 };
 
 // Intended for macOS Catalina. Not for long press shortcut
-const showActionSheet = async () => {
+const showActionSheet = async props => {
   const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
   let copyFromClipboardIndex;
   const options = [loc._.cancel, loc.wallets.take_photo, loc.wallets.list_long_choose];
@@ -206,7 +206,7 @@ const showActionSheet = async () => {
   const importFileButtonIndex = options.length - 1;
 
   return new Promise(resolve =>
-    ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, async buttonIndex => {
+    ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0, anchor: props.anchor }, async buttonIndex => {
       if (buttonIndex === 1) {
         takePhotoWithImagePickerAndReadPhoto().then(resolve);
       } else if (buttonIndex === 2) {

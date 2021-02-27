@@ -1,10 +1,10 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { TouchableOpacity, View, Text } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useTheme } from '@react-navigation/native';
 
-export const SquareButton = props => {
+export const SquareButton = forwardRef((props, ref) => {
   const { colors } = useTheme();
   let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.buttonBlueBackgroundColor;
   let fontColor = colors.buttonTextColor;
@@ -28,6 +28,7 @@ export const SquareButton = props => {
         alignItems: 'center',
       }}
       {...props}
+      ref={ref}
     >
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
         {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
@@ -35,4 +36,4 @@ export const SquareButton = props => {
       </View>
     </TouchableOpacity>
   );
-};
+});

@@ -12,6 +12,7 @@ import {
   Dimensions,
   useWindowDimensions,
   SafeAreaView,
+  findNodeHandle,
 } from 'react-native';
 import { BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
@@ -50,6 +51,7 @@ const WalletsList = () => {
   const [carouselData, setCarouselData] = useState([]);
   const dataSource = getTransactions(null, 10);
   const walletsCount = useRef(wallets.length);
+  const walletActionButtonsRef = useRef();
 
   const stylesHook = StyleSheet.create({
     walletsListWrapper: {
@@ -318,7 +320,7 @@ const WalletsList = () => {
   const renderScanButton = () => {
     if (carouselData.length > 0 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
       return (
-        <FContainer>
+        <FContainer ref={walletActionButtonsRef}>
           <FButton
             onPress={onScanButtonPressed}
             onLongPress={isMacCatalina ? undefined : sendButtonLongPress}
@@ -338,7 +340,7 @@ const WalletsList = () => {
 
   const onScanButtonPressed = () => {
     if (isMacCatalina) {
-      fs.showActionSheet().then(onBarScanned);
+      fs.showActionSheet({ anchor: walletActionButtonsRef.current }).then(onBarScanned);
     } else {
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -366,28 +368,31 @@ const WalletsList = () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
       if (isMacCatalina) {
-        fs.showActionSheet().then(onBarScanned);
+        fs.showActionSheet({ anchor: findNodeHandle(walletActionButtonsRef.current) }).then(onBarScanned);
       } else {
         const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
         if (!isClipboardEmpty) {
           options.push(loc.wallets.list_long_clipboard);
         }
-        ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
-          if (buttonIndex === 1) {
-            fs.showImagePickerAndReadImage().then(onBarScanned);
-          } else if (buttonIndex === 2) {
-            navigate('ScanQRCodeRoot', {
-              screen: 'ScanQRCode',
-              params: {
-                launchedBy: routeName,
-                onBarScanned,
-                showFileImportButton: false,
-              },
-            });
-          } else if (buttonIndex === 3) {
-            copyFromClipboard();
-          }
-        });
+        ActionSheet.showActionSheetWithOptions(
+          { options, cancelButtonIndex: 0, anchor: findNodeHandle(walletActionButtonsRef.current) },
+          buttonIndex => {
+            if (buttonIndex === 1) {
+              fs.showImagePickerAndReadImage().then(onBarScanned);
+            } else if (buttonIndex === 2) {
+              navigate('ScanQRCodeRoot', {
+                screen: 'ScanQRCode',
+                params: {
+                  launchedBy: routeName,
+                  onBarScanned,
+                  showFileImportButton: false,
+                },
+              });
+            } else if (buttonIndex === 3) {
+              copyFromClipboard();
+            }
+          },
+        );
       }
     } else if (Platform.OS === 'android') {
       const buttons = [

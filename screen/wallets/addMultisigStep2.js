@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
   Alert,
+  findNodeHandle,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -66,6 +67,7 @@ const WalletsAddMultisigStep2 = () => {
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
   const tooltip = useRef();
+  const openScannerButton = useRef();
   const data = useRef(new Array(n));
   const hasUnsavedChanges = Boolean(cosigners.length > 0 && cosigners.length !== n);
 
@@ -428,7 +430,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const scanOrOpenFile = () => {
     if (isDesktop) {
-      fs.showActionSheet().then(onBarScanned);
+      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(onBarScanned);
     } else {
       setIsProvideMnemonicsModalVisible(false);
       navigation.navigate('ScanQRCodeRoot', {
@@ -614,7 +616,7 @@ const WalletsAddMultisigStep2 = () => {
             ) : (
               <BlueButton disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={useMnemonicPhrase} />
             )}
-            <BlueButtonLink disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+            <BlueButtonLink ref={openScannerButton} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
         </KeyboardAvoidingView>
       </BottomModal>

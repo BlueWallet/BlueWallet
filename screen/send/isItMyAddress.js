@@ -1,6 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput, Keyboard } from 'react-native';
+import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput, Keyboard, findNodeHandle } from 'react-native';
 
 import loc from '../../loc';
 import { BlueButton, BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
@@ -15,6 +15,7 @@ const IsItMyAddress = () => {
   const { navigate } = useNavigation();
   const { name } = useRoute();
   const { colors } = useTheme();
+  const scanButtonRef = useRef();
 
   const [address, setAddress] = useState('');
   const [result, setResult] = useState('');
@@ -58,7 +59,7 @@ const IsItMyAddress = () => {
 
   const importScan = () => {
     if (isMacCatalina) {
-      fs.showActionSheet().then(onBarScanned);
+      fs.showActionSheet({ anchor: findNodeHandle(scanButtonRef.current) }).then(onBarScanned);
     } else {
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -102,7 +103,7 @@ const IsItMyAddress = () => {
             </View>
 
             <BlueSpacing10 />
-            <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
+            <BlueButtonLink ref={scanButtonRef} title={loc.wallets.import_scan_qr} onPress={importScan} />
             <BlueSpacing10 />
             <BlueButton title={loc.send.input_clear} onPress={clearAddressInput} />
             <BlueSpacing20 />
