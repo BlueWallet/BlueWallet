@@ -475,13 +475,13 @@ describe('BlueWallet UI Tests', () => {
     // we already have one output, lest add another two
     await element(by.id('advancedOptionsMenuButton')).tap();
     await element(by.id('AddRecipient')).tap();
-    await element(by.id('Transaction0')).swipe('left');
+    await yo('Transaction1'); // adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).typeText('0.0002\n');
 
     await element(by.id('advancedOptionsMenuButton')).tap();
     await element(by.id('AddRecipient')).tap();
-    await element(by.id('Transaction1')).swipe('left');
+    await yo('Transaction2');  // adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).typeText('0.0003\n');
 
