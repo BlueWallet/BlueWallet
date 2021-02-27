@@ -164,7 +164,9 @@ const WalletDetails = () => {
   }, []);
 
   useEffect(() => {
-    setSelectedWallet(walletID);
+    if (wallets.some(wallet => wallet.getID() === walletID)) {
+      setSelectedWallet(walletID);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
 
