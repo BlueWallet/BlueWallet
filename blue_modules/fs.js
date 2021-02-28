@@ -7,8 +7,8 @@ import DocumentPicker from 'react-native-document-picker';
 import isCatalyst from 'react-native-is-catalyst';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { presentCameraNotAuthorizedAlert } from '../class/camera';
-import Clipboard from '@react-native-community/clipboard';
 import ActionSheet from '../screen/ActionSheet';
+import BlueClipboard from './clipboard';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const writeFileAndExport = async function (filename, contents) {
@@ -194,7 +194,7 @@ const showFilePickerAndReadFile = async function () {
 
 // Intended for macOS Catalina. Not for long press shortcut
 const showActionSheet = async props => {
-  const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
+  const isClipboardEmpty = (await BlueClipboard.getClipboardContent()).trim().length === 0;
   let copyFromClipboardIndex;
   const options = [loc._.cancel, loc.wallets.take_photo, loc.wallets.list_long_choose];
   if (!isClipboardEmpty) {
@@ -214,7 +214,7 @@ const showActionSheet = async props => {
           .then(resolve)
           .catch(error => alert(error.message));
       } else if (buttonIndex === copyFromClipboardIndex) {
-        const clipboard = await Clipboard.getString();
+        const clipboard = await BlueClipboard.getClipboardContent();
         resolve(clipboard);
       } else if (importFileButtonIndex) {
         const { data } = await showFilePickerAndReadFile();

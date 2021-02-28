@@ -20,7 +20,6 @@ import {
   View,
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
-import Clipboard from '@react-native-community/clipboard';
 import { Icon } from 'react-native-elements';
 import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
 import { Chain } from '../../models/bitcoinUnits';
@@ -36,6 +35,7 @@ import BottomModal from '../../components/BottomModal';
 import BuyBitcoin from './buyBitcoin';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
+import BlueClipboard from '../../blue_modules/clipboard';
 
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -477,7 +477,7 @@ const WalletTransactions = () => {
   };
 
   const copyFromClipboard = async () => {
-    onBarCodeRead({ data: await Clipboard.getString() });
+    onBarCodeRead({ data: await BlueClipboard.getClipboardContent() });
   };
 
   const sendButtonPress = () => {
@@ -517,7 +517,7 @@ const WalletTransactions = () => {
     if (isMacCatalina) {
       fs.showActionSheet({ anchor: walletActionButtonsRef.current }).then(onBarCodeRead);
     } else {
-      const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
+      const isClipboardEmpty = (await BlueClipboard.getClipboardContent()).trim().length === 0;
       if (Platform.OS === 'ios') {
         const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
         if (!isClipboardEmpty) {
