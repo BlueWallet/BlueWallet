@@ -346,7 +346,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
 
 WalletsCarousel.propTypes = {
   vertical: PropTypes.bool,
-  selectedWallet: PropTypes.object,
+  selectedWallet: PropTypes.string,
   onPress: PropTypes.func.isRequired,
   handleLongPress: PropTypes.func.isRequired,
 };

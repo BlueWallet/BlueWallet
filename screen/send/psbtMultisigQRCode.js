@@ -1,6 +1,6 @@
 /* global alert */
-import React, { useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { ActivityIndicator, findNodeHandle, ScrollView, StyleSheet, View } from 'react-native';
 import { getSystemName } from 'react-native-device-info';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
@@ -17,6 +17,7 @@ const isDesktop = getSystemName() === 'Mac OS X';
 const PsbtMultisigQRCode = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
+  const openScannerButton = useRef();
   const { psbtBase64, isShowOpenScanner } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
 
@@ -50,7 +51,7 @@ const PsbtMultisigQRCode = () => {
 
   const openScanner = () => {
     if (isDesktop) {
-      fs.showActionSheet().then(data => onBarScanned({ data }));
+      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(data => onBarScanned({ data }));
     } else {
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -79,6 +80,7 @@ const PsbtMultisigQRCode = () => {
                 testID="CosignedScanOrImportFile"
                 style={[styles.exportButton, stylesHook.exportButton]}
                 onPress={openScanner}
+                ref={openScannerButton}
                 title={loc.multisig.scan_or_import_file}
               />
             </>

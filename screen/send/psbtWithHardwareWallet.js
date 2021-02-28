@@ -12,6 +12,7 @@ import {
   Text,
   StyleSheet,
   Alert,
+  findNodeHandle,
 } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import Share from 'react-native-share';
@@ -50,6 +51,7 @@ const PsbtWithHardwareWallet = () => {
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [txHex, setTxHex] = useState(route.params.txhex);
+  const openScannerButton = useRef();
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -250,7 +252,7 @@ const PsbtWithHardwareWallet = () => {
 
   const openScanner = () => {
     if (isMacCatalina) {
-      fs.showActionSheet().then(data => onBarScanned({ data }));
+      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(data => onBarScanned({ data }));
     } else {
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -289,6 +291,7 @@ const PsbtWithHardwareWallet = () => {
                 color: colors.buttonTextColor,
               }}
               onPress={openScanner}
+              ref={openScannerButton}
               title={loc.send.psbt_tx_scan}
             />
             <BlueSpacing20 />

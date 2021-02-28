@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Text } from 'react-native-elements';
-import { Image, Keyboard, TextInput, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { findNodeHandle, Image, Keyboard, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { getSystemName } from 'react-native-device-info';
 import { useTheme } from '@react-navigation/native';
 
@@ -20,6 +20,7 @@ const AddressInput = ({
   launchedBy,
 }) => {
   const { colors } = useTheme();
+  const scanButtonRef = useRef();
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -54,7 +55,7 @@ const AddressInput = ({
         onPress={() => {
           Keyboard.dismiss();
           if (isDesktop) {
-            fs.showActionSheet().then(onBarScanned);
+            fs.showActionSheet({ anchor: findNodeHandle(scanButtonRef.current) }).then(onBarScanned);
           } else {
             NavigationService.navigate('ScanQRCodeRoot', {
               screen: 'ScanQRCode',
