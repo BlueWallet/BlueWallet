@@ -92,26 +92,27 @@ export const BlueStorageProvider = ({ children }) => {
 
   const refreshAllWalletTransactions = async (lastSnappedTo, showUpdateStatusIndicator = true) => {
     let noErr = true;
-    try {
-      if (showUpdateStatusIndicator) {
-        setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
-      }
-      await BlueElectrum.waitTillConnected();
-      const balanceStart = +new Date();
-      await fetchWalletBalances(lastSnappedTo);
-      const balanceEnd = +new Date();
-      console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-      const start = +new Date();
-      await fetchWalletTransactions(lastSnappedTo);
-      const end = +new Date();
-      console.log('fetch tx took', (end - start) / 1000, 'sec');
-    } catch (err) {
-      noErr = false;
-      console.warn(err);
-    } finally {
-      setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
+    if (showUpdateStatusIndicator) {
+      setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
     }
-    if (noErr) await saveToDisk(); // caching
+    return BlueElectrum.waitTillConnected()
+      .then(() => {
+        Promise.all([fetchWalletBalances(lastSnappedTo), fetchWalletTransactions(lastSnappedTo)])
+          .catch(err => {
+            noErr = false;
+            console.warn(err);
+          })
+          .finally(() => {
+            setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
+            // caching
+            if (noErr) saveToDisk();
+          });
+      })
+      .catch(err => {
+        noErr = false;
+        console.warn(err);
+        setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
+      });
   };
 
   const fetchAndSaveWalletTransactions = async walletID => {

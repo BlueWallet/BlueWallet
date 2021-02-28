@@ -12,6 +12,7 @@ import {
   UIManager,
   useColorScheme,
   View,
+  InteractionManager,
 } from 'react-native';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -203,7 +204,7 @@ const App = () => {
     await Notifications.clearStoredNotifications();
     Notifications.setApplicationIconBadgeNumber(0);
     const deliveredNotifications = await Notifications.getDeliveredNotifications();
-    setTimeout(() => Notifications.removeAllDeliveredNotifications(), 5000); // so notification bubble wont disappear too fast
+    setTimeout(Notifications.removeAllDeliveredNotifications, 5000); // so notification bubble wont disappear too fast
 
     for (const payload of notifications2process) {
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
@@ -256,40 +257,42 @@ const App = () => {
   const handleAppStateChange = async nextAppState => {
     if (wallets.length > 0) {
       if ((appState.current.match(/background/) && nextAppState) === 'active' || nextAppState === undefined) {
-        setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
-        const processed = await processPushNotifications();
-        if (processed) return;
-        const clipboard = await BlueClipboard.getClipboardContent();
-        const isAddressFromStoredWallet = wallets.some(wallet => {
-          if (wallet.chain === Chain.ONCHAIN) {
-            // checking address validity is faster than unwrapping hierarchy only to compare it to garbage
-            return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
-          } else {
-            return wallet.isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
+        InteractionManager.runAfterInteractions(async () => {
+          A(A.ENUM.APP_UNSUSPENDED);
+          const processed = await processPushNotifications();
+          if (processed) return;
+          const clipboard = await BlueClipboard.getClipboardContent();
+          const isAddressFromStoredWallet = wallets.some(wallet => {
+            if (wallet.chain === Chain.ONCHAIN) {
+              // checking address validity is faster than unwrapping hierarchy only to compare it to garbage
+              return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
+            } else {
+              return wallet.isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
+            }
+          });
+          const isBitcoinAddress = DeeplinkSchemaMatch.isBitcoinAddress(clipboard);
+          const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(clipboard);
+          const isLNURL = DeeplinkSchemaMatch.isLnUrl(clipboard);
+          const isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(clipboard);
+          if (
+            !isAddressFromStoredWallet &&
+            clipboardContent.current !== clipboard &&
+            (isBitcoinAddress || isLightningInvoice || isLNURL || isBothBitcoinAndLightning)
+          ) {
+            if (isBitcoinAddress) {
+              setClipboardContentType(ClipboardContentType.BITCOIN);
+            } else if (isLightningInvoice || isLNURL) {
+              setClipboardContentType(ClipboardContentType.LIGHTNING);
+            } else if (isBothBitcoinAndLightning) {
+              setClipboardContentType(ClipboardContentType.BITCOIN);
+            }
+            setIsClipboardContentModalVisible(true);
           }
+          clipboardContent.current = clipboard;
         });
-        const isBitcoinAddress = DeeplinkSchemaMatch.isBitcoinAddress(clipboard);
-        const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(clipboard);
-        const isLNURL = DeeplinkSchemaMatch.isLnUrl(clipboard);
-        const isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(clipboard);
-        if (
-          !isAddressFromStoredWallet &&
-          clipboardContent.current !== clipboard &&
-          (isBitcoinAddress || isLightningInvoice || isLNURL || isBothBitcoinAndLightning)
-        ) {
-          if (isBitcoinAddress) {
-            setClipboardContentType(ClipboardContentType.BITCOIN);
-          } else if (isLightningInvoice || isLNURL) {
-            setClipboardContentType(ClipboardContentType.LIGHTNING);
-          } else if (isBothBitcoinAndLightning) {
-            setClipboardContentType(ClipboardContentType.BITCOIN);
-          }
-          setIsClipboardContentModalVisible(true);
+        if (nextAppState) {
+          appState.current = nextAppState;
         }
-        clipboardContent.current = clipboard;
-      }
-      if (nextAppState) {
-        appState.current = nextAppState;
       }
     }
   };
