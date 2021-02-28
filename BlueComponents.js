@@ -1,5 +1,5 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import React, { Component, useState, useMemo, useCallback, useContext, useRef } from 'react';
+import React, { Component, useState, useMemo, useCallback, useContext, useRef, useEffect, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, Input, Text, Header, ListItem, Avatar } from 'react-native-elements';
 import {
@@ -7,6 +7,7 @@ import {
   Alert,
   Animated,
   Dimensions,
+  findNodeHandle,
   Image,
   InputAccessoryView,
   Keyboard,
@@ -93,7 +94,7 @@ export const BlueButton = props => {
   );
 };
 
-export const SecondButton = props => {
+export const SecondButton = forwardRef((props, ref) => {
   const { colors } = useTheme();
   let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.buttonBlueBackgroundColor;
   let fontColor = colors.buttonTextColor;
@@ -117,6 +118,7 @@ export const SecondButton = props => {
         alignItems: 'center',
       }}
       {...props}
+      ref={ref}
     >
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
         {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
@@ -124,7 +126,7 @@ export const SecondButton = props => {
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 export const BitcoinButton = props => {
   const { colors } = useTheme();
@@ -515,7 +517,7 @@ export class BlueWalletNavigationHeader extends Component {
   }
 }
 
-export const BlueButtonLink = props => {
+export const BlueButtonLink = forwardRef((props, ref) => {
   const { colors } = useTheme();
   return (
     <TouchableOpacity
@@ -525,11 +527,12 @@ export const BlueButtonLink = props => {
         justifyContent: 'center',
       }}
       {...props}
+      ref={ref}
     >
       <Text style={{ color: colors.foregroundColor, textAlign: 'center', fontSize: 16 }}>{props.title}</Text>
     </TouchableOpacity>
   );
-};
+});
 
 export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure }) => {
   Alert.alert(
@@ -678,7 +681,7 @@ export const BlueListItem = React.memo(props => {
         </ListItem.Title>
         {props.subtitle && (
           <ListItem.Subtitle
-            numberOfLines={1}
+            numberOfLines={props.subtitleNumberOfLines ?? 1}
             style={{ flexWrap: 'wrap', color: colors.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
           >
             {props.subtitle}
@@ -1454,6 +1457,10 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     }
   }, [item]);
 
+  useEffect(() => {
+    setSubtitleNumberOfLines(1);
+  }, [subtitle]);
+
   const onPress = useCallback(async () => {
     if (item.hash) {
       navigate('TransactionStatus', { hash: item.hash });
@@ -1504,18 +1511,16 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   }, []);
 
   const handleOnExpandNote = useCallback(() => {
-    if (subtitleNumberOfLines === 1) {
-      setSubtitleNumberOfLines(0);
-    }
+    setSubtitleNumberOfLines(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [subtitle]);
 
   const subtitleProps = useMemo(() => ({ numberOfLines: subtitleNumberOfLines }), [subtitleNumberOfLines]);
   const handleOnCopyTap = useCallback(() => {
     toolTip.current.hideMenu();
-    setTimeout(copyToolTip.current.showMenu, 400);
+    setTimeout(copyToolTip.current.showMenu, 205);
   }, []);
-  const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle), [rowTitle]);
+  const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle.replace(/[\s\\-]/g, '')), [rowTitle]);
   const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
   const handleOnCopyNote = useCallback(() => Clipboard.setString(subtitle), [subtitle]);
   const handleOnViewOnBlockExplorer = useCallback(() => {
@@ -1598,7 +1603,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
         <BlueListItem
           leftAvatar={avatar}
           title={title}
-          titleNumberOfLines={subtitleNumberOfLines}
+          subtitleNumberOfLines={subtitleNumberOfLines}
           subtitle={subtitle}
           subtitleProps={subtitleProps}
           onPress={onPress}
@@ -1624,6 +1629,7 @@ export const BlueAddressInput = ({
   launchedBy,
 }) => {
   const { colors } = useTheme();
+  const scanButtonRef = useRef();
 
   return (
     <View
@@ -1656,10 +1662,11 @@ export const BlueAddressInput = ({
       <TouchableOpacity
         testID="BlueAddressInputScanQrButton"
         disabled={isLoading}
+        ref={scanButtonRef}
         onPress={() => {
           Keyboard.dismiss();
           if (isDesktop) {
-            fs.showActionSheet().then(onBarScanned);
+            fs.showActionSheet({ anchor: findNodeHandle(scanButtonRef.current) }).then(onBarScanned);
           } else {
             NavigationService.navigate('ScanQRCodeRoot', {
               screen: 'ScanQRCode',

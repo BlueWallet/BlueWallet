@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useEffect, useState, useCallback, useContext } from 'react';
+import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -15,6 +15,7 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  findNodeHandle,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -60,6 +61,7 @@ const WalletTransactions = () => {
   const [pageSize, setPageSize] = useState(20);
   const { setParams, setOptions, navigate } = useNavigation();
   const { colors } = useTheme();
+  const walletActionButtonsRef = useRef();
 
   const stylesHook = StyleSheet.create({
     advancedTransactionOptionsModalContent: {
@@ -559,7 +561,7 @@ const WalletTransactions = () => {
 
   const sendButtonLongPress = async () => {
     if (isMacCatalina) {
-      fs.showActionSheet().then(onBarCodeRead);
+      fs.showActionSheet({ anchor: walletActionButtonsRef.current }).then(onBarCodeRead);
     } else {
       const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
       if (Platform.OS === 'ios') {
@@ -567,22 +569,25 @@ const WalletTransactions = () => {
         if (!isClipboardEmpty) {
           options.push(loc.wallets.list_long_clipboard);
         }
-        ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
-          if (buttonIndex === 1) {
-            choosePhoto();
-          } else if (buttonIndex === 2) {
-            navigate('ScanQRCodeRoot', {
-              screen: 'ScanQRCode',
-              params: {
-                launchedBy: name,
-                onBarScanned: onBarCodeRead,
-                showFileImportButton: false,
-              },
-            });
-          } else if (buttonIndex === 3) {
-            copyFromClipboard();
-          }
-        });
+        ActionSheet.showActionSheetWithOptions(
+          { options, cancelButtonIndex: 0, anchor: findNodeHandle(walletActionButtonsRef.current) },
+          buttonIndex => {
+            if (buttonIndex === 1) {
+              choosePhoto();
+            } else if (buttonIndex === 2) {
+              navigate('ScanQRCodeRoot', {
+                screen: 'ScanQRCode',
+                params: {
+                  launchedBy: name,
+                  onBarScanned: onBarCodeRead,
+                  showFileImportButton: false,
+                },
+              });
+            } else if (buttonIndex === 3) {
+              copyFromClipboard();
+            }
+          },
+        );
       } else if (Platform.OS === 'android') {
         const buttons = [
           {
@@ -722,7 +727,7 @@ const WalletTransactions = () => {
         {renderManageLndModal()}
       </View>
 
-      <FContainer>
+      <FContainer ref={walletActionButtonsRef}>
         {wallet.allowReceive() && (
           <FButton
             testID="ReceiveButton"
