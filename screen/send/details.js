@@ -122,7 +122,7 @@ const SendDetails = () => {
     // check if we have a suitable wallet
     const suitable = wallets.filter(wallet => wallet.chain === Chain.ONCHAIN && wallet.allowSend());
     if (suitable.length === 0) {
-      Alert.alert(loc.send.details_wallet_before_tx);
+      Alert.alert(loc.errors.error, loc.send.details_wallet_before_tx);
       navigation.goBack();
       return;
     }
@@ -145,7 +145,7 @@ const SendDetails = () => {
         setPayjoinUrl(payjoinUrl);
       } catch (error) {
         console.log(error);
-        Alert.alert(loc.send.details_error_decode);
+        Alert.alert(loc.errors.error, loc.send.details_error_decode);
       }
     } else if (routeParams.address) {
       addresses.push({ address: routeParams.address });
@@ -336,7 +336,7 @@ const SendDetails = () => {
     if (!data.replace) {
       // user probably scanned PSBT and got an object instead of string..?
       setIsLoading(false);
-      return Alert.alert(loc.send.details_address_field_is_not_valid);
+      return Alert.alert(loc.errors.error, loc.send.details_address_field_is_not_valid);
     }
 
     const recipients = [...addresses];
@@ -426,7 +426,7 @@ const SendDetails = () => {
       if (error) {
         scrollView.current.scrollToIndex({ index });
         setIsLoading(false);
-        Alert.alert(error);
+        Alert.alert(loc.errors.error, error);
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         return;
       }
@@ -436,7 +436,7 @@ const SendDetails = () => {
       await createPsbtTransaction();
     } catch (Err) {
       setIsLoading(false);
-      Alert.alert(Err.message);
+      Alert.alert(loc.errors.error, Err.message);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
     }
   };
@@ -579,7 +579,7 @@ const SendDetails = () => {
    */
   const importQrTransaction = async () => {
     if (wallet.type !== WatchOnlyWallet.type) {
-      return Alert.alert('Error: importing transaction in non-watchonly wallet (this should never happen)');
+      return Alert.alert(loc.errors.error, 'Error: importing transaction in non-watchonly wallet (this should never happen)');
     }
 
     setOptionsVisible(false);
@@ -597,7 +597,7 @@ const SendDetails = () => {
     navigation.dangerouslyGetParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
-      Alert.alert('BC-UR not decoded. This should never happen');
+      Alert.alert(loc.errors.error, 'BC-UR not decoded. This should never happen');
     } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
       // we dont support it in this flow
@@ -627,7 +627,7 @@ const SendDetails = () => {
    */
   const importTransaction = async () => {
     if (wallet.type !== WatchOnlyWallet.type) {
-      return Alert.alert('Error: importing transaction in non-watchonly wallet (this should never happen)');
+      return Alert.alert(loc.errors.error, 'Importing transaction in non-watchonly wallet (this should never happen)');
     }
 
     try {
@@ -670,10 +670,10 @@ const SendDetails = () => {
         return;
       }
 
-      Alert.alert('Unrecognized file format');
+      Alert.alert(loc.errors.error, loc.send.details_unrecognized_file_format);
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
-        Alert.alert(loc.send.details_no_signed_tx);
+        Alert.alert(loc.errors.error, loc.send.details_no_signed_tx);
       }
     }
   };
@@ -681,8 +681,8 @@ const SendDetails = () => {
   const askCosignThisTransaction = async () => {
     return new Promise(resolve => {
       Alert.alert(
-        loc.multisig.cosign_this_transaction,
         '',
+        loc.multisig.cosign_this_transaction,
         [
           {
             text: loc._.no,
@@ -720,7 +720,7 @@ const SendDetails = () => {
         walletID: wallet.getID(),
       });
     } catch (error) {
-      Alert.alert(loc.send.problem_with_psbt + ': ' + error.message);
+      Alert.alert(loc.send.problem_with_psbt, error.message);
     }
     setIsLoading(false);
     setOptionsVisible(false);
@@ -734,7 +734,7 @@ const SendDetails = () => {
     navigation.dangerouslyGetParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
-      Alert.alert('BC-UR not decoded. This should never happen');
+      Alert.alert(loc.errors.error, 'BC-UR not decoded. This should never happen');
     } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
       // we dont support it in this flow
@@ -796,7 +796,7 @@ const SendDetails = () => {
       psbt = bitcoin.Psbt.fromBase64(scannedData);
       tx = wallet.cosignPsbt(psbt).tx;
     } catch (e) {
-      Alert.alert(e.message);
+      Alert.alert(loc.errors.error, e.message);
       return;
     } finally {
       setIsLoading(false);
