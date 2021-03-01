@@ -29,6 +29,121 @@ describe('BlueWallet UI Tests', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
+  it('all settings screens are works', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+    }
+    await yo('WalletsList');
+
+    // go to settings, press SelfTest and wait for OK
+    await element(by.id('SettingsButton')).tap();
+
+    // general
+    // enable AdvancedMode
+    await element(by.id('GeneralSettings')).tap();
+    await element(by.id('AdvancedMode')).tap();
+    await device.pressBack();
+    //
+    // currency
+    // change currency to ARS ($) and switch it back to USD ($)
+    await element(by.id('Currency')).tap();
+    await element(by.text('ARS ($)')).tap();
+    await expect(element(by.text('Prices are obtained from Yadio'))).toBeVisible();
+    await element(by.text('USD ($)')).tap();
+    await device.pressBack();
+
+    // language
+    // change language to Chinese (ZH), test it and switch back to English
+    await element(by.id('Language')).tap();
+    await element(by.text('Chinese (ZH)')).tap();
+    await device.pressBack();
+    await expect(element(by.text('语言'))).toBeVisible();
+    await element(by.id('Language')).tap();
+    await element(by.text('English')).tap();
+    await device.pressBack();
+
+    // security
+    await element(by.id('SecurityButton')).tap();
+    await device.pressBack();
+
+    // network
+    await element(by.id('NetworkSettings')).tap();
+
+    // network -> electrum server
+    // change electrum server to electrum.blockstream.info and revert it back
+    await element(by.id('ElectrumSettings')).tap();
+    await element(by.id('HostInput')).replaceText('electrum.blockstream.info\n');
+    await element(by.id('PortInput')).replaceText('50001\n');
+    await element(by.id('SSLPortInput')).replaceText('50002\n');
+    await element(by.id('Save')).tap();
+    await sup('OK');
+    await element(by.text('OK')).tap();
+    await element(by.id('ResetToDefault')).tap();
+    await sup('OK');
+    await element(by.text('OK')).tap();
+    await expect(element(by.id('HostInput'))).toHaveText('');
+    await expect(element(by.id('PortInput'))).toHaveText('');
+    await expect(element(by.id('SSLPortInput'))).toHaveText('');
+    await device.pressBack();
+
+    // network -> lightning
+    // change URI and revert it back
+    await element(by.id('LightningSettings')).tap();
+    await element(by.id('URIInput')).replaceText('invalid\n');
+    await element(by.id('Save')).tap();
+    await sup('OK');
+    await expect(element(by.text('Not a valid LNDHub URI'))).toBeVisible();
+    await element(by.text('OK')).tap();
+    await element(by.id('URIInput')).replaceText('https://lndhub.herokuapp.com\n');
+    await element(by.id('Save')).tap();
+    await sup('OK');
+    await expect(element(by.text('Your changes have been saved successfully.'))).toBeVisible();
+    await element(by.text('OK')).tap();
+    await element(by.id('URIInput')).replaceText('\n');
+    await element(by.id('Save')).tap();
+    await sup('OK');
+    await expect(element(by.text('Your changes have been saved successfully.'))).toBeVisible();
+    await element(by.text('OK')).tap();
+    await device.pressBack();
+
+    // network -> broadcast
+    // try to broadcast wrong tx
+    await element(by.id('Broadcast')).tap();
+    await element(by.id('TxHex')).replaceText('invalid\n');
+    await element(by.id('BroadcastButton')).tap();
+    await sup('OK');
+    // await expect(element(by.text('the transaction was rejected by network rules....'))).toBeVisible();
+    await element(by.text('OK')).tap();
+    await device.pressBack();
+    await device.pressBack();
+
+    // notifications
+    // turn on notifications
+    await element(by.id('NotificationSettings')).tap();
+    await element(by.id('NotificationsSwitch')).tap();
+    await sup('OK');
+    await element(by.text('OK')).tap();
+    await element(by.id('NotificationsSwitch')).tap();
+    await device.pressBack();
+
+    // privacy
+    // trigger switches
+    await element(by.id('SettingsPrivacy')).tap();
+    await element(by.id('ClipboardSwith')).tap();
+    await element(by.id('ClipboardSwith')).tap();
+    await element(by.id('QuickActionsSwith')).tap();
+    await element(by.id('QuickActionsSwith')).tap();
+    await device.pressBack();
+
+    // about
+    await element(by.id('AboutButton')).tap();
+    await device.pressBack();
+
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
+
   it('can create wallet, reload app and it persists. then go to receive screen, set custom amount and label. Dismiss modal and go to WalletsList.', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
