@@ -76,7 +76,7 @@ import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
 import DrawerList from './screen/wallets/drawerList';
-import { isTablet } from 'react-native-device-info';
+import { isCatalyst, isTablet } from './blue_modules/environment';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
 
@@ -348,7 +348,8 @@ const ReorderWalletsStackRoot = () => {
 const Drawer = createDrawerNavigator();
 function DrawerRoot() {
   const dimensions = useWindowDimensions();
-  const isLargeScreen = Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 2 && isTablet();
+  const isLargeScreen =
+    Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 2 && (isTablet() || isCatalyst);
   const drawerStyle = { width: '0%' };
 
   return (
