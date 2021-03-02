@@ -304,7 +304,7 @@ const WalletsList = () => {
       case WalletsListSections.TRANSACTIONS:
         if (dataSource.length === 0 && !isLoading) {
           return (
-            <View style={styles.footerRoot}>
+            <View style={styles.footerRoot} testID="NoTransactionsMessage">
               <Text style={styles.footerEmpty}>{loc.wallets.list_empty_txs1}</Text>
               <Text style={styles.footerStart}>{loc.wallets.list_empty_txs2}</Text>
             </View>

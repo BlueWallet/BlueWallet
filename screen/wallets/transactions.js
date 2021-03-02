@@ -721,6 +721,7 @@ WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, na
   return {
     headerRight: () => (
       <TouchableOpacity
+        testID="WalletDetails"
         disabled={route.params.isLoading === true}
         style={styles.walletDetails}
         onPress={() =>

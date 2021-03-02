@@ -120,7 +120,7 @@ const Broadcast = () => {
         behavior={Platform.OS === 'ios' ? 'position' : null}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.wrapper}>
+        <View style={styles.wrapper} testID="BroadcastView">
           {BROADCAST_RESULT.success !== broadcastResult && (
             <BlueCard style={styles.mainCard}>
               <View style={styles.topFormRow}>
