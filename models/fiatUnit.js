@@ -41,6 +41,7 @@ export const FiatUnit = Object.freeze({
   TRY: { endPointKey: 'TRY', symbol: '₺', locale: 'tr-TR', source: FiatUnitSource.CoinDesk },
   THB: { endPointKey: 'THB', symbol: '฿', locale: 'th-TH', source: FiatUnitSource.CoinDesk },
   TWD: { endPointKey: 'TWD', symbol: 'NT$', locale: 'zh-Hant-TW', source: FiatUnitSource.CoinDesk },
+  TZS: { endPointKey: 'TZS', symbol: 'TSh', locale: 'en-TZ', source: FiatUnitSource.CoinDesk },
   UAH: { endPointKey: 'UAH', symbol: '₴', locale: 'uk-UA', source: FiatUnitSource.CoinDesk },
   UYU: { endPointKey: 'UYU', symbol: '$', locale: 'es-UY', source: FiatUnitSource.CoinDesk },
   VEF: { endPointKey: 'VEF', symbol: 'Bs.', locale: 'es-VE', source: FiatUnitSource.CoinDesk },
