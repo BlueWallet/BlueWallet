@@ -137,7 +137,7 @@
     "ask_yes": "Ja, habe ich.",
     "ok": "Ja, ich habe sie aufgeschrieben!",
     "ok_lnd": "Die Sicherung ist erstellt.",
-    "text": "Nimm Dir Zeit die mnemonischen Wörter zur späteren Wiederherstellung des Wallets auf ein Papier zu schreiben. Die Wörter sind dein einziges Backup im Fall eines Geräteverlustes.",
+    "text": "Nimm Dir Zeit die mnemonische Phrase zur späteren Wiederherstellung auf Papier zu schreiben. Die Wörter sind dein Backup im Fall eines Geräteverlustes.",
     "text_lnd": "Zur Wiederherstellung des Wallet im Verlustfall bitte dieses Wallet-Backup sichern. ",
     "text_lnd2": "Diese Wallet wird durch BlueWallet verwaltet.",
     "title": "Dein Wallet ist erstellt."
@@ -274,7 +274,9 @@
     "electrum_clear_alert_ok": "Ok",
     "electrum_select": "Auswählen",
     "electrum_reset": "Auf Standard zurücksetzen",
+    "electrum_unable_to_connect": "Verbindung zu {Server} kann nicht hergestellt werden.",
     "electrum_history": "Serverhistorie",
+    "electrum_reset_to_default": "Sollen die Electrum-Einstellungen wirklich auf die Standardwerte zurückgesetzt werden?",
     "electrum_clear": "Löschen",
     "encrypt_decrypt": "Speicher entschlüsseln",
     "encrypt_decrypt_q": "Willst du die Speicherverschlüsselung wirklich aufheben? Hiermit wird dein Wallet ohne Passwortschutz direkt benutzbar. ",
@@ -329,7 +331,7 @@
     "ask_me_later": "Später erneut fragen"
   },
   "transactions": {
-    "cancel_explain": "BlueWallet ersetzt diese Transaktion durch eine Transaktion mit höherer Gebühr, welche den Betrag an Dich zurücküberweist. Die Transaktion wird dadurch effektiv abgebrochen. Dies wird RBF genannt - Replace By Fee.",
+    "cancel_explain": "BlueWallet ersetzt diese Transaktion durch eine mit höherer Gebühr, welche den Betrag an Dich zurücküberweist. Die Transaktion wird dadurch effektiv abgebrochen. Dies wird RBF - Replace By Fee - genannt.",
     "cancel_no": "Diese Transaktion ist nicht ersetzbar.",
     "cancel_title": "Diese Transaktion abbrechen (RBF)",
     "confirmations_lowercase": "{confirmations} Bestätigungen",
@@ -349,7 +351,7 @@
     "details_inputs": "Eingänge",
     "details_outputs": "Ausgänge",
     "details_received": "Empfangen",
-    "transaction_note_saved":"Transaktionsbezeichnung erfolgreich gespeichert.",
+    "transaction_note_saved": "Transaktionsbezeichnung erfolgreich gespeichert.",
     "details_show_in_block_explorer": "Im Block-Explorer zeigen",
     "details_title": "Transaktion",
     "details_to": "Ausgehend",
@@ -363,7 +365,7 @@
     "status_bump": "TRX-Gebühr erhöhen",
     "status_cancel": "Transaktion abbrechen",
     "transactions_count": "Anzahl Transaktionen",
-    "txid": "TX-ID",
+    "txid": "Transaktions-ID",
     "updating": "Aktualisiere...."
   },
   "wallets": {
@@ -415,7 +417,7 @@
     "export_title": "Wallet exportieren",
     "import_do_import": "Importieren",
     "import_error": "Fehler beim Import. Ist die Eingabe korrekt?",
-    "import_explanation": "Gib hier die mnemonische Phrase, den privaten Schlüssel, WIF oder was immer Du hast ein. BlueWallet wird bestmöglich das Format interpretieren und die Wallet importieren. Bei Eingabe eines öffentlichen Schlüssels wird ein \"Watch-only\" Wallet hinzugefügt.",
+    "import_explanation": "Gib hier die mnemonische Phrase, den privaten Schlüssel, WIF oder was immer Du hast ein. BlueWallet wird bestmöglich das Format interpretieren und die Wallet importieren.",
     "import_file": "Datei importieren",
     "import_imported": "Importiert",
     "import_placeholder_fail": "Wallet importieren",
@@ -428,7 +430,7 @@
     "list_create_a_wallet_text": "Wallets sind kostenlos. \nErstelle so viel du magst.",
     "list_empty_txs1": "Deine Transaktionen erscheinen hier",
     "list_empty_txs1_lightning": "Verwende das Lightning Wallet für Deine täglichen Bezahlungen. Lightning Transaktionen sind konkurrenzlos günstig und verblüffend schnell.",
-    "list_empty_txs2": "Noch keine Transaktionen",
+    "list_empty_txs2": "Beginne mit deinem Wallet.",
     "list_empty_txs2_lightning": "\nDrücke zum Starten «Beträge verwalten», um das Wallet aufzuladen.",
     "list_header": "Eine Wallet beinhaltet ein Schlüsselpaar - einen privaten Schlüssel und einen öffentlichen, welcher veröffentlicht werden kann, um Zahlungen zu erhalten.",
     "list_import_error": "Beim Versuch, diese Wallet zu importieren, ist ein Fehler aufgetreten. ",
