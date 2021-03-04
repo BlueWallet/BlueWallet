@@ -11,7 +11,9 @@
  * @returns {Promise<AbstractWallet>}
  */
 module.exports = function (navigateFunc, currentScreenName, chainType, availableWallets, noWalletExplanationText = '') {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
+    if (!currentScreenName) reject(new Error('currentScreenName is not provided'));
+
     const params = {};
     if (chainType) params.chainType = chainType;
     if (availableWallets) params.availableWallets = availableWallets;
@@ -21,6 +23,7 @@ module.exports = function (navigateFunc, currentScreenName, chainType, available
       if (!selectedWallet) return;
 
       setTimeout(() => resolve(selectedWallet), 1);
+      console.warn('trying to navigate back to', currentScreenName);
       navigateFunc(currentScreenName);
     };
 

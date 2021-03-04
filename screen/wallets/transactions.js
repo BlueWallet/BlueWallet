@@ -40,7 +40,7 @@ import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-const selectWallet = require('../../blue_modules/select-wallet');
+const selectWallet = require('../../helpers/select-wallet');
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -51,7 +51,8 @@ const WalletTransactions = () => {
   const { wallets, saveToDisk, setSelectedWallet, walletTransactionUpdateStatus } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(false);
   const [isManageFundsModalVisible, setIsManageFundsModalVisible] = useState(false);
-  const { walletID, name } = useRoute().params;
+  const { walletID } = useRoute().params;
+  const { name } = useRoute();
   const wallet = wallets.find(w => w.getID() === walletID);
   const [itemPriceUnit, setItemPriceUnit] = useState(wallet.getPreferredBalanceUnit());
   const [isManageLndModalVisible, setIsManageLndModalVisible] = useState(false);

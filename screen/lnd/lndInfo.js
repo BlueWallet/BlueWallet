@@ -7,8 +7,8 @@ import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Chain } from '../../models/bitcoinUnits';
 
-const selectWallet = require('../../blue_modules/select-wallet');
-const confirm = require('../../blue_modules/confirm');
+const selectWallet = require('../../helpers/select-wallet');
+const confirm = require('../../helpers/confirm');
 
 const LndInfo = () => {
   const { walletID, isModal } = useRoute().params;
