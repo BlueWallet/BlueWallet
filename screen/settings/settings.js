@@ -24,15 +24,20 @@ const Settings = () => {
     <ScrollView style={styles.root}>
       <StatusBar barStyle="default" />
       <BlueHeaderDefaultSub leftText={loc.settings.header} />
-      <BlueListItem title={loc.settings.general} onPress={() => navigate('GeneralSettings')} chevron />
-      <BlueListItem title={loc.settings.currency} onPress={() => navigate('Currency')} chevron />
-      <BlueListItem title={loc.settings.language} onPress={() => navigate('Language')} chevron />
+      <BlueListItem title={loc.settings.general} onPress={() => navigate('GeneralSettings')} testID="GeneralSettings" chevron />
+      <BlueListItem title={loc.settings.currency} onPress={() => navigate('Currency')} testID="Currency" chevron />
+      <BlueListItem title={loc.settings.language} onPress={() => navigate('Language')} testID="Language" chevron />
       <BlueListItem title={loc.settings.encrypt_title} onPress={() => navigate('EncryptStorage')} testID="SecurityButton" chevron />
-      <BlueListItem title={loc.settings.network} onPress={() => navigate('NetworkSettings')} chevron />
+      <BlueListItem title={loc.settings.network} onPress={() => navigate('NetworkSettings')} testID="NetworkSettings" chevron />
       {Notifications.isNotificationsCapable && (
-        <BlueListItem title={loc.settings.notifications} onPress={() => navigate('NotificationSettings')} chevron />
+        <BlueListItem
+          title={loc.settings.notifications}
+          onPress={() => navigate('NotificationSettings')}
+          testID="NotificationSettings"
+          chevron
+        />
       )}
-      <BlueListItem title={loc.settings.privacy} onPress={() => navigate('SettingsPrivacy')} chevron />
+      <BlueListItem title={loc.settings.privacy} onPress={() => navigate('SettingsPrivacy')} testID="SettingsPrivacy" chevron />
       <BlueListItem title={loc.settings.about} onPress={() => navigate('About')} testID="AboutButton" chevron />
     </ScrollView>
   );
