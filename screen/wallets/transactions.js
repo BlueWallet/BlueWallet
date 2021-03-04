@@ -50,7 +50,8 @@ const WalletTransactions = () => {
   const { wallets, saveToDisk, setSelectedWallet, walletTransactionUpdateStatus } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(false);
   const [isManageFundsModalVisible, setIsManageFundsModalVisible] = useState(false);
-  const { walletID, name } = useRoute().params;
+  const { walletID } = useRoute().params;
+  const { name } = useRoute();
   const wallet = wallets.find(w => w.getID() === walletID);
   const [itemPriceUnit, setItemPriceUnit] = useState(wallet.getPreferredBalanceUnit());
   const [dataSource, setDataSource] = useState(wallet.getTransactions(15));
