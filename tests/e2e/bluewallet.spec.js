@@ -120,13 +120,15 @@ describe('BlueWallet UI Tests', () => {
     await device.pressBack();
 
     // notifications
-    // turn on notifications
-    await element(by.id('NotificationSettings')).tap();
-    await element(by.id('NotificationsSwitch')).tap();
-    await sup('OK');
-    await element(by.text('OK')).tap();
-    await element(by.id('NotificationsSwitch')).tap();
-    await device.pressBack();
+    // turn on notifications if available
+    if (await expectToBeVisible('NotificationSettings')) {
+      await element(by.id('NotificationSettings')).tap();
+      await element(by.id('NotificationsSwitch')).tap();
+      await sup('OK');
+      await element(by.text('OK')).tap();
+      await element(by.id('NotificationsSwitch')).tap();
+      await device.pressBack();
+    }
 
     // privacy
     // trigger switches
@@ -1114,3 +1116,12 @@ async function extractTextFromElementById(id) {
     }
   }
 }
+
+const expectToBeVisible = async id => {
+  try {
+    await expect(element(by.id(id))).toBeVisible();
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
