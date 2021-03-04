@@ -7,7 +7,7 @@ import DocumentPicker from 'react-native-document-picker';
 import isCatalyst from 'react-native-is-catalyst';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { presentCameraNotAuthorizedAlert } from '../class/camera';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import ActionSheet from '../screen/ActionSheet';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 

@@ -16,7 +16,7 @@ import {
   PermissionsAndroid,
   Alert,
 } from 'react-native';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';

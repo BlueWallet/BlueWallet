@@ -22,13 +22,12 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { isTablet } from 'react-native-device-info';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
+import { isCatalyst, isMacCatalina, isTablet } from '../../blue_modules/environment';
 
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
@@ -46,7 +45,7 @@ const WalletsList = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [itemWidth, setItemWidth] = useState(width * 0.82 > 375 ? 375 : width * 0.82);
   const [isLargeScreen, setIsLargeScreen] = useState(
-    Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && isTablet(),
+    Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isCatalyst),
   );
   const [carouselData, setCarouselData] = useState([]);
   const dataSource = getTransactions(null, 10);
@@ -433,7 +432,7 @@ const WalletsList = () => {
   };
 
   const onLayout = _e => {
-    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && isTablet());
+    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isCatalyst));
     setItemWidth(width * 0.82 > 375 ? 375 : width * 0.82);
   };
 
