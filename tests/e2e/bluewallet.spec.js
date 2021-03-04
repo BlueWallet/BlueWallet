@@ -575,8 +575,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
     await element(by.id('Marketplace')).tap();
     await expect(element(by.id('MarketplaceWebView'))).toBeVisible();
-    await device.pressBack();
-    await device.pressBack();
+    await element(by.id('NavigationCloseButton')).tap();
 
     // Broadcast
     await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
