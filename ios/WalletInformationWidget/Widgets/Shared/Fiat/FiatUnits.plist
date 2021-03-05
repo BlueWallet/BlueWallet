@@ -272,6 +272,14 @@
 	</dict>
 	<dict>
 		<key>endPointKey</key>
+		<string>TZS</string>
+		<key>symbol</key>
+		<string>TSh</string>
+		<key>locale</key>
+		<string>en-TZ</string>
+	</dict>
+	<dict>
+		<key>endPointKey</key>
 		<string>UAH</string>
 		<key>symbol</key>
 		<string>₴</string>

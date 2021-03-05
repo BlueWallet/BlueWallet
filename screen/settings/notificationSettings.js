@@ -98,7 +98,7 @@ const NotificationSettings = () => {
       <BlueListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.push_notifications}
-        switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabled }}
+        switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabled, testID: 'NotificationsSwitch' }}
       />
       <BlueSpacing20 />
 

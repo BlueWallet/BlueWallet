@@ -142,12 +142,13 @@ const LightningSettings = () => {
             autoCapitalize="none"
             autoCorrect={false}
             underlineColorAndroid="transparent"
+            testID="URIInput"
           />
         </View>
 
-        <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
+        <BlueButtonLink title={loc.wallets.import_scan_qr} testID="ImportScan" onPress={importScan} />
         <BlueSpacing20 />
-        {isLoading ? <BlueLoading /> : <BlueButton onPress={save} title={loc.settings.save} />}
+        {isLoading ? <BlueLoading /> : <BlueButton testID="Save" onPress={save} title={loc.settings.save} />}
       </BlueCard>
     </SafeBlueArea>
   );
