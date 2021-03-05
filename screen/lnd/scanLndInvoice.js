@@ -19,7 +19,6 @@ import { BlueButton, BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, S
 import navigationStyle from '../../components/navigationStyle';
 import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
-import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import Lnurl from '../../class/lnurl';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import Biometric from '../../class/biometrics';

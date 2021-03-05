@@ -477,7 +477,6 @@ const SendDetails = () => {
       navigation.navigate(routeParams.launchedBy, { psbt });
     }
 
-
     if (wallet.type === WatchOnlyWallet.type) {
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask

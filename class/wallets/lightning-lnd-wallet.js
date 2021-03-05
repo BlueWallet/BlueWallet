@@ -230,6 +230,7 @@ export class LightningLndWallet extends LightningCustodianWallet {
       newTx.fee = 0;
       newTx.received = -1;
       newTx.memo = 'Channel opening';
+      newTx.fromWallet = this.getSecret();
       ret.push(newTx);
     }
 
@@ -243,6 +244,7 @@ export class LightningLndWallet extends LightningCustodianWallet {
         newTx.payment_hash = payment.paymentHash;
         newTx.memo = this._paymentHash2Description[payment.paymentHash] || 'Lightning payment'; // since `payment.paymentRequest` is not always set and we dont have memo here
         newTx.type = 'paid_invoice';
+        newTx.fromWallet = this.getSecret();
       }
       ret.push(newTx);
     }
@@ -256,6 +258,7 @@ export class LightningLndWallet extends LightningCustodianWallet {
       newTx.received = -1; // means unknown
       newTx.memo = 'Opened channel';
       newTx.confirmations = 7; // we dont have this info
+      newTx.fromWallet = this.getSecret();
       ret.push(newTx);
     }
 
@@ -271,6 +274,7 @@ export class LightningLndWallet extends LightningCustodianWallet {
         memo: invoice.memo,
         timestamp: invoice.creationDate * 1000, // important
         expire_time: invoice.expiry * 1000, // important
+        fromWallet: this.getSecret(),
       };
 
       if (tx.ispaid || invoice.creationDate * 1000 + invoice.expiry * 1000 > +new Date()) {
@@ -287,6 +291,7 @@ export class LightningLndWallet extends LightningCustodianWallet {
       newTx.received = tranz.timeStamp * 1000;
       newTx.memo = 'On-chain transaction';
       newTx.confirmations = tranz.numConfirmations;
+      newTx.fromWallet = this.getSecret();
       if (tranz.amount) ret.push(newTx); // otherwise weird transactions get int he list
     }
 
