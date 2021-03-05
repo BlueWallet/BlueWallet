@@ -136,7 +136,7 @@
     "react-native-handoff": "git+https://github.com/marcosrdz/react-native-handoff.git#f5becc63f3e36bf2da1ed1fc60fc690323e73602",
     "react-native-haptic-feedback": "1.11.0",
     "react-native-idle-timer": "git+https://github.com/BlueWallet/react-native-idle-timer.git#8587876d68ab5920e79619726aeca9e672beaf2b",
-    "react-native-image-picker": "3.1.4",
+    "react-native-image-picker": "3.2.1",
     "react-native-inappbrowser-reborn": "git+https://github.com/BlueWallet/react-native-inappbrowser.git#fa2d8e1763e46dd12a7e53081e97a0f908049103",
     "react-native-is-catalyst": "git+https://github.com/BlueWallet/react-native-is-catalyst.git#v1.0.0",
     "react-native-level-fs": "3.0.1",
