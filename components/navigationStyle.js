@@ -21,7 +21,7 @@ const navigationStyle = ({ closeButton = false, closeButtonFunc, ...opts }, form
             navigation.goBack(null);
           };
       headerRight = () => (
-        <TouchableOpacity style={styles.button} onPress={handleClose}>
+        <TouchableOpacity style={styles.button} onPress={handleClose} testID="NavigationCloseButton">
           <Image source={theme.closeImage} />
         </TouchableOpacity>
       );

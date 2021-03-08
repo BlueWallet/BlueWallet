@@ -57,6 +57,7 @@ export default class Marketplace extends Component {
 
     return (
       <WebView
+        testID="MarketplaceWebView"
         ref={this.webview}
         onNavigationStateChange={this._onNavigationStateChange}
         source={{

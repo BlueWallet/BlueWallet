@@ -99,6 +99,7 @@ const IsItMyAddress = () => {
                 placeholderTextColor="#81868e"
                 value={address}
                 onChangeText={handleUpdateAddress}
+                testID="AddressInput"
               />
             </View>
 
@@ -107,9 +108,14 @@ const IsItMyAddress = () => {
             <BlueSpacing10 />
             <BlueButton title={loc.send.input_clear} onPress={clearAddressInput} />
             <BlueSpacing20 />
-            <BlueButton disabled={address.trim().length === 0} title={loc.is_it_my_address.check_address} onPress={checkAddress} />
+            <BlueButton
+              disabled={address.trim().length === 0}
+              title={loc.is_it_my_address.check_address}
+              onPress={checkAddress}
+              testID="CheckAddress"
+            />
             <BlueSpacing20 />
-            <BlueText>{result}</BlueText>
+            <BlueText testID="Result">{result}</BlueText>
           </BlueCard>
         </View>
       </KeyboardAvoidingView>

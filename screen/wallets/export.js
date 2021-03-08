@@ -94,7 +94,7 @@ const WalletExport = () => {
   ) : (
     <SafeBlueArea style={stylesHook.root}>
       <StatusBar barStyle="light-content" />
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <ScrollView contentContainerStyle={styles.scrollViewContent} testID="WalletExportScroll">
         <View>
           <BlueText style={stylesHook.type}>{wallet.current.typeReadable}</BlueText>
         </View>
@@ -126,7 +126,9 @@ const WalletExport = () => {
         {wallet.current.type === LightningCustodianWallet.type || wallet.current.type === WatchOnlyWallet.type ? (
           <BlueCopyTextToClipboard text={wallet.current.getSecret()} />
         ) : (
-          <BlueText style={stylesHook.secret}>{wallet.current.getSecret()}</BlueText>
+          <BlueText style={stylesHook.secret} testID="Secret">
+            {wallet.current.getSecret()}
+          </BlueText>
         )}
       </ScrollView>
     </SafeBlueArea>
