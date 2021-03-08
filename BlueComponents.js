@@ -361,6 +361,7 @@ export class BlueWalletNavigationHeader extends Component {
           }}
         />
         <Text
+          testID="WalletLabel"
           numberOfLines={1}
           style={{
             backgroundColor: 'transparent',

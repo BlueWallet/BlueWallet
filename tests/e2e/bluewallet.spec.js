@@ -661,6 +661,64 @@ describe('BlueWallet UI Tests', () => {
 
     // this is fully-signed tx, "this is tx hex" help text should appear
     await yo('DynamicCode');
+    await device.pressBack();
+    await device.pressBack();
+
+    // let's test wallet details screens
+    await element(by.id('WalletDetails')).tap();
+
+    // rename test
+    await element(by.id('WalletNameInput')).replaceText('testname\n');
+    await element(by.id('Save')).tap();
+    await sup('OK');
+    await element(by.text('OK')).tap();
+    await expect(element(by.id('WalletLabel'))).toHaveText('testname');
+    await element(by.id('WalletDetails')).tap();
+
+    // wallet export
+    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+    await element(by.id('WalletExport')).tap();
+    await element(by.id('WalletExportScroll')).swipe('up', 'fast', 1);
+    await expect(element(by.id('Secret'))).toHaveText(process.env.HD_MNEMONIC_BIP84);
+    await device.pressBack();
+
+    // XPUB
+    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+    await element(by.id('XPub')).tap();
+    await expect(element(by.id('BlueCopyTextToClipboard'))).toBeVisible();
+    await device.pressBack();
+
+    // Marketplace
+    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+    await element(by.id('Marketplace')).tap();
+    await expect(element(by.id('MarketplaceWebView'))).toBeVisible();
+    await element(by.id('NavigationCloseButton')).tap();
+
+    // Broadcast
+    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+    await element(by.id('Broadcast')).tap();
+    await expect(element(by.id('BroadcastView'))).toBeVisible();
+    await device.pressBack();
+
+    // IsItMyAddress
+    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+    await element(by.id('IsItMyAddress')).tap();
+    await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('CheckAddress')).tap();
+    await expect(element(by.id('Result'))).toHaveText('testname owns bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('AddressInput')).replaceText('invalid');
+    await element(by.id('CheckAddress')).tap();
+    await expect(element(by.id('Result'))).toHaveText('None of the available wallets own the provided address.');
+    await device.pressBack();
+
+    // Delete
+    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+    await element(by.id('DeleteButton')).tap();
+    await sup('Yes, delete');
+    await element(by.text('Yes, delete')).tap();
+    await element(by.type('android.widget.EditText')).typeText('105526');
+    await element(by.text('OK')).tap();
+    await expect(element(by.id('NoTransactionsMessage'))).toBeVisible();
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
