@@ -28,31 +28,36 @@ struct Provider: TimelineProvider {
   
   func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
     var entries: [SimpleEntry] = []
-    
-    if WidgetAPI.getUserPreferredCurrency() != WidgetAPI.getLastSelectedCurrency() {
-      marketData[.Current] = nil
-      marketData[.Previous] = nil
-      WidgetAPI.saveNewSelectedCurrency()
-    }
-    
-    var entryMarketData = marketData[.Current] ?? emptyMarketData
-    WidgetAPI.fetchPrice(currency: WidgetAPI.getUserPreferredCurrency()) { (data, error) in
-      if let data = data, let formattedRate = data.formattedRate {
-        let currentMarketData = MarketData(nextBlock: "", sats: "", price: formattedRate, rate: data.rateDouble, dateString: data.lastUpdate)
-        if let cachedMarketData = marketData[.Current], currentMarketData.dateString != cachedMarketData?.dateString {
-          marketData[.Previous] = marketData[.Current]
-          marketData[.Current] = currentMarketData
-          entryMarketData = currentMarketData
-          entries.append(SimpleEntry(date:Date(), currentMarketData: entryMarketData))
-        } else {
-          entries.append(SimpleEntry(date:Date(), currentMarketData: currentMarketData))
-        }
-      }
-      
+    if (context.isPreview) {
+      let entry = SimpleEntry(date: Date(), currentMarketData: MarketData(nextBlock: "", sats: "", price: "$10,000", rate: 10000, dateString: "2019-09-18T17:27:00+00:00"))
+      entries.append(entry)
       let timeline = Timeline(entries: entries, policy: .atEnd)
       completion(timeline)
+    } else {
+      if WidgetAPI.getUserPreferredCurrency() != WidgetAPI.getLastSelectedCurrency() {
+        marketData[.Current] = nil
+        marketData[.Previous] = nil
+        WidgetAPI.saveNewSelectedCurrency()
+      }
+      
+      var entryMarketData = marketData[.Current] ?? emptyMarketData
+      WidgetAPI.fetchPrice(currency: WidgetAPI.getUserPreferredCurrency()) { (data, error) in
+        if let data = data, let formattedRate = data.formattedRate {
+          let currentMarketData = MarketData(nextBlock: "", sats: "", price: formattedRate, rate: data.rateDouble, dateString: data.lastUpdate)
+          if let cachedMarketData = marketData[.Current], currentMarketData.dateString != cachedMarketData?.dateString {
+            marketData[.Previous] = marketData[.Current]
+            marketData[.Current] = currentMarketData
+            entryMarketData = currentMarketData
+            entries.append(SimpleEntry(date:Date(), currentMarketData: entryMarketData))
+          } else {
+            entries.append(SimpleEntry(date:Date(), currentMarketData: currentMarketData))
+          }
+        }
+        
+        let timeline = Timeline(entries: entries, policy: .atEnd)
+        completion(timeline)
+      }
     }
-    
   }
 }
 
