@@ -63,7 +63,7 @@ const SendDetails = () => {
   const [width, setWidth] = useState(Dimensions.get('window').width);
   const [isLoading, setIsLoading] = useState(true);
   const [wallet, setWallet] = useState(null);
-  const [walletSelectionOrCoinsSelectedHidden, setWalletSelectionOrCoinsSelectedHidden] = useState(true);
+  const [walletSelectionOrCoinsSelectedHidden, setWalletSelectionOrCoinsSelectedHidden] = useState(false);
   const [isAmountToolbarVisibleForAndroid, setIsAmountToolbarVisibleForAndroid] = useState(true);
   const [isFeeSelectionModalVisible, setIsFeeSelectionModalVisible] = useState(false);
   const [optionsVisible, setOptionsVisible] = useState(false);
@@ -1128,9 +1128,7 @@ const SendDetails = () => {
   };
 
   const renderWalletSelectionOrCoinsSelected = () => {
-    if (routeParams.hideWalletSelector) return;
-    if (walletSelectionOrCoinsSelectedHidden) return;
-
+    if (routeParams.hideWalletSelector || walletSelectionOrCoinsSelectedHidden) return null;
     if (utxo !== null) {
       return (
         <View style={styles.select}>
