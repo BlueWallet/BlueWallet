@@ -26,20 +26,27 @@ struct Provider: TimelineProvider {
   
   func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
     var entries: [SimpleEntry] = []
-    let userPreferredCurrency = WidgetAPI.getUserPreferredCurrency();
-    let marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
-    WidgetAPI.fetchMarketData(currency: userPreferredCurrency, completion: { (result, error) in
-      let entry: SimpleEntry
-      if let result = result {
-        entry = SimpleEntry(date: Date(), marketData: result)
-        
-      } else {
-        entry = SimpleEntry(date: Date(), marketData: marketDataEntry)
-      }
+    if context.isPreview {
+      let entry = SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
       entries.append(entry)
       let timeline = Timeline(entries: entries, policy: .atEnd)
       completion(timeline)
-    })
+    }else {
+      let userPreferredCurrency = WidgetAPI.getUserPreferredCurrency();
+      let marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
+      WidgetAPI.fetchMarketData(currency: userPreferredCurrency, completion: { (result, error) in
+        let entry: SimpleEntry
+        if let result = result {
+          entry = SimpleEntry(date: Date(), marketData: result)
+          
+        } else {
+          entry = SimpleEntry(date: Date(), marketData: marketDataEntry)
+        }
+        entries.append(entry)
+        let timeline = Timeline(entries: entries, policy: .atEnd)
+        completion(timeline)
+      })
+    }
   }
 }
 
