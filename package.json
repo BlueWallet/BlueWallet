@@ -94,6 +94,7 @@
     "bip32": "2.0.6",
     "bip39": "2.6.0",
     "bitcoinjs-lib": "5.2.0",
+    "bitcoinjs-message": "2.2.0",
     "bolt11": "1.2.7",
     "buffer": "6.0.3",
     "buffer-reverse": "1.0.1",

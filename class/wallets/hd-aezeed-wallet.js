@@ -160,4 +160,8 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
   allowPayJoin() {
     return true;
   }
+
+  allowSignVerifyMessage() {
+    return true;
+  }
 }

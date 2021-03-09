@@ -25,6 +25,10 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     return true;
   }
 
+  allowSignVerifyMessage() {
+    return true;
+  }
+
   /**
    * Get internal/external WIF by wallet index
    * @param {Boolean} internal

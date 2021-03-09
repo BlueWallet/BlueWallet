@@ -84,4 +84,24 @@ describe('HDAezeedWallet', () => {
       aezeed._getNodePubkeyByIndex(1, 1).toString('hex'),
     );
   });
+
+  it('can sign and verify messages', async () => {
+    const aezeed = new HDAezeedWallet();
+    aezeed.setSecret(
+      'abstract rhythm weird food attract treat mosquito sight royal actor surround ride strike remove guilt catch filter summer mushroom protect poverty cruel chaos pattern',
+    );
+    assert.ok(await aezeed.validateMnemonicAsync());
+    assert.ok(!(await aezeed.mnemonicInvalidPassword()));
+    let signature;
+
+    // external address
+    signature = aezeed.signMessage('vires is numeris', 'bc1qdjj7lhj9lnjye7xq3dzv3r4z0cta294xy78txn');
+    assert.strictEqual(signature, 'J9zF7mdGGdc/9HMlvor6Zl7ap1qseQpiBDJ4oaSpkzbQGGhdfkM6LHo6m9BV8o/BlqiQI1vuODaNlBFyeyIWgfE=');
+    assert.strictEqual(aezeed.verifyMessage('vires is numeris', 'bc1qdjj7lhj9lnjye7xq3dzv3r4z0cta294xy78txn', signature), true);
+
+    // internal address
+    signature = aezeed.signMessage('vires is numeris', 'bc1qzyjq8sjj56n8v9fgw5klsc8sq8yuy0jx03hzzp');
+    assert.strictEqual(signature, 'KIda06aSswmo9NiAYNUBRADA9q1v39raSmHHVg56+thtah5xL7hVw/x+cZgydFNyel2bXfyGluJRaP1uRQfJtzo=');
+    assert.strictEqual(aezeed.verifyMessage('vires is numeris', 'bc1qzyjq8sjj56n8v9fgw5klsc8sq8yuy0jx03hzzp', signature), true);
+  });
 });

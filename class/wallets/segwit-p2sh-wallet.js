@@ -141,4 +141,8 @@ export class SegwitP2SHWallet extends LegacyWallet {
   allowSendMax() {
     return true;
   }
+
+  allowSignVerifyMessage() {
+    return true;
+  }
 }
