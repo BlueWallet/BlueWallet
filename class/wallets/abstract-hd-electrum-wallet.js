@@ -1,6 +1,8 @@
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
+import bitcoinMessage from 'bitcoinjs-message';
+
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 const bitcoin = require('bitcoinjs-lib');
@@ -818,6 +820,16 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return false;
   }
 
+  _getIndexByAddress(address) {
+    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+      if (this._getExternalAddressByIndex(c) === address) return { internal: false, index: c };
+    }
+    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+      if (this._getInternalAddressByIndex(c) === address) return { internal: true, index: c };
+    }
+    return null;
+  }
+
   weOwnAddress(address) {
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       if (this._getExternalAddressByIndex(c) === address) return true;
@@ -1094,5 +1106,27 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     return { tx };
+  }
+
+  signMessage(message, address) {
+    const search = this._getIndexByAddress(address);
+    if (search === null) throw new Error('Invalid address');
+
+    let options;
+    switch (this.type) {
+      case 'HDsegwitBech32':
+      case 'HDAezeedWallet':
+        options = { segwitType: 'p2wpkh' };
+        break;
+      case 'HDsegwitP2SH':
+        options = { segwitType: 'p2sh(p2wpkh)' };
+        break;
+    }
+
+    const wif = this._getWIFByIndex(search.internal, search.index);
+    const keyPair = bitcoin.ECPair.fromWIF(wif);
+    const privateKey = keyPair.privateKey;
+    const signature = bitcoinMessage.sign(message, privateKey, keyPair.compressed, options);
+    return signature.toString('base64');
   }
 }

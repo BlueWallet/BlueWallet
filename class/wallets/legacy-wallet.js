@@ -1,7 +1,8 @@
+import BigNumber from 'bignumber.js';
+import bitcoinMessage from 'bitcoinjs-message';
 import { randomBytes } from '../rng';
 import { AbstractWallet } from './abstract-wallet';
 import { HDSegwitBech32Wallet } from '..';
-import BigNumber from 'bignumber.js';
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const coinSelectAccumulative = require('coinselect/accumulative');
@@ -479,6 +480,10 @@ export class LegacyWallet extends AbstractWallet {
     return true;
   }
 
+  allowSignVerifyMessage() {
+    return true;
+  }
+
   /**
    * Check if address is a Change address. Needed for Coin control.
    * Useless for Legacy wallets, so it is always false
@@ -488,5 +493,27 @@ export class LegacyWallet extends AbstractWallet {
    */
   addressIsChange(address) {
     return false;
+  }
+
+  signMessage(message) {
+    let options;
+    switch (this.type) {
+      case 'segwitBech32':
+        options = { segwitType: 'p2wpkh' };
+        break;
+      case 'segwitP2SH':
+        options = { segwitType: 'p2sh(p2wpkh)' };
+        break;
+    }
+
+    const keyPair = bitcoin.ECPair.fromWIF(this.secret);
+    const privateKey = keyPair.privateKey;
+    const signature = bitcoinMessage.sign(message, privateKey, keyPair.compressed, options);
+    return signature.toString('base64');
+  }
+
+  verifyMessage(message, address, signature) {
+    // null, true so it can verify Electrum signatores without errors
+    return bitcoinMessage.verify(message, address, signature, null, true);
   }
 }
