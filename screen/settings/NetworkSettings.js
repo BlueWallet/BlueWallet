@@ -31,9 +31,9 @@ const NetworkSettings = () => {
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <ScrollView>
-        <BlueListItem title={loc.settings.network_electrum} onPress={navigateToElectrumSettings} chevron />
-        <BlueListItem title={loc.settings.lightning_settings} onPress={navigateToLightningSettings} chevron />
-        <BlueListItem title={loc.settings.network_broadcast} onPress={navigateToBroadcast} chevron />
+        <BlueListItem title={loc.settings.network_electrum} onPress={navigateToElectrumSettings} testID="ElectrumSettings" chevron />
+        <BlueListItem title={loc.settings.lightning_settings} onPress={navigateToLightningSettings} testID="LightningSettings" chevron />
+        <BlueListItem title={loc.settings.network_broadcast} onPress={navigateToBroadcast} testID="Broadcast" chevron />
       </ScrollView>
     </SafeBlueArea>
   );

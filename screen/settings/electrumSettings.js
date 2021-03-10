@@ -234,7 +234,7 @@ export default class ElectrumSettings extends Component {
           <BlueCard>
             <View style={styles.serverAddTitle}>
               <BlueText style={styles.explain}>{loc.settings.electrum_settings_explain}</BlueText>
-              <TouchableOpacity onPress={() => this.resetToDefault()}>
+              <TouchableOpacity testID="ResetToDefault" onPress={() => this.resetToDefault()}>
                 <BlueText>{loc.settings.electrum_reset}</BlueText>
               </TouchableOpacity>
             </View>
@@ -252,6 +252,7 @@ export default class ElectrumSettings extends Component {
                 autoCorrect={false}
                 autoCapitalize="none"
                 underlineColorAndroid="transparent"
+                testID="HostInput"
               />
             </View>
             <BlueSpacing20 />
@@ -267,6 +268,7 @@ export default class ElectrumSettings extends Component {
                 underlineColorAndroid="transparent"
                 autoCorrect={false}
                 autoCapitalize="none"
+                testID="PortInput"
               />
             </View>
             <BlueSpacing20 />
@@ -282,12 +284,13 @@ export default class ElectrumSettings extends Component {
                 placeholderTextColor="#81868e"
                 autoCapitalize="none"
                 underlineColorAndroid="transparent"
+                testID="SSLPortInput"
               />
             </View>
             <BlueSpacing20 />
             <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={this.importScan} />
             <BlueSpacing20 />
-            {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
+            {this.state.isLoading ? <BlueLoading /> : <BlueButton testID="Save" onPress={this.save} title={loc.settings.save} />}
           </BlueCard>
           {serverHistoryItems.length > 0 && !this.state.isLoading && (
             <BlueCard>

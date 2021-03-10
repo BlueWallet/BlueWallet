@@ -3,6 +3,7 @@ import React, { useContext, useRef, useState, useCallback, useEffect } from 'rea
 import {
   ActivityIndicator,
   Alert,
+  findNodeHandle,
   FlatList,
   InteractionManager,
   Keyboard,
@@ -49,6 +50,7 @@ const ViewEditMultisigCosigners = () => {
   const { wallets, setWalletsWithNewOrder, setIsDrawerListBlurred } = useContext(BlueStorageContext);
   const { navigate, dispatch, goBack, addListener } = useNavigation();
   const route = useRoute();
+  const openScannerButtonRef = useRef();
   const { walletId } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletId));
   const tempWallet = useRef(new MultisigHDWallet());
@@ -473,7 +475,7 @@ const ViewEditMultisigCosigners = () => {
 
   const scanOrOpenFile = () => {
     if (isMacCatalina) {
-      fs.showActionSheet().then(result => {
+      fs.showActionSheet({ anchor: findNodeHandle(openScannerButtonRef.current) }).then(result => {
         // Triggers FlatList re-render
         setImportText(result);
         //
@@ -525,7 +527,7 @@ const ViewEditMultisigCosigners = () => {
                 onPress={handleUseMnemonicPhrase}
               />
             )}
-            <BlueButtonLink disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+            <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
         </KeyboardAvoidingView>
       </BottomModal>

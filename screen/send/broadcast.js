@@ -120,7 +120,7 @@ const Broadcast = () => {
         behavior={Platform.OS === 'ios' ? 'position' : null}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.wrapper}>
+        <View style={styles.wrapper} testID="BroadcastView">
           {BROADCAST_RESULT.success !== broadcastResult && (
             <BlueCard style={styles.mainCard}>
               <View style={styles.topFormRow}>
@@ -140,6 +140,7 @@ const Broadcast = () => {
                   placeholderTextColor="#81868e"
                   value={txHex}
                   onChangeText={handleUpdateTxHex}
+                  testID="TxHex"
                 />
               </View>
               <BlueSpacing20 />
@@ -151,6 +152,7 @@ const Broadcast = () => {
                 title={loc.send.broadcastButton}
                 onPress={handleBroadcast}
                 disabled={broadcastResult === BROADCAST_RESULT.pending}
+                testID="BroadcastButton"
               />
               <BlueSpacing20 />
             </BlueCard>
