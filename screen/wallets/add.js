@@ -40,6 +40,7 @@ import { Chain } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const A = require('../../blue_modules/analytics');
+const confirm = require('../../helpers/confirm');
 
 const ButtonSelected = Object.freeze({
   ONCHAIN: Chain.ONCHAIN,
@@ -50,7 +51,7 @@ const ButtonSelected = Object.freeze({
 
 const WalletsAdd = () => {
   const { colors } = useTheme();
-  const { addWallet, saveToDisk, isAdancedModeEnabled } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk, isAdancedModeEnabled, wallets } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
   const [walletBaseURI, setWalletBaseURI] = useState();
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -168,6 +169,10 @@ const WalletsAdd = () => {
   };
 
   const createLightningLndWallet = async wallet => {
+    const foundLnd = wallets.find(w => w.type === LightningLndWallet.type);
+    if (foundLnd) {
+      return alert('LND wallet already exists');
+    }
     setIsLoading(true);
     wallet = new LightningLndWallet();
     wallet.setLabel(label || loc.wallets.details_title);
@@ -176,7 +181,11 @@ const WalletsAdd = () => {
       await wallet.generateAsync();
     } catch (Err) {
       console.warn('lnd create failure', Err);
-      return alert(Err);
+      if (await confirm('Wipe .lnd dir?', Err.message)) {
+        const lnd = new LightningLndWallet();
+        await lnd.wipeLndDir();
+      }
+      return;
       // giving app, not adding anything
     } finally {
       setIsLoading(false);
