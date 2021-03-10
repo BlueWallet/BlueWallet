@@ -422,7 +422,7 @@ const WalletTransactions = () => {
         params: {
           memo: loc.lnd.refill_lnd_balance,
           address: toAddress,
-          fromWallet: selectedWallet,
+          walletID: selectedWallet.getID(),
         },
       });
     }
@@ -431,7 +431,7 @@ const WalletTransactions = () => {
     navigate('SendDetailsRoot', {
       screen: 'SendDetails',
       params: {
-        fromWallet: wallet,
+        walletID: wallet.getID(),
       },
     });
   };
@@ -444,7 +444,6 @@ const WalletTransactions = () => {
       const params = {
         walletID: wallet.getID(),
         uri: ret.data ? ret.data : ret,
-        fromWallet: wallet,
       };
       if (wallet.chain === Chain.ONCHAIN) {
         navigate('SendDetailsRoot', { screen: 'SendDetails', params });

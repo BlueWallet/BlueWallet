@@ -55,7 +55,7 @@ const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 const SendDetails = () => {
   const { wallets, setSelectedWallet, sleep, txMetadata, saveToDisk } = useContext(BlueStorageContext);
   const navigation = useNavigation();
-  const { name, params: routeParams } = useRoute(); // FIXME refactor to use walletID
+  const { name, params: routeParams } = useRoute();
   const scrollView = useRef();
   const { colors } = useTheme();
 
@@ -126,7 +126,7 @@ const SendDetails = () => {
       navigation.goBack();
       return;
     }
-    const wallet = routeParams.fromWallet || suitable[0];
+    const wallet = (routeParams.walletID && wallets.find(w => w.getID() === routeParams.walletID)) || suitable[0];
     setWallet(wallet);
     setFeeUnit(wallet.getPreferredBalanceUnit());
     setAmountUnit(wallet.preferredBalanceUnit); // default for whole screen
@@ -778,7 +778,7 @@ const SendDetails = () => {
   const handleCoinControl = () => {
     setOptionsVisible(false);
     navigation.navigate('CoinControl', {
-      walletId: wallet.getID(),
+      walletID: wallet.getID(),
       onUTXOChoose: utxo => setUtxo(utxo),
     });
   };
