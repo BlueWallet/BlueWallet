@@ -533,6 +533,7 @@ const WalletDetails = () => {
               {(wallet.type === HDLegacyBreadwalletWallet.type ||
                 wallet.type === HDLegacyP2PKHWallet.type ||
                 wallet.type === HDSegwitBech32Wallet.type ||
+                wallet.type === HDAezeedWallet.type ||
                 wallet.type === HDSegwitP2SHWallet.type) && (
                 <>
                   <SecondButton onPress={navigateToXPub} testID="XPub" title={loc.wallets.details_show_xpub} />
