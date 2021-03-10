@@ -47,7 +47,6 @@ class DeeplinkSchemaMatch {
       if (context.wallets.length >= 0) {
         const wallet = context.wallets[0];
         const action = event.url.split('widget?action=')[1];
-        const secret = wallet.getSecret();
         if (wallet.chain === Chain.ONCHAIN) {
           if (action === 'openSend') {
             completionHandler([
@@ -55,7 +54,7 @@ class DeeplinkSchemaMatch {
               {
                 screen: 'SendDetails',
                 params: {
-                  secret,
+                  walletID: wallet.getID(),
                 },
               },
             ]);
@@ -322,7 +321,7 @@ class DeeplinkSchemaMatch {
           screen: 'SendDetails',
           params: {
             uri: uri.bitcoin,
-            fromWallet: wallet,
+            walletID: wallet.getID(),
           },
         },
       ];
