@@ -2,7 +2,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, StatusBar, ScrollView, BackHandler, StyleSheet, FlatList } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { BlueLoading, SafeBlueArea, BlueButton } from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueButton, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Chain } from '../../models/bitcoinUnits';
@@ -200,7 +200,7 @@ const LndInfo = () => {
     }
 
     return (
-      <View style={styles.root}>
+      <ScrollView style={styles.root}>
         {wBalance && wBalance.confirmedBalance && (
           <BlueButton onPress={claimBalance} title={'Claim balance ' + wBalance.confirmedBalance + ' sat'} />
         )}
@@ -216,9 +216,9 @@ const LndInfo = () => {
           {getInfo.syncedToChain ? 'synced to chain' : 'not synced to chain'} ({getInfo.blockHeight})
         </Text>
         <Text>{getInfo.syncedToGraph ? 'synced to graph' : 'not synced to graph'}</Text>
-        <Text>{info}</Text>
+        <BlueText>{info}</BlueText>
         <BlueButton onPress={showLogs} title="Show logs" />
-      </View>
+      </ScrollView>
     );
   };
 

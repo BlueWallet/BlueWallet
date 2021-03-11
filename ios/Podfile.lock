@@ -368,7 +368,7 @@ PODS:
     - React
   - RNInAppBrowser (3.5.1):
     - React-Core
-  - RNLocalize (2.0.1):
+  - RNLocalize (2.0.2):
     - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
@@ -740,7 +740,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 5e58135436aacc1c5d29b75547d3d2b9430d052c
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNInAppBrowser: 3733c1aa6699983a1c9b4963e85d5e5a48ad297e
-  RNLocalize: dcf0fdb332b37b0d24178e876a7ce4dbbc9c838d
+  RNLocalize: 47e22ef8c36df1d572e42a87c8ae22e3fcf551dd
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 2b31dad120cd1b78e33c6034808561c386a3dddf
