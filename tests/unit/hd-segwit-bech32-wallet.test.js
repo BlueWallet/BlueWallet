@@ -112,25 +112,25 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     let signature;
 
     // external address
-    signature = hd.signMessage('vires is numeris', 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu');
+    signature = hd.signMessage('vires is numeris', hd._getExternalAddressByIndex(0));
     assert.strictEqual(signature, 'KGW4FfrptS9zV3UptUWxbEf65GhC2mCUz86G0GpN/H4MUC29Y5TsRhWGIqG2lettEpZXZETuc2yL+O7/UvDhxhM=');
-    assert.strictEqual(hd.verifyMessage('vires is numeris', 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', signature), true);
+    assert.strictEqual(hd.verifyMessage('vires is numeris', hd._getExternalAddressByIndex(0), signature), true);
 
     // internal address
-    signature = hd.signMessage('vires is numeris', 'bc1q8c6fshw2dlwun7ekn9qwf37cu2rn755upcp6el');
+    signature = hd.signMessage('vires is numeris', hd._getInternalAddressByIndex(0));
     assert.strictEqual(signature, 'KJ5B9JkZ042FhtGeObU/MxLCzQWHbrpXNQxhfJj9wMboa/icLIIaAlsKaSkS27fZLvX3WH0qyj3aAaXscnWsfSw=');
-    assert.strictEqual(hd.verifyMessage('vires is numeris', 'bc1q8c6fshw2dlwun7ekn9qwf37cu2rn755upcp6el', signature), true);
+    assert.strictEqual(hd.verifyMessage('vires is numeris', hd._getInternalAddressByIndex(0), signature), true);
 
     // multiline message
-    signature = hd.signMessage('vires\nis\nnumeris', 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu');
+    signature = hd.signMessage('vires\nis\nnumeris', hd._getExternalAddressByIndex(0));
     assert.strictEqual(signature, 'KFI22tlJVGq2HGQM5rcBtYu+Jq8oc7QyjSBP1ZQup3a/GEw1Khu2qFbL/iLzqw95wN22a/Tll1oMLdWxg9cWMYM=');
-    assert.strictEqual(hd.verifyMessage('vires\nis\nnumeris', 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', signature), true);
+    assert.strictEqual(hd.verifyMessage('vires\nis\nnumeris', hd._getExternalAddressByIndex(0), signature), true);
 
     // can't sign if address doesn't belong to wallet
     assert.throws(() => hd.signMessage('vires is numeris', '186FBQmCV5W1xY7ywaWtTZPAQNciVN8Por'));
 
     // can't verify wrong signature
-    assert.throws(() => hd.verifyMessage('vires is numeris', 'bc1q8c6fshw2dlwun7ekn9qwf37cu2rn755upcp6el', 'wrong signature'));
+    assert.throws(() => hd.verifyMessage('vires is numeris', hd._getInternalAddressByIndex(0), 'wrong signature'));
 
     // can verify electrum message signature
     // bech32 segwit (p2wpkh)

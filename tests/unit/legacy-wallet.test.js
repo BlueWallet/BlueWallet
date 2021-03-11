@@ -73,8 +73,8 @@ describe('Legacy wallet', () => {
     const l = new LegacyWallet();
     l.setSecret('L4rK1yDtCWekvXuE6oXD9jCYfFNV2cWRpVuPLBcCU2z8TrisoyY1'); // from bitcoinjs-message examples
 
-    const signature = l.signMessage('This is an example of a signed message.');
+    const signature = l.signMessage('This is an example of a signed message.', l.getAddress());
     assert.strictEqual(signature, 'H9L5yLFjti0QTHhPyFrZCT1V/MMnBtXKmoiKDZ78NDBjERki6ZTQZdSMCtkgoNmp17By9ItJr8o7ChX0XxY91nk=');
-    assert.strictEqual(l.verifyMessage('This is an example of a signed message.', '1F3sAm6ZtwLAUnj7d38pGFxtP3RVEvtsbV', signature), true);
+    assert.strictEqual(l.verifyMessage('This is an example of a signed message.', l.getAddress(), signature), true);
   });
 });

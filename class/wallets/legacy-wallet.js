@@ -495,23 +495,41 @@ export class LegacyWallet extends AbstractWallet {
     return false;
   }
 
-  signMessage(message) {
-    let options;
-    switch (this.type) {
-      case 'segwitBech32':
-        options = { segwitType: 'p2wpkh' };
-        break;
-      case 'segwitP2SH':
-        options = { segwitType: 'p2sh(p2wpkh)' };
-        break;
-    }
+  /**
+   * Finds WIF corresponding to address and returns it
+   *
+   * @param address {string} Address that belongs to this wallet
+   * @returns {string|false} WIF or false
+   */
+  _getWIFbyAddress(address) {
+    return this.getAddress() === address ? this.secret : null;
+  }
 
-    const keyPair = bitcoin.ECPair.fromWIF(this.secret);
+  /**
+   * Signes text message using address private key and returs signature
+   *
+   * @param message {string}
+   * @param address {string}
+   * @returns {string} base64 encoded signature
+   */
+  signMessage(message, address) {
+    const wif = this._getWIFbyAddress(address);
+    if (wif === null) throw new Error('Invalid address');
+    const keyPair = bitcoin.ECPair.fromWIF(wif);
     const privateKey = keyPair.privateKey;
+    const options = this.segwitType ? { segwitType: this.segwitType } : undefined;
     const signature = bitcoinMessage.sign(message, privateKey, keyPair.compressed, options);
     return signature.toString('base64');
   }
 
+  /**
+   * Verifies text message signature by address
+   *
+   * @param message {string}
+   * @param address {string}
+   * @param signature {string}
+   * @returns {boolean} base64 encoded signature
+   */
   verifyMessage(message, address, signature) {
     // null, true so it can verify Electrum signatores without errors
     return bitcoinMessage.verify(message, address, signature, null, true);

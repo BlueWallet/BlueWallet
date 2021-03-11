@@ -173,13 +173,13 @@ describe('P2SH Segwit HD (BIP49)', () => {
     let signature;
 
     // external address
-    signature = hd.signMessage('vires is numeris', '37VucYSaXLCAsxYyAPfbSi9eh4iEcbShgf');
+    signature = hd.signMessage('vires is numeris', hd._getExternalAddressByIndex(0));
     assert.strictEqual(signature, 'JMgoRSlLLLw6mw/Gbbg8Uj3fACkIJ85CZ52T5ZQfBnpUBkz0myRju6Rmgvmq7ugytc4WyYbzdGEc3wufNbjP09g=');
-    assert.strictEqual(hd.verifyMessage('vires is numeris', '37VucYSaXLCAsxYyAPfbSi9eh4iEcbShgf', signature), true);
+    assert.strictEqual(hd.verifyMessage('vires is numeris', hd._getExternalAddressByIndex(0), signature), true);
 
     // internal address
-    signature = hd.signMessage('vires is numeris', '34K56kSjgUCUSD8GTtuF7c9Zzwokbs6uZ7');
+    signature = hd.signMessage('vires is numeris', hd._getInternalAddressByIndex(0));
     assert.strictEqual(signature, 'I5WkniWTnJhTW74t3kTAkHq3HdiupTNgOZLpMp0hvUfAJw2HMuyRiNLl2pbNWobNCCrmvffSWM7IgkOBz/J9fYA=');
-    assert.strictEqual(hd.verifyMessage('vires is numeris', '34K56kSjgUCUSD8GTtuF7c9Zzwokbs6uZ7', signature), true);
+    assert.strictEqual(hd.verifyMessage('vires is numeris', hd._getInternalAddressByIndex(0), signature), true);
   });
 });
