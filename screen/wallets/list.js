@@ -28,6 +28,7 @@ import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-naviga
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isCatalyst, isMacCatalina, isTablet } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
+import navigationStyle from '../../components/navigationStyle';
 
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
@@ -466,6 +467,7 @@ const WalletsList = () => {
 };
 
 export default WalletsList;
+WalletsList.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: '' }));
 
 const styles = StyleSheet.create({
   root: {
