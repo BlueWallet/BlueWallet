@@ -1508,7 +1508,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
       actions.push(
         {
           id: 'copyTX_ID',
-          text: loc.transactions.transaction_id,
+          text: loc.transactions.txid,
           onPress: handleOnCopyTransactionID,
         },
         {
