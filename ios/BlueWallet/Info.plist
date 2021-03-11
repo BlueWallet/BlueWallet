@@ -139,10 +139,14 @@
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
+				<key>NSAllowsLocalNetworking</key>
+				<true/>
 			</dict>
 			<key>localhost</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSAllowsLocalNetworking</key>
 				<true/>
 			</dict>
 		</dict>
