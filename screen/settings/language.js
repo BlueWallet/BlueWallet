@@ -1,3 +1,4 @@
+/* global alert */
 import React, { useState, useEffect, useContext } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
@@ -37,10 +38,16 @@ const Language = () => {
   const renderItem = item => {
     return (
       <BlueListItem
-        onPress={async () => {
-          await loc.saveLanguage(item.item.value);
-          setSelectedLanguage(item.item.value);
-          setLanguage();
+        onPress={() => {
+          const currentLanguage = AvailableLanguages.find(language => language.value === selectedLanguage);
+          if (currentLanguage.isRTL || item.item.isRTL) {
+            alert(loc.settings.language_isRTL);
+          }
+
+          loc.saveLanguage(item.item.value).then(() => {
+            setSelectedLanguage(item.item.value);
+            setLanguage();
+          });
         }}
         title={item.item.label}
         checkmark={selectedLanguage === item.item.value}

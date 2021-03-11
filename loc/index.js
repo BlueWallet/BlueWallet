@@ -9,6 +9,7 @@ import BigNumber from 'bignumber.js';
 import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages } from './languages';
+import { I18nManager } from 'react-native';
 const currency = require('../blue_modules/currency');
 
 dayjs.extend(relativeTime);
@@ -130,8 +131,15 @@ const setDateTimeLocale = async () => {
   }
   if (localeForDayJSAvailable) {
     dayjs.locale(lang.split('_')[0]);
+    const language = AvailableLanguages.find(language => language.value === lang.replace('_', '-'));
+    if (language?.isRTL) {
+      I18nManager.forceRTL(true);
+    } else {
+      I18nManager.forceRTL(false);
+    }
   } else {
     dayjs.locale('en');
+    I18nManager.forceRTL(false);
   }
 };
 
@@ -150,6 +158,7 @@ const setLanguageLocale = async () => {
     } else {
       strings.saveLanguage('en');
       strings.setLanguage('en');
+      I18nManager.forceRTL(false);
     }
   }
 };

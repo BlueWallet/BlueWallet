@@ -249,13 +249,13 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.42.0):
+  - react-native-camera (3.42.2):
     - React-Core
-    - react-native-camera/RCT (= 3.42.0)
-    - react-native-camera/RN (= 3.42.0)
-  - react-native-camera/RCT (3.42.0):
+    - react-native-camera/RCT (= 3.42.2)
+    - react-native-camera/RN (= 3.42.2)
+  - react-native-camera/RCT (3.42.2):
     - React-Core
-  - react-native-camera/RN (3.42.0):
+  - react-native-camera/RN (3.42.2):
     - React-Core
   - react-native-document-picker (3.5.4):
     - React
@@ -263,7 +263,7 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (3.1.4):
+  - react-native-image-picker (3.2.1):
     - React-Core
   - react-native-is-catalyst (1.0.0):
     - React
@@ -276,7 +276,7 @@ PODS:
   - react-native-tcp-socket (3.7.1):
     - CocoaAsyncSocket
     - React
-  - react-native-webview (11.2.1):
+  - react-native-webview (11.2.3):
     - React-Core
   - react-native-widget-center (0.0.4):
     - React
@@ -359,13 +359,13 @@ PODS:
     - React-Core
   - RNFS (2.16.6):
     - React
-  - RNGestureHandler (1.9.0):
+  - RNGestureHandler (1.10.1):
     - React-Core
   - RNHandoff (0.0.3):
     - React
   - RNInAppBrowser (3.5.1):
     - React-Core
-  - RNLocalize (2.0.1):
+  - RNLocalize (2.0.2):
     - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
@@ -697,17 +697,17 @@ SPEC CHECKSUMS:
   React-jsinspector: 8e68ffbfe23880d3ee9bafa8be2777f60b25cbe2
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: d145df27a9178041b48b839b80ad79c9ef373fbd
+  react-native-camera: 48557b70b49c5c8a099b0600d774ba374cf18587
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
-  react-native-image-picker: 248afb60a0c5a24153cb7c7483b257f30541323b
+  react-native-image-picker: 0c28bf3cb089cfe840bc5cc9fac3dcc10f2188d9
   react-native-is-catalyst: 52ee70e0123c82419dd4ce47dc4cc94b22467512
   react-native-randombytes: 45ae693012df24c9a07a5e578b3b567c01468581
   react-native-safe-area-context: 86612d2c9a9e94e288319262d10b5f93f0b395f5
   react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
-  react-native-webview: dbe6c1ad149740f0e2d84a963f1d3c3e77f2d99c
+  react-native-webview: 36561eaf7508e67f72d8c959b713bac841f3652e
   react-native-widget-center: 0f81d17beb163e7fb5848b06754d7d277fe7d99a
   React-RCTActionSheet: 53ea72699698b0b47a6421cb1c8b4ab215a774aa
   React-RCTAnimation: 1befece0b5183c22ae01b966f5583f42e69a83c2
@@ -728,10 +728,10 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
   RNDeviceInfo: 54401b60514387f9120ab8265be5ed9103d842b9
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
-  RNGestureHandler: 9b7e605a741412e20e13c512738a31bd1611759b
+  RNGestureHandler: 5e58135436aacc1c5d29b75547d3d2b9430d052c
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNInAppBrowser: 3733c1aa6699983a1c9b4963e85d5e5a48ad297e
-  RNLocalize: dcf0fdb332b37b0d24178e876a7ce4dbbc9c838d
+  RNLocalize: 47e22ef8c36df1d572e42a87c8ae22e3fcf551dd
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 2b31dad120cd1b78e33c6034808561c386a3dddf
@@ -752,4 +752,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 070fb164a2dfb94605ea7862fd9b1c25e95ff046
 
-COCOAPODS: 1.10.0
+COCOAPODS: 1.10.1
