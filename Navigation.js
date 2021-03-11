@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { Platform, useWindowDimensions, Dimensions } from 'react-native';
+import { Platform, useWindowDimensions, Dimensions, I18nManager } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 
 import Settings from './screen/settings/settings';
@@ -357,6 +357,7 @@ function DrawerRoot() {
       drawerStyle={isLargeScreen ? null : drawerStyle}
       drawerType={isLargeScreen ? 'permanent' : null}
       drawerContent={props => (isLargeScreen ? <DrawerList {...props} /> : null)}
+      drawerPosition={I18nManager.isRTL ? 'right' : 'left'}
     >
       <Drawer.Screen name="Navigation" component={Navigation} options={{ headerShown: false, gestureEnabled: false }} />
     </Drawer.Navigator>

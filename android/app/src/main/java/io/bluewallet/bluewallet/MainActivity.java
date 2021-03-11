@@ -7,7 +7,6 @@ import android.os.PersistableBundle;
 import androidx.annotation.Nullable;
 
 import com.facebook.react.ReactActivity;
-import com.facebook.react.modules.i18nmanager.I18nUtil;
 
 public class MainActivity extends ReactActivity {
 
@@ -23,8 +22,6 @@ public class MainActivity extends ReactActivity {
     @Override
 protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    I18nUtil sharedI18nUtilInstance = I18nUtil.getInstance();
-    sharedI18nUtilInstance.allowRTL(context, true);
     if (getResources().getBoolean(R.bool.portrait_only)) {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
