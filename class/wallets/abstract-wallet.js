@@ -19,6 +19,7 @@ export class AbstractWallet {
   constructor() {
     this.type = this.constructor.type;
     this.typeReadable = this.constructor.typeReadable;
+    this.segwitType = this.constructor.segwitType;
     this.label = '';
     this.secret = ''; // private key or recovery phrase
     this.balance = 0;

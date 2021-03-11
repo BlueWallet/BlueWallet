@@ -140,13 +140,13 @@ describe('Legacy HD (BIP44)', () => {
     let signature;
 
     // external address
-    signature = hd.signMessage('vires is numeris', '1LqBGSKuX5yYUonjxT5qGfpUsXKYYWeabA');
+    signature = hd.signMessage('vires is numeris', hd._getExternalAddressByIndex(0));
     assert.strictEqual(signature, 'H5J8DbqvuBy8lqRW7+LTVrrtrsaqLSwRDyj+5XtCrZpdCgPlxKM4EKRD6qvdKeyEh1fiSfIVB/edPAum3gKcJZo=');
-    assert.strictEqual(hd.verifyMessage('vires is numeris', '1LqBGSKuX5yYUonjxT5qGfpUsXKYYWeabA', signature), true);
+    assert.strictEqual(hd.verifyMessage('vires is numeris', hd._getExternalAddressByIndex(0), signature), true);
 
     // internal address
-    signature = hd.signMessage('vires is numeris', '1J3J6EvPrv8q6AC3VCjWV45Uf3nssNMRtH');
+    signature = hd.signMessage('vires is numeris', hd._getInternalAddressByIndex(0));
     assert.strictEqual(signature, 'H98hmvtyPFUbR6E5Tcsqmc+eSjlYhP2vy41Y6IyHS9DVKEI5n8VEMpIEDtvlMARVce96nOqbRHXo9nD05WXH/Eo=');
-    assert.strictEqual(hd.verifyMessage('vires is numeris', '1J3J6EvPrv8q6AC3VCjWV45Uf3nssNMRtH', signature), true);
+    assert.strictEqual(hd.verifyMessage('vires is numeris', hd._getInternalAddressByIndex(0), signature), true);
   });
 });

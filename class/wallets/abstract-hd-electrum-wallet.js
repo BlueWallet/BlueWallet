@@ -1,7 +1,6 @@
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
-import bitcoinMessage from 'bitcoinjs-message';
 
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
@@ -820,12 +819,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return false;
   }
 
-  _getIndexByAddress(address) {
+  /**
+   * Finds WIF corresponding to address and returns it
+   *
+   * @param address {string} Address that belongs to this wallet
+   * @returns {string|false} WIF or false
+   */
+  _getWIFbyAddress(address) {
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-      if (this._getExternalAddressByIndex(c) === address) return { internal: false, index: c };
+      if (this._getExternalAddressByIndex(c) === address) return this._getWIFByIndex(false, c);
     }
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      if (this._getInternalAddressByIndex(c) === address) return { internal: true, index: c };
+      if (this._getInternalAddressByIndex(c) === address) return this._getWIFByIndex(true, c);
     }
     return null;
   }
@@ -1106,27 +1111,5 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     return { tx };
-  }
-
-  signMessage(message, address) {
-    const search = this._getIndexByAddress(address);
-    if (search === null) throw new Error('Invalid address');
-
-    let options;
-    switch (this.type) {
-      case 'HDsegwitBech32':
-      case 'HDAezeedWallet':
-        options = { segwitType: 'p2wpkh' };
-        break;
-      case 'HDsegwitP2SH':
-        options = { segwitType: 'p2sh(p2wpkh)' };
-        break;
-    }
-
-    const wif = this._getWIFByIndex(search.internal, search.index);
-    const keyPair = bitcoin.ECPair.fromWIF(wif);
-    const privateKey = keyPair.privateKey;
-    const signature = bitcoinMessage.sign(message, privateKey, keyPair.compressed, options);
-    return signature.toString('base64');
   }
 }

@@ -41,10 +41,8 @@ describe('Segwit P2SH wallet', () => {
     const l = new SegwitBech32Wallet();
     l.setSecret('L4rK1yDtCWekvXuE6oXD9jCYfFNV2cWRpVuPLBcCU2z8TrisoyY1'); // from bitcoinjs-message examples
 
-    console.info('add', l.getAddress())
-
-    const signature = l.signMessage('This is an example of a signed message.');
+    const signature = l.signMessage('This is an example of a signed message.', l.getAddress());
     assert.strictEqual(signature, 'J9L5yLFjti0QTHhPyFrZCT1V/MMnBtXKmoiKDZ78NDBjERki6ZTQZdSMCtkgoNmp17By9ItJr8o7ChX0XxY91nk=');
-    assert.strictEqual(l.verifyMessage('This is an example of a signed message.', 'bc1qngw83fg8dz0k749cg7k3emc7v98wy0c74dlrkd', signature), true);
+    assert.strictEqual(l.verifyMessage('This is an example of a signed message.', l.getAddress(), signature), true);
   });
 });

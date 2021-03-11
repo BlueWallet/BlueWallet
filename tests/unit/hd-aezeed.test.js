@@ -95,13 +95,13 @@ describe('HDAezeedWallet', () => {
     let signature;
 
     // external address
-    signature = aezeed.signMessage('vires is numeris', 'bc1qdjj7lhj9lnjye7xq3dzv3r4z0cta294xy78txn');
+    signature = aezeed.signMessage('vires is numeris', aezeed._getExternalAddressByIndex(0));
     assert.strictEqual(signature, 'J9zF7mdGGdc/9HMlvor6Zl7ap1qseQpiBDJ4oaSpkzbQGGhdfkM6LHo6m9BV8o/BlqiQI1vuODaNlBFyeyIWgfE=');
-    assert.strictEqual(aezeed.verifyMessage('vires is numeris', 'bc1qdjj7lhj9lnjye7xq3dzv3r4z0cta294xy78txn', signature), true);
+    assert.strictEqual(aezeed.verifyMessage('vires is numeris', aezeed._getExternalAddressByIndex(0), signature), true);
 
     // internal address
-    signature = aezeed.signMessage('vires is numeris', 'bc1qzyjq8sjj56n8v9fgw5klsc8sq8yuy0jx03hzzp');
+    signature = aezeed.signMessage('vires is numeris', aezeed._getInternalAddressByIndex(0));
     assert.strictEqual(signature, 'KIda06aSswmo9NiAYNUBRADA9q1v39raSmHHVg56+thtah5xL7hVw/x+cZgydFNyel2bXfyGluJRaP1uRQfJtzo=');
-    assert.strictEqual(aezeed.verifyMessage('vires is numeris', 'bc1qzyjq8sjj56n8v9fgw5klsc8sq8yuy0jx03hzzp', signature), true);
+    assert.strictEqual(aezeed.verifyMessage('vires is numeris', aezeed._getInternalAddressByIndex(0), signature), true);
   });
 });

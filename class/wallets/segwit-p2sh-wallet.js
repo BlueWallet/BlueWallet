@@ -19,6 +19,7 @@ function pubkeyToP2shSegwitAddress(pubkey, network) {
 export class SegwitP2SHWallet extends LegacyWallet {
   static type = 'segwitP2SH';
   static typeReadable = 'SegWit (P2SH)';
+  static segwitType = 'p2sh(p2wpkh)';
 
   static witnessToAddress(witness) {
     try {
