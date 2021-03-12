@@ -133,23 +133,6 @@
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
-		<key>NSExceptionDomains</key>
-		<dict>
-			<key>127.0.0.1</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-				<key>NSAllowsLocalNetworking</key>
-				<true/>
-			</dict>
-			<key>localhost</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-				<key>NSAllowsLocalNetworking</key>
-				<true/>
-			</dict>
-		</dict>
 	</dict>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
