@@ -15,6 +15,7 @@ const { CipherSeed } = require('aezeed');
 export class HDAezeedWallet extends AbstractHDElectrumWallet {
   static type = 'HDAezeedWallet';
   static typeReadable = 'HD Aezeed';
+  static segwitType = 'p2wpkh';
 
   setSecret(newSecret) {
     this.secret = newSecret.trim();
@@ -162,6 +163,10 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
   }
 
   isSegwit() {
+    return true;
+  }
+
+  allowSignVerifyMessage() {
     return true;
   }
 }

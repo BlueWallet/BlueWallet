@@ -1,6 +1,7 @@
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
+
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 const bitcoin = require('bitcoinjs-lib');
@@ -816,6 +817,22 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     return false;
+  }
+
+  /**
+   * Finds WIF corresponding to address and returns it
+   *
+   * @param address {string} Address that belongs to this wallet
+   * @returns {string|false} WIF or false
+   */
+  _getWIFbyAddress(address) {
+    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+      if (this._getExternalAddressByIndex(c) === address) return this._getWIFByIndex(false, c);
+    }
+    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+      if (this._getInternalAddressByIndex(c) === address) return this._getWIFByIndex(true, c);
+    }
+    return null;
   }
 
   weOwnAddress(address) {
