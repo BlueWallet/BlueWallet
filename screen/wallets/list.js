@@ -443,7 +443,7 @@ const WalletsList = () => {
 
   return (
     <View style={styles.root} onLayout={onLayout}>
-      <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent={true} />
+      <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
           onRefresh={onRefresh}
