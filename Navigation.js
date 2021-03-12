@@ -119,7 +119,7 @@ const WalletsRoot = () => {
 
   return (
     <WalletsStack.Navigator {...(Platform.OS === 'android' ? { screenOptions: defaultScreenOptions } : null)}>
-      <WalletsStack.Screen name="WalletsList" component={WalletsList} />
+      <WalletsStack.Screen name="WalletsList" component={WalletsList} options={WalletsList.navigationOptions(theme)} />
       <WalletsStack.Screen name="WalletTransactions" component={WalletTransactions} options={WalletTransactions.navigationOptions(theme)} />
       <WalletsStack.Screen name="LndOpenChannel" component={LndOpenChannel} options={LndOpenChannel.navigationOptions(theme)} />
       <WalletsStack.Screen name="LndInfo" component={LndInfo} options={LndInfo.navigationOptions(theme)} />
