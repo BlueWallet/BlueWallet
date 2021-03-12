@@ -81,7 +81,7 @@ const iStyles = StyleSheet.create({
   },
   grad: {
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 12,
     minHeight: 164,
     elevation: 5,
   },
@@ -218,9 +218,9 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
   return (
     <Animated.View
       style={[iStyles.root, { opacity, transform: [{ scale: scaleValue }] }]}
-      shadowOpacity={40 / 100}
-      shadowOffset={{ width: 0, height: 0 }}
-      shadowRadius={5}
+      shadowOpacity={25 / 100}
+      shadowOffset={{ width: 0, height: 3 }}
+      shadowRadius={8}
     >
       <TouchableWithoutFeedback
         testID={item.getLabel()}
@@ -279,7 +279,7 @@ const cStyles = StyleSheet.create({
     alignItems: 'center',
   },
   content: {
-    left: 20,
+    left: 16,
   },
 });
 
