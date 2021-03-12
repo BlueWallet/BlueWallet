@@ -2,7 +2,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, StatusBar, ScrollView, BackHandler, StyleSheet, FlatList } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { BlueLoading, SafeBlueArea, BlueButton, BlueText } from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueButton, BlueText, BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Chain } from '../../models/bitcoinUnits';
@@ -191,7 +191,7 @@ const LndInfo = () => {
   };
 
   const start = () => {
-    return wallet.start();
+    return wallet.init();
   };
 
   const stop = () => {
@@ -224,9 +224,13 @@ const LndInfo = () => {
         </BlueText>
         <BlueText>{getInfo.syncedToGraph ? 'synced to graph' : 'not synced to graph'}</BlueText>
         <BlueText>{info}</BlueText>
+        <BlueSpacing20 />
         <BlueButton onPress={start} title="Start" />
+        <BlueSpacing20 />
         <BlueButton onPress={stop} title="Stop" />
+        <BlueSpacing20 />
         <BlueButton onPress={showLogs} title="Show logs" />
+        <BlueSpacing20 />
       </ScrollView>
     );
   };
