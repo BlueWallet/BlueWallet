@@ -57,6 +57,7 @@ const SendDetails = () => {
   const navigation = useNavigation();
   const { name, params: routeParams } = useRoute();
   const scrollView = useRef();
+  const scrollIndex = useRef(0);
   const { colors } = useTheme();
 
   // state
@@ -68,7 +69,6 @@ const SendDetails = () => {
   const [isFeeSelectionModalVisible, setIsFeeSelectionModalVisible] = useState(false);
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [isTransactionReplaceable, setIsTransactionReplaceable] = useState(false);
-  const [recipientsScrollIndex, setRecipientsScrollIndex] = useState(0);
   const [addresses, setAddresses] = useState([]);
   const [units, setUnits] = useState([]);
   const [memo, setMemo] = useState('');
@@ -137,7 +137,7 @@ const SendDetails = () => {
     if (routeParams.uri) {
       try {
         const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
-        addresses.push({ address, amount, amountSats: currency.btcToSatoshi(amount) });
+        addresses.push({ address, amount, amountSats: currency.btcToSatoshi(amount), key: String(Math.random()) });
         initialMemo = memo;
         setAddresses(addresses);
         setMemo(initialMemo);
@@ -148,13 +148,13 @@ const SendDetails = () => {
         Alert.alert(loc.errors.error, loc.send.details_error_decode);
       }
     } else if (routeParams.address) {
-      addresses.push({ address: routeParams.address });
+      addresses.push({ address: routeParams.address, key: String(Math.random()) });
       if (routeParams.memo) initialMemo = routeParams.memo;
       setAddresses(addresses);
       setMemo(initialMemo);
       setAmountUnit(BitcoinUnit.BTC);
     } else {
-      setAddresses([{ address: '' }]);
+      setAddresses([{ address: '', key: String(Math.random()) }]);
     }
 
     // we are ready!
@@ -343,8 +343,8 @@ const SendDetails = () => {
     const unitsCopy = [...units];
     const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
     if (wallet.isAddressValid(dataWithoutSchema)) {
-      recipients[recipientsScrollIndex].address = dataWithoutSchema;
-      unitsCopy[recipientsScrollIndex] = amountUnit;
+      recipients[scrollIndex.current].address = dataWithoutSchema;
+      unitsCopy[scrollIndex.current] = amountUnit;
       setAddresses(recipients);
       setUnits(unitsCopy);
       setIsLoading(false);
@@ -368,10 +368,10 @@ const SendDetails = () => {
 
     console.log('options', options);
     if (btcAddressRx.test(address) || address.startsWith('bc1') || address.startsWith('BC1')) {
-      unitsCopy[recipientsScrollIndex] = BitcoinUnit.BTC; // also resetting current unit to BTC
-      recipients[recipientsScrollIndex].address = address;
-      recipients[recipientsScrollIndex].amount = options.amount;
-      recipients[recipientsScrollIndex].amountSats = new BigNumber(options.amount).multipliedBy(100000000).toNumber();
+      unitsCopy[scrollIndex.current] = BitcoinUnit.BTC; // also resetting current unit to BTC
+      recipients[scrollIndex.current].address = address;
+      recipients[scrollIndex.current].amount = options.amount;
+      recipients[scrollIndex.current].amountSats = new BigNumber(options.amount).multipliedBy(100000000).toNumber();
       setAddresses(recipients);
       setMemo(options.label || options.message);
       setUnits(unitsCopy);
@@ -755,24 +755,27 @@ const SendDetails = () => {
     });
   };
 
-  const handleAddRecipient = () => {
-    addresses.push({ address: '' });
+  const handleAddRecipient = async () => {
+    addresses.push({ address: '', key: String(Math.random()) }); // key is for the FlatList
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut, () => scrollView.current.scrollToEnd());
-    setAddresses(addresses);
+    setAddresses([...addresses]);
     setOptionsVisible(false);
     scrollView.current.scrollToEnd();
-    if (addresses.length > 1) scrollView.current.flashScrollIndicators();
-    setRecipientsScrollIndex(addresses.length - 1);
+    if (addresses.length === 0) return;
+    await sleep(200); // wait for animation
+    scrollView.current.flashScrollIndicators();
   };
 
-  const handleRemoveRecipient = () => {
-    addresses.splice(recipientsScrollIndex, 1);
+  const handleRemoveRecipient = async () => {
+    const last = scrollIndex.current === addresses.length - 1;
+    addresses.splice(scrollIndex.current, 1);
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setAddresses(addresses);
+    setAddresses([...addresses]);
     setOptionsVisible(false);
-    if (addresses.length > 1) scrollView.current.flashScrollIndicators();
-    // after deletion it automatically scrolls to the last one
-    setRecipientsScrollIndex(addresses.length - 1);
+    if (addresses.length === 0) return;
+    await sleep(200); // wait for animation
+    scrollView.current.flashScrollIndicators();
+    if (last && Platform.OS === 'android') scrollView.current.scrollToEnd(); // fix white screen on android
   };
 
   const handleCoinControl = () => {
@@ -832,14 +835,22 @@ const SendDetails = () => {
     setIsTransactionReplaceable(value);
   };
 
-  const scrollViewCurrentIndex = () => {
-    Keyboard.dismiss();
-    const offset = scrollView.current.contentOffset;
-    if (offset) {
-      const page = Math.round(offset.x / Dimensions.get('window').width);
-      return page;
-    }
-    return 0;
+  // because of https://github.com/facebook/react-native/issues/21718 we use
+  // onScroll for android and onMomentumScrollEnd for iOS
+  const handleRecipientsScrollEnds = e => {
+    if (Platform.OS === 'android') return; // for android we use handleRecipientsScroll
+    const contentOffset = e.nativeEvent.contentOffset;
+    const viewSize = e.nativeEvent.layoutMeasurement;
+    const index = Math.floor(contentOffset.x / viewSize.width);
+    scrollIndex.current = index;
+  };
+
+  const handleRecipientsScroll = e => {
+    if (Platform.OS === 'ios') return; // for iOS we use handleRecipientsScrollEnds
+    const contentOffset = e.nativeEvent.contentOffset;
+    const viewSize = e.nativeEvent.layoutMeasurement;
+    const index = Math.floor(contentOffset.x / viewSize.width);
+    scrollIndex.current = index;
   };
 
   const onUseAllPressed = () => {
@@ -852,7 +863,7 @@ const SendDetails = () => {
           text: loc._.ok,
           onPress: async () => {
             Keyboard.dismiss();
-            const recipient = addresses[scrollViewCurrentIndex()];
+            const recipient = addresses[scrollIndex.current];
             recipient.amount = BitcoinUnit.MAX;
             recipient.amountSats = BitcoinUnit.MAX;
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -1114,7 +1125,7 @@ const SendDetails = () => {
         {isLoading ? (
           <ActivityIndicator />
         ) : (
-          <BlueButton onPress={() => createTransaction()} title={loc.send.details_next} testID="CreateTransactionButton" />
+          <BlueButton onPress={createTransaction} title={loc.send.details_next} testID="CreateTransactionButton" />
         )}
       </View>
     );
@@ -1260,13 +1271,15 @@ const SendDetails = () => {
               scrollEnabled={addresses.length > 1}
               data={addresses}
               renderItem={renderBitcoinTransactionInfoFields}
-              keyExtractor={(_item, index) => `${index}`}
               ref={scrollView}
               horizontal
               pagingEnabled
               removeClippedSubviews={false}
               onMomentumScrollBegin={Keyboard.dismiss}
-              scrollIndicatorInsets={{ top: 0, left: 8, bottom: 0, right: 8 }}
+              onMomentumScrollEnd={handleRecipientsScrollEnds}
+              onScroll={handleRecipientsScroll}
+              scrollEventThrottle={200}
+              scrollIndicatorInsets={styles.scrollViewIndicator}
               contentContainerStyle={styles.scrollViewContent}
             />
             <View style={[styles.memo, stylesHook.memo]}>
@@ -1337,6 +1350,12 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     flexDirection: 'row',
+  },
+  scrollViewIndicator: {
+    top: 0,
+    left: 8,
+    bottom: 0,
+    right: 8,
   },
   modalContent: {
     padding: 22,
