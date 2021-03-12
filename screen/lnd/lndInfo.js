@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, StyleSheet, FlatList } from 'react-native';
+import { View, StatusBar, ScrollView, BackHandler, StyleSheet, FlatList } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueLoading, SafeBlueArea, BlueButton, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -179,12 +179,12 @@ const LndInfo = () => {
   const renderItemChannel = channel => {
     return (
       <View>
-        <Text>{channel.item.private ? 'private' : 'public'}</Text>
-        <Text>{channel.item.active ? 'active' : 'inactive'}</Text>
-        <Text>
+        <BlueText>{channel.item.private ? 'private' : 'public'}</BlueText>
+        <BlueText>{channel.item.active ? 'active' : 'inactive'}</BlueText>
+        <BlueText>
           {channel.item.localBalance} / {channel.item.capacity}
-        </Text>
-        <Text>with {channel.item.remotePubkey}</Text>
+        </BlueText>
+        <BlueText>with {channel.item.remotePubkey}</BlueText>
         <BlueButton onPress={() => closeChannel(channel)} title="Close this channel" />
       </View>
     );
@@ -207,15 +207,15 @@ const LndInfo = () => {
 
         <FlatList data={channels} renderItem={renderItemChannel} keyExtractor={channel => channel.chanId} />
 
-        <Text>Identity pubkey: {getInfo.identityPubkey}</Text>
-        <Text>numPendingChannels: {getInfo.numPendingChannels || 0}</Text>
-        <Text>numActiveChannels: {getInfo.numActiveChannels || 0}</Text>
-        <Text>Peers: {getInfo.numPeers || 0}</Text>
-        <Text>Version: {getInfo.version}</Text>
-        <Text>
+        <BlueText>Identity pubkey: {getInfo.identityPubkey}</BlueText>
+        <BlueText>numPendingChannels: {getInfo.numPendingChannels || 0}</BlueText>
+        <BlueText>numActiveChannels: {getInfo.numActiveChannels || 0}</BlueText>
+        <BlueText>Peers: {getInfo.numPeers || 0}</BlueText>
+        <BlueText>Version: {getInfo.version}</BlueText>
+        <BlueText>
           {getInfo.syncedToChain ? 'synced to chain' : 'not synced to chain'} ({getInfo.blockHeight})
-        </Text>
-        <Text>{getInfo.syncedToGraph ? 'synced to graph' : 'not synced to graph'}</Text>
+        </BlueText>
+        <BlueText>{getInfo.syncedToGraph ? 'synced to graph' : 'not synced to graph'}</BlueText>
         <BlueText>{info}</BlueText>
         <BlueButton onPress={showLogs} title="Show logs" />
       </ScrollView>
