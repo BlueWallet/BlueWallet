@@ -274,5 +274,5 @@ Selftest.propTypes = {
 };
 
 Selftest.navigationOptions = navigationStyle({
-  title: 'Self test',
+  title: loc.settings.selfTest,
 });

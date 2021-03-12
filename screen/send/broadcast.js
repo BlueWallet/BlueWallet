@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Linking, StyleSheet, Platform, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Linking, StyleSheet, Platform, TextInput, View, Keyboard } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
@@ -21,6 +21,7 @@ import {
 } from '../../BlueComponents';
 import BlueElectrum from '../../blue_modules/BlueElectrum';
 import Notifications from '../../blue_modules/notifications';
+
 const scanqr = require('../../helpers/scan-qr');
 
 const BROADCAST_RESULT = Object.freeze({
@@ -55,6 +56,7 @@ const Broadcast = () => {
   const handleUpdateTxHex = nextValue => setTxHex(nextValue.trim());
 
   const handleBroadcast = async () => {
+    Keyboard.dismiss();
     setBroadcastResult(BROADCAST_RESULT.pending);
     try {
       await BlueElectrum.ping();
@@ -73,7 +75,7 @@ const Broadcast = () => {
         setBroadcastResult(BROADCAST_RESULT.error);
       }
     } catch (error) {
-      Alert.alert(error.message);
+      Alert.alert(loc.errors.error, error.message);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       setBroadcastResult(BROADCAST_RESULT.error);
     }
@@ -140,6 +142,7 @@ const Broadcast = () => {
                   placeholderTextColor="#81868e"
                   value={txHex}
                   onChangeText={handleUpdateTxHex}
+                  onSubmitEditing={Keyboard.dismiss}
                   testID="TxHex"
                 />
               </View>
@@ -151,7 +154,7 @@ const Broadcast = () => {
               <BlueButton
                 title={loc.send.broadcastButton}
                 onPress={handleBroadcast}
-                disabled={broadcastResult === BROADCAST_RESULT.pending}
+                disabled={broadcastResult === BROADCAST_RESULT.pending || txHex?.length === 0 || txHex === undefined}
                 testID="BroadcastButton"
               />
               <BlueSpacing20 />
@@ -175,7 +178,6 @@ const styles = StyleSheet.create({
   },
   blueArea: {
     flex: 1,
-    paddingTop: 19,
   },
   broadcastResultWrapper: {
     flex: 1,

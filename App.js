@@ -12,6 +12,7 @@ import {
   UIManager,
   useColorScheme,
   View,
+  StatusBar,
 } from 'react-native';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -336,6 +337,7 @@ const App = () => {
   return (
     <SafeAreaProvider>
       <View style={styles.root}>
+        <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
         <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
           <InitRoot />
           <Notifications onProcessNotifications={processPushNotifications} />
