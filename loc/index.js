@@ -95,6 +95,9 @@ const setDateTimeLocale = async () => {
     case 'pl':
       require('dayjs/locale/pl');
       break;
+    case 'ro':
+      require('dayjs/locale/ro');
+      break;
     case 'ru':
       require('dayjs/locale/ru');
       break;
@@ -181,6 +184,7 @@ const strings = new Localization({
   pt_br: require('./pt_br.json'),
   pt_pt: require('./pt_pt.json'),
   pl: require('./pl.json'),
+  ro: require('./ro.json'),
   ru: require('./ru.json'),
   sk_sk: require('./sk_sk.json'),
   sl_si: require('./sl_SI.json'),

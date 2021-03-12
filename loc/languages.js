@@ -26,6 +26,7 @@ export const AvailableLanguages = Object.freeze([
   { label: 'Polskie (PL)', value: 'pl' },
   { label: 'Português (BR)', value: 'pt_br' },
   { label: 'Português (PT)', value: 'pt_pt' },
+  { label: 'Română (RO)', value: 'ro' },
   { label: 'Русский (RU)', value: 'ru' },
   { label: 'Slovenský (SK)', value: 'sk_sk' },
   { label: 'Slovenščina (SL)', value: 'sl_si' },
