@@ -599,6 +599,7 @@ export const BlueListItem = React.memo(props => {
       onPress={props.onPress}
       onLongPress={props.onLongPress}
       disabled={props.disabled}
+      accessible={false}
     >
       {props.leftAvatar && <Avatar>{props.leftAvatar}</Avatar>}
       {props.leftIcon && <Avatar icon={props.leftIcon} />}
@@ -635,7 +636,7 @@ export const BlueListItem = React.memo(props => {
         <>
           {props.chevron && <ListItem.Chevron />}
           {props.rightIcon && <Avatar icon={props.rightIcon} />}
-          {props.switch && <Switch {...props.switch} />}
+          {props.switch && <Switch {...props.switch} accessibilityLabel={props.title} accessible accessibilityRole='switch' />}
           {props.checkmark && <ListItem.CheckBox iconType="octaicon" checkedColor="#0070FF" checkedIcon="check" checked />}
         </>
       )}
