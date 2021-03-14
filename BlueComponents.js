@@ -22,6 +22,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  InteractionManager,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
@@ -223,8 +224,8 @@ export class BlueWalletNavigationHeader extends Component {
     onWalletUnitChange: PropTypes.func,
   };
 
-  static getDerivedStateFromProps(props, state) {
-    return { wallet: props.wallet, onWalletUnitChange: props.onWalletUnitChange, allowOnchainAddress: state.allowOnchainAddress };
+  static getDerivedStateFromProps(props) {
+    return { wallet: props.wallet, onWalletUnitChange: props.onWalletUnitChange };
   }
 
   static contextType = BlueStorageContext;
@@ -235,7 +236,7 @@ export class BlueWalletNavigationHeader extends Component {
     this.state = {
       wallet: props.wallet,
       walletPreviousPreferredUnit: props.wallet.getPreferredBalanceUnit(),
-      showManageFundsButton: false,
+      allowOnchainAddress: false,
     };
   }
 
@@ -243,13 +244,28 @@ export class BlueWalletNavigationHeader extends Component {
     Clipboard.setString(formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit()).toString());
   };
 
-  componentDidMount() {
+  componentDidUpdate(prevState) {
+    InteractionManager.runAfterInteractions(() => {
+      if (prevState.wallet.getID() !== this.state.wallet.getID() && this.state.wallet.type === LightningCustodianWallet.type) {
+        this.verifyIfWalletAllowsOnchainAddress();
+      }
+    });
+  }
+
+  verifyIfWalletAllowsOnchainAddress = () => {
     if (this.state.wallet.type === LightningCustodianWallet.type) {
       this.state.wallet
         .allowOnchainAddress()
         .then(value => this.setState({ allowOnchainAddress: value }))
-        .catch(e => console.log('This Lndhub wallet does not have an onchain address API.'));
+        .catch(e => {
+          console.log('This Lndhub wallet does not have an onchain address API.');
+          this.setState({ allowOnchainAddress: false });
+        });
     }
+  };
+
+  componentDidMount() {
+    this.verifyIfWalletAllowsOnchainAddress();
   }
 
   handleBalanceVisibility = async _item => {
