@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView } from 'react-native';
 import navigationStyle from '../../components/navigationStyle';
 import { SafeBlueArea, BlueCard, BlueText, BlueSpacing20, BlueLoading } from '../../BlueComponents';
 
