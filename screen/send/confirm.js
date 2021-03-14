@@ -161,7 +161,7 @@ export default class Confirm extends Component {
 
   render() {
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeBlueArea>
         <View style={styles.rootWrap}>
           <FlatList
             scrollEnabled={this.state.recipients.length > 1}
@@ -267,11 +267,6 @@ const styles = StyleSheet.create({
   separator: {
     height: 0.5,
     margin: 16,
-  },
-  root: {
-    flex: 1,
-    paddingTop: 19,
-    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   rootWrap: {
     marginTop: 16,

@@ -95,7 +95,7 @@ export default class RBFCancel extends CPFP {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea style={styles.root}>
+        <SafeBlueArea>
           <BlueSpacing20 />
           <BlueSpacing20 />
           <BlueSpacing20 />
@@ -108,7 +108,7 @@ export default class RBFCancel extends CPFP {
     }
 
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeBlueArea>
         <ScrollView>{this.renderStage1(loc.transactions.cancel_explain)}</ScrollView>
       </SafeBlueArea>
     );

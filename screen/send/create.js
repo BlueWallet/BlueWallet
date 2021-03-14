@@ -136,7 +136,7 @@ export default class SendCreate extends Component {
 
   render() {
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeBlueArea>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <ScrollView>
             <BlueCard style={styles.card}>
@@ -207,10 +207,6 @@ const styles = StyleSheet.create({
     backgroundColor: BlueCurrentTheme.colors.inputBorderColor,
     height: 0.5,
     marginVertical: 16,
-  },
-  root: {
-    flex: 1,
-    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   card: {
     alignItems: 'center',

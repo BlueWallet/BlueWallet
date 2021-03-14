@@ -54,9 +54,6 @@ const PsbtWithHardwareWallet = () => {
   const openScannerButton = useRef();
 
   const stylesHook = StyleSheet.create({
-    root: {
-      backgroundColor: colors.elevated,
-    },
     rootPadding: {
       backgroundColor: colors.elevated,
     },
@@ -272,7 +269,7 @@ const PsbtWithHardwareWallet = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent} testID="PsbtWithHardwareScrollView">
         <View style={styles.container}>
           <BlueCard>
@@ -333,9 +330,6 @@ export default PsbtWithHardwareWallet;
 PsbtWithHardwareWallet.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.send.header }));
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'space-between',

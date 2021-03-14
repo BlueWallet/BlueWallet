@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, StatusBar, Linking, Platform } from 'react-native';
+import { StatusBar, Linking, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 
@@ -10,12 +10,6 @@ import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import * as NavigationService from '../../NavigationService';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-});
 
 export default class BuyBitcoin extends Component {
   static contextType = BlueStorageContext;
@@ -86,7 +80,7 @@ export default class BuyBitcoin extends Component {
     }
 
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeBlueArea>
         <StatusBar barStyle="default" />
         <WebView
           source={{

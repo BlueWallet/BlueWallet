@@ -46,7 +46,7 @@ const Currency = () => {
 
   if (selectedCurrency !== null && selectedCurrency !== undefined) {
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.flex}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }}>
         <FlatList
           style={styles.flex}
           keyExtractor={(_item, index) => `${index}`}

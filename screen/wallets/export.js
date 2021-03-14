@@ -16,9 +16,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  root: {
-    flex: 1,
-  },
   scrollViewContent: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -49,10 +46,6 @@ const WalletExport = () => {
     ...styles,
     loading: {
       ...styles.loading,
-      backgroundColor: colors.elevated,
-    },
-    root: {
-      ...styles.root,
       backgroundColor: colors.elevated,
     },
     type: { ...styles.type, color: colors.foregroundColor },
@@ -92,7 +85,7 @@ const WalletExport = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={stylesHook.root}>
+    <SafeBlueArea>
       <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollViewContent} testID="WalletExportScroll">
         <View>

@@ -284,7 +284,7 @@ const ScanLndInvoice = () => {
   }
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea forceInset={{ horizontal: 'always' }}>
       <StatusBar barStyle="light-content" />
       <View style={[styles.root, stylesHook.root]}>
         <ScrollView contentContainerStyle={styles.scroll}>

@@ -25,9 +25,6 @@ const ExportMultisigCoordinationSetup = () => {
     loading: {
       backgroundColor: colors.elevated,
     },
-    root: {
-      backgroundColor: colors.elevated,
-    },
     type: { color: colors.foregroundColor },
     secret: { color: colors.foregroundColor },
     exportButton: {
@@ -72,7 +69,7 @@ const ExportMultisigCoordinationSetup = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea>
       <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View>
@@ -97,9 +94,6 @@ const styles = StyleSheet.create({
   loading: {
     flex: 1,
     justifyContent: 'center',
-  },
-  root: {
-    flex: 1,
   },
   scrollViewContent: {
     alignItems: 'center',

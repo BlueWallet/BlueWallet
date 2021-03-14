@@ -51,7 +51,7 @@ const Language = () => {
   return isLoading ? (
     <BlueLoading />
   ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.flex, stylesHook.flex]}>
+    <SafeBlueArea forceInset={{ horizontal: 'always' }}>
       <FlatList
         style={[styles.flex, stylesHook.flex]}
         keyExtractor={(_item, index) => `${index}`}

@@ -388,7 +388,7 @@ const CoinControl = () => {
 
   if (loading) {
     return (
-      <SafeBlueArea style={[styles.root, styles.center, { backgroundColor: colors.elevated }]}>
+      <SafeBlueArea>
         <ActivityIndicator testID="Loading" />
       </SafeBlueArea>
     );
@@ -447,10 +447,6 @@ const CoinControl = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  center: {
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   modalContent: {
     padding: 22,

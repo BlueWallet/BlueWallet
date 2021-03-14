@@ -73,7 +73,7 @@ export default class LnurlPaySuccess extends Component {
     const { preamble, message, url, justPaid } = this.state;
 
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeBlueArea>
         <ScrollView>
           {justPaid ? (
             <View style={styles.iconContainer}>
@@ -161,10 +161,6 @@ const styles = StyleSheet.create({
   img: { width: 200, height: 200, alignSelf: 'center' },
   alignSelfCenter: {
     alignSelf: 'center',
-  },
-  root: {
-    flex: 1,
-    paddingTop: 0,
   },
   iconContainer: {
     backgroundColor: '#ccddf9',

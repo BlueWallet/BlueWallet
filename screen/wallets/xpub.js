@@ -72,7 +72,7 @@ const WalletXpub = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea>
       <StatusBar barStyle="light-content" />
       <View style={styles.container}>
         <View>
