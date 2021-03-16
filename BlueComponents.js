@@ -589,6 +589,7 @@ export const BlueTextCentered = props => {
 
 export const BlueListItem = React.memo(props => {
   const { colors } = useTheme();
+
   return (
     <ListItem
       containerStyle={props.containerStyle ?? { backgroundColor: 'transparent' }}
@@ -599,7 +600,7 @@ export const BlueListItem = React.memo(props => {
       onPress={props.onPress}
       onLongPress={props.onLongPress}
       disabled={props.disabled}
-      accessible={false}
+      accessible={props.switch === undefined}
     >
       {props.leftAvatar && <Avatar>{props.leftAvatar}</Avatar>}
       {props.leftIcon && <Avatar icon={props.leftIcon} />}
@@ -611,12 +612,14 @@ export const BlueListItem = React.memo(props => {
             fontWeight: '500',
           }}
           numberOfLines={0}
+          accessible={props.switch === undefined}
         >
           {props.title}
         </ListItem.Title>
         {props.subtitle && (
           <ListItem.Subtitle
             numberOfLines={props.subtitleNumberOfLines ?? 1}
+            accessible={props.switch === undefined}
             style={{ flexWrap: 'wrap', color: colors.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
           >
             {props.subtitle}
@@ -636,7 +639,7 @@ export const BlueListItem = React.memo(props => {
         <>
           {props.chevron && <ListItem.Chevron />}
           {props.rightIcon && <Avatar icon={props.rightIcon} />}
-          {props.switch && <Switch {...props.switch} accessibilityLabel={props.title} accessible accessibilityRole='switch' />}
+          {props.switch && <Switch {...props.switch} accessibilityLabel={props.title} accessible accessibilityRole="switch" />}
           {props.checkmark && <ListItem.CheckBox iconType="octaicon" checkedColor="#0070FF" checkedIcon="check" checked />}
         </>
       )}
