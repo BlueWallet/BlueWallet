@@ -79,7 +79,7 @@ const ExportMultisigCoordinationSetup = () => {
           <BlueText style={[styles.type, stylesHook.type]}>{wallet.getLabel()}</BlueText>
         </View>
         <BlueSpacing20 />
-        <DynamicQRCode value={qrCodeContents.current} capacity={400} />
+        <DynamicQRCode value={qrCodeContents.current} />
         <BlueSpacing20 />
         {isShareButtonTapped ? (
           <ActivityIndicator />
