@@ -599,6 +599,16 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('advancedOptionsMenuButton')).tap();
     await element(by.id('AddRecipient')).tap();
     await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
+
+    // remove last output, check if second output is shown
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('RemoveRecipient')).tap();
+    await yo('Transaction1');
+
+    // adding it again
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('AddRecipient')).tap();
+    await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).typeText('0.0003\n');
 
@@ -619,7 +629,7 @@ describe('BlueWallet UI Tests', () => {
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
     assert.strictEqual(transaction.outs[0].value, 50000);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    assert.strictEqual(transaction.outs[1].value, 20000);
+    assert.strictEqual(transaction.outs[1].value, 30000);
 
     // now, testing sendMAX feature:
 

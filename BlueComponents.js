@@ -22,6 +22,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  InteractionManager,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
@@ -223,8 +224,8 @@ export class BlueWalletNavigationHeader extends Component {
     onWalletUnitChange: PropTypes.func,
   };
 
-  static getDerivedStateFromProps(props, state) {
-    return { wallet: props.wallet, onWalletUnitChange: props.onWalletUnitChange, allowOnchainAddress: state.allowOnchainAddress };
+  static getDerivedStateFromProps(props) {
+    return { wallet: props.wallet, onWalletUnitChange: props.onWalletUnitChange };
   }
 
   static contextType = BlueStorageContext;
@@ -235,7 +236,7 @@ export class BlueWalletNavigationHeader extends Component {
     this.state = {
       wallet: props.wallet,
       walletPreviousPreferredUnit: props.wallet.getPreferredBalanceUnit(),
-      showManageFundsButton: false,
+      allowOnchainAddress: false,
     };
   }
 
@@ -243,13 +244,28 @@ export class BlueWalletNavigationHeader extends Component {
     Clipboard.setString(formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit()).toString());
   };
 
-  componentDidMount() {
+  componentDidUpdate(prevState) {
+    InteractionManager.runAfterInteractions(() => {
+      if (prevState.wallet.getID() !== this.state.wallet.getID() && this.state.wallet.type === LightningCustodianWallet.type) {
+        this.verifyIfWalletAllowsOnchainAddress();
+      }
+    });
+  }
+
+  verifyIfWalletAllowsOnchainAddress = () => {
     if (this.state.wallet.type === LightningCustodianWallet.type) {
       this.state.wallet
         .allowOnchainAddress()
         .then(value => this.setState({ allowOnchainAddress: value }))
-        .catch(e => console.log('This Lndhub wallet does not have an onchain address API.'));
+        .catch(e => {
+          console.log('This Lndhub wallet does not have an onchain address API.');
+          this.setState({ allowOnchainAddress: false });
+        });
     }
+  };
+
+  componentDidMount() {
+    this.verifyIfWalletAllowsOnchainAddress();
   }
 
   handleBalanceVisibility = async _item => {
@@ -589,6 +605,7 @@ export const BlueTextCentered = props => {
 
 export const BlueListItem = React.memo(props => {
   const { colors } = useTheme();
+
   return (
     <ListItem
       containerStyle={props.containerStyle ?? { backgroundColor: 'transparent' }}
@@ -599,6 +616,7 @@ export const BlueListItem = React.memo(props => {
       onPress={props.onPress}
       onLongPress={props.onLongPress}
       disabled={props.disabled}
+      accessible={props.switch === undefined}
     >
       {props.leftAvatar && <Avatar>{props.leftAvatar}</Avatar>}
       {props.leftIcon && <Avatar icon={props.leftIcon} />}
@@ -610,12 +628,14 @@ export const BlueListItem = React.memo(props => {
             fontWeight: '500',
           }}
           numberOfLines={0}
+          accessible={props.switch === undefined}
         >
           {props.title}
         </ListItem.Title>
         {props.subtitle && (
           <ListItem.Subtitle
             numberOfLines={props.subtitleNumberOfLines ?? 1}
+            accessible={props.switch === undefined}
             style={{ flexWrap: 'wrap', color: colors.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
           >
             {props.subtitle}
@@ -635,7 +655,7 @@ export const BlueListItem = React.memo(props => {
         <>
           {props.chevron && <ListItem.Chevron />}
           {props.rightIcon && <Avatar icon={props.rightIcon} />}
-          {props.switch && <Switch {...props.switch} />}
+          {props.switch && <Switch {...props.switch} accessibilityLabel={props.title} accessible accessibilityRole="switch" />}
           {props.checkmark && <ListItem.CheckBox iconType="octaicon" checkedColor="#0070FF" checkedIcon="check" checked />}
         </>
       )}
@@ -1508,7 +1528,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
       actions.push(
         {
           id: 'copyTX_ID',
-          text: loc.transactions.transaction_id,
+          text: loc.transactions.txid,
           onPress: handleOnCopyTransactionID,
         },
         {

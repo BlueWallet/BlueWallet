@@ -4,6 +4,7 @@ const bitcoin = require('bitcoinjs-lib');
 export class SegwitBech32Wallet extends LegacyWallet {
   static type = 'segwitBech32';
   static typeReadable = 'P2 WPKH';
+  static segwitType = 'p2wpkh';
 
   getAddress() {
     if (this._address) return this._address;
@@ -130,6 +131,10 @@ export class SegwitBech32Wallet extends LegacyWallet {
   }
 
   allowSendMax() {
+    return true;
+  }
+
+  allowSignVerifyMessage() {
     return true;
   }
 }

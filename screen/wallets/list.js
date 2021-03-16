@@ -13,6 +13,7 @@ import {
   useWindowDimensions,
   SafeAreaView,
   findNodeHandle,
+  useColorScheme,
 } from 'react-native';
 import { BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
@@ -28,6 +29,7 @@ import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-naviga
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isCatalyst, isMacCatalina, isTablet } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
+import navigationStyle from '../../components/navigationStyle';
 
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
@@ -35,6 +37,7 @@ const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', 
 
 const WalletsList = () => {
   const walletsCarousel = useRef();
+  const colorScheme = useColorScheme();
   const { wallets, pendingWallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet } = useContext(
     BlueStorageContext,
   );
@@ -78,7 +81,6 @@ const WalletsList = () => {
     useCallback(() => {
       verifyBalance();
       setSelectedWallet('');
-      StatusBar.setBarStyle('default');
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
@@ -442,7 +444,7 @@ const WalletsList = () => {
 
   return (
     <View style={styles.root} onLayout={onLayout}>
-      <StatusBar barStyle="default" />
+      <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
           onRefresh={onRefresh}
@@ -466,6 +468,7 @@ const WalletsList = () => {
 };
 
 export default WalletsList;
+WalletsList.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: '' }));
 
 const styles = StyleSheet.create({
   root: {

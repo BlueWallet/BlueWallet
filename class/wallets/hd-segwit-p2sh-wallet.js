@@ -12,6 +12,7 @@ const HDNode = require('bip32');
 export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   static type = 'HDsegwitP2SH';
   static typeReadable = 'HD SegWit (BIP49 P2SH)';
+  static segwitType = 'p2sh(p2wpkh)';
 
   allowSend() {
     return true;
@@ -22,6 +23,10 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   }
 
   allowCosignPsbt() {
+    return true;
+  }
+
+  allowSignVerifyMessage() {
     return true;
   }
 
