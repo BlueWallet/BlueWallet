@@ -24,6 +24,9 @@ const BottomModal = ({ onBackButtonPress, onBackdropPress, onClose, windowHeight
       onBackButtonPress={handleBackButtonPress}
       onBackdropPress={handleBackdropPress}
       {...props}
+      accessibilityViewIsModal
+      useNativeDriver
+      useNativeDriverForBackdrop
     />
   );
 };
