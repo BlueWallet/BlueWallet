@@ -48,6 +48,9 @@ const WalletExport = () => {
       ...styles.loading,
       backgroundColor: colors.elevated,
     },
+    root: {
+      backgroundColor: colors.elevated,
+    },
     type: { ...styles.type, color: colors.foregroundColor },
     secret: { ...styles.secret, color: colors.foregroundColor },
     warning: { ...styles.secret, color: colors.failedColor },
@@ -85,7 +88,7 @@ const WalletExport = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea>
+    <SafeBlueArea style={stylesHook.root}>
       <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollViewContent} testID="WalletExportScroll">
         <View>

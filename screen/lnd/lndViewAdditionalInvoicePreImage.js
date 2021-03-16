@@ -11,9 +11,14 @@ const LNDViewAdditionalInvoicePreImage = () => {
   // state = { walletInfo: undefined };
   const { colors } = useTheme();
   const { preImageData } = useRoute().params;
+  const stylesHook = StyleSheet.create({
+    root: {
+      backgroundColor: colors.elevated,
+    },
+  });
 
   return (
-    <SafeBlueArea>
+    <SafeBlueArea style={stylesHook.root}>
       <View style={styles.wrapper}>
         <BlueTextCentered>{loc.lndViewInvoice.preimage}:</BlueTextCentered>
         <BlueSpacing20 />

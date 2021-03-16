@@ -107,7 +107,7 @@ const LightningSettings = () => {
   };
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+    <SafeBlueArea>
       <BlueCard>
         <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
       </BlueCard>

@@ -140,7 +140,7 @@ const TransactionsDetails = () => {
   }
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+    <SafeBlueArea>
       <HandoffComponent
         title={`Bitcoin Transaction ${tx.hash}`}
         type="io.bluewallet.bluewallet"

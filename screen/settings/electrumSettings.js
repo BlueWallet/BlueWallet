@@ -215,7 +215,7 @@ export default class ElectrumSettings extends Component {
     });
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+      <SafeBlueArea>
         <ScrollView>
           <BlueCard>
             <BlueText style={styles.status}>{loc.settings.electrum_status}</BlueText>

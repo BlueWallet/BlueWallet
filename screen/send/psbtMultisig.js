@@ -264,7 +264,7 @@ const PsbtMultisig = () => {
   };
 
   return (
-    <SafeBlueArea>
+    <SafeBlueArea style={stylesHook.root}>
       <View style={styles.container}>
         <View style={styles.mstopcontainer}>
           <View style={styles.mscontainer}>

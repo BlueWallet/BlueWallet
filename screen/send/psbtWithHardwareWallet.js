@@ -54,6 +54,9 @@ const PsbtWithHardwareWallet = () => {
   const openScannerButton = useRef();
 
   const stylesHook = StyleSheet.create({
+    root: {
+      backgroundColor: colors.elevated,
+    },
     rootPadding: {
       backgroundColor: colors.elevated,
     },
@@ -269,7 +272,7 @@ const PsbtWithHardwareWallet = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea>
+    <SafeBlueArea style={stylesHook.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent} testID="PsbtWithHardwareScrollView">
         <View style={styles.container}>
           <BlueCard>

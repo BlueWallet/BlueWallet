@@ -52,7 +52,7 @@ const DefaultView = () => {
   };
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+    <SafeBlueArea>
       <View>
         <BlueListItem
           title={loc.settings.default_wallets}

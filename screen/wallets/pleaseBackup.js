@@ -70,7 +70,7 @@ const PleaseBackup = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea>
+    <SafeBlueArea style={stylesHook.flex}>
       <StatusBar barStyle="default" />
       <ScrollView testID="PleaseBackupScrollView">
         <View style={styles.please}>

@@ -30,6 +30,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 20,
   },
+  explain: {
+    paddingBottom: 16,
+  },
   center: {
     alignItems: 'center',
     flex: 1,
@@ -170,7 +173,7 @@ export default class CPFP extends Component {
   renderStage1(text) {
     return (
       <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
-        <SafeBlueArea>
+        <SafeBlueArea style={styles.root}>
           <BlueSpacing />
           <BlueCard style={styles.center}>
             <BlueText>{text}</BlueText>
@@ -222,7 +225,7 @@ export default class CPFP extends Component {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea>
+        <SafeBlueArea style={styles.root}>
           <BlueSpacing20 />
           <BlueSpacing20 />
           <BlueSpacing20 />
@@ -235,7 +238,7 @@ export default class CPFP extends Component {
     }
 
     return (
-      <SafeBlueArea>
+      <SafeBlueArea style={styles.explain}>
         <ScrollView>{this.renderStage1(loc.transactions.cpfp_exp)}</ScrollView>
       </SafeBlueArea>
     );

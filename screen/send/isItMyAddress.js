@@ -75,7 +75,7 @@ const IsItMyAddress = () => {
   };
 
   return (
-    <SafeBlueArea>
+    <SafeBlueArea style={styles.blueArea}>
       <KeyboardAvoidingView
         enabled={!Platform.isPad}
         behavior={Platform.OS === 'ios' ? 'position' : null}
@@ -128,6 +128,9 @@ const styles = StyleSheet.create({
     marginTop: 16,
     alignItems: 'center',
     justifyContent: 'flex-start',
+  },
+  blueArea: {
+    paddingTop: 19,
   },
   broadcastResultWrapper: {
     flex: 1,

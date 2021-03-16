@@ -85,7 +85,7 @@ export default class RBFBumpFee extends CPFP {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea>
+        <SafeBlueArea style={styles.root}>
           <BlueSpacing20 />
           <BlueSpacing20 />
           <BlueSpacing20 />
@@ -98,7 +98,7 @@ export default class RBFBumpFee extends CPFP {
     }
 
     return (
-      <SafeBlueArea>
+      <SafeBlueArea style={styles.root}>
         <ScrollView>{this.renderStage1(loc.transactions.rbf_explain)}</ScrollView>
       </SafeBlueArea>
     );

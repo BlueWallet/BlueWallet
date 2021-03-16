@@ -124,11 +124,11 @@ const EncryptStorage = () => {
   };
 
   return isLoading ? (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+    <SafeBlueArea>
       <BlueLoading />
     </SafeBlueArea>
   ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+    <SafeBlueArea>
       <ScrollView contentContainerStyle={styles.root}>
         {biometrics.isDeviceBiometricCapable && (
           <>

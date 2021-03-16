@@ -47,11 +47,11 @@ const PlausibleDeniability = () => {
   };
 
   return isLoading ? (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+    <SafeBlueArea>
       <BlueLoading />
     </SafeBlueArea>
   ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+    <SafeBlueArea>
       <BlueCard>
         <ScrollView maxHeight={450}>
           <BlueText>{loc.plausibledeniability.help}</BlueText>

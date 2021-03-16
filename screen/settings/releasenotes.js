@@ -8,7 +8,7 @@ const ReleaseNotes = () => {
   const notes = require('../../release-notes');
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+    <SafeBlueArea>
       <ScrollView>
         <BlueCard>
           <BlueText>{notes}</BlueText>

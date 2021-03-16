@@ -221,7 +221,7 @@ export default class Selftest extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+      <SafeBlueArea>
         <BlueCard>
           <ScrollView>
             <BlueSpacing20 />

@@ -13,7 +13,7 @@ const Licensing = () => {
   return isLoading ? (
     <BlueLoading />
   ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+    <SafeBlueArea>
       <ScrollView>
         <BlueCard>
           <BlueText>MIT License</BlueText>

@@ -16,6 +16,14 @@ const LNDViewAdditionalInvoiceInformation = () => {
   const [walletInfo, setWalletInfo] = useState();
   const { colors } = useTheme();
   const { goBack } = useNavigation();
+  const stylesHook = StyleSheet.create({
+    loading: {
+      backgroundColor: colors.elevated,
+    },
+    root: {
+      backgroundColor: colors.elevated,
+    },
+  });
 
   useEffect(() => {
     if (wallet) {
@@ -36,14 +44,14 @@ const LNDViewAdditionalInvoiceInformation = () => {
 
   if (walletInfo === undefined) {
     return (
-      <SafeBlueArea>
+      <SafeBlueArea style={[styles.loading, stylesHook.loading]}>
         <BlueLoading />
       </SafeBlueArea>
     );
   }
 
   return (
-    <SafeBlueArea>
+    <SafeBlueArea style={stylesHook.root}>
       <View style={styles.wrapper}>
         <View style={styles.qrcode}>
           <QRCode
@@ -80,6 +88,10 @@ const LNDViewAdditionalInvoiceInformation = () => {
 };
 
 const styles = StyleSheet.create({
+  loading: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   wrapper: {
     flex: 1,
     justifyContent: 'center',

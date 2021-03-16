@@ -270,13 +270,13 @@ const TransactionsStatus = () => {
 
   if (isLoading || !tx) {
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+      <SafeBlueArea>
         <BlueLoading />
       </SafeBlueArea>
     );
   }
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+    <SafeBlueArea>
       <HandoffComponent
         title={`Bitcoin Transaction ${tx.hash}`}
         type="io.bluewallet.bluewallet"

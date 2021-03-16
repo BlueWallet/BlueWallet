@@ -23,6 +23,9 @@ const PleaseBackupLNDHub = () => {
     return true;
   }, [navigation]);
   const styles = StyleSheet.create({
+    root: {
+      backgroundColor: colors.elevated,
+    },
     scrollViewContent: {
       flexGrow: 1,
       backgroundColor: colors.elevated,
@@ -50,7 +53,7 @@ const PleaseBackupLNDHub = () => {
     setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.5);
   };
   return (
-    <SafeBlueArea onLayout={onLayout}>
+    <SafeBlueArea style={styles.root} onLayout={onLayout}>
       <StatusBar barStyle="light-content" />
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View>

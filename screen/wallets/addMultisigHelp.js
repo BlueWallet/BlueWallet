@@ -11,6 +11,9 @@ const WalletsAddMultisigHelp = () => {
   const { colors } = useTheme();
 
   const stylesHook = StyleSheet.create({
+    root: {
+      backgroundColor: colors.elevated,
+    },
     intro: {
       backgroundColor: colors.newBlue,
       borderBottomColor: colors.inputBorderColor,
@@ -36,7 +39,7 @@ const WalletsAddMultisigHelp = () => {
   return isLoading ? (
     <BlueLoading />
   ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+    <SafeBlueArea style={stylesHook.root}>
       <ScrollView>
         <View style={[styles.intro, stylesHook.intro]}>
           <Text style={[styles.introTitle, stylesHook.introTitle]}>{loc.multisig.ms_help_title}</Text>

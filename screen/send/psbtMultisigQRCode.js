@@ -23,6 +23,9 @@ const PsbtMultisigQRCode = () => {
 
   const psbt = bitcoin.Psbt.fromBase64(psbtBase64);
   const stylesHook = StyleSheet.create({
+    root: {
+      backgroundColor: colors.elevated,
+    },
     modalContentShort: {
       backgroundColor: colors.elevated,
     },
@@ -66,7 +69,7 @@ const PsbtMultisigQRCode = () => {
   };
 
   return (
-    <SafeBlueArea>
+    <SafeBlueArea style={stylesHook.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
           <DynamicQRCode value={psbt.toHex()} capacity={666} />
