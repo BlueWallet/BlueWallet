@@ -140,7 +140,7 @@ export default class SendCreate extends Component {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <ScrollView>
             <BlueCard style={styles.card}>
-              {this.state.showAnimatedQr && this.state.psbt ? <DynamicQRCode value={this.state.psbt.toHex()} capacity={666} /> : null}
+              {this.state.showAnimatedQr && this.state.psbt ? <DynamicQRCode value={this.state.psbt.toHex()} /> : null}
               <BlueText style={styles.cardText}>{loc.send.create_this_is_hex}</BlueText>
               <TextInput testID="TxhexInput" style={styles.cardTx} height={72} multiline editable value={this.state.tx} />
 

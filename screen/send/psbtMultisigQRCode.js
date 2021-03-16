@@ -72,7 +72,7 @@ const PsbtMultisigQRCode = () => {
     <SafeBlueArea style={[styles.root, stylesHook.root]}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
-          <DynamicQRCode value={psbt.toHex()} capacity={666} />
+          <DynamicQRCode value={psbt.toHex()} />
           {!isShowOpenScanner && (
             <>
               <BlueSpacing20 />
