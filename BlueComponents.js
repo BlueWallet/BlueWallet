@@ -562,7 +562,8 @@ const styleCopyTextToClipboard = StyleSheet.create({
 
 export const SafeBlueArea = props => {
   const { colors } = useTheme();
-  return <SafeAreaView forceInset={{ horizontal: 'always' }} style={{ flex: 1, backgroundColor: colors.background }} {...props} />;
+  const baseStyle = { flex: 1, backgroundColor: colors.background }
+  return <SafeAreaView forceInset={{ horizontal: 'always' }} style={[baseStyle, ...props.style]} {...props} />;
 };
 
 export const BlueCard = props => {
