@@ -31,7 +31,6 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   explain: {
-    flex: 1,
     paddingBottom: 16,
   },
   center: {

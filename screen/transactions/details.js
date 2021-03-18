@@ -140,7 +140,7 @@ const TransactionsDetails = () => {
   }
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+    <SafeBlueArea>
       <HandoffComponent
         title={`Bitcoin Transaction ${tx.hash}`}
         type="io.bluewallet.bluewallet"
@@ -249,9 +249,6 @@ const TransactionsDetails = () => {
 };
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   scroll: {
     flex: 1,
   },

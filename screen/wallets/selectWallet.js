@@ -27,10 +27,6 @@ const SelectWallet = () => {
     data = availableWallets;
   }
   const styles = StyleSheet.create({
-    root: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
     loading: {
       flex: 1,
       justifyContent: 'center',
@@ -153,7 +149,7 @@ const SelectWallet = () => {
     );
   } else if (data.length <= 0) {
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeBlueArea>
         <StatusBar barStyle="light-content" />
         <View style={styles.noWallets}>
           <BlueText style={styles.center}>{loc.wallets.select_no_bitcoin}</BlueText>
@@ -164,7 +160,7 @@ const SelectWallet = () => {
     );
   } else {
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeBlueArea>
         <StatusBar barStyle="default" />
         <FlatList extraData={data} data={data} renderItem={renderItem} keyExtractor={(_item, index) => `${index}`} />
       </SafeBlueArea>

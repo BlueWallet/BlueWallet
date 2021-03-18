@@ -1,7 +1,7 @@
 /* global alert */
 import React, { useContext, useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
-import { useNavigation, useTheme } from '@react-navigation/native';
+import { ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import navigationStyle from '../components/navigationStyle';
@@ -10,22 +10,10 @@ import loc from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 const prompt = require('../blue_modules/prompt');
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-});
-
 const PlausibleDeniability = () => {
   const { cachedPassword, isPasswordInUse, createFakeStorage, resetWallets } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(false);
   const { popToTop } = useNavigation();
-  const { colors } = useTheme();
-  const stylesHook = StyleSheet.create({
-    root: {
-      backgroundColor: colors.background,
-    },
-  });
 
   const handleOnCreateFakeStorageButtonPressed = async () => {
     setIsLoading(true);
@@ -59,11 +47,11 @@ const PlausibleDeniability = () => {
   };
 
   return isLoading ? (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea>
       <BlueLoading />
     </SafeBlueArea>
   ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea>
       <BlueCard>
         <ScrollView maxHeight={450}>
           <BlueText>{loc.plausibledeniability.help}</BlueText>

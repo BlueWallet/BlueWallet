@@ -116,7 +116,7 @@ const Broadcast = () => {
   }
 
   return (
-    <SafeBlueArea style={styles.blueArea}>
+    <SafeBlueArea>
       <KeyboardAvoidingView
         enabled={!Platform.isPad}
         behavior={Platform.OS === 'ios' ? 'position' : null}
@@ -175,9 +175,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
     alignItems: 'center',
     justifyContent: 'flex-start',
-  },
-  blueArea: {
-    flex: 1,
   },
   broadcastResultWrapper: {
     flex: 1,

@@ -14,9 +14,6 @@ const About = () => {
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const styles = StyleSheet.create({
-    root: {
-      flex: 1,
-    },
     center: {
       justifyContent: 'center',
       alignItems: 'center',
@@ -105,7 +102,7 @@ const About = () => {
   };
 
   return (
-    <SafeBlueArea style={styles.root}>
+    <SafeBlueArea>
       <ScrollView testID="AboutScrollView">
         <BlueCard>
           <View style={styles.center}>
