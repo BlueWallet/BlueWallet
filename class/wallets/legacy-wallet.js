@@ -476,10 +476,6 @@ export class LegacyWallet extends AbstractWallet {
     return false;
   }
 
-  allowSendMax() {
-    return true;
-  }
-
   allowSignVerifyMessage() {
     return true;
   }

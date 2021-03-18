@@ -17,10 +17,6 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
   _external_segwit_index = null; // eslint-disable-line camelcase
   _internal_segwit_index = null; // eslint-disable-line camelcase
 
-  allowSendMax() {
-    return true;
-  }
-
   /**
    * @see https://github.com/bitcoinjs/bitcoinjs-lib/issues/584
    * @see https://github.com/bitcoinjs/bitcoinjs-lib/issues/914

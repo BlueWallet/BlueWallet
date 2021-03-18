@@ -69,10 +69,6 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     return child.toWIF();
   }
 
-  allowSendMax() {
-    return true;
-  }
-
   _getNodePubkeyByIndex(node, index) {
     index = index * 1; // cast to int
 

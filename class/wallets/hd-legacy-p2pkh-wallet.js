@@ -17,10 +17,6 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
     return true;
   }
 
-  allowSendMax() {
-    return true;
-  }
-
   allowCosignPsbt() {
     return true;
   }

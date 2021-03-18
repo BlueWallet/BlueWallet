@@ -139,10 +139,6 @@ export class SegwitP2SHWallet extends LegacyWallet {
     return { tx, inputs, outputs, fee, psbt };
   }
 
-  allowSendMax() {
-    return true;
-  }
-
   allowSignVerifyMessage() {
     return true;
   }

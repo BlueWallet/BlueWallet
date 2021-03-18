@@ -18,10 +18,6 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     return true;
   }
 
-  allowSendMax(): boolean {
-    return true;
-  }
-
   allowCosignPsbt() {
     return true;
   }

@@ -69,10 +69,6 @@ export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
     return child.toWIF();
   }
 
-  allowSendMax() {
-    return true;
-  }
-
   _getNodePubkeyByIndex(node, index) {
     index = index * 1; // cast to int
 

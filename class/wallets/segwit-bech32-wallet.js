@@ -130,10 +130,6 @@ export class SegwitBech32Wallet extends LegacyWallet {
     return true;
   }
 
-  allowSendMax() {
-    return true;
-  }
-
   allowSignVerifyMessage() {
     return true;
   }

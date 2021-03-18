@@ -142,14 +142,6 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     return true;
   }
 
-  allowBatchSend() {
-    return true;
-  }
-
-  allowSendMax() {
-    return true;
-  }
-
   allowHodlHodlTrading() {
     return true;
   }

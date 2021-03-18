@@ -100,15 +100,7 @@ export class AbstractWallet {
     return true;
   }
 
-  allowSendMax(): boolean {
-    return false;
-  }
-
   allowRBF() {
-    return false;
-  }
-
-  allowBatchSend() {
     return false;
   }
 
