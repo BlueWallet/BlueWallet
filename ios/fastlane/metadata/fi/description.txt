@@ -1,37 +1,37 @@
-Bitcoin-lompakko, jonka avulla voit tallentaa, lähettää Bitcoinia, vastaanottaa Bitcoinia ja ostaa Bitcoinia keskittyen turvallisuuteen ja yksinkertaisuuteen.
+Bitcoin-lompakko, jonka avulla voit tallentaa, lähettää, vastaanottaa, sekä ostaa Bitcoinia keskittyen turvallisuuteen ja yksinkertaisuuteen.
 
-Sinulla on yksityiset avaimesi BlueWalletissa, joka on bitcoin-lompakko. Bitcoin-käyttäjien tekemä Bitcoin-lompakko yhteisölle.
+Sinä omistat yksityiset avaimesi BlueWallet bitcoin-lompakossa. Bitcoin-käyttäjien tekemä Bitcoin-lompakko yhteisölle.
 
-Voit heti tehdä kauppaa kenen tahansa kanssa maailmassa ja muuttaa rahoitusjärjestelmän suoraan taskustasi.
+Voit tehdä heti kauppaa kenen tahansa kanssa maailmassa ja muuttaa rahoitusjärjestelmää suoraan taskustasi.
 
-Luo ilmaiseksi rajoittamaton määrä bitcoin-lompakoita tai tuo nykyinen lompakko. Se on yksinkertaista ja nopeaa.
+Luo ilmaiseksi rajoittamaton määrä bitcoin-lompakoita tai tuo nykyinen lompakkosi. Se on yksinkertaista ja nopeaa.
 
 _____
 
-Tässä on mitä saat:
+Nämä saat:
 
 
 1 - Suunniteltu tietoturvalliseksi
 
 Avoin lähdekoodi
-MIT-lisensoitu, voit rakentaa sen ja käyttää sitä itsenäisesti! Valmistettu ReactNative: lla
+MIT-lisensoitu, voit rakentaa sen ja käyttää sitä itsenäisesti! Tehty ReactNative: lla
 
 Uskottava kiistettävyys
 Salasana, joka purkaa vale bitcoin-lompakot, jos sinun on pakko paljastaa käyttöoikeutesi
 
 Täysi salaus
-IOS:n monikerroksisen salauksen lisäksi salaamme kaiken lisätyillä salasanoilla
+IOS:in monikerroksisen salauksen lisäksi salaamme kaiken lisätyillä salasanoilla
 
 Täysi solmu
-Yhdistä Bitcoinin täyteen solmuusi Electrumin kautta
+Yhdistä täyteen Bitcoin solmuusi Electrumin kautta
 
-Kylmävarasto
-Yhdistä laitteistolompakkoon ja säilytä kolikkosi kylmävarastossa
+Kylmäsäilytys
+Yhdistä laitteistolompakkoosi ja säilytä kolikkosi kylmäsäilössä
 
 2 - Kohdennettu kokemukseesi
 
 Kontrolloi itse
-Yksityiset avaimet eivät koskaan poistu laitteeltasi.
+Yksityiset avaimesi eivät koskaan poistu laitteeltasi.
 Sinä hallitset yksityisiä avaimiasi
 
 Joustavat siirtokulut
@@ -41,10 +41,10 @@ Replace-By-Fee
 (RBF) Nopeuta siirtotapahtumiasi korottamalla siirtokulua (BIP125)
 
 Vain lukuoikeus-lompakot
-Vain lukuoikeus-lompakot antavat sinun pitää silmällä kylmävarastoa koskematta laitteistoon.
+Vain lukuoikeus-lompakot antavat sinun pitää silmällä kylmäsäilöä koskematta laitteistoon.
 
-Lightning-verkko
-Lightning-lompakko nolla-konfiguraatiolla. Luvattoman halvat ja nopeat siirtotapahtumat parhaalla Bitcoin-käyttökokemuksella.
+Salamaverkko
+Salamalompakko nolla-konfiguraatiolla. Luvattoman halvat ja nopeat siirrot parhaalla Bitcoin käyttökokemuksella.
 
 Osta bitcoinia
 Osallistu avoimeen talouden vallankumoukseen kyvyllä ostaa bitcoinia suoraan lompakkoosi.
