@@ -18,6 +18,7 @@ import {
   findNodeHandle,
   TouchableOpacity,
   View,
+  I18nManager,
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Icon } from 'react-native-elements';
@@ -862,9 +863,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   sendIcon: {
-    transform: [{ rotate: '225deg' }],
+    transform: [{ rotate: I18nManager.isRTL ? '-225deg' : '225deg' }],
   },
   receiveIcon: {
-    transform: [{ rotate: '-45deg' }],
+    transform: [{ rotate: I18nManager.isRTL ? '45deg' : '-45deg' }],
   },
 });
