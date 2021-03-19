@@ -174,7 +174,7 @@ export default class Confirm extends Component {
           />
           <View style={styles.cardContainer}>
             <BlueCard>
-              <Text style={styles.cardText}>
+              <Text style={styles.cardText} testID="TransactionFee">
                 {loc.send.create_fee}: {formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
                 {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
               </Text>

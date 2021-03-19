@@ -84,7 +84,7 @@ const SendDetails = () => {
 
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/byte fee
-  const fee = useMemo(() => {
+  const feeRate = useMemo(() => {
     if (customFee) return customFee;
     if (feePrecalc.slowFee === null) return '1'; // wait for precalculated fees
     let initialFee;
@@ -211,7 +211,7 @@ const SendDetails = () => {
     if (!wallet) return; // wait for it
     const fees = networkTransactionFees;
     const changeAddress = getChangeAddressFast();
-    const requestedSatPerByte = Number(fee);
+    const requestedSatPerByte = Number(feeRate);
     const lutxo = utxo || wallet.getUtxo();
 
     const options = [
@@ -278,7 +278,7 @@ const SendDetails = () => {
     }
 
     setFeePrecalc(newFeePrecalc);
-  }, [wallet, networkTransactionFees, utxo, addresses, fee, dumb]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [wallet, networkTransactionFees, utxo, addresses, feeRate, dumb]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const getChangeAddressFast = () => {
     if (changeAddress) return changeAddress; // cache
@@ -385,7 +385,7 @@ const SendDetails = () => {
   const createTransaction = async () => {
     Keyboard.dismiss();
     setIsLoading(true);
-    const requestedSatPerByte = fee;
+    const requestedSatPerByte = feeRate;
     for (const [index, transaction] of addresses.entries()) {
       let error;
       if (!transaction.amount || transaction.amount < 0 || parseFloat(transaction.amount) === 0) {
@@ -443,7 +443,7 @@ const SendDetails = () => {
 
   const createPsbtTransaction = async () => {
     const changeAddress = await getChangeAddressAsync();
-    const requestedSatPerByte = Number(fee);
+    const requestedSatPerByte = Number(feeRate);
     const lutxo = utxo || wallet.getUtxo();
     console.log({ requestedSatPerByte, utxo });
 
@@ -464,7 +464,7 @@ const SendDetails = () => {
       }
     }
 
-    const { tx, outputs, psbt } = wallet.createTransaction(
+    const { tx, outputs, psbt, fee } = wallet.createTransaction(
       lutxo,
       targets,
       requestedSatPerByte,
@@ -946,21 +946,21 @@ const SendDetails = () => {
         time: loc.send.fee_10m,
         fee: feePrecalc.fastestFee,
         rate: nf.fastestFee,
-        active: Number(fee) === nf.fastestFee,
+        active: Number(feeRate) === nf.fastestFee,
       },
       {
         label: loc.send.fee_medium,
         time: loc.send.fee_3h,
         fee: feePrecalc.mediumFee,
         rate: nf.mediumFee,
-        active: Number(fee) === nf.mediumFee,
+        active: Number(feeRate) === nf.mediumFee,
       },
       {
         label: loc.send.fee_slow,
         time: loc.send.fee_1d,
         fee: feePrecalc.slowFee,
         rate: nf.slowFee,
-        active: Number(fee) === nf.slowFee,
+        active: Number(feeRate) === nf.slowFee,
       },
     ];
 
@@ -1304,7 +1304,7 @@ const SendDetails = () => {
               <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
               <View style={[styles.feeRow, stylesHook.feeRow]}>
                 <Text style={stylesHook.feeValue}>
-                  {feePrecalc.current ? formatFee(feePrecalc.current) : fee + ' ' + loc.units.sat_byte}
+                  {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_byte}
                 </Text>
               </View>
             </TouchableOpacity>
