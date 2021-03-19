@@ -23,6 +23,7 @@ import {
   TouchableWithoutFeedback,
   View,
   InteractionManager,
+  I18nManager,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
@@ -653,7 +654,7 @@ export const BlueListItem = React.memo(props => {
         <ActivityIndicator />
       ) : (
         <>
-          {props.chevron && <ListItem.Chevron />}
+          {props.chevron && <ListItem.Chevron iconStyle={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />}
           {props.rightIcon && <Avatar icon={props.rightIcon} />}
           {props.switch && <Switch {...props.switch} accessibilityLabel={props.title} accessible accessibilityRole="switch" />}
           {props.checkmark && <ListItem.CheckBox iconType="octaicon" checkedColor="#0070FF" checkedIcon="check" checked />}

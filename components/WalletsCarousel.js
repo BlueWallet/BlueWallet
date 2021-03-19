@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Animated,
   Image,
+  I18nManager,
   Platform,
   StyleSheet,
   Text,
@@ -279,6 +280,7 @@ const cStyles = StyleSheet.create({
   },
   content: {
     left: 16,
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
 });
 

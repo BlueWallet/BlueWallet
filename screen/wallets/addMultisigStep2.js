@@ -817,6 +817,7 @@ const styles = StyleSheet.create({
 
   helpButtonWrapper: {
     alignItems: 'flex-end',
+    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
   },
   helpButton: {
     paddingHorizontal: 16,

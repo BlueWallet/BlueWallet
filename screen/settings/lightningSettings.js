@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, TextInput, Linking, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Linking, StyleSheet, Alert, I18nManager } from 'react-native';
 import { Button } from 'react-native-elements';
 import { useTheme, useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     backgroundColor: 'transparent',
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
 });
 

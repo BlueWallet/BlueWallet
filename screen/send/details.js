@@ -4,6 +4,7 @@ import {
   Alert,
   Dimensions,
   FlatList,
+  I18nManager,
   Keyboard,
   KeyboardAvoidingView,
   LayoutAnimation,
@@ -1157,7 +1158,7 @@ const SendDetails = () => {
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
           >
             <Text style={styles.selectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-            <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
+            <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.selectWrap}>
