@@ -135,7 +135,7 @@ const setDateTimeLocale = async () => {
   if (localeForDayJSAvailable) {
     dayjs.locale(lang.split('_')[0]);
     const language = AvailableLanguages.find(language => language.value === lang.replace('_', '-'));
-    if (I18nManager.allowRTL) {
+    if (process.env.JEST_WORKER_ID === undefined) {
       if (language?.isRTL) {
         I18nManager.forceRTL(true);
       } else {
@@ -144,7 +144,7 @@ const setDateTimeLocale = async () => {
     }
   } else {
     dayjs.locale('en');
-    if (I18nManager.allowRTL) {
+    if (process.env.JEST_WORKER_ID === undefined) {
       I18nManager.forceRTL(false);
     }
   }
@@ -165,7 +165,7 @@ const setLanguageLocale = async () => {
     } else {
       strings.saveLanguage('en');
       strings.setLanguage('en');
-      if (I18nManager.allowRTL) {
+      if (process.env.JEST_WORKER_ID === undefined) {
         I18nManager.forceRTL(false);
       }
     }
