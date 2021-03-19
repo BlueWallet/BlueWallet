@@ -135,14 +135,18 @@ const setDateTimeLocale = async () => {
   if (localeForDayJSAvailable) {
     dayjs.locale(lang.split('_')[0]);
     const language = AvailableLanguages.find(language => language.value === lang.replace('_', '-'));
-    if (language?.isRTL) {
-      I18nManager.forceRTL(true);
-    } else {
-      I18nManager.forceRTL(false);
+    if (I18nManager.allowRTL) {
+      if (language?.isRTL) {
+        I18nManager.forceRTL(true);
+      } else {
+        I18nManager.forceRTL(false);
+      }
     }
   } else {
     dayjs.locale('en');
-    I18nManager.forceRTL(false);
+    if (I18nManager.allowRTL) {
+      I18nManager.forceRTL(false);
+    }
   }
 };
 
@@ -161,7 +165,9 @@ const setLanguageLocale = async () => {
     } else {
       strings.saveLanguage('en');
       strings.setLanguage('en');
-      I18nManager.forceRTL(false);
+      if (I18nManager.allowRTL) {
+        I18nManager.forceRTL(false);
+      }
     }
   }
 };
@@ -255,7 +261,7 @@ export function formatBalance(balance, toUnit, withFormatting = false) {
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
     return removeTrailingZeros(value) + ' ' + strings.units[BitcoinUnit.BTC];
   } else if (toUnit === BitcoinUnit.SATS) {
-    return (withFormatting ? new Intl.NumberFormat().format(balance.toString()) : balance) + ' ' + strings.units[BitcoinUnit.SATS];
+    return (withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance)) + ' ' + strings.units[BitcoinUnit.SATS];
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
     return currency.satoshiToLocalCurrency(balance);
   }
@@ -277,7 +283,7 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit, withFormatting =
       const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
       return removeTrailingZeros(value);
     } else if (toUnit === BitcoinUnit.SATS) {
-      return withFormatting ? new Intl.NumberFormat().format(balance) : balance;
+      return withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance);
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
       return currency.satoshiToLocalCurrency(balance);
     }
