@@ -135,6 +135,9 @@ const setDateTimeLocale = async () => {
   if (localeForDayJSAvailable) {
     dayjs.locale(lang.split('_')[0]);
     const language = AvailableLanguages.find(language => language.value === lang.replace('_', '-'));
+    /* I18n Manager breaks testing. Mocking built-in RN modules is not so straightforward. 
+        Only run this conditional if its outside a testing environment.
+    */
     if (process.env.JEST_WORKER_ID === undefined) {
       if (language?.isRTL) {
         I18nManager.forceRTL(true);
