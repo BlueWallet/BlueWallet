@@ -78,6 +78,7 @@ NewWalletPanel.propTypes = {
 const iStyles = StyleSheet.create({
   root: {
     paddingRight: 10,
+    paddingLeft: I18nManager.isRTL ? 10 : 0,
     marginVertical: 17,
   },
   grad: {
@@ -335,7 +336,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
         sliderHeight={sliderHeight}
         itemWidth={itemWidth}
         inactiveSlideScale={1}
-        inactiveSlideOpacity={0.7}
+        inactiveSlideOpacity={I18nManager.isRTL ? 1.0 : 0.7}
         activeSlideAlignment="start"
         initialNumToRender={10}
         onLayout={onLayout}
