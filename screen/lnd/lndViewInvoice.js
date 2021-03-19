@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet, I18nManager } from 'react-native';
 import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
@@ -216,7 +216,12 @@ const LNDViewInvoice = () => {
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
                 <TouchableOpacity style={styles.detailsTouch} onPress={navigateToPreImageScreen}>
                   <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
-                  <Icon name="angle-right" size={18} type="font-awesome" color={colors.alternativeTextColor} />
+                  <Icon
+                    name={I18nManager.isRTL ? 'angle-left' : 'angle-right'}
+                    size={18}
+                    type="font-awesome"
+                    color={colors.alternativeTextColor}
+                  />
                 </TouchableOpacity>
               ) : undefined}
             </View>
