@@ -362,7 +362,7 @@ PODS:
     - React-Core
   - RNFS (2.16.6):
     - React
-  - RNGestureHandler (1.10.2):
+  - RNGestureHandler (1.10.3):
     - React-Core
   - RNHandoff (0.0.3):
     - React
@@ -387,7 +387,7 @@ PODS:
   - RNSentry (1.9.0):
     - React-Core
     - Sentry (~> 5.2.0)
-  - RNShare (5.1.3):
+  - RNShare (5.1.4):
     - React-Core
   - RNSVG (12.1.0):
     - React
@@ -737,7 +737,7 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
   RNDeviceInfo: 54401b60514387f9120ab8265be5ed9103d842b9
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
-  RNGestureHandler: e66feb0fda7da74ea6a3094656b3c1efe05f5c07
+  RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNInAppBrowser: 3733c1aa6699983a1c9b4963e85d5e5a48ad297e
   RNLocalize: 47e22ef8c36df1d572e42a87c8ae22e3fcf551dd
@@ -749,7 +749,7 @@ SPEC CHECKSUMS:
   RNScreens: b6c9607e6fe47c1b6e2f1910d2acd46dd7ecea3a
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: 1adaa43b01c6a3ab5091d4d1add66b7c58558898
-  RNShare: d98667ee0277d9cd068041e5f316a5fe67aa8536
+  RNShare: 8af5349f05fc042d230674dd650d19789187ff9c
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
   RNWatch: e4c5d19506c94506860032fb68aedd5991beb985
