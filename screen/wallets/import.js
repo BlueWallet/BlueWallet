@@ -23,6 +23,7 @@ const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
   const route = useRoute();
   const label = (route.params && route.params.label) || '';
+  const triggerImport = (route.params && route.params.triggerImport) || false;
   const [importText, setImportText] = useState(label);
   const navigation = useNavigation();
   const { colors } = useTheme();
@@ -48,6 +49,11 @@ const WalletsImport = () => {
       Keyboard.removeListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow');
       Privacy.disableBlur();
     };
+  }, []);
+
+  useEffect(() => {
+    if (triggerImport) importButtonPressed();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const importButtonPressed = () => {
