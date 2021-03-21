@@ -1,3 +1,5 @@
+Ominaisuudet
+
 * Avoin lähdekoodi
 * Täysi salaus
 * Uskottava kiistettävyys
