@@ -31,6 +31,7 @@ import { isCatalyst, isMacCatalina, isTablet } from '../../blue_modules/environm
 import BlueClipboard from '../../blue_modules/clipboard';
 import navigationStyle from '../../components/navigationStyle';
 
+const scanqrHelper = require('../../helpers/scan-qr');
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
@@ -343,18 +344,12 @@ const WalletsList = () => {
     if (isMacCatalina) {
       fs.showActionSheet({ anchor: walletActionButtonsRef.current }).then(onBarScanned);
     } else {
-      navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          launchedBy: routeName,
-          onBarScanned,
-          showFileImportButton: false,
-        },
-      });
+      scanqrHelper(navigate, routeName, false).then(onBarScanned);
     }
   };
 
   const onBarScanned = value => {
+    if (!value) return;
     DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
       ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
       navigate(...completionValue);
@@ -381,14 +376,7 @@ const WalletsList = () => {
             if (buttonIndex === 1) {
               fs.showImagePickerAndReadImage().then(onBarScanned);
             } else if (buttonIndex === 2) {
-              navigate('ScanQRCodeRoot', {
-                screen: 'ScanQRCode',
-                params: {
-                  launchedBy: routeName,
-                  onBarScanned,
-                  showFileImportButton: false,
-                },
-              });
+              scanqrHelper(navigate, routeName, false).then(onBarScanned);
             } else if (buttonIndex === 3) {
               copyFromClipboard();
             }
@@ -408,15 +396,7 @@ const WalletsList = () => {
         },
         {
           text: loc.wallets.list_long_scan,
-          onPress: () =>
-            navigate('ScanQRCodeRoot', {
-              screen: 'ScanQRCode',
-              params: {
-                launchedBy: routeName,
-                onBarScanned,
-                showFileImportButton: false,
-              },
-            }),
+          onPress: () => scanqrHelper(navigate, routeName, false).then(onBarScanned),
         },
       ];
       if (!isClipboardEmpty) {

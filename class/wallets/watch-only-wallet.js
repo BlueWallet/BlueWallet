@@ -56,13 +56,15 @@ export class WatchOnlyWallet extends LegacyWallet {
    * this method creates appropriate HD wallet class, depending on whether we have xpub, ypub or zpub
    * as a property of `this`, and in case such property exists - it recreates it and copies data from old one.
    * this is needed after serialization/save/load/deserialization procedure.
+   *
+   * @return {WatchOnlyWallet} this
    */
   init() {
     let hdWalletInstance;
     if (this.secret.startsWith('xpub')) hdWalletInstance = new HDLegacyP2PKHWallet();
     else if (this.secret.startsWith('ypub')) hdWalletInstance = new HDSegwitP2SHWallet();
     else if (this.secret.startsWith('zpub')) hdWalletInstance = new HDSegwitBech32Wallet();
-    else return;
+    else return this;
     hdWalletInstance._xpub = this.secret;
     if (this._hdWalletInstance) {
       // now, porting all properties from old object to new one
@@ -75,6 +77,8 @@ export class WatchOnlyWallet extends LegacyWallet {
       delete hdWalletInstance._node0;
     }
     this._hdWalletInstance = hdWalletInstance;
+
+    return this;
   }
 
   prepareForSerialization() {
