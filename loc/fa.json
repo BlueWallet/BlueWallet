@@ -174,7 +174,6 @@
     "details_address_field_is_not_valid": "آدرس معتبر نیست.",
     "details_adv_fee_bump": "امکان افزایش کارمزد",
     "details_adv_full": "از کل موجودی استفاده کن",
-    "details_adv_full_remove": "گیرنده‌های دیگر شما از این تراکنش حذف خواهند شد.",
     "details_adv_full_sure": "آیا مطمئن هستید که می‌خواهید از کل موجودی کیف پولتان برای این تراکنش استفاده کنید؟",
     "details_adv_import": "واردکردن تراکنش",
     "details_amount_field_is_not_valid": "مقدار معتبر نیست.",
