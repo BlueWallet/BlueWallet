@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { View, Image, TouchableOpacity, StyleSheet, StatusBar, ActivityIndicator, useColorScheme } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
+import LottieView from 'lottie-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from './blue_modules/storage-context';
@@ -13,21 +14,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    flex: 2,
+    flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  qrCode: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  qrCodeImage: {
-    width: 120,
-    height: 120,
-  },
   biometric: {
-    flex: 0.2,
+    flex: 1,
     justifyContent: 'flex-end',
     marginBottom: 58,
   },
@@ -141,9 +133,7 @@ const UnlockWith = () => {
       <SafeAreaView style={styles.root}>
         <StatusBar barStyle="default" />
         <View style={styles.container}>
-          <View style={styles.qrCode}>
-            <Image source={require('./img/qr-code.png')} style={styles.qrCodeImage} />
-          </View>
+          <LottieView source={require('./img/bluewalletsplash.json')} progress={1} loop={false} />
           <View style={styles.biometric}>
             <View style={styles.biometricRow}>{renderUnlockOptions()}</View>
           </View>
