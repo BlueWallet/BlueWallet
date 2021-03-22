@@ -174,7 +174,6 @@
     "details_address_field_is_not_valid": "The address is not valid.",
     "details_adv_fee_bump": "Allow Fee Bump",
     "details_adv_full": "Use Full Balance",
-    "details_adv_full_remove": "Your other recipients will be removed from this transaction.",
     "details_adv_full_sure": "Are you sure you want to use your wallet’s full balance for this transaction?",
     "details_adv_import": "Import Transaction",
     "details_amount_field_is_not_valid": "The amount is not valid.",

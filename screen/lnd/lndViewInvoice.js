@@ -278,7 +278,7 @@ const LNDViewInvoice = () => {
   };
 
   return (
-    <SafeBlueArea styles={[styles.root, stylesHook.root]} onLayout={onLayout}>
+    <SafeBlueArea onLayout={onLayout}>
       <StatusBar barStyle="default" />
       <ScrollView>{render()}</ScrollView>
     </SafeBlueArea>

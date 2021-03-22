@@ -23,12 +23,12 @@ const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
   const route = useRoute();
   const label = (route.params && route.params.label) || '';
+  const triggerImport = (route.params && route.params.triggerImport) || false;
   const [importText, setImportText] = useState(label);
   const navigation = useNavigation();
   const { colors } = useTheme();
   const styles = StyleSheet.create({
     root: {
-      flex: 1,
       paddingTop: 40,
       backgroundColor: colors.elevated,
     },
@@ -48,6 +48,11 @@ const WalletsImport = () => {
       Keyboard.removeListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow');
       Privacy.disableBlur();
     };
+  }, []);
+
+  useEffect(() => {
+    if (triggerImport) importButtonPressed();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const importButtonPressed = () => {
@@ -108,7 +113,7 @@ const WalletsImport = () => {
   };
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+    <SafeBlueArea style={styles.root}>
       <StatusBar barStyle="light-content" />
       <BlueSpacing20 />
       <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>

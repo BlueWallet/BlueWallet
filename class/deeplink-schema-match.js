@@ -1,4 +1,4 @@
-import { AppStorage, LightningCustodianWallet } from './';
+import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from './';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import url from 'url';
@@ -176,6 +176,17 @@ class DeeplinkSchemaMatch {
         {
           screen: 'AztecoRedeem',
           params: Azteco.getParamsFromUrl(event.url),
+        },
+      ]);
+    } else if (new WatchOnlyWallet().setSecret(event.url).init().valid()) {
+      completionHandler([
+        'AddWalletRoot',
+        {
+          screen: 'ImportWallet',
+          params: {
+            triggerImport: true,
+            label: event.url,
+          },
         },
       ]);
     } else {
