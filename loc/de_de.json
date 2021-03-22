@@ -174,7 +174,6 @@
     "details_address_field_is_not_valid": "Adresseingabe ist nicht korrekt",
     "details_adv_fee_bump": "TRX-Gebührenerhöhung nach Senden ermöglichen",
     "details_adv_full": "Gesamtes Guthaben senden",
-    "details_adv_full_remove": "Die anderen Empfänger werden von dieser Transaktion entfernt.",
     "details_adv_full_sure": "Bist Du sicher, dass Du das gesamte Guthaben für diese Transaktion verwenden willst?",
     "details_adv_import": "Transaktion importieren",
     "details_amount_field_is_not_valid": "Betragseingabe ist ungültig.",
