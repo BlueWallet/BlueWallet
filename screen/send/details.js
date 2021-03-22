@@ -985,6 +985,8 @@ const SendDetails = () => {
   };
 
   const renderOptionsModal = () => {
+    const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+
     return (
       <BottomModal deviceWidth={width + width / 2} isVisible={optionsVisible} onClose={hideOptions}>
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
@@ -1210,7 +1212,6 @@ const SendDetails = () => {
   // if utxo is limited we use it to calculate available balance
   const balance = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet.getBalance();
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
-  const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -1267,9 +1268,9 @@ const SendDetails = () => {
         </View>
         <BlueDismissKeyboardInputAccessory />
         {Platform.select({
-          ios: <BlueUseAllFundsButton canUseAll={allBalance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />,
+          ios: <BlueUseAllFundsButton canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />,
           android: isAmountToolbarVisibleForAndroid && (
-            <BlueUseAllFundsButton canUseAll={allBalance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />
+            <BlueUseAllFundsButton canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />
           ),
         })}
 
