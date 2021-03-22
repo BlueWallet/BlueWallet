@@ -210,7 +210,6 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   root: {
-    flex: 1,
     backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   card: {

@@ -14,9 +14,6 @@ import { BlueCurrentTheme } from '../../components/themes';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   uri: {
     flexDirection: 'row',
     borderColor: BlueCurrentTheme.colors.formBorder,
@@ -110,7 +107,7 @@ const LightningSettings = () => {
   };
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+    <SafeBlueArea>
       <BlueCard>
         <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
       </BlueCard>

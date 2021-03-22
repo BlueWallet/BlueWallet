@@ -269,7 +269,6 @@ const styles = StyleSheet.create({
     margin: 16,
   },
   root: {
-    flex: 1,
     paddingTop: 19,
     backgroundColor: BlueCurrentTheme.colors.elevated,
   },

@@ -388,7 +388,7 @@ const CoinControl = () => {
 
   if (loading) {
     return (
-      <SafeBlueArea style={[styles.root, styles.center, { backgroundColor: colors.elevated }]}>
+      <SafeBlueArea style={[styles.center, { backgroundColor: colors.elevated }]}>
         <ActivityIndicator testID="Loading" />
       </SafeBlueArea>
     );

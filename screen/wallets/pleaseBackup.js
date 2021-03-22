@@ -70,7 +70,7 @@ const PleaseBackup = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={[styles.flex, stylesHook.flex]}>
+    <SafeBlueArea style={stylesHook.flex}>
       <StatusBar barStyle="default" />
       <ScrollView testID="PleaseBackupScrollView">
         <View style={styles.please}>
@@ -99,9 +99,6 @@ PleaseBackup.navigationOptions = navigationStyle(
 );
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
   loading: {
     flex: 1,
     justifyContent: 'center',

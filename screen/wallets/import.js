@@ -29,7 +29,6 @@ const WalletsImport = () => {
   const { colors } = useTheme();
   const styles = StyleSheet.create({
     root: {
-      flex: 1,
       paddingTop: 40,
       backgroundColor: colors.elevated,
     },
@@ -114,7 +113,7 @@ const WalletsImport = () => {
   };
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+    <SafeBlueArea style={styles.root}>
       <StatusBar barStyle="light-content" />
       <BlueSpacing20 />
       <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>

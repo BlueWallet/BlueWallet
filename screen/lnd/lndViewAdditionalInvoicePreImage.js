@@ -18,7 +18,7 @@ const LNDViewAdditionalInvoicePreImage = () => {
   });
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={stylesHook.root}>
       <View style={styles.wrapper}>
         <BlueTextCentered>{loc.lndViewInvoice.preimage}:</BlueTextCentered>
         <BlueSpacing20 />
@@ -41,9 +41,6 @@ const LNDViewAdditionalInvoicePreImage = () => {
 };
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   wrapper: {
     flex: 1,
     justifyContent: 'center',
