@@ -215,7 +215,7 @@ export default class ElectrumSettings extends Component {
     });
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+      <SafeBlueArea>
         <ScrollView>
           <BlueCard>
             <BlueText style={styles.status}>{loc.settings.electrum_status}</BlueText>
@@ -325,9 +325,6 @@ ElectrumSettings.propTypes = {
 ElectrumSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.electrum_settings_server }));
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   status: {
     textAlign: 'center',
     color: BlueCurrentTheme.colors.feeText,

@@ -21,9 +21,6 @@ const IsItMyAddress = () => {
   const [result, setResult] = useState('');
 
   const stylesHooks = StyleSheet.create({
-    blueArea: {
-      backgroundColor: colors.background,
-    },
     text: {
       color: colors.foregroundColor,
     },
@@ -78,7 +75,7 @@ const IsItMyAddress = () => {
   };
 
   return (
-    <SafeBlueArea style={[styles.blueArea, stylesHooks.blueArea]}>
+    <SafeBlueArea style={styles.blueArea}>
       <KeyboardAvoidingView
         enabled={!Platform.isPad}
         behavior={Platform.OS === 'ios' ? 'position' : null}
@@ -133,7 +130,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   blueArea: {
-    flex: 1,
     paddingTop: 19,
   },
   broadcastResultWrapper: {

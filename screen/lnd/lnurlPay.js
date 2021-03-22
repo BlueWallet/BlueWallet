@@ -157,7 +157,7 @@ export default class LnurlPay extends Component {
 
   renderGotPayload() {
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeBlueArea>
         <ScrollView>
           <BlueCard>
             <AmountInput

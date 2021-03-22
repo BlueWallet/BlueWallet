@@ -399,7 +399,7 @@ const WalletDetails = () => {
       <BlueLoading />
     </View>
   ) : (
-    <SafeBlueArea style={styles.root}>
+    <SafeBlueArea>
       <StatusBar barStyle="default" />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <ScrollView contentContainerStyle={styles.scrollViewContent} testID="WalletDetailsScroll">

@@ -163,8 +163,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   root: {
-    flex: 1,
-    paddingTop: 0,
+    padding: 0,
   },
   iconContainer: {
     backgroundColor: '#ccddf9',

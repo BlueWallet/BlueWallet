@@ -638,20 +638,57 @@ describe('BlueWallet UI Tests', () => {
 
     await device.pressBack();
     await device.pressBack();
+    await device.pressBack(); // go back to wallet tx list to reset the form
+    await element(by.id('SendButton')).tap();
+
+    // set fee rate
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).typeText(feeRate + '');
+    await element(by.text('OK')).tap();
+
+    // first send MAX output
+    await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    await element(by.id('BitcoinAmountInput')).typeText('0.0001\n');
     await element(by.id('advancedOptionsMenuButton')).tap();
     await element(by.id('sendMaxButton')).tap();
     await element(by.text('OK')).tap();
+
     if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
     // created. verifying:
-    await yo('TransactionValue');
+    await yo('TransactionDetailsButton');
     await element(by.id('TransactionDetailsButton')).tap();
     txhex = await extractTextFromElementById('TxhexInput');
     transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(transaction.outs.length, 1, 'should be single output, no change');
     assert.ok(transaction.outs[0].value > 100000);
+
+    // add second output with amount
+    await device.pressBack();
+    await device.pressBack();
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('AddRecipient')).tap();
+    await yo('Transaction1');
+    await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).typeText('0.0001\n');
+
+    if (process.env.TRAVIS) await sleep(5000);
+    try {
+      await element(by.id('CreateTransactionButton')).tap();
+    } catch (_) {}
+    // created. verifying:
+    await yo('TransactionDetailsButton');
+    await element(by.id('TransactionDetailsButton')).tap();
+    txhex = await extractTextFromElementById('TxhexInput');
+    transaction = bitcoin.Transaction.fromHex(txhex);
+    assert.strictEqual(transaction.outs.length, 2, 'should be single output, no change');
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    assert.ok(transaction.outs[0].value > 50000);
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    assert.strictEqual(transaction.outs[1].value, 10000);
 
     // now, testing cosign psbt:
 

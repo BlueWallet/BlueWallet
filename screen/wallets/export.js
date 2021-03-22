@@ -16,9 +16,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  root: {
-    flex: 1,
-  },
   scrollViewContent: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -52,7 +49,6 @@ const WalletExport = () => {
       backgroundColor: colors.elevated,
     },
     root: {
-      ...styles.root,
       backgroundColor: colors.elevated,
     },
     type: { ...styles.type, color: colors.foregroundColor },

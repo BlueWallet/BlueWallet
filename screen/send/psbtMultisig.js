@@ -271,7 +271,7 @@ const PsbtMultisig = () => {
   };
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={stylesHook.root}>
       <View style={styles.container}>
         <View style={styles.mstopcontainer}>
           <View style={styles.mscontainer}>
@@ -310,9 +310,6 @@ const PsbtMultisig = () => {
 };
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   mstopcontainer: {
     flex: 1,
     flexDirection: 'row',
