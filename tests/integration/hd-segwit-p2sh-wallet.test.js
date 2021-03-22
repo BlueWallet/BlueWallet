@@ -101,7 +101,6 @@ it('HD (BIP49) can create TX', async () => {
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
 
   // testing sendMAX
-
   const utxo = [
     {
       height: 591862,
@@ -135,6 +134,7 @@ it('HD (BIP49) can create TX', async () => {
     },
   ];
 
+  // one MAX output
   txNew = hd.createTransaction(
     utxo,
     [{ address: '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK' }],
@@ -144,6 +144,18 @@ it('HD (BIP49) can create TX', async () => {
   tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
   assert.strictEqual(tx.outs.length, 1);
   assert.ok(tx.outs[0].value > 77000);
+
+  // MAX with regular output
+  txNew = hd.createTransaction(
+    utxo,
+    [{ address: '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK' }, { address: 'bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p', value: 25000 }],
+    1,
+    hd._getInternalAddressByIndex(hd.next_free_change_address_index),
+  );
+  tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
+  assert.strictEqual(tx.outs.length, 2);
+  assert.ok(tx.outs[0].value > 50000);
+  assert.strictEqual(tx.outs[1].value, 25000);
 });
 
 it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', async function () {

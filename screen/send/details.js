@@ -84,7 +84,7 @@ const SendDetails = () => {
 
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/byte fee
-  const fee = useMemo(() => {
+  const feeRate = useMemo(() => {
     if (customFee) return customFee;
     if (feePrecalc.slowFee === null) return '1'; // wait for precalculated fees
     let initialFee;
@@ -132,15 +132,11 @@ const SendDetails = () => {
     setAmountUnit(wallet.preferredBalanceUnit); // default for whole screen
 
     // decode route params
-    const addresses = [];
-    let initialMemo = '';
     if (routeParams.uri) {
       try {
-        const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
-        addresses.push({ address, amount, amountSats: currency.btcToSatoshi(amount), key: String(Math.random()) });
-        initialMemo = memo;
-        setAddresses(addresses);
-        setMemo(initialMemo);
+        const { address, amount, memo: initialMemo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
+        setAddresses([{ address, amount, amountSats: currency.btcToSatoshi(amount), key: String(Math.random()) }]);
+        setMemo(initialMemo || '');
         setAmountUnit(BitcoinUnit.BTC);
         setPayjoinUrl(payjoinUrl);
       } catch (error) {
@@ -148,13 +144,11 @@ const SendDetails = () => {
         Alert.alert(loc.errors.error, loc.send.details_error_decode);
       }
     } else if (routeParams.address) {
-      addresses.push({ address: routeParams.address, key: String(Math.random()) });
-      if (routeParams.memo) initialMemo = routeParams.memo;
-      setAddresses(addresses);
-      setMemo(initialMemo);
+      setAddresses([{ address: routeParams.address, key: String(Math.random()) }]);
+      setMemo(routeParams.memo || '');
       setAmountUnit(BitcoinUnit.BTC);
     } else {
-      setAddresses([{ address: '', key: String(Math.random()) }]);
+      setAddresses([{ address: '', key: String(Math.random()) }]); // key is for the FlatList
     }
 
     // we are ready!
@@ -210,7 +204,7 @@ const SendDetails = () => {
     if (!wallet) return; // wait for it
     const fees = networkTransactionFees;
     const changeAddress = getChangeAddressFast();
-    const requestedSatPerByte = Number(fee);
+    const requestedSatPerByte = Number(feeRate);
     const lutxo = utxo || wallet.getUtxo();
 
     const options = [
@@ -277,7 +271,7 @@ const SendDetails = () => {
     }
 
     setFeePrecalc(newFeePrecalc);
-  }, [wallet, networkTransactionFees, utxo, addresses, fee, dumb]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [wallet, networkTransactionFees, utxo, addresses, feeRate, dumb]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const getChangeAddressFast = () => {
     if (changeAddress) return changeAddress; // cache
@@ -338,14 +332,16 @@ const SendDetails = () => {
       return Alert.alert(loc.errors.error, loc.send.details_address_field_is_not_valid);
     }
 
-    const recipients = [...addresses];
-    const unitsCopy = [...units];
     const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
     if (wallet.isAddressValid(dataWithoutSchema)) {
-      recipients[scrollIndex.current].address = dataWithoutSchema;
-      unitsCopy[scrollIndex.current] = amountUnit;
-      setAddresses(recipients);
-      setUnits(unitsCopy);
+      setAddresses(addresses => {
+        addresses[scrollIndex.current].address = dataWithoutSchema;
+        return [...addresses];
+      });
+      setUnits(units => {
+        units[scrollIndex.current] = amountUnit;
+        return [...units];
+      });
       setIsLoading(false);
       return;
     }
@@ -367,13 +363,17 @@ const SendDetails = () => {
 
     console.log('options', options);
     if (btcAddressRx.test(address) || address.startsWith('bc1') || address.startsWith('BC1')) {
-      unitsCopy[scrollIndex.current] = BitcoinUnit.BTC; // also resetting current unit to BTC
-      recipients[scrollIndex.current].address = address;
-      recipients[scrollIndex.current].amount = options.amount;
-      recipients[scrollIndex.current].amountSats = new BigNumber(options.amount).multipliedBy(100000000).toNumber();
-      setAddresses(recipients);
+      setAddresses(addresses => {
+        addresses[scrollIndex.current].address = address;
+        addresses[scrollIndex.current].amount = options.amount;
+        addresses[scrollIndex.current].amountSats = new BigNumber(options.amount).multipliedBy(100000000).toNumber();
+        return [...addresses];
+      });
+      setUnits(units => {
+        units[scrollIndex.current] = BitcoinUnit.BTC; // also resetting current unit to BTC
+        return [...units];
+      });
       setMemo(options.label || options.message);
-      setUnits(unitsCopy);
       setAmountUnit(BitcoinUnit.BTC);
       setPayjoinUrl(options.pj || '');
     }
@@ -384,7 +384,7 @@ const SendDetails = () => {
   const createTransaction = async () => {
     Keyboard.dismiss();
     setIsLoading(true);
-    const requestedSatPerByte = fee;
+    const requestedSatPerByte = feeRate;
     for (const [index, transaction] of addresses.entries()) {
       let error;
       if (!transaction.amount || transaction.amount < 0 || parseFloat(transaction.amount) === 0) {
@@ -442,16 +442,16 @@ const SendDetails = () => {
 
   const createPsbtTransaction = async () => {
     const changeAddress = await getChangeAddressAsync();
-    const requestedSatPerByte = Number(fee);
+    const requestedSatPerByte = Number(feeRate);
     const lutxo = utxo || wallet.getUtxo();
     console.log({ requestedSatPerByte, utxo });
 
-    let targets = [];
+    const targets = [];
     for (const transaction of addresses) {
       if (transaction.amount === BitcoinUnit.MAX) {
-        // single output with MAX
-        targets = [{ address: transaction.address }];
-        break;
+        // output with MAX
+        targets.push({ address: transaction.address });
+        continue;
       }
       const value = parseInt(transaction.amountSats);
       if (value > 0) {
@@ -463,7 +463,7 @@ const SendDetails = () => {
       }
     }
 
-    const { tx, outputs, psbt } = wallet.createTransaction(
+    const { tx, outputs, psbt, fee } = wallet.createTransaction(
       lutxo,
       targets,
       requestedSatPerByte,
@@ -704,9 +704,8 @@ const SendDetails = () => {
   };
 
   const handleAddRecipient = async () => {
-    addresses.push({ address: '', key: String(Math.random()) }); // key is for the FlatList
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut, () => scrollView.current.scrollToEnd());
-    setAddresses([...addresses]);
+    setAddresses(addresses => [...addresses, { address: '', key: String(Math.random()) }]);
     setOptionsVisible(false);
     scrollView.current.scrollToEnd();
     if (addresses.length === 0) return;
@@ -716,9 +715,11 @@ const SendDetails = () => {
 
   const handleRemoveRecipient = async () => {
     const last = scrollIndex.current === addresses.length - 1;
-    addresses.splice(scrollIndex.current, 1);
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setAddresses([...addresses]);
+    setAddresses(addresses => {
+      addresses.splice(scrollIndex.current, 1);
+      return [...addresses];
+    });
     setOptionsVisible(false);
     if (addresses.length === 0) return;
     await sleep(200); // wait for animation
@@ -805,18 +806,22 @@ const SendDetails = () => {
     ReactNativeHapticFeedback.trigger('notificationWarning');
     Alert.alert(
       loc.send.details_adv_full,
-      loc.send.details_adv_full_sure + ' ' + (addresses.length > 1 ? loc.send.details_adv_full_remove : ''),
+      loc.send.details_adv_full_sure,
       [
         {
           text: loc._.ok,
-          onPress: async () => {
+          onPress: () => {
             Keyboard.dismiss();
-            const recipient = addresses[scrollIndex.current];
-            recipient.amount = BitcoinUnit.MAX;
-            recipient.amountSats = BitcoinUnit.MAX;
+            setAddresses(addresses => {
+              addresses[scrollIndex.current].amount = BitcoinUnit.MAX;
+              addresses[scrollIndex.current].amountSats = BitcoinUnit.MAX;
+              return [...addresses];
+            });
+            setUnits(units => {
+              units[scrollIndex.current] = BitcoinUnit.BTC;
+              return [...units];
+            });
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-            setAddresses([recipient]);
-            setUnits([BitcoinUnit.BTC]);
             setOptionsVisible(false);
           },
           style: 'default',
@@ -894,21 +899,21 @@ const SendDetails = () => {
         time: loc.send.fee_10m,
         fee: feePrecalc.fastestFee,
         rate: nf.fastestFee,
-        active: Number(fee) === nf.fastestFee,
+        active: Number(feeRate) === nf.fastestFee,
       },
       {
         label: loc.send.fee_medium,
         time: loc.send.fee_3h,
         fee: feePrecalc.mediumFee,
         rate: nf.mediumFee,
-        active: Number(fee) === nf.mediumFee,
+        active: Number(feeRate) === nf.mediumFee,
       },
       {
         label: loc.send.fee_slow,
         time: loc.send.fee_1d,
         fee: feePrecalc.slowFee,
         rate: nf.slowFee,
-        active: Number(fee) === nf.slowFee,
+        active: Number(feeRate) === nf.slowFee,
       },
     ];
 
@@ -980,8 +985,6 @@ const SendDetails = () => {
   };
 
   const renderOptionsModal = () => {
-    const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
-
     return (
       <BottomModal deviceWidth={width + width / 2} isVisible={optionsVisible} onClose={hideOptions}>
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
@@ -1121,42 +1124,48 @@ const SendDetails = () => {
           isLoading={isLoading}
           amount={item.amount ? item.amount.toString() : null}
           onAmountUnitChange={unit => {
-            units[index] = unit;
-            const item = addresses[index];
+            setAddresses(addresses => {
+              const item = addresses[index];
 
-            switch (unit) {
-              case BitcoinUnit.SATS:
-                item.amountSats = parseInt(item.amount);
-                break;
-              case BitcoinUnit.BTC:
-                item.amountSats = currency.btcToSatoshi(item.amount);
-                break;
-              case BitcoinUnit.LOCAL_CURRENCY:
-                // also accounting for cached fiat->sat conversion to avoid rounding error
-                item.amountSats = AmountInput.getCachedSatoshis(item.amount) || currency.btcToSatoshi(currency.fiatToBTC(item.amount));
-                break;
-            }
+              switch (unit) {
+                case BitcoinUnit.SATS:
+                  item.amountSats = parseInt(item.amount);
+                  break;
+                case BitcoinUnit.BTC:
+                  item.amountSats = currency.btcToSatoshi(item.amount);
+                  break;
+                case BitcoinUnit.LOCAL_CURRENCY:
+                  // also accounting for cached fiat->sat conversion to avoid rounding error
+                  item.amountSats = AmountInput.getCachedSatoshis(item.amount) || currency.btcToSatoshi(currency.fiatToBTC(item.amount));
+                  break;
+              }
 
-            addresses[index] = item;
-            setUnits([...units]);
-            setAddresses([...addresses]);
+              addresses[index] = item;
+              return [...addresses];
+            });
+            setUnits(units => {
+              units[index] = unit;
+              return [...units];
+            });
           }}
           onChangeText={text => {
-            item.amount = text;
-            switch (units[index] || amountUnit) {
-              case BitcoinUnit.BTC:
-                item.amountSats = currency.btcToSatoshi(item.amount);
-                break;
-              case BitcoinUnit.LOCAL_CURRENCY:
-                item.amountSats = currency.btcToSatoshi(currency.fiatToBTC(item.amount));
-                break;
-              default:
-              case BitcoinUnit.SATS:
-                item.amountSats = parseInt(text);
-                break;
-            }
-            addresses[index] = item;
-            setAddresses([...addresses]);
+            setAddresses(addresses => {
+              item.amount = text;
+              switch (units[index] || amountUnit) {
+                case BitcoinUnit.BTC:
+                  item.amountSats = currency.btcToSatoshi(item.amount);
+                  break;
+                case BitcoinUnit.LOCAL_CURRENCY:
+                  item.amountSats = currency.btcToSatoshi(currency.fiatToBTC(item.amount));
+                  break;
+                default:
+                case BitcoinUnit.SATS:
+                  item.amountSats = parseInt(text);
+                  break;
+              }
+              addresses[index] = item;
+              return [...addresses];
+            });
           }}
           unit={units[index] || amountUnit}
           inputAccessoryViewID={BlueUseAllFundsButton.InputAccessoryViewID}
@@ -1164,12 +1173,13 @@ const SendDetails = () => {
         <AddressInput
           onChangeText={async text => {
             text = text.trim();
-            const transactions = [...addresses];
             const { address, amount, memo: lmemo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text);
-            item.address = address || text;
-            item.amount = amount || item.amount;
-            transactions[index] = item;
-            setAddresses(transactions);
+            setAddresses(addresses => {
+              item.address = address || text;
+              item.amount = amount || item.amount;
+              addresses[index] = item;
+              return [...addresses];
+            });
             setMemo(lmemo || memo);
             setIsLoading(false);
             setPayjoinUrl(payjoinUrl);
@@ -1200,6 +1210,7 @@ const SendDetails = () => {
   // if utxo is limited we use it to calculate available balance
   const balance = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet.getBalance();
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
+  const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -1245,7 +1256,7 @@ const SendDetails = () => {
               <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
               <View style={[styles.feeRow, stylesHook.feeRow]}>
                 <Text style={stylesHook.feeValue}>
-                  {feePrecalc.current ? formatFee(feePrecalc.current) : fee + ' ' + loc.units.sat_byte}
+                  {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_byte}
                 </Text>
               </View>
             </TouchableOpacity>

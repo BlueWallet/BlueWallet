@@ -4,13 +4,14 @@
  *
  * @param navigateFunc {function}
  * @param currentScreenName {string}
+ * @param showFileImportButton {boolean}
  *
  * @return {Promise<string>}
  */
-module.exports = function (navigateFunc, currentScreenName) {
+module.exports = function scanQrHelper(navigateFunc, currentScreenName, showFileImportButton = true) {
   return new Promise(resolve => {
     const params = {};
-    params.showFileImportButton = true;
+    params.showFileImportButton = !!showFileImportButton;
 
     params.onBarScanned = function (data) {
       setTimeout(() => resolve(data.data || data), 1);

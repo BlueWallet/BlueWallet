@@ -39,7 +39,7 @@ const WalletsAddMultisigHelp = () => {
   return isLoading ? (
     <BlueLoading />
   ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={stylesHook.root}>
+    <SafeBlueArea style={stylesHook.root}>
       <ScrollView>
         <View style={[styles.intro, stylesHook.intro]}>
           <Text style={[styles.introTitle, stylesHook.introTitle]}>{loc.multisig.ms_help_title}</Text>

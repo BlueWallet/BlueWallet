@@ -6,17 +6,12 @@ import loc from '../loc';
 import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading } from '../BlueComponents';
 import navigationStyle from '../components/navigationStyle';
 import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet, HDAezeedWallet } from '../class';
-import { BlueCurrentTheme } from '../components/themes';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
 const BlueElectrum = require('../blue_modules/BlueElectrum');
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: BlueCurrentTheme.colors.background,
-  },
   center: {
     alignItems: 'center',
   },
@@ -226,7 +221,7 @@ export default class Selftest extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+      <SafeBlueArea>
         <BlueCard>
           <ScrollView>
             <BlueSpacing20 />

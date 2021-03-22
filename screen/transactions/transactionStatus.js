@@ -40,9 +40,6 @@ const TransactionsStatus = () => {
   const [tx, setTX] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const stylesHook = StyleSheet.create({
-    root: {
-      backgroundColor: colors.background,
-    },
     value: {
       color: colors.alternativeTextColor2,
     },
@@ -273,13 +270,13 @@ const TransactionsStatus = () => {
 
   if (isLoading || !tx) {
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.root, stylesHook.root]}>
+      <SafeBlueArea>
         <BlueLoading />
       </SafeBlueArea>
     );
   }
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea>
       <HandoffComponent
         title={`Bitcoin Transaction ${tx.hash}`}
         type="io.bluewallet.bluewallet"
@@ -363,9 +360,6 @@ const TransactionsStatus = () => {
 
 export default TransactionsStatus;
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   container: {
     flex: 1,
     justifyContent: 'space-between',

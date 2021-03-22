@@ -21,6 +21,7 @@ import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
 import isCatalyst from 'react-native-is-catalyst';
+import BigNumber from 'bignumber.js';
 
 import { SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -162,7 +163,7 @@ export default class SendCreate extends Component {
               />
               <Text style={styles.transactionDetailsTitle}>{loc.send.create_fee}</Text>
               <Text style={styles.transactionDetailsSubtitle}>
-                {this.state.fee} {BitcoinUnit.BTC}
+                {new BigNumber(this.state.fee).toFixed()} {BitcoinUnit.BTC}
               </Text>
 
               <Text style={styles.transactionDetailsTitle}>{loc.send.create_tx_size}</Text>
@@ -209,7 +210,6 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   root: {
-    flex: 1,
     backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   card: {
