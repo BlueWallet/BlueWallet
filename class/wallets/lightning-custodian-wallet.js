@@ -605,6 +605,10 @@ export class LightningCustodianWallet extends LegacyWallet {
     return true;
   }
 
+  allowSignVerifyMessage() {
+    return false;
+  }
+
   /**
    * Example return:
    * { destination: '03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f',
