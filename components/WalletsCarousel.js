@@ -174,7 +174,10 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
           }}
         >
           <LinearGradient shadowColor={colors.shadowColor} colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
-            <Image source={require('../img/btc-shape.png')} style={iStyles.image} />
+            <Image
+              source={I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png')}
+              style={iStyles.image}
+            />
             <Text style={iStyles.br} />
             <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
               {item.getIsFailure() ? loc.wallets.import_placeholder_fail : loc.wallets.import_placeholder_inprogress}
@@ -196,13 +199,13 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
   let image;
   switch (item.type) {
     case LightningCustodianWallet.type:
-      image = require('../img/lnd-shape.png');
+      image = I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
       break;
     case MultisigHDWallet.type:
-      image = require('../img/vault-shape.png');
+      image = I18nManager.isRTL ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
       break;
     default:
-      image = require('../img/btc-shape.png');
+      image = I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
   }
 
   const latestTransactionText =

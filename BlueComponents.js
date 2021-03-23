@@ -330,11 +330,11 @@ export class BlueWalletNavigationHeader extends Component {
           source={(() => {
             switch (this.state.wallet.type) {
               case LightningCustodianWallet.type:
-                return require('./img/lnd-shape.png');
+                return I18nManager.isRTL ? require('./img/lnd-shape-rtl.png') : require('./img/lnd-shape.png');
               case MultisigHDWallet.type:
-                return require('./img/vault-shape.png');
+                return I18nManager.isRTL ? require('./img/vault-shape-rtl.png') : require('./img/vault-shape.png');
               default:
-                return require('./img/btc-shape.png');
+                return I18nManager.isRTL ? require('./img/btc-shape-rtl.png') : require('./img/btc-shape.png');
             }
           })()}
           style={{
@@ -580,7 +580,7 @@ const styleCopyTextToClipboard = StyleSheet.create({
 export const SafeBlueArea = props => {
   const { style, ...nonStyleProps } = props;
   const { colors } = useTheme();
-  const baseStyle = { flex: 1, backgroundColor: colors.background }
+  const baseStyle = { flex: 1, backgroundColor: colors.background };
   return <SafeAreaView forceInset={{ horizontal: 'always' }} style={[baseStyle, style]} {...nonStyleProps} />;
 };
 

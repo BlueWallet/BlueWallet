@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
-import { View, ActivityIndicator, Image, Text, StyleSheet, StatusBar, ScrollView } from 'react-native';
+import { View, ActivityIndicator, Image, Text, I18nManager, StyleSheet, StatusBar, ScrollView } from 'react-native';
 import { BluePrivateBalance } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
@@ -123,11 +123,11 @@ const ReorderWallets = () => {
             source={(() => {
               switch (item.type) {
                 case LightningCustodianWallet.type:
-                  return require('../../img/lnd-shape.png');
+                  return I18nManager.isRTL ? require('../../img/lnd-shape-rtl.png') : require('../../img/lnd-shape.png');
                 case MultisigHDWallet.type:
-                  return require('../../img/vault-shape.png');
+                  return I18nManager.isRTL ? require('../../img/vault-shape-rtl.png') : require('../../img/vault-shape.png');
                 default:
-                  return require('../../img/btc-shape.png');
+                  return I18nManager.isRTL ? require('../../img/btc-shape-rtl.png') : require('../../img/btc-shape.png');
               }
             })()}
             style={styles.image}
