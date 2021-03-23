@@ -221,6 +221,10 @@ export class WatchOnlyWallet extends LegacyWallet {
     return this.isHd();
   }
 
+  allowMasterFingerprint() {
+    return this.getSecret().startsWith('zpub');
+  }
+
   useWithHardwareWalletEnabled() {
     return !!this.use_with_hardware_wallet;
   }

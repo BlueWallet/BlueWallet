@@ -1112,4 +1112,23 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     return { tx };
   }
+
+  /**
+   * @param mnemonic {string} Mnemonic seed phrase
+   * @returns {string} Hex string of fingerprint derived from mnemonics. Always has lenght of 8 chars and correct leading zeroes
+   */
+  static seedToFingerprint(mnemonic) {
+    const seed = bip39.mnemonicToSeed(mnemonic);
+    const root = bitcoin.bip32.fromSeed(seed);
+    let hex = root.fingerprint.toString('hex');
+    while (hex.length < 8) hex = '0' + hex; // leading zeroes
+    return hex.toUpperCase();
+  }
+
+  /**
+   * @returns {string} Hex string of fingerprint derived from wallet mnemonics. Always has lenght of 8 chars and correct leading zeroes
+   */
+  getMasterFingerprintHex() {
+    return AbstractHDElectrumWallet.seedToFingerprint(this.secret);
+  }
 }

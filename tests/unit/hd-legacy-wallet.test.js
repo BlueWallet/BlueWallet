@@ -149,4 +149,11 @@ describe('Legacy HD (BIP44)', () => {
     assert.strictEqual(signature, 'H98hmvtyPFUbR6E5Tcsqmc+eSjlYhP2vy41Y6IyHS9DVKEI5n8VEMpIEDtvlMARVce96nOqbRHXo9nD05WXH/Eo=');
     assert.strictEqual(hd.verifyMessage('vires is numeris', hd._getInternalAddressByIndex(0), signature), true);
   });
+
+  it('can show fingerprint', async () => {
+    const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+    const hd = new HDLegacyP2PKHWallet();
+    hd.setSecret(mnemonic);
+    assert.strictEqual(hd.getMasterFingerprintHex(), '73C5DA0A');
+  });
 });

@@ -16,7 +16,7 @@ import {
   StatusBar,
   PermissionsAndroid,
 } from 'react-native';
-import { SecondButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueText, BlueLoading } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea, SecondButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { HDLegacyBreadwalletWallet } from '../../class/wallets/hd-legacy-breadwallet-wallet';
@@ -457,7 +457,7 @@ const WalletDetails = () => {
               </>
             )}
 
-            {wallet.type === MultisigHDWallet.type && !!wallet.getDerivationPath() && (
+            {wallet.getDerivationPath() && (
               <>
                 <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_derivation_path}</Text>
                 <BlueText>{wallet.getDerivationPath()}</BlueText>
@@ -492,29 +492,32 @@ const WalletDetails = () => {
               </Text>
               <BlueText>{wallet.getTransactions().length}</BlueText>
             </>
+
             <View>
               {wallet.type === WatchOnlyWallet.type && wallet.getSecret().startsWith('zpub') && (
                 <>
+                  <BlueSpacing10 />
                   <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_advanced.toLowerCase()}</Text>
                   <View style={styles.hardware}>
                     <BlueText>{loc.wallets.details_use_with_hardware_wallet}</BlueText>
                     <Switch value={useWithHardwareWallet} onValueChange={setUseWithHardwareWallet} />
                   </View>
-                  <>
-                    <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.details_master_fingerprint.toLowerCase()}</Text>
-                    <Text style={[styles.textValue, stylesHook.textValue]}>{wallet.getMasterFingerprintHex()}</Text>
-                  </>
-                  <BlueSpacing20 />
                 </>
               )}
-              <BlueSpacing20 />
 
+              {wallet.allowMasterFingerprint() && (
+                <>
+                  <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_master_fingerprint.toLowerCase()}</Text>
+                  <BlueText>{wallet.getMasterFingerprintHex()}</BlueText>
+                </>
+              )}
+
+              <BlueSpacing20 />
               <SecondButton onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
-
-              <BlueSpacing20 />
 
               {wallet.type === MultisigHDWallet.type && (
                 <>
+                  <BlueSpacing20 />
                   <SecondButton
                     onPress={navigateToMultisigCoordinationSetup}
                     testID="MultisigCoordinationSetup"
@@ -536,8 +539,8 @@ const WalletDetails = () => {
                 wallet.type === HDAezeedWallet.type ||
                 wallet.type === HDSegwitP2SHWallet.type) && (
                 <>
+                  <BlueSpacing20 />
                   <SecondButton onPress={navigateToXPub} testID="XPub" title={loc.wallets.details_show_xpub} />
-
                   <BlueSpacing20 />
                   {renderMarketplaceButton()}
                 </>

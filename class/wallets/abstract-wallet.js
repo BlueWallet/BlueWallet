@@ -20,6 +20,7 @@ export class AbstractWallet {
     this.type = this.constructor.type;
     this.typeReadable = this.constructor.typeReadable;
     this.segwitType = this.constructor.segwitType;
+    this._derivationPath = this.constructor.derivationPath;
     this.label = '';
     this.secret = ''; // private key or recovery phrase
     this.balance = 0;
@@ -125,6 +126,10 @@ export class AbstractWallet {
   }
 
   allowSignVerifyMessage() {
+    return false;
+  }
+
+  allowMasterFingerprint() {
     return false;
   }
 
@@ -328,5 +333,12 @@ export class AbstractWallet {
     if ('memo' in opts) meta.memo = opts.memo;
     if ('frozen' in opts) meta.frozen = opts.frozen;
     this._utxoMetadata[`${txid}:${vout}`] = meta;
+  }
+
+  /**
+   * @returns {string|null} Root derivation path for wallet if any
+   */
+  getDerivationPath() {
+    return this._derivationPath || null;
   }
 }

@@ -182,4 +182,11 @@ describe('P2SH Segwit HD (BIP49)', () => {
     assert.strictEqual(signature, 'I5WkniWTnJhTW74t3kTAkHq3HdiupTNgOZLpMp0hvUfAJw2HMuyRiNLl2pbNWobNCCrmvffSWM7IgkOBz/J9fYA=');
     assert.strictEqual(hd.verifyMessage('vires is numeris', hd._getInternalAddressByIndex(0), signature), true);
   });
+
+  it('can show fingerprint', async () => {
+    const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+    const hd = new HDSegwitP2SHWallet();
+    hd.setSecret(mnemonic);
+    assert.strictEqual(hd.getMasterFingerprintHex(), '73C5DA0A');
+  });
 });
