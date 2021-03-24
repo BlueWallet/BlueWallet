@@ -185,7 +185,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     } else {
       // mnemonics. lets derive fingerprint (if it wasnt provided)
       if (!bip39.validateMnemonic(key)) throw new Error('Not a valid mnemonic phrase');
-      fingerprint = fingerprint || AbstractHDElectrumWallet.seedToFingerprint(key);
+      fingerprint = fingerprint || MultisigHDWallet.seedToFingerprint(key);
     }
 
     if (fingerprint && this._cosignersFingerprints.indexOf(fingerprint.toUpperCase()) !== -1 && fingerprint !== '00000000') {
@@ -432,7 +432,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           const xpub = this.convertXpubToMultisignatureXpub(
             MultisigHDWallet.seedToXpub(this._cosigners[index], this._cosignersCustomPaths[index] || this._derivationPath),
           );
-          const fingerprint = AbstractHDElectrumWallet.seedToFingerprint(this._cosigners[index]);
+          const fingerprint = MultisigHDWallet.seedToFingerprint(this._cosigners[index]);
           ret += fingerprint + ': ' + xpub + '\n';
         } else {
           ret += 'seed: ' + this._cosigners[index] + '\n';
@@ -1037,7 +1037,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     if (index === -1) return;
     if (!MultisigHDWallet.isXpubValid(newCosigner)) {
       // its not an xpub, so lets derive fingerprint ourselves
-      newFp = AbstractHDElectrumWallet.seedToFingerprint(newCosigner);
+      newFp = MultisigHDWallet.seedToFingerprint(newCosigner);
       if (oldFp !== newFp) {
         throw new Error('Fingerprint of new seed doesnt match');
       }
