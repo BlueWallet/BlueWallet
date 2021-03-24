@@ -14,6 +14,7 @@
     "no": "No",
     "save": "Save",
     "seed": "Seed",
+    "success": "Success",
     "wallet_key": "Wallet key",
     "invalid_animated_qr_code_fragment" : "Invalid animated QRCode fragment. Please try again.",
     "file_saved": "File ({filePath}) has been saved in your Downloads folder.",
@@ -557,5 +558,16 @@
     "MAX": "Max",
     "sat_byte": "sat/byte",
     "sats": "sats"
+  },
+  "addresses": {
+    "sign_title": "Sign/Verify message",
+    "sign_help": "Here you can create or verify a cryptographic signature based on a Bitcoin address",
+    "sign_sign": "Sign",
+    "sign_verify": "Verify",
+    "sign_signature_correct": "Verification Succeeded!",
+    "sign_signature_incorrect": "Verification Failed!",
+    "sign_placeholder_address": "Address",
+    "sign_placeholder_message": "Message",
+    "sign_placeholder_signature": "Signature"
   }
 }

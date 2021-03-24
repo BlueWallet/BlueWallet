@@ -14,8 +14,9 @@
     "no": "不",
     "save": "保存",
     "seed": "种子",
+    "success": "成功",
     "wallet_key": "钱包密钥",
-    "invalid_animated_qr_code_fragment": "无效的动态二维码，请重试。",
+    "invalid_animated_qr_code_fragment" : "无效的动态二维码，请重试。",
     "file_saved": "文件（{filePath}）已保存在您的“下载”文件夹中。",
     "discard_changes": "放弃更变？",
     "discard_changes_detail": "您尚有未保存的更变。 您确定要丢弃它们并离开屏幕吗？"
@@ -174,7 +175,6 @@
     "details_address_field_is_not_valid": "地址无效",
     "details_adv_fee_bump": "允许费用上涨",
     "details_adv_full": "使用全部余额",
-    "details_adv_full_remove": "您的其他收款人将从此交易中删除。",
     "details_adv_full_sure": "您确定要使用钱包的全部余额进行此交易吗？",
     "details_adv_import": "汇入交易",
     "details_amount_field_is_not_valid": "金额无效",
@@ -305,7 +305,7 @@
     "network_electrum": "Electrum服务器",
     "not_a_valid_uri": "无效的URI",
     "notifications": "通知事项",
-    "open_link_in_explorer": "在资源管理器中打开链接",
+    "open_link_in_explorer" : "在资源管理器中打开链接",
     "password": "密码",
     "password_explain": "创建密码，您将用此密码来解密储存空间",
     "passwords_do_not_match": "两个密码不同",
@@ -319,9 +319,10 @@
     "privacy_clipboard_explanation": "如果在剪贴板中找到地址或发票，请提供捷径。",
     "push_notifications": "推送通知",
     "retype_password": "再次输入密码",
+    "selfTest": "自行测试",
     "save": "保存",
     "saved": "已保存",
-    "success_transaction_broadcasted": "成功！ 您的交易已广播！",
+    "success_transaction_broadcasted" : "成功！ 您的交易已广播！",
     "total_balance": "总余额",
     "total_balance_explanation": "在主屏幕小工具上显示您所有钱包的总余额。",
     "widgets": "小工具"
@@ -336,7 +337,6 @@
     "cancel_no": "此交易不可替换。",
     "cancel_title": "取消此交易（RBF）",
     "confirmations_lowercase": "{confirmations}个确认",
-    "transaction_id": "交易ID",
     "note": "备注",
     "expand_note": "打开备注",
     "block_explorer_link": "区块链浏灠连结",
@@ -475,7 +475,7 @@
     "share": "分享",
     "view": "查看",
     "manage_keys": "管理密钥",
-    "how_many_signatures_can_bluewallet_make": "BlueWallet能够生成多少私钥？",
+    "how_many_signatures_can_bluewallet_make": "BlueWallet能够生成多少签名？",
     "signatures_required_to_spend": "需要签名 {number}",
     "signatures_we_can_make": "可以使{number}",
     "scan_or_import_file": "扫描或导入文件",
@@ -561,5 +561,16 @@
     "MAX": "最大",
     "sat_byte": "聪/字节",
     "sats": "聪"
+  },
+  "addresses": {
+    "sign_title": "签署/验证信息",
+    "sign_help": "在这里您可以根据比特币地址来创建或验证加密签名",
+    "sign_sign": "签署",
+    "sign_verify": "验证",
+    "sign_signature_correct": "验证成功！",
+    "sign_signature_incorrect": "验证失败！",
+    "sign_placeholder_address": "地址",
+    "sign_placeholder_message": "信息",
+    "sign_placeholder_signature": "签名"
   }
 }

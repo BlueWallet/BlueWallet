@@ -21,6 +21,10 @@ export class WatchOnlyWallet extends LegacyWallet {
     );
   }
 
+  allowSignVerifyMessage() {
+    return false;
+  }
+
   getAddress() {
     if (this.isAddressValid(this.secret)) return this.secret; // handling case when there is an XPUB there
     if (this._hdWalletInstance) throw new Error('Should not be used in watch-only HD wallets');
