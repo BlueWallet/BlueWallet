@@ -156,7 +156,7 @@ const SendDetails = () => {
 
     // load cached fees
     AsyncStorage.getItem(NetworkTransactionFee.StorageKey)
-      .then(async res => {
+      .then(res => {
         const fees = JSON.parse(res);
         if (!fees?.fastestFee) return;
         setNetworkTransactionFees(fees);
@@ -325,7 +325,7 @@ const SendDetails = () => {
    *
    * @param data {String} Can be address or `bitcoin:xxxxxxx` uri scheme, or invalid garbage
    */
-  const processAddressData = async data => {
+  const processAddressData = data => {
     setIsLoading(true);
     if (!data.replace) {
       // user probably scanned PSBT and got an object instead of string..?
@@ -338,10 +338,6 @@ const SendDetails = () => {
       setAddresses(addresses => {
         addresses[scrollIndex.current].address = dataWithoutSchema;
         return [...addresses];
-      });
-      setUnits(units => {
-        units[scrollIndex.current] = amountUnit;
-        return [...units];
       });
       setIsLoading(false);
       return;
@@ -585,7 +581,7 @@ const SendDetails = () => {
    *
    * @returns {Promise<void>}
    */
-  const importQrTransaction = async () => {
+  const importQrTransaction = () => {
     if (wallet.type !== WatchOnlyWallet.type) {
       return Alert.alert(loc.errors.error, 'Error: importing transaction in non-watchonly wallet (this should never happen)');
     }
@@ -601,7 +597,7 @@ const SendDetails = () => {
     });
   };
 
-  const importQrTransactionOnBarScanned = async ret => {
+  const importQrTransactionOnBarScanned = ret => {
     navigation.dangerouslyGetParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
@@ -734,7 +730,7 @@ const SendDetails = () => {
     setOptionsVisible(false);
   };
 
-  const importTransactionMultisig = async () => {
+  const importTransactionMultisig = () => {
     return _importTransactionMultisig();
   };
 
@@ -752,7 +748,7 @@ const SendDetails = () => {
     }
   };
 
-  const importTransactionMultisigScanQr = async () => {
+  const importTransactionMultisigScanQr = () => {
     setOptionsVisible(false);
     navigation.navigate('ScanQRCodeRoot', {
       screen: 'ScanQRCode',
@@ -1237,7 +1233,7 @@ const SendDetails = () => {
           inputAccessoryViewID={wallet.allowSendMax() ? BlueUseAllFundsButton.InputAccessoryViewID : null}
         />
         <AddressInput
-          onChangeText={async text => {
+          onChangeText={text => {
             text = text.trim();
             const { address, amount, memo: lmemo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text);
             setAddresses(addresses => {
