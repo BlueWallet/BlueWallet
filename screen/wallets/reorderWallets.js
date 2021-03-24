@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
-import { View, ActivityIndicator, Image, Text, I18nManager, StyleSheet, StatusBar, ScrollView } from 'react-native';
+import { View, ActivityIndicator, Image, Text, StyleSheet, StatusBar, ScrollView, I18nManager } from 'react-native';
 import { BluePrivateBalance } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     height: 94,
     position: 'absolute',
     bottom: 0,
-    right: 0,
+    ...(I18nManager.isRTL ? { left: 0 } : { right: 0 }),
   },
   transparentText: {
     backgroundColor: 'transparent',
@@ -123,11 +123,11 @@ const ReorderWallets = () => {
             source={(() => {
               switch (item.type) {
                 case LightningCustodianWallet.type:
-                  return I18nManager.isRTL ? require('../../img/lnd-shape-rtl.png') : require('../../img/lnd-shape.png');
+                  return require('../../img/lnd-shape.png');
                 case MultisigHDWallet.type:
-                  return I18nManager.isRTL ? require('../../img/vault-shape-rtl.png') : require('../../img/vault-shape.png');
+                  return require('../../img/vault-shape.png');
                 default:
-                  return I18nManager.isRTL ? require('../../img/btc-shape-rtl.png') : require('../../img/btc-shape.png');
+                  return require('../../img/btc-shape.png');
               }
             })()}
             style={styles.image}

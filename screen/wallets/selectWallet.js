@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useState } from 'react';
-import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList, StyleSheet, StatusBar, I18nManager } from 'react-native';
+import { View, ActivityIndicator, Image, Text, TouchableOpacity, I18nManager, FlatList, StyleSheet, StatusBar } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useRoute, useTheme } from '@react-navigation/native';
@@ -50,7 +50,7 @@ const SelectWallet = () => {
       height: 94,
       position: 'absolute',
       bottom: 0,
-      right: 0,
+      ...(I18nManager.isRTL ? { left: 0 } : { right: 0 }),
     },
     transparentText: {
       backgroundColor: 'transparent',
@@ -106,11 +106,11 @@ const SelectWallet = () => {
               source={(() => {
                 switch (item.type) {
                   case LightningCustodianWallet.type:
-                    return I18nManager.isRTL ? require('../../img/lnd-shape-rtl.png') : require('../../img/lnd-shape.png');
+                    return require('../../img/lnd-shape.png');
                   case MultisigHDWallet.type:
-                    return I18nManager.isRTL ? require('../../img/vault-shape-rtl.png') : require('../../img/vault-shape.png');
+                    return require('../../img/vault-shape.png');
                   default:
-                    return I18nManager.isRTL ? require('../../img/btc-shape-rtl.png') : require('../../img/btc-shape.png');
+                    return require('../../img/btc-shape.png');
                 }
               })()}
               style={styles.image}
