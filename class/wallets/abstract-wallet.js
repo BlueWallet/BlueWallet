@@ -336,9 +336,9 @@ export class AbstractWallet {
   }
 
   /**
-   * @returns {string|null} Root derivation path for wallet if any
+   * @returns {string} Root derivation path for wallet if any
    */
   getDerivationPath() {
-    return this._derivationPath || null;
+    return this._derivationPath ?? '';
   }
 }
