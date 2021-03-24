@@ -231,6 +231,14 @@ const WalletDetails = () => {
         secret: wallet.getSecret(),
       },
     });
+  const navigateToSignVerify = () =>
+    navigate('SignVerifyRoot', {
+      screen: 'SignVerify',
+      params: {
+        walletID: wallet.getID(),
+        address: wallet.getAllExternalAddresses()[0], // works for both single address and HD wallets
+      },
+    });
 
   const renderMarketplaceButton = () => {
     return Platform.select({
@@ -552,6 +560,12 @@ const WalletDetails = () => {
                 <BlueSpacing20 />
                 <SecondButton onPress={navigateToIsItMyAddress} testID="IsItMyAddress" title={loc.is_it_my_address.title} />
               </>
+              {wallet.allowSignVerifyMessage() && (
+                <>
+                  <BlueSpacing20 />
+                  <SecondButton onPress={navigateToSignVerify} testID="SignVerify" title={loc.addresses.sign_title} />
+                </>
+              )}
               <BlueSpacing20 />
               <BlueSpacing20 />
               <TouchableOpacity onPress={handleDeleteButtonTapped} testID="DeleteButton">
