@@ -128,10 +128,4 @@ jest.mock('../blue_modules/analytics', () => {
   return ret;
 });
 
-jest.mock('../blue_modules/notifications', () => {
-  return {
-    majorTomToGroundControl: jest.fn(),
-  };
-});
-
 global.alert = () => {};
