@@ -88,7 +88,7 @@ const SignVerify = () => {
 
   if (loading)
     return (
-      <View style={[styles.loading]}>
+      <View style={[stylesHooks.root, styles.loading]}>
         <ActivityIndicator />
       </View>
     );
@@ -196,7 +196,10 @@ const SignVerify = () => {
   );
 };
 
-SignVerify.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.addresses.sign_title }));
+SignVerify.navigationOptions = navigationStyle({ closeButton: true, headerLeft: null }, opts => ({
+  ...opts,
+  title: loc.addresses.sign_title,
+}));
 
 export default SignVerify;
 
