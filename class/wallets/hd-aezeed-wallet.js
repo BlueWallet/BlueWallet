@@ -16,6 +16,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
   static type = 'HDAezeedWallet';
   static typeReadable = 'HD Aezeed';
   static segwitType = 'p2wpkh';
+  static derivationPath = "m/84'/0'/0'";
 
   setSecret(newSecret) {
     this.secret = newSecret.trim();

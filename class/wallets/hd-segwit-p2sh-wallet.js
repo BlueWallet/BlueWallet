@@ -13,6 +13,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   static type = 'HDsegwitP2SH';
   static typeReadable = 'HD SegWit (BIP49 P2SH)';
   static segwitType = 'p2sh(p2wpkh)';
+  static derivationPath = "m/49'/0'/0'";
 
   allowSend() {
     return true;
@@ -27,6 +28,14 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   }
 
   allowSignVerifyMessage() {
+    return true;
+  }
+
+  allowHodlHodlTrading() {
+    return true;
+  }
+
+  allowMasterFingerprint() {
     return true;
   }
 
@@ -141,9 +150,5 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
       redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey }),
     });
     return address;
-  }
-
-  allowHodlHodlTrading() {
-    return true;
   }
 }
