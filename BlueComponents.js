@@ -579,7 +579,7 @@ const styleCopyTextToClipboard = StyleSheet.create({
 export const SafeBlueArea = props => {
   const { style, ...nonStyleProps } = props;
   const { colors } = useTheme();
-  const baseStyle = { flex: 1, backgroundColor: colors.background }
+  const baseStyle = { flex: 1, backgroundColor: colors.background };
   return <SafeAreaView forceInset={{ horizontal: 'always' }} style={[baseStyle, style]} {...nonStyleProps} />;
 };
 

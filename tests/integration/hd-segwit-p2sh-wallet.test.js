@@ -155,8 +155,7 @@ it('HD (BIP49) can create TX', async () => {
   tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
   assert.strictEqual(tx.outs.length, 2);
   assert.ok(tx.outs[0].value > 50000);
-  assert.strictEqual(tx.outs[1].value, 25000
-    );
+  assert.strictEqual(tx.outs[1].value, 25000);
 });
 
 it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', async function () {
