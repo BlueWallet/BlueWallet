@@ -14,6 +14,7 @@
     "no": "Nein",
     "save": "Speichern",
     "seed": "Seed",
+    "success": "Erfolg",
     "wallet_key": "Wallet Schlüssel",
     "invalid_animated_qr_code_fragment" : "Ungültig animiertes QR-Code-Fragment. Bitte erneut versuchen.",
     "file_saved": "Die Datei ({filePath}) wurde in deinen Downloadfolder gespeichert.",
@@ -174,7 +175,6 @@
     "details_address_field_is_not_valid": "Adresseingabe ist nicht korrekt",
     "details_adv_fee_bump": "TRX-Gebührenerhöhung nach Senden ermöglichen",
     "details_adv_full": "Gesamtes Guthaben senden",
-    "details_adv_full_remove": "Die anderen Empfänger werden von dieser Transaktion entfernt.",
     "details_adv_full_sure": "Bist Du sicher, dass Du das gesamte Guthaben für diese Transaktion verwenden willst?",
     "details_adv_import": "Transaktion importieren",
     "details_amount_field_is_not_valid": "Betragseingabe ist ungültig.",
@@ -561,5 +561,16 @@
     "MAX": "MAX",
     "sat_byte": "sat/byte",
     "sats": "sats"
+  },
+  "addresses": {
+    "sign_title": "Meldung signieren/verifizieren",
+    "sign_help": "Kryptografische Signatur für eine Bitcoin-Adresse erstellen oder verifizieren",
+    "sign_sign": "Signieren",
+    "sign_verify": "Verifizieren",
+    "sign_signature_correct": "Verifizierung erfolgreich!",
+    "sign_signature_incorrect": "Verifizierung fehlgeschlagen!",
+    "sign_placeholder_address": "Adresse",
+    "sign_placeholder_message": "Meldung",
+    "sign_placeholder_signature": "Signatur"
   }
 }
