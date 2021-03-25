@@ -37,6 +37,12 @@ describe('HDAezeedWallet', () => {
     assert.ok(!(await aezeed.mnemonicInvalidPassword()));
 
     aezeed.setSecret(
+      'able concert slush lend olive cost wagon dawn board robot park snap dignity churn fiction quote shrimp hammer wing jump immune skill sunset west:aezeed',
+    );
+    assert.ok(await aezeed.validateMnemonicAsync());
+    assert.ok(!(await aezeed.mnemonicInvalidPassword()));
+
+    aezeed.setSecret(
       'abstract rhythm weird food attract treat mosquito sight royal actor surround ride strike remove guilt catch filter summer mushroom protect poverty cruel chaos pattern',
     );
     assert.ok(await aezeed.validateMnemonicAsync());

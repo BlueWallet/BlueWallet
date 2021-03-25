@@ -109,3 +109,29 @@ jest.mock('realm', () => {
     open: jest.fn(() => realmInstanceMock),
   };
 });
+
+jest.mock('react-native-idle-timer', () => {
+  return {
+    setIdleTimerDisabled: jest.fn(),
+  };
+});
+
+jest.mock('react-native-haptic-feedback', () => {
+  return {
+    trigger: jest.fn(),
+  };
+});
+
+jest.mock('../blue_modules/analytics', () => {
+  const ret = jest.fn();
+  ret.ENUM = { CREATED_WALLET: '' };
+  return ret;
+});
+
+jest.mock('../blue_modules/notifications', () => {
+  return {
+    majorTomToGroundControl: jest.fn(),
+  };
+});
+
+global.alert = () => {};
