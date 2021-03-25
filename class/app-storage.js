@@ -334,11 +334,12 @@ export class AppStorage {
     if (wallet.type === LightningLndWallet.type) {
       /** @type {LightningLndWallet} */
       const lndwallet = wallet;
-      (async () => {
+      (() => {
         // scheduled for execution later
         try {
-          await lndwallet.stop();
-          await lndwallet.wipeLndDir();
+          lndwallet.stop().finally(async () => {
+            await lndwallet.wipeLndDir();
+          });
         } catch (_) {
         } finally {
           alert('LND wallet deleted. To create another LND wallet please restart the app');
