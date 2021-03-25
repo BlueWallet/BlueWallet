@@ -9,6 +9,32 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>en-US</string>
+		<key>rateKey</key>
+		<string>USD</string>
+	</dict>
+	<dict>
+		<key>endPointKey</key>
+		<string>USD</string>
+		<key>symbol</key>
+		<string>𝑓</string>
+		<key>locale</key>
+		<string>en-US</string>
+		<key>fixedRate</key>
+		<string>1.79</string>
+		<key>rateKey</key>
+		<string>ANG</string>
+	</dict>
+	<dict>
+		<key>endPointKey</key>
+		<string>USD</string>
+		<key>symbol</key>
+		<string>𝑓</string>
+		<key>locale</key>
+		<string>en-US</string>
+		<key>fixedRate</key>
+		<string>1.79</string>
+		<key>rateKey</key>
+		<string>AWG</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -29,6 +55,8 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>en-AU</string>
+		<key>rateKey</key>
+		<string>AUD</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -37,6 +65,8 @@
 		<string>R$</string>
 		<key>locale</key>
 		<string>pt-BR</string>
+		<key>rateKey</key>
+		<string>BRL</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -45,6 +75,8 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>en-CA</string>
+		<key>rateKey</key>
+		<string>CAD</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -53,6 +85,8 @@
 		<string>CHF</string>
 		<key>locale</key>
 		<string>de-CH</string>
+		<key>rateKey</key>
+		<string>CHF</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -61,6 +95,8 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>es-CL</string>
+		<key>rateKey</key>
+		<string>CLP</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -69,6 +105,8 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>es-CO</string>
+		<key>rateKey</key>
+		<string>COP</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -77,6 +115,8 @@
 		<string>Kč</string>
 		<key>locale</key>
 		<string>cs-CZ</string>
+		<key>rateKey</key>
+		<string>CZK</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -85,6 +125,8 @@
 		<string>¥</string>
 		<key>locale</key>
 		<string>zh-CN</string>
+		<key>rateKey</key>
+		<string>CNY</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -93,6 +135,8 @@
 		<string>€</string>
 		<key>locale</key>
 		<string>en-IE</string>
+		<key>rateKey</key>
+		<string>EUR</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -101,6 +145,8 @@
 		<string>£</string>
 		<key>locale</key>
 		<string>en-GB</string>
+		<key>rateKey</key>
+		<string>GBP</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -109,6 +155,8 @@
 		<string>HRK</string>
 		<key>locale</key>
 		<string>hr-HR</string>
+		<key>rateKey</key>
+		<string>HRK</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -117,6 +165,8 @@
 		<string>Ft</string>
 		<key>locale</key>
 		<string>hu-HU</string>
+		<key>rateKey</key>
+		<string>HUF</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -125,6 +175,8 @@
 		<string>₪</string>
 		<key>locale</key>
 		<string>he-IL</string>
+		<key>rateKey</key>
+		<string>ILS</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -133,6 +185,8 @@
 		<string>₹</string>
 		<key>locale</key>
 		<string>hi-HN</string>
+		<key>rateKey</key>
+		<string>INR</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -141,6 +195,8 @@
 		<string>¥</string>
 		<key>locale</key>
 		<string>ja-JP</string>
+		<key>rateKey</key>
+		<string>JPY</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -149,6 +205,8 @@
 		<string>Ksh</string>
 		<key>locale</key>
 		<string>en-KE</string>
+		<key>rateKey</key>
+		<string>KES</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -157,6 +215,8 @@
 		<string>₩</string>
 		<key>locale</key>
 		<string>ko-KR</string>
+		<key>rateKey</key>
+		<string>KRW</string>
 	</dict>
 		<dict>
 		<key>endPointKey</key>
@@ -165,6 +225,8 @@
 		<string>ل.ل.‏</string>
 		<key>locale</key>
 		<string>ar-LB</string>
+		<key>rateKey</key>
+		<string>LBP</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -173,6 +235,8 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>es-MX</string>
+		<key>rateKey</key>
+		<string>MXN</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -181,6 +245,8 @@
 		<string>RM</string>
 		<key>locale</key>
 		<string>ms-MY</string>
+		<key>rateKey</key>
+		<string>MYR</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -189,6 +255,8 @@
 		<string>₦</string>
 		<key>locale</key>
 		<string>en-NG</string>
+		<key>rateKey</key>
+		<string>NGN</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -197,6 +265,8 @@
 		<string>kr</string>
 		<key>locale</key>
 		<string>nb-NO</string>
+		<key>rateKey</key>
+		<string>NOK</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -205,6 +275,8 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>en-NZ</string>
+		<key>rateKey</key>
+		<string>NZD</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -213,6 +285,8 @@
 		<string>zł</string>
 		<key>locale</key>
 		<string>pl-PL</string>
+		<key>rateKey</key>
+		<string>PLN</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -221,6 +295,8 @@
 		<string>₱</string>
 		<key>locale</key>
 		<string>en-PH</string>
+		<key>rateKey</key>
+		<string>PHP</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -229,6 +305,8 @@
 		<string>₽</string>
 		<key>locale</key>
 		<string>ru-RU</string>
+		<key>rateKey</key>
+		<string>RUB</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -237,6 +315,8 @@
 		<string>S$</string>
 		<key>locale</key>
 		<string>zh-SG</string>
+		<key>rateKey</key>
+		<string>SGD</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -245,6 +325,8 @@
 		<string>kr</string>
 		<key>locale</key>
 		<string>sv-SE</string>
+		<key>rateKey</key>
+		<string>SEK</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -253,6 +335,8 @@
 		<string>₺</string>
 		<key>locale</key>
 		<string>tr-TR</string>
+		<key>rateKey</key>
+		<string>TRY</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -261,6 +345,8 @@
 		<string>฿</string>
 		<key>locale</key>
 		<string>th-TH</string>
+		<key>rateKey</key>
+		<string>THB</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -269,6 +355,8 @@
 		<string>NT$</string>
 		<key>locale</key>
 		<string>zh-Hant-TW</string>
+		<key>rateKey</key>
+		<string>TWD</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -277,6 +365,8 @@
 		<string>TSh</string>
 		<key>locale</key>
 		<string>en-TZ</string>
+		<key>rateKey</key>
+		<string>TZS</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -285,6 +375,8 @@
 		<string>₴</string>
 		<key>locale</key>
 		<string>uk-UA</string>
+		<key>rateKey</key>
+		<string>UAH</string>
 	</dict>
 		<dict>
 		<key>endPointKey</key>
@@ -293,6 +385,8 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>es-UY</string>
+		<key>rateKey</key>
+		<string>UYU</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -301,6 +395,8 @@
 		<string>Bs.</string>
 		<key>locale</key>
 		<string>es-VE</string>
+		<key>rateKey</key>
+		<string>VEF</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -321,6 +417,8 @@
 		<string>R</string>
 		<key>locale</key>
 		<string>en-ZA</string>
+		<key>rateKey</key>
+		<string>ZAR</string>
 	</dict>
 </array>
 </plist>

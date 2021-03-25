@@ -13,7 +13,8 @@ struct FiatUnit: Codable {
   let symbol: String
   let locale: String
   let dataSource: String?
-  let rateKey: String?
+  let rateKey: String
+  let fixedRate: String?
   
   var rateURL: URL? {
     if let dataSource = dataSource {
@@ -28,6 +29,11 @@ struct FiatUnit: Codable {
         return nil
       }
       return WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+  } else if fixedRate != nil {
+      guard let bpi = json["bpi"] as? Dictionary<String, Any>, let preferredCurrency = bpi[endPointKey] as? Dictionary<String, Any>, let rateDouble = preferredCurrency["rate_float"] as? Double * Double(fixedRate), let time = json["time"] as? Dictionary<String, Any>, let lastUpdatedString = time["updatedISO"] as? String else {
+        return nil
+      }
+      return WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
   } else {
     guard let rateKey = rateKey, let rateDict = json[rateKey] as? [String: Any], let rateDouble = rateDict["price"] as? Double, let lastUpdated = json["timestamp"] as? Int else {
       return nil
@@ -49,6 +55,6 @@ func fiatUnit(currency: String) -> FiatUnit? {
     let decoder = PropertyListDecoder()
     fiatUnits = try? decoder.decode(FiatUnits.self, from: data)
   }
-  return fiatUnits?.first(where: {$0.endPointKey == currency})
+  return fiatUnits?.first(where: {$0.rateKey == currency})
 
 }
