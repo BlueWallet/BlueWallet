@@ -2,6 +2,20 @@ export const FiatUnitSource = Object.freeze({ CoinDesk: 'CoinDesk', Yadio: 'Yadi
 
 export const FiatUnit = Object.freeze({
   USD: { endPointKey: 'USD', symbol: '$', locale: 'en-US', source: FiatUnitSource.CoinDesk },
+  ANG: {
+  	endPointKey: 'USD', 
+  	symbol: '𝑓', 
+  	locale: 'en-US', 
+  	fixedRate: 1.79,
+  	source: FiatUnitSource.CoinDesk
+  }, 
+  AWG: {
+  	endPointKey: 'USD', 
+  	symbol: '𝑓', 
+  	locale: 'en-US', 
+  	fixedRate: 1.79,
+  	source: FiatUnitSource.CoinDesk
+  }, 
   ARS: {
     endPointKey: 'ARS',
     symbol: '$',
@@ -81,6 +95,8 @@ export class FiatServerResponse {
     const json = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
     if (this.fiatUnit.dataSource) {
       return json[this.fiatUnit.rateKey].price * 1;
+    } else if(this.fiatUnit.fixedRate){
+    	return json.bpi[this.fiatUnit.endPointKey].rate_float * this.fiatUnit.fixedRate;
     } else {
       return json.bpi[this.fiatUnit.endPointKey].rate_float * 1;
     }
