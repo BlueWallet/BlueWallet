@@ -1,15 +1,71 @@
-export const FiatUnitSource = Object.freeze({ CoinDesk: 'CoinDesk', Yadio: 'Yadio' });
+import Frisbee from 'frisbee';
+
+export const FiatUnitSource = Object.freeze({
+  CoinDesk: 'CoinDesk',
+  Yadio: 'Yadio',
+  BitcoinduLiban: 'BitcoinduLiban',
+});
+
+const RateExtractors = Object.freeze({
+  CoinDesk: async ticker => {
+    const api = new Frisbee({ baseURI: 'https://api.coindesk.com' });
+    const res = await api.get(`/v1/bpi/currentprice/${ticker}.json`);
+    if (res.err) throw new Error(`Could not update rate for ${ticker}: ${res.err}`);
+
+    let json;
+    try {
+      json = typeof res.body === 'string' ? JSON.parse(res.body) : res.body;
+    } catch (e) {
+      throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
+    }
+    let rate = json?.bpi?.[ticker]?.rate_float; // eslint-disable-line
+    if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+
+    rate = Number(rate);
+    if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+    return rate;
+  },
+  Yadio: async ticker => {
+    const api = new Frisbee({ baseURI: 'https://api.yadio.io/json' });
+    const res = await api.get(`/${ticker}`);
+    if (res.err) throw new Error(`Could not update rate for ${ticker}: ${res.err}`);
+
+    let json;
+    try {
+      json = typeof res.body === 'string' ? JSON.parse(res.body) : res.body;
+    } catch (e) {
+      throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
+    }
+    let rate = json?.[ticker]?.price;
+    if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+
+    rate = Number(rate);
+    if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+    return rate;
+  },
+  BitcoinduLiban: async ticker => {
+    const api = new Frisbee({ baseURI: 'https://bitcoinduliban.org' });
+    const res = await api.get('/api.php?key=lbpusd');
+    if (res.err) throw new Error(`Could not update rate for ${ticker}: ${res.err}`);
+
+    let json;
+    try {
+      json = typeof res.body === 'string' ? JSON.parse(res.body) : res.body;
+    } catch (e) {
+      throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
+    }
+    let rate = json?.[`BTC/${ticker}`];
+    if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+
+    rate = Number(rate);
+    if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+    return rate;
+  },
+});
 
 export const FiatUnit = Object.freeze({
   USD: { endPointKey: 'USD', symbol: '$', locale: 'en-US', source: FiatUnitSource.CoinDesk },
-  ARS: {
-    endPointKey: 'ARS',
-    symbol: '$',
-    locale: 'es-AR',
-    dataSource: 'https://api.yadio.io/json',
-    rateKey: 'ARS',
-    source: FiatUnitSource.Yadio,
-  },
+  ARS: { endPointKey: 'ARS', symbol: '$', locale: 'es-AR', source: FiatUnitSource.Yadio },
   AUD: { endPointKey: 'AUD', symbol: '$', locale: 'en-AU', source: FiatUnitSource.CoinDesk },
   BRL: { endPointKey: 'BRL', symbol: 'R$', locale: 'pt-BR', source: FiatUnitSource.CoinDesk },
   CAD: { endPointKey: 'CAD', symbol: '$', locale: 'en-CA', source: FiatUnitSource.CoinDesk },
@@ -27,7 +83,7 @@ export const FiatUnit = Object.freeze({
   JPY: { endPointKey: 'JPY', symbol: '¥', locale: 'ja-JP', source: FiatUnitSource.CoinDesk },
   KES: { endPointKey: 'KES', symbol: 'Ksh', locale: 'en-KE', source: FiatUnitSource.CoinDesk },
   KRW: { endPointKey: 'KRW', symbol: '₩', locale: 'ko-KR', source: FiatUnitSource.CoinDesk },
-  LBP: { endPointKey: 'LBP', symbol: 'ل.ل.', locale: 'ar-LB', source: FiatUnitSource.CoinDesk },
+  LBP: { endPointKey: 'LBP', symbol: 'ل.ل.', locale: 'ar-LB', source: FiatUnitSource.BitcoinduLiban },
   MXN: { endPointKey: 'MXN', symbol: '$', locale: 'es-MX', source: FiatUnitSource.CoinDesk },
   MYR: { endPointKey: 'MYR', symbol: 'RM', locale: 'ms-MY', source: FiatUnitSource.CoinDesk },
   NGN: { endPointKey: 'NGN', symbol: '₦', locale: 'en-NG', source: FiatUnitSource.CoinDesk },
@@ -45,57 +101,10 @@ export const FiatUnit = Object.freeze({
   UAH: { endPointKey: 'UAH', symbol: '₴', locale: 'uk-UA', source: FiatUnitSource.CoinDesk },
   UYU: { endPointKey: 'UYU', symbol: '$', locale: 'es-UY', source: FiatUnitSource.CoinDesk },
   VEF: { endPointKey: 'VEF', symbol: 'Bs.', locale: 'es-VE', source: FiatUnitSource.CoinDesk },
-  VES: {
-    endPointKey: 'VES',
-    symbol: 'Bs.',
-    locale: 'es-VE',
-    dataSource: 'https://api.yadio.io/json',
-    rateKey: 'VES',
-    source: FiatUnitSource.Yadio,
-  },
+  VES: { endPointKey: 'VES', symbol: 'Bs.', locale: 'es-VE', source: FiatUnitSource.Yadio },
   ZAR: { endPointKey: 'ZAR', symbol: 'R', locale: 'en-ZA', source: FiatUnitSource.CoinDesk },
 });
 
-export class FiatServerResponse {
-  constructor(fiatUnit) {
-    this.fiatUnit = fiatUnit;
-  }
-
-  baseURI = () => {
-    if (this.fiatUnit.dataSource) {
-      return this.fiatUnit.dataSource;
-    } else {
-      return 'https://api.coindesk.com';
-    }
-  };
-
-  endPoint = () => {
-    if (this.fiatUnit.dataSource) {
-      return `/${this.fiatUnit.endPointKey}`;
-    } else {
-      return '/v1/bpi/currentprice/' + this.fiatUnit.endPointKey + '.json';
-    }
-  };
-
-  rate = response => {
-    const json = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
-    if (this.fiatUnit.dataSource) {
-      return json[this.fiatUnit.rateKey].price * 1;
-    } else {
-      return json.bpi[this.fiatUnit.endPointKey].rate_float * 1;
-    }
-  };
-
-  isErrorFound = response => {
-    const json = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
-    if (this.fiatUnit.dataSource) {
-      if (!json || !json[this.fiatUnit.rateKey]) {
-        throw new Error('Could not update currency rate: ' + response.err);
-      }
-    } else {
-      if (!json || !json.bpi || !json.bpi[this.fiatUnit.endPointKey] || !json.bpi[this.fiatUnit.endPointKey].rate_float) {
-        throw new Error('Could not update currency rate: ' + response.err);
-      }
-    }
-  };
+export async function getFiatRate(ticker) {
+  return await RateExtractors[FiatUnit[ticker].source](ticker);
 }

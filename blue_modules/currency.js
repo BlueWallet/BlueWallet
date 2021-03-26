@@ -1,11 +1,12 @@
-import Frisbee from 'frisbee';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AppStorage } from '../class';
-import { FiatServerResponse, FiatUnit } from '../models/fiatUnit';
 import DefaultPreference from 'react-native-default-preference';
 import RNWidgetCenter from 'react-native-widget-center';
 import * as RNLocalize from 'react-native-localize';
-const BigNumber = require('bignumber.js');
+import BigNumber from 'bignumber.js';
+
+import { AppStorage } from '../class';
+import { FiatUnit, getFiatRate } from '../models/fiatUnit';
+
 let preferredFiatCurrency = FiatUnit.USD;
 const exchangeRates = {};
 
@@ -56,14 +57,9 @@ async function updateExchangeRate() {
     }
   }
 
-  let response;
-  const fiatServerResponse = new FiatServerResponse(preferredFiatCurrency);
+  let rate;
   try {
-    const api = new Frisbee({
-      baseURI: fiatServerResponse.baseURI(),
-    });
-    response = await api.get(fiatServerResponse.endPoint());
-    fiatServerResponse.isErrorFound(response);
+    rate = await getFiatRate(preferredFiatCurrency.endPointKey);
   } catch (Err) {
     console.warn(Err);
     const lastSavedExchangeRate = JSON.parse(await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES));
@@ -72,7 +68,7 @@ async function updateExchangeRate() {
   }
 
   exchangeRates[STRUCT.LAST_UPDATED] = +new Date();
-  exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = fiatServerResponse.rate(response);
+  exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = rate;
   await AsyncStorage.setItem(AppStorage.EXCHANGE_RATES, JSON.stringify(exchangeRates));
   await AsyncStorage.setItem(AppStorage.PREFERRED_CURRENCY, JSON.stringify(preferredFiatCurrency));
   await setPrefferedCurrency(preferredFiatCurrency);
