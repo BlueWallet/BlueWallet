@@ -105,10 +105,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
   }
 
-  getDerivationPath() {
-    return this._derivationPath;
-  }
-
   getCustomDerivationPathForCosigner(index) {
     if (index === 0) throw new Error('cosigners indexation starts from 1');
     if (index > this.getN()) return false;
@@ -308,18 +304,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     const root = bitcoin.bip32.fromSeed(seed);
     const child = root.derivePath(path).neutered();
     return child.toBase58();
-  }
-
-  /**
-   * @param mnemonic {string} Mnemonic seed phrase
-   * @returns {string} Hex string of fingerprint derived from mnemonics. Always has lenght of 8 chars and correct leading zeroes
-   */
-  static seedToFingerprint(mnemonic) {
-    const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.bip32.fromSeed(seed);
-    let hex = root.fingerprint.toString('hex');
-    while (hex.length < 8) hex = '0' + hex; // leading zeroes
-    return hex.toUpperCase();
   }
 
   /**

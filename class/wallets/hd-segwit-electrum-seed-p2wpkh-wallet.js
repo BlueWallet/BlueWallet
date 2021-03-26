@@ -18,6 +18,7 @@ const MNEMONIC_TO_SEED_OPTS = {
 export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
   static type = 'HDSegwitElectrumSeedP2WPKHWallet';
   static typeReadable = 'HD Electrum (BIP32 P2WPKH)';
+  static derivationPath = "m/0'";
 
   validateMnemonic() {
     return mn.validateMnemonic(this.secret, PREFIX);
