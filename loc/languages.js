@@ -16,7 +16,7 @@ export const AvailableLanguages = Object.freeze([
   { label: 'Ελληνικά (EL)', value: 'el' },
   { label: 'فارسی (FA)', value: 'fa', isRTL: true },
   { label: 'Français (FR)', value: 'fr_fr' },
-  { label: 'עִברִית (HE)', value: 'he' },
+  { label: 'עִברִית (HE)', value: 'he', isRTL: true },
   { label: 'Italiano (IT)', value: 'it' },
   { label: 'Indonesia (ID)', value: 'id_id' },
   { label: 'Magyar (HU)', value: 'hu_hu' },
