@@ -134,11 +134,20 @@ const SendDetails = () => {
     // decode route params
     if (routeParams.uri) {
       try {
-        const { address, amount, memo: initialMemo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
+        const { address, amount, memo: initialMemo, payjoinUrl, fee, rbf } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
         setAddresses([{ address, amount, amountSats: currency.btcToSatoshi(amount), key: String(Math.random()) }]);
         setMemo(initialMemo || '');
         setAmountUnit(BitcoinUnit.BTC);
         setPayjoinUrl(payjoinUrl);
+        if (fee) {
+          const feeString = Number(fee).toString();
+          setCustomFee(feeString);
+        }
+        if (rbf !== null) {
+          setIsTransactionReplaceable(rbf);
+        } else {
+          setIsTransactionReplaceable(wallet.type === HDSegwitBech32Wallet.type);
+        }
       } catch (error) {
         console.log(error);
         Alert.alert(loc.errors.error, loc.send.details_error_decode);
@@ -188,8 +197,9 @@ const SendDetails = () => {
     // reset other values
     setUtxo(null);
     setChangeAddress(null);
-    setIsTransactionReplaceable(wallet.type === HDSegwitBech32Wallet.type);
-
+    if (!routeParams.uri) {
+      setIsTransactionReplaceable(wallet.type === HDSegwitBech32Wallet.type);
+    }
     // update wallet UTXO
     wallet
       .fetchUtxo()
@@ -349,11 +359,24 @@ const SendDetails = () => {
 
     let address = '';
     let options;
+    let rbf;
+    let fee;
     try {
       if (!data.toLowerCase().startsWith('bitcoin:')) data = `bitcoin:${data}`;
       const decoded = DeeplinkSchemaMatch.bip21decode(data);
       address = decoded.address;
       options = decoded.options;
+      rbf = decoded.rbf;
+      fee = decoded.fee;
+      if (fee) {
+        const feeString = Number(fee).toString();
+        setCustomFee(feeString);
+      }
+      if (rbf !== null) {
+        setIsTransactionReplaceable(rbf);
+      } else {
+        setIsTransactionReplaceable(wallet.type === HDSegwitBech32Wallet.type);
+      }
     } catch (error) {
       data = data.replace(/(amount)=([^&]+)/g, '').replace(/(amount)=([^&]+)&/g, '');
       const decoded = DeeplinkSchemaMatch.bip21decode(data);
