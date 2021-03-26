@@ -29,10 +29,11 @@ struct FiatUnit: Codable {
         return nil
       }
       return WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-  } else if fixedRate != nil {
-      guard let bpi = json["bpi"] as? Dictionary<String, Any>, let preferredCurrency = bpi[endPointKey] as? Dictionary<String, Any>, let rateDouble = preferredCurrency["rate_float"] as? Double * Double(fixedRate), let time = json["time"] as? Dictionary<String, Any>, let lastUpdatedString = time["updatedISO"] as? String else {
+  } else if let fixedRate = fixedRate {
+      guard let bpi = json["bpi"] as? Dictionary<String, Any>, let preferredCurrency = bpi[endPointKey] as? Dictionary<String, Any>, let rateDouble = preferredCurrency["rate_float"] as? Double, let time = json["time"] as? Dictionary<String, Any>, let lastUpdatedString = time["updatedISO"] as? String else {
         return nil
       }
+      rateDouble = rateDouble * Double(fixedRate)
       return WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
   } else {
     guard let rateKey = rateKey, let rateDict = json[rateKey] as? [String: Any], let rateDouble = rateDict["price"] as? Double, let lastUpdated = json["timestamp"] as? Int else {
