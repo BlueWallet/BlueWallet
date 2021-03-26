@@ -538,10 +538,10 @@ describe('BlueWallet UI Tests', () => {
 
     await device.pressBack();
     await device.pressBack();
-    await element(by.id('changeAmountUnitButton')).tap(); // switched to FIAT
+    await element(by.id('changeAmountUnitButton')).tap(); // switched to SATS
     await element(by.id('BlueAddressInputScanQrButton')).tap();
 
-    // tapping 10 times invisible button is a backdoor:
+    // tapping 5 times invisible button is a backdoor:
     for (let c = 0; c <= 5; c++) {
       await element(by.id('ScanQrBackdoorButton')).tap();
       await sleep(1000);
@@ -564,10 +564,44 @@ describe('BlueWallet UI Tests', () => {
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
     assert.strictEqual(transaction.outs[0].value, 15000);
 
+    // now, testing scanQR with just address after amount set to 1.1 USD. Denomination should not change after qrcode scan
+
+    await device.pressBack();
+    await device.pressBack();
+    await element(by.id('changeAmountUnitButton')).tap(); // switched to SATS
+    await element(by.id('changeAmountUnitButton')).tap(); // switched to FIAT
+    await element(by.id('BitcoinAmountInput')).replaceText('1.1');
+    await element(by.id('BlueAddressInputScanQrButton')).tap();
+
+    // tapping 5 times invisible button is a backdoor:
+    for (let c = 0; c <= 5; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+      await sleep(1000);
+    }
+
+    await element(by.id('scanQrBackdoorInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    await element(by.id('scanQrBackdoorOkButton')).tap();
+
+    if (process.env.TRAVIS) await sleep(5000);
+    try {
+      await element(by.id('CreateTransactionButton')).tap();
+    } catch (_) {}
+    // created. verifying:
+    await yo('TransactionValue');
+    await yo('PayjoinSwitch');
+    await element(by.id('TransactionDetailsButton')).tap();
+    txhex = await extractTextFromElementById('TxhexInput');
+    transaction = bitcoin.Transaction.fromHex(txhex);
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    assert.notEqual(transaction.outs[0].value, 110000000); // check that it is 1.1 USD, not 1 BTC
+    assert.ok(transaction.outs[0].value < 10000); // 1.1 USD ~ 0,00001964 sats in march 2021
+
     // now, testing units switching, and then creating tx with SATS:
 
     await device.pressBack();
     await device.pressBack();
+    await element(by.id('changeAmountUnitButton')).tap(); // switched to BTC
+    await element(by.id('BitcoinAmountInput')).replaceText('0.00015');
     await element(by.id('changeAmountUnitButton')).tap(); // switched to sats
     assert.strictEqual(await extractTextFromElementById('BitcoinAmountInput'), '15000');
     await element(by.id('changeAmountUnitButton')).tap(); // switched to FIAT
@@ -698,7 +732,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('advancedOptionsMenuButton')).tap();
     await element(by.id('PsbtSign')).tap();
 
-    // tapping 10 times invisible button is a backdoor:
+    // tapping 5 times invisible button is a backdoor:
     for (let c = 0; c <= 5; c++) {
       await element(by.id('ScanQrBackdoorButton')).tap();
       await sleep(1000);
@@ -824,7 +858,7 @@ describe('BlueWallet UI Tests', () => {
     const signedPsbt =
       'ur:bytes/tyqjuurnvf607qgq2gpqqqqqq8tn32hc9nqtgta558mezl70l6jyqa9q3ppqfsh3zg6rdpqsj3qrqqqqqqqqpllllllsryxzqqqqqqqqqqtqq9xcmv2lt34gsdnr78msss5jpcdg2hvetmgqqqqqqqqpqy04pscqqqqqqqqqzcqpfdq6gfm4aaal9r8vsg3zps42fgf4e3znxgszqfmxyrpwfsdmnlfdfwrcj7clx30kcecty3gte7ekvjeekkx2q9vvgjpsg5pzzqxjc9xv3rlhu2n6u87pm94agwcmvcywwsx9k0jpvwyng8crytgrkcpzqae6amp5xy03x2lsklv5zgnmeht0grzns27tmsjtsg2j0ne2969kqyqsxpqpqqqqqgsxqfmxyrpwfsdmnlfdfwrcj7clx30kcecty3gte7ekvjeekkx2q9vvgxqk3htqx4qqqzqqqqqqsqqqqqyqqqqqqqqyqqqqqqqqear8ke';
 
-    // tapping 10 times invisible button is a backdoor:
+    // tapping 5 times invisible button is a backdoor:
     for (let c = 0; c <= 5; c++) {
       await element(by.id('ScanQrBackdoorButton')).tap();
       await sleep(1000);
@@ -838,7 +872,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('PsbtWithHardwareScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
     await element(by.id('PsbtTxScanButton')).tap(); // opening camera
 
-    // tapping 10 times invisible button is a backdoor:
+    // tapping 5 times invisible button is a backdoor:
     for (let c = 0; c <= 5; c++) {
       await element(by.id('ScanQrBackdoorButton')).tap();
       await sleep(1000);
@@ -911,7 +945,7 @@ describe('BlueWallet UI Tests', () => {
     await waitFor(element(by.id('UrProgressBar'))).toBeNotVisible();
 
     for (const ur of urs) {
-      // tapping 10 times invisible button is a backdoor:
+      // tapping 5 times invisible button is a backdoor:
       for (let c = 0; c <= 5; c++) {
         await element(by.id('ScanQrBackdoorButton')).tap();
       }
@@ -961,7 +995,7 @@ describe('BlueWallet UI Tests', () => {
     ];
 
     for (const ur of ursSignedByColdcard) {
-      // tapping 10 times invisible button is a backdoor:
+      // tapping 5 times invisible button is a backdoor:
       for (let c = 0; c <= 5; c++) {
         await element(by.id('ScanQrBackdoorButton')).tap();
       }
@@ -982,7 +1016,7 @@ describe('BlueWallet UI Tests', () => {
     ];
 
     for (const ur of urSignedByColdcardAndCobo) {
-      // tapping 10 times invisible button is a backdoor:
+      // tapping 5 times invisible button is a backdoor:
       for (let c = 0; c <= 5; c++) {
         await element(by.id('ScanQrBackdoorButton')).tap();
       }
