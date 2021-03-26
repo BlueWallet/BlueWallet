@@ -347,16 +347,20 @@ describe('unit - DeepLinkSchemaMatch', function () {
       {
         address: 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7',
         amount: 0.0001,
+        fee: null,
         memo: '',
         payjoinUrl: 'https://btc.donate.kukks.org/BTC/pj',
+        rbf: null,
       },
     );
 
     assert.deepStrictEqual(DeeplinkSchemaMatch.decodeBitcoinUri('BITCOIN:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar'), {
       address: '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH',
       amount: 20.3,
+      fee: null,
       memo: 'Foobar',
       payjoinUrl: '',
+      rbf: null,
     });
   });
 
