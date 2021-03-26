@@ -1,48 +1,53 @@
-Una Billetera de Bitcoin que te permite guardar, enviar Bitcoin, recibir Bitcoin y comprar Bitcoin, centrada en la seguridad y la simplicidad.
+Una billetera Bitcoin que te permite almacenar, enviar Bitcoin, recibir Bitcoin y comprar Bitcoin con un enfoque en la seguridad y la simplicidad.
 
-Con BlueWallet, una billetera Bitcoin donde controlas las claves privadas. Una billetera Bitcoin creada por usuarios de Bitcoin para la comunidad.
+En BlueWallet, una billetera bitcoin posee sus claves privadas. Una billetera Bitcoin hecha por usuarios de Bitcoin para la comunidad.
 
-Puede realizar transacciones con cualquier persona en el mundo y transformar el sistema financiero directamente desde su bolsillo.
+Puedes realizar transacciones instantáneamente con cualquier persona en el mundo y transformar el sistema financiero directamente desde tu bolsillo.
 
-Puede crear una cantidad ilimitada de billeteras Bitcoin de forma gratuita o importar las billeteras que ya tiene en su aplicación BlueWallet. ¡Es fácil y rápido!
+Crea gratis un número ilimitado de billeteras bitcoin o importa tu billetera existente. Es simple y rápido
 
----
+_____
 
-Lo que encontrarás:
+Esto es lo que obtienes:
 
-1 - Seguridad primero
 
-Código abierto/Open Source
-Con una licencia MIT, puedes construirla y ejecutarla usted mismo. Hecho en React Native.
+1 - Seguridad por diseño
 
-Negación Plausible
-Contraseña que descifra billeteras falsas. Para casos especiales en los que se le puede solicitar que revele su contraseña, puede revelar la contraseña falsa. Mantenga su bitcoin seguro.
+Open Source
+Con licencia del MIT, ¡puedes construirlo y ejecutarlo por tu cuenta! Hecho con ReactNative
 
-Cifrado Completo
-Construido sobre el cifrado multicapa de iOS, BlueWallet cifra todo con una contraseña adicional.
+Negación plausible
+Contraseña que descifra carteras de bitcoins falsas si te ves obligado a revelar tu acceso
 
-Billetera SegWit e HD
-Compatible con SegWit (ayuda a reducir las tarifas) y billeteras HD activadas.
+Cifrado completo
+Además del cifrado multicapa de iOS, ciframos todo con contraseñas añadidas
+
+Nodo completo
+Conéctate a tu nodo completo de Bitcoin a través de Electrum
+
+Almacenamiento en frio
+Conéctate a tu billetera de hardware y mantén tus monedas en almacenamiento en frío
 
 2 - Centrado en tu experiencia
 
-Siempre en control
-Las claves privadas nunca dejan su teléfono, usted controla sus claves privadas.
+Está en control
+Las claves privadas nunca salen de tu dispositivo.
+Tu controlas tu clave privada
 
 Tarifas flexibles
-A partir de 1 Satoshi. No pague de más por las transacciones.
+A partir de 1 Satoshi. Definido por ti, el usuario
 
-Reemplazo de tarifas (RBF)
-Acelere sus transacciones aumentando la tarifa (BIP125). También puede cambiar la dirección del destinatario en transacciones no confirmadas.
+Reemplazar por tarifa
+(RBF) Acelera tus transacciones aumentando la tarifa (BIP125)
 
-Billetera Watch-only
-Mira tu almacenamiento en frío de Bitcoin sin tener que tocarlo.
+Carteras solo-vista
+Las carteras de solo vista te permiten vigilar tu almacenamiento en frío sin tocar el hardware.
 
-Lightning Network
-Billetera Lightning sin ajustes. Transacciones baratas y ultrarrápidas con la mejor experiencia de Bitcoin.
+Red Lightning
+Cartera Lightning con configuración cero. Transacciones injustamente baratas y rápidas con la mejor experiencia de usuario de Bitcoin.
 
-Comprar Bitcoin
-Ahora puede comprar Bitcoin directamente sin dejar su billetera y con sus claves privadas.
+Compra Bitcoin
+Ingresa a la revolución financiera abierta con la capacidad de comprar Bitcoin directamente en tu billetera.
 
-Local Trader
-Plataforma de negociación Bitcoin p2p, que le permite comprar y vender bitcoin directamente a otros usuarios sin terceros.
+Comerciante local
+Una plataforma de comercio de bitcoins p2p, que te permite comprar y vender bitcoins directamente a otros usuarios sin terceros.

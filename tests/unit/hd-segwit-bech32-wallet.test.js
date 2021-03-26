@@ -43,6 +43,8 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd._getDerivationPathByAddress(hd._getExternalAddressByIndex(1)), "m/84'/0'/0'/0/1");
     assert.strictEqual(hd._getDerivationPathByAddress(hd._getInternalAddressByIndex(0)), "m/84'/0'/0'/1/0");
     assert.strictEqual(hd._getDerivationPathByAddress(hd._getInternalAddressByIndex(1)), "m/84'/0'/0'/1/1");
+
+    assert.strictEqual(hd.getMasterFingerprintHex(), '73C5DA0A');
   });
 
   it('can generate addresses only via zpub', function () {

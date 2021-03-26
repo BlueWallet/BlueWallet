@@ -1,6 +1,6 @@
 {
   "name": "bluewallet",
-  "version": "6.0.7",
+  "version": "6.0.8",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -83,7 +83,7 @@
     "@remobile/react-native-qrcode-local-image": "git+https://github.com/BlueWallet/react-native-qrcode-local-image.git",
     "@sentry/react-native": "1.9.0",
     "aez": "1.0.1",
-    "amplitude-js": "7.4.3",
+    "amplitude-js": "7.4.4",
     "assert": "1.5.0",
     "base-x": "3.0.8",
     "bc-bech32": "file:blue_modules/bc-bech32",
@@ -157,7 +157,7 @@
     "react-native-rate": "1.2.4",
     "react-native-reanimated": "1.13.2",
     "react-native-safe-area-context": "3.1.9",
-    "react-native-screens": "2.18.0",
+    "react-native-screens": "2.18.1",
     "react-native-secure-key-store": "git+https://github.com/BlueWallet/react-native-secure-key-store.git#4828fd1a67d12e4c0e21eee0bee673fde75e6f9a",
     "react-native-share": "5.1.4",
     "react-native-snap-carousel": "3.9.1",
