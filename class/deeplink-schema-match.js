@@ -450,7 +450,9 @@ class DeeplinkSchemaMatch {
           payjoinUrl = parsedBitcoinUri.options.pj;
         }
         if ('fee' in parsedBitcoinUri.options) {
-          fee = parsedBitcoinUri.options.fee;
+          if (parsedBitcoinUri.options.fee > 0) {
+            fee = parsedBitcoinUri.options.fee;
+          }
         }
         if ('rbf' in parsedBitcoinUri.options) {
           rbf = parsedBitcoinUri.options.rbf === 'true';
