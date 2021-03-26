@@ -73,6 +73,7 @@ const SendDetails = () => {
   const [units, setUnits] = useState([]);
   const [memo, setMemo] = useState('');
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
+  const [networkTransactionFeesIsLoading, setNetworkTransactionFeesIsLoading] = useState(false);
   const [customFee, setCustomFee] = useState(null);
   const [feePrecalc, setFeePrecalc] = useState({ current: null, slowFee: null, mediumFee: null, fastestFee: null });
   const [feeUnit, setFeeUnit] = useState();
@@ -156,7 +157,7 @@ const SendDetails = () => {
 
     // load cached fees
     AsyncStorage.getItem(NetworkTransactionFee.StorageKey)
-      .then(async res => {
+      .then(res => {
         const fees = JSON.parse(res);
         if (!fees?.fastestFee) return;
         setNetworkTransactionFees(fees);
@@ -164,13 +165,20 @@ const SendDetails = () => {
       .catch(e => console.log('loading cached recommendedFees error', e));
 
     // load fresh fees from servers
+
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setNetworkTransactionFeesIsLoading(true);
     NetworkTransactionFees.recommendedFees()
       .then(async fees => {
         if (!fees?.fastestFee) return;
         setNetworkTransactionFees(fees);
         await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(fees));
       })
-      .catch(e => console.log('loading recommendedFees error', e));
+      .catch(e => console.log('loading recommendedFees error', e))
+      .finally(() => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setNetworkTransactionFeesIsLoading(false);
+      });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // change header and reset state on wallet change
@@ -325,7 +333,7 @@ const SendDetails = () => {
    *
    * @param data {String} Can be address or `bitcoin:xxxxxxx` uri scheme, or invalid garbage
    */
-  const processAddressData = async data => {
+  const processAddressData = data => {
     setIsLoading(true);
     if (!data.replace) {
       // user probably scanned PSBT and got an object instead of string..?
@@ -338,10 +346,6 @@ const SendDetails = () => {
       setAddresses(addresses => {
         addresses[scrollIndex.current].address = dataWithoutSchema;
         return [...addresses];
-      });
-      setUnits(units => {
-        units[scrollIndex.current] = amountUnit;
-        return [...units];
       });
       setIsLoading(false);
       return;
@@ -592,7 +596,7 @@ const SendDetails = () => {
    *
    * @returns {Promise<void>}
    */
-  const importQrTransaction = async () => {
+  const importQrTransaction = () => {
     if (wallet.type !== WatchOnlyWallet.type) {
       return Alert.alert(loc.errors.error, 'Error: importing transaction in non-watchonly wallet (this should never happen)');
     }
@@ -608,7 +612,7 @@ const SendDetails = () => {
     });
   };
 
-  const importQrTransactionOnBarScanned = async ret => {
+  const importQrTransactionOnBarScanned = ret => {
     navigation.dangerouslyGetParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
@@ -741,7 +745,7 @@ const SendDetails = () => {
     setOptionsVisible(false);
   };
 
-  const importTransactionMultisig = async () => {
+  const importTransactionMultisig = () => {
     return _importTransactionMultisig();
   };
 
@@ -759,7 +763,7 @@ const SendDetails = () => {
     }
   };
 
-  const importTransactionMultisigScanQr = async () => {
+  const importTransactionMultisigScanQr = () => {
     setOptionsVisible(false);
     navigation.navigate('ScanQRCodeRoot', {
       screen: 'ScanQRCode',
@@ -1243,7 +1247,7 @@ const SendDetails = () => {
           inputAccessoryViewID={wallet.allowSendMax() ? BlueUseAllFundsButton.InputAccessoryViewID : null}
         />
         <AddressInput
-          onChangeText={async text => {
+          onChangeText={text => {
             text = text.trim();
             const { address, amount, memo: lmemo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text);
             setAddresses(addresses => {
@@ -1326,11 +1330,16 @@ const SendDetails = () => {
               style={styles.fee}
             >
               <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
-              <View style={[styles.feeRow, stylesHook.feeRow]}>
-                <Text style={stylesHook.feeValue}>
-                  {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_byte}
-                </Text>
-              </View>
+
+              {networkTransactionFeesIsLoading ? (
+                <ActivityIndicator />
+              ) : (
+                <View style={[styles.feeRow, stylesHook.feeRow]}>
+                  <Text style={stylesHook.feeValue}>
+                    {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_byte}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
             {renderCreateButton()}
             {renderFeeSelectionModal()}
