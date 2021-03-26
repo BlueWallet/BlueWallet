@@ -73,6 +73,7 @@ const SendDetails = () => {
   const [units, setUnits] = useState([]);
   const [memo, setMemo] = useState('');
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
+  const [networkTransactionFeesIsLoading, setNetworkTransactionFeesIsLoading] = useState(false);
   const [customFee, setCustomFee] = useState(null);
   const [feePrecalc, setFeePrecalc] = useState({ current: null, slowFee: null, mediumFee: null, fastestFee: null });
   const [feeUnit, setFeeUnit] = useState();
@@ -164,13 +165,20 @@ const SendDetails = () => {
       .catch(e => console.log('loading cached recommendedFees error', e));
 
     // load fresh fees from servers
+
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setNetworkTransactionFeesIsLoading(true);
     NetworkTransactionFees.recommendedFees()
       .then(async fees => {
         if (!fees?.fastestFee) return;
         setNetworkTransactionFees(fees);
         await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(fees));
       })
-      .catch(e => console.log('loading recommendedFees error', e));
+      .catch(e => console.log('loading recommendedFees error', e))
+      .finally(() => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setNetworkTransactionFeesIsLoading(false);
+      });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // change header and reset state on wallet change
@@ -1316,11 +1324,16 @@ const SendDetails = () => {
               style={styles.fee}
             >
               <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
-              <View style={[styles.feeRow, stylesHook.feeRow]}>
-                <Text style={stylesHook.feeValue}>
-                  {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_byte}
-                </Text>
-              </View>
+
+              {networkTransactionFeesIsLoading ? (
+                <ActivityIndicator />
+              ) : (
+                <View style={[styles.feeRow, stylesHook.feeRow]}>
+                  <Text style={stylesHook.feeValue}>
+                    {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_byte}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
             {renderCreateButton()}
             {renderFeeSelectionModal()}
