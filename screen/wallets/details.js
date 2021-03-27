@@ -465,7 +465,7 @@ const WalletDetails = () => {
               </>
             )}
 
-            {wallet.getDerivationPath() && (
+            {!!wallet.getDerivationPath() && (
               <>
                 <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_derivation_path}</Text>
                 <BlueText>{wallet.getDerivationPath()}</BlueText>
