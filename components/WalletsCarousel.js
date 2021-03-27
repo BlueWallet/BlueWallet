@@ -78,7 +78,7 @@ NewWalletPanel.propTypes = {
 const iStyles = StyleSheet.create({
   root: {
     paddingRight: 10,
-    paddingLeft: I18nManager.isRTL ? 10 : 0,
+    paddingLeft: 10,
     marginVertical: 17,
   },
   grad: {
@@ -288,7 +288,6 @@ const cStyles = StyleSheet.create({
   },
   content: {
     left: 16,
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
 });
 
@@ -338,12 +337,13 @@ const WalletsCarousel = forwardRef((props, ref) => {
       )}
       <Carousel
         ref={carouselRef}
+        inverted={I18nManager.isRTL}
         renderItem={renderItem}
         sliderWidth={sliderWidth}
         sliderHeight={sliderHeight}
         itemWidth={itemWidth}
         inactiveSlideScale={1}
-        inactiveSlideOpacity={I18nManager.isRTL ? 1.0 : 0.7}
+        inactiveSlideOpacity={0.7}
         activeSlideAlignment="start"
         initialNumToRender={10}
         onLayout={onLayout}
