@@ -7,13 +7,14 @@
     "never": "jamais",
     "of": "{number} sur {total}",
     "ok": "OK",
-    "storage_is_encrypted": "L'espace de stockage est chiffré. le mot de passe requis pour le déchiffrer.",
+    "storage_is_encrypted": "L'espace de stockage est chiffré. le mot de passe est requis pour le déchiffrer.",
     "allow": "Autoriser",
     "dont_allow": "Ne pas autoriser",
     "yes": "Oui",
     "no": "Non",
     "save": "Enregistrer",
     "seed": "Graine",
+    "success": "Succès",
     "wallet_key": "Clé de portefeuille",
     "invalid_animated_qr_code_fragment" : "Fragment du QR Code animé invalide. Veuillez essayer encore.",
     "file_saved": "Le fichier ({filePath}) a été enregistré dans le dossier Téléchargements.",
@@ -32,7 +33,7 @@
   "entropy": {
     "save": "Enregistrer",
     "title": "Entropie",
-    "undo": "Annuler"
+    "undo": "Défaire"
   },
   "errors": {
     "broadcast": "La transmission a échoué",
@@ -174,13 +175,12 @@
     "details_address_field_is_not_valid": "Champ adresse invalide",
     "details_adv_fee_bump": "Autoriser le Fee Bum",
     "details_adv_full": "Envoyer tout le solde",
-    "details_adv_full_remove": "Vos autres destinataires seront retirés de cette transaction.",
     "details_adv_full_sure": "Etes-vous sûr de vouloir utiliser la totalité de votre solde pour cette transaction ?",
     "details_adv_import": "Importer une transaction",
     "details_amount_field_is_not_valid": "Champ montant invalide",
     "details_amount_field_is_less_than_minimum_amount_sat": "Le montant spécifié est trop petit. Veuillez entrer un montant supérieur à 500 sats.",
     "details_create": "Créer la requête",
-    "details_error_decode": "Erreur : impossible de décoder l'adresse Bitcoin",
+    "details_error_decode": "Impossible de décoder l'adresse bitcoin",
     "details_fee_field_is_not_valid": "Champ frais invalide",
     "details_next": "Suivant",
     "details_no_maximum": "Le portefeuille sélectionné ne supporte pas le calcul automatique du solde maximum. Etes-vous sûr de vouloir utiliser ce portefeuille ?",
@@ -189,6 +189,7 @@
     "details_note_placeholder": "note (optionnelle)",
     "details_scan": "Scanner",
     "details_total_exceeds_balance": "Le montant à envoyer excède le montant disponible.",
+    "details_unrecognized_file_format": "Format fichier inconnu",
     "details_wallet_before_tx": "Avant de créer une transaction, vous devez d'abord importer un ajouter un portefeuille Bitcoin.",
     "details_wallet_selection": "Sélection du portefeuille",
     "dynamic_init": "Initialisation",
@@ -318,6 +319,7 @@
     "privacy_clipboard_explanation": "Fourni un raccourci si une adresse ou une facture est trouvée dans le presse-papier.",
     "push_notifications": "Notifications push",
     "retype_password": "Re-saisir votre mot de passe",
+    "selfTest": "Auto-test",
     "save": "Enregistrer",
     "saved": "Enregistré",
     "success_transaction_broadcasted" : "Succès! Votre transaction a été difusée!",
@@ -335,7 +337,6 @@
     "cancel_no": "Cette transaction n'est pas remplaçable",
     "cancel_title": "Annuler cette transaction (RBF)",
     "confirmations_lowercase": "{confirmations} confirmations",
-    "transaction_id": "ID de transaction",
     "note": "Note",
     "expand_note": "Développer la note",
     "block_explorer_link": "Lien vers l'explorateur de blocs",
@@ -560,5 +561,16 @@
     "MAX": "MAX",
     "sat_byte": "sat/byte",
     "sats": "sats"
+  },
+  "addresses": {
+    "sign_title": "Signe/vérifie le message",
+    "sign_help": "Ici vous pouvez créer ou vérifier une signature cryptographique basée sur une adresse bitcoin",
+    "sign_sign": "Signe",
+    "sign_verify": "Vérifie",
+    "sign_signature_correct": "Succès de la vérification",
+    "sign_signature_incorrect": "Échec de la vérification",
+    "sign_placeholder_address": "Adresse",
+    "sign_placeholder_message": "Message",
+    "sign_placeholder_signature": "Signature"
   }
 }
