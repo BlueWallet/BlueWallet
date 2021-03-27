@@ -352,6 +352,7 @@ export class BlueWalletNavigationHeader extends Component {
             backgroundColor: 'transparent',
             fontSize: 19,
             color: '#fff',
+            writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
           }}
         >
           {this.state.wallet.getLabel()}
@@ -401,6 +402,7 @@ export class BlueWalletNavigationHeader extends Component {
                 fontWeight: 'bold',
                 fontSize: 36,
                 color: '#fff',
+                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
               }}
             >
               {balance}
