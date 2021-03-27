@@ -92,7 +92,7 @@ const iStyles = StyleSheet.create({
     height: 94,
     position: 'absolute',
     bottom: 0,
-    ...(I18nManager.isRTL ? { right: 0 } : { left: 0 }),
+    right: 0,
   },
   br: {
     backgroundColor: 'transparent',
