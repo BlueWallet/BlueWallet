@@ -50,7 +50,7 @@ const SelectWallet = () => {
       height: 94,
       position: 'absolute',
       bottom: 0,
-      ...(I18nManager.isRTL ? { left: 0 } : { right: 0 }),
+      ...(I18nManager.isRTL ? { right: 0 } : { left: 0 }),
     },
     transparentText: {
       backgroundColor: 'transparent',
@@ -59,22 +59,29 @@ const SelectWallet = () => {
       backgroundColor: 'transparent',
       fontSize: 19,
       color: '#fff',
+      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
     },
+
     balance: {
       backgroundColor: 'transparent',
       fontWeight: 'bold',
       fontSize: 36,
+      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+
       color: '#fff',
     },
     latestTxLabel: {
       backgroundColor: 'transparent',
       fontSize: 13,
       color: '#fff',
+      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
     },
     latestTxValue: {
       backgroundColor: 'transparent',
       fontWeight: 'bold',
       fontSize: 16,
+      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+
       color: '#fff',
     },
     noWallets: {
@@ -106,11 +113,11 @@ const SelectWallet = () => {
               source={(() => {
                 switch (item.type) {
                   case LightningCustodianWallet.type:
-                    return require('../../img/lnd-shape.png');
+                    return I18nManager.isRTL ? require('../../img/lnd-shape-rtl.png') : require('../../img/lnd-shape.png');
                   case MultisigHDWallet.type:
-                    return require('../../img/vault-shape.png');
+                    return I18nManager.isRTL ? require('../../img/vault-shape-rtl.png') : require('../../img/vault-shape.png');
                   default:
-                    return require('../../img/btc-shape.png');
+                    return I18nManager.isRTL ? require('../../img/btc-shape-rtl.png') : require('../../img/btc-shape.png');
                 }
               })()}
               style={styles.image}
