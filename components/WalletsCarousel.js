@@ -346,6 +346,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
         inactiveSlideOpacity={I18nManager.isRTL ? 1.0 : 0.7}
         activeSlideAlignment="start"
         initialNumToRender={10}
+        inverted={I18nManager.isRTL && Platform.OS === 'android'}
         onLayout={onLayout}
         contentContainerCustomStyle={cStyles.content}
         {...props}
