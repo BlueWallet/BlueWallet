@@ -45,6 +45,10 @@ export class AbstractWallet {
     throw new Error('not implemented');
   }
 
+  getDerivationPath() {
+    return this._derivationPath;
+  }
+
   getUserHasSavedExport() {
     return this.userHasSavedExport;
   }
