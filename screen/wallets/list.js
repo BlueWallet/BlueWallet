@@ -89,7 +89,7 @@ const WalletsList = () => {
 
   useEffect(() => {
     const allWallets = wallets.concat(pendingWallets);
-    const newCarouselData = allWallets.concat(false);
+    const newCarouselData = I18nManager.isRTL ? [false].concat(allWallets) : allWallets.concat(false);
     setCarouselData(newCarouselData);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallets, pendingWallets]);

@@ -288,6 +288,7 @@ const cStyles = StyleSheet.create({
   },
   content: {
     left: 16,
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
 });
 
@@ -337,13 +338,12 @@ const WalletsCarousel = forwardRef((props, ref) => {
       )}
       <Carousel
         ref={carouselRef}
-        inverted={I18nManager.isRTL}
         renderItem={renderItem}
         sliderWidth={sliderWidth}
         sliderHeight={sliderHeight}
         itemWidth={itemWidth}
         inactiveSlideScale={1}
-        inactiveSlideOpacity={0.7}
+        inactiveSlideOpacity={I18nManager.isRTL ? 1.0 : 0.7}
         activeSlideAlignment="start"
         initialNumToRender={10}
         onLayout={onLayout}
