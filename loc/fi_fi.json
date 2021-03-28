@@ -14,6 +14,7 @@
     "no": "Ei",
     "save": "Tallenna",
     "seed": "Siemen",
+    "success": "Onnistui",
     "wallet_key": "Lompakkoavain",
     "invalid_animated_qr_code_fragment" : "Virheellinen animoitu QRCode-fragmentti, yritä uudelleen",
     "file_saved": "Tiedosto ({filePath}) on tallennettu Lataukset-kansioon.",
@@ -560,5 +561,16 @@
     "MAX": "MAX",
     "sat_byte": "sat/bitti",
     "sats": "sattia"
+  },
+  "addresses": {
+    "sign_title": "Allekirjoita/Varmenna viesti",
+    "sign_help": "Täällä voit luoda tai varmentaa kryptografisen allekirjoituksen Bitcoin-osoitteen perusteella ",
+    "sign_sign": "Allekirjoita",
+    "sign_verify": "Varmenna",
+    "sign_signature_correct": "Varmennus onnistui!",
+    "sign_signature_incorrect": "Varmennus epäonnistui!",
+    "sign_placeholder_address": "Osoite",
+    "sign_placeholder_message": "Viesti",
+    "sign_placeholder_signature": "Allekirjoitus"
   }
 }
