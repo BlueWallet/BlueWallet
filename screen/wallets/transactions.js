@@ -268,7 +268,7 @@ const WalletTransactions = () => {
         </View>
         {wallet.type === LightningLndWallet.type && (
           <View style={styles.marginHorizontal18}>
-            <LNNodeBar />
+            <LNNodeBar canSend={200} canReceive={100} />
           </View>
         )}
       </View>

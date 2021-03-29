@@ -1,24 +1,28 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import loc from '../loc';
+import PropTypes from 'prop-types';
 
 export const LNNodeBar = props => {
+  const { canReceive = 0, canSend = 0, nodeAlias = '', disabled = false } = props;
+  const opacity = { opacity: disabled ? 0.28 : 1.0 };
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, opacity]}>
+      {nodeAlias.trim().length > 0 && <Text style={styles.nodeAlias}>{nodeAlias}</Text>}
       <View style={styles.canSendBar}>
         <View style={styles.fullFlexDirectionRow}>
-          <View style={styles.canReceiveBar} />
+          <View style={[styles.canReceiveBar, { flex: Math.abs((canReceive - canSend) / (canReceive + canSend)) * 1.0 }]} />
         </View>
       </View>
 
       <View style={styles.containerBottomText}>
         <View style={styles.containerBottomLeftText}>
           <Text style={styles.titleText}>{loc.lnd.can_receive.toUpperCase()}</Text>
-          <Text style={styles.canReceive}>650 000</Text>
+          <Text style={styles.canReceive}>{canReceive}</Text>
         </View>
         <View style={styles.containerBottomRightText}>
           <Text style={styles.titleText}>{loc.lnd.can_send.toUpperCase()}</Text>
-          <Text style={styles.canSend}>350 000</Text>
+          <Text style={styles.canSend}>{canSend}</Text>
         </View>
       </View>
     </View>
@@ -27,6 +31,12 @@ export const LNNodeBar = props => {
 
 export default LNNodeBar;
 
+LNNodeBar.propTypes = {
+  canReceive: PropTypes.number.isRequired,
+  canSend: PropTypes.number.isRequired,
+  nodeAlias: PropTypes.string,
+  disabled: PropTypes.bool,
+};
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -36,6 +46,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 16,
   },
+  nodeAlias: {
+    color: '#022553',
+    marginVertical: 16,
+  },
   canSendBar: {
     flex: 1,
     height: 14,
@@ -43,7 +57,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#4E6CF5',
     borderRadius: 6,
   },
-  canReceiveBar: { flex: 0.9, backgroundColor: '#57B996', borderRadius: 6 },
+  canReceiveBar: { backgroundColor: '#57B996', borderRadius: 6 },
   fullFlexDirectionRow: {
     flexDirection: 'row',
     flex: 1,
