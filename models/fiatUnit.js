@@ -65,8 +65,10 @@ const RateExtractors = Object.freeze({
 
 export const FiatUnit = Object.freeze({
   USD: { endPointKey: 'USD', symbol: '$', locale: 'en-US', source: FiatUnitSource.CoinDesk },
+  ANG: { endPointKey: 'ANG', symbol: 'ƒ', locale: 'en-SX', source: FiatUnitSource.CoinDesk },
   ARS: { endPointKey: 'ARS', symbol: '$', locale: 'es-AR', source: FiatUnitSource.Yadio },
   AUD: { endPointKey: 'AUD', symbol: '$', locale: 'en-AU', source: FiatUnitSource.CoinDesk },
+  AWG: { endPointKey: 'AWG', symbol: 'ƒ', locale: 'nl-AW', source: FiatUnitSource.CoinDesk },
   BRL: { endPointKey: 'BRL', symbol: 'R$', locale: 'pt-BR', source: FiatUnitSource.CoinDesk },
   CAD: { endPointKey: 'CAD', symbol: '$', locale: 'en-CA', source: FiatUnitSource.CoinDesk },
   CHF: { endPointKey: 'CHF', symbol: 'CHF', locale: 'de-CH', source: FiatUnitSource.CoinDesk },

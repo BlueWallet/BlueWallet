@@ -14,6 +14,16 @@
 	</dict>
 	<dict>
 		<key>endPointKey</key>
+		<string>ANG</string>
+		<key>symbol</key>
+		<string>ƒ</string>
+		<key>locale</key>
+		<string>en-SX</string>
+		<key>source</key>
+		<string>CoinDesk</string>
+	</dict>
+	<dict>
+		<key>endPointKey</key>
 		<string>ARS</string>
 		<key>symbol</key>
 		<string>$</string>
@@ -29,6 +39,16 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>en-AU</string>
+		<key>source</key>
+		<string>CoinDesk</string>
+	</dict>
+	<dict>
+		<key>endPointKey</key>
+		<string>AWG</string>
+		<key>symbol</key>
+		<string>ƒ</string>
+		<key>locale</key>
+		<string>nl-AW</string>
 		<key>source</key>
 		<string>CoinDesk</string>
 	</dict>
