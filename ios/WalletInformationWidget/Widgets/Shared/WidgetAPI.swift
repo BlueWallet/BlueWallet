@@ -8,6 +8,9 @@
 
 import Foundation
 
+struct CurrencyError: LocalizedError {
+  var errorDescription: String = "Failed to parse response"
+}
 
 var numberFormatter: NumberFormatter {
   let formatter = NumberFormatter()
@@ -19,45 +22,83 @@ var numberFormatter: NumberFormatter {
 }
 
 class WidgetAPI {
-  
   static func fetchPrice(currency: String, completion: @escaping ((WidgetDataStore?, Error?) -> Void)) {
     let currencyToFiatUnit = fiatUnit(currency: currency)
-    guard let url = currencyToFiatUnit?.rateURL else {return}
-    
+    guard let source = currencyToFiatUnit?.source, let endPointKey = currencyToFiatUnit?.endPointKey else { return }
+
+    var urlString: String
+    switch source {
+    case "Yadio":
+      urlString = "https://api.yadio.io/json/\(endPointKey)"
+    case "BitcoinduLiban":
+      urlString = "https://bitcoinduliban.org/api.php?key=lbpusd"
+    default:
+      urlString = "https://api.coindesk.com/v1/bpi/currentprice/\(endPointKey).json"
+    }
+
+    guard let url = URL(string:urlString) else { return }
+
     URLSession.shared.dataTask(with: url) { (data, response, error) in
       guard let dataResponse = data,
             let json = (try? JSONSerialization.jsonObject(with: dataResponse, options: .mutableContainers) as? Dictionary<String, Any>),
-            error == nil else {
-        print(error?.localizedDescription ?? "Response Error")
-        completion(nil, error)
-        return }
-      
-      guard let latestRateDataStore = currencyToFiatUnit?.currentRate(json: json)
+            error == nil
       else {
         print(error?.localizedDescription ?? "Response Error")
         completion(nil, error)
-        return }
+        return
+      }
+
+      var latestRateDataStore: WidgetDataStore?
+      switch source {
+      case "Yadio":
+        guard let rateDict = json[endPointKey] as? [String: Any],
+              let rateDouble = rateDict["price"] as? Double,
+              let lastUpdated = json["timestamp"] as? Int
+        else { break }
+        latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: String(lastUpdated), rateDouble: rateDouble)
+      case "BitcoinduLiban":
+        guard let rateString = json["BTC/LBP"] as? String,
+              let lastUpdatedString = json["date/time"] as? String
+        else { break }
+        guard let rateDouble = Double(rateString) else {return}
+        latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+      default:
+        guard let bpi = json["bpi"] as? Dictionary<String, Any>,
+              let preferredCurrency = bpi[endPointKey] as? Dictionary<String, Any>,
+              let rateString = preferredCurrency["rate"] as? String,
+              let rateDouble = preferredCurrency["rate_float"] as? Double,
+              let time = json["time"] as? Dictionary<String, Any>,
+              let lastUpdatedString = time["updatedISO"] as? String
+        else { break }
+        latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+      }
+
+      if (latestRateDataStore == nil) {
+        completion(nil, CurrencyError())
+        return
+      }
+
       completion(latestRateDataStore, nil)
     }.resume()
   }
-  
+
   static func getUserPreferredCurrency() -> String {
-    
+
     guard let userDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue),
           let preferredCurrency = userDefaults.string(forKey: "preferredCurrency")
     else {
       return "USD"
     }
-    
+
     if preferredCurrency != WidgetAPI.getLastSelectedCurrency() {
       UserDefaults.standard.removeObject(forKey: WidgetData.WidgetCachedDataStoreKey)
       UserDefaults.standard.removeObject(forKey: WidgetData.WidgetDataStoreKey)
       UserDefaults.standard.synchronize()
     }
-    
+
     return preferredCurrency
   }
-  
+
   static func getUserPreferredCurrencyLocale() -> String {
     guard let userDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue),
           let preferredCurrency = userDefaults.string(forKey: "preferredCurrencyLocale")
@@ -66,17 +107,17 @@ class WidgetAPI {
     }
     return preferredCurrency
   }
-  
+
   static func getLastSelectedCurrency() -> String {
     guard let dataStore = UserDefaults.standard.string(forKey: "currency") else {
       return "USD"
     }
-    
+
     return dataStore
   }
-  
+
   static func saveNewSelectedCurrency() {
     UserDefaults.standard.setValue(WidgetAPI.getUserPreferredCurrency(), forKey: "currency")
   }
-  
+
 }
