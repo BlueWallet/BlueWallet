@@ -55,12 +55,13 @@ class WidgetAPI {
               let rateDouble = rateDict["price"] as? Double,
               let lastUpdated = json["timestamp"] as? Int
         else { break }
-        latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: String(lastUpdated), rateDouble: rateDouble)
+        let unix = Double(lastUpdated / 1_000)
+        let lastUpdatedString = ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: unix))
+        latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
       case "BitcoinduLiban":
-        guard let rateString = json["BTC/LBP"] as? String,
-              let lastUpdatedString = json["date/time"] as? String
-        else { break }
+        guard let rateString = json["BTC/LBP"] as? String else { break }
         guard let rateDouble = Double(rateString) else {return}
+        let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
         latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
       default:
         guard let bpi = json["bpi"] as? Dictionary<String, Any>,
