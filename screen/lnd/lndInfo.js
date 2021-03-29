@@ -190,13 +190,6 @@ const LndInfo = () => {
     );
   };
 
-  const start = () => {
-    return wallet.init();
-  };
-
-  const stop = () => {
-    return wallet.stop();
-  };
   const render = () => {
     if (isLoading) {
       return (
@@ -224,10 +217,6 @@ const LndInfo = () => {
         </BlueText>
         <BlueText>{getInfo.syncedToGraph ? 'synced to graph' : 'not synced to graph'}</BlueText>
         <BlueText>{info}</BlueText>
-        <BlueSpacing20 />
-        <BlueButton onPress={start} title="Start" />
-        <BlueSpacing20 />
-        <BlueButton onPress={stop} title="Stop" />
         <BlueSpacing20 />
         <BlueButton onPress={showLogs} title="Show logs" />
         <BlueSpacing20 />

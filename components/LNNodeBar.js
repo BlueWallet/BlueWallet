@@ -6,12 +6,13 @@ import PropTypes from 'prop-types';
 export const LNNodeBar = props => {
   const { canReceive = 0, canSend = 0, nodeAlias = '', disabled = false } = props;
   const opacity = { opacity: disabled ? 0.28 : 1.0 };
+  const canReceiveBarFlex = { flex: canReceive > 0 && canSend > 0 ? Math.abs((canReceive - canSend) / (canReceive + canSend)) * 1.0 : 1.0 };
   return (
     <View style={[styles.root, opacity]}>
       {nodeAlias.trim().length > 0 && <Text style={styles.nodeAlias}>{nodeAlias}</Text>}
       <View style={styles.canSendBar}>
         <View style={styles.fullFlexDirectionRow}>
-          <View style={[styles.canReceiveBar, { flex: Math.abs((canReceive - canSend) / (canReceive + canSend)) * 1.0 }]} />
+          <View style={[styles.canReceiveBar, canReceiveBarFlex]} />
         </View>
       </View>
 

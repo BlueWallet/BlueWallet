@@ -63,6 +63,7 @@ const WalletTransactions = () => {
   const [pageSize, setPageSize] = useState(20);
   const { setParams, setOptions, navigate } = useNavigation();
   const { colors } = useTheme();
+  const [lndNodeInfo, setLndNodeInfo] = useState({ canReceive: 0, canSend: 0 });
   const walletActionButtonsRef = useRef();
 
   const stylesHook = StyleSheet.create({
@@ -155,6 +156,7 @@ const WalletTransactions = () => {
     if (dataSource.length === 0 && wallet.getBalance() > 0) {
       refreshTransactions();
     }
+    refreshLNDNodeInfo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -174,6 +176,14 @@ const WalletTransactions = () => {
     return false;
   };
 
+  const refreshLNDNodeInfo = () => {
+    if (wallet.type === LightningLndWallet.type) {
+      wallet.walletBalance().then(balance => {
+        setLndNodeInfo({ canReceive: Number(wallet.getReceivableBalance()), canSend: Number(balance) });
+      });
+    }
+  };
+
   /**
    * Forcefully fetches TXs and balance for wallet
    */
@@ -183,6 +193,7 @@ const WalletTransactions = () => {
     let noErr = true;
     let smthChanged = false;
     try {
+      refreshLNDNodeInfo();
       // await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
       /** @type {LegacyWallet} */
@@ -260,17 +271,17 @@ const WalletTransactions = () => {
           {wallet.chain === Chain.OFFCHAIN && renderMarketplaceButton()}
           {wallet.chain === Chain.OFFCHAIN && Platform.OS === 'ios' && renderLappBrowserButton()}
         </View>
+        {wallet.type === LightningLndWallet.type && (
+          <View style={styles.marginHorizontal18}>
+            <LNNodeBar canSend={lndNodeInfo.canReceive} canReceive={lndNodeInfo.canSend} />
+          </View>
+        )}
         <View style={[styles.listHeaderTextRow, stylesHook.listHeaderTextRow]}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
           <TouchableOpacity testID="refreshTransactions" style={style} onPress={refreshTransactions} disabled={isLoading}>
             <Icon name="refresh" type="font-awesome" color={colors.feeText} />
           </TouchableOpacity>
         </View>
-        {wallet.type === LightningLndWallet.type && (
-          <View style={styles.marginHorizontal18}>
-            <LNNodeBar canSend={200} canReceive={100} />
-          </View>
-        )}
       </View>
     );
   };
