@@ -178,9 +178,7 @@ const WalletTransactions = () => {
 
   const refreshLNDNodeInfo = () => {
     if (wallet.type === LightningLndWallet.type) {
-      wallet.walletBalance().then(balance => {
-        setLndNodeInfo({ canReceive: Number(wallet.getReceivableBalance()), canSend: Number(balance) });
-      });
+      setLndNodeInfo({ canReceive: wallet.getReceivableBalance(), canSend: wallet.getBalance() });
     }
   };
 
@@ -273,7 +271,7 @@ const WalletTransactions = () => {
         </View>
         {wallet.type === LightningLndWallet.type && (
           <View style={styles.marginHorizontal18}>
-            <LNNodeBar canSend={lndNodeInfo.canReceive} canReceive={lndNodeInfo.canSend} />
+            <LNNodeBar canSend={lndNodeInfo.canSend} canReceive={lndNodeInfo.canReceive} />
           </View>
         )}
         <View style={[styles.listHeaderTextRow, stylesHook.listHeaderTextRow]}>
