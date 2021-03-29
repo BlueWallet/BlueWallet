@@ -36,6 +36,7 @@ import BuyBitcoin from './buyBitcoin';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
+import LNNodeBar from '../../components/LNNodeBar';
 
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -265,6 +266,11 @@ const WalletTransactions = () => {
             <Icon name="refresh" type="font-awesome" color={colors.feeText} />
           </TouchableOpacity>
         </View>
+        {wallet.type === LightningLndWallet.type && (
+          <View style={styles.marginHorizontal18}>
+            <LNNodeBar />
+          </View>
+        )}
       </View>
     );
   };
@@ -804,6 +810,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 16,
     paddingBottom: 40,
+  },
+  marginHorizontal18: {
+    marginHorizontal: 18,
   },
   modalContent: {
     backgroundColor: '#FFFFFF',

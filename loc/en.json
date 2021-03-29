@@ -107,7 +107,9 @@
     "refill_external": "Refill with External Wallet",
     "refill_lnd_balance": "Refill Lightning Wallet Balance",
     "sameWalletAsInvoiceError": "You can’t pay an invoice with the same wallet used to create it.",
-    "title": "Manage Funds"
+    "title": "Manage Funds",
+    "can_send": "Can Send",
+    "can_receive": "Can Receive"
   },
   "lndViewInvoice": {
     "additional_info": "Additional Information",
