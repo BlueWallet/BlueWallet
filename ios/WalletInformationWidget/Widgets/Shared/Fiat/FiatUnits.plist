@@ -9,6 +9,18 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>en-US</string>
+		<key>source</key>
+		<string>CoinDesk</string>
+	</dict>
+	<dict>
+		<key>endPointKey</key>
+		<string>ANG</string>
+		<key>symbol</key>
+		<string>ƒ</string>
+		<key>locale</key>
+		<string>en-SX</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -17,10 +29,8 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>es-AR</string>
-		<key>dataSource</key>
-		<string>https://api.yadio.io/json</string>
-		<key>rateKey</key>
-		<string>ARS</string>
+		<key>source</key>
+		<string>Yadio</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -29,6 +39,18 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>en-AU</string>
+		<key>source</key>
+		<string>CoinDesk</string>
+	</dict>
+	<dict>
+		<key>endPointKey</key>
+		<string>AWG</string>
+		<key>symbol</key>
+		<string>ƒ</string>
+		<key>locale</key>
+		<string>nl-AW</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -37,6 +59,8 @@
 		<string>R$</string>
 		<key>locale</key>
 		<string>pt-BR</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -45,6 +69,8 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>en-CA</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -53,6 +79,8 @@
 		<string>CHF</string>
 		<key>locale</key>
 		<string>de-CH</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -61,6 +89,8 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>es-CL</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -69,6 +99,8 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>es-CO</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -77,6 +109,8 @@
 		<string>Kč</string>
 		<key>locale</key>
 		<string>cs-CZ</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -85,6 +119,8 @@
 		<string>¥</string>
 		<key>locale</key>
 		<string>zh-CN</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -93,6 +129,8 @@
 		<string>€</string>
 		<key>locale</key>
 		<string>en-IE</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -101,6 +139,8 @@
 		<string>£</string>
 		<key>locale</key>
 		<string>en-GB</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -109,6 +149,8 @@
 		<string>HRK</string>
 		<key>locale</key>
 		<string>hr-HR</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -117,6 +159,8 @@
 		<string>Ft</string>
 		<key>locale</key>
 		<string>hu-HU</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -125,6 +169,8 @@
 		<string>₪</string>
 		<key>locale</key>
 		<string>he-IL</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -133,6 +179,8 @@
 		<string>₹</string>
 		<key>locale</key>
 		<string>hi-HN</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -141,6 +189,8 @@
 		<string>¥</string>
 		<key>locale</key>
 		<string>ja-JP</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -149,6 +199,8 @@
 		<string>Ksh</string>
 		<key>locale</key>
 		<string>en-KE</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -157,6 +209,8 @@
 		<string>₩</string>
 		<key>locale</key>
 		<string>ko-KR</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 		<dict>
 		<key>endPointKey</key>
@@ -165,6 +219,8 @@
 		<string>ل.ل.‏</string>
 		<key>locale</key>
 		<string>ar-LB</string>
+		<key>source</key>
+		<string>BitcoinduLiban</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -173,6 +229,8 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>es-MX</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -181,6 +239,8 @@
 		<string>RM</string>
 		<key>locale</key>
 		<string>ms-MY</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -189,6 +249,8 @@
 		<string>₦</string>
 		<key>locale</key>
 		<string>en-NG</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -197,6 +259,8 @@
 		<string>kr</string>
 		<key>locale</key>
 		<string>nb-NO</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -205,6 +269,8 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>en-NZ</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -213,6 +279,8 @@
 		<string>zł</string>
 		<key>locale</key>
 		<string>pl-PL</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -221,6 +289,8 @@
 		<string>₱</string>
 		<key>locale</key>
 		<string>en-PH</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -229,6 +299,8 @@
 		<string>₽</string>
 		<key>locale</key>
 		<string>ru-RU</string>
+		<key>source</key>
+		<string>BitcoinduLiban</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -237,6 +309,8 @@
 		<string>S$</string>
 		<key>locale</key>
 		<string>zh-SG</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -245,6 +319,8 @@
 		<string>kr</string>
 		<key>locale</key>
 		<string>sv-SE</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -253,6 +329,8 @@
 		<string>₺</string>
 		<key>locale</key>
 		<string>tr-TR</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -261,6 +339,8 @@
 		<string>฿</string>
 		<key>locale</key>
 		<string>th-TH</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -269,6 +349,8 @@
 		<string>NT$</string>
 		<key>locale</key>
 		<string>zh-Hant-TW</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -277,6 +359,8 @@
 		<string>TSh</string>
 		<key>locale</key>
 		<string>en-TZ</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -285,6 +369,8 @@
 		<string>₴</string>
 		<key>locale</key>
 		<string>uk-UA</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 		<dict>
 		<key>endPointKey</key>
@@ -293,6 +379,8 @@
 		<string>$</string>
 		<key>locale</key>
 		<string>es-UY</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -301,6 +389,8 @@
 		<string>Bs.</string>
 		<key>locale</key>
 		<string>es-VE</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -309,10 +399,8 @@
 		<string>Bs.</string>
 		<key>locale</key>
 		<string>es-VE</string>
-		<key>dataSource</key>
-		<string>https://api.yadio.io/json</string>
-		<key>rateKey</key>
-		<string>VES</string>
+		<key>source</key>
+		<string>Yadio</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -321,6 +409,8 @@
 		<string>R</string>
 		<key>locale</key>
 		<string>en-ZA</string>
+		<key>source</key>
+		<string>CoinDesk</string>
 	</dict>
 </array>
 </plist>
