@@ -35,6 +35,19 @@ describe('Segwit P2SH wallet', () => {
     assert.strictEqual(tx.ins.length, 1);
     assert.strictEqual(tx.outs.length, 1);
     assert.strictEqual('1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB', bitcoin.address.fromOutputScript(tx.outs[0].script)); // to address
+
+    // batch send + send max
+    txNew = wallet.createTransaction(
+      utxos,
+      [{ address: '1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB' }, { address: '14YZ6iymQtBVQJk6gKnLCk49UScJK7SH4M', value: 10000 }],
+      1,
+      wallet.getAddress(),
+    );
+    tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
+    assert.strictEqual(tx.ins.length, 1);
+    assert.strictEqual(tx.outs.length, 2);
+    assert.strictEqual('1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB', bitcoin.address.fromOutputScript(tx.outs[0].script)); // to address
+    assert.strictEqual('14YZ6iymQtBVQJk6gKnLCk49UScJK7SH4M', bitcoin.address.fromOutputScript(tx.outs[1].script)); // to address
   });
 
   it('can sign and verify messages', async () => {

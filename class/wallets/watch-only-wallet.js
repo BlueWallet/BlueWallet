@@ -21,20 +21,6 @@ export class WatchOnlyWallet extends LegacyWallet {
     );
   }
 
-  allowBatchSend() {
-    return (
-      this.useWithHardwareWalletEnabled() &&
-      this._hdWalletInstance instanceof HDSegwitBech32Wallet &&
-      this._hdWalletInstance.allowBatchSend()
-    );
-  }
-
-  allowSendMax() {
-    return (
-      this.useWithHardwareWalletEnabled() && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowSendMax()
-    );
-  }
-
   allowSignVerifyMessage() {
     return false;
   }
