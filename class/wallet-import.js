@@ -116,9 +116,7 @@ function WalletImport() {
         password = await prompt(loc.wallets.looks_like_bip38, loc.wallets.enter_bip38_password, false);
       } while (!password);
 
-      const decryptedKey = await bip38.decrypt(importText, password, status => {
-        console.warn(status.percent + '%');
-      });
+      const decryptedKey = await bip38.decrypt(importText, password);
 
       if (decryptedKey) {
         importText = wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed);
@@ -162,11 +160,33 @@ function WalletImport() {
     const hd4 = new HDSegwitBech32Wallet();
     hd4.setSecret(importText);
     if (hd4.validateMnemonic()) {
-      await hd4.fetchBalance();
-      if (hd4.getBalance() > 0) {
-        // await hd4.fetchTransactions(); // experiment: dont fetch tx now. it will import faster. user can refresh his wallet later
+      // OK its a valid BIP39 seed
+
+      if (await hd4.wasEverUsed()) {
+        await hd4.fetchBalance(); // fetching balance for BIP84 only on purpose
         return WalletImport._saveWallet(hd4);
       }
+
+      const hd2 = new HDSegwitP2SHWallet();
+      hd2.setSecret(importText);
+      if (await hd2.wasEverUsed()) {
+        return WalletImport._saveWallet(hd2);
+      }
+
+      const hd3 = new HDLegacyP2PKHWallet();
+      hd3.setSecret(importText);
+      if (await hd3.wasEverUsed()) {
+        return WalletImport._saveWallet(hd3);
+      }
+
+      const hd1 = new HDLegacyBreadwalletWallet();
+      hd1.setSecret(importText);
+      if (await hd1.wasEverUsed()) {
+        return WalletImport._saveWallet(hd1);
+      }
+
+      // no scheme (BIP84/BIP49/BIP44/Bread) was ever used. lets import as default BIP84:
+      return WalletImport._saveWallet(hd4);
     }
 
     const segwitWallet = new SegwitP2SHWallet();
@@ -174,28 +194,24 @@ function WalletImport() {
     if (segwitWallet.getAddress()) {
       // ok its a valid WIF
 
-      const legacyWallet = new LegacyWallet();
-      legacyWallet.setSecret(importText);
-
       const segwitBech32Wallet = new SegwitBech32Wallet();
       segwitBech32Wallet.setSecret(importText);
-
-      await legacyWallet.fetchBalance();
-      await segwitBech32Wallet.fetchBalance();
-      if (legacyWallet.getBalance() > 0) {
-        // yep, its legacy we're importing
-        await legacyWallet.fetchTransactions();
-        return WalletImport._saveWallet(legacyWallet);
-      } else if (segwitBech32Wallet.getBalance() > 0) {
+      if (await segwitBech32Wallet.wasEverUsed()) {
         // yep, its single-address bech32 wallet
-        await segwitBech32Wallet.fetchTransactions();
+        await segwitBech32Wallet.fetchBalance();
         return WalletImport._saveWallet(segwitBech32Wallet);
-      } else {
-        // by default, we import wif as Segwit P2SH
+      }
+
+      if (await segwitWallet.wasEverUsed()) {
+        // yep, its single-address bech32 wallet
         await segwitWallet.fetchBalance();
-        await segwitWallet.fetchTransactions();
         return WalletImport._saveWallet(segwitWallet);
       }
+
+      // default wallet is Legacy
+      const legacyWallet = new LegacyWallet();
+      legacyWallet.setSecret(importText);
+      return WalletImport._saveWallet(legacyWallet);
     }
 
     // case - WIF is valid, just has uncompressed pubkey
@@ -210,20 +226,10 @@ function WalletImport() {
 
     // if we're here - nope, its not a valid WIF
 
-    const hd1 = new HDLegacyBreadwalletWallet();
-    hd1.setSecret(importText);
-    if (hd1.validateMnemonic()) {
-      await hd1.fetchBalance();
-      if (hd1.getBalance() > 0) {
-        // await hd1.fetchTransactions(); // experiment: dont fetch tx now. it will import faster. user can refresh his wallet later
-        return WalletImport._saveWallet(hd1);
-      }
-    }
-
     try {
       const hdElectrumSeedLegacy = new HDSegwitElectrumSeedP2WPKHWallet();
       hdElectrumSeedLegacy.setSecret(importText);
-      if (await hdElectrumSeedLegacy.wasEverUsed()) {
+      if (hdElectrumSeedLegacy.validateMnemonic()) {
         // not fetching txs or balances, fuck it, yolo, life is too short
         return WalletImport._saveWallet(hdElectrumSeedLegacy);
       }
@@ -232,7 +238,7 @@ function WalletImport() {
     try {
       const hdElectrumSeedLegacy = new HDLegacyElectrumSeedP2PKHWallet();
       hdElectrumSeedLegacy.setSecret(importText);
-      if (await hdElectrumSeedLegacy.wasEverUsed()) {
+      if (hdElectrumSeedLegacy.validateMnemonic()) {
         // not fetching txs or balances, fuck it, yolo, life is too short
         return WalletImport._saveWallet(hdElectrumSeedLegacy);
       }
@@ -260,64 +266,11 @@ function WalletImport() {
       }
     } catch (_) {}
 
-    const hd2 = new HDSegwitP2SHWallet();
-    hd2.setSecret(importText);
-    if (hd2.validateMnemonic()) {
-      await hd2.fetchBalance();
-      if (hd2.getBalance() > 0) {
-        // await hd2.fetchTransactions(); // experiment: dont fetch tx now. it will import faster. user can refresh his wallet later
-        return WalletImport._saveWallet(hd2);
-      }
-    }
-
-    const hd3 = new HDLegacyP2PKHWallet();
-    hd3.setSecret(importText);
-    if (hd3.validateMnemonic()) {
-      await hd3.fetchBalance();
-      if (hd3.getBalance() > 0) {
-        // await hd3.fetchTransactions(); // experiment: dont fetch tx now. it will import faster. user can refresh his wallet later
-        return WalletImport._saveWallet(hd3);
-      }
-    }
-
-    // no balances? how about transactions count?
-
-    if (hd1.validateMnemonic()) {
-      await hd1.fetchTransactions();
-      if (hd1.getTransactions().length !== 0) {
-        return WalletImport._saveWallet(hd1);
-      }
-    }
-    if (hd2.validateMnemonic()) {
-      await hd2.fetchTransactions();
-      if (hd2.getTransactions().length !== 0) {
-        return WalletImport._saveWallet(hd2);
-      }
-    }
-    if (hd3.validateMnemonic()) {
-      await hd3.fetchTransactions();
-      if (hd3.getTransactions().length !== 0) {
-        return WalletImport._saveWallet(hd3);
-      }
-    }
-    if (hd4.validateMnemonic()) {
-      await hd4.fetchTransactions();
-      if (hd4.getTransactions().length !== 0) {
-        return WalletImport._saveWallet(hd4);
-      }
-    }
-
-    // is it even valid? if yes we will import as:
-    if (hd4.validateMnemonic()) {
-      return WalletImport._saveWallet(hd4);
-    }
-
     // not valid? maybe its a watch-only address?
 
     const watchOnly = new WatchOnlyWallet();
     watchOnly.setSecret(importText);
     if (watchOnly.valid()) {
-      // await watchOnly.fetchTransactions(); // experiment: dont fetch tx now. it will import faster. user can refresh his wallet later
       await watchOnly.fetchBalance();
       return WalletImport._saveWallet(watchOnly, additionalProperties);
     }

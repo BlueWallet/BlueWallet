@@ -14,6 +14,7 @@
     "no": "خیر",
     "save": "ذخیره",
     "seed": "سید",
+    "success": "موفقیت‌آمیز بود",
     "wallet_key": "کلید کیف پول",
     "invalid_animated_qr_code_fragment" : "کد QR جزئی متحرک نامعتبر است. لطفاً دوباره امتحان کنید.",
     "file_saved": "فایل ({filePath}) در پوشهٔ دانلودهای شما ذخیره شده است.",
@@ -174,7 +175,6 @@
     "details_address_field_is_not_valid": "آدرس معتبر نیست.",
     "details_adv_fee_bump": "امکان افزایش کارمزد",
     "details_adv_full": "از کل موجودی استفاده کن",
-    "details_adv_full_remove": "گیرنده‌های دیگر شما از این تراکنش حذف خواهند شد.",
     "details_adv_full_sure": "آیا مطمئن هستید که می‌خواهید از کل موجودی کیف پولتان برای این تراکنش استفاده کنید؟",
     "details_adv_import": "واردکردن تراکنش",
     "details_amount_field_is_not_valid": "مقدار معتبر نیست.",
@@ -561,5 +561,16 @@
     "MAX": "کل موجودی",
     "sat_byte": "ساتوشی/بایت",
     "sats": "ساتوشی"
+  },
+  "addresses": {
+    "sign_title": "امضا/صحت‌سنجی پیام",
+    "sign_help": "اینجا شما می‌توانید امضای رمزنگارانه‌ای را از روی یک آدرس بیت‌کوین تولید یا صحت‌سنجی کنید.",
+    "sign_sign": "امضاکردن",
+    "sign_verify": "صحت‌سنجی",
+    "sign_signature_correct": "صحت‌سنجی موفقیت‌آمیز بود!",
+    "sign_signature_incorrect": "صحت‌سنجی با شکست مواجه شد!",
+    "sign_placeholder_address": "آدرس",
+    "sign_placeholder_message": "پیام",
+    "sign_placeholder_signature": "امضا"
   }
 }
