@@ -357,14 +357,6 @@ const WalletDetails = () => {
     }
   };
 
-  const navigateToBroadcast = () => {
-    navigate('Broadcast');
-  };
-
-  const navigateToIsItMyAddress = () => {
-    navigate('IsItMyAddress');
-  };
-
   const walletNameTextInputOnBlur = () => {
     if (walletName.trim().length === 0) {
       const walletLabel = wallet.getLabel();
