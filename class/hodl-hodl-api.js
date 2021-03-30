@@ -76,39 +76,6 @@ export class HodlHodlApi {
     return (this._countries = json.countries);
   }
 
-  async getMyCountryCode() {
-    const _api = new Frisbee({ baseURI: 'https://ifconfig.co/' });
-    const _api2 = new Frisbee({ baseURI: 'https://geolocation-db.com/' });
-    let response;
-
-    let allowedTries = 6;
-    while (allowedTries > 0) {
-      // this API fails a lot, so lets retry several times
-      response = await _api.get('/country-iso', { headers: { 'Access-Control-Allow-Origin': '*' } });
-
-      let body = response.body;
-      if (typeof body === 'string') body = body.replace('\n', '');
-      if (!body || body.length !== 2) {
-        // trying api2
-        const response = await _api2.get('/json/', { headers: { 'Access-Control-Allow-Origin': '*' } });
-        body = response.body;
-        let json;
-        try {
-          json = JSON.parse(body);
-        } catch (_) {}
-        if (json && json.country_code) return (this._myCountryCode = json.country_code);
-        // failed, retry
-
-        allowedTries--;
-        await (async () => new Promise(resolve => setTimeout(resolve, 3000)))(); // sleep
-      } else {
-        return (this._myCountryCode = body);
-      }
-    }
-
-    throw new Error('API failure after several tries: ' + JSON.stringify(response));
-  }
-
   async getPaymentMethods(country) {
     const response = await this._api.get('/api/v1/payment_methods?filters[country]=' + country, this._getHeaders());
 

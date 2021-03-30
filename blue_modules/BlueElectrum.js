@@ -1,8 +1,10 @@
+/* global alert */
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 import { AppStorage, LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
 import DefaultPreference from 'react-native-default-preference';
 import RNWidgetCenter from 'react-native-widget-center';
+import loc from '../loc';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
@@ -26,11 +28,13 @@ const hardcodedPeers = [
   { host: 'electrum3.bluewallet.io', ssl: '443' }, // 2x weight
 ];
 
-let mainClient: ElectrumClient = false;
+/** @type {ElectrumClient} */
+let mainClient;
 let mainConnected = false;
 let wasConnectedAtLeastOnce = false;
 let serverName = false;
 let disableBatching = false;
+let connectionAttempt = 0;
 
 let latestBlockheight = false;
 let latestBlockheightTimestamp = false;
@@ -77,7 +81,7 @@ async function connectMain() {
       serverName = ver[0];
       mainConnected = true;
       wasConnectedAtLeastOnce = true;
-      if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs')) {
+      if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs') || ver[0].startsWith('Fulcrum')) {
         // TODO: once they release support for batching - disable batching only for lower versions
         disableBatching = true;
       }
@@ -95,12 +99,88 @@ async function connectMain() {
 
   if (!mainConnected) {
     console.log('retry');
+    connectionAttempt = connectionAttempt + 1;
     mainClient.close && mainClient.close();
-    setTimeout(connectMain, 500);
+    if (connectionAttempt >= 5) {
+      presentNetworkErrorAlert(usingPeer);
+    } else {
+      setTimeout(connectMain, 500);
+    }
   }
 }
 
 connectMain();
+
+async function presentNetworkErrorAlert(usingPeer) {
+  Alert.alert(
+    loc.errors.network,
+    loc.formatString(
+      usingPeer ? loc.settings.electrum_unable_to_connect : loc.settings.electrum_error_connect,
+      usingPeer ? { server: `${usingPeer.host}:${usingPeer.ssl ?? usingPeer.tcp}` } : {},
+    ),
+    [
+      {
+        text: loc.wallets.list_tryagain,
+        onPress: () => {
+          connectionAttempt = 0;
+          mainClient.close() && mainClient.close();
+          setTimeout(connectMain, 500);
+        },
+        style: 'default',
+      },
+      {
+        text: loc.settings.electrum_reset,
+        onPress: () => {
+          Alert.alert(
+            loc.settings.electrum_reset,
+            loc.settings.electrum_reset_to_default,
+            [
+              {
+                text: loc._.cancel,
+                style: 'cancel',
+                onPress: () => {},
+              },
+              {
+                text: loc._.ok,
+                style: 'destructive',
+                onPress: async () => {
+                  await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, '');
+                  await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, '');
+                  await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, '');
+                  try {
+                    await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+                    await DefaultPreference.clear(AppStorage.ELECTRUM_HOST);
+                    await DefaultPreference.clear(AppStorage.ELECTRUM_SSL_PORT);
+                    await DefaultPreference.clear(AppStorage.ELECTRUM_TCP_PORT);
+                    RNWidgetCenter.reloadAllTimelines();
+                  } catch (e) {
+                    // Must be running on Android
+                    console.log(e);
+                  }
+                  alert(loc.settings.electrum_saved);
+                  setTimeout(connectMain, 500);
+                },
+              },
+            ],
+            { cancelable: true },
+          );
+          connectionAttempt = 0;
+          mainClient.close() && mainClient.close();
+        },
+        style: 'destructive',
+      },
+      {
+        text: loc._.cancel,
+        onPress: () => {
+          connectionAttempt = 0;
+          mainClient.close() && mainClient.close();
+        },
+        style: 'cancel',
+      },
+    ],
+    { cancelable: false },
+  );
+}
 
 /**
  * Returns random hardcoded electrum server guaranteed to work
@@ -421,7 +501,7 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
         txdata.result = await mainClient.blockchainTransaction_get(txdata.param, verbose);
       }
       ret[txdata.param] = txdata.result;
-      delete ret[txdata.param].hex; // compact
+      if (ret[txdata.param]) delete ret[txdata.param].hex; // compact
     }
   }
 
@@ -453,16 +533,86 @@ module.exports.waitTillConnected = async function () {
 
       if (retriesCounter++ >= 30) {
         clearInterval(waitTillConnectedInterval);
+        connectionAttempt = 0;
+        presentNetworkErrorAlert();
         reject(new Error('Waiting for Electrum connection timeout'));
       }
     }, 500);
   });
 };
 
+// Returns the value at a given percentile in a sorted numeric array.
+// "Linear interpolation between closest ranks" method
+function percentile(arr, p) {
+  if (arr.length === 0) return 0;
+  if (typeof p !== 'number') throw new TypeError('p must be a number');
+  if (p <= 0) return arr[0];
+  if (p >= 1) return arr[arr.length - 1];
+
+  const index = (arr.length - 1) * p;
+  const lower = Math.floor(index);
+  const upper = lower + 1;
+  const weight = index % 1;
+
+  if (upper >= arr.length) return arr[lower];
+  return arr[lower] * (1 - weight) + arr[upper] * weight;
+}
+
+/**
+ * The histogram is an array of [fee, vsize] pairs, where vsizen is the cumulative virtual size of mempool transactions
+ * with a fee rate in the interval [feen-1, feen], and feen-1 > feen.
+ *
+ * @param numberOfBlocks {Number}
+ * @param feeHistorgram {Array}
+ * @returns {number}
+ */
+module.exports.calcEstimateFeeFromFeeHistorgam = function (numberOfBlocks, feeHistorgram) {
+  // first, transforming histogram:
+  let totalVsize = 0;
+  const histogramToUse = [];
+  for (const h of feeHistorgram) {
+    let [fee, vsize] = h;
+    let timeToStop = false;
+
+    if (totalVsize + vsize >= 1000000 * numberOfBlocks) {
+      vsize = 1000000 * numberOfBlocks - totalVsize; // only the difference between current summarized sige to tip of the block
+      timeToStop = true;
+    }
+
+    histogramToUse.push({ fee, vsize });
+    totalVsize += vsize;
+    if (timeToStop) break;
+  }
+
+  // now we have histogram of precisely size for numberOfBlocks.
+  // lets spread it into flat array so its easier to calculate percentile:
+  let histogramFlat = [];
+  for (const hh of histogramToUse) {
+    histogramFlat = histogramFlat.concat(Array(Math.round(hh.vsize / 25000)).fill(hh.fee));
+    // division is needed so resulting flat array is not too huge
+  }
+
+  histogramFlat = histogramFlat.sort(function (a, b) {
+    return a - b;
+  });
+
+  return Math.round(percentile(histogramFlat, 0.5) || 1);
+};
+
 module.exports.estimateFees = async function () {
-  const fast = await module.exports.estimateFee(1);
-  const medium = await module.exports.estimateFee(18);
-  const slow = await module.exports.estimateFee(144);
+  const histogram = await mainClient.mempool_getFeeHistogram();
+
+  // fetching what electrum (which uses bitcoin core) thinks about fees:
+  const _fast = await module.exports.estimateFee(1);
+  const _medium = await module.exports.estimateFee(18);
+  const _slow = await module.exports.estimateFee(144);
+
+  // calculating fast fees from mempool:
+  const fast = module.exports.calcEstimateFeeFromFeeHistorgam(1, histogram);
+  // recalculating medium and slow fees using bitcoincore estimations only like relative weights:
+  // (minimum 1 sat, just for any case)
+  const medium = Math.max(1, Math.round((fast * _medium) / _fast));
+  const slow = Math.max(1, Math.round((fast * _slow) / _fast));
   return { fast, medium, slow };
 };
 

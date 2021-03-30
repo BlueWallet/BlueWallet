@@ -25,6 +25,7 @@ import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import * as RNLocalize from 'react-native-localize';
 
 // https://levelup.gitconnected.com/debounce-in-javascript-improve-your-applications-performance-5b01855e086
 const debounce = (func, wait) => {
@@ -58,7 +59,7 @@ const ChangeBadge = () => {
 };
 
 const OutputList = ({
-  item: { address, txid, value, vout, confirmations },
+  item: { address, txid, value, vout, confirmations = 0 },
   balanceUnit = BitcoinUnit.BTC,
   oMemo,
   frozen,
@@ -79,10 +80,8 @@ const OutputList = ({
   const oStyles = StyleSheet.create({
     container: { borderBottomColor: colors.lightBorder, backgroundColor: colors.elevated },
     containerSelected: {
-      borderBottomColor: 'rgba(0, 0, 0, 0)',
       backgroundColor: colors.ballOutgoingExpired,
-      borderTopLeftRadius: 10,
-      borderBottomLeftRadius: 10,
+      borderBottomColor: 'rgba(0, 0, 0, 0)',
     },
     avatar: { borderColor: 'white', borderWidth: 1, backgroundColor: color },
     amount: { fontWeight: 'bold', color: colors.foregroundColor },
@@ -120,7 +119,7 @@ OutputList.propTypes = {
     txid: PropTypes.string.isRequired,
     value: PropTypes.number.isRequired,
     vout: PropTypes.number.isRequired,
-    confirmations: PropTypes.number.isRequired,
+    confirmations: PropTypes.number,
   }),
   balanceUnit: PropTypes.string,
   oMemo: PropTypes.string,
@@ -133,7 +132,7 @@ OutputList.propTypes = {
   onDeSelect: PropTypes.func,
 };
 
-const OutputModal = ({ item: { address, txid, value, vout, confirmations }, balanceUnit = BitcoinUnit.BTC, oMemo }) => {
+const OutputModal = ({ item: { address, txid, value, vout, confirmations = 0 }, balanceUnit = BitcoinUnit.BTC, oMemo }) => {
   const { colors } = useTheme();
   const { txMetadata } = useContext(BlueStorageContext);
   const memo = oMemo || txMetadata[txid]?.memo || '';
@@ -149,15 +148,18 @@ const OutputModal = ({ item: { address, txid, value, vout, confirmations }, bala
     tranText: { fontWeight: 'normal', fontSize: 13, color: colors.alternativeTextColor },
     memo: { fontSize: 13, marginTop: 3, color: colors.alternativeTextColor },
   });
+  const confirmationsFormatted = new Intl.NumberFormat(RNLocalize.getLocales()[0].languageCode, { maximumSignificantDigits: 3 }).format(
+    confirmations,
+  );
 
   return (
     <ListItem bottomDivider containerStyle={oStyles.container}>
       <Avatar rounded overlayContainerStyle={oStyles.avatar} />
       <ListItem.Content>
-        <ListItem.Title style={oStyles.amount}>
+        <ListItem.Title numberOfLines={1} adjustsFontSizeToFit style={oStyles.amount}>
           {amount}
           <View style={oStyles.tranContainer}>
-            <Text style={oStyles.tranText}>{loc.formatString(loc.transactions.list_conf, { number: confirmations })}</Text>
+            <Text style={oStyles.tranText}>{loc.formatString(loc.transactions.list_conf, { number: confirmationsFormatted })}</Text>
           </View>
         </ListItem.Title>
         {memo ? (
@@ -180,7 +182,7 @@ OutputModal.propTypes = {
     txid: PropTypes.string.isRequired,
     value: PropTypes.number.isRequired,
     vout: PropTypes.number.isRequired,
-    confirmations: PropTypes.number.isRequired,
+    confirmations: PropTypes.number,
   }),
   balanceUnit: PropTypes.string,
   oMemo: PropTypes.string,
@@ -263,9 +265,9 @@ const CoinControl = () => {
   const { colors } = useTheme();
   const navigation = useNavigation();
   const { width } = useWindowDimensions();
-  const { walletId, onUTXOChoose } = useRoute().params;
+  const { walletID, onUTXOChoose } = useRoute().params;
   const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
-  const wallet = wallets.find(w => w.getID() === walletId);
+  const wallet = wallets.find(w => w.getID() === walletID);
   // sort by height ascending, txid , vout ascending
   const utxo = wallet.getUtxo(true).sort((a, b) => a.height - b.height || a.txid.localeCompare(b.txid) || a.vout - b.vout);
   const [output, setOutput] = useState();
@@ -364,7 +366,10 @@ const CoinControl = () => {
           LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // animate buttons show
           setSelected(selected => [...selected, `${p.item.txid}:${p.item.vout}`]);
         }}
-        onDeSelect={() => setSelected(selected => selected.filter(i => i !== `${p.item.txid}:${p.item.vout}`))}
+        onDeSelect={() => {
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // animate buttons show
+          setSelected(selected => selected.filter(i => i !== `${p.item.txid}:${p.item.vout}`));
+        }}
       />
     );
   };
@@ -383,7 +388,7 @@ const CoinControl = () => {
 
   if (loading) {
     return (
-      <SafeBlueArea style={[styles.root, styles.center, { backgroundColor: colors.elevated }]}>
+      <SafeBlueArea style={[styles.center, { backgroundColor: colors.elevated }]}>
         <ActivityIndicator testID="Loading" />
       </SafeBlueArea>
     );
@@ -404,7 +409,7 @@ const CoinControl = () => {
           setOutput(false);
         }}
       >
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, { backgroundColor: colors.elevated }]}>{output && renderOutputModalContent()}</View>
         </KeyboardAvoidingView>
       </BottomModal>
@@ -471,8 +476,6 @@ const styles = StyleSheet.create({
   },
 });
 
-CoinControl.navigationOptions = navigationStyle({
-  title: loc.cc.header,
-});
+CoinControl.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.cc.header }));
 
 export default CoinControl;

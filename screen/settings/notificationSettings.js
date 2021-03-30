@@ -98,7 +98,7 @@ const NotificationSettings = () => {
       <BlueListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.push_notifications}
-        switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabled }}
+        switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabled, testID: 'NotificationsSwitch' }}
       />
       <BlueSpacing20 />
 
@@ -156,9 +156,7 @@ const NotificationSettings = () => {
   );
 };
 
-NotificationSettings.navigationOptions = navigationStyle({
-  title: loc.settings.notifications,
-});
+NotificationSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.notifications }));
 
 const styles = StyleSheet.create({
   root: {

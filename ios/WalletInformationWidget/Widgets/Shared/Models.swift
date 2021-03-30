@@ -28,12 +28,12 @@ struct MarketData:Codable  {
     }
     return nil
   }
-  
+  static let string = "MarketData"
 }
 
 struct WalletData {
   var balance: Double
-  var latestTransactionTime: Int = 0
+  var latestTransactionTime: LatestTransaction = LatestTransaction(isUnconfirmed: false, epochValue: 0)
   var formattedBalanceBTC: String {
     let formatter = NumberFormatter()
     formatter.numberStyle = .none
@@ -50,11 +50,25 @@ struct WalletData {
 
 }
 
-
+struct LatestTransaction {
+  let isUnconfirmed: Bool?
+  let epochValue: Int?
+}
 let emptyMarketData = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
-let emptyWalletData = WalletData(balance: 0, latestTransactionTime: Int(Date().timeIntervalSince1970))
+let emptyWalletData = WalletData(balance: 0, latestTransactionTime:  LatestTransaction(isUnconfirmed: false, epochValue: Int(Date().timeIntervalSince1970)))
 
 enum MarketDataTimeline: String {
   case Previous = "previous"
   case Current = "current"
+}
+
+enum UserDefaultsGroupKey: String {
+  case GroupName = "group.io.bluewallet.bluewallet"
+  case PreferredCurrency = "preferredCurrency"
+  case ElectrumSettingsHost = "electrum_host"
+  case ElectrumSettingsTCPPort = "electrum_tcp_port"
+  case ElectrumSettingsSSLPort = "electrum_ssl_port"
+  case AllWalletsBalance = "WidgetCommunicationAllWalletsSatoshiBalance"
+  case AllWalletsLatestTransactionTime = "WidgetCommunicationAllWalletsLatestTransactionTime"
+  case LatestTransactionIsUnconfirmed = "\"WidgetCommunicationLatestTransactionIsUnconfirmed\""
 }

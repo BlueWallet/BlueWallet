@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet } from 'react-native';
 import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
@@ -11,7 +11,6 @@ import {
   BlueText,
   SafeBlueArea,
   BlueButton,
-  SecondButton,
   BlueCopyTextToClipboard,
   BlueSpacing20,
   BlueTextCentered,
@@ -26,13 +25,12 @@ const LNDViewInvoice = () => {
   const { invoice, walletID, isModal } = useRoute().params;
   const { wallets, setSelectedWallet, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
-  const { width, height } = useWindowDimensions();
   const { colors } = useTheme();
   const { goBack, navigate, setParams, setOptions } = useNavigation();
   const [isLoading, setIsLoading] = useState(typeof invoice === 'string');
   const [isFetchingInvoices, setIsFetchingInvoices] = useState(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState(false);
-  const qrCodeHeight = height > width ? width - 20 : width / 2;
+  const [qrCodeSize, setQRCodeSize] = useState(90);
   const fetchInvoiceInterval = useRef();
   const stylesHook = StyleSheet.create({
     root: {
@@ -177,6 +175,11 @@ const LNDViewInvoice = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoice]);
 
+  const onLayout = e => {
+    const { height, width } = e.nativeEvent.layout;
+    setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.8);
+  };
+
   const render = () => {
     if (isLoading) {
       return (
@@ -237,7 +240,7 @@ const LNDViewInvoice = () => {
             <QRCode
               value={invoice.payment_request}
               logo={require('../../img/qr-code.png')}
-              size={qrCodeHeight}
+              size={qrCodeSize}
               logoSize={90}
               color="#000000"
               logoBackgroundColor={colors.brandingColor}
@@ -256,7 +259,7 @@ const LNDViewInvoice = () => {
           )}
           <BlueCopyTextToClipboard text={invoice.payment_request} />
 
-          <SecondButton onPress={handleOnSharePressed} title={loc.receive.details_share} />
+          <BlueButton onPress={handleOnSharePressed} title={loc.receive.details_share} />
 
           <BlueSpacing20 />
           <BlueButton
@@ -270,9 +273,9 @@ const LNDViewInvoice = () => {
   };
 
   return (
-    <SafeBlueArea styles={[styles.root, stylesHook.root]}>
+    <SafeBlueArea onLayout={onLayout}>
       <StatusBar barStyle="default" />
-      <ScrollView contentContainerStyle={styles.contentContainerStyle}>{render()}</ScrollView>
+      <ScrollView>{render()}</ScrollView>
     </SafeBlueArea>
   );
 };
@@ -280,9 +283,6 @@ const LNDViewInvoice = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  contentContainerStyle: {
-    flexGrow: 1,
   },
   justifyContentCenter: {
     justifyContent: 'center',
@@ -359,7 +359,6 @@ const styles = StyleSheet.create({
 
 LNDViewInvoice.navigationOptions = navigationStyle(
   {
-    title: loc.lndViewInvoice.lightning_invoice,
     closeButton: true,
     closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().pop(),
   },
@@ -377,6 +376,7 @@ LNDViewInvoice.navigationOptions = navigationStyle(
     return {
       ...options,
       ...additionalOptions,
+      title: loc.lndViewInvoice.lightning_invoice,
     };
   },
 );

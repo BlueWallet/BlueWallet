@@ -1,19 +1,20 @@
---- Podfile	2020-11-19 00:16:58.000000000 -0500
-+++ p	2020-11-19 00:16:46.000000000 -0500
+--- Podfile	2021-02-10 22:20:26.000000000 -0500
++++ Podfilep	2021-02-10 22:20:56.000000000 -0500
 @@ -12,9 +12,7 @@
    #
    # Note that if you have use_frameworks! enabled, Flipper will not work and
    # you should disable these next few lines.
--  use_flipper!
+-  use_flipper!({ 'Flipper' => '0.74.0' })
    post_install do |installer|
 -    flipper_post_install(installer)
        installer.pods_project.targets.each do |target|
            target.build_configurations.each do |config|
-             if ['React-Core-AccessibilityResources'].include? target.name 
-@@ -28,15 +26,3 @@
+             config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '10.0'
+@@ -28,16 +26,4 @@
+   end
  
    
- end
+-end
 -
 -target 'MarketWidgetExtension' do
 -  pod 'SwiftSocket', :git => 'https://github.com/swiftsocket/SwiftSocket.git', :branch => 'master'
@@ -26,3 +27,5 @@
 -target 'WalletInformationWidgetExtension' do
 -  pod 'SwiftSocket', :git => 'https://github.com/swiftsocket/SwiftSocket.git', :branch => 'master'
 -end
++end
+\ No newline at end of file

@@ -8,16 +8,10 @@ import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 export class HDSegwitBech32Wallet extends AbstractHDElectrumWallet {
   static type = 'HDsegwitBech32';
   static typeReadable = 'HD SegWit (BIP84 Bech32 Native)';
+  static segwitType = 'p2wpkh';
+  static derivationPath = "m/84'/0'/0'";
 
   allowSend() {
-    return true;
-  }
-
-  allowBatchSend() {
-    return true;
-  }
-
-  allowSendMax() {
     return true;
   }
 
@@ -30,6 +24,18 @@ export class HDSegwitBech32Wallet extends AbstractHDElectrumWallet {
   }
 
   allowPayJoin() {
+    return true;
+  }
+
+  allowCosignPsbt() {
+    return true;
+  }
+
+  allowSignVerifyMessage() {
+    return true;
+  }
+
+  allowMasterFingerprint() {
     return true;
   }
 }

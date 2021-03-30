@@ -5,7 +5,7 @@ import { useTheme, useNavigation, useFocusEffect, useRoute } from '@react-naviga
 
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import Privacy from '../../Privacy';
+import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 import loc from '../../loc';
@@ -15,9 +15,6 @@ const styles = StyleSheet.create({
   loading: {
     flex: 1,
     justifyContent: 'center',
-  },
-  root: {
-    flex: 1,
   },
   scrollViewContent: {
     alignItems: 'center',
@@ -52,7 +49,6 @@ const WalletExport = () => {
       backgroundColor: colors.elevated,
     },
     root: {
-      ...styles.root,
       backgroundColor: colors.elevated,
     },
     type: { ...styles.type, color: colors.foregroundColor },
@@ -94,7 +90,7 @@ const WalletExport = () => {
   ) : (
     <SafeBlueArea style={stylesHook.root}>
       <StatusBar barStyle="light-content" />
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <ScrollView contentContainerStyle={styles.scrollViewContent} testID="WalletExportScroll">
         <View>
           <BlueText style={stylesHook.type}>{wallet.current.typeReadable}</BlueText>
         </View>
@@ -126,17 +122,21 @@ const WalletExport = () => {
         {wallet.current.type === LightningCustodianWallet.type || wallet.current.type === WatchOnlyWallet.type ? (
           <BlueCopyTextToClipboard text={wallet.current.getSecret()} />
         ) : (
-          <BlueText style={stylesHook.secret}>{wallet.current.getSecret()}</BlueText>
+          <BlueText style={stylesHook.secret} testID="Secret">
+            {wallet.current.getSecret()}
+          </BlueText>
         )}
       </ScrollView>
     </SafeBlueArea>
   );
 };
 
-WalletExport.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.wallets.export_title,
-  headerLeft: null,
-});
+WalletExport.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.wallets.export_title }),
+);
 
 export default WalletExport;

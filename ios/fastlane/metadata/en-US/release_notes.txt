@@ -1,84 +1,84 @@
-v6.0.2
+v6.0.7
 ======
 
-* ADD: view of QR code of Vault key zpub after vault is created (closes #2410)
-* ADD: helper text on ms-edit screen
-* ADD: electrum servers history list
-* ADD: iMessage stickers
-* ADD: Privacy settings for iOS 14 widgets
-* ADD: ability to set electrum server or lndhub via deeplink or by scanning a QR from main screen
-* ADD: CoinControl multiselect
-* FIX: better support multisig cosigning with Electrum desktop
-* FIX: multisig 'Too many signatures' error
-* FIX: Amount displayed on success invoice payment
-* FIX: localizations for fr_FR, es_ES, de_DE, fa_IR, cs_CZ, fr_FR, nl_NL, fi_FI
-* FIX: Hide balance on reorder screen
-* FIX: disallow importing non-multisignature xpubs into multisig setup
-* FIX: better multisig wallet descriptors suppport
-* FIX: Incorrect import from Specter - p2sh wrapped segwit multisig
-* FIX: Clear quick actions if storage is encrypted
-* FIX: use dayjs localizedFormat plugin to render tx time
-* FIX: show more accurate precalculation fee on "Not enough balance." exception
-* FIX: Wallet Delete on new install was not being triggered
-* FIX: Fallback to English if case isn't found
-* FIX: animated qr scan progress readability
-* FIX: rerender UI after language change
-* FIX: Hide modal when scanning
-* FIX: reorder screen bug
-* FIX: Don't show clipboard modal if user has already acted on it
-* REF: processing push notifications
-* REF: Add warning to LN
-* REF: Github link on about
-* DOC: Telegram and Discord links on about section
+* ADD: main view SCAN button can now import watch-only wallets
+* ADD: wallets message sign/verify
+* ADD: Romanian language
+* ADD: TZS Fiat
+* FIX: Additional fixes for voiceover
+* FIX: Manage funds button would not be visible when switching wallets on large screen devices
+* FIX: show XPUB for AEZEED wallets
+* FIX: add titles to all the alerts
+* FIX: Widgets didnt have preview code
+* FIX: Wallet selection was not visible
+* FIX: Localizations for fr_FR, zh_TW, zh_CN, fi_FI, fa_IR, de_DE, nl_NL, pt_BR, sl_SI
+* FIX: Switch toggles are now accessible
+* FIX: XPub modal on watchkit had no cancel button
+* FIX: avoid scientific notation on tx send screens
+* FIX: CoinControl handle 0 conf tx output correctly
+* FIX: Wallet Icons (RTL Version)
+* REF: decrease animated QR codes density
+* REF: Always check for clipboard privacy preferences when using shortcuts
+* REF: MAX can be used with regular outputs
+* REF: Wallets cards colors optimized
 
-v6.0.1
+v6.0.6
 ======
 
-* ADD: enable batch-send on multisig wallets
-* FIX: Speed-up multisig wallets (disable handoff for multisig)
-* FIX: Import Multisig from Specter Desktop - Fingerprint is Incorrect
-* FIX: broken export .txn file on tx confirmation screen
-* FIX: backup screen would flash during loading on dark mode
-* FIX: Handle opening links if the default browser isnt Safari
-* FIX: contradiction in Vaul introduction text
-* FIX: localizations for CA, DE, ES, fa_IR, sl_SI, cs_CZ, pt_BR
+* ADD: PSBT cosign
+* ADD: Long press Transaction Row to get shortcuts
+* ADD: Tap and hold to Share QRCode image
+* ADD: qrcode scanner to wallet/broadcast screen
+* ADD: Apple Watch Price Complication
+* ADD: Update complication currency based on user preference
+* ADD: Copying Block Explorer Link
+* ADD: If unable to connect to server, show alert
+* FIX: Delete wallet button should be red
+* FIX: Wallet delete would cause crash
+* FIX: broken buyBitcoin button for some wallets
+* FIX: Browser crash when accessing wallet
+* FIX: sometimes broken webview
+* FIX: Some widgets were not showing on drawer
+* FIX: screen titles language
+* FIX: Complication app update when watch app isnt launched
+* FIX: QRCode save alert description
+* FIX: Only send complication updates if watch is reachable
+* FIX: QRCode size on large devices
+* FIX: fix size and share button
+* FIX: sync loc files for ar, ru, ca, he, pl, ja_JP, pt_BR, pt_PT, sv_SE, th_TH, zh_CN, fi_FI, fa_IR, de_DE, nl_NL, fr_FR
+* REF: transactions/details screen gracefull error handling
+* REF: electrum protocol error graceful handling
+* REF: better bitcoinscript error handling
+* REF: Fee selection in darkmode
 
-v6.0.0
-======
-* ADD: Multisig 
-* FIX: scan multisig cosigner in formats: plain Zpub, wallet descriptor 
-* FIX: txs disappear and re-fetch if opened wallet too fast 
-* ADD: Help section and tips to Vaults 
-* FIX: DE language files
-* ADD: Persian language, sync cs_cz, es, it and ru 
-* FIX: Transaction details not shown when 'display in wallets list' not set (closes #1966) 
-* FIX: LNURL wallet not found
-
-
-v5.6.9
-======
-
-* ADD: warning text on backup screen
-* ADD: CoinControl displays balances with user's preferred unit
-* ADD: LBP Currency
-* ADD: Verify if an address belongs to one of your wallets.
-* FIX: fetch wallet transaction after broadcast
-* FIX: crash on refresh button
-* FIX: Don't display amount if none is passed
-* REF: PSBT Multisig provide signature flow
-* ADD: refresh wallet transactions for freshly imported wallets
-* FIX: locales sl_SI, fi_FI
-
-
-v5.6.8
+v6.0.4
 ======
 
-* ADD: warning text on backup screen
-* ADD: CoinControl displays balances with user's preferred unit
-* ADD: LBP Currency
-* FIX: fetch wallet transaction after broadcast
-* FIX: crash on refresh button
-* FIX: Don't display amount if none is passed
-* REF: PSBT Multisig provide signature flow
-* ADD: refresh wallet transactions for freshly imported wallets
-* FIX: locales sl_SI, fi_FI
+* ADD: Toggle balance visibility on watch app
+* ADD: Standard wallet type Electrum JSON import
+* ADD: Wallet balance hide/show on Watch app
+* ADD: multisig manage keys - show alert if unsaved changes are found
+* ADD: AEZEED mnemonics support (from LND; only primary native-segwit chain atm)
+* ADD: Wallet txs update indicator
+* ADD: Do not show notification settings if device does not support it
+* ADD: Show alert if amount is less or equal 500 sats during onchain send
+* OPS: Update Realm (fixes crash on iOS beta)
+* FIX: locales en, fa_IR, cs_CZ, fr_FR, de_DE, nl_NL, de_DE, fi_FI
+* FIX: multisig 'cant finalize input' error when sending
+* FIX: Scroll on multi sig creation
+* FIX: MS loading creation
+* FIX: During long menmonics import, wallet panels are not scrolled to the last temporary gray wallet card
+* FIX: TransactionDetails screen - displaying correct transaction data
+* FIX: set fee to lower value if balance is not enough
+* FIX: better fee estimation based on mempool (onchain send, not widget, yet)
+* FIX: Widget now shows Pending if latest tx is unconfirmed
+* FIX: Scaning invalid BC-UR qr code throws multiple alerts
+* FIX: cached wallet address wouldnt change on wallet change
+* FIX: 'Few seconds ago' -> 'pending'
+* FIX: legacy wallet can now derive UTXO from transactions in case if fetching listUnspent from network is impossible
+* FIX: Conf number reflects correct number
+* FIX: Multisig import seed hangs forever
+* FIX: Instructions were clipped on larger text
+* FIX: Biometrics in PSBT
+* REF: better support of coldcard's incorrect 'p2sh-p2wsh'
+* DEL: LocalTrader (HodlHodl) starts with Global offers by default

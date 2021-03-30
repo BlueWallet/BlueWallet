@@ -4,6 +4,7 @@ const bitcoin = require('bitcoinjs-lib');
 export class SegwitBech32Wallet extends LegacyWallet {
   static type = 'segwitBech32';
   static typeReadable = 'P2 WPKH';
+  static segwitType = 'p2wpkh';
 
   getAddress() {
     if (this._address) return this._address;
@@ -26,11 +27,15 @@ export class SegwitBech32Wallet extends LegacyWallet {
   }
 
   static witnessToAddress(witness) {
-    const pubKey = Buffer.from(witness, 'hex');
-    return bitcoin.payments.p2wpkh({
-      pubkey: pubKey,
-      network: bitcoin.networks.bitcoin,
-    }).address;
+    try {
+      const pubKey = Buffer.from(witness, 'hex');
+      return bitcoin.payments.p2wpkh({
+        pubkey: pubKey,
+        network: bitcoin.networks.bitcoin,
+      }).address;
+    } catch (_) {
+      return false;
+    }
   }
 
   /**
@@ -40,17 +45,15 @@ export class SegwitBech32Wallet extends LegacyWallet {
    * @returns {boolean|string} Either bech32 address or false
    */
   static scriptPubKeyToAddress(scriptPubKey) {
-    const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
-    let ret;
     try {
-      ret = bitcoin.payments.p2wpkh({
+      const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
+      return bitcoin.payments.p2wpkh({
         output: scriptPubKey2,
         network: bitcoin.networks.bitcoin,
       }).address;
     } catch (_) {
       return false;
     }
-    return ret;
   }
 
   /**
@@ -127,7 +130,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
     return true;
   }
 
-  allowSendMax() {
+  allowSignVerifyMessage() {
     return true;
   }
 }

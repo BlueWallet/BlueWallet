@@ -1,4 +1,3 @@
-/* global it, describe */
 import assert from 'assert';
 import { MultisigHDWallet } from '../../class/';
 import { decodeUR } from 'bc-ur/dist';
@@ -1711,6 +1710,70 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(psbt);
 
     assert.strictEqual(psbt.data.inputs.length, 1);
+    assert.strictEqual(psbt.data.outputs.length, 1);
+  });
+
+  it('can sign multiple inputs', async () => {
+    const w = new MultisigHDWallet();
+    w.setSecret(
+      '# BlueWallet Multisig setup file\n' +
+        '# this file may contain private information\n' +
+        '#\n' +
+        'Name: Multisig Vault\n' +
+        'Policy: 2 of 3\n' +
+        "Derivation: m/48'/0'/0'/2'\n" +
+        'Format: P2WSH\n' +
+        '\n' +
+        'seed: certain cruise forum ladder reveal frame company book sausage flat wasp mouse\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: sting tumble brave remember sadness embrace increase under year joke drum skate\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: daughter parade neck suit brick wife horror inquiry leopard exhibit body mobile\n' +
+        '# warning! sensitive information, do not disclose ^^^',
+    );
+
+    const utxos = [
+      {
+        address: 'bc1qzwt595g0q0xauxzr4h56kw4zavfrnq3r4zkx42relm8rvwuuxyvsqndmgl',
+        amount: 2120,
+        confirmations: 33,
+        height: 668483,
+        txId: '43b2ac418539b61610c3ae2e216052d634b9b20fcece05940b5662fe5cf3f3b5',
+        txhex:
+          '020000000001019e590dee7124728b988e32c1daad3a550663327b3478c4f9ee15eeaf740b898f0100000017160014018958ab9e2b29b7313a39c1a62189affeac94a8ffffffff014808000000000000220020139742d10f03cdde1843ade9ab3aa2eb12398223a8ac6aa879fece363b9c311902483045022100f431ad4d213265531f600ebf242cabd3adcb7b5c27464ad080a34ce4fb4a5e5702206fad42768d29ee1121e19dc4489366d0c02a412e9d60431cac59d49642868c7b0121037a24a1d8a4e86946e89478f352bda9d6b40843e01b86af5c94b99634cbb0c6b200000000',
+        txid: '43b2ac418539b61610c3ae2e216052d634b9b20fcece05940b5662fe5cf3f3b5',
+        value: 2120,
+        vout: 0,
+        wif: false,
+      },
+      {
+        address: 'bc1qn0j7y5hau6s8tdcpnxyyumck256lfet78ehpxdkytv5nt570dr4qxl9s3p',
+        amount: 10000,
+        confirmations: 1,
+        height: 668515,
+        txId: '3a2753147121c2ab312a419f0788cb534232d3c0bd4838de718487aca495ac7a',
+        txhex:
+          '02000000000101a1fba4a09a1a7ed090c64f15024de4b9008b6ec4ee5e336f0f0fc43f78022dfa01000000171600142f78bf055b26feb8f2f6b3caa5956b991c507e49ffffffff0210270000000000002200209be5e252fde6a075b70199884e6f165535f4e57e3e6e1336c45b2935d3cf68ea9a8705000000000017a91484d55f28fc28676c5f195ce649851428ec5010a3870248304502210098a970398bc40a34423d5661ecc499240bb0edb6e6bea74a752269f92e588b1b022031fcdf66c4ed8378f352a5a096c438e7a8c1415c47c119a4c69ef787e1cdf5d9012102ade0a25d66406f67dc3e4a6c8bedd989dd3ceed7a623fb4c2839a84b5262ca0900000000',
+        txid: '3a2753147121c2ab312a419f0788cb534232d3c0bd4838de718487aca495ac7a',
+        value: 10000,
+        vout: 0,
+        wif: false,
+      },
+    ];
+
+    const { psbt, tx } = w.createTransaction(
+      utxos,
+      [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS' }], // sendMax
+      6,
+      w._getInternalAddressByIndex(0),
+    );
+
+    assert.ok(tx);
+    assert.ok(psbt);
+
+    assert.strictEqual(psbt.data.inputs.length, 2);
     assert.strictEqual(psbt.data.outputs.length, 1);
   });
 });

@@ -4,7 +4,6 @@ import { ScrollView, Platform, TouchableWithoutFeedback, TouchableOpacity, Style
 import navigationStyle from '../../components/navigationStyle';
 import { BlueLoading, BlueText, BlueSpacing20, BlueListItem, BlueCard } from '../../BlueComponents';
 import { useNavigation, useTheme } from '@react-navigation/native';
-import HandoffSettings from '../../class/handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
@@ -15,10 +14,11 @@ const styles = StyleSheet.create({
 });
 
 const GeneralSettings = () => {
-  const { isAdancedModeEnabled, setIsAdancedModeEnabled, wallets } = useContext(BlueStorageContext);
+  const { isAdancedModeEnabled, setIsAdancedModeEnabled, wallets, isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage } = useContext(
+    BlueStorageContext,
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [isAdancedModeSwitchEnabled, setIsAdancedModeSwitchEnabled] = useState(false);
-  const [isHandoffUseEnabled, setIsHandoffUseEnabled] = useState(false);
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const onAdvancedModeSwitch = async value => {
@@ -26,15 +26,9 @@ const GeneralSettings = () => {
     setIsAdancedModeSwitchEnabled(value);
   };
 
-  const onHandOffEnabledSwitch = async value => {
-    await HandoffSettings.setHandoffUseEnabled(value);
-    setIsHandoffUseEnabled(value);
-  };
-
   useEffect(() => {
     (async () => {
       setIsAdancedModeSwitchEnabled(await isAdancedModeEnabled());
-      setIsHandoffUseEnabled(await HandoffSettings.isHandoffUseEnabled());
       setIsLoading(false);
     })();
   });
@@ -69,7 +63,7 @@ const GeneralSettings = () => {
             hideChevron
             title={loc.settings.general_continuity}
             Component={TouchableWithoutFeedback}
-            switch={{ onValueChange: onHandOffEnabledSwitch, value: isHandoffUseEnabled }}
+            switch={{ onValueChange: setIsHandOffUseEnabledAsyncStorage, value: isHandOffUseEnabled }}
           />
           <BlueCard>
             <BlueText>{loc.settings.general_continuity_e}</BlueText>
@@ -80,7 +74,7 @@ const GeneralSettings = () => {
       <BlueListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.general_adv_mode}
-        switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeSwitchEnabled }}
+        switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeSwitchEnabled, testID: 'AdvancedMode' }}
       />
       <BlueCard>
         <BlueText>{loc.settings.general_adv_mode_e}</BlueText>
@@ -90,8 +84,6 @@ const GeneralSettings = () => {
   );
 };
 
-GeneralSettings.navigationOptions = navigationStyle({
-  title: loc.settings.general,
-});
+GeneralSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.general }));
 
 export default GeneralSettings;

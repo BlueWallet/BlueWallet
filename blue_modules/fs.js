@@ -7,8 +7,8 @@ import DocumentPicker from 'react-native-document-picker';
 import isCatalyst from 'react-native-is-catalyst';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { presentCameraNotAuthorizedAlert } from '../class/camera';
-import Clipboard from '@react-native-community/clipboard';
 import ActionSheet from '../screen/ActionSheet';
+import BlueClipboard from './clipboard';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const writeFileAndExport = async function (filename, contents) {
@@ -170,31 +170,31 @@ const showFilePickerAndReadFile = async function () {
       // this is either binary file from ElectrumDesktop OR string file with base64 string in there
       file = await _readPsbtFileIntoBase64(uri);
       return { data: file, uri: decodeURI(res.uri) };
-    } else {
-      if (res.type === DocumentPicker.types.images || res.type.startsWith('image/')) {
-        return new Promise(resolve => {
-          const uri = Platform.OS === 'ios' ? res.uri.toString().replace('file://', '') : res.uri;
-          LocalQRCode.decode(decodeURI(uri), (error, result) => {
-            if (!error) {
-              resolve({ data: result, uri: decodeURI(res.uri) });
-            } else {
-              resolve({ data: false, uri: false });
-            }
-          });
-        });
-      } else {
-        file = await RNFS.readFile(uri);
-        return { data: file, uri: decodeURI(res.uri) };
-      }
     }
+
+    if (res?.type === DocumentPicker.types.images || res?.type?.startsWith('image/')) {
+      return new Promise(resolve => {
+        const uri = Platform.OS === 'ios' ? res.uri.toString().replace('file://', '') : res.uri;
+        LocalQRCode.decode(decodeURI(uri), (error, result) => {
+          if (!error) {
+            resolve({ data: result, uri: decodeURI(res.uri) });
+          } else {
+            resolve({ data: false, uri: false });
+          }
+        });
+      });
+    }
+
+    file = await RNFS.readFile(uri);
+    return { data: file, uri: decodeURI(res.uri) };
   } catch (err) {
     return { data: false, uri: false };
   }
 };
 
 // Intended for macOS Catalina. Not for long press shortcut
-const showActionSheet = async () => {
-  const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
+const showActionSheet = async props => {
+  const isClipboardEmpty = (await BlueClipboard.getClipboardContent()).trim().length === 0;
   let copyFromClipboardIndex;
   const options = [loc._.cancel, loc.wallets.take_photo, loc.wallets.list_long_choose];
   if (!isClipboardEmpty) {
@@ -206,7 +206,7 @@ const showActionSheet = async () => {
   const importFileButtonIndex = options.length - 1;
 
   return new Promise(resolve =>
-    ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, async buttonIndex => {
+    ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0, anchor: props.anchor }, async buttonIndex => {
       if (buttonIndex === 1) {
         takePhotoWithImagePickerAndReadPhoto().then(resolve);
       } else if (buttonIndex === 2) {
@@ -214,7 +214,7 @@ const showActionSheet = async () => {
           .then(resolve)
           .catch(error => alert(error.message));
       } else if (buttonIndex === copyFromClipboardIndex) {
-        const clipboard = await Clipboard.getString();
+        const clipboard = await BlueClipboard.getClipboardContent();
         resolve(clipboard);
       } else if (importFileButtonIndex) {
         const { data } = await showFilePickerAndReadFile();

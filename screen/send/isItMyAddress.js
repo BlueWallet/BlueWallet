@@ -1,6 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput, Keyboard } from 'react-native';
+import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput, Keyboard, findNodeHandle } from 'react-native';
 
 import loc from '../../loc';
 import { BlueButton, BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
@@ -15,14 +15,12 @@ const IsItMyAddress = () => {
   const { navigate } = useNavigation();
   const { name } = useRoute();
   const { colors } = useTheme();
+  const scanButtonRef = useRef();
 
   const [address, setAddress] = useState('');
   const [result, setResult] = useState('');
 
   const stylesHooks = StyleSheet.create({
-    blueArea: {
-      backgroundColor: colors.background,
-    },
     text: {
       color: colors.foregroundColor,
     },
@@ -58,7 +56,7 @@ const IsItMyAddress = () => {
 
   const importScan = () => {
     if (isMacCatalina) {
-      fs.showActionSheet().then(onBarScanned);
+      fs.showActionSheet({ anchor: findNodeHandle(scanButtonRef.current) }).then(onBarScanned);
     } else {
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -77,8 +75,12 @@ const IsItMyAddress = () => {
   };
 
   return (
-    <SafeBlueArea style={[styles.blueArea, stylesHooks.blueArea]}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null} keyboardShouldPersistTaps="handled">
+    <SafeBlueArea style={styles.blueArea}>
+      <KeyboardAvoidingView
+        enabled={!Platform.isPad}
+        behavior={Platform.OS === 'ios' ? 'position' : null}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.wrapper}>
           <BlueCard style={styles.mainCard}>
             <View style={[styles.input, stylesHooks.input]}>
@@ -94,17 +96,23 @@ const IsItMyAddress = () => {
                 placeholderTextColor="#81868e"
                 value={address}
                 onChangeText={handleUpdateAddress}
+                testID="AddressInput"
               />
             </View>
 
             <BlueSpacing10 />
-            <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
+            <BlueButtonLink ref={scanButtonRef} title={loc.wallets.import_scan_qr} onPress={importScan} />
             <BlueSpacing10 />
             <BlueButton title={loc.send.input_clear} onPress={clearAddressInput} />
             <BlueSpacing20 />
-            <BlueButton disabled={address.trim().length === 0} title={loc.is_it_my_address.check_address} onPress={checkAddress} />
+            <BlueButton
+              disabled={address.trim().length === 0}
+              title={loc.is_it_my_address.check_address}
+              onPress={checkAddress}
+              testID="CheckAddress"
+            />
             <BlueSpacing20 />
-            <BlueText>{result}</BlueText>
+            <BlueText testID="Result">{result}</BlueText>
           </BlueCard>
         </View>
       </KeyboardAvoidingView>
@@ -113,9 +121,7 @@ const IsItMyAddress = () => {
 };
 
 export default IsItMyAddress;
-IsItMyAddress.navigationOptions = navigationStyle({
-  title: loc.is_it_my_address.title,
-});
+IsItMyAddress.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.is_it_my_address.title }));
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -124,7 +130,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   blueArea: {
-    flex: 1,
     paddingTop: 19,
   },
   broadcastResultWrapper: {

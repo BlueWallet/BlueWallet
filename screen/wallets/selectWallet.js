@@ -13,7 +13,7 @@ import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { MultisigHDWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
-const SelectWallet = ({ navigation }) => {
+const SelectWallet = () => {
   const { chainType, onWalletSelect, availableWallets } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   const { wallets } = useContext(BlueStorageContext);
@@ -27,10 +27,6 @@ const SelectWallet = ({ navigation }) => {
     data = availableWallets;
   }
   const styles = StyleSheet.create({
-    root: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
     loading: {
       flex: 1,
       justifyContent: 'center',
@@ -101,7 +97,7 @@ const SelectWallet = ({ navigation }) => {
       <TouchableOpacity
         onPress={() => {
           ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
-          onWalletSelect(item, { navigation });
+          onWalletSelect(item);
         }}
       >
         <View shadowOpacity={40 / 100} shadowOffset={{ width: 0, height: 0 }} shadowRadius={5} style={styles.itemRoot}>
@@ -153,7 +149,7 @@ const SelectWallet = ({ navigation }) => {
     );
   } else if (data.length <= 0) {
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeBlueArea>
         <StatusBar barStyle="light-content" />
         <View style={styles.noWallets}>
           <BlueText style={styles.center}>{loc.wallets.select_no_bitcoin}</BlueText>
@@ -164,7 +160,7 @@ const SelectWallet = ({ navigation }) => {
     );
   } else {
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeBlueArea>
         <StatusBar barStyle="default" />
         <FlatList extraData={data} data={data} renderItem={renderItem} keyExtractor={(_item, index) => `${index}`} />
       </SafeBlueArea>
@@ -172,8 +168,6 @@ const SelectWallet = ({ navigation }) => {
   }
 };
 
-SelectWallet.navigationOptions = navigationStyle({
-  title: loc.wallets.select_wallet,
-});
+SelectWallet.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.select_wallet }));
 
 export default SelectWallet;

@@ -1,3 +1,5 @@
+import BigNumber from 'bignumber.js';
+import bitcoinMessage from 'bitcoinjs-message';
 import { randomBytes } from '../rng';
 import { AbstractWallet } from './abstract-wallet';
 import { HDSegwitBech32Wallet } from '..';
@@ -161,9 +163,69 @@ export class LegacyWallet extends AbstractWallet {
       if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
       ret.push(u);
     }
+
+    if (ret.length === 0) {
+      ret = this.getDerivedUtxoFromOurTransaction(); // oy vey, no stored utxo. lets attempt to derive it from stored transactions
+    }
+
     if (!respectFrozen) {
       ret = ret.filter(({ txid, vout }) => !this.getUTXOMetadata(txid, vout).frozen);
     }
+    return ret;
+  }
+
+  getDerivedUtxoFromOurTransaction(returnSpentUtxoAsWell = false) {
+    const utxos = [];
+
+    const ownedAddressesHashmap = {};
+    ownedAddressesHashmap[this.getAddress()] = true;
+
+    /**
+     * below copypasted from
+     * @see AbstractHDElectrumWallet.getDerivedUtxoFromOurTransaction
+     */
+
+    for (const tx of this.getTransactions()) {
+      for (const output of tx.outputs) {
+        let address = false;
+        if (output.scriptPubKey && output.scriptPubKey.addresses && output.scriptPubKey.addresses[0]) {
+          address = output.scriptPubKey.addresses[0];
+        }
+        if (ownedAddressesHashmap[address]) {
+          const value = new BigNumber(output.value).multipliedBy(100000000).toNumber();
+          utxos.push({
+            txid: tx.txid,
+            txId: tx.txid,
+            vout: output.n,
+            address,
+            value,
+            amount: value,
+            confirmations: tx.confirmations,
+            wif: false,
+            height: BlueElectrum.estimateCurrentBlockheight() - tx.confirmations,
+          });
+        }
+      }
+    }
+
+    if (returnSpentUtxoAsWell) return utxos;
+
+    // got all utxos we ever had. lets filter out the ones that are spent:
+    const ret = [];
+    for (const utxo of utxos) {
+      let spent = false;
+      for (const tx of this.getTransactions()) {
+        for (const input of tx.inputs) {
+          if (input.txid === utxo.txid && input.vout === utxo.vout) spent = true;
+          // utxo we got previously was actually spent right here ^^
+        }
+      }
+
+      if (!spent) {
+        ret.push(utxo);
+      }
+    }
+
     return ret;
   }
 
@@ -391,17 +453,15 @@ export class LegacyWallet extends AbstractWallet {
    * @returns {boolean|string} Either p2pkh address or false
    */
   static scriptPubKeyToAddress(scriptPubKey) {
-    const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
-    let ret;
     try {
-      ret = bitcoin.payments.p2pkh({
+      const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
+      return bitcoin.payments.p2pkh({
         output: scriptPubKey2,
         network: bitcoin.networks.bitcoin,
       }).address;
     } catch (_) {
       return false;
     }
-    return ret;
   }
 
   weOwnAddress(address) {
@@ -416,7 +476,7 @@ export class LegacyWallet extends AbstractWallet {
     return false;
   }
 
-  allowSendMax() {
+  allowSignVerifyMessage() {
     return true;
   }
 
@@ -429,5 +489,55 @@ export class LegacyWallet extends AbstractWallet {
    */
   addressIsChange(address) {
     return false;
+  }
+
+  /**
+   * Finds WIF corresponding to address and returns it
+   *
+   * @param address {string} Address that belongs to this wallet
+   * @returns {string|false} WIF or false
+   */
+  _getWIFbyAddress(address) {
+    return this.getAddress() === address ? this.secret : null;
+  }
+
+  /**
+   * Signes text message using address private key and returs signature
+   *
+   * @param message {string}
+   * @param address {string}
+   * @returns {string} base64 encoded signature
+   */
+  signMessage(message, address) {
+    const wif = this._getWIFbyAddress(address);
+    if (wif === null) throw new Error('Invalid address');
+    const keyPair = bitcoin.ECPair.fromWIF(wif);
+    const privateKey = keyPair.privateKey;
+    const options = this.segwitType ? { segwitType: this.segwitType } : undefined;
+    const signature = bitcoinMessage.sign(message, privateKey, keyPair.compressed, options);
+    return signature.toString('base64');
+  }
+
+  /**
+   * Verifies text message signature by address
+   *
+   * @param message {string}
+   * @param address {string}
+   * @param signature {string}
+   * @returns {boolean} base64 encoded signature
+   */
+  verifyMessage(message, address, signature) {
+    // null, true so it can verify Electrum signatores without errors
+    return bitcoinMessage.verify(message, address, signature, null, true);
+  }
+
+  /**
+   * Probes address for transactions, if there are any returns TRUE
+   *
+   * @returns {Promise<boolean>}
+   */
+  async wasEverUsed() {
+    const txs = await BlueElectrum.getTransactionsByAddress(this.getAddress());
+    return txs.length > 0;
   }
 }

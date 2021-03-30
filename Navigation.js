@@ -34,6 +34,7 @@ import WalletExport from './screen/wallets/export';
 import ExportMultisigCoordinationSetup from './screen/wallets/exportMultisigCoordinationSetup';
 import ViewEditMultisigCosigners from './screen/wallets/viewEditMultisigCosigners';
 import WalletXpub from './screen/wallets/xpub';
+import SignVerify from './screen/wallets/signVerify';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import HodlHodl from './screen/wallets/hodlHodl';
 import HodlHodlViewOffer from './screen/wallets/hodlHodlViewOffer';
@@ -60,6 +61,7 @@ import SendCreate from './screen/send/create';
 import Confirm from './screen/send/confirm';
 import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
 import PsbtMultisig from './screen/send/psbtMultisig';
+import PsbtMultisigQRCode from './screen/send/psbtMultisigQRCode';
 import Success from './screen/send/success';
 import Broadcast from './screen/send/broadcast';
 import IsItMyAddress from './screen/send/isItMyAddress';
@@ -75,10 +77,9 @@ import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
 import DrawerList from './screen/wallets/drawerList';
-import { isTablet } from 'react-native-device-info';
+import { isCatalyst, isTablet } from './blue_modules/environment';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
-import PsbtMultisigQRCode from './screen/send/psbtMultisigQRCode';
 
 const defaultScreenOptions =
   Platform.OS === 'ios'
@@ -116,7 +117,7 @@ const WalletsRoot = () => {
 
   return (
     <WalletsStack.Navigator {...(Platform.OS === 'android' ? { screenOptions: defaultScreenOptions } : null)}>
-      <WalletsStack.Screen name="WalletsList" component={WalletsList} />
+      <WalletsStack.Screen name="WalletsList" component={WalletsList} options={WalletsList.navigationOptions(theme)} />
       <WalletsStack.Screen name="WalletTransactions" component={WalletTransactions} options={WalletTransactions.navigationOptions(theme)} />
       <WalletsStack.Screen name="WalletDetails" component={WalletDetails} options={WalletDetails.navigationOptions(theme)} />
       <WalletsStack.Screen name="TransactionDetails" component={TransactionDetails} options={TransactionDetails.navigationOptions(theme)} />
@@ -348,7 +349,8 @@ const ReorderWalletsStackRoot = () => {
 const Drawer = createDrawerNavigator();
 function DrawerRoot() {
   const dimensions = useWindowDimensions();
-  const isLargeScreen = Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 3 && isTablet();
+  const isLargeScreen =
+    Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 2 && (isTablet() || isCatalyst);
   const drawerStyle = { width: '0%' };
 
   return (
@@ -381,6 +383,17 @@ const WalletXpubStackRoot = () => {
     <WalletXpubStack.Navigator name="WalletXpubRoot" screenOptions={defaultStackScreenOptions} initialRouteName="WalletXpub">
       <WalletXpubStack.Screen name="WalletXpub" component={WalletXpub} options={WalletXpub.navigationOptions(theme)} />
     </WalletXpubStack.Navigator>
+  );
+};
+
+const SignVerifyStack = createStackNavigator();
+const SignVerifyStackRoot = () => {
+  const theme = useTheme();
+
+  return (
+    <SignVerifyStack.Navigator name="SignVerifyRoot" screenOptions={defaultStackScreenOptions} initialRouteName="SignVerify">
+      <SignVerifyStack.Screen name="SignVerify" component={SignVerify} options={SignVerify.navigationOptions(theme)} />
+    </SignVerifyStack.Navigator>
   );
 };
 
@@ -484,6 +497,7 @@ const Navigation = () => {
       />
       <RootStack.Screen name="ViewEditMultisigCosignersRoot" component={ViewEditMultisigCosignersRoot} options={{ headerShown: false }} />
       <RootStack.Screen name="WalletXpubRoot" component={WalletXpubStackRoot} options={{ headerShown: false }} />
+      <RootStack.Screen name="SignVerifyRoot" component={SignVerifyStackRoot} options={{ headerShown: false }} />
       <RootStack.Screen name="BuyBitcoin" component={BuyBitcoin} options={BuyBitcoin.navigationOptions(theme)} />
       <RootStack.Screen name="Marketplace" component={Marketplace} options={Marketplace.navigationOptions(theme)} />
       <RootStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />

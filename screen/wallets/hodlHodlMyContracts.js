@@ -172,7 +172,7 @@ export default class HodlHodlMyContracts extends Component {
 
     return (
       <BottomModal isVisible={this.state.isRenderContractVisible} onClose={this.hideContractModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <View style={styles.modalContentCentered}>
               <Text style={styles.btcText}>
@@ -434,10 +434,10 @@ HodlHodlMyContracts.propTypes = {
 HodlHodlMyContracts.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    title: loc.hodl.cont_title,
   },
   (options, { theme, navigation, route }) => ({
     ...options,
+    title: loc.hodl.cont_title,
     headerStyle: {
       backgroundColor: theme.colors.elevated,
     },

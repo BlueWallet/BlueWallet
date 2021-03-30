@@ -5,7 +5,7 @@ import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-naviga
 import { BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
-import Privacy from '../../Privacy';
+import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { SquareButton } from '../../components/SquareButton';
@@ -72,14 +72,14 @@ const ExportMultisigCoordinationSetup = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={stylesHook.root}>
       <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View>
           <BlueText style={[styles.type, stylesHook.type]}>{wallet.getLabel()}</BlueText>
         </View>
         <BlueSpacing20 />
-        <DynamicQRCode value={qrCodeContents.current} capacity={400} />
+        <DynamicQRCode value={qrCodeContents.current} />
         <BlueSpacing20 />
         {isShareButtonTapped ? (
           <ActivityIndicator />
@@ -97,9 +97,6 @@ const styles = StyleSheet.create({
   loading: {
     flex: 1,
     justifyContent: 'center',
-  },
-  root: {
-    flex: 1,
   },
   scrollViewContent: {
     alignItems: 'center',
@@ -127,10 +124,12 @@ const styles = StyleSheet.create({
   },
 });
 
-ExportMultisigCoordinationSetup.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.multisig.export_coordination_setup,
-  headerLeft: null,
-});
+ExportMultisigCoordinationSetup.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.multisig.export_coordination_setup }),
+);
 
 export default ExportMultisigCoordinationSetup;

@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -12,12 +12,14 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Alert,
+  findNodeHandle,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { getSystemName } from 'react-native-device-info';
 import QRCode from 'react-native-qrcode-svg';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import showPopupMenu from 'react-native-popup-menu-android';
 import ToolTip from 'react-native-tooltip';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -26,7 +28,6 @@ import {
   BlueButton,
   BlueButtonLink,
   BlueFormMultiInput,
-  BlueLoading,
   BlueSpacing10,
   BlueSpacing20,
   BlueSpacing40,
@@ -50,7 +51,7 @@ const isDesktop = getSystemName() === 'Mac OS X';
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
-  const { addWallet, saveToDisk, setNewWalletAdded } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
   const navigation = useNavigation();
@@ -66,7 +67,9 @@ const WalletsAddMultisigStep2 = () => {
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
   const tooltip = useRef();
+  const openScannerButton = useRef();
   const data = useRef(new Array(n));
+  const hasUnsavedChanges = Boolean(cosigners.length > 0 && cosigners.length !== n);
 
   const handleOnHelpPress = () => {
     navigation.navigate('WalletsAddMultisigHelp');
@@ -143,6 +146,28 @@ const WalletsAddMultisigStep2 = () => {
     setTimeout(_onCreate, 100);
   };
 
+  useEffect(() => {
+    navigation.addListener('beforeRemove', e => {
+      if (e.data.action.type === 'POP' && hasUnsavedChanges) {
+        e.preventDefault();
+
+        // Prompt the user before leaving the screen
+
+        Alert.alert(loc._.discard_changes, loc._.discard_changes_detail, [
+          { text: loc._.cancel, style: 'cancel', onPress: () => {} },
+          {
+            text: loc._.ok,
+            style: 'destructive',
+            // If the user confirmed, then we dispatch the action we blocked earlier
+            // This will continue the action that had triggered the removal of the screen
+            onPress: () => navigation.dispatch(e.data.action),
+          },
+        ]);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation, hasUnsavedChanges, cosigners]);
+
   const _onCreate = async () => {
     const w = new MultisigHDWallet();
     w.setM(m);
@@ -152,6 +177,7 @@ const WalletsAddMultisigStep2 = () => {
         w.setDerivationPath(MultisigHDWallet.PATH_NATIVE_SEGWIT);
         break;
       case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+      case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
         w.setWrappedSegwit();
         w.setDerivationPath(MultisigHDWallet.PATH_WRAPPED_SEGWIT);
         break;
@@ -171,11 +197,9 @@ const WalletsAddMultisigStep2 = () => {
 
     addWallet(w);
     await saveToDisk();
-    setNewWalletAdded(true);
     A(A.ENUM.CREATED_WALLET);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-
-    navigation.dangerouslyGetParent().pop();
+    navigation.dangerouslyGetParent().goBack();
   };
 
   const generateNewKey = () => {
@@ -206,6 +230,7 @@ const WalletsAddMultisigStep2 = () => {
         path = MultisigHDWallet.PATH_NATIVE_SEGWIT;
         break;
       case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+      case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
         path = MultisigHDWallet.PATH_WRAPPED_SEGWIT;
         break;
       case MultisigHDWallet.FORMAT_P2SH:
@@ -330,6 +355,9 @@ const WalletsAddMultisigStep2 = () => {
       if (MultisigHDWallet.isXpubValid(ret.data) && !MultisigHDWallet.isXpubForMultisig(ret.data)) {
         return alert(loc.multisig.not_a_multisignature_xpub);
       }
+      if (MultisigHDWallet.isXpubValid(ret.data)) {
+        return tryUsingXpub(ret.data);
+      }
       let cosigner = new MultisigCosigner(ret.data);
       if (!cosigner.isValid()) return alert(loc.multisig.invalid_cosigner);
       setIsProvideMnemonicsModalVisible(false);
@@ -345,6 +373,7 @@ const WalletsAddMultisigStep2 = () => {
               }
               break;
             case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+            case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
               if (cc.getPath().startsWith('m/48') && cc.getPath().endsWith("/1'")) {
                 // found it
                 cosigner = cc;
@@ -376,6 +405,7 @@ const WalletsAddMultisigStep2 = () => {
           }
           break;
         case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+        case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
           if (cosigner.getPath().startsWith('m/48') && cosigner.getPath().endsWith("/1'")) {
             correctFormat = true;
           }
@@ -400,7 +430,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const scanOrOpenFile = () => {
     if (isDesktop) {
-      fs.showActionSheet().then(onBarScanned);
+      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(onBarScanned);
     } else {
       setIsProvideMnemonicsModalVisible(false);
       navigation.navigate('ScanQRCodeRoot', {
@@ -575,7 +605,7 @@ const WalletsAddMultisigStep2 = () => {
   const renderProvideMnemonicsModal = () => {
     return (
       <BottomModal isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
             <BlueSpacing20 />
@@ -586,7 +616,7 @@ const WalletsAddMultisigStep2 = () => {
             ) : (
               <BlueButton disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={useMnemonicPhrase} />
             )}
-            <BlueButtonLink disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+            <BlueButtonLink ref={openScannerButton} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
         </KeyboardAvoidingView>
       </BottomModal>
@@ -606,7 +636,7 @@ const WalletsAddMultisigStep2 = () => {
   const renderCosignersXpubModal = () => {
     return (
       <BottomModal isVisible={isRenderCosignersXpubModalVisible} onClose={hideCosignersXpubModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
             <BlueSpacing20 />
@@ -645,11 +675,9 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
-  const footer = isLoading ? (
-    <BlueLoading />
-  ) : (
+  const footer = (
     <View style={styles.buttonBottom}>
-      <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={cosigners.length !== n} />
+      {isLoading ? <ActivityIndicator /> : <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={cosigners.length !== n} />}
     </View>
   );
 
@@ -688,7 +716,7 @@ const styles = StyleSheet.create({
   buttonBottom: {
     marginHorizontal: 20,
     flex: 0.12,
-    marginBottom: 36,
+    marginBottom: 40,
     justifyContent: 'flex-end',
   },
 

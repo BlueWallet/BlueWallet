@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  Platform,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
@@ -17,14 +18,9 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
-import {
-  BlueAlertWalletExportReminder,
-  BlueBitcoinAmount,
-  BlueButton,
-  BlueDismissKeyboardInputAccessory,
-  BlueLoading,
-} from '../../BlueComponents';
+import { BlueAlertWalletExportReminder, BlueButton, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
+import AmountInput from '../../components/AmountInput';
 import * as NavigationService from '../../NavigationService';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -139,7 +135,6 @@ const LNDCreateInvoice = () => {
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet]),
-    [],
   );
 
   const _keyboardDidShow = () => {
@@ -163,7 +158,7 @@ const LNDCreateInvoice = () => {
           break;
         case BitcoinUnit.LOCAL_CURRENCY:
           // trying to fetch cached sat equivalent for this fiat amount
-          invoiceAmount = BlueBitcoinAmount.getCachedSatoshis(invoiceAmount) || currency.btcToSatoshi(currency.fiatToBTC(invoiceAmount));
+          invoiceAmount = AmountInput.getCachedSatoshis(invoiceAmount) || currency.btcToSatoshi(currency.fiatToBTC(invoiceAmount));
           break;
       }
 
@@ -260,7 +255,7 @@ const LNDCreateInvoice = () => {
           break;
         case BitcoinUnit.LOCAL_CURRENCY:
           amount = formatBalancePlain(amount, BitcoinUnit.LOCAL_CURRENCY);
-          BlueBitcoinAmount.setCachedSatoshis(amount, sats);
+          AmountInput.setCachedSatoshis(amount, sats);
           break;
       }
 
@@ -361,8 +356,8 @@ const LNDCreateInvoice = () => {
       <View style={[styles.root, styleHooks.root]}>
         <StatusBar barStyle="light-content" />
         <View style={[styles.amount, styleHooks.amount]}>
-          <KeyboardAvoidingView behavior="position">
-            <BlueBitcoinAmount
+          <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
+            <AmountInput
               isLoading={isLoading}
               amount={amount}
               onAmountUnitChange={setUnit}
@@ -497,8 +492,10 @@ const styles = StyleSheet.create({
 
 export default LNDCreateInvoice;
 
-LNDCreateInvoice.navigationOptions = navigationStyle({
-  closeButton: true,
-  headerTitle: loc.receive.header,
-  headerLeft: null,
-});
+LNDCreateInvoice.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.receive.header }),
+);

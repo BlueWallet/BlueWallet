@@ -149,7 +149,9 @@ const ReorderWallets = () => {
             {loc.wallets.list_latest_transaction}
           </Text>
           <Text numberOfLines={1} style={styles.latestTxValue}>
-            {transactionTimeToReadable(item.getLatestTransactionTime())}
+            {item.getTransactions().find(tx => tx.confirmations === 0)
+              ? loc.transactions.pending.toLowerCase()
+              : transactionTimeToReadable(item.getLatestTransactionTime())}
           </Text>
         </LinearGradient>
       </View>
@@ -193,15 +195,17 @@ const ReorderWallets = () => {
   );
 };
 
-ReorderWallets.navigationOptions = navigationStyle({
-  title: loc.wallets.reorder_title,
-  closeButton: true,
-  closeButtonFunc: ({ navigation, route }) => {
-    if (route.params && route.params.customCloseButtonFunction) {
-      route.params.customCloseButtonFunction();
-    }
+ReorderWallets.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    closeButtonFunc: ({ navigation, route }) => {
+      if (route.params && route.params.customCloseButtonFunction) {
+        route.params.customCloseButtonFunction();
+      }
+    },
+    headerLeft: null,
   },
-  headerLeft: null,
-});
+  opts => ({ ...opts, title: loc.wallets.reorder_title }),
+);
 
 export default ReorderWallets;

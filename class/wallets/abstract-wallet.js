@@ -19,6 +19,8 @@ export class AbstractWallet {
   constructor() {
     this.type = this.constructor.type;
     this.typeReadable = this.constructor.typeReadable;
+    this.segwitType = this.constructor.segwitType;
+    this._derivationPath = this.constructor.derivationPath;
     this.label = '';
     this.secret = ''; // private key or recovery phrase
     this.balance = 0;
@@ -99,15 +101,7 @@ export class AbstractWallet {
     return true;
   }
 
-  allowSendMax(): boolean {
-    return false;
-  }
-
   allowRBF() {
-    return false;
-  }
-
-  allowBatchSend() {
     return false;
   }
 
@@ -116,6 +110,18 @@ export class AbstractWallet {
   }
 
   allowPayJoin() {
+    return false;
+  }
+
+  allowCosignPsbt() {
+    return false;
+  }
+
+  allowSignVerifyMessage() {
+    return false;
+  }
+
+  allowMasterFingerprint() {
     return false;
   }
 
@@ -164,12 +170,24 @@ export class AbstractWallet {
     }
 
     try {
-      const parsedSecret = JSON.parse(this.secret);
+      let parsedSecret;
+      // regex might've matched invalid data. if so, parse newSecret.
+      if (this.secret.trim().length > 0) {
+        try {
+          parsedSecret = JSON.parse(this.secret);
+        } catch (e) {
+          parsedSecret = JSON.parse(newSecret);
+        }
+      } else {
+        parsedSecret = JSON.parse(newSecret);
+      }
       if (parsedSecret && parsedSecret.keystore && parsedSecret.keystore.xpub) {
         let masterFingerprint = false;
         if (parsedSecret.keystore.ckcc_xfp) {
           // It is a ColdCard Hardware Wallet
           masterFingerprint = Number(parsedSecret.keystore.ckcc_xfp);
+        } else if (parsedSecret.keystore.root_fingerprint) {
+          masterFingerprint = Number(parsedSecret.keystore.root_fingerprint);
         }
         if (parsedSecret.keystore.label) {
           this.setLabel(parsedSecret.keystore.label);
@@ -307,5 +325,12 @@ export class AbstractWallet {
     if ('memo' in opts) meta.memo = opts.memo;
     if ('frozen' in opts) meta.frozen = opts.frozen;
     this._utxoMetadata[`${txid}:${vout}`] = meta;
+  }
+
+  /**
+   * @returns {string} Root derivation path for wallet if any
+   */
+  getDerivationPath() {
+    return this._derivationPath ?? '';
   }
 }

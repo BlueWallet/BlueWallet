@@ -21,6 +21,8 @@ jest.mock('@react-native-community/push-notification-ios', () => {
 jest.mock('react-native-device-info', () => {
   return {
     getSystemName: jest.fn(),
+    hasGmsSync: jest.fn().mockReturnValue(true),
+    hasHmsSync: jest.fn().mockReturnValue(false),
   };
 });
 
@@ -107,3 +109,23 @@ jest.mock('realm', () => {
     open: jest.fn(() => realmInstanceMock),
   };
 });
+
+jest.mock('react-native-idle-timer', () => {
+  return {
+    setIdleTimerDisabled: jest.fn(),
+  };
+});
+
+jest.mock('react-native-haptic-feedback', () => {
+  return {
+    trigger: jest.fn(),
+  };
+});
+
+jest.mock('../blue_modules/analytics', () => {
+  const ret = jest.fn();
+  ret.ENUM = { CREATED_WALLET: '' };
+  return ret;
+});
+
+global.alert = () => {};

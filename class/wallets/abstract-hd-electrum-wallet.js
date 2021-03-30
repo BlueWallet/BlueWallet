@@ -1,6 +1,7 @@
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
+
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 const bitcoin = require('bitcoinjs-lib');
@@ -695,7 +696,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       u.txid = u.txId;
       u.amount = u.value;
       u.wif = this._getWifForAddress(u.address);
-      u.confirmations = u.height ? 1 : 0;
+      if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
     }
 
     this.utxo = this.utxo.sort((a, b) => a.amount - b.amount);
@@ -816,6 +817,22 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     return false;
+  }
+
+  /**
+   * Finds WIF corresponding to address and returns it
+   *
+   * @param address {string} Address that belongs to this wallet
+   * @returns {string|false} WIF or false
+   */
+  _getWIFbyAddress(address) {
+    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+      if (this._getExternalAddressByIndex(c) === address) return this._getWIFByIndex(false, c);
+    }
+    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+      if (this._getInternalAddressByIndex(c) === address) return this._getWIFByIndex(true, c);
+    }
+    return null;
   }
 
   weOwnAddress(address) {
@@ -1047,5 +1064,71 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       if (address === this._getInternalAddressByIndex(c)) return true;
     }
     return false;
+  }
+
+  calculateHowManySignaturesWeHaveFromPsbt(psbt) {
+    let sigsHave = 0;
+    for (const inp of psbt.data.inputs) {
+      if (inp.finalScriptSig || inp.finalScriptWitness || inp.partialSig) sigsHave++;
+    }
+    return sigsHave;
+  }
+
+  /**
+   * Tries to signs passed psbt object (by reference). If there are enough signatures - tries to finalize psbt
+   * and returns Transaction (ready to extract hex)
+   *
+   * @param psbt {Psbt}
+   * @returns {{ tx: Transaction }}
+   */
+  cosignPsbt(psbt) {
+    const mnemonic = this.secret;
+    const seed = bip39.mnemonicToSeed(mnemonic);
+    const hdRoot = HDNode.fromSeed(seed);
+
+    for (let cc = 0; cc < psbt.inputCount; cc++) {
+      try {
+        psbt.signInputHD(cc, hdRoot);
+      } catch (e) {} // protects agains duplicate cosignings
+
+      if (!psbt.inputHasHDKey(cc, hdRoot)) {
+        for (const derivation of psbt.data.inputs[cc].bip32Derivation || []) {
+          const splt = derivation.path.split('/');
+          const internal = +splt[splt.length - 2];
+          const index = +splt[splt.length - 1];
+          const wif = this._getWIFByIndex(internal, index);
+          const keyPair = bitcoin.ECPair.fromWIF(wif);
+          try {
+            psbt.signInput(cc, keyPair);
+          } catch (e) {} // protects agains duplicate cosignings or if this output can't be signed with current wallet
+        }
+      }
+    }
+
+    let tx = false;
+    if (this.calculateHowManySignaturesWeHaveFromPsbt(psbt) === psbt.inputCount) {
+      tx = psbt.finalizeAllInputs().extractTransaction();
+    }
+
+    return { tx };
+  }
+
+  /**
+   * @param mnemonic {string} Mnemonic seed phrase
+   * @returns {string} Hex string of fingerprint derived from mnemonics. Always has lenght of 8 chars and correct leading zeroes
+   */
+  static seedToFingerprint(mnemonic) {
+    const seed = bip39.mnemonicToSeed(mnemonic);
+    const root = bitcoin.bip32.fromSeed(seed);
+    let hex = root.fingerprint.toString('hex');
+    while (hex.length < 8) hex = '0' + hex; // leading zeroes
+    return hex.toUpperCase();
+  }
+
+  /**
+   * @returns {string} Hex string of fingerprint derived from wallet mnemonics. Always has lenght of 8 chars and correct leading zeroes
+   */
+  getMasterFingerprintHex() {
+    return AbstractHDElectrumWallet.seedToFingerprint(this.secret);
   }
 }

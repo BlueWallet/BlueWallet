@@ -3,8 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { Platform, View, Keyboard, StatusBar, StyleSheet } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { getSystemName } from 'react-native-device-info';
-
 import {
   BlueFormMultiInput,
   BlueButtonLink,
@@ -15,22 +13,22 @@ import {
   BlueSpacing20,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import Privacy from '../../Privacy';
+import Privacy from '../../blue_modules/Privacy';
 import WalletImport from '../../class/wallet-import';
 import loc from '../../loc';
-const isDesktop = getSystemName() === 'Mac OS X';
+import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
 const fs = require('../../blue_modules/fs');
 
 const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
   const route = useRoute();
   const label = (route.params && route.params.label) || '';
+  const triggerImport = (route.params && route.params.triggerImport) || false;
   const [importText, setImportText] = useState(label);
   const navigation = useNavigation();
   const { colors } = useTheme();
   const styles = StyleSheet.create({
     root: {
-      flex: 1,
       paddingTop: 40,
       backgroundColor: colors.elevated,
     },
@@ -50,6 +48,11 @@ const WalletsImport = () => {
       Keyboard.removeListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow');
       Privacy.disableBlur();
     };
+  }, []);
+
+  useEffect(() => {
+    if (triggerImport) importButtonPressed();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const importButtonPressed = () => {
@@ -95,7 +98,7 @@ const WalletsImport = () => {
   };
 
   const importScan = () => {
-    if (isDesktop) {
+    if (isMacCatalina) {
       fs.showActionSheet().then(onBarScanned);
     } else {
       navigation.navigate('ScanQRCodeRoot', {
@@ -110,7 +113,7 @@ const WalletsImport = () => {
   };
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+    <SafeBlueArea style={styles.root}>
       <StatusBar barStyle="light-content" />
       <BlueSpacing20 />
       <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
@@ -118,7 +121,7 @@ const WalletsImport = () => {
       <BlueFormMultiInput
         testID="MnemonicInput"
         value={importText}
-        contextMenuHidden={getSystemName() !== 'Mac OS X'}
+        contextMenuHidden={!isCatalyst}
         onChangeText={setImportText}
         inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
       />
@@ -141,7 +144,6 @@ const WalletsImport = () => {
           <BlueDoneAndDismissKeyboardInputAccessory
             onClearTapped={() => {
               setImportText('');
-              Keyboard.dismiss();
             }}
             onPasteTapped={text => {
               setImportText(text);
@@ -166,7 +168,6 @@ const WalletsImport = () => {
   );
 };
 
-WalletsImport.navigationOptions = navigationStyle({
-  title: loc.wallets.import_title,
-});
+WalletsImport.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.import_title }));
+
 export default WalletsImport;

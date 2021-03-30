@@ -18,6 +18,7 @@ const MNEMONIC_TO_SEED_OPTS = {
 export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
   static type = 'HDlegacyElectrumSeedP2PKH';
   static typeReadable = 'HD Legacy Electrum (BIP32 P2PKH)';
+  static derivationPath = 'm';
 
   validateMnemonic() {
     return mn.validateMnemonic(this.secret, PREFIX);
@@ -67,10 +68,6 @@ export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
     const child = root.derivePath(path);
 
     return child.toWIF();
-  }
-
-  allowSendMax() {
-    return true;
   }
 
   _getNodePubkeyByIndex(node, index) {

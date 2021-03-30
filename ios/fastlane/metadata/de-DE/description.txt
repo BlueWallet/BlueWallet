@@ -1,53 +1,53 @@
-Eine Bitcoin-Wallet, die das Speichern, Überweisen, Empfangen und Kaufen von Bitcoin erlaubt und dabei den Fokus auf Sicherheit und Einfachheit legt.
+Eine Funktionsreiche aber einfache Bitcoin-Wallet mit Fokus auf Sicherheit zum Empfangen, Halten, Senden und Kaufen von bitcoin.
 
-Auf BlueWallet bist Du im Besitz der privaten Schlüssel. Eine Bitcoin-Wallet, die von Bitcoin-Benutzern für die Gemeinschaft erstellt wurde.
+Bei BlueWallet bist Du im Besitz der privaten Schlüssel. Eine Wallet gemacht von Nutzern für die Bitcoin Gemeinschaft.
 
-Du kannst sofort mit jedem in der Welt Geschäfte machen und das Finanzsystem direkt aus der Tasche heraus reformieren.
+Mache mit beliebigen Personen sofort weltweit Geschäfte und transformiere das Finanzsystem direkt aus deiner Tasche.
 
 Erstelle kostenlos eine unbegrenzte Anzahl von Bitcoin-Wallets oder importiere Deine vorhandene Wallet. Es ist einfach und schnell.
 
 _____
 
-Folgendes ist enthalten:
+Das bekommst Du:
 
 
-1 - Konzeptionsintegrierte Sicherheit 
+1 - Sicherheit by Design
 
 Quelloffene Software
-MIT lizenziert. Sie können es selbst kompilieren und betreiben! Erstellt mit ReactNative.
+Eine MIT-Lizenzierung die erlaubt BlueWallet zu kompilieren und zu betreiben! Erstellt mit ReactNative.
 
-Plausible Bestreitbarkeit
-Passwort, das falsche Bitcoin-Wallet entschlüsselt, falls Du gezwungen bist, Deinen Zugang preiszugeben
+Glaubhafte Täuschung
+Ein Mechanismus, der falsche Bitcoin-Wallet entschlüsselt, falls Du gezwungen wirst Deinen Zugang preiszugeben.
 
 Vollständige Verschlüsselung
-Zusätzlich zur mehrschichtigen iOS-Verschlüsselung verschlüsseln wir alles mit zusätzlichen Passwörtern
+Eine zusätzliche, umfassende Passwortverschlüsselung zur mehrstufigen OS-Verschlüsselung.
 
 Full Node
-Verbindung zu Deinem Bitcoin Full Node über Electrum
+Eine Verbindungsmöglichkeit via Electum zum eigenen Full Node.
 
 Cold Storage
-Verbinde Dich mit Deiner Hardware-Wallet und verwahre Deine Coins sicher im Cold Storage
+Eine Hardware-Wallet Unterstützung zur sicheren bitcoin Verwahrung.
 
-2 - Fokus auf einfacher Bedienbarkeit
+2 - Auf dein Erlebnis fokussiert
 
-Behalte die Kontrolle
-Private Schlüssel verlassen niemals Dein Gerät.
-Du kontrollierst Deine privaten Schlüssel
+Die alleinige Kontrolle.
+Privatschlüssel, die nie dein Gerät verlassen.
+Die volle Kontrolle über deine Privatschlüssel.
 
-Definierbare Transaktionsgebühren
-Beginnend bei 1 Satoshi. Du entscheidest.
+Anpassbare Gebühren
+Freie Gebührenwahl. Beginnend bei einem Satoshi.
 
 Replace-By-Fee
-(RBF) Speed-up your transactions by increasing the fee (BIP125)
+(RBF) Eine nachträgliche Gebührenerhöhung für rasche Bestätigungen. (BIP125)
 
-Watch-only wallets
-Watch-only wallets allow you to keep an eye on your cold storage without touching the hardware.
+Watch-only Wallets
+Watch-only Wallets, damit deine Schlüssel offline und deine bitcoin gleichzeitig im Blick bleiben.
 
-Lightning Network
-Lightning wallet with zero-configuration. Unfairly cheap and fast transactions with the best Bitcoin user experience.
+Lightning Netzwerk
+Lightning Wallet ohne Konfiguration. Lightning Bezahlungen sind konkurrenzlos günstig und verblüffend schnell.
 
 Bitcoin kaufen
-Enter in the open financial revolution with the ability to buy Bitcoin directly in your wallet.
+Die Möglichkeit bitcoin direkt aus der Wallet zu kaufen. Bitcoin ist offen für Alle. Nimm Teil an der Finanzrevolution.
 
 Local Trader
-A p2p Bitcoin Trading platform, that allows you to buy and sell bitcoin directly to other users without 3rd parties.
+Eine P2P Handelsplattform, welche es Dir ohne Drittpartei erlaubt bitcoin sicher von Nutzern zu kaufen oder zu verkaufen.

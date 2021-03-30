@@ -12,14 +12,16 @@ import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlurView } from '@react-native-community/blur';
 
 const DrawerList = props => {
   console.log('drawerList rendering...');
   const walletsCarousel = useRef();
-  const { wallets, selectedWallet, pendingWallets, newWalletAdded, setNewWalletAdded } = useContext(BlueStorageContext);
+  const { wallets, selectedWallet, pendingWallets, isDrawerListBlurred } = useContext(BlueStorageContext);
   const [carouselData, setCarouselData] = useState([]);
   const height = useWindowDimensions().height;
   const { colors } = useTheme();
+  const walletsCount = useRef(wallets.length);
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.brandingColor,
@@ -35,12 +37,18 @@ const DrawerList = props => {
   }, [wallets, pendingWallets]);
 
   useEffect(() => {
-    if (newWalletAdded) {
-      walletsCarousel.current?.snapToItem(carouselData.length - pendingWallets.length - 2);
-      setNewWalletAdded(false);
+    if (walletsCount.current < wallets.length) {
+      walletsCarousel.current?.snapToItem(walletsCount.current);
+    }
+    walletsCount.current = wallets.length;
+  }, [wallets]);
+
+  useEffect(() => {
+    if (pendingWallets.length > 0) {
+      walletsCarousel.current?.snapToItem(carouselData.length - pendingWallets.length);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newWalletAdded]);
+  }, [pendingWallets]);
 
   const handleClick = index => {
     console.log('click', index);
@@ -124,6 +132,9 @@ const DrawerList = props => {
         </SafeAreaView>
         {renderWalletsCarousel()}
       </View>
+      {isDrawerListBlurred && (
+        <BlurView style={styles.absolute} blurType="light" blurAmount={10} reducedTransparencyFallbackColor="white" />
+      )}
     </DrawerContentScrollView>
   );
 };
@@ -143,6 +154,13 @@ const styles = StyleSheet.create({
     paddingRight: 16,
     paddingLeft: 32,
     paddingVertical: 10,
+  },
+  absolute: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
   },
 });
 

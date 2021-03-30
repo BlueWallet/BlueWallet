@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import { Icon } from 'react-native-elements';
-import Handoff from 'react-native-handoff';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 import {
@@ -19,7 +18,7 @@ import {
 import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Transaction } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import HandoffSettings from '../../class/handoff';
+import HandoffComponent from '../../components/handoff';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
@@ -31,7 +30,6 @@ const buttonStatus = Object.freeze({
 
 const TransactionsStatus = () => {
   const { setSelectedWallet, wallets, txMetadata, getTransactions } = useContext(BlueStorageContext);
-  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const { hash } = useRoute().params;
   const { navigate, setOptions } = useNavigation();
   const { colors } = useTheme();
@@ -42,9 +40,6 @@ const TransactionsStatus = () => {
   const [tx, setTX] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const stylesHook = StyleSheet.create({
-    root: {
-      backgroundColor: colors.background,
-    },
     value: {
       color: colors.alternativeTextColor2,
     },
@@ -119,15 +114,15 @@ const TransactionsStatus = () => {
   }, [tx, wallets]);
 
   useEffect(() => {
-    if (wallet) {
-      setSelectedWallet(wallet.current.getID());
+    const walletID = wallet.current?.getID();
+    if (walletID) {
+      setSelectedWallet(wallet.current?.getID());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet]);
+  }, [wallet.current]);
 
   useEffect(() => {
     console.log('transactions/details - useEffect');
-    HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
   }, []);
 
   const checkPossibilityOfCPFP = async () => {
@@ -275,16 +270,19 @@ const TransactionsStatus = () => {
 
   if (isLoading || !tx) {
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.root, stylesHook.root]}>
+      <SafeBlueArea>
         <BlueLoading />
       </SafeBlueArea>
     );
   }
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.root, stylesHook.root]}>
-      {isHandOffUseEnabled && (
-        <Handoff title={`Bitcoin Transaction ${tx.hash}`} type="io.bluewallet.bluewallet" url={`https://blockstream.info/tx/${tx.hash}`} />
-      )}
+    <SafeBlueArea>
+      <HandoffComponent
+        title={`Bitcoin Transaction ${tx.hash}`}
+        type="io.bluewallet.bluewallet"
+        url={`https://blockstream.info/tx/${tx.hash}`}
+      />
+
       <StatusBar barStyle="default" />
       <View style={styles.container}>
         <BlueCard>
@@ -362,9 +360,6 @@ const TransactionsStatus = () => {
 
 export default TransactionsStatus;
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   container: {
     flex: 1,
     justifyContent: 'space-between',

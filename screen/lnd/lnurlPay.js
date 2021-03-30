@@ -6,9 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
-import navigationStyle from '../../components/navigationStyle';
 import {
-  BlueBitcoinAmount,
   BlueButton,
   BlueCard,
   BlueDismissKeyboardInputAccessory,
@@ -17,6 +15,8 @@ import {
   BlueText,
   SafeBlueArea,
 } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import AmountInput from '../../components/AmountInput';
 import { BlueCurrentTheme } from '../../components/themes';
 import Lnurl from '../../class/lnurl';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -157,10 +157,10 @@ export default class LnurlPay extends Component {
 
   renderGotPayload() {
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeBlueArea>
         <ScrollView>
           <BlueCard>
-            <BlueBitcoinAmount
+            <AmountInput
               isLoading={this.state.isLoading}
               amount={this.state.amount.toString()}
               onAmountUnitChange={unit => {

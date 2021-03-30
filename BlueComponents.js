@@ -1,5 +1,5 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import React, { Component, useState, useMemo, useCallback, useContext } from 'react';
+import React, { Component, useState, useMemo, useCallback, useContext, useRef, useEffect, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, Input, Text, Header, ListItem, Avatar } from 'react-native-elements';
 import {
@@ -11,6 +11,7 @@ import {
   InputAccessoryView,
   Keyboard,
   KeyboardAvoidingView,
+  Linking,
   PixelRatio,
   Platform,
   PlatformColor,
@@ -20,35 +21,31 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  UIManager,
   View,
+  InteractionManager,
 } from 'react-native';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet, MultisigHDWallet } from './class';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import * as NavigationService from './NavigationService';
 import WalletGradient from './class/wallet-gradient';
-import ToolTip from 'react-native-tooltip';
 import { BlurView } from '@react-native-community/blur';
-import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
-import { getSystemName } from 'react-native-device-info';
 import { encodeUR } from 'bc-ur/dist';
 import QRCode from 'react-native-qrcode-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
-import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros, transactionTimeToReadable } from './loc';
+import loc, { formatBalance, formatBalanceWithoutSuffix, transactionTimeToReadable } from './loc';
 import Lnurl from './class/lnurl';
 import { BlueStorageContext } from './blue_modules/storage-context';
+import ToolTipMenu from './components/TooltipMenu';
+
 /** @type {AppStorage} */
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
-const BigNumber = require('bignumber.js');
-const currency = require('./blue_modules/currency');
-const fs = require('./blue_modules/fs');
 let isIpad;
 if (aspectRatio > 1.6) {
   isIpad = false;
@@ -93,7 +90,7 @@ export const BlueButton = props => {
   );
 };
 
-export const SecondButton = props => {
+export const SecondButton = forwardRef((props, ref) => {
   const { colors } = useTheme();
   let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.buttonBlueBackgroundColor;
   let fontColor = colors.buttonTextColor;
@@ -117,6 +114,7 @@ export const SecondButton = props => {
         alignItems: 'center',
       }}
       {...props}
+      ref={ref}
     >
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
         {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
@@ -124,7 +122,7 @@ export const SecondButton = props => {
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 export const BitcoinButton = props => {
   const { colors } = useTheme();
@@ -226,19 +224,19 @@ export class BlueWalletNavigationHeader extends Component {
     onWalletUnitChange: PropTypes.func,
   };
 
-  static getDerivedStateFromProps(props, state) {
-    return { wallet: props.wallet, onWalletUnitChange: props.onWalletUnitChange, allowOnchainAddress: state.allowOnchainAddress };
+  static getDerivedStateFromProps(props) {
+    return { wallet: props.wallet, onWalletUnitChange: props.onWalletUnitChange };
   }
 
   static contextType = BlueStorageContext;
   walletBalanceText = React.createRef();
-
+  tooltip = React.createRef();
   constructor(props) {
     super(props);
     this.state = {
       wallet: props.wallet,
       walletPreviousPreferredUnit: props.wallet.getPreferredBalanceUnit(),
-      showManageFundsButton: false,
+      allowOnchainAddress: false,
     };
   }
 
@@ -246,13 +244,28 @@ export class BlueWalletNavigationHeader extends Component {
     Clipboard.setString(formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit()).toString());
   };
 
-  componentDidMount() {
+  componentDidUpdate(prevState) {
+    InteractionManager.runAfterInteractions(() => {
+      if (prevState.wallet.getID() !== this.state.wallet.getID() && this.state.wallet.type === LightningCustodianWallet.type) {
+        this.verifyIfWalletAllowsOnchainAddress();
+      }
+    });
+  }
+
+  verifyIfWalletAllowsOnchainAddress = () => {
     if (this.state.wallet.type === LightningCustodianWallet.type) {
       this.state.wallet
         .allowOnchainAddress()
         .then(value => this.setState({ allowOnchainAddress: value }))
-        .catch(e => console.log('This Lndhub wallet does not have an onchain address API.'));
+        .catch(e => {
+          console.log('This Lndhub wallet does not have an onchain address API.');
+          this.setState({ allowOnchainAddress: false });
+        });
     }
+  };
+
+  componentDidMount() {
+    this.verifyIfWalletAllowsOnchainAddress();
   }
 
   handleBalanceVisibility = async _item => {
@@ -270,45 +283,6 @@ export class BlueWalletNavigationHeader extends Component {
     this.setState({ wallet });
     await this.context.saveToDisk();
   };
-
-  showAndroidTooltip = () => {
-    showPopupMenu(this.toolTipMenuOptions(), this.handleToolTipSelection, this.walletBalanceText.current);
-  };
-
-  handleToolTipSelection = item => {
-    if (item === 'balanceCopy' || item.id === 'balanceCopy') {
-      this.handleCopyPress();
-    } else if (item === 'balancePrivacy' || item.id === 'balancePrivacy') {
-      this.handleBalanceVisibility();
-    }
-  };
-
-  toolTipMenuOptions() {
-    return Platform.select({
-      // NOT WORKING ATM.
-      // ios: [
-      //   { text: this.state.wallet.hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide, onPress: this.handleBalanceVisibility },
-      //   { text: loc.transactions.details_copy, onPress: this.handleCopyPress },
-      // ],
-      android: this.state.wallet.hideBalance
-        ? [
-            {
-              id: 'balancePrivacy',
-              label: this.state.wallet.hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide,
-            },
-          ]
-        : [
-            {
-              id: 'balancePrivacy',
-              label: this.state.wallet.hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide,
-            },
-            {
-              id: 'balanceCopy',
-              label: loc.transactions.details_copy,
-            },
-          ],
-    });
-  }
 
   changeWalletBalanceUnit = () => {
     let walletPreviousPreferredUnit = this.state.wallet.getPreferredBalanceUnit();
@@ -336,7 +310,15 @@ export class BlueWalletNavigationHeader extends Component {
     this.props.onManageFundsPressed();
   };
 
+  showToolTipMenu = () => {
+    this.tooltip.current.showMenu();
+  };
+
   render() {
+    const balance =
+      !this.state.wallet.hideBalance &&
+      formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit(), true).toString();
+
     return (
       <LinearGradient
         colors={WalletGradient.gradientsFor(this.state.wallet.type)}
@@ -362,8 +344,8 @@ export class BlueWalletNavigationHeader extends Component {
             right: 0,
           }}
         />
-
         <Text
+          testID="WalletLabel"
           numberOfLines={1}
           style={{
             backgroundColor: 'transparent',
@@ -373,41 +355,44 @@ export class BlueWalletNavigationHeader extends Component {
         >
           {this.state.wallet.getLabel()}
         </Text>
-        {Platform.OS === 'ios' && (
-          <ToolTip
-            ref={tooltip => (this.tooltip = tooltip)}
-            actions={
-              this.state.wallet.hideBalance
-                ? [
-                    {
-                      text: this.state.wallet.hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide,
-                      onPress: this.handleBalanceVisibility,
-                    },
-                  ]
-                : [
-                    {
-                      text: this.state.wallet.hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide,
-                      onPress: this.handleBalanceVisibility,
-                    },
-                    {
-                      text: loc.transactions.details_copy,
-                      onPress: this.handleCopyPress,
-                    },
-                  ]
-            }
-          />
-        )}
+        <ToolTipMenu
+          ref={this.tooltip}
+          anchorRef={this.walletBalanceText}
+          actions={
+            this.state.wallet.hideBalance
+              ? [
+                  {
+                    id: 'walletBalanceVisibility',
+                    text: loc.transactions.details_balance_show,
+                    onPress: this.handleBalanceVisibility,
+                  },
+                ]
+              : [
+                  {
+                    id: 'walletBalanceVisibility',
+                    text: loc.transactions.details_balance_hide,
+                    onPress: this.handleBalanceVisibility,
+                  },
+                  {
+                    id: 'copyToClipboard',
+                    text: loc.transactions.details_copy,
+                    onPress: this.handleCopyPress,
+                  },
+                ]
+          }
+        />
         <TouchableOpacity
           style={styles.balance}
           onPress={this.changeWalletBalanceUnit}
           ref={this.walletBalanceText}
-          onLongPress={() => (Platform.OS === 'ios' ? this.tooltip.showMenu() : this.showAndroidTooltip())}
+          onLongPress={this.showToolTipMenu}
         >
           {this.state.wallet.hideBalance ? (
             <BluePrivateBalance />
           ) : (
             <Text
               testID="WalletBalance"
+              key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
               numberOfLines={1}
               adjustsFontSizeToFit
               style={{
@@ -417,7 +402,7 @@ export class BlueWalletNavigationHeader extends Component {
                 color: '#fff',
               }}
             >
-              {formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit(), true).toString()}
+              {balance}
             </Text>
           )}
         </TouchableOpacity>
@@ -482,7 +467,7 @@ export class BlueWalletNavigationHeader extends Component {
   }
 }
 
-export const BlueButtonLink = props => {
+export const BlueButtonLink = forwardRef((props, ref) => {
   const { colors } = useTheme();
   return (
     <TouchableOpacity
@@ -492,11 +477,12 @@ export const BlueButtonLink = props => {
         justifyContent: 'center',
       }}
       {...props}
+      ref={ref}
     >
       <Text style={{ color: colors.foregroundColor, textAlign: 'center', fontSize: 16 }}>{props.title}</Text>
     </TouchableOpacity>
   );
-};
+});
 
 export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure }) => {
   Alert.alert(
@@ -546,9 +532,6 @@ export class BlueCopyTextToClipboard extends Component {
 
   constructor(props) {
     super(props);
-    if (Platform.OS === 'android') {
-      UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
-    }
     this.state = { hasTappedText: false, address: props.text };
   }
 
@@ -574,7 +557,7 @@ export class BlueCopyTextToClipboard extends Component {
   render() {
     return (
       <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-        <TouchableOpacity onPress={this.copyToClipboard} disabled={this.state.hasTappedText}>
+        <TouchableOpacity onPress={this.copyToClipboard} disabled={this.state.hasTappedText} testID="BlueCopyTextToClipboard">
           <Animated.Text style={styleCopyTextToClipboard.address} numberOfLines={0}>
             {this.state.address}
           </Animated.Text>
@@ -594,8 +577,10 @@ const styleCopyTextToClipboard = StyleSheet.create({
 });
 
 export const SafeBlueArea = props => {
+  const { style, ...nonStyleProps } = props;
   const { colors } = useTheme();
-  return <SafeAreaView forceInset={{ horizontal: 'always' }} style={{ flex: 1, backgroundColor: colors.background }} {...props} />;
+  const baseStyle = { flex: 1, backgroundColor: colors.background };
+  return <SafeAreaView forceInset={{ horizontal: 'always' }} style={[baseStyle, style]} {...nonStyleProps} />;
 };
 
 export const BlueCard = props => {
@@ -622,6 +607,7 @@ export const BlueTextCentered = props => {
 
 export const BlueListItem = React.memo(props => {
   const { colors } = useTheme();
+
   return (
     <ListItem
       containerStyle={props.containerStyle ?? { backgroundColor: 'transparent' }}
@@ -630,7 +616,9 @@ export const BlueListItem = React.memo(props => {
       topDivider={props.topDivider !== undefined ? props.topDivider : false}
       testID={props.testID}
       onPress={props.onPress}
+      onLongPress={props.onLongPress}
       disabled={props.disabled}
+      accessible={props.switch === undefined}
     >
       {props.leftAvatar && <Avatar>{props.leftAvatar}</Avatar>}
       {props.leftIcon && <Avatar icon={props.leftIcon} />}
@@ -642,12 +630,14 @@ export const BlueListItem = React.memo(props => {
             fontWeight: '500',
           }}
           numberOfLines={0}
+          accessible={props.switch === undefined}
         >
           {props.title}
         </ListItem.Title>
         {props.subtitle && (
           <ListItem.Subtitle
-            numberOfLines={1}
+            numberOfLines={props.subtitleNumberOfLines ?? 1}
+            accessible={props.switch === undefined}
             style={{ flexWrap: 'wrap', color: colors.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
           >
             {props.subtitle}
@@ -667,7 +657,7 @@ export const BlueListItem = React.memo(props => {
         <>
           {props.chevron && <ListItem.Chevron />}
           {props.rightIcon && <Avatar icon={props.rightIcon} />}
-          {props.switch && <Switch {...props.switch} />}
+          {props.switch && <Switch {...props.switch} accessibilityLabel={props.title} accessible accessibilityRole="switch" />}
           {props.checkmark && <ListItem.CheckBox iconType="octaicon" checkedColor="#0070FF" checkedIcon="check" checked />}
         </>
       )}
@@ -1280,6 +1270,9 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     }),
     [colors.lightBorder],
   );
+  const toolTip = useRef();
+  const copyToolTip = useRef();
+  const listItemRef = useRef();
 
   const title = useMemo(() => {
     if (item.confirmations === 0) {
@@ -1420,6 +1413,10 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     }
   }, [item]);
 
+  useEffect(() => {
+    setSubtitleNumberOfLines(1);
+  }, [subtitle]);
+
   const onPress = useCallback(async () => {
     if (item.hash) {
       navigate('TransactionStatus', { hash: item.hash });
@@ -1466,116 +1463,117 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   }, [item, wallets]);
 
   const onLongPress = useCallback(() => {
-    if (subtitleNumberOfLines === 1) {
-      setSubtitleNumberOfLines(0);
-    }
-  }, [subtitleNumberOfLines]);
+    toolTip.current.showMenu();
+  }, []);
+
+  const handleOnExpandNote = useCallback(() => {
+    setSubtitleNumberOfLines(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subtitle]);
 
   const subtitleProps = useMemo(() => ({ numberOfLines: subtitleNumberOfLines }), [subtitleNumberOfLines]);
+  const handleOnCopyTap = useCallback(() => {
+    toolTip.current.hideMenu();
+    setTimeout(copyToolTip.current.showMenu, 205);
+  }, []);
+  const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle.replace(/[\s\\-]/g, '')), [rowTitle]);
+  const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
+  const handleOnCopyNote = useCallback(() => Clipboard.setString(subtitle), [subtitle]);
+  const handleOnViewOnBlockExplorer = useCallback(() => {
+    const url = `https://blockstream.info/tx/${item.hash}`;
+    Linking.canOpenURL(url).then(supported => {
+      if (supported) {
+        Linking.openURL(url);
+      }
+    });
+  }, [item.hash]);
+  const handleCopyOpenInBlockExplorerPress = useCallback(() => {
+    Clipboard.setString(`https://blockstream.info/tx/${item.hash}`);
+  }, [item.hash]);
+  const toolTipActions = useMemo(() => {
+    const actions = [
+      {
+        id: 'copy',
+        text: loc.transactions.details_copy,
+        onPress: handleOnCopyTap,
+      },
+    ];
+    if (item.hash) {
+      actions.push({
+        id: 'open_in_blockExplorer',
+        text: loc.transactions.details_show_in_block_explorer,
+        onPress: handleOnViewOnBlockExplorer,
+      });
+    }
+    if (subtitle && subtitleNumberOfLines === 1) {
+      actions.push({
+        id: 'expandNote',
+        text: loc.transactions.expand_note,
+        onPress: handleOnExpandNote,
+      });
+    }
+    return actions;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
+
+  const copyToolTipActions = useMemo(() => {
+    const actions = [];
+    if (rowTitle !== loc.lnd.expired) {
+      actions.push({
+        id: 'copyAmount',
+        text: loc.send.create_amount,
+        onPress: handleOnCopyAmountTap,
+      });
+    }
+
+    if (item.hash) {
+      actions.push(
+        {
+          id: 'copyTX_ID',
+          text: loc.transactions.txid,
+          onPress: handleOnCopyTransactionID,
+        },
+        {
+          id: 'copy_blockExplorer',
+          text: loc.transactions.block_explorer_link,
+          onPress: handleCopyOpenInBlockExplorerPress,
+        },
+      );
+    }
+    if (subtitle) {
+      actions.push({
+        id: 'copyNote',
+        text: loc.transactions.note,
+        onPress: handleOnCopyNote,
+      });
+    }
+    return actions;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toolTipActions]);
 
   return (
-    <View style={{ marginHorizontal: 4 }}>
-      <BlueListItem
-        leftAvatar={avatar}
-        title={title}
-        titleNumberOfLines={subtitleNumberOfLines}
-        subtitle={subtitle}
-        subtitleProps={subtitleProps}
-        onPress={onPress}
-        onLongPress={onLongPress}
-        chevron={false}
-        Component={TouchableOpacity}
-        rightTitle={rowTitle}
-        rightTitleStyle={rowTitleStyle}
-        containerStyle={containerStyle}
-      />
-    </View>
+    <TouchableWithoutFeedback ref={listItemRef}>
+      <View style={{ marginHorizontal: 4 }}>
+        <ToolTipMenu ref={toolTip} anchorRef={listItemRef} actions={toolTipActions} />
+        <ToolTipMenu ref={copyToolTip} anchorRef={listItemRef} actions={copyToolTipActions} />
+        <BlueListItem
+          leftAvatar={avatar}
+          title={title}
+          subtitleNumberOfLines={subtitleNumberOfLines}
+          subtitle={subtitle}
+          subtitleProps={subtitleProps}
+          onPress={onPress}
+          chevron={false}
+          Component={TouchableOpacity}
+          rightTitle={rowTitle}
+          rightTitleStyle={rowTitleStyle}
+          containerStyle={containerStyle}
+          onLongPress={onLongPress}
+        />
+      </View>
+    </TouchableWithoutFeedback>
   );
 });
-
-const isDesktop = getSystemName() === 'Mac OS X';
-export const BlueAddressInput = ({
-  isLoading = false,
-  address = '',
-  placeholder = loc.send.details_address,
-  onChangeText,
-  onBarScanned,
-  launchedBy,
-}) => {
-  const { colors } = useTheme();
-
-  return (
-    <View
-      style={{
-        flexDirection: 'row',
-        borderColor: colors.formBorder,
-        borderBottomColor: colors.formBorder,
-        borderWidth: 1.0,
-        borderBottomWidth: 0.5,
-        backgroundColor: colors.inputBackgroundColor,
-        minHeight: 44,
-        height: 44,
-        marginHorizontal: 20,
-        alignItems: 'center',
-        marginVertical: 8,
-        borderRadius: 4,
-      }}
-    >
-      <TextInput
-        testID="AddressInput"
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        numberOfLines={1}
-        placeholderTextColor="#81868e"
-        value={address}
-        style={{ flex: 1, marginHorizontal: 8, minHeight: 33, color: '#81868e' }}
-        editable={!isLoading}
-        onSubmitEditing={Keyboard.dismiss}
-      />
-      <TouchableOpacity
-        testID="BlueAddressInputScanQrButton"
-        disabled={isLoading}
-        onPress={() => {
-          Keyboard.dismiss();
-          if (isDesktop) {
-            fs.showActionSheet().then(onBarScanned);
-          } else {
-            NavigationService.navigate('ScanQRCodeRoot', {
-              screen: 'ScanQRCode',
-              params: {
-                launchedBy,
-                onBarScanned,
-              },
-            });
-          }
-        }}
-        style={{
-          height: 36,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          backgroundColor: colors.scanLabel,
-          borderRadius: 4,
-          paddingVertical: 4,
-          paddingHorizontal: 8,
-          marginHorizontal: 4,
-        }}
-      >
-        <Image style={{}} source={require('./img/scan-white.png')} />
-        <Text style={{ marginLeft: 4, color: colors.inverseForegroundColor }}>{loc.send.details_scan}</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
-
-BlueAddressInput.propTypes = {
-  isLoading: PropTypes.bool,
-  onChangeText: PropTypes.func,
-  onBarScanned: PropTypes.func.isRequired,
-  launchedBy: PropTypes.string.isRequired,
-  address: PropTypes.string,
-  placeholder: PropTypes.string,
-};
 
 export class BlueReplaceFeeSuggestions extends Component {
   static propTypes = {
@@ -1732,272 +1730,6 @@ export class BlueReplaceFeeSuggestions extends Component {
   }
 }
 
-export class BlueBitcoinAmount extends Component {
-  static propTypes = {
-    isLoading: PropTypes.bool,
-    /**
-     * amount is a sting thats always in current unit denomination, e.g. '0.001' or '9.43' or '10000'
-     */
-    amount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    /**
-     * callback that returns currently typed amount, in current denomination, e.g. 0.001 or 10000 or $9.34
-     * (btc, sat, fiat)
-     */
-    onChangeText: PropTypes.func,
-    /**
-     * callback thats fired to notify of currently selected denomination, returns <BitcoinUnit.*>
-     */
-    onAmountUnitChange: PropTypes.func,
-    disabled: PropTypes.bool,
-  };
-
-  /**
-   * cache of conversions  fiat amount => satoshi
-   * @type {{}}
-   */
-  static conversionCache = {};
-
-  static getCachedSatoshis(amount) {
-    return BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY] || false;
-  }
-
-  static setCachedSatoshis(amount, sats) {
-    BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY] = sats;
-  }
-
-  constructor(props) {
-    super(props);
-    this.state = { unit: props.unit || BitcoinUnit.BTC, previousUnit: BitcoinUnit.SATS };
-  }
-
-  /**
-   * here we must recalculate old amont value (which was denominated in `previousUnit`) to new denomination `newUnit`
-   * and fill this value in input box, so user can switch between, for example, 0.001 BTC <=> 100000 sats
-   *
-   * @param previousUnit {string} one of {BitcoinUnit.*}
-   * @param newUnit {string} one of {BitcoinUnit.*}
-   */
-  onAmountUnitChange(previousUnit, newUnit) {
-    const amount = this.props.amount || 0;
-    console.log('was:', amount, previousUnit, '; converting to', newUnit);
-    let sats = 0;
-    switch (previousUnit) {
-      case BitcoinUnit.BTC:
-        sats = new BigNumber(amount).multipliedBy(100000000).toString();
-        break;
-      case BitcoinUnit.SATS:
-        sats = amount;
-        break;
-      case BitcoinUnit.LOCAL_CURRENCY:
-        sats = new BigNumber(currency.fiatToBTC(amount)).multipliedBy(100000000).toString();
-        break;
-    }
-    if (previousUnit === BitcoinUnit.LOCAL_CURRENCY && BlueBitcoinAmount.conversionCache[amount + previousUnit]) {
-      // cache hit! we reuse old value that supposedly doesnt have rounding errors
-      sats = BlueBitcoinAmount.conversionCache[amount + previousUnit];
-    }
-    console.log('so, in sats its', sats);
-
-    const newInputValue = formatBalancePlain(sats, newUnit, false);
-    console.log('and in', newUnit, 'its', newInputValue);
-
-    if (newUnit === BitcoinUnit.LOCAL_CURRENCY && previousUnit === BitcoinUnit.SATS) {
-      // we cache conversion, so when we will need reverse conversion there wont be a rounding error
-      BlueBitcoinAmount.conversionCache[newInputValue + newUnit] = amount;
-    }
-    this.props.onChangeText(newInputValue);
-    if (this.props.onAmountUnitChange) this.props.onAmountUnitChange(newUnit);
-  }
-
-  /**
-   * responsible for cycling currently selected denomination, BTC->SAT->LOCAL_CURRENCY->BTC
-   */
-  changeAmountUnit = () => {
-    let previousUnit = this.state.unit;
-    let newUnit;
-    if (previousUnit === BitcoinUnit.BTC) {
-      newUnit = BitcoinUnit.SATS;
-    } else if (previousUnit === BitcoinUnit.SATS) {
-      newUnit = BitcoinUnit.LOCAL_CURRENCY;
-    } else if (previousUnit === BitcoinUnit.LOCAL_CURRENCY) {
-      newUnit = BitcoinUnit.BTC;
-    } else {
-      newUnit = BitcoinUnit.BTC;
-      previousUnit = BitcoinUnit.SATS;
-    }
-    this.setState({ unit: newUnit, previousUnit }, () => this.onAmountUnitChange(previousUnit, newUnit));
-  };
-
-  maxLength = () => {
-    switch (this.state.unit) {
-      case BitcoinUnit.BTC:
-        return 10;
-      case BitcoinUnit.SATS:
-        return 15;
-      default:
-        return 15;
-    }
-  };
-
-  textInput = React.createRef();
-
-  handleTextInputOnPress = () => {
-    this.textInput.current.focus();
-  };
-
-  render() {
-    const amount = this.props.amount || 0;
-    let secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
-
-    // if main display is sat or btc - secondary display is fiat
-    // if main display is fiat - secondary dislay is btc
-    let sat;
-    switch (this.state.unit) {
-      case BitcoinUnit.BTC:
-        sat = new BigNumber(amount).multipliedBy(100000000).toString();
-        secondaryDisplayCurrency = formatBalanceWithoutSuffix(sat, BitcoinUnit.LOCAL_CURRENCY, false);
-        break;
-      case BitcoinUnit.SATS:
-        secondaryDisplayCurrency = formatBalanceWithoutSuffix((isNaN(amount) ? 0 : amount).toString(), BitcoinUnit.LOCAL_CURRENCY, false);
-        break;
-      case BitcoinUnit.LOCAL_CURRENCY:
-        secondaryDisplayCurrency = currency.fiatToBTC(parseFloat(isNaN(amount) ? 0 : amount));
-        if (BlueBitcoinAmount.conversionCache[isNaN(amount) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY]) {
-          // cache hit! we reuse old value that supposedly doesn't have rounding errors
-          const sats = BlueBitcoinAmount.conversionCache[isNaN(amount) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY];
-          secondaryDisplayCurrency = currency.satoshiToBTC(sats);
-        }
-        break;
-    }
-
-    if (amount === BitcoinUnit.MAX) secondaryDisplayCurrency = ''; // we don't want to display NaN
-    return (
-      <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          {!this.props.disabled && <View style={{ alignSelf: 'center', padding: amount === BitcoinUnit.MAX ? 0 : 15 }} />}
-          <View style={{ flex: 1 }}>
-            <View
-              style={{ flexDirection: 'row', alignContent: 'space-between', justifyContent: 'center', paddingTop: 16, paddingBottom: 2 }}
-            >
-              {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
-                <Text
-                  style={{
-                    color: this.props.disabled
-                      ? BlueCurrentTheme.colors.buttonDisabledTextColor
-                      : BlueCurrentTheme.colors.alternativeTextColor2,
-                    fontSize: 18,
-                    marginHorizontal: 4,
-                    fontWeight: 'bold',
-                    alignSelf: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {currency.getCurrencySymbol() + ' '}
-                </Text>
-              )}
-              <TextInput
-                {...this.props}
-                testID="BitcoinAmountInput"
-                keyboardType="numeric"
-                adjustsFontSizeToFit
-                onChangeText={text => {
-                  text = text.trim();
-                  if (this.state.unit !== BitcoinUnit.LOCAL_CURRENCY) {
-                    text = text.replace(',', '.');
-                    const split = text.split('.');
-                    if (split.length >= 2) {
-                      text = `${parseInt(split[0], 10)}.${split[1]}`;
-                    } else {
-                      text = `${parseInt(split[0], 10)}`;
-                    }
-
-                    text = this.state.unit === BitcoinUnit.BTC ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
-
-                    if (text.startsWith('.')) {
-                      text = '0.';
-                    }
-                  } else if (this.state.unit === BitcoinUnit.LOCAL_CURRENCY) {
-                    text = text.replace(/,/gi, '');
-                    if (text.split('.').length > 2) {
-                      // too many dots. stupid code to remove all but first dot:
-                      let rez = '';
-                      let first = true;
-                      for (const part of text.split('.')) {
-                        rez += part;
-                        if (first) {
-                          rez += '.';
-                          first = false;
-                        }
-                      }
-                      text = rez;
-                    }
-                    text = text.replace(/[^\d.,-]/g, ''); // remove all but numbers, dots & commas
-                    text = text.replace(/(\..*)\./g, '$1');
-                  }
-                  this.props.onChangeText(text);
-                }}
-                onBlur={() => {
-                  if (this.props.onBlur) this.props.onBlur();
-                }}
-                onFocus={() => {
-                  if (this.props.onFocus) this.props.onFocus();
-                }}
-                placeholder="0"
-                maxLength={this.maxLength()}
-                ref={textInput => (this.textInput = textInput)}
-                editable={!this.props.isLoading && !this.props.disabled}
-                value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? amount : undefined}
-                placeholderTextColor={
-                  this.props.disabled ? BlueCurrentTheme.colors.buttonDisabledTextColor : BlueCurrentTheme.colors.alternativeTextColor2
-                }
-                style={{
-                  color: this.props.disabled
-                    ? BlueCurrentTheme.colors.buttonDisabledTextColor
-                    : BlueCurrentTheme.colors.alternativeTextColor2,
-                  fontWeight: 'bold',
-                  fontSize: amount.length > 10 ? 20 : 36,
-                }}
-              />
-              {this.state.unit !== BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
-                <Text
-                  style={{
-                    color: this.props.disabled
-                      ? BlueCurrentTheme.colors.buttonDisabledTextColor
-                      : BlueCurrentTheme.colors.alternativeTextColor2,
-                    fontSize: 15,
-                    marginHorizontal: 4,
-                    fontWeight: '600',
-                    alignSelf: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {' ' + loc.units[this.state.unit]}
-                </Text>
-              )}
-            </View>
-            <View style={{ alignItems: 'center', marginBottom: 22 }}>
-              <Text style={{ fontSize: 16, color: '#9BA0A9', fontWeight: '600' }}>
-                {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX
-                  ? removeTrailingZeros(secondaryDisplayCurrency)
-                  : secondaryDisplayCurrency}
-                {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX ? ` ${loc.units[BitcoinUnit.BTC]}` : null}
-              </Text>
-            </View>
-          </View>
-          {!this.props.disabled && amount !== BitcoinUnit.MAX && (
-            <TouchableOpacity
-              testID="changeAmountUnitButton"
-              style={{ alignSelf: 'center', marginRight: 16, paddingLeft: 16, paddingVertical: 16 }}
-              onPress={this.changeAmountUnit}
-            >
-              <Image source={require('./img/round-compare-arrows-24-px.png')} />
-            </TouchableOpacity>
-          )}
-        </View>
-      </TouchableWithoutFeedback>
-    );
-  }
-}
 const styles = StyleSheet.create({
   balanceBlur: {
     height: 30,
@@ -2077,7 +1809,7 @@ export class DynamicQRCode extends Component {
   fragments = [];
 
   componentDidMount() {
-    const { value, capacity = 800 } = this.props;
+    const { value, capacity = 200 } = this.props;
     this.fragments = encodeUR(value, capacity);
     this.setState(
       {

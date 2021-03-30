@@ -19,10 +19,15 @@ function pubkeyToP2shSegwitAddress(pubkey, network) {
 export class SegwitP2SHWallet extends LegacyWallet {
   static type = 'segwitP2SH';
   static typeReadable = 'SegWit (P2SH)';
+  static segwitType = 'p2sh(p2wpkh)';
 
   static witnessToAddress(witness) {
-    const pubKey = Buffer.from(witness, 'hex');
-    return pubkeyToP2shSegwitAddress(pubKey);
+    try {
+      const pubKey = Buffer.from(witness, 'hex');
+      return pubkeyToP2shSegwitAddress(pubKey);
+    } catch (_) {
+      return false;
+    }
   }
 
   /**
@@ -32,17 +37,15 @@ export class SegwitP2SHWallet extends LegacyWallet {
    * @returns {boolean|string} Either p2sh address or false
    */
   static scriptPubKeyToAddress(scriptPubKey) {
-    const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
-    let ret;
     try {
-      ret = bitcoin.payments.p2sh({
+      const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
+      return bitcoin.payments.p2sh({
         output: scriptPubKey2,
         network: bitcoin.networks.bitcoin,
       }).address;
     } catch (_) {
       return false;
     }
-    return ret;
   }
 
   getAddress() {
@@ -136,7 +139,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
     return { tx, inputs, outputs, fee, psbt };
   }
 
-  allowSendMax() {
+  allowSignVerifyMessage() {
     return true;
   }
 }

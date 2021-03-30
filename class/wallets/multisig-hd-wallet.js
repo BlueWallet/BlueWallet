@@ -105,10 +105,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
   }
 
-  getDerivationPath() {
-    return this._derivationPath;
-  }
-
   getCustomDerivationPathForCosigner(index) {
     if (index === 0) throw new Error('cosigners indexation starts from 1');
     if (index > this.getN()) return false;
@@ -311,18 +307,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   /**
-   * @param mnemonic {string} Mnemonic seed phrase
-   * @returns {string} Hex string of fingerprint derived from mnemonics. Always has lenght of 8 chars and correct leading zeroes
-   */
-  static seedToFingerprint(mnemonic) {
-    const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.bip32.fromSeed(seed);
-    let hex = root.fingerprint.toString('hex');
-    while (hex.length < 8) hex = '0' + hex; // leading zeroes
-    return hex.toUpperCase();
-  }
-
-  /**
    * Returns xpub with correct prefix accodting to this objects set derivation path, for example 'Zpub' (with
    * capital Z) for bech32 multisig
    * @see https://github.com/satoshilabs/slips/blob/master/slip-0132.md
@@ -480,7 +464,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
 
     // is it electrum json?
-    if (json && json.wallet_type) {
+    if (json && json.wallet_type && json.wallet_type !== 'standard') {
       const mofn = json.wallet_type.split('of');
       this.setM(parseInt(mofn[0].trim()));
       const n = parseInt(mofn[1].trim());
@@ -606,6 +590,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           this.setLegacy();
           break;
         case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+        case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
           this.setWrappedSegwit();
           break;
         default:
@@ -840,9 +825,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       psbt.addOutput(outputData);
     });
 
-    let signaturesMade = 0;
     if (!skipSigning) {
       for (let cc = 0; cc < c; cc++) {
+        let signaturesMade = 0;
         for (const cosigner of this._cosigners) {
           if (!MultisigHDWallet.isXpubString(cosigner)) {
             // ok this is a mnemonic, lets try to sign
@@ -1105,10 +1090,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   static isFpValid(fp) {
     if (fp.length !== 8) return false;
     return /^[0-9A-F]{8}$/i.test(fp);
-  }
-
-  allowBatchSend() {
-    return true;
   }
 
   /**

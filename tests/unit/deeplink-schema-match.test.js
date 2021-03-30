@@ -1,4 +1,3 @@
-/* global describe, it, jest */
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 const assert = require('assert');
 jest.useFakeTimers();
@@ -199,6 +198,81 @@ describe('unit - DeepLinkSchemaMatch', function () {
             params: {
               uri:
                 'https://lnbits.com/?lightning=LNURL1DP68GURN8GHJ7MRWVF5HGUEWVDHK6TMHD96XSERJV9MJ7CTSDYHHVVF0D3H82UNV9UM9JDENFPN5SMMK2359J5RKWVMKZ5ZVWAV4VJD63TM',
+            },
+          },
+        ],
+      },
+      {
+        argument: {
+          url: require('fs').readFileSync('./tests/unit/fixtures/skeleton-cobo.txt', 'ascii'),
+        },
+        expected: [
+          'AddWalletRoot',
+          {
+            screen: 'ImportWallet',
+            params: {
+              triggerImport: true,
+              label: require('fs').readFileSync('./tests/unit/fixtures/skeleton-cobo.txt', 'ascii'),
+            },
+          },
+        ],
+      },
+      {
+        argument: {
+          url: require('fs').readFileSync('./tests/unit/fixtures/skeleton-coldcard.txt', 'ascii'),
+        },
+        expected: [
+          'AddWalletRoot',
+          {
+            screen: 'ImportWallet',
+            params: {
+              triggerImport: true,
+              label: require('fs').readFileSync('./tests/unit/fixtures/skeleton-coldcard.txt', 'ascii'),
+            },
+          },
+        ],
+      },
+      {
+        argument: {
+          url: require('fs').readFileSync('./tests/unit/fixtures/skeleton-electrum.txt', 'ascii'),
+        },
+        expected: [
+          'AddWalletRoot',
+          {
+            screen: 'ImportWallet',
+            params: {
+              triggerImport: true,
+              label: require('fs').readFileSync('./tests/unit/fixtures/skeleton-electrum.txt', 'ascii'),
+            },
+          },
+        ],
+      },
+      {
+        argument: {
+          url: require('fs').readFileSync('./tests/unit/fixtures/skeleton-walletdescriptor.txt', 'ascii'),
+        },
+        expected: [
+          'AddWalletRoot',
+          {
+            screen: 'ImportWallet',
+            params: {
+              triggerImport: true,
+              label: require('fs').readFileSync('./tests/unit/fixtures/skeleton-walletdescriptor.txt', 'ascii'),
+            },
+          },
+        ],
+      },
+      {
+        argument: {
+          url: 'zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx',
+        },
+        expected: [
+          'AddWalletRoot',
+          {
+            screen: 'ImportWallet',
+            params: {
+              triggerImport: true,
+              label: 'zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx',
             },
           },
         ],

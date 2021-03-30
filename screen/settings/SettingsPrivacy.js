@@ -86,7 +86,7 @@ const SettingsPrivacy = () => {
         hideChevron
         title={loc.settings.privacy_read_clipboard}
         Component={TouchableWithoutFeedback}
-        switch={{ onValueChange, value: isReadClipboardAllowed, disabled: isLoading === sections.ALL }}
+        switch={{ onValueChange, value: isReadClipboardAllowed, disabled: isLoading === sections.ALL, testID: 'ClipboardSwith' }}
       />
       <BlueCard>
         <BlueText>{loc.settings.privacy_clipboard_explanation}</BlueText>
@@ -98,7 +98,12 @@ const SettingsPrivacy = () => {
             hideChevron
             title={loc.settings.privacy_quickactions}
             Component={TouchableWithoutFeedback}
-            switch={{ onValueChange: onQuickActionsValueChange, value: isQuickActionsEnabled, disabled: isLoading === sections.ALL }}
+            switch={{
+              onValueChange: onQuickActionsValueChange,
+              value: isQuickActionsEnabled,
+              disabled: isLoading === sections.ALL,
+              testID: 'QuickActionsSwith',
+            }}
           />
           <BlueCard>
             <BlueText>{loc.settings.privacy_quickactions_explanation}</BlueText>
@@ -124,7 +129,7 @@ const SettingsPrivacy = () => {
         </>
       )}
       <BlueSpacing20 />
-      <BlueListItem title={loc.settings.privacy_system_settings} chevron onPress={openApplicationSettings} />
+      <BlueListItem title={loc.settings.privacy_system_settings} chevron onPress={openApplicationSettings} testID="PrivacySystemSettings" />
       <BlueSpacing20 />
     </ScrollView>
   );
@@ -136,8 +141,6 @@ const styles = StyleSheet.create({
   },
 });
 
-SettingsPrivacy.navigationOptions = navigationStyle({
-  title: loc.settings.privacy,
-});
+SettingsPrivacy.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.privacy }));
 
 export default SettingsPrivacy;

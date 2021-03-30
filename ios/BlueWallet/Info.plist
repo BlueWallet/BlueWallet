@@ -155,13 +155,13 @@
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Your authorization is required in order to provide you local offers.</string>
+	<string>This alert should not show up as we do not require this data</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSMotionUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
+	<string>Your authorization is required to save this image.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>In order to import an image for scanning, we need your permission to access your photo library.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

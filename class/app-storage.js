@@ -14,9 +14,9 @@ import {
   LightningCustodianWallet,
   HDLegacyElectrumSeedP2PKHWallet,
   HDSegwitElectrumSeedP2WPKHWallet,
+  HDAezeedWallet,
   MultisigHDWallet,
 } from './';
-import { Platform } from 'react-native';
 const encryption = require('../blue_modules/encryption');
 const Realm = require('realm');
 const createHash = require('create-hash');
@@ -33,10 +33,10 @@ export class AppStorage {
   static ELECTRUM_SERVER_HISTORY = 'electrum_server_history';
   static PREFERRED_CURRENCY = 'preferredCurrency';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
-  static DELETE_WALLET_AFTER_UNINSTALL = 'deleteWalletAfterUninstall';
   static HODL_HODL_API_KEY = 'HODL_HODL_API_KEY';
   static HODL_HODL_SIGNATURE_KEY = 'HODL_HODL_SIGNATURE_KEY';
   static HODL_HODL_CONTRACTS = 'HODL_HODL_CONTRACTS';
+  static HANDOFF_STORAGE_KEY = 'HandOff';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
@@ -76,17 +76,6 @@ export class AppStorage {
     }
   };
 
-  setResetOnAppUninstallTo = async value => {
-    if (Platform.OS === 'ios') {
-      await this.setItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL, value ? '1' : '');
-      try {
-        RNSecureKeyStore.setResetOnAppUninstallTo(value);
-      } catch (Error) {
-        console.warn(Error);
-      }
-    }
-  };
-
   storageIsEncrypted = async () => {
     let data;
     try {
@@ -121,11 +110,7 @@ export class AppStorage {
     let decrypted;
     let num = 0;
     for (const value of data) {
-      try {
-        decrypted = encryption.decrypt(value, password);
-      } catch (e) {
-        console.log(e.message);
-      }
+      decrypted = encryption.decrypt(value, password);
 
       if (decrypted) {
         usedBucketNum = num;
@@ -140,7 +125,6 @@ export class AppStorage {
   decryptStorage = async password => {
     if (password === this.cachedPassword) {
       this.cachedPassword = undefined;
-      await this.setResetOnAppUninstallTo(true);
       await this.saveToDisk();
       this.wallets = [];
       this.tx_metadata = [];
@@ -148,16 +132,6 @@ export class AppStorage {
     } else {
       throw new Error('Incorrect password. Please, try again.');
     }
-  };
-
-  isDeleteWalletAfterUninstallEnabled = async () => {
-    let deleteWalletsAfterUninstall;
-    try {
-      deleteWalletsAfterUninstall = await this.getItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
-    } catch (_e) {
-      deleteWalletsAfterUninstall = true;
-    }
-    return !!deleteWalletsAfterUninstall;
   };
 
   encryptStorage = async password => {
@@ -242,106 +216,104 @@ export class AppStorage {
    * @returns {Promise.<boolean>}
    */
   async loadFromDisk(password) {
-    try {
-      let data = await this.getItem('data');
-      if (password) {
-        data = this.decryptData(data, password);
-        if (data) {
-          // password is good, cache it
-          this.cachedPassword = password;
-        }
+    let data = await this.getItem('data');
+    if (password) {
+      data = this.decryptData(data, password);
+      if (data) {
+        // password is good, cache it
+        this.cachedPassword = password;
       }
-      if (data !== null) {
-        const realm = await this.getRealm();
-        data = JSON.parse(data);
-        if (!data.wallets) return false;
-        const wallets = data.wallets;
-        for (const key of wallets) {
-          // deciding which type is wallet and instatiating correct object
-          const tempObj = JSON.parse(key);
-          let unserializedWallet;
-          switch (tempObj.type) {
-            case PlaceholderWallet.type:
+    }
+    if (data !== null) {
+      const realm = await this.getRealm();
+      data = JSON.parse(data);
+      if (!data.wallets) return false;
+      const wallets = data.wallets;
+      for (const key of wallets) {
+        // deciding which type is wallet and instatiating correct object
+        const tempObj = JSON.parse(key);
+        let unserializedWallet;
+        switch (tempObj.type) {
+          case PlaceholderWallet.type:
+            continue;
+          case SegwitBech32Wallet.type:
+            unserializedWallet = SegwitBech32Wallet.fromJson(key);
+            break;
+          case SegwitP2SHWallet.type:
+            unserializedWallet = SegwitP2SHWallet.fromJson(key);
+            break;
+          case WatchOnlyWallet.type:
+            unserializedWallet = WatchOnlyWallet.fromJson(key);
+            unserializedWallet.init();
+            if (unserializedWallet.isHd() && !unserializedWallet.isXpubValid()) {
               continue;
-            case SegwitBech32Wallet.type:
-              unserializedWallet = SegwitBech32Wallet.fromJson(key);
-              break;
-            case SegwitP2SHWallet.type:
-              unserializedWallet = SegwitP2SHWallet.fromJson(key);
-              break;
-            case WatchOnlyWallet.type:
-              unserializedWallet = WatchOnlyWallet.fromJson(key);
-              unserializedWallet.init();
-              if (unserializedWallet.isHd() && !unserializedWallet.isXpubValid()) {
-                continue;
-              }
-              break;
-            case HDLegacyP2PKHWallet.type:
-              unserializedWallet = HDLegacyP2PKHWallet.fromJson(key);
-              break;
-            case HDSegwitP2SHWallet.type:
-              unserializedWallet = HDSegwitP2SHWallet.fromJson(key);
-              break;
-            case HDSegwitBech32Wallet.type:
-              unserializedWallet = HDSegwitBech32Wallet.fromJson(key);
-              break;
-            case HDLegacyBreadwalletWallet.type:
-              unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key);
-              break;
-            case HDLegacyElectrumSeedP2PKHWallet.type:
-              unserializedWallet = HDLegacyElectrumSeedP2PKHWallet.fromJson(key);
-              break;
-            case HDSegwitElectrumSeedP2WPKHWallet.type:
-              unserializedWallet = HDSegwitElectrumSeedP2WPKHWallet.fromJson(key);
-              break;
-            case MultisigHDWallet.type:
-              unserializedWallet = MultisigHDWallet.fromJson(key);
-              break;
-            case LightningCustodianWallet.type: {
-              /** @type {LightningCustodianWallet} */
-              unserializedWallet = LightningCustodianWallet.fromJson(key);
-              let lndhub = false;
-              try {
-                lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
-              } catch (Error) {
-                console.warn(Error);
-              }
-
-              if (unserializedWallet.baseURI) {
-                unserializedWallet.setBaseURI(unserializedWallet.baseURI); // not really necessary, just for the sake of readability
-                console.log('using saved uri for for ln wallet:', unserializedWallet.baseURI);
-              } else if (lndhub) {
-                console.log('using wallet-wide settings ', lndhub, 'for ln wallet');
-                unserializedWallet.setBaseURI(lndhub);
-              } else {
-                console.log('using default', LightningCustodianWallet.defaultBaseUri, 'for ln wallet');
-                unserializedWallet.setBaseURI(LightningCustodianWallet.defaultBaseUri);
-              }
-              unserializedWallet.init();
-              break;
             }
-            case LegacyWallet.type:
-            default:
-              unserializedWallet = LegacyWallet.fromJson(key);
-              break;
-          }
+            break;
+          case HDLegacyP2PKHWallet.type:
+            unserializedWallet = HDLegacyP2PKHWallet.fromJson(key);
+            break;
+          case HDSegwitP2SHWallet.type:
+            unserializedWallet = HDSegwitP2SHWallet.fromJson(key);
+            break;
+          case HDSegwitBech32Wallet.type:
+            unserializedWallet = HDSegwitBech32Wallet.fromJson(key);
+            break;
+          case HDLegacyBreadwalletWallet.type:
+            unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key);
+            break;
+          case HDLegacyElectrumSeedP2PKHWallet.type:
+            unserializedWallet = HDLegacyElectrumSeedP2PKHWallet.fromJson(key);
+            break;
+          case HDSegwitElectrumSeedP2WPKHWallet.type:
+            unserializedWallet = HDSegwitElectrumSeedP2WPKHWallet.fromJson(key);
+            break;
+          case MultisigHDWallet.type:
+            unserializedWallet = MultisigHDWallet.fromJson(key);
+            break;
+          case HDAezeedWallet.type:
+            unserializedWallet = HDAezeedWallet.fromJson(key);
+            break;
+          case LightningCustodianWallet.type: {
+            /** @type {LightningCustodianWallet} */
+            unserializedWallet = LightningCustodianWallet.fromJson(key);
+            let lndhub = false;
+            try {
+              lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
+            } catch (Error) {
+              console.warn(Error);
+            }
 
-          this.inflateWalletFromRealm(realm, unserializedWallet);
-
-          // done
-          if (!this.wallets.some(wallet => wallet.getSecret() === unserializedWallet.secret)) {
-            this.wallets.push(unserializedWallet);
-            this.tx_metadata = data.tx_metadata;
+            if (unserializedWallet.baseURI) {
+              unserializedWallet.setBaseURI(unserializedWallet.baseURI); // not really necessary, just for the sake of readability
+              console.log('using saved uri for for ln wallet:', unserializedWallet.baseURI);
+            } else if (lndhub) {
+              console.log('using wallet-wide settings ', lndhub, 'for ln wallet');
+              unserializedWallet.setBaseURI(lndhub);
+            } else {
+              console.log('using default', LightningCustodianWallet.defaultBaseUri, 'for ln wallet');
+              unserializedWallet.setBaseURI(LightningCustodianWallet.defaultBaseUri);
+            }
+            unserializedWallet.init();
+            break;
           }
+          case LegacyWallet.type:
+          default:
+            unserializedWallet = LegacyWallet.fromJson(key);
+            break;
         }
-        realm.close();
-        return true;
-      } else {
-        return false; // failed loading data or loading/decryptin data
+
+        this.inflateWalletFromRealm(realm, unserializedWallet);
+
+        // done
+        if (!this.wallets.some(wallet => wallet.getSecret() === unserializedWallet.secret)) {
+          this.wallets.push(unserializedWallet);
+          this.tx_metadata = data.tx_metadata;
+        }
       }
-    } catch (error) {
-      console.warn(error.message);
-      return false;
+      realm.close();
+      return true;
+    } else {
+      return false; // failed loading data or loading/decryptin data
     }
   }
 

@@ -1,4 +1,4 @@
-import { AppStorage, LightningCustodianWallet } from './';
+import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from './';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import url from 'url';
@@ -47,7 +47,6 @@ class DeeplinkSchemaMatch {
       if (context.wallets.length >= 0) {
         const wallet = context.wallets[0];
         const action = event.url.split('widget?action=')[1];
-        const secret = wallet.getSecret();
         if (wallet.chain === Chain.ONCHAIN) {
           if (action === 'openSend') {
             completionHandler([
@@ -55,7 +54,7 @@ class DeeplinkSchemaMatch {
               {
                 screen: 'SendDetails',
                 params: {
-                  secret,
+                  walletID: wallet.getID(),
                 },
               },
             ]);
@@ -177,6 +176,17 @@ class DeeplinkSchemaMatch {
         {
           screen: 'AztecoRedeem',
           params: Azteco.getParamsFromUrl(event.url),
+        },
+      ]);
+    } else if (new WatchOnlyWallet().setSecret(event.url).init().valid()) {
+      completionHandler([
+        'AddWalletRoot',
+        {
+          screen: 'ImportWallet',
+          params: {
+            triggerImport: true,
+            label: event.url,
+          },
         },
       ]);
     } else {
@@ -322,7 +332,7 @@ class DeeplinkSchemaMatch {
           screen: 'SendDetails',
           params: {
             uri: uri.bitcoin,
-            fromWallet: wallet,
+            walletID: wallet.getID(),
           },
         },
       ];
