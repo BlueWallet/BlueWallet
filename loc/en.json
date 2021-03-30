@@ -322,7 +322,8 @@
     "success_transaction_broadcasted" : "Success! You transaction has been broadcasted!",
     "total_balance": "Total Balance",
     "total_balance_explanation": "Display the total balance of all your wallets on your home screen widgets.",
-    "widgets": "Widgets"
+    "widgets": "Widgets",
+    "tools": "Tools"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",
