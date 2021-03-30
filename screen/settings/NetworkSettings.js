@@ -17,10 +17,6 @@ const NetworkSettings = () => {
     navigate('LightningSettings');
   };
 
-  const navigateToBroadcast = () => {
-    navigate('Broadcast');
-  };
-
   return (
     <SafeBlueArea>
       <ScrollView>
