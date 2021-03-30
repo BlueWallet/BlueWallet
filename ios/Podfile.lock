@@ -377,7 +377,7 @@ PODS:
     - React-Core
   - RNReanimated (1.13.2):
     - React-Core
-  - RNScreens (2.18.0):
+  - RNScreens (2.18.1):
     - React-Core
   - RNSecureKeyStore (1.0.0):
     - React
@@ -737,7 +737,7 @@ SPEC CHECKSUMS:
   RNRate: 2b31dad120cd1b78e33c6034808561c386a3dddf
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
   RNReanimated: e03f7425cb7a38dcf1b644d680d1bfc91c3337ad
-  RNScreens: f0d7a2a440a8ba9f4574ca1ddb3368f473891be4
+  RNScreens: f7ad633b2e0190b77b6a7aab7f914fad6f198d8d
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: 1adaa43b01c6a3ab5091d4d1add66b7c58558898
   RNShare: 8af5349f05fc042d230674dd650d19789187ff9c
