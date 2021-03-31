@@ -6,24 +6,26 @@ import PropTypes from 'prop-types';
 export const LNNodeBar = props => {
   const { canReceive = 0, canSend = 0, nodeAlias = '', disabled = false } = props;
   const opacity = { opacity: disabled ? 0.28 : 1.0 };
-  const canReceiveBarFlex = { flex: canReceive > 0 && canSend > 0 ? Math.abs((canReceive - canSend) / (canReceive + canSend)) * 1.0 : 1.0 };
+  const canSendBarFlex = {
+    flex: canReceive > 0 && canSend > 0 ? Math.abs((canReceive - canSend) / (canReceive + canSend)) * 1.0 : 1.0,
+  };
   return (
     <View style={[styles.root, opacity]}>
       {nodeAlias.trim().length > 0 && <Text style={styles.nodeAlias}>{nodeAlias}</Text>}
-      <View style={styles.canSendBar}>
+      <View style={styles.canReceiveBar}>
         <View style={styles.fullFlexDirectionRow}>
-          <View style={[styles.canReceiveBar, canReceiveBarFlex]} />
+          <View style={[styles.canSendBar, canSendBarFlex]} />
         </View>
       </View>
 
       <View style={styles.containerBottomText}>
-        <View style={styles.containerBottomLeftText}>
-          <Text style={styles.titleText}>{loc.lnd.can_receive.toUpperCase()}</Text>
-          <Text style={styles.canReceive}>{canReceive}</Text>
-        </View>
         <View style={styles.containerBottomRightText}>
           <Text style={styles.titleText}>{loc.lnd.can_send.toUpperCase()}</Text>
           <Text style={styles.canSend}>{canSend}</Text>
+        </View>
+        <View style={styles.containerBottomLeftText}>
+          <Text style={styles.titleText}>{loc.lnd.can_receive.toUpperCase()}</Text>
+          <Text style={styles.canReceive}>{canReceive}</Text>
         </View>
       </View>
     </View>
@@ -70,10 +72,10 @@ const styles = StyleSheet.create({
   },
   canReceive: {
     color: '#57B996',
-    textAlign: 'left',
+    textAlign: 'right',
   },
   canSend: {
     color: '#4E6CF5',
-    textAlign: 'right',
+    textAlign: 'left',
   },
 });
