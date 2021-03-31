@@ -38,6 +38,19 @@ describe('Legacy wallet', () => {
     assert.strictEqual(tx.ins.length, 1);
     assert.strictEqual(tx.outs.length, 1);
     assert.strictEqual('1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB', bitcoin.address.fromOutputScript(tx.outs[0].script)); // to address
+
+    // batch send + send max
+    txNew = l.createTransaction(
+      utxos,
+      [{ address: '1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB' }, { address: 'bc1q3rl0mkyk0zrtxfmqn9wpcd3gnaz00yv9yp0hxe', value: 10000 }],
+      1,
+      l.getAddress(),
+    );
+    tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
+    assert.strictEqual(tx.ins.length, 1);
+    assert.strictEqual(tx.outs.length, 2);
+    assert.strictEqual('1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB', bitcoin.address.fromOutputScript(tx.outs[0].script)); // to address
+    assert.strictEqual('bc1q3rl0mkyk0zrtxfmqn9wpcd3gnaz00yv9yp0hxe', bitcoin.address.fromOutputScript(tx.outs[1].script)); // to address
   });
 
   it("throws error if you can't create wallet from this entropy", async () => {

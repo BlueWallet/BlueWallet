@@ -10,9 +10,9 @@ import SwiftUI
 import WidgetKit
 
 struct MarketView: View {
-  
+
   var marketData: MarketData = emptyMarketData
-  
+
     var body: some View {
       VStack(alignment: .leading, spacing:23 , content: {
         VStack(alignment: .leading, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/, content: {
@@ -25,7 +25,7 @@ struct MarketView: View {
               RoundedRectangle(cornerRadius: 4.0)
                 .stroke(Color.containerGreen, lineWidth: 4.0))
           })
-          
+
           Spacer()
           HStack(alignment: .center, spacing: 0, content: {
             Text("Sats/\(WidgetAPI.getUserPreferredCurrency())").bold().lineLimit(1).font(Font.system(size:11, weight: .medium, design: .default)).foregroundColor(.textColor)
@@ -46,7 +46,7 @@ struct MarketView: View {
       })
     }
 }
-  
+
 
 
 struct MarketView_Previews: PreviewProvider {
