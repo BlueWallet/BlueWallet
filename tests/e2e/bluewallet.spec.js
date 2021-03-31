@@ -141,6 +141,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('QuickActionsSwith')).tap();
     await element(by.id('QuickActionsSwith')).tap();
     await device.pressBack();
+    await device.pressBack();
 
     // about
     await element(by.id('AboutButton')).tap();
