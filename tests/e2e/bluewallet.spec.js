@@ -108,7 +108,22 @@ describe('BlueWallet UI Tests', () => {
     await element(by.text('OK')).tap();
     await device.pressBack();
 
-    // network -> broadcast
+     // notifications
+    // turn on notifications if available
+    await element(by.id('NotificationSettings')).tap();
+    if (await expectToBeVisible('NotificationSettings')) {
+      await element(by.id('NotificationsSwitch')).tap();
+      await sup('OK');
+      await element(by.text('OK')).tap();
+      await element(by.id('NotificationsSwitch')).tap();
+      await device.pressBack();
+      await device.pressBack();
+    }
+
+    // tools
+    await element(by.id('Tools')).tap();
+
+    // tools -> broadcast
     // try to broadcast wrong tx
     await element(by.id('Broadcast')).tap();
     await element(by.id('TxHex')).replaceText('invalid\n');
@@ -117,18 +132,6 @@ describe('BlueWallet UI Tests', () => {
     // await expect(element(by.text('the transaction was rejected by network rules....'))).toBeVisible();
     await element(by.text('OK')).tap();
     await device.pressBack();
-    await device.pressBack();
-
-    // notifications
-    // turn on notifications if available
-    if (await expectToBeVisible('NotificationSettings')) {
-      await element(by.id('NotificationSettings')).tap();
-      await element(by.id('NotificationsSwitch')).tap();
-      await sup('OK');
-      await element(by.text('OK')).tap();
-      await element(by.id('NotificationsSwitch')).tap();
-      await device.pressBack();
-    }
 
     // privacy
     // trigger switches
