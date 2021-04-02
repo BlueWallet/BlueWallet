@@ -40,13 +40,12 @@ const Language = () => {
       <BlueListItem
         onPress={() => {
           const currentLanguage = AvailableLanguages.find(language => language.value === selectedLanguage);
-          if (currentLanguage.isRTL || item.item.isRTL) {
-            alert(loc.settings.language_isRTL);
-          }
-
           loc.saveLanguage(item.item.value).then(() => {
             setSelectedLanguage(item.item.value);
             setLanguage();
+            if (currentLanguage.isRTL || item.item.isRTL) {
+              alert(loc.settings.language_isRTL);
+            }
           });
         }}
         title={item.item.label}
