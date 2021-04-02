@@ -187,7 +187,6 @@ const SendDetails = () => {
     if (!wallet) return;
     setSelectedWallet(wallet.getID());
     navigation.setParams({
-      withAdvancedOptionsMenuButton: wallet.allowBatchSend() || wallet.allowSendMax(),
       advancedOptionsMenuButtonAction: () => {
         Keyboard.dismiss();
         setOptionsVisible(true);
@@ -405,7 +404,7 @@ const SendDetails = () => {
       } else if (!transaction.address) {
         error = loc.send.details_address_field_is_not_valid;
         console.log('validation error');
-      } else if (wallet.getBalance() - transaction.amountSats < 0) {
+      } else if (balance - transaction.amountSats < 0) {
         // first sanity check is that sending amount is not bigger than available balance
         error = loc.send.details_total_exceeds_balance;
         console.log('validation error');
@@ -522,67 +521,8 @@ const SendDetails = () => {
   };
 
   const onWalletSelect = wallet => {
-    const changeWallet = () => {
-      setWallet(wallet);
-      navigation.pop();
-    };
-
-    if (addresses.length > 1 && !wallet.allowBatchSend()) {
-      ReactNativeHapticFeedback.trigger('notificationWarning');
-      Alert.alert(
-        loc.send.details_wallet_selection,
-        loc.send.details_no_multiple,
-        [
-          {
-            text: loc._.ok,
-            onPress: () => {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-              setAddresses(addresses => {
-                const firstTransaction =
-                  addresses.find(element => {
-                    const feeSatoshi = new BigNumber(element.amount).multipliedBy(100000000);
-                    return element.address.length > 0 && feeSatoshi > 0;
-                  }) || addresses[0];
-                return [firstTransaction];
-              });
-              changeWallet();
-            },
-            style: 'default',
-          },
-          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-        ],
-        { cancelable: false },
-      );
-      return;
-    }
-
-    if (addresses.some(element => element.amount === BitcoinUnit.MAX) && !wallet.allowSendMax()) {
-      ReactNativeHapticFeedback.trigger('notificationWarning');
-      Alert.alert(
-        loc.send.details_wallet_selection,
-        loc.send.details_no_maximum,
-        [
-          {
-            text: loc._.ok,
-            onPress: () => {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-              setAddresses(addresses => {
-                const firstTransaction = addresses.find(element => element.amount === BitcoinUnit.MAX) || addresses[0];
-                firstTransaction.amount = 0;
-                return [firstTransaction];
-              });
-              changeWallet();
-            },
-            style: 'default',
-          },
-          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-        ],
-        { cancelable: false },
-      );
-      return;
-    }
-
-    changeWallet();
+    setWallet(wallet);
+    navigation.pop();
   };
 
   /**
@@ -1050,20 +990,20 @@ const SendDetails = () => {
   };
 
   const renderOptionsModal = () => {
+    const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+
     return (
       <BottomModal deviceWidth={width + width / 2} isVisible={optionsVisible} onClose={hideOptions}>
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.optionsContent, stylesHook.optionsContent]}>
-            {wallet.allowSendMax() && (
-              <BlueListItem
-                testID="sendMaxButton"
-                disabled={!(wallet.getBalance() > 0) || isSendMaxUsed}
-                title={loc.send.details_adv_full}
-                hideChevron
-                component={TouchableOpacity}
-                onPress={onUseAllPressed}
-              />
-            )}
+            <BlueListItem
+              testID="sendMaxButton"
+              disabled={balance === 0 || isSendMaxUsed}
+              title={loc.send.details_adv_full}
+              hideChevron
+              component={TouchableOpacity}
+              onPress={onUseAllPressed}
+            />
             {wallet.type === HDSegwitBech32Wallet.type && (
               <BlueListItem
                 title={loc.send.details_adv_fee_bump}
@@ -1099,25 +1039,21 @@ const SendDetails = () => {
                 onPress={importTransactionMultisigScanQr}
               />
             )}
-            {wallet.allowBatchSend() && (
-              <>
-                <BlueListItem
-                  testID="AddRecipient"
-                  title={loc.send.details_add_rec_add}
-                  hideChevron
-                  component={TouchableOpacity}
-                  onPress={handleAddRecipient}
-                />
-                <BlueListItem
-                  testID="RemoveRecipient"
-                  title={loc.send.details_add_rec_rem}
-                  hideChevron
-                  disabled={addresses.length < 2}
-                  component={TouchableOpacity}
-                  onPress={handleRemoveRecipient}
-                />
-              </>
-            )}
+            <BlueListItem
+              testID="AddRecipient"
+              title={loc.send.details_add_rec_add}
+              hideChevron
+              component={TouchableOpacity}
+              onPress={handleAddRecipient}
+            />
+            <BlueListItem
+              testID="RemoveRecipient"
+              title={loc.send.details_add_rec_rem}
+              hideChevron
+              disabled={addresses.length < 2}
+              component={TouchableOpacity}
+              onPress={handleRemoveRecipient}
+            />
             <BlueListItem testID="CoinControl" title={loc.cc.header} hideChevron component={TouchableOpacity} onPress={handleCoinControl} />
             {wallet.allowCosignPsbt() && (
               <BlueListItem
@@ -1239,7 +1175,7 @@ const SendDetails = () => {
             });
           }}
           unit={units[index] || amountUnit}
-          inputAccessoryViewID={wallet.allowSendMax() ? BlueUseAllFundsButton.InputAccessoryViewID : null}
+          inputAccessoryViewID={BlueUseAllFundsButton.InputAccessoryViewID}
         />
         <AddressInput
           onChangeText={text => {
@@ -1281,7 +1217,6 @@ const SendDetails = () => {
   // if utxo is limited we use it to calculate available balance
   const balance = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet.getBalance();
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
-  const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -1343,19 +1278,9 @@ const SendDetails = () => {
         </View>
         <BlueDismissKeyboardInputAccessory />
         {Platform.select({
-          ios: (
-            <BlueUseAllFundsButton
-              canUseAll={wallet.allowSendMax() && allBalance > 0 && !isSendMaxUsed}
-              onUseAllPressed={onUseAllPressed}
-              balance={allBalance}
-            />
-          ),
+          ios: <BlueUseAllFundsButton canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />,
           android: isAmountToolbarVisibleForAndroid && (
-            <BlueUseAllFundsButton
-              canUseAll={wallet.allowSendMax() && allBalance > 0 && !isSendMaxUsed}
-              onUseAllPressed={onUseAllPressed}
-              balance={allBalance}
-            />
+            <BlueUseAllFundsButton canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />
           ),
         })}
 
@@ -1503,24 +1428,16 @@ const styles = StyleSheet.create({
   },
 });
 
-SendDetails.navigationOptions = navigationStyleTx({}, (options, { theme, navigation, route }) => {
-  let headerRight;
-  if (route.params.withAdvancedOptionsMenuButton) {
-    headerRight = () => (
-      <TouchableOpacity
-        style={styles.advancedOptions}
-        onPress={route.params.advancedOptionsMenuButtonAction}
-        testID="advancedOptionsMenuButton"
-      >
-        <Icon size={22} name="kebab-horizontal" type="octicon" color={theme.colors.foregroundColor} />
-      </TouchableOpacity>
-    );
-  } else {
-    headerRight = null;
-  }
-  return {
-    ...options,
-    headerRight,
-    title: loc.send.header,
-  };
-});
+SendDetails.navigationOptions = navigationStyleTx({}, (options, { theme, navigation, route }) => ({
+  ...options,
+  headerRight: () => (
+    <TouchableOpacity
+      style={styles.advancedOptions}
+      onPress={route.params.advancedOptionsMenuButtonAction}
+      testID="advancedOptionsMenuButton"
+    >
+      <Icon size={22} name="kebab-horizontal" type="octicon" color={theme.colors.foregroundColor} />
+    </TouchableOpacity>
+  ),
+  title: loc.send.header,
+}));

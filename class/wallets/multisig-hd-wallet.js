@@ -1092,10 +1092,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return /^[0-9A-F]{8}$/i.test(fp);
   }
 
-  allowBatchSend() {
-    return true;
-  }
-
   /**
    * Returns TRUE only for _multisignature_ xpubs as per SLIP-0132
    * (capital Z, capital Y, or just xpub)
