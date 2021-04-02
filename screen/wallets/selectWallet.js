@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useState } from 'react';
-import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList, StyleSheet, StatusBar } from 'react-native';
+import { View, ActivityIndicator, Image, Text, TouchableOpacity, I18nManager, FlatList, StyleSheet, StatusBar } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useRoute, useTheme } from '@react-navigation/native';
@@ -59,22 +59,29 @@ const SelectWallet = () => {
       backgroundColor: 'transparent',
       fontSize: 19,
       color: '#fff',
+      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
     },
+
     balance: {
       backgroundColor: 'transparent',
       fontWeight: 'bold',
       fontSize: 36,
+      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+
       color: '#fff',
     },
     latestTxLabel: {
       backgroundColor: 'transparent',
       fontSize: 13,
       color: '#fff',
+      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
     },
     latestTxValue: {
       backgroundColor: 'transparent',
       fontWeight: 'bold',
       fontSize: 16,
+      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+
       color: '#fff',
     },
     noWallets: {
@@ -106,11 +113,11 @@ const SelectWallet = () => {
               source={(() => {
                 switch (item.type) {
                   case LightningCustodianWallet.type:
-                    return require('../../img/lnd-shape.png');
+                    return I18nManager.isRTL ? require('../../img/lnd-shape-rtl.png') : require('../../img/lnd-shape.png');
                   case MultisigHDWallet.type:
-                    return require('../../img/vault-shape.png');
+                    return I18nManager.isRTL ? require('../../img/vault-shape-rtl.png') : require('../../img/vault-shape.png');
                   default:
-                    return require('../../img/btc-shape.png');
+                    return I18nManager.isRTL ? require('../../img/btc-shape-rtl.png') : require('../../img/btc-shape.png');
                 }
               })()}
               style={styles.image}

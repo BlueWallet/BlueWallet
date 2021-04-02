@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  I18nManager,
 } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
@@ -321,7 +322,7 @@ const LNDCreateInvoice = () => {
         {!isLoading && (
           <TouchableOpacity style={styles.walletChooseWrap} onPress={navigateToSelectWallet}>
             <Text style={styles.walletChooseText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-            <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
+            <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.walletNameWrap}>

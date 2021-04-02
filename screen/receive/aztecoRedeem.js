@@ -1,7 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Keyboard, Text, TouchableOpacity, StatusBar, TouchableWithoutFeedback, View, StyleSheet } from 'react-native';
+import { Keyboard, Text, TouchableOpacity, StatusBar, TouchableWithoutFeedback, View, StyleSheet, I18nManager } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 import { BlueButton, BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
@@ -121,7 +121,7 @@ export default class AztecoRedeem extends Component {
             }
           >
             <Text style={styles.selectText}>{loc.azteco.redeem}</Text>
-            <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
+            <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.selectWallet2}>

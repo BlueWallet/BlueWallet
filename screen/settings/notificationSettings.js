@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useCallback, useEffect, useState } from 'react';
-import { ScrollView, TouchableWithoutFeedback, StyleSheet, Linking, View, TextInput } from 'react-native';
+import { ScrollView, TouchableWithoutFeedback, I18nManager, StyleSheet, Linking, View, TextInput } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { Button } from 'react-native-elements';
 
@@ -186,6 +186,7 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     backgroundColor: 'transparent',
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
 });
 
