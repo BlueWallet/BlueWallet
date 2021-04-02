@@ -25,8 +25,8 @@ Korzystając z wielo-warstwowego szyfrowania systemu iOS, szyfrujemy wszystko z 
 Pełny węzeł
 Podłącz się do własnego węzła Bitcoin przy użyciu Electrum
 
-Zimne Składowanie
-Podłącz swój portfel sprzętowy i trzymaj swoje monety w zimnym składzie
+Zimny portfel
+Podłącz swój portfel sprzętowy i trzymaj swoje monety w zimnym portfelu
 
 2 - Z uwagą na Twoje doświadczenie
 
@@ -41,7 +41,7 @@ Replace-By-Fee
 (RBF) Przyspiesz swoje transakcje zwiększając opłatę (BIP125)
 
 Portfele tylko-do-wglądu
-Portfele tylko-do-wglądu pozwalają pilnować Twojego zimnego składu bez dotykania sprzętu.
+Portfele tylko-do-wglądu pozwalają pilnować Twojego zimnego portfela bez dotykania sprzętu.
 
 Sieć Lightning
 Portfel Lightning nie wymaga konfiguracji. Niegodziwie tanie i szybkie transakcje z najlepszym doświadczeniem użytkownika.
