@@ -140,14 +140,17 @@ const setDateTimeLocale = async () => {
     */
     if (process.env.JEST_WORKER_ID === undefined) {
       if (language?.isRTL) {
+        I18nManager.allowRTL(true);
         I18nManager.forceRTL(true);
       } else {
+        I18nManager.allowRTL(false);
         I18nManager.forceRTL(false);
       }
     }
   } else {
     dayjs.locale('en');
     if (process.env.JEST_WORKER_ID === undefined) {
+      I18nManager.allowRTL(false);
       I18nManager.forceRTL(false);
     }
   }
@@ -169,6 +172,7 @@ const setLanguageLocale = async () => {
       strings.saveLanguage('en');
       strings.setLanguage('en');
       if (process.env.JEST_WORKER_ID === undefined) {
+        I18nManager.allowRTL(false);
         I18nManager.forceRTL(false);
       }
     }
