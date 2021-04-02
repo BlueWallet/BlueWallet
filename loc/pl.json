@@ -292,7 +292,7 @@
     "groundcontrol_explanation": "GroundControl jest darmową opcją serwera powiadamień push dla portfeli bitcoin. Możesz zainstalować swój własny serwer GroundControl i podać jego URL tutaj, tak aby nie polegać na infrastrukturze BlueWallet. Zostaw puste by użyć domyślnej wartości.",
     "header": "ustawienia",
     "language": "Język",
-    "language_restart": "Przy wyborze nowego języka, konieczne może być ponowne uruchomienie BlueWallet aby zobaczyć zmianę.",
+    "language_isRTL": "Aby ustawienia dotyczące kierunku pisma wybranego języka zaczęły obowiązywać, BlueWallet musi być zrestartowany.",
     "lightning_error_lndhub_uri": "Niepoprawny LndHub URI",
     "lightning_saved": "Wprowadzone przez ciebie zmiany zostały pomyślnie zachowane.",
     "lightning_settings": "Ustawienia Lightning",
