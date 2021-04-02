@@ -1,4 +1,4 @@
-import { HDAezeedWallet } from '../../class';
+import { HDAezeedWallet, WatchOnlyWallet } from '../../class';
 const assert = require('assert');
 
 describe('HDAezeedWallet', () => {
@@ -50,7 +50,7 @@ describe('HDAezeedWallet', () => {
 
     assert.strictEqual(
       aezeed.getXpub(),
-      'zpub6rrqwqM3aF1Jdz6y5Zw18RTppHbZQeQpsrSyf3E2uibcrsEeZAbm5MX41Nq4XBF7HbCvRVASHLzRkFsg6sMgakcceWzJazZH7SaVPBoXzDQ',
+      'zpub6rkAmx9z6PmK7tBpGQatqpRweZvRw7uqiEMRS9KuZA9VFKUSoz3GQeJFtRQsQwduWugh5mGHro1tGnt78ci9AiB8qEH4hCRBWxdMaxadGVy',
     );
 
     let address = aezeed._getExternalAddressByIndex(0);
@@ -89,6 +89,30 @@ describe('HDAezeedWallet', () => {
       aezeed._getPubkeyByAddress(aezeed._getInternalAddressByIndex(1)).toString('hex'),
       aezeed._getNodePubkeyByIndex(1, 1).toString('hex'),
     );
+  });
+
+  it('watch-only from zpub produces correct addresses', async () => {
+    const aezeed = new HDAezeedWallet();
+    aezeed.setSecret(
+      'abstract rhythm weird food attract treat mosquito sight royal actor surround ride strike remove guilt catch filter summer mushroom protect poverty cruel chaos pattern',
+    );
+    assert.ok(await aezeed.validateMnemonicAsync());
+    assert.ok(!(await aezeed.mnemonicInvalidPassword()));
+
+    assert.strictEqual(
+      aezeed.getXpub(),
+      'zpub6rkAmx9z6PmK7tBpGQatqpRweZvRw7uqiEMRS9KuZA9VFKUSoz3GQeJFtRQsQwduWugh5mGHro1tGnt78ci9AiB8qEH4hCRBWxdMaxadGVy',
+    );
+
+    const address = aezeed._getExternalAddressByIndex(0);
+    assert.strictEqual(address, 'bc1qdjj7lhj9lnjye7xq3dzv3r4z0cta294xy78txn');
+    assert.ok(aezeed.getAllExternalAddresses().includes('bc1qdjj7lhj9lnjye7xq3dzv3r4z0cta294xy78txn'));
+
+    const watchOnly = new WatchOnlyWallet();
+    watchOnly.setSecret(aezeed.getXpub());
+    watchOnly.init();
+    assert.strictEqual(watchOnly._getExternalAddressByIndex(0), aezeed._getExternalAddressByIndex(0));
+    assert.ok(watchOnly.weOwnAddress('bc1qdjj7lhj9lnjye7xq3dzv3r4z0cta294xy78txn'));
   });
 
   it('can sign and verify messages', async () => {
