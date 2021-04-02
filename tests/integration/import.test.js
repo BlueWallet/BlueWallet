@@ -85,7 +85,6 @@ describe('import procedure', function () {
     assert.strictEqual(lastImportedWallet.getLabel(), 'Imported SegWit (P2SH)');
   });
 
-  // todo:
   it('can import Legacy Bech32 Segwit', async () => {
     await WalletImport.processImportText('L1T6FfKpKHi8JE6eBKrsXkenw34d5FfFzJUZ6dLs2utxkSvsDfxZ');
     assert.strictEqual(lastImportedWallet.type, SegwitBech32Wallet.type);
@@ -100,15 +99,6 @@ describe('import procedure', function () {
     assert.strictEqual(lastImportedWallet.type, HDLegacyP2PKHWallet.type);
     assert.strictEqual(lastImportedWallet._getExternalAddressByIndex(0), '1EgDbwf5nXp9knoaWW6nV6N91EK3EFQ5vC');
     assert.strictEqual(lastImportedWallet.getLabel(), 'Imported HD Legacy (BIP44 P2PKH)');
-  });
-
-  it('can import BIP49', async () => {
-    await WalletImport.processImportText(
-      'believe torch sport lizard absurd retreat scale layer song pen clump combine window staff dream filter latin bicycle vapor anchor put clean gain slush',
-    );
-    assert.strictEqual(lastImportedWallet.type, HDSegwitP2SHWallet.type);
-    assert.strictEqual(lastImportedWallet._getExternalAddressByIndex(0), '3EoqYYp7hQSHn5nHqRtWzkgqmK3caQ2SUu');
-    assert.strictEqual(lastImportedWallet.getLabel(), 'Imported HD SegWit (BIP49 P2SH)');
   });
 
   it('can import BIP49', async () => {

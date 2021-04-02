@@ -23,6 +23,7 @@ import {
   TouchableWithoutFeedback,
   View,
   InteractionManager,
+  I18nManager,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
@@ -361,11 +362,11 @@ export class BlueWalletNavigationHeader extends Component {
             switch (this.state.wallet.type) {
               case LightningLndWallet.type:
               case LightningCustodianWallet.type:
-                return require('./img/lnd-shape.png');
+                return I18nManager.isRTL ? require('./img/lnd-shape-rtl.png') : require('./img/lnd-shape.png');
               case MultisigHDWallet.type:
-                return require('./img/vault-shape.png');
+                return I18nManager.isRTL ? require('./img/vault-shape-rtl.png') : require('./img/vault-shape.png');
               default:
-                return require('./img/btc-shape.png');
+                return I18nManager.isRTL ? require('./img/btc-shape-rtl.png') : require('./img/btc-shape.png');
             }
           })()}
           style={{
@@ -383,6 +384,7 @@ export class BlueWalletNavigationHeader extends Component {
             backgroundColor: 'transparent',
             fontSize: 19,
             color: '#fff',
+            writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
           }}
         >
           {this.state.wallet.getLabel()}
@@ -432,6 +434,7 @@ export class BlueWalletNavigationHeader extends Component {
                 fontWeight: 'bold',
                 fontSize: 36,
                 color: '#fff',
+                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
               }}
             >
               {balance}
@@ -717,7 +720,7 @@ export const BlueListItem = React.memo(props => {
         <ActivityIndicator />
       ) : (
         <>
-          {props.chevron && <ListItem.Chevron />}
+          {props.chevron && <ListItem.Chevron iconStyle={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />}
           {props.rightIcon && <Avatar icon={props.rightIcon} />}
           {props.switch && <Switch {...props.switch} accessibilityLabel={props.title} accessible accessibilityRole="switch" />}
           {props.checkmark && <ListItem.CheckBox iconType="octaicon" checkedColor="#0070FF" checkedIcon="check" checked />}

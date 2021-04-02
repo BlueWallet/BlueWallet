@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
-import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, StatusBar } from 'react-native';
+import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, StatusBar, I18nManager } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueButton } from '../../BlueComponents';
@@ -130,10 +130,10 @@ const styles = StyleSheet.create({
     paddingLeft: 0,
   },
   secret: {
-    flexDirection: 'row',
-    justifyContent: 'center',
     flexWrap: 'wrap',
+    justifyContent: 'center',
     marginTop: 14,
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
 });
 

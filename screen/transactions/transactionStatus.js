@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar, I18nManager } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
@@ -350,7 +350,7 @@ const TransactionsStatus = () => {
           {renderRBFCancel()}
           <TouchableOpacity style={styles.details} onPress={navigateToTransactionDetials}>
             <Text style={styles.detailsText}>{loc.send.create_details.toLowerCase()}</Text>
-            <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
+            <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         </View>
       </View>

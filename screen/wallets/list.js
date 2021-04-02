@@ -14,6 +14,7 @@ import {
   SafeAreaView,
   findNodeHandle,
   useColorScheme,
+  I18nManager,
 } from 'react-native';
 import { BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
@@ -88,7 +89,7 @@ const WalletsList = () => {
 
   useEffect(() => {
     const allWallets = wallets.concat(pendingWallets);
-    const newCarouselData = allWallets.concat(false);
+    const newCarouselData = I18nManager.isRTL && Platform.OS !== 'android' ? [false].concat(allWallets) : allWallets.concat(false);
     setCarouselData(newCarouselData);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallets, pendingWallets]);
@@ -126,11 +127,18 @@ const WalletsList = () => {
         shadowOpacity: 0,
         shadowOffset: { height: 0, width: 0 },
       },
-      headerRight: () => (
-        <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
-          <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
-        </TouchableOpacity>
-      ),
+      headerRight: () =>
+        I18nManager.isRTL ? null : (
+          <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
+            <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
+          </TouchableOpacity>
+        ),
+      headerLeft: () =>
+        I18nManager.isRTL ? (
+          <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
+            <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
+          </TouchableOpacity>
+        ) : null,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors]);
