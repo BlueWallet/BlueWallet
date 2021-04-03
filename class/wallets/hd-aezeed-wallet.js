@@ -1,4 +1,5 @@
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+import b58 from 'bs58check';
 const bitcoin = require('bitcoinjs-lib');
 const { CipherSeed } = require('aezeed');
 
@@ -31,6 +32,23 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     } else {
       throw new Error('Entropy cache is not filled');
     }
+  }
+
+  getXpub() {
+    // first, getting xpub
+    const root = bitcoin.bip32.fromSeed(this._getEntropyCached());
+
+    const path = "m/84'/0'/0'";
+    const child = root.derivePath(path).neutered();
+    const xpub = child.toBase58();
+
+    // bitcoinjs does not support zpub yet, so we just convert it from xpub
+    let data = b58.decode(xpub);
+    data = data.slice(4);
+    data = Buffer.concat([Buffer.from('04b24746', 'hex'), data]);
+    this._xpub = b58.encode(data);
+
+    return this._xpub;
   }
 
   validateMnemonic(): boolean {
