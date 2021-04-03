@@ -276,7 +276,7 @@ PODS:
   - react-native-tcp-socket (3.7.1):
     - CocoaAsyncSocket
     - React
-  - react-native-webview (11.2.3):
+  - react-native-webview (11.2.4):
     - React-Core
   - react-native-widget-center (0.0.4):
     - React
@@ -355,7 +355,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
-  - RNDeviceInfo (8.0.2):
+  - RNDeviceInfo (8.0.5):
     - React-Core
   - RNFS (2.16.6):
     - React
@@ -707,7 +707,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: e471852c5ed67eea4b10c5d9d43c1cebae3b231d
   react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
-  react-native-webview: 36561eaf7508e67f72d8c959b713bac841f3652e
+  react-native-webview: 44b95e165b664abd71fb7a2daa3d4051e25702a6
   react-native-widget-center: 0f81d17beb163e7fb5848b06754d7d277fe7d99a
   React-RCTActionSheet: 89a0ca9f4a06c1f93c26067af074ccdce0f40336
   React-RCTAnimation: 1bde3ecc0c104c55df246eda516e0deb03c4e49b
@@ -726,7 +726,7 @@ SPEC CHECKSUMS:
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
-  RNDeviceInfo: 71696ed3282a5058d08378a17d78d7367d9496e5
+  RNDeviceInfo: e92b781f4af9d0faebe00695ffe5ce5b7671ec0f
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa

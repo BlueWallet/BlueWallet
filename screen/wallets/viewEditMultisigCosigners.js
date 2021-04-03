@@ -184,8 +184,10 @@ const ViewEditMultisigCosigners = () => {
     });
     await wallet.fetchBalance();
     newWallets.push(wallet);
-    setWalletsWithNewOrder(newWallets);
     navigate('WalletsList');
+    setTimeout(() => {
+      setWalletsWithNewOrder(newWallets);
+    }, 500);
   };
   useFocusEffect(
     useCallback(() => {
