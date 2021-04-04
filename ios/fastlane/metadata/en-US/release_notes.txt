@@ -1,3 +1,19 @@
+v6.0.8
+======
+
+* ADD: RTL language support
+* ADD: ANG and AWG currencies
+* ADD: show fingerprint and derivation path for HD wallets
+* ADD: allow send MAX and BATCH for all wallet types
+* FIX: App crashes after changing vault key from seed to ZPUB and vice versa #2867
+* FIX: aezeed onchain wallet produces correct zpub
+* FIX: crash on wallet->details for single-address wallets
+* FIX: address input qrcode denomination reset
+* FIX: sync loc bg, he, id, it, jp, nl, tr, br, de, pl, fa , ro, es, fr, zh_TW, zh_CN, cs_CZ
+* FIX: Set Hebrew as RTL language
+* REF: currency rates loader, add LPB new rate source
+* REF: import procedure improvements
+
 v6.0.7
 ======
 
@@ -50,35 +66,3 @@ v6.0.6
 * REF: electrum protocol error graceful handling
 * REF: better bitcoinscript error handling
 * REF: Fee selection in darkmode
-
-v6.0.4
-======
-
-* ADD: Toggle balance visibility on watch app
-* ADD: Standard wallet type Electrum JSON import
-* ADD: Wallet balance hide/show on Watch app
-* ADD: multisig manage keys - show alert if unsaved changes are found
-* ADD: AEZEED mnemonics support (from LND; only primary native-segwit chain atm)
-* ADD: Wallet txs update indicator
-* ADD: Do not show notification settings if device does not support it
-* ADD: Show alert if amount is less or equal 500 sats during onchain send
-* OPS: Update Realm (fixes crash on iOS beta)
-* FIX: locales en, fa_IR, cs_CZ, fr_FR, de_DE, nl_NL, de_DE, fi_FI
-* FIX: multisig 'cant finalize input' error when sending
-* FIX: Scroll on multi sig creation
-* FIX: MS loading creation
-* FIX: During long menmonics import, wallet panels are not scrolled to the last temporary gray wallet card
-* FIX: TransactionDetails screen - displaying correct transaction data
-* FIX: set fee to lower value if balance is not enough
-* FIX: better fee estimation based on mempool (onchain send, not widget, yet)
-* FIX: Widget now shows Pending if latest tx is unconfirmed
-* FIX: Scaning invalid BC-UR qr code throws multiple alerts
-* FIX: cached wallet address wouldnt change on wallet change
-* FIX: 'Few seconds ago' -> 'pending'
-* FIX: legacy wallet can now derive UTXO from transactions in case if fetching listUnspent from network is impossible
-* FIX: Conf number reflects correct number
-* FIX: Multisig import seed hangs forever
-* FIX: Instructions were clipped on larger text
-* FIX: Biometrics in PSBT
-* REF: better support of coldcard's incorrect 'p2sh-p2wsh'
-* DEL: LocalTrader (HodlHodl) starts with Global offers by default
