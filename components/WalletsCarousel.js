@@ -78,7 +78,6 @@ NewWalletPanel.propTypes = {
 const iStyles = StyleSheet.create({
   root: {
     paddingRight: 10,
-    paddingLeft: 10,
     marginVertical: 17,
   },
   grad: {

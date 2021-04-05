@@ -656,11 +656,11 @@ export const BlueText = props => {
   const { colors } = useTheme();
   return (
     <Text
-      style={{
-        color: colors.foregroundColor,
-        ...props.style,
-      }}
       {...props}
+      style={{
+        ...props.style,
+        color: colors.foregroundColor,
+      }}
     />
   );
 };

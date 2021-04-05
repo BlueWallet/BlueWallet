@@ -350,7 +350,7 @@ const WalletsList = () => {
 
   const onScanButtonPressed = () => {
     if (isMacCatalina) {
-      fs.showActionSheet({ anchor: walletActionButtonsRef.current }).then(onBarScanned);
+      fs.showActionSheet({ anchor: findNodeHandle(walletActionButtonsRef.current) }).then(onBarScanned);
     } else {
       scanqrHelper(navigate, routeName, false).then(onBarScanned);
     }
