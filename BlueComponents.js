@@ -596,8 +596,8 @@ export const BlueText = props => {
     <Text
       {...props}
       style={{
-        ...props.style,
         color: colors.foregroundColor,
+        ...props.style,
       }}
     />
   );
