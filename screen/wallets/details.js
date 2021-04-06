@@ -357,14 +357,6 @@ const WalletDetails = () => {
     }
   };
 
-  const navigateToBroadcast = () => {
-    navigate('Broadcast');
-  };
-
-  const navigateToIsItMyAddress = () => {
-    navigate('IsItMyAddress');
-  };
-
   const walletNameTextInputOnBlur = () => {
     if (walletName.trim().length === 0) {
       const walletLabel = wallet.getLabel();
@@ -553,16 +545,6 @@ const WalletDetails = () => {
                   {renderMarketplaceButton()}
                 </>
               )}
-              {wallet.type !== LightningCustodianWallet.type && (
-                <>
-                  <BlueSpacing20 />
-                  <SecondButton onPress={navigateToBroadcast} testID="Broadcast" title={loc.settings.network_broadcast} />
-                </>
-              )}
-              <>
-                <BlueSpacing20 />
-                <SecondButton onPress={navigateToIsItMyAddress} testID="IsItMyAddress" title={loc.is_it_my_address.title} />
-              </>
               {wallet.allowSignVerifyMessage() && (
                 <>
                   <BlueSpacing20 />
