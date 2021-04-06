@@ -7,7 +7,7 @@ export const LNNodeBar = props => {
   const { canReceive = 0, canSend = 0, nodeAlias = '', disabled = false } = props;
   const opacity = { opacity: disabled ? 0.28 : 1.0 };
   const canSendBarFlex = {
-    flex: canReceive > 0 && canSend > 0 ? Math.abs((canReceive - canSend) / (canReceive + canSend)) * 1.0 : 1.0,
+    flex: canReceive > 0 && canSend > 0 ? Math.abs(canSend / (canReceive + canSend)) * 1.0 : 1.0,
   };
   return (
     <View style={[styles.root, opacity]}>
@@ -54,7 +54,6 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   canSendBar: {
-    flex: 1,
     height: 14,
     maxHeight: 14,
     backgroundColor: '#4E6CF5',

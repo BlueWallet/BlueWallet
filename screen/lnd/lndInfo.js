@@ -1,11 +1,15 @@
 /* global alert */
 import React, { useContext, useEffect, useState } from 'react';
-import { View, StatusBar, ScrollView, BackHandler, StyleSheet, FlatList } from 'react-native';
+import { View, StatusBar, ScrollView, BackHandler, StyleSheet, Text, FlatList, Keyboard, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueLoading, SafeBlueArea, BlueButton, BlueText, BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Chain } from '../../models/bitcoinUnits';
+import loc from '../../loc';
+import LNNodeBar from '../../components/LNNodeBar';
+import BottomModal from '../../components/BottomModal';
+import Button from '../../components/Button';
 
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
@@ -19,10 +23,12 @@ const LndInfo = () => {
   const { goBack, setOptions, navigate } = useNavigation();
   const name = useRoute().name;
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [info, setInfo] = useState('');
   const [channels, setChannels] = useState([]);
   const [wBalance, setWalletBalance] = useState({});
   const [getInfo, setGetInfo] = useState({});
+  const [selectedChannelIndex, setSelectedChannelIndex] = useState();
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -48,6 +54,9 @@ const LndInfo = () => {
     },
     additionalInfo: {
       backgroundColor: colors.brandingColor,
+    },
+    modalContent: {
+      backgroundColor: colors.elevated,
     },
   });
 
@@ -123,6 +132,14 @@ const LndInfo = () => {
     return true;
   };
 
+  const showModal = index => {
+    setSelectedChannelIndex(index);
+  };
+
+  useEffect(() => {
+    setIsModalVisible(selectedChannelIndex !== undefined);
+  }, [selectedChannelIndex]);
+
   const closeChannel = async channel => {
     if (!(await confirm())) return;
 
@@ -176,17 +193,33 @@ const LndInfo = () => {
     }
   };
 
+  const closeModal = () => {
+    Keyboard.dismiss();
+    setSelectedChannelIndex(undefined);
+  };
+
+  const renderModal = (
+    <BottomModal isVisible={isModalVisible} onClose={closeModal}>
+      <View style={[styles.modalContent, stylesHook.modalContent]}>
+        <Text style={[stylesHook.detailsText]}>node alias</Text>
+        <Text style={[stylesHook.detailsText]}>node alias</Text>
+        <LNNodeBar
+          disabled={channels[selectedChannelIndex]?.item.active}
+          canSend={channels[selectedChannelIndex]?.item.localBalance}
+          canReceive={channels[selectedChannelIndex]?.item.capacity}
+        />
+
+        <BlueSpacing20 />
+        <Button onPress={closeChannel} text={loc.lnd.close_channel} />
+      </View>
+    </BottomModal>
+  );
+
   const renderItemChannel = channel => {
     return (
-      <View>
-        <BlueText>{channel.item.private ? 'private' : 'public'}</BlueText>
-        <BlueText>{channel.item.active ? 'active' : 'inactive'}</BlueText>
-        <BlueText>
-          {channel.item.localBalance} / {channel.item.capacity}
-        </BlueText>
-        <BlueText>with {channel.item.remotePubkey}</BlueText>
-        <BlueButton onPress={() => closeChannel(channel)} title="Close this channel" />
-      </View>
+      <TouchableOpacity onPress={showModal}>
+        <LNNodeBar disabled={channel.item.active} canSend={channel.item.localBalance} canReceive={channel.item.capacity} />
+      </TouchableOpacity>
     );
   };
 
@@ -228,6 +261,7 @@ const LndInfo = () => {
     <SafeBlueArea styles={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="default" />
       <ScrollView contentContainerStyle={styles.contentContainerStyle}>{render()}</ScrollView>
+      {renderModal}
     </SafeBlueArea>
   );
 };
@@ -310,11 +344,18 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderColor: '#FFFFFF',
   },
+  modalContent: {
+    padding: 24,
+
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
 });
 
 LndInfo.navigationOptions = navigationStyle(
   {
-    title: 'Manage Node',
+    title: loc.lnd.channels,
     closeButton: true,
     closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().pop(),
   },
