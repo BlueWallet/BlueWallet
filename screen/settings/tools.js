@@ -17,17 +17,11 @@ const NetworkSettings = () => {
     navigate('Broadcast');
   };
 
-   const navigateToPrivacy = () => {
-    navigate('SettingsPrivacy');
-  };
-
-
   return (
     <SafeBlueArea>
       <ScrollView>
         <BlueListItem title={loc.is_it_my_address.title} onPress={navigateToIsItMyAddress} testID="IsItMyAddress" chevron />
         <BlueListItem title={loc.settings.network_broadcast} onPress={navigateToBroadcast} testID="Broadcast" chevron />
-        <BlueListItem title={loc.settings.privacy} onPress={navigateToPrivacy} testID="SettingsPrivacy" chevron />
       </ScrollView>
     </SafeBlueArea>
   );

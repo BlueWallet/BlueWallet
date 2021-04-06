@@ -41,8 +41,18 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('SettingsButton')).tap();
 
     // general
-    // enable AdvancedMode
     await element(by.id('GeneralSettings')).tap();
+
+    // privacy
+    // trigger switches
+    await element(by.id('SettingsPrivacy')).tap();
+    await element(by.id('ClipboardSwith')).tap();
+    await element(by.id('ClipboardSwith')).tap();
+    await element(by.id('QuickActionsSwith')).tap();
+    await element(by.id('QuickActionsSwith')).tap();
+    await device.pressBack();
+
+    // enable AdvancedMode
     await element(by.id('AdvancedMode')).tap();
     await device.pressBack();
     //
@@ -138,15 +148,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('CheckAddress')).tap();
     await expect(element(by.id('Result'))).toHaveText('None of the available wallets own the provided address.');
-    await device.pressBack();
-
-    // privacy
-    // trigger switches
-    await element(by.id('SettingsPrivacy')).tap();
-    await element(by.id('ClipboardSwith')).tap();
-    await element(by.id('ClipboardSwith')).tap();
-    await element(by.id('QuickActionsSwith')).tap();
-    await element(by.id('QuickActionsSwith')).tap();
     await device.pressBack();
     await device.pressBack();
 
