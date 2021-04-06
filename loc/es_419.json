@@ -322,7 +322,8 @@
     "success_transaction_broadcasted" : "¡Éxito! ¡Tu transacción ha sido transmitida!",
     "total_balance": "Balance Total",
     "total_balance_explanation": "Muestra el saldo total de todas tus billeteras en los widgets de tu pantalla de inicio.",
-    "widgets": "Widgets"
+    "widgets": "Widgets",
+    "tools": "Herramientas"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "¿Te gustaría recibir notificaciones cuando recibas pagos entrantes?",
