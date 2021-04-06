@@ -8,6 +8,7 @@
 #import "AppDelegate.h"
 #import <React/RCTLinkingManager.h>
 #import <React/RCTBundleURLProvider.h>
+#import <React/RCTI18nUtil.h>
 #import <React/RCTRootView.h>
 #import "RNQuickActionManager.h"
 #import <UserNotifications/UserNotifications.h>
@@ -64,6 +65,7 @@ static void InitializeFlipper(UIApplication *application) {
   // Define UNUserNotificationCenter
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
+  [[RCTI18nUtil sharedInstance] allowRTL:YES];
   return YES;
 }
 

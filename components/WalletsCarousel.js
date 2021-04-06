@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Animated,
   Image,
+  I18nManager,
   Platform,
   StyleSheet,
   Text,
@@ -98,6 +99,7 @@ const iStyles = StyleSheet.create({
   label: {
     backgroundColor: 'transparent',
     fontSize: 19,
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   importError: {
     backgroundColor: 'transparent',
@@ -111,14 +113,17 @@ const iStyles = StyleSheet.create({
     backgroundColor: 'transparent',
     fontWeight: 'bold',
     fontSize: 36,
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   latestTx: {
     backgroundColor: 'transparent',
     fontSize: 13,
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   latestTxTime: {
     backgroundColor: 'transparent',
     fontWeight: 'bold',
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
     fontSize: 16,
   },
 });
@@ -172,7 +177,10 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
           }}
         >
           <LinearGradient shadowColor={colors.shadowColor} colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
-            <Image source={require('../img/btc-shape.png')} style={iStyles.image} />
+            <Image
+              source={I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png')}
+              style={iStyles.image}
+            />
             <Text style={iStyles.br} />
             <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
               {item.getIsFailure() ? loc.wallets.import_placeholder_fail : loc.wallets.import_placeholder_inprogress}
@@ -194,13 +202,13 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
   let image;
   switch (item.type) {
     case LightningCustodianWallet.type:
-      image = require('../img/lnd-shape.png');
+      image = I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
       break;
     case MultisigHDWallet.type:
-      image = require('../img/vault-shape.png');
+      image = I18nManager.isRTL ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
       break;
     default:
-      image = require('../img/btc-shape.png');
+      image = I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
   }
 
   const latestTransactionText =
@@ -279,6 +287,7 @@ const cStyles = StyleSheet.create({
   },
   content: {
     left: 16,
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
 });
 
@@ -333,9 +342,10 @@ const WalletsCarousel = forwardRef((props, ref) => {
         sliderHeight={sliderHeight}
         itemWidth={itemWidth}
         inactiveSlideScale={1}
-        inactiveSlideOpacity={0.7}
+        inactiveSlideOpacity={I18nManager.isRTL ? 1.0 : 0.7}
         activeSlideAlignment="start"
         initialNumToRender={10}
+        inverted={I18nManager.isRTL && Platform.OS === 'android'}
         onLayout={onLayout}
         contentContainerCustomStyle={cStyles.content}
         {...props}

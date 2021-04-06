@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  I18nManager,
   Keyboard,
   KeyboardAvoidingView,
   LayoutAnimation,
@@ -792,7 +793,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   secretContainer: {
-    flexDirection: 'row',
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
     justifyContent: 'flex-start',
     flexWrap: 'wrap',
   },
@@ -816,6 +817,7 @@ const styles = StyleSheet.create({
 
   helpButtonWrapper: {
     alignItems: 'flex-end',
+    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
   },
   helpButton: {
     paddingHorizontal: 16,
