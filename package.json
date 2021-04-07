@@ -167,7 +167,7 @@
     "react-native-tooltip": "git+https://github.com/BlueWallet/react-native-tooltip.git#d369e7ece09e4dec73873f1cfeac83e9d35294a6",
     "react-native-vector-icons": "7.1.0",
     "react-native-watch-connectivity": "1.0.3",
-    "react-native-webview": "11.2.5",
+    "react-native-webview": "11.3.1",
     "react-native-widget-center": "git+https://github.com/BlueWallet/react-native-widget-center.git#e2e9a9038b76d096bf929a87105a97a0a7095001",
     "react-test-render": "1.1.2",
     "readable-stream": "3.6.0",
