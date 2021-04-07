@@ -322,7 +322,8 @@
     "success_transaction_broadcasted" : "Erfolg! Diene Transaktion wurde übertragen.",
     "total_balance": "Gesamtes Guthaben",
     "total_balance_explanation": "Zeigt das Wallet Guthaben auf dem Widget deiner Homepage",
-    "widgets": "Widgets"
+    "widgets": "Widgets",
+    "tools": "Werkzeuge"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Möchten Sie bei Zahlungseingängen eine Benachrichtigung erhalten?",
@@ -398,7 +399,7 @@
     "details_display": "In Wallet-Liste anzeigen",
     "details_export_backup": "Exportieren / Backup",
     "details_marketplace": "Marktplatz",
-    "details_master_fingerprint": "Fingerabdruckerkennung",
+    "details_master_fingerprint": "Fingerabdruckkennung",
     "details_ms_l": "{m} von {n} Altformat (p2sh)",
     "details_ms_ns": "{m} von {n} native segwit (p2wsh)",
     "details_ms_ws": "{m} von {n} wrapped segwit (p2sh-p2wsh)",
@@ -491,7 +492,7 @@
     "vault_advanced_customize": "Tresor Einstellungen",
     "needs": "Es braucht",
     "what_is_vault_description_number_of_vault_keys": "{m} Schlüssel",
-    "what_is_vault_description_to_spend": "zum Senden und ein Dritter\ndient als Backup.",
+    "what_is_vault_description_to_spend": "zum Senden \nund ein Dritter dient als Backup.",
     "what_is_vault_description_to_spend_other": "zum Ausgeben.",
     "quorum": "{m} von {n} sind signaturfähig",
     "quorum_header": "Signaturfähigkeit",
@@ -516,7 +517,7 @@
     "view_edit_cosigners": "Mitsignierer anzeigen/bearbeiten",
     "this_cosigner_is_already_imported": "Dieser Mitsignierer ist schon vorhanden",
     "export_signed_psbt": "Signierte PSBT exportieren",
-    "input_fp": "Fingerabdruck eingeben",
+    "input_fp": "Fingerabdruckkennung eingeben",
     "input_fp_explain": "Überspringen, um den Standard zu verwenden (00000000)",
     "input_path": "Ableitungspfad eingeben",
     "input_path_explain": "Überspringen, um den Standard zu verwenden ({default})",

@@ -41,8 +41,18 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('SettingsButton')).tap();
 
     // general
-    // enable AdvancedMode
     await element(by.id('GeneralSettings')).tap();
+
+    // privacy
+    // trigger switches
+    await element(by.id('SettingsPrivacy')).tap();
+    await element(by.id('ClipboardSwith')).tap();
+    await element(by.id('ClipboardSwith')).tap();
+    await element(by.id('QuickActionsSwith')).tap();
+    await element(by.id('QuickActionsSwith')).tap();
+    await device.pressBack();
+
+    // enable AdvancedMode
     await element(by.id('AdvancedMode')).tap();
     await device.pressBack();
     //
@@ -108,7 +118,22 @@ describe('BlueWallet UI Tests', () => {
     await element(by.text('OK')).tap();
     await device.pressBack();
 
-    // network -> broadcast
+     // notifications
+    // turn on notifications if available
+    await element(by.id('NotificationSettings')).tap();
+    if (await expectToBeVisible('NotificationSettings')) {
+      await element(by.id('NotificationsSwitch')).tap();
+      await sup('OK');
+      await element(by.text('OK')).tap();
+      await element(by.id('NotificationsSwitch')).tap();
+      await device.pressBack();
+      await device.pressBack();
+    }
+
+    // tools
+    await element(by.id('Tools')).tap();
+
+    // tools -> broadcast
     // try to broadcast wrong tx
     await element(by.id('Broadcast')).tap();
     await element(by.id('TxHex')).replaceText('invalid\n');
@@ -117,26 +142,13 @@ describe('BlueWallet UI Tests', () => {
     // await expect(element(by.text('the transaction was rejected by network rules....'))).toBeVisible();
     await element(by.text('OK')).tap();
     await device.pressBack();
+
+    // IsItMyAddress
+    await element(by.id('IsItMyAddress')).tap();
+    await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('CheckAddress')).tap();
+    await expect(element(by.id('Result'))).toHaveText('None of the available wallets own the provided address.');
     await device.pressBack();
-
-    // notifications
-    // turn on notifications if available
-    if (await expectToBeVisible('NotificationSettings')) {
-      await element(by.id('NotificationSettings')).tap();
-      await element(by.id('NotificationsSwitch')).tap();
-      await sup('OK');
-      await element(by.text('OK')).tap();
-      await element(by.id('NotificationsSwitch')).tap();
-      await device.pressBack();
-    }
-
-    // privacy
-    // trigger switches
-    await element(by.id('SettingsPrivacy')).tap();
-    await element(by.id('ClipboardSwith')).tap();
-    await element(by.id('ClipboardSwith')).tap();
-    await element(by.id('QuickActionsSwith')).tap();
-    await element(by.id('QuickActionsSwith')).tap();
     await device.pressBack();
 
     // about
@@ -777,23 +789,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('Marketplace')).tap();
     await expect(element(by.id('MarketplaceWebView'))).toBeVisible();
     await element(by.id('NavigationCloseButton')).tap();
-
-    // Broadcast
-    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
-    await element(by.id('Broadcast')).tap();
-    await expect(element(by.id('BroadcastView'))).toBeVisible();
-    await device.pressBack();
-
-    // IsItMyAddress
-    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
-    await element(by.id('IsItMyAddress')).tap();
-    await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('CheckAddress')).tap();
-    await expect(element(by.id('Result'))).toHaveText('testname owns bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('AddressInput')).replaceText('invalid');
-    await element(by.id('CheckAddress')).tap();
-    await expect(element(by.id('Result'))).toHaveText('None of the available wallets own the provided address.');
-    await device.pressBack();
 
     // Delete
     await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);

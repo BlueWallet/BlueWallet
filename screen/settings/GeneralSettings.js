@@ -33,6 +33,10 @@ const GeneralSettings = () => {
     })();
   });
 
+  const navigateToPrivacy = () => {
+    navigate('SettingsPrivacy');
+  };
+
   const stylesWithThemeHook = {
     root: {
       ...styles.root,
@@ -57,6 +61,7 @@ const GeneralSettings = () => {
           <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title={loc.settings.default_title} chevron />
         </>
       )}
+      <BlueListItem title={loc.settings.privacy} onPress={navigateToPrivacy} testID="SettingsPrivacy" chevron />
       {Platform.OS === 'ios' ? (
         <>
           <BlueListItem
