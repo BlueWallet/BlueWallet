@@ -322,7 +322,8 @@
     "success_transaction_broadcasted" : "موفقیت‌آمیز بود! تراکنش شما منتشر شد.",
     "total_balance": "موجودی کل",
     "total_balance_explanation": "نمایش موجودی کل تمام کیف پول‌های شما در ابزارک‌های صفحهٔ اصلی",
-    "widgets": "ابزارک‌ها"
+    "widgets": "ابزارک‌ها",
+    "tools": "ابزارها"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "آیا می‌خواهید هنگام دریافت وجه اعلان دریافت کنید؟",
