@@ -330,4 +330,11 @@ export class AbstractWallet {
   isSegwit() {
     return false;
   }
+
+  /**
+   * @returns {string} Root derivation path for wallet if any
+   */
+  getDerivationPath() {
+    return this._derivationPath ?? '';
+  }
 }

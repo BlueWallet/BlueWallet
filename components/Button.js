@@ -5,11 +5,13 @@ import PropTypes from 'prop-types';
 export const ButtonStyle = { default: 'default', destroy: 'destroy' };
 const Button = props => {
   const { onPress, text = '', disabled = false, buttonStyle = ButtonStyle.default } = props;
-  return<TouchableOpacity onPress={onPress} disabled={disabled} >
-    <View style={[styles.buttonContainer, buttonStyle === ButtonStyle.default ? styles.buttonDefault : styles.buttonDestroy]}>
-      <Text style={[styles.text, buttonStyle === ButtonStyle.default ? styles.textDefault : styles.textDestroy]}>{text}</Text>
-    </View>
-  </TouchableOpacity>;
+  return (
+    <TouchableOpacity onPress={onPress} disabled={disabled}>
+      <View style={[styles.buttonContainer, buttonStyle === ButtonStyle.default ? styles.buttonDefault : styles.buttonDestroy]}>
+        <Text style={[styles.text, buttonStyle === ButtonStyle.default ? styles.textDefault : styles.textDestroy]}>{text}</Text>
+      </View>
+    </TouchableOpacity>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -30,7 +32,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF5F5',
   },
   text: {
-      fontWeight: 'bold',
+    fontWeight: 'bold',
   },
   textDefault: {
     color: '#1961B9',
