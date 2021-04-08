@@ -2,10 +2,20 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, StatusBar, ScrollView, BackHandler, StyleSheet, TextInput } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { BlueLoading, SafeBlueArea, BlueButton, BlueSpacing20, BlueListItem } from '../../BlueComponents';
+import {
+  BlueLoading,
+  SafeBlueArea,
+  BlueButton,
+  BlueSpacing20,
+  BlueListItem,
+  BlueDismissKeyboardInputAccessory,
+} from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import BigNumber from 'bignumber.js';
+import AddressInput from '../../components/AddressInput';
+import AmountInput from '../../components/AmountInput';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 const LndOpenChannel = () => {
   const { fundingWalletID, lndWalletID, psbt, isModal } = useRoute().params;
@@ -25,7 +35,7 @@ const LndOpenChannel = () => {
   );
   const [isPrivateChannel, setIsPrivateChannel] = useState(true);
   const [verified, setVerified] = useState(false);
-
+  const [unit, setUnit] = useState(BitcoinUnit.SATS);
   const [pendingChanId, setPendingChanId] = useState('');
   const [fundingAmount, setFundingAmount] = useState('');
   const [psbtOpenChannelStartedTs, setPsbtOpenChannelStartedTs] = useState(0);
@@ -197,6 +207,11 @@ const LndOpenChannel = () => {
     }
   };
 
+  const onBarScanned = ret => {
+    if (!ret.data) ret = { data: ret };
+    setRemote(ret.data);
+  }
+
   const render = () => {
     if (isLoading || !lndWallet || !fundingWallet) {
       return (
@@ -226,7 +241,6 @@ const LndOpenChannel = () => {
           Opening channel for {lndWallet.getLabel()}, funding from {fundingWallet.getLabel()}
         </Text>
         <TextInput
-          placeholder="funding amount, for exampe 0.001"
           value={fundingAmount}
           onChangeText={setFundingAmount}
           numberOfLines={1}
@@ -235,17 +249,23 @@ const LndOpenChannel = () => {
           autoCapitalize="none"
           underlineColorAndroid="transparent"
         />
-        <TextInput
-          placeholder="remote host"
-          value={remoteHostWithPubkey}
-          editable
-          onChangeText={setRemote}
-          numberOfLines={1}
-          placeholderTextColor="#81868e"
-          autoCorrect={false}
-          autoCapitalize="none"
-          underlineColorAndroid="transparent"
+        <AmountInput
+          placeholder="funding amount, for exampe 0.001"
+          isLoading={isLoading}
+          amount={fundingAmount}
+          onAmountUnitChange={setUnit}
+          onChangeText={setFundingAmount}
+          unit={unit}
+          inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
         />
+
+        <AddressInput placeholder="remote host" 
+                     address={remoteHostWithPubkey}
+                     isLoading={isLoading}
+                     inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+        onChangeText={setRemote}
+         onBarScanned={onBarScanned} 
+        launchedBy={name} />
 
         <View>
           <BlueSpacing20 />
@@ -264,6 +284,7 @@ const LndOpenChannel = () => {
         </View>
 
         <BlueButton onPress={openChannel} title="Open Channel" />
+        <BlueDismissKeyboardInputAccessory />
       </View>
     );
   };
