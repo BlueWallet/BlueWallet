@@ -56,7 +56,7 @@ const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 const SendDetails = () => {
   const { wallets, setSelectedWallet, sleep, txMetadata, saveToDisk } = useContext(BlueStorageContext);
   const navigation = useNavigation();
-  const { name, params: routeParams } = useRoute();
+  const { name, params: routeParams, isEditable = true } = useRoute();
   const scrollView = useRef();
   const scrollIndex = useRef(0);
   const { colors } = useTheme();
@@ -1012,17 +1012,17 @@ const SendDetails = () => {
               component={TouchableOpacity}
               onPress={onUseAllPressed}
             />
-            {wallet.type === HDSegwitBech32Wallet.type && (
+            {wallet.type === HDSegwitBech32Wallet.type && isEditable && (
               <BlueListItem
                 title={loc.send.details_adv_fee_bump}
                 Component={TouchableWithoutFeedback}
                 switch={{ value: isTransactionReplaceable, onValueChange: onReplaceableFeeSwitchValueChanged }}
               />
             )}
-            {wallet.type === WatchOnlyWallet.type && wallet.isHd() && wallet.getSecret().startsWith('zpub') && (
+            {wallet.type === WatchOnlyWallet.type && wallet.isHd() && wallet.getSecret().startsWith('zpub') && isEditable && (
               <BlueListItem title={loc.send.details_adv_import} hideChevron component={TouchableOpacity} onPress={importTransaction} />
             )}
-            {wallet.type === WatchOnlyWallet.type && wallet.isHd() && wallet.getSecret().startsWith('zpub') && (
+            {wallet.type === WatchOnlyWallet.type && wallet.isHd() && wallet.getSecret().startsWith('zpub') && isEditable && (
               <BlueListItem
                 testID="ImportQrTransactionButton"
                 title={loc.send.details_adv_import + ' (QR)'}
@@ -1031,7 +1031,7 @@ const SendDetails = () => {
                 onPress={importQrTransaction}
               />
             )}
-            {wallet.type === MultisigHDWallet.type && (
+            {wallet.type === MultisigHDWallet.type && isEditable && (
               <BlueListItem
                 title={loc.send.details_adv_import}
                 hideChevron
@@ -1039,7 +1039,7 @@ const SendDetails = () => {
                 onPress={importTransactionMultisig}
               />
             )}
-            {wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && (
+            {wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && isEditable && (
               <BlueListItem
                 title={loc.multisig.co_sign_transaction}
                 hideChevron
@@ -1047,23 +1047,27 @@ const SendDetails = () => {
                 onPress={importTransactionMultisigScanQr}
               />
             )}
-            <BlueListItem
-              testID="AddRecipient"
-              title={loc.send.details_add_rec_add}
-              hideChevron
-              component={TouchableOpacity}
-              onPress={handleAddRecipient}
-            />
-            <BlueListItem
-              testID="RemoveRecipient"
-              title={loc.send.details_add_rec_rem}
-              hideChevron
-              disabled={addresses.length < 2}
-              component={TouchableOpacity}
-              onPress={handleRemoveRecipient}
-            />
+            {isEditable && (
+              <>
+                <BlueListItem
+                  testID="AddRecipient"
+                  title={loc.send.details_add_rec_add}
+                  hideChevron
+                  component={TouchableOpacity}
+                  onPress={handleAddRecipient}
+                />
+                <BlueListItem
+                  testID="RemoveRecipient"
+                  title={loc.send.details_add_rec_rem}
+                  hideChevron
+                  disabled={addresses.length < 2}
+                  component={TouchableOpacity}
+                  onPress={handleRemoveRecipient}
+                />
+              </>
+            )}
             <BlueListItem testID="CoinControl" title={loc.cc.header} hideChevron component={TouchableOpacity} onPress={handleCoinControl} />
-            {wallet.allowCosignPsbt() && (
+            {wallet.allowCosignPsbt() && isEditable && (
               <BlueListItem
                 testID="PsbtSign"
                 title={loc.send.psbt_sign}
@@ -1091,7 +1095,7 @@ const SendDetails = () => {
   };
 
   const renderWalletSelectionOrCoinsSelected = () => {
-    if (routeParams.hideWalletSelector || walletSelectionOrCoinsSelectedHidden) return null;
+    if (walletSelectionOrCoinsSelectedHidden) return null;
     if (utxo !== null) {
       return (
         <View style={styles.select}>
@@ -1109,7 +1113,7 @@ const SendDetails = () => {
 
     return (
       <View style={styles.select}>
-        {!isLoading && (
+        {!isLoading && !routeParams.hideWalletSelector && (
           <TouchableOpacity
             style={styles.selectTouch}
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
@@ -1122,6 +1126,7 @@ const SendDetails = () => {
           <TouchableOpacity
             style={styles.selectTouch}
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
+            disabled={routeParams.hideWalletSelector}
           >
             <Text style={[styles.selectLabel, stylesHook.selectLabel]}>{wallet.getLabel()}</Text>
           </TouchableOpacity>
@@ -1183,6 +1188,8 @@ const SendDetails = () => {
           }}
           unit={units[index] || amountUnit}
           inputAccessoryViewID={BlueUseAllFundsButton.InputAccessoryViewID}
+          editable={isEditable}
+          disabled={!isEditable}
         />
         <AddressInput
           onChangeText={text => {
@@ -1203,6 +1210,7 @@ const SendDetails = () => {
           isLoading={isLoading}
           inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
           launchedBy={name}
+          editable={isEditable}
         />
         {addresses.length > 1 && (
           <BlueText style={[styles.of, stylesHook.of]}>
