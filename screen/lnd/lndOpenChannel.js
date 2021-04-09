@@ -125,10 +125,14 @@ const LndOpenChannel = () => {
 
       const chanIdHex = base64ToHex(pendingChanId);
       const psbtHex = psbt.toHex();
-      const verifiedResult = await lndWallet.fundingStateStepVerify(chanIdHex, psbtHex);
-      setVerified(verifiedResult);
-      if (!verifiedResult) {
-        alert('Something went wrong with PSBT for LND');
+      try {
+        const verifiedResult = await lndWallet.fundingStateStepVerify(chanIdHex, psbtHex);
+        setVerified(verifiedResult);
+        if (!verifiedResult) {
+          alert('Something went wrong with PSBT for LND');
+        }
+      } catch (error) {
+        alert(error.message);
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -204,7 +208,7 @@ const LndOpenChannel = () => {
         },
       });
     } catch (error) {
-      alert(error);
+      alert(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -280,7 +284,6 @@ const LndOpenChannel = () => {
                 amountSats = parseInt(text);
                 break;
             }
-            console.warn(fundingAmount);
             setFundingAmount({ amount: text, amountSats });
           }}
           unit={unit}
