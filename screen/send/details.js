@@ -146,9 +146,10 @@ const SendDetails = () => {
         Alert.alert(loc.errors.error, loc.send.details_error_decode);
       }
     } else if (routeParams.address) {
-      setAddresses([{ address: routeParams.address, key: String(Math.random()) }]);
+      const { amount, amountSats, unit = BitcoinUnit.BTC } = routeParams;
+      setAddresses([{ address: routeParams.address, key: String(Math.random()), amount, amountSats }]);
       setMemo(routeParams.memo || '');
-      setAmountUnit(BitcoinUnit.BTC);
+      setAmountUnit(unit);
     } else {
       setAddresses([{ address: '', key: String(Math.random()) }]); // key is for the FlatList
     }

@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, StyleSheet, TextInput } from 'react-native';
+import { View, Text, StatusBar, ScrollView, BackHandler, StyleSheet } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
   BlueLoading,
@@ -16,6 +16,7 @@ import BigNumber from 'bignumber.js';
 import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+const currency = require('../../blue_modules/currency');
 
 const LndOpenChannel = () => {
   const { fundingWalletID, lndWalletID, psbt, isModal } = useRoute().params;
@@ -37,7 +38,7 @@ const LndOpenChannel = () => {
   const [verified, setVerified] = useState(false);
   const [unit, setUnit] = useState(BitcoinUnit.SATS);
   const [pendingChanId, setPendingChanId] = useState('');
-  const [fundingAmount, setFundingAmount] = useState('');
+  const [fundingAmount, setFundingAmount] = useState({ amount: 0, amountSats: 0 });
   const [psbtOpenChannelStartedTs, setPsbtOpenChannelStartedTs] = useState(0);
 
   const stylesHook = StyleSheet.create({
@@ -157,8 +158,8 @@ const LndOpenChannel = () => {
   const openChannel = async () => {
     setIsLoading(true);
     try {
-      const amountSats = new BigNumber(fundingAmount).multipliedBy(100000000).toNumber();
-      if (!amountSats) {
+      const amountSatsNumber = new BigNumber(fundingAmount.amountSats).multipliedBy(100000000).toNumber();
+      if (!amountSatsNumber) {
         return alert('Amount is not valid');
       }
 
@@ -175,7 +176,7 @@ const LndOpenChannel = () => {
         await lndWallet.fundingStateStepCancel(chanIdHex);
       }
 
-      const openChannelData = await lndWallet.openChannel(pubkey, host, amountSats, isPrivateChannel);
+      const openChannelData = await lndWallet.openChannel(pubkey, host, amountSatsNumber, isPrivateChannel);
       console.warn('got open channel data:', openChannelData);
       const pendingChanIdTemp = openChannelData?.pendingChanId;
       const fundingAddressTemp = openChannelData?.psbtFund?.fundingAddress;
@@ -194,7 +195,9 @@ const LndOpenChannel = () => {
           memo: 'open channel',
           address: fundingAddressTemp,
           fromWallet: fundingWallet,
-          amount: fundingAmount,
+          amount: fundingAmount.amount,
+          amountSats: fundingAmount.amountSats,
+          unit,
           noRbf: true,
           launchedBy: name,
           hideWalletSelector: true,
@@ -210,7 +213,7 @@ const LndOpenChannel = () => {
   const onBarScanned = ret => {
     if (!ret.data) ret = { data: ret };
     setRemote(ret.data);
-  }
+  };
 
   const render = () => {
     if (isLoading || !lndWallet || !fundingWallet) {
@@ -240,32 +243,40 @@ const LndOpenChannel = () => {
         <Text>
           Opening channel for {lndWallet.getLabel()}, funding from {fundingWallet.getLabel()}
         </Text>
-        <TextInput
-          value={fundingAmount}
-          onChangeText={setFundingAmount}
-          numberOfLines={1}
-          placeholderTextColor="#81868e"
-          autoCorrect={false}
-          autoCapitalize="none"
-          underlineColorAndroid="transparent"
-        />
         <AmountInput
           placeholder="funding amount, for exampe 0.001"
           isLoading={isLoading}
-          amount={fundingAmount}
+          amount={fundingAmount.amount}
           onAmountUnitChange={setUnit}
-          onChangeText={setFundingAmount}
+          onChangeText={text => {
+            let amountSats;
+            switch (unit) {
+              case BitcoinUnit.BTC:
+                amountSats = currency.btcToSatoshi(text);
+                break;
+              case BitcoinUnit.LOCAL_CURRENCY:
+                amountSats = currency.btcToSatoshi(currency.fiatToBTC(text));
+                break;
+              default:
+              case BitcoinUnit.SATS:
+                amountSats = parseInt(text);
+                break;
+            }
+            setFundingAmount({ amount: text, amountSats });
+          }}
           unit={unit}
           inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
         />
 
-        <AddressInput placeholder="remote host" 
-                     address={remoteHostWithPubkey}
-                     isLoading={isLoading}
-                     inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-        onChangeText={setRemote}
-         onBarScanned={onBarScanned} 
-        launchedBy={name} />
+        <AddressInput
+          placeholder="remote host"
+          address={remoteHostWithPubkey}
+          isLoading={isLoading}
+          inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+          onChangeText={setRemote}
+          onBarScanned={onBarScanned}
+          launchedBy={name}
+        />
 
         <View>
           <BlueSpacing20 />
