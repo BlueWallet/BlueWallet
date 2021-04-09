@@ -270,7 +270,7 @@ const WalletTransactions = () => {
           {wallet.chain === Chain.OFFCHAIN && renderMarketplaceButton()}
           {wallet.chain === Chain.OFFCHAIN && Platform.OS === 'ios' && renderLappBrowserButton()}
         </View>
-        {wallet.type === LightningLndWallet.type && (
+        {wallet.type === LightningLndWallet.type && (lndNodeInfo.canSend > 0 || lndNodeInfo.canReceive > 0) && (
           <View style={styles.marginHorizontal18}>
             <LNNodeBar canSend={lndNodeInfo.canSend} canReceive={lndNodeInfo.canReceive} />
           </View>
