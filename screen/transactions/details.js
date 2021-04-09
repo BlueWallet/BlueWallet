@@ -200,17 +200,6 @@ const TransactionsDetails = () => {
                 <BlueCopyToClipboardButton stringToCopy={tx.hash} />
               </View>
               <BlueText style={styles.rowValue}>{tx.hash}</BlueText>
-              <ToolTipMenu
-                ref={toolTip}
-                anchorRef={openTransactionOnBlockExplorerRef}
-                actions={[
-                  {
-                    id: 'copyToClipboard',
-                    text: loc.transactions.details_copy,
-                    onPress: handleCopyPress,
-                  },
-                ]}
-              />
             </>
           )}
 
@@ -241,6 +230,17 @@ const TransactionsDetails = () => {
               <BlueText style={styles.rowValue}>{tx.outputs.length}</BlueText>
             </>
           )}
+          <ToolTipMenu
+            ref={toolTip}
+            anchorRef={openTransactionOnBlockExplorerRef}
+            actions={[
+              {
+                id: 'copyToClipboard',
+                text: loc.transactions.details_copy,
+                onPress: handleCopyPress,
+              },
+            ]}
+          />
           <TouchableOpacity
             ref={openTransactionOnBlockExplorerRef}
             onPress={handleOnOpenTransactionOnBlockExporerTapped}
@@ -248,7 +248,7 @@ const TransactionsDetails = () => {
             style={[styles.greyButton, stylesHooks.greyButton]}
           >
             <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_show_in_block_explorer}</Text>
-          </TouchableOpacity>    
+          </TouchableOpacity>
         </BlueCard>
       </ScrollView>
     </SafeBlueArea>
@@ -283,8 +283,8 @@ const styles = StyleSheet.create({
     color: 'grey',
   },
   Link: {
-    fontWeight: '600', 
-    fontSize: 15
+    fontWeight: '600',
+    fontSize: 15,
   },
   save: {
     marginHorizontal: 16,
