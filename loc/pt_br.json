@@ -322,7 +322,8 @@
     "success_transaction_broadcasted" : "Sucesso! Sua transação foi transmitida!",
     "total_balance": "Saldo total",
     "total_balance_explanation": "Exibir o saldo total de todas suas carteiras nos seus widgets da tela inicial.",
-    "widgets": "Widgets"
+    "widgets": "Widgets",
+    "tools": "Ferramentas"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Gostaria de receber notificações quando receber pagamentos?",
