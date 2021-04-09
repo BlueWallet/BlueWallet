@@ -55,6 +55,12 @@ const TransactionsDetails = () => {
       borderBottomColor: colors.formBorder,
       backgroundColor: colors.inputBackgroundColor,
     },
+    greyButton: {
+      backgroundColor: colors.lightButton,
+    },
+    Link: {
+      color: colors.buttonTextColor,
+    },
   });
 
   useEffect(() => {
@@ -119,7 +125,7 @@ const TransactionsDetails = () => {
   };
 
   const handleOnOpenTransactionOnBlockExporerTapped = () => {
-    const url = `https://blockstream.info/tx/${tx.hash}`;
+    const url = `https://mempool.space/tx/${tx.hash}`;
     Linking.canOpenURL(url).then(supported => {
       if (supported) {
         Linking.openURL(url);
@@ -128,7 +134,7 @@ const TransactionsDetails = () => {
   };
 
   const handleCopyPress = () => {
-    Clipboard.setString(`https://blockstream.info/tx/${tx.hash}`);
+    Clipboard.setString(`https://mempool.space/tx/${tx.hash}`);
   };
 
   const showToolTipMenu = () => {
@@ -193,7 +199,7 @@ const TransactionsDetails = () => {
                 <BlueText style={[styles.txId, stylesHooks.txId]}>{loc.transactions.txid}</BlueText>
                 <BlueCopyToClipboardButton stringToCopy={tx.hash} />
               </View>
-              <BlueText style={styles.txHash}>{tx.hash}</BlueText>
+              <BlueText style={styles.rowValue}>{tx.hash}</BlueText>
               <ToolTipMenu
                 ref={toolTip}
                 anchorRef={openTransactionOnBlockExplorerRef}
@@ -205,13 +211,6 @@ const TransactionsDetails = () => {
                   },
                 ]}
               />
-              <TouchableOpacity
-                ref={openTransactionOnBlockExplorerRef}
-                onPress={handleOnOpenTransactionOnBlockExporerTapped}
-                onLongPress={showToolTipMenu}
-              >
-                <BlueText style={[styles.txLink, stylesHooks.txLink]}>{loc.transactions.details_show_in_block_explorer}</BlueText>
-              </TouchableOpacity>
             </>
           )}
 
@@ -242,6 +241,14 @@ const TransactionsDetails = () => {
               <BlueText style={styles.rowValue}>{tx.outputs.length}</BlueText>
             </>
           )}
+          <TouchableOpacity
+            ref={openTransactionOnBlockExplorerRef}
+            onPress={handleOnOpenTransactionOnBlockExporerTapped}
+            onLongPress={showToolTipMenu}
+            style={[styles.greyButton, stylesHooks.greyButton]}
+          >
+            <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_show_in_block_explorer}</Text>
+          </TouchableOpacity>    
         </BlueCard>
       </ScrollView>
     </SafeBlueArea>
@@ -275,8 +282,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: 'grey',
   },
-  txLink: {
-    marginBottom: 26,
+  Link: {
+    fontWeight: '600', 
+    fontSize: 15
   },
   save: {
     marginHorizontal: 16,
@@ -294,6 +302,17 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingHorizontal: 8,
     color: '#81868e',
+  },
+  greyButton: {
+    borderRadius: 9,
+    minHeight: 49,
+    paddingHorizontal: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    alignSelf: 'auto',
+    flexGrow: 1,
+    marginHorizontal: 4,
   },
 });
 
