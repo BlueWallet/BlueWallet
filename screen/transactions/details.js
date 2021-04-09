@@ -199,7 +199,7 @@ const TransactionsDetails = () => {
                 <BlueText style={[styles.txId, stylesHooks.txId]}>{loc.transactions.txid}</BlueText>
                 <BlueCopyToClipboardButton stringToCopy={tx.hash} />
               </View>
-              <BlueText style={styles.txHash, styles.rowValue}>{tx.hash}</BlueText>
+              <BlueText style={styles.rowValue}>{tx.hash}</BlueText>
               <ToolTipMenu
                 ref={toolTip}
                 anchorRef={openTransactionOnBlockExplorerRef}
