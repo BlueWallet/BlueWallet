@@ -36,9 +36,9 @@ const LndOpenChannel = () => {
   );
   const [isPrivateChannel, setIsPrivateChannel] = useState(true);
   const [verified, setVerified] = useState(false);
-  const [unit, setUnit] = useState(BitcoinUnit.SATS);
+  const [unit, setUnit] = useState(fundingWallet.getPreferredBalanceUnit());
   const [pendingChanId, setPendingChanId] = useState('');
-  const [fundingAmount, setFundingAmount] = useState({ amount: 0, amountSats: 0 });
+  const [fundingAmount, setFundingAmount] = useState({ amount: null, amountSats: null });
   const [psbtOpenChannelStartedTs, setPsbtOpenChannelStartedTs] = useState(0);
 
   const stylesHook = StyleSheet.create({
@@ -158,7 +158,7 @@ const LndOpenChannel = () => {
   const openChannel = async () => {
     setIsLoading(true);
     try {
-      const amountSatsNumber = new BigNumber(fundingAmount.amountSats).multipliedBy(100000000).toNumber();
+      const amountSatsNumber = new BigNumber(fundingAmount.amountSats).toNumber();
       if (!amountSatsNumber) {
         return alert('Amount is not valid');
       }
@@ -176,7 +176,7 @@ const LndOpenChannel = () => {
         await lndWallet.fundingStateStepCancel(chanIdHex);
       }
 
-      const openChannelData = await lndWallet.openChannel(pubkey, host, amountSatsNumber, isPrivateChannel);
+      const openChannelData = await lndWallet.openChannel(pubkey, host, fundingAmount.amountSats, isPrivateChannel);
       console.warn('got open channel data:', openChannelData);
       const pendingChanIdTemp = openChannelData?.pendingChanId;
       const fundingAddressTemp = openChannelData?.psbtFund?.fundingAddress;
@@ -247,9 +247,27 @@ const LndOpenChannel = () => {
           placeholder="funding amount, for exampe 0.001"
           isLoading={isLoading}
           amount={fundingAmount.amount}
-          onAmountUnitChange={setUnit}
+          onAmountUnitChange={newUnit => {
+            let amountSats = fundingAmount.amountSats;
+            switch (newUnit) {
+              case BitcoinUnit.SATS:
+                amountSats = parseInt(fundingAmount.amount);
+                break;
+              case BitcoinUnit.BTC:
+                amountSats = currency.btcToSatoshi(fundingAmount.amount);
+                break;
+              case BitcoinUnit.LOCAL_CURRENCY:
+                // also accounting for cached fiat->sat conversion to avoid rounding error
+                amountSats = currency.btcToSatoshi(currency.fiatToBTC(fundingAmount.amount));
+                break;
+            }
+            setFundingAmount(currentFundingAmount => {
+              return { amount: currentFundingAmount.amount, amountSats };
+            });
+            setUnit(newUnit);
+          }}
           onChangeText={text => {
-            let amountSats;
+            let amountSats = fundingAmount.amountSats;
             switch (unit) {
               case BitcoinUnit.BTC:
                 amountSats = currency.btcToSatoshi(text);
@@ -262,6 +280,7 @@ const LndOpenChannel = () => {
                 amountSats = parseInt(text);
                 break;
             }
+            console.warn(fundingAmount);
             setFundingAmount({ amount: text, amountSats });
           }}
           unit={unit}
