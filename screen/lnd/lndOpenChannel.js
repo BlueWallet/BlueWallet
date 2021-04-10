@@ -206,7 +206,6 @@ const LndOpenChannel = () => {
           unit,
           noRbf: true,
           launchedBy: name,
-          hideWalletSelector: true,
           isEditable: false,
         },
       });

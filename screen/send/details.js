@@ -1116,7 +1116,7 @@ const SendDetails = () => {
 
     return (
       <View style={styles.select}>
-        {!isLoading && !routeParams.hideWalletSelector && isEditable && (
+        {!isLoading && isEditable && (
           <TouchableOpacity
             style={styles.selectTouch}
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
@@ -1129,7 +1129,7 @@ const SendDetails = () => {
           <TouchableOpacity
             style={styles.selectTouch}
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
-            disabled={routeParams.hideWalletSelector || !isEditable}
+            disabled={!isEditable}
           >
             <Text style={[styles.selectLabel, stylesHook.selectLabel]}>{wallet.getLabel()}</Text>
           </TouchableOpacity>
