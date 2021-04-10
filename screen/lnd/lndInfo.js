@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useContext, useEffect, useState } from 'react';
-import { View, StatusBar, ScrollView, BackHandler, StyleSheet, Text, FlatList, Keyboard, TouchableOpacity } from 'react-native';
+import { View, StatusBar, BackHandler, StyleSheet, Text, FlatList, Keyboard, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
   BlueLoading,
@@ -279,16 +279,17 @@ const LndInfo = () => {
     return <View style={[styles.separator, stylesHook.separator]} />;
   };
 
-  const render = () => {
-    if (isLoading) {
-      return (
-        <View style={[styles.root, stylesHook.root]}>
-          <BlueLoading />
-        </View>
-      );
-    }
-
+  if (isLoading) {
     return (
+      <View style={[styles.root, stylesHook.root]}>
+        <BlueLoading />
+      </View>
+    );
+  }
+
+  return (
+    <SafeBlueArea styles={[styles.root, stylesHook.root]}>
+      <StatusBar barStyle="default" />
       <View style={styles.root}>
         {wBalance && wBalance.confirmedBalance && (
           <BlueButton onPress={claimBalance} title={'Claim balance ' + wBalance.confirmedBalance + ' sat'} />
@@ -302,7 +303,7 @@ const LndInfo = () => {
           ItemSeparatorComponent={itemSeparatorComponent}
         />
 
-        <BlueText>Identity pubkey: {getInfo.identityPubkey}</BlueText>
+        {/* <BlueText>Identity pubkey: {getInfo.identityPubkey}</BlueText>
         <BlueText>numPendingChannels: {getInfo.numPendingChannels || 0}</BlueText>
         <BlueText>numActiveChannels: {getInfo.numActiveChannels || 0}</BlueText>
         <BlueText>Peers: {getInfo.numPeers || 0}</BlueText>
@@ -314,19 +315,12 @@ const LndInfo = () => {
         <BlueText>{info}</BlueText>
         <BlueSpacing20 />
         <BlueButton onPress={showLogs} title="Show logs" />
-        <BlueSpacing20 />
+        <BlueSpacing20 /> */}
         <BlueCard>
           <Button text={loc.lnd.new_channel} onPress={navigateToOpenChannel} />
         </BlueCard>
+        {renderModal}
       </View>
-    );
-  };
-
-  return (
-    <SafeBlueArea styles={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="default" />
-      <ScrollView contentContainerStyle={styles.contentContainerStyle}>{render()}</ScrollView>
-      {renderModal}
     </SafeBlueArea>
   );
 };
@@ -334,6 +328,7 @@ const LndInfo = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    justifyContent: 'space-between',
   },
   contentContainerStyle: {
     flexGrow: 1,
