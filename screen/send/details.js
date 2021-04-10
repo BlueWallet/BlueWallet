@@ -56,7 +56,7 @@ const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 const SendDetails = () => {
   const { wallets, setSelectedWallet, sleep, txMetadata, saveToDisk } = useContext(BlueStorageContext);
   const navigation = useNavigation();
-  const { name, params: routeParams, isEditable = true } = useRoute();
+  const { name, params: routeParams } = useRoute();
   const scrollView = useRef();
   const scrollIndex = useRef(0);
   const { colors } = useTheme();
@@ -83,6 +83,7 @@ const SendDetails = () => {
   const [payjoinUrl, setPayjoinUrl] = useState(null);
   const [changeAddress, setChangeAddress] = useState();
   const [dumb, setDumb] = useState(false);
+  const { isEditable = true } = routeParams;
 
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/byte fee

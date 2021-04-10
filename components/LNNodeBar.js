@@ -1,17 +1,25 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import loc from '../loc';
+import loc, { formatBalanceWithoutSuffix } from '../loc';
 import PropTypes from 'prop-types';
+import { BitcoinUnit } from '../models/bitcoinUnits';
+import { useTheme } from '@react-navigation/native';
 
 export const LNNodeBar = props => {
-  const { canReceive = 0, canSend = 0, nodeAlias = '', disabled = false } = props;
+  const { canReceive = 0, canSend = 0, nodeAlias = '', disabled = false, itemPriceUnit = BitcoinUnit.SATS } = props;
+  const { colors } = useTheme();
   const opacity = { opacity: disabled ? 0.28 : 1.0 };
   const canSendBarFlex = {
     flex: canReceive > 0 && canSend > 0 ? Math.abs(canSend / (canReceive + canSend)) * 1.0 : 1.0,
   };
+  const stylesHook = StyleSheet.create({
+    nodeAlias: {
+      color: colors.alternativeTextColor2,
+    },
+  });
   return (
     <View style={[styles.root, opacity]}>
-      {nodeAlias.trim().length > 0 && <Text style={styles.nodeAlias}>{nodeAlias}</Text>}
+      {nodeAlias.trim().length > 0 && <Text style={[styles.nodeAlias, stylesHook.nodeAlias]}>{nodeAlias}</Text>}
       <View style={styles.canReceiveBar}>
         <View style={styles.fullFlexDirectionRow}>
           <View style={[styles.canSendBar, canSendBarFlex]} />
@@ -21,11 +29,11 @@ export const LNNodeBar = props => {
       <View style={styles.containerBottomText}>
         <View style={styles.containerBottomRightText}>
           <Text style={styles.titleText}>{loc.lnd.can_send.toUpperCase()}</Text>
-          <Text style={styles.canSend}>{canSend}</Text>
+          <Text style={styles.canSend}>{formatBalanceWithoutSuffix(canSend, itemPriceUnit, true).toString()}</Text>
         </View>
         <View style={styles.containerBottomLeftText}>
           <Text style={styles.titleText}>{loc.lnd.can_receive.toUpperCase()}</Text>
-          <Text style={styles.canReceive}>{canReceive}</Text>
+          <Text style={styles.canReceive}>{formatBalanceWithoutSuffix(canReceive, itemPriceUnit, true).toString()}</Text>
         </View>
       </View>
     </View>
@@ -39,6 +47,7 @@ LNNodeBar.propTypes = {
   canSend: PropTypes.number.isRequired,
   nodeAlias: PropTypes.string,
   disabled: PropTypes.bool,
+  itemPriceUnit: PropTypes.string,
 };
 const styles = StyleSheet.create({
   root: {
@@ -50,7 +59,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   nodeAlias: {
-    color: '#022553',
     marginVertical: 16,
   },
   canSendBar: {
@@ -59,7 +67,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#4E6CF5',
     borderRadius: 6,
   },
-  canReceiveBar: { backgroundColor: '#57B996', borderRadius: 6 },
+  canReceiveBar: { backgroundColor: '#57B996', borderRadius: 6, height: 14, maxHeight: 14 },
   fullFlexDirectionRow: {
     flexDirection: 'row',
     flex: 1,

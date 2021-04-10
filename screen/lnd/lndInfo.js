@@ -2,14 +2,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, StatusBar, ScrollView, BackHandler, StyleSheet, Text, FlatList, Keyboard, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { BlueLoading, SafeBlueArea, BlueButton, BlueText, BlueSpacing20 } from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueButton, BlueSpacing20, BlueSpacing40, BlueSpacing10 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Chain } from '../../models/bitcoinUnits';
-import loc from '../../loc';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import LNNodeBar from '../../components/LNNodeBar';
 import BottomModal from '../../components/BottomModal';
-import Button from '../../components/Button';
+import Button, { ButtonStyle } from '../../components/Button';
 
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
@@ -142,7 +142,7 @@ const LndInfo = () => {
 
   const closeChannel = async channel => {
     if (!(await confirm())) return;
-
+    setSelectedChannelIndex(undefined);
     const fundingTxid = channel.item.channelPoint.split(':')[0];
     const fundingIndex = channel.item.channelPoint.split(':')[1];
 
@@ -201,27 +201,68 @@ const LndInfo = () => {
   const renderModal = (
     <BottomModal isVisible={isModalVisible} onClose={closeModal}>
       <View style={[styles.modalContent, stylesHook.modalContent]}>
-        <Text style={[stylesHook.detailsText]}>node alias</Text>
-        <Text style={[stylesHook.detailsText]}>node alias</Text>
-        <LNNodeBar
-          disabled={channels[selectedChannelIndex]?.item.active}
-          canSend={channels[selectedChannelIndex]?.item.localBalance}
-          canReceive={channels[selectedChannelIndex]?.item.capacity}
-        />
-
+        <Text style={[stylesHook.detailsText]}>{loc.lnd.node_alias}</Text>
+        <BlueSpacing10 />
+        <Text style={[stylesHook.detailsText]}>{channels[selectedChannelIndex]?.remotePubkey}</Text>
         <BlueSpacing20 />
-        <Button onPress={closeChannel} text={loc.lnd.close_channel} />
+        <LNNodeBar
+          disabled={!channels[selectedChannelIndex]?.active}
+          canSend={Number(channels[selectedChannelIndex]?.localBalance)}
+          canReceive={Number(channels[selectedChannelIndex]?.capacity)}
+          itemPriceUnit={wallet.getPreferredBalanceUnit()}
+        />
+        <BlueSpacing20 />
+
+        <Text style={[stylesHook.detailsText]}>{loc.settings.electrum_status}</Text>
+        <BlueSpacing10 />
+        <Text style={[stylesHook.detailsText]}> {channels[selectedChannelIndex]?.active ? loc.lnd.active : loc.lnd.inactive}</Text>
+        <BlueSpacing20 />
+
+        <Text style={[stylesHook.detailsText]}>{loc.lnd.local_reserve}</Text>
+        <BlueSpacing10 />
+        <Text style={[stylesHook.detailsText]}>
+          {formatBalanceWithoutSuffix(
+            channels[selectedChannelIndex]?.localChanReserveSat,
+            wallet.getPreferredBalanceUnit(),
+            true,
+          ).toString()}
+        </Text>
+
+        <BlueSpacing40 />
+        <Button onPress={closeChannel} text={loc.lnd.close_channel} buttonStyle={ButtonStyle.destroy} />
       </View>
     </BottomModal>
   );
 
   const renderItemChannel = channel => {
     return (
-      <TouchableOpacity onPress={showModal}>
-        <LNNodeBar disabled={channel.item.active} canSend={channel.item.localBalance} canReceive={channel.item.capacity} />
+      <TouchableOpacity onPress={() => showModal(channel.index)}>
+        <LNNodeBar
+          disabled={!channel.item.active}
+          canSend={Number(channel.item.localBalance)}
+          canReceive={Number(channel.item.capacity)}
+          itemPriceUnit={wallet.getPreferredBalanceUnit()}
+          nodeAlias={channel.item.remotePubkey}
+        />
       </TouchableOpacity>
     );
   };
+
+  const navigateToOpenChannel = async () => {
+    const availableWallets = [...wallets.filter(item => item.isSegwit() && item.allowSend())];
+    if (availableWallets.length === 0) {
+      return alert(loc.lnd.refill_create);
+    }
+
+    /** @type {AbstractWallet} */
+    const selectedWallet = await selectWallet(navigate, name, false, availableWallets);
+    return navigate('LndOpenChannel', {
+      fundingWalletID: selectedWallet.getID(),
+      lndWalletID: wallet.getID(),
+    });
+  };
+
+  const itemSeparatorComponent = <View style={styles.itemSeparatorComponent} />;
 
   const render = () => {
     if (isLoading) {
@@ -233,14 +274,20 @@ const LndInfo = () => {
     }
 
     return (
-      <ScrollView style={styles.root}>
+      <View style={styles.root}>
         {wBalance && wBalance.confirmedBalance && (
           <BlueButton onPress={claimBalance} title={'Claim balance ' + wBalance.confirmedBalance + ' sat'} />
         )}
 
-        <FlatList data={channels} renderItem={renderItemChannel} keyExtractor={channel => channel.chanId} />
+        <FlatList
+          data={channels}
+          renderItem={renderItemChannel}
+          keyExtractor={channel => channel.chanId}
+          contentContainerStyle={styles.listStyle}
+          ItemSeparatorComponent={itemSeparatorComponent}
+        />
 
-        <BlueText>Identity pubkey: {getInfo.identityPubkey}</BlueText>
+        {/* <BlueText>Identity pubkey: {getInfo.identityPubkey}</BlueText>
         <BlueText>numPendingChannels: {getInfo.numPendingChannels || 0}</BlueText>
         <BlueText>numActiveChannels: {getInfo.numActiveChannels || 0}</BlueText>
         <BlueText>Peers: {getInfo.numPeers || 0}</BlueText>
@@ -249,11 +296,12 @@ const LndInfo = () => {
           {getInfo.syncedToChain ? 'synced to chain' : 'not synced to chain'} ({getInfo.blockHeight})
         </BlueText>
         <BlueText>{getInfo.syncedToGraph ? 'synced to graph' : 'not synced to graph'}</BlueText>
-        <BlueText>{info}</BlueText>
+        <BlueText>{info}</BlueText> */}
+        {/* <BlueSpacing20 />
+        <BlueButton onPress={showLogs} title="Show logs" /> */}
         <BlueSpacing20 />
-        <BlueButton onPress={showLogs} title="Show logs" />
-        <BlueSpacing20 />
-      </ScrollView>
+        <Button text={loc.lnd.new_channel} onPress={navigateToOpenChannel} />
+      </View>
     );
   };
 
@@ -272,6 +320,9 @@ const styles = StyleSheet.create({
   },
   contentContainerStyle: {
     flexGrow: 1,
+  },
+  listStyle: {
+    margin: 16,
   },
   justifyContentCenter: {
     justifyContent: 'center',
@@ -346,10 +397,14 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     padding: 24,
-
+    minHeight: 418,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  itemSeparatorComponent: {
+    marginHorizontal: 8,
+    backgroundColor: 'grey',
   },
 });
 

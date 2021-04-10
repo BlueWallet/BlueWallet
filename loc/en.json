@@ -101,7 +101,7 @@
     "errorInvoiceExpired": "Invoice expired",
     "exchange": "Exchange",
     "expired": "Expired",
-
+    "node_alias": "Node alias",
     "expiredLow": "Expired",
     "expiresIn": "Expires: {time}",
     "payButton": "Pay",

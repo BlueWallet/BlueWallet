@@ -205,6 +205,7 @@ const LndOpenChannel = () => {
           noRbf: true,
           launchedBy: name,
           hideWalletSelector: true,
+          isEditable: false,
         },
       });
     } catch (error) {

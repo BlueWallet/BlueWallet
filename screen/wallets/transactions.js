@@ -42,7 +42,6 @@ import LNNodeBar from '../../components/LNNodeBar';
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-const selectWallet = require('../../helpers/select-wallet');
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -57,7 +56,6 @@ const WalletTransactions = () => {
   const { name } = useRoute();
   const wallet = wallets.find(w => w.getID() === walletID);
   const [itemPriceUnit, setItemPriceUnit] = useState(wallet.getPreferredBalanceUnit());
-  const [isManageLndModalVisible, setIsManageLndModalVisible] = useState(false);
   const [dataSource, setDataSource] = useState(wallet.getTransactions(15));
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [limit, setLimit] = useState(15);
@@ -272,7 +270,7 @@ const WalletTransactions = () => {
         </View>
         {wallet.type === LightningLndWallet.type && (lndNodeInfo.canSend > 0 || lndNodeInfo.canReceive > 0) && (
           <View style={styles.marginHorizontal18}>
-            <LNNodeBar canSend={lndNodeInfo.canSend} canReceive={lndNodeInfo.canReceive} />
+            <LNNodeBar canSend={lndNodeInfo.canSend} canReceive={lndNodeInfo.canReceive} itemPriceUnit={itemPriceUnit} />
           </View>
         )}
         <View style={[styles.listHeaderTextRow, stylesHook.listHeaderTextRow]}>
@@ -288,11 +286,6 @@ const WalletTransactions = () => {
   const hideManageFundsModal = () => {
     Keyboard.dismiss();
     setIsManageFundsModalVisible(false);
-  };
-
-  const hideManageLndModal = () => {
-    Keyboard.dismiss();
-    setIsManageLndModalVisible(false);
   };
 
   const renderManageFundsModal = () => {
@@ -348,45 +341,6 @@ const WalletTransactions = () => {
                 setIsManageFundsModalVisible(false);
                 Linking.openURL('https://zigzag.io/?utm_source=integration&utm_medium=bluewallet&utm_campaign=withdrawLink');
               }}
-            />
-          </View>
-        </KeyboardAvoidingView>
-      </BottomModal>
-    );
-  };
-
-  const renderManageLndModal = () => {
-    return (
-      <BottomModal isVisible={isManageLndModalVisible} onClose={hideManageLndModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={[styles.advancedTransactionOptionsModalContent, stylesHook.advancedTransactionOptionsModalContent]}>
-            <BlueListItem
-              hideChevron
-              component={TouchableOpacity}
-              onPress={async () => {
-                const availableWallets = [...wallets.filter(item => item.isSegwit() && item.allowSend())];
-                if (availableWallets.length === 0) {
-                  return alert(loc.lnd.refill_create);
-                }
-
-                setIsManageLndModalVisible(false);
-                /** @type {AbstractWallet} */
-                const selectedWallet = await selectWallet(navigate, name, false, availableWallets);
-                return navigate('LndOpenChannel', {
-                  fundingWalletID: selectedWallet.getID(),
-                  lndWalletID: wallet.getID(),
-                });
-              }}
-              title="Open Channel"
-            />
-            <BlueListItem
-              hideChevron
-              component={TouchableOpacity}
-              onPress={() => {
-                setIsManageLndModalVisible(false);
-                navigate('LndInfo', { walletID: wallet.getID() });
-              }}
-              title="Manage Node"
             />
           </View>
         </KeyboardAvoidingView>
@@ -674,7 +628,7 @@ const WalletTransactions = () => {
           if (wallet.type === MultisigHDWallet.type) {
             navigateToViewEditCosigners();
           } else if (wallet.type === LightningLndWallet.type) {
-            setIsManageLndModalVisible(true);
+            navigate('LndInfo', { walletID: wallet.getID() });
           } else if (wallet.type === LightningCustodianWallet.type) {
             if (wallet.getUserHasSavedExport()) {
               setIsManageFundsModalVisible(true);
@@ -740,7 +694,6 @@ const WalletTransactions = () => {
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
         />
         {renderManageFundsModal()}
-        {renderManageLndModal()}
       </View>
 
       <FContainer ref={walletActionButtonsRef}>
