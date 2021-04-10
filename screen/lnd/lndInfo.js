@@ -2,7 +2,16 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, StatusBar, ScrollView, BackHandler, StyleSheet, Text, FlatList, Keyboard, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { BlueLoading, SafeBlueArea, BlueButton, BlueSpacing20, BlueSpacing40, BlueSpacing10, BlueText } from '../../BlueComponents';
+import {
+  BlueLoading,
+  SafeBlueArea,
+  BlueButton,
+  BlueSpacing20,
+  BlueSpacing40,
+  BlueSpacing10,
+  BlueText,
+  BlueCard,
+} from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Chain } from '../../models/bitcoinUnits';
@@ -306,7 +315,9 @@ const LndInfo = () => {
         <BlueSpacing20 />
         <BlueButton onPress={showLogs} title="Show logs" />
         <BlueSpacing20 />
-        <Button text={loc.lnd.new_channel} onPress={navigateToOpenChannel} />
+        <BlueCard>
+          <Button text={loc.lnd.new_channel} onPress={navigateToOpenChannel} />
+        </BlueCard>
       </View>
     );
   };

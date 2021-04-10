@@ -16,14 +16,15 @@ const Button = props => {
 
 const styles = StyleSheet.create({
   buttonContainer: {
+    borderRadius: 9,
+    minHeight: 49,
+    paddingHorizontal: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
-    height: 53,
-    maxHeight: 53,
-    shadowRadius: 8,
-    shadowOffset: { width: 4, height: 4 },
-    shadowOpacity: 0.25,
+    flexDirection: 'row',
+    alignSelf: 'auto',
+    flexGrow: 1,
+    marginHorizontal: 4,
   },
   buttonDefault: {
     backgroundColor: '#EBF2FB',
