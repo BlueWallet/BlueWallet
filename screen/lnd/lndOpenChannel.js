@@ -8,6 +8,7 @@ import {
   BlueButton,
   BlueSpacing20,
   BlueListItem,
+  BlueDoneAndDismissKeyboardInputAccessory,
   BlueDismissKeyboardInputAccessory,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -16,6 +17,7 @@ import BigNumber from 'bignumber.js';
 import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import loc from '../../loc';
 const currency = require('../../blue_modules/currency');
 
 const LndOpenChannel = () => {
@@ -292,10 +294,10 @@ const LndOpenChannel = () => {
         />
 
         <AddressInput
-          placeholder="remote host"
+          placeholder={loc.lnd.remote_host}
           address={remoteHostWithPubkey}
           isLoading={isLoading}
-          inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+          inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
           onChangeText={setRemote}
           onBarScanned={onBarScanned}
           launchedBy={name}
@@ -318,7 +320,7 @@ const LndOpenChannel = () => {
         </View>
 
         <BlueButton onPress={openChannel} title="Open Channel" />
-        <BlueDismissKeyboardInputAccessory />
+        <BlueDoneAndDismissKeyboardInputAccessory />
       </View>
     );
   };

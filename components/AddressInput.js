@@ -18,7 +18,7 @@ const AddressInput = ({
   onChangeText,
   onBarScanned,
   launchedBy,
-  isEditable = true,
+  editable = true,
 }) => {
   const { colors } = useTheme();
   const scanButtonRef = useRef();
@@ -47,10 +47,10 @@ const AddressInput = ({
         placeholderTextColor="#81868e"
         value={address}
         style={styles.input}
-        editable={!isLoading && isEditable}
+        editable={!isLoading && editable}
         onSubmitEditing={Keyboard.dismiss}
       />
-      {isEditable && (
+      {editable && (
         <TouchableOpacity
           testID="BlueAddressInputScanQrButton"
           disabled={isLoading}
@@ -118,7 +118,7 @@ AddressInput.propTypes = {
   launchedBy: PropTypes.string,
   address: PropTypes.string,
   placeholder: PropTypes.string,
-  isEditable: PropTypes.bool,
+  editable: PropTypes.bool,
 };
 
 export default AddressInput;

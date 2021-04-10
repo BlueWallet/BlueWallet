@@ -108,6 +108,7 @@
     "placeholder": "Invoice",
     "local_reserve": "Local reserve",
     "potentialFee": "Potential Fee: {fee}",
+    "remote_host": "Remote host",
     "refill": "Refill",
     "refill_card": "Refill with Bank Card",
     "refill_create": "In order to proceed, please create a Bitcoin wallet to refill with.",
