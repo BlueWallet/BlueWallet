@@ -322,7 +322,8 @@
     "success_transaction_broadcasted" : "Sukces! Twoja transakcja została rozgłoszona!",
     "total_balance": "Saldo całkowite",
     "total_balance_explanation": "Wyświetlaj całkowite saldo wszystkich Twoich portfeli wśród widżetów na ekranie domowym",
-    "widgets": "Widżety"
+    "widgets": "Widżety",
+    "tools": "Narzędzia"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Czy chcesz otrzymywać powiadomienia o nadchodzących płatnościach?",
