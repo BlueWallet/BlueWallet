@@ -1005,14 +1005,16 @@ const SendDetails = () => {
       <BottomModal deviceWidth={width + width / 2} isVisible={optionsVisible} onClose={hideOptions}>
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.optionsContent, stylesHook.optionsContent]}>
-            <BlueListItem
-              testID="sendMaxButton"
-              disabled={balance === 0 || isSendMaxUsed}
-              title={loc.send.details_adv_full}
-              hideChevron
-              component={TouchableOpacity}
-              onPress={onUseAllPressed}
-            />
+            {isEditable && (
+              <BlueListItem
+                testID="sendMaxButton"
+                disabled={balance === 0 || isSendMaxUsed}
+                title={loc.send.details_adv_full}
+                hideChevron
+                component={TouchableOpacity}
+                onPress={onUseAllPressed}
+              />
+            )}
             {wallet.type === HDSegwitBech32Wallet.type && isEditable && (
               <BlueListItem
                 title={loc.send.details_adv_fee_bump}
@@ -1114,7 +1116,7 @@ const SendDetails = () => {
 
     return (
       <View style={styles.select}>
-        {!isLoading && !routeParams.hideWalletSelector && (
+        {!isLoading && !routeParams.hideWalletSelector && isEditable && (
           <TouchableOpacity
             style={styles.selectTouch}
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
@@ -1127,7 +1129,7 @@ const SendDetails = () => {
           <TouchableOpacity
             style={styles.selectTouch}
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
-            disabled={routeParams.hideWalletSelector}
+            disabled={routeParams.hideWalletSelector || !isEditable}
           >
             <Text style={[styles.selectLabel, stylesHook.selectLabel]}>{wallet.getLabel()}</Text>
           </TouchableOpacity>
