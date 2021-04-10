@@ -2,7 +2,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, StatusBar, ScrollView, BackHandler, StyleSheet, Text, FlatList, Keyboard, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { BlueLoading, SafeBlueArea, BlueButton, BlueSpacing20, BlueSpacing40, BlueSpacing10 } from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueButton, BlueSpacing20, BlueSpacing40, BlueSpacing10, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Chain } from '../../models/bitcoinUnits';
@@ -57,6 +57,9 @@ const LndInfo = () => {
     },
     modalContent: {
       backgroundColor: colors.elevated,
+    },
+    separator: {
+      backgroundColor: colors.inputBorderColor,
     },
   });
 
@@ -235,6 +238,7 @@ const LndInfo = () => {
   );
 
   const renderItemChannel = channel => {
+    console.warn(channel);
     return (
       <TouchableOpacity onPress={() => showModal(channel.index)}>
         <LNNodeBar
@@ -262,7 +266,9 @@ const LndInfo = () => {
     });
   };
 
-  const itemSeparatorComponent = <View style={styles.itemSeparatorComponent} />;
+  const itemSeparatorComponent = () => {
+    return <View style={[styles.separator, stylesHook.separator]} />;
+  };
 
   const render = () => {
     if (isLoading) {
@@ -287,7 +293,7 @@ const LndInfo = () => {
           ItemSeparatorComponent={itemSeparatorComponent}
         />
 
-        {/* <BlueText>Identity pubkey: {getInfo.identityPubkey}</BlueText>
+        <BlueText>Identity pubkey: {getInfo.identityPubkey}</BlueText>
         <BlueText>numPendingChannels: {getInfo.numPendingChannels || 0}</BlueText>
         <BlueText>numActiveChannels: {getInfo.numActiveChannels || 0}</BlueText>
         <BlueText>Peers: {getInfo.numPeers || 0}</BlueText>
@@ -296,9 +302,9 @@ const LndInfo = () => {
           {getInfo.syncedToChain ? 'synced to chain' : 'not synced to chain'} ({getInfo.blockHeight})
         </BlueText>
         <BlueText>{getInfo.syncedToGraph ? 'synced to graph' : 'not synced to graph'}</BlueText>
-        <BlueText>{info}</BlueText> */}
-        {/* <BlueSpacing20 />
-        <BlueButton onPress={showLogs} title="Show logs" /> */}
+        <BlueText>{info}</BlueText>
+        <BlueSpacing20 />
+        <BlueButton onPress={showLogs} title="Show logs" />
         <BlueSpacing20 />
         <Button text={loc.lnd.new_channel} onPress={navigateToOpenChannel} />
       </View>
@@ -402,9 +408,9 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
   },
-  itemSeparatorComponent: {
-    marginHorizontal: 8,
-    backgroundColor: 'grey',
+  separator: {
+    height: 1,
+    marginTop: 16,
   },
 });
 
