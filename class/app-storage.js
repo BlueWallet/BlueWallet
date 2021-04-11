@@ -276,6 +276,7 @@ export class AppStorage {
             break;
           case LightningLndWallet.type:
             unserializedWallet = LightningLndWallet.fromJson(key);
+            unserializedWallet.init();
             break;
           case LightningCustodianWallet.type: {
             /** @type {LightningCustodianWallet} */

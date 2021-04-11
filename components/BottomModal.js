@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, useWindowDimensions } from 'react-native';
+import { StyleSheet, useWindowDimensions, Platform } from 'react-native';
 import Modal from 'react-native-modal';
-import { Platform } from 'react-native';
 
 const styles = StyleSheet.create({
   root: {

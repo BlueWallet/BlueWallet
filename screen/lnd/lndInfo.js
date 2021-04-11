@@ -50,6 +50,9 @@ const LndInfo = () => {
     valueRoot: {
       backgroundColor: colors.background,
     },
+    textHeader: {
+      color: colors.outputValue,
+    },
     valueSats: {
       color: colors.alternativeTextColor2,
     },
@@ -270,18 +273,19 @@ const LndInfo = () => {
   const renderNewChannelModal = (
     <BottomModal isVisible={isNewChannelModalVisible} onClose={closeModal}>
       <View style={[styles.newChannelModalContent, stylesHook.modalContent]}>
+        <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.lnd.new_channel}</Text>
         <BlueListItem
           title={loc.lnd.public}
           subtitleNumberOfLines={0}
           subtitle={loc.lnd.public_description}
           onPress={navigateToOpenPublicChannel}
-          bottomDivider
         />
         <BlueListItem
           title={loc.lnd.private}
           subtitleNumberOfLines={0}
           subtitle={loc.lnd.private_description}
           onPress={navigateToOpenPrivateChannel}
+          bottomDivider={false}
         />
       </View>
     </BottomModal>
@@ -456,6 +460,10 @@ const styles = StyleSheet.create({
   separator: {
     height: 1,
     marginTop: 16,
+  },
+  textHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

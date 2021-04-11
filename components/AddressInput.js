@@ -19,7 +19,6 @@ const AddressInput = ({
   onBarScanned,
   launchedBy,
   editable = true,
-  inputAccessoryViewID,
 }) => {
   const { colors } = useTheme();
   const scanButtonRef = useRef();
@@ -51,7 +50,6 @@ const AddressInput = ({
         editable={!isLoading && editable}
         onSubmitEditing={Keyboard.dismiss}
         multiline={!editable}
-        inputAccessoryViewID={inputAccessoryViewID}
       />
       {editable && (
         <TouchableOpacity
@@ -122,7 +120,6 @@ AddressInput.propTypes = {
   address: PropTypes.string,
   placeholder: PropTypes.string,
   editable: PropTypes.bool,
-  inputAccessoryViewID: PropTypes.string,
 };
 
 export default AddressInput;

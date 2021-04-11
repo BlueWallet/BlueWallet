@@ -18,6 +18,7 @@ export class LightningLndWallet extends LightningCustodianWallet {
     this._listInvoices = false;
     this._paymentHash2Description = {}; // cache for invoices being paid
     this.user_invoices_raw = []; // compatibility with other lightning wallet class
+    this.init();
   }
 
   async getLndDir() {
