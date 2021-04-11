@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
   vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold' },
   vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },
-  textBtcUnit: { justifyContent: 'flex-end', bottom: 8 },
+  textBtcUnit: { justifyContent: 'flex-end' },
   bottomFeesWrapper: { justifyContent: 'center', alignItems: 'center', flexDirection: 'row' },
   bottomWrapper: { marginTop: 16 },
   marginConfirmButton: { marginTop: 16, marginHorizontal: 32, marginBottom: 48 },
