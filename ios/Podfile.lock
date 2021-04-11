@@ -263,7 +263,7 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (3.2.1):
+  - react-native-image-picker (3.3.2):
     - React-Core
   - react-native-is-catalyst (1.0.0):
     - React
@@ -276,7 +276,7 @@ PODS:
   - react-native-tcp-socket (3.7.1):
     - CocoaAsyncSocket
     - React
-  - react-native-webview (11.2.4):
+  - react-native-webview (11.3.1):
     - React-Core
   - react-native-widget-center (0.0.4):
     - React
@@ -355,7 +355,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
-  - RNDeviceInfo (8.0.5):
+  - RNDeviceInfo (8.0.6):
     - React-Core
   - RNFS (2.16.6):
     - React
@@ -701,13 +701,13 @@ SPEC CHECKSUMS:
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
-  react-native-image-picker: 0c28bf3cb089cfe840bc5cc9fac3dcc10f2188d9
+  react-native-image-picker: 5b2f1ea1f9230b131abbfb8a4aa1eb209aba9ed9
   react-native-is-catalyst: 52ee70e0123c82419dd4ce47dc4cc94b22467512
   react-native-randombytes: 45ae693012df24c9a07a5e578b3b567c01468581
   react-native-safe-area-context: e471852c5ed67eea4b10c5d9d43c1cebae3b231d
   react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
-  react-native-webview: 44b95e165b664abd71fb7a2daa3d4051e25702a6
+  react-native-webview: 30f048378c6cee522ed9bbbedbc34acb21e58188
   react-native-widget-center: 0f81d17beb163e7fb5848b06754d7d277fe7d99a
   React-RCTActionSheet: 89a0ca9f4a06c1f93c26067af074ccdce0f40336
   React-RCTAnimation: 1bde3ecc0c104c55df246eda516e0deb03c4e49b
@@ -726,7 +726,7 @@ SPEC CHECKSUMS:
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
-  RNDeviceInfo: e92b781f4af9d0faebe00695ffe5ce5b7671ec0f
+  RNDeviceInfo: 53004a1aacaaddf9f290590e6a935eb1c698d079
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
