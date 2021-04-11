@@ -268,7 +268,7 @@ const PsbtMultisig = () => {
       <View style={styles.container}>
         <View style={styles.mstopcontainer}>
           <View style={styles.mscontainer}>
-            <View style={[styles.msleft, { height: flatListHeight - 200 }]} />
+            <View style={[styles.msleft, { height: flatListHeight - 130 }]} />
           </View>
           <View style={styles.msright}>
             <BlueCard>
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.8,
     borderColor: '#c4c4c4',
     marginLeft: 40,
-    marginTop: 185,
+    marginTop: 130,
   },
   msright: {
     flex: 90,
