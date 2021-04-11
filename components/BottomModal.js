@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, useWindowDimensions } from 'react-native';
 import Modal from 'react-native-modal';
+import { Platform } from 'react-native';
 
 const styles = StyleSheet.create({
   root: {
@@ -25,8 +26,8 @@ const BottomModal = ({ onBackButtonPress, onBackdropPress, onClose, windowHeight
       onBackdropPress={handleBackdropPress}
       {...props}
       accessibilityViewIsModal
-      useNativeDriver
-      useNativeDriverForBackdrop
+      useNativeDriver={Platform.OS === 'android'}
+      useNativeDriverForBackdrop={Platform === 'android'}
     />
   );
 };
