@@ -6,8 +6,6 @@ import {
   BlueLoading,
   SafeBlueArea,
   BlueButton,
-  BlueSpacing20,
-  BlueListItem,
   BlueDoneAndDismissKeyboardInputAccessory,
   BlueDismissKeyboardInputAccessory,
 } from '../../BlueComponents';
@@ -21,7 +19,7 @@ import loc from '../../loc';
 const currency = require('../../blue_modules/currency');
 
 const LndOpenChannel = () => {
-  const { fundingWalletID, lndWalletID, psbt, isModal } = useRoute().params;
+  const { fundingWalletID, lndWalletID, psbt, isModal, isPrivateChannel } = useRoute().params;
   const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   /** @type {LightningLndWallet} */
   const lndWallet = wallets.find(w => w.getID() === lndWalletID);
@@ -36,7 +34,6 @@ const LndOpenChannel = () => {
     // '02e89ca9e8da72b33d896bae51d20e7e6675aa971f7557500b6591b15429e717f1@165.227.95.104:9735' // lnd1.bluewallet.io
     '03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@34.239.230.56:9735', // ACINQ
   );
-  const [isPrivateChannel, setIsPrivateChannel] = useState(true);
   const [verified, setVerified] = useState(false);
   const [unit, setUnit] = useState(fundingWallet.getPreferredBalanceUnit());
   const [pendingChanId, setPendingChanId] = useState('');
@@ -301,22 +298,6 @@ const LndOpenChannel = () => {
           onBarScanned={onBarScanned}
           launchedBy={name}
         />
-
-        <View>
-          <BlueSpacing20 />
-          <BlueListItem
-            bottomDivider={false}
-            onPress={() => setIsPrivateChannel(true)}
-            title="Private channel"
-            checkmark={isPrivateChannel}
-          />
-          <BlueListItem
-            bottomDivider={false}
-            onPress={() => setIsPrivateChannel(false)}
-            title="Public channel"
-            checkmark={!isPrivateChannel}
-          />
-        </View>
 
         <BlueButton onPress={openChannel} title="Open Channel" />
         <BlueDoneAndDismissKeyboardInputAccessory />

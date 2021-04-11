@@ -709,13 +709,13 @@ export const BlueListItem = React.memo(props => {
           </ListItem.Subtitle>
         )}
       </ListItem.Content>
-      <ListItem.Content right>
-        {props.rightTitle && (
+      {props.rightTitle && (
+        <ListItem.Content right>
           <ListItem.Title style={props.rightTitleStyle} numberOfLines={0} right>
             {props.rightTitle}
           </ListItem.Title>
-        )}
-      </ListItem.Content>
+        </ListItem.Content>
+      )}
       {props.isLoading ? (
         <ActivityIndicator />
       ) : (

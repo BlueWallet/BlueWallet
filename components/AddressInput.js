@@ -43,12 +43,13 @@ const AddressInput = ({
         testID="AddressInput"
         onChangeText={onChangeText}
         placeholder={placeholder}
-        numberOfLines={1}
+        numberOfLines={editable ? 0 : 1}
         placeholderTextColor="#81868e"
         value={address}
         style={styles.input}
         editable={!isLoading && editable}
         onSubmitEditing={Keyboard.dismiss}
+        multiline={!editable}
       />
       {editable && (
         <TouchableOpacity

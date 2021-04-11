@@ -11,6 +11,7 @@ import {
   BlueSpacing10,
   BlueText,
   BlueCard,
+  BlueListItem,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -32,7 +33,7 @@ const LndInfo = () => {
   const { goBack, setOptions, navigate } = useNavigation();
   const name = useRoute().name;
   const [isLoading, setIsLoading] = useState(true);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isNewChannelModalVisible, setIsNewChannelModalVisible] = useState(false);
   const [info, setInfo] = useState('');
   const [channels, setChannels] = useState([]);
   const [wBalance, setWalletBalance] = useState({});
@@ -148,10 +149,6 @@ const LndInfo = () => {
     setSelectedChannelIndex(index);
   };
 
-  useEffect(() => {
-    setIsModalVisible(selectedChannelIndex !== undefined);
-  }, [selectedChannelIndex]);
-
   const closeChannel = async channel => {
     if (!(await confirm())) return;
     setSelectedChannelIndex(undefined);
@@ -208,10 +205,11 @@ const LndInfo = () => {
   const closeModal = () => {
     Keyboard.dismiss();
     setSelectedChannelIndex(undefined);
+    setIsNewChannelModalVisible(false);
   };
 
   const renderModal = (
-    <BottomModal isVisible={isModalVisible} onClose={closeModal}>
+    <BottomModal isVisible={selectedChannelIndex !== undefined} onClose={closeModal}>
       <View style={[styles.modalContent, stylesHook.modalContent]}>
         <Text style={[stylesHook.detailsText]}>{loc.lnd.node_alias}</Text>
         <BlueSpacing10 />
@@ -261,7 +259,36 @@ const LndInfo = () => {
     );
   };
 
-  const navigateToOpenChannel = async () => {
+  const navigateToOpenPublicChannel = () => {
+    navigateToOpenChannel({ isPrivateChannel: false });
+  };
+
+  const navigateToOpenPrivateChannel = async () => {
+    navigateToOpenChannel({ isPrivateChannel: true });
+  };
+
+  const renderNewChannelModal = (
+    <BottomModal isVisible={isNewChannelModalVisible} onClose={closeModal}>
+      <View style={[styles.newChannelModalContent, stylesHook.modalContent]}>
+        <BlueListItem
+          title={loc.lnd.public}
+          subtitleNumberOfLines={0}
+          subtitle={loc.lnd.public_description}
+          onPress={navigateToOpenPublicChannel}
+          bottomDivider
+        />
+        <BlueListItem
+          title={loc.lnd.private}
+          subtitleNumberOfLines={0}
+          subtitle={loc.lnd.private_description}
+          onPress={navigateToOpenPrivateChannel}
+        />
+      </View>
+    </BottomModal>
+  );
+
+  const navigateToOpenChannel = async ({ isPrivateChannel }) => {
+    closeModal();
     const availableWallets = [...wallets.filter(item => item.isSegwit() && item.allowSend())];
     if (availableWallets.length === 0) {
       return alert(loc.lnd.refill_create);
@@ -272,7 +299,12 @@ const LndInfo = () => {
     return navigate('LndOpenChannel', {
       fundingWalletID: selectedWallet.getID(),
       lndWalletID: wallet.getID(),
+      isPrivateChannel,
     });
+  };
+
+  const showNewChannelModal = () => {
+    setIsNewChannelModalVisible(true);
   };
 
   const itemSeparatorComponent = () => {
@@ -317,9 +349,10 @@ const LndInfo = () => {
         <BlueButton onPress={showLogs} title="Show logs" />
         <BlueSpacing20 /> */}
         <BlueCard>
-          <Button text={loc.lnd.new_channel} onPress={navigateToOpenChannel} />
+          <Button text={loc.lnd.new_channel} onPress={showNewChannelModal} />
         </BlueCard>
         {renderModal}
+        {renderNewChannelModal}
       </View>
     </SafeBlueArea>
   );
@@ -410,6 +443,12 @@ const styles = StyleSheet.create({
   modalContent: {
     padding: 24,
     minHeight: 418,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  newChannelModalContent: {
+    padding: 24,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
