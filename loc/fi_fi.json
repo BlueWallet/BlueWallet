@@ -292,7 +292,7 @@
     "groundcontrol_explanation": "GroundControl on ilmainen avoimen lähdekoodin push-ilmoituspalvelin bitcoin-lompakoille. Voit asentaa oman GroundControl-palvelimen ja laittaa sen URL-osoitteen tähän, jotta et luota BlueWallet-infrastruktuuriin. Jätä tyhjäksi käyttääksesi oletusasetusta",
     "header": "asetukset",
     "language": "Kieli",
-    "language_restart": "Kun valitset uuden kielen, muutoksen voimaantulo edellyttää, että BlueWallet käynnistetään uudelleen.",
+    "language_isRTL": "BlueWallet on käynnistettävä uudelleen, jotta kielisuuntaus tulee voimaan.",
     "lightning_error_lndhub_uri": "LndHub-URI ei kelpaa",
     "lightning_saved": "Muutoksesi on tallennettu onnistuneesti",
     "lightning_settings": "Lightning-Asetukset",
@@ -322,7 +322,8 @@
     "success_transaction_broadcasted" : "Onnistui! Siirtotapahtumasi on lähetetty!",
     "total_balance": "Kokonaissaldo",
     "total_balance_explanation": "Näytä kaikkien lompakoiden kokonaissaldo aloitusnäytön widgeteissä.",
-    "widgets": "Widgetit"
+    "widgets": "Widgetit",
+    "tools": "Työkalut"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Haluatko saada ilmoituksia, kun saat saapuvia maksuja?",
