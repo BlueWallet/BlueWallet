@@ -155,12 +155,12 @@ const LndInfo = () => {
   const closeChannel = async channel => {
     if (!(await confirm())) return;
     setSelectedChannelIndex(undefined);
-    const fundingTxid = channel.item.channelPoint.split(':')[0];
-    const fundingIndex = channel.item.channelPoint.split(':')[1];
+    const fundingTxid = channel.channelPoint.split(':')[0];
+    const fundingIndex = channel.channelPoint.split(':')[1];
 
     // first, handling case when we cant withdraw funds to specific addres because its hardcoded in channel details:
-    if (channel?.item?.closeAddress) {
-      const rez = await wallet.closeChannel(channel.item.closeAddress, fundingTxid, +fundingIndex, false);
+    if (channel?.closeAddress) {
+      const rez = await wallet.closeChannel(channel.closeAddress, fundingTxid, +fundingIndex, false);
       if (rez && rez.closePending) {
         alert('Success!');
         return refetchData();
@@ -176,7 +176,7 @@ const LndInfo = () => {
     const address = await toWallet.getAddressAsync();
     if (!address) return alert('Error: could not get address for channel withdrawal');
     let forceClose = false;
-    if (!channel.item.active) {
+    if (!channel.active) {
       if (!(await confirm('Force-close the channel?'))) return;
       forceClose = true;
     }
@@ -242,7 +242,7 @@ const LndInfo = () => {
         </Text>
 
         <BlueSpacing40 />
-        <Button onPress={closeChannel} text={loc.lnd.close_channel} buttonStyle={ButtonStyle.destroy} />
+        <Button onPress={() => closeChannel(channels[selectedChannelIndex])} text={loc.lnd.close_channel} buttonStyle={ButtonStyle.destroy} />
       </View>
     </BottomModal>
   );
