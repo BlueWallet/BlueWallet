@@ -33,10 +33,8 @@ const LndInfo = () => {
   const name = useRoute().name;
   const [isLoading, setIsLoading] = useState(true);
   const [isNewChannelModalVisible, setIsNewChannelModalVisible] = useState(false);
-  const [info, setInfo] = useState('');
   const [channels, setChannels] = useState([]);
   const [wBalance, setWalletBalance] = useState({});
-  const [getInfo, setGetInfo] = useState({});
   const [selectedChannelIndex, setSelectedChannelIndex] = useState();
 
   const stylesHook = StyleSheet.create({
@@ -76,34 +74,11 @@ const LndInfo = () => {
   });
 
   const refetchData = async () => {
-    const getInfo = await wallet.getInfo();
-    const dir = await wallet.getLndDir();
-    const peers = await wallet.listPeers();
-    const pendingChannels = await wallet.pendingChannels();
     const listChannels = await wallet.listChannels();
     if (listChannels && listChannels.channels) setChannels(listChannels.channels);
-    const txs = await wallet.getLndTransactions();
     const walletBalance = await wallet.walletBalance();
     setWalletBalance(walletBalance);
-    setGetInfo(getInfo);
 
-    setInfo('LND dir: ' + dir + '\n\nReceivable balance: ' + wallet.getReceivableBalance() + ' Sat');
-    console.log(
-      'walletBalance=' +
-        JSON.stringify(walletBalance) +
-        '\n\n' +
-        JSON.stringify(getInfo) +
-        '\n\n' +
-        dir +
-        '\n\n' +
-        JSON.stringify(pendingChannels) +
-        '\n\n' +
-        JSON.stringify(listChannels) +
-        '\n\ntxs= ' +
-        JSON.stringify(txs) +
-        '\n\n' +
-        JSON.stringify(peers),
-    );
     setIsLoading(false);
   };
 
@@ -236,7 +211,11 @@ const LndInfo = () => {
         </Text>
 
         <BlueSpacing40 />
-        <Button onPress={() => closeChannel(channels[selectedChannelIndex])} text={loc.lnd.close_channel} buttonStyle={ButtonStyle.destroy} />
+        <Button
+          onPress={() => closeChannel(channels[selectedChannelIndex])}
+          text={loc.lnd.close_channel}
+          buttonStyle={ButtonStyle.destroy}
+        />
       </View>
     </BottomModal>
   );

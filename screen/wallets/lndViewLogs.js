@@ -1,21 +1,23 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
-import { useRoute, useTheme } from '@react-navigation/native';
+import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 import { BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
+import { Icon } from 'react-native-elements';
 
 const LNDViewLogs = () => {
   const { colors } = useTheme();
   const { wallets } = useContext(BlueStorageContext);
-  const { params } = useRoute();
-  const wallet = wallets.find(w => w.getID() === params.walletID);
+  const { walletID } = useRoute().params;
+  const wallet = wallets.find(w => w.getID() === walletID);
   const [isLoading, setIsLoading] = useState(false);
   const [logs, setLogs] = useState('');
   const [info, setInfo] = useState('');
   const [getInfo, setGetInfo] = useState({});
+  const { setOptions } = useNavigation();
   const stylesHooks = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -29,6 +31,13 @@ const LNDViewLogs = () => {
   });
 
   useEffect(() => {
+    setOptions({
+      headerRight: () => (
+        <TouchableOpacity style={styles.reloadLogs} onPress={getLogs}>
+          <Icon name="redo" type="font-awesome-5" size={22} />
+        </TouchableOpacity>
+      ),
+    });
     refetchData().then(() => {
       getLogs();
     });
@@ -40,9 +49,11 @@ const LNDViewLogs = () => {
   };
   const refetchData = async () => {
     setIsLoading(true);
+    console.warn(wallet);
     const dir = await wallet.getLndDir();
     await wallet
-      .getInfo(async info => {
+      .getInfo()
+      .then(async info => {
         setGetInfo(info);
         const peers = await wallet.listPeers();
         const pendingChannels = await wallet.pendingChannels();
@@ -83,7 +94,7 @@ const LNDViewLogs = () => {
 
   return (
     <SafeBlueArea>
-      <ScrollView style={styles.root} contentContainerStyle={styles.root}>
+      <ScrollView style={styles.root}>
         <BlueText>Identity pubkey: {getInfo.identityPubkey}</BlueText>
         <BlueText>numPendingChannels: {getInfo.numPendingChannels || 0}</BlueText>
         <BlueText>numActiveChannels: {getInfo.numActiveChannels || 0}</BlueText>
@@ -102,7 +113,7 @@ const LNDViewLogs = () => {
   );
 };
 
-LNDViewLogs.navigationOptions = navigationStyle({ closeButton: true, headerLeft: null }, opts => ({
+LNDViewLogs.navigationOptions = navigationStyle({}, opts => ({
   ...opts,
   title: loc.lnd.view_logs,
 }));
@@ -137,5 +148,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  reloadLogs: {
+    marginHorizontal: 16,
+    minWidth: 150,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
   },
 });

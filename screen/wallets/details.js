@@ -240,13 +240,11 @@ const WalletDetails = () => {
         address: wallet.getAllExternalAddresses()[0], // works for both single address and HD wallets
       },
     });
-  const navigateToLNDViewLogs = () =>
+  const navigateToLNDViewLogs = () => {
     navigate('LNDViewLogs', {
-      screen: 'LNDViewLogs',
-      params: {
-        walletID,
-      },
+      walletID,
     });
+  };
 
   const renderMarketplaceButton = () => {
     return Platform.select({
@@ -553,7 +551,7 @@ const WalletDetails = () => {
                   <BlueSpacing20 />
                   <SecondButton onPress={navigateToSignVerify} testID="SignVerify" title={loc.addresses.sign_title} />
                 </>
-              )}{' '}
+              )}
               {wallet.type === LightningLndWallet.type && (
                 <>
                   <BlueSpacing20 />
