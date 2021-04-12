@@ -8,18 +8,18 @@ import navigationStyle from '../../components/navigationStyle';
 import { AddressItem } from '../../components/addresses/AddressItem';
 import { WatchOnlyWallet } from '../../class';
 
-const getAddress = (wallet, index, isInternal) => {
+export const totalBalance = ({ c, u } = { c: 0, u: 0 }) => c + u;
+
+export const getAddress = (wallet, index, isInternal) => {
   let address;
   let balance = 0;
 
-  const getAllBalance = ({ c, u } = { c: 0, u: 0 }) => c + u;
-
   if (isInternal) {
     address = wallet._getInternalAddressByIndex(index);
-    balance = getAllBalance(wallet._balances_by_internal_index[index]);
+    balance = totalBalance(wallet._balances_by_internal_index[index]);
   } else {
     address = wallet._getExternalAddressByIndex(index);
-    balance = getAllBalance(wallet._balances_by_external_index[index]);
+    balance = totalBalance(wallet._balances_by_external_index[index]);
   }
 
   return {
@@ -32,7 +32,7 @@ const getAddress = (wallet, index, isInternal) => {
   };
 };
 
-const sortByIndexAndType = (a, b) => {
+export const sortByIndexAndType = (a, b) => {
   if (a.isInternal > b.isInternal) return 1;
   if (a.isInternal < b.isInternal) return -1;
 
