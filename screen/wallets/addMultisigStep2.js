@@ -71,7 +71,7 @@ const WalletsAddMultisigStep2 = () => {
   const openScannerButton = useRef();
   const data = useRef(new Array(n));
   const hasUnsavedChanges = Boolean(cosigners.length > 0 && cosigners.length !== n);
-
+  const isDiscardConfirmAlertPresented = useRef(false);
   const handleOnHelpPress = () => {
     navigation.navigate('WalletsAddMultisigHelp');
   };
@@ -153,17 +153,25 @@ const WalletsAddMultisigStep2 = () => {
         e.preventDefault();
 
         // Prompt the user before leaving the screen
-
-        Alert.alert(loc._.discard_changes, loc._.discard_changes_detail, [
-          { text: loc._.cancel, style: 'cancel', onPress: () => {} },
-          {
-            text: loc._.ok,
-            style: 'destructive',
-            // If the user confirmed, then we dispatch the action we blocked earlier
-            // This will continue the action that had triggered the removal of the screen
-            onPress: () => navigation.dispatch(e.data.action),
-          },
-        ]);
+        if (isDiscardConfirmAlertPresented.current === false) {
+          isDiscardConfirmAlertPresented.current = true;
+          Alert.alert(loc._.discard_changes, loc._.discard_changes_detail, [
+            {
+              text: loc._.cancel,
+              style: 'cancel',
+              onPress: () => {
+                isDiscardConfirmAlertPresented.current = false;
+              },
+            },
+            {
+              text: loc._.ok,
+              style: 'destructive',
+              // If the user confirmed, then we dispatch the action we blocked earlier
+              // This will continue the action that had triggered the removal of the screen
+              onPress: () => navigation.dispatch(e.data.action),
+            },
+          ]);
+        }
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -444,6 +452,22 @@ const WalletsAddMultisigStep2 = () => {
     }
   };
 
+  const dashType = ({ index, lastIndex, isChecked, isFocus }) => {
+    if (isChecked) {
+      if (index === lastIndex) {
+        return MultipleStepsListItemDashType.top;
+      } else {
+        return MultipleStepsListItemDashType.topAndBottom;
+      }
+    } else {
+      if (index === lastIndex) {
+        return isFocus ? MultipleStepsListItemDashType.topAndBottom : MultipleStepsListItemDashType.top;
+      } else {
+        return MultipleStepsListItemDashType.topAndBottom;
+      }
+    }
+  };
+
   const _renderKeyItem = el => {
     const renderProvideKeyButtons = el.index === cosigners.length;
     const isChecked = el.index < cosigners.length;
@@ -452,15 +476,7 @@ const WalletsAddMultisigStep2 = () => {
         <MultipleStepsListItem
           circledText={`${el.index + 1}`}
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-          dashes={
-            el.index === data.length - 1
-              ? isChecked
-                ? MultipleStepsListItemDashType.top
-                : renderProvideKeyButtons
-                ? MultipleStepsListItemDashType.bottom
-                : MultipleStepsListItemDashType.top
-              : MultipleStepsListItemDashType.topAndBottom
-          }
+          dashes={dashType({ index: el.index, lastIndex: data.current.length - 1, isChecked, isFocus: renderProvideKeyButtons })}
           checked={isChecked}
           rightButton={{
             disabled: vaultKeyData.isLoading,
@@ -493,7 +509,7 @@ const WalletsAddMultisigStep2 = () => {
                 text: loc.wallets.import_do_import,
                 disabled: vaultKeyData.isLoading,
               }}
-              dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+              dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
               checked={isChecked}
             />
           </>
