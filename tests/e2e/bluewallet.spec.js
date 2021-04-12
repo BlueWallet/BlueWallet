@@ -118,7 +118,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.text('OK')).tap();
     await device.pressBack();
 
-     // notifications
+    // notifications
     // turn on notifications if available
     await element(by.id('NotificationSettings')).tap();
     if (await expectToBeVisible('NotificationSettings')) {
