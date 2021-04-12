@@ -75,7 +75,6 @@ import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
 import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
-import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
 import DrawerList from './screen/wallets/drawerList';
 import { isCatalyst, isTablet } from './blue_modules/environment';
@@ -312,13 +311,6 @@ const ScanQRCodeRoot = () => (
   </ScanQRCodeStack.Navigator>
 );
 
-const LoadingScreenStack = createStackNavigator();
-const LoadingScreenRoot = () => (
-  <LoadingScreenStack.Navigator name="LoadingScreenRoot" mode="modal" screenOptions={{ headerShown: false }}>
-    <LoadingScreenStack.Screen name="LoadingScreen" component={LoadingScreen} />
-  </LoadingScreenStack.Navigator>
-);
-
 const UnlockWithScreenStack = createStackNavigator();
 const UnlockWithScreenRoot = () => (
   <UnlockWithScreenStack.Navigator name="UnlockWithScreenRoot" screenOptions={{ headerShown: false }}>
@@ -424,8 +416,7 @@ const LappBrowserStackRoot = () => {
 
 const InitStack = createStackNavigator();
 const InitRoot = () => (
-  <InitStack.Navigator screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
-    <InitStack.Screen name="LoadingScreenRoot" component={LoadingScreenRoot} options={{ headerShown: false, animationEnabled: false }} />
+  <InitStack.Navigator screenOptions={defaultScreenOptions} initialRouteName="UnlockWithScreenRoot">
     <InitStack.Screen
       name="UnlockWithScreenRoot"
       component={UnlockWithScreenRoot}
@@ -479,7 +470,7 @@ const Navigation = () => {
   const theme = useTheme();
 
   return (
-    <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
+    <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="UnlockWithScreenRoot">
       {/* stacks */}
       <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false }} />
       <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={{ headerShown: false }} />
