@@ -121,7 +121,8 @@
     "sameWalletAsInvoiceError": "You can’t pay an invoice with the same wallet used to create it.",
     "title": "Manage Funds",
     "can_send": "Can Send",
-    "can_receive": "Can Receive"
+    "can_receive": "Can Receive",
+    "view_logs": "View Logs"
   },
   "lndViewInvoice": {
     "additional_info": "Additional Information",

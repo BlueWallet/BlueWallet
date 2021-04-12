@@ -32,6 +32,7 @@ import {
   WatchOnlyWallet,
   MultisigHDWallet,
   HDAezeedWallet,
+  LightningLndWallet,
 } from '../../class';
 import { ScrollView } from 'react-native-gesture-handler';
 import loc from '../../loc';
@@ -237,6 +238,13 @@ const WalletDetails = () => {
       params: {
         walletID: wallet.getID(),
         address: wallet.getAllExternalAddresses()[0], // works for both single address and HD wallets
+      },
+    });
+  const navigateToLNDViewLogs = () =>
+    navigate('LNDViewLogs', {
+      screen: 'LNDViewLogs',
+      params: {
+        walletID,
       },
     });
 
@@ -504,17 +512,14 @@ const WalletDetails = () => {
                   </View>
                 </>
               )}
-
               {wallet.allowMasterFingerprint() && (
                 <>
                   <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_master_fingerprint.toLowerCase()}</Text>
                   <BlueText>{wallet.getMasterFingerprintHex()}</BlueText>
                 </>
               )}
-
               <BlueSpacing20 />
               <SecondButton onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
-
               {wallet.type === MultisigHDWallet.type && (
                 <>
                   <BlueSpacing20 />
@@ -525,14 +530,12 @@ const WalletDetails = () => {
                   />
                 </>
               )}
-
               {wallet.type === MultisigHDWallet.type && (
                 <>
                   <BlueSpacing20 />
                   <SecondButton onPress={navigateToViewEditCosigners} testID="ViewEditCosigners" title={loc.multisig.view_edit_cosigners} />
                 </>
               )}
-
               {(wallet.type === HDLegacyBreadwalletWallet.type ||
                 wallet.type === HDLegacyP2PKHWallet.type ||
                 wallet.type === HDSegwitBech32Wallet.type ||
@@ -549,6 +552,12 @@ const WalletDetails = () => {
                 <>
                   <BlueSpacing20 />
                   <SecondButton onPress={navigateToSignVerify} testID="SignVerify" title={loc.addresses.sign_title} />
+                </>
+              )}{' '}
+              {wallet.type === LightningLndWallet.type && (
+                <>
+                  <BlueSpacing20 />
+                  <SecondButton onPress={navigateToLNDViewLogs} testID="LNDLogs" title={loc.lnd.view_logs} />
                 </>
               )}
               <BlueSpacing20 />

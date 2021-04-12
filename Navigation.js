@@ -84,6 +84,7 @@ import DrawerList from './screen/wallets/drawerList';
 import { isCatalyst, isTablet } from './blue_modules/environment';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
+import LNDViewLogs from './screen/wallets/lndViewLogs';
 
 const defaultScreenOptions =
   Platform.OS === 'ios'
@@ -126,6 +127,7 @@ const WalletsRoot = () => {
       <WalletsStack.Screen name="LndOpenChannel" component={LndOpenChannel} options={LndOpenChannel.navigationOptions(theme)} />
       <WalletsStack.Screen name="LndInfo" component={LndInfo} options={LndInfo.navigationOptions(theme)} />
       <WalletsStack.Screen name="WalletDetails" component={WalletDetails} options={WalletDetails.navigationOptions(theme)} />
+      <WalletsStack.Screen name="LNDViewLogs" component={LNDViewLogs} options={LNDViewLogs.navigationOptions(theme)} />
       <WalletsStack.Screen name="TransactionDetails" component={TransactionDetails} options={TransactionDetails.navigationOptions(theme)} />
       <WalletsStack.Screen name="TransactionStatus" component={TransactionStatus} options={TransactionStatus.navigationOptions(theme)} />
       <WalletsStack.Screen name="HodlHodl" component={HodlHodl} options={HodlHodl.navigationOptions(theme)} />

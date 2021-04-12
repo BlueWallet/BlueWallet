@@ -9,7 +9,6 @@ import {
   BlueSpacing20,
   BlueSpacing40,
   BlueSpacing10,
-  BlueText,
   BlueCard,
   BlueListItem,
 } from '../../BlueComponents';
@@ -187,11 +186,6 @@ const LndInfo = () => {
     }
   };
 
-  const showLogs = async () => {
-    const logs = await wallet.getLogs();
-    setInfo(logs);
-  };
-
   const claimBalance = async () => {
     const selectedWallet = await selectWallet(navigate, name, Chain.ONCHAIN, false);
     const address = await selectedWallet.getAddressAsync();
@@ -338,20 +332,6 @@ const LndInfo = () => {
           contentContainerStyle={styles.listStyle}
           ItemSeparatorComponent={itemSeparatorComponent}
         />
-
-        {/* <BlueText>Identity pubkey: {getInfo.identityPubkey}</BlueText>
-        <BlueText>numPendingChannels: {getInfo.numPendingChannels || 0}</BlueText>
-        <BlueText>numActiveChannels: {getInfo.numActiveChannels || 0}</BlueText>
-        <BlueText>Peers: {getInfo.numPeers || 0}</BlueText>
-        <BlueText>Version: {getInfo.version}</BlueText>
-        <BlueText>
-          {getInfo.syncedToChain ? 'synced to chain' : 'not synced to chain'} ({getInfo.blockHeight})
-        </BlueText>
-        <BlueText>{getInfo.syncedToGraph ? 'synced to graph' : 'not synced to graph'}</BlueText>
-        <BlueText>{info}</BlueText>
-        <BlueSpacing20 />
-        <BlueButton onPress={showLogs} title="Show logs" />
-        <BlueSpacing20 /> */}
         <BlueCard>
           <Button text={loc.lnd.new_channel} onPress={showNewChannelModal} />
         </BlueCard>
