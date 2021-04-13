@@ -76,6 +76,9 @@ const LndInfo = () => {
   const refetchData = async () => {
     const listChannels = await wallet.listChannels();
     if (listChannels && listChannels.channels) setChannels(listChannels.channels);
+    const listPendingChannels = await wallet.pendingChannels();
+    if (listPendingChannels && listPendingChannels.pendingOpenChannels && listPendingChannels.pendingOpenChannels.length > 0)
+      setChannels(listChannels.channels.concat(listPendingChannels.pendingOpenChannels));
     const walletBalance = await wallet.walletBalance();
     setWalletBalance(walletBalance);
 
@@ -129,6 +132,10 @@ const LndInfo = () => {
   const closeChannel = async channel => {
     if (!(await confirm())) return;
     setSelectedChannelIndex(undefined);
+    const isPendingOpen = channel.active === undefined;
+    if (isPendingOpen) {
+      channel = channel.channel;
+    }
     const fundingTxid = channel.channelPoint.split(':')[0];
     const fundingIndex = channel.channelPoint.split(':')[1];
 
@@ -180,48 +187,59 @@ const LndInfo = () => {
     setIsNewChannelModalVisible(false);
   };
 
-  const renderModal = (
-    <BottomModal isVisible={selectedChannelIndex !== undefined} onClose={closeModal}>
-      <View style={[styles.modalContent, stylesHook.modalContent]}>
-        <Text style={[stylesHook.detailsText]}>{loc.lnd.node_alias}</Text>
-        <BlueSpacing10 />
-        <Text style={[stylesHook.detailsText]}>{channels[selectedChannelIndex]?.remotePubkey}</Text>
-        <BlueSpacing20 />
-        <LNNodeBar
-          disabled={!channels[selectedChannelIndex]?.active}
-          canSend={Number(channels[selectedChannelIndex]?.localBalance)}
-          canReceive={Number(channels[selectedChannelIndex]?.capacity)}
-          itemPriceUnit={wallet.getPreferredBalanceUnit()}
-        />
-        <BlueSpacing20 />
+  const renderModal = () => {
+    const isPendingOpen = selectedChannelIndex !== undefined ? channels[selectedChannelIndex]?.active === undefined : false;
+    const channel = isPendingOpen ? channels[selectedChannelIndex].channel : channels[selectedChannelIndex];
 
-        <Text style={[stylesHook.detailsText]}>{loc.settings.electrum_status}</Text>
-        <BlueSpacing10 />
-        <Text style={[stylesHook.detailsText]}> {channels[selectedChannelIndex]?.active ? loc.lnd.active : loc.lnd.inactive}</Text>
-        <BlueSpacing20 />
-
-        <Text style={[stylesHook.detailsText]}>{loc.lnd.local_reserve}</Text>
-        <BlueSpacing10 />
-        <Text style={[stylesHook.detailsText]}>
-          {formatBalanceWithoutSuffix(
-            channels[selectedChannelIndex]?.localChanReserveSat,
-            wallet.getPreferredBalanceUnit(),
-            true,
-          ).toString()}
-        </Text>
-
-        <BlueSpacing40 />
-        <Button
-          onPress={() => closeChannel(channels[selectedChannelIndex])}
-          text={loc.lnd.close_channel}
-          buttonStyle={ButtonStyle.destroy}
-        />
-      </View>
-    </BottomModal>
-  );
+    return (
+      <BottomModal isVisible={selectedChannelIndex !== undefined} onClose={closeModal}>
+        <View style={[styles.modalContent, stylesHook.modalContent]}>
+          <Text style={[stylesHook.detailsText]}>{loc.lnd.node_alias}</Text>
+          <BlueSpacing10 />
+          {channel && <Text style={[stylesHook.detailsText]}>{isPendingOpen ? channel.remoteNodePub : channel.remotePubkey}</Text>}
+          <BlueSpacing20 />
+          <LNNodeBar
+            disabled={!channels.active}
+            canSend={channel && Number(channel.localBalance)}
+            canReceive={channel && Number(channel.capacity)}
+            itemPriceUnit={wallet.getPreferredBalanceUnit()}
+            isPending={isPendingOpen}
+          />
+          <Text style={[stylesHook.detailsText]}>{loc.settings.electrum_status}</Text>
+          <BlueSpacing10 />
+          <Text style={[stylesHook.detailsText]}>
+            {channel ? (isPendingOpen ? loc.transactions.pending : channel.active ? loc.lnd.active : loc.lnd.inactive) : ''}
+          </Text>
+          <BlueSpacing20 />
+          {channel ? (
+            !isPendingOpen && (
+              <>
+                <Text style={[stylesHook.detailsText]}>{loc.lnd.local_reserve}</Text>
+                <BlueSpacing10 />
+                <Text style={[stylesHook.detailsText]}>
+                  {formatBalanceWithoutSuffix(channels.localChanReserveSat, wallet.getPreferredBalanceUnit(), true).toString()}
+                </Text>
+                <BlueSpacing40 />
+              </>
+            )
+          ) : (
+            <BlueSpacing10 />
+          )}
+          <Button
+            onPress={() => closeChannel(channels[selectedChannelIndex])}
+            text={loc.lnd.close_channel}
+            buttonStyle={ButtonStyle.destroy}
+          />
+        </View>
+      </BottomModal>
+    );
+  };
 
   const renderItemChannel = channel => {
-    console.warn(channel);
+    const isPendingOpen = channel.item.active === undefined;
+    if (isPendingOpen) {
+      channel.item = channel.item.channel;
+    }
     return (
       <TouchableOpacity onPress={() => showModal(channel.index)}>
         <LNNodeBar
@@ -229,7 +247,8 @@ const LndInfo = () => {
           canSend={Number(channel.item.localBalance)}
           canReceive={Number(channel.item.capacity)}
           itemPriceUnit={wallet.getPreferredBalanceUnit()}
-          nodeAlias={channel.item.remotePubkey}
+          nodeAlias={isPendingOpen ? channel.item.remoteNodePub : channel.item.remotePubkey}
+          isPending={channel.item.active === undefined}
         />
       </TouchableOpacity>
     );
@@ -310,11 +329,12 @@ const LndInfo = () => {
           keyExtractor={channel => channel.chanId}
           contentContainerStyle={styles.listStyle}
           ItemSeparatorComponent={itemSeparatorComponent}
+          contentInset={{ top: 0, left: 0, bottom: 8, right: 0 }}
         />
         <BlueCard>
           <Button text={loc.lnd.new_channel} onPress={showNewChannelModal} />
         </BlueCard>
-        {renderModal}
+        {renderModal()}
         {renderNewChannelModal}
       </View>
     </SafeBlueArea>
@@ -330,7 +350,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   listStyle: {
-    margin: 16,
+    marginVertical: 8,
+    marginHorizontal: 16,
   },
   justifyContentCenter: {
     justifyContent: 'center',

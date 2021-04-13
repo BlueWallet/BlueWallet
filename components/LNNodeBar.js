@@ -6,7 +6,7 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 import { useTheme } from '@react-navigation/native';
 
 export const LNNodeBar = props => {
-  const { canReceive = 0, canSend = 0, nodeAlias = '', disabled = false, itemPriceUnit = BitcoinUnit.SATS } = props;
+  const { canReceive = 0, canSend = 0, nodeAlias = '', disabled = false, itemPriceUnit = BitcoinUnit.SATS, isPending = false } = props;
   const { colors } = useTheme();
   const opacity = { opacity: disabled ? 0.28 : 1.0 };
   const canSendBarFlex = {
@@ -19,6 +19,7 @@ export const LNNodeBar = props => {
   });
   return (
     <View style={[styles.root, opacity]}>
+      {isPending && <Text style={[styles.pending, stylesHook.nodeAlias]}>{loc.transactions.pending}</Text>}
       {nodeAlias.trim().length > 0 && <Text style={[styles.nodeAlias, stylesHook.nodeAlias]}>{nodeAlias}</Text>}
       <View style={styles.canReceiveBar}>
         <View style={styles.fullFlexDirectionRow}>
@@ -48,6 +49,7 @@ LNNodeBar.propTypes = {
   nodeAlias: PropTypes.string,
   disabled: PropTypes.bool,
   itemPriceUnit: PropTypes.string,
+  isPending: PropTypes.bool,
 };
 const styles = StyleSheet.create({
   root: {
@@ -59,7 +61,10 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   nodeAlias: {
-    marginVertical: 16,
+    marginBottom: 16,
+  },
+  pending: {
+    marginVertical: 8,
   },
   canSendBar: {
     height: 14,

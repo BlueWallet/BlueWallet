@@ -31,16 +31,19 @@ const LNDViewLogs = () => {
   });
 
   useEffect(() => {
-    setOptions({
-      headerRight: () => (
-        <TouchableOpacity style={styles.reloadLogs} onPress={getLogs}>
-          <Icon name="redo" type="font-awesome-5" size={22} />
-        </TouchableOpacity>
-      ),
-    });
-    refetchData().then(() => {
-      getLogs();
-    });
+    refetchData()
+      .then(() => {
+        getLogs();
+      })
+      .finally(() => {
+        setOptions({
+          headerRight: () => (
+            <TouchableOpacity style={styles.reloadLogs} onPress={getLogs}>
+              <Icon name="redo" type="font-awesome-5" size={22} />
+            </TouchableOpacity>
+          ),
+        });
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
