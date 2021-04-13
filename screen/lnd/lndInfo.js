@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useContext, useEffect, useState } from 'react';
-import { View, StatusBar, BackHandler, StyleSheet, Text, FlatList, Keyboard, TouchableOpacity } from 'react-native';
+import { View, StatusBar, BackHandler, StyleSheet, Text, FlatList, Keyboard, TouchableOpacity, SectionList } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
   BlueLoading,
@@ -22,6 +22,7 @@ import Button, { ButtonStyle } from '../../components/Button';
 
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
+const LNDNodeInfoChannelStatus = { ACTIVE: 'Active', PENDING: 'PENDING' };
 
 const LndInfo = () => {
   const { walletID, isModal } = useRoute().params;
@@ -34,6 +35,7 @@ const LndInfo = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNewChannelModalVisible, setIsNewChannelModalVisible] = useState(false);
   const [channels, setChannels] = useState([]);
+  const [pendingChannels, setPendingChannels] = useState([]);
   const [wBalance, setWalletBalance] = useState({});
   const [selectedChannelIndex, setSelectedChannelIndex] = useState();
 
@@ -43,6 +45,9 @@ const LndInfo = () => {
     },
     valueText: {
       color: colors.alternativeTextColor2,
+    },
+    listHeaderText: {
+      color: colors.foregroundColor,
     },
     valueRoot: {
       backgroundColor: colors.background,
@@ -74,11 +79,13 @@ const LndInfo = () => {
   });
 
   const refetchData = async () => {
+    setIsLoading(true);
+
     const listChannels = await wallet.listChannels();
     if (listChannels && listChannels.channels) setChannels(listChannels.channels);
     const listPendingChannels = await wallet.pendingChannels();
     if (listPendingChannels && listPendingChannels.pendingOpenChannels && listPendingChannels.pendingOpenChannels.length > 0)
-      setChannels(listChannels.channels.concat(listPendingChannels.pendingOpenChannels));
+      setPendingChannels(listPendingChannels.pendingOpenChannels);
     const walletBalance = await wallet.walletBalance();
     setWalletBalance(walletBalance);
 
@@ -235,6 +242,18 @@ const LndInfo = () => {
     );
   };
 
+  const renderSectionItem = item => {
+    switch (item.section.key) {
+      case LNDNodeInfoChannelStatus.ACTIVE:
+        return renderItemChannel(item);
+      case LNDNodeInfoChannelStatus.PENDING:
+        console.warn(item);
+        return renderItemChannel(item);
+      default:
+        return null;
+    }
+  };
+
   const renderItemChannel = channel => {
     const isPendingOpen = channel.item.active === undefined;
     if (isPendingOpen) {
@@ -248,7 +267,6 @@ const LndInfo = () => {
           canReceive={Number(channel.item.capacity)}
           itemPriceUnit={wallet.getPreferredBalanceUnit()}
           nodeAlias={isPendingOpen ? channel.item.remoteNodePub : channel.item.remotePubkey}
-          isPending={channel.item.active === undefined}
         />
       </TouchableOpacity>
     );
@@ -307,6 +325,15 @@ const LndInfo = () => {
     return <View style={[styles.separator, stylesHook.separator]} />;
   };
 
+  const renderSectionHeader = section => {
+    switch (section.section.key) {
+      case LNDNodeInfoChannelStatus.PENDING:
+        return <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.pending}</Text>;
+      default:
+        return null;
+    }
+  };
+
   if (isLoading) {
     return (
       <View style={[styles.root, stylesHook.root]}>
@@ -323,13 +350,18 @@ const LndInfo = () => {
           <BlueButton onPress={claimBalance} title={'Claim balance ' + wBalance.confirmedBalance + ' sat'} />
         )}
 
-        <FlatList
-          data={channels}
-          renderItem={renderItemChannel}
-          keyExtractor={channel => channel.chanId}
-          contentContainerStyle={styles.listStyle}
+        <SectionList
+          renderItem={renderSectionItem}
+          keyExtractor={channel => channel.channelPoint}
+          initialNumToRender={7}
           ItemSeparatorComponent={itemSeparatorComponent}
+          renderSectionHeader={renderSectionHeader}
+          contentContainerStyle={styles.listStyle}
           contentInset={{ top: 0, left: 0, bottom: 8, right: 0 }}
+          sections={[
+            { key: LNDNodeInfoChannelStatus.ACTIVE, data: channels },
+            { key: LNDNodeInfoChannelStatus.PENDING, data: pendingChannels },
+          ]}
         />
         <BlueCard>
           <Button text={loc.lnd.new_channel} onPress={showNewChannelModal} />
@@ -415,6 +447,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  listHeaderText: {
+    marginTop: 8,
+    marginBottom: 8,
+    fontWeight: 'bold',
+    fontSize: 24,
   },
   activeQrcode: {
     alignItems: 'center',
