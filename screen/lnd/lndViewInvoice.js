@@ -282,7 +282,7 @@ const LNDViewInvoice = () => {
   return (
     <SafeBlueArea onLayout={onLayout}>
       <StatusBar barStyle="default" />
-        {render()}
+      {render()}
     </SafeBlueArea>
   );
 };
@@ -290,7 +290,7 @@ const LNDViewInvoice = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    justifyContent: 'space-between', 
+    justifyContent: 'space-between',
   },
   justifyContentCenter: {
     justifyContent: 'center',

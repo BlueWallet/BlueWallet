@@ -52,7 +52,6 @@ const LNDViewLogs = () => {
   };
   const refetchData = async () => {
     setIsLoading(true);
-    console.warn(wallet);
     const dir = await wallet.getLndDir();
     await wallet
       .getInfo()
