@@ -240,39 +240,41 @@ const LNDViewInvoice = () => {
       }
       // Invoice has not expired, nor has it been paid for.
       return (
-        <View style={[styles.activeRoot, stylesHook.root]}>
-          <View style={styles.activeQrcode}>
-            <QRCode
-              value={invoice.payment_request}
-              logo={require('../../img/qr-code.png')}
-              size={qrCodeSize}
-              logoSize={90}
-              color="#000000"
-              logoBackgroundColor={colors.brandingColor}
-              backgroundColor="#FFFFFF"
+        <ScrollView>
+          <View style={[styles.activeRoot, stylesHook.root]}>
+            <View style={styles.activeQrcode}>
+              <QRCode
+                value={invoice.payment_request}
+                logo={require('../../img/qr-code.png')}
+                size={qrCodeSize}
+                logoSize={90}
+                color="#000000"
+                logoBackgroundColor={colors.brandingColor}
+                backgroundColor="#FFFFFF"
+              />
+            </View>
+
+            <BlueSpacing20 />
+            <BlueText>
+              {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
+            </BlueText>
+            {'description' in invoice && invoice.description.length > 0 && (
+              <BlueText>
+                {loc.lndViewInvoice.for} {invoice.description}
+              </BlueText>
+            )}
+            <BlueCopyTextToClipboard text={invoice.payment_request} />
+
+            <BlueButton onPress={handleOnSharePressed} title={loc.receive.details_share} />
+
+            <BlueSpacing20 />
+            <BlueButton
+              style={stylesHook.additionalInfo}
+              onPress={handleOnViewAdditionalInformationPressed}
+              title={loc.lndViewInvoice.additional_info}
             />
           </View>
-
-          <BlueSpacing20 />
-          <BlueText>
-            {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
-          </BlueText>
-          {'description' in invoice && invoice.description.length > 0 && (
-            <BlueText>
-              {loc.lndViewInvoice.for} {invoice.description}
-            </BlueText>
-          )}
-          <BlueCopyTextToClipboard text={invoice.payment_request} />
-
-          <BlueButton onPress={handleOnSharePressed} title={loc.receive.details_share} />
-
-          <BlueSpacing20 />
-          <BlueButton
-            style={stylesHook.additionalInfo}
-            onPress={handleOnViewAdditionalInformationPressed}
-            title={loc.lndViewInvoice.additional_info}
-          />
-        </View>
+        </ScrollView>
       );
     }
   };
@@ -280,7 +282,7 @@ const LNDViewInvoice = () => {
   return (
     <SafeBlueArea onLayout={onLayout}>
       <StatusBar barStyle="default" />
-      <ScrollView>{render()}</ScrollView>
+        {render()}
     </SafeBlueArea>
   );
 };
@@ -288,6 +290,7 @@ const LNDViewInvoice = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    justifyContent: 'space-between', 
   },
   justifyContentCenter: {
     justifyContent: 'center',
