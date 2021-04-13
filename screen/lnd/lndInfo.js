@@ -22,7 +22,7 @@ import Button, { ButtonStyle } from '../../components/Button';
 
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
-const LNDNodeInfoChannelStatus = { ACTIVE: 'Active', PENDING: 'PENDING', STATUS: 'status' };
+const LNDNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
 
 const LndInfo = () => {
   const { walletID, isModal } = useRoute().params;
@@ -35,6 +35,7 @@ const LndInfo = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNewChannelModalVisible, setIsNewChannelModalVisible] = useState(false);
   const [channels, setChannels] = useState([]);
+  const [inactiveChannels, setInactiveChannels] = useState([]);
   const [pendingChannels, setPendingChannels] = useState([]);
   const [wBalance, setWalletBalance] = useState({});
   const [selectedChannelIndex, setSelectedChannelIndex] = useState();
@@ -82,7 +83,8 @@ const LndInfo = () => {
     setIsLoading(true);
 
     const listChannels = await wallet.listChannels();
-    if (listChannels && listChannels.channels) setChannels(listChannels.channels);
+    if (listChannels && listChannels.channels) setChannels(listChannels.channels.filter(channel => channel.active === true));
+    if (listChannels && listChannels.channels) setInactiveChannels(listChannels.channels.filter(channel => channel.active === false));
     const listPendingChannels = await wallet.pendingChannels();
     if (listPendingChannels && listPendingChannels.pendingOpenChannels && listPendingChannels.pendingOpenChannels.length > 0)
       setPendingChannels(listPendingChannels.pendingOpenChannels);
@@ -194,7 +196,9 @@ const LndInfo = () => {
     if (selectedChannelIndex === undefined) return null;
     const status = selectedChannelIndex.status;
     const channelData =
-      status === LNDNodeInfoChannelStatus.ACTIVE ? selectedChannelIndex.channel.item : selectedChannelIndex.channel.item.channel;
+      status === LNDNodeInfoChannelStatus.ACTIVE || LNDNodeInfoChannelStatus.INACTIVE
+        ? selectedChannelIndex.channel.item
+        : selectedChannelIndex.channel.item.channel;
     return (
       <BottomModal isVisible={selectedChannelIndex !== undefined} onClose={closeModal}>
         <View style={[styles.modalContent, stylesHook.modalContent]}>
@@ -202,12 +206,14 @@ const LndInfo = () => {
           <BlueSpacing10 />
           {channelData && (
             <Text style={[stylesHook.detailsText]}>
-              {status === LNDNodeInfoChannelStatus.ACTIVE ? channelData.remotePubkey : channelData.remoteNodePub}
+              {status === LNDNodeInfoChannelStatus.ACTIVE || LNDNodeInfoChannelStatus.INACTIVE
+                ? channelData.remotePubkey
+                : channelData.remoteNodePub}
             </Text>
           )}
           <BlueSpacing20 />
           <LNNodeBar
-            disabled={status === LNDNodeInfoChannelStatus.ACTIVE ? channelData.active : true}
+            disabled={status === LNDNodeInfoChannelStatus.ACTIVE || LNDNodeInfoChannelStatus.INACTIVE ? channelData.active : true}
             canSend={channelData && Number(channelData.localBalance)}
             canReceive={channelData && Number(channelData.capacity)}
             itemPriceUnit={wallet.getPreferredBalanceUnit()}
@@ -222,16 +228,17 @@ const LndInfo = () => {
               : loc.lnd.inactive}
           </Text>
           <BlueSpacing20 />
-          {channelData && status === LNDNodeInfoChannelStatus.ACTIVE && (
-            <>
-              <Text style={[stylesHook.detailsText]}>{loc.lnd.local_reserve}</Text>
-              <BlueSpacing10 />
-              <Text style={[stylesHook.detailsText]}>
-                {formatBalanceWithoutSuffix(channels.localChanReserveSat, wallet.getPreferredBalanceUnit(), true).toString()}
-              </Text>
-              <BlueSpacing40 />
-            </>
-          )}
+          {(channelData && status === LNDNodeInfoChannelStatus.ACTIVE) ||
+            (LNDNodeInfoChannelStatus.INACTIVE && (
+              <>
+                <Text style={[stylesHook.detailsText]}>{loc.lnd.local_reserve}</Text>
+                <BlueSpacing10 />
+                <Text style={[stylesHook.detailsText]}>
+                  {formatBalanceWithoutSuffix(channels.localChanReserveSat, wallet.getPreferredBalanceUnit(), true).toString()}
+                </Text>
+                <BlueSpacing40 />
+              </>
+            ))}
           <Button onPress={() => closeChannel(channelData)} text={loc.lnd.close_channel} buttonStyle={ButtonStyle.destroy} />
         </View>
       </BottomModal>
@@ -244,13 +251,18 @@ const LndInfo = () => {
         return renderItemChannel({ status: LNDNodeInfoChannelStatus.ACTIVE, channel: item });
       case LNDNodeInfoChannelStatus.PENDING:
         return renderItemChannel({ status: LNDNodeInfoChannelStatus.PENDING, channel: item });
+      case LNDNodeInfoChannelStatus.INACTIVE:
+        return renderItemChannel({ status: LNDNodeInfoChannelStatus.INACTIVE, channel: item });
       default:
         return null;
     }
   };
 
   const renderItemChannel = channel => {
-    const channelData = channel.status === LNDNodeInfoChannelStatus.ACTIVE ? channel.channel.item : channel.channel.item.channel;
+    const channelData =
+      channel.status === LNDNodeInfoChannelStatus.ACTIVE || LNDNodeInfoChannelStatus.INACTIVE
+        ? channel.channel.item
+        : channel.channel.item.channel;
     return (
       <TouchableOpacity onPress={() => showModal(channel)}>
         <LNNodeBar
@@ -258,7 +270,11 @@ const LndInfo = () => {
           canSend={Number(channelData.localBalance)}
           canReceive={Number(channelData.capacity)}
           itemPriceUnit={wallet.getPreferredBalanceUnit()}
-          nodeAlias={channel.status === LNDNodeInfoChannelStatus.ACTIVE ? channelData.remotePubkey : channelData.remoteNodePub}
+          nodeAlias={
+            channel.status === LNDNodeInfoChannelStatus.ACTIVE || LNDNodeInfoChannelStatus.INACTIVE
+              ? channelData.remotePubkey
+              : channelData.remoteNodePub
+          }
         />
       </TouchableOpacity>
     );
@@ -323,6 +339,8 @@ const LndInfo = () => {
         return <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.pending}</Text>;
       case LNDNodeInfoChannelStatus.ACTIVE:
         return <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.lnd.active}</Text>;
+      case LNDNodeInfoChannelStatus.INACTIVE:
+        return <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.lnd.inactive}</Text>;
 
       default:
         return null;
@@ -333,6 +351,9 @@ const LndInfo = () => {
     const sectionForList = [];
     if (channels.length > 0) {
       sectionForList.push({ key: LNDNodeInfoChannelStatus.ACTIVE, data: channels });
+    }
+    if (inactiveChannels.length > 0) {
+      sectionForList.push({ key: LNDNodeInfoChannelStatus.INACTIVE, data: inactiveChannels });
     }
     if (pendingChannels.length > 0) {
       sectionForList.push({ key: LNDNodeInfoChannelStatus.PENDING, data: pendingChannels });
