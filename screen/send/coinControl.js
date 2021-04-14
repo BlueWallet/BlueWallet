@@ -73,7 +73,6 @@ const OutputList = ({
   const { colors } = useTheme();
   const { txMetadata } = useContext(BlueStorageContext);
   const memo = oMemo || txMetadata[txid]?.memo || '';
-  const shortId = `${address.substring(0, 9)}...${address.substr(address.length - 9)}`;
   const color = `#${txid.substring(0, 6)}`;
   const amount = formatBalance(value, balanceUnit, true);
 
@@ -103,8 +102,8 @@ const OutputList = ({
       />
       <ListItem.Content>
         <ListItem.Title style={oStyles.amount}>{amount}</ListItem.Title>
-        <ListItem.Subtitle style={oStyles.memo} numberOfLines={1}>
-          {memo || shortId}
+        <ListItem.Subtitle style={oStyles.memo} numberOfLines={1} ellipsizeMode="middle">
+          {memo || address}
         </ListItem.Subtitle>
       </ListItem.Content>
       {change && <ChangeBadge />}
