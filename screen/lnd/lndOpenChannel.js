@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, StyleSheet } from 'react-native';
+import { View, Text, StatusBar, StyleSheet } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
   BlueLoading,
@@ -21,14 +21,24 @@ import PropTypes from 'prop-types';
 const currency = require('../../blue_modules/currency');
 
 const LndOpenChannel = props => {
-  const { fundingWalletID, lndWalletID, isPrivateChannel, closeContainerModal, psbt, onPendingChanIdTempChange, pendingChanId } = props;
+  const {
+    fundingWalletID,
+    lndWalletID,
+    isPrivateChannel,
+    closeContainerModal,
+    psbt,
+    onPendingChanIdTempChange,
+    pendingChanId,
+    onPsbtOpenChannelStartedTsChange,
+    psbtOpenChannelStartedTs,
+  } = props;
   const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   /** @type {LightningLndWallet} */
   const lndWallet = wallets.find(w => w.getID() === lndWalletID);
   /** @type {HDSegwitBech32Wallet} */
   const fundingWallet = wallets.find(w => w.getID() === fundingWalletID);
   const { colors } = useTheme();
-  const { goBack, navigate, setOptions, popToTop } = useNavigation();
+  const { navigate } = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
   const name = useRoute().name;
 
@@ -39,7 +49,6 @@ const LndOpenChannel = props => {
   const [verified, setVerified] = useState(false);
   const [unit, setUnit] = useState(fundingWallet.getPreferredBalanceUnit());
   const [fundingAmount, setFundingAmount] = useState({ amount: null, amountSats: null });
-  const [psbtOpenChannelStartedTs, setPsbtOpenChannelStartedTs] = useState(0);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -68,20 +77,6 @@ const LndOpenChannel = props => {
     },
   });
 
-  useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
-
-    return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleBackButton = () => {
-    goBack(null);
-    return true;
-  };
-
   const base64ToHex = base64 => {
     return Buffer.from(base64, 'base64').toString('hex');
   };
@@ -92,10 +87,10 @@ const LndOpenChannel = props => {
   useEffect(() => {
     if (!psbt) return;
     (async () => {
-      // if (+new Date() - psbtOpenChannelStartedTs >= 5 * 60 * 1000) {
-      //   // its 10 min actually, but lets check 5 min just for any case
-      //   return alert('Channel opening expired. Please try again');
-      // }
+      if (+new Date() - psbtOpenChannelStartedTs >= 5 * 60 * 1000) {
+        // its 10 min actually, but lets check 5 min just for any case
+        return alert('Channel opening expired. Please try again');
+      }
 
       const chanIdHex = base64ToHex(pendingChanId);
       const psbtHex = psbt.toHex();
@@ -113,10 +108,10 @@ const LndOpenChannel = props => {
   }, [psbt]);
 
   const finalizeOpenChannel = async () => {
-    // if (+new Date() - psbtOpenChannelStartedTs >= 5 * 60 * 1000) {
-    //   // its 10 min actually, but lets check 5 min just for any case
-    //   return alert('Channel opening expired. Please try again');
-    // }
+    if (+new Date() - psbtOpenChannelStartedTs >= 5 * 60 * 1000) {
+      // its 10 min actually, but lets check 5 min just for any case
+      return alert('Channel opening expired. Please try again');
+    }
 
     /** @type {LightningLndWallet} */
     const w = lndWallet;
@@ -164,7 +159,7 @@ const LndOpenChannel = props => {
       }
 
       onPendingChanIdTempChange(pendingChanIdTemp);
-      setPsbtOpenChannelStartedTs(+new Date());
+      onPsbtOpenChannelStartedTsChange(+new Date());
       closeContainerModal();
       navigate('SendDetailsRoot', {
         screen: 'SendDetails',
@@ -282,7 +277,7 @@ const LndOpenChannel = props => {
   return (
     <SafeBlueArea styles={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="default" />
-      <ScrollView contentContainerStyle={styles.contentContainerStyle}>{render()}</ScrollView>
+      {render()}
     </SafeBlueArea>
   );
 };

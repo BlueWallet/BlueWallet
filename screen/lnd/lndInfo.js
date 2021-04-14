@@ -363,6 +363,10 @@ const LndInfo = () => {
             fundingWalletID={newOpenChannelModalProps.current?.fundingWalletID}
             isPrivateChannel={newOpenChannelModalProps.current?.isPrivateChannel}
             closeContainerModal={closeNewOpenChannelModalPropsModal}
+            psbtOpenChannelStartedTs={newOpenChannelModalProps.current?.psbtOpenChannelStartedTs}
+            onPsbtOpenChannelStartedTsChange={psbtOpenChannelStartedTs =>
+              (newOpenChannelModalProps.current.psbtOpenChannelStartedTs = psbtOpenChannelStartedTs)
+            }
             onPendingChanIdTempChange={pendingChanIdTemp => (newOpenChannelModalProps.current.pendingChanIdTemp = pendingChanIdTemp)}
           />
         </View>
