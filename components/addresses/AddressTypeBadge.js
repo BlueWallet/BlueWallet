@@ -1,43 +1,43 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet } from 'react-native';
 import { useTheme } from '@react-navigation/native';
-import { Badge } from 'react-native-elements';
+import { StyleSheet, View, Text } from 'react-native';
 import loc from '../../loc';
 
 const styles = StyleSheet.create({
-  badge: {
-    borderWidth: 0,
-    paddingVertical: 8,
-    paddingHorizontal: 6,
+  container: {
+    paddingTop: 2,
+    paddingBottom: 2,
+    paddingLeft: 8,
+    paddingRight: 8,
+    borderRadius: 20,
+  },
+  badgeText: {
+    fontSize: 12,
   },
 });
 
 const AddressTypeBadge = ({ isInternal }) => {
   const { colors } = useTheme();
 
-  const oStyles = {
-    change: {
-      badge: { backgroundColor: colors.changeBackground },
-      text: { color: colors.changeText },
-    },
-    receive: {
-      badge: { backgroundColor: colors.receiveBackground },
-      text: { color: colors.receiveText },
-    },
-  };
+  const stylesHook = StyleSheet.create({
+    changeBadge: { backgroundColor: colors.changeBackground },
+    receiveBadge: { backgroundColor: colors.receiveBackground },
+    changeText: { color: colors.changeText },
+    receiveText: { color: colors.receiveText },
+  });
 
-  const getBadgeText = () => {
-    return isInternal ? loc.addresses.type_change : loc.addresses.type_receive;
-  };
+  const badgeLabel = isInternal ? loc.addresses.type_change : loc.addresses.type_receive;
 
-  const getStyle = () => {
-    return isInternal ? oStyles.change : oStyles.receive;
-  };
+  const badgeStyle = isInternal ? stylesHook.changeBadge : stylesHook.receiveBadge;
 
-  const oStyle = getStyle();
+  const textStyle = isInternal ? stylesHook.changeText : stylesHook.receiveText;
 
-  return <Badge value={getBadgeText()} badgeStyle={[styles.badge, oStyle.badge]} textStyle={oStyle.text} />;
+  return (
+    <View style={[styles.container, badgeStyle]}>
+      <Text style={[styles.badgeText, textStyle]}>{badgeLabel}</Text>
+    </View>
+  );
 };
 
 AddressTypeBadge.propTypes = {
