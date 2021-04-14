@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute, useTheme } from '@react-navigation/native';
 import Privacy from '../../blue_modules/Privacy';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
@@ -78,6 +78,14 @@ const WalletAddresses = () => {
 
   const walletInstance = wallet.type === WatchOnlyWallet.type ? wallet._hdWalletInstance : wallet;
 
+  const { colors } = useTheme();
+
+  const stylesHook = StyleSheet.create({
+    root: {
+      backgroundColor: colors.elevated,
+    },
+  });
+
   const getAddresses = () => {
     const addressList = [];
 
@@ -109,11 +117,11 @@ const WalletAddresses = () => {
 
   const render = () => {
     if (showAddresses) {
-      return <FlatList data={addresses} renderItem={item => <AddressItem {...item} balanceUnit={balanceUnit} />} />;
+      return <FlatList style={stylesHook.root} data={addresses} renderItem={item => <AddressItem {...item} balanceUnit={balanceUnit} />} />;
     }
 
     return (
-      <View style={styles.loading}>
+      <View style={[stylesHook.root, styles.loading]}>
         <ActivityIndicator />
       </View>
     );
