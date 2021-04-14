@@ -18,6 +18,7 @@ import AmountInput from '../../components/AmountInput';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import PropTypes from 'prop-types';
+import { SuccessView } from '../send/success';
 const currency = require('../../blue_modules/currency');
 
 const LndOpenChannel = props => {
@@ -31,6 +32,7 @@ const LndOpenChannel = props => {
     pendingChanId,
     onPsbtOpenChannelStartedTsChange,
     psbtOpenChannelStartedTs,
+    openOpenChannelSuccess,
   } = props;
   const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   /** @type {LightningLndWallet} */
@@ -49,6 +51,7 @@ const LndOpenChannel = props => {
   const [verified, setVerified] = useState(false);
   const [unit, setUnit] = useState(fundingWallet.getPreferredBalanceUnit());
   const [fundingAmount, setFundingAmount] = useState({ amount: null, amountSats: null });
+  const [isOpenChannelSuccessful, setIsOpenChannelSuccessful] = useState(false);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -124,7 +127,7 @@ const LndOpenChannel = props => {
       return alert('Something wend wrong during opening channel tx broadcast');
     }
     fetchAndSaveWalletTransactions(w.getID());
-    alert('Success opening channel!');
+    setIsOpenChannelSuccessful(true);
   };
 
   const openChannel = async () => {
@@ -206,6 +209,15 @@ const LndOpenChannel = props => {
           <Text>All seems to be in order. Are you sure you want to open this channel?</Text>
 
           <BlueButton onPress={finalizeOpenChannel} title="Yes, Open Channel" />
+        </View>
+      );
+    }
+
+    if (isOpenChannelSuccessful) {
+      return (
+        <View style={[styles.activeRoot, stylesHook.root]}>
+          <SuccessView />
+          <BlueButton onPress={openOpenChannelSuccess} title={loc.send.success_done} />
         </View>
       );
     }
@@ -370,6 +382,9 @@ LndOpenChannel.propTypes = {
   psbt: PropTypes.string,
   onPendingChanIdTempChange: PropTypes.func,
   pendingChanId: PropTypes.string,
+  onPsbtOpenChannelStartedTsChange: PropTypes.func,
+  psbtOpenChannelStartedTs: PropTypes.string,
+  openOpenChannelSuccess: PropTypes.func,
 };
 
 LndOpenChannel.navigationOptions = navigationStyle(

@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { View, StatusBar, BackHandler, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
@@ -20,8 +20,6 @@ import LNNodeBar from '../../components/LNNodeBar';
 import BottomModal from '../../components/BottomModal';
 import Button, { ButtonStyle } from '../../components/Button';
 import LndOpenChannel from './lndOpenChannel';
-import { useRef } from 'react';
-
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
 const LNDNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
@@ -368,6 +366,7 @@ const LndInfo = () => {
               (newOpenChannelModalProps.current.psbtOpenChannelStartedTs = psbtOpenChannelStartedTs)
             }
             onPendingChanIdTempChange={pendingChanIdTemp => (newOpenChannelModalProps.current.pendingChanIdTemp = pendingChanIdTemp)}
+            openOpenChannelSuccess={onNewOpenChannelModalBackdropPress}
           />
         </View>
       </BottomModal>
