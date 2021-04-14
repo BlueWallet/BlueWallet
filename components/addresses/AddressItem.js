@@ -20,8 +20,6 @@ const AddressItem = ({ item, balanceUnit }) => {
     },
   });
 
-  const shortId = `${item.address.substring(0, 9)}...${item.address.substr(item.address.length - 9)}`;
-
   const copyAddressToClipboard = () => {
     Clipboard.setString(item.address);
   };
@@ -32,8 +30,8 @@ const AddressItem = ({ item, balanceUnit }) => {
     return (
       <ListItem key={`${item.key}`} button onPress={copyAddressToClipboard} containerStyle={styles.container}>
         <ListItem.Content style={styles.list}>
-          <ListItem.Title style={styles.list}>
-            {item.index}.{shortId}
+          <ListItem.Title style={styles.list} numberOfLines={1} ellipsizeMode="middle">
+            {item.index}.{item.address}
           </ListItem.Title>
           <ListItem.Subtitle style={styles.list}>{balance}</ListItem.Subtitle>
         </ListItem.Content>
