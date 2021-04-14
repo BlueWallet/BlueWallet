@@ -8,6 +8,7 @@ import {
   BlueButton,
   BlueDoneAndDismissKeyboardInputAccessory,
   BlueDismissKeyboardInputAccessory,
+  BlueSpacing20,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -16,10 +17,11 @@ import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
+import PropTypes from 'prop-types';
 const currency = require('../../blue_modules/currency');
 
-const LndOpenChannel = () => {
-  const { fundingWalletID, lndWalletID, psbt, isModal, isPrivateChannel } = useRoute().params;
+const LndOpenChannel = props => {
+  const { fundingWalletID, lndWalletID, isPrivateChannel, closeContainerModal, psbt, onPendingChanIdTempChange, pendingChanId } = props;
   const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   /** @type {LightningLndWallet} */
   const lndWallet = wallets.find(w => w.getID() === lndWalletID);
@@ -36,7 +38,6 @@ const LndOpenChannel = () => {
   );
   const [verified, setVerified] = useState(false);
   const [unit, setUnit] = useState(fundingWallet.getPreferredBalanceUnit());
-  const [pendingChanId, setPendingChanId] = useState('');
   const [fundingAmount, setFundingAmount] = useState({ amount: null, amountSats: null });
   const [psbtOpenChannelStartedTs, setPsbtOpenChannelStartedTs] = useState(0);
 
@@ -76,32 +77,6 @@ const LndOpenChannel = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    setOptions(
-      isModal === true
-        ? {
-            headerStyle: {
-              backgroundColor: colors.customHeader,
-              borderBottomWidth: 0,
-              elevation: 0,
-              shadowOpacity: 0,
-              shadowOffset: { height: 0, width: 0 },
-            },
-            gestureEnabled: false,
-          }
-        : {
-            headerStyle: {
-              backgroundColor: colors.customHeader,
-              borderBottomWidth: 0,
-              elevation: 0,
-              shadowOpacity: 0,
-              shadowOffset: { height: 0, width: 0 },
-            },
-          },
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors]);
-
   const handleBackButton = () => {
     goBack(null);
     return true;
@@ -117,10 +92,10 @@ const LndOpenChannel = () => {
   useEffect(() => {
     if (!psbt) return;
     (async () => {
-      if (+new Date() - psbtOpenChannelStartedTs >= 5 * 60 * 1000) {
-        // its 10 min actually, but lets check 5 min just for any case
-        return alert('Channel opening expired. Please try again');
-      }
+      // if (+new Date() - psbtOpenChannelStartedTs >= 5 * 60 * 1000) {
+      //   // its 10 min actually, but lets check 5 min just for any case
+      //   return alert('Channel opening expired. Please try again');
+      // }
 
       const chanIdHex = base64ToHex(pendingChanId);
       const psbtHex = psbt.toHex();
@@ -138,10 +113,10 @@ const LndOpenChannel = () => {
   }, [psbt]);
 
   const finalizeOpenChannel = async () => {
-    if (+new Date() - psbtOpenChannelStartedTs >= 5 * 60 * 1000) {
-      // its 10 min actually, but lets check 5 min just for any case
-      return alert('Channel opening expired. Please try again');
-    }
+    // if (+new Date() - psbtOpenChannelStartedTs >= 5 * 60 * 1000) {
+    //   // its 10 min actually, but lets check 5 min just for any case
+    //   return alert('Channel opening expired. Please try again');
+    // }
 
     /** @type {LightningLndWallet} */
     const w = lndWallet;
@@ -155,7 +130,6 @@ const LndOpenChannel = () => {
     }
     fetchAndSaveWalletTransactions(w.getID());
     alert('Success opening channel!');
-    popToTop();
   };
 
   const openChannel = async () => {
@@ -189,9 +163,9 @@ const LndOpenChannel = () => {
         return alert('Initiating channel open failed');
       }
 
-      setPendingChanId(pendingChanIdTemp);
+      onPendingChanIdTempChange(pendingChanIdTemp);
       setPsbtOpenChannelStartedTs(+new Date());
-
+      closeContainerModal();
       navigate('SendDetailsRoot', {
         screen: 'SendDetails',
         params: {
@@ -221,15 +195,15 @@ const LndOpenChannel = () => {
   const render = () => {
     if (isLoading || !lndWallet || !fundingWallet) {
       return (
-        <View style={[styles.root, stylesHook.root]}>
-          <BlueLoading />
+        <View style={[styles.root, styles.justifyContentCenter, stylesHook.root]}>
+          <BlueLoading style={{}} />
         </View>
       );
     }
 
     if (verified) {
       return (
-        <View style={styles.root}>
+        <View style={[styles.activeRoot, stylesHook.root]}>
           <Text>
             Opening channel for wallet {lndWallet.getLabel()}, funding from {fundingWallet.getLabel()}
           </Text>
@@ -242,7 +216,7 @@ const LndOpenChannel = () => {
     }
 
     return (
-      <View style={styles.root}>
+      <View style={[styles.activeRoot, stylesHook.root]}>
         <Text>
           Opening channel for {lndWallet.getLabel()}, funding from {fundingWallet.getLabel()}
         </Text>
@@ -298,7 +272,7 @@ const LndOpenChannel = () => {
           onBarScanned={onBarScanned}
           launchedBy={name}
         />
-
+        <BlueSpacing20 />
         <BlueButton onPress={openChannel} title="Open Channel" />
         <BlueDoneAndDismissKeyboardInputAccessory />
       </View>
@@ -392,6 +366,16 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
   },
 });
+
+LndOpenChannel.propTypes = {
+  fundingWalletID: PropTypes.string.isRequired,
+  lndWalletID: PropTypes.string.isRequired,
+  isPrivateChannel: PropTypes.bool.isRequired,
+  closeContainerModal: PropTypes.func,
+  psbt: PropTypes.string,
+  onPendingChanIdTempChange: PropTypes.func,
+  pendingChanId: PropTypes.string,
+};
 
 LndOpenChannel.navigationOptions = navigationStyle(
   {

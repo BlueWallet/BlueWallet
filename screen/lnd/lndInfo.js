@@ -19,27 +19,34 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import LNNodeBar from '../../components/LNNodeBar';
 import BottomModal from '../../components/BottomModal';
 import Button, { ButtonStyle } from '../../components/Button';
+import LndOpenChannel from './lndOpenChannel';
+import { useRef } from 'react';
 
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
 const LNDNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
 
 const LndInfo = () => {
-  const { walletID, isModal } = useRoute().params;
+  const { walletID, isModal, psbt } = useRoute().params;
   const { wallets } = useContext(BlueStorageContext);
   /** @type {LightningLndWallet} */
   const wallet = wallets.find(w => w.getID() === walletID);
   const { colors } = useTheme();
-  const { goBack, setOptions, navigate } = useNavigation();
+  const { goBack, setOptions, setParams, navigate } = useNavigation();
   const name = useRoute().name;
   const [isLoading, setIsLoading] = useState(true);
-  const [isNewChannelModalVisible, setIsNewChannelModalVisible] = useState(false);
   const [channels, setChannels] = useState([]);
   const [inactiveChannels, setInactiveChannels] = useState([]);
   const [pendingChannels, setPendingChannels] = useState([]);
   const [wBalance, setWalletBalance] = useState({});
-  const [selectedChannelIndex, setSelectedChannelIndex] = useState();
 
+  // Modals
+  const [selectedChannelIndex, setSelectedChannelIndex] = useState();
+  const [isNewChannelModalVisible, setIsNewChannelModalVisible] = useState(false);
+  const newOpenChannelModalProps = useRef();
+  const [newOpenChannelModalVisible, setNewOpenChannelModalVisible] = useState(false);
+
+  //
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.background,
@@ -102,6 +109,12 @@ const LndInfo = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (psbt) {
+      setNewOpenChannelModalVisible(true);
+    }
+  }, [psbt]);
 
   useEffect(() => {
     setOptions(
@@ -311,6 +324,7 @@ const LndInfo = () => {
 
   const navigateToOpenChannel = async ({ isPrivateChannel }) => {
     closeModal();
+    setNewOpenChannelModalVisible(false);
     const availableWallets = [...wallets.filter(item => item.isSegwit() && item.allowSend())];
     if (availableWallets.length === 0) {
       return alert(loc.lnd.refill_create);
@@ -318,11 +332,41 @@ const LndInfo = () => {
 
     /** @type {AbstractWallet} */
     const selectedWallet = await selectWallet(navigate, name, false, availableWallets);
-    return navigate('LndOpenChannel', {
-      fundingWalletID: selectedWallet.getID(),
-      lndWalletID: wallet.getID(),
-      isPrivateChannel,
-    });
+    newOpenChannelModalProps.current = { fundingWalletID: selectedWallet.getID(), isPrivateChannel };
+    setNewOpenChannelModalVisible(true);
+  };
+  const closeNewOpenChannelModalPropsModal = () => {
+    setNewOpenChannelModalVisible(false);
+  };
+
+  const onNewOpenChannelModalBackdropPress = () => {
+    setNewOpenChannelModalVisible(false);
+    setTimeout(() => {
+      newOpenChannelModalProps.current = undefined;
+      setParams({ psbt: undefined });
+    }, 500);
+  };
+
+  const renderOpenChannelAmountAndNoteModal = () => {
+    return (
+      <BottomModal
+        isVisible={newOpenChannelModalVisible}
+        onClose={closeNewOpenChannelModalPropsModal}
+        onBackdropPress={onNewOpenChannelModalBackdropPress}
+      >
+        <View style={[styles.fundingNewChannelModalContent, stylesHook.modalContent]}>
+          <LndOpenChannel
+            psbt={psbt}
+            pendingChanId={newOpenChannelModalProps.current?.pendingChanIdTemp}
+            lndWalletID={walletID}
+            fundingWalletID={newOpenChannelModalProps.current?.fundingWalletID}
+            isPrivateChannel={newOpenChannelModalProps.current?.isPrivateChannel}
+            closeContainerModal={closeNewOpenChannelModalPropsModal}
+            onPendingChanIdTempChange={pendingChanIdTemp => (newOpenChannelModalProps.current.pendingChanIdTemp = pendingChanIdTemp)}
+          />
+        </View>
+      </BottomModal>
+    );
   };
 
   const showNewChannelModal = () => {
@@ -392,6 +436,7 @@ const LndInfo = () => {
         </BlueCard>
         {renderModal()}
         {renderNewChannelModal}
+        {renderOpenChannelAmountAndNoteModal()}
       </View>
     </SafeBlueArea>
   );
@@ -498,6 +543,13 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  fundingNewChannelModalContent: {
+    padding: 24,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    height: 340,
   },
   separator: {
     height: 1,
