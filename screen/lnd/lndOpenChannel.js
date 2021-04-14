@@ -171,7 +171,7 @@ const LndOpenChannel = props => {
         params: {
           memo: 'open channel',
           address: fundingAddressTemp,
-          fromWallet: fundingWallet,
+          walletID: fundingWalletID,
           amount: fundingAmount.amount,
           amountSats: fundingAmount.amountSats,
           unit,

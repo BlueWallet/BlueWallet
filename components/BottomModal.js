@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const BottomModal = ({ onBackButtonPress, onBackdropPress, onClose, windowHeight, windowWidth, ...props }) => {
+const BottomModal = ({ onBackButtonPress, onBackdropPress, onClose, windowHeight, windowWidth, avoidKeyboard = false, ...props }) => {
   const valueWindowHeight = useWindowDimensions().height;
   const valueWindowWidth = useWindowDimensions().width;
   const handleBackButtonPress = onBackButtonPress ?? onClose;
@@ -26,6 +26,7 @@ const BottomModal = ({ onBackButtonPress, onBackdropPress, onClose, windowHeight
       {...props}
       accessibilityViewIsModal
       useNativeDriver={Platform.OS === 'android'}
+      avoidKeyboard
       useNativeDriverForBackdrop={Platform === 'android'}
     />
   );
@@ -38,6 +39,7 @@ BottomModal.propTypes = {
   onClose: PropTypes.func,
   windowHeight: PropTypes.number,
   windowWidth: PropTypes.number,
+  avoidKeyboard: PropTypes.bool,
 };
 
 export default BottomModal;
