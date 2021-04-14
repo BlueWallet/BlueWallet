@@ -213,7 +213,7 @@ const LndInfo = () => {
         ? selectedChannelIndex.channel.item
         : selectedChannelIndex.channel.item.channel;
     return (
-      <BottomModal isVisible={selectedChannelIndex !== undefined} onClose={closeModal}>
+      <BottomModal isVisible={selectedChannelIndex !== undefined} onClose={closeModal} avoidKeyboard>
         <View style={[styles.modalContent, stylesHook.modalContent]}>
           <Text style={[stylesHook.detailsText]}>{loc.lnd.node_alias}</Text>
           <BlueSpacing10 />
@@ -302,7 +302,7 @@ const LndInfo = () => {
   };
 
   const renderNewChannelModal = (
-    <BottomModal isVisible={isNewChannelModalVisible} onClose={closeModal}>
+    <BottomModal isVisible={isNewChannelModalVisible} onClose={closeModal} avoidKeyboard>
       <View style={[styles.newChannelModalContent, stylesHook.modalContent]}>
         <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.lnd.new_channel}</Text>
         <BlueListItem
@@ -353,6 +353,7 @@ const LndInfo = () => {
         isVisible={newOpenChannelModalVisible}
         onClose={closeNewOpenChannelModalPropsModal}
         onBackdropPress={onNewOpenChannelModalBackdropPress}
+        avoidKeyboard
       >
         <View style={[styles.fundingNewChannelModalContent, stylesHook.modalContent]}>
           <LndOpenChannel
