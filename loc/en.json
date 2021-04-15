@@ -565,15 +565,23 @@
     "sign_title": "Sign/Verify message",
     "sign_help": "Here you can create or verify a cryptographic signature based on a Bitcoin address",
     "sign_sign": "Sign",
+    "sign_sign_submit": "Sign and Submit",
     "sign_verify": "Verify",
     "sign_signature_correct": "Verification Succeeded!",
     "sign_signature_incorrect": "Verification Failed!",
     "sign_placeholder_address": "Address",
     "sign_placeholder_message": "Message",
     "sign_placeholder_signature": "Signature",
+    "sign_aopp_title": "AOPP",
+    "sign_aopp_confirm": "Do you want to send signed message to {hostname}?",
     "address_balance": "Balance: {balance} sats",
     "addresses_title": "Addresses",
     "type_change": "Change",
     "type_receive": "Receive"
+  },
+  "aopp": {
+    "title": "Select Address",
+    "send_success": "Signature sent successfully",
+    "send_error": "Signature sending error"
   }
 }

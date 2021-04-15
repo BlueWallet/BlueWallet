@@ -69,6 +69,7 @@
           <data android:scheme="bluewallet" />
           <data android:scheme="lapp" />
           <data android:scheme="blue" />
+          <data android:scheme="aopp" />
         </intent-filter>
         <intent-filter>
   <action android:name="android.intent.action.VIEW" />
@@ -76,7 +77,7 @@
   <category android:name="android.intent.category.DEFAULT" />
   <data
     android:mimeType="application/octet-stream"
-    android:host="*" 
+    android:host="*"
     android:pathPattern=".*\\.psbt"
   />
 </intent-filter>
@@ -86,7 +87,7 @@
   <category android:name="android.intent.category.DEFAULT" />
   <data
     android:mimeType="text/plain"
-    android:host="*" 
+    android:host="*"
     android:pathPattern=".*\\.psbt"
   />
 </intent-filter>

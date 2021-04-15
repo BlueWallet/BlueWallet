@@ -7,14 +7,13 @@ import { useRoute, useTheme } from '@react-navigation/native';
 
 import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
-import { MultisigHDWallet } from '../../class';
+import { MultisigHDWallet, LightningCustodianWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const SelectWallet = () => {
-  const { chainType, onWalletSelect, availableWallets } = useRoute().params;
+  const { chainType, onWalletSelect, availableWallets, noWalletExplanationText } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   const { wallets } = useContext(BlueStorageContext);
   const { colors } = useTheme();
@@ -161,7 +160,7 @@ const SelectWallet = () => {
         <View style={styles.noWallets}>
           <BlueText style={styles.center}>{loc.wallets.select_no_bitcoin}</BlueText>
           <BlueSpacing20 />
-          <BlueText style={styles.center}>{loc.wallets.select_no_bitcoin_exp}</BlueText>
+          <BlueText style={styles.center}>{noWalletExplanationText || loc.wallets.select_no_bitcoin_exp}</BlueText>
         </View>
       </SafeBlueArea>
     );

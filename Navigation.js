@@ -47,6 +47,7 @@ import Marketplace from './screen/wallets/marketplace';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 import ProvideEntropy from './screen/wallets/provideEntropy';
+import AOPP from './screen/wallets/aopp';
 
 import TransactionDetails from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/transactionStatus';
@@ -467,6 +468,19 @@ const ExportMultisigCoordinationSetupRoot = () => {
   );
 };
 
+const AOPPStack = createStackNavigator();
+const AOPPRoot = () => {
+  const theme = useTheme();
+
+  return (
+    <AOPPStack.Navigator screenOptions={defaultStackScreenOptions}>
+      <AOPPStack.Screen name="SelectWalletAOPP" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <AOPPStack.Screen name="AOPP" component={AOPP} options={AOPP.navigationOptions(theme)} />
+      <AOPPStack.Screen name="SignVerify" component={SignVerify} options={SignVerify.navigationOptions(theme)} />
+    </AOPPStack.Navigator>
+  );
+};
+
 const RootStack = createStackNavigator();
 const Navigation = () => {
   const theme = useTheme();
@@ -499,6 +513,7 @@ const Navigation = () => {
       <RootStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />
       <RootStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={{ headerShown: false }} />
       <RootStack.Screen name="LappBrowserRoot" component={LappBrowserStackRoot} options={{ headerShown: false }} />
+      <RootStack.Screen name="AOPPRoot" component={AOPPRoot} options={{ headerShown: false }} />
 
       <RootStack.Screen
         name="ScanQRCodeRoot"
