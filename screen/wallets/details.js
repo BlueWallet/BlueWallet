@@ -19,9 +19,6 @@ import {
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea, SecondButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import { HDLegacyBreadwalletWallet } from '../../class/wallets/hd-legacy-breadwallet-wallet';
-import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet';
-import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import {
@@ -549,11 +546,7 @@ const WalletDetails = () => {
                 </>
               )}
 
-              {(wallet.type === HDLegacyBreadwalletWallet.type ||
-                wallet.type === HDLegacyP2PKHWallet.type ||
-                wallet.type === HDSegwitBech32Wallet.type ||
-                wallet.type === HDAezeedWallet.type ||
-                wallet.type === HDSegwitP2SHWallet.type) && (
+              {wallet.allowXpub() && (
                 <>
                   <BlueSpacing20 />
                   <SecondButton onPress={navigateToXPub} testID="XPub" title={loc.wallets.details_show_xpub} />

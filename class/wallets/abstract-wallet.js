@@ -125,6 +125,10 @@ export class AbstractWallet {
     return false;
   }
 
+  allowXpub() {
+    return false;
+  }
+
   weOwnAddress(address) {
     throw Error('not implemented');
   }

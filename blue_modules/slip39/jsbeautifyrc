@@ -1,0 +1,16 @@
+{
+  "indent_with_tabs": false,
+  "indent_size": 2,
+	"max_preserve_newlines": 2,
+	"preserve_newlines": true,
+	"keep_array_indentation": true,
+	"break_chained_methods": true,
+	"wrap_line_length": 120,
+	"end_with_newline": true,
+	"brace_style": "collapse,preserve-inline",
+	"unformatted": ["a", "abbr", "area", "audio", "b", "bdi", "bdo", "br", "button", "canvas", "cite", "code", "data",
+		"datalist", "del", "dfn", "em", "embed", "i", "iframe", "img", "input", "ins", "kbd", "keygen", "label", "map",
+		"mark", "math", "meter", "noscript", "object", "output", "progress", "q", "ruby", "s", "samp", "select", "small",
+		"span", "strong", "sub", "sup", "template", "textarea", "time", "u", "var", "video", "wbr", "text", "acronym",
+		"address", "big", "dt", "ins", "small", "strike", "tt", "pre", "h1", "h2", "h3", "h4", "h5", "h6"]
+}

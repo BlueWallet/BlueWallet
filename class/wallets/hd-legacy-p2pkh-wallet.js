@@ -1,4 +1,3 @@
-import bip39 from 'bip39';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 const bitcoin = require('bitcoinjs-lib');
 const HDNode = require('bip32');
@@ -30,12 +29,15 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
     return true;
   }
 
+  allowXpub() {
+    return true;
+  }
+
   getXpub() {
     if (this._xpub) {
       return this._xpub; // cache hit
     }
-    const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
+    const seed = this._getSeed();
     const root = bitcoin.bip32.fromSeed(seed);
 
     const path = "m/44'/0'/0'";
@@ -62,8 +64,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
    */
   _getWIFByIndex(internal, index) {
     if (!this.secret) return false;
-    const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
+    const seed = this._getSeed();
 
     const root = HDNode.fromSeed(seed);
     const path = `m/44'/0'/0'/${internal ? 1 : 0}/${index}`;
