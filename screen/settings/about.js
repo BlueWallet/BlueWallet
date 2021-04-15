@@ -214,7 +214,7 @@ const About = () => {
         <View style={styles.copyToClipboard}>
           <BlueCopyToClipboardButton
             stringToCopy={(Platform.OS === 'android' ? 'user.id:' : 'app.device:') + getUniqueId()}
-            displayText="copy"
+            displayText={loc.transactions.details_copy}
           />
         </View>
         <BlueSpacing20 />
