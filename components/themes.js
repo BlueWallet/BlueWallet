@@ -60,6 +60,10 @@ export const BlueDefaultTheme = {
     newBlue: '#007AFF',
     redBG: '#F8D2D2',
     redText: '#D0021B',
+    changeBackground: '#FDF2DA',
+    changeText: '#F38C47',
+    receiveBackground: '#D1F9D6',
+    receiveText: '#37C0A1',
   },
 };
 

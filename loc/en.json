@@ -407,6 +407,7 @@
     "details_no_cancel": "No, cancel",
     "details_save": "Save",
     "details_show_xpub": "Show Wallet XPUB",
+    "details_show_addresses": "Show addresses",
     "details_title": "Wallet",
     "details_type": "Type",
     "details_use_with_hardware_wallet": "Use with Hardware Wallet",
@@ -569,6 +570,10 @@
     "sign_signature_incorrect": "Verification Failed!",
     "sign_placeholder_address": "Address",
     "sign_placeholder_message": "Message",
-    "sign_placeholder_signature": "Signature"
+    "sign_placeholder_signature": "Signature",
+    "address_balance": "Balance: {balance} sats",
+    "addresses_title": "Addresses",
+    "type_change": "Change",
+    "type_receive": "Receive"
   }
 }
