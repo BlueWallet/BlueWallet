@@ -242,8 +242,7 @@ const WalletDetails = () => {
     });
 
   const navigateToAddresses = () =>
-    navigate('WalletAddressesRoot', {
-      screen: 'WalletAddresses',
+    navigate('WalletAddresses', {
       params: {
         walletID: wallet.getID(),
       },
