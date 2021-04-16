@@ -110,18 +110,12 @@ BuyBitcoin.navigationOptions = navigationStyle({
 
 BuyBitcoin.navigate = async wallet => {
   const uri = await BuyBitcoin.generateURL(wallet);
-  if (Platform.OS === 'ios') {
-    InAppBrowser.isAvailable()
-      .then(_value => {
-        InAppBrowser.open(uri, { dismissButtonStyle: 'done', modalEnabled: true, animated: true });
-      })
-      .catch(error => {
-        console.log(error);
-        Linking.openURL(uri);
-      });
-  } else {
-    NavigationService.navigate('BuyBitcoin', {
-      wallet,
+  InAppBrowser.isAvailable()
+    .then(_value => {
+      InAppBrowser.open(uri, { dismissButtonStyle: 'done', modalEnabled: true, animated: true });
+    })
+    .catch(error => {
+      console.log(error);
+      Linking.openURL(uri);
     });
-  }
 };
