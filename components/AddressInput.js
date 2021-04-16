@@ -17,8 +17,10 @@ const AddressInput = ({
   placeholder = loc.send.details_address,
   onChangeText,
   onBarScanned,
+  scanButtonTapped = () => {},
   launchedBy,
   editable = true,
+  inputAccessoryViewID,
 }) => {
   const { colors } = useTheme();
   const scanButtonRef = useRef();
@@ -50,6 +52,7 @@ const AddressInput = ({
         editable={!isLoading && editable}
         onSubmitEditing={Keyboard.dismiss}
         multiline={!editable}
+        inputAccessoryViewID={inputAccessoryViewID}
       />
       {editable && (
         <TouchableOpacity
@@ -57,6 +60,7 @@ const AddressInput = ({
           disabled={isLoading}
           onPress={() => {
             Keyboard.dismiss();
+            scanButtonTapped();
             if (isDesktop) {
               fs.showActionSheet({ anchor: findNodeHandle(scanButtonRef.current) }).then(onBarScanned);
             } else {
@@ -120,6 +124,8 @@ AddressInput.propTypes = {
   address: PropTypes.string,
   placeholder: PropTypes.string,
   editable: PropTypes.bool,
+  scanButtonTapped: PropTypes.func,
+  inputAccessoryViewID: PropTypes.string,
 };
 
 export default AddressInput;

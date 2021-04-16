@@ -1,17 +1,8 @@
 /* global alert */
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, StatusBar, BackHandler, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import {
-  BlueLoading,
-  SafeBlueArea,
-  BlueButton,
-  BlueSpacing20,
-  BlueSpacing40,
-  BlueSpacing10,
-  BlueCard,
-  BlueListItem,
-} from '../../BlueComponents';
+import { SafeBlueArea, BlueButton, BlueSpacing20, BlueSpacing40, BlueSpacing10, BlueCard, BlueListItem } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Chain } from '../../models/bitcoinUnits';
@@ -41,7 +32,7 @@ const LndInfo = () => {
   // Modals
   const [selectedChannelIndex, setSelectedChannelIndex] = useState();
   const [isNewChannelModalVisible, setIsNewChannelModalVisible] = useState(false);
-  const newOpenChannelModalProps = useRef();
+  const [newOpenChannelModalProps, setNewOpenChannelModalProps] = useState();
   const [newOpenChannelModalVisible, setNewOpenChannelModalVisible] = useState(false);
 
   //
@@ -84,8 +75,8 @@ const LndInfo = () => {
     },
   });
 
-  const refetchData = async () => {
-    setIsLoading(true);
+  const refetchData = async (withLoadingIndicator = true) => {
+    setIsLoading(withLoadingIndicator);
 
     const listChannels = await wallet.listChannels();
     if (listChannels && listChannels.channels) setChannels(listChannels.channels.filter(channel => channel.active === true));
@@ -207,7 +198,7 @@ const LndInfo = () => {
     if (selectedChannelIndex === undefined) return null;
     const status = selectedChannelIndex.status;
     const channelData =
-      status === LNDNodeInfoChannelStatus.ACTIVE || LNDNodeInfoChannelStatus.INACTIVE
+      status === LNDNodeInfoChannelStatus.ACTIVE || status === LNDNodeInfoChannelStatus.INACTIVE
         ? selectedChannelIndex.channel.item
         : selectedChannelIndex.channel.item.channel;
     return (
@@ -217,14 +208,16 @@ const LndInfo = () => {
           <BlueSpacing10 />
           {channelData && (
             <Text style={[stylesHook.detailsText]}>
-              {status === LNDNodeInfoChannelStatus.ACTIVE || LNDNodeInfoChannelStatus.INACTIVE
+              {status === LNDNodeInfoChannelStatus.ACTIVE || status === LNDNodeInfoChannelStatus.INACTIVE
                 ? channelData.remotePubkey
                 : channelData.remoteNodePub}
             </Text>
           )}
           <BlueSpacing20 />
           <LNNodeBar
-            disabled={status === LNDNodeInfoChannelStatus.ACTIVE || LNDNodeInfoChannelStatus.INACTIVE ? channelData.active : true}
+            disabled={
+              status === LNDNodeInfoChannelStatus.ACTIVE || status === LNDNodeInfoChannelStatus.INACTIVE ? channelData.active : true
+            }
             canSend={channelData && Number(channelData.localBalance)}
             canReceive={channelData && Number(channelData.capacity)}
             itemPriceUnit={wallet.getPreferredBalanceUnit()}
@@ -240,7 +233,7 @@ const LndInfo = () => {
           </Text>
           <BlueSpacing20 />
           {(channelData && status === LNDNodeInfoChannelStatus.ACTIVE) ||
-            (LNDNodeInfoChannelStatus.INACTIVE && (
+            (status === LNDNodeInfoChannelStatus.INACTIVE && (
               <>
                 <Text style={[stylesHook.detailsText]}>{loc.lnd.local_reserve}</Text>
                 <BlueSpacing10 />
@@ -271,9 +264,10 @@ const LndInfo = () => {
 
   const renderItemChannel = channel => {
     const channelData =
-      channel.status === LNDNodeInfoChannelStatus.ACTIVE || LNDNodeInfoChannelStatus.INACTIVE
+      channel.status === LNDNodeInfoChannelStatus.ACTIVE || channel.status === LNDNodeInfoChannelStatus.INACTIVE
         ? channel.channel.item
         : channel.channel.item.channel;
+
     return (
       <TouchableOpacity onPress={() => showModal(channel)}>
         <LNNodeBar
@@ -282,13 +276,23 @@ const LndInfo = () => {
           canReceive={Number(channelData.capacity)}
           itemPriceUnit={wallet.getPreferredBalanceUnit()}
           nodeAlias={
-            channel.status === LNDNodeInfoChannelStatus.ACTIVE || LNDNodeInfoChannelStatus.INACTIVE
+            channel.status === LNDNodeInfoChannelStatus.ACTIVE || channel.status === LNDNodeInfoChannelStatus.INACTIVE
               ? channelData.remotePubkey
               : channelData.remoteNodePub
           }
         />
       </TouchableOpacity>
     );
+  };
+
+  const onNewOpenChannelModalBackdropPress = () => {
+    closeModal();
+    setNewOpenChannelModalVisible(false);
+    setTimeout(() => {
+      setNewOpenChannelModalProps(undefined);
+      setParams({ psbt: undefined });
+      refetchData(false);
+    }, 500);
   };
 
   const navigateToOpenPublicChannel = () => {
@@ -303,6 +307,7 @@ const LndInfo = () => {
     <BottomModal isVisible={isNewChannelModalVisible} onClose={closeModal} avoidKeyboard>
       <View style={[styles.newChannelModalContent, stylesHook.modalContent]}>
         <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.lnd.new_channel}</Text>
+        <BlueSpacing20 />
         <BlueListItem
           title={loc.lnd.public}
           subtitleNumberOfLines={0}
@@ -316,6 +321,9 @@ const LndInfo = () => {
           onPress={navigateToOpenPrivateChannel}
           bottomDivider={false}
         />
+        <BlueSpacing20 />
+
+        <BlueButton onPress={onNewOpenChannelModalBackdropPress} title={loc._.cancel} />
       </View>
     </BottomModal>
   );
@@ -330,19 +338,11 @@ const LndInfo = () => {
 
     /** @type {AbstractWallet} */
     const selectedWallet = await selectWallet(navigate, name, false, availableWallets);
-    newOpenChannelModalProps.current = { fundingWalletID: selectedWallet.getID(), isPrivateChannel };
+    setNewOpenChannelModalProps({ fundingWalletID: selectedWallet.getID(), isPrivateChannel });
     setNewOpenChannelModalVisible(true);
   };
   const closeNewOpenChannelModalPropsModal = () => {
     setNewOpenChannelModalVisible(false);
-  };
-
-  const onNewOpenChannelModalBackdropPress = () => {
-    setNewOpenChannelModalVisible(false);
-    setTimeout(() => {
-      newOpenChannelModalProps.current = undefined;
-      setParams({ psbt: undefined });
-    }, 500);
   };
 
   const renderOpenChannelAmountAndNoteModal = () => {
@@ -350,23 +350,49 @@ const LndInfo = () => {
       <BottomModal
         isVisible={newOpenChannelModalVisible}
         onClose={closeNewOpenChannelModalPropsModal}
-        onBackdropPress={onNewOpenChannelModalBackdropPress}
+        onBackdropPress={undefined}
         avoidKeyboard
+        allowBackdropPress={false}
       >
         <View style={[styles.fundingNewChannelModalContent, stylesHook.modalContent]}>
           <LndOpenChannel
             psbt={psbt}
-            pendingChanId={newOpenChannelModalProps.current?.pendingChanIdTemp}
+            pendingChanId={newOpenChannelModalProps?.pendingChanIdTemp}
             lndWalletID={walletID}
-            fundingWalletID={newOpenChannelModalProps.current?.fundingWalletID}
-            isPrivateChannel={newOpenChannelModalProps.current?.isPrivateChannel}
+            fundingWalletID={newOpenChannelModalProps?.fundingWalletID}
+            isPrivateChannel={newOpenChannelModalProps?.isPrivateChannel}
             closeContainerModal={closeNewOpenChannelModalPropsModal}
-            psbtOpenChannelStartedTs={newOpenChannelModalProps.current?.psbtOpenChannelStartedTs}
+            psbtOpenChannelStartedTs={newOpenChannelModalProps?.psbtOpenChannelStartedTs}
             onPsbtOpenChannelStartedTsChange={psbtOpenChannelStartedTs =>
-              (newOpenChannelModalProps.current.psbtOpenChannelStartedTs = psbtOpenChannelStartedTs)
+              setNewOpenChannelModalProps(prevState => {
+                return { ...prevState, psbtOpenChannelStartedTs };
+              })
             }
-            onPendingChanIdTempChange={pendingChanIdTemp => (newOpenChannelModalProps.current.pendingChanIdTemp = pendingChanIdTemp)}
-            openOpenChannelSuccess={onNewOpenChannelModalBackdropPress}
+            onPendingChanIdTempChange={pendingChanIdTemp =>
+              setNewOpenChannelModalProps(prevState => {
+                return { ...prevState, pendingChanIdTemp };
+              })
+            }
+            onOpenChannelSuccess={onNewOpenChannelModalBackdropPress}
+            unit={newOpenChannelModalProps?.unit ?? wallet.getPreferredBalanceUnit()}
+            onUnitChange={unit =>
+              setNewOpenChannelModalProps(prevState => {
+                return { ...prevState, unit };
+              })
+            }
+            fundingAmount={newOpenChannelModalProps?.fundingAmount}
+            onFundingAmountChange={fundingAmount =>
+              setNewOpenChannelModalProps(prevState => {
+                return { ...prevState, fundingAmount };
+              })
+            }
+            remoteHostWithPubkey={newOpenChannelModalProps?.remoteHostWithPubkey}
+            onRemoteHostWithPubkeyChange={pubkey => {
+              setNewOpenChannelModalProps(prevState => {
+                return { ...prevState, remoteHostWithPubkey: pubkey };
+              });
+              setNewOpenChannelModalVisible(true);
+            }}
           />
         </View>
       </BottomModal>
@@ -409,14 +435,6 @@ const LndInfo = () => {
     return sectionForList;
   };
 
-  if (isLoading) {
-    return (
-      <View style={[styles.root, stylesHook.root]}>
-        <BlueLoading />
-      </View>
-    );
-  }
-
   return (
     <SafeBlueArea styles={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="default" />
@@ -434,6 +452,8 @@ const LndInfo = () => {
           contentContainerStyle={styles.listStyle}
           contentInset={{ top: 0, left: 0, bottom: 8, right: 0 }}
           sections={sections()}
+          refreshing={isLoading}
+          onRefresh={refetchData}
         />
         <BlueCard>
           <Button text={loc.lnd.new_channel} onPress={showNewChannelModal} />
@@ -536,14 +556,15 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
   },
   modalContent: {
-    padding: 24,
     minHeight: 418,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
+    padding: 24,
   },
   newChannelModalContent: {
     padding: 24,
+    minHeight: 350,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',

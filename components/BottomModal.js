@@ -10,11 +10,20 @@ const styles = StyleSheet.create({
   },
 });
 
-const BottomModal = ({ onBackButtonPress, onBackdropPress, onClose, windowHeight, windowWidth, avoidKeyboard = false, ...props }) => {
+const BottomModal = ({
+  onBackButtonPress,
+  onBackdropPress,
+  onClose,
+  windowHeight,
+  windowWidth,
+  avoidKeyboard = false,
+  allowBackdropPress = true,
+  ...props
+}) => {
   const valueWindowHeight = useWindowDimensions().height;
   const valueWindowWidth = useWindowDimensions().width;
   const handleBackButtonPress = onBackButtonPress ?? onClose;
-  const handleBackdropPress = onBackdropPress ?? onClose;
+  const handleBackdropPress = allowBackdropPress ? onBackdropPress ?? onClose : undefined;
 
   return (
     <Modal
@@ -40,6 +49,7 @@ BottomModal.propTypes = {
   windowHeight: PropTypes.number,
   windowWidth: PropTypes.number,
   avoidKeyboard: PropTypes.bool,
+  allowBackdropPress: PropTypes.bool,
 };
 
 export default BottomModal;

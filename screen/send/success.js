@@ -144,8 +144,6 @@ const styles = StyleSheet.create({
   view: {
     flexDirection: 'row',
     justifyContent: 'center',
-    paddingTop: 76,
-    paddingBottom: 16,
   },
   amountValue: {
     fontSize: 36,
@@ -173,7 +171,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 43,
     marginBottom: 53,
   },
   lottie: {

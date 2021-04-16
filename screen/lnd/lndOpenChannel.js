@@ -1,15 +1,8 @@
 /* global alert */
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StatusBar, StyleSheet } from 'react-native';
+import { View, StatusBar, StyleSheet } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import {
-  BlueLoading,
-  SafeBlueArea,
-  BlueButton,
-  BlueDoneAndDismissKeyboardInputAccessory,
-  BlueDismissKeyboardInputAccessory,
-  BlueSpacing20,
-} from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueButton, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import BigNumber from 'bignumber.js';
@@ -32,7 +25,14 @@ const LndOpenChannel = props => {
     pendingChanId,
     onPsbtOpenChannelStartedTsChange,
     psbtOpenChannelStartedTs,
-    openOpenChannelSuccess,
+    onOpenChannelSuccess,
+    unit,
+    onUnitChange,
+    fundingAmount = { amount: null, amountSats: null },
+    onFundingAmountChange,
+    remoteHostWithPubkey = '03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@34.239.230.56:9735', // ACINQ
+    // '02e89ca9e8da72b33d896bae51d20e7e6675aa971f7557500b6591b15429e717f1@165.227.95.104:9735' // lnd1.bluewallet.io
+    onRemoteHostWithPubkeyChange,
   } = props;
   const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   /** @type {LightningLndWallet} */
@@ -43,19 +43,12 @@ const LndOpenChannel = props => {
   const { navigate } = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
   const name = useRoute().name;
-
-  const [remoteHostWithPubkey, setRemote] = useState(
-    // '02e89ca9e8da72b33d896bae51d20e7e6675aa971f7557500b6591b15429e717f1@165.227.95.104:9735' // lnd1.bluewallet.io
-    '03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@34.239.230.56:9735', // ACINQ
-  );
   const [verified, setVerified] = useState(false);
-  const [unit, setUnit] = useState(fundingWallet.getPreferredBalanceUnit());
-  const [fundingAmount, setFundingAmount] = useState({ amount: null, amountSats: null });
   const [isOpenChannelSuccessful, setIsOpenChannelSuccessful] = useState(false);
 
   const stylesHook = StyleSheet.create({
     root: {
-      backgroundColor: colors.background,
+      backgroundColor: colors.elevated,
     },
     valueText: {
       color: colors.alternativeTextColor2,
@@ -187,7 +180,7 @@ const LndOpenChannel = props => {
 
   const onBarScanned = ret => {
     if (!ret.data) ret = { data: ret };
-    setRemote(ret.data);
+    onRemoteHostWithPubkeyChange(ret.data);
   };
 
   const render = () => {
@@ -199,34 +192,38 @@ const LndOpenChannel = props => {
       );
     }
 
-    if (verified) {
-      return (
-        <View style={[styles.activeRoot, stylesHook.root]}>
-          <Text>
-            Opening channel for wallet {lndWallet.getLabel()}, funding from {fundingWallet.getLabel()}
-          </Text>
-
-          <Text>All seems to be in order. Are you sure you want to open this channel?</Text>
-
-          <BlueButton onPress={finalizeOpenChannel} title="Yes, Open Channel" />
-        </View>
-      );
-    }
-
     if (isOpenChannelSuccessful) {
       return (
         <View style={[styles.activeRoot, stylesHook.root]}>
           <SuccessView />
-          <BlueButton onPress={openOpenChannelSuccess} title={loc.send.success_done} />
+          <BlueButton onPress={onOpenChannelSuccess} title={loc.send.success_done} />
+        </View>
+      );
+    }
+
+    if (verified) {
+      return (
+        <View style={[styles.activeRoot, stylesHook.root]}>
+          <BlueText>
+            Opening channel for wallet {lndWallet.getLabel()}, funding from {fundingWallet.getLabel()}
+          </BlueText>
+
+          <BlueText>All seems to be in order. Are you sure you want to open this channel?</BlueText>
+          <BlueSpacing20 />
+          <View style={styles.horizontalButtons}>
+            <BlueButton onPress={onOpenChannelSuccess} title={loc._.cancel} />
+            <BlueSpacing20 horizontal />
+            <BlueButton onPress={finalizeOpenChannel} title="Yes, Open Channel" />
+          </View>
         </View>
       );
     }
 
     return (
       <View style={[styles.activeRoot, stylesHook.root]}>
-        <Text>
+        <BlueText>
           Opening channel for {lndWallet.getLabel()}, funding from {fundingWallet.getLabel()}
-        </Text>
+        </BlueText>
         <AmountInput
           placeholder="funding amount, for exampe 0.001"
           isLoading={isLoading}
@@ -245,10 +242,8 @@ const LndOpenChannel = props => {
                 amountSats = currency.btcToSatoshi(currency.fiatToBTC(fundingAmount.amount));
                 break;
             }
-            setFundingAmount(currentFundingAmount => {
-              return { amount: currentFundingAmount.amount, amountSats };
-            });
-            setUnit(newUnit);
+            onFundingAmountChange({ amount: fundingAmount.amount, amountSats });
+            onUnitChange(newUnit);
           }}
           onChangeText={text => {
             let amountSats = fundingAmount.amountSats;
@@ -264,7 +259,7 @@ const LndOpenChannel = props => {
                 amountSats = parseInt(text);
                 break;
             }
-            setFundingAmount({ amount: text, amountSats });
+            onFundingAmountChange({ amount: text, amountSats });
           }}
           unit={unit}
           inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
@@ -274,14 +269,20 @@ const LndOpenChannel = props => {
           placeholder={loc.lnd.remote_host}
           address={remoteHostWithPubkey}
           isLoading={isLoading}
-          inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
-          onChangeText={setRemote}
+          inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+          onChangeText={onRemoteHostWithPubkeyChange}
           onBarScanned={onBarScanned}
+          scanButtonTapped={closeContainerModal}
           launchedBy={name}
         />
+        <BlueDismissKeyboardInputAccessory />
+
         <BlueSpacing20 />
-        <BlueButton onPress={openChannel} title="Open Channel" />
-        <BlueDoneAndDismissKeyboardInputAccessory />
+        <View style={styles.horizontalButtons}>
+          <BlueButton onPress={onOpenChannelSuccess} title={loc._.cancel} />
+          <BlueSpacing20 horizontal />
+          <BlueButton onPress={openChannel} title="Open Channel" />
+        </View>
       </View>
     );
   };
@@ -309,6 +310,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     paddingBottom: 8,
+  },
+  horizontalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   valueText: {
     fontSize: 32,
@@ -384,7 +389,13 @@ LndOpenChannel.propTypes = {
   pendingChanId: PropTypes.string,
   onPsbtOpenChannelStartedTsChange: PropTypes.func,
   psbtOpenChannelStartedTs: PropTypes.string,
-  openOpenChannelSuccess: PropTypes.func,
+  onOpenChannelSuccess: PropTypes.func,
+  fundingAmount: PropTypes.shape({ amount: PropTypes.string, amountSats: PropTypes.string }),
+  onFundingAmountChange: PropTypes.func,
+  unit: PropTypes.string,
+  onUnitChange: PropTypes.func,
+  remoteHostWithPubkey: PropTypes.string,
+  onRemoteHostWithPubkeyChange: PropTypes.func,
 };
 
 LndOpenChannel.navigationOptions = navigationStyle(

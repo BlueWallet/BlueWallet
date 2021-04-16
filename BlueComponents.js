@@ -884,7 +884,8 @@ export class is {
 }
 
 export const BlueSpacing20 = props => {
-  return <View {...props} style={{ height: 20, opacity: 0 }} />;
+  const { horizontal = false } = props;
+  return <View {...props} style={{ height: horizontal ? 0 : 20, width: horizontal ? 20 : 0, opacity: 0 }} />;
 };
 
 export const BlueSpacing10 = props => {
