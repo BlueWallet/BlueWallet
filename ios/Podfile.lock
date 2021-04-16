@@ -355,7 +355,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
-  - RNDeviceInfo (8.0.6):
+  - RNDeviceInfo (8.0.7):
     - React-Core
   - RNFS (2.16.6):
     - React
@@ -381,9 +381,9 @@ PODS:
     - React-Core
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.9.0):
+  - RNSentry (2.4.0):
     - React-Core
-    - Sentry (~> 5.2.0)
+    - Sentry (= 6.1.4)
   - RNShare (5.1.6):
     - React-Core
   - RNSVG (12.1.0):
@@ -392,9 +392,9 @@ PODS:
     - React
   - RNWatch (1.0.3):
     - React
-  - Sentry (5.2.2):
-    - Sentry/Core (= 5.2.2)
-  - Sentry/Core (5.2.2)
+  - Sentry (6.1.4):
+    - Sentry/Core (= 6.1.4)
+  - Sentry/Core (6.1.4)
   - SwiftSocket (2.0.2)
   - ToolTipMenu (5.2.0):
     - React
@@ -726,7 +726,7 @@ SPEC CHECKSUMS:
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
-  RNDeviceInfo: 53004a1aacaaddf9f290590e6a935eb1c698d079
+  RNDeviceInfo: 0550f15928f92d062238ea412b645d00548fd809
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
@@ -739,12 +739,12 @@ SPEC CHECKSUMS:
   RNReanimated: e03f7425cb7a38dcf1b644d680d1bfc91c3337ad
   RNScreens: f7ad633b2e0190b77b6a7aab7f914fad6f198d8d
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: 1adaa43b01c6a3ab5091d4d1add66b7c58558898
+  RNSentry: b0d55027200c96f52e26b9bfb20296d47fc5051d
   RNShare: 2db8b0346a4859f83d15528602ed5b6120a0452a
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
   RNWatch: e4c5d19506c94506860032fb68aedd5991beb985
-  Sentry: 8fa58a051237554f22507fb483b9a1de0171a2dc
+  Sentry: 9d055e2de30a77685e86b219acf02e59b82091fc
   SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
   ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6

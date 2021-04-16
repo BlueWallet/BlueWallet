@@ -147,10 +147,9 @@ const WalletTransactions = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
 
-  // if balance of the wallet positive and there are no transactions, then
-  // it'a freshly impoted wallet and we need to refresh transactions
+  // refresh transactions if it never hasn't been done. It could be a fresh imported wallet
   useEffect(() => {
-    if (dataSource.length === 0 && wallet.getBalance() > 0) {
+    if (wallet._lastTxFetch === 0) {
       refreshTransactions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
