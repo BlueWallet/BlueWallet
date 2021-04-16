@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { ListItem } from 'react-native-elements';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -18,6 +18,19 @@ const AddressItem = ({ item, balanceUnit }) => {
     list: {
       color: colors.buttonTextColor,
     },
+    address: {
+      fontWeight: '600',
+      marginHorizontal: 40,
+    },
+    index: {
+      color: colors.alternativeTextColor,
+      fontSize: 15,
+    },
+    balance: {
+      marginTop: 8,
+      marginLeft: 14,
+      color: colors.alternativeTextColor,
+    },
   });
 
   const copyAddressToClipboard = () => {
@@ -31,9 +44,9 @@ const AddressItem = ({ item, balanceUnit }) => {
       <ListItem key={`${item.key}`} button onPress={copyAddressToClipboard} containerStyle={styles.container}>
         <ListItem.Content style={styles.list}>
           <ListItem.Title style={styles.list} numberOfLines={1} ellipsizeMode="middle">
-            {item.index}.{item.address}
+              <Text style={styles.index}>{item.index}</Text> <Text style={styles.address}>{item.address}</Text>
           </ListItem.Title>
-          <ListItem.Subtitle style={styles.list}>{balance}</ListItem.Subtitle>
+          <ListItem.Subtitle style={[styles.list, styles.balance]}>{balance}</ListItem.Subtitle>
         </ListItem.Content>
         <AddressTypeBadge isInternal={item.isInternal} />
       </ListItem>
