@@ -118,7 +118,6 @@ WalletAddresses.navigationOptions = navigationStyle({
   closeButton: true,
   title: loc.addresses.addresses_title,
   headerLeft: null,
-  gesturesEnabled: false,
 });
 
 export default WalletAddresses;
