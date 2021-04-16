@@ -16,7 +16,16 @@ import {
   StatusBar,
   PermissionsAndroid,
 } from 'react-native';
-import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea, SecondButton, BlueListItem } from '../../BlueComponents';
+import {
+  BlueCard,
+  BlueLoading,
+  BlueSpacing10,
+  BlueSpacing20,
+  BlueText,
+  SafeBlueArea,
+  SecondButton,
+  BlueListItem,
+} from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { HDLegacyBreadwalletWallet } from '../../class/wallets/hd-legacy-breadwallet-wallet';
@@ -522,9 +531,9 @@ const WalletDetails = () => {
               )}
             </View>
           </BlueCard>
-            {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
-              <BlueListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
-            )}
+          {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
+            <BlueListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
+          )}
           <BlueCard style={styles.address}>
             <View>
               <BlueSpacing20 />

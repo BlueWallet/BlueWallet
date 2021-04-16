@@ -98,7 +98,7 @@ const WalletAddresses = () => {
     if (showAddresses) {
       return (
         <View style={stylesHook.root}>
-        <StatusBar barStyle="light-content" />
+          <StatusBar barStyle="light-content" />
           <FlatList style={stylesHook.root} data={addresses} renderItem={item => <AddressItem {...item} balanceUnit={balanceUnit} />} />
         </View>
       );

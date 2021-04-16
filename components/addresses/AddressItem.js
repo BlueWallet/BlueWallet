@@ -6,6 +6,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import PropTypes from 'prop-types';
 import { AddressTypeBadge } from './AddressTypeBadge';
 import { formatBalance } from '../../loc';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 const AddressItem = ({ item, balanceUnit }) => {
   const { colors } = useTheme();
@@ -35,6 +36,7 @@ const AddressItem = ({ item, balanceUnit }) => {
 
   const copyAddressToClipboard = () => {
     Clipboard.setString(item.address);
+    ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
   };
 
   const balance = formatBalance(item.balance, balanceUnit, true);
@@ -44,7 +46,7 @@ const AddressItem = ({ item, balanceUnit }) => {
       <ListItem key={`${item.key}`} button onPress={copyAddressToClipboard} containerStyle={styles.container}>
         <ListItem.Content style={styles.list}>
           <ListItem.Title style={styles.list} numberOfLines={1} ellipsizeMode="middle">
-              <Text style={styles.index}>{item.index}</Text> <Text style={styles.address}>{item.address}</Text>
+            <Text style={styles.index}>{item.index}</Text> <Text style={styles.address}>{item.address}</Text>
           </ListItem.Title>
           <ListItem.Subtitle style={[styles.list, styles.balance]}>{balance}</ListItem.Subtitle>
         </ListItem.Content>
