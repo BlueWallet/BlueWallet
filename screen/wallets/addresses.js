@@ -68,9 +68,7 @@ const WalletAddresses = () => {
 
   const { wallets } = useContext(BlueStorageContext);
 
-  const {
-    params: { walletID },
-  } = useRoute();
+  const { walletID } = useRoute().params;
 
   const wallet = wallets.find(w => w.getID() === walletID);
 

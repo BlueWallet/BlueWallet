@@ -243,9 +243,7 @@ const WalletDetails = () => {
 
   const navigateToAddresses = () =>
     navigate('WalletAddresses', {
-      params: {
-        walletID: wallet.getID(),
-      },
+      walletID: wallet.getID(),
     });
 
   const renderMarketplaceButton = () => {
