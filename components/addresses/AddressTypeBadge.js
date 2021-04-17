@@ -6,10 +6,8 @@ import loc from '../../loc';
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 2,
-    paddingBottom: 2,
-    paddingLeft: 8,
-    paddingRight: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
     borderRadius: 20,
   },
   badgeText: {

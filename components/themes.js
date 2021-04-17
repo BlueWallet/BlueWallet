@@ -112,6 +112,10 @@ export const BlueDarkTheme = {
     newBlue: '#007AFF',
     redBG: '#5A4E4E',
     redText: '#FC6D6D',
+    changeBackground: '#5A4E4E',
+    changeText: '#F38C47',
+    receiveBackground: 'rgba(210,248,214,.2)',
+    receiveText: '#37C0A1',
   },
 };
 
