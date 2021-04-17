@@ -96,7 +96,7 @@ const WalletAddresses = () => {
     if (showAddresses) {
       return (
         <View style={stylesHook.root}>
-          <StatusBar barStyle="light-content" />
+          <StatusBar barStyle="default" />
           <FlatList style={stylesHook.root} data={addresses} renderItem={item => <AddressItem {...item} balanceUnit={balanceUnit} />} />
         </View>
       );
@@ -113,9 +113,7 @@ const WalletAddresses = () => {
 };
 
 WalletAddresses.navigationOptions = navigationStyle({
-  closeButton: true,
   title: loc.addresses.addresses_title,
-  headerLeft: null,
 });
 
 export default WalletAddresses;
