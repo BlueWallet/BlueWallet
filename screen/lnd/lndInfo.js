@@ -498,8 +498,6 @@ const LndInfo = () => {
           contentContainerStyle={styles.listStyle}
           contentInset={{ top: 0, left: 0, bottom: 8, right: 0 }}
           sections={sections()}
-          refreshing={isLoading}
-          onRefresh={refetchData}
         />
         <BlueCard>
           <Button text={loc.lnd.new_channel} onPress={showNewChannelModal} />
