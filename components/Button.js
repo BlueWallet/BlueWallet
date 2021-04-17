@@ -1,14 +1,44 @@
 import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
+import { useTheme } from '@react-navigation/native';
 
-export const ButtonStyle = { default: 'default', destroy: 'destroy' };
+export const ButtonStyle = { default: 'default', destroy: 'destroy', grey: 'grey' };
 const Button = props => {
   const { onPress, text = '', disabled = false, buttonStyle = ButtonStyle.default } = props;
+  const { colors } = useTheme();
+  const stylesHook = StyleSheet.create({
+    buttonGrey: {
+      backgroundColor: colors.lightButton,
+    },
+    textGray: {
+      color: colors.buttonTextColor,
+    },
+  });
+  const textStyles = () => {
+    if (buttonStyle === ButtonStyle.grey) {
+      return stylesHook.textGray;
+    } else if (buttonStyle === ButtonStyle.destroy) {
+      return styles.textDestroy
+    }  else {
+      return styles.textDefault;
+    }
+  };
+
+  const buttonStyles = () => {
+    if (buttonStyle === ButtonStyle.grey) {
+      return stylesHook.buttonGrey;
+    } else if (buttonStyle === ButtonStyle.destroy) {
+      return styles.buttonDestroy;
+    } else {
+      return styles.buttonDefault;
+    }
+  };
+
   return (
     <TouchableOpacity onPress={onPress} disabled={disabled}>
-      <View style={[styles.buttonContainer, buttonStyle === ButtonStyle.default ? styles.buttonDefault : styles.buttonDestroy]}>
-        <Text style={[styles.text, buttonStyle === ButtonStyle.default ? styles.textDefault : styles.textDestroy]}>{text}</Text>
+      <View style={[styles.buttonContainer, buttonStyles()]}>
+        <Text style={[styles.text, textStyles()]}>{text}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -33,7 +63,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF5F5',
   },
   text: {
-    fontWeight: 'bold',
+    fontWeight: '600',
+    fontSize: 15,
   },
   textDefault: {
     color: '#1961B9',

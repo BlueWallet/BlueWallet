@@ -1,8 +1,17 @@
 /* global alert */
 import React, { useContext, useEffect, useState } from 'react';
-import { View, StatusBar, BackHandler, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList } from 'react-native';
+import { View, StatusBar, BackHandler, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList, Linking } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { SafeBlueArea, BlueButton, BlueSpacing20, BlueSpacing40, BlueSpacing10, BlueCard, BlueListItem } from '../../BlueComponents';
+import {
+  SafeBlueArea,
+  BlueButton,
+  BlueSpacing20,
+  BlueSpacing40,
+  BlueSpacing10,
+  BlueCard,
+  BlueListItem,
+  BlueLoading,
+} from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Chain } from '../../models/bitcoinUnits';
@@ -11,6 +20,7 @@ import LNNodeBar from '../../components/LNNodeBar';
 import BottomModal from '../../components/BottomModal';
 import Button, { ButtonStyle } from '../../components/Button';
 import LndOpenChannel from './lndOpenChannel';
+
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
 const LNDNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
@@ -194,13 +204,22 @@ const LndInfo = () => {
     setIsNewChannelModalVisible(false);
   };
 
+  const handleOnOpenTransactionOnBlockExporerTapped = channelData => {
+    const txid = channelData.channelPoint.split(':')[0];
+    const url = `https://mempool.space/tx/${txid}`;
+    Linking.canOpenURL(url).then(supported => {
+      if (supported) {
+        Linking.openURL(url);
+      }
+    });
+  };
+
   const renderModal = () => {
-    if (selectedChannelIndex === undefined) return null;
-    const status = selectedChannelIndex.status;
+    const status = selectedChannelIndex?.status;
     const channelData =
       status === LNDNodeInfoChannelStatus.ACTIVE || status === LNDNodeInfoChannelStatus.INACTIVE
-        ? selectedChannelIndex.channel.item
-        : selectedChannelIndex.channel.item.channel;
+        ? selectedChannelIndex?.channel.item
+        : selectedChannelIndex?.channel.item.channel;
     return (
       <BottomModal isVisible={selectedChannelIndex !== undefined} onClose={closeModal} avoidKeyboard>
         <View style={[styles.modalContent, stylesHook.modalContent]}>
@@ -216,10 +235,10 @@ const LndInfo = () => {
           <BlueSpacing20 />
           <LNNodeBar
             disabled={
-              status === LNDNodeInfoChannelStatus.ACTIVE || status === LNDNodeInfoChannelStatus.INACTIVE ? channelData.active : true
+              status === LNDNodeInfoChannelStatus.ACTIVE || status === LNDNodeInfoChannelStatus.INACTIVE ? channelData?.active : true
             }
-            canSend={channelData && Number(channelData.localBalance)}
-            canReceive={channelData && Number(channelData.capacity)}
+            canSend={Number(channelData?.localBalance)}
+            canReceive={Number(channelData?.capacity)}
             itemPriceUnit={wallet.getPreferredBalanceUnit()}
           />
           <Text style={[stylesHook.detailsText]}>{loc.settings.electrum_status}</Text>
@@ -227,23 +246,37 @@ const LndInfo = () => {
           <Text style={[stylesHook.detailsText]}>
             {status === LNDNodeInfoChannelStatus.PENDING
               ? loc.transactions.pending
-              : channelData.active
+              : channelData?.active
               ? loc.lnd.active
               : loc.lnd.inactive}
           </Text>
           <BlueSpacing20 />
-          {(channelData && status === LNDNodeInfoChannelStatus.ACTIVE) ||
+          {status === LNDNodeInfoChannelStatus.ACTIVE ||
             (status === LNDNodeInfoChannelStatus.INACTIVE && (
               <>
                 <Text style={[stylesHook.detailsText]}>{loc.lnd.local_reserve}</Text>
                 <BlueSpacing10 />
                 <Text style={[stylesHook.detailsText]}>
-                  {formatBalanceWithoutSuffix(channels.localChanReserveSat, wallet.getPreferredBalanceUnit(), true).toString()}
+                  {formatBalanceWithoutSuffix(channels?.localChanReserveSat, wallet?.getPreferredBalanceUnit(), true).toString()}
                 </Text>
                 <BlueSpacing40 />
               </>
             ))}
+          {status === LNDNodeInfoChannelStatus.PENDING && (
+            <>
+              <Button
+                onPress={() => handleOnOpenTransactionOnBlockExporerTapped(channelData)}
+                text={loc.transactions.details_show_in_block_explorer}
+                buttonStyle={ButtonStyle.grey}
+              />
+              <BlueSpacing20 />
+            </>
+          )}
+
           <Button onPress={() => closeChannel(channelData)} text={loc.lnd.close_channel} buttonStyle={ButtonStyle.destroy} />
+          <BlueSpacing20 />
+          <BlueButton onPress={onNewOpenChannelModalBackdropPress} title={loc.send.input_done} />
+
         </View>
       </BottomModal>
     );
@@ -434,6 +467,14 @@ const LndInfo = () => {
     }
     return sectionForList;
   };
+
+  if (isLoading) {
+    return (
+      <View style={[styles.root, stylesHook.root]}>
+        <BlueLoading />
+      </View>
+    );
+  }
 
   return (
     <SafeBlueArea styles={[styles.root, stylesHook.root]}>
