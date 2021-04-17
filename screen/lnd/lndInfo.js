@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, StatusBar, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList, Linking } from 'react-native';
+import { View, StatusBar, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList, Linking, LayoutAnimation } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
   SafeBlueArea,
@@ -32,7 +32,7 @@ const LndInfo = () => {
   /** @type {LightningLndWallet} */
   const wallet = wallets.find(w => w.getID() === walletID);
   const { colors } = useTheme();
-  const { goBack, setOptions, setParams, navigate } = useNavigation();
+  const { setOptions, setParams, navigate } = useNavigation();
   const name = useRoute().name;
   const [isLoading, setIsLoading] = useState(true);
   const [channels, setChannels] = useState([]);
@@ -108,6 +108,7 @@ const LndInfo = () => {
   useEffect(() => {
     refetchData().then(() => {
       refreshDataInterval.current = setInterval(() => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         refetchData(false);
       }, 5000);
     });
@@ -148,11 +149,6 @@ const LndInfo = () => {
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors]);
-
-  const handleBackButton = () => {
-    goBack(null);
-    return true;
-  };
 
   const showModal = index => {
     setSelectedChannelIndex(index);
