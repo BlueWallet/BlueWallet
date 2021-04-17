@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { ListItem } from 'react-native-elements';
 import PropTypes from 'prop-types';
@@ -14,7 +14,7 @@ const AddressItem = ({ item, balanceUnit, onPress }) => {
   const tooltip = useRef();
   const listItem = useRef();
 
-  const styles = StyleSheet.create({
+  const stylesHook = StyleSheet.create({
     container: {
       borderBottomColor: colors.lightBorder,
       backgroundColor: colors.elevated,
@@ -22,17 +22,10 @@ const AddressItem = ({ item, balanceUnit, onPress }) => {
     list: {
       color: colors.buttonTextColor,
     },
-    address: {
-      fontWeight: '600',
-      marginHorizontal: 40,
-    },
     index: {
       color: colors.alternativeTextColor,
-      fontSize: 15,
     },
     balance: {
-      marginTop: 8,
-      marginLeft: 14,
       color: colors.alternativeTextColor,
     },
   });
@@ -53,7 +46,7 @@ const AddressItem = ({ item, balanceUnit, onPress }) => {
 
   const render = () => {
     return (
-      <>
+      <View>
         <TooltipMenu
           ref={tooltip}
           anchorRef={listItem}
@@ -75,23 +68,38 @@ const AddressItem = ({ item, balanceUnit, onPress }) => {
           key={`${item.key}`}
           button
           onPress={onPress}
-          containerStyle={styles.container}
+          containerStyle={stylesHook.container}
           onLongPress={showToolTipMenu}
         >
-          <ListItem.Content style={styles.list}>
-            <ListItem.Title style={styles.list} numberOfLines={1} ellipsizeMode="middle">
-              <Text style={styles.index}>{item.index + 1}</Text> <Text style={styles.address}>{item.address}</Text>
+          <ListItem.Content style={stylesHook.list}>
+            <ListItem.Title style={stylesHook.list} numberOfLines={1} ellipsizeMode="middle">
+              <Text style={[styles.index, stylesHook.index]}>{item.index + 1}</Text>{' '}
+              <Text style={[stylesHook.address, styles.address]}>{item.address}</Text>
             </ListItem.Title>
-            <ListItem.Subtitle style={[styles.list, styles.balance]}>{balance}</ListItem.Subtitle>
+            <ListItem.Subtitle style={[stylesHook.list, styles.balance, stylesHook.balance]}>{balance}</ListItem.Subtitle>
           </ListItem.Content>
           <AddressTypeBadge isInternal={item.isInternal} />
         </ListItem>
-      </>
+      </View>
     );
   };
 
   return render();
 };
+
+const styles = StyleSheet.create({
+  address: {
+    fontWeight: '600',
+    marginHorizontal: 40,
+  },
+  index: {
+    fontSize: 15,
+  },
+  balance: {
+    marginTop: 8,
+    marginLeft: 14,
+  },
+});
 
 AddressItem.propTypes = {
   item: PropTypes.shape({

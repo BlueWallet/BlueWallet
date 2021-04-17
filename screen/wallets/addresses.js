@@ -104,6 +104,10 @@ const WalletAddresses = () => {
     });
   };
 
+  const renderRow = item => {
+    return <AddressItem {...item} balanceUnit={balanceUnit} onPress={() => navigateToReceive(item)} />;
+  };
+
   const render = () => {
     if (showAddresses) {
       return (
@@ -114,7 +118,7 @@ const WalletAddresses = () => {
             data={addresses}
             initialNumToRender={20}
             contentInsetAdjustmentBehavior="automatic"
-            renderItem={item => <AddressItem {...item} balanceUnit={balanceUnit} onPress={() => navigateToReceive(item)} />}
+            renderItem={renderRow}
           />
         </View>
       );
