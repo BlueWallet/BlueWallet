@@ -212,7 +212,7 @@ const ReceiveDetails = () => {
         try {
           newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
         } catch (_) {}
-        if (!address) {
+        if (address === undefined) {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
           newAddress = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
@@ -224,7 +224,7 @@ const ReceiveDetails = () => {
           await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
           newAddress = wallet.getAddress();
         } catch (_) {}
-        if (!address) {
+        if (address === undefined) {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
           newAddress = wallet.getAddress();
