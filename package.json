@@ -126,7 +126,7 @@
     "react-native": "0.63.4",
     "react-localization": "1.0.16",
     "react-native-blue-crypto": "git+https://github.com/Overtorment/react-native-blue-crypto.git",
-    "react-native-camera": "3.43.0",
+    "react-native-camera": "3.43.1",
     "react-native-default-preference": "1.4.3",
     "react-native-device-info": "8.0.7",
     "react-native-document-picker": "git+https://github.com/BlueWallet/react-native-document-picker.git#3684d4fcc2bc0b47c32be39024e4796004c3e428",

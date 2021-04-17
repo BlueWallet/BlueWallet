@@ -12,7 +12,7 @@
  */
 module.exports = function (navigateFunc, currentScreenName, chainType, availableWallets, noWalletExplanationText = '') {
   return new Promise((resolve, reject) => {
-    if (!currentScreenName) reject(new Error('currentScreenName is not provided'));
+    if (!currentScreenName) return reject(new Error('currentScreenName is not provided'));
 
     const params = {};
     if (chainType) params.chainType = chainType;

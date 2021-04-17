@@ -508,12 +508,12 @@ export class LegacyWallet extends AbstractWallet {
    * @param address {string}
    * @returns {string} base64 encoded signature
    */
-  signMessage(message, address) {
+  signMessage(message, address, useSegwit = true) {
     const wif = this._getWIFbyAddress(address);
     if (wif === null) throw new Error('Invalid address');
     const keyPair = bitcoin.ECPair.fromWIF(wif);
     const privateKey = keyPair.privateKey;
-    const options = this.segwitType ? { segwitType: this.segwitType } : undefined;
+    const options = this.segwitType && useSegwit ? { segwitType: this.segwitType } : undefined;
     const signature = bitcoinMessage.sign(message, privateKey, keyPair.compressed, options);
     return signature.toString('base64');
   }

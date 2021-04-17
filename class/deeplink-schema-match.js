@@ -17,7 +17,8 @@ class DeeplinkSchemaMatch {
       lowercaseString.startsWith('lightning:') ||
       lowercaseString.startsWith('blue:') ||
       lowercaseString.startsWith('bluewallet:') ||
-      lowercaseString.startsWith('lapp:')
+      lowercaseString.startsWith('lapp:') ||
+      lowercaseString.startsWith('aopp:')
     );
   }
 
@@ -192,7 +193,15 @@ class DeeplinkSchemaMatch {
     } else {
       const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
       (async () => {
-        if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
+        if (urlObject.protocol === 'aopp:') {
+          completionHandler([
+            'AOPPRoot',
+            {
+              screen: 'AOPP',
+              params: { uri: event.url },
+            },
+          ]);
+        } else if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
           switch (urlObject.host) {
             case 'openlappbrowser': {
               console.log('opening LAPP', urlObject.query.url);

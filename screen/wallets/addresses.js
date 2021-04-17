@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useContext } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View, StatusBar } from 'react-native';
 import { useFocusEffect, useRoute, useTheme } from '@react-navigation/native';
 import Privacy from '../../blue_modules/Privacy';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -40,27 +40,6 @@ export const sortByIndexAndType = (a, b) => {
   if (a.index < b.index) return -1;
 };
 
-const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  loadMoreButton: {
-    borderRadius: 9,
-    minHeight: 49,
-    paddingHorizontal: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    alignSelf: 'auto',
-    flexGrow: 1,
-    marginHorizontal: 16,
-  },
-  loadMoreText: {
-    fontSize: 16,
-  },
-});
-
 const WalletAddresses = () => {
   const [showAddresses, setShowAddresses] = useState(false);
 
@@ -68,9 +47,7 @@ const WalletAddresses = () => {
 
   const { wallets } = useContext(BlueStorageContext);
 
-  const {
-    params: { walletID },
-  } = useRoute();
+  const { walletID } = useRoute().params;
 
   const wallet = wallets.find(w => w.getID() === walletID);
 
@@ -117,7 +94,12 @@ const WalletAddresses = () => {
 
   const render = () => {
     if (showAddresses) {
-      return <FlatList style={stylesHook.root} data={addresses} renderItem={item => <AddressItem {...item} balanceUnit={balanceUnit} />} />;
+      return (
+        <View style={stylesHook.root}>
+          <StatusBar barStyle="light-content" />
+          <FlatList style={stylesHook.root} data={addresses} renderItem={item => <AddressItem {...item} balanceUnit={balanceUnit} />} />
+        </View>
+      );
     }
 
     return (
@@ -137,3 +119,27 @@ WalletAddresses.navigationOptions = navigationStyle({
 });
 
 export default WalletAddresses;
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  loadMoreButton: {
+    borderRadius: 9,
+    minHeight: 49,
+    paddingHorizontal: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    alignSelf: 'auto',
+    flexGrow: 1,
+    marginHorizontal: 16,
+  },
+  loadMoreText: {
+    fontSize: 16,
+  },
+});
