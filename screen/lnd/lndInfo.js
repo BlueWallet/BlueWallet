@@ -276,7 +276,6 @@ const LndInfo = () => {
           <Button onPress={() => closeChannel(channelData)} text={loc.lnd.close_channel} buttonStyle={ButtonStyle.destroy} />
           <BlueSpacing20 />
           <BlueButton onPress={onNewOpenChannelModalBackdropPress} title={loc.send.input_done} />
-
         </View>
       </BottomModal>
     );

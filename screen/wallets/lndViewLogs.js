@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
@@ -18,6 +18,7 @@ const LNDViewLogs = () => {
   const [info, setInfo] = useState('');
   const [getInfo, setGetInfo] = useState({});
   const { setOptions } = useNavigation();
+  const refreshDataInterval = useRef();
   const stylesHooks = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -31,19 +32,25 @@ const LNDViewLogs = () => {
   });
 
   useEffect(() => {
+    setIsLoading(true);
     refetchData()
       .then(() => {
-        getLogs();
+        refreshDataInterval.current = setInterval(() => {
+          refetchData();
+        }, 5000);
       })
       .finally(() => {
         setOptions({
           headerRight: () => (
             <TouchableOpacity style={styles.reloadLogs} onPress={getLogs}>
-              <Icon name="redo" type="font-awesome-5" size={22} />
+              <Icon name="redo" type="font-awesome-5" size={22} color={colors.foregroundColor} />
             </TouchableOpacity>
           ),
         });
       });
+    return () => {
+      clearInterval(refreshDataInterval.current);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -51,7 +58,7 @@ const LNDViewLogs = () => {
     wallet.getLogs().then(setLogs);
   };
   const refetchData = async () => {
-    setIsLoading(true);
+    getLogs();
     const dir = await wallet.getLndDir();
     await wallet
       .getInfo()
