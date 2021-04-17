@@ -177,6 +177,7 @@ const WalletsRoot = () => {
           gestureEnabled: false,
         }}
       />
+      <WalletsStack.Screen name="WalletAddresses" component={WalletAddresses} options={WalletAddresses.navigationOptions(theme)} />
     </WalletsStack.Navigator>
   );
 };
@@ -393,17 +394,6 @@ const SignVerifyStackRoot = () => {
   );
 };
 
-const WalletAddressesStack = createStackNavigator();
-const WalletAddressesStackRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <WalletAddressesStack.Navigator name="WalletAddressesRoot" screenOptions={defaultStackScreenOptions} initialRouteName="WalletAddresses">
-      <WalletAddressesStack.Screen name="WalletAddresses" component={WalletAddresses} options={WalletAddresses.navigationOptions(theme)} />
-    </WalletAddressesStack.Navigator>
-  );
-};
-
 const WalletExportStack = createStackNavigator();
 const WalletExportStackRoot = () => {
   const theme = useTheme();
@@ -504,7 +494,6 @@ const Navigation = () => {
       <RootStack.Screen name="ViewEditMultisigCosignersRoot" component={ViewEditMultisigCosignersRoot} options={{ headerShown: false }} />
       <RootStack.Screen name="WalletXpubRoot" component={WalletXpubStackRoot} options={{ headerShown: false }} />
       <RootStack.Screen name="SignVerifyRoot" component={SignVerifyStackRoot} options={{ headerShown: false }} />
-      <RootStack.Screen name="WalletAddressesRoot" component={WalletAddressesStackRoot} options={{ headerShown: false }} />
       <RootStack.Screen name="BuyBitcoin" component={BuyBitcoin} options={BuyBitcoin.navigationOptions(theme)} />
       <RootStack.Screen name="Marketplace" component={Marketplace} options={Marketplace.navigationOptions(theme)} />
       <RootStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />

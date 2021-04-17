@@ -242,11 +242,8 @@ const WalletDetails = () => {
     });
 
   const navigateToAddresses = () =>
-    navigate('WalletAddressesRoot', {
-      screen: 'WalletAddresses',
-      params: {
-        walletID: wallet.getID(),
-      },
+    navigate('WalletAddresses', {
+      walletID: wallet.getID(),
     });
 
   const renderMarketplaceButton = () => {
