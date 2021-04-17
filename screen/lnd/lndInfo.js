@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, StatusBar, BackHandler, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList, Linking } from 'react-native';
+import { View, StatusBar, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList, Linking } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
   SafeBlueArea,
@@ -106,7 +106,6 @@ const LndInfo = () => {
   };
 
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
     refetchData().then(() => {
       refreshDataInterval.current = setInterval(() => {
         refetchData(false);
@@ -114,7 +113,6 @@ const LndInfo = () => {
     });
     return () => {
       clearInterval(refreshDataInterval.current);
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
