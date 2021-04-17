@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View, StatusBar } from 'react-native';
-import { useFocusEffect, useRoute, useTheme } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import Privacy from '../../blue_modules/Privacy';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
@@ -57,6 +57,8 @@ const WalletAddresses = () => {
 
   const { colors } = useTheme();
 
+  const { navigate } = useNavigation();
+
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -92,12 +94,26 @@ const WalletAddresses = () => {
     }, []),
   );
 
+  const navigateToReceive = item => {
+    navigate('ReceiveDetailsRoot', {
+      screen: 'ReceiveDetails',
+      params: {
+        walletID,
+        address: item.item.address,
+      },
+    });
+  };
+
   const render = () => {
     if (showAddresses) {
       return (
         <View style={stylesHook.root}>
           <StatusBar barStyle="default" />
-          <FlatList style={stylesHook.root} data={addresses} renderItem={item => <AddressItem {...item} balanceUnit={balanceUnit} />} />
+          <FlatList
+            style={stylesHook.root}
+            data={addresses}
+            renderItem={item => <AddressItem {...item} balanceUnit={balanceUnit} onPress={() => navigateToReceive(item)} />}
+          />
         </View>
       );
     }

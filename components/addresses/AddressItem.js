@@ -2,13 +2,11 @@ import React from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { ListItem } from 'react-native-elements';
-import Clipboard from '@react-native-clipboard/clipboard';
 import PropTypes from 'prop-types';
 import { AddressTypeBadge } from './AddressTypeBadge';
 import { formatBalance } from '../../loc';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
-const AddressItem = ({ item, balanceUnit }) => {
+const AddressItem = ({ item, balanceUnit, onPress }) => {
   const { colors } = useTheme();
 
   const styles = StyleSheet.create({
@@ -34,16 +32,11 @@ const AddressItem = ({ item, balanceUnit }) => {
     },
   });
 
-  const copyAddressToClipboard = () => {
-    Clipboard.setString(item.address);
-    ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
-  };
-
   const balance = formatBalance(item.balance, balanceUnit, true);
 
   const render = () => {
     return (
-      <ListItem key={`${item.key}`} button onPress={copyAddressToClipboard} containerStyle={styles.container}>
+      <ListItem key={`${item.key}`} button onPress={onPress} containerStyle={styles.container}>
         <ListItem.Content style={styles.list}>
           <ListItem.Title style={styles.list} numberOfLines={1} ellipsizeMode="middle">
             <Text style={styles.index}>{item.index}</Text> <Text style={styles.address}>{item.address}</Text>
