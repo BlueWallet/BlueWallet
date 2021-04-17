@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StatusBar, BackHandler, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList, Linking } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
@@ -28,6 +28,7 @@ const LNDNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDI
 const LndInfo = () => {
   const { walletID, isModal, psbt } = useRoute().params;
   const { wallets } = useContext(BlueStorageContext);
+  const refreshDataInterval = useRef();
   /** @type {LightningLndWallet} */
   const wallet = wallets.find(w => w.getID() === walletID);
   const { colors } = useTheme();
@@ -55,6 +56,10 @@ const LndInfo = () => {
     },
     listHeaderText: {
       color: colors.foregroundColor,
+      backgroundColor: colors.background,
+    },
+    listHeaderBack: {
+      backgroundColor: colors.background,
     },
     valueRoot: {
       backgroundColor: colors.background,
@@ -102,8 +107,13 @@ const LndInfo = () => {
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
-    refetchData();
+    refetchData().then(() => {
+      refreshDataInterval.current = setInterval(() => {
+        refetchData(false);
+      }, 5000);
+    });
     return () => {
+      clearInterval(refreshDataInterval.current);
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -488,7 +498,9 @@ const LndInfo = () => {
           keyExtractor={channel => channel.channelPoint}
           initialNumToRender={7}
           ItemSeparatorComponent={itemSeparatorComponent}
-          renderSectionHeader={renderSectionHeader}
+          renderSectionHeader={section => (
+            <View style={[styles.listHeaderBack, stylesHook.listHeaderBack]}>{renderSectionHeader(section)}</View>
+          )}
           contentContainerStyle={styles.listStyle}
           contentInset={{ top: 0, left: 0, bottom: 8, right: 0 }}
           sections={sections()}
@@ -515,7 +527,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   listStyle: {
-    marginVertical: 8,
     marginHorizontal: 16,
   },
   justifyContentCenter: {
@@ -586,6 +597,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontWeight: 'bold',
     fontSize: 24,
+  },
+  listHeaderBack: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   activeQrcode: {
     alignItems: 'center',

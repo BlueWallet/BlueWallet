@@ -8,7 +8,7 @@ import { useTheme } from '@react-navigation/native';
 export const LNNodeBar = props => {
   const { canReceive = 0, canSend = 0, nodeAlias = '', disabled = false, itemPriceUnit = BitcoinUnit.SATS } = props;
   const { colors } = useTheme();
-  const opacity = { opacity: disabled ? 0.28 : 1.0 };
+  const opacity = { opacity: disabled ? 0.5 : 1.0 };
   const canSendBarFlex = {
     flex: canReceive > 0 && canSend > 0 ? Math.abs(canSend / (canReceive + canSend)) * 1.0 : 1.0,
   };
