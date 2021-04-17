@@ -113,6 +113,7 @@ const WalletAddresses = () => {
             style={stylesHook.root}
             data={addresses}
             initialNumToRender={20}
+            contentInsetAdjustmentBehavior="automatic"
             renderItem={item => <AddressItem {...item} balanceUnit={balanceUnit} onPress={() => navigateToReceive(item)} />}
           />
         </View>
