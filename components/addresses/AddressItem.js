@@ -80,7 +80,7 @@ const AddressItem = ({ item, balanceUnit, onPress }) => {
         >
           <ListItem.Content style={styles.list}>
             <ListItem.Title style={styles.list} numberOfLines={1} ellipsizeMode="middle">
-              <Text style={styles.index}>{item.index}</Text> <Text style={styles.address}>{item.address}</Text>
+              <Text style={styles.index}>{item.index + 1}</Text> <Text style={styles.address}>{item.address}</Text>
             </ListItem.Title>
             <ListItem.Subtitle style={[styles.list, styles.balance]}>{balance}</ListItem.Subtitle>
           </ListItem.Content>

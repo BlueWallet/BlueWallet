@@ -112,6 +112,7 @@ const WalletAddresses = () => {
           <FlatList
             style={stylesHook.root}
             data={addresses}
+            initialNumToRender={20}
             renderItem={item => <AddressItem {...item} balanceUnit={balanceUnit} onPress={() => navigateToReceive(item)} />}
           />
         </View>
