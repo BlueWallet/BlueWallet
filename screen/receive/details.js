@@ -40,10 +40,9 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
-  const { walletID } = useRoute().params;
+  const { walletID, address } = useRoute().params;
   const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
-  const [address, setAddress] = useState('');
   const [customLabel, setCustomLabel] = useState();
   const [customAmount, setCustomAmount] = useState(0);
   const [customUnit, setCustomUnit] = useState(BitcoinUnit.BTC);
@@ -51,7 +50,7 @@ const ReceiveDetails = () => {
   const [isCustom, setIsCustom] = useState(false);
   const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
-  const { navigate, goBack } = useNavigation();
+  const { navigate, goBack, setParams } = useNavigation();
   const { colors } = useTheme();
   const toolTip = useRef();
   const qrCode = useRef();
@@ -203,35 +202,39 @@ const ReceiveDetails = () => {
     console.log('receive/details - componentDidMount');
     wallet.setUserHasSavedExport(true);
     await saveToDisk();
-    let address;
-    if (wallet.getAddressAsync) {
+    let newAddress;
+    if (address) {
+      setAddressBIP21Encoded(address);
+      await Notifications.tryToObtainPermissions();
+      Notifications.majorTomToGroundControl([address], [], []);
+    } else if (wallet.getAddressAsync) {
       if (wallet.chain === Chain.ONCHAIN) {
         try {
-          address = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
+          newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
         } catch (_) {}
         if (!address) {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
-          address = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
+          newAddress = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
         } else {
           saveToDisk(); // caching whatever getAddressAsync() generated internally
         }
       } else if (wallet.chain === Chain.OFFCHAIN) {
         try {
           await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
-          address = wallet.getAddress();
+          newAddress = wallet.getAddress();
         } catch (_) {}
         if (!address) {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
-          address = wallet.getAddress();
+          newAddress = wallet.getAddress();
         } else {
           saveToDisk(); // caching whatever getAddressAsync() generated internally
         }
       }
-      setAddressBIP21Encoded(address);
+      setAddressBIP21Encoded(newAddress);
       await Notifications.tryToObtainPermissions();
-      Notifications.majorTomToGroundControl([address], [], []);
+      Notifications.majorTomToGroundControl([newAddress], [], []);
     } else if (wallet.getAddress) {
       setAddressBIP21Encoded(wallet.getAddress());
       await Notifications.tryToObtainPermissions();
@@ -242,7 +245,7 @@ const ReceiveDetails = () => {
 
   const setAddressBIP21Encoded = address => {
     const bip21encoded = DeeplinkSchemaMatch.bip21encode(address);
-    setAddress(address);
+    setParams({ address });
     setBip21encoded(bip21encoded);
     setShowAddress(true);
   };
@@ -273,7 +276,8 @@ const ReceiveDetails = () => {
         task.cancel();
         Privacy.disableBlur();
       };
-    }, [goBack, navigate, obtainWalletAddress, wallet]),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [wallet]),
   );
 
   const dismissCustomAmountModal = () => {
