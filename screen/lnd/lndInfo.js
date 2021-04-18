@@ -400,14 +400,19 @@ const LndInfo = () => {
     setNewOpenChannelModalVisible(false);
   };
 
+  const onBackdropPress = async () => {
+    if (await confirm('Are you sure you exit without opening a channel?')) {
+      onNewOpenChannelModalBackdropPress();
+    }
+  };
+
   const renderOpenChannelAmountAndNoteModal = () => {
     return (
       <BottomModal
         isVisible={newOpenChannelModalVisible}
         onClose={closeNewOpenChannelModalPropsModal}
-        onBackdropPress={undefined}
+        onBackdropPress={onBackdropPress}
         avoidKeyboard
-        allowBackdropPress={false}
       >
         <View style={[styles.fundingNewChannelModalContent, stylesHook.modalContent]}>
           <LndOpenChannel
