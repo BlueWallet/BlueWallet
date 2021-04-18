@@ -19,7 +19,7 @@ const Button = props => {
     if (buttonStyle === ButtonStyle.grey) {
       return stylesHook.textGray;
     } else if (buttonStyle === ButtonStyle.destroy) {
-      return styles.textDestroy
+      return styles.textDestroy;
     }  else {
       return styles.textDefault;
     }
@@ -35,8 +35,11 @@ const Button = props => {
     }
   };
 
+
+  const opacity = { opacity : disabled ? 0.5 : 1.0 }
+
   return (
-    <TouchableOpacity onPress={onPress} disabled={disabled}>
+    <TouchableOpacity onPress={onPress} disabled={disabled} style={opacity}>
       <View style={[styles.buttonContainer, buttonStyles()]}>
         <Text style={[styles.text, textStyles()]}>{text}</Text>
       </View>

@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, StatusBar, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList, Linking, LayoutAnimation } from 'react-native';
+import { View, StatusBar, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList, Linking } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
   SafeBlueArea,
@@ -8,9 +8,9 @@ import {
   BlueSpacing20,
   BlueSpacing40,
   BlueSpacing10,
-  BlueCard,
   BlueListItem,
   BlueLoading,
+  BlueTextCentered,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -29,6 +29,7 @@ const LndInfo = () => {
   const { walletID, isModal, psbt } = useRoute().params;
   const { wallets } = useContext(BlueStorageContext);
   const refreshDataInterval = useRef();
+  const sectionList = useRef();
   /** @type {LightningLndWallet} */
   const wallet = wallets.find(w => w.getID() === walletID);
   const { colors } = useTheme();
@@ -39,6 +40,7 @@ const LndInfo = () => {
   const [inactiveChannels, setInactiveChannels] = useState([]);
   const [pendingChannels, setPendingChannels] = useState([]);
   const [wBalance, setWalletBalance] = useState({});
+  const [centerContent, setCenterContent] = useState(true);
 
   // Modals
   const [selectedChannelIndex, setSelectedChannelIndex] = useState();
@@ -95,20 +97,25 @@ const LndInfo = () => {
 
     const listChannels = await wallet.listChannels();
     if (listChannels && listChannels.channels) setChannels(listChannels.channels.filter(channel => channel.active === true));
-    if (listChannels && listChannels.channels) setInactiveChannels(listChannels.channels.filter(channel => channel.active === false));
+    if (listChannels && listChannels.channels) setInactiveChannels(listChannels.channels.filter(channel => !channel.active));
     const listPendingChannels = await wallet.pendingChannels();
     if (listPendingChannels && listPendingChannels.pendingOpenChannels && listPendingChannels.pendingOpenChannels.length > 0)
       setPendingChannels(listPendingChannels.pendingOpenChannels);
     const walletBalance = await wallet.walletBalance();
     setWalletBalance(walletBalance);
-
+    setCenterContent(listChannels.channels.length === 0 && listPendingChannels.pendingOpenChannels.length === 0);
     setIsLoading(false);
   };
 
   useEffect(() => {
+    if (!centerContent) {
+      sectionList.current.scrollToLocation({ animated: false, sectionIndex: 0, itemIndex: 0 });
+    }
+  }, [centerContent]);
+
+  useEffect(() => {
     refetchData().then(() => {
       refreshDataInterval.current = setInterval(() => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         refetchData(false);
       }, 5000);
     });
@@ -471,40 +478,36 @@ const LndInfo = () => {
     return sectionForList;
   };
 
-  if (isLoading) {
-    return (
-      <View style={[styles.root, stylesHook.root]}>
-        <BlueLoading />
-      </View>
-    );
-  }
-
   return (
     <SafeBlueArea styles={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="default" />
-      <View style={styles.root}>
-        {wBalance && wBalance.confirmedBalance && (
-          <BlueButton onPress={claimBalance} title={'Claim balance ' + wBalance.confirmedBalance + ' sat'} />
+      <SectionList
+        ref={sectionList}
+        renderItem={renderSectionItem}
+        keyExtractor={channel => channel.channelPoint}
+        initialNumToRender={7}
+        ItemSeparatorComponent={itemSeparatorComponent}
+        renderSectionHeader={section => (
+          <View style={[styles.listHeaderBack, stylesHook.listHeaderBack]}>{renderSectionHeader(section)}</View>
         )}
+        contentContainerStyle={[centerContent ? {} : styles.contentContainerStyle, stylesHook.root]}
+        contentInset={{ top: 0, left: 0, bottom: 8, right: 0 }}
+        centerContent={centerContent}
+        sections={sections()}
+        ListEmptyComponent={isLoading ? <BlueLoading /> : <BlueTextCentered>No channels</BlueTextCentered>}
+      />
+      {renderModal()}
+      {renderNewChannelModal}
+      {renderOpenChannelAmountAndNoteModal()}
 
-        <SectionList
-          renderItem={renderSectionItem}
-          keyExtractor={channel => channel.channelPoint}
-          initialNumToRender={7}
-          ItemSeparatorComponent={itemSeparatorComponent}
-          renderSectionHeader={section => (
-            <View style={[styles.listHeaderBack, stylesHook.listHeaderBack]}>{renderSectionHeader(section)}</View>
-          )}
-          contentContainerStyle={styles.listStyle}
-          contentInset={{ top: 0, left: 0, bottom: 8, right: 0 }}
-          sections={sections()}
-        />
-        <BlueCard>
-          <Button text={loc.lnd.new_channel} onPress={showNewChannelModal} />
-        </BlueCard>
-        {renderModal()}
-        {renderNewChannelModal}
-        {renderOpenChannelAmountAndNoteModal()}
+      <View style={styles.marginHorizontal16}>
+        {wBalance && wBalance.confirmedBalance && (
+          <>
+            <BlueButton onPress={claimBalance} title={'Claim balance ' + wBalance.confirmedBalance + ' sat'} />
+            <BlueSpacing20 />
+          </>
+        )}
+        <Button text={loc.lnd.new_channel} onPress={showNewChannelModal} disabled={isLoading} />
       </View>
     </SafeBlueArea>
   );
@@ -515,10 +518,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  contentContainerStyle: {
-    flexGrow: 1,
+  height100: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  listStyle: {
+  marginHorizontal16: {
+    marginHorizontal: 16,
+  },
+  contentContainerStyle: {
     marginHorizontal: 16,
   },
   justifyContentCenter: {

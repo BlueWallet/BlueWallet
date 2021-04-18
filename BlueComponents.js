@@ -69,7 +69,6 @@ export const BlueButton = props => {
   return (
     <TouchableOpacity
       style={{
-        flex: 1,
         borderWidth: 0.7,
         borderColor: 'transparent',
         backgroundColor: backgroundColor,
