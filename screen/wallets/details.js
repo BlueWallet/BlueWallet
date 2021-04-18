@@ -143,7 +143,8 @@ const WalletDetails = () => {
     },
   });
 
-  const setLabel = async () => {
+  const setLabel = () => {
+    setIsLoading(true);
     if (walletName.trim().length > 0) {
       wallet.setLabel(walletName.trim());
       if (wallet.type === WatchOnlyWallet.type && wallet.getSecret().startsWith('zpub')) {
@@ -151,9 +152,15 @@ const WalletDetails = () => {
       }
       wallet.setHideTransactionsInWalletsList(!hideTransactionsInWalletsList);
     }
-    await saveToDisk();
-    alert(loc.wallets.details_wallet_updated);
-    goBack();
+    saveToDisk()
+      .then(() => {
+        alert(loc.wallets.details_wallet_updated);
+        goBack();
+      })
+      .catch(error => {
+        console.log(error.message);
+        setIsLoading(false);
+      });
   };
 
   useEffect(() => {
