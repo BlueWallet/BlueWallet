@@ -25,14 +25,7 @@ import RNFS from 'react-native-fs';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 
-import {
-  BlueButton,
-  BlueDismissKeyboardInputAccessory,
-  BlueListItem,
-  BlueLoading,
-  BlueText,
-  BlueUseAllFundsButton,
-} from '../../BlueComponents';
+import { BlueButton, BlueDismissKeyboardInputAccessory, BlueListItem, BlueLoading, BlueText } from '../../BlueComponents';
 import { navigationStyleTx } from '../../components/navigationStyle';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -44,6 +37,7 @@ import CoinsSelected from '../../components/CoinsSelected';
 import BottomModal from '../../components/BottomModal';
 import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
+import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
@@ -66,7 +60,7 @@ const SendDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [wallet, setWallet] = useState(null);
   const [walletSelectionOrCoinsSelectedHidden, setWalletSelectionOrCoinsSelectedHidden] = useState(false);
-  const [isAmountToolbarVisibleForAndroid, setIsAmountToolbarVisibleForAndroid] = useState(true);
+  const [isAmountToolbarVisibleForAndroid, setIsAmountToolbarVisibleForAndroid] = useState(false);
   const [isFeeSelectionModalVisible, setIsFeeSelectionModalVisible] = useState(false);
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [isTransactionReplaceable, setIsTransactionReplaceable] = useState(false);
@@ -1175,7 +1169,7 @@ const SendDetails = () => {
             });
           }}
           unit={units[index] || amountUnit}
-          inputAccessoryViewID={BlueUseAllFundsButton.InputAccessoryViewID}
+          inputAccessoryViewID={InputAccessoryAllFunds.InputAccessoryViewID}
         />
         <AddressInput
           onChangeText={text => {
@@ -1278,9 +1272,9 @@ const SendDetails = () => {
         </View>
         <BlueDismissKeyboardInputAccessory />
         {Platform.select({
-          ios: <BlueUseAllFundsButton canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />,
+          ios: <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />,
           android: isAmountToolbarVisibleForAndroid && (
-            <BlueUseAllFundsButton canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />
+            <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />
           ),
         })}
 
