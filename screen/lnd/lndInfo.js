@@ -95,15 +95,27 @@ const LndInfo = () => {
   const refetchData = async (withLoadingIndicator = true) => {
     setIsLoading(withLoadingIndicator);
 
+    let hasChannels = false;
+    let hasPendingChannels = false;
     const listChannels = await wallet.listChannels();
-    if (listChannels && listChannels.channels) setChannels(listChannels.channels.filter(channel => channel.active === true));
-    if (listChannels && listChannels.channels) setInactiveChannels(listChannels.channels.filter(channel => !channel.active));
+    if (listChannels && listChannels.channels) {
+      setChannels(listChannels.channels.filter(channel => channel.active === true));
+      hasChannels = true;
+    }
+    if (listChannels && listChannels.channels) {
+      setInactiveChannels(listChannels.channels.filter(channel => !channel.active));
+      hasChannels = true;
+    }
     const listPendingChannels = await wallet.pendingChannels();
-    if (listPendingChannels && listPendingChannels.pendingOpenChannels && listPendingChannels.pendingOpenChannels.length > 0)
+    if (listPendingChannels && listPendingChannels.pendingOpenChannels && listPendingChannels.pendingOpenChannels.length > 0) {
       setPendingChannels(listPendingChannels.pendingOpenChannels);
+      hasPendingChannels = true;
+    }
     const walletBalance = await wallet.walletBalance();
     setWalletBalance(walletBalance);
-    setCenterContent(listChannels.channels.length === 0 && listPendingChannels.pendingOpenChannels.length === 0);
+    if (centerContent) {
+      setCenterContent(!(hasChannels || hasPendingChannels));
+    }
     setIsLoading(false);
   };
 
