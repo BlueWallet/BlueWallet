@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, TextInput, Linking, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Linking, StyleSheet, Alert, I18nManager } from 'react-native';
 import { Button } from 'react-native-elements';
 import { useTheme, useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -14,9 +14,6 @@ import { BlueCurrentTheme } from '../../components/themes';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   uri: {
     flexDirection: 'row',
     borderColor: BlueCurrentTheme.colors.formBorder,
@@ -38,6 +35,7 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     backgroundColor: 'transparent',
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
 });
 
@@ -110,7 +108,7 @@ const LightningSettings = () => {
   };
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+    <SafeBlueArea>
       <BlueCard>
         <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
       </BlueCard>
@@ -142,19 +140,18 @@ const LightningSettings = () => {
             autoCapitalize="none"
             autoCorrect={false}
             underlineColorAndroid="transparent"
+            testID="URIInput"
           />
         </View>
 
-        <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
+        <BlueButtonLink title={loc.wallets.import_scan_qr} testID="ImportScan" onPress={importScan} />
         <BlueSpacing20 />
-        {isLoading ? <BlueLoading /> : <BlueButton onPress={save} title={loc.settings.save} />}
+        {isLoading ? <BlueLoading /> : <BlueButton testID="Save" onPress={save} title={loc.settings.save} />}
       </BlueCard>
     </SafeBlueArea>
   );
 };
 
-LightningSettings.navigationOptions = navigationStyle({
-  title: loc.settings.lightning_settings,
-});
+LightningSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.lightning_settings }));
 
 export default LightningSettings;

@@ -215,7 +215,7 @@ export default class ElectrumSettings extends Component {
     });
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+      <SafeBlueArea>
         <ScrollView>
           <BlueCard>
             <BlueText style={styles.status}>{loc.settings.electrum_status}</BlueText>
@@ -234,7 +234,7 @@ export default class ElectrumSettings extends Component {
           <BlueCard>
             <View style={styles.serverAddTitle}>
               <BlueText style={styles.explain}>{loc.settings.electrum_settings_explain}</BlueText>
-              <TouchableOpacity onPress={() => this.resetToDefault()}>
+              <TouchableOpacity testID="ResetToDefault" onPress={() => this.resetToDefault()}>
                 <BlueText>{loc.settings.electrum_reset}</BlueText>
               </TouchableOpacity>
             </View>
@@ -252,6 +252,7 @@ export default class ElectrumSettings extends Component {
                 autoCorrect={false}
                 autoCapitalize="none"
                 underlineColorAndroid="transparent"
+                testID="HostInput"
               />
             </View>
             <BlueSpacing20 />
@@ -267,6 +268,7 @@ export default class ElectrumSettings extends Component {
                 underlineColorAndroid="transparent"
                 autoCorrect={false}
                 autoCapitalize="none"
+                testID="PortInput"
               />
             </View>
             <BlueSpacing20 />
@@ -282,12 +284,13 @@ export default class ElectrumSettings extends Component {
                 placeholderTextColor="#81868e"
                 autoCapitalize="none"
                 underlineColorAndroid="transparent"
+                testID="SSLPortInput"
               />
             </View>
             <BlueSpacing20 />
             <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={this.importScan} />
             <BlueSpacing20 />
-            {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
+            {this.state.isLoading ? <BlueLoading /> : <BlueButton testID="Save" onPress={this.save} title={loc.settings.save} />}
           </BlueCard>
           {serverHistoryItems.length > 0 && !this.state.isLoading && (
             <BlueCard>
@@ -319,14 +322,9 @@ ElectrumSettings.propTypes = {
   }),
 };
 
-ElectrumSettings.navigationOptions = navigationStyle({
-  title: loc.settings.electrum_settings,
-});
+ElectrumSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.electrum_settings_server }));
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   status: {
     textAlign: 'center',
     color: BlueCurrentTheme.colors.feeText,
@@ -367,6 +365,7 @@ const styles = StyleSheet.create({
   explain: {
     color: BlueCurrentTheme.colors.feeText,
     marginBottom: -24,
+    flexShrink: 1,
   },
   inputWrap: {
     flexDirection: 'row',

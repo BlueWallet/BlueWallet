@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  I18nManager,
   Keyboard,
   KeyboardAvoidingView,
   LayoutAnimation,
@@ -13,12 +14,13 @@ import {
   TouchableOpacity,
   View,
   Alert,
+  findNodeHandle,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { getSystemName } from 'react-native-device-info';
 import QRCode from 'react-native-qrcode-svg';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import showPopupMenu from 'react-native-popup-menu-android';
 import ToolTip from 'react-native-tooltip';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -27,7 +29,6 @@ import {
   BlueButton,
   BlueButtonLink,
   BlueFormMultiInput,
-  BlueLoading,
   BlueSpacing10,
   BlueSpacing20,
   BlueSpacing40,
@@ -51,7 +52,7 @@ const isDesktop = getSystemName() === 'Mac OS X';
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
-  const { addWallet, saveToDisk, setNewWalletAdded } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
   const navigation = useNavigation();
@@ -67,9 +68,10 @@ const WalletsAddMultisigStep2 = () => {
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
   const tooltip = useRef();
+  const openScannerButton = useRef();
   const data = useRef(new Array(n));
   const hasUnsavedChanges = Boolean(cosigners.length > 0 && cosigners.length !== n);
-
+  const isDiscardConfirmAlertPresented = useRef(false);
   const handleOnHelpPress = () => {
     navigation.navigate('WalletsAddMultisigHelp');
   };
@@ -151,17 +153,25 @@ const WalletsAddMultisigStep2 = () => {
         e.preventDefault();
 
         // Prompt the user before leaving the screen
-
-        Alert.alert(loc._.discard_changes, loc._.discard_changes_detail, [
-          { text: loc._.cancel, style: 'cancel', onPress: () => {} },
-          {
-            text: loc._.ok,
-            style: 'destructive',
-            // If the user confirmed, then we dispatch the action we blocked earlier
-            // This will continue the action that had triggered the removal of the screen
-            onPress: () => navigation.dispatch(e.data.action),
-          },
-        ]);
+        if (isDiscardConfirmAlertPresented.current === false) {
+          isDiscardConfirmAlertPresented.current = true;
+          Alert.alert(loc._.discard_changes, loc._.discard_changes_detail, [
+            {
+              text: loc._.cancel,
+              style: 'cancel',
+              onPress: () => {
+                isDiscardConfirmAlertPresented.current = false;
+              },
+            },
+            {
+              text: loc._.ok,
+              style: 'destructive',
+              // If the user confirmed, then we dispatch the action we blocked earlier
+              // This will continue the action that had triggered the removal of the screen
+              onPress: () => navigation.dispatch(e.data.action),
+            },
+          ]);
+        }
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -196,7 +206,6 @@ const WalletsAddMultisigStep2 = () => {
 
     addWallet(w);
     await saveToDisk();
-    setNewWalletAdded(true);
     A(A.ENUM.CREATED_WALLET);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     navigation.dangerouslyGetParent().goBack();
@@ -430,7 +439,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const scanOrOpenFile = () => {
     if (isDesktop) {
-      fs.showActionSheet().then(onBarScanned);
+      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(onBarScanned);
     } else {
       setIsProvideMnemonicsModalVisible(false);
       navigation.navigate('ScanQRCodeRoot', {
@@ -443,6 +452,22 @@ const WalletsAddMultisigStep2 = () => {
     }
   };
 
+  const dashType = ({ index, lastIndex, isChecked, isFocus }) => {
+    if (isChecked) {
+      if (index === lastIndex) {
+        return MultipleStepsListItemDashType.top;
+      } else {
+        return MultipleStepsListItemDashType.topAndBottom;
+      }
+    } else {
+      if (index === lastIndex) {
+        return isFocus ? MultipleStepsListItemDashType.topAndBottom : MultipleStepsListItemDashType.top;
+      } else {
+        return MultipleStepsListItemDashType.topAndBottom;
+      }
+    }
+  };
+
   const _renderKeyItem = el => {
     const renderProvideKeyButtons = el.index === cosigners.length;
     const isChecked = el.index < cosigners.length;
@@ -451,15 +476,7 @@ const WalletsAddMultisigStep2 = () => {
         <MultipleStepsListItem
           circledText={`${el.index + 1}`}
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-          dashes={
-            el.index === data.length - 1
-              ? isChecked
-                ? MultipleStepsListItemDashType.top
-                : renderProvideKeyButtons
-                ? MultipleStepsListItemDashType.bottom
-                : MultipleStepsListItemDashType.top
-              : MultipleStepsListItemDashType.topAndBottom
-          }
+          dashes={dashType({ index: el.index, lastIndex: data.current.length - 1, isChecked, isFocus: renderProvideKeyButtons })}
           checked={isChecked}
           rightButton={{
             disabled: vaultKeyData.isLoading,
@@ -492,7 +509,7 @@ const WalletsAddMultisigStep2 = () => {
                 text: loc.wallets.import_do_import,
                 disabled: vaultKeyData.isLoading,
               }}
-              dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+              dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
               checked={isChecked}
             />
           </>
@@ -605,7 +622,7 @@ const WalletsAddMultisigStep2 = () => {
   const renderProvideMnemonicsModal = () => {
     return (
       <BottomModal isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
             <BlueSpacing20 />
@@ -616,7 +633,7 @@ const WalletsAddMultisigStep2 = () => {
             ) : (
               <BlueButton disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={useMnemonicPhrase} />
             )}
-            <BlueButtonLink disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+            <BlueButtonLink ref={openScannerButton} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
         </KeyboardAvoidingView>
       </BottomModal>
@@ -636,7 +653,7 @@ const WalletsAddMultisigStep2 = () => {
   const renderCosignersXpubModal = () => {
     return (
       <BottomModal isVisible={isRenderCosignersXpubModalVisible} onClose={hideCosignersXpubModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
             <BlueSpacing20 />
@@ -675,11 +692,9 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
-  const footer = isLoading ? (
-    <BlueLoading />
-  ) : (
+  const footer = (
     <View style={styles.buttonBottom}>
-      <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={cosigners.length !== n} />
+      {isLoading ? <ActivityIndicator /> : <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={cosigners.length !== n} />}
     </View>
   );
 
@@ -718,7 +733,7 @@ const styles = StyleSheet.create({
   buttonBottom: {
     marginHorizontal: 20,
     flex: 0.12,
-    marginBottom: 36,
+    marginBottom: 40,
     justifyContent: 'flex-end',
   },
 
@@ -794,7 +809,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   secretContainer: {
-    flexDirection: 'row',
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
     justifyContent: 'flex-start',
     flexWrap: 'wrap',
   },
@@ -818,6 +833,7 @@ const styles = StyleSheet.create({
 
   helpButtonWrapper: {
     alignItems: 'flex-end',
+    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
   },
   helpButton: {
     paddingHorizontal: 16,

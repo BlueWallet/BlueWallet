@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet, I18nManager } from 'react-native';
 import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
@@ -11,7 +11,6 @@ import {
   BlueText,
   SafeBlueArea,
   BlueButton,
-  SecondButton,
   BlueCopyTextToClipboard,
   BlueSpacing20,
   BlueTextCentered,
@@ -26,13 +25,12 @@ const LNDViewInvoice = () => {
   const { invoice, walletID, isModal } = useRoute().params;
   const { wallets, setSelectedWallet, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
-  const { width, height } = useWindowDimensions();
   const { colors } = useTheme();
   const { goBack, navigate, setParams, setOptions } = useNavigation();
   const [isLoading, setIsLoading] = useState(typeof invoice === 'string');
   const [isFetchingInvoices, setIsFetchingInvoices] = useState(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState(false);
-  const qrCodeHeight = height > width ? width - 20 : width / 2;
+  const [qrCodeSize, setQRCodeSize] = useState(90);
   const fetchInvoiceInterval = useRef();
   const stylesHook = StyleSheet.create({
     root: {
@@ -177,6 +175,11 @@ const LNDViewInvoice = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoice]);
 
+  const onLayout = e => {
+    const { height, width } = e.nativeEvent.layout;
+    setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.8);
+  };
+
   const render = () => {
     if (isLoading) {
       return (
@@ -213,7 +216,12 @@ const LNDViewInvoice = () => {
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
                 <TouchableOpacity style={styles.detailsTouch} onPress={navigateToPreImageScreen}>
                   <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
-                  <Icon name="angle-right" size={18} type="font-awesome" color={colors.alternativeTextColor} />
+                  <Icon
+                    name={I18nManager.isRTL ? 'angle-left' : 'angle-right'}
+                    size={18}
+                    type="font-awesome"
+                    color={colors.alternativeTextColor}
+                  />
                 </TouchableOpacity>
               ) : undefined}
             </View>
@@ -232,47 +240,49 @@ const LNDViewInvoice = () => {
       }
       // Invoice has not expired, nor has it been paid for.
       return (
-        <View style={[styles.activeRoot, stylesHook.root]}>
-          <View style={styles.activeQrcode}>
-            <QRCode
-              value={invoice.payment_request}
-              logo={require('../../img/qr-code.png')}
-              size={qrCodeHeight}
-              logoSize={90}
-              color="#000000"
-              logoBackgroundColor={colors.brandingColor}
-              backgroundColor="#FFFFFF"
+        <ScrollView>
+          <View style={[styles.activeRoot, stylesHook.root]}>
+            <View style={styles.activeQrcode}>
+              <QRCode
+                value={invoice.payment_request}
+                logo={require('../../img/qr-code.png')}
+                size={qrCodeSize}
+                logoSize={90}
+                color="#000000"
+                logoBackgroundColor={colors.brandingColor}
+                backgroundColor="#FFFFFF"
+              />
+            </View>
+
+            <BlueSpacing20 />
+            <BlueText>
+              {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
+            </BlueText>
+            {'description' in invoice && invoice.description.length > 0 && (
+              <BlueText>
+                {loc.lndViewInvoice.for} {invoice.description}
+              </BlueText>
+            )}
+            <BlueCopyTextToClipboard text={invoice.payment_request} />
+
+            <BlueButton onPress={handleOnSharePressed} title={loc.receive.details_share} />
+
+            <BlueSpacing20 />
+            <BlueButton
+              style={stylesHook.additionalInfo}
+              onPress={handleOnViewAdditionalInformationPressed}
+              title={loc.lndViewInvoice.additional_info}
             />
           </View>
-
-          <BlueSpacing20 />
-          <BlueText>
-            {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
-          </BlueText>
-          {'description' in invoice && invoice.description.length > 0 && (
-            <BlueText>
-              {loc.lndViewInvoice.for} {invoice.description}
-            </BlueText>
-          )}
-          <BlueCopyTextToClipboard text={invoice.payment_request} />
-
-          <SecondButton onPress={handleOnSharePressed} title={loc.receive.details_share} />
-
-          <BlueSpacing20 />
-          <BlueButton
-            style={stylesHook.additionalInfo}
-            onPress={handleOnViewAdditionalInformationPressed}
-            title={loc.lndViewInvoice.additional_info}
-          />
-        </View>
+        </ScrollView>
       );
     }
   };
 
   return (
-    <SafeBlueArea styles={[styles.root, stylesHook.root]}>
+    <SafeBlueArea onLayout={onLayout}>
       <StatusBar barStyle="default" />
-      <ScrollView contentContainerStyle={styles.contentContainerStyle}>{render()}</ScrollView>
+      {render()}
     </SafeBlueArea>
   );
 };
@@ -280,9 +290,7 @@ const LNDViewInvoice = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  contentContainerStyle: {
-    flexGrow: 1,
+    justifyContent: 'space-between',
   },
   justifyContentCenter: {
     justifyContent: 'center',
@@ -359,7 +367,6 @@ const styles = StyleSheet.create({
 
 LNDViewInvoice.navigationOptions = navigationStyle(
   {
-    title: loc.lndViewInvoice.lightning_invoice,
     closeButton: true,
     closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().pop(),
   },
@@ -377,6 +384,7 @@ LNDViewInvoice.navigationOptions = navigationStyle(
     return {
       ...options,
       ...additionalOptions,
+      title: loc.lndViewInvoice.lightning_invoice,
     };
   },
 );

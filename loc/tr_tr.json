@@ -1,20 +1,50 @@
 {
   "_": {
-    "bad_password": "Hatalı şifre, tekrar deneyin",
+    "bad_password": "Hatalı şifre, lütfen tekrar deneyiniz.",
     "cancel": "Vazgeç",
     "continue": "Devam et",
     "enter_password": "Şifre gir",
-    "never": "asla",
+    "never": "Asla",
+    "of": "{number} / {total}",
     "ok": "Tamam",
-    "storage_is_encrypted": "Depolama alani sifrelenmis. Kilidi acmak icin sifre gerekli.",
-    "yes": "Evet"
+    "storage_is_encrypted": "Depolama alanınız şifrelidir, kilidi kaldırmak için şifrenizi girin.",
+    "allow": "İzin ver",
+    "dont_allow": "İzin verme",
+    "yes": "Evet",
+    "no": "Hayır",
+    "save": "Kaydet",
+    "seed": "Seed",
+    "wallet_key": "Cüzdan anahtarı"
   },
   "azteco": {
     "codeIs": "Bilet kodunuz ",
     "errorBeforeRefeem": "Hesabiniza yuklemeden once bir Bitcoin cuzdani olusturmalisiniz",
     "errorSomething": "Birseyler yanlis gitti. Bu kod hala gecerli mi?",
     "redeem": "Cüzdana yükle",
-    "redeemButton": "Yükle"
+    "redeemButton": "Yükle",
+    "success": "İşlem başarılı",
+    "title": "Azte.co kuponu bozdurun"
+  },
+  "entropy": {
+    "save": "Kaydet",
+    "title": "Entropi",
+    "undo": "Geri al"
+  },
+  "errors": {
+    "broadcast": "Yayın başarısız oldu.",
+    "error": "Hata",
+    "network": "Ağ Hatası"
+  },
+  "hodl": {
+    "are_you_sure_you_want_to_logout": "Hodl Hodl'dan çıkış yapmak istediğinize emin misiniz?",
+    "cont_address_escrow": "Escrow",
+    "cont_buying": "Satın al",
+    "cont_cancel": "Anlaşmayı iptal et",
+    "cont_cancel_q": "Anlaşmadan vazgeçmek istediğinize emin misiniz ?",
+    "cont_cancel_y": "Evet, anlaşmayı boz.",
+    "filter_currency": "Para birimi",
+    "filter_detail": "Ayrıntılar",
+    "filter_filters": "Filtreler"
   },
   "lnd": {
     "expired": "Süresi doldu",
@@ -22,7 +52,10 @@
     "refill": "Yükle",
     "refill_lnd_balance": "Lightning cüzdana bakiye yükle",
     "sameWalletAsInvoiceError": "Bir faturayı, oluştururken kullandığınız cüzdan ile ödeyemezsiniz.",
-    "title": "paraları yönet"
+    "title": "Bakiyeleri Yönet"
+  },
+  "lndViewInvoice": {
+    "additional_info": "Ek Bilgi"
   },
   "plausibledeniability": {
     "create_fake_storage": "Sahte şifreli depolama oluşturun",
@@ -35,38 +68,92 @@
     "success": "Başarılı",
     "title": "Makul Ret"
   },
+  "pleasebackup": {
+    "ask_no": "Hayır, kaydetmedim.",
+    "ask_yes": "Evet, kaydettim.",
+    "ok": "Tamam, bir yere not aldım.",
+    "ok_lnd": "Tamam, kaydettim.",
+    "text": "Bir dakikanızı ayırıp nimonik cümlenizi bir parça kağıda not almayı ihmal etmeyin. Nimonik cümleniz, cüzdanınızı herhangi bir cihazda tekrar oluşturabilmenizi sağlar.",
+    "text_lnd": "Lütfen kurtarma kodunuzu kaydedin. Cüzdanınızı kayıp etmeniz durumunda onu geri oluşturabilmenizi sağlar.",
+    "text_lnd2": "Bu cüzdan BlueWallet tarafından sağlanmaktadır.",
+    "title": "Cüzdanınız oluşturuldu."
+  },
   "receive": {
     "details_create": "Oluştur",
     "details_label": "Açıklama",
     "details_setAmount": "Miktar ile al",
-    "details_share": "paylaş",
+    "details_share": "Paylaş",
     "header": "Al"
   },
   "send": {
+    "broadcastButton": "Yayınla",
+    "broadcastError": "Hata",
+    "broadcastNone": "Işlemin Hex kodunu girin",
+    "broadcastPending": "Beklemede",
+    "broadcastSuccess": "İşlem başarılı",
     "confirm_header": "Onayla",
     "confirm_sendNow": "Şimdi gönder",
     "create_amount": "Miktar",
     "create_broadcast": "Yayınla",
+    "create_copy": "Kopyala ve daha sonra yayınla",
     "create_details": "Detaylar",
     "create_fee": "Ücret",
     "create_memo": "Not",
     "create_satoshi_per_byte": "Bayt başına Satoshi",
-    "create_this_is_hex": "Bu işlemin hexi, imzalanmış ve ağa yayınlanmaya hazır.",
+    "create_this_is_hex": "Bu, işleminizin hex kodu. İmzalandı ve ağa yayınlanmaya hazır.",
     "create_to": "Kime",
     "create_tx_size": "TX boyutu",
-    "details_address": "adres",
-    "details_address_field_is_not_valid": "Adres alanı geçerli değil",
+    "create_verify": "Coinb.in üzerinden kontrol et",
+    "details_add_rec_add": "Alıcı ekle",
+    "details_add_rec_rem": "Alıcıyı kaldır",
+    "details_address": "Adres",
+    "details_address_field_is_not_valid": "Adres geçerli değil",
+    "details_adv_fee_bump": "Ücret arttırımına izin ver",
+    "details_adv_full": "Bakiyenin tamamını kullan",
+    "details_adv_full_sure": "Cüzdanınızın tam bakiyesini bu işlem için kullanmak istediğinize emin misiniz ?",
+    "details_adv_import": "İşlemi dışarı aktar",
     "details_amount_field_is_not_valid": "Miktar alanı geçerli değil",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Belirlediğiniz tutar çok az. Lütfen 500 sat'tan daha büyük bir tutar giriniz.",
     "details_create": "Oluştur",
-    "details_fee_field_is_not_valid": "Ücret alanı geçerli değil",
-    "details_note_placeholder": "kendime not",
+    "details_error_decode": "Bitcoin adresi tanımlanamadı",
+    "details_fee_field_is_not_valid": "Ücret miktarı geçerli değil.",
+    "details_next": "İleri",
+    "details_note_placeholder": "Kendime not",
     "details_scan": "Tara",
     "details_total_exceeds_balance": "Gönderme miktarı mevcut bakiyeyi aşıyor.",
+    "details_unrecognized_file_format": "Bilinmeyen dosya türü",
+    "details_wallet_before_tx": "İşlem yapmadan önce Bitcoin cüzdanınızı oluşturmalısınız.",
+    "dynamic_init": "Başlatılıyor",
+    "dynamic_next": "Sonraki",
+    "dynamic_prev": "Önceki",
+    "dynamic_start": "Başlat",
+    "dynamic_stop": "Durdur",
+    "fee_10m": "10 dk",
+    "fee_1d": "1 gün",
+    "fee_3h": "3 saat",
+    "fee_custom": "Özel",
+    "fee_fast": "Hızlı",
+    "fee_medium": "Orta",
+    "fee_slow": "Yavaş",
     "header": "Gönder",
+    "input_clear": "Temizle",
+    "input_done": "Tamamlandı",
+    "input_paste": "Yapıştır",
+    "input_total": "Toplam:",
+    "permission_camera_message": "Kamerayı kullanmak için izin vermelisiniz.",
+    "psbt_sign": "Bir işlemi imzalayın",
+    "open_settings": "Ayarları aç",
+    "permission_storage_later": "Daha sonra hatırlat",
+    "psbt_clipboard": "Panoya kopyala",
     "success_done": "Tamam"
   },
   "settings": {
     "about": "Hakkında",
+    "about_sm_discord": "Discord Sunucusu",
+    "about_sm_telegram": "Telegram Kanalı",
+    "about_sm_twitter": "Bizi Twitter'da takip edin",
+    "advanced_options": "Gelişmiş Seçenekler",
+    "biometrics": "Biyometrikler",
     "currency": "Para Birimi",
     "general_adv_mode": "Enable advanced mode",
     "header": "ayarlar",
@@ -77,8 +164,18 @@
     "password_explain": "Depolamanın şifresini çözmek için kullanacağınız şifreyi oluşturun",
     "passwords_do_not_match": "Şifreler eşleşmedi",
     "plausible_deniability": "Makul ret...",
+    "privacy": "Gizlilik",
+    "privacy_system_settings": "Sistem Ayarları",
+    "privacy_quickactions": "Cüzdan Kısayolları",
+    "push_notifications": "Bildirimler",
     "retype_password": "Şifrenizi yeniden girin",
-    "save": "Kaydet"
+    "save": "Kaydet",
+    "saved": "Kaydedildi",
+    "total_balance": "Bakiye"
+  },
+  "notifications": {
+    "no_and_dont_ask": "Hayır, bir daha sorma",
+    "ask_me_later": "Daha sonra hatırlat"
   },
   "transactions": {
     "details_copy": "Kopya",
@@ -93,9 +190,9 @@
     "add_create": "Oluştur",
     "add_import_wallet": "Cüzdan İçeri Yükle",
     "add_or": "veya",
-    "add_title": "cüzdan ekle",
-    "add_wallet_name": "isim",
-    "add_wallet_type": "tip",
+    "add_title": "Cüzdan ekle",
+    "add_wallet_name": "İsim",
+    "add_wallet_type": "Tip",
     "details_address": "Adres",
     "details_are_you_sure": "Emin misiniz?",
     "details_delete": "Sil",
@@ -109,7 +206,6 @@
     "export_title": "cüzdan yedekle",
     "import_do_import": "İçe Aktar",
     "import_error": "İçeri aktarma başarısız oldu. Lütfen girilen bilginin doğru olduğundan emin olun.",
-    "import_explanation": "Buraya cüzdan yedek cümlenizi, gizli anahtarınızı, WIF veya diğer bilginizi yazın. BlueWallet elinden gelen en iyi tahmini yaparak cüzdanınızı içeri aktarmaya çalışacak.",
     "import_imported": "İçeri aktarıldı",
     "import_scan_qr": "veya QR kod tara?",
     "import_success": "Başarılı",
@@ -117,7 +213,6 @@
     "list_create_a_button": "şimdi ekle",
     "list_create_a_wallet": "Cüzdan oluştur",
     "list_empty_txs1": "İşlemleriniz burada görünür,",
-    "list_empty_txs2": "şu anda hiç yok",
     "list_latest_transaction": "en son işlem",
     "list_tap_here_to_buy": "Bitcoin almak için buraya dokunun",
     "list_title": "cüzdanlar",
@@ -125,5 +220,20 @@
     "select_wallet": "Cüzdan Seç",
     "xpub_copiedToClipboard": "Panoya kopyalandı",
     "xpub_title": "cüzdan XPUB"
+  },
+  "multisig": {
+    "ms_help": "Yardım",
+    "ms_help_title5": "Gelişmiş Mod"
+  },
+  "is_it_my_address": {
+    "title": "Adres bana mı ait?",
+    "enter_address": "Adres gir",
+    "check_address": "Adresi kontrol et"
+  },
+  "units": {
+    "BTC": "BTC",
+    "MAX": "Maks",
+    "sat_byte": "sat/byte",
+    "sats": "sat"
   }
 }

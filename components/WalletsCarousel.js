@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Animated,
   Image,
+  I18nManager,
   Platform,
   StyleSheet,
   Text,
@@ -20,7 +21,6 @@ import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { LightningCustodianWallet, MultisigHDWallet, PlaceholderWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { BluePrivateBalance } from '../BlueComponents';
-
 import { BlueStorageContext } from '../blue_modules/storage-context';
 
 const nStyles = StyleSheet.create({
@@ -82,7 +82,7 @@ const iStyles = StyleSheet.create({
   },
   grad: {
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 12,
     minHeight: 164,
     elevation: 5,
   },
@@ -99,6 +99,7 @@ const iStyles = StyleSheet.create({
   label: {
     backgroundColor: 'transparent',
     fontSize: 19,
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   importError: {
     backgroundColor: 'transparent',
@@ -112,14 +113,17 @@ const iStyles = StyleSheet.create({
     backgroundColor: 'transparent',
     fontWeight: 'bold',
     fontSize: 36,
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   latestTx: {
     backgroundColor: 'transparent',
     fontSize: 13,
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   latestTxTime: {
     backgroundColor: 'transparent',
     fontWeight: 'bold',
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
     fontSize: 16,
   },
 });
@@ -173,13 +177,16 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
           }}
         >
           <LinearGradient shadowColor={colors.shadowColor} colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
-            <Image source={require('../img/btc-shape.png')} style={iStyles.image} />
+            <Image
+              source={I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png')}
+              style={iStyles.image}
+            />
             <Text style={iStyles.br} />
             <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
               {item.getIsFailure() ? loc.wallets.import_placeholder_fail : loc.wallets.import_placeholder_inprogress}
             </Text>
             {item.getIsFailure() ? (
-              <Text numberOfLines={0} style={[iStyles.importError, { color: colors.inverseForegroundColor }]}>
+              <Text testID="ImportError" numberOfLines={0} style={[iStyles.importError, { color: colors.inverseForegroundColor }]}>
                 {loc.wallets.list_import_error}
               </Text>
             ) : (
@@ -195,13 +202,13 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
   let image;
   switch (item.type) {
     case LightningCustodianWallet.type:
-      image = require('../img/lnd-shape.png');
+      image = I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
       break;
     case MultisigHDWallet.type:
-      image = require('../img/vault-shape.png');
+      image = I18nManager.isRTL ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
       break;
     default:
-      image = require('../img/btc-shape.png');
+      image = I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
   }
 
   const latestTransactionText =
@@ -213,12 +220,14 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
       ? loc.transactions.pending
       : transactionTimeToReadable(item.getLatestTransactionTime());
 
+  const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
+
   return (
     <Animated.View
       style={[iStyles.root, { opacity, transform: [{ scale: scaleValue }] }]}
-      shadowOpacity={40 / 100}
-      shadowOffset={{ width: 0, height: 0 }}
-      shadowRadius={5}
+      shadowOpacity={25 / 100}
+      shadowOffset={{ width: 0, height: 3 }}
+      shadowRadius={8}
     >
       <TouchableWithoutFeedback
         testID={item.getLabel()}
@@ -240,8 +249,13 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
           {item.hideBalance ? (
             <BluePrivateBalance />
           ) : (
-            <Text numberOfLines={1} adjustsFontSizeToFit style={[iStyles.balance, { color: colors.inverseForegroundColor }]}>
-              {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+            <Text
+              numberOfLines={1}
+              key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
+              adjustsFontSizeToFit
+              style={[iStyles.balance, { color: colors.inverseForegroundColor }]}
+            >
+              {balance}
             </Text>
           )}
           <Text style={iStyles.br} />
@@ -272,7 +286,8 @@ const cStyles = StyleSheet.create({
     alignItems: 'center',
   },
   content: {
-    left: 20,
+    left: 16,
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
 });
 
@@ -327,9 +342,10 @@ const WalletsCarousel = forwardRef((props, ref) => {
         sliderHeight={sliderHeight}
         itemWidth={itemWidth}
         inactiveSlideScale={1}
-        inactiveSlideOpacity={0.7}
+        inactiveSlideOpacity={I18nManager.isRTL ? 1.0 : 0.7}
         activeSlideAlignment="start"
         initialNumToRender={10}
+        inverted={I18nManager.isRTL && Platform.OS === 'android'}
         onLayout={onLayout}
         contentContainerCustomStyle={cStyles.content}
         {...props}
@@ -340,7 +356,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
 
 WalletsCarousel.propTypes = {
   vertical: PropTypes.bool,
-  selectedWallet: PropTypes.object,
+  selectedWallet: PropTypes.string,
   onPress: PropTypes.func.isRequired,
   handleLongPress: PropTypes.func.isRequired,
 };

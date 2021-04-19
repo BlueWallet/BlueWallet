@@ -10,21 +10,16 @@ import {
   Keyboard,
   ScrollView,
   StyleSheet,
+  I18nManager,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
-import {
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueDismissKeyboardInputAccessory,
-  BlueAddressInput,
-  BlueBitcoinAmount,
-  BlueLoading,
-} from '../../BlueComponents';
+import { BlueButton, BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
+import AddressInput from '../../components/AddressInput';
+import AmountInput from '../../components/AmountInput';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import Lnurl from '../../class/lnurl';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -93,7 +88,6 @@ const ScanLndInvoice = () => {
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet]),
-    [],
   );
 
   useEffect(() => {
@@ -255,7 +249,7 @@ const ScanLndInvoice = () => {
         {!isLoading && (
           <TouchableOpacity style={styles.walletSelectTouch} onPress={naviageToSelectWallet}>
             <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-            <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
+            <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.walletWrap}>
@@ -291,13 +285,13 @@ const ScanLndInvoice = () => {
   }
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={stylesHook.root}>
       <StatusBar barStyle="light-content" />
       <View style={[styles.root, stylesHook.root]}>
         <ScrollView contentContainerStyle={styles.scroll}>
           <KeyboardAvoidingView enabled behavior="position" keyboardVerticalOffset={20}>
             <View style={styles.scrollMargin}>
-              <BlueBitcoinAmount
+              <AmountInput
                 pointerEvents={isAmountInitiallyEmpty ? 'auto' : 'none'}
                 isLoading={isLoading}
                 amount={amount}
@@ -310,7 +304,7 @@ const ScanLndInvoice = () => {
             </View>
 
             <BlueCard>
-              <BlueAddressInput
+              <AddressInput
                 onChangeText={text => {
                   text = text.trim();
                   processTextForInvoice(text);
@@ -357,11 +351,13 @@ const ScanLndInvoice = () => {
 };
 
 export default ScanLndInvoice;
-ScanLndInvoice.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.send.header,
-  headerLeft: null,
-});
+ScanLndInvoice.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.send.header }),
+);
 
 const styles = StyleSheet.create({
   walletSelectRoot: {

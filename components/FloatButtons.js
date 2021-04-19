@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio } from 'react-native';
 import { useTheme } from '@react-navigation/native';
@@ -9,23 +9,27 @@ const ICON_MARGIN = 7;
 
 const cStyles = StyleSheet.create({
   root: {
-    position: 'absolute',
     alignSelf: 'center',
     height: '6.3%',
     minHeight: 44,
   },
+  rootAbsolute: {
+    position: 'absolute',
+    bottom: 30,
+  },
+  rootInline: {},
   rootPre: {
+    position: 'absolute',
     bottom: -1000,
   },
   rootPost: {
-    bottom: 30,
     borderRadius: BORDER_RADIUS,
     flexDirection: 'row',
     overflow: 'hidden',
   },
 });
 
-export const FContainer = ({ children }) => {
+export const FContainer = forwardRef((props, ref) => {
   const [newWidth, setNewWidth] = useState();
   const layoutCalculated = useRef(false);
 
@@ -34,7 +38,7 @@ export const FContainer = ({ children }) => {
     const maxWidth = Dimensions.get('window').width - BORDER_RADIUS - 20;
     const { width } = event.nativeEvent.layout;
     const withPaddings = Math.ceil(width + PADDINGS * 2);
-    const len = React.Children.toArray(children).filter(Boolean).length;
+    const len = React.Children.toArray(props.children).filter(Boolean).length;
     let newWidth = withPaddings * len > maxWidth ? Math.floor(maxWidth / len) : withPaddings;
     if (len === 1 && newWidth < 90) newWidth = 90; // to add Paddings for lonely small button, like Scan on main screen
     setNewWidth(newWidth);
@@ -42,9 +46,13 @@ export const FContainer = ({ children }) => {
   };
 
   return (
-    <View onLayout={onLayout} style={[cStyles.root, newWidth ? cStyles.rootPost : cStyles.rootPre]}>
+    <View
+      ref={ref}
+      onLayout={onLayout}
+      style={[cStyles.root, props.inline ? cStyles.rootInline : cStyles.rootAbsolute, newWidth ? cStyles.rootPost : cStyles.rootPre]}
+    >
       {newWidth
-        ? React.Children.toArray(children)
+        ? React.Children.toArray(props.children)
             .filter(Boolean)
             .map((c, index, array) =>
               React.cloneElement(c, {
@@ -54,13 +62,14 @@ export const FContainer = ({ children }) => {
                 last: index === array.length - 1,
               }),
             )
-        : children}
+        : props.children}
     </View>
   );
-};
+});
 
 FContainer.propTypes = {
   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.element), PropTypes.element]),
+  inline: PropTypes.bool,
 };
 
 const buttonFontSize =
@@ -95,6 +104,9 @@ export const FButton = ({ text, icon, width, first, last, ...props }) => {
     text: {
       color: colors.buttonAlternativeTextColor,
     },
+    textDisabled: {
+      color: colors.formBorder,
+    },
   });
   const style = {};
 
@@ -109,7 +121,7 @@ export const FButton = ({ text, icon, width, first, last, ...props }) => {
   return (
     <TouchableOpacity style={[bStyles.root, bStylesHook.root, style]} {...props}>
       <View style={bStyles.icon}>{icon}</View>
-      <Text numberOfLines={1} style={[bStyles.text, bStylesHook.text]}>
+      <Text numberOfLines={1} style={[bStyles.text, props.disabled ? bStylesHook.textDisabled : bStylesHook.text]}>
         {text}
       </Text>
     </TouchableOpacity>
@@ -122,4 +134,5 @@ FButton.propTypes = {
   width: PropTypes.number,
   first: PropTypes.bool,
   last: PropTypes.bool,
+  disabled: PropTypes.bool,
 };

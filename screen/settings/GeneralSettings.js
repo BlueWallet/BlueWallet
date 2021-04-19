@@ -33,6 +33,10 @@ const GeneralSettings = () => {
     })();
   });
 
+  const navigateToPrivacy = () => {
+    navigate('SettingsPrivacy');
+  };
+
   const stylesWithThemeHook = {
     root: {
       ...styles.root,
@@ -57,6 +61,7 @@ const GeneralSettings = () => {
           <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title={loc.settings.default_title} chevron />
         </>
       )}
+      <BlueListItem title={loc.settings.privacy} onPress={navigateToPrivacy} testID="SettingsPrivacy" chevron />
       {Platform.OS === 'ios' ? (
         <>
           <BlueListItem
@@ -74,7 +79,7 @@ const GeneralSettings = () => {
       <BlueListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.general_adv_mode}
-        switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeSwitchEnabled }}
+        switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeSwitchEnabled, testID: 'AdvancedMode' }}
       />
       <BlueCard>
         <BlueText>{loc.settings.general_adv_mode_e}</BlueText>
@@ -84,8 +89,6 @@ const GeneralSettings = () => {
   );
 };
 
-GeneralSettings.navigationOptions = navigationStyle({
-  title: loc.settings.general,
-});
+GeneralSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.general }));
 
 export default GeneralSettings;

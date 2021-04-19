@@ -14,17 +14,17 @@ import { HDAezeedWallet } from "./wallets/hd-aezeed-wallet";
 import { useTheme } from '@react-navigation/native';
 
 export default class WalletGradient {
-  static hdSegwitP2SHWallet = ['#65ceef', '#68bbe1'];
-  static hdSegwitBech32Wallet = ['#68bbe1', '#3b73d4'];
-  static segwitBech32Wallet = ['#f8bbe1', '#945a90'];
-  static watchOnlyWallet = ['#7d7d7d', '#4a4a4a'];
-  static legacyWallet = ['#40fad1', '#15be98'];
-  static hdLegacyP2PKHWallet = ['#e36dfa', '#bd10e0'];
+  static hdSegwitP2SHWallet = ['#007AFF', '#0040FF'];
+  static hdSegwitBech32Wallet = ['#6CD9FC', '#44BEE5'];
+  static segwitBech32Wallet = ['#6CD9FC', '#44BEE5'];
+  static watchOnlyWallet = ['#474646', '#282828'];
+  static legacyWallet = ['#37E8C0', '#15BE98'];
+  static hdLegacyP2PKHWallet = ['#FD7478', '#E73B40'];
   static hdLegacyBreadWallet = ['#fe6381', '#f99c42'];
   static multisigHdWallet = ['#1ce6eb', '#296fc5', '#3500A2'];
-  static defaultGradients = ['#c65afb', '#9053fe'];
-  static lightningCustodianWallet = ['#f1be07', '#f79056'];
-  static aezeedWallet = ['#550271', '#530140'];
+  static defaultGradients = ['#B770F6', '#9013FE'];
+  static lightningCustodianWallet = ['#F1AA07', '#FD7E37'];
+  static aezeedWallet = ['#8584FF', '#5351FB'];
 
   static createWallet = () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks

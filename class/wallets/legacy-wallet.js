@@ -1,7 +1,8 @@
+import BigNumber from 'bignumber.js';
+import bitcoinMessage from 'bitcoinjs-message';
 import { randomBytes } from '../rng';
 import { AbstractWallet } from './abstract-wallet';
 import { HDSegwitBech32Wallet } from '..';
-import BigNumber from 'bignumber.js';
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const coinSelectAccumulative = require('coinselect/accumulative');
@@ -452,17 +453,15 @@ export class LegacyWallet extends AbstractWallet {
    * @returns {boolean|string} Either p2pkh address or false
    */
   static scriptPubKeyToAddress(scriptPubKey) {
-    const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
-    let ret;
     try {
-      ret = bitcoin.payments.p2pkh({
+      const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
+      return bitcoin.payments.p2pkh({
         output: scriptPubKey2,
         network: bitcoin.networks.bitcoin,
       }).address;
     } catch (_) {
       return false;
     }
-    return ret;
   }
 
   weOwnAddress(address) {
@@ -477,7 +476,7 @@ export class LegacyWallet extends AbstractWallet {
     return false;
   }
 
-  allowSendMax() {
+  allowSignVerifyMessage() {
     return true;
   }
 
@@ -490,5 +489,55 @@ export class LegacyWallet extends AbstractWallet {
    */
   addressIsChange(address) {
     return false;
+  }
+
+  /**
+   * Finds WIF corresponding to address and returns it
+   *
+   * @param address {string} Address that belongs to this wallet
+   * @returns {string|false} WIF or false
+   */
+  _getWIFbyAddress(address) {
+    return this.getAddress() === address ? this.secret : null;
+  }
+
+  /**
+   * Signes text message using address private key and returs signature
+   *
+   * @param message {string}
+   * @param address {string}
+   * @returns {string} base64 encoded signature
+   */
+  signMessage(message, address, useSegwit = true) {
+    const wif = this._getWIFbyAddress(address);
+    if (wif === null) throw new Error('Invalid address');
+    const keyPair = bitcoin.ECPair.fromWIF(wif);
+    const privateKey = keyPair.privateKey;
+    const options = this.segwitType && useSegwit ? { segwitType: this.segwitType } : undefined;
+    const signature = bitcoinMessage.sign(message, privateKey, keyPair.compressed, options);
+    return signature.toString('base64');
+  }
+
+  /**
+   * Verifies text message signature by address
+   *
+   * @param message {string}
+   * @param address {string}
+   * @param signature {string}
+   * @returns {boolean} base64 encoded signature
+   */
+  verifyMessage(message, address, signature) {
+    // null, true so it can verify Electrum signatores without errors
+    return bitcoinMessage.verify(message, address, signature, null, true);
+  }
+
+  /**
+   * Probes address for transactions, if there are any returns TRUE
+   *
+   * @returns {Promise<boolean>}
+   */
+  async wasEverUsed() {
+    const txs = await BlueElectrum.getTransactionsByAddress(this.getAddress());
+    return txs.length > 0;
   }
 }

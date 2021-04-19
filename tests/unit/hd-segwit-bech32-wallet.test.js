@@ -1,4 +1,3 @@
-/* global it, describe */
 import { HDSegwitBech32Wallet } from '../../class';
 const assert = require('assert');
 
@@ -44,6 +43,8 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd._getDerivationPathByAddress(hd._getExternalAddressByIndex(1)), "m/84'/0'/0'/0/1");
     assert.strictEqual(hd._getDerivationPathByAddress(hd._getInternalAddressByIndex(0)), "m/84'/0'/0'/1/0");
     assert.strictEqual(hd._getDerivationPathByAddress(hd._getInternalAddressByIndex(1)), "m/84'/0'/0'/1/1");
+
+    assert.strictEqual(hd.getMasterFingerprintHex(), '73C5DA0A');
   });
 
   it('can generate addresses only via zpub', function () {
@@ -104,5 +105,62 @@ describe('Bech32 Segwit HD (BIP84)', () => {
 
     // for UTXO with no metadata .getUTXOMetadata() should return an empty object
     assert.ok(Object.keys(hd.getUTXOMetadata('22222', 0)).length === 0);
+  });
+
+  it('can sign and verify messages', async () => {
+    const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(mnemonic);
+    let signature;
+
+    // external address
+    signature = hd.signMessage('vires is numeris', hd._getExternalAddressByIndex(0));
+    assert.strictEqual(signature, 'KGW4FfrptS9zV3UptUWxbEf65GhC2mCUz86G0GpN/H4MUC29Y5TsRhWGIqG2lettEpZXZETuc2yL+O7/UvDhxhM=');
+    assert.strictEqual(hd.verifyMessage('vires is numeris', hd._getExternalAddressByIndex(0), signature), true);
+
+    // internal address
+    signature = hd.signMessage('vires is numeris', hd._getInternalAddressByIndex(0));
+    assert.strictEqual(signature, 'KJ5B9JkZ042FhtGeObU/MxLCzQWHbrpXNQxhfJj9wMboa/icLIIaAlsKaSkS27fZLvX3WH0qyj3aAaXscnWsfSw=');
+    assert.strictEqual(hd.verifyMessage('vires is numeris', hd._getInternalAddressByIndex(0), signature), true);
+
+    // multiline message
+    signature = hd.signMessage('vires\nis\nnumeris', hd._getExternalAddressByIndex(0));
+    assert.strictEqual(signature, 'KFI22tlJVGq2HGQM5rcBtYu+Jq8oc7QyjSBP1ZQup3a/GEw1Khu2qFbL/iLzqw95wN22a/Tll1oMLdWxg9cWMYM=');
+    assert.strictEqual(hd.verifyMessage('vires\nis\nnumeris', hd._getExternalAddressByIndex(0), signature), true);
+
+    // can't sign if address doesn't belong to wallet
+    assert.throws(() => hd.signMessage('vires is numeris', '186FBQmCV5W1xY7ywaWtTZPAQNciVN8Por'));
+
+    // can't verify wrong signature
+    assert.throws(() => hd.verifyMessage('vires is numeris', hd._getInternalAddressByIndex(0), 'wrong signature'));
+
+    // can verify electrum message signature
+    // bech32 segwit (p2wpkh)
+    assert.strictEqual(
+      hd.verifyMessage(
+        'vires is numeris',
+        'bc1q8c6fshw2dlwun7ekn9qwf37cu2rn755upcp6el',
+        'Hya6IaZGbKF83eOmC5i1CX5V42Wqkf+eSMi8S+hvJuJrDmp5F56ivrHgAzcxNIShIpY2lJv76M2LB6zLV70KxWQ=',
+      ),
+      true,
+    );
+    // p2sh-segwit (p2wpkh-p2sh)
+    assert.strictEqual(
+      hd.verifyMessage(
+        'vires is numeris',
+        '37VucYSaXLCAsxYyAPfbSi9eh4iEcbShgf',
+        'IBm8XAd/NdWjjUBXr3pkXdVk1XQBHKPkBy4DCmSG0Ox4IKOLb1O+V7cTXPQ2vm3rcYquF+6iKSPJDiE1TPrAswY=',
+      ),
+      true,
+    );
+    // legacy
+    assert.strictEqual(
+      hd.verifyMessage(
+        'vires is numeris',
+        '1LqBGSKuX5yYUonjxT5qGfpUsXKYYWeabA',
+        'IDNPawFev2E+W1xhHYi6NKuj7BY2Xe9qvXfddoWL4XZcPridoizzm8pda6jGEIwHlVYe4zrGhYqUR+j2hOsQxD8=',
+      ),
+      true,
+    );
   });
 });

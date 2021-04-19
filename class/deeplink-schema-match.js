@@ -1,4 +1,4 @@
-import { AppStorage, LightningCustodianWallet } from './';
+import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from './';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import url from 'url';
@@ -17,7 +17,8 @@ class DeeplinkSchemaMatch {
       lowercaseString.startsWith('lightning:') ||
       lowercaseString.startsWith('blue:') ||
       lowercaseString.startsWith('bluewallet:') ||
-      lowercaseString.startsWith('lapp:')
+      lowercaseString.startsWith('lapp:') ||
+      lowercaseString.startsWith('aopp:')
     );
   }
 
@@ -47,7 +48,6 @@ class DeeplinkSchemaMatch {
       if (context.wallets.length >= 0) {
         const wallet = context.wallets[0];
         const action = event.url.split('widget?action=')[1];
-        const secret = wallet.getSecret();
         if (wallet.chain === Chain.ONCHAIN) {
           if (action === 'openSend') {
             completionHandler([
@@ -55,7 +55,7 @@ class DeeplinkSchemaMatch {
               {
                 screen: 'SendDetails',
                 params: {
-                  secret,
+                  walletID: wallet.getID(),
                 },
               },
             ]);
@@ -179,10 +179,29 @@ class DeeplinkSchemaMatch {
           params: Azteco.getParamsFromUrl(event.url),
         },
       ]);
+    } else if (new WatchOnlyWallet().setSecret(event.url).init().valid()) {
+      completionHandler([
+        'AddWalletRoot',
+        {
+          screen: 'ImportWallet',
+          params: {
+            triggerImport: true,
+            label: event.url,
+          },
+        },
+      ]);
     } else {
       const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
       (async () => {
-        if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
+        if (urlObject.protocol === 'aopp:') {
+          completionHandler([
+            'AOPPRoot',
+            {
+              screen: 'AOPP',
+              params: { uri: event.url },
+            },
+          ]);
+        } else if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
           switch (urlObject.host) {
             case 'openlappbrowser': {
               console.log('opening LAPP', urlObject.query.url);
@@ -322,7 +341,7 @@ class DeeplinkSchemaMatch {
           screen: 'SendDetails',
           params: {
             uri: uri.bitcoin,
-            fromWallet: wallet,
+            walletID: wallet.getID(),
           },
         },
       ];

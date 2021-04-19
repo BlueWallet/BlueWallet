@@ -1,21 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, StatusBar, Linking, Platform } from 'react-native';
+import { StatusBar, Linking } from 'react-native';
 import { WebView } from 'react-native-webview';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 import { BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
-import * as NavigationService from '../../NavigationService';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-});
 
 export default class BuyBitcoin extends Component {
   static contextType = BlueStorageContext;
@@ -45,7 +38,7 @@ export default class BuyBitcoin extends Component {
     } else {
       // otherwise, lets call widely-used getAddressAsync()
       try {
-        address = await Promise.race([wallet.getAddressAsync(), this.context.sleep(2000)]);
+        address = await Promise.race([wallet.getAddressAsync(), new Promise(resolve => setTimeout(resolve, 2000))]);
       } catch (_) {}
 
       if (!address) {
@@ -86,7 +79,7 @@ export default class BuyBitcoin extends Component {
     }
 
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeBlueArea>
         <StatusBar barStyle="default" />
         <WebView
           source={{
@@ -116,18 +109,12 @@ BuyBitcoin.navigationOptions = navigationStyle({
 
 BuyBitcoin.navigate = async wallet => {
   const uri = await BuyBitcoin.generateURL(wallet);
-  if (Platform.OS === 'ios') {
-    InAppBrowser.isAvailable()
-      .then(_value => {
-        InAppBrowser.open(uri, { dismissButtonStyle: 'done', modalEnabled: true, animated: true });
-      })
-      .catch(error => {
-        console.log(error);
-        Linking.openURL(uri);
-      });
-  } else {
-    NavigationService.navigate('BuyBitcoin', {
-      wallet,
+  InAppBrowser.isAvailable()
+    .then(_value => {
+      InAppBrowser.open(uri, { dismissButtonStyle: 'done', modalEnabled: true, animated: true });
+    })
+    .catch(error => {
+      console.log(error);
+      Linking.openURL(uri);
     });
-  }
 };

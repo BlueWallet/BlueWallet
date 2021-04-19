@@ -264,11 +264,11 @@ const PsbtMultisig = () => {
   };
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={stylesHook.root}>
       <View style={styles.container}>
         <View style={styles.mstopcontainer}>
           <View style={styles.mscontainer}>
-            <View style={[styles.msleft, { height: flatListHeight - 200 }]} />
+            <View style={[styles.msleft, { height: flatListHeight - 130 }]} />
           </View>
           <View style={styles.msright}>
             <BlueCard>
@@ -303,9 +303,6 @@ const PsbtMultisig = () => {
 };
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   mstopcontainer: {
     flex: 1,
     flexDirection: 'row',
@@ -319,7 +316,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.8,
     borderColor: '#c4c4c4',
     marginLeft: 40,
-    marginTop: 185,
+    marginTop: 130,
   },
   msright: {
     flex: 90,
@@ -399,7 +396,7 @@ const styles = StyleSheet.create({
   vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold' },
   vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },
-  textBtcUnit: { justifyContent: 'flex-end', bottom: 8 },
+  textBtcUnit: { justifyContent: 'flex-end' },
   bottomFeesWrapper: { justifyContent: 'center', alignItems: 'center', flexDirection: 'row' },
   bottomWrapper: { marginTop: 16 },
   marginConfirmButton: { marginTop: 16, marginHorizontal: 32, marginBottom: 48 },
@@ -408,8 +405,6 @@ const styles = StyleSheet.create({
   },
 });
 
-PsbtMultisig.navigationOptions = navigationStyle({
-  title: loc.multisig.header,
-});
+PsbtMultisig.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.multisig.header }));
 
 export default PsbtMultisig;

@@ -9,6 +9,7 @@ import BigNumber from 'bignumber.js';
 import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages } from './languages';
+import { I18nManager } from 'react-native';
 const currency = require('../blue_modules/currency');
 
 dayjs.extend(relativeTime);
@@ -95,6 +96,9 @@ const setDateTimeLocale = async () => {
     case 'pl':
       require('dayjs/locale/pl');
       break;
+    case 'ro':
+      require('dayjs/locale/ro');
+      break;
     case 'ru':
       require('dayjs/locale/ru');
       break;
@@ -130,8 +134,25 @@ const setDateTimeLocale = async () => {
   }
   if (localeForDayJSAvailable) {
     dayjs.locale(lang.split('_')[0]);
+    const language = AvailableLanguages.find(language => language.value === lang.replace('_', '-'));
+    /* I18n Manager breaks testing. Mocking built-in RN modules is not so straightforward. 
+        Only run this conditional if its outside a testing environment.
+    */
+    if (process.env.JEST_WORKER_ID === undefined) {
+      if (language?.isRTL) {
+        I18nManager.allowRTL(true);
+        I18nManager.forceRTL(true);
+      } else {
+        I18nManager.allowRTL(false);
+        I18nManager.forceRTL(false);
+      }
+    }
   } else {
     dayjs.locale('en');
+    if (process.env.JEST_WORKER_ID === undefined) {
+      I18nManager.allowRTL(false);
+      I18nManager.forceRTL(false);
+    }
   }
 };
 
@@ -150,6 +171,10 @@ const setLanguageLocale = async () => {
     } else {
       strings.saveLanguage('en');
       strings.setLanguage('en');
+      if (process.env.JEST_WORKER_ID === undefined) {
+        I18nManager.allowRTL(false);
+        I18nManager.forceRTL(false);
+      }
     }
   }
 };
@@ -181,6 +206,7 @@ const strings = new Localization({
   pt_br: require('./pt_br.json'),
   pt_pt: require('./pt_pt.json'),
   pl: require('./pl.json'),
+  ro: require('./ro.json'),
   ru: require('./ru.json'),
   sk_sk: require('./sk_sk.json'),
   sl_si: require('./sl_SI.json'),
@@ -242,12 +268,7 @@ export function formatBalance(balance, toUnit, withFormatting = false) {
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
     return removeTrailingZeros(value) + ' ' + strings.units[BitcoinUnit.BTC];
   } else if (toUnit === BitcoinUnit.SATS) {
-    return (
-      (balance < 0 ? '-' : '') +
-      (withFormatting ? new Intl.NumberFormat().format(balance.toString()).replace(/[^0-9]/g, ' ') : balance) +
-      ' ' +
-      strings.units[BitcoinUnit.SATS]
-    );
+    return (withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance)) + ' ' + strings.units[BitcoinUnit.SATS];
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
     return currency.satoshiToLocalCurrency(balance);
   }
@@ -269,7 +290,7 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit, withFormatting =
       const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
       return removeTrailingZeros(value);
     } else if (toUnit === BitcoinUnit.SATS) {
-      return (balance < 0 ? '-' : '') + (withFormatting ? new Intl.NumberFormat().format(balance).replace(/[^0-9]/g, ' ') : balance);
+      return withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance);
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
       return currency.satoshiToLocalCurrency(balance);
     }

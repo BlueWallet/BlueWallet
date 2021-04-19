@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { Platform, useWindowDimensions, Dimensions } from 'react-native';
+import { Platform, useWindowDimensions, Dimensions, I18nManager } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 
 import Settings from './screen/settings/settings';
@@ -15,6 +15,7 @@ import EncryptStorage from './screen/settings/encryptStorage';
 import PlausibleDeniability from './screen/plausibledeniability';
 import LightningSettings from './screen/settings/lightningSettings';
 import ElectrumSettings from './screen/settings/electrumSettings';
+import Tools from './screen/settings/tools';
 import GeneralSettings from './screen/settings/GeneralSettings';
 import NetworkSettings from './screen/settings/NetworkSettings';
 import NotificationSettings from './screen/settings/notificationSettings';
@@ -34,6 +35,8 @@ import WalletExport from './screen/wallets/export';
 import ExportMultisigCoordinationSetup from './screen/wallets/exportMultisigCoordinationSetup';
 import ViewEditMultisigCosigners from './screen/wallets/viewEditMultisigCosigners';
 import WalletXpub from './screen/wallets/xpub';
+import SignVerify from './screen/wallets/signVerify';
+import WalletAddresses from './screen/wallets/addresses';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import HodlHodl from './screen/wallets/hodlHodl';
 import HodlHodlViewOffer from './screen/wallets/hodlHodlViewOffer';
@@ -44,6 +47,7 @@ import Marketplace from './screen/wallets/marketplace';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 import ProvideEntropy from './screen/wallets/provideEntropy';
+import AOPP from './screen/wallets/aopp';
 
 import TransactionDetails from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/transactionStatus';
@@ -60,6 +64,7 @@ import SendCreate from './screen/send/create';
 import Confirm from './screen/send/confirm';
 import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
 import PsbtMultisig from './screen/send/psbtMultisig';
+import PsbtMultisigQRCode from './screen/send/psbtMultisigQRCode';
 import Success from './screen/send/success';
 import Broadcast from './screen/send/broadcast';
 import IsItMyAddress from './screen/send/isItMyAddress';
@@ -72,13 +77,11 @@ import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
 import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
-import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
 import DrawerList from './screen/wallets/drawerList';
-import { isTablet } from 'react-native-device-info';
+import { isCatalyst, isTablet } from './blue_modules/environment';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
-import PsbtMultisigQRCode from './screen/send/psbtMultisigQRCode';
 
 const defaultScreenOptions =
   Platform.OS === 'ios'
@@ -116,7 +119,7 @@ const WalletsRoot = () => {
 
   return (
     <WalletsStack.Navigator {...(Platform.OS === 'android' ? { screenOptions: defaultScreenOptions } : null)}>
-      <WalletsStack.Screen name="WalletsList" component={WalletsList} />
+      <WalletsStack.Screen name="WalletsList" component={WalletsList} options={WalletsList.navigationOptions(theme)} />
       <WalletsStack.Screen name="WalletTransactions" component={WalletTransactions} options={WalletTransactions.navigationOptions(theme)} />
       <WalletsStack.Screen name="WalletDetails" component={WalletDetails} options={WalletDetails.navigationOptions(theme)} />
       <WalletsStack.Screen name="TransactionDetails" component={TransactionDetails} options={TransactionDetails.navigationOptions(theme)} />
@@ -151,6 +154,7 @@ const WalletsRoot = () => {
       <WalletsStack.Screen name="LightningSettings" component={LightningSettings} options={LightningSettings.navigationOptions(theme)} />
       <WalletsStack.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions(theme)} />
       <WalletsStack.Screen name="SettingsPrivacy" component={SettingsPrivacy} options={SettingsPrivacy.navigationOptions(theme)} />
+      <WalletsStack.Screen name="Tools" component={Tools} options={Tools.navigationOptions(theme)} />
       <WalletsStack.Screen name="LNDViewInvoice" component={LNDViewInvoice} options={LNDViewInvoice.navigationOptions(theme)} />
       <WalletsStack.Screen
         name="LNDViewAdditionalInvoiceInformation"
@@ -174,6 +178,7 @@ const WalletsRoot = () => {
           gestureEnabled: false,
         }}
       />
+      <WalletsStack.Screen name="WalletAddresses" component={WalletAddresses} options={WalletAddresses.navigationOptions(theme)} />
     </WalletsStack.Navigator>
   );
 };
@@ -309,13 +314,6 @@ const ScanQRCodeRoot = () => (
   </ScanQRCodeStack.Navigator>
 );
 
-const LoadingScreenStack = createStackNavigator();
-const LoadingScreenRoot = () => (
-  <LoadingScreenStack.Navigator name="LoadingScreenRoot" mode="modal" screenOptions={{ headerShown: false }}>
-    <LoadingScreenStack.Screen name="LoadingScreen" component={LoadingScreen} />
-  </LoadingScreenStack.Navigator>
-);
-
 const UnlockWithScreenStack = createStackNavigator();
 const UnlockWithScreenRoot = () => (
   <UnlockWithScreenStack.Navigator name="UnlockWithScreenRoot" screenOptions={{ headerShown: false }}>
@@ -348,7 +346,8 @@ const ReorderWalletsStackRoot = () => {
 const Drawer = createDrawerNavigator();
 function DrawerRoot() {
   const dimensions = useWindowDimensions();
-  const isLargeScreen = Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 3 && isTablet();
+  const isLargeScreen =
+    Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 2 && (isTablet() || isCatalyst);
   const drawerStyle = { width: '0%' };
 
   return (
@@ -356,6 +355,7 @@ function DrawerRoot() {
       drawerStyle={isLargeScreen ? null : drawerStyle}
       drawerType={isLargeScreen ? 'permanent' : null}
       drawerContent={props => (isLargeScreen ? <DrawerList {...props} /> : null)}
+      drawerPosition={I18nManager.isRTL ? 'right' : 'left'}
     >
       <Drawer.Screen name="Navigation" component={Navigation} options={{ headerShown: false, gestureEnabled: false }} />
     </Drawer.Navigator>
@@ -384,6 +384,17 @@ const WalletXpubStackRoot = () => {
   );
 };
 
+const SignVerifyStack = createStackNavigator();
+const SignVerifyStackRoot = () => {
+  const theme = useTheme();
+
+  return (
+    <SignVerifyStack.Navigator name="SignVerifyRoot" screenOptions={defaultStackScreenOptions} initialRouteName="SignVerify">
+      <SignVerifyStack.Screen name="SignVerify" component={SignVerify} options={SignVerify.navigationOptions(theme)} />
+    </SignVerifyStack.Navigator>
+  );
+};
+
 const WalletExportStack = createStackNavigator();
 const WalletExportStackRoot = () => {
   const theme = useTheme();
@@ -408,8 +419,7 @@ const LappBrowserStackRoot = () => {
 
 const InitStack = createStackNavigator();
 const InitRoot = () => (
-  <InitStack.Navigator screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
-    <InitStack.Screen name="LoadingScreenRoot" component={LoadingScreenRoot} options={{ headerShown: false, animationEnabled: false }} />
+  <InitStack.Navigator screenOptions={defaultScreenOptions} initialRouteName="UnlockWithScreenRoot">
     <InitStack.Screen
       name="UnlockWithScreenRoot"
       component={UnlockWithScreenRoot}
@@ -458,12 +468,25 @@ const ExportMultisigCoordinationSetupRoot = () => {
   );
 };
 
+const AOPPStack = createStackNavigator();
+const AOPPRoot = () => {
+  const theme = useTheme();
+
+  return (
+    <AOPPStack.Navigator screenOptions={defaultStackScreenOptions}>
+      <AOPPStack.Screen name="SelectWalletAOPP" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <AOPPStack.Screen name="AOPP" component={AOPP} options={AOPP.navigationOptions(theme)} />
+      <AOPPStack.Screen name="SignVerify" component={SignVerify} options={SignVerify.navigationOptions(theme)} />
+    </AOPPStack.Navigator>
+  );
+};
+
 const RootStack = createStackNavigator();
 const Navigation = () => {
   const theme = useTheme();
 
   return (
-    <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
+    <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="UnlockWithScreenRoot">
       {/* stacks */}
       <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false }} />
       <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={{ headerShown: false }} />
@@ -484,11 +507,13 @@ const Navigation = () => {
       />
       <RootStack.Screen name="ViewEditMultisigCosignersRoot" component={ViewEditMultisigCosignersRoot} options={{ headerShown: false }} />
       <RootStack.Screen name="WalletXpubRoot" component={WalletXpubStackRoot} options={{ headerShown: false }} />
+      <RootStack.Screen name="SignVerifyRoot" component={SignVerifyStackRoot} options={{ headerShown: false }} />
       <RootStack.Screen name="BuyBitcoin" component={BuyBitcoin} options={BuyBitcoin.navigationOptions(theme)} />
       <RootStack.Screen name="Marketplace" component={Marketplace} options={Marketplace.navigationOptions(theme)} />
       <RootStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />
       <RootStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={{ headerShown: false }} />
       <RootStack.Screen name="LappBrowserRoot" component={LappBrowserStackRoot} options={{ headerShown: false }} />
+      <RootStack.Screen name="AOPPRoot" component={AOPPRoot} options={{ headerShown: false }} />
 
       <RootStack.Screen
         name="ScanQRCodeRoot"

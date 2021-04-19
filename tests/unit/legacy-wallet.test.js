@@ -1,4 +1,3 @@
-/* global it, describe */
 import { LegacyWallet } from '../../class';
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
@@ -39,9 +38,22 @@ describe('Legacy wallet', () => {
     assert.strictEqual(tx.ins.length, 1);
     assert.strictEqual(tx.outs.length, 1);
     assert.strictEqual('1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB', bitcoin.address.fromOutputScript(tx.outs[0].script)); // to address
+
+    // batch send + send max
+    txNew = l.createTransaction(
+      utxos,
+      [{ address: '1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB' }, { address: 'bc1q3rl0mkyk0zrtxfmqn9wpcd3gnaz00yv9yp0hxe', value: 10000 }],
+      1,
+      l.getAddress(),
+    );
+    tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
+    assert.strictEqual(tx.ins.length, 1);
+    assert.strictEqual(tx.outs.length, 2);
+    assert.strictEqual('1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB', bitcoin.address.fromOutputScript(tx.outs[0].script)); // to address
+    assert.strictEqual('bc1q3rl0mkyk0zrtxfmqn9wpcd3gnaz00yv9yp0hxe', bitcoin.address.fromOutputScript(tx.outs[1].script)); // to address
   });
 
-  it("throws error if you can 't create wallet from this entropy", async () => {
+  it("throws error if you can't create wallet from this entropy", async () => {
     const l = new LegacyWallet();
     const zeroes = [...Array(32)].map(() => 0);
     await assert.rejects(async () => await l.generateFromEntropy(Buffer.from(zeroes)), {
@@ -68,5 +80,14 @@ describe('Legacy wallet', () => {
     assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('01010101'), false);
     assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('00000000'), false);
     assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('ffffffff'), false);
+  });
+
+  it('can sign and verify messages', async () => {
+    const l = new LegacyWallet();
+    l.setSecret('L4rK1yDtCWekvXuE6oXD9jCYfFNV2cWRpVuPLBcCU2z8TrisoyY1'); // from bitcoinjs-message examples
+
+    const signature = l.signMessage('This is an example of a signed message.', l.getAddress());
+    assert.strictEqual(signature, 'H9L5yLFjti0QTHhPyFrZCT1V/MMnBtXKmoiKDZ78NDBjERki6ZTQZdSMCtkgoNmp17By9ItJr8o7ChX0XxY91nk=');
+    assert.strictEqual(l.verifyMessage('This is an example of a signed message.', l.getAddress(), signature), true);
   });
 });

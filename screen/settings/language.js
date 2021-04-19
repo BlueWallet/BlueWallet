@@ -1,13 +1,13 @@
+/* global alert */
 import React, { useState, useEffect, useContext } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
 import { SafeBlueArea, BlueListItem, BlueLoading } from '../../BlueComponents';
-import { AvailableLanguages } from '../../loc/languages';
 import loc from '../../loc';
-
+import { AvailableLanguages } from '../../loc/languages';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useNavigation, useTheme } from '@react-navigation/native';
 
 const styles = StyleSheet.create({
   flex: {
@@ -31,17 +31,22 @@ const Language = () => {
   }, []);
 
   useEffect(() => {
-    setOptions({ headerTitle: loc.settings.language });
+    setOptions({ title: loc.settings.language });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
   const renderItem = item => {
     return (
       <BlueListItem
-        onPress={async () => {
-          await loc.saveLanguage(item.item.value);
-          setSelectedLanguage(item.item.value);
-          setLanguage();
+        onPress={() => {
+          const currentLanguage = AvailableLanguages.find(language => language.value === selectedLanguage);
+          loc.saveLanguage(item.item.value).then(() => {
+            setSelectedLanguage(item.item.value);
+            setLanguage();
+            if (currentLanguage.isRTL || item.item.isRTL) {
+              alert(loc.settings.language_isRTL);
+            }
+          });
         }}
         title={item.item.label}
         checkmark={selectedLanguage === item.item.value}
@@ -52,7 +57,7 @@ const Language = () => {
   return isLoading ? (
     <BlueLoading />
   ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.flex, stylesHook.flex]}>
+    <SafeBlueArea>
       <FlatList
         style={[styles.flex, stylesHook.flex]}
         keyExtractor={(_item, index) => `${index}`}
@@ -64,8 +69,6 @@ const Language = () => {
   );
 };
 
-Language.navigationOptions = navigationStyle({
-  headerTitle: loc.settings.language,
-});
+Language.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.language }));
 
 export default Language;

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useRef, useState } from 'react';
 import {
   InteractionManager,
   Keyboard,
@@ -21,7 +21,6 @@ import {
   SecondButton,
   BlueButtonLink,
   is,
-  BlueBitcoinAmount,
   BlueText,
   BlueSpacing20,
   BlueAlertWalletExportReminder,
@@ -31,17 +30,19 @@ import BottomModal from '../../components/BottomModal';
 import Privacy from '../../blue_modules/Privacy';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
 import HandoffComponent from '../../components/handoff';
+import AmountInput from '../../components/AmountInput';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
+import ToolTipMenu from '../../components/TooltipMenu';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
-  const { walletID } = useRoute().params;
+  const { walletID, address } = useRoute().params;
   const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
-  const [address, setAddress] = useState('');
   const [customLabel, setCustomLabel] = useState();
   const [customAmount, setCustomAmount] = useState(0);
   const [customUnit, setCustomUnit] = useState(BitcoinUnit.BTC);
@@ -49,8 +50,10 @@ const ReceiveDetails = () => {
   const [isCustom, setIsCustom] = useState(false);
   const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
-  const { navigate, goBack } = useNavigation();
+  const { navigate, goBack, setParams } = useNavigation();
   const { colors } = useTheme();
+  const toolTip = useRef();
+  const qrCode = useRef();
   const styles = StyleSheet.create({
     modalContent: {
       backgroundColor: colors.modal,
@@ -130,6 +133,18 @@ const ReceiveDetails = () => {
     },
   });
 
+  const handleShareQRCode = () => {
+    qrCode.current.toDataURL(data => {
+      const shareImageBase64 = {
+        url: `data:image/png;base64,${data}`,
+      };
+      Share.open(shareImageBase64).catch(error => console.log(error));
+    });
+  };
+
+  const showToolTipMenu = () => {
+    toolTip.current.showMenu();
+  };
   const renderReceiveDetails = () => {
     return (
       <ScrollView style={styles.root} contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
@@ -144,7 +159,19 @@ const ReceiveDetails = () => {
               </BlueText>
             </>
           )}
-          <View style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer">
+          <TouchableWithoutFeedback style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer" onLongPress={showToolTipMenu}>
+            <ToolTipMenu
+              ref={toolTip}
+              anchorRef={qrCode}
+              actions={[
+                {
+                  id: 'shareQRCode',
+                  text: loc.receive.details_share,
+                  onPress: handleShareQRCode,
+                },
+              ]}
+            />
+
             <QRCode
               value={bip21encoded}
               logo={require('../../img/qr-code.png')}
@@ -154,8 +181,9 @@ const ReceiveDetails = () => {
               logoBackgroundColor={colors.brandingColor}
               backgroundColor="#FFFFFF"
               ecl="H"
+              getRef={qrCode}
             />
-          </View>
+          </TouchableWithoutFeedback>
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>
@@ -174,35 +202,39 @@ const ReceiveDetails = () => {
     console.log('receive/details - componentDidMount');
     wallet.setUserHasSavedExport(true);
     await saveToDisk();
-    let address;
-    if (wallet.getAddressAsync) {
+    let newAddress;
+    if (address) {
+      setAddressBIP21Encoded(address);
+      await Notifications.tryToObtainPermissions();
+      Notifications.majorTomToGroundControl([address], [], []);
+    } else if (wallet.getAddressAsync) {
       if (wallet.chain === Chain.ONCHAIN) {
         try {
-          address = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
+          newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
         } catch (_) {}
-        if (!address) {
+        if (address === undefined) {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
-          address = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
+          newAddress = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
         } else {
           saveToDisk(); // caching whatever getAddressAsync() generated internally
         }
       } else if (wallet.chain === Chain.OFFCHAIN) {
         try {
           await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
-          address = wallet.getAddress();
+          newAddress = wallet.getAddress();
         } catch (_) {}
-        if (!address) {
+        if (address === undefined) {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
-          address = wallet.getAddress();
+          newAddress = wallet.getAddress();
         } else {
           saveToDisk(); // caching whatever getAddressAsync() generated internally
         }
       }
-      setAddressBIP21Encoded(address);
+      setAddressBIP21Encoded(newAddress);
       await Notifications.tryToObtainPermissions();
-      Notifications.majorTomToGroundControl([address], [], []);
+      Notifications.majorTomToGroundControl([newAddress], [], []);
     } else if (wallet.getAddress) {
       setAddressBIP21Encoded(wallet.getAddress());
       await Notifications.tryToObtainPermissions();
@@ -213,7 +245,7 @@ const ReceiveDetails = () => {
 
   const setAddressBIP21Encoded = address => {
     const bip21encoded = DeeplinkSchemaMatch.bip21encode(address);
-    setAddress(address);
+    setParams({ address });
     setBip21encoded(bip21encoded);
     setShowAddress(true);
   };
@@ -244,7 +276,8 @@ const ReceiveDetails = () => {
         task.cancel();
         Privacy.disableBlur();
       };
-    }, [goBack, navigate, obtainWalletAddress, wallet]),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [wallet]),
   );
 
   const dismissCustomAmountModal = () => {
@@ -268,9 +301,9 @@ const ReceiveDetails = () => {
         amount = currency.satoshiToBTC(customAmount);
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
-        if (BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
+        if (AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
           // cache hit! we reuse old value that supposedly doesnt have rounding errors
-          amount = currency.satoshiToBTC(BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]);
+          amount = currency.satoshiToBTC(AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]);
         } else {
           amount = currency.fiatToBTC(customAmount);
         }
@@ -283,14 +316,9 @@ const ReceiveDetails = () => {
   const renderCustomAmountModal = () => {
     return (
       <BottomModal isVisible={isCustomModalVisible} onClose={dismissCustomAmountModal}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
-            <BlueBitcoinAmount
-              unit={customUnit}
-              amount={customAmount || ''}
-              onChangeText={setCustomAmount}
-              onAmountUnitChange={setCustomUnit}
-            />
+            <AmountInput unit={customUnit} amount={customAmount || ''} onChangeText={setCustomAmount} onAmountUnitChange={setCustomUnit} />
             <View style={styles.customAmount}>
               <TextInput
                 onChangeText={setCustomLabel}
@@ -353,10 +381,12 @@ const ReceiveDetails = () => {
   );
 };
 
-ReceiveDetails.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.receive.header,
-  headerLeft: null,
-});
+ReceiveDetails.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+  },
+  opts => ({ ...opts, title: loc.receive.header }),
+);
 
 export default ReceiveDetails;

@@ -51,7 +51,7 @@ const LNDViewAdditionalInvoiceInformation = () => {
   }
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={stylesHook.root}>
       <View style={styles.wrapper}>
         <View style={styles.qrcode}>
           <QRCode
@@ -89,12 +89,8 @@ const LNDViewAdditionalInvoiceInformation = () => {
 
 const styles = StyleSheet.create({
   loading: {
-    flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  root: {
-    flex: 1,
   },
   wrapper: {
     flex: 1,
@@ -116,6 +112,7 @@ const styles = StyleSheet.create({
 
 export default LNDViewAdditionalInvoiceInformation;
 
-LNDViewAdditionalInvoiceInformation.navigationOptions = navigationStyle({
+LNDViewAdditionalInvoiceInformation.navigationOptions = navigationStyle({}, opts => ({
+  ...opts,
   title: loc.lndViewInvoice.additional_info,
-});
+}));

@@ -1,4 +1,3 @@
-/* global describe, it, jest, jasmine */
 import { AppStorage } from '../../class';
 import { FiatUnit } from '../../models/fiatUnit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -29,5 +28,18 @@ describe('currency', () => {
     assert.strictEqual(preferred.endPointKey, 'EUR');
     cur = JSON.parse(await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES));
     assert.ok(cur.BTC_EUR > 0);
+
+    // test Yadio rate source
+    await currency.setPrefferedCurrency(FiatUnit.ARS);
+    await currency.startUpdater();
+    cur = JSON.parse(await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES));
+    assert.ok(cur.BTC_ARS > 0);
+
+    // test BitcoinduLiban rate source
+    // disabled, because it throws "Service Temporarily Unavailable" on circleci
+    // await currency.setPrefferedCurrency(FiatUnit.LBP);
+    // await currency.startUpdater();
+    // cur = JSON.parse(await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES));
+    // assert.ok(cur.BTC_LBP > 0);
   });
 });

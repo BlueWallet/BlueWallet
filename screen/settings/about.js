@@ -1,11 +1,19 @@
 import React from 'react';
-import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions, Platform } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
-import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
+import { getApplicationName, getVersion, getBundleId, getBuildNumber, getUniqueId } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 
-import { BlueButton, BlueCard, BlueListItem, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
+import {
+  BlueButton,
+  BlueCard,
+  BlueListItem,
+  BlueSpacing20,
+  BlueTextCentered,
+  SafeBlueArea,
+  BlueCopyToClipboardButton,
+} from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 
@@ -14,8 +22,9 @@ const About = () => {
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const styles = StyleSheet.create({
-    root: {
-      flex: 1,
+    copyToClipboard: {
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     center: {
       justifyContent: 'center',
@@ -105,7 +114,7 @@ const About = () => {
   };
 
   return (
-    <SafeBlueArea style={styles.root}>
+    <SafeBlueArea>
       <ScrollView testID="AboutScrollView">
         <BlueCard>
           <View style={styles.center}>
@@ -201,6 +210,13 @@ const About = () => {
         <BlueTextCentered>
           w, h = {width}, {height}
         </BlueTextCentered>
+        <BlueTextCentered>Unique ID: {getUniqueId()}</BlueTextCentered>
+        <View style={styles.copyToClipboard}>
+          <BlueCopyToClipboardButton
+            stringToCopy={(Platform.OS === 'android' ? 'user.id:' : 'app.device:') + getUniqueId()}
+            displayText={loc.transactions.details_copy}
+          />
+        </View>
         <BlueSpacing20 />
         <BlueSpacing20 />
       </ScrollView>
@@ -208,7 +224,5 @@ const About = () => {
   );
 };
 
-About.navigationOptions = navigationStyle({
-  headerTitle: loc.settings.about,
-});
+About.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.about }));
 export default About;

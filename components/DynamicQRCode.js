@@ -27,7 +27,7 @@ export class DynamicQRCode extends Component {
   fragments = [];
 
   componentDidMount() {
-    const { value, capacity = 800, hideControls = true } = this.props;
+    const { value, capacity = 200, hideControls = true } = this.props;
     try {
       this.fragments = encodeUR(value, capacity);
       this.setState(
@@ -105,6 +105,7 @@ export class DynamicQRCode extends Component {
     return (
       <View style={animatedQRCodeStyle.container}>
         <TouchableOpacity
+          testID="DynamicCode"
           style={animatedQRCodeStyle.qrcodeContainer}
           onPress={() => {
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);

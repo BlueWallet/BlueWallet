@@ -1,6 +1,6 @@
 /* global alert */
-import React, { useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { ActivityIndicator, findNodeHandle, ScrollView, StyleSheet, View } from 'react-native';
 import { getSystemName } from 'react-native-device-info';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
@@ -17,6 +17,7 @@ const isDesktop = getSystemName() === 'Mac OS X';
 const PsbtMultisigQRCode = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
+  const openScannerButton = useRef();
   const { psbtBase64, isShowOpenScanner } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
 
@@ -50,7 +51,7 @@ const PsbtMultisigQRCode = () => {
 
   const openScanner = () => {
     if (isDesktop) {
-      fs.showActionSheet().then(data => onBarScanned({ data }));
+      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(data => onBarScanned({ data }));
     } else {
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -68,10 +69,10 @@ const PsbtMultisigQRCode = () => {
   };
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={stylesHook.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
-          <DynamicQRCode value={psbt.toHex()} capacity={666} />
+          <DynamicQRCode value={psbt.toHex()} />
           {!isShowOpenScanner && (
             <>
               <BlueSpacing20 />
@@ -79,6 +80,7 @@ const PsbtMultisigQRCode = () => {
                 testID="CosignedScanOrImportFile"
                 style={[styles.exportButton, stylesHook.exportButton]}
                 onPress={openScanner}
+                ref={openScannerButton}
                 title={loc.multisig.scan_or_import_file}
               />
             </>
@@ -96,9 +98,6 @@ const PsbtMultisigQRCode = () => {
 };
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'space-between',
@@ -120,8 +119,6 @@ const styles = StyleSheet.create({
   },
 });
 
-PsbtMultisigQRCode.navigationOptions = navigationStyle({
-  title: loc.multisig.header,
-});
+PsbtMultisigQRCode.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.multisig.header }));
 
 export default PsbtMultisigQRCode;

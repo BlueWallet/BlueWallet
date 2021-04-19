@@ -1,4 +1,3 @@
-/* global it, describe, jest */
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { FiatUnit } from '../../models/fiatUnit';
 import { _leaveNumbersAndDots, formatBalanceWithoutSuffix, formatBalancePlain, formatBalance } from '../../loc';
@@ -47,7 +46,7 @@ describe('Localization', () => {
 
   it.each([
     [123000000, BitcoinUnit.SATS, false, '123000000', false],
-    [123000000, BitcoinUnit.SATS, true, '123 000 000', false],
+    [123000000, BitcoinUnit.SATS, true, '123,000,000', false],
     [123456000, BitcoinUnit.BTC, true, '1.23456', false],
     ['123456000', BitcoinUnit.BTC, true, '1.23456', false], // can handle strings
     [100000000, BitcoinUnit.BTC, true, '1', false],

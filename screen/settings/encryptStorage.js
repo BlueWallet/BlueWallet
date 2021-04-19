@@ -124,11 +124,11 @@ const EncryptStorage = () => {
   };
 
   return isLoading ? (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+    <SafeBlueArea>
       <BlueLoading />
     </SafeBlueArea>
   ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+    <SafeBlueArea>
       <ScrollView contentContainerStyle={styles.root}>
         {biometrics.isDeviceBiometricCapable && (
           <>
@@ -167,6 +167,4 @@ const EncryptStorage = () => {
 };
 
 export default EncryptStorage;
-EncryptStorage.navigationOptions = navigationStyle({
-  headerTitle: loc.settings.encrypt_title,
-});
+EncryptStorage.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: loc.settings.encrypt_title }));

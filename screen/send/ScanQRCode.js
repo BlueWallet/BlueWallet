@@ -91,7 +91,7 @@ const ScanQRCode = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const showFileImportButton = route.params.showFileImportButton || false;
-  const { launchedBy, onBarScanned } = route.params;
+  const { launchedBy, onBarScanned, onDismiss } = route.params;
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -239,6 +239,7 @@ const ScanQRCode = () => {
     } else {
       navigation.goBack();
     }
+    if (onDismiss) onDismiss();
   };
 
   const handleCameraStatusChange = event => {
@@ -314,17 +315,9 @@ const ScanQRCode = () => {
             testID="scanQrBackdoorOkButton"
             onPress={() => {
               setBackdoorVisible(false);
-              let data;
-              try {
-                data = JSON.parse(backdoorText);
-                // this might be a json string (for convenience - in case there are "\n" in there)
-              } catch (_) {
-                data = backdoorText;
-              } finally {
-                setBackdoorText('');
-              }
+              setBackdoorText('');
 
-              if (data) onBarCodeRead({ data });
+              if (backdoorText) onBarCodeRead({ data: backdoorText });
             }}
           />
         </View>

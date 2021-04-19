@@ -1,23 +1,69 @@
-import { useContext, useEffect } from 'react';
-import { updateApplicationContext, watchEvents, useReachability, useInstalled } from 'react-native-watch-connectivity';
+import { useContext, useEffect, useRef } from 'react';
+import {
+  updateApplicationContext,
+  watchEvents,
+  useReachability,
+  useInstalled,
+  transferCurrentComplicationUserInfo,
+} from 'react-native-watch-connectivity';
 import { InteractionManager } from 'react-native';
 import { Chain } from './models/bitcoinUnits';
 import loc, { formatBalance, transactionTimeToReadable } from './loc';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import Notifications from './blue_modules/notifications';
+import { FiatUnit } from './models/fiatUnit';
 
 function WatchConnectivity() {
-  const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useContext(BlueStorageContext);
+  const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata, preferredFiatCurrency } = useContext(
+    BlueStorageContext,
+  );
   const isReachable = useReachability();
   const isInstalled = useInstalled(); // true | false
+  const messagesListenerActive = useRef(false);
+  const lastPreferredCurrency = useRef(FiatUnit.USD.endPointKey);
+
+  useEffect(() => {
+    let messagesListener = () => {};
+    if (isInstalled && isReachable && walletsInitialized && messagesListenerActive.current === false) {
+      messagesListener = watchEvents.addListener('message', handleMessages);
+      messagesListenerActive.current = true;
+    } else {
+      messagesListener();
+      messagesListenerActive.current = false;
+    }
+    return () => {
+      messagesListener();
+      messagesListenerActive.current = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletsInitialized, isReachable, isInstalled]);
 
   useEffect(() => {
     if (isInstalled && isReachable && walletsInitialized) {
       sendWalletsToWatch();
-      watchEvents.on('message', handleMessages);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized, wallets, isReachable, isInstalled]);
+
+  useEffect(() => {
+    if (isInstalled && isReachable && walletsInitialized && preferredFiatCurrency) {
+      const preferredFiatCurrencyParsed = JSON.parse(preferredFiatCurrency);
+      try {
+        if (lastPreferredCurrency.current !== preferredFiatCurrencyParsed.endPointKey) {
+          transferCurrentComplicationUserInfo({
+            preferredFiatCurrency: preferredFiatCurrencyParsed.endPointKey,
+          });
+          lastPreferredCurrency.current = preferredFiatCurrency.endPointKey;
+        } else {
+          console.log('WatchConnectivity lastPreferredCurrency has not changed');
+        }
+      } catch (e) {
+        console.log('WatchConnectivity useEffect preferredFiatCurrency error');
+        console.log(e);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preferredFiatCurrency, walletsInitialized, isReachable, isInstalled]);
 
   const handleMessages = (message, reply) => {
     if (message.request === 'createInvoice') {

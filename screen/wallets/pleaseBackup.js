@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
-import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, StatusBar } from 'react-native';
+import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, StatusBar, I18nManager } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueButton } from '../../BlueComponents';
@@ -70,7 +70,7 @@ const PleaseBackup = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={[styles.flex, stylesHook.flex]}>
+    <SafeBlueArea style={stylesHook.flex}>
       <StatusBar barStyle="default" />
       <ScrollView testID="PleaseBackupScrollView">
         <View style={styles.please}>
@@ -87,19 +87,18 @@ const PleaseBackup = () => {
   );
 };
 
-PleaseBackup.navigationOptions = navigationStyle({
-  closeButton: true,
-  title: loc.pleasebackup.title,
-  headerLeft: null,
-  headerRight: null,
-  gestureEnabled: false,
-  swipeEnabled: false,
-});
+PleaseBackup.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerLeft: null,
+    headerRight: null,
+    gestureEnabled: false,
+    swipeEnabled: false,
+  },
+  opts => ({ ...opts, title: loc.pleasebackup.title }),
+);
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
   loading: {
     flex: 1,
     justifyContent: 'center',
@@ -131,10 +130,10 @@ const styles = StyleSheet.create({
     paddingLeft: 0,
   },
   secret: {
-    flexDirection: 'row',
-    justifyContent: 'center',
     flexWrap: 'wrap',
+    justifyContent: 'center',
     marginTop: 14,
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
 });
 

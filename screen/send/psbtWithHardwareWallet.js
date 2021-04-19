@@ -12,8 +12,9 @@ import {
   Text,
   StyleSheet,
   Alert,
+  findNodeHandle,
 } from 'react-native';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import DocumentPicker from 'react-native-document-picker';
@@ -50,6 +51,7 @@ const PsbtWithHardwareWallet = () => {
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [txHex, setTxHex] = useState(route.params.txhex);
+  const openScannerButton = useRef();
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -250,7 +252,7 @@ const PsbtWithHardwareWallet = () => {
 
   const openScanner = () => {
     if (isMacCatalina) {
-      fs.showActionSheet().then(data => onBarScanned({ data }));
+      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(data => onBarScanned({ data }));
     } else {
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -270,7 +272,7 @@ const PsbtWithHardwareWallet = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={stylesHook.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent} testID="PsbtWithHardwareScrollView">
         <View style={styles.container}>
           <BlueCard>
@@ -279,7 +281,7 @@ const PsbtWithHardwareWallet = () => {
             <Text testID="PSBTHex" style={styles.hidden}>
               {psbt.toHex()}
             </Text>
-            <DynamicQRCode value={psbt.toHex()} capacity={200} />
+            <DynamicQRCode value={psbt.toHex()} />
             <BlueSpacing20 />
             <SecondButton
               testID="PsbtTxScanButton"
@@ -289,6 +291,7 @@ const PsbtWithHardwareWallet = () => {
                 color: colors.buttonTextColor,
               }}
               onPress={openScanner}
+              ref={openScannerButton}
               title={loc.send.psbt_tx_scan}
             />
             <BlueSpacing20 />
@@ -327,14 +330,9 @@ const PsbtWithHardwareWallet = () => {
 
 export default PsbtWithHardwareWallet;
 
-PsbtWithHardwareWallet.navigationOptions = navigationStyle({
-  title: loc.send.header,
-});
+PsbtWithHardwareWallet.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.send.header }));
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'space-between',

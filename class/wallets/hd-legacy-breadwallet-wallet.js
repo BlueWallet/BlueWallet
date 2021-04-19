@@ -12,14 +12,11 @@ const BlueElectrum = require('../../blue_modules/BlueElectrum');
 export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
   static type = 'HDLegacyBreadwallet';
   static typeReadable = 'HD Legacy Breadwallet (P2PKH)';
+  static derivationPath = "m/0'";
 
   // track address index at which wallet switched to segwit
   _external_segwit_index = null; // eslint-disable-line camelcase
   _internal_segwit_index = null; // eslint-disable-line camelcase
-
-  allowSendMax() {
-    return true;
-  }
 
   /**
    * @see https://github.com/bitcoinjs/bitcoinjs-lib/issues/584

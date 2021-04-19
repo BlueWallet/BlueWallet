@@ -1,11 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  android:installLocation="auto"
   package="io.bluewallet.bluewallet">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <application
@@ -16,6 +16,7 @@
       android:allowBackup="false"
       android:requestLegacyExternalStorage="true"
       android:usesCleartextTraffic="true"
+      android:supportsRtl="true"
       android:theme="@style/AppTheme">
 
         <meta-data  android:name="com.dieam.reactnativepushnotification.notification_channel_name"
@@ -68,6 +69,7 @@
           <data android:scheme="bluewallet" />
           <data android:scheme="lapp" />
           <data android:scheme="blue" />
+          <data android:scheme="aopp" />
         </intent-filter>
         <intent-filter>
   <action android:name="android.intent.action.VIEW" />
@@ -75,7 +77,7 @@
   <category android:name="android.intent.category.DEFAULT" />
   <data
     android:mimeType="application/octet-stream"
-    android:host="*" 
+    android:host="*"
     android:pathPattern=".*\\.psbt"
   />
 </intent-filter>
@@ -85,7 +87,7 @@
   <category android:name="android.intent.category.DEFAULT" />
   <data
     android:mimeType="text/plain"
-    android:host="*" 
+    android:host="*"
     android:pathPattern=".*\\.psbt"
   />
 </intent-filter>

@@ -46,7 +46,7 @@ const Currency = () => {
 
   if (selectedCurrency !== null && selectedCurrency !== undefined) {
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.flex}>
+      <SafeBlueArea>
         <FlatList
           style={styles.flex}
           keyExtractor={(_item, index) => `${index}`}
@@ -86,8 +86,6 @@ const Currency = () => {
   );
 };
 
-Currency.navigationOptions = navigationStyle({
-  title: loc.settings.currency,
-});
+Currency.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.currency }));
 
 export default Currency;

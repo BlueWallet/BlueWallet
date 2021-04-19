@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="16097.2" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="17701" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
     <device id="watch44"/>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="16012"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="17500"/>
     </dependencies>
     <scenes>
         <!--BlueWallet-->
@@ -203,9 +203,9 @@
         <!--ViewQRCodefaceController-->
         <scene sceneID="jZ8-sK-IyQ">
             <objects>
-                <controller identifier="ViewQRCodefaceController" fullBounds="YES" fullScreen="YES" id="ON9-Qg-65y" customClass="ViewQRCodefaceController" customModule="BlueWalletWatch_Extension">
+                <controller identifier="ViewQRCodefaceController" fullBounds="YES" id="ON9-Qg-65y" customClass="ViewQRCodefaceController" customModule="BlueWalletWatch_Extension">
                     <items>
-                        <imageView height="0.90000000000000002" alignment="left" image="textfor" id="cp4-B3-gV6"/>
+                        <imageView width="1" height="1" heightAdjustment="-5" alignment="left" image="textfor" animationDuration="1" id="cp4-B3-gV6"/>
                         <label width="1" height="1" alignment="center" verticalAlignment="center" hidden="YES" text="Label" numberOfLines="0" minimumScaleFactor="0.5" id="JMO-XZ-1si"/>
                         <table alignment="left" id="2TT-ef-7YA"/>
                     </items>

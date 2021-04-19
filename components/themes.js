@@ -47,6 +47,7 @@ export const BlueDefaultTheme = {
     feeText: '#81868e',
     feeLabel: '#d2f8d6',
     feeValue: '#37c0a1',
+    feeActive: '#d2f8d6',
     labelText: '#81868e',
     cta2: '#062453',
     outputValue: '#13244D',
@@ -59,6 +60,10 @@ export const BlueDefaultTheme = {
     newBlue: '#007AFF',
     redBG: '#F8D2D2',
     redText: '#D0021B',
+    changeBackground: '#FDF2DA',
+    changeText: '#F38C47',
+    receiveBackground: '#D1F9D6',
+    receiveText: '#37C0A1',
   },
 };
 
@@ -92,6 +97,7 @@ export const BlueDarkTheme = {
     feeText: '#81868e',
     feeLabel: '#8EFFE5',
     feeValue: '#000000',
+    feeActive: 'rgba(210,248,214,.2)',
     cta2: '#ffffff',
     outputValue: '#ffffff',
     elevated: '#121212',
@@ -106,6 +112,10 @@ export const BlueDarkTheme = {
     newBlue: '#007AFF',
     redBG: '#5A4E4E',
     redText: '#FC6D6D',
+    changeBackground: '#5A4E4E',
+    changeText: '#F38C47',
+    receiveBackground: 'rgba(210,248,214,.2)',
+    receiveText: '#37C0A1',
   },
 };
 

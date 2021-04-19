@@ -59,7 +59,7 @@ const ChangeBadge = () => {
 };
 
 const OutputList = ({
-  item: { address, txid, value, vout, confirmations },
+  item: { address, txid, value, vout, confirmations = 0 },
   balanceUnit = BitcoinUnit.BTC,
   oMemo,
   frozen,
@@ -73,7 +73,6 @@ const OutputList = ({
   const { colors } = useTheme();
   const { txMetadata } = useContext(BlueStorageContext);
   const memo = oMemo || txMetadata[txid]?.memo || '';
-  const shortId = `${address.substring(0, 9)}...${address.substr(address.length - 9)}`;
   const color = `#${txid.substring(0, 6)}`;
   const amount = formatBalance(value, balanceUnit, true);
 
@@ -103,8 +102,8 @@ const OutputList = ({
       />
       <ListItem.Content>
         <ListItem.Title style={oStyles.amount}>{amount}</ListItem.Title>
-        <ListItem.Subtitle style={oStyles.memo} numberOfLines={1}>
-          {memo || shortId}
+        <ListItem.Subtitle style={oStyles.memo} numberOfLines={1} ellipsizeMode="middle">
+          {memo || address}
         </ListItem.Subtitle>
       </ListItem.Content>
       {change && <ChangeBadge />}
@@ -119,7 +118,7 @@ OutputList.propTypes = {
     txid: PropTypes.string.isRequired,
     value: PropTypes.number.isRequired,
     vout: PropTypes.number.isRequired,
-    confirmations: PropTypes.number.isRequired,
+    confirmations: PropTypes.number,
   }),
   balanceUnit: PropTypes.string,
   oMemo: PropTypes.string,
@@ -132,7 +131,7 @@ OutputList.propTypes = {
   onDeSelect: PropTypes.func,
 };
 
-const OutputModal = ({ item: { address, txid, value, vout, confirmations }, balanceUnit = BitcoinUnit.BTC, oMemo }) => {
+const OutputModal = ({ item: { address, txid, value, vout, confirmations = 0 }, balanceUnit = BitcoinUnit.BTC, oMemo }) => {
   const { colors } = useTheme();
   const { txMetadata } = useContext(BlueStorageContext);
   const memo = oMemo || txMetadata[txid]?.memo || '';
@@ -182,7 +181,7 @@ OutputModal.propTypes = {
     txid: PropTypes.string.isRequired,
     value: PropTypes.number.isRequired,
     vout: PropTypes.number.isRequired,
-    confirmations: PropTypes.number.isRequired,
+    confirmations: PropTypes.number,
   }),
   balanceUnit: PropTypes.string,
   oMemo: PropTypes.string,
@@ -265,9 +264,9 @@ const CoinControl = () => {
   const { colors } = useTheme();
   const navigation = useNavigation();
   const { width } = useWindowDimensions();
-  const { walletId, onUTXOChoose } = useRoute().params;
+  const { walletID, onUTXOChoose } = useRoute().params;
   const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
-  const wallet = wallets.find(w => w.getID() === walletId);
+  const wallet = wallets.find(w => w.getID() === walletID);
   // sort by height ascending, txid , vout ascending
   const utxo = wallet.getUtxo(true).sort((a, b) => a.height - b.height || a.txid.localeCompare(b.txid) || a.vout - b.vout);
   const [output, setOutput] = useState();
@@ -388,7 +387,7 @@ const CoinControl = () => {
 
   if (loading) {
     return (
-      <SafeBlueArea style={[styles.root, styles.center, { backgroundColor: colors.elevated }]}>
+      <SafeBlueArea style={[styles.center, { backgroundColor: colors.elevated }]}>
         <ActivityIndicator testID="Loading" />
       </SafeBlueArea>
     );
@@ -409,7 +408,7 @@ const CoinControl = () => {
           setOutput(false);
         }}
       >
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, { backgroundColor: colors.elevated }]}>{output && renderOutputModalContent()}</View>
         </KeyboardAvoidingView>
       </BottomModal>
@@ -476,8 +475,6 @@ const styles = StyleSheet.create({
   },
 });
 
-CoinControl.navigationOptions = navigationStyle({
-  title: loc.cc.header,
-});
+CoinControl.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.cc.header }));
 
 export default CoinControl;
