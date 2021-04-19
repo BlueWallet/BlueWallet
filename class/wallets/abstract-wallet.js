@@ -194,6 +194,8 @@ export class AbstractWallet {
         }
         this.secret = parsedSecret.keystore.xpub;
         this.masterFingerprint = masterFingerprint;
+
+        if (parsedSecret.keystore.type === 'hardware') this.use_with_hardware_wallet = true;
       }
       // It is a Cobo Vault Hardware Wallet
       if (parsedSecret && parsedSecret.ExtPubKey && parsedSecret.MasterFingerprint) {
@@ -201,6 +203,7 @@ export class AbstractWallet {
         const mfp = Buffer.from(parsedSecret.MasterFingerprint, 'hex').reverse().toString('hex');
         this.masterFingerprint = parseInt(mfp, 16);
         this.setLabel('Cobo Vault ' + parsedSecret.MasterFingerprint);
+        if (parsedSecret.CoboVaultFirmwareVersion) this.use_with_hardware_wallet = true;
       }
     } catch (_) {}
     return this;
