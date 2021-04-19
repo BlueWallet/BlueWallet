@@ -407,6 +407,7 @@
     "details_no_cancel": "خیر، لغو کن",
     "details_save": "ذخیره",
     "details_show_xpub": "نمایش XPUB کیف پول",
+    "details_show_addresses": "نمایش آدرس‌ها",
     "details_title": "کیف پول",
     "details_type": "نوع",
     "details_use_with_hardware_wallet": "استفاده همراه با کیف پول سخت‌افزاری",
@@ -564,11 +565,23 @@
     "sign_title": "امضا/صحت‌سنجی پیام",
     "sign_help": "اینجا شما می‌توانید امضای رمزنگارانه‌ای را از روی یک آدرس بیت‌کوین تولید یا صحت‌سنجی کنید.",
     "sign_sign": "امضاکردن",
+    "sign_sign_submit": "امضا و ارسال",
     "sign_verify": "صحت‌سنجی",
     "sign_signature_correct": "صحت‌سنجی موفقیت‌آمیز بود!",
     "sign_signature_incorrect": "صحت‌سنجی با شکست مواجه شد!",
     "sign_placeholder_address": "آدرس",
     "sign_placeholder_message": "پیام",
-    "sign_placeholder_signature": "امضا"
+    "sign_placeholder_signature": "امضا",
+    "sign_aopp_title": "پروتکل اثبات مالکیت آدرس (AOPP)",
+    "sign_aopp_confirm": "آیا مایل به ارسال پیام امضاشده به {hostname} هستید؟",
+    "address_balance": "موجودی: {balance} ساتوشی",
+    "addresses_title": "آدرس‌ها",
+    "type_change": "باقی‌مانده",
+    "type_receive": "دریافت"
+  },
+  "aopp": {
+    "title": "انتخاب آدرس",
+    "send_success": "امضا با موفقیت ارسال شد.",
+    "send_error": "خطا در ارسال امضا"
   }
 }
