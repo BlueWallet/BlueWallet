@@ -482,35 +482,31 @@ const WalletTransactions = () => {
 
   const sendButtonPress = () => {
     if (wallet.chain === Chain.OFFCHAIN) {
-      navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params: { walletID: wallet.getID() } });
-    } else {
-      if (wallet.type === WatchOnlyWallet.type && wallet.isHd() && wallet.getSecret().startsWith('zpub')) {
-        if (wallet.useWithHardwareWalletEnabled()) {
-          navigateToSendScreen();
-        } else {
-          Alert.alert(
-            loc.wallets.details_title,
-            loc.transactions.enable_offline_signing,
-            [
-              {
-                text: loc._.ok,
-                onPress: async () => {
-                  wallet.setUseWithHardwareWalletEnabled(true);
-                  await saveToDisk();
-                  navigateToSendScreen();
-                },
-                style: 'default',
-              },
-
-              { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-            ],
-            { cancelable: false },
-          );
-        }
-      } else {
-        navigateToSendScreen();
-      }
+      return navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params: { walletID: wallet.getID() } });
     }
+
+    if (wallet.type === WatchOnlyWallet.type && wallet.isHd() && !wallet.useWithHardwareWalletEnabled()) {
+      return Alert.alert(
+        loc.wallets.details_title,
+        loc.transactions.enable_offline_signing,
+        [
+          {
+            text: loc._.ok,
+            onPress: async () => {
+              wallet.setUseWithHardwareWalletEnabled(true);
+              await saveToDisk();
+              navigateToSendScreen();
+            },
+            style: 'default',
+          },
+
+          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+        ],
+        { cancelable: false },
+      );
+    }
+
+    navigateToSendScreen();
   };
 
   const sendButtonLongPress = async () => {
@@ -697,7 +693,7 @@ const WalletTransactions = () => {
             }
           />
         )}
-        {(wallet.allowSend() || (wallet.type === WatchOnlyWallet.type && wallet.isHd() && wallet.getSecret().startsWith('zpub'))) && (
+        {(wallet.allowSend() || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
           <FButton
             onLongPress={sendButtonLongPress}
             onPress={sendButtonPress}

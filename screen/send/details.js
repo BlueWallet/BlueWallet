@@ -1005,10 +1005,10 @@ const SendDetails = () => {
                 switch={{ value: isTransactionReplaceable, onValueChange: onReplaceableFeeSwitchValueChanged }}
               />
             )}
-            {wallet.type === WatchOnlyWallet.type && wallet.isHd() && wallet.getSecret().startsWith('zpub') && (
+            {wallet.type === WatchOnlyWallet.type && wallet.isHd() && (
               <BlueListItem title={loc.send.details_adv_import} hideChevron component={TouchableOpacity} onPress={importTransaction} />
             )}
-            {wallet.type === WatchOnlyWallet.type && wallet.isHd() && wallet.getSecret().startsWith('zpub') && (
+            {wallet.type === WatchOnlyWallet.type && wallet.isHd() && (
               <BlueListItem
                 testID="ImportQrTransactionButton"
                 title={loc.send.details_adv_import + ' (QR)'}

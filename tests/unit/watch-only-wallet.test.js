@@ -62,7 +62,59 @@ describe('Watch only wallet', () => {
     assert.ok(!w.valid());
   });
 
-  it('can create PSBT base64 without signature for HW wallet', async () => {
+  it('can create PSBT base64 without signature for HW wallet xpub', async () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps');
+    w.init();
+    const changeAddress = '1KZjqYHm7a1DjhjcdcjfQvYfF2h6PqatjX';
+    // hardcoding so we wont have to call w.getChangeAddressAsync()
+    const utxos = [
+      {
+        height: 530926,
+        value: 1000,
+        address: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG',
+        txid: 'd0432027a86119c63a0be8fa453275c2333b59067f1e559389cd3e0e377c8b96',
+        vout: 1,
+        txhex:
+          '0100000001b630ac364a04b83548994ded4705b98316b2d1fe18b9fffa2627be9eef11bf60000000006b48304502210096e68d94d374e3a688ed2e6605289f81172540abaab5f6cc431c231919860746022075ee4e64c867ed9d369d01a9b35d8b1689a821be8d729fff7fb3dfcc75d16f6401210281d2e40ba6422fc97b61fd5643bee83dd749d8369339edc795d7b3f00e96c681fdffffff02ef020000000000001976a914e4271ef9e9a03a89b981c73d3d6936d2f6fccc0688ace8030000000000001976a914120ad7854152901ebeb269acb6cef20e71b3cf5988acea190800',
+      },
+    ];
+    // hardcoding utxo so we wont have to call w.fetchUtxo() and w.getUtxo()
+
+    const { psbt } = await w.createTransaction(utxos, [{ address: '1QDCFcpnrZ4yrAQxmbvSgeUC9iZZ8ehcR5' }], 1, changeAddress);
+
+    assert.strictEqual(
+      psbt.toBase64(),
+      'cHNidP8BAFUCAAAAAZaLfDcOPs2Jk1UefwZZOzPCdTJF+ugLOsYZYagnIEPQAQAAAAAAAACAASgDAAAAAAAAGXapFP6ZRvxlaU5S/9HQFr1i2lsgp58AiKwAAAAAAAEA4gEAAAABtjCsNkoEuDVImU3tRwW5gxay0f4Yuf/6Jie+nu8Rv2AAAAAAa0gwRQIhAJbmjZTTdOOmiO0uZgUon4EXJUCrqrX2zEMcIxkZhgdGAiB17k5kyGftnTadAamzXYsWiaghvo1yn/9/s9/MddFvZAEhAoHS5AumQi/Je2H9VkO+6D3XSdg2kzntx5XXs/AOlsaB/f///wLvAgAAAAAAABl2qRTkJx756aA6ibmBxz09aTbS9vzMBois6AMAAAAAAAAZdqkUEgrXhUFSkB6+smmsts7yDnGzz1mIrOoZCAAiBgPGm5BfckKzaIEi8GlRM5oe4A2mUvbsxlJ+pmMhRsrOYhgAAAAALAAAgAAAAIAAAACAAAAAAAAAAAAAAA==',
+    );
+  });
+
+  it('can create PSBT base64 without signature for HW wallet ypub', async () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('ypub6XRzrn3HB1tjhhvrHbk1vnXCecZEdXohGzCk3GXwwbDoJ3VBzZ34jNGWbC6WrS7idXrYjjXEzcPDX5VqnHEnuNf5VAXgLfSaytMkJ2rwVqy');
+    w.init();
+    const changeAddress = '333R1N8zst8bK7xMtqBndmwcd288qxEBmr';
+    // hardcoding so we wont have to call w.getChangeAddressAsync()
+    const utxos = [
+      {
+        height: 566299,
+        value: 250000,
+        address: '37EX3KrmopubWPLB8Y8NR36wXs7icu2kjQ',
+        txid: '786f05d0c531c4bb399ab8cf406b2f118504280bd015e26e4ff9539f8201d4f4',
+        vout: 0,
+      },
+    ];
+    // hardcoding utxo so we wont have to call w.fetchUtxo() and w.getUtxo()
+
+    const { psbt } = await w.createTransaction(utxos, [{ address: '398qz3BtNG8DABpEGa2VkHBcficxkgeKvX' }], 1, changeAddress);
+
+    assert.strictEqual(
+      psbt.toBase64(),
+      'cHNidP8BAFMCAAAAAfTUAYKfU/lPbuIV0AsoBIURL2tAz7iaObvEMcXQBW94AAAAAAAAAACAAdDPAwAAAAAAF6kUUatl8TFvnlvB8H/KsqbnR6kpUluHAAAAAAABASCQ0AMAAAAAABepFDzN1E7LDjAMNARzCHsU4rXqBf55hwEEFgAUG3vPJhyWYtt/ikPpOCW6jCqkmxsiBgLHMhb0QhE8eyJBnE9syGAtMehGmHe1sxpm+TlxjgFXERgAAAAAMQAAgAAAAIAAAACAAAAAAAAAAAAAAA==',
+    );
+  });
+
+  it('can create PSBT base64 without signature for HW wallet zpub', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret('zpub6rjLjQVqVnj7crz9E4QWj4WgczmEseJq22u2B6k2HZr6NE2PQx3ZYg8BnbjN9kCfHymSeMd2EpwpM5iiz5Nrb3TzvddxW2RMcE3VXdVaXHk');
     // zpub provided by Stepan @ CryptoAdvance
