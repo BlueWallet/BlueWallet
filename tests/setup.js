@@ -130,4 +130,10 @@ jest.mock('../blue_modules/analytics', () => {
   return ret;
 });
 
+jest.mock('react-native-share', () => {
+  return {
+    open: jest.fn(),
+  };
+});
+
 global.alert = () => {};

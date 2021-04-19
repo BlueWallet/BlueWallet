@@ -104,6 +104,10 @@ const WalletAddresses = () => {
     });
   };
 
+  const renderRow = item => {
+    return <AddressItem {...item} balanceUnit={balanceUnit} onPress={() => navigateToReceive(item)} />;
+  };
+
   const render = () => {
     if (showAddresses) {
       return (
@@ -112,7 +116,9 @@ const WalletAddresses = () => {
           <FlatList
             style={stylesHook.root}
             data={addresses}
-            renderItem={item => <AddressItem {...item} balanceUnit={balanceUnit} onPress={() => navigateToReceive(item)} />}
+            initialNumToRender={20}
+            contentInsetAdjustmentBehavior="automatic"
+            renderItem={renderRow}
           />
         </View>
       );
