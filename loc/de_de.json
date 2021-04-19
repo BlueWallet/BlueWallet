@@ -53,7 +53,7 @@
     "cont_no": "Du hast keine Aufträge in Bearbeitung.",
     "cont_paid": "Markiere als bezahlt",
     "cont_paid_e": "Tue dies nur, wenn Du das Geld an den Verkäufer mithilfe der vereinbarten Zahlungsart übermittelt hast.",
-    "cont_paid_q": "Bist Du sicher, dass du den Auftrag als bezahlt kennzeichnen möchtest?",
+    "cont_paid_q": "Bist Du sicher, dass du diesen Vertrag als bezahlt kennzeichnen möchtest?",
     "cont_selling": "verkaufen",
     "cont_st_completed": "Alles erledigt!",
     "cont_st_in_progress_buyer": "Coins sind im Treuhandkonto, bitte bezahle den Verkäufer.",
@@ -407,6 +407,7 @@
     "details_no_cancel": "Nein, abbrechnen",
     "details_save": "Speichern",
     "details_show_xpub": "Wallet xPub zeigen",
+    "details_show_addresses": "Adressen anzeigen",
     "details_title": "Wallet",
     "details_type": "Typ",
     "details_use_with_hardware_wallet": "Hardware Wallet nutzen",
@@ -569,6 +570,10 @@
     "sign_signature_incorrect": "Verifizierung fehlgeschlagen!",
     "sign_placeholder_address": "Adresse",
     "sign_placeholder_message": "Meldung",
-    "sign_placeholder_signature": "Signatur"
+    "sign_placeholder_signature": "Signatur",
+    "address_balance": "Guthaben: {balance} sats",
+    "addresses_title": "Adressen",
+    "type_change": "Wechsel",
+    "type_receive": "Empfang"
   }
 }

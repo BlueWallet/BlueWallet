@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
-import { useFocusEffect, useRoute, useTheme } from '@react-navigation/native';
+import { ActivityIndicator, FlatList, StyleSheet, View, StatusBar } from 'react-native';
+import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import Privacy from '../../blue_modules/Privacy';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
@@ -40,27 +40,6 @@ export const sortByIndexAndType = (a, b) => {
   if (a.index < b.index) return -1;
 };
 
-const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  loadMoreButton: {
-    borderRadius: 9,
-    minHeight: 49,
-    paddingHorizontal: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    alignSelf: 'auto',
-    flexGrow: 1,
-    marginHorizontal: 16,
-  },
-  loadMoreText: {
-    fontSize: 16,
-  },
-});
-
 const WalletAddresses = () => {
   const [showAddresses, setShowAddresses] = useState(false);
 
@@ -68,9 +47,7 @@ const WalletAddresses = () => {
 
   const { wallets } = useContext(BlueStorageContext);
 
-  const {
-    params: { walletID },
-  } = useRoute();
+  const { walletID } = useRoute().params;
 
   const wallet = wallets.find(w => w.getID() === walletID);
 
@@ -79,6 +56,8 @@ const WalletAddresses = () => {
   const walletInstance = wallet.type === WatchOnlyWallet.type ? wallet._hdWalletInstance : wallet;
 
   const { colors } = useTheme();
+
+  const { navigate } = useNavigation();
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -115,9 +94,34 @@ const WalletAddresses = () => {
     }, []),
   );
 
+  const navigateToReceive = item => {
+    navigate('ReceiveDetailsRoot', {
+      screen: 'ReceiveDetails',
+      params: {
+        walletID,
+        address: item.item.address,
+      },
+    });
+  };
+
+  const renderRow = item => {
+    return <AddressItem {...item} balanceUnit={balanceUnit} onPress={() => navigateToReceive(item)} />;
+  };
+
   const render = () => {
     if (showAddresses) {
-      return <FlatList style={stylesHook.root} data={addresses} renderItem={item => <AddressItem {...item} balanceUnit={balanceUnit} />} />;
+      return (
+        <View style={stylesHook.root}>
+          <StatusBar barStyle="default" />
+          <FlatList
+            style={stylesHook.root}
+            data={addresses}
+            initialNumToRender={20}
+            contentInsetAdjustmentBehavior="automatic"
+            renderItem={renderRow}
+          />
+        </View>
+      );
     }
 
     return (
@@ -131,9 +135,31 @@ const WalletAddresses = () => {
 };
 
 WalletAddresses.navigationOptions = navigationStyle({
-  closeButton: true,
   title: loc.addresses.addresses_title,
-  headerLeft: null,
 });
 
 export default WalletAddresses;
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  loadMoreButton: {
+    borderRadius: 9,
+    minHeight: 49,
+    paddingHorizontal: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    alignSelf: 'auto',
+    flexGrow: 1,
+    marginHorizontal: 16,
+  },
+  loadMoreText: {
+    fontSize: 16,
+  },
+});

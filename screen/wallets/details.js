@@ -16,7 +16,16 @@ import {
   StatusBar,
   PermissionsAndroid,
 } from 'react-native';
-import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea, SecondButton } from '../../BlueComponents';
+import {
+  BlueCard,
+  BlueLoading,
+  BlueSpacing10,
+  BlueSpacing20,
+  BlueText,
+  SafeBlueArea,
+  SecondButton,
+  BlueListItem,
+} from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -131,7 +140,8 @@ const WalletDetails = () => {
     },
   });
 
-  const setLabel = async () => {
+  const setLabel = () => {
+    setIsLoading(true);
     if (walletName.trim().length > 0) {
       wallet.setLabel(walletName.trim());
       if (wallet.type === WatchOnlyWallet.type && wallet.getSecret().startsWith('zpub')) {
@@ -139,9 +149,15 @@ const WalletDetails = () => {
       }
       wallet.setHideTransactionsInWalletsList(!hideTransactionsInWalletsList);
     }
-    await saveToDisk();
-    alert(loc.wallets.details_wallet_updated);
-    goBack();
+    saveToDisk()
+      .then(() => {
+        alert(loc.wallets.details_wallet_updated);
+        goBack();
+      })
+      .catch(error => {
+        console.log(error.message);
+        setIsLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -239,11 +255,8 @@ const WalletDetails = () => {
     });
 
   const navigateToAddresses = () =>
-    navigate('WalletAddressesRoot', {
-      screen: 'WalletAddresses',
-      params: {
-        walletID: wallet.getID(),
-      },
+    navigate('WalletAddresses', {
+      walletID: wallet.getID(),
     });
 
   const renderMarketplaceButton = () => {
@@ -517,7 +530,13 @@ const WalletDetails = () => {
                   <BlueText>{wallet.getMasterFingerprintHex()}</BlueText>
                 </>
               )}
-
+            </View>
+          </BlueCard>
+          {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
+            <BlueListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
+          )}
+          <BlueCard style={styles.address}>
+            <View>
               <BlueSpacing20 />
               <SecondButton onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
 
@@ -536,13 +555,6 @@ const WalletDetails = () => {
                 <>
                   <BlueSpacing20 />
                   <SecondButton onPress={navigateToViewEditCosigners} testID="ViewEditCosigners" title={loc.multisig.view_edit_cosigners} />
-                </>
-              )}
-
-              {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
-                <>
-                  <BlueSpacing20 />
-                  <SecondButton onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} />
                 </>
               )}
 

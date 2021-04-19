@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StatusBar, Linking, Platform } from 'react-native';
+import { StatusBar, Linking } from 'react-native';
 import { WebView } from 'react-native-webview';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 import { BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
-import * as NavigationService from '../../NavigationService';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const currency = require('../../blue_modules/currency');
 
@@ -110,18 +109,12 @@ BuyBitcoin.navigationOptions = navigationStyle({
 
 BuyBitcoin.navigate = async wallet => {
   const uri = await BuyBitcoin.generateURL(wallet);
-  if (Platform.OS === 'ios') {
-    InAppBrowser.isAvailable()
-      .then(_value => {
-        InAppBrowser.open(uri, { dismissButtonStyle: 'done', modalEnabled: true, animated: true });
-      })
-      .catch(error => {
-        console.log(error);
-        Linking.openURL(uri);
-      });
-  } else {
-    NavigationService.navigate('BuyBitcoin', {
-      wallet,
+  InAppBrowser.isAvailable()
+    .then(_value => {
+      InAppBrowser.open(uri, { dismissButtonStyle: 'done', modalEnabled: true, animated: true });
+    })
+    .catch(error => {
+      console.log(error);
+      Linking.openURL(uri);
     });
-  }
 };

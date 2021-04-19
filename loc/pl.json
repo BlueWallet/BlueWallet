@@ -407,6 +407,7 @@
     "details_no_cancel": "Nie, anuluj",
     "details_save": "Zapisz",
     "details_show_xpub": "Pokaż XPUB portfela",
+    "details_show_addresses": "Pokaż adresy",
     "details_title": "Portfel",
     "details_type": "Typ",
     "details_use_with_hardware_wallet": "Użyj z portfelem sprzętowym",
@@ -569,6 +570,10 @@
     "sign_signature_incorrect": "Weryfikacja nie powiodła się!",
     "sign_placeholder_address": "Adres",
     "sign_placeholder_message": "Wiadomość",
-    "sign_placeholder_signature": "Podpis"
+    "sign_placeholder_signature": "Podpis",
+    "address_balance": "Saldo: {balance} sats",
+    "addresses_title": "Adresy",
+    "type_change": "Reszta",
+    "type_receive": "Otrzymaj"
   }
 }

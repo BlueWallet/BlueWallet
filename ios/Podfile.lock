@@ -249,13 +249,13 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.43.0):
+  - react-native-camera (3.43.1):
     - React-Core
-    - react-native-camera/RCT (= 3.43.0)
-    - react-native-camera/RN (= 3.43.0)
-  - react-native-camera/RCT (3.43.0):
+    - react-native-camera/RCT (= 3.43.1)
+    - react-native-camera/RN (= 3.43.1)
+  - react-native-camera/RCT (3.43.1):
     - React-Core
-  - react-native-camera/RN (3.43.0):
+  - react-native-camera/RN (3.43.1):
     - React-Core
   - react-native-document-picker (3.5.4):
     - React
@@ -355,7 +355,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
-  - RNDeviceInfo (8.0.6):
+  - RNDeviceInfo (8.0.7):
     - React-Core
   - RNFS (2.16.6):
     - React
@@ -697,7 +697,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 58aef7155bc9a9683f5b60b35eccea8722a4f53a
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: c2cb270b2546bb6d99352455676cd01a1cbeb1d5
+  react-native-camera: e3098d679484282acf95f7a346ede7dbfbe46393
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
@@ -726,7 +726,7 @@ SPEC CHECKSUMS:
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
-  RNDeviceInfo: 53004a1aacaaddf9f290590e6a935eb1c698d079
+  RNDeviceInfo: 0550f15928f92d062238ea412b645d00548fd809
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa

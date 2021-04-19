@@ -277,6 +277,20 @@ describe('unit - DeepLinkSchemaMatch', function () {
           },
         ],
       },
+      {
+        argument: {
+          url: 'aopp:?v=0&msg=vasp-chosen-msg&asset=btc&format=p2wpkh&callback=https://vasp.com/proofs/vasp-chosen-token​',
+        },
+        expected: [
+          'AOPPRoot',
+          {
+            screen: 'AOPP',
+            params: {
+              uri: 'aopp:?v=0&msg=vasp-chosen-msg&asset=btc&format=p2wpkh&callback=https://vasp.com/proofs/vasp-chosen-token​',
+            },
+          },
+        ],
+      },
     ];
 
     const asyncNavigationRouteFor = async function (event) {

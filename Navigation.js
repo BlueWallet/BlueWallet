@@ -47,6 +47,7 @@ import Marketplace from './screen/wallets/marketplace';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 import ProvideEntropy from './screen/wallets/provideEntropy';
+import AOPP from './screen/wallets/aopp';
 
 import TransactionDetails from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/transactionStatus';
@@ -177,6 +178,7 @@ const WalletsRoot = () => {
           gestureEnabled: false,
         }}
       />
+      <WalletsStack.Screen name="WalletAddresses" component={WalletAddresses} options={WalletAddresses.navigationOptions(theme)} />
     </WalletsStack.Navigator>
   );
 };
@@ -393,17 +395,6 @@ const SignVerifyStackRoot = () => {
   );
 };
 
-const WalletAddressesStack = createStackNavigator();
-const WalletAddressesStackRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <WalletAddressesStack.Navigator name="WalletAddressesRoot" screenOptions={defaultStackScreenOptions} initialRouteName="WalletAddresses">
-      <WalletAddressesStack.Screen name="WalletAddresses" component={WalletAddresses} options={WalletAddresses.navigationOptions(theme)} />
-    </WalletAddressesStack.Navigator>
-  );
-};
-
 const WalletExportStack = createStackNavigator();
 const WalletExportStackRoot = () => {
   const theme = useTheme();
@@ -477,6 +468,19 @@ const ExportMultisigCoordinationSetupRoot = () => {
   );
 };
 
+const AOPPStack = createStackNavigator();
+const AOPPRoot = () => {
+  const theme = useTheme();
+
+  return (
+    <AOPPStack.Navigator screenOptions={defaultStackScreenOptions}>
+      <AOPPStack.Screen name="SelectWalletAOPP" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <AOPPStack.Screen name="AOPP" component={AOPP} options={AOPP.navigationOptions(theme)} />
+      <AOPPStack.Screen name="SignVerify" component={SignVerify} options={SignVerify.navigationOptions(theme)} />
+    </AOPPStack.Navigator>
+  );
+};
+
 const RootStack = createStackNavigator();
 const Navigation = () => {
   const theme = useTheme();
@@ -504,12 +508,12 @@ const Navigation = () => {
       <RootStack.Screen name="ViewEditMultisigCosignersRoot" component={ViewEditMultisigCosignersRoot} options={{ headerShown: false }} />
       <RootStack.Screen name="WalletXpubRoot" component={WalletXpubStackRoot} options={{ headerShown: false }} />
       <RootStack.Screen name="SignVerifyRoot" component={SignVerifyStackRoot} options={{ headerShown: false }} />
-      <RootStack.Screen name="WalletAddressesRoot" component={WalletAddressesStackRoot} options={{ headerShown: false }} />
       <RootStack.Screen name="BuyBitcoin" component={BuyBitcoin} options={BuyBitcoin.navigationOptions(theme)} />
       <RootStack.Screen name="Marketplace" component={Marketplace} options={Marketplace.navigationOptions(theme)} />
       <RootStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />
       <RootStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={{ headerShown: false }} />
       <RootStack.Screen name="LappBrowserRoot" component={LappBrowserStackRoot} options={{ headerShown: false }} />
+      <RootStack.Screen name="AOPPRoot" component={AOPPRoot} options={{ headerShown: false }} />
 
       <RootStack.Screen
         name="ScanQRCodeRoot"
