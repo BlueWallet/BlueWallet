@@ -127,7 +127,7 @@ const SignVerify = () => {
     );
 
   return (
-    <SafeBlueArea>
+    <SafeBlueArea style={[styles.root, stylesHooks.root]}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <KeyboardAvoidingView style={[styles.root, stylesHooks.root]}>
           {!isKeyboardVisible && (

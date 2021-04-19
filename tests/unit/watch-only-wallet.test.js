@@ -19,6 +19,7 @@ describe('Watch only wallet', () => {
         [secret.toUpperCase()],
       );
       assert.strictEqual(w.isHd(), false);
+      assert.ok(!w.useWithHardwareWalletEnabled());
     }
 
     w.setSecret('not valid');
@@ -35,6 +36,7 @@ describe('Watch only wallet', () => {
       assert.strictEqual(w.getMasterFingerprint(), false);
       assert.strictEqual(w.getMasterFingerprintHex(), '00000000');
       assert.ok(w.isXpubValid(), w.secret);
+      assert.ok(!w.useWithHardwareWalletEnabled());
     }
   });
 
@@ -102,6 +104,7 @@ describe('Watch only wallet', () => {
     );
     assert.strictEqual(w.getMasterFingerprint(), 64392470);
     assert.strictEqual(w.getMasterFingerprintHex(), '168dd603');
+    assert.ok(w.useWithHardwareWalletEnabled());
 
     const utxos = [
       {
@@ -140,6 +143,7 @@ describe('Watch only wallet', () => {
     );
     assert.strictEqual(w.getMasterFingerprint(), 64392470);
     assert.strictEqual(w.getMasterFingerprintHex(), '168dd603');
+    assert.ok(w.useWithHardwareWalletEnabled());
 
     const utxos = [
       {
@@ -179,6 +183,7 @@ describe('Watch only wallet', () => {
     assert.strictEqual(w.getMasterFingerprint(), 1908437330);
     assert.strictEqual(w.getMasterFingerprintHex(), '5271c071');
     assert.strictEqual(w.getLabel(), 'Cobo Vault 5271c071');
+    assert.ok(w.useWithHardwareWalletEnabled());
   });
 
   it('can import zpub with master fingerprint', async () => {
@@ -192,6 +197,7 @@ describe('Watch only wallet', () => {
     );
     assert.strictEqual(w.getMasterFingerprint(), 4167290508);
     assert.strictEqual(w.getMasterFingerprintHex(), '8cce63f8');
+    assert.ok(!w.useWithHardwareWalletEnabled());
   });
 
   it('can combine signed PSBT and prepare it for broadcast', async () => {
