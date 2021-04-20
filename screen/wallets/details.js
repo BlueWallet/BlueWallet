@@ -147,7 +147,7 @@ const WalletDetails = () => {
     setIsLoading(true);
     if (walletName.trim().length > 0) {
       wallet.setLabel(walletName.trim());
-      if (wallet.type === WatchOnlyWallet.type && wallet.getSecret().startsWith('zpub')) {
+      if (wallet.type === WatchOnlyWallet.type && wallet.isHd()) {
         wallet.setUseWithHardwareWalletEnabled(useWithHardwareWallet);
       }
       wallet.setHideTransactionsInWalletsList(!hideTransactionsInWalletsList);
@@ -516,7 +516,7 @@ const WalletDetails = () => {
             </>
 
             <View>
-              {wallet.type === WatchOnlyWallet.type && wallet.getSecret().startsWith('zpub') && (
+              {wallet.type === WatchOnlyWallet.type && wallet.isHd() && (
                 <>
                   <BlueSpacing10 />
                   <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_advanced.toLowerCase()}</Text>
