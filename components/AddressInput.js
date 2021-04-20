@@ -17,6 +17,7 @@ const AddressInput = ({
   placeholder = loc.send.details_address,
   onChangeText,
   onBarScanned,
+  onBarScannerDismissWithoutData = () => {},
   scanButtonTapped = () => {},
   launchedBy,
   editable = true,
@@ -69,6 +70,7 @@ const AddressInput = ({
                 params: {
                   launchedBy,
                   onBarScanned,
+                  onDismiss: onBarScannerDismissWithoutData,
                 },
               });
             }
@@ -126,6 +128,7 @@ AddressInput.propTypes = {
   editable: PropTypes.bool,
   scanButtonTapped: PropTypes.func,
   inputAccessoryViewID: PropTypes.string,
+  onBarScannerDismissWithoutData: PropTypes.func,
 };
 
 export default AddressInput;

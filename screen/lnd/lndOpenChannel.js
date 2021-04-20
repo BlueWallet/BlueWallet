@@ -33,6 +33,7 @@ const LndOpenChannel = props => {
     remoteHostWithPubkey = '03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@34.239.230.56:9735', // ACINQ
     // '02e89ca9e8da72b33d896bae51d20e7e6675aa971f7557500b6591b15429e717f1@165.227.95.104:9735' // lnd1.bluewallet.io
     onRemoteHostWithPubkeyChange,
+    onBarScannerDismissWithoutData,
   } = props;
   const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   /** @type {LightningLndWallet} */
@@ -273,6 +274,7 @@ const LndOpenChannel = props => {
           onChangeText={onRemoteHostWithPubkeyChange}
           onBarScanned={onBarScanned}
           scanButtonTapped={closeContainerModal}
+          onBarScannerDismissWithoutData={onBarScannerDismissWithoutData}
           launchedBy={name}
         />
         <BlueDismissKeyboardInputAccessory />
@@ -396,6 +398,7 @@ LndOpenChannel.propTypes = {
   onUnitChange: PropTypes.func,
   remoteHostWithPubkey: PropTypes.string,
   onRemoteHostWithPubkeyChange: PropTypes.func,
+  onBarScannerDismissWithoutData: PropTypes.func,
 };
 
 LndOpenChannel.navigationOptions = navigationStyle(

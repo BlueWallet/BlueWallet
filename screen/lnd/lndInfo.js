@@ -98,16 +98,21 @@ const LndInfo = () => {
     let hasChannels = false;
     let hasPendingChannels = false;
     const listChannels = await wallet.listChannels();
-    if (listChannels && listChannels.channels) {
+    if (listChannels && listChannels?.channels && Array.isArray(listChannels?.channels)) {
       setChannels(listChannels.channels.filter(channel => channel.active === true));
       hasChannels = true;
     }
-    if (listChannels && listChannels.channels) {
+    if (listChannels && listChannels.channels && listChannels?.channels && Array.isArray(listChannels?.channels)) {
       setInactiveChannels(listChannels.channels.filter(channel => !channel.active));
       hasChannels = true;
     }
     const listPendingChannels = await wallet.pendingChannels();
-    if (listPendingChannels && listPendingChannels.pendingOpenChannels && listPendingChannels.pendingOpenChannels.length > 0) {
+    if (
+      listPendingChannels &&
+      listPendingChannels.pendingOpenChannels &&
+      Array.isArray(listPendingChannels.pendingOpenChannels) &&
+      listPendingChannels.pendingOpenChannels?.length > 0
+    ) {
       setPendingChannels(listPendingChannels.pendingOpenChannels);
       hasPendingChannels = true;
     }
@@ -451,6 +456,9 @@ const LndInfo = () => {
               setNewOpenChannelModalProps(prevState => {
                 return { ...prevState, remoteHostWithPubkey: pubkey };
               });
+              setNewOpenChannelModalVisible(true);
+            }}
+            onBarScannerDismissWithoutData={() => {
               setNewOpenChannelModalVisible(true);
             }}
           />
