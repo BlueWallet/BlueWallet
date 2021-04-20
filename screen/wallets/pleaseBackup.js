@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, StatusBar, I18nManager } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
-import { BlueSpacing20, SafeBlueArea, BlueButton } from '../../BlueComponents';
+import { SafeBlueArea, BlueButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
