@@ -76,7 +76,7 @@ const PleaseBackup = () => {
         <View style={styles.please}>
           <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</Text>
         </View>
-         <View style={styles.list}>
+        <View style={styles.list}>
           <View style={styles.secret}>{renderSecret()}</View>
         </View>
         <View style={styles.bottom}>
