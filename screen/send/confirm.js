@@ -162,7 +162,7 @@ export default class Confirm extends Component {
   render() {
     return (
       <SafeBlueArea style={styles.root}>
-        <View style={styles.rootWrap}>
+        <View style={styles.cardTop}>
           <FlatList
             scrollEnabled={this.state.recipients.length > 1}
             extraData={this.state.recipients}
@@ -170,15 +170,9 @@ export default class Confirm extends Component {
             renderItem={this._renderItem}
             keyExtractor={(_item, index) => `${index}`}
             ItemSeparatorComponent={this.renderSeparator}
-            style={styles.flat}
           />
           <View style={styles.cardContainer}>
             <BlueCard>
-              <Text style={styles.cardText} testID="TransactionFee">
-                {loc.send.create_fee}: {formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
-                {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
-              </Text>
-              <BlueSpacing40 />
               {!!this.state.payjoinUrl && (
                 <View style={styles.payjoinWrapper}>
                   <Text style={styles.payjoinText}>Payjoin</Text>
@@ -189,33 +183,45 @@ export default class Confirm extends Component {
                   />
                 </View>
               )}
-              {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm_sendNow} />}
-
-              <TouchableOpacity
-                testID="TransactionDetailsButton"
-                style={styles.txDetails}
-                onPress={async () => {
-                  if (this.isBiometricUseCapableAndEnabled) {
-                    if (!(await Biometric.unlockWithBiometrics())) {
-                      return;
-                    }
-                  }
-
-                  this.props.navigation.navigate('CreateTransaction', {
-                    fee: this.state.fee,
-                    recipients: this.state.recipients,
-                    memo: this.state.memo,
-                    tx: this.state.tx,
-                    satoshiPerByte: this.state.satoshiPerByte,
-                    wallet: this.state.fromWallet,
-                    feeSatoshi: this.state.feeSatoshi,
-                  });
-                }}
-              >
-                <Text style={styles.txText}>{loc.transactions.details_transaction_details}</Text>
-              </TouchableOpacity>
             </BlueCard>
           </View>
+        </View>
+        <View style={styles.cardBottom}>
+          <BlueCard>
+            <View style={styles.cardText} testID="TransactionFee">
+              <Text style={styles.feeHelper}>
+                {loc.send.create_fee} {currency.satoshiToLocalCurrency(this.state.feeSatoshi)} -
+              </Text> 
+              <Text style={styles.feeBTC}>
+                {formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)}
+              </Text>
+            </View>
+            {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm_sendNow} />}
+
+            <TouchableOpacity
+              testID="TransactionDetailsButton"
+              style={styles.txDetails}
+              onPress={async () => {
+                if (this.isBiometricUseCapableAndEnabled) {
+                  if (!(await Biometric.unlockWithBiometrics())) {
+                    return;
+                  }
+                }
+
+                this.props.navigation.navigate('CreateTransaction', {
+                  fee: this.state.fee,
+                  recipients: this.state.recipients,
+                  memo: this.state.memo,
+                  tx: this.state.tx,
+                  satoshiPerByte: this.state.satoshiPerByte,
+                  wallet: this.state.fromWallet,
+                  feeSatoshi: this.state.feeSatoshi,
+                });
+              }}
+            >
+              <Text style={styles.txText}>{loc.transactions.details_transaction_details}</Text>
+            </TouchableOpacity>
+          </BlueCard>
         </View>
       </SafeBlueArea>
     );
@@ -239,7 +245,7 @@ const styles = StyleSheet.create({
     color: BlueCurrentTheme.colors.feeText,
     fontWeight: '500',
     fontSize: 15,
-    marginVertical: 20,
+    marginVertical: 8,
     textAlign: 'center',
   },
   valueWrap: {
@@ -249,7 +255,7 @@ const styles = StyleSheet.create({
   valueValue: {
     color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 36,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   valueUnit: {
     color: BlueCurrentTheme.colors.alternativeTextColor2,
@@ -271,46 +277,65 @@ const styles = StyleSheet.create({
   root: {
     paddingTop: 19,
     backgroundColor: BlueCurrentTheme.colors.elevated,
-  },
-  rootWrap: {
-    marginTop: 16,
-    alignItems: 'center',
     justifyContent: 'space-between',
   },
-  flat: {
-    maxHeight: '55%',
+  cardTop: {
+    flexGrow: 8,
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  cardBottom: {
+    flexGrow: 1,
+    justifyContent: 'flex-end', 
+    alignItems: 'center',
+
   },
   cardContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingTop: 16,
-    paddingBottom: 16,
+    width: '100%',
   },
+
   cardText: {
+    flexDirection: 'row',
     color: '#37c0a1',
     fontSize: 14,
-    marginHorizontal: 4,
+    marginVertical: 8,
+    marginHorizontal: 24,
     paddingBottom: 6,
     fontWeight: '500',
     alignSelf: 'center',
   },
+  feeHelper: {
+    color: BlueCurrentTheme.colors.feeText,
+    marginRight: 4,
+  },
+  feeBTC: {
+    color: BlueCurrentTheme.colors.feeValue,
+    fontWeight: '600',
+  },
   txDetails: {
-    marginVertical: 24,
+    marginTop: 24,
+
   },
   txText: {
-    color: BlueCurrentTheme.colors.buttonTextColor,
+    color: BlueCurrentTheme.colors.feeText,
     fontSize: 15,
     fontWeight: '500',
     alignSelf: 'center',
   },
   payjoinWrapper: {
     flexDirection: 'row',
-    marginHorizontal: 20,
-    marginBottom: 10,
-    justifyContent: 'space-between',
+    padding: 8,
+    borderRadius: 6,
+    width: '100%',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: BlueCurrentTheme.colors.buttonDisabledBackgroundColor,
   },
-  payjoinText: { color: '#81868e', fontSize: 14 },
+  payjoinText: { 
+    color: '#81868e', 
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
 });
 
 Confirm.propTypes = {
