@@ -172,9 +172,8 @@ export default class Confirm extends Component {
             ItemSeparatorComponent={this.renderSeparator}
           />
           {!!this.state.payjoinUrl && (
-          <View style={styles.cardContainer}>
-            <BlueCard>
-             
+            <View style={styles.cardContainer}>
+              <BlueCard>
                 <View style={styles.payjoinWrapper}>
                   <Text style={styles.payjoinText}>Payjoin</Text>
                   <Switch
@@ -183,9 +182,8 @@ export default class Confirm extends Component {
                     onValueChange={isPayjoinEnabled => this.setState({ isPayjoinEnabled })}
                   />
                 </View>
-             
-            </BlueCard>
-          </View>
+              </BlueCard>
+            </View>
           )}
         </View>
         <View style={styles.cardBottom}>
@@ -193,10 +191,8 @@ export default class Confirm extends Component {
             <View style={styles.cardText} testID="TransactionFee">
               <Text style={styles.feeHelper}>
                 {loc.send.create_fee} {currency.satoshiToLocalCurrency(this.state.feeSatoshi)} -
-              </Text> 
-              <Text style={styles.feeBTC}>
-                {formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)}
               </Text>
+              <Text style={styles.feeBTC}>{formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)}</Text>
             </View>
             {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm_sendNow} />}
 
@@ -288,9 +284,8 @@ const styles = StyleSheet.create({
   },
   cardBottom: {
     flexGrow: 1,
-    justifyContent: 'flex-end', 
+    justifyContent: 'flex-end',
     alignItems: 'center',
-
   },
   cardContainer: {
     flexGrow: 2,
@@ -317,7 +312,6 @@ const styles = StyleSheet.create({
   },
   txDetails: {
     marginTop: 24,
-
   },
   txText: {
     color: BlueCurrentTheme.colors.feeText,
@@ -334,7 +328,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: BlueCurrentTheme.colors.buttonDisabledBackgroundColor,
   },
-  payjoinText: { 
+  payjoinText: {
     color: BlueCurrentTheme.colors.foregroundColor,
     fontSize: 15,
     fontWeight: 'bold',
