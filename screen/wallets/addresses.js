@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useContext } from 'react';
+import React, { useCallback, useState, useContext, useRef, useEffect } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View, StatusBar } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import Privacy from '../../blue_modules/Privacy';
@@ -49,6 +49,8 @@ const WalletAddresses = () => {
 
   const { walletID } = useRoute().params;
 
+  const addressList = useRef();
+
   const wallet = wallets.find(w => w.getID() === walletID);
 
   const balanceUnit = wallet.getPreferredBalanceUnit();
@@ -64,6 +66,12 @@ const WalletAddresses = () => {
       backgroundColor: colors.elevated,
     },
   });
+
+  useEffect(() => {
+    if (showAddresses) {
+      addressList.current.scrollToIndex({ animated: false, index: 0 });
+    }
+  }, [showAddresses]);
 
   const getAddresses = () => {
     const addressList = [];
@@ -108,30 +116,22 @@ const WalletAddresses = () => {
     return <AddressItem {...item} balanceUnit={balanceUnit} onPress={() => navigateToReceive(item)} />;
   };
 
-  const render = () => {
-    if (showAddresses) {
-      return (
-        <View style={stylesHook.root}>
-          <StatusBar barStyle="default" />
-          <FlatList
-            style={stylesHook.root}
-            data={addresses}
-            initialNumToRender={20}
-            contentInsetAdjustmentBehavior="automatic"
-            renderItem={renderRow}
-          />
-        </View>
-      );
-    }
-
-    return (
-      <View style={[stylesHook.root, styles.loading]}>
-        <ActivityIndicator />
-      </View>
-    );
-  };
-
-  return render();
+  return (
+    <View style={[styles.root, stylesHook.root]}>
+      <StatusBar barStyle="default" />
+      <FlatList
+        contentContainerStyle={stylesHook.root}
+        ref={addressList}
+        data={addresses}
+        extraData={addresses}
+        initialNumToRender={40}
+        renderItem={renderRow}
+        ListEmptyComponent={<ActivityIndicator />}
+        centerContent={!showAddresses}
+        contentInsetAdjustmentBehavior="automatic"
+      />
+    </View>
+  );
 };
 
 WalletAddresses.navigationOptions = navigationStyle({
@@ -143,23 +143,5 @@ export default WalletAddresses;
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  loadMoreButton: {
-    borderRadius: 9,
-    minHeight: 49,
-    paddingHorizontal: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    alignSelf: 'auto',
-    flexGrow: 1,
-    marginHorizontal: 16,
-  },
-  loadMoreText: {
-    fontSize: 16,
   },
 });
