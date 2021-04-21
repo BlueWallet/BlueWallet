@@ -171,9 +171,10 @@ export default class Confirm extends Component {
             keyExtractor={(_item, index) => `${index}`}
             ItemSeparatorComponent={this.renderSeparator}
           />
+          {!!this.state.payjoinUrl && (
           <View style={styles.cardContainer}>
             <BlueCard>
-              {!!this.state.payjoinUrl && (
+             
                 <View style={styles.payjoinWrapper}>
                   <Text style={styles.payjoinText}>Payjoin</Text>
                   <Switch
@@ -182,9 +183,10 @@ export default class Confirm extends Component {
                     onValueChange={isPayjoinEnabled => this.setState({ isPayjoinEnabled })}
                   />
                 </View>
-              )}
+             
             </BlueCard>
           </View>
+          )}
         </View>
         <View style={styles.cardBottom}>
           <BlueCard>
@@ -291,6 +293,7 @@ const styles = StyleSheet.create({
 
   },
   cardContainer: {
+    flexGrow: 2,
     width: '100%',
   },
 
@@ -309,7 +312,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   feeBTC: {
-    color: BlueCurrentTheme.colors.feeValue,
+    color: BlueCurrentTheme.colors.receiveText,
     fontWeight: '600',
   },
   txDetails: {
@@ -332,7 +335,7 @@ const styles = StyleSheet.create({
     backgroundColor: BlueCurrentTheme.colors.buttonDisabledBackgroundColor,
   },
   payjoinText: { 
-    color: '#81868e', 
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontSize: 15,
     fontWeight: 'bold',
   },
