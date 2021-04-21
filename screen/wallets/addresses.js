@@ -117,7 +117,7 @@ const WalletAddresses = () => {
   };
 
   return (
-    <View style={[showAddresses ? styles.root : styles.loading, stylesHook.root]}>
+    <View style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="default" />
       <FlatList
         contentContainerStyle={stylesHook.root}
@@ -143,9 +143,5 @@ export default WalletAddresses;
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
   },
 });
