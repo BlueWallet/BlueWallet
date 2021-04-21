@@ -7,7 +7,7 @@ import { PayjoinClient } from 'payjoin-client';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import PayjoinTransaction from '../../class/payjoin-transaction';
-import { BlueButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing40 } from '../../BlueComponents';
+import { BlueButton, BlueText, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import Biometric from '../../class/biometrics';
