@@ -110,6 +110,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
   },
+  row: {
+    flexDirection: 'row',
+  },
+  secondrow: {
+    marginLeft: 16,
+  },
 });
 
 const WalletDetails = () => {
@@ -120,6 +126,8 @@ const WalletDetails = () => {
   const wallet = useRef(wallets.find(w => w.getID() === walletID)).current;
   const [walletName, setWalletName] = useState(wallet.getLabel());
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
+  const { isAdancedModeEnabled } = useContext(BlueStorageContext);
+  const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
   const { goBack, navigate, setOptions, popToTop } = useNavigation();
   const { colors } = useTheme();
@@ -165,6 +173,7 @@ const WalletDetails = () => {
   };
 
   useEffect(() => {
+    isAdancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     setOptions({
       headerRight: () => (
@@ -485,13 +494,6 @@ const WalletDetails = () => {
               </>
             )}
 
-            {!!wallet.getDerivationPath() && (
-              <>
-                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_derivation_path}</Text>
-                <BlueText>{wallet.getDerivationPath()}</BlueText>
-              </>
-            )}
-
             {wallet.type === LightningCustodianWallet.type && (
               <>
                 <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.details_connected_to.toLowerCase()}</Text>
@@ -532,11 +534,22 @@ const WalletDetails = () => {
                   </View>
                 </>
               )}
-              {wallet.allowMasterFingerprint() && (
-                <>
-                  <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_master_fingerprint.toLowerCase()}</Text>
-                  <BlueText>{wallet.getMasterFingerprintHex()}</BlueText>
-                </>
+              {isAdvancedModeEnabledRender && (
+                <View style={styles.row}>
+                  {wallet.allowMasterFingerprint() && (
+                    <View>
+                      <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_master_fingerprint.toLowerCase()}</Text>
+                      <BlueText>{wallet.getMasterFingerprintHex()}</BlueText>
+                    </View>
+                  )}
+
+                  {!!wallet.getDerivationPath() && (
+                    <View style={styles.secondrow}>
+                      <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_derivation_path}</Text>
+                      <BlueText>{wallet.getDerivationPath()}</BlueText>
+                    </View>
+                  )}
+                </View>
               )}
             </View>
           </BlueCard>
