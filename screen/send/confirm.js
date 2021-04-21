@@ -188,11 +188,11 @@ export default class Confirm extends Component {
         </View>
         <View style={styles.cardBottom}>
           <BlueCard>
-            <View style={styles.cardText} testID="TransactionFee">
+            <View style={styles.cardText}>
               <Text style={styles.feeHelper}>
                 {loc.send.create_fee} {currency.satoshiToLocalCurrency(this.state.feeSatoshi)} -
               </Text>
-              <Text style={styles.feeBTC}>{formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)}</Text>
+              <Text style={styles.feeBTC} testID="TransactionFee">{formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)}</Text>
             </View>
             {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm_sendNow} />}
 
