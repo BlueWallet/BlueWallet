@@ -136,12 +136,12 @@
     "ask": "Have you saved your wallet’s backup phrase? This backup phrase is required to access your funds in case you lose this device. Without the backup phrase, your funds will be permanently lost.",
     "ask_no": "No, I have not",
     "ask_yes": "Yes, I have",
-    "ok": "OK, I wrote this down.",
-    "ok_lnd": "OK, I have saved it.",
-    "text": "Please take a moment to write down this mnemonic phrase on a piece of paper. It’s your backup you can use to restore the wallet on another device.",
+    "ok": "OK, I wrote it down",
+    "ok_lnd": "OK, I have saved it",
+    "text": "Please take a moment to write down this mnemonic phrase on a piece of paper.\nIt’s your backup and you can use it to recover the wallet.",
     "text_lnd": "Please save this wallet backup. It allows you to restore the wallet in case of loss.",
     "text_lnd2": "This wallet is hosted by BlueWallet.",
-    "title": "Your wallet has been created."
+    "title": "Your wallet has been created"
   },
   "receive": {
     "details_create": "Create",

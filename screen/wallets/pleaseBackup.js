@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, StatusBar, I18nManager } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
-import { BlueSpacing20, SafeBlueArea, BlueText, BlueButton } from '../../BlueComponents';
+import { SafeBlueArea, BlueButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
@@ -71,15 +71,15 @@ const PleaseBackup = () => {
     </View>
   ) : (
     <SafeBlueArea style={stylesHook.flex}>
-      <StatusBar barStyle="default" />
-      <ScrollView testID="PleaseBackupScrollView">
+      <StatusBar barStyle="light-content" />
+      <ScrollView contentContainerStyle={styles.flex} testID="PleaseBackupScrollView">
         <View style={styles.please}>
-          <BlueText style={[styles.successText, stylesHook.successText]}>{loc.pleasebackup.success}</BlueText>
-          <BlueText style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</BlueText>
-
+          <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</Text>
+        </View>
+        <View style={styles.list}>
           <View style={styles.secret}>{renderSecret()}</View>
-
-          <BlueSpacing20 />
+        </View>
+        <View style={styles.bottom}>
           <BlueButton testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
         </View>
       </ScrollView>
@@ -103,6 +103,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
+  flex: {
+    flex: 1,
+    justifyContent: 'space-around',
+  },
   word: {
     marginRight: 8,
     marginBottom: 8,
@@ -115,19 +119,29 @@ const styles = StyleSheet.create({
   wortText: {
     fontWeight: 'bold',
     textAlign: 'left',
+    fontSize: 17,
   },
   please: {
-    alignItems: 'center',
+    flexGrow: 1,
     paddingHorizontal: 16,
+  },
+  list: {
+    flexGrow: 8,
+    paddingHorizontal: 16,
+  },
+  bottom: {
+    flexGrow: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   successText: {
     textAlign: 'center',
     fontWeight: 'bold',
   },
   pleaseText: {
-    paddingBottom: 10,
-    paddingRight: 0,
-    paddingLeft: 0,
+    marginVertical: 16,
+    fontSize: 16,
+    fontWeight: '500',
   },
   secret: {
     flexWrap: 'wrap',
