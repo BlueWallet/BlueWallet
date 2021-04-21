@@ -271,8 +271,6 @@ PODS:
     - React-Core
   - react-native-safe-area-context (3.2.0):
     - React-Core
-  - react-native-slider (3.0.3):
-    - React
   - react-native-tcp-socket (3.7.1):
     - CocoaAsyncSocket
     - React
@@ -457,7 +455,6 @@ DEPENDENCIES:
   - react-native-is-catalyst (from `../node_modules/react-native-is-catalyst`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
-  - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - react-native-widget-center (from `../node_modules/react-native-widget-center`)
@@ -578,8 +575,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
-  react-native-slider:
-    :path: "../node_modules/@react-native-community/slider"
   react-native-tcp-socket:
     :path: "../node_modules/react-native-tcp-socket"
   react-native-webview:
@@ -713,7 +708,6 @@ SPEC CHECKSUMS:
   react-native-is-catalyst: 52ee70e0123c82419dd4ce47dc4cc94b22467512
   react-native-randombytes: 45ae693012df24c9a07a5e578b3b567c01468581
   react-native-safe-area-context: e471852c5ed67eea4b10c5d9d43c1cebae3b231d
-  react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
   react-native-webview: 30f048378c6cee522ed9bbbedbc34acb21e58188
   react-native-widget-center: 0f81d17beb163e7fb5848b06754d7d277fe7d99a
