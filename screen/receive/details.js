@@ -192,9 +192,14 @@ const ReceiveDetails = () => {
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>
-         <BlueCard>
-          <BlueButtonLink style={styles.link} testID="SetCustomAmountButton" title={loc.receive.details_setAmount} onPress={showCustomAmountModal} />
-          <BlueButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+          <BlueCard>
+            <BlueButtonLink
+              style={styles.link}
+              testID="SetCustomAmountButton"
+              title={loc.receive.details_setAmount}
+              onPress={showCustomAmountModal}
+            />
+            <BlueButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </BlueCard>
         </View>
         {renderCustomAmountModal()}
