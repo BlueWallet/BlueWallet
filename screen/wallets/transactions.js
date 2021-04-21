@@ -151,7 +151,7 @@ const WalletTransactions = () => {
 
   // refresh transactions if it never hasn't been done. It could be a fresh imported wallet
   useEffect(() => {
-    if (wallet._lastTxFetch === 0) {
+    if (wallet.getLastTxFetch() === 0) {
       refreshTransactions();
     }
     refreshLNDNodeInfo();

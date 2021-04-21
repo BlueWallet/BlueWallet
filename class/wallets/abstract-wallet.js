@@ -37,6 +37,13 @@ export class AbstractWallet {
     this._utxoMetadata = {};
   }
 
+  /**
+   * @returns {number} Timestamp (millisecsec) of when last transactions were fetched from the network
+   */
+  getLastTxFetch() {
+    return this._lastTxFetch;
+  }
+
   getID() {
     return createHash('sha256').update(this.getSecret()).digest().toString('hex');
   }
