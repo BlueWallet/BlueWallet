@@ -18,12 +18,12 @@ import {
   BlueLoading,
   BlueCopyTextToClipboard,
   BlueButton,
-  SecondButton,
   BlueButtonLink,
   is,
   BlueText,
   BlueSpacing20,
   BlueAlertWalletExportReminder,
+  BlueCard,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
@@ -91,21 +91,30 @@ const ReceiveDetails = () => {
     root: {
       flex: 1,
       backgroundColor: colors.elevated,
-    },
-    scroll: {
       justifyContent: 'space-between',
     },
     scrollBody: {
+      flexGrow: 3,
       marginTop: 32,
       alignItems: 'center',
       paddingHorizontal: 16,
+    },
+    share: {
+      justifyContent: 'center',
+      paddingVertical: 16,
+      alignItems: 'center',
+      flexGrow: 1,
+      marginBottom: 8,
+    },
+    link: {
+      marginVertical: 16,
+      paddingHorizontal: 32,
     },
     amount: {
       color: colors.foregroundColor,
       fontWeight: '600',
       fontSize: 36,
       textAlign: 'center',
-      paddingBottom: 24,
     },
     label: {
       color: colors.foregroundColor,
@@ -118,10 +127,6 @@ const ReceiveDetails = () => {
       width: 300,
       height: 300,
       backgroundColor: colors.elevated,
-    },
-    share: {
-      marginBottom: 24,
-      marginHorizontal: 16,
     },
     modalButton: {
       backgroundColor: colors.modalButton,
@@ -147,7 +152,7 @@ const ReceiveDetails = () => {
   };
   const renderReceiveDetails = () => {
     return (
-      <ScrollView style={styles.root} contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
+      <ScrollView contentContainerStyle={styles.root} keyboardShouldPersistTaps="always">
         <View style={styles.scrollBody}>
           {isCustom && (
             <>
@@ -187,10 +192,10 @@ const ReceiveDetails = () => {
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>
-          <BlueButtonLink testID="SetCustomAmountButton" title={loc.receive.details_setAmount} onPress={showCustomAmountModal} />
-          <View>
-            <SecondButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
-          </View>
+         <BlueCard>
+          <BlueButtonLink style={styles.link} testID="SetCustomAmountButton" title={loc.receive.details_setAmount} onPress={showCustomAmountModal} />
+          <BlueButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+          </BlueCard>
         </View>
         {renderCustomAmountModal()}
       </ScrollView>
