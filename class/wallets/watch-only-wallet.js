@@ -16,6 +16,14 @@ export class WatchOnlyWallet extends LegacyWallet {
     this.masterFingerprint = false;
   }
 
+  /**
+   * @inheritDoc
+   */
+  getLastTxFetch() {
+    if (this._hdWalletInstance) return this._hdWalletInstance.getLastTxFetch();
+    return super.getLastTxFetch();
+  }
+
   allowSend() {
     return this.useWithHardwareWalletEnabled() && this.isHd() && this._hdWalletInstance.allowSend();
   }
