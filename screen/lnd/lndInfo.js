@@ -159,7 +159,6 @@ const LndInfo = () => {
               shadowOpacity: 0,
               shadowOffset: { height: 0, width: 0 },
             },
-            gestureEnabled: false,
           }
         : {
             headerStyle: {
@@ -677,7 +676,6 @@ LndInfo.navigationOptions = navigationStyle(
       route.params.isModal === true
         ? {
             headerLeft: null,
-            gestureEnabled: false,
           }
         : {
             headerRight: null,
