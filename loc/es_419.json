@@ -136,12 +136,12 @@
     "ask": "¿Has guardado la frase de respaldo de tu billetera? Esta frase de respaldo es necesaria para acceder a tus fondos en caso de que pierdas este dispositivo. Sin la frase de respaldo, tus fondos se perderán permanentemente.",
     "ask_no": "No, no tengo",
     "ask_yes": "Sí, tengo",
-    "ok": "OK, escribí esto.",
-    "ok_lnd": "OK, lo he guardado.",
-    "text": "Toma un momento para escribir esta frase mnemotécnica en una hoja de papel. Es tu copia de seguridad que puedes usar para restaurar la billetera en otro dispositivo.",
+    "ok": "OK, lo escribí",
+    "ok_lnd": "OK, lo he guardado",
+    "text": "Tómate un momento para escribir esta frase mnemotécnica en una hoja de papel.\nEs tu copia de seguridad y puedes usarla para recuperar la billetera.",
     "text_lnd": "Guarda esta copia de seguridad de la billetera. Te permite restaurar la billetera en caso de pérdida.",
     "text_lnd2": "Esta billetera está alojada en BlueWallet.",
-    "title": "Tu Billetera está creada."
+    "title": "Tu billetera ha sido creada"
   },
   "receive": {
     "details_create": "Crear",
@@ -573,7 +573,7 @@
     "sign_placeholder_message": "Mensaje",
     "sign_placeholder_signature": "Firma",
     "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "¿Quieres enviar un mensaje firmado a\n{hostname}?",
+    "sign_aopp_confirm": "¿Quieres enviar un mensaje firmado a {hostname}?",
     "address_balance": "Saldo: {balance} sats",
     "addresses_title": "Direcciones",
     "type_change": "Cambio",
