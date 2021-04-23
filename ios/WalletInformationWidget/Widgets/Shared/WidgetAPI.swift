@@ -17,7 +17,6 @@ var numberFormatter: NumberFormatter {
   formatter.numberStyle = .decimal
   formatter.maximumFractionDigits = 0
   formatter.locale = Locale.current
-  formatter.groupingSeparator = " "
   return formatter
 }
 
