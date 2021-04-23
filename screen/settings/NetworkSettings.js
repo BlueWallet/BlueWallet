@@ -13,6 +13,10 @@ const NetworkSettings = () => {
     navigate('ElectrumSettings');
   };
 
+  const navigateToTorSettings = () => {
+    navigate('TorSettings');
+  };
+
   const navigateToLightningSettings = () => {
     navigate('LightningSettings');
   };
@@ -30,6 +34,7 @@ const NetworkSettings = () => {
             chevron
           />
         )}
+        <BlueListItem title={loc.settings.tor_settings} onPress={navigateToTorSettings} testID="TorSettings" chevron />
       </ScrollView>
     </SafeBlueArea>
   );

@@ -1,6 +1,6 @@
 const bitcoin = require('bitcoinjs-lib');
-global.net = require('net');
-global.tls = require('tls');
+const net = require('net');
+const tls = require('tls');
 
 const assert = require('assert');
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
@@ -19,7 +19,7 @@ describe('ElectrumClient', () => {
     const ElectrumClient = require('electrum-client');
 
     for (const peer of hardcodedPeers) {
-      const mainClient = new ElectrumClient(peer.ssl || peer.tcp, peer.host, peer.ssl ? 'tls' : 'tcp');
+      const mainClient = new ElectrumClient(net, tls, peer.ssl || peer.tcp, peer.host, peer.ssl ? 'tls' : 'tcp');
 
       try {
         await mainClient.connect();

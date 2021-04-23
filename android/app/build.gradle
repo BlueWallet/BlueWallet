@@ -178,6 +178,7 @@ android {
 dependencies {
     implementation files("../../node_modules/rn-lnd/android/libs/Lndmobile.aar")
     implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")
     //noinspection GradleDynamicVersion
     
     androidTestImplementation('com.wix:detox:+') {
