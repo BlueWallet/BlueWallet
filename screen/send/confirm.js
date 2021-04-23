@@ -15,10 +15,12 @@ import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import Notifications from '../../blue_modules/notifications';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { Psbt } from 'bitcoinjs-lib';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
+const torrific = require('../../blue_modules/torrific');
 
 export default class Confirm extends Component {
   static contextType = BlueStorageContext;
@@ -69,11 +71,38 @@ export default class Confirm extends Component {
         } else {
           const wallet = new PayjoinTransaction(this.state.psbt, txHex => this.broadcast(txHex), this.state.fromWallet);
           const paymentScript = this.getPaymentScript();
-          const payjoinClient = new PayjoinClient({
-            paymentScript,
-            wallet,
-            payjoinUrl: this.state.payjoinUrl,
-          });
+          let payjoinClient;
+          if (this.state.payjoinUrl.includes('.onion')) {
+            console.warn('trying TOR....');
+            const payjoinUrl = this.state.payjoinUrl;
+            // working through TOR - crafting custom requester that will handle TOR http request
+            const customPayjoinRequester = {
+              requestPayjoin: async function (psbt: Psbt) {
+                console.warn('requesting payjoin with psbt:', psbt.toBase64());
+                const api = new torrific.Torsbee();
+                const torResponse = await api.post(payjoinUrl, {
+                  headers: {
+                    'Content-Type': 'text/plain',
+                  },
+                  body: psbt.toBase64(),
+                });
+                console.warn('got torResponse.body');
+                if (!torResponse.body) throw new Error('TOR failure, got ' + JSON.stringify(torResponse));
+                return Psbt.fromBase64(torResponse.body);
+              },
+            };
+            payjoinClient = new PayjoinClient({
+              paymentScript,
+              wallet,
+              payjoinRequester: customPayjoinRequester,
+            });
+          } else {
+            payjoinClient = new PayjoinClient({
+              paymentScript,
+              wallet,
+              payjoinUrl: this.state.payjoinUrl,
+            });
+          }
           await payjoinClient.run();
           const payjoinPsbt = wallet.getPayjoinPsbt();
           if (payjoinPsbt) {

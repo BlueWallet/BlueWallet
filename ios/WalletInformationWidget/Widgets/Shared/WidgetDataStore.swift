@@ -27,6 +27,7 @@ struct WidgetDataStore: Codable {
     let numberFormatter = NumberFormatter()
     numberFormatter.locale = Locale(identifier: WidgetAPI.getUserPreferredCurrencyLocale())
     numberFormatter.numberStyle = .currency
+    numberFormatter.usesSignificantDigits = true
     numberFormatter.maximumFractionDigits = 0
     numberFormatter.minimumFractionDigits = 0
     numberFormatter.currencySymbol = ""
