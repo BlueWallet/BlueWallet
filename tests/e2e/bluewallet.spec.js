@@ -528,7 +528,7 @@ describe('BlueWallet UI Tests', () => {
     await yo('TransactionValue');
     expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     const transactionFee = await extractTextFromElementById('TransactionFee');
-    assert.ok('0.00000748 BTC');
+    assert.ok(transactionFee.startsWith('Fee: 0.00000748 BTC'), 'Unexpected tx fee: ' + transactionFee);
     await element(by.id('TransactionDetailsButton')).tap();
 
     let txhex = await extractTextFromElementById('TxhexInput');
@@ -543,7 +543,7 @@ describe('BlueWallet UI Tests', () => {
     const totalIns = 100000 + 5526; // we hardcode it since we know it in advance
     const totalOuts = transaction.outs.map(el => el.value).reduce((a, b) => a + b, 0);
     assert.strictEqual(Math.round((totalIns - totalOuts) / (txhex.length / 2)), feeRate);
-    assert.strictEqual(transactionFee.split(' ')[1] * 100000000, totalIns - totalOuts);
+    assert.strictEqual(transactionFee.split(' ')[0] * 100000000, totalIns - totalOuts);
 
     if (device.getPlatform() === 'ios') {
       console.warn('rest of the test is Android only, skipped');
