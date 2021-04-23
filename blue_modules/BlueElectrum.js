@@ -1,6 +1,6 @@
 /* global alert */
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform, Alert } from 'react-native';
+import { Alert } from 'react-native';
 import { AppStorage, LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
 import DefaultPreference from 'react-native-default-preference';
 import RNWidgetCenter from 'react-native-widget-center';
@@ -9,6 +9,7 @@ const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
 const BigNumber = require('bignumber.js');
+const torrific = require('../blue_modules/torrific');
 
 const storageKey = 'ELECTRUM_PEERS';
 const defaultPeer = { host: 'electrum1.bluewallet.io', ssl: '443' };
@@ -48,11 +49,19 @@ async function connectMain() {
     usingPeer = savedPeer;
   }
 
+  await DefaultPreference.setName('group.io.bluewallet.bluewallet');
   try {
-    await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-    await DefaultPreference.set(AppStorage.ELECTRUM_HOST, usingPeer.host);
-    await DefaultPreference.set(AppStorage.ELECTRUM_TCP_PORT, usingPeer.tcp);
-    await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, usingPeer.ssl);
+    if (usingPeer.host.endsWith('onion')) {
+      const randomPeer = await getRandomHardcodedPeer();
+      await DefaultPreference.set(AppStorage.ELECTRUM_HOST, randomPeer.host);
+      await DefaultPreference.set(AppStorage.ELECTRUM_TCP_PORT, randomPeer.tcp);
+      await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, randomPeer.ssl);
+    } else {
+      await DefaultPreference.set(AppStorage.ELECTRUM_HOST, usingPeer.host);
+      await DefaultPreference.set(AppStorage.ELECTRUM_TCP_PORT, usingPeer.tcp);
+      await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, usingPeer.ssl);
+    }
+
     RNWidgetCenter.reloadAllTimelines();
   } catch (e) {
     // Must be running on Android
@@ -61,19 +70,26 @@ async function connectMain() {
 
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
-    mainClient = new ElectrumClient(usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp');
+    mainClient = new ElectrumClient(
+      usingPeer.host.endsWith('.onion') ? torrific : global.net,
+      global.tls,
+      usingPeer.ssl || usingPeer.tcp,
+      usingPeer.host,
+      usingPeer.ssl ? 'tls' : 'tcp',
+    );
     mainClient.onError = function (e) {
-      if (Platform.OS === 'android' && mainConnected) {
-        // android sockets are buggy and dont always issue CLOSE event, which actually makes the persistence code to reconnect.
-        // so lets do it manually, but only if we were previously connected (mainConnected), otherwise theres other
+      console.log('electrum mainClient.onError():', e.message);
+      if (mainConnected) {
+        // most likely got a timeout from electrum ping. lets reconnect
+        // but only if we were previously connected (mainConnected), otherwise theres other
         // code which does connection retries
         mainClient.close();
         mainConnected = false;
-        setTimeout(connectMain, 500);
+        // dropping `mainConnected` flag ensures there wont be reconnection race condition if several
+        // errors triggered
         console.log('reconnecting after socket error');
-        return;
+        setTimeout(connectMain, usingPeer.host.endsWith('.onion') ? 4000 : 500);
       }
-      mainConnected = false;
     };
     const ver = await mainClient.initElectrum({ client: 'bluewallet', version: '1.4' });
     if (ver && ver[0]) {
@@ -104,6 +120,7 @@ async function connectMain() {
     if (connectionAttempt >= 5) {
       presentNetworkErrorAlert(usingPeer);
     } else {
+      console.log('reconnection attempt #', connectionAttempt);
       setTimeout(connectMain, 500);
     }
   }
@@ -249,8 +266,8 @@ module.exports.getConfig = async function () {
   return {
     host: mainClient.host,
     port: mainClient.port,
-    status: mainClient.status ? 1 : 0,
     serverName,
+    connected: mainClient.timeLastCall !== 0 && mainClient.status,
   };
 };
 
@@ -522,18 +539,19 @@ module.exports.waitTillConnected = async function () {
     waitTillConnectedInterval = setInterval(() => {
       if (mainConnected) {
         clearInterval(waitTillConnectedInterval);
-        resolve(true);
+        return resolve(true);
       }
 
       if (wasConnectedAtLeastOnce && mainClient.status === 1) {
         clearInterval(waitTillConnectedInterval);
         mainConnected = true;
-        resolve(true);
+        return resolve(true);
       }
 
-      if (retriesCounter++ >= 30) {
+      if (wasConnectedAtLeastOnce && retriesCounter++ >= 30) {
+        // `wasConnectedAtLeastOnce` needed otherwise theres gona be a race condition with the code that connects
+        // electrum during app startup
         clearInterval(waitTillConnectedInterval);
-        connectionAttempt = 0;
         presentNetworkErrorAlert();
         reject(new Error('Waiting for Electrum connection timeout'));
       }
@@ -600,7 +618,12 @@ module.exports.calcEstimateFeeFromFeeHistorgam = function (numberOfBlocks, feeHi
 };
 
 module.exports.estimateFees = async function () {
-  const histogram = await mainClient.mempool_getFeeHistogram();
+  let histogram;
+  try {
+    histogram = await Promise.race([mainClient.mempool_getFeeHistogram(), new Promise(resolve => setTimeout(resolve, 5000))]);
+  } catch (_) {}
+
+  if (!histogram) throw new Error('timeout while getting mempool_getFeeHistogram');
 
   // fetching what electrum (which uses bitcoin core) thinks about fees:
   const _fast = await module.exports.estimateFee(1);
@@ -685,13 +708,20 @@ module.exports.calculateBlockTime = function (height) {
  * @returns {Promise<boolean>} Whether provided host:port is a valid electrum server
  */
 module.exports.testConnection = async function (host, tcpPort, sslPort) {
-  const client = new ElectrumClient(sslPort || tcpPort, host, sslPort ? 'tls' : 'tcp');
+  const client = new ElectrumClient(
+    host.endsWith('.onion') ? torrific : global.net,
+    global.tls,
+    sslPort || tcpPort,
+    host,
+    sslPort ? 'tls' : 'tcp',
+  );
+
   client.onError = () => {}; // mute
   let timeoutId = false;
   try {
     const rez = await Promise.race([
       new Promise(resolve => {
-        timeoutId = setTimeout(() => resolve('timeout'), 3000);
+        timeoutId = setTimeout(() => resolve('timeout'), host.endsWith('.onion') ? 21000 : 5000);
       }),
       client.connect(),
     ]);
@@ -714,6 +744,7 @@ module.exports.forceDisconnect = () => {
 };
 
 module.exports.hardcodedPeers = hardcodedPeers;
+module.exports.getRandomHardcodedPeer = getRandomHardcodedPeer;
 
 const splitIntoChunks = function (arr, chunkSize) {
   const groups = [];

@@ -220,9 +220,11 @@ export default class ElectrumSettings extends Component {
           <BlueCard>
             <BlueText style={styles.status}>{loc.settings.electrum_status}</BlueText>
             <View style={styles.connectWrap}>
-              <View style={[styles.container, this.state.config.status === 1 ? styles.containerConnected : styles.containerDisconnected]}>
-                <BlueText style={this.state.config.status === 1 ? styles.textConnected : styles.textDisconnected}>
-                  {this.state.config.status === 1 ? loc.settings.electrum_connected : loc.settings.electrum_connected_not}
+              <View
+                style={[styles.container, this.state.config.connected === 1 ? styles.containerConnected : styles.containerDisconnected]}
+              >
+                <BlueText style={this.state.config.connected === 1 ? styles.textConnected : styles.textDisconnected}>
+                  {this.state.config.connected === 1 ? loc.settings.electrum_connected : loc.settings.electrum_connected_not}
                 </BlueText>
               </View>
             </View>
@@ -287,6 +289,7 @@ export default class ElectrumSettings extends Component {
                 testID="SSLPortInput"
               />
             </View>
+            <BlueText style={styles.torSupported}>{loc.settings.tor_supported}</BlueText>
             <BlueSpacing20 />
             <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={this.importScan} />
             <BlueSpacing20 />
@@ -401,5 +404,8 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderBottomWidth: 1,
+  },
+  torSupported: {
+    color: '#81868e',
   },
 });
