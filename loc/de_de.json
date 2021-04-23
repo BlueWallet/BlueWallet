@@ -136,9 +136,9 @@
     "ask": "Hast Du die Wiederherstellungs-Phrase deines Wallets gesichert? Ohne Sie kannst Du nicht mehr auf deine bitcoin zugreifen und sie wären für immer verloren, sollte dein Gerät verloren oder kaputt gehen.",
     "ask_no": "Nein, habe ich nicht.",
     "ask_yes": "Ja, habe ich.",
-    "ok": "Ja, ich habe sie aufgeschrieben!",
-    "ok_lnd": "Die Sicherung ist erstellt.",
-    "text": "Nimm Dir Zeit die mnemonische Phrase zur späteren Wiederherstellung auf Papier zu schreiben. Die Wörter sind dein Backup im Fall eines Geräteverlustes.",
+    "ok": "Ok, ich habe sie notiert.",
+    "ok_lnd": "OK. Die Sicherung ist erstellt.",
+    "text": "Nimm Dir Zeit die mnemonischen Wörter auf ein Papier zu schreiben.\nDie Wörter sind dein Backup zur Wallet-Wiederherstellung.",
     "text_lnd": "Zur Wiederherstellung des Wallet im Verlustfall bitte dieses Wallet-Backup sichern. ",
     "text_lnd2": "Diese Wallet wird durch BlueWallet verwaltet.",
     "title": "Dein Wallet ist erstellt."
@@ -276,6 +276,7 @@
     "electrum_history": "Serverhistorie",
     "electrum_reset_to_default": "Sollen die Electrum-Einstellungen wirklich auf die Standardwerte zurückgesetzt werden?",
     "electrum_clear": "Löschen",
+    "tor_supported": "TOR-Unterstützung",
     "encrypt_decrypt": "Speicher entschlüsseln",
     "encrypt_decrypt_q": "Willst du die Speicherverschlüsselung wirklich aufheben? Hiermit wird dein Wallet ohne Passwortschutz direkt benutzbar. ",
     "encrypt_del_uninstall": "Bei Deinstallation löschen",
@@ -296,6 +297,7 @@
     "lightning_error_lndhub_uri": "Keine gültige LndHub URI",
     "lightning_saved": "Deine Änderungen wurden gespeichert.",
     "lightning_settings": "Lightning-Einstellungen",
+    "tor_settings": "TOR-Einstellungen",
     "lightning_settings_explain": "Zur Verbindung mit einem eigenen LND-Knoten ein LNDHub installieren und dessen URL hier eingeben. Das Feld leer lassen, um den LNDHub (lndhub.io) von BlueWallet zur verwenden. Nach dem Speichern werden sich neu erstellte Wallets mit dem angegebenen LNDHub verbinden.",
     "network": "Netzwerk",
     "network_broadcast": "Transaktion publizieren",
@@ -565,15 +567,23 @@
     "sign_title": "Meldung signieren/verifizieren",
     "sign_help": "Kryptografische Signatur für eine Bitcoin-Adresse erstellen oder verifizieren",
     "sign_sign": "Signieren",
+    "sign_sign_submit": "Signieren und übertragen",
     "sign_verify": "Verifizieren",
     "sign_signature_correct": "Verifizierung erfolgreich!",
     "sign_signature_incorrect": "Verifizierung fehlgeschlagen!",
     "sign_placeholder_address": "Adresse",
     "sign_placeholder_message": "Meldung",
     "sign_placeholder_signature": "Signatur",
+    "sign_aopp_title": "AOPP",
+    "sign_aopp_confirm": "Senden der signierten Nachricht nach {hostname}?",
     "address_balance": "Guthaben: {balance} sats",
     "addresses_title": "Adressen",
     "type_change": "Wechsel",
     "type_receive": "Empfang"
+  },
+  "aopp": {
+    "title": "Adresse wählen",
+    "send_success": "Signatur erfolgreich gesendet",
+    "send_error": "Fehler beim Senden der Signatur"
   }
 }
