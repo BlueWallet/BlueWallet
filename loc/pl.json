@@ -136,12 +136,12 @@
     "ask": "Czy zapisałeś już słowa klucze? Są one niezbędne, by dysponować środkami, w przypadku zgubienia tego urządzenia. Bez słów kluczy, twoje środki przepadną na zawsze,",
     "ask_no": "Nie mam",
     "ask_yes": "Mam",
-    "ok": "OK, zanotowałem!",
-    "ok_lnd": "OK, zachowałem.",
-    "text": "Proszę poświęć chwilę, żeby zapisać to wyrażenie mnemoniczne na kartce papieru, To twoja kopia zapasowa, możesz użyć jej, aby odtworzyć portfel na innym urządzeniu.",
+    "ok": "OK, zapisałem",
+    "ok_lnd": "OK, zapisałem ",
+    "text": "Poświęć whilę by zapisać tę frazę mnemoniczną na kartce papieru\nTo Twoja kopia zapasowa, którą możesz użyć później by odtworzyć portfel.",
     "text_lnd": "Proszę, poświęć chwilę, żeby zapisać to uwierzytelnienie LNDHub. To twoja kopia zapasowa, możesz użyć jej, aby odtworzyć portfel na innym urządzeniu.",
     "text_lnd2": "Ten portfel jest obsługiwany przez BlueWallet.",
-    "title": "Twój portfel został utworzony ..."
+    "title": "Twój portfel został utworzony"
   },
   "receive": {
     "details_create": "Stwórz",
@@ -276,6 +276,7 @@
     "electrum_history": "Historia serwerów",
     "electrum_reset_to_default": "Czy na pewno ustawić domyślne ustawienia Electrum?",
     "electrum_clear": "Wyczyść",
+    "tor_supported": "TOR obsługiwany",
     "encrypt_decrypt": "Odszyfruj Schowek",
     "encrypt_decrypt_q": "Czy jesteś pewien, że chcesz odszyfrować schowek? To pozwoli na dostęp do twoich portfeli bez hasła.",
     "encrypt_del_uninstall": "Usuń, jeżeli BlueWallet jest odinstalowany.",
@@ -296,6 +297,7 @@
     "lightning_error_lndhub_uri": "Niepoprawny LndHub URI",
     "lightning_saved": "Wprowadzone przez ciebie zmiany zostały pomyślnie zachowane.",
     "lightning_settings": "Ustawienia Lightning",
+    "tor_settings": "Ustawienia TOR",
     "lightning_settings_explain": "Aby podłączyć się do własnego node LND, zainstaluj najperw LndHub i wklej jego URL tutaj w ustawieniach. Zostaw puste by użyć LNDHub'a należącego do BlueWallet (lndhub.io). Portfele stworzone po zapisaniu zmian połączą się ze wskazanym LNDHub.",
     "network": "Sieć",
     "network_broadcast": "Rozgłoś transakcje",
@@ -565,15 +567,23 @@
     "sign_title": "Podpisz/Zweryfikuj wiadomość",
     "sign_help": "Tutaj możesz utworzyć lub zweryfikować kryptograficzny podpis w oparciu o adres Bitcoin",
     "sign_sign": "Podpisz",
+    "sign_sign_submit": "Podpisz i Wyślij",
     "sign_verify": "Weryfikuj",
     "sign_signature_correct": "Weryfikacja pomyślna!",
     "sign_signature_incorrect": "Weryfikacja nie powiodła się!",
     "sign_placeholder_address": "Adres",
     "sign_placeholder_message": "Wiadomość",
     "sign_placeholder_signature": "Podpis",
+    "sign_aopp_title": "AOPP",
+    "sign_aopp_confirm": "Czy chcesz wysłać podpisaną wiadomość do [hostname]?",
     "address_balance": "Saldo: {balance} sats",
     "addresses_title": "Adresy",
     "type_change": "Reszta",
     "type_receive": "Otrzymaj"
+  },
+  "aopp": {
+    "title": "Wybierz adres",
+    "send_success": "Podpis wysłany z powodzeniem",
+    "send_error": "Błąd wysyłania podpisu"
   }
 }
