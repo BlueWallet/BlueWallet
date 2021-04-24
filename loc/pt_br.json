@@ -407,6 +407,7 @@
     "details_no_cancel": "Não, cancelar",
     "details_save": "Salvar",
     "details_show_xpub": "Ver XPUB",
+    "details_show_addresses": "Mostrar endereço",
     "details_title": "Carteira",
     "details_type": "Tipo",
     "details_use_with_hardware_wallet": "Usar com carteira de hardware",
@@ -564,11 +565,23 @@
     "sign_title": "Assinar/Verificar mensagem",
     "sign_help": "Aqui você pode criar ou verificar uma assinatura criptográfica utilizando um endereço de Bitcoin",
     "sign_sign": "Assinar",
+    "sign_sign_submit": "Assinar e Enviar",
     "sign_verify": "Verificar",
     "sign_signature_correct": "Verificada com sucesso!",
     "sign_signature_incorrect": "Falha na verificação!",
     "sign_placeholder_address": "Endereço",
     "sign_placeholder_message": "Mensagem",
-    "sign_placeholder_signature": "Assinatura"
+    "sign_placeholder_signature": "Assinatura",
+    "sign_aopp_title": "",
+    "sign_aopp_confirm": "Você deseja enviar a mensagem assinada para {hostname}?",
+    "address_balance": "Balanço: {balance} sats",
+    "addresses_title": "Endereços",
+    "type_change": "Alterar",
+    "type_receive": "Receber"
+  },
+  "aopp": {
+    "title": "Selecionar endereço",
+    "send_success": "Assinatura enviada com sucesso",
+    "send_error": "Erro no envio da assinatura"
   }
 }
