@@ -138,10 +138,10 @@
     "ask_yes": "Oui",
     "ok": "OK, je l'ai notée !",
     "ok_lnd": "OK, je l'ai sauvegardée.",
-    "text": "Veuillez prendre quelques instants pour écrire cette phrase de sauvegarde sur papier. Il s'agit de votre unique moyen de restaurer l'accès à votre portefeuille depuis un autre appareil.",
+    "text": "Veuillez prendre un moment pour noter cette phrase de sauvegarde sur papier.\nC'est votre backup et vous pouvez l'utiliser pour restaurer votre portefeuille.",
     "text_lnd": "Veuillez sauvegarder cette sauvegarde de portefeuille. Elle vous permettra de restaurer le portefeuille en cas de perte.",
     "text_lnd2": "Ce portefeuille est hébergé par Bluewallet.",
-    "title": "Votre portefeuille est créé"
+    "title": "Votre portefeuille a été créé"
   },
   "receive": {
     "details_create": "Créer",
@@ -276,6 +276,7 @@
     "electrum_history": "Historique de serveur",
     "electrum_reset_to_default": "Etes-vous sûr de vouloir réinitialiser vos paramètres Electrum ?",
     "electrum_clear": "Effacer",
+    "tor_supported": "TOR supporté",
     "encrypt_decrypt": "Déchiffrer le stockage",
     "encrypt_decrypt_q": "Etes-vous sûr de vouloir déchiffrer le stockage ? L'accès à vos portefeuilles pourra alors se faire sans mot de passe.",
     "encrypt_del_uninstall": "Supprimer si BlueWallet est désinstallé",
@@ -292,10 +293,11 @@
     "groundcontrol_explanation": "GroundControl est un serveur de notifications push pour les portefeuilles Bitcoin gratuit et open source. Vous pouvez installer votre propre serveur GroundControl et insérer ici son URL pour ne pas reposer sur l'infrastructure de BlueWallet. Laissez vide pour conserver l'option par défaut.",
     "header": "réglages",
     "language": "Langue",
-    "language_restart": "Lors de la sélection d'un nouvelle langue, il peut être nécessaire de redémarrer BlueWallet pour que le changement prenne effet.",
+    "language_isRTL": "Il est nécessaire de redémarrer BlueWallet pour que le changement de langue prenne effet.",
     "lightning_error_lndhub_uri": "URI LndHub invalide",
     "lightning_saved": "Les changements ont bien été enregistrés",
     "lightning_settings": "Lightning settings",
+    "tor_settings": "Paramètres TOR",
     "lightning_settings_explain": "To connect to your own LND node please install LndHub and put its URL here in settings. Leave blank to use default ndHub\n (lndhub.io)",
     "network": "Réseau",
     "network_broadcast": "Diffuser une transaction",
@@ -322,7 +324,8 @@
     "success_transaction_broadcasted" : "Succès! Votre transaction a été difusée!",
     "total_balance": "Solde total",
     "total_balance_explanation": "Afficher le solde total de tous vos portefeuilles sur l'écran d'accueil.",
-    "widgets": "Widgets"
+    "widgets": "Widgets",
+    "tools": "Outils"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Voulez vous recevoir les notifications quand vous recevez des paiements entrants ?",
@@ -406,6 +409,7 @@
     "details_no_cancel": "Non, annuler",
     "details_save": "Enregistrer",
     "details_show_xpub": "Afficher XPUB du portefeuille",
+    "details_show_addresses": "Montrer les adresses",
     "details_title": "Portefeuille",
     "details_type": "Type",
     "details_use_with_hardware_wallet": "Utiliser avec un portefeuille matériel",
@@ -563,11 +567,23 @@
     "sign_title": "Signe/vérifie le message",
     "sign_help": "Ici vous pouvez créer ou vérifier une signature cryptographique basée sur une adresse bitcoin",
     "sign_sign": "Signe",
+    "sign_sign_submit": "Signer et envoyer",
     "sign_verify": "Vérifie",
     "sign_signature_correct": "Succès de la vérification",
     "sign_signature_incorrect": "Échec de la vérification",
     "sign_placeholder_address": "Adresse",
     "sign_placeholder_message": "Message",
-    "sign_placeholder_signature": "Signature"
+    "sign_placeholder_signature": "Signature",
+    "sign_aopp_title": "AOPP",
+    "sign_aopp_confirm": "Voulez-vous envoyer un message signé à {hostname} ?",
+    "address_balance": "Solde : {balance} sats",
+    "addresses_title": "Adresses",
+    "type_change": "Monnaie",
+    "type_receive": "Réception"
+  },
+  "aopp": {
+    "title": "Sélectionner l'adresse",
+    "send_success": "Signature envoyée avec succès",
+    "send_error": "Erreur lors de l'envoi de la signature"
   }
 }
