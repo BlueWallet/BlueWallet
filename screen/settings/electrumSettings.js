@@ -1,18 +1,28 @@
 /* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Alert, View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { Alert, View, TextInput, TouchableOpacity, StyleSheet, ScrollView, Keyboard } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import RNWidgetCenter from 'react-native-widget-center';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ScrollView } from 'react-native-gesture-handler';
 
 import loc from '../../loc';
 import { AppStorage } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import navigationStyle from '../../components/navigationStyle';
-import { BlueButton, BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import {
+  BlueButton,
+  BlueButtonLink,
+  BlueCard,
+  BlueLoading,
+  BlueSpacing20,
+  BlueText,
+  SafeBlueArea,
+  BlueDoneAndDismissKeyboardInputAccessory,
+  BlueDismissKeyboardInputAccessory,
+} from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
+
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 export default class ElectrumSettings extends Component {
@@ -216,7 +226,7 @@ export default class ElectrumSettings extends Component {
 
     return (
       <SafeBlueArea>
-        <ScrollView>
+        <ScrollView keyboardShouldPersistTaps="always">
           <BlueCard>
             <BlueText style={styles.status}>{loc.settings.electrum_status}</BlueText>
             <View style={styles.connectWrap}>
@@ -254,7 +264,18 @@ export default class ElectrumSettings extends Component {
                 autoCorrect={false}
                 autoCapitalize="none"
                 underlineColorAndroid="transparent"
+                inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
                 testID="HostInput"
+              />
+              <BlueDoneAndDismissKeyboardInputAccessory
+                onClearTapped={() => {
+                  this.setState({ host: '' });
+                  Keyboard.dismiss();
+                }}
+                onPasteTapped={text => {
+                  this.setState({ host: text.trim() });
+                  Keyboard.dismiss();
+                }}
               />
             </View>
             <BlueSpacing20 />
@@ -270,6 +291,8 @@ export default class ElectrumSettings extends Component {
                 underlineColorAndroid="transparent"
                 autoCorrect={false}
                 autoCapitalize="none"
+                keyboardType="number-pad"
+                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 testID="PortInput"
               />
             </View>
@@ -285,10 +308,14 @@ export default class ElectrumSettings extends Component {
                 autoCorrect={false}
                 placeholderTextColor="#81868e"
                 autoCapitalize="none"
+                keyboardType="number-pad"
                 underlineColorAndroid="transparent"
+                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 testID="SSLPortInput"
               />
+              <BlueDismissKeyboardInputAccessory />
             </View>
+            <BlueSpacing20 />
             <BlueText style={styles.torSupported}>{loc.settings.tor_supported}</BlueText>
             <BlueSpacing20 />
             <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={this.importScan} />
