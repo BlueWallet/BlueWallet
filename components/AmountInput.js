@@ -153,6 +153,9 @@ class AmountInput extends Component {
         }
         text = rez;
       }
+      if (text.startsWith('0') && !(text.includes('.') || text.includes(','))) {
+        text = text.replace(/^(0+)/g, '');
+      }
       text = text.replace(/[^\d.,-]/g, ''); // remove all but numbers, dots & commas
       text = text.replace(/(\..*)\./g, '$1');
     }
