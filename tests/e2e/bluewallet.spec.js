@@ -824,7 +824,7 @@ describe('BlueWallet UI Tests', () => {
     await helperImportWallet(
       'zpub6rDWXE4wbwefeCrHWehXJheXnti5F9PbpamDUeB5eFbqaY89x3jq86JADBuXpnJnSvRVwqkaTnyMaZERUg4BpxD9V4tSZfKeYh1ozPdL1xK',
       'Imported Watch-only',
-      '0.00030666 BTC',
+      '0 BTC', // it used to be 0.00030666 till someone stole it from git history kek
     );
 
     await element(by.id('ReceiveButton')).tap();

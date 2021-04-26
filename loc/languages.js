@@ -1,7 +1,7 @@
 export const AvailableLanguages = Object.freeze([
   { label: 'English', value: 'en' },
   { label: 'Afrikaans (AFR)', value: 'zar_afr' },
-  { label: 'Arabic (AR)', value: 'ar', isRTL: true },
+  { label: 'العربية (AR)', value: 'ar', isRTL: true },
   { label: 'Български (BG)', value: 'bg_bg' },
   { label: 'Català (CA)', value: 'ca' },
   { label: 'Chinese (TW)', value: 'zh_tw' },
