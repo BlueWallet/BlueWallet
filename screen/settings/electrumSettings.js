@@ -22,6 +22,7 @@ import {
   BlueDismissKeyboardInputAccessory,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -68,6 +69,7 @@ export default class ElectrumSettings extends Component {
     });
 
     if (this.state.server) {
+      ReactNativeHapticFeedback.trigger('impactHeavy', { ignoreAndroidSystemSettings: false });
       Alert.alert(
         loc.formatString(loc.settings.set_electrum_server_as_default, { server: this.state.server }),
         '',
@@ -89,6 +91,7 @@ export default class ElectrumSettings extends Component {
   checkServer = async () => {
     this.setState({ isLoading: true }, async () => {
       const features = await BlueElectrum.serverFeatures();
+      ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
       alert(JSON.stringify(features, null, 2));
       this.setState({ isLoading: false });
     });
@@ -101,6 +104,7 @@ export default class ElectrumSettings extends Component {
   };
 
   clearHistoryAlert() {
+    ReactNativeHapticFeedback.trigger('impactHeavy', { ignoreAndroidSystemSettings: false });
     Alert.alert(loc.settings.electrum_clear_alert_title, loc.settings.electrum_clear_alert_message, [
       { text: loc.settings.electrum_clear_alert_cancel, onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
       { text: loc.settings.electrum_clear_alert_ok, onPress: () => this.clearHistory() },
@@ -152,8 +156,10 @@ export default class ElectrumSettings extends Component {
             // Must be running on Android
             console.log(e);
           }
+          ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
           alert(loc.settings.electrum_saved);
         } else if (!(await BlueElectrum.testConnection(host, port, sslPort))) {
+          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
           alert(loc.settings.electrum_error_connect);
         } else {
           await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, host);
@@ -179,10 +185,11 @@ export default class ElectrumSettings extends Component {
             // Must be running on Android
             console.log(e);
           }
-
+          ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
           alert(loc.settings.electrum_saved);
         }
       } catch (error) {
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         alert(error);
       }
       this.setState({ isLoading: false });
@@ -214,7 +221,7 @@ export default class ElectrumSettings extends Component {
     const serverHistoryItems = this.state.serverHistory.map((server, i) => {
       return (
         <View key={i} style={styles.serverHistoryItem}>
-          <View>
+          <View style={styles.flexShrink}>
             <BlueText>{`${server.host}:${server.port || server.sslPort}`}</BlueText>
           </View>
           <TouchableOpacity onPress={() => this.selectServer(server)}>
@@ -396,6 +403,11 @@ const styles = StyleSheet.create({
     color: BlueCurrentTheme.colors.feeText,
     marginBottom: -24,
     flexShrink: 1,
+  },
+  flexShrink: {
+    flexShrink: 1,
+    marginRight: 8,
+    alignItems: 'flex-start',
   },
   inputWrap: {
     flexDirection: 'row',
