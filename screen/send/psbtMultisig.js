@@ -176,7 +176,7 @@ const PsbtMultisig = () => {
       navigate('Confirm', {
         fee: new BigNumber(getFee()).dividedBy(100000000).toNumber(),
         memo: memo,
-        fromWallet: wallet,
+        walletID,
         tx,
         recipients: targets,
         satoshiPerByte,
