@@ -182,8 +182,10 @@ const SendDetails = () => {
     setSelectedWallet(wallet.getID());
     navigation.setParams({
       advancedOptionsMenuButtonAction: () => {
-        Keyboard.dismiss();
-        setOptionsVisible(true);
+        if (!isLoading) {
+          Keyboard.dismiss();
+          setOptionsVisible(true);
+        }
       },
     });
 
