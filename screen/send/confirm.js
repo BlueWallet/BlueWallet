@@ -1,6 +1,5 @@
 /* global alert */
 import React, { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
 import { Text } from 'react-native-elements';
 import { PayjoinClient } from 'payjoin-client';
@@ -394,18 +393,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-Confirm.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    dismiss: PropTypes.func,
-    navigate: PropTypes.func,
-    dangerouslyGetParent: PropTypes.func,
-  }),
-  route: PropTypes.shape({
-    params: PropTypes.object,
-  }),
-};
 
 Confirm.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.send.confirm_header }));
 
