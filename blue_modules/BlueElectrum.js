@@ -498,20 +498,20 @@ module.exports.multiGetHistoryByAddress = async function (addresses, batchsize) 
   return ret;
 };
 
-module.exports.multiGetTransactionByTxid = async function (txids, batchsize, verbose) {
+module.exports.multiGetTransactionByTxid = async function (txids, batchsize, verbose = true) {
   batchsize = batchsize || 45;
   // this value is fine-tuned so althrough wallets in test suite will occasionally
   // throw 'response too large (over 1,000,000 bytes', test suite will pass
-  verbose = verbose !== false;
   if (!mainClient) throw new Error('Electrum client is not connected');
   const ret = {};
   txids = [...new Set(txids)]; // deduplicate just for any case
 
   // lets try cache first:
   const realm = await _getRealm();
+  const cacheKeySuffix = verbose ? '_verbose' : '_non_verbose';
   const keysCacheMiss = [];
   for (const txid of txids) {
-    const jsonString = realm.objectForPrimaryKey('Cache', txid); // search for a realm object with a primary key
+    const jsonString = realm.objectForPrimaryKey('Cache', txid + cacheKeySuffix); // search for a realm object with a primary key
     if (jsonString && jsonString.cache_value) {
       try {
         ret[txid] = JSON.parse(jsonString.cache_value);
@@ -580,7 +580,7 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
       realm.create(
         'Cache',
         {
-          cache_key: txid,
+          cache_key: txid + cacheKeySuffix,
           cache_value: JSON.stringify(ret[txid]),
         },
         Realm.UpdateMode.Modified,
