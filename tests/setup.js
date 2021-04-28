@@ -95,6 +95,8 @@ jest.mock('react-native-haptic-feedback', () => ({}));
 
 const realmInstanceMock = {
   close: function () {},
+  write: function () {},
+  objectForPrimaryKey: function () { return {}; },
   objects: function () {
     const wallets = {
       filtered: function () {

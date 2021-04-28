@@ -463,7 +463,7 @@ const WalletTransactions = () => {
       },
       response => {
         if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.uri;
+          const uri = response.uri.toString().replace('file://', '');
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
               onBarCodeRead({ data: result });
