@@ -106,7 +106,7 @@ const showImagePickerAndReadImage = () => {
       },
       response => {
         if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          const uri = response.uri.toString().replace('file://', '');
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
               resolve(result);
@@ -130,7 +130,7 @@ const takePhotoWithImagePickerAndReadPhoto = () => {
       },
       response => {
         if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          const uri = response.uri.toString().replace('file://', '');
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
               resolve(result);
@@ -174,7 +174,7 @@ const showFilePickerAndReadFile = async function () {
 
     if (res?.type === DocumentPicker.types.images || res?.type?.startsWith('image/')) {
       return new Promise(resolve => {
-        const uri = Platform.OS === 'ios' ? res.uri.toString().replace('file://', '') : res.uri;
+        const uri = res.uri.toString().replace('file://', '');
         LocalQRCode.decode(decodeURI(uri), (error, result) => {
           if (!error) {
             resolve({ data: result, uri: decodeURI(res.uri) });

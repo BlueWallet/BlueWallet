@@ -44,7 +44,6 @@ import Lnurl from './class/lnurl';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import ToolTipMenu from './components/TooltipMenu';
 
-/** @type {AppStorage} */
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 let isIpad;
@@ -885,7 +884,7 @@ export const BlueDoneAndDismissKeyboardInputAccessory = props => {
 
 export const BlueLoading = props => {
   return (
-    <View style={{ flex: 1, paddingTop: 200 }} {...props}>
+    <View style={{ flex: 1 }} {...props}>
       <ActivityIndicator />
     </View>
   );

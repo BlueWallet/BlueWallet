@@ -7,7 +7,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-/** @type {AppStorage} */
 
 const styles = StyleSheet.create({
   root: {

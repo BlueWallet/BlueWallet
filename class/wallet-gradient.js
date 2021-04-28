@@ -10,7 +10,8 @@ import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
 import { HDLegacyElectrumSeedP2PKHWallet } from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
 import { HDSegwitElectrumSeedP2WPKHWallet } from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
 import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
-import { HDAezeedWallet } from "./wallets/hd-aezeed-wallet";
+import { HDAezeedWallet } from './wallets/hd-aezeed-wallet';
+import { SLIP39LegacyP2PKHWallet, SLIP39SegwitP2SHWallet, SLIP39SegwitBech32Wallet } from './wallets/slip39-wallets';
 import { useTheme } from '@react-navigation/native';
 
 export default class WalletGradient {
@@ -43,16 +44,19 @@ export default class WalletGradient {
         break;
       case HDLegacyP2PKHWallet.type:
       case HDLegacyElectrumSeedP2PKHWallet.type:
+      case SLIP39LegacyP2PKHWallet.type:
         gradient = WalletGradient.hdLegacyP2PKHWallet;
         break;
       case HDLegacyBreadwalletWallet.type:
         gradient = WalletGradient.hdLegacyBreadWallet;
         break;
       case HDSegwitP2SHWallet.type:
+      case SLIP39SegwitP2SHWallet.type:
         gradient = WalletGradient.hdSegwitP2SHWallet;
         break;
       case HDSegwitBech32Wallet.type:
       case HDSegwitElectrumSeedP2WPKHWallet.type:
+      case SLIP39SegwitBech32Wallet.type:
         gradient = WalletGradient.hdSegwitBech32Wallet;
         break;
       case LightningCustodianWallet.type:
@@ -81,7 +85,7 @@ export default class WalletGradient {
     let props;
     switch (type) {
       case MultisigHDWallet.type:
-        /* Example 
+        /* Example
         props = { start: { x: 0, y: 0 } };
         https://github.com/react-native-linear-gradient/react-native-linear-gradient
         */
@@ -103,16 +107,19 @@ export default class WalletGradient {
         break;
       case HDLegacyP2PKHWallet.type:
       case HDLegacyElectrumSeedP2PKHWallet.type:
+      case SLIP39LegacyP2PKHWallet.type:
         gradient = WalletGradient.hdLegacyP2PKHWallet;
         break;
       case HDLegacyBreadwalletWallet.type:
         gradient = WalletGradient.hdLegacyBreadWallet;
         break;
       case HDSegwitP2SHWallet.type:
+      case SLIP39SegwitP2SHWallet.type:
         gradient = WalletGradient.hdSegwitP2SHWallet;
         break;
       case HDSegwitBech32Wallet.type:
       case HDSegwitElectrumSeedP2WPKHWallet.type:
+      case SLIP39SegwitBech32Wallet.type:
         gradient = WalletGradient.hdSegwitBech32Wallet;
         break;
       case SegwitBech32Wallet.type:
