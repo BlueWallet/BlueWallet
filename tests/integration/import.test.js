@@ -10,6 +10,7 @@ import {
   HDSegwitP2SHWallet,
   WatchOnlyWallet,
   HDAezeedWallet,
+  SLIP39SegwitP2SHWallet,
 } from '../../class';
 import WalletImport from '../../class/wallet-import';
 import React from 'react';
@@ -174,5 +175,17 @@ describe('import procedure', function () {
       'zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP',
     );
     assert.strictEqual(lastImportedWallet.type, WatchOnlyWallet.type);
+  });
+
+  it('can import slip39 wallet', async () => {
+    // 2-of-3 slip39 wallet
+    // crystal lungs academic acid corner infant satisfy spider alcohol laser golden equation fiscal epidemic infant scholar space findings tadpole belong
+    // crystal lungs academic agency class payment actress avoid rebound ordinary exchange petition tendency mild mobile spine robin fancy shelter increase
+    // crystal lungs academic always earth satoshi elbow satoshi that pants formal leaf rival texture romantic filter expand regular soul desert
+    await WalletImport.processImportText(
+      'crystal lungs academic acid corner infant satisfy spider alcohol laser golden equation fiscal epidemic infant scholar space findings tadpole belong\n' +
+        'crystal lungs academic agency class payment actress avoid rebound ordinary exchange petition tendency mild mobile spine robin fancy shelter increase',
+    );
+    assert.strictEqual(lastImportedWallet.type, SLIP39SegwitP2SHWallet.type);
   });
 });
