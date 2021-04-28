@@ -400,7 +400,7 @@ const WalletsList = () => {
         },
         {
           text: loc.wallets.list_long_choose,
-          onPress: () => fs.showActionSheet().then(onBarScanned),
+          onPress: () => fs.showImagePickerAndReadImage().then(onBarScanned),
         },
         {
           text: loc.wallets.list_long_scan,
