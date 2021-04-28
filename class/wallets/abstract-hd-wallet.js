@@ -47,6 +47,14 @@ export class AbstractHDWallet extends LegacyWallet {
     throw new Error('Not implemented');
   }
 
+  /**
+   * @return {Buffer} wallet seed
+   */
+  _getSeed() {
+    const mnemonic = this.secret;
+    return bip39.mnemonicToSeed(mnemonic);
+  }
+
   setSecret(newSecret) {
     this.secret = newSecret.trim().toLowerCase();
     this.secret = this.secret.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ');

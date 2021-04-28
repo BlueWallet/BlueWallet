@@ -5,7 +5,14 @@ import { ScrollView, View, StyleSheet } from 'react-native';
 import loc from '../loc';
 import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading } from '../BlueComponents';
 import navigationStyle from '../components/navigationStyle';
-import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet, HDAezeedWallet } from '../class';
+import {
+  SegwitP2SHWallet,
+  LegacyWallet,
+  HDSegwitP2SHWallet,
+  HDSegwitBech32Wallet,
+  HDAezeedWallet,
+  SLIP39LegacyP2PKHWallet,
+} from '../class';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
@@ -208,6 +215,16 @@ export default class Selftest extends Component {
         const hex = await BlueCrypto.scrypt('717765727479', '4749345a22b23cf3', 64, 8, 8, 32); // using non-default parameters to speed it up (not-bip38 compliant)
         if (hex.toUpperCase() !== 'F36AB2DC12377C788D61E6770126D8A01028C8F6D8FE01871CE0489A1F696A90')
           throw new Error('react-native-blue-crypto is not ok');
+      }
+
+      // slip39 test
+      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        const w = new SLIP39LegacyP2PKHWallet();
+        w.setSecret(
+          'shadow pistol academic always adequate wildlife fancy gross oasis cylinder mustang wrist rescue view short owner flip making coding armed\n' +
+            'shadow pistol academic acid actress prayer class unknown daughter sweater depict flip twice unkind craft early superior advocate guest smoking',
+        );
+        assertStrictEqual(w._getExternalAddressByIndex(0), '18pvMjy7AJbCDtv4TLYbGPbR7SzGzjqUpj');
       }
 
       //

@@ -1,4 +1,3 @@
-import bip39 from 'bip39';
 import * as bip32 from 'bip32';
 import * as bitcoinjs from 'bitcoinjs-lib';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
@@ -27,8 +26,7 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
     if (this._xpub) {
       return this._xpub; // cache hit
     }
-    const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
+    const seed = this._getSeed();
     const root = bip32.fromSeed(seed);
 
     const path = "m/0'";
@@ -109,8 +107,7 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
    */
   _getWIFByIndex(internal, index) {
     if (!this.secret) return false;
-    const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
+    const seed = this._getSeed();
     const root = bitcoinjs.bip32.fromSeed(seed);
     const path = `m/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);

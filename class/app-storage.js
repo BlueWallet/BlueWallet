@@ -17,6 +17,9 @@ import {
   HDAezeedWallet,
   MultisigHDWallet,
   LightningLndWallet,
+  SLIP39SegwitP2SHWallet,
+  SLIP39LegacyP2PKHWallet,
+  SLIP39SegwitBech32Wallet,
 } from './';
 const encryption = require('../blue_modules/encryption');
 const Realm = require('realm');
@@ -277,6 +280,14 @@ export class AppStorage {
           case LightningLndWallet.type:
             unserializedWallet = LightningLndWallet.fromJson(key);
             unserializedWallet.init();
+          case SLIP39SegwitP2SHWallet.type:
+            unserializedWallet = SLIP39SegwitP2SHWallet.fromJson(key);
+            break;
+          case SLIP39LegacyP2PKHWallet.type:
+            unserializedWallet = SLIP39LegacyP2PKHWallet.fromJson(key);
+            break;
+          case SLIP39SegwitBech32Wallet.type:
+            unserializedWallet = SLIP39SegwitBech32Wallet.fromJson(key);
             break;
           case LightningCustodianWallet.type: {
             /** @type {LightningCustodianWallet} */

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext, useRef } from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import { useWindowDimensions, InteractionManager, ScrollView, ActivityIndicator, StatusBar, View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useTheme, useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
@@ -37,11 +37,11 @@ const styles = StyleSheet.create({
 const WalletExport = () => {
   const { wallets, saveToDisk } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
-  const wallet = useRef(wallets.find(w => w.getID() === walletID));
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
+  const wallet = wallets.find(w => w.getID() === walletID);
   const stylesHook = {
     ...styles,
     loading: {
@@ -68,8 +68,8 @@ const WalletExport = () => {
               return goBack();
             }
           }
-          if (!wallet.current.getUserHasSavedExport()) {
-            wallet.current.setUserHasSavedExport(true);
+          if (!wallet.getUserHasSavedExport()) {
+            wallet.setUserHasSavedExport(true);
             saveToDisk();
           }
           setIsLoading(false);
@@ -80,52 +80,61 @@ const WalletExport = () => {
         Privacy.disableBlur();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [goBack, walletID]),
+    }, [goBack, wallet]),
   );
 
-  return isLoading && wallet ? (
-    <View style={stylesHook.loading}>
-      <ActivityIndicator />
-    </View>
-  ) : (
+  if (isLoading || !wallet)
+    return (
+      <View style={stylesHook.loading}>
+        <ActivityIndicator />
+      </View>
+    );
+
+  // for SLIP39 we need to show all shares
+  let secrets = wallet.getSecret();
+  if (typeof secrets === 'string') {
+    secrets = [secrets];
+  }
+
+  return (
     <SafeBlueArea style={stylesHook.root}>
       <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollViewContent} testID="WalletExportScroll">
         <View>
-          <BlueText style={stylesHook.type}>{wallet.current.typeReadable}</BlueText>
+          <BlueText style={stylesHook.type}>{wallet.typeReadable}</BlueText>
         </View>
 
-        {(() => {
-          if ([LegacyWallet.type, SegwitBech32Wallet.type, SegwitP2SHWallet.type].includes(wallet.current.type)) {
-            return (
-              <BlueCard>
-                <BlueText>{wallet.current.getAddress()}</BlueText>
-              </BlueCard>
-            );
-          }
-        })()}
-        <BlueSpacing20 />
-        <View style={styles.activeQrcode}>
-          <QRCode
-            value={wallet.current.getSecret()}
-            logo={require('../../img/qr-code.png')}
-            size={height > width ? width - 40 : width / 2}
-            logoSize={70}
-            color="#000000"
-            logoBackgroundColor={colors.brandingColor}
-            backgroundColor="#FFFFFF"
-            ecl="H"
-          />
-        </View>
-        {wallet.type !== WatchOnlyWallet.type && <BlueText style={stylesHook.warning}>{loc.wallets.warning_do_not_disclose}</BlueText>}
-        <BlueSpacing20 />
-        {wallet.current.type === LightningCustodianWallet.type || wallet.current.type === WatchOnlyWallet.type ? (
-          <BlueCopyTextToClipboard text={wallet.current.getSecret()} />
-        ) : (
-          <BlueText style={stylesHook.secret} testID="Secret">
-            {wallet.current.getSecret()}
-          </BlueText>
+        {[LegacyWallet.type, SegwitBech32Wallet.type, SegwitP2SHWallet.type].includes(wallet.type) && (
+          <BlueCard>
+            <BlueText>{wallet.getAddress()}</BlueText>
+          </BlueCard>
         )}
+        <BlueSpacing20 />
+        {secrets.map(s => (
+          <React.Fragment key={s}>
+            <View style={styles.activeQrcode}>
+              <QRCode
+                value={wallet.getSecret()}
+                logo={require('../../img/qr-code.png')}
+                size={height > width ? width - 40 : width / 2}
+                logoSize={70}
+                color="#000000"
+                logoBackgroundColor={colors.brandingColor}
+                backgroundColor="#FFFFFF"
+                ecl="H"
+              />
+            </View>
+            {wallet.type !== WatchOnlyWallet.type && <BlueText style={stylesHook.warning}>{loc.wallets.warning_do_not_disclose}</BlueText>}
+            <BlueSpacing20 />
+            {wallet.type === LightningCustodianWallet.type || wallet.type === WatchOnlyWallet.type ? (
+              <BlueCopyTextToClipboard text={wallet.getSecret()} />
+            ) : (
+              <BlueText style={stylesHook.secret} testID="Secret">
+                {wallet.getSecret()}
+              </BlueText>
+            )}
+          </React.Fragment>
+        ))}
       </ScrollView>
     </SafeBlueArea>
   );

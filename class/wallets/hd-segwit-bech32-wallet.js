@@ -42,4 +42,8 @@ export class HDSegwitBech32Wallet extends AbstractHDElectrumWallet {
   allowMasterFingerprint() {
     return true;
   }
+
+  allowXpub() {
+    return true;
+  }
 }
