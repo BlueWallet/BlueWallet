@@ -97,6 +97,8 @@ jest.mock('rn-lnd/lib/module', () => ({}));
 
 const realmInstanceMock = {
   close: function () {},
+  write: function () {},
+  objectForPrimaryKey: function () { return {}; },
   objects: function () {
     const wallets = {
       filtered: function () {

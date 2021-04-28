@@ -10,6 +10,34 @@ const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
 const BigNumber = require('bignumber.js');
 const torrific = require('../blue_modules/torrific');
+const Realm = require('realm');
+
+let _realm;
+async function _getRealm() {
+  if (_realm) return _realm;
+
+  const password = bitcoin.crypto.sha256(Buffer.from('fyegjitkyf[eqjnc.lf')).toString('hex');
+  const buf = Buffer.from(password + password, 'hex');
+  const encryptionKey = Int8Array.from(buf);
+  const path = 'electrumcache.realm';
+
+  const schema = [
+    {
+      name: 'Cache',
+      primaryKey: 'cache_key',
+      properties: {
+        cache_key: { type: 'string', indexed: true },
+        cache_value: 'string', // stringified json
+      },
+    },
+  ];
+  _realm = await Realm.open({
+    schema,
+    path,
+    encryptionKey,
+  });
+  return _realm;
+}
 
 const storageKey = 'ELECTRUM_PEERS';
 const defaultPeer = { host: 'electrum1.bluewallet.io', ssl: '443' };
@@ -470,14 +498,37 @@ module.exports.multiGetHistoryByAddress = async function (addresses, batchsize) 
   return ret;
 };
 
-module.exports.multiGetTransactionByTxid = async function (txids, batchsize, verbose) {
+module.exports.multiGetTransactionByTxid = async function (txids, batchsize, verbose = true) {
   batchsize = batchsize || 45;
   // this value is fine-tuned so althrough wallets in test suite will occasionally
   // throw 'response too large (over 1,000,000 bytes', test suite will pass
-  verbose = verbose !== false;
   if (!mainClient) throw new Error('Electrum client is not connected');
   const ret = {};
   txids = [...new Set(txids)]; // deduplicate just for any case
+
+  // lets try cache first:
+  const realm = await _getRealm();
+  const cacheKeySuffix = verbose ? '_verbose' : '_non_verbose';
+  const keysCacheMiss = [];
+  for (const txid of txids) {
+    const jsonString = realm.objectForPrimaryKey('Cache', txid + cacheKeySuffix); // search for a realm object with a primary key
+    if (jsonString && jsonString.cache_value) {
+      try {
+        ret[txid] = JSON.parse(jsonString.cache_value);
+      } catch (error) {
+        console.log(error, 'cache failed to parse', jsonString.cache_value);
+      }
+    }
+
+    if (!ret[txid]) keysCacheMiss.push(txid);
+  }
+
+  if (keysCacheMiss.length === 0) {
+    return ret;
+  }
+
+  txids = keysCacheMiss;
+  // end cache
 
   const chunks = splitIntoChunks(txids, batchsize);
   for (const chunk of chunks) {
@@ -521,6 +572,21 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
       if (ret[txdata.param]) delete ret[txdata.param].hex; // compact
     }
   }
+
+  // saving cache:
+  realm.write(() => {
+    for (const txid of Object.keys(ret)) {
+      if (!ret[txid].confirmations || ret[txid].confirmations < 7) continue; // dont cache immature txs
+      realm.create(
+        'Cache',
+        {
+          cache_key: txid + cacheKeySuffix,
+          cache_value: JSON.stringify(ret[txid]),
+        },
+        Realm.UpdateMode.Modified,
+      );
+    }
+  });
 
   return ret;
 };
