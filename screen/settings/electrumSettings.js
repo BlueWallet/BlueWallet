@@ -1,7 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Alert, View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, Alert, View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import RNWidgetCenter from 'react-native-widget-center';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -204,10 +204,10 @@ export default class ElectrumSettings extends Component {
     const serverHistoryItems = this.state.serverHistory.map((server, i) => {
       return (
         <View key={i} style={styles.serverHistoryItem}>
-          <View>
-            <BlueText>{`${server.host}:${server.port || server.sslPort}`}</BlueText>
-          </View>
-          <TouchableOpacity onPress={() => this.selectServer(server)}>
+          
+            <Text style={styles.serverRow} numberOfLines={1} ellipsizeMode="middle">{`${server.host}:${server.port || server.sslPort}`}</Text>
+          
+          <TouchableOpacity style={styles.selectButton} onPress={() => this.selectServer(server)}>
             <BlueText>{loc.settings.electrum_select}</BlueText>
           </TouchableOpacity>
         </View>
@@ -234,17 +234,9 @@ export default class ElectrumSettings extends Component {
             </BlueText>
           </BlueCard>
           <BlueCard>
-            <View style={styles.serverAddTitle}>
-              <BlueText style={styles.explain}>{loc.settings.electrum_settings_explain}</BlueText>
-              <TouchableOpacity testID="ResetToDefault" onPress={() => this.resetToDefault()}>
-                <BlueText>{loc.settings.electrum_reset}</BlueText>
-              </TouchableOpacity>
-            </View>
-          </BlueCard>
-          <BlueCard>
             <View style={styles.inputWrap}>
               <TextInput
-                placeholder={loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' })}
+                placeholder={loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' }) + ' (' + (loc.settings.tor_supported) + ')'}
                 value={this.state.host}
                 onChangeText={text => this.setState({ host: text.trim() })}
                 numberOfLines={1}
@@ -289,11 +281,17 @@ export default class ElectrumSettings extends Component {
                 testID="SSLPortInput"
               />
             </View>
-            <BlueText style={styles.torSupported}>{loc.settings.tor_supported}</BlueText>
+            <View style={styles.serverAddTitle}>
+              <BlueText style={styles.explain}>{loc.settings.electrum_settings_explain}</BlueText>
+              <TouchableOpacity testID="ResetToDefault" onPress={() => this.resetToDefault()}>
+                <BlueText>{loc.settings.electrum_reset}</BlueText>
+              </TouchableOpacity>
+            </View>         
+            <BlueSpacing20 />
+            {this.state.isLoading ? <BlueLoading /> : <BlueButton testID="Save" onPress={this.save} title={loc.settings.save} />}
             <BlueSpacing20 />
             <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={this.importScan} />
             <BlueSpacing20 />
-            {this.state.isLoading ? <BlueLoading /> : <BlueButton testID="Save" onPress={this.save} title={loc.settings.save} />}
           </BlueCard>
           {serverHistoryItems.length > 0 && !this.state.isLoading && (
             <BlueCard>
@@ -392,6 +390,7 @@ const styles = StyleSheet.create({
   serverAddTitle: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginVertical: 16,
   },
   serverHistoryTitle: {
     flexDirection: 'row',
@@ -400,12 +399,19 @@ const styles = StyleSheet.create({
   },
   serverHistoryItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     paddingVertical: 20,
     borderBottomColor: BlueCurrentTheme.colors.formBorder,
-    borderBottomWidth: 1,
+    borderBottomWidth: .5,
+    flexWrap: 'nowrap',
   },
-  torSupported: {
-    color: '#81868e',
+  serverRow: {
+    flexGrow: 2,
+    maxWidth: '80%',
+    color: BlueCurrentTheme.colors.foregroundColor,
+  },
+  selectButton: {
+    flexGrow: 1,
+    marginLeft: 16,
+    alignItems: 'flex-end',
   },
 });

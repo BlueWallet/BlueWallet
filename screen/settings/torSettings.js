@@ -76,14 +76,15 @@ const TorSettings = () => {
       <BlueCard>
         <BlueText>Daemon Status: {daemonStatus}</BlueText>
       </BlueCard>
-
-      <BlueButton title="start" onPress={startIfNotStarted} />
-      <BlueSpacing20 />
-      <BlueButton title="stop" onPress={stopIfRunning} />
-      <BlueSpacing20 />
-      <BlueButton title="test socket" onPress={testSocket} />
-      <BlueSpacing20 />
-      <BlueButton title="test http" onPress={testHttp} />
+      <BlueCard>
+        <BlueButton title="start" onPress={startIfNotStarted} />
+        <BlueSpacing20 />
+        <BlueButton title="stop" onPress={stopIfRunning} />
+        <BlueSpacing20 />
+        <BlueButton title="test socket" onPress={testSocket} />
+        <BlueSpacing20 />
+        <BlueButton title="test http" onPress={testHttp} />
+      </BlueCard>
     </SafeBlueArea>
   );
 };

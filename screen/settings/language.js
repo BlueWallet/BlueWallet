@@ -4,7 +4,7 @@ import { FlatList, StyleSheet } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
-import { SafeBlueArea, BlueListItem, BlueLoading } from '../../BlueComponents';
+import { BlueListItem } from '../../BlueComponents';
 import loc from '../../loc';
 import { AvailableLanguages } from '../../loc/languages';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -17,7 +17,6 @@ const styles = StyleSheet.create({
 
 const Language = () => {
   const { setLanguage, language } = useContext(BlueStorageContext);
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState(loc.getLanguage());
   const { setOptions } = useNavigation();
   const { colors } = useTheme();
@@ -26,9 +25,6 @@ const Language = () => {
       backgroundColor: colors.background,
     },
   });
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
 
   useEffect(() => {
     setOptions({ title: loc.settings.language });
@@ -54,18 +50,15 @@ const Language = () => {
     );
   };
 
-  return isLoading ? (
-    <BlueLoading />
-  ) : (
-    <SafeBlueArea>
-      <FlatList
-        style={[styles.flex, stylesHook.flex]}
-        keyExtractor={(_item, index) => `${index}`}
-        data={AvailableLanguages}
-        renderItem={renderItem}
-        initialNumToRender={25}
-      />
-    </SafeBlueArea>
+  return (
+    <FlatList
+      style={[styles.flex, stylesHook.flex]}
+      keyExtractor={(_item, index) => `${index}`}
+      data={AvailableLanguages}
+      renderItem={renderItem}
+      initialNumToRender={25}
+      contentInsetAdjustmentBehavior="automatic"
+    />
   );
 };
 
