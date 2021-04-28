@@ -13,7 +13,7 @@ if [ -f $FILENAME ]; then
     APTZ=`curl "https://$APPETIZE@api.appetize.io/v1/apps" -F "file=@$FILENAME" -F "platform=android"`
     echo Apptezize response:
     echo $APTZ
-    APPURL=`node -e "let e = JSON.parse('$APTZ'); console.log(e.publicURL);"`
+    APPURL=`node -e "let e = JSON.parse('$APTZ'); console.log(e.publicURL + '?device=pixel4');"`
     echo App url: $APPURL
     PR=`node scripts/appcenter-post-build-get-pr-number.js`
     echo PR: $PR

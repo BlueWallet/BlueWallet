@@ -37,6 +37,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
+  torSupported: {
+    color: '#81868e',
+  },
 });
 
 const LightningSettings = () => {
@@ -144,6 +147,8 @@ const LightningSettings = () => {
           />
         </View>
 
+        <BlueText style={[styles.torSupported]}>{loc.settings.tor_supported}</BlueText>
+        <BlueSpacing20 />
         <BlueButtonLink title={loc.wallets.import_scan_qr} testID="ImportScan" onPress={importScan} />
         <BlueSpacing20 />
         {isLoading ? <BlueLoading /> : <BlueButton testID="Save" onPress={save} title={loc.settings.save} />}

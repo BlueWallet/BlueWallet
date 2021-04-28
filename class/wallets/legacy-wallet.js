@@ -37,7 +37,7 @@ export class LegacyWallet extends AbstractWallet {
    */
   timeToRefreshTransaction() {
     for (const tx of this.getTransactions()) {
-      if (tx.confirmations < 7) {
+      if (tx.confirmations < 7 && this._lastTxFetch < +new Date() - 5 * 60 * 1000) {
         return true;
       }
     }

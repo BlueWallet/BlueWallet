@@ -44,16 +44,6 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   /**
-   * @inheritDoc
-   */
-  timeToRefreshTransaction() {
-    for (const tx of this.getTransactions()) {
-      if (tx.confirmations < 7) return true;
-    }
-    return false;
-  }
-
-  /**
    *
    * @inheritDoc
    */

@@ -271,10 +271,10 @@ PODS:
     - React-Core
   - react-native-safe-area-context (3.2.0):
     - React-Core
-  - react-native-slider (3.0.3):
-    - React
   - react-native-tcp-socket (3.7.1):
     - CocoaAsyncSocket
+    - React
+  - react-native-tor (0.1.7):
     - React
   - react-native-webview (11.3.1):
     - React-Core
@@ -384,7 +384,7 @@ PODS:
   - RNSentry (2.4.0):
     - React-Core
     - Sentry (= 6.1.4)
-  - RNShare (5.1.6):
+  - RNShare (5.1.7):
     - React-Core
   - RNSVG (12.1.0):
     - React
@@ -453,8 +453,8 @@ DEPENDENCIES:
   - react-native-is-catalyst (from `../node_modules/react-native-is-catalyst`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
-  - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
+  - react-native-tor (from `../node_modules/react-native-tor`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - react-native-widget-center (from `../node_modules/react-native-widget-center`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -572,10 +572,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
-  react-native-slider:
-    :path: "../node_modules/@react-native-community/slider"
   react-native-tcp-socket:
     :path: "../node_modules/react-native-tcp-socket"
+  react-native-tor:
+    :path: "../node_modules/react-native-tor"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   react-native-widget-center:
@@ -705,8 +705,8 @@ SPEC CHECKSUMS:
   react-native-is-catalyst: 52ee70e0123c82419dd4ce47dc4cc94b22467512
   react-native-randombytes: 45ae693012df24c9a07a5e578b3b567c01468581
   react-native-safe-area-context: e471852c5ed67eea4b10c5d9d43c1cebae3b231d
-  react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
+  react-native-tor: 4f389f5719dad633542b57ea32744e954730e7ef
   react-native-webview: 30f048378c6cee522ed9bbbedbc34acb21e58188
   react-native-widget-center: 0f81d17beb163e7fb5848b06754d7d277fe7d99a
   React-RCTActionSheet: 89a0ca9f4a06c1f93c26067af074ccdce0f40336
@@ -740,7 +740,7 @@ SPEC CHECKSUMS:
   RNScreens: f7ad633b2e0190b77b6a7aab7f914fad6f198d8d
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: b0d55027200c96f52e26b9bfb20296d47fc5051d
-  RNShare: 2db8b0346a4859f83d15528602ed5b6120a0452a
+  RNShare: 503c37af86611beadccba46156fcc42170c9fb42
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
   RNWatch: e4c5d19506c94506860032fb68aedd5991beb985
@@ -750,6 +750,6 @@ SPEC CHECKSUMS:
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 070fb164a2dfb94605ea7862fd9b1c25e95ff046
+PODFILE CHECKSUM: 8fb37a9b658fd4d511d97e40f40e2d511092b261
 
 COCOAPODS: 1.10.1

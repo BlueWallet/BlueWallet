@@ -167,7 +167,7 @@ describe('LightningCustodianWallet', () => {
       },
       body: '{"amount": "0.01", "currency": "USD"}',
     });
-    if (!res.body.data || !res.body.data.lightning_invoice || !res.body.data.lightning_invoice.payreq) {
+    if (!res.body || !res.body.data || !res.body.data.lightning_invoice || !res.body.data.lightning_invoice.payreq) {
       throw new Error('Opennode problem');
     }
 
