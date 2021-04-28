@@ -576,7 +576,9 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
   // saving cache:
   realm.write(() => {
     for (const txid of Object.keys(ret)) {
-      if (!ret[txid].confirmations || ret[txid].confirmations < 7) continue; // dont cache immature txs
+      if (verbose && (!ret[txid].confirmations || ret[txid].confirmations < 7)) continue;
+      // dont cache immature txs, but only for 'verbose', since its fully decoded tx jsons. non-verbose are just plain
+      // strings txhex
       realm.create(
         'Cache',
         {

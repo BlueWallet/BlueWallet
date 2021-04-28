@@ -443,7 +443,7 @@ const SendDetails = () => {
     const changeAddress = await getChangeAddressAsync();
     const requestedSatPerByte = Number(feeRate);
     const lutxo = utxo || wallet.getUtxo();
-    console.log({ requestedSatPerByte, lutxo });
+    console.log({ requestedSatPerByte, lutxo: lutxo.length });
 
     const targets = [];
     for (const transaction of addresses) {
