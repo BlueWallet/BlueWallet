@@ -24,6 +24,16 @@ export class WatchOnlyWallet extends LegacyWallet {
     return super.getLastTxFetch();
   }
 
+  timeToRefreshTransaction() {
+    if (this._hdWalletInstance) return this._hdWalletInstance.timeToRefreshTransaction();
+    return super.timeToRefreshTransaction();
+  }
+
+  timeToRefreshBalance() {
+    if (this._hdWalletInstance) return this._hdWalletInstance.timeToRefreshBalance();
+    return super.timeToRefreshBalance();
+  }
+
   allowSend() {
     return this.useWithHardwareWalletEnabled() && this.isHd() && this._hdWalletInstance.allowSend();
   }
