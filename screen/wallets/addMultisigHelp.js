@@ -3,7 +3,6 @@ import { Image, View, Text, ScrollView, StyleSheet } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { SafeBlueArea, BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-/** @type {AppStorage} */
 import loc from '../../loc';
 
 const WalletsAddMultisigHelp = () => {

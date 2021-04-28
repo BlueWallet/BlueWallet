@@ -37,7 +37,6 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
-/** @type {AppStorage} */
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
 
