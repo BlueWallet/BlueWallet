@@ -280,6 +280,7 @@ export class AppStorage {
           case LightningLndWallet.type:
             unserializedWallet = LightningLndWallet.fromJson(key);
             unserializedWallet.init();
+            break;
           case SLIP39SegwitP2SHWallet.type:
             unserializedWallet = SLIP39SegwitP2SHWallet.fromJson(key);
             break;
