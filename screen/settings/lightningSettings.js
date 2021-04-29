@@ -146,7 +146,7 @@ const LightningSettings = () => {
             testID="URIInput"
           />
         </View>
-
+        <BlueSpacing20 />
         <BlueText style={[styles.torSupported]}>{loc.settings.tor_supported}</BlueText>
         <BlueSpacing20 />
         <BlueButtonLink title={loc.wallets.import_scan_qr} testID="ImportScan" onPress={importScan} />
