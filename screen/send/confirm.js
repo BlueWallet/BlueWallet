@@ -7,7 +7,7 @@ import { PayjoinClient } from 'payjoin-client';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import PayjoinTransaction from '../../class/payjoin-transaction';
-import { BlueButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing40 } from '../../BlueComponents';
+import { BlueButton, BlueText, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import Biometric from '../../class/biometrics';
@@ -191,7 +191,7 @@ export default class Confirm extends Component {
   render() {
     return (
       <SafeBlueArea style={styles.root}>
-        <View style={styles.rootWrap}>
+        <View style={styles.cardTop}>
           <FlatList
             scrollEnabled={this.state.recipients.length > 1}
             extraData={this.state.recipients}
@@ -199,16 +199,10 @@ export default class Confirm extends Component {
             renderItem={this._renderItem}
             keyExtractor={(_item, index) => `${index}`}
             ItemSeparatorComponent={this.renderSeparator}
-            style={styles.flat}
           />
-          <View style={styles.cardContainer}>
-            <BlueCard>
-              <Text style={styles.cardText} testID="TransactionFee">
-                {loc.send.create_fee}: {formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
-                {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
-              </Text>
-              <BlueSpacing40 />
-              {!!this.state.payjoinUrl && (
+          {!!this.state.payjoinUrl && (
+            <View style={styles.cardContainer}>
+              <BlueCard>
                 <View style={styles.payjoinWrapper}>
                   <Text style={styles.payjoinText}>Payjoin</Text>
                   <Switch
@@ -217,9 +211,17 @@ export default class Confirm extends Component {
                     onValueChange={isPayjoinEnabled => this.setState({ isPayjoinEnabled })}
                   />
                 </View>
-              )}
+              </BlueCard>
+            </View>
+          )}
+        </View>
+        <View style={styles.cardBottom}>
+          <BlueCard>
+            <Text style={styles.cardText} testID="TransactionFee">
+              {loc.send.create_fee}: {formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
+              {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
+            </Text>
               {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm_sendNow} />}
-
               <TouchableOpacity
                 testID="TransactionDetailsButton"
                 style={styles.txDetails}
@@ -241,10 +243,9 @@ export default class Confirm extends Component {
                   });
                 }}
               >
-                <Text style={styles.txText}>{loc.transactions.details_transaction_details}</Text>
-              </TouchableOpacity>
-            </BlueCard>
-          </View>
+              <Text style={styles.txText}>{loc.transactions.details_transaction_details}</Text>
+            </TouchableOpacity>
+          </BlueCard>
         </View>
       </SafeBlueArea>
     );
@@ -268,7 +269,7 @@ const styles = StyleSheet.create({
     color: BlueCurrentTheme.colors.feeText,
     fontWeight: '500',
     fontSize: 15,
-    marginVertical: 20,
+    marginVertical: 8,
     textAlign: 'center',
   },
   valueWrap: {
@@ -278,7 +279,7 @@ const styles = StyleSheet.create({
   valueValue: {
     color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 36,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   valueUnit: {
     color: BlueCurrentTheme.colors.alternativeTextColor2,
@@ -300,46 +301,56 @@ const styles = StyleSheet.create({
   root: {
     paddingTop: 19,
     backgroundColor: BlueCurrentTheme.colors.elevated,
-  },
-  rootWrap: {
-    marginTop: 16,
-    alignItems: 'center',
     justifyContent: 'space-between',
   },
-  flat: {
-    maxHeight: '55%',
+  cardTop: {
+    flexGrow: 8,
+    marginTop: 16,
+    alignItems: 'center',
+    maxHeight: '70%',
+  },
+  cardBottom: {
+    flexGrow: 2,
+    justifyContent: 'flex-end',
+    alignItems: 'center', 
   },
   cardContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingTop: 16,
-    paddingBottom: 16,
+    flexGrow: 1,
+    width: '100%',
   },
   cardText: {
+    flexDirection: 'row',
     color: '#37c0a1',
     fontSize: 14,
-    marginHorizontal: 4,
+    marginVertical: 8,
+    marginHorizontal: 24,
     paddingBottom: 6,
     fontWeight: '500',
     alignSelf: 'center',
   },
   txDetails: {
-    marginVertical: 24,
+    marginTop: 16,
   },
   txText: {
-    color: BlueCurrentTheme.colors.buttonTextColor,
+    color: BlueCurrentTheme.colors.feeText,
     fontSize: 15,
     fontWeight: '500',
     alignSelf: 'center',
   },
   payjoinWrapper: {
     flexDirection: 'row',
-    marginHorizontal: 20,
-    marginBottom: 10,
-    justifyContent: 'space-between',
+    padding: 8,
+    borderRadius: 6,
+    width: '100%',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: BlueCurrentTheme.colors.buttonDisabledBackgroundColor,
   },
-  payjoinText: { color: '#81868e', fontSize: 14 },
+  payjoinText: { 
+    color: '#81868e', 
+    fontSize: 15,
+    fontWeight: 'bold', 
+  },
 });
 
 Confirm.propTypes = {
