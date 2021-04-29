@@ -79,6 +79,9 @@ const Confirm = () => {
     payjoinText: {
       color: colors.foregroundColor,
     },
+    separator: {
+      backgroundColor: colors.inputBorderColor,
+    },
   });
 
   useEffect(() => {
@@ -231,7 +234,7 @@ const Confirm = () => {
     );
   };
 
-  const renderSeparator = <View style={styles.separator} />;
+  const renderSeparator = () => <View style={[styles.separator, stylesHook.separator]} />;
 
   return (
     <SafeBlueArea style={[styles.root, stylesHook.root]}>
@@ -243,6 +246,7 @@ const Confirm = () => {
           renderItem={_renderItem}
           keyExtractor={(_item, index) => `${index}`}
           ItemSeparatorComponent={renderSeparator}
+          style={styles.flat}
         />
         {!!payjoinUrl && (
           <View style={styles.cardContainer}>
@@ -355,7 +359,9 @@ const styles = StyleSheet.create({
     flexGrow: 2,
     width: '100%',
   },
-
+  flat: {
+    flex: 0.7,
+  },
   cardText: {
     flexDirection: 'row',
     color: '#37c0a1',
