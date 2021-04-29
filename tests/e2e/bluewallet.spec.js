@@ -494,6 +494,43 @@ describe('BlueWallet UI Tests', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
+  it('should handle URL successfully', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+    }
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
+
+    await device.launchApp({
+      newInstance: true,
+      url: 'bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7\\?amount=0.0001\\&label=Yo',
+    });
+
+    // setting fee rate:
+    const feeRate = 2;
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).typeText(feeRate + '');
+    await element(by.text('OK')).tap();
+
+    try {
+      await element(by.id('CreateTransactionButton')).tap();
+    } catch (_) {}
+
+    // created. verifying:
+    await yo('TransactionValue');
+    expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
+    expect(element(by.id('TransactionAddress'))).toHaveText('BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7');
+
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
+
   it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction; then cosign', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
@@ -881,43 +918,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('scanQrBackdoorOkButton')).tap();
     await expect(element(by.id('ScanQrBackdoorButton'))).toBeNotVisible();
     await yo('PsbtWithHardwareWalletBroadcastTransactionButton');
-
-    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
-  });
-
-  it('should handle URL successfully', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
-    if (process.env.TRAVIS) {
-      if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
-    }
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
-    await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
-
-    await device.launchApp({
-      newInstance: true,
-      url: 'bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7\\?amount=0.0001\\&label=Yo',
-    });
-
-    // setting fee rate:
-    const feeRate = 2;
-    await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '');
-    await element(by.text('OK')).tap();
-
-    try {
-      await element(by.id('CreateTransactionButton')).tap();
-    } catch (_) {}
-
-    // created. verifying:
-    await yo('TransactionValue');
-    expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
-    expect(element(by.id('TransactionAddress'))).toHaveText('BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7');
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
