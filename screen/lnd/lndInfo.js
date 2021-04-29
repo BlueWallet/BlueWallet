@@ -101,10 +101,14 @@ const LndInfo = () => {
     if (listChannels && listChannels?.channels && Array.isArray(listChannels?.channels)) {
       setChannels(listChannels.channels.filter(channel => channel.active === true));
       hasChannels = true;
+    } else {
+      setChannels([]);
     }
     if (listChannels && listChannels.channels && listChannels?.channels && Array.isArray(listChannels?.channels)) {
       setInactiveChannels(listChannels.channels.filter(channel => !channel.active));
       hasChannels = true;
+    } else {
+      setInactiveChannels([]);
     }
     const listPendingChannels = await wallet.pendingChannels();
     if (
@@ -115,6 +119,8 @@ const LndInfo = () => {
     ) {
       setPendingChannels(listPendingChannels.pendingOpenChannels);
       hasPendingChannels = true;
+    } else {
+      setPendingChannels([]);
     }
     const walletBalance = await wallet.walletBalance();
     setWalletBalance(walletBalance);
@@ -262,7 +268,7 @@ const LndInfo = () => {
           <BlueSpacing20 />
           <LNNodeBar
             disabled={
-              status === LNDNodeInfoChannelStatus.ACTIVE || status === LNDNodeInfoChannelStatus.INACTIVE ? channelData?.active : true
+              status === LNDNodeInfoChannelStatus.ACTIVE || status === LNDNodeInfoChannelStatus.INACTIVE ? !channelData?.active : true
             }
             canSend={Number(channelData?.localBalance)}
             canReceive={Number(channelData?.capacity)}

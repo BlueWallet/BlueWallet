@@ -12,6 +12,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import PropTypes from 'prop-types';
 import { SuccessView } from '../send/success';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const currency = require('../../blue_modules/currency');
 
 const LndOpenChannel = props => {
@@ -86,6 +87,7 @@ const LndOpenChannel = props => {
     (async () => {
       if (+new Date() - psbtOpenChannelStartedTs >= 5 * 60 * 1000) {
         // its 10 min actually, but lets check 5 min just for any case
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         return alert('Channel opening expired. Please try again');
       }
 
@@ -95,9 +97,11 @@ const LndOpenChannel = props => {
         const verifiedResult = await lndWallet.fundingStateStepVerify(chanIdHex, psbtHex);
         setVerified(verifiedResult);
         if (!verifiedResult) {
+          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
           alert('Something went wrong with PSBT for LND');
         }
       } catch (error) {
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         alert(error.message);
       }
     })();
@@ -107,6 +111,7 @@ const LndOpenChannel = props => {
   const finalizeOpenChannel = async () => {
     if (+new Date() - psbtOpenChannelStartedTs >= 5 * 60 * 1000) {
       // its 10 min actually, but lets check 5 min just for any case
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       return alert('Channel opening expired. Please try again');
     }
 
@@ -118,9 +123,11 @@ const LndOpenChannel = props => {
     const res = await w.fundingStateStepFinalize(chanIdHex, psbtHex); // comment this out to debug
     // const res = true; // debug
     if (!res) {
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       return alert('Something wend wrong during opening channel tx broadcast');
     }
     fetchAndSaveWalletTransactions(w.getID());
+    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     setIsOpenChannelSuccessful(true);
   };
 
@@ -129,12 +136,14 @@ const LndOpenChannel = props => {
     try {
       const amountSatsNumber = new BigNumber(fundingAmount.amountSats).toNumber();
       if (!amountSatsNumber) {
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         return alert('Amount is not valid');
       }
 
       const pubkey = remoteHostWithPubkey.split('@')[0];
       const host = remoteHostWithPubkey.split('@')[1];
       if (!pubkey || !host) {
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         return alert('Remote node address is not valid');
       }
 
@@ -152,6 +161,7 @@ const LndOpenChannel = props => {
       const fundingAmountTemp = openChannelData?.psbtFund?.fundingAmount;
 
       if (!pendingChanIdTemp || !fundingAddressTemp || !fundingAmountTemp) {
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         return alert('Initiating channel open failed');
       }
 
@@ -173,6 +183,7 @@ const LndOpenChannel = props => {
         },
       });
     } catch (error) {
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       alert(error.message);
     } finally {
       setIsLoading(false);
