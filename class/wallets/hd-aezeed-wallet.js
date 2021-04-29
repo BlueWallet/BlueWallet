@@ -176,4 +176,8 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
   allowSignVerifyMessage() {
     return true;
   }
+
+  allowXpub() {
+    return true;
+  }
 }

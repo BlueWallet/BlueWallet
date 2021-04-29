@@ -14,6 +14,9 @@ import {
   HDSegwitElectrumSeedP2WPKHWallet,
   HDAezeedWallet,
   MultisigHDWallet,
+  SLIP39LegacyP2PKHWallet,
+  SLIP39SegwitP2SHWallet,
+  SLIP39SegwitBech32Wallet,
 } from '.';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import loc from '../loc';
@@ -110,6 +113,8 @@ function WalletImport() {
     // 7. check if its private key (segwit address P2SH) TODO
     // 7. check if its private key (legacy address) TODO
 
+    importText = importText.trim();
+
     if (importText.startsWith('6P')) {
       let password = false;
       do {
@@ -156,7 +161,6 @@ function WalletImport() {
     }
 
     // trying other wallet types
-
     const hd4 = new HDSegwitBech32Wallet();
     hd4.setSecret(importText);
     if (hd4.validateMnemonic()) {
@@ -273,6 +277,31 @@ function WalletImport() {
     if (watchOnly.valid()) {
       await watchOnly.fetchBalance();
       return WalletImport._saveWallet(watchOnly, additionalProperties);
+    }
+
+    // if it is multi-line string, then it is probably SLIP39 wallet
+    // each line - one share
+    if (importText.includes('\n')) {
+      const s1 = new SLIP39SegwitP2SHWallet();
+      s1.setSecret(importText);
+
+      if (s1.validateMnemonic()) {
+        if (await s1.wasEverUsed()) {
+          return WalletImport._saveWallet(s1);
+        }
+
+        const s2 = new SLIP39LegacyP2PKHWallet();
+        s2.setSecret(importText);
+        if (await s2.wasEverUsed()) {
+          return WalletImport._saveWallet(s2);
+        }
+
+        const s3 = new SLIP39SegwitBech32Wallet();
+        s3.setSecret(importText);
+        if (await s3.wasEverUsed()) {
+          return WalletImport._saveWallet(s3);
+        }
+      }
     }
 
     // nope?
