@@ -51,10 +51,8 @@ const hardcodedPeers = [
   // { host: 'fullnode.coinkite.com', tcp: '50001' },
   // { host: 'preperfect.eleCTruMioUS.com', tcp: '50001' }, // down
   { host: 'electrum1.bluewallet.io', ssl: '443' },
-  { host: 'electrum1.bluewallet.io', ssl: '443' }, // 2x weight
   { host: 'electrum2.bluewallet.io', ssl: '443' },
   { host: 'electrum3.bluewallet.io', ssl: '443' },
-  { host: 'electrum3.bluewallet.io', ssl: '443' }, // 2x weight
 ];
 
 /** @type {ElectrumClient} */
@@ -391,9 +389,15 @@ module.exports.multiGetBalanceByAddress = async function (addresses, batchsize) 
     let balances = [];
 
     if (disableBatching) {
-      for (const sh of scripthashes) {
-        const balance = await mainClient.blockchainScripthash_getBalance(sh);
-        balances.push({ result: balance, param: sh });
+      const promises = [];
+      const index2scripthash = {};
+      for (let promiseIndex = 0; promiseIndex < scripthashes.length; promiseIndex++) {
+        promises.push(mainClient.blockchainScripthash_getBalance(scripthashes[promiseIndex]));
+        index2scripthash[promiseIndex] = scripthashes[promiseIndex];
+      }
+      const promiseResults = await Promise.all(promises);
+      for (let resultIndex = 0; resultIndex < promiseResults.length; resultIndex++) {
+        balances.push({ result: promiseResults[resultIndex], param: index2scripthash[resultIndex] });
       }
     } else {
       balances = await mainClient.blockchainScripthash_getBalanceBatch(scripthashes);
@@ -474,9 +478,15 @@ module.exports.multiGetHistoryByAddress = async function (addresses, batchsize) 
     let results = [];
 
     if (disableBatching) {
-      for (const sh of scripthashes) {
-        const history = await mainClient.blockchainScripthash_getHistory(sh);
-        results.push({ result: history, param: sh });
+      const promises = [];
+      const index2scripthash = {};
+      for (let promiseIndex = 0; promiseIndex < scripthashes.length; promiseIndex++) {
+        index2scripthash[promiseIndex] = scripthashes[promiseIndex];
+        promises.push(mainClient.blockchainScripthash_getHistory(scripthashes[promiseIndex]));
+      }
+      const histories = await Promise.all(promises);
+      for (let historyIndex = 0; historyIndex < histories.length; historyIndex++) {
+        results.push({ result: histories[historyIndex], param: index2scripthash[historyIndex] });
       }
     } else {
       results = await mainClient.blockchainScripthash_getHistoryBatch(scripthashes);
@@ -535,28 +545,42 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
     let results = [];
 
     if (disableBatching) {
-      for (const txid of chunk) {
-        try {
-          // in case of ElectrumPersonalServer it might not track some transactions (like source transactions for our transactions)
-          // so we wrap it in try-catch
-          let tx = await mainClient.blockchainTransaction_get(txid, verbose);
+      try {
+        // in case of ElectrumPersonalServer it might not track some transactions (like source transactions for our transactions)
+        // so we wrap it in try-catch. note, when `Promise.all` fails we will get _zero_ results, but we have a fallback for that
+        const promises = [];
+        const index2txid = {};
+        for (let promiseIndex = 0; promiseIndex < chunk.length; promiseIndex++) {
+          const txid = chunk[promiseIndex];
+          index2txid[promiseIndex] = txid;
+          promises.push(mainClient.blockchainTransaction_get(txid, verbose));
+        }
+
+        const transactionResults = await Promise.all(promises);
+        for (let resultIndex = 0; resultIndex < transactionResults.length; resultIndex++) {
+          let tx = transactionResults[resultIndex];
           if (typeof tx === 'string' && verbose) {
             // apparently electrum server (EPS?) didnt recognize VERBOSE parameter, and  sent us plain txhex instead of decoded tx.
             // lets decode it manually on our end then:
             tx = txhexToElectrumTransaction(tx);
-            if (txhashHeightCache[txid]) {
-              // got blockheight where this tx was confirmed
-              tx.confirmations = this.estimateCurrentBlockheight() - txhashHeightCache[txid];
-              if (tx.confirmations < 0) {
-                // ugly fix for when estimator lags behind
-                tx.confirmations = 1;
-              }
-              tx.time = this.calculateBlockTime(txhashHeightCache[txid]);
-              tx.blocktime = this.calculateBlockTime(txhashHeightCache[txid]);
-            }
           }
+          const txid = index2txid[resultIndex];
           results.push({ result: tx, param: txid });
-        } catch (_) {}
+        }
+      } catch (_) {
+        // fallback. pretty sure we are connected to EPS.  we try getting transactions one-by-one. this way we wont
+        // fail and only non-tracked by EPS transactions will be omitted
+        for (const txid of chunk) {
+          try {
+            let tx = await mainClient.blockchainTransaction_get(txid, verbose);
+            if (typeof tx === 'string' && verbose) {
+              // apparently electrum server (EPS?) didnt recognize VERBOSE parameter, and  sent us plain txhex instead of decoded tx.
+              // lets decode it manually on our end then:
+              tx = txhexToElectrumTransaction(tx);
+            }
+            results.push({ result: tx, param: txid });
+          } catch (_) {}
+        }
       }
     } else {
       results = await mainClient.blockchainTransaction_getBatch(chunk, verbose);
@@ -688,7 +712,7 @@ module.exports.calcEstimateFeeFromFeeHistorgam = function (numberOfBlocks, feeHi
 module.exports.estimateFees = async function () {
   let histogram;
   try {
-    histogram = await Promise.race([mainClient.mempool_getFeeHistogram(), new Promise(resolve => setTimeout(resolve, 5000))]);
+    histogram = await Promise.race([mainClient.mempool_getFeeHistogram(), new Promise(resolve => setTimeout(resolve, 29000))]);
   } catch (_) {}
 
   if (!histogram) throw new Error('timeout while getting mempool_getFeeHistogram');
@@ -811,6 +835,14 @@ module.exports.forceDisconnect = () => {
   mainClient.close();
 };
 
+module.exports.setBatchingDisabled = () => {
+  disableBatching = true;
+};
+
+module.exports.setBatchingEnabled = () => {
+  disableBatching = false;
+};
+
 module.exports.hardcodedPeers = hardcodedPeers;
 module.exports.getRandomHardcodedPeer = getRandomHardcodedPeer;
 
@@ -842,6 +874,17 @@ function txhexToElectrumTransaction(txhex) {
     time: 0,
     blocktime: 0,
   };
+
+  if (txhashHeightCache[ret.txid]) {
+    // got blockheight where this tx was confirmed
+    ret.confirmations = module.exports.estimateCurrentBlockheight() - txhashHeightCache[ret.txid];
+    if (ret.confirmations < 0) {
+      // ugly fix for when estimator lags behind
+      ret.confirmations = 1;
+    }
+    ret.time = module.exports.calculateBlockTime(txhashHeightCache[ret.txid]);
+    ret.blocktime = module.exports.calculateBlockTime(txhashHeightCache[ret.txid]);
+  }
 
   for (const inn of tx.ins) {
     const txinwitness = [];

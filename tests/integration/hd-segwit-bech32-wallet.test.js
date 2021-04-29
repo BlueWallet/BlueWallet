@@ -18,11 +18,12 @@ beforeAll(async () => {
 });
 
 describe('Bech32 Segwit HD (BIP84)', () => {
-  it('can fetch balance, transactions & utxo', async function () {
+  it.each([false, true])('can fetch balance, transactions & utxo, disableBatching=%p', async function (disableBatching) {
     if (!process.env.HD_MNEMONIC) {
       console.error('process.env.HD_MNEMONIC not set, skipped');
       return;
     }
+    if (disableBatching) BlueElectrum.setBatchingDisabled();
 
     let hd = new HDSegwitBech32Wallet();
     hd.setSecret(process.env.HD_MNEMONIC);
@@ -90,6 +91,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd.next_free_address_index, 2);
     assert.strictEqual(hd.getNextFreeAddressIndex(), 2);
     assert.strictEqual(hd.next_free_change_address_index, 2);
+    if (disableBatching) BlueElectrum.setBatchingEnabled();
   });
 
   it('can catch up with externally modified wallet', async () => {
@@ -127,7 +129,8 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd.getTransactions().length, oldTransactions.length);
   });
 
-  it('can work with faulty zpub', async () => {
+  it.skip('can work with faulty zpub', async () => {
+    // takes too much time, skipped
     if (!process.env.FAULTY_ZPUB) {
       console.error('process.env.FAULTY_ZPUB not set, skipped');
       return;
