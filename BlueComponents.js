@@ -946,7 +946,7 @@ export const BlueDoneAndDismissKeyboardInputAccessory = props => {
 
 export const BlueLoading = props => {
   return (
-    <View style={{ flex: 1 }} {...props}>
+    <View style={{ flex: 1, justifyContent: 'center' }} {...props}>
       <ActivityIndicator />
     </View>
   );
