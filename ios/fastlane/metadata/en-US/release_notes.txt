@@ -1,4 +1,4 @@
-v6.0.9
+v6.1.0
 ======
 
 * ADD: support importing SLIP39 wallets (Shamir's Secret Sharing)
@@ -6,13 +6,14 @@ v6.0.9
 * ADD: Tor support (electrum,lndhub, payjoin)
 * ADD: AOPP (address ownership proof protocol)
 * ADD: Allow create PSBT for all HD watch-only wallets
-* Updated locales de_DE, es, pt_BR, pl, fi_FI, de_DE, fa_IR, cy, he, jp, ro, sl_SI, fr_FR
+* Updated locales de_DE, es, pt_BR, pl, fi_FI, de_DE, fa_IR, cy, he, jp, ro, sl_SI, fr_FR, cs_CZ
 * FIX: Complication was showing cents
 * FIX: dark mode makes text illegible
 * FIX: Carousel padding and Scan button crash
 * FIX: Remove leading zero when doing local currency
-* FIX: QR code scanning  from file doesn't work on Android
+* FIX: QR code scanning from file doesn't work
 * REF: speeded up electrum (caching of some requests)
+* REF: works faster with electrs & EPS
 * REF: Add mempool.space as the main explorer
 * REF: Move general tools under wallet details to "tools" menu
 * REF: Move Privacy under General tab
