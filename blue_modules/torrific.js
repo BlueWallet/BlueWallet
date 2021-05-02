@@ -1,5 +1,8 @@
 import Tor from 'react-native-tor';
-const tor = Tor();
+const tor = Tor({
+  bootstrapTimeoutMs: 35000,
+  numberConcurrentRequests: 1,
+});
 
 /**
  * TOR wrapper mimicking Frisbee interface
@@ -85,7 +88,7 @@ class Torsbee {
           if (!this.constructor._testConn) {
             // no test conenctino exists, creating it...
             await tor.startIfNotStarted();
-            const target = 'v7gtzf7nua6hdmb2wtqaqioqmesdb4xrlly4zwr7bvayxv2bpg665pqd.onion:50001';
+            const target = 'explorerzydxu5ecjrkwceayqybizmpjjznk5izmitf2modhcusuqlid.onion:110';
             this.constructor._testConn = await tor.createTcpConnection({ target }, (data, err) => {
               if (err) {
                 return this.constructor._rejectReference(new Error(err));
