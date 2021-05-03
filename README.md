@@ -100,6 +100,21 @@ I was not satisfied with existing iOS Bitcoin apps, especially with BreadWallet 
 So I knew I could create one to use myself and let others use it.
 I had experience with awesome bitcoin-js lib (javascript), and since I dont own any Macs, don't plan to and not going to learn ObjC/Swift - ReactNative (where you also write in javascript) was an obvious choice.
 
+- Problem need to fix
+    1. BreadWallet
+        - Development stalled
+        - Could not deliver features (SegWit, RBF, Custom fees, etc.)
+
+- Requirment
+    1. iOS device
+    2. ObjC/Swift - ReactNative
+
+- Goal
+    1. Implement BreadWallet and provide features such as SegWit, RBF and Custom fees, etc.
+
+- To do list
+    1. [Compatibility with Electrum Wallet](https://github.com/BlueWallet/BlueWallet/projects/1#card-33562351)
+
 
 ## LICENSE
 
