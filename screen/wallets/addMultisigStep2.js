@@ -285,7 +285,7 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const setFpCacheForMnemonics = seed => {
-    staticCache[seed] = MultisigHDWallet.seedToFingerprint(seed);
+    staticCache[seed] = MultisigHDWallet.mnemonicToFingerprint(seed);
     return staticCache[seed];
   };
 
