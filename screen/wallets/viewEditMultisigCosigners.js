@@ -441,7 +441,7 @@ const ViewEditMultisigCosigners = () => {
     hd.setSecret(mnemonic);
     if (!hd.validateMnemonic()) return alert(loc.multisig.invalid_mnemonics);
 
-    const newFp = MultisigHDWallet.seedToFingerprint(hd.getSecret());
+    const newFp = MultisigHDWallet.mnemonicToFingerprint(hd.getSecret());
     if (newFp !== wallet.getFingerprint(currentlyEditingCosignerNum)) return alert(loc.multisig.invalid_fingerprint);
 
     wallet.deleteCosigner(newFp);
@@ -457,7 +457,7 @@ const ViewEditMultisigCosigners = () => {
       InteractionManager.runAfterInteractions(() => {
         try {
           const mnemonics = wallet.getCosigner(index);
-          const newFp = MultisigHDWallet.seedToFingerprint(mnemonics);
+          const newFp = MultisigHDWallet.mnemonicToFingerprint(mnemonics);
           const path = wallet.getCustomDerivationPathForCosigner(index);
           const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(mnemonics, path));
           wallet.deleteCosigner(newFp);
