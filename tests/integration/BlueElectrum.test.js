@@ -156,15 +156,17 @@ describe('BlueElectrum', () => {
     }
   });
 
-  it('BlueElectrum can do multiGetBalanceByAddress()', async function () {
+  it.each([false, true])('BlueElectrum can do multiGetBalanceByAddress(), disableBatching=%p', async function (diableBatching) {
+    if (diableBatching) BlueElectrum.setBatchingDisabled();
     const balances = await BlueElectrum.multiGetBalanceByAddress([
       'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh',
       'bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p',
       'bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r',
+      '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK',
       'bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy',
     ]);
 
-    assert.strictEqual(balances.balance, 200000);
+    assert.strictEqual(balances.balance, 200000 + 51432);
     assert.strictEqual(balances.unconfirmed_balance, 0);
     assert.strictEqual(balances.addresses.bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh.confirmed, 50000);
     assert.strictEqual(balances.addresses.bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh.unconfirmed, 0);
@@ -174,6 +176,9 @@ describe('BlueElectrum', () => {
     assert.strictEqual(balances.addresses.bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r.unconfirmed, 0);
     assert.strictEqual(balances.addresses.bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy.confirmed, 50000);
     assert.strictEqual(balances.addresses.bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy.unconfirmed, 0);
+    assert.strictEqual(balances.addresses['3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK'].confirmed, 51432);
+    assert.strictEqual(balances.addresses['3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK'].unconfirmed, 0);
+    if (diableBatching) BlueElectrum.setBatchingEnabled();
   });
 
   it('BlueElectrum can do multiGetUtxoByAddress()', async () => {
@@ -197,7 +202,8 @@ describe('BlueElectrum', () => {
     assert.strictEqual(utxos.bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh[0].address, 'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
   });
 
-  it('ElectrumClient can do multiGetHistoryByAddress()', async () => {
+  it.each([false, true])('ElectrumClient can do multiGetHistoryByAddress(), disableBatching=%p', async disableBatching => {
+    if (disableBatching) BlueElectrum.setBatchingDisabled();
     const histories = await BlueElectrum.multiGetHistoryByAddress(
       [
         'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh',
@@ -218,9 +224,11 @@ describe('BlueElectrum', () => {
         '5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df',
     );
     assert.ok(Object.keys(histories).length === 4);
+    if (disableBatching) BlueElectrum.setBatchingEnabled();
   });
 
-  it('ElectrumClient can do multiGetTransactionByTxid()', async () => {
+  it.each([false, true])('ElectrumClient can do multiGetTransactionByTxid(), disableBatching=%p', async disableBatching => {
+    if (disableBatching) BlueElectrum.setBatchingDisabled();
     const txdatas = await BlueElectrum.multiGetTransactionByTxid(
       [
         'ad00a92409d8982a1d7f877056dbed0c4337d2ebab70b30463e2802279fb936d',
@@ -245,6 +253,7 @@ describe('BlueElectrum', () => {
     assert.ok(txdatas['5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df'].vout);
     assert.ok(txdatas['5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df'].blocktime);
     assert.ok(Object.keys(txdatas).length === 4);
+    if (disableBatching) BlueElectrum.setBatchingEnabled();
   });
 
   it('multiGetTransactionByTxid() can work with big batches', async () => {
@@ -267,7 +276,8 @@ describe('BlueElectrum', () => {
     assert.ok(txdatas['484a11c5e086a281413b9192b4f60c06abf745f08c2c28c4b4daefe6df3b9e5c']);
   });
 
-  it('ElectrumClient can do multiGetHistoryByAddress() to obtain txhex', async () => {
+  it.each([false, true])('ElectrumClient can do multiGetHistoryByAddress() to obtain txhex, disableBatching=%p', async disableBatching => {
+    if (disableBatching) BlueElectrum.setBatchingDisabled();
     const txdatas = await BlueElectrum.multiGetTransactionByTxid(
       ['881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e'],
       3,
@@ -278,5 +288,6 @@ describe('BlueElectrum', () => {
       txdatas['881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e'],
       '02000000000102f1155666b534f7cb476a0523a45dc8731d38d56b5b08e877c968812423fbd7f3010000000000000000d8a2882a692ee759b43e6af48ac152dd3410cc4b7d25031e83b3396c16ffbc8900000000000000000002400d03000000000017a914e286d58e53f9247a4710e51232cce0686f16873c870695010000000000160014d3e2ecbf4d91321794e0297e0284c47527cf878b02483045022100d18dc865fb4d087004d021d480b983b8afb177a1934ce4cd11cf97b03e17944f02206d7310687a84aab5d4696d535bca69c2db4449b48feb55fff028aa004f2d1744012103af4b208608c75f38e78f6e5abfbcad9c360fb60d3e035193b2cd0cdc8fc0155c0247304402207556e859845df41d897fe442f59b6106c8fa39c74ba5b7b8e3268ab0aebf186f0220048a9f3742339c44a1e5c78b491822b96070bcfda3f64db9dc6434f8e8068475012102456e5223ed3884dc6b0e152067fd836e3eb1485422eda45558bf83f59c6ad09f00000000',
     );
+    if (disableBatching) BlueElectrum.setBatchingEnabled();
   });
 });

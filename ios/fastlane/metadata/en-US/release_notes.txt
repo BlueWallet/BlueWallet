@@ -1,3 +1,28 @@
+v6.1.0
+======
+
+* ADD: support importing SLIP39 wallets (Shamir's Secret Sharing)
+* ADD: Hierarchy Navigator Screen (List of addresses)
+* ADD: Tor support (electrum,lndhub, payjoin)
+* ADD: AOPP (address ownership proof protocol)
+* ADD: Allow create PSBT for all HD watch-only wallets
+* Updated locales de_DE, es, pt_BR, pl, fi_FI, de_DE, fa_IR, cy, he, jp, ro, sl_SI, fr_FR, cs_CZ
+* FIX: Complication was showing cents
+* FIX: dark mode makes text illegible
+* FIX: Carousel padding and Scan button crash
+* FIX: Remove leading zero when doing local currency
+* FIX: QR code scanning from file doesn't work
+* REF: speeded up electrum (caching of some requests)
+* REF: works faster with electrs & EPS
+* REF: Add mempool.space as the main explorer
+* REF: Move general tools under wallet details to "tools" menu
+* REF: Move Privacy under General tab
+* REF: layout on invoice view
+* REF: Multsig layout fixes
+* REF: refresh wallet if it never been done
+* REF: easier pairing with HW wallets
+* REF: Derivation & Fingerprint visible only in advanced mode
+
 v6.0.8
 ======
 
@@ -37,32 +62,3 @@ v6.0.7
 * REF: Always check for clipboard privacy preferences when using shortcuts
 * REF: MAX can be used with regular outputs
 * REF: Wallets cards colors optimized
-
-v6.0.6
-======
-
-* ADD: PSBT cosign
-* ADD: Long press Transaction Row to get shortcuts
-* ADD: Tap and hold to Share QRCode image
-* ADD: qrcode scanner to wallet/broadcast screen
-* ADD: Apple Watch Price Complication
-* ADD: Update complication currency based on user preference
-* ADD: Copying Block Explorer Link
-* ADD: If unable to connect to server, show alert
-* FIX: Delete wallet button should be red
-* FIX: Wallet delete would cause crash
-* FIX: broken buyBitcoin button for some wallets
-* FIX: Browser crash when accessing wallet
-* FIX: sometimes broken webview
-* FIX: Some widgets were not showing on drawer
-* FIX: screen titles language
-* FIX: Complication app update when watch app isnt launched
-* FIX: QRCode save alert description
-* FIX: Only send complication updates if watch is reachable
-* FIX: QRCode size on large devices
-* FIX: fix size and share button
-* FIX: sync loc files for ar, ru, ca, he, pl, ja_JP, pt_BR, pt_PT, sv_SE, th_TH, zh_CN, fi_FI, fa_IR, de_DE, nl_NL, fr_FR
-* REF: transactions/details screen gracefull error handling
-* REF: electrum protocol error graceful handling
-* REF: better bitcoinscript error handling
-* REF: Fee selection in darkmode
