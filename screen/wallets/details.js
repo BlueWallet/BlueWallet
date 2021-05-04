@@ -110,9 +110,6 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
   },
-  secondrow: {
-    marginLeft: 16,
-  },
 });
 
 const WalletDetails = () => {
@@ -541,7 +538,7 @@ const WalletDetails = () => {
                   )}
 
                   {!!wallet.getDerivationPath() && (
-                    <View style={styles.secondrow}>
+                    <View>
                       <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_derivation_path}</Text>
                       <BlueText>{wallet.getDerivationPath()}</BlueText>
                     </View>
