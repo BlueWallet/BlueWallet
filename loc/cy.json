@@ -69,6 +69,7 @@
     "mycont": "Fy Nghytundebau",
     "offer_accept": "Derbyn cynnig",
     "offer_choosemethod": "Dewis Modd Talu",
+    "offer_confirmations": "cadarnhad",
     "offer_minmax": "Isafswm/Uchafswm",
     "offer_minutes": "Isafswm",
     "offer_promt_fiat": "Faint o {currency} wyt ti eisiau prynnu?",
@@ -105,10 +106,11 @@
   "plausibledeniability": {
     "create_fake_storage": "Creu storfa wedi encryptio",
     "create_password": "Creu cyfrinair",
-    "create_password_explanation": "Ni ddyliai'r cyfrinair ar gyfer y storfa ffug fod yr un cyfrinair ag ar gyfer y brif storfa"
-  },
-  "pleasebackup": {
-    "title": "Mae dy waled wedi cael ei chreu."
+    "create_password_explanation": "Ni ddyliai'r cyfrinair ar gyfer y storfa ffug fod yr un cyfrinair ag ar gyfer y brif storfa",
+    "password_should_not_match": "Mae'r cyfrinair yn cael ei ddefnyddio'n barod. Tria gyfrinair gwahanol.",
+    "passwords_do_not_match": "Cyfrineiriau ddim yn gweddu. Tria eto.",
+    "retype_password": "Ail-deipio'r cyfrinair",
+    "success": "Llwyddiant"
   },
   "receive": {
     "details_create": "Creu",
@@ -131,10 +133,14 @@
     "create_fee": "Ffi",
     "create_to": "At",
     "create_tx_size": "Maint Trafodyn",
+    "details_add_rec_add": "Adio Derbynwr",
+    "details_add_rec_rem": "Tynnu Derbynwr",
     "details_address": "Cyfeiriad",
+    "details_address_field_is_not_valid": "Dydi'r cyfeiriad ddim yn ddilys.",
     "details_adv_full": "Defnyddio Balans Llawn",
     "details_adv_full_sure": "Wyt ti'n sicr dy fod eisiau defnyddio balans llawn dy walet ar gyfer y trafodyn hwn?",
     "details_adv_import": "Mewnforio Trafodyn",
+    "details_amount_field_is_not_valid": "Dydi'r swm ddim yn ddilys.",
     "details_create": "Creu Anfoneb",
     "details_next": "Nesaf",
     "details_note_placeholder": "Hunan Nodyn",
@@ -158,6 +164,14 @@
     "open_settings": "Agor Gosodiadau"
   },
   "settings": {
+    "currency": "Arian",
+    "currency_source": "Prisiau o",
+    "default_wallets": "Gweld Pob Waled",
+    "electrum_connected": "Wedi Cysylltu",
+    "electrum_connected_not": "Heb Gysylltu",
+    "electrum_clear_alert_cancel": "Canslo",
+    "electrum_clear_alert_ok": "Iawn",
+    "electrum_select": "Dewis",
     "electrum_clear": "Clirio",
     "encrypt_decrypt": "Dadgryptio'r Storfa",
     "encrypt_title": "Diogelwch",
@@ -179,7 +193,8 @@
     "retype_password": "Ail-deipio cyfrinair",
     "save": "Safio",
     "saved": "Wedi Safio",
-    "success_transaction_broadcasted": "Llwyddiant! Mae dy drafodyn wedi cael ei ddarlledu!"
+    "success_transaction_broadcasted": "Llwyddiant! Mae dy drafodyn wedi cael ei ddarlledu!",
+    "total_balance": "Balans Llawn"
   },
   "transactions": {
     "cpfp_create": "Creu",
@@ -193,7 +208,68 @@
     "details_title": "Trafodyn",
     "details_to": "Allbwn",
     "details_transaction_details": "Manylion Trafodyn",
+    "pending": "Disgwyl",
     "list_title": "Trafodion"
+  },
+  "wallets": {
+    "add_bitcoin_explain": "Waled Bitcoin syml a cryf",
+    "add_create": "Creu",
+    "add_import_wallet": "Mewnforio waled",
+    "add_lightning": "Mellten",
+    "add_lightning_explain": "Er mwyn gwario yn syth",
+    "add_or": "neu",
+    "add_title": "Adio waled",
+    "add_wallet_name": "Enw",
+    "add_wallet_type": "Math",
+    "clipboard_bitcoin": "Mae gen ti gyfeiriad Bitcoin ar dy glipfwrdd. Wyt ti isio ei ddefnyddio ar gyfer trafodyn?",
+    "clipboard_lightning": "Mae gen ti anfoneb Mellten ar dy glipfwrdd. Wyt ti isio ei ddefnyddio ar gyfer trafodyn?",
+    "details_address": "Cyfeiriad",
+    "details_advanced": "Arbenigol",
+    "details_are_you_sure": "Wyt ti'n siwr?",
+    "details_connected_to": "Wedi cysylltu efo",
+    "details_del_wb": "Balans Waled",
+    "details_delete": "Gwaredu",
+    "details_delete_wallet": "Gwaredu Waled",
+    "details_marketplace": "Marchnad",
+    "details_no_cancel": "Na, canslo",
+    "details_save": "Safio",
+    "details_show_addresses": "Dangos cyfeiriadau",
+    "details_type": "Math",
+    "details_yes_delete": "Ia, dileu",
+    "enter_bip38_password": "Angen cyfrinair i ddad-gryptio",
+    "export_title": "Waled Allfor",
+    "import_do_import": "Mewnforio",
+    "import_file": "Mewnforio ffeil",
+    "import_imported": "Mewnforwyd",
+    "import_placeholder_fail": "Waled Mewnfor",
+    "import_placeholder_inprogress": "Mewnforio Waled...",
+    "import_scan_qr": "Sganio neu fewnforio ffeil",
+    "import_success": "Mae dy waled wedi cael ei fewnforio'n llwyddiannus.",
+    "import_title": "Mewnforio",
+    "list_create_a_button": "Adio rwan",
+    "list_create_a_wallet": "Adio waled",
+    "list_empty_txs1": "Bydd trafodion yn dangos yma.",
+    "list_empty_txs2": "Dechrau efo dy waled",
+    "list_latest_transaction": "Trafodyn Diweddaraf",
+    "list_long_choose": "Dewis Llun",
+    "list_long_clipboard": "Copio o'r Clipfwrdd",
+    "list_marketplace": "Marchnad",
+    "list_tap_here_to_buy": "Prynnu Bitcoin",
+    "list_title": "Waledi",
+    "list_tryagain": "Trio eto",
+    "select_wallet": "Dewis waled",
+    "take_photo": "Cymeryd llun",
+    "xpub_copiedToClipboard": "Wedi gopio i'r clipfwrdd.",
+    "pull_to_refresh": "Tynnu i Adnewyddu",
+    "warning_do_not_disclose": "Rhybudd! Paid ei ddatgelu."
+  },
+  "multisig": {
+    "confirm": "Cadarnhau",
+    "header": "Anfon",
+    "share": "Rhannu",
+    "view": "Golwg",
+    "wallet_type": "Math o Waled",
+    "view_key": "Golwg"
   },
   "units": {
     "MAX": "Mwyafswm"
@@ -211,5 +287,8 @@
     "addresses_title": "Cyfeiriadau",
     "type_change": "Newid",
     "type_receive": "Derbyn"
+  },
+  "aopp": {
+    "title": "Dewis Cyfeiriad"
   }
 }

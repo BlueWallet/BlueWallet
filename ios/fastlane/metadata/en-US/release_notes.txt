@@ -1,3 +1,10 @@
+v6.1.1
+======
+
+* FIX: multisig vault create crash
+* REF: tor bootstrap & test
+* locale pt_BR
+
 v6.1.0
 ======
 
