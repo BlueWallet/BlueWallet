@@ -125,7 +125,7 @@
     "react-localization": "1.0.16",
     "react-native": "0.63.4",
     "react-native-blue-crypto": "git+https://github.com/Overtorment/react-native-blue-crypto.git",
-    "react-native-camera": "3.43.2",
+    "react-native-camera": "3.43.5",
     "react-native-crypto": "2.2.0",
     "react-native-default-preference": "1.4.3",
     "react-native-device-info": "8.0.7",
