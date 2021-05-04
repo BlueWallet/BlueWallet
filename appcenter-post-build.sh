@@ -1,10 +1,10 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 echo Uploading to Appetize and publishing link to Github...
-echo -n "Branch "
+echo "Branch "
 BRANCH=`git ls-remote --heads origin | grep $(git rev-parse HEAD) | cut -d / -f 3`
 echo $BRANCH
-echo -n "Branch 2 "
+echo "Branch 2 "
 git log -n 1 --pretty=%d HEAD | awk '{print $2}' | sed 's/origin\///' | sed 's/)//'
 
 FILENAME="$APPCENTER_OUTPUT_DIRECTORY/app-release.apk"
