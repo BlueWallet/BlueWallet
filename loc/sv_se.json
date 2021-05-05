@@ -183,7 +183,6 @@
     "permission_camera_message": "Vi behöver ditt godkännande för att använda kameran",
     "permission_camera_title": "Tillåtelse för att använda kameran",
     "open_settings": "Öppna inställningar",
-    "permission_storage_later": "Fråga mig senare",
     "psbt_tx_export": "Exportera till fil",
     "qr_error_no_qrcode": "Bilden innehåller inte en QR kod",
     "success_done": "Klart!"

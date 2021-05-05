@@ -142,7 +142,6 @@
     "header": "Poslať",
     "permission_camera_message": "Potrebujeme povolenie na použitie kamery",
     "permission_camera_title": "Povolenie na použitie kamery",
-    "permission_storage_later": "Požiadať neskôr",
     "psbt_tx_export": "Exportovať do súboru",
     "psbt_tx_open": "Otvoriť podpísanú transakciu",
     "psbt_tx_scan": "Skenovať podpísanú transakciu",

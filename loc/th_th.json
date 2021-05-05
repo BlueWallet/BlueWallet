@@ -198,7 +198,6 @@
     "permission_camera_message": "ต้องการคำอนุญาตในการใช้กล้อง",
     "permission_camera_title": "อนุญาตในการใช้กล้อง",
     "open_settings": "เปิดการตั้งค่า",
-    "permission_storage_later": "ถามฉันภายหลัง",
     "psbt_clipboard": "คัดลอกไปที่คลิ๊ปบอร์ด",
     "psbt_tx_export": "ส่งไปที่ไฟล์",
     "psbt_tx_open": "เปิดธุรกรรมที่ลงนามไว้แล้ว",
