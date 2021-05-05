@@ -1,5 +1,5 @@
 /* global alert */
-import { Alert, Linking, PermissionsAndroid, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import loc from '../loc';
@@ -26,36 +26,14 @@ const writeFileAndExport = async function (filename, contents) {
         RNFS.unlink(filePath);
       });
   } else if (Platform.OS === 'android') {
-    const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-      title: loc.send.permission_storage_title,
-      message: loc.send.permission_storage_message,
-      buttonNeutral: loc.send.permission_storage_later,
-      buttonNegative: loc._.cancel,
-      buttonPositive: loc._.ok,
-    });
-
-    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-      console.log('Storage Permission: Granted');
-      const filePath = RNFS.DownloadDirectoryPath + `/${filename}`;
-      try {
-        await RNFS.writeFile(filePath, contents);
-        alert(loc.formatString(loc._.file_saved, { filePath: filename }));
-      } catch (e) {
-        console.log(e);
-        alert(e.message);
-      }
-    } else {
-      console.log('Storage Permission: Denied');
-      Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
-        {
-          text: loc.send.open_settings,
-          onPress: () => {
-            Linking.openSettings();
-          },
-          style: 'default',
-        },
-        { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-      ]);
+    try {
+      const res = await DocumentPicker.pick({ mode: 'open', isCreate: true, name: filename, type: ['*/*'] });
+      const filePath = RNFS.TemporaryDirectoryPath + `/${filename}`;
+      await RNFS.writeFile(filePath, contents);
+      await RNFS.copyFile(filePath, res.fileCopyUri);
+      await RNFS.unlink(filePath);
+    } catch (e) {
+      console.log(e.message);
     }
   }
 };
@@ -68,6 +46,7 @@ const writeFileAndExport = async function (filename, contents) {
 const openSignedTransaction = async function () {
   try {
     const res = await DocumentPicker.pick({
+      isCreate: false,
       type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallt.psbt.txn'] : [DocumentPicker.types.allFiles],
     });
 
@@ -149,6 +128,7 @@ const takePhotoWithImagePickerAndReadPhoto = () => {
 const showFilePickerAndReadFile = async function () {
   try {
     const res = await DocumentPicker.pick({
+      isCreate: false,
       type:
         Platform.OS === 'ios'
           ? [

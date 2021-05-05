@@ -579,6 +579,7 @@ const SendDetails = () => {
 
     try {
       const res = await DocumentPicker.pick({
+        isCreate: false,
         type:
           Platform.OS === 'ios'
             ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', DocumentPicker.types.plainText, 'public.json']

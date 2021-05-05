@@ -14,7 +14,6 @@ import {
   Linking,
   StyleSheet,
   StatusBar,
-  PermissionsAndroid,
   InteractionManager,
   ActivityIndicator,
 } from 'react-native';
@@ -41,6 +40,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import isCatalyst from 'react-native-is-catalyst';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
+import DocumentPicker from 'react-native-document-picker';
 
 const prompt = require('../../blue_modules/prompt');
 
@@ -315,6 +315,7 @@ const WalletDetails = () => {
       null,
       2,
     );
+    console.warn(RNFS.DownloadDirectoryPath);
     if (Platform.OS === 'ios') {
       const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
       await RNFS.writeFile(filePath, contents);
@@ -330,37 +331,11 @@ const WalletDetails = () => {
           RNFS.unlink(filePath);
         });
     } else if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-        title: loc.send.permission_storage_title,
-        message: loc.send.permission_storage_message,
-        buttonNeutral: loc.send.permission_storage_later,
-        buttonNegative: loc._.cancel,
-        buttonPositive: loc._.ok,
-      });
-
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Storage Permission: Granted');
-        const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
-        try {
-          await RNFS.writeFile(filePath, contents);
-          alert(loc.formatString(loc.send.txSaved, { filePath: fileName }));
-        } catch (e) {
-          console.log(e);
-          alert(e.message);
-        }
-      } else {
-        console.log('Storage Permission: Denied');
-        Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
-          {
-            text: loc.send.open_settings,
-            onPress: () => {
-              Linking.openSettings();
-            },
-            style: 'default',
-          },
-          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-        ]);
-      }
+      const res = await DocumentPicker.pick({ mode: 'open', isCreate: true, name: fileName, type: ['*/*'] });
+      const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
+      await RNFS.writeFile(filePath, contents);
+      await RNFS.copyFile(filePath, res.fileCopyUri);
+      await RNFS.unlink(filePath);
     }
   };
 
