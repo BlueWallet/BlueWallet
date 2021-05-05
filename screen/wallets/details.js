@@ -315,7 +315,6 @@ const WalletDetails = () => {
       null,
       2,
     );
-    console.warn(RNFS.DownloadDirectoryPath);
     if (Platform.OS === 'ios') {
       const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
       await RNFS.writeFile(filePath, contents);
