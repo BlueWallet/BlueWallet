@@ -29,13 +29,14 @@ import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
 import Lnurl from '../../class/lnurl';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
+import { LightningLndWallet } from '../../class';
 const currency = require('../../blue_modules/currency');
 
 const LNDCreateInvoice = () => {
   const { wallets, saveToDisk, setSelectedWallet } = useContext(BlueStorageContext);
   const { walletID, uri } = useRoute().params;
   const wallet = useRef(
-    wallets.find(item => item.getID() === walletID) || wallets.find(item => item.type === LightningCustodianWallet.type),
+    wallets.find(item => item.getID() === walletID) || wallets.find(item => item.type === LightningCustodianWallet.type || LightningLndWallet.type),
   );
   const { name } = useRoute();
   const { colors } = useTheme();
