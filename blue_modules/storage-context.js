@@ -175,6 +175,8 @@ export const BlueStorageProvider = ({ children }) => {
   const getHodlHodlSignatureKey = BlueApp.getHodlHodlSignatureKey;
   const addHodlHodlContract = BlueApp.addHodlHodlContract;
   const getHodlHodlContracts = BlueApp.getHodlHodlContracts;
+  const setDoNotTrack = BlueApp.setDoNotTrack;
+  const isDoNotTrackEnabled = BlueApp.isDoNotTrackEnabled;
   const getItem = BlueApp.getItem;
   const setItem = BlueApp.setItem;
 
@@ -227,6 +229,8 @@ export const BlueStorageProvider = ({ children }) => {
         setWalletTransactionUpdateStatus,
         isDrawerListBlurred,
         setIsDrawerListBlurred,
+        setDoNotTrack,
+        isDoNotTrackEnabled,
       }}
     >
       {children}

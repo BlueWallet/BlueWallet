@@ -1,6 +1,8 @@
+import * as Sentry from '@sentry/react-native';
 import amplitude from 'amplitude-js';
 import { getVersion, getSystemName } from 'react-native-device-info';
 import { Platform } from 'react-native';
+const BlueApp = require('../BlueApp');
 
 amplitude.getInstance().init('8b7cf19e8eea3cdcf16340f5fbf16330', null, {
   useNativeDeviceInfo: true,
@@ -8,6 +10,10 @@ amplitude.getInstance().init('8b7cf19e8eea3cdcf16340f5fbf16330', null, {
 });
 amplitude.getInstance().setVersionName(getVersion());
 amplitude.getInstance().options.apiEndpoint = 'api2.amplitude.com';
+BlueApp.isDoNotTrackEnabled().then(value => {
+  if (value) Sentry.close();
+  amplitude.getInstance().setOptOut(value);
+});
 
 const A = async event => {
   console.log('posting analytics...', event);
@@ -26,6 +32,11 @@ A.ENUM = {
   CREATED_LIGHTNING_WALLET: 'CREATED_LIGHTNING_WALLET',
   APP_UNSUSPENDED: 'APP_UNSUSPENDED',
   NAVIGATED_TO_WALLETS_HODLHODL: 'NAVIGATED_TO_WALLETS_HODLHODL',
+};
+
+A.setOptOut = value => {
+  if (value) Sentry.close();
+  return amplitude.getInstance().setOptOut(value);
 };
 
 module.exports = A;

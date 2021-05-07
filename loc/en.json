@@ -316,6 +316,8 @@
     "privacy_quickactions": "Wallet Shortcuts",
     "privacy_quickactions_explanation": "Touch and hold the BlueWallet app icon on your Home Screen to quickly view your wallet’s balance.",
     "privacy_clipboard_explanation": "Provide shortcuts if an address or invoice is found in your clipboard.",
+    "privacy_do_not_track": "Do Not Track",
+    "privacy_do_not_track_explanation": "Some anonymized analytics and debug data won't be sent to analytics service.",
     "push_notifications": "Push Notifications",
     "retype_password": "Re-type password",
     "selfTest": "Self-Test",
