@@ -57,9 +57,7 @@ export default class Confirm extends Component {
    * @return {string}
    */
   getPaymentScript() {
-    for (const recipient of this.state.recipients) {
-      return bitcoin.address.toOutputScript(recipient.address);
-    }
+    return bitcoin.address.toOutputScript(this.state.recipients[0].address);
   }
 
   send() {
@@ -221,28 +219,28 @@ export default class Confirm extends Component {
               {loc.send.create_fee}: {formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
               {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
             </Text>
-              {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm_sendNow} />}
-              <TouchableOpacity
-                testID="TransactionDetailsButton"
-                style={styles.txDetails}
-                onPress={async () => {
-                  if (this.isBiometricUseCapableAndEnabled) {
-                    if (!(await Biometric.unlockWithBiometrics())) {
-                      return;
-                    }
+            {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm_sendNow} />}
+            <TouchableOpacity
+              testID="TransactionDetailsButton"
+              style={styles.txDetails}
+              onPress={async () => {
+                if (this.isBiometricUseCapableAndEnabled) {
+                  if (!(await Biometric.unlockWithBiometrics())) {
+                    return;
                   }
+                }
 
-                  this.props.navigation.navigate('CreateTransaction', {
-                    fee: this.state.fee,
-                    recipients: this.state.recipients,
-                    memo: this.state.memo,
-                    tx: this.state.tx,
-                    satoshiPerByte: this.state.satoshiPerByte,
-                    wallet: this.state.fromWallet,
-                    feeSatoshi: this.state.feeSatoshi,
-                  });
-                }}
-              >
+                this.props.navigation.navigate('CreateTransaction', {
+                  fee: this.state.fee,
+                  recipients: this.state.recipients,
+                  memo: this.state.memo,
+                  tx: this.state.tx,
+                  satoshiPerByte: this.state.satoshiPerByte,
+                  wallet: this.state.fromWallet,
+                  feeSatoshi: this.state.feeSatoshi,
+                });
+              }}
+            >
               <Text style={styles.txText}>{loc.transactions.details_transaction_details}</Text>
             </TouchableOpacity>
           </BlueCard>
@@ -312,7 +310,7 @@ const styles = StyleSheet.create({
   cardBottom: {
     flexGrow: 2,
     justifyContent: 'flex-end',
-    alignItems: 'center', 
+    alignItems: 'center',
   },
   cardContainer: {
     flexGrow: 1,
@@ -346,10 +344,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: BlueCurrentTheme.colors.buttonDisabledBackgroundColor,
   },
-  payjoinText: { 
-    color: '#81868e', 
+  payjoinText: {
+    color: '#81868e',
     fontSize: 15,
-    fontWeight: 'bold', 
+    fontWeight: 'bold',
   },
 });
 
