@@ -36,6 +36,7 @@ export class AppStorage {
   static ELECTRUM_SERVER_HISTORY = 'electrum_server_history';
   static PREFERRED_CURRENCY = 'preferredCurrency';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
+  static DO_NOT_TRACK = 'donottrack';
   static HODL_HODL_API_KEY = 'HODL_HODL_API_KEY';
   static HODL_HODL_SIGNATURE_KEY = 'HODL_HODL_SIGNATURE_KEY';
   static HODL_HODL_CONTRACTS = 'HODL_HODL_CONTRACTS';
@@ -651,6 +652,17 @@ export class AppStorage {
 
   setIsAdancedModeEnabled = async value => {
     await this.setItem(AppStorage.ADVANCED_MODE_ENABLED, value ? '1' : '');
+  };
+
+  isDoNotTrackEnabled = async () => {
+    try {
+      return !!(await this.getItem(AppStorage.DO_NOT_TRACK));
+    } catch (_) {}
+    return false;
+  };
+
+  setDoNotTrack = async value => {
+    await this.setItem(AppStorage.DO_NOT_TRACK, value ? '1' : '');
   };
 
   /**

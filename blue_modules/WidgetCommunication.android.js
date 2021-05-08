@@ -1,5 +1,5 @@
 function WidgetCommunication(props) {
-  WidgetCommunication.isBalanceDisplayAllowed = false;
+  WidgetCommunication.isBalanceDisplayAllowed = () => {};
   WidgetCommunication.setBalanceDisplayAllowed = () => {};
   return null;
 }
