@@ -593,8 +593,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
           this.setWrappedSegwit();
           break;
-        default:
         case MultisigHDWallet.FORMAT_P2WSH:
+        default:
           this.setNativeSegwit();
           break;
       }
