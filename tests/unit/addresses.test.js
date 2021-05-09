@@ -34,6 +34,8 @@ describe('Addresses', () => {
       _getInternalAddressByIndex: index => `internal_address_${index}`,
       _balances_by_external_index: [{ c: 0, u: 0 }],
       _balances_by_internal_index: [{ c: 0, u: 0 }],
+      _txs_by_external_index: { 0: [{}] },
+      _txs_by_internal_index: { 0: [{}, {}] },
     };
 
     const firstExternalAddress = getAddress(fakeWallet, 0, false);
@@ -45,7 +47,7 @@ describe('Addresses', () => {
       index: 0,
       isInternal: false,
       key: 'external_address_0',
-      transactions: 0,
+      transactions: 1,
     });
 
     assert.deepStrictEqual(firstInternalAddress, {
@@ -54,7 +56,7 @@ describe('Addresses', () => {
       index: 0,
       isInternal: true,
       key: 'internal_address_0',
-      transactions: 0,
+      transactions: 2,
     });
   });
 });
