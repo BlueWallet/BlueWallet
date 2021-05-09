@@ -1,4 +1,4 @@
-import bip39 from 'bip39';
+import * as bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
 
@@ -1116,7 +1116,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @returns {string} Hex fingerprint
    */
   static mnemonicToFingerprint(mnemonic) {
-    const seed = bip39.mnemonicToSeed(mnemonic);
+    const seed = bip39.mnemonicToSeedSync(mnemonic);
     return AbstractHDElectrumWallet.seedToFingerprint(seed);
   }
 
