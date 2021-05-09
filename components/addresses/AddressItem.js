@@ -14,6 +14,8 @@ const AddressItem = ({ item, balanceUnit, onPress }) => {
   const tooltip = useRef();
   const listItem = useRef();
 
+  const hasTransactions = item.transactions > 0;
+
   const stylesHook = StyleSheet.create({
     container: {
       borderBottomColor: colors.lightBorder,
@@ -27,6 +29,9 @@ const AddressItem = ({ item, balanceUnit, onPress }) => {
     },
     balance: {
       color: colors.alternativeTextColor,
+    },
+    address: {
+      color: hasTransactions ? colors.darkGray : colors.buttonTextColor,
     },
   });
 
