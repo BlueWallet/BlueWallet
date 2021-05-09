@@ -76,7 +76,12 @@ const AddressItem = ({ item, balanceUnit, onPress }) => {
               <Text style={[styles.index, stylesHook.index]}>{item.index + 1}</Text>{' '}
               <Text style={[stylesHook.address, styles.address]}>{item.address}</Text>
             </ListItem.Title>
-            <ListItem.Subtitle style={[stylesHook.list, styles.balance, stylesHook.balance]}>{balance}</ListItem.Subtitle>
+            <View style={styles.subtitle}>
+              <Text style={[stylesHook.list, styles.balance, stylesHook.balance]}>{balance}</Text>
+              <Text style={[stylesHook.list, styles.balance, stylesHook.balance]}>
+                {loc.addresses.transactions}: {item.transactions}
+              </Text>
+            </View>
           </ListItem.Content>
           <AddressTypeBadge isInternal={item.isInternal} />
         </ListItem>
@@ -98,6 +103,12 @@ const styles = StyleSheet.create({
   balance: {
     marginTop: 8,
     marginLeft: 14,
+  },
+  subtitle: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
   },
 });
 

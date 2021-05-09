@@ -581,7 +581,8 @@
     "address_balance": "Balance: {balance} sats",
     "addresses_title": "Addresses",
     "type_change": "Change",
-    "type_receive": "Receive"
+    "type_receive": "Receive",
+    "transactions": "Transactions"
   },
   "aopp": {
     "title": "Select Address",
