@@ -1,3 +1,10 @@
+v6.1.2
+======
+
+* ADD: opt-out of analytics tracking in settings/privacy
+* FIX: Loading indicator for wallet details
+* FIX: Lightning invoice unit didn't reflect user change
+
 v6.1.1
 ======
 
