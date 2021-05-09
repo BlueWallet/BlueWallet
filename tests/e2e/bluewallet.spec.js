@@ -1251,7 +1251,7 @@ async function extractTextFromElementById(id) {
       const [, restMessage] = errorMessage.split(start);
       const [label] = restMessage.split(end);
       const value = label.split(',');
-      var combineText = value.find(i => i.includes('text=')).trim();
+      const combineText = value.find(i => i.includes('text=')).trim();
       const [, elementText] = combineText.split('=');
       return elementText;
     }

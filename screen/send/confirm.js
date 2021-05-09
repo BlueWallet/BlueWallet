@@ -57,9 +57,7 @@ export default class Confirm extends Component {
    * @return {string}
    */
   getPaymentScript() {
-    for (const recipient of this.state.recipients) {
-      return bitcoin.address.toOutputScript(recipient.address);
-    }
+    return bitcoin.address.toOutputScript(this.state.recipients[0].address);
   }
 
   send() {
