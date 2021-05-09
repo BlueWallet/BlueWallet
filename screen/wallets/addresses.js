@@ -13,13 +13,16 @@ export const totalBalance = ({ c, u } = { c: 0, u: 0 }) => c + u;
 export const getAddress = (wallet, index, isInternal) => {
   let address;
   let balance = 0;
+  let transactions = 0;
 
   if (isInternal) {
     address = wallet._getInternalAddressByIndex(index);
     balance = totalBalance(wallet._balances_by_internal_index[index]);
+    transactions = wallet._txs_by_internal_index[index].length;
   } else {
     address = wallet._getExternalAddressByIndex(index);
     balance = totalBalance(wallet._balances_by_external_index[index]);
+    transactions = wallet._txs_by_external_index[index].length;
   }
 
   return {
@@ -28,7 +31,7 @@ export const getAddress = (wallet, index, isInternal) => {
     address,
     isInternal,
     balance,
-    transactions: 0,
+    transactions,
   };
 };
 
