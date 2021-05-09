@@ -79,7 +79,7 @@ const WalletAddresses = () => {
   const getAddresses = () => {
     const addressList = [];
 
-    for (let index = 0; index < walletInstance.next_free_change_address_index + walletInstance.gap_limit; index++) {
+    for (let index = 0; index < walletInstance.next_free_change_address_index; index++) {
       const address = getAddress(walletInstance, index, true);
 
       addressList.push(address);
