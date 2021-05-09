@@ -89,7 +89,7 @@ const AddressItem = ({ item, balanceUnit, onPress }) => {
 
 const styles = StyleSheet.create({
   address: {
-    fontWeight: '600',
+    fontWeight: 'bold',
     marginHorizontal: 40,
   },
   index: {
