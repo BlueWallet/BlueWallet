@@ -52,7 +52,7 @@ export class AbstractHDWallet extends LegacyWallet {
    */
   _getSeed() {
     const mnemonic = this.secret;
-    return bip39.mnemonicToSeed(mnemonic);
+    return bip39.mnemonicToSeedSync(mnemonic);
   }
 
   setSecret(newSecret) {
@@ -69,7 +69,7 @@ export class AbstractHDWallet extends LegacyWallet {
   }
 
   getMnemonicToSeedHex() {
-    return bip39.mnemonicToSeedHex(this.secret);
+    return bip39.mnemonicToSeedSync(this.secret).toString('hex');
   }
 
   /**
