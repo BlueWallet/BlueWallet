@@ -118,7 +118,7 @@
     "metro-react-native-babel-preset": "0.65.2",
     "path-browserify": "1.0.1",
     "payjoin-client": "1.0.0",
-    "pbkdf2": "3.1.1",
+    "pbkdf2": "3.1.2",
     "process": "0.11.10",
     "prop-types": "15.7.2",
     "react": "16.13.1",
