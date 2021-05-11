@@ -212,7 +212,7 @@
 		<key>source</key>
 		<string>CoinDesk</string>
 	</dict>
-		<dict>
+	<dict>
 		<key>endPointKey</key>
 		<string>LBP</string>
 		<key>symbol</key>
@@ -300,7 +300,7 @@
 		<key>locale</key>
 		<string>ru-RU</string>
 		<key>source</key>
-		<string>BitcoinduLiban</string>
+		<string>CoinDesk</string>
 	</dict>
 	<dict>
 		<key>endPointKey</key>
@@ -372,7 +372,7 @@
 		<key>source</key>
 		<string>CoinDesk</string>
 	</dict>
-		<dict>
+	<dict>
 		<key>endPointKey</key>
 		<string>UYU</string>
 		<key>symbol</key>

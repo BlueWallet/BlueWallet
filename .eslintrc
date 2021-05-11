@@ -6,14 +6,15 @@
   "extends": [
     "standard",
     "standard-react",
+    "standard-jsx",
     "plugin:react-hooks/recommended",
-    // "@react-native-community",
-    "plugin:prettier/recommended",
-    "prettier/react",
-    "prettier/standard",
+    "plugin:react/recommended",
+    // "@react-native-community", // TODO: try to enable
+    "plugin:prettier/recommended", // removes all eslint rules that can mess up with prettier
   ],
   "rules": {
     "react/jsx-handler-names": "off", // activated by standard-react config
+    "react/display-name": "off",
     "react-native/no-inline-styles": "error",
     "prettier/prettier": [
       "warn",

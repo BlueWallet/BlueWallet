@@ -287,7 +287,7 @@ PODS:
     - React
   - react-native-tor (0.1.7):
     - React
-  - react-native-webview (11.3.1):
+  - react-native-webview (11.4.0):
     - React-Core
   - react-native-widget-center (0.0.4):
     - React
@@ -359,7 +359,7 @@ PODS:
   - rn-lnd (0.1.8):
     - React-Core
     - SwiftProtobuf
-  - RNCAsyncStorage (1.15.1):
+  - RNCAsyncStorage (1.15.2):
     - React-Core
   - RNCClipboard (1.7.0):
     - React-Core
@@ -369,7 +369,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
-  - RNDeviceInfo (8.0.7):
+  - RNDeviceInfo (8.1.2):
     - React-Core
   - RNFS (2.16.6):
     - React
@@ -389,7 +389,7 @@ PODS:
     - React
   - RNReactNativeHapticFeedback (1.11.0):
     - React-Core
-  - RNReanimated (2.0.1):
+  - RNReanimated (2.1.0):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -422,20 +422,20 @@ PODS:
     - React-Core
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (2.4.0):
+  - RNSentry (2.5.0-beta.1):
     - React-Core
-    - Sentry (= 6.1.4)
-  - RNShare (5.2.2):
+    - Sentry (= 7.0.0)
+  - RNShare (6.0.0):
     - React-Core
-  - RNSVG (12.1.0):
+  - RNSVG (12.1.1):
     - React
   - RNVectorIcons (7.1.0):
     - React
   - RNWatch (1.0.3):
     - React
-  - Sentry (6.1.4):
-    - Sentry/Core (= 6.1.4)
-  - Sentry/Core (6.1.4)
+  - Sentry (7.0.0):
+    - Sentry/Core (= 7.0.0)
+  - Sentry/Core (7.0.0)
   - SwiftProtobuf (1.16.0)
   - SwiftSocket (2.0.2)
   - ToolTipMenu (5.2.0):
@@ -753,7 +753,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: e471852c5ed67eea4b10c5d9d43c1cebae3b231d
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
   react-native-tor: 4f389f5719dad633542b57ea32744e954730e7ef
-  react-native-webview: 30f048378c6cee522ed9bbbedbc34acb21e58188
+  react-native-webview: fdd3c7c2ad173e8ca8c82729ed05f3fda2491a82
   react-native-widget-center: 0f81d17beb163e7fb5848b06754d7d277fe7d99a
   React-RCTActionSheet: 89a0ca9f4a06c1f93c26067af074ccdce0f40336
   React-RCTAnimation: 1bde3ecc0c104c55df246eda516e0deb03c4e49b
@@ -768,12 +768,12 @@ SPEC CHECKSUMS:
   RealmJS: 5195064e9aeccf94ae3756bd9d0f2301b9074b07
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   rn-lnd: 3d8992d2c33dc49e7fa83daebdc1c8cc8774f6da
-  RNCAsyncStorage: 11080f1edfb382991959746b580a2dae29e75da0
+  RNCAsyncStorage: 502fbf425b9ee2d73ca6fa4b299dce0be411b422
   RNCClipboard: dac13db8b1ce9b998f1cbc7ca33440113602847f
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
-  RNDeviceInfo: 0550f15928f92d062238ea412b645d00548fd809
+  RNDeviceInfo: 4f480456c7ac8c9919448375399c1a6f14479549
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
@@ -783,15 +783,15 @@ SPEC CHECKSUMS:
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 2b31dad120cd1b78e33c6034808561c386a3dddf
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
-  RNReanimated: c5e9d841d33ed7f83861462756cec7146e73afaa
+  RNReanimated: 70f662b5232dd5d19ccff581e919a54ea73df51c
   RNScreens: f7ad633b2e0190b77b6a7aab7f914fad6f198d8d
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: b0d55027200c96f52e26b9bfb20296d47fc5051d
-  RNShare: 5cfe16bfd42cd2c4869a7692462181ac8cc15a6d
-  RNSVG: ce9d996113475209013317e48b05c21ee988d42e
+  RNSentry: 1868bcfe8c69b2c3b2451439a38b3ebea0a7510f
+  RNShare: 31fa0cedbd06c2744a78e0d2b7ba364778aa3506
+  RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
   RNWatch: e4c5d19506c94506860032fb68aedd5991beb985
-  Sentry: 9d055e2de30a77685e86b219acf02e59b82091fc
+  Sentry: 89d26e036063b9cb9caa59b6951dd2f8277aa13b
   SwiftProtobuf: 4e16842b83c6fda06b10fac50d73b3f1fce8ab7b
   SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
   ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e

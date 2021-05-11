@@ -1174,8 +1174,8 @@ const SendDetails = () => {
                 case BitcoinUnit.LOCAL_CURRENCY:
                   item.amountSats = currency.btcToSatoshi(currency.fiatToBTC(item.amount));
                   break;
-                default:
                 case BitcoinUnit.SATS:
+                default:
                   item.amountSats = parseInt(text);
                   break;
               }

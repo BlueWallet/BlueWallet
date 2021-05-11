@@ -10,12 +10,15 @@ import BlueClipboard from '../../blue_modules/clipboard';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 
+const A = require('../../blue_modules/analytics');
+
 const SettingsPrivacy = () => {
   const { colors } = useTheme();
-  const { isStorageEncrypted } = useContext(BlueStorageContext);
+  const { isStorageEncrypted, setDoNotTrack, isDoNotTrackEnabled } = useContext(BlueStorageContext);
   const sections = Object.freeze({ ALL: 0, CLIPBOARDREAD: 1, QUICKACTION: 2, WIDGETS: 3 });
   const [isLoading, setIsLoading] = useState(sections.ALL);
   const [isReadClipboardAllowed, setIsReadClipboardAllowed] = useState(false);
+  const [doNotTrackSwitchValue, setDoNotTrackSwitchValue] = useState(false);
 
   const [isDisplayWidgetBalanceAllowed, setIsDisplayWidgetBalanceAllowed] = useState(false);
   const [isQuickActionsEnabled, setIsQuickActionsEnabled] = useState(false);
@@ -24,6 +27,7 @@ const SettingsPrivacy = () => {
   useEffect(() => {
     (async () => {
       try {
+        setDoNotTrackSwitchValue(await isDoNotTrackEnabled());
         setIsReadClipboardAllowed(await BlueClipboard.isReadClipboardAllowed());
         setStorageIsEncrypted(await isStorageEncrypted());
         setIsQuickActionsEnabled(await DeviceQuickActions.getEnabled());
@@ -41,6 +45,18 @@ const SettingsPrivacy = () => {
     try {
       await BlueClipboard.setReadClipboardAllowed(value);
       setIsReadClipboardAllowed(value);
+    } catch (e) {
+      console.log(e);
+    }
+    setIsLoading(false);
+  };
+
+  const onDoNotTrackValueChange = async value => {
+    setIsLoading(sections.ALL);
+    try {
+      setDoNotTrackSwitchValue(value);
+      A.setOptOut(value);
+      await setDoNotTrack(value);
     } catch (e) {
       console.log(e);
     }
@@ -128,6 +144,17 @@ const SettingsPrivacy = () => {
           </BlueCard>
         </>
       )}
+      <BlueSpacing20 />
+
+      <BlueListItem
+        hideChevron
+        title={loc.settings.privacy_do_not_track}
+        Component={TouchableWithoutFeedback}
+        switch={{ onValueChange: onDoNotTrackValueChange, value: doNotTrackSwitchValue, disabled: isLoading === sections.ALL }}
+      />
+      <BlueCard>
+        <BlueText>{loc.settings.privacy_do_not_track_explanation}</BlueText>
+      </BlueCard>
       <BlueSpacing20 />
       <BlueListItem title={loc.settings.privacy_system_settings} chevron onPress={openApplicationSettings} testID="PrivacySystemSettings" />
       <BlueSpacing20 />

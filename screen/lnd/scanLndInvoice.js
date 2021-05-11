@@ -287,7 +287,7 @@ const ScanLndInvoice = () => {
     <SafeBlueArea style={stylesHook.root}>
       <StatusBar barStyle="light-content" />
       <View style={[styles.root, stylesHook.root]}>
-        <ScrollView contentContainerStyle={styles.scroll}>
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <KeyboardAvoidingView enabled behavior="position" keyboardVerticalOffset={20}>
             <View style={styles.scrollMargin}>
               <AmountInput
@@ -297,7 +297,7 @@ const ScanLndInvoice = () => {
                 onAmountUnitChange={setUnit}
                 onChangeText={setAmount}
                 disabled={!decoded || isLoading || decoded.num_satoshis > 0}
-                unit={BitcoinUnit.SATS}
+                unit={unit}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
             </View>
