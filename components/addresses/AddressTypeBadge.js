@@ -9,9 +9,11 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 20,
+    flex: 1,
   },
   badgeText: {
     fontSize: 12,
+    textAlign: 'center',
   },
 });
 

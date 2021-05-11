@@ -76,7 +76,7 @@ const AddressItem = ({ item, balanceUnit, onPress }) => {
           containerStyle={stylesHook.container}
           onLongPress={showToolTipMenu}
         >
-          <ListItem.Content style={stylesHook.list}>
+          <ListItem.Content style={[styles.list, stylesHook.list]}>
             <ListItem.Title style={stylesHook.list} numberOfLines={1} ellipsizeMode="middle">
               <Text style={[styles.index, stylesHook.index]}>{item.index + 1}</Text>{' '}
               <Text style={[stylesHook.address, styles.address]}>{item.address}</Text>
@@ -101,6 +101,9 @@ const styles = StyleSheet.create({
   address: {
     fontWeight: 'bold',
     marginHorizontal: 40,
+  },
+  list: {
+    flex: 6,
   },
   index: {
     fontSize: 15,
