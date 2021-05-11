@@ -581,6 +581,7 @@
     "addresses_title": "Addresses",
     "type_change": "Change",
     "type_receive": "Receive",
+    "type_used": "Used",
     "transactions": "Transactions"
   },
   "aopp": {

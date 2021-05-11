@@ -88,7 +88,7 @@ const AddressItem = ({ item, balanceUnit, onPress }) => {
               </Text>
             </View>
           </ListItem.Content>
-          <AddressTypeBadge isInternal={item.isInternal} />
+          <AddressTypeBadge isInternal={item.isInternal} hasTransactions={hasTransactions} />
         </ListItem>
       </View>
     );
