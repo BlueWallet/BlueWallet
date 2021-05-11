@@ -158,7 +158,7 @@ export default class Selftest extends Component {
       const bip39 = require('bip39');
       const mnemonic =
         'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
-      const seed = bip39.mnemonicToSeed(mnemonic);
+      const seed = bip39.mnemonicToSeedSync(mnemonic);
       const root = bitcoin.bip32.fromSeed(seed);
 
       const path = "m/49'/0'/0'/0/0";
