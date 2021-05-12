@@ -77,7 +77,7 @@
   },
   "dependencies": {
     "@babel/preset-env": "7.12.1",
-    "@react-native-async-storage/async-storage": "1.15.2",
+    "@react-native-async-storage/async-storage": "1.15.3",
     "@react-native-clipboard/clipboard": "1.7.0",
     "@react-native-community/blur": "3.6.0",
     "@react-native-community/masked-view": "0.1.10",
