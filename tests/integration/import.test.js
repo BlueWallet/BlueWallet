@@ -188,4 +188,11 @@ describe('import procedure', function () {
     );
     assert.strictEqual(lastImportedWallet.type, SLIP39SegwitP2SHWallet.type);
   });
+
+  it('can import watch-only Cobo vault export', async () => {
+    await WalletImport.processImportText(
+      '{"ExtPubKey":"zpub6riZchHnrWzhhZ3Z4dhCJmesGyafMmZBRC9txhnidR313XJbcv4KiDubderKHhL7rMsqacYd82FQ38e4whgs8Dg7CpsxX3dSGWayXsEerF4","MasterFingerprint":"7D2F0272","AccountKeyPath":"84\'\\/0\'\\/0\'","CoboVaultFirmwareVersion":"2.6.1(BTC-Only)"}',
+    );
+    assert.strictEqual(lastImportedWallet.type, WatchOnlyWallet.type);
+  });
 });
