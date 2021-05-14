@@ -316,6 +316,8 @@
     "privacy_quickactions": "میان‌برهای کیف پول",
     "privacy_quickactions_explanation": "آیکون برنامهٔ BlueWallet را در صفحهٔ اصلی لمس کرده و نگه دارید تا موجودی کیف پول خود را سریع مشاهده کنید.",
     "privacy_clipboard_explanation": "اگر آدرس یا صورت‌حسابی در کلیپ‌بورد شما پیدا شد، میان‌بر ارائه می‌دهد.",
+    "privacy_do_not_track": "غیرفعال‌کردن تحلیل",
+    "privacy_do_not_track_explanation": "اطلاعات کارایی و پایداری جهت تحلیل ارسال نخواهد شد.",
     "push_notifications": "پوش نوتیفیکیشن",
     "retype_password": "گذرواژه را دوباره بنویسید",
     "selfTest": "خودآزمایی",
