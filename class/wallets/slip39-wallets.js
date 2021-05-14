@@ -39,7 +39,7 @@ const SLIP39Mixin = {
   },
 
   getID() {
-    const string2hash = this.secret.sort().join(',');
+    const string2hash = this.secret.sort().join(',') + (this.getPassphrase() || '');
     return createHash('sha256').update(string2hash).digest().toString('hex');
   },
 };

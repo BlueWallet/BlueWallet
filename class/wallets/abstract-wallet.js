@@ -45,7 +45,9 @@ export class AbstractWallet {
   }
 
   getID() {
-    return createHash('sha256').update(this.getSecret()).digest().toString('hex');
+    const passphrase = this.getPassphrase ? this.getPassphrase() : '';
+    const string2hash = this.getSecret() + passphrase;
+    return createHash('sha256').update(string2hash).digest().toString('hex');
   }
 
   getTransactions() {
