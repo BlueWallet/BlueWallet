@@ -20,9 +20,6 @@ import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { getSystemName } from 'react-native-device-info';
 import QRCode from 'react-native-qrcode-svg';
-import Clipboard from '@react-native-clipboard/clipboard';
-import showPopupMenu from 'react-native-popup-menu-android';
-import ToolTip from 'react-native-tooltip';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import {
@@ -67,7 +64,6 @@ const WalletsAddMultisigStep2 = () => {
   const [cosignerXpubFilename, setCosignerXpubFilename] = useState('bw-cosigner.json');
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
-  const tooltip = useRef();
   const openScannerButton = useRef();
   const data = useRef(new Array(n));
   const hasUnsavedChanges = Boolean(cosigners.length > 0 && cosigners.length !== n);
@@ -518,32 +514,6 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
-  const toolTipMenuOptions = () => {
-    return Platform.select({
-      // NOT WORKING ATM.
-      // ios: [
-      //   { text: this.state.wallet.hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide, onPress: this.handleBalanceVisibility },
-      //   { text: loc.transactions.details_copy, onPress: this.handleCopyPress },
-      // ],
-      android: {
-        id: 'copyXpub',
-        label: loc.transactions.details_copy,
-      },
-    });
-  };
-
-  const showAndroidTooltip = () => {
-    showPopupMenu(toolTipMenuOptions, handleToolTipSelection, vaultKeyData.xpub);
-  };
-
-  const handleToolTipSelection = () => {
-    handleCopyPress();
-  };
-
-  const handleCopyPress = () => {
-    Clipboard.setString(vaultKeyData.xpub);
-  };
-
   const renderSecret = entries => {
     const component = [];
     const entriesObject = entries.entries();
@@ -558,24 +528,9 @@ const WalletsAddMultisigStep2 = () => {
         );
       } else {
         component.push(
-          <TouchableOpacity
-            style={[styles.word, stylesHook.word]}
-            key={`${secret}${index}`}
-            onLongPress={() => (Platform.OS === 'ios' ? tooltip.current.showMenu() : showAndroidTooltip())}
-          >
-            {Platform.OS === 'ios' && (
-              <ToolTip
-                ref={tooltip}
-                actions={[
-                  {
-                    text: loc.transactions.details_copy,
-                    onPress: () => handleCopyPress,
-                  },
-                ]}
-              />
-            )}
+          <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
             <Text style={[styles.wordText, stylesHook.wordText]}>{secret}</Text>
-          </TouchableOpacity>,
+          </View>,
         );
       }
     }
