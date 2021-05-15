@@ -21,7 +21,6 @@ import * as NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton, SecondButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Chain } from './models/bitcoinUnits';
-import QuickActions from 'react-native-quick-actions';
 import * as Sentry from '@sentry/react-native';
 import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
@@ -125,7 +124,7 @@ const App = () => {
     Linking.addEventListener('url', handleOpenURL);
     AppState.addEventListener('change', handleAppStateChange);
     DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
-    QuickActions.popInitialAction().then(popInitialAction);
+    DeviceQuickActions.popInitialAction().then(popInitialAction);
     handleAppStateChange(undefined);
     /*
       When a notification on iOS is shown while the app is on foreground;
