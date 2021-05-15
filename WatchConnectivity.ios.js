@@ -116,7 +116,7 @@ function WatchConnectivity() {
     if (!Array.isArray(wallets)) {
       console.log('No Wallets set to sync with Watch app. Exiting...');
       return;
-    } else if (wallets.length === 0) {
+    } else if (walletsInitialized && wallets.length === 0) {
       console.log('Wallets array is set. No Wallets set to sync with Watch app. Exiting...');
       updateApplicationContext({ wallets: [], randomID: Math.floor(Math.random() * 11) });
       return;
