@@ -266,7 +266,6 @@ const LndOpenChannel = props => {
               case BitcoinUnit.LOCAL_CURRENCY:
                 amountSats = currency.btcToSatoshi(currency.fiatToBTC(text));
                 break;
-              default:
               case BitcoinUnit.SATS:
                 amountSats = parseInt(text);
                 break;

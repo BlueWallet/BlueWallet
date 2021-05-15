@@ -36,7 +36,8 @@ const LNDCreateInvoice = () => {
   const { wallets, saveToDisk, setSelectedWallet } = useContext(BlueStorageContext);
   const { walletID, uri } = useRoute().params;
   const wallet = useRef(
-    wallets.find(item => item.getID() === walletID) || wallets.find(item => item.type === LightningCustodianWallet.type || LightningLndWallet.type),
+    wallets.find(item => item.getID() === walletID) ||
+      wallets.find(item => item.type === LightningCustodianWallet.type || LightningLndWallet.type),
   );
   const { name } = useRoute();
   const { colors } = useTheme();
