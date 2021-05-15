@@ -230,6 +230,15 @@ function WalletImport() {
 
     // if we're here - nope, its not a valid WIF
 
+    // maybe its a watch-only address?
+    const watchOnly = new WatchOnlyWallet();
+    watchOnly.setSecret(importText);
+    if (watchOnly.valid()) {
+      await watchOnly.fetchBalance();
+      return WalletImport._saveWallet(watchOnly, additionalProperties);
+    }
+    // nope, not watch-only
+
     try {
       const hdElectrumSeedLegacy = new HDSegwitElectrumSeedP2WPKHWallet();
       hdElectrumSeedLegacy.setSecret(importText);
@@ -269,15 +278,6 @@ function WalletImport() {
         }
       }
     } catch (_) {}
-
-    // not valid? maybe its a watch-only address?
-
-    const watchOnly = new WatchOnlyWallet();
-    watchOnly.setSecret(importText);
-    if (watchOnly.valid()) {
-      await watchOnly.fetchBalance();
-      return WalletImport._saveWallet(watchOnly, additionalProperties);
-    }
 
     // if it is multi-line string, then it is probably SLIP39 wallet
     // each line - one share

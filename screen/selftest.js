@@ -17,7 +17,6 @@ const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
 const BlueElectrum = require('../blue_modules/BlueElectrum');
-const torrific = require('../blue_modules/torrific');
 
 const styles = StyleSheet.create({
   center: {
@@ -53,13 +52,6 @@ export default class Selftest extends Component {
       }
 
       //
-
-      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-        await torrific.testHttp();
-        await torrific.testSocket();
-      } else {
-        // skipping RN-specific test'
-      }
 
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
         await BlueElectrum.ping();
