@@ -274,7 +274,7 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (3.3.2):
+  - react-native-image-picker (3.3.4):
     - React-Core
   - react-native-is-catalyst (1.0.0):
     - React
@@ -728,7 +728,7 @@ SPEC CHECKSUMS:
   glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 3a3758ef5a008e762faec9c9d50a39842f26d124
-  lottie-react-native: 4dff8fe8d10ddef9e7880e770080f4a56121397e
+  lottie-react-native: bb7bd67e87ef57237b6923e4711ab0408dcdd78d
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   PasscodeAuth: 1cc99b13d8e4de4716d7e2b4069af2f1a9de30b2
   RCTRequired: 082f10cd3f905d6c124597fd1c14f6f2655ff65e
@@ -747,7 +747,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
-  react-native-image-picker: 5b2f1ea1f9230b131abbfb8a4aa1eb209aba9ed9
+  react-native-image-picker: 4436d2ae609d1fc5b6426133755fc8d468347b61
   react-native-is-catalyst: 52ee70e0123c82419dd4ce47dc4cc94b22467512
   react-native-randombytes: 45ae693012df24c9a07a5e578b3b567c01468581
   react-native-safe-area-context: e471852c5ed67eea4b10c5d9d43c1cebae3b231d
