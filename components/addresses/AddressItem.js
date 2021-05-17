@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useTheme } from '@react-navigation/native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 import { ListItem } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import { AddressTypeBadge } from './AddressTypeBadge';
@@ -9,7 +9,7 @@ import TooltipMenu from '../TooltipMenu';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Share from 'react-native-share';
 
-const AddressItem = ({ item, balanceUnit, onPress }) => {
+const AddressItem = ({ item, balanceUnit, walletID }) => {
   const { colors } = useTheme();
   const tooltip = useRef();
   const listItem = useRef();
@@ -34,6 +34,18 @@ const AddressItem = ({ item, balanceUnit, onPress }) => {
       color: hasTransactions ? colors.darkGray : colors.buttonTextColor,
     },
   });
+
+  const { navigate } = useNavigation();
+
+  const navigateToReceive = () => {
+    navigate('ReceiveDetailsRoot', {
+      screen: 'ReceiveDetails',
+      params: {
+        walletID,
+        address: item.address,
+      },
+    });
+  };
 
   const showToolTipMenu = () => {
     tooltip.current.showMenu();
@@ -72,7 +84,7 @@ const AddressItem = ({ item, balanceUnit, onPress }) => {
           ref={listItem}
           key={`${item.key}`}
           button
-          onPress={onPress}
+          onPress={navigateToReceive}
           containerStyle={stylesHook.container}
           onLongPress={showToolTipMenu}
         >
