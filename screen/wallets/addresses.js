@@ -58,7 +58,9 @@ const WalletAddresses = () => {
 
   const balanceUnit = wallet.getPreferredBalanceUnit();
 
-  const walletInstance = wallet.type === WatchOnlyWallet.type ? wallet._hdWalletInstance : wallet;
+  const isWatchOnly = wallet.type === WatchOnlyWallet.type;
+
+  const walletInstance = isWatchOnly ? wallet._hdWalletInstance : wallet;
 
   const { colors } = useTheme();
 
@@ -104,7 +106,7 @@ const WalletAddresses = () => {
   );
 
   const renderRow = item => {
-    return <AddressItem {...item} balanceUnit={balanceUnit} walletID={walletID} />;
+    return <AddressItem {...item} balanceUnit={balanceUnit} walletID={walletID} isWatchOnly={isWatchOnly} />;
   };
 
   return (

@@ -9,7 +9,7 @@ import TooltipMenu from '../TooltipMenu';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Share from 'react-native-share';
 
-const AddressItem = ({ item, balanceUnit, walletID }) => {
+const AddressItem = ({ item, balanceUnit, walletID, isWatchOnly }) => {
   const { colors } = useTheme();
   const tooltip = useRef();
   const listItem = useRef();
@@ -47,6 +47,16 @@ const AddressItem = ({ item, balanceUnit, walletID }) => {
     });
   };
 
+  const navigateToSignVerify = () => {
+    navigate('SignVerifyRoot', {
+      screen: 'SignVerify',
+      params: {
+        walletID,
+        address: item.address,
+      },
+    });
+  };
+
   const showToolTipMenu = () => {
     tooltip.current.showMenu();
   };
@@ -61,25 +71,35 @@ const AddressItem = ({ item, balanceUnit, walletID }) => {
     Share.open({ message: item.address }).catch(error => console.log(error));
   };
 
+  const getAvailableActions = () => {
+    const actions = [
+      {
+        id: 'copyToClipboard',
+        text: loc.transactions.details_copy,
+        onPress: handleCopyPress,
+      },
+      {
+        id: 'share',
+        text: loc.receive.details_share,
+        onPress: handleSharePress,
+      },
+    ];
+
+    if (!isWatchOnly) {
+      actions.push({
+        id: 'signVerify',
+        text: loc.addresses.sign_title,
+        onPress: navigateToSignVerify,
+      });
+    }
+
+    return actions;
+  };
+
   const render = () => {
     return (
       <View>
-        <TooltipMenu
-          ref={tooltip}
-          anchorRef={listItem}
-          actions={[
-            {
-              id: 'copyToClipboard',
-              text: loc.transactions.details_copy,
-              onPress: handleCopyPress,
-            },
-            {
-              id: 'share',
-              text: loc.receive.details_share,
-              onPress: handleSharePress,
-            },
-          ]}
-        />
+        <TooltipMenu ref={tooltip} anchorRef={listItem} actions={getAvailableActions()} />
         <ListItem
           ref={listItem}
           key={`${item.key}`}
