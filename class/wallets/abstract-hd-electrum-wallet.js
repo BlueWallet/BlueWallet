@@ -824,11 +824,17 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   weOwnAddress(address) {
+    let cleanAddress = address;
+
+    if (this.segwitType === 'p2wpkh') {
+      cleanAddress = address.toLowerCase();
+    }
+
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-      if (this._getExternalAddressByIndex(c) === address) return true;
+      if (this._getExternalAddressByIndex(c) === cleanAddress) return true;
     }
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      if (this._getInternalAddressByIndex(c) === address) return true;
+      if (this._getInternalAddressByIndex(c) === cleanAddress) return true;
     }
     return false;
   }
