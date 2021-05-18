@@ -1,13 +1,15 @@
 import React from 'react';
-import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions, Platform } from 'react-native';
+import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber, getUniqueId } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 
-import { BlueButton, BlueCard, BlueListItem, BlueSpacing20, BlueTextCentered, BlueCopyToClipboardButton } from '../../BlueComponents';
+import { BlueButton, BlueCard, BlueListItem, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
+import Clipboard from '@react-native-clipboard/clipboard';
+import * as Sentry from '@sentry/react-native';
 
 const About = () => {
   const { navigate } = useNavigation();
@@ -17,6 +19,11 @@ const About = () => {
     copyToClipboard: {
       justifyContent: 'center',
       alignItems: 'center',
+    },
+    copyToClipboardText: {
+      fontSize: 13,
+      fontWeight: '400',
+      color: '#68bbe1',
     },
     center: {
       justifyContent: 'center',
@@ -203,10 +210,15 @@ const About = () => {
       </BlueTextCentered>
       <BlueTextCentered>Unique ID: {getUniqueId()}</BlueTextCentered>
       <View style={styles.copyToClipboard}>
-        <BlueCopyToClipboardButton
-          stringToCopy={(Platform.OS === 'android' ? 'user.id:' : 'app.device:') + getUniqueId()}
-          displayText={loc.transactions.details_copy}
-        />
+        <TouchableOpacity
+          onPress={() => {
+            const stringToCopy = 'user.id:' + getUniqueId();
+            Sentry.captureMessage('copied unique id');
+            Clipboard.setString(stringToCopy);
+          }}
+        >
+          <Text style={styles.copyToClipboardText}>{loc.transactions.details_copy}</Text>
+        </TouchableOpacity>
       </View>
       <BlueSpacing20 />
       <BlueSpacing20 />
