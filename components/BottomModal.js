@@ -56,7 +56,7 @@ BottomModal.propTypes = {
   onBackButtonPress: PropTypes.func,
   onBackdropPress: PropTypes.func,
   onClose: PropTypes.func,
-  doneButton: PropTypes.func,
+  doneButton: PropTypes.bool,
   windowHeight: PropTypes.number,
   windowWidth: PropTypes.number,
 };
