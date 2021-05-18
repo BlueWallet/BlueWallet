@@ -15,6 +15,7 @@ const startAndDecrypt = async retry => {
     console.log('App already has some wallets, so we are in already started state, exiting startAndDecrypt');
     return true;
   }
+  await BlueApp.migrateKeys();
   let password = false;
   if (await BlueApp.storageIsEncrypted()) {
     do {

@@ -27,14 +27,7 @@ let usedBucketNum = false;
 
 export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
-  static LANG = 'lang';
-  static EXCHANGE_RATES = 'currency';
   static LNDHUB = 'lndhub';
-  static ELECTRUM_HOST = 'electrum_host';
-  static ELECTRUM_TCP_PORT = 'electrum_tcp_port';
-  static ELECTRUM_SSL_PORT = 'electrum_ssl_port';
-  static ELECTRUM_SERVER_HISTORY = 'electrum_server_history';
-  static PREFERRED_CURRENCY = 'preferredCurrency';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
   static DO_NOT_TRACK = 'donottrack';
   static HODL_HODL_API_KEY = 'HODL_HODL_API_KEY';
@@ -42,11 +35,26 @@ export class AppStorage {
   static HODL_HODL_CONTRACTS = 'HODL_HODL_CONTRACTS';
   static HANDOFF_STORAGE_KEY = 'HandOff';
 
+  static keys2migrate = [AppStorage.HANDOFF_STORAGE_KEY, AppStorage.DO_NOT_TRACK, AppStorage.ADVANCED_MODE_ENABLED];
+
   constructor() {
     /** {Array.<AbstractWallet>} */
     this.wallets = [];
     this.tx_metadata = {};
     this.cachedPassword = false;
+  }
+
+  async migrateKeys() {
+    if (!(typeof navigator !== 'undefined' && navigator.product === 'ReactNative')) return;
+    for (const key of this.constructor.keys2migrate) {
+      try {
+        const value = await RNSecureKeyStore.get(key);
+        if (value) {
+          await AsyncStorage.setItem(key, value);
+          await RNSecureKeyStore.remove(key);
+        }
+      } catch (_) {}
+    }
   }
 
   /**
@@ -645,24 +653,35 @@ export class AppStorage {
 
   isAdancedModeEnabled = async () => {
     try {
-      return !!(await this.getItem(AppStorage.ADVANCED_MODE_ENABLED));
+      return !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
     } catch (_) {}
     return false;
   };
 
   setIsAdancedModeEnabled = async value => {
-    await this.setItem(AppStorage.ADVANCED_MODE_ENABLED, value ? '1' : '');
+    await AsyncStorage.setItem(AppStorage.ADVANCED_MODE_ENABLED, value ? '1' : '');
+  };
+
+  isHandoffEnabled = async () => {
+    try {
+      return !!(await AsyncStorage.getItem(AppStorage.HANDOFF_STORAGE_KEY));
+    } catch (_) {}
+    return false;
+  };
+
+  setIsHandoffEnabled = async value => {
+    await AsyncStorage.setItem(AppStorage.HANDOFF_STORAGE_KEY, value ? '1' : '');
   };
 
   isDoNotTrackEnabled = async () => {
     try {
-      return !!(await this.getItem(AppStorage.DO_NOT_TRACK));
+      return !!(await AsyncStorage.getItem(AppStorage.DO_NOT_TRACK));
     } catch (_) {}
     return false;
   };
 
   setDoNotTrack = async value => {
-    await this.setItem(AppStorage.DO_NOT_TRACK, value ? '1' : '');
+    await AsyncStorage.setItem(AppStorage.DO_NOT_TRACK, value ? '1' : '');
   };
 
   /**
