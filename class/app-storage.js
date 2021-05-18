@@ -460,15 +460,14 @@ export class AppStorage {
           // decrypted ok, this is our bucket
           // we serialize our object's data, encrypt it, and add it to buckets
           newData.push(encryption.encrypt(JSON.stringify(data), this.cachedPassword));
-          await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
         }
       }
       data = newData;
-    } else {
-      await this.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
+
     try {
-      return await this.setItem('data', JSON.stringify(data));
+      await this.setItem(AppStorage.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
+      await this.setItem('data', JSON.stringify(data));
     } catch (error) {
       alert(error.message);
     }

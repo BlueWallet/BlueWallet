@@ -1,3 +1,4 @@
+/* global alert */
 import { AppStorage } from './class';
 import Biometric from './class/biometrics';
 import { Platform } from 'react-native';
@@ -28,7 +29,7 @@ const startAndDecrypt = async retry => {
   } catch (error) {
     // in case of exception reading from keystore, lets retry instead of assuming there is no storage and
     // proceeding with no wallets
-    console.warn(error);
+    alert(error.message);
     wasException = true;
   }
 
@@ -37,7 +38,9 @@ const startAndDecrypt = async retry => {
     try {
       await new Promise(resolve => setTimeout(resolve, 3000)); // sleep
       success = await BlueApp.loadFromDisk(password);
-    } catch (_) {}
+    } catch (error) {
+      alert(error.message);
+    }
   }
 
   if (success) {
