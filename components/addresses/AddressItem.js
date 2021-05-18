@@ -115,12 +115,14 @@ const AddressItem = ({ item, balanceUnit, walletID, isWatchOnly }) => {
             </ListItem.Title>
             <View style={styles.subtitle}>
               <Text style={[stylesHook.list, styles.balance, stylesHook.balance]}>{balance}</Text>
-              <Text style={[stylesHook.list, styles.balance, stylesHook.balance]}>
-                {loc.addresses.transactions}: {item.transactions}
-              </Text>
             </View>
           </ListItem.Content>
-          <AddressTypeBadge isInternal={item.isInternal} hasTransactions={hasTransactions} />
+          <View style={styles.labels}>
+            <AddressTypeBadge isInternal={item.isInternal} hasTransactions={hasTransactions} />
+            <Text style={[stylesHook.list, styles.balance, stylesHook.balance]}>
+              {loc.addresses.transactions}: {item.transactions}
+            </Text>
+          </View>
         </ListItem>
       </View>
     );
@@ -135,7 +137,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 40,
   },
   list: {
-    flex: 6,
+    flex: 8,
   },
   index: {
     fontSize: 15,
