@@ -80,7 +80,7 @@
     "@react-native-async-storage/async-storage": "1.15.4",
     "@react-native-clipboard/clipboard": "1.7.0",
     "@react-native-community/blur": "3.6.0",
-    "@react-native-community/masked-view": "0.1.10",
+    "@react-native-community/masked-view": "0.1.11",
     "@react-native-community/push-notification-ios": "1.8.0",
     "@react-navigation/drawer": "5.12.5",
     "@react-navigation/native": "5.9.4",
