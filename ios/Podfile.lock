@@ -260,13 +260,13 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.43.5):
+  - react-native-camera (3.43.6):
     - React-Core
-    - react-native-camera/RCT (= 3.43.5)
-    - react-native-camera/RN (= 3.43.5)
-  - react-native-camera/RCT (3.43.5):
+    - react-native-camera/RCT (= 3.43.6)
+    - react-native-camera/RN (= 3.43.6)
+  - react-native-camera/RCT (3.43.6):
     - React-Core
-  - react-native-camera/RN (3.43.5):
+  - react-native-camera/RN (3.43.6):
     - React-Core
   - react-native-document-picker (3.5.4):
     - React
@@ -274,7 +274,7 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (3.3.2):
+  - react-native-image-picker (3.3.4):
     - React-Core
   - react-native-is-catalyst (1.0.0):
     - React
@@ -356,7 +356,7 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - RNCAsyncStorage (1.15.3):
+  - RNCAsyncStorage (1.15.4):
     - React-Core
   - RNCClipboard (1.7.0):
     - React-Core
@@ -735,11 +735,11 @@ SPEC CHECKSUMS:
   React-jsinspector: 58aef7155bc9a9683f5b60b35eccea8722a4f53a
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: 8a79f048c146e08e416c542bcf57984cbc7ed404
+  react-native-camera: 68bc0c37d11df806570bfe53e8d7561bd984cb76
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
-  react-native-image-picker: 5b2f1ea1f9230b131abbfb8a4aa1eb209aba9ed9
+  react-native-image-picker: 4436d2ae609d1fc5b6426133755fc8d468347b61
   react-native-is-catalyst: 52ee70e0123c82419dd4ce47dc4cc94b22467512
   react-native-randombytes: 45ae693012df24c9a07a5e578b3b567c01468581
   react-native-safe-area-context: e471852c5ed67eea4b10c5d9d43c1cebae3b231d
@@ -759,7 +759,7 @@ SPEC CHECKSUMS:
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
   RealmJS: 5195064e9aeccf94ae3756bd9d0f2301b9074b07
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  RNCAsyncStorage: 68fabb4cccd2a736e5a5c9b91ca469125274cde9
+  RNCAsyncStorage: b17c417b356114699a486715adfa5829a5d6d8b9
   RNCClipboard: dac13db8b1ce9b998f1cbc7ca33440113602847f
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
