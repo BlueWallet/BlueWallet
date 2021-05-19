@@ -465,7 +465,13 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   weOwnAddress(address) {
-    return this.getAddress() === address || this._address === address;
+    let cleanAddress = address;
+
+    if (this.segwitType === 'p2wpkh') {
+      cleanAddress = address.toLowerCase();
+    }
+
+    return this.getAddress() === cleanAddress || this._address === cleanAddress;
   }
 
   weOwnTransaction(txid) {
