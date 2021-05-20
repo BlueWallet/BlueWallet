@@ -465,6 +465,7 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   weOwnAddress(address) {
+    if (!address) return false;
     let cleanAddress = address;
 
     if (this.segwitType === 'p2wpkh') {

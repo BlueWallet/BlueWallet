@@ -824,6 +824,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   weOwnAddress(address) {
+    if (!address) return false;
     let cleanAddress = address;
 
     if (this.segwitType === 'p2wpkh') {

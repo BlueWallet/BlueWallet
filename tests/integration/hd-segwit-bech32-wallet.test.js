@@ -43,6 +43,8 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.ok(hd.weOwnAddress('BC1QVD6W54SYDC08Z3802SVKXR7297EZ7CUSD6266P'));
     assert.ok(hd.weOwnAddress('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'));
     assert.ok(!hd.weOwnAddress('1HjsSTnrwWzzEV2oi4r5MsAYENkTkrCtwL'));
+    assert.ok(!hd.weOwnAddress('garbage'));
+    assert.ok(!hd.weOwnAddress(false));
 
     assert.strictEqual(hd.timeToRefreshBalance(), true);
     assert.ok(hd._lastTxFetch === 0);
