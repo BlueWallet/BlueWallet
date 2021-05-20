@@ -242,15 +242,6 @@ export class AbstractHDWallet extends LegacyWallet {
     throw new Error('Not implemented');
   }
 
-  weOwnAddress(addr) {
-    const hashmap = {};
-    for (const a of this.usedAddresses) {
-      hashmap[a] = 1;
-    }
-
-    return hashmap[addr] === 1;
-  }
-
   _getDerivationPathByAddress(address) {
     throw new Error('Not implemented');
   }

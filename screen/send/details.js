@@ -163,7 +163,6 @@ const SendDetails = () => {
 
     // load fresh fees from servers
 
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setNetworkTransactionFeesIsLoading(true);
     NetworkTransactionFees.recommendedFees()
       .then(async fees => {
