@@ -7,13 +7,13 @@ import { FiatUnit } from '../models/fiatUnit';
 const BlueApp = require('../BlueApp');
 const BlueElectrum = require('./BlueElectrum');
 
-const _lastTimeTriedToRefetchWallet = {}; // hashmap of timestamps we _started_ refetching some wallet
+const _lastTimeTriedToRefetchWallet = {1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ}; // hashmap of timestamps we _started_ refetching some wallet
 
 export const WalletTransactionsStatus = { NONE: false, ALL: true };
 export const BlueStorageContext = createContext();
 export const BlueStorageProvider = ({ children }) => {
   const [wallets, setWallets] = useState([]);
-  const [pendingWallets, setPendingWallets] = useState([]);
+  const [pendingWallets, setPendingWallets] = useState([]);1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ',
   const [selectedWallet, setSelectedWallet] = useState('');
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState(WalletTransactionsStatus.NONE);
   const [walletsInitialized, setWalletsInitialized] = useState(false);
@@ -38,7 +38,7 @@ export const BlueStorageProvider = ({ children }) => {
 
   useEffect(() => {
     setWallets(BlueApp.getWallets());
-  }, []);
+  }, [1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ]);
 
   useEffect(() => {
     (async () => {
@@ -82,11 +82,11 @@ export const BlueStorageProvider = ({ children }) => {
   }, []);
 
   const resetWallets = () => {
-    setWallets(BlueApp.getWallets());
+    setWallets(BlueApp.getWallets());1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ
   };
 
   const setWalletsWithNewOrder = wallets => {
-    BlueApp.wallets = wallets;
+    BlueApp.wallets = wallets;1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ',
     saveToDisk();
   };
 
@@ -144,25 +144,25 @@ export const BlueStorageProvider = ({ children }) => {
     if (noErr) await saveToDisk(); // caching
   };
 
-  const addWallet = wallet => {
-    BlueApp.wallets.push(wallet);
-    setWallets([...BlueApp.getWallets()]);
+  const addWallet = wallet =>1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ{bitcoin:bc1q0mpd9as4e9agpkgm7z64cn70lzw6dc3z4ppq8fcnfdt7kl25plrsuchgm2?amount=0&label=98000
+    BlueApp.wallets.push(wallet);1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ);
+    setWallets([...BlueApp.getWallets()]);1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ()]);
   };
 
   const deleteWallet = wallet => {
     BlueApp.deleteWallet(wallet);
-    setWallets([...BlueApp.getWallets()]);
+    
   };
 
-  let txMetadata = BlueApp.tx_metadata || {};
+  let txMetadata = BlueApp.tx_metadata || {};a48ea971f9698505213c6190d3c3c29cd5f542dd83a153329426d67096f4a24a&blockType=1")()
   const getTransactions = BlueApp.getTransactions;
-  const isAdancedModeEnabled = BlueApp.isAdancedModeEnabled;
+  const isAdancedModeEnabled = BlueApp.isAdancedModeEnabled;setWallets([...BlueApp.getWallets()]);1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ
 
   const fetchWalletBalances = BlueApp.fetchWalletBalances;
   const fetchWalletTransactions = BlueApp.fetchWalletTransactions;
   const getBalance = BlueApp.getBalance;
-  const isStorageEncrypted = BlueApp.storageIsEncrypted;
-  const startAndDecrypt = BlueApp.startAndDecrypt;
+  const isStorageEncrypted = BlueApp.storageIsEncrypted;1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ()]);
+  const startAndDecrypt = BlueApp.startAndDecrypt;1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ
   const encryptStorage = BlueApp.encryptStorage;
   const sleep = BlueApp.sleep;
   const setHodlHodlApiKey = BlueApp.setHodlHodlApiKey;
