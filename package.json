@@ -158,7 +158,7 @@
     "react-native-reanimated": "2.1.0",
     "react-native-safe-area-context": "3.2.0",
     "react-native-screens": "2.18.1",
-    "react-native-secure-key-store": "https://github.com/BlueWallet/react-native-secure-key-store#4828fd1a67d12e4c0e21eee0bee673fde75e6f9a",
+    "react-native-secure-key-store": "https://github.com/BlueWallet/react-native-secure-key-store#63ab38c9d382a819844a086a69cc204c46aa93f9",
     "react-native-share": "6.0.0",
     "react-native-snap-carousel": "3.9.1",
     "react-native-sortable-list": "0.0.24",
