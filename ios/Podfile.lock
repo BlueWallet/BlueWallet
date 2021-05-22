@@ -274,11 +274,11 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (3.3.4):
+  - react-native-image-picker (3.5.0):
     - React-Core
   - react-native-is-catalyst (1.0.0):
     - React
-  - react-native-randombytes (3.6.0):
+  - react-native-randombytes (3.6.1):
     - React-Core
   - react-native-safe-area-context (3.2.0):
     - React-Core
@@ -739,9 +739,9 @@ SPEC CHECKSUMS:
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
-  react-native-image-picker: 4436d2ae609d1fc5b6426133755fc8d468347b61
+  react-native-image-picker: 189e8d3653b00442cb790bce09a283edaf8e02b6
   react-native-is-catalyst: 52ee70e0123c82419dd4ce47dc4cc94b22467512
-  react-native-randombytes: 45ae693012df24c9a07a5e578b3b567c01468581
+  react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
   react-native-safe-area-context: e471852c5ed67eea4b10c5d9d43c1cebae3b231d
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
   react-native-tor: 4f389f5719dad633542b57ea32744e954730e7ef
