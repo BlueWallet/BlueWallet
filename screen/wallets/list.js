@@ -89,7 +89,7 @@ const WalletsList = () => {
 
   useEffect(() => {
     const allWallets = wallets.concat(pendingWallets);
-    const newCarouselData = I18nManager.isRTL && Platform.OS !== 'android' ? [false].concat(allWallets) : allWallets.concat(false);
+    const newCarouselData = allWallets.concat(false);
     setCarouselData(newCarouselData);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallets, pendingWallets]);
@@ -522,10 +522,12 @@ const styles = StyleSheet.create({
   ltTextBig: {
     fontSize: 16,
     fontWeight: '600',
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   ltTextSmall: {
     fontSize: 13,
     fontWeight: '500',
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   footerRoot: {
     top: 80,
