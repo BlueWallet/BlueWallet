@@ -9,12 +9,14 @@ jest.mock('react-native-watch-connectivity', () => {
 });
 
 jest.mock('react-native-secure-key-store', () => {
-  return {
-    setResetOnAppUninstallTo: jest.fn(),
-  };
+  return {};
 });
 
 jest.mock('@react-native-community/push-notification-ios', () => {
+  return {};
+});
+
+jest.mock('@sentry/react-native', () => {
   return {};
 });
 
@@ -98,7 +100,9 @@ jest.mock('rn-lnd/lib/module', () => ({}));
 const realmInstanceMock = {
   close: function () {},
   write: function () {},
-  objectForPrimaryKey: function () { return {}; },
+  objectForPrimaryKey: function () {
+    return {};
+  },
   objects: function () {
     const wallets = {
       filtered: function () {
