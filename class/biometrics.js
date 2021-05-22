@@ -8,9 +8,10 @@ import RNSecureKeyStore from 'react-native-secure-key-store';
 import loc from '../loc';
 import { useContext } from 'react';
 import { BlueStorageContext } from '../blue_modules/storage-context';
+import * as Sentry from '@sentry/react-native';
 
 function Biometric() {
-  const { getItem, setItem, setResetOnAppUninstallTo } = useContext(BlueStorageContext);
+  const { getItem, setItem } = useContext(BlueStorageContext);
   Biometric.STORAGEKEY = 'Biometrics';
   Biometric.FaceID = 'Face ID';
   Biometric.TouchID = 'Touch ID';
@@ -42,10 +43,9 @@ function Biometric() {
     try {
       const enabledBiometrics = await getItem(Biometric.STORAGEKEY);
       return !!enabledBiometrics;
-    } catch (_e) {
-      await setItem(Biometric.STORAGEKEY, '');
-      return false;
-    }
+    } catch (_) {}
+
+    return false;
   };
 
   Biometric.isBiometricUseCapableAndEnabled = async () => {
@@ -72,10 +72,10 @@ function Biometric() {
   };
 
   Biometric.clearKeychain = async () => {
+    Sentry.captureMessage('Biometric.clearKeychain()');
     await RNSecureKeyStore.remove('data');
     await RNSecureKeyStore.remove('data_encrypted');
     await RNSecureKeyStore.remove(Biometric.STORAGEKEY);
-    await setResetOnAppUninstallTo(true);
     NavigationService.dispatch(StackActions.replace('WalletsRoot'));
   };
 

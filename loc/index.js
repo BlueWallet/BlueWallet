@@ -6,11 +6,12 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import * as RNLocalize from 'react-native-localize';
 import BigNumber from 'bignumber.js';
 
-import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages } from './languages';
 import { I18nManager } from 'react-native';
 const currency = require('../blue_modules/currency');
+
+const LANG = 'lang';
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
@@ -158,8 +159,7 @@ const setDateTimeLocale = async () => {
 
 const setLanguageLocale = async () => {
   // finding out whether lang preference was saved
-  // For some reason using the AppStorage.LANG constant is not working. Hard coding string for now.
-  const lang = await AsyncStorage.getItem('lang');
+  const lang = await AsyncStorage.getItem(LANG);
   if (lang) {
     strings.setLanguage(lang);
     await setDateTimeLocale();
@@ -222,7 +222,7 @@ const strings = new Localization({
 });
 
 strings.saveLanguage = async lang => {
-  await AsyncStorage.setItem(AppStorage.LANG, lang);
+  await AsyncStorage.setItem(LANG, lang);
   strings.setLanguage(lang);
   await setDateTimeLocale();
 };
@@ -324,4 +324,5 @@ export function _leaveNumbersAndDots(newInputValue) {
   return newInputValue;
 }
 
+strings.LANG = LANG;
 export default strings;
