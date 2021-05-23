@@ -26,7 +26,7 @@ import { BlueStorageContext } from '../blue_modules/storage-context';
 const nStyles = StyleSheet.create({
   root: {
     marginVertical: 17,
-    paddingRight: 10,
+    paddingLeft: 16,
   },
   container: {
     paddingHorizontal: 24,
@@ -77,7 +77,7 @@ NewWalletPanel.propTypes = {
 
 const iStyles = StyleSheet.create({
   root: {
-    paddingRight: 10,
+    paddingLeft: 16,
     marginVertical: 17,
   },
   grad: {
@@ -287,8 +287,9 @@ const cStyles = StyleSheet.create({
   },
   content: {
     left: 16,
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-  },
+    flexDirection: I18nManager.isRTL && Platform.OS === 'android' ? 'row-reverse' : 'row',
+
+}
 });
 
 const WalletsCarousel = forwardRef((props, ref) => {
@@ -342,12 +343,12 @@ const WalletsCarousel = forwardRef((props, ref) => {
         sliderHeight={sliderHeight}
         itemWidth={itemWidth}
         inactiveSlideScale={1}
-        inactiveSlideOpacity={I18nManager.isRTL ? 1.0 : 0.7}
+        inactiveSlideOpacity={I18nManager.isRTL && Platform.OS === 'android' ? 1.0 : 0.7}
         activeSlideAlignment="start"
-        initialNumToRender={10}
-        inverted={I18nManager.isRTL && Platform.OS === 'android'}
-        onLayout={onLayout}
         contentContainerCustomStyle={cStyles.content}
+
+        initialNumToRender={10}
+        onLayout={onLayout}
         {...props}
       />
     </>

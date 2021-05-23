@@ -17,6 +17,7 @@ import {
   PermissionsAndroid,
   InteractionManager,
   ActivityIndicator,
+  I18nManager,
 } from 'react-native';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SecondButton, BlueListItem } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -64,11 +65,13 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontSize: 14,
     marginVertical: 12,
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   textLabel2: {
     fontWeight: '500',
     fontSize: 14,
     marginVertical: 16,
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   textValue: {
     fontWeight: '500',
@@ -88,6 +91,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     minHeight: 33,
     color: '#81868e',
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   hardware: {
     flexDirection: 'row',

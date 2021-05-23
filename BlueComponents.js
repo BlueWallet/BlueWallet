@@ -146,8 +146,19 @@ export const BitcoinButton = props => {
             <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/bitcoin.png')} />
           </View>
           <View>
-            <Text style={{ color: colors.newBlue, fontWeight: 'bold', fontSize: 18 }}>{loc.wallets.add_bitcoin}</Text>
-            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500' }}>{loc.wallets.add_bitcoin_explain}</Text>
+            <Text style={{ color: colors.newBlue, fontWeight: 'bold', fontSize: 18, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }}>
+              {loc.wallets.add_bitcoin}
+            </Text>
+            <Text
+              style={{
+                color: colors.alternativeTextColor,
+                fontSize: 13,
+                fontWeight: '500',
+                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+              }}
+            >
+              {loc.wallets.add_bitcoin_explain}
+            </Text>
           </View>
         </View>
       </View>
@@ -176,8 +187,24 @@ export const VaultButton = props => {
             <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/vault.png')} />
           </View>
           <View>
-            <Text style={{ color: colors.foregroundColor, fontWeight: 'bold', fontSize: 18 }}>{loc.multisig.multisig_vault}</Text>
-            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500' }}>
+            <Text
+              style={{
+                color: colors.foregroundColor,
+                fontWeight: 'bold',
+                fontSize: 18,
+                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+              }}
+            >
+              {loc.multisig.multisig_vault}
+            </Text>
+            <Text
+              style={{
+                color: colors.alternativeTextColor,
+                fontSize: 13,
+                fontWeight: '500',
+                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+              }}
+            >
               {loc.multisig.multisig_vault_explain}
             </Text>
           </View>
@@ -209,8 +236,21 @@ export const LightningButton = props => {
             <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/lightning.png')} />
           </View>
           <View>
-            <Text style={{ color: colors.lnborderColor, fontWeight: 'bold', fontSize: 18 }}>{loc.wallets.add_lightning}</Text>
-            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500' }}>{loc.wallets.add_lightning_explain}</Text>
+            <Text
+              style={{ color: colors.lnborderColor, fontWeight: 'bold', fontSize: 18, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }}
+            >
+              {loc.wallets.add_lightning}
+            </Text>
+            <Text
+              style={{
+                color: colors.alternativeTextColor,
+                fontSize: 13,
+                fontWeight: '500',
+                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+              }}
+            >
+              {loc.wallets.add_lightning_explain}
+            </Text>
           </View>
         </View>
       </View>
@@ -596,7 +636,9 @@ export const BlueText = props => {
       {...props}
       style={{
         color: colors.foregroundColor,
+
         ...props.style,
+        writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
       }}
     />
   );
@@ -670,7 +712,17 @@ export const BlueListItem = React.memo(props => {
 export const BlueFormLabel = props => {
   const { colors } = useTheme();
 
-  return <Text {...props} style={{ color: colors.foregroundColor, fontWeight: '400', marginHorizontal: 20 }} />;
+  return (
+    <Text
+      {...props}
+      style={{
+        color: colors.foregroundColor,
+        fontWeight: '400',
+        marginHorizontal: 20,
+        writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+      }}
+    />
+  );
 };
 
 export const BlueFormInput = props => {
