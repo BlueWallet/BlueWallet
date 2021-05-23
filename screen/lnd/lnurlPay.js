@@ -41,6 +41,7 @@ export default class LnurlPay extends Component {
       fromWallet,
       lnurl,
       payButtonDisabled: false,
+      unit: fromWallet.getPreferredBalanceUnit(),
     };
   }
 
@@ -52,7 +53,6 @@ export default class LnurlPay extends Component {
       payload,
       amount: payload.min,
       isLoading: false,
-      unit: BitcoinUnit.SATS,
       LN,
     });
   }
