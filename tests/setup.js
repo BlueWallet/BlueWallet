@@ -22,6 +22,7 @@ jest.mock('@sentry/react-native', () => {
 
 jest.mock('react-native-device-info', () => {
   return {
+    getUniqueId: jest.fn().mockReturnValue('uniqueId'),
     getSystemName: jest.fn(),
     hasGmsSync: jest.fn().mockReturnValue(true),
     hasHmsSync: jest.fn().mockReturnValue(false),
