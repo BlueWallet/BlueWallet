@@ -173,7 +173,7 @@
     "react-test-render": "1.1.2",
     "readable-stream": "3.6.0",
     "realm": "10.2.0",
-    "rn-nodeify": "10.2.0",
+    "rn-nodeify": "10.3.0",
     "scryptsy": "file:blue_modules/scryptsy",
     "secure-random": "1.1.2",
     "slip39": "file:blue_modules/slip39",
