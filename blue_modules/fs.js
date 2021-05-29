@@ -4,9 +4,9 @@ import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import loc from '../loc';
 import DocumentPicker from 'react-native-document-picker';
-import isCatalyst from 'react-native-is-catalyst';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { presentCameraNotAuthorizedAlert } from '../class/camera';
+import { isDesktop } from '../blue_modules/environment';
 import ActionSheet from '../screen/ActionSheet';
 import BlueClipboard from './clipboard';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
@@ -17,7 +17,7 @@ const writeFileAndExport = async function (filename, contents) {
     await RNFS.writeFile(filePath, contents);
     Share.open({
       url: 'file://' + filePath,
-      saveToFiles: isCatalyst,
+      saveToFiles: isDesktop,
     })
       .catch(error => {
         console.log(error);

@@ -1,8 +1,7 @@
-import { getSystemName, isTablet } from 'react-native-device-info';
-import isCatalyst from 'react-native-is-catalyst';
+import { getSystemName, isTablet, getDeviceType } from 'react-native-device-info';
 
 const isMacCatalina = getSystemName() === 'Mac OS X';
 
 module.exports.isMacCatalina = isMacCatalina;
-module.exports.isCatalyst = isCatalyst;
+module.exports.isDesktop = getDeviceType() === 'Desktop';
 module.exports.isTablet = isTablet;
