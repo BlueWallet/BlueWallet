@@ -32,7 +32,7 @@ import {
   BlueDismissKeyboardInputAccessory,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
-import { isCatalyst } from '../../blue_modules/environment';
+import { isDesktop } from '../../blue_modules/environment';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -268,7 +268,7 @@ export default class ElectrumSettings extends Component {
                 <TextInput
                   placeholder={
                     loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' }) +
-                    (!isCatalyst ? ' (' + loc.settings.tor_supported + ')' : '')
+                    (!isDesktop ? ' (' + loc.settings.tor_supported + ')' : '')
                   }
                   value={this.state.host}
                   onChangeText={text => this.setState({ host: text.trim() })}

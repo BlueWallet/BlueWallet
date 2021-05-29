@@ -40,7 +40,7 @@ import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
-import isCatalyst from 'react-native-is-catalyst';
+import { isDesktop } from '../../blue_modules/environment';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 
 const prompt = require('../../blue_modules/prompt');
@@ -324,7 +324,7 @@ const WalletDetails = () => {
       await RNFS.writeFile(filePath, contents);
       Share.open({
         url: 'file://' + filePath,
-        saveToFiles: isCatalyst,
+        saveToFiles: isDesktop,
       })
         .catch(error => {
           console.log(error);
