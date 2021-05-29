@@ -20,9 +20,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
-import isCatalyst from 'react-native-is-catalyst';
 import BigNumber from 'bignumber.js';
-
 import { SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
@@ -30,6 +28,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
+import { isDesktop } from '../../blue_modules/environment';
 const currency = require('../../blue_modules/currency');
 
 export default class SendCreate extends Component {
@@ -64,7 +63,7 @@ export default class SendCreate extends Component {
       await RNFS.writeFile(filePath, this.state.tx);
       Share.open({
         url: 'file://' + filePath,
-        saveToFiles: isCatalyst,
+        saveToFiles: isDesktop,
       })
         .catch(error => {
           console.log(error);
