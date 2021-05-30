@@ -132,7 +132,7 @@
     "react-native-document-picker": "https://github.com/BlueWallet/react-native-document-picker#3684d4fcc2bc0b47c32be39024e4796004c3e428",
     "react-native-elements": "2.3.2",
     "react-native-fingerprint-scanner": "https://github.com/BlueWallet/react-native-fingerprint-scanner#ce644673681716335d786727bab998f7e632ab5e",
-    "react-native-fs": "2.17.0",
+    "react-native-fs": "2.18.0",
     "react-native-gesture-handler": "1.10.3",
     "react-native-handoff": "https://github.com/marcosrdz/react-native-handoff#f5becc63f3e36bf2da1ed1fc60fc690323e73602",
     "react-native-haptic-feedback": "1.11.0",
