@@ -519,17 +519,21 @@ const WalletsAddMultisigStep2 = () => {
     const entriesObject = entries.entries();
     for (const [index, secret] of entriesObject) {
       if (entries.length > 1) {
+        const text = `${index + 1}. ${secret}  `;
         component.push(
           <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
-            <Text style={[styles.wordText, stylesHook.wordText]}>
-              {index + 1}. {secret}
+            <Text style={[styles.wordText, stylesHook.wordText]} textBreakStrategy="simple">
+              {text}
             </Text>
           </View>,
         );
       } else {
+        const text = `${secret}  `;
         component.push(
           <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
-            <Text style={[styles.wordText, stylesHook.wordText]}>{secret}</Text>
+            <Text style={[styles.wordText, stylesHook.wordText]} textBreakStrategy="simple">
+              {text}
+            </Text>
           </View>,
         );
       }
