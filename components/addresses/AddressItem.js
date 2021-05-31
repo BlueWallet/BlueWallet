@@ -9,7 +9,7 @@ import TooltipMenu from '../TooltipMenu';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Share from 'react-native-share';
 
-const AddressItem = ({ item, balanceUnit, walletID, isWatchOnly }) => {
+const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) => {
   const { colors } = useTheme();
   const tooltip = useRef();
   const listItem = useRef();
@@ -85,7 +85,7 @@ const AddressItem = ({ item, balanceUnit, walletID, isWatchOnly }) => {
       },
     ];
 
-    if (!isWatchOnly) {
+    if (allowSignVerifyMessage) {
       actions.push({
         id: 'signVerify',
         text: loc.addresses.sign_title,

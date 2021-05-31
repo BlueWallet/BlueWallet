@@ -62,6 +62,8 @@ const WalletAddresses = () => {
 
   const walletInstance = isWatchOnly ? wallet._hdWalletInstance : wallet;
 
+  const allowSignVerifyMessage = 'allowSignVerifyMessage' in wallet && wallet.allowSignVerifyMessage();
+
   const { colors } = useTheme();
 
   const stylesHook = StyleSheet.create({
@@ -106,7 +108,7 @@ const WalletAddresses = () => {
   );
 
   const renderRow = item => {
-    return <AddressItem {...item} balanceUnit={balanceUnit} walletID={walletID} isWatchOnly={isWatchOnly} />;
+    return <AddressItem {...item} balanceUnit={balanceUnit} walletID={walletID} allowSignVerifyMessage={allowSignVerifyMessage} />;
   };
 
   return (
