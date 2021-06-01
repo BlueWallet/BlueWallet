@@ -13,12 +13,18 @@ const AddressTypeTabs = ({ currentTab, setCurrentTab }) => {
 
   const stylesHook = StyleSheet.create({
     activeTab: {
+      backgroundColor: colors.modal,
+    },
+    activeText: {
       fontWeight: 'bold',
-      backgroundColor: colors.inputBackgroundColor,
+      color: colors.foregroundColor,
     },
     inactiveTab: {
       fontWeight: 'normal',
-      backgroundColor: colors.darkGray,
+      color: colors.foregroundColor,
+    },
+    backTabs: {
+      backgroundColor: colors.buttonDisabledBackgroundColor,
     },
   });
 
@@ -41,17 +47,20 @@ const AddressTypeTabs = ({ currentTab, setCurrentTab }) => {
       const isActive = tab.value === currentTab;
 
       const tabStyle = isActive ? stylesHook.activeTab : stylesHook.inactiveTab;
+      const textStyle = isActive ? stylesHook.activeText : stylesHook.inactiveTab;
 
       return (
-        <Text key={tab.key} onPress={() => changeToTab(tab.key)} style={[styles.tab, tabStyle]}>
-          {tab.name}
-        </Text>
+        <View key={tab.key} onPress={() => changeToTab(tab.key)} style={[styles.tab, tabStyle]}>
+          <Text onPress={() => changeToTab(tab.key)} style={textStyle}>{tab.name}</Text>
+        </View>
       );
     });
 
     return (
       <View style={styles.container}>
-        <View style={styles.tabs}>{tabsButtons}</View>
+        <View style={[stylesHook.backTabs, styles.backTabs]}>
+          <View style={styles.tabs}>{tabsButtons}</View>
+        </View>
       </View>
     );
   };
@@ -65,16 +74,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
+  backTabs: {
+    padding: 4,
+    marginVertical: 8,
+    borderRadius: 8,
+  },
   tabs: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
   },
   tab: {
-    borderWidth: 1,
-    borderColor: 'black',
-    borderRadius: 4,
-    padding: 4,
+    borderRadius: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
   },
 });
 
