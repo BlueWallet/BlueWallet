@@ -283,7 +283,7 @@ const ScanQRCode = () => {
       </TouchableOpacity>
       {showFileImportButton && (
         <TouchableOpacity style={styles.filePickerTouch} onPress={showFilePicker}>
-          <Icon name="file-import" type="material-community" color="#ffffff" />
+          <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
         </TouchableOpacity>
       )}
       {urTotal > 0 && (

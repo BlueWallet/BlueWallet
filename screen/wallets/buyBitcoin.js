@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StatusBar, Linking } from 'react-native';
 import { WebView } from 'react-native-webview';
-import InAppBrowser from 'react-native-inappbrowser-reborn';
-
 import { BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { isCatalyst } from '../../blue_modules/environment';
+import * as NavigationService from '../../NavigationService';
+
 const currency = require('../../blue_modules/currency');
 
 export default class BuyBitcoin extends Component {
@@ -81,7 +82,10 @@ export default class BuyBitcoin extends Component {
     return (
       <SafeBlueArea>
         <StatusBar barStyle="default" />
+
         <WebView
+          mediaPlaybackRequiresUserAction={false}
+          enableApplePay
           source={{
             uri: this.state.uri,
           }}
@@ -108,13 +112,12 @@ BuyBitcoin.navigationOptions = navigationStyle({
 });
 
 BuyBitcoin.navigate = async wallet => {
-  const uri = await BuyBitcoin.generateURL(wallet);
-  InAppBrowser.isAvailable()
-    .then(_value => {
-      InAppBrowser.open(uri, { dismissButtonStyle: 'done', modalEnabled: true, animated: true });
-    })
-    .catch(error => {
-      console.log(error);
-      Linking.openURL(uri);
+  if (isCatalyst) {
+    const uri = await BuyBitcoin.generateURL(wallet);
+    Linking.openURL(uri);
+  } else {
+    NavigationService.navigate('BuyBitcoin', {
+      wallet,
     });
+  }
 };
