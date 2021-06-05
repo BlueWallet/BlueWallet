@@ -95,6 +95,12 @@
       "locale": "hu-HU",
       "source": "CoinDesk"
     },
+     "IDR": {
+      "endPointKey": "IDR",
+      "symbol": "Rp",
+      "locale": "id-ID",
+      "source": "CoinDesk"
+    },
     "ILS": {
       "endPointKey": "ILS",
       "symbol": "₪",
