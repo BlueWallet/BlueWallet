@@ -44,7 +44,6 @@ const currency = require('../../blue_modules/currency');
 const prompt = require('../../blue_modules/prompt');
 const fs = require('../../blue_modules/fs');
 const scanqr = require('../../helpers/scan-qr');
-
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 const SendDetails = () => {
@@ -57,7 +56,7 @@ const SendDetails = () => {
 
   // state
   const [width, setWidth] = useState(Dimensions.get('window').width);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState(null);
   const [walletSelectionOrCoinsSelectedHidden, setWalletSelectionOrCoinsSelectedHidden] = useState(false);
   const [isAmountToolbarVisibleForAndroid, setIsAmountToolbarVisibleForAndroid] = useState(false);

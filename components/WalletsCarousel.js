@@ -26,7 +26,8 @@ import { BlueStorageContext } from '../blue_modules/storage-context';
 const nStyles = StyleSheet.create({
   root: {
     marginVertical: 17,
-    paddingLeft: 16,
+    paddingLeft: I18nManager.isRTL ? 12 : 0,
+    paddingRight: I18nManager.isRTL ? 0 : 12,
   },
   container: {
     paddingHorizontal: 24,
@@ -77,7 +78,8 @@ NewWalletPanel.propTypes = {
 
 const iStyles = StyleSheet.create({
   root: {
-    paddingLeft: 16,
+    paddingLeft: I18nManager.isRTL ? 12 : 0,
+    paddingRight: I18nManager.isRTL ? 0 : 12,
     marginVertical: 17,
   },
   grad: {

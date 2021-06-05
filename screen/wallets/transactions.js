@@ -35,7 +35,7 @@ import { FContainer, FButton } from '../../components/FloatButtons';
 import BottomModal from '../../components/BottomModal';
 import BuyBitcoin from './buyBitcoin';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
+import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import LNNodeBar from '../../components/LNNodeBar';
 
@@ -235,7 +235,7 @@ const WalletTransactions = () => {
 
   const renderListHeaderComponent = () => {
     const style = {};
-    if (!isCatalyst) {
+    if (!isDesktop) {
       // we need this button for testing
       style.opacity = 0;
       style.height = 1;

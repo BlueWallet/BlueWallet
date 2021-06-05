@@ -5,7 +5,7 @@ import Notifications from '../../blue_modules/notifications';
 import navigationStyle from '../../components/navigationStyle';
 import { SafeBlueArea, BlueListItem } from '../../BlueComponents';
 import loc from '../../loc';
-import { isCatalyst } from '../../blue_modules/environment';
+import { isDesktop } from '../../blue_modules/environment';
 
 const NetworkSettings = () => {
   const { navigate } = useNavigation();
@@ -35,7 +35,7 @@ const NetworkSettings = () => {
             chevron
           />
         )}
-        {!isCatalyst && <BlueListItem title={loc.settings.tor_settings} onPress={navigateToTorSettings} testID="TorSettings" chevron />}
+        {!isDesktop && <BlueListItem title={loc.settings.tor_settings} onPress={navigateToTorSettings} testID="TorSettings" chevron />}
       </ScrollView>
     </SafeBlueArea>
   );
