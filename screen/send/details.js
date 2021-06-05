@@ -56,7 +56,7 @@ const SendDetails = () => {
 
   // state
   const [width, setWidth] = useState(Dimensions.get('window').width);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState(null);
   const [walletSelectionOrCoinsSelectedHidden, setWalletSelectionOrCoinsSelectedHidden] = useState(false);
   const [isAmountToolbarVisibleForAndroid, setIsAmountToolbarVisibleForAndroid] = useState(false);
