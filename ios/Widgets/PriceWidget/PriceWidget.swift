@@ -10,26 +10,27 @@ import WidgetKit
 import SwiftUI
 
 var marketData: [MarketDataTimeline: MarketData?] = [ .Current: nil, .Previous: nil]
-struct Provider: TimelineProvider {
+struct PriceWidgetProvider: TimelineProvider {
+  typealias Entry = PriceWidgetEntry
   
-  func placeholder(in context: Context) -> SimpleEntry {
-    return SimpleEntry(date: Date(), currentMarketData: MarketData(nextBlock: "", sats: "", price: "$10,000", rate: 10000, dateString: "2019-09-18T17:27:00+00:00"))
+  func placeholder(in context: Context) -> PriceWidgetEntry {
+    return PriceWidgetEntry(date: Date(), currentMarketData: MarketData(nextBlock: "", sats: "", price: "$10,000", rate: 10000, dateString: "2019-09-18T17:27:00+00:00"))
   }
   
-  func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-    let entry: SimpleEntry
+  func getSnapshot(in context: Context, completion: @escaping (PriceWidgetEntry) -> ()) {
+    let entry: PriceWidgetEntry
     if (context.isPreview) {
-      entry = SimpleEntry(date: Date(), currentMarketData: MarketData(nextBlock: "", sats: "", price: "$10,000", rate: 10000, dateString: "2019-09-18T17:27:00+00:00"))
+      entry = PriceWidgetEntry(date: Date(), currentMarketData: MarketData(nextBlock: "", sats: "", price: "$10,000", rate: 10000, dateString: "2019-09-18T17:27:00+00:00"))
     } else {
-      entry = SimpleEntry(date: Date(), currentMarketData: emptyMarketData)
+      entry = PriceWidgetEntry(date: Date(), currentMarketData: emptyMarketData)
     }
     completion(entry)
   }
   
   func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-    var entries: [SimpleEntry] = []
+    var entries: [PriceWidgetEntry] = []
     if (context.isPreview) {
-      let entry = SimpleEntry(date: Date(), currentMarketData: MarketData(nextBlock: "", sats: "", price: "$10,000", rate: 10000, dateString: "2019-09-18T17:27:00+00:00"))
+      let entry = PriceWidgetEntry(date: Date(), currentMarketData: MarketData(nextBlock: "", sats: "", price: "$10,000", rate: 10000, dateString: "2019-09-18T17:27:00+00:00"))
       entries.append(entry)
       let timeline = Timeline(entries: entries, policy: .atEnd)
       completion(timeline)
@@ -48,9 +49,9 @@ struct Provider: TimelineProvider {
             marketData[.Previous] = marketData[.Current]
             marketData[.Current] = currentMarketData
             entryMarketData = currentMarketData
-            entries.append(SimpleEntry(date:Date(), currentMarketData: entryMarketData))
+            entries.append(PriceWidgetEntry(date:Date(), currentMarketData: entryMarketData))
           } else {
-            entries.append(SimpleEntry(date:Date(), currentMarketData: currentMarketData))
+            entries.append(PriceWidgetEntry(date:Date(), currentMarketData: currentMarketData))
           }
         }
         
@@ -61,7 +62,7 @@ struct Provider: TimelineProvider {
   }
 }
 
-struct SimpleEntry: TimelineEntry {
+struct PriceWidgetEntry: TimelineEntry {
   let date: Date
   let currentMarketData: MarketData?
   var previousMarketData: MarketData? {
@@ -70,7 +71,7 @@ struct SimpleEntry: TimelineEntry {
 }
 
 struct PriceWidgetEntryView : View {
-  var entry: Provider.Entry
+  let entry: PriceWidgetEntry
   var priceView: some View {
     PriceView(currentMarketData: entry.currentMarketData, previousMarketData: marketData[.Previous] ?? emptyMarketData).padding()
   }
@@ -82,12 +83,11 @@ struct PriceWidgetEntryView : View {
   }
 }
 
-@main
 struct PriceWidget: Widget {
   let kind: String = "PriceWidget"
   
   var body: some WidgetConfiguration {
-    StaticConfiguration(kind: kind, provider: Provider()) { entry in
+    StaticConfiguration(kind: kind, provider: PriceWidgetProvider()) { entry in
       PriceWidgetEntryView(entry: entry)
     }
     .configurationDisplayName("Price")
@@ -97,7 +97,7 @@ struct PriceWidget: Widget {
 
 struct PriceWidget_Previews: PreviewProvider {
   static var previews: some View {
-    PriceWidgetEntryView(entry: SimpleEntry(date: Date(), currentMarketData: MarketData(nextBlock: "", sats: "", price: "$10,000", rate: 10000, dateString: "2019-09-18T17:27:00+00:00")))
+    PriceWidgetEntryView(entry: PriceWidgetEntry(date: Date(), currentMarketData: MarketData(nextBlock: "", sats: "", price: "$10,000", rate: 10000, dateString: "2019-09-18T17:27:00+00:00")))
       .previewContext(WidgetPreviewContext(family: .systemSmall))
   }
 }
