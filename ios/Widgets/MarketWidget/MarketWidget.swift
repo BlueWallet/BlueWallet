@@ -9,25 +9,25 @@
 import WidgetKit
 import SwiftUI
 
-struct Provider: TimelineProvider {
-  func placeholder(in context: Context) -> SimpleEntry {
-    return SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
+struct MarketWidgetProvider: TimelineProvider {
+  func placeholder(in context: Context) -> MarketWidgetEntry {
+    return MarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
   }
   
-  func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-    let entry: SimpleEntry
+  func getSnapshot(in context: Context, completion: @escaping (MarketWidgetEntry) -> ()) {
+    let entry: MarketWidgetEntry
     if (context.isPreview) {
-      entry = SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
+      entry = MarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
     } else {
-      entry = SimpleEntry(date: Date(), marketData: emptyMarketData)
+      entry = MarketWidgetEntry(date: Date(), marketData: emptyMarketData)
     }
     completion(entry)
   }
   
   func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-    var entries: [SimpleEntry] = []
+    var entries: [MarketWidgetEntry] = []
     if context.isPreview {
-      let entry = SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
+      let entry = MarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
       entries.append(entry)
       let timeline = Timeline(entries: entries, policy: .atEnd)
       completion(timeline)
@@ -35,12 +35,12 @@ struct Provider: TimelineProvider {
       let userPreferredCurrency = WidgetAPI.getUserPreferredCurrency();
       let marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
       WidgetAPI.fetchMarketData(currency: userPreferredCurrency, completion: { (result, error) in
-        let entry: SimpleEntry
+        let entry: MarketWidgetEntry
         if let result = result {
-          entry = SimpleEntry(date: Date(), marketData: result)
+          entry = MarketWidgetEntry(date: Date(), marketData: result)
           
         } else {
-          entry = SimpleEntry(date: Date(), marketData: marketDataEntry)
+          entry = MarketWidgetEntry(date: Date(), marketData: marketDataEntry)
         }
         entries.append(entry)
         let timeline = Timeline(entries: entries, policy: .atEnd)
@@ -50,13 +50,13 @@ struct Provider: TimelineProvider {
   }
 }
 
-struct SimpleEntry: TimelineEntry {
+struct MarketWidgetEntry: TimelineEntry {
   let date: Date
   let marketData: MarketData
 }
 
 struct MarketWidgetEntryView : View {
-  var entry: Provider.Entry
+  var entry: MarketWidgetProvider.Entry
   
   var MarketStack: some View {
     MarketView(marketData: entry.marketData).padding(EdgeInsets(top: 18, leading: 11, bottom: 18, trailing: 11))
@@ -69,12 +69,11 @@ struct MarketWidgetEntryView : View {
   }
 }
 
-@main
 struct MarketWidget: Widget {
   let kind: String = "MarketWidget"
   
   var body: some WidgetConfiguration {
-    StaticConfiguration(kind: kind, provider: Provider()) { entry in
+    StaticConfiguration(kind: kind, provider: MarketWidgetProvider()) { entry in
       MarketWidgetEntryView(entry: entry)
     }
     .configurationDisplayName("Market")
@@ -84,7 +83,7 @@ struct MarketWidget: Widget {
 
 struct MarketWidget_Previews: PreviewProvider {
   static var previews: some View {
-    MarketWidgetEntryView(entry: SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 0)))
+    MarketWidgetEntryView(entry: MarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 0)))
       .previewContext(WidgetPreviewContext(family: .systemSmall))
   }
 }

@@ -9,25 +9,26 @@
 import WidgetKit
 import SwiftUI
 
-struct Provider: TimelineProvider {
-  func placeholder(in context: Context) -> SimpleEntry {
-    return SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
+struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
+  typealias Entry = WalletInformationAndMarketWidgetEntry
+  func placeholder(in context: Context) -> WalletInformationAndMarketWidgetEntry {
+    return WalletInformationAndMarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
   }
   
-  func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-    let entry: SimpleEntry
+  func getSnapshot(in context: Context, completion: @escaping (WalletInformationAndMarketWidgetEntry) -> ()) {
+    let entry: WalletInformationAndMarketWidgetEntry
     if (context.isPreview) {
-      entry = SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
+      entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
     } else {
-      entry = SimpleEntry(date: Date(), marketData: emptyMarketData)
+      entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: emptyMarketData)
     }
     completion(entry)
   }
   
   func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-    var entries: [SimpleEntry] = []
+    var entries: [WalletInformationAndMarketWidgetEntry] = []
     if (context.isPreview) {
-      let entry = SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
+      let entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
       entries.append(entry)
       let timeline = Timeline(entries: entries, policy: .atEnd)
       completion(timeline)
@@ -36,12 +37,12 @@ struct Provider: TimelineProvider {
       let allwalletsBalance = WalletData(balance: UserDefaultsGroup.getAllWalletsBalance(), latestTransactionTime: UserDefaultsGroup.getAllWalletsLatestTransactionTime())
       let marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
       WidgetAPI.fetchMarketData(currency: userPreferredCurrency, completion: { (result, error) in
-        let entry: SimpleEntry
+        let entry: WalletInformationAndMarketWidgetEntry
         if let result = result {
-          entry = SimpleEntry(date: Date(), marketData: result, allWalletsBalance: allwalletsBalance)
+          entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: result, allWalletsBalance: allwalletsBalance)
           
         } else {
-          entry = SimpleEntry(date: Date(), marketData: marketDataEntry, allWalletsBalance: allwalletsBalance)
+          entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: marketDataEntry, allWalletsBalance: allwalletsBalance)
         }
         entries.append(entry)
         let timeline = Timeline(entries: entries, policy: .atEnd)
@@ -51,7 +52,7 @@ struct Provider: TimelineProvider {
   }
 }
 
-struct SimpleEntry: TimelineEntry {
+struct WalletInformationAndMarketWidgetEntry: TimelineEntry {
   let date: Date
   let marketData: MarketData
   var allWalletsBalance: WalletData = WalletData(balance: 0)
@@ -59,7 +60,7 @@ struct SimpleEntry: TimelineEntry {
 
 struct WalletInformationAndMarketWidgetEntryView : View {
   @Environment(\.widgetFamily) var family
-  var entry: Provider.Entry
+  let entry: WalletInformationAndMarketWidgetEntry
   
   
   var WalletBalance: some View {
@@ -99,12 +100,11 @@ struct WalletInformationAndMarketWidgetEntryView : View {
   }
 }
 
-@main
 struct WalletInformationAndMarketWidget: Widget {
   let kind: String = "WalletInformationAndMarketWidget"
   
   var body: some WidgetConfiguration {
-    StaticConfiguration(kind: kind, provider: Provider()) { entry in
+    StaticConfiguration(kind: kind, provider: WalletInformationAndMarketWidgetProvider()) { entry in
       WalletInformationAndMarketWidgetEntryView(entry: entry)
     }
     .configurationDisplayName("Wallet and Market")
@@ -114,9 +114,9 @@ struct WalletInformationAndMarketWidget: Widget {
 
 struct WalletInformationAndMarketWidget_Previews: PreviewProvider {
   static var previews: some View {
-    WalletInformationAndMarketWidgetEntryView(entry: SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 0), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000))))
+    WalletInformationAndMarketWidgetEntryView(entry: WalletInformationAndMarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 0), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000))))
       .previewContext(WidgetPreviewContext(family: .systemMedium))
-    WalletInformationAndMarketWidgetEntryView(entry: SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 0), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000))))
+    WalletInformationAndMarketWidgetEntryView(entry: WalletInformationAndMarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 0), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000))))
       .previewContext(WidgetPreviewContext(family: .systemLarge))
   }
 }
