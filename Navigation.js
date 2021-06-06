@@ -89,7 +89,6 @@ const defaultScreenOptions =
     ? ({ route, navigation }) => ({
         gestureEnabled: true,
         cardOverlayEnabled: true,
-        cardStyle: { backgroundColor: '#FFFFFF' },
         headerStatusBarHeight: navigation.dangerouslyGetState().routes.indexOf(route) > 0 ? 10 : undefined,
         ...TransitionPresets.ModalPresentationIOS,
         gestureResponseDistance: { vertical: Dimensions.get('window').height, horizontal: 50 },
@@ -104,7 +103,6 @@ const defaultStackScreenOptions =
     ? {
         gestureEnabled: true,
         cardOverlayEnabled: true,
-        cardStyle: { backgroundColor: '#FFFFFF' },
         headerStatusBarHeight: 10,
       }
     : {
