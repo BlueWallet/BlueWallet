@@ -497,7 +497,13 @@ const SendDetails = () => {
     };
     await saveToDisk();
 
-    const recipients = outputs.filter(({ address }) => address !== changeAddress);
+    let recipients = outputs.filter(({ address }) => address !== changeAddress);
+
+    if (recipients.length === 0) {
+      // special case. maybe the only destination in this transaction is our own change address..?
+      // (ez can be the case for single-address wallet when doing self-payment for consolidation)
+      recipients = outputs;
+    }
 
     navigation.navigate('Confirm', {
       fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
