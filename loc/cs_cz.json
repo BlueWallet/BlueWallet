@@ -316,6 +316,8 @@
     "privacy_quickactions": "Zástupci peněženky",
     "privacy_quickactions_explanation": "Dlouhý stisk ikony BlueWallet na vaší výchozí obrazovce zobrazí váš zůstatek.",
     "privacy_clipboard_explanation": "Pokud se ve vaší schránce nachází adresa nebo faktura, zadejte zástupce.",
+    "privacy_do_not_track": "Zakázat Analytiku",
+    "privacy_do_not_track_explanation": "Informace o výkonu a spolehlivosti nebudou odeslány k analýze.",
     "push_notifications": "Push notifikace",
     "retype_password": "Zadejte heslo znovu",
     "selfTest": "Autotest",
