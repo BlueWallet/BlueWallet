@@ -14,7 +14,7 @@ extension Numeric {
       let bytecountFormatter = ByteCountFormatter()
       bytecountFormatter.zeroPadsFractionDigits = true
       bytecountFormatter.countStyle = .decimal
-      bytecountFormatter.allowsNonnumericFormatting = true
+      bytecountFormatter.isAdaptive = false
       let bytesString = bytecountFormatter.string(fromByteCount: (self as! NSNumber).int64Value)
       
         let numericString = bytesString
