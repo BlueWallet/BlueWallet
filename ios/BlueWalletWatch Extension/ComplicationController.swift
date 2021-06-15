@@ -89,7 +89,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     case .graphicCircular:
       if #available(watchOSApplicationExtension 6.0, *) {
         let template = CLKComplicationTemplateGraphicCircularStackText()
-        template.line1TextProvider = line1Text
+        template.line1TextProvider = line1SmallText
         template.line2TextProvider = line2Text
         entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
         handler(entry)
