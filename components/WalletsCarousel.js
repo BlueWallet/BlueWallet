@@ -21,6 +21,7 @@ import { LightningCustodianWallet, MultisigHDWallet, PlaceholderWallet } from '.
 import WalletGradient from '../class/wallet-gradient';
 import { BluePrivateBalance } from '../BlueComponents';
 import { BlueStorageContext } from '../blue_modules/storage-context';
+import { isHandset } from '../blue_modules/environment';
 
 const nStyles = StyleSheet.create({
   root: {},
@@ -335,6 +336,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
       showsVerticalScrollIndicator={false}
       pagingEnabled
       snapToAlignment="start"
+      disableIntervalMomentum={isHandset}
       snapToInterval={itemWidth + 20} // Adjust to your content width
       ItemSeparatorComponent={ItemSeparatorComponent}
       decelerationRate="fast"
@@ -342,7 +344,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
       directionalLockEnabled
       showsHorizontalScrollIndicator={false}
       initialNumToRender={10}
-      style={props.horizontal ? {   height: sliderHeight + 9 }: {}}
+      style={props.vertical ? {} : {   height: sliderHeight + 9 }}
       {...props}
     />
   );
