@@ -1779,6 +1779,11 @@ describe('multisig-wallet (native segwit)', () => {
 });
 
 describe('multisig-cosigner', () => {
+  it('temp', () => {
+    console.warn(Object.keys(process.env));
+    assert.ok(false);
+  });
+
   it('can parse cobo json', () => {
     const cosigner = new MultisigCosigner(
       '{"xfp":"D37EAD88","xpub":"Zpub74ijpfhERJNjhCKXRspTdLJV5eoEmSRZdHqDvp9kVtdVEyiXk7pXxRbfZzQvsDFpfDHEHVtVpx4Dz9DGUWGn2Xk5zG5u45QTMsYS2vjohNQ","path":"m\\/48\'\\/0\'\\/0\'\\/2\'"}',
