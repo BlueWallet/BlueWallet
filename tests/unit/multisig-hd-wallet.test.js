@@ -1780,7 +1780,7 @@ describe('multisig-wallet (native segwit)', () => {
 
 describe('multisig-cosigner', () => {
   it('temp', () => {
-    console.warn(Object.keys(process.env));
+    console.warn(JSON.stringify(Object.keys(process.env)));
     assert.ok(false);
   });
 
