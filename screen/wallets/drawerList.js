@@ -110,10 +110,7 @@ const DrawerList = props => {
         ref={walletsCarousel}
         testID="WalletsList"
         vertical
-        itemHeight={190}
-        sliderHeight={height}
         contentContainerCustomStyle={styles.contentContainerCustomStyle}
-        inactiveSlideOpacity={1.0}
         selectedWallet={selectedWallet}
       />
     );

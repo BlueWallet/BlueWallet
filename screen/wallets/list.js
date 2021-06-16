@@ -48,7 +48,6 @@ const WalletsList = () => {
   const { navigate, setOptions } = useNavigation();
   const routeName = useRoute().name;
   const [isLoading, setIsLoading] = useState(false);
-  const [itemWidth, setItemWidth] = useState(width * 0.82 > 375 ? 375 : width * 0.82);
   const [isLargeScreen, setIsLargeScreen] = useState(
     Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop),
   );
@@ -96,14 +95,14 @@ const WalletsList = () => {
 
   useEffect(() => {
     if (walletsCount.current < wallets.length) {
-      walletsCarousel.current?.snapToItem(walletsCount.current);
+      walletsCarousel.current?.scrollToItem({item: wallets[walletsCount.current]});
     }
     walletsCount.current = wallets.length;
   }, [wallets]);
 
   useEffect(() => {
     if (pendingWallets.length > 0) {
-      walletsCarousel.current?.snapToItem(carouselData.length - pendingWallets.length);
+      walletsCarousel.current?.scrollToIndex(carouselData.length - pendingWallets.length);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingWallets]);
@@ -267,15 +266,14 @@ const WalletsList = () => {
   const renderWalletsCarousel = () => {
     return (
       <WalletsCarousel
-        removeClippedSubviews={false}
         data={carouselData}
+        extraData={carouselData}
         onPress={handleClick}
         handleLongPress={handleLongPress}
         onSnapToItem={onSnapToItem}
         ref={walletsCarousel}
         testID="WalletsList"
-        sliderWidth={width}
-        itemWidth={itemWidth}
+        horizontal
       />
     );
   };
@@ -423,7 +421,6 @@ const WalletsList = () => {
 
   const onLayout = _e => {
     setIsLargeScreen(Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop));
-    setItemWidth(width * 0.82 > 375 ? 375 : width * 0.82);
   };
 
   const onRefresh = () => {

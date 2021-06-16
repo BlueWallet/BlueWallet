@@ -347,14 +347,14 @@ const Drawer = createDrawerNavigator();
 function DrawerRoot() {
   const dimensions = useWindowDimensions();
   const isLargeScreen =
-    Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop);
+    Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 2 ;
   const drawerStyle = { width: '0%' };
 
   return (
     <Drawer.Navigator
-      drawerStyle={isLargeScreen ? null : drawerStyle}
-      drawerType={isLargeScreen ? 'permanent' : null}
-      drawerContent={props => (isLargeScreen ? <DrawerList {...props} /> : null)}
+      drawerStyle={null}
+      drawerType={'permanent'}
+      drawerContent={props => ( <DrawerList {...props} /> )}
       drawerPosition={I18nManager.isRTL ? 'right' : 'left'}
     >
       <Drawer.Screen name="Navigation" component={Navigation} options={{ headerShown: false, gestureEnabled: false }} />
