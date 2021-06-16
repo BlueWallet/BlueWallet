@@ -288,7 +288,7 @@ const cStyles = StyleSheet.create({
 
     paddingTop: 16,
   },
-  separatorStyle: { width: 16 },
+  separatorStyle: { width: 16, height: 20 },
 });
 
 const WalletsCarousel = forwardRef((props, ref) => {
@@ -311,8 +311,16 @@ const WalletsCarousel = forwardRef((props, ref) => {
 
   useImperativeHandle(ref, () => ({
     scrollToItem: ({ item }) => {
-      flatListRef?.current?.scrollToItem({ item });
+      setTimeout(() => {
+        flatListRef?.current?.scrollToItem({ item, viewPosition: 0.3 });
+      }, 300)
+     
     },
+    scrollToIndex: (index) => {
+      setTimeout(() => {
+        flatListRef?.current?.scrollToIndex({ index, viewPosition: 0.3 });
+      }, 300)
+    }
   }));
 
   const { width } = useWindowDimensions();
@@ -326,7 +334,6 @@ const WalletsCarousel = forwardRef((props, ref) => {
       keyExtractor={(_, index) => index.toString()}
       showsVerticalScrollIndicator={false}
       pagingEnabled
-      removeClippedSubviews={false}
       snapToAlignment="start"
       snapToInterval={itemWidth + 20} // Adjust to your content width
       ItemSeparatorComponent={ItemSeparatorComponent}
@@ -335,7 +342,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
       directionalLockEnabled
       showsHorizontalScrollIndicator={false}
       initialNumToRender={10}
-      style={{ height: sliderHeight + 16 }}
+      style={props.horizontal ? {   height: sliderHeight + 9 }: {}}
       {...props}
     />
   );

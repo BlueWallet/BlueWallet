@@ -95,7 +95,7 @@ const WalletsList = () => {
 
   useEffect(() => {
     if (walletsCount.current < wallets.length) {
-      walletsCarousel.current?.scrollToItem({item: wallets[walletsCount.current]});
+      walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current] });
     }
     walletsCount.current = wallets.length;
   }, [wallets]);
@@ -201,7 +201,12 @@ const WalletsList = () => {
     }
   };
 
-  const onSnapToItem = index => {
+  const onSnapToItem = e => {
+    const contentOffset = e.nativeEvent.contentOffset;
+    const viewSize = e.nativeEvent.layoutMeasurement;
+    // If the lateral slide is
+    // Math.floor(contentOffset.x/viewSize.width);
+    const index = Math.floor(contentOffset.x / viewSize.width);
     console.log('onSnapToItem', index);
     if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
       console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
@@ -270,7 +275,7 @@ const WalletsList = () => {
         extraData={carouselData}
         onPress={handleClick}
         handleLongPress={handleLongPress}
-        onSnapToItem={onSnapToItem}
+        onMomentumScrollEnd={onSnapToItem}
         ref={walletsCarousel}
         testID="WalletsList"
         horizontal
