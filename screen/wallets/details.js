@@ -252,7 +252,7 @@ const WalletDetails = () => {
     navigate('WalletXpubRoot', {
       screen: 'WalletXpub',
       params: {
-        secret: wallet.getSecret(),
+        walletID,
       },
     });
   const navigateToSignVerify = () =>
@@ -276,7 +276,7 @@ const WalletDetails = () => {
           testID="Marketplace"
           onPress={() =>
             navigate('Marketplace', {
-              fromWallet: wallet,
+              walletID,
             })
           }
           title={loc.wallets.details_marketplace}

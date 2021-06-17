@@ -344,10 +344,10 @@ const WalletTransactions = () => {
             if (wallet.type === LightningCustodianWallet.type) {
               navigate('LappBrowserRoot', {
                 screen: 'LappBrowser',
-                params: { fromSecret: wallet.getSecret(), fromWallet: wallet },
+                params: { walletID },
               });
             } else {
-              navigate('Marketplace', { fromWallet: wallet });
+              navigate('Marketplace', { walletID });
             }
           }}
           style={[styles.marketplaceButton1, stylesHook.marketplaceButton1]}
@@ -377,8 +377,7 @@ const WalletTransactions = () => {
           navigate('LappBrowserRoot', {
             screen: 'LappBrowser',
             params: {
-              fromSecret: wallet.getSecret(),
-              fromWallet: wallet,
+              walletID,
               url: 'https://duckduckgo.com',
             },
           });
