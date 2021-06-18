@@ -44,6 +44,9 @@ jobs:
         HD_MNEMONIC_BIP49_MANY_TX: ${{ secrets.HD_MNEMONIC_BIP49_MANY_TX }}
         HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
         HD_MNEMONIC_BREAD: ${{ secrets.HD_MNEMONIC_BREAD }}
+        FAULTY_ZPUB: ${{ secrets.FAULTY_ZPUB }}
+        MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
+        MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
 
   e2e:
     runs-on: macos-latest

@@ -4,7 +4,7 @@ import { BluePrivateBalance } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useNavigation, useTheme } from '@react-navigation/native';
+import { useTheme } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
 import { PlaceholderWallet, LightningCustodianWallet, MultisigHDWallet } from '../../class';
@@ -75,7 +75,6 @@ const ReorderWallets = () => {
   const [hasMovedARow, setHasMovedARow] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const sortableList = useRef();
-  const { setParams, goBack } = useNavigation();
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
   const stylesHook = {
@@ -88,25 +87,15 @@ const ReorderWallets = () => {
   };
 
   useEffect(() => {
-    setParams(
-      {
-        customCloseButtonFunction: async () => {
-          if (sortableList.current.state.data.length === data.length && hasMovedARow) {
-            const newWalletsOrderArray = [];
-            sortableList.current.state.order.forEach(element => {
-              newWalletsOrderArray.push(data[element]);
-            });
-            setWalletsWithNewOrder(newWalletsOrderArray);
-            goBack();
-          } else {
-            goBack();
-          }
-        },
-      },
-      [],
-    );
+    if (sortableList.current?.state.data.length === data.length && hasMovedARow) {
+      const newWalletsOrderArray = [];
+      sortableList.current.state.order.forEach(element => {
+        newWalletsOrderArray.push(data[element]);
+      });
+      setWalletsWithNewOrder(newWalletsOrderArray);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [goBack, hasMovedARow, setParams]);
+  }, [hasMovedARow]);
 
   useEffect(() => {
     const loadWallets = wallets.filter(wallet => wallet.type !== PlaceholderWallet.type);
@@ -202,11 +191,6 @@ const ReorderWallets = () => {
 ReorderWallets.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    closeButtonFunc: ({ navigation, route }) => {
-      if (route.params && route.params.customCloseButtonFunction) {
-        route.params.customCloseButtonFunction();
-      }
-    },
     headerLeft: null,
   },
   opts => ({ ...opts, title: loc.wallets.reorder_title }),

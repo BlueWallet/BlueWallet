@@ -14,8 +14,8 @@ struct Widgets: WidgetBundle {
     @WidgetBundleBuilder
     var body: some Widget {
         PriceWidget()
+        WalletInformationWidget()
         MarketWidget()
         WalletInformationAndMarketWidget()
-        WalletInformationWidget()
     }
 }

@@ -25,7 +25,7 @@ import RNFS from 'react-native-fs';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 
-import { BlueButton, BlueDismissKeyboardInputAccessory, BlueListItem, BlueLoading, BlueText } from '../../BlueComponents';
+import { BlueButton, BlueDismissKeyboardInputAccessory, BlueListItem, BlueLoading } from '../../BlueComponents';
 import { navigationStyleTx } from '../../components/navigationStyle';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -497,7 +497,13 @@ const SendDetails = () => {
     };
     await saveToDisk();
 
-    const recipients = outputs.filter(({ address }) => address !== changeAddress);
+    let recipients = outputs.filter(({ address }) => address !== changeAddress);
+
+    if (recipients.length === 0) {
+      // special case. maybe the only destination in this transaction is our own change address..?
+      // (ez can be the case for single-address wallet when doing self-payment for consolidation)
+      recipients = outputs;
+    }
 
     navigation.navigate('Confirm', {
       fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
@@ -1190,9 +1196,7 @@ const SendDetails = () => {
           launchedBy={name}
         />
         {addresses.length > 1 && (
-          <BlueText style={[styles.of, stylesHook.of]}>
-            {loc.formatString(loc._.of, { number: index + 1, total: addresses.length })}
-          </BlueText>
+          <Text style={[styles.of, stylesHook.of]}>{loc.formatString(loc._.of, { number: index + 1, total: addresses.length })}</Text>
         )}
       </View>
     );
