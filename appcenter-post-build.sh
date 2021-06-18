@@ -22,7 +22,7 @@ if [ -f $FILENAME ]; then
     HASH=`date +%s`
     FILENAME_UNIQ="$APPCENTER_OUTPUT_DIRECTORY/$BRANCH-$HASH.apk"
     cp "$FILENAME" "$FILENAME_UNIQ"
-    curl "http://filestorage.bluewallet.io:1488/upload.php" -F "fileToUpload=@$FILENAME_UNIQ"
+    curl "http://filestorage.bluewallet.io:1488/$FILESTORAGE" -F "fileToUpload=@$FILENAME_UNIQ"
     rm "$FILENAME_UNIQ"
     DLOAD_APK="http://filestorage.bluewallet.io:1488/$BRANCH-$HASH.apk"
 
