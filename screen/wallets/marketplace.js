@@ -6,6 +6,7 @@ import { WebView } from 'react-native-webview';
 import { BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 export default class Marketplace extends Component {
   webview = React.createRef();
@@ -78,6 +79,8 @@ Marketplace.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+Marketplace.contextType = BlueStorageContext;
 
 Marketplace.navigationOptions = navigationStyle({
   closeButton: true,
