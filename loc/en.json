@@ -19,7 +19,8 @@
     "invalid_animated_qr_code_fragment" : "Invalid animated QRCode fragment. Please try again.",
     "file_saved": "File ({filePath}) has been saved in your Downloads folder.",
     "discard_changes": "Discard changes?",
-    "discard_changes_detail": "You have unsaved changes. Are you sure to discard them and leave the screen?"
+    "discard_changes_detail": "You have unsaved changes. Are you sure to discard them and leave the screen?",
+    "warning": "Warning"
   },
   "azteco": {
     "codeIs": "Your voucher code is",
@@ -29,6 +30,9 @@
     "redeemButton": "Redeem",
     "success": "Success",
     "title": "Redeem Azte.co voucher"
+  },
+  "jailbreak": {
+    "jailbreak_warning": "This device appears to be jailbroken. There are inheret risks with devices that are jailbroken. By continuing, you acknowledge and accept such risks."
   },
   "entropy": {
     "save": "Save",

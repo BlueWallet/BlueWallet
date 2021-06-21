@@ -1,5 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet, StatusBar, ActivityIndicator, useColorScheme, LayoutAnimation } from 'react-native';
+import {
+  View,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  StatusBar,
+  ActivityIndicator,
+  useColorScheme,
+  LayoutAnimation,
+} from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
 import LottieView from 'lottie-react-native';
@@ -7,6 +17,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import JailMonkey from 'jail-monkey';
+import loc from './loc';
 
 const styles = StyleSheet.create({
   root: {
@@ -45,6 +57,7 @@ const UnlockWith = () => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [animationDidFinish, setAnimationDidFinish] = useState(false);
   const colorScheme = useColorScheme();
+  const [isJailBreakRiskAccepted, setIsJailBreakRiskAccepted] = useState(false);
 
   const initialRender = async () => {
     let biometricType = false;
@@ -56,9 +69,28 @@ const UnlockWith = () => {
   };
 
   useEffect(() => {
-    initialRender();
+    JailMonkey.isDebuggedMode().then(isDebuggedMode => {
+      if (isDebuggedMode) {
+        setIsJailBreakRiskAccepted(true);
+      } else {
+        const isJailBroken = JailMonkey.isJailBroken();
+        if (isJailBroken) {
+          Alert.alert(loc._.warning, loc.jailbreak.jailbreak_warning, [
+            { text: loc._.continue, onPress: () => setIsJailBreakRiskAccepted(true), style: 'default' },
+          ]);
+        } else {
+          setIsJailBreakRiskAccepted(true);
+        }
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (isJailBreakRiskAccepted) {
+      initialRender();
+    }
+  }, [isJailBreakRiskAccepted]);
 
   const successfullyAuthenticated = () => {
     setWalletsInitialized(true);
@@ -136,8 +168,12 @@ const UnlockWith = () => {
     <SafeAreaView style={styles.root}>
       <StatusBar barStyle="default" />
       <View style={styles.container}>
-        <LottieView source={require('./img/bluewalletsplash.json')} autoPlay loop={false} onAnimationFinish={onAnimationFinish} />
-        <View style={styles.biometric}>{animationDidFinish && <View style={styles.biometricRow}>{renderUnlockOptions()}</View>}</View>
+        {isJailBreakRiskAccepted && (
+          <>
+            <LottieView source={require('./img/bluewalletsplash.json')} autoPlay loop={false} onAnimationFinish={onAnimationFinish} />
+            <View style={styles.biometric}>{animationDidFinish && <View style={styles.biometricRow}>{renderUnlockOptions()}</View>}</View>
+          </>
+        )}
       </View>
     </SafeAreaView>
   );
