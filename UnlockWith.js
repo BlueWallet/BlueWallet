@@ -69,20 +69,28 @@ const UnlockWith = () => {
   };
 
   useEffect(() => {
-    JailMonkey.isDebuggedMode().then(isDebuggedMode => {
-      if (isDebuggedMode) {
-        setIsJailBreakRiskAccepted(true);
-      } else {
-        const isJailBroken = JailMonkey.isJailBroken();
-        if (isJailBroken) {
-          Alert.alert(loc._.warning, loc.jailbreak.jailbreak_warning, [
-            { text: loc._.continue, onPress: () => setIsJailBreakRiskAccepted(true), style: 'default' },
-          ]);
-        } else {
+    JailMonkey.isDebuggedMode()
+      .then(isDebuggedMode => {
+        if (isDebuggedMode) {
           setIsJailBreakRiskAccepted(true);
+        } else {
+          const isJailBroken = JailMonkey.isJailBroken();
+          if (isJailBroken) {
+            Alert.alert(
+              loc._.warning,
+              loc.jailbreak.jailbreak_warning,
+              [{ text: loc._.continue, onPress: () => setIsJailBreakRiskAccepted(true), style: 'default' }],
+              { cancelable: false },
+            );
+          } else {
+            setIsJailBreakRiskAccepted(true);
+          }
         }
-      }
-    });
+      })
+      .catch(e => {
+        console.log(e);
+        setIsJailBreakRiskAccepted(true);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
