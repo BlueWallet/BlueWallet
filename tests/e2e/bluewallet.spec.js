@@ -14,6 +14,7 @@ describe('BlueWallet UI Tests', () => {
       if (require('fs').existsSync(lockFile))
         return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
+    await handleJailbreakAlert();
     await waitFor(element(by.id('WalletsList')))
       .toBeVisible()
       .withTimeout(300 * 1000);
@@ -168,11 +169,13 @@ describe('BlueWallet UI Tests', () => {
       if (require('fs').existsSync(lockFile))
         return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
+    await handleJailbreakAlert();
     await yo('WalletsList');
 
     await helperCreateWallet();
 
     await device.launchApp({ newInstance: true });
+    await handleJailbreakAlert();
     await yo('WalletsList');
     await expect(element(by.id('cr34t3d'))).toBeVisible();
     await element(by.id('cr34t3d')).tap();
@@ -204,6 +207,7 @@ describe('BlueWallet UI Tests', () => {
       if (require('fs').existsSync(lockFile))
         return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
+    handleJailbreakAlert();
     await yo('WalletsList');
 
     // lets create a wallet
@@ -243,6 +247,7 @@ describe('BlueWallet UI Tests', () => {
 
     // relaunch app
     await device.launchApp({ newInstance: true });
+    await handleJailbreakAlert();
     await waitFor(element(by.text('OK')))
       .toBeVisible()
       .withTimeout(33000);
@@ -313,10 +318,12 @@ describe('BlueWallet UI Tests', () => {
 
     // relaunch app
     await device.launchApp({ newInstance: true });
+    await handleJailbreakAlert();
     await waitFor(element(by.text('OK')))
       .toBeVisible()
       .withTimeout(33000);
     //
+    await handleJailbreakAlert();
     await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it.'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('qqq');
     await element(by.text('OK')).tap();
@@ -327,11 +334,13 @@ describe('BlueWallet UI Tests', () => {
 
     // relaunch app
     await device.launchApp({ newInstance: true });
+    await handleJailbreakAlert();
     await sleep(3000);
     //
     await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it.'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage');
     await element(by.text('OK')).tap();
+    await handleJailbreakAlert();
     await yo('WalletsList');
 
     // previously created wallet in FAKE storage should be visible
@@ -345,6 +354,7 @@ describe('BlueWallet UI Tests', () => {
       if (require('fs').existsSync(lockFile))
         return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
+    await handleJailbreakAlert();
     await yo('WalletsList');
     await helperCreateWallet();
     await element(by.id('SettingsButton')).tap();
@@ -379,6 +389,7 @@ describe('BlueWallet UI Tests', () => {
 
     // relaunch app
     await device.launchApp({ newInstance: true });
+    await handleJailbreakAlert();
     await waitFor(element(by.text('OK')))
       .toBeVisible()
       .withTimeout(33000);
@@ -411,6 +422,7 @@ describe('BlueWallet UI Tests', () => {
 
     // relaunch app
     await device.launchApp({ newInstance: true });
+    await handleJailbreakAlert();
     await yo('cr34t3d'); // success
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -458,6 +470,7 @@ describe('BlueWallet UI Tests', () => {
 
     // relaunch app
     await device.launchApp({ newInstance: true });
+    await handleJailbreakAlert();
     await waitFor(element(by.text('OK')))
       .toBeVisible()
       .withTimeout(33000);
@@ -490,6 +503,7 @@ describe('BlueWallet UI Tests', () => {
 
     // relaunch app
     await device.launchApp({ newInstance: true });
+    await handleJailbreakAlert();
     await yo('fake_wallet'); // success, we are observing wallet in FAKE storage. wallet from main storage is lost
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -902,7 +916,7 @@ describe('BlueWallet UI Tests', () => {
       newInstance: true,
       url: 'bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7\\?amount=0.0001\\&label=Yo',
     });
-
+    await handleJailbreakAlert();
     // setting fee rate:
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
@@ -1266,3 +1280,12 @@ const expectToBeVisible = async id => {
     return false;
   }
 };
+
+async function handleJailbreakAlert() {
+  try {
+    await waitFor(element(by.text('Continue')))
+      .toBeVisible()
+      .withTimeout(33000);
+    await element(by.text(`Continue`)).tap();
+  } catch (_) {}
+}
