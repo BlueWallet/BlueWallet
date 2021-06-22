@@ -354,7 +354,7 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - RNCAsyncStorage (1.15.4):
+  - RNCAsyncStorage (1.15.5):
     - React-Core
   - RNCClipboard (1.7.0):
     - React-Core
@@ -384,7 +384,7 @@ PODS:
     - React-Core
   - RNReactNativeHapticFeedback (1.11.0):
     - React-Core
-  - RNReanimated (2.1.0):
+  - RNReanimated (2.2.0):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -420,7 +420,7 @@ PODS:
   - RNSentry (2.5.1):
     - React-Core
     - Sentry (= 7.0.0)
-  - RNShare (6.1.0):
+  - RNShare (6.2.0):
     - React-Core
   - RNSVG (12.1.1):
     - React
@@ -753,7 +753,7 @@ SPEC CHECKSUMS:
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
   RealmJS: 8a51eff2b9eaabf78b53a6819da6da6edde27467
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  RNCAsyncStorage: b17c417b356114699a486715adfa5829a5d6d8b9
+  RNCAsyncStorage: 8324611026e8dc3706f829953aa6e3899f581589
   RNCClipboard: dac13db8b1ce9b998f1cbc7ca33440113602847f
   RNCMaskedView: f127cd9652acfa31b91dcff613e07ba18b774db6
   RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
@@ -768,11 +768,11 @@ SPEC CHECKSUMS:
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: e0af7e724e5fcf89578dbd22ab6395c85402ef29
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
-  RNReanimated: 70f662b5232dd5d19ccff581e919a54ea73df51c
+  RNReanimated: d9da990fc90123f4ffbfdda93d00fc15174863a8
   RNScreens: f7ad633b2e0190b77b6a7aab7f914fad6f198d8d
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: f109c8729739aa29f182c7d995bbcbccad373f31
-  RNShare: c93ee0df653c76d913554272d56f6ffd8bdcb3cc
+  RNShare: 32ded9b8603fddf8f8eed42014e7ea7a4b0b8bf0
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
   RNWatch: e4c5d19506c94506860032fb68aedd5991beb985
