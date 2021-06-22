@@ -1,3 +1,4 @@
+/* global alert */
 import React, { useContext, useEffect, useState } from 'react';
 import {
   View,
@@ -69,12 +70,15 @@ const UnlockWith = () => {
   };
 
   useEffect(() => {
+    const isJailBroken = JailMonkey.isJailBroken();
+    alert(isJailBroken)
     JailMonkey.isDebuggedMode()
       .then(isDebuggedMode => {
         if (isDebuggedMode) {
           setIsJailBreakRiskAccepted(true);
         } else {
           const isJailBroken = JailMonkey.isJailBroken();
+          alert(isJailBroken)
           if (isJailBroken) {
             Alert.alert(
               loc._.warning,
