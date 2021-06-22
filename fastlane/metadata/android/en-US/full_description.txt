@@ -1,0 +1,44 @@
+A Bitcoin wallet that allows you to store, send Bitcoin, receive Bitcoin and buy Bitcoin with focus on security and simplicity.
+On BlueWallet, a bitcoin wallet you own you private keys. A Bitcoin wallet made by Bitcoin users for the community.
+You can instantly transact with anyone in the world and transform the financial system right from your pocket.
+Create for free unlimited number of bitcoin wallets or import your existing one on your Android device. It's simple and fast.
+_____
+
+Here's what you get:
+
+1 - Security by design
+
+• Open Source
+MIT licensed, you can build it and run it on your own! Made with ReactNative
+
+• Plausible deniability
+Password which decrypts fake bitcoin wallets if you are forced to disclose your access
+
+• Full encryption
+On top of the iOS multi-layer encryption, we encrypt everything with added passwords
+
+• SegWit & HD wallets
+SegWit supported and HD wallets enable
+
+2 - Focused on your experience
+
+• Be in control
+Private keys never leave your device. You control your private keys
+
+• Flexible fees
+Starting from 1 Satoshi. Defined by you, the user
+
+• Replace-By-Fee
+(RBF) Speed-up your transactions by increasing the fee (BIP125)
+
+• Watch-only wallets
+Watch-only wallets allow you to keep an eye on your cold storage without touching the hardware.
+
+• Lightning Network
+Lightning wallet with zero-configuration. Unfairly cheap and fast transactions with the best Bitcoin user experience.
+
+• Buy Bitcoin
+Enter in the open financial revolution with the ability to buy Bitcoin directly in your wallet.
+
+• Local Trader
+A p2p Bitcoin Trading platform, that allows you to buy and sell bitcoin directly to other users without 3rd parties.
