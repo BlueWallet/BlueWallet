@@ -22,9 +22,9 @@ if [ -f $FILENAME ]; then
     HASH=`date +%s`
     FILENAME_UNIQ="$APPCENTER_OUTPUT_DIRECTORY/$BRANCH-$HASH.apk"
     cp "$FILENAME" "$FILENAME_UNIQ"
-    curl "http://filestorage.bluewallet.io:1488/$FILESTORAGE" -F "fileToUpload=@$FILENAME_UNIQ"
+    curl "http://206.189.62.190:1488/$FILESTORAGE" -F "fileToUpload=@$FILENAME_UNIQ"
     rm "$FILENAME_UNIQ"
-    DLOAD_APK="http://filestorage.bluewallet.io:1488/$BRANCH-$HASH.apk"
+    DLOAD_APK="http://206.189.62.190:1488/$BRANCH-$HASH.apk"
 
     curl -X POST --data "{\"body\":\"♫ This was a triumph. I'm making a note here: HUGE SUCCESS ♫\n\n [android in browser] $APPURL\n\n[download apk]($DLOAD_APK) \"}"  -u "$GITHUB" "https://api.github.com/repos/BlueWallet/BlueWallet/issues/$PR/comments"
 fi

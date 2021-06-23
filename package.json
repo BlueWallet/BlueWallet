@@ -76,7 +76,7 @@
   },
   "dependencies": {
     "@babel/preset-env": "7.12.1",
-    "@react-native-async-storage/async-storage": "1.15.4",
+    "@react-native-async-storage/async-storage": "1.15.5",
     "@react-native-clipboard/clipboard": "1.7.0",
     "@react-native-community/blur": "3.6.0",
     "@react-native-community/masked-view": "0.1.11",
@@ -159,7 +159,7 @@
     "react-native-secure-key-store": "https://github.com/BlueWallet/react-native-secure-key-store#63ab38c9d382a819844a086a69cc204c46aa93f9",
     "react-native-share": "6.2.0",
     "react-native-snap-carousel": "3.9.1",
-    "react-native-sortable-list": "0.0.24",
+    "react-native-sortable-list": "https://github.com/BlueWallet/react-native-sortable-list.git#46e39a30ae0c4328e7c06c30b72b1af0b69e1aeb",
     "react-native-svg": "12.1.1",
     "react-native-tcp-socket": "3.7.1",
     "react-native-tooltip": "https://github.com/BlueWallet/react-native-tooltip#d369e7ece09e4dec73873f1cfeac83e9d35294a6",
