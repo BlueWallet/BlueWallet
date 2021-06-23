@@ -36,6 +36,7 @@ describe('BlueWallet UI Tests', () => {
       if (require('fs').existsSync(lockFile))
         return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
+    await handleJailbreakAlert();
     await yo('WalletsList');
 
     // go to settings, press SelfTest and wait for OK
@@ -207,7 +208,7 @@ describe('BlueWallet UI Tests', () => {
       if (require('fs').existsSync(lockFile))
         return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
-    handleJailbreakAlert();
+    await handleJailbreakAlert();
     await yo('WalletsList');
 
     // lets create a wallet
@@ -323,7 +324,6 @@ describe('BlueWallet UI Tests', () => {
       .toBeVisible()
       .withTimeout(33000);
     //
-    await handleJailbreakAlert();
     await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it.'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('qqq');
     await element(by.text('OK')).tap();
@@ -340,7 +340,6 @@ describe('BlueWallet UI Tests', () => {
     await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it.'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage');
     await element(by.text('OK')).tap();
-    await handleJailbreakAlert();
     await yo('WalletsList');
 
     // previously created wallet in FAKE storage should be visible
@@ -436,6 +435,7 @@ describe('BlueWallet UI Tests', () => {
     // this test mostly repeats previous one, except in the end it logins with FAKE password to unlock FAKE
     // storage bucket, and then decrypts it. effectively, everything from MAIN storage bucket is lost
     if (process.env.TRAVIS) return; // skipping on CI to not take time (plus it randomly fails)
+    await handleJailbreakAlert();
     await yo('WalletsList');
     await helperCreateWallet();
     await element(by.id('SettingsButton')).tap();
@@ -518,7 +518,7 @@ describe('BlueWallet UI Tests', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
-
+    await handleJailbreakAlert();
     await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
 
     // lets create real transaction:
@@ -835,6 +835,7 @@ describe('BlueWallet UI Tests', () => {
       if (require('fs').existsSync(lockFile))
         return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
+    await handleJailbreakAlert();
     await helperImportWallet(
       'zpub6rDWXE4wbwefeCrHWehXJheXnti5F9PbpamDUeB5eFbqaY89x3jq86JADBuXpnJnSvRVwqkaTnyMaZERUg4BpxD9V4tSZfKeYh1ozPdL1xK',
       'Imported Watch-only',
@@ -909,7 +910,6 @@ describe('BlueWallet UI Tests', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
-
     await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
 
     await device.launchApp({
@@ -943,6 +943,7 @@ describe('BlueWallet UI Tests', () => {
         return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
 
+    await handleJailbreakAlert();
     await yo('WalletsList');
     await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
     // going to Import Wallet screen and importing mnemonic
@@ -1064,7 +1065,7 @@ describe('BlueWallet UI Tests', () => {
       if (require('fs').existsSync(lockFile))
         return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
-
+    await handleJailbreakAlert();
     await helperImportWallet(
       'zpub6qoWjSiZRHzSYPGYJ6EzxEXJXP1b2Rj9syWwJZFNCmupMwkbSAWSBk3UvSkJyQLEhQpaBAwvhmNj3HPKpwCJiTBB9Tutt46FtEmjL2DoU3J',
       'Imported Watch-only',
