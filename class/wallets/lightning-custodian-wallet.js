@@ -377,7 +377,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     txs = txs.concat(this.pending_transactions_raw.slice(), this.transactions_raw.slice().reverse(), this.user_invoices_raw.slice()); // slice so array is cloned
     // transforming to how wallets/list screen expects it
     for (const tx of txs) {
-      tx.fromWallet = this.getSecret();
+      tx.walletID = this.getID();
       if (tx.amount) {
         // pending tx
         tx.amt = tx.amount * -100000000;

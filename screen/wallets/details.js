@@ -179,7 +179,7 @@ const WalletDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     setOptions({
       headerRight: () => (
-        <TouchableOpacity testID="Save" disabled={isLoading} style={styles.save} onPress={setLabel}>
+        <TouchableOpacity accessibilityRole="button" testID="Save" disabled={isLoading} style={styles.save} onPress={setLabel}>
           <Text style={stylesHook.saveText}>{loc.wallets.details_save}</Text>
         </TouchableOpacity>
       ),
@@ -252,7 +252,7 @@ const WalletDetails = () => {
     navigate('WalletXpubRoot', {
       screen: 'WalletXpub',
       params: {
-        secret: wallet.getSecret(),
+        walletID,
       },
     });
   const navigateToSignVerify = () =>
@@ -276,7 +276,7 @@ const WalletDetails = () => {
           testID="Marketplace"
           onPress={() =>
             navigate('Marketplace', {
-              fromWallet: wallet,
+              walletID,
             })
           }
           title={loc.wallets.details_marketplace}
@@ -599,7 +599,7 @@ const WalletDetails = () => {
                 )}
                 <BlueSpacing20 />
                 <BlueSpacing20 />
-                <TouchableOpacity onPress={handleDeleteButtonTapped} testID="DeleteButton">
+                <TouchableOpacity accessibilityRole="button" onPress={handleDeleteButtonTapped} testID="DeleteButton">
                   <Text textBreakStrategy="simple" style={styles.delete}>{`${loc.wallets.details_delete}${'  '}`}</Text>
                 </TouchableOpacity>
               </View>

@@ -112,6 +112,7 @@ export default class AztecoRedeem extends Component {
       <View style={styles.selectWallet1}>
         {!this.state.isLoading && (
           <TouchableOpacity
+            accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', {
@@ -126,6 +127,7 @@ export default class AztecoRedeem extends Component {
         )}
         <View style={styles.selectWallet2}>
           <TouchableOpacity
+            accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', {

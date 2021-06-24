@@ -59,7 +59,7 @@ const NewWalletPanel = ({ onPress }) => {
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
 
   return (
-    <TouchableOpacity testID="CreateAWallet" onPress={onPress} style={{ width: itemWidth * 1.2  }}>
+    <TouchableOpacity accessibilityRole="button" testID="CreateAWallet" onPress={onPress} style={{ width: itemWidth * 1.2 }}>
       <View style={[nStyles.container, { backgroundColor: WalletGradient.createWallet(), width: itemWidth }]}>
         <Text style={[nStyles.addAWAllet, { color: colors.foregroundColor }]}>{loc.wallets.list_create_a_wallet}</Text>
         <Text style={[nStyles.addLine, { color: colors.alternativeTextColor }]}>{loc.wallets.list_create_a_wallet_text}</Text>
@@ -286,7 +286,6 @@ const cStyles = StyleSheet.create({
   },
   content: {
     paddingLeft: 20,
-
     paddingTop: 16,
   },
   separatorStyle: { width: 16, height: 20 },
@@ -314,14 +313,13 @@ const WalletsCarousel = forwardRef((props, ref) => {
     scrollToItem: ({ item }) => {
       setTimeout(() => {
         flatListRef?.current?.scrollToItem({ item, viewPosition: 0.3 });
-      }, 300)
-     
+      }, 300);
     },
-    scrollToIndex: (index) => {
+    scrollToIndex: index => {
       setTimeout(() => {
         flatListRef?.current?.scrollToIndex({ index, viewPosition: 0.3 });
-      }, 300)
-    }
+      }, 300);
+    },
   }));
 
   const { width } = useWindowDimensions();
@@ -344,7 +342,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
       directionalLockEnabled
       showsHorizontalScrollIndicator={false}
       initialNumToRender={10}
-      style={props.vertical ? {} : {   height: sliderHeight + 9 }}
+      style={props.vertical ? {} : { height: sliderHeight + 9 }}
       {...props}
     />
   );
