@@ -4,4 +4,5 @@ const isMacCatalina = getSystemName() === 'Mac OS X';
 
 module.exports.isMacCatalina = isMacCatalina;
 module.exports.isDesktop = getDeviceType() === 'Desktop';
+module.exports.isHandset = getDeviceType() === 'Handset';
 module.exports.isTablet = isTablet;
