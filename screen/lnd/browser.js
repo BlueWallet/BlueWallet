@@ -20,6 +20,7 @@ import navigationStyle from '../../components/navigationStyle';
 import Notifications from '../../blue_modules/notifications';
 import loc from '../../loc';
 import { Button } from 'react-native-elements';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 let processedInvoices = {};
 let lastTimeTriedToPay = 0;
@@ -293,15 +294,15 @@ const styles = StyleSheet.create({
 
 export default class Browser extends Component {
   webView = React.createRef();
-  constructor(props) {
+  constructor(props, context) {
     super(props);
-    if (!props.route.params.fromWallet) throw new Error('Invalid param');
+    if (!props.route.params.walletID) throw new Error('Missing walletID param');
     let url;
     if (props.route.params.url) url = props.route.params.url;
 
     this.state = {
       url: url || 'https://bluewallet.io/marketplace/',
-      fromWallet: props.route.params.fromWallet,
+      fromWallet: context.wallets.find(w => w.getID() === props.route.params.walletID),
       canGoBack: false,
       pageIsLoading: false,
       stateURL: url || 'https://bluewallet.io/marketplace/',
@@ -525,6 +526,8 @@ Browser.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+Browser.contextType = BlueStorageContext;
 
 Browser.navigationOptions = navigationStyle(
   {

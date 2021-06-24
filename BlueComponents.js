@@ -1401,7 +1401,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     if (item.hash) {
       navigate('TransactionStatus', { hash: item.hash });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
-      const lightningWallet = wallets.filter(wallet => wallet?.getSecret() === item.fromWallet);
+      const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
       if (lightningWallet.length === 1) {
         try {
           // is it a successful lnurl-pay?

@@ -13,9 +13,9 @@ const currency = require('../../blue_modules/currency');
 
 export default class BuyBitcoin extends Component {
   static contextType = BlueStorageContext;
-  constructor(props) {
+  constructor(props, context) {
     super(props);
-    const wallet = props.route.params.wallet;
+    const wallet = context.wallets.find(w => w.getID() === props.route.params.walletID);
     if (!wallet) console.warn('wallet was not passed to buyBitcoin');
 
     this.state = {
@@ -99,7 +99,7 @@ BuyBitcoin.propTypes = {
   route: PropTypes.shape({
     name: PropTypes.string,
     params: PropTypes.shape({
-      wallet: PropTypes.object.isRequired,
+      walletID: PropTypes.string.isRequired,
       safelloStateToken: PropTypes.string,
     }),
   }),
@@ -117,7 +117,7 @@ BuyBitcoin.navigate = async wallet => {
     Linking.openURL(uri);
   } else {
     NavigationService.navigate('BuyBitcoin', {
-      wallet,
+      walletID: wallet.getID(),
     });
   }
 };
