@@ -178,7 +178,7 @@
     "url": "0.11.0",
     "util": "0.12.4",
     "wif": "2.0.6",
-    "react-native-windows": "0.63.0-0"
+    "react-native-windows": "0.63.35"
   },
   "react-native": {
     "crypto": "react-native-crypto",
