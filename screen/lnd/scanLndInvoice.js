@@ -247,13 +247,13 @@ const ScanLndInvoice = () => {
     return (
       <View style={styles.walletSelectRoot}>
         {!isLoading && (
-          <TouchableOpacity style={styles.walletSelectTouch} onPress={naviageToSelectWallet}>
+          <TouchableOpacity accessibilityRole="button" style={styles.walletSelectTouch} onPress={naviageToSelectWallet}>
             <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
             <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.walletWrap}>
-          <TouchableOpacity style={styles.walletWrapTouch} onPress={naviageToSelectWallet}>
+          <TouchableOpacity accessibilityRole="button" style={styles.walletWrapTouch} onPress={naviageToSelectWallet}>
             <Text style={[styles.walletWrapLabel, stylesHook.walletWrapLabel]}>{walletLabel}</Text>
             <Text style={[styles.walletWrapBalance, stylesHook.walletWrapBalance]}>
               {formatBalanceWithoutSuffix(wallet.getBalance(), BitcoinUnit.SATS, false)}

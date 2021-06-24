@@ -168,10 +168,10 @@ const PsbtWithHardwareWallet = () => {
           <BlueText style={[styles.hexLabel, stylesHook.hexLabel]}>{loc.send.create_this_is_hex}</BlueText>
           <TextInput style={[styles.hexInput, stylesHook.hexInput]} height={112} multiline editable value={txHex} />
 
-          <TouchableOpacity style={styles.hexTouch} onPress={copyHexToClipboard}>
+          <TouchableOpacity accessibilityRole="button" style={styles.hexTouch} onPress={copyHexToClipboard}>
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_copy}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.hexTouch} onPress={handleOnVerifyPressed}>
+          <TouchableOpacity accessibilityRole="button" style={styles.hexTouch} onPress={handleOnVerifyPressed}>
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
           <BlueSpacing20 />

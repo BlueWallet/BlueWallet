@@ -144,10 +144,14 @@ export default class SendCreate extends Component {
               <BlueText style={styles.cardText}>{loc.send.create_this_is_hex}</BlueText>
               <TextInput testID="TxhexInput" style={styles.cardTx} height={72} multiline editable value={this.state.tx} />
 
-              <TouchableOpacity style={styles.actionTouch} onPress={() => Clipboard.setString(this.state.tx)}>
+              <TouchableOpacity accessibilityRole="button" style={styles.actionTouch} onPress={() => Clipboard.setString(this.state.tx)}>
                 <Text style={styles.actionText}>{loc.send.create_copy}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionTouch} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.tx)}>
+              <TouchableOpacity
+                accessibilityRole="button"
+                style={styles.actionTouch}
+                onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.tx)}
+              >
                 <Text style={styles.actionText}>{loc.send.create_verify}</Text>
               </TouchableOpacity>
             </BlueCard>
@@ -258,7 +262,7 @@ SendCreate.navigationOptions = navigationStyle({}, (options, { theme, navigation
   let headerRight;
   if (route.params.exportTXN) {
     headerRight = () => (
-      <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
+      <TouchableOpacity accessibilityRole="button" style={styles.export} onPress={route.params.exportTXN}>
         <Icon size={22} name="share-alternative" type="entypo" color={BlueCurrentTheme.colors.foregroundColor} />
       </TouchableOpacity>
     );

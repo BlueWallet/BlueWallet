@@ -139,6 +139,7 @@ const MultipleStepsListItem = props => {
             {props.button.buttonType === undefined ||
               (props.button.buttonType === MultipleStepsListItemButtohType.full && (
                 <TouchableOpacity
+                  accessibilityRole="button"
                   disabled={props.button.disabled}
                   style={[styles.provideKeyButton, stylesHook.provideKeyButton, buttonOpacity]}
                   onPress={props.button.onPress}
@@ -152,6 +153,7 @@ const MultipleStepsListItem = props => {
                   {props.button.leftText}
                 </Text>
                 <TouchableOpacity
+                  accessibilityRole="button"
                   disabled={props.button.disabled}
                   style={[styles.rowPartialRightButton, stylesHook.provideKeyButton, rightButtonOpacity]}
                   onPress={props.button.onPress}
@@ -166,7 +168,12 @@ const MultipleStepsListItem = props => {
         )}
         {!showActivityIndicator && props.rightButton && checked && (
           <View style={styles.rightButtonContainer} accessibilityComponentType>
-            <TouchableOpacity disabled={props.rightButton.disabled} style={styles.rightButton} onPress={props.rightButton.onPress}>
+            <TouchableOpacity
+              accessibilityRole="button"
+              disabled={props.rightButton.disabled}
+              style={styles.rightButton}
+              onPress={props.rightButton.onPress}
+            >
               <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.rightButton.text}</Text>
             </TouchableOpacity>
           </View>

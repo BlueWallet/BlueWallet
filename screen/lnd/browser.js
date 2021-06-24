@@ -483,6 +483,7 @@ export default class Browser extends Component {
           <View style={styles.safeURLHome}>
             {Platform.OS !== 'ios' && ( // on iOS lappbrowser opens blank page, thus, no HOME button
               <TouchableOpacity
+                accessibilityRole="button"
                 onPress={() => {
                   processedInvoices = {};
                   this.setState({ url: 'https://bluewallet.io/marketplace/' });
@@ -497,6 +498,7 @@ export default class Browser extends Component {
             )}
 
             <TouchableOpacity
+              accessibilityRole="button"
               onPress={() => {
                 this.webView.current?.reload();
               }}
