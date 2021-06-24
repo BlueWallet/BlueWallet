@@ -214,7 +214,7 @@ const LNDViewInvoice = () => {
             />
             <View style={styles.detailsRoot}>
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
-                <TouchableOpacity style={styles.detailsTouch} onPress={navigateToPreImageScreen}>
+                <TouchableOpacity accessibilityRole="button" style={styles.detailsTouch} onPress={navigateToPreImageScreen}>
                   <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
                   <Icon
                     name={I18nManager.isRTL ? 'angle-left' : 'angle-right'}

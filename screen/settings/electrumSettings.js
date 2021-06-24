@@ -236,7 +236,7 @@ export default class ElectrumSettings extends Component {
         <View key={i} style={styles.serverHistoryItem}>
           <Text style={styles.serverRow} numberOfLines={1} ellipsizeMode="middle">{`${server.host}:${server.port || server.sslPort}`}</Text>
 
-          <TouchableOpacity style={styles.selectButton} onPress={() => this.selectServer(server)}>
+          <TouchableOpacity accessibilityRole="button" style={styles.selectButton} onPress={() => this.selectServer(server)}>
             <BlueText>{loc.settings.electrum_select}</BlueText>
           </TouchableOpacity>
         </View>
@@ -328,7 +328,7 @@ export default class ElectrumSettings extends Component {
 
               <View style={styles.serverAddTitle}>
                 <BlueText style={styles.explain}>{loc.settings.electrum_settings_explain}</BlueText>
-                <TouchableOpacity testID="ResetToDefault" onPress={() => this.resetToDefault()}>
+                <TouchableOpacity accessibilityRole="button" testID="ResetToDefault" onPress={() => this.resetToDefault()}>
                   <BlueText>{loc.settings.electrum_reset}</BlueText>
                 </TouchableOpacity>
               </View>
@@ -371,7 +371,7 @@ export default class ElectrumSettings extends Component {
             <BlueCard>
               <View style={styles.serverHistoryTitle}>
                 <BlueText style={styles.explain}>{loc.settings.electrum_history}</BlueText>
-                <TouchableOpacity onPress={() => this.clearHistoryAlert()}>
+                <TouchableOpacity accessibilityRole="button" onPress={() => this.clearHistoryAlert()}>
                   <BlueText>{loc.settings.electrum_clear}</BlueText>
                 </TouchableOpacity>
               </View>

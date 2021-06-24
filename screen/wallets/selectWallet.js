@@ -105,6 +105,7 @@ const SelectWallet = () => {
           ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
           onWalletSelect(item);
         }}
+        accessibilityRole="button"
       >
         <View shadowOpacity={40 / 100} shadowOffset={{ width: 0, height: 0 }} shadowRadius={5} style={styles.itemRoot}>
           <LinearGradient shadowColor="#000000" colors={WalletGradient.gradientsFor(item.type)} style={styles.gradient}>

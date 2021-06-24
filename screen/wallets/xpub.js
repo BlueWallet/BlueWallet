@@ -24,28 +24,21 @@ const styles = StyleSheet.create({
 });
 
 const WalletXpub = () => {
-  const { secret } = useRoute().params;
+  const { wallets } = useContext(BlueStorageContext);
+  const { walletID } = useRoute().params;
+  const wallet = wallets.find(w => w.getID() === walletID);
   const [isLoading, setIsLoading] = useState(true);
   const [xPub, setXPub] = useState();
   const [xPubText, setXPubText] = useState();
-  const [wallet, setWallet] = useState();
   const { goBack } = useNavigation();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const stylesHook = StyleSheet.create({ root: { backgroundColor: colors.elevated } });
-  const { wallets } = useContext(BlueStorageContext);
 
   useFocusEffect(
     useCallback(() => {
       Privacy.enableBlur();
       const task = InteractionManager.runAfterInteractions(async () => {
-        for (const w of wallets) {
-          if (w.getSecret() === secret) {
-            // found our wallet
-            setWallet(w);
-          }
-        }
-
         if (wallet) {
           const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
 
@@ -64,7 +57,7 @@ const WalletXpub = () => {
         Privacy.disableBlur();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [goBack, secret, wallet]),
+    }, [goBack, walletID]),
   );
 
   return isLoading ? (

@@ -21,7 +21,7 @@ const navigationStyle = ({ closeButton = false, closeButtonFunc, ...opts }, form
             navigation.goBack(null);
           };
       headerRight = () => (
-        <TouchableOpacity style={styles.button} onPress={handleClose} testID="NavigationCloseButton">
+        <TouchableOpacity accessibilityRole="button" style={styles.button} onPress={handleClose} testID="NavigationCloseButton">
           <Image source={theme.closeImage} />
         </TouchableOpacity>
       );
@@ -71,6 +71,7 @@ export const navigationStyleTx = (opts, formatter) => {
       headerTintColor: theme.colors.foregroundColor,
       headerLeft: () => (
         <TouchableOpacity
+          accessibilityRole="button"
           style={styles.button}
           onPress={() => {
             Keyboard.dismiss();

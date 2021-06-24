@@ -254,8 +254,7 @@ class DeeplinkSchemaMatch {
                 {
                   screen: 'LappBrowser',
                   params: {
-                    fromSecret: lnWallet.getSecret(),
-                    fromWallet: lnWallet,
+                    walletID: lnWallet.getID(),
                     url: urlObject.query.url,
                   },
                 },

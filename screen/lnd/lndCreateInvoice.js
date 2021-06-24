@@ -304,7 +304,14 @@ const LNDCreateInvoice = () => {
 
   const renderScanClickable = () => {
     return (
-      <TouchableOpacity disabled={isLoading} onPress={navigateToScanQRCode} style={[styles.scanRoot, styleHooks.scanRoot]}>
+      <TouchableOpacity
+        disabled={isLoading}
+        onPress={navigateToScanQRCode}
+        style={[styles.scanRoot, styleHooks.scanRoot]}
+        accessibilityRole="button"
+        accessibilityLabel={loc.send.details_scan}
+        accessibilityHint={loc.send.details_scan_hint}
+      >
         <Image style={{}} source={require('../../img/scan-white.png')} />
         <Text style={[styles.scanClick, styleHooks.scanClick]}>{loc.send.details_scan}</Text>
       </TouchableOpacity>
@@ -320,13 +327,13 @@ const LNDCreateInvoice = () => {
     return (
       <View style={styles.walletRoot}>
         {!isLoading && (
-          <TouchableOpacity style={styles.walletChooseWrap} onPress={navigateToSelectWallet}>
+          <TouchableOpacity accessibilityRole="button" style={styles.walletChooseWrap} onPress={navigateToSelectWallet}>
             <Text style={styles.walletChooseText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
             <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.walletNameWrap}>
-          <TouchableOpacity style={styles.walletNameTouch} onPress={navigateToSelectWallet}>
+          <TouchableOpacity accessibilityRole="button" style={styles.walletNameTouch} onPress={navigateToSelectWallet}>
             <Text style={[styles.walletNameText, styleHooks.walletNameText]}>{wallet.current.getLabel()}</Text>
             <Text style={[styles.walletNameBalance, styleHooks.walletNameBalance]}>
               {formatBalanceWithoutSuffix(wallet.current.getBalance(), BitcoinUnit.SATS, false)}

@@ -117,6 +117,7 @@ const PsbtMultisig = () => {
         {renderProvideSignature && (
           <View>
             <TouchableOpacity
+              accessibilityRole="button"
               testID="ProvideSignature"
               style={[styles.provideSignatureButton, stylesHook.provideSignatureButton]}
               onPress={navigateToPSBTMultisigQRCode}
@@ -283,6 +284,7 @@ const PsbtMultisig = () => {
               {isConfirmEnabled() && (
                 <View style={styles.height80}>
                   <TouchableOpacity
+                    accessibilityRole="button"
                     testID="ExportSignedPsbt"
                     style={[styles.provideSignatureButton, stylesHook.provideSignatureButton]}
                     onPress={navigateToPSBTMultisigQRCode}

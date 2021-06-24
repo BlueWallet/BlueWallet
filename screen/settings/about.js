@@ -161,7 +161,7 @@ const About = () => {
           <BlueTextCentered>Electrum server</BlueTextCentered>
           <BlueSpacing20 />
 
-          <TouchableOpacity onPress={handleOnGithubPress} style={styles.buttonLink}>
+          <TouchableOpacity accessibilityRole="button" onPress={handleOnGithubPress} style={styles.buttonLink}>
             <Icon size={22} name="github" type="font-awesome-5" color={colors.foregroundColor} />
             <Text style={styles.textLink}>{loc.settings.about_sm_github}</Text>
           </TouchableOpacity>
@@ -211,6 +211,7 @@ const About = () => {
       <BlueTextCentered>Unique ID: {getUniqueId()}</BlueTextCentered>
       <View style={styles.copyToClipboard}>
         <TouchableOpacity
+          accessibilityRole="button"
           onPress={() => {
             const stringToCopy = 'user.id:' + getUniqueId();
             Sentry.captureMessage('copied unique id');
