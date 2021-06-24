@@ -60,7 +60,7 @@ const nStyles = StyleSheet.create({
 const NewWalletPanel = ({ onPress }) => {
   const { colors } = useTheme();
   return (
-    <TouchableOpacity testID="CreateAWallet" onPress={onPress} style={nStyles.root}>
+    <TouchableOpacity accessibilityRole="button" testID="CreateAWallet" onPress={onPress} style={nStyles.root}>
       <View style={[nStyles.container, { backgroundColor: WalletGradient.createWallet() }]}>
         <Text style={[nStyles.addAWAllet, { color: colors.foregroundColor }]}>{loc.wallets.list_create_a_wallet}</Text>
         <Text style={[nStyles.addLine, { color: colors.alternativeTextColor }]}>{loc.wallets.list_create_a_wallet_text}</Text>
@@ -290,8 +290,7 @@ const cStyles = StyleSheet.create({
   content: {
     left: 16,
     flexDirection: I18nManager.isRTL && Platform.OS === 'android' ? 'row-reverse' : 'row',
-
-}
+  },
 });
 
 const WalletsCarousel = forwardRef((props, ref) => {
@@ -348,7 +347,6 @@ const WalletsCarousel = forwardRef((props, ref) => {
         inactiveSlideOpacity={I18nManager.isRTL && Platform.OS === 'android' ? 1.0 : 0.7}
         activeSlideAlignment="start"
         contentContainerCustomStyle={cStyles.content}
-
         initialNumToRender={10}
         onLayout={onLayout}
         {...props}

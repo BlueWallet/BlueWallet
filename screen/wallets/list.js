@@ -129,13 +129,13 @@ const WalletsList = () => {
       },
       headerRight: () =>
         I18nManager.isRTL ? null : (
-          <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
+          <TouchableOpacity accessibilityRole="button" testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
             <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
           </TouchableOpacity>
         ),
       headerLeft: () =>
         I18nManager.isRTL ? (
-          <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
+          <TouchableOpacity accessibilityRole="button" testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
             <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
           </TouchableOpacity>
         ) : null,
@@ -218,7 +218,7 @@ const WalletsList = () => {
           {`${loc.transactions.list_title}${'  '}`}
         </Text>
         {isDesktop && (
-          <TouchableOpacity style={style} onPress={() => refreshTransactions(true)} disabled={isLoading}>
+          <TouchableOpacity accessibilityRole="button" style={style} onPress={() => refreshTransactions(true)} disabled={isLoading}>
             <Icon name="refresh" type="font-awesome" color={colors.feeText} />
           </TouchableOpacity>
         )}
@@ -247,6 +247,7 @@ const WalletsList = () => {
     if (carouselData.length > 0 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
       const button = (
         <TouchableOpacity
+          accessibilityRole="button"
           onPress={() => {
             navigate('HodlHodl', { screen: 'HodlHodl' });
           }}

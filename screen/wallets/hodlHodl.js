@@ -714,11 +714,12 @@ export default class HodlHodl extends Component {
               {this.state.isLoading ? (
                 <ActivityIndicator />
               ) : (
-                <TouchableOpacity onPress={() => this.setState({ isChooseCountryModalVisible: true })}>
+                <TouchableOpacity accessibilityRole="button" onPress={() => this.setState({ isChooseCountryModalVisible: true })}>
                   <Text style={styles.locationText}>{this.getNativeCountryName()}</Text>
                 </TouchableOpacity>
               )}
               <TouchableOpacity
+                accessibilityRole="button"
                 style={styles.blueTextContainer}
                 onPress={() => {
                   this.setState({ isFiltersModalVisible: true });

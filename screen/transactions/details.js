@@ -66,7 +66,7 @@ const TransactionsDetails = () => {
   useEffect(() => {
     setOptions({
       headerRight: () => (
-        <TouchableOpacity disabled={isLoading} style={styles.save} onPress={handleOnSaveButtonTapped}>
+        <TouchableOpacity accessibilityRole="button" disabled={isLoading} style={styles.save} onPress={handleOnSaveButtonTapped}>
           <Text style={stylesHooks.saveText}>{loc.wallets.details_save}</Text>
         </TouchableOpacity>
       ),
@@ -242,6 +242,7 @@ const TransactionsDetails = () => {
             ]}
           />
           <TouchableOpacity
+            accessibilityRole="button"
             ref={openTransactionOnBlockExplorerRef}
             onPress={handleOnOpenTransactionOnBlockExporerTapped}
             onLongPress={showToolTipMenu}

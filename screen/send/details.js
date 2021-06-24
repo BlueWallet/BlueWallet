@@ -930,6 +930,7 @@ const SendDetails = () => {
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             {options.map(({ label, time, fee, rate, active }, index) => (
               <TouchableOpacity
+                accessibilityRole="button"
                 key={label}
                 onPress={() => {
                   setFeePrecalc(fp => ({ ...fp, current: fee }));
@@ -954,6 +955,7 @@ const SendDetails = () => {
             ))}
             <TouchableOpacity
               testID="feeCustom"
+              accessibilityRole="button"
               style={styles.feeModalCustom}
               onPress={async () => {
                 let error = loc.send.fee_satbyte;
@@ -1102,6 +1104,7 @@ const SendDetails = () => {
       <View style={styles.select}>
         {!isLoading && (
           <TouchableOpacity
+            accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
           >
@@ -1111,6 +1114,7 @@ const SendDetails = () => {
         )}
         <View style={styles.selectWrap}>
           <TouchableOpacity
+            accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
           >
@@ -1251,6 +1255,7 @@ const SendDetails = () => {
             </View>
             <TouchableOpacity
               testID="chooseFee"
+              accessibilityRole="button"
               onPress={() => setIsFeeSelectionModalVisible(true)}
               disabled={isLoading}
               style={styles.fee}
@@ -1428,6 +1433,7 @@ SendDetails.navigationOptions = navigationStyleTx({}, (options, { theme, navigat
   ...options,
   headerRight: () => (
     <TouchableOpacity
+      accessibilityRole="button"
       style={styles.advancedOptions}
       onPress={route.params.advancedOptionsMenuButtonAction}
       testID="advancedOptionsMenuButton"

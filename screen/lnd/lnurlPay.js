@@ -128,6 +128,7 @@ export default class LnurlPay extends Component {
       <View style={styles.walletSelectRoot}>
         {!this.state.isLoading && (
           <TouchableOpacity
+            accessibilityRole="button"
             style={styles.walletSelectTouch}
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
@@ -139,6 +140,7 @@ export default class LnurlPay extends Component {
         )}
         <View style={styles.walletWrap}>
           <TouchableOpacity
+            accessibilityRole="button"
             style={styles.walletWrapTouch}
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
