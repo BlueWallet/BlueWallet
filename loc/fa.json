@@ -186,6 +186,7 @@
     "details_no_signed_tx": "فایل انتخاب‌شده حاوی تراکنشی نیست که بتوان آن را وارد کرد.",
     "details_note_placeholder": "یادداشت به خود",
     "details_scan": "اسکن",
+    "details_scan_hint": "جهت اسکن یا واردکردن مقصد دو بار ضربه بزنید",
     "details_total_exceeds_balance": "مقدار ارسالی بیش از ماندهٔ موجود است.",
     "details_unrecognized_file_format": "قالب فایل ناشناخته",
     "details_wallet_before_tx": "قبل از ایجاد تراکنش، ابتدا باید یک کیف پول بیت‌کوین اضافه کنید.",
