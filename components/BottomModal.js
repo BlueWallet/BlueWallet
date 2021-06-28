@@ -17,11 +17,21 @@ const styles = StyleSheet.create({
   },
 });
 
-const BottomModal = ({ onBackButtonPress, onBackdropPress, onClose, windowHeight, windowWidth, doneButton, ...props }) => {
+const BottomModal = ({
+  onBackButtonPress,
+  onBackdropPress,
+  onClose,
+  windowHeight,
+  windowWidth,
+  doneButton,
+  avoidKeyboard = false,
+  allowBackdropPress = true,
+  ...props
+}) => {
   const valueWindowHeight = useWindowDimensions().height;
   const valueWindowWidth = useWindowDimensions().width;
   const handleBackButtonPress = onBackButtonPress ?? onClose;
-  const handleBackdropPress = onBackdropPress ?? onClose;
+  const handleBackdropPress = allowBackdropPress ? onBackdropPress ?? onClose : undefined;
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     hasDoneButton: {
@@ -59,6 +69,8 @@ BottomModal.propTypes = {
   doneButton: PropTypes.bool,
   windowHeight: PropTypes.number,
   windowWidth: PropTypes.number,
+  avoidKeyboard: PropTypes.bool,
+  allowBackdropPress: PropTypes.bool,
 };
 
 export default BottomModal;

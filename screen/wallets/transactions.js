@@ -27,7 +27,7 @@ import { Chain } from '../../models/bitcoinUnits';
 import { BlueTransactionListItem, BlueWalletNavigationHeader, BlueAlertWalletExportReminder, BlueListItem } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
 import navigationStyle from '../../components/navigationStyle';
-import { LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import HandoffComponent from '../../components/handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
@@ -37,6 +37,7 @@ import BuyBitcoin from './buyBitcoin';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
+import LNNodeBar from '../../components/LNNodeBar';
 
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -61,6 +62,7 @@ const WalletTransactions = () => {
   const [pageSize, setPageSize] = useState(20);
   const { setParams, setOptions, navigate } = useNavigation();
   const { colors } = useTheme();
+  const [lnNodeInfo, setLnNodeInfo] = useState({ canReceive: 0, canSend: 0 });
   const walletActionButtonsRef = useRef();
 
   const stylesHook = StyleSheet.create({
@@ -152,6 +154,7 @@ const WalletTransactions = () => {
     if (wallet.getLastTxFetch() === 0) {
       refreshTransactions();
     }
+    refreshLnNodeInfo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -171,6 +174,12 @@ const WalletTransactions = () => {
     return false;
   };
 
+  const refreshLnNodeInfo = () => {
+    if (wallet.type === LightningLdkWallet.type) {
+      setLnNodeInfo({ canReceive: wallet.getReceivableBalance(), canSend: wallet.getBalance() });
+    }
+  };
+
   /**
    * Forcefully fetches TXs and balance for wallet
    */
@@ -180,6 +189,7 @@ const WalletTransactions = () => {
     let noErr = true;
     let smthChanged = false;
     try {
+      refreshLnNodeInfo();
       // await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
       /** @type {LegacyWallet} */
@@ -253,10 +263,15 @@ const WalletTransactions = () => {
             The idea is to avoid showing on iOS an appstore/market style app that goes against the TOS.
 
            */}
-          {wallet.getTransactions().length > 0 && wallet.type !== LightningCustodianWallet.type && renderSellFiat()}
-          {wallet.type === LightningCustodianWallet.type && renderMarketplaceButton()}
-          {wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && renderLappBrowserButton()}
+          {wallet.getTransactions().length > 0 && wallet.chain !== Chain.OFFCHAIN && renderSellFiat()}
+          {wallet.chain === Chain.OFFCHAIN && renderMarketplaceButton()}
+          {wallet.chain === Chain.OFFCHAIN && Platform.OS === 'ios' && renderLappBrowserButton()}
         </View>
+        {wallet.type === LightningLdkWallet.type && (lnNodeInfo.canSend > 0 || lnNodeInfo.canReceive > 0) && (
+          <View style={styles.marginHorizontal18}>
+            <LNNodeBar canSend={lnNodeInfo.canSend} canReceive={lnNodeInfo.canReceive} itemPriceUnit={itemPriceUnit} />
+          </View>
+        )}
         <View style={[styles.listHeaderTextRow, stylesHook.listHeaderTextRow]}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
           <TouchableOpacity
@@ -348,7 +363,7 @@ const WalletTransactions = () => {
         <TouchableOpacity
           accessibilityRole="button"
           onPress={() => {
-            if (wallet.type === LightningCustodianWallet.type) {
+            if (wallet.chain === Chain.OFFCHAIN) {
               navigate('LappBrowserRoot', {
                 screen: 'LappBrowser',
                 params: { walletID },
@@ -619,6 +634,8 @@ const WalletTransactions = () => {
         onManageFundsPressed={() => {
           if (wallet.type === MultisigHDWallet.type) {
             navigateToViewEditCosigners();
+          } else if (wallet.type === LightningLdkWallet.type) {
+            navigate('LdkInfo', { walletID: wallet.getID() });
           } else if (wallet.type === LightningCustodianWallet.type) {
             if (wallet.getUserHasSavedExport()) {
               setIsManageFundsModalVisible(true);
@@ -764,6 +781,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 16,
     paddingBottom: 40,
+  },
+  marginHorizontal18: {
+    marginHorizontal: 18,
   },
   modalContent: {
     backgroundColor: '#FFFFFF',

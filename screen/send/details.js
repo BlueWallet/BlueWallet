@@ -76,6 +76,7 @@ const SendDetails = () => {
   const [payjoinUrl, setPayjoinUrl] = useState(null);
   const [changeAddress, setChangeAddress] = useState();
   const [dumb, setDumb] = useState(false);
+  const { isEditable = true } = routeParams;
 
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/byte fee
@@ -139,9 +140,10 @@ const SendDetails = () => {
         Alert.alert(loc.errors.error, loc.send.details_error_decode);
       }
     } else if (routeParams.address) {
-      setAddresses([{ address: routeParams.address, key: String(Math.random()) }]);
+      const { amount, amountSats, unit = BitcoinUnit.BTC } = routeParams;
+      setAddresses([{ address: routeParams.address, key: String(Math.random()), amount, amountSats }]);
       setMemo(routeParams.memo || '');
-      setAmountUnit(BitcoinUnit.BTC);
+      setAmountUnit(unit);
     } else {
       setAddresses([{ address: '', key: String(Math.random()) }]); // key is for the FlatList
     }
@@ -188,7 +190,7 @@ const SendDetails = () => {
     // reset other values
     setUtxo(null);
     setChangeAddress(null);
-    setIsTransactionReplaceable(wallet.type === HDSegwitBech32Wallet.type);
+    setIsTransactionReplaceable(wallet.type === HDSegwitBech32Wallet.type && !routeParams.noRbf);
 
     // update wallet UTXO
     wallet
@@ -468,6 +470,11 @@ const SendDetails = () => {
       isTransactionReplaceable ? HDSegwitBech32Wallet.defaultRBFSequence : HDSegwitBech32Wallet.finalRBFSequence,
     );
 
+    if (tx && routeParams.launchedBy && psbt) {
+      console.warn('navigating back to ', routeParams.launchedBy);
+      navigation.navigate(routeParams.launchedBy, { psbt });
+    }
+
     if (wallet.type === WatchOnlyWallet.type) {
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
@@ -476,6 +483,7 @@ const SendDetails = () => {
         memo,
         fromWallet: wallet,
         psbt,
+        launchedBy: routeParams.launchedBy,
       });
       setIsLoading(false);
       return;
@@ -486,6 +494,7 @@ const SendDetails = () => {
         memo,
         psbtBase64: psbt.toBase64(),
         walletID: wallet.getID(),
+        launchedBy: routeParams.launchedBy,
       });
       setIsLoading(false);
       return;
@@ -996,15 +1005,17 @@ const SendDetails = () => {
       <BottomModal deviceWidth={width + width / 2} isVisible={optionsVisible} onClose={hideOptions}>
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.optionsContent, stylesHook.optionsContent]}>
-            <BlueListItem
-              testID="sendMaxButton"
-              disabled={balance === 0 || isSendMaxUsed}
-              title={loc.send.details_adv_full}
-              hideChevron
-              component={TouchableOpacity}
-              onPress={onUseAllPressed}
-            />
-            {wallet.type === HDSegwitBech32Wallet.type && (
+            {isEditable && (
+              <BlueListItem
+                testID="sendMaxButton"
+                disabled={balance === 0 || isSendMaxUsed}
+                title={loc.send.details_adv_full}
+                hideChevron
+                component={TouchableOpacity}
+                onPress={onUseAllPressed}
+              />
+            )}
+            {wallet.type === HDSegwitBech32Wallet.type && isEditable && (
               <BlueListItem
                 title={loc.send.details_adv_fee_bump}
                 Component={TouchableWithoutFeedback}
@@ -1023,7 +1034,7 @@ const SendDetails = () => {
                 onPress={importQrTransaction}
               />
             )}
-            {wallet.type === MultisigHDWallet.type && (
+            {wallet.type === MultisigHDWallet.type && isEditable && (
               <BlueListItem
                 title={loc.send.details_adv_import}
                 hideChevron
@@ -1031,7 +1042,7 @@ const SendDetails = () => {
                 onPress={importTransactionMultisig}
               />
             )}
-            {wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && (
+            {wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && isEditable && (
               <BlueListItem
                 title={loc.multisig.co_sign_transaction}
                 hideChevron
@@ -1039,23 +1050,27 @@ const SendDetails = () => {
                 onPress={importTransactionMultisigScanQr}
               />
             )}
-            <BlueListItem
-              testID="AddRecipient"
-              title={loc.send.details_add_rec_add}
-              hideChevron
-              component={TouchableOpacity}
-              onPress={handleAddRecipient}
-            />
-            <BlueListItem
-              testID="RemoveRecipient"
-              title={loc.send.details_add_rec_rem}
-              hideChevron
-              disabled={addresses.length < 2}
-              component={TouchableOpacity}
-              onPress={handleRemoveRecipient}
-            />
+            {isEditable && (
+              <>
+                <BlueListItem
+                  testID="AddRecipient"
+                  title={loc.send.details_add_rec_add}
+                  hideChevron
+                  component={TouchableOpacity}
+                  onPress={handleAddRecipient}
+                />
+                <BlueListItem
+                  testID="RemoveRecipient"
+                  title={loc.send.details_add_rec_rem}
+                  hideChevron
+                  disabled={addresses.length < 2}
+                  component={TouchableOpacity}
+                  onPress={handleRemoveRecipient}
+                />
+              </>
+            )}
             <BlueListItem testID="CoinControl" title={loc.cc.header} hideChevron component={TouchableOpacity} onPress={handleCoinControl} />
-            {wallet.allowCosignPsbt() && (
+            {wallet.allowCosignPsbt() && isEditable && (
               <BlueListItem
                 testID="PsbtSign"
                 title={loc.send.psbt_sign}
@@ -1084,7 +1099,6 @@ const SendDetails = () => {
 
   const renderWalletSelectionOrCoinsSelected = () => {
     if (walletSelectionOrCoinsSelectedHidden) return null;
-
     if (utxo !== null) {
       return (
         <View style={styles.select}>
@@ -1102,7 +1116,7 @@ const SendDetails = () => {
 
     return (
       <View style={styles.select}>
-        {!isLoading && (
+        {!isLoading && isEditable && (
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.selectTouch}
@@ -1117,6 +1131,7 @@ const SendDetails = () => {
             accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
+            disabled={!isEditable}
           >
             <Text style={[styles.selectLabel, stylesHook.selectLabel]}>{wallet.getLabel()}</Text>
           </TouchableOpacity>
@@ -1177,6 +1192,8 @@ const SendDetails = () => {
             });
           }}
           unit={units[index] || amountUnit}
+          editable={isEditable}
+          disabled={!isEditable}
           inputAccessoryViewID={InputAccessoryAllFunds.InputAccessoryViewID}
         />
         <AddressInput
@@ -1198,6 +1215,7 @@ const SendDetails = () => {
           isLoading={isLoading}
           inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
           launchedBy={name}
+          editable={isEditable}
         />
         {addresses.length > 1 && (
           <Text style={[styles.of, stylesHook.of]}>{loc.formatString(loc._.of, { number: index + 1, total: addresses.length })}</Text>

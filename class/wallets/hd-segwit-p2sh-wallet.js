@@ -148,4 +148,8 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     });
     return address;
   }
+
+  isSegwit() {
+    return true;
+  }
 }

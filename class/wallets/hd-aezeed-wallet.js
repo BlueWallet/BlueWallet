@@ -173,6 +173,10 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     return true;
   }
 
+  isSegwit() {
+    return true;
+  }
+
   allowSignVerifyMessage() {
     return true;
   }

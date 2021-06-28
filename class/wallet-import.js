@@ -17,6 +17,7 @@ import {
   SLIP39LegacyP2PKHWallet,
   SLIP39SegwitP2SHWallet,
   SLIP39SegwitBech32Wallet,
+  LightningLdkWallet,
 } from '.';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import loc from '../loc';
@@ -114,6 +115,15 @@ function WalletImport() {
     // 7. check if its private key (legacy address) TODO
 
     importText = importText.trim();
+
+    if (importText.startsWith('ldk://')) {
+      const ldk = new LightningLdkWallet();
+      ldk.setSecret(importText);
+      if (ldk.valid()) {
+        await ldk.init();
+        return WalletImport._saveWallet(ldk);
+      }
+    }
 
     if (importText.startsWith('6P')) {
       let password = false;

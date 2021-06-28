@@ -22,7 +22,7 @@ const PsbtMultisig = () => {
   const { navigate, setParams } = useNavigation();
   const { colors } = useTheme();
   const [flatListHeight, setFlatListHeight] = useState(0);
-  const { walletID, psbtBase64, memo, receivedPSBTBase64 } = useRoute().params;
+  const { walletID, psbtBase64, memo, receivedPSBTBase64, launchedBy } = useRoute().params;
   /** @type MultisigHDWallet */
   const wallet = wallets.find(w => w.getID() === walletID);
   const [psbt, setPsbt] = useState(bitcoin.Psbt.fromBase64(psbtBase64));
@@ -170,6 +170,13 @@ const PsbtMultisig = () => {
     try {
       psbt.finalizeAllInputs();
     } catch (_) {} // ignore if it is already finalized
+
+    if (launchedBy) {
+      // we must navigate back to the screen who requested psbt (instead of broadcasting it ourselves)
+      // most likely for LN channel opening
+      navigate(launchedBy, { psbt });
+      return;
+    }
 
     try {
       const tx = psbt.extractTransaction().toHex();
