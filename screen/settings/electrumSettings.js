@@ -215,7 +215,7 @@ export default class ElectrumSettings extends Component {
       value = DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(value);
     }
     const [host, port, type] = value.split(':');
-    this.setState({ host: host });
+    this.setState({ host: host, sslPort: '', port: '' });
     type === 's' ? this.setState({ sslPort: port }) : this.setState({ port: port });
   };
 
