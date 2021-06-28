@@ -48,7 +48,6 @@ const WalletsList = () => {
   const { navigate, setOptions } = useNavigation();
   const routeName = useRoute().name;
   const [isLoading, setIsLoading] = useState(false);
-  const [itemWidth, setItemWidth] = useState(width * 0.82 > 375 ? 375 : width * 0.82);
   const [isLargeScreen, setIsLargeScreen] = useState(
     Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop),
   );
@@ -96,14 +95,14 @@ const WalletsList = () => {
 
   useEffect(() => {
     if (walletsCount.current < wallets.length) {
-      walletsCarousel.current?.snapToItem(walletsCount.current);
+      walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current] });
     }
     walletsCount.current = wallets.length;
   }, [wallets]);
 
   useEffect(() => {
     if (pendingWallets.length > 0) {
-      walletsCarousel.current?.snapToItem(carouselData.length - pendingWallets.length);
+      walletsCarousel.current?.scrollToIndex(carouselData.length - pendingWallets.length);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingWallets]);
@@ -129,13 +128,13 @@ const WalletsList = () => {
       },
       headerRight: () =>
         I18nManager.isRTL ? null : (
-          <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
+          <TouchableOpacity accessibilityRole="button" testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
             <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
           </TouchableOpacity>
         ),
       headerLeft: () =>
         I18nManager.isRTL ? (
-          <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
+          <TouchableOpacity accessibilityRole="button" testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
             <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
           </TouchableOpacity>
         ) : null,
@@ -202,7 +201,12 @@ const WalletsList = () => {
     }
   };
 
-  const onSnapToItem = index => {
+  const onSnapToItem = e => {
+    const contentOffset = e.nativeEvent.contentOffset;
+    const viewSize = e.nativeEvent.layoutMeasurement;
+    // If the lateral slide is
+    // Math.floor(contentOffset.x/viewSize.width);
+    const index = Math.floor(contentOffset.x / viewSize.width);
     console.log('onSnapToItem', index);
     if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
       console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
@@ -218,7 +222,7 @@ const WalletsList = () => {
           {`${loc.transactions.list_title}${'  '}`}
         </Text>
         {isDesktop && (
-          <TouchableOpacity style={style} onPress={() => refreshTransactions(true)} disabled={isLoading}>
+          <TouchableOpacity accessibilityRole="button" style={style} onPress={() => refreshTransactions(true)} disabled={isLoading}>
             <Icon name="refresh" type="font-awesome" color={colors.feeText} />
           </TouchableOpacity>
         )}
@@ -247,6 +251,7 @@ const WalletsList = () => {
     if (carouselData.length > 0 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
       const button = (
         <TouchableOpacity
+          accessibilityRole="button"
           onPress={() => {
             navigate('HodlHodl', { screen: 'HodlHodl' });
           }}
@@ -267,15 +272,14 @@ const WalletsList = () => {
   const renderWalletsCarousel = () => {
     return (
       <WalletsCarousel
-        removeClippedSubviews={false}
         data={carouselData}
+        extraData={carouselData}
         onPress={handleClick}
         handleLongPress={handleLongPress}
-        onSnapToItem={onSnapToItem}
+        onMomentumScrollEnd={onSnapToItem}
         ref={walletsCarousel}
         testID="WalletsList"
-        sliderWidth={width}
-        itemWidth={itemWidth}
+        horizontal
       />
     );
   };
@@ -423,7 +427,6 @@ const WalletsList = () => {
 
   const onLayout = _e => {
     setIsLargeScreen(Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop));
-    setItemWidth(width * 0.82 > 375 ? 375 : width * 0.82);
   };
 
   const onRefresh = () => {
