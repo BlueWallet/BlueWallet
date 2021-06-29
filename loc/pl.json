@@ -186,6 +186,7 @@
     "details_no_signed_tx": "Wskazany plik nie zawiera transakcji, która może zostać zaimportowana.",
     "details_note_placeholder": "opis transakcji",
     "details_scan": "Skanuj",
+    "details_scan_hint": "Kliknij dwukrotnie, aby zeskanować lub zaimportować miejsce docelowe",
     "details_total_exceeds_balance": "Wysłanie tej ilości przekracza dostępne saldo.",
     "details_unrecognized_file_format": "Format nierozpoznany",
     "details_wallet_before_tx": "Przed stworzeniem transakcji, najpierw utwórz portfel Bitcoin.",
