@@ -6,6 +6,7 @@ import SyncedAsyncStorage from '../synced-async-storage';
 import { randomBytes } from '../rng';
 import * as bip39 from 'bip39';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
+import bolt11 from 'bolt11';
 const bitcoin = require('bitcoinjs-lib');
 
 export class LightningLdkWallet extends LightningCustodianWallet {
@@ -205,11 +206,27 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return bip39.mnemonicToEntropy(this.secret.replace('ldk://', ''));
   }
 
+  static async _decodeInvoice(invoice) {
+    return bolt11.decode(invoice);
+  }
+
+  static async _script2address(scriptHex) {
+    return bitcoin.address.fromOutputScript(Buffer.from(scriptHex, 'hex'));
+  }
+
+  async selftest() {
+    await RnLdk.getStorage().selftest();
+    await RnLdk.selftest();
+  }
+
   async init() {
     if (!this.getSecret()) return;
     console.warn('starting ldk');
 
     try {
+      // providing simple functions that RnLdk would otherwise rely on 3rd party APIs
+      RnLdk.provideDecodeInvoiceFunc(LightningLdkWallet._decodeInvoice);
+      RnLdk.provideScript2addressFunc(LightningLdkWallet._script2address);
       const syncedStorage = new SyncedAsyncStorage(this.getEntropyHex());
       // await syncedStorage.selftest();
       // await RnLdk.selftest();

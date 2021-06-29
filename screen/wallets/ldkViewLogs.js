@@ -1,3 +1,4 @@
+/* global alert */
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -62,6 +63,15 @@ const LdkViewLogs = () => {
     wallet.checkBlockchain();
   };
 
+  const selfTest = async () => {
+    try {
+      await wallet.selftest();
+      alert('ok');
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   const refetchData = async () => {
     getLogs();
     await wallet
@@ -91,6 +101,9 @@ const LdkViewLogs = () => {
   return (
     <SafeBlueArea>
       <ScrollView style={styles.root}>
+        <TouchableOpacity onPress={selfTest} style={styles.button}>
+          <BlueText>self test</BlueText>
+        </TouchableOpacity>
         <TouchableOpacity onPress={syncBlockchain} style={styles.button}>
           <BlueText>sync blockchain</BlueText>
         </TouchableOpacity>
