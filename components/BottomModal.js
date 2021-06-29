@@ -39,6 +39,7 @@ const BottomModal = ({ onBackButtonPress, onBackdropPress, onClose, windowHeight
       accessibilityViewIsModal
       useNativeDriver
       useNativeDriverForBackdrop={Platform.OS === 'android'}
+      statusBarTranslucent
     >
       {props.children}
       {doneButton && (
