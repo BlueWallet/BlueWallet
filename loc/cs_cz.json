@@ -186,6 +186,7 @@
     "details_no_signed_tx": "Vybraný soubor neobsahuje transakci, kterou lze importovat.",
     "details_note_placeholder": "poznámka pro sebe",
     "details_scan": "Skenovat",
+    "details_scan_hint": "Dvojitým klepnutím naskenujete nebo importujete cíl",
     "details_total_exceeds_balance": "Částka, kterou se snažíte poslat, přesahuje dostupný zůstatek.",
     "details_unrecognized_file_format": "Neznámý formát souboru",
     "details_wallet_before_tx": "Před vytvořením transakce musíte nejprve přidat bitcoinovou peněženku.",
