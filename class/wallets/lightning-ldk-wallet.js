@@ -423,6 +423,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     let sum = 0;
     if (this._listChannels) {
       for (const channel of this._listChannels) {
+        if (!channel.is_funding_locked) continue; // pending channel
         sum += Math.floor(parseInt(channel.outbound_capacity_msat) / 1000);
       }
     }
@@ -461,7 +462,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async closeChannel(fundingTxidHex, force = false) {
-    return await RnLdk.closeChannelCooperatively(fundingTxidHex);
+    return force ? await RnLdk.closeChannelForce(fundingTxidHex) : await RnLdk.closeChannelCooperatively(fundingTxidHex);
   }
 
   getLatestTransactionTime() {

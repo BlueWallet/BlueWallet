@@ -93,15 +93,15 @@ const LdkInfo = () => {
     } else {
       setChannels([]);
     }
-    if (listChannels && listChannels && Array.isArray(listChannels)) {
-      setInactiveChannels(listChannels.filter(channel => !channel.is_usable));
+    if (listChannels && Array.isArray(listChannels)) {
+      setInactiveChannels(listChannels.filter(channel => !channel.is_usable && channel.is_funding_locked));
       hasChannels = true;
     } else {
       setInactiveChannels([]);
     }
-    const listPendingChannels = await wallet.pendingChannels();
-    if (listPendingChannels && Array.isArray(listPendingChannels) && listPendingChannels.length > 0) {
-      setPendingChannels(listPendingChannels);
+
+    if (listChannels && Array.isArray(listChannels)) {
+      setPendingChannels(listChannels.filter(channel => !channel.is_funding_locked));
       hasPendingChannels = true;
     } else {
       setPendingChannels([]);
@@ -230,10 +230,7 @@ const LdkInfo = () => {
 
   const renderModal = () => {
     const status = selectedChannelIndex?.status;
-    const channelData =
-      status === LdkNodeInfoChannelStatus.ACTIVE || status === LdkNodeInfoChannelStatus.INACTIVE
-        ? selectedChannelIndex?.channel.item
-        : selectedChannelIndex?.channel.item.channel;
+    const channelData = selectedChannelIndex?.channel.item;
     return (
       <BottomModal isVisible={selectedChannelIndex !== undefined} onClose={closeModal} avoidKeyboard>
         <View style={[styles.modalContent, stylesHook.modalContent]}>
@@ -312,10 +309,7 @@ const LdkInfo = () => {
   };
 
   const renderItemChannel = channel => {
-    const channelData =
-      channel.status === LdkNodeInfoChannelStatus.ACTIVE || channel.status === LdkNodeInfoChannelStatus.INACTIVE
-        ? channel.channel.item
-        : channel.channel.item.channel;
+    const channelData = channel.channel.item;
 
     return (
       <TouchableOpacity onPress={() => showModal(channel)}>
