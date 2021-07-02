@@ -16,7 +16,6 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
     ext.kotlinVersion = '1.4.32'
     dependencies {
@@ -32,6 +31,12 @@ buildscript {
 
 allprojects {
     repositories {
+        jcenter() {
+            content {
+                includeModule("com.facebook.yoga", "proguard-annotations")
+                includeModule("com.facebook.fbjni", "fbjni-java-only")
+            }
+        }
         mavenCentral()
         mavenLocal()
         maven {
@@ -48,7 +53,6 @@ allprojects {
         }
         google()
                 maven { url 'https://www.jitpack.io' }
-        jcenter()
     }
 }
 
