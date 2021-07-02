@@ -40,7 +40,9 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return RnLdk.start(entropyHex);
   }
 
-  async stop() {}
+  async stop() {
+    return RnLdk.stop();
+  }
 
   async wipeLndDir() {}
 
