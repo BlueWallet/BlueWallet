@@ -15,7 +15,7 @@ buildscript {
     }
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     ext.kotlinVersion = '1.4.32'
     dependencies {
@@ -45,7 +45,7 @@ allprojects {
             url "$rootDir/../node_modules/detox/Detox-android"
         }
         google()
-        jcenter()
+        mavenCentral()
                 maven { url 'https://www.jitpack.io' }
     }
 }
