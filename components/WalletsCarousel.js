@@ -76,7 +76,7 @@ NewWalletPanel.propTypes = {
 };
 
 const iStyles = StyleSheet.create({
-  root: {},
+  root: { paddingRight: 20 },
   grad: {
     padding: 15,
     borderRadius: 12,
@@ -285,7 +285,6 @@ const cStyles = StyleSheet.create({
     alignItems: 'center',
   },
   content: {
-    paddingLeft: 20,
     paddingTop: 16,
   },
   separatorStyle: { width: 16, height: 20 },
@@ -307,7 +306,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
     [props.vertical, props.selectedWallet, props.handleLongPress, props.onPress, preferredFiatCurrency, language],
   );
   const flatListRef = useRef();
-  const ItemSeparatorComponent = () => <View style={cStyles.separatorStyle} />;
+  const ListHeaderComponent = () => <View style={cStyles.separatorStyle} />;
 
   useImperativeHandle(ref, () => ({
     scrollToItem: ({ item }) => {
@@ -333,15 +332,16 @@ const WalletsCarousel = forwardRef((props, ref) => {
       keyExtractor={(_, index) => index.toString()}
       showsVerticalScrollIndicator={false}
       pagingEnabled
-      snapToAlignment="start"
       disableIntervalMomentum={isHandset}
-      snapToInterval={itemWidth + 20} // Adjust to your content width
-      ItemSeparatorComponent={ItemSeparatorComponent}
+      snapToInterval={itemWidth} // Adjust to your content width
       decelerationRate="fast"
+      snapToStart
       contentContainerStyle={cStyles.content}
       directionalLockEnabled
       showsHorizontalScrollIndicator={false}
       initialNumToRender={10}
+      centerContent
+      ListHeaderComponent={ListHeaderComponent}
       style={props.vertical ? {} : { height: sliderHeight + 9 }}
       {...props}
     />

@@ -203,10 +203,7 @@ const WalletsList = () => {
 
   const onSnapToItem = e => {
     const contentOffset = e.nativeEvent.contentOffset;
-    const viewSize = e.nativeEvent.layoutMeasurement;
-    // If the lateral slide is
-    // Math.floor(contentOffset.x/viewSize.width);
-    const index = Math.floor(contentOffset.x / viewSize.width);
+    const index = Math.ceil(contentOffset.x / width);
     console.log('onSnapToItem', index);
     if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
       console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
