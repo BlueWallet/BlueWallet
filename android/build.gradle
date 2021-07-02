@@ -73,6 +73,10 @@ subprojects {
         if (project.hasProperty("android")) {
             android {
                 compileSdkVersion 29
+                 defaultConfig {
+                    minSdkVersion 29
+                    targetSdkVersion 29
+                }
             }
         }
     }
