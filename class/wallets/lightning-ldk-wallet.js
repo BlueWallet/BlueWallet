@@ -24,12 +24,13 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     this._nodeConnectionDetailsCache = {}; // pubkey -> {pubkey, host, port, ts}
     this._refundAddressScriptHex = false;
     this._lastTimeBlockchainCheckedTs = 0;
+    this._unwrapFirstExternalAddressFromMnemonicsCache = false;
   }
 
   valid() {
     try {
       const entropy = bip39.mnemonicToEntropy(this.secret.replace('ldk://', ''));
-      return entropy.length === 64;
+      return entropy.length === 64 || entropy.length === 32;
     } catch (_) {}
 
     return false;
@@ -71,22 +72,12 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return true;
   }
 
-  async fundingStateStepVerify(chanIdHex, psbtHex) {
-    return true;
-  }
-
   timeToCheckBlockchain() {
-    return +new Date() - this._lastTimeBlockchainCheckedTs > 10 * 60 * 1000; // 10 min
+    return +new Date() - this._lastTimeBlockchainCheckedTs > 5 * 60 * 1000; // 5 min, half of block time
   }
 
   async fundingStateStepFinalize(txhex) {
     return RnLdk.openChannelStep2(txhex);
-  }
-
-  async fundingStateStepCancel(chanIdHex) {}
-
-  async pendingChannels() {
-    return [];
   }
 
   /**
@@ -203,7 +194,9 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   getEntropyHex() {
-    return bip39.mnemonicToEntropy(this.secret.replace('ldk://', ''));
+    let ret = bip39.mnemonicToEntropy(this.secret.replace('ldk://', ''));
+    while (ret.length < 64) ret = '0' + ret;
+    return ret;
   }
 
   static async _decodeInvoice(invoice) {
@@ -238,18 +231,25 @@ export class LightningLdkWallet extends LightningCustodianWallet {
         await RnLdk.setRefundAddressScript(this._refundAddressScriptHex);
       } else {
         // fallback, unwrapping address from bip39 mnemonic we have
-        const hd = new HDSegwitBech32Wallet();
-        hd.setSecret(this.getSecret().replace('ldk://', ''));
-        const address = hd._getExternalAddressByIndex(0);
+        const address = this.unwrapFirstExternalAddressFromMnemonics();
         await this.setRefundAddress(address);
       }
       await RnLdk.start(this.getEntropyHex()).then(console.warn);
 
-      this.reestablishChannels();
-      if (this.timeToCheckBlockchain()) this.checkBlockchain();
+      this._execInBackground(this.reestablishChannels);
+      if (this.timeToCheckBlockchain()) this._execInBackground(this.checkBlockchain);
     } catch (error) {
       alert(error.message);
     }
+  }
+
+  unwrapFirstExternalAddressFromMnemonics() {
+    if (this._unwrapFirstExternalAddressFromMnemonicsCache) return this._unwrapFirstExternalAddressFromMnemonicsCache; // cache hit
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(this.getSecret().replace('ldk://', ''));
+    const address = hd._getExternalAddressByIndex(0);
+    this._unwrapFirstExternalAddressFromMnemonicsCache = address;
+    return address;
   }
 
   async checkBlockchain() {
@@ -269,7 +269,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     if (!result) throw new Error('Failed');
 
     // ok, it was sent. now, waiting for an event that it was _actually_ paid:
-    for (let c = 0; c < 30; c++) {
+    for (let c = 0; c < 50; c++) {
       await new Promise(resolve => setTimeout(resolve, 500)); // sleep
       for (const sentPayment of RnLdk.sentPayments || []) {
         const paidHash = LightningLdkWallet.preimage2hash(sentPayment.payment_preimage);
@@ -368,11 +368,11 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async getAddressAsync() {
-    throw new Error('Not implemented 5');
+    throw new Error('getAddressAsync: Not implemented');
   }
 
   async allowOnchainAddress() {
-    throw new Error('Not implemented 6');
+    throw new Error('allowOnchainAddress: Not implemented');
   }
 
   getTransactions() {
@@ -415,7 +415,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async fetchTransactions() {
-    if (this.timeToCheckBlockchain()) this.checkBlockchain();
+    if (this.timeToCheckBlockchain()) this._execInBackground(this.checkBlockchain);
     await this.getUserInvoices(); // it internally updates paid user invoices
   }
 
@@ -435,14 +435,36 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     let sum = 0;
     if (this._listChannels) {
       for (const channel of this._listChannels) {
+        if (!channel.is_funding_locked) continue; // pending channel
         sum += Math.floor(parseInt(channel.inbound_capacity_msat) / 1000);
       }
     }
     return sum;
   }
 
+  /**
+   * This method checks if there is balance on first unwapped address we have.
+   * This address is a fallback in case user has _no_ other wallets to withdraw onchain coins to, so closed-channel
+   * funds land on this address. Ofcourse, if user provided us a withdraw address, it should be stored in
+   * `this._refundAddressScriptHex` and its balance frankly is not our concern.
+   *
+   * @return {Promise<{confirmedBalance: number}>}
+   */
   async walletBalance() {
-    return 0;
+    let confirmedSat = 0;
+    if (this._unwrapFirstExternalAddressFromMnemonicsCache) {
+      const response = await fetch('https://blockstream.info/api/address/' + this._unwrapFirstExternalAddressFromMnemonicsCache + '/utxo');
+      const json = await response.json();
+      if (json && Array.isArray(json)) {
+        for (const utxo of json) {
+          if (utxo.status && utxo.status && utxo.status.confirmed) {
+            confirmedSat += parseInt(utxo.value);
+          }
+        }
+      }
+    }
+
+    return { confirmedBalance: confirmedSat };
   }
 
   async fetchBalance() {
@@ -450,11 +472,11 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async claimCoins(address) {
-    throw new Error('Not yet implemented');
+    throw new Error('claimCoins: Not yet implemented');
   }
 
   async fetchInfo() {
-    throw new Error('Not implemented');
+    throw new Error('fetchInfo: Not implemented');
   }
 
   allowReceive() {
@@ -482,7 +504,9 @@ export class LightningLdkWallet extends LightningCustodianWallet {
 
   async fetchPendingTransactions() {}
 
-  async fetchUserInvoices() {}
+  async fetchUserInvoices() {
+    await this.getUserInvoices();
+  }
 
   static preimage2hash(preimageHex) {
     const hash = bitcoin.crypto.sha256(Buffer.from(preimageHex, 'hex'));
@@ -502,7 +526,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
 
   async channelsNeedReestablish() {
     const freshListChannels = await this.listChannels();
-    const active = freshListChannels.filter(chan => !!chan.is_usable).length;
+    const active = freshListChannels.filter(chan => !!chan.is_usable && chan.is_funding_locked).length;
     return freshListChannels.length !== +active;
   }
 
@@ -526,5 +550,23 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     const script = bitcoin.address.toOutputScript(address);
     this._refundAddressScriptHex = script.toString('hex');
     await RnLdk.setRefundAddressScript(this._refundAddressScriptHex);
+  }
+
+  /**
+   * executes async function in background, so calling code can return immediately, while catching all thrown exceptions
+   * and showing them in alert() instead of propagating them up
+   *
+   * @param func {function} Async functino to execute
+   * @private
+   */
+  _execInBackground(func) {
+    const that = this;
+    (async () => {
+      try {
+        await func.call(that);
+      } catch (error) {
+        alert(error.message);
+      }
+    })();
   }
 }

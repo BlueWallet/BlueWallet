@@ -43,4 +43,21 @@ describe('', () => {
       '294c32ef715c92ac72af888b735950e8a8ea51c00bd4a01572a8da772956dde5',
     );
   });
+
+  it('can work with 12 words mnemonics instead of 24', () => {
+    const ldk = new LightningLdkWallet();
+    ldk.setSecret('ldk://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+    assert.strictEqual(ldk.getEntropyHex(), '0000000000000000000000000000000000000000000000000000000000000000');
+    assert.ok(ldk.valid());
+    assert.ok(isHex(ldk.getEntropyHex()));
+    assert.ok(!isHex(ldk.getSecret()));
+    assert.strictEqual(ldk.getEntropyHex().length, 64);
+    assert.strictEqual(ldk.getEntropyHex(), ldk.getEntropyHex().toLowerCase());
+  });
+
+  it('can unwrap address', () => {
+    const ldk = new LightningLdkWallet();
+    ldk.setSecret('ldk://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+    assert.strictEqual(ldk.unwrapFirstExternalAddressFromMnemonics(), 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu');
+  });
 });

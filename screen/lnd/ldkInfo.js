@@ -250,8 +250,7 @@ const LdkInfo = () => {
             canReceive={Number(channelData?.inbound_capacity_msat / 1000)}
             itemPriceUnit={wallet.getPreferredBalanceUnit()}
           />
-          {/* <Text style={[stylesHook.detailsText]}>{loc.settings.electrum_status}</Text> */}
-          {/* <BlueSpacing10 /> */}
+
           <Text style={[stylesHook.detailsText]}>
             {status === LdkNodeInfoChannelStatus.PENDING
               ? loc.transactions.pending
@@ -259,17 +258,7 @@ const LdkInfo = () => {
               ? loc.lnd.active
               : loc.lnd.inactive}
           </Text>
-          {/* {status === LNDNodeInfoChannelStatus.ACTIVE ||
-            (status === LNDNodeInfoChannelStatus.INACTIVE && (
-              <>
-                <Text style={[stylesHook.detailsText]}>{loc.lnd.local_reserve}</Text>
-                <BlueSpacing10 />
-                <Text style={[stylesHook.detailsText]}>
-                  ? sat
-                </Text>
-                <BlueSpacing40 />
-              </>
-            ))} */}
+
           {status === LdkNodeInfoChannelStatus.PENDING && (
             <>
               <Button
