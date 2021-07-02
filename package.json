@@ -146,7 +146,7 @@
     "react-native-localize": "2.1.1",
     "react-native-modal": "11.10.0",
     "react-native-navigation-bar-color": "https://github.com/BlueWallet/react-native-navigation-bar-color#3b2894ae62fbce99a3bd24105f0921cebaef5c94",
-    "react-native-obscure": "https://github.com/BlueWallet/react-native-obscure.git#4cbdc725103535b390da86748801a9db96842937",
+    "react-native-obscure": "https://github.com/BlueWallet/react-native-obscure.git#e47a108469c03729bcf6a9481c910b59ace4acce",
     "react-native-passcode-auth": "https://github.com/BlueWallet/react-native-passcode-auth#a2ff977ba92b36f8d0a5567f59c05cc608e8bd12",
     "react-native-popup-menu-android": "1.0.3",
     "react-native-privacy-snapshot": "https://github.com/BlueWallet/react-native-privacy-snapshot#529e4627d93f67752a27e82a040ff7b64dca0783",
