@@ -16,6 +16,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        jcenter()
     }
     ext.kotlinVersion = '1.4.32'
     dependencies {
@@ -31,6 +32,7 @@ buildscript {
 
 allprojects {
     repositories {
+        mavenCentral()
         mavenLocal()
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
@@ -45,8 +47,8 @@ allprojects {
             url "$rootDir/../node_modules/detox/Detox-android"
         }
         google()
-        mavenCentral()
                 maven { url 'https://www.jitpack.io' }
+        jcenter()
     }
 }
 
