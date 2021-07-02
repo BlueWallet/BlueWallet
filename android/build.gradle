@@ -11,6 +11,7 @@ buildscript {
         googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "17.3.4"
         firebaseMessagingVersion = "20.2.1"
+        ndkVersion = "20.1.5948944"
     }
     repositories {
         google()
@@ -18,7 +19,7 @@ buildscript {
     }
     ext.kotlinVersion = '1.4.32'
     dependencies {
-        classpath('com.android.tools.build:gradle:4.1.0')
+        classpath('com.android.tools.build:gradle:4.2.1')
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath 'com.google.gms:google-services:4.3.5'  // Google Services plugin
 
