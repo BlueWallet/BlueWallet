@@ -16,7 +16,7 @@ const confirm = require('../../helpers/confirm');
 const LdkNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
 
 const LdkInfo = () => {
-  const { walletID, isModal, psbt } = useRoute().params;
+  const { walletID, psbt } = useRoute().params;
   const { wallets } = useContext(BlueStorageContext);
   const refreshDataInterval = useRef();
   const sectionList = useRef();
@@ -140,27 +140,15 @@ const LdkInfo = () => {
   }, [psbt]);
 
   useEffect(() => {
-    setOptions(
-      isModal === true
-        ? {
-            headerStyle: {
-              backgroundColor: colors.customHeader,
-              borderBottomWidth: 0,
-              elevation: 0,
-              shadowOpacity: 0,
-              shadowOffset: { height: 0, width: 0 },
-            },
-          }
-        : {
-            headerStyle: {
-              backgroundColor: colors.customHeader,
-              borderBottomWidth: 0,
-              elevation: 0,
-              shadowOpacity: 0,
-              shadowOffset: { height: 0, width: 0 },
-            },
-          },
-    );
+    setOptions({
+      headerStyle: {
+        backgroundColor: colors.customHeader,
+        borderBottomWidth: 0,
+        elevation: 0,
+        shadowOpacity: 0,
+        shadowOffset: { height: 0, width: 0 },
+      },
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors]);
 
@@ -307,11 +295,7 @@ const LdkInfo = () => {
           canSend={Number(channelData.outbound_capacity_msat / 1000)}
           canReceive={Number(channelData.inbound_capacity_msat / 1000)}
           itemPriceUnit={wallet.getPreferredBalanceUnit()}
-          nodeAlias={
-            channel.status === LdkNodeInfoChannelStatus.ACTIVE || channel.status === LdkNodeInfoChannelStatus.INACTIVE
-              ? channelData.remote_network_id
-              : channelData.remote_network_id
-          }
+          nodeAlias={channelData.remote_network_id}
         />
       </TouchableOpacity>
     );

@@ -457,7 +457,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       const json = await response.json();
       if (json && Array.isArray(json)) {
         for (const utxo of json) {
-          if (utxo.status && utxo.status && utxo.status.confirmed) {
+          if (utxo?.status?.confirmed) {
             confirmedSat += parseInt(utxo.value);
           }
         }
