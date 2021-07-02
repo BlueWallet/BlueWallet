@@ -35,6 +35,8 @@ allprojects {
             content {
                 includeModule("com.facebook.yoga", "proguard-annotations")
                 includeModule("com.facebook.fbjni", "fbjni-java-only")
+                includeModule("com.facebook.fresco", "fresco")
+                includeModule("com.facebook.stetho", "stetho")
             }
         }
         mavenCentral()
