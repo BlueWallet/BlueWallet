@@ -44,7 +44,7 @@ const ReceiveDetails = () => {
   const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
   const [customLabel, setCustomLabel] = useState();
-  const [customAmount, setCustomAmount] = useState(0);
+  const [customAmount, setCustomAmount] = useState();
   const [customUnit, setCustomUnit] = useState(BitcoinUnit.BTC);
   const [bip21encoded, setBip21encoded] = useState();
   const [isCustom, setIsCustom] = useState(false);
