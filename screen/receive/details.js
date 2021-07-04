@@ -155,10 +155,10 @@ const ReceiveDetails = () => {
         <View style={styles.scrollBody}>
           {isCustom && (
             <>
-              <BlueText testID="CustomAmountText" style={styles.amount} numberOfLines={1}>
+              <BlueText accessible testID="CustomAmountText" style={styles.amount} numberOfLines={1}>
                 {getDisplayAmount()}
               </BlueText>
-              <BlueText testID="CustomAmountDescriptionText" style={styles.label} numberOfLines={1}>
+              <BlueText accessible testID="CustomAmountDescriptionText" style={styles.label} numberOfLines={1}>
                 {customLabel}
               </BlueText>
             </>
