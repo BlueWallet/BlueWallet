@@ -189,7 +189,8 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('BitcoinAmountInput')).typeText('1');
     await element(by.id('CustomAmountDescription')).typeText('test');
     await element(by.id('CustomAmountSaveButton')).tap();
-    await sup('1 BTC');
+    // wait for modal dismiss animation
+    await sup('1 BTC', 3 * 61000);
     await sup('test');
     await yo('BitcoinAddressQRCodeContainer');
     await yo('BlueCopyTextToClipboard');
