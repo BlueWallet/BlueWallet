@@ -189,8 +189,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('BitcoinAmountInput')).typeText('1');
     await element(by.id('CustomAmountDescription')).typeText('test');
     await element(by.id('CustomAmountSaveButton')).tap();
-    // wait for modal dismiss animation
-    await sup('1 BTC', 3 * 61000);
+    await sup('1 BTC');
     await sup('test');
     await yo('BitcoinAddressQRCodeContainer');
     await yo('BlueCopyTextToClipboard');
@@ -840,9 +839,8 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('BitcoinAmountInput')).typeText('1');
     await element(by.id('CustomAmountDescription')).typeText('Test');
     await element(by.id('CustomAmountSaveButton')).tap();
-    // wait for modal dismiss animation
-    await sup('1 BTC', 3 * 61000);
-    await expect(element(by.text('Test'))).toBeVisible();
+    await sup('1 BTC');
+    await sup('Test');
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
 
     await expect(element(by.text('bitcoin:bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay?amount=1&label=Test'))).toBeVisible();
