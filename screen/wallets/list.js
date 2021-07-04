@@ -26,7 +26,7 @@ import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isDesktop, isMacCatalina, isTablet } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
@@ -46,6 +46,7 @@ const WalletsList = () => {
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
+  const isFocused = useIsFocused();
   const routeName = useRoute().name;
   const [isLoading, setIsLoading] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(
@@ -202,12 +203,14 @@ const WalletsList = () => {
   };
 
   const onSnapToItem = e => {
-    const contentOffset = e.nativeEvent.contentOffset;
-    const index = Math.ceil(contentOffset.x / width);
-    console.log('onSnapToItem', index);
-    if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
-      console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
-      refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
+    if (isFocused) {
+      const contentOffset = e.nativeEvent.contentOffset;
+      const index = Math.ceil(contentOffset.x / width);
+      console.log('onSnapToItem', index);
+      if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
+        console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
+        refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
+      }
     }
   };
 
@@ -277,6 +280,7 @@ const WalletsList = () => {
         ref={walletsCarousel}
         testID="WalletsList"
         horizontal
+        scrollEnabled={isFocused}
       />
     );
   };
