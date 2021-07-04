@@ -186,7 +186,7 @@ describe('BlueWallet UI Tests', () => {
     await yo('BitcoinAddressQRCodeContainer');
     await yo('BlueCopyTextToClipboard');
     await element(by.id('SetCustomAmountButton')).tap();
-    await element(by.id('BitcoinAmountInput')).typeText('1');
+    await element(by.id('BitcoinAmountInput')).replaceText('1');
     await element(by.id('CustomAmountDescription')).typeText('test');
     await element(by.id('CustomAmountSaveButton')).tap();
     await sup('1 BTC');
@@ -836,7 +836,7 @@ describe('BlueWallet UI Tests', () => {
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
     await expect(element(by.text('bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay'))).toBeVisible();
     await element(by.id('SetCustomAmountButton')).tap();
-    await element(by.id('BitcoinAmountInput')).typeText('1');
+    await element(by.id('BitcoinAmountInput')).replaceText('1');
     await element(by.id('CustomAmountDescription')).typeText('Test');
     await element(by.id('CustomAmountSaveButton')).tap();
     await sup('1 BTC');
