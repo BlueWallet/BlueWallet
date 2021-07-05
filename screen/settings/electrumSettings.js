@@ -62,7 +62,6 @@ export default class ElectrumSettings extends Component {
     const sslPort = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SSL_PORT);
     const serverHistoryStr = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SERVER_HISTORY);
     const serverHistory = JSON.parse(serverHistoryStr) || [];
-
     this.setState({
       isLoading: false,
       host,
@@ -309,7 +308,7 @@ export default class ElectrumSettings extends Component {
                 <View style={styles.inputWrap}>
                   <TextInput
                     placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
-                    value={this.state.sslPort?.trim() === '' ? this.state.port : this.state.sslPort}
+                    value={this.state.sslPort?.trim() === '' || this.state.sslPort === null ? this.state.port : this.state.sslPort}
                     onChangeText={text =>
                       this.setState(prevState => {
                         if (prevState.sslPort?.trim() === '') {
