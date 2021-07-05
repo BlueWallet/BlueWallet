@@ -4,7 +4,7 @@ import { BluePrivateBalance } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useTheme } from '@react-navigation/native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
 import { PlaceholderWallet, LightningCustodianWallet, MultisigHDWallet } from '../../class';
@@ -77,6 +77,7 @@ const ReorderWallets = () => {
   const sortableList = useRef();
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
+  const navigation = useNavigation();
   const stylesHook = {
     root: {
       backgroundColor: colors.elevated,
@@ -87,15 +88,19 @@ const ReorderWallets = () => {
   };
 
   useEffect(() => {
-    if (sortableList.current?.state.data.length === data.length && hasMovedARow) {
-      const newWalletsOrderArray = [];
-      sortableList.current.state.order.forEach(element => {
-        newWalletsOrderArray.push(data[element]);
-      });
-      setWalletsWithNewOrder(newWalletsOrderArray);
-    }
+    const unsubscribe = navigation.addListener('blur', () => {
+      if (sortableList.current?.state.data.length === data.length && hasMovedARow) {
+        const newWalletsOrderArray = [];
+        sortableList.current.state.order.forEach(element => {
+          newWalletsOrderArray.push(data[element]);
+        });
+        setWalletsWithNewOrder(newWalletsOrderArray);
+      }
+    });
+
+    return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMovedARow]);
+  }, [navigation, hasMovedARow]);
 
   useEffect(() => {
     const loadWallets = wallets.filter(wallet => wallet.type !== PlaceholderWallet.type);
