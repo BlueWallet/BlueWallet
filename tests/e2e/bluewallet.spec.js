@@ -86,7 +86,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('ElectrumSettings')).tap();
     await element(by.id('HostInput')).replaceText('electrum.blockstream.info\n');
     await element(by.id('PortInput')).replaceText('50001\n');
-    await element(by.id('SSLPortInput')).replaceText('50002\n');
     await element(by.id('Save')).tap();
     await sup('OK');
     await element(by.text('OK')).tap();
@@ -95,7 +94,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.text('OK')).tap();
     await expect(element(by.id('HostInput'))).toHaveText('');
     await expect(element(by.id('PortInput'))).toHaveText('');
-    await expect(element(by.id('SSLPortInput'))).toHaveText('');
+    await expect(element(by.id('SSLPortInput'))).toHaveToggleValue(false);
     await device.pressBack();
 
     // network -> lightning
