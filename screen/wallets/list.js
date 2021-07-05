@@ -203,14 +203,14 @@ const WalletsList = () => {
   };
 
   const onSnapToItem = e => {
-    if (isFocused) {
-      const contentOffset = e.nativeEvent.contentOffset;
-      const index = Math.ceil(contentOffset.x / width);
-      console.log('onSnapToItem', index);
-      if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
-        console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
-        refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
-      }
+    if (!isFocused) return;
+
+    const contentOffset = e.nativeEvent.contentOffset;
+    const index = Math.ceil(contentOffset.x / width);
+    console.log('onSnapToItem', index);
+    if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
+      console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
+      refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
     }
   };
 
