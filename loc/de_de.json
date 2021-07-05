@@ -579,7 +579,6 @@
     "sign_placeholder_signature": "Signatur",
     "sign_aopp_title": "AOPP",
     "sign_aopp_confirm": "Senden der signierten Nachricht nach {hostname}?",
-    "address_balance": "Guthaben: {balance} sats",
     "addresses_title": "Adressen",
     "type_change": "Wechsel",
     "type_receive": "Empfang"

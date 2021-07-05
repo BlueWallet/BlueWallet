@@ -579,7 +579,6 @@
     "sign_placeholder_signature": "Podpis",
     "sign_aopp_title": "AOPP",
     "sign_aopp_confirm": "Chcete poslat podepsanou zprávu uživateli {hostname}?",
-    "address_balance": "Zůstatek: {balance} sats",
     "addresses_title": "Adresy",
     "type_change": "Změnit",
     "type_receive": "Příjmout"
