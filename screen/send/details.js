@@ -328,6 +328,7 @@ const SendDetails = () => {
    * @param data {String} Can be address or `bitcoin:xxxxxxx` uri scheme, or invalid garbage
    */
   const processAddressData = data => {
+    const currentIndex = scrollIndex.current;
     setIsLoading(true);
     if (!data.replace) {
       // user probably scanned PSBT and got an object instead of string..?
@@ -342,6 +343,8 @@ const SendDetails = () => {
         return [...addresses];
       });
       setIsLoading(false);
+      // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
+      setTimeout(() => scrollView.current.scrollToIndex({ index: currentIndex, animated: false }), 50);
       return;
     }
 
@@ -375,6 +378,8 @@ const SendDetails = () => {
       setMemo(options.label || options.message);
       setAmountUnit(BitcoinUnit.BTC);
       setPayjoinUrl(options.pj || '');
+      // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
+      setTimeout(() => scrollView.current.scrollToIndex({ index: currentIndex, animated: false }), 50);
     }
 
     setIsLoading(false);
