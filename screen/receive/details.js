@@ -155,12 +155,16 @@ const ReceiveDetails = () => {
         <View style={styles.scrollBody}>
           {isCustom && (
             <>
-              <BlueText testID="CustomAmountText" style={styles.amount} numberOfLines={1}>
-                {getDisplayAmount()}
-              </BlueText>
-              <BlueText testID="CustomAmountDescriptionText" style={styles.label} numberOfLines={1}>
-                {customLabel}
-              </BlueText>
+              {!isNaN(customAmount) && customAmount?.trim().length > 0 && (
+                <BlueText testID="CustomAmountText" style={styles.amount} numberOfLines={1}>
+                  {getDisplayAmount()}
+                </BlueText>
+              )}
+              {customLabel?.trim().length > 0 && (
+                <BlueText testID="CustomAmountDescriptionText" style={styles.label} numberOfLines={1}>
+                  {customLabel}
+                </BlueText>
+              )}
             </>
           )}
           <TouchableWithoutFeedback style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer" onLongPress={showToolTipMenu}>
@@ -299,27 +303,36 @@ const ReceiveDetails = () => {
   };
 
   const createCustomAmountAddress = () => {
-    setIsCustom(true);
-    setIsCustomModalVisible(false);
-    let amount = customAmount;
-    switch (customUnit) {
-      case BitcoinUnit.BTC:
-        // nop
-        break;
-      case BitcoinUnit.SATS:
-        amount = currency.satoshiToBTC(customAmount);
-        break;
-      case BitcoinUnit.LOCAL_CURRENCY:
-        if (AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
-          // cache hit! we reuse old value that supposedly doesnt have rounding errors
-          amount = currency.satoshiToBTC(AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]);
-        } else {
-          amount = currency.fiatToBTC(customAmount);
-        }
-        break;
+    const params = {};
+    if (customLabel?.trim().length > 0) {
+      params.label = customLabel;
     }
-    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { amount, label: customLabel }));
+    let amount = customAmount;
+    if (amount) {
+      switch (customUnit) {
+        case BitcoinUnit.BTC:
+          // nop
+          break;
+        case BitcoinUnit.SATS:
+          amount = currency.satoshiToBTC(customAmount);
+          break;
+        case BitcoinUnit.LOCAL_CURRENCY:
+          if (AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
+            // cache hit! we reuse old value that supposedly doesnt have rounding errors
+            amount = currency.satoshiToBTC(AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]);
+          } else {
+            amount = currency.fiatToBTC(customAmount);
+          }
+          break;
+      }
+      params.amount = amount;
+    }
+    if (Object.keys(params).length > 0) {
+      setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, params));
+      setIsCustom(true);
+    }
     setShowAddress(true);
+    setIsCustomModalVisible(false);
   };
 
   const renderCustomAmountModal = () => {
