@@ -330,6 +330,9 @@ const ReceiveDetails = () => {
     if (Object.keys(params).length > 0) {
       setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, params));
       setIsCustom(true);
+    } else {
+      setIsCustom(false);
+      setAddressBIP21Encoded(address);
     }
     setShowAddress(true);
     setIsCustomModalVisible(false);
