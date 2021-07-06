@@ -581,7 +581,9 @@
     "sign_aopp_confirm": "آیا مایل به ارسال پیام امضاشده به {hostname} هستید؟",
     "addresses_title": "آدرس‌ها",
     "type_change": "باقی‌مانده",
-    "type_receive": "دریافت"
+    "type_receive": "دریافت",
+    "type_used": "استفاده‌شده",
+    "transactions": "تراکنش‌ها"
   },
   "aopp": {
     "title": "انتخاب آدرس",
