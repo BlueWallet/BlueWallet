@@ -581,7 +581,9 @@
     "sign_aopp_confirm": "¿Quieres enviar un mensaje firmado a {hostname}?",
     "addresses_title": "Direcciones",
     "type_change": "Cambio",
-    "type_receive": "Recibir"
+    "type_receive": "Recibir",
+    "type_used": "Usado",
+    "transactions": "Transacciones"
   },
   "aopp": {
     "title": "Seleccionar dirección",
