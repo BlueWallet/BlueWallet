@@ -1,11 +1,12 @@
 import React, { useCallback, useState, useContext, useRef, useEffect } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View, StatusBar } from 'react-native';
-import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useFocusEffect, useRoute, useTheme } from '@react-navigation/native';
 import Privacy from '../../blue_modules/Privacy';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
 import navigationStyle from '../../components/navigationStyle';
 import { AddressItem } from '../../components/addresses/AddressItem';
+import { AddressTypeTabs, TABS } from '../../components/addresses/AddressTypeTabs';
 import { WatchOnlyWallet } from '../../class';
 
 export const totalBalance = ({ c, u } = { c: 0, u: 0 }) => c + u;
@@ -13,13 +14,16 @@ export const totalBalance = ({ c, u } = { c: 0, u: 0 }) => c + u;
 export const getAddress = (wallet, index, isInternal) => {
   let address;
   let balance = 0;
+  let transactions = 0;
 
   if (isInternal) {
     address = wallet._getInternalAddressByIndex(index);
     balance = totalBalance(wallet._balances_by_internal_index[index]);
+    transactions = wallet._txs_by_internal_index[index].length;
   } else {
     address = wallet._getExternalAddressByIndex(index);
     balance = totalBalance(wallet._balances_by_external_index[index]);
+    transactions = wallet._txs_by_external_index[index].length;
   }
 
   return {
@@ -28,22 +32,30 @@ export const getAddress = (wallet, index, isInternal) => {
     address,
     isInternal,
     balance,
-    transactions: 0,
+    transactions,
   };
 };
 
-export const sortByIndexAndType = (a, b) => {
-  if (a.isInternal > b.isInternal) return 1;
-  if (a.isInternal < b.isInternal) return -1;
+export const sortByAddressIndex = (a, b) => {
+  if (a.index > b.index) {
+    return 1;
+  }
+  return -1;
+};
 
-  if (a.index > b.index) return 1;
-  if (a.index < b.index) return -1;
+export const filterByAddressType = (type, isInternal, currentType) => {
+  if (currentType === type) {
+    return isInternal === true;
+  }
+  return isInternal === false;
 };
 
 const WalletAddresses = () => {
   const [showAddresses, setShowAddresses] = useState(false);
 
   const [addresses, setAddresses] = useState([]);
+
+  const [currentTab, setCurrentTab] = useState(TABS.EXTERNAL);
 
   const { wallets } = useContext(BlueStorageContext);
 
@@ -55,17 +67,24 @@ const WalletAddresses = () => {
 
   const balanceUnit = wallet.getPreferredBalanceUnit();
 
-  const walletInstance = wallet.type === WatchOnlyWallet.type ? wallet._hdWalletInstance : wallet;
+  const isWatchOnly = wallet.type === WatchOnlyWallet.type;
+
+  const walletInstance = isWatchOnly ? wallet._hdWalletInstance : wallet;
+
+  const allowSignVerifyMessage = 'allowSignVerifyMessage' in wallet && wallet.allowSignVerifyMessage();
 
   const { colors } = useTheme();
-
-  const { navigate } = useNavigation();
 
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
     },
   });
+
+  // computed property
+  const filteredAddresses = addresses
+    .filter(address => filterByAddressType(TABS.INTERNAL, address.isInternal, currentTab))
+    .sort(sortByAddressIndex);
 
   useEffect(() => {
     if (showAddresses) {
@@ -76,7 +95,7 @@ const WalletAddresses = () => {
   const getAddresses = () => {
     const addressList = [];
 
-    for (let index = 0; index < walletInstance.next_free_change_address_index + walletInstance.gap_limit; index++) {
+    for (let index = 0; index <= walletInstance.next_free_change_address_index; index++) {
       const address = getAddress(walletInstance, index, true);
 
       addressList.push(address);
@@ -88,7 +107,7 @@ const WalletAddresses = () => {
       addressList.push(address);
     }
 
-    setAddresses(addressList.sort(sortByIndexAndType));
+    setAddresses(addressList);
     setShowAddresses(true);
   };
 
@@ -102,18 +121,8 @@ const WalletAddresses = () => {
     }, []),
   );
 
-  const navigateToReceive = item => {
-    navigate('ReceiveDetailsRoot', {
-      screen: 'ReceiveDetails',
-      params: {
-        walletID,
-        address: item.item.address,
-      },
-    });
-  };
-
   const renderRow = item => {
-    return <AddressItem {...item} balanceUnit={balanceUnit} onPress={() => navigateToReceive(item)} />;
+    return <AddressItem {...item} balanceUnit={balanceUnit} walletID={walletID} allowSignVerifyMessage={allowSignVerifyMessage} />;
   };
 
   return (
@@ -122,13 +131,14 @@ const WalletAddresses = () => {
       <FlatList
         contentContainerStyle={stylesHook.root}
         ref={addressList}
-        data={addresses}
-        extraData={addresses}
-        initialNumToRender={40}
+        data={filteredAddresses}
+        extraData={filteredAddresses}
+        initialNumToRender={20}
         renderItem={renderRow}
         ListEmptyComponent={<ActivityIndicator />}
         centerContent={!showAddresses}
         contentInsetAdjustmentBehavior="automatic"
+        ListHeaderComponent={<AddressTypeTabs currentTab={currentTab} setCurrentTab={setCurrentTab} />}
       />
     </View>
   );
