@@ -4,6 +4,7 @@ export const FiatUnitSource = Object.freeze({
   CoinDesk: 'CoinDesk',
   Yadio: 'Yadio',
   BitcoinduLiban: 'BitcoinduLiban',
+  Exir: 'Exir',
 });
 
 const RateExtractors = Object.freeze({
@@ -55,6 +56,24 @@ const RateExtractors = Object.freeze({
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
     let rate = json?.[`BTC/${ticker}`];
+    if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+
+    rate = Number(rate);
+    if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+    return rate;
+  },
+  Exir: async ticker => {
+    const api = new Frisbee({ baseURI: 'https://api.exir.io' });
+    const res = await api.get('/v1/ticker?symbol=btc-irt');
+    if (res.err) throw new Error(`Could not update rate for ${ticker}: ${res.err}`);
+
+    let json;
+    try {
+      json = typeof res.body === 'string' ? JSON.parse(res.body) : res.body;
+    } catch (e) {
+      throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
+    }
+    let rate = json?.last;
     if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
 
     rate = Number(rate);
