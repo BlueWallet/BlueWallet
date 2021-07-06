@@ -38,7 +38,13 @@ describe('currency', () => {
     // disabled, because it throws "Service Temporarily Unavailable" on circleci
     // await currency.setPrefferedCurrency(FiatUnit.LBP);
     // await currency.startUpdater();
-    // cur = JSON.parse(await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES));
+    // cur = JSON.parse(await AsyncStorage.getItem(currency.EXCHANGE_RATES));
     // assert.ok(cur.BTC_LBP > 0);
+
+    // test Exir rate source
+    await currency.setPrefferedCurrency(FiatUnit.IRR);
+    await currency.startUpdater();
+    cur = JSON.parse(await AsyncStorage.getItem(currency.EXCHANGE_RATES));
+    assert.ok(cur.BTC_IRR > 0);
   });
 });

@@ -578,7 +578,6 @@
     "sign_placeholder_signature": "Assinatura",
     "sign_aopp_title": "AOPP",
     "sign_aopp_confirm": "Você deseja enviar a mensagem assinada para {hostname}?",
-    "address_balance": "Saldo: {balance} sats",
     "addresses_title": "Endereços",
     "type_change": "Troco",
     "type_receive": "Receber"

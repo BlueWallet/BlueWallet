@@ -579,7 +579,6 @@
     "sign_placeholder_signature": "امضا",
     "sign_aopp_title": "پروتکل اثبات مالکیت آدرس (AOPP)",
     "sign_aopp_confirm": "آیا مایل به ارسال پیام امضاشده به {hostname} هستید؟",
-    "address_balance": "موجودی: {balance} ساتوشی",
     "addresses_title": "آدرس‌ها",
     "type_change": "باقی‌مانده",
     "type_receive": "دریافت"
