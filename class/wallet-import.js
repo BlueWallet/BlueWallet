@@ -298,9 +298,7 @@ function WalletImport() {
 
         const s3 = new SLIP39SegwitBech32Wallet();
         s3.setSecret(importText);
-        if (await s3.wasEverUsed()) {
-          return WalletImport._saveWallet(s3);
-        }
+        return WalletImport._saveWallet(s3);
       }
     }
 

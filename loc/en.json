@@ -579,10 +579,11 @@
     "sign_placeholder_signature": "Signature",
     "sign_aopp_title": "AOPP",
     "sign_aopp_confirm": "Do you want to send signed message to {hostname}?",
-    "address_balance": "Balance: {balance} sats",
     "addresses_title": "Addresses",
     "type_change": "Change",
-    "type_receive": "Receive"
+    "type_receive": "Receive",
+    "type_used": "Used",
+    "transactions": "Transactions"
   },
   "aopp": {
     "title": "Select Address",

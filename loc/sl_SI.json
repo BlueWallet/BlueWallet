@@ -578,7 +578,6 @@
     "sign_placeholder_signature": "Podpis",
     "sign_aopp_title": "AOPP",
     "sign_aopp_confirm": "Ali želite podpisano sporočilo poslati na {hostname}?",
-    "address_balance": "Stanje: {balance} sats",
     "addresses_title": "Naslovi",
     "type_change": "Vračilo",
     "type_receive": "Prejemni"
