@@ -113,6 +113,8 @@ describe('HDAezeedWallet', () => {
     watchOnly.init();
     assert.strictEqual(watchOnly._getExternalAddressByIndex(0), aezeed._getExternalAddressByIndex(0));
     assert.ok(watchOnly.weOwnAddress('bc1qdjj7lhj9lnjye7xq3dzv3r4z0cta294xy78txn'));
+    assert.ok(!watchOnly.weOwnAddress('garbage'));
+    assert.ok(!watchOnly.weOwnAddress(false));
   });
 
   it('can sign and verify messages', async () => {

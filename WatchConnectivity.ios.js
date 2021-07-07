@@ -69,11 +69,17 @@ function WatchConnectivity() {
     if (message.request === 'createInvoice') {
       handleLightningInvoiceCreateRequest(message.walletIndex, message.amount, message.description)
         .then(createInvoiceRequest => reply({ invoicePaymentRequest: createInvoiceRequest }))
-        .catch(e => console.log(e));
+        .catch(e => {
+          console.log(e);
+          reply({});
+        });
     } else if (message.message === 'sendApplicationContext') {
       sendWalletsToWatch();
+      reply({});
     } else if (message.message === 'fetchTransactions') {
-      fetchWalletTransactions().then(() => saveToDisk());
+      fetchWalletTransactions()
+        .then(() => saveToDisk())
+        .finally(() => reply({}));
     } else if (message.message === 'hideBalance') {
       const walletIndex = message.walletIndex;
       const wallet = wallets[walletIndex];
@@ -110,7 +116,7 @@ function WatchConnectivity() {
     if (!Array.isArray(wallets)) {
       console.log('No Wallets set to sync with Watch app. Exiting...');
       return;
-    } else if (wallets.length === 0) {
+    } else if (walletsInitialized && wallets.length === 0) {
       console.log('Wallets array is set. No Wallets set to sync with Watch app. Exiting...');
       updateApplicationContext({ wallets: [], randomID: Math.floor(Math.random() * 11) });
       return;
@@ -207,7 +213,7 @@ function WatchConnectivity() {
         hideBalance: wallet.hideBalance,
       };
       if (wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type) {
-        walletInformation.push({ xpub: wallet.getXpub() ? wallet.getXpub() : wallet.getSecret() });
+        walletInformation.xpub = wallet.getXpub() ? wallet.getXpub() : wallet.getSecret();
       }
       walletsToProcess.push(walletInformation);
     }

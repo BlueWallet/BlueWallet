@@ -186,6 +186,7 @@
     "details_no_signed_tx": "The selected file doesn’t contain a transaction that can be imported.",
     "details_note_placeholder": "Note to Self",
     "details_scan": "Scan",
+    "details_scan_hint": "Double tap to scan or import a destination",
     "details_total_exceeds_balance": "The sending amount exceeds the available balance.",
     "details_unrecognized_file_format": "Unrecognized file format",
     "details_wallet_before_tx": "Before creating a transaction, you must first add a Bitcoin wallet.",
@@ -578,10 +579,11 @@
     "sign_placeholder_signature": "Signature",
     "sign_aopp_title": "AOPP",
     "sign_aopp_confirm": "Do you want to send signed message to {hostname}?",
-    "address_balance": "Balance: {balance} sats",
     "addresses_title": "Addresses",
     "type_change": "Change",
-    "type_receive": "Receive"
+    "type_receive": "Receive",
+    "type_used": "Used",
+    "transactions": "Transactions"
   },
   "aopp": {
     "title": "Select Address",

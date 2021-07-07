@@ -80,6 +80,7 @@ export const BlueButton = props => {
         alignItems: 'center',
         paddingHorizontal: 16,
       }}
+      accessibilityRole="button"
       {...props}
     >
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
@@ -101,6 +102,7 @@ export const SecondButton = forwardRef((props, ref) => {
 
   return (
     <TouchableOpacity
+      accessibilityRole="button"
       style={{
         flex: 1,
         borderWidth: 0.7,
@@ -127,7 +129,7 @@ export const SecondButton = forwardRef((props, ref) => {
 export const BitcoinButton = props => {
   const { colors } = useTheme();
   return (
-    <TouchableOpacity testID={props.testID} onPress={props.onPress}>
+    <TouchableOpacity accessibilityRole="button" testID={props.testID} onPress={props.onPress}>
       <View
         style={{
           borderColor: (props.active && colors.newBlue) || colors.buttonDisabledBackgroundColor,
@@ -146,8 +148,19 @@ export const BitcoinButton = props => {
             <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/bitcoin.png')} />
           </View>
           <View>
-            <Text style={{ color: colors.newBlue, fontWeight: 'bold', fontSize: 18 }}>{loc.wallets.add_bitcoin}</Text>
-            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500' }}>{loc.wallets.add_bitcoin_explain}</Text>
+            <Text style={{ color: colors.newBlue, fontWeight: 'bold', fontSize: 18, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }}>
+              {loc.wallets.add_bitcoin}
+            </Text>
+            <Text
+              style={{
+                color: colors.alternativeTextColor,
+                fontSize: 13,
+                fontWeight: '500',
+                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+              }}
+            >
+              {loc.wallets.add_bitcoin_explain}
+            </Text>
           </View>
         </View>
       </View>
@@ -158,7 +171,7 @@ export const BitcoinButton = props => {
 export const VaultButton = props => {
   const { colors } = useTheme();
   return (
-    <TouchableOpacity testID={props.testID} onPress={props.onPress}>
+    <TouchableOpacity accessibilityRole="button" testID={props.testID} onPress={props.onPress}>
       <View
         style={{
           borderColor: (props.active && colors.foregroundColor) || colors.buttonDisabledBackgroundColor,
@@ -176,8 +189,24 @@ export const VaultButton = props => {
             <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/vault.png')} />
           </View>
           <View>
-            <Text style={{ color: colors.foregroundColor, fontWeight: 'bold', fontSize: 18 }}>{loc.multisig.multisig_vault}</Text>
-            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500' }}>
+            <Text
+              style={{
+                color: colors.foregroundColor,
+                fontWeight: 'bold',
+                fontSize: 18,
+                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+              }}
+            >
+              {loc.multisig.multisig_vault}
+            </Text>
+            <Text
+              style={{
+                color: colors.alternativeTextColor,
+                fontSize: 13,
+                fontWeight: '500',
+                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+              }}
+            >
               {loc.multisig.multisig_vault_explain}
             </Text>
           </View>
@@ -190,7 +219,7 @@ export const VaultButton = props => {
 export const LightningButton = props => {
   const { colors } = useTheme();
   return (
-    <TouchableOpacity onPress={props.onPress}>
+    <TouchableOpacity accessibilityRole="button" onPress={props.onPress}>
       <View
         style={{
           borderColor: (props.active && colors.lnborderColor) || colors.buttonDisabledBackgroundColor,
@@ -209,8 +238,21 @@ export const LightningButton = props => {
             <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/lightning.png')} />
           </View>
           <View>
-            <Text style={{ color: colors.lnborderColor, fontWeight: 'bold', fontSize: 18 }}>{loc.wallets.add_lightning}</Text>
-            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500' }}>{loc.wallets.add_lightning_explain}</Text>
+            <Text
+              style={{ color: colors.lnborderColor, fontWeight: 'bold', fontSize: 18, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }}
+            >
+              {loc.wallets.add_lightning}
+            </Text>
+            <Text
+              style={{
+                color: colors.alternativeTextColor,
+                fontSize: 13,
+                fontWeight: '500',
+                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+              }}
+            >
+              {loc.wallets.add_lightning_explain}
+            </Text>
           </View>
         </View>
       </View>
@@ -383,6 +425,7 @@ export class BlueWalletNavigationHeader extends Component {
           }
         />
         <TouchableOpacity
+          accessibilityRole="button"
           style={styles.balance}
           onPress={this.changeWalletBalanceUnit}
           ref={this.walletBalanceText}
@@ -409,7 +452,7 @@ export class BlueWalletNavigationHeader extends Component {
           )}
         </TouchableOpacity>
         {this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress && (
-          <TouchableOpacity onPress={this.manageFundsPressed}>
+          <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
             <View
               style={{
                 marginTop: 14,
@@ -437,7 +480,7 @@ export class BlueWalletNavigationHeader extends Component {
           </TouchableOpacity>
         )}
         {this.state.wallet.type === MultisigHDWallet.type && (
-          <TouchableOpacity onPress={this.manageFundsPressed}>
+          <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
             <View
               style={{
                 marginTop: 14,
@@ -473,6 +516,7 @@ export const BlueButtonLink = forwardRef((props, ref) => {
   const { colors } = useTheme();
   return (
     <TouchableOpacity
+      accessibilityRole="button"
       style={{
         minHeight: 60,
         minWidth: 100,
@@ -517,7 +561,7 @@ export const BluePrivateBalance = () => {
 
 export const BlueCopyToClipboardButton = ({ stringToCopy, displayText = false }) => {
   return (
-    <TouchableOpacity onPress={() => Clipboard.setString(stringToCopy)}>
+    <TouchableOpacity accessibilityRole="button" onPress={() => Clipboard.setString(stringToCopy)}>
       <Text style={{ fontSize: 13, fontWeight: '400', color: '#68bbe1' }}>{displayText || loc.transactions.details_copy}</Text>
     </TouchableOpacity>
   );
@@ -559,7 +603,12 @@ export class BlueCopyTextToClipboard extends Component {
   render() {
     return (
       <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-        <TouchableOpacity onPress={this.copyToClipboard} disabled={this.state.hasTappedText} testID="BlueCopyTextToClipboard">
+        <TouchableOpacity
+          accessibilityRole="button"
+          onPress={this.copyToClipboard}
+          disabled={this.state.hasTappedText}
+          testID="BlueCopyTextToClipboard"
+        >
           <Animated.Text style={styleCopyTextToClipboard.address} numberOfLines={0}>
             {this.state.address}
           </Animated.Text>
@@ -596,7 +645,9 @@ export const BlueText = props => {
       {...props}
       style={{
         color: colors.foregroundColor,
+
         ...props.style,
+        writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
       }}
     />
   );
@@ -670,7 +721,17 @@ export const BlueListItem = React.memo(props => {
 export const BlueFormLabel = props => {
   const { colors } = useTheme();
 
-  return <Text {...props} style={{ color: colors.foregroundColor, fontWeight: '400', marginHorizontal: 20 }} />;
+  return (
+    <Text
+      {...props}
+      style={{
+        color: colors.foregroundColor,
+        fontWeight: '400',
+        marginHorizontal: 20,
+        writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+      }}
+    />
+  );
 };
 
 export const BlueFormInput = props => {
@@ -1141,7 +1202,7 @@ export const BlueReceiveButtonIcon = props => {
   const { colors } = useTheme();
 
   return (
-    <TouchableOpacity {...props} style={{ flex: 1 }}>
+    <TouchableOpacity accessibilityRole="button" {...props} style={{ flex: 1 }}>
       <View
         style={{
           flex: 1,
@@ -1349,7 +1410,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     if (item.hash) {
       navigate('TransactionStatus', { hash: item.hash });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
-      const lightningWallet = wallets.filter(wallet => wallet?.getSecret() === item.fromWallet);
+      const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
       if (lightningWallet.length === 1) {
         try {
           // is it a successful lnurl-pay?
@@ -1576,6 +1637,7 @@ export class BlueReplaceFeeSuggestions extends Component {
             },
           ].map(({ label, type, time, rate, active }, index) => (
             <TouchableOpacity
+              accessibilityRole="button"
               key={label}
               onPress={() => this.onFeeSelected(type)}
               style={[
@@ -1602,6 +1664,7 @@ export class BlueReplaceFeeSuggestions extends Component {
             </TouchableOpacity>
           ))}
         <TouchableOpacity
+          accessibilityRole="button"
           onPress={() => this.customTextInput.focus()}
           style={[
             { paddingHorizontal: 16, paddingVertical: 8, marginBottom: 10 },
@@ -1700,6 +1763,7 @@ export const BlueTabs = ({ active, onSwitch, tabs }) => (
     {tabs.map((Tab, i) => (
       <TouchableOpacity
         key={i}
+        accessibilityRole="button"
         onPress={() => onSwitch(i)}
         style={[
           tabsStyles.tabRoot,
@@ -1807,18 +1871,21 @@ export class DynamicQRCode extends Component {
         <BlueSpacing20 />
         <View style={animatedQRCodeStyle.controller}>
           <TouchableOpacity
+            accessibilityRole="button"
             style={[animatedQRCodeStyle.button, { width: '25%', alignItems: 'flex-start' }]}
             onPress={this.moveToPreviousFragment}
           >
             <Text style={animatedQRCodeStyle.text}>{loc.send.dynamic_prev}</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            accessibilityRole="button"
             style={[animatedQRCodeStyle.button, { width: '50%' }]}
             onPress={this.state.intervalHandler ? this.stopAutoMove : this.startAutoMove}
           >
             <Text style={animatedQRCodeStyle.text}>{this.state.intervalHandler ? loc.send.dynamic_stop : loc.send.dynamic_start}</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            accessibilityRole="button"
             style={[animatedQRCodeStyle.button, { width: '25%', alignItems: 'flex-end' }]}
             onPress={this.moveToNextFragment}
           >

@@ -21,8 +21,6 @@ import * as NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton, SecondButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Chain } from './models/bitcoinUnits';
-import QuickActions from 'react-native-quick-actions';
-import * as Sentry from '@sentry/react-native';
 import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import loc from './loc';
@@ -41,12 +39,6 @@ import changeNavigationBarColor from 'react-native-navigation-bar-color';
 const A = require('./blue_modules/analytics');
 
 const eventEmitter = new NativeEventEmitter(NativeModules.EventEmitter);
-
-if (process.env.NODE_ENV !== 'development') {
-  Sentry.init({
-    dsn: 'https://23377936131848ca8003448a893cb622@sentry.io/1295736',
-  });
-}
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -125,7 +117,7 @@ const App = () => {
     Linking.addEventListener('url', handleOpenURL);
     AppState.addEventListener('change', handleAppStateChange);
     DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
-    QuickActions.popInitialAction().then(popInitialAction);
+    DeviceQuickActions.popInitialAction().then(popInitialAction);
     handleAppStateChange(undefined);
     /*
       When a notification on iOS is shown while the app is on foreground;

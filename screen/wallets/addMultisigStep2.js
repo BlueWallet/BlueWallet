@@ -20,9 +20,6 @@ import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { getSystemName } from 'react-native-device-info';
 import QRCode from 'react-native-qrcode-svg';
-import Clipboard from '@react-native-clipboard/clipboard';
-import showPopupMenu from 'react-native-popup-menu-android';
-import ToolTip from 'react-native-tooltip';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import {
@@ -67,7 +64,6 @@ const WalletsAddMultisigStep2 = () => {
   const [cosignerXpubFilename, setCosignerXpubFilename] = useState('bw-cosigner.json');
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
-  const tooltip = useRef();
   const openScannerButton = useRef();
   const data = useRef(new Array(n));
   const hasUnsavedChanges = Boolean(cosigners.length > 0 && cosigners.length !== n);
@@ -518,64 +514,27 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
-  const toolTipMenuOptions = () => {
-    return Platform.select({
-      // NOT WORKING ATM.
-      // ios: [
-      //   { text: this.state.wallet.hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide, onPress: this.handleBalanceVisibility },
-      //   { text: loc.transactions.details_copy, onPress: this.handleCopyPress },
-      // ],
-      android: {
-        id: 'copyXpub',
-        label: loc.transactions.details_copy,
-      },
-    });
-  };
-
-  const showAndroidTooltip = () => {
-    showPopupMenu(toolTipMenuOptions, handleToolTipSelection, vaultKeyData.xpub);
-  };
-
-  const handleToolTipSelection = () => {
-    handleCopyPress();
-  };
-
-  const handleCopyPress = () => {
-    Clipboard.setString(vaultKeyData.xpub);
-  };
-
   const renderSecret = entries => {
     const component = [];
     const entriesObject = entries.entries();
     for (const [index, secret] of entriesObject) {
       if (entries.length > 1) {
+        const text = `${index + 1}. ${secret}  `;
         component.push(
           <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
-            <Text style={[styles.wordText, stylesHook.wordText]}>
-              {index + 1}. {secret}
+            <Text style={[styles.wordText, stylesHook.wordText]} textBreakStrategy="simple">
+              {text}
             </Text>
           </View>,
         );
       } else {
+        const text = `${secret}  `;
         component.push(
-          <TouchableOpacity
-            style={[styles.word, stylesHook.word]}
-            key={`${secret}${index}`}
-            onLongPress={() => (Platform.OS === 'ios' ? tooltip.current.showMenu() : showAndroidTooltip())}
-          >
-            {Platform.OS === 'ios' && (
-              <ToolTip
-                ref={tooltip}
-                actions={[
-                  {
-                    text: loc.transactions.details_copy,
-                    onPress: () => handleCopyPress,
-                  },
-                ]}
-              />
-            )}
-            <Text style={[styles.wordText, stylesHook.wordText]}>{secret}</Text>
-          </TouchableOpacity>,
+          <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
+            <Text style={[styles.wordText, stylesHook.wordText]} textBreakStrategy="simple">
+              {text}
+            </Text>
+          </View>,
         );
       }
     }
@@ -684,7 +643,7 @@ const WalletsAddMultisigStep2 = () => {
   const renderHelp = () => {
     return (
       <View style={styles.helpButtonWrapper}>
-        <TouchableOpacity style={[styles.helpButton, stylesHook.helpButton]} onPress={handleOnHelpPress}>
+        <TouchableOpacity accessibilityRole="button" style={[styles.helpButton, stylesHook.helpButton]} onPress={handleOnHelpPress}>
           <Icon size={20} name="help" type="octaicon" color={colors.foregroundColor} />
           <Text style={[styles.helpButtonText, stylesHook.helpButtonText]}>{loc.multisig.ms_help}</Text>
         </TouchableOpacity>

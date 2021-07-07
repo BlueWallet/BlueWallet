@@ -35,7 +35,11 @@ const SquareEnumeratedWords = props => {
         );
       } else {
         component.push(
-          <TouchableOpacity style={[styles.entryTextContainer, stylesHook.entryTextContainer]} key={`${secret}${index}`}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            style={[styles.entryTextContainer, stylesHook.entryTextContainer]}
+            key={`${secret}${index}`}
+          >
             <Text textBreakStrategy="simple" style={[styles.entryText, stylesHook.entryText]}>
               {secret}
             </Text>

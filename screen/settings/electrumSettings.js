@@ -18,7 +18,6 @@ import RNWidgetCenter from 'react-native-widget-center';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import loc from '../../loc';
-import { AppStorage } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import navigationStyle from '../../components/navigationStyle';
 import {
@@ -33,6 +32,7 @@ import {
   BlueDismissKeyboardInputAccessory,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
+import { isDesktop } from '../../blue_modules/environment';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -54,10 +54,10 @@ export default class ElectrumSettings extends Component {
   }
 
   async componentDidMount() {
-    const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
-    const port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
-    const sslPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_SSL_PORT);
-    const serverHistoryStr = await AsyncStorage.getItem(AppStorage.ELECTRUM_SERVER_HISTORY);
+    const host = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_HOST);
+    const port = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_TCP_PORT);
+    const sslPort = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SSL_PORT);
+    const serverHistoryStr = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SERVER_HISTORY);
     const serverHistory = JSON.parse(serverHistoryStr) || [];
 
     this.setState({
@@ -126,7 +126,7 @@ export default class ElectrumSettings extends Component {
 
   clearHistory = async () => {
     this.setState({ isLoading: true }, async () => {
-      await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_HISTORY, JSON.stringify([]));
+      await AsyncStorage.setItem(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify([]));
       this.setState({
         serverHistory: [],
         isLoading: false,
@@ -156,14 +156,14 @@ export default class ElectrumSettings extends Component {
     this.setState({ isLoading: true }, async () => {
       try {
         if (!host && !port && !sslPort) {
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, '');
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, '');
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, '');
+          await AsyncStorage.setItem(BlueElectrum.ELECTRUM_HOST, '');
+          await AsyncStorage.setItem(BlueElectrum.ELECTRUM_TCP_PORT, '');
+          await AsyncStorage.setItem(BlueElectrum.ELECTRUM_SSL_PORT, '');
           try {
             await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-            await DefaultPreference.clear(AppStorage.ELECTRUM_HOST);
-            await DefaultPreference.clear(AppStorage.ELECTRUM_SSL_PORT);
-            await DefaultPreference.clear(AppStorage.ELECTRUM_TCP_PORT);
+            await DefaultPreference.clear(BlueElectrum.ELECTRUM_HOST);
+            await DefaultPreference.clear(BlueElectrum.ELECTRUM_SSL_PORT);
+            await DefaultPreference.clear(BlueElectrum.ELECTRUM_TCP_PORT);
             RNWidgetCenter.reloadAllTimelines();
           } catch (e) {
             // Must be running on Android
@@ -175,9 +175,9 @@ export default class ElectrumSettings extends Component {
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
           alert(loc.settings.electrum_error_connect);
         } else {
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, host);
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, port);
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, sslPort);
+          await AsyncStorage.setItem(BlueElectrum.ELECTRUM_HOST, host);
+          await AsyncStorage.setItem(BlueElectrum.ELECTRUM_TCP_PORT, port);
+          await AsyncStorage.setItem(BlueElectrum.ELECTRUM_SSL_PORT, sslPort);
 
           if (!this.serverExists({ host, port, sslPort })) {
             serverHistory.push({
@@ -185,14 +185,14 @@ export default class ElectrumSettings extends Component {
               port,
               sslPort,
             });
-            await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_HISTORY, JSON.stringify(serverHistory));
+            await AsyncStorage.setItem(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(serverHistory));
           }
 
           try {
             await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-            await DefaultPreference.set(AppStorage.ELECTRUM_HOST, host);
-            await DefaultPreference.set(AppStorage.ELECTRUM_TCP_PORT, port);
-            await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, sslPort);
+            await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, host);
+            await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, port);
+            await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, sslPort);
             RNWidgetCenter.reloadAllTimelines();
           } catch (e) {
             // Must be running on Android
@@ -215,8 +215,9 @@ export default class ElectrumSettings extends Component {
       value = DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(value);
     }
     const [host, port, type] = value.split(':');
-    this.setState({ host: host });
-    type === 's' ? this.setState({ sslPort: port }) : this.setState({ port: port });
+    this.setState({ host: host, sslPort: '', port: '' }, () => {
+      type === 's' ? this.setState({ sslPort: port }) : this.setState({ port: port });
+    });
   };
 
   importScan = () => {
@@ -236,7 +237,7 @@ export default class ElectrumSettings extends Component {
         <View key={i} style={styles.serverHistoryItem}>
           <Text style={styles.serverRow} numberOfLines={1} ellipsizeMode="middle">{`${server.host}:${server.port || server.sslPort}`}</Text>
 
-          <TouchableOpacity style={styles.selectButton} onPress={() => this.selectServer(server)}>
+          <TouchableOpacity accessibilityRole="button" style={styles.selectButton} onPress={() => this.selectServer(server)}>
             <BlueText>{loc.settings.electrum_select}</BlueText>
           </TouchableOpacity>
         </View>
@@ -267,7 +268,8 @@ export default class ElectrumSettings extends Component {
               <View style={styles.inputWrap}>
                 <TextInput
                   placeholder={
-                    loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' }) + ' (' + loc.settings.tor_supported + ')'
+                    loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' }) +
+                    (!isDesktop ? ' (' + loc.settings.tor_supported + ')' : '')
                   }
                   value={this.state.host}
                   onChangeText={text => this.setState({ host: text.trim() })}
@@ -327,7 +329,7 @@ export default class ElectrumSettings extends Component {
 
               <View style={styles.serverAddTitle}>
                 <BlueText style={styles.explain}>{loc.settings.electrum_settings_explain}</BlueText>
-                <TouchableOpacity testID="ResetToDefault" onPress={() => this.resetToDefault()}>
+                <TouchableOpacity accessibilityRole="button" testID="ResetToDefault" onPress={() => this.resetToDefault()}>
                   <BlueText>{loc.settings.electrum_reset}</BlueText>
                 </TouchableOpacity>
               </View>
@@ -370,7 +372,7 @@ export default class ElectrumSettings extends Component {
             <BlueCard>
               <View style={styles.serverHistoryTitle}>
                 <BlueText style={styles.explain}>{loc.settings.electrum_history}</BlueText>
-                <TouchableOpacity onPress={() => this.clearHistoryAlert()}>
+                <TouchableOpacity accessibilityRole="button" onPress={() => this.clearHistoryAlert()}>
                   <BlueText>{loc.settings.electrum_clear}</BlueText>
                 </TouchableOpacity>
               </View>

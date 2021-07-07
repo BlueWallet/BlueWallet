@@ -2,10 +2,11 @@
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import React, { createContext, useEffect, useState } from 'react';
 import { LayoutAnimation } from 'react-native';
-import { AppStorage } from '../class';
 import { FiatUnit } from '../models/fiatUnit';
+import loc from '../loc';
 const BlueApp = require('../BlueApp');
 const BlueElectrum = require('./BlueElectrum');
+const currency = require('../blue_modules/currency');
 
 const _lastTimeTriedToRefetchWallet = {}; // hashmap of timestamps we _started_ refetching some wallet
 
@@ -19,14 +20,14 @@ export const BlueStorageProvider = ({ children }) => {
   const [walletsInitialized, setWalletsInitialized] = useState(false);
   const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(FiatUnit.USD);
   const [language, _setLanguage] = useState();
-  const getPreferredCurrencyAsyncStorage = useAsyncStorage(AppStorage.PREFERRED_CURRENCY).getItem;
-  const getLanguageAsyncStorage = useAsyncStorage(AppStorage.LANG).getItem;
+  const getPreferredCurrencyAsyncStorage = useAsyncStorage(currency.PREFERRED_CURRENCY).getItem;
+  const getLanguageAsyncStorage = useAsyncStorage(loc.LANG).getItem;
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [isDrawerListBlurred, _setIsDrawerListBlurred] = useState(false);
 
   const setIsHandOffUseEnabledAsyncStorage = value => {
     setIsHandOffUseEnabled(value);
-    return BlueApp.setItem(AppStorage.HANDOFF_STORAGE_KEY, value === true ? '1' : '');
+    return BlueApp.setIsHandoffEnabled(value);
   };
 
   const saveToDisk = async () => {
@@ -43,7 +44,7 @@ export const BlueStorageProvider = ({ children }) => {
   useEffect(() => {
     (async () => {
       try {
-        const enabledHandoff = await BlueApp.getItem(AppStorage.HANDOFF_STORAGE_KEY);
+        const enabledHandoff = await BlueApp.isHandoffEnabled();
         setIsHandOffUseEnabled(!!enabledHandoff);
       } catch (_e) {
         setIsHandOffUseEnabledAsyncStorage(false);

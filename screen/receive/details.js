@@ -44,7 +44,7 @@ const ReceiveDetails = () => {
   const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
   const [customLabel, setCustomLabel] = useState();
-  const [customAmount, setCustomAmount] = useState(0);
+  const [customAmount, setCustomAmount] = useState();
   const [customUnit, setCustomUnit] = useState(BitcoinUnit.BTC);
   const [bip21encoded, setBip21encoded] = useState();
   const [isCustom, setIsCustom] = useState(false);
@@ -89,21 +89,20 @@ const ReceiveDetails = () => {
     },
     qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
     root: {
-      flex: 1,
+      flexGrow: 1,
       backgroundColor: colors.elevated,
       justifyContent: 'space-between',
     },
     scrollBody: {
-      flexGrow: 3,
       marginTop: 32,
+      flexGrow: 1,
       alignItems: 'center',
       paddingHorizontal: 16,
     },
     share: {
-      justifyContent: 'center',
+      justifyContent: 'flex-end',
       paddingVertical: 16,
       alignItems: 'center',
-      flexGrow: 1,
       marginBottom: 8,
     },
     link: {

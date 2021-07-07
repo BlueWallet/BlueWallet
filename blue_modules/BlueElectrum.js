@@ -1,7 +1,7 @@
 /* global alert */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
-import { AppStorage, LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
+import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
 import DefaultPreference from 'react-native-default-preference';
 import RNWidgetCenter from 'react-native-widget-center';
 import loc from '../loc';
@@ -11,6 +11,11 @@ const reverse = require('buffer-reverse');
 const BigNumber = require('bignumber.js');
 const torrific = require('../blue_modules/torrific');
 const Realm = require('realm');
+
+const ELECTRUM_HOST = 'electrum_host';
+const ELECTRUM_TCP_PORT = 'electrum_tcp_port';
+const ELECTRUM_SSL_PORT = 'electrum_ssl_port';
+const ELECTRUM_SERVER_HISTORY = 'electrum_server_history';
 
 let _realm;
 async function _getRealm() {
@@ -79,13 +84,13 @@ async function connectMain() {
   try {
     if (usingPeer.host.endsWith('onion')) {
       const randomPeer = await getRandomHardcodedPeer();
-      await DefaultPreference.set(AppStorage.ELECTRUM_HOST, randomPeer.host);
-      await DefaultPreference.set(AppStorage.ELECTRUM_TCP_PORT, randomPeer.tcp);
-      await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, randomPeer.ssl);
+      await DefaultPreference.set(ELECTRUM_HOST, randomPeer.host);
+      await DefaultPreference.set(ELECTRUM_TCP_PORT, randomPeer.tcp);
+      await DefaultPreference.set(ELECTRUM_SSL_PORT, randomPeer.ssl);
     } else {
-      await DefaultPreference.set(AppStorage.ELECTRUM_HOST, usingPeer.host);
-      await DefaultPreference.set(AppStorage.ELECTRUM_TCP_PORT, usingPeer.tcp);
-      await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, usingPeer.ssl);
+      await DefaultPreference.set(ELECTRUM_HOST, usingPeer.host);
+      await DefaultPreference.set(ELECTRUM_TCP_PORT, usingPeer.tcp);
+      await DefaultPreference.set(ELECTRUM_SSL_PORT, usingPeer.ssl);
     }
 
     RNWidgetCenter.reloadAllTimelines();
@@ -187,14 +192,14 @@ async function presentNetworkErrorAlert(usingPeer) {
                 text: loc._.ok,
                 style: 'destructive',
                 onPress: async () => {
-                  await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, '');
-                  await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, '');
-                  await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, '');
+                  await AsyncStorage.setItem(ELECTRUM_HOST, '');
+                  await AsyncStorage.setItem(ELECTRUM_TCP_PORT, '');
+                  await AsyncStorage.setItem(ELECTRUM_SSL_PORT, '');
                   try {
                     await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-                    await DefaultPreference.clear(AppStorage.ELECTRUM_HOST);
-                    await DefaultPreference.clear(AppStorage.ELECTRUM_SSL_PORT);
-                    await DefaultPreference.clear(AppStorage.ELECTRUM_TCP_PORT);
+                    await DefaultPreference.clear(ELECTRUM_HOST);
+                    await DefaultPreference.clear(ELECTRUM_SSL_PORT);
+                    await DefaultPreference.clear(ELECTRUM_TCP_PORT);
                     RNWidgetCenter.reloadAllTimelines();
                   } catch (e) {
                     // Must be running on Android
@@ -236,9 +241,9 @@ async function getRandomHardcodedPeer() {
 }
 
 async function getSavedPeer() {
-  const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
-  const port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
-  const sslPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_SSL_PORT);
+  const host = await AsyncStorage.getItem(ELECTRUM_HOST);
+  const port = await AsyncStorage.getItem(ELECTRUM_TCP_PORT);
+  const sslPort = await AsyncStorage.getItem(ELECTRUM_SSL_PORT);
   return { host, tcp: port, ssl: sslPort };
 }
 
@@ -845,6 +850,10 @@ module.exports.setBatchingEnabled = () => {
 
 module.exports.hardcodedPeers = hardcodedPeers;
 module.exports.getRandomHardcodedPeer = getRandomHardcodedPeer;
+module.exports.ELECTRUM_HOST = ELECTRUM_HOST;
+module.exports.ELECTRUM_TCP_PORT = ELECTRUM_TCP_PORT;
+module.exports.ELECTRUM_SSL_PORT = ELECTRUM_SSL_PORT;
+module.exports.ELECTRUM_SERVER_HISTORY = ELECTRUM_SERVER_HISTORY;
 
 const splitIntoChunks = function (arr, chunkSize) {
   const groups = [];

@@ -26,9 +26,9 @@ import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isCatalyst, isMacCatalina, isTablet } from '../../blue_modules/environment';
+import { isDesktop, isMacCatalina, isTablet } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import navigationStyle from '../../components/navigationStyle';
 
@@ -46,11 +46,11 @@ const WalletsList = () => {
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
+  const isFocused = useIsFocused();
   const routeName = useRoute().name;
   const [isLoading, setIsLoading] = useState(false);
-  const [itemWidth, setItemWidth] = useState(width * 0.82 > 375 ? 375 : width * 0.82);
   const [isLargeScreen, setIsLargeScreen] = useState(
-    Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isCatalyst),
+    Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop),
   );
   const [carouselData, setCarouselData] = useState([]);
   const dataSource = getTransactions(null, 10);
@@ -89,21 +89,21 @@ const WalletsList = () => {
 
   useEffect(() => {
     const allWallets = wallets.concat(pendingWallets);
-    const newCarouselData = I18nManager.isRTL && Platform.OS !== 'android' ? [false].concat(allWallets) : allWallets.concat(false);
+    const newCarouselData = allWallets.concat(false);
     setCarouselData(newCarouselData);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallets, pendingWallets]);
 
   useEffect(() => {
     if (walletsCount.current < wallets.length) {
-      walletsCarousel.current?.snapToItem(walletsCount.current);
+      walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current] });
     }
     walletsCount.current = wallets.length;
   }, [wallets]);
 
   useEffect(() => {
     if (pendingWallets.length > 0) {
-      walletsCarousel.current?.snapToItem(carouselData.length - pendingWallets.length);
+      walletsCarousel.current?.scrollToIndex(carouselData.length - pendingWallets.length);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingWallets]);
@@ -119,7 +119,7 @@ const WalletsList = () => {
   useEffect(() => {
     setOptions({
       title: '',
-      headerShown: !isCatalyst,
+      headerShown: !isDesktop,
       headerStyle: {
         backgroundColor: colors.customHeader,
         borderBottomWidth: 0,
@@ -129,13 +129,13 @@ const WalletsList = () => {
       },
       headerRight: () =>
         I18nManager.isRTL ? null : (
-          <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
+          <TouchableOpacity accessibilityRole="button" testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
             <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
           </TouchableOpacity>
         ),
       headerLeft: () =>
         I18nManager.isRTL ? (
-          <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
+          <TouchableOpacity accessibilityRole="button" testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
             <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
           </TouchableOpacity>
         ) : null,
@@ -202,7 +202,11 @@ const WalletsList = () => {
     }
   };
 
-  const onSnapToItem = index => {
+  const onSnapToItem = e => {
+    if (!isFocused) return;
+
+    const contentOffset = e.nativeEvent.contentOffset;
+    const index = Math.ceil(contentOffset.x / width);
     console.log('onSnapToItem', index);
     if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
       console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
@@ -217,8 +221,8 @@ const WalletsList = () => {
         <Text textBreakStrategy="simple" style={[styles.listHeaderText, stylesHook.listHeaderText]}>
           {`${loc.transactions.list_title}${'  '}`}
         </Text>
-        {isCatalyst && (
-          <TouchableOpacity style={style} onPress={() => refreshTransactions(true)} disabled={isLoading}>
+        {isDesktop && (
+          <TouchableOpacity accessibilityRole="button" style={style} onPress={() => refreshTransactions(true)} disabled={isLoading}>
             <Icon name="refresh" type="font-awesome" color={colors.feeText} />
           </TouchableOpacity>
         )}
@@ -247,6 +251,7 @@ const WalletsList = () => {
     if (carouselData.length > 0 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
       const button = (
         <TouchableOpacity
+          accessibilityRole="button"
           onPress={() => {
             navigate('HodlHodl', { screen: 'HodlHodl' });
           }}
@@ -267,15 +272,15 @@ const WalletsList = () => {
   const renderWalletsCarousel = () => {
     return (
       <WalletsCarousel
-        removeClippedSubviews={false}
         data={carouselData}
+        extraData={carouselData}
         onPress={handleClick}
         handleLongPress={handleLongPress}
-        onSnapToItem={onSnapToItem}
+        onMomentumScrollEnd={onSnapToItem}
         ref={walletsCarousel}
         testID="WalletsList"
-        sliderWidth={width}
-        itemWidth={itemWidth}
+        horizontal
+        scrollEnabled={isFocused}
       />
     );
   };
@@ -422,8 +427,7 @@ const WalletsList = () => {
   };
 
   const onLayout = _e => {
-    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isCatalyst));
-    setItemWidth(width * 0.82 > 375 ? 375 : width * 0.82);
+    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop));
   };
 
   const onRefresh = () => {
@@ -522,10 +526,12 @@ const styles = StyleSheet.create({
   ltTextBig: {
     fontSize: 16,
     fontWeight: '600',
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   ltTextSmall: {
     fontSize: 13,
     fontWeight: '500',
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   footerRoot: {
     top: 80,

@@ -7,7 +7,7 @@ on: [pull_request]
 
 jobs:
   test:
-    runs-on: macos-latest
+    runs-on: macos-10.15 # tmp fix for https://github.com/ReactiveCircus/android-emulator-runner/issues/160
     steps:
     - name: Checkout project
       uses: actions/checkout@v2
@@ -44,6 +44,9 @@ jobs:
         HD_MNEMONIC_BIP49_MANY_TX: ${{ secrets.HD_MNEMONIC_BIP49_MANY_TX }}
         HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
         HD_MNEMONIC_BREAD: ${{ secrets.HD_MNEMONIC_BREAD }}
+        FAULTY_ZPUB: ${{ secrets.FAULTY_ZPUB }}
+        MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
+        MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
 
   e2e:
     runs-on: macos-latest
@@ -89,6 +92,7 @@ jobs:
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 29
+        emulator-build: 6110076 # tmp fix for https://github.com/ReactiveCircus/android-emulator-runner/issues/160
         target: google_apis
         avd-name: Pixel_API_29_AOSP
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none

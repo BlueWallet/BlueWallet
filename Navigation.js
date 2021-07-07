@@ -80,7 +80,7 @@ import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import UnlockWith from './UnlockWith';
 import DrawerList from './screen/wallets/drawerList';
-import { isCatalyst, isTablet } from './blue_modules/environment';
+import { isDesktop, isTablet } from './blue_modules/environment';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
 
@@ -89,7 +89,6 @@ const defaultScreenOptions =
     ? ({ route, navigation }) => ({
         gestureEnabled: true,
         cardOverlayEnabled: true,
-        cardStyle: { backgroundColor: '#FFFFFF' },
         headerStatusBarHeight: navigation.dangerouslyGetState().routes.indexOf(route) > 0 ? 10 : undefined,
         ...TransitionPresets.ModalPresentationIOS,
         gestureResponseDistance: { vertical: Dimensions.get('window').height, horizontal: 50 },
@@ -104,7 +103,6 @@ const defaultStackScreenOptions =
     ? {
         gestureEnabled: true,
         cardOverlayEnabled: true,
-        cardStyle: { backgroundColor: '#FFFFFF' },
         headerStatusBarHeight: 10,
       }
     : {
@@ -349,7 +347,7 @@ const Drawer = createDrawerNavigator();
 function DrawerRoot() {
   const dimensions = useWindowDimensions();
   const isLargeScreen =
-    Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 2 && (isTablet() || isCatalyst);
+    Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop);
   const drawerStyle = { width: '0%' };
 
   return (

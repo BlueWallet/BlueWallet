@@ -19,7 +19,7 @@ import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import DocumentPicker from 'react-native-document-picker';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
+import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
 import RNFS from 'react-native-fs';
 import Biometric from '../../class/biometrics';
 
@@ -168,10 +168,10 @@ const PsbtWithHardwareWallet = () => {
           <BlueText style={[styles.hexLabel, stylesHook.hexLabel]}>{loc.send.create_this_is_hex}</BlueText>
           <TextInput style={[styles.hexInput, stylesHook.hexInput]} height={112} multiline editable value={txHex} />
 
-          <TouchableOpacity style={styles.hexTouch} onPress={copyHexToClipboard}>
+          <TouchableOpacity accessibilityRole="button" style={styles.hexTouch} onPress={copyHexToClipboard}>
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_copy}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.hexTouch} onPress={handleOnVerifyPressed}>
+          <TouchableOpacity accessibilityRole="button" style={styles.hexTouch} onPress={handleOnVerifyPressed}>
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
           <BlueSpacing20 />
@@ -188,7 +188,7 @@ const PsbtWithHardwareWallet = () => {
       await RNFS.writeFile(filePath, typeof psbt === 'string' ? psbt : psbt.toBase64());
       Share.open({
         url: 'file://' + filePath,
-        saveToFiles: isCatalyst,
+        saveToFiles: isDesktop,
       })
         .catch(error => {
           console.log(error);

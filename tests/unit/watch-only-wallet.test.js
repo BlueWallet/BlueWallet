@@ -297,6 +297,45 @@ describe('Watch only wallet', () => {
     assert.ok(!w.addressIsChange(await w._getExternalAddressByIndex(0)));
     assert.ok(w.addressIsChange(await w._getInternalAddressByIndex(0)));
   });
+
+  it('can craft correct psbt for HW wallet to sign', async () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('ypub6Y9u3QCRC1HkZv3stNxcQVwmw7vC7KX5Ldz38En5P88RQbesP2oy16hNyQocVCfYRQPxdHcd3pmu9AFhLv7NdChWmw5iNLryZ2U6EEHdnfo');
+    w.init();
+
+    // a hack to make it find pubkey for address correctly:
+    w._hdWalletInstance.next_free_address_index = 110;
+    w._hdWalletInstance.next_free_change_address_index = 110;
+
+    const utxos = [
+      {
+        height: 557538,
+        value: 51432,
+        address: '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK',
+        txId: 'b2ac59bc282083498d1e87805d89bef9d3f3bc216c1d2c4dfaa2e2911b547100',
+        vout: 0,
+        txid: 'b2ac59bc282083498d1e87805d89bef9d3f3bc216c1d2c4dfaa2e2911b547100',
+        amount: 51432,
+        wif: false,
+        confirmations: 132402,
+      },
+    ];
+
+    const changeAddress = '3DrZBgntD8kBBbuKLJtPVAeGT75BMC7NxU';
+
+    const { psbt } = await w.createTransaction(
+      utxos,
+      [{ address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 5000 }],
+      1,
+      changeAddress,
+    );
+
+    assert.strictEqual(
+      psbt.data.outputs[1].bip32Derivation[0].pubkey.toString('hex'),
+      '03e060c9b5bb85476caa53e3b8cd3d40c9dc2c36a8a5e8ed87e48bfc9bbe1760ad',
+    );
+    assert.strictEqual(psbt.data.outputs[1].bip32Derivation[0].path, "m/49'/0'/0'/1/46");
+  });
 });
 
 describe('BC-UR', () => {
