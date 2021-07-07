@@ -12,6 +12,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  Switch,
 } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import RNWidgetCenter from 'react-native-widget-center';
@@ -46,6 +47,8 @@ export default class ElectrumSettings extends Component {
       serverHistory: [],
       config: {},
       server,
+      sslPort: '',
+      port: '',
     };
   }
 
@@ -59,7 +62,6 @@ export default class ElectrumSettings extends Component {
     const sslPort = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SSL_PORT);
     const serverHistoryStr = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SERVER_HISTORY);
     const serverHistory = JSON.parse(serverHistoryStr) || [];
-
     this.setState({
       isLoading: false,
       host,
@@ -231,6 +233,21 @@ export default class ElectrumSettings extends Component {
     });
   };
 
+  useSSLPortToggled = value => {
+    switch (value) {
+      case true:
+        this.setState(prevState => {
+          return { port: '', sslPort: prevState.port };
+        });
+        break;
+      case false:
+        this.setState(prevState => {
+          return { port: prevState.sslPort, sslPort: '' };
+        });
+        break;
+    }
+  };
+
   render() {
     const serverHistoryItems = this.state.serverHistory.map((server, i) => {
       return (
@@ -287,45 +304,38 @@ export default class ElectrumSettings extends Component {
                 />
               </View>
               <BlueSpacing20 />
-              <View style={styles.inputWrap}>
-                <TextInput
-                  placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
-                  value={this.state.port}
-                  onChangeText={text => this.setState({ port: text.trim() })}
-                  numberOfLines={1}
-                  style={styles.inputText}
-                  editable={!this.state.isLoading}
-                  placeholderTextColor="#81868e"
-                  underlineColorAndroid="transparent"
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  keyboardType="number-pad"
-                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-                  testID="PortInput"
-                  onFocus={() => this.setState({ isAndroidNumericKeyboardFocused: true })}
-                  onBlur={() => this.setState({ isAndroidNumericKeyboardFocused: false })}
-                />
+              <View style={styles.portWrap}>
+                <View style={styles.inputWrap}>
+                  <TextInput
+                    placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
+                    value={this.state.sslPort?.trim() === '' || this.state.sslPort === null ? this.state.port : this.state.sslPort}
+                    onChangeText={text =>
+                      this.setState(prevState => {
+                        if (prevState.sslPort?.trim() === '') {
+                          return { port: text.trim(), sslPort: '' };
+                        } else {
+                          return { port: '', sslPort: text.trim() };
+                        }
+                      })
+                    }
+                    numberOfLines={1}
+                    style={styles.inputText}
+                    editable={!this.state.isLoading}
+                    placeholderTextColor="#81868e"
+                    underlineColorAndroid="transparent"
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                    keyboardType="number-pad"
+                    inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+                    testID="PortInput"
+                    onFocus={() => this.setState({ isAndroidNumericKeyboardFocused: true })}
+                    onBlur={() => this.setState({ isAndroidNumericKeyboardFocused: false })}
+                  />
+                </View>
+                <BlueText style={styles.usePort}>{loc.settings.use_ssl}</BlueText>
+                <Switch testID="SSLPortInput" value={this.state.sslPort?.trim() > 0} onValueChange={this.useSSLPortToggled} />
               </View>
               <BlueSpacing20 />
-              <View style={styles.inputWrap}>
-                <TextInput
-                  placeholder={loc.formatString(loc.settings.electrum_port_ssl, { example: '50002' })}
-                  value={this.state.sslPort}
-                  onChangeText={text => this.setState({ sslPort: text.trim() })}
-                  numberOfLines={1}
-                  style={styles.inputText}
-                  editable={!this.state.isLoading}
-                  autoCorrect={false}
-                  placeholderTextColor="#81868e"
-                  autoCapitalize="none"
-                  keyboardType="number-pad"
-                  underlineColorAndroid="transparent"
-                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-                  testID="SSLPortInput"
-                  onFocus={() => this.setState({ isAndroidNumericKeyboardFocused: true })}
-                  onBlur={() => this.setState({ isAndroidNumericKeyboardFocused: false })}
-                />
-              </View>
 
               <View style={styles.serverAddTitle}>
                 <BlueText style={styles.explain}>{loc.settings.electrum_settings_explain}</BlueText>
@@ -438,6 +448,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: BlueCurrentTheme.colors.foregroundColor,
   },
+  usePort: {
+    textAlign: 'center',
+    color: BlueCurrentTheme.colors.foregroundColor,
+    marginHorizontal: 8,
+  },
   explain: {
     color: BlueCurrentTheme.colors.feeText,
     marginBottom: -24,
@@ -449,6 +464,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   inputWrap: {
+    flex: 1,
     flexDirection: 'row',
     borderColor: BlueCurrentTheme.colors.formBorder,
     borderBottomColor: BlueCurrentTheme.colors.formBorder,
@@ -459,6 +475,12 @@ const styles = StyleSheet.create({
     height: 44,
     alignItems: 'center',
     borderRadius: 4,
+  },
+  portWrap: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   inputText: {
     flex: 1,
