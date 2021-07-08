@@ -51,7 +51,9 @@ const AddressTypeTabs = ({ currentTab, setCurrentTab }) => {
 
       return (
         <View key={tab.key} onPress={() => changeToTab(tab.key)} style={[styles.tab, tabStyle]}>
-          <Text onPress={() => changeToTab(tab.key)} style={textStyle}>{tab.name}</Text>
+          <Text onPress={() => changeToTab(tab.key)} style={textStyle}>
+            {tab.name}
+          </Text>
         </View>
       );
     });
