@@ -12,6 +12,7 @@ import {
   TouchableWithoutFeedback,
   useWindowDimensions,
   View,
+  Dimensions,
   FlatList,
 } from 'react-native';
 import { useTheme } from '@react-navigation/native';
@@ -21,13 +22,11 @@ import { LightningCustodianWallet, MultisigHDWallet, PlaceholderWallet } from '.
 import WalletGradient from '../class/wallet-gradient';
 import { BluePrivateBalance } from '../BlueComponents';
 import { BlueStorageContext } from '../blue_modules/storage-context';
-import { isHandset } from '../blue_modules/environment';
+import { isHandset, isTablet, isDesktop } from '../blue_modules/environment';
 
 const nStyles = StyleSheet.create({
   root: {},
   container: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
     borderRadius: 10,
     minHeight: Platform.OS === 'ios' ? 164 : 181,
     justifyContent: 'center',
@@ -57,10 +56,31 @@ const NewWalletPanel = ({ onPress }) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
+  const isLargeScreen = Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop);
+  const nStylesHooks = StyleSheet.create({
+    container: isLargeScreen
+      ? {
+          paddingHorizontal: 24,
+          marginVertical: 16,
+        }
+      : { paddingVertical: 16, paddingHorizontal: 24 },
+  });
 
   return (
-    <TouchableOpacity accessibilityRole="button" testID="CreateAWallet" onPress={onPress} style={{ width: itemWidth * 1.2 }}>
-      <View style={[nStyles.container, { backgroundColor: WalletGradient.createWallet(), width: itemWidth }]}>
+    <TouchableOpacity
+      accessibilityRole="button"
+      testID="CreateAWallet"
+      onPress={onPress}
+      style={isLargeScreen ? {} : { width: itemWidth * 1.2 }}
+    >
+      <View
+        style={[
+          nStyles.container,
+          nStylesHooks.container,
+          { backgroundColor: WalletGradient.createWallet() },
+          isLargeScreen ? {} : { width: itemWidth },
+        ]}
+      >
         <Text style={[nStyles.addAWAllet, { color: colors.foregroundColor }]}>{loc.wallets.list_create_a_wallet}</Text>
         <Text style={[nStyles.addLine, { color: colors.alternativeTextColor }]}>{loc.wallets.list_create_a_wallet_text}</Text>
         <View style={nStyles.button}>
@@ -77,6 +97,7 @@ NewWalletPanel.propTypes = {
 
 const iStyles = StyleSheet.create({
   root: { paddingRight: 20 },
+  rootLargeDevice: { marginVertical: 20 },
   grad: {
     padding: 15,
     borderRadius: 12,
@@ -131,7 +152,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
   const { walletTransactionUpdateStatus } = useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-
+  const isLargeScreen = Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop);
   const onPressedIn = () => {
     const props = { duration: 50 };
     props.useNativeDriver = true;
@@ -159,7 +180,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
   if (item.type === PlaceholderWallet.type) {
     return (
       <Animated.View
-        style={[iStyles.root, { width: itemWidth }, { transform: [{ scale: scaleValue }] }]}
+        style={[isLargeScreen ? iStyles.rootLargeDevice : { ...iStyles.root, width: itemWidth }, { transform: [{ scale: scaleValue }] }]}
         shadowOpacity={40 / 100}
         shadowOffset={{ width: 0, height: 0 }}
         shadowRadius={5}
@@ -223,7 +244,10 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
 
   return (
     <Animated.View
-      style={[iStyles.root, { width: itemWidth }, { opacity, transform: [{ scale: scaleValue }] }]}
+      style={[
+        isLargeScreen ? iStyles.rootLargeDevice : { ...iStyles.root, width: itemWidth },
+        { opacity, transform: [{ scale: scaleValue }] },
+      ]}
       shadowOpacity={25 / 100}
       shadowOffset={{ width: 0, height: 3 }}
       shadowRadius={8}
@@ -287,6 +311,9 @@ const cStyles = StyleSheet.create({
   content: {
     paddingTop: 16,
   },
+  contentLargeScreen: {
+    paddingHorizontal: 16,
+  },
   separatorStyle: { width: 16, height: 20 },
 });
 
@@ -324,6 +351,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
   const { width } = useWindowDimensions();
   const sliderHeight = 190;
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
+  const isLargeScreen = Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop);
 
   return (
     <FlatList
@@ -335,7 +363,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
       disableIntervalMomentum={isHandset}
       snapToInterval={itemWidth} // Adjust to your content width
       decelerationRate="fast"
-      contentContainerStyle={cStyles.content}
+      contentContainerStyle={isLargeScreen ? cStyles.contentLargeScreen : cStyles.content}
       directionalLockEnabled
       showsHorizontalScrollIndicator={false}
       initialNumToRender={10}
