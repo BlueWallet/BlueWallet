@@ -259,8 +259,8 @@
     "electrum_connected_not": "Nicht verbunden",
     "electrum_error_connect": "Keine Verbindung zum angegebenen Electrum-Server möglich.",
     "electrum_host": "Z.b. {example}",
-    "electrum_port": "TCP Port, normalerweise {example}",
-    "electrum_port_ssl": "SSL Port, normalerweise {example}",
+    "electrum_port": "Port, üblich {Beispiel}",
+    "use_ssl": "SSL verwenden",
     "electrum_saved": "Deine Änderungen wurden gespeichert. Zur Aktivierung ist ggf. ein Neustart von BlueWallet erforderlich.",
     "set_electrum_server_as_default": "{server} als Standard Electrum-Server setzten?",
     "set_lndhub_as_default": "{url} als Standard LNDHub-Server setzten?",
@@ -581,7 +581,9 @@
     "sign_aopp_confirm": "Senden der signierten Nachricht nach {hostname}?",
     "addresses_title": "Adressen",
     "type_change": "Wechsel",
-    "type_receive": "Empfang"
+    "type_receive": "Empfang",
+    "type_used": "Verwendet",
+    "transactions": "Transaktionen"
   },
   "aopp": {
     "title": "Adresse wählen",
