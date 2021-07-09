@@ -41,6 +41,7 @@ import MultipleStepsListItem, {
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { encodeUR } from '../../blue_modules/ur';
 
 const prompt = require('../../blue_modules/prompt');
 const A = require('../../blue_modules/analytics');
@@ -60,7 +61,8 @@ const WalletsAddMultisigStep2 = () => {
   const [isMnemonicsModalVisible, setIsMnemonicsModalVisible] = useState(false);
   const [isProvideMnemonicsModalVisible, setIsProvideMnemonicsModalVisible] = useState(false);
   const [isRenderCosignersXpubModalVisible, setIsRenderCosignersXpubModalVisible] = useState(false);
-  const [cosignerXpub, setCosignerXpub] = useState(''); // string displayed in renderCosignersXpubModal()
+  const [cosignerXpub, setCosignerXpub] = useState(''); // string used in exportCosigner()
+  const [cosignerXpubURv2, setCosignerXpubURv2] = useState(''); // string displayed in renderCosignersXpubModal()
   const [cosignerXpubFilename, setCosignerXpubFilename] = useState('bw-cosigner.json');
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
@@ -250,6 +252,7 @@ const WalletsAddMultisigStep2 = () => {
   const viewKey = cosigner => {
     if (MultisigHDWallet.isXpubValid(cosigner[0])) {
       setCosignerXpub(MultisigCosigner.exportToJson(cosigner[1], cosigner[0], cosigner[2]));
+      setCosignerXpubURv2(encodeUR(MultisigCosigner.exportToJson(cosigner[1], cosigner[0], cosigner[2]))[0]);
       setCosignerXpubFilename('bw-cosigner-' + cosigner[1] + '.json');
       setIsRenderCosignersXpubModalVisible(true);
     } else {
@@ -258,6 +261,7 @@ const WalletsAddMultisigStep2 = () => {
       const xpub = getXpubCacheForMnemonics(cosigner[0]);
       const fp = getFpCacheForMnemonics(cosigner[0]);
       setCosignerXpub(MultisigCosigner.exportToJson(fp, xpub, path));
+      setCosignerXpubURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
       setCosignerXpubFilename('bw-cosigner-' + fp + '.json');
       setIsRenderCosignersXpubModalVisible(true);
     }
@@ -618,7 +622,7 @@ const WalletsAddMultisigStep2 = () => {
             <BlueSpacing20 />
             <View style={styles.qrCodeContainer}>
               <QRCode
-                value={cosignerXpub}
+                value={cosignerXpubURv2}
                 size={260}
                 color="#000000"
                 logoBackgroundColor={colors.brandingColor}

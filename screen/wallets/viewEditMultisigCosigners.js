@@ -42,6 +42,7 @@ import Biometric from '../../class/biometrics';
 import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
 import { isMacCatalina } from '../../blue_modules/environment';
+import { encodeUR } from '../../blue_modules/ur';
 const fs = require('../../blue_modules/fs');
 
 const ViewEditMultisigCosigners = () => {
@@ -62,7 +63,8 @@ const ViewEditMultisigCosigners = () => {
   const [isMnemonicsModalVisible, setIsMnemonicsModalVisible] = useState(false);
   const [isShareModalVisible, setIsShareModalVisible] = useState(false);
   const [importText, setImportText] = useState('');
-  const [exportString, setExportString] = useState('{}');
+  const [exportString, setExportString] = useState('{}'); // used in exportCosigner()
+  const [exportStringURv2, setExportStringURv2] = useState(''); // used in QR
   const [exportFilename, setExportFilename] = useState('bw-cosigner.json');
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', path: '', fp: '', isLoading: false }); // string rendered in modal
   const data = useRef();
@@ -330,6 +332,7 @@ const ViewEditMultisigCosigners = () => {
                       isLoading: false,
                     });
                     setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
+                    setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
                     setExportFilename('bw-cosigner-' + fp + '.json');
                     setIsMnemonicsModalVisible(true);
                   },
@@ -377,6 +380,7 @@ const ViewEditMultisigCosigners = () => {
                     const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
                     const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path));
                     setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
+                    setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
                     setExportFilename('bw-cosigner-' + fp + '.json');
                   },
                 }}
@@ -544,7 +548,7 @@ const ViewEditMultisigCosigners = () => {
             <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
             <View style={styles.qrCodeContainer}>
               <QRCode
-                value={exportString}
+                value={exportStringURv2}
                 size={260}
                 color="#000000"
                 logoBackgroundColor={colors.brandingColor}
