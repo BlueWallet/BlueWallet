@@ -30,7 +30,7 @@
 		6DD4109D266CADF10087DE03 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; };
 		6DD4109E266CADF10087DE03 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3C252FE1A3004D72DF /* SwiftUI.framework */; };
 		6DD410A1266CADF10087DE03 /* Widgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD410A0266CADF10087DE03 /* Widgets.swift */; };
-		6DD410A7266CADF40087DE03 /* WidgetsExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6DD4109C266CADF10087DE03 /* WidgetsExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6DD410A7266CADF40087DE03 /* WidgetsExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6DD4109C266CADF10087DE03 /* WidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6DD410AC266CAE470087DE03 /* PriceWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6CA4BC255872E3009312A5 /* PriceWidget.swift */; };
 		6DD410AE266CAF1F0087DE03 /* fiatUnit.json in Resources */ = {isa = PBXBuildFile; fileRef = 6DD410AD266CAF1F0087DE03 /* fiatUnit.json */; };
 		6DD410AF266CAF5C0087DE03 /* WalletInformationAndMarketWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E06254BA347007B5B82 /* WalletInformationAndMarketWidget.swift */; };
@@ -50,7 +50,7 @@
 		6DD410BF266CB13D0087DE03 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4BFA254FBA0E00E9F9AA /* Models.swift */; };
 		6DD410C0266CB1460087DE03 /* MarketWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9946622555A660000E52E8 /* MarketWidget.swift */; };
 		6DF25A9F249DB97E001D06F5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6DF25A9E249DB97E001D06F5 /* LaunchScreen.storyboard */; };
-		6DFC807024EA0B6C007B8700 /* EFQRCode in Frameworks */ = {isa = PBXBuildFile; productRef = 6DFC806F24EA0B6C007B8700 /* EFQRCode */; };
+		6DFC807024EA0B6C007B8700 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; productRef = 6DFC806F24EA0B6C007B8700 /* SwiftPackageProductDependency */; };
 		6DFC807224EA2FA9007B8700 /* ViewQRCodefaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DFC807124EA2FA9007B8700 /* ViewQRCodefaceController.swift */; };
 		764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B468CC34D5B41F3950078EF /* libsqlite3.0.tbd */; };
 		782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D9B3A7B2CB4255876B67AF /* libz.tbd */; };
@@ -397,7 +397,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6DFC807024EA0B6C007B8700 /* EFQRCode in Frameworks */,
+				6DFC807024EA0B6C007B8700 /* BuildFile in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -837,7 +837,7 @@
 			);
 			name = "BlueWalletWatch Extension";
 			packageProductDependencies = (
-				6DFC806F24EA0B6C007B8700 /* EFQRCode */,
+				6DFC806F24EA0B6C007B8700 /* SwiftPackageProductDependency */,
 			);
 			productName = "BlueWalletWatch Extension";
 			productReference = B40D4E3C225841ED00428FCC /* BlueWalletWatch Extension.appex */;
@@ -921,7 +921,7 @@
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
-				6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */,
+				6DFC806E24EA0B6C007B8700 /* RemoteSwiftPackageReference */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -1222,6 +1222,7 @@
 		};
 		6D2A6467258BA92D0092292B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilter = ios;
 			target = 6D2A6460258BA92C0092292B /* Stickers */;
 			targetProxy = 6D2A6466258BA92D0092292B /* PBXContainerItemProxy */;
 		};
@@ -1231,7 +1232,6 @@
 		};
 		6DD410A6266CADF40087DE03 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilter = ios;
 			target = 6DD4109B266CADF10087DE03 /* WidgetsExtension */;
 			targetProxy = 6DD410A5266CADF40087DE03 /* PBXContainerItemProxy */;
 		};
@@ -1578,11 +1578,11 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,6";
 			};
 			name = Debug;
 		};
@@ -1622,10 +1622,10 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,6";
 			};
 			name = Release;
 		};
@@ -1960,7 +1960,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */ = {
+		6DFC806E24EA0B6C007B8700 /* RemoteSwiftPackageReference */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/EFPrefix/EFQRCode.git";
 			requirement = {
@@ -1971,9 +1971,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		6DFC806F24EA0B6C007B8700 /* EFQRCode */ = {
+		6DFC806F24EA0B6C007B8700 /* SwiftPackageProductDependency */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */;
+			package = 6DFC806E24EA0B6C007B8700 /* RemoteSwiftPackageReference */;
 			productName = EFQRCode;
 		};
 /* End XCSwiftPackageProductDependency section */
