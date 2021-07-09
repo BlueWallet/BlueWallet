@@ -77,6 +77,8 @@
   },
   "dependencies": {
     "@babel/preset-env": "7.12.1",
+    "@keystonehq/bc-ur-registry": "https://github.com/BlueWallet/ur-registry",
+    "@ngraveio/bc-ur": "https://github.com/BlueWallet/bc-ur",
     "@react-native-async-storage/async-storage": "1.15.5",
     "@react-native-clipboard/clipboard": "1.7.0",
     "@react-native-community/blur": "3.6.0",
@@ -92,7 +94,6 @@
     "assert": "2.0.0",
     "base-x": "3.0.8",
     "bc-bech32": "file:blue_modules/bc-bech32",
-    "bc-ur": "file:blue_modules/bc-ur",
     "bech32": "2.0.0",
     "bignumber.js": "9.0.1",
     "bip21": "2.0.3",
