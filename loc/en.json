@@ -17,7 +17,11 @@
     "success": "Success",
     "wallet_key": "Wallet key",
     "invalid_animated_qr_code_fragment" : "Invalid animated QRCode fragment. Please try again.",
-    "file_saved": "File ({filePath}) has been saved in your Downloads folder.",
+    "file_saved": "File {filePath} has been saved in your {destination}.",
+    "file_save_title": "Save File",
+    "file_save_location": "Select where to save {filePath}",
+    "downloads_folder": "Downloads Folder",
+    "external_storage": "External Storage",
     "discard_changes": "Discard changes?",
     "discard_changes_detail": "You have unsaved changes. Are you sure to discard them and leave the screen?"
   },
