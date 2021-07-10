@@ -1,3 +1,11 @@
+v6.1.9
+======
+
+* ADD: Support for URv2 QR codes
+* ADD: Offer additional file save destinations on Android
+* ADD: macOS Widgets
+* FIX: PSBT File save would fail on Android
+
 v6.1.8
 ======
 FIX: Wallet carousel was not rending properly on large screens
