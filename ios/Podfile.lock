@@ -360,7 +360,7 @@ PODS:
     - React-cxxreact (= 0.64.2)
     - React-jsi (= 0.64.2)
     - React-perflogger (= 0.64.2)
-  - RealmJS (10.4.2):
+  - RealmJS (10.6.0):
     - GCDWebServer
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
@@ -771,7 +771,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 24600e3b1aaa77126989bc58b6747509a1ba14f3
   React-runtimeexecutor: a9904c6d0218fb9f8b19d6dd88607225927668f9
   ReactCommon: 149906e01aa51142707a10665185db879898e966
-  RealmJS: 90f2a558fdda19ebb9fcbc0a52c7b1d1b049fb88
+  RealmJS: c903034b0d767fcef11dc8207e91b6f07e60d7b8
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: 8324611026e8dc3706f829953aa6e3899f581589
   RNCClipboard: dac13db8b1ce9b998f1cbc7ca33440113602847f
@@ -802,6 +802,6 @@ SPEC CHECKSUMS:
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: d6f6c7992cb83adb1c2ca00fa4d3e3a3402f4787
+PODFILE CHECKSUM: d190822228dafb8d4bccaddd003676c563d92dce
 
 COCOAPODS: 1.10.1
