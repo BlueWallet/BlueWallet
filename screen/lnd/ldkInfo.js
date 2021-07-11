@@ -212,7 +212,7 @@ const LdkInfo = () => {
 
   const handleOnConnectPeerTapped = async channelData => {
     closeModal();
-    const { pubkey, host, port } = await wallet.lookupNodeConnectionDetailsByPubkey(channelData.remote_network_id);
+    const { pubkey, host, port } = await wallet.lookupNodeConnectionDetailsByPubkey(channelData.remote_node_id);
     return wallet.connectPeer(pubkey, host, port);
   };
 
@@ -226,7 +226,7 @@ const LdkInfo = () => {
           <BlueSpacing10 />
           {channelData && (
             <Text style={[stylesHook.detailsText]}>
-              {channelData.remote_network_id.substr(0, 6) + '...' + channelData.remote_network_id.substr(-6)}
+              {channelData.remote_node_id.substr(0, 6) + '...' + channelData.remote_node_id.substr(-6)}
             </Text>
           )}
           <BlueSpacing20 />
@@ -295,7 +295,7 @@ const LdkInfo = () => {
           canSend={Number(channelData.outbound_capacity_msat / 1000)}
           canReceive={Number(channelData.inbound_capacity_msat / 1000)}
           itemPriceUnit={wallet.getPreferredBalanceUnit()}
-          nodeAlias={channelData.remote_network_id}
+          nodeAlias={channelData.remote_node_id}
         />
       </TouchableOpacity>
     );

@@ -519,8 +519,8 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     const connectedInThisRun = {};
     for (const channel of await this.listChannels()) {
       if (channel.is_usable) continue; // already connected..?
-      if (connectedInThisRun[channel.remote_network_id]) continue; // already tried to reconnect (in case there are several channels with the same node)
-      const { pubkey, host, port } = await this.lookupNodeConnectionDetailsByPubkey(channel.remote_network_id);
+      if (connectedInThisRun[channel.remote_node_id]) continue; // already tried to reconnect (in case there are several channels with the same node)
+      const { pubkey, host, port } = await this.lookupNodeConnectionDetailsByPubkey(channel.remote_node_id);
       await this.connectPeer(pubkey, host, port);
       connectedInThisRun[pubkey] = true;
     }
