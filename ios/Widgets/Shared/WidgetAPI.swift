@@ -31,6 +31,8 @@ class WidgetAPI {
       urlString = "https://api.yadio.io/json/\(endPointKey)"
     case "BitcoinduLiban":
       urlString = "https://bitcoinduliban.org/api.php?key=lbpusd"
+    case "Exir":
+      urlString = "https://api.exir.io/v1/ticker?symbol=btc-irt"
     default:
       urlString = "https://api.coindesk.com/v1/bpi/currentprice/\(endPointKey).json"
     }
@@ -59,7 +61,12 @@ class WidgetAPI {
         latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
       case "BitcoinduLiban":
         guard let rateString = json["BTC/LBP"] as? String else { break }
-        guard let rateDouble = Double(rateString) else {return}
+        guard let rateDouble = Double(rateString) else { break }
+        let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+        latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+      case "Exir":
+        guard let rateDouble = json["last"] as? Double else { break }
+        let rateString = String(rateDouble)
         let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
         latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
       default:

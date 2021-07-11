@@ -17,7 +17,11 @@
     "success": "Success",
     "wallet_key": "Wallet key",
     "invalid_animated_qr_code_fragment" : "Invalid animated QRCode fragment. Please try again.",
-    "file_saved": "File ({filePath}) has been saved in your Downloads folder.",
+    "file_saved": "File {filePath} has been saved in your {destination}.",
+    "file_save_title": "Save File",
+    "file_save_location": "Select where to save {filePath}",
+    "downloads_folder": "Downloads Folder",
+    "external_storage": "External Storage",
     "discard_changes": "Discard changes?",
     "discard_changes_detail": "You have unsaved changes. Are you sure to discard them and leave the screen?"
   },
@@ -274,8 +278,8 @@
     "electrum_connected_not": "Not Connected",
     "electrum_error_connect": "Can’t connect to the provided Electrum server",
     "electrum_host": "E.g. {example}",
-    "electrum_port": "TCP port, usually {example}",
-    "electrum_port_ssl": "SSL port, usually {example}",
+    "electrum_port": "Port, usually {example}",
+    "use_ssl": "Use SSL",
     "electrum_saved": "Your changes have been saved successfully. Restarting BlueWallet may be required for the changes to take effect.",
     "set_electrum_server_as_default": "Set {server} as the default Electrum server?",
     "set_lndhub_as_default": "Set {url} as the default LNDHub server?",
@@ -594,10 +598,11 @@
     "sign_placeholder_signature": "Signature",
     "sign_aopp_title": "AOPP",
     "sign_aopp_confirm": "Do you want to send signed message to {hostname}?",
-    "address_balance": "Balance: {balance} sats",
     "addresses_title": "Addresses",
     "type_change": "Change",
-    "type_receive": "Receive"
+    "type_receive": "Receive",
+    "type_used": "Used",
+    "transactions": "Transactions"
   },
   "aopp": {
     "title": "Select Address",

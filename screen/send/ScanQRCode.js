@@ -4,7 +4,7 @@ import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInp
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
 import { launchImageLibrary } from 'react-native-image-picker';
-import { decodeUR, extractSingleWorkload } from 'bc-ur';
+import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modules/ur';
 import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import { BlueLoading, BlueText, BlueButton, BlueSpacing40 } from '../../BlueComponents';
@@ -16,6 +16,7 @@ const createHash = require('create-hash');
 const fs = require('../../blue_modules/fs');
 const Base43 = require('../../blue_modules/base43');
 const bitcoin = require('bitcoinjs-lib');
+let decoder = false;
 
 const styles = StyleSheet.create({
   root: {
@@ -112,6 +113,41 @@ const ScanQRCode = () => {
     return createHash('sha256').update(s).digest().toString('hex');
   };
 
+  const _onReadUniformResourceV2 = part => {
+    if (!decoder) decoder = new BlueURDecoder();
+    try {
+      decoder.receivePart(part);
+      if (decoder.isComplete()) {
+        const data = decoder.toString();
+        decoder = false; // nullify for future use (?)
+        if (launchedBy) {
+          navigation.navigate(launchedBy);
+        }
+        onBarScanned({ data });
+      } else {
+        setUrTotal(100);
+        setUrHave(Math.floor(decoder.estimatedPercentComplete() * 100));
+      }
+    } catch (error) {
+      console.warn(error);
+      setIsLoading(true);
+      Alert.alert(loc.send.scan_error, loc._.invalid_animated_qr_code_fragment, [
+        {
+          text: loc._.ok,
+          onPress: () => {
+            setIsLoading(false);
+          },
+          style: 'default',
+        },
+        { cancelabe: false },
+      ]);
+    }
+  };
+
+  /**
+   *
+   * @deprecated remove when we get rid of URv1 support
+   */
   const _onReadUniformResource = ur => {
     try {
       const [index, total] = extractSingleWorkload(ur);
@@ -159,6 +195,17 @@ const ScanQRCode = () => {
       return;
     }
     scannedCache[h] = +new Date();
+
+    if (ret.data.toUpperCase().startsWith('UR:CRYPTO-PSBT')) {
+      return _onReadUniformResourceV2(ret.data);
+    }
+
+    if (ret.data.toUpperCase().startsWith('UR:BYTES')) {
+      const splitted = ret.data.split('/');
+      if (splitted.length === 3 && splitted[1].includes('-')) {
+        return _onReadUniformResourceV2(ret.data);
+      }
+    }
 
     if (ret.data.toUpperCase().startsWith('UR')) {
       return _onReadUniformResource(ret.data);

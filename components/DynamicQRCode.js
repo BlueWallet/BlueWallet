@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { Text } from 'react-native-elements';
 import { Dimensions, LayoutAnimation, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { encodeUR } from 'bc-ur/dist';
+import { encodeUR } from '../blue_modules/ur';
 import QRCode from 'react-native-qrcode-svg';
 import { BlueCurrentTheme } from '../components/themes';
 import { BlueSpacing20 } from '../BlueComponents';

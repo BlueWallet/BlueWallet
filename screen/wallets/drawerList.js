@@ -3,7 +3,7 @@ import { StatusBar, View, StyleSheet, Alert } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
-import { useTheme } from '@react-navigation/native';
+import { useIsFocused, useTheme } from '@react-navigation/native';
 
 import { BlueHeaderDefaultMain, BlueSpacing20 } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
@@ -20,6 +20,7 @@ const DrawerList = props => {
   const [carouselData, setCarouselData] = useState([]);
   const { colors } = useTheme();
   const walletsCount = useRef(wallets.length);
+  const isFocused = useIsFocused();
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.brandingColor,
@@ -113,14 +114,16 @@ const DrawerList = props => {
 
   const renderWalletsCarousel = (
     <WalletsCarousel
-      removeClippedSubviews={false}
       data={carouselData}
+      extraData={carouselData}
       onPress={handleClick}
       handleLongPress={handleLongPress}
       ref={walletsCarousel}
       testID="WalletsList"
+      vertical
       selectedWallet={selectedWallet}
       ListHeaderComponent={ListHeaderComponent}
+      scrollEnabled={isFocused}
     />
   );
 
