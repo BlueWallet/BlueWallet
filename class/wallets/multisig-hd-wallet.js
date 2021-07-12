@@ -1,7 +1,7 @@
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import * as bip39 from 'bip39';
 import b58 from 'bs58check';
-import { decodeUR } from 'bc-ur';
+import { decodeUR } from '../../blue_modules/ur';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const HDNode = require('bip32');
 const bitcoin = require('bitcoinjs-lib');

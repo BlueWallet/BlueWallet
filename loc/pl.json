@@ -259,8 +259,8 @@
     "electrum_connected_not": "Nie Podłączony",
     "electrum_error_connect": "Nie można się połączyć z wybranym serwerem Electrum",
     "electrum_host": "np. {example}",
-    "electrum_port": "port TCP, zazwyczaj {example}",
-    "electrum_port_ssl": "port SSL, zazwyczaj {example}",
+    "electrum_port": "Port, zazwyczaj {example}",
+    "use_ssl": "Użyj SSL",
     "electrum_saved": "Zmiany zostały zachowane pomyślnie. Żeby je zobaczyć zrestartuj aplikację.",
     "set_electrum_server_as_default": "Ustawić {server} jako domyślny serwer Electrum?",
     "set_lndhub_as_default": "Ustawić {url} jako domyślny serwer LNDHub?",
@@ -581,7 +581,9 @@
     "sign_aopp_confirm": "Czy chcesz wysłać podpisaną wiadomość do [hostname]?",
     "addresses_title": "Adresy",
     "type_change": "Reszta",
-    "type_receive": "Otrzymaj"
+    "type_receive": "Otrzymaj",
+    "type_used": "Używany",
+    "transactions": "Transakcje"
   },
   "aopp": {
     "title": "Wybierz adres",

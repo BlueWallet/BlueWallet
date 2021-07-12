@@ -1,6 +1,6 @@
 {
   "name": "bluewallet",
-  "version": "6.1.8",
+  "version": "6.2.0",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -77,6 +77,8 @@
   },
   "dependencies": {
     "@babel/preset-env": "7.12.1",
+    "@keystonehq/bc-ur-registry": "https://github.com/BlueWallet/ur-registry",
+    "@ngraveio/bc-ur": "https://github.com/BlueWallet/bc-ur",
     "@react-native-async-storage/async-storage": "1.15.5",
     "@react-native-clipboard/clipboard": "1.7.0",
     "@react-native-community/blur": "3.6.0",
@@ -92,7 +94,6 @@
     "assert": "2.0.0",
     "base-x": "3.0.8",
     "bc-bech32": "file:blue_modules/bc-bech32",
-    "bc-ur": "file:blue_modules/bc-ur",
     "bech32": "2.0.0",
     "bignumber.js": "9.0.1",
     "bip21": "2.0.3",
@@ -170,7 +171,7 @@
     "react-native-widget-center": "https://github.com/BlueWallet/react-native-widget-center#e2e9a9038b76d096bf929a87105a97a0a7095001",
     "react-test-render": "1.1.2",
     "readable-stream": "3.6.0",
-    "realm": "10.4.2",
+    "realm": "10.6.0",
     "rn-nodeify": "10.3.0",
     "scryptsy": "file:blue_modules/scryptsy",
     "secure-random": "1.1.2",
