@@ -54,9 +54,6 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   getSecret() {
-    if (this.baseURI === LightningCustodianWallet.defaultBaseUri) {
-      return this.secret;
-    }
     return this.secret + '@' + this.baseURI;
   }
 
