@@ -6,9 +6,6 @@ const mn = require('electrum-mnemonic');
 const HDNode = require('bip32');
 
 const PREFIX = mn.PREFIXES.segwit;
-const MNEMONIC_TO_SEED_OPTS = {
-  prefix: PREFIX,
-};
 
 /**
  * ElectrumSeed means that instead of BIP39 seed format it works with the format invented by Electrum wallet. Otherwise
@@ -33,7 +30,9 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     if (this._xpub) {
       return this._xpub; // cache hit
     }
-    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, MNEMONIC_TO_SEED_OPTS));
+    const args = { prefix: PREFIX };
+    if (this.passphrase) args.passphrase = this.passphrase;
+    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, args));
     const xpub = root.derivePath("m/0'").neutered().toBase58();
 
     // bitcoinjs does not support zpub yet, so we just convert it from xpub
@@ -73,7 +72,9 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
 
   _getWIFByIndex(internal, index) {
     if (!this.secret) return false;
-    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, MNEMONIC_TO_SEED_OPTS));
+    const args = { prefix: PREFIX };
+    if (this.passphrase) args.passphrase = this.passphrase;
+    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, args));
     const path = `m/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 

@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   secret: {
+    alignSelf: 'stretch',
     alignItems: 'center',
     paddingHorizontal: 16,
     fontSize: 16,
@@ -135,6 +136,14 @@ const WalletExport = () => {
             )}
           </React.Fragment>
         ))}
+        {wallet.getPassphrase() && (
+          <>
+            <BlueSpacing20 />
+            <BlueText style={stylesHook.secret} testID="Passphrase">
+              {wallet.getPassphrase()}
+            </BlueText>
+          </>
+        )}
       </ScrollView>
     </SafeBlueArea>
   );

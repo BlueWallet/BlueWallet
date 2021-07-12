@@ -364,6 +364,14 @@ export class AppStorage {
             break;
           case HDAezeedWallet.type:
             unserializedWallet = HDAezeedWallet.fromJson(key);
+            // migrate password to this.passphrase field
+            // remove this code somewhere in year 2022
+            if (unserializedWallet.secret.includes(':')) {
+              const [mnemonic, passphrase] = unserializedWallet.secret.split(':');
+              unserializedWallet.secret = mnemonic;
+              unserializedWallet.passphrase = passphrase;
+            }
+
             break;
           case SLIP39SegwitP2SHWallet.type:
             unserializedWallet = SLIP39SegwitP2SHWallet.fromJson(key);

@@ -75,4 +75,60 @@ describe('SLIP39 wallets tests', () => {
     assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qgx35amln8aryyr0lw6j2729l3gemzjftp5xrne');
     assert.strictEqual(w._getInternalAddressByIndex(1), 'bc1q48v0hcuz2jjsls628wj8jtn7rqp8wsyz2gxdxm');
   });
+
+  // tests below are from https://github.com/spesmilo/electrum/pull/6917/files#diff-2940d8023ed102277f9c8b91135a9d6fa90fd2752b7b6147c1b5911f26db6d7fR497
+  it('SLIP39LegacyP2PKHWallet can use passphrase', async () => {
+    const w = new SLIP39LegacyP2PKHWallet();
+    w.setSecret(
+      'extra extend academic bishop cricket bundle tofu goat apart victim enlarge program behavior permit course armed jerky faint language modern\n' +
+        'extra extend academic acne away best indicate impact square oasis prospect painting voting guest either argue username racism enemy eclipse\n' +
+        'extra extend academic arcade born dive legal hush gross briefing talent drug much home firefly toxic analysis idea umbrella slice',
+    );
+    w.setPassphrase('TREZOR');
+
+    assert.strictEqual(
+      w.getXpub(),
+      'xpub6CDgeTHt97zmW24XoYdjH9PVFMUj6qcYAe9SZXMKRKJbvTNeZhutNkQqajLyZrQ9DCqdnGenKhBD6UTrT1nHnoLCfFHkdeX8hDsZx1je6b2',
+    );
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), '1NomKAUNnbASwbPuGHmkSVmnrJS5tZeVce');
+    assert.strictEqual(w._getInternalAddressByIndex(0), '1Aw4wpXsAyEHSgMZqPdyewoAtJqH9Jaso3');
+    assert.strictEqual(w._getExternalWIFByIndex(0), 'L55ZfXJgyXNPFrFtq2eqnwAkrjrarkKdmbkTEWxYXd2srXcfj3KF');
+  });
+
+  it('SLIP39SegwitP2SHWallet can use passphrase', async () => {
+    const w = new SLIP39SegwitP2SHWallet();
+    w.setSecret(
+      'hobo romp academic axis august founder knife legal recover alien expect emphasis loan kitchen involve teacher capture rebuild trial numb spider forward ladle lying voter typical security quantity hawk legs idle leaves gasoline\n' +
+        'hobo romp academic agency ancestor industry argue sister scene midst graduate profile numb paid headset airport daisy flame express scene usual welcome quick silent downtown oral critical step remove says rhythm venture aunt',
+    );
+    w.setPassphrase('TREZOR');
+
+    assert.strictEqual(
+      w.getXpub(),
+      'ypub6Y6aCjkcjCP2y7jZStTevc8Tj3GjoXncqC4ReMzdVZWScB68vKZSZBZ88ENvuPUXXBBR58JXkuz1UrwLnCFvnFTUEpzu5yQabeYBRyd7Edf',
+    );
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), '3GCgNoWWVqVdhBxWxrnWQHgwLtffGSYn7D');
+    assert.strictEqual(w._getInternalAddressByIndex(0), '3FVvdRhR7racZhmcvrGAqX9eJoP8Sw3ypp');
+  });
+
+  it('SLIP39SegwitBech32Wallet can use passphrase', async () => {
+    const w = new SLIP39SegwitBech32Wallet();
+    w.setSecret(
+      'eraser senior beard romp adorn nuclear spill corner cradle style ancient family general leader ambition exchange unusual garlic promise voice\n' +
+        'eraser senior ceramic snake clay various huge numb argue hesitate auction category timber browser greatest hanger petition script leaf pickup\n' +
+        'eraser senior ceramic shaft dynamic become junior wrist silver peasant force math alto coal amazing segment yelp velvet image paces\n' +
+        'eraser senior ceramic round column hawk trust auction smug shame alive greatest sheriff living perfect corner chest sled fumes adequate',
+    );
+    w.setPassphrase('TREZOR');
+
+    assert.strictEqual(
+      w.getXpub(),
+      'zpub6rs6bFckxdWVHBucVX129aNAYqiwPwh1HgsWt6HEQBa9F9QBKRcYzsw7WZR7rPSCWKmRVTUaEgrGrHStx2LSTpbgAEerbnrh4XxkRXbUUZF',
+    );
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qaggygkqgqjjpt58zrmhvjz5m9dj8mjshw0lpgu');
+    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1q8l6hcvlczu4mtjcnlwhczw7vdxnvwccpjl3cwz');
+  });
 });
