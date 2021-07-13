@@ -88,21 +88,24 @@ const LdkInfo = () => {
     let hasPendingChannels = false;
     const listChannels = await wallet.listChannels();
     if (listChannels && Array.isArray(listChannels)) {
-      setChannels(listChannels.filter(channel => channel.is_usable === true));
-      hasChannels = true;
+      const activeChannels = listChannels.filter(channel => channel.is_usable === true);
+      setChannels(activeChannels);
+      hasChannels = activeChannels.length > 0;
     } else {
       setChannels([]);
     }
     if (listChannels && Array.isArray(listChannels)) {
-      setInactiveChannels(listChannels.filter(channel => !channel.is_usable && channel.is_funding_locked));
-      hasChannels = true;
+      const inactiveChannels = listChannels.filter(channel => !channel.is_usable && channel.is_funding_locked);
+      setInactiveChannels(inactiveChannels);
+      hasChannels = inactiveChannels.length > 0;
     } else {
       setInactiveChannels([]);
     }
 
     if (listChannels && Array.isArray(listChannels)) {
-      setPendingChannels(listChannels.filter(channel => !channel.is_funding_locked));
-      hasPendingChannels = true;
+      const listPendingChannels = listChannels.filter(channel => !channel.is_funding_locked);
+      setPendingChannels(listPendingChannels);
+      hasPendingChannels = listPendingChannels.length > 0;
     } else {
       setPendingChannels([]);
     }
