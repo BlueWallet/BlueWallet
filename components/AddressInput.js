@@ -60,6 +60,7 @@ const AddressInput = ({
           testID="BlueAddressInputScanQrButton"
           disabled={isLoading}
           onPress={() => {
+            scanButtonTapped();
             Keyboard.dismiss();
             if (isDesktop) {
               fs.showActionSheet({ anchor: findNodeHandle(scanButtonRef.current) }).then(onBarScanned);
@@ -69,6 +70,7 @@ const AddressInput = ({
                 params: {
                   launchedBy,
                   onBarScanned,
+                  onBarScannerDismissWithoutData,
                 },
               });
             }
