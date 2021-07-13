@@ -17,7 +17,11 @@
     "success": "موفقیت‌آمیز بود",
     "wallet_key": "کلید کیف پول",
     "invalid_animated_qr_code_fragment" : "کد QR جزئی متحرک نامعتبر است. لطفاً دوباره امتحان کنید.",
-    "file_saved": "فایل ({filePath}) در پوشهٔ دانلودهای شما ذخیره شده است.",
+    "file_saved": "فایل {filePath} در {destination} شما ذخیره شد.",
+    "file_save_title": "ذخیرهٔ فایل",
+    "file_save_location": "محل ذخیرهٔ {filePath} را انتخاب کنید",
+    "downloads_folder": "پوشهٔ دانلودها",
+    "external_storage": "فضای ذخیره‌سازی خارجی",
     "discard_changes": "نادیده‌گرفتن تغییرات",
     "discard_changes_detail": "شما تغییرات ذخیره‌نشده‌ای دارید. آیا از نادیده‌گرفتن آن‌ها و خروج از صفحه اطمینان دارید؟"
   },

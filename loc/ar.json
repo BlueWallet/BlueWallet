@@ -17,7 +17,11 @@
     "success": "نجاح",
     "wallet_key": "مفتاح المحفظة",
     "invalid_animated_qr_code_fragment" : "قطعة من رمز الـ QRcode المتحرك غير صحيحة، حاول مرة اخرى.",
-    "file_saved": "تم حفظ الملف ({filePath}) في مجلد التنزيلات.",
+    "file_saved": "تم حفظ الملف {filePath} في {destination}.",
+    "file_save_title": "احفظ الملف",
+    "file_save_location": "حدد مكان حفظ {filePath}",
+    "downloads_folder": "مجلد التنزيلات",
+    "external_storage": "التخزين خارجيًا",
     "discard_changes": "تجاهل التغييرات؟",
     "discard_changes_detail": "يوجد تغييرات غير محفوظة. هل أنت متأكد من الخروج من الشاشة وتجاهلها؟"
   },
@@ -259,8 +263,8 @@
     "electrum_connected_not": "غير متصل",
     "electrum_error_connect": "يتعذَّر الاتصال بخادم Electrum المقدَّم",
     "electrum_host": "على سبيل المثال {example}",
-    "electrum_port": "منفذ TCP، يكون عادةً {example}",
-    "electrum_port_ssl": "منفذ SSL، يكون عادةً {example}",
+    "electrum_port": "منفذ، يكون عادةً {example}",
+    "use_ssl": "استخدم SSL",
     "electrum_saved": "تم حفظ تغييراتك بنجاح. قد تحتاج إلى إعادة التشغيل لتصبح التغييرات سارية المفعول.",
     "set_electrum_server_as_default": "هل تريد تعيين {server} كخادم Electrum الافتراضي؟",
     "set_lndhub_as_default": "هل تريد تعيين {url} كخادم LNDHub الافتراضي؟",
@@ -581,7 +585,9 @@
     "sign_aopp_confirm": "هل تريد إرسال رسالة موقعة إلى {hostname}؟",
     "addresses_title": "العنوان",
     "type_change": "تغيير",
-    "type_receive": "استلام"
+    "type_receive": "استلام",
+    "type_used": "مستخدم",
+    "transactions": "الحوالات"
   },
   "aopp": {
     "title": "اختر عنوانًا",
