@@ -17,7 +17,11 @@
     "success": "Éxito",
     "wallet_key": "Clave de la billetera",
     "invalid_animated_qr_code_fragment" : "Fragmento inválido de Código QR animado. Por favor intenta de nuevo.",
-    "file_saved": "El archivo ({filePath}) se ha guardado en tu carpeta de Descargas.",
+    "file_saved": "El archivo {filePath} se ha guardado en tu {destination}.",
+    "file_save_title": "Guardar el archivo",
+    "file_save_location": "Selecciona dónde guardar {filePath}",
+    "downloads_folder": "Carpeta de descargas",
+    "external_storage": "Almacenamiento externo",
     "discard_changes": "¿Descartar cambios?",
     "discard_changes_detail": "Tienes cambios no guardados. ¿Estás seguro de descartarlos y salir de la pantalla?"
   },
