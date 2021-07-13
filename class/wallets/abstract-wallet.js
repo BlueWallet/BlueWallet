@@ -213,7 +213,6 @@ export class AbstractWallet {
         this.secret = parsedSecret.ExtPubKey;
         const mfp = Buffer.from(parsedSecret.MasterFingerprint, 'hex').reverse().toString('hex');
         this.masterFingerprint = parseInt(mfp, 16);
-        this.setLabel('Cobo Vault ' + parsedSecret.MasterFingerprint);
         if (parsedSecret.CoboVaultFirmwareVersion) this.use_with_hardware_wallet = true;
       }
     } catch (_) {}
