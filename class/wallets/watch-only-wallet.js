@@ -284,4 +284,9 @@ export class WatchOnlyWallet extends LegacyWallet {
     if (this._hdWalletInstance) return this._hdWalletInstance.setUTXOMetadata(...args);
     return super.setUTXOMetadata(...args);
   }
+
+  isSegwit() {
+    if (this._hdWalletInstance) return this._hdWalletInstance.isSegwit();
+    return super.isSegwit();
+  }
 }

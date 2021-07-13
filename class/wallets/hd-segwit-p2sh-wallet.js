@@ -149,6 +149,10 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     return address;
   }
 
+  isSegwit() {
+    return true;
+  }
+
   _getDerivationPathByAddress(address, BIP = 49) {
     // only changing defaults for function arguments
     return super._getDerivationPathByAddress(address, BIP);

@@ -31,6 +31,10 @@ export class HDSegwitBech32Wallet extends AbstractHDElectrumWallet {
     return true;
   }
 
+  isSegwit() {
+    return true;
+  }
+
   allowSignVerifyMessage() {
     return true;
   }

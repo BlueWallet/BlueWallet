@@ -103,4 +103,8 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
       return this._node1.derive(index).publicKey;
     }
   }
+
+  isSegwit() {
+    return true;
+  }
 }

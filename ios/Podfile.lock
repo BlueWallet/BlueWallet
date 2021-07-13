@@ -365,6 +365,8 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
+  - rn-ldk (0.2.8):
+    - React-Core
   - RNCAsyncStorage (1.15.5):
     - React-Core
   - RNCClipboard (1.7.0):
@@ -518,6 +520,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - RealmJS (from `../node_modules/realm`)
   - "RemobileReactNativeQrcodeLocalImage (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
+  - rn-ldk (from `../node_modules/rn-ldk`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
@@ -655,6 +658,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/realm"
   RemobileReactNativeQrcodeLocalImage:
     :path: "../node_modules/@remobile/react-native-qrcode-local-image"
+  rn-ldk:
+    :path: "../node_modules/rn-ldk"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
@@ -773,6 +778,7 @@ SPEC CHECKSUMS:
   ReactCommon: 149906e01aa51142707a10665185db879898e966
   RealmJS: c903034b0d767fcef11dc8207e91b6f07e60d7b8
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
+  rn-ldk: bdeaee057bbe78b516457fc2a05c1f55a9920c0a
   RNCAsyncStorage: 8324611026e8dc3706f829953aa6e3899f581589
   RNCClipboard: dac13db8b1ce9b998f1cbc7ca33440113602847f
   RNCMaskedView: f127cd9652acfa31b91dcff613e07ba18b774db6
@@ -802,6 +808,6 @@ SPEC CHECKSUMS:
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: d190822228dafb8d4bccaddd003676c563d92dce
+PODFILE CHECKSUM: 3c56dd1e730e73f7d315af1c85a2cfe43777ac8f
 
 COCOAPODS: 1.10.1

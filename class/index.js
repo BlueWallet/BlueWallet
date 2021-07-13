@@ -8,6 +8,7 @@ export * from './wallets/hd-legacy-breadwallet-wallet';
 export * from './wallets/hd-legacy-p2pkh-wallet';
 export * from './wallets/watch-only-wallet';
 export * from './wallets/lightning-custodian-wallet';
+export * from './wallets/lightning-ldk-wallet';
 export * from './wallets/abstract-hd-wallet';
 export * from './wallets/hd-segwit-bech32-wallet';
 export * from './wallets/placeholder-wallet';

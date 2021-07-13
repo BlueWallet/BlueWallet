@@ -27,7 +27,7 @@ import {
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
-import { LightningCustodianWallet, MultisigHDWallet } from './class';
+import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from './class';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import * as NavigationService from './NavigationService';
 import WalletGradient from './class/wallet-gradient';
@@ -68,7 +68,6 @@ export const BlueButton = props => {
   return (
     <TouchableOpacity
       style={{
-        flex: 1,
         borderWidth: 0.7,
         borderColor: 'transparent',
         backgroundColor: backgroundColor,
@@ -370,6 +369,7 @@ export class BlueWalletNavigationHeader extends Component {
         <Image
           source={(() => {
             switch (this.state.wallet.type) {
+              case LightningLdkWallet.type:
               case LightningCustodianWallet.type:
                 return I18nManager.isRTL ? require('./img/lnd-shape-rtl.png') : require('./img/lnd-shape.png');
               case MultisigHDWallet.type:
@@ -479,6 +479,36 @@ export class BlueWalletNavigationHeader extends Component {
             </View>
           </TouchableOpacity>
         )}
+
+        {this.state.wallet.type === LightningLdkWallet.type && (
+          <TouchableOpacity onPress={this.manageFundsPressed}>
+            <View
+              style={{
+                marginTop: 14,
+                marginBottom: 10,
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                borderRadius: 9,
+                minHeight: 39,
+                alignSelf: 'flex-start',
+                paddingHorizontal: 12,
+                height: 39,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Text
+                style={{
+                  fontWeight: '500',
+                  fontSize: 14,
+                  color: '#FFFFFF',
+                }}
+              >
+                {loc.lnd.title}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
+
         {this.state.wallet.type === MultisigHDWallet.type && (
           <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
             <View
@@ -697,13 +727,13 @@ export const BlueListItem = React.memo(props => {
           </ListItem.Subtitle>
         )}
       </ListItem.Content>
-      <ListItem.Content right>
-        {props.rightTitle && (
+      {props.rightTitle && (
+        <ListItem.Content right>
           <ListItem.Title style={props.rightTitleStyle} numberOfLines={0} right>
             {props.rightTitle}
           </ListItem.Title>
-        )}
-      </ListItem.Content>
+        </ListItem.Content>
+      )}
       {props.isLoading ? (
         <ActivityIndicator />
       ) : (
@@ -882,7 +912,8 @@ export class is {
 }
 
 export const BlueSpacing20 = props => {
-  return <View {...props} style={{ height: 20, opacity: 0 }} />;
+  const { horizontal = false } = props;
+  return <View {...props} style={{ height: horizontal ? 0 : 20, width: horizontal ? 20 : 0, opacity: 0 }} />;
 };
 
 export const BlueSpacing10 = props => {
