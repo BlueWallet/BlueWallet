@@ -4,12 +4,11 @@ import { View, StyleSheet, BackHandler, StatusBar } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { BlueButton, BlueCopyTextToClipboard, BlueSpacing20, BlueText, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
+import { BlueButton, BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { LightningCustodianWallet } from '../../class';
 
 const PleaseBackupLNDHub = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -59,7 +58,6 @@ const PleaseBackupLNDHub = () => {
         <View>
           <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>
           <BlueSpacing20 />
-          {wallet.getBaseURI() === LightningCustodianWallet.defaultBaseUri && <BlueText>- {loc.pleasebackup.text_lnd2}</BlueText>}
         </View>
         <BlueSpacing20 />
         <View style={styles.qrCodeContainer}>

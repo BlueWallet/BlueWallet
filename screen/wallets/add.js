@@ -43,7 +43,7 @@ const WalletsAdd = () => {
   const { colors } = useTheme();
   const { addWallet, saveToDisk, isAdancedModeEnabled } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
-  const [walletBaseURI, setWalletBaseURI] = useState();
+  const [walletBaseURI, setWalletBaseURI] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [label, setLabel] = useState('');
   const [isAdvancedOptionsEnabled, setIsAdvancedOptionsEnabled] = useState(false);
@@ -160,7 +160,7 @@ const WalletsAdd = () => {
     wallet.setLabel(label || loc.wallets.details_title);
 
     try {
-      const lndhub = walletBaseURI && walletBaseURI.trim().length > 0 ? walletBaseURI : LightningCustodianWallet.defaultBaseUri;
+      const lndhub = walletBaseURI?.trim();
       if (lndhub) {
         const isValidNodeAddress = await LightningCustodianWallet.isValidNodeAddress(lndhub);
         if (isValidNodeAddress) {
@@ -277,7 +277,7 @@ const WalletsAdd = () => {
                   />
                 </View>
               );
-            } else if (selectedWalletType === ButtonSelected.OFFCHAIN && isAdvancedOptionsEnabled) {
+            } else if (selectedWalletType === ButtonSelected.OFFCHAIN) {
               return (
                 <>
                   <BlueSpacing20 />
@@ -310,7 +310,12 @@ const WalletsAdd = () => {
           <BlueSpacing20 />
           <View style={styles.createButton}>
             {!isLoading ? (
-              <BlueButton testID="Create" title={loc.wallets.add_create} disabled={!selectedWalletType} onPress={createWallet} />
+              <BlueButton
+                testID="Create"
+                title={loc.wallets.add_create}
+                disabled={!selectedWalletType || (selectedWalletType === Chain.OFFCHAIN && (walletBaseURI ?? '').trim().length === 0)}
+                onPress={createWallet}
+              />
             ) : (
               <ActivityIndicator />
             )}

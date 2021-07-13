@@ -147,9 +147,6 @@ function WalletImport() {
         const split = importText.split('@');
         lnd.setBaseURI(split[1]);
         lnd.setSecret(split[0]);
-      } else {
-        lnd.setBaseURI(LightningCustodianWallet.defaultBaseUri);
-        lnd.setSecret(importText);
       }
       lnd.init();
       await lnd.authorize();
