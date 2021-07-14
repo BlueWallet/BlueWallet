@@ -17,7 +17,11 @@
     "success": "Erfolg",
     "wallet_key": "Wallet Schlüssel",
     "invalid_animated_qr_code_fragment" : "Ungültig animiertes QR-Code-Fragment. Bitte erneut versuchen.",
-    "file_saved": "Die Datei ({filePath}) wurde in deinen Downloadfolder gespeichert.",
+    "file_saved": "Die Datei {filePath} wurde im Ordner {destination} gespeichert.",
+    "file_save_title": "Datei speichern",
+    "file_save_location": "Speicherort wählen {filePath}",
+    "downloads_folder": "Download-Ordner",
+    "external_storage": "Externer Speicher",
     "discard_changes": "Änderungen verwerfen?",
     "discard_changes_detail": "Die nicht gespeicherten Änderungen verwerfen und den Bildschirm verlassen?"
   },
