@@ -216,7 +216,7 @@ const ReceiveDetails = () => {
       setAddressBIP21Encoded(address);
       await Notifications.tryToObtainPermissions();
       Notifications.majorTomToGroundControl([address], [], []);
-    } else if (wallet.getAddressAsync) {
+    } else {
       if (wallet.chain === Chain.ONCHAIN) {
         try {
           newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
@@ -244,10 +244,6 @@ const ReceiveDetails = () => {
       setAddressBIP21Encoded(newAddress);
       await Notifications.tryToObtainPermissions();
       Notifications.majorTomToGroundControl([newAddress], [], []);
-    } else if (wallet.getAddress) {
-      setAddressBIP21Encoded(wallet.getAddress());
-      await Notifications.tryToObtainPermissions();
-      Notifications.majorTomToGroundControl([wallet.getAddress()], [], []);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
