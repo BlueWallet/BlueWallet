@@ -1,1 +1,1 @@
-{"ExtPubKey":"zpub6rcabYFcdr41zyUNRWRyHYs2Sm86E5XV8RjjRzTFYsiCngteeZnkwaF2xuhjmM6kpHjuNpFW42BMhzPmFwXt48e1FhddMB7xidZzN4SF24K","MasterFingerprint":"5271c071","CoboVaultFirmwareVersion":"1.2.4(BTC-Only)", "keystore": { "label": "Cobo Vault"} }
+{"ExtPubKey":"zpub6rcabYFcdr41zyUNRWRyHYs2Sm86E5XV8RjjRzTFYsiCngteeZnkwaF2xuhjmM6kpHjuNpFW42BMhzPmFwXt48e1FhddMB7xidZzN4SF24K","MasterFingerprint":"5271c071","CoboVaultFirmwareVersion":"1.2.4(BTC-Only)"}
