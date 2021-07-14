@@ -284,10 +284,7 @@ export default class ElectrumSettings extends Component {
             <BlueCard>
               <View style={styles.inputWrap}>
                 <TextInput
-                  placeholder={
-                    loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' }) +
-                    (!isDesktop ? ' (' + loc.settings.tor_supported + ')' : '')
-                  }
+                  placeholder={loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' })}
                   value={this.state.host}
                   onChangeText={text => this.setState({ host: text.trim() })}
                   numberOfLines={1}

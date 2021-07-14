@@ -148,8 +148,6 @@ const LightningSettings = () => {
           />
         </View>
         <BlueSpacing20 />
-        {!isDesktop && <BlueText style={[styles.torSupported]}>{loc.settings.tor_supported}</BlueText>}
-        <BlueSpacing20 />
         <BlueButtonLink title={loc.wallets.import_scan_qr} testID="ImportScan" onPress={importScan} />
         <BlueSpacing20 />
         {isLoading ? <BlueLoading /> : <BlueButton testID="Save" onPress={save} title={loc.settings.save} />}
