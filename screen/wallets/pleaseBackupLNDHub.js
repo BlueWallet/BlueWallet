@@ -64,7 +64,7 @@ const PleaseBackupLNDHub = () => {
         <BlueSpacing20 />
         <View style={styles.qrCodeContainer}>
           <QRCode
-            value={wallet.secret}
+            value={wallet.getSecret()}
             logo={require('../../img/qr-code.png')}
             logoSize={90}
             color="#000000"
