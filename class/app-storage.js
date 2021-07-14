@@ -391,8 +391,7 @@ export class AppStorage {
               console.log('using wallet-wide settings ', lndhub, 'for ln wallet');
               unserializedWallet.setBaseURI(lndhub);
             } else {
-              console.log('using default', LightningCustodianWallet.defaultBaseUri, 'for ln wallet');
-              unserializedWallet.setBaseURI(LightningCustodianWallet.defaultBaseUri);
+              console.log('wallet does not have a baseURI. Continuing init...');
             }
             unserializedWallet.init();
             break;
