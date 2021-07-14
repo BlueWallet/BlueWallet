@@ -290,8 +290,6 @@ PODS:
   - react-native-tcp-socket (3.7.1):
     - CocoaAsyncSocket
     - React
-  - react-native-tor (0.1.7):
-    - React
   - react-native-webview (11.6.4):
     - React-Core
   - react-native-widget-center (0.0.4):
@@ -501,7 +499,6 @@ DEPENDENCIES:
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
-  - react-native-tor (from `../node_modules/react-native-tor`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - react-native-widget-center (from `../node_modules/react-native-widget-center`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -621,8 +618,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-tcp-socket:
     :path: "../node_modules/react-native-tcp-socket"
-  react-native-tor:
-    :path: "../node_modules/react-native-tor"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   react-native-widget-center:
@@ -756,7 +751,6 @@ SPEC CHECKSUMS:
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
   react-native-safe-area-context: e471852c5ed67eea4b10c5d9d43c1cebae3b231d
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
-  react-native-tor: 4f389f5719dad633542b57ea32744e954730e7ef
   react-native-webview: 4288b81c682bca4dcc9037afb3ee118af2655c03
   react-native-widget-center: 0f81d17beb163e7fb5848b06754d7d277fe7d99a
   React-perflogger: 25373e382fed75ce768a443822f07098a15ab737
