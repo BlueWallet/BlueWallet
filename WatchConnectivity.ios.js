@@ -126,24 +126,22 @@ function WatchConnectivity() {
 
     for (const wallet of wallets) {
       let receiveAddress;
-      if (wallet.getAddressAsync) {
-        if (wallet.chain === Chain.ONCHAIN) {
-          try {
-            receiveAddress = await wallet.getAddressAsync();
-          } catch (_) {}
-          if (!receiveAddress) {
-            // either sleep expired or getAddressAsync threw an exception
-            receiveAddress = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
-          }
-        } else if (wallet.chain === Chain.OFFCHAIN) {
-          try {
-            await wallet.getAddressAsync();
-            receiveAddress = wallet.getAddress();
-          } catch (_) {}
-          if (!receiveAddress) {
-            // either sleep expired or getAddressAsync threw an exception
-            receiveAddress = wallet.getAddress();
-          }
+      if (wallet.chain === Chain.ONCHAIN) {
+        try {
+          receiveAddress = await wallet.getAddressAsync();
+        } catch (_) {}
+        if (!receiveAddress) {
+          // either sleep expired or getAddressAsync threw an exception
+          receiveAddress = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
+        }
+      } else if (wallet.chain === Chain.OFFCHAIN) {
+        try {
+          await wallet.getAddressAsync();
+          receiveAddress = wallet.getAddress();
+        } catch (_) {}
+        if (!receiveAddress) {
+          // either sleep expired or getAddressAsync threw an exception
+          receiveAddress = wallet.getAddress();
         }
       }
       const transactions = wallet.getTransactions(10);
