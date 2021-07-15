@@ -234,7 +234,7 @@ describe('Watch only wallet', () => {
     );
     assert.strictEqual(w.getMasterFingerprint(), 1908437330);
     assert.strictEqual(w.getMasterFingerprintHex(), '5271c071');
-    assert.strictEqual(w.getLabel(), 'Imported Watch-only');
+    assert.strictEqual(w.getLabel(), 'Wallet');
     assert.ok(w.useWithHardwareWalletEnabled());
   });
 
