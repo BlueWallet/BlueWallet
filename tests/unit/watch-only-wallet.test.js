@@ -156,6 +156,7 @@ describe('Watch only wallet', () => {
     );
     assert.strictEqual(w.getMasterFingerprint(), 64392470);
     assert.strictEqual(w.getMasterFingerprintHex(), '168dd603');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
     assert.ok(w.useWithHardwareWalletEnabled());
 
     const utxos = [
@@ -195,6 +196,7 @@ describe('Watch only wallet', () => {
     );
     assert.strictEqual(w.getMasterFingerprint(), 64392470);
     assert.strictEqual(w.getMasterFingerprintHex(), '168dd603');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/1'");
     assert.ok(w.useWithHardwareWalletEnabled());
 
     const utxos = [
@@ -235,10 +237,11 @@ describe('Watch only wallet', () => {
     assert.strictEqual(w.getMasterFingerprint(), 1908437330);
     assert.strictEqual(w.getMasterFingerprintHex(), '5271c071');
     assert.strictEqual(w.getLabel(), 'Wallet');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
     assert.ok(w.useWithHardwareWalletEnabled());
   });
 
-  it('can import zpub with master fingerprint', async () => {
+  it('can import zpub with master fingerprint and derivation path', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret(require('fs').readFileSync('./tests/unit/fixtures/skeleton-walletdescriptor.txt', 'ascii'));
     w.init();
@@ -249,6 +252,7 @@ describe('Watch only wallet', () => {
     );
     assert.strictEqual(w.getMasterFingerprint(), 4167290508);
     assert.strictEqual(w.getMasterFingerprintHex(), '8cce63f8');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
     assert.ok(!w.useWithHardwareWalletEnabled());
   });
 
