@@ -136,7 +136,7 @@ const WalletExport = () => {
             )}
           </React.Fragment>
         ))}
-        {wallet.getPassphrase() && (
+        {wallet.getPassphrase && wallet.getPassphrase() && (
           <>
             <BlueSpacing20 />
             <BlueText style={stylesHook.secret} testID="Passphrase">
