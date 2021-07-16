@@ -35,11 +35,10 @@ function WalletImport() {
   /**
    *
    * @param w {AbstractWallet}
-   * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
    * @returns {Promise<void>}
    * @private
    */
-  WalletImport._saveWallet = async (w, additionalProperties) => {
+  WalletImport._saveWallet = async w => {
     IdleTimerManager.setIdleTimerDisabled(false);
     if (WalletImport.isWalletImported(w)) {
       WalletImport.presentWalletAlreadyExistsAlert();
@@ -49,11 +48,6 @@ function WalletImport() {
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
     w.setUserHasSavedExport(true);
-    if (additionalProperties) {
-      for (const [key, value] of Object.entries(additionalProperties)) {
-        w[key] = value;
-      }
-    }
     addWallet(w);
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
@@ -92,10 +86,9 @@ function WalletImport() {
   /**
    *
    * @param importText
-   * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
    * @returns {Promise<void>}
    */
-  WalletImport.processImportText = async (importText, additionalProperties) => {
+  WalletImport.processImportText = async importText => {
     IdleTimerManager.setIdleTimerDisabled(true);
     // Plan:
     // -2. check if BIP38 encrypted
@@ -232,7 +225,7 @@ function WalletImport() {
     watchOnly.setSecret(importText);
     if (watchOnly.valid()) {
       await watchOnly.fetchBalance();
-      return WalletImport._saveWallet(watchOnly, additionalProperties);
+      return WalletImport._saveWallet(watchOnly);
     }
     // nope, not watch-only
 
