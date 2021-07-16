@@ -224,6 +224,17 @@ export class AbstractWallet {
         if (parsedSecret.CoboVaultFirmwareVersion) this.use_with_hardware_wallet = true;
       }
     } catch (_) {}
+
+    if (!this._derivationPath) {
+      if (this.secret.startsWith('xpub')) {
+        this._derivationPath = "m/44'/0'/0'"; // Assume default BIP44 path for legacy wallets
+      } else if (this.secret.startsWith('ypub')) {
+        this._derivationPath = "m/49'/0'/0'"; // Assume default BIP49 path for segwit wrapped wallets
+      } else if (this.secret.startsWith('zpub')) {
+        this._derivationPath = "m/84'/0'/0'"; // Assume default BIP84 for native segwit wallets
+      }
+    }
+
     return this;
   }
 
