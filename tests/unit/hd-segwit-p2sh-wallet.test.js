@@ -1,5 +1,6 @@
+import assert from 'assert';
+
 import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyP2PKHWallet, LegacyWallet } from '../../class';
-const assert = require('assert');
 
 describe('P2SH Segwit HD (BIP49)', () => {
   it('can create a wallet', async () => {
@@ -106,7 +107,7 @@ describe('P2SH Segwit HD (BIP49)', () => {
       'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
     let hd = new HDSegwitP2SHWallet();
     hd.setSecret(mnemonic);
-    const seed1 = hd.getMnemonicToSeedHex();
+    const seed1 = hd._getSeed().toString('hex');
     assert.ok(hd.validateMnemonic());
 
     mnemonic = 'hell';
@@ -120,7 +121,7 @@ describe('P2SH Segwit HD (BIP49)', () => {
       '    honey  risk   juice    trip     orient      galaxy win !situate ;; shoot   ;;;   anchor Bounce remind\nhorse \n traffic exotic since escape mimic ramp skin judge owner topple erode ';
     hd = new HDSegwitP2SHWallet();
     hd.setSecret(mnemonic);
-    const seed2 = hd.getMnemonicToSeedHex();
+    const seed2 = hd._getSeed().toString('hex');
     assert.strictEqual(seed1, seed2);
     assert.ok(hd.validateMnemonic());
   });
@@ -188,5 +189,22 @@ describe('P2SH Segwit HD (BIP49)', () => {
     const hd = new HDSegwitP2SHWallet();
     hd.setSecret(mnemonic);
     assert.strictEqual(hd.getMasterFingerprintHex(), '73C5DA0A');
+  });
+
+  it('can use mnemonic with passphrase', () => {
+    const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+    const passphrase = 'super secret passphrase';
+    const hd = new HDSegwitP2SHWallet();
+    hd.setSecret(mnemonic);
+    hd.setPassphrase(passphrase);
+
+    assert.strictEqual(
+      hd.getXpub(),
+      'ypub6Xa3WiyXHriYt1fxZGWS8B1iduw92yxHCMWKSwJkW6w92FUCTJxwWQQHLXjRHBSsMLY6SvRu8ErqFEC3JmrkTHEm7KSUfbzhUhj7Yopo2JR',
+    );
+
+    assert.strictEqual(hd._getExternalAddressByIndex(0), '3BtnNenqpGTXwwjb5a1KgzzoKV4TjCuySm');
+    assert.strictEqual(hd._getInternalAddressByIndex(0), '3EJctafkUBvcSHYhunQRa2iYUHjrMGLXBV');
+    assert.strictEqual(hd._getExternalWIFByIndex(0), 'L489rJZvUMrFsNop9EyuG2XdEmyKNTbjC1DWkg9WGEc1ddK6jgDg');
   });
 });

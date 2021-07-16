@@ -50,4 +50,21 @@ describe('HDLegacyElectrumSeedP2PKHWallet', () => {
     hd.setSecret('bs');
     assert.ok(!hd.validateMnemonic());
   });
+
+  it('can use mnemonic with passphrase', () => {
+    const mnemonic = 'receive happy  wash prosper update    pet neck acid try profit proud hungry  ';
+    const passphrase = 'super secret passphrase';
+    const hd = new HDLegacyElectrumSeedP2PKHWallet();
+    hd.setSecret(mnemonic);
+    hd.setPassphrase(passphrase);
+
+    assert.strictEqual(
+      hd.getXpub(),
+      'xpub661MyMwAqRbcGSUBZaVtq8qEoRkJM1TZNNvUJEgQvtiZE73gS1wKWQoTj6R2E46UDYS2SBpmGGrSHGsJUNxtr1krixFuq8JA772pG43Mo6R',
+    );
+
+    assert.strictEqual(hd._getExternalAddressByIndex(0), '13sPvsrgRN8XibZNHtZXNqVDJPnNZLjTap');
+    assert.strictEqual(hd._getInternalAddressByIndex(0), '16oEuy5H7ejmapqc2AtKAYerdfkDkoyrDX');
+    assert.strictEqual(hd._getExternalWIFByIndex(0), 'Ky9WTDUTTZUKKYSPEE6uah2y5sJa89z6177kD23xh5cq1znX2HDj');
+  });
 });

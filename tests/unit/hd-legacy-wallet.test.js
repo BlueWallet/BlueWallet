@@ -1,6 +1,7 @@
+import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
+
 import { HDLegacyP2PKHWallet } from '../../class';
-const assert = require('assert');
-const bitcoin = require('bitcoinjs-lib');
 
 describe('Legacy HD (BIP44)', () => {
   it('works', async () => {
@@ -155,5 +156,23 @@ describe('Legacy HD (BIP44)', () => {
     const hd = new HDLegacyP2PKHWallet();
     hd.setSecret(mnemonic);
     assert.strictEqual(hd.getMasterFingerprintHex(), '73C5DA0A');
+  });
+
+  // from electrum tests https://github.com/spesmilo/electrum/blob/9c1a51547a301e765b9b0f9935c6d940bb9d658e/electrum/tests/test_wallet_vertical.py#L292
+  it('can use mnemonic with passphrase', () => {
+    const mnemonic = 'treat dwarf wealth gasp brass outside high rent blood crowd make initial';
+    const UNICODE_HORROR = '₿ 😀 😈     う けたま わる w͢͢͝h͡o͢͡ ̸͢k̵͟n̴͘ǫw̸̛s͘ ̀́w͘͢ḩ̵a҉̡͢t ̧̕h́o̵r͏̵rors̡ ̶͡͠lį̶e͟͟ ̶͝in͢ ͏t̕h̷̡͟e ͟͟d̛a͜r̕͡k̢̨ ͡h̴e͏a̷̢̡rt́͏ ̴̷͠ò̵̶f̸ u̧͘ní̛͜c͢͏o̷͏d̸͢e̡͝?͞';
+    const hd = new HDLegacyP2PKHWallet();
+    hd.setSecret(mnemonic);
+    hd.setPassphrase(UNICODE_HORROR);
+
+    assert.strictEqual(
+      hd.getXpub(),
+      'xpub6D85QDBajeLe2JXJrZeGyQCaw47PWKi3J9DPuHakjTkVBWCxVQQkmMVMSSfnw39tj9FntbozpRtb1AJ8ubjeVSBhyK4M5mzdvsXZzKPwodT',
+    );
+
+    assert.strictEqual(hd._getExternalAddressByIndex(0), '1F88g2naBMhDB7pYFttPWGQgryba3hPevM');
+    assert.strictEqual(hd._getInternalAddressByIndex(0), '1H4QD1rg2zQJ4UjuAVJr5eW1fEM8WMqyxh');
+    assert.strictEqual(hd._getExternalWIFByIndex(0), 'L3HLzdVcwo4711gFiZG4fiLzLVNJpR6nejfo6J85wuYn9YF2G5zk');
   });
 });
