@@ -162,7 +162,7 @@ export default class Lnurl {
       fixed: min === max,
       min,
       max,
-      domain: data.callback.match(new RegExp('https://([^/]+)/'))[1],
+      domain: data.callback.match(/https:\/\/([^/]+)\//)[1],
       metadata: data.metadata,
       description,
       image,
