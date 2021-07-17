@@ -158,6 +158,7 @@ class DeeplinkSchemaMatch {
 
       const safelloStateToken = urlObject.query['safello-state-token'];
       let wallet;
+      // eslint-disable-next-line no-unreachable-loop
       for (const w of context.wallets) {
         wallet = w;
         break;
