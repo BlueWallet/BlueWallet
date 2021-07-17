@@ -26,14 +26,14 @@ const DrawerList = props => {
 
   useEffect(() => {
     if (walletsCount.current < wallets.length) {
-      walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current], viewPosition: 0.3 });
+      walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current] });
     }
     walletsCount.current = wallets.length;
   }, [wallets]);
 
   useEffect(() => {
     if (isImportingWallet) {
-      walletsCarousel.current?.scrollToItem({ item: false, viewPosition: 0.3 });
+      walletsCarousel.current?.scrollToItem({ item: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isImportingWallet]);

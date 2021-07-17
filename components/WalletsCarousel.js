@@ -341,18 +341,15 @@ const WalletsCarousel = forwardRef((props, ref) => {
   const ListHeaderComponent = () => <View style={cStyles.separatorStyle} />;
 
   useImperativeHandle(ref, () => ({
-    scrollToItem: ({ item, viewPositon }) => {
+    scrollToItem: ({ item }) => {
       setTimeout(() => {
-        flatListRef?.current?.scrollToItem({ item, viewPositon });
+        flatListRef?.current?.scrollToItem({ item, viewOffset: 16 });
       }, 300);
     },
-    scrollToIndex: ({ index, viewPositon }) => {
+    scrollToIndex: ({ index }) => {
       setTimeout(() => {
-        flatListRef?.current?.scrollToIndex({ index, viewPositon });
+        flatListRef?.current?.scrollToIndex({ index, viewOffset: 16 });
       }, 300);
-    },
-    scrollToEnd: () => {
-      flatListRef?.current?.scrollToEnd();
     },
   }));
 
