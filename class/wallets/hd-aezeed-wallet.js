@@ -51,7 +51,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     return this._xpub;
   }
 
-  validateMnemonic(): boolean {
+  validateMnemonic() {
     throw new Error('Use validateMnemonicAsync()');
   }
 

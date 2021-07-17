@@ -76,7 +76,7 @@ export default class Confirm extends Component {
             const payjoinUrl = this.state.payjoinUrl;
             // working through TOR - crafting custom requester that will handle TOR http request
             const customPayjoinRequester = {
-              requestPayjoin: async function (psbt: Psbt) {
+              requestPayjoin: async function (psbt) {
                 console.warn('requesting payjoin with psbt:', psbt.toBase64());
                 const api = new torrific.Torsbee();
                 const torResponse = await api.post(payjoinUrl, {
