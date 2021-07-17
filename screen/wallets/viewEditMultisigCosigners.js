@@ -55,7 +55,7 @@ const ViewEditMultisigCosigners = () => {
   const { walletId } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletId));
   const tempWallet = useRef(new MultisigHDWallet());
-  const [wallet: MultisigHDWallet, setWallet] = useState();
+  const [wallet, setWallet] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState(true);
   const [currentlyEditingCosignerNum, setCurrentlyEditingCosignerNum] = useState(false);
