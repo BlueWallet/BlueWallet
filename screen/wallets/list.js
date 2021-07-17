@@ -6,7 +6,6 @@ import {
   Text,
   StyleSheet,
   SectionList,
-  Alert,
   Platform,
   Image,
   Dimensions,
@@ -21,8 +20,6 @@ import WalletsCarousel from '../../components/WalletsCarousel';
 import { Icon } from 'react-native-elements';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { PlaceholderWallet } from '../../class';
-import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
@@ -40,7 +37,7 @@ const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', 
 const WalletsList = () => {
   const walletsCarousel = useRef();
   const colorScheme = useColorScheme();
-  const { wallets, pendingWallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet } = useContext(
+  const { wallets, getTransactions, isImportingWallet, getBalance, refreshAllWalletTransactions, setSelectedWallet } = useContext(
     BlueStorageContext,
   );
   const { width } = useWindowDimensions();
@@ -52,7 +49,6 @@ const WalletsList = () => {
   const [isLargeScreen, setIsLargeScreen] = useState(
     Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop),
   );
-  const [carouselData, setCarouselData] = useState([]);
   const dataSource = getTransactions(null, 10);
   const walletsCount = useRef(wallets.length);
   const walletActionButtonsRef = useRef();
@@ -88,25 +84,18 @@ const WalletsList = () => {
   );
 
   useEffect(() => {
-    const allWallets = wallets.concat(pendingWallets);
-    const newCarouselData = allWallets.concat(false);
-    setCarouselData(newCarouselData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallets, pendingWallets]);
-
-  useEffect(() => {
     if (walletsCount.current < wallets.length) {
-      walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current] });
+      walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current], viewPosition: 0.3 });
     }
     walletsCount.current = wallets.length;
   }, [wallets]);
 
   useEffect(() => {
-    if (pendingWallets.length > 0) {
-      walletsCarousel.current?.scrollToIndex(carouselData.length - pendingWallets.length);
+    if (isImportingWallet) {
+      walletsCarousel.current?.scrollToItem({ item: false, viewPosition: 0.3 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingWallets]);
+  }, [isImportingWallet]);
 
   const verifyBalance = () => {
     if (getBalance() !== 0) {
@@ -163,41 +152,15 @@ const WalletsList = () => {
 
   const handleClick = index => {
     console.log('click', index);
-    const wallet = carouselData[index];
-    if (wallet) {
-      if (wallet.type === PlaceholderWallet.type) {
-        Alert.alert(
-          loc.wallets.add_details,
-          loc.wallets.list_import_problem,
-          [
-            {
-              text: loc.wallets.details_delete,
-              onPress: () => {
-                WalletImport.removePlaceholderWallet();
-              },
-              style: 'destructive',
-            },
-            {
-              text: loc.wallets.list_tryagain,
-              onPress: () => {
-                navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: wallet.getSecret() } });
-                WalletImport.removePlaceholderWallet();
-              },
-              style: 'default',
-            },
-          ],
-          { cancelable: false },
-        );
-      } else {
-        const walletID = wallet.getID();
-        navigate('WalletTransactions', {
-          walletID,
-          walletType: wallet.type,
-          key: `WalletTransactions-${walletID}`,
-        });
-      }
-    } else {
-      // if its out of index - this must be last card with incentive to create wallet
+    if (index <= wallets.length - 1) {
+      const wallet = wallets[index];
+      const walletID = wallet.getID();
+      navigate('WalletTransactions', {
+        walletID,
+        walletType: wallet.type,
+        key: `WalletTransactions-${walletID}`,
+      });
+    } else if (index >= wallets.length && !isImportingWallet) {
       navigate('AddWalletRoot');
     }
   };
@@ -231,7 +194,7 @@ const WalletsList = () => {
   };
 
   const handleLongPress = () => {
-    if (carouselData.length > 1 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (wallets.length > 1 && !isImportingWallet) {
       navigate('ReorderWallets');
     } else {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -247,8 +210,8 @@ const WalletsList = () => {
   };
 
   const renderLocalTrader = () => {
-    if (carouselData.every(wallet => wallet === false)) return null;
-    if (carouselData.length > 0 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (wallets.every(wallet => wallet === false)) return null;
+    if (wallets.length > 0 && !isImportingWallet) {
       const button = (
         <TouchableOpacity
           accessibilityRole="button"
@@ -272,8 +235,8 @@ const WalletsList = () => {
   const renderWalletsCarousel = () => {
     return (
       <WalletsCarousel
-        data={carouselData}
-        extraData={carouselData}
+        data={wallets.concat(false)}
+        extraData={[wallets, isImportingWallet]}
         onPress={handleClick}
         handleLongPress={handleLongPress}
         onMomentumScrollEnd={onSnapToItem}
@@ -302,10 +265,7 @@ const WalletsList = () => {
     switch (section.section.key) {
       case WalletsListSections.CAROUSEL:
         return isLargeScreen ? null : (
-          <BlueHeaderDefaultMain
-            leftText={loc.wallets.list_title}
-            onNewWalletPress={!carouselData.some(wallet => wallet.type === PlaceholderWallet.type) ? () => navigate('AddWalletRoot') : null}
-          />
+          <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={() => navigate('AddWalletRoot')} />
         );
       case WalletsListSections.TRANSACTIONS:
         return renderListHeaderComponent();
@@ -333,7 +293,7 @@ const WalletsList = () => {
   };
 
   const renderScanButton = () => {
-    if (carouselData.length > 0 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (wallets.length > 0 && isImportingWallet) {
       return (
         <FContainer ref={walletActionButtonsRef}>
           <FButton
