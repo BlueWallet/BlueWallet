@@ -171,13 +171,15 @@ const WalletsList = () => {
 
     const contentOffset = e.nativeEvent.contentOffset;
     const index = Math.ceil(contentOffset.x / width);
-    console.log('onSnapToItem', index);
+    console.log('onSnapToItem', wallets.length === index ? 'NewWallet/Importing card' : index);
 
     if (currentWalletIndex.current !== index) {
       if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
         console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
         refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
       }
+    } else {
+      console.log('onSnapToItem did not change. Most likely momentum stopped at the same index it started.');
     }
     currentWalletIndex.current = index;
   };
