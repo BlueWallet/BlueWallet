@@ -36,6 +36,7 @@ const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', 
 
 const WalletsList = () => {
   const walletsCarousel = useRef();
+  const currentWalletIndex = useRef(0);
   const colorScheme = useColorScheme();
   const { wallets, getTransactions, isImportingWallet, getBalance, refreshAllWalletTransactions, setSelectedWallet } = useContext(
     BlueStorageContext,
@@ -171,10 +172,14 @@ const WalletsList = () => {
     const contentOffset = e.nativeEvent.contentOffset;
     const index = Math.ceil(contentOffset.x / width);
     console.log('onSnapToItem', index);
-    if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
-      console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
-      refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
+
+    if (currentWalletIndex.current !== index) {
+      if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
+        console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
+        refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
+      }
     }
+    currentWalletIndex.current = index;
   };
 
   const renderListHeaderComponent = () => {
