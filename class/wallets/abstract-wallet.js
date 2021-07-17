@@ -45,7 +45,9 @@ export class AbstractWallet {
   }
 
   getID() {
-    return createHash('sha256').update(this.getSecret()).digest().toString('hex');
+    const passphrase = this.getPassphrase ? this.getPassphrase() : '';
+    const string2hash = this.getSecret() + passphrase;
+    return createHash('sha256').update(string2hash).digest().toString('hex');
   }
 
   getTransactions() {
@@ -172,10 +174,12 @@ export class AbstractWallet {
     const re = /\[([^\]]+)\](.*)/;
     const m = this.secret.match(re);
     if (m && m.length === 3) {
-      let hexFingerprint = m[1].split('/')[0];
+      let [hexFingerprint, ...derivationPathArray] = m[1].split('/');
+      const derivationPath = `m/${derivationPathArray.join('/').replace(/h/g, "'")}`;
       if (hexFingerprint.length === 8) {
         hexFingerprint = Buffer.from(hexFingerprint, 'hex').reverse().toString('hex');
         this.masterFingerprint = parseInt(hexFingerprint, 16);
+        this._derivationPath = derivationPath;
       }
       this.secret = m[2];
     }
@@ -203,19 +207,34 @@ export class AbstractWallet {
         if (parsedSecret.keystore.label) {
           this.setLabel(parsedSecret.keystore.label);
         }
+        if (parsedSecret.keystore.derivation) {
+          this._derivationPath = parsedSecret.keystore.derivation;
+        }
         this.secret = parsedSecret.keystore.xpub;
         this.masterFingerprint = masterFingerprint;
 
         if (parsedSecret.keystore.type === 'hardware') this.use_with_hardware_wallet = true;
       }
       // It is a Cobo Vault Hardware Wallet
-      if (parsedSecret && parsedSecret.ExtPubKey && parsedSecret.MasterFingerprint) {
+      if (parsedSecret && parsedSecret.ExtPubKey && parsedSecret.MasterFingerprint && parsedSecret.AccountKeyPath) {
         this.secret = parsedSecret.ExtPubKey;
         const mfp = Buffer.from(parsedSecret.MasterFingerprint, 'hex').reverse().toString('hex');
         this.masterFingerprint = parseInt(mfp, 16);
+        this._derivationPath = `m/${parsedSecret.AccountKeyPath}`;
         if (parsedSecret.CoboVaultFirmwareVersion) this.use_with_hardware_wallet = true;
       }
     } catch (_) {}
+
+    if (!this._derivationPath) {
+      if (this.secret.startsWith('xpub')) {
+        this._derivationPath = "m/44'/0'/0'"; // Assume default BIP44 path for legacy wallets
+      } else if (this.secret.startsWith('ypub')) {
+        this._derivationPath = "m/49'/0'/0'"; // Assume default BIP49 path for segwit wrapped wallets
+      } else if (this.secret.startsWith('zpub')) {
+        this._derivationPath = "m/84'/0'/0'"; // Assume default BIP84 for native segwit wallets
+      }
+    }
+
     return this;
   }
 

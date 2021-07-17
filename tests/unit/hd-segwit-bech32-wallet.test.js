@@ -1,5 +1,5 @@
+import assert from 'assert';
 import { HDSegwitBech32Wallet } from '../../class';
-const assert = require('assert');
 
 describe('Bech32 Segwit HD (BIP84)', () => {
   it('can create', async function () {
@@ -162,5 +162,22 @@ describe('Bech32 Segwit HD (BIP84)', () => {
       ),
       true,
     );
+  });
+
+  it('can use mnemonic with passphrase', () => {
+    const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+    const passphrase = 'super secret passphrase';
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(mnemonic);
+    hd.setPassphrase(passphrase);
+
+    assert.strictEqual(
+      hd.getXpub(),
+      'zpub6qNvUL1qNQwaReccveprgd4urE2EUvShpcFe7WB9tzf9L4NJNcWhPzJSk4fzNXqBNZdRr6135hBKaqqp5RVvyxZ6eMbZXL6u5iK4zrfkCaQ',
+    );
+
+    assert.strictEqual(hd._getExternalAddressByIndex(0), 'bc1qgaj3satczjem43pz46ct6r3758twhnny4y720z');
+    assert.strictEqual(hd._getInternalAddressByIndex(0), 'bc1qthe7wh5eplzxczslvthyrer36ph3kxpnfnxgjg');
+    assert.strictEqual(hd._getExternalWIFByIndex(0), 'L1tfV6fbRjDNwGQdJqHC9fneM9bTHigApnWgoKoU8JwgziwbbE7i');
   });
 });

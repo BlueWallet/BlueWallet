@@ -229,11 +229,7 @@ const ScanQRCode = () => {
         if (launchedBy) {
           navigation.navigate(launchedBy);
         }
-        if (ret.additionalProperties) {
-          onBarScanned(ret.data, ret.additionalProperties);
-        } else {
-          onBarScanned(ret.data);
-        }
+        onBarScanned(ret.data);
       } catch (e) {
         console.log(e);
       }

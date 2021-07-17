@@ -48,4 +48,22 @@ describe('HDSegwitElectrumSeedP2WPKHWallet', () => {
     hd.setSecret('bs');
     assert.ok(!hd.validateMnemonic());
   });
+
+  // from electrum tests https://github.com/spesmilo/electrum/blob/9c1a51547a301e765b9b0f9935c6d940bb9d658e/electrum/tests/test_wallet_vertical.py#L130
+  it('can use mnemonic with passphrase', () => {
+    const mnemonic = 'bitter grass shiver impose acquire brush forget axis eager alone wine silver';
+    const UNICODE_HORROR = '₿ 😀 😈     う けたま わる w͢͢͝h͡o͢͡ ̸͢k̵͟n̴͘ǫw̸̛s͘ ̀́w͘͢ḩ̵a҉̡͢t ̧̕h́o̵r͏̵rors̡ ̶͡͠lį̶e͟͟ ̶͝in͢ ͏t̕h̷̡͟e ͟͟d̛a͜r̕͡k̢̨ ͡h̴e͏a̷̢̡rt́͏ ̴̷͠ò̵̶f̸ u̧͘ní̛͜c͢͏o̷͏d̸͢e̡͝?͞';
+    const hd = new HDSegwitElectrumSeedP2WPKHWallet();
+    hd.setSecret(mnemonic);
+    hd.setPassphrase(UNICODE_HORROR);
+
+    assert.strictEqual(
+      hd.getXpub(),
+      'zpub6nD7dvF6ArArjskKHZLmEL9ky8FqaSti1LN5maDWGwFrqwwGTp1b6ic4EHwciFNaYDmCXcQYxXSiF9BjcLCMPcaYkVN2nQD6QjYQ8vpSR3Z',
+    );
+
+    assert.strictEqual(hd._getExternalAddressByIndex(0), 'bc1qx94dutas7ysn2my645cyttujrms5d9p57f6aam');
+    assert.strictEqual(hd._getInternalAddressByIndex(0), 'bc1qcywwsy87sdp8vz5rfjh3sxdv6rt95kujdqq38g');
+    assert.strictEqual(hd._getExternalWIFByIndex(0), 'KyBagP6JHrNTGanqBSDVzKrsBTVbD9hhkTeVe1zEhewKeCU6wJb7');
+  });
 });
