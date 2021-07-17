@@ -364,6 +364,14 @@ export class AppStorage {
             break;
           case HDAezeedWallet.type:
             unserializedWallet = HDAezeedWallet.fromJson(key);
+            // migrate password to this.passphrase field
+            // remove this code somewhere in year 2022
+            if (unserializedWallet.secret.includes(':')) {
+              const [mnemonic, passphrase] = unserializedWallet.secret.split(':');
+              unserializedWallet.secret = mnemonic;
+              unserializedWallet.passphrase = passphrase;
+            }
+
             break;
           case SLIP39SegwitP2SHWallet.type:
             unserializedWallet = SLIP39SegwitP2SHWallet.fromJson(key);
@@ -391,8 +399,7 @@ export class AppStorage {
               console.log('using wallet-wide settings ', lndhub, 'for ln wallet');
               unserializedWallet.setBaseURI(lndhub);
             } else {
-              console.log('using default', LightningCustodianWallet.defaultBaseUri, 'for ln wallet');
-              unserializedWallet.setBaseURI(LightningCustodianWallet.defaultBaseUri);
+              console.log('wallet does not have a baseURI. Continuing init...');
             }
             unserializedWallet.init();
             break;

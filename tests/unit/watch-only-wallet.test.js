@@ -156,6 +156,7 @@ describe('Watch only wallet', () => {
     );
     assert.strictEqual(w.getMasterFingerprint(), 64392470);
     assert.strictEqual(w.getMasterFingerprintHex(), '168dd603');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
     assert.ok(w.useWithHardwareWalletEnabled());
 
     const utxos = [
@@ -195,6 +196,7 @@ describe('Watch only wallet', () => {
     );
     assert.strictEqual(w.getMasterFingerprint(), 64392470);
     assert.strictEqual(w.getMasterFingerprintHex(), '168dd603');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/1'");
     assert.ok(w.useWithHardwareWalletEnabled());
 
     const utxos = [
@@ -234,11 +236,12 @@ describe('Watch only wallet', () => {
     );
     assert.strictEqual(w.getMasterFingerprint(), 1908437330);
     assert.strictEqual(w.getMasterFingerprintHex(), '5271c071');
-    assert.strictEqual(w.getLabel(), 'Cobo Vault 5271c071');
+    assert.strictEqual(w.getLabel(), 'Wallet');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
     assert.ok(w.useWithHardwareWalletEnabled());
   });
 
-  it('can import zpub with master fingerprint', async () => {
+  it('can import zpub with master fingerprint and derivation path', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret(require('fs').readFileSync('./tests/unit/fixtures/skeleton-walletdescriptor.txt', 'ascii'));
     w.init();
@@ -249,6 +252,7 @@ describe('Watch only wallet', () => {
     );
     assert.strictEqual(w.getMasterFingerprint(), 4167290508);
     assert.strictEqual(w.getMasterFingerprintHex(), '8cce63f8');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
     assert.ok(!w.useWithHardwareWalletEnabled());
   });
 
@@ -335,6 +339,27 @@ describe('Watch only wallet', () => {
       '03e060c9b5bb85476caa53e3b8cd3d40c9dc2c36a8a5e8ed87e48bfc9bbe1760ad',
     );
     assert.strictEqual(psbt.data.outputs[1].bip32Derivation[0].path, "m/49'/0'/0'/1/46");
+  });
+
+  it('xpub watch only has derivation path set to BIP44 default', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps');
+
+    assert.strictEqual(w.getDerivationPath(), "m/44'/0'/0'");
+  });
+
+  it('ypub watch only has derivation path set to BIP49 default', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('ypub6Y9u3QCRC1HkZv3stNxcQVwmw7vC7KX5Ldz38En5P88RQbesP2oy16hNyQocVCfYRQPxdHcd3pmu9AFhLv7NdChWmw5iNLryZ2U6EEHdnfo');
+
+    assert.strictEqual(w.getDerivationPath(), "m/49'/0'/0'");
+  });
+
+  it('zpub watch only has derivation path set to BIP84 default', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('zpub6rjLjQVqVnj7crz9E4QWj4WgczmEseJq22u2B6k2HZr6NE2PQx3ZYg8BnbjN9kCfHymSeMd2EpwpM5iiz5Nrb3TzvddxW2RMcE3VXdVaXHk');
+
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
   });
 });
 

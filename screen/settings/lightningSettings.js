@@ -133,8 +133,11 @@ const LightningSettings = () => {
       <BlueCard>
         <View style={styles.uri}>
           <TextInput
-            placeholder={LightningCustodianWallet.defaultBaseUri}
             value={URI}
+            placeholder={
+              loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' }) +
+              (!isDesktop ? ' (' + loc.settings.tor_supported + ')' : '')
+            }
             onChangeText={setLndhubURI}
             numberOfLines={1}
             style={styles.uriText}

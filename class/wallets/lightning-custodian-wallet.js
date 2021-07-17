@@ -6,7 +6,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 export class LightningCustodianWallet extends LegacyWallet {
   static type = 'lightningCustodianWallet';
   static typeReadable = 'Lightning';
-  static defaultBaseUri = 'https://lndhub.herokuapp.com/';
+
   constructor(props) {
     super(props);
     this.setBaseURI(); // no args to init with default value
@@ -29,11 +29,7 @@ export class LightningCustodianWallet extends LegacyWallet {
    * @param URI
    */
   setBaseURI(URI) {
-    if (URI) {
-      this.baseURI = URI;
-    } else {
-      this.baseURI = LightningCustodianWallet.defaultBaseUri;
-    }
+    this.baseURI = URI;
   }
 
   getBaseURI() {
@@ -53,9 +49,6 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   getSecret() {
-    if (this.baseURI === LightningCustodianWallet.defaultBaseUri) {
-      return this.secret;
-    }
     return this.secret + '@' + this.baseURI;
   }
 

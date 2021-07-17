@@ -65,9 +65,8 @@ const WalletsImport = () => {
   /**
    *
    * @param importText
-   * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
    */
-  const importMnemonic = async (importText, additionalProperties) => {
+  const importMnemonic = async importText => {
     if (WalletImport.isCurrentlyImportingWallet()) {
       return;
     }
@@ -75,7 +74,7 @@ const WalletsImport = () => {
     navigation.dangerouslyGetParent().pop();
     await new Promise(resolve => setTimeout(resolve, 500)); // giving some time to animations
     try {
-      await WalletImport.processImportText(importText, additionalProperties);
+      await WalletImport.processImportText(importText);
       WalletImport.removePlaceholderWallet();
     } catch (error) {
       WalletImport.removePlaceholderWallet();
@@ -89,12 +88,11 @@ const WalletsImport = () => {
   /**
    *
    * @param value
-   * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
    */
-  const onBarScanned = (value, additionalProperties) => {
+  const onBarScanned = value => {
     if (value && value.data) value = value.data + ''; // no objects here, only strings
     setImportText(value);
-    setTimeout(() => importMnemonic(value, additionalProperties), 500);
+    setTimeout(() => importMnemonic(value), 500);
   };
 
   const importScan = () => {
