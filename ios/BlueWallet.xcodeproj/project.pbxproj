@@ -32,7 +32,7 @@
 		6DD410A1266CADF10087DE03 /* Widgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD410A0266CADF10087DE03 /* Widgets.swift */; };
 		6DD410A7266CADF40087DE03 /* WidgetsExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6DD4109C266CADF10087DE03 /* WidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6DD410AC266CAE470087DE03 /* PriceWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6CA4BC255872E3009312A5 /* PriceWidget.swift */; };
-		6DD410AE266CAF1F0087DE03 /* fiatUnit.json in Resources */ = {isa = PBXBuildFile; fileRef = 6DD410AD266CAF1F0087DE03 /* fiatUnit.json */; };
+		6DD410AE266CAF1F0087DE03 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = 6DD410AD266CAF1F0087DE03 /* fiatUnits.json */; };
 		6DD410AF266CAF5C0087DE03 /* WalletInformationAndMarketWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E06254BA347007B5B82 /* WalletInformationAndMarketWidget.swift */; };
 		6DD410B0266CAF5C0087DE03 /* WalletInformationWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4AB1254FB59C00E9F9AA /* WalletInformationWidget.swift */; };
 		6DD410B1266CAF5C0087DE03 /* WidgetAPI+Electrum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6CA5142558EBA3009312A5 /* WidgetAPI+Electrum.swift */; };
@@ -75,8 +75,8 @@
 		B43D037C225847C500FBAA95 /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43D0376225847C500FBAA95 /* Wallet.swift */; };
 		B43D037D225847C500FBAA95 /* WalletInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43D0377225847C500FBAA95 /* WalletInformation.swift */; };
 		B4EE583C226703320003363C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
-		E5D4794B26781FC0007838C1 /* fiatUnit.json in Resources */ = {isa = PBXBuildFile; fileRef = 6DD410AD266CAF1F0087DE03 /* fiatUnit.json */; };
-		E5D4794C26781FC1007838C1 /* fiatUnit.json in Resources */ = {isa = PBXBuildFile; fileRef = 6DD410AD266CAF1F0087DE03 /* fiatUnit.json */; };
+		E5D4794B26781FC0007838C1 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = 6DD410AD266CAF1F0087DE03 /* fiatUnits.json */; };
+		E5D4794C26781FC1007838C1 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = 6DD410AD266CAF1F0087DE03 /* fiatUnits.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -274,7 +274,7 @@
 		6DD4109C266CADF10087DE03 /* WidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		6DD410A0266CADF10087DE03 /* Widgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Widgets.swift; sourceTree = "<group>"; };
 		6DD410A4266CADF40087DE03 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		6DD410AD266CAF1F0087DE03 /* fiatUnit.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = fiatUnit.json; path = ../../../../models/fiatUnit.json; sourceTree = "<group>"; };
+		6DD410AD266CAF1F0087DE03 /* fiatUnits.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = fiatUnits.json; path = ../../../../models/fiatUnits.json; sourceTree = "<group>"; };
 		6DD410C3266CCB780087DE03 /* WidgetsExtension.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = WidgetsExtension.entitlements; sourceTree = SOURCE_ROOT; };
 		6DEB496F254E38DE00E9F9AA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6DEB4AB1254FB59C00E9F9AA /* WalletInformationWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInformationWidget.swift; sourceTree = "<group>"; };
@@ -512,7 +512,7 @@
 		6D2AA8062568B8E50090B089 /* Fiat */ = {
 			isa = PBXGroup;
 			children = (
-				6DD410AD266CAF1F0087DE03 /* fiatUnit.json */,
+				6DD410AD266CAF1F0087DE03 /* fiatUnits.json */,
 				6D2AA8072568B8F40090B089 /* FiatUnit.swift */,
 			);
 			path = Fiat;
@@ -968,7 +968,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6DD410B7266CAF5C0087DE03 /* Assets.xcassets in Resources */,
-				6DD410AE266CAF1F0087DE03 /* fiatUnit.json in Resources */,
+				6DD410AE266CAF1F0087DE03 /* fiatUnits.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -977,7 +977,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B40D4E36225841ED00428FCC /* Assets.xcassets in Resources */,
-				E5D4794C26781FC1007838C1 /* fiatUnit.json in Resources */,
+				E5D4794C26781FC1007838C1 /* fiatUnits.json in Resources */,
 				B40D4E34225841EC00428FCC /* Interface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -987,7 +987,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B4EE583C226703320003363C /* Assets.xcassets in Resources */,
-				E5D4794B26781FC0007838C1 /* fiatUnit.json in Resources */,
+				E5D4794B26781FC0007838C1 /* fiatUnits.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
