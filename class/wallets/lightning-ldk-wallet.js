@@ -7,6 +7,7 @@ import { randomBytes } from '../rng';
 import * as bip39 from 'bip39';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 import bolt11 from 'bolt11';
+import { SegwitBech32Wallet } from './segwit-bech32-wallet';
 const bitcoin = require('bitcoinjs-lib');
 
 export class LightningLdkWallet extends LightningCustodianWallet {
@@ -254,6 +255,12 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return address;
   }
 
+  unwrapFirstExternalWIFFromMnemonics() {
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(this.getSecret().replace('ldk://', ''));
+    return hd._getExternalWIFByIndex(0);
+  }
+
   async checkBlockchain() {
     this._lastTimeBlockchainCheckedTs = +new Date();
     return RnLdk.checkBlockchain();
@@ -474,7 +481,18 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async claimCoins(address) {
-    throw new Error('claimCoins: Not yet implemented');
+    console.log('unwrapping wif...');
+    const wif = this.unwrapFirstExternalWIFFromMnemonics();
+    const wallet = new SegwitBech32Wallet();
+    wallet.setSecret(wif);
+    console.log('fetching balance...');
+    await wallet.fetchUtxo();
+    console.log(wallet.getBalance(), wallet.getUtxo());
+    console.log('creating transation...');
+    const { tx } = wallet.createTransaction(wallet.getUtxo(), [{ address }], 1, address, 0);
+    if (!tx) throw new Error('claimCoins: could not create transaction');
+    console.log('broadcasting...');
+    return await wallet.broadcastTx(tx.toHex());
   }
 
   async fetchInfo() {

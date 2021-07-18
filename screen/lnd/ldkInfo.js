@@ -163,8 +163,12 @@ const LdkInfo = () => {
     if (!(await confirm())) return;
     setSelectedChannelIndex(undefined);
 
+    const wallets2use = wallets.filter(w => w.chain === Chain.ONCHAIN);
+
     /** @type {AbstractWallet} */
-    const toWallet = await selectWallet(navigate, name, Chain.ONCHAIN, false, 'Onchain wallet is required to withdraw funds to');
+    const toWallet = await selectWallet(navigate, name, null, wallets2use, 'Onchain wallet is required to withdraw funds to');
+    // using wallets2use instead of simple Chain.ONCHAIN argument because by default this argument only selects wallets
+    // that can send, which is not possible if user wants to withdraw to watch-only wallet
     if (!toWallet) return;
 
     console.warn('want to close to wallet ', toWallet.getLabel());
@@ -185,15 +189,24 @@ const LdkInfo = () => {
   };
 
   const claimBalance = async () => {
-    const selectedWallet = await selectWallet(navigate, name, Chain.ONCHAIN, false);
+    const wallets2use = wallets.filter(w => w.chain === Chain.ONCHAIN);
+    /** @type {AbstractWallet} */
+    const selectedWallet = await selectWallet(navigate, name, null, wallets2use, 'Onchain wallet is required to withdraw funds to');
+    // using wallets2use instead of simple Chain.ONCHAIN argument because by default this argument only selects wallets
+    // that can send, which is not possible if user wants to withdraw to watch-only wallet
     if (!selectedWallet) return;
     const address = await selectedWallet.getAddressAsync();
     if (await confirm()) {
       console.warn('selected ', selectedWallet.getLabel(), address);
-      const rez = await wallet.claimCoins(address);
-      if (rez && rez.txid) {
-        alert('Success!');
-        await refetchData();
+      setIsLoading(true);
+      try {
+        const rez = await wallet.claimCoins(address);
+        if (rez) {
+          alert('Success!');
+          await refetchData();
+        }
+      } finally {
+        setIsLoading(false);
       }
     }
   };
