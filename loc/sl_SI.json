@@ -17,7 +17,11 @@
     "success": "Uspešno",
     "wallet_key": "Ključ denarnice",
     "invalid_animated_qr_code_fragment" : "Neveljaven del animirane QR kode. Prosimo poskusite ponovno.",
-    "file_saved": "Datoteka ({filePath}) je bila shranjena v mapo Prenosi.",
+    "file_saved": "Datoteka {filePath} je bila shranjena v {destination}.",
+    "file_save_title": "Shrani datoteko",
+    "file_save_location": "Izberite, kam želite shraniti {filePath}",
+    "downloads_folder": "Mapa Prenosi",
+    "external_storage": "Zunanja shramba",
     "discard_changes": "Zavrzi spremembe?",
     "discard_changes_detail": "Imate neshranjene spremembe. Ali ste prepričani, da jih želite zavreči?"
   },
@@ -186,6 +190,7 @@
     "details_no_signed_tx": "Izbrana datoteka ne vsebuje transakcije, ki jo je mogoče uvoziti.",
     "details_note_placeholder": "lastna opomba",
     "details_scan": "Skeniraj",
+    "details_scan_hint": "Dvakrat tapnite za skeniranje ali uvoz",
     "details_total_exceeds_balance": "Znesek presega razpoložljivo stanje.",
     "details_unrecognized_file_format": "Neprepoznana oblika datoteke",
     "details_wallet_before_tx": "Pred ustvarjanjem transakcije, morate dodati Bitcoin denarnico.",
@@ -258,8 +263,8 @@
     "electrum_connected_not": "Brez povezave",
     "electrum_error_connect": "Povezave s podanim Electrum strežnikom ni mogoče vzpostaviti",
     "electrum_host": "Npr. {example}",
-    "electrum_port": "TCP vrata, ponavadi {example}",
-    "electrum_port_ssl": "SSL vrata, ponavadi {example}",
+    "electrum_port": "Vrata, ponavadi {example}",
+    "use_ssl": "SSL",
     "electrum_saved": "Spremembe so bile uspešno shranjene. Da bodo spremembe začele veljati, bo morda potreben ponovni zagon.",
     "set_electrum_server_as_default": "Želite nastaviti {server} kot privzeti electrum strežnik?",
     "set_lndhub_as_default": "Želite nastaviti {url} kot privzeti LNDHub strežnik?",
@@ -580,7 +585,9 @@
     "sign_aopp_confirm": "Ali želite podpisano sporočilo poslati na {hostname}?",
     "addresses_title": "Naslovi",
     "type_change": "Vračilo",
-    "type_receive": "Prejemni"
+    "type_receive": "Prejemni",
+    "type_used": "Uporabljen",
+    "transactions": "Transakcije"
   },
   "aopp": {
     "title": "Izberite Naslov",
