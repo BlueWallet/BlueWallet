@@ -11,10 +11,16 @@
     "@babel/runtime": "^7.14.6",
     "@jest/reporters": "^26.4.1",
     "@react-native-community/eslint-config": "^2.0.0",
+    "@types/jest": "^26.0.24",
+    "@types/react": "^17.0.14",
+    "@types/react-native": "^0.64.12",
+    "@types/react-test-renderer": "^17.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.28.3",
+    "@typescript-eslint/parser": "^4.28.3",
     "babel-cli": "^6.26.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
-    "eslint": "^7.25.0",
+    "eslint": "^7.30.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-config-standard-jsx": "^10.0.0",
@@ -28,7 +34,8 @@
     "eslint-plugin-standard": "^4.1.0",
     "jest": "^26.1.0",
     "prettier": "^2.2.1",
-    "react-test-renderer": "17.0.1"
+    "react-test-renderer": "17.0.1",
+    "typescript": "^4.3.5"
   },
   "engines": {
     "node": ">=10.16.0",
@@ -44,7 +51,7 @@
     "android:clean": "cd android;  ./gradlew clean ; cd .. ; npm run android",
     "ios": "react-native run-ios",
     "postinstall": "rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path,assert,crypto --hack; npm run releasenotes2json; npm run podinstall",
-    "test": "npm run lint && npm run unit && npm run jest",
+    "test": "npm run tslint && npm run lint && npm run unit && npm run jest",
     "jest": "jest -b -w 1 tests/integration/*",
     "windowspatches": "./scripts/windows-patches.sh",
     "maccatalystpatches": "./scripts/maccatalystpatches/applypatchesformaccatalyst.sh",
@@ -53,7 +60,8 @@
     "e2e:debug": "(test -f android/app/build/outputs/apk/debug/app-debug.apk && test -f android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk) || npm run e2e:debug-build; npm run e2e:debug-test",
     "e2e:release-build": "detox build -c android.emu.release",
     "e2e:release-test": "detox test -c android.emu.release --record-videos all --take-screenshots all --headless --loglevel trace",
-    "lint": "eslint *.js screen/**/*.js blue_modules/*.js class/**/*.js models/ loc/ tests/**/*.js components/**/*.js components/*.js",
+    "tslint": "tsc",
+    "lint": "eslint --ext .js,.ts,.tsx '*.@(js|ts|tsx)' screen 'blue_modules/*.@(js|ts|tsx)' class models loc tests components",
     "lint:fix": "npm run lint -- --fix",
     "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep '\\.js' --color=never |  awk '{print $2}' | xargs eslint --fix; exit 0",
     "unit": "jest tests/unit/*",
@@ -64,6 +72,12 @@
     "transform": {
       "^.+\\.js$": "<rootDir>/node_modules/react-native/jest/preprocessor.js"
     },
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts",
+      "tsx"
+    ],
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native(-.*)?|@react-native(-community)?)/)"
     ],
