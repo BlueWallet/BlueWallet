@@ -52,6 +52,43 @@ const nStyles = StyleSheet.create({
   },
 });
 
+const PlaceholderWalletCarouselItem = props => {
+  const { colors } = useTheme();
+
+  const { isImportingWallet } = useContext(BlueStorageContext);
+
+  return (
+    <TouchableWithoutFeedback
+      onPressIn={() => {
+        if (isImportingWallet && isImportingWallet.getIsFailure()) {
+          props.onPressedIn();
+        } else {
+          props.onPressedOut();
+        }
+      }}
+      onPressOut={isImportingWallet && isImportingWallet.getIsFailure() ? props.onPressedOut : null}
+      onPress={isImportingWallet && isImportingWallet.getIsFailure() ? props.onPress : null}
+    >
+      <LinearGradient shadowColor={colors.shadowColor} colors={WalletGradient.gradientsFor(PlaceholderWallet.type)} style={iStyles.grad}>
+        <Image source={I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png')} style={iStyles.image} />
+        <Text style={iStyles.br} />
+        <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
+          {isImportingWallet.getIsFailure() ? loc.wallets.import_placeholder_fail : loc.wallets.import_placeholder_inprogress}
+        </Text>
+        {isImportingWallet.getIsFailure() ? (
+          <Text testID="ImportError" numberOfLines={0} style={[iStyles.importError, { color: colors.inverseForegroundColor }]}>
+            {loc.wallets.list_import_error}
+          </Text>
+        ) : (
+          <ActivityIndicator style={iStyles.activity} />
+        )}
+      </LinearGradient>
+    </TouchableWithoutFeedback>
+  );
+};
+
+PlaceholderWalletCarouselItem.propTypes = { onPress: PropTypes.func, onPressedOut: PropTypes.func, onPressedIn: PropTypes.func };
+
 const NewWalletPanel = ({ onPress }) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
@@ -149,7 +186,7 @@ const iStyles = StyleSheet.create({
 const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedWallet }) => {
   const scaleValue = new Animated.Value(1.0);
   const { colors } = useTheme();
-  const { walletTransactionUpdateStatus } = useContext(BlueStorageContext);
+  const { walletTransactionUpdateStatus, isImportingWallet } = useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
   const isLargeScreen = Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop);
@@ -168,7 +205,16 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
   };
 
   if (!item)
-    return (
+    return isImportingWallet ? (
+      <Animated.View
+        style={[isLargeScreen ? iStyles.rootLargeDevice : { ...iStyles.root, width: itemWidth }, { transform: [{ scale: scaleValue }] }]}
+        shadowOpacity={25 / 100}
+        shadowOffset={{ width: 0, height: 3 }}
+        shadowRadius={8}
+      >
+        <PlaceholderWalletCarouselItem onPress={onPress} index={index} onPressedIn={onPressedIn} onPressedOut={onPressedOut} />
+      </Animated.View>
+    ) : (
       <NewWalletPanel
         onPress={() => {
           onPressedOut();
@@ -176,47 +222,6 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
         }}
       />
     );
-
-  if (item.type === PlaceholderWallet.type) {
-    return (
-      <Animated.View
-        style={[isLargeScreen ? iStyles.rootLargeDevice : { ...iStyles.root, width: itemWidth }, { transform: [{ scale: scaleValue }] }]}
-        shadowOpacity={40 / 100}
-        shadowOffset={{ width: 0, height: 0 }}
-        shadowRadius={5}
-      >
-        <TouchableWithoutFeedback
-          onPressIn={item.getIsFailure() ? onPressedIn : null}
-          onPressOut={item.getIsFailure() ? onPressedOut : null}
-          onPress={() => {
-            if (item.getIsFailure()) {
-              onPressedOut();
-              onPress(index);
-              onPressedOut();
-            }
-          }}
-        >
-          <LinearGradient shadowColor={colors.shadowColor} colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
-            <Image
-              source={I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png')}
-              style={iStyles.image}
-            />
-            <Text style={iStyles.br} />
-            <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
-              {item.getIsFailure() ? loc.wallets.import_placeholder_fail : loc.wallets.import_placeholder_inprogress}
-            </Text>
-            {item.getIsFailure() ? (
-              <Text testID="ImportError" numberOfLines={0} style={[iStyles.importError, { color: colors.inverseForegroundColor }]}>
-                {loc.wallets.list_import_error}
-              </Text>
-            ) : (
-              <ActivityIndicator style={iStyles.activity} />
-            )}
-          </LinearGradient>
-        </TouchableWithoutFeedback>
-      </Animated.View>
-    );
-  }
 
   const opacity = isSelectedWallet === false ? 0.5 : 1.0;
   let image;
@@ -318,11 +323,11 @@ const cStyles = StyleSheet.create({
 });
 
 const WalletsCarousel = forwardRef((props, ref) => {
-  const { preferredFiatCurrency, language } = useContext(BlueStorageContext);
+  const { preferredFiatCurrency, language, isImportingWallet } = useContext(BlueStorageContext);
   const renderItem = useCallback(
     ({ item, index }) => (
       <WalletCarouselItem
-        isSelectedWallet={props.vertical && props.selectedWallet && item ? props.selectedWallet === item.getID() : undefined}
+        isSelectedWallet={!props.horizontal && props.selectedWallet && item ? props.selectedWallet === item.getID() : undefined}
         item={item}
         index={index}
         handleLongPress={props.handleLongPress}
@@ -330,7 +335,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
       />
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [props.vertical, props.selectedWallet, props.handleLongPress, props.onPress, preferredFiatCurrency, language],
+    [props.horizontal, props.selectedWallet, props.handleLongPress, props.onPress, preferredFiatCurrency, language, isImportingWallet],
   );
   const flatListRef = useRef();
   const ListHeaderComponent = () => <View style={cStyles.separatorStyle} />;
@@ -338,12 +343,12 @@ const WalletsCarousel = forwardRef((props, ref) => {
   useImperativeHandle(ref, () => ({
     scrollToItem: ({ item }) => {
       setTimeout(() => {
-        flatListRef?.current?.scrollToItem({ item, viewPosition: 0.3 });
+        flatListRef?.current?.scrollToItem({ item, viewOffset: 16 });
       }, 300);
     },
-    scrollToIndex: index => {
+    scrollToIndex: ({ index }) => {
       setTimeout(() => {
-        flatListRef?.current?.scrollToIndex({ index, viewPosition: 0.3 });
+        flatListRef?.current?.scrollToIndex({ index, viewOffset: 16 });
       }, 300);
     },
   }));
@@ -351,31 +356,30 @@ const WalletsCarousel = forwardRef((props, ref) => {
   const { width } = useWindowDimensions();
   const sliderHeight = 190;
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-  const isLargeScreen = Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop);
-
   return (
     <FlatList
       ref={flatListRef}
       renderItem={renderItem}
+      extraData={renderItem}
       keyExtractor={(_, index) => index.toString()}
       showsVerticalScrollIndicator={false}
       pagingEnabled
       disableIntervalMomentum={isHandset}
       snapToInterval={itemWidth} // Adjust to your content width
       decelerationRate="fast"
-      contentContainerStyle={isLargeScreen ? cStyles.contentLargeScreen : cStyles.content}
+      contentContainerStyle={props.horizontal ? cStyles.content : cStyles.contentLargeScreen}
       directionalLockEnabled
       showsHorizontalScrollIndicator={false}
       initialNumToRender={10}
       ListHeaderComponent={ListHeaderComponent}
-      style={props.vertical ? {} : { height: sliderHeight + 9 }}
+      style={props.horizontal ? { height: sliderHeight + 9 } : {}}
       {...props}
     />
   );
 });
 
 WalletsCarousel.propTypes = {
-  vertical: PropTypes.bool,
+  horizontal: PropTypes.bool,
   selectedWallet: PropTypes.string,
   onPress: PropTypes.func.isRequired,
   handleLongPress: PropTypes.func.isRequired,

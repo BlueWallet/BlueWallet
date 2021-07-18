@@ -8,13 +8,13 @@ import {
   HDLegacyP2PKHWallet,
   HDSegwitBech32Wallet,
   LightningCustodianWallet,
-  PlaceholderWallet,
   SegwitBech32Wallet,
   HDLegacyElectrumSeedP2PKHWallet,
   HDSegwitElectrumSeedP2WPKHWallet,
   HDAezeedWallet,
   MultisigHDWallet,
   SLIP39LegacyP2PKHWallet,
+  PlaceholderWallet,
   SLIP39SegwitP2SHWallet,
   SLIP39SegwitBech32Wallet,
 } from '.';
@@ -30,7 +30,7 @@ const wif = require('wif');
 const prompt = require('../blue_modules/prompt');
 
 function WalletImport() {
-  const { wallets, pendingWallets, setPendingWallets, saveToDisk, addWallet } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk, addWallet, setIsImportingWallet } = useContext(BlueStorageContext);
 
   /**
    *
@@ -55,32 +55,26 @@ function WalletImport() {
     Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
   };
 
-  WalletImport.removePlaceholderWallet = () => {
-    setPendingWallets([]);
+  WalletImport.isWalletImported = w => {
+    const wallet = wallets.some(wallet => wallet.getSecret() === w.secret || wallet.getID() === w.getID());
+    return !!wallet;
   };
 
-  WalletImport.isWalletImported = w => {
-    const wallet = wallets.some(
-      wallet => (wallet.getSecret() === w.secret || wallet.getID() === w.getID()) && wallet.type !== PlaceholderWallet.type,
-    );
-    return !!wallet;
+  WalletImport.removePlaceholderWallet = ()=> {
+    setIsImportingWallet(false)
+  }
+
+
+  WalletImport.addPlaceholderWallet = (importText, isFailure = false) => {
+    const placeholderWallet = new PlaceholderWallet();
+    placeholderWallet.setSecret(importText);
+    placeholderWallet.setIsFailure(isFailure);
+    setIsImportingWallet(placeholderWallet);
   };
 
   WalletImport.presentWalletAlreadyExistsAlert = () => {
     ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
     alert('This wallet has been previously imported.');
-  };
-
-  WalletImport.addPlaceholderWallet = (importText, isFailure = false) => {
-    const wallet = new PlaceholderWallet();
-    wallet.setSecret(importText);
-    wallet.setIsFailure(isFailure);
-    setPendingWallets([...pendingWallets, wallet]);
-    return wallet;
-  };
-
-  WalletImport.isCurrentlyImportingWallet = () => {
-    return wallets.some(wallet => wallet.type === PlaceholderWallet.type);
   };
 
   /**

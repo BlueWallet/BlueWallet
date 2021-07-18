@@ -1,6 +1,5 @@
-/* global alert */
-import React, { useEffect, useState } from 'react';
-import { Platform, View, Keyboard, StatusBar, StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { Platform, View, Keyboard, StatusBar, StyleSheet, Alert } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
@@ -17,11 +16,14 @@ import Privacy from '../../blue_modules/Privacy';
 import WalletImport from '../../class/wallet-import';
 import loc from '../../loc';
 import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+
 const fs = require('../../blue_modules/fs');
 
 const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
   const route = useRoute();
+  const { isImportingWallet } = useContext(BlueStorageContext);
   const label = (route.params && route.params.label) || '';
   const triggerImport = (route.params && route.params.triggerImport) || false;
   const [importText, setImportText] = useState(label);
@@ -67,9 +69,10 @@ const WalletsImport = () => {
    * @param importText
    */
   const importMnemonic = async importText => {
-    if (WalletImport.isCurrentlyImportingWallet()) {
+    if (isImportingWallet && isImportingWallet.isFailure === false) {
       return;
     }
+
     WalletImport.addPlaceholderWallet(importText);
     navigation.dangerouslyGetParent().pop();
     await new Promise(resolve => setTimeout(resolve, 500)); // giving some time to animations
@@ -77,11 +80,30 @@ const WalletsImport = () => {
       await WalletImport.processImportText(importText);
       WalletImport.removePlaceholderWallet();
     } catch (error) {
-      WalletImport.removePlaceholderWallet();
-      WalletImport.addPlaceholderWallet(importText, true);
       console.log(error);
-      alert(loc.wallets.import_error);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      Alert.alert(
+        loc.wallets.add_details,
+        loc.wallets.list_import_problem,
+        [
+          {
+            text: loc.wallets.list_tryagain,
+            onPress: () => {
+              navigation.navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: importText } });
+              WalletImport.removePlaceholderWallet();
+            },
+            style: 'default',
+          },
+          {
+            text: loc._.cancel,
+            onPress: () => {
+              WalletImport.removePlaceholderWallet();
+            },
+            style: 'cancel',
+          },
+        ],
+        { cancelable: false },
+      );
     }
   };
 

@@ -14,7 +14,7 @@ export const WalletTransactionsStatus = { NONE: false, ALL: true };
 export const BlueStorageContext = createContext();
 export const BlueStorageProvider = ({ children }) => {
   const [wallets, setWallets] = useState([]);
-  const [pendingWallets, setPendingWallets] = useState([]);
+  const [isImportingWallet, setIsImportingWallet] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState('');
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState(WalletTransactionsStatus.NONE);
   const [walletsInitialized, setWalletsInitialized] = useState(false);
@@ -186,8 +186,8 @@ export const BlueStorageProvider = ({ children }) => {
       value={{
         wallets,
         setWalletsWithNewOrder,
-        pendingWallets,
-        setPendingWallets,
+        isImportingWallet,
+        setIsImportingWallet,
         txMetadata,
         saveToDisk,
         getTransactions,
