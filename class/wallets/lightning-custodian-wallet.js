@@ -73,7 +73,7 @@ export class LightningCustodianWallet extends LegacyWallet {
       baseURI: this.baseURI,
     });
 
-    if (isTorCapable && this.baseURI?.indexOf('.onion') !== -1) {
+    if (isTorCapable && this.baseURI && this.baseURI?.indexOf('.onion') !== -1) {
       this._api = new torrific.Torsbee({
         baseURI: this.baseURI,
       });
