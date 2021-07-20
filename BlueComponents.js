@@ -609,7 +609,7 @@ export class BlueCopyTextToClipboard extends Component {
           disabled={this.state.hasTappedText}
           testID="BlueCopyTextToClipboard"
         >
-          <Animated.Text style={styleCopyTextToClipboard.address} numberOfLines={0}>
+          <Animated.Text style={styleCopyTextToClipboard.address} numberOfLines={0} testID="AddressValue">
             {this.state.address}
           </Animated.Text>
         </TouchableOpacity>
