@@ -10,6 +10,12 @@ const styles = StyleSheet.create({
   },
 });
 
+/**
+ * TODO: remove this comment once this file gets properly converted to typescript.
+ *
+ * @param {any} param0
+ * @param {(opts: any) => any} formatter
+ */
 const navigationStyle = ({ closeButton = false, closeButtonFunc, ...opts }, formatter) => {
   return theme => ({ navigation, route }) => {
     let headerRight = null;
