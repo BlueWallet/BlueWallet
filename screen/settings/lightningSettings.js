@@ -12,7 +12,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import { isDesktop } from '../../blue_modules/environment';
+import { isTorCapable } from '../../blue_modules/environment';
 
 const styles = StyleSheet.create({
   uri: {
@@ -136,7 +136,7 @@ const LightningSettings = () => {
             value={URI}
             placeholder={
               loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' }) +
-              (!isDesktop ? ' (' + loc.settings.tor_supported + ')' : '')
+              (isTorCapable ? ' (' + loc.settings.tor_supported + ')' : '')
             }
             onChangeText={setLndhubURI}
             numberOfLines={1}

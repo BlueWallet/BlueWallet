@@ -16,6 +16,7 @@ import { BlueCurrentTheme } from '../../components/themes';
 import Notifications from '../../blue_modules/notifications';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Psbt } from 'bitcoinjs-lib';
+import { isTorCapable } from '../../blue_modules/environment';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
@@ -70,7 +71,7 @@ export default class Confirm extends Component {
           const wallet = new PayjoinTransaction(this.state.psbt, txHex => this.broadcast(txHex), this.state.fromWallet);
           const paymentScript = this.getPaymentScript();
           let payjoinClient;
-          if (this.state.payjoinUrl.includes('.onion')) {
+          if (isTorCapable && this.state.payjoinUrl.includes('.onion')) {
             console.warn('trying TOR....');
             const payjoinUrl = this.state.payjoinUrl;
             // working through TOR - crafting custom requester that will handle TOR http request
