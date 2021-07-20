@@ -1,7 +1,7 @@
 scryptsy
 ========
 
-[![build status](https://secure.travis-ci.org/cryptocoinjs/scryptsy.svg)](http://travis-ci.org/cryptocoinjs/scryptsy)
+[![build status](https://secure.travis-ci.org/cryptocoinjs/scryptsy.svg)](https://travis-ci.org/cryptocoinjs/scryptsy)
 [![Coverage Status](https://img.shields.io/coveralls/cryptocoinjs/scryptsy.svg)](https://coveralls.io/r/cryptocoinjs/scryptsy)
 [![Version](http://img.shields.io/npm/v/scryptsy.svg)](https://www.npmjs.org/package/scryptsy)
 
@@ -11,7 +11,7 @@ scryptsy
 Why?
 ----
 
-`Scrypt` is an integral part of many crypto currencies. It's a part of the [BIP38](https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki) standard for encrypting private Bitcoin keys. It also serves as the [proof-of-work system](http://en.wikipedia.org/wiki/Proof-of-work_system) for many crypto currencies, most notably: Litecoin and Dogecoin.
+`Scrypt` is an integral part of many crypto currencies. It's a part of the [BIP38](https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki) standard for encrypting private Bitcoin keys. It also serves as the [proof-of-work system](https://en.wikipedia.org/wiki/Proof-of-work_system) for many crypto currencies, most notably: Litecoin and Dogecoin.
 
 
 
@@ -153,5 +153,5 @@ License
 MIT
 
 
-[wiki]: http://en.wikipedia.org/wiki/Scrypt
-[tarsnap]: http://www.tarsnap.com/scrypt.html
+[wiki]: https://en.wikipedia.org/wiki/Scrypt
+[tarsnap]: https://www.tarsnap.com/scrypt.html
