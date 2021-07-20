@@ -6,7 +6,7 @@
     <CppWinRTOptimized>true</CppWinRTOptimized>
     <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
     <MinimalCoreWin>true</MinimalCoreWin>
-    <ProjectGuid>{9a7aca3e-5742-401a-b142-14184b1e685c}</ProjectGuid>
+    <ProjectGuid>{69aecc7d-deba-4f95-9021-5c6ae85e81f6}</ProjectGuid>
     <ProjectName>bluewallet</ProjectName>
     <RootNamespace>bluewallet</RootNamespace>
     <DefaultLanguage>en-US</DefaultLanguage>

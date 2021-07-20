@@ -3,12 +3,36 @@
 #include "pch.h"
 #include "AutolinkedNativeModules.g.h"
 
+// Includes from @react-native-async-storage/async-storage
+#include <winrt/ReactNativeAsyncStorage.h>
+
+// Includes from react-native-camera
+#include <winrt/ReactNativeCameraCPP.h>
+
+// Includes from react-native-device-info
+#include <winrt/RNDeviceInfoCPP.h>
+
+// Includes from react-native-localize
+#include <winrt/RNLocalize.h>
+
+// Includes from react-native-webview
+#include <winrt/ReactNativeWebView.h>
+
 namespace winrt::Microsoft::ReactNative
 {
 
 void RegisterAutolinkedNativeModulePackages(winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::ReactNative::IReactPackageProvider> const& packageProviders)
 { 
-    UNREFERENCED_PARAMETER(packageProviders);
+    // IReactPackageProviders from @react-native-async-storage/async-storage
+    packageProviders.Append(winrt::ReactNativeAsyncStorage::ReactPackageProvider());
+    // IReactPackageProviders from react-native-camera
+    packageProviders.Append(winrt::ReactNativeCameraCPP::ReactPackageProvider());
+    // IReactPackageProviders from react-native-device-info
+    packageProviders.Append(winrt::RNDeviceInfoCPP::ReactPackageProvider());
+    // IReactPackageProviders from react-native-localize
+    packageProviders.Append(winrt::RNLocalize::ReactPackageProvider());
+    // IReactPackageProviders from react-native-webview
+    packageProviders.Append(winrt::ReactNativeWebView::ReactPackageProvider());
 }
 
 }
