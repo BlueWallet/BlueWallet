@@ -123,8 +123,8 @@
     "process": "0.11.10",
     "prop-types": "15.7.2",
     "react": "17.0.1",
-    "react-native": "0.64.2",
     "react-localization": "1.0.17",
+    "react-native": "0.64.2",
     "react-native-blue-crypto": "https://github.com/BlueWallet/react-native-blue-crypto",
     "react-native-camera": "3.44.1",
     "react-native-crypto": "2.2.0",
@@ -169,6 +169,7 @@
     "react-native-watch-connectivity": "1.0.3",
     "react-native-webview": "11.6.4",
     "react-native-widget-center": "https://github.com/BlueWallet/react-native-widget-center#e2e9a9038b76d096bf929a87105a97a0a7095001",
+    "react-native-windows": "0.64.14",
     "react-test-render": "1.1.2",
     "readable-stream": "3.6.0",
     "realm": "10.6.0",
@@ -179,8 +180,7 @@
     "stream-browserify": "2.0.2",
     "url": "0.11.0",
     "util": "0.12.4",
-    "wif": "2.0.6",
-    "react-native-windows": "0.63.35"
+    "wif": "2.0.6"
   },
   "react-native": {
     "crypto": "react-native-crypto",
