@@ -73,11 +73,20 @@ const WalletsImport = () => {
       return;
     }
 
-    WalletImport.addPlaceholderWallet(importText);
+    let res;
+    try {
+      res = await WalletImport.askPasswordIfNeeded(importText);
+    } catch (e) {
+      // prompt cancelled
+      return;
+    }
+    const { text, password } = res;
+
+    WalletImport.addPlaceholderWallet(text);
     navigation.dangerouslyGetParent().pop();
     await new Promise(resolve => setTimeout(resolve, 500)); // giving some time to animations
     try {
-      await WalletImport.processImportText(importText);
+      await WalletImport.processImportText(text, password);
       WalletImport.removePlaceholderWallet();
     } catch (error) {
       console.log(error);
