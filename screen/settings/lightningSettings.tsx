@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, TextInput, Linking, StyleSheet, Alert, I18nManager } from 'react-native';
 import { Button } from 'react-native-elements';
-import { useTheme, useNavigation, useRoute } from '@react-navigation/native';
+import { useTheme, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import navigationStyle from '../../components/navigationStyle';
@@ -43,29 +43,39 @@ const styles = StyleSheet.create({
   },
 });
 
-const LightningSettings = () => {
-  const params = useRoute().params;
+type LightingSettingsRouteProps = RouteProp<
+  {
+    params?: {
+      url?: string;
+    };
+  },
+  'params'
+>;
+
+// TODO: add proper typing for `navigationOptions`
+const LightningSettings: React.FC & { navigationOptions: any } = () => {
+  const params = useRoute<LightingSettingsRouteProps>().params;
   const [isLoading, setIsLoading] = useState(true);
-  const [URI, setURI] = useState();
-  const { colors } = useTheme();
+  const [URI, setURI] = useState<string>();
+  const { colors } = useTheme() as any; // TODO: add proper types for theme
   const route = useRoute();
   const navigation = useNavigation();
 
   useEffect(() => {
     AsyncStorage.getItem(AppStorage.LNDHUB)
-      .then(setURI)
+      .then(value => setURI(value ?? undefined))
       .then(() => setIsLoading(false))
       .catch(() => setIsLoading(false));
 
     if (params?.url) {
       Alert.alert(
-        loc.formatString(loc.settings.set_lndhub_as_default, { url: params?.url }),
+        loc.formatString(loc.settings.set_lndhub_as_default, { url: params.url }) as string,
         '',
         [
           {
             text: loc._.ok,
             onPress: () => {
-              setLndhubURI(params?.url);
+              params?.url && setLndhubURI(params.url);
             },
             style: 'default',
           },
@@ -76,12 +86,11 @@ const LightningSettings = () => {
     }
   }, [params?.url]);
 
-  const setLndhubURI = value => {
-    if (DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(value)) {
-      // in case user scans a QR with a deeplink like `bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com`
-      value = DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(value);
-    }
-    setURI(value.trim());
+  const setLndhubURI = (value: string) => {
+    // in case user scans a QR with a deeplink like `bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com`
+    const setLndHubUrl = DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(value);
+
+    setURI(typeof setLndHubUrl === 'string' ? setLndHubUrl.trim() : value.trim());
   };
 
   const save = useCallback(async () => {
@@ -91,7 +100,11 @@ const LightningSettings = () => {
         await LightningCustodianWallet.isValidNodeAddress(URI);
         // validating only if its not empty. empty means use default
       }
-      await AsyncStorage.setItem(AppStorage.LNDHUB, URI);
+      if (URI) {
+        await AsyncStorage.setItem(AppStorage.LNDHUB, URI);
+      } else {
+        await AsyncStorage.removeItem(AppStorage.LNDHUB);
+      }
       alert(loc.settings.lightning_saved);
     } catch (error) {
       alert(loc.settings.lightning_error_lndhub_uri);
@@ -126,7 +139,8 @@ const LightningSettings = () => {
         onPress={() => Linking.openURL('https://github.com/BlueWallet/LndHub')}
         titleStyle={{ color: colors.buttonAlternativeTextColor }}
         title="github.com/BlueWallet/LndHub"
-        color={colors.buttonTextColor}
+        // TODO: looks like there's no `color` prop on `Button`, does this make any sense?
+        // color={colors.buttonTextColor}
         buttonStyle={styles.buttonStyle}
       />
 

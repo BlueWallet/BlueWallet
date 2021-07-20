@@ -120,6 +120,10 @@ export const BlueDarkTheme = {
 };
 
 export class BlueCurrentTheme {
+  static colors;
+  static closeImage;
+  static scanImage;
+
   static updateColorScheme() {
     const isColorSchemeDark = Appearance.getColorScheme() === 'dark';
     BlueCurrentTheme.colors = isColorSchemeDark ? BlueDarkTheme.colors : BlueDefaultTheme.colors;

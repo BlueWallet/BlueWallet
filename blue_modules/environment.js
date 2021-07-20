@@ -3,7 +3,7 @@ import { getSystemName, isTablet, getDeviceType } from 'react-native-device-info
 
 const isMacCatalina = getSystemName() === 'Mac OS X';
 const isDesktop = getDeviceType() === 'Desktop';
-const isTorCapable = () => {
+const getIsTorCapable = () => {
   let capable = true;
   if (Platform.OS === 'android' && Platform.Version < 26) {
     capable = false;
@@ -13,8 +13,6 @@ const isTorCapable = () => {
   return capable;
 };
 
-module.exports.isMacCatalina = isMacCatalina;
-module.exports.isDesktop = isDesktop;
-module.exports.isHandset = getDeviceType() === 'Handset';
-module.exports.isTablet = isTablet;
-module.exports.isTorCapable = isTorCapable();
+export const isHandset = getDeviceType() === 'Handset';
+export const isTorCapable = getIsTorCapable();
+export { isMacCatalina, isDesktop, isTablet };

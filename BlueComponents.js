@@ -512,6 +512,11 @@ export class BlueWalletNavigationHeader extends Component {
   }
 }
 
+/**
+ * TODO: remove this comment once this file gets properly converted to typescript.
+ *
+ * @type {React.FC<any>}
+ */
 export const BlueButtonLink = forwardRef((props, ref) => {
   const { colors } = useTheme();
   return (
