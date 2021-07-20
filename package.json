@@ -55,7 +55,8 @@
     "lint": "eslint *.js screen/**/*.js blue_modules/*.js class/**/*.js models/ loc/ tests/**/*.js components/**/*.js components/*.js",
     "lint:fix": "npm run lint -- --fix",
     "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep '\\.js' --color=never |  awk '{print $2}' | xargs eslint --fix; exit 0",
-    "unit": "jest tests/unit/*"
+    "unit": "jest tests/unit/*",
+    "windows": "react-native run-windows"
   },
   "jest": {
     "preset": "react-native",
@@ -169,7 +170,7 @@
     "react-native-watch-connectivity": "1.0.3",
     "react-native-webview": "11.6.4",
     "react-native-widget-center": "https://github.com/BlueWallet/react-native-widget-center#e2e9a9038b76d096bf929a87105a97a0a7095001",
-    "react-native-windows": "0.64.14",
+    "react-native-windows": "^0.64.0-0",
     "react-test-render": "1.1.2",
     "readable-stream": "3.6.0",
     "realm": "10.6.0",
