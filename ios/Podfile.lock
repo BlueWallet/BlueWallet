@@ -385,8 +385,6 @@ PODS:
     - React
   - RNKeychain (7.0.0):
     - React-Core
-  - RNLocalize (2.1.1):
-    - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
   - RNQuickAction (0.3.13):
@@ -528,7 +526,6 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNHandoff (from `../node_modules/react-native-handoff`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
-  - RNLocalize (from `../node_modules/react-native-localize`)
   - RNPrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNRate (from `../node_modules/react-native-rate`)
@@ -675,8 +672,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-handoff"
   RNKeychain:
     :path: "../node_modules/react-native-keychain"
-  RNLocalize:
-    :path: "../node_modules/react-native-localize"
   RNPrivacySnapshot:
     :path: "../node_modules/react-native-privacy-snapshot"
   RNQuickAction:
@@ -783,7 +778,6 @@ SPEC CHECKSUMS:
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: f75b8c8b2f17d3b2aa1f25b4a0ac5b83d947ff8f
-  RNLocalize: b9a5d22c7e4ecb5db604861f1b1fff6013e03340
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: e0af7e724e5fcf89578dbd22ab6395c85402ef29

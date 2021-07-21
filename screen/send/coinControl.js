@@ -25,7 +25,7 @@ import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import * as RNLocalize from 'react-native-localize';
+// import * as RNLocalize from 'react-native-localize';
 
 // https://levelup.gitconnected.com/debounce-in-javascript-improve-your-applications-performance-5b01855e086
 const debounce = (func, wait) => {
@@ -147,9 +147,9 @@ const OutputModal = ({ item: { address, txid, value, vout, confirmations = 0 }, 
     tranText: { fontWeight: 'normal', fontSize: 13, color: colors.alternativeTextColor },
     memo: { fontSize: 13, marginTop: 3, color: colors.alternativeTextColor },
   });
-  const confirmationsFormatted = new Intl.NumberFormat(RNLocalize.getLocales()[0].languageCode, { maximumSignificantDigits: 3 }).format(
-    confirmations,
-  );
+  // const confirmationsFormatted = new Intl.NumberFormat(RNLocalize.getLocales()[0].languageCode, { maximumSignificantDigits: 3 }).format(
+  //   confirmations,
+  // );
 
   return (
     <ListItem bottomDivider containerStyle={oStyles.container}>
@@ -158,7 +158,7 @@ const OutputModal = ({ item: { address, txid, value, vout, confirmations = 0 }, 
         <ListItem.Title numberOfLines={1} adjustsFontSizeToFit style={oStyles.amount}>
           {amount}
           <View style={oStyles.tranContainer}>
-            <Text style={oStyles.tranText}>{loc.formatString(loc.transactions.list_conf, { number: confirmationsFormatted })}</Text>
+            <Text style={oStyles.tranText}>{loc.formatString(loc.transactions.list_conf, { number: 0 })}</Text>
           </View>
         </ListItem.Title>
         {memo ? (

@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
-import * as RNLocalize from 'react-native-localize';
+// import * as RNLocalize from 'react-native-localize';
 import BigNumber from 'bignumber.js';
 
 import { BitcoinUnit } from '../models/bitcoinUnits';
@@ -164,18 +164,18 @@ const setLanguageLocale = async () => {
     strings.setLanguage(lang);
     await setDateTimeLocale();
   } else {
-    const locales = RNLocalize.getLocales();
-    if (Object.keys(AvailableLanguages).some(language => language === locales[0])) {
-      strings.saveLanguage(locales[0].languageCode);
-      strings.setLanguage(locales[0].languageCode);
-    } else {
+    // // const locales = RNLocalize.getLocales();
+    // if (Object.keys(AvailableLanguages).some(language => language === locales[0])) {
+    //   strings.saveLanguage(locales[0].languageCode);
+    //   strings.setLanguage(locales[0].languageCode);
+    // } else {
       strings.saveLanguage('en');
       strings.setLanguage('en');
       if (process.env.JEST_WORKER_ID === undefined) {
         I18nManager.allowRTL(false);
         I18nManager.forceRTL(false);
       }
-    }
+  //  }
   }
 };
 setLanguageLocale();
