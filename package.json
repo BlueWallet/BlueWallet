@@ -46,6 +46,7 @@
     "postinstall": "rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path,assert,crypto --hack; npm run releasenotes2json; npm run podinstall",
     "test": "npm run lint && npm run unit && npm run jest",
     "jest": "jest -b -w 1 tests/integration/*",
+    "windowspatches": "./scripts/windows-patches.sh",
     "maccatalystpatches": "./scripts/maccatalystpatches/applypatchesformaccatalyst.sh",
     "e2e:debug-build": "detox build -c android.emu.debug",
     "e2e:debug-test": "detox test -c android.emu.debug -l fatal",
