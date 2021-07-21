@@ -31,7 +31,7 @@ import { LightningCustodianWallet, MultisigHDWallet } from './class';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import * as NavigationService from './NavigationService';
 import WalletGradient from './class/wallet-gradient';
-import { BlurView } from '@react-native-community/blur';
+// import { BlurView } from '@react-native-community/blur';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
 import { encodeUR } from './blue_modules/ur';
@@ -546,7 +546,7 @@ export const BluePrivateBalance = () => {
   return Platform.select({
     ios: (
       <View style={{ flexDirection: 'row', marginTop: 13 }}>
-        <BlurView style={styles.balanceBlur} blurType="light" blurAmount={25} />
+        {/* <BlurView style={styles.balanceBlur} blurType="light" blurAmount={25} /> */}
         <Icon name="eye-slash" type="font-awesome" color="#FFFFFF" />
       </View>
     ),
