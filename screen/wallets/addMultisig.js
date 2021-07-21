@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -187,9 +186,7 @@ const WalletsAddMultisig = () => {
     <SafeAreaView style={stylesHook.root}>
       <StatusBar barStyle="light-content" />
       <View style={styles.descriptionContainer}>
-        <View style={styles.imageWrapper}>
-          <LottieView source={require('../../img/msvault.json')} autoPlay ref={loadingAnimation} loop={false} />
-        </View>
+      
         <BlueSpacing20 />
         <Text style={[styles.textdesc, stylesHook.textdesc]}>
           {loc.multisig.what_is_vault}

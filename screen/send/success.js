@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import LottieView from 'lottie-react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { Text } from 'react-native-elements';
@@ -94,30 +93,7 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
           {invoiceDescription}
         </Text>
       </BlueCard>
-      <View style={styles.ready}>
-        <LottieView
-          style={styles.lottie}
-          source={require('../../img/bluenice.json')}
-          autoPlay={shouldAnimate}
-          ref={animationRef}
-          loop={false}
-          progress={shouldAnimate ? 0 : 1}
-          colorFilters={[
-            {
-              keypath: 'spark',
-              color: colors.success,
-            },
-            {
-              keypath: 'circle',
-              color: colors.success,
-            },
-            {
-              keypath: 'Oval',
-              color: colors.successCheck,
-            },
-          ]}
-        />
-      </View>
+      
     </View>
   );
 };

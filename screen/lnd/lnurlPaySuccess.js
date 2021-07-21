@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import LottieView from 'lottie-react-native';
 import { View, Text, Linking, StyleSheet, Image, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Icon } from 'react-native-elements';
@@ -76,9 +75,7 @@ export default class LnurlPaySuccess extends Component {
       <SafeBlueArea style={styles.root}>
         <ScrollView>
           {justPaid ? (
-            <View style={styles.iconContainer}>
-              <LottieView style={styles.icon} source={require('../../img/bluenice.json')} autoPlay loop={false} />
-            </View>
+            <View style={styles.iconContainer}/>
           ) : (
             <View style={styles.iconContainer}>
               <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
