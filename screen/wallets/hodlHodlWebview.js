@@ -1,5 +1,5 @@
 import React from 'react';
-import { WebView } from 'react-native-webview';
+// import { WebView } from 'react-native-webview';
 import { useRoute } from '@react-navigation/native';
 
 import { SafeBlueArea } from '../../BlueComponents';
@@ -10,7 +10,7 @@ const HodlHodlWebview = () => {
 
   return (
     <SafeBlueArea>
-      <WebView source={{ uri }} incognito />
+      {/* <WebView source={{ uri }} incognito /> */}
     </SafeBlueArea>
   );
 };

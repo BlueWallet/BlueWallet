@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { WebView } from 'react-native-webview';
+// import { WebView } from 'react-native-webview';
 
 import { SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -324,118 +324,119 @@ export default class Browser extends Component {
   };
 
   renderWebView = () => {
-    return (
-      <WebView
-        onNavigationStateChange={this._onNavigationStateChange}
-        ref={this.webView}
-        source={{ uri: this.state.url }}
-        onMessage={e => {
-          // this is a handler which receives messages sent from within the browser
-          console.log('---- message from the bus:', e.nativeEvent.data);
-          let json = false;
-          try {
-            json = JSON.parse(e.nativeEvent.data);
-          } catch (_) {}
-          // message from browser has ln invoice
-          if (json && json.sendPayment) {
-            // checking that already asked about this invoice:
-            if (processedInvoices[json.sendPayment]) {
-              return;
-            } else {
-              // checking that we do not trigger alert too often:
-              if (+new Date() - lastTimeTriedToPay < 3000) {
-                return;
-              }
-              lastTimeTriedToPay = +new Date();
-              //
-              processedInvoices[json.sendPayment] = 1;
-            }
+  //   return (
+  //     <WebView
+  //       onNavigationStateChange={this._onNavigationStateChange}
+  //       ref={this.webView}
+  //       source={{ uri: this.state.url }}
+  //       onMessage={e => {
+  //         // this is a handler which receives messages sent from within the browser
+  //         console.log('---- message from the bus:', e.nativeEvent.data);
+  //         let json = false;
+  //         try {
+  //           json = JSON.parse(e.nativeEvent.data);
+  //         } catch (_) {}
+  //         // message from browser has ln invoice
+  //         if (json && json.sendPayment) {
+  //           // checking that already asked about this invoice:
+  //           if (processedInvoices[json.sendPayment]) {
+  //             return;
+  //           } else {
+  //             // checking that we do not trigger alert too often:
+  //             if (+new Date() - lastTimeTriedToPay < 3000) {
+  //               return;
+  //             }
+  //             lastTimeTriedToPay = +new Date();
+  //             //
+  //             processedInvoices[json.sendPayment] = 1;
+  //           }
 
-            Alert.alert(
-              'Page',
-              'This page asks for permission to pay an invoice',
-              [
-                { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-                {
-                  text: 'Pay',
-                  onPress: () => {
-                    console.log('OK Pressed');
-                    this.props.navigation.navigate('ScanLndInvoiceRoot', {
-                      screen: 'ScanLndInvoice',
-                      params: {
-                        uri: json.sendPayment,
-                        walletID: this.state.fromWallet.getID(),
-                      },
-                    });
-                  },
-                },
-              ],
-              { cancelable: false },
-            );
-          }
+  //           Alert.alert(
+  //             'Page',
+  //             'This page asks for permission to pay an invoice',
+  //             [
+  //               { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+  //               {
+  //                 text: 'Pay',
+  //                 onPress: () => {
+  //                   console.log('OK Pressed');
+  //                   this.props.navigation.navigate('ScanLndInvoiceRoot', {
+  //                     screen: 'ScanLndInvoice',
+  //                     params: {
+  //                       uri: json.sendPayment,
+  //                       walletID: this.state.fromWallet.getID(),
+  //                     },
+  //                   });
+  //                 },
+  //               },
+  //             ],
+  //             { cancelable: false },
+  //           );
+  //         }
 
-          if (json && json.makeInvoice) {
-            const amount = Math.max(
-              json.makeInvoice.minimumAmount || 0,
-              json.makeInvoice.maximumAmount || 0,
-              json.makeInvoice.defaultAmount || 0,
-              json.makeInvoice.amount || 0,
-            );
-            Alert.alert(
-              'Page',
-              'This page wants to pay you ' + amount + ' sats (' + json.makeInvoice.defaultMemo + ')',
-              [
-                { text: 'No thanks', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-                {
-                  text: 'Accept',
-                  onPress: async () => {
-                    /** @type {LightningCustodianWallet} */
-                    const fromWallet = this.state.fromWallet;
-                    const payreq = await fromWallet.addInvoice(amount, json.makeInvoice.defaultMemo || ' ');
-                    // this.webView.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
-                    // Since webview.postMessage is removed from webview, we inject javascript that will manually triger document
-                    // event; note how data is passed in 'detail', not 'data'
-                    const jsonstr = JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id });
-                    this.webView.current?.injectJavaScript(
-                      "document.dispatchEvent( new CustomEvent('message', { detail: '" + jsonstr + "' }) );",
-                    );
+  //         if (json && json.makeInvoice) {
+  //           const amount = Math.max(
+  //             json.makeInvoice.minimumAmount || 0,
+  //             json.makeInvoice.maximumAmount || 0,
+  //             json.makeInvoice.defaultAmount || 0,
+  //             json.makeInvoice.amount || 0,
+  //           );
+  //           Alert.alert(
+  //             'Page',
+  //             'This page wants to pay you ' + amount + ' sats (' + json.makeInvoice.defaultMemo + ')',
+  //             [
+  //               { text: 'No thanks', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+  //               {
+  //                 text: 'Accept',
+  //                 onPress: async () => {
+  //                   /** @type {LightningCustodianWallet} */
+  //                   const fromWallet = this.state.fromWallet;
+  //                   const payreq = await fromWallet.addInvoice(amount, json.makeInvoice.defaultMemo || ' ');
+  //                   // this.webView.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
+  //                   // Since webview.postMessage is removed from webview, we inject javascript that will manually triger document
+  //                   // event; note how data is passed in 'detail', not 'data'
+  //                   const jsonstr = JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id });
+  //                   this.webView.current?.injectJavaScript(
+  //                     "document.dispatchEvent( new CustomEvent('message', { detail: '" + jsonstr + "' }) );",
+  //                   );
 
-                    // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
-                    const decoded = await fromWallet.decodeInvoice(payreq);
-                    await Notifications.tryToObtainPermissions();
-                    Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
-                  },
-                },
-              ],
-              { cancelable: false },
-            );
-          }
+  //                   // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
+  //                   const decoded = await fromWallet.decodeInvoice(payreq);
+  //                   await Notifications.tryToObtainPermissions();
+  //                   Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
+  //                 },
+  //               },
+  //             ],
+  //             { cancelable: false },
+  //           );
+  //         }
 
-          if (json && json.enable) {
-            console.log('webln enabled');
-            this.setState({ weblnEnabled: true });
-          }
-        }}
-        onLoadStart={e => {
-          alreadyInjected = false;
-          console.log('load start');
-          this.setState({ pageIsLoading: true, weblnEnabled: false });
-        }}
-        onLoadEnd={e => {
-          console.log('load end');
-          this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
-        }}
-        onLoadProgress={e => {
-          console.log('progress:', e.nativeEvent.progress);
-          if (!alreadyInjected && e.nativeEvent.progress > 0.5) {
-            this.webView.current?.injectJavaScript(injectedParadise);
-            alreadyInjected = true;
-            console.log('injected');
-          }
-        }}
-      />
-    );
-  };
+  //         if (json && json.enable) {
+  //           console.log('webln enabled');
+  //           this.setState({ weblnEnabled: true });
+  //         }
+  //       }}
+  //       onLoadStart={e => {
+  //         alreadyInjected = false;
+  //         console.log('load start');
+  //         this.setState({ pageIsLoading: true, weblnEnabled: false });
+  //       }}
+  //       onLoadEnd={e => {
+  //         console.log('load end');
+  //         this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
+  //       }}
+  //       onLoadProgress={e => {
+  //         console.log('progress:', e.nativeEvent.progress);
+  //         if (!alreadyInjected && e.nativeEvent.progress > 0.5) {
+  //           this.webView.current?.injectJavaScript(injectedParadise);
+  //           alreadyInjected = true;
+  //           console.log('injected');
+  //         }
+  //       }}
+  //     />
+  //   );
+  // };
+  }
 
   render() {
     return (

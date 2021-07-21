@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { BackHandler } from 'react-native';
-import { WebView } from 'react-native-webview';
 
 import { BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -53,20 +52,19 @@ export default class Marketplace extends Component {
   };
 
   render() {
-    if (this.state.isLoading) {
       return <BlueLoading />;
-    }
+    
 
-    return (
-      <WebView
-        testID="MarketplaceWebView"
-        ref={this.webview}
-        onNavigationStateChange={this._onNavigationStateChange}
-        source={{
-          uri: this.state.url,
-        }}
-      />
-    );
+    // return (
+    //   <WebView
+    //     testID="MarketplaceWebView"
+    //     ref={this.webview}
+    //     onNavigationStateChange={this._onNavigationStateChange}
+    //     source={{
+    //       uri: this.state.url,
+    //     }}
+    //   />
+    // );
   }
 }
 

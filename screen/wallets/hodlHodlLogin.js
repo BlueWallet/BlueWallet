@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { WebView } from 'react-native-webview';
+// import { WebView } from 'react-native-webview';
 import { useRoute, useNavigation } from '@react-navigation/native';
 
 import { SafeBlueArea } from '../../BlueComponents';
@@ -25,7 +25,7 @@ const HodlHodlLogin = () => {
 
   return (
     <SafeBlueArea>
-      <WebView
+      {/* <WebView
         incognito
         injectedJavaScript={INJECTED_JAVASCRIPT}
         ref={webView}
@@ -48,7 +48,7 @@ const HodlHodlLogin = () => {
             navigation.dangerouslyGetParent().pop();
           }
         }}
-      />
+      /> */}
     </SafeBlueArea>
   );
 };

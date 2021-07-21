@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StatusBar, Linking } from 'react-native';
-import { WebView } from 'react-native-webview';
 import { BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
@@ -83,13 +82,13 @@ export default class BuyBitcoin extends Component {
       <SafeBlueArea>
         <StatusBar barStyle="default" />
 
-        <WebView
+        {/* <WebView
           mediaPlaybackRequiresUserAction={false}
           enableApplePay
           source={{
             uri: this.state.uri,
           }}
-        />
+        /> */}
       </SafeBlueArea>
     );
   }
