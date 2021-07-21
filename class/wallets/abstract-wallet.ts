@@ -1,26 +1,63 @@
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import b58 from 'bs58check';
-const createHash = require('create-hash');
+import createHash from 'create-hash';
+
+type WalletStatics = {
+  type: string;
+  typeReadable: string;
+  segwitType?: string;
+  derivationPath?: string;
+};
+
+type WalletWithPassphrase = AbstractWallet & { getPassphrase: () => string };
+type UtxoMetadata = {
+  frozen?: boolean;
+  memo?: string;
+};
 
 export class AbstractWallet {
   static type = 'abstract';
   static typeReadable = 'abstract';
 
-  static fromJson(obj) {
+  static fromJson(obj: string): AbstractWallet {
     const obj2 = JSON.parse(obj);
     const temp = new this();
     for (const key2 of Object.keys(obj2)) {
+      // @ts-ignore This kind of magic is not allowed in typescript, we should try and be more specific
       temp[key2] = obj2[key2];
     }
 
     return temp;
   }
 
+  type: string;
+  typeReadable: string;
+  segwitType?: string;
+  _derivationPath?: string;
+  label: string;
+  secret: string;
+  balance: number;
+  unconfirmed_balance: number; // eslint-disable-line camelcase
+  _address: string | false;
+  utxo: string[];
+  _lastTxFetch: number;
+  _lastBalanceFetch: number;
+  preferredBalanceUnit: BitcoinUnit;
+  chain: Chain;
+  hideBalance: boolean;
+  userHasSavedExport: boolean;
+  _hideTransactionsInWalletsList: boolean;
+  _utxoMetadata: Record<string, UtxoMetadata>;
+  use_with_hardware_wallet: boolean; // eslint-disable-line camelcase
+  masterFingerprint: number | false;
+
   constructor() {
-    this.type = this.constructor.type;
-    this.typeReadable = this.constructor.typeReadable;
-    this.segwitType = this.constructor.segwitType;
-    this._derivationPath = this.constructor.derivationPath;
+    const Constructor = (this.constructor as unknown) as WalletStatics;
+
+    this.type = Constructor.type;
+    this.typeReadable = Constructor.typeReadable;
+    this.segwitType = Constructor.segwitType;
+    this._derivationPath = Constructor.derivationPath;
     this.label = '';
     this.secret = ''; // private key or recovery phrase
     this.balance = 0;
@@ -35,38 +72,42 @@ export class AbstractWallet {
     this.userHasSavedExport = false;
     this._hideTransactionsInWalletsList = false;
     this._utxoMetadata = {};
+    this.use_with_hardware_wallet = false;
+    this.masterFingerprint = false;
   }
 
   /**
    * @returns {number} Timestamp (millisecsec) of when last transactions were fetched from the network
    */
-  getLastTxFetch() {
+  getLastTxFetch(): number {
     return this._lastTxFetch;
   }
 
-  getID() {
-    const passphrase = this.getPassphrase ? this.getPassphrase() : '';
+  getID(): string {
+    const thisWithPassphrase = (this as unknown) as WalletWithPassphrase;
+    const passphrase = thisWithPassphrase.getPassphrase ? thisWithPassphrase.getPassphrase() : '';
     const string2hash = this.getSecret() + passphrase;
     return createHash('sha256').update(string2hash).digest().toString('hex');
   }
 
-  getTransactions() {
+  // TODO: return type is incomplete
+  getTransactions(): { received: number }[] {
     throw new Error('not implemented');
   }
 
-  getUserHasSavedExport() {
+  getUserHasSavedExport(): boolean {
     return this.userHasSavedExport;
   }
 
-  setUserHasSavedExport(value) {
+  setUserHasSavedExport(value: boolean): void {
     this.userHasSavedExport = value;
   }
 
-  getHideTransactionsInWalletsList() {
+  getHideTransactionsInWalletsList(): boolean {
     return this._hideTransactionsInWalletsList;
   }
 
-  setHideTransactionsInWalletsList(value) {
+  setHideTransactionsInWalletsList(value: boolean): void {
     this._hideTransactionsInWalletsList = value;
   }
 
@@ -74,14 +115,14 @@ export class AbstractWallet {
    *
    * @returns {string}
    */
-  getLabel() {
+  getLabel(): string {
     if (this.label.trim().length === 0) {
       return 'Wallet';
     }
     return this.label;
   }
 
-  getXpub() {
+  getXpub(): string | false {
     return this._address;
   }
 
@@ -89,11 +130,11 @@ export class AbstractWallet {
    *
    * @returns {number} Available to spend amount, int, in sats
    */
-  getBalance() {
+  getBalance(): number {
     return this.balance + (this.getUnconfirmedBalance() < 0 ? this.getUnconfirmedBalance() : 0);
   }
 
-  getPreferredBalanceUnit() {
+  getPreferredBalanceUnit(): BitcoinUnit {
     for (const value of Object.values(BitcoinUnit)) {
       if (value === this.preferredBalanceUnit) {
         return this.preferredBalanceUnit;
@@ -102,47 +143,47 @@ export class AbstractWallet {
     return BitcoinUnit.BTC;
   }
 
-  allowReceive() {
+  allowReceive(): boolean {
     return true;
   }
 
-  allowSend() {
+  allowSend(): boolean {
     return true;
   }
 
-  allowRBF() {
+  allowRBF(): boolean {
     return false;
   }
 
-  allowHodlHodlTrading() {
+  allowHodlHodlTrading(): boolean {
     return false;
   }
 
-  allowPayJoin() {
+  allowPayJoin(): boolean {
     return false;
   }
 
-  allowCosignPsbt() {
+  allowCosignPsbt(): boolean {
     return false;
   }
 
-  allowSignVerifyMessage() {
+  allowSignVerifyMessage(): boolean {
     return false;
   }
 
-  allowMasterFingerprint() {
+  allowMasterFingerprint(): boolean {
     return false;
   }
 
-  allowXpub() {
+  allowXpub(): boolean {
     return false;
   }
 
-  weOwnAddress(address) {
+  weOwnAddress(address: string): boolean {
     throw Error('not implemented');
   }
 
-  weOwnTransaction(txid) {
+  weOwnTransaction(txid: string): boolean {
     throw Error('not implemented');
   }
 
@@ -152,20 +193,20 @@ export class AbstractWallet {
    *
    * @return {number} Satoshis
    */
-  getUnconfirmedBalance() {
+  getUnconfirmedBalance(): number {
     return this.unconfirmed_balance;
   }
 
-  setLabel(newLabel) {
+  setLabel(newLabel: string): this {
     this.label = newLabel;
     return this;
   }
 
-  getSecret() {
+  getSecret(): string {
     return this.secret;
   }
 
-  setSecret(newSecret) {
+  setSecret(newSecret: string): this {
     this.secret = newSecret.trim().replace('bitcoin:', '').replace('BITCOIN:', '');
 
     if (this.secret.startsWith('BC1')) this.secret = this.secret.toLowerCase();
@@ -197,7 +238,7 @@ export class AbstractWallet {
         parsedSecret = JSON.parse(newSecret);
       }
       if (parsedSecret && parsedSecret.keystore && parsedSecret.keystore.xpub) {
-        let masterFingerprint = false;
+        let masterFingerprint: number | false = false;
         if (parsedSecret.keystore.ckcc_xfp) {
           // It is a ColdCard Hardware Wallet
           masterFingerprint = Number(parsedSecret.keystore.ckcc_xfp);
@@ -238,25 +279,26 @@ export class AbstractWallet {
     return this;
   }
 
-  getLatestTransactionTime() {
+  getLatestTransactionTime(): number {
     return 0;
   }
 
-  getLatestTransactionTimeEpoch() {
+  getLatestTransactionTimeEpoch(): number {
     if (this.getTransactions().length === 0) {
       return 0;
     }
     let max = 0;
     for (const tx of this.getTransactions()) {
-      max = Math.max(new Date(tx.received) * 1, max);
+      max = Math.max(new Date(tx.received).getTime(), max);
     }
     return max;
   }
 
   /**
    * @deprecated
+   * TODO: be more precise on the type
    */
-  createTx() {
+  createTx(): any {
     throw Error('not implemented');
   }
 
@@ -270,28 +312,38 @@ export class AbstractWallet {
    * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
    * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
+   *
+   * TODO: be more specific on the return type
    */
-  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
+  createTransaction(
+    utxos: { vout: number; value: number; txId: string; address: string }[],
+    targets: { value: number; address: string },
+    feeRate: number,
+    changeAddress: string,
+    sequence: number,
+    skipSigning = false,
+    masterFingerprint: number,
+  ): { outputs: any[]; tx: any; inputs: any[]; fee: number; psbt: any } {
     throw Error('not implemented');
   }
 
-  getAddress() {
+  getAddress(): string {
     throw Error('not implemented');
   }
 
-  getAddressAsync() {
+  getAddressAsync(): Promise<string> {
     return new Promise(resolve => resolve(this.getAddress()));
   }
 
-  async getChangeAddressAsync() {
+  async getChangeAddressAsync(): Promise<string> {
     return new Promise(resolve => resolve(this.getAddress()));
   }
 
-  useWithHardwareWalletEnabled() {
+  useWithHardwareWalletEnabled(): boolean {
     return false;
   }
 
-  async wasEverUsed() {
+  async wasEverUsed(): Promise<boolean> {
     throw new Error('Not implemented');
   }
 
@@ -301,7 +353,7 @@ export class AbstractWallet {
    *
    * @returns string[] Addresses
    */
-  getAllExternalAddresses() {
+  getAllExternalAddresses(): string[] {
     return [];
   }
 
@@ -311,7 +363,7 @@ export class AbstractWallet {
    * @param {String} zpub
    * @returns {String} xpub
    */
-  static _zpubToXpub(zpub) {
+  static _zpubToXpub(zpub: string): string {
     let data = b58.decode(zpub);
     data = data.slice(4);
     data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
@@ -324,7 +376,7 @@ export class AbstractWallet {
    * @param {String} ypub - wallet ypub
    * @returns {*}
    */
-  static _ypubToXpub(ypub) {
+  static _ypubToXpub(ypub: string): string {
     let data = b58.decode(ypub);
     if (data.readUInt32BE() !== 0x049d7cb2) throw new Error('Not a valid ypub extended key!');
     data = data.slice(4);
@@ -333,7 +385,7 @@ export class AbstractWallet {
     return b58.encode(data);
   }
 
-  prepareForSerialization() {}
+  prepareForSerialization(): void {}
 
   /*
    * Get metadata (frozen, memo) for a specific UTXO
@@ -341,7 +393,7 @@ export class AbstractWallet {
    * @param {String} txid - transaction id
    * @param {number} vout - an index number of the output in transaction
    */
-  getUTXOMetadata(txid, vout) {
+  getUTXOMetadata(txid: string, vout: number): UtxoMetadata {
     return this._utxoMetadata[`${txid}:${vout}`] || {};
   }
 
@@ -352,7 +404,7 @@ export class AbstractWallet {
    * @param {number} vout - an index number of the output in transaction
    * @param {{memo: String, frozen: Boolean}} opts - options to attach to UTXO
    */
-  setUTXOMetadata(txid, vout, opts) {
+  setUTXOMetadata(txid: string, vout: number, opts: UtxoMetadata): void {
     const meta = this._utxoMetadata[`${txid}:${vout}`] || {};
     if ('memo' in opts) meta.memo = opts.memo;
     if ('frozen' in opts) meta.frozen = opts.frozen;
@@ -362,7 +414,7 @@ export class AbstractWallet {
   /**
    * @returns {string} Root derivation path for wallet if any
    */
-  getDerivationPath() {
+  getDerivationPath(): string {
     return this._derivationPath ?? '';
   }
 }
