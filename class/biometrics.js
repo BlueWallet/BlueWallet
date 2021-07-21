@@ -1,5 +1,5 @@
 /* global alert */
-import FingerprintScanner from 'react-native-fingerprint-scanner';
+// import FingerprintScanner from 'react-native-fingerprint-scanner';
 import { Platform, Alert } from 'react-native';
 import PasscodeAuth from 'react-native-passcode-auth';
 import * as NavigationService from '../NavigationService';
@@ -18,19 +18,23 @@ function Biometric() {
   Biometric.Biometrics = 'Biometrics';
 
   Biometric.isDeviceBiometricCapable = async () => {
-    try {
-      const isDeviceBiometricCapable = await FingerprintScanner.isSensorAvailable();
-      if (isDeviceBiometricCapable) {
-        return true;
-      }
-    } catch {
-      Biometric.setBiometricUseEnabled(false);
-      return false;
-    }
+    return false
+    // try {
+    //   // const isDeviceBiometricCapable = await FingerprintScanner.isSensorAvailable();
+    //   // if (isDeviceBiometricCapable) {
+    //   //   return true;
+    //   // }
+    //   return false;
+    // } catch {
+    //   Biometric.setBiometricUseEnabled(false);
+    //   return false;
+    // }
   };
 
   Biometric.biometricType = async () => {
+    return false;
     try {
+    
       const isSensorAvailable = await FingerprintScanner.isSensorAvailable();
       return isSensorAvailable;
     } catch (e) {
@@ -59,15 +63,15 @@ function Biometric() {
   };
 
   Biometric.unlockWithBiometrics = async () => {
-    const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
-    if (isDeviceBiometricCapable) {
-      return new Promise(resolve => {
-        FingerprintScanner.authenticate({ description: loc.settings.biom_conf_identity, fallbackEnabled: true })
-          .then(() => resolve(true))
-          .catch(() => resolve(false))
-          .finally(() => FingerprintScanner.release());
-      });
-    }
+    // const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
+    // if (isDeviceBiometricCapable) {
+    //   return new Promise(resolve => {
+    //     FingerprintScanner.authenticate({ description: loc.settings.biom_conf_identity, fallbackEnabled: true })
+    //       .then(() => resolve(true))
+    //       .catch(() => resolve(false))
+    //       .finally(() => FingerprintScanner.release());
+    //   });
+    // }
     return false;
   };
 
