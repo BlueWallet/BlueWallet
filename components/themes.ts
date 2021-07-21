@@ -1,4 +1,4 @@
-import { DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { DefaultTheme, DarkTheme, useTheme as useThemeBase } from '@react-navigation/native';
 import { Appearance } from 'react-native';
 
 export const BlueDefaultTheme = {
@@ -67,7 +67,9 @@ export const BlueDefaultTheme = {
   },
 };
 
-export const BlueDarkTheme = {
+export type Theme = typeof BlueDefaultTheme;
+
+export const BlueDarkTheme: Theme = {
   ...DarkTheme,
   closeImage: require('../img/close-white.png'),
   scanImage: require('../img/scan-white.png'),
@@ -119,12 +121,15 @@ export const BlueDarkTheme = {
   },
 };
 
-export class BlueCurrentTheme {
-  static colors;
-  static closeImage;
-  static scanImage;
+// Casting theme value to get autocompletion
+export const useTheme = (): Theme => useThemeBase() as Theme;
 
-  static updateColorScheme() {
+export class BlueCurrentTheme {
+  static colors: Theme['colors'];
+  static closeImage: Theme['closeImage'];
+  static scanImage: Theme['scanImage'];
+
+  static updateColorScheme(): void {
     const isColorSchemeDark = Appearance.getColorScheme() === 'dark';
     BlueCurrentTheme.colors = isColorSchemeDark ? BlueDarkTheme.colors : BlueDefaultTheme.colors;
     BlueCurrentTheme.closeImage = isColorSchemeDark ? BlueDarkTheme.closeImage : BlueDefaultTheme.closeImage;

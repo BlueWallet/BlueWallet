@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image, Keyboard, TouchableOpacity, StyleSheet } from 'react-native';
+import { Theme } from './themes';
 
 const styles = StyleSheet.create({
   button: {
@@ -10,13 +11,39 @@ const styles = StyleSheet.create({
   },
 });
 
-/**
- * TODO: remove this comment once this file gets properly converted to typescript.
- *
- * @param {any} param0
- * @param {(opts: any) => any} formatter
- */
-const navigationStyle = ({ closeButton = false, closeButtonFunc, ...opts }, formatter) => {
+type NavigationOptions = {
+  headerStyle?: {
+    borderBottomWidth: number;
+    elevation: number;
+    shadowOpacity?: number;
+    shadowOffset: { height?: number; width?: number };
+  };
+  headerTitleStyle?: {
+    fontWeight: string;
+    color: string;
+  };
+  headerLeft?: (() => React.ReactElement) | null;
+  headerRight?: (() => React.ReactElement) | null;
+  headerBackTitleVisible?: false;
+  headerTintColor?: string;
+  title?: string;
+};
+
+type OptionsFormatter = (options: NavigationOptions, deps: { theme: Theme; navigation: any; route: any }) => NavigationOptions;
+
+export type NavigationOptionsGetter = (theme: Theme) => (deps: { navigation: any; route: any }) => NavigationOptions;
+
+const navigationStyle = (
+  {
+    closeButton = false,
+    closeButtonFunc,
+    ...opts
+  }: NavigationOptions & {
+    closeButton?: boolean;
+    closeButtonFunc?: (deps: { navigation: any; route: any }) => React.ReactElement;
+  },
+  formatter: OptionsFormatter,
+): NavigationOptionsGetter => {
   return theme => ({ navigation, route }) => {
     let headerRight = null;
     if (closeButton) {
@@ -33,7 +60,7 @@ const navigationStyle = ({ closeButton = false, closeButtonFunc, ...opts }, form
       );
     }
 
-    let options = {
+    let options: NavigationOptions = {
       headerStyle: {
         borderBottomWidth: 0,
         elevation: 0,
@@ -44,7 +71,7 @@ const navigationStyle = ({ closeButton = false, closeButtonFunc, ...opts }, form
         fontWeight: '600',
         color: theme.colors.foregroundColor,
       },
-      headerRight,
+      headerRight: headerRight,
       headerBackTitleVisible: false,
       headerTintColor: theme.colors.foregroundColor,
       ...opts,
@@ -60,9 +87,9 @@ const navigationStyle = ({ closeButton = false, closeButtonFunc, ...opts }, form
 
 export default navigationStyle;
 
-export const navigationStyleTx = (opts, formatter) => {
+export const navigationStyleTx = (opts: NavigationOptions, formatter: OptionsFormatter): NavigationOptionsGetter => {
   return theme => ({ navigation, route }) => {
-    let options = {
+    let options: NavigationOptions = {
       headerStyle: {
         borderBottomWidth: 0,
         elevation: 0,
