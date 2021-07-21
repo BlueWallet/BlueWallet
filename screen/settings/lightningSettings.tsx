@@ -2,15 +2,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, TextInput, Linking, StyleSheet, Alert, I18nManager } from 'react-native';
 import { Button } from 'react-native-elements';
-import { useTheme, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import navigationStyle from '../../components/navigationStyle';
+import navigationStyle, { NavigationOptionsGetter } from '../../components/navigationStyle';
 import { BlueButton, BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import { AppStorage } from '../../class';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import loc from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
+import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { isTorCapable } from '../../blue_modules/environment';
 
@@ -52,12 +52,11 @@ type LightingSettingsRouteProps = RouteProp<
   'params'
 >;
 
-// TODO: add proper typing for `navigationOptions`
-const LightningSettings: React.FC & { navigationOptions: any } = () => {
+const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter } = () => {
   const params = useRoute<LightingSettingsRouteProps>().params;
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState<string>();
-  const { colors } = useTheme() as any; // TODO: add proper types for theme
+  const { colors } = useTheme();
   const route = useRoute();
   const navigation = useNavigation();
 
