@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StatusBar, Linking } from 'react-native';
+import { StatusBar } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isCatalyst } from '../../blue_modules/environment';
 import * as NavigationService from '../../NavigationService';
 
 const currency = require('../../blue_modules/currency');
@@ -112,12 +111,7 @@ BuyBitcoin.navigationOptions = navigationStyle({
 });
 
 BuyBitcoin.navigate = async wallet => {
-  if (isCatalyst) {
-    const uri = await BuyBitcoin.generateURL(wallet);
-    Linking.openURL(uri);
-  } else {
-    NavigationService.navigate('BuyBitcoin', {
-      walletID: wallet.getID(),
-    });
-  }
+  NavigationService.navigate('BuyBitcoin', {
+    walletID: wallet.getID(),
+  });
 };
