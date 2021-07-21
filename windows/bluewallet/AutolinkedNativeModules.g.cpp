@@ -12,9 +12,6 @@
 // Includes from react-native-device-info
 #include <winrt/RNDeviceInfoCPP.h>
 
-// Includes from react-native-webview
-#include <winrt/ReactNativeWebView.h>
-
 namespace winrt::Microsoft::ReactNative
 {
 
@@ -26,8 +23,7 @@ void RegisterAutolinkedNativeModulePackages(winrt::Windows::Foundation::Collecti
     packageProviders.Append(winrt::ReactNativeCameraCPP::ReactPackageProvider());
     // IReactPackageProviders from react-native-device-info
     packageProviders.Append(winrt::RNDeviceInfoCPP::ReactPackageProvider());
-    // IReactPackageProviders from react-native-webview
-    packageProviders.Append(winrt::ReactNativeWebView::ReactPackageProvider());
+
 }
 
 }

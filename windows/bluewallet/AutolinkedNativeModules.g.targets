@@ -14,9 +14,6 @@
     <ProjectReference Include="$(ProjectDir)..\..\node_modules\react-native-device-info\windows\RNDeviceInfoCPP\RNDeviceInfoCPP.vcxproj">
       <Project>{3e3931f2-4735-4417-8cb0-33668a7314d6}</Project>
     </ProjectReference>
-    <!-- Projects from react-native-webview -->
-    <ProjectReference Include="$(ProjectDir)..\..\node_modules\react-native-webview\windows\ReactNativeWebView\ReactNativeWebView.vcxproj">
-      <Project>{729d9af8-cd9e-4427-9f6c-fb757e287729}</Project>
-    </ProjectReference>
+ 
   </ItemGroup>
 </Project>
