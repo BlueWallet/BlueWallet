@@ -11,10 +11,18 @@
     "@babel/runtime": "^7.14.6",
     "@jest/reporters": "^26.4.1",
     "@react-native-community/eslint-config": "^2.0.0",
+    "@types/bs58check": "^2.1.0",
+    "@types/create-hash": "^1.2.2",
+    "@types/jest": "^26.0.24",
+    "@types/react": "^17.0.14",
+    "@types/react-native": "^0.64.12",
+    "@types/react-test-renderer": "^17.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.28.3",
+    "@typescript-eslint/parser": "^4.28.3",
     "babel-cli": "^6.26.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
-    "eslint": "^7.25.0",
+    "eslint": "^7.30.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-config-standard-jsx": "^10.0.0",
@@ -28,7 +36,8 @@
     "eslint-plugin-standard": "^4.1.0",
     "jest": "^26.1.0",
     "prettier": "^2.2.1",
-    "react-test-renderer": "17.0.1"
+    "react-test-renderer": "17.0.1",
+    "typescript": "^4.3.5"
   },
   "engines": {
     "node": ">=10.16.0",
@@ -44,24 +53,33 @@
     "android:clean": "cd android;  ./gradlew clean ; cd .. ; npm run android",
     "ios": "react-native run-ios",
     "postinstall": "rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path,assert,crypto --hack; npm run releasenotes2json; npm run podinstall",
-    "test": "npm run lint && npm run unit && npm run jest",
+    "test": "npm run tslint && npm run lint && npm run unit && npm run jest",
     "jest": "jest -b -w 1 tests/integration/*",
+    "windowspatches": "./scripts/windows-patches.sh",
     "maccatalystpatches": "./scripts/maccatalystpatches/applypatchesformaccatalyst.sh",
     "e2e:debug-build": "detox build -c android.emu.debug",
     "e2e:debug-test": "detox test -c android.emu.debug -l fatal",
     "e2e:debug": "(test -f android/app/build/outputs/apk/debug/app-debug.apk && test -f android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk) || npm run e2e:debug-build; npm run e2e:debug-test",
     "e2e:release-build": "detox build -c android.emu.release",
     "e2e:release-test": "detox test -c android.emu.release --record-videos all --take-screenshots all --headless --loglevel trace",
-    "lint": "eslint *.js screen/**/*.js blue_modules/*.js class/**/*.js models/ loc/ tests/**/*.js components/**/*.js components/*.js",
+    "tslint": "tsc",
+    "lint": "eslint --ext .js,.ts,.tsx '*.@(js|ts|tsx)' screen 'blue_modules/*.@(js|ts|tsx)' class models loc tests components",
     "lint:fix": "npm run lint -- --fix",
     "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep '\\.js' --color=never |  awk '{print $2}' | xargs eslint --fix; exit 0",
-    "unit": "jest tests/unit/*"
+    "unit": "jest tests/unit/*",
+    "windows": "react-native run-windows"
   },
   "jest": {
     "preset": "react-native",
     "transform": {
       "^.+\\.js$": "<rootDir>/node_modules/react-native/jest/preprocessor.js"
     },
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts",
+      "tsx"
+    ],
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native(-.*)?|@react-native(-community)?)/)"
     ],
@@ -80,7 +98,7 @@
     "@keystonehq/bc-ur-registry": "https://github.com/BlueWallet/ur-registry",
     "@ngraveio/bc-ur": "https://github.com/BlueWallet/bc-ur",
     "@react-native-async-storage/async-storage": "1.15.5",
-    "@react-native-clipboard/clipboard": "1.7.0",
+    "@react-native-clipboard/clipboard": "1.8.4",
     "@react-native-community/blur": "3.6.0",
     "@react-native-community/masked-view": "0.1.11",
     "@react-native-community/push-notification-ios": "1.8.0",
@@ -101,7 +119,7 @@
     "bip39": "3.0.4",
     "bitcoinjs-lib": "5.2.0",
     "bitcoinjs-message": "2.2.0",
-    "bolt11": "1.3.1",
+    "bolt11": "1.3.2",
     "buffer": "6.0.3",
     "buffer-reverse": "1.0.1",
     "coinselect": "3.1.12",
@@ -123,8 +141,8 @@
     "process": "0.11.10",
     "prop-types": "15.7.2",
     "react": "17.0.1",
-    "react-native": "0.64.2",
     "react-localization": "1.0.17",
+    "react-native": "0.64.2",
     "react-native-blue-crypto": "https://github.com/BlueWallet/react-native-blue-crypto",
     "react-native-camera": "3.44.1",
     "react-native-crypto": "2.2.0",
@@ -167,8 +185,9 @@
     "react-native-tor": "0.1.7",
     "react-native-vector-icons": "7.1.0",
     "react-native-watch-connectivity": "1.0.3",
-    "react-native-webview": "11.6.4",
+    "react-native-webview": "11.6.5",
     "react-native-widget-center": "https://github.com/BlueWallet/react-native-widget-center#e2e9a9038b76d096bf929a87105a97a0a7095001",
+    "react-native-windows": "0.64.14",
     "react-test-render": "1.1.2",
     "readable-stream": "3.6.0",
     "realm": "10.6.0",
@@ -180,8 +199,7 @@
     "stream-browserify": "2.0.2",
     "url": "0.11.0",
     "util": "0.12.4",
-    "wif": "2.0.6",
-    "react-native-windows": "0.63.35"
+    "wif": "2.0.6"
   },
   "react-native": {
     "crypto": "react-native-crypto",

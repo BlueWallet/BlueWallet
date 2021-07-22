@@ -1,14 +1,15 @@
 import Frisbee from 'frisbee';
+import untypedFiatUnit from './fiatUnits.json';
 
-export const FiatUnitSource = Object.freeze({
+export const FiatUnitSource = {
   CoinDesk: 'CoinDesk',
   Yadio: 'Yadio',
   BitcoinduLiban: 'BitcoinduLiban',
   Exir: 'Exir',
-});
+} as const;
 
-const RateExtractors = Object.freeze({
-  CoinDesk: async ticker => {
+const RateExtractors = {
+  CoinDesk: async (ticker: string): Promise<number> => {
     const api = new Frisbee({ baseURI: 'https://api.coindesk.com' });
     const res = await api.get(`/v1/bpi/currentprice/${ticker}.json`);
     if (res.err) throw new Error(`Could not update rate for ${ticker}: ${res.err}`);
@@ -26,7 +27,7 @@ const RateExtractors = Object.freeze({
     if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
     return rate;
   },
-  Yadio: async ticker => {
+  Yadio: async (ticker: string): Promise<number> => {
     const api = new Frisbee({ baseURI: 'https://api.yadio.io/json' });
     const res = await api.get(`/${ticker}`);
     if (res.err) throw new Error(`Could not update rate for ${ticker}: ${res.err}`);
@@ -44,7 +45,7 @@ const RateExtractors = Object.freeze({
     if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
     return rate;
   },
-  BitcoinduLiban: async ticker => {
+  BitcoinduLiban: async (ticker: string): Promise<number> => {
     const api = new Frisbee({ baseURI: 'https://bitcoinduliban.org' });
     const res = await api.get('/api.php?key=lbpusd');
     if (res.err) throw new Error(`Could not update rate for ${ticker}: ${res.err}`);
@@ -62,7 +63,7 @@ const RateExtractors = Object.freeze({
     if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
     return rate;
   },
-  Exir: async ticker => {
+  Exir: async (ticker: string): Promise<number> => {
     const api = new Frisbee({ baseURI: 'https://api.exir.io' });
     const res = await api.get('/v1/ticker?symbol=btc-irt');
     if (res.err) throw new Error(`Could not update rate for ${ticker}: ${res.err}`);
@@ -80,10 +81,18 @@ const RateExtractors = Object.freeze({
     if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
     return rate;
   },
-});
+} as const;
 
-export const FiatUnit = require('./fiatUnit.json');
+type FiatUnit = {
+  [key: string]: {
+    endPointKey: string;
+    symbol: string;
+    locale: string;
+    source: 'CoinDesk' | 'Yadio' | 'Exir' | 'BitcoinduLiban';
+  };
+};
+export const FiatUnit = untypedFiatUnit as FiatUnit;
 
-export async function getFiatRate(ticker) {
+export async function getFiatRate(ticker: string): Promise<number> {
   return await RateExtractors[FiatUnit[ticker].source](ticker);
 }

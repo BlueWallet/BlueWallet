@@ -11,6 +11,7 @@ import {
   WatchOnlyWallet,
   HDAezeedWallet,
   SLIP39SegwitP2SHWallet,
+  SLIP39SegwitBech32Wallet,
 } from '../../class';
 import WalletImport from '../../class/wallet-import';
 import React from 'react';
@@ -69,6 +70,16 @@ describe('import procedure', function () {
     );
     assert.strictEqual(lastImportedWallet.type, HDSegwitBech32Wallet.type);
     assert.strictEqual(lastImportedWallet._getExternalAddressByIndex(0), 'bc1qth9qxvwvdthqmkl6x586ukkq8zvumd38nxr08l');
+    assert.strictEqual(lastImportedWallet.getLabel(), 'Imported HD SegWit (BIP84 Bech32 Native)');
+  });
+
+  it('can import BIP84 with passphrase', async () => {
+    await WalletImport.processImportText(
+      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+      'BlueWallet',
+    );
+    assert.strictEqual(lastImportedWallet.type, HDSegwitBech32Wallet.type);
+    assert.strictEqual(lastImportedWallet._getExternalAddressByIndex(0), 'bc1qe8q660wfj6uvqg7zyn86jcsux36natklqnfdrc');
     assert.strictEqual(lastImportedWallet.getLabel(), 'Imported HD SegWit (BIP84 Bech32 Native)');
   });
 
@@ -141,6 +152,14 @@ describe('import procedure', function () {
     assert.strictEqual(lastImportedWallet.type, HDAezeedWallet.type);
   });
 
+  it('can import AEZEED with password', async () => {
+    await WalletImport.processImportText(
+      'able mix price funny host express lawsuit congress antique float pig exchange vapor drip wide cup style apple tumble verb fix blush tongue market',
+      'strongPassword',
+    );
+    assert.strictEqual(lastImportedWallet.type, HDAezeedWallet.type);
+  });
+
   it('importing empty BIP39 should yield BIP84', async () => {
     const tempWallet = new HDSegwitBech32Wallet();
     await tempWallet.generate();
@@ -157,7 +176,7 @@ describe('import procedure', function () {
   });
 
   it('can import BIP38 encrypted backup', async () => {
-    await WalletImport.processImportText('6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN');
+    await WalletImport.processImportText('6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN', 'qwerty');
     assert.strictEqual(lastImportedWallet.getSecret(), 'KxqRtpd9vFju297ACPKHrGkgXuberTveZPXbRDiQ3MXZycSQYtjc');
     assert.strictEqual(lastImportedWallet.type, LegacyWallet.type);
     assert.strictEqual(lastImportedWallet.getAddress(), '1639W2kM6UY9PdavMQeLqG4SuUEae9NZfq');
@@ -187,6 +206,20 @@ describe('import procedure', function () {
         'crystal lungs academic agency class payment actress avoid rebound ordinary exchange petition tendency mild mobile spine robin fancy shelter increase',
     );
     assert.strictEqual(lastImportedWallet.type, SLIP39SegwitP2SHWallet.type);
+  });
+
+  it('can import slip39 wallet with password', async () => {
+    // 2-of-3 slip39 wallet
+    // crystal lungs academic acid corner infant satisfy spider alcohol laser golden equation fiscal epidemic infant scholar space findings tadpole belong
+    // crystal lungs academic agency class payment actress avoid rebound ordinary exchange petition tendency mild mobile spine robin fancy shelter increase
+    // crystal lungs academic always earth satoshi elbow satoshi that pants formal leaf rival texture romantic filter expand regular soul desert
+    await WalletImport.processImportText(
+      'crystal lungs academic acid corner infant satisfy spider alcohol laser golden equation fiscal epidemic infant scholar space findings tadpole belong\n' +
+        'crystal lungs academic agency class payment actress avoid rebound ordinary exchange petition tendency mild mobile spine robin fancy shelter increase',
+      'BlueWallet',
+    );
+    assert.strictEqual(lastImportedWallet.type, SLIP39SegwitBech32Wallet.type);
+    assert.strictEqual(lastImportedWallet._getExternalAddressByIndex(0), 'bc1q5k23fle53w8a3982m82e9f6hqlnrh3mv5s9s6z');
   });
 
   it('can import watch-only Cobo vault export', async () => {

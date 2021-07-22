@@ -39,7 +39,6 @@ function DeviceQuickActions() {
     return data;
   };
 
-
   DeviceQuickActions.getEnabled = async () => {
     try {
       const isEnabled = await AsyncStorage.getItem(DeviceQuickActions.STORAGE_KEY);

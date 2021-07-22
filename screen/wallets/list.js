@@ -300,7 +300,7 @@ const WalletsList = () => {
   };
 
   const renderScanButton = () => {
-    if (wallets.length > 0 && isImportingWallet) {
+    if (wallets.length > 0 && !isImportingWallet) {
       return (
         <FContainer ref={walletActionButtonsRef}>
           <FButton

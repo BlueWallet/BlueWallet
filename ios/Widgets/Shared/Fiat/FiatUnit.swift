@@ -16,7 +16,7 @@ struct FiatUnit: Codable {
 }
 
 func fiatUnit(currency: String) -> FiatUnit? {
-  return Bundle.main.decode([String: FiatUnit].self, from: "fiatUnit.json").first(where: {$1.endPointKey == currency})?.value
+  return Bundle.main.decode([String: FiatUnit].self, from: "fiatUnits.json").first(where: {$1.endPointKey == currency})?.value
 }
 
 extension Bundle {
