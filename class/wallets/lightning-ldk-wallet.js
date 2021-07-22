@@ -1,6 +1,6 @@
 /* global alert */
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import RnLdk from 'rn-ldk/lib/module';
+import RnLdk from 'rn-ldk/src/index';
 import { LightningCustodianWallet } from './lightning-custodian-wallet';
 import SyncedAsyncStorage from '../synced-async-storage';
 import { randomBytes } from '../rng';
@@ -192,7 +192,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async generate() {
-    const buf = await randomBytes(32);
+    const buf = await randomBytes(16);
     this.secret = 'ldk://' + bip39.entropyToMnemonic(buf.toString('hex'));
   }
 
