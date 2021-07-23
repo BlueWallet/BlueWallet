@@ -425,6 +425,8 @@
     "enter_bip38_password": "Passwort zur Entschlüssellung eingeben",
     "export_title": "Wallet exportieren",
     "import_do_import": "Importieren",
+    "import_passphrase_title": "Passphrase",
+    "import_passphrase_message": "Wenn genutzt, die Passphrase eingeben",
     "import_error": "Fehler beim Import. Ist die Eingabe korrekt?",
     "import_explanation": "Gib hier die mnemonische Phrase, den privaten Schlüssel, WIF oder was immer Du hast ein. BlueWallet wird bestmöglich das Format interpretieren und die Wallet importieren.",
     "import_file": "Datei importieren",
