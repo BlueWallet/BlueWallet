@@ -36,7 +36,6 @@ import WalletImport from './class/wallet-import';
 import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
 import changeNavigationBarColor from 'react-native-navigation-bar-color';
-import NFCManager from './class/nfcmanager';
 const A = require('./blue_modules/analytics');
 
 const eventEmitter = new NativeEventEmitter(NativeModules.EventEmitter);
@@ -342,7 +341,6 @@ const App = () => {
       <WalletImport />
       <Biometric />
       <WidgetCommunication />
-      <NFCManager />
     </SafeAreaProvider>
   );
 };

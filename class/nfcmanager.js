@@ -1,56 +1,31 @@
-import React, { useEffect } from 'react';
-import NfcManager, {NfcEvents} from 'react-native-nfc-manager';
+import React, { forwardRef, useEffect } from 'react';
+import { View } from 'react-native';
+import NfcManager, { NfcEvents } from 'react-native-nfc-manager';
 
-const NFCManager = () => {
-useEffect(() => {
+export class NFCComponentProxy {
+  static async isSupportedAndEnabled() {
+    return (await NfcManager.isEnabled()) && (await NfcManager.isSupported());
+  }
+}
+
+const NFCComponent = (props, ref) => {
+  useEffect(() => {
     start();
     return cleanUp();
-},[]);
+  }, []);
 
-
-
-const start = async () => {
-    const supported = await NfcManager.isSupported();
-    if (supported) {
-      await NfcManager.start();
-    }
-    return supported;
-}
-
-NFCManager.isEnabled = () => {
-    return NfcManager.isEnabled();
-  }
-
-const cleanUp = () => {
-    NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
-    NfcManager.setEventListener(NfcEvents.SessionClosed, null);
-}
-
-NFCManager.readNdefOnce = withAndroidPrompt(() => {
-    const cleanUp = () => {
-      NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
-      NfcManager.setEventListener(NfcEvents.SessionClosed, null);
-    };
-
-    return new Promise((resolve) => {
+  const scanTag = () => {
+    return new Promise(resolve => {
       let tagFound = null;
 
-      NfcManager.setEventListener(NfcEvents.DiscoverTag, (tag) => {
+      NfcManager.setEventListener(NfcEvents.DiscoverTag, tag => {
         tagFound = tag;
         resolve(tagFound);
-
-        if (Platform.OS === 'ios') {
-          NfcManager.setAlertMessageIOS('NDEF tag found');
-        }
-
+        NfcManager.setAlertMessageIOS('NDEF tag found');
         NfcManager.unregisterTagEvent().catch(() => 0);
       });
 
-      NfcManager.setEventListener(NfcEvents.SessionClosed, (error) => {
-        if (error) {
-          handleException(error);
-        }
-
+      NfcManager.setEventListener(NfcEvents.SessionClosed, () => {
         cleanUp();
         if (!tagFound) {
           resolve();
@@ -59,73 +34,27 @@ NFCManager.readNdefOnce = withAndroidPrompt(() => {
 
       NfcManager.registerTagEvent();
     });
-  });
+  };
 
-  readTag = withAndroidPrompt(async () => {
-    let tag = null;
+  useEffect(() => {
+    ref.current.scanTag = scanTag;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ref]);
 
-    try {
-      await NfcManager.requestTechnology([NfcTech.Ndef]);
-
-      tag = await NfcManager.getTag();
-      tag.ndefStatus = await NfcManager.ndefHandler.getNdefStatus();
-
-      if (Platform.OS === 'ios') {
-        await NfcManager.setAlertMessageIOS('Success');
-      }
-    } catch (ex) {
-      // for tag reading, we don't actually need to show any error
-      console.log(ex);
-    } finally {
-      NfcManager.cancelTechnologyRequest();
+  const start = async () => {
+    const supported = await NfcManager.isSupported();
+    if (supported) {
+      await NfcManager.start();
     }
+    return supported;
+  };
 
-    return tag;
-  });
+  const cleanUp = () => {
+    NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
+    NfcManager.setEventListener(NfcEvents.SessionClosed, null);
+  };
 
-  writeNdef = withAndroidPrompt(async ({type, value}) => {
-    let result = false;
+  return <View ref={ref} />;
+};
 
-    try {
-      await NfcManager.requestTechnology(NfcTech.Ndef, {
-        alertMessage: 'Ready to write some NDEF',
-      });
-
-      let bytes = null;
-      if (type === 'TEXT') {
-        bytes = Ndef.encodeMessage([Ndef.textRecord(value)]);
-      } else if (type === 'URI') {
-        bytes = Ndef.encodeMessage([Ndef.uriRecord(value)]);
-      } else if (type === 'WIFI_SIMPLE') {
-        bytes = Ndef.encodeMessage([Ndef.wifiSimpleRecord(value)]);
-      } else if (type === 'VCARD') {
-        const {name, tel, org, email} = value;
-        const vCard = `BEGIN:VCARD\nVERSION:2.1\nN:;${name}\nORG: ${org}\nTEL;HOME:${tel}\nEMAIL:${email}\nEND:VCARD`;
-
-        bytes = Ndef.encodeMessage([
-          Ndef.record(Ndef.TNF_MIME_MEDIA, 'text/vcard', [], vCard),
-        ]);
-      }
-
-      if (bytes) {
-        await NfcManager.ndefHandler.writeNdefMessage(bytes);
-
-        if (Platform.OS === 'ios') {
-          await NfcManager.setAlertMessageIOS('Success');
-        }
-
-        result = true;
-      }
-    } catch (ex) {
-      handleException(ex);
-    } finally {
-      NfcManager.cancelTechnologyRequest();
-    }
-
-    return result;
-  });
-
-  return null;
-}
-
-export default NFCManager;
+export default forwardRef(NFCComponent);
