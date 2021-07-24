@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import b58 from 'bs58check';
 import createHash from 'create-hash';

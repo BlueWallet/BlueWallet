@@ -84,7 +84,7 @@ const WalletsAdd = () => {
 
   useEffect(() => {
     AsyncStorage.getItem(AppStorage.LNDHUB)
-      .then(setWalletBaseURI)
+      .then(url => setWalletBaseURI(url || 'https://lndhub.io'))
       .catch(() => setWalletBaseURI(''));
     isAdancedModeEnabled()
       .then(setIsAdvancedOptionsEnabled)
