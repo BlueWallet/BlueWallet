@@ -359,7 +359,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
     flatListRef.current.scrollToOffset({ offset: error.averageItemLength * error.index, animated: true });
     setTimeout(() => {
       if (props.data.length !== 0 && flatListRef.current !== null) {
-        flatListRef.scrollToIndex({ index: error.index, animated: true });
+        flatListRef.current.scrollToIndex({ index: error.index, animated: true });
       }
     }, 100);
   };
