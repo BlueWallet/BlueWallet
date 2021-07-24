@@ -261,6 +261,13 @@ const ScanQRCode = () => {
     setIsLoading(false);
   };
 
+  const onNFCTagFound = tag => {
+    setIsLoading(true);
+    onBarCodeRead(tag);
+    
+    setIsLoading(false);
+  };
+
   const showImagePicker = () => {
     if (!isLoading) {
       setIsLoading(true);
@@ -296,6 +303,7 @@ const ScanQRCode = () => {
   const scanNFCButtonPressed = () => {
     nfcManagerRef.current?.scanTag().then(resolve => {
       console.warn(resolve);
+      alert(resolve)
     });
   };
 
@@ -319,7 +327,7 @@ const ScanQRCode = () => {
   ) : (
     <View style={styles.root}>
       <StatusBar hidden />
-      <NFCComponent ref={nfcManagerRef} />
+      <NFCComponent ref={nfcManagerRef} onTagFound={onNFCTagFound} />
       {isFocused && cameraStatus !== RNCamera.Constants.CameraStatus.NOT_AUTHORIZED && (
         <RNCamera
           captureAudio={false}
@@ -354,7 +362,7 @@ const ScanQRCode = () => {
         </TouchableOpacity>
       )}
       {showNFCButton && (
-        <TouchableOpacity style={styles.nfcTouch} onPress={scanNFCButtonPressed}>
+        <TouchableOpacity style={showFileImportButton ? styles.nfcTouch : styles.filePickerTouch} onPress={scanNFCButtonPressed}>
           <Icon name="cellphone-nfc" type="material-community" color="#ffffff" />
         </TouchableOpacity>
       )}

@@ -14,26 +14,25 @@ const NFCComponent = (props, ref) => {
     return cleanUp();
   }, []);
 
-  const scanTag = () => {
-    return new Promise(resolve => {
-      let tagFound = null;
+  const scanTag = async () => {
+      let tag = null;
 
-      NfcManager.setEventListener(NfcEvents.DiscoverTag, tag => {
-        tagFound = tag;
-        resolve(tagFound);
-        NfcManager.setAlertMessageIOS('NDEF tag found');
-        NfcManager.unregisterTagEvent().catch(() => 0);
-      });
+    try {
+      await NfcManager.requestTechnology([NfcTech.Ndef]);
 
-      NfcManager.setEventListener(NfcEvents.SessionClosed, () => {
-        cleanUp();
-        if (!tagFound) {
-          resolve();
-        }
-      });
+      tag = await NfcManager.getTag();
+      tag.ndefStatus = await NfcManager.ndefHandler.getNdefStatus();
 
-      NfcManager.registerTagEvent();
-    });
+      if (Platform.OS === 'ios') {
+        await NfcManager.setAlertMessageIOS('Success');
+      }
+      props.onTagFound(tag)
+    } catch (ex) {
+      // for tag reading, we don't actually need to show any error
+      console.log(ex);
+    } finally {
+      NfcManager.cancelTechnologyRequest();
+    }
   };
 
   useEffect(() => {
