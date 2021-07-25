@@ -1,4 +1,3 @@
-import assert from 'assert';
 import { getAddress, sortByAddressIndex, totalBalance, filterByAddressType } from '../../screen/wallets/addresses';
 import { TABS } from '../../components/addresses/AddressTypeTabs';
 
@@ -14,9 +13,9 @@ describe('Addresses', () => {
   it('Sort by index', () => {
     const sortedList = mockAddressesList.sort(sortByAddressIndex);
 
-    assert.strictEqual(sortedList[0].index, 0);
-    assert.strictEqual(sortedList[2].index, 1);
-    assert.strictEqual(sortedList[4].index, 2);
+    expect(sortedList[0].index).toBe(0);
+    expect(sortedList[2].index).toBe(1);
+    expect(sortedList[4].index).toBe(2);
   });
 
   it('Have tabs defined', () => {
@@ -25,7 +24,7 @@ describe('Addresses', () => {
       INTERNAL: 'change',
     };
 
-    assert.deepStrictEqual(TABS, tabsEnum);
+    expect(TABS).toEqual(tabsEnum);
   });
 
   it('Filter by type', () => {
@@ -38,11 +37,11 @@ describe('Addresses', () => {
     const internalAddresses = mockAddressesList.filter(address => filterByAddressType(TABS.INTERNAL, address.isInternal, currentTab));
 
     externalAddresses.forEach(address => {
-      assert.strictEqual(address.isInternal, false);
+      expect(address.isInternal).toBe(false);
     });
 
     internalAddresses.forEach(address => {
-      assert.strictEqual(address.isInternal, true);
+      expect(address.isInternal).toBe(true);
     });
   });
 
@@ -51,9 +50,9 @@ describe('Addresses', () => {
     const wallet2Balance = { c: 7, u: 3 };
     const wallet3Balance = { c: 3, u: 7 };
 
-    assert.strictEqual(totalBalance(wallet1Balance), 0);
-    assert.strictEqual(totalBalance(wallet2Balance), 10);
-    assert.strictEqual(totalBalance(wallet3Balance), 10);
+    expect(totalBalance(wallet1Balance)).toBe(0);
+    expect(totalBalance(wallet2Balance)).toBe(10);
+    expect(totalBalance(wallet3Balance)).toBe(10);
   });
 
   it('Returns AddressItem object', () => {
@@ -69,7 +68,7 @@ describe('Addresses', () => {
     const firstExternalAddress = getAddress(fakeWallet, 0, false);
     const firstInternalAddress = getAddress(fakeWallet, 0, true);
 
-    assert.deepStrictEqual(firstExternalAddress, {
+    expect(firstExternalAddress).toEqual({
       address: 'external_address_0',
       balance: 0,
       index: 0,
@@ -78,7 +77,7 @@ describe('Addresses', () => {
       transactions: 1,
     });
 
-    assert.deepStrictEqual(firstInternalAddress, {
+    expect(firstInternalAddress).toEqual({
       address: 'internal_address_0',
       balance: 0,
       index: 0,

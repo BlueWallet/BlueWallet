@@ -1,8 +1,7 @@
-const bitcoin = require('bitcoinjs-lib');
+import * as bitcoin from 'bitcoinjs-lib';
 const net = require('net');
 const tls = require('tls');
 
-const assert = require('assert');
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
 
 const hardcodedPeers = [
@@ -38,7 +37,7 @@ describe('ElectrumClient', () => {
       let balance = await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex'));
       const end = +new Date();
       end - start > 1000 && console.warn(peer.host, 'took', (end - start) / 1000, 'seconds to fetch balance');
-      assert.ok(balance.confirmed > 0);
+      expect(balance.confirmed > 0).toBeTruthy();
 
       addr4elect = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
       script = bitcoin.address.toOutputScript(addr4elect);

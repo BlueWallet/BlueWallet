@@ -1,5 +1,3 @@
-import assert from 'assert';
-
 import { SLIP39LegacyP2PKHWallet, SLIP39SegwitP2SHWallet, SLIP39SegwitBech32Wallet } from '../../class';
 
 global.crypto = require('crypto');
@@ -11,11 +9,11 @@ describe('SLIP39 wallets tests', () => {
     w.setSecret(
       'shadow pistol academic always adequate wildlife fancy gross oasis cylinder mustang wrist rescue view short owner flip making coding armed',
     );
-    assert.strictEqual(w.validateMnemonic(), false);
+    expect(w.validateMnemonic()).toBe(false);
 
     // wrong words
     w.setSecret('qweasd ewqasd');
-    assert.strictEqual(w.validateMnemonic(), false);
+    expect(w.validateMnemonic()).toBe(false);
   });
 
   it('can generate ID', () => {
@@ -25,7 +23,7 @@ describe('SLIP39 wallets tests', () => {
       'shadow pistol academic always adequate wildlife fancy gross oasis cylinder mustang wrist rescue view short owner flip making coding armed',
     );
 
-    assert.ok(w.getID());
+    expect(w.getID()).toBeTruthy();
   });
 
   it('SLIP39LegacyP2PKHWallet can generate addresses', async () => {
@@ -36,11 +34,11 @@ describe('SLIP39 wallets tests', () => {
         'shadow pistol academic acid actress prayer class unknown daughter sweater depict flip twice unkind craft early superior advocate guest smoking',
     );
 
-    assert.ok(w.validateMnemonic());
-    assert.strictEqual(w._getExternalAddressByIndex(0), '18pvMjy7AJbCDtv4TLYbGPbR7SzGzjqUpj');
-    assert.strictEqual(w._getExternalAddressByIndex(1), '1LDm2yFgHesgVjENC4cEpvUnW5HdYp51gX');
-    assert.strictEqual(w._getInternalAddressByIndex(0), '1EeW2xsK52vqBpsFLYa1vL6hyxmWCsK3Nx');
-    assert.strictEqual(w._getInternalAddressByIndex(1), '1EM8ADickQ9WppVgSGGgjL8PGWhbbTqNpW');
+    expect(w.validateMnemonic()).toBeTruthy();
+    expect(w._getExternalAddressByIndex(0)).toBe('18pvMjy7AJbCDtv4TLYbGPbR7SzGzjqUpj');
+    expect(w._getExternalAddressByIndex(1)).toBe('1LDm2yFgHesgVjENC4cEpvUnW5HdYp51gX');
+    expect(w._getInternalAddressByIndex(0)).toBe('1EeW2xsK52vqBpsFLYa1vL6hyxmWCsK3Nx');
+    expect(w._getInternalAddressByIndex(1)).toBe('1EM8ADickQ9WppVgSGGgjL8PGWhbbTqNpW');
   });
 
   it('SLIP39SegwitP2SHWallet can generate addresses', async () => {
@@ -51,11 +49,11 @@ describe('SLIP39 wallets tests', () => {
         'humidity disease academic agency actress jacket gross physics cylinder solution fake mortgage benefit public busy prepare sharp friar change work slow purchase ruler again tricycle involve viral wireless mixture anatomy desert cargo upgrade',
     );
 
-    assert.ok(w.validateMnemonic());
-    assert.strictEqual(w._getExternalAddressByIndex(0), '3G3HrQ7DrNJLm8gMrLHTeeD5DdzgeoScRJ');
-    assert.strictEqual(w._getExternalAddressByIndex(1), '3HgGV4fhXz8GZYVMRT1tj9WoUdMQMDrGvw');
-    assert.strictEqual(w._getInternalAddressByIndex(0), '3BdrAbZCo9BCmzP1nmpEVyGXMB9JF4MJ1L');
-    assert.strictEqual(w._getInternalAddressByIndex(1), '3GFSjHbSRGZZavmY7YTm9UJfDbmJdpCeMA');
+    expect(w.validateMnemonic()).toBeTruthy();
+    expect(w._getExternalAddressByIndex(0)).toBe('3G3HrQ7DrNJLm8gMrLHTeeD5DdzgeoScRJ');
+    expect(w._getExternalAddressByIndex(1)).toBe('3HgGV4fhXz8GZYVMRT1tj9WoUdMQMDrGvw');
+    expect(w._getInternalAddressByIndex(0)).toBe('3BdrAbZCo9BCmzP1nmpEVyGXMB9JF4MJ1L');
+    expect(w._getInternalAddressByIndex(1)).toBe('3GFSjHbSRGZZavmY7YTm9UJfDbmJdpCeMA');
   });
 
   it('SLIP39SegwitBech32Wallet can generate addresses', async () => {
@@ -69,11 +67,11 @@ describe('SLIP39 wallets tests', () => {
         'wildlife deal decision shadow analysis adjust bulb skunk muscle mandate obesity total guitar coal gravity carve slim jacket ruin rebuild ancestor numerous hour mortgage require herd maiden public ceiling pecan pickup shadow club\n',
     );
 
-    assert.ok(w.validateMnemonic());
-    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qkchjws74hkuhamxk0qa280xc68643nu32pde20');
-    assert.strictEqual(w._getExternalAddressByIndex(1), 'bc1qrslzpjwl7ksdxvealdq0qulgspey62vr3acwnp');
-    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qgx35amln8aryyr0lw6j2729l3gemzjftp5xrne');
-    assert.strictEqual(w._getInternalAddressByIndex(1), 'bc1q48v0hcuz2jjsls628wj8jtn7rqp8wsyz2gxdxm');
+    expect(w.validateMnemonic()).toBeTruthy();
+    expect(w._getExternalAddressByIndex(0)).toBe('bc1qkchjws74hkuhamxk0qa280xc68643nu32pde20');
+    expect(w._getExternalAddressByIndex(1)).toBe('bc1qrslzpjwl7ksdxvealdq0qulgspey62vr3acwnp');
+    expect(w._getInternalAddressByIndex(0)).toBe('bc1qgx35amln8aryyr0lw6j2729l3gemzjftp5xrne');
+    expect(w._getInternalAddressByIndex(1)).toBe('bc1q48v0hcuz2jjsls628wj8jtn7rqp8wsyz2gxdxm');
   });
 
   // tests below are from https://github.com/spesmilo/electrum/pull/6917/files#diff-2940d8023ed102277f9c8b91135a9d6fa90fd2752b7b6147c1b5911f26db6d7fR497
@@ -86,14 +84,13 @@ describe('SLIP39 wallets tests', () => {
     );
     w.setPassphrase('TREZOR');
 
-    assert.strictEqual(
-      w.getXpub(),
+    expect(w.getXpub()).toBe(
       'xpub6CDgeTHt97zmW24XoYdjH9PVFMUj6qcYAe9SZXMKRKJbvTNeZhutNkQqajLyZrQ9DCqdnGenKhBD6UTrT1nHnoLCfFHkdeX8hDsZx1je6b2',
     );
 
-    assert.strictEqual(w._getExternalAddressByIndex(0), '1NomKAUNnbASwbPuGHmkSVmnrJS5tZeVce');
-    assert.strictEqual(w._getInternalAddressByIndex(0), '1Aw4wpXsAyEHSgMZqPdyewoAtJqH9Jaso3');
-    assert.strictEqual(w._getExternalWIFByIndex(0), 'L55ZfXJgyXNPFrFtq2eqnwAkrjrarkKdmbkTEWxYXd2srXcfj3KF');
+    expect(w._getExternalAddressByIndex(0)).toBe('1NomKAUNnbASwbPuGHmkSVmnrJS5tZeVce');
+    expect(w._getInternalAddressByIndex(0)).toBe('1Aw4wpXsAyEHSgMZqPdyewoAtJqH9Jaso3');
+    expect(w._getExternalWIFByIndex(0)).toBe('L55ZfXJgyXNPFrFtq2eqnwAkrjrarkKdmbkTEWxYXd2srXcfj3KF');
   });
 
   it('SLIP39SegwitP2SHWallet can use passphrase', async () => {
@@ -104,13 +101,12 @@ describe('SLIP39 wallets tests', () => {
     );
     w.setPassphrase('TREZOR');
 
-    assert.strictEqual(
-      w.getXpub(),
+    expect(w.getXpub()).toBe(
       'ypub6Y6aCjkcjCP2y7jZStTevc8Tj3GjoXncqC4ReMzdVZWScB68vKZSZBZ88ENvuPUXXBBR58JXkuz1UrwLnCFvnFTUEpzu5yQabeYBRyd7Edf',
     );
 
-    assert.strictEqual(w._getExternalAddressByIndex(0), '3GCgNoWWVqVdhBxWxrnWQHgwLtffGSYn7D');
-    assert.strictEqual(w._getInternalAddressByIndex(0), '3FVvdRhR7racZhmcvrGAqX9eJoP8Sw3ypp');
+    expect(w._getExternalAddressByIndex(0)).toBe('3GCgNoWWVqVdhBxWxrnWQHgwLtffGSYn7D');
+    expect(w._getInternalAddressByIndex(0)).toBe('3FVvdRhR7racZhmcvrGAqX9eJoP8Sw3ypp');
   });
 
   it('SLIP39SegwitBech32Wallet can use passphrase', async () => {
@@ -123,12 +119,11 @@ describe('SLIP39 wallets tests', () => {
     );
     w.setPassphrase('TREZOR');
 
-    assert.strictEqual(
-      w.getXpub(),
+    expect(w.getXpub()).toBe(
       'zpub6rs6bFckxdWVHBucVX129aNAYqiwPwh1HgsWt6HEQBa9F9QBKRcYzsw7WZR7rPSCWKmRVTUaEgrGrHStx2LSTpbgAEerbnrh4XxkRXbUUZF',
     );
 
-    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qaggygkqgqjjpt58zrmhvjz5m9dj8mjshw0lpgu');
-    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1q8l6hcvlczu4mtjcnlwhczw7vdxnvwccpjl3cwz');
+    expect(w._getExternalAddressByIndex(0)).toBe('bc1qaggygkqgqjjpt58zrmhvjz5m9dj8mjshw0lpgu');
+    expect(w._getInternalAddressByIndex(0)).toBe('bc1q8l6hcvlczu4mtjcnlwhczw7vdxnvwccpjl3cwz');
   });
 });

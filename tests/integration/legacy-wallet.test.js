@@ -1,5 +1,4 @@
 import { LegacyWallet, SegwitP2SHWallet, SegwitBech32Wallet } from '../../class';
-const assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
 const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
@@ -24,61 +23,61 @@ describe('LegacyWallet', function () {
     const key = JSON.stringify(a);
 
     const b = LegacyWallet.fromJson(key);
-    assert.strictEqual(b.type, LegacyWallet.type);
-    assert.strictEqual(key, JSON.stringify(b));
+    expect(b.type).toBe(LegacyWallet.type);
+    expect(key).toBe(JSON.stringify(b));
   });
 
   it('can validate addresses', () => {
     const w = new LegacyWallet();
-    assert.ok(w.isAddressValid('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG'));
-    assert.ok(!w.isAddressValid('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2j'));
-    assert.ok(w.isAddressValid('3BDsBDxDimYgNZzsqszNZobqQq3yeUoJf2'));
-    assert.ok(!w.isAddressValid('3BDsBDxDimYgNZzsqszNZobqQq3yeUo'));
-    assert.ok(!w.isAddressValid('12345'));
-    assert.ok(w.isAddressValid('bc1quuafy8htjjj263cvpj7md84magzmc8svmh8lrm'));
-    assert.ok(w.isAddressValid('BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7'));
+    expect(w.isAddressValid('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG')).toBeTruthy();
+    expect(!w.isAddressValid('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2j')).toBeTruthy();
+    expect(w.isAddressValid('3BDsBDxDimYgNZzsqszNZobqQq3yeUoJf2')).toBeTruthy();
+    expect(!w.isAddressValid('3BDsBDxDimYgNZzsqszNZobqQq3yeUo')).toBeTruthy();
+    expect(!w.isAddressValid('12345')).toBeTruthy();
+    expect(w.isAddressValid('bc1quuafy8htjjj263cvpj7md84magzmc8svmh8lrm')).toBeTruthy();
+    expect(w.isAddressValid('BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7')).toBeTruthy();
   });
 
   it('can fetch balance', async () => {
     const w = new LegacyWallet();
     w._address = '115fUy41sZkAG14CmdP1VbEKcNRZJWkUWG'; // hack internals
-    assert.ok(w.weOwnAddress('115fUy41sZkAG14CmdP1VbEKcNRZJWkUWG'));
-    assert.ok(!w.weOwnAddress('aaa'));
-    assert.ok(!w.weOwnAddress(false));
-    assert.ok(w.getBalance() === 0);
-    assert.ok(w.getUnconfirmedBalance() === 0);
-    assert.ok(w._lastBalanceFetch === 0);
+    expect(w.weOwnAddress('115fUy41sZkAG14CmdP1VbEKcNRZJWkUWG')).toBeTruthy();
+    expect(!w.weOwnAddress('aaa')).toBeTruthy();
+    expect(!w.weOwnAddress(false)).toBeTruthy();
+    expect(w.getBalance() === 0).toBeTruthy();
+    expect(w.getUnconfirmedBalance() === 0).toBeTruthy();
+    expect(w._lastBalanceFetch === 0).toBeTruthy();
     await w.fetchBalance();
-    assert.ok(w.getBalance() === 18262000);
-    assert.ok(w.getUnconfirmedBalance() === 0);
-    assert.ok(w._lastBalanceFetch > 0);
+    expect(w.getBalance() === 18262000).toBeTruthy();
+    expect(w.getUnconfirmedBalance() === 0).toBeTruthy();
+    expect(w._lastBalanceFetch > 0).toBeTruthy();
   });
 
   it('can fetch TXs and derive UTXO from them', async () => {
     const w = new LegacyWallet();
     w._address = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
     await w.fetchTransactions();
-    assert.strictEqual(w.getTransactions().length, 1);
+    expect(w.getTransactions().length).toBe(1);
 
     for (const tx of w.getTransactions()) {
-      assert.ok(tx.hash);
-      assert.ok(tx.value);
-      assert.ok(tx.received);
-      assert.ok(tx.confirmations > 1);
+      expect(tx.hash).toBeTruthy();
+      expect(tx.value).toBeTruthy();
+      expect(tx.received).toBeTruthy();
+      expect(tx.confirmations > 1).toBeTruthy();
     }
 
-    assert.ok(w.weOwnTransaction('b2ac59bc282083498d1e87805d89bef9d3f3bc216c1d2c4dfaa2e2911b547100'));
-    assert.ok(!w.weOwnTransaction('825c12f277d1f84911ac15ad1f41a3de28e9d906868a930b0a7bca61b17c8881'));
+    expect(w.weOwnTransaction('b2ac59bc282083498d1e87805d89bef9d3f3bc216c1d2c4dfaa2e2911b547100')).toBeTruthy();
+    expect(!w.weOwnTransaction('825c12f277d1f84911ac15ad1f41a3de28e9d906868a930b0a7bca61b17c8881')).toBeTruthy();
 
-    assert.strictEqual(w.getUtxo().length, 1);
+    expect(w.getUtxo().length).toBe(1);
 
     for (const tx of w.getUtxo()) {
-      assert.strictEqual(tx.txid, 'b2ac59bc282083498d1e87805d89bef9d3f3bc216c1d2c4dfaa2e2911b547100');
-      assert.strictEqual(tx.vout, 0);
-      assert.strictEqual(tx.address, '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK');
-      assert.strictEqual(tx.value, 51432);
-      assert.strictEqual(tx.value, tx.amount);
-      assert.ok(tx.confirmations > 0);
+      expect(tx.txid).toBe('b2ac59bc282083498d1e87805d89bef9d3f3bc216c1d2c4dfaa2e2911b547100');
+      expect(tx.vout).toBe(0);
+      expect(tx.address).toBe('3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK');
+      expect(tx.value).toBe(51432);
+      expect(tx.value).toBe(tx.amount);
+      expect(tx.confirmations > 0).toBeTruthy();
     }
   });
 
@@ -95,12 +94,12 @@ describe('LegacyWallet', function () {
       w._address = address;
       await w.fetchTransactions();
 
-      assert.ok(w.getTransactions().length > 0);
+      expect(w.getTransactions().length > 0).toBeTruthy();
       for (const tx of w.getTransactions()) {
-        assert.ok(tx.hash);
-        assert.ok(tx.value);
-        assert.ok(tx.received);
-        assert.ok(tx.confirmations > 1);
+        expect(tx.hash).toBeTruthy();
+        expect(tx.value).toBeTruthy();
+        expect(tx.received).toBeTruthy();
+        expect(tx.confirmations > 1).toBeTruthy();
       }
     },
     240000,
@@ -110,13 +109,13 @@ describe('LegacyWallet', function () {
     const w = new LegacyWallet();
     w._address = '12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX';
     await w.fetchUtxo();
-    assert.ok(w.utxo.length > 0, 'unexpected empty UTXO');
-    assert.ok(w.getUtxo().length > 0, 'unexpected empty UTXO');
+    expect(w.utxo.length > 0).toBeTruthy();
+    expect(w.getUtxo().length > 0).toBeTruthy();
 
-    assert.ok(w.getUtxo()[0].value);
-    assert.ok(w.getUtxo()[0].vout === 1, JSON.stringify(w.getUtxo()[0]));
-    assert.ok(w.getUtxo()[0].txid);
-    assert.ok(w.getUtxo()[0].confirmations);
+    expect(w.getUtxo()[0].value).toBeTruthy();
+    expect(w.getUtxo()[0].vout === 1).toBeTruthy();
+    expect(w.getUtxo()[0].txid).toBeTruthy();
+    expect(w.getUtxo()[0].confirmations).toBeTruthy();
   });
 });
 
@@ -124,11 +123,11 @@ describe('SegwitP2SHWallet', function () {
   it('can generate segwit P2SH address from WIF', async () => {
     const l = new SegwitP2SHWallet();
     l.setSecret('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct');
-    assert.ok(l.getAddress() === '34AgLJhwXrvmkZS1o5TrcdeevMt22Nar53', 'expected ' + l.getAddress());
-    assert.ok(l.getAddress() === (await l.getAddressAsync()));
-    assert.ok(l.weOwnAddress('34AgLJhwXrvmkZS1o5TrcdeevMt22Nar53'));
-    assert.ok(!l.weOwnAddress('garbage'));
-    assert.ok(!l.weOwnAddress(false));
+    expect(l.getAddress() === '34AgLJhwXrvmkZS1o5TrcdeevMt22Nar53').toBeTruthy();
+    expect(l.getAddress() === (await l.getAddressAsync())).toBeTruthy();
+    expect(l.weOwnAddress('34AgLJhwXrvmkZS1o5TrcdeevMt22Nar53')).toBeTruthy();
+    expect(!l.weOwnAddress('garbage')).toBeTruthy();
+    expect(!l.weOwnAddress(false)).toBeTruthy();
   });
 });
 
@@ -136,12 +135,12 @@ describe('SegwitBech32Wallet', function () {
   it('can fetch balance', async () => {
     const w = new SegwitBech32Wallet();
     w._address = 'bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc';
-    assert.ok(w.weOwnAddress('bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc'));
-    assert.ok(w.weOwnAddress('BC1QN887FMETAYTW4VJ68VSH529FT408Q8J9X3DNDC'));
-    assert.ok(!w.weOwnAddress('garbage'));
-    assert.ok(!w.weOwnAddress(false));
+    expect(w.weOwnAddress('bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc')).toBeTruthy();
+    expect(w.weOwnAddress('BC1QN887FMETAYTW4VJ68VSH529FT408Q8J9X3DNDC')).toBeTruthy();
+    expect(!w.weOwnAddress('garbage')).toBeTruthy();
+    expect(!w.weOwnAddress(false)).toBeTruthy();
     await w.fetchBalance();
-    assert.strictEqual(w.getBalance(), 100000);
+    expect(w.getBalance()).toBe(100000);
   });
 
   it('can fetch UTXO', async () => {
@@ -149,59 +148,59 @@ describe('SegwitBech32Wallet', function () {
     w._address = 'bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc';
     await w.fetchUtxo();
     const l1 = w.getUtxo().length;
-    assert.ok(w.getUtxo().length > 0, 'unexpected empty UTXO');
+    expect(w.getUtxo().length > 0).toBeTruthy();
 
-    assert.ok(w.getUtxo()[0].value);
-    assert.ok(w.getUtxo()[0].vout === 0);
-    assert.ok(w.getUtxo()[0].txid);
-    assert.ok(w.getUtxo()[0].confirmations, JSON.stringify(w.getUtxo()[0], null, 2));
+    expect(w.getUtxo()[0].value).toBeTruthy();
+    expect(w.getUtxo()[0].vout === 0).toBeTruthy();
+    expect(w.getUtxo()[0].txid).toBeTruthy();
+    expect(w.getUtxo()[0].confirmations).toBeTruthy();
     // double fetch shouldnt duplicate UTXOs:
     await w.fetchUtxo();
     const l2 = w.getUtxo().length;
-    assert.strictEqual(l1, l2);
+    expect(l1).toBe(l2);
   });
 
   it('can fetch TXs', async () => {
     const w = new LegacyWallet();
     w._address = 'bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv';
     await w.fetchTransactions();
-    assert.strictEqual(w.getTransactions().length, 2);
+    expect(w.getTransactions().length).toBe(2);
 
     for (const tx of w.getTransactions()) {
-      assert.ok(tx.hash);
-      assert.ok(tx.value);
-      assert.ok(tx.received);
-      assert.ok(tx.confirmations > 1);
+      expect(tx.hash).toBeTruthy();
+      expect(tx.value).toBeTruthy();
+      expect(tx.received).toBeTruthy();
+      expect(tx.confirmations > 1).toBeTruthy();
     }
 
-    assert.strictEqual(w.getTransactions()[0].value, -892111);
-    assert.strictEqual(w.getTransactions()[1].value, 892111);
+    expect(w.getTransactions()[0].value).toBe(-892111);
+    expect(w.getTransactions()[1].value).toBe(892111);
   });
 
   it('can fetch TXs', async () => {
     const w = new SegwitBech32Wallet();
     w._address = 'bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc';
-    assert.ok(w.weOwnAddress('bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc'));
-    assert.ok(w.weOwnAddress('BC1QN887FMETAYTW4VJ68VSH529FT408Q8J9X3DNDC'));
-    assert.ok(!w.weOwnAddress('garbage'));
-    assert.ok(!w.weOwnAddress(false));
+    expect(w.weOwnAddress('bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc')).toBeTruthy();
+    expect(w.weOwnAddress('BC1QN887FMETAYTW4VJ68VSH529FT408Q8J9X3DNDC')).toBeTruthy();
+    expect(!w.weOwnAddress('garbage')).toBeTruthy();
+    expect(!w.weOwnAddress(false)).toBeTruthy();
     await w.fetchTransactions();
-    assert.strictEqual(w.getTransactions().length, 1);
+    expect(w.getTransactions().length).toBe(1);
 
     for (const tx of w.getTransactions()) {
-      assert.ok(tx.hash);
-      assert.strictEqual(tx.value, 100000);
-      assert.ok(tx.received);
-      assert.ok(tx.confirmations > 1);
+      expect(tx.hash).toBeTruthy();
+      expect(tx.value).toBe(100000);
+      expect(tx.received).toBeTruthy();
+      expect(tx.confirmations > 1).toBeTruthy();
     }
 
     const tx0 = w.getTransactions()[0];
-    assert.ok(tx0.inputs);
-    assert.ok(tx0.inputs.length === 1);
-    assert.ok(tx0.outputs);
-    assert.ok(tx0.outputs.length === 3);
+    expect(tx0.inputs).toBeTruthy();
+    expect(tx0.inputs.length === 1).toBeTruthy();
+    expect(tx0.outputs).toBeTruthy();
+    expect(tx0.outputs.length === 3).toBeTruthy();
 
-    assert.ok(w.weOwnTransaction('49944e90fe917952e36b1967cdbc1139e60c89b4800b91258bf2345a77a8b888'));
-    assert.ok(!w.weOwnTransaction('825c12f277d1f84911ac15ad1f41a3de28e9d906868a930b0a7bca61b17c8881'));
+    expect(w.weOwnTransaction('49944e90fe917952e36b1967cdbc1139e60c89b4800b91258bf2345a77a8b888')).toBeTruthy();
+    expect(!w.weOwnTransaction('825c12f277d1f84911ac15ad1f41a3de28e9d906868a930b0a7bca61b17c8881')).toBeTruthy();
   });
 });

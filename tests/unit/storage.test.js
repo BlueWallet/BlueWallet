@@ -1,6 +1,5 @@
 import { SegwitP2SHWallet, AppStorage } from '../../class';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const assert = require('assert');
 
 it('Appstorage - loadFromDisk works', async () => {
   /** @type {AppStorage} */
@@ -15,10 +14,10 @@ it('Appstorage - loadFromDisk works', async () => {
 
   const Storage2 = new AppStorage();
   await Storage2.loadFromDisk();
-  assert.strictEqual(Storage2.wallets.length, 1);
-  assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
+  expect(Storage2.wallets.length).toBe(1);
+  expect(Storage2.wallets[0].getLabel()).toBe('testlabel');
   let isEncrypted = await Storage2.storageIsEncrypted();
-  assert.ok(!isEncrypted);
+  expect(!isEncrypted).toBeTruthy();
 
   // emulating encrypted storage (and testing flag)
 
@@ -26,7 +25,7 @@ it('Appstorage - loadFromDisk works', async () => {
   await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, '1');
   const Storage3 = new AppStorage();
   isEncrypted = await Storage3.storageIsEncrypted();
-  assert.ok(isEncrypted);
+  expect(isEncrypted).toBeTruthy();
 });
 
 it('Appstorage - encryptStorage & load encrypted storage works', async () => {
@@ -38,63 +37,63 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   Storage.wallets.push(w);
   await Storage.saveToDisk();
   let isEncrypted = await Storage.storageIsEncrypted();
-  assert.ok(!isEncrypted);
+  expect(!isEncrypted).toBeTruthy();
   await Storage.encryptStorage('password');
   isEncrypted = await Storage.storageIsEncrypted();
-  assert.strictEqual(Storage.cachedPassword, 'password');
-  assert.ok(isEncrypted);
+  expect(Storage.cachedPassword).toBe('password');
+  expect(isEncrypted).toBeTruthy();
 
   // saved, now trying to load, using good password
 
   let Storage2 = new AppStorage();
   isEncrypted = await Storage2.storageIsEncrypted();
-  assert.ok(isEncrypted);
+  expect(isEncrypted).toBeTruthy();
   let loadResult = await Storage2.loadFromDisk('password');
-  assert.ok(loadResult);
-  assert.strictEqual(Storage2.wallets.length, 1);
-  assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
+  expect(loadResult).toBeTruthy();
+  expect(Storage2.wallets.length).toBe(1);
+  expect(Storage2.wallets[0].getLabel()).toBe('testlabel');
 
   // now trying to load, using bad password
 
   Storage2 = new AppStorage();
   isEncrypted = await Storage2.storageIsEncrypted();
-  assert.ok(isEncrypted);
+  expect(isEncrypted).toBeTruthy();
   loadResult = await Storage2.loadFromDisk('passwordBAD');
-  assert.ok(!loadResult);
-  assert.strictEqual(Storage2.wallets.length, 0);
+  expect(!loadResult).toBeTruthy();
+  expect(Storage2.wallets.length).toBe(0);
 
   // now, trying case with adding data after decrypt.
   // saveToDisk should be handled correctly
 
   Storage2 = new AppStorage();
   isEncrypted = await Storage2.storageIsEncrypted();
-  assert.ok(isEncrypted);
+  expect(isEncrypted).toBeTruthy();
   loadResult = await Storage2.loadFromDisk('password');
-  assert.ok(loadResult);
-  assert.strictEqual(Storage2.wallets.length, 1);
-  assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
+  expect(loadResult).toBeTruthy();
+  expect(Storage2.wallets.length).toBe(1);
+  expect(Storage2.wallets[0].getLabel()).toBe('testlabel');
   w = new SegwitP2SHWallet();
   w.setLabel('testlabel2');
   await w.generate();
   Storage2.wallets.push(w);
-  assert.strictEqual(Storage2.wallets.length, 2);
-  assert.strictEqual(Storage2.wallets[1].getLabel(), 'testlabel2');
+  expect(Storage2.wallets.length).toBe(2);
+  expect(Storage2.wallets[1].getLabel()).toBe('testlabel2');
   await Storage2.saveToDisk();
   // saved to encrypted storage after load. next load should be successfull
   Storage2 = new AppStorage();
   isEncrypted = await Storage2.storageIsEncrypted();
-  assert.ok(isEncrypted);
+  expect(isEncrypted).toBeTruthy();
   loadResult = await Storage2.loadFromDisk('password');
-  assert.ok(loadResult);
-  assert.strictEqual(Storage2.wallets.length, 2);
-  assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
-  assert.strictEqual(Storage2.wallets[1].getLabel(), 'testlabel2');
+  expect(loadResult).toBeTruthy();
+  expect(Storage2.wallets.length).toBe(2);
+  expect(Storage2.wallets[0].getLabel()).toBe('testlabel');
+  expect(Storage2.wallets[1].getLabel()).toBe('testlabel2');
 
   // next, adding new `fake` storage which should be unlocked with `fake` password
   const createFakeStorageResult = await Storage2.createFakeStorage('fakePassword');
-  assert.ok(createFakeStorageResult);
-  assert.strictEqual(Storage2.wallets.length, 0);
-  assert.strictEqual(Storage2.cachedPassword, 'fakePassword');
+  expect(createFakeStorageResult).toBeTruthy();
+  expect(Storage2.wallets.length).toBe(0);
+  expect(Storage2.cachedPassword).toBe('fakePassword');
   w = new SegwitP2SHWallet();
   w.setLabel('fakewallet');
   await w.generate();
@@ -104,15 +103,15 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   // real:
   let Storage3 = new AppStorage();
   loadResult = await Storage3.loadFromDisk('password');
-  assert.ok(loadResult);
-  assert.strictEqual(Storage3.wallets.length, 2);
-  assert.strictEqual(Storage3.wallets[0].getLabel(), 'testlabel');
+  expect(loadResult).toBeTruthy();
+  expect(Storage3.wallets.length).toBe(2);
+  expect(Storage3.wallets[0].getLabel()).toBe('testlabel');
   // fake:
   Storage3 = new AppStorage();
   loadResult = await Storage3.loadFromDisk('fakePassword');
-  assert.ok(loadResult);
-  assert.strictEqual(Storage3.wallets.length, 1);
-  assert.strictEqual(Storage3.wallets[0].getLabel(), 'fakewallet');
+  expect(loadResult).toBeTruthy();
+  expect(Storage3.wallets.length).toBe(1);
+  expect(Storage3.wallets[0].getLabel()).toBe('fakewallet');
 });
 
 it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load storage works', async () => {
@@ -124,63 +123,63 @@ it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load s
   Storage.wallets.push(w);
   await Storage.saveToDisk();
   let isEncrypted = await Storage.storageIsEncrypted();
-  assert.ok(!isEncrypted);
+  expect(!isEncrypted).toBeTruthy();
   await Storage.encryptStorage('password');
   isEncrypted = await Storage.storageIsEncrypted();
-  assert.strictEqual(Storage.cachedPassword, 'password');
-  assert.ok(isEncrypted);
+  expect(Storage.cachedPassword).toBe('password');
+  expect(isEncrypted).toBeTruthy();
 
   // saved, now trying to load, using good password
 
   let Storage2 = new AppStorage();
   isEncrypted = await Storage2.storageIsEncrypted();
-  assert.ok(isEncrypted);
+  expect(isEncrypted).toBeTruthy();
   let loadResult = await Storage2.loadFromDisk('password');
-  assert.ok(loadResult);
-  assert.strictEqual(Storage2.wallets.length, 1);
-  assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
+  expect(loadResult).toBeTruthy();
+  expect(Storage2.wallets.length).toBe(1);
+  expect(Storage2.wallets[0].getLabel()).toBe('testlabel');
 
   // now trying to load, using bad password
 
   Storage2 = new AppStorage();
   isEncrypted = await Storage2.storageIsEncrypted();
-  assert.ok(isEncrypted);
+  expect(isEncrypted).toBeTruthy();
   loadResult = await Storage2.loadFromDisk('passwordBAD');
-  assert.ok(!loadResult);
-  assert.strictEqual(Storage2.wallets.length, 0);
+  expect(!loadResult).toBeTruthy();
+  expect(Storage2.wallets.length).toBe(0);
 
   // now, trying case with adding data after decrypt.
   // saveToDisk should be handled correctly
 
   Storage2 = new AppStorage();
   isEncrypted = await Storage2.storageIsEncrypted();
-  assert.ok(isEncrypted);
+  expect(isEncrypted).toBeTruthy();
   loadResult = await Storage2.loadFromDisk('password');
-  assert.ok(loadResult);
-  assert.strictEqual(Storage2.wallets.length, 1);
-  assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
+  expect(loadResult).toBeTruthy();
+  expect(Storage2.wallets.length).toBe(1);
+  expect(Storage2.wallets[0].getLabel()).toBe('testlabel');
   w = new SegwitP2SHWallet();
   w.setLabel('testlabel2');
   await w.generate();
   Storage2.wallets.push(w);
-  assert.strictEqual(Storage2.wallets.length, 2);
-  assert.strictEqual(Storage2.wallets[1].getLabel(), 'testlabel2');
+  expect(Storage2.wallets.length).toBe(2);
+  expect(Storage2.wallets[1].getLabel()).toBe('testlabel2');
   await Storage2.saveToDisk();
   // saved to encrypted storage after load. next load should be successfull
   Storage2 = new AppStorage();
   isEncrypted = await Storage2.storageIsEncrypted();
-  assert.ok(isEncrypted);
+  expect(isEncrypted).toBeTruthy();
   loadResult = await Storage2.loadFromDisk('password');
-  assert.ok(loadResult);
-  assert.strictEqual(Storage2.wallets.length, 2);
-  assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
-  assert.strictEqual(Storage2.wallets[1].getLabel(), 'testlabel2');
+  expect(loadResult).toBeTruthy();
+  expect(Storage2.wallets.length).toBe(2);
+  expect(Storage2.wallets[0].getLabel()).toBe('testlabel');
+  expect(Storage2.wallets[1].getLabel()).toBe('testlabel2');
 
   // next, adding new `fake` storage which should be unlocked with `fake` password
   const createFakeStorageResult = await Storage2.createFakeStorage('fakePassword');
-  assert.ok(createFakeStorageResult);
-  assert.strictEqual(Storage2.wallets.length, 0);
-  assert.strictEqual(Storage2.cachedPassword, 'fakePassword');
+  expect(createFakeStorageResult).toBeTruthy();
+  expect(Storage2.wallets.length).toBe(0);
+  expect(Storage2.cachedPassword).toBe('fakePassword');
   w = new SegwitP2SHWallet();
   w.setLabel('fakewallet');
   await w.generate();
@@ -190,34 +189,34 @@ it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load s
   // real:
   let Storage3 = new AppStorage();
   loadResult = await Storage3.loadFromDisk('password');
-  assert.ok(loadResult);
-  assert.strictEqual(Storage3.wallets.length, 2);
-  assert.strictEqual(Storage3.wallets[0].getLabel(), 'testlabel');
+  expect(loadResult).toBeTruthy();
+  expect(Storage3.wallets.length).toBe(2);
+  expect(Storage3.wallets[0].getLabel()).toBe('testlabel');
   // fake:
   Storage3 = new AppStorage();
   loadResult = await Storage3.loadFromDisk('fakePassword');
-  assert.ok(loadResult);
-  assert.strictEqual(Storage3.wallets.length, 1);
-  assert.strictEqual(Storage3.wallets[0].getLabel(), 'fakewallet');
+  expect(loadResult).toBeTruthy();
+  expect(Storage3.wallets.length).toBe(1);
+  expect(Storage3.wallets[0].getLabel()).toBe('fakewallet');
 
   // now will decrypt storage. label of wallet should be testlabel
 
   const Storage4 = new AppStorage();
   isEncrypted = await Storage4.storageIsEncrypted();
-  assert.ok(isEncrypted);
+  expect(isEncrypted).toBeTruthy();
   loadResult = await Storage4.loadFromDisk('password');
-  assert.ok(loadResult);
+  expect(loadResult).toBeTruthy();
   const decryptStorageResult = await Storage4.decryptStorage('password');
-  assert.ok(decryptStorageResult);
+  expect(decryptStorageResult).toBeTruthy();
 
   const Storage5 = new AppStorage();
   isEncrypted = await Storage5.storageIsEncrypted();
-  assert.strictEqual(isEncrypted, false);
+  expect(isEncrypted).toBe(false);
   const storage5loadResult = await Storage5.loadFromDisk();
-  assert.ok(storage5loadResult);
-  assert.strictEqual(Storage5.wallets.length, 2);
-  assert.strictEqual(Storage5.wallets[0].getLabel(), 'testlabel');
-  assert.strictEqual(Storage5.wallets[1].getLabel(), 'testlabel2');
+  expect(storage5loadResult).toBeTruthy();
+  expect(Storage5.wallets.length).toBe(2);
+  expect(Storage5.wallets[0].getLabel()).toBe('testlabel');
+  expect(Storage5.wallets[1].getLabel()).toBe('testlabel2');
 });
 
 it('can decrypt storage that is second in a list of buckets; and isPasswordInUse() works', async () => {
@@ -229,17 +228,17 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
   Storage.wallets.push(w);
   await Storage.saveToDisk();
   let isEncrypted = await Storage.storageIsEncrypted();
-  assert.ok(!isEncrypted);
+  expect(!isEncrypted).toBeTruthy();
   await Storage.encryptStorage('password');
   isEncrypted = await Storage.storageIsEncrypted();
-  assert.strictEqual(Storage.cachedPassword, 'password');
-  assert.ok(isEncrypted);
+  expect(Storage.cachedPassword).toBe('password');
+  expect(isEncrypted).toBeTruthy();
 
   // next, adding new `fake` storage which should be unlocked with `fake` password
   const createFakeStorageResult = await Storage.createFakeStorage('fakePassword');
-  assert.ok(createFakeStorageResult);
-  assert.strictEqual(Storage.wallets.length, 0);
-  assert.strictEqual(Storage.cachedPassword, 'fakePassword');
+  expect(createFakeStorageResult).toBeTruthy();
+  expect(Storage.wallets.length).toBe(0);
+  expect(Storage.cachedPassword).toBe('fakePassword');
   w = new SegwitP2SHWallet();
   w.setLabel('fakewallet');
   await w.generate();
@@ -251,9 +250,9 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
 
   const Storage4 = new AppStorage();
   isEncrypted = await Storage4.storageIsEncrypted();
-  assert.ok(isEncrypted);
+  expect(isEncrypted).toBeTruthy();
   let loadResult = await Storage4.loadFromDisk('password');
-  assert.ok(loadResult);
+  expect(loadResult).toBeTruthy();
 
   let wasException = false;
   try {
@@ -262,7 +261,7 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
     wasException = true;
   }
 
-  assert.ok(wasException);
+  expect(wasException).toBeTruthy();
 
   // now we will load fake storage, and we will decrypt it, which efficiently makes it main
   // storage, purging other buckets. this should be possible since if user wants to shoot himsel in the foot
@@ -270,29 +269,29 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
 
   const Storage5 = new AppStorage();
   isEncrypted = await Storage5.storageIsEncrypted();
-  assert.ok(isEncrypted);
+  expect(isEncrypted).toBeTruthy();
   loadResult = await Storage5.loadFromDisk('fakePassword');
-  assert.ok(loadResult);
+  expect(loadResult).toBeTruthy();
 
   // testing that isPasswordInUse() works:
-  assert.ok(await Storage5.isPasswordInUse('fakePassword'));
-  assert.ok(await Storage5.isPasswordInUse('password'));
-  assert.ok(!(await Storage5.isPasswordInUse('blablablabla')));
+  expect(await Storage5.isPasswordInUse('fakePassword')).toBeTruthy();
+  expect(await Storage5.isPasswordInUse('password')).toBeTruthy();
+  expect(!(await Storage5.isPasswordInUse('blablablabla'))).toBeTruthy();
 
   // now we will decrypt storage. label of wallet should be testlabel
 
   const Storage6 = new AppStorage();
   isEncrypted = await Storage6.storageIsEncrypted();
-  assert.ok(isEncrypted);
+  expect(isEncrypted).toBeTruthy();
   loadResult = await Storage6.loadFromDisk('fakePassword');
-  assert.ok(loadResult);
+  expect(loadResult).toBeTruthy();
   const decryptStorageResult = await Storage6.decryptStorage('fakePassword');
-  assert.ok(decryptStorageResult);
+  expect(decryptStorageResult).toBeTruthy();
 
   const Storage7 = new AppStorage();
   isEncrypted = await Storage7.storageIsEncrypted();
-  assert.strictEqual(isEncrypted, false);
+  expect(isEncrypted).toBe(false);
   const storage5loadResult = await Storage7.loadFromDisk();
-  assert.ok(storage5loadResult);
-  assert.strictEqual(Storage7.wallets[0].getLabel(), 'fakewallet');
+  expect(storage5loadResult).toBeTruthy();
+  expect(Storage7.wallets[0].getLabel()).toBe('fakewallet');
 });

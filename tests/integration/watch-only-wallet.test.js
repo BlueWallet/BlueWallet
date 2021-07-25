@@ -1,5 +1,4 @@
 import { WatchOnlyWallet } from '../../class';
-const assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
 const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
@@ -22,31 +21,31 @@ describe('Watch only wallet', () => {
     const w = new WatchOnlyWallet();
     w.setSecret('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa');
     await w.fetchBalance();
-    assert.ok(w.getBalance() > 16);
+    expect(w.getBalance() > 16).toBeTruthy();
   });
 
   it('can fetch tx', async () => {
     let w = new WatchOnlyWallet();
     w.setSecret('167zK5iZrs1U6piDqubD3FjRqUTM2CZnb8');
     await w.fetchTransactions();
-    assert.ok(w.getTransactions().length >= 215, w.getTransactions().length);
+    expect(w.getTransactions().length >= 215).toBeTruthy();
     // should be 233 but electrum server cant return huge transactions >.<
 
     w = new WatchOnlyWallet();
     w.setSecret('1BiJW1jyUaxcJp2JWwbPLPzB1toPNWTFJV');
     await w.fetchTransactions();
-    assert.strictEqual(w.getTransactions().length, 2);
+    expect(w.getTransactions().length).toBe(2);
 
     // fetch again and make sure no duplicates
     await w.fetchTransactions();
-    assert.strictEqual(w.getTransactions().length, 2);
+    expect(w.getTransactions().length).toBe(2);
   });
 
   it.skip('can fetch tx from huge wallet', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret('1NDyJtNTjmwk5xPNhjgAMu4HDHigtobu1s'); // binance wallet
     await w.fetchTransactions();
-    assert.ok(w.getTransactions().length === 0, w.getTransactions().length); // not yet kek but at least we dont crash
+    expect(w.getTransactions().length === 0).toBeTruthy(); // not yet kek but at least we dont crash
   });
 
   it('can fetch TXs with values', async () => {
@@ -60,23 +59,23 @@ describe('Watch only wallet', () => {
       'BITCOIN:bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv',
     ]) {
       w.setSecret(sec);
-      assert.strictEqual(w.getAddress(), 'bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv');
-      assert.strictEqual(await w.getAddressAsync(), 'bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv');
-      assert.ok(w.weOwnAddress('bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv'));
-      assert.ok(w.weOwnAddress('BC1QUHNVE8Q4TK3UNHMJTS7YMXV8CD6W9XV8WY29UV'));
-      assert.ok(!w.weOwnAddress('garbage'));
-      assert.ok(!w.weOwnAddress(false));
+      expect(w.getAddress()).toBe('bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv');
+      expect(await w.getAddressAsync()).toBe('bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv');
+      expect(w.weOwnAddress('bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv')).toBeTruthy();
+      expect(w.weOwnAddress('BC1QUHNVE8Q4TK3UNHMJTS7YMXV8CD6W9XV8WY29UV')).toBeTruthy();
+      expect(!w.weOwnAddress('garbage')).toBeTruthy();
+      expect(!w.weOwnAddress(false)).toBeTruthy();
       await w.fetchTransactions();
 
       for (const tx of w.getTransactions()) {
-        assert.ok(tx.hash);
-        assert.ok(tx.value);
-        assert.ok(tx.received);
-        assert.ok(tx.confirmations > 1);
+        expect(tx.hash).toBeTruthy();
+        expect(tx.value).toBeTruthy();
+        expect(tx.received).toBeTruthy();
+        expect(tx.confirmations > 1).toBeTruthy();
       }
 
-      assert.strictEqual(w.getTransactions()[0].value, -892111);
-      assert.strictEqual(w.getTransactions()[1].value, 892111);
+      expect(w.getTransactions()[0].value).toBe(-892111);
+      expect(w.getTransactions()[1].value).toBe(892111);
     }
   });
 
@@ -85,7 +84,7 @@ describe('Watch only wallet', () => {
     w.setSecret('3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC');
     await w.fetchTransactions();
     for (const tx of w.getTransactions()) {
-      assert.ok(tx.value, 'incorrect tx.value');
+      expect(tx.value).toBeTruthy();
     }
   });
 
@@ -93,9 +92,9 @@ describe('Watch only wallet', () => {
     const w = new WatchOnlyWallet();
     w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
     await w.fetchBalance();
-    assert.strictEqual(w.getBalance(), 200000);
+    expect(w.getBalance()).toBe(200000);
     await w.fetchTransactions();
-    assert.strictEqual(w.getTransactions().length, 4);
-    assert.ok((await w.getAddressAsync()).startsWith('bc1'));
+    expect(w.getTransactions().length).toBe(4);
+    expect((await w.getAddressAsync()).startsWith('bc1')).toBeTruthy();
   });
 });

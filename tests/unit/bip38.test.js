@@ -1,5 +1,3 @@
-const assert = require('assert');
-
 it('bip38 decodes', async () => {
   const bip38 = require('../../blue_modules/bip38');
   const wif = require('wif');
@@ -12,10 +10,7 @@ it('bip38 decodes', async () => {
     { N: 1, r: 8, p: 8 }, // using non-default parameters to speed it up (not-bip38 compliant)
   );
 
-  assert.strictEqual(
-    wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed),
-    '5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR',
-  );
+  expect(wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed)).toBe('5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR');
 });
 
 it('bip38 decodes slow', async () => {
@@ -34,12 +29,9 @@ it('bip38 decodes slow', async () => {
     // on RN scrypt is handled by native module and takes ~4 secs
     callbackWasCalled = true;
   });
-  assert.ok(callbackWasCalled);
+  expect(callbackWasCalled).toBeTruthy();
 
-  assert.strictEqual(
-    wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed),
-    'KxqRtpd9vFju297ACPKHrGkgXuberTveZPXbRDiQ3MXZycSQYtjc',
-  );
+  expect(wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed)).toBe('KxqRtpd9vFju297ACPKHrGkgXuberTveZPXbRDiQ3MXZycSQYtjc');
 
   let wasError = false;
   try {
@@ -48,5 +40,5 @@ it('bip38 decodes slow', async () => {
     wasError = true;
   }
 
-  assert.ok(wasError);
+  expect(wasError).toBeTruthy();
 });

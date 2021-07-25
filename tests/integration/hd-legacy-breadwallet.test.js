@@ -1,6 +1,5 @@
 import * as bitcoin from 'bitcoinjs-lib';
 import { HDLegacyBreadwalletWallet } from '../../class';
-import assert from 'assert';
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
 const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
@@ -35,7 +34,7 @@ it('Legacy HD Breadwallet can fetch balance and create transaction', async () =>
   // m/0'/1/0 1A9Sc4opR6c7Ui6NazECiGmsmnUPh2WeHJ x 0.00016378 BTC
   // m/0'/1/1 bc1qksn08tz44fvnnrpgrrexvs9526t6jg3xnj9tpc x 0.00012422
   // 0.0001 + 0.00016378 + 0.00012422 + 0.00032084 = 0.00070884
-  assert.strictEqual(wallet.getBalance(), 70884);
+  expect(wallet.getBalance()).toBe(70884);
 
   // try to create a tx
   await wallet.fetchUtxo();
@@ -47,6 +46,6 @@ it('Legacy HD Breadwallet can fetch balance and create transaction', async () =>
   );
 
   const transaction = bitcoin.Transaction.fromHex(tx.toHex());
-  assert.ok(transaction.ins.length === 4);
-  assert.strictEqual(transaction.outs.length, 1);
+  expect(transaction.ins.length === 4).toBeTruthy();
+  expect(transaction.outs.length).toBe(1);
 });

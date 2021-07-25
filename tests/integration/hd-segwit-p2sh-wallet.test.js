@@ -1,6 +1,5 @@
+import * as bitcoin from 'bitcoinjs-lib';
 import { HDSegwitP2SHWallet } from '../../class';
-const bitcoin = require('bitcoinjs-lib');
-const assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
 const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
@@ -35,7 +34,7 @@ it('HD (BIP49) can work with a gap', async function () {
   //   console.log('external', c, hd._getExternalAddressByIndex(c));
   // }
   await hd.fetchTransactions();
-  assert.ok(hd.getTransactions().length >= 3);
+  expect(hd.getTransactions().length >= 3).toBeTruthy();
 });
 
 it('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagging behind', async function () {
@@ -45,7 +44,7 @@ it('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagg
   hd.next_free_address_index = 50;
   await hd.fetchBalance();
   await hd.fetchTransactions();
-  assert.strictEqual(hd.getTransactions().length, 153);
+  expect(hd.getTransactions().length).toBe(153);
 });
 
 it('HD (BIP49) can create TX', async () => {
@@ -55,16 +54,16 @@ it('HD (BIP49) can create TX', async () => {
   }
   const hd = new HDSegwitP2SHWallet();
   hd.setSecret(process.env.HD_MNEMONIC_BIP49);
-  assert.ok(hd.validateMnemonic());
+  expect(hd.validateMnemonic()).toBeTruthy();
 
   await hd.fetchBalance();
   await hd.fetchUtxo();
-  assert.ok(typeof hd.utxo[0].confirmations === 'number');
-  assert.ok(hd.utxo[0].txid);
-  assert.ok(hd.utxo[0].vout !== undefined);
-  assert.ok(hd.utxo[0].amount);
-  assert.ok(hd.utxo[0].address);
-  assert.ok(hd.utxo[0].wif);
+  expect(typeof hd.utxo[0].confirmations === 'number').toBeTruthy();
+  expect(hd.utxo[0].txid).toBeTruthy();
+  expect(hd.utxo[0].vout !== undefined).toBeTruthy();
+  expect(hd.utxo[0].amount).toBeTruthy();
+  expect(hd.utxo[0].address).toBeTruthy();
+  expect(hd.utxo[0].wif).toBeTruthy();
 
   let txNew = hd.createTransaction(
     hd.getUtxo(),
@@ -73,18 +72,17 @@ it('HD (BIP49) can create TX', async () => {
     hd._getInternalAddressByIndex(hd.next_free_change_address_index),
   );
   let tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
-  assert.strictEqual(
-    txNew.tx.toHex(),
+  expect(txNew.tx.toHex()).toBe(
     '0200000000010187c9acd9d5714845343b18abaa26cb83299be2487c22da9c0e270f241b4d9cfe0000000017160014a239b6a0cbc7aadc2e77643de36306a6167fad150000008002f40100000000000017a914a3a65daca3064280ae072b9d6773c027b30abace87ba6200000000000017a9140acff2c37ed45110baece4bb9d4dcc0c6309dbbd8702483045022100a14eb345f26933b29ba2a68075994ecf10f16286611c1d34ccd5850d977c25620220050e80c62ba64d99101253d94f756791f881bdb92100885fbe5ea3e29964573001210202ac3bd159e54dc31e65842ad5f9a10b4eb024e83864a319b27de65ee08b2a3900000000',
   );
-  assert.strictEqual(tx.ins.length, 1);
-  assert.strictEqual(tx.outs.length, 2);
-  assert.strictEqual(tx.outs[0].value, 500);
-  assert.strictEqual(tx.outs[1].value, 25274);
+  expect(tx.ins.length).toBe(1);
+  expect(tx.outs.length).toBe(2);
+  expect(tx.outs[0].value).toBe(500);
+  expect(tx.outs[1].value).toBe(25274);
   let toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
   const changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
-  assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
-  assert.strictEqual(hd._getInternalAddressByIndex(hd.next_free_change_address_index), changeAddress);
+  expect('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK').toBe(toAddress);
+  expect(hd._getInternalAddressByIndex(hd.next_free_change_address_index)).toBe(changeAddress);
 
   //
 
@@ -95,10 +93,10 @@ it('HD (BIP49) can create TX', async () => {
     hd._getInternalAddressByIndex(hd.next_free_change_address_index),
   );
   tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
-  assert.strictEqual(tx.ins.length, 1);
-  assert.strictEqual(tx.outs.length, 1);
+  expect(tx.ins.length).toBe(1);
+  expect(tx.outs.length).toBe(1);
   toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
-  assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
+  expect('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK').toBe(toAddress);
 
   // testing sendMAX
   const utxo = [
@@ -142,8 +140,8 @@ it('HD (BIP49) can create TX', async () => {
     hd._getInternalAddressByIndex(hd.next_free_change_address_index),
   );
   tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
-  assert.strictEqual(tx.outs.length, 1);
-  assert.ok(tx.outs[0].value > 77000);
+  expect(tx.outs.length).toBe(1);
+  expect(tx.outs[0].value > 77000).toBeTruthy();
 
   // MAX with regular output
   txNew = hd.createTransaction(
@@ -153,9 +151,9 @@ it('HD (BIP49) can create TX', async () => {
     hd._getInternalAddressByIndex(hd.next_free_change_address_index),
   );
   tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
-  assert.strictEqual(tx.outs.length, 2);
-  assert.ok(tx.outs[0].value > 50000);
-  assert.strictEqual(tx.outs[1].value, 25000);
+  expect(tx.outs.length).toBe(2);
+  expect(tx.outs[0].value > 50000).toBeTruthy();
+  expect(tx.outs[1].value).toBe(25000);
 });
 
 it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', async function () {
@@ -166,20 +164,20 @@ it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', 
 
   const hd = new HDSegwitP2SHWallet();
   hd.setSecret(process.env.HD_MNEMONIC_BIP49_MANY_TX);
-  assert.ok(hd.validateMnemonic());
+  expect(hd.validateMnemonic()).toBeTruthy();
   const start = +new Date();
   await hd.fetchBalance();
   const end = +new Date();
   const took = (end - start) / 1000;
   took > 15 && console.warn('took', took, "sec to fetch huge HD wallet's balance");
-  assert.strictEqual(hd.getBalance(), 51432);
+  expect(hd.getBalance()).toBe(51432);
 
   await hd.fetchUtxo();
-  assert.ok(hd.utxo.length > 0);
-  assert.ok(hd.utxo[0].txid);
-  assert.ok(hd.utxo[0].vout === 0);
-  assert.ok(hd.utxo[0].amount);
+  expect(hd.utxo.length > 0).toBeTruthy();
+  expect(hd.utxo[0].txid).toBeTruthy();
+  expect(hd.utxo[0].vout === 0).toBeTruthy();
+  expect(hd.utxo[0].amount).toBeTruthy();
 
   await hd.fetchTransactions();
-  assert.strictEqual(hd.getTransactions().length, 107);
+  expect(hd.getTransactions().length).toBe(107);
 });

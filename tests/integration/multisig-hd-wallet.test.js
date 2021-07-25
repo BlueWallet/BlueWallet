@@ -1,4 +1,3 @@
-import assert from 'assert';
 import { MultisigHDWallet } from '../../class/';
 const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
@@ -35,16 +34,16 @@ describe('multisig-hd-wallet', () => {
     w.setDerivationPath(path);
     w.setM(2);
 
-    assert.strictEqual(w.getM(), 2);
-    assert.strictEqual(w.getN(), 2);
-    assert.strictEqual(w.getDerivationPath(), path);
-    assert.strictEqual(w.getCosigner(1), Zpub1);
-    assert.strictEqual(w.getCosigner(2), Zpub2);
-    assert.strictEqual(w.getCosignerForFingerprint(fp1), Zpub1);
-    assert.strictEqual(w.getCosignerForFingerprint(fp2), Zpub2);
+    expect(w.getM()).toBe(2);
+    expect(w.getN()).toBe(2);
+    expect(w.getDerivationPath()).toBe(path);
+    expect(w.getCosigner(1)).toBe(Zpub1);
+    expect(w.getCosigner(2)).toBe(Zpub2);
+    expect(w.getCosignerForFingerprint(fp1)).toBe(Zpub1);
+    expect(w.getCosignerForFingerprint(fp2)).toBe(Zpub2);
 
     await w.fetchBalance();
     await w.fetchTransactions();
-    assert.ok(w.getTransactions().length >= 6);
+    expect(w.getTransactions().length >= 6).toBeTruthy();
   });
 });

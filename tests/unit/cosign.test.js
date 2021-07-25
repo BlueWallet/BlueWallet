@@ -1,5 +1,3 @@
-/* global it, describe */
-import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet } from '../../class';
 
@@ -12,7 +10,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
 
     const w1 = new HDLegacyP2PKHWallet();
     w1.setSecret(process.env.HD_MNEMONIC);
-    assert.ok(w1.validateMnemonic());
+    expect(w1.validateMnemonic()).toBeTruthy();
     const w1Utxo = [
       {
         height: 554830,
@@ -29,7 +27,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
 
     const w2 = new HDSegwitBech32Wallet();
     w2.setSecret(process.env.HD_MNEMONIC);
-    assert.ok(w2.validateMnemonic());
+    expect(w2.validateMnemonic()).toBeTruthy();
     const w2Utxo = [
       {
         height: 563077,
@@ -44,7 +42,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
 
     const w3 = new HDSegwitP2SHWallet();
     w3.setSecret(process.env.HD_MNEMONIC_BIP49);
-    assert.ok(w3.validateMnemonic());
+    expect(w3.validateMnemonic()).toBeTruthy();
     const w3Utxo = [
       {
         height: 591862,
@@ -150,8 +148,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
       value: 10000,
     });
 
-    assert.strictEqual(
-      psbt.toBase64(),
+    expect(psbt.toBase64()).toBe(
       'cHNidP8BAKcCAAAAA1+8dBEMLW/PTRFhpZkT+80rarPFqetNDcCFlRXLyGVPAAAAAAAAAACAbZP7eSKA4mMEs3Cr69I3Qwzt21Zwh38dKpjYCSSpAK0BAAAAAAAAAICHyazZ1XFIRTQ7GKuqJsuDKZviSHwi2pwOJw8kG02c/gAAAAAAAAAAgAEQJwAAAAAAABl2qRRNxsv2TfmrEGzugSx1AZYLk+khd4isAAAAAAABAP1gAQEAAAAAAQHo2Y7/u0+6TwqJvPIX61p+L478rkTzLsrLxdjMPOaDwwEAAAAXFgAUi6bQLnTApuAA6LF06y7UTl6iEab/////BRAnAAAAAAAAGXapFE3Gy/ZN+asQbO6BLHUBlguT6SF3iKwgTgAAAAAAABl2qRS8Lba3TI25sYhxHc7dUR5qMFYD9YisMHUAAAAAAAAZdqkUTcbL9k35qxBs7oEsdQGWC5PpIXeIrECcAAAAAAAAGXapFLwttrdMjbmxiHEdzt1RHmowVgP1iKwgRxYAAAAAABepFOKG1Y5T+SR6RxDlEjLM4GhvFoc8hwJIMEUCIQCvOADNgXHxVHhc8T9GwJL2HBZo+X20MrtOfte8gSqMbQIgUb3coerxrYtfO9DM3nRH5W/TyHCeWQbwLsYybppbL/MBIQOaQh1et8neZZCuKkcctVa2DejGsFa+uQfb3B9eYJL1iAAAAAAiBgMW6EolVvMKGZVBYz9d2meHcQzKsmdxtwhPTJ4RBPR2ZxgAAAAALAAAgAAAAIAAAACAAAAAAAAAAAAAAQEfUMMAAAAAAAAWABRdVlN9SNyYZGw0RlmtnzqBcHoXxSIGAnqv8b0nSBLQEkZL4l3AZYcoektXhnjljJSaEzufuTx/GAAAAABUAACAAAAAgAAAAIAAAAAAAQAAAAABASCQZQAAAAAAABepFHH8oGeDfo3SSYkgJqW15AVPiyXhhwEEFgAUojm2oMvHqtwud2Q942MGphZ/rRUiBgICrDvRWeVNwx5lhCrV+aELTrAk6DhkoxmyfeZe4IsqORgAAAAAMQAAgAAAAIAAAACAAAAAAAAAAAAAAA==',
     );
 
@@ -160,21 +157,20 @@ describe('AbstractHDElectrumWallet.cosign', () => {
 
     let tx;
 
-    assert.strictEqual(w1.calculateHowManySignaturesWeHaveFromPsbt(psbt), 0);
+    expect(w1.calculateHowManySignaturesWeHaveFromPsbt(psbt)).toBe(0);
     tx = w1.cosignPsbt(psbt).tx;
-    assert.strictEqual(w1.calculateHowManySignaturesWeHaveFromPsbt(psbt), 1);
-    assert.strictEqual(tx, false); // not yet fully-signed
+    expect(w1.calculateHowManySignaturesWeHaveFromPsbt(psbt)).toBe(1);
+    expect(tx).toBe(false); // not yet fully-signed
 
     tx = w2.cosignPsbt(psbt).tx;
-    assert.strictEqual(w2.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
-    assert.strictEqual(tx, false); // not yet fully-signed
+    expect(w2.calculateHowManySignaturesWeHaveFromPsbt(psbt)).toBe(2);
+    expect(tx).toBe(false); // not yet fully-signed
 
     tx = w3.cosignPsbt(psbt).tx; // GREAT SUCCESS!
-    assert.strictEqual(w3.calculateHowManySignaturesWeHaveFromPsbt(psbt), 3);
-    assert.ok(tx);
+    expect(w3.calculateHowManySignaturesWeHaveFromPsbt(psbt)).toBe(3);
+    expect(tx).toBeTruthy();
 
-    assert.strictEqual(
-      tx.toHex(),
+    expect(tx.toHex()).toBe(
       '020000000001035fbc74110c2d6fcf4d1161a59913fbcd2b6ab3c5a9eb4d0dc0859515cbc8654f000000006a473044022041df555e5f6a3769fafdbe23bfe29de84a1341b8fd85ffd279e238309c5df07702207cf1628b35ccacdb7d34e20fd46a3bc8adc0b1bd3b63249a3a4442b5a993d73501210316e84a2556f30a199541633f5dda6787710ccab26771b7084f4c9e1104f47667000000806d93fb792280e26304b370abebd237430ceddb5670877f1d2a98d80924a900ad01000000000000008087c9acd9d5714845343b18abaa26cb83299be2487c22da9c0e270f241b4d9cfe0000000017160014a239b6a0cbc7aadc2e77643de36306a6167fad15000000800110270000000000001976a9144dc6cbf64df9ab106cee812c7501960b93e9217788ac0002483045022100efe66403aba1441041dfdeff1f24b5e89ab5728ae7ceb9edb264eee004d5883c02207bf03cb611c9322086ac75fa97c374e9540c911359ede4f62de3c94c429ea2320121027aaff1bd274812d012464be25dc06587287a4b578678e58c949a133b9fb93c7f0247304402207a99c115f0b372d151caf991bb5af9f880e7d87625eeb4233fefa671489ed8e702200e5675b92e4e22b2fe37f563b2a0e75fb81def5a6efb431c7ca3b654ef63fe5801210202ac3bd159e54dc31e65842ad5f9a10b4eb024e83864a319b27de65ee08b2a3900000000',
     );
   });
@@ -187,16 +183,16 @@ describe('AbstractHDElectrumWallet.cosign', () => {
 
     const w = new HDSegwitBech32Wallet();
     w.setSecret(process.env.MNEMONICS_COBO);
-    assert.ok(w.validateMnemonic());
+    expect(w.validateMnemonic()).toBeTruthy();
 
     const psbtWithCorrectFpBase64 =
       'cHNidP8BAFUCAAAAAfsmeQ1mJJqC9cD0DxDRFQoG2hvU6S4koB0jl+8TEDKjAAAAAAD/////AQpfAAAAAAAAGXapFBkSnVPmMZuvGdugWb6tFm35Crj1iKwAAAAAAAEBH8p3AAAAAAAAFgAUf8fcrCg92McSzWkmw+UAluC4IjsiBgLfsmddhS3oxlnlGrUPDBVoVHSMa8RcXlGsyhfc8CcGpRjTfq2IVAAAgAAAAIAAAACAAAAAAAQAAAAAAA==';
     const psbtWithCorrectFp = bitcoin.Psbt.fromBase64(psbtWithCorrectFpBase64);
 
-    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbtWithCorrectFp), 0);
+    expect(w.calculateHowManySignaturesWeHaveFromPsbt(psbtWithCorrectFp)).toBe(0);
 
     const { tx } = w.cosignPsbt(psbtWithCorrectFp);
-    assert.ok(tx && tx.toHex());
-    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbtWithCorrectFp), 1);
+    expect(tx && tx.toHex()).toBeTruthy();
+    expect(w.calculateHowManySignaturesWeHaveFromPsbt(psbtWithCorrectFp)).toBe(1);
   });
 });

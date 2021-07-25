@@ -3,7 +3,7 @@ import TestRenderer from 'react-test-renderer';
 import Settings from '../../screen/settings/settings';
 import Selftest from '../../screen/selftest';
 import { BlueHeader } from '../../BlueComponents';
-const assert = require('assert');
+
 jest.mock('react-native-qrcode-svg', () => 'Video');
 jest.useFakeTimers();
 
@@ -47,5 +47,5 @@ it('Selftest work', () => {
     // console.log(text);
   }
 
-  assert.ok(okFound, 'OK not found. Got: ' + allTests.join('; '));
+  expect(okFound).toBeTruthy();
 });

@@ -1,34 +1,32 @@
-import assert from 'assert';
-
 import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet } from '../../class';
 import AOPP from '../../class/aopp';
 
 describe('AOPP', () => {
   it('can validate uri', async () => {
     const a = new AOPP('aopp:?v=0&msg=vasp-chosen-msg&asset=btc&format=p2wpkh&callback=https://vasp.com/proofs/vasp-chosen-token');
-    assert.strictEqual(a.v, 0);
-    assert.strictEqual(a.msg, 'vasp-chosen-msg');
-    assert.strictEqual(a.format, 'p2wpkh');
-    assert.strictEqual(a.callback, 'https://vasp.com/proofs/vasp-chosen-token');
-    assert.strictEqual(a.callbackHostname, 'vasp.com');
+    expect(a.v).toBe(0);
+    expect(a.msg).toBe('vasp-chosen-msg');
+    expect(a.format).toBe('p2wpkh');
+    expect(a.callback).toBe('https://vasp.com/proofs/vasp-chosen-token');
+    expect(a.callbackHostname).toBe('vasp.com');
 
     // wrong version
-    assert.throws(() => new AOPP('aopp:?v=1&msg=vasp-chosen-msg&asset=btc&format=p2wpkh&callback=https://vasp.com/'));
+    expect(() => new AOPP('aopp:?v=1&msg=vasp-chosen-msg&asset=btc&format=p2wpkh&callback=https://vasp.com/')).toThrow();
 
     // wrong asset
-    assert.throws(() => new AOPP('aopp:?v=0&msg=vasp-chosen-msg&asset=bch&format=p2wpkh&callback=https://vasp.com/'));
+    expect(() => new AOPP('aopp:?v=0&msg=vasp-chosen-msg&asset=bch&format=p2wpkh&callback=https://vasp.com/')).toThrow();
 
     // wrong format
-    assert.throws(() => new AOPP('aopp:?v=0&msg=vasp-chosen-msg&asset=btc&format=erc20&callback=https://vasp.com/'));
+    expect(() => new AOPP('aopp:?v=0&msg=vasp-chosen-msg&asset=btc&format=erc20&callback=https://vasp.com/')).toThrow();
   });
 
   it('can cast address format to our internal segwitType', () => {
-    assert.throws(() => AOPP.getSegwitByAddressFormat('any'));
-    assert.throws(() => AOPP.getSegwitByAddressFormat('blablabla'));
+    expect(() => AOPP.getSegwitByAddressFormat('any')).toThrow();
+    expect(() => AOPP.getSegwitByAddressFormat('blablabla')).toThrow();
 
-    assert.strictEqual(AOPP.getSegwitByAddressFormat('p2wpkh'), 'p2wpkh');
-    assert.strictEqual(AOPP.getSegwitByAddressFormat('p2sh'), 'p2sh(p2wpkh)');
-    assert.strictEqual(AOPP.getSegwitByAddressFormat('p2pkh'), undefined);
+    expect(AOPP.getSegwitByAddressFormat('p2wpkh')).toBe('p2wpkh');
+    expect(AOPP.getSegwitByAddressFormat('p2sh')).toBe('p2sh(p2wpkh)');
+    expect(AOPP.getSegwitByAddressFormat('p2pkh')).toBe(undefined);
   });
 
   // these tests depends on unstable https://testing.21analytics.ch/ ( link can be found at https://testing.aopp.group/) so we don't want to run chem all the time

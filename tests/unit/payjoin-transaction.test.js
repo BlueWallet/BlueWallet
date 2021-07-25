@@ -1,8 +1,9 @@
+import * as bitcoin from 'bitcoinjs-lib';
+import { PayjoinClient } from 'payjoin-client';
+
 import { HDSegwitBech32Wallet } from '../../class';
 import PayjoinTransaction from '../../class/payjoin-transaction';
-import { PayjoinClient } from 'payjoin-client';
-const bitcoin = require('bitcoinjs-lib');
-const assert = require('assert');
+
 jest.useFakeTimers();
 
 const utxos = [
@@ -34,15 +35,15 @@ describe('PayjoinTransaction', () => {
       w._getInternalAddressByIndex(0),
     );
 
-    assert.strictEqual(txOrig.ins.length, 1);
-    assert.strictEqual(txOrig.outs.length, 2);
+    expect(txOrig.ins.length).toBe(1);
+    expect(txOrig.outs.length).toBe(2);
 
     let broadcastWasCalled;
     const wallet = new PayjoinTransaction(
       psbtOrig,
       async txhex => {
         broadcastWasCalled = true;
-        assert.strictEqual(txhex, txOrig.toHex());
+        expect(txhex).toBe(txOrig.toHex());
         return true;
       },
       w,
@@ -61,11 +62,11 @@ describe('PayjoinTransaction', () => {
       payjoinRequester: payjoinRequesterMock,
     });
 
-    await assert.rejects(payjoinClient.run());
+    await expect(payjoinClient.run()).rejects.toThrow();
 
-    assert.ok(broadcastWasCalled);
+    expect(broadcastWasCalled).toBeTruthy();
     const payjoinPsbt = wallet.getPayjoinPsbt();
-    assert.ok(!payjoinPsbt);
+    expect(!payjoinPsbt).toBeTruthy();
   });
 
   it('works', async () => {
@@ -82,8 +83,8 @@ describe('PayjoinTransaction', () => {
       7,
       w._getInternalAddressByIndex(0),
     );
-    assert.strictEqual(txOrigin.ins.length, 1);
-    assert.strictEqual(txOrigin.outs.length, 2);
+    expect(txOrigin.ins.length).toBe(1);
+    expect(txOrigin.outs.length).toBe(2);
 
     let broadcastWasCalled = 0;
     const wallet = new PayjoinTransaction(
@@ -91,10 +92,10 @@ describe('PayjoinTransaction', () => {
       async txhex => {
         broadcastWasCalled++;
         const tx2broadcast = bitcoin.Transaction.fromHex(txhex);
-        assert.strictEqual(tx2broadcast.ins.length, 2);
-        assert.strictEqual(tx2broadcast.outs.length, 2);
+        expect(tx2broadcast.ins.length).toBe(2);
+        expect(tx2broadcast.outs.length).toBe(2);
 
-        assert.notStrictEqual(txhex, txOrigin.toHex());
+        expect(txhex).not.toBe(txOrigin.toHex());
         return true;
       },
       w,
@@ -118,10 +119,10 @@ describe('PayjoinTransaction', () => {
     await payjoinClient.run();
 
     const payjoinPsbt = wallet.getPayjoinPsbt();
-    assert.ok(payjoinPsbt);
+    expect(payjoinPsbt).toBeTruthy();
     const txPayjoin = payjoinPsbt.extractTransaction();
-    assert.strictEqual(txPayjoin.ins.length, 2);
-    assert.strictEqual(txPayjoin.outs.length, 2);
-    assert.strictEqual(broadcastWasCalled, 1);
+    expect(txPayjoin.ins.length).toBe(2);
+    expect(txPayjoin.outs.length).toBe(2);
+    expect(broadcastWasCalled).toBe(1);
   });
 });

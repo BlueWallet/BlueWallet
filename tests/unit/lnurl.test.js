@@ -1,45 +1,42 @@
 import Lnurl from '../../class/lnurl';
-const assert = require('assert');
 
 describe('LNURL', function () {
   it('can findlnurl', () => {
     const base = 'lnurl1dp68gurn8ghj7mrww3uxymm59e3xjemnw4hzu7re0ghkcmn4wfkz7urp0ylh2um9wf5kg0fhxycnv9g9w58';
-    assert.strictEqual(Lnurl.findlnurl(base), base);
-    assert.strictEqual(Lnurl.findlnurl(base.toUpperCase()), base);
-    assert.strictEqual(Lnurl.findlnurl('https://site.com/?lightning=' + base), base);
-    assert.strictEqual(Lnurl.findlnurl('https://site.com/?lightning=' + base.toUpperCase()), base);
-    assert.strictEqual(Lnurl.findlnurl('https://site.com/?nada=nada&lightning=' + base), base);
-    assert.strictEqual(Lnurl.findlnurl('https://site.com/?nada=nada&lightning=' + base.toUpperCase()), base);
-    assert.strictEqual(Lnurl.findlnurl('bs'), null);
-    assert.strictEqual(Lnurl.findlnurl('https://site.com'), null);
-    assert.strictEqual(Lnurl.findlnurl('https://site.com/?bs=' + base), null);
+    expect(Lnurl.findlnurl(base)).toBe(base);
+    expect(Lnurl.findlnurl(base.toUpperCase())).toBe(base);
+    expect(Lnurl.findlnurl('https://site.com/?lightning=' + base)).toBe(base);
+    expect(Lnurl.findlnurl('https://site.com/?lightning=' + base.toUpperCase())).toBe(base);
+    expect(Lnurl.findlnurl('https://site.com/?nada=nada&lightning=' + base)).toBe(base);
+    expect(Lnurl.findlnurl('https://site.com/?nada=nada&lightning=' + base.toUpperCase())).toBe(base);
+    expect(Lnurl.findlnurl('bs')).toBe(null);
+    expect(Lnurl.findlnurl('https://site.com')).toBe(null);
+    expect(Lnurl.findlnurl('https://site.com/?bs=' + base)).toBe(null);
   });
 
   it('can getUrlFromLnurl()', () => {
-    assert.strictEqual(
-      Lnurl.getUrlFromLnurl('LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58'),
+    expect(Lnurl.getUrlFromLnurl('LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58')).toBe(
       'https://lntxbot.bigsun.xyz/lnurl/pay?userid=7116',
     );
-    assert.strictEqual(
+    expect(
       Lnurl.getUrlFromLnurl(
         'https://lnbits.com/?lightning=LNURL1DP68GURN8GHJ7MRWVF5HGUEWVDHK6TMHD96XSERJV9MJ7CTSDYHHVVF0D3H82UNV9UM9JDENFPN5SMMK2359J5RKWVMKZ5ZVWAV4VJD63TM',
       ),
-      'https://lnbits.com/withdraw/api/v1/lnurl/6Y73HgHovThYPvs7aPLwYV',
-    );
-    assert.strictEqual(Lnurl.getUrlFromLnurl('bs'), false);
+    ).toBe('https://lnbits.com/withdraw/api/v1/lnurl/6Y73HgHovThYPvs7aPLwYV');
+    expect(Lnurl.getUrlFromLnurl('bs')).toBe(false);
   });
 
   it('can isLnurl()', () => {
-    assert.ok(Lnurl.isLnurl('LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58'));
-    assert.ok(
+    expect(Lnurl.isLnurl('LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58')).toBeTruthy();
+    expect(
       Lnurl.isLnurl(
         'https://site.com/?lightning=LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58',
       ),
-    );
-    assert.ok(
+    ).toBeTruthy();
+    expect(
       !Lnurl.isLnurl('https://site.com/?bs=LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58'),
-    );
-    assert.ok(!Lnurl.isLnurl('bs'));
+    ).toBeTruthy();
+    expect(!Lnurl.isLnurl('bs')).toBeTruthy();
   });
 
   it('can callLnurlPayService() and requestBolt11FromLnurlPayService()', async () => {
@@ -58,7 +55,7 @@ describe('LNURL', function () {
       };
     };
     const lnurlpayPayload = await LN.callLnurlPayService();
-    assert.deepStrictEqual(lnurlpayPayload, {
+    expect(lnurlpayPayload).toEqual({
       amount: 1,
       callback: 'https://lntxbot.bigsun.xyz/lnurl/pay/callback?userid=7116',
       description: 'Fund @overtorment account on t.me/lntxbot.',
@@ -82,7 +79,7 @@ describe('LNURL', function () {
       };
     };
     const rez = await LN.requestBolt11FromLnurlPayService(2);
-    assert.deepStrictEqual(rez, {
+    expect(rez).toEqual({
       status: 'OK',
       successAction: null,
       routes: [],
@@ -91,12 +88,12 @@ describe('LNURL', function () {
       disposable: false,
     });
 
-    assert.strictEqual(LN.getSuccessAction(), null);
-    assert.strictEqual(LN.getDomain(), 'lntxbot.bigsun.xyz');
-    assert.strictEqual(LN.getDescription(), 'Fund @overtorment account on t.me/lntxbot.');
-    assert.strictEqual(LN.getImage(), undefined);
-    assert.strictEqual(LN.getLnurl(), 'LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58');
-    assert.strictEqual(LN.getDisposable(), false);
+    expect(LN.getSuccessAction()).toBe(null);
+    expect(LN.getDomain()).toBe('lntxbot.bigsun.xyz');
+    expect(LN.getDescription()).toBe('Fund @overtorment account on t.me/lntxbot.');
+    expect(LN.getImage()).toBe(undefined);
+    expect(LN.getLnurl()).toBe('LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58');
+    expect(LN.getDisposable()).toBe(false);
   });
 
   it('can decipher AES', () => {
@@ -104,6 +101,6 @@ describe('LNURL', function () {
     const iv = 'eTGduB45hWTOxHj1dR+LJw==';
     const preimage = 'bf62911aa53c017c27ba34391f694bc8bf8aaf59b4ebfd9020e66ac0412e189b';
 
-    assert.strictEqual(Lnurl.decipherAES(ciphertext, preimage, iv), '1234');
+    expect(Lnurl.decipherAES(ciphertext, preimage, iv)).toBe('1234');
   });
 });

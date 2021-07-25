@@ -1,4 +1,3 @@
-import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import { HDLegacyP2PKHWallet } from '../../class';
@@ -11,33 +10,30 @@ describe('Legacy HD (BIP44)', () => {
     }
     const hd = new HDLegacyP2PKHWallet();
     hd.setSecret(process.env.HD_MNEMONIC);
-    assert.ok(hd.validateMnemonic());
+    expect(hd.validateMnemonic()).toBeTruthy();
 
-    assert.strictEqual(
-      hd.getXpub(),
+    expect(hd.getXpub()).toBe(
       'xpub6ByZUAv558PPheJgcPYHpxPLwz8M7TtueYMAik84NADeQcvbzS8W3WxxJ3C9NzfYkMoChiMAumWbeEvMWhTVpH75NqGv5c9wF3wKDbfQShb',
     );
 
-    assert.strictEqual(hd._getExternalAddressByIndex(0), '186FBQmCV5W1xY7ywaWtTZPAQNciVN8Por');
-    assert.strictEqual(hd._getInternalAddressByIndex(0), '1J9zoJz5LsAJ361SQHYnLTWg46Tc2AXUCj');
+    expect(hd._getExternalAddressByIndex(0)).toBe('186FBQmCV5W1xY7ywaWtTZPAQNciVN8Por');
+    expect(hd._getInternalAddressByIndex(0)).toBe('1J9zoJz5LsAJ361SQHYnLTWg46Tc2AXUCj');
 
-    assert.strictEqual(hd._getInternalWIFByIndex(0), 'L4ojevRtK81A8Kof3qyLS2M7HvsVDbUDENNhJqU4vf79w9yGnQLb');
-    assert.strictEqual(hd._getExternalWIFByIndex(0), 'Kz6kLhdyDfSbKuVH25XVqBRztjmFe8X22Xe1hnFzEv79gJNMkTAH');
+    expect(hd._getInternalWIFByIndex(0)).toBe('L4ojevRtK81A8Kof3qyLS2M7HvsVDbUDENNhJqU4vf79w9yGnQLb');
+    expect(hd._getExternalWIFByIndex(0)).toBe('Kz6kLhdyDfSbKuVH25XVqBRztjmFe8X22Xe1hnFzEv79gJNMkTAH');
 
-    assert.ok(hd.getAllExternalAddresses().includes('186FBQmCV5W1xY7ywaWtTZPAQNciVN8Por'));
-    assert.ok(!hd.getAllExternalAddresses().includes('1J9zoJz5LsAJ361SQHYnLTWg46Tc2AXUCj')); // not internal
+    expect(hd.getAllExternalAddresses().includes('186FBQmCV5W1xY7ywaWtTZPAQNciVN8Por')).toBeTruthy();
+    expect(!hd.getAllExternalAddresses().includes('1J9zoJz5LsAJ361SQHYnLTWg46Tc2AXUCj')).toBeTruthy(); // not internal
 
-    assert.strictEqual(
-      hd._getPubkeyByAddress(hd._getExternalAddressByIndex(0)).toString('hex'),
+    expect(hd._getPubkeyByAddress(hd._getExternalAddressByIndex(0)).toString('hex')).toBe(
       '0316e84a2556f30a199541633f5dda6787710ccab26771b7084f4c9e1104f47667',
     );
-    assert.strictEqual(
-      hd._getPubkeyByAddress(hd._getInternalAddressByIndex(0)).toString('hex'),
+    expect(hd._getPubkeyByAddress(hd._getInternalAddressByIndex(0)).toString('hex')).toBe(
       '02ad7b2216f3a2b38d56db8a7ee5c540fd12c4bbb7013106eff78cc2ace65aa002',
     );
 
-    assert.strictEqual(hd._getDerivationPathByAddress(hd._getExternalAddressByIndex(0)), "m/44'/0'/0'/0/0");
-    assert.strictEqual(hd._getDerivationPathByAddress(hd._getInternalAddressByIndex(0)), "m/44'/0'/0'/1/0");
+    expect(hd._getDerivationPathByAddress(hd._getExternalAddressByIndex(0))).toBe("m/44'/0'/0'/0/0");
+    expect(hd._getDerivationPathByAddress(hd._getInternalAddressByIndex(0))).toBe("m/44'/0'/0'/1/0");
   });
 
   it('can create TX', async () => {
@@ -47,7 +43,7 @@ describe('Legacy HD (BIP44)', () => {
     }
     const hd = new HDLegacyP2PKHWallet();
     hd.setSecret(process.env.HD_MNEMONIC);
-    assert.ok(hd.validateMnemonic());
+    expect(hd.validateMnemonic()).toBeTruthy();
 
     const utxo = [
       {
@@ -111,14 +107,14 @@ describe('Legacy HD (BIP44)', () => {
       hd._getInternalAddressByIndex(hd.next_free_change_address_index),
     );
     let tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
-    assert.strictEqual(tx.ins.length, 3);
-    assert.strictEqual(tx.outs.length, 2);
-    assert.strictEqual(tx.outs[0].value, 80000); // payee
-    assert.strictEqual(tx.outs[1].value, 9478); // change
+    expect(tx.ins.length).toBe(3);
+    expect(tx.outs.length).toBe(2);
+    expect(tx.outs[0].value).toBe(80000); // payee
+    expect(tx.outs[1].value).toBe(9478); // change
     let toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
     const changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
-    assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
-    assert.strictEqual(hd._getInternalAddressByIndex(hd.next_free_change_address_index), changeAddress);
+    expect('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK').toBe(toAddress);
+    expect(hd._getInternalAddressByIndex(hd.next_free_change_address_index)).toBe(changeAddress);
 
     // testing sendMax
     txNew = hd.createTransaction(
@@ -128,10 +124,10 @@ describe('Legacy HD (BIP44)', () => {
       hd._getInternalAddressByIndex(hd.next_free_change_address_index),
     );
     tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
-    assert.strictEqual(tx.ins.length, 4);
-    assert.strictEqual(tx.outs.length, 1);
+    expect(tx.ins.length).toBe(4);
+    expect(tx.outs.length).toBe(1);
     toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
-    assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
+    expect('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK').toBe(toAddress);
   });
 
   it('can sign and verify messages', async () => {
@@ -142,20 +138,20 @@ describe('Legacy HD (BIP44)', () => {
 
     // external address
     signature = hd.signMessage('vires is numeris', hd._getExternalAddressByIndex(0));
-    assert.strictEqual(signature, 'H5J8DbqvuBy8lqRW7+LTVrrtrsaqLSwRDyj+5XtCrZpdCgPlxKM4EKRD6qvdKeyEh1fiSfIVB/edPAum3gKcJZo=');
-    assert.strictEqual(hd.verifyMessage('vires is numeris', hd._getExternalAddressByIndex(0), signature), true);
+    expect(signature).toBe('H5J8DbqvuBy8lqRW7+LTVrrtrsaqLSwRDyj+5XtCrZpdCgPlxKM4EKRD6qvdKeyEh1fiSfIVB/edPAum3gKcJZo=');
+    expect(hd.verifyMessage('vires is numeris', hd._getExternalAddressByIndex(0), signature)).toBe(true);
 
     // internal address
     signature = hd.signMessage('vires is numeris', hd._getInternalAddressByIndex(0));
-    assert.strictEqual(signature, 'H98hmvtyPFUbR6E5Tcsqmc+eSjlYhP2vy41Y6IyHS9DVKEI5n8VEMpIEDtvlMARVce96nOqbRHXo9nD05WXH/Eo=');
-    assert.strictEqual(hd.verifyMessage('vires is numeris', hd._getInternalAddressByIndex(0), signature), true);
+    expect(signature).toBe('H98hmvtyPFUbR6E5Tcsqmc+eSjlYhP2vy41Y6IyHS9DVKEI5n8VEMpIEDtvlMARVce96nOqbRHXo9nD05WXH/Eo=');
+    expect(hd.verifyMessage('vires is numeris', hd._getInternalAddressByIndex(0), signature)).toBe(true);
   });
 
   it('can show fingerprint', async () => {
     const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
     const hd = new HDLegacyP2PKHWallet();
     hd.setSecret(mnemonic);
-    assert.strictEqual(hd.getMasterFingerprintHex(), '73C5DA0A');
+    expect(hd.getMasterFingerprintHex()).toBe('73C5DA0A');
   });
 
   // from electrum tests https://github.com/spesmilo/electrum/blob/9c1a51547a301e765b9b0f9935c6d940bb9d658e/electrum/tests/test_wallet_vertical.py#L292
@@ -166,13 +162,12 @@ describe('Legacy HD (BIP44)', () => {
     hd.setSecret(mnemonic);
     hd.setPassphrase(UNICODE_HORROR);
 
-    assert.strictEqual(
-      hd.getXpub(),
+    expect(hd.getXpub()).toBe(
       'xpub6D85QDBajeLe2JXJrZeGyQCaw47PWKi3J9DPuHakjTkVBWCxVQQkmMVMSSfnw39tj9FntbozpRtb1AJ8ubjeVSBhyK4M5mzdvsXZzKPwodT',
     );
 
-    assert.strictEqual(hd._getExternalAddressByIndex(0), '1F88g2naBMhDB7pYFttPWGQgryba3hPevM');
-    assert.strictEqual(hd._getInternalAddressByIndex(0), '1H4QD1rg2zQJ4UjuAVJr5eW1fEM8WMqyxh');
-    assert.strictEqual(hd._getExternalWIFByIndex(0), 'L3HLzdVcwo4711gFiZG4fiLzLVNJpR6nejfo6J85wuYn9YF2G5zk');
+    expect(hd._getExternalAddressByIndex(0)).toBe('1F88g2naBMhDB7pYFttPWGQgryba3hPevM');
+    expect(hd._getInternalAddressByIndex(0)).toBe('1H4QD1rg2zQJ4UjuAVJr5eW1fEM8WMqyxh');
+    expect(hd._getExternalWIFByIndex(0)).toBe('L3HLzdVcwo4711gFiZG4fiLzLVNJpR6nejfo6J85wuYn9YF2G5zk');
   });
 });
