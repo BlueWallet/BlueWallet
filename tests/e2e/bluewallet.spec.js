@@ -1,4 +1,5 @@
 import * as bitcoin from 'bitcoinjs-lib';
+import jestExpect from 'expect'; // detox patches jest expect, so we need original to check numbers, strings and etc
 const createHash = require('create-hash');
 
 jasmine.getEnv().addReporter({
@@ -526,22 +527,22 @@ describe('BlueWallet UI Tests', () => {
     await yo('TransactionValue');
     expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     const transactionFee = await extractTextFromElementById('TransactionFee');
-    expect(transactionFee.startsWith('Fee: 0.00000452 BTC')).toBeTruthy();
+    jestExpect(transactionFee.startsWith('Fee: 0.00000452 BTC')).toBeTruthy();
     await element(by.id('TransactionDetailsButton')).tap();
 
     let txhex = await extractTextFromElementById('TxhexInput');
 
     let transaction = bitcoin.Transaction.fromHex(txhex);
-    expect(transaction.ins.length === 1 || transaction.ins.length === 2).toBeTruthy(); // depending on current fees gona use either 1 or 2 inputs
-    expect(transaction.outs.length).toBe(2);
-    expect(bitcoin.address.fromOutputScript(transaction.outs[0].script)).toBe('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
-    expect(transaction.outs[0].value).toBe(10000);
+    jestExpect(transaction.ins.length === 1 || transaction.ins.length === 2).toBeTruthy(); // depending on current fees gona use either 1 or 2 inputs
+    jestExpect(transaction.outs.length).toBe(2);
+    jestExpect(bitcoin.address.fromOutputScript(transaction.outs[0].script)).toBe('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
+    jestExpect(transaction.outs[0].value).toBe(10000);
 
     // checking fee rate:
     const totalIns = 100000; // we hardcode it since we know it in advance
     const totalOuts = transaction.outs.map(el => el.value).reduce((a, b) => a + b, 0);
-    expect(Math.round((totalIns - totalOuts) / (txhex.length / 2))).toBe(feeRate);
-    expect(transactionFee.split(' ')[1] * 100000000).toBe(totalIns - totalOuts);
+    jestExpect(Math.round((totalIns - totalOuts) / (txhex.length / 2))).toBe(feeRate);
+    jestExpect(transactionFee.split(' ')[1] * 100000000).toBe(totalIns - totalOuts);
 
     if (device.getPlatform() === 'ios') {
       console.warn('rest of the test is Android only, skipped');
@@ -575,8 +576,8 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('TransactionDetailsButton')).tap();
     txhex = await extractTextFromElementById('TxhexInput');
     transaction = bitcoin.Transaction.fromHex(txhex);
-    expect(bitcoin.address.fromOutputScript(transaction.outs[0].script)).toBe('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    expect(transaction.outs[0].value).toBe(15000);
+    jestExpect(bitcoin.address.fromOutputScript(transaction.outs[0].script)).toBe('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    jestExpect(transaction.outs[0].value).toBe(15000);
 
     // now, testing scanQR with just address after amount set to 1.1 USD. Denomination should not change after qrcode scan
 
@@ -606,9 +607,9 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('TransactionDetailsButton')).tap();
     txhex = await extractTextFromElementById('TxhexInput');
     transaction = bitcoin.Transaction.fromHex(txhex);
-    expect(bitcoin.address.fromOutputScript(transaction.outs[0].script)).toBe('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    expect(transaction.outs[0].value).not.toBe(110000000); // check that it is 1.1 USD, not 1 BTC
-    expect(transaction.outs[0].value < 10000).toBeTruthy(); // 1.1 USD ~ 0,00001964 sats in march 2021
+    jestExpect(bitcoin.address.fromOutputScript(transaction.outs[0].script)).toBe('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    jestExpect(transaction.outs[0].value).not.toBe(110000000); // check that it is 1.1 USD, not 1 BTC
+    jestExpect(transaction.outs[0].value < 10000).toBeTruthy(); // 1.1 USD ~ 0,00001964 sats in march 2021
 
     // now, testing units switching, and then creating tx with SATS:
 
@@ -633,8 +634,8 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('TransactionDetailsButton')).tap();
     txhex = await extractTextFromElementById('TxhexInput');
     transaction = bitcoin.Transaction.fromHex(txhex);
-    expect(transaction.outs.length).toBe(2);
-    expect(transaction.outs[0].value).toBe(50000);
+    jestExpect(transaction.outs.length).toBe(2);
+    jestExpect(transaction.outs[0].value).toBe(50000);
 
     // now, testing send many feature
 
@@ -676,11 +677,11 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('TransactionDetailsButton')).tap();
     txhex = await extractTextFromElementById('TxhexInput');
     transaction = bitcoin.Transaction.fromHex(txhex);
-    expect(transaction.outs.length).toBe(3);
-    expect(bitcoin.address.fromOutputScript(transaction.outs[0].script)).toBe('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    expect(transaction.outs[0].value).toBe(50000);
-    expect(bitcoin.address.fromOutputScript(transaction.outs[1].script)).toBe('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    expect(transaction.outs[1].value).toBe(30000);
+    jestExpect(transaction.outs.length).toBe(3);
+    jestExpect(bitcoin.address.fromOutputScript(transaction.outs[0].script)).toBe('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    jestExpect(transaction.outs[0].value).toBe(50000);
+    jestExpect(bitcoin.address.fromOutputScript(transaction.outs[1].script)).toBe('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    jestExpect(transaction.outs[1].value).toBe(30000);
 
     // now, testing sendMAX feature:
 
@@ -711,8 +712,8 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('TransactionDetailsButton')).tap();
     txhex = await extractTextFromElementById('TxhexInput');
     transaction = bitcoin.Transaction.fromHex(txhex);
-    expect(transaction.outs.length).toBe(1);
-    expect(transaction.outs[0].value > 100000).toBeTruthy();
+    jestExpect(transaction.outs.length).toBe(1);
+    jestExpect(transaction.outs[0].value > 100000).toBeTruthy();
 
     // add second output with amount
     await device.pressBack();
@@ -732,11 +733,11 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('TransactionDetailsButton')).tap();
     txhex = await extractTextFromElementById('TxhexInput');
     transaction = bitcoin.Transaction.fromHex(txhex);
-    expect(transaction.outs.length).toBe(2);
-    expect(bitcoin.address.fromOutputScript(transaction.outs[0].script)).toBe('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    expect(transaction.outs[0].value > 50000).toBeTruthy();
-    expect(bitcoin.address.fromOutputScript(transaction.outs[1].script)).toBe('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    expect(transaction.outs[1].value).toBe(10000);
+    jestExpect(transaction.outs.length).toBe(2);
+    jestExpect(bitcoin.address.fromOutputScript(transaction.outs[0].script)).toBe('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    jestExpect(transaction.outs[0].value > 50000).toBeTruthy();
+    jestExpect(bitcoin.address.fromOutputScript(transaction.outs[1].script)).toBe('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    jestExpect(transaction.outs[1].value).toBe(10000);
 
     // now, testing cosign psbt:
 
@@ -1034,10 +1035,10 @@ describe('BlueWallet UI Tests', () => {
     const txhex = await extractTextFromElementById('TxhexInput');
 
     const transaction = bitcoin.Transaction.fromHex(txhex);
-    expect(transaction.ins.length === 1 || transaction.ins.length === 2).toBeTruthy(); // depending on current fees gona use either 1 or 2 inputs
-    expect(transaction.outs.length).toBe(2);
-    expect(bitcoin.address.fromOutputScript(transaction.outs[0].script)).toBe('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
-    expect(transaction.outs[0].value).toBe(50000);
+    jestExpect(transaction.ins.length === 1 || transaction.ins.length === 2).toBeTruthy(); // depending on current fees gona use either 1 or 2 inputs
+    jestExpect(transaction.outs.length).toBe(2);
+    jestExpect(bitcoin.address.fromOutputScript(transaction.outs[0].script)).toBe('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
+    jestExpect(transaction.outs[0].value).toBe(50000);
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -1109,11 +1110,11 @@ describe('BlueWallet UI Tests', () => {
 
     const psbthex1 = await extractTextFromElementById('PSBTHex');
     const psbt1 = bitcoin.Psbt.fromHex(psbthex1);
-    expect(psbt1.txOutputs.length).toBe(1);
-    expect(psbt1.txOutputs[0].address).toBe('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    expect(psbt1.txOutputs[0].value).toBe(99808);
-    expect(psbt1.data.inputs.length).toBe(1);
-    expect(psbt1.data.inputs[0].witnessUtxo.value).toBe(100000);
+    jestExpect(psbt1.txOutputs.length).toBe(1);
+    jestExpect(psbt1.txOutputs[0].address).toBe('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    jestExpect(psbt1.txOutputs[0].value).toBe(99808);
+    jestExpect(psbt1.data.inputs.length).toBe(1);
+    jestExpect(psbt1.data.inputs[0].witnessUtxo.value).toBe(100000);
 
     // back to wallet screen
     await device.pressBack();
@@ -1136,11 +1137,11 @@ describe('BlueWallet UI Tests', () => {
 
     const psbthex2 = await extractTextFromElementById('PSBTHex');
     const psbt2 = bitcoin.Psbt.fromHex(psbthex2);
-    expect(psbt2.txOutputs.length).toBe(1);
-    expect(psbt2.txOutputs[0].address).toBe('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    expect(psbt2.txOutputs[0].value).toBe(5334);
-    expect(psbt2.data.inputs.length).toBe(1);
-    expect(psbt2.data.inputs[0].witnessUtxo.value).toBe(5526);
+    jestExpect(psbt2.txOutputs.length).toBe(1);
+    jestExpect(psbt2.txOutputs[0].address).toBe('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    jestExpect(psbt2.txOutputs[0].value).toBe(5334);
+    jestExpect(psbt2.data.inputs.length).toBe(1);
+    jestExpect(psbt2.data.inputs[0].witnessUtxo.value).toBe(5526);
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
