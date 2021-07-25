@@ -46,6 +46,7 @@
     // disable rules that we want to enforce only for typescript files
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/no-this-alias": "off",
     "@typescript-eslint/no-use-before-define": "off"
   },
   "overrides": [
@@ -53,8 +54,11 @@
       // enable the rule specifically for TypeScript files
       "files": ["*.ts", "*.tsx"],
       "rules": {
-        "@typescript-eslint/explicit-module-boundary-types": ["error"],
-        "@typescript-eslint/no-var-requires": ["error"],
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-this-alias": "off",
+        "@typescript-eslint/no-var-requires": "off",
+        "@typescript-eslint/no-inferrable-types": "off",
         "@typescript-eslint/no-use-before-define": ["error", { "variables": false }]
       }
     }
