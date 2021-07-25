@@ -17,7 +17,11 @@
     "success": "Úspěch",
     "wallet_key": "Klíč peněženky",
     "invalid_animated_qr_code_fragment" : "Neplatný animovaný fragment QRCode, zkuste to prosím znovu",
-    "file_saved": "Soubor ({filePath}) byl uložen do složky Stažené soubory.",
+    "file_saved": "Soubor {filePath} byl uložen ve vašem {destination}.",
+    "file_save_title": "Uložit soubor",
+    "file_save_location": "Výběr místa pro uložení {filePath}",
+    "downloads_folder": "Složka Stažené soubory",
+    "external_storage": "Externí úložiště",
     "discard_changes": "Zrušit změny?",
     "discard_changes_detail": "Máte neuložené změny. Opravdu je chcete zahodit a opustit obrazovku?"
   },
@@ -259,8 +263,8 @@
     "electrum_connected_not": "Nepřipojeno",
     "electrum_error_connect": "Nelze se připojit k poskytovanému serveru Electrum",
     "electrum_host": "Např. {example}",
-    "electrum_port": "TCP port, obvykle {example}",
-    "electrum_port_ssl": "SSL port, obvykle {example}",
+    "electrum_port": "Port, obvykle {example}",
+    "use_ssl": "Použít protokol SSL",
     "electrum_saved": "Vaše změny byly úspěšně uloženy. Změny se projeví až po restartu.",
     "set_electrum_server_as_default": "Nastavit {server} jako výchozí electrum server?",
     "set_lndhub_as_default": "Nastavit {url} jako výchozí LNDHub server?",
@@ -421,6 +425,8 @@
     "enter_bip38_password": "Zadejte heslo pro odšifrování.",
     "export_title": "exportovat peněženku",
     "import_do_import": "Importovat",
+    "import_passphrase_title": "Fráze",
+    "import_passphrase_message": "Zadejte přístupovou frázi, pokud jste nějakou použili",
     "import_error": "Chyba při importu. Prosím ujistěte se, že poskytnutá data jsou správná.",
     "import_explanation": "Zadejte seed slova, veřejný klíč, WIF nebo cokoli, co máte. BlueWallet se bude snažit uhodnout správný formát a importovat vaši peněženku.",
     "import_file": "Importovat soubor",
@@ -581,7 +587,9 @@
     "sign_aopp_confirm": "Chcete poslat podepsanou zprávu uživateli {hostname}?",
     "addresses_title": "Adresy",
     "type_change": "Změnit",
-    "type_receive": "Příjmout"
+    "type_receive": "Příjmout",
+    "type_used": "Použité",
+    "transactions": "Transakce"
   },
   "aopp": {
     "title": "Vybrat adresu",

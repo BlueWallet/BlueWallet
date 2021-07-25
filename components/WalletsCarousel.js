@@ -354,6 +354,17 @@ const WalletsCarousel = forwardRef((props, ref) => {
     },
   }));
 
+  const onScrollToIndexFailed = error => {
+    console.log('onScrollToIndexFailed');
+    console.log(error);
+    flatListRef.current.scrollToOffset({ offset: error.averageItemLength * error.index, animated: true });
+    setTimeout(() => {
+      if (props.data.length !== 0 && flatListRef.current !== null) {
+        flatListRef.current.scrollToIndex({ index: error.index, animated: true });
+      }
+    }, 100);
+  };
+
   const { width } = useWindowDimensions();
   const sliderHeight = 190;
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
@@ -361,7 +372,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
     <FlatList
       ref={flatListRef}
       renderItem={renderItem}
-      extraData={renderItem}
+      extraData={props.data}
       keyExtractor={(_, index) => index.toString()}
       showsVerticalScrollIndicator={false}
       pagingEnabled
@@ -374,6 +385,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
       initialNumToRender={10}
       ListHeaderComponent={ListHeaderComponent}
       style={props.horizontal ? { height: sliderHeight + 9 } : {}}
+      onScrollToIndexFailed={onScrollToIndexFailed}
       {...props}
     />
   );
@@ -384,6 +396,7 @@ WalletsCarousel.propTypes = {
   selectedWallet: PropTypes.string,
   onPress: PropTypes.func.isRequired,
   handleLongPress: PropTypes.func.isRequired,
+  data: PropTypes.array,
 };
 
 export default WalletsCarousel;
