@@ -618,10 +618,10 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('changeAmountUnitButton')).tap(); // switched to BTC
     await element(by.id('BitcoinAmountInput')).replaceText('0.00015');
     await element(by.id('changeAmountUnitButton')).tap(); // switched to sats
-    expect(await extractTextFromElementById('BitcoinAmountInput')).toBe('15000');
+    jestExpect(await extractTextFromElementById('BitcoinAmountInput')).toBe('15000');
     await element(by.id('changeAmountUnitButton')).tap(); // switched to FIAT
     await element(by.id('changeAmountUnitButton')).tap(); // switched to BTC
-    expect(await extractTextFromElementById('BitcoinAmountInput')).toBe('0.00015');
+    jestExpect(await extractTextFromElementById('BitcoinAmountInput')).toBe('0.00015');
     await element(by.id('changeAmountUnitButton')).tap(); // switched to sats
     await element(by.id('BitcoinAmountInput')).replaceText('50000');
 
