@@ -10,7 +10,7 @@ const getIsTorCapable = () => {
   } else if (isDesktop) {
     capable = false;
   }
-  return capable;
+  return false;
 };
 
 export const isHandset = getDeviceType() === 'Handset';
