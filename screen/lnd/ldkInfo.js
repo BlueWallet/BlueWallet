@@ -30,7 +30,7 @@ const LdkInfo = () => {
   const [inactiveChannels, setInactiveChannels] = useState([]);
   const [pendingChannels, setPendingChannels] = useState([]);
   const [wBalance, setWalletBalance] = useState({});
-  const [centerContent, setCenterContent] = useState(true);
+  const centerContent = channels.length === 0 && pendingChannels.length === 0 && inactiveChannels.length === 0;
 
   // Modals
   const [selectedChannelIndex, setSelectedChannelIndex] = useState();
@@ -84,20 +84,16 @@ const LdkInfo = () => {
   const refetchData = async (withLoadingIndicator = true) => {
     setIsLoading(withLoadingIndicator);
 
-    let hasChannels = false;
-    let hasPendingChannels = false;
     const listChannels = await wallet.listChannels();
     if (listChannels && Array.isArray(listChannels)) {
       const activeChannels = listChannels.filter(channel => channel.is_usable === true);
       setChannels(activeChannels);
-      hasChannels = activeChannels.length > 0;
     } else {
       setChannels([]);
     }
     if (listChannels && Array.isArray(listChannels)) {
       const inactiveChannels = listChannels.filter(channel => !channel.is_usable && channel.is_funding_locked);
       setInactiveChannels(inactiveChannels);
-      hasChannels = inactiveChannels.length > 0;
     } else {
       setInactiveChannels([]);
     }
@@ -105,23 +101,20 @@ const LdkInfo = () => {
     if (listChannels && Array.isArray(listChannels)) {
       const listPendingChannels = listChannels.filter(channel => !channel.is_funding_locked);
       setPendingChannels(listPendingChannels);
-      hasPendingChannels = listPendingChannels.length > 0;
     } else {
       setPendingChannels([]);
     }
     const walletBalance = await wallet.walletBalance();
     setWalletBalance(walletBalance);
-    if (centerContent) {
-      setCenterContent(!(hasChannels || hasPendingChannels));
-    }
     setIsLoading(false);
   };
 
   useEffect(() => {
-    if (!centerContent && channels.length > 0) {
+    const isAnyChannelAvailable = channels.length > 0 || pendingChannels.length > 0 || inactiveChannels.length > 0;
+    if (centerContent && isAnyChannelAvailable) {
       sectionList.current.scrollToLocation({ animated: false, sectionIndex: 0, itemIndex: 0 });
     }
-  }, [centerContent, channels.length]);
+  }, [centerContent, channels, pendingChannels, inactiveChannels]);
 
   useEffect(() => {
     refetchData().then(() => {
