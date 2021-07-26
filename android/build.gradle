@@ -76,7 +76,6 @@ subprojects {
                 compileSdkVersion 29
                  defaultConfig {
                     minSdkVersion 24
-                    maxSdkVersion 25
                 }
             }
         }
