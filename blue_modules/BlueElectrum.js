@@ -597,7 +597,9 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
       if (txdata.error && txdata.error.code === -32600) {
         // response too large
         // lets do single call, that should go through okay:
-        txdata.result = await mainClient.blockchainTransaction_get(txdata.param, verbose);
+        txdata.result = await mainClient.blockchainTransaction_get(txdata.param, false);
+        // since we used VERBOSE=false, server sent us plain txhex which we must decode on our end:
+        txdata.result = txhexToElectrumTransaction(txdata.result);
       }
       ret[txdata.param] = txdata.result;
       if (ret[txdata.param]) delete ret[txdata.param].hex; // compact
