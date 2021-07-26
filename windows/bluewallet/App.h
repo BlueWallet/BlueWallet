@@ -10,6 +10,7 @@ namespace winrt::bluewallet::implementation
     {
         App() noexcept;
         void OnLaunched(activation::LaunchActivatedEventArgs const&);
+        void OnActivated(Windows::ApplicationModel::Activation::IActivatedEventArgs const &e);
         void OnSuspending(IInspectable const&, Windows::ApplicationModel::SuspendingEventArgs const&);
         void OnNavigationFailed(IInspectable const&, Windows::UI::Xaml::Navigation::NavigationFailedEventArgs const&);
       private:

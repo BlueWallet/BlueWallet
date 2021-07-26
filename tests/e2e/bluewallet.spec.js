@@ -1145,6 +1145,34 @@ describe('BlueWallet UI Tests', () => {
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
+
+  it('can import HD wallet with a passphrase', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+    }
+
+    await helperImportWallet(
+      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+      'Imported HD SegWit (BIP84 Bech32 Native)',
+      '0 BTC',
+      'BlueWallet',
+    );
+
+    await element(by.id('ReceiveButton')).tap();
+    try {
+      // in case emulator has no google services and doesnt support pushes
+      // we just dont show this popup
+      await element(by.text(`No, and don’t ask me again`)).tap();
+    } catch (_) {}
+    await yo('BitcoinAddressQRCodeContainer');
+
+    // check if imported wallet has correct recive address
+    await expect(element(by.id('AddressValue'))).toHaveText('bc1qe8q660wfj6uvqg7zyn86jcsux36natklqnfdrc');
+
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
 });
 
 async function sleep(ms) {
@@ -1183,7 +1211,7 @@ async function helperCreateWallet(walletName) {
   await expect(element(by.id(walletName || 'cr34t3d'))).toBeVisible();
 }
 
-async function helperImportWallet(importText, expectedWalletLabel, expectedBalance) {
+async function helperImportWallet(importText, expectedWalletLabel, expectedBalance, passphrase) {
   await yo('WalletsList');
 
   await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
@@ -1198,6 +1226,21 @@ async function helperImportWallet(importText, expectedWalletLabel, expectedBalan
     try {
       await element(by.id('DoImport')).tap();
     } catch (_) {}
+
+    let passphraseAsked = false;
+    try {
+      await sup('Passphrase', 3000);
+      passphraseAsked = true;
+    } catch (e) {} // passphrase not asked
+
+    if (passphraseAsked) {
+      // enter passphrase if needed
+      if (passphrase) {
+        await element(by.type('android.widget.EditText')).typeText(passphrase);
+      }
+      await element(by.text('OK')).tap();
+    }
+
     if (process.env.TRAVIS) await sleep(60000);
 
     // waiting for import result

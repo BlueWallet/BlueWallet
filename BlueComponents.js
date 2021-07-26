@@ -512,6 +512,11 @@ export class BlueWalletNavigationHeader extends Component {
   }
 }
 
+/**
+ * TODO: remove this comment once this file gets properly converted to typescript.
+ *
+ * @type {React.FC<any>}
+ */
 export const BlueButtonLink = forwardRef((props, ref) => {
   const { colors } = useTheme();
   return (
@@ -609,7 +614,7 @@ export class BlueCopyTextToClipboard extends Component {
           disabled={this.state.hasTappedText}
           testID="BlueCopyTextToClipboard"
         >
-          <Animated.Text style={styleCopyTextToClipboard.address} numberOfLines={0}>
+          <Animated.Text style={styleCopyTextToClipboard.address} numberOfLines={0} testID="AddressValue">
             {this.state.address}
           </Animated.Text>
         </TouchableOpacity>
@@ -831,6 +836,7 @@ export const BlueHeaderDefaultSub = props => {
 export const BlueHeaderDefaultMain = props => {
   const { colors } = useTheme();
   const { isDrawerList } = props;
+  const { isImportingWallet } = useContext(BlueStorageContext);
   return (
     <Header
       leftComponent={{
@@ -854,7 +860,7 @@ export const BlueHeaderDefaultMain = props => {
       bottomDivider={false}
       topDivider={false}
       backgroundColor={isDrawerList ? colors.elevated : colors.background}
-      rightComponent={<BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />}
+      rightComponent={isImportingWallet ? undefined : <BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />}
     />
   );
 };

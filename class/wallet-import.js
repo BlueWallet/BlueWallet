@@ -8,13 +8,13 @@ import {
   HDLegacyP2PKHWallet,
   HDSegwitBech32Wallet,
   LightningCustodianWallet,
-  PlaceholderWallet,
   SegwitBech32Wallet,
   HDLegacyElectrumSeedP2PKHWallet,
   HDSegwitElectrumSeedP2WPKHWallet,
   HDAezeedWallet,
   MultisigHDWallet,
   SLIP39LegacyP2PKHWallet,
+  PlaceholderWallet,
   SLIP39SegwitP2SHWallet,
   SLIP39SegwitBech32Wallet,
 } from '.';
@@ -30,7 +30,7 @@ const wif = require('wif');
 const prompt = require('../blue_modules/prompt');
 
 function WalletImport() {
-  const { wallets, pendingWallets, setPendingWallets, saveToDisk, addWallet } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk, addWallet, setIsImportingWallet } = useContext(BlueStorageContext);
 
   /**
    *
@@ -55,15 +55,20 @@ function WalletImport() {
     Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
   };
 
-  WalletImport.removePlaceholderWallet = () => {
-    setPendingWallets([]);
+  WalletImport.isWalletImported = w => {
+    const wallet = wallets.some(wallet => wallet.getSecret() === w.secret || wallet.getID() === w.getID());
+    return !!wallet;
   };
 
-  WalletImport.isWalletImported = w => {
-    const wallet = wallets.some(
-      wallet => (wallet.getSecret() === w.secret || wallet.getID() === w.getID()) && wallet.type !== PlaceholderWallet.type,
-    );
-    return !!wallet;
+  WalletImport.removePlaceholderWallet = () => {
+    setIsImportingWallet(false);
+  };
+
+  WalletImport.addPlaceholderWallet = (importText, isFailure = false) => {
+    const placeholderWallet = new PlaceholderWallet();
+    placeholderWallet.setSecret(importText);
+    placeholderWallet.setIsFailure(isFailure);
+    setIsImportingWallet(placeholderWallet);
   };
 
   WalletImport.presentWalletAlreadyExistsAlert = () => {
@@ -71,24 +76,80 @@ function WalletImport() {
     alert('This wallet has been previously imported.');
   };
 
-  WalletImport.addPlaceholderWallet = (importText, isFailure = false) => {
-    const wallet = new PlaceholderWallet();
-    wallet.setSecret(importText);
-    wallet.setIsFailure(isFailure);
-    setPendingWallets([...pendingWallets, wallet]);
-    return wallet;
-  };
+  /**
+   *
+   * @param importText
+   * @returns {Promise<void>}
+   * @returns {Promise<{text: string, password: string|void}>}
+   */
+  WalletImport.askPasswordIfNeeded = async importText => {
+    const text = importText.trim();
+    let password;
 
-  WalletImport.isCurrentlyImportingWallet = () => {
-    return wallets.some(wallet => wallet.type === PlaceholderWallet.type);
+    // BIP38 password required
+    if (text.startsWith('6P')) {
+      do {
+        password = await prompt(loc.wallets.looks_like_bip38, loc.wallets.enter_bip38_password);
+      } while (!password);
+      return { text, password };
+    }
+
+    // HD BIP39 wallet password is optinal
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(text);
+    if (hd.validateMnemonic()) {
+      password = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
+      return { text, password };
+    }
+
+    // AEZEED password needs to be correct
+    const aezeed = new HDAezeedWallet();
+    aezeed.setSecret(text);
+    if (await aezeed.mnemonicInvalidPassword()) {
+      do {
+        password = await prompt('', loc.wallets.enter_bip38_password);
+        aezeed.setPassphrase(password);
+      } while (await aezeed.mnemonicInvalidPassword());
+      return { text, password };
+    }
+
+    // SLIP39 wallet password is optinal
+    if (text.includes('\n')) {
+      const s1 = new SLIP39SegwitP2SHWallet();
+      s1.setSecret(text);
+
+      if (s1.validateMnemonic()) {
+        password = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
+        return { text, password };
+      }
+    }
+
+    // ELECTRUM segwit wallet password is optinal
+    const electrum1 = new HDSegwitElectrumSeedP2WPKHWallet();
+    electrum1.setSecret(importText);
+    if (electrum1.validateMnemonic()) {
+      password = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
+      return { text, password };
+    }
+
+    // ELECTRUM legacy wallet password is optinal
+    const electrum2 = new HDLegacyElectrumSeedP2PKHWallet();
+    electrum2.setSecret(importText);
+    if (electrum2.validateMnemonic()) {
+      password = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
+      return { text, password };
+    }
+
+    return { text, password };
   };
 
   /**
    *
    * @param importText
+   * @param password
    * @returns {Promise<void>}
    */
-  WalletImport.processImportText = async importText => {
+  WalletImport.processImportText = async (importText, password) => {
     IdleTimerManager.setIdleTimerDisabled(true);
     // Plan:
     // -2. check if BIP38 encrypted
@@ -100,6 +161,7 @@ function WalletImport() {
     // 3. check if its HDLegacyBreadwalletWallet (no BIP, just "m/0")
     // 3.1 check HD Electrum legacy
     // 3.2 check if its AEZEED
+    // 3.3 check if its SLIP39
     // 4. check if its Segwit WIF (P2SH)
     // 5. check if its Legacy WIF
     // 6. check if its address (watch-only wallet)
@@ -109,11 +171,6 @@ function WalletImport() {
     importText = importText.trim();
 
     if (importText.startsWith('6P')) {
-      let password = false;
-      do {
-        password = await prompt(loc.wallets.looks_like_bip38, loc.wallets.enter_bip38_password, false);
-      } while (!password);
-
       const decryptedKey = await bip38.decrypt(importText, password);
 
       if (decryptedKey) {
@@ -154,8 +211,7 @@ function WalletImport() {
     const hd4 = new HDSegwitBech32Wallet();
     hd4.setSecret(importText);
     if (hd4.validateMnemonic()) {
-      // OK its a valid BIP39 seed
-
+      hd4.setPassphrase(password);
       if (await hd4.wasEverUsed()) {
         await hd4.fetchBalance(); // fetching balance for BIP84 only on purpose
         return WalletImport._saveWallet(hd4);
@@ -163,18 +219,21 @@ function WalletImport() {
 
       const hd2 = new HDSegwitP2SHWallet();
       hd2.setSecret(importText);
+      hd2.setPassphrase(password);
       if (await hd2.wasEverUsed()) {
         return WalletImport._saveWallet(hd2);
       }
 
       const hd3 = new HDLegacyP2PKHWallet();
       hd3.setSecret(importText);
+      hd3.setPassphrase(password);
       if (await hd3.wasEverUsed()) {
         return WalletImport._saveWallet(hd3);
       }
 
       const hd1 = new HDLegacyBreadwalletWallet();
       hd1.setSecret(importText);
+      hd1.setPassphrase(password);
       if (await hd1.wasEverUsed()) {
         return WalletImport._saveWallet(hd1);
       }
@@ -230,20 +289,22 @@ function WalletImport() {
     // nope, not watch-only
 
     try {
-      const hdElectrumSeedLegacy = new HDSegwitElectrumSeedP2WPKHWallet();
-      hdElectrumSeedLegacy.setSecret(importText);
-      if (hdElectrumSeedLegacy.validateMnemonic()) {
+      const hdElectrum = new HDSegwitElectrumSeedP2WPKHWallet();
+      hdElectrum.setSecret(importText);
+      hdElectrum.setPassphrase(password);
+      if (hdElectrum.validateMnemonic()) {
         // not fetching txs or balances, fuck it, yolo, life is too short
-        return WalletImport._saveWallet(hdElectrumSeedLegacy);
+        return WalletImport._saveWallet(hdElectrum);
       }
     } catch (_) {}
 
     try {
-      const hdElectrumSeedLegacy = new HDLegacyElectrumSeedP2PKHWallet();
-      hdElectrumSeedLegacy.setSecret(importText);
-      if (hdElectrumSeedLegacy.validateMnemonic()) {
+      const hdElectrum = new HDLegacyElectrumSeedP2PKHWallet();
+      hdElectrum.setSecret(importText);
+      hdElectrum.setPassphrase(password);
+      if (hdElectrum.validateMnemonic()) {
         // not fetching txs or balances, fuck it, yolo, life is too short
-        return WalletImport._saveWallet(hdElectrumSeedLegacy);
+        return WalletImport._saveWallet(hdElectrum);
       }
     } catch (_) {}
 
@@ -251,21 +312,10 @@ function WalletImport() {
     try {
       const aezeed = new HDAezeedWallet();
       aezeed.setSecret(importText);
+      aezeed.setPassphrase(password);
       if (await aezeed.validateMnemonicAsync()) {
         // not fetching txs or balances, fuck it, yolo, life is too short
         return WalletImport._saveWallet(aezeed);
-      } else {
-        // there is a chance that a password is required
-        if (await aezeed.mnemonicInvalidPassword()) {
-          const password = await prompt(loc.wallets.enter_bip38_password, '', false);
-          if (!password) {
-            // no passord is basically cancel whole aezeed import process
-            throw new Error(loc._.bad_password);
-          }
-
-          const mnemonics = importText.split(':')[0];
-          return WalletImport.processImportText(mnemonics + ':' + password);
-        }
       }
     } catch (_) {}
 
@@ -276,11 +326,13 @@ function WalletImport() {
       s1.setSecret(importText);
 
       if (s1.validateMnemonic()) {
+        s1.setPassphrase(password);
         if (await s1.wasEverUsed()) {
           return WalletImport._saveWallet(s1);
         }
 
         const s2 = new SLIP39LegacyP2PKHWallet();
+        s2.setPassphrase(password);
         s2.setSecret(importText);
         if (await s2.wasEverUsed()) {
           return WalletImport._saveWallet(s2);
@@ -288,6 +340,7 @@ function WalletImport() {
 
         const s3 = new SLIP39SegwitBech32Wallet();
         s3.setSecret(importText);
+        s3.setPassphrase(password);
         return WalletImport._saveWallet(s3);
       }
     }

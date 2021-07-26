@@ -425,6 +425,8 @@
     "enter_bip38_password": "Ingresa la contraseña para descifrar",
     "export_title": "Exportación de Billetera",
     "import_do_import": "Importar",
+    "import_passphrase_title": "Frase de contraseña",
+    "import_passphrase_message": "Ingrese la frase de contraseña si ha usado alguna",
     "import_error": "No se pudo importar. Asegúrate de que los datos proporcionados sean válidos.",
     "import_explanation": "Ingresa tus palabras iniciales, clave pública, WIF o cualquier cosa que tengas. BlueWallet hará todo lo posible para adivinar el formato correcto e importar tu billetera.",
     "import_file": "Importar Archivo",

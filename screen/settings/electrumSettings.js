@@ -33,7 +33,7 @@ import {
   BlueDismissKeyboardInputAccessory,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
-import { isDesktop } from '../../blue_modules/environment';
+import { isTorCapable } from '../../blue_modules/environment';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -284,7 +284,10 @@ export default class ElectrumSettings extends Component {
             <BlueCard>
               <View style={styles.inputWrap}>
                 <TextInput
-                  placeholder={loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' })}
+                  placeholder={
+                    loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' }) +
+                    (isTorCapable ? ' (' + loc.settings.tor_supported + ')' : '')
+                  }
                   value={this.state.host}
                   onChangeText={text => this.setState({ host: text.trim() })}
                   numberOfLines={1}

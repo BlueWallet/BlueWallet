@@ -348,6 +348,7 @@ export class HDSegwitBech32Transaction {
 
     let add = 0;
     while (add <= 128) {
+      // eslint-disable-next-line no-var
       var { tx, inputs, outputs, fee } = this._wallet.createTransaction(
         unconfirmedUtxos,
         [{ address: myAddress }],

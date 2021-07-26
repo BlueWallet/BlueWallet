@@ -1,5 +1,9 @@
 /* global jest */
 
+import mockClipboard from '@react-native-clipboard/clipboard/jest/clipboard-mock.js';
+
+jest.mock('@react-native-clipboard/clipboard', () => mockClipboard);
+
 jest.mock('react-native-watch-connectivity', () => {
   return {
     getIsWatchAppInstalled: jest.fn(() => Promise.resolve(false)),
@@ -24,6 +28,7 @@ jest.mock('react-native-device-info', () => {
   return {
     getUniqueId: jest.fn().mockReturnValue('uniqueId'),
     getSystemName: jest.fn(),
+    getDeviceType: jest.fn().mockReturnValue(false),
     hasGmsSync: jest.fn().mockReturnValue(true),
     hasHmsSync: jest.fn().mockReturnValue(false),
   };

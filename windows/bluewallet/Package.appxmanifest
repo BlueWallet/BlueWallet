@@ -7,11 +7,11 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="734d2cec-f8c5-4e8d-a7e5-1e5e25863c5f"
+    Name="e9b25e1b-32a0-459c-a4ef-33a813fd87bf"
     Publisher="CN=marcosrodriguezvelez"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="734d2cec-f8c5-4e8d-a7e5-1e5e25863c5f" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="e9b25e1b-32a0-459c-a4ef-33a813fd87bf" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>bluewallet</DisplayName>
