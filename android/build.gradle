@@ -5,9 +5,9 @@ buildscript {
         minSdkVersion = 24
         supportLibVersion = "28.0.0"
         buildToolsVersion = "29.0.3"
-        compileSdkVersion = 24
+        compileSdkVersion = 29
         maxSdkVersion = 25
-        targetSdkVersion = 24
+        targetSdkVersion = 29
         googlePlayServicesVersion = "16.2.0"
         googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "17.3.4"
@@ -73,9 +73,10 @@ subprojects {
     afterEvaluate {project ->
         if (project.hasProperty("android")) {
             android {
-                compileSdkVersion 24
+                compileSdkVersion 29
                  defaultConfig {
                     minSdkVersion 24
+                    maxSdkVersion 25
                 }
             }
         }
