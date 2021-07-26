@@ -129,6 +129,16 @@ describe('import procedure', function () {
     assert.strictEqual(lastImportedWallet.getLabel(), 'Imported HD Legacy Electrum (BIP32 P2PKH)');
   });
 
+  it('can import HD Legacy Electrum (BIP32 P2PKH) with passphrase', async () => {
+    await WalletImport.processImportText(
+      'receive happy wash prosper update pet neck acid try profit proud hungry',
+      'super secret passphrase',
+    );
+    assert.strictEqual(lastImportedWallet.type, HDLegacyElectrumSeedP2PKHWallet.type);
+    assert.strictEqual(lastImportedWallet._getExternalAddressByIndex(0), '13sPvsrgRN8XibZNHtZXNqVDJPnNZLjTap');
+    assert.strictEqual(lastImportedWallet.getLabel(), 'Imported HD Legacy Electrum (BIP32 P2PKH)');
+  });
+
   it('can import BreadWallet', async () => {
     await WalletImport.processImportText(
       'tired lesson alert attend giggle fancy nose enter ethics fashion fly dove dutch hidden toe argue save fish catch patient waste gift divorce whisper',
@@ -142,6 +152,14 @@ describe('import procedure', function () {
     await WalletImport.processImportText('noble mimic pipe merry knife screen enter dune crop bonus slice card');
     assert.strictEqual(lastImportedWallet.type, HDSegwitElectrumSeedP2WPKHWallet.type);
     assert.strictEqual(lastImportedWallet._getExternalAddressByIndex(0), 'bc1qzzanxnr3xv9a5ha264kpzpfq260qvuameslddu');
+    assert.strictEqual(lastImportedWallet.getLabel(), 'Imported HD Electrum (BIP32 P2WPKH)');
+  });
+
+  it('can import HD Electrum (BIP32 P2WPKH) with passphrase', async () => {
+    const UNICODE_HORROR = '₿ 😀 😈     う けたま わる w͢͢͝h͡o͢͡ ̸͢k̵͟n̴͘ǫw̸̛s͘ ̀́w͘͢ḩ̵a҉̡͢t ̧̕h́o̵r͏̵rors̡ ̶͡͠lį̶e͟͟ ̶͝in͢ ͏t̕h̷̡͟e ͟͟d̛a͜r̕͡k̢̨ ͡h̴e͏a̷̢̡rt́͏ ̴̷͠ò̵̶f̸ u̧͘ní̛͜c͢͏o̷͏d̸͢e̡͝?͞';
+    await WalletImport.processImportText('bitter grass shiver impose acquire brush forget axis eager alone wine silver', UNICODE_HORROR);
+    assert.strictEqual(lastImportedWallet.type, HDSegwitElectrumSeedP2WPKHWallet.type);
+    assert.strictEqual(lastImportedWallet._getExternalAddressByIndex(0), 'bc1qx94dutas7ysn2my645cyttujrms5d9p57f6aam');
     assert.strictEqual(lastImportedWallet.getLabel(), 'Imported HD Electrum (BIP32 P2WPKH)');
   });
 

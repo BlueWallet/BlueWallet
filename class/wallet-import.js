@@ -124,6 +124,22 @@ function WalletImport() {
       }
     }
 
+    // ELECTRUM segwit wallet password is optinal
+    const electrum1 = new HDSegwitElectrumSeedP2WPKHWallet();
+    electrum1.setSecret(importText);
+    if (electrum1.validateMnemonic()) {
+      password = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
+      return { text, password };
+    }
+
+    // ELECTRUM legacy wallet password is optinal
+    const electrum2 = new HDLegacyElectrumSeedP2PKHWallet();
+    electrum2.setSecret(importText);
+    if (electrum2.validateMnemonic()) {
+      password = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
+      return { text, password };
+    }
+
     return { text, password };
   };
 
@@ -273,20 +289,22 @@ function WalletImport() {
     // nope, not watch-only
 
     try {
-      const hdElectrumSeedLegacy = new HDSegwitElectrumSeedP2WPKHWallet();
-      hdElectrumSeedLegacy.setSecret(importText);
-      if (hdElectrumSeedLegacy.validateMnemonic()) {
+      const hdElectrum = new HDSegwitElectrumSeedP2WPKHWallet();
+      hdElectrum.setSecret(importText);
+      hdElectrum.setPassphrase(password);
+      if (hdElectrum.validateMnemonic()) {
         // not fetching txs or balances, fuck it, yolo, life is too short
-        return WalletImport._saveWallet(hdElectrumSeedLegacy);
+        return WalletImport._saveWallet(hdElectrum);
       }
     } catch (_) {}
 
     try {
-      const hdElectrumSeedLegacy = new HDLegacyElectrumSeedP2PKHWallet();
-      hdElectrumSeedLegacy.setSecret(importText);
-      if (hdElectrumSeedLegacy.validateMnemonic()) {
+      const hdElectrum = new HDLegacyElectrumSeedP2PKHWallet();
+      hdElectrum.setSecret(importText);
+      hdElectrum.setPassphrase(password);
+      if (hdElectrum.validateMnemonic()) {
         // not fetching txs or balances, fuck it, yolo, life is too short
-        return WalletImport._saveWallet(hdElectrumSeedLegacy);
+        return WalletImport._saveWallet(hdElectrum);
       }
     } catch (_) {}
 
