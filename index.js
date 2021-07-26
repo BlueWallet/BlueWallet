@@ -5,7 +5,7 @@ import App from './App';
 import { BlueStorageProvider } from './blue_modules/storage-context';
 import { enableScreens } from 'react-native-screens';
 const A = require('./blue_modules/analytics');
-enableScreens(false)
+enableScreens(false);
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging
   Error.captureStackTrace = () => {};
