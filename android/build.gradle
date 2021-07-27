@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        minSdkVersion = 26
+        minSdkVersion = 28
         supportLibVersion = "28.0.0"
         buildToolsVersion = "29.0.3"
         compileSdkVersion = 29
