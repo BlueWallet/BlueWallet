@@ -18,7 +18,7 @@ const AddressInput = ({
   onChangeText,
   onBarScanned,
   launchedBy,
-  showFileImportButton = false
+  showFileImportButton = false,
 }) => {
   const { colors } = useTheme();
   const scanButtonRef = useRef();
@@ -63,7 +63,7 @@ const AddressInput = ({
               params: {
                 launchedBy,
                 onBarScanned,
-                showFileImportButton
+                showFileImportButton,
               },
             });
           }
@@ -122,6 +122,7 @@ AddressInput.propTypes = {
   launchedBy: PropTypes.string,
   address: PropTypes.string,
   placeholder: PropTypes.string,
+  showFileImportButton: PropTypes.bool,
 };
 
 export default AddressInput;

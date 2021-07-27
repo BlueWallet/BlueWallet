@@ -37,6 +37,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import NFCComponent, { NFCComponentProxy } from '../../class/nfcmanager';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
@@ -50,6 +51,8 @@ const ReceiveDetails = () => {
   const [isCustom, setIsCustom] = useState(false);
   const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
+  const [showNFCButton, setShowNFCButton] = useState(false);
+  const nfcComponentRef = useRef();
   const { navigate, goBack, setParams } = useNavigation();
   const { colors } = useTheme();
   const toolTip = useRef();
@@ -146,6 +149,10 @@ const ReceiveDetails = () => {
     });
   };
 
+  const handleWriteToNFCTag = () => {
+    nfcComponentRef.current?.requestNdefWrite(isCustom ? bip21encoded : address);
+  };
+
   const showToolTipMenu = () => {
     toolTip.current.showMenu();
   };
@@ -199,6 +206,13 @@ const ReceiveDetails = () => {
               onPress={showCustomAmountModal}
             />
             <BlueButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+
+            {showNFCButton && (
+              <>
+                <BlueSpacing20 />
+                <BlueButton onPress={handleWriteToNFCTag} title={loc.wallets.write_to_nfc} />
+              </>
+            )}
           </BlueCard>
         </View>
         {renderCustomAmountModal()}
@@ -245,6 +259,7 @@ const ReceiveDetails = () => {
       await Notifications.tryToObtainPermissions();
       Notifications.majorTomToGroundControl([newAddress], [], []);
     }
+    NFCComponentProxy.isSupportedAndEnabled().then(setShowNFCButton);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -382,6 +397,7 @@ const ReceiveDetails = () => {
         />
       )}
       {showAddress ? renderReceiveDetails() : <BlueLoading />}
+      <NFCComponent ref={nfcComponentRef} />
     </View>
   );
 };

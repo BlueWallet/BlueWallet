@@ -261,13 +261,6 @@ const ScanQRCode = () => {
     setIsLoading(false);
   };
 
-  const onNFCTagFound = tag => {
-    setIsLoading(true);
-    onBarCodeRead(tag);
-    
-    setIsLoading(false);
-  };
-
   const showImagePicker = () => {
     if (!isLoading) {
       setIsLoading(true);
@@ -301,9 +294,10 @@ const ScanQRCode = () => {
   };
 
   const scanNFCButtonPressed = () => {
-    nfcManagerRef.current?.scanTag().then(resolve => {
-      console.warn(resolve);
-      alert(resolve)
+    nfcManagerRef.current?.readNdefOnce().then(resolve => {
+      if (resolve) {
+        onBarCodeRead({ data: resolve });
+      }
     });
   };
 
@@ -327,7 +321,7 @@ const ScanQRCode = () => {
   ) : (
     <View style={styles.root}>
       <StatusBar hidden />
-      <NFCComponent ref={nfcManagerRef} onTagFound={onNFCTagFound} />
+      <NFCComponent ref={nfcManagerRef} />
       {isFocused && cameraStatus !== RNCamera.Constants.CameraStatus.NOT_AUTHORIZED && (
         <RNCamera
           captureAudio={false}
