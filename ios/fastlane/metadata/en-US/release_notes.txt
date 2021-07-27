@@ -1,3 +1,10 @@
+v6.2.2
+======
+
+* ADD: UI for import electrum wallet with passphrase 
+* REF: better handling large transactions from electrum
+
+
 v6.1.9
 ======
 
