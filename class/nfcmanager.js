@@ -1,8 +1,12 @@
 /* global alert */
-import React, { forwardRef, useEffect } from 'react';
-import { View, Platform } from 'react-native';
+import React, { forwardRef, useEffect, useState } from 'react';
+import { View, Platform, StyleSheet } from 'react-native';
 import NfcManager, { Ndef, NfcError, NfcEvents, NfcTech } from 'react-native-nfc-manager';
+import BottomModal from '../components/BottomModal';
 import loc from '../loc';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { BlueButton, BlueTextCentered } from '../BlueComponents';
+import { useTheme } from '@react-navigation/native';
 
 export class NFCComponentProxy {
   static async isSupportedAndEnabled() {
@@ -17,6 +21,23 @@ export class NFCComponentProxy {
 }
 
 const NFCComponent = (props, ref) => {
+  // Android does not have a buil-in NFC UI.So we need to use a BottomModal
+  const [isScanning, setIsScanning] = useState(false);
+  const { colors } = useTheme();
+
+  const stylesHook = StyleSheet.create({
+    modalContent: {
+      backgroundColor: colors.modal,
+      padding: 22,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderTopLeftRadius: 16,
+      borderTopRightRadius: 16,
+      borderTopColor: colors.foregroundColor,
+      borderWidth: colors.borderWidth,
+    },
+  });
+
   useEffect(() => {
     start();
     return NFCComponentProxy.cleanUp();
@@ -52,9 +73,11 @@ const NFCComponent = (props, ref) => {
         alert(loc.wallets.read_nfc_error, `${ex}`);
       }
     }
+    setIsScanning(false);
   };
 
   async function writeNdef(value) {
+    setIsScanning(true);
     let result = false;
 
     try {
@@ -74,12 +97,12 @@ const NFCComponent = (props, ref) => {
 
       result = true;
     } catch (ex) {
-      console.log(ex);
-      alert(loc.wallets.write_nfc_error);
+      handleException(ex);
     }
 
     // Step 4
-    NfcManager.cancelTechnologyRequest().catch(() => 0);
+    NFCComponentProxy.cleanUp();
+    setIsScanning(false);
     return result;
   }
 
@@ -96,20 +119,66 @@ const NFCComponent = (props, ref) => {
         if (Platform.OS === 'ios') {
           await NfcManager.setAlertMessageIOS(loc._.success);
         }
-        NFCComponentProxy.cleanUp();
         return Ndef.text.decodePayload(tag.ndefMessage[0].payload);
       } else {
         alert(loc.wallets.scan_nfc_error);
         return null;
       }
     } catch (e) {
-      NFCComponentProxy.cleanUp();
       handleException(e);
       return null;
+    } finally {
+      setIsScanning(false);
+      NFCComponentProxy.cleanUp();
     }
   };
 
-  return <View ref={ref} />;
+  const closeModal = () => {
+    NFCComponentProxy.cleanUp();
+    setIsScanning(false);
+  };
+
+  const renderAndroidModal = (
+    <BottomModal
+      onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false })}
+      isVisible={isScanning}
+      onClose={closeModal}
+    >
+      <View style={[styles.modalContent, stylesHook.modalContent]}>
+        <BlueTextCentered>{loc.wallets.scan_nfc_tag}</BlueTextCentered>
+        <View style={styles.modelContentButtonLayout}>
+          <BlueButton noMinWidth title={loc._.cancel} onPress={closeModal} />
+        </View>
+      </View>
+    </BottomModal>
+  );
+
+  return <View ref={ref}>{Platform.OS === 'android' && isScanning ? renderAndroidModal : <></>}</View>;
 };
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  space: {
+    marginHorizontal: 8,
+  },
+  modalContent: {
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 200,
+    height: 200,
+  },
+  modelContentButtonLayout: {
+    flexDirection: 'row',
+    margin: 16,
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+  },
+});
 
 export default forwardRef(NFCComponent);
