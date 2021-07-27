@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, findNodeHandle, ScrollView, StyleSheet, View } from 'react-native';
 import { getSystemName } from 'react-native-device-info';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -9,6 +9,7 @@ import navigationStyle from '../../components/navigationStyle';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
 import loc from '../../loc';
+import NFCComponent, { NFCComponentProxy } from '../../class/nfcmanager';
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
 
@@ -18,8 +19,10 @@ const PsbtMultisigQRCode = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const openScannerButton = useRef();
+  const nfcManagerComponent = useRef();
   const { psbtBase64, isShowOpenScanner } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
+  const [showNFCButton, setShowNFCButton] = useState(false);
 
   const psbt = bitcoin.Psbt.fromBase64(psbtBase64);
   const stylesHook = StyleSheet.create({
@@ -34,6 +37,10 @@ const PsbtMultisigQRCode = () => {
     },
   });
   const fileName = `${Date.now()}.psbt`;
+
+  useEffect(() => {
+    NFCComponentProxy.isSupportedAndEnabled().then(setShowNFCButton);
+  }, []);
 
   const onBarScanned = ret => {
     if (!ret.data) ret = { data: ret };
@@ -68,6 +75,11 @@ const PsbtMultisigQRCode = () => {
     setTimeout(() => fs.writeFileAndExport(fileName, psbt.toBase64()).finally(() => setIsLoading(false)), 10);
   };
 
+  const exportPSBTToTag = () => {
+    setIsLoading(true);
+    nfcManagerComponent.current.writeNdef(psbt.toBase64()).finally(() => setIsLoading(false));
+  };
+
   return (
     <SafeBlueArea style={stylesHook.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
@@ -89,9 +101,22 @@ const PsbtMultisigQRCode = () => {
           {isLoading ? (
             <ActivityIndicator />
           ) : (
-            <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportPSBT} title={loc.multisig.share} />
+            <>
+              <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportPSBT} title={loc.multisig.share} />
+              {showNFCButton && (
+                <>
+                  <BlueSpacing20 />
+                  <SquareButton
+                    style={[styles.exportButton, stylesHook.exportButton]}
+                    onPress={exportPSBTToTag}
+                    title={loc.wallets.write_to_nfc}
+                  />
+                </>
+              )}
+            </>
           )}
         </View>
+        <NFCComponent ref={nfcManagerComponent} />
       </ScrollView>
     </SafeBlueArea>
   );

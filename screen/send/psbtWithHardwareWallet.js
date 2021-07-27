@@ -33,6 +33,7 @@ import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
+import NFCComponent, { NFCComponentProxy } from '../../class/nfcmanager';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
@@ -48,6 +49,8 @@ const PsbtWithHardwareWallet = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [txHex, setTxHex] = useState(route.params.txhex);
   const openScannerButton = useRef();
+  const [showNFCButton, setShowNFCButton] = useState(false);
+  const nfcManagerComponent = useRef();
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -216,6 +219,18 @@ const PsbtWithHardwareWallet = () => {
     }
   };
 
+  useEffect(() => {
+    NFCComponentProxy.isSupportedAndEnabled().then(setShowNFCButton);
+  }, []);
+
+  const writeOnNFCTag = () => {
+    nfcManagerComponent.current.writeNdef(typeof psbt === 'string' ? psbt : psbt.toBase64());
+  };
+
+  const readFromNFCTag = () => {
+    nfcManagerComponent.current.readNdefOnce().then(data => onBarScanned({ data }));
+  };
+
   if (txHex) return _renderBroadcastHex();
 
   return isLoading ? (
@@ -255,6 +270,30 @@ const PsbtWithHardwareWallet = () => {
               onPress={openSignedTransaction}
               title={loc.send.psbt_tx_open}
             />
+            {showNFCButton && (
+              <>
+                <BlueSpacing20 />
+                <SecondButton
+                  icon={{
+                    name: 'cellphone-nfc',
+                    type: 'material-community',
+                    color: colors.buttonTextColor,
+                  }}
+                  onPress={readFromNFCTag}
+                  title={loc.wallets.read_nfc}
+                />
+                <BlueSpacing20 />
+                <SecondButton
+                  icon={{
+                    name: 'cellphone-nfc',
+                    type: 'material-community',
+                    color: colors.buttonTextColor,
+                  }}
+                  onPress={writeOnNFCTag}
+                  title={loc.wallets.write_to_nfc}
+                />
+              </>
+            )}
             <BlueSpacing20 />
             <SecondButton
               icon={{
@@ -273,6 +312,7 @@ const PsbtWithHardwareWallet = () => {
               />
             </View>
           </BlueCard>
+          <NFCComponent ref={nfcManagerComponent} />
         </View>
       </ScrollView>
     </SafeBlueArea>

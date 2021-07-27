@@ -1,5 +1,5 @@
 /* global alert */
-import React, { forwardRef, useEffect, useRef } from 'react';
+import React, { forwardRef, useEffect } from 'react';
 import { View, Platform } from 'react-native';
 import NfcManager, { Ndef, NfcError, NfcEvents, NfcTech } from 'react-native-nfc-manager';
 import loc from '../loc';
@@ -14,15 +14,9 @@ export class NFCComponentProxy {
     NfcManager.setEventListener(NfcEvents.SessionClosed, null);
     NfcManager.cancelTechnologyRequest().catch(() => 0);
   };
-
-  static buildTextPayload(valueToWrite) {
-    return Ndef.encodeMessage([Ndef.textRecord(valueToWrite)]);
-  }
 }
 
 const NFCComponent = (props, ref) => {
-  const isWriting = useRef(false);
-
   useEffect(() => {
     start();
     return NFCComponentProxy.cleanUp();
@@ -30,8 +24,7 @@ const NFCComponent = (props, ref) => {
 
   useEffect(() => {
     ref.current.readNdefOnce = readNdefOnce;
-    ref.current.requestNdefWrite = requestNdefWrite;
-    ref.current.cancelNdefWrite = cancelNdefWrite;
+    ref.current.writeNdef = writeNdef;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 
@@ -50,54 +43,58 @@ const NFCComponent = (props, ref) => {
     if (ex instanceof NfcError.UserCancel) {
       // bypass
     } else if (ex instanceof NfcError.Timeout) {
-      alert('Tag scanning timeout');
+      alert(loc.wallets.scan_nfc_timeout);
     } else {
       console.warn(ex);
       if (Platform.OS === 'ios') {
         NfcManager.invalidateSessionWithErrorIOS(`${ex}`);
       } else {
-        alert('NFC Error', `${ex}`);
+        alert(loc.wallets.read_nfc_error, `${ex}`);
       }
     }
   };
 
-  const requestNdefWrite = text => {
-    if (isWriting.current) {
-      return;
+  async function writeNdef(value) {
+    let result = false;
+
+    try {
+      // Step 1
+      await NfcManager.requestTechnology(NfcTech.Ndef);
+
+      const bytes = Ndef.encodeMessage([Ndef.textRecord(value)]);
+
+      if (bytes) {
+        await NfcManager.ndefHandler // Step2
+          .writeNdefMessage(bytes); // Step3
+
+        if (Platform.OS === 'ios') {
+          await NfcManager.setAlertMessageIOS(loc._.success);
+        }
+      }
+
+      result = true;
+    } catch (ex) {
+      console.log(ex);
+      alert(loc.wallets.write_nfc_error);
     }
 
-    const bytes = NFCComponentProxy.buildTextPayload(text);
-
-    isWriting.current = true;
-    NfcManager.requestNdefWrite(bytes)
-      .then(() => console.log('Write completed'))
-      .catch(err => console.warn(err))
-      .finally(() => {
-        isWriting.current = false;
-      });
-  };
-
-  const cancelNdefWrite = () => {
-    NfcManager.cancelNdefWrite()
-      .then(() => console.log('write cancelled'))
-      .catch(err => console.warn(err))
-      .finally(() => {
-        isWriting.current = false;
-      });
-  };
+    // Step 4
+    NfcManager.cancelTechnologyRequest().catch(() => 0);
+    return result;
+  }
 
   const readNdefOnce = async () => {
-    console.log('attemping to read');
+    console.log('Attemping to read NFC Tag');
     try {
       const resp = await NfcManager.requestTechnology(NfcTech.Ndef, {
         alertMessage: loc.wallets.scan_nfc_tag,
       });
-      console.log('rt resp:', resp);
+      console.log('NFC tag response:', resp);
       const tag = await NfcManager.getTag();
 
       if (Ndef.isType(tag.ndefMessage[0], Ndef.TNF_WELL_KNOWN, Ndef.RTD_TEXT)) {
         if (Platform.OS === 'ios') {
-          await NfcManager.setAlertMessageIOS('Success');
+          await NfcManager.setAlertMessageIOS(loc._.success);
         }
         NFCComponentProxy.cleanUp();
         return Ndef.text.decodePayload(tag.ndefMessage[0].payload);

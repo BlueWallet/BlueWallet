@@ -150,7 +150,7 @@ const ReceiveDetails = () => {
   };
 
   const handleWriteToNFCTag = () => {
-    nfcComponentRef.current?.requestNdefWrite(isCustom ? bip21encoded : address);
+    nfcComponentRef.current?.writeNdef(isCustom ? bip21encoded : address);
   };
 
   const showToolTipMenu = () => {
