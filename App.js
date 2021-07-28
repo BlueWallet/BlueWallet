@@ -1,4 +1,3 @@
-import 'react-native-gesture-handler'; // should be on top
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   AppState,
