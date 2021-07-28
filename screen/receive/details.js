@@ -4,6 +4,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  TouchableWithoutFeedback,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -36,7 +37,6 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import ToolTipMenu from '../../components/TooltipMenu';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
