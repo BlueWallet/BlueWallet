@@ -2,15 +2,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, TextInput, Linking, StyleSheet, Alert, I18nManager } from 'react-native';
 import { Button } from 'react-native-elements';
-import { useTheme, useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import navigationStyle from '../../components/navigationStyle';
+import navigationStyle, { NavigationOptionsGetter } from '../../components/navigationStyle';
 import { BlueButton, BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import { AppStorage } from '../../class';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import loc from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
+import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { isTorCapable } from '../../blue_modules/environment';
 
@@ -43,29 +43,38 @@ const styles = StyleSheet.create({
   },
 });
 
-const LightningSettings = () => {
-  const params = useRoute().params;
+type LightingSettingsRouteProps = RouteProp<
+  {
+    params?: {
+      url?: string;
+    };
+  },
+  'params'
+>;
+
+const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter } = () => {
+  const params = useRoute<LightingSettingsRouteProps>().params;
   const [isLoading, setIsLoading] = useState(true);
-  const [URI, setURI] = useState();
+  const [URI, setURI] = useState<string>();
   const { colors } = useTheme();
   const route = useRoute();
   const navigation = useNavigation();
 
   useEffect(() => {
     AsyncStorage.getItem(AppStorage.LNDHUB)
-      .then(setURI)
+      .then(value => setURI(value ?? undefined))
       .then(() => setIsLoading(false))
       .catch(() => setIsLoading(false));
 
     if (params?.url) {
       Alert.alert(
-        loc.formatString(loc.settings.set_lndhub_as_default, { url: params?.url }),
+        loc.formatString(loc.settings.set_lndhub_as_default, { url: params.url }) as string,
         '',
         [
           {
             text: loc._.ok,
             onPress: () => {
-              setLndhubURI(params?.url);
+              params?.url && setLndhubURI(params.url);
             },
             style: 'default',
           },
@@ -76,12 +85,11 @@ const LightningSettings = () => {
     }
   }, [params?.url]);
 
-  const setLndhubURI = value => {
-    if (DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(value)) {
-      // in case user scans a QR with a deeplink like `bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com`
-      value = DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(value);
-    }
-    setURI(value.trim());
+  const setLndhubURI = (value: string) => {
+    // in case user scans a QR with a deeplink like `bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com`
+    const setLndHubUrl = DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(value);
+
+    setURI(typeof setLndHubUrl === 'string' ? setLndHubUrl.trim() : value.trim());
   };
 
   const save = useCallback(async () => {
@@ -91,7 +99,11 @@ const LightningSettings = () => {
         await LightningCustodianWallet.isValidNodeAddress(URI);
         // validating only if its not empty. empty means use default
       }
-      await AsyncStorage.setItem(AppStorage.LNDHUB, URI);
+      if (URI) {
+        await AsyncStorage.setItem(AppStorage.LNDHUB, URI);
+      } else {
+        await AsyncStorage.removeItem(AppStorage.LNDHUB);
+      }
       alert(loc.settings.lightning_saved);
     } catch (error) {
       alert(loc.settings.lightning_error_lndhub_uri);
@@ -126,7 +138,8 @@ const LightningSettings = () => {
         onPress={() => Linking.openURL('https://github.com/BlueWallet/LndHub')}
         titleStyle={{ color: colors.buttonAlternativeTextColor }}
         title="github.com/BlueWallet/LndHub"
-        color={colors.buttonTextColor}
+        // TODO: looks like there's no `color` prop on `Button`, does this make any sense?
+        // color={colors.buttonTextColor}
         buttonStyle={styles.buttonStyle}
       />
 

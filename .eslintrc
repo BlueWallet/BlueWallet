@@ -1,7 +1,8 @@
 {
-  "parser": "babel-eslint",
+  "parser": "@typescript-eslint/parser",
   "plugins": [
-    "react-native", // for no-inline-styles rule
+    "@typescript-eslint",
+    "react-native" // for no-inline-styles rule
   ],
   "extends": [
     "standard",
@@ -9,8 +10,9 @@
     "standard-jsx",
     "plugin:react-hooks/recommended",
     "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
     // "@react-native-community", // TODO: try to enable
-    "plugin:prettier/recommended", // removes all eslint rules that can mess up with prettier
+    "plugin:prettier/recommended" // removes all eslint rules that can mess up with prettier
   ],
   "rules": {
     "react/jsx-handler-names": "off", // activated by standard-react config
@@ -24,9 +26,40 @@
         "trailingComma": "all",
         "arrowParens": "avoid"
       }
-    ]
+    ],
+    "@typescript-eslint/no-empty-function": "off", // used often in the codebase, useful e.g. in testing
+    "@typescript-eslint/ban-ts-comment": [
+      "error",
+      {
+        "ts-expect-error": "allow-with-description",
+        "ts-ignore": "allow-with-description", // temporary allow to ease the migration
+        "ts-nocheck": true,
+        "ts-check": false
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": ["error", { "args": "none" }],
+
+    // disable rules that are superseded by @typescript-eslint rules
+    "no-unused-vars": "off",
+    "no-use-before-define": "off",
+
+    // disable rules that we want to enforce only for typescript files
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/no-use-before-define": "off"
   },
-  "env":{
+  "overrides": [
+    {
+      // enable the rule specifically for TypeScript files
+      "files": ["*.ts", "*.tsx"],
+      "rules": {
+        "@typescript-eslint/explicit-module-boundary-types": ["error"],
+        "@typescript-eslint/no-var-requires": ["error"],
+        "@typescript-eslint/no-use-before-define": ["error", { "variables": false }]
+      }
+    }
+  ],
+  "env": {
     "es6": true
   },
   "globals": { "fetch": false }
