@@ -76,7 +76,7 @@ let latestBlockheightTimestamp = false;
 const txhashHeightCache = {};
 
 async function isEnabled() {
-  let isEnabled = true;
+  let isEnabled;
   try {
     const savedValue = await AsyncStorage.getItem(ELECTRUM_CONNECTION_ENABLED);
     isEnabled = savedValue;
