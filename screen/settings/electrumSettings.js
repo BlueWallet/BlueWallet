@@ -282,13 +282,16 @@ export default class ElectrumSettings extends Component {
         <ScrollView keyboardShouldPersistTaps="always">
           <BlueListItem
             Component={Pressable}
-            title={loc._.enabled}
+            title={loc.settings.electrum_offline_mode}
             switch={{
               onValueChange: this.onElectrumConnectionEnabledSwitchValueChangd,
-              value: this.state.isElectrumConnectionEnabled,
+              value: !this.state.isElectrumConnectionEnabled,
               testID: 'ElectrumConnectionEnabledSwitch',
             }}
           />
+          <BlueCard>
+        <BlueText>{loc.settings.electrum_offline_description}</BlueText>
+      </BlueCard>
           {this.state.isElectrumConnectionEnabled && (
             <>
               <BlueCard>
