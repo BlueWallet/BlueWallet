@@ -79,7 +79,11 @@ async function isEnabled() {
   let isEnabled;
   try {
     const savedValue = await AsyncStorage.getItem(ELECTRUM_CONNECTION_ENABLED);
-    isEnabled = savedValue;
+    if (savedValue === null) {
+      isEnabled = true;
+    } else {
+      isEnabled = savedValue;
+    }
   } catch {
     isEnabled = true;
   }
