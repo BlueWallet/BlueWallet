@@ -46,7 +46,6 @@ const AddressInput = ({
         testID="AddressInput"
         onChangeText={onChangeText}
         placeholder={placeholder}
-        numberOfLines={editable ? 0 : 1}
         placeholderTextColor="#81868e"
         value={address}
         style={styles.input}

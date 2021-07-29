@@ -5,6 +5,8 @@ echo "Re-installing node_modules"
 npm i
 echo "Applying patch for react-native-xcode.sh"
 sed -i '' 's/--platform "$BUNDLE_PLATFORM"/--platform "ios"/g' ./node_modules/react-native/scripts/react-native-xcode.sh
+echo "Applying patch for RCTCameraManager.m"
+patch node_modules/react-native-camera/ios/RCT/RCTCameraManager.m scripts/maccatalystpatches/RCTCameraManagerDiff
 echo "Deleting torrific.js content"
 echo > blue_modules/torrific.js
 echo ""
