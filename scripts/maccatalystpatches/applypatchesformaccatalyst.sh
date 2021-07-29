@@ -1,3 +1,5 @@
+echo "Removing existing release notes"
+rm release-notes.txt release-notes.json
 echo "Applying patch for package.json"
 sed -i '' '/react-native-tor/d' ./package.json
 rm -fr node_modules
