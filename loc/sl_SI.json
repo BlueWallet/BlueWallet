@@ -128,7 +128,7 @@
     "create_fake_storage": "Ustvari šifrirano shrambo",
     "create_password": "Ustvarite geslo",
     "create_password_explanation": "Geslo za lažno shrambo se ne sme ujemati z geslom glavne shrambe.",
-    "help": "V določenih okoliščinah boste morda prisiljeni razkriti geslo. Da zavarujete vaša sredstva, lahko BlueWallet ustvari dodatno šifrirano shrambo z drugačnim geslom. Pod prisilo, lahko to geslo razkrijete tretji osebi. Če ga vnesete v BlueWallet, se bo odklenila 'lažno' shramba. To se bo tretji osebi zdelo verodostojno, vaša skrivna glavna shramba s pravimi sredstvi pa bo ostala varna.",
+    "help": "V določenih okoliščinah boste morda prisiljeni razkriti geslo. Da zavarujete vaša sredstva, lahko BlueWallet ustvari dodatno šifrirano shrambo z drugačnim geslom. Pod prisilo, lahko to geslo razkrijete tretji osebi. Če ga vnesete v BlueWallet, se bo odklenila 'lažna' shramba. To se bo tretji osebi zdelo verodostojno, vaša skrivna glavna shramba s pravimi sredstvi pa bo ostala varna.",
     "help2": "Nova shramba bo popolnoma uporabna, za večjo verodostojnost lahko tam hranite manjši znesek.",
     "password_should_not_match": "Geslo je trenutno v uporabi. Prosimo, poskusite z drugim geslom.",
     "passwords_do_not_match": "Gesli se ne ujemata, prosimo poskusite ponovno.",
@@ -236,7 +236,7 @@
   "settings": {
     "about": "O aplikaciji",
     "about_awesome": "Zgrajeno z izjemnimi",
-    "about_backup": "Vedno naredite varnostni kopijo vaših ključev!",
+    "about_backup": "Vedno naredite varnostno kopijo vaših ključev!",
     "about_free": "BlueWallet je brezplačen in odprtokodni projekt. Ustvarili uporabniki Bitcoina.",
     "about_license": "Licenca MIT",
     "about_release_notes": "Opombe ob izdaji",
