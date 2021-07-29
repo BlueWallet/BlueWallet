@@ -237,7 +237,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
         const address = this.unwrapFirstExternalAddressFromMnemonics();
         await this.setRefundAddress(address);
       }
-      await RnLdk.start(this.getEntropyHex()).then(console.warn);
+      await RnLdk.start(this.getEntropyHex());
 
       this._execInBackground(this.reestablishChannels);
       if (this.timeToCheckBlockchain()) this._execInBackground(this.checkBlockchain);
