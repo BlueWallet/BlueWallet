@@ -17,6 +17,7 @@ const ELECTRUM_HOST = 'electrum_host';
 const ELECTRUM_TCP_PORT = 'electrum_tcp_port';
 const ELECTRUM_SSL_PORT = 'electrum_ssl_port';
 const ELECTRUM_SERVER_HISTORY = 'electrum_server_history';
+const ELECTRUM_CONNECTION_ENABLED = 'electrum_enabled';
 
 let _realm;
 async function _getRealm() {
@@ -74,7 +75,22 @@ let latestBlockheightTimestamp = false;
 
 const txhashHeightCache = {};
 
+async function isEnabled() {
+  let isEnabled = true;
+  try {
+    const savedValue = await AsyncStorage.getItem(ELECTRUM_CONNECTION_ENABLED);
+    isEnabled = savedValue;
+  } catch {
+    isEnabled = true;
+  }
+  return !!isEnabled;
+}
+
 async function connectMain() {
+  if (!(await isEnabled())) {
+    console.log('Electrum connection disabled by user. Skipping connectMain call');
+    return;
+  }
   let usingPeer = await getRandomHardcodedPeer();
   const savedPeer = await getSavedPeer();
   if (savedPeer && savedPeer.host && (savedPeer.tcp || savedPeer.ssl)) {
@@ -162,6 +178,12 @@ async function connectMain() {
 connectMain();
 
 async function presentNetworkErrorAlert(usingPeer) {
+  if (!(await isEnabled())) {
+    console.log(
+      'Electrum connection disabled by user. Perhaps we are attempting to show this network error alert after the user disabled connections.',
+    );
+    return;
+  }
   Alert.alert(
     loc.errors.network,
     loc.formatString(
@@ -636,6 +658,10 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
 module.exports.waitTillConnected = async function () {
   let waitTillConnectedInterval = false;
   let retriesCounter = 0;
+  if (!(await isEnabled())) {
+    console.warn('Electrum connections disabled by user. waitTillConnected skipping...');
+    return;
+  }
   return new Promise(function (resolve, reject) {
     waitTillConnectedInterval = setInterval(() => {
       if (mainConnected) {
@@ -851,6 +877,8 @@ module.exports.setBatchingDisabled = () => {
 module.exports.setBatchingEnabled = () => {
   disableBatching = false;
 };
+module.exports.connectMain = connectMain;
+module.exports.isEnabled = isEnabled;
 
 module.exports.hardcodedPeers = hardcodedPeers;
 module.exports.getRandomHardcodedPeer = getRandomHardcodedPeer;
@@ -858,6 +886,7 @@ module.exports.ELECTRUM_HOST = ELECTRUM_HOST;
 module.exports.ELECTRUM_TCP_PORT = ELECTRUM_TCP_PORT;
 module.exports.ELECTRUM_SSL_PORT = ELECTRUM_SSL_PORT;
 module.exports.ELECTRUM_SERVER_HISTORY = ELECTRUM_SERVER_HISTORY;
+module.exports.ELECTRUM_CONNECTION_ENABLED = ELECTRUM_CONNECTION_ENABLED;
 
 const splitIntoChunks = function (arr, chunkSize) {
   const groups = [];

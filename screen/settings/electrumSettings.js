@@ -13,6 +13,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Switch,
+  Pressable,
 } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import RNWidgetCenter from 'react-native-widget-center';
@@ -31,6 +32,7 @@ import {
   SafeBlueArea,
   BlueDoneAndDismissKeyboardInputAccessory,
   BlueDismissKeyboardInputAccessory,
+  BlueListItem,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import { isTorCapable } from '../../blue_modules/environment';
@@ -44,6 +46,7 @@ export default class ElectrumSettings extends Component {
     const server = props?.route?.params?.server;
     this.state = {
       isLoading: true,
+      isElectrumConnectionEnabled: true,
       serverHistory: [],
       config: {},
       server,
@@ -61,6 +64,7 @@ export default class ElectrumSettings extends Component {
     const port = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_TCP_PORT);
     const sslPort = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SSL_PORT);
     const serverHistoryStr = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SERVER_HISTORY);
+    const isElectrumConnectionEnabled = await BlueElectrum.isEnabled();
     const serverHistory = JSON.parse(serverHistoryStr) || [];
     this.setState({
       isLoading: false,
@@ -68,6 +72,7 @@ export default class ElectrumSettings extends Component {
       port,
       sslPort,
       serverHistory,
+      isElectrumConnectionEnabled,
       isAndroidNumericKeyboardFocused: false,
       isAndroidAddressKeyboardVisible: false,
     });
@@ -248,6 +253,17 @@ export default class ElectrumSettings extends Component {
     }
   };
 
+  onElectrumConnectionEnabledSwitchValueChangd = async value => {
+    if (value === true) {
+      await AsyncStorage.setItem(BlueElectrum.ELECTRUM_CONNECTION_ENABLED, '1');
+      BlueElectrum.connectMain();
+    } else {
+      await AsyncStorage.setItem(BlueElectrum.ELECTRUM_CONNECTION_ENABLED, '');
+      BlueElectrum.forceDisconnect();
+    }
+    this.setState({ isElectrumConnectionEnabled: value });
+  };
+
   render() {
     const serverHistoryItems = this.state.serverHistory.map((server, i) => {
       return (
@@ -264,130 +280,143 @@ export default class ElectrumSettings extends Component {
     return (
       <SafeBlueArea>
         <ScrollView keyboardShouldPersistTaps="always">
-          <BlueCard>
-            <BlueText style={styles.status}>{loc.settings.electrum_status}</BlueText>
-            <View style={styles.connectWrap}>
-              <View
-                style={[styles.container, this.state.config.connected === 1 ? styles.containerConnected : styles.containerDisconnected]}
-              >
-                <BlueText style={this.state.config.connected === 1 ? styles.textConnected : styles.textDisconnected}>
-                  {this.state.config.connected === 1 ? loc.settings.electrum_connected : loc.settings.electrum_connected_not}
-                </BlueText>
-              </View>
-            </View>
-            <BlueSpacing20 />
-            <BlueText style={styles.hostname} onPress={this.checkServer}>
-              {this.state.config.host}:{this.state.config.port}
-            </BlueText>
-          </BlueCard>
-          <KeyboardAvoidingView>
-            <BlueCard>
-              <View style={styles.inputWrap}>
-                <TextInput
-                  placeholder={
-                    loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' }) +
-                    (isTorCapable ? ' (' + loc.settings.tor_supported + ')' : '')
-                  }
-                  value={this.state.host}
-                  onChangeText={text => this.setState({ host: text.trim() })}
-                  numberOfLines={1}
-                  style={styles.inputText}
-                  editable={!this.state.isLoading}
-                  placeholderTextColor="#81868e"
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  underlineColorAndroid="transparent"
-                  inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
-                  testID="HostInput"
-                  onFocus={() => this.setState({ isAndroidAddressKeyboardVisible: true })}
-                  onBlur={() => this.setState({ isAndroidAddressKeyboardVisible: false })}
-                />
-              </View>
-              <BlueSpacing20 />
-              <View style={styles.portWrap}>
-                <View style={styles.inputWrap}>
-                  <TextInput
-                    placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
-                    value={this.state.sslPort?.trim() === '' || this.state.sslPort === null ? this.state.port : this.state.sslPort}
-                    onChangeText={text =>
-                      this.setState(prevState => {
-                        if (prevState.sslPort?.trim() === '') {
-                          return { port: text.trim(), sslPort: '' };
-                        } else {
-                          return { port: '', sslPort: text.trim() };
-                        }
-                      })
-                    }
-                    numberOfLines={1}
-                    style={styles.inputText}
-                    editable={!this.state.isLoading}
-                    placeholderTextColor="#81868e"
-                    underlineColorAndroid="transparent"
-                    autoCorrect={false}
-                    autoCapitalize="none"
-                    keyboardType="number-pad"
-                    inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-                    testID="PortInput"
-                    onFocus={() => this.setState({ isAndroidNumericKeyboardFocused: true })}
-                    onBlur={() => this.setState({ isAndroidNumericKeyboardFocused: false })}
-                  />
+          <BlueListItem
+            Component={Pressable}
+            title={loc._.enabled}
+            switch={{
+              onValueChange: this.onElectrumConnectionEnabledSwitchValueChangd,
+              value: this.state.isElectrumConnectionEnabled,
+              testID: 'ElectrumConnectionEnabledSwitch',
+            }}
+          />
+          {this.state.isElectrumConnectionEnabled && (
+            <>
+              <BlueCard>
+                <BlueText style={styles.status}>{loc.settings.electrum_status}</BlueText>
+                <View style={styles.connectWrap}>
+                  <View
+                    style={[styles.container, this.state.config.connected === 1 ? styles.containerConnected : styles.containerDisconnected]}
+                  >
+                    <BlueText style={this.state.config.connected === 1 ? styles.textConnected : styles.textDisconnected}>
+                      {this.state.config.connected === 1 ? loc.settings.electrum_connected : loc.settings.electrum_connected_not}
+                    </BlueText>
+                  </View>
                 </View>
-                <BlueText style={styles.usePort}>{loc.settings.use_ssl}</BlueText>
-                <Switch testID="SSLPortInput" value={this.state.sslPort?.trim() > 0} onValueChange={this.useSSLPortToggled} />
-              </View>
-              <BlueSpacing20 />
+                <BlueSpacing20 />
+                <BlueText style={styles.hostname} onPress={this.checkServer}>
+                  {this.state.config.host}:{this.state.config.port}
+                </BlueText>
+              </BlueCard>
+              <KeyboardAvoidingView>
+                <BlueCard>
+                  <View style={styles.inputWrap}>
+                    <TextInput
+                      placeholder={
+                        loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' }) +
+                        (isTorCapable ? ' (' + loc.settings.tor_supported + ')' : '')
+                      }
+                      value={this.state.host}
+                      onChangeText={text => this.setState({ host: text.trim() })}
+                      numberOfLines={1}
+                      style={styles.inputText}
+                      editable={!this.state.isLoading}
+                      placeholderTextColor="#81868e"
+                      autoCorrect={false}
+                      autoCapitalize="none"
+                      underlineColorAndroid="transparent"
+                      inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
+                      testID="HostInput"
+                      onFocus={() => this.setState({ isAndroidAddressKeyboardVisible: true })}
+                      onBlur={() => this.setState({ isAndroidAddressKeyboardVisible: false })}
+                    />
+                  </View>
+                  <BlueSpacing20 />
+                  <View style={styles.portWrap}>
+                    <View style={styles.inputWrap}>
+                      <TextInput
+                        placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
+                        value={this.state.sslPort?.trim() === '' || this.state.sslPort === null ? this.state.port : this.state.sslPort}
+                        onChangeText={text =>
+                          this.setState(prevState => {
+                            if (prevState.sslPort?.trim() === '') {
+                              return { port: text.trim(), sslPort: '' };
+                            } else {
+                              return { port: '', sslPort: text.trim() };
+                            }
+                          })
+                        }
+                        numberOfLines={1}
+                        style={styles.inputText}
+                        editable={!this.state.isLoading}
+                        placeholderTextColor="#81868e"
+                        underlineColorAndroid="transparent"
+                        autoCorrect={false}
+                        autoCapitalize="none"
+                        keyboardType="number-pad"
+                        inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+                        testID="PortInput"
+                        onFocus={() => this.setState({ isAndroidNumericKeyboardFocused: true })}
+                        onBlur={() => this.setState({ isAndroidNumericKeyboardFocused: false })}
+                      />
+                    </View>
+                    <BlueText style={styles.usePort}>{loc.settings.use_ssl}</BlueText>
+                    <Switch testID="SSLPortInput" value={this.state.sslPort?.trim() > 0} onValueChange={this.useSSLPortToggled} />
+                  </View>
+                  <BlueSpacing20 />
 
-              <View style={styles.serverAddTitle}>
-                <BlueText style={styles.explain}>{loc.settings.electrum_settings_explain}</BlueText>
-                <TouchableOpacity accessibilityRole="button" testID="ResetToDefault" onPress={() => this.resetToDefault()}>
-                  <BlueText>{loc.settings.electrum_reset}</BlueText>
-                </TouchableOpacity>
-              </View>
-              <BlueSpacing20 />
-              {this.state.isLoading ? <BlueLoading /> : <BlueButton testID="Save" onPress={this.save} title={loc.settings.save} />}
-              <BlueSpacing20 />
-              <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={this.importScan} />
-              <BlueSpacing20 />
-            </BlueCard>
-            {Platform.select({
-              ios: <BlueDismissKeyboardInputAccessory />,
-              android: this.state.isAndroidNumericKeyboardFocused && <BlueDismissKeyboardInputAccessory />,
-            })}
+                  <View style={styles.serverAddTitle}>
+                    <BlueText style={styles.explain}>{loc.settings.electrum_settings_explain}</BlueText>
+                    <TouchableOpacity accessibilityRole="button" testID="ResetToDefault" onPress={() => this.resetToDefault()}>
+                      <BlueText>{loc.settings.electrum_reset}</BlueText>
+                    </TouchableOpacity>
+                  </View>
+                  <BlueSpacing20 />
+                  {this.state.isLoading ? <BlueLoading /> : <BlueButton testID="Save" onPress={this.save} title={loc.settings.save} />}
+                  <BlueSpacing20 />
+                  <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={this.importScan} />
+                  <BlueSpacing20 />
+                </BlueCard>
+                {Platform.select({
+                  ios: <BlueDismissKeyboardInputAccessory />,
+                  android: this.state.isAndroidNumericKeyboardFocused && <BlueDismissKeyboardInputAccessory />,
+                })}
 
-            {Platform.select({
-              ios: (
-                <BlueDoneAndDismissKeyboardInputAccessory
-                  onClearTapped={() => this.setState({ host: '' })}
-                  onPasteTapped={text => {
-                    this.setState({ host: text });
-                    Keyboard.dismiss();
-                  }}
-                />
-              ),
-              android: this.state.isAndroidAddressKeyboardVisible && (
-                <BlueDoneAndDismissKeyboardInputAccessory
-                  onClearTapped={() => {
-                    this.setState({ host: '' });
-                    Keyboard.dismiss();
-                  }}
-                  onPasteTapped={text => {
-                    this.setState({ host: text });
-                    Keyboard.dismiss();
-                  }}
-                />
-              ),
-            })}
-          </KeyboardAvoidingView>
-          {serverHistoryItems.length > 0 && !this.state.isLoading && (
-            <BlueCard>
-              <View style={styles.serverHistoryTitle}>
-                <BlueText style={styles.explain}>{loc.settings.electrum_history}</BlueText>
-                <TouchableOpacity accessibilityRole="button" onPress={() => this.clearHistoryAlert()}>
-                  <BlueText>{loc.settings.electrum_clear}</BlueText>
-                </TouchableOpacity>
-              </View>
-              {serverHistoryItems}
-            </BlueCard>
+                {Platform.select({
+                  ios: (
+                    <BlueDoneAndDismissKeyboardInputAccessory
+                      onClearTapped={() => this.setState({ host: '' })}
+                      onPasteTapped={text => {
+                        this.setState({ host: text });
+                        Keyboard.dismiss();
+                      }}
+                    />
+                  ),
+                  android: this.state.isAndroidAddressKeyboardVisible && (
+                    <BlueDoneAndDismissKeyboardInputAccessory
+                      onClearTapped={() => {
+                        this.setState({ host: '' });
+                        Keyboard.dismiss();
+                      }}
+                      onPasteTapped={text => {
+                        this.setState({ host: text });
+                        Keyboard.dismiss();
+                      }}
+                    />
+                  ),
+                })}
+              </KeyboardAvoidingView>
+              {serverHistoryItems.length > 0 && !this.state.isLoading && (
+                <BlueCard>
+                  <View style={styles.serverHistoryTitle}>
+                    <BlueText style={styles.explain}>{loc.settings.electrum_history}</BlueText>
+                    <TouchableOpacity accessibilityRole="button" onPress={() => this.clearHistoryAlert()}>
+                      <BlueText>{loc.settings.electrum_clear}</BlueText>
+                    </TouchableOpacity>
+                  </View>
+                  {serverHistoryItems}
+                </BlueCard>
+              )}
+            </>
           )}
         </ScrollView>
       </SafeBlueArea>

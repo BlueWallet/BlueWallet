@@ -10,6 +10,7 @@
     "storage_is_encrypted": "Your storage is encrypted. Password is required to decrypt it.",
     "allow": "Allow",
     "dont_allow": "Don’t Allow",
+    "enabled": "Enabled",
     "yes": "Yes",
     "no": "No",
     "save": "Save",
