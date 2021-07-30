@@ -17,7 +17,7 @@ const ELECTRUM_HOST = 'electrum_host';
 const ELECTRUM_TCP_PORT = 'electrum_tcp_port';
 const ELECTRUM_SSL_PORT = 'electrum_ssl_port';
 const ELECTRUM_SERVER_HISTORY = 'electrum_server_history';
-const ELECTRUM_CONNECTION_ENABLED = 'electrum_enabled';
+const ELECTRUM_CONNECTION_DISABLED = 'electrum_disabled';
 
 let _realm;
 async function _getRealm() {
@@ -78,7 +78,7 @@ const txhashHeightCache = {};
 async function isEnabled() {
   let isEnabled;
   try {
-    const savedValue = await AsyncStorage.getItem(ELECTRUM_CONNECTION_ENABLED);
+    const savedValue = await AsyncStorage.getItem(ELECTRUM_CONNECTION_DISABLED);
     if (savedValue === null) {
       isEnabled = true;
     } else {
@@ -88,6 +88,10 @@ async function isEnabled() {
     isEnabled = true;
   }
   return !!isEnabled;
+}
+
+async function setEnabled(enabled = true) {
+  return AsyncStorage.setItem(ELECTRUM_CONNECTION_DISABLED, enabled ? '1' : '0');
 }
 
 async function connectMain() {
@@ -883,14 +887,13 @@ module.exports.setBatchingEnabled = () => {
 };
 module.exports.connectMain = connectMain;
 module.exports.isEnabled = isEnabled;
-
+module.exports.setEnabled = setEnabled;
 module.exports.hardcodedPeers = hardcodedPeers;
 module.exports.getRandomHardcodedPeer = getRandomHardcodedPeer;
 module.exports.ELECTRUM_HOST = ELECTRUM_HOST;
 module.exports.ELECTRUM_TCP_PORT = ELECTRUM_TCP_PORT;
 module.exports.ELECTRUM_SSL_PORT = ELECTRUM_SSL_PORT;
 module.exports.ELECTRUM_SERVER_HISTORY = ELECTRUM_SERVER_HISTORY;
-module.exports.ELECTRUM_CONNECTION_ENABLED = ELECTRUM_CONNECTION_ENABLED;
 
 const splitIntoChunks = function (arr, chunkSize) {
   const groups = [];
