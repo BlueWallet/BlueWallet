@@ -89,7 +89,7 @@ class SpecifyInterfaceController: WKInterfaceController {
   }
   
   @IBAction func createButtonTapped() {
-    if (WCSession.default.activationState == .activated) {
+    if WatchDataSource.shared.companionWalletsInitialized {
       NotificationCenter.default.post(name: NotificationName.createQRCode, object: specifiedQRContent)
       dismiss()
     } else {

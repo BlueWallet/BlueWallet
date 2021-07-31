@@ -115,7 +115,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   }
   
   @IBAction func createInvoiceTapped() {
-    if (WCSession.default.activationState == .activated) {
+    if (WatchDataSource.shared.companionWalletsInitialized) {
       pushController(withName: ReceiveInterfaceController.identifier, context: (wallet?.identifier, "createInvoice"))
     } else {
       presentAlert(withTitle: "Error", message: "Unable to create invoice. Please open BlueWallet on your iPhone and unlock your wallets.", preferredStyle: .alert, actions: [WKAlertAction(title: "OK", style: .default, handler: { [weak self] in
