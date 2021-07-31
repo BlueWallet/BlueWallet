@@ -336,7 +336,7 @@ const App = () => {
           {renderClipboardContentModal()}
         </NavigationContainer>
       </View>
-      <WatchConnectivity />
+      {walletsInitialized && <WatchConnectivity />}
       <DeviceQuickActions />
       <WalletImport />
       <Biometric />

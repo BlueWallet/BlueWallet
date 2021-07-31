@@ -92,7 +92,6 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     transactionsTable.setHidden(wallet?.transactions.isEmpty ?? true)
     noTransactionsLabel.setHidden(!(wallet?.transactions.isEmpty ?? false))
     receiveButton.setHidden(wallet?.receiveAddress.isEmpty ?? true)
-    createInvoiceButton.setEnabled(WCSession.default.isReachable)
   }
   
   @IBAction func receiveMenuItemTapped() {
@@ -116,9 +115,13 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   }
   
   @IBAction func createInvoiceTapped() {
-    if (WCSession.default.isReachable) {
+    if (WatchDataSource.shared.companionWalletsInitialized) {
       pushController(withName: ReceiveInterfaceController.identifier, context: (wallet?.identifier, "createInvoice"))
-    }
+    } else {
+      presentAlert(withTitle: "Error", message: "Unable to create invoice. Please open BlueWallet on your iPhone and unlock your wallets.", preferredStyle: .alert, actions: [WKAlertAction(title: "OK", style: .default, handler: { [weak self] in
+        self?.dismiss()
+        })])
+      }
   }
   
   override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {
