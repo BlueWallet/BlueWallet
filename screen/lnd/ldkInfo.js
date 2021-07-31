@@ -110,11 +110,11 @@ const LdkInfo = () => {
   };
 
   useEffect(() => {
-    const isAnyChannelAvailable = channels.length > 0 || pendingChannels.length > 0 || inactiveChannels.length > 0;
-    if (centerContent && isAnyChannelAvailable) {
+    const channelsAvailablele = channels.length + pendingChannels.length + inactiveChannels.length;
+    if (channelsAvailablele === 1) {
       sectionList.current.scrollToLocation({ animated: false, sectionIndex: 0, itemIndex: 0 });
     }
-  }, [centerContent, channels, pendingChannels, inactiveChannels]);
+  }, [channels, pendingChannels, inactiveChannels]);
 
   useEffect(() => {
     refetchData().then(() => {
