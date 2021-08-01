@@ -39,7 +39,7 @@ import QRCode from 'react-native-qrcode-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
-import loc, { formatBalance, formatBalanceWithoutSuffix, transactionTimeToReadable } from './loc';
+import loc, { formatBalance, formatStringAddTwoWhiteSpaces, formatBalanceWithoutSuffix, transactionTimeToReadable } from './loc';
 import Lnurl from './class/lnurl';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import ToolTipMenu from './components/TooltipMenu';
@@ -1242,7 +1242,7 @@ export const BlueReceiveButtonIcon = props => {
               backgroundColor: 'transparent',
             }}
           >
-            {loc.receive.header}
+            {formatStringAddTwoWhiteSpaces(loc.receive.header)}
           </Text>
         </View>
       </View>
@@ -1628,7 +1628,7 @@ export class BlueReplaceFeeSuggestions extends Component {
               active: selectedFeeType === NetworkTransactionFeeType.FAST,
             },
             {
-              label: loc.send.fee_medium,
+              label: formatStringAddTwoWhiteSpaces(loc.send.fee_medium),
               time: loc.send.fee_3h,
               type: NetworkTransactionFeeType.MEDIUM,
               rate: networkFees.mediumFee,
@@ -1681,7 +1681,9 @@ export class BlueReplaceFeeSuggestions extends Component {
           ]}
         >
           <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontSize: 22, color: BlueCurrentTheme.colors.successColor, fontWeight: '600' }}>{loc.send.fee_custom}</Text>
+            <Text style={{ fontSize: 22, color: BlueCurrentTheme.colors.successColor, fontWeight: '600' }}>
+              {formatStringAddTwoWhiteSpaces(loc.send.fee_custom)}
+            </Text>
           </View>
           <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
             <TextInput
