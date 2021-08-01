@@ -14,6 +14,7 @@
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
 #import "EventEmitter.h"
+@import WatchConnectivity;
 #if !TARGET_OS_MACCATALYST
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
@@ -85,6 +86,10 @@ static void InitializeFlipper(UIApplication *application) {
 
 - (BOOL)application:(UIApplication *)application shouldAllowExtensionPointIdentifier:(UIApplicationExtensionPointIdentifier)extensionPointIdentifier {
   return NO;
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application {
+  [WCSession.defaultSession updateApplicationContext:@{@"isWalletsInitialized": @NO} error:nil];
 }
 
 - (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL succeeded)) completionHandler {
