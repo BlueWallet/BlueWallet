@@ -19,6 +19,7 @@ export class AbstractHDWallet extends LegacyWallet {
     this.usedAddresses = [];
     this._address_to_wif_cache = {};
     this.gap_limit = 20;
+    this._derivationPath = this.constructor.derivationPath;
   }
 
   getNextFreeAddressIndex() {
@@ -253,5 +254,21 @@ export class AbstractHDWallet extends LegacyWallet {
 
   _getNodePubkeyByIndex(address) {
     throw new Error('Not implemented');
+  }
+
+  /**
+   * @returns {string} Root derivation path for wallet if any
+   */
+  getDerivationPath() {
+    return this._derivationPath;
+  }
+
+  /*
+   * Set derivation path for the wallet
+   *
+   * @param {String} path - path
+   */
+  setDerivationPath(path) {
+    this._derivationPath = path;
   }
 }

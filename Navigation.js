@@ -31,6 +31,9 @@ import WalletsAddMultisigHelp from './screen/wallets/addMultisigHelp';
 import PleaseBackup from './screen/wallets/pleaseBackup';
 import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
 import ImportWallet from './screen/wallets/import';
+import ImportWalletDiscovery from './screen/wallets/importDiscovery';
+import ImportCustomDerivationPath from './screen/wallets/importCustomDerivationPath';
+import ImportSpeed from './screen/wallets/importSpeed';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
 import ExportMultisigCoordinationSetup from './screen/wallets/exportMultisigCoordinationSetup';
@@ -191,6 +194,17 @@ const AddWalletRoot = () => {
     <AddWalletStack.Navigator screenOptions={defaultStackScreenOptions}>
       <AddWalletStack.Screen name="AddWallet" component={AddWallet} options={AddWallet.navigationOptions(theme)} />
       <AddWalletStack.Screen name="ImportWallet" component={ImportWallet} options={ImportWallet.navigationOptions(theme)} />
+      <AddWalletStack.Screen
+        name="ImportWalletDiscovery"
+        component={ImportWalletDiscovery}
+        options={ImportWalletDiscovery.navigationOptions(theme)}
+      />
+      <AddWalletStack.Screen
+        name="ImportCustomDerivationPath"
+        component={ImportCustomDerivationPath}
+        options={ImportCustomDerivationPath.navigationOptions(theme)}
+      />
+      <AddWalletStack.Screen name="ImportSpeed" component={ImportSpeed} options={ImportSpeed.navigationOptions(theme)} />
       <AddWalletStack.Screen name="PleaseBackup" component={PleaseBackup} options={PleaseBackup.navigationOptions(theme)} />
       <AddWalletStack.Screen
         name="PleaseBackupLNDHub"

@@ -40,45 +40,11 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
     const seed = this._getSeed();
     const root = bitcoin.bip32.fromSeed(seed);
 
-    const path = "m/44'/0'/0'";
+    const path = this.getDerivationPath();
     const child = root.derivePath(path).neutered();
     this._xpub = child.toBase58();
 
     return this._xpub;
-  }
-
-  _getExternalWIFByIndex(index) {
-    return this._getWIFByIndex(false, index);
-  }
-
-  _getInternalWIFByIndex(index) {
-    return this._getWIFByIndex(true, index);
-  }
-
-  /**
-   * Get internal/external WIF by wallet index
-   * @param {Boolean} internal
-   * @param {Number} index
-   * @returns {*}
-   * @private
-   */
-  _getWIFByIndex(internal, index) {
-    if (!this.secret) return false;
-    const seed = this._getSeed();
-
-    const root = HDNode.fromSeed(seed);
-    const path = `m/44'/0'/0'/${internal ? 1 : 0}/${index}`;
-    const child = root.derivePath(path);
-
-    return child.toWIF();
-  }
-
-  _getExternalAddressByIndex(index) {
-    return this._getNodeAddressByIndex(0, index);
-  }
-
-  _getInternalAddressByIndex(index) {
-    return this._getNodeAddressByIndex(1, index);
   }
 
   _getNodeAddressByIndex(node, index) {
@@ -161,10 +127,5 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
     });
 
     return psbt;
-  }
-
-  _getDerivationPathByAddress(address, BIP = 44) {
-    // only changing defaults for function arguments
-    return super._getDerivationPathByAddress(address, BIP);
   }
 }

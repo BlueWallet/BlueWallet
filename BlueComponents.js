@@ -836,7 +836,6 @@ export const BlueHeaderDefaultSub = props => {
 export const BlueHeaderDefaultMain = props => {
   const { colors } = useTheme();
   const { isDrawerList } = props;
-  const { isImportingWallet } = useContext(BlueStorageContext);
   return (
     <Header
       leftComponent={{
@@ -860,7 +859,7 @@ export const BlueHeaderDefaultMain = props => {
       bottomDivider={false}
       topDivider={false}
       backgroundColor={isDrawerList ? colors.elevated : colors.background}
-      rightComponent={isImportingWallet ? undefined : <BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />}
+      rightComponent={<BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />}
     />
   );
 };

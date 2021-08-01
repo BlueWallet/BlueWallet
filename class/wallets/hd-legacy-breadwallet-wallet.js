@@ -1,4 +1,3 @@
-import * as bip32 from 'bip32';
 import * as bitcoinjs from 'bitcoinjs-lib';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
@@ -16,25 +15,6 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
   // track address index at which wallet switched to segwit
   _external_segwit_index = null; // eslint-disable-line camelcase
   _internal_segwit_index = null; // eslint-disable-line camelcase
-
-  /**
-   * @see https://github.com/bitcoinjs/bitcoinjs-lib/issues/584
-   * @see https://github.com/bitcoinjs/bitcoinjs-lib/issues/914
-   * @see https://github.com/bitcoinjs/bitcoinjs-lib/issues/997
-   */
-  getXpub() {
-    if (this._xpub) {
-      return this._xpub; // cache hit
-    }
-    const seed = this._getSeed();
-    const root = bip32.fromSeed(seed);
-
-    const path = "m/0'";
-    const child = root.derivePath(path).neutered();
-    this._xpub = child.toBase58();
-
-    return this._xpub;
-  }
 
   // we need a separate function without external_addresses_cache to use in binarySearch
   _calcNodeAddressByIndex(node, index, p2wpkh = false) {
@@ -80,39 +60,6 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
     if (node === 1) {
       return (this.internal_addresses_cache[index] = address);
     }
-  }
-
-  _getExternalAddressByIndex(index) {
-    return this._getNodeAddressByIndex(0, index);
-  }
-
-  _getInternalAddressByIndex(index) {
-    return this._getNodeAddressByIndex(1, index);
-  }
-
-  _getExternalWIFByIndex(index) {
-    return this._getWIFByIndex(false, index);
-  }
-
-  _getInternalWIFByIndex(index) {
-    return this._getWIFByIndex(true, index);
-  }
-
-  /**
-   * Get internal/external WIF by wallet index
-   * @param {Boolean} internal
-   * @param {Number} index
-   * @returns {*}
-   * @private
-   */
-  _getWIFByIndex(internal, index) {
-    if (!this.secret) return false;
-    const seed = this._getSeed();
-    const root = bitcoinjs.bip32.fromSeed(seed);
-    const path = `m/0'/${internal ? 1 : 0}/${index}`;
-    const child = root.derivePath(path);
-
-    return child.toWIF();
   }
 
   async fetchBalance() {
@@ -185,18 +132,6 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
     }
 
     return lastUsedIndex;
-  }
-
-  _getDerivationPathByAddress(address, BIP = 0) {
-    const path = `m/${BIP}'`;
-    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-      if (this._getExternalAddressByIndex(c) === address) return path + '/0/' + c;
-    }
-    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      if (this._getInternalAddressByIndex(c) === address) return path + '/1/' + c;
-    }
-
-    return false;
   }
 
   _addPsbtInput(psbt, input, sequence, masterFingerprintBuffer) {

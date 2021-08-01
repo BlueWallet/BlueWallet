@@ -1,34 +1,32 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Platform, View, Keyboard, StatusBar, StyleSheet, Alert } from 'react-native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import React, { useEffect, useState } from 'react';
+import { Platform, View, Keyboard, StatusBar, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+
 import {
-  BlueFormMultiInput,
-  BlueButtonLink,
-  BlueFormLabel,
-  BlueDoneAndDismissKeyboardInputAccessory,
   BlueButton,
-  SafeBlueArea,
+  BlueButtonLink,
+  BlueDoneAndDismissKeyboardInputAccessory,
+  BlueFormLabel,
+  BlueFormMultiInput,
   BlueSpacing20,
+  SafeBlueArea,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
-import WalletImport from '../../class/wallet-import';
 import loc from '../../loc';
 import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-
 const fs = require('../../blue_modules/fs');
 
 const WalletsImport = () => {
-  const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
-  const route = useRoute();
-  const { isImportingWallet } = useContext(BlueStorageContext);
-  const label = (route.params && route.params.label) || '';
-  const triggerImport = (route.params && route.params.triggerImport) || false;
-  const [importText, setImportText] = useState(label);
   const navigation = useNavigation();
   const { colors } = useTheme();
+  const route = useRoute();
+  const label = route?.params?.label ?? '';
+  const triggerImport = route?.params?.triggerImport ?? false;
+  const [importText, setImportText] = useState(label);
+  const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
+  const [, setSpeedBackdoor] = useState(0);
+
   const styles = StyleSheet.create({
     root: {
       paddingTop: 40,
@@ -64,62 +62,10 @@ const WalletsImport = () => {
     importMnemonic(importText);
   };
 
-  /**
-   *
-   * @param importText
-   */
-  const importMnemonic = async importText => {
-    if (isImportingWallet && isImportingWallet.isFailure === false) {
-      return;
-    }
-
-    let res;
-    try {
-      res = await WalletImport.askPasswordIfNeeded(importText);
-    } catch (e) {
-      // prompt cancelled
-      return;
-    }
-    const { text, password } = res;
-
-    WalletImport.addPlaceholderWallet(text);
-    navigation.dangerouslyGetParent().pop();
-    await new Promise(resolve => setTimeout(resolve, 500)); // giving some time to animations
-    try {
-      await WalletImport.processImportText(text, password);
-      WalletImport.removePlaceholderWallet();
-    } catch (error) {
-      console.log(error);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-      Alert.alert(
-        loc.wallets.add_details,
-        loc.wallets.list_import_problem,
-        [
-          {
-            text: loc.wallets.list_tryagain,
-            onPress: () => {
-              navigation.navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: importText } });
-              WalletImport.removePlaceholderWallet();
-            },
-            style: 'default',
-          },
-          {
-            text: loc._.cancel,
-            onPress: () => {
-              WalletImport.removePlaceholderWallet();
-            },
-            style: 'cancel',
-          },
-        ],
-        { cancelable: false },
-      );
-    }
+  const importMnemonic = importText => {
+    navigation.navigate('ImportWalletDiscovery', { importText });
   };
 
-  /**
-   *
-   * @param value
-   */
   const onBarScanned = value => {
     if (value && value.data) value = value.data + ''; // no objects here, only strings
     setImportText(value);
@@ -141,17 +87,28 @@ const WalletsImport = () => {
     }
   };
 
+  const speedBackdoorTap = () => {
+    setSpeedBackdoor(v => {
+      v += 1;
+      if (v < 5) return v;
+      navigation.navigate('ImportSpeed');
+      return 0;
+    });
+  };
+
   return (
     <SafeBlueArea style={styles.root}>
       <StatusBar barStyle="light-content" />
       <BlueSpacing20 />
-      <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
+      <TouchableWithoutFeedback onPress={speedBackdoorTap} testID="SpeedBackdoor">
+        <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
+      </TouchableWithoutFeedback>
       <BlueSpacing20 />
       <BlueFormMultiInput
-        testID="MnemonicInput"
         value={importText}
         contextMenuHidden={!isDesktop}
         onChangeText={setImportText}
+        testID="MnemonicInput"
         inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
       />
 
@@ -159,9 +116,9 @@ const WalletsImport = () => {
       <View style={styles.center}>
         <>
           <BlueButton
-            testID="DoImport"
             disabled={importText.trim().length === 0}
             title={loc.wallets.import_do_import}
+            testID="DoImport"
             onPress={importButtonPressed}
           />
           <BlueSpacing20 />

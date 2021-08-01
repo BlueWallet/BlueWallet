@@ -32,7 +32,6 @@ import { BlueStorageContext } from './blue_modules/storage-context';
 import WatchConnectivity from './WatchConnectivity';
 import DeviceQuickActions from './class/quick-actions';
 import Notifications from './blue_modules/notifications';
-import WalletImport from './class/wallet-import';
 import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
 import changeNavigationBarColor from 'react-native-navigation-bar-color';
@@ -338,7 +337,6 @@ const App = () => {
       </View>
       <WatchConnectivity />
       <DeviceQuickActions />
-      <WalletImport />
       <Biometric />
       <WidgetCommunication />
     </SafeAreaProvider>

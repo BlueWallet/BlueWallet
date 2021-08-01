@@ -154,10 +154,6 @@ describe('BlueWallet UI Tests', () => {
     await device.pressBack();
     await device.pressBack();
 
-    // about
-    await element(by.id('AboutButton')).tap();
-    await device.pressBack();
-
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -504,7 +500,7 @@ describe('BlueWallet UI Tests', () => {
       return;
     }
 
-    await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
+    await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'HDsegwitBech32', 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
 
     // lets create real transaction:
     await element(by.id('SendButton')).tap();
@@ -822,6 +818,7 @@ describe('BlueWallet UI Tests', () => {
     }
     await helperImportWallet(
       'zpub6rDWXE4wbwefeCrHWehXJheXnti5F9PbpamDUeB5eFbqaY89x3jq86JADBuXpnJnSvRVwqkaTnyMaZERUg4BpxD9V4tSZfKeYh1ozPdL1xK',
+      'watchOnly',
       'Imported Watch-only',
       '0 BTC', // it used to be 0.00030666 till someone stole it from git history kek
     );
@@ -895,7 +892,7 @@ describe('BlueWallet UI Tests', () => {
       return;
     }
 
-    await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
+    await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'HDsegwitBech32', 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
 
     await device.launchApp({
       newInstance: true,
@@ -1052,6 +1049,7 @@ describe('BlueWallet UI Tests', () => {
 
     await helperImportWallet(
       'zpub6qoWjSiZRHzSYPGYJ6EzxEXJXP1b2Rj9syWwJZFNCmupMwkbSAWSBk3UvSkJyQLEhQpaBAwvhmNj3HPKpwCJiTBB9Tutt46FtEmjL2DoU3J',
+      'watchOnly',
       'Imported Watch-only',
       '0.00105526 BTC',
     );
@@ -1146,30 +1144,60 @@ describe('BlueWallet UI Tests', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can import HD wallet with a passphrase', async () => {
+  it('can discover wallet account and import it', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
         return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
 
-    await helperImportWallet(
+    await yo('WalletsList');
+
+    // enable AdvancedMode to see derivation path in wallet details
+    await element(by.id('SettingsButton')).tap();
+    await element(by.id('GeneralSettings')).tap();
+    await element(by.id('AdvancedMode')).tap();
+    await device.pressBack();
+    await device.pressBack();
+
+    await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
+    // going to Import Wallet screen and importing mnemonic
+    await element(by.id('CreateAWallet')).tap();
+    await element(by.id('ImportWallet')).tap();
+    await element(by.id('MnemonicInput')).replaceText(
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
-      'Imported HD SegWit (BIP84 Bech32 Native)',
-      '0 BTC',
-      'BlueWallet',
     );
+    await element(by.id('DoImport')).tap();
 
-    await element(by.id('ReceiveButton')).tap();
-    try {
-      // in case emulator has no google services and doesnt support pushes
-      // we just dont show this popup
-      await element(by.text(`No, and don’t ask me again`)).tap();
-    } catch (_) {}
-    await yo('BitcoinAddressQRCodeContainer');
+    // cancel import and start over
+    await element(by.text('Cancel')).tap();
+    await element(by.id('DoImport')).tap();
+    await element(by.text('OK')).tap();
+    await waitFor(element(by.id('Loading'))) // wait for discovery to be completed
+      .not.toExist()
+      .withTimeout(300 * 1000);
 
-    // check if imported wallet has correct recive address
-    await expect(element(by.id('AddressValue'))).toHaveText('bc1qe8q660wfj6uvqg7zyn86jcsux36natklqnfdrc');
+    await expect(element(by.text("m/44'/0'/1'"))).toBeVisible();
+    await expect(element(by.text("m/49'/0'/0'"))).toBeVisible();
+    await expect(element(by.text("m/84'/0'/0'"))).toBeVisible();
+
+    // open custom derivation path screen and import the wallet
+    await element(by.id('CustomDerivationPathButton')).tap();
+    await element(by.id('DerivationPathInput')).replaceText("m/44'/0'/1'");
+    await waitFor(element(by.text('found'))) // wait for discovery to be completed
+      .toExist()
+      .withTimeout(300 * 1000);
+    await element(by.text('found')).tap();
+    await element(by.id('ImportButton')).tap();
+    await element(by.text('OK')).tap();
+
+    // go to wallet and check derivation path
+    await element(by.id('Imported HD Legacy (BIP44 P2PKH)')).tap();
+    // await element(by.id('AboutButton')).tap();
+    await element(by.id('WalletDetails')).tap();
+    await expect(element(by.id('DerivationPath'))).toHaveText("m/44'/0'/1'");
+
+    // process.exit(1)
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -1211,58 +1239,31 @@ async function helperCreateWallet(walletName) {
   await expect(element(by.id(walletName || 'cr34t3d'))).toBeVisible();
 }
 
-async function helperImportWallet(importText, expectedWalletLabel, expectedBalance, passphrase) {
+async function helperImportWallet(importText, walletType, expectedWalletLabel, expectedBalance, passphrase) {
   await yo('WalletsList');
 
   await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
   // going to Import Wallet screen and importing mnemonic
   await element(by.id('CreateAWallet')).tap();
   await element(by.id('ImportWallet')).tap();
-  await element(by.id('MnemonicInput')).replaceText(importText);
-
-  let retries = 0;
-  while (true) {
-    retries = retries + 1;
-    try {
-      await element(by.id('DoImport')).tap();
-    } catch (_) {}
-
-    let passphraseAsked = false;
-    try {
-      await sup('Passphrase', 3000);
-      passphraseAsked = true;
-    } catch (e) {} // passphrase not asked
-
-    if (passphraseAsked) {
-      // enter passphrase if needed
-      if (passphrase) {
-        await element(by.type('android.widget.EditText')).typeText(passphrase);
-      }
-      await element(by.text('OK')).tap();
-    }
-
-    if (process.env.TRAVIS) await sleep(60000);
-
-    // waiting for import result
-    await sup('OK', 3 * 61000);
-    await element(by.text('OK')).tap();
-
-    try {
-      await expect(element(by.id('ImportError'))).not.toBeVisible();
-      break; // import succeded
-    } catch (e) {
-      // exit after two failed attempts
-      if (retries === 2) break;
-      // restart import
-      await element(by.id('ImportError')).tap();
-      await element(by.text('Try again')).tap();
-    }
+  // tapping 5 times invisible button is a backdoor:
+  for (let c = 0; c <= 5; c++) {
+    await element(by.id('SpeedBackdoor')).tap();
+    await sleep(1000);
   }
+  await element(by.id('SpeedMnemonicInput')).replaceText(importText);
+  await element(by.id('SpeedWalletTypeInput')).replaceText(walletType);
+  if (passphrase) await element(by.id('SpeedPassphraseInput')).replaceText(passphrase);
+  await element(by.id('SpeedDoImport')).tap();
+
+  // waiting for import result
+  await sup('OK', 3 * 61000);
+  await element(by.text('OK')).tap();
 
   // lets go inside wallet
   await element(by.text(expectedWalletLabel)).tap();
   // label might change in the future
-  expect(element(by.id('WalletBalance'))).toHaveText(expectedBalance);
+  await expect(element(by.id('WalletBalance'))).toHaveText(expectedBalance);
 }
 
 function hashIt(s) {

@@ -88,7 +88,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     if (!this.secret) return false;
     const seed = this._getSeed();
     const root = HDNode.fromSeed(seed);
-    const path = `m/84'/0'/0'/${internal ? 1 : 0}/${index}`;
+    const path = `${this.getDerivationPath()}/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
     return child.toWIF();
@@ -180,7 +180,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const seed = this._getSeed();
     const root = HDNode.fromSeed(seed);
 
-    const path = "m/84'/0'/0'";
+    const path = this.getDerivationPath();
     const child = root.derivePath(path).neutered();
     const xpub = child.toBase58();
 
@@ -779,8 +779,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return ret;
   }
 
-  _getDerivationPathByAddress(address, BIP = 84) {
-    const path = `m/${BIP}'/0'/0'`;
+  _getDerivationPathByAddress(address) {
+    const path = this.getDerivationPath();
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       if (this._getExternalAddressByIndex(c) === address) return path + '/0/' + c;
     }

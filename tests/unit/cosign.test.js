@@ -74,7 +74,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
       // w1
       const input = w1Utxo[0];
       const pubkey = w1._getPubkeyByAddress(input.address);
-      const path = w1._getDerivationPathByAddress(input.address, 44);
+      const path = w1._getDerivationPathByAddress(input.address);
 
       psbt.addInput({
         hash: input.txid,
@@ -121,7 +121,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
       // w3
       const input = w3Utxo[0];
       const pubkey = w3._getPubkeyByAddress(input.address);
-      const path = w3._getDerivationPathByAddress(input.address, 49);
+      const path = w3._getDerivationPathByAddress(input.address);
       const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
       const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh });
 

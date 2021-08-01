@@ -12,9 +12,8 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlurView } from '@react-native-community/blur';
 
 const DrawerList = props => {
-  console.log('drawerList rendering...');
   const walletsCarousel = useRef();
-  const { wallets, selectedWallet, isImportingWallet, isDrawerListBlurred } = useContext(BlueStorageContext);
+  const { wallets, selectedWallet, isDrawerListBlurred } = useContext(BlueStorageContext);
   const { colors } = useTheme();
   const walletsCount = useRef(wallets.length);
   const isFocused = useIsFocused();
@@ -31,13 +30,6 @@ const DrawerList = props => {
     walletsCount.current = wallets.length;
   }, [wallets]);
 
-  useEffect(() => {
-    if (isImportingWallet) {
-      walletsCarousel.current?.scrollToItem({ item: false });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isImportingWallet]);
-
   const handleClick = index => {
     console.log('click', index);
     if (index <= wallets.length - 1) {
@@ -48,13 +40,13 @@ const DrawerList = props => {
         walletType: wallet.type,
         key: `WalletTransactions-${walletID}`,
       });
-    } else if (index >= wallets.length && !isImportingWallet) {
+    } else {
       props.navigation.navigate('Navigation', { screen: 'AddWalletRoot' });
     }
   };
 
   const handleLongPress = () => {
-    if (wallets.length > 1 && !isImportingWallet) {
+    if (wallets.length > 1) {
       props.navigation.navigate('ReorderWallets');
     } else {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -62,7 +54,7 @@ const DrawerList = props => {
   };
 
   const onNewWalletPress = () => {
-    return !isImportingWallet ? props.navigation.navigate('AddWalletRoot') : null;
+    return props.navigation.navigate('AddWalletRoot');
   };
 
   const ListHeaderComponent = () => {
@@ -77,7 +69,7 @@ const DrawerList = props => {
   const renderWalletsCarousel = (
     <WalletsCarousel
       data={wallets.concat(false)}
-      extraData={[wallets, isImportingWallet]}
+      extraData={[wallets]}
       onPress={handleClick}
       handleLongPress={handleLongPress}
       ref={walletsCarousel}
