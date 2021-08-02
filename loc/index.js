@@ -337,5 +337,10 @@ export function _leaveNumbersAndDots(newInputValue) {
   return newInputValue;
 }
 
+// https://github.com/BlueWallet/BlueWallet/issues/3466
+export function formatStringAddTwoWhiteSpaces(text) {
+  return `${text}  `;
+}
+
 strings.LANG = LANG;
 export default strings;
