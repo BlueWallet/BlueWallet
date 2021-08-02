@@ -122,7 +122,7 @@ const Confirm = () => {
           });
         }
         await payjoinClient.run();
-        const payjoinPsbt = wallet.getPayjoinPsbt();
+        const payjoinPsbt = payJoinWallet.getPayjoinPsbt();
         if (payjoinPsbt) {
           const tx = payjoinPsbt.extractTransaction();
           txids2watch.push(tx.getId());
