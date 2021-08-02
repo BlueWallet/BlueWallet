@@ -118,7 +118,7 @@ const Confirm = () => {
           payjoinClient = new PayjoinClient({
             paymentScript,
             payJoinWallet,
-            payjoinUrl: this.state.payjoinUrl,
+            payjoinUrl,
           });
         }
         await payjoinClient.run();
