@@ -31,7 +31,7 @@ const LdkInfo = () => {
   const [pendingChannels, setPendingChannels] = useState([]);
   const [wBalance, setWalletBalance] = useState({});
   const centerContent = channels.length === 0 && pendingChannels.length === 0 && inactiveChannels.length === 0;
-
+  const allChannelsAmount = useRef(0)
   // Modals
   const [selectedChannelIndex, setSelectedChannelIndex] = useState();
   const [newOpenChannelModalProps, setNewOpenChannelModalProps] = useState();
@@ -110,10 +110,11 @@ const LdkInfo = () => {
   };
 
   useEffect(() => {
-    const channelsAvailablele = channels.length + pendingChannels.length + inactiveChannels.length;
-    if (channelsAvailablele === 1) {
+    const channelsAvailable = channels.length + pendingChannels.length + inactiveChannels.length;
+    if (allChannelsAmount.current === 0 && channelsAvailable >= 1) {
       sectionList.current.scrollToLocation({ animated: false, sectionIndex: 0, itemIndex: 0 });
     }
+    allChannelsAmount.current = channelsAvailable;
   }, [channels, pendingChannels, inactiveChannels]);
 
   useEffect(() => {
