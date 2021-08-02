@@ -75,27 +75,27 @@ let latestBlockheightTimestamp = false;
 
 const txhashHeightCache = {};
 
-async function isEnabled() {
-  let isEnabled;
+async function isDisabled() {
+  let isDisabled;
   try {
     const savedValue = await AsyncStorage.getItem(ELECTRUM_CONNECTION_DISABLED);
     if (savedValue === null) {
-      isEnabled = true;
+      isDisabled = false;
     } else {
-      isEnabled = savedValue;
+      isDisabled = savedValue;
     }
   } catch {
-    isEnabled = true;
+    isDisabled = false;
   }
-  return !!isEnabled;
+  return !!isDisabled;
 }
 
-async function setEnabled(enabled = true) {
-  return AsyncStorage.setItem(ELECTRUM_CONNECTION_DISABLED, enabled ? '1' : '0');
+async function setDisabled(disabled = true) {
+  return AsyncStorage.setItem(ELECTRUM_CONNECTION_DISABLED, disabled ? '1' : '');
 }
 
 async function connectMain() {
-  if (!(await isEnabled())) {
+  if (await isDisabled()) {
     console.log('Electrum connection disabled by user. Skipping connectMain call');
     return;
   }
@@ -186,7 +186,7 @@ async function connectMain() {
 connectMain();
 
 async function presentNetworkErrorAlert(usingPeer) {
-  if (!(await isEnabled())) {
+  if (await isDisabled()) {
     console.log(
       'Electrum connection disabled by user. Perhaps we are attempting to show this network error alert after the user disabled connections.',
     );
@@ -666,7 +666,7 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
 module.exports.waitTillConnected = async function () {
   let waitTillConnectedInterval = false;
   let retriesCounter = 0;
-  if (!(await isEnabled())) {
+  if (await isDisabled()) {
     console.warn('Electrum connections disabled by user. waitTillConnected skipping...');
     return;
   }
@@ -886,8 +886,8 @@ module.exports.setBatchingEnabled = () => {
   disableBatching = false;
 };
 module.exports.connectMain = connectMain;
-module.exports.isEnabled = isEnabled;
-module.exports.setEnabled = setEnabled;
+module.exports.isDisabled = isDisabled;
+module.exports.setDisabled = setDisabled;
 module.exports.hardcodedPeers = hardcodedPeers;
 module.exports.getRandomHardcodedPeer = getRandomHardcodedPeer;
 module.exports.ELECTRUM_HOST = ELECTRUM_HOST;

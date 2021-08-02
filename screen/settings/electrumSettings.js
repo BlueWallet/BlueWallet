@@ -64,7 +64,7 @@ export default class ElectrumSettings extends Component {
     const port = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_TCP_PORT);
     const sslPort = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SSL_PORT);
     const serverHistoryStr = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SERVER_HISTORY);
-    const isOfflineMode = !(await BlueElectrum.isEnabled());
+    const isOfflineMode = await BlueElectrum.isDisabled();
     const serverHistory = JSON.parse(serverHistoryStr) || [];
     this.setState({
       isLoading: false,
@@ -255,10 +255,10 @@ export default class ElectrumSettings extends Component {
 
   onElectrumConnectionEnabledSwitchValueChangd = async value => {
     if (value === true) {
-      await BlueElectrum.setEnabled(false);
+      await BlueElectrum.setDisabled(true);
       BlueElectrum.forceDisconnect();
     } else {
-      await BlueElectrum.setEnabled(true);
+      await BlueElectrum.setDisabled(false);
       BlueElectrum.connectMain();
     }
     this.setState({ isOfflineMode: value });

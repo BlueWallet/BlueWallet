@@ -143,7 +143,7 @@ const WalletsList = () => {
    * Triggered manually by user on pull-to-refresh.
    */
   const refreshTransactions = async (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
-    if (!(await BlueElectrum.isEnabled())) return setIsLoading(false);
+    if (await BlueElectrum.isDisabled()) return setIsLoading(false);
     setIsLoading(showLoadingIndicator);
     refreshAllWalletTransactions(showLoadingIndicator, showUpdateStatusIndicator).finally(() => setIsLoading(false));
   };
