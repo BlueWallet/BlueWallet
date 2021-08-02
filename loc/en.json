@@ -227,7 +227,7 @@
     "no_tx_signing_in_progress": "There is no transaction signing in progress.",
     "psbt_tx_open": "Open Signed Transaction",
     "psbt_tx_scan": "Scan Signed Transaction",
-    "qr_error_no_qrcode": "The selected image doesn’t contain a QR Code.",
+    "qr_error_no_qrcode": "We were unable to find a QR Code in the selected image. Make sure the image contains only a QR Code and no additional content such as text, or buttons.",
     "qr_error_no_wallet": "The selected file doesn’t contain a wallet that can be imported.",
     "success_done": "Done",
     "txSaved": "The transaction file ({filePath}) has been saved in your Downloads folder.",
