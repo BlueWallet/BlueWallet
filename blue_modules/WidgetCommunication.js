@@ -2,7 +2,7 @@ function WidgetCommunication(props) {
   WidgetCommunication.isBalanceDisplayAllowed = () => {};
   WidgetCommunication.setBalanceDisplayAllowed = () => {};
   WidgetCommunication.reloadAllTimelines = () => {};
-  return new WidgetCommunication();
+  return null;
 }
 
 export default WidgetCommunication;

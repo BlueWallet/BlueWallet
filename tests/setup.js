@@ -152,6 +152,13 @@ jest.mock('react-native-widget-center', () => {
   };
 });
 
+jest.mock('../blue_modules/WidgetCommunication', () => {
+  return {
+    reloadAllTimelines: jest.fn(),
+  };
+});
+
+
 const keychainMock = {
   SECURITY_LEVEL_ANY: 'MOCK_SECURITY_LEVEL_ANY',
   SECURITY_LEVEL_SECURE_SOFTWARE: 'MOCK_SECURITY_LEVEL_SECURE_SOFTWARE',
