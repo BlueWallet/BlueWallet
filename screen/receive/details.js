@@ -9,6 +9,7 @@ import {
   StyleSheet,
   TextInput,
   View,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
@@ -36,7 +37,6 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import ToolTipMenu from '../../components/TooltipMenu';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {

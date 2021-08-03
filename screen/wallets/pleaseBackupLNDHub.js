@@ -1,8 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { View, StyleSheet, BackHandler, StatusBar } from 'react-native';
+import { View, StyleSheet, ScrollView, BackHandler, StatusBar } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { ScrollView } from 'react-native-gesture-handler';
 
 import { BlueButton, BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
