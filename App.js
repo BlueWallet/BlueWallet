@@ -336,7 +336,7 @@ const App = () => {
           <Notifications onProcessNotifications={processPushNotifications} />
           {renderClipboardContentModal()}
         </NavigationContainer>
-      {walletsInitialized && !isDesktop && <WatchConnectivity />}
+        {walletsInitialized && !isDesktop && <WatchConnectivity />}
       </View>
       <DeviceQuickActions />
       <WalletImport />
