@@ -1,10 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DefaultPreference from 'react-native-default-preference';
-import RNWidgetCenter from 'react-native-widget-center';
 import * as RNLocalize from 'react-native-localize';
 import BigNumber from 'bignumber.js';
-
 import { FiatUnit, getFiatRate } from '../models/fiatUnit';
+import WidgetCommunication from './WidgetCommunication';
 
 const PREFERRED_CURRENCY = 'preferredCurrency';
 const EXCHANGE_RATES = 'currency';
@@ -28,7 +27,7 @@ async function setPrefferedCurrency(item) {
   await DefaultPreference.setName('group.io.bluewallet.bluewallet');
   await DefaultPreference.set('preferredCurrency', item.endPointKey);
   await DefaultPreference.set('preferredCurrencyLocale', item.locale.replace('-', '_'));
-  RNWidgetCenter.reloadAllTimelines();
+  WidgetCommunication.reloadAllTimelines();
 }
 
 async function getPreferredCurrency() {
