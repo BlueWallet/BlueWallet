@@ -27,7 +27,7 @@ async function setPrefferedCurrency(item) {
   await DefaultPreference.setName('group.io.bluewallet.bluewallet');
   await DefaultPreference.set('preferredCurrency', item.endPointKey);
   await DefaultPreference.set('preferredCurrencyLocale', item.locale.replace('-', '_'));
-  WidgetCommunication.reloadAllTimeLines();
+  WidgetCommunication.reloadAllTimelines();
 }
 
 async function getPreferredCurrency() {

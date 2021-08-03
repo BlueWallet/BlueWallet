@@ -29,8 +29,8 @@ function WidgetCommunication() {
     setValues();
   };
 
-  WidgetCommunication.reloadAllTimeLines = () => {
-    RNWidgetCenter.reloadAllTimeLines();
+  WidgetCommunication.reloadAllTimelines = () => {
+    RNWidgetCenter.reloadAllTimelines();
   };
 
   const allWalletsBalanceAndTransactionTime = async () => {

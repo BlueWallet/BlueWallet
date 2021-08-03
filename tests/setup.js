@@ -148,7 +148,7 @@ jest.mock('react-native-share', () => {
 
 jest.mock('react-native-widget-center', () => {
   return {
-    reloadAllTimeLines: jest.fn(),
+    reloadAllTimelines: jest.fn(),
   };
 });
 
