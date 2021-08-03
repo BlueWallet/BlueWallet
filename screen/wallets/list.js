@@ -147,7 +147,7 @@ const WalletsList = () => {
   };
 
   useEffect(() => {
-    refreshTransactions(false, true);
+  //  refreshTransactions(false, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // call refreshTransactions() only once, when screen mounts
 
