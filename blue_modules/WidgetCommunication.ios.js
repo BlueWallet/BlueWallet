@@ -29,6 +29,10 @@ function WidgetCommunication() {
     setValues();
   };
 
+  WidgetCommunication.reloadAllTimeLines = () => {
+    RNWidgetCenter.reloadAllTimeLines();
+  };
+
   const allWalletsBalanceAndTransactionTime = async () => {
     if ((await isStorageEncrypted()) || !(await WidgetCommunication.isBalanceDisplayAllowed())) {
       return { allWalletsBalance: 0, latestTransactionTime: 0 };

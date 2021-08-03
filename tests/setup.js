@@ -146,6 +146,12 @@ jest.mock('react-native-share', () => {
   };
 });
 
+jest.mock('react-native-widget-center', () => {
+  return {
+    reloadAllTimeLines: jest.fn(),
+  };
+});
+
 const keychainMock = {
   SECURITY_LEVEL_ANY: 'MOCK_SECURITY_LEVEL_ANY',
   SECURITY_LEVEL_SECURE_SOFTWARE: 'MOCK_SECURITY_LEVEL_SECURE_SOFTWARE',
