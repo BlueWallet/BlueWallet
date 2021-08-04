@@ -1,7 +1,7 @@
 /* global alert */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StatusBar, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList, Linking } from 'react-native';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SafeBlueArea, BlueButton, BlueSpacing20, BlueSpacing10, BlueLoading, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -11,30 +11,41 @@ import LNNodeBar from '../../components/LNNodeBar';
 import BottomModal from '../../components/BottomModal';
 import Button, { ButtonStyle } from '../../components/Button';
 import LdkOpenChannel from './ldkOpenChannel';
+import { Psbt } from 'bitcoinjs-lib';
+import { AbstractWallet, LightningLdkWallet } from '../../class';
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
 const LdkNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
 
+type LdkInfoRouteProps = RouteProp<
+  {
+    params: {
+      walletID: string;
+      psbt: Psbt;
+    };
+  },
+  'params'
+>;
+
 const LdkInfo = () => {
-  const { walletID, psbt } = useRoute().params;
+  const { walletID, psbt } = useRoute<LdkInfoRouteProps>().params;
   const { wallets } = useContext(BlueStorageContext);
-  const refreshDataInterval = useRef();
-  const sectionList = useRef();
-  /** @type {LightningLdkWallet} */
-  const wallet = wallets.find(w => w.getID() === walletID);
-  const { colors } = useTheme();
+  const refreshDataInterval = useRef<NodeJS.Timer>();
+  const sectionList = useRef<SectionList | null>();
+  const wallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
+  const { colors }: { colors: any } = useTheme();
   const { setOptions, setParams, navigate } = useNavigation();
   const name = useRoute().name;
   const [isLoading, setIsLoading] = useState(true);
-  const [channels, setChannels] = useState([]);
-  const [inactiveChannels, setInactiveChannels] = useState([]);
-  const [pendingChannels, setPendingChannels] = useState([]);
-  const [wBalance, setWalletBalance] = useState({});
+  const [channels, setChannels] = useState<any[]>([]);
+  const [inactiveChannels, setInactiveChannels] = useState<any[]>([]);
+  const [pendingChannels, setPendingChannels] = useState<any[]>([]);
+  const [wBalance, setWalletBalance] = useState<{ confirmedBalance?: number }>({});
   const centerContent = channels.length === 0 && pendingChannels.length === 0 && inactiveChannels.length === 0;
   const allChannelsAmount = useRef(0);
   // Modals
-  const [selectedChannelIndex, setSelectedChannelIndex] = useState();
-  const [newOpenChannelModalProps, setNewOpenChannelModalProps] = useState();
+  const [selectedChannelIndex, setSelectedChannelIndex] = useState<any>();
+  const [newOpenChannelModalProps, setNewOpenChannelModalProps] = useState<any>();
   const [newOpenChannelModalVisible, setNewOpenChannelModalVisible] = useState(false);
 
   //
@@ -104,7 +115,7 @@ const LdkInfo = () => {
     } else {
       setPendingChannels([]);
     }
-    const walletBalance = await wallet.walletBalance();
+    const walletBalance: { confirmedBalance?: number } = await wallet.walletBalance();
     setWalletBalance(walletBalance);
     setIsLoading(false);
   };
@@ -112,7 +123,7 @@ const LdkInfo = () => {
   useEffect(() => {
     const channelsAvailable = channels.length + pendingChannels.length + inactiveChannels.length;
     if (allChannelsAmount.current === 0 && channelsAvailable >= 1) {
-      sectionList.current.scrollToLocation({ animated: false, sectionIndex: 0, itemIndex: 0 });
+      sectionList?.current?.scrollToLocation({ animated: false, sectionIndex: 0, itemIndex: 0 });
     }
     allChannelsAmount.current = channelsAvailable;
   }, [channels, pendingChannels, inactiveChannels]);
@@ -125,7 +136,7 @@ const LdkInfo = () => {
       }, 2000);
     });
     return () => {
-      clearInterval(refreshDataInterval.current);
+      clearInterval(refreshDataInterval?.current as NodeJS.Timeout);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -149,18 +160,23 @@ const LdkInfo = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors]);
 
-  const showModal = index => {
+  const showModal = (index: any) => {
     setSelectedChannelIndex(index);
   };
 
-  const closeChannel = async channel => {
+  const closeChannel = async (channel: any) => {
     if (!(await confirm())) return;
     setSelectedChannelIndex(undefined);
 
-    const wallets2use = wallets.filter(w => w.chain === Chain.ONCHAIN);
+    const wallets2use = wallets.filter((w: AbstractWallet) => w.chain === Chain.ONCHAIN);
 
-    /** @type {AbstractWallet} */
-    const toWallet = await selectWallet(navigate, name, null, wallets2use, 'Onchain wallet is required to withdraw funds to');
+    const toWallet: AbstractWallet = await selectWallet(
+      navigate,
+      name,
+      null,
+      wallets2use,
+      'Onchain wallet is required to withdraw funds to',
+    );
     // using wallets2use instead of simple Chain.ONCHAIN argument because by default this argument only selects wallets
     // that can send, which is not possible if user wants to withdraw to watch-only wallet
     if (!toWallet) return;
@@ -183,9 +199,14 @@ const LdkInfo = () => {
   };
 
   const claimBalance = async () => {
-    const wallets2use = wallets.filter(w => w.chain === Chain.ONCHAIN);
-    /** @type {AbstractWallet} */
-    const selectedWallet = await selectWallet(navigate, name, null, wallets2use, 'Onchain wallet is required to withdraw funds to');
+    const wallets2use = wallets.filter((w: AbstractWallet) => w.chain === Chain.ONCHAIN);
+    const selectedWallet: AbstractWallet = await selectWallet(
+      navigate,
+      name,
+      null,
+      wallets2use,
+      'Onchain wallet is required to withdraw funds to',
+    );
     // using wallets2use instead of simple Chain.ONCHAIN argument because by default this argument only selects wallets
     // that can send, which is not possible if user wants to withdraw to watch-only wallet
     if (!selectedWallet) return;
@@ -210,7 +231,7 @@ const LdkInfo = () => {
     setSelectedChannelIndex(undefined);
   };
 
-  const handleOnOpenTransactionOnBlockExporerTapped = channelData => {
+  const handleOnOpenTransactionOnBlockExporerTapped = (channelData: any) => {
     const txid = channelData.channel_id;
     const url = `https://mempool.space/tx/${txid}`;
     Linking.canOpenURL(url).then(supported => {
@@ -220,7 +241,7 @@ const LdkInfo = () => {
     });
   };
 
-  const handleOnConnectPeerTapped = async channelData => {
+  const handleOnConnectPeerTapped = async (channelData: any) => {
     closeModal();
     const { pubkey, host, port } = await wallet.lookupNodeConnectionDetailsByPubkey(channelData.remote_node_id);
     return wallet.connectPeer(pubkey, host, port);
@@ -282,7 +303,7 @@ const LdkInfo = () => {
     );
   };
 
-  const renderSectionItem = item => {
+  const renderSectionItem = (item: any) => {
     switch (item.section.key) {
       case LdkNodeInfoChannelStatus.ACTIVE:
         return renderItemChannel({ status: LdkNodeInfoChannelStatus.ACTIVE, channel: item });
@@ -295,7 +316,7 @@ const LdkInfo = () => {
     }
   };
 
-  const renderItemChannel = channel => {
+  const renderItemChannel = (channel: any) => {
     const channelData = channel.channel.item;
 
     return (
@@ -325,10 +346,10 @@ const LdkInfo = () => {
     navigateToOpenChannel({ isPrivateChannel: true });
   };
 
-  const navigateToOpenChannel = async ({ isPrivateChannel }) => {
+  const navigateToOpenChannel = async ({ isPrivateChannel }: { isPrivateChannel: boolean }) => {
     closeModal();
     setNewOpenChannelModalVisible(false);
-    const availableWallets = [...wallets.filter(item => item.isSegwit() && item.allowSend())];
+    const availableWallets = [...wallets.filter((item: AbstractWallet) => item.isSegwit() && item.allowSend())];
     if (availableWallets.length === 0) {
       return alert(loc.lnd.refill_create);
     }
@@ -366,26 +387,26 @@ const LdkInfo = () => {
             closeContainerModal={closeNewOpenChannelModalPropsModal}
             psbtOpenChannelStartedTs={newOpenChannelModalProps?.psbtOpenChannelStartedTs}
             onPsbtOpenChannelStartedTsChange={psbtOpenChannelStartedTs =>
-              setNewOpenChannelModalProps(prevState => {
+              setNewOpenChannelModalProps((prevState: any) => {
                 return { ...prevState, psbtOpenChannelStartedTs };
               })
             }
             onOpenChannelSuccess={onNewOpenChannelModalBackdropPress}
             unit={newOpenChannelModalProps?.unit ?? wallet.getPreferredBalanceUnit()}
             onUnitChange={unit =>
-              setNewOpenChannelModalProps(prevState => {
+              setNewOpenChannelModalProps((prevState: any) => {
                 return { ...prevState, unit };
               })
             }
             fundingAmount={newOpenChannelModalProps?.fundingAmount}
             onFundingAmountChange={fundingAmount =>
-              setNewOpenChannelModalProps(prevState => {
+              setNewOpenChannelModalProps((prevState: any) => {
                 return { ...prevState, fundingAmount };
               })
             }
             remoteHostWithPubkey={newOpenChannelModalProps?.remoteHostWithPubkey}
             onRemoteHostWithPubkeyChange={pubkey => {
-              setNewOpenChannelModalProps(prevState => {
+              setNewOpenChannelModalProps((prevState: any) => {
                 return { ...prevState, remoteHostWithPubkey: pubkey };
               });
               setNewOpenChannelModalVisible(true);
@@ -403,7 +424,7 @@ const LdkInfo = () => {
     return <View style={[styles.separator, stylesHook.separator]} />;
   };
 
-  const renderSectionHeader = section => {
+  const renderSectionHeader = (section: any) => {
     switch (section.section.key) {
       case LdkNodeInfoChannelStatus.PENDING:
         return <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.pending}</Text>;
@@ -431,11 +452,14 @@ const LdkInfo = () => {
     return sectionForList;
   };
 
+  // @ts-ignore This kind of magic is not allowed in typescript, we should try and be more specific
   return (
     <SafeBlueArea styles={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="default" />
       <SectionList
-        ref={sectionList}
+        ref={(ref: SectionList) => {
+          sectionList.current = ref;
+        }}
         renderItem={renderSectionItem}
         keyExtractor={channel => channel.channel_id}
         initialNumToRender={7}

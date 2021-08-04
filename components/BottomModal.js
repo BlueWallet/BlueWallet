@@ -18,12 +18,12 @@ const styles = StyleSheet.create({
 });
 
 const BottomModal = ({
-  onBackButtonPress,
-  onBackdropPress,
-  onClose,
-  windowHeight,
-  windowWidth,
-  doneButton,
+  onBackButtonPress = undefined,
+  onBackdropPress = undefined,
+  onClose = undefined,
+  windowHeight = undefined,
+  windowWidth = undefined,
+  doneButton = undefined,
   avoidKeyboard = false,
   allowBackdropPress = true,
   ...props
