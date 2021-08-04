@@ -35,7 +35,7 @@ class ReceiveInterfaceController: WKInterfaceController {
     receiveMethod = passedContext.1
     NotificationCenter.default.addObserver(forName: SpecifyInterfaceController.NotificationName.createQRCode, object: nil, queue: nil) { [weak self] (notification) in
       self?.isRenderingQRCode = true
-      if let wallet = self?.wallet, wallet.type == "lightningCustodianWallet", self?.receiveMethod == "createInvoice", let object = notification.object as? SpecifyInterfaceController.SpecificQRCodeContent, let amount = object.amount {
+      if let wallet = self?.wallet, wallet.type == WalletGradient.LightningCustodial.rawValue || wallet.type == WalletGradient.LightningLDK.rawValue, self?.receiveMethod == "createInvoice", let object = notification.object as? SpecifyInterfaceController.SpecificQRCodeContent, let amount = object.amount {
         self?.imageInterface.setHidden(true)
         self?.loadingIndicator.setHidden(false)
         WatchDataSource.requestLightningInvoice(walletIdentifier: identifier, amount: amount, description: object.description, responseHandler: { (invoice) in
@@ -118,7 +118,7 @@ class ReceiveInterfaceController: WKInterfaceController {
   
   override func didAppear() {
     super.didAppear()
-    if wallet?.type == "lightningCustodianWallet" && receiveMethod == "createInvoice" {
+    if (wallet?.type == WalletGradient.LightningCustodial.rawValue || wallet?.type == WalletGradient.LightningLDK.rawValue) && receiveMethod == "createInvoice" {
       if isRenderingQRCode == nil {
         presentController(withName: SpecifyInterfaceController.identifier, context: wallet?.identifier)
         isRenderingQRCode = false

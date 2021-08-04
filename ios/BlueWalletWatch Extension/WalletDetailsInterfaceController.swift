@@ -39,7 +39,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   walletBalanceLabel.setText(wallet.hideBalance ? "" : wallet.balance)
   walletNameLabel.setText(wallet.label)
   walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
-  createInvoiceButton.setHidden(wallet.type != "lightningCustodianWallet")
+    createInvoiceButton.setHidden(!(wallet.type == WalletGradient.LightningCustodial.rawValue || wallet.type == WalletGradient.LightningLDK.rawValue))
   processWalletsTable()
   addMenuItems()
   }
@@ -50,7 +50,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     }
     
     clearAllMenuItems()
-    if wallet.type != "lightningCustodianWallet" && !(wallet.xpub ?? "").isEmpty {
+    if (wallet.type != WalletGradient.LightningCustodial.rawValue ||  wallet.type != WalletGradient.LightningLDK.rawValue) && !(wallet.xpub ?? "").isEmpty {
       addMenuItem(with: .share, title: "View XPub", action: #selector(viewXPubMenuItemTapped))
     }
     if wallet.hideBalance {
