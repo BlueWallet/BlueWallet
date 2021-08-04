@@ -1,9 +1,8 @@
-import * as bitcoin from 'bitcoinjs-lib';
-import { HDLegacyBreadwalletWallet } from '../../class';
 import assert from 'assert';
-global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
-global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
+import * as bitcoin from 'bitcoinjs-lib';
+
+import { HDLegacyBreadwalletWallet } from '../../class';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
