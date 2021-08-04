@@ -2,6 +2,18 @@ import assert from 'assert';
 
 import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet } from '../../class';
 import AOPP from '../../class/aopp';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum'; // so it connects ASAP
+
+beforeAll(async () => {
+  // awaiting for Electrum to be connected. For RN Electrum would naturally connect
+  // while app starts up, but for tests we need to wait for it
+  await BlueElectrum.waitTillConnected();
+});
+
+afterAll(() => {
+  // after all tests we close socket so the test suite can actually terminate
+  BlueElectrum.forceDisconnect();
+});
 
 describe('AOPP', () => {
   it('can validate uri', async () => {

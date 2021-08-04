@@ -39,6 +39,10 @@ type Transaction = {
   blocktime: number;
 };
 
+export async function waitTillConnected(): Promise<boolean>;
+
+export function forceDisconnect(): void;
+
 export function getBalanceByAddress(address: string): Promise<{ confirmed: number; unconfirmed: number }>;
 
 export function multiGetUtxoByAddress(addresses: string[]): Promise<Record<string, Utxo[]>>;

@@ -1,8 +1,7 @@
+import assert from 'assert';
+
 import { LegacyWallet, SegwitP2SHWallet, SegwitBech32Wallet } from '../../class';
-const assert = require('assert');
-global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
-global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 
