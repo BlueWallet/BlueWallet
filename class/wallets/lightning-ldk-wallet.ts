@@ -13,19 +13,19 @@ const bitcoin = require('bitcoinjs-lib');
 export class LightningLdkWallet extends LightningCustodianWallet {
   static type = 'lightningLdk';
   static typeReadable = 'Lightning LDK';
+  private _listChannels: any[] = [];
+  private _listPayments: any[] = [];
+  private _listInvoices: any[] = [];
+  private _nodeConnectionDetailsCache: any = {}; // pubkey -> {pubkey, host, port, ts}
+  private _refundAddressScriptHex: string = '';
+  private _lastTimeBlockchainCheckedTs: number = 0;
+  private _unwrapFirstExternalAddressFromMnemonicsCache: string = '';
 
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.preferredBalanceUnit = BitcoinUnit.SATS;
     this.chain = Chain.OFFCHAIN;
-    this._listChannels = [];
-    this._listPayments = [];
-    this._listInvoices = [];
     this.user_invoices_raw = []; // compatibility with other lightning wallet class
-    this._nodeConnectionDetailsCache = {}; // pubkey -> {pubkey, host, port, ts}
-    this._refundAddressScriptHex = false;
-    this._lastTimeBlockchainCheckedTs = 0;
-    this._unwrapFirstExternalAddressFromMnemonicsCache = false;
   }
 
   valid() {
@@ -37,7 +37,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return false;
   }
 
-  async start(entropyHex) {
+  async start(entropyHex: string) {
     return RnLdk.start(entropyHex);
   }
 
@@ -79,7 +79,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return +new Date() - this._lastTimeBlockchainCheckedTs > 5 * 60 * 1000; // 5 min, half of block time
   }
 
-  async fundingStateStepFinalize(txhex) {
+  async fundingStateStepFinalize(txhex: string) {
     return RnLdk.openChannelStep2(txhex);
   }
 
@@ -116,26 +116,26 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return false;
   }
 
-  async openChannel(pubkeyHex, host, amountSats, privateChannel) {
+  async openChannel(pubkeyHex: string, host: string, amountSats: number, privateChannel: boolean) {
     let triedToConnect = false;
     let port = 9735;
 
     if (host.includes(':')) {
       const splitted = host.split(':');
       host = splitted[0];
-      port = splitted[1];
+      port = +splitted[1];
     }
 
     for (let c = 0; c < 20; c++) {
       const peers = await this.listPeers();
       if (peers.includes(pubkeyHex)) {
         // all good, connected, lets open channel
-        return await RnLdk.openChannelStep1(pubkeyHex, parseInt(amountSats));
+        return await RnLdk.openChannelStep1(pubkeyHex, +amountSats);
       }
 
       if (!triedToConnect) {
         triedToConnect = true;
-        await RnLdk.connectPeer(pubkeyHex, host, parseInt(port));
+        await RnLdk.connectPeer(pubkeyHex, host, +port);
       }
 
       await new Promise(resolve => setTimeout(resolve, 500)); // sleep
@@ -144,11 +144,11 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     throw new Error('timeout waiting for peer connection');
   }
 
-  async connectPeer(pubkeyHex, host, port) {
-    return RnLdk.connectPeer(pubkeyHex, host, parseInt(port));
+  async connectPeer(pubkeyHex: string, host: string, port: number) {
+    return RnLdk.connectPeer(pubkeyHex, host, +port);
   }
 
-  async lookupNodeConnectionDetailsByPubkey(pubkey) {
+  async lookupNodeConnectionDetailsByPubkey(pubkey: string) {
     // first, trying cache:
     if (this._nodeConnectionDetailsCache[pubkey] && +new Date() - this._nodeConnectionDetailsCache[pubkey].ts < 2 * 14 * 24 * 3600 * 1000) {
       // cache hit
@@ -202,11 +202,11 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return ret;
   }
 
-  static async _decodeInvoice(invoice) {
+  static async _decodeInvoice(invoice: string) {
     return bolt11.decode(invoice);
   }
 
-  static async _script2address(scriptHex) {
+  static async _script2address(scriptHex: string) {
     return bitcoin.address.fromOutputScript(Buffer.from(scriptHex, 'hex'));
   }
 
@@ -266,7 +266,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return RnLdk.checkBlockchain();
   }
 
-  async payInvoice(invoice, freeAmount = 0) {
+  async payInvoice(invoice: string, freeAmount = 0) {
     const decoded = this.decodeInvoice(invoice);
 
     if (await this.channelsNeedReestablish()) {
@@ -293,7 +293,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
               payment_hash: decoded.payment_hash,
             }),
           );
-          return true;
+          return;
         }
       }
     }
@@ -307,12 +307,12 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     throw new Error('Payment timeout');
   }
 
-  async sendPayment(invoice, freeAmount) {
+  async sendPayment(invoice: string, freeAmount: number) {
     return RnLdk.sendPayment(invoice, freeAmount);
   }
 
   async getUserInvoices(limit = false) {
-    const newInvoices = [];
+    const newInvoices: any[] = [];
     let found = false;
 
     // okay, so the idea is that `this._listInvoices` is a persistant storage of invoices, while
@@ -341,15 +341,15 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return this._listInvoices;
   }
 
-  isInvoiceGeneratedByWallet(paymentRequest) {
-    return this?._listInvoices?.some(invoice => invoice.payment_request === paymentRequest);
+  isInvoiceGeneratedByWallet(paymentRequest: string) {
+    return Boolean(this?._listInvoices?.some(invoice => invoice.payment_request === paymentRequest));
   }
 
-  weOwnAddress(address) {
+  weOwnAddress(address: string) {
     return false;
   }
 
-  async addInvoice(amtSat, memo) {
+  async addInvoice(amtSat: number, memo: string) {
     if (await this.channelsNeedReestablish()) {
       await this.reestablishChannels();
       await this.waitForAtLeastOneChannelBecomeActive();
@@ -380,7 +380,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     throw new Error('getAddressAsync: Not implemented');
   }
 
-  async allowOnchainAddress() {
+  async allowOnchainAddress(): Promise<boolean> {
     throw new Error('allowOnchainAddress: Not implemented');
   }
 
@@ -480,16 +480,16 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     await this.listChannels(); // updates channels
   }
 
-  async claimCoins(address) {
+  async claimCoins(address: string) {
     console.log('unwrapping wif...');
     const wif = this.unwrapFirstExternalWIFFromMnemonics();
     const wallet = new SegwitBech32Wallet();
-    wallet.setSecret(wif);
+    wallet.setSecret(String(wif));
     console.log('fetching balance...');
     await wallet.fetchUtxo();
     console.log(wallet.getBalance(), wallet.getUtxo());
     console.log('creating transation...');
-    const { tx } = wallet.createTransaction(wallet.getUtxo(), [{ address }], 1, address, 0);
+    const { tx } = wallet.createTransaction(wallet.getUtxo(), [{ address }], 1, address, 0, false, 0);
     if (!tx) throw new Error('claimCoins: could not create transaction');
     console.log('broadcasting...');
     return await wallet.broadcastTx(tx.toHex());
@@ -503,11 +503,11 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return true;
   }
 
-  async closeChannel(fundingTxidHex, force = false) {
+  async closeChannel(fundingTxidHex: string, force = false) {
     return force ? await RnLdk.closeChannelForce(fundingTxidHex) : await RnLdk.closeChannelCooperatively(fundingTxidHex);
   }
 
-  getLatestTransactionTime() {
+  getLatestTransactionTime(): string | 0 {
     if (this.getTransactions().length === 0) {
       return 0;
     }
@@ -515,7 +515,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     for (const tx of this.getTransactions()) {
       if (tx.received) max = Math.max(tx.received, max);
     }
-    return max;
+    return new Date(max).toString();
   }
 
   async getLogs() {
@@ -528,13 +528,13 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     await this.getUserInvoices();
   }
 
-  static preimage2hash(preimageHex) {
+  static preimage2hash(preimageHex: string): string {
     const hash = bitcoin.crypto.sha256(Buffer.from(preimageHex, 'hex'));
     return hash.toString('hex');
   }
 
   async reestablishChannels() {
-    const connectedInThisRun = {};
+    const connectedInThisRun: any = {};
     for (const channel of await this.listChannels()) {
       if (channel.is_usable) continue; // already connected..?
       if (connectedInThisRun[channel.remote_node_id]) continue; // already tried to reconnect (in case there are several channels with the same node)
@@ -566,7 +566,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return false;
   }
 
-  async setRefundAddress(address) {
+  async setRefundAddress(address: string) {
     const script = bitcoin.address.toOutputScript(address);
     this._refundAddressScriptHex = script.toString('hex');
     await RnLdk.setRefundAddressScript(this._refundAddressScriptHex);
@@ -579,7 +579,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
    * @param func {function} Async functino to execute
    * @private
    */
-  _execInBackground(func) {
+  _execInBackground(func: () => void) {
     const that = this;
     (async () => {
       try {

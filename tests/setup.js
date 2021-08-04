@@ -155,7 +155,6 @@ jest.mock('../blue_modules/WidgetCommunication', () => {
   };
 });
 
-
 const keychainMock = {
   SECURITY_LEVEL_ANY: 'MOCK_SECURITY_LEVEL_ANY',
   SECURITY_LEVEL_SECURE_SOFTWARE: 'MOCK_SECURITY_LEVEL_SECURE_SOFTWARE',

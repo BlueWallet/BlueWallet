@@ -31,7 +31,7 @@ const LdkInfo = () => {
   const [pendingChannels, setPendingChannels] = useState([]);
   const [wBalance, setWalletBalance] = useState({});
   const centerContent = channels.length === 0 && pendingChannels.length === 0 && inactiveChannels.length === 0;
-  const allChannelsAmount = useRef(0)
+  const allChannelsAmount = useRef(0);
   // Modals
   const [selectedChannelIndex, setSelectedChannelIndex] = useState();
   const [newOpenChannelModalProps, setNewOpenChannelModalProps] = useState();
