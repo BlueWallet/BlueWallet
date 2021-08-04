@@ -24,6 +24,7 @@ const ImportWalletDiscovery = () => {
   const [password, setPassword] = useState();
   const [selected, setSelected] = useState(0);
   const [progress, setProgress] = useState();
+  const importing = useRef(false);
   const bip39 = useMemo(() => {
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(importText);
@@ -40,12 +41,13 @@ const ImportWalletDiscovery = () => {
   });
 
   const saveWallet = wallet => {
+    if (importing.current) return;
+    importing.current = true;
     addAndSaveWallet(wallet);
     navigation.dangerouslyGetParent().pop();
   };
 
   useEffect(() => {
-    if (wallets.length > 0) return; // TODO remove in prod
     const onProgress = data => setProgress(data);
 
     const onWallet = wallet => {

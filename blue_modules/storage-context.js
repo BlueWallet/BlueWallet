@@ -174,6 +174,9 @@ export const BlueStorageProvider = ({ children }) => {
     A(A.ENUM.CREATED_WALLET);
     Alert.alert('', loc.wallets.import_success);
     Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
+    // start balance fetching at the background
+    await w.fetchBalance();
+    setWallets([...BlueApp.getWallets()]);
   };
 
   let txMetadata = BlueApp.tx_metadata || {};

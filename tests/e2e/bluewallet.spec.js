@@ -154,6 +154,10 @@ describe('BlueWallet UI Tests', () => {
     await device.pressBack();
     await device.pressBack();
 
+    // about
+    await element(by.id('AboutButton')).tap();
+    await device.pressBack();
+
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 

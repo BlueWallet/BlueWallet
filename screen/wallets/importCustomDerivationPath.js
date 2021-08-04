@@ -21,6 +21,7 @@ const ImportCustomDerivationPath = () => {
   const [path, setPath] = useState("m/84'/0'/0'");
   const [wallets, setWallets] = useState({});
   const [selected, setSelected] = useState(0);
+  const importing = useRef(false);
 
   // save on form change. Because effect called on each event, debounce it.
   const debouncedSaveMemo = useRef(
@@ -63,6 +64,8 @@ const ImportCustomDerivationPath = () => {
   });
 
   const saveWallet = type => {
+    if (importing.current) return;
+    importing.current = true;
     const wallet = wallets[path][type].wallet;
     addAndSaveWallet(wallet);
     navigation.dangerouslyGetParent().pop();
