@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, StatusBar, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList, Linking } from 'react-native';
+import { View, StatusBar, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList } from 'react-native';
 import { RouteProp, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SafeBlueArea, BlueButton, BlueSpacing20, BlueSpacing10, BlueLoading, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -231,16 +231,6 @@ const LdkInfo = () => {
     setSelectedChannelIndex(undefined);
   };
 
-  const handleOnOpenTransactionOnBlockExporerTapped = (channelData: any) => {
-    const txid = channelData.channel_id;
-    const url = `https://mempool.space/tx/${txid}`;
-    Linking.canOpenURL(url).then(supported => {
-      if (supported) {
-        Linking.openURL(url);
-      }
-    });
-  };
-
   const handleOnConnectPeerTapped = async (channelData: any) => {
     closeModal();
     const { pubkey, host, port } = await wallet.lookupNodeConnectionDetailsByPubkey(channelData.remote_node_id);
@@ -257,7 +247,12 @@ const LdkInfo = () => {
           <BlueSpacing10 />
           {channelData && (
             <Text style={[stylesHook.detailsText]}>
-              {channelData.remote_node_id.substr(0, 6) + '...' + channelData.remote_node_id.substr(-6)}
+              {LightningLdkWallet.pubkeyToAlias(channelData.remote_node_id) +
+                ' (' +
+                channelData.remote_node_id.substr(0, 10) +
+                '...' +
+                channelData.remote_node_id.substr(-6) +
+                ')'}
             </Text>
           )}
           <BlueSpacing20 />
@@ -277,17 +272,6 @@ const LdkInfo = () => {
               ? loc.lnd.active
               : loc.lnd.inactive}
           </Text>
-
-          {status === LdkNodeInfoChannelStatus.PENDING && (
-            <>
-              <Button
-                onPress={() => handleOnOpenTransactionOnBlockExporerTapped(channelData)}
-                text={loc.transactions.details_show_in_block_explorer}
-                buttonStyle={ButtonStyle.grey}
-              />
-              <BlueSpacing20 />
-            </>
-          )}
 
           {status === LdkNodeInfoChannelStatus.INACTIVE && (
             <>
@@ -326,7 +310,7 @@ const LdkInfo = () => {
           canSend={Number(channelData.outbound_capacity_msat / 1000)}
           canReceive={Number(channelData.inbound_capacity_msat / 1000)}
           itemPriceUnit={wallet.getPreferredBalanceUnit()}
-          nodeAlias={channelData.remote_node_id}
+          nodeAlias={LightningLdkWallet.pubkeyToAlias(channelData.remote_node_id)}
         />
       </TouchableOpacity>
     );
@@ -602,10 +586,11 @@ const styles = StyleSheet.create({
   },
   fundingNewChannelModalContent: {
     padding: 24,
+    paddingTop: 10,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-    height: 340,
+    height: 360,
   },
   separator: {
     height: 1,

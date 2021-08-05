@@ -13,9 +13,11 @@ import loc from '../../loc';
 import PropTypes from 'prop-types';
 import { SuccessView } from '../send/success';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { AbstractWallet, HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
+import { ArrowPicker } from '../../components/ArrowPicker';
 const currency = require('../../blue_modules/currency');
 
-const LdkOpenChannel = props => {
+const LdkOpenChannel = (props: any) => {
   const {
     fundingWalletID,
     ldkWalletID,
@@ -29,17 +31,14 @@ const LdkOpenChannel = props => {
     onUnitChange,
     fundingAmount = { amount: null, amountSats: null },
     onFundingAmountChange,
-    // remoteHostWithPubkey = '03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@34.239.230.56:9735', // ACINQ
-    remoteHostWithPubkey = '02e89ca9e8da72b33d896bae51d20e7e6675aa971f7557500b6591b15429e717f1@165.227.95.104:9735', // lnd1.bluewallet.io
+    remoteHostWithPubkey = '037cc5f9f1da20ac0d60e83989729a204a33cc2d8e80438969fadf35c1c5f1233b@165.227.103.83:9735', // lnd2.bluewallet.io
     onRemoteHostWithPubkeyChange,
     onBarScannerDismissWithoutData,
   } = props;
   const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
-  /** @type {LightningLdkWallet} */
-  const ldkWallet = wallets.find(w => w.getID() === ldkWalletID);
-  /** @type {HDSegwitBech32Wallet} */
-  const fundingWallet = wallets.find(w => w.getID() === fundingWalletID);
-  const { colors } = useTheme();
+  const ldkWallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === ldkWalletID);
+  const fundingWallet: HDSegwitBech32Wallet = wallets.find((w: AbstractWallet) => w.getID() === fundingWalletID);
+  const { colors }: { colors: any } = useTheme();
   const { navigate } = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
   const name = useRoute().name;
@@ -157,7 +156,7 @@ const LdkOpenChannel = props => {
     }
   };
 
-  const onBarScanned = ret => {
+  const onBarScanned = (ret: { data?: any }) => {
     if (!ret.data) ret = { data: ret };
     onRemoteHostWithPubkeyChange(ret.data);
   };
@@ -207,7 +206,7 @@ const LdkOpenChannel = props => {
           placeholder="funding amount, for exampe 0.001"
           isLoading={isLoading}
           amount={fundingAmount.amount}
-          onAmountUnitChange={newUnit => {
+          onAmountUnitChange={(newUnit: string) => {
             let amountSats = fundingAmount.amountSats;
             switch (newUnit) {
               case BitcoinUnit.SATS:
@@ -224,7 +223,7 @@ const LdkOpenChannel = props => {
             onFundingAmountChange({ amount: fundingAmount.amount, amountSats });
             onUnitChange(newUnit);
           }}
-          onChangeText={text => {
+          onChangeText={(text: string) => {
             let amountSats = fundingAmount.amountSats;
             switch (unit) {
               case BitcoinUnit.BTC:
@@ -240,14 +239,14 @@ const LdkOpenChannel = props => {
             onFundingAmountChange({ amount: text, amountSats });
           }}
           unit={unit}
-          inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+          inputAccessoryViewID={(BlueDismissKeyboardInputAccessory as any).InputAccessoryViewID}
         />
 
         <AddressInput
           placeholder={loc.lnd.remote_host}
           address={remoteHostWithPubkey}
           isLoading={isLoading}
-          inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+          inputAccessoryViewID={(BlueDismissKeyboardInputAccessory as any).InputAccessoryViewID}
           onChangeText={onRemoteHostWithPubkeyChange}
           onBarScanned={onBarScanned}
           scanButtonTapped={closeContainerModal}
@@ -256,6 +255,13 @@ const LdkOpenChannel = props => {
         />
         <BlueDismissKeyboardInputAccessory />
 
+        <ArrowPicker
+          onChange={newKey => {
+            const nodes = LightningLdkWallet.getPredefinedNodes();
+            if (nodes[newKey]) onRemoteHostWithPubkeyChange(nodes[newKey]);
+          }}
+          items={LightningLdkWallet.getPredefinedNodes()}
+        />
         <BlueSpacing20 />
         <View style={styles.horizontalButtons}>
           <BlueButton onPress={onOpenChannelSuccess} title={loc._.cancel} />
