@@ -41,7 +41,7 @@
   "description": "BIP38 is a standard process to encrypt Bitcoin and crypto currency private keys that is impervious to brute force attacks thus protecting the user.",
   "devDependencies": {
     "coveralls": "^2.10.0",
-    "istanbul": "^0.2.11",
+    "istanbul": "^0.4.0",
     "mocha": "^2.3.3",
     "mochify": "^2.1.1",
     "standard": "^9.0.2",
