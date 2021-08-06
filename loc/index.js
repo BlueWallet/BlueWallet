@@ -144,13 +144,8 @@ const setDateTimeLocale = async () => {
         Only run this conditional if its outside a testing environment.
     */
     if (process.env.JEST_WORKER_ID === undefined) {
-      if (language?.isRTL) {
-        I18nManager.allowRTL(true);
-        I18nManager.forceRTL(true);
-      } else {
-        I18nManager.allowRTL(false);
-        I18nManager.forceRTL(false);
-      }
+      I18nManager.allowRTL(language.isRTL);
+      I18nManager.forceRTL(language.isRTL);
     }
   } else {
     dayjs.locale('en');
@@ -165,21 +160,31 @@ const setLanguageLocale = async () => {
   // finding out whether lang preference was saved
   const lang = await AsyncStorage.getItem(LANG);
   if (lang) {
-    strings.setLanguage(lang);
+    await strings.saveLanguage(lang);
+    await strings.setLanguage(lang);
+    if (process.env.JEST_WORKER_ID === undefined) {
+      I18nManager.allowRTL(lang.isRTL);
+      I18nManager.forceRTL(lang.isRTL);
+    }
     await setDateTimeLocale();
   } else {
     const locales = RNLocalize.getLocales();
-    if (Object.keys(AvailableLanguages).some(language => language === locales[0])) {
-      strings.saveLanguage(locales[0].languageCode);
-      strings.setLanguage(locales[0].languageCode);
+    if (Object.values(AvailableLanguages).some(language => language.value === locales[0].languageCode)) {
+      await strings.saveLanguage(locales[0].languageCode);
+      await strings.setLanguage(locales[0].languageCode);
+      if (process.env.JEST_WORKER_ID === undefined) {
+        I18nManager.allowRTL(locales[0].isRTL);
+        I18nManager.forceRTL(locales[0].isRTL);
+      }
     } else {
-      strings.saveLanguage('en');
-      strings.setLanguage('en');
+      await strings.saveLanguage('en');
+      await strings.setLanguage('en');
       if (process.env.JEST_WORKER_ID === undefined) {
         I18nManager.allowRTL(false);
         I18nManager.forceRTL(false);
       }
     }
+    await setDateTimeLocale();
   }
 };
 setLanguageLocale();
