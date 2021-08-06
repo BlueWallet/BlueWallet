@@ -44,7 +44,7 @@
     "istanbul": "^0.2.11",
     "mocha": "^2.3.3",
     "mochify": "^2.1.1",
-    "standard": "^9.0.2",
+    "standard": "^16.0.0",
     "wif": "^2.0.1"
   },
   "homepage": "http://cryptocoinjs.com/modules/currency/bip38/",
