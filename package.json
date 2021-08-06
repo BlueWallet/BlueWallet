@@ -174,7 +174,7 @@
     "react-native-rate": "1.2.6",
     "react-native-reanimated": "2.2.0",
     "react-native-safe-area-context": "3.2.0",
-    "react-native-screens": "3.4.0",
+    "react-native-screens": "3.5.0",
     "react-native-secure-key-store": "https://github.com/BlueWallet/react-native-secure-key-store#63ab38c9d382a819844a086a69cc204c46aa93f9",
     "react-native-share": "6.3.0",
     "react-native-sortable-list": "https://github.com/BlueWallet/react-native-sortable-list.git#46e39a30ae0c4328e7c06c30b72b1af0b69e1aeb",
