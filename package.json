@@ -14,7 +14,7 @@
     "@types/bs58check": "^2.1.0",
     "@types/create-hash": "^1.2.2",
     "@types/jest": "^26.0.24",
-    "@types/react": "^17.0.14",
+    "@types/react": "17.0.16",
     "@types/react-native": "^0.64.12",
     "@types/react-test-renderer": "^17.0.1",
     "@typescript-eslint/eslint-plugin": "^4.28.3",
