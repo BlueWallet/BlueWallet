@@ -66,10 +66,15 @@ const AddressInput = ({
             });
           }
         }}
+        accessibilityRole="button"
         style={[styles.scan, stylesHook.scan]}
+        accessibilityLabel={loc.send.details_scan}
+        accessibilityHint={loc.send.details_scan_hint}
       >
-        <Image source={require('../img/scan-white.png')} />
-        <Text style={[styles.scanText, stylesHook.scanText]}>{loc.send.details_scan}</Text>
+        <Image source={require('../img/scan-white.png')} accessible={false} />
+        <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
+          {loc.send.details_scan}
+        </Text>
       </TouchableOpacity>
     </View>
   );

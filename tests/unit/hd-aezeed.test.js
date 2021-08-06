@@ -11,8 +11,9 @@ describe('HDAezeedWallet', () => {
 
     // correct pass:
     aezeed.setSecret(
-      'able mix price funny host express lawsuit congress antique float pig exchange vapor drip wide cup style apple tumble verb fix blush tongue market:strongPassword',
+      'able mix price funny host express lawsuit congress antique float pig exchange vapor drip wide cup style apple tumble verb fix blush tongue market',
     );
+    aezeed.setPassphrase('strongPassword');
     assert.ok(await aezeed.validateMnemonicAsync());
     assert.ok(!(await aezeed.mnemonicInvalidPassword()));
 
@@ -20,31 +21,36 @@ describe('HDAezeedWallet', () => {
     aezeed.setSecret(
       'able mix price funny host express lawsuit congress antique float pig exchange vapor drip wide cup style apple tumble verb fix blush tongue market',
     );
+    aezeed.setPassphrase();
     assert.ok(!(await aezeed.validateMnemonicAsync()));
     assert.ok(await aezeed.mnemonicInvalidPassword());
 
     // wrong pass:
     aezeed.setSecret(
-      'able mix price funny host express lawsuit congress antique float pig exchange vapor drip wide cup style apple tumble verb fix blush tongue market:badpassword',
+      'able mix price funny host express lawsuit congress antique float pig exchange vapor drip wide cup style apple tumble verb fix blush tongue market',
     );
+    aezeed.setPassphrase('badpassword');
     assert.ok(!(await aezeed.validateMnemonicAsync()));
     assert.ok(await aezeed.mnemonicInvalidPassword());
 
     aezeed.setSecret(
       'able concert slush lend olive cost wagon dawn board robot park snap dignity churn fiction quote shrimp hammer wing jump immune skill sunset west',
     );
+    aezeed.setPassphrase();
     assert.ok(await aezeed.validateMnemonicAsync());
     assert.ok(!(await aezeed.mnemonicInvalidPassword()));
 
     aezeed.setSecret(
-      'able concert slush lend olive cost wagon dawn board robot park snap dignity churn fiction quote shrimp hammer wing jump immune skill sunset west:aezeed',
+      'able concert slush lend olive cost wagon dawn board robot park snap dignity churn fiction quote shrimp hammer wing jump immune skill sunset west',
     );
+    aezeed.setPassphrase('aezeed');
     assert.ok(await aezeed.validateMnemonicAsync());
     assert.ok(!(await aezeed.mnemonicInvalidPassword()));
 
     aezeed.setSecret(
       'abstract rhythm weird food attract treat mosquito sight royal actor surround ride strike remove guilt catch filter summer mushroom protect poverty cruel chaos pattern',
     );
+    aezeed.setPassphrase();
     assert.ok(await aezeed.validateMnemonicAsync());
     assert.ok(!(await aezeed.mnemonicInvalidPassword()));
 
@@ -113,6 +119,8 @@ describe('HDAezeedWallet', () => {
     watchOnly.init();
     assert.strictEqual(watchOnly._getExternalAddressByIndex(0), aezeed._getExternalAddressByIndex(0));
     assert.ok(watchOnly.weOwnAddress('bc1qdjj7lhj9lnjye7xq3dzv3r4z0cta294xy78txn'));
+    assert.ok(!watchOnly.weOwnAddress('garbage'));
+    assert.ok(!watchOnly.weOwnAddress(false));
   });
 
   it('can sign and verify messages', async () => {

@@ -1,6 +1,5 @@
-/* global alert */
-import React, { useEffect, useState } from 'react';
-import { Platform, View, Keyboard, StatusBar, StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { Platform, View, Keyboard, StatusBar, StyleSheet, Alert } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
@@ -16,12 +15,15 @@ import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import WalletImport from '../../class/wallet-import';
 import loc from '../../loc';
-import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
+import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+
 const fs = require('../../blue_modules/fs');
 
 const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
   const route = useRoute();
+  const { isImportingWallet } = useContext(BlueStorageContext);
   const label = (route.params && route.params.label) || '';
   const triggerImport = (route.params && route.params.triggerImport) || false;
   const [importText, setImportText] = useState(label);
@@ -65,36 +67,63 @@ const WalletsImport = () => {
   /**
    *
    * @param importText
-   * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
    */
-  const importMnemonic = async (importText, additionalProperties) => {
-    if (WalletImport.isCurrentlyImportingWallet()) {
+  const importMnemonic = async importText => {
+    if (isImportingWallet && isImportingWallet.isFailure === false) {
       return;
     }
-    WalletImport.addPlaceholderWallet(importText);
+
+    let res;
+    try {
+      res = await WalletImport.askPasswordIfNeeded(importText);
+    } catch (e) {
+      // prompt cancelled
+      return;
+    }
+    const { text, password } = res;
+
+    WalletImport.addPlaceholderWallet(text);
     navigation.dangerouslyGetParent().pop();
     await new Promise(resolve => setTimeout(resolve, 500)); // giving some time to animations
     try {
-      await WalletImport.processImportText(importText, additionalProperties);
+      await WalletImport.processImportText(text, password);
       WalletImport.removePlaceholderWallet();
     } catch (error) {
-      WalletImport.removePlaceholderWallet();
-      WalletImport.addPlaceholderWallet(importText, true);
       console.log(error);
-      alert(loc.wallets.import_error);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      Alert.alert(
+        loc.wallets.add_details,
+        loc.wallets.list_import_problem,
+        [
+          {
+            text: loc.wallets.list_tryagain,
+            onPress: () => {
+              navigation.navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: importText } });
+              WalletImport.removePlaceholderWallet();
+            },
+            style: 'default',
+          },
+          {
+            text: loc._.cancel,
+            onPress: () => {
+              WalletImport.removePlaceholderWallet();
+            },
+            style: 'cancel',
+          },
+        ],
+        { cancelable: false },
+      );
     }
   };
 
   /**
    *
    * @param value
-   * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
    */
-  const onBarScanned = (value, additionalProperties) => {
+  const onBarScanned = value => {
     if (value && value.data) value = value.data + ''; // no objects here, only strings
     setImportText(value);
-    setTimeout(() => importMnemonic(value, additionalProperties), 500);
+    setTimeout(() => importMnemonic(value), 500);
   };
 
   const importScan = () => {
@@ -121,7 +150,7 @@ const WalletsImport = () => {
       <BlueFormMultiInput
         testID="MnemonicInput"
         value={importText}
-        contextMenuHidden={!isCatalyst}
+        contextMenuHidden={!isDesktop}
         onChangeText={setImportText}
         inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
       />

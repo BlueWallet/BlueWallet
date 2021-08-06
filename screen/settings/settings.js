@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
 const Settings = () => {
   const { navigate } = useNavigation();
   // By simply having it here, it'll re-render the UI if language is changed
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { language } = useContext(BlueStorageContext);
 
   return (

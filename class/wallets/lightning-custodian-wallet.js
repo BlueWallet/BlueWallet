@@ -2,12 +2,13 @@ import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
 import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { isTorCapable } from '../../blue_modules/environment';
 const torrific = require('../../blue_modules/torrific');
 
 export class LightningCustodianWallet extends LegacyWallet {
   static type = 'lightningCustodianWallet';
   static typeReadable = 'Lightning';
-  static defaultBaseUri = 'https://lndhub.herokuapp.com/';
+
   constructor(props) {
     super(props);
     this.setBaseURI(); // no args to init with default value
@@ -30,11 +31,7 @@ export class LightningCustodianWallet extends LegacyWallet {
    * @param URI
    */
   setBaseURI(URI) {
-    if (URI) {
-      this.baseURI = URI;
-    } else {
-      this.baseURI = LightningCustodianWallet.defaultBaseUri;
-    }
+    this.baseURI = URI;
   }
 
   getBaseURI() {
@@ -54,9 +51,6 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   getSecret() {
-    if (this.baseURI === LightningCustodianWallet.defaultBaseUri) {
-      return this.secret;
-    }
     return this.secret + '@' + this.baseURI;
   }
 
@@ -79,7 +73,7 @@ export class LightningCustodianWallet extends LegacyWallet {
       baseURI: this.baseURI,
     });
 
-    if (this.baseURI.indexOf('.onion') !== -1) {
+    if (isTorCapable && this.baseURI && this.baseURI?.indexOf('.onion') !== -1) {
       this._api = new torrific.Torsbee({
         baseURI: this.baseURI,
       });
@@ -377,7 +371,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     txs = txs.concat(this.pending_transactions_raw.slice(), this.transactions_raw.slice().reverse(), this.user_invoices_raw.slice()); // slice so array is cloned
     // transforming to how wallets/list screen expects it
     for (const tx of txs) {
-      tx.fromWallet = this.getSecret();
+      tx.walletID = this.getID();
       if (tx.amount) {
         // pending tx
         tx.amt = tx.amount * -100000000;

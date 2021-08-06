@@ -75,9 +75,9 @@ const ReorderWallets = () => {
   const [hasMovedARow, setHasMovedARow] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const sortableList = useRef();
-  const { setParams, goBack } = useNavigation();
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
+  const navigation = useNavigation();
   const stylesHook = {
     root: {
       backgroundColor: colors.elevated,
@@ -88,25 +88,19 @@ const ReorderWallets = () => {
   };
 
   useEffect(() => {
-    setParams(
-      {
-        customCloseButtonFunction: async () => {
-          if (sortableList.current.state.data.length === data.length && hasMovedARow) {
-            const newWalletsOrderArray = [];
-            sortableList.current.state.order.forEach(element => {
-              newWalletsOrderArray.push(data[element]);
-            });
-            setWalletsWithNewOrder(newWalletsOrderArray);
-            goBack();
-          } else {
-            goBack();
-          }
-        },
-      },
-      [],
-    );
+    const unsubscribe = navigation.addListener('blur', () => {
+      if (sortableList.current?.state.data.length === data.length && hasMovedARow) {
+        const newWalletsOrderArray = [];
+        sortableList.current.state.order.forEach(element => {
+          newWalletsOrderArray.push(data[element]);
+        });
+        setWalletsWithNewOrder(newWalletsOrderArray);
+      }
+    });
+
+    return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [goBack, hasMovedARow, setParams]);
+  }, [navigation, hasMovedARow]);
 
   useEffect(() => {
     const loadWallets = wallets.filter(wallet => wallet.type !== PlaceholderWallet.type);
@@ -202,11 +196,6 @@ const ReorderWallets = () => {
 ReorderWallets.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    closeButtonFunc: ({ navigation, route }) => {
-      if (route.params && route.params.customCloseButtonFunction) {
-        route.params.customCloseButtonFunction();
-      }
-    },
     headerLeft: null,
   },
   opts => ({ ...opts, title: loc.wallets.reorder_title }),

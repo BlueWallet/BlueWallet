@@ -226,7 +226,7 @@ const TransactionsStatus = () => {
     } else if (isRBFCancelPossible === buttonStatus.possible) {
       return (
         <>
-          <TouchableOpacity style={styles.cancel}>
+          <TouchableOpacity accessibilityRole="button" style={styles.cancel}>
             <Text onPress={navigateToRBFCancel} style={styles.cancelText}>
               {loc.transactions.status_cancel}
             </Text>
@@ -348,7 +348,7 @@ const TransactionsStatus = () => {
           {renderCPFP()}
           {renderRBFBumpFee()}
           {renderRBFCancel()}
-          <TouchableOpacity style={styles.details} onPress={navigateToTransactionDetials}>
+          <TouchableOpacity accessibilityRole="button" style={styles.details} onPress={navigateToTransactionDetials}>
             <Text style={styles.detailsText}>{loc.send.create_details.toLowerCase()}</Text>
             <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>

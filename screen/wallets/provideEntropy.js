@@ -103,10 +103,10 @@ export const convertToBuffer = ({ entropy, bits }) => {
 
 const Coin = ({ push }) => (
   <View style={styles.coinRoot}>
-    <TouchableOpacity onPress={() => push(getEntropy(0, 2))} style={styles.coinBody}>
+    <TouchableOpacity accessibilityRole="button" onPress={() => push(getEntropy(0, 2))} style={styles.coinBody}>
       <Image style={styles.coinImage} source={require('../../img/coin1.png')} />
     </TouchableOpacity>
-    <TouchableOpacity onPress={() => push(getEntropy(1, 2))} style={styles.coinBody}>
+    <TouchableOpacity accessibilityRole="button" onPress={() => push(getEntropy(1, 2))} style={styles.coinBody}>
       <Image style={styles.coinImage} source={require('../../img/coin2.png')} />
     </TouchableOpacity>
   </View>
@@ -151,7 +151,7 @@ const Dice = ({ push, sides }) => {
   return (
     <ScrollView contentContainerStyle={[styles.diceContainer, stylesHook.diceContainer]}>
       {[...Array(sides)].map((_, i) => (
-        <TouchableOpacity key={i} onPress={() => push(getEntropy(i, sides))}>
+        <TouchableOpacity accessibilityRole="button" key={i} onPress={() => push(getEntropy(i, sides))}>
           <View style={[styles.diceRoot, { width: diceWidth }]}>
             {sides === 6 ? (
               <Icon style={styles.diceIcon} name={diceIcon(i + 1)} size={70} color="grey" type="font-awesome-5" />
@@ -240,7 +240,7 @@ const Entropy = () => {
   return (
     <SafeBlueArea>
       <BlueSpacing20 />
-      <TouchableOpacity onPress={() => setShow(!show)}>
+      <TouchableOpacity accessibilityRole="button" onPress={() => setShow(!show)}>
         <View style={[styles.entropy, stylesHook.entropy]}>
           <Text style={[styles.entropyText, stylesHook.entropyText]}>{show ? hex : `${bits} of 256 bits`}</Text>
         </View>

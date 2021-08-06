@@ -443,6 +443,7 @@ HodlHodlMyContracts.navigationOptions = navigationStyle(
     },
     headerRight: () => (
       <TouchableOpacity
+        accessibilityRole="button"
         style={styles.marginRight}
         onPress={() => {
           Alert.alert(

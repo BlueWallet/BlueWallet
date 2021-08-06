@@ -1,5 +1,9 @@
 /* global jest */
 
+import mockClipboard from '@react-native-clipboard/clipboard/jest/clipboard-mock.js';
+
+jest.mock('@react-native-clipboard/clipboard', () => mockClipboard);
+
 jest.mock('react-native-watch-connectivity', () => {
   return {
     getIsWatchAppInstalled: jest.fn(() => Promise.resolve(false)),
@@ -9,18 +13,22 @@ jest.mock('react-native-watch-connectivity', () => {
 });
 
 jest.mock('react-native-secure-key-store', () => {
-  return {
-    setResetOnAppUninstallTo: jest.fn(),
-  };
+  return {};
 });
 
 jest.mock('@react-native-community/push-notification-ios', () => {
   return {};
 });
 
+jest.mock('@sentry/react-native', () => {
+  return {};
+});
+
 jest.mock('react-native-device-info', () => {
   return {
+    getUniqueId: jest.fn().mockReturnValue('uniqueId'),
     getSystemName: jest.fn(),
+    getDeviceType: jest.fn().mockReturnValue(false),
     hasGmsSync: jest.fn().mockReturnValue(true),
     hasHmsSync: jest.fn().mockReturnValue(false),
   };
@@ -96,7 +104,9 @@ jest.mock('react-native-haptic-feedback', () => ({}));
 const realmInstanceMock = {
   close: function () {},
   write: function () {},
-  objectForPrimaryKey: function () { return {}; },
+  objectForPrimaryKey: function () {
+    return {};
+  },
   objects: function () {
     const wallets = {
       filtered: function () {
@@ -135,5 +145,22 @@ jest.mock('react-native-share', () => {
     open: jest.fn(),
   };
 });
+
+jest.mock('../blue_modules/WidgetCommunication', () => {
+  return {
+    reloadAllTimelines: jest.fn(),
+  };
+});
+
+
+const keychainMock = {
+  SECURITY_LEVEL_ANY: 'MOCK_SECURITY_LEVEL_ANY',
+  SECURITY_LEVEL_SECURE_SOFTWARE: 'MOCK_SECURITY_LEVEL_SECURE_SOFTWARE',
+  SECURITY_LEVEL_SECURE_HARDWARE: 'MOCK_SECURITY_LEVEL_SECURE_HARDWARE',
+  setGenericPassword: jest.fn().mockResolvedValue(),
+  getGenericPassword: jest.fn().mockResolvedValue(),
+  resetGenericPassword: jest.fn().mockResolvedValue(),
+};
+jest.mock('react-native-keychain', () => keychainMock);
 
 global.alert = () => {};

@@ -34,6 +34,11 @@ function DeviceQuickActions() {
     });
   };
 
+  DeviceQuickActions.popInitialAction = async () => {
+    const data = await QuickActions.popInitialAction();
+    return data;
+  };
+
   DeviceQuickActions.getEnabled = async () => {
     try {
       const isEnabled = await AsyncStorage.getItem(DeviceQuickActions.STORAGE_KEY);

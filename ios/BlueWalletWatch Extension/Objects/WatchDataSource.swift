@@ -20,6 +20,7 @@ class WatchDataSource: NSObject, WCSessionDelegate {
   
   static let shared = WatchDataSource()
   var wallets: [Wallet] = [Wallet]()
+  var companionWalletsInitialized = false
   private let keychain = KeychainSwift()
   
   override init() {
@@ -108,6 +109,9 @@ class WatchDataSource: NSObject, WCSessionDelegate {
       UserDefaults.standard.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredFiatCurrency")
       UserDefaults.standard.synchronize()
         ExtensionDelegate.preferredFiatCurrencyChanged()
+    } else if let isWalletsInitialized = data["isWalletsInitialized"] as? Bool {
+      companionWalletsInitialized = isWalletsInitialized
+      NotificationCenter.default.post(Notifications.dataUpdated)
     } else {
       WatchDataSource.shared.processWalletsData(walletsInfo: data)
     }
@@ -128,6 +132,8 @@ class WatchDataSource: NSObject, WCSessionDelegate {
       }) { (error) in
         print(error)
       }
+    } else {
+      WatchDataSource.shared.companionWalletsInitialized = false
     }
   }
   

@@ -21,6 +21,7 @@ export const AvailableLanguages = Object.freeze([
   { label: 'Indonesia (ID)', value: 'id_id' },
   { label: 'Magyar (HU)', value: 'hu_hu' },
   { label: '日本語 (JP)', value: 'jp_jp' },
+  { label: '한국어 (KO)', value: 'ko_kr' },
   { label: 'Nederlands (NL)', value: 'nl_nl' },
   { label: 'Norsk (NB)', value: 'nb_no' },
   { label: 'Polskie (PL)', value: 'pl' },

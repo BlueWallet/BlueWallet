@@ -283,7 +283,6 @@
     "sign_placeholder_address": "Cyfeiriad",
     "sign_placeholder_message": "Neges",
     "sign_placeholder_signature": "Llofnod",
-    "address_balance": "Balans: {balance} sats",
     "addresses_title": "Cyfeiriadau",
     "type_change": "Newid",
     "type_receive": "Derbyn"

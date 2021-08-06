@@ -8,7 +8,7 @@ import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 // collection of SLIP39 functions
 const SLIP39Mixin = {
   _getSeed() {
-    const master = slip39.recoverSecret(this.secret);
+    const master = slip39.recoverSecret(this.secret, this.passphrase);
     return Buffer.from(master);
   },
 
@@ -39,7 +39,7 @@ const SLIP39Mixin = {
   },
 
   getID() {
-    const string2hash = this.secret.sort().join(',');
+    const string2hash = this.secret.sort().join(',') + (this.getPassphrase() || '');
     return createHash('sha256').update(string2hash).digest().toString('hex');
   },
 };

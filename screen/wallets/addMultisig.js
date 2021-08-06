@@ -101,14 +101,14 @@ const WalletsAddMultisig = () => {
 
   const renderModal = () => {
     return (
-      <BottomModal isVisible={isModalVisible} onClose={closeModal}>
+      <BottomModal isVisible={isModalVisible} onClose={closeModal} doneButton>
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
             <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
             <Text style={[styles.textSubtitle, stylesHook.textSubtitle]}>{loc.multisig.required_keys_out_of_total}</Text>
             <View style={styles.rowCenter}>
               <View style={styles.column}>
-                <TouchableOpacity onPress={increaseM} disabled={n === m || m === 7} style={styles.chevron}>
+                <TouchableOpacity accessibilityRole="button" onPress={increaseM} disabled={n === m || m === 7} style={styles.chevron}>
                   <Icon
                     name="chevron-up"
                     size={22}
@@ -117,7 +117,7 @@ const WalletsAddMultisig = () => {
                   />
                 </TouchableOpacity>
                 <Text style={[styles.textM, stylesHook.textHeader]}>{m}</Text>
-                <TouchableOpacity onPress={decreaseM} disabled={m === 2} style={styles.chevron}>
+                <TouchableOpacity accessibilityRole="button" onPress={decreaseM} disabled={m === 2} style={styles.chevron}>
                   <Icon name="chevron-down" size={22} type="octicon" color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
                 </TouchableOpacity>
               </View>
@@ -127,11 +127,11 @@ const WalletsAddMultisig = () => {
               </View>
 
               <View style={styles.column}>
-                <TouchableOpacity disabled={n === 7} onPress={increaseN} style={styles.chevron}>
+                <TouchableOpacity accessibilityRole="button" disabled={n === 7} onPress={increaseN} style={styles.chevron}>
                   <Icon name="chevron-up" size={22} type="octicon" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
                 </TouchableOpacity>
                 <Text style={[styles.textM, stylesHook.textHeader]}>{n}</Text>
-                <TouchableOpacity onPress={decreaseN} disabled={n === m} style={styles.chevron}>
+                <TouchableOpacity accessibilityRole="button" onPress={decreaseN} disabled={n === m} style={styles.chevron}>
                   <Icon name="chevron-down" size={22} type="octicon" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
                 </TouchableOpacity>
               </View>

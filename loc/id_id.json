@@ -7,7 +7,7 @@
     "never": "Tidak Pernah",
     "of": "{number} dari {total}",
     "ok": "OK",
-    "storage_is_encrypted": "Penyimpanan anda dienkripsi. Masukkan kata sandi untuk mendekripsinya:",
+    "storage_is_encrypted": "Ruang penyimpanan terenkripsi. Masukkan kata sandi untuk decript:",
     "allow": "Perbolehkan",
     "dont_allow": "Tidak Perbolehkan",
     "yes": "Ya",
@@ -136,12 +136,11 @@
     "ask": "Sudahkah Anda menyimpan frase cadangan dompet Anda? Frase cadangan ini diperlukan untuk mengakses dana Anda jika Anda kehilangan perangkat ini. Tanpa frase cadangan, dana Anda akan hilang secara permanen.",
     "ask_no": "Tidak, belum saya lakukan",
     "ask_yes": "Ya, sudah",
-    "ok": "Oke, saya tulis ini!",
-    "ok_lnd": "Oke, saya sudah menyimpannya.",
-    "text": "Mohon luangkan waktu sejenak untuk menuliskan kalimat mnemonik ini di selembar kertas. Ini adalah cadangan dompet Anda yang dapat Anda gunakan untuk memulihkan dompet di perangkat lain.",
+    "ok": "OK, saya tuliskan",
+    "ok_lnd": "OK, saya sudah menyimpan",
     "text_lnd": "Harap luangkan waktu sejenak untuk menyimpan otentikasi LNDHub ini. Ini cadangan Anda yang dapat Anda gunakan untuk memulihkan dompet di perangkat lain.",
     "text_lnd2": "Dompet ini dihost oleh BlueWallet",
-    "title": "Dompet Anda telah dibuat ..."
+    "title": "Wallet anda telah dibuat"
   },
   "receive": {
     "details_create": "Buat",
@@ -225,6 +224,7 @@
     "qr_error_no_qrcode": "Gambar yang dipilih tidak berisi Kode QR.",
     "qr_error_no_wallet": "File yang dipilih tidak berisi dompet yang dapat diimpor.",
     "success_done": "Selesai",
+    "txSaved": "File transaksi ({filePath}) telah disimpan pada folder Unduhan.",
     "problem_with_psbt": "Ada masalah dengan PSBT"
   },
   "settings": {
@@ -250,11 +250,12 @@
     "currency": "Mata Uang",
     "currency_source": "Harga diperoleh dari",
     "default_desc": "Saat dinonaktifkan, BlueWallet akan segera membuka dompet yang dipilih saat diluncurkan.",
+    "default_info": "Informasi standar",
     "default_wallets": "Lihat Semua Dompet",
     "electrum_connected": "Terhubung",
     "electrum_connected_not": "Tidak Terhubung",
     "electrum_error_connect": "Tidak dapat terhubung dengan server Electrum",
-    "electrum_host": "Host, sebagai contoh, {contoh}",
+    "electrum_host": "Contoh. {example}",
     "electrum_port": "Port TCP, biasanya {contoh}",
     "electrum_port_ssl": "Port SSL, biasanya {contoh}",
     "general_adv_mode": "Enable advanced mode",

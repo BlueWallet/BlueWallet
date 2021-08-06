@@ -2,7 +2,7 @@ import Frisbee from 'frisbee';
 import { LightningCustodianWallet } from '../../class';
 const assert = require('assert');
 
-describe('LightningCustodianWallet', () => {
+describe.skip('LightningCustodianWallet', () => {
   const l1 = new LightningCustodianWallet();
 
   it.skip('issue credentials', async () => {

@@ -18,6 +18,11 @@ beforeAll(async () => {
 });
 
 let _cachedHdWallet = false;
+
+/**
+ * @returns {Promise<HDSegwitBech32Wallet>}
+ * @private
+ */
 async function _getHdWallet() {
   if (_cachedHdWallet) return _cachedHdWallet;
   _cachedHdWallet = new HDSegwitBech32Wallet();

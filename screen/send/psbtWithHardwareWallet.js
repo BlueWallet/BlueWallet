@@ -8,18 +8,15 @@ import {
   TextInput,
   Linking,
   Platform,
-  PermissionsAndroid,
   Text,
   StyleSheet,
-  Alert,
   findNodeHandle,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import DocumentPicker from 'react-native-document-picker';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
+import { isMacCatalina } from '../../blue_modules/environment';
 import RNFS from 'react-native-fs';
 import Biometric from '../../class/biometrics';
 
@@ -168,10 +165,10 @@ const PsbtWithHardwareWallet = () => {
           <BlueText style={[styles.hexLabel, stylesHook.hexLabel]}>{loc.send.create_this_is_hex}</BlueText>
           <TextInput style={[styles.hexInput, stylesHook.hexInput]} height={112} multiline editable value={txHex} />
 
-          <TouchableOpacity style={styles.hexTouch} onPress={copyHexToClipboard}>
+          <TouchableOpacity accessibilityRole="button" style={styles.hexTouch} onPress={copyHexToClipboard}>
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_copy}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.hexTouch} onPress={handleOnVerifyPressed}>
+          <TouchableOpacity accessibilityRole="button" style={styles.hexTouch} onPress={handleOnVerifyPressed}>
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
           <BlueSpacing20 />
@@ -181,54 +178,9 @@ const PsbtWithHardwareWallet = () => {
     );
   };
 
-  const exportPSBT = async () => {
+  const exportPSBT = () => {
     const fileName = `${Date.now()}.psbt`;
-    if (Platform.OS === 'ios') {
-      const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
-      await RNFS.writeFile(filePath, typeof psbt === 'string' ? psbt : psbt.toBase64());
-      Share.open({
-        url: 'file://' + filePath,
-        saveToFiles: isCatalyst,
-      })
-        .catch(error => {
-          console.log(error);
-        })
-        .finally(() => {
-          RNFS.unlink(filePath);
-        });
-    } else if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-        title: loc.send.permission_storage_title,
-        message: loc.send.permission_storage_message,
-        buttonNeutral: loc.send.permission_storage_later,
-        buttonNegative: loc._.cancel,
-        buttonPositive: loc._.ok,
-      });
-
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Storage Permission: Granted');
-        const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
-        try {
-          await RNFS.writeFile(filePath, typeof psbt === 'string' ? psbt : psbt.toBase64());
-          alert(loc.formatString(loc.send.txSaved, { filePath: fileName }));
-        } catch (e) {
-          console.log(e);
-          alert(e.message);
-        }
-      } else {
-        console.log('Storage Permission: Denied');
-        Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
-          {
-            text: loc.send.open_settings,
-            onPress: () => {
-              Linking.openSettings();
-            },
-            style: 'default',
-          },
-          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-        ]);
-      }
-    }
+    fs.writeFileAndExport(fileName, typeof psbt === 'string' ? psbt : psbt.toBase64());
   };
 
   const openSignedTransaction = async () => {

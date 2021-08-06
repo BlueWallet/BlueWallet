@@ -39,12 +39,14 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     let entry: CLKComplicationTimelineEntry
     let date: Date
     let valueLabel: String
+    let valueSmallLabel: String
     let currencySymbol: String
     let timeLabel: String
-    if let price = marketData?.formattedRateForComplication, let marketDatadata = marketData?.date, let lastUpdated = marketData?.formattedDate {
+    if let price = marketData?.formattedRateForComplication, let priceAbbreviated = marketData?.formattedRateForSmallComplication, let marketDatadata = marketData?.date, let lastUpdated = marketData?.formattedDate {
       date = marketDatadata
       valueLabel = price
       timeLabel = lastUpdated
+      valueSmallLabel = priceAbbreviated
       if let preferredFiatCurrency = UserDefaults.standard.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
         currencySymbol = preferredFiatUnit.symbol
       } else {
@@ -53,24 +55,25 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     } else {
       valueLabel = "--"
       timeLabel = "--"
+      valueSmallLabel = "--"
       currencySymbol = fiatUnit(currency: "USD")!.symbol
       date = Date()
     }
     
-    let line1Text = CLKSimpleTextProvider(text:valueLabel)
     let line2Text = CLKSimpleTextProvider(text:currencySymbol)
+    let line1SmallText = CLKSimpleTextProvider(text: valueSmallLabel)
     
     switch complication.family {
     case .circularSmall:
       let template = CLKComplicationTemplateCircularSmallStackText()
-      template.line1TextProvider = line1Text
+      template.line1TextProvider = line1SmallText
       template.line2TextProvider = line2Text
       entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
       handler(entry)
     case .utilitarianSmallFlat:
       let template = CLKComplicationTemplateUtilitarianSmallFlat()
       if #available(watchOSApplicationExtension 6.0, *) {
-        template.textProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueLabel)
+        template.textProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueSmallLabel)
       } else {
         handler(nil)
       }
@@ -85,7 +88,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     case .graphicCircular:
       if #available(watchOSApplicationExtension 6.0, *) {
         let template = CLKComplicationTemplateGraphicCircularStackText()
-        template.line1TextProvider = line1Text
+        template.line1TextProvider = line1SmallText
         template.line2TextProvider = line2Text
         entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
         handler(entry)
@@ -94,14 +97,14 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
       }
     case .modularSmall:
       let template = CLKComplicationTemplateModularSmallStackText()
-      template.line1TextProvider = line1Text
+      template.line1TextProvider = line1SmallText
       template.line2TextProvider = line2Text
       entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
       handler(entry)
     case .graphicCorner:
       let template = CLKComplicationTemplateGraphicCornerStackText()
       if #available(watchOSApplicationExtension 6.0, *) {
-        template.outerTextProvider = CLKTextProvider(format: "%@", valueLabel)
+        template.outerTextProvider = CLKTextProvider(format: "%@", valueSmallLabel)
         template.innerTextProvider = CLKTextProvider(format: "%@", currencySymbol)
       } else {
         handler(nil)
@@ -111,7 +114,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     case .graphicBezel:
       let template = CLKComplicationTemplateGraphicBezelCircularText()
       if #available(watchOSApplicationExtension 6.0, *) {
-        template.textProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueLabel)
+        template.textProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueSmallLabel)
         let imageProvider = CLKFullColorImageProvider(fullColorImage: UIImage(named: "Complication/Graphic Bezel")!)
         let circularTemplate = CLKComplicationTemplateGraphicCircularImage()
         circularTemplate.imageProvider = imageProvider
@@ -135,7 +138,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
       if #available(watchOSApplicationExtension 6.0, *) {
         template.headerTextProvider =  CLKTextProvider(format: "Bitcoin Price")
         template.body1TextProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueLabel)
-        template.body2TextProvider = CLKTextProvider(format: "%@", timeLabel)
+        template.body2TextProvider = CLKTextProvider(format: "at %@", timeLabel)
         entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
         handler(entry)
       } else {
@@ -145,7 +148,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
       let template = CLKComplicationTemplateExtraLargeStackText()
       if #available(watchOSApplicationExtension 6.0, *) {
         template.line1TextProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueLabel)
-        template.line2TextProvider = CLKTextProvider(format: "%@", timeLabel)
+        template.line2TextProvider = CLKTextProvider(format: "at %@", timeLabel)
         entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
         handler(entry)
       } else {
@@ -156,7 +159,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
       if #available(watchOSApplicationExtension 6.0, *) {
         template.headerTextProvider =  CLKTextProvider(format: "Bitcoin Price")
         template.body1TextProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueLabel)
-        template.body2TextProvider = CLKTextProvider(format: "%@", timeLabel)
+        template.body2TextProvider = CLKTextProvider(format: "at %@", timeLabel)
         entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
         handler(entry)
       } else {
@@ -166,7 +169,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
       if #available(watchOSApplicationExtension 7.0, *) {
         let template = CLKComplicationTemplateGraphicExtraLargeCircularStackText()
         template.line1TextProvider = CLKTextProvider(format: "%@%@", currencySymbol, valueLabel)
-        template.line1TextProvider = CLKTextProvider(format: "%@", timeLabel)
+        template.line1TextProvider = CLKTextProvider(format: "at %@", timeLabel)
         entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
         handler(entry)
       } else {

@@ -14,6 +14,9 @@ const styles = StyleSheet.create({
   },
 });
 
+/*
+  TorSettings is not displayed in Settings menu if isTorCapable is false. No need to provide code protection.
+*/
 const TorSettings = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [daemonStatus, setDaemonStatus] = useState('');

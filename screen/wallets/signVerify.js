@@ -20,6 +20,8 @@ import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
 import confirm from '../../helpers/confirm';
+import { Icon } from 'react-native-elements';
+import Share from 'react-native-share';
 
 const SignVerify = () => {
   const { colors } = useTheme();
@@ -32,6 +34,7 @@ const SignVerify = () => {
   const [signature, setSignature] = useState('');
   const [loading, setLoading] = useState(false);
   const [messageHasFocus, setMessageHasFocus] = useState(false);
+  const [isShareVisible, setIsShareVisible] = useState(false);
 
   const wallet = wallets.find(w => w.getID() === params.walletID);
   const isToolbarVisibleForAndroid = Platform.OS === 'android' && messageHasFocus && isKeyboardVisible;
@@ -57,6 +60,12 @@ const SignVerify = () => {
     },
   });
 
+  const handleShare = () => {
+    const baseUri = 'https://bluewallet.github.io/VerifySignature';
+    const uri = `${baseUri}?a=${address}&m=${encodeURIComponent(message)}&s=${encodeURIComponent(signature)}`;
+    Share.open({ message: uri }).catch(error => console.log(error));
+  };
+
   const handleSign = async () => {
     setLoading(true);
     await sleep(10); // wait for loading indicator to appear
@@ -65,6 +74,7 @@ const SignVerify = () => {
     try {
       newSignature = wallet.signMessage(message, address, useSegwit);
       setSignature(newSignature);
+      setIsShareVisible(true);
     } catch (e) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       Alert.alert(loc.errors.error, e.message);
@@ -189,6 +199,23 @@ const SignVerify = () => {
             onBlur={() => setMessageHasFocus(false)}
           />
           <BlueSpacing10 />
+
+          {isShareVisible && !isKeyboardVisible && (
+            <>
+              <FContainer inline>
+                <FButton
+                  onPress={handleShare}
+                  text={loc.multisig.share}
+                  icon={
+                    <View style={styles.buttonsIcon}>
+                      <Icon name="external-link" size={16} type="font-awesome" color={colors.buttonAlternativeTextColor} />
+                    </View>
+                  }
+                />
+              </FContainer>
+              <BlueSpacing10 />
+            </>
+          )}
 
           {!isKeyboardVisible && (
             <>

@@ -52,7 +52,8 @@ export class AbstractHDWallet extends LegacyWallet {
    */
   _getSeed() {
     const mnemonic = this.secret;
-    return bip39.mnemonicToSeed(mnemonic);
+    const passphrase = this.passphrase;
+    return bip39.mnemonicToSeedSync(mnemonic, passphrase);
   }
 
   setSecret(newSecret) {
@@ -61,15 +62,19 @@ export class AbstractHDWallet extends LegacyWallet {
     return this;
   }
 
+  setPassphrase(passphrase) {
+    this.passphrase = passphrase;
+  }
+
+  getPassphrase() {
+    return this.passphrase;
+  }
+
   /**
    * @return {Boolean} is mnemonic in `this.secret` valid
    */
   validateMnemonic() {
     return bip39.validateMnemonic(this.secret);
-  }
-
-  getMnemonicToSeedHex() {
-    return bip39.mnemonicToSeedHex(this.secret);
   }
 
   /**
@@ -240,15 +245,6 @@ export class AbstractHDWallet extends LegacyWallet {
    */
   async fetchUtxo() {
     throw new Error('Not implemented');
-  }
-
-  weOwnAddress(addr) {
-    const hashmap = {};
-    for (const a of this.usedAddresses) {
-      hashmap[a] = 1;
-    }
-
-    return hashmap[addr] === 1;
   }
 
   _getDerivationPathByAddress(address) {

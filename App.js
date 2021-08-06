@@ -21,8 +21,6 @@ import * as NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton, SecondButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Chain } from './models/bitcoinUnits';
-import QuickActions from 'react-native-quick-actions';
-import * as Sentry from '@sentry/react-native';
 import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import loc from './loc';
@@ -30,6 +28,7 @@ import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/
 import BottomModal from './components/BottomModal';
 import InitRoot from './Navigation';
 import BlueClipboard from './blue_modules/clipboard';
+import { isDesktop } from './blue_modules/environment';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import WatchConnectivity from './WatchConnectivity';
 import DeviceQuickActions from './class/quick-actions';
@@ -41,12 +40,6 @@ import changeNavigationBarColor from 'react-native-navigation-bar-color';
 const A = require('./blue_modules/analytics');
 
 const eventEmitter = new NativeEventEmitter(NativeModules.EventEmitter);
-
-if (process.env.NODE_ENV !== 'development') {
-  Sentry.init({
-    dsn: 'https://23377936131848ca8003448a893cb622@sentry.io/1295736',
-  });
-}
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -125,7 +118,7 @@ const App = () => {
     Linking.addEventListener('url', handleOpenURL);
     AppState.addEventListener('change', handleAppStateChange);
     DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
-    QuickActions.popInitialAction().then(popInitialAction);
+    DeviceQuickActions.popInitialAction().then(popInitialAction);
     handleAppStateChange(undefined);
     /*
       When a notification on iOS is shown while the app is on foreground;
@@ -343,8 +336,8 @@ const App = () => {
           <Notifications onProcessNotifications={processPushNotifications} />
           {renderClipboardContentModal()}
         </NavigationContainer>
+        {walletsInitialized && !isDesktop && <WatchConnectivity />}
       </View>
-      <WatchConnectivity />
       <DeviceQuickActions />
       <WalletImport />
       <Biometric />

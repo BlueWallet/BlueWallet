@@ -316,6 +316,8 @@
     "privacy_quickactions": "Atalhos da carteira",
     "privacy_quickactions_explanation": "Toque e segure o ícone do aplicativo BlueWallet em sua tela inicial para visualizar rapidamente o saldo de sua carteira.",
     "privacy_clipboard_explanation": "Fornece atalhos se endereços ou faturas são encontrados na área de transferência.",
+    "privacy_do_not_track": "Desativar analítica",
+    "privacy_do_not_track_explanation": "Informações de desempenho não serão enviadas para análise.",
     "push_notifications": "Notificações push",
     "retype_password": "Inserir senha novamente",
     "selfTest": "Autoteste",
@@ -576,10 +578,9 @@
     "sign_placeholder_signature": "Assinatura",
     "sign_aopp_title": "AOPP",
     "sign_aopp_confirm": "Você deseja enviar a mensagem assinada para {hostname}?",
-    "address_balance": "Saldo: {balance} sats",
     "addresses_title": "Endereços",
     "type_change": "Troco",
-    "type_receive": "Recebimento"
+    "type_receive": "Receber"
   },
   "aopp": {
     "title": "Selecionar endereço",

@@ -2,22 +2,26 @@ platform :ios, '11.1'
 workspace 'BlueWallet'
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
- 
+
 target 'BlueWallet' do
   config = use_native_modules!
 
-  use_react_native!(:path => config["reactNativePath"])
+  use_react_native!(
+    :path => config[:reactNativePath],
+    # to enable hermes on iOS, change `false` to `true` and then install pods
+    :hermes_enabled => false
+  )
 
   # Enables Flipper.
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
   # you should disable these next few lines.
-  use_flipper!({ 'Flipper-Folly' => '2.5.3', 'Flipper' => '0.87.0', 'Flipper-RSocket' => '1.3.1' })
+  use_flipper!()
   post_install do |installer|
-    flipper_post_install(installer)
+      react_native_post_install(installer)
       installer.pods_project.targets.each do |target|
           target.build_configurations.each do |config|
-            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '10.0'
+            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.1'
             if ['React-Core-AccessibilityResources'].include? target.name 
               config.build_settings['CODE_SIGN_STYLE'] = "Manual"
               config.build_settings['CODE_SIGN_IDENTITY'] = "Apple Distribution: Bluewallet Services, S. R. L. (A7W54YZ4WU)"
@@ -30,10 +34,6 @@ target 'BlueWallet' do
   
 end
 
-target 'MarketWidgetExtension' do
-  pod 'SwiftSocket', :git => 'https://github.com/swiftsocket/SwiftSocket.git', :branch => 'master'
-end
-
-target 'WalletInformationAndMarketWidgetExtension' do
+target 'WidgetsExtension' do
   pod 'SwiftSocket', :git => 'https://github.com/swiftsocket/SwiftSocket.git', :branch => 'master'
 end

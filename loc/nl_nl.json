@@ -136,12 +136,9 @@
     "ask": "Heeft u uw back-up zin opgeslagen? Deze back-up zin is nodig om toegang te krijgen tot uw tegoeden wanneer u dit apparaat verliest. Zonder de back-up zin zijn je gelden voor altijd verloren.",
     "ask_no": "Nee, dat heb ik niet",
     "ask_yes": "Ja, dat heb ik.",
-    "ok": "Oké, ik heb het opgeschreven!",
-    "ok_lnd": "Oké, ik heb het bewaard.",
-    "text": "Neem alstublieft een moment om deze mnemonic phrase op papier te schrijven. Het is uw back-up die u kunt gebruiken om uw wallet te herstellen op een ander apparaat.",
+    "ok": "Oké, ik heb het opgeschreven",
     "text_lnd": "Sla deze wallet backup op. Zo kun je de wallet herstellen in geval van verlies.",
-    "text_lnd2": "Deze wallet wordt gehost door BlueWallet.",
-    "title": "Je wallet is aangemaakt"
+    "text_lnd2": "Deze wallet wordt gehost door BlueWallet."
   },
   "receive": {
     "details_create": "Maken",
@@ -257,14 +254,11 @@
     "electrum_connected": "Verbonden",
     "electrum_connected_not": "Niet verbonden",
     "electrum_error_connect": "Kan niet verbinden met aangeleverde Electrum server",
-    "electrum_host": "host, bijvoorbeeld {example}",
     "electrum_port": "TCP-poort, gebruikelijk {example}",
     "electrum_port_ssl": "SSL-poort, gebruikelijk {example}",
     "electrum_saved": "Uw veranderingen zijn succesvol opgeslagen. Opnieuw opstarten kan nodig zijn om de wijzigingen door te voeren.",
     "set_electrum_server_as_default": "{server} instellen als de standaard electrum server?",
     "set_lndhub_as_default": "{url} instellen als de standaard LNDHub server?",
-    "electrum_settings_server": "Electrum Server Instellingen",
-    "electrum_settings_explain": "Laat leeg om standaardinstelling te gebruiken",
     "electrum_status": "Status",
     "electrum_clear_alert_title": "Geschiedenis verwijderen?",
     "electrum_clear_alert_message": "Wil je de geschiedenis van de electrum servers wissen?",
@@ -566,6 +560,7 @@
     "sign_signature_incorrect": "Verificatie Mislukt!",
     "sign_placeholder_address": "Adres",
     "sign_placeholder_message": "Bericht",
-    "sign_placeholder_signature": "Handtekening"
+    "sign_placeholder_signature": "Handtekening",
+    "addresses_title": "Adressen"
   }
 }

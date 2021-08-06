@@ -130,12 +130,10 @@
     "ask": "Heu desat la frase de recuperació del vostre moneder? Aquesta frase de recuperació és necessària per accedir als vostres fons en cas que perdeu aquest dispositiu. Sense la frase de recuperació, els vostres fons es perdran permanentment.",
     "ask_no": "No, no en tinc",
     "ask_yes": "Si, en tinc",
-    "ok": "OK, ja he assegurat una còpia en paper!",
     "ok_lnd": "D'acord, l'he guardat",
-    "text": "Si us plau, preneu-vos un moment per escriure aquesta frase mnemotècnica en un tros de paper. És la vostra còpia de seguretat que podeu utilitzar per restaurar el moneder en un altre dispositiu.",
     "text_lnd": "Si us plau, deseu aquesta còpia de seguretat del moneder. Permet restaurar el moneder en cas de pèrdua.",
     "text_lnd2": "Aquest moneder està allotjat a BlueWallet.",
-    "title": "El teu moneder ha estat creat..."
+    "title": "El teu moneder ha estat creat"
   },
   "receive": {
     "details_create": "Crear",
@@ -169,7 +167,6 @@
     "details_address_field_is_not_valid": "Adreça invalida",
     "details_adv_fee_bump": "Permeteu ampliar la comissió",
     "details_adv_full": "Utilitzeu tot el saldo",
-    "details_adv_full_remove": "Els altres destinataris s'eliminaran d'aquesta transacció.",
     "details_adv_full_sure": "Esteu segur que voleu utilitzar el saldo complet del moneder per a aquesta transacció?",
     "details_adv_import": "Importar transacció",
     "details_amount_field_is_not_valid": "Quantitat invalida",
@@ -182,7 +179,6 @@
     "details_total_exceeds_balance": "La quantitat excedeix el balanç disponible.",
     "details_unrecognized_file_format": "Format de fitxer no reconegut",
     "details_wallet_before_tx": "Abans de crear una transacció, primer heu d’afegir un moneder Bitcoin.",
-    "details_wallet_selection": "Seleccionar moneder",
     "dynamic_init": "Inicialitzant",
     "dynamic_next": "Següent",
     "dynamic_prev": "Anterior",
@@ -236,6 +232,7 @@
     "electrum_connected_not": "No conectat",
     "electrum_port": "TCP port, generalment {example}",
     "electrum_port_ssl": "SSL port, generalment {example}",
+    "electrum_settings_server": "Servidor Electrum",
     "electrum_settings_explain": "Deixa-ho buit per usar el valor per defecte",
     "electrum_status": "estat",
     "electrum_clear_alert_title": "Netejar l'historial?",
@@ -252,6 +249,7 @@
     "language": "Idioma",
     "lightning_error_lndhub_uri": "LNDHub URI no vàlid",
     "lightning_settings": "Configuració Lightning",
+    "tor_settings": "Configuració de Tor",
     "lightning_settings_explain": "Per connectar-te al teu propi node LND node instala LndHub i posa la seva URL aquí. Deixa el camp buit per utilitzar el LndHub per defecte \n (lndhub.io)",
     "network": "Xarxa",
     "network_electrum": "Servidor Electrum",
@@ -264,17 +262,21 @@
     "plausible_deniability": "Negació plausible...",
     "privacy": "Privacitat",
     "privacy_read_clipboard": "Llegir el portapapers",
+    "privacy_system_settings": "Configuració del Sistema",
     "retype_password": "Introdueix de nou la contrasenya contrasenya",
     "save": "guardar",
-    "saved": "Desat"
+    "saved": "Desat",
+    "tools": "Eines"
   },
   "notifications": {
+    "no_and_dont_ask": "No, i no m'ho tornis a preguntar",
     "ask_me_later": "Pregunta'm després"
   },
   "transactions": {
     "cancel_title": "Cancel·lar aquesta transacció (RBF)",
     "confirmations_lowercase": "{confirmations} confirmacions",
     "note": "Nota",
+    "block_explorer_link": "Enllaç a l' explorador de blocs",
     "cpfp_create": "Crear",
     "details_balance_hide": "Amaga el saldo",
     "details_balance_show": "Mostra el saldo",
@@ -292,7 +294,8 @@
     "list_conf": "Conf: {number}",
     "pending": "Pendent",
     "list_title": "transaccions",
-    "status_cancel": "Cancel·lar la Transacció"
+    "status_cancel": "Cancel·lar la Transacció",
+    "updating": "Actualitzant..."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",

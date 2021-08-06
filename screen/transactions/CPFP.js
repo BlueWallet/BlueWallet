@@ -198,10 +198,14 @@ export default class CPFP extends Component {
           <BlueText style={styles.hex}>{loc.send.create_this_is_hex}</BlueText>
           <TextInput style={styles.hexInput} height={112} multiline editable value={this.state.txhex} />
 
-          <TouchableOpacity style={styles.action} onPress={() => Clipboard.setString(this.state.txhex)}>
+          <TouchableOpacity accessibilityRole="button" style={styles.action} onPress={() => Clipboard.setString(this.state.txhex)}>
             <Text style={styles.actionText}>{loc.send.create_copy}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.action} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            style={styles.action}
+            onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}
+          >
             <Text style={styles.actionText}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
           <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm_sendNow} />

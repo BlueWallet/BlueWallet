@@ -6,6 +6,7 @@ import { BlueLoading, BlueText, BlueSpacing20, BlueListItem, BlueCard } from '..
 import { useNavigation, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { isURv1Enabled, clearUseURv1, setUseURv1 } from '../../blue_modules/ur';
 
 const styles = StyleSheet.create({
   root: {
@@ -19,16 +20,22 @@ const GeneralSettings = () => {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [isAdancedModeSwitchEnabled, setIsAdancedModeSwitchEnabled] = useState(false);
+  const [isURv1SwitchEnabled, setIsURv1SwitchEnabled] = useState(false);
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const onAdvancedModeSwitch = async value => {
     await setIsAdancedModeEnabled(value);
     setIsAdancedModeSwitchEnabled(value);
   };
+  const onLegacyURv1Switch = async value => {
+    setIsURv1SwitchEnabled(value);
+    return value ? setUseURv1() : clearUseURv1();
+  };
 
   useEffect(() => {
     (async () => {
       setIsAdancedModeSwitchEnabled(await isAdancedModeEnabled());
+      setIsURv1SwitchEnabled(await isURv1Enabled());
       setIsLoading(false);
     })();
   });
@@ -84,6 +91,12 @@ const GeneralSettings = () => {
       <BlueCard>
         <BlueText>{loc.settings.general_adv_mode_e}</BlueText>
       </BlueCard>
+      <BlueSpacing20 />
+      <BlueListItem
+        Component={TouchableWithoutFeedback}
+        title="Legacy URv1 QR"
+        switch={{ onValueChange: onLegacyURv1Switch, value: isURv1SwitchEnabled }}
+      />
       <BlueSpacing20 />
     </ScrollView>
   );

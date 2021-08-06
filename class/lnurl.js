@@ -1,7 +1,6 @@
-import bech32 from 'bech32';
+import { bech32 } from 'bech32';
 import bolt11 from 'bolt11';
 const CryptoJS = require('crypto-js');
-
 const createHash = require('create-hash');
 
 /**
@@ -20,7 +19,7 @@ export default class Lnurl {
   }
 
   static findlnurl(bodyOfText) {
-    var res = /^(?:http.*[&?]lightning=|lightning:)?(lnurl1[02-9ac-hj-np-z]+)/.exec(bodyOfText.toLowerCase());
+    const res = /^(?:http.*[&?]lightning=|lightning:)?(lnurl1[02-9ac-hj-np-z]+)/.exec(bodyOfText.toLowerCase());
     if (res) {
       return res[1];
     }
@@ -97,7 +96,14 @@ export default class Lnurl {
     if (!this._lnurlPayServicePayload) throw new Error('this._lnurlPayServicePayload is not set');
     if (!this._lnurlPayServicePayload.callback) throw new Error('this._lnurlPayServicePayload.callback is not set');
     if (amountSat < this._lnurlPayServicePayload.min || amountSat > this._lnurlPayServicePayload.max)
-      throw new Error('amount is not right, ' + amountSat + ' should be between ' + this._lnurlPayServicePayload.min + ' and ' + this._lnurlPayServicePayload.max);
+      throw new Error(
+        'amount is not right, ' +
+          amountSat +
+          ' should be between ' +
+          this._lnurlPayServicePayload.min +
+          ' and ' +
+          this._lnurlPayServicePayload.max,
+      );
     const nonce = Math.floor(Math.random() * 2e16).toString(16);
     const separator = this._lnurlPayServicePayload.callback.indexOf('?') === -1 ? '?' : '&';
     const urlToFetch = this._lnurlPayServicePayload.callback + separator + 'amount=' + Math.floor(amountSat * 1000) + '&nonce=' + nonce;
@@ -131,8 +137,8 @@ export default class Lnurl {
     const data = reply;
 
     // parse metadata and extract things from it
-    var image;
-    var description;
+    let image;
+    let description;
     const kvs = JSON.parse(data.metadata);
     for (let i = 0; i < kvs.length; i++) {
       const [k, v] = kvs[i];
@@ -156,7 +162,7 @@ export default class Lnurl {
       fixed: min === max,
       min,
       max,
-      domain: data.callback.match(new RegExp('https://([^/]+)/'))[1],
+      domain: data.callback.match(/https:\/\/([^/]+)\//)[1],
       metadata: data.metadata,
       description,
       image,

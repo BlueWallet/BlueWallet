@@ -1,7 +1,7 @@
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
-import bip39 from 'bip39';
+import * as bip39 from 'bip39';
 import b58 from 'bs58check';
-import { decodeUR } from 'bc-ur';
+import { decodeUR } from '../../blue_modules/ur';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const HDNode = require('bip32');
 const bitcoin = require('bitcoinjs-lib');
@@ -298,7 +298,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     if (mnemonic.startsWith(ELECTRUM_SEED_PREFIX)) {
       seed = MultisigHDWallet.convertElectrumMnemonicToSeed(mnemonic);
     } else {
-      seed = bip39.mnemonicToSeed(mnemonic);
+      seed = bip39.mnemonicToSeedSync(mnemonic);
     }
 
     const root = bitcoin.bip32.fromSeed(seed);
@@ -593,8 +593,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
           this.setWrappedSegwit();
           break;
-        default:
         case MultisigHDWallet.FORMAT_P2WSH:
+        default:
           this.setNativeSegwit();
           break;
       }
@@ -835,7 +835,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
               // dont sign more than we need, otherwise there will be "Too many signatures" error
               continue;
             }
-            let seed = bip39.mnemonicToSeed(cosigner);
+            let seed = bip39.mnemonicToSeedSync(cosigner);
             if (cosigner.startsWith(ELECTRUM_SEED_PREFIX)) {
               seed = MultisigHDWallet.convertElectrumMnemonicToSeed(cosigner);
             }
@@ -979,7 +979,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       for (const [cosignerIndex, cosigner] of this._cosigners.entries()) {
         if (!MultisigHDWallet.isXpubString(cosigner)) {
           // ok this is a mnemonic, lets try to sign
-          const seed = bip39.mnemonicToSeed(cosigner);
+          const seed = bip39.mnemonicToSeedSync(cosigner);
           const hdRoot = bitcoin.bip32.fromSeed(seed);
           try {
             psbt.signInputHD(cc, hdRoot);
@@ -995,7 +995,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
               // correctly points to `/internal/index`, so we extract pubkey from our stored mnemonics+path and
               // match it to the one provided in PSBT's input, and if we have a match - we are in luck! we can sign
               // with this private key.
-              const seed = bip39.mnemonicToSeed(cosigner);
+              const seed = bip39.mnemonicToSeedSync(cosigner);
               const root = HDNode.fromSeed(seed);
               const splt = derivation.path.split('/');
               const internal = +splt[splt.length - 2];

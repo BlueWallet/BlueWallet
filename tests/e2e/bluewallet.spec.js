@@ -86,7 +86,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('ElectrumSettings')).tap();
     await element(by.id('HostInput')).replaceText('electrum.blockstream.info\n');
     await element(by.id('PortInput')).replaceText('50001\n');
-    await element(by.id('SSLPortInput')).replaceText('50002\n');
     await element(by.id('Save')).tap();
     await sup('OK');
     await element(by.text('OK')).tap();
@@ -95,7 +94,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.text('OK')).tap();
     await expect(element(by.id('HostInput'))).toHaveText('');
     await expect(element(by.id('PortInput'))).toHaveText('');
-    await expect(element(by.id('SSLPortInput'))).toHaveText('');
+    await expect(element(by.id('SSLPortInput'))).toHaveToggleValue(false);
     await device.pressBack();
 
     // network -> lightning
@@ -186,7 +185,7 @@ describe('BlueWallet UI Tests', () => {
     await yo('BitcoinAddressQRCodeContainer');
     await yo('BlueCopyTextToClipboard');
     await element(by.id('SetCustomAmountButton')).tap();
-    await element(by.id('BitcoinAmountInput')).typeText('1');
+    await element(by.id('BitcoinAmountInput')).replaceText('1');
     await element(by.id('CustomAmountDescription')).typeText('test');
     await element(by.id('CustomAmountSaveButton')).tap();
     await sup('1 BTC');
@@ -528,7 +527,7 @@ describe('BlueWallet UI Tests', () => {
     await yo('TransactionValue');
     expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     const transactionFee = await extractTextFromElementById('TransactionFee');
-    assert.ok(transactionFee.startsWith('Fee: 0.00000748 BTC'), 'Unexpected tx fee: ' + transactionFee);
+    assert.ok(transactionFee.startsWith('Fee: 0.00000452 BTC'), 'Unexpected tx fee: ' + transactionFee);
     await element(by.id('TransactionDetailsButton')).tap();
 
     let txhex = await extractTextFromElementById('TxhexInput');
@@ -540,7 +539,7 @@ describe('BlueWallet UI Tests', () => {
     assert.strictEqual(transaction.outs[0].value, 10000);
 
     // checking fee rate:
-    const totalIns = 100000 + 5526; // we hardcode it since we know it in advance
+    const totalIns = 100000; // we hardcode it since we know it in advance
     const totalOuts = transaction.outs.map(el => el.value).reduce((a, b) => a + b, 0);
     assert.strictEqual(Math.round((totalIns - totalOuts) / (txhex.length / 2)), feeRate);
     assert.strictEqual(transactionFee.split(' ')[1] * 100000000, totalIns - totalOuts);
@@ -836,11 +835,11 @@ describe('BlueWallet UI Tests', () => {
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
     await expect(element(by.text('bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay'))).toBeVisible();
     await element(by.id('SetCustomAmountButton')).tap();
-    await element(by.id('BitcoinAmountInput')).typeText('1');
+    await element(by.id('BitcoinAmountInput')).replaceText('1');
     await element(by.id('CustomAmountDescription')).typeText('Test');
     await element(by.id('CustomAmountSaveButton')).tap();
-    await expect(element(by.text('1 BTC'))).toBeVisible();
-    await expect(element(by.text('Test'))).toBeVisible();
+    await sup('1 BTC');
+    await sup('Test');
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
 
     await expect(element(by.text('bitcoin:bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay?amount=1&label=Test'))).toBeVisible();
@@ -1146,6 +1145,34 @@ describe('BlueWallet UI Tests', () => {
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
+
+  it('can import HD wallet with a passphrase', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+    }
+
+    await helperImportWallet(
+      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+      'Imported HD SegWit (BIP84 Bech32 Native)',
+      '0 BTC',
+      'BlueWallet',
+    );
+
+    await element(by.id('ReceiveButton')).tap();
+    try {
+      // in case emulator has no google services and doesnt support pushes
+      // we just dont show this popup
+      await element(by.text(`No, and don’t ask me again`)).tap();
+    } catch (_) {}
+    await yo('BitcoinAddressQRCodeContainer');
+
+    // check if imported wallet has correct recive address
+    await expect(element(by.id('AddressValue'))).toHaveText('bc1qe8q660wfj6uvqg7zyn86jcsux36natklqnfdrc');
+
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
 });
 
 async function sleep(ms) {
@@ -1184,7 +1211,7 @@ async function helperCreateWallet(walletName) {
   await expect(element(by.id(walletName || 'cr34t3d'))).toBeVisible();
 }
 
-async function helperImportWallet(importText, expectedWalletLabel, expectedBalance) {
+async function helperImportWallet(importText, expectedWalletLabel, expectedBalance, passphrase) {
   await yo('WalletsList');
 
   await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
@@ -1199,6 +1226,21 @@ async function helperImportWallet(importText, expectedWalletLabel, expectedBalan
     try {
       await element(by.id('DoImport')).tap();
     } catch (_) {}
+
+    let passphraseAsked = false;
+    try {
+      await sup('Passphrase', 3000);
+      passphraseAsked = true;
+    } catch (e) {} // passphrase not asked
+
+    if (passphraseAsked) {
+      // enter passphrase if needed
+      if (passphrase) {
+        await element(by.type('android.widget.EditText')).typeText(passphrase);
+      }
+      await element(by.text('OK')).tap();
+    }
+
     if (process.env.TRAVIS) await sleep(60000);
 
     // waiting for import result
@@ -1251,7 +1293,7 @@ async function extractTextFromElementById(id) {
       const [, restMessage] = errorMessage.split(start);
       const [label] = restMessage.split(end);
       const value = label.split(',');
-      var combineText = value.find(i => i.includes('text=')).trim();
+      const combineText = value.find(i => i.includes('text=')).trim();
       const [, elementText] = combineText.split('=');
       return elementText;
     }

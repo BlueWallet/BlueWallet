@@ -35,7 +35,7 @@ import { FContainer, FButton } from '../../components/FloatButtons';
 import BottomModal from '../../components/BottomModal';
 import BuyBitcoin from './buyBitcoin';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isCatalyst, isMacCatalina } from '../../blue_modules/environment';
+import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 
 const fs = require('../../blue_modules/fs');
@@ -225,7 +225,7 @@ const WalletTransactions = () => {
 
   const renderListHeaderComponent = () => {
     const style = {};
-    if (!isCatalyst) {
+    if (!isDesktop) {
       // we need this button for testing
       style.opacity = 0;
       style.height = 1;
@@ -259,7 +259,13 @@ const WalletTransactions = () => {
         </View>
         <View style={[styles.listHeaderTextRow, stylesHook.listHeaderTextRow]}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
-          <TouchableOpacity testID="refreshTransactions" style={style} onPress={refreshTransactions} disabled={isLoading}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            testID="refreshTransactions"
+            style={style}
+            onPress={refreshTransactions}
+            disabled={isLoading}
+          >
             <Icon name="refresh" type="font-awesome" color={colors.feeText} />
           </TouchableOpacity>
         </View>
@@ -340,14 +346,15 @@ const WalletTransactions = () => {
     return Platform.select({
       android: (
         <TouchableOpacity
+          accessibilityRole="button"
           onPress={() => {
             if (wallet.type === LightningCustodianWallet.type) {
               navigate('LappBrowserRoot', {
                 screen: 'LappBrowser',
-                params: { fromSecret: wallet.getSecret(), fromWallet: wallet },
+                params: { walletID },
               });
             } else {
-              navigate('Marketplace', { fromWallet: wallet });
+              navigate('Marketplace', { walletID });
             }
           }}
           style={[styles.marketplaceButton1, stylesHook.marketplaceButton1]}
@@ -358,6 +365,7 @@ const WalletTransactions = () => {
       ios:
         wallet.getBalance() > 0 ? (
           <TouchableOpacity
+            accessibilityRole="button"
             onPress={async () => {
               Linking.openURL('https://bluewallet.io/marketplace/');
             }}
@@ -373,12 +381,12 @@ const WalletTransactions = () => {
   const renderLappBrowserButton = () => {
     return (
       <TouchableOpacity
+        accessibilityRole="button"
         onPress={() => {
           navigate('LappBrowserRoot', {
             screen: 'LappBrowser',
             params: {
-              fromSecret: wallet.getSecret(),
-              fromWallet: wallet,
+              walletID,
               url: 'https://duckduckgo.com',
             },
           });
@@ -392,7 +400,11 @@ const WalletTransactions = () => {
 
   const renderSellFiat = () => {
     return (
-      <TouchableOpacity onPress={navigateToBuyBitcoin} style={[styles.marketplaceButton2, stylesHook.marketplaceButton2]}>
+      <TouchableOpacity
+        accessibilityRole="button"
+        onPress={navigateToBuyBitcoin}
+        style={[styles.marketplaceButton2, stylesHook.marketplaceButton2]}
+      >
         <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_tap_here_to_buy}</Text>
       </TouchableOpacity>
     );
@@ -460,6 +472,8 @@ const WalletTransactions = () => {
         title: null,
         mediaType: 'photo',
         takePhotoButtonTitle: null,
+        maxHeight: 800,
+        maxWidth: 600,
       },
       response => {
         if (response.uri) {
@@ -655,7 +669,7 @@ const WalletTransactions = () => {
               {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
 
               {!isLightning() && (
-                <TouchableOpacity onPress={navigateToBuyBitcoin} style={styles.buyBitcoin}>
+                <TouchableOpacity onPress={navigateToBuyBitcoin} style={styles.buyBitcoin} accessibilityRole="button">
                   <Text testID="NoTxBuyBitcoin" style={styles.buyBitcoinText}>
                     {loc.wallets.list_tap_here_to_buy}
                   </Text>
@@ -717,6 +731,7 @@ WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, na
   return {
     headerRight: () => (
       <TouchableOpacity
+        accessibilityRole="button"
         testID="WalletDetails"
         disabled={route.params.isLoading === true}
         style={styles.walletDetails}

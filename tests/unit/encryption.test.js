@@ -34,4 +34,12 @@ describe('unit - encryption', function () {
     );
     assert.ok(!decrypted);
   });
+
+  it('can decrypt cipher created by CryptoJS@3.1.9-1', () => {
+    const data2decrypt = 'really long data string bla bla really long data string bla bla really long data string bla bla';
+    const crypted =
+      'U2FsdGVkX19fJ4PcLum+tmBpEVNgGGsGKOhRS21cEcYAox+Df8VqmnnG9t2PvpM05eWImCRArorVUUegtcfSq314WMFzxKmiPIl9eqV1aOY+VFGuIBx0VIVsCWix2Q7sRZZwnOVpG5bdveZI0+Azyw==';
+    const decrypted = c.decrypt(crypted, 'password');
+    assert.deepEqual(data2decrypt, decrypted);
+  });
 });

@@ -6,11 +6,12 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import * as RNLocalize from 'react-native-localize';
 import BigNumber from 'bignumber.js';
 
-import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages } from './languages';
 import { I18nManager } from 'react-native';
 const currency = require('../blue_modules/currency');
+
+const LANG = 'lang';
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
@@ -79,6 +80,10 @@ const setDateTimeLocale = async () => {
       lang = 'ja';
       require('dayjs/locale/ja');
       break;
+    case 'ko_kr':
+      lang = 'ko';
+      require('dayjs/locale/ko');
+      break;
     case 'nb_no':
       require('dayjs/locale/nb');
       break;
@@ -135,7 +140,7 @@ const setDateTimeLocale = async () => {
   if (localeForDayJSAvailable) {
     dayjs.locale(lang.split('_')[0]);
     const language = AvailableLanguages.find(language => language.value === lang.replace('_', '-'));
-    /* I18n Manager breaks testing. Mocking built-in RN modules is not so straightforward. 
+    /* I18n Manager breaks testing. Mocking built-in RN modules is not so straightforward.
         Only run this conditional if its outside a testing environment.
     */
     if (process.env.JEST_WORKER_ID === undefined) {
@@ -158,8 +163,7 @@ const setDateTimeLocale = async () => {
 
 const setLanguageLocale = async () => {
   // finding out whether lang preference was saved
-  // For some reason using the AppStorage.LANG constant is not working. Hard coding string for now.
-  const lang = await AsyncStorage.getItem('lang');
+  const lang = await AsyncStorage.getItem(LANG);
   if (lang) {
     strings.setLanguage(lang);
     await setDateTimeLocale();
@@ -180,6 +184,11 @@ const setLanguageLocale = async () => {
 };
 setLanguageLocale();
 
+/**
+ * TODO: remove this comment once this file gets properly converted to typescript.
+ *
+ * @type {any}
+ */
 const strings = new Localization({
   en: require('./en.json'),
   ar: require('./ar.json'),
@@ -201,6 +210,7 @@ const strings = new Localization({
   id_id: require('./id_id.json'),
   it: require('./it.json'),
   jp_jp: require('./jp_jp.json'),
+  ko_kr: require('./ko_KR.json'),
   nb_no: require('./nb_no.json'),
   nl_nl: require('./nl_nl.json'),
   pt_br: require('./pt_br.json'),
@@ -222,7 +232,7 @@ const strings = new Localization({
 });
 
 strings.saveLanguage = async lang => {
-  await AsyncStorage.setItem(AppStorage.LANG, lang);
+  await AsyncStorage.setItem(LANG, lang);
   strings.setLanguage(lang);
   await setDateTimeLocale();
 };
@@ -324,4 +334,10 @@ export function _leaveNumbersAndDots(newInputValue) {
   return newInputValue;
 }
 
+// https://github.com/BlueWallet/BlueWallet/issues/3466
+export function formatStringAddTwoWhiteSpaces(text) {
+  return `${text}  `;
+}
+
+strings.LANG = LANG;
 export default strings;

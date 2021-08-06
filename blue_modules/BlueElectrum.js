@@ -1,16 +1,22 @@
 /* global alert */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
-import { AppStorage, LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
+import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
 import DefaultPreference from 'react-native-default-preference';
-import RNWidgetCenter from 'react-native-widget-center';
 import loc from '../loc';
+import { isTorCapable } from './environment';
+import WidgetCommunication from './WidgetCommunication';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
 const BigNumber = require('bignumber.js');
-const torrific = require('../blue_modules/torrific');
+const torrific = require('./torrific');
 const Realm = require('realm');
+
+const ELECTRUM_HOST = 'electrum_host';
+const ELECTRUM_TCP_PORT = 'electrum_tcp_port';
+const ELECTRUM_SSL_PORT = 'electrum_ssl_port';
+const ELECTRUM_SERVER_HISTORY = 'electrum_server_history';
 
 let _realm;
 async function _getRealm() {
@@ -79,16 +85,16 @@ async function connectMain() {
   try {
     if (usingPeer.host.endsWith('onion')) {
       const randomPeer = await getRandomHardcodedPeer();
-      await DefaultPreference.set(AppStorage.ELECTRUM_HOST, randomPeer.host);
-      await DefaultPreference.set(AppStorage.ELECTRUM_TCP_PORT, randomPeer.tcp);
-      await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, randomPeer.ssl);
+      await DefaultPreference.set(ELECTRUM_HOST, randomPeer.host);
+      await DefaultPreference.set(ELECTRUM_TCP_PORT, randomPeer.tcp);
+      await DefaultPreference.set(ELECTRUM_SSL_PORT, randomPeer.ssl);
     } else {
-      await DefaultPreference.set(AppStorage.ELECTRUM_HOST, usingPeer.host);
-      await DefaultPreference.set(AppStorage.ELECTRUM_TCP_PORT, usingPeer.tcp);
-      await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, usingPeer.ssl);
+      await DefaultPreference.set(ELECTRUM_HOST, usingPeer.host);
+      await DefaultPreference.set(ELECTRUM_TCP_PORT, usingPeer.tcp);
+      await DefaultPreference.set(ELECTRUM_SSL_PORT, usingPeer.ssl);
     }
 
-    RNWidgetCenter.reloadAllTimelines();
+    WidgetCommunication.reloadAllTimelines();
   } catch (e) {
     // Must be running on Android
     console.log(e);
@@ -97,12 +103,13 @@ async function connectMain() {
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
     mainClient = new ElectrumClient(
-      usingPeer.host.endsWith('.onion') ? torrific : global.net,
+      usingPeer.host.endsWith('.onion') && isTorCapable ? torrific : global.net,
       global.tls,
       usingPeer.ssl || usingPeer.tcp,
       usingPeer.host,
       usingPeer.ssl ? 'tls' : 'tcp',
     );
+
     mainClient.onError = function (e) {
       console.log('electrum mainClient.onError():', e.message);
       if (mainConnected) {
@@ -187,15 +194,15 @@ async function presentNetworkErrorAlert(usingPeer) {
                 text: loc._.ok,
                 style: 'destructive',
                 onPress: async () => {
-                  await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, '');
-                  await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, '');
-                  await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, '');
+                  await AsyncStorage.setItem(ELECTRUM_HOST, '');
+                  await AsyncStorage.setItem(ELECTRUM_TCP_PORT, '');
+                  await AsyncStorage.setItem(ELECTRUM_SSL_PORT, '');
                   try {
                     await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-                    await DefaultPreference.clear(AppStorage.ELECTRUM_HOST);
-                    await DefaultPreference.clear(AppStorage.ELECTRUM_SSL_PORT);
-                    await DefaultPreference.clear(AppStorage.ELECTRUM_TCP_PORT);
-                    RNWidgetCenter.reloadAllTimelines();
+                    await DefaultPreference.clear(ELECTRUM_HOST);
+                    await DefaultPreference.clear(ELECTRUM_SSL_PORT);
+                    await DefaultPreference.clear(ELECTRUM_TCP_PORT);
+                    WidgetCommunication.reloadAllTimelines();
                   } catch (e) {
                     // Must be running on Android
                     console.log(e);
@@ -236,9 +243,9 @@ async function getRandomHardcodedPeer() {
 }
 
 async function getSavedPeer() {
-  const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
-  const port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
-  const sslPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_SSL_PORT);
+  const host = await AsyncStorage.getItem(ELECTRUM_HOST);
+  const port = await AsyncStorage.getItem(ELECTRUM_TCP_PORT);
+  const sslPort = await AsyncStorage.getItem(ELECTRUM_SSL_PORT);
   return { host, tcp: port, ssl: sslPort };
 }
 
@@ -590,7 +597,9 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
       if (txdata.error && txdata.error.code === -32600) {
         // response too large
         // lets do single call, that should go through okay:
-        txdata.result = await mainClient.blockchainTransaction_get(txdata.param, verbose);
+        txdata.result = await mainClient.blockchainTransaction_get(txdata.param, false);
+        // since we used VERBOSE=false, server sent us plain txhex which we must decode on our end:
+        txdata.result = txhexToElectrumTransaction(txdata.result);
       }
       ret[txdata.param] = txdata.result;
       if (ret[txdata.param]) delete ret[txdata.param].hex; // compact
@@ -801,7 +810,7 @@ module.exports.calculateBlockTime = function (height) {
  */
 module.exports.testConnection = async function (host, tcpPort, sslPort) {
   const client = new ElectrumClient(
-    host.endsWith('.onion') ? torrific : global.net,
+    host.endsWith('.onion') && isTorCapable ? torrific : global.net,
     global.tls,
     sslPort || tcpPort,
     host,
@@ -813,7 +822,7 @@ module.exports.testConnection = async function (host, tcpPort, sslPort) {
   try {
     const rez = await Promise.race([
       new Promise(resolve => {
-        timeoutId = setTimeout(() => resolve('timeout'), host.endsWith('.onion') ? 21000 : 5000);
+        timeoutId = setTimeout(() => resolve('timeout'), host.endsWith('.onion') && isTorCapable ? 21000 : 5000);
       }),
       client.connect(),
     ]);
@@ -845,6 +854,10 @@ module.exports.setBatchingEnabled = () => {
 
 module.exports.hardcodedPeers = hardcodedPeers;
 module.exports.getRandomHardcodedPeer = getRandomHardcodedPeer;
+module.exports.ELECTRUM_HOST = ELECTRUM_HOST;
+module.exports.ELECTRUM_TCP_PORT = ELECTRUM_TCP_PORT;
+module.exports.ELECTRUM_SSL_PORT = ELECTRUM_SSL_PORT;
+module.exports.ELECTRUM_SERVER_HISTORY = ELECTRUM_SERVER_HISTORY;
 
 const splitIntoChunks = function (arr, chunkSize) {
   const groups = [];

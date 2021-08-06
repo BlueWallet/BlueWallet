@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   secret: {
+    alignSelf: 'stretch',
     alignItems: 'center',
     paddingHorizontal: 16,
     fontSize: 16,

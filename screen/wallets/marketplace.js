@@ -5,14 +5,16 @@ import { WebView } from 'react-native-webview';
 
 import { BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
+import loc from '../../loc';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 export default class Marketplace extends Component {
   webview = React.createRef();
 
-  constructor(props) {
+  constructor(props, context) {
     super(props);
-    if (!props.route.params.fromWallet) throw new Error('Invalid param');
-    const fromWallet = props.route.params.fromWallet;
+    if (!props.route.params.walletID) throw new Error('Invalid param');
+    const fromWallet = context.wallets.find(w => w.getID() === props.route.params.walletID);
 
     this.state = {
       url: '',
@@ -78,8 +80,10 @@ Marketplace.propTypes = {
   }),
 };
 
+Marketplace.contextType = BlueStorageContext;
+
 Marketplace.navigationOptions = navigationStyle({
   closeButton: true,
-  title: 'Marketplace',
+  title: loc.wallets.list_marketplace,
   headerLeft: null,
 });

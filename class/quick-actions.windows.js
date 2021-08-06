@@ -7,6 +7,8 @@ function DeviceQuickActions() {
     return false;
   };
 
+  DeviceQuickActions.popInitialAction = () => {};
+
   return null;
 }
 

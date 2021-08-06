@@ -37,7 +37,7 @@ const AOPP = () => {
       const wallet = await selectWallet(navigation.navigate, name, false, availableWallets, 'Onchain wallet is required to sign a message');
       if (!wallet) return navigation.pop();
 
-      const address = wallet.getAddressAsync ? await wallet.getAddressAsync() : wallet.getAddress();
+      const address = await wallet.getAddressAsync();
       navigation.navigate('SignVerify', {
         walletID: wallet.getID(),
         address,

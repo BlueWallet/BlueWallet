@@ -5,7 +5,7 @@ import { AbstractWallet } from './abstract-wallet';
 import { HDSegwitBech32Wallet } from '..';
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
-const coinSelectAccumulative = require('coinselect/accumulative');
+const coinSelect = require('coinselect');
 const coinSelectSplit = require('coinselect/split');
 
 /**
@@ -337,7 +337,7 @@ export class LegacyWallet extends AbstractWallet {
   coinselect(utxos, targets, feeRate, changeAddress) {
     if (!changeAddress) throw new Error('No change address provided');
 
-    let algo = coinSelectAccumulative;
+    let algo = coinSelect;
     // if targets has output without a value, we want send MAX to it
     if (targets.some(i => !('value' in i))) {
       algo = coinSelectSplit;
@@ -465,7 +465,14 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   weOwnAddress(address) {
-    return this.getAddress() === address || this._address === address;
+    if (!address) return false;
+    let cleanAddress = address;
+
+    if (this.segwitType === 'p2wpkh') {
+      cleanAddress = address.toLowerCase();
+    }
+
+    return this.getAddress() === cleanAddress || this._address === cleanAddress;
   }
 
   weOwnTransaction(txid) {

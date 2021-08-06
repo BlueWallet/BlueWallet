@@ -97,13 +97,13 @@ const UnlockWith = () => {
       const color = colorScheme === 'dark' ? '#FFFFFF' : '#000000';
       if ((biometricType === Biometric.TouchID || biometricType === Biometric.Biometrics) && !isStorageEncryptedEnabled) {
         return (
-          <TouchableOpacity disabled={isAuthenticating} onPress={unlockWithBiometrics}>
+          <TouchableOpacity accessibilityRole="button" disabled={isAuthenticating} onPress={unlockWithBiometrics}>
             <Icon name="fingerprint" size={64} type="font-awesome5" color={color} />
           </TouchableOpacity>
         );
       } else if (biometricType === Biometric.FaceID && !isStorageEncryptedEnabled) {
         return (
-          <TouchableOpacity disabled={isAuthenticating} onPress={unlockWithBiometrics}>
+          <TouchableOpacity accessibilityRole="button" disabled={isAuthenticating} onPress={unlockWithBiometrics}>
             <Image
               source={colorScheme === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')}
               style={styles.icon}
@@ -112,7 +112,7 @@ const UnlockWith = () => {
         );
       } else if (isStorageEncryptedEnabled) {
         return (
-          <TouchableOpacity disabled={isAuthenticating} onPress={unlockWithKey}>
+          <TouchableOpacity accessibilityRole="button" disabled={isAuthenticating} onPress={unlockWithKey}>
             <Icon name="lock" size={64} type="font-awesome5" color={color} />
           </TouchableOpacity>
         );

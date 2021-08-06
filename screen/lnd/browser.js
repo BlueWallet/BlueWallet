@@ -20,6 +20,7 @@ import navigationStyle from '../../components/navigationStyle';
 import Notifications from '../../blue_modules/notifications';
 import loc from '../../loc';
 import { Button } from 'react-native-elements';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 let processedInvoices = {};
 let lastTimeTriedToPay = 0;
@@ -52,10 +53,10 @@ var webln = {
     });
   },
   makeInvoice: function (RequestInvoiceArgs) {
-    var id = Math.random();
+    var id = Math.random(); // eslint-disable-line
     window.ReactNativeWebView.postMessage(JSON.stringify({ makeInvoice: RequestInvoiceArgs, id: id }));
     return new Promise(function (resolve, reject) {
-      var interval = setInterval(function () {
+      var interval = setInterval(function () { // eslint-disable-line
         if (bluewalletResponses[id]) {
           clearInterval(interval);
           resolve(bluewalletResponses[id]);
@@ -293,15 +294,15 @@ const styles = StyleSheet.create({
 
 export default class Browser extends Component {
   webView = React.createRef();
-  constructor(props) {
+  constructor(props, context) {
     super(props);
-    if (!props.route.params.fromWallet) throw new Error('Invalid param');
+    if (!props.route.params.walletID) throw new Error('Missing walletID param');
     let url;
     if (props.route.params.url) url = props.route.params.url;
 
     this.state = {
       url: url || 'https://bluewallet.io/marketplace/',
-      fromWallet: props.route.params.fromWallet,
+      fromWallet: context.wallets.find(w => w.getID() === props.route.params.walletID),
       canGoBack: false,
       pageIsLoading: false,
       stateURL: url || 'https://bluewallet.io/marketplace/',
@@ -482,6 +483,7 @@ export default class Browser extends Component {
           <View style={styles.safeURLHome}>
             {Platform.OS !== 'ios' && ( // on iOS lappbrowser opens blank page, thus, no HOME button
               <TouchableOpacity
+                accessibilityRole="button"
                 onPress={() => {
                   processedInvoices = {};
                   this.setState({ url: 'https://bluewallet.io/marketplace/' });
@@ -496,6 +498,7 @@ export default class Browser extends Component {
             )}
 
             <TouchableOpacity
+              accessibilityRole="button"
               onPress={() => {
                 this.webView.current?.reload();
               }}
@@ -525,6 +528,8 @@ Browser.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+Browser.contextType = BlueStorageContext;
 
 Browser.navigationOptions = navigationStyle(
   {

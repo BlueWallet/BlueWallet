@@ -44,7 +44,7 @@ const ReceiveDetails = () => {
   const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
   const [customLabel, setCustomLabel] = useState();
-  const [customAmount, setCustomAmount] = useState(0);
+  const [customAmount, setCustomAmount] = useState();
   const [customUnit, setCustomUnit] = useState(BitcoinUnit.BTC);
   const [bip21encoded, setBip21encoded] = useState();
   const [isCustom, setIsCustom] = useState(false);
@@ -89,21 +89,20 @@ const ReceiveDetails = () => {
     },
     qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
     root: {
-      flex: 1,
+      flexGrow: 1,
       backgroundColor: colors.elevated,
       justifyContent: 'space-between',
     },
     scrollBody: {
-      flexGrow: 3,
       marginTop: 32,
+      flexGrow: 1,
       alignItems: 'center',
       paddingHorizontal: 16,
     },
     share: {
-      justifyContent: 'center',
+      justifyContent: 'flex-end',
       paddingVertical: 16,
       alignItems: 'center',
-      flexGrow: 1,
       marginBottom: 8,
     },
     link: {
@@ -165,29 +164,31 @@ const ReceiveDetails = () => {
             </>
           )}
           <TouchableWithoutFeedback style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer" onLongPress={showToolTipMenu}>
-            <ToolTipMenu
-              ref={toolTip}
-              anchorRef={qrCode}
-              actions={[
-                {
-                  id: 'shareQRCode',
-                  text: loc.receive.details_share,
-                  onPress: handleShareQRCode,
-                },
-              ]}
-            />
+            <>
+              <ToolTipMenu
+                ref={toolTip}
+                anchorRef={qrCode}
+                actions={[
+                  {
+                    id: 'shareQRCode',
+                    text: loc.receive.details_share,
+                    onPress: handleShareQRCode,
+                  },
+                ]}
+              />
 
-            <QRCode
-              value={bip21encoded}
-              logo={require('../../img/qr-code.png')}
-              size={(is.ipad() && 300) || 300}
-              logoSize={90}
-              color="#000000"
-              logoBackgroundColor={colors.brandingColor}
-              backgroundColor="#FFFFFF"
-              ecl="H"
-              getRef={qrCode}
-            />
+              <QRCode
+                value={bip21encoded}
+                logo={require('../../img/qr-code.png')}
+                size={(is.ipad() && 300) || 300}
+                logoSize={90}
+                color="#000000"
+                logoBackgroundColor={colors.brandingColor}
+                backgroundColor="#FFFFFF"
+                ecl="H"
+                getRef={qrCode}
+              />
+            </>
           </TouchableWithoutFeedback>
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
@@ -217,7 +218,7 @@ const ReceiveDetails = () => {
       setAddressBIP21Encoded(address);
       await Notifications.tryToObtainPermissions();
       Notifications.majorTomToGroundControl([address], [], []);
-    } else if (wallet.getAddressAsync) {
+    } else {
       if (wallet.chain === Chain.ONCHAIN) {
         try {
           newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
@@ -245,10 +246,6 @@ const ReceiveDetails = () => {
       setAddressBIP21Encoded(newAddress);
       await Notifications.tryToObtainPermissions();
       Notifications.majorTomToGroundControl([newAddress], [], []);
-    } else if (wallet.getAddress) {
-      setAddressBIP21Encoded(wallet.getAddress());
-      await Notifications.tryToObtainPermissions();
-      Notifications.majorTomToGroundControl([wallet.getAddress()], [], []);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

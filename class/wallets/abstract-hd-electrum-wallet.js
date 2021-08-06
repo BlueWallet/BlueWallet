@@ -1,4 +1,4 @@
-import bip39 from 'bip39';
+import * as bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
 
@@ -824,11 +824,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   weOwnAddress(address) {
+    if (!address) return false;
+    let cleanAddress = address;
+
+    if (this.segwitType === 'p2wpkh') {
+      cleanAddress = address.toLowerCase();
+    }
+
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-      if (this._getExternalAddressByIndex(c) === address) return true;
+      if (this._getExternalAddressByIndex(c) === cleanAddress) return true;
     }
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      if (this._getInternalAddressByIndex(c) === address) return true;
+      if (this._getInternalAddressByIndex(c) === cleanAddress) return true;
     }
     return false;
   }
@@ -1116,7 +1123,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @returns {string} Hex fingerprint
    */
   static mnemonicToFingerprint(mnemonic) {
-    const seed = bip39.mnemonicToSeed(mnemonic);
+    const seed = bip39.mnemonicToSeedSync(mnemonic);
     return AbstractHDElectrumWallet.seedToFingerprint(seed);
   }
 

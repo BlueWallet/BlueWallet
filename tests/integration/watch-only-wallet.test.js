@@ -63,6 +63,9 @@ describe('Watch only wallet', () => {
       assert.strictEqual(w.getAddress(), 'bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv');
       assert.strictEqual(await w.getAddressAsync(), 'bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv');
       assert.ok(w.weOwnAddress('bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv'));
+      assert.ok(w.weOwnAddress('BC1QUHNVE8Q4TK3UNHMJTS7YMXV8CD6W9XV8WY29UV'));
+      assert.ok(!w.weOwnAddress('garbage'));
+      assert.ok(!w.weOwnAddress(false));
       await w.fetchTransactions();
 
       for (const tx of w.getTransactions()) {

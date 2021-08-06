@@ -6,7 +6,6 @@ import {
   Text,
   StyleSheet,
   SectionList,
-  Alert,
   Platform,
   Image,
   Dimensions,
@@ -21,14 +20,12 @@ import WalletsCarousel from '../../components/WalletsCarousel';
 import { Icon } from 'react-native-elements';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { PlaceholderWallet } from '../../class';
-import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isCatalyst, isMacCatalina, isTablet } from '../../blue_modules/environment';
+import { isDesktop, isMacCatalina, isTablet } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import navigationStyle from '../../components/navigationStyle';
 
@@ -39,20 +36,20 @@ const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', 
 
 const WalletsList = () => {
   const walletsCarousel = useRef();
+  const currentWalletIndex = useRef(0);
   const colorScheme = useColorScheme();
-  const { wallets, pendingWallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet } = useContext(
+  const { wallets, getTransactions, isImportingWallet, getBalance, refreshAllWalletTransactions, setSelectedWallet } = useContext(
     BlueStorageContext,
   );
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
+  const isFocused = useIsFocused();
   const routeName = useRoute().name;
   const [isLoading, setIsLoading] = useState(false);
-  const [itemWidth, setItemWidth] = useState(width * 0.82 > 375 ? 375 : width * 0.82);
   const [isLargeScreen, setIsLargeScreen] = useState(
-    Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isCatalyst),
+    Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop),
   );
-  const [carouselData, setCarouselData] = useState([]);
   const dataSource = getTransactions(null, 10);
   const walletsCount = useRef(wallets.length);
   const walletActionButtonsRef = useRef();
@@ -88,25 +85,18 @@ const WalletsList = () => {
   );
 
   useEffect(() => {
-    const allWallets = wallets.concat(pendingWallets);
-    const newCarouselData = I18nManager.isRTL && Platform.OS !== 'android' ? [false].concat(allWallets) : allWallets.concat(false);
-    setCarouselData(newCarouselData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallets, pendingWallets]);
-
-  useEffect(() => {
     if (walletsCount.current < wallets.length) {
-      walletsCarousel.current?.snapToItem(walletsCount.current);
+      walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current] });
     }
     walletsCount.current = wallets.length;
   }, [wallets]);
 
   useEffect(() => {
-    if (pendingWallets.length > 0) {
-      walletsCarousel.current?.snapToItem(carouselData.length - pendingWallets.length);
+    if (isImportingWallet) {
+      walletsCarousel.current?.scrollToItem({ item: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingWallets]);
+  }, [isImportingWallet]);
 
   const verifyBalance = () => {
     if (getBalance() !== 0) {
@@ -119,7 +109,7 @@ const WalletsList = () => {
   useEffect(() => {
     setOptions({
       title: '',
-      headerShown: !isCatalyst,
+      headerShown: !isDesktop,
       headerStyle: {
         backgroundColor: colors.customHeader,
         borderBottomWidth: 0,
@@ -129,13 +119,13 @@ const WalletsList = () => {
       },
       headerRight: () =>
         I18nManager.isRTL ? null : (
-          <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
+          <TouchableOpacity accessibilityRole="button" testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
             <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
           </TouchableOpacity>
         ),
       headerLeft: () =>
         I18nManager.isRTL ? (
-          <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
+          <TouchableOpacity accessibilityRole="button" testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
             <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
           </TouchableOpacity>
         ) : null,
@@ -163,50 +153,34 @@ const WalletsList = () => {
 
   const handleClick = index => {
     console.log('click', index);
-    const wallet = carouselData[index];
-    if (wallet) {
-      if (wallet.type === PlaceholderWallet.type) {
-        Alert.alert(
-          loc.wallets.add_details,
-          loc.wallets.list_import_problem,
-          [
-            {
-              text: loc.wallets.details_delete,
-              onPress: () => {
-                WalletImport.removePlaceholderWallet();
-              },
-              style: 'destructive',
-            },
-            {
-              text: loc.wallets.list_tryagain,
-              onPress: () => {
-                navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: wallet.getSecret() } });
-                WalletImport.removePlaceholderWallet();
-              },
-              style: 'default',
-            },
-          ],
-          { cancelable: false },
-        );
-      } else {
-        const walletID = wallet.getID();
-        navigate('WalletTransactions', {
-          walletID,
-          walletType: wallet.type,
-          key: `WalletTransactions-${walletID}`,
-        });
-      }
-    } else {
-      // if its out of index - this must be last card with incentive to create wallet
+    if (index <= wallets.length - 1) {
+      const wallet = wallets[index];
+      const walletID = wallet.getID();
+      navigate('WalletTransactions', {
+        walletID,
+        walletType: wallet.type,
+        key: `WalletTransactions-${walletID}`,
+      });
+    } else if (index >= wallets.length && !isImportingWallet) {
       navigate('AddWalletRoot');
     }
   };
 
-  const onSnapToItem = index => {
-    console.log('onSnapToItem', index);
-    if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
-      console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
-      refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
+  const onSnapToItem = e => {
+    if (!isFocused) return;
+
+    const contentOffset = e.nativeEvent.contentOffset;
+    const index = Math.ceil(contentOffset.x / width);
+
+    if (currentWalletIndex.current !== index) {
+      console.log('onSnapToItem', wallets.length === index ? 'NewWallet/Importing card' : index);
+      if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
+        console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
+        refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
+      }
+      currentWalletIndex.current = index;
+    } else {
+      console.log('onSnapToItem did not change. Most likely momentum stopped at the same index it started.');
     }
   };
 
@@ -217,8 +191,8 @@ const WalletsList = () => {
         <Text textBreakStrategy="simple" style={[styles.listHeaderText, stylesHook.listHeaderText]}>
           {`${loc.transactions.list_title}${'  '}`}
         </Text>
-        {isCatalyst && (
-          <TouchableOpacity style={style} onPress={() => refreshTransactions(true)} disabled={isLoading}>
+        {isDesktop && (
+          <TouchableOpacity accessibilityRole="button" style={style} onPress={() => refreshTransactions(true)} disabled={isLoading}>
             <Icon name="refresh" type="font-awesome" color={colors.feeText} />
           </TouchableOpacity>
         )}
@@ -227,7 +201,7 @@ const WalletsList = () => {
   };
 
   const handleLongPress = () => {
-    if (carouselData.length > 1 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (wallets.length > 1 && !isImportingWallet) {
       navigate('ReorderWallets');
     } else {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -243,10 +217,11 @@ const WalletsList = () => {
   };
 
   const renderLocalTrader = () => {
-    if (carouselData.every(wallet => wallet === false)) return null;
-    if (carouselData.length > 0 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (wallets.every(wallet => wallet === false)) return null;
+    if (wallets.length > 0 && !isImportingWallet) {
       const button = (
         <TouchableOpacity
+          accessibilityRole="button"
           onPress={() => {
             navigate('HodlHodl', { screen: 'HodlHodl' });
           }}
@@ -267,15 +242,15 @@ const WalletsList = () => {
   const renderWalletsCarousel = () => {
     return (
       <WalletsCarousel
-        removeClippedSubviews={false}
-        data={carouselData}
+        data={wallets.concat(false)}
+        extraData={[wallets, isImportingWallet]}
         onPress={handleClick}
         handleLongPress={handleLongPress}
-        onSnapToItem={onSnapToItem}
+        onMomentumScrollEnd={onSnapToItem}
         ref={walletsCarousel}
         testID="WalletsList"
-        sliderWidth={width}
-        itemWidth={itemWidth}
+        horizontal
+        scrollEnabled={isFocused}
       />
     );
   };
@@ -297,10 +272,7 @@ const WalletsList = () => {
     switch (section.section.key) {
       case WalletsListSections.CAROUSEL:
         return isLargeScreen ? null : (
-          <BlueHeaderDefaultMain
-            leftText={loc.wallets.list_title}
-            onNewWalletPress={!carouselData.some(wallet => wallet.type === PlaceholderWallet.type) ? () => navigate('AddWalletRoot') : null}
-          />
+          <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={() => navigate('AddWalletRoot')} />
         );
       case WalletsListSections.TRANSACTIONS:
         return renderListHeaderComponent();
@@ -328,7 +300,7 @@ const WalletsList = () => {
   };
 
   const renderScanButton = () => {
-    if (carouselData.length > 0 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (wallets.length > 0 && !isImportingWallet) {
       return (
         <FContainer ref={walletActionButtonsRef}>
           <FButton
@@ -422,8 +394,7 @@ const WalletsList = () => {
   };
 
   const onLayout = _e => {
-    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isCatalyst));
-    setItemWidth(width * 0.82 > 375 ? 375 : width * 0.82);
+    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop));
   };
 
   const onRefresh = () => {
@@ -522,10 +493,12 @@ const styles = StyleSheet.create({
   ltTextBig: {
     fontSize: 16,
     fontWeight: '600',
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   ltTextSmall: {
     fontSize: 13,
     fontWeight: '500',
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   footerRoot: {
     top: 80,

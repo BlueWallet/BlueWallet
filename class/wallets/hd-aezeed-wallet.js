@@ -21,7 +21,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
 
   setSecret(newSecret) {
     this.secret = newSecret.trim();
-    this.secret = this.secret.replace(/[^a-zA-Z0-9:]/g, ' ').replace(/\s+/g, ' ');
+    this.secret = this.secret.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ');
     return this;
   }
 
@@ -51,14 +51,14 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     return this._xpub;
   }
 
-  validateMnemonic(): boolean {
+  validateMnemonic() {
     throw new Error('Use validateMnemonicAsync()');
   }
 
   async validateMnemonicAsync() {
-    const [mnemonic3, password] = this.secret.split(':');
+    const passphrase = this.getPassphrase() || 'aezeed';
     try {
-      const cipherSeed1 = await CipherSeed.fromMnemonic(mnemonic3, password || 'aezeed');
+      const cipherSeed1 = await CipherSeed.fromMnemonic(this.secret, passphrase);
       this._entropyHex = cipherSeed1.entropy.toString('hex'); // save cache
       return !!cipherSeed1.entropy;
     } catch (_) {
@@ -67,9 +67,9 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
   }
 
   async mnemonicInvalidPassword() {
-    const [mnemonic3, password] = this.secret.split(':');
+    const passphrase = this.getPassphrase() || 'aezeed';
     try {
-      const cipherSeed1 = await CipherSeed.fromMnemonic(mnemonic3, password || 'aezeed');
+      const cipherSeed1 = await CipherSeed.fromMnemonic(this.secret, passphrase);
       this._entropyHex = cipherSeed1.entropy.toString('hex'); // save cache
     } catch (error) {
       return error.message === 'Invalid Password';

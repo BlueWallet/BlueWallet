@@ -17,7 +17,6 @@ const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
 const BlueElectrum = require('../blue_modules/BlueElectrum');
-const torrific = require('../blue_modules/torrific');
 
 const styles = StyleSheet.create({
   center: {
@@ -53,13 +52,6 @@ export default class Selftest extends Component {
       }
 
       //
-
-      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-        await torrific.testHttp();
-        await torrific.testSocket();
-      } else {
-        // skipping RN-specific test'
-      }
 
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
         await BlueElectrum.ping();
@@ -158,7 +150,7 @@ export default class Selftest extends Component {
       const bip39 = require('bip39');
       const mnemonic =
         'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
-      const seed = bip39.mnemonicToSeed(mnemonic);
+      const seed = bip39.mnemonicToSeedSync(mnemonic);
       const root = bitcoin.bip32.fromSeed(seed);
 
       const path = "m/49'/0'/0'/0/0";

@@ -8,18 +8,20 @@ buildscript {
         compileSdkVersion = 30
         targetSdkVersion = 30
         googlePlayServicesVersion = "16.+"
+        googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "17.3.4"
         firebaseMessagingVersion = "20.2.1"
+        ndkVersion = "20.1.5948944"
     }
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
-    ext.kotlinVersion = '1.3.+'
+    ext.kotlinVersion = '1.4.32'
     dependencies {
-        classpath('com.android.tools.build:gradle:4.0.1')
+        classpath('com.android.tools.build:gradle:4.2.1')
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath 'com.google.gms:google-services:4.3.3'  // Google Services plugin
+        classpath 'com.google.gms:google-services:4.3.5'  // Google Services plugin
 
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -29,6 +31,25 @@ buildscript {
 
 allprojects {
     repositories {
+        jcenter() {
+            content {
+                includeModule("com.facebook.yoga", "proguard-annotations")
+                includeModule("com.facebook.fbjni", "fbjni-java-only")
+                includeModule("com.facebook.fresco", "fresco")
+                includeModule("com.facebook.fresco", "stetho")
+                includeModule("com.facebook.fresco", "fbcore")
+                includeModule("com.facebook.fresco", "drawee")
+                includeModule("com.facebook.fresco", "imagepipeline")
+                includeModule("com.facebook.fresco", "imagepipeline-native")
+                includeModule("com.facebook.fresco", "memory-type-native")
+                includeModule("com.facebook.fresco", "memory-type-java")
+                includeModule("com.facebook.fresco", "nativeimagefilters")
+                includeModule("com.facebook.stetho", "stetho")
+                includeModule("com.wei.android.lib", "fingerprintidentify")
+                includeModule("com.eightbitlab", "blurview")
+            }
+        }
+        mavenCentral()
         mavenLocal()
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
@@ -43,7 +64,6 @@ allprojects {
             url "$rootDir/../node_modules/detox/Detox-android"
         }
         google()
-        jcenter()
                 maven { url 'https://www.jitpack.io' }
     }
 }
@@ -54,6 +74,10 @@ subprojects {
             android {
                 compileSdkVersion 30
                 buildToolsVersion '30.0.3'
+                compileSdkVersion 29
+                 defaultConfig {
+                    minSdkVersion 28
+                }
             }
         }
     }

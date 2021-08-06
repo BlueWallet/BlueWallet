@@ -90,5 +90,3 @@ script:
   - npm i -g detox-cli
   - npm run e2e:release-build
   - npm run e2e:release-test || npm run e2e:release-test || npm run e2e:release-test
-
-after_failure: ./tests/e2e/upload-artifacts.sh

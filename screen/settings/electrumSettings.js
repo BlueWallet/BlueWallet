@@ -12,13 +12,12 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  Switch,
 } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
-import RNWidgetCenter from 'react-native-widget-center';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import loc from '../../loc';
-import { AppStorage } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import navigationStyle from '../../components/navigationStyle';
 import {
@@ -33,7 +32,9 @@ import {
   BlueDismissKeyboardInputAccessory,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
+import { isTorCapable } from '../../blue_modules/environment';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -46,6 +47,8 @@ export default class ElectrumSettings extends Component {
       serverHistory: [],
       config: {},
       server,
+      sslPort: '',
+      port: '',
     };
   }
 
@@ -54,12 +57,11 @@ export default class ElectrumSettings extends Component {
   }
 
   async componentDidMount() {
-    const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
-    const port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
-    const sslPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_SSL_PORT);
-    const serverHistoryStr = await AsyncStorage.getItem(AppStorage.ELECTRUM_SERVER_HISTORY);
+    const host = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_HOST);
+    const port = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_TCP_PORT);
+    const sslPort = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SSL_PORT);
+    const serverHistoryStr = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SERVER_HISTORY);
     const serverHistory = JSON.parse(serverHistoryStr) || [];
-
     this.setState({
       isLoading: false,
       host,
@@ -126,7 +128,7 @@ export default class ElectrumSettings extends Component {
 
   clearHistory = async () => {
     this.setState({ isLoading: true }, async () => {
-      await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_HISTORY, JSON.stringify([]));
+      await AsyncStorage.setItem(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify([]));
       this.setState({
         serverHistory: [],
         isLoading: false,
@@ -156,15 +158,15 @@ export default class ElectrumSettings extends Component {
     this.setState({ isLoading: true }, async () => {
       try {
         if (!host && !port && !sslPort) {
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, '');
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, '');
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, '');
+          await AsyncStorage.setItem(BlueElectrum.ELECTRUM_HOST, '');
+          await AsyncStorage.setItem(BlueElectrum.ELECTRUM_TCP_PORT, '');
+          await AsyncStorage.setItem(BlueElectrum.ELECTRUM_SSL_PORT, '');
           try {
             await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-            await DefaultPreference.clear(AppStorage.ELECTRUM_HOST);
-            await DefaultPreference.clear(AppStorage.ELECTRUM_SSL_PORT);
-            await DefaultPreference.clear(AppStorage.ELECTRUM_TCP_PORT);
-            RNWidgetCenter.reloadAllTimelines();
+            await DefaultPreference.clear(BlueElectrum.ELECTRUM_HOST);
+            await DefaultPreference.clear(BlueElectrum.ELECTRUM_SSL_PORT);
+            await DefaultPreference.clear(BlueElectrum.ELECTRUM_TCP_PORT);
+            WidgetCommunication.reloadAllTimelines();
           } catch (e) {
             // Must be running on Android
             console.log(e);
@@ -175,9 +177,9 @@ export default class ElectrumSettings extends Component {
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
           alert(loc.settings.electrum_error_connect);
         } else {
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, host);
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, port);
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, sslPort);
+          await AsyncStorage.setItem(BlueElectrum.ELECTRUM_HOST, host);
+          await AsyncStorage.setItem(BlueElectrum.ELECTRUM_TCP_PORT, port);
+          await AsyncStorage.setItem(BlueElectrum.ELECTRUM_SSL_PORT, sslPort);
 
           if (!this.serverExists({ host, port, sslPort })) {
             serverHistory.push({
@@ -185,15 +187,15 @@ export default class ElectrumSettings extends Component {
               port,
               sslPort,
             });
-            await AsyncStorage.setItem(AppStorage.ELECTRUM_SERVER_HISTORY, JSON.stringify(serverHistory));
+            await AsyncStorage.setItem(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(serverHistory));
           }
 
           try {
             await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-            await DefaultPreference.set(AppStorage.ELECTRUM_HOST, host);
-            await DefaultPreference.set(AppStorage.ELECTRUM_TCP_PORT, port);
-            await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, sslPort);
-            RNWidgetCenter.reloadAllTimelines();
+            await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, host);
+            await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, port);
+            await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, sslPort);
+            WidgetCommunication.reloadAllTimelines();
           } catch (e) {
             // Must be running on Android
             console.log(e);
@@ -214,9 +216,10 @@ export default class ElectrumSettings extends Component {
       // in case user scans a QR with a deeplink like `bluewallet:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As`
       value = DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(value);
     }
-    var [host, port, type] = value.split(':');
-    this.setState({ host: host });
-    type === 's' ? this.setState({ sslPort: port }) : this.setState({ port: port });
+    const [host, port, type] = value.split(':');
+    this.setState({ host: host, sslPort: '', port: '' }, () => {
+      type === 's' ? this.setState({ sslPort: port }) : this.setState({ port: port });
+    });
   };
 
   importScan = () => {
@@ -230,13 +233,28 @@ export default class ElectrumSettings extends Component {
     });
   };
 
+  useSSLPortToggled = value => {
+    switch (value) {
+      case true:
+        this.setState(prevState => {
+          return { port: '', sslPort: prevState.port };
+        });
+        break;
+      case false:
+        this.setState(prevState => {
+          return { port: prevState.sslPort, sslPort: '' };
+        });
+        break;
+    }
+  };
+
   render() {
     const serverHistoryItems = this.state.serverHistory.map((server, i) => {
       return (
         <View key={i} style={styles.serverHistoryItem}>
           <Text style={styles.serverRow} numberOfLines={1} ellipsizeMode="middle">{`${server.host}:${server.port || server.sslPort}`}</Text>
 
-          <TouchableOpacity style={styles.selectButton} onPress={() => this.selectServer(server)}>
+          <TouchableOpacity accessibilityRole="button" style={styles.selectButton} onPress={() => this.selectServer(server)}>
             <BlueText>{loc.settings.electrum_select}</BlueText>
           </TouchableOpacity>
         </View>
@@ -267,7 +285,8 @@ export default class ElectrumSettings extends Component {
               <View style={styles.inputWrap}>
                 <TextInput
                   placeholder={
-                    loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' }) + ' (' + loc.settings.tor_supported + ')'
+                    loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' }) +
+                    (isTorCapable ? ' (' + loc.settings.tor_supported + ')' : '')
                   }
                   value={this.state.host}
                   onChangeText={text => this.setState({ host: text.trim() })}
@@ -285,49 +304,42 @@ export default class ElectrumSettings extends Component {
                 />
               </View>
               <BlueSpacing20 />
-              <View style={styles.inputWrap}>
-                <TextInput
-                  placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
-                  value={this.state.port}
-                  onChangeText={text => this.setState({ port: text.trim() })}
-                  numberOfLines={1}
-                  style={styles.inputText}
-                  editable={!this.state.isLoading}
-                  placeholderTextColor="#81868e"
-                  underlineColorAndroid="transparent"
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  keyboardType="number-pad"
-                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-                  testID="PortInput"
-                  onFocus={() => this.setState({ isAndroidNumericKeyboardFocused: true })}
-                  onBlur={() => this.setState({ isAndroidNumericKeyboardFocused: false })}
-                />
+              <View style={styles.portWrap}>
+                <View style={styles.inputWrap}>
+                  <TextInput
+                    placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
+                    value={this.state.sslPort?.trim() === '' || this.state.sslPort === null ? this.state.port : this.state.sslPort}
+                    onChangeText={text =>
+                      this.setState(prevState => {
+                        if (prevState.sslPort?.trim() === '') {
+                          return { port: text.trim(), sslPort: '' };
+                        } else {
+                          return { port: '', sslPort: text.trim() };
+                        }
+                      })
+                    }
+                    numberOfLines={1}
+                    style={styles.inputText}
+                    editable={!this.state.isLoading}
+                    placeholderTextColor="#81868e"
+                    underlineColorAndroid="transparent"
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                    keyboardType="number-pad"
+                    inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+                    testID="PortInput"
+                    onFocus={() => this.setState({ isAndroidNumericKeyboardFocused: true })}
+                    onBlur={() => this.setState({ isAndroidNumericKeyboardFocused: false })}
+                  />
+                </View>
+                <BlueText style={styles.usePort}>{loc.settings.use_ssl}</BlueText>
+                <Switch testID="SSLPortInput" value={this.state.sslPort?.trim() > 0} onValueChange={this.useSSLPortToggled} />
               </View>
               <BlueSpacing20 />
-              <View style={styles.inputWrap}>
-                <TextInput
-                  placeholder={loc.formatString(loc.settings.electrum_port_ssl, { example: '50002' })}
-                  value={this.state.sslPort}
-                  onChangeText={text => this.setState({ sslPort: text.trim() })}
-                  numberOfLines={1}
-                  style={styles.inputText}
-                  editable={!this.state.isLoading}
-                  autoCorrect={false}
-                  placeholderTextColor="#81868e"
-                  autoCapitalize="none"
-                  keyboardType="number-pad"
-                  underlineColorAndroid="transparent"
-                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-                  testID="SSLPortInput"
-                  onFocus={() => this.setState({ isAndroidNumericKeyboardFocused: true })}
-                  onBlur={() => this.setState({ isAndroidNumericKeyboardFocused: false })}
-                />
-              </View>
 
               <View style={styles.serverAddTitle}>
                 <BlueText style={styles.explain}>{loc.settings.electrum_settings_explain}</BlueText>
-                <TouchableOpacity testID="ResetToDefault" onPress={() => this.resetToDefault()}>
+                <TouchableOpacity accessibilityRole="button" testID="ResetToDefault" onPress={() => this.resetToDefault()}>
                   <BlueText>{loc.settings.electrum_reset}</BlueText>
                 </TouchableOpacity>
               </View>
@@ -370,7 +382,7 @@ export default class ElectrumSettings extends Component {
             <BlueCard>
               <View style={styles.serverHistoryTitle}>
                 <BlueText style={styles.explain}>{loc.settings.electrum_history}</BlueText>
-                <TouchableOpacity onPress={() => this.clearHistoryAlert()}>
+                <TouchableOpacity accessibilityRole="button" onPress={() => this.clearHistoryAlert()}>
                   <BlueText>{loc.settings.electrum_clear}</BlueText>
                 </TouchableOpacity>
               </View>
@@ -436,6 +448,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: BlueCurrentTheme.colors.foregroundColor,
   },
+  usePort: {
+    textAlign: 'center',
+    color: BlueCurrentTheme.colors.foregroundColor,
+    marginHorizontal: 8,
+  },
   explain: {
     color: BlueCurrentTheme.colors.feeText,
     marginBottom: -24,
@@ -447,6 +464,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   inputWrap: {
+    flex: 1,
     flexDirection: 'row',
     borderColor: BlueCurrentTheme.colors.formBorder,
     borderBottomColor: BlueCurrentTheme.colors.formBorder,
@@ -457,6 +475,12 @@ const styles = StyleSheet.create({
     height: 44,
     alignItems: 'center',
     borderRadius: 4,
+  },
+  portWrap: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   inputText: {
     flex: 1,

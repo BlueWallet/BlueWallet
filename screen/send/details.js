@@ -25,7 +25,7 @@ import RNFS from 'react-native-fs';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 
-import { BlueButton, BlueDismissKeyboardInputAccessory, BlueListItem, BlueLoading, BlueText } from '../../BlueComponents';
+import { BlueButton, BlueDismissKeyboardInputAccessory, BlueListItem, BlueLoading } from '../../BlueComponents';
 import { navigationStyleTx } from '../../components/navigationStyle';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -44,7 +44,6 @@ const currency = require('../../blue_modules/currency');
 const prompt = require('../../blue_modules/prompt');
 const fs = require('../../blue_modules/fs');
 const scanqr = require('../../helpers/scan-qr');
-
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 const SendDetails = () => {
@@ -57,7 +56,7 @@ const SendDetails = () => {
 
   // state
   const [width, setWidth] = useState(Dimensions.get('window').width);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState(null);
   const [walletSelectionOrCoinsSelectedHidden, setWalletSelectionOrCoinsSelectedHidden] = useState(false);
   const [isAmountToolbarVisibleForAndroid, setIsAmountToolbarVisibleForAndroid] = useState(false);
@@ -77,7 +76,6 @@ const SendDetails = () => {
   const [payjoinUrl, setPayjoinUrl] = useState(null);
   const [changeAddress, setChangeAddress] = useState();
   const [dumb, setDumb] = useState(false);
-
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/byte fee
   const feeRate = useMemo(() => {
@@ -161,7 +159,6 @@ const SendDetails = () => {
 
     // load fresh fees from servers
 
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setNetworkTransactionFeesIsLoading(true);
     NetworkTransactionFees.recommendedFees()
       .then(async fees => {
@@ -328,6 +325,7 @@ const SendDetails = () => {
    * @param data {String} Can be address or `bitcoin:xxxxxxx` uri scheme, or invalid garbage
    */
   const processAddressData = data => {
+    const currentIndex = scrollIndex.current;
     setIsLoading(true);
     if (!data.replace) {
       // user probably scanned PSBT and got an object instead of string..?
@@ -342,6 +340,8 @@ const SendDetails = () => {
         return [...addresses];
       });
       setIsLoading(false);
+      // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
+      setTimeout(() => scrollView.current.scrollToIndex({ index: currentIndex, animated: false }), 50);
       return;
     }
 
@@ -375,6 +375,8 @@ const SendDetails = () => {
       setMemo(options.label || options.message);
       setAmountUnit(BitcoinUnit.BTC);
       setPayjoinUrl(options.pj || '');
+      // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
+      setTimeout(() => scrollView.current.scrollToIndex({ index: currentIndex, animated: false }), 50);
     }
 
     setIsLoading(false);
@@ -499,7 +501,13 @@ const SendDetails = () => {
     };
     await saveToDisk();
 
-    const recipients = outputs.filter(({ address }) => address !== changeAddress);
+    let recipients = outputs.filter(({ address }) => address !== changeAddress);
+
+    if (recipients.length === 0) {
+      // special case. maybe the only destination in this transaction is our own change address..?
+      // (ez can be the case for single-address wallet when doing self-payment for consolidation)
+      recipients = outputs;
+    }
 
     navigation.navigate('Confirm', {
       fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
@@ -926,6 +934,7 @@ const SendDetails = () => {
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             {options.map(({ label, time, fee, rate, active }, index) => (
               <TouchableOpacity
+                accessibilityRole="button"
                 key={label}
                 onPress={() => {
                   setFeePrecalc(fp => ({ ...fp, current: fee }));
@@ -950,6 +959,7 @@ const SendDetails = () => {
             ))}
             <TouchableOpacity
               testID="feeCustom"
+              accessibilityRole="button"
               style={styles.feeModalCustom}
               onPress={async () => {
                 let error = loc.send.fee_satbyte;
@@ -1098,6 +1108,7 @@ const SendDetails = () => {
       <View style={styles.select}>
         {!isLoading && (
           <TouchableOpacity
+            accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
           >
@@ -1107,6 +1118,7 @@ const SendDetails = () => {
         )}
         <View style={styles.selectWrap}>
           <TouchableOpacity
+            accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
           >
@@ -1159,8 +1171,8 @@ const SendDetails = () => {
                 case BitcoinUnit.LOCAL_CURRENCY:
                   item.amountSats = currency.btcToSatoshi(currency.fiatToBTC(item.amount));
                   break;
-                default:
                 case BitcoinUnit.SATS:
+                default:
                   item.amountSats = parseInt(text);
                   break;
               }
@@ -1192,9 +1204,7 @@ const SendDetails = () => {
           launchedBy={name}
         />
         {addresses.length > 1 && (
-          <BlueText style={[styles.of, stylesHook.of]}>
-            {loc.formatString(loc._.of, { number: index + 1, total: addresses.length })}
-          </BlueText>
+          <Text style={[styles.of, stylesHook.of]}>{loc.formatString(loc._.of, { number: index + 1, total: addresses.length })}</Text>
         )}
       </View>
     );
@@ -1249,6 +1259,7 @@ const SendDetails = () => {
             </View>
             <TouchableOpacity
               testID="chooseFee"
+              accessibilityRole="button"
               onPress={() => setIsFeeSelectionModalVisible(true)}
               disabled={isLoading}
               style={styles.fee}
@@ -1426,6 +1437,7 @@ SendDetails.navigationOptions = navigationStyleTx({}, (options, { theme, navigat
   ...options,
   headerRight: () => (
     <TouchableOpacity
+      accessibilityRole="button"
       style={styles.advancedOptions}
       onPress={route.params.advancedOptionsMenuButtonAction}
       testID="advancedOptionsMenuButton"

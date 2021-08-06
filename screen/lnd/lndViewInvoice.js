@@ -1,5 +1,15 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet, I18nManager } from 'react-native';
+import {
+  View,
+  Text,
+  StatusBar,
+  ScrollView,
+  TouchableWithoutFeedback,
+  BackHandler,
+  TouchableOpacity,
+  StyleSheet,
+  I18nManager,
+} from 'react-native';
 import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
@@ -20,6 +30,7 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
+import ToolTipMenu from '../../components/TooltipMenu';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID, isModal } = useRoute().params;
@@ -32,6 +43,8 @@ const LNDViewInvoice = () => {
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState(false);
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const fetchInvoiceInterval = useRef();
+  const qrCode = useRef();
+  const toolTip = useRef();
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.background,
@@ -167,6 +180,19 @@ const LNDViewInvoice = () => {
     navigate('LNDViewAdditionalInvoiceInformation', { walletID });
   };
 
+  const showToolTipMenu = () => {
+    toolTip.current.showMenu();
+  };
+
+  const handleShareQRCode = () => {
+    qrCode.current.toDataURL(data => {
+      const shareImageBase64 = {
+        url: `data:image/png;base64,${data}`,
+      };
+      Share.open(shareImageBase64).catch(error => console.log(error));
+    });
+  };
+
   useEffect(() => {
     if (invoice.ispaid && invoiceStatusChanged) {
       ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
@@ -214,7 +240,7 @@ const LNDViewInvoice = () => {
             />
             <View style={styles.detailsRoot}>
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
-                <TouchableOpacity style={styles.detailsTouch} onPress={navigateToPreImageScreen}>
+                <TouchableOpacity accessibilityRole="button" style={styles.detailsTouch} onPress={navigateToPreImageScreen}>
                   <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
                   <Icon
                     name={I18nManager.isRTL ? 'angle-left' : 'angle-right'}
@@ -242,18 +268,32 @@ const LNDViewInvoice = () => {
       return (
         <ScrollView>
           <View style={[styles.activeRoot, stylesHook.root]}>
-            <View style={styles.activeQrcode}>
-              <QRCode
-                value={invoice.payment_request}
-                logo={require('../../img/qr-code.png')}
-                size={qrCodeSize}
-                logoSize={90}
-                color="#000000"
-                logoBackgroundColor={colors.brandingColor}
-                backgroundColor="#FFFFFF"
-              />
-            </View>
+            <TouchableWithoutFeedback onLongPress={showToolTipMenu}>
+              <View style={styles.activeQrcode}>
+                <ToolTipMenu
+                  ref={toolTip}
+                  anchorRef={qrCode}
+                  actions={[
+                    {
+                      id: 'shareQRCode',
+                      text: loc.receive.details_share,
+                      onPress: handleShareQRCode,
+                    },
+                  ]}
+                />
 
+                <QRCode
+                  value={invoice.payment_request}
+                  logo={require('../../img/qr-code.png')}
+                  size={qrCodeSize}
+                  logoSize={90}
+                  color="#000000"
+                  logoBackgroundColor={colors.brandingColor}
+                  backgroundColor="#FFFFFF"
+                  getRef={qrCode}
+                />
+              </View>
+            </TouchableWithoutFeedback>
             <BlueSpacing20 />
             <BlueText>
               {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}

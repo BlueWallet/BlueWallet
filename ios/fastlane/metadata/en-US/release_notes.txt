@@ -1,3 +1,57 @@
+v6.2.2
+======
+
+* ADD: UI for import electrum wallet with passphrase 
+* REF: better handling large transactions from electrum
+
+
+v6.1.9
+======
+
+* ADD: Support for URv2 QR codes
+* ADD: Offer additional file save destinations on Android
+* ADD: macOS Widgets
+* FIX: PSBT File save would fail on Android
+
+v6.1.8
+======
+FIX: Wallet carousel was not rending properly on large screens
+
+
+v6.1.7
+======
+
+* ADD: IRR currency
+* ADD: better accessibility for buttons
+* FIX: hardware wallet with BIP44/BIP49 wallet reports incorrect change address in PSBT
+* FIX: for slip39 wallets import bech32 even if no tx found
+* FIX: Scanning for a batch tx woud reset contentOffset
+* FIX: Re-order wallet bug
+* FIX: Typing 1 would turn into 10 due to default custom value
+* FIX: Ports from previous scan were not cleared
+* REF: Hierarchy navigator screen
+* Translate ar, ca, cs_CZ, de_DE, es, fa_IR, fr_FR, id, in, nl, pl
+
+v6.1.3
+======
+
+* FIX: File import icon was not visible 
+* FIX: Check Bech32 uppercase address 
+* ADD:  Add close to modals #2584 
+* FIX: Dont display Tor text in catalyst 
+* DEL: Remove tooltip as its not needed on multisig create screen. 
+* FIX: Applied xpub to wrong object  
+* FIX: cobo vault watch-only occasionally gets imported as wrong wallet type (closes #3152) 
+* FIX: widgets shows wrong price in RUB currency 
+* REF: smarter utxo selection (closes #3085) 
+
+v6.1.2
+======
+
+* ADD: Opt-out of analytics tracking in settings/privacy
+* FIX: Loading indicator for wallet details
+* FIX: Lightning invoice unit didn't reflect user change
+
 v6.1.1
 ======
 

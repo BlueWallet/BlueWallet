@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { MultisigHDWallet } from '../../class/';
-import { decodeUR } from 'bc-ur/dist';
+import { decodeUR, encodeUR } from '../../blue_modules/ur';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
 const bitcoin = require('bitcoinjs-lib');
 const Base43 = require('../../blue_modules/base43');
@@ -1790,6 +1790,23 @@ describe('multisig-cosigner', () => {
     assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
   });
 
+  it('can parse cobo URv2 account', () => {
+    let decoded = decodeUR([
+      'UR:CRYPTO-ACCOUNT/OEADCYADWMTNKIAOLYTAADMETAADDLOLAOWKAXHDCLAXHPDIHNWKMYCFHNROCARHSESKLDPDSWOTMWGTJNGWIYHYYNWSOLENTSUEMKTOTAVDAAHDCXBDHHBZSBURBSMKZOECOEHHJPHTSRVACMBGHEROMYCKHHNBHFHGNBGMNYAESPNDFHAHTAADEHOEADADAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYADWMTNKIAXAAAYCYLOWLDITOJTCNDTAY',
+    ]);
+    decoded = Buffer.from(decoded, 'hex').toString('ascii');
+
+    const cosigner = new MultisigCosigner(decoded);
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(
+      cosigner.getXpub(),
+      'Zpub756tPxxwHiYkYiT12G2WUD2cpAHyVWhjvKPbXoY5jDZSyo71yG5C14LCuwhycTTAzgTUcQfddR8FFTQ1bSWR6kzmNbMEaVzUrj4Lhxbonjo',
+    );
+    assert.strictEqual(cosigner.getPath(), "m/48'/0'/0'/2'");
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+    assert.strictEqual(cosigner.getFp(), '01EBDA7D');
+  });
+
   it('can parse plain Zpub', () => {
     const cosigner = new MultisigCosigner(Zpub1);
     assert.ok(cosigner.isValid());
@@ -1889,5 +1906,67 @@ describe('multisig-cosigner', () => {
 
       assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qtysquqsjqjfqvhd6l2h470hdgwhcahs4nq2ca49cyxftwjnjt9ssh8emel');
     }
+  });
+
+  it('can export to json', () => {
+    const result = MultisigCosigner.exportToJson(fp1cobo, Zpub1, "m/48'/0'/0'/2'");
+    assert.strictEqual(
+      result,
+      '{"xfp":"D37EAD88","xpub":"Zpub74ijpfhERJNjhCKXRspTdLJV5eoEmSRZdHqDvp9kVtdVEyiXk7pXxRbfZzQvsDFpfDHEHVtVpx4Dz9DGUWGn2Xk5zG5u45QTMsYS2vjohNQ","path":"m/48\'/0\'/0\'/2\'"}',
+    );
+
+    const cosigner = new MultisigCosigner(MultisigCosigner.exportToJson(fp1cobo, Zpub1, "m/48'/0'/0'/2'"));
+    assert.strictEqual(cosigner.getFp(), 'D37EAD88');
+    assert.strictEqual(
+      cosigner.getXpub(),
+      'Zpub74ijpfhERJNjhCKXRspTdLJV5eoEmSRZdHqDvp9kVtdVEyiXk7pXxRbfZzQvsDFpfDHEHVtVpx4Dz9DGUWGn2Xk5zG5u45QTMsYS2vjohNQ',
+    );
+    assert.strictEqual(cosigner.getPath(), "m/48'/0'/0'/2'");
+    assert.strictEqual(cosigner.isValid(), true);
+    assert.strictEqual(cosigner.isNativeSegwit(), true);
+    assert.strictEqual(cosigner.isWrappedSegwit(), false);
+    assert.strictEqual(cosigner.isLegacy(), false);
+
+    // using bad xpub just to check chaincode & keyhex
+    const c2 = new MultisigCosigner(
+      MultisigCosigner.exportToJson(
+        fp1cobo,
+        'zpub6qT7amLcp2exr4mU4AhXZMjD9CFkopECVhUxc9LHW8pNsJG2B9ogs5sFbGZpxEeT5TBjLmc7EFYgZA9EeWEM1xkJMFLefzZc8eigRFhKB8Q',
+        "m/48'/0'/0'/2'",
+      ),
+    );
+    assert.strictEqual(c2.getChainCodeHex(), '906730ab8a03fb4baa32a912134f2c5bfe6ae70e0264e4e9fe4b0abe3a560692');
+    assert.strictEqual(c2.getKeyHex(), '0395b643f45bd89fede6f4f6416b288e73005419b48cdcd88465913bd31b4be5ea');
+    assert.strictEqual(c2.getParentFingerprintHex(), '125688b1');
+    assert.strictEqual(c2.getDepthNumber(), 3);
+  });
+
+  it('can export cosigner to URv2', () => {
+    let result = encodeUR(MultisigCosigner.exportToJson(fp1cobo, Zpub1, "m/48'/0'/0'/2'"));
+    assert.deepStrictEqual(result, [
+      'ur:crypto-account/oeadcytekbpmloaolytaadmetaaddloxaxhdclaofejnolgudllagdgodyweehzsmeyasnswrpdalnwzfenbmewlrtplsklbjkvdloweaahdcxltjzjpctayfsimuogtpypffrnlisflswwzntbecabtbdwdbstojnfrahdamnpfcyamtaaddyotadlocsdyykaeykaeykaoykaocytekbpmloaxaaaycyghykhpcmkgnstevs',
+    ]);
+
+    result = encodeUR(
+      MultisigCosigner.exportToJson(
+        '42A2460E',
+        'Ypub6m2WhkZvujztfZVYWEB4Hfcq3mKfeZYMfZj2wfvgNmTDjcCncU9ua6VSxXno7FeF8P2kqp1S7N8UoYapR8YKnMLNq8bEDDd2PU6q7QCHoEb',
+        "m/48'/0'/0'/1'",
+      ),
+    );
+    assert.deepStrictEqual(result, [
+      'ur:crypto-account/oeadcyfwoefgbaaolytaadmhtaadmetaaddloxaxhdclaxsblplucfptgtwywzcmnshtotqzleihrnndtoeodrfdpfoyeyqzsbenrplbhtdymuaahdcxlgbdsrcxatcmdpuokpwzvymttatphtlftplsvlgmeeflpdtanlromhfgvekbbznyamtaaddyotadlocsdyykaeykaeykadykaocyfwoefgbaaxaaaycywsutbeuyyndacaeh',
+    ]);
+
+    result = encodeUR(
+      MultisigCosigner.exportToJson(
+        'ED5C5B8A',
+        'xpub69dgpFkP9mFYhaAWt6svmwd1BYsuGiyyNs8sJW1GwCn8GSK69mrCmNG6ZLcrPGvBSiJzfjXD66ntgJxdqQbhMk4j273VQYHEMc5knoqFGvt',
+        "m/45'",
+      ),
+    );
+    assert.deepStrictEqual(result, [
+      'ur:crypto-account/oeadcywehhhpleaolytaadmhtaaddloxaxhdclaoamutctbahthnislelbwemnkeoefnhddienfetbpygrpaqdkemyrywyldaspyjkdtaahdcxhyneskwdhlehlfbwrpdnjlgsgakplkjtknvyttsgolnnlbwlcagoolcpfgsglkinamtaaddyotadlfcsdpykaocywehhhpleaxadaycywehhhplekpdwveih',
+    ]);
   });
 });

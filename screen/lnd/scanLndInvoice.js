@@ -247,13 +247,13 @@ const ScanLndInvoice = () => {
     return (
       <View style={styles.walletSelectRoot}>
         {!isLoading && (
-          <TouchableOpacity style={styles.walletSelectTouch} onPress={naviageToSelectWallet}>
+          <TouchableOpacity accessibilityRole="button" style={styles.walletSelectTouch} onPress={naviageToSelectWallet}>
             <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
             <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.walletWrap}>
-          <TouchableOpacity style={styles.walletWrapTouch} onPress={naviageToSelectWallet}>
+          <TouchableOpacity accessibilityRole="button" style={styles.walletWrapTouch} onPress={naviageToSelectWallet}>
             <Text style={[styles.walletWrapLabel, stylesHook.walletWrapLabel]}>{walletLabel}</Text>
             <Text style={[styles.walletWrapBalance, stylesHook.walletWrapBalance]}>
               {formatBalanceWithoutSuffix(wallet.getBalance(), BitcoinUnit.SATS, false)}
@@ -288,7 +288,7 @@ const ScanLndInvoice = () => {
     <SafeBlueArea style={stylesHook.root}>
       <StatusBar barStyle="light-content" />
       <View style={[styles.root, stylesHook.root]}>
-        <ScrollView contentContainerStyle={styles.scroll}>
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <KeyboardAvoidingView enabled behavior="position" keyboardVerticalOffset={20}>
             <View style={styles.scrollMargin}>
               <AmountInput
@@ -298,7 +298,7 @@ const ScanLndInvoice = () => {
                 onAmountUnitChange={setUnit}
                 onChangeText={setAmount}
                 disabled={!decoded || isLoading || decoded.num_satoshis > 0}
-                unit={BitcoinUnit.SATS}
+                unit={unit}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
             </View>

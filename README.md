@@ -12,7 +12,7 @@ Built with React Native and Electrum.
 [![Appstore](https://bluewallet.io/uploads/app-store-badge-blue.svg)](https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8)
 [![Playstore](https://bluewallet.io/uploads/play-store-badge-blue.svg)](https://play.google.com/store/apps/details?id=io.bluewallet.bluewallet)
 
-Website: [bluewallet.io](http://bluewallet.io)
+Website: [bluewallet.io](https://bluewallet.io)
 
 Community: [telegram group](https://t.me/bluewallet)
 

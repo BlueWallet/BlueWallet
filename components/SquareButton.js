@@ -29,6 +29,7 @@ export const SquareButton = forwardRef((props, ref) => {
       }}
       {...props}
       ref={ref}
+      accessibilityRole="button"
     >
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
         {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}

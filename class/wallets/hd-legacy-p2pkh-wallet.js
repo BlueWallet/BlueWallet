@@ -162,4 +162,9 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
 
     return psbt;
   }
+
+  _getDerivationPathByAddress(address, BIP = 44) {
+    // only changing defaults for function arguments
+    return super._getDerivationPathByAddress(address, BIP);
+  }
 }

@@ -1,20 +1,20 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StatusBar, Linking } from 'react-native';
+import { StatusBar } from 'react-native';
 import { WebView } from 'react-native-webview';
-import InAppBrowser from 'react-native-inappbrowser-reborn';
-
 import { BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import * as NavigationService from '../../NavigationService';
+
 const currency = require('../../blue_modules/currency');
 
 export default class BuyBitcoin extends Component {
   static contextType = BlueStorageContext;
-  constructor(props) {
+  constructor(props, context) {
     super(props);
-    const wallet = props.route.params.wallet;
+    const wallet = context.wallets.find(w => w.getID() === props.route.params.walletID);
     if (!wallet) console.warn('wallet was not passed to buyBitcoin');
 
     this.state = {
@@ -81,7 +81,10 @@ export default class BuyBitcoin extends Component {
     return (
       <SafeBlueArea>
         <StatusBar barStyle="default" />
+
         <WebView
+          mediaPlaybackRequiresUserAction={false}
+          enableApplePay
           source={{
             uri: this.state.uri,
           }}
@@ -95,7 +98,7 @@ BuyBitcoin.propTypes = {
   route: PropTypes.shape({
     name: PropTypes.string,
     params: PropTypes.shape({
-      wallet: PropTypes.object.isRequired,
+      walletID: PropTypes.string.isRequired,
       safelloStateToken: PropTypes.string,
     }),
   }),
@@ -108,13 +111,7 @@ BuyBitcoin.navigationOptions = navigationStyle({
 });
 
 BuyBitcoin.navigate = async wallet => {
-  const uri = await BuyBitcoin.generateURL(wallet);
-  InAppBrowser.isAvailable()
-    .then(_value => {
-      InAppBrowser.open(uri, { dismissButtonStyle: 'done', modalEnabled: true, animated: true });
-    })
-    .catch(error => {
-      console.log(error);
-      Linking.openURL(uri);
-    });
+  NavigationService.navigate('BuyBitcoin', {
+    walletID: wallet.getID(),
+  });
 };
