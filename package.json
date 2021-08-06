@@ -129,7 +129,7 @@
     "ecurve": "1.0.6",
     "electrum-client": "https://github.com/BlueWallet/rn-electrum-client#99ebcc649d91a8dc39bea7964b02dd9ead464aa4",
     "electrum-mnemonic": "2.0.0",
-    "events": "1.1.1",
+    "events": "3.3.0",
     "frisbee": "3.1.4",
     "junderw-crc32c": "1.2.0",
     "lottie-ios": "3.1.9",
