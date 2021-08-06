@@ -144,8 +144,13 @@ const setDateTimeLocale = async () => {
         Only run this conditional if its outside a testing environment.
     */
     if (process.env.JEST_WORKER_ID === undefined) {
-      I18nManager.allowRTL(language.isRTL);
-      I18nManager.forceRTL(language.isRTL);
+      if (language?.isRTL) {
+        I18nManager.allowRTL(true);
+        I18nManager.forceRTL(true);
+      } else {
+        I18nManager.allowRTL(false);
+        I18nManager.forceRTL(false);
+      }
     }
   } else {
     dayjs.locale('en');
@@ -163,8 +168,8 @@ const setLanguageLocale = async () => {
     await strings.saveLanguage(lang);
     await strings.setLanguage(lang);
     if (process.env.JEST_WORKER_ID === undefined) {
-      I18nManager.allowRTL(lang.isRTL);
-      I18nManager.forceRTL(lang.isRTL);
+      I18nManager.allowRTL(lang.isRTL ?? false);
+      I18nManager.forceRTL(lang.isRTL ?? false);
     }
     await setDateTimeLocale();
   } else {
@@ -173,8 +178,8 @@ const setLanguageLocale = async () => {
       await strings.saveLanguage(locales[0].languageCode);
       await strings.setLanguage(locales[0].languageCode);
       if (process.env.JEST_WORKER_ID === undefined) {
-        I18nManager.allowRTL(locales[0].isRTL);
-        I18nManager.forceRTL(locales[0].isRTL);
+        I18nManager.allowRTL(locales[0].isRTL ?? false);
+        I18nManager.forceRTL(locales[0].isRTL ?? false);
       }
     } else {
       await strings.saveLanguage('en');
