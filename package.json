@@ -123,7 +123,7 @@
     "buffer": "6.0.3",
     "buffer-reverse": "1.0.1",
     "coinselect": "3.1.12",
-    "crypto-js": "4.0.0",
+    "crypto-js": "4.1.1",
     "dayjs": "1.10.6",
     "detox": "18.19.0",
     "ecurve": "1.0.6",
