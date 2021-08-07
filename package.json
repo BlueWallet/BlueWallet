@@ -179,7 +179,7 @@
     "react-native-share": "7.0.0",
     "react-native-sortable-list": "https://github.com/BlueWallet/react-native-sortable-list.git#46e39a30ae0c4328e7c06c30b72b1af0b69e1aeb",
     "react-native-svg": "12.1.1",
-    "react-native-tcp-socket": "3.7.1",
+    "react-native-tcp-socket": "5.2.1",
     "react-native-tooltip": "https://github.com/BlueWallet/react-native-tooltip#d369e7ece09e4dec73873f1cfeac83e9d35294a6",
     "react-native-tor": "0.1.7",
     "react-native-vector-icons": "7.1.0",
