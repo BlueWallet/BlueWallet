@@ -2,10 +2,8 @@ const https = require('https');
 
 const auth = 'Basic ' + Buffer.from(process.env.GITHUB).toString('base64');
 
-const branch = require('child_process')
-  .execSync('git ls-remote --heads origin | grep $(git rev-parse HEAD) | cut -d / -f 3')
-  .toString()
-  .trim();
+const gitCommand = "git log -n 1 --pretty=%d HEAD | awk '{print $2}' | sed 's/origin\\///' | sed 's/)//'";
+const branch = require('child_process').execSync(gitCommand).toString().trim();
 
 if (branch === 'master') process.exit();
 
@@ -27,7 +25,7 @@ const req = https.request(
     resp.on('end', () => {
       try {
         const prs = JSON.parse(data);
-        for (let pr of prs) {
+        for (const pr of prs) {
           if (branch === pr.head.ref) {
             console.log(pr.number);
           }
