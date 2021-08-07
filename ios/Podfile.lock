@@ -365,7 +365,7 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - rn-ldk (0.2.12):
+  - rn-ldk (0.2.11):
     - React-Core
   - RNCAsyncStorage (1.15.5):
     - React-Core
@@ -778,7 +778,7 @@ SPEC CHECKSUMS:
   ReactCommon: 149906e01aa51142707a10665185db879898e966
   RealmJS: 550ecbe8a0d55bd0e2abb79a63313d4da08bcf25
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  rn-ldk: 42786057fd14c70b2a7e1e0e15f5d2f566a969f8
+  rn-ldk: 50213163035badcd8c23e068427d922e0141d4f4
   RNCAsyncStorage: 8324611026e8dc3706f829953aa6e3899f581589
   RNCClipboard: 5df122bc31f95f2b37de9bbadc1dbef5a79cb1b0
   RNCMaskedView: f127cd9652acfa31b91dcff613e07ba18b774db6
