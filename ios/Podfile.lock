@@ -281,7 +281,7 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (3.8.1):
+  - react-native-image-picker (4.0.6):
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
@@ -432,7 +432,7 @@ PODS:
   - RNSentry (2.6.0):
     - React-Core
     - Sentry (= 7.0.0)
-  - RNShare (6.5.0):
+  - RNShare (7.0.0):
     - React-Core
   - RNSVG (12.1.1):
     - React
@@ -752,7 +752,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
-  react-native-image-picker: 5a7dd93d4f9dd0d910da5dde3707fd96f70d03b3
+  react-native-image-picker: 7bda3c7297c3ea16f4f504ad6174aa7e548192ef
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
   react-native-safe-area-context: 8465df05de8106c584b117f0e027e17174d6e02e
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
@@ -792,7 +792,7 @@ SPEC CHECKSUMS:
   RNScreens: 01ab149b5dd5c27f5ff26741b1d2bdf2cee1af35
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: a2b02b326ae4fce91ce7c57d3f7dcf8df4f72269
-  RNShare: 047d42214f875d731bde73a2b67418638af85ad9
+  RNShare: 00e7409201e3cab13e0febc41fd4465a83ae8225
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
   RNWatch: e4c5d19506c94506860032fb68aedd5991beb985
