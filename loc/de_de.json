@@ -227,7 +227,7 @@
     "no_tx_signing_in_progress": "Keine Transaktionsignierung in Arbeit",
     "psbt_tx_open": "Öffne signierte Transaktion.",
     "psbt_tx_scan": "Signierte Transaktion scannen",
-    "qr_error_no_qrcode": "Das gewählte Foto enthält keinen QR code",
+    "qr_error_no_qrcode": "Der QR-Code konnte nicht ausgelesen werden. Achte darauf, dass er ohne zusätzliche Inhalte wie Text, Grafiken oder Bilder vorliegt.",
     "qr_error_no_wallet": "Die ausgewählte Datei enthält keine Wallet, die importiert werden kann.",
     "success_done": "Fertig",
     "txSaved": "Die Transaktionsdatei ({filePath}) wurde im Download-Ordner gespeichert.",

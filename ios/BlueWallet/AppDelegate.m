@@ -55,6 +55,7 @@ static void InitializeFlipper(UIApplication *application) {
   } else {
     rootView.backgroundColor = [UIColor clearColor];
   }
+  [[RCTI18nUtil sharedInstance] allowRTL:YES];
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   UIViewController *rootViewController = [UIViewController new];
   rootViewController.view = rootView;
@@ -66,7 +67,6 @@ static void InitializeFlipper(UIApplication *application) {
   // Define UNUserNotificationCenter
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
-  [[RCTI18nUtil sharedInstance] allowRTL:YES];
   return YES;
 }
 
