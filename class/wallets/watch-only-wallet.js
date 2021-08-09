@@ -5,6 +5,7 @@ import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 
 const bitcoin = require('bitcoinjs-lib');
 const HDNode = require('bip32');
+import { DOICHAIN } from '../../blue_modules/network.js';
 
 export class WatchOnlyWallet extends LegacyWallet {
   static type = 'watchOnly';
@@ -52,7 +53,7 @@ export class WatchOnlyWallet extends LegacyWallet {
     if (this.secret.startsWith('xpub') || this.secret.startsWith('ypub') || this.secret.startsWith('zpub')) return this.isXpubValid();
 
     try {
-      bitcoin.address.toOutputScript(this.getAddress());
+      bitcoin.address.toOutputScript(this.getAddress(), DOICHAIN);
       return true;
     } catch (_) {
       return false;

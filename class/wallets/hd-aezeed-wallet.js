@@ -1,5 +1,6 @@
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import b58 from 'bs58check';
+import { DOICHAIN } from '../../blue_modules/network.js';
 const bitcoin = require('bitcoinjs-lib');
 const { CipherSeed } = require('aezeed');
 
@@ -101,6 +102,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
 
     const address = bitcoin.payments.p2wpkh({
       pubkey: this._node1.derive(index).publicKey,
+      network: DOICHAIN,
     }).address;
 
     return (this.internal_addresses_cache[index] = address);
@@ -114,6 +116,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
 
     const address = bitcoin.payments.p2wpkh({
       pubkey: this._node0.derive(index).publicKey,
+      network: DOICHAIN,
     }).address;
 
     return (this.external_addresses_cache[index] = address);
@@ -121,7 +124,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
 
   _getWIFByIndex(internal, index) {
     if (!this.secret) return false;
-    const root = bitcoin.bip32.fromSeed(this._getEntropyCached());
+    const root = bitcoin.bip32.fromSeed(this._getEntropyCached(), DOICHAIN);
     const path = `m/84'/0'/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
@@ -149,7 +152,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
   }
 
   getIdentityPubkey() {
-    const root = bitcoin.bip32.fromSeed(this._getEntropyCached());
+    const root = bitcoin.bip32.fromSeed(this._getEntropyCached(), DOICHAIN);
     const node = root.derivePath("m/1017'/0'/6'/0/0");
 
     return node.publicKey.toString('hex');

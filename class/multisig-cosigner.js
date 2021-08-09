@@ -122,7 +122,7 @@ export class MultisigCosigner {
 
     try {
       xpub = MultisigCosigner._zpubToXpub(key);
-      HDNode.fromBase58(xpub);
+      HDNode.fromBase58(xpub, DOICHAIN);
       return true;
     } catch (_) {}
 

@@ -1,4 +1,5 @@
 import { LegacyWallet } from './legacy-wallet';
+import { DOICHAIN } from '../../blue_modules/network.js';
 const bitcoin = require('bitcoinjs-lib');
 
 export class SegwitBech32Wallet extends LegacyWallet {
@@ -10,13 +11,14 @@ export class SegwitBech32Wallet extends LegacyWallet {
     if (this._address) return this._address;
     let address;
     try {
-      const keyPair = bitcoin.ECPair.fromWIF(this.secret);
+      const keyPair = bitcoin.ECPair.fromWIF(this.secret, DOICHAIN);
       if (!keyPair.compressed) {
         console.warn('only compressed public keys are good for segwit');
         return false;
       }
       address = bitcoin.payments.p2wpkh({
         pubkey: keyPair.publicKey,
+        network: DOICHAIN,
       }).address;
     } catch (err) {
       return false;
@@ -31,7 +33,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
       const pubKey = Buffer.from(witness, 'hex');
       return bitcoin.payments.p2wpkh({
         pubkey: pubKey,
-        network: bitcoin.networks.bitcoin,
+        network: DOICHAIN,
       }).address;
     } catch (_) {
       return false;
@@ -49,7 +51,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
       const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
       return bitcoin.payments.p2wpkh({
         output: scriptPubKey2,
-        network: bitcoin.networks.bitcoin,
+        network: DOICHAIN,
       }).address;
     } catch (_) {
       return false;
@@ -71,7 +73,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
     if (targets.length === 0) throw new Error('No destination provided');
     const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
     sequence = sequence || 0xffffffff; // disable RBF by default
-    const psbt = new bitcoin.Psbt();
+    const psbt = new bitcoin.Psbt({ network: DOICHAIN });
     let c = 0;
     const values = {};
     let keyPair;
@@ -79,13 +81,16 @@ export class SegwitBech32Wallet extends LegacyWallet {
     inputs.forEach(input => {
       if (!skipSigning) {
         // skiping signing related stuff
-        keyPair = bitcoin.ECPair.fromWIF(this.secret); // secret is WIF
+        keyPair = bitcoin.ECPair.fromWIF(this.secret, DOICHAIN); // secret is WIF
       }
       values[c] = input.value;
       c++;
 
       const pubkey = keyPair.publicKey;
-      const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
+      const p2wpkh = bitcoin.payments.p2wpkh({
+        pubkey: pubkey,
+        network: DOICHAIN,
+      });
 
       psbt.addInput({
         hash: input.txid,

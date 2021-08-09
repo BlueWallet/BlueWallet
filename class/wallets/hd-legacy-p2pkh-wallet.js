@@ -1,4 +1,5 @@
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+import { DOICHAIN } from '../../blue_modules/network.js';
 const bitcoin = require('bitcoinjs-lib');
 const HDNode = require('bip32');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');

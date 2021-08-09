@@ -1,6 +1,7 @@
 /* global alert */
 import * as bitcoin from 'bitcoinjs-lib';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { DOICHAIN } from '../blue_modules/network.js';
 
 const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
@@ -20,9 +21,12 @@ export default class PayjoinTransaction {
     unfinalized.data.inputs.forEach((input, index) => {
       delete input.finalScriptWitness;
 
-      const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
+      const address = bitcoin.address.fromOutputScript(
+        input.witnessUtxo.script,
+        DOICHAIN
+      );
       const wif = this._wallet._getWifForAddress(address);
-      const keyPair = bitcoin.ECPair.fromWIF(wif);
+      const keyPair = bitcoin.ECPair.fromWIF(wif, DOICHAIN);
 
       unfinalized.signInput(index, keyPair);
     });
@@ -42,10 +46,13 @@ export default class PayjoinTransaction {
   async signPsbt(payjoinPsbt) {
     // Do this without relying on private methods
     payjoinPsbt.data.inputs.forEach((input, index) => {
-      const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
+      const address = bitcoin.address.fromOutputScript(
+        input.witnessUtxo.script,
+        DOICHAIN
+      );
       try {
         const wif = this._wallet._getWifForAddress(address);
-        const keyPair = bitcoin.ECPair.fromWIF(wif);
+        const keyPair = bitcoin.ECPair.fromWIF(wif, DOICHAIN);
         payjoinPsbt.signInput(index, keyPair).finalizeInput(index);
       } catch (e) {}
     });
@@ -78,7 +85,7 @@ export default class PayjoinTransaction {
   }
 
   async isOwnOutputScript(outputScript) {
-    const address = bitcoin.address.fromOutputScript(outputScript);
+    const address = bitcoin.address.fromOutputScript(outputScript, DOICHAIN);
 
     return this._wallet.weOwnAddress(address);
   }

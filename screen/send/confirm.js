@@ -17,6 +17,7 @@ import Notifications from '../../blue_modules/notifications';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Psbt } from 'bitcoinjs-lib';
 import { isTorCapable } from '../../blue_modules/environment';
+import { DOICHAIN } from '../../blue_modules/network.js';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
@@ -58,7 +59,7 @@ export default class Confirm extends Component {
    * @return {string}
    */
   getPaymentScript() {
-    return bitcoin.address.toOutputScript(this.state.recipients[0].address);
+    return bitcoin.address.toOutputScript(this.state.recipients[0].address, DOICHAIN);
   }
 
   send() {

@@ -4,6 +4,7 @@ import b58 from 'bs58check';
 
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
+import { DOICHAIN } from '../../blue_modules/network.js';
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const HDNode = require('bip32');
@@ -87,7 +88,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   _getWIFByIndex(internal, index) {
     if (!this.secret) return false;
     const seed = this._getSeed();
-    const root = HDNode.fromSeed(seed);
+    const root = HDNode.fromSeed(seed, DOICHAIN);
     const path = `m/84'/0'/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
@@ -106,13 +107,13 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     if (node === 0 && !this._node0) {
       const xpub = this.constructor._zpubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = HDNode.fromBase58(xpub, DOICHAIN);
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
       const xpub = this.constructor._zpubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = HDNode.fromBase58(xpub, DOICHAIN);
       this._node1 = hdNode.derive(node);
     }
 
@@ -139,13 +140,13 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     if (node === 0 && !this._node0) {
       const xpub = this.constructor._zpubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = HDNode.fromBase58(xpub, DOICHAIN);
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
       const xpub = this.constructor._zpubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = HDNode.fromBase58(xpub, DOICHAIN);
       this._node1 = hdNode.derive(node);
     }
 
@@ -178,7 +179,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
     // first, getting xpub
     const seed = this._getSeed();
-    const root = HDNode.fromSeed(seed);
+    const root = HDNode.fromSeed(seed, DOICHAIN);
 
     const path = "m/84'/0'/0'";
     const child = root.derivePath(path).neutered();
@@ -856,7 +857,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
 
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
-    let psbt = new bitcoin.Psbt();
+    let psbt = new bitcoin.Psbt({ network: DOICHAIN });
     let c = 0;
     const keypairs = {};
     const values = {};
@@ -865,7 +866,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       let keyPair;
       if (!skipSigning) {
         // skiping signing related stuff
-        keyPair = bitcoin.ECPair.fromWIF(this._getWifForAddress(input.address));
+        keyPair = bitcoin.ECPair.fromWIF(this._getWifForAddress(input.address), DOICHAIN);
         keypairs[c] = keyPair;
       }
       values[c] = input.value;
@@ -949,7 +950,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   _addPsbtInput(psbt, input, sequence, masterFingerprintBuffer) {
     const pubkey = this._getPubkeyByAddress(input.address);
     const path = this._getDerivationPathByAddress(input.address);
-    const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
+    const p2wpkh = bitcoin.payments.p2wpkh({ pubkey: pubkey, network: DOICHAIN });
 
     psbt.addInput({
       hash: input.txId,
@@ -1004,12 +1005,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   static _nodeToBech32SegwitAddress(hdNode) {
     return bitcoin.payments.p2wpkh({
       pubkey: hdNode.publicKey,
+      network: DOICHAIN,
     }).address;
   }
 
   static _nodeToLegacyAddress(hdNode) {
     return bitcoin.payments.p2pkh({
       pubkey: hdNode.publicKey,
+      network: DOICHAIN,
     }).address;
   }
 
@@ -1078,7 +1081,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    */
   cosignPsbt(psbt) {
     const seed = this._getSeed();
-    const hdRoot = HDNode.fromSeed(seed);
+    const hdRoot = HDNode.fromSeed(seed, DOICHAIN);
 
     for (let cc = 0; cc < psbt.inputCount; cc++) {
       try {
@@ -1091,7 +1094,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           const internal = +splt[splt.length - 2];
           const index = +splt[splt.length - 1];
           const wif = this._getWIFByIndex(internal, index);
-          const keyPair = bitcoin.ECPair.fromWIF(wif);
+          const keyPair = bitcoin.ECPair.fromWIF(wif, DOICHAIN);
           try {
             psbt.signInput(cc, keyPair);
           } catch (e) {} // protects agains duplicate cosignings or if this output can't be signed with current wallet

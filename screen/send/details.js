@@ -40,6 +40,7 @@ import AmountInput from '../../components/AmountInput';
 import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { DOICHAIN } from '../../blue_modules/network.js';
 const currency = require('../../blue_modules/currency');
 const prompt = require('../../blue_modules/prompt');
 const fs = require('../../blue_modules/fs');
@@ -242,7 +243,7 @@ const SendDetails = () => {
       // replace wrong addresses with dump
       targets = targets.map(t => {
         try {
-          bitcoin.address.toOutputScript(t.address);
+          bitcoin.address.toOutputScript(t.address, DOICHAIN);
           return t;
         } catch (e) {
           return { ...t, address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV' };
@@ -415,7 +416,7 @@ const SendDetails = () => {
 
       if (!error) {
         try {
-          bitcoin.address.toOutputScript(transaction.address);
+          bitcoin.address.toOutputScript(transaction.address, DOICHAIN);
         } catch (err) {
           console.log('validation error');
           console.log(err);
@@ -561,7 +562,7 @@ const SendDetails = () => {
 
       // we construct PSBT object and pass to next screen
       // so user can do smth with it:
-      const psbt = bitcoin.Psbt.fromBase64(ret.data);
+      const psbt = bitcoin.Psbt.fromBase64(ret.data, DOICHAIN);
       navigation.navigate('PsbtWithHardwareWallet', {
         memo,
         fromWallet: wallet,
@@ -597,7 +598,7 @@ const SendDetails = () => {
         // we assume that transaction is already signed, so all we have to do is get txhex and pass it to next screen
         // so user can broadcast:
         const file = await RNFS.readFile(res.uri, 'ascii');
-        const psbt = bitcoin.Psbt.fromBase64(file);
+        const psbt = bitcoin.Psbt.fromBase64(file, DOICHAIN);
         const txhex = psbt.extractTransaction().toHex();
         navigation.navigate('PsbtWithHardwareWallet', { memo, fromWallet: wallet, txhex });
         setIsLoading(false);
@@ -609,7 +610,7 @@ const SendDetails = () => {
         // looks like transaction is UNsigned, so we construct PSBT object and pass to next screen
         // so user can do smth with it:
         const file = await RNFS.readFile(res.uri, 'ascii');
-        const psbt = bitcoin.Psbt.fromBase64(file);
+        const psbt = bitcoin.Psbt.fromBase64(file, DOICHAIN);
         navigation.navigate('PsbtWithHardwareWallet', { memo, fromWallet: wallet, psbt });
         setIsLoading(false);
         setOptionsVisible(false);
@@ -658,7 +659,7 @@ const SendDetails = () => {
     try {
       const base64 = base64arg || (await fs.openSignedTransaction());
       if (!base64) return;
-      const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
+      const psbt = bitcoin.Psbt.fromBase64(base64, DOICHAIN); // if it doesnt throw - all good, its valid
 
       if (wallet.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
         hideOptions();
@@ -752,7 +753,7 @@ const SendDetails = () => {
     let tx;
     let psbt;
     try {
-      psbt = bitcoin.Psbt.fromBase64(scannedData);
+      psbt = bitcoin.Psbt.fromBase64(scannedData, DOICHAIN);
       tx = wallet.cosignPsbt(psbt).tx;
     } catch (e) {
       Alert.alert(loc.errors.error, e.message);

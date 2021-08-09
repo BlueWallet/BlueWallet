@@ -3,6 +3,7 @@ import bitcoinMessage from 'bitcoinjs-message';
 import { randomBytes } from '../rng';
 import { AbstractWallet } from './abstract-wallet';
 import { HDSegwitBech32Wallet } from '..';
+import { DOICHAIN } from '../../blue_modules/network.js';
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const coinSelect = require('coinselect');
@@ -46,7 +47,10 @@ export class LegacyWallet extends AbstractWallet {
 
   async generate() {
     const buf = await randomBytes(32);
-    this.secret = bitcoin.ECPair.makeRandom({ rng: () => buf }).toWIF();
+    this.secret = bitcoin.ECPair.makeRandom({ 
+      rng: () => buf, 
+      network: DOICHAIN,
+    }).toWIF();
   }
 
   async generateFromEntropy(user) {
@@ -72,9 +76,10 @@ export class LegacyWallet extends AbstractWallet {
     if (this._address) return this._address;
     let address;
     try {
-      const keyPair = bitcoin.ECPair.fromWIF(this.secret);
+      const keyPair = bitcoin.ECPair.fromWIF(this.secret, DOICHAIN);
       address = bitcoin.payments.p2pkh({
         pubkey: keyPair.publicKey,
+        network: DOICHAIN,
       }).address;
     } catch (err) {
       return false;
@@ -368,7 +373,7 @@ export class LegacyWallet extends AbstractWallet {
     if (targets.length === 0) throw new Error('No destination provided');
     const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
     sequence = sequence || 0xffffffff; // disable RBF by default
-    const psbt = new bitcoin.Psbt();
+    const psbt = new bitcoin.Psbt({ network: DOICHAIN });
     let c = 0;
     const values = {};
     let keyPair;
@@ -376,7 +381,7 @@ export class LegacyWallet extends AbstractWallet {
     inputs.forEach(input => {
       if (!skipSigning) {
         // skiping signing related stuff
-        keyPair = bitcoin.ECPair.fromWIF(this.secret); // secret is WIF
+        keyPair = bitcoin.ECPair.fromWIF(this.secret, DOICHAIN); // secret is WIF
       }
       values[c] = input.value;
       c++;
@@ -439,7 +444,7 @@ export class LegacyWallet extends AbstractWallet {
    */
   isAddressValid(address) {
     try {
-      bitcoin.address.toOutputScript(address);
+      bitcoin.address.toOutputScript(address, DOICHAIN);
       return true;
     } catch (e) {
       return false;
@@ -457,7 +462,7 @@ export class LegacyWallet extends AbstractWallet {
       const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
       return bitcoin.payments.p2pkh({
         output: scriptPubKey2,
-        network: bitcoin.networks.bitcoin,
+        network:  DOICHAIN,
       }).address;
     } catch (_) {
       return false;

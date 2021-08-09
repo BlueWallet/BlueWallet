@@ -1,5 +1,6 @@
 import b58 from 'bs58check';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+import { DOICHAIN } from '../../blue_modules/network.js';
 const bitcoin = require('bitcoinjs-lib');
 const HDNode = require('bip32');
 
@@ -48,7 +49,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   _getWIFByIndex(internal, index) {
     if (!this.secret) return false;
     const seed = this._getSeed();
-    const root = bitcoin.bip32.fromSeed(seed);
+    const root = bitcoin.bip32.fromSeed(seed, DOICHAIN);
     const path = `m/49'/0'/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
@@ -61,7 +62,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
 
     if (!this._node0) {
       const xpub = this.constructor._ypubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = HDNode.fromBase58(xpub, DOICHAIN);
       this._node0 = hdNode.derive(0);
     }
     const address = this.constructor._nodeToP2shSegwitAddress(this._node0.derive(index));
@@ -75,7 +76,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
 
     if (!this._node1) {
       const xpub = this.constructor._ypubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = HDNode.fromBase58(xpub, DOICHAIN);
       this._node1 = hdNode.derive(1);
     }
     const address = this.constructor._nodeToP2shSegwitAddress(this._node1.derive(index));
@@ -95,7 +96,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     }
     // first, getting xpub
     const seed = this._getSeed();
-    const root = HDNode.fromSeed(seed);
+    const root = HDNode.fromSeed(seed, DOICHAIN);
 
     const path = "m/49'/0'/0'";
     const child = root.derivePath(path).neutered();
@@ -113,7 +114,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   _addPsbtInput(psbt, input, sequence, masterFingerprintBuffer) {
     const pubkey = this._getPubkeyByAddress(input.address);
     const path = this._getDerivationPathByAddress(input.address, 49);
-    const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
+    const p2wpkh = bitcoin.payments.p2wpkh({ pubkey, DOICHAIN });
     const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh });
 
     psbt.addInput({
@@ -144,7 +145,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
    */
   static _nodeToP2shSegwitAddress(hdNode) {
     const { address } = bitcoin.payments.p2sh({
-      redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey }),
+      redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey, network: DOICHAIN }),
     });
     return address;
   }

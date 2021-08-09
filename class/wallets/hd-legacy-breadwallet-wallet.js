@@ -2,6 +2,7 @@ import * as bip32 from 'bip32';
 import * as bitcoinjs from 'bitcoinjs-lib';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+import { DOICHAIN } from '../../blue_modules/network.js';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 /**
@@ -27,7 +28,7 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
       return this._xpub; // cache hit
     }
     const seed = this._getSeed();
-    const root = bip32.fromSeed(seed);
+    const root = bip32.fromSeed(seed, DOICHAIN);
 
     const path = "m/0'";
     const child = root.derivePath(path).neutered();
@@ -40,13 +41,23 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
   _calcNodeAddressByIndex(node, index, p2wpkh = false) {
     let _node;
     if (node === 0) {
-      _node = this._node0 || (this._node0 = bitcoinjs.bip32.fromBase58(this.getXpub()).derive(node));
+      _node =
+        this._node0 ||
+        (this._node0 = bitcoinjs.bip32
+          .fromBase58(this.getXpub(), DOICHAIN)
+          .derive(node));
     }
     if (node === 1) {
-      _node = this._node1 || (this._node1 = bitcoinjs.bip32.fromBase58(this.getXpub()).derive(node));
+      _node =
+        this._node1 ||
+        (this._node1 = bitcoinjs.bip32
+          .fromBase58(this.getXpub(), DOICHAIN)
+          .derive(node));
     }
     const pubkey = _node.derive(index).publicKey;
-    const address = p2wpkh ? bitcoinjs.payments.p2wpkh({ pubkey }).address : bitcoinjs.payments.p2pkh({ pubkey }).address;
+    const address = p2wpkh
+      ? bitcoinjs.payments.p2wpkh({ pubkey, DOICHAIN }).address
+      : bitcoinjs.payments.p2pkh({ pubkey, DOICHAIN }).address;
     return address;
   }
 
@@ -108,7 +119,7 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
   _getWIFByIndex(internal, index) {
     if (!this.secret) return false;
     const seed = this._getSeed();
-    const root = bitcoinjs.bip32.fromSeed(seed);
+    const root = bitcoinjs.bip32.fromSeed(seed, DOICHAIN);
     const path = `m/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
