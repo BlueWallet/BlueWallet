@@ -252,6 +252,8 @@ const ScanQRCode = () => {
           title: null,
           mediaType: 'photo',
           takePhotoButtonTitle: null,
+          maxHeight: 800,
+          maxWidth: 600,
         },
         response => {
           if (response.didCancel) {

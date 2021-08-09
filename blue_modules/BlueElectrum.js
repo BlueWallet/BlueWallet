@@ -3,9 +3,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
 import DefaultPreference from 'react-native-default-preference';
-import RNWidgetCenter from 'react-native-widget-center';
 import loc from '../loc';
 import { isTorCapable } from './environment';
+import WidgetCommunication from './WidgetCommunication';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
@@ -94,7 +94,7 @@ async function connectMain() {
       await DefaultPreference.set(ELECTRUM_SSL_PORT, usingPeer.ssl);
     }
 
-    RNWidgetCenter.reloadAllTimelines();
+    WidgetCommunication.reloadAllTimelines();
   } catch (e) {
     // Must be running on Android
     console.log(e);
@@ -202,7 +202,7 @@ async function presentNetworkErrorAlert(usingPeer) {
                     await DefaultPreference.clear(ELECTRUM_HOST);
                     await DefaultPreference.clear(ELECTRUM_SSL_PORT);
                     await DefaultPreference.clear(ELECTRUM_TCP_PORT);
-                    RNWidgetCenter.reloadAllTimelines();
+                    WidgetCommunication.reloadAllTimelines();
                   } catch (e) {
                     // Must be running on Android
                     console.log(e);

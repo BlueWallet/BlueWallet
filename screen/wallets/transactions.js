@@ -472,6 +472,8 @@ const WalletTransactions = () => {
         title: null,
         mediaType: 'photo',
         takePhotoButtonTitle: null,
+        maxHeight: 800,
+        maxWidth: 600,
       },
       response => {
         if (response.uri) {

@@ -15,7 +15,6 @@ import {
   Switch,
 } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
-import RNWidgetCenter from 'react-native-widget-center';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import loc from '../../loc';
@@ -35,6 +34,7 @@ import {
 import { BlueCurrentTheme } from '../../components/themes';
 import { isTorCapable } from '../../blue_modules/environment';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -166,7 +166,7 @@ export default class ElectrumSettings extends Component {
             await DefaultPreference.clear(BlueElectrum.ELECTRUM_HOST);
             await DefaultPreference.clear(BlueElectrum.ELECTRUM_SSL_PORT);
             await DefaultPreference.clear(BlueElectrum.ELECTRUM_TCP_PORT);
-            RNWidgetCenter.reloadAllTimelines();
+            WidgetCommunication.reloadAllTimelines();
           } catch (e) {
             // Must be running on Android
             console.log(e);
@@ -195,7 +195,7 @@ export default class ElectrumSettings extends Component {
             await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, host);
             await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, port);
             await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, sslPort);
-            RNWidgetCenter.reloadAllTimelines();
+            WidgetCommunication.reloadAllTimelines();
           } catch (e) {
             // Must be running on Android
             console.log(e);

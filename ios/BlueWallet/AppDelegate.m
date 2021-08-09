@@ -14,6 +14,7 @@
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
 #import "EventEmitter.h"
+@import WatchConnectivity;
 #if !TARGET_OS_MACCATALYST
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
@@ -54,6 +55,7 @@ static void InitializeFlipper(UIApplication *application) {
   } else {
     rootView.backgroundColor = [UIColor clearColor];
   }
+  [[RCTI18nUtil sharedInstance] allowRTL:YES];
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   UIViewController *rootViewController = [UIViewController new];
   rootViewController.view = rootView;
@@ -65,7 +67,6 @@ static void InitializeFlipper(UIApplication *application) {
   // Define UNUserNotificationCenter
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
-  [[RCTI18nUtil sharedInstance] allowRTL:YES];
   return YES;
 }
 
@@ -85,6 +86,10 @@ static void InitializeFlipper(UIApplication *application) {
 
 - (BOOL)application:(UIApplication *)application shouldAllowExtensionPointIdentifier:(UIApplicationExtensionPointIdentifier)extensionPointIdentifier {
   return NO;
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application {
+  [WCSession.defaultSession updateApplicationContext:@{@"isWalletsInitialized": @NO} error:nil];
 }
 
 - (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL succeeded)) completionHandler {

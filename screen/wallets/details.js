@@ -14,6 +14,7 @@ import {
   Linking,
   StyleSheet,
   StatusBar,
+  ScrollView,
   PermissionsAndroid,
   InteractionManager,
   ActivityIndicator,
@@ -33,7 +34,6 @@ import {
   MultisigHDWallet,
   HDAezeedWallet,
 } from '../../class';
-import { ScrollView } from 'react-native-gesture-handler';
 import loc from '../../loc';
 import { useTheme, useRoute, useNavigation } from '@react-navigation/native';
 import RNFS from 'react-native-fs';

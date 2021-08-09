@@ -164,29 +164,31 @@ const ReceiveDetails = () => {
             </>
           )}
           <TouchableWithoutFeedback style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer" onLongPress={showToolTipMenu}>
-            <ToolTipMenu
-              ref={toolTip}
-              anchorRef={qrCode}
-              actions={[
-                {
-                  id: 'shareQRCode',
-                  text: loc.receive.details_share,
-                  onPress: handleShareQRCode,
-                },
-              ]}
-            />
+            <>
+              <ToolTipMenu
+                ref={toolTip}
+                anchorRef={qrCode}
+                actions={[
+                  {
+                    id: 'shareQRCode',
+                    text: loc.receive.details_share,
+                    onPress: handleShareQRCode,
+                  },
+                ]}
+              />
 
-            <QRCode
-              value={bip21encoded}
-              logo={require('../../img/qr-code.png')}
-              size={(is.ipad() && 300) || 300}
-              logoSize={90}
-              color="#000000"
-              logoBackgroundColor={colors.brandingColor}
-              backgroundColor="#FFFFFF"
-              ecl="H"
-              getRef={qrCode}
-            />
+              <QRCode
+                value={bip21encoded}
+                logo={require('../../img/qr-code.png')}
+                size={(is.ipad() && 300) || 300}
+                logoSize={90}
+                color="#000000"
+                logoBackgroundColor={colors.brandingColor}
+                backgroundColor="#FFFFFF"
+                ecl="H"
+                getRef={qrCode}
+              />
+            </>
           </TouchableWithoutFeedback>
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>

@@ -7,7 +7,7 @@ import Rate, { AndroidMarket } from 'react-native-rate';
 
 import { BlueButton, BlueCard, BlueListItem, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import loc from '../../loc';
+import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Sentry from '@sentry/react-native';
 
@@ -118,7 +118,7 @@ const About = () => {
         <View style={styles.center}>
           <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
           <Text style={styles.textFree}>{loc.settings.about_free}</Text>
-          <Text style={styles.textBackup}>{loc.settings.about_backup}</Text>
+          <Text style={styles.textBackup}>{formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}</Text>
           <BlueButton onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />
         </View>
       </BlueCard>
@@ -163,7 +163,7 @@ const About = () => {
 
           <TouchableOpacity accessibilityRole="button" onPress={handleOnGithubPress} style={styles.buttonLink}>
             <Icon size={22} name="github" type="font-awesome-5" color={colors.foregroundColor} />
-            <Text style={styles.textLink}>{loc.settings.about_sm_github}</Text>
+            <Text style={styles.textLink}>{formatStringAddTwoWhiteSpaces(loc.settings.about_sm_github)}</Text>
           </TouchableOpacity>
         </View>
       </BlueCard>

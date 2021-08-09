@@ -1,4 +1,6 @@
 import wif from 'wif';
+import bip38 from 'bip38';
+
 import {
   HDAezeedWallet,
   HDLegacyBreadwalletWallet,
@@ -17,7 +19,6 @@ import {
   SegwitP2SHWallet,
   WatchOnlyWallet,
 } from '.';
-import bip38 from '../blue_modules/bip38';
 import loc from '../loc';
 import bip39WalletFormats from './bip39_wallet_formats.json'; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
 
@@ -117,7 +118,7 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
     }
 
     if (text.startsWith('6P')) {
-      const decryptedKey = await bip38.decrypt(text, password);
+      const decryptedKey = await bip38.decryptAsync(text, password);
 
       if (decryptedKey) {
         text = wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed);
