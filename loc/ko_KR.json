@@ -113,6 +113,7 @@
     "preimage": "사전 이미지/ 역상 이미지"
   },
   "plausibledeniability": {
+    "create_fake_storage": "암호화된 스토리지 만들기",
     "create_password": "비밀번호  만들기<br>",
     "create_password_explanation": "fake storage(페이크 저장소)를 위한 패스워드는 메인 저장소의 패스워드와 일치하지 않아야합니다.",
     "help": "특정 상황에서 비밀번호를 강제로 밝혀야 할 수 있습니다. 코인의 안전을 위해 블루월렛에서는 다른 암호화 스토리지를 다른 비밀번호로 만들어 놓을 수있습니다. 제 3자에게 비밀번호를 노출해도 이는 페이크 스토리지를 열것입니다. 이는 제 3자들에게는 진짜처럼 보이겠지만 코인은 메인 스토리지에 안전하게 보관되고 있을 것입니다. ",
@@ -127,7 +128,8 @@
     "ask_yes": "예. 있습니다.",
     "ok": "네. 적었습니다.",
     "ok_lnd": "네 저장했습니다.",
-    "text": "잠시 멈추고 이 mnemonic phrase를 적을 종이를 준비해주세요.\n이건 월렛을 되찾을 때 쓸 예비 백업입니다."
+    "text": "잠시 멈추고 이 mnemonic phrase를 적을 종이를 준비해주세요.\n이건 월렛을 되찾을 때 쓸 예비 백업입니다.",
+    "title": "월렛이 생성되었습니다."
   },
   "receive": {
     "details_create": "생성하기"
@@ -154,6 +156,7 @@
     "input_paste": "붙여넣기",
     "input_total": "총합계:",
     "permission_camera_title": "카메라사용 허가",
+    "permission_storage_message": "블루월렛이 이 파일을 스토리지에 저장하기 위해서는 사용자의 허가가 필요합니다.",
     "permission_storage_denied_message": "블루월렛은 이 파일을 저장할 수 없습니다. 다바이스 셋팅에서 Storage permission을 가능하게 설정해주세요.",
     "permission_storage_title": "스토리지 접근 허가",
     "psbt_clipboard": "클립보드에 복사하기",
@@ -164,6 +167,9 @@
   "settings": {
     "about_review": "리뷰를 남겨주세요.",
     "about_sm_twitter": "트위터에서 팔로우해주세요.",
+    "biom_10times": "비밀번호를 10번 실패했습니다. 스토리지를 초기화시키겠습니까? 이는 모든 월렛을 지우고 스토리지를 암호화합니다. ",
+    "biom_no_passcode": "디바이스에 패스코드가 없습니다. 진행을 위해 환경 설정 어플에서 패스코드를 설정해주세요.",
+    "biom_remove_decrypt": "모든 월렛이 지워지고 스토리지는 암호화됩니다. 진행하시겠습니까?",
     "currency": "통화",
     "default_info": "기본 정보",
     "default_wallets": "모든 지갑 보기",
@@ -172,6 +178,7 @@
     "electrum_status": "상태",
     "electrum_clear_alert_cancel": "최소하기",
     "electrum_clear_alert_ok": "Ok",
+    "encrypt_decrypt_q": "스토리지를 암호화하시겠습니까? 설정 후에는 패스워드 없이 월렛에 접근할 수 없습니다. ",
     "encrypt_tstorage": "스토리지",
     "general": "일반",
     "notifications": "공지사항",
