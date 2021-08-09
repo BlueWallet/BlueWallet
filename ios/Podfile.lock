@@ -267,13 +267,13 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.44.3):
+  - react-native-camera (4.0.1):
     - React-Core
-    - react-native-camera/RCT (= 3.44.3)
-    - react-native-camera/RN (= 3.44.3)
-  - react-native-camera/RCT (3.44.3):
+    - react-native-camera/RCT (= 4.0.1)
+    - react-native-camera/RN (= 4.0.1)
+  - react-native-camera/RCT (4.0.1):
     - React-Core
-  - react-native-camera/RN (3.44.3):
+  - react-native-camera/RN (4.0.1):
     - React-Core
   - react-native-document-picker (3.5.4):
     - React
@@ -287,9 +287,9 @@ PODS:
     - React-Core
   - react-native-safe-area-context (3.3.0):
     - React-Core
-  - react-native-tcp-socket (3.7.1):
+  - react-native-tcp-socket (5.2.1):
     - CocoaAsyncSocket
-    - React
+    - React-Core
   - react-native-tor (0.1.7):
     - React
   - react-native-webview (11.6.5):
@@ -436,8 +436,8 @@ PODS:
     - React-Core
   - RNSVG (12.1.1):
     - React
-  - RNVectorIcons (7.1.0):
-    - React
+  - RNVectorIcons (8.1.0):
+    - React-Core
   - RNWatch (1.0.3):
     - React
   - Sentry (7.0.0):
@@ -748,14 +748,14 @@ SPEC CHECKSUMS:
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: fefef39fcd20850d17c3780638b04f741e0ccaae
+  react-native-camera: 73d0847088e62347ee35f99eccde524fbd3abd3e
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
   react-native-image-picker: 7bda3c7297c3ea16f4f504ad6174aa7e548192ef
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
   react-native-safe-area-context: 8465df05de8106c584b117f0e027e17174d6e02e
-  react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
+  react-native-tcp-socket: d05b8acbf1c045ff5b6a92ec6ca91960c94387d1
   react-native-tor: 4f389f5719dad633542b57ea32744e954730e7ef
   react-native-webview: 9fef5edbbf9d03694c5fb513cc2e6d96694430af
   react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
@@ -794,7 +794,7 @@ SPEC CHECKSUMS:
   RNSentry: a2b02b326ae4fce91ce7c57d3f7dcf8df4f72269
   RNShare: 00e7409201e3cab13e0febc41fd4465a83ae8225
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
-  RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
+  RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   RNWatch: e4c5d19506c94506860032fb68aedd5991beb985
   Sentry: 89d26e036063b9cb9caa59b6951dd2f8277aa13b
   SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
