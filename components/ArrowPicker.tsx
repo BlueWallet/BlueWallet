@@ -37,8 +37,8 @@ export const ArrowPicker = (props: ArrowPickerProps) => {
       >
         <Icon size={24} name="chevron-left" type="ionicons" />
       </Pressable>
-      <View>
-        <Text style={{ fontWeight: 'bold', fontSize: 12 }}>{keys[keyIndex]}</Text>
+      <View style={{ width: 200 }}>
+        <Text style={{ fontWeight: 'bold', fontSize: 12, textAlign: 'center' }}>{keys[keyIndex]}</Text>
       </View>
       <Pressable
         onPress={() => {
