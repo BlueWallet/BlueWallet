@@ -18,13 +18,15 @@ type ArrowPickerProps = {
 export const ArrowPicker = (props: ArrowPickerProps) => {
   const keys = Object.keys(props.items);
   const [keyIndex, setKeyIndex] = useState(0);
+
   const { colors } = useTheme();
 
-  const stylesHook = StyleSheet.create({
+  const stylesHook = {
     text: {
+      // @ts-ignore: Ignore theme typescript error
       color: colors.foregroundColor,
     },
-  });
+  };
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
       <Pressable
