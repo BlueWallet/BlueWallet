@@ -3,6 +3,7 @@ import { StyleSheet, Pressable, View, Keyboard } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
 import React, { useState } from 'react';
 import loc from '../loc';
+import { useTheme } from '@react-navigation/native';
 
 interface IHash {
   [key: string]: string;
@@ -17,6 +18,13 @@ type ArrowPickerProps = {
 export const ArrowPicker = (props: ArrowPickerProps) => {
   const keys = Object.keys(props.items);
   const [keyIndex, setKeyIndex] = useState(0);
+  const { colors } = useTheme();
+
+  const stylesHook = StyleSheet.create({
+    text: {
+      color: colors.foregroundColor,
+    },
+  });
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
       <Pressable
@@ -41,9 +49,7 @@ export const ArrowPicker = (props: ArrowPickerProps) => {
         <Icon size={24} name="chevron-left" type="ionicons" />
       </Pressable>
       <View style={{ width: 200 }}>
-        <Text style={{ fontWeight: 'bold', fontSize: 12, textAlign: 'center' }}>
-          {props.isItemUnknown ? loc.send.fee_custom : keys[keyIndex]}
-        </Text>
+        <Text style={[styles.text, stylesHook.text]}>{props.isItemUnknown ? loc.send.fee_custom : keys[keyIndex]}</Text>
       </View>
       <Pressable
         onPress={() => {
@@ -77,4 +83,5 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginRight: 20,
   },
+  text: { fontWeight: 'bold', fontSize: 12, textAlign: 'center' },
 });
