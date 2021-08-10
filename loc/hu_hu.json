@@ -377,6 +377,7 @@
     "updating": "Frissítés..."
   },
   "wallets": {
+    "add_doichain": "Doichain",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Egyszerű és masszív Bitcoin tárca",
     "add_create": "Létrehoz",

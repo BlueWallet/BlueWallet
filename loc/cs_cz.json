@@ -377,6 +377,7 @@
     "updating": "Aktualizace..."
   },
   "wallets": {
+    "add_doichain": "Doichain",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Jednoduchá a výkonná bitcoinová peněženka",
     "add_create": "Vytvořit",

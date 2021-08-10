@@ -360,6 +360,7 @@
     "updating": "Updaten..."
   },
   "wallets": {
+    "add_doichain": "Doichain",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Eenvoudige en krachtige Bitcoin-wallet",
     "add_create": "Aanmaken",

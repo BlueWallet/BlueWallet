@@ -367,6 +367,7 @@
     "updating": "Se actualizează..."
   },
   "wallets": {
+    "add_doichain": "Doichain",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Portofel Bitcoin simplu și puternic",
     "add_create": "Creează",

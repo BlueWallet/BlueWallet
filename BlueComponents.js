@@ -168,6 +168,65 @@ export const BitcoinButton = props => {
   );
 };
 
+export const DoichainButton = (props) => {
+  const { colors } = useTheme();
+  return (
+    <TouchableOpacity testID={props.testID} onPress={props.onPress}>
+      <View
+        style={{
+          borderColor:
+            (props.active && colors.newBlue) ||
+            colors.buttonDisabledBackgroundColor,
+          borderWidth: 1.5,
+          borderRadius: 8,
+          backgroundColor: colors.buttonDisabledBackgroundColor,
+          minWidth: props.style.width,
+          minHeight: props.style.height,
+          height: props.style.height,
+          flex: 1,
+          marginBottom: 8,
+        }}
+      >
+        <View
+          style={{
+            marginHorizontal: 16,
+            marginVertical: 10,
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <View>
+            <Image
+              style={{ width: 34, height: 34, marginRight: 8 }}
+              source={require('./img/addWallet/doichain.png')} 
+            />
+          </View>
+          <View>
+            <Text
+              style={{
+                color: colors.newBlue,
+                fontWeight: "bold",
+                fontSize: 18,
+              }}
+            >
+              {loc.wallets.add_doichain}
+            </Text>
+            <Text
+              style={{
+                color: colors.alternativeTextColor,
+                fontSize: 13,
+                fontWeight: "500",
+              }}
+            >
+              {loc.wallets.add_doichain_explain}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
 export const VaultButton = props => {
   const { colors } = useTheme();
   return (

@@ -377,6 +377,7 @@
     "updating": "Chargement..."
   },
   "wallets": {
+    "add_doichain": "Doichain",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Portefeuille Bitcoin simple et puissant",
     "add_create": "Créer",

@@ -368,6 +368,7 @@
     "updating": "Päivitetään..."
   },
   "wallets": {
+    "add_doichain": "Doichain",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Yksinkertainen ja tehokas Bitcoin-lompakko",
     "add_create": "Luo",

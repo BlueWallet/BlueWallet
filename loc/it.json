@@ -344,6 +344,7 @@
     "updating": "Aggiornamento..."
   },
   "wallets": {
+    "add_doichain": "Doichain",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Portafoglio Bitcoin semplice e potente",
     "add_create": "Crea",

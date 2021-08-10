@@ -81,6 +81,7 @@
     "list_title": "transaksies"
   },
   "wallets": {
+    "add_doichain": "Doichain",
     "add_bitcoin": "Bitcoin",
     "add_create": "Skep",
     "add_import_wallet": "Beursie Invoer",

@@ -377,6 +377,9 @@
     "updating": "Aktualisiere...."
   },
   "wallets": {
+    "add_doichain": "Doichain",
+    "add_doichain_explain": "Einfache und leistungsstarke Doichain Bitallet",
+    "add_create": "Erstellen",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Einfache und leistungsstarke Bitcoin Wallet",
     "add_create": "Erstellen",

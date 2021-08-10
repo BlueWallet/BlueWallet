@@ -223,6 +223,7 @@
     "transactions_count": "počet transakcií"
   },
   "wallets": {
+    "add_doichain": "Doichain",
     "add_bitcoin": "Bitcoin",
     "add_create": "Vytvoriť",
     "add_entropy_generated": "{gen} bytov vygenerovanej entropie",

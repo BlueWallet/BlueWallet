@@ -298,6 +298,7 @@
     "updating": "Actualitzant..."
   },
   "wallets": {
+    "add_doichain": "Doichain",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Moneder de Bitcoin senzill i potent",
     "add_create": "Crear",

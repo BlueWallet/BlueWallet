@@ -377,6 +377,7 @@
     "updating": "Osveževanje..."
   },
   "wallets": {
+    "add_doichain": "Doichain",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Preprosta in zmogljiva Bitcoin denarnica",
     "add_create": "Ustvari",

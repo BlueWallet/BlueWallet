@@ -377,6 +377,7 @@
     "updating": "Actualizando..."
   },
   "wallets": {
+    "add_doichain": "Doichain",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Billetera Bitcoin simple y potente",
     "add_create": "Crear",

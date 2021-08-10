@@ -23,7 +23,8 @@ import {
   BlueButton,
   BlueButtonLink,
   BlueSpacing20,
-} from '../../BlueComponents';
+  DoichainButton,
+} from "../../BlueComponents";
 import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCustodianWallet, AppStorage } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -208,6 +209,11 @@ const WalletsAdd = () => {
     setSelectedWalletType(ButtonSelected.ONCHAIN);
   };
 
+  const handleOnDoichainButtonPressed = () => {
+    Keyboard.dismiss();
+    setSelectedWalletType(ButtonSelected.ONCHAIN);
+  };  
+
   const handleOnLightningButtonPressed = () => {
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.OFFCHAIN);
@@ -233,6 +239,13 @@ const WalletsAdd = () => {
         </View>
         <BlueFormLabel>{loc.wallets.add_wallet_type}</BlueFormLabel>
         <View style={styles.buttons}>
+          <DoichainButton
+            testID="ActivateBitcoinButton"
+            active={selectedWalletType === ButtonSelected.DOICHAIN}
+            onPress={handleOnDoichainButtonPressed}
+            style={styles.button}
+          />
+          {/* 
           <BitcoinButton
             testID="ActivateBitcoinButton"
             active={selectedWalletType === ButtonSelected.ONCHAIN}
@@ -245,7 +258,8 @@ const WalletsAdd = () => {
             style={styles.button}
           />
           <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} />
-        </View>
+           */} 
+          </View>
 
         <View style={styles.advanced}>
           {(() => {

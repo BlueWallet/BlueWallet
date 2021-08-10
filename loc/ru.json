@@ -377,6 +377,8 @@
     "updating": "Обновление..."
   },
   "wallets": {
+    "add_doichain": "Doichain",
+    "add_doichain_explain": "Простой и мощный Doichain кошелек",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Простой и мощный Биткойн кошелек",
     "add_create": "Создать",
