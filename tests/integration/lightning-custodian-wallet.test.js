@@ -1,24 +1,6 @@
-import assert from 'assert';
 import Frisbee from 'frisbee';
-
 import { LightningCustodianWallet } from '../../class';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-
-beforeAll(async () => {
-  // awaiting for Electrum to be connected. For RN Electrum would naturally connect
-  // while app starts up, but for tests we need to wait for it
-  await BlueElectrum.waitTillConnected();
-});
-
-afterAll(() => {
-  // after all tests we close socket so the test suite can actually terminate
-  BlueElectrum.forceDisconnect();
-});
-
-// TODO: dummy test to make jest execute the beforeAll and afterAll. Remove when deleting `skip` below.
-it('should run any test', () => {
-  expect(true).toBe(true);
-});
+const assert = require('assert');
 
 describe.skip('LightningCustodianWallet', () => {
   const l1 = new LightningCustodianWallet();

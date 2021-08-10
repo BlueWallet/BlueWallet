@@ -57,7 +57,7 @@ afterAll(async () => {
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
-  await BlueElectrum.waitTillConnected();
+  await BlueElectrum.connectMain();
   WalletImport(); // damn i love javascript
   Notifications(); // damn i love javascript
 });
