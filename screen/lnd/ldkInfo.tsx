@@ -6,7 +6,7 @@ import { SafeBlueArea, BlueButton, BlueSpacing20, BlueSpacing10, BlueLoading, Bl
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Chain } from '../../models/bitcoinUnits';
-import loc from '../../loc';
+import loc, { formatBalance } from '../../loc';
 import LNNodeBar from '../../components/LNNodeBar';
 import BottomModal from '../../components/BottomModal';
 import Button, { ButtonStyle } from '../../components/Button';
@@ -95,29 +95,34 @@ const LdkInfo = () => {
   const refetchData = async (withLoadingIndicator = true) => {
     setIsLoading(withLoadingIndicator);
 
-    const listChannels = await wallet.listChannels();
-    if (listChannels && Array.isArray(listChannels)) {
-      const activeChannels = listChannels.filter(channel => channel.is_usable === true);
-      setChannels(activeChannels);
-    } else {
-      setChannels([]);
-    }
-    if (listChannels && Array.isArray(listChannels)) {
-      const inactiveChannels = listChannels.filter(channel => !channel.is_usable && channel.is_funding_locked);
-      setInactiveChannels(inactiveChannels);
-    } else {
-      setInactiveChannels([]);
-    }
+    try {
+      const listChannels = await wallet.listChannels();
+      if (listChannels && Array.isArray(listChannels)) {
+        const activeChannels = listChannels.filter(channel => channel.is_usable === true);
+        setChannels(activeChannels);
+      } else {
+        setChannels([]);
+      }
+      if (listChannels && Array.isArray(listChannels)) {
+        const inactiveChannels = listChannels.filter(channel => !channel.is_usable && channel.is_funding_locked);
+        setInactiveChannels(inactiveChannels);
+      } else {
+        setInactiveChannels([]);
+      }
 
-    if (listChannels && Array.isArray(listChannels)) {
-      const listPendingChannels = listChannels.filter(channel => !channel.is_funding_locked);
-      setPendingChannels(listPendingChannels);
-    } else {
-      setPendingChannels([]);
+      if (listChannels && Array.isArray(listChannels)) {
+        const listPendingChannels = listChannels.filter(channel => !channel.is_funding_locked);
+        setPendingChannels(listPendingChannels);
+      } else {
+        setPendingChannels([]);
+      }
+      const walletBalance: { confirmedBalance?: number } = await wallet.walletBalance();
+      setWalletBalance(walletBalance);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setIsLoading(false);
     }
-    const walletBalance: { confirmedBalance?: number } = await wallet.walletBalance();
-    setWalletBalance(walletBalance);
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -188,12 +193,12 @@ const LdkInfo = () => {
 
     let forceClose = false;
     if (!channel.is_usable) {
-      if (!(await confirm('Force-close the channel?'))) return;
+      if (!(await confirm(loc.lnd.force_close_channel))) return;
       forceClose = true;
     }
     const rez = await wallet.closeChannel(channel.channel_id, forceClose);
     if (rez) {
-      alert('Success!');
+      alert(loc._.success);
       return refetchData();
     }
   };
@@ -217,7 +222,7 @@ const LdkInfo = () => {
       try {
         const rez = await wallet.claimCoins(address);
         if (rez) {
-          alert('Success!');
+          alert(loc._.sucess);
           await refetchData();
         }
       } finally {
@@ -275,7 +280,7 @@ const LdkInfo = () => {
 
           {status === LdkNodeInfoChannelStatus.INACTIVE && (
             <>
-              <Button onPress={() => handleOnConnectPeerTapped(channelData)} text="reconnect peer" buttonStyle={ButtonStyle.grey} />
+              <Button onPress={() => handleOnConnectPeerTapped(channelData)} text={loc.lnd.reconnect_peer} buttonStyle={ButtonStyle.grey} />
               <BlueSpacing20 />
             </>
           )}
@@ -349,7 +354,7 @@ const LdkInfo = () => {
   };
 
   const onBackdropPress = async () => {
-    if (await confirm('Are you sure you exit without opening a channel?')) {
+    if (await confirm(loc.lnd.are_you_sure_exit_without_new_channel)) {
       onNewOpenChannelModalBackdropPress();
     }
   };
@@ -455,7 +460,7 @@ const LdkInfo = () => {
         contentInset={{ top: 0, left: 0, bottom: 8, right: 0 }}
         centerContent={centerContent}
         sections={sections()}
-        ListEmptyComponent={isLoading ? <BlueLoading /> : <BlueTextCentered>No channels</BlueTextCentered>}
+        ListEmptyComponent={isLoading ? <BlueLoading /> : <BlueTextCentered>{loc.lnd.no_channels}</BlueTextCentered>}
       />
       {renderModal()}
       {renderOpenChannelAmountAndNoteModal()}
@@ -463,7 +468,12 @@ const LdkInfo = () => {
       <View style={styles.marginHorizontal16}>
         {wBalance && wBalance.confirmedBalance ? (
           <>
-            <BlueButton onPress={claimBalance} title={'Claim balance ' + wBalance.confirmedBalance + ' sat'} />
+            <BlueButton
+              onPress={claimBalance}
+              title={loc.formatString(loc.lnd.claim_balance, {
+                balance: formatBalance(wBalance.confirmedBalance, wallet.getPreferredBalanceUnit()),
+              })}
+            />
             <BlueSpacing20 />
           </>
         ) : null}
