@@ -263,6 +263,8 @@
     "electrum_connected_not": "Not Connected",
     "electrum_error_connect": "Can’t connect to the provided Electrum server",
     "electrum_host": "E.g. {example}",
+    "electrum_offline_mode": "Offline Mode",
+    "electrum_offline_description": "When enabled, your Bitcoin wallets will not attempt to fetch balances or transactions.",
     "electrum_port": "Port, usually {example}",
     "use_ssl": "Use SSL",
     "electrum_saved": "Your changes have been saved successfully. Restarting BlueWallet may be required for the changes to take effect.",
