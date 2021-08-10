@@ -586,11 +586,11 @@ const styles = StyleSheet.create({
   },
   fundingNewChannelModalContent: {
     padding: 24,
-    paddingTop: 10,
+    paddingTop: 24,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-    height: 360,
+    height: 400,
   },
   separator: {
     height: 1,

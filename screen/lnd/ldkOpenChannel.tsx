@@ -183,15 +183,18 @@ const LdkOpenChannel = (props: any) => {
       return (
         <View style={[styles.activeRoot, stylesHook.root]}>
           <BlueText>
-            Opening channel for wallet {ldkWallet.getLabel()}, funding from {fundingWallet.getLabel()}
+            {loc.formatString(loc.lnd.opening_channnel_for_from, {
+              forWalletLabel: ldkWallet.getLabel(),
+              fromWalletLabel: fundingWallet.getLabel(),
+            })}
           </BlueText>
 
-          <BlueText>All seems to be in order. Are you sure you want to open this channel?</BlueText>
+          <BlueText>{loc.lnd.are_you_sure_open_channel}</BlueText>
           <BlueSpacing20 />
           <View style={styles.horizontalButtons}>
             <BlueButton onPress={onOpenChannelSuccess} title={loc._.cancel} />
             <BlueSpacing20 horizontal />
-            <BlueButton onPress={finalizeOpenChannel} title="Yes, Open Channel" />
+            <BlueButton onPress={finalizeOpenChannel} title={loc._.continue} />
           </View>
         </View>
       );
@@ -200,10 +203,13 @@ const LdkOpenChannel = (props: any) => {
     return (
       <View style={[styles.activeRoot, stylesHook.root]}>
         <BlueText>
-          Opening channel for {ldkWallet.getLabel()}, funding from {fundingWallet.getLabel()}
+          {loc.formatString(loc.lnd.opening_channnel_for_from, {
+            forWalletLabel: ldkWallet.getLabel(),
+            fromWalletLabel: fundingWallet.getLabel(),
+          })}
         </BlueText>
         <AmountInput
-          placeholder="funding amount, for exampe 0.001"
+          placeholder={loc.lnd.funding_amount_placeholder}
           isLoading={isLoading}
           amount={fundingAmount.amount}
           onAmountUnitChange={(newUnit: string) => {
@@ -266,7 +272,7 @@ const LdkOpenChannel = (props: any) => {
         <View style={styles.horizontalButtons}>
           <BlueButton onPress={onOpenChannelSuccess} title={loc._.cancel} />
           <BlueSpacing20 horizontal />
-          <BlueButton onPress={openChannel} title="Open Channel" />
+          <BlueButton onPress={openChannel} disabled={remoteHostWithPubkey.length === 0} title={loc.lnd.open_channel} />
         </View>
       </View>
     );

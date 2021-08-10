@@ -53,6 +53,7 @@ const AddressInput = ({
         onSubmitEditing={Keyboard.dismiss}
         multiline={!editable}
         inputAccessoryViewID={inputAccessoryViewID}
+        clearButtonMode="while-editing"
       />
       {editable ? (
         <TouchableOpacity

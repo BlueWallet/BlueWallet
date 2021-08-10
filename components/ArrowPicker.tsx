@@ -1,5 +1,5 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import { StyleSheet, Pressable, View } from 'react-native';
+import { StyleSheet, Pressable, View, Keyboard } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
 import React, { useState } from 'react';
 
@@ -19,6 +19,7 @@ export const ArrowPicker = (props: ArrowPickerProps) => {
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
       <Pressable
         onPress={() => {
+          Keyboard.dismiss();
           let newIndex = keyIndex;
           if (keyIndex <= 0) {
             newIndex = keys.length - 1;
@@ -42,6 +43,7 @@ export const ArrowPicker = (props: ArrowPickerProps) => {
       </View>
       <Pressable
         onPress={() => {
+          Keyboard.dismiss();
           let newIndex = keyIndex;
           if (keyIndex + 1 >= keys.length) {
             newIndex = 0;
