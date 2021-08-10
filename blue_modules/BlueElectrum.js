@@ -183,8 +183,6 @@ async function connectMain() {
   }
 }
 
-connectMain();
-
 async function presentNetworkErrorAlert(usingPeer) {
   if (await isDisabled()) {
     console.log(
