@@ -13,7 +13,7 @@
     "@react-native-community/eslint-config": "^3.0.0",
     "@types/bs58check": "^2.1.0",
     "@types/create-hash": "^1.2.2",
-    "@types/jest": "^26.0.24",
+    "@types/jest": "^27.0.0",
     "@types/react": "^17.0.14",
     "@types/react-native": "^0.64.12",
     "@types/react-test-renderer": "^17.0.1",
