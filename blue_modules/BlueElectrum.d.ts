@@ -39,6 +39,8 @@ type Transaction = {
   blocktime: number;
 };
 
+export async function connectMain(): Promise<void>;
+
 export async function waitTillConnected(): Promise<boolean>;
 
 export function forceDisconnect(): void;
