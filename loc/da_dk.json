@@ -16,7 +16,7 @@
     "create_fake_storage": "Opret falsk kryopteret lager",
     "create_password": "Opret adgangskode",
     "create_password_explanation": "Adgangskoden til det falske lager må ikke være den samme som den du bruger til det rigtige lager",
-    "help": "Under visse omstændighder, kan du blive tvunget til at give din adgangskode. For at beskytte dine coins kan du med Bluewallet lave et falsk krypteret lager, med en anden kode. I en presset situation, kan du give denne adgangskode istedet. Hvis denne kode indtastes i BlueWallet, vil brugeren se den alternative wallet. Det vil se heltlegitimt ud for andre, og dermed beskytte din originale wallet og dine coins.",
+    "help": "Under visse omstændighder, kan du blive tvunget til at give din adgangskode. For at beskytte dine coins kan du med DoiWallet lave et falsk krypteret lager, med en anden kode. I en presset situation, kan du give denne adgangskode istedet. Hvis denne kode indtastes i DoiWallet, vil brugeren se den alternative wallet. Det vil se heltlegitimt ud for andre, og dermed beskytte din originale wallet og dine coins.",
     "help2": "Det nye lager vil være fuldt funktionsdygtigt, og du kan evt have nogle småbeløb så det ser troværdigt ud.",
     "password_should_not_match": "Adgangskoden til det falske lager må ikke være den samme som den du bruger til det rigtige lager",
     "passwords_do_not_match": "Adgangskoden er ikke den samme, prøv igen",
@@ -75,7 +75,7 @@
     "list_title": "transaktioner"
   },
   "wallets": {
-    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
+    "add_bitcoin_explain": "Simple and powerful Doi wallet",
     "add_create": "Opret",
     "add_import_wallet": "Importer wallet",
     "add_or": "eller",
@@ -92,7 +92,7 @@
     "export_title": "wallet eksport",
     "import_do_import": "Importer",
     "import_error": "Importen lykkedes ikke. Er det en gyldig nøgle?",
-    "import_explanation": "Indtast din huskeregel, private nøgle, WIF, eller hvad du end har. BlueWallet vil forsøge at gætte det rigtige format og importere din wallet",
+    "import_explanation": "Indtast din huskeregel, private nøgle, WIF, eller hvad du end har. DoiWallet vil forsøge at gætte det rigtige format og importere din wallet",
     "import_imported": "Importeret",
     "import_scan_qr": "eller scan QR kode istedet?",
     "import_success": "Succes",
@@ -102,7 +102,7 @@
     "list_empty_txs1": "Dine transaktioner vil blive vist her,",
     "list_empty_txs2": "ingen endnu",
     "list_latest_transaction": "seneste transaktion",
-    "list_tap_here_to_buy": "Tryk her for at købe Bitcoin",
+    "list_tap_here_to_buy": "Tryk her for at købe Doi",
     "reorder_title": "Ændre rækkefølgen af wallets",
     "select_wallet": "Vælg wallet",
     "xpub_copiedToClipboard": "Kopieret til udklipsholder."

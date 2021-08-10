@@ -268,7 +268,7 @@ const ScanLndInvoice = () => {
   const getFees = () => {
     const min = Math.floor(decoded.num_satoshis * 0.003);
     const max = Math.floor(decoded.num_satoshis * 0.01) + 1;
-    return `${min} sat - ${max} sat`;
+    return `${min} schwarz - ${max} schwarz`;
   };
 
   const onWalletSelect = selectedWallet => {

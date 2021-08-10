@@ -20,7 +20,7 @@
     "create_fake_storage": "Ukudala igumbi lokugcina elifihlakeleyo",
     "create_password": "Yenza inombolo yokuvula",
     "create_password_explanation": "Inombolo yakho yokuvula igumbi lokugcina inkohliso akumele ifane ne nombolo yokuvula  igumbi lakho  elinyanisekileyo",
-    "help": "Phantsi kweemeko unokunyaneliswa ukuba uchaze a inombolo yokuvula. BlueWallet ukugcina imali yakho ikhuselekile, unokudala enye ukugcinwa kwekhowudi, ngegama eligqithisiweyo. Phantsi kwefuthe, unako ukutyhila le phasiwedi kumntu wesithatu. Ukuba ungenayo BlueWallet, iya kuvula ukugcinwa kwetyala ‘entsha’. Oku kuya kubonakala Umlenze kumntu wesithathu kodwa uza kugcina ngasese ukugcinwa kwakho ngemali ekhuselekile..",
+    "help": "Phantsi kweemeko unokunyaneliswa ukuba uchaze a inombolo yokuvula. DoiWallet ukugcina imali yakho ikhuselekile, unokudala enye ukugcinwa kwekhowudi, ngegama eligqithisiweyo. Phantsi kwefuthe, unako ukutyhila le phasiwedi kumntu wesithatu. Ukuba ungenayo DoiWallet, iya kuvula ukugcinwa kwetyala ‘entsha’. Oku kuya kubonakala Umlenze kumntu wesithathu kodwa uza kugcina ngasese ukugcinwa kwakho ngemali ekhuselekile..",
     "help2": "Igumbi lokugcina elitsha liza kusebenza ngokupheleleyo, kwaye unako ukugcina okunye ‘ + ‘lxabiso elincinci apho likhangeleka ngakumbi.",
     "password_should_not_match": "Inombolo yakho yokuvula igumbi lokugcina inkohliso akumele ifane ne nombolo yokuvula  igumbi lakho  elinyanisekileyo",
     "passwords_do_not_match": "Inombolo yokuvula ayihambelani, zama kwakhona",
@@ -82,7 +82,7 @@
     "list_title": "ngeniswa"
   },
   "wallets": {
-    "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
+    "add_bitcoin_explain": "Simple and powerful Doi wallet",
     "add_create": "Yakha",
     "add_import_wallet": "Ukungenisa ingxowa",
     "add_lightning": "Umbane",
@@ -104,7 +104,7 @@
     "export_title": "ukuthunyelwa kweebhanki ",
     "import_do_import": "Ngeniswe",
     "import_error": "Ayiphumelelanga ukungenisa. Nceda, uqiniseka ukuba idata ehlinzekiweyo iyasebenza.",
-    "import_explanation": "Bhale apha imnemonic yakho, ngundoqo, WIF , okanye nantoni na onayo. BlueWallet uya kwenza konke okusemandleni ukuqiqa ifomathi efanelekileyo kwaye ingenise ingxowa yakho",
+    "import_explanation": "Bhale apha imnemonic yakho, ngundoqo, WIF , okanye nantoni na onayo. DoiWallet uya kwenza konke okusemandleni ukuqiqa ifomathi efanelekileyo kwaye ingenise ingxowa yakho",
     "import_imported": "Ngenisiwe",
     "import_scan_qr": "okanye ukukhangela iQR code?",
     "import_success": "Iphumelele",

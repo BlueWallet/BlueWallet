@@ -160,7 +160,7 @@ const LNDCreateInvoice = () => {
           invoiceAmount = currency.btcToSatoshi(invoiceAmount);
           break;
         case BitcoinUnit.LOCAL_CURRENCY:
-          // trying to fetch cached sat equivalent for this fiat amount
+          // trying to fetch cached schwarz equivalent for this fiat amount
           invoiceAmount = AmountInput.getCachedSatoshis(invoiceAmount) || currency.btcToSatoshi(currency.fiatToBTC(invoiceAmount));
           break;
       }

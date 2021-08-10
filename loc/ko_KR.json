@@ -219,7 +219,7 @@
     "ms_help_title": "다중 서명 저장소 작동 방식 : 팁과 요령",
     "ms_help_text": "보안을 강화위한 여러 개의 키가있는 지갑에 보관하는것이 좋습니다.",
     "ms_help_title1": "여러 디바이스를 사용하는 것이 좋습니다.",
-    "ms_help_1": "이 볼트는 Electrum, Spectre, Coldcard, Cobo Vault 등과 같은 다른 BlueWallet 앱 및 PSBT 호환 지갑과 함께 사용됩니다.",
+    "ms_help_1": "이 볼트는 Electrum, Spectre, Coldcard, Cobo Vault 등과 같은 다른 DoiWallet 앱 및 PSBT 호환 지갑과 함께 사용됩니다.",
     "ms_help_title2": "키 편집",
     "ms_help_2": "이 디바이스에서 모든 볼트 키를 생성하고 나중에 삭제하거나 편집할 수 있습니다. 모든 키를 동일한 디바이스에 두는 것은 일반 비트 코인 지갑과 동일한 보안을 갖습니다.",
     "ms_help_title3": "볼트 백업",
@@ -227,7 +227,7 @@
     "ms_help_title4": "볼트로 가져 오기",
     "ms_help_4": "다중 서명을 가져오려면 백업 파일과 가져오기 기능을 사용하십시오. 시드 및 공개 키만 있는 경우 저장소 키를 만들 때 별도의 \"가져오기\" 버튼을 사용할 수 있습니다.",
     "ms_help_title5": "고급 모드",
-    "ms_help_5": "기본적으로 BlueWallet은 2/3 Vault를 생성합니다. 다른 쿼럼을 생성하거나 주소 유형을 변경하려면 설정에서 고급 모드를 활성화하십시오."
+    "ms_help_5": "기본적으로 DoiWallet은 2/3 Vault를 생성합니다. 다른 쿼럼을 생성하거나 주소 유형을 변경하려면 설정에서 고급 모드를 활성화하십시오."
   },
   "is_it_my_address": {
     "title": "이것은 자신의 주소?",
@@ -251,7 +251,7 @@
     "BTC": "비트코인",
     "MAX": "최대",
     "sat_byte": "사토시/바이트",
-    "sats": "사토시"
+    "schwarz": "사토시"
   },
   "addresses": {
     "sign_title": "서명/검증 메시지",

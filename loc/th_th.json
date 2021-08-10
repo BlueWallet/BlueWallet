@@ -107,7 +107,7 @@
     "open_direct_channel": "เปิดช่องโดยตรงไปที่โหนดนี้",
     "please_pay": "กรุณาจ่าย",
     "preimage": "Preimage",
-    "sats": "แซท",
+    "schwarz": "แซท",
     "wasnt_paid_and_expired": "ใบวางบิลนี้ไม่ได้จ่ายและหมดอายุแล้ว"
   },
   "plausibledeniability": {
@@ -167,7 +167,7 @@
     "details_adv_full_sure": "ท่านแน่ใจหรือไม่ว่า ต้องการใช้ยอดเต็ม?",
     "details_adv_import": "นำเข้าธุรกรรม",
     "details_amount_field_is_not_valid": "จำนวนเงินไม่ถูกต้อง",
-    "details_amount_field_is_less_than_minimum_amount_sat": "ท่านใส่จำนวนเงินน้อยเกินไป กรุณาใส่มากกว่า 500 แซท (sat)",
+    "details_amount_field_is_less_than_minimum_amount_sat": "ท่านใส่จำนวนเงินน้อยเกินไป กรุณาใส่มากกว่า 500 แซท (schwarz)",
     "details_create": "สร้าง",
     "details_error_decode": "ผิดพลาด: ไม่สามารถถอดรหัสบิตคอยน์แอ๊ดเดรสได้",
     "details_fee_field_is_not_valid": "ค่าธรรมเนียมไม่ถูกต้อง",
@@ -211,7 +211,7 @@
   "settings": {
     "about": "เกี่ยวกับ",
     "about_backup": "ท่านควรบันทึกคีย์ของท่านเสมอ",
-    "about_free": "BlueWallet คือโปรเจ็คโอเพนซอร์ส ไม่มีการคิดค่าใช้จ่าย สร้างโดยผู้ใช้บิตคอยน์",
+    "about_free": "DoiWallet คือโปรเจ็คโอเพนซอร์ส ไม่มีการคิดค่าใช้จ่าย สร้างโดยผู้ใช้บิตคอยน์",
     "about_release_notes": "บันทึกของโปรแกรมนี้",
     "about_review": "กรุณาแสดงความเห็น",
     "about_selftest": "ทำการทดสอบ",
@@ -390,7 +390,7 @@
     "share": "แชร์",
     "view": "ดู",
     "manage_keys": "จัดการกุญแจ",
-    "how_many_signatures_can_bluewallet_make": "จำนวนลายเซ็นที่บูลวอลเล็ทสามารถสร้าง",
+    "how_many_signatures_can_DoiWallet_make": "จำนวนลายเซ็นที่บูลวอลเล็ทสามารถสร้าง",
     "signatures_required_to_spend": "ต้องมีลายเซ็น {number}",
     "signatures_we_can_make": "สามารถสร้าง {number}",
     "scan_or_import_file": "สแกนหรือนำเข้าไฟล์",
