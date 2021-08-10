@@ -267,6 +267,7 @@ const LdkOpenChannel = (props: any) => {
             if (nodes[newKey]) onRemoteHostWithPubkeyChange(nodes[newKey]);
           }}
           items={LightningLdkWallet.getPredefinedNodes()}
+          isItemUnknown={!Object.values(LightningLdkWallet.getPredefinedNodes()).some(node => node === remoteHostWithPubkey)}
         />
         <BlueSpacing20 />
         <View style={styles.horizontalButtons}>

@@ -2,6 +2,7 @@
 import { StyleSheet, Pressable, View, Keyboard } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
 import React, { useState } from 'react';
+import loc from '../loc';
 
 interface IHash {
   [key: string]: string;
@@ -10,6 +11,7 @@ interface IHash {
 type ArrowPickerProps = {
   onChange: (key: string) => void;
   items: IHash;
+  isItemUnknown: boolean;
 };
 
 export const ArrowPicker = (props: ArrowPickerProps) => {
@@ -39,7 +41,9 @@ export const ArrowPicker = (props: ArrowPickerProps) => {
         <Icon size={24} name="chevron-left" type="ionicons" />
       </Pressable>
       <View style={{ width: 200 }}>
-        <Text style={{ fontWeight: 'bold', fontSize: 12, textAlign: 'center' }}>{keys[keyIndex]}</Text>
+        <Text style={{ fontWeight: 'bold', fontSize: 12, textAlign: 'center' }}>
+          {props.isItemUnknown ? loc.send.fee_custom : keys[keyIndex]}
+        </Text>
       </View>
       <Pressable
         onPress={() => {
