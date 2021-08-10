@@ -101,7 +101,7 @@
     "@react-native-clipboard/clipboard": "1.8.4",
     "@react-native-community/blur": "3.6.0",
     "@react-native-community/masked-view": "0.1.11",
-    "@react-native-community/push-notification-ios": "1.8.0",
+    "@react-native-community/push-notification-ios": "1.9.0",
     "@react-navigation/drawer": "5.12.5",
     "@react-navigation/native": "5.9.4",
     "@react-navigation/stack": "5.14.5",
