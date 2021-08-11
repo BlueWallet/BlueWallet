@@ -1,9 +1,10 @@
-import React from 'react';
+/* global alert */
+import React, { useEffect } from 'react';
 import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber, getUniqueId } from 'react-native-device-info';
-import Rate, { AndroidMarket } from 'react-native-rate';
+import InAppReview from 'react-native-in-app-review';
 
 import { BlueButton, BlueCard, BlueListItem, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -70,6 +71,8 @@ const About = () => {
     },
   });
 
+  useEffect(() => {}, []);
+
   const handleOnReleaseNotesPress = () => {
     navigate('ReleaseNotes');
   };
@@ -97,18 +100,9 @@ const About = () => {
     Linking.openURL('https://github.com/BlueWallet/BlueWallet');
   };
   const handleOnRatePress = () => {
-    const options = {
-      AppleAppID: '1376878040',
-      GooglePackageName: 'io.bluewallet.bluewallet',
-      preferredAndroidMarket: AndroidMarket.Google,
-      preferInApp: true,
-      openAppStoreIfInAppFails: true,
-      fallbackPlatformURL: 'https://bluewallet.io',
-    };
-    Rate.rate(options, success => {
-      if (success) {
-        console.log('User Rated.');
-      }
+    InAppReview.RequestInAppReview().catch(err => {
+      alert(err.message);
+      console.log(err.message);
     });
   };
 
@@ -119,7 +113,7 @@ const About = () => {
           <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
           <Text style={styles.textFree}>{loc.settings.about_free}</Text>
           <Text style={styles.textBackup}>{formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}</Text>
-          <BlueButton onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />
+          {InAppReview.isAvailable() && <BlueButton onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />}
         </View>
       </BlueCard>
       <BlueListItem

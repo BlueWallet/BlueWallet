@@ -283,6 +283,8 @@ PODS:
     - React-Core
   - react-native-image-picker (4.0.6):
     - React-Core
+  - react-native-in-app-review (3.2.2):
+    - React
   - react-native-randombytes (3.6.1):
     - React-Core
   - react-native-safe-area-context (3.3.0):
@@ -391,8 +393,6 @@ PODS:
     - React
   - RNQuickAction (0.3.13):
     - React
-  - RNRate (1.2.6):
-    - React-Core
   - RNReactNativeHapticFeedback (1.11.0):
     - React-Core
   - RNReanimated (2.2.0):
@@ -498,6 +498,7 @@ DEPENDENCIES:
   - react-native-fingerprint-scanner (from `../node_modules/react-native-fingerprint-scanner`)
   - react-native-idle-timer (from `../node_modules/react-native-idle-timer`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - react-native-in-app-review (from `../node_modules/react-native-in-app-review`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
@@ -531,7 +532,6 @@ DEPENDENCIES:
   - RNLocalize (from `../node_modules/react-native-localize`)
   - RNPrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
-  - RNRate (from `../node_modules/react-native-rate`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -615,6 +615,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-idle-timer"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-in-app-review:
+    :path: "../node_modules/react-native-in-app-review"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
@@ -681,8 +683,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-privacy-snapshot"
   RNQuickAction:
     :path: "../node_modules/react-native-quick-actions"
-  RNRate:
-    :path: "../node_modules/react-native-rate"
   RNReactNativeHapticFeedback:
     :path: "../node_modules/react-native-haptic-feedback"
   RNReanimated:
@@ -753,6 +753,7 @@ SPEC CHECKSUMS:
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
   react-native-image-picker: 7bda3c7297c3ea16f4f504ad6174aa7e548192ef
+  react-native-in-app-review: 00a66a085c61dbd4474041dc14e7bfee81a86130
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
   react-native-safe-area-context: 8465df05de8106c584b117f0e027e17174d6e02e
   react-native-tcp-socket: d05b8acbf1c045ff5b6a92ec6ca91960c94387d1
@@ -786,7 +787,6 @@ SPEC CHECKSUMS:
   RNLocalize: b9a5d22c7e4ecb5db604861f1b1fff6013e03340
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
-  RNRate: e0af7e724e5fcf89578dbd22ab6395c85402ef29
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
   RNReanimated: 9c13c86454bfd54dab7505c1a054470bfecd2563
   RNScreens: 01ab149b5dd5c27f5ff26741b1d2bdf2cee1af35
