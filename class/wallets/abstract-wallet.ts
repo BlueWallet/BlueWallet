@@ -1,12 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import b58 from 'bs58check';
 import createHash from 'create-hash';
+import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
 
 type WalletStatics = {
   type: string;
   typeReadable: string;
-  segwitType?: string;
+  segwitType?: 'p2wpkh' | 'p2sh(p2wpkh)';
   derivationPath?: string;
 };
 
@@ -33,14 +33,14 @@ export class AbstractWallet {
 
   type: string;
   typeReadable: string;
-  segwitType?: string;
+  segwitType?: 'p2wpkh' | 'p2sh(p2wpkh)';
   _derivationPath?: string;
   label: string;
   secret: string;
   balance: number;
   unconfirmed_balance: number; // eslint-disable-line camelcase
   _address: string | false;
-  utxo: string[];
+  utxo: Utxo[];
   _lastTxFetch: number;
   _lastBalanceFetch: number;
   preferredBalanceUnit: BitcoinUnit;
@@ -91,8 +91,7 @@ export class AbstractWallet {
     return createHash('sha256').update(string2hash).digest().toString('hex');
   }
 
-  // TODO: return type is incomplete
-  getTransactions(): { received: number }[] {
+  getTransactions(): Transaction[] {
     throw new Error('not implemented');
   }
 
@@ -280,7 +279,7 @@ export class AbstractWallet {
     return this;
   }
 
-  getLatestTransactionTime(): number {
+  getLatestTransactionTime(): string | 0 {
     return 0;
   }
 
@@ -290,7 +289,7 @@ export class AbstractWallet {
     }
     let max = 0;
     for (const tx of this.getTransactions()) {
-      max = Math.max(new Date(tx.received).getTime(), max);
+      max = Math.max(new Date(tx.received ?? 0).getTime(), max);
     }
     return max;
   }
@@ -299,6 +298,7 @@ export class AbstractWallet {
    * @deprecated
    * TODO: be more precise on the type
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTx(): any {
     throw Error('not implemented');
   }
@@ -313,30 +313,31 @@ export class AbstractWallet {
    * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
    * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
-   *
-   * TODO: be more specific on the return type
    */
   createTransaction(
-    utxos: { vout: number; value: number; txId: string; address: string }[],
-    targets: { value: number; address: string },
+    utxos: CreateTransactionUtxo[],
+    targets: {
+      address: string;
+      value?: number;
+    }[],
     feeRate: number,
     changeAddress: string,
     sequence: number,
     skipSigning = false,
     masterFingerprint: number,
-  ): { outputs: any[]; tx: any; inputs: any[]; fee: number; psbt: any } {
+  ): CreateTransactionResult {
     throw Error('not implemented');
   }
 
-  getAddress(): string {
+  getAddress(): string | false | undefined {
     throw Error('not implemented');
   }
 
-  getAddressAsync(): Promise<string> {
+  getAddressAsync(): Promise<string | false | undefined> {
     return new Promise(resolve => resolve(this.getAddress()));
   }
 
-  async getChangeAddressAsync(): Promise<string> {
+  async getChangeAddressAsync(): Promise<string | false | undefined> {
     return new Promise(resolve => resolve(this.getAddress()));
   }
 

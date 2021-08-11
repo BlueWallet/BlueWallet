@@ -3,10 +3,17 @@ import bitcoinMessage from 'bitcoinjs-message';
 import { randomBytes } from '../rng';
 import { AbstractWallet } from './abstract-wallet';
 import { HDSegwitBech32Wallet } from '..';
-const bitcoin = require('bitcoinjs-lib');
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
-const coinSelect = require('coinselect');
-const coinSelectSplit = require('coinselect/split');
+import * as bitcoin from 'bitcoinjs-lib';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import coinSelect from 'coinselect';
+import coinSelectSplit from 'coinselect/split';
+import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
+
+type CoinselectUtxo = {
+  vout: number;
+  value: number;
+  txId: string;
+};
 
 /**
  *  Has private key and single address like "1ABCD....."
@@ -16,13 +23,16 @@ export class LegacyWallet extends AbstractWallet {
   static type = 'legacy';
   static typeReadable = 'Legacy (P2PKH)';
 
+  _txs_by_external_index: Transaction[] = []; // eslint-disable-line camelcase
+  _txs_by_internal_index: Transaction[] = []; // eslint-disable-line camelcase
+
   /**
    * Simple function which says that we havent tried to fetch balance
    * for a long time
    *
    * @return {boolean}
    */
-  timeToRefreshBalance() {
+  timeToRefreshBalance(): boolean {
     if (+new Date() - this._lastBalanceFetch >= 5 * 60 * 1000) {
       return true;
     }
@@ -35,7 +45,7 @@ export class LegacyWallet extends AbstractWallet {
    *
    * @return {boolean}
    */
-  timeToRefreshTransaction() {
+  timeToRefreshTransaction(): boolean {
     for (const tx of this.getTransactions()) {
       if (tx.confirmations < 7 && this._lastTxFetch < +new Date() - 5 * 60 * 1000) {
         return true;
@@ -44,12 +54,12 @@ export class LegacyWallet extends AbstractWallet {
     return false;
   }
 
-  async generate() {
+  async generate(): Promise<void> {
     const buf = await randomBytes(32);
     this.secret = bitcoin.ECPair.makeRandom({ rng: () => buf }).toWIF();
   }
 
-  async generateFromEntropy(user) {
+  async generateFromEntropy(user: Buffer): Promise<void> {
     let i = 0;
     do {
       i += 1;
@@ -68,7 +78,7 @@ export class LegacyWallet extends AbstractWallet {
    *
    * @returns {string}
    */
-  getAddress() {
+  getAddress(): string | false {
     if (this._address) return this._address;
     let address;
     try {
@@ -79,7 +89,7 @@ export class LegacyWallet extends AbstractWallet {
     } catch (err) {
       return false;
     }
-    this._address = address;
+    this._address = address ?? false;
 
     return this._address;
   }
@@ -87,8 +97,10 @@ export class LegacyWallet extends AbstractWallet {
   /**
    * @inheritDoc
    */
-  getAllExternalAddresses() {
-    return [this.getAddress()];
+  getAllExternalAddresses(): string[] {
+    const address = this.getAddress();
+
+    return address ? [address] : [];
   }
 
   /**
@@ -97,9 +109,11 @@ export class LegacyWallet extends AbstractWallet {
    *
    * @returns {Promise.<void>}
    */
-  async fetchBalance() {
+  async fetchBalance(): Promise<void> {
     try {
-      const balance = await BlueElectrum.getBalanceByAddress(this.getAddress());
+      const address = this.getAddress();
+      if (!address) throw new Error('LegacyWallet: Invalid address');
+      const balance = await BlueElectrum.getBalanceByAddress(address);
       this.balance = Number(balance.confirmed);
       this.unconfirmed_balance = Number(balance.unconfirmed);
       this._lastBalanceFetch = +new Date();
@@ -113,9 +127,11 @@ export class LegacyWallet extends AbstractWallet {
    *
    * @return {Promise.<void>}
    */
-  async fetchUtxo() {
+  async fetchUtxo(): Promise<void> {
     try {
-      const utxos = await BlueElectrum.multiGetUtxoByAddress([this.getAddress()]);
+      const address = this.getAddress();
+      if (!address) throw new Error('LegacyWallet: Invalid address');
+      const utxos = await BlueElectrum.multiGetUtxoByAddress([address]);
       this.utxo = [];
       for (const arr of Object.values(utxos)) {
         this.utxo = this.utxo.concat(arr);
@@ -156,8 +172,8 @@ export class LegacyWallet extends AbstractWallet {
    * @param respectFrozen {boolean} Add Frozen outputs
    * @returns {[]}
    */
-  getUtxo(respectFrozen = false) {
-    let ret = [];
+  getUtxo(respectFrozen = false): Utxo[] {
+    let ret: Utxo[] = [];
     for (const u of this.utxo) {
       if (u.txId) u.txid = u.txId;
       if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
@@ -169,16 +185,17 @@ export class LegacyWallet extends AbstractWallet {
     }
 
     if (!respectFrozen) {
-      ret = ret.filter(({ txid, vout }) => !this.getUTXOMetadata(txid, vout).frozen);
+      ret = ret.filter(({ txid, vout }) => !txid || !this.getUTXOMetadata(txid, vout).frozen);
     }
     return ret;
   }
 
-  getDerivedUtxoFromOurTransaction(returnSpentUtxoAsWell = false) {
-    const utxos = [];
+  getDerivedUtxoFromOurTransaction(returnSpentUtxoAsWell = false): Utxo[] {
+    const utxos: Utxo[] = [];
 
-    const ownedAddressesHashmap = {};
-    ownedAddressesHashmap[this.getAddress()] = true;
+    const ownedAddressesHashmap: Record<string, boolean> = {};
+    const address = this.getAddress();
+    if (address) ownedAddressesHashmap[address] = true;
 
     /**
      * below copypasted from
@@ -187,11 +204,11 @@ export class LegacyWallet extends AbstractWallet {
 
     for (const tx of this.getTransactions()) {
       for (const output of tx.outputs) {
-        let address = false;
+        let address: string | false = false;
         if (output.scriptPubKey && output.scriptPubKey.addresses && output.scriptPubKey.addresses[0]) {
           address = output.scriptPubKey.addresses[0];
         }
-        if (ownedAddressesHashmap[address]) {
+        if (address && ownedAddressesHashmap[address]) {
           const value = new BigNumber(output.value).multipliedBy(100000000).toNumber();
           utxos.push({
             txid: tx.txid,
@@ -236,14 +253,22 @@ export class LegacyWallet extends AbstractWallet {
    *
    * @return {Promise.<void>}
    */
-  async fetchTransactions() {
+  async fetchTransactions(): Promise<void> {
     // Below is a simplified copypaste from HD electrum wallet
-    const _txsByExternalIndex = [];
-    const addresses2fetch = [this.getAddress()];
+    const _txsByExternalIndex: Transaction[] = [];
+    const address = this.getAddress();
+    const addresses2fetch = address ? [address] : [];
 
     // first: batch fetch for all addresses histories
     const histories = await BlueElectrum.multiGetHistoryByAddress(addresses2fetch);
-    const txs = {};
+    const txs: Record<
+      string,
+      {
+        tx_hash: string; // eslint-disable-line camelcase
+        height: number;
+        address: string;
+      }
+    > = {};
     for (const history of Object.values(histories)) {
       for (const tx of history) {
         txs[tx.tx_hash] = tx;
@@ -252,11 +277,12 @@ export class LegacyWallet extends AbstractWallet {
 
     // next, batch fetching each txid we got
     const txdatas = await BlueElectrum.multiGetTransactionByTxid(Object.keys(txs));
+    const transactions = Object.values(txdatas);
 
     // now, tricky part. we collect all transactions from inputs (vin), and batch fetch them too.
     // then we combine all this data (we need inputs to see source addresses and amounts)
     const vinTxids = [];
-    for (const txdata of Object.values(txdatas)) {
+    for (const txdata of transactions) {
       for (const vin of txdata.vin) {
         vinTxids.push(vin.txid);
       }
@@ -265,43 +291,52 @@ export class LegacyWallet extends AbstractWallet {
 
     // fetched all transactions from our inputs. now we need to combine it.
     // iterating all _our_ transactions:
-    for (const txid of Object.keys(txdatas)) {
-      // iterating all inputs our our single transaction:
-      for (let inpNum = 0; inpNum < txdatas[txid].vin.length; inpNum++) {
-        const inpTxid = txdatas[txid].vin[inpNum].txid;
-        const inpVout = txdatas[txid].vin[inpNum].vout;
-        // got txid and output number of _previous_ transaction we shoud look into
-        if (vintxdatas[inpTxid] && vintxdatas[inpTxid].vout[inpVout]) {
-          // extracting amount & addresses from previous output and adding it to _our_ input:
-          txdatas[txid].vin[inpNum].addresses = vintxdatas[inpTxid].vout[inpVout].scriptPubKey.addresses;
-          txdatas[txid].vin[inpNum].value = vintxdatas[inpTxid].vout[inpVout].value;
-        }
-      }
-    }
+    const transactionsWithInputValue = transactions.map(tx => {
+      return {
+        ...tx,
+        vin: tx.vin.map(vin => {
+          const inpTxid = vin.txid;
+          const inpVout = vin.vout;
+          // got txid and output number of _previous_ transaction we shoud look into
+
+          if (vintxdatas[inpTxid] && vintxdatas[inpTxid].vout[inpVout]) {
+            return {
+              ...vin,
+              addresses: vintxdatas[inpTxid].vout[inpVout].scriptPubKey.addresses,
+              value: vintxdatas[inpTxid].vout[inpVout].value,
+            };
+          } else {
+            return vin;
+          }
+        }),
+      };
+    });
 
     // now, we need to put transactions in all relevant `cells` of internal hashmaps: this.transactions_by_internal_index && this.transactions_by_external_index
 
-    for (const tx of Object.values(txdatas)) {
+    for (const tx of transactionsWithInputValue) {
       for (const vin of tx.vin) {
-        if (vin.addresses && vin.addresses.indexOf(this.getAddress()) !== -1) {
+        if ('addresses' in vin && vin.addresses && vin.addresses.indexOf(address || '') !== -1) {
           // this TX is related to our address
-          const clonedTx = Object.assign({}, tx);
-          clonedTx.inputs = tx.vin.slice(0);
-          clonedTx.outputs = tx.vout.slice(0);
-          delete clonedTx.vin;
-          delete clonedTx.vout;
+          const { vin, vout, ...txRest } = tx;
+          const clonedTx: Transaction = {
+            ...txRest,
+            inputs: [...vin],
+            outputs: [...vout],
+          };
 
           _txsByExternalIndex.push(clonedTx);
         }
       }
       for (const vout of tx.vout) {
-        if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this.getAddress()) !== -1) {
+        if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(address || '') !== -1) {
           // this TX is related to our address
-          const clonedTx = Object.assign({}, tx);
-          clonedTx.inputs = tx.vin.slice(0);
-          clonedTx.outputs = tx.vout.slice(0);
-          delete clonedTx.vin;
-          delete clonedTx.vout;
+          const { vin, vout, ...txRest } = tx;
+          const clonedTx: Transaction = {
+            ...txRest,
+            inputs: [...vin],
+            outputs: [...vout],
+          };
 
           _txsByExternalIndex.push(clonedTx);
         }
@@ -312,7 +347,7 @@ export class LegacyWallet extends AbstractWallet {
     this._lastTxFetch = +new Date();
   }
 
-  getTransactions() {
+  getTransactions(): Transaction[] {
     // a hacky code reuse from electrum HD wallet:
     this._txs_by_external_index = this._txs_by_external_index || [];
     this._txs_by_internal_index = [];
@@ -327,14 +362,26 @@ export class LegacyWallet extends AbstractWallet {
    * @param {String} txhex
    * @returns {Promise<boolean>}
    */
-  async broadcastTx(txhex) {
+  async broadcastTx(txhex: string): Promise<boolean> {
     const broadcast = await BlueElectrum.broadcastV2(txhex);
     console.log({ broadcast });
     if (broadcast.indexOf('successfully') !== -1) return true;
     return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
   }
 
-  coinselect(utxos, targets, feeRate, changeAddress) {
+  coinselect<U extends CoinselectUtxo>(
+    utxos: U[],
+    targets: { address: string; value?: number }[],
+    feeRate: number,
+    changeAddress: string,
+  ): {
+    inputs: U[];
+    outputs: {
+      address?: string;
+      value: number;
+    }[];
+    fee: number;
+  } {
     if (!changeAddress) throw new Error('No change address provided');
 
     let algo = coinSelect;
@@ -364,14 +411,25 @@ export class LegacyWallet extends AbstractWallet {
    * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
-  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
+  createTransaction<U extends CreateTransactionUtxo>(
+    utxos: U[],
+    targets: {
+      address: string;
+      value?: number;
+    }[],
+    feeRate: number,
+    changeAddress: string,
+    sequence: number,
+    skipSigning = false,
+    masterFingerprint: number,
+  ): CreateTransactionResult<U> {
     if (targets.length === 0) throw new Error('No destination provided');
     const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
     sequence = sequence || 0xffffffff; // disable RBF by default
     const psbt = new bitcoin.Psbt();
     let c = 0;
-    const values = {};
-    let keyPair;
+    const values: Record<number, number> = {};
+    let keyPair: bitcoin.ECPair.Signer | null = null;
 
     inputs.forEach(input => {
       if (!skipSigning) {
@@ -392,12 +450,13 @@ export class LegacyWallet extends AbstractWallet {
       });
     });
 
-    outputs.forEach(output => {
+    const sanitizedOutputs = outputs.map(output => ({
+      ...output,
       // if output has no address - this is change output
-      if (!output.address) {
-        output.address = changeAddress;
-      }
+      address: output.address ?? changeAddress,
+    }));
 
+    sanitizedOutputs.forEach(output => {
       const outputData = {
         address: output.address,
         value: output.value,
@@ -406,7 +465,7 @@ export class LegacyWallet extends AbstractWallet {
       psbt.addOutput(outputData);
     });
 
-    if (!skipSigning) {
+    if (!skipSigning && keyPair) {
       // skiping signing related stuff
       for (let cc = 0; cc < c; cc++) {
         psbt.signInput(cc, keyPair);
@@ -417,16 +476,16 @@ export class LegacyWallet extends AbstractWallet {
     if (!skipSigning) {
       tx = psbt.finalizeAllInputs().extractTransaction();
     }
-    return { tx, inputs, outputs, fee, psbt };
+    return { tx, inputs, outputs: sanitizedOutputs, fee, psbt };
   }
 
-  getLatestTransactionTime() {
+  getLatestTransactionTime(): string | 0 {
     if (this.getTransactions().length === 0) {
       return 0;
     }
     let max = 0;
     for (const tx of this.getTransactions()) {
-      max = Math.max(new Date(tx.received) * 1, max);
+      max = Math.max(new Date(tx.received ?? 0).getTime(), max);
     }
     return new Date(max).toString();
   }
@@ -437,7 +496,7 @@ export class LegacyWallet extends AbstractWallet {
    * @param address
    * @returns {boolean}
    */
-  isAddressValid(address) {
+  isAddressValid(address: string): boolean {
     try {
       bitcoin.address.toOutputScript(address);
       return true;
@@ -452,19 +511,21 @@ export class LegacyWallet extends AbstractWallet {
    * @param scriptPubKey
    * @returns {boolean|string} Either p2pkh address or false
    */
-  static scriptPubKeyToAddress(scriptPubKey) {
+  static scriptPubKeyToAddress(scriptPubKey: string): string | false {
     try {
       const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
-      return bitcoin.payments.p2pkh({
-        output: scriptPubKey2,
-        network: bitcoin.networks.bitcoin,
-      }).address;
+      return (
+        bitcoin.payments.p2pkh({
+          output: scriptPubKey2,
+          network: bitcoin.networks.bitcoin,
+        }).address ?? false
+      );
     } catch (_) {
       return false;
     }
   }
 
-  weOwnAddress(address) {
+  weOwnAddress(address: string): boolean {
     if (!address) return false;
     let cleanAddress = address;
 
@@ -475,7 +536,7 @@ export class LegacyWallet extends AbstractWallet {
     return this.getAddress() === cleanAddress || this._address === cleanAddress;
   }
 
-  weOwnTransaction(txid) {
+  weOwnTransaction(txid: string): boolean {
     for (const tx of this.getTransactions()) {
       if (tx && tx.txid && tx.txid === txid) return true;
     }
@@ -483,7 +544,7 @@ export class LegacyWallet extends AbstractWallet {
     return false;
   }
 
-  allowSignVerifyMessage() {
+  allowSignVerifyMessage(): boolean {
     return true;
   }
 
@@ -494,7 +555,7 @@ export class LegacyWallet extends AbstractWallet {
    * @param address
    * @returns {Boolean} Either address is a change or not
    */
-  addressIsChange(address) {
+  addressIsChange(address: string): boolean {
     return false;
   }
 
@@ -502,9 +563,9 @@ export class LegacyWallet extends AbstractWallet {
    * Finds WIF corresponding to address and returns it
    *
    * @param address {string} Address that belongs to this wallet
-   * @returns {string|false} WIF or false
+   * @returns {string|null} WIF or null
    */
-  _getWIFbyAddress(address) {
+  _getWIFbyAddress(address: string): string | null {
     return this.getAddress() === address ? this.secret : null;
   }
 
@@ -515,11 +576,12 @@ export class LegacyWallet extends AbstractWallet {
    * @param address {string}
    * @returns {string} base64 encoded signature
    */
-  signMessage(message, address, useSegwit = true) {
+  signMessage(message: string, address: string, useSegwit = true): string {
     const wif = this._getWIFbyAddress(address);
     if (wif === null) throw new Error('Invalid address');
     const keyPair = bitcoin.ECPair.fromWIF(wif);
     const privateKey = keyPair.privateKey;
+    if (!privateKey) throw new Error('Invalid private key');
     const options = this.segwitType && useSegwit ? { segwitType: this.segwitType } : undefined;
     const signature = bitcoinMessage.sign(message, privateKey, keyPair.compressed, options);
     return signature.toString('base64');
@@ -533,9 +595,9 @@ export class LegacyWallet extends AbstractWallet {
    * @param signature {string}
    * @returns {boolean} base64 encoded signature
    */
-  verifyMessage(message, address, signature) {
+  verifyMessage(message: string, address: string, signature: string): boolean {
     // null, true so it can verify Electrum signatores without errors
-    return bitcoinMessage.verify(message, address, signature, null, true);
+    return bitcoinMessage.verify(message, address, signature, undefined, true);
   }
 
   /**
@@ -543,8 +605,10 @@ export class LegacyWallet extends AbstractWallet {
    *
    * @returns {Promise<boolean>}
    */
-  async wasEverUsed() {
-    const txs = await BlueElectrum.getTransactionsByAddress(this.getAddress());
+  async wasEverUsed(): Promise<boolean> {
+    const address = this.getAddress();
+    if (!address) return Promise.resolve(false);
+    const txs = await BlueElectrum.getTransactionsByAddress(address);
     return txs.length > 0;
   }
 }
