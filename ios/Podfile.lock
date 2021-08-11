@@ -292,7 +292,7 @@ PODS:
     - React-Core
   - react-native-tor (0.1.7):
     - React
-  - react-native-webview (11.6.5):
+  - react-native-webview (11.13.0):
     - React-Core
   - react-native-widget-center (0.0.7):
     - React
@@ -371,7 +371,7 @@ PODS:
     - React-Core
   - RNCMaskedView (0.1.11):
     - React
-  - RNCPushNotificationIOS (1.8.0):
+  - RNCPushNotificationIOS (1.9.0):
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
@@ -757,7 +757,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 8465df05de8106c584b117f0e027e17174d6e02e
   react-native-tcp-socket: d05b8acbf1c045ff5b6a92ec6ca91960c94387d1
   react-native-tor: 4f389f5719dad633542b57ea32744e954730e7ef
-  react-native-webview: 9fef5edbbf9d03694c5fb513cc2e6d96694430af
+  react-native-webview: b176c6404ad40d10cfc818be41c053f85a72d751
   react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
   React-perflogger: 25373e382fed75ce768a443822f07098a15ab737
   React-RCTActionSheet: af7796ba49ffe4ca92e7277a5d992d37203f7da5
@@ -776,7 +776,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 8324611026e8dc3706f829953aa6e3899f581589
   RNCClipboard: 5df122bc31f95f2b37de9bbadc1dbef5a79cb1b0
   RNCMaskedView: f127cd9652acfa31b91dcff613e07ba18b774db6
-  RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
+  RNCPushNotificationIOS: 9b79f69199e9c721fcb2d9f1d99d0510f2e2356c
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
   RNDeviceInfo: 49f6d50f861c7810fac2dd9b71cfb56cc1940e14
   RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
