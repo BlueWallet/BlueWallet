@@ -263,6 +263,8 @@
     "electrum_connected_not": "Nicht verbunden",
     "electrum_error_connect": "Keine Verbindung zum angegebenen Electrum-Server möglich.",
     "electrum_host": "Z.b. {example}",
+    "electrum_offline_mode": "Offline-Modus",
+    "electrum_offline_description": "Wenn aktiviert, rufen Wallets keine Kontostände und Transaktionen ab.",
     "electrum_port": "Port, üblich {Beispiel}",
     "use_ssl": "SSL verwenden",
     "electrum_saved": "Deine Änderungen wurden gespeichert. Zur Aktivierung ist ggf. ein Neustart von BlueWallet erforderlich.",
