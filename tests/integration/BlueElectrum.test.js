@@ -1,7 +1,7 @@
-global.net = require('net');
-global.tls = require('tls');
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
-const assert = require('assert');
+import assert from 'assert';
+
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
 
 afterAll(() => {
@@ -13,7 +13,7 @@ beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
   try {
-    await BlueElectrum.waitTillConnected();
+    await BlueElectrum.connectMain();
   } catch (err) {
     console.log('failed to connect to Electrum:', err);
     process.exit(1);

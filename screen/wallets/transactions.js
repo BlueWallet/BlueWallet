@@ -175,6 +175,7 @@ const WalletTransactions = () => {
    * Forcefully fetches TXs and balance for wallet
    */
   const refreshTransactions = async () => {
+    if (await BlueElectrum.isDisabled()) return setIsLoading(false);
     if (isLoading) return;
     setIsLoading(true);
     let noErr = true;
