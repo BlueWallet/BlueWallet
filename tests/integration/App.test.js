@@ -8,15 +8,6 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
 jest.mock('react-native-qrcode-svg', () => 'Video');
 
-jest.mock('amplitude-js', () => ({
-  getInstance: function () {
-    return {
-      init: jest.fn(),
-      logEvent: jest.fn(),
-    };
-  },
-}));
-
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
