@@ -108,7 +108,6 @@
     "@remobile/react-native-qrcode-local-image": "https://github.com/BlueWallet/react-native-qrcode-local-image",
     "@sentry/react-native": "2.6.0",
     "aez": "1.0.1",
-    "amplitude-js": "7.4.4",
     "assert": "2.0.0",
     "base-x": "3.0.8",
     "bc-bech32": "file:blue_modules/bc-bech32",
