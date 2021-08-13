@@ -103,7 +103,9 @@ const LdkOpenChannel = (props: any) => {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       return alert('Something wend wrong during opening channel tx broadcast');
     }
-    fetchAndSaveWalletTransactions(ldkWallet.getID());
+    fetchAndSaveWalletTransactions(ldkWallet.getID()).finally(() => {
+      fetchAndSaveWalletTransactions(fundingWalletID);
+    });
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     setIsOpenChannelSuccessful(true);
   };
