@@ -100,7 +100,7 @@ const writeFileAndExport = async function (filename, contents) {
 const openSignedTransaction = async function () {
   try {
     const res = await DocumentPicker.pick({
-      type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallt.psbt.txn'] : [DocumentPicker.types.allFiles],
+      type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn'] : [DocumentPicker.types.allFiles],
     });
 
     return await _readPsbtFileIntoBase64(res.uri);
