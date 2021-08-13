@@ -89,7 +89,7 @@ jobs:
       run: npm run e2e:release-build
 
     - name: Run tests
-      uses: reactivecircus/android-emulator-runner@v2
+      uses: reactivecircus/android-emulator-runner@v2.18.0
       with:
         api-level: 29
         # emulator-build: 7425822 # tmp fix for https://github.com/ReactiveCircus/android-emulator-runner/issues/160
