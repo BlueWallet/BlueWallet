@@ -135,8 +135,6 @@ const showImagePickerAndReadImage = () => {
         title: null,
         mediaType: 'photo',
         takePhotoButtonTitle: null,
-        maxHeight: 800,
-        maxWidth: 600,
       },
       response => {
         if (response.uri) {

@@ -1,13 +1,13 @@
 import React from 'react';
-import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions, Platform } from 'react-native';
+import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
-import { getApplicationName, getVersion, getBundleId, getBuildNumber, getUniqueId, hasGmsSync } from 'react-native-device-info';
+import { getApplicationName, getVersion, getBundleId, getBuildNumber, getUniqueId } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 
 import { BlueButton, BlueCard, BlueListItem, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
+import loc from '../../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Sentry from '@sentry/react-native';
 
@@ -101,7 +101,7 @@ const About = () => {
       AppleAppID: '1376878040',
       GooglePackageName: 'io.bluewallet.bluewallet',
       preferredAndroidMarket: AndroidMarket.Google,
-      preferInApp: Platform.OS !== 'android',
+      preferInApp: true,
       openAppStoreIfInAppFails: true,
       fallbackPlatformURL: 'https://bluewallet.io',
     };
@@ -118,8 +118,8 @@ const About = () => {
         <View style={styles.center}>
           <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
           <Text style={styles.textFree}>{loc.settings.about_free}</Text>
-          <Text style={styles.textBackup}>{formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}</Text>
-          {hasGmsSync() && <BlueButton onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />}
+          <Text style={styles.textBackup}>{loc.settings.about_backup}</Text>
+          <BlueButton onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />
         </View>
       </BlueCard>
       <BlueListItem
@@ -163,7 +163,7 @@ const About = () => {
 
           <TouchableOpacity accessibilityRole="button" onPress={handleOnGithubPress} style={styles.buttonLink}>
             <Icon size={22} name="github" type="font-awesome-5" color={colors.foregroundColor} />
-            <Text style={styles.textLink}>{formatStringAddTwoWhiteSpaces(loc.settings.about_sm_github)}</Text>
+            <Text style={styles.textLink}>{loc.settings.about_sm_github}</Text>
           </TouchableOpacity>
         </View>
       </BlueCard>

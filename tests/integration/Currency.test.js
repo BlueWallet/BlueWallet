@@ -1,8 +1,6 @@
-import assert from 'assert';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { FiatUnit } from '../../models/fiatUnit';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+const assert = require('assert');
 jest.useFakeTimers();
 
 describe('currency', () => {

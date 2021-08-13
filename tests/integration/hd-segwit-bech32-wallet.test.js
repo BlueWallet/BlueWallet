@@ -1,7 +1,8 @@
-import assert from 'assert';
-
 import { HDSegwitBech32Wallet } from '../../class';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+const assert = require('assert');
+global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
+global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
+const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
 
@@ -13,7 +14,7 @@ afterAll(async () => {
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
-  await BlueElectrum.connectMain();
+  await BlueElectrum.waitTillConnected();
 });
 
 describe('Bech32 Segwit HD (BIP84)', () => {

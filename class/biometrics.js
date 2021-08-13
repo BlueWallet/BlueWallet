@@ -23,9 +23,7 @@ function Biometric() {
       if (isDeviceBiometricCapable) {
         return true;
       }
-    } catch (e) {
-      console.log('Biometrics isDeviceBiometricCapable failed');
-      console.log(e);
+    } catch {
       Biometric.setBiometricUseEnabled(false);
       return false;
     }
@@ -36,7 +34,6 @@ function Biometric() {
       const isSensorAvailable = await FingerprintScanner.isSensorAvailable();
       return isSensorAvailable;
     } catch (e) {
-      console.log('Biometrics biometricType failed');
       console.log(e);
     }
     return false;
@@ -67,11 +64,7 @@ function Biometric() {
       return new Promise(resolve => {
         FingerprintScanner.authenticate({ description: loc.settings.biom_conf_identity, fallbackEnabled: true })
           .then(() => resolve(true))
-          .catch(error => {
-            console.log('Biometrics authentication failed');
-            console.log(error);
-            resolve(false);
-          })
+          .catch(() => resolve(false))
           .finally(() => FingerprintScanner.release());
       });
     }

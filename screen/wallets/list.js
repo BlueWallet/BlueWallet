@@ -29,7 +29,6 @@ import { isDesktop, isMacCatalina, isTablet } from '../../blue_modules/environme
 import BlueClipboard from '../../blue_modules/clipboard';
 import navigationStyle from '../../components/navigationStyle';
 
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const scanqrHelper = require('../../helpers/scan-qr');
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
@@ -142,8 +141,7 @@ const WalletsList = () => {
    * Forcefully fetches TXs and balance for ALL wallets.
    * Triggered manually by user on pull-to-refresh.
    */
-  const refreshTransactions = async (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
-    if (await BlueElectrum.isDisabled()) return setIsLoading(false);
+  const refreshTransactions = (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
     setIsLoading(showLoadingIndicator);
     refreshAllWalletTransactions(showLoadingIndicator, showUpdateStatusIndicator).finally(() => setIsLoading(false));
   };

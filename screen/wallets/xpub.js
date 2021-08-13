@@ -1,23 +1,14 @@
-import React, { useCallback, useContext, useRef, useState } from 'react';
-import {
-  InteractionManager,
-  TouchableWithoutFeedback,
-  useWindowDimensions,
-  ActivityIndicator,
-  View,
-  StatusBar,
-  StyleSheet,
-} from 'react-native';
+import React, { useCallback, useContext, useState } from 'react';
+import { InteractionManager, useWindowDimensions, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
+
 import navigationStyle from '../../components/navigationStyle';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard } from '../../BlueComponents';
 import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import Share from 'react-native-share';
-import ToolTipMenu from '../../components/TooltipMenu';
 
 const styles = StyleSheet.create({
   root: {
@@ -43,8 +34,6 @@ const WalletXpub = () => {
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const stylesHook = StyleSheet.create({ root: { backgroundColor: colors.elevated } });
-  const toolTip = useRef();
-  const qrCode = useRef();
 
   useFocusEffect(
     useCallback(() => {
@@ -71,19 +60,6 @@ const WalletXpub = () => {
     }, [goBack, walletID]),
   );
 
-  const showToolTipMenu = () => {
-    toolTip.current.showMenu();
-  };
-
-  const handleShareQRCode = () => {
-    qrCode.current.toDataURL(data => {
-      const shareImageBase64 = {
-        url: `data:image/png;base64,${data}`,
-      };
-      Share.open(shareImageBase64).catch(error => console.log(error));
-    });
-  };
-
   return isLoading ? (
     <View style={[styles.root, stylesHook.root]}>
       <ActivityIndicator />
@@ -96,33 +72,18 @@ const WalletXpub = () => {
           <BlueText>{wallet.typeReadable}</BlueText>
         </View>
         <BlueSpacing20 />
-        <TouchableWithoutFeedback onLongPress={showToolTipMenu}>
-          <View style={styles.qrCodeContainer}>
-            <ToolTipMenu
-              ref={toolTip}
-              anchorRef={qrCode}
-              actions={[
-                {
-                  id: 'shareQRCode',
-                  text: loc.receive.details_share,
-                  onPress: handleShareQRCode,
-                },
-              ]}
-            />
-
-            <QRCode
-              value={xPub}
-              logo={require('../../img/qr-code.png')}
-              size={height > width ? width - 40 : width / 2}
-              logoSize={90}
-              color="#000000"
-              logoBackgroundColor={colors.brandingColor}
-              backgroundColor="#FFFFFF"
-              ecl="H"
-              getRef={qrCode}
-            />
-          </View>
-        </TouchableWithoutFeedback>
+        <View style={styles.qrCodeContainer}>
+          <QRCode
+            value={xPub}
+            logo={require('../../img/qr-code.png')}
+            size={height > width ? width - 40 : width / 2}
+            logoSize={90}
+            color="#000000"
+            logoBackgroundColor={colors.brandingColor}
+            backgroundColor="#FFFFFF"
+            ecl="H"
+          />
+        </View>
 
         <BlueSpacing20 />
         <BlueCopyTextToClipboard text={xPubText} />

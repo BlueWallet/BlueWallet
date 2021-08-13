@@ -165,31 +165,21 @@ const setLanguageLocale = async () => {
   // finding out whether lang preference was saved
   const lang = await AsyncStorage.getItem(LANG);
   if (lang) {
-    await strings.saveLanguage(lang);
-    await strings.setLanguage(lang);
-    if (process.env.JEST_WORKER_ID === undefined) {
-      I18nManager.allowRTL(lang.isRTL ?? false);
-      I18nManager.forceRTL(lang.isRTL ?? false);
-    }
+    strings.setLanguage(lang);
     await setDateTimeLocale();
   } else {
     const locales = RNLocalize.getLocales();
-    if (Object.values(AvailableLanguages).some(language => language.value === locales[0].languageCode)) {
-      await strings.saveLanguage(locales[0].languageCode);
-      await strings.setLanguage(locales[0].languageCode);
-      if (process.env.JEST_WORKER_ID === undefined) {
-        I18nManager.allowRTL(locales[0].isRTL ?? false);
-        I18nManager.forceRTL(locales[0].isRTL ?? false);
-      }
+    if (Object.keys(AvailableLanguages).some(language => language === locales[0])) {
+      strings.saveLanguage(locales[0].languageCode);
+      strings.setLanguage(locales[0].languageCode);
     } else {
-      await strings.saveLanguage('en');
-      await strings.setLanguage('en');
+      strings.saveLanguage('en');
+      strings.setLanguage('en');
       if (process.env.JEST_WORKER_ID === undefined) {
         I18nManager.allowRTL(false);
         I18nManager.forceRTL(false);
       }
     }
-    await setDateTimeLocale();
   }
 };
 setLanguageLocale();
@@ -342,11 +332,6 @@ export function _leaveNumbersAndDots(newInputValue) {
   newInputValue = newInputValue.replace(/,/gi, '');
 
   return newInputValue;
-}
-
-// https://github.com/BlueWallet/BlueWallet/issues/3466
-export function formatStringAddTwoWhiteSpaces(text) {
-  return `${text}  `;
 }
 
 strings.LANG = LANG;

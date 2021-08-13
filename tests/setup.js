@@ -2,9 +2,6 @@
 
 import mockClipboard from '@react-native-clipboard/clipboard/jest/clipboard-mock.js';
 
-global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
-global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-
 jest.mock('@react-native-clipboard/clipboard', () => mockClipboard);
 
 jest.mock('react-native-watch-connectivity', () => {
@@ -146,12 +143,6 @@ jest.mock('../blue_modules/analytics', () => {
 jest.mock('react-native-share', () => {
   return {
     open: jest.fn(),
-  };
-});
-
-jest.mock('../blue_modules/WidgetCommunication', () => {
-  return {
-    reloadAllTimelines: jest.fn(),
   };
 });
 

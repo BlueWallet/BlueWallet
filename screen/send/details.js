@@ -512,7 +512,7 @@ const SendDetails = () => {
     navigation.navigate('Confirm', {
       fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
       memo,
-      walletID: wallet.getID(),
+      fromWallet: wallet,
       tx: tx.toHex(),
       recipients,
       satoshiPerByte: requestedSatPerByte,

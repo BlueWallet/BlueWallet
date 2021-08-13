@@ -89,14 +89,8 @@ class SpecifyInterfaceController: WKInterfaceController {
   }
   
   @IBAction func createButtonTapped() {
-    if WatchDataSource.shared.companionWalletsInitialized {
-      NotificationCenter.default.post(name: NotificationName.createQRCode, object: specifiedQRContent)
-      dismiss()
-    } else {
-      presentAlert(withTitle: "Error", message: "Unable to create invoice. Please open BlueWallet on your iPhone and unlock your wallets.", preferredStyle: .alert, actions: [WKAlertAction(title: "OK", style: .default, handler: { [weak self] in
-        self?.dismiss()
-        })])
-    }
+    NotificationCenter.default.post(name: NotificationName.createQRCode, object: specifiedQRContent)
+    dismiss()
   }
   
   override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {

@@ -175,7 +175,6 @@ const WalletTransactions = () => {
    * Forcefully fetches TXs and balance for wallet
    */
   const refreshTransactions = async () => {
-    if (await BlueElectrum.isDisabled()) return setIsLoading(false);
     if (isLoading) return;
     setIsLoading(true);
     let noErr = true;
@@ -473,8 +472,6 @@ const WalletTransactions = () => {
         title: null,
         mediaType: 'photo',
         takePhotoButtonTitle: null,
-        maxHeight: 800,
-        maxWidth: 600,
       },
       response => {
         if (response.uri) {

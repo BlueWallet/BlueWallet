@@ -267,13 +267,13 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (4.0.1):
+  - react-native-camera (3.44.1):
     - React-Core
-    - react-native-camera/RCT (= 4.0.1)
-    - react-native-camera/RN (= 4.0.1)
-  - react-native-camera/RCT (4.0.1):
+    - react-native-camera/RCT (= 3.44.1)
+    - react-native-camera/RN (= 3.44.1)
+  - react-native-camera/RCT (3.44.1):
     - React-Core
-  - react-native-camera/RN (4.0.1):
+  - react-native-camera/RN (3.44.1):
     - React-Core
   - react-native-document-picker (3.5.4):
     - React
@@ -281,20 +281,20 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (4.0.6):
+  - react-native-image-picker (3.8.1):
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (3.3.0):
+  - react-native-safe-area-context (3.2.0):
     - React-Core
-  - react-native-tcp-socket (5.2.1):
+  - react-native-tcp-socket (3.7.1):
     - CocoaAsyncSocket
-    - React-Core
+    - React
   - react-native-tor (0.1.7):
     - React
-  - react-native-webview (11.13.0):
+  - react-native-webview (11.6.5):
     - React-Core
-  - react-native-widget-center (0.0.7):
+  - react-native-widget-center (0.0.4):
     - React
   - React-perflogger (0.64.2)
   - React-RCTActionSheet (0.64.2):
@@ -360,7 +360,7 @@ PODS:
     - React-cxxreact (= 0.64.2)
     - React-jsi (= 0.64.2)
     - React-perflogger (= 0.64.2)
-  - RealmJS (10.6.1):
+  - RealmJS (10.6.0):
     - GCDWebServer
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
@@ -371,11 +371,11 @@ PODS:
     - React-Core
   - RNCMaskedView (0.1.11):
     - React
-  - RNCPushNotificationIOS (1.9.0):
+  - RNCPushNotificationIOS (1.8.0):
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
-  - RNDeviceInfo (8.1.4):
+  - RNDeviceInfo (8.1.3):
     - React-Core
   - RNFS (2.18.0):
     - React
@@ -424,7 +424,7 @@ PODS:
     - React-RCTVibration
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.5.0):
+  - RNScreens (3.4.0):
     - React-Core
     - React-RCTImage
   - RNSecureKeyStore (1.0.0):
@@ -432,12 +432,12 @@ PODS:
   - RNSentry (2.6.0):
     - React-Core
     - Sentry (= 7.0.0)
-  - RNShare (7.0.0):
+  - RNShare (6.2.1):
     - React-Core
   - RNSVG (12.1.1):
     - React
-  - RNVectorIcons (8.1.0):
-    - React-Core
+  - RNVectorIcons (7.1.0):
+    - React
   - RNWatch (1.0.3):
     - React
   - Sentry (7.0.0):
@@ -748,17 +748,17 @@ SPEC CHECKSUMS:
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: 73d0847088e62347ee35f99eccde524fbd3abd3e
+  react-native-camera: 6e6d25f6318980dd2837747760628b4442aac01a
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
-  react-native-image-picker: 7bda3c7297c3ea16f4f504ad6174aa7e548192ef
+  react-native-image-picker: 5a7dd93d4f9dd0d910da5dde3707fd96f70d03b3
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
-  react-native-safe-area-context: 8465df05de8106c584b117f0e027e17174d6e02e
-  react-native-tcp-socket: d05b8acbf1c045ff5b6a92ec6ca91960c94387d1
+  react-native-safe-area-context: e471852c5ed67eea4b10c5d9d43c1cebae3b231d
+  react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
   react-native-tor: 4f389f5719dad633542b57ea32744e954730e7ef
-  react-native-webview: b176c6404ad40d10cfc818be41c053f85a72d751
-  react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
+  react-native-webview: 9fef5edbbf9d03694c5fb513cc2e6d96694430af
+  react-native-widget-center: 0f81d17beb163e7fb5848b06754d7d277fe7d99a
   React-perflogger: 25373e382fed75ce768a443822f07098a15ab737
   React-RCTActionSheet: af7796ba49ffe4ca92e7277a5d992d37203f7da5
   React-RCTAnimation: 6a2e76ab50c6f25b428d81b76a5a45351c4d77aa
@@ -771,14 +771,14 @@ SPEC CHECKSUMS:
   React-RCTVibration: 24600e3b1aaa77126989bc58b6747509a1ba14f3
   React-runtimeexecutor: a9904c6d0218fb9f8b19d6dd88607225927668f9
   ReactCommon: 149906e01aa51142707a10665185db879898e966
-  RealmJS: 550ecbe8a0d55bd0e2abb79a63313d4da08bcf25
+  RealmJS: c903034b0d767fcef11dc8207e91b6f07e60d7b8
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: 8324611026e8dc3706f829953aa6e3899f581589
   RNCClipboard: 5df122bc31f95f2b37de9bbadc1dbef5a79cb1b0
   RNCMaskedView: f127cd9652acfa31b91dcff613e07ba18b774db6
-  RNCPushNotificationIOS: 9b79f69199e9c721fcb2d9f1d99d0510f2e2356c
+  RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
-  RNDeviceInfo: 4975ca642df085a3e5458be4be1de7b7f3d5f24f
+  RNDeviceInfo: 49f6d50f861c7810fac2dd9b71cfb56cc1940e14
   RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
@@ -789,12 +789,12 @@ SPEC CHECKSUMS:
   RNRate: e0af7e724e5fcf89578dbd22ab6395c85402ef29
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
   RNReanimated: 9c13c86454bfd54dab7505c1a054470bfecd2563
-  RNScreens: 01ab149b5dd5c27f5ff26741b1d2bdf2cee1af35
+  RNScreens: 21b73c94c9117e1110a79ee0ee80c93ccefed8ce
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: a2b02b326ae4fce91ce7c57d3f7dcf8df4f72269
-  RNShare: 00e7409201e3cab13e0febc41fd4465a83ae8225
+  RNShare: 5ac8f6532ca4cd80fc71caef1cfbba1854a6a045
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
-  RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
+  RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
   RNWatch: e4c5d19506c94506860032fb68aedd5991beb985
   Sentry: 89d26e036063b9cb9caa59b6951dd2f8277aa13b
   SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
