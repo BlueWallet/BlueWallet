@@ -263,6 +263,8 @@
     "electrum_connected_not": "Nie Podłączony",
     "electrum_error_connect": "Nie można się połączyć z wybranym serwerem Electrum",
     "electrum_host": "np. {example}",
+    "electrum_offline_mode": "Tryb Offline",
+    "electrum_offline_description": "Gdy włączony, Twoje portfele Bitcoinowe nie będą usiłowały pobrać sald lub transakcji.",
     "electrum_port": "Port, zazwyczaj {example}",
     "use_ssl": "Użyj SSL",
     "electrum_saved": "Zmiany zostały zachowane pomyślnie. Żeby je zobaczyć zrestartuj aplikację.",
