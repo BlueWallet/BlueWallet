@@ -27,5 +27,5 @@ ToolTipMenu.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.shape).isRequired,
   children: PropTypes.node,
   submenu: PropTypes.any,
-  onPress: PropTypes.func.isRequired(),
+  onPress: PropTypes.func.isRequired,
 };
