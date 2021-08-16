@@ -1,5 +1,5 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import React, { Component, useState, useMemo, useCallback, useContext, useRef, useEffect, forwardRef } from 'react';
+import React, { Component, useState, useMemo, useCallback, useContext, useEffect, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, Input, Text, Header, ListItem, Avatar } from 'react-native-elements';
 import {
@@ -20,7 +20,6 @@ import {
   Switch,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
   InteractionManager,
   I18nManager,
@@ -271,8 +270,6 @@ export class BlueWalletNavigationHeader extends Component {
   }
 
   static contextType = BlueStorageContext;
-  walletBalanceText = React.createRef();
-  tooltip = React.createRef();
   constructor(props) {
     super(props);
     this.state = {
@@ -352,8 +349,12 @@ export class BlueWalletNavigationHeader extends Component {
     this.props.onManageFundsPressed();
   };
 
-  showToolTipMenu = () => {
-    this.tooltip.current.showMenu();
+  onPress = id => {
+    if (id === 'walletBalanceVisibility') {
+      this.handleBalanceVisibility();
+    } else if (id === 'copyToClipboard') {
+      this.handleCopyPress();
+    }
   };
 
   render() {
@@ -399,58 +400,50 @@ export class BlueWalletNavigationHeader extends Component {
           {this.state.wallet.getLabel()}
         </Text>
         <ToolTipMenu
-          ref={this.tooltip}
-          anchorRef={this.walletBalanceText}
+          title={loc.wallets.balance}
+          onPress={this.onPress}
           actions={
             this.state.wallet.hideBalance
               ? [
                   {
                     id: 'walletBalanceVisibility',
                     text: loc.transactions.details_balance_show,
-                    onPress: this.handleBalanceVisibility,
                   },
                 ]
               : [
                   {
                     id: 'walletBalanceVisibility',
                     text: loc.transactions.details_balance_hide,
-                    onPress: this.handleBalanceVisibility,
                   },
                   {
                     id: 'copyToClipboard',
                     text: loc.transactions.details_copy,
-                    onPress: this.handleCopyPress,
                   },
                 ]
           }
-        />
-        <TouchableOpacity
-          accessibilityRole="button"
-          style={styles.balance}
-          onPress={this.changeWalletBalanceUnit}
-          ref={this.walletBalanceText}
-          onLongPress={this.showToolTipMenu}
         >
-          {this.state.wallet.hideBalance ? (
-            <BluePrivateBalance />
-          ) : (
-            <Text
-              testID="WalletBalance"
-              key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              style={{
-                backgroundColor: 'transparent',
-                fontWeight: 'bold',
-                fontSize: 36,
-                color: '#fff',
-                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-              }}
-            >
-              {balance}
-            </Text>
-          )}
-        </TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" style={styles.balance} onPress={this.changeWalletBalanceUnit}>
+            {this.state.wallet.hideBalance ? (
+              <BluePrivateBalance />
+            ) : (
+              <Text
+                testID="WalletBalance"
+                key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                style={{
+                  backgroundColor: 'transparent',
+                  fontWeight: 'bold',
+                  fontSize: 36,
+                  color: '#fff',
+                  writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+                }}
+              >
+                {balance}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </ToolTipMenu>
         {this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress && (
           <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
             <View
@@ -662,7 +655,6 @@ export const BlueTextCentered = props => {
   const { colors } = useTheme();
   return <Text {...props} style={{ color: colors.foregroundColor, textAlign: 'center' }} />;
 };
-
 export const BlueListItem = React.memo(props => {
   const { colors } = useTheme();
 
@@ -1265,9 +1257,6 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     }),
     [colors.lightBorder],
   );
-  const toolTip = useRef();
-  const copyToolTip = useRef();
-  const listItemRef = useRef();
 
   const title = useMemo(() => {
     if (item.confirmations === 0) {
@@ -1451,20 +1440,13 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item, wallets]);
 
-  const onLongPress = useCallback(() => {
-    toolTip.current.showMenu();
-  }, []);
-
   const handleOnExpandNote = useCallback(() => {
     setSubtitleNumberOfLines(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subtitle]);
 
   const subtitleProps = useMemo(() => ({ numberOfLines: subtitleNumberOfLines }), [subtitleNumberOfLines]);
-  const handleOnCopyTap = useCallback(() => {
-    toolTip.current.hideMenu();
-    setTimeout(copyToolTip.current.showMenu, 205);
-  }, []);
+
   const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle.replace(/[\s\\-]/g, '')), [rowTitle]);
   const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
   const handleOnCopyNote = useCallback(() => Clipboard.setString(subtitle), [subtitle]);
@@ -1479,72 +1461,97 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   const handleCopyOpenInBlockExplorerPress = useCallback(() => {
     Clipboard.setString(`https://mempool.space/tx/${item.hash}`);
   }, [item.hash]);
-  const toolTipActions = useMemo(() => {
-    const actions = [
-      {
-        id: 'copy',
-        text: loc.transactions.details_copy,
-        onPress: handleOnCopyTap,
-      },
-    ];
-    if (item.hash) {
-      actions.push({
-        id: 'open_in_blockExplorer',
-        text: loc.transactions.details_show_in_block_explorer,
-        onPress: handleOnViewOnBlockExplorer,
-      });
-    }
-    if (subtitle && subtitleNumberOfLines === 1) {
-      actions.push({
-        id: 'expandNote',
-        text: loc.transactions.expand_note,
-        onPress: handleOnExpandNote,
-      });
-    }
-    return actions;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
 
-  const copyToolTipActions = useMemo(() => {
+  const onToolTipPress = useCallback(id => {
+    if (id === 'copyAmount') {
+      handleOnCopyAmountTap();
+    } else if (id === 'copyNote') {
+      handleOnCopyNote();
+    } else if (id === 'open_in_blockExplorer') {
+      handleOnViewOnBlockExplorer();
+    } else if (id === 'expandNote') {
+      handleOnExpandNote();
+    } else if (id === 'copy_blockExplorer') {
+      handleCopyOpenInBlockExplorerPress();
+    } else if (id === 'copyTX_ID') {
+      handleOnCopyTransactionID();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const toolTipActions = useMemo(() => {
     const actions = [];
     if (rowTitle !== loc.lnd.expired) {
       actions.push({
         id: 'copyAmount',
-        text: loc.send.create_amount,
-        onPress: handleOnCopyAmountTap,
+        text: `${loc.transactions.details_copy} ${loc.send.create_amount}`,
+        icon: {
+          iconType: 'SYSTEM',
+          iconValue: 'arrow.right.doc.on.clipboard',
+        },
       });
     }
 
+    if (subtitle) {
+      actions.push({
+        id: 'copyNote',
+        text: `${loc.transactions.details_copy} ${loc.transactions.note}`,
+        icon: {
+          iconType: 'SYSTEM',
+          iconValue: 'arrow.right.doc.on.clipboard',
+        },
+      });
+    }
     if (item.hash) {
       actions.push(
         {
           id: 'copyTX_ID',
-          text: loc.transactions.txid,
-          onPress: handleOnCopyTransactionID,
+          text: `${loc.transactions.details_copy} ${loc.transactions.txid}`,
+          icon: {
+            iconType: 'SYSTEM',
+            iconValue: 'arrow.right.doc.on.clipboard',
+          },
         },
         {
           id: 'copy_blockExplorer',
-          text: loc.transactions.block_explorer_link,
-          onPress: handleCopyOpenInBlockExplorerPress,
+          text: `${loc.transactions.details_copy} ${loc.transactions.block_explorer_link}`,
+          icon: {
+            iconType: 'SYSTEM',
+            iconValue: 'link',
+          },
         },
       );
     }
-    if (subtitle) {
-      actions.push({
-        id: 'copyNote',
-        text: loc.transactions.note,
-        onPress: handleOnCopyNote,
-      });
-    }
+
     return actions;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [toolTipActions]);
+  }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
+
+  const toolTipSubMenu = useMemo(() => {
+    const submenu = {
+      menuOptions: ['displayInline'], // <- set the `menuOptions` property
+      menuItems: [],
+      menuTitle: '',
+    };
+    if (item.hash) {
+      submenu.menuItems.push({
+        actionKey: 'open_in_blockExplorer',
+        actionTitle: loc.transactions.details_show_in_block_explorer,
+      });
+    }
+    if (subtitle && subtitleNumberOfLines === 1) {
+      submenu.menuItems.push({
+        actionKey: 'expandNote',
+        actionTitle: loc.transactions.expand_note,
+      });
+    }
+    return submenu;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <TouchableWithoutFeedback ref={listItemRef}>
-      <View style={{ marginHorizontal: 4 }}>
-        <ToolTipMenu ref={toolTip} anchorRef={listItemRef} actions={toolTipActions} />
-        <ToolTipMenu ref={copyToolTip} anchorRef={listItemRef} actions={copyToolTipActions} />
+    <View style={{ marginHorizontal: 4 }}>
+      <ToolTipMenu actions={toolTipActions} submenu={toolTipSubMenu} onPress={onToolTipPress}>
         <BlueListItem
           leftAvatar={avatar}
           title={title}
@@ -1557,10 +1564,9 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}
           containerStyle={containerStyle}
-          onLongPress={onLongPress}
         />
-      </View>
-    </TouchableWithoutFeedback>
+      </ToolTipMenu>
+    </View>
   );
 });
 

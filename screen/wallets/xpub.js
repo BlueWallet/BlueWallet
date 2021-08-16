@@ -1,13 +1,5 @@
 import React, { useCallback, useContext, useRef, useState } from 'react';
-import {
-  InteractionManager,
-  TouchableWithoutFeedback,
-  useWindowDimensions,
-  ActivityIndicator,
-  View,
-  StatusBar,
-  StyleSheet,
-} from 'react-native';
+import { InteractionManager, useWindowDimensions, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
@@ -43,7 +35,6 @@ const WalletXpub = () => {
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const stylesHook = StyleSheet.create({ root: { backgroundColor: colors.elevated } });
-  const toolTip = useRef();
   const qrCode = useRef();
 
   useFocusEffect(
@@ -71,10 +62,6 @@ const WalletXpub = () => {
     }, [goBack, walletID]),
   );
 
-  const showToolTipMenu = () => {
-    toolTip.current.showMenu();
-  };
-
   const handleShareQRCode = () => {
     qrCode.current.toDataURL(data => {
       const shareImageBase64 = {
@@ -96,20 +83,20 @@ const WalletXpub = () => {
           <BlueText>{wallet.typeReadable}</BlueText>
         </View>
         <BlueSpacing20 />
-        <TouchableWithoutFeedback onLongPress={showToolTipMenu}>
-          <View style={styles.qrCodeContainer}>
-            <ToolTipMenu
-              ref={toolTip}
-              anchorRef={qrCode}
-              actions={[
-                {
-                  id: 'shareQRCode',
-                  text: loc.receive.details_share,
-                  onPress: handleShareQRCode,
+        <View style={styles.qrCodeContainer}>
+          <ToolTipMenu
+            actions={[
+              {
+                id: 'shareQRCode',
+                text: loc.receive.details_share,
+                icon: {
+                  iconType: 'SYSTEM',
+                  iconValue: 'square.and.arrow.up',
                 },
-              ]}
-            />
-
+              },
+            ]}
+            onPress={handleShareQRCode}
+          >
             <QRCode
               value={xPub}
               logo={require('../../img/qr-code.png')}
@@ -121,8 +108,8 @@ const WalletXpub = () => {
               ecl="H"
               getRef={qrCode}
             />
-          </View>
-        </TouchableWithoutFeedback>
+          </ToolTipMenu>
+        </View>
 
         <BlueSpacing20 />
         <BlueCopyTextToClipboard text={xPubText} />

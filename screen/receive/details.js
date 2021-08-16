@@ -36,7 +36,6 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import ToolTipMenu from '../../components/TooltipMenu';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
@@ -52,7 +51,6 @@ const ReceiveDetails = () => {
   const [showAddress, setShowAddress] = useState(false);
   const { navigate, goBack, setParams } = useNavigation();
   const { colors } = useTheme();
-  const toolTip = useRef();
   const qrCode = useRef();
   const styles = StyleSheet.create({
     modalContent: {
@@ -146,9 +144,6 @@ const ReceiveDetails = () => {
     });
   };
 
-  const showToolTipMenu = () => {
-    toolTip.current.showMenu();
-  };
   const renderReceiveDetails = () => {
     return (
       <ScrollView contentContainerStyle={styles.root} keyboardShouldPersistTaps="always">
@@ -163,20 +158,20 @@ const ReceiveDetails = () => {
               </BlueText>
             </>
           )}
-          <TouchableWithoutFeedback style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer" onLongPress={showToolTipMenu}>
-            <>
-              <ToolTipMenu
-                ref={toolTip}
-                anchorRef={qrCode}
-                actions={[
-                  {
-                    id: 'shareQRCode',
-                    text: loc.receive.details_share,
-                    onPress: handleShareQRCode,
+          <View style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer">
+            <ToolTipMenu
+              actions={[
+                {
+                  id: 'shareQRCode',
+                  text: loc.receive.details_share,
+                  icon: {
+                    iconType: 'SYSTEM',
+                    iconValue: 'square.and.arrow.up',
                   },
-                ]}
-              />
-
+                },
+              ]}
+              onPress={handleShareQRCode}
+            >
               <QRCode
                 value={bip21encoded}
                 logo={require('../../img/qr-code.png')}
@@ -188,8 +183,8 @@ const ReceiveDetails = () => {
                 ecl="H"
                 getRef={qrCode}
               />
-            </>
-          </TouchableWithoutFeedback>
+            </ToolTipMenu>
+          </View>
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { ListItem } from 'react-native-elements';
@@ -11,8 +11,6 @@ import Share from 'react-native-share';
 
 const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) => {
   const { colors } = useTheme();
-  const tooltip = useRef();
-  const listItem = useRef();
 
   const hasTransactions = item.transactions > 0;
 
@@ -57,10 +55,6 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
     });
   };
 
-  const showToolTipMenu = () => {
-    tooltip.current.showMenu();
-  };
-
   const balance = formatBalance(item.balance, balanceUnit, true);
 
   const handleCopyPress = () => {
@@ -71,17 +65,33 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
     Share.open({ message: item.address }).catch(error => console.log(error));
   };
 
+  const onToolTipPress = id => {
+    if (id === 'copyToClipboard') {
+      handleCopyPress();
+    } else if (id === 'share') {
+      handleSharePress();
+    } else if (id === 'signVerify') {
+      navigateToSignVerify();
+    }
+  };
+
   const getAvailableActions = () => {
     const actions = [
       {
         id: 'copyToClipboard',
         text: loc.transactions.details_copy,
-        onPress: handleCopyPress,
+        icon: {
+          iconType: 'SYSTEM',
+          iconValue: 'arrow.right.doc.on.clipboard',
+        },
       },
       {
         id: 'share',
         text: loc.receive.details_share,
-        onPress: handleSharePress,
+        icon: {
+          iconType: 'SYSTEM',
+          iconValue: 'square.and.arrow.up',
+        },
       },
     ];
 
@@ -89,7 +99,10 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
       actions.push({
         id: 'signVerify',
         text: loc.addresses.sign_title,
-        onPress: navigateToSignVerify,
+        icon: {
+          iconType: 'SYSTEM',
+          iconValue: 'signature',
+        },
       });
     }
 
@@ -98,16 +111,8 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
 
   const render = () => {
     return (
-      <View>
-        <TooltipMenu ref={tooltip} anchorRef={listItem} actions={getAvailableActions()} />
-        <ListItem
-          ref={listItem}
-          key={`${item.key}`}
-          button
-          onPress={navigateToReceive}
-          containerStyle={stylesHook.container}
-          onLongPress={showToolTipMenu}
-        >
+      <TooltipMenu actions={getAvailableActions()} onPress={onToolTipPress}>
+        <ListItem key={`${item.key}`} button onPress={navigateToReceive} containerStyle={stylesHook.container}>
           <ListItem.Content style={stylesHook.list}>
             <ListItem.Title style={stylesHook.list} numberOfLines={1} ellipsizeMode="middle">
               <Text style={[styles.index, stylesHook.index]}>{item.index + 1}</Text>{' '}
@@ -124,7 +129,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
             </Text>
           </View>
         </ListItem>
-      </View>
+      </TooltipMenu>
     );
   };
 
