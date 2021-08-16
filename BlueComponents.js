@@ -408,16 +408,28 @@ export class BlueWalletNavigationHeader extends Component {
                   {
                     id: 'walletBalanceVisibility',
                     text: loc.transactions.details_balance_show,
+                    icon: {
+                      iconType: 'SYSTEM',
+                      iconValue: 'eye',
+                    },
                   },
                 ]
               : [
                   {
                     id: 'walletBalanceVisibility',
                     text: loc.transactions.details_balance_hide,
+                    icon: {
+                      iconType: 'SYSTEM',
+                      iconValue: 'eye.slash',
+                    },
                   },
                   {
                     id: 'copyToClipboard',
                     text: loc.transactions.details_copy,
+                    icon: {
+                      iconType: 'SYSTEM',
+                      iconValue: 'arrow.right.doc.on.clipboard',
+                    },
                   },
                 ]
           }
