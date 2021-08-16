@@ -19,7 +19,11 @@ const ToolTipMenu = props => {
 
   const child = (Array.isArray(props.children) ? props.children[0] : props.children) || null;
 
-  return <Pressable ref={ref}>{child && cloneElement(child, { onLongPress: showMenu })}</Pressable>;
+  return (
+    <Pressable ref={ref} onLongPress={showMenu}>
+      {child && cloneElement(child, { onLongPress: showMenu })}
+    </Pressable>
+  );
 };
 
 export default ToolTipMenu;
