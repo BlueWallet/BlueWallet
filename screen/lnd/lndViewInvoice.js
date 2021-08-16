@@ -257,12 +257,9 @@ const LNDViewInvoice = () => {
               <ToolTipMenu
                 actions={[
                   {
-                    id: 'shareQRCode',
+                    id: LNDViewInvoice.actionKeys.Share,
                     text: loc.receive.details_share,
-                    icon: {
-                      iconType: 'SYSTEM',
-                      iconValue: 'square.and.arrow.up',
-                    },
+                    icon: LNDViewInvoice.actionIcons.Share,
                   },
                 ]}
                 onPress={handleShareQRCode}
@@ -310,6 +307,17 @@ const LNDViewInvoice = () => {
       {render()}
     </SafeBlueArea>
   );
+};
+
+LNDViewInvoice.actionKeys = {
+  Share: 'share',
+};
+
+LNDViewInvoice.actionIcons = {
+  Share: {
+    iconType: 'SYSTEM',
+    iconValue: 'square.and.arrow.up',
+  },
 };
 
 const styles = StyleSheet.create({

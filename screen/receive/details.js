@@ -162,12 +162,9 @@ const ReceiveDetails = () => {
             <ToolTipMenu
               actions={[
                 {
-                  id: 'shareQRCode',
+                  id: ReceiveDetails.actionKeys.Share,
                   text: loc.receive.details_share,
-                  icon: {
-                    iconType: 'SYSTEM',
-                    iconValue: 'square.and.arrow.up',
-                  },
+                  icon: ReceiveDetails.actionIcons.Share,
                 },
               ]}
               onPress={handleShareQRCode}
@@ -381,6 +378,17 @@ const ReceiveDetails = () => {
       {showAddress ? renderReceiveDetails() : <BlueLoading />}
     </View>
   );
+};
+
+ReceiveDetails.actionKeys = {
+  Share: 'share',
+};
+
+ReceiveDetails.actionIcons = {
+  Share: {
+    iconType: 'SYSTEM',
+    iconValue: 'square.and.arrow.up',
+  },
 };
 
 ReceiveDetails.navigationOptions = navigationStyle(

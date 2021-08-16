@@ -66,11 +66,11 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
   };
 
   const onToolTipPress = id => {
-    if (id === 'copyToClipboard') {
+    if (id === AddressItem.actionKeys.CopyToClipboard) {
       handleCopyPress();
-    } else if (id === 'share') {
+    } else if (id === AddressItem.actionKeys.Share) {
       handleSharePress();
-    } else if (id === 'signVerify') {
+    } else if (id === AddressItem.actionKeys.SignVerify) {
       navigateToSignVerify();
     }
   };
@@ -78,31 +78,22 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
   const getAvailableActions = () => {
     const actions = [
       {
-        id: 'copyToClipboard',
+        id: AddressItem.actionKeys.CopyToClipboard,
         text: loc.transactions.details_copy,
-        icon: {
-          iconType: 'SYSTEM',
-          iconValue: 'arrow.right.doc.on.clipboard',
-        },
+        icon: AddressItem.actionIcons.Clipboard,
       },
       {
-        id: 'share',
+        id: AddressItem.actionKeys.Share,
         text: loc.receive.details_share,
-        icon: {
-          iconType: 'SYSTEM',
-          iconValue: 'square.and.arrow.up',
-        },
+        icon: AddressItem.actionIcons.Share,
       },
     ];
 
     if (allowSignVerifyMessage) {
       actions.push({
-        id: 'signVerify',
+        id: AddressItem.actionKeys.SignVerify,
         text: loc.addresses.sign_title,
-        icon: {
-          iconType: 'SYSTEM',
-          iconValue: 'signature',
-        },
+        icon: AddressItem.actionIcons.Signature,
       });
     }
 
@@ -134,6 +125,27 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
   };
 
   return render();
+};
+
+AddressItem.actionKeys = {
+  Share: 'share',
+  CopyToClipboard: 'copyToClipboard',
+  SignVerify: 'signVerify',
+};
+
+AddressItem.actionIcons = {
+  Signature: {
+    iconType: 'SYSTEM',
+    iconValue: 'signature',
+  },
+  Share: {
+    iconType: 'SYSTEM',
+    iconValue: 'square.and.arrow.up',
+  },
+  Clipboard: {
+    iconType: 'SYSTEM',
+    iconValue: 'arrow.right.doc.on.clipboard',
+  },
 };
 
 const styles = StyleSheet.create({

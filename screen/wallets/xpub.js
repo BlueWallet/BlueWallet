@@ -87,12 +87,9 @@ const WalletXpub = () => {
           <ToolTipMenu
             actions={[
               {
-                id: 'shareQRCode',
+                id: WalletXpub.actionKeys.Share,
                 text: loc.receive.details_share,
-                icon: {
-                  iconType: 'SYSTEM',
-                  iconValue: 'square.and.arrow.up',
-                },
+                icon: WalletXpub.actionIcons.Share,
               },
             ]}
             onPress={handleShareQRCode}
@@ -116,6 +113,17 @@ const WalletXpub = () => {
       </View>
     </SafeBlueArea>
   );
+};
+
+WalletXpub.actionKeys = {
+  Share: 'share',
+};
+
+WalletXpub.actionIcons = {
+  Share: {
+    iconType: 'SYSTEM',
+    iconValue: 'square.and.arrow.up',
+  },
 };
 
 WalletXpub.navigationOptions = navigationStyle(

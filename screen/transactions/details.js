@@ -227,12 +227,9 @@ const TransactionsDetails = () => {
           <ToolTipMenu
             actions={[
               {
-                id: 'copyToClipboard',
+                id: TransactionsDetails.actionKeys.Clipboard,
                 text: loc.transactions.details_copy,
-                icon: {
-                  iconType: 'SYSTEM',
-                  iconValue: 'arrow.right.doc.on.clipboard',
-                },
+                icon: TransactionsDetails.actionIcons.Clipboard,
               },
             ]}
             onPress={handleCopyPress}
@@ -249,6 +246,17 @@ const TransactionsDetails = () => {
       </ScrollView>
     </SafeBlueArea>
   );
+};
+
+TransactionsDetails.actionKeys = {
+  CopyToClipboard: 'copyToClipboard',
+};
+
+TransactionsDetails.actionIcons = {
+  Clipboard: {
+    iconType: 'SYSTEM',
+    iconValue: 'arrow.right.doc.on.clipboard',
+  },
 };
 
 const styles = StyleSheet.create({
