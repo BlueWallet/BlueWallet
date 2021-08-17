@@ -198,7 +198,7 @@ export const DoichainButton = (props) => {
           <View>
             <Image
               style={{ width: 34, height: 34, marginRight: 8 }}
-              source={require('./img/addWallet/doichain.png')} 
+              source={require('./img/addWallet/doicoin.png')} 
             />
           </View>
           <View>

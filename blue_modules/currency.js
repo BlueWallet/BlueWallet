@@ -24,7 +24,7 @@ const STRUCT = {
  */
 async function setPrefferedCurrency(item) {
   await AsyncStorage.setItem(PREFERRED_CURRENCY, JSON.stringify(item));
-  await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+  await DefaultPreference.setName('group.org.doichain.doiwallet');
   await DefaultPreference.set('preferredCurrency', item.endPointKey);
   await DefaultPreference.set('preferredCurrencyLocale', item.locale.replace('-', '_'));
   WidgetCommunication.reloadAllTimelines();
@@ -32,7 +32,7 @@ async function setPrefferedCurrency(item) {
 
 async function getPreferredCurrency() {
   const preferredCurrency = await JSON.parse(await AsyncStorage.getItem(PREFERRED_CURRENCY));
-  await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+  await DefaultPreference.setName('group.org.doichain.doiwallet');
   await DefaultPreference.set('preferredCurrency', preferredCurrency.endPointKey);
   await DefaultPreference.set('preferredCurrencyLocale', preferredCurrency.locale.replace('-', '_'));
   return preferredCurrency;

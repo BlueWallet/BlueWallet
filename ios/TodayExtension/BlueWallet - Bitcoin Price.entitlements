@@ -6,7 +6,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.io.bluewallet.bluewallet</string>
+		<string>group.org.doichain.doiwallet</string>
 	</array>
 	<key>com.apple.security.network.client</key>
 	<true/>

@@ -6,7 +6,7 @@
 	<string>development</string>
 	<key>com.apple.developer.icloud-container-identifiers</key>
 	<array>
-		<string>iCloud.io.bluewallet.bluewallet</string>
+		<string>iCloud.org.doichain.doiwallet</string>
 	</array>
 	<key>com.apple.developer.icloud-services</key>
 	<array>
@@ -14,7 +14,7 @@
 	</array>
 	<key>com.apple.developer.ubiquity-container-identifiers</key>
 	<array>
-		<string>iCloud.io.bluewallet.bluewallet</string>
+		<string>iCloud.org.doichain.doiwallet</string>
 	</array>
 	<key>com.apple.developer.ubiquity-kvstore-identifier</key>
 	<string>$(TeamIdentifierPrefix)$(CFBundleIdentifier)</string>
@@ -22,7 +22,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.io.bluewallet.bluewallet</string>
+		<string>group.org.doichain.doiwallet</string>
 	</array>
 	<key>com.apple.security.device.camera</key>
 	<true/>

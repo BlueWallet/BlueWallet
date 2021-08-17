@@ -1,12 +1,11 @@
-package io.bluewallet.bluewallet;
+package org.doichain.doiwallet;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-
-import androidx.annotation.Nullable;
 
 import com.facebook.react.ReactActivity;
+
+import org.doichain.doiwallet.R;
 
 public class MainActivity extends ReactActivity {
 

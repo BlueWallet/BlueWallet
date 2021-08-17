@@ -1,4 +1,4 @@
-package io.bluewallet.bluewallet;
+package org.doichain.doiwallet;
 
 import android.app.Application;
 import android.content.Context;
@@ -11,6 +11,8 @@ import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import com.facebook.react.modules.i18nmanager.I18nUtil;
 import java.util.List;
+
+import org.doichain.doiwallet.BuildConfig;
 
 public class MainApplication extends Application implements ReactApplication {
 

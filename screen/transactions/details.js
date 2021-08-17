@@ -149,7 +149,7 @@ const TransactionsDetails = () => {
     <SafeBlueArea>
       <HandoffComponent
         title={`Bitcoin Transaction ${tx.hash}`}
-        type="io.bluewallet.bluewallet"
+        type="org.doichain.doiwallet"
         url={`https://blockstream.info/tx/${tx.hash}`}
       />
       <StatusBar barStyle="default" />

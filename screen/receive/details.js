@@ -379,7 +379,7 @@ const ReceiveDetails = () => {
       {address !== undefined && showAddress && (
         <HandoffComponent
           title={`Bitcoin Transaction ${address}`}
-          type="io.bluewallet.bluewallet"
+          type="org.doichain.doiwallet"
           url={`https://blockstream.info/address/${address}`}
         />
       )}

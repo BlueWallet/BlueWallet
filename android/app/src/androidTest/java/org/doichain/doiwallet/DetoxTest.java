@@ -1,4 +1,4 @@
-package io.bluewallet.bluewallet;
+package org.doichain.doiwallet;
 
 import com.wix.detox.Detox;
 

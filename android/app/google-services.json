@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:993804676679:android:3e611cf30d58bac8b5cb62",
         "android_client_info": {
-          "package_name": "io.bluewallet.bluewallet"
+          "package_name": "org.doichain.doiwallet"
         }
       },
       "oauth_client": [

@@ -26,7 +26,7 @@ class TodayAPI {
   }
   
   static func getUserPreferredCurrency() -> String {
-    guard let userDefaults = UserDefaults(suiteName: "group.io.bluewallet.bluewallet"),
+    guard let userDefaults = UserDefaults(suiteName: "group.org.doichain.doiwallet"),
       let preferredCurrency = userDefaults.string(forKey: "preferredCurrency")
       else {
         return "USD"
@@ -42,7 +42,7 @@ class TodayAPI {
   }
   
   static func getUserPreferredCurrencyLocale() -> String {
-    guard let userDefaults = UserDefaults(suiteName: "group.io.bluewallet.bluewallet"),
+    guard let userDefaults = UserDefaults(suiteName: "group.org.doichain.doiwallet"),
       let preferredCurrency = userDefaults.string(forKey: "preferredCurrencyLocale")
       else {
         return "en_US"
