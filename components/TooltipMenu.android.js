@@ -29,7 +29,7 @@ const ToolTipMenu = props => {
 export default ToolTipMenu;
 ToolTipMenu.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.shape).isRequired,
-  children: PropTypes.node,
+  children: PropTypes.node.isRequired,
   submenu: PropTypes.any,
   onPress: PropTypes.func.isRequired,
 };
