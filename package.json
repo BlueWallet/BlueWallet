@@ -143,7 +143,7 @@
     "react-localization": "1.0.17",
     "react-native": "0.64.2",
     "react-native-blue-crypto": "https://github.com/BlueWallet/react-native-blue-crypto#fbc2e6beded0b7f61e0986ce98cca1230f84bc1c",
-    "react-native-camera": "4.0.2",
+    "react-native-camera": "4.0.3",
     "react-native-crypto": "2.2.0",
     "react-native-default-preference": "1.4.3",
     "react-native-device-info": "8.3.0",
