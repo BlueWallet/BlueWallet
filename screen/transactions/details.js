@@ -227,7 +227,7 @@ const TransactionsDetails = () => {
           <ToolTipMenu
             actions={[
               {
-                id: TransactionsDetails.actionKeys.Clipboard,
+                id: TransactionsDetails.actionKeys.CopyToClipboard,
                 text: loc.transactions.details_copy,
                 icon: TransactionsDetails.actionIcons.Clipboard,
               },
