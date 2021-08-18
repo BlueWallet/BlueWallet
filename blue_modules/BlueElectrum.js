@@ -681,14 +681,14 @@ module.exports.waitTillConnected = async function () {
         return resolve(true);
       }
 
-      if (wasConnectedAtLeastOnce && retriesCounter++ >= 30) {
+      if (wasConnectedAtLeastOnce && retriesCounter++ >= 150) {
         // `wasConnectedAtLeastOnce` needed otherwise theres gona be a race condition with the code that connects
         // electrum during app startup
         clearInterval(waitTillConnectedInterval);
         presentNetworkErrorAlert();
         reject(new Error('Waiting for Electrum connection timeout'));
       }
-    }, 500);
+    }, 100);
   });
 };
 
