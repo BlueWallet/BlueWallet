@@ -738,7 +738,6 @@
 				2130DE983D1D45AC8FC45F7E /* Upload Debug Symbols to Sentry */,
 				3271B0B6236E2E0700DA766F /* Embed App Extensions */,
 				C18D00A61007A84C9887DEDE /* [CP] Copy Pods Resources */,
-				68CD4C52AC5B27E333599B5C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1043,24 +1042,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export SENTRY_PROPERTIES=sentry.properties\n../node_modules/@sentry/cli/bin/sentry-cli upload-dsym";
-		};
-		68CD4C52AC5B27E333599B5C /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL/OpenSSL.framework/OpenSSL",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 		6F7747C31A9EE6DDC5108476 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
