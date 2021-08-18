@@ -17,10 +17,8 @@ buildscript {
         google()
         mavenCentral()
     }
-    ext.kotlinVersion = '1.4.32'
     dependencies {
         classpath('com.android.tools.build:gradle:4.2.1')
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath 'com.google.gms:google-services:4.3.5'  // Google Services plugin
 
 
