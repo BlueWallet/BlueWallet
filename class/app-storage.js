@@ -228,16 +228,16 @@ export class AppStorage {
     const password = this.hashIt(this.cachedPassword || 'fyegjitkyf[eqjnc.lf');
     const buf = Buffer.from(this.hashIt(password) + this.hashIt(password), 'hex');
     const encryptionKey = Int8Array.from(buf);
-    const path = this.hashIt(this.hashIt(password)) + '-wallets.realm';
+    const path = this.hashIt(this.hashIt(password)) + '-wallettransactions.realm';
 
     const schema = [
       {
-        name: 'Wallet',
-        primaryKey: 'walletid',
+        name: 'WalletTransactions',
         properties: {
           walletid: { type: 'string', indexed: true },
-          _txs_by_external_index: 'string', // stringified json
-          _txs_by_internal_index: 'string', // stringified json
+          internal: 'bool?', // true - internal, false - external
+          index: 'int?',
+          tx: 'string', // stringified json
         },
       },
     ];
@@ -317,7 +317,12 @@ export class AppStorage {
       }
     }
     if (data !== null) {
-      const realm = await this.getRealm();
+      let realm;
+      try {
+        realm = await this.getRealm();
+      } catch (error) {
+        alert(error.message);
+      }
       data = JSON.parse(data);
       if (!data.wallets) return false;
       const wallets = data.wallets;
@@ -410,7 +415,7 @@ export class AppStorage {
             break;
         }
 
-        this.inflateWalletFromRealm(realm, unserializedWallet);
+        if (realm) this.inflateWalletFromRealm(realm, unserializedWallet);
 
         // done
         if (!this.wallets.some(wallet => wallet.getSecret() === unserializedWallet.secret)) {
@@ -418,7 +423,7 @@ export class AppStorage {
           this.tx_metadata = data.tx_metadata;
         }
       }
-      realm.close();
+      if (realm) realm.close();
       return true;
     } else {
       return false; // failed loading data or loading/decryptin data
@@ -450,24 +455,28 @@ export class AppStorage {
   };
 
   inflateWalletFromRealm(realm, walletToInflate) {
-    const wallets = realm.objects('Wallet');
-    const filteredWallets = wallets.filtered(`walletid = "${walletToInflate.getID()}" LIMIT(1)`);
-    for (const realmWalletData of filteredWallets) {
-      try {
-        if (realmWalletData._txs_by_external_index) {
-          const txsByExternalIndex = JSON.parse(realmWalletData._txs_by_external_index);
-          const txsByInternalIndex = JSON.parse(realmWalletData._txs_by_internal_index);
-
-          if (walletToInflate._hdWalletInstance) {
-            walletToInflate._hdWalletInstance._txs_by_external_index = txsByExternalIndex;
-            walletToInflate._hdWalletInstance._txs_by_internal_index = txsByInternalIndex;
-          } else {
-            walletToInflate._txs_by_external_index = txsByExternalIndex;
-            walletToInflate._txs_by_internal_index = txsByInternalIndex;
-          }
+    const transactions = realm.objects('WalletTransactions');
+    const transactionsForWallet = transactions.filtered(`walletid = "${walletToInflate.getID()}"`);
+    for (const tx of transactionsForWallet) {
+      if (tx.internal === false) {
+        if (walletToInflate._hdWalletInstance) {
+          walletToInflate._hdWalletInstance._txs_by_external_index[tx.index] =
+            walletToInflate._hdWalletInstance._txs_by_external_index[tx.index] || [];
+          walletToInflate._hdWalletInstance._txs_by_external_index[tx.index].push(JSON.parse(tx.tx));
+        } else {
+          walletToInflate._txs_by_external_index[tx.index] = walletToInflate._txs_by_external_index[tx.index] || [];
+          walletToInflate._txs_by_external_index[tx.index].push(JSON.parse(tx.tx));
         }
-      } catch (error) {
-        console.warn(error.message);
+      }
+      if (tx.internal === true) {
+        if (walletToInflate._hdWalletInstance) {
+          walletToInflate._hdWalletInstance._txs_by_internal_index[tx.index] =
+            walletToInflate._hdWalletInstance._txs_by_internal_index[tx.index] || [];
+          walletToInflate._hdWalletInstance._txs_by_internal_index[tx.index].push(JSON.parse(tx.tx));
+        } else {
+          walletToInflate._txs_by_internal_index[tx.index] = walletToInflate._txs_by_internal_index[tx.index] || [];
+          walletToInflate._txs_by_internal_index[tx.index].push(JSON.parse(tx.tx));
+        }
       }
     }
   }
@@ -478,17 +487,42 @@ export class AppStorage {
 
     if (walletToSave._txs_by_external_index) {
       realm.write(() => {
-        const j1 = JSON.stringify(walletToSave._txs_by_external_index);
-        const j2 = JSON.stringify(walletToSave._txs_by_internal_index);
-        realm.create(
-          'Wallet',
-          {
-            walletid: id,
-            _txs_by_external_index: j1,
-            _txs_by_internal_index: j2,
-          },
-          Realm.UpdateMode.Modified,
-        );
+        // cleanup all existing transactions for the wallet first
+        const walletTransactionsToDelete = realm.objects('WalletTransactions').filtered(`walletid = '${id}'`);
+        realm.delete(walletTransactionsToDelete);
+
+        // insert new ones:
+        for (const index of Object.keys(walletToSave._txs_by_external_index)) {
+          const txs = walletToSave._txs_by_external_index[index];
+          for (const tx of txs) {
+            realm.create(
+              'WalletTransactions',
+              {
+                walletid: id,
+                internal: false,
+                index: parseInt(index),
+                tx: JSON.stringify(tx),
+              },
+              Realm.UpdateMode.Modified,
+            );
+          }
+        }
+
+        for (const index of Object.keys(walletToSave._txs_by_internal_index)) {
+          const txs = walletToSave._txs_by_internal_index[index];
+          for (const tx of txs) {
+            realm.create(
+              'WalletTransactions',
+              {
+                walletid: id,
+                internal: true,
+                index: parseInt(index),
+                tx: JSON.stringify(tx),
+              },
+              Realm.UpdateMode.Modified,
+            );
+          }
+        }
       });
     }
   }
@@ -511,14 +545,19 @@ export class AppStorage {
 
     try {
       const walletsToSave = [];
-      const realm = await this.getRealm();
+      let realm;
+      try {
+        realm = await this.getRealm();
+      } catch (error) {
+        alert(error.message);
+      }
       for (const key of this.wallets) {
         if (typeof key === 'boolean' || key.type === PlaceholderWallet.type) continue;
         key.prepareForSerialization();
         delete key.current;
         const keyCloned = Object.assign({}, key); // stripped-down version of a wallet to save to secure keystore
         if (key._hdWalletInstance) keyCloned._hdWalletInstance = Object.assign({}, key._hdWalletInstance);
-        this.offloadWalletToRealm(realm, key);
+        if (realm) this.offloadWalletToRealm(realm, key);
         // stripping down:
         if (key._txs_by_external_index) {
           keyCloned._txs_by_external_index = {};
@@ -530,7 +569,7 @@ export class AppStorage {
         }
         walletsToSave.push(JSON.stringify({ ...keyCloned, type: keyCloned.type }));
       }
-      realm.close();
+      if (realm) realm.close();
       let data = {
         wallets: walletsToSave,
         tx_metadata: this.tx_metadata,
