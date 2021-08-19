@@ -277,7 +277,7 @@ describe('import procedure', () => {
 });
 
 describe('bip39 discover', () => {
-  it.only('can discover wallets by derivation path', async () => {
+  it('can discover wallets by derivation path', async () => {
     const wallets = await discoverBIP39WithCustomDerivationPath(
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
       undefined,
