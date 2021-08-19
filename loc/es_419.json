@@ -395,6 +395,7 @@
     "add_title": "Agregar Billetera",
     "add_wallet_name": "Nombre",
     "add_wallet_type": "Tipo",
+    "balance": "Balance",
     "clipboard_bitcoin": "Tienes una dirección de Bitcoin en tu portapapeles. ¿te gustaría usarlo para una transacción?",
     "clipboard_lightning": "Tienes una factura Lightning en tu portapapeles. ¿Te gustaría usarlo para una transacción?",
     "details_address": "Dirección",
