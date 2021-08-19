@@ -1,16 +1,14 @@
-import * as Sentry from '@sentry/react-native';
 import { getUniqueId } from 'react-native-device-info';
 const BlueApp = require('../BlueApp');
 
 if (process.env.NODE_ENV !== 'development') {
-  Sentry.init({
-    dsn: 'https://23377936131848ca8003448a893cb622@sentry.io/1295736',
-  });
-  Sentry.setUser({ id: getUniqueId() });
+  // nop
 }
 
 BlueApp.isDoNotTrackEnabled().then(value => {
-  if (value) Sentry.close();
+  if (value) {
+    // nop
+  }
 });
 
 const A = async event => {};
@@ -26,7 +24,9 @@ A.ENUM = {
 };
 
 A.setOptOut = value => {
-  if (value) Sentry.close();
+  if (value) {
+    // nop
+  }
 };
 
 module.exports = A;
