@@ -46,6 +46,10 @@ function WatchConnectivity() {
   }, [walletsInitialized, wallets, isReachable, isInstalled]);
 
   useEffect(() => {
+    updateApplicationContext({ isWalletsInitialized: walletsInitialized, randomID: Math.floor(Math.random() * 11) });
+  }, [walletsInitialized]);
+
+  useEffect(() => {
     if (isInstalled && isReachable && walletsInitialized && preferredFiatCurrency) {
       const preferredFiatCurrencyParsed = JSON.parse(preferredFiatCurrency);
       try {
@@ -116,12 +120,11 @@ function WatchConnectivity() {
     if (!Array.isArray(wallets)) {
       console.log('No Wallets set to sync with Watch app. Exiting...');
       return;
-    } else if (walletsInitialized && wallets.length === 0) {
-      console.log('Wallets array is set. No Wallets set to sync with Watch app. Exiting...');
-      updateApplicationContext({ wallets: [], randomID: Math.floor(Math.random() * 11) });
+    }
+    if (!walletsInitialized) {
+      console.log('Wallets not initialized. Exiting...');
       return;
     }
-
     const walletsToProcess = [];
 
     for (const wallet of wallets) {
