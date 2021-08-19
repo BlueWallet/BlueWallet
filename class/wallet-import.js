@@ -40,8 +40,8 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
   const reportProgress = name => {
     onProgress(name);
   };
-  const reportFinish = (cancelled = false) => {
-    promiseResolve({ cancelled, wallets });
+  const reportFinish = (cancelled, stopped) => {
+    promiseResolve({ cancelled, stopped, wallets });
   };
   const reportWallet = wallet => {
     if (wallets.some(w => w.getID() === wallet.getID())) return; // do not add duplicates
@@ -50,8 +50,7 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
   };
   const stop = () => (running = false);
 
-  async function* importSequence() {
-    // const importFunc = async () => {
+  async function* importGenerator() {
     // The plan:
     // -3. ask for password, if needed and validate it
     // -2. check if BIP38 encrypted
@@ -346,37 +345,25 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
 
   // POEHALI
   (async () => {
-    const generator = importSequence();
-
-    for (const item of generator) {
-      if (!running) break;
-      let res;
-      try {
-        res = await item;
-        if (res.progress) reportProgress(res.progress);
-        if (res.wallet) reportWallet(res.wallet);
-      } catch (e) {
-        if (e.message === 'Cancel Pressed') {
-          reportFinish(true);
-          return;
-        }
-        promiseReject(e);
-        break;
-      }
+    const generator = importGenerator();
+    while (true) {
+      const next = await generator.next();
+      if (!running) throw new Error('Discovery stopped'); // break if stop() has been called
+      if (next.value?.progress) reportProgress(next.value.progress);
+      if (next.value?.wallet) reportWallet(next.value.wallet);
+      if (next.done) break; // break if generator has been finished
     }
     reportFinish();
-  })();
-
-  // POEHALI
-  // importFunc()
-  //   .then(() => reportFinish())
-  //   .catch(e => {
-  //     if (e.message === 'Cancel Pressed') {
-  //       reportFinish(true);
-  //       return;
-  //     }
-  //     promiseReject(e);
-  //   });
+  })().catch(e => {
+    if (e.message === 'Cancel Pressed') {
+      reportFinish(true);
+      return;
+    } else if (e.message === 'Discovery stopped') {
+      reportFinish(undefined, true);
+      return;
+    }
+    promiseReject(e);
+  });
 
   return { promise, stop };
 };

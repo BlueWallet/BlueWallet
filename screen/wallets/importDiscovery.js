@@ -76,7 +76,9 @@ const ImportWalletDiscovery = () => {
 
     IdleTimerManager.setIdleTimerDisabled(true);
 
-    task.current = startImport(importText, { onProgress, onWallet, onPassword })
+    task.current = startImport(importText, { onProgress, onWallet, onPassword });
+
+    task.current.promise
       .then(({ cancelled, wallets }) => {
         if (cancelled) return;
         if (wallets.length === 1) saveWallet(wallets[0]); // instantly save wallet if only one has been discovered
@@ -90,8 +92,15 @@ const ImportWalletDiscovery = () => {
         setLoading(false);
         IdleTimerManager.setIdleTimerDisabled(false);
       });
+
+    return () => task.current.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleCustomDerivation = () => {
+    task.current.stop();
+    navigation.navigate('ImportCustomDerivationPath', { importText, password });
+  };
 
   const renderItem = ({ item, index }) => (
     <WalletToImport
@@ -126,7 +135,7 @@ const ImportWalletDiscovery = () => {
           <BlueButtonLink
             title={loc.wallets.import_discovery_derivation}
             testID="CustomDerivationPathButton"
-            onPress={() => navigation.navigate('ImportCustomDerivationPath', { importText, password })}
+            onPress={handleCustomDerivation}
           />
         )}
         <BlueSpacing10 />
