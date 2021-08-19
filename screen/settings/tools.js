@@ -26,7 +26,7 @@ const NetworkSettings = () => {
       <ScrollView>
         <BlueListItem title={loc.is_it_my_address.title} onPress={navigateToIsItMyAddress} testID="IsItMyAddress" chevron />
         <BlueListItem title={loc.settings.network_broadcast} onPress={navigateToBroadcast} testID="Broadcast" chevron />
-        <BlueListItem title={loc.hodl.local_trader} onPress={navigateToLocalTrader} testID="Broadcast" chevron />
+        <BlueListItem title={loc.hodl.local_trader} onPress={navigateToLocalTrader} testID="LocalTrader" chevron />
       </ScrollView>
     </SafeBlueArea>
   );
