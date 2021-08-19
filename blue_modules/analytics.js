@@ -1,4 +1,3 @@
-import { getUniqueId } from 'react-native-device-info';
 const BlueApp = require('../BlueApp');
 
 if (process.env.NODE_ENV !== 'development') {
