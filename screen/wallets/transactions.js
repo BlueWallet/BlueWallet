@@ -346,39 +346,42 @@ const WalletTransactions = () => {
   };
 
   const renderMarketplaceButton = () => {
-    return Platform.select({
-      android: (
-        <TouchableOpacity
-          accessibilityRole="button"
-          onPress={() => {
-            if (wallet.type === LightningCustodianWallet.type) {
-              navigate('LappBrowserRoot', {
-                screen: 'LappBrowser',
-                params: { walletID },
-              });
-            } else {
-              navigate('Marketplace', { walletID });
-            }
-          }}
-          style={[styles.marketplaceButton1, stylesHook.marketplaceButton1]}
-        >
-          <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_marketplace}</Text>
-        </TouchableOpacity>
-      ),
-      ios:
-        wallet.getBalance() > 0 ? (
+    return (
+      wallet.chain === Chain.OFFCHAIN &&
+      Platform.select({
+        android: (
           <TouchableOpacity
             accessibilityRole="button"
-            onPress={async () => {
-              Linking.openURL('https://bluewallet.io/marketplace/');
+            onPress={() => {
+              if (wallet.type === LightningCustodianWallet.type) {
+                navigate('LappBrowserRoot', {
+                  screen: 'LappBrowser',
+                  params: { walletID },
+                });
+              } else {
+                navigate('Marketplace', { walletID });
+              }
             }}
             style={[styles.marketplaceButton1, stylesHook.marketplaceButton1]}
           >
-            <Icon name="external-link" size={18} type="font-awesome" color="#9aa0aa" />
-            <Text style={[styles.marketpalceText2, stylesHook.marketpalceText2]}>{loc.wallets.list_marketplace}</Text>
+            <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_marketplace}</Text>
           </TouchableOpacity>
-        ) : null,
-    });
+        ),
+        ios:
+          wallet.getBalance() > 0 ? (
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={async () => {
+                Linking.openURL('https://bluewallet.io/marketplace/');
+              }}
+              style={[styles.marketplaceButton1, stylesHook.marketplaceButton1]}
+            >
+              <Icon name="external-link" size={18} type="font-awesome" color="#9aa0aa" />
+              <Text style={[styles.marketpalceText2, stylesHook.marketpalceText2]}>{loc.wallets.list_marketplace}</Text>
+            </TouchableOpacity>
+          ) : null,
+      })
+    );
   };
 
   const renderLappBrowserButton = () => {
