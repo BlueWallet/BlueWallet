@@ -787,12 +787,6 @@ describe('BlueWallet UI Tests', () => {
     await expect(element(by.id('BlueCopyTextToClipboard'))).toBeVisible();
     await device.pressBack();
 
-    // Marketplace
-    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
-    await element(by.id('Marketplace')).tap();
-    await expect(element(by.id('MarketplaceWebView'))).toBeVisible();
-    await element(by.id('NavigationCloseButton')).tap();
-
     // Delete
     await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
     await element(by.id('DeleteButton')).tap();
