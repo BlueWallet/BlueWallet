@@ -29,6 +29,7 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
   // state
   let promiseResolve;
   let promiseReject;
+  let running = true; // if you put it to false, internal generator stops
   const wallets = [];
   const promise = new Promise((resolve, reject) => {
     promiseResolve = resolve;
@@ -39,16 +40,17 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
   const reportProgress = name => {
     onProgress(name);
   };
-  const reportFinish = (cancelled = false) => {
-    promiseResolve({ cancelled, wallets });
+  const reportFinish = (cancelled, stopped) => {
+    promiseResolve({ cancelled, stopped, wallets });
   };
   const reportWallet = wallet => {
     if (wallets.some(w => w.getID() === wallet.getID())) return; // do not add duplicates
     wallets.push(wallet);
     onWallet(wallet);
   };
+  const stop = () => (running = false);
 
-  const importFunc = async () => {
+  async function* importGenerator() {
     // The plan:
     // -3. ask for password, if needed and validate it
     // -2. check if BIP38 encrypted
@@ -126,16 +128,16 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
     }
 
     // is it multisig?
-    reportProgress('multisignature');
+    yield { progress: 'multisignature' };
     const ms = new MultisigHDWallet();
     ms.setSecret(text);
     if (ms.getN() > 0 && ms.getM() > 0) {
       await ms.fetchBalance();
-      reportWallet(ms);
+      yield { wallet: ms };
     }
 
     // is it lightning custodian?
-    reportProgress('lightning custodian');
+    yield { progress: 'lightning custodian' };
     if (text.startsWith('blitzhub://') || text.startsWith('lndhub://')) {
       const lnd = new LightningCustodianWallet();
       if (text.includes('@')) {
@@ -149,11 +151,11 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
       await lnd.fetchUserInvoices();
       await lnd.fetchPendingTransactions();
       await lnd.fetchBalance();
-      reportWallet(lnd);
+      yield { wallet: lnd };
     }
 
     // check bip39 wallets
-    reportProgress('bip39');
+    yield { progress: 'bip39' };
     const hd2 = new HDSegwitBech32Wallet();
     hd2.setSecret(text);
     hd2.setPassphrase(password);
@@ -186,9 +188,9 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
           wallet.setSecret(text);
           wallet.setPassphrase(password);
           wallet.setDerivationPath(path);
-          reportProgress(`bip39 ${i.script_type} ${path}`);
+          yield { progress: `bip39 ${i.script_type} ${path}` };
           if (await wallet.wasEverUsed()) {
-            reportWallet(wallet);
+            yield { wallet: wallet };
             walletFound = true;
           } else {
             break; // don't check second account if first one is empty
@@ -202,7 +204,7 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
       m0Legacy.setSecret(text);
       m0Legacy.setPassphrase(password);
       m0Legacy.setDerivationPath("m/0'");
-      reportProgress(`bip39 p2pkh m/0'`);
+      yield { progress: "bip39 p2pkh m/0'" };
       // BRD doesn't support passphrase and only works with 12 words seeds
       if (!password && text.split(' ').length === 12) {
         const brd = new HDLegacyBreadwalletWallet();
@@ -211,148 +213,159 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
         if (await m0Legacy.wasEverUsed()) {
           await m0Legacy.fetchBalance();
           await m0Legacy.fetchTransactions();
-          reportProgress(`BRD`);
+          yield { progress: 'BRD' };
           await brd.fetchBalance();
           await brd.fetchTransactions();
           if (brd.getTransactions().length > m0Legacy.getTransactions().length) {
-            reportWallet(brd);
+            yield { wallet: brd };
           } else {
-            reportWallet(m0Legacy);
+            yield { wallet: m0Legacy };
           }
           walletFound = true;
         }
       } else {
         if (await m0Legacy.wasEverUsed()) {
-          reportWallet(m0Legacy);
+          yield { wallet: m0Legacy };
           walletFound = true;
         }
       }
 
       // if we havent found any wallet for this seed suggest new bech32 wallet
       if (!walletFound) {
-        reportWallet(hd2);
+        yield { wallet: hd2 };
       }
-      return;
+      // return;
     }
 
-    reportProgress('wif');
+    yield { progress: 'wif' };
     const segwitWallet = new SegwitP2SHWallet();
     segwitWallet.setSecret(text);
     if (segwitWallet.getAddress()) {
       // ok its a valid WIF
 
-      reportProgress('wif p2wpkh');
+      yield { progress: 'wif p2wpkh' };
       const segwitBech32Wallet = new SegwitBech32Wallet();
       segwitBech32Wallet.setSecret(text);
       if (await segwitBech32Wallet.wasEverUsed()) {
         // yep, its single-address bech32 wallet
         await segwitBech32Wallet.fetchBalance();
-        reportWallet(segwitBech32Wallet);
+        yield { wallet: segwitBech32Wallet };
       }
 
-      reportProgress('wif p2wpkh-p2sh');
+      yield { progress: 'wif p2wpkh-p2sh' };
       if (await segwitWallet.wasEverUsed()) {
         // yep, its single-address bech32 wallet
         await segwitWallet.fetchBalance();
-        reportWallet(segwitWallet);
+        yield { wallet: segwitWallet };
       }
 
       // default wallet is Legacy
-      reportProgress('wif p2pkh');
+      yield { progress: 'wif p2pkh' };
       const legacyWallet = new LegacyWallet();
       legacyWallet.setSecret(text);
-      reportWallet(legacyWallet);
+      yield { wallet: legacyWallet };
     }
 
     // case - WIF is valid, just has uncompressed pubkey
-    reportProgress('wif p2pkh');
+    yield { progress: 'wif p2pkh' };
     const legacyWallet = new LegacyWallet();
     legacyWallet.setSecret(text);
     if (legacyWallet.getAddress()) {
       await legacyWallet.fetchBalance();
       await legacyWallet.fetchTransactions();
-      reportWallet(legacyWallet);
+      yield { wallet: legacyWallet };
     }
 
     // maybe its a watch-only address?
-    reportProgress('watch only');
+    yield { progress: 'watch only' };
     const watchOnly = new WatchOnlyWallet();
     watchOnly.setSecret(text);
     if (watchOnly.valid()) {
       await watchOnly.fetchBalance();
-      reportWallet(watchOnly);
+      yield { wallet: watchOnly };
     }
 
     // electrum p2wpkh-p2sh
-    reportProgress('electrum p2wpkh-p2sh');
+    yield { progress: 'electrum p2wpkh-p2sh' };
     const el1 = new HDSegwitElectrumSeedP2WPKHWallet();
     el1.setSecret(text);
     el1.setPassphrase(password);
     if (el1.validateMnemonic()) {
-      reportWallet(el1); // not fetching txs or balances, fuck it, yolo, life is too short
+      yield { wallet: el1 }; // not fetching txs or balances, fuck it, yolo, life is too short
     }
 
     // electrum p2wpkh-p2sh
-    reportProgress('electrum p2pkh');
+    yield { progress: 'electrum p2pkh' };
     const el2 = new HDLegacyElectrumSeedP2PKHWallet();
     el2.setSecret(text);
     el2.setPassphrase(password);
     if (el2.validateMnemonic()) {
-      reportWallet(el2); // not fetching txs or balances, fuck it, yolo, life is too short
+      yield { wallet: el2 }; // not fetching txs or balances, fuck it, yolo, life is too short
     }
 
     // is it AEZEED?
-    reportProgress('aezeed');
+    yield { progress: 'aezeed' };
     const aezeed2 = new HDAezeedWallet();
     aezeed2.setSecret(text);
     aezeed2.setPassphrase(password);
     if (await aezeed2.validateMnemonicAsync()) {
-      reportWallet(aezeed2); // not fetching txs or balances, fuck it, yolo, life is too short
+      yield { wallet: aezeed2 }; // not fetching txs or balances, fuck it, yolo, life is too short
     }
 
     // if it is multi-line string, then it is probably SLIP39 wallet
     // each line - one share
-    reportProgress('SLIP39');
+    yield { progress: 'SLIP39' };
     if (text.includes('\n')) {
       const s1 = new SLIP39SegwitP2SHWallet();
       s1.setSecret(text);
 
       if (s1.validateMnemonic()) {
-        reportProgress('SLIP39 p2wpkh-p2sh');
+        yield { progress: 'SLIP39 p2wpkh-p2sh' };
         s1.setPassphrase(password);
         if (await s1.wasEverUsed()) {
-          reportWallet(s1);
+          yield { wallet: s1 };
         }
 
-        reportProgress('SLIP39 p2pkh');
+        yield { progress: 'SLIP39 p2pkh' };
         const s2 = new SLIP39LegacyP2PKHWallet();
         s2.setPassphrase(password);
         s2.setSecret(text);
         if (await s2.wasEverUsed()) {
-          reportWallet(s2);
+          yield { wallet: s2 };
         }
 
-        reportProgress('SLIP39 p2wpkh');
+        yield { progress: 'SLIP39 p2wpkh' };
         const s3 = new SLIP39SegwitBech32Wallet();
         s3.setSecret(text);
         s3.setPassphrase(password);
-        reportWallet(s3);
+        yield { wallet: s3 };
       }
     }
-  };
+  }
 
   // POEHALI
-  importFunc()
-    .then(() => reportFinish())
-    .catch(e => {
-      if (e.message === 'Cancel Pressed') {
-        reportFinish(true);
-        return;
-      }
-      promiseReject(e);
-    });
+  (async () => {
+    const generator = importGenerator();
+    while (true) {
+      const next = await generator.next();
+      if (!running) throw new Error('Discovery stopped'); // break if stop() has been called
+      if (next.value?.progress) reportProgress(next.value.progress);
+      if (next.value?.wallet) reportWallet(next.value.wallet);
+      if (next.done) break; // break if generator has been finished
+    }
+    reportFinish();
+  })().catch(e => {
+    if (e.message === 'Cancel Pressed') {
+      reportFinish(true);
+      return;
+    } else if (e.message === 'Discovery stopped') {
+      reportFinish(undefined, true);
+      return;
+    }
+    promiseReject(e);
+  });
 
-  return promise;
+  return { promise, stop };
 };
 
 export default startImport;
