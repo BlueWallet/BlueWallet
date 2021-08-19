@@ -75,7 +75,11 @@ describe('import procedure', () => {
 
   it('can import multiple wallets', async () => {
     const store = createStore();
-    await startImport('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about', store.callbacks);
+    const { promise } = startImport(
+      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+      store.callbacks,
+    );
+    await promise;
     assert.strictEqual(store.state.wallets.length > 3, true);
   });
 
@@ -277,7 +281,7 @@ describe('import procedure', () => {
 });
 
 describe('bip39 discover', () => {
-  it.only('can discover wallets by derivation path', async () => {
+  it('can discover wallets by derivation path', async () => {
     const wallets = await discoverBIP39WithCustomDerivationPath(
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
       undefined,
