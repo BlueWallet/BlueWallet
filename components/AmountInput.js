@@ -139,7 +139,7 @@ class AmountInput extends Component {
         text = '0.';
       }
     } else if (this.props.unit === BitcoinUnit.LOCAL_CURRENCY) {
-      text = text.replace(/,/gi, '');
+      text = text.replace(/,/gi, '.');
       if (text.split('.').length > 2) {
         // too many dots. stupid code to remove all but first dot:
         let rez = '';

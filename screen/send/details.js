@@ -890,6 +890,12 @@ const SendDetails = () => {
     feeLabel: {
       color: colors.feeText,
     },
+    feeModalItemDisabled: {
+      backgroundColor: colors.buttonDisabledBackgroundColor,
+    },
+    feeModalItemTextDisabled: {
+      color: colors.buttonDisabledTextColor,
+    },
     feeRow: {
       backgroundColor: colors.feeLabel,
     },
@@ -914,6 +920,7 @@ const SendDetails = () => {
         fee: feePrecalc.mediumFee,
         rate: nf.mediumFee,
         active: Number(feeRate) === nf.mediumFee,
+        disabled: nf.mediumFee === nf.fastestFee,
       },
       {
         label: loc.send.fee_slow,
@@ -921,6 +928,7 @@ const SendDetails = () => {
         fee: feePrecalc.slowFee,
         rate: nf.slowFee,
         active: Number(feeRate) === nf.slowFee,
+        disabled: nf.slowFee === nf.mediumFee || nf.slowFee === nf.fastestFee,
       },
     ];
 
@@ -932,26 +940,29 @@ const SendDetails = () => {
       >
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
-            {options.map(({ label, time, fee, rate, active }, index) => (
+            {options.map(({ label, time, fee, rate, active, disabled }, index) => (
               <TouchableOpacity
                 accessibilityRole="button"
                 key={label}
+                disabled={disabled}
                 onPress={() => {
                   setFeePrecalc(fp => ({ ...fp, current: fee }));
                   setIsFeeSelectionModalVisible(false);
                   setCustomFee(rate.toString());
                 }}
-                style={[styles.feeModalItem, active && styles.feeModalItemActive, active && stylesHook.feeModalItemActive]}
+                style={[styles.feeModalItem, active && styles.feeModalItemActive, active && !disabled && stylesHook.feeModalItemActive]}
               >
                 <View style={styles.feeModalRow}>
-                  <Text style={[styles.feeModalLabel, stylesHook.feeModalLabel]}>{label}</Text>
-                  <View style={[styles.feeModalTime, stylesHook.feeModalTime]}>
+                  <Text style={[styles.feeModalLabel, disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalLabel]}>
+                    {label}
+                  </Text>
+                  <View style={[styles.feeModalTime, disabled ? stylesHook.feeModalItemDisabled : stylesHook.feeModalTime]}>
                     <Text style={stylesHook.feeModalTimeText}>~{time}</Text>
                   </View>
                 </View>
                 <View style={styles.feeModalRow}>
-                  <Text style={stylesHook.feeModalValue}>{fee && formatFee(fee)}</Text>
-                  <Text style={stylesHook.feeModalValue}>
+                  <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>{fee && formatFee(fee)}</Text>
+                  <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>
                     {rate} {loc.units.sat_byte}
                   </Text>
                 </View>

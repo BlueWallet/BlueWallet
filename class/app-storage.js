@@ -575,6 +575,10 @@ export class AppStorage {
     } catch (error) {
       console.error('save to disk exception:', error.message);
       alert('save to disk exception: ' + error.message);
+      if (error.message.includes('Realm file decryption failed')) {
+        console.warn('purging realm key-value database file');
+        this.purgeRealmKeyValueFile();
+      }
     } finally {
       savingInProgress = 0;
     }
@@ -791,4 +795,11 @@ export class AppStorage {
   sleep = ms => {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
+
+  purgeRealmKeyValueFile() {
+    const path = 'keyvalue.realm';
+    return Realm.deleteFile({
+      path,
+    });
+  }
 }

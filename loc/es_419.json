@@ -263,6 +263,8 @@
     "electrum_connected_not": "No Conectado",
     "electrum_error_connect": "No se puede conectar al servidor Electrum proporcionado",
     "electrum_host": "Por ej.: {example}",
+    "electrum_offline_mode": "Modo offline",
+    "electrum_offline_description": "Cuando está habilitado, tus billeteras Bitcoin no intentarán recuperar saldos o transacciones.",
     "electrum_port": "Puerto, generalmente {example}",
     "use_ssl": "Utiliza SSL",
     "electrum_saved": "Tus cambios se han guardado correctamente. Es necesario reiniciar para que los cambios surtan efecto.",
