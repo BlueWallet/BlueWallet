@@ -383,6 +383,8 @@ const WalletsList = () => {
       <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
+          contentInsetAdjustmentBehavior="automatic"
+          automaticallyAdjustContentInsets
           onRefresh={onRefresh}
           refreshing={isLoading}
           renderItem={renderSectionItem}
