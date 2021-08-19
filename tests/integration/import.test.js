@@ -68,7 +68,7 @@ describe('import procedure', () => {
       return undefined;
     };
     const store = createStore();
-    const { promise } = await startImport('6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN', { ...store.callbacks, onPassword });
+    const { promise } = startImport('6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN', { ...store.callbacks, onPassword });
     const imprt = await promise;
     assert.strictEqual(store.state.wallets.length, 0);
     assert.strictEqual(imprt.cancelled, true);
