@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
   listHeaderText: {
     fontWeight: 'bold',
     fontSize: 24,
-    marginVertical: 8,
+    marginVertical: 16,
   },
   ltRoot: {
     flexDirection: 'row',
