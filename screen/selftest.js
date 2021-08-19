@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { ScrollView, View, StyleSheet } from 'react-native';
+import wif from 'wif';
+import bip38 from 'bip38';
 
 import loc from '../loc';
 import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading } from '../BlueComponents';
@@ -201,12 +203,28 @@ export default class Selftest extends Component {
         // skipping RN-specific test
       }
 
-      //
-
+      // BlueCrypto test
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
         const hex = await BlueCrypto.scrypt('717765727479', '4749345a22b23cf3', 64, 8, 8, 32); // using non-default parameters to speed it up (not-bip38 compliant)
         if (hex.toUpperCase() !== 'F36AB2DC12377C788D61E6770126D8A01028C8F6D8FE01871CE0489A1F696A90')
           throw new Error('react-native-blue-crypto is not ok');
+      }
+
+      // bip38 test
+      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        let callbackWasCalled = false;
+        const decryptedKey = await bip38.decryptAsync(
+          '6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN',
+          'qwerty',
+          () => (callbackWasCalled = true),
+        );
+        assertStrictEqual(
+          wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed),
+          'KxqRtpd9vFju297ACPKHrGkgXuberTveZPXbRDiQ3MXZycSQYtjc',
+          'bip38 failed',
+        );
+        // bip38 with BlueCrypto doesn't support progress callback
+        assertStrictEqual(callbackWasCalled, false, "bip38 doesn't use BlueCrypto");
       }
 
       // slip39 test
@@ -216,7 +234,7 @@ export default class Selftest extends Component {
           'shadow pistol academic always adequate wildlife fancy gross oasis cylinder mustang wrist rescue view short owner flip making coding armed\n' +
             'shadow pistol academic acid actress prayer class unknown daughter sweater depict flip twice unkind craft early superior advocate guest smoking',
         );
-        assertStrictEqual(w._getExternalAddressByIndex(0), '18pvMjy7AJbCDtv4TLYbGPbR7SzGzjqUpj');
+        assertStrictEqual(w._getExternalAddressByIndex(0), '18pvMjy7AJbCDtv4TLYbGPbR7SzGzjqUpj', 'SLIP39 failed');
       }
 
       //

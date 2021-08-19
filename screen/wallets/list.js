@@ -10,12 +10,11 @@ import {
   Image,
   Dimensions,
   useWindowDimensions,
-  SafeAreaView,
   findNodeHandle,
   useColorScheme,
   I18nManager,
 } from 'react-native';
-import { BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
+import { BlueHeaderDefaultMain } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import { Icon } from 'react-native-elements';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -28,11 +27,13 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isDesktop, isMacCatalina, isTablet } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import navigationStyle from '../../components/navigationStyle';
+import { TransactionListItem } from '../../components/TransactionListItem';
 
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const scanqrHelper = require('../../helpers/scan-qr');
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
-const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
+const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
 const WalletsList = () => {
   const walletsCarousel = useRef();
@@ -141,7 +142,8 @@ const WalletsList = () => {
    * Forcefully fetches TXs and balance for ALL wallets.
    * Triggered manually by user on pull-to-refresh.
    */
-  const refreshTransactions = (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
+  const refreshTransactions = async (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
+    if (await BlueElectrum.isDisabled()) return setIsLoading(false);
     setIsLoading(showLoadingIndicator);
     refreshAllWalletTransactions(showLoadingIndicator, showUpdateStatusIndicator).finally(() => setIsLoading(false));
   };
@@ -211,32 +213,9 @@ const WalletsList = () => {
   const renderTransactionListsRow = data => {
     return (
       <View style={styles.transaction}>
-        <BlueTransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />
+        <TransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />
       </View>
     );
-  };
-
-  const renderLocalTrader = () => {
-    if (wallets.every(wallet => wallet === false)) return null;
-    if (wallets.length > 0 && !isImportingWallet) {
-      const button = (
-        <TouchableOpacity
-          accessibilityRole="button"
-          onPress={() => {
-            navigate('HodlHodl', { screen: 'HodlHodl' });
-          }}
-          style={[styles.ltRoot, stylesHook.ltRoot]}
-        >
-          <View style={styles.ltTextWrap}>
-            <Text style={[styles.ltTextBig, stylesHook.ltTextBig]}>{loc.hodl.local_trader}</Text>
-            <Text style={[styles.ltTextSmall, stylesHook.ltTextSmall]}>{loc.hodl.p2p}</Text>
-          </View>
-        </TouchableOpacity>
-      );
-      return isLargeScreen ? <SafeAreaView>{button}</SafeAreaView> : button;
-    } else {
-      return null;
-    }
   };
 
   const renderWalletsCarousel = () => {
@@ -259,8 +238,6 @@ const WalletsList = () => {
     switch (item.section.key) {
       case WalletsListSections.CAROUSEL:
         return isLargeScreen ? null : renderWalletsCarousel();
-      case WalletsListSections.LOCALTRADER:
-        return renderLocalTrader();
       case WalletsListSections.TRANSACTIONS:
         return renderTransactionListsRow(item);
       default:
@@ -416,7 +393,6 @@ const WalletsList = () => {
           renderSectionFooter={renderSectionFooter}
           sections={[
             { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
-            { key: WalletsListSections.LOCALTRADER, data: [WalletsListSections.LOCALTRADER] },
             { key: WalletsListSections.TRANSACTIONS, data: dataSource },
           ]}
         />
@@ -476,7 +452,7 @@ const styles = StyleSheet.create({
   listHeaderText: {
     fontWeight: 'bold',
     fontSize: 24,
-    marginVertical: 8,
+    marginVertical: 16,
   },
   ltRoot: {
     flexDirection: 'row',

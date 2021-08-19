@@ -36,7 +36,6 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import ToolTipMenu from '../../components/TooltipMenu';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
@@ -52,7 +51,6 @@ const ReceiveDetails = () => {
   const [showAddress, setShowAddress] = useState(false);
   const { navigate, goBack, setParams } = useNavigation();
   const { colors } = useTheme();
-  const toolTip = useRef();
   const qrCode = useRef();
   const styles = StyleSheet.create({
     modalContent: {
@@ -146,9 +144,6 @@ const ReceiveDetails = () => {
     });
   };
 
-  const showToolTipMenu = () => {
-    toolTip.current.showMenu();
-  };
   const renderReceiveDetails = () => {
     return (
       <ScrollView contentContainerStyle={styles.root} keyboardShouldPersistTaps="always">
@@ -163,31 +158,30 @@ const ReceiveDetails = () => {
               </BlueText>
             </>
           )}
-          <TouchableWithoutFeedback style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer" onLongPress={showToolTipMenu}>
+          <View style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer">
             <ToolTipMenu
-              ref={toolTip}
-              anchorRef={qrCode}
               actions={[
                 {
-                  id: 'shareQRCode',
+                  id: ReceiveDetails.actionKeys.Share,
                   text: loc.receive.details_share,
-                  onPress: handleShareQRCode,
+                  icon: ReceiveDetails.actionIcons.Share,
                 },
               ]}
-            />
-
-            <QRCode
-              value={bip21encoded}
-              logo={require('../../img/qr-code.png')}
-              size={(is.ipad() && 300) || 300}
-              logoSize={90}
-              color="#000000"
-              logoBackgroundColor={colors.brandingColor}
-              backgroundColor="#FFFFFF"
-              ecl="H"
-              getRef={qrCode}
-            />
-          </TouchableWithoutFeedback>
+              onPress={handleShareQRCode}
+            >
+              <QRCode
+                value={bip21encoded}
+                logo={require('../../img/qr-code.png')}
+                size={(is.ipad() && 300) || 300}
+                logoSize={90}
+                color="#000000"
+                logoBackgroundColor={colors.brandingColor}
+                backgroundColor="#FFFFFF"
+                ecl="H"
+                getRef={qrCode}
+              />
+            </ToolTipMenu>
+          </View>
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>
@@ -384,6 +378,17 @@ const ReceiveDetails = () => {
       {showAddress ? renderReceiveDetails() : <BlueLoading />}
     </View>
   );
+};
+
+ReceiveDetails.actionKeys = {
+  Share: 'share',
+};
+
+ReceiveDetails.actionIcons = {
+  Share: {
+    iconType: 'SYSTEM',
+    iconValue: 'square.and.arrow.up',
+  },
 };
 
 ReceiveDetails.navigationOptions = navigationStyle(

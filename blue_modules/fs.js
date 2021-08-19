@@ -100,7 +100,7 @@ const writeFileAndExport = async function (filename, contents) {
 const openSignedTransaction = async function () {
   try {
     const res = await DocumentPicker.pick({
-      type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallt.psbt.txn'] : [DocumentPicker.types.allFiles],
+      type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn'] : [DocumentPicker.types.allFiles],
     });
 
     return await _readPsbtFileIntoBase64(res.uri);
@@ -135,6 +135,8 @@ const showImagePickerAndReadImage = () => {
         title: null,
         mediaType: 'photo',
         takePhotoButtonTitle: null,
+        maxHeight: 800,
+        maxWidth: 600,
       },
       response => {
         if (response.uri) {
