@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
@@ -35,8 +35,6 @@ const TransactionsDetails = () => {
   const [tx, setTX] = useState();
   const [memo, setMemo] = useState();
   const { colors } = useTheme();
-  const openTransactionOnBlockExplorerRef = useRef();
-  const toolTip = useRef();
   const stylesHooks = StyleSheet.create({
     rowCaption: {
       color: colors.foregroundColor,
@@ -137,10 +135,6 @@ const TransactionsDetails = () => {
     Clipboard.setString(`https://mempool.space/tx/${tx.hash}`);
   };
 
-  const showToolTipMenu = () => {
-    toolTip.current.showMenu();
-  };
-
   if (isLoading || !tx) {
     return <BlueLoading />;
   }
@@ -231,29 +225,38 @@ const TransactionsDetails = () => {
             </>
           )}
           <ToolTipMenu
-            ref={toolTip}
-            anchorRef={openTransactionOnBlockExplorerRef}
             actions={[
               {
-                id: 'copyToClipboard',
+                id: TransactionsDetails.actionKeys.CopyToClipboard,
                 text: loc.transactions.details_copy,
-                onPress: handleCopyPress,
+                icon: TransactionsDetails.actionIcons.Clipboard,
               },
             ]}
-          />
-          <TouchableOpacity
-            accessibilityRole="button"
-            ref={openTransactionOnBlockExplorerRef}
-            onPress={handleOnOpenTransactionOnBlockExporerTapped}
-            onLongPress={showToolTipMenu}
-            style={[styles.greyButton, stylesHooks.greyButton]}
+            onPress={handleCopyPress}
           >
-            <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_show_in_block_explorer}</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={handleOnOpenTransactionOnBlockExporerTapped}
+              style={[styles.greyButton, stylesHooks.greyButton]}
+            >
+              <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_show_in_block_explorer}</Text>
+            </TouchableOpacity>
+          </ToolTipMenu>
         </BlueCard>
       </ScrollView>
     </SafeBlueArea>
   );
+};
+
+TransactionsDetails.actionKeys = {
+  CopyToClipboard: 'copyToClipboard',
+};
+
+TransactionsDetails.actionIcons = {
+  Clipboard: {
+    iconType: 'SYSTEM',
+    iconValue: 'arrow.right.doc.on.clipboard',
+  },
 };
 
 const styles = StyleSheet.create({
