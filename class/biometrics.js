@@ -8,7 +8,6 @@ import RNSecureKeyStore from 'react-native-secure-key-store';
 import loc from '../loc';
 import { useContext } from 'react';
 import { BlueStorageContext } from '../blue_modules/storage-context';
-import * as Sentry from '@sentry/react-native';
 
 function Biometric() {
   const { getItem, setItem } = useContext(BlueStorageContext);
@@ -79,7 +78,6 @@ function Biometric() {
   };
 
   Biometric.clearKeychain = async () => {
-    Sentry.captureMessage('Biometric.clearKeychain()');
     await RNSecureKeyStore.remove('data');
     await RNSecureKeyStore.remove('data_encrypted');
     await RNSecureKeyStore.remove(Biometric.STORAGEKEY);
