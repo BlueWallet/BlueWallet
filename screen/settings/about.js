@@ -9,7 +9,6 @@ import { BlueButton, BlueCard, BlueListItem, BlueSpacing20, BlueTextCentered } f
 import navigationStyle from '../../components/navigationStyle';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
-import * as Sentry from '@sentry/react-native';
 
 const About = () => {
   const { navigate } = useNavigation();
@@ -216,7 +215,6 @@ const About = () => {
           accessibilityRole="button"
           onPress={() => {
             const stringToCopy = 'user.id:' + getUniqueId();
-            Sentry.captureMessage('copied unique id');
             Clipboard.setString(stringToCopy);
           }}
         >
