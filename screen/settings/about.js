@@ -9,6 +9,7 @@ import { BlueButton, BlueCard, BlueListItem, BlueSpacing20, BlueTextCentered } f
 import navigationStyle from '../../components/navigationStyle';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
+import Bugsnag from '@bugsnag/react-native';
 
 const About = () => {
   const { navigate } = useNavigation();
@@ -215,6 +216,7 @@ const About = () => {
           accessibilityRole="button"
           onPress={() => {
             const stringToCopy = 'user.id:' + getUniqueId();
+            Bugsnag.notify(new Error('copied unique id'));
             Clipboard.setString(stringToCopy);
           }}
         >
