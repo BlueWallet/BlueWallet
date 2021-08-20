@@ -1,34 +1,38 @@
-import React, { useRef, forwardRef, useEffect } from 'react';
-import ToolTip from 'react-native-tooltip';
+import React from 'react';
+import { ContextMenuView } from 'react-native-ios-context-menu';
 import PropTypes from 'prop-types';
-import { View } from 'react-native';
 
 const ToolTipMenu = (props, ref) => {
-  const toolTip = useRef();
-
-  const showMenu = () => {
-    console.log('Showing ToolTip');
-    toolTip.current?.showMenu();
-  };
-
-  const hideMenu = () => {
-    console.log('Hiding ToolTip');
-    toolTip.current?.hideMenu();
-  };
-
-  useEffect(() => {
-    ref.current.showMenu = showMenu;
-    ref.current.hideMenu = hideMenu;
-  }, [ref]);
-
+  const menuItems = props.actions.map(action => ({
+    actionKey: action.id,
+    actionTitle: action.text,
+    actionOnPress: action.onPress,
+    icon: action.icon,
+    menuOptions: action.menuOptions,
+    menuTitle: action.menuTitle,
+  }));
+  const menuTitle = props.title ?? '';
+  const submenu = props.submenu;
   return (
-    <View ref={ref}>
-      <ToolTip ref={toolTip} actions={props.actions} />
-    </View>
+    <ContextMenuView
+      onPressMenuItem={({ nativeEvent }) => {
+        props.onPress(nativeEvent.actionKey);
+      }}
+      menuConfig={{
+        menuTitle,
+        menuItems: menuItems.concat(submenu),
+      }}
+    >
+      {props.children}
+    </ContextMenuView>
   );
 };
 
-export default forwardRef(ToolTipMenu);
+export default ToolTipMenu;
 ToolTipMenu.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.shape).isRequired,
+  title: PropTypes.string,
+  submenu: PropTypes.object,
+  children: PropTypes.node.isRequired,
+  onPress: PropTypes.func.isRequired,
 };

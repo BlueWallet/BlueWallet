@@ -395,6 +395,7 @@
     "add_title": "Add Wallet",
     "add_wallet_name": "Name",
     "add_wallet_type": "Type",
+    "balance": "Balance",
     "clipboard_bitcoin": "You have a Bitcoin address on your clipboard. Would you like to use it for a transaction?",
     "clipboard_lightning": "You have a Lightning invoice on your clipboard. Would you like to use it for a transaction?",
     "details_address": "Address",

@@ -5,7 +5,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import { useIsFocused, useTheme } from '@react-navigation/native';
 
-import { BlueHeaderDefaultMain, BlueSpacing20 } from '../../BlueComponents';
+import { BlueHeaderDefaultMain } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -69,7 +69,6 @@ const DrawerList = props => {
     return (
       <>
         <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
-        <BlueSpacing20 />
       </>
     );
   };
@@ -89,7 +88,7 @@ const DrawerList = props => {
   );
 
   return (
-    <DrawerContentScrollView {...props}>
+    <DrawerContentScrollView {...props} contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
       <View styles={[styles.root, stylesHook.root]}>
         <StatusBar barStyle="default" />
         {renderWalletsCarousel}
