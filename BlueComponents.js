@@ -382,17 +382,8 @@ export const BlueCard = props => {
 
 export const BlueText = props => {
   const { colors } = useTheme();
-  return (
-    <Text
-      {...props}
-      style={{
-        color: colors.foregroundColor,
-
-        ...props.style,
-        writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-      }}
-    />
-  );
+  const style = StyleSheet.compose({ color: colors.foregroundColor, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }, props.style);
+  return <Text {...props} style={style} />;
 };
 
 export const BlueTextCentered = props => {

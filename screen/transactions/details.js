@@ -36,12 +36,6 @@ const TransactionsDetails = () => {
   const [memo, setMemo] = useState();
   const { colors } = useTheme();
   const stylesHooks = StyleSheet.create({
-    rowCaption: {
-      color: colors.foregroundColor,
-    },
-    txId: {
-      color: colors.foregroundColor,
-    },
     txLink: {
       color: colors.alternativeTextColor2,
     },
@@ -163,7 +157,7 @@ const TransactionsDetails = () => {
           {from && (
             <>
               <View style={styles.rowHeader}>
-                <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_from}</BlueText>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_from}</BlueText>
                 <BlueCopyToClipboardButton stringToCopy={from.filter(onlyUnique).join(', ')} />
               </View>
               <BlueText style={styles.rowValue}>{from.filter(onlyUnique).join(', ')}</BlueText>
@@ -173,7 +167,7 @@ const TransactionsDetails = () => {
           {to && (
             <>
               <View style={styles.rowHeader}>
-                <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_to}</BlueText>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_to}</BlueText>
                 <BlueCopyToClipboardButton stringToCopy={to.filter(onlyUnique).join(', ')} />
               </View>
               <BlueText style={styles.rowValue}>{arrDiff(from, to.filter(onlyUnique)).join(', ')}</BlueText>
@@ -182,7 +176,7 @@ const TransactionsDetails = () => {
 
           {tx.fee && (
             <>
-              <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.send.create_fee}</BlueText>
+              <BlueText style={styles.rowCaption}>{loc.send.create_fee}</BlueText>
               <BlueText style={styles.rowValue}>{tx.fee + ' sats'}</BlueText>
             </>
           )}
@@ -199,28 +193,28 @@ const TransactionsDetails = () => {
 
           {tx.received && (
             <>
-              <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_received}</BlueText>
+              <BlueText style={styles.rowCaption}>{loc.transactions.details_received}</BlueText>
               <BlueText style={styles.rowValue}>{dayjs(tx.received).format('LLL')}</BlueText>
             </>
           )}
 
           {tx.block_height > 0 && (
             <>
-              <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_block}</BlueText>
+              <BlueText style={styles.rowCaption}>{loc.transactions.details_block}</BlueText>
               <BlueText style={styles.rowValue}>{tx.block_height}</BlueText>
             </>
           )}
 
           {tx.inputs && (
             <>
-              <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_inputs}</BlueText>
+              <BlueText style={styles.rowCaption}>{loc.transactions.details_inputs}</BlueText>
               <BlueText style={styles.rowValue}>{tx.inputs.length}</BlueText>
             </>
           )}
 
           {tx.outputs?.length > 0 && (
             <>
-              <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_outputs}</BlueText>
+              <BlueText style={styles.rowCaption}>{loc.transactions.details_outputs}</BlueText>
               <BlueText style={styles.rowValue}>{tx.outputs.length}</BlueText>
             </>
           )}
