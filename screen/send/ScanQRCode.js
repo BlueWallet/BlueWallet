@@ -301,6 +301,7 @@ const ScanQRCode = () => {
       <StatusBar hidden />
       {isFocused && cameraStatus !== RNCamera.Constants.CameraStatus.NOT_AUTHORIZED && (
         <RNCamera
+          autoFocus
           captureAudio={false}
           androidCameraPermissionOptions={{
             title: loc.send.permission_camera_title,
