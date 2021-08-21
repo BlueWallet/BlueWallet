@@ -23,10 +23,6 @@ jest.mock('@react-native-community/push-notification-ios', () => {
   return {};
 });
 
-jest.mock('@sentry/react-native', () => {
-  return {};
-});
-
 jest.mock('react-native-device-info', () => {
   return {
     getUniqueId: jest.fn().mockReturnValue('uniqueId'),
