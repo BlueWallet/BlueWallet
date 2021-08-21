@@ -95,6 +95,8 @@
   },
   "dependencies": {
     "@babel/preset-env": "7.12.1",
+    "@bugsnag/react-native": "7.12.0",
+    "@bugsnag/source-maps": "2.3.0",
     "@keystonehq/bc-ur-registry": "https://github.com/BlueWallet/ur-registry",
     "@ngraveio/bc-ur": "https://github.com/BlueWallet/bc-ur",
     "@react-native-async-storage/async-storage": "1.15.5",
