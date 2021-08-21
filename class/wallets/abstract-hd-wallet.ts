@@ -73,6 +73,24 @@ export class AbstractHDWallet extends LegacyWallet {
   setSecret(newSecret: string): this {
     this.secret = newSecret.trim().toLowerCase();
     this.secret = this.secret.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ');
+
+    // Try to match words to the default bip39 wordlist and complete partial words
+    const wordlist = bip39.wordlists[bip39.getDefaultWordlist()];
+    const lookupMap = wordlist.reduce((map, word) => {
+      const prefix3 = word.substr(0, 3);
+      const prefix4 = word.substr(0, 4);
+
+      map.set(prefix3, !map.has(prefix3) ? word : false);
+      map.set(prefix4, !map.has(prefix4) ? word : false);
+
+      return map;
+    }, new Map<string, string | false>());
+
+    this.secret = this.secret
+      .split(' ')
+      .map(word => lookupMap.get(word) || word)
+      .join(' ');
+
     return this;
   }
 
