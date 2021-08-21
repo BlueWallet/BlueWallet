@@ -1,6 +1,8 @@
 import { LegacyWallet } from './legacy-wallet';
-const bip39 = require('bip39');
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
+import * as bip39 from 'bip39';
+import { BIP32Interface } from 'bip32';
+import BlueElectrum from '../../blue_modules/BlueElectrum';
+import { Transaction } from './types';
 
 /**
  * @deprecated
@@ -8,6 +10,18 @@ const BlueElectrum = require('../../blue_modules/BlueElectrum');
 export class AbstractHDWallet extends LegacyWallet {
   static type = 'abstract';
   static typeReadable = 'abstract';
+
+  next_free_address_index: number; // eslint-disable-line camelcase
+  next_free_change_address_index: number; // eslint-disable-line camelcase
+  internal_addresses_cache: Record<number, string>; // eslint-disable-line camelcase
+  external_addresses_cache: Record<number, string>; // eslint-disable-line camelcase
+  _xpub: string;
+  usedAddresses: string[];
+  _address_to_wif_cache: Record<string, string>; // eslint-disable-line camelcase
+  gap_limit: number; // eslint-disable-line camelcase
+  passphrase?: string;
+  _node0?: BIP32Interface;
+  _node1?: BIP32Interface;
 
   constructor() {
     super();
@@ -21,59 +35,59 @@ export class AbstractHDWallet extends LegacyWallet {
     this.gap_limit = 20;
   }
 
-  getNextFreeAddressIndex() {
+  getNextFreeAddressIndex(): number {
     return this.next_free_address_index;
   }
 
-  getNextFreeChangeAddressIndex() {
+  getNextFreeChangeAddressIndex(): number {
     return this.next_free_change_address_index;
   }
 
-  prepareForSerialization() {
+  prepareForSerialization(): void {
     // deleting structures that cant be serialized
     delete this._node0;
     delete this._node1;
   }
 
-  generate() {
+  generate(): Promise<void> {
     throw new Error('Not implemented');
   }
 
-  allowSend() {
+  allowSend(): boolean {
     return false;
   }
 
-  getTransactions() {
+  getTransactions(): Transaction[] {
     throw new Error('Not implemented');
   }
 
   /**
    * @return {Buffer} wallet seed
    */
-  _getSeed() {
+  _getSeed(): Buffer {
     const mnemonic = this.secret;
     const passphrase = this.passphrase;
     return bip39.mnemonicToSeedSync(mnemonic, passphrase);
   }
 
-  setSecret(newSecret) {
+  setSecret(newSecret: string): this {
     this.secret = newSecret.trim().toLowerCase();
     this.secret = this.secret.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ');
     return this;
   }
 
-  setPassphrase(passphrase) {
+  setPassphrase(passphrase: string): void {
     this.passphrase = passphrase;
   }
 
-  getPassphrase() {
+  getPassphrase(): string | undefined {
     return this.passphrase;
   }
 
   /**
    * @return {Boolean} is mnemonic in `this.secret` valid
    */
-  validateMnemonic() {
+  validateMnemonic(): boolean {
     return bip39.validateMnemonic(this.secret);
   }
 
@@ -84,7 +98,7 @@ export class AbstractHDWallet extends LegacyWallet {
    *
    * @return {Promise.<string>}
    */
-  async getAddressAsync() {
+  async getAddressAsync(): Promise<string> {
     // looking for free external address
     let freeAddress = '';
     let c;
@@ -122,7 +136,7 @@ export class AbstractHDWallet extends LegacyWallet {
    *
    * @return {Promise.<string>}
    */
-  async getChangeAddressAsync() {
+  async getChangeAddressAsync(): Promise<string> {
     // looking for free internal address
     let freeAddress = '';
     let c;
@@ -159,27 +173,27 @@ export class AbstractHDWallet extends LegacyWallet {
    * @deprecated
    * @return {string}
    */
-  getAddress() {
+  getAddress(): string | false {
     return this._address;
   }
 
-  _getExternalWIFByIndex(index) {
+  _getExternalWIFByIndex(index: number): string {
     throw new Error('Not implemented');
   }
 
-  _getInternalWIFByIndex(index) {
+  _getInternalWIFByIndex(index: number): string {
     throw new Error('Not implemented');
   }
 
-  _getExternalAddressByIndex(index) {
+  _getExternalAddressByIndex(index: number): string {
     throw new Error('Not implemented');
   }
 
-  _getInternalAddressByIndex(index) {
+  _getInternalAddressByIndex(index: number): string {
     throw new Error('Not implemented');
   }
 
-  getXpub() {
+  getXpub(): string {
     throw new Error('Not implemented');
   }
 
@@ -191,7 +205,7 @@ export class AbstractHDWallet extends LegacyWallet {
    *
    * @returns {Promise<void>}
    */
-  async fetchTransactions() {
+  async fetchTransactions(): Promise<void> {
     throw new Error('not implemented');
   }
 
@@ -202,17 +216,19 @@ export class AbstractHDWallet extends LegacyWallet {
    * @param address {String} In our HD hierarchy
    * @return {String} WIF if found
    */
-  _getWifForAddress(address) {
+  _getWifForAddress(address: string): string {
     if (this._address_to_wif_cache[address]) return this._address_to_wif_cache[address]; // cache hit
 
     // fast approach, first lets iterate over all addressess we have in cache
-    for (const index of Object.keys(this.internal_addresses_cache)) {
+    for (const indexStr of Object.keys(this.internal_addresses_cache)) {
+      const index = parseInt(indexStr);
       if (this._getInternalAddressByIndex(index) === address) {
         return (this._address_to_wif_cache[address] = this._getInternalWIFByIndex(index));
       }
     }
 
-    for (const index of Object.keys(this.external_addresses_cache)) {
+    for (const indexStr of Object.keys(this.external_addresses_cache)) {
+      const index = parseInt(indexStr);
       if (this._getExternalAddressByIndex(index) === address) {
         return (this._address_to_wif_cache[address] = this._getExternalWIFByIndex(index));
       }
@@ -236,22 +252,22 @@ export class AbstractHDWallet extends LegacyWallet {
     throw new Error('Could not find WIF for ' + address);
   }
 
-  async fetchBalance() {
+  async fetchBalance(): Promise<void> {
     throw new Error('Not implemented');
   }
 
   /**
    * @inheritDoc
    */
-  async fetchUtxo() {
+  async fetchUtxo(): Promise<void> {
     throw new Error('Not implemented');
   }
 
-  _getDerivationPathByAddress(address) {
+  _getDerivationPathByAddress(address: string): string | false {
     throw new Error('Not implemented');
   }
 
-  _getNodePubkeyByIndex(address) {
+  _getNodePubkeyByIndex(node: number, index: number): Buffer | undefined {
     throw new Error('Not implemented');
   }
 }
