@@ -245,4 +245,26 @@ describe('import procedure', function () {
     );
     assert.strictEqual(lastImportedWallet.type, WatchOnlyWallet.type);
   });
+
+  it('can import BIP39 wallets with truncated words', async () => {
+    // 12 words
+    await WalletImport.processImportText('trip ener cloc puls hams ghos inha crow inju vibr seve chro');
+    assert.strictEqual(lastImportedWallet.getSecret(), 'trip energy clock pulse hamster ghost inhale crowd injury vibrant seven chronic');
+
+    // 16 words
+    await WalletImport.processImportText('docu gosp razo chao nort ches nomi fati swam firs deca boy icon virt gap prep seri anch');
+    assert.strictEqual(
+      lastImportedWallet.getSecret(),
+      'document gospel razor chaos north chest nominee fatigue swamp first decade boy icon virtual gap prepare series anchor',
+    );
+
+    // 24 words
+    await WalletImport.processImportText(
+      'rece own flig sent tide hood sile bunk deri mana wink belt loud apol mons pill raw gate hurd matc nigh wish todd achi',
+    );
+    assert.strictEqual(
+      lastImportedWallet.getSecret(),
+      'receive own flight sentence tide hood silent bunker derive manage wink belt loud apology monster pill raw gate hurdle match night wish toddler achieve',
+    );
+  });
 });
