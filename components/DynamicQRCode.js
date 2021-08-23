@@ -170,6 +170,9 @@ const animatedQRCodeStyle = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
+    borderWidth: 6,
+    borderRadius: 8,
+    borderColor: '#FFFFFF',
   },
   qrcodeContainer: {
     alignItems: 'center',
