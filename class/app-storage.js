@@ -415,7 +415,11 @@ export class AppStorage {
             break;
         }
 
-        if (realm) this.inflateWalletFromRealm(realm, unserializedWallet);
+        try {
+          if (realm) this.inflateWalletFromRealm(realm, unserializedWallet);
+        } catch (error) {
+          alert(error.message);
+        }
 
         // done
         if (!this.wallets.some(wallet => wallet.getSecret() === unserializedWallet.secret)) {
@@ -467,8 +471,7 @@ export class AppStorage {
           walletToInflate._txs_by_external_index[tx.index] = walletToInflate._txs_by_external_index[tx.index] || [];
           walletToInflate._txs_by_external_index[tx.index].push(JSON.parse(tx.tx));
         }
-      }
-      if (tx.internal === true) {
+      } else if (tx.internal === true) {
         if (walletToInflate._hdWalletInstance) {
           walletToInflate._hdWalletInstance._txs_by_internal_index[tx.index] =
             walletToInflate._hdWalletInstance._txs_by_internal_index[tx.index] || [];
@@ -477,6 +480,10 @@ export class AppStorage {
           walletToInflate._txs_by_internal_index[tx.index] = walletToInflate._txs_by_internal_index[tx.index] || [];
           walletToInflate._txs_by_internal_index[tx.index].push(JSON.parse(tx.tx));
         }
+      } else {
+        if (!Array.isArray(walletToInflate._txs_by_external_index)) walletToInflate._txs_by_external_index = [];
+        walletToInflate._txs_by_external_index = walletToInflate._txs_by_external_index || [];
+        walletToInflate._txs_by_external_index.push(JSON.parse(tx.tx));
       }
     }
   }
@@ -484,6 +491,31 @@ export class AppStorage {
   offloadWalletToRealm(realm, wallet) {
     const id = wallet.getID();
     const walletToSave = wallet._hdWalletInstance ?? wallet;
+
+    if (Array.isArray(walletToSave._txs_by_external_index)) {
+      // if this var is an array that means its a single-address wallet class, and this var is a flat array
+      // with transactions
+      realm.write(() => {
+        // cleanup all existing transactions for the wallet first
+        const walletTransactionsToDelete = realm.objects('WalletTransactions').filtered(`walletid = '${id}'`);
+        realm.delete(walletTransactionsToDelete);
+
+        for (const tx of walletToSave._txs_by_external_index) {
+          realm.create(
+            'WalletTransactions',
+            {
+              walletid: id,
+              tx: JSON.stringify(tx),
+            },
+            Realm.UpdateMode.Modified,
+          );
+        }
+      });
+
+      return;
+    }
+
+    /// ########################################################################################################
 
     if (walletToSave._txs_by_external_index) {
       realm.write(() => {
