@@ -99,7 +99,7 @@
     "@bugsnag/source-maps": "2.3.0",
     "@keystonehq/bc-ur-registry": "https://github.com/BlueWallet/ur-registry",
     "@ngraveio/bc-ur": "https://github.com/BlueWallet/bc-ur",
-    "@react-native-async-storage/async-storage": "1.15.5",
+    "@react-native-async-storage/async-storage": "1.15.7",
     "@react-native-clipboard/clipboard": "1.8.4",
     "@react-native-community/blur": "3.6.0",
     "@react-native-community/masked-view": "0.1.11",
