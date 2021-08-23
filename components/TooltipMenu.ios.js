@@ -12,9 +12,8 @@ const ToolTipMenu = props => {
       menuOptions: action.menuOptions,
       menuTitle: action.menuTitle,
     };
-    if (action.menuStateOn) {
-      item.menuState = action.menuStateOn ? 'on' : 'off';
-    }
+    item.menuState = action.menuStateOn ? 'on' : 'off';
+
     if (action.disabled) {
       item.menuAttributes = ['disabled'];
     }
