@@ -1,5 +1,5 @@
 import React from 'react';
-import { ContextMenuView } from 'react-native-ios-context-menu';
+import { ContextMenuView, ContextMenuButton } from 'react-native-ios-context-menu';
 import PropTypes from 'prop-types';
 
 const ToolTipMenu = (props, ref) => {
@@ -13,7 +13,19 @@ const ToolTipMenu = (props, ref) => {
   }));
   const menuTitle = props.title ?? '';
   const submenu = props.submenu;
-  return (
+  const isButton  = props.isButton ? true : false;
+  const isMenuPrimaryAction = props.isMenuPrimaryAction ? props.isMenuPrimaryAction : false;
+  return isButton ? 
+  <ContextMenuButton 
+  onPressMenuItem={({ nativeEvent }) => {
+    props.onPress(nativeEvent.actionKey);
+  }}
+  isMenuPrimaryAction={isMenuPrimaryAction}
+  menuConfig={{
+    menuTitle,
+    menuItems: menuItems.concat(submenu),
+  }}
+  >{props.children}</ContextMenuButton>: (
     <ContextMenuView
       onPressMenuItem={({ nativeEvent }) => {
         props.onPress(nativeEvent.actionKey);
