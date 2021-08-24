@@ -95,7 +95,6 @@ export default class Lnurl {
   async requestBolt11FromLnurlPayService(amountSat, comment = '') {
     if (!this._lnurlPayServicePayload) throw new Error('this._lnurlPayServicePayload is not set');
     if (!this._lnurlPayServicePayload.callback) throw new Error('this._lnurlPayServicePayload.callback is not set');
-    if (!comment && this.getCommentAllowed()) throw new Error('Comment not provided');
     if (amountSat < this._lnurlPayServicePayload.min || amountSat > this._lnurlPayServicePayload.max)
       throw new Error(
         'amount is not right, ' +
