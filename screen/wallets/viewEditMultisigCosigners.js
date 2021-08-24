@@ -44,12 +44,11 @@ import { SquareButton } from '../../components/SquareButton';
 import { isMacCatalina } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 const fs = require('../../blue_modules/fs');
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const ViewEditMultisigCosigners = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
-  const { wallets, setWalletsWithNewOrder, setIsDrawerListBlurred } = useContext(BlueStorageContext);
+  const { wallets, setWalletsWithNewOrder, setIsDrawerListBlurred, isElectrumDisabled } = useContext(BlueStorageContext);
   const { navigate, dispatch, goBack, addListener } = useNavigation();
   const route = useRoute();
   const openScannerButtonRef = useRef();
@@ -58,7 +57,6 @@ const ViewEditMultisigCosigners = () => {
   const tempWallet = useRef(new MultisigHDWallet());
   const [wallet, setWallet] = useState();
   const [isLoading, setIsLoading] = useState(true);
-  const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
   const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState(true);
   const [currentlyEditingCosignerNum, setCurrentlyEditingCosignerNum] = useState(false);
   const [isProvideMnemonicsModalVisible, setIsProvideMnemonicsModalVisible] = useState(false);
@@ -198,7 +196,6 @@ const ViewEditMultisigCosigners = () => {
   useFocusEffect(
     useCallback(() => {
       // useFocusEffect is called on willAppear (example: when camera dismisses). we want to avoid this.
-      BlueElectrum.isDisabled().then(setIsElectrumDisabled);
       if (hasLoaded.current) return;
       setIsLoading(true);
 

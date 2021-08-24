@@ -50,7 +50,7 @@ const buttonFontSize =
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
 const WalletTransactions = () => {
-  const { wallets, saveToDisk, setSelectedWallet, walletTransactionUpdateStatus } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk, setSelectedWallet, walletTransactionUpdateStatus, isElectrumDisabled } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(false);
   const [isManageFundsModalVisible, setIsManageFundsModalVisible] = useState(false);
   const { walletID } = useRoute().params;
@@ -62,7 +62,6 @@ const WalletTransactions = () => {
   const [limit, setLimit] = useState(15);
   const [pageSize, setPageSize] = useState(20);
   const { setParams, setOptions, navigate } = useNavigation();
-  const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
   const { colors } = useTheme();
   const walletActionButtonsRef = useRef();
 
@@ -161,7 +160,6 @@ const WalletTransactions = () => {
   // if description of transaction has been changed we want to show new one
   useFocusEffect(
     useCallback(() => {
-      BlueElectrum.isDisabled().then(setIsElectrumDisabled);
       setTimeElapsed(prev => prev + 1);
     }, []),
   );

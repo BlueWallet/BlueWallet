@@ -37,10 +37,12 @@ import { BlueCurrentTheme } from '../../components/themes';
 import { isTorCapable } from '../../blue_modules/environment';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 export default class ElectrumSettings extends Component {
+  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
     const server = props?.route?.params?.server;
@@ -256,9 +258,11 @@ export default class ElectrumSettings extends Component {
   onElectrumConnectionEnabledSwitchValueChangd = async value => {
     if (value === true) {
       await BlueElectrum.setDisabled(true);
+      this.context.setIsElectrumDisabled(true);
       BlueElectrum.forceDisconnect();
     } else {
       await BlueElectrum.setDisabled(false);
+      this.context.setIsElectrumDisabled(false);
       BlueElectrum.connectMain();
     }
     this.setState({ isOfflineMode: value });

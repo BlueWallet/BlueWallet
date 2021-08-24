@@ -126,12 +126,10 @@ export default class CPFP extends Component {
 
   async componentDidMount() {
     console.log('transactions/CPFP - componentDidMount');
-    const isElectrumDisabled = await BlueElectrum.isDisabled();
     this.setState({
       isLoading: true,
       newFeeRate: '',
       nonReplaceable: false,
-      isElectrumDisabled,
     });
     try {
       await this.checkPossibilityOfCPFP();
@@ -211,7 +209,7 @@ export default class CPFP extends Component {
           >
             <Text style={styles.actionText}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
-          <BlueButton disabled={this.state.isElectrumDisabled} onPress={this.broadcast} title={loc.send.confirm_sendNow} />
+          <BlueButton disabled={this.context.isElectrumDisabled} onPress={this.broadcast} title={loc.send.confirm_sendNow} />
         </BlueCard>
       </View>
     );

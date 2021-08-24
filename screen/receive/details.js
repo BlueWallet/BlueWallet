@@ -40,7 +40,7 @@ const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
-  const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk, sleep, isElectrumDisabled } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
   const [customLabel, setCustomLabel] = useState();
   const [customAmount, setCustomAmount] = useState();
@@ -213,7 +213,7 @@ const ReceiveDetails = () => {
     } else {
       if (wallet.chain === Chain.ONCHAIN) {
         try {
-          newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
+          if (!isElectrumDisabled) newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
         } catch (_) {}
         if (newAddress === undefined) {
           // either sleep expired or getAddressAsync threw an exception

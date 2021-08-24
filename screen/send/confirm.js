@@ -24,7 +24,7 @@ const bitcoin = require('bitcoinjs-lib');
 const torrific = require('../../blue_modules/torrific');
 
 const Confirm = () => {
-  const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
   const [isBiometricUseCapableAndEnabled, setIsBiometricUseCapableAndEnabled] = useState(false);
   const { params } = useRoute();
   const { recipients = [], walletID, fee, memo, tx, satoshiPerByte, psbt } = params;
@@ -35,7 +35,6 @@ const Confirm = () => {
   const feeSatoshi = new Bignumber(fee).multipliedBy(100000000).toNumber();
   const { navigate } = useNavigation();
   const { colors } = useTheme();
-  const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
   const stylesHook = StyleSheet.create({
     transactionDetailsTitle: {
       color: colors.foregroundColor,
@@ -69,7 +68,6 @@ const Confirm = () => {
     console.log('send/confirm - useEffect');
     console.log('address = ', recipients);
     Biometric.isBiometricUseCapableAndEnabled().then(setIsBiometricUseCapableAndEnabled);
-    BlueElectrum.isDisabled().then(setIsElectrumDisabled);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -38,7 +38,7 @@ const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
 
 const PsbtWithHardwareWallet = () => {
-  const { txMetadata, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
   const navigation = useNavigation();
   const route = useRoute();
   const { fromWallet, memo, psbt, deepLinkPSBT } = route.params;
@@ -46,7 +46,6 @@ const PsbtWithHardwareWallet = () => {
   const routeParamsTXHex = route.params.txhex;
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
-  const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
   const [txHex, setTxHex] = useState(route.params.txhex);
   const openScannerButton = useRef();
 
@@ -113,10 +112,6 @@ const PsbtWithHardwareWallet = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deepLinkPSBT, routeParamsTXHex]);
-
-  useEffect(() => {
-    BlueElectrum.isDisabled().then(setIsElectrumDisabled);
-  }, []);
 
   const broadcast = async () => {
     setIsLoading(true);
