@@ -48,7 +48,7 @@ const fs = require('../../blue_modules/fs');
 const ViewEditMultisigCosigners = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
-  const { wallets, setWalletsWithNewOrder, setIsDrawerListBlurred } = useContext(BlueStorageContext);
+  const { wallets, setWalletsWithNewOrder, setIsDrawerListBlurred, isElectrumDisabled } = useContext(BlueStorageContext);
   const { navigate, dispatch, goBack, addListener } = useNavigation();
   const route = useRoute();
   const openScannerButtonRef = useRef();
@@ -184,7 +184,9 @@ const ViewEditMultisigCosigners = () => {
     let newWallets = wallets.filter(w => {
       return w.getID() !== walletId;
     });
-    await wallet.fetchBalance();
+    if (!isElectrumDisabled) {
+      await wallet.fetchBalance();
+    }
     newWallets.push(wallet);
     navigate('WalletsList');
     setTimeout(() => {

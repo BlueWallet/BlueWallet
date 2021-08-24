@@ -22,6 +22,10 @@ export default class NetworkTransactionFees {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async resolve => {
       try {
+        const isDisabled = await BlueElectrum.isDisabled();
+        if (isDisabled) {
+          throw new Error('Electrum is disabled. Dont attempt to fetch fees');
+        }
         const response = await BlueElectrum.estimateFees();
         if (typeof response === 'object') {
           const networkFee = new NetworkTransactionFee(response.fast, response.medium, response.slow);

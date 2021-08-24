@@ -38,7 +38,7 @@ const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
 
 const PsbtWithHardwareWallet = () => {
-  const { txMetadata, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
   const navigation = useNavigation();
   const route = useRoute();
   const { fromWallet, memo, psbt, deepLinkPSBT } = route.params;
@@ -172,7 +172,12 @@ const PsbtWithHardwareWallet = () => {
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
           <BlueSpacing20 />
-          <SecondButton onPress={broadcast} title={loc.send.confirm_sendNow} testID="PsbtWithHardwareWalletBroadcastTransactionButton" />
+          <SecondButton
+            disabled={isElectrumDisabled}
+            onPress={broadcast}
+            title={loc.send.confirm_sendNow}
+            testID="PsbtWithHardwareWalletBroadcastTransactionButton"
+          />
         </BlueCard>
       </View>
     );
