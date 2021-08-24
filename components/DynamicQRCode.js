@@ -107,22 +107,23 @@ export class DynamicQRCode extends Component {
         <TouchableOpacity
           accessibilityRole="button"
           testID="DynamicCode"
-          style={animatedQRCodeStyle.qrcodeContainer}
           onPress={() => {
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
             this.setState(prevState => ({ hideControls: !prevState.hideControls }));
           }}
         >
           {this.state.displayQRCode && (
-            <QRCode
-              value={currentFragment.toUpperCase()}
-              size={this.state.qrCodeHeight}
-              color="#000000"
-              logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
-              backgroundColor="#FFFFFF"
-              ecl="L"
-              onError={this.onError}
-            />
+            <View style={animatedQRCodeStyle.qrcodeContainer}>
+              <QRCode
+                value={currentFragment.toUpperCase()}
+                size={this.state.qrCodeHeight}
+                color="#000000"
+                logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
+                backgroundColor="#FFFFFF"
+                ecl="L"
+                onError={this.onError}
+              />
+            </View>
           )}
         </TouchableOpacity>
 
@@ -170,9 +171,6 @@ const animatedQRCodeStyle = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
-    borderWidth: 6,
-    borderRadius: 8,
-    borderColor: '#FFFFFF',
   },
   qrcodeContainer: {
     alignItems: 'center',
