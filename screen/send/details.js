@@ -1436,7 +1436,7 @@ SendDetails.actionIcons = {
   ImportTransaction: { iconType: 'SYSTEM', iconValue: 'square.and.arrow.down' },
   ImportTransactionMultsig: { iconType: 'SYSTEM', iconValue: 'square.and.arrow.down.on.square' },
   ImportTransactionQR: { iconType: 'SYSTEM', iconValue: 'qrcode.viewfinder' },
-  CoinControl: { iconType: 'SYSTEM', iconValue: 'bitcoinsign.circle' },
+  CoinControl: { iconType: 'SYSTEM', iconValue: 'switch.2' },
 };
 
 const styles = StyleSheet.create({
