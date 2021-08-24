@@ -29,6 +29,7 @@ import BlueClipboard from '../../blue_modules/clipboard';
 import navigationStyle from '../../components/navigationStyle';
 import { TransactionListItem } from '../../components/TransactionListItem';
 
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const scanqrHelper = require('../../helpers/scan-qr');
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
@@ -38,15 +39,9 @@ const WalletsList = () => {
   const walletsCarousel = useRef();
   const currentWalletIndex = useRef(0);
   const colorScheme = useColorScheme();
-  const {
-    wallets,
-    getTransactions,
-    isImportingWallet,
-    getBalance,
-    refreshAllWalletTransactions,
-    setSelectedWallet,
-    isElectrumDisabled,
-  } = useContext(BlueStorageContext);
+  const { wallets, getTransactions, isImportingWallet, getBalance, refreshAllWalletTransactions, setSelectedWallet } = useContext(
+    BlueStorageContext,
+  );
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
@@ -148,7 +143,7 @@ const WalletsList = () => {
    * Triggered manually by user on pull-to-refresh.
    */
   const refreshTransactions = async (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
-    if (isElectrumDisabled) return setIsLoading(false);
+    if (await BlueElectrum.isDisabled()) return setIsLoading(false);
     setIsLoading(showLoadingIndicator);
     refreshAllWalletTransactions(showLoadingIndicator, showUpdateStatusIndicator).finally(() => setIsLoading(false));
   };
@@ -390,8 +385,8 @@ const WalletsList = () => {
         <SectionList
           contentInsetAdjustmentBehavior="automatic"
           automaticallyAdjustContentInsets
+          onRefresh={onRefresh}
           refreshing={isLoading}
-          {...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: onRefresh })}
           renderItem={renderSectionItem}
           keyExtractor={sectionListKeyExtractor}
           renderSectionHeader={renderSectionHeader}
