@@ -48,6 +48,7 @@ const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
 const staticCache = {};
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const WalletsAddMultisigStep2 = () => {
   const { addWallet, saveToDisk } = useContext(BlueStorageContext);
@@ -66,6 +67,7 @@ const WalletsAddMultisigStep2 = () => {
   const [cosignerXpubFilename, setCosignerXpubFilename] = useState('bw-cosigner.json');
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
+  const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
   const openScannerButton = useRef();
   const data = useRef(new Array(n));
   const hasUnsavedChanges = Boolean(cosigners.length > 0 && cosigners.length !== n);
@@ -146,6 +148,9 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   useEffect(() => {
+    BlueElectrum.isDisabled().then(setIsElectrumDisabled);
+  }, []);
+  useEffect(() => {
     navigation.addListener('beforeRemove', e => {
       if (e.data.action.type === 'POP' && hasUnsavedChanges) {
         e.preventDefault();
@@ -200,7 +205,9 @@ const WalletsAddMultisigStep2 = () => {
       w.addCosigner(cc[0], fp, cc[2]);
     }
     w.setLabel(walletLabel);
-    await w.fetchBalance();
+    if (!isElectrumDisabled) {
+      await w.fetchBalance();
+    }
 
     addWallet(w);
     await saveToDisk();
