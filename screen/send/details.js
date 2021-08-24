@@ -835,7 +835,7 @@ const SendDetails = () => {
         },
         {
           id: SendDetails.actionKeys.ImportTransactionQR,
-          text: loc.send.details_adv_import + ' (QR)',
+          text: loc.send.details_adv_import_qr,
           icon: SendDetails.actionIcons.ImportTransactionQR,
         },
       );
@@ -1144,7 +1144,7 @@ const SendDetails = () => {
             {wallet.type === WatchOnlyWallet.type && wallet.isHd() && (
               <BlueListItem
                 testID="ImportQrTransactionButton"
-                title={loc.send.details_adv_import + ' (QR)'}
+                title={loc.send.details_adv_import_qr}
                 hideChevron
                 component={TouchableOpacity}
                 onPress={importQrTransaction}
