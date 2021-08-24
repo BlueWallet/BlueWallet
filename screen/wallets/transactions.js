@@ -62,6 +62,7 @@ const WalletTransactions = () => {
   const [limit, setLimit] = useState(15);
   const [pageSize, setPageSize] = useState(20);
   const { setParams, setOptions, navigate } = useNavigation();
+  const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
   const { colors } = useTheme();
   const walletActionButtonsRef = useRef();
 
@@ -160,6 +161,7 @@ const WalletTransactions = () => {
   // if description of transaction has been changed we want to show new one
   useFocusEffect(
     useCallback(() => {
+      BlueElectrum.isDisabled().then(setIsElectrumDisabled);
       setTimeElapsed(prev => prev + 1);
     }, []),
   );
@@ -177,7 +179,7 @@ const WalletTransactions = () => {
    * Forcefully fetches TXs and balance for wallet
    */
   const refreshTransactions = async () => {
-    if (await BlueElectrum.isDisabled()) return setIsLoading(false);
+    if (isElectrumDisabled) return setIsLoading(false);
     if (isLoading) return;
     setIsLoading(true);
     let noErr = true;
@@ -683,8 +685,7 @@ const WalletTransactions = () => {
               )}
             </ScrollView>
           }
-          onRefresh={refreshTransactions}
-          refreshing={isLoading}
+          {...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions })}
           data={dataSource}
           extraData={[timeElapsed, dataSource, wallets]}
           keyExtractor={_keyExtractor}

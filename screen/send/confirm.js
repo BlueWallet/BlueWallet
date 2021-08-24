@@ -35,6 +35,7 @@ const Confirm = () => {
   const feeSatoshi = new Bignumber(fee).multipliedBy(100000000).toNumber();
   const { navigate } = useNavigation();
   const { colors } = useTheme();
+  const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
   const stylesHook = StyleSheet.create({
     transactionDetailsTitle: {
       color: colors.foregroundColor,
@@ -68,6 +69,7 @@ const Confirm = () => {
     console.log('send/confirm - useEffect');
     console.log('address = ', recipients);
     Biometric.isBiometricUseCapableAndEnabled().then(setIsBiometricUseCapableAndEnabled);
+    BlueElectrum.isDisabled().then(setIsElectrumDisabled);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -233,7 +235,7 @@ const Confirm = () => {
           <Text style={styles.cardText} testID="TransactionFee">
             {loc.send.create_fee}: {formatBalance(feeSatoshi, BitcoinUnit.BTC)} ({currency.satoshiToLocalCurrency(feeSatoshi)})
           </Text>
-          {isLoading ? <ActivityIndicator /> : <BlueButton onPress={send} title={loc.send.confirm_sendNow} />}
+          {isLoading ? <ActivityIndicator /> : <BlueButton disabled={isElectrumDisabled} onPress={send} title={loc.send.confirm_sendNow} />}
           <TouchableOpacity
             accessibilityRole="button"
             testID="TransactionDetailsButton"

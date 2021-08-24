@@ -54,6 +54,7 @@ const WalletsList = () => {
   const dataSource = getTransactions(null, 10);
   const walletsCount = useRef(wallets.length);
   const walletActionButtonsRef = useRef();
+  const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
 
   const stylesHook = StyleSheet.create({
     walletsListWrapper: {
@@ -81,6 +82,7 @@ const WalletsList = () => {
     useCallback(() => {
       verifyBalance();
       setSelectedWallet('');
+      BlueElectrum.isDisabled().then(setIsElectrumDisabled);
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
@@ -143,7 +145,7 @@ const WalletsList = () => {
    * Triggered manually by user on pull-to-refresh.
    */
   const refreshTransactions = async (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
-    if (await BlueElectrum.isDisabled()) return setIsLoading(false);
+    if (isElectrumDisabled) return setIsLoading(false);
     setIsLoading(showLoadingIndicator);
     refreshAllWalletTransactions(showLoadingIndicator, showUpdateStatusIndicator).finally(() => setIsLoading(false));
   };
@@ -385,8 +387,8 @@ const WalletsList = () => {
         <SectionList
           contentInsetAdjustmentBehavior="automatic"
           automaticallyAdjustContentInsets
-          onRefresh={onRefresh}
           refreshing={isLoading}
+          {...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: onRefresh })}
           renderItem={renderSectionItem}
           keyExtractor={sectionListKeyExtractor}
           renderSectionHeader={renderSectionHeader}

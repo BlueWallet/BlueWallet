@@ -44,6 +44,7 @@ import { SquareButton } from '../../components/SquareButton';
 import { isMacCatalina } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 const fs = require('../../blue_modules/fs');
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const ViewEditMultisigCosigners = () => {
   const hasLoaded = useRef(false);
@@ -57,6 +58,7 @@ const ViewEditMultisigCosigners = () => {
   const tempWallet = useRef(new MultisigHDWallet());
   const [wallet, setWallet] = useState();
   const [isLoading, setIsLoading] = useState(true);
+  const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
   const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState(true);
   const [currentlyEditingCosignerNum, setCurrentlyEditingCosignerNum] = useState(false);
   const [isProvideMnemonicsModalVisible, setIsProvideMnemonicsModalVisible] = useState(false);
@@ -184,7 +186,9 @@ const ViewEditMultisigCosigners = () => {
     let newWallets = wallets.filter(w => {
       return w.getID() !== walletId;
     });
-    await wallet.fetchBalance();
+    if (!isElectrumDisabled) {
+      await wallet.fetchBalance();
+    }
     newWallets.push(wallet);
     navigate('WalletsList');
     setTimeout(() => {
@@ -194,6 +198,7 @@ const ViewEditMultisigCosigners = () => {
   useFocusEffect(
     useCallback(() => {
       // useFocusEffect is called on willAppear (example: when camera dismisses). we want to avoid this.
+      BlueElectrum.isDisabled().then(setIsElectrumDisabled);
       if (hasLoaded.current) return;
       setIsLoading(true);
 

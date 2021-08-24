@@ -46,6 +46,7 @@ const PsbtWithHardwareWallet = () => {
   const routeParamsTXHex = route.params.txhex;
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
+  const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
   const [txHex, setTxHex] = useState(route.params.txhex);
   const openScannerButton = useRef();
 
@@ -113,6 +114,10 @@ const PsbtWithHardwareWallet = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deepLinkPSBT, routeParamsTXHex]);
 
+  useEffect(() => {
+    BlueElectrum.isDisabled().then(setIsElectrumDisabled);
+  }, []);
+
   const broadcast = async () => {
     setIsLoading(true);
     const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
@@ -172,7 +177,12 @@ const PsbtWithHardwareWallet = () => {
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
           <BlueSpacing20 />
-          <SecondButton onPress={broadcast} title={loc.send.confirm_sendNow} testID="PsbtWithHardwareWalletBroadcastTransactionButton" />
+          <SecondButton
+            disabled={isElectrumDisabled}
+            onPress={broadcast}
+            title={loc.send.confirm_sendNow}
+            testID="PsbtWithHardwareWalletBroadcastTransactionButton"
+          />
         </BlueCard>
       </View>
     );
