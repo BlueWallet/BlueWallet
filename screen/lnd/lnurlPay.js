@@ -23,6 +23,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import Biometric from '../../class/biometrics';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+const prompt = require('../../blue_modules/prompt');
 const currency = require('../../blue_modules/currency');
 
 export default class LnurlPay extends Component {
@@ -95,7 +96,12 @@ export default class LnurlPay extends Component {
 
     let bolt11payload;
     try {
-      bolt11payload = await LN.requestBolt11FromLnurlPayService(amountSats);
+      let comment;
+      if (LN.getCommentAllowed()) {
+        comment = await prompt('Comment', '', false, 'plain-text');
+      }
+
+      bolt11payload = await LN.requestBolt11FromLnurlPayService(amountSats, comment);
       await fromWallet.payInvoice(bolt11payload.pr);
       const decoded = fromWallet.decodeInvoice(bolt11payload.pr);
       this.setState({ payButtonDisabled: false });

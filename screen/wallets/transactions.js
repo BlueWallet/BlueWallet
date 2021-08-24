@@ -50,7 +50,7 @@ const buttonFontSize =
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
 const WalletTransactions = () => {
-  const { wallets, saveToDisk, setSelectedWallet, walletTransactionUpdateStatus } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk, setSelectedWallet, walletTransactionUpdateStatus, isElectrumDisabled } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(false);
   const [isManageFundsModalVisible, setIsManageFundsModalVisible] = useState(false);
   const { walletID } = useRoute().params;
@@ -177,7 +177,7 @@ const WalletTransactions = () => {
    * Forcefully fetches TXs and balance for wallet
    */
   const refreshTransactions = async () => {
-    if (await BlueElectrum.isDisabled()) return setIsLoading(false);
+    if (isElectrumDisabled) return setIsLoading(false);
     if (isLoading) return;
     setIsLoading(true);
     let noErr = true;
@@ -683,8 +683,7 @@ const WalletTransactions = () => {
               )}
             </ScrollView>
           }
-          onRefresh={refreshTransactions}
-          refreshing={isLoading}
+          {...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions })}
           data={dataSource}
           extraData={[timeElapsed, dataSource, wallets]}
           keyExtractor={_keyExtractor}

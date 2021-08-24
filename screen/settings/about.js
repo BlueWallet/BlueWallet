@@ -215,7 +215,7 @@ const About = () => {
         <TouchableOpacity
           accessibilityRole="button"
           onPress={() => {
-            const stringToCopy = 'user.id:' + getUniqueId();
+            const stringToCopy = 'userId:' + getUniqueId();
             Bugsnag.notify(new Error('copied unique id'));
             Clipboard.setString(stringToCopy);
           }}

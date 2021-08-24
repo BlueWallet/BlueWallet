@@ -24,6 +24,11 @@ export const BlueStorageProvider = ({ children }) => {
   const getLanguageAsyncStorage = useAsyncStorage(loc.LANG).getItem;
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [isDrawerListBlurred, _setIsDrawerListBlurred] = useState(false);
+  const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
+
+  useEffect(() => {
+    BlueElectrum.isDisabled().then(setIsElectrumDisabled);
+  }, []);
 
   const setIsHandOffUseEnabledAsyncStorage = value => {
     setIsHandOffUseEnabled(value);
@@ -232,6 +237,8 @@ export const BlueStorageProvider = ({ children }) => {
         setIsDrawerListBlurred,
         setDoNotTrack,
         isDoNotTrackEnabled,
+        isElectrumDisabled,
+        setIsElectrumDisabled,
       }}
     >
       {children}
