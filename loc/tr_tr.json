@@ -14,7 +14,16 @@
     "no": "Hayır",
     "save": "Kaydet",
     "seed": "Seed",
-    "wallet_key": "Cüzdan anahtarı"
+    "success": "Başarılı",
+    "wallet_key": "Cüzdan anahtarı",
+    "invalid_animated_qr_code_fragment": "Geçersiz QRCode fragmanı. Lütfen tekrar deneyiniz.",
+    "file_saved": "Dosya {filepath} kaydedildi {destination}",
+    "file_save_title": "Dosyayı kaydet",
+    "file_save_location": "Nereye kaydedileceğini seç {filePath}",
+    "downloads_folder": "İndirilenler Dosyası",
+    "external_storage": "Dış depolama ünitesi",
+    "discard_changes": "Değişiklikleri iptal et?",
+    "discard_changes_detail": "Değişiklikler kaydedilmedi. Kaydetmeden ekrandan çıkmak istediğinize emin misiniz?"
   },
   "azteco": {
     "codeIs": "Bilet kodunuz ",
@@ -42,6 +51,9 @@
     "cont_cancel": "Anlaşmayı iptal et",
     "cont_cancel_q": "Anlaşmadan vazgeçmek istediğinize emin misiniz ?",
     "cont_cancel_y": "Evet, anlaşmayı boz.",
+    "cont_chat": "Karşı taraf ile chat ekranı aç",
+    "cont_how": "Nasıl ödenir?",
+    "cont_paid": "Kontratı ödenmiş olarak işaretle",
     "filter_currency": "Para birimi",
     "filter_detail": "Ayrıntılar",
     "filter_filters": "Filtreler"
@@ -71,12 +83,8 @@
   "pleasebackup": {
     "ask_no": "Hayır, kaydetmedim.",
     "ask_yes": "Evet, kaydettim.",
-    "ok": "Tamam, bir yere not aldım.",
-    "ok_lnd": "Tamam, kaydettim.",
-    "text": "Bir dakikanızı ayırıp nimonik cümlenizi bir parça kağıda not almayı ihmal etmeyin. Nimonik cümleniz, cüzdanınızı herhangi bir cihazda tekrar oluşturabilmenizi sağlar.",
     "text_lnd": "Lütfen kurtarma kodunuzu kaydedin. Cüzdanınızı kayıp etmeniz durumunda onu geri oluşturabilmenizi sağlar.",
-    "text_lnd2": "Bu cüzdan BlueWallet tarafından sağlanmaktadır.",
-    "title": "Cüzdanınız oluşturuldu."
+    "text_lnd2": "Bu cüzdan BlueWallet tarafından sağlanmaktadır."
   },
   "receive": {
     "details_create": "Oluştur",
@@ -159,7 +167,6 @@
     "header": "ayarlar",
     "language": "Dil",
     "lightning_settings": "Lightning Ayarları",
-    "lightning_settings_explain": "Kendi LND düğümünüze bağlanmak için lütfen LndHubı yükleyin. ve URL’sini buraya, ayarlara yazın. BlueWallet'in LNDHub (lndhub.io) programını kullanmak için boş bırakın. Değişiklikleri kaydettikten sonra oluşturulan cüzdanlar belirtilen LNDHub'a bağlanacaktır.",
     "password": "Şifre",
     "password_explain": "Depolamanın şifresini çözmek için kullanacağınız şifreyi oluşturun",
     "passwords_do_not_match": "Şifreler eşleşmedi",
