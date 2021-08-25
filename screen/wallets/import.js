@@ -23,7 +23,7 @@ const fs = require('../../blue_modules/fs');
 const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
   const route = useRoute();
-  const { isImportingWallet } = useContext(BlueStorageContext);
+  const { isImportingWallet, isElectrumDisabled } = useContext(BlueStorageContext);
   const label = (route.params && route.params.label) || '';
   const triggerImport = (route.params && route.params.triggerImport) || false;
   const [importText, setImportText] = useState(label);
@@ -141,6 +141,21 @@ const WalletsImport = () => {
     }
   };
 
+  const isImportDisabled = () => {
+    let disabled = false;
+    const seed = importText.trim();
+
+    if (seed.length === 0) {
+      disabled = true;
+    }
+
+    if (!seed.startsWith('lndhub://') && isElectrumDisabled) {
+      disabled = true;
+    }
+
+    return disabled;
+  };
+
   return (
     <SafeBlueArea style={styles.root}>
       <StatusBar barStyle="light-content" />
@@ -158,12 +173,7 @@ const WalletsImport = () => {
       <BlueSpacing20 />
       <View style={styles.center}>
         <>
-          <BlueButton
-            testID="DoImport"
-            disabled={importText.trim().length === 0}
-            title={loc.wallets.import_do_import}
-            onPress={importButtonPressed}
-          />
+          <BlueButton testID="DoImport" disabled={isImportDisabled()} title={loc.wallets.import_do_import} onPress={importButtonPressed} />
           <BlueSpacing20 />
           <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} testID="ScanImport" />
         </>
