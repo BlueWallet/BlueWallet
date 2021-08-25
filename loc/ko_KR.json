@@ -76,10 +76,12 @@
     "item_minmax": "최소/최대",
     "item_nooffers": "오퍼가 없습니다. “Near me”를 “글로벌 오퍼”로 바꿔보세요.",
     "item_rating": "{rating} 트레이드",
+    "local_trader_new": "New",
     "login": "로그인",
     "logout": "로그아웃<br>",
     "mycont": "내 계약/거래들",
     "offer_accept": "오퍼를 받아들입니다.",
+    "offer_account_finish": "Houdl Houdl에 계정 생성을 끝마치지 않으셨습니다. 지금 마무리하시겠습니까? ",
     "offer_choosemethod": "결제 수단을 선택하세요.",
     "offer_confirmations": "확인",
     "offer_minmax": "최소/최대<br>",
@@ -140,9 +142,12 @@
     "create_fee": "수수료",
     "create_memo": "메모",
     "create_tx_size": "트랜잭션 사이즈",
+    "details_adv_import": "트랜잭션 불러오기",
+    "details_amount_field_is_less_than_minimum_amount_sat": "지정된 수량이 너무 적습니다. 500 sats 이상 으로 입력해주세요.",
     "details_create": "청구서 만들기",
     "details_next": "다음",
     "details_scan": "스캔",
+    "details_wallet_before_tx": "트랜잭션을 생성하기 전 비트코인 월렛을 먼저 추가해주세요.",
     "dynamic_next": "다음",
     "dynamic_prev": "이전",
     "dynamic_start": "Start",
@@ -150,6 +155,7 @@
     "fee_10m": "10분",
     "fee_1d": "1일",
     "fee_3h": "3시간",
+    "fee_replace_min": "전체 수수료 비율 (satoshi per byte)은 {min} sat/byte 보다 높아야합니다. ",
     "header": "보내기",
     "input_done": "Done",
     "input_paste": "붙여넣기",
@@ -160,11 +166,16 @@
     "permission_storage_title": "스토리지 접근 허가",
     "psbt_clipboard": "클립보드에 복사하기",
     "psbt_this_is_psbt": "PSBT(서명 비트코인거래) 입니다. 하드웨어월렛으로 서명을 마무리해주세요.",
+    "no_tx_signing_in_progress": "현재 진행중인 트랜잭션 서명이 없습니다. ",
+    "qr_error_no_qrcode": "선택된 이미지에서 QR코드를 인식할 수 없습니다. 이미지에 QR코드를 제외한 다른 내용이 포함되어 있는 지 확인해주세요.  ",
     "success_done": "끝났습니다.",
+    "txSaved": "트랜잭션 파일이 ({filePath})가 다운로드 폴더에 저장되었습니다.",
     "problem_with_psbt": "PSBT에 문제가 있습니다. "
   },
   "settings": {
+    "about_free": "블루 월렛은 비트코인 유저들이 만든 오픈 소스 프로젝트입니다. ",
     "about_review": "리뷰를 남겨주세요.",
+    "about_selftest_ok": "모든 내부 테스트를 성공적으로 마쳤습니다. 월렛은 정상적으로 기능합니다.",
     "about_sm_twitter": "트위터에서 팔로우해주세요.",
     "biom_10times": "비밀번호를 10번 실패했습니다. 스토리지를 초기화시키겠습니까? 이는 모든 월렛을 지우고 스토리지를 암호화합니다. ",
     "biom_no_passcode": "디바이스에 패스코드가 없습니다. 진행을 위해 환경 설정 어플에서 패스코드를 설정해주세요.",
@@ -186,6 +197,7 @@
     "privacy_system_settings": "시스템 설정"
   },
   "transactions": {
+    "cancel_title": "해당 트랜잭션 취소하기 (RBF)",
     "cpfp_create": "생성하기",
     "details_title": "트랜잭션",
     "details_transaction_details": "트랜잭션 세부사항",
@@ -197,15 +209,21 @@
     "add_create": "생성하기",
     "add_or": "or",
     "add_wallet_name": "이름",
+    "clipboard_bitcoin": "클립보드에 비트코인 주소가 있습니다. 트랜잭션에 사용하시겠습니까?",
+    "clipboard_lightning": "클립보드에 라이트닝 청구서가 있습니다. 트랜잭션에 사용하시겠습니까?",
     "details_no_cancel": "아니요. 취소하겠습니다",
+    "list_empty_txs1_lightning": "라이트닝 월렛은 데일리 트랜잭션에 사용해야합니다. 수수료는 매우 저렴하고 속도는 바람처럼 빠릅니다.",
+    "list_import_error": "월렛을 불러오는데 에러가 발생했습니다.",
     "list_latest_transaction": "최근 트랜잭션",
     "list_tryagain": "다시 시도하기",
+    "select_no_bitcoin": "현재 사용 가능한 비트코인 월렛이 없습니다.",
     "warning_do_not_disclose": "경고! 공개하지 마십시오."
   },
   "multisig": {
     "confirm": "컨펌",
     "view": "보기",
     "create": "생성하기",
+    "are_you_sure_seed_will_be_lost": "이대로 진행하시겠습니까? 백업하지 않을 시 니모닉 시드(menonic seed)를 잃을 수 있습니다. ",
     "forget_this_seed": "이 시드를 잊어버리고 대신 공개 키를 사용하십시오.",
     "invalid_fingerprint": "이 시드의 지문이 공동 서명자의 지문과 일치하지 않습니다.",
     "view_edit_cosigners": "공동 서명자 보기/편집",
@@ -263,5 +281,8 @@
     "sign_placeholder_message": "메시지",
     "sign_placeholder_signature": "서명",
     "transactions": "트랜잭션"
+  },
+  "aopp": {
+    "send_success": "서명 전송이 성공적으로 이루어졌습니다. "
   }
 }
