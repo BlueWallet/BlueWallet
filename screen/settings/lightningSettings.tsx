@@ -96,6 +96,10 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
     setIsLoading(true);
     try {
       if (URI) {
+        if (URI.endsWith('.onion') && !isTorCapable) {
+          setIsLoading(false);
+          return alert(loc.settings.tor_unsupported);
+        }
         await LightningCustodianWallet.isValidNodeAddress(URI);
         // validating only if its not empty. empty means use default
       }
