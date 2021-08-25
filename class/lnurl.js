@@ -97,9 +97,9 @@ export default class Lnurl {
     if (!this._lnurlPayServicePayload.callback) throw new Error('this._lnurlPayServicePayload.callback is not set');
     if (amountSat < this._lnurlPayServicePayload.min || amountSat > this._lnurlPayServicePayload.max)
       throw new Error(
-        'amount is not right, ' +
+        'The specified amount is invalid, ' +
           amountSat +
-          ' should be between ' +
+          ' it should be between ' +
           this._lnurlPayServicePayload.min +
           ' and ' +
           this._lnurlPayServicePayload.max,

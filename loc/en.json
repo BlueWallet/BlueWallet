@@ -119,6 +119,7 @@
     "lightning_invoice": "Lightning Invoice",
     "has_been_paid": "This invoice has been paid.",
     "open_direct_channel": "Open direct channel with this node:",
+    "please_pay_between_and": "Please pay between {min} and {max}",
     "please_pay": "Please pay",
     "preimage": "Preimage",
     "sats": "sats.",
