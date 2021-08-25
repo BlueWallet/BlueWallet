@@ -1788,6 +1788,52 @@ describe('multisig-cosigner', () => {
     assert.strictEqual(cosigner.getXpub(), Zpub1);
     assert.strictEqual(cosigner.getPath(), "m/48'/0'/0'/2'");
     assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+    assert.ok(cosigner.isNativeSegwit());
+    assert.ok(!cosigner.isLegacy());
+    assert.ok(!cosigner.isWrappedSegwit());
+  });
+
+  it('can parse cobo json, if xpub is plain xpub (not Zpub or Ypub)', () => {
+    let xpub = MultisigCosigner._zpubToXpub(Zpub1);
+    assert.ok(xpub.startsWith('xpub'));
+    let cosigner = new MultisigCosigner(`{"xfp":"${fp1cobo}","xpub":"${xpub}","path":"${MultisigHDWallet.PATH_NATIVE_SEGWIT}"}`);
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(cosigner.getFp(), fp1cobo);
+    assert.strictEqual(cosigner.getXpub(), Zpub1);
+    assert.strictEqual(cosigner.getPath(), MultisigHDWallet.PATH_NATIVE_SEGWIT);
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+    assert.ok(cosigner.isNativeSegwit());
+    assert.ok(!cosigner.isLegacy());
+    assert.ok(!cosigner.isWrappedSegwit());
+
+    //
+
+    const Ypub1 = 'Ypub6jtUX12KGcqFosZWP4YcHc9qbKRTvgBpb8aE58hsYqby3SQVTr5KGfMmdMg38ekmQ9iLhCdgbAbjih7AWSkA7pgRhiLfah3zT6u1PFvVEbc';
+    xpub = MultisigCosigner._zpubToXpub(Ypub1);
+    assert.ok(xpub.startsWith('xpub'));
+    cosigner = new MultisigCosigner(`{"xfp":"${fp1cobo}","xpub":"${xpub}","path":"${MultisigHDWallet.PATH_WRAPPED_SEGWIT}"}`);
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(cosigner.getFp(), fp1cobo);
+    assert.strictEqual(cosigner.getXpub(), Ypub1);
+    assert.strictEqual(cosigner.getPath(), MultisigHDWallet.PATH_WRAPPED_SEGWIT);
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+    assert.ok(!cosigner.isNativeSegwit());
+    assert.ok(!cosigner.isLegacy());
+    assert.ok(cosigner.isWrappedSegwit());
+
+    //
+
+    xpub = MultisigCosigner._zpubToXpub(Ypub1);
+    assert.ok(xpub.startsWith('xpub'));
+    cosigner = new MultisigCosigner(`{"xfp":"${fp1cobo}","xpub":"${xpub}","path":"${MultisigHDWallet.PATH_LEGACY}"}`);
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(cosigner.getFp(), fp1cobo);
+    assert.strictEqual(cosigner.getXpub(), xpub);
+    assert.strictEqual(cosigner.getPath(), MultisigHDWallet.PATH_LEGACY);
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+    assert.ok(!cosigner.isNativeSegwit());
+    assert.ok(cosigner.isLegacy());
+    assert.ok(!cosigner.isWrappedSegwit());
   });
 
   it('can parse cobo URv2 account', () => {
