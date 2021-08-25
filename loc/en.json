@@ -285,6 +285,7 @@
     "electrum_reset_to_default": "Are you sure to want to reset your Electrum settings to default?",
     "electrum_clear": "Clear",
     "tor_supported": "Tor supported",
+    "tor_unsupported": "Tor connections are not supported.",
     "encrypt_decrypt": "Decrypt Storage",
     "encrypt_decrypt_q": "Are you sure you want to decrypt your storage? This will allow your wallets to be accessed without a password.",
     "encrypt_del_uninstall": "Delete if BlueWallet is uninstalled",
