@@ -1,3 +1,4 @@
+/* global alert */
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, View, Keyboard, StatusBar, StyleSheet, Alert } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -19,11 +20,12 @@ import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const fs = require('../../blue_modules/fs');
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
   const route = useRoute();
-  const { isImportingWallet } = useContext(BlueStorageContext);
+  const { isImportingWallet, isElectrumDisabled } = useContext(BlueStorageContext);
   const label = (route.params && route.params.label) || '';
   const triggerImport = (route.params && route.params.triggerImport) || false;
   const [importText, setImportText] = useState(label);
@@ -69,6 +71,13 @@ const WalletsImport = () => {
    * @param importText
    */
   const importMnemonic = async importText => {
+    if (!importText.trim().startsWith('lndhub://')) {
+      const config = await BlueElectrum.getConfig();
+      if (config.connected !== 1) {
+        return alert(loc.settings.electrum_connnected_not_description);
+      }
+    }
+
     if (isImportingWallet && isImportingWallet.isFailure === false) {
       return;
     }
@@ -141,6 +150,21 @@ const WalletsImport = () => {
     }
   };
 
+  const isImportDisabled = () => {
+    let disabled = false;
+    const seed = importText.trim();
+
+    if (seed.length === 0) {
+      disabled = true;
+    }
+
+    if (!seed.startsWith('lndhub://') && isElectrumDisabled) {
+      disabled = true;
+    }
+
+    return disabled;
+  };
+
   return (
     <SafeBlueArea style={styles.root}>
       <StatusBar barStyle="light-content" />
@@ -158,12 +182,7 @@ const WalletsImport = () => {
       <BlueSpacing20 />
       <View style={styles.center}>
         <>
-          <BlueButton
-            testID="DoImport"
-            disabled={importText.trim().length === 0}
-            title={loc.wallets.import_do_import}
-            onPress={importButtonPressed}
-          />
+          <BlueButton testID="DoImport" disabled={isImportDisabled()} title={loc.wallets.import_do_import} onPress={importButtonPressed} />
           <BlueSpacing20 />
           <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} testID="ScanImport" />
         </>
