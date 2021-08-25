@@ -151,7 +151,7 @@ const ScanLndInvoice = () => {
       screen: 'LnurlPay',
       params: {
         lnurl: data,
-        fromWalletID: walletID || wallet.getID(),
+        walletID: walletID || wallet.getID(),
       },
     });
   };

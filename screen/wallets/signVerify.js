@@ -4,6 +4,7 @@ import {
   Alert,
   Keyboard,
   KeyboardAvoidingView,
+  LayoutAnimation,
   Platform,
   StyleSheet,
   TextInput,
@@ -12,6 +13,8 @@ import {
 } from 'react-native';
 import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { Icon } from 'react-native-elements';
+import Share from 'react-native-share';
 
 import AOPP from '../../class/aopp';
 import { BlueDoneAndDismissKeyboardInputAccessory, BlueFormLabel, BlueSpacing10, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
@@ -20,8 +23,6 @@ import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
 import confirm from '../../helpers/confirm';
-import { Icon } from 'react-native-elements';
-import Share from 'react-native-share';
 
 const SignVerify = () => {
   const { colors } = useTheme();
@@ -129,6 +130,11 @@ const SignVerify = () => {
     setLoading(false);
   };
 
+  const handleFocus = value => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setMessageHasFocus(value);
+  };
+
   if (loading)
     return (
       <View style={[stylesHooks.root, styles.loading]}>
@@ -195,8 +201,8 @@ const SignVerify = () => {
             autoCapitalize="none"
             spellCheck={false}
             editable={!loading}
-            onFocus={() => setMessageHasFocus(true)}
-            onBlur={() => setMessageHasFocus(false)}
+            onFocus={() => handleFocus(true)}
+            onBlur={() => handleFocus(false)}
           />
           <BlueSpacing10 />
 
