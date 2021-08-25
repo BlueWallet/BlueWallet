@@ -1,3 +1,4 @@
+/* global alert */
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, View, Keyboard, StatusBar, StyleSheet, Alert } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -19,6 +20,7 @@ import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const fs = require('../../blue_modules/fs');
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
@@ -69,6 +71,13 @@ const WalletsImport = () => {
    * @param importText
    */
   const importMnemonic = async importText => {
+    if (!importText.trim().startsWith('lndhub://')) {
+      const config = await BlueElectrum.getConfig();
+      if (config.connected !== 1) {
+        return alert(loc.settings.electrum_connnected_not_description);
+      }
+    }
+
     if (isImportingWallet && isImportingWallet.isFailure === false) {
       return;
     }
