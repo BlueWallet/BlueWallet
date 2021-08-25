@@ -203,14 +203,14 @@ export default class TransactionsNavigationHeader extends Component {
             )}
           </TouchableOpacity>
         </ToolTipMenu>
-        {(this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress) ||
-          (this.state.wallet.type === LightningLdkWallet.type && (
-            <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
-              <View style={styles.manageFundsButton}>
-                <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+        {((this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress) ||
+          this.state.wallet.type === LightningLdkWallet.type) && (
+          <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
+            <View style={styles.manageFundsButton}>
+              <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
+            </View>
+          </TouchableOpacity>
+        )}
         {this.state.wallet.type === MultisigHDWallet.type && (
           <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
             <View style={styles.manageFundsButton}>
