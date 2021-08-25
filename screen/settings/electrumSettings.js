@@ -162,6 +162,10 @@ export default class ElectrumSettings extends Component {
     const sslPort = this.state.sslPort ? this.state.sslPort : '';
     const serverHistory = this.state.serverHistory || [];
 
+    if (host.endsWith('.onion') && isTorCapable) {
+      return alert(loc.settings.tor_unsupported);
+    }
+
     this.setState({ isLoading: true }, async () => {
       try {
         if (!host && !port && !sslPort) {
