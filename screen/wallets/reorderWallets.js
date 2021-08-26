@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
-import { View, ActivityIndicator, Image, Text, StyleSheet, StatusBar, ScrollView, I18nManager } from 'react-native';
+import { View, ActivityIndicator, Image, Text, StyleSheet, StatusBar, I18nManager } from 'react-native';
 import { BluePrivateBalance } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
@@ -23,7 +23,6 @@ const styles = StyleSheet.create({
   itemRoot: {
     backgroundColor: 'transparent',
     padding: 10,
-    marginVertical: 17,
   },
   gradient: {
     padding: 15,
@@ -73,7 +72,6 @@ const ReorderWallets = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState([]);
   const [hasMovedARow, setHasMovedARow] = useState(false);
-  const [scrollEnabled, setScrollEnabled] = useState(true);
   const sortableList = useRef();
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
@@ -163,12 +161,10 @@ const ReorderWallets = () => {
 
   const onActivateRow = () => {
     ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
-    setScrollEnabled(false);
   };
 
   const onReleaseRow = () => {
     ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
-    setScrollEnabled(true);
   };
 
   return isLoading ? (
@@ -178,17 +174,15 @@ const ReorderWallets = () => {
   ) : (
     <View style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="light-content" />
-      <ScrollView scrollEnabled={scrollEnabled}>
-        <SortableList
-          ref={sortableList}
-          data={data}
-          renderRow={renderItem}
-          scrollEnabled={false}
-          onChangeOrder={onChangeOrder}
-          onActivateRow={onActivateRow}
-          onReleaseRow={onReleaseRow}
-        />
-      </ScrollView>
+      <SortableList
+        ref={sortableList}
+        data={data}
+        renderRow={renderItem}
+        onChangeOrder={onChangeOrder}
+        onActivateRow={onActivateRow}
+        onReleaseRow={onReleaseRow}
+        style={styles.root}
+      />
     </View>
   );
 };
