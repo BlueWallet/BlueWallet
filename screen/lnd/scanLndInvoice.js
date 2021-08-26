@@ -425,6 +425,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   expiresIn: {
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
     color: '#81868e',
     fontSize: 12,
     left: 20,
