@@ -254,13 +254,15 @@ const ScanQRCode = () => {
           takePhotoButtonTitle: null,
           maxHeight: 800,
           maxWidth: 600,
+          selectionLimit: 1,
         },
         response => {
           if (response.didCancel) {
             setIsLoading(false);
           } else {
-            if (response.uri) {
-              const uri = response.uri.toString().replace('file://', '');
+            const asset = response.assets[0];
+            if (asset.uri) {
+              const uri = asset.uri.toString().replace('file://', '');
               LocalQRCode.decode(uri, (error, result) => {
                 if (!error) {
                   onBarCodeRead({ data: result });
