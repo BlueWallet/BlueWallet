@@ -262,6 +262,7 @@
     "default_wallets": "View All Wallets",
     "electrum_connected": "Connected",
     "electrum_connected_not": "Not Connected",
+    "electrum_connnected_not_description": "An active Electrum connection is required to import a wallet. You can verify if a connection is established by going to the Network screeen in Settings.",
     "electrum_error_connect": "Can’t connect to the provided Electrum server",
     "electrum_host": "E.g. {example}",
     "electrum_offline_mode": "Offline Mode",
