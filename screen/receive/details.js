@@ -1,5 +1,6 @@
-import React, { useCallback, useContext, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
+  BackHandler,
   InteractionManager,
   Keyboard,
   KeyboardAvoidingView,
@@ -24,6 +25,8 @@ import {
   BlueSpacing20,
   BlueAlertWalletExportReminder,
   BlueCard,
+  BlueSpacing40,
+  BlueBigCheckmark,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
@@ -32,15 +35,18 @@ import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
 import HandoffComponent from '../../components/handoff';
 import AmountInput from '../../components/AmountInput';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import loc from '../../loc';
+import loc, { formatBalance } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import ToolTipMenu from '../../components/TooltipMenu';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
-  const { wallets, saveToDisk, sleep, isElectrumDisabled } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk, sleep, isElectrumDisabled, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
   const [customLabel, setCustomLabel] = useState();
   const [customAmount, setCustomAmount] = useState();
@@ -48,10 +54,18 @@ const ReceiveDetails = () => {
   const [bip21encoded, setBip21encoded] = useState();
   const [isCustom, setIsCustom] = useState(false);
   const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
+  const [showPendingBalance, setShowPendingBalance] = useState(false);
+  const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
   const { navigate, goBack, setParams } = useNavigation();
   const { colors } = useTheme();
   const qrCode = useRef();
+  const [intervalMs, setIntervalMs] = useState(5000);
+  const [eta, setEta] = useState('');
+  const [initialConfirmed, setInitialConfirmed] = useState(0);
+  const [initialUnconfirmed, setInitialUnconfirmed] = useState(0);
+  const [displayBalance, setDisplayBalance] = useState('');
+  const fetchAddressInterval = useRef();
   const styles = StyleSheet.create({
     modalContent: {
       backgroundColor: colors.modal,
@@ -135,6 +149,98 @@ const ReceiveDetails = () => {
     },
   });
 
+  // re-fetching address balance periodically
+  useEffect(() => {
+    console.log('receive/defails - useEffect');
+
+    if (fetchAddressInterval.current) {
+      // interval already exists, lets cleanup it and recreate, so theres no duplicate intervals
+      clearInterval(fetchAddressInterval.current);
+      fetchAddressInterval.current = undefined;
+    }
+
+    fetchAddressInterval.current = setInterval(async () => {
+      try {
+        const decoded = DeeplinkSchemaMatch.bip21decode(bip21encoded);
+        const address2use = address || decoded.address;
+        if (!address2use) return;
+
+        console.log('checking address', address2use, 'for balance...');
+        const balance = await BlueElectrum.getBalanceByAddress(address2use);
+        console.log('...got', balance);
+
+        if (balance.unconfirmed > 0) {
+          if (initialConfirmed === 0 && initialUnconfirmed === 0) {
+            // saving initial values for later (when tx gets confirmed)
+            setInitialConfirmed(balance.confirmed);
+            setInitialUnconfirmed(balance.unconfirmed);
+            setIntervalMs(25000);
+            ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+          }
+
+          const txs = await BlueElectrum.getMempoolTransactionsByAddress(address2use);
+          const tx = txs.pop();
+          if (tx) {
+            const rez = await BlueElectrum.multiGetTransactionByTxid([tx.tx_hash], 10, true);
+            if (rez && rez[tx.tx_hash] && rez[tx.tx_hash].vsize) {
+              const satPerVbyte = Math.round(tx.fee / rez[tx.tx_hash].vsize);
+              const fees = await BlueElectrum.estimateFees();
+              if (satPerVbyte >= fees.fast) {
+                setEta(loc.formatString(loc.transactions.eta_10m, { satPerVbyte }));
+              }
+              if (satPerVbyte >= fees.medium && satPerVbyte < fees.fast) {
+                setEta(loc.formatString(loc.transactions.eta_3h, { satPerVbyte }));
+              }
+              if (satPerVbyte < fees.medium) {
+                setEta(loc.formatString(loc.transactions.eta_1d, { satPerVbyte }));
+              }
+            }
+          }
+
+          setDisplayBalance(
+            loc.formatString(loc.transactions.pending_with_amount, {
+              amt1: formatBalance(balance.unconfirmed, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
+              amt2: formatBalance(balance.unconfirmed, BitcoinUnit.BTC, true).toString(),
+            }),
+          );
+          setShowPendingBalance(true);
+          setShowAddress(false);
+        } else if (balance.unconfirmed === 0 && initialUnconfirmed !== 0) {
+          // now, handling a case when unconfirmed == 0, but in past it wasnt (i.e. it changed while user was
+          // staring at the screen)
+
+          const balanceToShow = balance.confirmed - initialConfirmed;
+
+          if (balanceToShow > 0) {
+            // address has actually more coins then initially, so we definately gained something
+            setShowConfirmedBalance(true);
+            setShowPendingBalance(false);
+            setShowAddress(false);
+
+            clearInterval(fetchAddressInterval.current);
+            fetchAddressInterval.current = undefined;
+
+            setDisplayBalance(
+              loc.formatString(loc.transactions.received_with_amount, {
+                amt1: formatBalance(balanceToShow, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
+                amt2: formatBalance(balanceToShow, BitcoinUnit.BTC, true).toString(),
+              }),
+            );
+
+            fetchAndSaveWalletTransactions(walletID);
+          } else {
+            // rare case, but probable. transaction evicted from mempool (maybe cancelled by the sender)
+            setShowConfirmedBalance(false);
+            setShowPendingBalance(false);
+            setShowAddress(true);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }, intervalMs);
+  }, [bip21encoded, address, initialConfirmed, initialUnconfirmed, intervalMs, fetchAndSaveWalletTransactions, walletID]);
+
   const handleShareQRCode = () => {
     qrCode.current.toDataURL(data => {
       const shareImageBase64 = {
@@ -143,6 +249,71 @@ const ReceiveDetails = () => {
       Share.open(shareImageBase64).catch(error => console.log(error));
     });
   };
+
+  const renderConfirmedBalance = () => {
+    return (
+      <ScrollView contentContainerStyle={styles.root} keyboardShouldPersistTaps="always">
+        <View style={styles.scrollBody}>
+          {isCustom && (
+            <>
+              <BlueText style={styles.label} numberOfLines={1}>
+                {customLabel}
+              </BlueText>
+            </>
+          )}
+          <View style={styles.qrCodeContainer}>
+            <BlueBigCheckmark />
+          </View>
+          <BlueSpacing40 />
+          <BlueText style={styles.label} numberOfLines={1}>
+            {displayBalance}
+          </BlueText>
+        </View>
+      </ScrollView>
+    );
+  };
+
+  const renderPendingBalance = () => {
+    return (
+      <ScrollView contentContainerStyle={styles.root} keyboardShouldPersistTaps="always">
+        <View style={styles.scrollBody}>
+          {isCustom && (
+            <>
+              <BlueText style={styles.label} numberOfLines={1}>
+                {customLabel}
+              </BlueText>
+            </>
+          )}
+          <View style={styles.qrCodeContainer}>
+            <TransactionPendingIconBig />
+          </View>
+          <BlueSpacing40 />
+          <BlueText style={styles.label} numberOfLines={1}>
+            {displayBalance}
+          </BlueText>
+          <BlueText style={styles.label} numberOfLines={1}>
+            {eta}
+          </BlueText>
+        </View>
+      </ScrollView>
+    );
+  };
+
+  const handleBackButton = () => {
+    goBack(null);
+    return true;
+  };
+
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+      clearInterval(fetchAddressInterval.current);
+      fetchAddressInterval.current = undefined;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const renderReceiveDetails = () => {
     return (
@@ -375,7 +546,10 @@ const ReceiveDetails = () => {
           url={`https://blockstream.info/address/${address}`}
         />
       )}
-      {showAddress ? renderReceiveDetails() : <BlueLoading />}
+      {showConfirmedBalance ? renderConfirmedBalance() : null}
+      {showPendingBalance ? renderPendingBalance() : null}
+      {showAddress ? renderReceiveDetails() : null}
+      {!showAddress && !showPendingBalance && !showConfirmedBalance ? <BlueLoading /> : null}
     </View>
   );
 };

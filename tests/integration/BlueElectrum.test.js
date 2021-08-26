@@ -138,6 +138,17 @@ describe('BlueElectrum', () => {
     assert.strictEqual(txs[0].height, 563077);
   });
 
+  // skipped because requires fresh address with pending txs every time
+  it.skip('BlueElectrum can do getMempoolTransactionsByAddress()', async function () {
+    const txs = await BlueElectrum.getMempoolTransactionsByAddress('bc1qp33en9mnw277c9vz5fz9vcu666cvervdnk02327wwph97hdjurqqxtl03c');
+    assert.ok(txs.length > 0);
+    assert.ok(txs[0].tx_hash);
+    assert.ok(txs[0].fee);
+
+    const rez = await BlueElectrum.multiGetTransactionByTxid([txs[0].tx_hash], 10, true);
+    assert.ok(rez[txs[0].tx_hash]);
+  });
+
   it('BlueElectrum can do getTransactionsFullByAddress()', async function () {
     const txs = await BlueElectrum.getTransactionsFullByAddress('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
     for (const tx of txs) {
