@@ -40,6 +40,7 @@ import AmountInput from '../../components/AmountInput';
 import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import ToolTipMenu from '../../components/TooltipMenu';
 const currency = require('../../blue_modules/currency');
 const prompt = require('../../blue_modules/prompt');
 const fs = require('../../blue_modules/fs');
@@ -76,6 +77,10 @@ const SendDetails = () => {
   const [payjoinUrl, setPayjoinUrl] = useState(null);
   const [changeAddress, setChangeAddress] = useState();
   const [dumb, setDumb] = useState(false);
+  // if utxo is limited we use it to calculate available balance
+  const balance = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet?.getBalance();
+  const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
+
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/byte fee
   const feeRate = useMemo(() => {
@@ -91,6 +96,13 @@ const SendDetails = () => {
     }
     return initialFee;
   }, [customFee, feePrecalc, networkTransactionFees]);
+
+  useEffect(() => {
+    if (wallet) {
+      setHeaderRightOptions();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colors, wallet, isTransactionReplaceable, balance, addresses]);
 
   // keyboad effects
   useEffect(() => {
@@ -177,12 +189,6 @@ const SendDetails = () => {
   useEffect(() => {
     if (!wallet) return;
     setSelectedWallet(wallet.getID());
-    navigation.setParams({
-      advancedOptionsMenuButtonAction: () => {
-        Keyboard.dismiss();
-        setOptionsVisible(true);
-      },
-    });
 
     // reset other values
     setUtxo(null);
@@ -787,9 +793,115 @@ const SendDetails = () => {
     setOptionsVisible(false);
   };
 
+  // Header Right Button
+
+  const headerRightOnPress = id => {
+    if (id === SendDetails.actionKeys.AddRecipient) {
+      handleAddRecipient();
+    } else if (id === SendDetails.actionKeys.RemoveRecipient) {
+      handleRemoveRecipient();
+    } else if (id === SendDetails.actionKeys.SignPSBT) {
+      handlePsbtSign();
+    } else if (id === SendDetails.actionKeys.SendMax) {
+      onUseAllPressed();
+    } else if (id === SendDetails.actionKeys.AllowRBF) {
+      onReplaceableFeeSwitchValueChanged(!isTransactionReplaceable);
+    } else if (id === SendDetails.actionKeys.ImportTransaction) {
+      importTransaction();
+    } else if (id === SendDetails.actionKeys.ImportTransactionQR) {
+      importQrTransaction();
+    } else if (id === SendDetails.actionKeys.ImportTransactionMultsig) {
+      importTransactionMultisig();
+    } else if (id === SendDetails.actionKeys.CoSignTransaction) {
+      importTransactionMultisigScanQr();
+    } else if (id === SendDetails.actionKeys.CoinControl) {
+      handleCoinControl();
+    }
+  };
+
+  const headerRightActions = () => {
+    const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+
+    const actions = [{ id: SendDetails.actionKeys.SendMax, text: loc.send.details_adv_full, disabled: balance === 0 || isSendMaxUsed }];
+    if (wallet.type === HDSegwitBech32Wallet.type) {
+      actions.push({ id: SendDetails.actionKeys.AllowRBF, text: loc.send.details_adv_fee_bump, menuStateOn: isTransactionReplaceable });
+    }
+    if (wallet.type === WatchOnlyWallet.type && wallet.isHd()) {
+      actions.push(
+        {
+          id: SendDetails.actionKeys.ImportTransaction,
+          text: loc.send.details_adv_import,
+          icon: SendDetails.actionIcons.ImportTransaction,
+        },
+        {
+          id: SendDetails.actionKeys.ImportTransactionQR,
+          text: loc.send.details_adv_import_qr,
+          icon: SendDetails.actionIcons.ImportTransactionQR,
+        },
+      );
+    }
+    if (wallet.type === MultisigHDWallet.type) {
+      actions.push({
+        id: SendDetails.actionKeys.ImportTransactionMultsig,
+        text: loc.send.details_adv_import,
+        icon: SendDetails.actionIcons.ImportTransactionMultsig,
+      });
+    }
+    if (wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0) {
+      actions.push({
+        id: SendDetails.actionKeys.CoSignTransaction,
+        text: loc.multisig.co_sign_transaction,
+        icon: SendDetails.actionIcons.SignPSBT,
+      });
+    }
+    if (wallet.allowCosignPsbt()) {
+      actions.push({ id: SendDetails.actionKeys.SignPSBT, text: loc.send.psbt_sign, icon: SendDetails.actionIcons.SignPSBT });
+    }
+    actions.push({
+      id: SendDetails.actionKeys.AddRecipient,
+      text: loc.send.details_add_rec_add,
+      icon: SendDetails.actionIcons.AddRecipient,
+    });
+    actions.push({
+      id: SendDetails.actionKeys.RemoveRecipient,
+      text: loc.send.details_add_rec_rem,
+      disabled: addresses.length < 2,
+      icon: SendDetails.actionIcons.RemoveRecipient,
+    });
+    actions.push({ id: SendDetails.actionKeys.CoinControl, text: loc.cc.header, icon: SendDetails.actionIcons.CoinControl });
+
+    return actions;
+  };
+  const setHeaderRightOptions = () => {
+    navigation.setOptions({
+      headerRight: Platform.select({
+        ios: () => (
+          <ToolTipMenu isButton isMenuPrimaryAction onPress={headerRightOnPress} actions={headerRightActions()}>
+            <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} style={styles.advancedOptions} />
+          </ToolTipMenu>
+        ),
+        default: () => (
+          <TouchableOpacity
+            accessibilityRole="button"
+            style={styles.advancedOptions}
+            onPress={() => {
+              Keyboard.dismiss();
+              setOptionsVisible(true);
+            }}
+            testID="advancedOptionsMenuButton"
+          >
+            <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
+          </TouchableOpacity>
+        ),
+      }),
+    });
+  };
+
   const onReplaceableFeeSwitchValueChanged = value => {
     setIsTransactionReplaceable(value);
   };
+
+  //
 
   // because of https://github.com/facebook/react-native/issues/21718 we use
   // onScroll for android and onMomentumScrollEnd for iOS
@@ -1032,7 +1144,7 @@ const SendDetails = () => {
             {wallet.type === WatchOnlyWallet.type && wallet.isHd() && (
               <BlueListItem
                 testID="ImportQrTransactionButton"
-                title={loc.send.details_adv_import + ' (QR)'}
+                title={loc.send.details_adv_import_qr}
                 hideChevron
                 component={TouchableOpacity}
                 onPress={importQrTransaction}
@@ -1228,11 +1340,6 @@ const SendDetails = () => {
       </View>
     );
   }
-
-  // if utxo is limited we use it to calculate available balance
-  const balance = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet.getBalance();
-  const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
@@ -1307,6 +1414,30 @@ const SendDetails = () => {
 };
 
 export default SendDetails;
+
+SendDetails.actionKeys = {
+  SignPSBT: 'SignPSBT',
+  SendMax: 'SendMax',
+  AddRecipient: 'AddRecipient',
+  RemoveRecipient: 'RemoveRecipient',
+  AllowRBF: 'AllowRBF',
+  ImportTransaction: 'ImportTransaction',
+  ImportTransactionMultsig: 'ImportTransactionMultisig',
+  ImportTransactionQR: 'ImportTransactionQR',
+  CoinControl: 'CoinControl',
+};
+
+SendDetails.actionIcons = {
+  SignPSBT: { iconType: 'SYSTEM', iconValue: 'signature' },
+  SendMax: 'SendMax',
+  AddRecipient: { iconType: 'SYSTEM', iconValue: 'person.badge.plus' },
+  RemoveRecipient: { iconType: 'SYSTEM', iconValue: 'person.badge.minus' },
+  AllowRBF: 'AllowRBF',
+  ImportTransaction: { iconType: 'SYSTEM', iconValue: 'square.and.arrow.down' },
+  ImportTransactionMultsig: { iconType: 'SYSTEM', iconValue: 'square.and.arrow.down.on.square' },
+  ImportTransactionQR: { iconType: 'SYSTEM', iconValue: 'qrcode.viewfinder' },
+  CoinControl: { iconType: 'SYSTEM', iconValue: 'switch.2' },
+};
 
 const styles = StyleSheet.create({
   loading: {
@@ -1444,17 +1575,7 @@ const styles = StyleSheet.create({
   },
 });
 
-SendDetails.navigationOptions = navigationStyleTx({}, (options, { theme, navigation, route }) => ({
+SendDetails.navigationOptions = navigationStyleTx({}, options => ({
   ...options,
-  headerRight: () => (
-    <TouchableOpacity
-      accessibilityRole="button"
-      style={styles.advancedOptions}
-      onPress={route.params.advancedOptionsMenuButtonAction}
-      testID="advancedOptionsMenuButton"
-    >
-      <Icon size={22} name="kebab-horizontal" type="octicon" color={theme.colors.foregroundColor} />
-    </TouchableOpacity>
-  ),
   title: loc.send.header,
 }));
