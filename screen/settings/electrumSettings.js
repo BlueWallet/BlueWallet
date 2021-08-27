@@ -310,13 +310,14 @@ export default class ElectrumSettings extends Component {
                   (isTorCapable ? ' (' + loc.settings.tor_supported + ')' : '')
                 }
                 value={this.state.host}
-                onChangeText={text =>
-                  this.setState({ host: text.trim() }, () => {
-                    if (text.endsWith('.onion')) {
+                onChangeText={text => {
+                  const host = text.trim();
+                  this.setState({ host }, () => {
+                    if (host.endsWith('.onion')) {
                       this.useSSLPortToggled(false);
                     }
-                  })
-                }
+                  });
+                }}
                 numberOfLines={1}
                 style={styles.inputText}
                 editable={!this.state.isLoading}
