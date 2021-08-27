@@ -310,7 +310,13 @@ export default class ElectrumSettings extends Component {
                   (isTorCapable ? ' (' + loc.settings.tor_supported + ')' : '')
                 }
                 value={this.state.host}
-                onChangeText={text => this.setState({ host: text.trim() })}
+                onChangeText={text =>
+                  this.setState({ host: text.trim() }, () => {
+                    if (text.endsWith('.onion')) {
+                      this.useSSLPortToggled(false);
+                    }
+                  })
+                }
                 numberOfLines={1}
                 style={styles.inputText}
                 editable={!this.state.isLoading}
@@ -354,7 +360,12 @@ export default class ElectrumSettings extends Component {
                 />
               </View>
               <BlueText style={styles.usePort}>{loc.settings.use_ssl}</BlueText>
-              <Switch testID="SSLPortInput" value={this.state.sslPort?.trim() > 0} onValueChange={this.useSSLPortToggled} />
+              <Switch
+                testID="SSLPortInput"
+                value={this.state.sslPort?.trim() > 0}
+                onValueChange={this.useSSLPortToggled}
+                disabled={this.state.host?.endsWith('.onion') ?? false}
+              />
             </View>
             <BlueSpacing20 />
 
