@@ -316,7 +316,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     }
     return submenu;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [item.hash, subtitle, subtitleNumberOfLines]);
 
   return (
     <View style={styles.container}>
