@@ -269,13 +269,13 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (4.1.0):
+  - react-native-camera (4.1.1):
     - React-Core
-    - react-native-camera/RCT (= 4.1.0)
-    - react-native-camera/RN (= 4.1.0)
-  - react-native-camera/RCT (4.1.0):
+    - react-native-camera/RCT (= 4.1.1)
+    - react-native-camera/RN (= 4.1.1)
+  - react-native-camera/RCT (4.1.1):
     - React-Core
-  - react-native-camera/RN (4.1.0):
+  - react-native-camera/RN (4.1.1):
     - React-Core
   - react-native-document-picker (3.5.4):
     - React
@@ -291,7 +291,7 @@ PODS:
     - React-Core
   - react-native-safe-area-context (3.3.0):
     - React-Core
-  - react-native-tcp-socket (5.2.1):
+  - react-native-tcp-socket (5.3.0):
     - CocoaAsyncSocket
     - React-Core
   - react-native-tor (0.1.7):
@@ -744,7 +744,7 @@ SPEC CHECKSUMS:
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: 87f9f4e0ae5bc7eaf867c891866bf1e830dc5277
+  react-native-camera: 457a5279a12864bc241c28518fecd5db2838754c
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
@@ -752,7 +752,7 @@ SPEC CHECKSUMS:
   react-native-ios-context-menu: c787c9a764525d07dff9bd75a191f67de7176e9f
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
   react-native-safe-area-context: 8465df05de8106c584b117f0e027e17174d6e02e
-  react-native-tcp-socket: d05b8acbf1c045ff5b6a92ec6ca91960c94387d1
+  react-native-tcp-socket: b476f3045ead29f491a3affb644527b4cb7b6910
   react-native-tor: 4f389f5719dad633542b57ea32744e954730e7ef
   react-native-webview: b176c6404ad40d10cfc818be41c053f85a72d751
   react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
