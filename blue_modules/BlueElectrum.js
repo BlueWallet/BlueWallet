@@ -732,12 +732,27 @@ module.exports.estimateFees = async function () {
   const _medium = await module.exports.estimateFee(18);
   const _slow = await module.exports.estimateFee(144);
 
+  console.log("_fast ", _fast);
+  console.log("_medium ", _medium);
+  console.log("_slow", _slow);
+
   // calculating fast fees from mempool:
   const fast = module.exports.calcEstimateFeeFromFeeHistorgam(1, histogram);
+
+  console.log("fast ", fast); 
+
+  console.log("histogram", histogram); 
+
   // recalculating medium and slow fees using bitcoincore estimations only like relative weights:
   // (minimum 1 sat, just for any case)
   const medium = Math.max(1, Math.round((fast * _medium) / _fast));
   const slow = Math.max(1, Math.round((fast * _slow) / _fast));
+
+  console.log("fast ", fast);
+  console.log("medium ", medium);
+  console.log("slow", slow);
+
+
   return { fast, medium, slow };
 };
 
@@ -751,6 +766,8 @@ module.exports.estimateFee = async function (numberOfBlocks) {
   if (!mainClient) throw new Error('Electrum client is not connected');
   numberOfBlocks = numberOfBlocks || 1;
   const coinUnitsPerKilobyte = await mainClient.blockchainEstimatefee(numberOfBlocks);
+
+
   if (coinUnitsPerKilobyte === -1) return 1;
   return Math.round(new BigNumber(coinUnitsPerKilobyte).dividedBy(1024).multipliedBy(100000000).toNumber());
 };
