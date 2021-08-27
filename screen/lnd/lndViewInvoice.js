@@ -3,7 +3,7 @@ import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, Style
 import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
-import QRCode from 'react-native-qrcode-svg';
+import QRCodeComponent from '../../components/QRCodeComponent';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 import {
@@ -20,7 +20,6 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
-import ToolTipMenu from '../../components/TooltipMenu';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID, isModal } = useRoute().params;
@@ -33,7 +32,6 @@ const LNDViewInvoice = () => {
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState(false);
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const fetchInvoiceInterval = useRef();
-  const qrCode = useRef();
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.background,
@@ -169,15 +167,6 @@ const LNDViewInvoice = () => {
     navigate('LNDViewAdditionalInvoiceInformation', { walletID });
   };
 
-  const handleShareQRCode = () => {
-    qrCode.current.toDataURL(data => {
-      const shareImageBase64 = {
-        url: `data:image/png;base64,${data}`,
-      };
-      Share.open(shareImageBase64).catch(error => console.log(error));
-    });
-  };
-
   useEffect(() => {
     if (invoice.ispaid && invoiceStatusChanged) {
       ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
@@ -254,27 +243,7 @@ const LNDViewInvoice = () => {
         <ScrollView>
           <View style={[styles.activeRoot, stylesHook.root]}>
             <View style={styles.activeQrcode}>
-              <ToolTipMenu
-                actions={[
-                  {
-                    id: LNDViewInvoice.actionKeys.Share,
-                    text: loc.receive.details_share,
-                    icon: LNDViewInvoice.actionIcons.Share,
-                  },
-                ]}
-                onPress={handleShareQRCode}
-              >
-                <QRCode
-                  value={invoice.payment_request}
-                  logo={require('../../img/qr-code.png')}
-                  size={qrCodeSize}
-                  logoSize={90}
-                  color="#000000"
-                  logoBackgroundColor={colors.brandingColor}
-                  backgroundColor="#FFFFFF"
-                  getRef={qrCode}
-                />
-              </ToolTipMenu>
+              <QRCodeComponent value={invoice.payment_request} size={qrCodeSize} />
             </View>
             <BlueSpacing20 />
             <BlueText>
@@ -328,7 +297,6 @@ const styles = StyleSheet.create({
   justifyContentCenter: {
     justifyContent: 'center',
   },
-  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
   valueAmount: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -392,9 +360,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 16,
-    borderWidth: 6,
-    borderRadius: 8,
-    borderColor: '#FFFFFF',
   },
 });
 

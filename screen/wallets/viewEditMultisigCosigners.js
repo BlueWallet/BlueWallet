@@ -39,10 +39,10 @@ import MultipleStepsListItem, {
 } from '../../components/MultipleStepsListItem';
 import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
-import QRCode from 'react-native-qrcode-svg';
 import { SquareButton } from '../../components/SquareButton';
 import { isMacCatalina } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
+import QRCodeComponent from '../../components/QRCodeComponent';
 const fs = require('../../blue_modules/fs');
 
 const ViewEditMultisigCosigners = () => {
@@ -548,16 +548,7 @@ const ViewEditMultisigCosigners = () => {
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
-            <View style={styles.qrCodeContainer}>
-              <QRCode
-                value={exportStringURv2}
-                size={260}
-                color="#000000"
-                logoBackgroundColor={colors.brandingColor}
-                backgroundColor="#FFFFFF"
-                ecl="H"
-              />
-            </View>
+            <QRCodeComponent value={exportStringURv2} size={260} />
             <BlueSpacing20 />
             <View style={styles.squareButtonWrapper}>
               <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportCosigner} title={loc.multisig.share} />
@@ -742,7 +733,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     bottom: -3,
   },
-  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
   tipLabelText: {
     fontWeight: '500',
   },
