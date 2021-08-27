@@ -186,13 +186,13 @@ const ReceiveDetails = () => {
               const satPerVbyte = Math.round(tx.fee / rez[tx.tx_hash].vsize);
               const fees = await BlueElectrum.estimateFees();
               if (satPerVbyte >= fees.fast) {
-                setEta(loc.formatString(loc.transactions.eta_10m, { satPerVbyte }));
+                setEta(loc.formatString(loc.transactions.eta_10m));
               }
               if (satPerVbyte >= fees.medium && satPerVbyte < fees.fast) {
-                setEta(loc.formatString(loc.transactions.eta_3h, { satPerVbyte }));
+                setEta(loc.formatString(loc.transactions.eta_3h));
               }
               if (satPerVbyte < fees.medium) {
-                setEta(loc.formatString(loc.transactions.eta_1d, { satPerVbyte }));
+                setEta(loc.formatString(loc.transactions.eta_1d));
               }
             }
           }

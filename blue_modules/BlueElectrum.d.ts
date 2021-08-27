@@ -34,7 +34,7 @@ type Transaction = {
     };
   }[];
   blockhash: string;
-  confirmations: number;
+  confirmations?: number;
   time: number;
   blocktime: number;
 };

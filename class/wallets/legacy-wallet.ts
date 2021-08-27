@@ -47,7 +47,7 @@ export class LegacyWallet extends AbstractWallet {
    */
   timeToRefreshTransaction(): boolean {
     for (const tx of this.getTransactions()) {
-      if (tx.confirmations < 7 && this._lastTxFetch < +new Date() - 5 * 60 * 1000) {
+      if ((tx.confirmations ?? 0) < 7 && this._lastTxFetch < +new Date() - 5 * 60 * 1000) {
         return true;
       }
     }
@@ -219,7 +219,7 @@ export class LegacyWallet extends AbstractWallet {
             amount: value,
             confirmations: tx.confirmations,
             wif: false,
-            height: BlueElectrum.estimateCurrentBlockheight() - tx.confirmations,
+            height: BlueElectrum.estimateCurrentBlockheight() - (tx.confirmations ?? 0),
           });
         }
       }
