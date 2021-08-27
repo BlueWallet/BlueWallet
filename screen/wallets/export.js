@@ -112,7 +112,12 @@ const WalletExport = () => {
         <BlueSpacing20 />
         {secrets.map(s => (
           <React.Fragment key={s}>
-            <QRCodeComponent value={wallet.getSecret()} size={height > width ? width - 40 : width / 2} logoSize={70} />
+            <QRCodeComponent
+              isMenuAvailable={false}
+              value={wallet.getSecret()}
+              size={height > width ? width - 40 : width / 2}
+              logoSize={70}
+            />
             {wallet.type !== WatchOnlyWallet.type && <BlueText style={stylesHook.warning}>{loc.wallets.warning_do_not_disclose}</BlueText>}
             <BlueSpacing20 />
             {wallet.type === LightningCustodianWallet.type || wallet.type === WatchOnlyWallet.type ? (

@@ -278,17 +278,6 @@ const LNDViewInvoice = () => {
   );
 };
 
-LNDViewInvoice.actionKeys = {
-  Share: 'share',
-};
-
-LNDViewInvoice.actionIcons = {
-  Share: {
-    iconType: 'SYSTEM',
-    iconValue: 'square.and.arrow.up',
-  },
-};
-
 const styles = StyleSheet.create({
   root: {
     flex: 1,

@@ -59,7 +59,7 @@ const WalletXpub = () => {
   );
 
   return isLoading ? (
-    <View style={[styles.root, stylesHook.root]}>
+    <View style={[styles.container, stylesHook.root]}>
       <ActivityIndicator />
     </View>
   ) : (
@@ -78,17 +78,6 @@ const WalletXpub = () => {
       </View>
     </SafeBlueArea>
   );
-};
-
-WalletXpub.actionKeys = {
-  Share: 'share',
-};
-
-WalletXpub.actionIcons = {
-  Share: {
-    iconType: 'SYSTEM',
-    iconValue: 'square.and.arrow.up',
-  },
 };
 
 WalletXpub.navigationOptions = navigationStyle(
