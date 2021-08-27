@@ -412,6 +412,7 @@ export const BlueListItem = React.memo(props => {
             color: props.disabled ? colors.buttonDisabledTextColor : colors.foregroundColor,
             fontSize: 16,
             fontWeight: '500',
+            writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
           }}
           numberOfLines={0}
           accessible={props.switch === undefined}
@@ -422,7 +423,13 @@ export const BlueListItem = React.memo(props => {
           <ListItem.Subtitle
             numberOfLines={props.subtitleNumberOfLines ?? 1}
             accessible={props.switch === undefined}
-            style={{ flexWrap: 'wrap', color: colors.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
+            style={{
+              flexWrap: 'wrap',
+              writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+              color: colors.alternativeTextColor,
+              fontWeight: '400',
+              fontSize: 14,
+            }}
           >
             {props.subtitle}
           </ListItem.Subtitle>
