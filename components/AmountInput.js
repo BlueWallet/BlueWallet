@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
 import { Text } from 'react-native-elements';
-import { Image, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Image, Pressable, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useTheme } from '@react-navigation/native';
-
+import confirm from '../helpers/confirm';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import loc, { formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros } from '../loc';
 const currency = require('../blue_modules/currency');
@@ -162,6 +162,12 @@ class AmountInput extends Component {
     this.props.onChangeText(text);
   };
 
+  resetAmount = async () => {
+    if (await confirm(loc.send.reset_amount, loc.send.reset_amount_confirm)) {
+      this.props.onChangeText();
+    }
+  };
+
   render() {
     const { colors, disabled, unit } = this.props;
     const amount = this.props.amount || 0;
@@ -206,26 +212,32 @@ class AmountInput extends Component {
               {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
                 <Text style={[styles.localCurrency, stylesHook.localCurrency]}>{currency.getCurrencySymbol() + ' '}</Text>
               )}
-              <TextInput
-                {...this.props}
-                testID="BitcoinAmountInput"
-                keyboardType="numeric"
-                adjustsFontSizeToFit
-                onChangeText={this.handleChangeText}
-                onBlur={() => {
-                  if (this.props.onBlur) this.props.onBlur();
-                }}
-                onFocus={() => {
-                  if (this.props.onFocus) this.props.onFocus();
-                }}
-                placeholder="0"
-                maxLength={this.maxLength()}
-                ref={textInput => (this.textInput = textInput)}
-                editable={!this.props.isLoading && !disabled}
-                value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? String(amount) : undefined}
-                placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
-                style={[styles.input, stylesHook.input]}
-              />
+              {amount !== BitcoinUnit.MAX ? (
+                <TextInput
+                  {...this.props}
+                  testID="BitcoinAmountInput"
+                  keyboardType="numeric"
+                  adjustsFontSizeToFit
+                  onChangeText={this.handleChangeText}
+                  onBlur={() => {
+                    if (this.props.onBlur) this.props.onBlur();
+                  }}
+                  onFocus={() => {
+                    if (this.props.onFocus) this.props.onFocus();
+                  }}
+                  placeholder="0"
+                  maxLength={this.maxLength()}
+                  ref={textInput => (this.textInput = textInput)}
+                  editable={!this.props.isLoading && !disabled}
+                  value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? String(amount) : undefined}
+                  placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
+                  style={[styles.input, stylesHook.input]}
+                />
+              ) : (
+                <Pressable onPress={this.resetAmount}>
+                  <Text style={[styles.input, stylesHook.input]}>{BitcoinUnit.MAX}</Text>
+                </Pressable>
+              )}
               {unit !== BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
                 <Text style={[styles.cryptoCurrency, stylesHook.cryptoCurrency]}>{' ' + loc.units[unit]}</Text>
               )}

@@ -119,6 +119,7 @@
     "lightning_invoice": "Lightning Rechnung",
     "has_been_paid": "Diese Rechnung wurde bezahlt.",
     "open_direct_channel": "Direkten Kanal zu diesem Knoten eröffnen:",
+    "please_pay_between_and": "Zahlen Sie zwischen {min} und {max}",
     "please_pay": "Bitte zahle",
     "preimage": "Urbild",
     "sats": "sats",
@@ -181,6 +182,7 @@
     "details_adv_full": "Gesamtes Guthaben senden",
     "details_adv_full_sure": "Bist Du sicher, dass Du das gesamte Guthaben für diese Transaktion verwenden willst?",
     "details_adv_import": "Transaktion importieren",
+    "details_adv_import_qr": "Transaktion scannen (QR)",
     "details_amount_field_is_not_valid": "Betragseingabe ist ungültig.",
     "details_amount_field_is_less_than_minimum_amount_sat": "Der angegebene Betrag ist zu klein. Bitte einen Betrag größer 500 sats eingeben.",
     "details_create": "Erstellen",
@@ -261,6 +263,7 @@
     "default_wallets": "Alle Wallets anzeigen",
     "electrum_connected": "Verbunden",
     "electrum_connected_not": "Nicht verbunden",
+    "electrum_connnected_not_description": "Zum Import eines Wallet ist eine aktive Electrum-Verbindung erforderlich. Dies lässt sich unter Einstellungen > Netzwerk > Electrum Server überprüfen.",
     "electrum_error_connect": "Keine Verbindung zum angegebenen Electrum-Server möglich.",
     "electrum_host": "Z.b. {example}",
     "electrum_offline_mode": "Offline-Modus",
@@ -284,6 +287,7 @@
     "electrum_reset_to_default": "Sollen die Electrum-Einstellungen wirklich auf die Standardwerte zurückgesetzt werden?",
     "electrum_clear": "Löschen",
     "tor_supported": "Tor unterstützt",
+    "tor_unsupported": "Tor-Verbindungen sind nicht unterstützt.",
     "encrypt_decrypt": "Speicher entschlüsseln",
     "encrypt_decrypt_q": "Willst du die Speicherverschlüsselung wirklich aufheben? Hiermit wird dein Wallet ohne Passwortschutz direkt benutzbar. ",
     "encrypt_del_uninstall": "Bei Deinstallation löschen",
@@ -548,7 +552,7 @@
     "ms_help_title4": "Tresor importieren",
     "ms_help_4": "Um ein Tresor zu importieren, lade deine Multisignatur Backupdatei mittels Import-Funktion. Hast Du nur die Seeds der erweiterten Schlüssel, fügst Du diese während der Tresor-Erstellung hinzu.",
     "ms_help_title5": "Erweiterte Optionen",
-    "ms_help_5": "BlueWallet generiert im Standard ein Tresor bei dem 2 von 3 signieren müssen. Zum Ändern der Signaturfähigkeit oder des Adresstyps in den Einstellungen unter Allgemein den erweiterten Modus aktivieren."
+    "ms_help_5": "Der geplante Tresor erfordert 2 von 3 Signaturen. Zum Ändern der Anzahl oder des Adresstyps unter Einstellungen > Allgemein den erweiterten Modus aktivieren."
   },
   "is_it_my_address": {
     "title": "Ist dies meine Adresse?",
