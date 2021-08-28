@@ -1,13 +1,13 @@
 /* global alert */
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Share, StyleSheet } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 import { BlueButton, BlueCopyTextToClipboard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import QRCodeComponent from '../../components/QRCodeComponent';
 
 const LNDViewAdditionalInvoiceInformation = () => {
   const { walletID } = useRoute().params;
@@ -54,15 +54,7 @@ const LNDViewAdditionalInvoiceInformation = () => {
     <SafeBlueArea style={stylesHook.root}>
       <View style={styles.wrapper}>
         <View style={styles.qrcode}>
-          <QRCode
-            value={walletInfo.uris[0]}
-            logo={require('../../img/qr-code.png')}
-            size={300}
-            logoSize={90}
-            color="#000000"
-            logoBackgroundColor={colors.brandingColor}
-            backgroundColor="#FFFFFF"
-          />
+          <QRCodeComponent value={walletInfo.uris[0]} size={300} />
         </View>
         <BlueSpacing20 />
         <BlueText>{loc.lndViewInvoice.open_direct_channel}</BlueText>
@@ -100,10 +92,6 @@ const styles = StyleSheet.create({
   qrcode: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 16,
-    borderWidth: 6,
-    borderRadius: 8,
-    borderColor: '#FFFFFF',
   },
   share: {
     marginBottom: 25,
