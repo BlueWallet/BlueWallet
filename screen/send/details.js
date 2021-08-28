@@ -172,7 +172,7 @@ const SendDetails = () => {
           return [...addresses, { address: routeParams.address, key: String(Math.random()) }];
         }
       });
-      if (routeParams?.memo?.trim().length > 0) {
+      if (routeParams.memo?.trim().length > 0) {
         setTransactionMemo(routeParams.memo);
       }
       setAmountUnit(BitcoinUnit.BTC);
