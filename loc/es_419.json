@@ -231,6 +231,8 @@
     "psbt_tx_scan": "Escanear transacción firmada",
     "qr_error_no_qrcode": "No pudimos encontrar un código QR en la imagen seleccionada. Asegúrate de que la imagen contenga solo un código QR y no contenga contenido adicional como texto o botones.",
     "qr_error_no_wallet": "El archivo seleccionado no contiene una billetera que se pueda importar.",
+    "reset_amount": "Restablecer monto",
+    "reset_amount_confirm": "¿Te gustaría restablecer la cantidad?",
     "success_done": "Hecho",
     "txSaved": "El archivo ({filePath}) se ha guardado en tu carpeta de Descargas.",
     "problem_with_psbt": "Problema con PSBT"
