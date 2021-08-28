@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { is } from '../BlueComponents';
 import { useTheme } from './themes';
 import ToolTipMenu from './TooltipMenu';
 import Share from 'react-native-share';
@@ -13,7 +12,7 @@ const QRCodeComponent = ({
   isLogoRendered = true,
   isMenuAvailable = true,
   logoSize = 90,
-  size = (is.ipad() && 300) || 300,
+  size = 300,
   ecl = 'H',
   onError = () => {},
 }) => {
