@@ -313,7 +313,6 @@ async function getRandomDynamicPeer() {
  * @returns {Promise<Object>}
  */
 module.exports.getBalanceByAddress = async function (address) {
-  if (await isDisabled()) return;
   if (!mainClient) throw new Error('Electrum client is not connected');
   const script = bitcoin.address.toOutputScript(address);
   const hash = bitcoin.crypto.sha256(script);
@@ -324,10 +323,6 @@ module.exports.getBalanceByAddress = async function (address) {
 };
 
 module.exports.getConfig = async function () {
-  if (await isDisabled())
-    return {
-      connected: 0,
-    };
   if (!mainClient) throw new Error('Electrum client is not connected');
   return {
     host: mainClient.host,
@@ -347,7 +342,6 @@ module.exports.getSecondsSinceLastRequest = function () {
  * @returns {Promise<Array>}
  */
 module.exports.getTransactionsByAddress = async function (address) {
-  if (await isDisabled()) return;
   if (!mainClient) throw new Error('Electrum client is not connected');
   const script = bitcoin.address.toOutputScript(address);
   const hash = bitcoin.crypto.sha256(script);
@@ -423,7 +417,6 @@ module.exports.getTransactionsFullByAddress = async function (address) {
  * @returns {Promise<{balance: number, unconfirmed_balance: number, addresses: object}>}
  */
 module.exports.multiGetBalanceByAddress = async function (addresses, batchsize) {
-  if (await isDisabled()) return;
   batchsize = batchsize || 200;
   if (!mainClient) throw new Error('Electrum client is not connected');
   const ret = { balance: 0, unconfirmed_balance: 0, addresses: {} };
@@ -470,7 +463,6 @@ module.exports.multiGetBalanceByAddress = async function (addresses, batchsize) 
 };
 
 module.exports.multiGetUtxoByAddress = async function (addresses, batchsize) {
-  if (await isDisabled()) return;
   batchsize = batchsize || 100;
   if (!mainClient) throw new Error('Electrum client is not connected');
   const ret = {};
@@ -514,7 +506,6 @@ module.exports.multiGetUtxoByAddress = async function (addresses, batchsize) {
 };
 
 module.exports.multiGetHistoryByAddress = async function (addresses, batchsize) {
-  if (await isDisabled()) return;
   batchsize = batchsize || 100;
   if (!mainClient) throw new Error('Electrum client is not connected');
   const ret = {};
@@ -566,7 +557,6 @@ module.exports.multiGetHistoryByAddress = async function (addresses, batchsize) 
 };
 
 module.exports.multiGetTransactionByTxid = async function (txids, batchsize, verbose = true) {
-  if (await isDisabled()) return;
   batchsize = batchsize || 45;
   // this value is fine-tuned so althrough wallets in test suite will occasionally
   // throw 'response too large (over 1,000,000 bytes', test suite will pass
@@ -802,7 +792,6 @@ module.exports.estimateFees = async function () {
  * @returns {Promise<number>} Satoshis per byte
  */
 module.exports.estimateFee = async function (numberOfBlocks) {
-  if (await isDisabled()) return;
   if (!mainClient) throw new Error('Electrum client is not connected');
   numberOfBlocks = numberOfBlocks || 1;
   const coinUnitsPerKilobyte = await mainClient.blockchainEstimatefee(numberOfBlocks);
@@ -811,13 +800,11 @@ module.exports.estimateFee = async function (numberOfBlocks) {
 };
 
 module.exports.serverFeatures = async function () {
-  if (await isDisabled()) return;
   if (!mainClient) throw new Error('Electrum client is not connected');
   return mainClient.server_features();
 };
 
 module.exports.broadcast = async function (hex) {
-  if (await isDisabled()) return;
   if (!mainClient) throw new Error('Electrum client is not connected');
   try {
     const broadcast = await mainClient.blockchainTransaction_broadcast(hex);
@@ -828,7 +815,6 @@ module.exports.broadcast = async function (hex) {
 };
 
 module.exports.broadcastV2 = async function (hex) {
-  if (await isDisabled()) return;
   if (!mainClient) throw new Error('Electrum client is not connected');
   return mainClient.blockchainTransaction_broadcast(hex);
 };
