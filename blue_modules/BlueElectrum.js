@@ -354,6 +354,19 @@ module.exports.getTransactionsByAddress = async function (address) {
   return history;
 };
 
+/**
+ *
+ * @param address {String}
+ * @returns {Promise<Array>}
+ */
+module.exports.getMempoolTransactionsByAddress = async function (address) {
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  const script = bitcoin.address.toOutputScript(address);
+  const hash = bitcoin.crypto.sha256(script);
+  const reversedHash = Buffer.from(reverse(hash));
+  return mainClient.blockchainScripthash_getMempool(reversedHash.toString('hex'));
+};
+
 module.exports.ping = async function () {
   try {
     await mainClient.server_ping();
