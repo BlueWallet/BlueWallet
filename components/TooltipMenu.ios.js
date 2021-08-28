@@ -1,6 +1,7 @@
 import React from 'react';
 import { ContextMenuView, ContextMenuButton } from 'react-native-ios-context-menu';
 import PropTypes from 'prop-types';
+import QRCodeComponent from './QRCodeComponent';
 
 const ToolTipMenu = props => {
   const menuItems = props.actions.map(action => {
@@ -23,6 +24,8 @@ const ToolTipMenu = props => {
   const submenu = props.submenu;
   const isButton = !!props.isButton;
   const isMenuPrimaryAction = props.isMenuPrimaryAction ? props.isMenuPrimaryAction : false;
+  const previewQRCode = props.previewQRCode ?? false;
+  const previewValue = props.previewValue;
   return isButton ? (
     <ContextMenuButton
       onPressMenuItem={({ nativeEvent }) => {
@@ -45,6 +48,15 @@ const ToolTipMenu = props => {
         menuTitle,
         menuItems: menuItems.concat(submenu),
       }}
+      {...(previewQRCode
+        ? {
+            previewConfig: {
+              previewType: 'CUSTOM',
+              backgroundColor: 'white',
+            },
+            renderPreview: () => <QRCodeComponent value={previewValue} isMenuAvailable={false} />,
+          }
+        : {})}
     >
       {props.children}
     </ContextMenuView>
@@ -60,4 +72,6 @@ ToolTipMenu.propTypes = {
   onPress: PropTypes.func.isRequired,
   isMenuPrimaryAction: PropTypes.bool,
   isButton: PropTypes.bool,
+  previewQRCode: PropTypes.bool,
+  previewValue: PropTypes.string,
 };

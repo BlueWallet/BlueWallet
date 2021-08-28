@@ -1,13 +1,13 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { View, StyleSheet, ScrollView, BackHandler, StatusBar } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
 
 import { BlueButton, BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import QRCodeComponent from '../../components/QRCodeComponent';
 
 const PleaseBackupLNDHub = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -32,7 +32,6 @@ const PleaseBackupLNDHub = () => {
       alignItems: 'center',
       padding: 20,
     },
-    qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
   });
 
   useEffect(() => {
@@ -59,18 +58,7 @@ const PleaseBackupLNDHub = () => {
           <BlueSpacing20 />
         </View>
         <BlueSpacing20 />
-        <View style={styles.qrCodeContainer}>
-          <QRCode
-            value={wallet.getSecret()}
-            logo={require('../../img/qr-code.png')}
-            logoSize={90}
-            color="#000000"
-            logoBackgroundColor={colors.brandingColor}
-            backgroundColor="#FFFFFF"
-            ecl="H"
-            size={qrCodeSize}
-          />
-        </View>
+        <QRCodeComponent value={wallet.getSecret()} size={qrCodeSize} />
         <BlueCopyTextToClipboard text={wallet.getSecret()} />
         <BlueSpacing20 />
         <BlueButton onPress={pop} title={loc.pleasebackup.ok_lnd} />

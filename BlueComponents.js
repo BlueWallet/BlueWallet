@@ -26,12 +26,12 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { BlurView } from '@react-native-community/blur';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 import { encodeUR } from './blue_modules/ur';
-import QRCode from 'react-native-qrcode-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatStringAddTwoWhiteSpaces } from './loc';
 import { BlueStorageContext } from './blue_modules/storage-context';
+import QRCodeComponent from './components/QRCodeComponent';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -1281,14 +1281,7 @@ export class DynamicQRCode extends Component {
       <View style={animatedQRCodeStyle.container}>
         <BlueSpacing20 />
         <View style={animatedQRCodeStyle.qrcodeContainer}>
-          <QRCode
-            value={currentFragment.toUpperCase()}
-            size={this.state.qrCodeHeight}
-            color="#000000"
-            logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
-            backgroundColor="#FFFFFF"
-            ecl="L"
-          />
+          <QRCodeComponent value={currentFragment.toUpperCase()} size={this.state.qrCodeHeight} ecl="L" />
         </View>
         <BlueSpacing20 />
         <View>
@@ -1338,9 +1331,7 @@ const animatedQRCodeStyle = StyleSheet.create({
   qrcodeContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 6,
-    borderRadius: 8,
-    borderColor: '#FFFFFF',
+
     margin: 6,
   },
   controller: {

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar, I18nManager } from 'react-native';
+import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar, I18nManager, BackHandler } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
@@ -21,6 +21,8 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import HandoffComponent from '../../components/handoff';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 const buttonStatus = Object.freeze({
   possible: 1,
@@ -29,9 +31,9 @@ const buttonStatus = Object.freeze({
 });
 
 const TransactionsStatus = () => {
-  const { setSelectedWallet, wallets, txMetadata, getTransactions } = useContext(BlueStorageContext);
+  const { setSelectedWallet, wallets, txMetadata, getTransactions, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const { hash } = useRoute().params;
-  const { navigate, setOptions } = useNavigation();
+  const { navigate, setOptions, goBack } = useNavigation();
   const { colors } = useTheme();
   const wallet = useRef();
   const [isCPFPPossible, setIsCPFPPossible] = useState();
@@ -39,6 +41,9 @@ const TransactionsStatus = () => {
   const [isRBFCancelPossible, setIsRBFCancelPossible] = useState();
   const [tx, setTX] = useState();
   const [isLoading, setIsLoading] = useState(true);
+  const fetchTxInterval = useRef();
+  const [intervalMs, setIntervalMs] = useState(1000);
+  const [eta, setEta] = useState('');
   const stylesHook = StyleSheet.create({
     value: {
       color: colors.alternativeTextColor2,
@@ -94,6 +99,86 @@ const TransactionsStatus = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hash]);
 
+  // re-fetching tx status periodically
+  useEffect(() => {
+    console.log('transactionStatus - useEffect');
+
+    if (!tx || tx?.confirmations) return;
+    if (!hash) return;
+
+    if (fetchTxInterval.current) {
+      // interval already exists, lets cleanup it and recreate, so theres no duplicate intervals
+      clearInterval(fetchTxInterval.current);
+      fetchTxInterval.current = undefined;
+    }
+
+    console.log('setting up interval to check tx...');
+    fetchTxInterval.current = setInterval(async () => {
+      try {
+        setIntervalMs(31000); // upon first execution we increase poll interval;
+
+        console.log('checking tx', hash, 'for confirmations...');
+        const transactions = await BlueElectrum.multiGetTransactionByTxid([hash], 10, true);
+        const txFromElectrum = transactions[hash];
+        console.log('got txFromElectrum=', txFromElectrum);
+
+        const address = (txFromElectrum?.vout[0]?.scriptPubKey?.addresses || []).pop();
+
+        if (txFromElectrum && !txFromElectrum.confirmations && txFromElectrum.vsize && address) {
+          const txsM = await BlueElectrum.getMempoolTransactionsByAddress(address);
+          let txFromMempool;
+          // searhcing for a correct tx in case this address has several pending txs:
+          for (const tempTxM of txsM) {
+            if (tempTxM.tx_hash === hash) txFromMempool = tempTxM;
+          }
+          if (!txFromMempool) return;
+          console.log('txFromMempool=', txFromMempool);
+
+          const satPerVbyte = Math.round(txFromMempool.fee / txFromElectrum.vsize);
+          const fees = await BlueElectrum.estimateFees();
+          console.log('fees=', fees, 'satPerVbyte=', satPerVbyte);
+          if (satPerVbyte >= fees.fast) {
+            setEta(loc.formatString(loc.transactions.eta_10m));
+          }
+          if (satPerVbyte >= fees.medium && satPerVbyte < fees.fast) {
+            setEta(loc.formatString(loc.transactions.eta_3h));
+          }
+          if (satPerVbyte < fees.medium) {
+            setEta(loc.formatString(loc.transactions.eta_1d));
+          }
+        } else if (txFromElectrum.confirmations > 0) {
+          // now, handling a case when tx became confirmed!
+          ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+          setEta('');
+          setTX(prevState => {
+            return Object.assign({}, prevState, { confirmations: txFromElectrum.confirmations });
+          });
+          clearInterval(fetchTxInterval.current);
+          fetchTxInterval.current = undefined;
+          wallet?.current?.getID() && fetchAndSaveWalletTransactions(wallet.current.getID());
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }, intervalMs);
+  }, [hash, intervalMs, tx, fetchAndSaveWalletTransactions]);
+
+  const handleBackButton = () => {
+    goBack(null);
+    return true;
+  };
+
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+      clearInterval(fetchTxInterval.current);
+      fetchTxInterval.current = undefined;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const initialState = async () => {
     try {
       await checkPossibilityOfCPFP();
@@ -122,7 +207,7 @@ const TransactionsStatus = () => {
   }, [wallet.current]);
 
   useEffect(() => {
-    console.log('transactions/details - useEffect');
+    console.log('transactionStatus - useEffect');
   }, []);
 
   const checkPossibilityOfCPFP = async () => {
@@ -342,6 +427,12 @@ const TransactionsStatus = () => {
               })}
             </Text>
           </View>
+          {eta ? (
+            <View style={[styles.eta]}>
+              <BlueSpacing10 />
+              <Text style={styles.confirmationsText}>{eta}</Text>
+            </View>
+          ) : null}
         </BlueCard>
 
         <View style={styles.actions}>
@@ -428,6 +519,11 @@ const styles = StyleSheet.create({
   confirmationsText: {
     color: '#9aa0aa',
     fontSize: 11,
+  },
+  eta: {
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actions: {
     alignSelf: 'center',

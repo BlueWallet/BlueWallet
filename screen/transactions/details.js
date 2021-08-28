@@ -249,7 +249,7 @@ TransactionsDetails.actionKeys = {
 TransactionsDetails.actionIcons = {
   Clipboard: {
     iconType: 'SYSTEM',
-    iconValue: 'arrow.right.doc.on.clipboard',
+    iconValue: 'doc.on.doc',
   },
 };
 

@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useContext } from 'react';
 import { useWindowDimensions, InteractionManager, ScrollView, ActivityIndicator, StatusBar, View, StyleSheet } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
 import { useTheme, useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
@@ -10,6 +9,7 @@ import Biometric from '../../class/biometrics';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import QRCodeComponent from '../../components/QRCodeComponent';
 
 const styles = StyleSheet.create({
   loading: {
@@ -21,7 +21,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexGrow: 1,
   },
-  activeQrcode: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
   type: {
     fontSize: 17,
     fontWeight: '700',
@@ -113,18 +112,12 @@ const WalletExport = () => {
         <BlueSpacing20 />
         {secrets.map(s => (
           <React.Fragment key={s}>
-            <View style={styles.activeQrcode}>
-              <QRCode
-                value={wallet.getSecret()}
-                logo={require('../../img/qr-code.png')}
-                size={height > width ? width - 40 : width / 2}
-                logoSize={70}
-                color="#000000"
-                logoBackgroundColor={colors.brandingColor}
-                backgroundColor="#FFFFFF"
-                ecl="H"
-              />
-            </View>
+            <QRCodeComponent
+              isMenuAvailable={false}
+              value={wallet.getSecret()}
+              size={height > width ? width - 40 : width / 2}
+              logoSize={70}
+            />
             {wallet.type !== WatchOnlyWallet.type && <BlueText style={stylesHook.warning}>{loc.wallets.warning_do_not_disclose}</BlueText>}
             <BlueSpacing20 />
             {wallet.type === LightningCustodianWallet.type || wallet.type === WatchOnlyWallet.type ? (
