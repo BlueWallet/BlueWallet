@@ -231,6 +231,8 @@
     "psbt_tx_scan": "Scan Signed Transaction",
     "qr_error_no_qrcode": "We were unable to find a QR Code in the selected image. Make sure the image contains only a QR Code and no additional content such as text, or buttons.",
     "qr_error_no_wallet": "The selected file doesn’t contain a wallet that can be imported.",
+    "reset_amount": "Reset Amount",
+    "reset_amount_confirm": "Would you like to reset the amount?",
     "success_done": "Done",
     "txSaved": "The transaction file ({filePath}) has been saved in your Downloads folder.",
     "problem_with_psbt": "Problem with PSBT"

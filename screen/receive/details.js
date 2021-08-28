@@ -11,7 +11,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
+import QRCodeComponent from '../../components/QRCodeComponent';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import Share from 'react-native-share';
 
@@ -20,7 +20,6 @@ import {
   BlueCopyTextToClipboard,
   BlueButton,
   BlueButtonLink,
-  is,
   BlueText,
   BlueSpacing20,
   BlueAlertWalletExportReminder,
@@ -38,7 +37,6 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc, { formatBalance } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
-import ToolTipMenu from '../../components/TooltipMenu';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -59,7 +57,6 @@ const ReceiveDetails = () => {
   const [showAddress, setShowAddress] = useState(false);
   const { navigate, goBack, setParams } = useNavigation();
   const { colors } = useTheme();
-  const qrCode = useRef();
   const [intervalMs, setIntervalMs] = useState(5000);
   const [eta, setEta] = useState('');
   const [initialConfirmed, setInitialConfirmed] = useState(0);
@@ -99,7 +96,6 @@ const ReceiveDetails = () => {
       color: colors.foregroundColor,
       minHeight: 33,
     },
-    qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
     root: {
       flexGrow: 1,
       backgroundColor: colors.elevated,
@@ -241,15 +237,6 @@ const ReceiveDetails = () => {
     }, intervalMs);
   }, [bip21encoded, address, initialConfirmed, initialUnconfirmed, intervalMs, fetchAndSaveWalletTransactions, walletID]);
 
-  const handleShareQRCode = () => {
-    qrCode.current.toDataURL(data => {
-      const shareImageBase64 = {
-        url: `data:image/png;base64,${data}`,
-      };
-      Share.open(shareImageBase64).catch(error => console.log(error));
-    });
-  };
-
   const renderConfirmedBalance = () => {
     return (
       <ScrollView contentContainerStyle={styles.root} keyboardShouldPersistTaps="always">
@@ -329,30 +316,8 @@ const ReceiveDetails = () => {
               </BlueText>
             </>
           )}
-          <View style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer">
-            <ToolTipMenu
-              actions={[
-                {
-                  id: ReceiveDetails.actionKeys.Share,
-                  text: loc.receive.details_share,
-                  icon: ReceiveDetails.actionIcons.Share,
-                },
-              ]}
-              onPress={handleShareQRCode}
-            >
-              <QRCode
-                value={bip21encoded}
-                logo={require('../../img/qr-code.png')}
-                size={(is.ipad() && 300) || 300}
-                logoSize={90}
-                color="#000000"
-                logoBackgroundColor={colors.brandingColor}
-                backgroundColor="#FFFFFF"
-                ecl="H"
-                getRef={qrCode}
-              />
-            </ToolTipMenu>
-          </View>
+
+          <QRCodeComponent value={bip21encoded} />
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>
@@ -552,17 +517,6 @@ const ReceiveDetails = () => {
       {!showAddress && !showPendingBalance && !showConfirmedBalance ? <BlueLoading /> : null}
     </View>
   );
-};
-
-ReceiveDetails.actionKeys = {
-  Share: 'share',
-};
-
-ReceiveDetails.actionIcons = {
-  Share: {
-    iconType: 'SYSTEM',
-    iconValue: 'square.and.arrow.up',
-  },
 };
 
 ReceiveDetails.navigationOptions = navigationStyle(
