@@ -216,7 +216,7 @@ const LdkInfo = () => {
     // that can send, which is not possible if user wants to withdraw to watch-only wallet
     if (!selectedWallet) return;
     const address = await selectedWallet.getAddressAsync();
-    if (await confirm()) {
+    if (address && await confirm()) {
       console.warn('selected ', selectedWallet.getLabel(), address);
       setIsLoading(true);
       try {
