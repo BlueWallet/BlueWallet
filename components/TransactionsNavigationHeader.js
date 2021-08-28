@@ -37,7 +37,7 @@ export default class TransactionsNavigationHeader extends Component {
     },
     Clipboard: {
       iconType: 'SYSTEM',
-      iconValue: 'arrow.right.doc.on.clipboard',
+      iconValue: 'doc.on.doc',
     },
   };
 

@@ -19,7 +19,6 @@ import {
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { getSystemName } from 'react-native-device-info';
-import QRCode from 'react-native-qrcode-svg';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import {
@@ -42,16 +41,16 @@ import MultipleStepsListItem, {
 } from '../../components/MultipleStepsListItem';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { encodeUR } from '../../blue_modules/ur';
+import QRCodeComponent from '../../components/QRCodeComponent';
 
 const prompt = require('../../blue_modules/prompt');
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
 const staticCache = {};
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const WalletsAddMultisigStep2 = () => {
-  const { addWallet, saveToDisk } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk, isElectrumDisabled } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
   const navigation = useNavigation();
@@ -67,7 +66,6 @@ const WalletsAddMultisigStep2 = () => {
   const [cosignerXpubFilename, setCosignerXpubFilename] = useState('bw-cosigner.json');
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
-  const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
   const openScannerButton = useRef();
   const data = useRef(new Array(n));
   const hasUnsavedChanges = Boolean(cosigners.length > 0 && cosigners.length !== n);
@@ -147,9 +145,6 @@ const WalletsAddMultisigStep2 = () => {
     setTimeout(_onCreate, 100);
   };
 
-  useEffect(() => {
-    BlueElectrum.isDisabled().then(setIsElectrumDisabled);
-  }, []);
   useEffect(() => {
     navigation.addListener('beforeRemove', e => {
       if (e.data.action.type === 'POP' && hasUnsavedChanges) {
@@ -627,16 +622,7 @@ const WalletsAddMultisigStep2 = () => {
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
             <BlueSpacing20 />
-            <View style={styles.qrCodeContainer}>
-              <QRCode
-                value={cosignerXpubURv2}
-                size={260}
-                color="#000000"
-                logoBackgroundColor={colors.brandingColor}
-                backgroundColor="#FFFFFF"
-                ecl="H"
-              />
-            </View>
+            <QRCodeComponent value={cosignerXpubURv2} size={260} />
             <BlueSpacing20 />
             <View style={styles.squareButtonWrapper}>
               {isLoading ? (
