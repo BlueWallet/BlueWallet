@@ -15,7 +15,6 @@ import {
   HDAezeedWallet,
   SLIP39LegacyP2PKHWallet,
 } from '../class';
-import { BlueStorageContext } from '../blue_modules/storage-context';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
@@ -28,7 +27,6 @@ const styles = StyleSheet.create({
 });
 
 export default class Selftest extends Component {
-  static contextType = BlueStorageContext;
   constructor(props) {
     super(props);
     this.state = {
@@ -56,10 +54,6 @@ export default class Selftest extends Component {
       }
 
       //
-
-      if (this.context.isElectrumDisabled) {
-        throw new Error(loc.settings.about_selftest_electrum_disabled);
-      }
 
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
         await BlueElectrum.ping();
