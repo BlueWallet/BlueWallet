@@ -66,7 +66,7 @@ const SendDetails = () => {
   const [isTransactionReplaceable, setIsTransactionReplaceable] = useState(false);
   const [addresses, setAddresses] = useState([]);
   const [units, setUnits] = useState([]);
-  const [memo, setMemo] = useState('');
+  const [transactionMemo, setTransactionMemo] = useState('');
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
   const [networkTransactionFeesIsLoading, setNetworkTransactionFeesIsLoading] = useState(false);
   const [customFee, setCustomFee] = useState(null);
@@ -125,6 +125,64 @@ const SendDetails = () => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    // decode route params
+    const currentAddress = addresses[scrollIndex.current];
+    const currentUnit = units[scrollIndex.current];
+    if (routeParams.uri) {
+      try {
+        const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
+        if (currentUnit) {
+          if (Number(amount) > 0) {
+            setUnits(units => {
+              units[scrollIndex.current] = BitcoinUnit.BTC; // also resetting current unit to BTC
+              return [...units];
+            });
+          }
+        }
+        setAddresses(addresses => {
+          if (currentAddress) {
+            currentAddress.address = address;
+            if (Number(amount) > 0) {
+              currentAddress.amount = amount;
+              currentAddress.amountSats = currency.btcToSatoshi(amount);
+            }
+            addresses[scrollIndex] = currentAddress;
+            return [...addresses];
+          } else {
+            return [...addresses, { address, amount, amountSats: currency.btcToSatoshi(amount), key: String(Math.random()) }];
+          }
+        });
+
+        if (memo?.trim().length > 0) {
+          setTransactionMemo(memo);
+        }
+        setAmountUnit(BitcoinUnit.BTC);
+        setPayjoinUrl(payjoinUrl);
+      } catch (error) {
+        console.log(error);
+        Alert.alert(loc.errors.error, loc.send.details_error_decode);
+      }
+    } else if (routeParams.address) {
+      setAddresses(addresses => {
+        if (currentAddress) {
+          currentAddress.address = routeParams.address;
+          addresses[scrollIndex] = currentAddress;
+          return [...addresses];
+        } else {
+          return [...addresses, { address: routeParams.address, key: String(Math.random()) }];
+        }
+      });
+      if (routeParams.memo?.trim().length > 0) {
+        setTransactionMemo(routeParams.memo);
+      }
+      setAmountUnit(BitcoinUnit.BTC);
+    } else {
+      setAddresses([{ address: '', key: String(Math.random()) }]); // key is for the FlatList
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeParams.uri, routeParams.address]);
+
+  useEffect(() => {
     // check if we have a suitable wallet
     const suitable = wallets.filter(wallet => wallet.chain === Chain.ONCHAIN && wallet.allowSend());
     if (suitable.length === 0) {
@@ -136,26 +194,6 @@ const SendDetails = () => {
     setWallet(wallet);
     setFeeUnit(wallet.getPreferredBalanceUnit());
     setAmountUnit(wallet.preferredBalanceUnit); // default for whole screen
-
-    // decode route params
-    if (routeParams.uri) {
-      try {
-        const { address, amount, memo: initialMemo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
-        setAddresses([{ address, amount, amountSats: currency.btcToSatoshi(amount), key: String(Math.random()) }]);
-        setMemo(initialMemo || '');
-        setAmountUnit(BitcoinUnit.BTC);
-        setPayjoinUrl(payjoinUrl);
-      } catch (error) {
-        console.log(error);
-        Alert.alert(loc.errors.error, loc.send.details_error_decode);
-      }
-    } else if (routeParams.address) {
-      setAddresses([{ address: routeParams.address, key: String(Math.random()) }]);
-      setMemo(routeParams.memo || '');
-      setAmountUnit(BitcoinUnit.BTC);
-    } else {
-      setAddresses([{ address: '', key: String(Math.random()) }]); // key is for the FlatList
-    }
 
     // we are ready!
     setIsLoading(false);
@@ -378,7 +416,7 @@ const SendDetails = () => {
         units[scrollIndex.current] = BitcoinUnit.BTC; // also resetting current unit to BTC
         return [...units];
       });
-      setMemo(options.label || options.message);
+      setTransactionMemo(options.label || options.message);
       setAmountUnit(BitcoinUnit.BTC);
       setPayjoinUrl(options.pj || '');
       // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
@@ -483,7 +521,7 @@ const SendDetails = () => {
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
       // user whether he wants to broadcast it
       navigation.navigate('PsbtWithHardwareWallet', {
-        memo,
+        memo: transactionMemo,
         fromWallet: wallet,
         psbt,
       });
@@ -493,7 +531,7 @@ const SendDetails = () => {
 
     if (wallet.type === MultisigHDWallet.type) {
       navigation.navigate('PsbtMultisig', {
-        memo,
+        memo: transactionMemo,
         psbtBase64: psbt.toBase64(),
         walletID: wallet.getID(),
       });
@@ -503,7 +541,7 @@ const SendDetails = () => {
 
     txMetadata[tx.getId()] = {
       txhex: tx.toHex(),
-      memo,
+      memo: transactionMemo,
     };
     await saveToDisk();
 
@@ -517,7 +555,7 @@ const SendDetails = () => {
 
     navigation.navigate('Confirm', {
       fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
-      memo,
+      memo: transactionMemo,
       walletID: wallet.getID(),
       tx: tx.toHex(),
       recipients,
@@ -569,7 +607,7 @@ const SendDetails = () => {
       // so user can do smth with it:
       const psbt = bitcoin.Psbt.fromBase64(ret.data);
       navigation.navigate('PsbtWithHardwareWallet', {
-        memo,
+        memo: transactionMemo,
         fromWallet: wallet,
         psbt,
       });
@@ -605,7 +643,7 @@ const SendDetails = () => {
         const file = await RNFS.readFile(res.uri, 'ascii');
         const psbt = bitcoin.Psbt.fromBase64(file);
         const txhex = psbt.extractTransaction().toHex();
-        navigation.navigate('PsbtWithHardwareWallet', { memo, fromWallet: wallet, txhex });
+        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, fromWallet: wallet, txhex });
         setIsLoading(false);
         setOptionsVisible(false);
         return;
@@ -616,7 +654,7 @@ const SendDetails = () => {
         // so user can do smth with it:
         const file = await RNFS.readFile(res.uri, 'ascii');
         const psbt = bitcoin.Psbt.fromBase64(file);
-        navigation.navigate('PsbtWithHardwareWallet', { memo, fromWallet: wallet, psbt });
+        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, fromWallet: wallet, psbt });
         setIsLoading(false);
         setOptionsVisible(false);
         return;
@@ -625,7 +663,7 @@ const SendDetails = () => {
       if (DeeplinkSchemaMatch.isTXNFile(res.uri)) {
         // plain text file with txhex ready to broadcast
         const file = (await RNFS.readFile(res.uri, 'ascii')).replace('\n', '').replace('\r', '');
-        navigation.navigate('PsbtWithHardwareWallet', { memo, fromWallet: wallet, txhex: file });
+        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, fromWallet: wallet, txhex: file });
         setIsLoading(false);
         setOptionsVisible(false);
         return;
@@ -676,7 +714,7 @@ const SendDetails = () => {
       }
 
       navigation.navigate('PsbtMultisig', {
-        memo,
+        memo: transactionMemo,
         psbtBase64: psbt.toBase64(),
         walletID: wallet.getID(),
       });
@@ -1310,14 +1348,14 @@ const SendDetails = () => {
         <AddressInput
           onChangeText={text => {
             text = text.trim();
-            const { address, amount, memo: lmemo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text);
+            const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text);
             setAddresses(addresses => {
               item.address = address || text;
               item.amount = amount || item.amount;
               addresses[index] = item;
               return [...addresses];
             });
-            setMemo(lmemo || memo);
+            setTransactionMemo(memo || transactionMemo);
             setIsLoading(false);
             setPayjoinUrl(payjoinUrl);
           }}
@@ -1365,10 +1403,10 @@ const SendDetails = () => {
             />
             <View style={[styles.memo, stylesHook.memo]}>
               <TextInput
-                onChangeText={text => setMemo(text)}
+                onChangeText={setTransactionMemo}
                 placeholder={loc.send.details_note_placeholder}
                 placeholderTextColor="#81868e"
-                value={memo}
+                value={transactionMemo}
                 numberOfLines={1}
                 style={styles.memoText}
                 editable={!isLoading}
