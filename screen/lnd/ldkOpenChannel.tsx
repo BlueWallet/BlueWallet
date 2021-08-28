@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
 });
 
 LdkOpenChannel.propTypes = {
-  fundingWalletID: PropTypes.string.isRequired,
+  fundingWalletID: PropTypes.string,
   ldkWalletID: PropTypes.string.isRequired,
   isPrivateChannel: PropTypes.bool,
   closeContainerModal: PropTypes.func,
