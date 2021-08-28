@@ -34,9 +34,15 @@ type Transaction = {
     };
   }[];
   blockhash: string;
-  confirmations: number;
+  confirmations?: number;
   time: number;
   blocktime: number;
+};
+
+type MempoolTransaction = {
+  height: 0;
+  tx_hash: string; // eslint-disable-line camelcase
+  fee: number;
 };
 
 export async function connectMain(): Promise<void>;
@@ -59,6 +65,8 @@ export function multiGetTransactionByTxid(txIds: string[], batchsize: number, ve
 
 export function getTransactionsByAddress(address: string): Transaction[];
 
+export function getMempoolTransactionsByAddress(address: string): Promise<MempoolTransaction[]>;
+
 export function estimateCurrentBlockheight(): number;
 
 export function multiGetHistoryByAddress(
@@ -73,5 +81,7 @@ export function multiGetHistoryByAddress(
     }[]
   >
 >;
+
+export function estimateFees(): Promise<{ fast: number; medium: number; slow: number }>;
 
 export function broadcastV2(txhex: string): Promise<string>;
