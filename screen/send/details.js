@@ -166,7 +166,7 @@ const SendDetails = () => {
       setAddresses(addresses => {
         if (currentAddress) {
           currentAddress.address = routeParams.address;
-          addresses[scrollIndex] = currentAddress;
+          addresses[scrollIndex.current] = currentAddress;
           return [...addresses];
         } else {
           return [...addresses, { address: routeParams.address, key: String(Math.random()) }];
