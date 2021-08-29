@@ -11,6 +11,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import LottieView from 'lottie-react-native';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import Share from 'react-native-share';
@@ -25,7 +26,6 @@ import {
   BlueAlertWalletExportReminder,
   BlueCard,
   BlueSpacing40,
-  BlueBigCheckmark,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
@@ -63,7 +63,7 @@ const ReceiveDetails = () => {
   const [initialUnconfirmed, setInitialUnconfirmed] = useState(0);
   const [displayBalance, setDisplayBalance] = useState('');
   const fetchAddressInterval = useRef();
-  const styles = StyleSheet.create({
+  const stylesHook = StyleSheet.create({
     modalContent: {
       backgroundColor: colors.modal,
       padding: 22,
@@ -100,6 +100,9 @@ const ReceiveDetails = () => {
       flexGrow: 1,
       backgroundColor: colors.elevated,
       justifyContent: 'space-between',
+    },
+    rootBackgroundColor: {
+      backgroundColor: colors.elevated,
     },
     scrollBody: {
       marginTop: 32,
@@ -145,6 +148,12 @@ const ReceiveDetails = () => {
     },
   });
 
+  useEffect(() => {
+    if (showConfirmedBalance) {
+      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    }
+  }, [showConfirmedBalance]);
+
   // re-fetching address balance periodically
   useEffect(() => {
     console.log('receive/defails - useEffect');
@@ -171,7 +180,7 @@ const ReceiveDetails = () => {
             setInitialConfirmed(balance.confirmed);
             setInitialUnconfirmed(balance.unconfirmed);
             setIntervalMs(25000);
-            ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+            ReactNativeHapticFeedback.trigger('impactHeavy', { ignoreAndroidSystemSettings: false });
           }
 
           const txs = await BlueElectrum.getMempoolTransactionsByAddress(address2use);
@@ -239,20 +248,17 @@ const ReceiveDetails = () => {
 
   const renderConfirmedBalance = () => {
     return (
-      <ScrollView contentContainerStyle={styles.root} keyboardShouldPersistTaps="always">
-        <View style={styles.scrollBody}>
+      <ScrollView style={stylesHook.rootBackgroundColors} centerContent keyboardShouldPersistTaps="always">
+        <View style={stylesHook.scrollBody}>
           {isCustom && (
             <>
-              <BlueText style={styles.label} numberOfLines={1}>
+              <BlueText style={stylesHook.label} numberOfLines={1}>
                 {customLabel}
               </BlueText>
             </>
           )}
-          <View style={styles.qrCodeContainer}>
-            <BlueBigCheckmark />
-          </View>
-          <BlueSpacing40 />
-          <BlueText style={styles.label} numberOfLines={1}>
+          <LottieView style={styles.icon} source={require('../../img/bluenice.json')} autoPlay loop={false} />
+          <BlueText style={stylesHook.label} numberOfLines={1}>
             {displayBalance}
           </BlueText>
         </View>
@@ -262,23 +268,21 @@ const ReceiveDetails = () => {
 
   const renderPendingBalance = () => {
     return (
-      <ScrollView contentContainerStyle={styles.root} keyboardShouldPersistTaps="always">
-        <View style={styles.scrollBody}>
+      <ScrollView contentContainerStyle={stylesHook.rootBackgroundColor} centerContent keyboardShouldPersistTaps="always">
+        <View style={stylesHook.scrollBody}>
           {isCustom && (
             <>
-              <BlueText style={styles.label} numberOfLines={1}>
+              <BlueText style={stylesHook.label} numberOfLines={1}>
                 {customLabel}
               </BlueText>
             </>
           )}
-          <View style={styles.qrCodeContainer}>
-            <TransactionPendingIconBig />
-          </View>
+          <TransactionPendingIconBig />
           <BlueSpacing40 />
-          <BlueText style={styles.label} numberOfLines={1}>
+          <BlueText style={stylesHook.label} numberOfLines={1}>
             {displayBalance}
           </BlueText>
-          <BlueText style={styles.label} numberOfLines={1}>
+          <BlueText style={stylesHook.label} numberOfLines={1}>
             {eta}
           </BlueText>
         </View>
@@ -304,14 +308,14 @@ const ReceiveDetails = () => {
 
   const renderReceiveDetails = () => {
     return (
-      <ScrollView contentContainerStyle={styles.root} keyboardShouldPersistTaps="always">
-        <View style={styles.scrollBody}>
+      <ScrollView contentContainerStyle={stylesHook.root} keyboardShouldPersistTaps="always">
+        <View style={stylesHook.scrollBody}>
           {isCustom && (
             <>
-              <BlueText testID="CustomAmountText" style={styles.amount} numberOfLines={1}>
+              <BlueText testID="CustomAmountText" style={stylesHook.amount} numberOfLines={1}>
                 {getDisplayAmount()}
               </BlueText>
-              <BlueText testID="CustomAmountDescriptionText" style={styles.label} numberOfLines={1}>
+              <BlueText testID="CustomAmountDescriptionText" style={stylesHook.label} numberOfLines={1}>
                 {customLabel}
               </BlueText>
             </>
@@ -320,10 +324,10 @@ const ReceiveDetails = () => {
           <QRCodeComponent value={bip21encoded} />
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
-        <View style={styles.share}>
+        <View style={stylesHook.share}>
           <BlueCard>
             <BlueButtonLink
-              style={styles.link}
+              style={stylesHook.link}
               testID="SetCustomAmountButton"
               title={loc.receive.details_setAmount}
               onPress={showCustomAmountModal}
@@ -452,16 +456,16 @@ const ReceiveDetails = () => {
     return (
       <BottomModal isVisible={isCustomModalVisible} onClose={dismissCustomAmountModal}>
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={styles.modalContent}>
+          <View style={stylesHook.modalContent}>
             <AmountInput unit={customUnit} amount={customAmount || ''} onChangeText={setCustomAmount} onAmountUnitChange={setCustomUnit} />
-            <View style={styles.customAmount}>
+            <View style={stylesHook.customAmount}>
               <TextInput
                 onChangeText={setCustomLabel}
                 placeholderTextColor="#81868e"
                 placeholder={loc.receive.details_label}
                 value={customLabel || ''}
                 numberOfLines={1}
-                style={styles.customAmountText}
+                style={stylesHook.customAmountText}
                 testID="CustomAmountDescription"
               />
             </View>
@@ -469,7 +473,7 @@ const ReceiveDetails = () => {
             <View>
               <BlueButton
                 testID="CustomAmountSaveButton"
-                style={styles.modalButton}
+                style={stylesHook.modalButton}
                 title={loc.receive.details_create}
                 onPress={createCustomAmountAddress}
               />
@@ -502,7 +506,7 @@ const ReceiveDetails = () => {
   };
 
   return (
-    <View style={styles.root}>
+    <View style={stylesHook.root}>
       <StatusBar barStyle="light-content" />
       {address !== undefined && showAddress && (
         <HandoffComponent
@@ -518,6 +522,13 @@ const ReceiveDetails = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  icon: {
+    width: 400,
+    height: 400,
+  },
+});
 
 ReceiveDetails.navigationOptions = navigationStyle(
   {
