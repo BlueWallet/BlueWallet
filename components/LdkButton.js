@@ -27,7 +27,7 @@ export const LdkButton = props => {
           </View>
           <View>
             <Text style={{ color: colors.lnborderColor, fontWeight: 'bold', fontSize: 18 }}>LDK</Text>
-            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500' }}>0.2.2</Text>
+            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500' }}>0.2.12</Text>
           </View>
         </View>
       </View>
