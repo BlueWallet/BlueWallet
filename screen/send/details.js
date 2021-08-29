@@ -146,7 +146,7 @@ const SendDetails = () => {
               currentAddress.amount = amount;
               currentAddress.amountSats = currency.btcToSatoshi(amount);
             }
-            addresses[scrollIndex] = currentAddress;
+            addresses[scrollIndex.current] = currentAddress;
             return [...addresses];
           } else {
             return [...addresses, { address, amount, amountSats: currency.btcToSatoshi(amount), key: String(Math.random()) }];
