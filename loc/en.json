@@ -246,6 +246,7 @@
     "about_release_notes": "Release notes",
     "about_review": "Leave us a review",
     "about_selftest": "Run self-test",
+    "about_selftest_electrum_disabled": "Self testing is not available with Electrum Offline Mode. Please disable offline mode and try again.",
     "about_selftest_ok": "All internal tests have passed successfully. The wallet works well.",
     "about_sm_github": "GitHub",
     "about_sm_discord": "Discord Server",
