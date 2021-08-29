@@ -80,9 +80,11 @@ const LdkViewLogs = () => {
         setGetInfo(info);
         const peers = await wallet.listPeers();
         const listChannels = await wallet.listChannels();
+        const version = await wallet.getVersion();
 
         let nfo = 'num peers: ' + peers.length;
-        nfo += '\n\nnum channels: ' + listChannels.length;
+        nfo += '\nnum channels: ' + listChannels.length;
+        nfo += '\nldk binary version: ' + version;
         setInfo(nfo);
       })
       .finally(() => {

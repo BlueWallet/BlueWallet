@@ -164,19 +164,23 @@ const SendDetails = () => {
         Alert.alert(loc.errors.error, loc.send.details_error_decode);
       }
     } else if (routeParams.address) {
+      const { amount, amountSats, unit = BitcoinUnit.BTC } = routeParams;
       setAddresses(addresses => {
         if (currentAddress) {
           currentAddress.address = routeParams.address;
-          addresses[scrollIndex] = currentAddress;
+          addresses[scrollIndex.current] = currentAddress;
           return [...addresses];
         } else {
-          return [...addresses, { address: routeParams.address, key: String(Math.random()) }];
+          return [...addresses, { address: routeParams.address, key: String(Math.random()), amount, amountSats }];
         }
       });
       if (routeParams.memo?.trim().length > 0) {
         setTransactionMemo(routeParams.memo);
       }
-      setAmountUnit(BitcoinUnit.BTC);
+      setUnits(units => {
+        units[scrollIndex.current] = unit;
+        return [...units];
+      });
     } else {
       setAddresses([{ address: '', key: String(Math.random()) }]); // key is for the FlatList
     }

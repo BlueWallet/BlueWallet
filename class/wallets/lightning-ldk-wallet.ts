@@ -595,6 +595,10 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     await RnLdk.setRefundAddressScript(this._refundAddressScriptHex);
   }
 
+  async getVersion() {
+    return RnLdk.getVersion();
+  }
+
   /**
    * executes async function in background, so calling code can return immediately, while catching all thrown exceptions
    * and showing them in alert() instead of propagating them up

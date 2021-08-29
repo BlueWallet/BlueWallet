@@ -380,7 +380,7 @@ LdkOpenChannel.propTypes = {
   closeContainerModal: PropTypes.func,
   psbt: PropTypes.object,
   onPsbtOpenChannelStartedTsChange: PropTypes.func,
-  psbtOpenChannelStartedTs: PropTypes.string,
+  psbtOpenChannelStartedTs: PropTypes.number,
   onOpenChannelSuccess: PropTypes.func,
   fundingAmount: PropTypes.shape({ amount: PropTypes.string, amountSats: PropTypes.number }),
   onFundingAmountChange: PropTypes.func,
