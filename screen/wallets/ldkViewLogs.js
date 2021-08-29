@@ -7,6 +7,7 @@ import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
 import { Icon } from 'react-native-elements';
+const fs = require('../../blue_modules/fs');
 
 const LdkViewLogs = () => {
   const { colors } = useTheme();
@@ -63,6 +64,10 @@ const LdkViewLogs = () => {
     wallet.checkBlockchain();
   };
 
+  const exportLogs = async () => {
+    return fs.writeFileAndExport('rn-ldk.log', info + '\n' + logs);
+  };
+
   const selfTest = async () => {
     try {
       await wallet.selftest();
@@ -105,6 +110,9 @@ const LdkViewLogs = () => {
       <ScrollView style={styles.root}>
         <TouchableOpacity onPress={selfTest} style={styles.button}>
           <BlueText>self test</BlueText>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={exportLogs} style={styles.button}>
+          <BlueText>export logs to a file</BlueText>
         </TouchableOpacity>
         <TouchableOpacity onPress={syncBlockchain} style={styles.button}>
           <BlueText>sync blockchain</BlueText>
