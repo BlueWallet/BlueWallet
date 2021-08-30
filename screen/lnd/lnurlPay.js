@@ -56,11 +56,16 @@ const LnurlPay = () => {
   useEffect(() => {
     if (lnurl) {
       const ln = new Lnurl(lnurl, AsyncStorage);
-      ln.callLnurlPayService().then(setPayload);
+      ln.callLnurlPayService()
+        .then(setPayload)
+        .catch(error => {
+          alert(error.message);
+          pop();
+        });
       setLN(ln);
       setIsLoading(false);
     }
-  }, [lnurl]);
+  }, [lnurl, pop]);
 
   useEffect(() => {
     setPayButtonDisabled(isLoading);
