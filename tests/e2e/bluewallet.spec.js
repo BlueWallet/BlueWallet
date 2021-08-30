@@ -103,7 +103,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('URIInput')).replaceText('invalid\n');
     await element(by.id('Save')).tap();
     await sup('OK');
-    await expect(element(by.text('Not a valid LNDHub URI'))).toBeVisible();
+    await expect(element(by.text('Invalid LNDHub URI'))).toBeVisible();
     await element(by.text('OK')).tap();
     await element(by.id('URIInput')).replaceText('https://lndhub.herokuapp.com\n');
     await element(by.id('Save')).tap();
