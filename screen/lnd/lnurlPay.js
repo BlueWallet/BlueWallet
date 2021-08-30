@@ -182,8 +182,8 @@ const LnurlPay = () => {
             />
             <BlueText style={styles.alignSelfCenter}>
               {loc.formatString(loc.lndViewInvoice.please_pay_between_and, {
-                min: formatBalance(payload?.min, wallet.getPreferredBalanceUnit()),
-                max: formatBalance(payload?.max, wallet.getPreferredBalanceUnit()),
+                min: formatBalance(payload?.min, unit),
+                max: formatBalance(payload?.max, unit),
               })}
             </BlueText>
             <BlueSpacing20 />
