@@ -1,4 +1,5 @@
-import React from 'react';
+/* global alert */
+import React, { useContext } from 'react';
 import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions, Platform } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
@@ -9,12 +10,14 @@ import { BlueButton, BlueCard, BlueListItem, BlueSpacing20, BlueTextCentered } f
 import navigationStyle from '../../components/navigationStyle';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
-import * as Sentry from '@sentry/react-native';
+import Bugsnag from '@bugsnag/react-native';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const About = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
+  const { isElectrumDisabled } = useContext(BlueStorageContext);
   const styles = StyleSheet.create({
     copyToClipboard: {
       justifyContent: 'center',
@@ -75,7 +78,11 @@ const About = () => {
   };
 
   const handleOnSelfTestPress = () => {
-    navigate('Selftest');
+    if (isElectrumDisabled) {
+      alert(loc.settings.about_selftest_electrum_disabled);
+    } else {
+      navigate('Selftest');
+    }
   };
 
   const handleOnLicensingPress = () => {
@@ -215,8 +222,8 @@ const About = () => {
         <TouchableOpacity
           accessibilityRole="button"
           onPress={() => {
-            const stringToCopy = 'user.id:' + getUniqueId();
-            Sentry.captureMessage('copied unique id');
+            const stringToCopy = 'userId:' + getUniqueId();
+            Bugsnag.notify(new Error('copied unique id'));
             Clipboard.setString(stringToCopy);
           }}
         >

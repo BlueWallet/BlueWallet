@@ -1,0 +1,60 @@
+--- RNCamera.m2	2021-08-19 15:53:16.000000000 -0400
++++ RNCamera.m	2021-08-19 15:53:33.000000000 -0400
+@@ -599,57 +599,9 @@
+ }
+ 
+ - (void)applyDefaultWhiteBalance {
+-    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+-    [self lockDevice:device andApplySettings:^{
+-        if (self.whiteBalance == RNCameraWhiteBalanceAuto || ![device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeLocked]) {
+-            if (self.whiteBalance != RNCameraWhiteBalanceAuto) {
+-                RCTLogWarn(@"%s: locked whitebalance mode ist note supported. Fallback to continuous auto white balance mode", __func__);
+-            }
+-            [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
+-        } else {
+-            AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
+-                .temperature = [RNCameraUtils temperatureForWhiteBalance:self.whiteBalance],
+-                .tint = 0,
+-            };
+-            AVCaptureWhiteBalanceGains rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
+-
+-            @try{
+-                [device setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:rgbGains completionHandler:nil];
+-            }
+-            @catch(NSException *exception){
+-                RCTLogError(@"Failed to set white balance: %@", exception);
+-            }
+-        }
+-    }];
+ }
+ 
+ - (void)applyCustomWhiteBalance {
+-    AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+-    [self lockDevice:device andApplySettings:^{
+-        if (![device isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeLocked]) {
+-            RCTLogWarn(@"%s: locked whitebalance mode ist note supported. Fallback to continuous auto white balance mode", __func__);
+-            [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
+-        } else {
+-            AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
+-                .temperature = self.customWhiteBalanceSettings.temperature,
+-                .tint = self.customWhiteBalanceSettings.tint,
+-            };
+-            AVCaptureWhiteBalanceGains rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
+-            CGFloat redGain = rgbGains.redGain + self.customWhiteBalanceSettings.redGainOffset;
+-            CGFloat greenGain = rgbGains.greenGain + self.customWhiteBalanceSettings.greenGainOffset;
+-            CGFloat blueGain = rgbGains.blueGain + self.customWhiteBalanceSettings.blueGainOffset;
+-
+-            rgbGains.redGain = MAX(1.0f, MIN(device.maxWhiteBalanceGain, redGain));
+-            rgbGains.greenGain = MAX(1.0f, MIN(device.maxWhiteBalanceGain, greenGain));
+-            rgbGains.blueGain = MAX(1.0f, MIN(device.maxWhiteBalanceGain, blueGain));
+-
+-            @try{
+-                [device setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:rgbGains completionHandler:nil];
+-            } @catch(NSException *exception){
+-                RCTLogError(@"Failed to set custom white balance: %@", exception);
+-            }
+-        }
+-    }];
+ }
+ 
+ 

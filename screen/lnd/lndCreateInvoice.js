@@ -254,7 +254,7 @@ const LNDCreateInvoice = () => {
           screen: 'LnurlPay',
           params: {
             lnurl: data,
-            fromWalletID: wallet.current.getID(),
+            walletID: walletID ?? wallet.current.getID(),
           },
         });
         return;

@@ -102,7 +102,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
 
   const render = () => {
     return (
-      <TooltipMenu actions={getAvailableActions()} onPress={onToolTipPress}>
+      <TooltipMenu title={item.address} actions={getAvailableActions()} onPress={onToolTipPress} previewQRCode previewValue={item.address}>
         <ListItem key={`${item.key}`} button onPress={navigateToReceive} containerStyle={stylesHook.container}>
           <ListItem.Content style={stylesHook.list}>
             <ListItem.Title style={stylesHook.list} numberOfLines={1} ellipsizeMode="middle">
@@ -144,7 +144,7 @@ AddressItem.actionIcons = {
   },
   Clipboard: {
     iconType: 'SYSTEM',
-    iconValue: 'arrow.right.doc.on.clipboard',
+    iconValue: 'doc.on.doc',
   },
 };
 

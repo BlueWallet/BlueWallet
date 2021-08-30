@@ -429,6 +429,7 @@ class DeeplinkSchemaMatch {
   }
 
   static bip21decode(uri) {
+    if (!uri) return {};
     return bip21.decode(uri.replace('BITCOIN:', 'bitcoin:'));
   }
 

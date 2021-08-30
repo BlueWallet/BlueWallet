@@ -296,3 +296,8 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
   assert.ok(storage5loadResult);
   assert.strictEqual(Storage7.wallets[0].getLabel(), 'fakewallet');
 });
+
+it('Appstorage - hashIt() works', async () => {
+  const storage = new AppStorage();
+  assert.strictEqual(storage.hashIt('hello'), '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824');
+});

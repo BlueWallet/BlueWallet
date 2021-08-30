@@ -354,6 +354,19 @@ module.exports.getTransactionsByAddress = async function (address) {
   return history;
 };
 
+/**
+ *
+ * @param address {String}
+ * @returns {Promise<Array>}
+ */
+module.exports.getMempoolTransactionsByAddress = async function (address) {
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  const script = bitcoin.address.toOutputScript(address);
+  const hash = bitcoin.crypto.sha256(script);
+  const reversedHash = Buffer.from(reverse(hash));
+  return mainClient.blockchainScripthash_getMempool(reversedHash.toString('hex'));
+};
+
 module.exports.ping = async function () {
   try {
     await mainClient.server_ping();
@@ -681,14 +694,14 @@ module.exports.waitTillConnected = async function () {
         return resolve(true);
       }
 
-      if (wasConnectedAtLeastOnce && retriesCounter++ >= 30) {
+      if (wasConnectedAtLeastOnce && retriesCounter++ >= 150) {
         // `wasConnectedAtLeastOnce` needed otherwise theres gona be a race condition with the code that connects
         // electrum during app startup
         clearInterval(waitTillConnectedInterval);
         presentNetworkErrorAlert();
         reject(new Error('Waiting for Electrum connection timeout'));
       }
-    }, 500);
+    }, 100);
   });
 };
 
