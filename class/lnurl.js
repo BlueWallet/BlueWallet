@@ -28,7 +28,15 @@ export default class Lnurl {
 
   static getUrlFromLnurl(lnurlExample) {
     const found = Lnurl.findlnurl(lnurlExample);
-    if (!found) return false;
+    if (!found) {
+      if (Lnurl.isLightningAddress(lnurlExample)) {
+        const username = lnurlExample.split('@')[0].trim();
+        const host = lnurlExample.split('@')[1].trim();
+        return `https://${host}/.well-known/lnurlp/${username}`;
+      } else {
+        return false;
+      }
+    }
 
     const decoded = bech32.decode(found, 10000);
     return Buffer.from(bech32.fromWords(decoded.words)).toString();
@@ -255,5 +263,12 @@ export default class Lnurl {
 
   getCommentAllowed() {
     return this?._lnurlPayServicePayload?.commentAllowed ? parseInt(this._lnurlPayServicePayload.commentAllowed) : false;
+  }
+
+  static isLightningAddress(address) {
+    // ensure only 1 `@` present:
+    if (address.split('@').length !== 2) return false;
+    const splitted = address.split('@');
+    return !!splitted[0].trim() && !!splitted[1].trim();
   }
 }

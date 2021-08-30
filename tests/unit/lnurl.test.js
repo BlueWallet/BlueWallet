@@ -164,3 +164,55 @@ describe('LNURL', function () {
     assert.strictEqual(Lnurl.decipherAES(ciphertext, preimage, iv), '1234');
   });
 });
+
+describe('lightning address', function () {
+  it('can getUrlFromLnurl()', () => {
+    assert.strictEqual(Lnurl.getUrlFromLnurl('lnaddress@zbd.gg'), 'https://zbd.gg/.well-known/lnurlp/lnaddress');
+  });
+
+  it('can detect', async () => {
+    assert.ok(Lnurl.isLightningAddress('lnaddress@zbd.gg'));
+    assert.ok(Lnurl.isLightningAddress(' lnaddress@zbd.gg '));
+    assert.ok(Lnurl.isLightningAddress(' lnaddress@zbd.gg '));
+    assert.ok(Lnurl.isLightningAddress(' lnaddress@8.8.8.8 '));
+    assert.ok(Lnurl.isLightningAddress(' lnaddress@hidden.onion '));
+    assert.ok(!Lnurl.isLightningAddress(' bla bla '));
+    assert.ok(!Lnurl.isLightningAddress(''));
+    assert.ok(!Lnurl.isLightningAddress('@'));
+    assert.ok(!Lnurl.isLightningAddress('@a'));
+    assert.ok(!Lnurl.isLightningAddress('a@'));
+
+    const LN = new Lnurl('lnaddress@zbd.gg');
+
+    // poor-man's mock:
+    LN._fetchGet = LN.fetchGet;
+    let requestedUri = -1;
+    LN.fetchGet = actuallyRequestedUri => {
+      requestedUri = actuallyRequestedUri;
+      return {
+        minSendable: 1000,
+        maxSendable: 45000000,
+        commentAllowed: 150,
+        tag: 'payRequest',
+        metadata: '[["text/plain","lnaddress - lightningaddress.com"],["text/identifier","lnaddress@zbd.gg"],["image/png;base64","img"]]',
+        callback: 'https://api.zebedee.io/v0/process-static-charges/9a44621d-0665-44eb-96af-e06534311be5',
+      };
+    };
+
+    const lnurlpayPayload = await LN.callLnurlPayService();
+    assert.deepStrictEqual(lnurlpayPayload, {
+      amount: 1,
+      callback: 'https://api.zebedee.io/v0/process-static-charges/9a44621d-0665-44eb-96af-e06534311be5',
+      commentAllowed: 150,
+      description: 'lnaddress - lightningaddress.com',
+      domain: 'api.zebedee.io',
+      fixed: false,
+      image: 'data:image/png;base64,img',
+      max: 45000,
+      metadata: '[["text/plain","lnaddress - lightningaddress.com"],["text/identifier","lnaddress@zbd.gg"],["image/png;base64","img"]]',
+      min: 1,
+    });
+
+    assert.strictEqual(requestedUri, 'https://zbd.gg/.well-known/lnurlp/lnaddress');
+  });
+});
