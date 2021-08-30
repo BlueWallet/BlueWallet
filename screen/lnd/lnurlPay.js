@@ -191,7 +191,7 @@ const LnurlPay = () => {
             <BlueText style={styles.alignSelfCenter}>{payload?.description}</BlueText>
             <BlueText style={styles.alignSelfCenter}>{payload?.domain}</BlueText>
             <BlueSpacing20 />
-            <BlueButton title={loc.lnd.payButton} onPress={pay} disabled={payButtonDisabled} />
+            {payButtonDisabled ? <BlueLoading /> : <BlueButton title={loc.lnd.payButton} onPress={pay} />}
             <BlueSpacing20 />
           </BlueCard>
         </ScrollView>
