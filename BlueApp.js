@@ -5,6 +5,7 @@ import loc from './loc';
 const prompt = require('./blue_modules/prompt');
 const currency = require('./blue_modules/currency');
 const BlueElectrum = require('./blue_modules/BlueElectrum'); // eslint-disable-line @typescript-eslint/no-unused-vars
+BlueElectrum.connectMain();
 const BlueApp = new AppStorage();
 // If attempt reaches 10, a wipe keychain option will be provided to the user.
 let unlockAttempt = 0;

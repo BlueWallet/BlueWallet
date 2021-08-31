@@ -3,7 +3,7 @@ import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, Style
 import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
-import QRCode from 'react-native-qrcode-svg';
+import QRCodeComponent from '../../components/QRCodeComponent';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 import {
@@ -243,17 +243,8 @@ const LNDViewInvoice = () => {
         <ScrollView>
           <View style={[styles.activeRoot, stylesHook.root]}>
             <View style={styles.activeQrcode}>
-              <QRCode
-                value={invoice.payment_request}
-                logo={require('../../img/qr-code.png')}
-                size={qrCodeSize}
-                logoSize={90}
-                color="#000000"
-                logoBackgroundColor={colors.brandingColor}
-                backgroundColor="#FFFFFF"
-              />
+              <QRCodeComponent value={invoice.payment_request} size={qrCodeSize} />
             </View>
-
             <BlueSpacing20 />
             <BlueText>
               {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
@@ -295,7 +286,6 @@ const styles = StyleSheet.create({
   justifyContentCenter: {
     justifyContent: 'center',
   },
-  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
   valueAmount: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -359,9 +349,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 16,
-    borderWidth: 6,
-    borderRadius: 8,
-    borderColor: '#FFFFFF',
   },
 });
 

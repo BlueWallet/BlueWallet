@@ -1,14 +1,13 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { InteractionManager, useWindowDimensions, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
 import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
-
 import navigationStyle from '../../components/navigationStyle';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard } from '../../BlueComponents';
 import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import QRCodeComponent from '../../components/QRCodeComponent';
 
 const styles = StyleSheet.create({
   root: {
@@ -20,7 +19,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
 });
 
 const WalletXpub = () => {
@@ -61,7 +59,7 @@ const WalletXpub = () => {
   );
 
   return isLoading ? (
-    <View style={[styles.root, stylesHook.root]}>
+    <View style={[styles.container, stylesHook.root]}>
       <ActivityIndicator />
     </View>
   ) : (
@@ -72,18 +70,8 @@ const WalletXpub = () => {
           <BlueText>{wallet.typeReadable}</BlueText>
         </View>
         <BlueSpacing20 />
-        <View style={styles.qrCodeContainer}>
-          <QRCode
-            value={xPub}
-            logo={require('../../img/qr-code.png')}
-            size={height > width ? width - 40 : width / 2}
-            logoSize={90}
-            color="#000000"
-            logoBackgroundColor={colors.brandingColor}
-            backgroundColor="#FFFFFF"
-            ecl="H"
-          />
-        </View>
+
+        <QRCodeComponent value={xPub} size={height > width ? width - 40 : width / 2} />
 
         <BlueSpacing20 />
         <BlueCopyTextToClipboard text={xPubText} />

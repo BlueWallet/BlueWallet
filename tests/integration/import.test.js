@@ -1,3 +1,6 @@
+import assert from 'assert';
+import React from 'react';
+
 import {
   HDSegwitElectrumSeedP2WPKHWallet,
   HDLegacyBreadwalletWallet,
@@ -14,12 +17,8 @@ import {
   SLIP39SegwitBech32Wallet,
 } from '../../class';
 import WalletImport from '../../class/wallet-import';
-import React from 'react';
 import Notifications from '../../blue_modules/notifications';
-const assert = require('assert');
-global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
-global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
 /** @type HDSegwitBech32Wallet */
 let lastImportedWallet;
@@ -58,7 +57,7 @@ afterAll(async () => {
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
-  await BlueElectrum.waitTillConnected();
+  await BlueElectrum.connectMain();
   WalletImport(); // damn i love javascript
   Notifications(); // damn i love javascript
 });

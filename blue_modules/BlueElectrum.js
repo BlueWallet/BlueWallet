@@ -3,9 +3,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
 import DefaultPreference from 'react-native-default-preference';
-import RNWidgetCenter from 'react-native-widget-center';
 import loc from '../loc';
 import { isTorCapable } from './environment';
+import WidgetCommunication from './WidgetCommunication';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
@@ -17,6 +17,7 @@ const ELECTRUM_HOST = 'electrum_host';
 const ELECTRUM_TCP_PORT = 'electrum_tcp_port';
 const ELECTRUM_SSL_PORT = 'electrum_ssl_port';
 const ELECTRUM_SERVER_HISTORY = 'electrum_server_history';
+const ELECTRUM_CONNECTION_DISABLED = 'electrum_disabled';
 
 let _realm;
 async function _getRealm() {
@@ -74,7 +75,30 @@ let latestBlockheightTimestamp = false;
 
 const txhashHeightCache = {};
 
+async function isDisabled() {
+  let isDisabled;
+  try {
+    const savedValue = await AsyncStorage.getItem(ELECTRUM_CONNECTION_DISABLED);
+    if (savedValue === null) {
+      isDisabled = false;
+    } else {
+      isDisabled = savedValue;
+    }
+  } catch {
+    isDisabled = false;
+  }
+  return !!isDisabled;
+}
+
+async function setDisabled(disabled = true) {
+  return AsyncStorage.setItem(ELECTRUM_CONNECTION_DISABLED, disabled ? '1' : '');
+}
+
 async function connectMain() {
+  if (await isDisabled()) {
+    console.log('Electrum connection disabled by user. Skipping connectMain call');
+    return;
+  }
   let usingPeer = await getRandomHardcodedPeer();
   const savedPeer = await getSavedPeer();
   if (savedPeer && savedPeer.host && (savedPeer.tcp || savedPeer.ssl)) {
@@ -94,7 +118,7 @@ async function connectMain() {
       await DefaultPreference.set(ELECTRUM_SSL_PORT, usingPeer.ssl);
     }
 
-    RNWidgetCenter.reloadAllTimelines();
+    WidgetCommunication.reloadAllTimelines();
   } catch (e) {
     // Must be running on Android
     console.log(e);
@@ -159,9 +183,13 @@ async function connectMain() {
   }
 }
 
-connectMain();
-
 async function presentNetworkErrorAlert(usingPeer) {
+  if (await isDisabled()) {
+    console.log(
+      'Electrum connection disabled by user. Perhaps we are attempting to show this network error alert after the user disabled connections.',
+    );
+    return;
+  }
   Alert.alert(
     loc.errors.network,
     loc.formatString(
@@ -202,7 +230,7 @@ async function presentNetworkErrorAlert(usingPeer) {
                     await DefaultPreference.clear(ELECTRUM_HOST);
                     await DefaultPreference.clear(ELECTRUM_SSL_PORT);
                     await DefaultPreference.clear(ELECTRUM_TCP_PORT);
-                    RNWidgetCenter.reloadAllTimelines();
+                    WidgetCommunication.reloadAllTimelines();
                   } catch (e) {
                     // Must be running on Android
                     console.log(e);
@@ -324,6 +352,19 @@ module.exports.getTransactionsByAddress = async function (address) {
   }
 
   return history;
+};
+
+/**
+ *
+ * @param address {String}
+ * @returns {Promise<Array>}
+ */
+module.exports.getMempoolTransactionsByAddress = async function (address) {
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  const script = bitcoin.address.toOutputScript(address);
+  const hash = bitcoin.crypto.sha256(script);
+  const reversedHash = Buffer.from(reverse(hash));
+  return mainClient.blockchainScripthash_getMempool(reversedHash.toString('hex'));
 };
 
 module.exports.ping = async function () {
@@ -636,6 +677,10 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
 module.exports.waitTillConnected = async function () {
   let waitTillConnectedInterval = false;
   let retriesCounter = 0;
+  if (await isDisabled()) {
+    console.warn('Electrum connections disabled by user. waitTillConnected skipping...');
+    return;
+  }
   return new Promise(function (resolve, reject) {
     waitTillConnectedInterval = setInterval(() => {
       if (mainConnected) {
@@ -649,14 +694,14 @@ module.exports.waitTillConnected = async function () {
         return resolve(true);
       }
 
-      if (wasConnectedAtLeastOnce && retriesCounter++ >= 30) {
+      if (wasConnectedAtLeastOnce && retriesCounter++ >= 150) {
         // `wasConnectedAtLeastOnce` needed otherwise theres gona be a race condition with the code that connects
         // electrum during app startup
         clearInterval(waitTillConnectedInterval);
         presentNetworkErrorAlert();
         reject(new Error('Waiting for Electrum connection timeout'));
       }
-    }, 500);
+    }, 100);
   });
 };
 
@@ -851,7 +896,9 @@ module.exports.setBatchingDisabled = () => {
 module.exports.setBatchingEnabled = () => {
   disableBatching = false;
 };
-
+module.exports.connectMain = connectMain;
+module.exports.isDisabled = isDisabled;
+module.exports.setDisabled = setDisabled;
 module.exports.hardcodedPeers = hardcodedPeers;
 module.exports.getRandomHardcodedPeer = getRandomHardcodedPeer;
 module.exports.ELECTRUM_HOST = ELECTRUM_HOST;

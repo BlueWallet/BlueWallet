@@ -153,6 +153,18 @@ class DeeplinkSchemaMatch {
           },
         },
       ]);
+    } else if (Lnurl.isLightningAddress(event.url)) {
+      // this might be not just an email but a lightning addres
+      // @see https://lightningaddress.com
+      completionHandler([
+        'ScanLndInvoiceRoot',
+        {
+          screen: 'ScanLndInvoice',
+          params: {
+            uri: event.url,
+          },
+        },
+      ]);
     } else if (DeeplinkSchemaMatch.isSafelloRedirect(event)) {
       const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
 
@@ -429,6 +441,7 @@ class DeeplinkSchemaMatch {
   }
 
   static bip21decode(uri) {
+    if (!uri) return {};
     return bip21.decode(uri.replace('BITCOIN:', 'bitcoin:'));
   }
 

@@ -4,6 +4,7 @@ import {
   Alert,
   Keyboard,
   KeyboardAvoidingView,
+  LayoutAnimation,
   Platform,
   StyleSheet,
   TextInput,
@@ -12,6 +13,8 @@ import {
 } from 'react-native';
 import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { Icon } from 'react-native-elements';
+import Share from 'react-native-share';
 
 import AOPP from '../../class/aopp';
 import { BlueDoneAndDismissKeyboardInputAccessory, BlueFormLabel, BlueSpacing10, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
@@ -32,6 +35,7 @@ const SignVerify = () => {
   const [signature, setSignature] = useState('');
   const [loading, setLoading] = useState(false);
   const [messageHasFocus, setMessageHasFocus] = useState(false);
+  const [isShareVisible, setIsShareVisible] = useState(false);
 
   const wallet = wallets.find(w => w.getID() === params.walletID);
   const isToolbarVisibleForAndroid = Platform.OS === 'android' && messageHasFocus && isKeyboardVisible;
@@ -57,6 +61,12 @@ const SignVerify = () => {
     },
   });
 
+  const handleShare = () => {
+    const baseUri = 'https://bluewallet.github.io/VerifySignature';
+    const uri = `${baseUri}?a=${address}&m=${encodeURIComponent(message)}&s=${encodeURIComponent(signature)}`;
+    Share.open({ message: uri }).catch(error => console.log(error));
+  };
+
   const handleSign = async () => {
     setLoading(true);
     await sleep(10); // wait for loading indicator to appear
@@ -65,6 +75,7 @@ const SignVerify = () => {
     try {
       newSignature = wallet.signMessage(message, address, useSegwit);
       setSignature(newSignature);
+      setIsShareVisible(true);
     } catch (e) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       Alert.alert(loc.errors.error, e.message);
@@ -117,6 +128,11 @@ const SignVerify = () => {
       Alert.alert(loc.errors.error, e.message);
     }
     setLoading(false);
+  };
+
+  const handleFocus = value => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setMessageHasFocus(value);
   };
 
   if (loading)
@@ -185,10 +201,27 @@ const SignVerify = () => {
             autoCapitalize="none"
             spellCheck={false}
             editable={!loading}
-            onFocus={() => setMessageHasFocus(true)}
-            onBlur={() => setMessageHasFocus(false)}
+            onFocus={() => handleFocus(true)}
+            onBlur={() => handleFocus(false)}
           />
           <BlueSpacing10 />
+
+          {isShareVisible && !isKeyboardVisible && (
+            <>
+              <FContainer inline>
+                <FButton
+                  onPress={handleShare}
+                  text={loc.multisig.share}
+                  icon={
+                    <View style={styles.buttonsIcon}>
+                      <Icon name="external-link" size={16} type="font-awesome" color={colors.buttonAlternativeTextColor} />
+                    </View>
+                  }
+                />
+              </FContainer>
+              <BlueSpacing10 />
+            </>
+          )}
 
           {!isKeyboardVisible && (
             <>

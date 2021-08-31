@@ -14,6 +14,7 @@ import {
   Linking,
   StyleSheet,
   StatusBar,
+  ScrollView,
   PermissionsAndroid,
   InteractionManager,
   ActivityIndicator,
@@ -33,7 +34,6 @@ import {
   MultisigHDWallet,
   HDAezeedWallet,
 } from '../../class';
-import { ScrollView } from 'react-native-gesture-handler';
 import loc from '../../loc';
 import { useTheme, useRoute, useNavigation } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
@@ -42,6 +42,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import { isDesktop } from '../../blue_modules/environment';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
+import { Chain } from '../../models/bitcoinUnits';
 
 const prompt = require('../../blue_modules/prompt');
 
@@ -270,28 +271,37 @@ const WalletDetails = () => {
     });
 
   const renderMarketplaceButton = () => {
-    return Platform.select({
-      android: (
-        <SecondButton
-          testID="Marketplace"
-          onPress={() =>
-            navigate('Marketplace', {
-              walletID,
-            })
-          }
-          title={loc.wallets.details_marketplace}
-        />
-      ),
-      ios: (
-        <SecondButton
-          testID="Marketplace"
-          onPress={async () => {
-            Linking.openURL('https://bluewallet.io/marketplace-btc/');
-          }}
-          title={loc.wallets.details_marketplace}
-        />
-      ),
-    });
+    return (
+      wallet.chain === Chain.OFFCHAIN &&
+      Platform.select({
+        android: (
+          <>
+            <BlueSpacing20 />
+            <SecondButton
+              testID="Marketplace"
+              onPress={() =>
+                navigate('Marketplace', {
+                  walletID,
+                })
+              }
+              title={loc.wallets.details_marketplace}
+            />
+          </>
+        ),
+        ios: (
+          <>
+            <BlueSpacing20 />
+            <SecondButton
+              testID="Marketplace"
+              onPress={async () => {
+                Linking.openURL('https://bluewallet.io/marketplace-btc/');
+              }}
+              title={loc.wallets.details_marketplace}
+            />
+          </>
+        ),
+      })
+    );
   };
 
   const exportInternals = async () => {
@@ -586,8 +596,6 @@ const WalletDetails = () => {
                   <>
                     <BlueSpacing20 />
                     <SecondButton onPress={navigateToXPub} testID="XPub" title={loc.wallets.details_show_xpub} />
-                    <BlueSpacing20 />
-
                     {renderMarketplaceButton()}
                   </>
                 )}

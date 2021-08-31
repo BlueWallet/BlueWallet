@@ -24,8 +24,8 @@ import { useContext } from 'react';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import Notifications from '../blue_modules/notifications';
 import IdleTimerManager from 'react-native-idle-timer';
+import bip38 from 'bip38';
 const A = require('../blue_modules/analytics');
-const bip38 = require('../blue_modules/bip38');
 const wif = require('wif');
 const prompt = require('../blue_modules/prompt');
 
@@ -171,7 +171,7 @@ function WalletImport() {
     importText = importText.trim();
 
     if (importText.startsWith('6P')) {
-      const decryptedKey = await bip38.decrypt(importText, password);
+      const decryptedKey = await bip38.decryptAsync(importText, password);
 
       if (decryptedKey) {
         importText = wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed);
