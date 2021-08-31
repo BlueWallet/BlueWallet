@@ -178,7 +178,7 @@
     "react-native-safe-area-context": "3.3.1",
     "react-native-screens": "3.5.0",
     "react-native-secure-key-store": "https://github.com/BlueWallet/react-native-secure-key-store#63ab38c9d382a819844a086a69cc204c46aa93f9",
-    "react-native-share": "7.0.1",
+    "react-native-share": "7.0.2",
     "react-native-sortable-list": "https://github.com/BlueWallet/react-native-sortable-list.git#e4e44a01a90ee2dcb9c57182262595abf36bfdf7",
     "react-native-svg": "12.1.1",
     "react-native-tcp-socket": "5.3.0",
