@@ -26,12 +26,12 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { BlurView } from '@react-native-community/blur';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 import { encodeUR } from './blue_modules/ur';
-import QRCode from 'react-native-qrcode-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatStringAddTwoWhiteSpaces } from './loc';
 import { BlueStorageContext } from './blue_modules/storage-context';
+import QRCodeComponent from './components/QRCodeComponent';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -413,6 +413,7 @@ export const BlueListItem = React.memo(props => {
             color: props.disabled ? colors.buttonDisabledTextColor : colors.foregroundColor,
             fontSize: 16,
             fontWeight: '500',
+            writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
           }}
           numberOfLines={0}
           accessible={props.switch === undefined}
@@ -423,7 +424,13 @@ export const BlueListItem = React.memo(props => {
           <ListItem.Subtitle
             numberOfLines={props.subtitleNumberOfLines ?? 1}
             accessible={props.switch === undefined}
-            style={{ flexWrap: 'wrap', color: colors.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
+            style={{
+              flexWrap: 'wrap',
+              writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+              color: colors.alternativeTextColor,
+              fontWeight: '400',
+              fontSize: 14,
+            }}
           >
             {props.subtitle}
           </ListItem.Subtitle>
@@ -1274,14 +1281,7 @@ export class DynamicQRCode extends Component {
       <View style={animatedQRCodeStyle.container}>
         <BlueSpacing20 />
         <View style={animatedQRCodeStyle.qrcodeContainer}>
-          <QRCode
-            value={currentFragment.toUpperCase()}
-            size={this.state.qrCodeHeight}
-            color="#000000"
-            logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
-            backgroundColor="#FFFFFF"
-            ecl="L"
-          />
+          <QRCodeComponent value={currentFragment.toUpperCase()} size={this.state.qrCodeHeight} ecl="L" />
         </View>
         <BlueSpacing20 />
         <View>
@@ -1331,9 +1331,7 @@ const animatedQRCodeStyle = StyleSheet.create({
   qrcodeContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 6,
-    borderRadius: 8,
-    borderColor: '#FFFFFF',
+
     margin: 6,
   },
   controller: {

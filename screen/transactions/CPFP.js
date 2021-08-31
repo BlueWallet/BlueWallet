@@ -92,10 +92,11 @@ export default class CPFP extends Component {
       stage: 1,
       txid,
       wallet,
+      isElectrumDisabled: true,
     };
   }
 
-  broadcast() {
+  broadcast = () => {
     this.setState({ isLoading: true }, async () => {
       try {
         await BlueElectrum.ping();
@@ -114,7 +115,7 @@ export default class CPFP extends Component {
         alert(error.message);
       }
     });
-  }
+  };
 
   onSuccessBroadcast() {
     this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
@@ -208,7 +209,7 @@ export default class CPFP extends Component {
           >
             <Text style={styles.actionText}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
-          <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm_sendNow} />
+          <BlueButton disabled={this.context.isElectrumDisabled} onPress={this.broadcast} title={loc.send.confirm_sendNow} />
         </BlueCard>
       </View>
     );

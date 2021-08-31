@@ -19,7 +19,6 @@ import {
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { getSystemName } from 'react-native-device-info';
-import QRCode from 'react-native-qrcode-svg';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import {
@@ -42,6 +41,7 @@ import MultipleStepsListItem, {
 } from '../../components/MultipleStepsListItem';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { encodeUR } from '../../blue_modules/ur';
+import QRCodeComponent from '../../components/QRCodeComponent';
 
 const prompt = require('../../blue_modules/prompt');
 const A = require('../../blue_modules/analytics');
@@ -50,7 +50,7 @@ const isDesktop = getSystemName() === 'Mac OS X';
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
-  const { addWallet, saveToDisk } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk, isElectrumDisabled } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
   const navigation = useNavigation();
@@ -200,7 +200,9 @@ const WalletsAddMultisigStep2 = () => {
       w.addCosigner(cc[0], fp, cc[2]);
     }
     w.setLabel(walletLabel);
-    await w.fetchBalance();
+    if (!isElectrumDisabled) {
+      await w.fetchBalance();
+    }
 
     addWallet(w);
     await saveToDisk();
@@ -620,16 +622,7 @@ const WalletsAddMultisigStep2 = () => {
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
             <BlueSpacing20 />
-            <View style={styles.qrCodeContainer}>
-              <QRCode
-                value={cosignerXpubURv2}
-                size={260}
-                color="#000000"
-                logoBackgroundColor={colors.brandingColor}
-                backgroundColor="#FFFFFF"
-                ecl="H"
-              />
-            </View>
+            <QRCodeComponent value={cosignerXpubURv2} size={260} />
             <BlueSpacing20 />
             <View style={styles.squareButtonWrapper}>
               {isLoading ? (
