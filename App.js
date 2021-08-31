@@ -219,16 +219,26 @@ const App = () => {
         const walletID = wallet.getID();
         fetchAndSaveWalletTransactions(walletID);
         if (wasTapped) {
-          NavigationService.dispatch(
-            CommonActions.navigate({
-              name: 'WalletTransactions',
-              key: `WalletTransactions-${wallet.getID()}`,
+          if (payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
+            NavigationService.dispatch(
+              CommonActions.navigate({
+                name: 'WalletTransactions',
+                key: `WalletTransactions-${wallet.getID()}`,
+                params: {
+                  walletID,
+                  walletType: wallet.type,
+                },
+              }),
+            );
+          } else {
+            NavigationService.navigate('ReceiveDetailsRoot', {
+              screen: 'ReceiveDetails',
               params: {
                 walletID,
-                walletType: wallet.type,
+                address: payload.address,
               },
-            }),
-          );
+            });
+          }
 
           return true;
         }
