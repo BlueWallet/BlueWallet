@@ -91,6 +91,9 @@ const ScanLndInvoice = () => {
 
   useEffect(() => {
     if (wallet && uri) {
+      if (Lnurl.isLnurl(uri)) return processLnurlPay(uri);
+      if (Lnurl.isLightningAddress(uri)) return processLnurlPay(uri);
+
       let data = uri;
       // handling BIP21 w/BOLT11 support
       const ind = data.indexOf('lightning=');
@@ -101,9 +104,6 @@ const ScanLndInvoice = () => {
       data = data.replace('LIGHTNING:', '').replace('lightning:', '');
       console.log(data);
 
-      /**
-       * @type {LightningCustodianWallet}
-       */
       let decoded;
       try {
         decoded = wallet.decodeInvoice(data);
@@ -143,6 +143,7 @@ const ScanLndInvoice = () => {
 
   const processInvoice = data => {
     if (Lnurl.isLnurl(data)) return processLnurlPay(data);
+    if (Lnurl.isLightningAddress(data)) return processLnurlPay(data);
     setParams({ uri: data });
   };
 
@@ -215,7 +216,12 @@ const ScanLndInvoice = () => {
   };
 
   const processTextForInvoice = text => {
-    if (text.toLowerCase().startsWith('lnb') || text.toLowerCase().startsWith('lightning:lnb') || Lnurl.isLnurl(text)) {
+    if (
+      text.toLowerCase().startsWith('lnb') ||
+      text.toLowerCase().startsWith('lightning:lnb') ||
+      Lnurl.isLnurl(text) ||
+      Lnurl.isLightningAddress(text)
+    ) {
       processInvoice(text);
     } else {
       setDecoded(undefined);
