@@ -4,6 +4,8 @@ const assert = require('assert');
 
 describe.skip('LightningCustodianWallet', () => {
   const l1 = new LightningCustodianWallet();
+  l1.setBaseURI('https://lndhub.io');
+  l1.init();
 
   it.skip('issue credentials', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;

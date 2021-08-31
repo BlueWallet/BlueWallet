@@ -1,16 +1,23 @@
-import * as Sentry from '@sentry/react-native';
 import { getUniqueId } from 'react-native-device-info';
+import Bugsnag from '@bugsnag/react-native';
 const BlueApp = require('../BlueApp');
 
+let userHasOptedOut = false;
+
 if (process.env.NODE_ENV !== 'development') {
-  Sentry.init({
-    dsn: 'https://23377936131848ca8003448a893cb622@sentry.io/1295736',
+  Bugsnag.start({
+    collectUserIp: false,
+    user: {
+      id: getUniqueId(),
+    },
+    onError: function (event) {
+      return !userHasOptedOut;
+    },
   });
-  Sentry.setUser({ id: getUniqueId() });
 }
 
 BlueApp.isDoNotTrackEnabled().then(value => {
-  if (value) Sentry.close();
+  if (value) userHasOptedOut = true;
 });
 
 const A = async event => {};
@@ -26,7 +33,7 @@ A.ENUM = {
 };
 
 A.setOptOut = value => {
-  if (value) Sentry.close();
+  if (value) userHasOptedOut = true;
 };
 
 module.exports = A;

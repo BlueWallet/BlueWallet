@@ -285,7 +285,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
         {
           id: TransactionListItem.actionKeys.CopyBlockExplorerLink,
           text: `${loc.transactions.details_copy} ${loc.transactions.block_explorer_link}`,
-          icon: TransactionListItem.actionIcons.Link,
+          icon: TransactionListItem.actionIcons.Clipboard,
         },
       );
     }
@@ -316,7 +316,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     }
     return submenu;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [item.hash, subtitle, subtitleNumberOfLines]);
 
   return (
     <View style={styles.container}>
@@ -359,7 +359,7 @@ TransactionListItem.actionIcons = {
   },
   Clipboard: {
     iconType: 'SYSTEM',
-    iconValue: 'arrow.right.doc.on.clipboard',
+    iconValue: 'doc.on.doc',
   },
   Link: {
     iconType: 'SYSTEM',
