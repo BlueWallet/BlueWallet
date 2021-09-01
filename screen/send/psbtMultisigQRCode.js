@@ -77,7 +77,7 @@ const PsbtMultisigQRCode = () => {
 
   const exportPSBTToTag = () => {
     setIsLoading(true);
-    nfcManagerComponent.current.writeNdef(psbt.toBase64()).finally(() => setIsLoading(false));
+    nfcManagerComponent.current.writeNdef(psbt).finally(() => setIsLoading(false));
   };
 
   return (
