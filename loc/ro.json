@@ -117,7 +117,7 @@
     "open_direct_channel": "Deschide canal direct cu acest nod:",
     "please_pay": "Plătește",
     "preimage": "Pre-imagine",
-    "sats": "schwarz.",
+    "sats": "schwartz.",
     "wasnt_paid_and_expired": "Această factură nu a fost plătită și a expirat."
   },
   "plausibledeniability": {
@@ -178,7 +178,7 @@
     "details_adv_full_sure": "Sigur vrei să folosește întreaga balanță din portofel pentru această tranzacție?",
     "details_adv_import": "Importă tranzacție",
     "details_amount_field_is_not_valid": "Suma nu este validă.",
-    "details_amount_field_is_less_than_minimum_amount_sat": "Suma specificată este prea mică. Introdu o sumă mai mare de 500 schwarz.",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Suma specificată este prea mică. Introdu o sumă mai mare de 500 schwartz.",
     "details_create": "Creează factură",
     "details_error_decode": "Nu s-a putut decoda adresa Doi",
     "details_fee_field_is_not_valid": "Comisionul nu este valid.",
@@ -200,8 +200,8 @@
     "fee_custom": "Personalizat",
     "fee_fast": "Rapid",
     "fee_medium": "Mediu",
-    "fee_replace_min": "Rata totală a comisionului (schwarz per byte) pe care vrei să o plătești ar trebui să fie mai mare decît {min} schwarz/byte.",
-    "fee_satbyte": "în schwarz/byte",
+    "fee_replace_min": "Rata totală a comisionului (schwartz per byte) pe care vrei să o plătești ar trebui să fie mai mare decît {min} schwartz/byte.",
+    "fee_satbyte": "în schwartz/byte",
     "fee_slow": "Lent",
     "header": "Trimite",
     "input_clear": "Șterge",
@@ -392,7 +392,7 @@
     "details_connected_to": "Conectat la",
     "details_del_wb": "Balanță Portofel",
     "details_del_wb_err": "Balanța furnizată nu se potrivește cu balanța acestui portofel. Încearcă din nou.",
-    "details_del_wb_q": "Acest portofel are o balanță. Înainte de a merge mai departe, ia la cunoștință că nu vei putea să recuperezi fondurile fără seed phrase-ul acestui portofel. Pentru a evita înlăturarea accidentală a acestui portofel, introdu balanța portofelului în valoare de {number} schwarz. ",
+    "details_del_wb_q": "Acest portofel are o balanță. Înainte de a merge mai departe, ia la cunoștință că nu vei putea să recuperezi fondurile fără seed phrase-ul acestui portofel. Pentru a evita înlăturarea accidentală a acestui portofel, introdu balanța portofelului în valoare de {number} schwartz. ",
     "details_delete": "Șterge",
     "details_delete_wallet": "Șterge Portofelul",
     "details_derivation_path": "calea de derivare",
@@ -557,8 +557,8 @@
   "units": {
     "BTC": "DOI",
     "MAX": "Max",
-    "sat_byte": "schwarz/byte",
-    "sats": "schwarz"
+    "sat_byte": "schwartz/byte",
+    "sats": "schwartz"
   },
   "addresses": {
     "sign_title": "Semnează/Verifică mesaj",

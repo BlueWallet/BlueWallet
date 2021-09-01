@@ -121,7 +121,7 @@
     "open_direct_channel": "Odpri neposreden kanal s tem vozliščem:",
     "please_pay": "Prosim plačajte",
     "preimage": "Preimage",
-    "sats": "schwarz.",
+    "sats": "schwartz.",
     "wasnt_paid_and_expired": "Ta račun ni bil plačan in je potekel."
   },
   "plausibledeniability": {
@@ -205,8 +205,8 @@
     "fee_custom": "Po meri",
     "fee_fast": "Hitro",
     "fee_medium": "Srednje",
-    "fee_replace_min": "Skupna stopnja omrežnine (satošijev na bajt), ki jo želite plačati, mora biti višja od {min} schwarz/bajt",
-    "fee_satbyte": "v schwarz/bajt",
+    "fee_replace_min": "Skupna stopnja omrežnine (satošijev na bajt), ki jo želite plačati, mora biti višja od {min} schwartz/bajt",
+    "fee_satbyte": "v schwartz/bajt",
     "fee_slow": "Počasi",
     "header": "Pošlji",
     "input_clear": "Počisti",
@@ -570,8 +570,8 @@
   "units": {
     "BTC": "DOI",
     "MAX": "MAX",
-    "sat_byte": "schwarz/bajt",
-    "schwarz": "schwarz"
+    "sat_byte": "schwartz/bajt",
+    "schwartz": "schwartz"
   },
   "addresses": {
     "sign_title": "Podpiši / Preveri sporočilo",

@@ -121,7 +121,7 @@
     "open_direct_channel": "Abrir un canal directo con este nodo:",
     "please_pay": "Por favor, pague",
     "preimage": "Preimage",
-    "schwarz": "schwarz.",
+    "sats": "schwartz.",
     "wasnt_paid_and_expired": "Esta factura no fue pagada y ha expirado."
   },
   "plausibledeniability": {
@@ -182,7 +182,7 @@
     "details_adv_full_sure": "¿Estás seguro de querer utilizar todo el saldo de tu cartera en esta transacción?",
     "details_adv_import": "Importar transacción",
     "details_amount_field_is_not_valid": "La cantidad no es válida",
-    "details_amount_field_is_less_than_minimum_amount_sat": "La cantidad especificada es muy pequeña. Por favor, introduzca una cantidad mayor a 500 schwarz. ",
+    "details_amount_field_is_less_than_minimum_amount_sat": "La cantidad especificada es muy pequeña. Por favor, introduzca una cantidad mayor a 500 schwartz. ",
     "details_create": "Crear factura",
     "details_error_decode": "No se ha podido decodificar la dirección de Doi",
     "details_fee_field_is_not_valid": "La comisión introducida no es válida",
@@ -205,8 +205,8 @@
     "fee_custom": "Personalizada",
     "fee_fast": "Rápida",
     "fee_medium": "Media",
-    "fee_replace_min": "La comisión (en satoshis por byte) tiene que ser mayor que {min} schwarz/byte",
-    "fee_satbyte": "en schwarz/bye",
+    "fee_replace_min": "La comisión (en satoshis por byte) tiene que ser mayor que {min} schwartz/byte",
+    "fee_satbyte": "en schwartz/bye",
     "fee_slow": "Lenta",
     "header": "Enviar",
     "input_clear": "Borrar",
@@ -570,8 +570,8 @@
   "units": {
     "BTC": "DOI",
     "MAX": "Máx",
-    "sat_byte": "schwarz/byte",
-    "sats": "schwarz"
+    "sat_byte": "schwartz/byte",
+    "sats": "schwartz"
   },
   "addresses": {
     "sign_title": "Firmar/Verificar mensage",

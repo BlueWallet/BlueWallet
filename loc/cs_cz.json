@@ -121,7 +121,7 @@
     "open_direct_channel": "Otevřít přímý kanál s tímto uzlem:",
     "please_pay": "Prosím zaplaťte",
     "preimage": "Předobraz",
-    "sats": "schwarz",
+    "sats": "schwartz",
     "wasnt_paid_and_expired": "Tato faktura nebyla zaplacena a její platnost vypršela."
   },
   "plausibledeniability": {
@@ -182,7 +182,7 @@
     "details_adv_full_sure": "Opravdu chcete pro tuto transakci použít celý zůstatek vaší peněženky?",
     "details_adv_import": "Importovat transakci",
     "details_amount_field_is_not_valid": "Čáskta není správně vyplněna",
-    "details_amount_field_is_less_than_minimum_amount_sat": "Zadaná částka je příliš malá. Zadejte částku větší než 500 schwarz.",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Zadaná částka je příliš malá. Zadejte částku větší než 500 schwartz.",
     "details_create": "Vytvořit fakturu",
     "details_error_decode": "Bitcoinovou adresu nelze dekódovat",
     "details_fee_field_is_not_valid": "Poplatek není správně vyplněn",
@@ -205,8 +205,8 @@
     "fee_custom": "Vlastní",
     "fee_fast": "Rychle",
     "fee_medium": "Středně",
-    "fee_replace_min": "Celková sazba poplatku (schwarz za bajt), kterou chcete zaplatit, by měla být vyšší než {min} schwarz/bajt",
-    "fee_satbyte": "v schwarz/bajt",
+    "fee_replace_min": "Celková sazba poplatku (schwartz za bajt), kterou chcete zaplatit, by měla být vyšší než {min} schwartz/bajt",
+    "fee_satbyte": "v schwartz/bajt",
     "fee_slow": "Pomalu",
     "header": "Poslat",
     "input_clear": "Vymazat",
@@ -402,7 +402,7 @@
     "details_connected_to": "Připojeno k",
     "details_del_wb": "Zůstatek v peněžence",
     "details_del_wb_err": "Poskytnutá částka zůstatku neodpovídá zůstatku této peněženky. Prosím zkuste to znovu",
-    "details_del_wb_q": "Tato peněženka má zůstatek. Předtím, než budete pokračovat, mějte na paměti, že nebudete moci získat prostředky bez počáteční věty této peněženky. Chcete-li zabránit náhodnému odebrání této peněženky, zadejte zůstatek vaší peněženky {balance} schwarz.",
+    "details_del_wb_q": "Tato peněženka má zůstatek. Předtím, než budete pokračovat, mějte na paměti, že nebudete moci získat prostředky bez počáteční věty této peněženky. Chcete-li zabránit náhodnému odebrání této peněženky, zadejte zůstatek vaší peněženky {balance} schwartz.",
     "details_delete": "Smazat",
     "details_delete_wallet": "Smazat peněženku",
     "details_derivation_path": "derivační cesta",
@@ -570,8 +570,8 @@
   "units": {
     "BTC": "DOI",
     "MAX": "MAX",
-    "sat_byte": "schwarz/byte",
-    "sats": "schwarz"
+    "sat_byte": "schwartz/byte",
+    "sats": "schwartz"
   },
   "addresses": {
     "sign_title": "Podepsat/Ověřit zprávu",

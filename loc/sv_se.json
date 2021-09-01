@@ -106,7 +106,7 @@
     "has_been_paid": "Denna faktura är betald",
     "open_direct_channel": "Öppna en direkt kanal med denna nod:",
     "please_pay": "Var god betala",
-    "sats": "schwarz"
+    "sats": "schwartz"
   },
   "plausibledeniability": {
     "create_fake_storage": "Skapa fejkad lagringsyta",
@@ -162,7 +162,7 @@
     "details_adv_full_remove": "Dina andra mottagare kommer att tas bort från denna transaktion.",
     "details_adv_import": "Importera Transaction",
     "details_amount_field_is_not_valid": "Angivet belopp är inte giltigt",
-    "details_amount_field_is_less_than_minimum_amount_sat": "Det angivna beloppet är för litet. Vänligen ange ett belopp som är större än 500 schwarz.",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Det angivna beloppet är för litet. Vänligen ange ett belopp som är större än 500 schwartz.",
     "details_create": "Skapa",
     "details_fee_field_is_not_valid": "Angiven avgift är inte giltig",
     "details_next": "Nästa",
@@ -173,7 +173,7 @@
     "dynamic_prev": "Föregående",
     "dynamic_start": "Starta",
     "dynamic_stop": "Stoppa",
-    "fee_satbyte": "i schwarz/byte",
+    "fee_satbyte": "i schwartz/byte",
     "fee_slow": "Långsamt",
     "header": "Skicka",
     "input_clear": "Töm",

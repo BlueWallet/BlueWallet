@@ -175,7 +175,7 @@
     "details_adv_full_sure": "Weet u zeker dat u het volledige saldo van uw wallet wilt gebruiken voor deze transactie?",
     "details_adv_import": "Importeer transactie",
     "details_amount_field_is_not_valid": "Bedrag is niet geldig",
-    "details_amount_field_is_less_than_minimum_amount_sat": "Het ingevoerde bedrag is te klein. Voer een bedrag in groter dan 500 schwarz.",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Het ingevoerde bedrag is te klein. Voer een bedrag in groter dan 500 schwartz.",
     "details_create": "Maak factuur aan",
     "details_error_decode": "Niet in staat het Doi adres te decoderen",
     "details_fee_field_is_not_valid": "Tarief is niet geldig",
@@ -197,8 +197,8 @@
     "fee_custom": "Custom",
     "fee_fast": "Snel",
     "fee_medium": "Medium",
-    "fee_replace_min": "De totale fee rate (schwarz per byte) die u wilt betalen moet hoger zijn dan {min} schwarz/byte",
-    "fee_satbyte": "In schwarz/byte",
+    "fee_replace_min": "De totale fee rate (schwartz per byte) die u wilt betalen moet hoger zijn dan {min} schwartz/byte",
+    "fee_satbyte": "In schwartz/byte",
     "fee_slow": "Langzaam",
     "header": "Verstuur",
     "input_clear": "Leegmaken",
@@ -550,8 +550,8 @@
   "units": {
     "BTC": "DOI",
     "MAX": "MAX",
-    "sat_byte": "schwarz/byte",
-    "sats": "schwarz"
+    "sat_byte": "schwartz/byte",
+    "sats": "schwartz"
   },
   "addresses": {
     "sign_title": "Onderteken/Verifieer bericht",

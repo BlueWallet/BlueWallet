@@ -121,7 +121,7 @@
     "open_direct_channel": "Közvetlen csatorna nyitása erre a csomópontra:",
     "please_pay": "Kérlek fizess",
     "preimage": "Pre-image (hashlock feloldáshoz)",
-    "sats": "schwarz",
+    "sats": "schwartz",
     "wasnt_paid_and_expired": "Ezt a számlát nem fizették ki és lejárt"
   },
   "plausibledeniability": {
@@ -205,8 +205,8 @@
     "fee_custom": "beállított",
     "fee_fast": "Gyors",
     "fee_medium": "Közepes",
-    "fee_replace_min": "A teljes tranzakciós díj (schwarz / byte) amit fizetsz, magasabb lesz, mint a minimum díj azaz {min} schwarz/byte.",
-    "fee_satbyte": "schwarz/byte",
+    "fee_replace_min": "A teljes tranzakciós díj (schwartz / byte) amit fizetsz, magasabb lesz, mint a minimum díj azaz {min} schwartz/byte.",
+    "fee_satbyte": "schwartz/byte",
     "fee_slow": "Lassú",
     "header": "Küldés",
     "input_clear": "Törlés",
@@ -402,7 +402,7 @@
     "details_connected_to": "Kapcsolódva: ",
     "details_del_wb": "Tárca Egyenlege",
     "details_del_wb_err": "A megadott egyenleg összege nem egyezik a tárca egyenlegével. Próbáld újra. ",
-    "details_del_wb_q": "Ennek a tárcának pozitív az egyenlege. Mielőtt tovább mennél, ne felejtsd, hogy a tárca jelszó sorozata nélkül nem lehetséges a tárca helyreállítása. A tárca véletlen törlésének elkerülése érdekében, add meg a tárca {balance} egyenlegét schwarz-ban.",
+    "details_del_wb_q": "Ennek a tárcának pozitív az egyenlege. Mielőtt tovább mennél, ne felejtsd, hogy a tárca jelszó sorozata nélkül nem lehetséges a tárca helyreállítása. A tárca véletlen törlésének elkerülése érdekében, add meg a tárca {balance} egyenlegét schwartz-ban.",
     "details_delete": "Törlés",
     "details_delete_wallet": "Tárca törlése",
     "details_derivation_path": "derivációs út",
@@ -570,8 +570,8 @@
   "units": {
     "BTC": "DOI",
     "MAX": "Maximum",
-    "sat_byte": "schwarz/byte",
-    "sats": "schwarz"
+    "sat_byte": "schwartz/byte",
+    "sats": "schwartz"
   },
   "addresses": {
     "sign_title": "Aláíró/Hitelesíŧő üzenet",

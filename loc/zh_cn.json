@@ -547,7 +547,7 @@
     "BTC": "比特幣",
     "MAX": "最大",
     "sat_byte": "聪/字节",
-    "schwarz": "聪"
+    "sats": "聪"
   },
   "addresses": {
     "sign_title": "签署/验证信息",

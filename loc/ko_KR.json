@@ -251,7 +251,7 @@
     "BTC": "비트코인",
     "MAX": "최대",
     "sat_byte": "사토시/바이트",
-    "schwarz": "사토시"
+    "sats": "사토시"
   },
   "addresses": {
     "sign_title": "서명/검증 메시지",

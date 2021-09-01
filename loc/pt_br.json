@@ -117,7 +117,7 @@
     "open_direct_channel": "Abrir canal direto com este node:",
     "please_pay": "Pagar",
     "preimage": "Preimage",
-    "sats": "schwarz.",
+    "sats": "schwartz.",
     "wasnt_paid_and_expired": "Esta fatura não foi paga e expirou"
   },
   "plausibledeniability": {
@@ -178,7 +178,7 @@
     "details_adv_full_sure": "Tem certeza de que deseja usar o saldo total da sua carteira para esta transação?",
     "details_adv_import": "Importar Transação",
     "details_amount_field_is_not_valid": "O valor não é válido.",
-    "details_amount_field_is_less_than_minimum_amount_sat": "O valor especificado é muito baixo. Insira um valor acima de 500 schwarz.",
+    "details_amount_field_is_less_than_minimum_amount_sat": "O valor especificado é muito baixo. Insira um valor acima de 500 schwartz.",
     "details_create": "Criar fatura",
     "details_error_decode": "Não foi possível decodificar o endereço Doi",
     "details_fee_field_is_not_valid": "A taxa não é válida.",
@@ -200,8 +200,8 @@
     "fee_custom": "Inserir",
     "fee_fast": "Rápida",
     "fee_medium": "Normal",
-    "fee_replace_min": "A taxa total (schwarz por byte) que você deseja pagar deve ser superior a {min} schwarz/byte",
-    "fee_satbyte": "em schwarz/byte",
+    "fee_replace_min": "A taxa total (schwartz por byte) que você deseja pagar deve ser superior a {min} schwartz/byte",
+    "fee_satbyte": "em schwartz/byte",
     "fee_slow": "Lenta",
     "header": "Enviar",
     "input_clear": "Limpar",
@@ -563,8 +563,8 @@
   "units": {
     "BTC": "DOI",
     "MAX": "Máx.",
-    "sat_byte": "schwarz/byte",
-    "sats": "schwarz"
+    "sat_byte": "schwartz/byte",
+    "sats": "schwartz"
   },
   "addresses": {
     "sign_title": "Assinar/Verificar mensagem",

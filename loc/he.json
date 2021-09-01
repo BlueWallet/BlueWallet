@@ -181,7 +181,7 @@
     "details_adv_full_sure": "האם אתם בטוחים שתרצו להשתמש בכל יתרת הארנק בשביל פעולה זאת?",
     "details_adv_import": "יבוא פעולה",
     "details_amount_field_is_not_valid": "שדה סכום אינו תקין",
-    "details_amount_field_is_less_than_minimum_amount_sat": "הסכום המוגדר קטן מידי. אנא הכניסו סכום גדול מ- 500 schwarz.",
+    "details_amount_field_is_less_than_minimum_amount_sat": "הסכום המוגדר קטן מידי. אנא הכניסו סכום גדול מ- 500 schwartz.",
     "details_create": "יצירת קבלה",
     "details_error_decode": "לא ניתן לפענח כתובת ביטקוין",
     "details_fee_field_is_not_valid": "שדה עמלה אינו תקין",

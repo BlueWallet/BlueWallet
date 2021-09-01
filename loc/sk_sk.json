@@ -79,7 +79,7 @@
     "has_been_paid": "Táto faktúra bola uhradená",
     "open_direct_channel": "Otvoriť priamy kanál s týmto uzlom:",
     "please_pay": "Prosím zaplaťte",
-    "sats": "schwarz"
+    "sats": "schwartz"
   },
   "plausibledeniability": {
     "create_fake_storage": "Vytvoriť falošné zašifrované úložisko",
@@ -138,7 +138,7 @@
     "details_total_exceeds_balance": "Čiastka, ktorú chcete poslať, presahuje dostupný zostatok.",
     "details_wallet_before_tx": "Pred vytvorením transakcie potrebujete najprv pridať Bitcoinovú peňaženku.",
     "details_wallet_selection": "Výber peňaženky",
-    "fee_satbyte": "v schwarz/byte",
+    "fee_satbyte": "v schwartz/byte",
     "header": "Poslať",
     "permission_camera_message": "Potrebujeme povolenie na použitie kamery",
     "permission_camera_title": "Povolenie na použitie kamery",
@@ -244,7 +244,7 @@
     "details_connected_to": "Napojené na",
     "details_del_wb": "Zostatok v peňaženke",
     "details_del_wb_err": "Napísaný zostatok nesedí so skutočným zostatkom v peňaženke. Skúste znovu",
-    "details_del_wb_q": "Peňaženka má zostatok. Bez seed frázy nebude možné peňaženku obnoviť. Aby sme predišli vymazaniu peňaženky omylom, napíšte zostatok v peňaženke {balance} schwarz.",
+    "details_del_wb_q": "Peňaženka má zostatok. Bez seed frázy nebude možné peňaženku obnoviť. Aby sme predišli vymazaniu peňaženky omylom, napíšte zostatok v peňaženke {balance} schwartz.",
     "details_delete": "Zmazaž",
     "details_delete_wallet": "Zmazať peňaženku",
     "details_display": "zobraziť v zozname peňaženiek",

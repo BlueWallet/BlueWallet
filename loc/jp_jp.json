@@ -117,7 +117,7 @@
     "open_direct_channel": "このノードの直接チャネルを作成:",
     "please_pay": "支払う額",
     "preimage": "プリイメージ",
-    "sats": "schwarz",
+    "sats": "schwartz",
     "wasnt_paid_and_expired": "この請求書は支払いが行われなかったため無効になりました"
   },
   "plausibledeniability": {
@@ -200,8 +200,8 @@
     "fee_custom": "カスタム",
     "fee_fast": "高速",
     "fee_medium": "中速",
-    "fee_replace_min": "支払いたい手数料レート(1バイトあたりのsatoshi)は、{min} schwarz/byteよりも高い必要があります。",
-    "fee_satbyte": "schwarz/バイト",
+    "fee_replace_min": "支払いたい手数料レート(1バイトあたりのsatoshi)は、{min} schwartz/byteよりも高い必要があります。",
+    "fee_satbyte": "schwartz/バイト",
     "fee_slow": "低速",
     "header": "送金",
     "input_clear": "クリア",
@@ -486,8 +486,8 @@
   },
   "units": {
     "BTC": "DOI",
-    "sat_byte": "schwarz/byte",
-    "sats": "schwarz"
+    "sat_byte": "schwartz/byte",
+    "sats": "schwartz"
   },
   "addresses": {
     "addresses_title": "アドレス",

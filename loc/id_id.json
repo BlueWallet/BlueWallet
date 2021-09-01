@@ -199,7 +199,7 @@
     "fee_custom": "Custom",
     "fee_fast": "Cepat",
     "fee_medium": "Sedang",
-    "fee_replace_min": "Jumlah biaya (schwarz per byte) yang ingin anda bayarkan harus lebih tinggi dari {min} sat/byte",
+    "fee_replace_min": "Jumlah biaya (schwartz per byte) yang ingin anda bayarkan harus lebih tinggi dari {min} sat/byte",
     "fee_satbyte": "dalam sat/byte",
     "fee_slow": "Lambat",
     "header": "Kirim",

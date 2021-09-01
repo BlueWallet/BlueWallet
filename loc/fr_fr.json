@@ -121,7 +121,7 @@
     "open_direct_channel": "Ouvrir un canal direct avec ce noeud :",
     "please_pay": "Veuillez payer",
     "preimage": "Préimage",
-    "sats": "schwarz",
+    "sats": "schwartz",
     "wasnt_paid_and_expired": "Cette requête n'a pas été réglée et a expiré"
   },
   "plausibledeniability": {
@@ -182,7 +182,7 @@
     "details_adv_full_sure": "Etes-vous sûr de vouloir utiliser la totalité de votre solde pour cette transaction ?",
     "details_adv_import": "Importer une transaction",
     "details_amount_field_is_not_valid": "Champ montant invalide",
-    "details_amount_field_is_less_than_minimum_amount_sat": "Le montant spécifié est trop petit. Veuillez entrer un montant supérieur à 500 schwarz.",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Le montant spécifié est trop petit. Veuillez entrer un montant supérieur à 500 schwartz.",
     "details_create": "Créer la requête",
     "details_error_decode": "Impossible de décoder l'adresse doi",
     "details_fee_field_is_not_valid": "Champ frais invalide",
@@ -205,8 +205,8 @@
     "fee_custom": "Personnalisé ",
     "fee_fast": "Rapide",
     "fee_medium": "Moyen",
-    "fee_replace_min": "Le taux des frais (schwarz par octet) que vous voulez payer devrais etre plus que {min} schwarz/octet",
-    "fee_satbyte": "En schwarz/octet",
+    "fee_replace_min": "Le taux des frais (schwartz par octet) que vous voulez payer devrais etre plus que {min} schwartz/octet",
+    "fee_satbyte": "En schwartz/octet",
     "fee_slow": "Lent",
     "header": "Envoyer",
     "input_clear": "Tout effacer",
@@ -570,8 +570,8 @@
   "units": {
     "BTC": "DOI",
     "MAX": "MAX",
-    "sat_byte": "schwarz/byte",
-    "sats": "schwarz"
+    "sat_byte": "schwartz/byte",
+    "sats": "schwartz"
   },
   "addresses": {
     "sign_title": "Signe/vérifie le message",

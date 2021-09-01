@@ -200,8 +200,8 @@
     "fee_custom": "Mukautettu",
     "fee_fast": "Nopea",
     "fee_medium": "Keskitaso",
-    "fee_replace_min": "Maksettavan kokonaiskulun (satoshia tavua kohti) tulisi olla korkeampi kuin {min} schwarz/tavu",
-    "fee_satbyte": "schwarz/tavu",
+    "fee_replace_min": "Maksettavan kokonaiskulun (satoshia tavua kohti) tulisi olla korkeampi kuin {min} schwartz/tavu",
+    "fee_satbyte": "schwartz/tavu",
     "fee_slow": "Hidas",
     "header": "Lähetä",
     "input_clear": "Tyhjää",
@@ -558,7 +558,7 @@
   "units": {
     "BTC": "DOI",
     "MAX": "MAX",
-    "sat_byte": "schwarz/bitti",
+    "sat_byte": "schwartz/bitti",
     "sats": "sattia"
   },
   "addresses": {
