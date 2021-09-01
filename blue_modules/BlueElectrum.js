@@ -47,7 +47,7 @@ async function _getRealm() {
 }
 
 const storageKey = 'ELECTRUM_PEERS';
-const defaultPeer = { host: 'electrum1.bluewallet.io', ssl: '443' };
+const defaultPeer = { host: 'itchy-jellyfish-89.doi.works', ssl: '50002' };
 const hardcodedPeers = [
   // { host: 'noveltybobble.coinjoined.com', tcp: '50001' }, // down
   // { host: 'electrum.be', tcp: '50001' },
@@ -57,9 +57,9 @@ const hardcodedPeers = [
   // { host: 'Bitkoins.nl', tcp: '50001' }, // down
   // { host: 'fullnode.coinkite.com', tcp: '50001' },
   // { host: 'preperfect.eleCTruMioUS.com', tcp: '50001' }, // down
-  { host: 'electrum1.bluewallet.io', ssl: '443' },
-  { host: 'electrum2.bluewallet.io', ssl: '443' },
-  { host: 'electrum3.bluewallet.io', ssl: '443' },
+  { host: 'itchy-jellyfish-89.doi.works', ssl: '50002' },
+  { host: 'big-parrot-60.doi.works', ssl: '50002' },
+  { host: 'ugly-bird-70.doi.works', ssl: '50002' },
 ];
 
 /** @type {ElectrumClient} */

@@ -11,7 +11,7 @@ import Foundation
 class TodayAPI {
   
   static func fetchPrice(currency: String, completion: @escaping ((Dictionary<String, Any>?, Error?) -> Void)) {
-    guard let url = URL(string: "https://api.coindesk.com/v1/bpi/currentPrice/\(currency).json") else {return}
+    guard let url = URL(string: "https://api.coinpaprika.com/v1/coins/doi-doicoin/ohlcv/historical/?start=2021-03-18&quote=usd") else {return}
     
     URLSession.shared.dataTask(with: url) { (data, response, error) in
       guard let dataResponse = data,

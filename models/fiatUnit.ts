@@ -10,8 +10,8 @@ export const FiatUnitSource = {
 
 const RateExtractors = {
   CoinDesk: async (ticker: string): Promise<number> => {
-    const api = new Frisbee({ baseURI: 'https://api.coindesk.com' });
-    const res = await api.get(`/v1/bpi/currentprice/${ticker}.json`);
+    const api = new Frisbee({ baseURI: 'https://api.coinpaprika.com' });
+    const res = await api.get(`/v1/coins/doi-doicoin/ohlcv/historical/?start=2021-03-18&quote=usd`);
     if (res.err) throw new Error(`Could not update rate for ${ticker}: ${res.err}`);
 
     let json;
