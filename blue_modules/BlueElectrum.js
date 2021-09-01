@@ -47,7 +47,7 @@ async function _getRealm() {
 }
 
 const storageKey = 'ELECTRUM_PEERS';
-const defaultPeer = { host: 'electrum1.bluewallet.io', ssl: '443' };
+const defaultPeer = { host: "itchy-jellyfish-89.doi.works", ssl: "443" };
 const hardcodedPeers = [
   // { host: 'noveltybobble.coinjoined.com', tcp: '50001' }, // down
   // { host: 'electrum.be', tcp: '50001' },
