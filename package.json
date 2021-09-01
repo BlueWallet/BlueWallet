@@ -137,7 +137,7 @@
     "lottie-react-native": "4.0.2",
     "metro-react-native-babel-preset": "0.66.2",
     "path-browserify": "1.0.1",
-    "payjoin-client": "1.0.0",
+    "payjoin-client": "1.0.1",
     "process": "0.11.10",
     "prop-types": "15.7.2",
     "react": "17.0.1",
