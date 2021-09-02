@@ -34,7 +34,7 @@ class WidgetAPI {
     case "Exir":
       urlString = "https://api.exir.io/v1/ticker?symbol=btc-irt"
     default:
-      urlString = "https://api.coindesk.com/v1/bpi/currentprice/\(endPointKey).json"
+      urlString = "https://api.coinpaprika.com/v1/coins/doi-doicoin/ohlcv/historical?start=2021-03-18&quote=usd"
     }
 
     guard let url = URL(string:urlString) else { return }

@@ -7,11 +7,11 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
 
 const hardcodedPeers = [
   { host: 'itchy-jellyfish-89.doi.works', ssl: '50002' },
-  { host: 'electrum2.bluewallet.io', ssl: '443' },
-  { host: 'electrum3.bluewallet.io', ssl: '443' },
-  { host: 'electrum1.bluewallet.io', tcp: '50001' },
-  { host: 'electrum2.bluewallet.io', tcp: '50001' },
-  { host: 'electrum3.bluewallet.io', tcp: '50001' },
+  { host: 'pink-deer-69.doi.works', ssl: '50002' },
+  { host: 'ugly-bird-70', ssl: '50002' },
+  { host: 'itchy-jellyfish-89.doi.works', tcp: '50002' },
+  { host: 'pink-deer-69.doi.works', tcp: '50002' },
+  { host: 'ugly-bird-70', tcp: '50002' },
 ];
 
 describe('ElectrumClient', () => {
