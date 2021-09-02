@@ -113,7 +113,7 @@ const ScanLndInvoice = () => {
         if (+new Date() > expiresIn) {
           expiresIn = loc.lnd.expiredLow;
         } else {
-          expiresIn = Math.round((expiresIn - +new Date()) / (60 * 1000)) + ' min';
+          expiresIn = Math.round((expiresIn - +new Date()) / (60 * 1000));
         }
         Keyboard.dismiss();
         setParams({ uri: undefined, invoice: data });
@@ -274,7 +274,7 @@ const ScanLndInvoice = () => {
   const getFees = () => {
     const min = Math.floor(decoded.num_satoshis * 0.003);
     const max = Math.floor(decoded.num_satoshis * 0.01) + 1;
-    return `${min} sat - ${max} sat`;
+    return `${min} ${BitcoinUnit.SATS} - ${max} ${BitcoinUnit.SATS}`;
   };
 
   const onWalletSelect = selectedWallet => {
