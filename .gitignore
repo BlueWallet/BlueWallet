@@ -71,3 +71,5 @@ artifacts/
 *.realm
 *.realm.lock
 android/app/release/app-release.aab
+android/app/upload-keystore.jks
+yarn.lock
