@@ -289,7 +289,7 @@ PODS:
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (3.3.0):
+  - react-native-safe-area-context (3.3.1):
     - React-Core
   - react-native-tcp-socket (5.3.0):
     - CocoaAsyncSocket
@@ -433,7 +433,7 @@ PODS:
     - React-RCTImage
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNShare (7.0.1):
+  - RNShare (7.0.2):
     - React-Core
   - RNSVG (12.1.1):
     - React
@@ -751,7 +751,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: 7bda3c7297c3ea16f4f504ad6174aa7e548192ef
   react-native-ios-context-menu: c787c9a764525d07dff9bd75a191f67de7176e9f
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
-  react-native-safe-area-context: 8465df05de8106c584b117f0e027e17174d6e02e
+  react-native-safe-area-context: 7cabce6690914e3727cac1c2fd1d5e643385a9aa
   react-native-tcp-socket: b476f3045ead29f491a3affb644527b4cb7b6910
   react-native-tor: 4f389f5719dad633542b57ea32744e954730e7ef
   react-native-webview: b176c6404ad40d10cfc818be41c053f85a72d751
@@ -788,7 +788,7 @@ SPEC CHECKSUMS:
   RNReanimated: 9c13c86454bfd54dab7505c1a054470bfecd2563
   RNScreens: 01ab149b5dd5c27f5ff26741b1d2bdf2cee1af35
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNShare: 2dc2fcac3f7321cfd6b60a23ed4bf4d549f86f5f
+  RNShare: 3acd1ed34a4baba2fd8541ba409045c37e5f62ff
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   RNWatch: 99637948ec9b5c9ec5a41920642594ad5ba07e80
