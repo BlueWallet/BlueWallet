@@ -289,7 +289,7 @@ PODS:
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (3.3.1):
+  - react-native-safe-area-context (3.3.2):
     - React-Core
   - react-native-tcp-socket (5.3.0):
     - CocoaAsyncSocket
@@ -751,7 +751,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: 7bda3c7297c3ea16f4f504ad6174aa7e548192ef
   react-native-ios-context-menu: c787c9a764525d07dff9bd75a191f67de7176e9f
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
-  react-native-safe-area-context: 7cabce6690914e3727cac1c2fd1d5e643385a9aa
+  react-native-safe-area-context: 5cf05f49df9d17261e40e518481f2e334c6cd4b5
   react-native-tcp-socket: b476f3045ead29f491a3affb644527b4cb7b6910
   react-native-tor: 4f389f5719dad633542b57ea32744e954730e7ef
   react-native-webview: b176c6404ad40d10cfc818be41c053f85a72d751
