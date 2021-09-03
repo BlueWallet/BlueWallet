@@ -110,7 +110,7 @@
     "expired": "Expired",
     "node_alias": "Node alias",
     "expiredLow": "Expired",
-    "expiresIn": "Expires: {time}",
+    "expiresIn": "Expires in {time} minutes",
     "payButton": "Pay",
     "placeholder": "Invoice",
     "open_channel": "Open Channel",

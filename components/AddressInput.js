@@ -22,6 +22,7 @@ const AddressInput = ({
   launchedBy,
   editable = true,
   inputAccessoryViewID,
+  onBlur = () => {},
 }) => {
   const { colors } = useTheme();
   const scanButtonRef = useRef();
@@ -40,6 +41,11 @@ const AddressInput = ({
     },
   });
 
+  const onBlurEditing = () => {
+    onBlur();
+    Keyboard.dismiss();
+  };
+
   return (
     <View style={[styles.root, stylesHook.root]}>
       <TextInput
@@ -50,10 +56,13 @@ const AddressInput = ({
         value={address}
         style={styles.input}
         editable={!isLoading && editable}
-        onSubmitEditing={Keyboard.dismiss}
         multiline={!editable}
         inputAccessoryViewID={inputAccessoryViewID}
         clearButtonMode="while-editing"
+        onBlur={onBlurEditing}
+        autoCapitalize={false}
+        autoCorrect={false}
+        keyboardType="url"
       />
       {editable ? (
         <TouchableOpacity
@@ -134,6 +143,7 @@ AddressInput.propTypes = {
   scanButtonTapped: PropTypes.func,
   inputAccessoryViewID: PropTypes.string,
   onBarScannerDismissWithoutData: PropTypes.func,
+  onBlur: PropTypes.func,
 };
 
 export default AddressInput;
