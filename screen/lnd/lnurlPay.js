@@ -192,7 +192,11 @@ const LnurlPay = () => {
               })}
             </BlueText>
             <BlueSpacing20 />
-            {payload?.image && <Image style={styles.img} source={{ uri: payload?.image }} />}
+            {payload?.image && (
+              <>
+                <Image style={styles.img} source={{ uri: payload?.image }} /><BlueSpacing20 />
+              </>
+            )}
             <BlueText style={styles.alignSelfCenter}>{payload?.description}</BlueText>
             <BlueText style={styles.alignSelfCenter}>{payload?.domain}</BlueText>
             <BlueSpacing20 />
@@ -268,5 +272,4 @@ LnurlPay.navigationOptions = navigationStyle({
   title: '',
   closeButton: true,
   closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop(),
-  headerLeft: null,
 });

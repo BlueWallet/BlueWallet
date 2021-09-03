@@ -129,6 +129,10 @@ const ScanLndInvoice = () => {
         setParams({ uri: undefined });
         setTimeout(() => alert(Err.message), 10);
         setIsLoading(false);
+        setAmount(0);
+        setDestination();
+        setExpiresIn();
+        setDecoded();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -277,6 +281,10 @@ const ScanLndInvoice = () => {
     return `${min} ${BitcoinUnit.SATS} - ${max} ${BitcoinUnit.SATS}`;
   };
 
+  const onBlur = () => {
+    processTextForInvoice(destination);
+  };
+
   const onWalletSelect = selectedWallet => {
     setParams({ walletID: selectedWallet.getID() });
     pop();
@@ -313,7 +321,7 @@ const ScanLndInvoice = () => {
               <AddressInput
                 onChangeText={text => {
                   text = text.trim();
-                  processTextForInvoice(text);
+                  setDestination(text);
                 }}
                 onBarScanned={processInvoice}
                 address={destination}
@@ -321,6 +329,7 @@ const ScanLndInvoice = () => {
                 placeholder={loc.lnd.placeholder}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 launchedBy={name}
+                onBlur={onBlur}
               />
               <View style={styles.description}>
                 <Text numberOfLines={0} style={styles.descriptionText}>
