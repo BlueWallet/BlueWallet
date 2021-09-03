@@ -101,7 +101,7 @@
     "exchange": "Exchange",
     "expired": "Expired",
     "expiredLow": "Expired",
-    "expiresIn": "Expires: {time}",
+    "expiresIn": "Expires in {time} minutes",
     "payButton": "Pay",
     "placeholder": "Invoice",
     "potentialFee": "Potential Fee: {fee}",
