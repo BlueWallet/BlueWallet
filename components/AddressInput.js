@@ -18,6 +18,7 @@ const AddressInput = ({
   onChangeText,
   onBarScanned,
   launchedBy,
+  onBlur = () => {},
 }) => {
   const { colors } = useTheme();
   const scanButtonRef = useRef();
@@ -36,6 +37,11 @@ const AddressInput = ({
     },
   });
 
+  const onBlurEditing = () => {
+    onBlur();
+    Keyboard.dismiss();
+  };
+
   return (
     <View style={[styles.root, stylesHook.root]}>
       <TextInput
@@ -47,7 +53,10 @@ const AddressInput = ({
         value={address}
         style={styles.input}
         editable={!isLoading}
-        onSubmitEditing={Keyboard.dismiss}
+        onBlur={onBlurEditing}
+        autoCapitalize={false}
+        autoCorrect={false}
+        keyboardType="url"
       />
       <TouchableOpacity
         testID="BlueAddressInputScanQrButton"
@@ -120,6 +129,7 @@ AddressInput.propTypes = {
   launchedBy: PropTypes.string,
   address: PropTypes.string,
   placeholder: PropTypes.string,
+  onBlur: PropTypes.func,
 };
 
 export default AddressInput;
