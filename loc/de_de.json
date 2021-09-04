@@ -101,7 +101,7 @@
     "exchange": "Börse",
     "expired": "Abgelaufen",
     "expiredLow": "verfallen",
-    "expiresIn": "Verfällt: {time}",
+    "expiresIn": "Läuft in {time} Minuten ab",
     "payButton": "Zahlen",
     "placeholder": "Rechnung",
     "potentialFee": "Geschätzte Gebühr: {fee}",
