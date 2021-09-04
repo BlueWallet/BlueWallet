@@ -129,7 +129,7 @@ const ScanLndInvoice = () => {
         setParams({ uri: undefined });
         setTimeout(() => alert(Err.message), 10);
         setIsLoading(false);
-        setAmount(0);
+        setAmount();
         setDestination();
         setExpiresIn();
         setDecoded();

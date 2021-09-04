@@ -127,18 +127,15 @@ const SendDetails = () => {
   useEffect(() => {
     // decode route params
     const currentAddress = addresses[scrollIndex.current];
-    const currentUnit = units[scrollIndex.current];
     if (routeParams.uri) {
       try {
         const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
-        if (currentUnit) {
-          if (Number(amount) > 0) {
-            setUnits(units => {
-              units[scrollIndex.current] = BitcoinUnit.BTC; // also resetting current unit to BTC
-              return [...units];
-            });
-          }
-        }
+
+        setUnits(units => {
+          units[scrollIndex.current] = BitcoinUnit.BTC; // also resetting current unit to BTC
+          return [...units];
+        });
+
         setAddresses(addresses => {
           if (currentAddress) {
             currentAddress.address = address;
