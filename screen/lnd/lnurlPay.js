@@ -194,7 +194,8 @@ const LnurlPay = () => {
             <BlueSpacing20 />
             {payload?.image && (
               <>
-                <Image style={styles.img} source={{ uri: payload?.image }} /><BlueSpacing20 />
+                <Image style={styles.img} source={{ uri: payload?.image }} />
+                <BlueSpacing20 />
               </>
             )}
             <BlueText style={styles.alignSelfCenter}>{payload?.description}</BlueText>

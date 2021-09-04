@@ -138,6 +138,11 @@ const SendDetails = () => {
               return [...units];
             });
           }
+        } else {
+          setUnits(units => {
+            units[scrollIndex.current] = BitcoinUnit.BTC; // also resetting current unit to BTC
+            return [...units];
+          });
         }
         setAddresses(addresses => {
           if (currentAddress) {
