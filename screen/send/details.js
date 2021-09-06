@@ -1461,6 +1461,7 @@ SendDetails.actionKeys = {
   ImportTransactionMultsig: 'ImportTransactionMultisig',
   ImportTransactionQR: 'ImportTransactionQR',
   CoinControl: 'CoinControl',
+  CoSignTransaction: 'CoSignTransaction',
 };
 
 SendDetails.actionIcons = {
