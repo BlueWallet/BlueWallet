@@ -72,7 +72,12 @@ const TransactionsStatus = () => {
         backgroundColor: colors.customHeader,
       },
       headerRight: () => (
-        <TouchableOpacity accessibilityRole="button" style={styles.details} onPress={navigateToTransactionDetials}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          testID="TransactionDetailsButton"
+          style={styles.details}
+          onPress={navigateToTransactionDetials}
+        >
           <Text style={[styles.detailsText, stylesHook.valueUnit]}>{loc.send.create_details}</Text>
         </TouchableOpacity>
       ),
