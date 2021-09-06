@@ -250,6 +250,7 @@ const WalletTransactions = () => {
     return (
       <View style={styles.flex}>
         <View style={styles.listHeader}>
+        
           {/*
             Current logic - Onchain:
             - Shows buy button on middle when empty
@@ -264,12 +265,12 @@ const WalletTransactions = () => {
             The idea is to avoid showing on iOS an appstore/market style app that goes against the TOS.
 
            */}
-          {wallet.getTransactions().length > 0 && wallet.chain !== Chain.OFFCHAIN && renderSellFiat()}
-          {wallet.chain === Chain.OFFCHAIN && renderMarketplaceButton()}
-          {wallet.chain === Chain.OFFCHAIN && Platform.OS === 'ios' && renderLappBrowserButton()}
+          {wallet.getTransactions().length > 0 && wallet.chain !== Chain.OFFCHAIN && wallet.type !== LightningLdkWallet.type && renderSellFiat()}
+          {wallet.chain === Chain.OFFCHAIN && wallet.type !== LightningLdkWallet.type && renderMarketplaceButton()}
+          {wallet.chain === Chain.OFFCHAIN && wallet.type !== LightningLdkWallet.type && Platform.OS === 'ios' && renderLappBrowserButton()}
         </View>
         {wallet.type === LightningLdkWallet.type && (lnNodeInfo.canSend > 0 || lnNodeInfo.canReceive > 0) && (
-          <View style={styles.marginHorizontal18}>
+          <View style={[styles.marginHorizontal18, styles.marginBottom18]}>
             <LNNodeBar canSend={lnNodeInfo.canSend} canReceive={lnNodeInfo.canReceive} itemPriceUnit={itemPriceUnit} />
           </View>
         )}
@@ -769,6 +770,9 @@ const styles = StyleSheet.create({
   },
   marginHorizontal18: {
     marginHorizontal: 18,
+  },
+  marginBottom18: {
+    marginBottom: 18,
   },
   modalContent: {
     backgroundColor: '#FFFFFF',

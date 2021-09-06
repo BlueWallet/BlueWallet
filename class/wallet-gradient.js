@@ -27,7 +27,7 @@ export default class WalletGradient {
   static defaultGradients = ['#B770F6', '#9013FE'];
   static lightningCustodianWallet = ['#F1AA07', '#FD7E37'];
   static aezeedWallet = ['#8584FF', '#5351FB'];
-  static ldkWallet = ['#ff00ff', '#1b1464'];
+  static ldkWallet = ['#8584FF', '#5351FB'];
 
   static createWallet = () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
