@@ -83,7 +83,7 @@ const TransactionsStatus = () => {
       ),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors]);
+  }, [colors, tx]);
 
   useEffect(() => {
     for (const w of wallets) {
