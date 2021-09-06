@@ -366,7 +366,7 @@ const WalletTransactions = () => {
           <TouchableOpacity
             accessibilityRole="button"
             onPress={() => {
-              if (wallet.type === LightningCustodianWallet.type) {
+              if (wallet.chain === Chain.OFFCHAIN) {
                 navigate('LappBrowserRoot', {
                   screen: 'LappBrowser',
                   params: { walletID },
