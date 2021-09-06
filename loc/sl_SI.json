@@ -101,7 +101,6 @@
     "exchange": "Menjalnica",
     "expired": "Potekel",
     "expiredLow": "potekel",
-    "expiresIn": "Poteče: {time}",
     "payButton": "Plačaj",
     "placeholder": "Račun",
     "potentialFee": "Morebitna omrežnina: {fee}",

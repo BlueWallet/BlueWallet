@@ -101,7 +101,6 @@
     "exchange": "בורסה",
     "expired": "פג",
     "expiredLow": "פגה",
-    "expiresIn": "פג: {time}",
     "payButton": "תשלום",
     "placeholder": "חשבונית",
     "potentialFee": "עמלה פוטנציאלית: {fee}",

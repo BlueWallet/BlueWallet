@@ -95,7 +95,6 @@
     "exchange": "Exchange",
     "expired": "Scaduto",
     "expiredLow": "Scaduto",
-    "expiresIn": "Scade: {time}",
     "payButton": "Paga",
     "placeholder": "Fattura",
     "potentialFee": "Commissioni potenziali: {fee}",

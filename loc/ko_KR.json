@@ -94,7 +94,6 @@
     "exchange": "교환",
     "expired": "만료되었습니다",
     "expiredLow": "만료되었습니다.",
-    "expiresIn": "만료: {time}",
     "payButton": "지불하기",
     "placeholder": "청구서",
     "potentialFee": "잠재적 수수료:{fee}",

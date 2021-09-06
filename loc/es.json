@@ -101,7 +101,6 @@
     "exchange": "Casa de cambio",
     "expired": "Expirado",
     "expiredLow": "Expirado",
-    "expiresIn": "Expiración: {time}",
     "payButton": "Pagar",
     "placeholder": "Factura",
     "potentialFee": "Comisión estimada: {fee}",

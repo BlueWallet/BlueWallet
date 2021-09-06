@@ -97,7 +97,6 @@
     "exchange": "交易所",
     "expired": "已过期",
     "expiredLow": "已过期",
-    "expiresIn": "过期：{time}",
     "payButton": "支付",
     "placeholder": "账单",
     "potentialFee": "潜在费用：{fee}",

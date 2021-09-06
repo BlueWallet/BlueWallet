@@ -101,7 +101,6 @@
     "exchange": "التبادل",
     "expired": "منتهية الصلاحية",
     "expiredLow": "انتهت صلاحيتها",
-    "expiresIn": "سينتهي بعد: {time}",
     "payButton": "الدفع",
     "placeholder": "فاتورة",
     "potentialFee": "الرسوم المحتملة: {fee}",
