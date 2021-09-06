@@ -87,7 +87,6 @@
     "exchange": "แลกเปลี่ยน",
     "expired": "หมดอายุแล้ว",
     "expiredLow": "หมดอายุแล้ว",
-    "expiresIn": "วันหมดอายุ: {time}",
     "payButton": "จ่าย",
     "placeholder": "ใบวางบิล",
     "potentialFee": "ค่าธรรมเนียมโดยประมาณ: {fee}",

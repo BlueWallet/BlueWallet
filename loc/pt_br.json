@@ -96,7 +96,6 @@
     "exchange": "Trocar",
     "expired": "Expirada",
     "expiredLow": "Expirada",
-    "expiresIn": "Expira: {time}",
     "payButton": "Pagar",
     "placeholder": "Fatura",
     "potentialFee": "Taxa potencial: {fee}",

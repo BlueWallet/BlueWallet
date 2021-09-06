@@ -101,7 +101,6 @@
     "exchange": "Exchange",
     "expired": "Verlopen",
     "expiredLow": "verlopen",
-    "expiresIn": "Verloopt: {time}",
     "payButton": "Betalen",
     "placeholder": "Factuur",
     "potentialFee": "Mogelijke fee: {fee}",
