@@ -193,7 +193,8 @@
     "notifications": "공지사항",
     "password": "패스워드",
     "passwords_do_not_match": "비밀번호가 일치하지 않습니다.",
-    "privacy_system_settings": "시스템 설정"
+    "privacy_system_settings": "시스템 설정",
+    "total_balance_explanation": "홈 화면 위젯에 총 잔액을 보여줍니다. "
   },
   "transactions": {
     "cancel_title": "해당 트랜잭션 취소하기 (RBF)",
@@ -201,6 +202,7 @@
     "details_title": "트랜잭션",
     "details_transaction_details": "트랜잭션 세부사항",
     "list_title": "트랜잭션",
+    "status_cancel": "트랜잭션 취소",
     "txid": "트랜잭션 아이디"
   },
   "wallets": {
@@ -208,19 +210,23 @@
     "add_create": "생성하기",
     "add_or": "or",
     "add_wallet_name": "이름",
+    "balance": "잔액",
     "clipboard_bitcoin": "클립보드에 비트코인 주소가 있습니다. 트랜잭션에 사용하시겠습니까?",
     "clipboard_lightning": "클립보드에 라이트닝 청구서가 있습니다. 트랜잭션에 사용하시겠습니까?",
     "details_no_cancel": "아니요. 취소하겠습니다",
+    "details_yes_delete": "네 삭제합니다.",
     "list_empty_txs1_lightning": "라이트닝 월렛은 데일리 트랜잭션에 사용해야합니다. 수수료는 매우 저렴하고 속도는 바람처럼 빠릅니다.",
     "list_import_error": "월렛을 불러오는데 에러가 발생했습니다.",
     "list_latest_transaction": "최근 트랜잭션",
     "list_tryagain": "다시 시도하기",
     "select_no_bitcoin": "현재 사용 가능한 비트코인 월렛이 없습니다.",
-    "warning_do_not_disclose": "경고! 공개하지 마십시오."
+    "warning_do_not_disclose": "경고! 공개하지 마십시오.",
+    "add_ln_wallet_first": "먼저 라이트닝 월렛을 추가해야합니다."
   },
   "multisig": {
     "confirm": "컨펌",
     "view": "보기",
+    "signatures_required_to_spend": "서명이 필요합니다 {number}",
     "create": "생성하기",
     "are_you_sure_seed_will_be_lost": "이대로 진행하시겠습니까? 백업하지 않을 시 니모닉 시드(menonic seed)를 잃을 수 있습니다. ",
     "forget_this_seed": "이 시드를 잊어버리고 대신 공개 키를 사용하십시오.",
@@ -239,7 +245,6 @@
     "ms_help_title2": "키 편집",
     "ms_help_2": "이 디바이스에서 모든 볼트 키를 생성하고 나중에 삭제하거나 편집할 수 있습니다. 모든 키를 동일한 디바이스에 두는 것은 일반 비트 코인 지갑과 동일한 보안을 갖습니다.",
     "ms_help_title3": "볼트 백업",
-    "ms_help_3": "지갑 옵션에서 볼트 백업과 \"보기 전용\"백업을 찾을 수 있습니다. 이 백업은 지갑에 대한 지도와 같습니다. 시드 중 하나가 손실되면 지갑 복구를 위해 백업이 필수적입니다.",
     "ms_help_title4": "볼트로 가져 오기",
     "ms_help_4": "다중 서명을 가져오려면 백업 파일과 가져오기 기능을 사용하십시오. 시드 및 공개 키만 있는 경우 저장소 키를 만들 때 별도의 \"가져오기\" 버튼을 사용할 수 있습니다.",
     "ms_help_title5": "고급 모드",
