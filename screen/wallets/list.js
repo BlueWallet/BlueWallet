@@ -183,7 +183,7 @@ const WalletsList = () => {
       console.log('onSnapToItem', wallets.length === index ? 'NewWallet/Importing card' : index);
       if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
         console.log(wallets[index].getLabel(), 'thinks its time to refresh either balance or transactions. refetching both');
-        refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
+        refreshAllWalletTransactions(false).finally(() => setIsLoading(false));
       }
       currentWalletIndex.current = index;
     } else {

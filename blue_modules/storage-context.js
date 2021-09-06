@@ -102,15 +102,18 @@ export const BlueStorageProvider = ({ children }) => {
       if (showUpdateStatusIndicator) {
         setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
       }
-      await BlueElectrum.waitTillConnected();
-      const balanceStart = +new Date();
-      await fetchWalletBalances(lastSnappedTo);
-      const balanceEnd = +new Date();
-      console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-      const start = +new Date();
-      await fetchWalletTransactions(lastSnappedTo);
-      const end = +new Date();
-      console.log('fetch tx took', (end - start) / 1000, 'sec');
+      for (const [i, value] of wallets.entries()) {
+        await BlueElectrum.waitTillConnected();
+        const balanceStart = +new Date();
+        console.log(`Updating all wallets transactions. Currently updating ${value.getID()}`);
+        await fetchWalletBalances(i);
+        const balanceEnd = +new Date();
+        console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+        const start = +new Date();
+        await fetchWalletTransactions(i);
+        const end = +new Date();
+        console.log('fetch tx took', (end - start) / 1000, 'sec');
+      }
     } catch (err) {
       noErr = false;
       console.warn(err);
