@@ -96,7 +96,6 @@
     "exchange": "Ексчейндж",
     "expired": "Изтекла",
     "expiredLow": "изтекла",
-    "expiresIn": "Изтича: {time}",
     "payButton": "Плати",
     "placeholder": "Фактура",
     "potentialFee": "Възможна такса: {fee}",

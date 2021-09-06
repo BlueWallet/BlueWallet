@@ -100,7 +100,6 @@
     "exchange": "Обмен",
     "expired": "Истекший",
     "expiredLow": "истекший",
-    "expiresIn": "Истекает: {time}",
     "payButton": "Оплатить",
     "placeholder": "Инвойс",
     "potentialFee": "Примерная комиссия: {fee}",

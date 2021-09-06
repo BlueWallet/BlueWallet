@@ -101,7 +101,6 @@
     "exchange": "Echange",
     "expired": "Expiré",
     "expiredLow": "expiré",
-    "expiresIn": "Expire : {time}",
     "payButton": "Payer",
     "placeholder": "Facture",
     "potentialFee": "Frais potentiels : {fee}",

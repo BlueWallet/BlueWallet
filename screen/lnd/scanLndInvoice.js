@@ -111,9 +111,10 @@ const ScanLndInvoice = () => {
 
         let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
         if (+new Date() > expiresIn) {
-          expiresIn = loc.lnd.expiredLow;
+          expiresIn = loc.lnd.expired;
         } else {
-          expiresIn = Math.round((expiresIn - +new Date()) / (60 * 1000));
+          const time = Math.round((expiresIn - +new Date()) / (60 * 1000));
+          expiresIn = loc.formatString(loc.lnd.expiresIn, { time });
         }
         Keyboard.dismiss();
         setParams({ uri: undefined, invoice: data });
@@ -338,7 +339,7 @@ const ScanLndInvoice = () => {
               </View>
               {expiresIn !== undefined && (
                 <View>
-                  <Text style={styles.expiresIn}>{loc.formatString(loc.lnd.expiresIn, { time: expiresIn })}</Text>
+                  <Text style={styles.expiresIn}>{expiresIn}</Text>
                   {decoded && decoded.num_satoshis > 0 && (
                     <Text style={styles.expiresIn}>{loc.formatString(loc.lnd.potentialFee, { fee: getFees() })}</Text>
                   )}

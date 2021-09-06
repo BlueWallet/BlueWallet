@@ -96,7 +96,6 @@
     "exchange": "Vaihto",
     "expired": "Erääntynyt",
     "expiredLow": "erääntynyt",
-    "expiresIn": "Vanhenee: {time}",
     "payButton": "Maksa",
     "placeholder": "Lasku",
     "potentialFee": "Mahdollinen siirtokulu: {fee}",
