@@ -568,14 +568,14 @@
   },
   "cc": {
     "change": "Cambio",
-    "coins_selected": "({number}) \"coins\" seleccionadas",
+    "coins_selected": "({number}) monedas (coins) seleccionadas",
     "empty": "Esta cartera no tiene fondos en este momento",
     "freeze": "Congelar",
     "freezeLabel": "Congelar",
     "freezeLabel_un": "Descongelar",
     "header": "Coin control",
-    "use_coin": "Usar \"coin\"",
-    "use_coins": "Usar \"coins\"",
+    "use_coin": "Usar moneda (coin)",
+    "use_coins": "Usar monedas",
     "tip": "Te permite ver, etiquetar, congelar o seleccionar monedas para mejorar la organización de las carteras."
   },
   "units": {
