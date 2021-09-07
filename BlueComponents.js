@@ -572,30 +572,30 @@ export const BlueHeaderDefaultMain = props => {
   const { isDrawerList } = props;
   const { isImportingWallet } = useContext(BlueStorageContext);
   return (
-    <Header
-      leftComponent={{
-        text: props.leftText,
-        style: {
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: isDrawerList ? colors.elevated : colors.background,
+        paddingHorizontal: 16,
+        borderTopColor: isDrawerList ? colors.elevated : colors.background,
+        borderBottomColor: isDrawerList ? colors.elevated : colors.background,
+        marginBottom: 8,
+      }}
+    >
+      <Text
+        style={{
+          textAlign: 'left',
           fontWeight: 'bold',
           fontSize: 34,
           color: colors.foregroundColor,
-          paddingHorizontal: 4,
-        },
-      }}
-      placement="left"
-      containerStyle={{
-        borderTopColor: isDrawerList ? colors.elevated : colors.background,
-        borderBottomColor: isDrawerList ? colors.elevated : colors.background,
-        maxHeight: 44,
-        height: 44,
-        paddingTop: 0,
-        marginBottom: 8,
-      }}
-      bottomDivider={false}
-      topDivider={false}
-      backgroundColor={isDrawerList ? colors.elevated : colors.background}
-      rightComponent={isImportingWallet ? undefined : <BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />}
-    />
+        }}
+      >
+        {props.leftText}
+      </Text>
+      {isImportingWallet ? undefined : <BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />}
+    </View>
   );
 };
 
