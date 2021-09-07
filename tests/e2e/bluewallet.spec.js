@@ -29,7 +29,7 @@ describe('BlueWallet UI Tests', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('all settings screens are works', async () => {
+  it('all settings screens work', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
@@ -103,7 +103,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('URIInput')).replaceText('invalid\n');
     await element(by.id('Save')).tap();
     await sup('OK');
-    await expect(element(by.text('Not a valid LNDHub URI'))).toBeVisible();
+    await expect(element(by.text('Invalid LNDHub URI'))).toBeVisible();
     await element(by.text('OK')).tap();
     await element(by.id('URIInput')).replaceText('https://lndhub.herokuapp.com\n');
     await element(by.id('Save')).tap();
@@ -787,12 +787,6 @@ describe('BlueWallet UI Tests', () => {
     await expect(element(by.id('BlueCopyTextToClipboard'))).toBeVisible();
     await device.pressBack();
 
-    // Marketplace
-    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
-    await element(by.id('Marketplace')).tap();
-    await expect(element(by.id('MarketplaceWebView'))).toBeVisible();
-    await element(by.id('NavigationCloseButton')).tap();
-
     // Delete
     await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
     await element(by.id('DeleteButton')).tap();
@@ -1064,7 +1058,7 @@ describe('BlueWallet UI Tests', () => {
 
     // change note of 0.001 tx output
     await element(by.text('0.001')).atIndex(0).tap();
-    await element(by.text('details')).tap();
+    await element(by.text('Details')).tap();
     await expect(element(by.text('49944e90fe917952e36b1967cdbc1139e60c89b4800b91258bf2345a77a8b888'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('test1');
     await element(by.text('Save')).tap();

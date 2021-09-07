@@ -119,7 +119,7 @@ export default class LnurlPaySuccess extends Component {
                     screen: 'LnurlPay',
                     params: {
                       lnurl: lnurl,
-                      fromWalletID: this.state.fromWalletID,
+                      walletID: this.state.fromWalletID,
                     },
                   });
                 }}

@@ -8,7 +8,6 @@ import RNSecureKeyStore from 'react-native-secure-key-store';
 import loc from '../loc';
 import { useContext } from 'react';
 import { BlueStorageContext } from '../blue_modules/storage-context';
-import * as Sentry from '@sentry/react-native';
 
 function Biometric() {
   const { getItem, setItem } = useContext(BlueStorageContext);
@@ -23,7 +22,9 @@ function Biometric() {
       if (isDeviceBiometricCapable) {
         return true;
       }
-    } catch {
+    } catch (e) {
+      console.log('Biometrics isDeviceBiometricCapable failed');
+      console.log(e);
       Biometric.setBiometricUseEnabled(false);
       return false;
     }
@@ -34,6 +35,7 @@ function Biometric() {
       const isSensorAvailable = await FingerprintScanner.isSensorAvailable();
       return isSensorAvailable;
     } catch (e) {
+      console.log('Biometrics biometricType failed');
       console.log(e);
     }
     return false;
@@ -64,7 +66,11 @@ function Biometric() {
       return new Promise(resolve => {
         FingerprintScanner.authenticate({ description: loc.settings.biom_conf_identity, fallbackEnabled: true })
           .then(() => resolve(true))
-          .catch(() => resolve(false))
+          .catch(error => {
+            console.log('Biometrics authentication failed');
+            console.log(error);
+            resolve(false);
+          })
           .finally(() => FingerprintScanner.release());
       });
     }
@@ -72,7 +78,6 @@ function Biometric() {
   };
 
   Biometric.clearKeychain = async () => {
-    Sentry.captureMessage('Biometric.clearKeychain()');
     await RNSecureKeyStore.remove('data');
     await RNSecureKeyStore.remove('data_encrypted');
     await RNSecureKeyStore.remove(Biometric.STORAGEKEY);

@@ -1,34 +1,77 @@
-import React, { useRef, forwardRef, useEffect } from 'react';
-import ToolTip from 'react-native-tooltip';
+import React from 'react';
+import { ContextMenuView, ContextMenuButton } from 'react-native-ios-context-menu';
 import PropTypes from 'prop-types';
-import { View } from 'react-native';
+import QRCodeComponent from './QRCodeComponent';
 
-const ToolTipMenu = (props, ref) => {
-  const toolTip = useRef();
+const ToolTipMenu = props => {
+  const menuItems = props.actions.map(action => {
+    const item = {
+      actionKey: action.id,
+      actionTitle: action.text,
+      actionOnPress: action.onPress,
+      icon: action.icon,
+      menuOptions: action.menuOptions,
+      menuTitle: action.menuTitle,
+    };
+    item.menuState = action.menuStateOn ? 'on' : 'off';
 
-  const showMenu = () => {
-    console.log('Showing ToolTip');
-    toolTip.current?.showMenu();
-  };
-
-  const hideMenu = () => {
-    console.log('Hiding ToolTip');
-    toolTip.current?.hideMenu();
-  };
-
-  useEffect(() => {
-    ref.current.showMenu = showMenu;
-    ref.current.hideMenu = hideMenu;
-  }, [ref]);
-
-  return (
-    <View ref={ref}>
-      <ToolTip ref={toolTip} actions={props.actions} />
-    </View>
+    if (action.disabled) {
+      item.menuAttributes = ['disabled'];
+    }
+    return item;
+  });
+  const menuTitle = props.title ?? '';
+  const submenu = props.submenu;
+  const isButton = !!props.isButton;
+  const isMenuPrimaryAction = props.isMenuPrimaryAction ? props.isMenuPrimaryAction : false;
+  const previewQRCode = props.previewQRCode ?? false;
+  const previewValue = props.previewValue;
+  return isButton ? (
+    <ContextMenuButton
+      onPressMenuItem={({ nativeEvent }) => {
+        props.onPress(nativeEvent.actionKey);
+      }}
+      isMenuPrimaryAction={isMenuPrimaryAction}
+      menuConfig={{
+        menuTitle,
+        menuItems: menuItems.concat(submenu),
+      }}
+    >
+      {props.children}
+    </ContextMenuButton>
+  ) : (
+    <ContextMenuView
+      onPressMenuItem={({ nativeEvent }) => {
+        props.onPress(nativeEvent.actionKey);
+      }}
+      menuConfig={{
+        menuTitle,
+        menuItems: menuItems.concat(submenu),
+      }}
+      {...(previewQRCode
+        ? {
+            previewConfig: {
+              previewType: 'CUSTOM',
+              backgroundColor: 'white',
+            },
+            renderPreview: () => <QRCodeComponent value={previewValue} isMenuAvailable={false} />,
+          }
+        : {})}
+    >
+      {props.children}
+    </ContextMenuView>
   );
 };
 
-export default forwardRef(ToolTipMenu);
+export default ToolTipMenu;
 ToolTipMenu.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.shape).isRequired,
+  title: PropTypes.string,
+  submenu: PropTypes.object,
+  children: PropTypes.node.isRequired,
+  onPress: PropTypes.func.isRequired,
+  isMenuPrimaryAction: PropTypes.bool,
+  isButton: PropTypes.bool,
+  previewQRCode: PropTypes.bool,
+  previewValue: PropTypes.string,
 };

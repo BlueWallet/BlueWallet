@@ -1,3 +1,6 @@
+import assert from 'assert';
+import React from 'react';
+
 import {
   HDSegwitElectrumSeedP2WPKHWallet,
   HDLegacyBreadwalletWallet,
@@ -14,12 +17,8 @@ import {
   SLIP39SegwitBech32Wallet,
 } from '../../class';
 import WalletImport from '../../class/wallet-import';
-import React from 'react';
 import Notifications from '../../blue_modules/notifications';
-const assert = require('assert');
-global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
-global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
 /** @type HDSegwitBech32Wallet */
 let lastImportedWallet;
@@ -58,7 +57,7 @@ afterAll(async () => {
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
-  await BlueElectrum.waitTillConnected();
+  await BlueElectrum.connectMain();
   WalletImport(); // damn i love javascript
   Notifications(); // damn i love javascript
 });
@@ -245,5 +244,27 @@ describe('import procedure', function () {
       '{"ExtPubKey":"zpub6riZchHnrWzhhZ3Z4dhCJmesGyafMmZBRC9txhnidR313XJbcv4KiDubderKHhL7rMsqacYd82FQ38e4whgs8Dg7CpsxX3dSGWayXsEerF4","MasterFingerprint":"7D2F0272","AccountKeyPath":"84\'\\/0\'\\/0\'","CoboVaultFirmwareVersion":"2.6.1(BTC-Only)"}',
     );
     assert.strictEqual(lastImportedWallet.type, WatchOnlyWallet.type);
+  });
+
+  it('can import BIP39 wallets with truncated words', async () => {
+    // 12 words
+    await WalletImport.processImportText('trip ener cloc puls hams ghos inha crow inju vibr seve chro');
+    assert.strictEqual(lastImportedWallet.getSecret(), 'trip energy clock pulse hamster ghost inhale crowd injury vibrant seven chronic');
+
+    // 16 words
+    await WalletImport.processImportText('docu gosp razo chao nort ches nomi fati swam firs deca boy icon virt gap prep seri anch');
+    assert.strictEqual(
+      lastImportedWallet.getSecret(),
+      'document gospel razor chaos north chest nominee fatigue swamp first decade boy icon virtual gap prepare series anchor',
+    );
+
+    // 24 words
+    await WalletImport.processImportText(
+      'rece own flig sent tide hood sile bunk deri mana wink belt loud apol mons pill raw gate hurd matc nigh wish todd achi',
+    );
+    assert.strictEqual(
+      lastImportedWallet.getSecret(),
+      'receive own flight sentence tide hood silent bunker derive manage wink belt loud apology monster pill raw gate hurdle match night wish toddler achieve',
+    );
   });
 });

@@ -190,6 +190,10 @@ const App = () => {
    * @private
    */
   const processPushNotifications = async () => {
+    if (!walletsInitialized) {
+      console.log('not processing push notifications because wallets are not initialized');
+      return;
+    }
     await new Promise(resolve => setTimeout(resolve, 200));
     // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
     const notifications2process = await Notifications.getStoredNotifications();
@@ -219,16 +223,26 @@ const App = () => {
         const walletID = wallet.getID();
         fetchAndSaveWalletTransactions(walletID);
         if (wasTapped) {
-          NavigationService.dispatch(
-            CommonActions.navigate({
-              name: 'WalletTransactions',
-              key: `WalletTransactions-${wallet.getID()}`,
+          if (payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
+            NavigationService.dispatch(
+              CommonActions.navigate({
+                name: 'WalletTransactions',
+                key: `WalletTransactions-${wallet.getID()}`,
+                params: {
+                  walletID,
+                  walletType: wallet.type,
+                },
+              }),
+            );
+          } else {
+            NavigationService.navigate('ReceiveDetailsRoot', {
+              screen: 'ReceiveDetails',
               params: {
                 walletID,
-                walletType: wallet.type,
+                address: payload.address,
               },
-            }),
-          );
+            });
+          }
 
           return true;
         }

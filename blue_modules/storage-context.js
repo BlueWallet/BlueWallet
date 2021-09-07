@@ -24,13 +24,22 @@ export const BlueStorageProvider = ({ children }) => {
   const getLanguageAsyncStorage = useAsyncStorage(loc.LANG).getItem;
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [isDrawerListBlurred, _setIsDrawerListBlurred] = useState(false);
+  const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
+
+  useEffect(() => {
+    BlueElectrum.isDisabled().then(setIsElectrumDisabled);
+  }, []);
 
   const setIsHandOffUseEnabledAsyncStorage = value => {
     setIsHandOffUseEnabled(value);
     return BlueApp.setIsHandoffEnabled(value);
   };
 
-  const saveToDisk = async () => {
+  const saveToDisk = async (force = false) => {
+    if (BlueApp.getWallets().length === 0 && !force) {
+      console.log('not saving empty wallets array');
+      return;
+    }
     BlueApp.tx_metadata = txMetadata;
     await BlueApp.saveToDisk();
     setWallets([...BlueApp.getWallets()]);
@@ -232,6 +241,8 @@ export const BlueStorageProvider = ({ children }) => {
         setIsDrawerListBlurred,
         setDoNotTrack,
         isDoNotTrackEnabled,
+        isElectrumDisabled,
+        setIsElectrumDisabled,
       }}
     >
       {children}

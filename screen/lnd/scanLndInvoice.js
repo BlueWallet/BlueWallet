@@ -92,6 +92,9 @@ const ScanLndInvoice = () => {
 
   useEffect(() => {
     if (wallet && uri) {
+      if (Lnurl.isLnurl(uri)) return processLnurlPay(uri);
+      if (Lnurl.isLightningAddress(uri)) return processLnurlPay(uri);
+
       let data = uri;
       // handling BIP21 w/BOLT11 support
       const ind = data.indexOf('lightning=');
@@ -102,18 +105,16 @@ const ScanLndInvoice = () => {
       data = data.replace('LIGHTNING:', '').replace('lightning:', '');
       console.log(data);
 
-      /**
-       * @type {LightningCustodianWallet}
-       */
       let decoded;
       try {
         decoded = wallet.decodeInvoice(data);
 
         let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
         if (+new Date() > expiresIn) {
-          expiresIn = loc.lnd.expiredLow;
+          expiresIn = loc.lnd.expired;
         } else {
-          expiresIn = Math.round((expiresIn - +new Date()) / (60 * 1000)) + ' min';
+          const time = Math.round((expiresIn - +new Date()) / (60 * 1000));
+          expiresIn = loc.formatString(loc.lnd.expiresIn, { time });
         }
         Keyboard.dismiss();
         setParams({ uri: undefined, invoice: data });
@@ -129,6 +130,10 @@ const ScanLndInvoice = () => {
         setParams({ uri: undefined });
         setTimeout(() => alert(Err.message), 10);
         setIsLoading(false);
+        setAmount();
+        setDestination();
+        setExpiresIn();
+        setDecoded();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -144,6 +149,7 @@ const ScanLndInvoice = () => {
 
   const processInvoice = data => {
     if (Lnurl.isLnurl(data)) return processLnurlPay(data);
+    if (Lnurl.isLightningAddress(data)) return processLnurlPay(data);
     setParams({ uri: data });
   };
 
@@ -152,7 +158,7 @@ const ScanLndInvoice = () => {
       screen: 'LnurlPay',
       params: {
         lnurl: data,
-        fromWalletID: walletID || wallet.getID(),
+        walletID: walletID || wallet.getID(),
       },
     });
   };
@@ -216,7 +222,12 @@ const ScanLndInvoice = () => {
   };
 
   const processTextForInvoice = text => {
-    if (text.toLowerCase().startsWith('lnb') || text.toLowerCase().startsWith('lightning:lnb') || Lnurl.isLnurl(text)) {
+    if (
+      text.toLowerCase().startsWith('lnb') ||
+      text.toLowerCase().startsWith('lightning:lnb') ||
+      Lnurl.isLnurl(text) ||
+      Lnurl.isLightningAddress(text)
+    ) {
       processInvoice(text);
     } else {
       setDecoded(undefined);
@@ -268,7 +279,11 @@ const ScanLndInvoice = () => {
   const getFees = () => {
     const min = Math.floor(decoded.num_satoshis * 0.003);
     const max = Math.floor(decoded.num_satoshis * 0.01) + 1;
-    return `${min} sat - ${max} sat`;
+    return `${min} ${BitcoinUnit.SATS} - ${max} ${BitcoinUnit.SATS}`;
+  };
+
+  const onBlur = () => {
+    processTextForInvoice(destination);
   };
 
   const onWalletSelect = selectedWallet => {
@@ -307,7 +322,7 @@ const ScanLndInvoice = () => {
               <AddressInput
                 onChangeText={text => {
                   text = text.trim();
-                  processTextForInvoice(text);
+                  setDestination(text);
                 }}
                 onBarScanned={processInvoice}
                 address={destination}
@@ -315,6 +330,7 @@ const ScanLndInvoice = () => {
                 placeholder={loc.lnd.placeholder}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 launchedBy={name}
+                onBlur={onBlur}
               />
               <View style={styles.description}>
                 <Text numberOfLines={0} style={styles.descriptionText}>
@@ -323,7 +339,7 @@ const ScanLndInvoice = () => {
               </View>
               {expiresIn !== undefined && (
                 <View>
-                  <Text style={styles.expiresIn}>{loc.formatString(loc.lnd.expiresIn, { time: expiresIn })}</Text>
+                  <Text style={styles.expiresIn}>{expiresIn}</Text>
                   {decoded && decoded.num_satoshis > 0 && (
                     <Text style={styles.expiresIn}>{loc.formatString(loc.lnd.potentialFee, { fee: getFees() })}</Text>
                   )}
@@ -425,6 +441,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   expiresIn: {
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
     color: '#81868e',
     fontSize: 12,
     left: 20,

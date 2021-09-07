@@ -204,6 +204,20 @@ describe('unit - DeepLinkSchemaMatch', function () {
       },
       {
         argument: {
+          url: 'lnaddress@zbd.gg',
+        },
+        expected: [
+          'ScanLndInvoiceRoot',
+          {
+            screen: 'ScanLndInvoice',
+            params: {
+              uri: 'lnaddress@zbd.gg',
+            },
+          },
+        ],
+      },
+      {
+        argument: {
           url: require('fs').readFileSync('./tests/unit/fixtures/skeleton-cobo.txt', 'ascii'),
         },
         expected: [

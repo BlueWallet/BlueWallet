@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
@@ -35,15 +35,7 @@ const TransactionsDetails = () => {
   const [tx, setTX] = useState();
   const [memo, setMemo] = useState();
   const { colors } = useTheme();
-  const openTransactionOnBlockExplorerRef = useRef();
-  const toolTip = useRef();
   const stylesHooks = StyleSheet.create({
-    rowCaption: {
-      color: colors.foregroundColor,
-    },
-    txId: {
-      color: colors.foregroundColor,
-    },
     txLink: {
       color: colors.alternativeTextColor2,
     },
@@ -137,10 +129,6 @@ const TransactionsDetails = () => {
     Clipboard.setString(`https://mempool.space/tx/${tx.hash}`);
   };
 
-  const showToolTipMenu = () => {
-    toolTip.current.showMenu();
-  };
-
   if (isLoading || !tx) {
     return <BlueLoading />;
   }
@@ -169,7 +157,7 @@ const TransactionsDetails = () => {
           {from && (
             <>
               <View style={styles.rowHeader}>
-                <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_from}</BlueText>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_from}</BlueText>
                 <BlueCopyToClipboardButton stringToCopy={from.filter(onlyUnique).join(', ')} />
               </View>
               <BlueText style={styles.rowValue}>{from.filter(onlyUnique).join(', ')}</BlueText>
@@ -179,7 +167,7 @@ const TransactionsDetails = () => {
           {to && (
             <>
               <View style={styles.rowHeader}>
-                <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_to}</BlueText>
+                <BlueText style={styles.rowCaption}>{loc.transactions.details_to}</BlueText>
                 <BlueCopyToClipboardButton stringToCopy={to.filter(onlyUnique).join(', ')} />
               </View>
               <BlueText style={styles.rowValue}>{arrDiff(from, to.filter(onlyUnique)).join(', ')}</BlueText>
@@ -188,7 +176,7 @@ const TransactionsDetails = () => {
 
           {tx.fee && (
             <>
-              <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.send.create_fee}</BlueText>
+              <BlueText style={styles.rowCaption}>{loc.send.create_fee}</BlueText>
               <BlueText style={styles.rowValue}>{tx.fee + ' sats'}</BlueText>
             </>
           )}
@@ -205,55 +193,65 @@ const TransactionsDetails = () => {
 
           {tx.received && (
             <>
-              <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_received}</BlueText>
+              <BlueText style={styles.rowCaption}>{loc.transactions.details_received}</BlueText>
               <BlueText style={styles.rowValue}>{dayjs(tx.received).format('LLL')}</BlueText>
             </>
           )}
 
           {tx.block_height > 0 && (
             <>
-              <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_block}</BlueText>
+              <BlueText style={styles.rowCaption}>{loc.transactions.details_block}</BlueText>
               <BlueText style={styles.rowValue}>{tx.block_height}</BlueText>
             </>
           )}
 
           {tx.inputs && (
             <>
-              <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_inputs}</BlueText>
+              <BlueText style={styles.rowCaption}>{loc.transactions.details_inputs}</BlueText>
               <BlueText style={styles.rowValue}>{tx.inputs.length}</BlueText>
             </>
           )}
 
           {tx.outputs?.length > 0 && (
             <>
-              <BlueText style={[styles.rowCaption, stylesHooks.rowCaption]}>{loc.transactions.details_outputs}</BlueText>
+              <BlueText style={styles.rowCaption}>{loc.transactions.details_outputs}</BlueText>
               <BlueText style={styles.rowValue}>{tx.outputs.length}</BlueText>
             </>
           )}
           <ToolTipMenu
-            ref={toolTip}
-            anchorRef={openTransactionOnBlockExplorerRef}
+            isButton
             actions={[
               {
-                id: 'copyToClipboard',
-                text: loc.transactions.details_copy,
-                onPress: handleCopyPress,
+                id: TransactionsDetails.actionKeys.CopyToClipboard,
+                text: loc.transactions.copy_link,
+                icon: TransactionsDetails.actionIcons.Clipboard,
               },
             ]}
-          />
-          <TouchableOpacity
-            accessibilityRole="button"
-            ref={openTransactionOnBlockExplorerRef}
-            onPress={handleOnOpenTransactionOnBlockExporerTapped}
-            onLongPress={showToolTipMenu}
-            style={[styles.greyButton, stylesHooks.greyButton]}
+            onPress={handleCopyPress}
           >
-            <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_show_in_block_explorer}</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={handleOnOpenTransactionOnBlockExporerTapped}
+              style={[styles.greyButton, stylesHooks.greyButton]}
+            >
+              <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_show_in_block_explorer}</Text>
+            </TouchableOpacity>
+          </ToolTipMenu>
         </BlueCard>
       </ScrollView>
     </SafeBlueArea>
   );
+};
+
+TransactionsDetails.actionKeys = {
+  CopyToClipboard: 'copyToClipboard',
+};
+
+TransactionsDetails.actionIcons = {
+  Clipboard: {
+    iconType: 'SYSTEM',
+    iconValue: 'doc.on.doc',
+  },
 };
 
 const styles = StyleSheet.create({

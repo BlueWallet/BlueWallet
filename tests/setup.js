@@ -2,6 +2,9 @@
 
 import mockClipboard from '@react-native-clipboard/clipboard/jest/clipboard-mock.js';
 
+global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
+global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
+
 jest.mock('@react-native-clipboard/clipboard', () => mockClipboard);
 
 jest.mock('react-native-watch-connectivity', () => {
@@ -17,10 +20,6 @@ jest.mock('react-native-secure-key-store', () => {
 });
 
 jest.mock('@react-native-community/push-notification-ios', () => {
-  return {};
-});
-
-jest.mock('@sentry/react-native', () => {
   return {};
 });
 
@@ -151,7 +150,6 @@ jest.mock('../blue_modules/WidgetCommunication', () => {
     reloadAllTimelines: jest.fn(),
   };
 });
-
 
 const keychainMock = {
   SECURITY_LEVEL_ANY: 'MOCK_SECURITY_LEVEL_ANY',

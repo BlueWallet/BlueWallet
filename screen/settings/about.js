@@ -1,20 +1,23 @@
-import React from 'react';
-import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+/* global alert */
+import React, { useContext } from 'react';
+import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions, Platform } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
-import { getApplicationName, getVersion, getBundleId, getBuildNumber, getUniqueId } from 'react-native-device-info';
+import { getApplicationName, getVersion, getBundleId, getBuildNumber, getUniqueId, hasGmsSync } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 
 import { BlueButton, BlueCard, BlueListItem, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
-import * as Sentry from '@sentry/react-native';
+import Bugsnag from '@bugsnag/react-native';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const About = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
+  const { isElectrumDisabled } = useContext(BlueStorageContext);
   const styles = StyleSheet.create({
     copyToClipboard: {
       justifyContent: 'center',
@@ -75,7 +78,11 @@ const About = () => {
   };
 
   const handleOnSelfTestPress = () => {
-    navigate('Selftest');
+    if (isElectrumDisabled) {
+      alert(loc.settings.about_selftest_electrum_disabled);
+    } else {
+      navigate('Selftest');
+    }
   };
 
   const handleOnLicensingPress = () => {
@@ -101,7 +108,7 @@ const About = () => {
       AppleAppID: '1376878040',
       GooglePackageName: 'io.bluewallet.bluewallet',
       preferredAndroidMarket: AndroidMarket.Google,
-      preferInApp: true,
+      preferInApp: Platform.OS !== 'android',
       openAppStoreIfInAppFails: true,
       fallbackPlatformURL: 'https://bluewallet.io',
     };
@@ -119,7 +126,9 @@ const About = () => {
           <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
           <Text style={styles.textFree}>{loc.settings.about_free}</Text>
           <Text style={styles.textBackup}>{formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}</Text>
-          <BlueButton onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />
+          {((Platform.OS === 'android' && hasGmsSync()) || Platform.OS !== 'android') && (
+            <BlueButton onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />
+          )}
         </View>
       </BlueCard>
       <BlueListItem
@@ -213,8 +222,8 @@ const About = () => {
         <TouchableOpacity
           accessibilityRole="button"
           onPress={() => {
-            const stringToCopy = 'user.id:' + getUniqueId();
-            Sentry.captureMessage('copied unique id');
+            const stringToCopy = 'userId:' + getUniqueId();
+            Bugsnag.notify(new Error('copied unique id'));
             Clipboard.setString(stringToCopy);
           }}
         >

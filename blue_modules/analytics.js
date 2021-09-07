@@ -1,35 +1,26 @@
-import * as Sentry from '@sentry/react-native';
-import amplitude from 'amplitude-js';
-import { getVersion, getSystemName, getUniqueId } from 'react-native-device-info';
-import { Platform } from 'react-native';
+import { getUniqueId } from 'react-native-device-info';
+import Bugsnag from '@bugsnag/react-native';
 const BlueApp = require('../BlueApp');
 
+let userHasOptedOut = false;
+
 if (process.env.NODE_ENV !== 'development') {
-  Sentry.init({
-    dsn: 'https://23377936131848ca8003448a893cb622@sentry.io/1295736',
+  Bugsnag.start({
+    collectUserIp: false,
+    user: {
+      id: getUniqueId(),
+    },
+    onError: function (event) {
+      return !userHasOptedOut;
+    },
   });
-  Sentry.setUser({ id: getUniqueId() });
 }
 
-amplitude.getInstance().init('8b7cf19e8eea3cdcf16340f5fbf16330', null, {
-  useNativeDeviceInfo: true,
-  platform: getSystemName().toLocaleLowerCase().includes('mac') ? getSystemName() : Platform.OS,
-});
-amplitude.getInstance().setVersionName(getVersion());
-amplitude.getInstance().options.apiEndpoint = 'api2.amplitude.com';
 BlueApp.isDoNotTrackEnabled().then(value => {
-  if (value) Sentry.close();
-  amplitude.getInstance().setOptOut(value);
+  if (value) userHasOptedOut = true;
 });
 
-const A = async event => {
-  console.log('posting analytics...', event);
-  try {
-    amplitude.getInstance().logEvent(event);
-  } catch (err) {
-    console.log(err);
-  }
-};
+const A = async event => {};
 
 A.ENUM = {
   INIT: 'INIT',
@@ -42,8 +33,7 @@ A.ENUM = {
 };
 
 A.setOptOut = value => {
-  if (value) Sentry.close();
-  return amplitude.getInstance().setOptOut(value);
+  if (value) userHasOptedOut = true;
 };
 
 module.exports = A;
