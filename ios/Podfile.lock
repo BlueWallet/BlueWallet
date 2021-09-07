@@ -447,6 +447,7 @@ PODS:
     - Yoga (~> 1.14)
 
 DEPENDENCIES:
+  - Bugsnag
   - "BugsnagReactNative (from `../node_modules/@bugsnag/react-native`)"
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
@@ -796,6 +797,6 @@ SPEC CHECKSUMS:
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: d190822228dafb8d4bccaddd003676c563d92dce
+PODFILE CHECKSUM: 027932fadea9781d256f419a7d841905212d0498
 
 COCOAPODS: 1.10.2
