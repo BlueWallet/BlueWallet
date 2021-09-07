@@ -54,7 +54,7 @@ const AddressInput = ({
         style={styles.input}
         editable={!isLoading}
         onBlur={onBlurEditing}
-        autoCapitalize={false}
+        autoCapitalize="none"
         autoCorrect={false}
         keyboardType="url"
       />
