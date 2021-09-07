@@ -27,7 +27,7 @@ const Confirm = () => {
   const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
   const [isBiometricUseCapableAndEnabled, setIsBiometricUseCapableAndEnabled] = useState(false);
   const { params } = useRoute();
-  const { recipients = [], walletID, fee, memo = '', tx, satoshiPerByte, psbt } = params;
+  const { recipients = [], walletID, fee, memo, tx, satoshiPerByte, psbt } = params;
   const [isLoading, setIsLoading] = useState(false);
   const [isPayjoinEnabled, setIsPayjoinEnabled] = useState(false);
   const wallet = wallets.find(wallet => wallet.getID() === walletID);

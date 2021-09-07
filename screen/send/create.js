@@ -18,7 +18,7 @@ import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 const currency = require('../../blue_modules/currency');
 
 const SendCreate = () => {
-  const { fee, recipients, memo, satoshiPerByte, psbt, showAnimatedQr, tx } = useRoute().params;
+  const { fee, recipients, memo = '', satoshiPerByte, psbt, showAnimatedQr, tx } = useRoute().params;
   const size = Math.round(tx.length / 2);
   const { colors } = useTheme();
   const { setOptions } = useNavigation();
@@ -168,7 +168,7 @@ const SendCreate = () => {
       <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{size} bytes</Text>
       <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_satoshi_per_byte}</Text>
       <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{satoshiPerByte} Sat/B</Text>
-      {memo.length > 0 && (
+      {memo?.length > 0 && (
         <>
           <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_memo}</Text>
           <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{memo}</Text>
