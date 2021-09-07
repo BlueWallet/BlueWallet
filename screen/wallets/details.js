@@ -208,7 +208,7 @@ const WalletDetails = () => {
     Notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
     popToTop();
     deleteWallet(wallet);
-    saveToDisk();
+    saveToDisk(true);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
   };
 

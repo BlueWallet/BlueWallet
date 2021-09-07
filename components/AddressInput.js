@@ -60,7 +60,7 @@ const AddressInput = ({
         inputAccessoryViewID={inputAccessoryViewID}
         clearButtonMode="while-editing"
         onBlur={onBlurEditing}
-        autoCapitalize={false}
+        autoCapitalize="none"
         autoCorrect={false}
         keyboardType="url"
       />

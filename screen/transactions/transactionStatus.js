@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar, I18nManager, BackHandler } from 'react-native';
+import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar, BackHandler } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
@@ -54,9 +54,6 @@ const TransactionsStatus = () => {
     iconRoot: {
       backgroundColor: colors.success,
     },
-    confirmations: {
-      backgroundColor: colors.lightButton,
-    },
   });
 
   useEffect(() => {
@@ -74,9 +71,19 @@ const TransactionsStatus = () => {
         shadowOffset: { height: 0, width: 0 },
         backgroundColor: colors.customHeader,
       },
+      headerRight: () => (
+        <TouchableOpacity
+          accessibilityRole="button"
+          testID="TransactionDetailsButton"
+          style={styles.details}
+          onPress={navigateToTransactionDetials}
+        >
+          <Text style={[styles.detailsText, stylesHook.valueUnit]}>{loc.send.create_details}</Text>
+        </TouchableOpacity>
+      ),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors]);
+  }, [colors, tx]);
 
   useEffect(() => {
     for (const w of wallets) {
@@ -420,7 +427,7 @@ const TransactionsStatus = () => {
             </View>
           )}
 
-          <View style={[styles.confirmations, stylesHook.confirmations]}>
+          <View style={styles.confirmations}>
             <Text style={styles.confirmationsText}>
               {loc.formatString(loc.transactions.confirmations_lowercase, {
                 confirmations: tx.confirmations > 6 ? '6+' : tx.confirmations,
@@ -439,10 +446,6 @@ const TransactionsStatus = () => {
           {renderCPFP()}
           {renderRBFBumpFee()}
           {renderRBFCancel()}
-          <TouchableOpacity accessibilityRole="button" style={styles.details} onPress={navigateToTransactionDetials}>
-            <Text style={styles.detailsText}>{loc.send.create_details.toLowerCase()}</Text>
-            <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
-          </TouchableOpacity>
         </View>
       </View>
     </SafeBlueArea>
@@ -509,16 +512,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   confirmations: {
-    borderRadius: 11,
-    width: 109,
-    height: 21,
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
   },
   confirmationsText: {
     color: '#9aa0aa',
-    fontSize: 11,
+    fontSize: 13,
   },
   eta: {
     alignSelf: 'center',
@@ -539,15 +539,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   details: {
-    flexDirection: 'row',
+    backgroundColor: '#EEF0F4',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginRight: 16,
+    width: 80,
+    borderRadius: 8,
+    height: 38,
   },
   detailsText: {
-    color: '#9aa0aa',
-    fontSize: 14,
-    marginRight: 8,
+    fontSize: 15,
+    fontWeight: '600',
   },
 });
 

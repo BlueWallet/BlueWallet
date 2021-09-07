@@ -86,7 +86,6 @@
     "exchange": "Börs",
     "expired": "Förfallen",
     "expiredLow": "förfallen",
-    "expiresIn": "Förfaller om: {tid}",
     "payButton": "Betala",
     "placeholder": "Faktura",
     "potentialFee": "Potentiell avgift: {avgift}",

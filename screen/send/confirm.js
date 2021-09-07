@@ -33,7 +33,7 @@ const Confirm = () => {
   const wallet = wallets.find(wallet => wallet.getID() === walletID);
   const payjoinUrl = wallet.allowPayJoin() ? params.payjoinUrl : false;
   const feeSatoshi = new Bignumber(fee).multipliedBy(100000000).toNumber();
-  const { navigate } = useNavigation();
+  const { navigate, setOptions } = useNavigation();
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     transactionDetailsTitle: {
@@ -55,10 +55,6 @@ const Confirm = () => {
     root: {
       backgroundColor: colors.elevated,
     },
-
-    txText: {
-      color: colors.feeText,
-    },
     payjoinWrapper: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
     },
@@ -70,6 +66,38 @@ const Confirm = () => {
     Biometric.isBiometricUseCapableAndEnabled().then(setIsBiometricUseCapableAndEnabled);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          accessibilityRole="button"
+          testID="TransactionDetailsButton"
+          style={styles.txDetails}
+          onPress={async () => {
+            if (isBiometricUseCapableAndEnabled) {
+              if (!(await Biometric.unlockWithBiometrics())) {
+                return;
+              }
+            }
+
+            navigate('CreateTransaction', {
+              fee,
+              recipients,
+              memo,
+              tx,
+              satoshiPerByte,
+              wallet,
+              feeSatoshi,
+            });
+          }}
+        >
+          <Text style={[styles.txText, stylesHook.valueUnit]}>{loc.send.create_details}</Text>
+        </TouchableOpacity>
+      ),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colors, fee, feeSatoshi, isBiometricUseCapableAndEnabled, memo, recipients, satoshiPerByte, tx, wallet]);
 
   /**
    * we need to look into `recipients`, find destination address and return its outputScript
@@ -234,30 +262,6 @@ const Confirm = () => {
             {loc.send.create_fee}: {formatBalance(feeSatoshi, BitcoinUnit.BTC)} ({currency.satoshiToLocalCurrency(feeSatoshi)})
           </Text>
           {isLoading ? <ActivityIndicator /> : <BlueButton disabled={isElectrumDisabled} onPress={send} title={loc.send.confirm_sendNow} />}
-          <TouchableOpacity
-            accessibilityRole="button"
-            testID="TransactionDetailsButton"
-            style={styles.txDetails}
-            onPress={async () => {
-              if (isBiometricUseCapableAndEnabled) {
-                if (!(await Biometric.unlockWithBiometrics())) {
-                  return;
-                }
-              }
-
-              navigate('CreateTransaction', {
-                fee,
-                recipients,
-                memo,
-                tx,
-                satoshiPerByte,
-                wallet,
-                feeSatoshi,
-              });
-            }}
-          >
-            <Text style={[styles.txText, stylesHook.txText]}>{loc.transactions.details_transaction_details}</Text>
-          </TouchableOpacity>
         </BlueCard>
       </View>
     </SafeBlueArea>
@@ -337,12 +341,17 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   txDetails: {
-    marginTop: 16,
+    backgroundColor: '#EEF0F4',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+    width: 80,
+    borderRadius: 8,
+    height: 38,
   },
   txText: {
     fontSize: 15,
-    fontWeight: '500',
-    alignSelf: 'center',
+    fontWeight: '600',
   },
   payjoinWrapper: {
     flexDirection: 'row',
