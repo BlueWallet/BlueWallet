@@ -7,7 +7,7 @@ import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
 import BigNumber from 'bignumber.js';
-import { SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
+import { BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -143,7 +143,7 @@ const SendCreate = () => {
     <View>
       {showAnimatedQr && psbt ? <DynamicQRCode value={psbt.toHex()} /> : null}
       <BlueText style={[styles.cardText, styleHooks.cardText]}>{loc.send.create_this_is_hex}</BlueText>
-      <TextInput testID="TxhexInput" style={styles.cardTx} height={72} multiline editable value={tx} />
+      <TextInput testID="TxhexInput" style={styles.cardTx} height={72} multiline editable={false} value={tx} />
 
       <TouchableOpacity accessibilityRole="button" style={styles.actionTouch} onPress={() => Clipboard.setString(tx)}>
         <Text style={styles.actionText}>{loc.send.create_copy}</Text>
@@ -158,36 +158,39 @@ const SendCreate = () => {
     </View>
   );
 
+  const ListFooterComponent = (
+    <View>
+      <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_fee}</Text>
+      <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>
+        {new BigNumber(fee).toFixed()} {BitcoinUnit.BTC}
+      </Text>
+      <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_tx_size}</Text>
+      <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{size} bytes</Text>
+      <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_satoshi_per_byte}</Text>
+      <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{satoshiPerByte} Sat/B</Text>
+      {memo.length > 0 && (
+        <>
+          <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_memo}</Text>
+          <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{memo}</Text>
+        </>
+      )}
+    </View>
+  );
+
   return (
-    <SafeBlueArea style={styleHooks.root}>
-      <BlueCard style={styles.card}>
-        <FlatList
-          scrollEnabled={recipients.length > 1}
-          extraData={recipients}
-          data={recipients}
-          renderItem={_renderItem}
-          keyExtractor={(_item, index) => `${index}`}
-          ItemSeparatorComponent={renderSeparator}
-          ListHeaderComponent={ListHeaderComponent}
-        />
-        <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_fee}</Text>
-        <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>
-          {new BigNumber(fee).toFixed()} {BitcoinUnit.BTC}
-        </Text>
-
-        <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_tx_size}</Text>
-        <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{size} bytes</Text>
-
-        <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_satoshi_per_byte}</Text>
-        <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{satoshiPerByte} Sat/B</Text>
-        {memo.length > 0 && (
-          <>
-            <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_memo}</Text>
-            <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{memo}</Text>
-          </>
-        )}
-      </BlueCard>
-    </SafeBlueArea>
+    <FlatList
+      contentContainerStyle={[styles.root, styleHooks.root]}
+      scrollEnabled={recipients.length > 1}
+      extraData={recipients}
+      data={recipients}
+      renderItem={_renderItem}
+      keyExtractor={(_item, index) => `${index}`}
+      ItemSeparatorComponent={renderSeparator}
+      ListHeaderComponent={ListHeaderComponent}
+      ListFooterComponent={ListFooterComponent}
+      contentInsetAdjustmentBehavior="automatic"
+      automaticallyAdjustContentInsets
+    />
   );
 };
 
@@ -198,6 +201,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontSize: 17,
     marginBottom: 2,
+  },
+  root: {
+    paddingHorizontal: 20,
   },
   transactionDetailsSubtitle: {
     fontWeight: '500',
