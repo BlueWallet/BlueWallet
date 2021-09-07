@@ -50,16 +50,6 @@ const SendCreate = () => {
     };
   }, []);
 
-  useEffect(() => {
-    setOptions({
-      headerRight: () => (
-        <TouchableOpacity accessibilityRole="button" style={styles.export} onPress={exportTXN}>
-          <Icon size={22} name="share-alternative" type="entypo" color={colors.foregroundColor} />
-        </TouchableOpacity>
-      ),
-    });
-  }, [colors, exportTXN, setOptions]);
-
   const exportTXN = useCallback(async () => {
     const fileName = `${Date.now()}.txn`;
     if (Platform.OS === 'ios') {
@@ -109,6 +99,16 @@ const SendCreate = () => {
       }
     }
   }, [tx]);
+
+  useEffect(() => {
+    setOptions({
+      headerRight: () => (
+        <TouchableOpacity accessibilityRole="button" style={styles.export} onPress={exportTXN}>
+          <Icon size={22} name="share-alternative" type="entypo" color={colors.foregroundColor} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [colors, exportTXN, setOptions]);
 
   const _renderItem = ({ index, item }) => {
     return (
