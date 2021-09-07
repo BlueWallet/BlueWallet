@@ -353,6 +353,7 @@
     "cancel_no": "Esta transacción no es reemplazable.",
     "cancel_title": "Cancelar ésta transacción (RBF)",
     "confirmations_lowercase": "{confirmations} confirmaciones",
+    "copy_link": "Copiar enlace",
     "note": "Nota",
     "expand_note": "Expandir Nota",
     "block_explorer_link": "Enlace del Explorador de Bloques",
