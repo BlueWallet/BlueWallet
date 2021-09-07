@@ -35,7 +35,11 @@ export const BlueStorageProvider = ({ children }) => {
     return BlueApp.setIsHandoffEnabled(value);
   };
 
-  const saveToDisk = async () => {
+  const saveToDisk = async (force = false) => {
+    if (BlueApp.getWallets().length === 0 && !force) {
+      console.log('not saving empty wallets array');
+      return;
+    }
     BlueApp.tx_metadata = txMetadata;
     await BlueApp.saveToDisk();
     setWallets([...BlueApp.getWallets()]);
