@@ -190,6 +190,10 @@ const App = () => {
    * @private
    */
   const processPushNotifications = async () => {
+    if (!walletsInitialized) {
+      console.log('not processing push notifications because wallets are not initialized');
+      return;
+    }
     await new Promise(resolve => setTimeout(resolve, 200));
     // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
     const notifications2process = await Notifications.getStoredNotifications();
