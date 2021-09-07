@@ -353,6 +353,7 @@
     "cancel_no": "This transaction is not replaceable.",
     "cancel_title": "Cancel this transaction (RBF)",
     "confirmations_lowercase": "{confirmations} confirmations",
+    "copy_link": "Copy Link",
     "note": "Note",
     "expand_note": "Expand Note",
     "block_explorer_link": "Block Explorer Link",

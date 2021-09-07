@@ -1058,7 +1058,7 @@ describe('BlueWallet UI Tests', () => {
 
     // change note of 0.001 tx output
     await element(by.text('0.001')).atIndex(0).tap();
-    await element(by.text('details')).tap();
+    await element(by.text('Details')).tap();
     await expect(element(by.text('49944e90fe917952e36b1967cdbc1139e60c89b4800b91258bf2345a77a8b888'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('test1');
     await element(by.text('Save')).tap();

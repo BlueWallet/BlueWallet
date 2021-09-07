@@ -101,7 +101,7 @@
     "exchange": "تبادل",
     "expired": "منقضی‌شده",
     "expiredLow": "منقضی‌شده",
-    "expiresIn": "انقضا: {time}",
+    "expiresIn": "تا {time} دقیقهٔ دیگر منقضی می‌شود",
     "payButton": "پرداخت",
     "placeholder": "صورت‌حساب",
     "potentialFee": "کارمزد احتمالی: {fee}",

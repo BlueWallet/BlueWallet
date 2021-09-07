@@ -96,7 +96,6 @@
     "exchange": "エクスチェンジ",
     "expired": "失効",
     "expiredLow": "期限切れ",
-    "expiresIn": "期限: {time}",
     "payButton": "支払う",
     "placeholder": "入金依頼",
     "potentialFee": "手数料推計： {fee}",

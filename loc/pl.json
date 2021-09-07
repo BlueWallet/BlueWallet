@@ -101,7 +101,6 @@
     "exchange": "Kantor",
     "expired": "Przeterminowana",
     "expiredLow": "Przeterminowana",
-    "expiresIn": "Wygasa za: {time}",
     "payButton": "Zapłać",
     "placeholder": "Faktura",
     "potentialFee": "Potencjalna opłata transakcyjna: {fee}",

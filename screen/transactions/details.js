@@ -219,10 +219,11 @@ const TransactionsDetails = () => {
             </>
           )}
           <ToolTipMenu
+            isButton
             actions={[
               {
                 id: TransactionsDetails.actionKeys.CopyToClipboard,
-                text: loc.transactions.details_copy,
+                text: loc.transactions.copy_link,
                 icon: TransactionsDetails.actionIcons.Clipboard,
               },
             ]}
