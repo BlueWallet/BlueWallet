@@ -670,6 +670,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('RemoveRecipient')).tap();
 
     // creating and verifying. tx should have 3 outputs
+    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -741,6 +742,7 @@ describe('BlueWallet UI Tests', () => {
 
     // now, testing cosign psbt:
 
+    await device.pressBack();
     await device.pressBack();
     await device.pressBack();
     await element(by.id('SendButton')).tap();
@@ -903,6 +905,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.type('android.widget.EditText')).typeText(feeRate + '');
     await element(by.text('OK')).tap();
 
+    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -1098,7 +1101,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('feeCustom')).tap();
     await element(by.type('android.widget.EditText')).typeText('1');
     await element(by.text('OK')).tap();
-
+    if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
     await yo('TextHelperForPSBT');
 
@@ -1125,7 +1128,7 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('feeCustom')).tap();
     await element(by.type('android.widget.EditText')).typeText('1');
     await element(by.text('OK')).tap();
-
+    if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
     await yo('TextHelperForPSBT');
 

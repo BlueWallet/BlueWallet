@@ -47,7 +47,7 @@ const writeFileAndExport = async function (filename, contents) {
   if (Platform.OS === 'ios') {
     const filePath = RNFS.TemporaryDirectoryPath + `/${filename}`;
     await RNFS.writeFile(filePath, contents);
-    Share.open({
+    await Share.open({
       url: 'file://' + filePath,
       saveToFiles: isDesktop,
     })
@@ -58,37 +58,12 @@ const writeFileAndExport = async function (filename, contents) {
         RNFS.unlink(filePath);
       });
   } else if (Platform.OS === 'android') {
-    Alert.alert(
-      loc._.file_save_title,
-
-      loc.formatString(loc._.file_save_location, { filePath: filename }),
-      [
-        { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-        {
-          text: loc._.downloads_folder,
-          onPress: () => {
-            writeFileAndExportToAndroidDestionation({
-              filename,
-              contents,
-              destinationLocalizedString: loc._.downloads_folder,
-              destination: RNFS.DownloadDirectoryPath,
-            });
-          },
-        },
-        {
-          text: loc._.external_storage,
-          onPress: async () => {
-            writeFileAndExportToAndroidDestionation({
-              filename,
-              contents,
-              destination: RNFS.ExternalStorageDirectoryPath,
-              destinationLocalizedString: loc._.external_storage,
-            });
-          },
-        },
-      ],
-      { cancelable: true },
-    );
+    await writeFileAndExportToAndroidDestionation({
+      filename,
+      contents,
+      destinationLocalizedString: loc._.downloads_folder,
+      destination: RNFS.DownloadDirectoryPath,
+    });
   }
 };
 

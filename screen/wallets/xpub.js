@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useState } from 'react';
-import { InteractionManager, useWindowDimensions, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
+import { InteractionManager, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
 import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard } from '../../BlueComponents';
@@ -30,7 +30,7 @@ const WalletXpub = () => {
   const [xPubText, setXPubText] = useState();
   const { goBack } = useNavigation();
   const { colors } = useTheme();
-  const { width, height } = useWindowDimensions();
+  const [qrCodeSize, setQRCodeSize] = useState(90);
   const stylesHook = StyleSheet.create({ root: { backgroundColor: colors.elevated } });
 
   useFocusEffect(
@@ -58,12 +58,17 @@ const WalletXpub = () => {
     }, [goBack, walletID]),
   );
 
+  const onLayout = e => {
+    const { height, width } = e.nativeEvent.layout;
+    setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.8);
+  };
+
   return isLoading ? (
     <View style={[styles.container, stylesHook.root]}>
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={[styles.root, stylesHook.root]} onLayout={onLayout}>
       <StatusBar barStyle="light-content" />
       <View style={styles.container}>
         <View>
@@ -71,7 +76,7 @@ const WalletXpub = () => {
         </View>
         <BlueSpacing20 />
 
-        <QRCodeComponent value={xPub} size={height > width ? width - 40 : width / 2} />
+        <QRCodeComponent value={xPub} size={qrCodeSize} />
 
         <BlueSpacing20 />
         <BlueCopyTextToClipboard text={xPubText} />
@@ -83,7 +88,7 @@ const WalletXpub = () => {
 WalletXpub.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerLeft: null,
+    headerHideBackButton: true,
   },
   opts => ({ ...opts, title: loc.wallets.xpub_title }),
 );

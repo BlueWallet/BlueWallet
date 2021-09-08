@@ -321,13 +321,16 @@ const WalletTransactions = () => {
               component={TouchableOpacity}
               onPress={() => {
                 setIsManageFundsModalVisible(false);
-
-                navigate('ReceiveDetailsRoot', {
-                  screen: 'ReceiveDetails',
-                  params: {
-                    walletID: wallet.getID(),
-                  },
-                });
+                setTimeout(
+                  () =>
+                    navigate('ReceiveDetailsRoot', {
+                      screen: 'ReceiveDetails',
+                      params: {
+                        walletID: wallet.getID(),
+                      },
+                    }),
+                  400,
+                );
               }}
               title={loc.lnd.refill_external}
             />
@@ -604,7 +607,7 @@ const WalletTransactions = () => {
 
   return (
     <View style={styles.flex}>
-      <StatusBar barStyle="light-content" backgroundColor={WalletGradient.headerColorFor(wallet.type)} />
+      <StatusBar barStyle="light-content" backgroundColor={WalletGradient.headerColorFor(wallet.type)} animated />
       {wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type && (
         <HandoffComponent
           title={`Bitcoin Wallet ${wallet.getLabel()}`}
@@ -795,7 +798,6 @@ const styles = StyleSheet.create({
     minHeight: 130,
   },
   walletDetails: {
-    marginHorizontal: 16,
     minWidth: 150,
     justifyContent: 'center',
     alignItems: 'flex-end',

@@ -398,19 +398,8 @@ LdkOpenChannel.navigationOptions = navigationStyle(
     closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().pop(),
   },
   (options, { theme, navigation, route }) => {
-    const additionalOptions =
-      route.params.isModal === true
-        ? {
-            headerLeft: null,
-            gestureEnabled: false,
-          }
-        : {
-            headerRight: null,
-          };
-
     return {
       ...options,
-      ...additionalOptions,
     };
   },
 );
