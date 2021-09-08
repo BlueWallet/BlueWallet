@@ -792,7 +792,7 @@
 				6DD41098266CADF10087DE03 /* Sources */,
 				6DD41099266CADF10087DE03 /* Frameworks */,
 				6DD4109A266CADF10087DE03 /* Resources */,
-				6DD1B41C107BDD6796CD6449 /* Upload Bugsnag dSYM */,
+				CF0725821442A3000F20E874 /* Upload Bugsnag dSYM */,
 			);
 			buildRules = (
 			);
@@ -919,7 +919,7 @@
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
-				6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode.git" */,
+				6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -1153,6 +1153,27 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		CF0725821442A3000F20E874 /* Upload Bugsnag dSYM */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+			);
+			name = "Upload Bugsnag dSYM";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = "/usr/bin/env ruby";
+			shellScript = "api_key = nil # Insert your key here to use it directly from this script\n\n# Attempt to get the API key from an environment variable\nunless api_key\n  api_key = ENV[\"BUGSNAG_API_KEY\"]\n\n  # If not present, attempt to lookup the value from the Info.plist\n  unless api_key\n    info_plist_path = \"#{ENV[\"BUILT_PRODUCTS_DIR\"]}/#{ENV[\"INFOPLIST_PATH\"]}\"\n    plist_buddy_response = `/usr/libexec/PlistBuddy -c \"print :bugsnag:apiKey\" \"#{info_plist_path}\"`\n    plist_buddy_response = `/usr/libexec/PlistBuddy -c \"print :BugsnagAPIKey\" \"#{info_plist_path}\"` if !$?.success?\n    api_key = plist_buddy_response if $?.success?\n  end\nend\n\nfail(\"No Bugsnag API key detected - add your key to your Info.plist, BUGSNAG_API_KEY environment variable or this Run Script phase\") unless api_key\n\nfork do\n  Process.setsid\n  STDIN.reopen(\"/dev/null\")\n  STDOUT.reopen(\"/dev/null\", \"a\")\n  STDERR.reopen(\"/dev/null\", \"a\")\n\n  require 'shellwords'\n\n  Dir[\"#{ENV[\"DWARF_DSYM_FOLDER_PATH\"]}/*/Contents/Resources/DWARF/*\"].each do |dsym|\n    curl_command = \"curl --http1.1 -F dsym=@#{Shellwords.escape(dsym)} -F projectRoot=#{Shellwords.escape(ENV[\"PROJECT_DIR\"])} \"\n    curl_command += \"-F apiKey=#{Shellwords.escape(api_key)} \"\n    curl_command += \"https://upload.bugsnag.com/\"\n    system(curl_command)\n  end\nend\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1342,7 +1363,7 @@
 				CODE_SIGN_ENTITLEMENTS = BlueWallet/BlueWallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 620;
+				CURRENT_PROJECT_VERSION = 621;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				ENABLE_BITCODE = NO;
@@ -1392,7 +1413,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 620;
+				CURRENT_PROJECT_VERSION = 621;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				ENABLE_BITCODE = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -1437,7 +1458,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TodayExtension/BlueWallet - Bitcoin Price.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 620;
+				CURRENT_PROJECT_VERSION = 621;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1476,7 +1497,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 620;
+				CURRENT_PROJECT_VERSION = 621;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1513,7 +1534,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 620;
+				CURRENT_PROJECT_VERSION = 621;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1545,7 +1566,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 620;
+				CURRENT_PROJECT_VERSION = 621;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1578,7 +1599,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 620;
+				CURRENT_PROJECT_VERSION = 621;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1623,7 +1644,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 620;
+				CURRENT_PROJECT_VERSION = 621;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1769,7 +1790,7 @@
 				CODE_SIGN_ENTITLEMENTS = "BlueWalletWatch Extension/BlueWalletWatch Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 620;
+				CURRENT_PROJECT_VERSION = 621;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1809,7 +1830,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 620;
+				CURRENT_PROJECT_VERSION = 621;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1849,7 +1870,7 @@
 				CODE_SIGN_ENTITLEMENTS = BlueWalletWatch/BlueWalletWatch.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 620;
+				CURRENT_PROJECT_VERSION = 621;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1888,7 +1909,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 620;
+				CURRENT_PROJECT_VERSION = 621;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1979,7 +2000,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode.git" */ = {
+		6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/EFPrefix/EFQRCode.git";
 			requirement = {
@@ -1992,7 +2013,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		6DFC806F24EA0B6C007B8700 /* EFQRCode */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode.git" */;
+			package = 6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */;
 			productName = EFQRCode;
 		};
 /* End XCSwiftPackageProductDependency section */
