@@ -82,7 +82,6 @@
     "exchange": "Cyfnewid",
     "expired": "Gorffen",
     "expiredLow": "Gorffen",
-    "expiresIn": "Yn Gorffen: {time}",
     "payButton": "Talu",
     "placeholder": "Anfoneb",
     "potentialFee": "Ffi Tebygol: {fee}",

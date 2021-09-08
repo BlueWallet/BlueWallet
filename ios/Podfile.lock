@@ -1,6 +1,6 @@
 PODS:
   - boost-for-react-native (1.63.0)
-  - BugsnagReactNative (7.12.0):
+  - BugsnagReactNative (7.13.0):
     - React-Core
   - BVLinearGradient (2.5.6):
     - React
@@ -289,7 +289,7 @@ PODS:
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (3.3.0):
+  - react-native-safe-area-context (3.3.2):
     - React-Core
   - react-native-tcp-socket (5.3.0):
     - CocoaAsyncSocket
@@ -387,7 +387,7 @@ PODS:
     - React
   - RNKeychain (7.0.0):
     - React-Core
-  - RNLocalize (2.1.3):
+  - RNLocalize (2.1.4):
     - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
@@ -431,7 +431,7 @@ PODS:
     - React-RCTImage
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNShare (7.0.1):
+  - RNShare (7.0.2):
     - React-Core
   - RNSVG (12.1.1):
     - React
@@ -706,7 +706,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  BugsnagReactNative: 2e6375ce8a5789af2d1e3f2b6b8d5f679c1b2242
+  BugsnagReactNative: ab4d076ed3f66d147d6a7fa178b71cf760f6144f
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
@@ -746,7 +746,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: 7bda3c7297c3ea16f4f504ad6174aa7e548192ef
   react-native-ios-context-menu: c787c9a764525d07dff9bd75a191f67de7176e9f
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
-  react-native-safe-area-context: 8465df05de8106c584b117f0e027e17174d6e02e
+  react-native-safe-area-context: 5cf05f49df9d17261e40e518481f2e334c6cd4b5
   react-native-tcp-socket: b476f3045ead29f491a3affb644527b4cb7b6910
   react-native-webview: b176c6404ad40d10cfc818be41c053f85a72d751
   react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
@@ -774,7 +774,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: f75b8c8b2f17d3b2aa1f25b4a0ac5b83d947ff8f
-  RNLocalize: 8123b2682605362e332debe817115ce0888e2244
+  RNLocalize: 8bc7ebf44e0f18898cc62f0061561d07fabf6ff9
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: e0af7e724e5fcf89578dbd22ab6395c85402ef29
@@ -782,7 +782,7 @@ SPEC CHECKSUMS:
   RNReanimated: 9c13c86454bfd54dab7505c1a054470bfecd2563
   RNScreens: 01ab149b5dd5c27f5ff26741b1d2bdf2cee1af35
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNShare: 2dc2fcac3f7321cfd6b60a23ed4bf4d549f86f5f
+  RNShare: 3acd1ed34a4baba2fd8541ba409045c37e5f62ff
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   RNWatch: 99637948ec9b5c9ec5a41920642594ad5ba07e80

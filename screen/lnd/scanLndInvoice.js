@@ -111,9 +111,10 @@ const ScanLndInvoice = () => {
 
         let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
         if (+new Date() > expiresIn) {
-          expiresIn = loc.lnd.expiredLow;
+          expiresIn = loc.lnd.expired;
         } else {
-          expiresIn = Math.round((expiresIn - +new Date()) / (60 * 1000)) + ' min';
+          const time = Math.round((expiresIn - +new Date()) / (60 * 1000));
+          expiresIn = loc.formatString(loc.lnd.expiresIn, { time });
         }
         Keyboard.dismiss();
         setParams({ uri: undefined, invoice: data });
@@ -129,6 +130,10 @@ const ScanLndInvoice = () => {
         setParams({ uri: undefined });
         setTimeout(() => alert(Err.message), 10);
         setIsLoading(false);
+        setAmount();
+        setDestination();
+        setExpiresIn();
+        setDecoded();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -274,7 +279,11 @@ const ScanLndInvoice = () => {
   const getFees = () => {
     const min = Math.floor(decoded.num_satoshis * 0.003);
     const max = Math.floor(decoded.num_satoshis * 0.01) + 1;
-    return `${min} sat - ${max} sat`;
+    return `${min} ${BitcoinUnit.SATS} - ${max} ${BitcoinUnit.SATS}`;
+  };
+
+  const onBlur = () => {
+    processTextForInvoice(destination);
   };
 
   const onWalletSelect = selectedWallet => {
@@ -313,7 +322,7 @@ const ScanLndInvoice = () => {
               <AddressInput
                 onChangeText={text => {
                   text = text.trim();
-                  processTextForInvoice(text);
+                  setDestination(text);
                 }}
                 onBarScanned={processInvoice}
                 address={destination}
@@ -321,6 +330,7 @@ const ScanLndInvoice = () => {
                 placeholder={loc.lnd.placeholder}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 launchedBy={name}
+                onBlur={onBlur}
               />
               <View style={styles.description}>
                 <Text numberOfLines={0} style={styles.descriptionText}>
@@ -329,7 +339,7 @@ const ScanLndInvoice = () => {
               </View>
               {expiresIn !== undefined && (
                 <View>
-                  <Text style={styles.expiresIn}>{loc.formatString(loc.lnd.expiresIn, { time: expiresIn })}</Text>
+                  <Text style={styles.expiresIn}>{expiresIn}</Text>
                   {decoded && decoded.num_satoshis > 0 && (
                     <Text style={styles.expiresIn}>{loc.formatString(loc.lnd.potentialFee, { fee: getFees() })}</Text>
                   )}

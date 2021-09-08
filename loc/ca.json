@@ -92,7 +92,6 @@
     "exchange": "Intercanvi",
     "expired": "Caducat",
     "expiredLow": "caducat",
-    "expiresIn": "Caduca: {time}",
     "payButton": "Pagar",
     "placeholder": "Factura",
     "potentialFee": "Comissió potencial: {fee}",

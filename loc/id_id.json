@@ -96,7 +96,6 @@
     "exchange": "Pertukaran",
     "expired": "Kadaluarsa",
     "expiredLow": "kadarluasa",
-    "expiresIn": "Berakhir: {time}",
     "payButton": "Bayar",
     "placeholder": "Faktur",
     "potentialFee": "Potensi biaya: {fee}",
