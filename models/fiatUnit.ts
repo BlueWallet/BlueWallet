@@ -1,4 +1,3 @@
-import Frisbee from 'frisbee';
 import untypedFiatUnit from './fiatUnits.json';
 
 export const FiatUnitSource = {
@@ -10,13 +9,10 @@ export const FiatUnitSource = {
 
 const RateExtractors = {
   CoinDesk: async (ticker: string): Promise<number> => {
-    const api = new Frisbee({ baseURI: 'https://api.coindesk.com' });
-    const res = await api.get(`/v1/bpi/currentprice/${ticker}.json`);
-    if (res.err) throw new Error(`Could not update rate for ${ticker}: ${res.err}`);
-
     let json;
     try {
-      json = typeof res.body === 'string' ? JSON.parse(res.body) : res.body;
+      const res = await fetch(`https://api.coindesk.com/v1/bpi/currentprice/${ticker}.json`);
+      json = await res.json();
     } catch (e) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
@@ -27,14 +23,12 @@ const RateExtractors = {
     if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
     return rate;
   },
-  Yadio: async (ticker: string): Promise<number> => {
-    const api = new Frisbee({ baseURI: 'https://api.yadio.io/json' });
-    const res = await api.get(`/${ticker}`);
-    if (res.err) throw new Error(`Could not update rate for ${ticker}: ${res.err}`);
 
+  Yadio: async (ticker: string): Promise<number> => {
     let json;
     try {
-      json = typeof res.body === 'string' ? JSON.parse(res.body) : res.body;
+      const res = await fetch(`https://api.yadio.io/json/${ticker}`);
+      json = await res.json();
     } catch (e) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
@@ -45,14 +39,12 @@ const RateExtractors = {
     if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
     return rate;
   },
-  BitcoinduLiban: async (ticker: string): Promise<number> => {
-    const api = new Frisbee({ baseURI: 'https://bitcoinduliban.org' });
-    const res = await api.get('/api.php?key=lbpusd');
-    if (res.err) throw new Error(`Could not update rate for ${ticker}: ${res.err}`);
 
+  BitcoinduLiban: async (ticker: string): Promise<number> => {
     let json;
     try {
-      json = typeof res.body === 'string' ? JSON.parse(res.body) : res.body;
+      const res = await fetch('https://bitcoinduliban.org/api.php?key=lbpusd');
+      json = await res.json();
     } catch (e) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
@@ -63,14 +55,12 @@ const RateExtractors = {
     if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
     return rate;
   },
-  Exir: async (ticker: string): Promise<number> => {
-    const api = new Frisbee({ baseURI: 'https://api.exir.io' });
-    const res = await api.get('/v1/ticker?symbol=btc-irt');
-    if (res.err) throw new Error(`Could not update rate for ${ticker}: ${res.err}`);
 
+  Exir: async (ticker: string): Promise<number> => {
     let json;
     try {
-      json = typeof res.body === 'string' ? JSON.parse(res.body) : res.body;
+      const res = await fetch('https://api.exir.io/v1/ticker?symbol=btc-irt');
+      json = await res.json();
     } catch (e) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
