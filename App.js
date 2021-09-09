@@ -38,6 +38,7 @@ import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
 import changeNavigationBarColor from 'react-native-navigation-bar-color';
 const A = require('./blue_modules/analytics');
+const currency = require('./blue_modules/currency');
 
 const eventEmitter = new NativeEventEmitter(NativeModules.EventEmitter);
 
@@ -262,43 +263,43 @@ const App = () => {
   };
 
   const handleAppStateChange = async nextAppState => {
-    if (wallets.length > 0) {
-      if ((appState.current.match(/background/) && nextAppState) === 'active' || nextAppState === undefined) {
-        setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
-        const processed = await processPushNotifications();
-        if (processed) return;
-        const clipboard = await BlueClipboard.getClipboardContent();
-        const isAddressFromStoredWallet = wallets.some(wallet => {
-          if (wallet.chain === Chain.ONCHAIN) {
-            // checking address validity is faster than unwrapping hierarchy only to compare it to garbage
-            return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
-          } else {
-            return wallet.isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
-          }
-        });
-        const isBitcoinAddress = DeeplinkSchemaMatch.isBitcoinAddress(clipboard);
-        const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(clipboard);
-        const isLNURL = DeeplinkSchemaMatch.isLnUrl(clipboard);
-        const isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(clipboard);
-        if (
-          !isAddressFromStoredWallet &&
-          clipboardContent.current !== clipboard &&
-          (isBitcoinAddress || isLightningInvoice || isLNURL || isBothBitcoinAndLightning)
-        ) {
-          if (isBitcoinAddress) {
-            setClipboardContentType(ClipboardContentType.BITCOIN);
-          } else if (isLightningInvoice || isLNURL) {
-            setClipboardContentType(ClipboardContentType.LIGHTNING);
-          } else if (isBothBitcoinAndLightning) {
-            setClipboardContentType(ClipboardContentType.BITCOIN);
-          }
-          setIsClipboardContentModalVisible(true);
+    if (wallets.length === 0) return;
+    if ((appState.current.match(/background/) && nextAppState === 'active') || nextAppState === undefined) {
+      setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
+      currency.updateExchangeRate();
+      const processed = await processPushNotifications();
+      if (processed) return;
+      const clipboard = await BlueClipboard.getClipboardContent();
+      const isAddressFromStoredWallet = wallets.some(wallet => {
+        if (wallet.chain === Chain.ONCHAIN) {
+          // checking address validity is faster than unwrapping hierarchy only to compare it to garbage
+          return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
+        } else {
+          return wallet.isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
         }
-        clipboardContent.current = clipboard;
+      });
+      const isBitcoinAddress = DeeplinkSchemaMatch.isBitcoinAddress(clipboard);
+      const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(clipboard);
+      const isLNURL = DeeplinkSchemaMatch.isLnUrl(clipboard);
+      const isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(clipboard);
+      if (
+        !isAddressFromStoredWallet &&
+        clipboardContent.current !== clipboard &&
+        (isBitcoinAddress || isLightningInvoice || isLNURL || isBothBitcoinAndLightning)
+      ) {
+        if (isBitcoinAddress) {
+          setClipboardContentType(ClipboardContentType.BITCOIN);
+        } else if (isLightningInvoice || isLNURL) {
+          setClipboardContentType(ClipboardContentType.LIGHTNING);
+        } else if (isBothBitcoinAndLightning) {
+          setClipboardContentType(ClipboardContentType.BITCOIN);
+        }
+        setIsClipboardContentModalVisible(true);
       }
-      if (nextAppState) {
-        appState.current = nextAppState;
-      }
+      clipboardContent.current = clipboard;
+    }
+    if (nextAppState) {
+      appState.current = nextAppState;
     }
   };
 

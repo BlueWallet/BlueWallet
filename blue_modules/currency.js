@@ -5,15 +5,14 @@ import BigNumber from 'bignumber.js';
 import { FiatUnit, getFiatRate } from '../models/fiatUnit';
 import WidgetCommunication from './WidgetCommunication';
 
-const PREFERRED_CURRENCY = 'preferredCurrency';
-const EXCHANGE_RATES = 'currency';
+const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
+const EXCHANGE_RATES_STORAGE_KEY = 'currency';
 
 let preferredFiatCurrency = FiatUnit.USD;
-const exchangeRates = {};
+let exchangeRates = {};
+let lastTimeUpdateExchangeRateWasCalled = 0;
 
-const STRUCT = {
-  LAST_UPDATED: 'LAST_UPDATED',
-};
+const LAST_UPDATED = 'LAST_UPDATED';
 
 /**
  * Saves to storage preferred currency, whole object
@@ -23,7 +22,7 @@ const STRUCT = {
  * @returns {Promise<void>}
  */
 async function setPrefferedCurrency(item) {
-  await AsyncStorage.setItem(PREFERRED_CURRENCY, JSON.stringify(item));
+  await AsyncStorage.setItem(PREFERRED_CURRENCY_STORAGE_KEY, JSON.stringify(item));
   await DefaultPreference.setName('group.io.bluewallet.bluewallet');
   await DefaultPreference.set('preferredCurrency', item.endPointKey);
   await DefaultPreference.set('preferredCurrencyLocale', item.locale.replace('-', '_'));
@@ -31,21 +30,25 @@ async function setPrefferedCurrency(item) {
 }
 
 async function getPreferredCurrency() {
-  const preferredCurrency = await JSON.parse(await AsyncStorage.getItem(PREFERRED_CURRENCY));
+  const preferredCurrency = await JSON.parse(await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY));
   await DefaultPreference.setName('group.io.bluewallet.bluewallet');
   await DefaultPreference.set('preferredCurrency', preferredCurrency.endPointKey);
   await DefaultPreference.set('preferredCurrencyLocale', preferredCurrency.locale.replace('-', '_'));
   return preferredCurrency;
 }
 
-async function updateExchangeRate() {
-  if (+new Date() - exchangeRates[STRUCT.LAST_UPDATED] <= 30 * 60 * 1000) {
-    // not updating too often
-    return;
-  }
-
+async function _restoreSavedExchangeRatesFromStorage() {
   try {
-    preferredFiatCurrency = JSON.parse(await AsyncStorage.getItem(PREFERRED_CURRENCY));
+    exchangeRates = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+    if (!exchangeRates) exchangeRates = {};
+  } catch (_) {
+    exchangeRates = {};
+  }
+}
+
+async function _restoreSavedPreferredFiatCurrencyFromStorage() {
+  try {
+    preferredFiatCurrency = JSON.parse(await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY));
     if (preferredFiatCurrency === null) {
       throw Error('No Preferred Fiat selected');
     }
@@ -57,38 +60,66 @@ async function updateExchangeRate() {
       preferredFiatCurrency = FiatUnit.USD;
     }
   }
+}
+
+/**
+ * actual function to reach api and get fresh currency exchange rate. checks LAST_UPDATED time and skips entirely
+ * if called too soon (30min); saves exchange rate (with LAST_UPDATED info) to storage.
+ * should be called when app thinks its a good time to refresh exchange rate
+ *
+ * @return {Promise<void>}
+ */
+async function updateExchangeRate() {
+  if (+new Date() - lastTimeUpdateExchangeRateWasCalled <= 10 * 1000) {
+    // simple debounce so theres no race conditions
+    return;
+  }
+  lastTimeUpdateExchangeRateWasCalled = +new Date();
+
+  if (+new Date() - exchangeRates[LAST_UPDATED] <= 30 * 60 * 1000) {
+    // not updating too often
+    return;
+  }
+  console.log('updating exchange rate...');
 
   let rate;
   try {
     rate = await getFiatRate(preferredFiatCurrency.endPointKey);
   } catch (Err) {
     console.warn(Err.message);
-    const lastSavedExchangeRate = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES));
-    exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = lastSavedExchangeRate['BTC_' + preferredFiatCurrency.endPointKey] * 1;
     return;
   }
 
-  exchangeRates[STRUCT.LAST_UPDATED] = +new Date();
+  exchangeRates[LAST_UPDATED] = +new Date();
   exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = rate;
-  await AsyncStorage.setItem(EXCHANGE_RATES, JSON.stringify(exchangeRates));
-  await AsyncStorage.setItem(PREFERRED_CURRENCY, JSON.stringify(preferredFiatCurrency));
-  await setPrefferedCurrency(preferredFiatCurrency);
+  await AsyncStorage.setItem(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(exchangeRates));
 }
 
-let interval = false;
-async function startUpdater() {
-  if (interval) {
-    clearInterval(interval);
-    exchangeRates[STRUCT.LAST_UPDATED] = 0;
+/**
+ * this function reads storage and restores current preferred fiat currency & last saved exchange rate, then calls
+ * updateExchangeRate() to update rates.
+ * should be called when the app starts and when user changes preferred fiat (with TRUE argument so underlying
+ * `updateExchangeRate()` would actually update rates via api).
+ *
+ * @param clearLastUpdatedTime {boolean} set to TRUE for the underlying
+ *
+ * @return {Promise<void>}
+ */
+async function init(clearLastUpdatedTime = false) {
+  await _restoreSavedExchangeRatesFromStorage();
+  await _restoreSavedPreferredFiatCurrencyFromStorage();
+
+  if (clearLastUpdatedTime) {
+    exchangeRates[LAST_UPDATED] = 0;
+    lastTimeUpdateExchangeRateWasCalled = 0;
   }
 
-  interval = setInterval(() => updateExchangeRate(), 2 * 60 * 100);
   return updateExchangeRate();
 }
 
 function satoshiToLocalCurrency(satoshi) {
   if (!exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]) {
-    startUpdater();
+    updateExchangeRate();
     return '...';
   }
 
@@ -169,8 +200,7 @@ function _setExchangeRate(pair, rate) {
 }
 
 module.exports.updateExchangeRate = updateExchangeRate;
-module.exports.startUpdater = startUpdater;
-module.exports.STRUCT = STRUCT;
+module.exports.init = init;
 module.exports.satoshiToLocalCurrency = satoshiToLocalCurrency;
 module.exports.fiatToBTC = fiatToBTC;
 module.exports.satoshiToBTC = satoshiToBTC;
@@ -181,5 +211,6 @@ module.exports.btcToSatoshi = btcToSatoshi;
 module.exports.getCurrencySymbol = getCurrencySymbol;
 module.exports._setPreferredFiatCurrency = _setPreferredFiatCurrency; // export it to mock data in tests
 module.exports._setExchangeRate = _setExchangeRate; // export it to mock data in tests
-module.exports.PREFERRED_CURRENCY = PREFERRED_CURRENCY;
-module.exports.EXCHANGE_RATES = EXCHANGE_RATES;
+module.exports.PREFERRED_CURRENCY = PREFERRED_CURRENCY_STORAGE_KEY;
+module.exports.EXCHANGE_RATES = EXCHANGE_RATES_STORAGE_KEY;
+module.exports.LAST_UPDATED = LAST_UPDATED;
