@@ -181,6 +181,7 @@ android {
 }
 
 dependencies {
+    implementation files("../../node_modules/rn-ldk/android/libs/LDK-release.aar")
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")

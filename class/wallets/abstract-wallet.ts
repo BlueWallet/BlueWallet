@@ -413,6 +413,10 @@ export class AbstractWallet {
     this._utxoMetadata[`${txid}:${vout}`] = meta;
   }
 
+  isSegwit() {
+    return false;
+  }
+
   /**
    * @returns {string} Root derivation path for wallet if any
    */

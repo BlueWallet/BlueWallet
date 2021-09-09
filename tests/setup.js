@@ -100,6 +100,9 @@ jest.mock('react-native-document-picker', () => ({}));
 
 jest.mock('react-native-haptic-feedback', () => ({}));
 
+jest.mock('rn-ldk/lib/module', () => ({}));
+jest.mock('rn-ldk/src/index', () => ({}));
+
 const realmInstanceMock = {
   close: function () {},
   write: function () {},

@@ -78,12 +78,12 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
     <View style={styles.root}>
       <BlueCard style={styles.amount}>
         <View style={styles.view}>
-          {amount && (
+          {amount ? (
             <>
               <Text style={[styles.amountValue, stylesHook.amountValue]}>{amount}</Text>
               <Text style={[styles.amountUnit, stylesHook.amountUnit]}>{' ' + loc.units[amountUnit]}</Text>
             </>
-          )}
+          ) : null}
         </View>
         {fee > 0 && (
           <Text style={styles.feeText}>
@@ -144,8 +144,6 @@ const styles = StyleSheet.create({
   view: {
     flexDirection: 'row',
     justifyContent: 'center',
-    paddingTop: 76,
-    paddingBottom: 16,
   },
   amountValue: {
     fontSize: 36,
@@ -173,7 +171,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 43,
     marginBottom: 53,
   },
   lottie: {

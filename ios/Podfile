@@ -1,4 +1,4 @@
-platform :ios, '11.1'
+platform :ios, '13.0'
 workspace 'BlueWallet'
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
@@ -23,7 +23,7 @@ target 'BlueWallet' do
       plugin 'cocoapods-bugsnag'
       installer.pods_project.targets.each do |target|
           target.build_configurations.each do |config|
-            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.1'
+            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
             if ['React-Core-AccessibilityResources'].include? target.name 
               config.build_settings['CODE_SIGN_STYLE'] = "Manual"
               config.build_settings['CODE_SIGN_IDENTITY'] = "Apple Distribution: Bluewallet Services, S. R. L. (A7W54YZ4WU)"

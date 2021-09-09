@@ -513,7 +513,7 @@ export class LightningCustodianWallet extends LegacyWallet {
    *   route_hints: [] }
    *
    * @param invoice BOLT invoice string
-   * @return {Promise.<Object>}
+   * @return {payment_hash: string}
    */
   decodeInvoice(invoice) {
     const { payeeNodeKey, tags, satoshis, millisatoshis, timestamp } = bolt11.decode(invoice);
