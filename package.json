@@ -35,6 +35,7 @@
     "eslint-plugin-react": "^7.23.2",
     "eslint-plugin-standard": "^4.1.0",
     "jest": "^26.1.0",
+    "node-fetch": "^2.6.2",
     "prettier": "^2.2.1",
     "react-test-renderer": "17.0.1",
     "typescript": "^4.3.5"

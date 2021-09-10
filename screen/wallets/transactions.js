@@ -250,7 +250,6 @@ const WalletTransactions = () => {
     return (
       <View style={styles.flex}>
         <View style={styles.listHeader}>
-        
           {/*
             Current logic - Onchain:
             - Shows buy button on middle when empty
@@ -265,7 +264,10 @@ const WalletTransactions = () => {
             The idea is to avoid showing on iOS an appstore/market style app that goes against the TOS.
 
            */}
-          {wallet.getTransactions().length > 0 && wallet.chain !== Chain.OFFCHAIN && wallet.type !== LightningLdkWallet.type && renderSellFiat()}
+          {wallet.getTransactions().length > 0 &&
+            wallet.chain !== Chain.OFFCHAIN &&
+            wallet.type !== LightningLdkWallet.type &&
+            renderSellFiat()}
           {wallet.chain === Chain.OFFCHAIN && wallet.type !== LightningLdkWallet.type && renderMarketplaceButton()}
           {wallet.chain === Chain.OFFCHAIN && wallet.type !== LightningLdkWallet.type && Platform.OS === 'ios' && renderLappBrowserButton()}
         </View>
