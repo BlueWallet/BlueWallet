@@ -93,8 +93,8 @@
     "offer_minutes": "Minimum",
     "offer_promt_fiat": "Wieviel {currency} möchtest du kaufen?",
     "offer_promt_fiat_e": "Zum Beispiel 100",
-    "offer_window": "Fenster",
-    "p2p": "Eine Peer2Peer Börse"
+    "offer_window": "Bedingung",
+    "p2p": "Bitcoin via Peer2Peer Börse kaufen"
   },
   "lnd": {
     "active":"Aktiv",
@@ -105,7 +105,7 @@
     "close_channel": "Kanal schließen",
     "new_channel" : "Neuer Kanal",
     "errorInvoiceExpired": "Rechnung verfallen",
-    "exchange": "Börse",
+    "exchange": "Via Börse auf ein Wallet abheben",
     "force_close_channel": "Kanal zwangsweise schließen?",
     "expired": "Abgelaufen",
     "node_alias": "Knoten-Alias",
