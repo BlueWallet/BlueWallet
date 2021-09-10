@@ -776,7 +776,7 @@ SPEC CHECKSUMS:
   ReactCommon: 149906e01aa51142707a10665185db879898e966
   RealmJS: e6691dbdccd8b5666c2271ef95616befe68a8b7e
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  rn-ldk: 42786057fd14c70b2a7e1e0e15f5d2f566a969f8
+  rn-ldk: 140e0a3f249b1c71937beab515f4fd14b343adf9
   RNCAsyncStorage: 8324611026e8dc3706f829953aa6e3899f581589
   RNCClipboard: 5df122bc31f95f2b37de9bbadc1dbef5a79cb1b0
   RNCMaskedView: f127cd9652acfa31b91dcff613e07ba18b774db6
