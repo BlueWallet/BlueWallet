@@ -95,7 +95,7 @@
     ]
   },
   "dependencies": {
-    "@babel/preset-env": "7.12.1",
+    "@babel/preset-env": "7.15.6",
     "@bugsnag/react-native": "7.13.0",
     "@bugsnag/source-maps": "2.3.0",
     "@keystonehq/bc-ur-registry": "https://github.com/BlueWallet/ur-registry",
