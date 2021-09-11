@@ -1,13 +1,14 @@
 /* global alert */
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, findNodeHandle, ScrollView, StyleSheet, View } from 'react-native';
 import { getSystemName } from 'react-native-device-info';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme, useIsFocused } from '@react-navigation/native';
 
 import { BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
+
 import loc from '../../loc';
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
@@ -21,6 +22,7 @@ const PsbtMultisigQRCode = () => {
   const { psbtBase64, isShowOpenScanner } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const dynamicQRCode = useRef();
+  const isFocused = useIsFocused();
 
   const psbt = bitcoin.Psbt.fromBase64(psbtBase64);
   const stylesHook = StyleSheet.create({
@@ -35,6 +37,14 @@ const PsbtMultisigQRCode = () => {
     },
   });
   const fileName = `${Date.now()}.psbt`;
+
+  useEffect(() => {
+    if (isFocused) {
+      dynamicQRCode.current?.startAutoMove();
+    } else {
+      dynamicQRCode.current?.stopAutoMove();
+    }
+  }, [isFocused]);
 
   const onBarScanned = ret => {
     if (!ret.data) ret = { data: ret };
