@@ -15,7 +15,7 @@ import {
 import Clipboard from '@react-native-clipboard/clipboard';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import DocumentPicker from 'react-native-document-picker';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme, useIsFocused } from '@react-navigation/native';
 import { isMacCatalina } from '../../blue_modules/environment';
 import RNFS from 'react-native-fs';
 import Biometric from '../../class/biometrics';
@@ -42,6 +42,7 @@ const PsbtWithHardwareWallet = () => {
   const [txHex, setTxHex] = useState(route.params.txhex);
   const openScannerButton = useRef();
   const dynamicQRCode = useRef();
+  const isFocused = useIsFocused();
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -94,6 +95,14 @@ const PsbtWithHardwareWallet = () => {
       alert(Err);
     }
   };
+
+  useEffect(() => {
+    if (isFocused) {
+      dynamicQRCode.current?.startAutoMove();
+    } else {
+      dynamicQRCode.current?.stopAutoMove();
+    }
+  }, [isFocused]);
 
   useEffect(() => {
     if (!psbt && !route.params.txhex) {
