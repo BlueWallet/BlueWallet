@@ -261,6 +261,7 @@
     "electrum_connected": "Verbonden",
     "electrum_connected_not": "Niet verbonden",
     "electrum_error_connect": "Kan niet verbinden met aangeleverde Electrum server",
+    "lndhub_uri": "Voorbeeld {example}",
     "electrum_host": "Voorbeeld {example}",
     "electrum_offline_mode": "Offline Modus",
     "electrum_offline_description": "Indien ingeschakeld, zullen uw Bitcoin wallets geen poging doen om  balansen of transacties op te halen.",

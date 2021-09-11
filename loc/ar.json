@@ -261,6 +261,7 @@
     "electrum_connected": "متصل",
     "electrum_connected_not": "غير متصل",
     "electrum_error_connect": "يتعذَّر الاتصال بخادم Electrum المقدَّم",
+    "lndhub_uri": "على سبيل المثال {example}",
     "electrum_host": "على سبيل المثال {example}",
     "electrum_port": "منفذ، يكون عادةً {example}",
     "use_ssl": "استخدم SSL",

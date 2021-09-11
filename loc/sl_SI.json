@@ -260,6 +260,7 @@
     "electrum_connected": "Povezano",
     "electrum_connected_not": "Brez povezave",
     "electrum_error_connect": "Povezave s podanim Electrum strežnikom ni mogoče vzpostaviti",
+    "lndhub_uri": "Npr. {example}",
     "electrum_host": "Npr. {example}",
     "electrum_port": "Vrata, ponavadi {example}",
     "use_ssl": "SSL",

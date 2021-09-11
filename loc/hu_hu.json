@@ -260,6 +260,7 @@
     "electrum_connected": "Kapcsolódva",
     "electrum_connected_not": "Nincs kapcsolat",
     "electrum_error_connect": "Nem tud csatlakozni a kiválasztott Electrum szerverhez",
+    "lndhub_uri": "Pl. {example}",
     "electrum_host": "Pl. {example}",
     "electrum_port": "Port, álltalában {example}",
     "use_ssl": "SSL Használata",

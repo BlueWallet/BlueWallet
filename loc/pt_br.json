@@ -254,6 +254,7 @@
     "electrum_connected": "Conectado",
     "electrum_connected_not": "Não conectado",
     "electrum_error_connect": "Não é possível conectar ao servidor Electrum fornecido",
+    "lndhub_uri": "Por ex. {example}",
     "electrum_host": "Por ex. {example}",
     "electrum_saved": "Suas alterações foram salvas com sucesso. Pode ser necessário reiniciar para que as alterações tenham efeito.",
     "set_electrum_server_as_default": "Definir {server} como servidor Electrum padrão?",
