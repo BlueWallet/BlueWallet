@@ -395,14 +395,44 @@ export class LegacyWallet extends AbstractWallet {
       algo = coinSelectSplit;
     }
 
-    const { inputs, outputs, fee } = algo(utxos, targets, feeRate);
+    const uxtosSegwitCompatible = utxos.map(utxo => {
+      const u = (utxo as unknown) as Utxo;
+      if (u.address && u.address.startsWith('bc1')) {
+        // TODO: check if its P2WPKH or P2WSH
+        return {
+          ...utxo,
+          script: {
+            length: 27,
+          },
+        };
+      }
+
+      return utxo;
+    });
+
+    const targetsSegwitCompatible = targets.map(target => {
+      if (target.address && target.address.startsWith('bc1')) {
+        // TODO: check if its P2WPKH or P2WSH
+
+        return {
+          ...target,
+          script: {
+            length: 22,
+          },
+        };
+      }
+
+      return target;
+    });
+
+    const { inputs, outputs, fee } = algo(uxtosSegwitCompatible, targetsSegwitCompatible, feeRate);
 
     // .inputs and .outputs will be undefined if no solution was found
     if (!inputs || !outputs) {
       throw new Error('Not enough balance. Try sending smaller amount or decrease the fee.');
     }
 
-    return { inputs, outputs, fee };
+    return { inputs: (inputs as unknown) as U[], outputs, fee };
   }
 
   /**
