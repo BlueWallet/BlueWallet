@@ -274,6 +274,7 @@
     "electrum_connected": "Conectado",
     "electrum_connected_not": "Não conectado",
     "electrum_error_connect": "Não é possível conectar ao servidor Electrum fornecido",
+    "lndhub_uri": "Por ex. {example}",
     "electrum_host": "Por ex. {example}",
     "electrum_offline_mode": "Modo offline",
     "use_ssl": "Usar SSL",

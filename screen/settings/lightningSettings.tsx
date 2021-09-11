@@ -152,7 +152,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
           <TextInput
             value={URI}
             placeholder={
-              loc.formatString(loc.settings.electrum_host, { example: 'https://10.20.30.40:3000' }) +
+              loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:3000' }) +
               (isTorCapable ? ' (' + loc.settings.tor_supported + ')' : '')
             }
             onChangeText={setLndhubURI}

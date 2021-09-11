@@ -260,6 +260,7 @@
     "electrum_connected": "Подключено",
     "electrum_connected_not": "Не Подключено",
     "electrum_error_connect": "Не удается подключиться к Electrum серверу",
+    "lndhub_uri": "Например {example}",
     "electrum_host": "Например {example}",
     "electrum_port": "Порт, обычно {example}",
     "use_ssl": "Использовать SSL",

@@ -292,6 +292,7 @@
     "electrum_connected_not": "غير متصل",
     "electrum_connnected_not_description": "مطلوب اتصال Electrum نشط لاستيراد المحفظة. يمكنك التحقق إذا كان قد تم إنشاء اتصال بالانتقال إلى قسم الشبكة في الإعدادات.",
     "electrum_error_connect": "يتعذَّر الاتصال بخادم Electrum المقدَّم",
+    "lndhub_uri": "على سبيل المثال {example}",
     "electrum_host": "على سبيل المثال {example}",
     "electrum_offline_mode": "وضع عدم الاتصال بالشبكة",
     "electrum_offline_description": "عند التفعيل، لن تحاول محافظ Bitcoin الخاصة بك جلب الأرصدة أو المعاملات.",

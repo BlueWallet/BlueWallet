@@ -292,6 +292,7 @@
     "electrum_connected_not": "عدم اتصال",
     "electrum_connnected_not_description": "برای واردکردن کیف پول به یک اتصال فعال الکترام نیاز است. جهت اطمینان از برقراری اتصال می‌توانید به بخش شبکه در تنظیمات بروید.",
     "electrum_error_connect": "نمی‌توان به سرور الکترام ارائه‌شده متصل شد",
+    "lndhub_uri": "به‌عنوان مثال، {example}",
     "electrum_host": "به‌عنوان مثال، {example}",
     "electrum_offline_mode": "حالت آفلاین",
     "electrum_offline_description": "درصورت فعال‌بودن، کیف پول‌های بیت‌کوین شما اقدام به دریافت موجودی یا تراکنش نخواهند کرد.",

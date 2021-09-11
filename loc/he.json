@@ -286,6 +286,7 @@
     "electrum_connected_not": "לא מחובר",
     "electrum_connnected_not_description": "חיבור אלקטרום פעיל נדרש ליבוא ארנק. ביכולתך לוודא האם חיבור נוצר באזור \"רשת\" בהגדרות היישומון.",
     "electrum_error_connect": "לא ניתן להתחבר לשרת אלקטרום",
+    "lndhub_uri": "למשל {example}",
     "electrum_host": "למשל {example}",
     "electrum_offline_mode": "מצב לא מקוון",
     "electrum_offline_description": "כאשר מאופשר, ארנקי הביטקוין שלך לא ינסו למשוך מאזנים או פעולות.",
