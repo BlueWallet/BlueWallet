@@ -20,6 +20,7 @@ const PsbtMultisigQRCode = () => {
   const openScannerButton = useRef();
   const { psbtBase64, isShowOpenScanner } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
+  const dynamicQRCode = useRef();
 
   const psbt = bitcoin.Psbt.fromBase64(psbtBase64);
   const stylesHook = StyleSheet.create({
@@ -64,15 +65,23 @@ const PsbtMultisigQRCode = () => {
   };
 
   const exportPSBT = () => {
+    dynamicQRCode.current?.stopAutoMove();
     setIsLoading(true);
-    setTimeout(() => fs.writeFileAndExport(fileName, psbt.toBase64()).finally(() => setIsLoading(false)), 10);
+    setTimeout(
+      () =>
+        fs.writeFileAndExport(fileName, psbt.toBase64()).finally(() => {
+          setIsLoading(false);
+          dynamicQRCode.current?.startAutoMove();
+        }),
+      10,
+    );
   };
 
   return (
     <SafeBlueArea style={stylesHook.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
-          <DynamicQRCode value={psbt.toHex()} />
+          <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
           {!isShowOpenScanner && (
             <>
               <BlueSpacing20 />

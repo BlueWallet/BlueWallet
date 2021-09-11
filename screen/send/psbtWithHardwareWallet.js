@@ -48,6 +48,7 @@ const PsbtWithHardwareWallet = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [txHex, setTxHex] = useState(route.params.txhex);
   const openScannerButton = useRef();
+  const dynamicQRCode = useRef();
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -192,7 +193,10 @@ const PsbtWithHardwareWallet = () => {
 
   const exportPSBT = () => {
     const fileName = `${Date.now()}.psbt`;
-    fs.writeFileAndExport(fileName, typeof psbt === 'string' ? psbt : psbt.toBase64());
+    dynamicQRCode.current?.stopAutoMove();
+    fs.writeFileAndExport(fileName, typeof psbt === 'string' ? psbt : psbt.toBase64()).finally(() => {
+      dynamicQRCode.current?.startAutoMove();
+    });
   };
 
   const openSignedTransaction = async () => {
@@ -244,7 +248,7 @@ const PsbtWithHardwareWallet = () => {
             <Text testID="PSBTHex" style={styles.hidden}>
               {psbt.toHex()}
             </Text>
-            <DynamicQRCode value={psbt.toHex()} />
+            <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
             <BlueSpacing20 />
             <SecondButton
               testID="PsbtTxScanButton"
