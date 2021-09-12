@@ -45,7 +45,6 @@ allprojects {
                 includeModule("com.facebook.fresco", "nativeimagefilters")
                 includeModule("com.facebook.stetho", "stetho")
                 includeModule("com.wei.android.lib", "fingerprintidentify")
-                includeModule("com.eightbitlab", "blurview")
             }
         }
         mavenCentral()
