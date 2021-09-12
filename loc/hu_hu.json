@@ -101,7 +101,6 @@
     "exchange": "Átváltás",
     "expired": "Lejárt",
     "expiredLow": "lejárt",
-    "expiresIn": "Lejár: {time}",
     "payButton": "Fizess",
     "placeholder": "Számla",
     "potentialFee": "Várható díj: {fee}",

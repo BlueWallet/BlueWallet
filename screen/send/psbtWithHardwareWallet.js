@@ -41,7 +41,7 @@ const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
   const navigation = useNavigation();
   const route = useRoute();
-  const { fromWallet, memo, psbt, deepLinkPSBT } = route.params;
+  const { fromWallet, memo, psbt, deepLinkPSBT, launchedBy } = route.params;
   const routeParamsPSBT = useRef(route.params.psbt);
   const routeParamsTXHex = route.params.txhex;
   const { colors } = useTheme();
@@ -89,6 +89,13 @@ const PsbtWithHardwareWallet = () => {
     try {
       const Tx = _combinePSBT(ret.data);
       setTxHex(Tx.toHex());
+      if (launchedBy) {
+        // we must navigate back to the screen who requested psbt (instead of broadcasting it ourselves)
+        // most likely for LN channel opening
+        navigation.navigate(launchedBy, { psbt });
+        // ^^^ we just use `psbt` variable sinse it was finalized in the above _combinePSBT()
+        // (passed by reference)
+      }
     } catch (Err) {
       alert(Err);
     }

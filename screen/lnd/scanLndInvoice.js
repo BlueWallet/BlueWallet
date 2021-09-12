@@ -20,7 +20,6 @@ import { BlueButton, BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, S
 import navigationStyle from '../../components/navigationStyle';
 import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
-import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import Lnurl from '../../class/lnurl';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import Biometric from '../../class/biometrics';
@@ -35,7 +34,7 @@ const ScanLndInvoice = () => {
   const name = useRoute().name;
   /** @type {LightningCustodianWallet} */
   const [wallet, setWallet] = useState(
-    wallets.find(item => item.getID() === walletID) || wallets.find(item => item.type === LightningCustodianWallet.type),
+    wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN),
   );
   const { navigate, setParams, goBack, pop } = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
@@ -111,9 +110,10 @@ const ScanLndInvoice = () => {
 
         let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
         if (+new Date() > expiresIn) {
-          expiresIn = loc.lnd.expiredLow;
+          expiresIn = loc.lnd.expired;
         } else {
-          expiresIn = Math.round((expiresIn - +new Date()) / (60 * 1000));
+          const time = Math.round((expiresIn - +new Date()) / (60 * 1000));
+          expiresIn = loc.formatString(loc.lnd.expiresIn, { time });
         }
         Keyboard.dismiss();
         setParams({ uri: undefined, invoice: data });
@@ -129,7 +129,7 @@ const ScanLndInvoice = () => {
         setParams({ uri: undefined });
         setTimeout(() => alert(Err.message), 10);
         setIsLoading(false);
-        setAmount(0);
+        setAmount();
         setDestination();
         setExpiresIn();
         setDecoded();
@@ -338,7 +338,7 @@ const ScanLndInvoice = () => {
               </View>
               {expiresIn !== undefined && (
                 <View>
-                  <Text style={styles.expiresIn}>{loc.formatString(loc.lnd.expiresIn, { time: expiresIn })}</Text>
+                  <Text style={styles.expiresIn}>{expiresIn}</Text>
                   {decoded && decoded.num_satoshis > 0 && (
                     <Text style={styles.expiresIn}>{loc.formatString(loc.lnd.potentialFee, { fee: getFees() })}</Text>
                   )}

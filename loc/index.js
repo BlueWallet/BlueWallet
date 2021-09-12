@@ -248,6 +248,9 @@ strings.saveLanguage = async lang => {
 };
 
 export const transactionTimeToReadable = time => {
+  if (time === -1) {
+    return 'unknown';
+  }
   if (time === 0) {
     return strings._.never;
   }

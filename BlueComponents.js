@@ -57,7 +57,6 @@ export const BlueButton = props => {
   return (
     <TouchableOpacity
       style={{
-        flex: 1,
         borderWidth: 0.7,
         borderColor: 'transparent',
         backgroundColor: backgroundColor,
@@ -436,13 +435,13 @@ export const BlueListItem = React.memo(props => {
           </ListItem.Subtitle>
         )}
       </ListItem.Content>
-      <ListItem.Content right>
-        {props.rightTitle && (
+      {props.rightTitle && (
+        <ListItem.Content right>
           <ListItem.Title style={props.rightTitleStyle} numberOfLines={0} right>
             {props.rightTitle}
           </ListItem.Title>
-        )}
-      </ListItem.Content>
+        </ListItem.Content>
+      )}
       {props.isLoading ? (
         <ActivityIndicator />
       ) : (
@@ -572,30 +571,30 @@ export const BlueHeaderDefaultMain = props => {
   const { isDrawerList } = props;
   const { isImportingWallet } = useContext(BlueStorageContext);
   return (
-    <Header
-      leftComponent={{
-        text: props.leftText,
-        style: {
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: isDrawerList ? colors.elevated : colors.background,
+        paddingHorizontal: 16,
+        borderTopColor: isDrawerList ? colors.elevated : colors.background,
+        borderBottomColor: isDrawerList ? colors.elevated : colors.background,
+        marginBottom: 8,
+      }}
+    >
+      <Text
+        style={{
+          textAlign: 'left',
           fontWeight: 'bold',
           fontSize: 34,
           color: colors.foregroundColor,
-          paddingHorizontal: 4,
-        },
-      }}
-      placement="left"
-      containerStyle={{
-        borderTopColor: isDrawerList ? colors.elevated : colors.background,
-        borderBottomColor: isDrawerList ? colors.elevated : colors.background,
-        maxHeight: 44,
-        height: 44,
-        paddingTop: 0,
-        marginBottom: 8,
-      }}
-      bottomDivider={false}
-      topDivider={false}
-      backgroundColor={isDrawerList ? colors.elevated : colors.background}
-      rightComponent={isImportingWallet ? undefined : <BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />}
-    />
+        }}
+      >
+        {props.leftText}
+      </Text>
+      {isImportingWallet ? undefined : <BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />}
+    </View>
   );
 };
 
@@ -622,7 +621,8 @@ export class is {
 }
 
 export const BlueSpacing20 = props => {
-  return <View {...props} style={{ height: 20, opacity: 0 }} />;
+  const { horizontal = false } = props;
+  return <View {...props} style={{ height: horizontal ? 0 : 20, width: horizontal ? 20 : 0, opacity: 0 }} />;
 };
 
 export const BlueSpacing10 = props => {

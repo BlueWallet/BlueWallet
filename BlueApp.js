@@ -69,6 +69,6 @@ const startAndDecrypt = async retry => {
 };
 
 BlueApp.startAndDecrypt = startAndDecrypt;
-currency.startUpdater();
+currency.init();
 
 module.exports = BlueApp;

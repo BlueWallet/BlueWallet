@@ -63,7 +63,7 @@ const Currency = () => {
                   setIsSavingNewPreferredCurrency(true);
                   setSelectedCurrency(item);
                   await currency.setPrefferedCurrency(item);
-                  await currency.startUpdater();
+                  await currency.init(true);
                   setIsSavingNewPreferredCurrency(false);
                   setPreferredFiatCurrency();
                 }}

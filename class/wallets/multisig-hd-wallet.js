@@ -1107,4 +1107,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   static isXpubForMultisig(xpub) {
     return ['xpub', 'Ypub', 'Zpub'].includes(xpub.substring(0, 4));
   }
+
+  isSegwit() {
+    return this.isNativeSegwit() || this.isWrappedSegwit();
+  }
 }
