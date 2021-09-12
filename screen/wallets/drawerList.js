@@ -9,12 +9,11 @@ import { BlueHeaderDefaultMain } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { BlurView } from '@react-native-community/blur';
 
 const DrawerList = props => {
   console.log('drawerList rendering...');
   const walletsCarousel = useRef();
-  const { wallets, selectedWallet, isImportingWallet, isDrawerListBlurred } = useContext(BlueStorageContext);
+  const { wallets, selectedWallet, isImportingWallet } = useContext(BlueStorageContext);
   const { colors } = useTheme();
   const walletsCount = useRef(wallets.length);
   const isFocused = useIsFocused();
@@ -93,9 +92,6 @@ const DrawerList = props => {
         <StatusBar barStyle="default" />
         {renderWalletsCarousel}
       </View>
-      {isDrawerListBlurred && (
-        <BlurView style={styles.absolute} blurType="light" blurAmount={10} reducedTransparencyFallbackColor="white" />
-      )}
     </DrawerContentScrollView>
   );
 };

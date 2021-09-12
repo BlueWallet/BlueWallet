@@ -267,8 +267,6 @@ PODS:
   - React-jsinspector (0.64.2)
   - react-native-blue-crypto (1.0.0):
     - React
-  - react-native-blur (0.8.0):
-    - React
   - react-native-camera (4.1.1):
     - React-Core
     - react-native-camera/RCT (= 4.1.1)
@@ -492,7 +490,6 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-blue-crypto (from `../node_modules/react-native-blue-crypto`)
-  - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-fingerprint-scanner (from `../node_modules/react-native-fingerprint-scanner`)
@@ -604,8 +601,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   react-native-blue-crypto:
     :path: "../node_modules/react-native-blue-crypto"
-  react-native-blur:
-    :path: "../node_modules/@react-native-community/blur"
   react-native-camera:
     :path: "../node_modules/react-native-camera"
   react-native-document-picker:
@@ -749,7 +744,6 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 80c46bd381fd06e418e0d4f53672dc1d1945c4c3
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
-  react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: 457a5279a12864bc241c28518fecd5db2838754c
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0

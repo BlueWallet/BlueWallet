@@ -21,9 +21,9 @@ import {
   TouchableOpacity,
   View,
   I18nManager,
+  ImageBackground,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { BlurView } from '@react-native-community/blur';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 import { encodeUR } from './blue_modules/ur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -284,20 +284,15 @@ export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure 
 };
 
 export const BluePrivateBalance = () => {
-  return Platform.select({
-    ios: (
-      <View style={{ flexDirection: 'row', marginTop: 13 }}>
-        <BlurView style={styles.balanceBlur} blurType="light" blurAmount={25} />
-        <Icon name="eye-slash" type="font-awesome" color="#FFFFFF" />
-      </View>
-    ),
-    android: (
-      <View style={{ flexDirection: 'row', marginTop: 13 }}>
-        <View style={{ backgroundColor: '#FFFFFF', opacity: 0.5, height: 30, width: 100, marginRight: 8 }} />
-        <Icon name="eye-slash" type="font-awesome" color="#FFFFFF" />
-      </View>
-    ),
-  });
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 13, borderRadius: 9 }}>
+      <ImageBackground
+        blurRadius={6}
+        style={{ backgroundColor: '#FFFFFF', opacity: 0.5, height: 30, width: 110, marginRight: 8, borderRadius: 9 }}
+      />
+      <Icon name="eye-slash" type="font-awesome" color="#FFFFFF" />
+    </View>
+  );
 };
 
 export const BlueCopyToClipboardButton = ({ stringToCopy, displayText = false }) => {
@@ -1142,14 +1137,6 @@ export class BlueReplaceFeeSuggestions extends Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  balanceBlur: {
-    height: 30,
-    width: 100,
-    marginRight: 16,
-  },
-});
 
 export function BlueBigCheckmark({ style }) {
   const defaultStyles = {
