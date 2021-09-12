@@ -33,7 +33,6 @@ allprojects {
         jcenter() {
             content {
                 includeModule("com.wei.android.lib", "fingerprintidentify")
-                includeModule("com.eightbitlab", "blurview")
             }
         }
         mavenCentral()
