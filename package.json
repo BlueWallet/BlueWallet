@@ -102,7 +102,6 @@
     "@ngraveio/bc-ur": "https://github.com/BlueWallet/bc-ur",
     "@react-native-async-storage/async-storage": "1.15.5",
     "@react-native-clipboard/clipboard": "1.8.4",
-    "@react-native-community/masked-view": "0.1.11",
     "@react-native-community/push-notification-ios": "1.10.1",
     "@react-navigation/drawer": "5.12.5",
     "@react-navigation/native": "5.9.4",
