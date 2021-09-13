@@ -36,4 +36,9 @@ A.setOptOut = value => {
   if (value) userHasOptedOut = true;
 };
 
+A.logError = errorString => {
+  console.error(errorString);
+  Bugsnag.notify(new Error(String(errorString)));
+};
+
 module.exports = A;
