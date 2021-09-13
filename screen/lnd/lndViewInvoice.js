@@ -1,11 +1,10 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet, I18nManager } from 'react-native';
+import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet, I18nManager, Image } from 'react-native';
 import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-
 import {
   BlueLoading,
   BlueText,
@@ -25,8 +24,8 @@ const LNDViewInvoice = () => {
   const { invoice, walletID, isModal } = useRoute().params;
   const { wallets, setSelectedWallet, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
-  const { colors } = useTheme();
-  const { goBack, navigate, setParams, setOptions } = useNavigation();
+  const { colors, closeImage } = useTheme();
+  const { goBack, navigate, setParams, setOptions, dangerouslyGetParent } = useNavigation();
   const [isLoading, setIsLoading] = useState(typeof invoice === 'string');
   const [isFetchingInvoices, setIsFetchingInvoices] = useState(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState(false);
@@ -75,17 +74,30 @@ const LNDViewInvoice = () => {
       isModal === true
         ? {
             headerStyle: {
-              backgroundColor: colors.customHeader,
               borderBottomWidth: 0,
               elevation: 0,
               shadowOpacity: 0,
               shadowOffset: { height: 0, width: 0 },
             },
             gestureEnabled: false,
+            headerHideBackButton: true,
+
+            headerRight: () => (
+              <TouchableOpacity
+                accessibilityRole="button"
+                style={styles.button}
+                onPress={() => {
+                  dangerouslyGetParent().pop();
+                }}
+                testID="NavigationCloseButton"
+              >
+                <Image source={closeImage} />
+              </TouchableOpacity>
+            ),
           }
         : {
+            headerRight: () => {},
             headerStyle: {
-              backgroundColor: colors.customHeader,
               borderBottomWidth: 0,
               elevation: 0,
               shadowOpacity: 0,
@@ -94,7 +106,7 @@ const LNDViewInvoice = () => {
           },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors]);
+  }, [colors, isModal]);
 
   useEffect(() => {
     setSelectedWallet(walletID);
@@ -352,28 +364,11 @@ const styles = StyleSheet.create({
   },
 });
 
-LNDViewInvoice.navigationOptions = navigationStyle(
-  {
-    closeButton: true,
-    closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().pop(),
-  },
-  (options, { theme, navigation, route }) => {
-    const additionalOptions =
-      route.params.isModal === true
-        ? {
-            headerLeft: null,
-            gestureEnabled: false,
-          }
-        : {
-            headerRight: null,
-          };
-
-    return {
-      ...options,
-      ...additionalOptions,
-      title: loc.lndViewInvoice.lightning_invoice,
-    };
-  },
-);
+LNDViewInvoice.navigationOptions = navigationStyle({}, options => {
+  return {
+    ...options,
+    headerTitle: loc.lndViewInvoice.lightning_invoice,
+  };
+});
 
 export default LNDViewInvoice;

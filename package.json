@@ -106,7 +106,6 @@
     "@react-native-community/push-notification-ios": "1.10.1",
     "@react-navigation/drawer": "5.12.5",
     "@react-navigation/native": "5.9.4",
-    "@react-navigation/stack": "5.14.5",
     "@remobile/react-native-qrcode-local-image": "https://github.com/BlueWallet/react-native-qrcode-local-image",
     "aez": "1.0.1",
     "assert": "2.0.0",

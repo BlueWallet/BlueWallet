@@ -77,12 +77,10 @@ const PleaseBackupLdk = () => {
 };
 
 PleaseBackupLdk.navigationOptions = navigationStyle({
-  closeButton: true,
   title: loc.pleasebackup.title,
-  headerLeft: null,
-  headerRight: null,
   gestureEnabled: false,
   swipeEnabled: false,
+  headerHideBackButton: true,
 });
 
 export default PleaseBackupLdk;

@@ -520,7 +520,7 @@ export default LNDCreateInvoice;
 LNDCreateInvoice.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerLeft: null,
+    headerHideBackButton: true,
   },
   opts => ({ ...opts, title: loc.receive.header }),
 );

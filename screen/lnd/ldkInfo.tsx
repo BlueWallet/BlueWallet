@@ -155,7 +155,6 @@ const LdkInfo = () => {
   useEffect(() => {
     setOptions({
       headerStyle: {
-        backgroundColor: colors.customHeader,
         borderBottomWidth: 0,
         elevation: 0,
         shadowOpacity: 0,
@@ -615,22 +614,10 @@ const styles = StyleSheet.create({
 LdkInfo.navigationOptions = navigationStyle(
   {
     title: loc.lnd.channels,
-    closeButton: true,
-    closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().pop(),
   },
   (options, { theme, navigation, route }) => {
-    const additionalOptions =
-      route.params.isModal === true
-        ? {
-            headerLeft: null,
-          }
-        : {
-            headerRight: null,
-          };
-
     return {
       ...options,
-      ...additionalOptions,
     };
   },
 );
