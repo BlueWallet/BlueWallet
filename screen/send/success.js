@@ -136,7 +136,8 @@ const styles = StyleSheet.create({
     paddingTop: 19,
   },
   buttonContainer: {
-    padding: 58,
+    paddingHorizontal: 58,
+    paddingBottom: 16,
   },
   amount: {
     alignItems: 'center',
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
     color: '#37c0a1',
     fontSize: 14,
     marginHorizontal: 4,
-    paddingBottom: 6,
+    paddingVertical: 6,
     fontWeight: '500',
     alignSelf: 'center',
   },
@@ -169,7 +170,6 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     alignSelf: 'center',
-    justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 53,
   },
