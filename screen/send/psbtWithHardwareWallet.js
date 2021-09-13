@@ -20,19 +20,12 @@ import { isMacCatalina } from '../../blue_modules/environment';
 import RNFS from 'react-native-fs';
 import Biometric from '../../class/biometrics';
 
-import {
-  SecondButton,
-  BlueText,
-  SafeBlueArea,
-  BlueCard,
-  BlueSpacing20,
-  BlueCopyToClipboardButton,
-  DynamicQRCode,
-} from '../../BlueComponents';
+import { SecondButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing20, BlueCopyToClipboardButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
