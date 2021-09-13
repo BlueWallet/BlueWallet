@@ -67,7 +67,6 @@ const TransactionsDetails = () => {
         elevation: 0,
         shadowOpacity: 0,
         shadowOffset: { height: 0, width: 0 },
-        backgroundColor: colors.customHeader,
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

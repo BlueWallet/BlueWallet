@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -13,7 +13,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Alert,
   findNodeHandle,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
@@ -68,8 +67,7 @@ const WalletsAddMultisigStep2 = () => {
   const [importText, setImportText] = useState('');
   const openScannerButton = useRef();
   const data = useRef(new Array(n));
-  const hasUnsavedChanges = Boolean(cosigners.length > 0 && cosigners.length !== n);
-  const isDiscardConfirmAlertPresented = useRef(false);
+
   const handleOnHelpPress = () => {
     navigation.navigate('WalletsAddMultisigHelp');
   };
@@ -144,36 +142,6 @@ const WalletsAddMultisigStep2 = () => {
     setIsLoading(true);
     setTimeout(_onCreate, 100);
   };
-
-  useEffect(() => {
-    navigation.addListener('beforeRemove', e => {
-      if (e.data.action.type === 'POP' && hasUnsavedChanges) {
-        e.preventDefault();
-
-        // Prompt the user before leaving the screen
-        if (isDiscardConfirmAlertPresented.current === false) {
-          isDiscardConfirmAlertPresented.current = true;
-          Alert.alert(loc._.discard_changes, loc._.discard_changes_detail, [
-            {
-              text: loc._.cancel,
-              style: 'cancel',
-              onPress: () => {
-                isDiscardConfirmAlertPresented.current = false;
-              },
-            },
-            {
-              text: loc._.ok,
-              style: 'destructive',
-              // If the user confirmed, then we dispatch the action we blocked earlier
-              // This will continue the action that had triggered the removal of the screen
-              onPress: () => navigation.dispatch(e.data.action),
-            },
-          ]);
-        }
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigation, hasUnsavedChanges, cosigners]);
 
   const _onCreate = async () => {
     const w = new MultisigHDWallet();

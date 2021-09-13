@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
 ExportMultisigCoordinationSetup.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerLeft: null,
+    headerHideBackButton: true,
   },
   opts => ({ ...opts, title: loc.multisig.export_coordination_setup }),
 );

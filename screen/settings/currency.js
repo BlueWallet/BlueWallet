@@ -51,7 +51,7 @@ const Currency = () => {
           style={styles.flex}
           keyExtractor={(_item, index) => `${index}`}
           data={data}
-          initialNumToRender={25}
+          initialNumToRender={50}
           extraData={data}
           renderItem={({ item }) => {
             return (
