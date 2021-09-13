@@ -131,6 +131,7 @@
     "electrum-mnemonic": "2.0.0",
     "events": "3.3.0",
     "frisbee": "3.1.4",
+    "jail-monkey": "git+https://github.com/BlueWallet/jail-monkey.git#v2.4.0",
     "junderw-crc32c": "1.2.0",
     "lottie-ios": "3.1.9",
     "lottie-react-native": "4.0.2",

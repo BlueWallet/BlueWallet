@@ -64,6 +64,8 @@ PODS:
     - GCDWebServer/Core (= 3.5.4)
   - GCDWebServer/Core (3.5.4)
   - glog (0.3.5)
+  - jail-monkey (2.4.0):
+    - React-Core
   - libevent (2.1.12)
   - lottie-ios (3.1.9)
   - lottie-react-native (4.0.2):
@@ -471,6 +473,7 @@ DEPENDENCIES:
   - FlipperKit/FlipperKitUserDefaultsPlugin (~> 0.75.1)
   - FlipperKit/SKIOSNetworkPlugin (~> 0.75.1)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - jail-monkey (from `../node_modules/jail-monkey`)
   - lottie-ios (from `../node_modules/lottie-ios`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - PasscodeAuth (from `../node_modules/react-native-passcode-auth`)
@@ -568,6 +571,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/React/FBReactNativeSpec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
+  jail-monkey:
+    :path: "../node_modules/jail-monkey"
   lottie-ios:
     :path: "../node_modules/lottie-ios"
   lottie-react-native:
@@ -722,6 +727,7 @@ SPEC CHECKSUMS:
   FlipperKit: 8a20b5c5fcf9436cac58551dc049867247f64b00
   GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
+  jail-monkey: 01cd0a75aa1034d08fd851869e6e6c3b063242d7
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 3a3758ef5a008e762faec9c9d50a39842f26d124
   lottie-react-native: 4dff8fe8d10ddef9e7880e770080f4a56121397e
