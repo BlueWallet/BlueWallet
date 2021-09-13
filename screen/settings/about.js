@@ -12,6 +12,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const A = require('../../blue_modules/analytics');
+const branch = require('../../current-branch.json');
 
 const About = () => {
   const { navigate } = useNavigation();
@@ -210,7 +211,7 @@ const About = () => {
       <BlueSpacing20 />
       <BlueSpacing20 />
       <BlueTextCentered>
-        {getApplicationName()} ver {getVersion()} (build {getBuildNumber()})
+        {getApplicationName()} ver {getVersion()} (build {getBuildNumber() + ' ' + branch})
       </BlueTextCentered>
       <BlueTextCentered>{new Date(getBuildNumber() * 1000).toGMTString()}</BlueTextCentered>
       <BlueTextCentered>{getBundleId()}</BlueTextCentered>
