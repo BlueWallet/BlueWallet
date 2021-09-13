@@ -373,8 +373,6 @@ PODS:
     - React-Core
   - RNCClipboard (1.8.4):
     - React-Core
-  - RNCMaskedView (0.1.11):
-    - React
   - RNCPushNotificationIOS (1.10.1):
     - React-Core
   - RNDefaultPreference (1.4.3):
@@ -519,7 +517,6 @@ DEPENDENCIES:
   - rn-ldk (from `../node_modules/rn-ldk`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
-  - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - "RNCPushNotificationIOS (from `../node_modules/@react-native-community/push-notification-ios`)"
   - RNDefaultPreference (from `../node_modules/react-native-default-preference`)
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
@@ -659,8 +656,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
     :path: "../node_modules/@react-native-clipboard/clipboard"
-  RNCMaskedView:
-    :path: "../node_modules/@react-native-community/masked-view"
   RNCPushNotificationIOS:
     :path: "../node_modules/@react-native-community/push-notification-ios"
   RNDefaultPreference:
@@ -773,7 +768,6 @@ SPEC CHECKSUMS:
   rn-ldk: 42786057fd14c70b2a7e1e0e15f5d2f566a969f8
   RNCAsyncStorage: 8324611026e8dc3706f829953aa6e3899f581589
   RNCClipboard: 5df122bc31f95f2b37de9bbadc1dbef5a79cb1b0
-  RNCMaskedView: f127cd9652acfa31b91dcff613e07ba18b774db6
   RNCPushNotificationIOS: 089da3b657e1e3d464f38195fd2e3069608ef5af
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
   RNDeviceInfo: a5e4ea5ffe3384b13014331c1c4e3bfb8d5a6f89
