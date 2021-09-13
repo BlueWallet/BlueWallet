@@ -103,7 +103,7 @@ const SendCreate = () => {
   useEffect(() => {
     setOptions({
       headerRight: () => (
-        <TouchableOpacity accessibilityRole="button" style={styles.export} onPress={exportTXN}>
+        <TouchableOpacity accessibilityRole="button" onPress={exportTXN}>
           <Icon size={22} name="share-alternative" type="entypo" color={colors.foregroundColor} />
         </TouchableOpacity>
       ),
@@ -209,9 +209,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontSize: 15,
     marginBottom: 20,
-  },
-  export: {
-    marginRight: 16,
   },
   itemOf: {
     alignSelf: 'flex-end',

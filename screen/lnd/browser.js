@@ -533,8 +533,8 @@ Browser.contextType = BlueStorageContext;
 
 Browser.navigationOptions = navigationStyle(
   {
+    headerHideBackButton: true,
     closeButton: true,
-    headerLeft: null,
   },
   opts => ({ ...opts, title: loc.wallets.list_ln_browser }),
 );

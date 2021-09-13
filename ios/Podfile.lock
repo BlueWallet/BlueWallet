@@ -222,8 +222,6 @@ PODS:
   - React-jsinspector (0.65.1)
   - react-native-blue-crypto (1.0.0):
     - React
-  - react-native-blur (0.8.0):
-    - React
   - react-native-camera (4.1.1):
     - React-Core
     - react-native-camera/RCT (= 4.1.1)
@@ -330,8 +328,6 @@ PODS:
     - React-Core
   - RNCClipboard (1.8.4):
     - React-Core
-  - RNCMaskedView (0.1.11):
-    - React
   - RNCPushNotificationIOS (1.10.1):
     - React-Core
   - RNDefaultPreference (1.4.3):
@@ -426,7 +422,6 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-blue-crypto (from `../node_modules/react-native-blue-crypto`)
-  - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-fingerprint-scanner (from `../node_modules/react-native-fingerprint-scanner`)
@@ -456,7 +451,6 @@ DEPENDENCIES:
   - rn-ldk (from `../node_modules/rn-ldk`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
-  - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - "RNCPushNotificationIOS (from `../node_modules/@react-native-community/push-notification-ios`)"
   - RNDefaultPreference (from `../node_modules/react-native-default-preference`)
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
@@ -529,8 +523,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   react-native-blue-crypto:
     :path: "../node_modules/react-native-blue-crypto"
-  react-native-blur:
-    :path: "../node_modules/@react-native-community/blur"
   react-native-camera:
     :path: "../node_modules/react-native-camera"
   react-native-document-picker:
@@ -589,8 +581,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
     :path: "../node_modules/@react-native-clipboard/clipboard"
-  RNCMaskedView:
-    :path: "../node_modules/@react-native-community/masked-view"
   RNCPushNotificationIOS:
     :path: "../node_modules/@react-native-community/push-notification-ios"
   RNDefaultPreference:
@@ -666,7 +656,6 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 43f2542aed3c26e42175b339f8d37fe3dd683765
   React-jsinspector: 41e58e5b8e3e0bf061fdf725b03f2144014a8fb0
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
-  react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: 457a5279a12864bc241c28518fecd5db2838754c
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
@@ -696,7 +685,6 @@ SPEC CHECKSUMS:
   rn-ldk: 42786057fd14c70b2a7e1e0e15f5d2f566a969f8
   RNCAsyncStorage: 8324611026e8dc3706f829953aa6e3899f581589
   RNCClipboard: 5df122bc31f95f2b37de9bbadc1dbef5a79cb1b0
-  RNCMaskedView: f127cd9652acfa31b91dcff613e07ba18b774db6
   RNCPushNotificationIOS: 089da3b657e1e3d464f38195fd2e3069608ef5af
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
   RNDeviceInfo: a5e4ea5ffe3384b13014331c1c4e3bfb8d5a6f89

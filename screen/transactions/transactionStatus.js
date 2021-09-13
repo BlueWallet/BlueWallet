@@ -75,7 +75,6 @@ const TransactionsStatus = () => {
         elevation: 0,
         shadowOpacity: 0,
         shadowOffset: { height: 0, width: 0 },
-        backgroundColor: colors.customHeader,
       },
       headerRight: () => (
         <TouchableOpacity
@@ -547,7 +546,6 @@ const styles = StyleSheet.create({
   details: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
     width: 80,
     borderRadius: 8,
     height: 38,
@@ -559,5 +557,5 @@ const styles = StyleSheet.create({
 });
 
 TransactionsStatus.navigationOptions = navigationStyle({
-  title: '',
+  headerTitle: '',
 });

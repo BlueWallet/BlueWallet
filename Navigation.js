@@ -1,5 +1,5 @@
 import React from 'react';
-import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
+import { createNativeStackNavigator } from 'react-native-screens/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Platform, useWindowDimensions, Dimensions, I18nManager } from 'react-native';
 import { useTheme } from '@react-navigation/native';
@@ -88,40 +88,13 @@ import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
 import LdkViewLogs from './screen/wallets/ldkViewLogs';
 
-const defaultScreenOptions =
-  Platform.OS === 'ios'
-    ? ({ route, navigation }) => ({
-        gestureEnabled: true,
-        cardOverlayEnabled: true,
-        headerStatusBarHeight: navigation.dangerouslyGetState().routes.indexOf(route) > 0 ? 10 : undefined,
-        ...TransitionPresets.ModalPresentationIOS,
-        gestureResponseDistance: { vertical: Dimensions.get('window').height, horizontal: 50 },
-      })
-    : {
-        gestureEnabled: true,
-        cardOverlayEnabled: true,
-        ...TransitionPresets.ScaleFromCenterAndroid,
-      };
-const defaultStackScreenOptions =
-  Platform.OS === 'ios'
-    ? {
-        gestureEnabled: true,
-        cardOverlayEnabled: true,
-        headerStatusBarHeight: 10,
-      }
-    : {
-        gestureEnabled: true,
-        cardOverlayEnabled: true,
-        ...TransitionPresets.ScaleFromCenterAndroid,
-      };
-
-const WalletsStack = createStackNavigator();
+const WalletsStack = createNativeStackNavigator();
 
 const WalletsRoot = () => {
   const theme = useTheme();
 
   return (
-    <WalletsStack.Navigator {...(Platform.OS === 'android' ? { screenOptions: defaultScreenOptions } : null)}>
+    <WalletsStack.Navigator screenOptions={{ headerHideShadow: true }}>
       <WalletsStack.Screen name="WalletsList" component={WalletsList} options={WalletsList.navigationOptions(theme)} />
       <WalletsStack.Screen name="WalletTransactions" component={WalletTransactions} options={WalletTransactions.navigationOptions(theme)} />
       <WalletsStack.Screen name="LdkOpenChannel" component={LdkOpenChannel} options={LdkOpenChannel.navigationOptions(theme)} />
@@ -190,12 +163,12 @@ const WalletsRoot = () => {
   );
 };
 
-const AddWalletStack = createStackNavigator();
+const AddWalletStack = createNativeStackNavigator();
 const AddWalletRoot = () => {
   const theme = useTheme();
 
   return (
-    <AddWalletStack.Navigator screenOptions={defaultStackScreenOptions}>
+    <AddWalletStack.Navigator screenOptions={{ headerHideShadow: true }}>
       <AddWalletStack.Screen name="AddWallet" component={AddWallet} options={AddWallet.navigationOptions(theme)} />
       <AddWalletStack.Screen name="ImportWallet" component={ImportWallet} options={ImportWallet.navigationOptions(theme)} />
       <AddWalletStack.Screen name="PleaseBackup" component={PleaseBackup} options={PleaseBackup.navigationOptions(theme)} />
@@ -226,12 +199,12 @@ const AddWalletRoot = () => {
 };
 
 // CreateTransactionStackNavigator === SendDetailsStack
-const SendDetailsStack = createStackNavigator();
+const SendDetailsStack = createNativeStackNavigator();
 const SendDetailsRoot = () => {
   const theme = useTheme();
 
   return (
-    <SendDetailsStack.Navigator screenOptions={defaultStackScreenOptions}>
+    <SendDetailsStack.Navigator screenOptions={{ headerHideShadow: true }}>
       <SendDetailsStack.Screen name="SendDetails" component={SendDetails} options={SendDetails.navigationOptions(theme)} />
       <SendDetailsStack.Screen name="Confirm" component={Confirm} options={Confirm.navigationOptions(theme)} />
       <SendDetailsStack.Screen
@@ -260,12 +233,12 @@ const SendDetailsRoot = () => {
   );
 };
 
-const LNDCreateInvoiceStack = createStackNavigator();
+const LNDCreateInvoiceStack = createNativeStackNavigator();
 const LNDCreateInvoiceRoot = () => {
   const theme = useTheme();
 
   return (
-    <LNDCreateInvoiceStack.Navigator screenOptions={defaultStackScreenOptions}>
+    <LNDCreateInvoiceStack.Navigator screenOptions={{ headerHideShadow: true }}>
       <LNDCreateInvoiceStack.Screen
         name="LNDCreateInvoice"
         component={LNDCreateInvoice}
@@ -288,12 +261,12 @@ const LNDCreateInvoiceRoot = () => {
 };
 
 // LightningScanInvoiceStackNavigator === ScanLndInvoiceStack
-const ScanLndInvoiceStack = createStackNavigator();
+const ScanLndInvoiceStack = createNativeStackNavigator();
 const ScanLndInvoiceRoot = () => {
   const theme = useTheme();
 
   return (
-    <ScanLndInvoiceStack.Navigator screenOptions={defaultStackScreenOptions}>
+    <ScanLndInvoiceStack.Navigator screenOptions={{ headerHideShadow: true }}>
       <ScanLndInvoiceStack.Screen name="ScanLndInvoice" component={ScanLndInvoice} options={ScanLndInvoice.navigationOptions(theme)} />
       <ScanLndInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
       <ScanLndInvoiceStack.Screen name="Success" component={Success} options={{ headerShown: false, gestureEnabled: false }} />
@@ -303,49 +276,49 @@ const ScanLndInvoiceRoot = () => {
   );
 };
 
-const AztecoRedeemStack = createStackNavigator();
+const AztecoRedeemStack = createNativeStackNavigator();
 const AztecoRedeemRoot = () => {
   const theme = useTheme();
 
   return (
-    <AztecoRedeemStack.Navigator screenOptions={defaultStackScreenOptions}>
+    <AztecoRedeemStack.Navigator screenOptions={{ headerHideShadow: true }}>
       <AztecoRedeemStack.Screen name="AztecoRedeem" component={AztecoRedeem} options={AztecoRedeem.navigationOptions(theme)} />
-      <AztecoRedeemStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />
+      <AztecoRedeemStack.Screen name="SelectWallet" component={SelectWallet} />
     </AztecoRedeemStack.Navigator>
   );
 };
 
-const ScanQRCodeStack = createStackNavigator();
+const ScanQRCodeStack = createNativeStackNavigator();
 const ScanQRCodeRoot = () => (
-  <ScanQRCodeStack.Navigator mode="modal" screenOptions={{ headerShown: false }}>
+  <ScanQRCodeStack.Navigator screenOptions={{ headerShown: false, stackPresentation: 'fullScreenModal' }}>
     <RootStack.Screen name="ScanQRCode" component={ScanQRCode} />
   </ScanQRCodeStack.Navigator>
 );
 
-const UnlockWithScreenStack = createStackNavigator();
+const UnlockWithScreenStack = createNativeStackNavigator();
 const UnlockWithScreenRoot = () => (
   <UnlockWithScreenStack.Navigator name="UnlockWithScreenRoot" screenOptions={{ headerShown: false }}>
     <UnlockWithScreenStack.Screen name="UnlockWithScreen" component={UnlockWith} initialParams={{ unlockOnComponentMount: true }} />
   </UnlockWithScreenStack.Navigator>
 );
 
-const HodlHodlLoginStack = createStackNavigator();
+const HodlHodlLoginStack = createNativeStackNavigator();
 const HodlHodlLoginRoot = () => {
   const theme = useTheme();
 
   return (
-    <HodlHodlLoginStack.Navigator name="HodlHodlLoginRoot" screenOptions={defaultStackScreenOptions}>
+    <HodlHodlLoginStack.Navigator name="HodlHodlLoginRoot" screenOptions={{ headerHideShadow: true }}>
       <HodlHodlLoginStack.Screen name="HodlHodlLogin" component={HodlHodlLogin} options={HodlHodlLogin.navigationOptions(theme)} />
     </HodlHodlLoginStack.Navigator>
   );
 };
 
-const ReorderWalletsStack = createStackNavigator();
+const ReorderWalletsStack = createNativeStackNavigator();
 const ReorderWalletsStackRoot = () => {
   const theme = useTheme();
 
   return (
-    <ReorderWalletsStack.Navigator name="ReorderWalletsRoot" screenOptions={defaultStackScreenOptions}>
+    <ReorderWalletsStack.Navigator name="ReorderWalletsRoot" screenOptions={{ headerHideShadow: true }}>
       <ReorderWalletsStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions(theme)} />
     </ReorderWalletsStack.Navigator>
   );
@@ -370,83 +343,83 @@ function DrawerRoot() {
   );
 }
 
-const ReceiveDetailsStack = createStackNavigator();
+const ReceiveDetailsStack = createNativeStackNavigator();
 const ReceiveDetailsStackRoot = () => {
   const theme = useTheme();
 
   return (
-    <ReceiveDetailsStack.Navigator name="ReceiveDetailsRoot" screenOptions={defaultStackScreenOptions} initialRouteName="ReceiveDetails">
+    <ReceiveDetailsStack.Navigator name="ReceiveDetailsRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="ReceiveDetails">
       <RootStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions(theme)} />
     </ReceiveDetailsStack.Navigator>
   );
 };
 
-const WalletXpubStack = createStackNavigator();
+const WalletXpubStack = createNativeStackNavigator();
 const WalletXpubStackRoot = () => {
   const theme = useTheme();
 
   return (
-    <WalletXpubStack.Navigator name="WalletXpubRoot" screenOptions={defaultStackScreenOptions} initialRouteName="WalletXpub">
+    <WalletXpubStack.Navigator name="WalletXpubRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="WalletXpub">
       <WalletXpubStack.Screen name="WalletXpub" component={WalletXpub} options={WalletXpub.navigationOptions(theme)} />
     </WalletXpubStack.Navigator>
   );
 };
 
-const SignVerifyStack = createStackNavigator();
+const SignVerifyStack = createNativeStackNavigator();
 const SignVerifyStackRoot = () => {
   const theme = useTheme();
 
   return (
-    <SignVerifyStack.Navigator name="SignVerifyRoot" screenOptions={defaultStackScreenOptions} initialRouteName="SignVerify">
+    <SignVerifyStack.Navigator name="SignVerifyRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="SignVerify">
       <SignVerifyStack.Screen name="SignVerify" component={SignVerify} options={SignVerify.navigationOptions(theme)} />
     </SignVerifyStack.Navigator>
   );
 };
 
-const WalletExportStack = createStackNavigator();
+const WalletExportStack = createNativeStackNavigator();
 const WalletExportStackRoot = () => {
   const theme = useTheme();
 
   return (
-    <WalletExportStack.Navigator name="WalletExportRoot" screenOptions={defaultStackScreenOptions} initialRouteName="WalletExport">
+    <WalletExportStack.Navigator name="WalletExportRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="WalletExport">
       <WalletExportStack.Screen name="WalletExport" component={WalletExport} options={WalletExport.navigationOptions(theme)} />
     </WalletExportStack.Navigator>
   );
 };
 
-const LappBrowserStack = createStackNavigator();
+const LappBrowserStack = createNativeStackNavigator();
 const LappBrowserStackRoot = () => {
   const theme = useTheme();
 
   return (
-    <LappBrowserStack.Navigator name="LappBrowserRoot" screenOptions={defaultStackScreenOptions} initialRouteName="LappBrowser">
+    <LappBrowserStack.Navigator name="LappBrowserRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="LappBrowser">
       <LappBrowserStack.Screen name="LappBrowser" component={LappBrowser} options={LappBrowser.navigationOptions(theme)} />
     </LappBrowserStack.Navigator>
   );
 };
 
-const InitStack = createStackNavigator();
+const InitStack = createNativeStackNavigator();
 const InitRoot = () => (
-  <InitStack.Navigator screenOptions={defaultScreenOptions} initialRouteName="UnlockWithScreenRoot">
+  <InitStack.Navigator initialRouteName="UnlockWithScreenRoot">
+    <InitStack.Screen name="UnlockWithScreenRoot" component={UnlockWithScreenRoot} options={{ headerShown: false }} />
     <InitStack.Screen
-      name="UnlockWithScreenRoot"
-      component={UnlockWithScreenRoot}
-      options={{ headerShown: false, animationEnabled: false }}
+      name="ReorderWallets"
+      component={ReorderWalletsStackRoot}
+      options={{ headerShown: false, gestureEnabled: false, stackPresentation: 'fullScreenModal' }}
     />
-    <InitStack.Screen name="ReorderWallets" component={ReorderWalletsStackRoot} options={{ headerShown: false, gestureEnabled: false }} />
-    <InitStack.Screen name="DrawerRoot" component={DrawerRoot} options={{ headerShown: false, animationEnabled: false }} />
+    <InitStack.Screen name="DrawerRoot" component={DrawerRoot} options={{ headerShown: false, replaceAnimation: 'push' }} />
   </InitStack.Navigator>
 );
 
-const ViewEditMultisigCosignersStack = createStackNavigator();
+const ViewEditMultisigCosignersStack = createNativeStackNavigator();
 const ViewEditMultisigCosignersRoot = () => {
   const theme = useTheme();
 
   return (
     <ViewEditMultisigCosignersStack.Navigator
       name="ViewEditMultisigCosignersRoot"
-      screenOptions={defaultStackScreenOptions}
       initialRouteName="ViewEditMultisigCosigners"
+      screenOptions={{ headerHideShadow: true }}
     >
       <ViewEditMultisigCosignersStack.Screen
         name="ViewEditMultisigCosigners"
@@ -457,15 +430,15 @@ const ViewEditMultisigCosignersRoot = () => {
   );
 };
 
-const ExportMultisigCoordinationSetupStack = createStackNavigator();
+const ExportMultisigCoordinationSetupStack = createNativeStackNavigator();
 const ExportMultisigCoordinationSetupRoot = () => {
   const theme = useTheme();
 
   return (
     <ExportMultisigCoordinationSetupStack.Navigator
       name="ExportMultisigCoordinationSetupRoot"
-      screenOptions={defaultStackScreenOptions}
       initialRouteName="ExportMultisigCoordinationSetup"
+      screenOptions={{ headerHideShadow: true }}
     >
       <ExportMultisigCoordinationSetupStack.Screen
         name="ExportMultisigCoordinationSetup"
@@ -476,12 +449,12 @@ const ExportMultisigCoordinationSetupRoot = () => {
   );
 };
 
-const AOPPStack = createStackNavigator();
+const AOPPStack = createNativeStackNavigator();
 const AOPPRoot = () => {
   const theme = useTheme();
 
   return (
-    <AOPPStack.Navigator screenOptions={defaultStackScreenOptions}>
+    <AOPPStack.Navigator screenOptions={{ headerHideShadow: true }}>
       <AOPPStack.Screen name="SelectWalletAOPP" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
       <AOPPStack.Screen name="AOPP" component={AOPP} options={AOPP.navigationOptions(theme)} />
       <AOPPStack.Screen name="SignVerify" component={SignVerify} options={SignVerify.navigationOptions(theme)} />
@@ -489,46 +462,47 @@ const AOPPRoot = () => {
   );
 };
 
-const RootStack = createStackNavigator();
+const RootStack = createNativeStackNavigator();
+const NavigationDefaultOptions = { headerShown: false, stackPresentation: 'modal' };
 const Navigation = () => {
   const theme = useTheme();
 
   return (
-    <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="UnlockWithScreenRoot">
+    <RootStack.Navigator initialRouteName="UnlockWithScreenRoot" screenOptions={{ headerHideShadow: true }}>
       {/* stacks */}
-      <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false }} />
-      <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={{ headerShown: false }} />
-      <RootStack.Screen name="SendDetailsRoot" component={SendDetailsRoot} options={{ headerShown: false }} />
-      <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={{ headerShown: false }} />
-      <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={{ headerShown: false }} />
-      <RootStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemRoot} options={{ headerShown: false }} />
-      <RootStack.Screen name="HodlHodlLoginRoot" component={HodlHodlLoginRoot} options={{ headerShown: false }} />
+      <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false, translucent: false }} />
+      <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={NavigationDefaultOptions} />
+      <RootStack.Screen name="SendDetailsRoot" component={SendDetailsRoot} options={NavigationDefaultOptions} />
+      <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
+      <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
+      <RootStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemRoot} options={NavigationDefaultOptions} />
+      <RootStack.Screen name="HodlHodlLoginRoot" component={HodlHodlLoginRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="HodlHodlMyContracts" component={HodlHodlMyContracts} options={HodlHodlMyContracts.navigationOptions(theme)} />
       <RootStack.Screen name="HodlHodlWebview" component={HodlHodlWebview} options={HodlHodlWebview.navigationOptions(theme)} />
 
       {/* screens */}
-      <RootStack.Screen name="WalletExportRoot" component={WalletExportStackRoot} options={{ headerShown: false }} />
+      <RootStack.Screen name="WalletExportRoot" component={WalletExportStackRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen
         name="ExportMultisigCoordinationSetupRoot"
         component={ExportMultisigCoordinationSetupRoot}
         options={{ headerShown: false }}
       />
-      <RootStack.Screen name="ViewEditMultisigCosignersRoot" component={ViewEditMultisigCosignersRoot} options={{ headerShown: false }} />
-      <RootStack.Screen name="WalletXpubRoot" component={WalletXpubStackRoot} options={{ headerShown: false }} />
-      <RootStack.Screen name="SignVerifyRoot" component={SignVerifyStackRoot} options={{ headerShown: false }} />
+      <RootStack.Screen name="ViewEditMultisigCosignersRoot" component={ViewEditMultisigCosignersRoot} options={NavigationDefaultOptions} />
+      <RootStack.Screen name="WalletXpubRoot" component={WalletXpubStackRoot} options={NavigationDefaultOptions} />
+      <RootStack.Screen name="SignVerifyRoot" component={SignVerifyStackRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="BuyBitcoin" component={BuyBitcoin} options={BuyBitcoin.navigationOptions(theme)} />
       <RootStack.Screen name="Marketplace" component={Marketplace} options={Marketplace.navigationOptions(theme)} />
-      <RootStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />
-      <RootStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={{ headerShown: false }} />
-      <RootStack.Screen name="LappBrowserRoot" component={LappBrowserStackRoot} options={{ headerShown: false }} />
-      <RootStack.Screen name="AOPPRoot" component={AOPPRoot} options={{ headerShown: false }} />
+      <RootStack.Screen name="SelectWallet" component={SelectWallet} />
+      <RootStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
+      <RootStack.Screen name="LappBrowserRoot" component={LappBrowserStackRoot} options={NavigationDefaultOptions} />
+      <RootStack.Screen name="AOPPRoot" component={AOPPRoot} options={NavigationDefaultOptions} />
 
       <RootStack.Screen
         name="ScanQRCodeRoot"
         component={ScanQRCodeRoot}
         options={{
-          ...(Platform.OS === 'ios' ? TransitionPresets.ModalTransition : TransitionPresets.ScaleFromCenterAndroid),
           headerShown: false,
+          stackPresentation: 'fullScreenModal',
         }}
       />
     </RootStack.Navigator>

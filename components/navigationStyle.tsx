@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
     minWidth: 40,
     height: 40,
     justifyContent: 'center',
-    paddingHorizontal: 14,
+    alignItems: 'center',
   },
 });
 
@@ -46,7 +46,7 @@ const navigationStyle = (
   formatter: OptionsFormatter,
 ): NavigationOptionsGetter => {
   return theme => ({ navigation, route }) => {
-    let headerRight = null;
+    let headerRight;
     if (closeButton) {
       const handleClose = closeButtonFunc
         ? () => closeButtonFunc({ navigation, route })

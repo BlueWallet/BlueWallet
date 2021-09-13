@@ -15,24 +15,17 @@ import {
 import Clipboard from '@react-native-clipboard/clipboard';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import DocumentPicker from 'react-native-document-picker';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme, useIsFocused } from '@react-navigation/native';
 import { isMacCatalina } from '../../blue_modules/environment';
 import RNFS from 'react-native-fs';
 import Biometric from '../../class/biometrics';
 
-import {
-  SecondButton,
-  BlueText,
-  SafeBlueArea,
-  BlueCard,
-  BlueSpacing20,
-  BlueCopyToClipboardButton,
-  DynamicQRCode,
-} from '../../BlueComponents';
+import { SecondButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing20, BlueCopyToClipboardButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
@@ -48,6 +41,8 @@ const PsbtWithHardwareWallet = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [txHex, setTxHex] = useState(route.params.txhex);
   const openScannerButton = useRef();
+  const dynamicQRCode = useRef();
+  const isFocused = useIsFocused();
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -100,6 +95,14 @@ const PsbtWithHardwareWallet = () => {
       alert(Err);
     }
   };
+
+  useEffect(() => {
+    if (isFocused) {
+      dynamicQRCode.current?.startAutoMove();
+    } else {
+      dynamicQRCode.current?.stopAutoMove();
+    }
+  }, [isFocused]);
 
   useEffect(() => {
     if (!psbt && !route.params.txhex) {
@@ -192,7 +195,10 @@ const PsbtWithHardwareWallet = () => {
 
   const exportPSBT = () => {
     const fileName = `${Date.now()}.psbt`;
-    fs.writeFileAndExport(fileName, typeof psbt === 'string' ? psbt : psbt.toBase64());
+    dynamicQRCode.current?.stopAutoMove();
+    fs.writeFileAndExport(fileName, typeof psbt === 'string' ? psbt : psbt.toBase64()).finally(() => {
+      dynamicQRCode.current?.startAutoMove();
+    });
   };
 
   const openSignedTransaction = async () => {
@@ -244,7 +250,7 @@ const PsbtWithHardwareWallet = () => {
             <Text testID="PSBTHex" style={styles.hidden}>
               {psbt.toHex()}
             </Text>
-            <DynamicQRCode value={psbt.toHex()} />
+            <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
             <BlueSpacing20 />
             <SecondButton
               testID="PsbtTxScanButton"

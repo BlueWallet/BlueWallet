@@ -117,7 +117,6 @@ const WalletsList = () => {
       title: '',
       headerShown: !isDesktop,
       headerStyle: {
-        backgroundColor: colors.customHeader,
         borderBottomWidth: 0,
         elevation: 0,
         shadowOpacity: 0,
@@ -385,7 +384,7 @@ const WalletsList = () => {
 
   return (
     <View style={styles.root} onLayout={onLayout}>
-      <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
+      <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent animated />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
           contentInsetAdjustmentBehavior="automatic"
@@ -410,7 +409,7 @@ const WalletsList = () => {
 };
 
 export default WalletsList;
-WalletsList.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: '' }));
+WalletsList.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: '' }));
 
 const styles = StyleSheet.create({
   root: {
@@ -446,8 +445,6 @@ const styles = StyleSheet.create({
   },
   headerTouch: {
     height: 48,
-    paddingRight: 16,
-    paddingLeft: 32,
     paddingVertical: 10,
   },
   listHeaderBack: {

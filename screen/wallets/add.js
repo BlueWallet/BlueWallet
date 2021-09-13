@@ -383,7 +383,7 @@ const WalletsAdd = () => {
 WalletsAdd.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerLeft: null,
+    headerHideBackButton: true,
   },
   opts => ({ ...opts, title: loc.wallets.add_title }),
 );

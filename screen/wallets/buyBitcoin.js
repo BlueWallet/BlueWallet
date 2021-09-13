@@ -107,7 +107,8 @@ BuyBitcoin.propTypes = {
 BuyBitcoin.navigationOptions = navigationStyle({
   closeButton: true,
   title: '',
-  headerLeft: null,
+  stackPresentation: 'modal',
+  headerHideBackButton: true,
 });
 
 BuyBitcoin.navigate = async wallet => {
