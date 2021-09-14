@@ -8,6 +8,7 @@ export const BlueDefaultTheme = {
   colors: {
     ...DefaultTheme.colors,
     brandingColor: '#ffffff',
+    customHeader: '#ffffff',
     foregroundColor: '#0c2550',
     borderTopColor: 'rgba(0, 0, 0, 0.1)',
     buttonBackgroundColor: '#ccddf9',
@@ -75,6 +76,7 @@ export const BlueDarkTheme: Theme = {
   colors: {
     ...BlueDefaultTheme.colors,
     ...DarkTheme.colors,
+    customHeader: '#000000',
     brandingColor: '#000000',
     borderTopColor: '#9aa0aa',
     foregroundColor: '#ffffff',

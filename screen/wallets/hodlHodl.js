@@ -859,6 +859,7 @@ HodlHodl.navigationOptions = navigationStyle(
     ...options,
     headerStyle: {
       ...options.headerStyle,
+      backgroundColor: theme.colors.customHeader,
     },
     headerRight: () => {
       return route.params.displayLoginButton ? (

@@ -114,9 +114,9 @@ const WalletsList = () => {
 
   useEffect(() => {
     setOptions({
-      title: '',
       headerShown: !isDesktop,
       headerStyle: {
+        backgroundColor: colors.customHeader,
         borderBottomWidth: 0,
         elevation: 0,
         shadowOpacity: 0,
@@ -409,7 +409,7 @@ const WalletsList = () => {
 };
 
 export default WalletsList;
-WalletsList.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: '' }));
+WalletsList.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: '', headerBackTitle: loc.wallets.list_title }));
 
 const styles = StyleSheet.create({
   root: {

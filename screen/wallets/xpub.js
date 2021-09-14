@@ -90,7 +90,7 @@ WalletXpub.navigationOptions = navigationStyle(
     closeButton: true,
     headerHideBackButton: true,
   },
-  opts => ({ ...opts, title: loc.wallets.xpub_title }),
+  opts => ({ ...opts, headerTitle: loc.wallets.xpub_title }),
 );
 
 export default WalletXpub;
