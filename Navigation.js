@@ -83,7 +83,7 @@ import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import UnlockWith from './UnlockWith';
 import DrawerList from './screen/wallets/drawerList';
-import { isDesktop, isTablet } from './blue_modules/environment';
+import { isDesktop, isTablet, isHandset } from './blue_modules/environment';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
 import LdkViewLogs from './screen/wallets/ldkViewLogs';
@@ -407,7 +407,11 @@ const InitRoot = () => (
       component={ReorderWalletsStackRoot}
       options={{ headerShown: false, gestureEnabled: false, stackPresentation: 'fullScreenModal' }}
     />
-    <InitStack.Screen name="DrawerRoot" component={DrawerRoot} options={{ headerShown: false, replaceAnimation: 'push' }} />
+    <InitStack.Screen
+      name={isHandset ? 'Navigation' : 'DrawerRoot'}
+      component={isHandset ? Navigation : DrawerRoot}
+      options={{ headerShown: false, replaceAnimation: 'push' }}
+    />
   </InitStack.Navigator>
 );
 
