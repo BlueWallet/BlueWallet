@@ -15,11 +15,13 @@ import loc from '../../loc';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { isDesktop } from '../../blue_modules/environment';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+const bitcoin = require('bitcoinjs-lib');
 const currency = require('../../blue_modules/currency');
 
 const SendCreate = () => {
   const { fee, recipients, memo = '', satoshiPerByte, psbt, showAnimatedQr, tx } = useRoute().params;
-  const size = Math.round(tx.length / 2);
+  const transaction = bitcoin.Transaction.fromHex(tx);
+  const size = transaction.virtualSize();
   const { colors } = useTheme();
   const { setOptions } = useNavigation();
 

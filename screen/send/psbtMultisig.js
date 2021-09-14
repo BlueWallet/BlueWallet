@@ -180,7 +180,7 @@ const PsbtMultisig = () => {
 
     try {
       const tx = psbt.extractTransaction().toHex();
-      const satoshiPerByte = Math.round(getFee() / (tx.length / 2));
+      const satoshiPerByte = Math.round(getFee() / psbt.extractTransaction().virtualSize());
       navigate('Confirm', {
         fee: new BigNumber(getFee()).dividedBy(100000000).toNumber(),
         memo,
