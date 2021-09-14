@@ -92,7 +92,7 @@ const WalletsImport = () => {
     const { text, password } = res;
 
     WalletImport.addPlaceholderWallet(text);
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
     await new Promise(resolve => setTimeout(resolve, 500)); // giving some time to animations
     try {
       await WalletImport.processImportText(text, password);

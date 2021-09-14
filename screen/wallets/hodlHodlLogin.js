@@ -45,7 +45,7 @@ const HodlHodlLogin = () => {
 
           if (json && json.allowed && json.data && json.data.api_key) {
             cb(json.data.api_key, json.data.api_signature_key);
-            navigation.dangerouslyGetParent().pop();
+            navigation.getParent().pop();
           }
         }}
       />
@@ -56,7 +56,7 @@ const HodlHodlLogin = () => {
 HodlHodlLogin.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerHideBackButton: true,
+    headerBackVisible: false,
   },
   opts => ({ ...opts, title: loc.hodl.login }),
 );

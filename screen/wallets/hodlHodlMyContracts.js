@@ -434,7 +434,7 @@ HodlHodlMyContracts.propTypes = {
 HodlHodlMyContracts.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    stackPresentation: 'modal',
+    presentation: 'modal',
   },
   (options, { theme, navigation, route }) => ({
     ...options,

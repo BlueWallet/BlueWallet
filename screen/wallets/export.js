@@ -137,7 +137,7 @@ const WalletExport = () => {
 WalletExport.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerHideBackButton: true,
+    headerBackVisible: false,
   },
   opts => ({ ...opts, title: loc.wallets.export_title }),
 );

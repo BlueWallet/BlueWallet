@@ -102,7 +102,7 @@ const SignVerify = () => {
     try {
       await aopp.send({ address, signature: newSignature });
       Alert.alert(loc._.success, loc.aopp.send_success);
-      navigation.dangerouslyGetParent().pop();
+      navigation.getParent().pop();
     } catch (e) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       Alert.alert(loc.errors.error, loc.aopp.send_error);
@@ -266,7 +266,7 @@ const SignVerify = () => {
   );
 };
 
-SignVerify.navigationOptions = navigationStyle({ closeButton: true, headerHideBackButton: true }, opts => ({
+SignVerify.navigationOptions = navigationStyle({ closeButton: true, headerBackVisible: false }, opts => ({
   ...opts,
   title: loc.addresses.sign_title,
 }));

@@ -395,7 +395,7 @@ LdkOpenChannel.navigationOptions = navigationStyle(
   {
     title: '',
     closeButton: true,
-    closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().pop(),
+    closeButtonFunc: ({ navigation }) => navigation.getParent().pop(),
   },
   (options, { theme, navigation, route }) => {
     return {

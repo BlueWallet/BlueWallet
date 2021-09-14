@@ -35,7 +35,7 @@ const PleaseBackup = () => {
   });
 
   const handleBackButton = useCallback(() => {
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
     return true;
   }, [navigation]);
 
@@ -91,9 +91,9 @@ PleaseBackup.navigationOptions = navigationStyle(
   {
     gestureEnabled: false,
     swipeEnabled: false,
-    headerHideBackButton: true,
+    headerBackVisible: false,
   },
-  opts => ({ ...opts, title: loc.pleasebackup.title }),
+  opts => ({ ...opts, headerTitle: loc.pleasebackup.title }),
 );
 
 const styles = StyleSheet.create({

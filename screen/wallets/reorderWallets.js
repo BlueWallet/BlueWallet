@@ -199,7 +199,7 @@ const ReorderWallets = () => {
 
 ReorderWallets.navigationOptions = navigationStyle(
   {
-    headerHideBackButton: true,
+    headerBackVisible: false,
   },
   opts => ({ ...opts, headerTitle: loc.wallets.reorder_title }),
 );

@@ -602,7 +602,7 @@ const SendDetails = () => {
   };
 
   const importQrTransactionOnBarScanned = ret => {
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       Alert.alert(loc.errors.error, 'BC-UR not decoded. This should never happen');
@@ -739,7 +739,7 @@ const SendDetails = () => {
   };
 
   const onBarScanned = ret => {
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       Alert.alert(loc.errors.error, 'BC-UR not decoded. This should never happen');

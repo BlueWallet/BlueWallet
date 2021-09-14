@@ -176,7 +176,7 @@ const WalletsAddMultisigStep2 = () => {
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-    navigation.dangerouslyGetParent().goBack();
+    navigation.getParent().goBack();
   };
 
   const generateNewKey = () => {
@@ -323,7 +323,7 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const onBarScanned = ret => {
-    if (!isDesktop) navigation.dangerouslyGetParent().pop();
+    if (!isDesktop) navigation.getParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       alert('BC-UR not decoded. This should never happen');

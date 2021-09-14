@@ -85,6 +85,6 @@ Marketplace.contextType = BlueStorageContext;
 Marketplace.navigationOptions = navigationStyle({
   closeButton: true,
   title: loc.wallets.list_marketplace,
-  stackPresentation: 'modal',
-  headerHideBackButton: true,
+  presentation: 'modal',
+  headerBackVisible: false,
 });
