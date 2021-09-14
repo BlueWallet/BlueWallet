@@ -176,6 +176,6 @@ const SelectWallet = () => {
   }
 };
 
-SelectWallet.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.select_wallet }));
+SelectWallet.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: loc.wallets.select_wallet }));
 
 export default SelectWallet;

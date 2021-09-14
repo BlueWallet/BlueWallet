@@ -75,6 +75,7 @@ const LNDViewInvoice = () => {
         ? {
             headerStyle: {
               borderBottomWidth: 0,
+              backgroundColor: colors.customHeader,
               elevation: 0,
               shadowOpacity: 0,
               shadowOffset: { height: 0, width: 0 },
@@ -98,6 +99,8 @@ const LNDViewInvoice = () => {
         : {
             headerRight: () => {},
             headerStyle: {
+              backgroundColor: colors.customHeader,
+
               borderBottomWidth: 0,
               elevation: 0,
               shadowOpacity: 0,
@@ -364,10 +367,13 @@ const styles = StyleSheet.create({
   },
 });
 
-LNDViewInvoice.navigationOptions = navigationStyle({}, options => {
+LNDViewInvoice.navigationOptions = navigationStyle({}, (options, { theme }) => {
   return {
     ...options,
     headerTitle: loc.lndViewInvoice.lightning_invoice,
+    headerStyle: {
+      backgroundColor: theme.colors.customHeader,
+    },
   };
 });
 

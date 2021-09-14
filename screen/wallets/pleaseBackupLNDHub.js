@@ -73,7 +73,7 @@ PleaseBackupLNDHub.navigationOptions = navigationStyle(
     swipeEnabled: false,
     headerHideBackButton: true,
   },
-  opts => ({ ...opts, title: loc.pleasebackup.title }),
+  opts => ({ ...opts, headerTitle: loc.pleasebackup.title }),
 );
 
 export default PleaseBackupLNDHub;
