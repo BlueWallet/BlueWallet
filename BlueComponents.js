@@ -1121,7 +1121,7 @@ export class BlueReplaceFeeSuggestions extends Component {
               }}
               onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue)}
               defaultValue={`${this.props.transactionMinimum}`}
-              placeholder={loc.send.fee_satbyte}
+              placeholder={loc.send.fee_satvbyte}
               placeholderTextColor="#81868e"
               inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
             />
