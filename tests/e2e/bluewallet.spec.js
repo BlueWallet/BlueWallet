@@ -527,7 +527,7 @@ describe('BlueWallet UI Tests', () => {
     await yo('TransactionValue');
     expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     const transactionFee = await extractTextFromElementById('TransactionFee');
-    assert.ok(transactionFee.startsWith('Fee: 0.00000452 BTC'), 'Unexpected tx fee: ' + transactionFee);
+    assert.ok(transactionFee.startsWith('Fee: 0.00000292 BTC'), 'Unexpected tx fee: ' + transactionFee);
     await element(by.id('TransactionDetailsButton')).tap();
 
     let txhex = await extractTextFromElementById('TxhexInput');
@@ -541,7 +541,8 @@ describe('BlueWallet UI Tests', () => {
     // checking fee rate:
     const totalIns = 100000; // we hardcode it since we know it in advance
     const totalOuts = transaction.outs.map(el => el.value).reduce((a, b) => a + b, 0);
-    assert.strictEqual(Math.round((totalIns - totalOuts) / (txhex.length / 2)), feeRate);
+    const tx = bitcoin.Transaction.fromHex(txhex);
+    assert.strictEqual(Math.round((totalIns - totalOuts) / tx.virtualSize()), feeRate);
     assert.strictEqual(transactionFee.split(' ')[1] * 100000000, totalIns - totalOuts);
 
     if (device.getPlatform() === 'ios') {
@@ -1109,7 +1110,7 @@ describe('BlueWallet UI Tests', () => {
     const psbt1 = bitcoin.Psbt.fromHex(psbthex1);
     assert.strictEqual(psbt1.txOutputs.length, 1);
     assert.strictEqual(psbt1.txOutputs[0].address, 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    assert.strictEqual(psbt1.txOutputs[0].value, 99808);
+    assert.strictEqual(psbt1.txOutputs[0].value, 99888);
     assert.strictEqual(psbt1.data.inputs.length, 1);
     assert.strictEqual(psbt1.data.inputs[0].witnessUtxo.value, 100000);
 
@@ -1136,7 +1137,7 @@ describe('BlueWallet UI Tests', () => {
     const psbt2 = bitcoin.Psbt.fromHex(psbthex2);
     assert.strictEqual(psbt2.txOutputs.length, 1);
     assert.strictEqual(psbt2.txOutputs[0].address, 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    assert.strictEqual(psbt2.txOutputs[0].value, 5334);
+    assert.strictEqual(psbt2.txOutputs[0].value, 5414);
     assert.strictEqual(psbt2.data.inputs.length, 1);
     assert.strictEqual(psbt2.data.inputs[0].witnessUtxo.value, 5526);
 
