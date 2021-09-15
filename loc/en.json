@@ -231,7 +231,7 @@
     "fee_custom": "Custom",
     "fee_fast": "Fast",
     "fee_medium": "Medium",
-    "fee_replace_min": "The total fee rate (satoshi per vbyte) you want to pay should be higher than {min} sat/vbyte.",
+    "fee_replace_minvb": "The total fee rate (satoshi per vbyte) you want to pay should be higher than {min} sat/vbyte.",
     "fee_satvbyte": "in sat/vByte",
     "fee_slow": "Slow",
     "header": "Send",
