@@ -1129,7 +1129,7 @@ export class BlueReplaceFeeSuggestions extends Component {
           </View>
         </TouchableOpacity>
         <BlueText style={{ color: BlueCurrentTheme.colors.alternativeTextColor }}>
-          {loc.formatString(loc.send.fee_replace_min, { min: this.props.transactionMinimum })}
+          {loc.formatString(loc.send.fee_replace_minvb, { min: this.props.transactionMinimum })}
         </BlueText>
       </View>
     );
