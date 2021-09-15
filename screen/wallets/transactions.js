@@ -311,7 +311,7 @@ const WalletTransactions = () => {
                   alert(loc.lnd.refill_create);
                 } else {
                   setIsManageFundsModalVisible(false);
-                  navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN });
+                  setTimeout(() => navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN }), 500);
                 }
               }}
               title={loc.lnd.refill}
@@ -329,7 +329,7 @@ const WalletTransactions = () => {
                         walletID: wallet.getID(),
                       },
                     }),
-                  400,
+                  500,
                 );
               }}
               title={loc.lnd.refill_external}
