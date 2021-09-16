@@ -1,0 +1,228 @@
+{
+    "version": "3.0",
+    "organisation": {
+        "name": "BlueWallet Services S.R.L",
+        "web": "https://bluewallet.io/",
+        "email": "overtorment@gmail.com",
+        "location": "Global",
+        "established": "2018-01-01",
+        "socials": [
+            {
+                "type": "telegram",
+                "slug": "bluewallet"
+            },
+            {
+                "type": "reddit",
+                "slug": "bluewallet"
+            },
+            {
+                "type": "twitter",
+                "slug": "bluewalletio"
+            }
+        ],
+        "soft": []
+    },
+    "wallets": [
+        {
+            "name": "BlueWallet",
+            "web": "https://bluewallet.io/",
+            "uuid": "67E0044A-FC03-4F99-BADD-8B4F344A95CA",
+            "features": {
+                "currencies": [
+                    {
+                        "type": "crypto",
+                        "ticker": "BTC"
+                    },
+                    {
+                        "type": "crypto",
+                        "ticker": "BCH"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "USD"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "AUD"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "BRL"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "CAD"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "CHF"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "CZK"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "CNY"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "EUR"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "GDP"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "HRK"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "INR"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "JPY"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "MXN"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "MYR"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "RUB"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "NZD"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "PLN"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "SGD"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "SEK"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "THB"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "VEF"
+                    },
+                    {
+                        "type": "fiat",
+                        "ticker": "ZAR"
+                    }
+                ],
+                "wallet_types": [
+                    "lightning",
+                    "watch-only",
+                    "on-chain",
+                    "single-address",
+                    "brd"
+                ],
+                "security": [
+                    "fake-wallet",
+                    "pin-on-wallet",
+                    "encrypted-password"
+                ],
+                "privacy": [
+                    "custom-node"
+                ],
+                "languages": [
+                    {
+                        "iso6392": "EN"
+                    },
+                    {
+                        "iso6392": "CZ"
+                    },
+                    {
+                        "iso6392": "ZH"
+                    },
+                    {
+                        "iso6392": "HR"
+                    },
+                    {
+                        "iso6392": "DK"
+                    },
+                    {
+                        "iso6392": "NB"
+                    },
+                    {
+                        "iso6392": "DE"
+                    },
+                    {
+                        "iso6392": "ES"
+                    },
+                    {
+                        "iso6392": "IT"
+                    },
+                    {
+                        "iso6392": "FI"
+                    },
+                    {
+                        "iso6392": "FR"
+                    },
+                    {
+                        "iso6392": "ID"
+                    },
+                    {
+                        "iso6392": "JP"
+                    },
+                    {
+                        "iso6392": "NL"
+                    }
+                ],
+                "custodial": "Y",
+                "license": [
+                    "MIT"
+                ],
+                "multisig": "P",
+                "testnet": "N",
+                "batchtx": "Y",
+                "fio": "?",
+                "form_factor": "mobile",
+                "custom_node": "P",
+                "rbf": "Y",
+                "psbt": "Y",
+                "reproducible_builds": "?",
+                "hd": "Y",
+                "sna": "Y",
+                "fee_estimation": "?",
+                "fee_control": "?",
+                "hardware": [],
+                "lightning": [],
+                "refill": [],
+                "validation": "spv",
+                "platforms": [
+                    {
+                        "name": "ios",
+                        "github": "https://github.com/BlueWallet/BlueWallet",
+                        "download": "https://itunes.apple.com/app/bluewallet-bitcoin-wallet/id1376878040",
+                        "language": "React Native"
+                    },
+                    {
+                        "name": "android",
+                        "github": "https://github.com/BlueWallet/BlueWallet",
+                        "download": "https://play.google.com/store/apps/details?id=io.bluewallet.bluewallet",
+                        "language": "React Native"
+                    }
+                ],
+                "coin_control": "?",
+                "tx_labelling": "?"
+            }
+        }
+    ]
+}
