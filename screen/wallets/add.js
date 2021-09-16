@@ -57,7 +57,6 @@ const WalletsAdd = () => {
   const [label, setLabel] = useState('');
   const [isAdvancedOptionsEnabled, setIsAdvancedOptionsEnabled] = useState(false);
   const [selectedWalletType, setSelectedWalletType] = useState(false);
-  const [backdoorPressed, setBackdoorPressed] = useState(1);
   const { navigate, goBack } = useNavigation();
   const [entropy, setEntropy] = useState();
   const [entropyButtonText, setEntropyButtonText] = useState(loc.wallets.add_entropy_provide);
@@ -244,9 +243,6 @@ const WalletsAdd = () => {
   };
 
   const handleOnLightningButtonPressed = () => {
-    setBackdoorPressed(prevState => {
-      return prevState + 1;
-    });
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.OFFCHAIN);
   };
@@ -287,9 +283,6 @@ const WalletsAdd = () => {
             onPress={handleOnLightningButtonPressed}
             style={styles.button}
           />
-          {backdoorPressed > 10 ? (
-            <LdkButton active={selectedWalletType === ButtonSelected.LDK} onPress={handleOnLdkButtonPressed} style={styles.button} />
-          ) : null}
           <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} />
         </View>
 
