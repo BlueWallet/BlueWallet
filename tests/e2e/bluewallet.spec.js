@@ -126,8 +126,6 @@ describe('BlueWallet UI Tests', () => {
 
     // notifications
     // turn on notifications if available
-    // console.warn('yo');
-    // await sleep(300000);
     if (await expectToBeVisible('NotificationSettings')) {
       await element(by.id('NotificationSettings')).tap();
       await element(by.id('NotificationsSwitch')).tap();
@@ -286,13 +284,10 @@ describe('BlueWallet UI Tests', () => {
     await element(by.type('android.widget.EditText')).typeText('qqq');
     await element(by.text('OK')).tap();
     await expect(element(by.text('Password is currently in use. Please try a different password.'))).toBeVisible();
-    if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
     await element(by.text('OK')).tap();
-    if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
 
     // trying new password, but will mistype
     await element(by.id('CreateFakeStorageButton')).tap();
-    if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
     await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage');
     await element(by.text('OK')).tap();
     await expect(element(by.text('Re-type password'))).toBeVisible();
@@ -461,7 +456,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.type('android.widget.EditText')).typeText(feeRate + '');
     await element(by.text('OK')).tap();
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -510,7 +504,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('scanQrBackdoorInput')).replaceText(bip21);
     await element(by.id('scanQrBackdoorOkButton')).tap();
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -541,7 +534,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('scanQrBackdoorInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
     await element(by.id('scanQrBackdoorOkButton')).tap();
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -569,7 +561,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('changeAmountUnitButton')).tap(); // switched to sats
     await element(by.id('BitcoinAmountInput')).replaceText('50000');
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -614,7 +605,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('RemoveRecipient')).tap();
 
     // creating and verifying. tx should have 3 outputs
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -648,7 +638,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('sendMaxButton')).tap();
     await element(by.text('OK')).tap();
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -669,7 +658,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).typeText('0.0001\n');
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -850,7 +838,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.type('android.widget.EditText')).typeText(feeRate + '');
     await element(by.text('OK')).tap();
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -921,7 +908,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.type('android.widget.EditText')).typeText(feeRate + '');
     await element(by.text('OK')).tap();
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -1056,7 +1042,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('feeCustom')).tap();
     await element(by.type('android.widget.EditText')).typeText('1');
     await element(by.text('OK')).tap();
-    if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
     await yo('TextHelperForPSBT');
 
@@ -1083,7 +1068,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('feeCustom')).tap();
     await element(by.type('android.widget.EditText')).typeText('1');
     await element(by.text('OK')).tap();
-    if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
     await yo('TextHelperForPSBT');
 
