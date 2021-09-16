@@ -64,8 +64,10 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
       notificationPayloadFile = "BlueWalletWatch Extension/PushNotificationPayload.apns">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <RemoteRunnable
+         runnableDebuggingMode = "2"
+         BundleIdentifier = "com.apple.Carousel"
+         RemotePath = "/BlueWallet">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B40D4E2F225841EC00428FCC"
@@ -73,7 +75,7 @@
             BlueprintName = "BlueWalletWatch"
             ReferencedContainer = "container:BlueWallet.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </RemoteRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -81,8 +83,10 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <RemoteRunnable
+         runnableDebuggingMode = "2"
+         BundleIdentifier = "com.apple.Carousel"
+         RemotePath = "/BlueWallet">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B40D4E2F225841EC00428FCC"
@@ -90,7 +94,16 @@
             BlueprintName = "BlueWalletWatch"
             ReferencedContainer = "container:BlueWallet.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </RemoteRunnable>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "B40D4E2F225841EC00428FCC"
+            BuildableName = "BlueWalletWatch.app"
+            BlueprintName = "BlueWalletWatch"
+            ReferencedContainer = "container:BlueWallet.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
