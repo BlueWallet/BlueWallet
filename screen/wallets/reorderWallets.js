@@ -6,7 +6,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
-import { PlaceholderWallet, LightningCustodianWallet, MultisigHDWallet, LightningLdkWallet } from '../../class';
+import { PlaceholderWallet, LightningCustodianWallet, MultisigHDWallet } from '../../class';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -127,7 +127,6 @@ const ReorderWallets = () => {
           <Image
             source={(() => {
               switch (item.type) {
-                case LightningLdkWallet.type:
                 case LightningCustodianWallet.type:
                   return I18nManager.isRTL ? require('../../img/lnd-shape-rtl.png') : require('../../img/lnd-shape.png');
                 case MultisigHDWallet.type:

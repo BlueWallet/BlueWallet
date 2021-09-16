@@ -75,9 +75,6 @@ export default class WalletGradient {
       case HDAezeedWallet.type:
         gradient = WalletGradient.aezeedWallet;
         break;
-      case LightningLdkWallet.type:
-        gradient = WalletGradient.ldkWallet;
-        break;
       default:
         gradient = WalletGradient.defaultGradients;
         break;
@@ -137,9 +134,6 @@ export default class WalletGradient {
         break;
       case HDAezeedWallet.type:
         gradient = WalletGradient.aezeedWallet;
-        break;
-      case LightningLdkWallet.type:
-        gradient = WalletGradient.ldkWallet;
         break;
       default:
         gradient = WalletGradient.defaultGradients;
