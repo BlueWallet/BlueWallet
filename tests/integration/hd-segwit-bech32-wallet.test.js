@@ -230,7 +230,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
       changeAddress,
     );
 
-    assert.strictEqual(Math.round(fee / tx.byteLength()), 13);
+    assert.strictEqual(Math.round(fee / tx.virtualSize()), 13);
 
     let totalInput = 0;
     for (const inp of inputs) {

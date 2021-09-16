@@ -18,7 +18,7 @@ const HodlHodlWebview = () => {
 HodlHodlWebview.navigationOptions = navigationStyle({
   closeButton: true,
   title: '',
-  headerLeft: null,
+  headerHideBackButton: true,
 });
 
 export default HodlHodlWebview;

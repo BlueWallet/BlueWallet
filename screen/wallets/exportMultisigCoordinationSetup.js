@@ -17,6 +17,7 @@ const ExportMultisigCoordinationSetup = () => {
   const { wallets } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletId);
   const qrCodeContents = useRef();
+  const dynamicQRCode = useRef();
   const [isLoading, setIsLoading] = useState(true);
   const [isShareButtonTapped, setIsShareButtonTapped] = useState(false);
   const { goBack } = useNavigation();
@@ -37,9 +38,11 @@ const ExportMultisigCoordinationSetup = () => {
 
   const exportTxtFile = async () => {
     setIsShareButtonTapped(true);
+    dynamicQRCode.current?.stopAutoMove();
     setTimeout(() => {
       fs.writeFileAndExport(wallet.getLabel() + '.txt', wallet.getXpub()).finally(() => {
         setIsShareButtonTapped(false);
+        dynamicQRCode.current?.startAutoMove();
       });
     }, 10);
   };
@@ -79,7 +82,7 @@ const ExportMultisigCoordinationSetup = () => {
           <BlueText style={[styles.type, stylesHook.type]}>{wallet.getLabel()}</BlueText>
         </View>
         <BlueSpacing20 />
-        <DynamicQRCode value={qrCodeContents.current} />
+        <DynamicQRCode value={qrCodeContents.current} ref={dynamicQRCode} />
         <BlueSpacing20 />
         {isShareButtonTapped ? (
           <ActivityIndicator />
@@ -127,7 +130,7 @@ const styles = StyleSheet.create({
 ExportMultisigCoordinationSetup.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerLeft: null,
+    headerHideBackButton: true,
   },
   opts => ({ ...opts, title: loc.multisig.export_coordination_setup }),
 );

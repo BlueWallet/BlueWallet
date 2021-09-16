@@ -25,5 +25,10 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.widgetkit-extension</string>
 	</dict>
+	<key>bugsnag</key>
+	<dict>
+		<key>apiKey</key>
+		<string>17ba9059f676f1cc4f45d98182388b01</string>
+	</dict>
 </dict>
 </plist>

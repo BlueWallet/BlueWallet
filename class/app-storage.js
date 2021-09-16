@@ -17,6 +17,7 @@ import {
   HDSegwitElectrumSeedP2WPKHWallet,
   HDAezeedWallet,
   MultisigHDWallet,
+  LightningLdkWallet,
   SLIP39SegwitP2SHWallet,
   SLIP39LegacyP2PKHWallet,
   SLIP39SegwitBech32Wallet,
@@ -378,6 +379,9 @@ export class AppStorage {
             }
 
             break;
+          case LightningLdkWallet.type:
+            unserializedWallet = LightningLdkWallet.fromJson(key);
+            break;
           case SLIP39SegwitP2SHWallet.type:
             unserializedWallet = SLIP39SegwitP2SHWallet.fromJson(key);
             break;
@@ -443,6 +447,12 @@ export class AppStorage {
   deleteWallet = wallet => {
     const secret = wallet.getSecret();
     const tempWallets = [];
+
+    if (wallet.type === LightningLdkWallet.type) {
+      /** @type {LightningLdkWallet} */
+      const ldkwallet = wallet;
+      ldkwallet.stop().catch(alert);
+    }
 
     for (const value of this.wallets) {
       if (value.type === PlaceholderWallet.type) {

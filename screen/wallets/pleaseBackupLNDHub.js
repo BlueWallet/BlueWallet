@@ -69,13 +69,11 @@ const PleaseBackupLNDHub = () => {
 
 PleaseBackupLNDHub.navigationOptions = navigationStyle(
   {
-    closeButton: true,
-    headerLeft: null,
-    headerRight: null,
     gestureEnabled: false,
     swipeEnabled: false,
+    headerHideBackButton: true,
   },
-  opts => ({ ...opts, title: loc.pleasebackup.title }),
+  opts => ({ ...opts, headerTitle: loc.pleasebackup.title }),
 );
 
 export default PleaseBackupLNDHub;

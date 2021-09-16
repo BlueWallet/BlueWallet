@@ -70,13 +70,6 @@ const TransactionsStatus = () => {
 
   useEffect(() => {
     setOptions({
-      headerStyle: {
-        borderBottomWidth: 0,
-        elevation: 0,
-        shadowOpacity: 0,
-        shadowOffset: { height: 0, width: 0 },
-        backgroundColor: colors.customHeader,
-      },
       headerRight: () => (
         <TouchableOpacity
           accessibilityRole="button"
@@ -547,10 +540,9 @@ const styles = StyleSheet.create({
   details: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
     width: 80,
     borderRadius: 8,
-    height: 38,
+    height: 34,
   },
   detailsText: {
     fontSize: 15,
@@ -558,6 +550,18 @@ const styles = StyleSheet.create({
   },
 });
 
-TransactionsStatus.navigationOptions = navigationStyle({
-  title: '',
-});
+TransactionsStatus.navigationOptions = navigationStyle(
+  {
+    headerTitle: '',
+  },
+  (options, { theme }) => ({
+    ...options,
+    headerStyle: {
+      backgroundColor: theme.colors.customHeader,
+      borderBottomWidth: 0,
+      elevation: 0,
+      shadowOpacity: 0,
+      shadowOffset: { height: 0, width: 0 },
+    },
+  }),
+);
