@@ -333,7 +333,7 @@ const App = () => {
                 onPress={async () => {
                   setIsClipboardContentModalVisible(false);
                   const clipboard = await BlueClipboard.getClipboardContent();
-                  setTimeout(() => handleOpenURL({ url: clipboard }), 100);
+                  setTimeout(() => handleOpenURL({ url: clipboard }), 650);
                 }}
               />
             </View>
