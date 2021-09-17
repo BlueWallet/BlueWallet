@@ -68,7 +68,10 @@ describe('import procedure', () => {
       return undefined;
     };
     const store = createStore();
-    const { promise } = startImport('6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN', true, true, { ...store.callbacks, onPassword });
+    const { promise } = startImport('6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN', true, true, {
+      ...store.callbacks,
+      onPassword,
+    });
     const imprt = await promise;
     assert.strictEqual(store.state.wallets.length, 0);
     assert.strictEqual(imprt.cancelled, true);
@@ -87,7 +90,9 @@ describe('import procedure', () => {
     const store = createStore();
     const { promise } = startImport(
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
-      true, true, store.callbacks,
+      true,
+      true,
+      store.callbacks,
     );
     await promise;
     assert.strictEqual(store.state.wallets.length > 3, true);
@@ -97,7 +102,9 @@ describe('import procedure', () => {
     const store = createStore();
     const { promise } = startImport(
       'always direct find escape liar turn differ shy tool gap elder galaxy lawn wild movie fog moon spread casual inner box diagram outdoor tell',
-      true, true, store.callbacks,
+      true,
+      true,
+      store.callbacks,
     );
     await promise;
     assert.strictEqual(store.state.wallets[0].type, HDSegwitBech32Wallet.type);
@@ -108,7 +115,9 @@ describe('import procedure', () => {
     const store = createStore('BlueWallet');
     const { promise } = startImport(
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
-      true, true, store.callbacks,
+      true,
+      true,
+      store.callbacks,
     );
     await promise;
     assert.strictEqual(store.state.wallets[0].type, HDSegwitBech32Wallet.type);
@@ -143,7 +152,9 @@ describe('import procedure', () => {
     const store = createStore();
     const { promise } = startImport(
       'sting museum endless duty nice riot because swallow brother depth weapon merge woman wish hold finish venture gauge stomach bomb device bracket agent parent',
-      true, true, store.callbacks,
+      true,
+      true,
+      store.callbacks,
     );
     await promise;
     assert.strictEqual(store.state.wallets[0].type, HDLegacyP2PKHWallet.type);
@@ -154,7 +165,9 @@ describe('import procedure', () => {
     const store = createStore();
     const { promise } = startImport(
       'believe torch sport lizard absurd retreat scale layer song pen clump combine window staff dream filter latin bicycle vapor anchor put clean gain slush',
-      true, true, store.callbacks,
+      true,
+      true,
+      store.callbacks,
     );
     await promise;
     assert.strictEqual(store.state.wallets[0].type, HDSegwitP2SHWallet.type);
@@ -163,7 +176,12 @@ describe('import procedure', () => {
 
   it('can import HD Legacy Electrum (BIP32 P2PKH)', async () => {
     const store = createStore();
-    const { promise } = startImport('eight derive blast guide smoke piece coral burden lottery flower tomato flame', true, true, store.callbacks);
+    const { promise } = startImport(
+      'eight derive blast guide smoke piece coral burden lottery flower tomato flame',
+      true,
+      true,
+      store.callbacks,
+    );
     await promise;
     assert.strictEqual(store.state.wallets[0].type, HDLegacyElectrumSeedP2PKHWallet.type);
     assert.strictEqual(store.state.wallets[0]._getExternalAddressByIndex(0), '1FgVfJ5D3HyKWKC4xk36Cio7MUaxxnXaVd');
@@ -179,7 +197,12 @@ describe('import procedure', () => {
 
   it('can import BreadWallet', async () => {
     const store = createStore();
-    const { promise } = startImport('become salmon motor battle sweet merit romance ecology age squirrel oblige awesome', true, true, store.callbacks);
+    const { promise } = startImport(
+      'become salmon motor battle sweet merit romance ecology age squirrel oblige awesome',
+      true,
+      true,
+      store.callbacks,
+    );
     await promise;
     assert.strictEqual(store.state.wallets[0].type, HDLegacyBreadwalletWallet.type);
     assert.strictEqual(store.state.wallets[0]._getExternalAddressByIndex(0), '1G5tkEuWWirz8AFyzrafSgFxvKsRwcBqwY');
@@ -197,7 +220,12 @@ describe('import procedure', () => {
   it('can import HD Electrum (BIP32 P2WPKH) with passphrase', async () => {
     const UNICODE_HORROR = '₿ 😀 😈     う けたま わる w͢͢͝h͡o͢͡ ̸͢k̵͟n̴͘ǫw̸̛s͘ ̀́w͘͢ḩ̵a҉̡͢t ̧̕h́o̵r͏̵rors̡ ̶͡͠lį̶e͟͟ ̶͝in͢ ͏t̕h̷̡͟e ͟͟d̛a͜r̕͡k̢̨ ͡h̴e͏a̷̢̡rt́͏ ̴̷͠ò̵̶f̸ u̧͘ní̛͜c͢͏o̷͏d̸͢e̡͝?͞';
     const store = createStore(UNICODE_HORROR);
-    const { promise } = startImport('bitter grass shiver impose acquire brush forget axis eager alone wine silver', true, true, store.callbacks);
+    const { promise } = startImport(
+      'bitter grass shiver impose acquire brush forget axis eager alone wine silver',
+      true,
+      true,
+      store.callbacks,
+    );
     await promise;
     assert.strictEqual(store.state.wallets[0].type, HDSegwitElectrumSeedP2WPKHWallet.type);
     assert.strictEqual(store.state.wallets[0]._getExternalAddressByIndex(0), 'bc1qx94dutas7ysn2my645cyttujrms5d9p57f6aam');
@@ -207,7 +235,9 @@ describe('import procedure', () => {
     const store = createStore();
     const { promise } = startImport(
       'abstract rhythm weird food attract treat mosquito sight royal actor surround ride strike remove guilt catch filter summer mushroom protect poverty cruel chaos pattern',
-      true, true, store.callbacks,
+      true,
+      true,
+      store.callbacks,
     );
     await promise;
     assert.strictEqual(store.state.wallets[0].type, HDAezeedWallet.type);
@@ -217,7 +247,9 @@ describe('import procedure', () => {
     const store = createStore('strongPassword');
     const { promise } = startImport(
       'able mix price funny host express lawsuit congress antique float pig exchange vapor drip wide cup style apple tumble verb fix blush tongue market',
-      true, true, store.callbacks,
+      true,
+      true,
+      store.callbacks,
     );
     await promise;
     assert.strictEqual(store.state.wallets[0].type, HDAezeedWallet.type);
@@ -269,7 +301,9 @@ describe('import procedure', () => {
     const store4 = createStore();
     const { promise: promise4 } = startImport(
       'zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP',
-      true, true, store4.callbacks,
+      true,
+      true,
+      store4.callbacks,
     );
     await promise4;
     assert.strictEqual(store4.state.wallets[0].type, WatchOnlyWallet.type);
@@ -284,7 +318,9 @@ describe('import procedure', () => {
     const { promise } = startImport(
       'crystal lungs academic acid corner infant satisfy spider alcohol laser golden equation fiscal epidemic infant scholar space findings tadpole belong\n' +
         'crystal lungs academic agency class payment actress avoid rebound ordinary exchange petition tendency mild mobile spine robin fancy shelter increase',
-      true, true, store.callbacks,
+      true,
+      true,
+      store.callbacks,
     );
     await promise;
     assert.strictEqual(store.state.wallets[0].type, SLIP39SegwitP2SHWallet.type);
@@ -299,7 +335,9 @@ describe('import procedure', () => {
     const { promise } = startImport(
       'crystal lungs academic acid corner infant satisfy spider alcohol laser golden equation fiscal epidemic infant scholar space findings tadpole belong\n' +
         'crystal lungs academic agency class payment actress avoid rebound ordinary exchange petition tendency mild mobile spine robin fancy shelter increase',
-      true, true, store.callbacks,
+      true,
+      true,
+      store.callbacks,
     );
     await promise;
     assert.strictEqual(store.state.wallets[0].type, SLIP39SegwitBech32Wallet.type);
@@ -310,7 +348,9 @@ describe('import procedure', () => {
     const store = createStore();
     const { promise } = startImport(
       '{"ExtPubKey":"zpub6riZchHnrWzhhZ3Z4dhCJmesGyafMmZBRC9txhnidR313XJbcv4KiDubderKHhL7rMsqacYd82FQ38e4whgs8Dg7CpsxX3dSGWayXsEerF4","MasterFingerprint":"7D2F0272","AccountKeyPath":"84\'\\/0\'\\/0\'","CoboVaultFirmwareVersion":"2.6.1(BTC-Only)"}',
-      true, true, store.callbacks,
+      true,
+      true,
+      store.callbacks,
     );
     await promise;
     assert.strictEqual(store.state.wallets[0].type, WatchOnlyWallet.type);
@@ -347,7 +387,9 @@ describe('bip39 discover', () => {
     const store2 = createStore();
     const { promise: promise2 } = startImport(
       'docu gosp razo chao nort ches nomi fati swam firs deca boy icon virt gap prep seri anch',
-      true, true, store2.callbacks,
+      true,
+      true,
+      store2.callbacks,
     );
     await promise2;
     assert.strictEqual(
@@ -359,7 +401,9 @@ describe('bip39 discover', () => {
     const store3 = createStore();
     const { promise: promise3 } = startImport(
       'rece own flig sent tide hood sile bunk deri mana wink belt loud apol mons pill raw gate hurd matc nigh wish todd achi',
-      true, true, store3.callbacks,
+      true,
+      true,
+      store3.callbacks,
     );
     await promise3;
     assert.strictEqual(

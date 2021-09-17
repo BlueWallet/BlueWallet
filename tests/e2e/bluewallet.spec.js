@@ -1003,12 +1003,7 @@ describe('BlueWallet UI Tests', () => {
         return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
 
-    await helperImportWallet(
-      process.env.HD_MNEMONIC_BIP84,
-      'HDsegwitBech32',
-      'Imported HD SegWit (BIP84 Bech32 Native)',
-      '0.00105526 BTC',
-    );
+    await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'HDsegwitBech32', 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
 
     // refresh transactions
     await element(by.id('refreshTransactions')).tap();
