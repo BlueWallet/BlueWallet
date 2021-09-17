@@ -11,6 +11,7 @@ import {
   HDSegwitP2SHWallet,
   LegacyWallet,
   LightningCustodianWallet,
+  LightningLdkWallet,
   MultisigHDWallet,
   SLIP39LegacyP2PKHWallet,
   SLIP39SegwitBech32Wallet,
@@ -18,15 +19,15 @@ import {
   SegwitBech32Wallet,
   SegwitP2SHWallet,
   WatchOnlyWallet,
-  LightningLdkWallet,
 } from '.';
 import loc from '../loc';
 import bip39WalletFormats from './bip39_wallet_formats.json'; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
+import bip39WalletFormatsBlueWallet from './bip39_wallet_formats_bluewallet.json';
 
 // https://github.com/bitcoinjs/bip32/blob/master/ts-src/bip32.ts#L43
 const validateBip32 = path => path.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null;
 
-const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
+const startImport = (importTextOrig, askPassphrase = false, searchAccounts = false, { onProgress, onWallet, onPassword }) => {
   // state
   let promiseResolve;
   let promiseReject;
@@ -82,7 +83,7 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
     // HD BIP39 wallet password is optinal
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(text);
-    if (hd.validateMnemonic()) {
+    if (askPassphrase && hd.validateMnemonic()) {
       password = await onPassword(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
     }
 
@@ -97,7 +98,7 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
     }
 
     // SLIP39 wallet password is optinal
-    if (text.includes('\n')) {
+    if (askPassphrase && text.includes('\n')) {
       const s1 = new SLIP39SegwitP2SHWallet();
       s1.setSecret(text);
 
@@ -109,17 +110,18 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
     // ELECTRUM segwit wallet password is optinal
     const electrum1 = new HDSegwitElectrumSeedP2WPKHWallet();
     electrum1.setSecret(text);
-    if (electrum1.validateMnemonic()) {
+    if (askPassphrase && electrum1.validateMnemonic()) {
       password = await onPassword(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
     }
 
     // ELECTRUM legacy wallet password is optinal
     const electrum2 = new HDLegacyElectrumSeedP2PKHWallet();
     electrum2.setSecret(text);
-    if (electrum2.validateMnemonic()) {
+    if (askPassphrase && electrum2.validateMnemonic()) {
       password = await onPassword(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
     }
 
+    // is it bip38 encrypted
     if (text.startsWith('6P')) {
       const decryptedKey = await bip38.decryptAsync(text, password);
 
@@ -173,11 +175,13 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
     hd2.setPassphrase(password);
     if (hd2.validateMnemonic()) {
       let walletFound = false;
-      for (const i of bip39WalletFormats) {
+      // by default we don't try all the paths and options
+      const paths = searchAccounts ? bip39WalletFormats : bip39WalletFormatsBlueWallet;
+      for (const i of paths) {
         // we need to skip m/0' p2pkh from default scan list. It could be a BRD wallet and will be handled later
         if (i.derivation_path === "m/0'" && i.script_type === 'p2pkh') continue;
         let paths;
-        if (i.iterate_accounts) {
+        if (i.iterate_accounts && searchAccounts) {
           const basicPath = i.derivation_path.slice(0, -2); // remove 0' from the end
           paths = [...Array(10).keys()].map(j => basicPath + j + "'"); // add account number
         } else {

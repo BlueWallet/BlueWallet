@@ -16,7 +16,7 @@ const ImportWalletDiscovery = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
   const route = useRoute();
-  const importText = route.params.importText;
+  const { importText, askPassphrase, searchAccounts } = route.params;
   const task = useRef();
   const { addAndSaveWallet } = useContext(BlueStorageContext);
   const [loading, setLoading] = useState(true);
@@ -76,7 +76,7 @@ const ImportWalletDiscovery = () => {
 
     IdleTimerManager.setIdleTimerDisabled(true);
 
-    task.current = startImport(importText, { onProgress, onWallet, onPassword });
+    task.current = startImport(importText, askPassphrase, searchAccounts, { onProgress, onWallet, onPassword });
 
     task.current.promise
       .then(({ cancelled, wallets }) => {

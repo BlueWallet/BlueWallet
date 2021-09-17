@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Platform, View, Keyboard, StatusBar, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import React, { useEffect, useState, useContext } from 'react';
+import { Platform, View, Keyboard, StatusBar, StyleSheet, Switch, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 import {
@@ -9,12 +9,14 @@ import {
   BlueFormLabel,
   BlueFormMultiInput,
   BlueSpacing20,
+  BlueText,
   SafeBlueArea,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 const fs = require('../../blue_modules/fs');
 
 const WalletsImport = () => {
@@ -23,9 +25,13 @@ const WalletsImport = () => {
   const route = useRoute();
   const label = route?.params?.label ?? '';
   const triggerImport = route?.params?.triggerImport ?? false;
+  const { isAdancedModeEnabled } = useContext(BlueStorageContext);
   const [importText, setImportText] = useState(label);
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
   const [, setSpeedBackdoor] = useState(0);
+  const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
+  const [searchAccounts, setSearchAccounts] = useState(false);
+  const [askPassphrase, setAskPassphrase] = useState(false);
 
   const styles = StyleSheet.create({
     root: {
@@ -36,6 +42,13 @@ const WalletsImport = () => {
       flex: 1,
       marginHorizontal: 16,
       backgroundColor: colors.elevated,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginHorizontal: 16,
+      marginTop: 10,
+      justifyContent: 'space-between',
     },
   });
 
@@ -51,6 +64,7 @@ const WalletsImport = () => {
   }, []);
 
   useEffect(() => {
+    isAdancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     if (triggerImport) importButtonPressed();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -63,7 +77,7 @@ const WalletsImport = () => {
   };
 
   const importMnemonic = importText => {
-    navigation.navigate('ImportWalletDiscovery', { importText });
+    navigation.navigate('ImportWalletDiscovery', { importText, askPassphrase, searchAccounts });
   };
 
   const onBarScanned = value => {
@@ -111,6 +125,19 @@ const WalletsImport = () => {
         testID="MnemonicInput"
         inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
       />
+
+      {isAdvancedModeEnabledRender && (
+        <>
+          <View style={styles.row}>
+            <BlueText>{loc.wallets.import_passphrase}</BlueText>
+            <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
+          </View>
+          <View style={styles.row}>
+            <BlueText>{loc.wallets.import_search_accounts}</BlueText>
+            <Switch testID="SearchAccounts" value={searchAccounts} onValueChange={setSearchAccounts} />
+          </View>
+        </>
+      )}
 
       <BlueSpacing20 />
       <View style={styles.center}>
