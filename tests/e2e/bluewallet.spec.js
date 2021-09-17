@@ -26,6 +26,9 @@ describe('BlueWallet UI Tests', () => {
     await waitFor(element(by.id('SelfTestOk')))
       .toBeVisible()
       .withTimeout(300 * 1000);
+    await device.pressBack();
+    await device.pressBack();
+    await device.pressBack();
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -53,6 +56,10 @@ describe('BlueWallet UI Tests', () => {
     await device.pressBack();
 
     // enable AdvancedMode
+    await element(by.id('AdvancedMode')).tap();
+    await device.pressBack();
+    // disable it:
+    await element(by.id('GeneralSettings')).tap();
     await element(by.id('AdvancedMode')).tap();
     await device.pressBack();
     //
@@ -157,7 +164,7 @@ describe('BlueWallet UI Tests', () => {
     // about
     await element(by.id('AboutButton')).tap();
     await device.pressBack();
-
+    await device.pressBack();
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -194,10 +201,11 @@ describe('BlueWallet UI Tests', () => {
     await yo('BlueCopyTextToClipboard');
     await device.pressBack();
     await device.pressBack();
+    await helperDeleteWallet('cr34t3d');
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can encrypt storage, with plausible deniability', async () => {
+  it('can encrypt storage, with plausible deniabilityl decrypt fake storage', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
@@ -335,6 +343,19 @@ describe('BlueWallet UI Tests', () => {
 
     // previously created wallet in FAKE storage should be visible
     await expect(element(by.id('fake_wallet'))).toBeVisible();
+
+    // now derypting it, to cleanup
+    await element(by.id('SettingsButton')).tap();
+    await element(by.id('SecurityButton')).tap();
+
+    // correct password
+    await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
+    await element(by.text('OK')).tap();
+    await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage');
+    await element(by.text('OK')).tap();
+
+    await helperDeleteWallet('fake_wallet');
+
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -411,85 +432,7 @@ describe('BlueWallet UI Tests', () => {
     // relaunch app
     await device.launchApp({ newInstance: true });
     await yo('cr34t3d'); // success
-    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
-  });
-
-  it.skip('can encrypt storage, and decrypt storage, but this time the fake one', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
-    if (process.env.TRAVIS) {
-      if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
-    }
-    // this test mostly repeats previous one, except in the end it logins with FAKE password to unlock FAKE
-    // storage bucket, and then decrypts it. effectively, everything from MAIN storage bucket is lost
-    if (process.env.TRAVIS) return; // skipping on CI to not take time (plus it randomly fails)
-    await yo('WalletsList');
-    await helperCreateWallet();
-    await element(by.id('SettingsButton')).tap();
-    await element(by.id('SecurityButton')).tap();
-    if (device.getPlatform() === 'ios') {
-      console.warn('Android only test skipped');
-      return;
-    }
-
-    // lets encrypt the storage.
-    // lets put correct passwords and encrypt the storage
-    await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
-    await element(by.type('android.widget.EditText')).typeText('pass');
-    await element(by.text('OK')).tap();
-    await element(by.type('android.widget.EditText')).typeText('pass');
-    await element(by.text('OK')).tap();
-    await element(by.id('PlausibleDeniabilityButton')).tap();
-
-    // trying to enable plausible denability
-    await element(by.id('CreateFakeStorageButton')).tap();
-    await element(by.type('android.widget.EditText')).typeText('fake');
-    await element(by.text('OK')).tap();
-    await expect(element(by.text('Re-type password'))).toBeVisible();
-    await element(by.type('android.widget.EditText')).typeText('fake'); // retyping
-    await element(by.text('OK')).tap();
-    await expect(element(by.text('Success'))).toBeVisible();
-    await element(by.text('OK')).tap();
-
-    // created fake storage.
-    // creating a wallet inside this fake storage
-    await helperCreateWallet('fake_wallet');
-
-    // relaunch app
-    await device.launchApp({ newInstance: true });
-    await waitFor(element(by.text('OK')))
-      .toBeVisible()
-      .withTimeout(33000);
-    //
-    await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it.'))).toBeVisible();
-    await element(by.type('android.widget.EditText')).typeText('fake');
-    await element(by.text('OK')).tap();
-    await yo('WalletsList');
-
-    // previously created wallet IN FAKE STORAGE should be visible
-    await expect(element(by.id('fake_wallet'))).toBeVisible();
-
-    // now go to settings, and decrypt
-    await element(by.id('SettingsButton')).tap();
-    await element(by.id('SecurityButton')).tap();
-
-    // putting MAIN storage password. should not succeed
-    await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
-    await element(by.text('OK')).tap();
-    await element(by.type('android.widget.EditText')).typeText('pass');
-    await element(by.text('OK')).tap();
-    await expect(element(by.text('Incorrect password. Please try again.'))).toBeVisible();
-    await element(by.text('OK')).tap();
-
-    // correct password
-    await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
-    await element(by.text('OK')).tap();
-    await element(by.type('android.widget.EditText')).typeText('fake');
-    await element(by.text('OK')).tap();
-
-    // relaunch app
-    await device.launchApp({ newInstance: true });
-    await yo('fake_wallet'); // success, we are observing wallet in FAKE storage. wallet from main storage is lost
+    await helperDeleteWallet('cr34t3d');
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -791,13 +734,9 @@ describe('BlueWallet UI Tests', () => {
     await device.pressBack();
 
     // Delete
-    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
-    await element(by.id('DeleteButton')).tap();
-    await sup('Yes, delete');
-    await element(by.text('Yes, delete')).tap();
-    await element(by.type('android.widget.EditText')).typeText('105526');
-    await element(by.text('OK')).tap();
-    await expect(element(by.id('NoTransactionsMessage'))).toBeVisible();
+    await device.pressBack();
+    await device.pressBack();
+    await helperDeleteWallet('testname', '105526');
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -878,6 +817,11 @@ describe('BlueWallet UI Tests', () => {
     await expect(element(by.id('ScanQrBackdoorButton'))).toBeNotVisible();
     await yo('PsbtWithHardwareWalletBroadcastTransactionButton');
 
+    await device.pressBack();
+    await device.pressBack();
+    await device.pressBack();
+    await helperDeleteWallet('Imported Watch-only');
+
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -915,6 +859,10 @@ describe('BlueWallet UI Tests', () => {
     await yo('TransactionValue');
     expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     expect(element(by.id('TransactionAddress'))).toHaveText('BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7');
+
+    await device.pressBack();
+    await device.pressBack();
+    await helperDeleteWallet('Imported HD SegWit (BIP84 Bech32 Native)', '105526');
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -1038,6 +986,12 @@ describe('BlueWallet UI Tests', () => {
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
     assert.strictEqual(transaction.outs[0].value, 50000);
 
+    await device.pressBack();
+    await device.pressBack();
+    await device.pressBack();
+    await device.pressBack();
+    await helperDeleteWallet(expectedWalletLabel, '108880');
+
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -1141,6 +1095,11 @@ describe('BlueWallet UI Tests', () => {
     assert.strictEqual(psbt2.data.inputs.length, 1);
     assert.strictEqual(psbt2.data.inputs[0].witnessUtxo.value, 5526);
 
+    await device.pressBack();
+    await device.pressBack();
+    await device.pressBack();
+    await helperDeleteWallet('Imported Watch-only', '105526');
+
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -1168,6 +1127,10 @@ describe('BlueWallet UI Tests', () => {
 
     // check if imported wallet has correct recive address
     await expect(element(by.id('AddressValue'))).toHaveText('bc1qe8q660wfj6uvqg7zyn86jcsux36natklqnfdrc');
+
+    await device.pressBack();
+    await device.pressBack();
+    await helperDeleteWallet('Imported HD SegWit (BIP84 Bech32 Native)');
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -1306,3 +1269,17 @@ const expectToBeVisible = async id => {
     return false;
   }
 };
+
+async function helperDeleteWallet(label, remainingBalanceSat = false) {
+  await element(by.text(label)).tap();
+  await element(by.id('WalletDetails')).tap();
+  await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+  await element(by.id('DeleteButton')).tap();
+  await sup('Yes, delete');
+  await element(by.text('Yes, delete')).tap();
+  if (remainingBalanceSat) {
+    await element(by.type('android.widget.EditText')).typeText(remainingBalanceSat);
+    await element(by.text('OK')).tap();
+  }
+  await expect(element(by.id('NoTransactionsMessage'))).toBeVisible();
+}

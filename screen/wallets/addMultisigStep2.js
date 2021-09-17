@@ -412,13 +412,17 @@ const WalletsAddMultisigStep2 = () => {
       fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(onBarScanned);
     } else {
       setIsProvideMnemonicsModalVisible(false);
-      navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          onBarScanned: onBarScanned,
-          showFileImportButton: true,
-        },
-      });
+      setTimeout(
+        () =>
+          navigation.navigate('ScanQRCodeRoot', {
+            screen: 'ScanQRCode',
+            params: {
+              onBarScanned: onBarScanned,
+              showFileImportButton: true,
+            },
+          }),
+        650,
+      );
     }
   };
 
