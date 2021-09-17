@@ -4,6 +4,10 @@ import { BIP32Interface } from 'bip32';
 import BlueElectrum from '../../blue_modules/BlueElectrum';
 import { Transaction } from './types';
 
+type AbstractHDWalletStatics = {
+  derivationPath?: string;
+};
+
 /**
  * @deprecated
  */
@@ -25,6 +29,7 @@ export class AbstractHDWallet extends LegacyWallet {
 
   constructor() {
     super();
+    const Constructor = (this.constructor as unknown) as AbstractHDWalletStatics;
     this.next_free_address_index = 0;
     this.next_free_change_address_index = 0;
     this.internal_addresses_cache = {}; // index => address
@@ -33,7 +38,7 @@ export class AbstractHDWallet extends LegacyWallet {
     this.usedAddresses = [];
     this._address_to_wif_cache = {};
     this.gap_limit = 20;
-    this._derivationPath = this.constructor.derivationPath;
+    this._derivationPath = Constructor.derivationPath;
   }
 
   getNextFreeAddressIndex(): number {
@@ -302,7 +307,7 @@ export class AbstractHDWallet extends LegacyWallet {
    *
    * @param {String} path - path
    */
-  setDerivationPath(path) {
+  setDerivationPath(path: string) {
     this._derivationPath = path;
   }
 }
