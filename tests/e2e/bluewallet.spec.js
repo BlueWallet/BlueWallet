@@ -1002,11 +1002,7 @@ describe('BlueWallet UI Tests', () => {
         return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
 
-    await helperImportWallet(
-      'zpub6qoWjSiZRHzSYPGYJ6EzxEXJXP1b2Rj9syWwJZFNCmupMwkbSAWSBk3UvSkJyQLEhQpaBAwvhmNj3HPKpwCJiTBB9Tutt46FtEmjL2DoU3J',
-      'Imported Watch-only',
-      '0.00105526 BTC',
-    );
+    await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
 
     // refresh transactions
     await element(by.id('refreshTransactions')).tap();
@@ -1028,7 +1024,6 @@ describe('BlueWallet UI Tests', () => {
 
     // open CoinControl
     await element(by.id('SendButton')).tap();
-    await element(by.text('OK')).tap();
     await element(by.id('advancedOptionsMenuButton')).tap();
     await element(by.id('CoinControl')).tap();
     await waitFor(element(by.id('Loading'))) // wait for outputs to be loaded
@@ -1058,17 +1053,19 @@ describe('BlueWallet UI Tests', () => {
     await element(by.text('OK')).tap();
     if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
-    await yo('TextHelperForPSBT');
+    await element(by.id('TransactionDetailsButton')).tap();
 
-    const psbthex1 = await extractTextFromElementById('PSBTHex');
-    const psbt1 = bitcoin.Psbt.fromHex(psbthex1);
-    assert.strictEqual(psbt1.txOutputs.length, 1);
-    assert.strictEqual(psbt1.txOutputs[0].address, 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    assert.strictEqual(psbt1.txOutputs[0].value, 99888);
-    assert.strictEqual(psbt1.data.inputs.length, 1);
-    assert.strictEqual(psbt1.data.inputs[0].witnessUtxo.value, 100000);
+    const txhex1 = await extractTextFromElementById('TxhexInput');
+    const tx1 = bitcoin.Transaction.fromHex(txhex1);
+    assert.strictEqual(tx1.outs.length, 1);
+    assert.strictEqual(tx1.outs[0].script.toString('hex'), '00147ea385f352be696ab0f6e94a0ee0e3c6d4b14a53');
+    assert.strictEqual(tx1.outs[0].value, 99888);
+    assert.strictEqual(tx1.ins.length, 1);
+    assert.strictEqual(tx1.ins[0].hash.toString('hex'), '88b8a8775a34f28b25910b80b4890ce63911bccd67196be3527991fe904e9449');
+    assert.strictEqual(tx1.ins[0].index, 0);
 
     // back to wallet screen
+    await device.pressBack();
     await device.pressBack();
     await device.pressBack();
 
@@ -1085,20 +1082,23 @@ describe('BlueWallet UI Tests', () => {
     await element(by.text('OK')).tap();
     if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
-    await yo('TextHelperForPSBT');
+    await element(by.id('TransactionDetailsButton')).tap();
 
-    const psbthex2 = await extractTextFromElementById('PSBTHex');
-    const psbt2 = bitcoin.Psbt.fromHex(psbthex2);
-    assert.strictEqual(psbt2.txOutputs.length, 1);
-    assert.strictEqual(psbt2.txOutputs[0].address, 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    assert.strictEqual(psbt2.txOutputs[0].value, 5414);
-    assert.strictEqual(psbt2.data.inputs.length, 1);
-    assert.strictEqual(psbt2.data.inputs[0].witnessUtxo.value, 5526);
+    const txhex2 = await extractTextFromElementById('TxhexInput');
+    const tx2 = bitcoin.Transaction.fromHex(txhex2);
+
+    assert.strictEqual(tx2.outs.length, 1);
+    assert.strictEqual(tx2.outs[0].script.toString('hex'), '00147ea385f352be696ab0f6e94a0ee0e3c6d4b14a53');
+    assert.strictEqual(tx2.outs[0].value, 5414);
+    assert.strictEqual(tx2.ins.length, 1);
+    assert.strictEqual(tx2.ins[0].hash.toString('hex'), '761aec51100404365f4078f1a1c728a833915b877d0db208e8b7bfd451d08aa5');
+    assert.strictEqual(tx2.ins[0].index, 1);
 
     await device.pressBack();
     await device.pressBack();
     await device.pressBack();
-    await helperDeleteWallet('Imported Watch-only', '105526');
+    await device.pressBack();
+    await helperDeleteWallet('Imported HD SegWit (BIP84 Bech32 Native)', '105526');
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
