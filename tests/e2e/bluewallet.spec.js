@@ -1127,11 +1127,15 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('MnemonicInput')).replaceText(
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
     );
+    await element(by.id('AskPassphrase')).tap();
+    await element(by.id('SearchAccounts')).tap();
     await element(by.id('DoImport')).tap();
+    await sleep(1000);
 
     // cancel import and start over
     await element(by.text('Cancel')).tap();
     await element(by.id('DoImport')).tap();
+    await sleep(1000);
     await element(by.text('OK')).tap();
     await waitFor(element(by.id('Loading'))) // wait for discovery to be completed
       .not.toExist()
@@ -1157,11 +1161,9 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('WalletDetails')).tap();
     await expect(element(by.id('DerivationPath'))).toHaveText("m/44'/0'/1'");
 
-    // process.exit(1)
-
     await device.pressBack();
     await device.pressBack();
-    await helperDeleteWallet('Imported HD SegWit (BIP84 Bech32 Native)');
+    await helperDeleteWallet('Imported HD Legacy (BIP44 P2PKH)');
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
