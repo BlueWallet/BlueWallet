@@ -322,7 +322,7 @@ function DrawerRoot() {
   const isLargeScreen =
     Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop);
   const drawerStyle = { width: '0%' };
-console.warn(isLargeScreen)
+console.warn(Dimensions.get('screen').width)
 console.warn(dimensions)
   return (
     <Drawer.Navigator
