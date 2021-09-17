@@ -64,6 +64,7 @@ export const BlueButton = props => {
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 16,
+        flexGrow: 1,
       }}
       accessibilityRole="button"
       {...props}
@@ -89,7 +90,6 @@ export const SecondButton = forwardRef((props, ref) => {
     <TouchableOpacity
       accessibilityRole="button"
       style={{
-        flex: 1,
         borderWidth: 0.7,
         borderColor: 'transparent',
         backgroundColor: backgroundColor,
@@ -99,6 +99,8 @@ export const SecondButton = forwardRef((props, ref) => {
         borderRadius: 25,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingHorizontal: 16,
+        flexGrow: 1,
       }}
       {...props}
       ref={ref}
