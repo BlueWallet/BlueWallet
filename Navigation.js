@@ -2,7 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from 'react-native-screens/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Platform, useWindowDimensions, Dimensions, I18nManager } from 'react-native';
-import { useTheme, useIsFocused } from '@react-navigation/native';
+import { useTheme } from '@react-navigation/native';
 
 import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
@@ -80,7 +80,7 @@ import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import UnlockWith from './UnlockWith';
 import DrawerList from './screen/wallets/drawerList';
-import { isTablet, isHandset } from './blue_modules/environment';
+import { isDesktop, isTablet, isHandset } from './blue_modules/environment';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
 
@@ -319,9 +319,8 @@ const ReorderWalletsStackRoot = () => {
 const Drawer = createDrawerNavigator();
 function DrawerRoot() {
   const dimensions = useWindowDimensions();
-  const isFocused = useIsFocused();
   const isLargeScreen =
-    Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 2 && (!isHandset && isFocused);
+    Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 2 && (isTablet()) || isDesktop;
   const drawerStyle = { width: '0%' };
 
   return (
