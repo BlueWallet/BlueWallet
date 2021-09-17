@@ -1,9 +1,8 @@
 /* eslint-disable react/prop-types */
 import React, { createContext, useEffect, useState } from 'react';
-import { Alert, LayoutAnimation } from 'react-native';
+import { Alert } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
-
 import { FiatUnit } from '../models/fiatUnit';
 import Notifications from '../blue_modules/notifications';
 import loc from '../loc';
@@ -27,7 +26,6 @@ export const BlueStorageProvider = ({ children }) => {
   const getPreferredCurrencyAsyncStorage = useAsyncStorage(currency.PREFERRED_CURRENCY).getItem;
   const getLanguageAsyncStorage = useAsyncStorage(loc.LANG).getItem;
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
-  const [isDrawerListBlurred, _setIsDrawerListBlurred] = useState(false);
   const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
 
   useEffect(() => {
@@ -39,7 +37,11 @@ export const BlueStorageProvider = ({ children }) => {
     return BlueApp.setIsHandoffEnabled(value);
   };
 
-  const saveToDisk = async () => {
+  const saveToDisk = async (force = false) => {
+    if (BlueApp.getWallets().length === 0 && !force) {
+      console.log('not saving empty wallets array');
+      return;
+    }
     BlueApp.tx_metadata = txMetadata;
     await BlueApp.saveToDisk();
     setWallets([...BlueApp.getWallets()]);
@@ -61,11 +63,6 @@ export const BlueStorageProvider = ({ children }) => {
       }
     })();
   }, []);
-
-  const setIsDrawerListBlurred = value => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    _setIsDrawerListBlurred(value);
-  };
 
   const getPreferredCurrency = async () => {
     const item = await getPreferredCurrencyAsyncStorage();
@@ -256,8 +253,6 @@ export const BlueStorageProvider = ({ children }) => {
         setIsHandOffUseEnabledAsyncStorage,
         walletTransactionUpdateStatus,
         setWalletTransactionUpdateStatus,
-        isDrawerListBlurred,
-        setIsDrawerListBlurred,
         setDoNotTrack,
         isDoNotTrackEnabled,
         isElectrumDisabled,

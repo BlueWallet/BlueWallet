@@ -54,7 +54,7 @@ const WalletsList = () => {
   const routeName = useRoute().name;
   const [isLoading, setIsLoading] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(
-    Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop),
+    Platform.OS === 'android' ? isTablet() : (width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop,
   );
   const dataSource = getTransactions(null, 10);
   const walletsCount = useRef(wallets.length);
@@ -114,7 +114,6 @@ const WalletsList = () => {
 
   useEffect(() => {
     setOptions({
-      title: '',
       headerShown: !isDesktop,
       headerStyle: {
         backgroundColor: colors.customHeader,
@@ -376,7 +375,7 @@ const WalletsList = () => {
   };
 
   const onLayout = _e => {
-    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop));
+    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : (width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop);
   };
 
   const onRefresh = () => {
@@ -385,7 +384,7 @@ const WalletsList = () => {
 
   return (
     <View style={styles.root} onLayout={onLayout}>
-      <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
+      <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent animated />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
           contentInsetAdjustmentBehavior="automatic"
@@ -410,7 +409,7 @@ const WalletsList = () => {
 };
 
 export default WalletsList;
-WalletsList.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: '' }));
+WalletsList.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: '', headerBackTitle: loc.wallets.list_title }));
 
 const styles = StyleSheet.create({
   root: {
@@ -446,8 +445,6 @@ const styles = StyleSheet.create({
   },
   headerTouch: {
     height: 48,
-    paddingRight: 16,
-    paddingLeft: 32,
     paddingVertical: 10,
   },
   listHeaderBack: {

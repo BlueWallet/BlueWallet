@@ -270,10 +270,7 @@ const styles = StyleSheet.create({
     borderColor: 0,
   },
   buttonContainer: {
-    flexDirection: 'row',
-    margin: 24,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
+    padding: 24,
   },
   formatSelectorText: {
     color: '#13244D',

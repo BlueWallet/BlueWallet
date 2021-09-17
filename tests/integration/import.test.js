@@ -332,4 +332,39 @@ describe('bip39 discover', () => {
     assert.strictEqual(wallets[HDSegwitBech32Wallet.type].wallet.type, HDSegwitBech32Wallet.type);
     assert.strictEqual(wallets[HDSegwitBech32Wallet.type].wallet.getDerivationPath(), "m/44'/0'/1'");
   });
+
+  it('can import BIP39 wallets with truncated words', async () => {
+    // 12 words
+    const store1 = createStore();
+    const { promise: promise1 } = startImport('trip ener cloc puls hams ghos inha crow inju vibr seve chro', store1.callbacks);
+    await promise1;
+    assert.strictEqual(
+      store1.state.wallets[0].getSecret(),
+      'trip energy clock pulse hamster ghost inhale crowd injury vibrant seven chronic',
+    );
+
+    // 16 words
+    const store2 = createStore();
+    const { promise: promise2 } = startImport(
+      'docu gosp razo chao nort ches nomi fati swam firs deca boy icon virt gap prep seri anch',
+      store2.callbacks,
+    );
+    await promise2;
+    assert.strictEqual(
+      store2.state.wallets[0].getSecret(),
+      'document gospel razor chaos north chest nominee fatigue swamp first decade boy icon virtual gap prepare series anchor',
+    );
+
+    // 24 words
+    const store3 = createStore();
+    const { promise: promise3 } = startImport(
+      'rece own flig sent tide hood sile bunk deri mana wink belt loud apol mons pill raw gate hurd matc nigh wish todd achi',
+      store3.callbacks,
+    );
+    await promise3;
+    assert.strictEqual(
+      store3.state.wallets[0].getSecret(),
+      'receive own flight sentence tide hood silent bunker derive manage wink belt loud apology monster pill raw gate hurdle match night wish toddler achieve',
+    );
+  });
 });

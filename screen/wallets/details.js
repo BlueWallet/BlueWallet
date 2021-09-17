@@ -33,6 +33,7 @@ import {
   WatchOnlyWallet,
   MultisigHDWallet,
   HDAezeedWallet,
+  LightningLdkWallet,
 } from '../../class';
 import loc from '../../loc';
 import { useTheme, useRoute, useNavigation } from '@react-navigation/native';
@@ -134,6 +135,7 @@ const WalletDetails = () => {
       return null;
     }
   }, [wallet]);
+  const [lightningWalletInfo, setLightningWalletInfo] = useState({});
 
   useEffect(() => {
     if (isAdvancedModeEnabledRender && wallet.allowMasterFingerprint()) {
@@ -162,6 +164,11 @@ const WalletDetails = () => {
       backgroundColor: colors.inputBackgroundColor,
     },
   });
+  useEffect(() => {
+    if (wallet.type === LightningLdkWallet.type) {
+      wallet.getInfo().then(setLightningWalletInfo);
+    }
+  }, [wallet]);
 
   const setLabel = () => {
     setIsLoading(true);
@@ -208,7 +215,7 @@ const WalletDetails = () => {
     Notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
     popToTop();
     deleteWallet(wallet);
-    saveToDisk();
+    saveToDisk(true);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
   };
 
@@ -272,6 +279,11 @@ const WalletDetails = () => {
         address: wallet.getAllExternalAddresses()[0], // works for both single address and HD wallets
       },
     });
+  const navigateToLdkViewLogs = () => {
+    navigate('LdkViewLogs', {
+      walletID,
+    });
+  };
 
   const navigateToAddresses = () =>
     navigate('WalletAddresses', {
@@ -490,6 +502,18 @@ const WalletDetails = () => {
               <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.details_type.toLowerCase()}</Text>
               <Text style={[styles.textValue, stylesHook.textValue]}>{wallet.typeReadable}</Text>
 
+              {wallet.type === LightningLdkWallet.type && (
+                <>
+                  <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.identity_pubkey}</Text>
+                  {lightningWalletInfo?.identityPubkey ? (
+                    <>
+                      <BlueText>{lightningWalletInfo.identityPubkey}</BlueText>
+                    </>
+                  ) : (
+                    <ActivityIndicator />
+                  )}
+                </>
+              )}
               {wallet.type === MultisigHDWallet.type && (
                 <>
                   <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_multisig_type}</Text>
@@ -501,7 +525,6 @@ const WalletDetails = () => {
                   </BlueText>
                 </>
               )}
-
               {wallet.type === MultisigHDWallet.type && (
                 <>
                   <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.multisig.how_many_signatures_can_bluewallet_make}</Text>
@@ -522,6 +545,7 @@ const WalletDetails = () => {
                   <BlueText>{wallet.getIdentityPubkey()}</BlueText>
                 </>
               )}
+              <BlueSpacing20 />
               <>
                 <Text onPress={exportInternals} style={[styles.textLabel2, stylesHook.textLabel2]}>
                   {loc.transactions.list_title.toLowerCase()}
@@ -613,6 +637,12 @@ const WalletDetails = () => {
                     <SecondButton onPress={navigateToSignVerify} testID="SignVerify" title={loc.addresses.sign_title} />
                   </>
                 )}
+                {wallet.type === LightningLdkWallet.type && (
+                  <>
+                    <BlueSpacing20 />
+                    <SecondButton onPress={navigateToLdkViewLogs} testID="LdkLogs" title={loc.lnd.view_logs} />
+                  </>
+                )}
                 <BlueSpacing20 />
                 <BlueSpacing20 />
                 <TouchableOpacity accessibilityRole="button" onPress={handleDeleteButtonTapped} testID="DeleteButton">
@@ -627,6 +657,6 @@ const WalletDetails = () => {
   );
 };
 
-WalletDetails.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.details_title }));
+WalletDetails.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: loc.wallets.details_title }));
 
 export default WalletDetails;

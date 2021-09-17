@@ -101,7 +101,6 @@
     "exchange": "Směnárna",
     "expired": "Expirováno",
     "expiredLow": "expirováno",
-    "expiresIn": "Vyprší: {time}",
     "payButton": "Zaplatit",
     "placeholder": "Faktura",
     "potentialFee": "Potenciální poplatek: {fee}",

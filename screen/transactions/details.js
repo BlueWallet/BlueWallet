@@ -62,13 +62,6 @@ const TransactionsDetails = () => {
           <Text style={stylesHooks.saveText}>{loc.wallets.details_save}</Text>
         </TouchableOpacity>
       ),
-      headerStyle: {
-        borderBottomWidth: 0,
-        elevation: 0,
-        shadowOpacity: 0,
-        shadowOffset: { height: 0, width: 0 },
-        backgroundColor: colors.customHeader,
-      },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors, isLoading, memo]);
@@ -219,10 +212,11 @@ const TransactionsDetails = () => {
             </>
           )}
           <ToolTipMenu
+            isButton
             actions={[
               {
                 id: TransactionsDetails.actionKeys.CopyToClipboard,
-                text: loc.transactions.details_copy,
+                text: loc.transactions.copy_link,
                 icon: TransactionsDetails.actionIcons.Clipboard,
               },
             ]}
@@ -285,7 +279,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   save: {
-    marginHorizontal: 16,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -316,4 +309,18 @@ const styles = StyleSheet.create({
 
 export default TransactionsDetails;
 
-TransactionsDetails.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.transactions.details_title }));
+TransactionsDetails.navigationOptions = navigationStyle(
+  { headerTitle: loc.transactions.details_title },
+  (options, { theme, navigation, route }) => {
+    return {
+      ...options,
+      headerStyle: {
+        backgroundColor: theme.colors.customHeader,
+        borderBottomWidth: 0,
+        elevation: 0,
+        shadowOpacity: 0,
+        shadowOffset: { height: 0, width: 0 },
+      },
+    };
+  },
+);

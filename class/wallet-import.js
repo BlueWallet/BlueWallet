@@ -18,6 +18,7 @@ import {
   SegwitBech32Wallet,
   SegwitP2SHWallet,
   WatchOnlyWallet,
+  LightningLdkWallet,
 } from '.';
 import loc from '../loc';
 import bip39WalletFormats from './bip39_wallet_formats.json'; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
@@ -152,6 +153,17 @@ const startImport = (importTextOrig, { onProgress, onWallet, onPassword }) => {
       await lnd.fetchPendingTransactions();
       await lnd.fetchBalance();
       yield { wallet: lnd };
+    }
+
+    // is it LDK?
+    yield { progress: 'lightning' };
+    if (text.startsWith('ldk://')) {
+      const ldk = new LightningLdkWallet();
+      ldk.setSecret(text);
+      if (ldk.valid()) {
+        await ldk.init();
+        yield { wallet: ldk };
+      }
     }
 
     // check bip39 wallets

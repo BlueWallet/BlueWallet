@@ -853,6 +853,16 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    */
   createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
     if (targets.length === 0) throw new Error('No destination provided');
+    // compensating for coinselect inability to deal with segwit inputs, and overriding script length for proper vbytes calculation
+    for (const u of utxos) {
+      // this is a hacky way to distinguish native/wrapped segwit, but its good enough for our case since we have only
+      // those 2 wallet types
+      if (this._getExternalAddressByIndex(0).startsWith('bc1')) {
+        u.script = { length: 27 };
+      } else if (this._getExternalAddressByIndex(0).startsWith('3')) {
+        u.script = { length: 50 };
+      }
+    }
     const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
 
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;

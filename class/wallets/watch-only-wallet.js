@@ -294,4 +294,9 @@ export class WatchOnlyWallet extends LegacyWallet {
     if (!this.isHd()) throw new Error('Not initialized');
     this._derivationPath = path;
   }
+
+  isSegwit() {
+    if (this._hdWalletInstance) return this._hdWalletInstance.isSegwit();
+    return super.isSegwit();
+  }
 }

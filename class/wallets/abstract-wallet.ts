@@ -412,4 +412,8 @@ export class AbstractWallet {
     if ('frozen' in opts) meta.frozen = opts.frozen;
     this._utxoMetadata[`${txid}:${vout}`] = meta;
   }
+
+  isSegwit() {
+    return false;
+  }
 }

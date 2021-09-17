@@ -1,6 +1,6 @@
 #!/bin/sh
 HEAD=`git rev-parse --abbrev-ref --symbolic-full-name HEAD`
-if [ $HEAD == "master" ]
+if [ "$HEAD" = "master" ]
 then
     TAG=`git tag | sort | tail -n 1`
 else

@@ -140,7 +140,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "6.2.4"
+        versionName "6.2.7"
         multiDexEnabled true
         missingDimensionStrategy 'react-native-camera', 'general'
         testBuildType System.getProperty('testBuildType', 'debug')  // This will later be used to control the test apk build type
@@ -181,6 +181,7 @@ android {
 }
 
 dependencies {
+    implementation files("../../node_modules/rn-ldk/android/libs/LDK-release.aar")
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")

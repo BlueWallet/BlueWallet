@@ -60,6 +60,7 @@ function Notifications(props) {
           if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
           delete payload.data;
           // ^^^ weird, but sometimes payload data is not in `data` but in root level
+          console.log('got push notification', payload);
 
           await Notifications.addNotification(payload);
 

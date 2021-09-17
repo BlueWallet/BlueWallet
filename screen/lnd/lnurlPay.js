@@ -56,11 +56,16 @@ const LnurlPay = () => {
   useEffect(() => {
     if (lnurl) {
       const ln = new Lnurl(lnurl, AsyncStorage);
-      ln.callLnurlPayService().then(setPayload);
+      ln.callLnurlPayService()
+        .then(setPayload)
+        .catch(error => {
+          alert(error.message);
+          pop();
+        });
       setLN(ln);
       setIsLoading(false);
     }
-  }, [lnurl]);
+  }, [lnurl, pop]);
 
   useEffect(() => {
     setPayButtonDisabled(isLoading);
@@ -182,16 +187,21 @@ const LnurlPay = () => {
             />
             <BlueText style={styles.alignSelfCenter}>
               {loc.formatString(loc.lndViewInvoice.please_pay_between_and, {
-                min: formatBalance(payload?.min, wallet.getPreferredBalanceUnit()),
-                max: formatBalance(payload?.max, wallet.getPreferredBalanceUnit()),
+                min: formatBalance(payload?.min, unit),
+                max: formatBalance(payload?.max, unit),
               })}
             </BlueText>
             <BlueSpacing20 />
-            {payload?.image && <Image style={styles.img} source={{ uri: payload?.image }} />}
+            {payload?.image && (
+              <>
+                <Image style={styles.img} source={{ uri: payload?.image }} />
+                <BlueSpacing20 />
+              </>
+            )}
             <BlueText style={styles.alignSelfCenter}>{payload?.description}</BlueText>
             <BlueText style={styles.alignSelfCenter}>{payload?.domain}</BlueText>
             <BlueSpacing20 />
-            <BlueButton title={loc.lnd.payButton} onPress={pay} disabled={payButtonDisabled} />
+            {payButtonDisabled ? <BlueLoading /> : <BlueButton title={loc.lnd.payButton} onPress={pay} />}
             <BlueSpacing20 />
           </BlueCard>
         </ScrollView>
@@ -263,5 +273,4 @@ LnurlPay.navigationOptions = navigationStyle({
   title: '',
   closeButton: true,
   closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop(),
-  headerLeft: null,
 });

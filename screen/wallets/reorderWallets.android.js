@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
-import { View, ActivityIndicator, Image, Text, StyleSheet, StatusBar, ScrollView, I18nManager } from 'react-native';
+import { View, ActivityIndicator, Image, Text, StyleSheet, TouchableOpacity, StatusBar, ScrollView, I18nManager } from 'react-native';
 import { BluePrivateBalance } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
@@ -75,7 +75,7 @@ const ReorderWallets = () => {
   const [hasMovedARow, setHasMovedARow] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const sortableList = useRef();
-  const { colors } = useTheme();
+  const { colors, closeImage } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
   const navigation = useNavigation();
   const stylesHook = {
@@ -88,20 +88,30 @@ const ReorderWallets = () => {
   };
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('blur', () => {
-      if (sortableList.current?.state.data.length === data.length && hasMovedARow) {
-        const newWalletsOrderArray = [];
-        sortableList.current.state.order.forEach(element => {
-          newWalletsOrderArray.push(data[element]);
-        });
-        setWalletsWithNewOrder(newWalletsOrderArray);
-      }
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          accessibilityRole="button"
+          style={styles.button}
+          onPress={() => {
+            if (sortableList.current?.state.data.length === data.length && hasMovedARow) {
+              const newWalletsOrderArray = [];
+              sortableList.current.state.order.forEach(element => {
+                newWalletsOrderArray.push(data[element]);
+              });
+              setWalletsWithNewOrder(newWalletsOrderArray);
+            }
+            navigation.goBack();
+          }}
+          testID="NavigationCloseButton"
+        >
+          <Image source={closeImage} />
+        </TouchableOpacity>
+      ),
     });
 
-    return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation, hasMovedARow]);
-
   useEffect(() => {
     const loadWallets = wallets.filter(wallet => wallet.type !== PlaceholderWallet.type);
     setData(loadWallets);
@@ -195,8 +205,7 @@ const ReorderWallets = () => {
 
 ReorderWallets.navigationOptions = navigationStyle(
   {
-    closeButton: true,
-    headerLeft: null,
+    headerHideBackButton: true,
   },
   opts => ({ ...opts, title: loc.wallets.reorder_title }),
 );
