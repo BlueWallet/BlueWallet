@@ -320,7 +320,7 @@ const Drawer = createDrawerNavigator();
 function DrawerRoot() {
   const dimensions = useWindowDimensions();
   const isLargeScreen =
-    Platform.OS === 'android' ? isTablet() : dimensions.width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop);
+    Platform.OS === 'android' ? isTablet() : Dimensions.get('window').width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop);
   const drawerStyle = { width: '0%' };
 console.warn(Dimensions.get('screen').width)
 console.warn(dimensions)
