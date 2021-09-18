@@ -5,13 +5,14 @@ import { useNavigation, useTheme } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber, getUniqueId, hasGmsSync } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
-
 import { BlueButton, BlueCard, BlueListItem, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
-import Bugsnag from '@bugsnag/react-native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+
+const A = require('../../blue_modules/analytics');
+const branch = require('../../current-branch.json');
 
 const About = () => {
   const { navigate } = useNavigation();
@@ -210,7 +211,7 @@ const About = () => {
       <BlueSpacing20 />
       <BlueSpacing20 />
       <BlueTextCentered>
-        {getApplicationName()} ver {getVersion()} (build {getBuildNumber()})
+        {getApplicationName()} ver {getVersion()} (build {getBuildNumber() + ' ' + branch})
       </BlueTextCentered>
       <BlueTextCentered>{new Date(getBuildNumber() * 1000).toGMTString()}</BlueTextCentered>
       <BlueTextCentered>{getBundleId()}</BlueTextCentered>
@@ -223,7 +224,7 @@ const About = () => {
           accessibilityRole="button"
           onPress={() => {
             const stringToCopy = 'userId:' + getUniqueId();
-            Bugsnag.notify(new Error('copied unique id'));
+            A.logError('copied unique id');
             Clipboard.setString(stringToCopy);
           }}
         >

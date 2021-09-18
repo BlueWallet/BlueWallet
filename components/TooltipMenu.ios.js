@@ -26,6 +26,8 @@ const ToolTipMenu = props => {
   const isMenuPrimaryAction = props.isMenuPrimaryAction ? props.isMenuPrimaryAction : false;
   const previewQRCode = props.previewQRCode ?? false;
   const previewValue = props.previewValue;
+  // eslint-disable-next-line react/prop-types
+  const buttonStyle = props.buttonStyle;
   return isButton ? (
     <ContextMenuButton
       onPressMenuItem={({ nativeEvent }) => {
@@ -36,6 +38,7 @@ const ToolTipMenu = props => {
         menuTitle,
         menuItems: menuItems.concat(submenu),
       }}
+      style={buttonStyle}
     >
       {props.children}
     </ContextMenuButton>

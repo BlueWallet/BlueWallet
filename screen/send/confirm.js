@@ -45,12 +45,14 @@ const Confirm = () => {
     transactionAmountFiat: {
       color: colors.feeText,
     },
-
+    txDetails: {
+      backgroundColor: colors.lightButton,
+    },
     valueValue: {
       color: colors.alternativeTextColor2,
     },
     valueUnit: {
-      color: colors.alternativeTextColor2,
+      color: colors.buttonTextColor,
     },
     root: {
       backgroundColor: colors.elevated,
@@ -73,7 +75,7 @@ const Confirm = () => {
         <TouchableOpacity
           accessibilityRole="button"
           testID="TransactionDetailsButton"
-          style={styles.txDetails}
+          style={[styles.txDetails, stylesHook.txDetails]}
           onPress={async () => {
             if (isBiometricUseCapableAndEnabled) {
               if (!(await Biometric.unlockWithBiometrics())) {
@@ -210,7 +212,7 @@ const Confirm = () => {
           <Text testID="TransactionValue" style={[styles.valueValue, stylesHook.valueValue]}>
             {currency.satoshiToBTC(item.value)}
           </Text>
-          <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{' ' + loc.units[BitcoinUnit.BTC]}</Text>
+          <Text style={[styles.valueUnit, stylesHook.valueValue]}>{' ' + loc.units[BitcoinUnit.BTC]}</Text>
         </View>
         <Text style={[styles.transactionAmountFiat, stylesHook.transactionAmountFiat]}>{currency.satoshiToLocalCurrency(item.value)}</Text>
         <BlueCard>
@@ -341,10 +343,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   txDetails: {
-    backgroundColor: '#EEF0F4',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
     width: 80,
     borderRadius: 8,
     height: 38,

@@ -21,17 +21,15 @@ import {
   TouchableOpacity,
   View,
   I18nManager,
+  ImageBackground,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { BlurView } from '@react-native-community/blur';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
-import { encodeUR } from './blue_modules/ur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatStringAddTwoWhiteSpaces } from './loc';
 import { BlueStorageContext } from './blue_modules/storage-context';
-import QRCodeComponent from './components/QRCodeComponent';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -57,7 +55,6 @@ export const BlueButton = props => {
   return (
     <TouchableOpacity
       style={{
-        flex: 1,
         borderWidth: 0.7,
         borderColor: 'transparent',
         backgroundColor: backgroundColor,
@@ -68,6 +65,7 @@ export const BlueButton = props => {
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 16,
+        flexGrow: 1,
       }}
       accessibilityRole="button"
       {...props}
@@ -93,7 +91,6 @@ export const SecondButton = forwardRef((props, ref) => {
     <TouchableOpacity
       accessibilityRole="button"
       style={{
-        flex: 1,
         borderWidth: 0.7,
         borderColor: 'transparent',
         backgroundColor: backgroundColor,
@@ -103,6 +100,8 @@ export const SecondButton = forwardRef((props, ref) => {
         borderRadius: 25,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingHorizontal: 16,
+        flexGrow: 1,
       }}
       {...props}
       ref={ref}
@@ -285,20 +284,15 @@ export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure 
 };
 
 export const BluePrivateBalance = () => {
-  return Platform.select({
-    ios: (
-      <View style={{ flexDirection: 'row', marginTop: 13 }}>
-        <BlurView style={styles.balanceBlur} blurType="light" blurAmount={25} />
-        <Icon name="eye-slash" type="font-awesome" color="#FFFFFF" />
-      </View>
-    ),
-    android: (
-      <View style={{ flexDirection: 'row', marginTop: 13 }}>
-        <View style={{ backgroundColor: '#FFFFFF', opacity: 0.5, height: 30, width: 100, marginRight: 8 }} />
-        <Icon name="eye-slash" type="font-awesome" color="#FFFFFF" />
-      </View>
-    ),
-  });
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 13, borderRadius: 9 }}>
+      <ImageBackground
+        blurRadius={6}
+        style={{ backgroundColor: '#FFFFFF', opacity: 0.5, height: 30, width: 110, marginRight: 8, borderRadius: 9 }}
+      />
+      <Icon name="eye-slash" type="font-awesome" color="#FFFFFF" />
+    </View>
+  );
 };
 
 export const BlueCopyToClipboardButton = ({ stringToCopy, displayText = false }) => {
@@ -436,13 +430,13 @@ export const BlueListItem = React.memo(props => {
           </ListItem.Subtitle>
         )}
       </ListItem.Content>
-      <ListItem.Content right>
-        {props.rightTitle && (
+      {props.rightTitle && (
+        <ListItem.Content right>
           <ListItem.Title style={props.rightTitleStyle} numberOfLines={0} right>
             {props.rightTitle}
           </ListItem.Title>
-        )}
-      </ListItem.Content>
+        </ListItem.Content>
+      )}
       {props.isLoading ? (
         <ActivityIndicator />
       ) : (
@@ -572,30 +566,30 @@ export const BlueHeaderDefaultMain = props => {
   const { isDrawerList } = props;
   const { isImportingWallet } = useContext(BlueStorageContext);
   return (
-    <Header
-      leftComponent={{
-        text: props.leftText,
-        style: {
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: isDrawerList ? colors.elevated : colors.background,
+        paddingHorizontal: 16,
+        borderTopColor: isDrawerList ? colors.elevated : colors.background,
+        borderBottomColor: isDrawerList ? colors.elevated : colors.background,
+        marginBottom: 8,
+      }}
+    >
+      <Text
+        style={{
+          textAlign: 'left',
           fontWeight: 'bold',
           fontSize: 34,
           color: colors.foregroundColor,
-          paddingHorizontal: 4,
-        },
-      }}
-      placement="left"
-      containerStyle={{
-        borderTopColor: isDrawerList ? colors.elevated : colors.background,
-        borderBottomColor: isDrawerList ? colors.elevated : colors.background,
-        maxHeight: 44,
-        height: 44,
-        paddingTop: 0,
-        marginBottom: 8,
-      }}
-      bottomDivider={false}
-      topDivider={false}
-      backgroundColor={isDrawerList ? colors.elevated : colors.background}
-      rightComponent={isImportingWallet ? undefined : <BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />}
-    />
+        }}
+      >
+        {props.leftText}
+      </Text>
+      {isImportingWallet ? undefined : <BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />}
+    </View>
   );
 };
 
@@ -622,7 +616,8 @@ export class is {
 }
 
 export const BlueSpacing20 = props => {
-  return <View {...props} style={{ height: 20, opacity: 0 }} />;
+  const { horizontal = false } = props;
+  return <View {...props} style={{ height: horizontal ? 0 : 20, width: horizontal ? 20 : 0, opacity: 0 }} />;
 };
 
 export const BlueSpacing10 = props => {
@@ -1128,7 +1123,7 @@ export class BlueReplaceFeeSuggestions extends Component {
               }}
               onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue)}
               defaultValue={`${this.props.transactionMinimum}`}
-              placeholder={loc.send.fee_satbyte}
+              placeholder={loc.send.fee_satvbyte}
               placeholderTextColor="#81868e"
               inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
             />
@@ -1136,20 +1131,12 @@ export class BlueReplaceFeeSuggestions extends Component {
           </View>
         </TouchableOpacity>
         <BlueText style={{ color: BlueCurrentTheme.colors.alternativeTextColor }}>
-          {loc.formatString(loc.send.fee_replace_min, { min: this.props.transactionMinimum })}
+          {loc.formatString(loc.send.fee_replace_minvb, { min: this.props.transactionMinimum })}
         </BlueText>
       </View>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  balanceBlur: {
-    height: 30,
-    width: 100,
-    marginRight: 16,
-  },
-});
 
 export function BlueBigCheckmark({ style }) {
   const defaultStyles = {
@@ -1206,151 +1193,3 @@ export const BlueTabs = ({ active, onSwitch, tabs }) => (
     ))}
   </View>
 );
-
-export class DynamicQRCode extends Component {
-  constructor() {
-    super();
-    const qrCodeHeight = height > width ? width - 40 : width / 3;
-    const qrCodeMaxHeight = 370;
-    this.state = {
-      index: 0,
-      total: 0,
-      qrCodeHeight: Math.min(qrCodeHeight, qrCodeMaxHeight),
-      intervalHandler: null,
-    };
-  }
-
-  fragments = [];
-
-  componentDidMount() {
-    const { value, capacity = 200 } = this.props;
-    this.fragments = encodeUR(value, capacity);
-    this.setState(
-      {
-        total: this.fragments.length,
-      },
-      () => {
-        this.startAutoMove();
-      },
-    );
-  }
-
-  moveToNextFragment = () => {
-    const { index, total } = this.state;
-    if (index === total - 1) {
-      this.setState({
-        index: 0,
-      });
-    } else {
-      this.setState(state => ({
-        index: state.index + 1,
-      }));
-    }
-  };
-
-  startAutoMove = () => {
-    if (!this.state.intervalHandler)
-      this.setState(() => ({
-        intervalHandler: setInterval(this.moveToNextFragment, 500),
-      }));
-  };
-
-  stopAutoMove = () => {
-    clearInterval(this.state.intervalHandler);
-    this.setState(() => ({
-      intervalHandler: null,
-    }));
-  };
-
-  moveToPreviousFragment = () => {
-    const { index, total } = this.state;
-    if (index > 0) {
-      this.setState(state => ({
-        index: state.index - 1,
-      }));
-    } else {
-      this.setState(state => ({
-        index: total - 1,
-      }));
-    }
-  };
-
-  render() {
-    const currentFragment = this.fragments[this.state.index];
-    return currentFragment ? (
-      <View style={animatedQRCodeStyle.container}>
-        <BlueSpacing20 />
-        <View style={animatedQRCodeStyle.qrcodeContainer}>
-          <QRCodeComponent value={currentFragment.toUpperCase()} size={this.state.qrCodeHeight} ecl="L" />
-        </View>
-        <BlueSpacing20 />
-        <View>
-          <Text style={animatedQRCodeStyle.text}>
-            {loc.formatString(loc._.of, { number: this.state.index + 1, total: this.state.total })}
-          </Text>
-        </View>
-        <BlueSpacing20 />
-        <View style={animatedQRCodeStyle.controller}>
-          <TouchableOpacity
-            accessibilityRole="button"
-            style={[animatedQRCodeStyle.button, { width: '25%', alignItems: 'flex-start' }]}
-            onPress={this.moveToPreviousFragment}
-          >
-            <Text style={animatedQRCodeStyle.text}>{loc.send.dynamic_prev}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            accessibilityRole="button"
-            style={[animatedQRCodeStyle.button, { width: '50%' }]}
-            onPress={this.state.intervalHandler ? this.stopAutoMove : this.startAutoMove}
-          >
-            <Text style={animatedQRCodeStyle.text}>{this.state.intervalHandler ? loc.send.dynamic_stop : loc.send.dynamic_start}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            accessibilityRole="button"
-            style={[animatedQRCodeStyle.button, { width: '25%', alignItems: 'flex-end' }]}
-            onPress={this.moveToNextFragment}
-          >
-            <Text style={animatedQRCodeStyle.text}>{loc.send.dynamic_next}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    ) : (
-      <View>
-        <Text>{loc.send.dynamic_init}</Text>
-      </View>
-    );
-  }
-}
-
-const animatedQRCodeStyle = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  qrcodeContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-
-    margin: 6,
-  },
-  controller: {
-    width: '90%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderRadius: 25,
-    height: 45,
-    paddingHorizontal: 18,
-  },
-  button: {
-    alignItems: 'center',
-    height: 45,
-    justifyContent: 'center',
-  },
-  text: {
-    fontSize: 14,
-    color: BlueCurrentTheme.colors.foregroundColor,
-    fontWeight: 'bold',
-  },
-});

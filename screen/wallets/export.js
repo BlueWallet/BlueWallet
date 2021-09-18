@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useContext } from 'react';
-import { useWindowDimensions, InteractionManager, ScrollView, ActivityIndicator, StatusBar, View, StyleSheet } from 'react-native';
+import { InteractionManager, ScrollView, ActivityIndicator, StatusBar, View, StyleSheet } from 'react-native';
 import { useTheme, useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
@@ -40,8 +40,8 @@ const WalletExport = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
   const { colors } = useTheme();
-  const { width, height } = useWindowDimensions();
   const wallet = wallets.find(w => w.getID() === walletID);
+  const [qrCodeSize, setQRCodeSize] = useState(90);
   const stylesHook = {
     ...styles,
     loading: {
@@ -96,8 +96,13 @@ const WalletExport = () => {
     secrets = [secrets];
   }
 
+  const onLayout = e => {
+    const { height, width } = e.nativeEvent.layout;
+    setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.8);
+  };
+
   return (
-    <SafeBlueArea style={stylesHook.root}>
+    <SafeBlueArea style={stylesHook.root} onLayout={onLayout}>
       <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollViewContent} testID="WalletExportScroll">
         <View>
@@ -112,12 +117,7 @@ const WalletExport = () => {
         <BlueSpacing20 />
         {secrets.map(s => (
           <React.Fragment key={s}>
-            <QRCodeComponent
-              isMenuAvailable={false}
-              value={wallet.getSecret()}
-              size={height > width ? width - 40 : width / 2}
-              logoSize={70}
-            />
+            <QRCodeComponent isMenuAvailable={false} value={wallet.getSecret()} size={qrCodeSize} logoSize={70} />
             {wallet.type !== WatchOnlyWallet.type && <BlueText style={stylesHook.warning}>{loc.wallets.warning_do_not_disclose}</BlueText>}
             <BlueSpacing20 />
             {wallet.type === LightningCustodianWallet.type || wallet.type === WatchOnlyWallet.type ? (
@@ -137,7 +137,7 @@ const WalletExport = () => {
 WalletExport.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerLeft: null,
+    headerHideBackButton: true,
   },
   opts => ({ ...opts, title: loc.wallets.export_title }),
 );

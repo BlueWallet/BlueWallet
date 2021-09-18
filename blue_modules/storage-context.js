@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import React, { createContext, useEffect, useState } from 'react';
-import { LayoutAnimation } from 'react-native';
 import { FiatUnit } from '../models/fiatUnit';
 import loc from '../loc';
 const BlueApp = require('../BlueApp');
@@ -23,7 +22,6 @@ export const BlueStorageProvider = ({ children }) => {
   const getPreferredCurrencyAsyncStorage = useAsyncStorage(currency.PREFERRED_CURRENCY).getItem;
   const getLanguageAsyncStorage = useAsyncStorage(loc.LANG).getItem;
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
-  const [isDrawerListBlurred, _setIsDrawerListBlurred] = useState(false);
   const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
 
   useEffect(() => {
@@ -61,11 +59,6 @@ export const BlueStorageProvider = ({ children }) => {
       }
     })();
   }, []);
-
-  const setIsDrawerListBlurred = value => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    _setIsDrawerListBlurred(value);
-  };
 
   const getPreferredCurrency = async () => {
     const item = await getPreferredCurrencyAsyncStorage();
@@ -237,8 +230,6 @@ export const BlueStorageProvider = ({ children }) => {
         setIsHandOffUseEnabledAsyncStorage,
         walletTransactionUpdateStatus,
         setWalletTransactionUpdateStatus,
-        isDrawerListBlurred,
-        setIsDrawerListBlurred,
         setDoNotTrack,
         isDoNotTrackEnabled,
         isElectrumDisabled,

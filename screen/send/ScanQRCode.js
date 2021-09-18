@@ -104,7 +104,7 @@ const ScanQRCode = () => {
   const route = useRoute();
   const showFileImportButton = route.params.showFileImportButton || false;
   const [showNFCButton, setShowNFCButton] = useState(false);
-  const { launchedBy, onBarScanned, onDismiss } = route.params;
+  const { launchedBy, onBarScanned, onDismiss, onBarScannerDismissWithoutData = () => {} } = route.params;
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -306,6 +306,7 @@ const ScanQRCode = () => {
   };
 
   const dismiss = () => {
+    onBarScannerDismissWithoutData();
     if (launchedBy) {
       navigation.navigate(launchedBy);
     } else {

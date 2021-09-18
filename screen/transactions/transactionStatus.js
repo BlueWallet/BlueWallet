@@ -54,6 +54,12 @@ const TransactionsStatus = () => {
     iconRoot: {
       backgroundColor: colors.success,
     },
+    detailsText: {
+      color: colors.buttonTextColor,
+    },
+    details: {
+      backgroundColor: colors.lightButton,
+    },
   });
 
   useEffect(() => {
@@ -64,21 +70,14 @@ const TransactionsStatus = () => {
 
   useEffect(() => {
     setOptions({
-      headerStyle: {
-        borderBottomWidth: 0,
-        elevation: 0,
-        shadowOpacity: 0,
-        shadowOffset: { height: 0, width: 0 },
-        backgroundColor: colors.customHeader,
-      },
       headerRight: () => (
         <TouchableOpacity
           accessibilityRole="button"
           testID="TransactionDetailsButton"
-          style={styles.details}
+          style={[styles.details, stylesHook.details]}
           onPress={navigateToTransactionDetials}
         >
-          <Text style={[styles.detailsText, stylesHook.valueUnit]}>{loc.send.create_details}</Text>
+          <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
         </TouchableOpacity>
       ),
     });
@@ -539,13 +538,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   details: {
-    backgroundColor: '#EEF0F4',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
     width: 80,
     borderRadius: 8,
-    height: 38,
+    height: 34,
   },
   detailsText: {
     fontSize: 15,
@@ -553,6 +550,18 @@ const styles = StyleSheet.create({
   },
 });
 
-TransactionsStatus.navigationOptions = navigationStyle({
-  title: '',
-});
+TransactionsStatus.navigationOptions = navigationStyle(
+  {
+    headerTitle: '',
+  },
+  (options, { theme }) => ({
+    ...options,
+    headerStyle: {
+      backgroundColor: theme.colors.customHeader,
+      borderBottomWidth: 0,
+      elevation: 0,
+      shadowOpacity: 0,
+      shadowOffset: { height: 0, width: 0 },
+    },
+  }),
+);

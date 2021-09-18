@@ -56,7 +56,7 @@ const HodlHodlLogin = () => {
 HodlHodlLogin.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerLeft: null,
+    headerHideBackButton: true,
   },
   opts => ({ ...opts, title: loc.hodl.login }),
 );

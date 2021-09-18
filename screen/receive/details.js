@@ -549,7 +549,7 @@ const styles = StyleSheet.create({
 ReceiveDetails.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerLeft: null,
+    headerHideBackButton: true,
   },
   opts => ({ ...opts, title: loc.receive.header }),
 );

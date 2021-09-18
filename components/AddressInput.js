@@ -17,8 +17,12 @@ const AddressInput = ({
   placeholder = loc.send.details_address,
   onChangeText,
   onBarScanned,
+  onBarScannerDismissWithoutData = () => {},
+  scanButtonTapped = () => {},
   launchedBy,
   showFileImportButton = false,
+  editable = true,
+  inputAccessoryViewID,
   onBlur = () => {},
 }) => {
   const { colors } = useTheme();
@@ -49,44 +53,50 @@ const AddressInput = ({
         testID="AddressInput"
         onChangeText={onChangeText}
         placeholder={placeholder}
-        numberOfLines={1}
         placeholderTextColor="#81868e"
         value={address}
         style={styles.input}
-        editable={!isLoading}
+        editable={!isLoading && editable}
+        multiline={!editable}
+        inputAccessoryViewID={inputAccessoryViewID}
+        clearButtonMode="while-editing"
         onBlur={onBlurEditing}
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType="url"
       />
-      <TouchableOpacity
-        testID="BlueAddressInputScanQrButton"
-        disabled={isLoading}
-        onPress={() => {
-          Keyboard.dismiss();
-          if (isDesktop) {
-            fs.showActionSheet({ anchor: findNodeHandle(scanButtonRef.current) }).then(onBarScanned);
-          } else {
-            NavigationService.navigate('ScanQRCodeRoot', {
-              screen: 'ScanQRCode',
-              params: {
-                launchedBy,
-                onBarScanned,
-                showFileImportButton,
-              },
-            });
-          }
-        }}
-        accessibilityRole="button"
-        style={[styles.scan, stylesHook.scan]}
-        accessibilityLabel={loc.send.details_scan}
-        accessibilityHint={loc.send.details_scan_hint}
-      >
-        <Image source={require('../img/scan-white.png')} accessible={false} />
-        <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
-          {loc.send.details_scan}
-        </Text>
-      </TouchableOpacity>
+      {editable ? (
+        <TouchableOpacity
+          testID="BlueAddressInputScanQrButton"
+          disabled={isLoading}
+          onPress={() => {
+            scanButtonTapped();
+            Keyboard.dismiss();
+            if (isDesktop) {
+              fs.showActionSheet({ anchor: findNodeHandle(scanButtonRef.current) }).then(onBarScanned);
+            } else {
+              NavigationService.navigate('ScanQRCodeRoot', {
+                screen: 'ScanQRCode',
+                params: {
+                  launchedBy,
+                  onBarScanned,
+                  onBarScannerDismissWithoutData,
+                  showFileImportButton,
+                },
+              });
+            }
+          }}
+          accessibilityRole="button"
+          style={[styles.scan, stylesHook.scan]}
+          accessibilityLabel={loc.send.details_scan}
+          accessibilityHint={loc.send.details_scan_hint}
+        >
+          <Image source={require('../img/scan-white.png')} accessible={false} />
+          <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
+            {loc.send.details_scan}
+          </Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 };
@@ -132,6 +142,10 @@ AddressInput.propTypes = {
   address: PropTypes.string,
   placeholder: PropTypes.string,
   showFileImportButton: PropTypes.bool,
+  editable: PropTypes.bool,
+  scanButtonTapped: PropTypes.func,
+  inputAccessoryViewID: PropTypes.string,
+  onBarScannerDismissWithoutData: PropTypes.func,
   onBlur: PropTypes.func,
 };
 

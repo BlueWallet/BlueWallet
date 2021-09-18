@@ -18,7 +18,7 @@ import {
 import { useTheme } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
-import { LightningCustodianWallet, MultisigHDWallet, PlaceholderWallet } from '../class';
+import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, PlaceholderWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { BluePrivateBalance } from '../BlueComponents';
 import { BlueStorageContext } from '../blue_modules/storage-context';
@@ -93,7 +93,7 @@ const NewWalletPanel = ({ onPress }) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-  const isLargeScreen = Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop);
+  const isLargeScreen = Platform.OS === 'android' ? isTablet() : (width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop;
   const nStylesHooks = StyleSheet.create({
     container: isLargeScreen
       ? {
@@ -189,7 +189,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
   const { walletTransactionUpdateStatus, isImportingWallet } = useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-  const isLargeScreen = Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop);
+  const isLargeScreen = Platform.OS === 'android' ? isTablet() : (width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop;
   const onPressedIn = () => {
     const props = { duration: 50 };
     props.useNativeDriver = true;
@@ -226,6 +226,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
   const opacity = isSelectedWallet === false ? 0.5 : 1.0;
   let image;
   switch (item.type) {
+    case LightningLdkWallet.type:
     case LightningCustodianWallet.type:
       image = I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
       break;

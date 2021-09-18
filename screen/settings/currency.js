@@ -51,7 +51,7 @@ const Currency = () => {
           style={styles.flex}
           keyExtractor={(_item, index) => `${index}`}
           data={data}
-          initialNumToRender={25}
+          initialNumToRender={50}
           extraData={data}
           renderItem={({ item }) => {
             return (
@@ -63,7 +63,7 @@ const Currency = () => {
                   setIsSavingNewPreferredCurrency(true);
                   setSelectedCurrency(item);
                   await currency.setPrefferedCurrency(item);
-                  await currency.startUpdater();
+                  await currency.init(true);
                   setIsSavingNewPreferredCurrency(false);
                   setPreferredFiatCurrency();
                 }}

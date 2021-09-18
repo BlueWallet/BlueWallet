@@ -9,7 +9,7 @@ import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance } from '../..
 import navigationStyle from '../../components/navigationStyle';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
-import { MultisigHDWallet, LightningCustodianWallet } from '../../class';
+import { LightningLdkWallet, MultisigHDWallet, LightningCustodianWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const SelectWallet = () => {
@@ -112,6 +112,7 @@ const SelectWallet = () => {
             <Image
               source={(() => {
                 switch (item.type) {
+                  case LightningLdkWallet.type:
                   case LightningCustodianWallet.type:
                     return I18nManager.isRTL ? require('../../img/lnd-shape-rtl.png') : require('../../img/lnd-shape.png');
                   case MultisigHDWallet.type:
@@ -175,6 +176,6 @@ const SelectWallet = () => {
   }
 };
 
-SelectWallet.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.select_wallet }));
+SelectWallet.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: loc.wallets.select_wallet }));
 
 export default SelectWallet;
