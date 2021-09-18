@@ -485,6 +485,7 @@
     "import_derivation_subtitle": "Enter custom derivation path and we will try to discover your wallet",
     "import_derivation_title": "Derivation path",
     "import_derivation_unknown": "unknown",
+    "import_wrong_path": "wrong derivation path",
     "list_create_a_button": "Add now",
     "list_create_a_wallet": "Add a wallet",
     "list_create_a_wallet_text": "It’s free and you can create \nas many as you like.",

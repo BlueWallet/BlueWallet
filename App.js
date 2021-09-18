@@ -13,7 +13,6 @@ import {
   useColorScheme,
   View,
   StatusBar,
-  LogBox,
 } from 'react-native';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -41,8 +40,6 @@ const A = require('./blue_modules/analytics');
 const currency = require('./blue_modules/currency');
 
 const eventEmitter = new NativeEventEmitter(NativeModules.EventEmitter);
-
-LogBox.ignoreAllLogs()
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
