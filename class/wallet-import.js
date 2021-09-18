@@ -57,7 +57,7 @@ function WalletImport() {
   };
 
   WalletImport.isWalletImported = w => {
-    const wallet = wallets.some(wallet => wallet.getSecret() === w.secret || wallet.getID() === w.getID());
+    const wallet = wallets.some(wallet => wallet.getID() === w.getID());
     return !!wallet;
   };
 
