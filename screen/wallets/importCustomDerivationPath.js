@@ -1,15 +1,20 @@
 import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
-import { StatusBar, StyleSheet, TextInput, View, FlatList } from 'react-native';
+import { FlatList, StatusBar, StyleSheet, TextInput, View } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
-import { BlueButton, BlueFormLabel, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
+import { BlueButton, BlueFormLabel, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import WalletToImport from '../../components/WalletToImport';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../../class';
-import { discoverBIP39WithCustomDerivationPath } from '../../class/wallet-import';
+import { validateBip32 } from '../../class/wallet-import';
 import debounce from '../../blue_modules/debounce';
+
+const WRONG_PATH = 'WRONG_PATH';
+const WALLET_FOUND = 'WALLET_FOUND';
+const WALLET_NOTFOUND = 'WALLET_NOTFOUND';
+const WALLET_UNKNOWN = 'WALLET_UNKNOWN';
 
 const ImportCustomDerivationPath = () => {
   const navigation = useNavigation();
@@ -20,34 +25,52 @@ const ImportCustomDerivationPath = () => {
   const { addAndSaveWallet } = useContext(BlueStorageContext);
   const [path, setPath] = useState("m/84'/0'/0'");
   const [wallets, setWallets] = useState({});
-  const [selected, setSelected] = useState(0);
+  const [used, setUsed] = useState({});
+  const [selected, setSelected] = useState();
   const importing = useRef(false);
 
-  // save on form change. Because effect called on each event, debounce it.
-  const debouncedSaveMemo = useRef(
+  const debouncedSavePath = useRef(
     debounce(async path => {
-      let res;
-      try {
-        res = await discoverBIP39WithCustomDerivationPath(importText, passphrase, path);
-      } catch (e) {
-        if (e.message === 'Wrong bip32 derivation path') return;
-        throw e;
+      if (!validateBip32(path)) {
+        setWallets(ws => ({ ...ws, [path]: WRONG_PATH }));
+        return;
       }
-      setWallets(ws => ({ ...ws, [path]: res }));
+
+      // create wallets
+      const wallets = {};
+      for (const Wallet of [HDLegacyP2PKHWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet]) {
+        const wallet = new Wallet();
+        wallet.setSecret(importText);
+        wallet.setPassphrase(passphrase);
+        wallet.setDerivationPath(path);
+        wallets[Wallet.type] = wallet;
+      }
+      setWallets(ws => ({ ...ws, [path]: wallets }));
+
+      // discover was they ever used
+      const res = {};
+      const promises = Object.values(wallets).map(w => w.wasEverUsed().then(v => (res[w.type] = v ? WALLET_FOUND : WALLET_NOTFOUND)));
+      try {
+        await Promise.all(promises); // wait for all promises to be resolved
+      } catch (e) {
+        Object.values(wallets).forEach(w => (res[w.type] = WALLET_UNKNOWN));
+      }
+      setUsed(u => ({ ...u, [path]: res }));
     }, 500),
   );
   useEffect(() => {
     if (path in wallets) return;
-    debouncedSaveMemo.current(path);
+    debouncedSavePath.current(path);
   }, [path, wallets]);
 
   const items = useMemo(() => {
+    if (wallets[path] === WRONG_PATH) return [];
     return [
-      [HDLegacyP2PKHWallet.type, HDLegacyP2PKHWallet.typeReadable, wallets[path]?.[HDLegacyP2PKHWallet.type]?.found],
-      [HDSegwitP2SHWallet.type, HDSegwitP2SHWallet.typeReadable, wallets[path]?.[HDSegwitP2SHWallet.type]?.found],
-      [HDSegwitBech32Wallet.type, HDSegwitBech32Wallet.typeReadable, wallets[path]?.[HDSegwitBech32Wallet.type]?.found],
+      [HDLegacyP2PKHWallet.type, HDLegacyP2PKHWallet.typeReadable, used[path]?.[HDLegacyP2PKHWallet.type]],
+      [HDSegwitP2SHWallet.type, HDSegwitP2SHWallet.typeReadable, used[path]?.[HDSegwitP2SHWallet.type]],
+      [HDSegwitBech32Wallet.type, HDSegwitBech32Wallet.typeReadable, used[path]?.[HDSegwitBech32Wallet.type]],
     ];
-  }, [wallets, path]);
+  }, [path, used, wallets]);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -66,7 +89,7 @@ const ImportCustomDerivationPath = () => {
   const saveWallet = type => {
     if (importing.current) return;
     importing.current = true;
-    const wallet = wallets[path][type].wallet;
+    const wallet = wallets[path][type];
     addAndSaveWallet(wallet);
     navigation.dangerouslyGetParent().pop();
   };
@@ -75,11 +98,14 @@ const ImportCustomDerivationPath = () => {
     const [type, title, found] = item;
     let subtitle;
     switch (found) {
-      case true:
+      case WALLET_FOUND:
         subtitle = loc.wallets.import_derivation_found;
         break;
-      case false:
+      case WALLET_NOTFOUND:
         subtitle = loc.wallets.import_derivation_found_not;
+        break;
+      case WALLET_UNKNOWN:
+        subtitle = loc.wallets.import_derivation_unknown;
         break;
       default:
         subtitle = loc.wallets.import_derivation_loading;
@@ -102,13 +128,17 @@ const ImportCustomDerivationPath = () => {
         style={[styles.pathInput, stylesHook.pathInput]}
         onChangeText={setPath}
       />
-
-      <FlatList data={items} keyExtractor={w => w[0]} renderItem={renderItem} />
+      <FlatList
+        data={items}
+        keyExtractor={w => path + w[0]}
+        renderItem={renderItem}
+        ListEmptyComponent={() => <BlueTextCentered>{loc.wallets.import_wrong_path}</BlueTextCentered>}
+      />
 
       <View style={[styles.center, stylesHook.center]}>
         <View style={styles.buttonContainer}>
           <BlueButton
-            disabled={wallets.length === 0}
+            disabled={wallets[path]?.[selected] === undefined}
             title={loc.wallets.import_do_import}
             testID="ImportButton"
             onPress={() => saveWallet(selected)}
@@ -121,8 +151,11 @@ const ImportCustomDerivationPath = () => {
 
 const styles = StyleSheet.create({
   root: {
-    paddingTop: 40,
+    paddingTop: 10,
     marginHorizontal: 16,
+  },
+  listContainer: {
+    minHeight: 100,
   },
   center: {
     marginHorizontal: 16,

@@ -15,7 +15,7 @@ import {
   SLIP39SegwitP2SHWallet,
   SLIP39SegwitBech32Wallet,
 } from '../../class';
-import startImport, { discoverBIP39WithCustomDerivationPath } from '../../class/wallet-import';
+import startImport from '../../class/wallet-import';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
@@ -354,23 +354,6 @@ describe('import procedure', () => {
     );
     await promise;
     assert.strictEqual(store.state.wallets[0].type, WatchOnlyWallet.type);
-  });
-});
-
-describe('bip39 discover', () => {
-  it('can discover wallets by derivation path', async () => {
-    const wallets = await discoverBIP39WithCustomDerivationPath(
-      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
-      undefined,
-      "m/44'/0'/1'",
-    );
-
-    assert.strictEqual(wallets[HDLegacyP2PKHWallet.type].wallet.type, HDLegacyP2PKHWallet.type);
-    assert.strictEqual(wallets[HDLegacyP2PKHWallet.type].wallet.getDerivationPath(), "m/44'/0'/1'");
-    assert.strictEqual(wallets[HDSegwitP2SHWallet.type].wallet.type, HDSegwitP2SHWallet.type);
-    assert.strictEqual(wallets[HDSegwitP2SHWallet.type].wallet.getDerivationPath(), "m/44'/0'/1'");
-    assert.strictEqual(wallets[HDSegwitBech32Wallet.type].wallet.type, HDSegwitBech32Wallet.type);
-    assert.strictEqual(wallets[HDSegwitBech32Wallet.type].wallet.getDerivationPath(), "m/44'/0'/1'");
   });
 
   it('can import BIP39 wallets with truncated words', async () => {

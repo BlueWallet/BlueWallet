@@ -35,7 +35,7 @@ const WalletsImport = () => {
 
   const styles = StyleSheet.create({
     root: {
-      paddingTop: 40,
+      paddingTop: 10,
       backgroundColor: colors.elevated,
     },
     center: {

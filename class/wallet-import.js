@@ -25,7 +25,7 @@ import bip39WalletFormats from './bip39_wallet_formats.json'; // https://github.
 import bip39WalletFormatsBlueWallet from './bip39_wallet_formats_bluewallet.json';
 
 // https://github.com/bitcoinjs/bip32/blob/master/ts-src/bip32.ts#L43
-const validateBip32 = path => path.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null;
+export const validateBip32 = path => path.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null;
 
 const startImport = (importTextOrig, askPassphrase = false, searchAccounts = false, { onProgress, onWallet, onPassword }) => {
   // state
@@ -386,21 +386,3 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
 
 export default startImport;
 
-// only used for bip39 wallets
-export const discoverBIP39WithCustomDerivationPath = async (text, passphrase, path) => {
-  const res = {};
-  const promises = [];
-
-  if (!validateBip32(path)) throw new Error('Wrong bip32 derivation path');
-
-  for (const WalletClass of [HDSegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyP2PKHWallet]) {
-    const wallet = new WalletClass();
-    wallet.setSecret(text);
-    wallet.setPassphrase(passphrase);
-    wallet.setDerivationPath(path);
-    promises.push(wallet.wasEverUsed().then(v => (res[wallet.type] = { wallet, found: v })));
-  }
-
-  await Promise.all(promises); // wait for all promises to be resolved
-  return res;
-};
