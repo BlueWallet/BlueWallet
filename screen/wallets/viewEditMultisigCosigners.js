@@ -463,19 +463,23 @@ const ViewEditMultisigCosigners = () => {
       });
     } else {
       setIsProvideMnemonicsModalVisible(false);
-      navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          launchedBy: route.name,
-          onBarScanned: result => {
-            // Triggers FlatList re-render
-            setImportText(result);
-            //
-            _handleUseMnemonicPhrase(result);
-          },
-          showFileImportButton: true,
-        },
-      });
+      setTimeout(
+        () =>
+          navigate('ScanQRCodeRoot', {
+            screen: 'ScanQRCode',
+            params: {
+              launchedBy: route.name,
+              onBarScanned: result => {
+                // Triggers FlatList re-render
+                setImportText(result);
+                //
+                _handleUseMnemonicPhrase(result);
+              },
+              showFileImportButton: true,
+            },
+          }),
+        650,
+      );
     }
   };
 

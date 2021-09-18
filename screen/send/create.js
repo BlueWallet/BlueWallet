@@ -15,11 +15,13 @@ import loc from '../../loc';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { isDesktop } from '../../blue_modules/environment';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+const bitcoin = require('bitcoinjs-lib');
 const currency = require('../../blue_modules/currency');
 
 const SendCreate = () => {
   const { fee, recipients, memo = '', satoshiPerByte, psbt, showAnimatedQr, tx } = useRoute().params;
-  const size = Math.round(tx.length / 2);
+  const transaction = bitcoin.Transaction.fromHex(tx);
+  const size = transaction.virtualSize();
   const { colors } = useTheme();
   const { setOptions } = useNavigation();
 
@@ -165,9 +167,9 @@ const SendCreate = () => {
         {new BigNumber(fee).toFixed()} {BitcoinUnit.BTC}
       </Text>
       <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_tx_size}</Text>
-      <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{size} bytes</Text>
-      <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_satoshi_per_byte}</Text>
-      <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{satoshiPerByte} Sat/B</Text>
+      <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{size} vbytes</Text>
+      <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_satoshi_per_vbyte}</Text>
+      <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{satoshiPerByte} Sat/vB</Text>
       {memo?.length > 0 && (
         <>
           <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_memo}</Text>

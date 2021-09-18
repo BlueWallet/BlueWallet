@@ -65,6 +65,7 @@ export const BlueButton = props => {
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 16,
+        flexGrow: 1,
       }}
       accessibilityRole="button"
       {...props}
@@ -90,7 +91,6 @@ export const SecondButton = forwardRef((props, ref) => {
     <TouchableOpacity
       accessibilityRole="button"
       style={{
-        flex: 1,
         borderWidth: 0.7,
         borderColor: 'transparent',
         backgroundColor: backgroundColor,
@@ -100,6 +100,8 @@ export const SecondButton = forwardRef((props, ref) => {
         borderRadius: 25,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingHorizontal: 16,
+        flexGrow: 1,
       }}
       {...props}
       ref={ref}
@@ -1121,7 +1123,7 @@ export class BlueReplaceFeeSuggestions extends Component {
               }}
               onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue)}
               defaultValue={`${this.props.transactionMinimum}`}
-              placeholder={loc.send.fee_satbyte}
+              placeholder={loc.send.fee_satvbyte}
               placeholderTextColor="#81868e"
               inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
             />
@@ -1129,7 +1131,7 @@ export class BlueReplaceFeeSuggestions extends Component {
           </View>
         </TouchableOpacity>
         <BlueText style={{ color: BlueCurrentTheme.colors.alternativeTextColor }}>
-          {loc.formatString(loc.send.fee_replace_min, { min: this.props.transactionMinimum })}
+          {loc.formatString(loc.send.fee_replace_minvb, { min: this.props.transactionMinimum })}
         </BlueText>
       </View>
     );

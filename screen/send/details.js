@@ -83,7 +83,7 @@ const SendDetails = () => {
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
 
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
-  // if there are no funds for even Slow option, use 1 sat/byte fee
+  // if there are no funds for even Slow option, use 1 sat/vbyte fee
   const feeRate = useMemo(() => {
     if (customFee) return customFee;
     if (feePrecalc.slowFee === null) return '1'; // wait for precalculated fees
@@ -1123,7 +1123,7 @@ const SendDetails = () => {
                 <View style={styles.feeModalRow}>
                   <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>{fee && formatFee(fee)}</Text>
                   <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>
-                    {rate} {loc.units.sat_byte}
+                    {rate} {loc.units.sat_vbyte}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -1133,7 +1133,7 @@ const SendDetails = () => {
               accessibilityRole="button"
               style={styles.feeModalCustom}
               onPress={async () => {
-                let error = loc.send.fee_satbyte;
+                let error = loc.send.fee_satvbyte;
                 while (true) {
                   let fee;
 
@@ -1446,7 +1446,7 @@ const SendDetails = () => {
               ) : (
                 <View style={[styles.feeRow, stylesHook.feeRow]}>
                   <Text style={stylesHook.feeValue}>
-                    {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_byte}
+                    {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
                   </Text>
                 </View>
               )}

@@ -1,10 +1,13 @@
 import React, { useRef, cloneElement } from 'react';
 import PropTypes from 'prop-types';
 import showPopupMenu from 'react-native-popup-menu-android';
-import { Pressable } from 'react-native';
+import { Pressable, TouchableOpacity } from 'react-native';
 
 const ToolTipMenu = props => {
   const ref = useRef();
+  const isMenuPrimaryAction = props.isMenuPrimaryAction ?? false;
+  // eslint-disable-next-line react/prop-types
+  const buttonStyle = props.buttonStyle ?? {};
   const handleToolTipSelection = selection => {
     props.onPress(selection.id);
   };
@@ -18,8 +21,11 @@ const ToolTipMenu = props => {
   };
 
   const child = (Array.isArray(props.children) ? props.children[0] : props.children) || null;
-
-  return (
+  return isMenuPrimaryAction ? (
+    <TouchableOpacity style={buttonStyle} ref={ref} onPress={showMenu}>
+      {child}
+    </TouchableOpacity>
+  ) : (
     <Pressable ref={ref} onLongPress={showMenu}>
       {child && cloneElement(child, { onLongPress: showMenu })}
     </Pressable>
@@ -32,4 +38,5 @@ ToolTipMenu.propTypes = {
   children: PropTypes.node.isRequired,
   submenu: PropTypes.any,
   onPress: PropTypes.func.isRequired,
+  isMenuPrimaryAction: PropTypes.bool,
 };
