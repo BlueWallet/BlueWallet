@@ -18,7 +18,8 @@ jasmine.getEnv().addReporter(assignReporter);
 jest.setTimeout(1200000); // 20 min
 
 beforeAll(async () => {
-  await detox.init(config, { launchApp: false });
+  await detox.init(config);
+  await device.launchApp();
 }, 1200000);
 
 beforeEach(async () => {
@@ -28,8 +29,6 @@ beforeEach(async () => {
       // speeds up test pass
       return;
   }
-  await device.launchApp({ newInstance: true, delete: true });
-  await sleep(2000);
   await adapter.beforeEach();
 });
 
@@ -37,10 +36,6 @@ afterAll(async () => {
   await adapter.afterAll();
   await detox.cleanup();
 });
-
-async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 function hashIt(s) {
   const createHash = require('create-hash');

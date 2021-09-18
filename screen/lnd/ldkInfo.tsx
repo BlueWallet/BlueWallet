@@ -155,6 +155,7 @@ const LdkInfo = () => {
   useEffect(() => {
     setOptions({
       headerStyle: {
+        backgroundColor: colors.customHeader,
         borderBottomWidth: 0,
         elevation: 0,
         shadowOpacity: 0,

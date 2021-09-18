@@ -76,12 +76,17 @@ describe('PayjoinTransaction', () => {
     const w = new HDSegwitBech32Wallet();
     w.setSecret(process.env.MNEMONICS_COLDCARD);
     // bitcoin:bc1qy0ydthpa35m37pvwl5tu76j0srcmcwtmaur3aw?amount=0.0001&pj=https://btc.donate.kukks.org/BTC/pj
-    const { tx: txOrigin, psbt: psbtOrigin } = w.createTransaction(
-      utxos,
-      [{ address: 'bc1qy0ydthpa35m37pvwl5tu76j0srcmcwtmaur3aw', value: 10000 }],
-      7,
-      w._getInternalAddressByIndex(0),
+
+    // because `createTransaction()` has now readjusted coinselect algo, actual created psbt differs, and wont work
+    // with hardcoded psbt from btcpayserver. so instead of redoing whole process to get fresh psbt, we hardcode
+    // created cransaction:
+    const psbtOrigin = bitcoin.Psbt.fromBase64(
+      'cHNidP8BAHECAAAAARQ28UTNRyxErPb95WFKR0oaiSTEl4x0MUOLwXkkmIyOAAAAAAAAAACAAhAnAAAAAAAAFgAUI8jV3D2NNx8Fjv0Xz2pPgPG8OXtiWQEAAAAAABYAFF8XCHdkg2yGn81L+plhb9iWamgBAAAAAAABAR+ghgEAAAAAABYAFFS9qGo3Nrma3Tb912mSqTHUqwnKAQhsAkgwRQIhAKsmnGPh1vqoW5zlhjJUUs9rcdG9xMwtlf4Hoij7ul+XAiANlyXTuYshsmTIz6/734ChqQzAGp/HreRulypr0wevswEhAolzW1ViXE+a+hqxD825RNPNdq2Gd7dhUeJ4atRH12vaAAAiAgL1DWeV+AfIP5RRB5zHv5vuXsIt8+rF9rrsji3FhQlhzBgAAAAAVAAAgAAAAIAAAACAAQAAAAAAAAAA',
     );
+    const txOrigin = bitcoin.Transaction.fromHex(
+      '020000000001011436f144cd472c44acf6fde5614a474a1a8924c4978c7431438bc17924988c8e00000000000000008002102700000000000016001423c8d5dc3d8d371f058efd17cf6a4f80f1bc397b62590100000000001600145f17087764836c869fcd4bfa99616fd8966a680102483045022100ab269c63e1d6faa85b9ce586325452cf6b71d1bdc4cc2d95fe07a228fbba5f9702200d9725d3b98b21b264c8cfaffbdf80a1a90cc01a9fc7ade46e972a6bd307afb301210289735b55625c4f9afa1ab10fcdb944d3cd76ad8677b76151e2786ad447d76bda00000000',
+    );
+
     assert.strictEqual(txOrigin.ins.length, 1);
     assert.strictEqual(txOrigin.outs.length, 2);
 

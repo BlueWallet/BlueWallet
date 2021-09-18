@@ -180,7 +180,7 @@ export class HDSegwitBech32Transaction {
     }
 
     const fee = wentIn - wasSpent;
-    let feeRate = Math.floor(fee / (this._txhex.length / 2));
+    let feeRate = Math.floor(fee / this._txDecoded.virtualSize());
     if (feeRate === 0) feeRate = 1;
 
     // lets take a look at change
@@ -356,7 +356,7 @@ export class HDSegwitBech32Transaction {
         myAddress,
         HDSegwitBech32Wallet.defaultRBFSequence,
       );
-      const combinedFeeRate = (oldFee + fee) / (this._txhex.length / 2 + tx.toHex().length / 2); // avg
+      const combinedFeeRate = (oldFee + fee) / (this._txDecoded.virtualSize() + tx.virtualSize()); // avg
       if (Math.round(combinedFeeRate) < newFeerate) {
         add *= 2;
         if (!add) add = 2;

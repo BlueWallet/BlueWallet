@@ -54,7 +54,7 @@ const WalletsList = () => {
   const routeName = useRoute().name;
   const [isLoading, setIsLoading] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(
-    Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop),
+    Platform.OS === 'android' ? isTablet() : (width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop,
   );
   const dataSource = getTransactions(null, 10);
   const walletsCount = useRef(wallets.length);
@@ -114,9 +114,9 @@ const WalletsList = () => {
 
   useEffect(() => {
     setOptions({
-      title: '',
       headerShown: !isDesktop,
       headerStyle: {
+        backgroundColor: colors.customHeader,
         borderBottomWidth: 0,
         elevation: 0,
         shadowOpacity: 0,
@@ -375,7 +375,7 @@ const WalletsList = () => {
   };
 
   const onLayout = _e => {
-    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : width >= Dimensions.get('screen').width / 2 && (isTablet() || isDesktop));
+    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : (width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop);
   };
 
   const onRefresh = () => {
@@ -409,7 +409,7 @@ const WalletsList = () => {
 };
 
 export default WalletsList;
-WalletsList.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: '' }));
+WalletsList.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: '', headerBackTitle: loc.wallets.list_title }));
 
 const styles = StyleSheet.create({
   root: {

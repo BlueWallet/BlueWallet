@@ -390,6 +390,7 @@ HodlHodlViewOffer.navigationOptions = navigationStyle(
     ...options,
     headerStyle: {
       ...options.headerStyle,
+      backgroundColor: theme.colors.customHeader,
     },
   }),
 );

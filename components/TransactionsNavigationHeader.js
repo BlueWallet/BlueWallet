@@ -6,7 +6,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import WalletGradient from '../class/wallet-gradient';
-
 import Biometric from '../class/biometrics';
 import loc, { formatBalance } from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
@@ -24,6 +23,10 @@ export default class TransactionsNavigationHeader extends Component {
   static actionKeys = {
     CopyToClipboard: 'copyToClipboard',
     WalletBalanceVisibility: 'walletBalanceVisibility',
+    Refill: 'refill',
+    RefillWithBank: 'refillwithbank',
+    RefillWithExternalWallet: 'qrcode',
+    Exchange: 'exchange',
   };
 
   static actionIcons = {
@@ -38,6 +41,22 @@ export default class TransactionsNavigationHeader extends Component {
     Clipboard: {
       iconType: 'SYSTEM',
       iconValue: 'doc.on.doc',
+    },
+    Refill: {
+      iconType: 'SYSTEM',
+      iconValue: 'goforward.plus',
+    },
+    RefillWithBank: {
+      iconType: 'SYSTEM',
+      iconValue: 'creditcard',
+    },
+    RefillWithExternalWallet: {
+      iconType: 'SYSTEM',
+      iconValue: 'qrcode',
+    },
+    Exchange: {
+      iconType: 'SYSTEM',
+      iconValue: 'link',
     },
   };
 
@@ -121,8 +140,8 @@ export default class TransactionsNavigationHeader extends Component {
     });
   };
 
-  manageFundsPressed = () => {
-    this.props.onManageFundsPressed();
+  manageFundsPressed = id => {
+    this.props.onManageFundsPressed(id);
   };
 
   onPress = id => {
@@ -131,6 +150,36 @@ export default class TransactionsNavigationHeader extends Component {
     } else if (id === TransactionsNavigationHeader.actionKeys.CopyToClipboard) {
       this.handleCopyPress();
     }
+  };
+
+  toolTipMenuActions = [
+    {
+      id: TransactionsNavigationHeader.actionKeys.Refill,
+      text: loc.lnd.refill,
+      icon: TransactionsNavigationHeader.actionIcons.Refill,
+    },
+    {
+      id: TransactionsNavigationHeader.actionKeys.RefillWithExternalWallet,
+      text: loc.lnd.refill_external,
+      icon: TransactionsNavigationHeader.actionIcons.RefillWithExternalWallet,
+    },
+    {
+      id: TransactionsNavigationHeader.actionKeys.RefillWithBank,
+      text: loc.lnd.refill_card,
+      icon: TransactionsNavigationHeader.actionIcons.RefillWithBank,
+    },
+  ];
+
+  toolTipSubmenuActions = {
+    menuOptions: ['displayInline'], // <- set the `menuOptions` property
+    menuTitle: '',
+    menuItems: [
+      {
+        actionKey: TransactionsNavigationHeader.actionKeys.Exchange,
+        actionTitle: loc.lnd.exchange,
+        icon: TransactionsNavigationHeader.actionIcons.Exchange,
+      },
+    ],
   };
 
   render() {
@@ -203,8 +252,19 @@ export default class TransactionsNavigationHeader extends Component {
             )}
           </TouchableOpacity>
         </ToolTipMenu>
-        {((this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress) ||
-          this.state.wallet.type === LightningLdkWallet.type) && (
+        {this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress && (
+          <ToolTipMenu
+            isMenuPrimaryAction
+            isButton
+            onPress={this.manageFundsPressed}
+            actions={this.toolTipMenuActions}
+            submenu={this.toolTipSubmenuActions}
+            buttonStyle={styles.manageFundsButton}
+          >
+            <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
+          </ToolTipMenu>
+        )}
+        {this.state.wallet.type === LightningLdkWallet.type && (
           <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
             <View style={styles.manageFundsButton}>
               <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
@@ -256,8 +316,6 @@ const styles = StyleSheet.create({
     borderRadius: 9,
     minHeight: 39,
     alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    height: 39,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -265,5 +323,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontSize: 14,
     color: '#FFFFFF',
+    padding: 12,
   },
 });

@@ -201,7 +201,7 @@ ReorderWallets.navigationOptions = navigationStyle(
   {
     headerHideBackButton: true,
   },
-  opts => ({ ...opts, title: loc.wallets.reorder_title }),
+  opts => ({ ...opts, headerTitle: loc.wallets.reorder_title }),
 );
 
 export default ReorderWallets;
