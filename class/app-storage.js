@@ -426,7 +426,8 @@ export class AppStorage {
         }
 
         // done
-        if (!this.wallets.some(wallet => wallet.getSecret() === unserializedWallet.secret)) {
+        const ID = unserializedWallet.getID();
+        if (!this.wallets.some(wallet => wallet.getID() === ID)) {
           this.wallets.push(unserializedWallet);
           this.tx_metadata = data.tx_metadata;
         }
@@ -445,7 +446,7 @@ export class AppStorage {
    * @param wallet {AbstractWallet}
    */
   deleteWallet = wallet => {
-    const secret = wallet.getSecret();
+    const ID = wallet.getID();
     const tempWallets = [];
 
     if (wallet.type === LightningLdkWallet.type) {
@@ -457,7 +458,7 @@ export class AppStorage {
     for (const value of this.wallets) {
       if (value.type === PlaceholderWallet.type) {
         continue;
-      } else if (value.getSecret() === secret) {
+      } else if (value.getID() === ID) {
         // the one we should delete
         // nop
       } else {
