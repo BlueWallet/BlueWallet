@@ -113,7 +113,7 @@
     "details_adv_full_sure": "Cüzdanınızın tam bakiyesini bu işlem için kullanmak istediğinize emin misiniz ?",
     "details_adv_import": "İşlemi dışarı aktar",
     "details_amount_field_is_not_valid": "Miktar alanı geçerli değil",
-    "details_amount_field_is_less_than_minimum_amount_sat": "Belirlediğiniz tutar çok az. Lütfen 500 schwarz'tan daha büyük bir tutar giriniz.",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Belirlediğiniz tutar çok az. Lütfen 500 schwartz'tan daha büyük bir tutar giriniz.",
     "details_create": "Oluştur",
     "details_error_decode": "Doi adresi tanımlanamadı",
     "details_fee_field_is_not_valid": "Ücret miktarı geçerli değil.",
@@ -233,7 +233,7 @@
   "units": {
     "BTC": "DOI",
     "MAX": "Maks",
-    "sat_byte": "schwarz/byte",
-    "sats": "schwarz"
+    "sat_byte": "schwartz/byte",
+    "sats": "schwartz"
   }
 }

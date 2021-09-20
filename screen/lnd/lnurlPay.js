@@ -176,7 +176,7 @@ export default class LnurlPay extends Component {
               inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
             />
             <BlueText style={styles.alignSelfCenter}>
-              please pay between {this.state.payload.min} and {this.state.payload.max} schwarz
+              please pay between {this.state.payload.min} and {this.state.payload.max} schwartz
             </BlueText>
             <BlueSpacing20 />
             {this.state.payload.image && <Image style={styles.img} source={{ uri: this.state.payload.image }} />}

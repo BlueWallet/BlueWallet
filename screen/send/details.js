@@ -78,7 +78,7 @@ const SendDetails = () => {
   const [changeAddress, setChangeAddress] = useState();
   const [dumb, setDumb] = useState(false);
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
-  // if there are no funds for even Slow option, use 1 schwarz/byte fee
+  // if there are no funds for even Slow option, use 1 schwartz/byte fee
   const feeRate = useMemo(() => {
     if (customFee) return customFee;
     if (feePrecalc.slowFee === null) return '1'; // wait for precalculated fees
@@ -1149,7 +1149,7 @@ const SendDetails = () => {
                   item.amountSats = currency.btcToSatoshi(item.amount);
                   break;
                 case BitcoinUnit.LOCAL_CURRENCY:
-                  // also accounting for cached fiat->schwarz conversion to avoid rounding error
+                  // also accounting for cached fiat->schwartz conversion to avoid rounding error
                   item.amountSats = AmountInput.getCachedSatoshis(item.amount) || currency.btcToSatoshi(currency.fiatToBTC(item.amount));
                   break;
               }

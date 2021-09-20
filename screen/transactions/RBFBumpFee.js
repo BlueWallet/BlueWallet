@@ -38,7 +38,7 @@ export default class RBFBumpFee extends CPFP {
     if ((await tx.isOurTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0 && (await tx.isSequenceReplaceable())) {
       const info = await tx.getInfo();
       return this.setState({ nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx });
-      // 1 schwarz makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
+      // 1 schwartz makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
     } else {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }

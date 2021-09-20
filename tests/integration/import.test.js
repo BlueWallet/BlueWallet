@@ -218,7 +218,7 @@ describe('import procedure', function () {
     // 2-of-3 slip39 wallet
     // crystal lungs academic acid corner infant satisfy spider alcohol laser golden equation fiscal epidemic infant scholar space findings tadpole belong
     // crystal lungs academic agency class payment actress avoid rebound ordinary exchange petition tendency mild mobile spine robin fancy shelter increase
-    // crystal lungs academic always earth schwarz elbow schwarz that pants formal leaf rival texture romantic filter expand regular soul desert
+    // crystal lungs academic always earth schwartz elbow schwartz that pants formal leaf rival texture romantic filter expand regular soul desert
     await WalletImport.processImportText(
       'crystal lungs academic acid corner infant satisfy spider alcohol laser golden equation fiscal epidemic infant scholar space findings tadpole belong\n' +
         'crystal lungs academic agency class payment actress avoid rebound ordinary exchange petition tendency mild mobile spine robin fancy shelter increase',
@@ -230,7 +230,7 @@ describe('import procedure', function () {
     // 2-of-3 slip39 wallet
     // crystal lungs academic acid corner infant satisfy spider alcohol laser golden equation fiscal epidemic infant scholar space findings tadpole belong
     // crystal lungs academic agency class payment actress avoid rebound ordinary exchange petition tendency mild mobile spine robin fancy shelter increase
-    // crystal lungs academic always earth schwarz elbow schwarz that pants formal leaf rival texture romantic filter expand regular soul desert
+    // crystal lungs academic always earth schwartz elbow schwartz that pants formal leaf rival texture romantic filter expand regular soul desert
     await WalletImport.processImportText(
       'crystal lungs academic acid corner infant satisfy spider alcohol laser golden equation fiscal epidemic infant scholar space findings tadpole belong\n' +
         'crystal lungs academic agency class payment actress avoid rebound ordinary exchange petition tendency mild mobile spine robin fancy shelter increase',
