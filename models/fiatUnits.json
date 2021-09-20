@@ -119,6 +119,12 @@
       "locale": "fa-IR",
       "source": "Exir"
     },
+    "IRR": {
+      "endPointKey": "IRR",
+      "symbol": "﷼",
+      "locale": "fa-IR",
+      "source": "Exir"
+    },
     "JPY": {
       "endPointKey": "JPY",
       "symbol": "¥",
