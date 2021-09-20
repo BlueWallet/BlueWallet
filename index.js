@@ -1,11 +1,8 @@
-import Bugsnag from '@bugsnag/react-native';
-
 import React, { useEffect } from 'react';
 import './shim.js';
 import { AppRegistry } from 'react-native';
 import App from './App';
 import { BlueStorageProvider } from './blue_modules/storage-context';
-Bugsnag.start();
 const A = require('./blue_modules/analytics');
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging
