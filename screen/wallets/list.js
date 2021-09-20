@@ -41,7 +41,6 @@ const WalletsList = () => {
   const {
     wallets,
     getTransactions,
-    isImportingWallet,
     getBalance,
     refreshAllWalletTransactions,
     setSelectedWallet,
@@ -91,18 +90,16 @@ const WalletsList = () => {
   );
 
   useEffect(() => {
-    if (walletsCount.current < wallets.length) {
+    // new wallet added
+    if (wallets.length > walletsCount.current) {
       walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current] });
+    }
+    // wallet has been deleted
+    if (wallets.length < walletsCount.current) {
+      walletsCarousel.current?.scrollToItem({ item: false });
     }
     walletsCount.current = wallets.length;
   }, [wallets]);
-
-  useEffect(() => {
-    if (isImportingWallet) {
-      walletsCarousel.current?.scrollToItem({ item: false });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isImportingWallet]);
 
   const verifyBalance = () => {
     if (getBalance() !== 0) {
@@ -167,7 +164,7 @@ const WalletsList = () => {
         walletType: wallet.type,
         key: `WalletTransactions-${walletID}`,
       });
-    } else if (index >= wallets.length && !isImportingWallet) {
+    } else if (index >= wallets.length) {
       navigate('AddWalletRoot');
     }
   };
@@ -207,7 +204,7 @@ const WalletsList = () => {
   };
 
   const handleLongPress = () => {
-    if (wallets.length > 1 && !isImportingWallet) {
+    if (wallets.length > 1) {
       navigate('ReorderWallets');
     } else {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -226,7 +223,7 @@ const WalletsList = () => {
     return (
       <WalletsCarousel
         data={wallets.concat(false)}
-        extraData={[wallets, isImportingWallet]}
+        extraData={[wallets]}
         onPress={handleClick}
         handleLongPress={handleLongPress}
         onMomentumScrollEnd={onSnapToItem}
@@ -281,7 +278,7 @@ const WalletsList = () => {
   };
 
   const renderScanButton = () => {
-    if (wallets.length > 0 && !isImportingWallet) {
+    if (wallets.length > 0) {
       return (
         <FContainer ref={walletActionButtonsRef}>
           <FButton
