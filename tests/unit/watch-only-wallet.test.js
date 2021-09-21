@@ -338,7 +338,30 @@ describe('Watch only wallet', () => {
       psbt.data.outputs[1].bip32Derivation[0].pubkey.toString('hex'),
       '03e060c9b5bb85476caa53e3b8cd3d40c9dc2c36a8a5e8ed87e48bfc9bbe1760ad',
     );
+    assert.strictEqual(psbt.data.inputs[0].bip32Derivation[0].path, "m/49'/0'/0'/1/45");
     assert.strictEqual(psbt.data.outputs[1].bip32Derivation[0].path, "m/49'/0'/0'/1/46");
+
+    // now, changing derivation path of a watch-only wallet and expect that new crafted psbt will have this new path:
+
+    const newPath = "m/66'/6'/6'";
+    assert.strictEqual(w.getDerivationPath(), "m/49'/0'/0'");
+    w.setDerivationPath(newPath);
+    assert.strictEqual(w.getDerivationPath(), newPath);
+
+    const { psbt: psbt2 } = await w.createTransaction(
+      utxos,
+      [{ address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 5000 }],
+      1,
+      changeAddress,
+    );
+    // console.log(psbt2.data.inputs[0].bip32Derivation[0].path);return;
+
+    assert.strictEqual(
+      psbt2.data.outputs[1].bip32Derivation[0].pubkey.toString('hex'),
+      '03e060c9b5bb85476caa53e3b8cd3d40c9dc2c36a8a5e8ed87e48bfc9bbe1760ad',
+    );
+    assert.strictEqual(psbt2.data.inputs[0].bip32Derivation[0].path, newPath + '/1/45');
+    assert.strictEqual(psbt2.data.outputs[1].bip32Derivation[0].path, newPath + '/1/46');
   });
 
   it('xpub watch only has derivation path set to BIP44 default', () => {
