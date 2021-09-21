@@ -42,9 +42,9 @@ describe('currency', () => {
     // assert.ok(cur.BTC_LBP > 0);
 
     // test Exir rate source
-    await currency.setPrefferedCurrency(FiatUnit.IRR);
+    await currency.setPrefferedCurrency(FiatUnit.IRT);
     await currency.init(true);
     cur = JSON.parse(await AsyncStorage.getItem(currency.EXCHANGE_RATES));
-    assert.ok(cur.BTC_IRR > 0);
+    assert.ok(cur.BTC_IRT > 0);
   });
 });
