@@ -76,7 +76,7 @@ const ImportWalletDiscovery = () => {
 
     IdleTimerManager.setIdleTimerDisabled(true);
 
-    task.current = startImport(importText, askPassphrase, searchAccounts, { onProgress, onWallet, onPassword });
+    task.current = startImport(importText, askPassphrase, searchAccounts, onProgress, onWallet, onPassword);
 
     task.current.promise
       .then(({ cancelled, wallets }) => {

@@ -27,7 +27,7 @@ import bip39WalletFormatsBlueWallet from './bip39_wallet_formats_bluewallet.json
 // https://github.com/bitcoinjs/bip32/blob/master/ts-src/bip32.ts#L43
 export const validateBip32 = path => path.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null;
 
-const startImport = (importTextOrig, askPassphrase = false, searchAccounts = false, { onProgress, onWallet, onPassword }) => {
+const startImport = (importTextOrig, askPassphrase = false, searchAccounts = false, onProgress, onWallet, onPassword) => {
   // state
   let promiseResolve;
   let promiseReject;
@@ -385,4 +385,3 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
 };
 
 export default startImport;
-
