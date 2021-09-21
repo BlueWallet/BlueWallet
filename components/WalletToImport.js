@@ -43,7 +43,6 @@ const styles = StyleSheet.create({
     minWidth: '100%',
     paddingHorizontal: 16,
     paddingVertical: 10,
-    // paddingVertical: 50,
   },
   title: {
     fontWeight: 'bold',

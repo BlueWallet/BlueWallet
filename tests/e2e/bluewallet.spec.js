@@ -617,7 +617,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // go to wallet and check derivation path
     await element(by.id('Imported HD Legacy (BIP44 P2PKH)')).tap();
-    // await element(by.id('AboutButton')).tap();
     await element(by.id('WalletDetails')).tap();
     await expect(element(by.id('DerivationPath'))).toHaveText("m/44'/0'/1'");
 
