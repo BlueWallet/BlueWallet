@@ -366,6 +366,7 @@ describe('Watch only wallet', () => {
   it('xpub watch only has derivation path set to BIP44 default', () => {
     const w = new WatchOnlyWallet();
     w.setSecret('xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps');
+    w.init();
 
     assert.strictEqual(w.getDerivationPath(), "m/44'/0'/0'");
   });
@@ -373,6 +374,7 @@ describe('Watch only wallet', () => {
   it('ypub watch only has derivation path set to BIP49 default', () => {
     const w = new WatchOnlyWallet();
     w.setSecret('ypub6Y9u3QCRC1HkZv3stNxcQVwmw7vC7KX5Ldz38En5P88RQbesP2oy16hNyQocVCfYRQPxdHcd3pmu9AFhLv7NdChWmw5iNLryZ2U6EEHdnfo');
+    w.init();
 
     assert.strictEqual(w.getDerivationPath(), "m/49'/0'/0'");
   });
@@ -380,6 +382,7 @@ describe('Watch only wallet', () => {
   it('zpub watch only has derivation path set to BIP84 default', () => {
     const w = new WatchOnlyWallet();
     w.setSecret('zpub6rjLjQVqVnj7crz9E4QWj4WgczmEseJq22u2B6k2HZr6NE2PQx3ZYg8BnbjN9kCfHymSeMd2EpwpM5iiz5Nrb3TzvddxW2RMcE3VXdVaXHk');
+    w.init();
 
     assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
   });

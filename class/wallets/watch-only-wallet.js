@@ -73,6 +73,12 @@ export class WatchOnlyWallet extends LegacyWallet {
     else if (this.secret.startsWith('zpub')) hdWalletInstance = new HDSegwitBech32Wallet();
     else return this;
     hdWalletInstance._xpub = this.secret;
+
+    // if derivation path recovered from JSON file it should be moved to hdWalletInstance
+    if (this._derivationPath) {
+      hdWalletInstance._derivationPath = this._derivationPath;
+    }
+
     if (this._hdWalletInstance) {
       // now, porting all properties from old object to new one
       for (const k of Object.keys(this._hdWalletInstance)) {
