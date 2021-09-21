@@ -38,14 +38,9 @@ const WalletsList = () => {
   const walletsCarousel = useRef();
   const currentWalletIndex = useRef(0);
   const colorScheme = useColorScheme();
-  const {
-    wallets,
-    getTransactions,
-    getBalance,
-    refreshAllWalletTransactions,
-    setSelectedWallet,
-    isElectrumDisabled,
-  } = useContext(BlueStorageContext);
+  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet, isElectrumDisabled } = useContext(
+    BlueStorageContext,
+  );
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
