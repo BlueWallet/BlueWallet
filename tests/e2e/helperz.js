@@ -131,3 +131,11 @@ export async function helperCreateWallet(walletName) {
   await element(by.id('WalletsList')).swipe('right', 'fast', 1); // in case emu screen is small and it doesnt fit
   await expect(element(by.id(walletName || 'cr34t3d'))).toBeVisible();
 }
+
+export async function helperSwitchAdvancedMode() {
+  await element(by.id('SettingsButton')).tap();
+  await element(by.id('GeneralSettings')).tap();
+  await element(by.id('AdvancedMode')).tap();
+  await device.pressBack();
+  await device.pressBack();
+}

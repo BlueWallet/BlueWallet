@@ -1,4 +1,14 @@
-import { helperDeleteWallet, sleep, hashIt, sup, yo, extractTextFromElementById, expectToBeVisible, helperCreateWallet } from './helperz';
+import {
+  helperDeleteWallet,
+  sleep,
+  hashIt,
+  sup,
+  yo,
+  extractTextFromElementById,
+  expectToBeVisible,
+  helperCreateWallet,
+  helperSwitchAdvancedMode,
+} from './helperz';
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
 
@@ -574,11 +584,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await yo('WalletsList');
 
     // enable AdvancedMode to see derivation path in wallet details
-    await element(by.id('SettingsButton')).tap();
-    await element(by.id('GeneralSettings')).tap();
-    await element(by.id('AdvancedMode')).tap();
-    await device.pressBack();
-    await device.pressBack();
+    await helperSwitchAdvancedMode();
 
     await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
     // going to Import Wallet screen and importing mnemonic
@@ -623,6 +629,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.pressBack();
     await device.pressBack();
     await helperDeleteWallet('Imported HD Legacy (BIP44 P2PKH)');
+    await helperSwitchAdvancedMode();
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
