@@ -27,6 +27,17 @@ import bip39WalletFormatsBlueWallet from './bip39_wallet_formats_bluewallet.json
 // https://github.com/bitcoinjs/bip32/blob/master/ts-src/bip32.ts#L43
 export const validateBip32 = path => path.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null;
 
+/**
+ * Function that starts wallet search and import process. It has async generator inside, so
+ * that the process can be stoped at any time. It reporst all the progress through callbacks.
+ *
+ * @param askPassphrase {bool} If true import process will call onPassword callback for wallet with optional password.
+ * @param searchAccounts {bool} If true import process will scan for all known derivation path from bip39_wallet_formats.json. If false it will use limited version.
+ * @param onProgress {function} Callback to report scanning progress
+ * @param onWallet {function} Callback to report wallet found
+ * @param onPassword {function} Callback to ask for password if needed
+ * @returns {{promise: Promise, stop: function}}
+ */
 const startImport = (importTextOrig, askPassphrase = false, searchAccounts = false, onProgress, onWallet, onPassword) => {
   // state
   let promiseResolve;
