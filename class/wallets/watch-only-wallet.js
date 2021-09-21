@@ -285,14 +285,14 @@ export class WatchOnlyWallet extends LegacyWallet {
     return super.setUTXOMetadata(...args);
   }
 
-  getDerivationPath() {
-    if (!this.isHd()) throw new Error('Not initialized');
-    return this._derivationPath;
+  getDerivationPath(...args) {
+    if (this._hdWalletInstance) return this._hdWalletInstance.getDerivationPath(...args);
+    throw new Error("Not a HD watch-only wallet, can't use derivation path");
   }
 
-  setDerivationPath(path) {
-    if (!this.isHd()) throw new Error('Not initialized');
-    this._derivationPath = path;
+  setDerivationPath(...args) {
+    if (this._hdWalletInstance) return this._hdWalletInstance.setDerivationPath(...args);
+    throw new Error("Not a HD watch-only wallet, can't use derivation path");
   }
 
   isSegwit() {
