@@ -354,7 +354,6 @@ describe('Watch only wallet', () => {
       1,
       changeAddress,
     );
-    // console.log(psbt2.data.inputs[0].bip32Derivation[0].path);return;
 
     assert.strictEqual(
       psbt2.data.outputs[1].bip32Derivation[0].pubkey.toString('hex'),
