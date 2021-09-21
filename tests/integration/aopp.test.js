@@ -31,8 +31,7 @@ describe('AOPP', () => {
     assert.strictEqual(AOPP.getSegwitByAddressFormat('p2pkh'), undefined);
   });
 
-  // these tests depends on unstable https://testing.21analytics.ch/ ( link can be found at https://testing.aopp.group/) so we don't want to run chem all the time
-  it.skip('can sign and send signature using legacy address', async () => {
+  it('can sign and send signature using legacy address', async () => {
     const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
     const hd = new HDLegacyP2PKHWallet();
     hd.setSecret(mnemonic);
@@ -46,7 +45,7 @@ describe('AOPP', () => {
     await a.send({ address, signature });
   });
 
-  it.skip('can sign and send signature using segwit address', async () => {
+  it('can sign and send signature using segwit address', async () => {
     const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
     const hd = new HDSegwitP2SHWallet();
     hd.setSecret(mnemonic);
