@@ -5,6 +5,7 @@ import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
 import DefaultPreference from 'react-native-default-preference';
 import loc from '../loc';
 import WidgetCommunication from './WidgetCommunication';
+import { isTorDaemonDisabled } from './environment';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
@@ -17,7 +18,6 @@ const ELECTRUM_TCP_PORT = 'electrum_tcp_port';
 const ELECTRUM_SSL_PORT = 'electrum_ssl_port';
 const ELECTRUM_SERVER_HISTORY = 'electrum_server_history';
 const ELECTRUM_CONNECTION_DISABLED = 'electrum_disabled';
-const IS_TOR_DAEMON_DISABLED = 'is_tor_daemon_disabled';
 
 let _realm;
 async function _getRealm() {
@@ -90,28 +90,8 @@ async function isDisabled() {
   return !!isDisabled;
 }
 
-async function isTorDaemonDisabled() {
-  let isTorDaemonDisabled;
-  try {
-    const savedValue = await AsyncStorage.getItem(IS_TOR_DAEMON_DISABLED);
-    if (savedValue === null) {
-      isTorDaemonDisabled = false;
-    } else {
-      isTorDaemonDisabled = savedValue;
-    }
-  } catch {
-    isTorDaemonDisabled = true;
-  }
-
-  return !!isTorDaemonDisabled;
-}
-
 async function setDisabled(disabled = true) {
   return AsyncStorage.setItem(ELECTRUM_CONNECTION_DISABLED, disabled ? '1' : '');
-}
-
-async function setIsTorDaemonDisabled(disabled = true) {
-  return AsyncStorage.setItem(IS_TOR_DAEMON_DISABLED, disabled ? '1' : '');
 }
 
 async function connectMain() {
@@ -920,8 +900,6 @@ module.exports.setBatchingEnabled = () => {
 module.exports.connectMain = connectMain;
 module.exports.isDisabled = isDisabled;
 module.exports.setDisabled = setDisabled;
-module.exports.isTorDaemonDisabled = isTorDaemonDisabled;
-module.exports.setIsTorDaemonDisabled = setIsTorDaemonDisabled;
 module.exports.hardcodedPeers = hardcodedPeers;
 module.exports.getRandomHardcodedPeer = getRandomHardcodedPeer;
 module.exports.ELECTRUM_HOST = ELECTRUM_HOST;

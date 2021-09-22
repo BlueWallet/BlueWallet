@@ -3,6 +3,7 @@ import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import React, { createContext, useEffect, useState } from 'react';
 import { FiatUnit } from '../models/fiatUnit';
 import loc from '../loc';
+import { isTorDaemonDisabled, setIsTorDaemonDisabled } from './environment';
 const BlueApp = require('../BlueApp');
 const BlueElectrum = require('./BlueElectrum');
 const currency = require('../blue_modules/currency');
@@ -23,16 +24,16 @@ export const BlueStorageProvider = ({ children }) => {
   const getLanguageAsyncStorage = useAsyncStorage(loc.LANG).getItem;
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
-  const [isTorDaemonDisabled, setIsTorDaemonDisabled] = useState(false);
+  const [isTorDisabled, setIsTorDisabled] = useState(false);
 
   useEffect(() => {
     BlueElectrum.isDisabled().then(setIsElectrumDisabled);
-    BlueElectrum.isTorDaemonDisabled().then(setIsTorDaemonDisabled);
+    isTorDaemonDisabled().then(setIsTorDisabled);
   }, []);
 
   useEffect(() => {
-    BlueElectrum.setIsTorDaemonDisabled(isTorDaemonDisabled);
-  }, [isTorDaemonDisabled]);
+    setIsTorDaemonDisabled(isTorDisabled);
+  }, [isTorDisabled]);
 
   const setIsHandOffUseEnabledAsyncStorage = value => {
     setIsHandOffUseEnabled(value);
@@ -240,8 +241,8 @@ export const BlueStorageProvider = ({ children }) => {
         isDoNotTrackEnabled,
         isElectrumDisabled,
         setIsElectrumDisabled,
-        isTorDaemonDisabled,
-        setIsTorDaemonDisabled,
+        isTorDisabled,
+        setIsTorDisabled,
       }}
     >
       {children}

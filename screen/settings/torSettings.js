@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
 const TorSettings = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [daemonStatus, setDaemonStatus] = useState('');
-  const { isTorDaemonDisabled, setIsTorDaemonDisabled } = useContext(BlueStorageContext);
+  const { isTorDisabled, setIsTorDisabled } = useContext(BlueStorageContext);
 
   const updateStatus = async () => {
     const status = await torrific.getDaemonStatus();
@@ -70,10 +70,10 @@ const TorSettings = () => {
   }, []);
 
   useEffect(() => {
-    if (isTorDaemonDisabled) {
+    if (isTorDisabled) {
       stopIfRunning();
     }
-  }, [isTorDaemonDisabled]);
+  }, [isTorDisabled]);
 
   if (isLoading) {
     return (
@@ -89,9 +89,9 @@ const TorSettings = () => {
         hideChevron
         title={loc._.disabled}
         Component={View}
-        switch={{ onValueChange: setIsTorDaemonDisabled, value: isTorDaemonDisabled }}
+        switch={{ onValueChange: setIsTorDisabled, value: isTorDisabled }}
       />
-      {!isTorDaemonDisabled && (
+      {!isTorDisabled && (
         <>
           <BlueCard>
             <BlueText>Daemon Status: {daemonStatus}</BlueText>

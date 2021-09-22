@@ -23,7 +23,7 @@ const bitcoin = require('bitcoinjs-lib');
 const torrific = require('../../blue_modules/torrific');
 
 const Confirm = () => {
-  const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled, isTorDaemonDisabled } = useContext(BlueStorageContext);
+  const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled, isTorDisabled } = useContext(BlueStorageContext);
   const [isBiometricUseCapableAndEnabled, setIsBiometricUseCapableAndEnabled] = useState(false);
   const { params } = useRoute();
   const { recipients = [], walletID, fee, memo, tx, satoshiPerByte, psbt } = params;
@@ -120,7 +120,7 @@ const Confirm = () => {
         const payJoinWallet = new PayjoinTransaction(psbt, txHex => broadcast(txHex), wallet);
         const paymentScript = getPaymentScript();
         let payjoinClient;
-        if (!isTorDaemonDisabled && payjoinUrl.includes('.onion')) {
+        if (!isTorDisabled && payjoinUrl.includes('.onion')) {
           console.warn('trying TOR....');
           // working through TOR - crafting custom requester that will handle TOR http request
           const customPayjoinRequester = {

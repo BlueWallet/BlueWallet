@@ -2,9 +2,8 @@ import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
 import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { isTorDaemonDisabled } from '../../blue_modules/environment';
 const torrific = require('../../blue_modules/torrific');
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
-
 export class LightningCustodianWallet extends LegacyWallet {
   static type = 'lightningCustodianWallet';
   static typeReadable = 'Lightning';
@@ -72,7 +71,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     this._api = new Frisbee({
       baseURI: this.baseURI,
     });
-    BlueElectrum.isTorDaemonDisabled().then(isDisabled => {
+    isTorDaemonDisabled().then(isDisabled => {
       if (!isDisabled && this.baseURI && this.baseURI?.indexOf('.onion') !== -1) {
         this._api = new torrific.Torsbee({
           baseURI: this.baseURI,
