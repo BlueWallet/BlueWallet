@@ -329,11 +329,11 @@ function DrawerRoot() {
   const dimensions = useWindowDimensions();
   const isLargeScreen =
     Platform.OS === 'android' ? isTablet() : (dimensions.width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop;
-  const drawerStyle = { width: '0%' };
+  const drawerStyle = { width: isLargeScreen ? 320 : '0%' };
 
   return (
     <Drawer.Navigator
-      drawerStyle={isLargeScreen ? null : drawerStyle}
+      drawerStyle={drawerStyle}
       drawerType={isLargeScreen ? 'permanent' : null}
       drawerContent={props => (isLargeScreen ? <DrawerList {...props} /> : null)}
       drawerPosition={I18nManager.isRTL ? 'right' : 'left'}
