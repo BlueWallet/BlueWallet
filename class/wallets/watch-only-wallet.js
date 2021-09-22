@@ -263,7 +263,7 @@ export class WatchOnlyWallet extends LegacyWallet {
         xpub = this.secret;
       }
 
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = HDNode.fromBase58(xpub, DOICHAIN);
       hdNode.derive(0);
       return true;
     } catch (_) {}

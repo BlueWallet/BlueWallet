@@ -114,7 +114,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   _addPsbtInput(psbt, input, sequence, masterFingerprintBuffer) {
     const pubkey = this._getPubkeyByAddress(input.address);
     const path = this._getDerivationPathByAddress(input.address, 49);
-    const p2wpkh = bitcoin.payments.p2wpkh({ pubkey, DOICHAIN });
+    const p2wpkh = bitcoin.payments.p2wpkh({ pubkey: pubkey, network: DOICHAIN });
     const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh });
 
     psbt.addInput({

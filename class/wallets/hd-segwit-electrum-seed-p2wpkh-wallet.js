@@ -56,6 +56,7 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     const node = bitcoin.bip32.fromBase58(xpub, DOICHAIN);
     const address = bitcoin.payments.p2wpkh({
       pubkey: node.derive(1).derive(index).publicKey,
+      network: DOICHAIN,
     }).address;
 
     return (this.internal_addresses_cache[index] = address);
@@ -69,6 +70,7 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     const node = bitcoin.bip32.fromBase58(xpub, DOICHAIN);
     const address = bitcoin.payments.p2wpkh({
       pubkey: node.derive(0).derive(index).publicKey,
+      network: DOICHAIN,
     }).address;
 
     return (this.external_addresses_cache[index] = address);

@@ -1115,7 +1115,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @returns {string} Hex string of fingerprint derived from mnemonics. Always has lenght of 8 chars and correct leading zeroes. All caps
    */
   static seedToFingerprint(seed) {
-    const root = bitcoin.bip32.fromSeed(seed);
+    const root = bitcoin.bip32.fromSeed(seed, DOICHAIN);
     let hex = root.fingerprint.toString('hex');
     while (hex.length < 8) hex = '0' + hex; // leading zeroes
     return hex.toUpperCase();

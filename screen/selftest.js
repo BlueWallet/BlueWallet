@@ -15,6 +15,7 @@ import {
   HDAezeedWallet,
   SLIP39LegacyP2PKHWallet,
 } from '../class';
+import { DOICHAIN } from "../blue_modules/network";
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
@@ -153,16 +154,16 @@ export default class Selftest extends Component {
       const mnemonic =
         'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
       const seed = bip39.mnemonicToSeedSync(mnemonic);
-      const root = bitcoin.bip32.fromSeed(seed);
+      const root = bitcoin.bip32.fromSeed(seed, DOICHAIN);
 
       const path = "m/49'/0'/0'/0/0";
       const child = root.derivePath(path);
       const address = bitcoin.payments.p2sh({
         redeem: bitcoin.payments.p2wpkh({
           pubkey: child.publicKey,
-          network: bitcoin.networks.bitcoin,
+          network: DOICHAIN,
         }),
-        network: bitcoin.networks.bitcoin,
+        network: DOICHAIN,
       }).address;
 
       if (address !== '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK') {

@@ -1,5 +1,6 @@
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
+import { DOICHAIN } from "../../blue_modules/network";
 
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
@@ -52,7 +53,7 @@ it('can create escrow address', () => {
   // console.warn(txDecoded.ins[0].witness);
 
   // we always expect only one input:
-  const psbt = new bitcoin.Psbt().addInput({
+  const psbt = new bitcoin.Psbt({ network: DOICHAIN }).addInput({
     hash: txDecoded.ins[0].hash,
     index: txDecoded.ins[0].index,
     witnessUtxo: {

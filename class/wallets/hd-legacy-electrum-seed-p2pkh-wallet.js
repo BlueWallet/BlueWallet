@@ -32,7 +32,7 @@ export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
     }
     const args = { prefix: PREFIX };
     if (this.passphrase) args.passphrase = this.passphrase;
-    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, args));
+    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, args),DOICHAIN);
     this._xpub = root.neutered().toBase58();
     return this._xpub;
   }
@@ -66,7 +66,7 @@ export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
     if (!this.secret) return false;
     const args = { prefix: PREFIX };
     if (this.passphrase) args.passphrase = this.passphrase;
-    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, args));
+    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, args), DOICHAIN);
     const path = `m/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 

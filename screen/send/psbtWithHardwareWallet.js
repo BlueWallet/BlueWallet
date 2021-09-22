@@ -33,6 +33,7 @@ import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
+import { DOICHAIN } from "../../blue_modules/network";
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
@@ -100,7 +101,7 @@ const PsbtWithHardwareWallet = () => {
     }
 
     if (deepLinkPSBT) {
-      const psbt = bitcoin.Psbt.fromBase64(deepLinkPSBT);
+      const psbt = bitcoin.Psbt.fromBase64(deepLinkPSBT, { network: DOICHAIN });
       try {
         const Tx = fromWallet.combinePsbt(routeParamsPSBT.current, psbt);
         setTxHex(Tx.toHex());

@@ -11,7 +11,7 @@ const bitcoin = require('bitcoinjs-lib');
 function pubkeyToP2shSegwitAddress(pubkey, network) {
   network = network || bitcoin.networks.bitcoin;
   const { address } = bitcoin.payments.p2sh({
-    redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
+    redeem: bitcoin.payments.p2wpkh({ pubkey: pubkey, network: network }),
     network,
   });
   return address;

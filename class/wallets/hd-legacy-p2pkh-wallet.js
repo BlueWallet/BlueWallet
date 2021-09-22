@@ -39,7 +39,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
       return this._xpub; // cache hit
     }
     const seed = this._getSeed();
-    const root = bitcoin.bip32.fromSeed(seed);
+    const root = bitcoin.bip32.fromSeed(seed, DOICHAIN);
 
     const path = "m/44'/0'/0'";
     const child = root.derivePath(path).neutered();
@@ -67,7 +67,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
     if (!this.secret) return false;
     const seed = this._getSeed();
 
-    const root = HDNode.fromSeed(seed);
+    const root = HDNode.fromSeed(seed, DOICHAIN);
     const path = `m/44'/0'/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
@@ -94,13 +94,13 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
 
     if (node === 0 && !this._node0) {
       const xpub = this.getXpub();
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = HDNode.fromBase58(xpub, DOICHAIN);
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
       const xpub = this.getXpub();
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = HDNode.fromBase58(xpub, DOICHAIN);
       this._node1 = hdNode.derive(node);
     }
 

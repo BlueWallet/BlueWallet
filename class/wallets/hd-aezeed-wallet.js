@@ -37,7 +37,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
 
   getXpub() {
     // first, getting xpub
-    const root = bitcoin.bip32.fromSeed(this._getEntropyCached());
+    const root = bitcoin.bip32.fromSeed(this._getEntropyCached(), DOICHAIN);
 
     const path = "m/84'/0'/0'";
     const child = root.derivePath(path).neutered();
@@ -83,13 +83,13 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
   }
 
   _getNode0() {
-    const root = bitcoin.bip32.fromSeed(this._getEntropyCached());
+    const root = bitcoin.bip32.fromSeed(this._getEntropyCached(), DOICHAIN);
     const node = root.derivePath("m/84'/0'/0'");
     return node.derive(0);
   }
 
   _getNode1() {
-    const root = bitcoin.bip32.fromSeed(this._getEntropyCached());
+    const root = bitcoin.bip32.fromSeed(this._getEntropyCached(), DOICHAIN);
     const node = root.derivePath("m/84'/0'/0'");
     return node.derive(1);
   }

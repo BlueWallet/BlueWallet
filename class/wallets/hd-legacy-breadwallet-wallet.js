@@ -56,8 +56,8 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
     }
     const pubkey = _node.derive(index).publicKey;
     const address = p2wpkh
-      ? bitcoinjs.payments.p2wpkh({ pubkey, DOICHAIN }).address
-      : bitcoinjs.payments.p2pkh({ pubkey, DOICHAIN }).address;
+      ? bitcoinjs.payments.p2wpkh({ pubkey: pubkey, network: DOICHAIN }).address
+      : bitcoinjs.payments.p2pkh({ pubkey: pubkey, network: DOICHAIN }).address;
     return address;
   }
 

@@ -523,7 +523,7 @@ export class LegacyWallet extends AbstractWallet {
   signMessage(message, address, useSegwit = true) {
     const wif = this._getWIFbyAddress(address);
     if (wif === null) throw new Error('Invalid address');
-    const keyPair = bitcoin.ECPair.fromWIF(wif);
+    const keyPair = bitcoin.ECPair.fromWIF(wif, DOICHAIN);
     const privateKey = keyPair.privateKey;
     const options = this.segwitType && useSegwit ? { segwitType: this.segwitType } : undefined;
     const signature = bitcoinMessage.sign(message, privateKey, keyPair.compressed, options);
