@@ -4,7 +4,6 @@ import { Alert } from 'react-native';
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
 import DefaultPreference from 'react-native-default-preference';
 import loc from '../loc';
-import { isTorCapable } from './environment';
 import WidgetCommunication from './WidgetCommunication';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
@@ -18,6 +17,7 @@ const ELECTRUM_TCP_PORT = 'electrum_tcp_port';
 const ELECTRUM_SSL_PORT = 'electrum_ssl_port';
 const ELECTRUM_SERVER_HISTORY = 'electrum_server_history';
 const ELECTRUM_CONNECTION_DISABLED = 'electrum_disabled';
+const IS_TOR_DAEMON_DISABLED = 'is_tor_daemon_disabled';
 
 let _realm;
 async function _getRealm() {
@@ -90,8 +90,28 @@ async function isDisabled() {
   return !!isDisabled;
 }
 
+async function isTorDaemonDisabled() {
+  let isTorDaemonDisabled;
+  try {
+    const savedValue = await AsyncStorage.getItem(IS_TOR_DAEMON_DISABLED);
+    if (savedValue === null) {
+      isTorDaemonDisabled = false;
+    } else {
+      isTorDaemonDisabled = savedValue;
+    }
+  } catch {
+    isTorDaemonDisabled = true;
+  }
+
+  return !!isTorDaemonDisabled;
+}
+
 async function setDisabled(disabled = true) {
   return AsyncStorage.setItem(ELECTRUM_CONNECTION_DISABLED, disabled ? '1' : '');
+}
+
+async function setIsTorDaemonDisabled(disabled = true) {
+  return AsyncStorage.setItem(IS_TOR_DAEMON_DISABLED, disabled ? '1' : '');
 }
 
 async function connectMain() {
@@ -127,7 +147,7 @@ async function connectMain() {
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
     mainClient = new ElectrumClient(
-      usingPeer.host.endsWith('.onion') && isTorCapable ? torrific : global.net,
+      usingPeer.host.endsWith('.onion') && !(await isTorDaemonDisabled()) ? torrific : global.net,
       global.tls,
       usingPeer.ssl || usingPeer.tcp,
       usingPeer.host,
@@ -854,8 +874,9 @@ module.exports.calculateBlockTime = function (height) {
  * @returns {Promise<boolean>} Whether provided host:port is a valid electrum server
  */
 module.exports.testConnection = async function (host, tcpPort, sslPort) {
+  const isTorDisabled = await isTorDaemonDisabled();
   const client = new ElectrumClient(
-    host.endsWith('.onion') && isTorCapable ? torrific : global.net,
+    host.endsWith('.onion') && !isTorDisabled ? torrific : global.net,
     global.tls,
     sslPort || tcpPort,
     host,
@@ -867,7 +888,7 @@ module.exports.testConnection = async function (host, tcpPort, sslPort) {
   try {
     const rez = await Promise.race([
       new Promise(resolve => {
-        timeoutId = setTimeout(() => resolve('timeout'), host.endsWith('.onion') && isTorCapable ? 21000 : 5000);
+        timeoutId = setTimeout(() => resolve('timeout'), host.endsWith('.onion') && !isTorDisabled ? 21000 : 5000);
       }),
       client.connect(),
     ]);
@@ -899,6 +920,8 @@ module.exports.setBatchingEnabled = () => {
 module.exports.connectMain = connectMain;
 module.exports.isDisabled = isDisabled;
 module.exports.setDisabled = setDisabled;
+module.exports.isTorDaemonDisabled = isTorDaemonDisabled;
+module.exports.setIsTorDaemonDisabled = setIsTorDaemonDisabled;
 module.exports.hardcodedPeers = hardcodedPeers;
 module.exports.getRandomHardcodedPeer = getRandomHardcodedPeer;
 module.exports.ELECTRUM_HOST = ELECTRUM_HOST;

@@ -23,10 +23,16 @@ export const BlueStorageProvider = ({ children }) => {
   const getLanguageAsyncStorage = useAsyncStorage(loc.LANG).getItem;
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
+  const [isTorDaemonDisabled, setIsTorDaemonDisabled] = useState(false);
 
   useEffect(() => {
     BlueElectrum.isDisabled().then(setIsElectrumDisabled);
+    BlueElectrum.isTorDaemonDisabled().then(setIsTorDaemonDisabled);
   }, []);
+
+  useEffect(() => {
+    BlueElectrum.setIsTorDaemonDisabled(isTorDaemonDisabled);
+  }, [isTorDaemonDisabled]);
 
   const setIsHandOffUseEnabledAsyncStorage = value => {
     setIsHandOffUseEnabled(value);
@@ -234,6 +240,8 @@ export const BlueStorageProvider = ({ children }) => {
         isDoNotTrackEnabled,
         isElectrumDisabled,
         setIsElectrumDisabled,
+        isTorDaemonDisabled,
+        setIsTorDaemonDisabled,
       }}
     >
       {children}

@@ -28,12 +28,11 @@ import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
 import Lnurl from '../../class/lnurl';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
-import { isTorCapable } from '../../blue_modules/environment';
 const currency = require('../../blue_modules/currency');
 const torrific = require('../../blue_modules/torrific');
 
 const LNDCreateInvoice = () => {
-  const { wallets, saveToDisk, setSelectedWallet } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk, setSelectedWallet, isTorDaemonDisabled } = useContext(BlueStorageContext);
   const { walletID, uri } = useRoute().params;
   const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
   const { name } = useRoute();
@@ -177,7 +176,7 @@ const LNDCreateInvoice = () => {
         const callbackUrl = callback + (callback.indexOf('?') !== -1 ? '&' : '?') + 'k1=' + k1 + '&pr=' + invoiceRequest;
 
         let reply;
-        if (isTorCapable && callbackUrl.includes('.onion')) {
+        if (!isTorDaemonDisabled && callbackUrl.includes('.onion')) {
           const api = new torrific.Torsbee();
           const torResponse = await api.get(callbackUrl);
           reply = torResponse.body;
@@ -228,7 +227,7 @@ const LNDCreateInvoice = () => {
     // calling the url
     let reply;
     try {
-      if (isTorCapable && url.includes('.onion')) {
+      if (!isTorDaemonDisabled && url.includes('.onion')) {
         const api = new torrific.Torsbee();
         const torResponse = await api.get(url);
         reply = torResponse.body;
