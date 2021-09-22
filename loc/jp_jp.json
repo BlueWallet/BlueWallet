@@ -254,6 +254,7 @@
     "electrum_connected": "接続済",
     "electrum_connected_not": "未接続",
     "electrum_error_connect": "指定されたElectrumサーバーに接続できません",
+    "lndhub_uri": "ホスト　例 {example}",
     "electrum_host": "ホスト　例 {example}",
     "electrum_port": "TCP ポート　通常 {example}",
     "electrum_port_ssl": "SSL ポート　通常 {example}",

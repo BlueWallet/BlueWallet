@@ -29,7 +29,6 @@ import {
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
-import Privacy from '../../blue_modules/Privacy';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
 import HandoffComponent from '../../components/handoff';
 import AmountInput from '../../components/AmountInput';
@@ -341,7 +340,6 @@ const ReceiveDetails = () => {
   };
 
   const obtainWalletAddress = useCallback(async () => {
-    Privacy.enableBlur();
     console.log('receive/details - componentDidMount');
     wallet.setUserHasSavedExport(true);
     await saveToDisk();
@@ -413,7 +411,6 @@ const ReceiveDetails = () => {
       });
       return () => {
         task.cancel();
-        Privacy.disableBlur();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet]),
