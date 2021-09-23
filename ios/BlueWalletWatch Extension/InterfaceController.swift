@@ -13,7 +13,6 @@ import Foundation
 class InterfaceController: WKInterfaceController {
   
   @IBOutlet weak var walletsTable: WKInterfaceTable!
-  @IBOutlet weak var loadingIndicatorGroup: WKInterfaceGroup!
   @IBOutlet weak var noWalletsAvailableLabel: WKInterfaceLabel!
   
   override func willActivate() {
@@ -21,7 +20,6 @@ class InterfaceController: WKInterfaceController {
     super.willActivate()
     
     if (WatchDataSource.shared.wallets.isEmpty) {
-      loadingIndicatorGroup.setHidden(true)
       noWalletsAvailableLabel.setHidden(false)
     } else {
       processWalletsTable()
