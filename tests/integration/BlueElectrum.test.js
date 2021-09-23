@@ -158,12 +158,12 @@ describe('BlueElectrum', () => {
       assert.ok(!tx.vin);
       assert.ok(!tx.vout);
       assert.ok(tx.inputs);
-      assert.ok(tx.inputs[0].addresses.length > 0);
+      assert.ok(tx.inputs[0].address);
       assert.ok(tx.inputs[0].value > 0);
       assert.ok(tx.outputs);
       assert.ok(tx.outputs[0].value > 0);
       assert.ok(tx.outputs[0].scriptPubKey);
-      assert.ok(tx.outputs[0].addresses.length > 0);
+      assert.ok(tx.inputs[0].address);
     }
   });
 

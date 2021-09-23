@@ -264,7 +264,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         // got txid and output number of _previous_ transaction we shoud look into
         if (vintxdatas[inpTxid] && vintxdatas[inpTxid].vout[inpVout]) {
           // extracting amount & addresses from previous output and adding it to _our_ input:
-          txdatas[txid].vin[inpNum].addresses = vintxdatas[inpTxid].vout[inpVout].scriptPubKey.addresses;
+          txdatas[txid].vin[inpNum].address = vintxdatas[inpTxid].vout[inpVout].scriptPubKey.address;
           txdatas[txid].vin[inpNum].value = vintxdatas[inpTxid].vout[inpVout].value;
         }
       }
@@ -284,7 +284,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       for (const tx of Object.values(txdatas)) {
         for (const vin of tx.vin) {
-          if (vin.addresses && vin.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
+          if (vin.address === this._getExternalAddressByIndex(c)) {
             // this TX is related to our address
             this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
             const clonedTx = Object.assign({}, tx);
@@ -305,7 +305,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           }
         }
         for (const vout of tx.vout) {
-          if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
+          if (vout.scriptPubKey.address === this._getExternalAddressByIndex(c)) {
             // this TX is related to our address
             this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
             const clonedTx = Object.assign({}, tx);
@@ -331,7 +331,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       for (const tx of Object.values(txdatas)) {
         for (const vin of tx.vin) {
-          if (vin.addresses && vin.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
+          if (vin.address === this._getExternalAddressByIndex(c)) {
             // this TX is related to our address
             this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
             const clonedTx = Object.assign({}, tx);
@@ -352,7 +352,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           }
         }
         for (const vout of tx.vout) {
-          if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
+          if (vout.scriptPubKey.address === this._getExternalAddressByIndex(c)) {
             // this TX is related to our address
             this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
             const clonedTx = Object.assign({}, tx);
@@ -414,7 +414,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         // if input (spending) goes from our address - we are loosing!
         if (
           (vin.address && ownedAddressesHashmap[vin.address]) ||
-          (vin.addresses && vin.addresses[0] && ownedAddressesHashmap[vin.addresses[0]])
+          (vin.address && vin.address && ownedAddressesHashmap[vin.address])
         ) {
           tx.value -= new BigNumber(vin.value).multipliedBy(100000000).toNumber();
         }
@@ -422,7 +422,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
       for (const vout of tx.outputs) {
         // when output goes to our address - this means we are gaining!
-        if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses[0] && ownedAddressesHashmap[vout.scriptPubKey.addresses[0]]) {
+        if (vout.scriptPubKey.address && vout.scriptPubKey.address && ownedAddressesHashmap[vout.scriptPubKey.address]) {
           tx.value += new BigNumber(vout.value).multipliedBy(100000000).toNumber();
         }
       }
@@ -736,8 +736,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (const tx of this.getTransactions()) {
       for (const output of tx.outputs) {
         let address = false;
-        if (output.scriptPubKey && output.scriptPubKey.addresses && output.scriptPubKey.addresses[0]) {
-          address = output.scriptPubKey.addresses[0];
+        if (output.scriptPubKey && output.scriptPubKey.address && output.scriptPubKey.address) {
+          address = output.scriptPubKey.address;
         }
         if (ownedAddressesHashmap[address]) {
           const value = new BigNumber(output.value).multipliedBy(100000000).toNumber();

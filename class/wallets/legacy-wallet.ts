@@ -205,8 +205,8 @@ export class LegacyWallet extends AbstractWallet {
     for (const tx of this.getTransactions()) {
       for (const output of tx.outputs) {
         let address: string | false = false;
-        if (output.scriptPubKey && output.scriptPubKey.addresses && output.scriptPubKey.addresses[0]) {
-          address = output.scriptPubKey.addresses[0];
+        if (output.scriptPubKey && output.scriptPubKey.address && output.scriptPubKey.address) {
+          address = output.scriptPubKey.address;
         }
         if (address && ownedAddressesHashmap[address]) {
           const value = new BigNumber(output.value).multipliedBy(100000000).toNumber();
@@ -307,7 +307,7 @@ export class LegacyWallet extends AbstractWallet {
           if (vintxdatas[inpTxid] && vintxdatas[inpTxid].vout[inpVout]) {
             return {
               ...vin,
-              addresses: vintxdatas[inpTxid].vout[inpVout].scriptPubKey.addresses,
+              address: vintxdatas[inpTxid].vout[inpVout].scriptPubKey.address,
               value: vintxdatas[inpTxid].vout[inpVout].value,
             };
           } else {
@@ -321,7 +321,7 @@ export class LegacyWallet extends AbstractWallet {
 
     for (const tx of transactionsWithInputValue) {
       for (const vin of tx.vin) {
-        if ('addresses' in vin && vin.addresses && vin.addresses.indexOf(address || '') !== -1) {
+        if ('address' in vin && vin.address === this.getAddress()) {
           // this TX is related to our address
           const { vin, vout, ...txRest } = tx;
           const clonedTx: Transaction = {
@@ -334,7 +334,7 @@ export class LegacyWallet extends AbstractWallet {
         }
       }
       for (const vout of tx.vout) {
-        if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(address || '') !== -1) {
+        if (vout.scriptPubKey.address === this.getAddress()) {
           // this TX is related to our address
           const { vin, vout, ...txRest } = tx;
           const clonedTx: Transaction = {

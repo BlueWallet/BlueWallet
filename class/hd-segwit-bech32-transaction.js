@@ -187,7 +187,7 @@ export class HDSegwitBech32Transaction {
     let changeAmount = 0;
     const targets = [];
     for (const outp of this._remoteTx.vout) {
-      const address = outp.scriptPubKey.addresses[0];
+      const address = outp.scriptPubKey.address;
       const value = new BigNumber(outp.value).multipliedBy(100000000).toNumber();
       if (this._wallet.weOwnAddress(address)) {
         changeAmount += value;
@@ -200,7 +200,7 @@ export class HDSegwitBech32Transaction {
     // lets find outputs we own that current transaction creates. can be used in CPFP
     const unconfirmedUtxos = [];
     for (const outp of this._remoteTx.vout) {
-      const address = outp.scriptPubKey.addresses[0];
+      const address = outp.scriptPubKey.address;
       const value = new BigNumber(outp.value).multipliedBy(100000000).toNumber();
       if (this._wallet.weOwnAddress(address)) {
         unconfirmedUtxos.push({
