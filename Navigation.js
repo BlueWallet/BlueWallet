@@ -481,7 +481,7 @@ const AOPPRoot = () => {
 };
 
 const RootStack = createNativeStackNavigator();
-const NavigationDefaultOptions = { headerShown: false, stackPresentation: 'modal' };
+const NavigationDefaultOptions = { headerShown: false, stackPresentation: isDesktop ? 'containedModal' : 'modal' };
 const Navigation = () => {
   const theme = useTheme();
 
