@@ -7,7 +7,7 @@ const assert = require("assert");
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
 
 const hardcodedPeers = [
-  { host: "electrum1.bluewallet.io", ssl: "443" },
+  { host: "itchy-jellyfish-89.doi.works", ssl: "50002" },
   { host: "electrum2.bluewallet.io", ssl: "443" },
   { host: "electrum3.bluewallet.io", ssl: "443" },
   { host: "electrum1.bluewallet.io", tcp: "50001" },

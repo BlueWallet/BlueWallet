@@ -178,7 +178,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       return this._xpub; // cache hit
     }
     // first, getting xpub
-    const seed = this._getSeed();
+    const seed = this._getSeed();    
     const root = HDNode.fromSeed(seed, DOICHAIN);
 
     const path = "m/84'/0'/0'";

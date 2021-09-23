@@ -125,7 +125,7 @@ const TransactionsDetails = () => {
   };
 
   const handleOnOpenTransactionOnBlockExporerTapped = () => {
-    const url = `https://mempool.space/tx/${tx.hash}`;
+    const url = `https://explorer.doichain.org/tx/${tx.hash}`;
     Linking.canOpenURL(url).then(supported => {
       if (supported) {
         Linking.openURL(url);

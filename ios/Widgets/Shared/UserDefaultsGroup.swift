@@ -14,16 +14,16 @@ struct UserDefaultsElectrumSettings {
   let sslPort: Int32?
 }
 
-let DefaultElectrumPeers = [UserDefaultsElectrumSettings(host: "electrum1.bluewallet.io", port: 50001, sslPort: 443),
-                              UserDefaultsElectrumSettings(host: "electrum2.bluewallet.io", port: 50001, sslPort: 443),
-                              UserDefaultsElectrumSettings(host: "electrum3.bluewallet.io", port: 50001, sslPort: 443)]
+let DefaultElectrumPeers = [UserDefaultsElectrumSettings(host: "itchy-jellyfish-89.doi.works", port: 50002, sslPort: 443),
+                              UserDefaultsElectrumSettings(host: "big-parrot-60.doi.works", port: 50002, sslPort: 443),
+                              UserDefaultsElectrumSettings(host: "ugly-bird-70.doi.works", port: 50002, sslPort: 443)]
 
 class UserDefaultsGroup {
   static private let suite = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
 
   static func getElectrumSettings() -> UserDefaultsElectrumSettings {
     guard let electrumSettingsHost = suite?.string(forKey: UserDefaultsGroupKey.ElectrumSettingsHost.rawValue) else {
-      return UserDefaultsElectrumSettings(host: "electrum1.bluewallet.io", port: 50001, sslPort: 443)
+      return UserDefaultsElectrumSettings(host: "itchy-jellyfish-89.doi.works", port: 50002, sslPort: 443)
     }
     
     let electrumSettingsTCPPort = suite?.string(forKey: UserDefaultsGroupKey.ElectrumSettingsTCPPort.rawValue) ?? "50001"

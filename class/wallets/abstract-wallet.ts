@@ -368,7 +368,7 @@ export class AbstractWallet {
     let data = b58.decode(zpub);
     data = data.slice(4);
     data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
-
+    
     return b58.encode(data);
   }
 
