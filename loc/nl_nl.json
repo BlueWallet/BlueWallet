@@ -284,6 +284,7 @@
     "electrum_connected_not": "Niet verbonden",
     "electrum_connnected_not_description": "Een actieve Electrum verbinding is benodigd om een wallet te importeren. Door naar de netwerk sectie bij de instellingen te gaan kun je verifieren of een verbinding tot stand is gekomen.",
     "electrum_error_connect": "Kan niet verbinden met aangeleverde Electrum server",
+    "lndhub_uri": "Voorbeeld {example}",
     "electrum_host": "Voorbeeld {example}",
     "electrum_offline_mode": "Offline Modus",
     "electrum_offline_description": "Indien ingeschakeld, zullen uw Bitcoin wallets geen poging doen om  balansen of transacties op te halen.",
