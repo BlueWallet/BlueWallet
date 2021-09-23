@@ -1,45 +1,54 @@
-/* global alert */
-import React, { useContext, useEffect, useState } from 'react';
-import { Platform, View, Keyboard, StatusBar, StyleSheet, Alert } from 'react-native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import React, { useEffect, useState, useContext } from 'react';
+import { Platform, View, Keyboard, StatusBar, StyleSheet, Switch, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+
 import {
-  BlueFormMultiInput,
-  BlueButtonLink,
-  BlueFormLabel,
-  BlueDoneAndDismissKeyboardInputAccessory,
   BlueButton,
-  SafeBlueArea,
+  BlueButtonLink,
+  BlueDoneAndDismissKeyboardInputAccessory,
+  BlueFormLabel,
+  BlueFormMultiInput,
   BlueSpacing20,
+  BlueText,
+  SafeBlueArea,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
-import WalletImport from '../../class/wallet-import';
 import loc from '../../loc';
 import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-
 const fs = require('../../blue_modules/fs');
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const WalletsImport = () => {
-  const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
-  const route = useRoute();
-  const { isImportingWallet, isElectrumDisabled } = useContext(BlueStorageContext);
-  const label = (route.params && route.params.label) || '';
-  const triggerImport = (route.params && route.params.triggerImport) || false;
-  const [importText, setImportText] = useState(label);
   const navigation = useNavigation();
   const { colors } = useTheme();
+  const route = useRoute();
+  const label = route?.params?.label ?? '';
+  const triggerImport = route?.params?.triggerImport ?? false;
+  const { isAdancedModeEnabled } = useContext(BlueStorageContext);
+  const [importText, setImportText] = useState(label);
+  const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
+  const [, setSpeedBackdoor] = useState(0);
+  const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
+  const [searchAccounts, setSearchAccounts] = useState(false);
+  const [askPassphrase, setAskPassphrase] = useState(false);
+
   const styles = StyleSheet.create({
     root: {
-      paddingTop: 40,
+      paddingTop: 10,
       backgroundColor: colors.elevated,
     },
     center: {
       flex: 1,
       marginHorizontal: 16,
       backgroundColor: colors.elevated,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginHorizontal: 16,
+      marginTop: 10,
+      justifyContent: 'space-between',
     },
   });
 
@@ -55,6 +64,7 @@ const WalletsImport = () => {
   }, []);
 
   useEffect(() => {
+    isAdancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     if (triggerImport) importButtonPressed();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -66,69 +76,10 @@ const WalletsImport = () => {
     importMnemonic(importText);
   };
 
-  /**
-   *
-   * @param importText
-   */
-  const importMnemonic = async importText => {
-    if (!importText.trim().startsWith('lndhub://')) {
-      const config = await BlueElectrum.getConfig();
-      if (config.connected !== 1) {
-        return alert(loc.settings.electrum_connnected_not_description);
-      }
-    }
-
-    if (isImportingWallet && isImportingWallet.isFailure === false) {
-      return;
-    }
-
-    let res;
-    try {
-      res = await WalletImport.askPasswordIfNeeded(importText);
-    } catch (e) {
-      // prompt cancelled
-      return;
-    }
-    const { text, password } = res;
-
-    WalletImport.addPlaceholderWallet(text);
-    navigation.dangerouslyGetParent().pop();
-    await new Promise(resolve => setTimeout(resolve, 500)); // giving some time to animations
-    try {
-      await WalletImport.processImportText(text, password);
-      WalletImport.removePlaceholderWallet();
-    } catch (error) {
-      console.log(error);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-      Alert.alert(
-        loc.wallets.add_details,
-        loc.wallets.list_import_problem,
-        [
-          {
-            text: loc.wallets.list_tryagain,
-            onPress: () => {
-              navigation.navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: importText } });
-              WalletImport.removePlaceholderWallet();
-            },
-            style: 'default',
-          },
-          {
-            text: loc._.cancel,
-            onPress: () => {
-              WalletImport.removePlaceholderWallet();
-            },
-            style: 'cancel',
-          },
-        ],
-        { cancelable: false },
-      );
-    }
+  const importMnemonic = importText => {
+    navigation.navigate('ImportWalletDiscovery', { importText, askPassphrase, searchAccounts });
   };
 
-  /**
-   *
-   * @param value
-   */
   const onBarScanned = value => {
     if (value && value.data) value = value.data + ''; // no objects here, only strings
     setImportText(value);
@@ -150,39 +101,53 @@ const WalletsImport = () => {
     }
   };
 
-  const isImportDisabled = () => {
-    let disabled = false;
-    const seed = importText.trim();
-
-    if (seed.length === 0) {
-      disabled = true;
-    }
-
-    if (!seed.startsWith('lndhub://') && isElectrumDisabled) {
-      disabled = true;
-    }
-
-    return disabled;
+  const speedBackdoorTap = () => {
+    setSpeedBackdoor(v => {
+      v += 1;
+      if (v < 5) return v;
+      navigation.navigate('ImportSpeed');
+      return 0;
+    });
   };
 
   return (
     <SafeBlueArea style={styles.root}>
       <StatusBar barStyle="light-content" />
       <BlueSpacing20 />
-      <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
+      <TouchableWithoutFeedback onPress={speedBackdoorTap} testID="SpeedBackdoor">
+        <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
+      </TouchableWithoutFeedback>
       <BlueSpacing20 />
       <BlueFormMultiInput
-        testID="MnemonicInput"
         value={importText}
         contextMenuHidden={!isDesktop}
         onChangeText={setImportText}
+        testID="MnemonicInput"
         inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
       />
+
+      {isAdvancedModeEnabledRender && (
+        <>
+          <View style={styles.row}>
+            <BlueText>{loc.wallets.import_passphrase}</BlueText>
+            <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
+          </View>
+          <View style={styles.row}>
+            <BlueText>{loc.wallets.import_search_accounts}</BlueText>
+            <Switch testID="SearchAccounts" value={searchAccounts} onValueChange={setSearchAccounts} />
+          </View>
+        </>
+      )}
 
       <BlueSpacing20 />
       <View style={styles.center}>
         <>
-          <BlueButton testID="DoImport" disabled={isImportDisabled()} title={loc.wallets.import_do_import} onPress={importButtonPressed} />
+          <BlueButton
+            disabled={importText.trim().length === 0}
+            title={loc.wallets.import_do_import}
+            testID="DoImport"
+            onPress={importButtonPressed}
+          />
           <BlueSpacing20 />
           <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} testID="ScanImport" />
         </>

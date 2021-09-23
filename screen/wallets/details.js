@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useContext, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -128,6 +128,13 @@ const WalletDetails = () => {
   const { goBack, navigate, setOptions, popToTop } = useNavigation();
   const { colors } = useTheme();
   const [masterFingerprint, setMasterFingerprint] = useState();
+  const derivationPath = useMemo(() => {
+    try {
+      return wallet.getDerivationPath();
+    } catch (e) {
+      return null;
+    }
+  }, [wallet]);
   const [lightningWalletInfo, setLightningWalletInfo] = useState({});
 
   useEffect(() => {
@@ -577,10 +584,10 @@ const WalletDetails = () => {
                       </View>
                     )}
 
-                    {!!wallet.getDerivationPath() && (
+                    {derivationPath && (
                       <View>
                         <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_derivation_path}</Text>
-                        <BlueText>{wallet.getDerivationPath()}</BlueText>
+                        <BlueText testID="DerivationPath">{derivationPath}</BlueText>
                       </View>
                     )}
                   </View>
