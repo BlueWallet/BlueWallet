@@ -37,16 +37,9 @@
                                 </tableRow>
                             </items>
                         </table>
-                        <group width="1" alignment="left" verticalAlignment="center" layout="vertical" id="1Db-mZ-yxl">
-                            <items>
-                                <imageView width="60" height="60" alignment="center" image="loadingIndicator" contentMode="scaleAspectFit" id="dLA-pP-GUU"/>
-                                <label alignment="center" text="Loading wallets..." id="hCG-Eg-bck"/>
-                            </items>
-                        </group>
                         <label alignment="center" verticalAlignment="center" hidden="YES" text="No wallets available. Please, add one by opening BlueWallet on your iPhone." textAlignment="center" numberOfLines="0" id="I2I-8t-hp3"/>
                     </items>
                     <connections>
-                        <outlet property="loadingIndicatorGroup" destination="1Db-mZ-yxl" id="XPX-Y8-dv0"/>
                         <outlet property="noWalletsAvailableLabel" destination="I2I-8t-hp3" id="c4O-Mg-3ps"/>
                         <outlet property="walletsTable" destination="jUH-JS-ccp" id="ONe-Gg-EJn"/>
                     </connections>
