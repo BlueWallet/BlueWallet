@@ -413,8 +413,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       for (const vin of tx.inputs) {
         // if input (spending) goes from our address - we are loosing!
         if (
-          (vin.address && ownedAddressesHashmap[vin.address]) ||
-          (vin.address && vin.address && ownedAddressesHashmap[vin.address])
+          (vin.address && ownedAddressesHashmap[vin.address])
         ) {
           tx.value -= new BigNumber(vin.value).multipliedBy(100000000).toNumber();
         }
@@ -422,7 +421,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
       for (const vout of tx.outputs) {
         // when output goes to our address - this means we are gaining!
-        if (vout.scriptPubKey.address && vout.scriptPubKey.address && ownedAddressesHashmap[vout.scriptPubKey.address]) {
+        if (vout.scriptPubKey.address && ownedAddressesHashmap[vout.scriptPubKey.address]) {
           tx.value += new BigNumber(vout.value).multipliedBy(100000000).toNumber();
         }
       }
@@ -736,7 +735,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (const tx of this.getTransactions()) {
       for (const output of tx.outputs) {
         let address = false;
-        if (output.scriptPubKey && output.scriptPubKey.address && output.scriptPubKey.address) {
+        if (output.scriptPubKey && output.scriptPubKey.address) {
           address = output.scriptPubKey.address;
         }
         if (ownedAddressesHashmap[address]) {

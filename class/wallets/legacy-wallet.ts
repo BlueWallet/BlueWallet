@@ -205,7 +205,7 @@ export class LegacyWallet extends AbstractWallet {
     for (const tx of this.getTransactions()) {
       for (const output of tx.outputs) {
         let address: string | false = false;
-        if (output.scriptPubKey && output.scriptPubKey.address && output.scriptPubKey.address) {
+        if (output.scriptPubKey && output.scriptPubKey.address) {
           address = output.scriptPubKey.address;
         }
         if (address && ownedAddressesHashmap[address]) {
