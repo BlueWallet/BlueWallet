@@ -2,9 +2,11 @@ import Frisbee from 'frisbee';
 import { LightningCustodianWallet } from '../../class';
 const assert = require('assert');
 
+const baseUri = 'https://lndhub-staging.herokuapp.com';
+
 describe.skip('LightningCustodianWallet', () => {
   const l1 = new LightningCustodianWallet();
-  l1.setBaseURI('https://lndhub.io');
+  l1.setBaseURI(baseUri);
   l1.init();
 
   it.skip('issue credentials', async () => {
@@ -70,6 +72,8 @@ describe.skip('LightningCustodianWallet', () => {
     }
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
+    l2.setBaseURI(baseUri);
+    l2.init();
     await l2.authorize();
     await l2.fetchPendingTransactions();
     await l2.fetchTransactions();
@@ -97,6 +101,8 @@ describe.skip('LightningCustodianWallet', () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
+    l2.setBaseURI(baseUri);
+    l2.init();
     await l2.authorize();
 
     let invoice =
@@ -134,6 +140,8 @@ describe.skip('LightningCustodianWallet', () => {
     }
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
+    l2.setBaseURI(baseUri);
+    l2.init();
     await l2.authorize();
     const invoice =
       'lnbc1u1pdcqpt3pp5ltuevvq2g69kdrzcegrs9gfqjer45rwjc0w736qjl92yvwtxhn6qdp8dp6kuerjv4j9xct5daeks6tnyp3xc6t50f582cscqp2zrkghzl535xjav52ns0rpskcn20takzdr2e02wn4xqretlgdemg596acq5qtfqhjk4jpr7jk8qfuuka2k0lfwjsk9mchwhxcgxzj3tsp09gfpy';
@@ -177,6 +185,8 @@ describe.skip('LightningCustodianWallet', () => {
 
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
+    l2.setBaseURI(baseUri);
+    l2.init();
     await l2.authorize();
     await l2.fetchTransactions();
     const txLen = l2.transactions_raw.length;
@@ -230,6 +240,8 @@ describe.skip('LightningCustodianWallet', () => {
 
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
+    l2.setBaseURI(baseUri);
+    l2.init();
     await l2.authorize();
     await l2.fetchTransactions();
     const txLen = l2.transactions_raw.length;
@@ -282,7 +294,7 @@ describe.skip('LightningCustodianWallet', () => {
     }
 
     const api = new Frisbee({
-      baseURI: 'https://api.bitrefill.com',
+      baseURI: 'https://api-bitrefill.com',
       headers: {},
     });
 
@@ -296,6 +308,8 @@ describe.skip('LightningCustodianWallet', () => {
 
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
+    l2.setBaseURI(baseUri);
+    l2.init();
     await l2.authorize();
     await l2.fetchTransactions();
     const txLen = l2.transactions_raw.length;
@@ -344,12 +358,16 @@ describe.skip('LightningCustodianWallet', () => {
 
     const lOld = new LightningCustodianWallet();
     lOld.setSecret(process.env.BLITZHUB);
+    lOld.setBaseURI(baseUri);
+    lOld.init();
     await lOld.authorize();
     await lOld.fetchTransactions();
     let txLen = lOld.transactions_raw.length;
 
     // creating LND wallet
     const lNew = new LightningCustodianWallet();
+    lNew.setBaseURI(baseUri);
+    lNew.init();
     await lNew.createAccount(true);
     await lNew.authorize();
     await lNew.fetchBalance();
@@ -474,6 +492,8 @@ describe.skip('LightningCustodianWallet', () => {
 
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
+    l2.setBaseURI(baseUri);
+    l2.init();
     await l2.authorize();
     await l2.fetchTransactions();
     await l2.fetchBalance();
@@ -514,6 +534,8 @@ describe.skip('LightningCustodianWallet', () => {
 
   it('cant create zemo amt invoices yet', async () => {
     const l1 = new LightningCustodianWallet();
+    l1.setBaseURI(baseUri);
+    l1.init();
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     assert.ok(l1.refill_addressess.length === 0);
     assert.ok(l1._refresh_token_created_ts === 0);
@@ -580,6 +602,8 @@ describe.skip('LightningCustodianWallet', () => {
 
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
+    l2.setBaseURI(baseUri);
+    l2.init();
     await l2.authorize();
     await l2.fetchTransactions();
     await l2.fetchBalance();

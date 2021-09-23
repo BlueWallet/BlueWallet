@@ -11,7 +11,6 @@ import {
   SegwitP2SHWallet,
   SegwitBech32Wallet,
   HDSegwitBech32Wallet,
-  PlaceholderWallet,
   LightningCustodianWallet,
   HDLegacyElectrumSeedP2PKHWallet,
   HDSegwitElectrumSeedP2WPKHWallet,
@@ -331,8 +330,6 @@ export class AppStorage {
         const tempObj = JSON.parse(key);
         let unserializedWallet;
         switch (tempObj.type) {
-          case PlaceholderWallet.type:
-            continue;
           case SegwitBech32Wallet.type:
             unserializedWallet = SegwitBech32Wallet.fromJson(key);
             break;
@@ -422,7 +419,8 @@ export class AppStorage {
         }
 
         // done
-        if (!this.wallets.some(wallet => wallet.getSecret() === unserializedWallet.secret)) {
+        const ID = unserializedWallet.getID();
+        if (!this.wallets.some(wallet => wallet.getID() === ID)) {
           this.wallets.push(unserializedWallet);
           this.tx_metadata = data.tx_metadata;
         }
@@ -441,13 +439,11 @@ export class AppStorage {
    * @param wallet {AbstractWallet}
    */
   deleteWallet = wallet => {
-    const secret = wallet.getSecret();
+    const ID = wallet.getID();
     const tempWallets = [];
 
     for (const value of this.wallets) {
-      if (value.type === PlaceholderWallet.type) {
-        continue;
-      } else if (value.getSecret() === secret) {
+      if (value.getID() === ID) {
         // the one we should delete
         // nop
       } else {
@@ -584,7 +580,7 @@ export class AppStorage {
         alert(error.message);
       }
       for (const key of this.wallets) {
-        if (typeof key === 'boolean' || key.type === PlaceholderWallet.type) continue;
+        if (typeof key === 'boolean') continue;
         key.prepareForSerialization();
         delete key.current;
         const keyCloned = Object.assign({}, key); // stripped-down version of a wallet to save to secure keystore
@@ -672,13 +668,13 @@ export class AppStorage {
     console.log('fetchWalletBalances for wallet#', typeof index === 'undefined' ? '(all)' : index);
     if (index || index === 0) {
       let c = 0;
-      for (const wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
+      for (const wallet of this.wallets) {
         if (c++ === index) {
           await wallet.fetchBalance();
         }
       }
     } else {
-      for (const wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
+      for (const wallet of this.wallets) {
         await wallet.fetchBalance();
       }
     }
@@ -698,7 +694,7 @@ export class AppStorage {
     console.log('fetchWalletTransactions for wallet#', typeof index === 'undefined' ? '(all)' : index);
     if (index || index === 0) {
       let c = 0;
-      for (const wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
+      for (const wallet of this.wallets) {
         if (c++ === index) {
           await wallet.fetchTransactions();
           if (wallet.fetchPendingTransactions) {

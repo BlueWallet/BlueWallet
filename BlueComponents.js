@@ -1,5 +1,5 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import React, { Component, useContext, forwardRef } from 'react';
+import React, { Component, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, Input, Text, Header, ListItem, Avatar } from 'react-native-elements';
 import {
@@ -29,7 +29,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
 import loc, { formatStringAddTwoWhiteSpaces } from './loc';
-import { BlueStorageContext } from './blue_modules/storage-context';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -564,7 +563,6 @@ export const BlueHeaderDefaultSub = props => {
 export const BlueHeaderDefaultMain = props => {
   const { colors } = useTheme();
   const { isDrawerList } = props;
-  const { isImportingWallet } = useContext(BlueStorageContext);
   return (
     <View
       style={{
@@ -588,7 +586,7 @@ export const BlueHeaderDefaultMain = props => {
       >
         {props.leftText}
       </Text>
-      {isImportingWallet ? undefined : <BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />}
+      <BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />
     </View>
   );
 };

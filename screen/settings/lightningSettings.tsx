@@ -96,10 +96,6 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
     setIsLoading(true);
     try {
       if (URI) {
-        if (URI.endsWith('.onion') && !isTorCapable) {
-          setIsLoading(false);
-          return alert(loc.settings.tor_unsupported);
-        }
         await LightningCustodianWallet.isValidNodeAddress(URI);
         // validating only if its not empty. empty means use default
       }
@@ -152,7 +148,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
           <TextInput
             value={URI}
             placeholder={
-              loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' }) +
+              loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:3000' }) +
               (isTorCapable ? ' (' + loc.settings.tor_supported + ')' : '')
             }
             onChangeText={setLndhubURI}

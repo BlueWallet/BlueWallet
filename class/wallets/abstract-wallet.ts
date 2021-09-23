@@ -58,7 +58,6 @@ export class AbstractWallet {
     this.type = Constructor.type;
     this.typeReadable = Constructor.typeReadable;
     this.segwitType = Constructor.segwitType;
-    this._derivationPath = Constructor.derivationPath;
     this.label = '';
     this.secret = ''; // private key or recovery phrase
     this.balance = 0;
@@ -87,7 +86,8 @@ export class AbstractWallet {
   getID(): string {
     const thisWithPassphrase = (this as unknown) as WalletWithPassphrase;
     const passphrase = thisWithPassphrase.getPassphrase ? thisWithPassphrase.getPassphrase() : '';
-    const string2hash = this.getSecret() + passphrase;
+    const path = this._derivationPath ?? '';
+    const string2hash = this.type + this.getSecret() + passphrase + path;
     return createHash('sha256').update(string2hash).digest().toString('hex');
   }
 
@@ -415,12 +415,5 @@ export class AbstractWallet {
 
   isSegwit() {
     return false;
-  }
-
-  /**
-   * @returns {string} Root derivation path for wallet if any
-   */
-  getDerivationPath(): string {
-    return this._derivationPath ?? '';
   }
 }

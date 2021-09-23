@@ -261,6 +261,7 @@
     "electrum_connected": "Připojeno",
     "electrum_connected_not": "Nepřipojeno",
     "electrum_error_connect": "Nelze se připojit k poskytovanému serveru Electrum",
+    "lndhub_uri": "Např. {example}",
     "electrum_host": "Např. {example}",
     "electrum_port": "Port, obvykle {example}",
     "use_ssl": "Použít protokol SSL",
