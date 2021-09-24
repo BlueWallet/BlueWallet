@@ -473,7 +473,7 @@ const AOPPRoot = () => {
 
   return (
     <AOPPStack.Navigator screenOptions={{ headerHideShadow: true }}>
-      <AOPPStack.Screen name="SelectWalletAOPP" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <AOPPStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
       <AOPPStack.Screen name="AOPP" component={AOPP} options={AOPP.navigationOptions(theme)} />
       <AOPPStack.Screen name="SignVerify" component={SignVerify} options={SignVerify.navigationOptions(theme)} />
     </AOPPStack.Navigator>
