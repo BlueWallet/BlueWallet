@@ -36,4 +36,4 @@ const DOICHAIN_REGTEST = {
   wif: 239,
 };
 
-export const DOICHAIN = DOICHAIN_REGTEST
+export const DOICHAIN = DOICHAIN_MAINNET
