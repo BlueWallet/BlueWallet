@@ -115,16 +115,18 @@ const showImagePickerAndReadImage = () => {
         selectionLimit: 1,
       },
       response => {
-        const asset = response.assets[0];
-        if (asset.uri) {
-          const uri = asset.uri.toString().replace('file://', '');
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              resolve(result);
-            } else {
-              reject(new Error(loc.send.qr_error_no_qrcode));
-            }
-          });
+        if (!response.didCancel) {
+          const asset = response.assets[0];
+          if (asset.uri) {
+            const uri = asset.uri.toString().replace('file://', '');
+            LocalQRCode.decode(uri, (error, result) => {
+              if (!error) {
+                resolve(result);
+              } else {
+                reject(new Error(loc.send.qr_error_no_qrcode));
+              }
+            });
+          }
         }
       },
     ),
