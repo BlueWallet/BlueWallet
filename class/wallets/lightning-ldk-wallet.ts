@@ -378,6 +378,8 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       await this.waitForAtLeastOneChannelBecomeActive();
     }
 
+    if (this.getReceivableBalance() < amtSat) throw new Error('You dont have enough inbound capacity');
+
     const bolt11 = await RnLdk.addInvoice(amtSat * 1000, memo);
     if (!bolt11) return false;
 
@@ -595,8 +597,12 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     await RnLdk.setRefundAddressScript(this._refundAddressScriptHex);
   }
 
-  async getVersion() {
+  static async getVersion() {
     return RnLdk.getVersion();
+  }
+
+  static getPackageVersion() {
+    return RnLdk.getPackageVersion();
   }
 
   /**

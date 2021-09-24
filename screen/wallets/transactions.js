@@ -264,8 +264,8 @@ const WalletTransactions = () => {
             wallet.chain !== Chain.OFFCHAIN &&
             wallet.type !== LightningLdkWallet.type &&
             renderSellFiat()}
-          {wallet.chain === Chain.OFFCHAIN && wallet.type !== LightningLdkWallet.type && renderMarketplaceButton()}
-          {wallet.chain === Chain.OFFCHAIN && wallet.type !== LightningLdkWallet.type && Platform.OS === 'ios' && renderLappBrowserButton()}
+          {wallet.chain === Chain.OFFCHAIN && renderMarketplaceButton()}
+          {wallet.chain === Chain.OFFCHAIN && Platform.OS === 'ios' && renderLappBrowserButton()}
         </View>
         {wallet.type === LightningLdkWallet.type && (lnNodeInfo.canSend > 0 || lnNodeInfo.canReceive > 0) && (
           <View style={[styles.marginHorizontal18, styles.marginBottom18]}>

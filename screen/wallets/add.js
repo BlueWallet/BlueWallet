@@ -288,7 +288,13 @@ const WalletsAdd = () => {
             style={styles.button}
           />
           {backdoorPressed > 10 ? (
-            <LdkButton active={selectedWalletType === ButtonSelected.LDK} onPress={handleOnLdkButtonPressed} style={styles.button} />
+            <LdkButton
+              active={selectedWalletType === ButtonSelected.LDK}
+              onPress={handleOnLdkButtonPressed}
+              style={styles.button}
+              subtext={LightningLdkWallet.getPackageVersion()}
+              text="LDK"
+            />
           ) : null}
           <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} />
         </View>
