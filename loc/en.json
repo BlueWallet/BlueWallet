@@ -481,6 +481,7 @@
     "import_discovery_title": "Discovery",
     "import_discovery_subtitle": "Choose a wallet from discovered",
     "import_discovery_derivation": "Use custom derivation path",
+    "import_discovery_no_wallets": "No wallets has been found.",
     "import_derivation_found": "found",
     "import_derivation_found_not": "not found",
     "import_derivation_loading": "loading...",
