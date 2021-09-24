@@ -315,6 +315,7 @@ const ScanQRCode = () => {
               }
             }
           }
+          setIsLoading(false);
         },
       );
     }
