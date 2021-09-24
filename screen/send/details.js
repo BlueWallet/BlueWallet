@@ -373,22 +373,42 @@ const SendDetails = () => {
   const processAddressData = data => {
     const currentIndex = scrollIndex.current;
     setIsLoading(true);
-    if (!data.replace) {
-      // user probably scanned PSBT and got an object instead of string..?
-      setIsLoading(false);
-      return Alert.alert(loc.errors.error, loc.send.details_address_field_is_not_valid);
-    }
-
-    const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
-    if (wallet.isAddressValid(dataWithoutSchema)) {
+    if (Array.isArray(data)) {
+      const newRecipients = [];
+      for (const dataObject of data) {
+        const dataWithoutSchema = dataObject.replace('bitcoin:', '').replace('BITCOIN:', '');
+        if (wallet.isAddressValid(dataWithoutSchema)) {
+          newRecipients.push({ address: dataWithoutSchema });
+        }
+      }
       setAddresses(addresses => {
-        addresses[scrollIndex.current].address = dataWithoutSchema;
-        return [...addresses];
+        addresses[scrollIndex.current].address = newRecipients[0].address;
+        newRecipients.shift();
+        addresses = addresses.concat(newRecipients);
+        return addresses;
       });
       setIsLoading(false);
       // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
       setTimeout(() => scrollView.current.scrollToIndex({ index: currentIndex, animated: false }), 50);
       return;
+    } else {
+      if (!data.replace) {
+        // user probably scanned PSBT and got an object instead of string..?
+        setIsLoading(false);
+        return Alert.alert(loc.errors.error, loc.send.details_address_field_is_not_valid);
+      }
+
+      const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
+      if (wallet.isAddressValid(dataWithoutSchema)) {
+        setAddresses(addresses => {
+          addresses[scrollIndex.current].address = dataWithoutSchema;
+          return [...addresses];
+        });
+        setIsLoading(false);
+        // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
+        setTimeout(() => scrollView.current.scrollToIndex({ index: currentIndex, animated: false }), 50);
+        return;
+      }
     }
 
     let address = '';
@@ -1376,6 +1396,7 @@ const SendDetails = () => {
             setIsLoading(false);
             setPayjoinUrl(payjoinUrl);
           }}
+          allowBatch
           onBarScanned={processAddressData}
           address={item.address}
           isLoading={isLoading}
@@ -1389,6 +1410,8 @@ const SendDetails = () => {
       </View>
     );
   };
+
+  const keyExtractor = (_item, index) => `${index}`;
 
   if (isLoading || !wallet) {
     return (
@@ -1410,6 +1433,7 @@ const SendDetails = () => {
               renderItem={renderBitcoinTransactionInfoFields}
               ref={scrollView}
               horizontal
+              keyExtractor={keyExtractor}
               pagingEnabled
               removeClippedSubviews={false}
               onMomentumScrollBegin={Keyboard.dismiss}

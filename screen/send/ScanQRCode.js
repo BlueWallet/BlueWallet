@@ -92,7 +92,7 @@ const ScanQRCode = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const showFileImportButton = route.params.showFileImportButton || false;
-  const { launchedBy, onBarScanned, onDismiss, onBarScannerDismissWithoutData = () => {} } = route.params;
+  const { launchedBy, onBarScanned, onDismiss, allowBatch = false, onBarScannerDismissWithoutData = () => {} } = route.params;
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -195,45 +195,59 @@ const ScanQRCode = () => {
       return;
     }
     scannedCache[h] = +new Date();
-
-    if (ret.data.toUpperCase().startsWith('UR:CRYPTO-PSBT')) {
-      return _onReadUniformResourceV2(ret.data);
-    }
-
-    if (ret.data.toUpperCase().startsWith('UR:BYTES')) {
-      const splitted = ret.data.split('/');
-      if (splitted.length === 3 && splitted[1].includes('-')) {
+    if (Array.isArray(ret.data)) {
+      if (!isLoading) {
+        setIsLoading(true);
+        try {
+          if (launchedBy) {
+            navigation.navigate(launchedBy);
+          }
+          onBarScanned(ret.data);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    } else {
+      if (ret.data.toUpperCase().startsWith('UR:CRYPTO-PSBT')) {
         return _onReadUniformResourceV2(ret.data);
       }
-    }
 
-    if (ret.data.toUpperCase().startsWith('UR')) {
-      return _onReadUniformResource(ret.data);
-    }
-
-    // is it base43? stupid electrum desktop
-    try {
-      const hex = Base43.decode(ret.data);
-      bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
-
-      if (launchedBy) {
-        navigation.navigate(launchedBy);
+      if (ret.data.toUpperCase().startsWith('UR:BYTES')) {
+        const splitted = ret.data.split('/');
+        if (splitted.length === 3 && splitted[1].includes('-')) {
+          return _onReadUniformResourceV2(ret.data);
+        }
       }
-      onBarScanned({ data: Buffer.from(hex, 'hex').toString('base64') });
-      return;
-    } catch (_) {}
 
-    if (!isLoading) {
-      setIsLoading(true);
+      if (ret.data.toUpperCase().startsWith('UR')) {
+        return _onReadUniformResource(ret.data);
+      }
+
+      // is it base43? stupid electrum desktop
       try {
+        const hex = Base43.decode(ret.data);
+        bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
+
         if (launchedBy) {
           navigation.navigate(launchedBy);
         }
-        onBarScanned(ret.data);
-      } catch (e) {
-        console.log(e);
+        onBarScanned({ data: Buffer.from(hex, 'hex').toString('base64') });
+        return;
+      } catch (_) {}
+
+      if (!isLoading) {
+        setIsLoading(true);
+        try {
+          if (launchedBy) {
+            navigation.navigate(launchedBy);
+          }
+          onBarScanned(ret.data);
+        } catch (e) {
+          console.log(e);
+        }
       }
     }
+
     setIsLoading(false);
   };
 
@@ -254,25 +268,51 @@ const ScanQRCode = () => {
           takePhotoButtonTitle: null,
           maxHeight: 800,
           maxWidth: 600,
-          selectionLimit: 1,
+          selectionLimit: allowBatch ? 0 : 1,
         },
-        response => {
+        async response => {
           if (response.didCancel) {
             setIsLoading(false);
           } else {
-            const asset = response.assets[0];
-            if (asset.uri) {
-              const uri = asset.uri.toString().replace('file://', '');
-              LocalQRCode.decode(uri, (error, result) => {
-                if (!error) {
-                  onBarCodeRead({ data: result });
-                } else {
-                  alert(loc.send.qr_error_no_qrcode);
-                  setIsLoading(false);
+            if (response.assets.length > 1) {
+              const assets = [];
+              for (const asset of response.assets) {
+                if (asset.uri) {
+                  const uri = asset.uri.toString().replace('file://', '');
+                  try {
+                    const assetPromise = new Promise(resolve => {
+                      LocalQRCode.decode(uri, (error, result) => {
+                        if (!error) {
+                          resolve(result);
+                        }
+                      });
+                    });
+
+                    assets.push(await assetPromise);
+                  } catch (e) {
+                    console.log(e);
+                  }
                 }
-              });
+              }
+              if (assets.length > 0) {
+                onBarCodeRead({ data: assets });
+              } else {
+                alert(loc.send.qr_error_no_qrcode);
+                setIsLoading(false);
+              }
             } else {
-              setIsLoading(false);
+              const asset = response.assets[0];
+              if (asset.uri) {
+                const uri = asset.uri.toString().replace('file://', '');
+                LocalQRCode.decode(uri, (error, result) => {
+                  if (!error) {
+                    onBarCodeRead({ data: result });
+                  } else {
+                    alert(loc.send.qr_error_no_qrcode);
+                    setIsLoading(false);
+                  }
+                });
+              }
             }
           }
         },

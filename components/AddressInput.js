@@ -23,6 +23,7 @@ const AddressInput = ({
   editable = true,
   inputAccessoryViewID,
   onBlur = () => {},
+  allowBatch = false,
 }) => {
   const { colors } = useTheme();
   const scanButtonRef = useRef();
@@ -80,6 +81,7 @@ const AddressInput = ({
                   launchedBy,
                   onBarScanned,
                   onBarScannerDismissWithoutData,
+                  allowBatch,
                 },
               });
             }
@@ -144,6 +146,7 @@ AddressInput.propTypes = {
   inputAccessoryViewID: PropTypes.string,
   onBarScannerDismissWithoutData: PropTypes.func,
   onBlur: PropTypes.func,
+  allowBatch: PropTypes.bool,
 };
 
 export default AddressInput;
