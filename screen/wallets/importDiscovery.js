@@ -119,7 +119,13 @@ const ImportWalletDiscovery = () => {
       <BlueFormLabel>{loc.wallets.import_discovery_subtitle}</BlueFormLabel>
       <BlueSpacing20 />
 
-      <FlatList data={wallets} keyExtractor={w => w.id} renderItem={renderItem} />
+      {!loading && wallets.length === 0 ? (
+        <View style={styles.noWallets}>
+          <BlueFormLabel>{loc.wallets.import_discovery_no_wallets}</BlueFormLabel>
+        </View>
+      ) : (
+        <FlatList data={wallets} keyExtractor={w => w.id} renderItem={renderItem} />
+      )}
 
       <View style={[styles.center, stylesHook.center]}>
         {loading && (
@@ -162,6 +168,11 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     height: 45,
+  },
+  noWallets: {
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
