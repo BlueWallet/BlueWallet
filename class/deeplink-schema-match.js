@@ -181,7 +181,7 @@ class DeeplinkSchemaMatch {
         {
           uri: event.url,
           safelloStateToken,
-          wallet,
+          walletID: wallet?.getID(),
         },
       ]);
     } else if (Azteco.isRedeemUrl(event.url)) {
