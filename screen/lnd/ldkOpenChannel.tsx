@@ -135,7 +135,7 @@ const LdkOpenChannel = (props: any) => {
       }
 
       onPsbtOpenChannelStartedTsChange(+new Date());
-      closeContainerModal();
+      await closeContainerModal();
       navigate('SendDetailsRoot', {
         screen: 'SendDetails',
         params: {

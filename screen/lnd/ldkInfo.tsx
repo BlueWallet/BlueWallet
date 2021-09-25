@@ -13,6 +13,7 @@ import Button, { ButtonStyle } from '../../components/Button';
 import LdkOpenChannel from './ldkOpenChannel';
 import { Psbt } from 'bitcoinjs-lib';
 import { AbstractWallet, LightningLdkWallet } from '../../class';
+import { sleep } from '../../tests/e2e/helperz';
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
 const LdkNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
@@ -321,9 +322,10 @@ const LdkInfo = () => {
     );
   };
 
-  const onNewOpenChannelModalBackdropPress = () => {
+  const onNewOpenChannelModalBackdropPress = async () => {
     closeModal();
-    setTimeout(() => setNewOpenChannelModalVisible(false), 650);
+    setNewOpenChannelModalVisible(false);
+    await sleep(650);
     setTimeout(() => {
       setNewOpenChannelModalProps(undefined);
       setParams({ psbt: undefined });
@@ -337,7 +339,8 @@ const LdkInfo = () => {
 
   const navigateToOpenChannel = async ({ isPrivateChannel }: { isPrivateChannel: boolean }) => {
     closeModal();
-    setTimeout(() => setNewOpenChannelModalVisible(false), 650);
+    setNewOpenChannelModalVisible(false);
+    await sleep(650);
     const availableWallets = [...wallets.filter((item: AbstractWallet) => item.isSegwit() && item.allowSend())];
     if (availableWallets.length === 0) {
       return alert(loc.lnd.refill_create);
@@ -349,8 +352,9 @@ const LdkInfo = () => {
     selectedWallet.getAddressAsync().then(wallet.setRefundAddress);
     setNewOpenChannelModalVisible(true);
   };
-  const closeNewOpenChannelModalPropsModal = () => {
-    setTimeout(() => setNewOpenChannelModalVisible(false), 650);
+  const closeNewOpenChannelModalPropsModal = async () => {
+    setNewOpenChannelModalVisible(false);
+    await sleep(650);
   };
 
   const onBackdropPress = async () => {
