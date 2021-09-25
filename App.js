@@ -35,6 +35,7 @@ import WidgetCommunication from './blue_modules/WidgetCommunication';
 import changeNavigationBarColor from 'react-native-navigation-bar-color';
 import ActionSheet from './screen/ActionSheet';
 import HandoffComponent from './components/handoff';
+import Privacy from './blue_modules/Privacy';
 const A = require('./blue_modules/analytics');
 const currency = require('./blue_modules/currency');
 
@@ -355,6 +356,7 @@ const App = () => {
       <DeviceQuickActions />
       <Biometric />
       <WidgetCommunication />
+      <Privacy />
     </SafeAreaProvider>
   );
 };
