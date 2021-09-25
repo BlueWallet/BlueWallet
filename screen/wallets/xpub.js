@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
 
 const WalletXpub = () => {
   const { wallets } = useContext(BlueStorageContext);
-  const { walletID, xPub } = useRoute().params;
+  const { walletID, xpub } = useRoute().params;
   const wallet = wallets.find(w => w.getID() === walletID);
   const [isLoading, setIsLoading] = useState(true);
   const [xPubText, setXPubText] = useState();
@@ -48,8 +48,8 @@ const WalletXpub = () => {
           setParams({ xPub: wallet.getXpub() });
           setXPubText(wallet.getXpub());
           setIsLoading(false);
-        } else if (xPub) {
-          setXPubText(xPub);
+        } else if (xpub) {
+          setXPubText(xpub);
           setIsLoading(false);
         }
       });
@@ -58,7 +58,7 @@ const WalletXpub = () => {
         Privacy.disableBlur();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [goBack, walletID, xPub]),
+    }, [goBack, walletID, xpub]),
   );
 
   const onLayout = e => {
@@ -82,7 +82,7 @@ const WalletXpub = () => {
             <BlueSpacing20 />
           </>
         )}
-        <QRCodeComponent value={xPub} size={qrCodeSize} />
+        <QRCodeComponent value={xpub} size={qrCodeSize} />
 
         <BlueSpacing20 />
         <BlueCopyTextToClipboard text={xPubText} />

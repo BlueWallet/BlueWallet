@@ -92,7 +92,7 @@ const App = () => {
         NavigationService.navigate('WalletXpubRoot', {
           screen: 'WalletXpub',
           params: {
-            xPub: data.userInfo.xpub,
+            xpub: data.userInfo.xpub,
           },
         });
         break;
