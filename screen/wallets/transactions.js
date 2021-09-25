@@ -25,7 +25,6 @@ import { BlueAlertWalletExportReminder } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
-import HandoffComponent from '../../components/handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
@@ -560,13 +559,6 @@ const WalletTransactions = () => {
   return (
     <View style={styles.flex}>
       <StatusBar barStyle="light-content" backgroundColor={WalletGradient.headerColorFor(wallet.type)} animated />
-      {wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type && (
-        <HandoffComponent
-          title={`Bitcoin Wallet ${wallet.getLabel()}`}
-          type="io.bluewallet.bluewallet"
-          url={`https://blockpath.com/search/addr?q=${wallet.getXpub()}`}
-        />
-      )}
       <TransactionsNavigationHeader
         wallet={wallet}
         onWalletUnitChange={passedWallet =>

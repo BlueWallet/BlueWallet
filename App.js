@@ -34,6 +34,7 @@ import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
 import changeNavigationBarColor from 'react-native-navigation-bar-color';
 import ActionSheet from './screen/ActionSheet';
+import HandoffComponent from './components/handoff';
 const A = require('./blue_modules/analytics');
 const currency = require('./blue_modules/currency');
 
@@ -59,6 +60,7 @@ const App = () => {
   const colorScheme = useColorScheme();
 
   const onNotificationReceived = async notification => {
+    console.warn(notification);
     const payload = Object.assign({}, notification, notification.data);
     if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
     payload.foreground = true;
@@ -77,6 +79,30 @@ const App = () => {
     );
   };
 
+  const onUserActivityOpen = data => {
+    console.warn(data);
+    switch (data.activityType) {
+      case HandoffComponent.activityTypes.ReceiveOnchain:
+        NavigationService.navigate('ReceiveDetailsRoot', {
+          screen: 'ReceiveDetails',
+          params: {
+            address: data.userInfo.address,
+          },
+        });
+        break;
+      case HandoffComponent.activityTypes.Xpub:
+        NavigationService.navigate('WalletXpubRoot', {
+          screen: 'WalletXpub',
+          params: {
+            xPub: data.userInfo.xpub,
+          },
+        });
+        break;
+      default:
+        break;
+    }
+  };
+
   useEffect(() => {
     if (walletsInitialized) {
       addListeners();
@@ -90,6 +116,7 @@ const App = () => {
       AppState.removeEventListener('change', handleAppStateChange);
       eventEmitter.removeAllListeners('onNotificationReceived');
       eventEmitter.removeAllListeners('openSettings');
+      eventEmitter.removeAllListeners('onUserActivityOpen');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -117,9 +144,11 @@ const App = () => {
      */
     eventEmitter.addListener('onNotificationReceived', onNotificationReceived);
     eventEmitter.addListener('openSettings', openSettings);
+    eventEmitter.addListener('onUserActivityOpen', onUserActivityOpen);
   };
 
   const popInitialAction = async data => {
+    console.warn(data);
     if (data) {
       const wallet = wallets.find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
       NavigationService.dispatch(
@@ -134,6 +163,7 @@ const App = () => {
       );
     } else {
       const url = await Linking.getInitialURL();
+      console.warn(url);
       if (url) {
         if (DeeplinkSchemaMatch.hasSchema(url)) {
           handleOpenURL({ url });
@@ -295,6 +325,7 @@ const App = () => {
   };
 
   const handleOpenURL = event => {
+    console.warn(event);
     DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value), { wallets, addWallet, saveToDisk });
   };
 

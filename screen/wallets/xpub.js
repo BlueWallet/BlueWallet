@@ -8,6 +8,7 @@ import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
+import HandoffComponent from '../../components/handoff';
 
 const styles = StyleSheet.create({
   root: {
@@ -23,12 +24,11 @@ const styles = StyleSheet.create({
 
 const WalletXpub = () => {
   const { wallets } = useContext(BlueStorageContext);
-  const { walletID } = useRoute().params;
+  const { walletID, xPub } = useRoute().params;
   const wallet = wallets.find(w => w.getID() === walletID);
   const [isLoading, setIsLoading] = useState(true);
-  const [xPub, setXPub] = useState();
   const [xPubText, setXPubText] = useState();
-  const { goBack } = useNavigation();
+  const { goBack, setParams } = useNavigation();
   const { colors } = useTheme();
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const stylesHook = StyleSheet.create({ root: { backgroundColor: colors.elevated } });
@@ -45,8 +45,11 @@ const WalletXpub = () => {
               return goBack();
             }
           }
-          setXPub(wallet.getXpub());
+          setParams({ xPub: wallet.getXpub() });
           setXPubText(wallet.getXpub());
+          setIsLoading(false);
+        } else if (xPub) {
+          setXPubText(xPub);
           setIsLoading(false);
         }
       });
@@ -55,7 +58,7 @@ const WalletXpub = () => {
         Privacy.disableBlur();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [goBack, walletID]),
+    }, [goBack, walletID, xPub]),
   );
 
   const onLayout = e => {
@@ -71,15 +74,19 @@ const WalletXpub = () => {
     <SafeBlueArea style={[styles.root, stylesHook.root]} onLayout={onLayout}>
       <StatusBar barStyle="light-content" />
       <View style={styles.container}>
-        <View>
-          <BlueText>{wallet.typeReadable}</BlueText>
-        </View>
-        <BlueSpacing20 />
-
+        {wallet && (
+          <>
+            <View>
+              <BlueText>{wallet.typeReadable}</BlueText>
+            </View>
+            <BlueSpacing20 />
+          </>
+        )}
         <QRCodeComponent value={xPub} size={qrCodeSize} />
 
         <BlueSpacing20 />
         <BlueCopyTextToClipboard text={xPubText} />
+        <HandoffComponent title={loc.wallets.xpub_title} type={HandoffComponent.activityTypes.Xpub} userInfo={{ xpub: xPubText }} />
       </View>
     </SafeBlueArea>
   );

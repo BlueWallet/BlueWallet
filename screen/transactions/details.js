@@ -129,9 +129,9 @@ const TransactionsDetails = () => {
   return (
     <SafeBlueArea>
       <HandoffComponent
-        title={`Bitcoin Transaction ${tx.hash}`}
-        type="io.bluewallet.bluewallet"
-        url={`https://blockstream.info/tx/${tx.hash}`}
+        title={loc.transactions.details_title}
+        type={HandoffComponent.activityTypes.ViewInBlockExplorer}
+        url={`https://mempool.space/tx/${tx.hash}`}
       />
       <StatusBar barStyle="default" />
       <ScrollView style={styles.scroll}>
