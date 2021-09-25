@@ -10,6 +10,7 @@ import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHW
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
+import HandoffComponent from '../../components/handoff';
 
 const styles = StyleSheet.create({
   loading: {
@@ -126,6 +127,13 @@ const WalletExport = () => {
               <BlueText style={stylesHook.secret} testID="Secret">
                 {wallet.getSecret()}
               </BlueText>
+            )}
+            {wallet.type === WatchOnlyWallet.type && (
+              <HandoffComponent
+                title={loc.wallets.xpub_title}
+                type={HandoffComponent.activityTypes.Xpub}
+                userInfo={{ xpub: wallet.getSecret() }}
+              />
             )}
           </React.Fragment>
         ))}
