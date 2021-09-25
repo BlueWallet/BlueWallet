@@ -160,7 +160,7 @@ describe('unit - DeepLinkSchemaMatch', function () {
           {
             safelloStateToken: 'TEST',
             uri: 'bluewallet:?safello-state-token=TEST',
-            wallet: undefined,
+            walletID: undefined,
           },
         ],
       },
