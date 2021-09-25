@@ -323,7 +323,7 @@ const LdkInfo = () => {
 
   const onNewOpenChannelModalBackdropPress = () => {
     closeModal();
-    setNewOpenChannelModalVisible(false);
+    setTimeout(() => setNewOpenChannelModalVisible(false), 650);
     setTimeout(() => {
       setNewOpenChannelModalProps(undefined);
       setParams({ psbt: undefined });
@@ -337,7 +337,7 @@ const LdkInfo = () => {
 
   const navigateToOpenChannel = async ({ isPrivateChannel }: { isPrivateChannel: boolean }) => {
     closeModal();
-    setNewOpenChannelModalVisible(false);
+    setTimeout(() => setNewOpenChannelModalVisible(false), 650);
     const availableWallets = [...wallets.filter((item: AbstractWallet) => item.isSegwit() && item.allowSend())];
     if (availableWallets.length === 0) {
       return alert(loc.lnd.refill_create);
@@ -350,7 +350,7 @@ const LdkInfo = () => {
     setNewOpenChannelModalVisible(true);
   };
   const closeNewOpenChannelModalPropsModal = () => {
-    setNewOpenChannelModalVisible(false);
+    setTimeout(() => setNewOpenChannelModalVisible(false), 650);
   };
 
   const onBackdropPress = async () => {
