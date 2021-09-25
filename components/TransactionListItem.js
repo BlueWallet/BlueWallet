@@ -263,7 +263,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     if (rowTitle !== loc.lnd.expired) {
       actions.push({
         id: TransactionListItem.actionKeys.CopyAmount,
-        text: `${loc.transactions.details_copy} ${loc.send.create_amount}`,
+        text: loc.transactions.details_copy_amount,
         icon: TransactionListItem.actionIcons.Clipboard,
       });
     }
@@ -271,7 +271,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     if (subtitle) {
       actions.push({
         id: TransactionListItem.actionKeys.CopyNote,
-        text: `${loc.transactions.details_copy} ${loc.transactions.note}`,
+        text: loc.transactions.details_copy_note,
         icon: TransactionListItem.actionIcons.Clipboard,
       });
     }
@@ -279,12 +279,12 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
       actions.push(
         {
           id: TransactionListItem.actionKeys.CopyTXID,
-          text: `${loc.transactions.details_copy} ${loc.transactions.txid}`,
+          text: loc.transactions.details_copy_txid,
           icon: TransactionListItem.actionIcons.Clipboard,
         },
         {
           id: TransactionListItem.actionKeys.CopyBlockExplorerLink,
-          text: `${loc.transactions.details_copy} ${loc.transactions.block_explorer_link}`,
+          text: loc.transactions.details_copy_block_explorer_link,
           icon: TransactionListItem.actionIcons.Clipboard,
         },
       );
