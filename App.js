@@ -60,7 +60,6 @@ const App = () => {
   const colorScheme = useColorScheme();
 
   const onNotificationReceived = async notification => {
-    console.warn(notification);
     const payload = Object.assign({}, notification, notification.data);
     if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
     payload.foreground = true;
@@ -80,7 +79,6 @@ const App = () => {
   };
 
   const onUserActivityOpen = data => {
-    console.warn(data);
     switch (data.activityType) {
       case HandoffComponent.activityTypes.ReceiveOnchain:
         NavigationService.navigate('ReceiveDetailsRoot', {
@@ -148,7 +146,6 @@ const App = () => {
   };
 
   const popInitialAction = async data => {
-    console.warn(data);
     if (data) {
       const wallet = wallets.find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
       NavigationService.dispatch(
@@ -163,7 +160,6 @@ const App = () => {
       );
     } else {
       const url = await Linking.getInitialURL();
-      console.warn(url);
       if (url) {
         if (DeeplinkSchemaMatch.hasSchema(url)) {
           handleOpenURL({ url });
@@ -325,7 +321,6 @@ const App = () => {
   };
 
   const handleOpenURL = event => {
-    console.warn(event);
     DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value), { wallets, addWallet, saveToDisk });
   };
 
