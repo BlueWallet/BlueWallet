@@ -34,6 +34,7 @@ import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
 import changeNavigationBarColor from 'react-native-navigation-bar-color';
 import ActionSheet from './screen/ActionSheet';
+import HandoffComponent from './components/handoff';
 import Privacy from './blue_modules/Privacy';
 const A = require('./blue_modules/analytics');
 const currency = require('./blue_modules/currency');
@@ -78,6 +79,29 @@ const App = () => {
     );
   };
 
+  const onUserActivityOpen = data => {
+    switch (data.activityType) {
+      case HandoffComponent.activityTypes.ReceiveOnchain:
+        NavigationService.navigate('ReceiveDetailsRoot', {
+          screen: 'ReceiveDetails',
+          params: {
+            address: data.userInfo.address,
+          },
+        });
+        break;
+      case HandoffComponent.activityTypes.Xpub:
+        NavigationService.navigate('WalletXpubRoot', {
+          screen: 'WalletXpub',
+          params: {
+            xpub: data.userInfo.xpub,
+          },
+        });
+        break;
+      default:
+        break;
+    }
+  };
+
   useEffect(() => {
     if (walletsInitialized) {
       addListeners();
@@ -91,6 +115,7 @@ const App = () => {
       AppState.removeEventListener('change', handleAppStateChange);
       eventEmitter.removeAllListeners('onNotificationReceived');
       eventEmitter.removeAllListeners('openSettings');
+      eventEmitter.removeAllListeners('onUserActivityOpen');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -118,6 +143,7 @@ const App = () => {
      */
     eventEmitter.addListener('onNotificationReceived', onNotificationReceived);
     eventEmitter.addListener('openSettings', openSettings);
+    eventEmitter.addListener('onUserActivityOpen', onUserActivityOpen);
   };
 
   const popInitialAction = async data => {
