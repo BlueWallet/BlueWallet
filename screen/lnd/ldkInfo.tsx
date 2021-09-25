@@ -13,7 +13,6 @@ import Button, { ButtonStyle } from '../../components/Button';
 import LdkOpenChannel from './ldkOpenChannel';
 import { Psbt } from 'bitcoinjs-lib';
 import { AbstractWallet, LightningLdkWallet } from '../../class';
-import { sleep } from '../../tests/e2e/helperz';
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
 const LdkNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
@@ -30,7 +29,7 @@ type LdkInfoRouteProps = RouteProp<
 
 const LdkInfo = () => {
   const { walletID, psbt } = useRoute<LdkInfoRouteProps>().params;
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets, sleep } = useContext(BlueStorageContext);
   const refreshDataInterval = useRef<NodeJS.Timer>();
   const sectionList = useRef<SectionList | null>();
   const wallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
