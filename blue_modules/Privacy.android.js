@@ -1,10 +1,21 @@
+import { useContext, useEffect } from 'react';
 import Obscure from 'react-native-obscure';
-export default class Privacy {
-  static enableBlur() {
-    Obscure.activateObscure();
-  }
+import { BlueStorageContext } from './storage-context';
+const Privacy = () => {
+  const { isPrivacyBlurEnabled } = useContext(BlueStorageContext);
 
-  static disableBlur() {
+  useEffect(() => {
+    Privacy.disableBlur();
+  }, [isPrivacyBlurEnabled]);
+
+  Privacy.enableBlur = () => {
+    if (!isPrivacyBlurEnabled) return;
+    Obscure.activateObscure();
+  };
+
+  Privacy.disableBlur = () => {
     Obscure.deactivateObscure();
-  }
-}
+  };
+  return null;
+};
+export default Privacy;
