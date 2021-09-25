@@ -38,6 +38,9 @@ export const BlueStorageProvider = ({ children }) => {
 
   useEffect(() => {
     console.log(`Privacy blur: ${isPrivacyBlurEnabled}`);
+    if (!isPrivacyBlurEnabled) {
+      Alert.alert('', 'Privacy blur has been disabled.');
+    }
   }, [isPrivacyBlurEnabled]);
 
   useEffect(() => {
