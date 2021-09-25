@@ -29,7 +29,7 @@ type LdkInfoRouteProps = RouteProp<
 
 const LdkInfo = () => {
   const { walletID, psbt } = useRoute<LdkInfoRouteProps>().params;
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets, sleep } = useContext(BlueStorageContext);
   const refreshDataInterval = useRef<NodeJS.Timer>();
   const sectionList = useRef<SectionList | null>();
   const wallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
@@ -321,9 +321,10 @@ const LdkInfo = () => {
     );
   };
 
-  const onNewOpenChannelModalBackdropPress = () => {
+  const onNewOpenChannelModalBackdropPress = async () => {
     closeModal();
     setNewOpenChannelModalVisible(false);
+    await sleep(650);
     setTimeout(() => {
       setNewOpenChannelModalProps(undefined);
       setParams({ psbt: undefined });
@@ -338,6 +339,7 @@ const LdkInfo = () => {
   const navigateToOpenChannel = async ({ isPrivateChannel }: { isPrivateChannel: boolean }) => {
     closeModal();
     setNewOpenChannelModalVisible(false);
+    await sleep(650);
     const availableWallets = [...wallets.filter((item: AbstractWallet) => item.isSegwit() && item.allowSend())];
     if (availableWallets.length === 0) {
       return alert(loc.lnd.refill_create);
@@ -349,8 +351,9 @@ const LdkInfo = () => {
     selectedWallet.getAddressAsync().then(wallet.setRefundAddress);
     setNewOpenChannelModalVisible(true);
   };
-  const closeNewOpenChannelModalPropsModal = () => {
+  const closeNewOpenChannelModalPropsModal = async () => {
     setNewOpenChannelModalVisible(false);
+    await sleep(650);
   };
 
   const onBackdropPress = async () => {
