@@ -40,6 +40,7 @@ const A = require('./blue_modules/analytics');
 const currency = require('./blue_modules/currency');
 
 const eventEmitter = new NativeEventEmitter(NativeModules.EventEmitter);
+const { EventEmitter } = NativeModules;
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -136,6 +137,9 @@ const App = () => {
     AppState.addEventListener('change', handleAppStateChange);
     DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
     DeviceQuickActions.popInitialAction().then(popInitialAction);
+    EventEmitter.getMostRecentUserActivity()
+      .then(onUserActivityOpen)
+      .catch(() => console.log('No userActivity object sent'));
     handleAppStateChange(undefined);
     /*
       When a notification on iOS is shown while the app is on foreground;
