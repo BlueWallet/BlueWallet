@@ -46,7 +46,6 @@ RCT_REMAP_METHOD(getMostRecentUserActivity, resolve: (RCTPromiseResolveBlock)res
 {
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
   resolve([defaults valueForKey:@"onUserActivityOpen"]);
-  [defaults removeObjectForKey:@"onUserActivityOpen"];
 }
 
 
