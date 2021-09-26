@@ -137,7 +137,7 @@ const App = () => {
     AppState.addEventListener('change', handleAppStateChange);
     DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
     DeviceQuickActions.popInitialAction().then(popInitialAction);
-    EventEmitter.getMostRecentUserActivity()
+    EventEmitter?.getMostRecentUserActivity()
       .then(onUserActivityOpen)
       .catch(() => console.log('No userActivity object sent'));
     handleAppStateChange(undefined);
