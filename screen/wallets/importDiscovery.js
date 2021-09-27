@@ -117,7 +117,7 @@ const ImportWalletDiscovery = () => {
     />
   );
 
-  const keyExtractor = w => `${w.id}`;
+  const keyExtractor = w => w.id;
 
   return (
     <SafeBlueArea style={[styles.root, stylesHook.root]}>
