@@ -11,7 +11,6 @@ import {
   Dimensions,
   useWindowDimensions,
   findNodeHandle,
-  useColorScheme,
   I18nManager,
 } from 'react-native';
 import { BlueHeaderDefaultMain } from '../../BlueComponents';
@@ -37,12 +36,11 @@ const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS'
 const WalletsList = () => {
   const walletsCarousel = useRef();
   const currentWalletIndex = useRef(0);
-  const colorScheme = useColorScheme();
   const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet, isElectrumDisabled } = useContext(
     BlueStorageContext,
   );
   const { width } = useWindowDimensions();
-  const { colors, scanImage } = useTheme();
+  const { colors, scanImage, barStyle } = useTheme();
   const { navigate, setOptions } = useNavigation();
   const isFocused = useIsFocused();
   const routeName = useRoute().name;
@@ -376,7 +374,7 @@ const WalletsList = () => {
 
   return (
     <View style={styles.root} onLayout={onLayout}>
-      <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent animated />
+      <StatusBar barStyle={barStyle} backgroundColor="transparent" translucent animated />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
           contentInsetAdjustmentBehavior="automatic"

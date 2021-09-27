@@ -258,7 +258,7 @@ const WalletsAdd = () => {
 
   return (
     <ScrollView style={stylesHook.root}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle={Platform.select({ ios: 'light-content', default: 'dark-content' })} />
       <BlueSpacing20 />
       <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
         <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
