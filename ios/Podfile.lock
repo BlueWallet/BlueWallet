@@ -1,6 +1,6 @@
 PODS:
   - boost-for-react-native (1.63.0)
-  - BugsnagReactNative (7.13.0):
+  - BugsnagReactNative (7.13.1):
     - React-Core
   - BVLinearGradient (2.5.6):
     - React
@@ -294,7 +294,7 @@ PODS:
     - React-Core
   - react-native-tor (0.1.7):
     - React
-  - react-native-webview (11.13.0):
+  - react-native-webview (11.13.1):
     - React-Core
   - react-native-widget-center (0.0.7):
     - React
@@ -707,7 +707,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  BugsnagReactNative: ab4d076ed3f66d147d6a7fa178b71cf760f6144f
+  BugsnagReactNative: cd36b6194946ec3618951140f2c3f2101e8edf21
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
@@ -749,7 +749,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 5cf05f49df9d17261e40e518481f2e334c6cd4b5
   react-native-tcp-socket: 029f7bdaf113df22cbe07347cc65a19abaa9672d
   react-native-tor: 4f389f5719dad633542b57ea32744e954730e7ef
-  react-native-webview: b176c6404ad40d10cfc818be41c053f85a72d751
+  react-native-webview: cea67b82dd5fbdf0f5c821b4ca0ca0b01e954c0b
   react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
   React-perflogger: 25373e382fed75ce768a443822f07098a15ab737
   React-RCTActionSheet: af7796ba49ffe4ca92e7277a5d992d37203f7da5
