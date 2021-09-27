@@ -337,19 +337,12 @@ const LdkInfo = () => {
   };
 
   const navigateToOpenChannel = async ({ isPrivateChannel }: { isPrivateChannel: boolean }) => {
-    closeModal();
-    setNewOpenChannelModalVisible(false);
-    await sleep(650);
-    const availableWallets = [...wallets.filter((item: AbstractWallet) => item.isSegwit() && item.allowSend())];
-    if (availableWallets.length === 0) {
-      return alert(loc.lnd.refill_create);
-    }
-
-    /** @type {AbstractWallet} */
-    const selectedWallet = await selectWallet(navigate, name, false, availableWallets);
-    setNewOpenChannelModalProps({ fundingWalletID: selectedWallet.getID(), isPrivateChannel });
-    selectedWallet.getAddressAsync().then(wallet.setRefundAddress);
-    setNewOpenChannelModalVisible(true);
+    navigate("LDKOpenChannelRoot", { screen: 'SelectWallet', params:{ chainType: Chain.ONCHAIN }});
+    // /** @type {AbstractWallet} */
+    // const selectedWallet = await selectWallet(navigate, name, false, availableWallets);
+    // setNewOpenChannelModalProps({ fundingWalletID: selectedWallet.getID(), isPrivateChannel });
+    // selectedWallet.getAddressAsync().then(wallet.setRefundAddress);
+    // setNewOpenChannelModalVisible(true);
   };
   const closeNewOpenChannelModalPropsModal = async () => {
     setNewOpenChannelModalVisible(false);
