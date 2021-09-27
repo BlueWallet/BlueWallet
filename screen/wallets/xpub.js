@@ -45,7 +45,7 @@ const WalletXpub = () => {
               return goBack();
             }
           }
-          setParams({ xPub: wallet.getXpub() });
+          setParams({ xpub: wallet.getXpub() });
           setXPubText(wallet.getXpub());
           setIsLoading(false);
         } else if (xpub) {
