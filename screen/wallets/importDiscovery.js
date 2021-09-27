@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
-import { ActivityIndicator, Alert, LayoutAnimation, StatusBar, StyleSheet, Text, View, FlatList } from 'react-native';
+import { ActivityIndicator, Alert, LayoutAnimation, StyleSheet, Text, View, FlatList } from 'react-native';
 import IdleTimerManager from 'react-native-idle-timer';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -121,7 +121,6 @@ const ImportWalletDiscovery = () => {
 
   return (
     <SafeBlueArea style={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="light-content" />
       <BlueSpacing20 />
       <BlueFormLabel>{loc.wallets.import_discovery_subtitle}</BlueFormLabel>
       <BlueSpacing20 />
