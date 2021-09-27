@@ -58,7 +58,7 @@ const WalletXpub = () => {
         Privacy.disableBlur();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [goBack, walletID, xpub]),
+    }, [goBack, walletID]),
   );
 
   const onLayout = e => {
