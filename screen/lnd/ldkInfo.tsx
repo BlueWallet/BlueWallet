@@ -337,7 +337,7 @@ const LdkInfo = () => {
   };
 
   const navigateToOpenChannel = async ({ isPrivateChannel }: { isPrivateChannel: boolean }) => {
-    navigate("LDKOpenChannelRoot", { screen: 'SelectWallet', params:{ chainType: Chain.ONCHAIN }});
+    navigate('LDKOpenChannelRoot', { screen: 'SelectWallet', params: { chainType: Chain.ONCHAIN } });
     // /** @type {AbstractWallet} */
     // const selectedWallet = await selectWallet(navigate, name, false, availableWallets);
     // setNewOpenChannelModalProps({ fundingWalletID: selectedWallet.getID(), isPrivateChannel });
