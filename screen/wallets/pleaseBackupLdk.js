@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect } from 'react';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { View, useWindowDimensions, StyleSheet, BackHandler, StatusBar, ScrollView } from 'react-native';
+import { View, useWindowDimensions, StyleSheet, BackHandler, ScrollView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { BlueButton, BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -49,7 +49,6 @@ const PleaseBackupLdk = () => {
   const pop = () => navigation.dangerouslyGetParent().pop();
   return (
     <SafeBlueArea style={styles.root}>
-      <StatusBar barStyle="light-content" />
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View>
           <BlueTextCentered>Please save this wallet backup. It allows you to restore all your channels on other device.</BlueTextCentered>
