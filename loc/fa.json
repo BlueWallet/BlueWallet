@@ -607,7 +607,8 @@
     "owns": "آدرس {address} متعلق به «{label}» است.",
     "enter_address": "آدرس را وارد کنید",
     "check_address": "بررسی آدرس",
-    "no_wallet_owns_address": "آدرس ارائه‌شده متعلق به هیچ‌کدام از کیف پول‌های موجود نیست."
+    "no_wallet_owns_address": "آدرس ارائه‌شده متعلق به هیچ‌کدام از کیف پول‌های موجود نیست.",
+    "view_qrcode": "مشاهدهٔ کد QR"
   },
   "cc": {
     "change": "باقی‌مانده (change)",
