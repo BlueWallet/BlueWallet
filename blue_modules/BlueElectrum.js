@@ -392,11 +392,17 @@ module.exports.getTransactionsFullByAddress = async function (address) {
         if (prevTxForVin.vout[input.vout].scriptPubKey && prevTxForVin.vout[input.vout].scriptPubKey.addresses) {
           input.addresses = prevTxForVin.vout[input.vout].scriptPubKey.addresses;
         }
+        // in bitcoin core 22.0.0+ they removed `.addresses` and replaced it with plain `.address`:
+        if (prevTxForVin.vout[input.vout]?.scriptPubKey?.address) {
+          input.addresses = [prevTxForVin.vout[input.vout].scriptPubKey.address];
+        }
       }
     }
 
     for (const output of full.vout) {
       if (output.scriptPubKey && output.scriptPubKey.addresses) output.addresses = output.scriptPubKey.addresses;
+      // in bitcoin core 22.0.0+ they removed `.addresses` and replaced it with plain `.address`:
+      if (output?.scriptPubKey?.address) output.addresses = [output.scriptPubKey.address];
     }
     full.inputs = full.vin;
     full.outputs = full.vout;
@@ -644,6 +650,13 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
       }
       ret[txdata.param] = txdata.result;
       if (ret[txdata.param]) delete ret[txdata.param].hex; // compact
+    }
+  }
+
+  // in bitcoin core 22.0.0+ they removed `.addresses` and replaced it with plain `.address`:
+  for (const txid of Object.keys(ret) ?? []) {
+    for (const vout of ret[txid].vout ?? []) {
+      if (vout?.scriptPubKey?.address) vout.scriptPubKey.addresses = [vout.scriptPubKey.address];
     }
   }
 

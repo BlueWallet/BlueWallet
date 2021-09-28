@@ -158,6 +158,7 @@ describe('BlueElectrum', () => {
       assert.ok(!tx.vin);
       assert.ok(!tx.vout);
       assert.ok(tx.inputs);
+      assert.strictEqual(tx.inputs[0]?.addresses[0], 'bc1q7td49wcxfad9v42kmvg5refn9wcnvnru4395qw');
       assert.ok(tx.inputs[0].addresses.length > 0);
       assert.ok(tx.inputs[0].value > 0);
       assert.ok(tx.outputs);
@@ -263,6 +264,11 @@ describe('BlueElectrum', () => {
     assert.ok(txdatas['5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df'].vin);
     assert.ok(txdatas['5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df'].vout);
     assert.ok(txdatas['5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df'].blocktime);
+    assert.strictEqual(
+      txdatas['5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df']?.vout[0]?.scriptPubKey?.addresses[0],
+      'bc1qp09gdem9xepasp4zxa2fxyvr8wazhms0wvtds9',
+    );
+
     assert.ok(Object.keys(txdatas).length === 4);
     if (disableBatching) BlueElectrum.setBatchingEnabled();
   });
