@@ -607,7 +607,8 @@
     "owns": "{label} owns {address}",
     "enter_address": "Enter address",
     "check_address": "Check address",
-    "no_wallet_owns_address": "None of the available wallets own the provided address."
+    "no_wallet_owns_address": "None of the available wallets own the provided address.",
+    "view_qrcode": "View QRCode"
   },
   "cc": {
     "change": "Change",
