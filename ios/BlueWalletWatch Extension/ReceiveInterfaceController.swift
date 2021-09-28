@@ -21,8 +21,13 @@ class ReceiveInterfaceController: WKInterfaceController {
   @IBOutlet weak var addressLabel: WKInterfaceLabel!
   @IBOutlet weak var loadingIndicator: WKInterfaceGroup!
   @IBOutlet weak var imageInterface: WKInterfaceImage!
+  private let userActivity: NSUserActivity = NSUserActivity(activityType: HandoffIdentifier.ReceiveOnchain.rawValue)
   
-  
+  override func willActivate() {
+    super.willActivate()
+    update(userActivity)
+  }
+
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
     guard let passedContext = context as? (Int, String), WatchDataSource.shared.wallets.count >= passedContext.0   else {
@@ -40,6 +45,7 @@ class ReceiveInterfaceController: WKInterfaceController {
         self?.loadingIndicator.setHidden(false)
         WatchDataSource.requestLightningInvoice(walletIdentifier: identifier, amount: amount, description: object.description, responseHandler: { (invoice) in
           DispatchQueue.main.async {
+            self?.invalidateUserActivity()
             if (!invoice.isEmpty) {
               guard let cgImage = EFQRCode.generate(
                 content: "lightning:\(invoice)", inputCorrectionLevel: .h, pointShape: .circle) else {
@@ -64,6 +70,13 @@ class ReceiveInterfaceController: WKInterfaceController {
         })
       } else {
         guard let notificationObject = notification.object as? SpecifyInterfaceController.SpecificQRCodeContent, let walletContext = self?.wallet, !walletContext.receiveAddress.isEmpty, let receiveAddress = self?.wallet?.receiveAddress else { return }
+        self?.userActivity.userInfo = [HandOffUserInfoKey.ReceiveOnchain.rawValue: receiveAddress]
+        self?.userActivity.isEligibleForHandoff = true;
+        self?.userActivity.becomeCurrent()
+        if let userActivity = self?.userActivity {
+          self?.update(userActivity)
+        }
+        
         var address = "bitcoin:\(receiveAddress)"
         
         var hasAmount = false
@@ -131,6 +144,9 @@ class ReceiveInterfaceController: WKInterfaceController {
   override func didDeactivate() {
     super.didDeactivate()
     NotificationCenter.default.removeObserver(self, name: SpecifyInterfaceController.NotificationName.createQRCode, object: nil)
+    userActivity.invalidate()
+    invalidateUserActivity()
+
   }
   
   @IBAction func specifyMenuItemTapped() {
