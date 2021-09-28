@@ -148,9 +148,9 @@ const LdkInfo = () => {
 
   useEffect(() => {
     if (psbt) {
-      await sleep(650)
-      setNewOpenChannelModalVisible(true);
+      sleep(650).then(() => setNewOpenChannelModalVisible(true));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [psbt]);
 
   useEffect(() => {
@@ -350,7 +350,7 @@ const LdkInfo = () => {
     const selectedWallet = await selectWallet(navigate, name, false, availableWallets);
     setNewOpenChannelModalProps({ fundingWalletID: selectedWallet.getID(), isPrivateChannel });
     selectedWallet.getAddressAsync().then(wallet.setRefundAddress);
-    await sleep(650)
+    await sleep(650);
     setNewOpenChannelModalVisible(true);
   };
   const closeNewOpenChannelModalPropsModal = async () => {
@@ -403,11 +403,11 @@ const LdkInfo = () => {
               setNewOpenChannelModalProps((prevState: any) => {
                 return { ...prevState, remoteHostWithPubkey: pubkey };
               });
-              await sleep(650)
+              await sleep(650);
               setNewOpenChannelModalVisible(true);
             }}
             onBarScannerDismissWithoutData={async () => {
-              await sleep(650)
+              await sleep(650);
               setNewOpenChannelModalVisible(true);
             }}
           />
