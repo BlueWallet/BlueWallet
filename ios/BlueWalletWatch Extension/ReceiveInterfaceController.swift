@@ -45,12 +45,12 @@ class ReceiveInterfaceController: WKInterfaceController {
         self?.loadingIndicator.setHidden(false)
         WatchDataSource.requestLightningInvoice(walletIdentifier: identifier, amount: amount, description: object.description, responseHandler: { (invoice) in
           DispatchQueue.main.async {
-            self?.invalidateUserActivity()
             if (!invoice.isEmpty) {
               guard let cgImage = EFQRCode.generate(
                 content: "lightning:\(invoice)", inputCorrectionLevel: .h, pointShape: .circle) else {
                   return
               }
+              self?.invalidateUserActivity()
               let image = UIImage(cgImage: cgImage)
               self?.loadingIndicator.setHidden(true)
               self?.imageInterface.setHidden(false)
@@ -127,6 +127,10 @@ class ReceiveInterfaceController: WKInterfaceController {
          addMenuItem(with: .shuffle, title: "Address", action: #selector(toggleViewButtonPressed))
        }
     addressLabel.setText(wallet.receiveAddress)
+    userActivity.userInfo = [HandOffUserInfoKey.ReceiveOnchain.rawValue: wallet.receiveAddress]
+    userActivity.isEligibleForHandoff = true;
+    userActivity.becomeCurrent()
+    update(userActivity)
   }
   
   override func didAppear() {
